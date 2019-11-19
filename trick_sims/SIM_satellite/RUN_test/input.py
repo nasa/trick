@@ -1,7 +1,7 @@
 import os
 
-execfile("Modified_data/realtime.py")
-#execfile("Modified_data/Satellite.dr")
+exec(open("Modified_data/realtime.py").read())
+#exec(open("Modified_data/Satellite.dr").read())
 
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 18)
 

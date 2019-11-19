@@ -1,5 +1,5 @@
 
-execfile("Modified_data/parachutist.dr")
+exec(open("Modified_data/parachutist.dr").read())
 trick.TMM_reduced_checkpoint(0)
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 2)
 

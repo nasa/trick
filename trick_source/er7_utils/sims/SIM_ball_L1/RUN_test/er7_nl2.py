@@ -2,8 +2,8 @@
 # $Id: input.py 1973 2011-10-11 15:11:16Z lin $
 
 # This one of several ways to include files from the input file
-execfile("Modified_data/auto_test.dr")
-execfile("Modified_data/data_record.dr")
+exec(open("Modified_data/auto_test.dr").read())
+exec(open("Modified_data/data_record.dr").read())
 
 # Set the freeze frame rate
 trick.exec_set_freeze_frame(0.10)

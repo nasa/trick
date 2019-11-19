@@ -6,7 +6,7 @@ if trick.mc_get_slave_id() == 0:
     trick_utest.unit_tests.enable();
     trick_utest.unit_tests.set_file_name( os.getenv("TRICK_HOME") + "/trick_test/SIM_amoeba.xml" )
 
-execfile("Modified_data/amoeba.py")
+exec(open("Modified_data/amoeba.py").read())
 
 trick.mc_set_enabled(1)
 #trick.mc_set_dry_run(1)

@@ -1,7 +1,7 @@
 
 # This one of several ways to include files from the input file
-# execfile("Modified_data/auto_test.dr")
-# execfile("Modified_data/data_record.dr")
+# exec(open("Modified_data/auto_test.dr").read())
+# exec(open("Modified_data/data_record.dr").read())
 
 ball.state.input.print_off = 1
 

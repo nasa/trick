@@ -1,7 +1,7 @@
 
-execfile("RUN_test/input.py")
+exec(open("RUN_test/input.py").read())
 
-print '\nFinding number of CPUs...'
+print('\nFinding number of CPUs...')
 os.system('cat /proc/cpuinfo | grep processor')
 os.system('cat /proc/cpuinfo | grep processor | wc -l')
 

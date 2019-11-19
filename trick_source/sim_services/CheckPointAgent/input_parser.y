@@ -22,7 +22,7 @@
 #include "trick/var.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
-#include "input_parser.tab.h"
+#include "input_parser.tab.hpp"
 
     using namespace std;
 

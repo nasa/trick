@@ -37,7 +37,7 @@ result.append(0)
 # TEST 1: cyclic event, fire every second
 event1 = trick.new_event("event1")
 event1.condition(0, "ev.cond_var_true==True")
-event1.action(0, "print \"event1\"; result[1] += 1");
+event1.action(0, "print (\"event1\"); result[1] += 1");
 event1.action(1, "event1.activate()")
 event1.set_cycle(1.0)
 event1.activate() 
@@ -48,7 +48,7 @@ result.append(0)
 # TEST 2: cyclic event, condition variable, added to 0.5 sched job so fire twice a second
 event2 = trick.new_event("event2")
 event2.condition_var(0, "ev.cond_var_true")
-event2.action(0, "print \"event2\"; result[2] += 1");
+event2.action(0, "print (\"event2\"); result[2] += 1");
 event2.action(1, "event2.activate()")
 event2.activate() 
 trick.add_event_after(event2, "ev.sched")
@@ -58,14 +58,14 @@ result.append(0)
 # TEST 3: cyclic event, condition variable, change condition and change action
 event3 = trick.new_event("event3")
 event3.condition_var(0, "ev.cond_var_true")
-event3.action(0, "print \"event3\"; result[3] += 1");
+event3.action(0, "print (\"event3\"); result[3] += 1");
 event3.action(1, "event3.activate()")
 event3.set_cycle(1.0)
 event3.activate() 
 trick.add_event(event3)
 #condition will be false during sim time 2.0 and 3.0
 trick.add_read(2.0, """event3.condition(0, "False")""")
-trick.add_read(2.0, """event3.action(0, \"print \\\"event3_changed\\\"; result[3] += 5\")""")
+trick.add_read(2.0, """event3.action(0, \"print (\\\"event3_changed\\\"); result[3] += 5\")""")
 trick.add_read(4.0, """event3.condition_var(0, "ev.cond_var_true")""")
 expected.append(2+((stop_time-3)*5))
 result.append(0)
@@ -73,7 +73,7 @@ result.append(0)
 # TEST 4: cyclic event, condition variable, delete event and add again with new cycle time
 event4 = trick.new_event("event4")
 event4.condition_var(0, "ev.cond_var_true")
-event4.action(0, "print \"event4\"; result[4] += 1");
+event4.action(0, "print (\"event4\"); result[4] += 1");
 event4.action(1, "event4.activate()")
 event4.set_cycle(1.0)
 event4.activate() 
@@ -98,7 +98,7 @@ result.append(0)
 event5 = trick.new_event("event5")
 event5.condition(0, "trick.exec_get_sim_time()==1.0")
 event5.condition_hold_on(0)
-event5.action(0, "print \"event5\"; result[5] += 1");
+event5.action(0, "print (\"event5\"); result[5] += 1");
 event5.action(1, "event5.activate()")
 event5.set_cycle(1.0)
 event5.activate() 
@@ -110,7 +110,7 @@ result.append(0)
 # TEST 6: cyclic event, condition job, then action_disable so it is not reactivated
 event6 = trick.new_event("event6")
 event6.condition_job(0, "ev.cond_job_true")
-event6.action(0, "print \"event6\"; result[6] += 1");
+event6.action(0, "print (\"event6\"); result[6] += 1");
 event6.action(1, "event6.activate()")
 event6.set_cycle(1.0)
 event6.activate() 
@@ -124,7 +124,7 @@ event7 = trick.new_event("event7")
 event7.condition_var(0, "ev.cond_var_true")
 event7.condition_var(1, "ev.cond_var_false")
 event7.condition_all()
-event7.action(0, "print \"event7\"; result[7] += 1");
+event7.action(0, "print (\"event7\"); result[7] += 1");
 event7.action(1, "event7.activate()")
 event7.set_cycle(1.0)
 event7.activate() 
@@ -138,7 +138,7 @@ event8 = trick.new_event("event8")
 event8.condition(0, "trick.exec_get_sim_time()==2.0")
 event8.condition(1, "trick.exec_get_sim_time()==4.0")
 event8.condition_any()
-event8.action(0, "print \"event8\"; result[8] = ev.count");
+event8.action(0, "print (\"event8\"); result[8] = ev.count");
 event8.action(1, "event8.activate()")
 event8.action_job_off(2, "ev.sched_count")
 event8.set_cycle(1.0)
@@ -154,7 +154,7 @@ event9.action_job(0, "ev.sched_count")
 event9.action_job(1, "ev.sched_count")
 event9.action_job(2, "ev.sched_count")
 event9.action_job(3, "ev.sched_count")
-event9.action(4, "print \"event9\"; result[9] = ev.count");
+event9.action(4, "print (\"event9\"); result[9] = ev.count");
 event9.action(5, "event9.activate()")
 event9.set_cycle(1.0)
 event9.activate() 
@@ -165,7 +165,7 @@ result.append(0)
 # TEST 10: manual_on event fires every cycle
 manual10 = trick.new_event("manual10")
 manual10.condition(0, "False")
-manual10.action(0, "print \"manual10\"; result[10] += 1");
+manual10.action(0, "print (\"manual10\"); result[10] += 1");
 # you don't have to reactivate a manual mode event
 manual10.set_cycle(1.0)
 manual10.activate() 
@@ -177,7 +177,7 @@ result.append(0)
 # TEST 11: manual_off event does not fire, manual_done will make condition be used (cyclic)
 manual11 = trick.new_event("manual11")
 manual11.condition(0, "True")
-manual11.action(0, "print \"manual11\"; result[11] += 1");
+manual11.action(0, "print (\"manual11\"); result[11] += 1");
 manual11.action(1, "manual11.activate()")
 manual11.set_cycle(1.0)
 manual11.activate() 
@@ -189,7 +189,7 @@ result.append(0)
 
 # TEST 12: manual_fire at a certain time and see if it fires at that time
 manual12 = trick.new_event("manual12")
-manual12.action(0, "print \"manual12\"; result[12] = trick.exec_get_sim_time()");
+manual12.action(0, "print (\"manual12\"); result[12] = trick.exec_get_sim_time()");
 manual12.action(1, "manual12.activate()")
 manual12.set_cycle(1.0)
 manual12.activate() 
@@ -203,7 +203,7 @@ result.append(0)
 result_event = trick.new_event("result_event")
 result_event.condition(0, "True")
 result_event.action(0, """
-print \"RESULTS...\"
+print (\"RESULTS...\")
 TRICK_EXPECT_EQ(result[0], expected[0], test_suite, "event0")
 TRICK_EXPECT_EQ(result[1], expected[1], test_suite, "event1")
 TRICK_EXPECT_EQ(result[2], expected[2], test_suite, "event2")

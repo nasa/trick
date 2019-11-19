@@ -1,6 +1,6 @@
 
-execfile("Modified_data/data_record.dr")
-execfile("Modified_data/auto_test.dr")
+exec(open("Modified_data/data_record.dr").read())
+exec(open("Modified_data/auto_test.dr").read())
 
 ball.altimeter.input.add_noise = False
 ball2.altimeter.input.add_noise = False
