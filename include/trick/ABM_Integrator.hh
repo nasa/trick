@@ -14,7 +14,7 @@ Programmers:
 
 #ifdef USE_ER7_UTILS_INTEGRATORS
 #include "er7_utils/integration/abm4/include/abm4_integrator_constructor.hh"
-#include "er7_utils/trick/integration/include/first_order_ode_integrator.hh"
+#include "er7_utils/trick/integration/include/trick_first_order_ode_integrator.hh"
 
 
 namespace Trick {

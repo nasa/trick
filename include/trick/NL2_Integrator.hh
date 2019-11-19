@@ -14,7 +14,7 @@ Programmers:
 
 #ifdef USE_ER7_UTILS_INTEGRATORS
 #include "er7_utils/integration/nl2/include/nl2_integrator_constructor.hh"
-#include "er7_utils/trick/integration/include/second_order_ode_integrator.hh"
+#include "er7_utils/trick/integration/include/trick_second_order_ode_integrator.hh"
 
 
 namespace Trick {

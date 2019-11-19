@@ -25,7 +25,7 @@
 #include <ctype.h>
 #include "trick/mm_error.h"
 #include "trick/ChkPtParseContext.hh"
-#include "input_parser.tab.h"
+#include "input_parser.tab.hpp"
 #include "trick/TrickConstant.hh"
 
 #define YY_EXTRA_TYPE ChkPtParseContext*
