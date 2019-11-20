@@ -123,10 +123,12 @@ SWIG_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SWIG_DIRS))
 UNIT_TEST_DIRS := \
     $(wildcard ${TRICK_HOME}/trick_source/sim_services/*/test) \
     $(wildcard ${TRICK_HOME}/trick_source/trick_utils/*/test) \
-    ${TRICK_HOME}/trick_source/data_products/DPX/test/unit_test
 ifeq ($(USE_ER7_UTILS), 0)
   UNIT_TEST_DIRS := $(filter-out %Integrator/test,$(UNIT_TEST_DIRS))
 endif
+
+# DPX test excluded from releases because of size
+DPX_UNIT_TEST_DIR = ${TRICK_HOME}/trick_source/data_products/DPX/test/unit_test
 
 # The name of the ICG executable indicates the operating system, and the machine
 # hardware on which it is built. This allows pre-build ICG binaries to be
@@ -278,7 +280,13 @@ test: unit_test sim_test
 $(UNIT_TEST_DIRS):
 	@ $(MAKE) -C $@ test
 
-unit_test: $(UNIT_TEST_DIRS)
+unit_test: $(UNIT_TEST_DIRS) $(DPX_UNIT_TEST_DIR)
+
+# DPX test excluded from releases because of size
+.PHONY: $(DPX_UNIT_TEST_DIR)
+$(DPX_UNIT_TEST_DIR):
+	@ if [ -d ${DPX_UNIT_TEST_DIR} ]; then $(MAKE) -C $@ test; fi
+
 
 sim_test:
 	@ $(MAKE) -C test
