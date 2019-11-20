@@ -12,9 +12,9 @@ The Trick Simulation Environment, developed at the NASA Johnson Space Center, is
     <col width="33%">
     <thead>
         <tr>
-            <th><a href="https://github.com/nasa/trick/wiki/Install-Guide">Install Guide</a></th>
-            <th><a href="https://github.com/nasa/trick/wiki/Tutorial">Tutorial</a></th>
-            <th><a href="https://github.com/nasa/trick/wiki/Documentation-Home">Documentation</a></th>
+            <th><a href="https://nasa.github.io/trick/documentation/install_guide/Install-Guide">Install Guide</a></th>
+            <th><a href="https://nasa.github.io/trick/tutorial/Tutorial">Tutorial</a></th>
+            <th><a href="https://nasa.github.io/trick/documentation/Documentation-Home">Documentation</a></th>
         </tr>
     </thead>
     <tbody>
@@ -32,9 +32,9 @@ The Trick Simulation Environment, developed at the NASA Johnson Space Center, is
     <col width="33%">
     <thead>
         <tr>
-            <th><a href="https://github.com/nasa/trick/wiki/Related-Projects">Related Projects</a></th>
-            <th><a href="https://github.com/nasa/trick/wiki/FAQ">Frequently Asked Questions</a></th>
-            <th><a href="https://github.com/nasa/trick/wiki/How‐To-Guides">How-To Guides</a></th>
+            <th><a href="https://nasa.github.io/trick/related_projects/Related-Projects">Related Projects</a></th>
+            <th><a href="https://nasa.github.io/trick/faq/FAQ">Frequently Asked Questions</a></th>
+            <th><a href="https://nasa.github.io/trick/howto_guides/How-To-Guides">How-To Guides</a></th>
         </tr>
     </thead>
     <tbody>
