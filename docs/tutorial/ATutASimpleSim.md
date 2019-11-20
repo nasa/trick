@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → A Simple Simulation |
+| [Home](/trick) → [Tutorial Home](Tutorial) → A Simple Simulation |
 |----------------------------------------------------------------|
 
 <!-- Section -->
@@ -27,7 +27,7 @@ The commands following `%` should typed in and executed.
 <a id=cannonball-problem-stated></a>
 ### Cannonball Problem Statement
 
-[[/tutorial/images/CannonInit.png|Cannon]]
+![Cannon](images/CannonInit.png)
 
 **Figure 1 Cannonball**
 
@@ -45,26 +45,26 @@ We can also write an equation that will give us the cannon ball’s time of impa
 
 The cannonball’s acceleration over time is constant. It's just the acceleration of gravity:
 
-[[/tutorial/images/equation_acc.png|equation_acc]]
+![equation_acc](images/equation_acc.png)
 
 On earth, at sea-level, g will be approximately -9.81 meters per second squared.
 In our problem this will be in the y direction, so:
 
-[[/tutorial/images/equation_init_g.png|equation_init_g]]
+![equation_init_g](images/equation_init_g.png)
 
 Since acceleration is the derivative of velocity with respect to time, the
 velocity [ v(t) ] is found by simply anti-differentiating a(t). That is:
 
-[[/tutorial/images/equation_analytic_v_of_t.png|equation_analytic_v_of_t]]
+![equation_analytic_v_of_t](images/equation_analytic_v_of_t.png)
 
 where the initial velocity is :
 
-[[/tutorial/images/equation_init_v.png|equation_init_v]]
+![equation_init_v](images/equation_init_v.png)
 
 The position of the cannon ball [ p(t) ] is likewise found by anti-differentiating
 v(t).
 
-[[/tutorial/images/equation_analytic_p_of_t.png|equation_analytic_p_of_t]]
+![equation_analytic_p_of_t](images/equation_analytic_p_of_t.png)
 
 Once we specify our initial conditions, we can calculate the position and
 velocity of the cannon ball for any time t.
@@ -72,11 +72,11 @@ velocity of the cannon ball for any time t.
 Impact is when the cannon ball hits the ground, that is when the cannonball’s
 y-coordinate again reaches 0.
 
-[[/tutorial/images/equation_analytic_y_of_t_impact.png|equation_analytic_y_of_t_impact]]
+![equation_analytic_y_of_t_impact](images/equation_analytic_y_of_t_impact.png)
 
 Solving for t (using the quadratic formula), we get the time of impact:
 
-[[/tutorial/images/equation_analytic_t_impact.png|equation_analytic_t_impact]]
+![equation_analytic_t_impact](images/equation_analytic_t_impact.png)
 
 ---
 <a id=a-cannonball-simulation-without-trick></a>
@@ -184,4 +184,4 @@ we want to be able to synchronize simulation-time with "wall clock" time.
 In the next section, we'll see how a Trick simulation goes together, and how it helps us to easily integrate user-supplied simulation models with commonly needed simulation capabilites.
 
 ---
-[[Next Page|ATutArchitecture]]
+[Next Page](ATutArchitecture)

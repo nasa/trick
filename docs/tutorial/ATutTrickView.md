@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Viewing Real-Time Data |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Viewing Real-Time Data |
 |-------------------------------------------------------------------|
 
 <!-- Section -->
@@ -124,4 +124,4 @@ You may now run the sim and verify that TV pops up automatically.
 
 Congratulations, you have finished the basic Trick tutorial!
 
-[[Next Page|ATutNumericSim]]
+[Next Page](ATutNumericSim)

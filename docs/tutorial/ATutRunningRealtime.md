@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Running Real-Time |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Running Real-Time |
 |--------------------------------------------------------------|
 
 <!-- Section -->
@@ -104,4 +104,4 @@ Some items to note about the simulation control panel for your future use:
 
 ---
 
-[[Next Page|ATutTrickView]]
+[Next Page](ATutTrickView)

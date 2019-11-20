@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Recording Simulation Data |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Recording Simulation Data |
 |----------------------------------------------------------------------|
 
 <!-- Section -->
@@ -19,7 +19,7 @@ recording editor --- aka Dr. Dre) or you may create it manually.
 % trick-dre &
 ```
 
-[[/tutorial/images/dre.png|Data Recording Editor]]
+![Data Recording Editor](images/dre.png)
 
 **Figure 3 - Data Recording Editor (dre)**
 
@@ -62,4 +62,4 @@ to the top of the `input.py` file and then save it.
 After the simulation runs, data will be dumped into the `RUN_test` directory.
 The data, in this case, is recorded in binary form.
 
-[[Next Page|ATutPlottingData]]
+[Next Page](ATutPlottingData)

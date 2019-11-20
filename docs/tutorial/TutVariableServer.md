@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Variable Server |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Variable Server |
 |------------------------------------------------------------|
 
 # Trick Variable Server
@@ -54,7 +54,7 @@ the client.
 * The debug state of the connection.
 * An optional name, to identify the connection when debug messages are enabled.
 
-[[/tutorial/images/VarServerSessions.png|VarServerSessions]]
+![VarServerSessions](images/VarServerSessions.png)
 
 The primary purpose of the [**variable server API**](#the-variable-server-api)
 is to configure the sessions.
@@ -125,7 +125,7 @@ Control Panel, as shown below.
 
 ```$ ~/CannonDisplay_Rev1.py 50774 &```
 
-[[/tutorial/images/SimControlPanel.png|Cannon]]
+![Cannon](images/SimControlPanel.png)
 
 The output of the script will display three columns of numbers. The left most
 number is the [variable server message type](#variable-server-message-types).
@@ -473,4 +473,4 @@ Set the synchronization mode of the variable server session, where the modes are
   This means that periodic data messages are guaranteed to
   be time homogeneous, but are written from the main simulation thread.
 
-[[Next Page|ATutMonteCarlo]]
+[Next Page](ATutMonteCarlo)

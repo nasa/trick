@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Trick Simulation Architecture |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Trick Simulation Architecture |
 |--------------------------------------------------------|
 
 <!-- Section -->
@@ -29,7 +29,7 @@ A Trick-based simulation is organized similarly and is defined in a simulation d
 
 ### Example S_define File
 
-[[/tutorial/images/S_define_pic.png|S_define_pic]]
+![S_define_pic](images/S_define_pic.png)
 
 The S_define file specifies and ties together everything necessary to build a
 simulation:
@@ -73,4 +73,4 @@ That is, it is one instance of our cannonball model. If we were to create a seco
 In the following sections we'll create the parts for a Trick-based cannonball simulation, and build it.
 
 ---
-[[Next Page|ATutAnalyticSim]]
+[Next Page](ATutAnalyticSim)

@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Analytical Cannon Simulation |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Analytical Cannon Simulation |
 |-------------------------------------------------------------------------|
 
 <!-- Section -->
@@ -139,7 +139,7 @@ the following information for the member:
 
 These are each described in **Figure 2** and in the sections below.
 
-[[/tutorial/images/DataMemberComments.png|DataMemberComments]]
+![DataMemberComments](images/DataMemberComments.png)
 
 **Figure 2 - Data Member Comments**
 
@@ -527,7 +527,7 @@ Trick headers that are included within each of these files may specify additiona
 source code dependencies, and so forth. Libraries may also be specified for
 linking into the final executable.
 
-Trick uses your `$TRICK_CFLAGS` environment variable ([[see section 3.2 of the Trick User Guide|Environment-Variables]]) in
+Trick uses your `$TRICK_CFLAGS` environment variable ([see section 3.2 of the Trick User Guide](/trick/documentation/building_a_simulation/Environment-Variables)) in
 conjunction with `cannon/src` to find the listed files. The entire path
 name following the `$TRICK_CFLAGS` path must be included.
 
@@ -658,7 +658,7 @@ The pieces are in order. The simulation is ready to be built!
 
 ### Setting `$TRICK_CFLAGS` and `$TRICK_CXXFLAGS`
 
-[[/tutorial/images/Warning_TRICK_CFLAGS.png|TRICK_CFLAGS WARNING]]
+![TRICK_CFLAGS WARNING](images/Warning_TRICK_CFLAGS.png)
 
 Before we continue with the magical building of the cannonball, **PLEASE** take
 the time to understand this section. It will save you much heartache and time.
@@ -683,7 +683,7 @@ For example, the `S_define` file listed above, `#includes` the relative path:
 `trick_models` directory that we created in our `$HOME` directory. The complete
 path to our cannon.h header file should be:
 
-[[/tutorial/images/TrickPaths.png|Trick Path Construction]]
+![Trick Path Construction](images/TrickPaths.png)
 
 So, we need to specify the base-path(s), to the compilers, and to Trick by adding
 -I*dir* options, that contain the base-paths, to `$TRICK_CFLAGS` and
@@ -739,7 +739,7 @@ If you typed everything perfectly... Trick is installed properly... there are no
 bugs in the tutorial... the stars are aligned... and Trick is in a good mood...
 You should, ultimately see :
 
-[[/tutorial/images/SimMakeComplete.png|Simulation Make Complete]]
+![Simulation Make Complete](images/SimMakeComplete.png)
 
 Now, take a look at the sim directory. Is there an `S_main*.exe` file ??? If so,
 cool deal. If not, scream!, then take a look at the next section "Troubleshooting A
@@ -841,4 +841,4 @@ We got the same answer! But, what about the trajectory? In the next section, we�
 
 ---
 
-[[Next Page|ATutRecordingData]]
+[Next Page](ATutRecordingData)

@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Dynamic Events |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Dynamic Events |
 |-----------------------------------------------------------|
 
 <!-- Section -->
@@ -40,7 +40,7 @@ we've defined, a **dynamic-event**. To find dynamic-events, we use
 **dynamic-event** jobs.
 
 **Figure - Cannon Ball Trajectory Near y(t) = 0**
-[[/tutorial/images/IntegStepCrossesZero.png|IntegStepCrossesZero]]
+![IntegStepCrossesZero](images/IntegStepCrossesZero.png)
 
 <a id=dynamic-event-jobs></a>
 ## Dynamic Event Jobs
@@ -247,4 +247,4 @@ vel = [0.000000000, 0.000000000]
 
 **It's the same answer we got from our analytic simulation!**
 
-[[Next Page|TutVariableServer]]
+[Next Page](TutVariableServer)

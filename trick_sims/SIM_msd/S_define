@@ -13,6 +13,7 @@ LIBRARY DEPENDENCIES:
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
+#include "sim_objects/WebServer.sm"
 ##include "msd/include/msd.hh"
 
 

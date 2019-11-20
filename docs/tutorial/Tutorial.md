@@ -1,4 +1,4 @@
-| [Home](Home) → Tutorial Home |
+| [Home](/trick) → Tutorial Home |
 |------------------------------|
 
 ## Table of Contents

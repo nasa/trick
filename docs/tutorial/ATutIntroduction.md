@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Introduction |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Introduction |
 |---------------------------------------------------------|
 
 <!-- Section -->
@@ -66,7 +66,7 @@ its capabilities.
 ## Installing Trick
 
 If Trick is not already installed on your machine, then you will need to do that
-first, by following the directions at: [[Install Guide|Install-Guide]].
+first, by following the directions at: [Install Guide](/trick/documentation/install_guide/Install-Guide).
 
 Once Trick is installed on your machine, you will need add the Trick **bin**
 directory to your execution path. For the sake of example, let us assume that
@@ -92,4 +92,4 @@ setenv PATH ${PATH}:${TRICK_HOME}/bin
 Close and then re-open your terminal window.
 
 ---
-[[Next Page|ATutASimpleSim]]
+[Next Page](ATutASimpleSim)

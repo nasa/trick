@@ -1,9 +1,9 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Monte Carlo |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Monte Carlo |
 |--------------------------------------------------------|
 
 Monte Carlo is an advanced simulation capability provided by Trick that allows users to repeatedly run copies of a simulation with different input values. Users can vary the input space of a simulation via input file, random value generation, or by calculating values from previous Monte Carlo runs in a process called optimization. This tutorial will show you how to develop simulations that can take advantage of this capability.
 
-**For a thorough explanation of Monte Carlo and its features, read the [Monte Carlo User Guide](UserGuide-Monte-Carlo).**
+**For a thorough explanation of Monte Carlo and its features, read the [Monte Carlo User Guide](/trick/documentation/simulation_capabilities/UserGuide-Monte-Carlo).**
 
 ## Core Simulation
 The core simulation this tutorial is built around is a slight modification of the Analytical Cannon simulation created earlier in the tutorial. **The primary modification made was to change the *init_angle* attribute from radians to degrees.**
@@ -172,7 +172,7 @@ trick-dre &
 ```
 
 <p align="center">
-[[/tutorial/images/Trick-DRE.png|width=750px|Trick-DRE]]
+	<img src=images/Trick-DRE.png width="750"/>
 </p>
 
 #### Steps
@@ -195,20 +195,20 @@ trick-dp &
 ```
 
 <p align="center">
-[[/tutorial/images/Trick-DP.png|width=750px|Trick-DP]]
+	<img src="images/Trick-DP.png" width=750px/>
 </p>
 
 Find the RUN_test in the Runs Tree panel and add it to your run selections. Click the blue lightning bolt to open Trick Quick Plot.
 
 
 <p align="center">
-[[/tutorial/images/Trick-QP.png|width=750px|Trick-QP]]
+	<img src="images/Trick-QP.png" width=750px/>
 </p>
 
 Expand the cso.cannon.pos[0-1] variable in the left pane and create a curve with pos[1] as the Y axis and pos[0] as the X axis. Once your DP Content looks like the above image, click the comparison plot button in the actions menu.
 
 <p align="center">
-[[/tutorial/images/RUN_test_plot.png|width=750px|RUN_test_plot]]
+	<img src="images/RUN_test_plot.png" width=750px/>
 </p>
 
 In each of the bellow sections, you can repeat these steps to visualize the differences between Monte Carlo implementations.
@@ -217,7 +217,7 @@ In each of the bellow sections, you can repeat these steps to visualize the diff
 **What would be the optimal launch angle required to ensure our cannonball travels the furthest distance?** Let us assume that we have no conception of physics or trigonometry and that we don't already know the answer.
 
 <p align="center">
-[[/tutorial/images/OptimalLaunchAngle.png|width=550px|OptimalLaunchAngle]]
+	<img src="images/OptimalLaunchAngle.png" width=550px/>
 </p>
 
 ## Input Files
@@ -273,7 +273,7 @@ trick.stop(15)
 Run the simulation and plot the runs like you did earlier. You will see something similar to the following:
 
 <p align="center">
-[[/tutorial/images/Trick-QP-File.png|Trick-QP-File]]
+	<img src="images/Trick-QP-File.png" alt="Trick-QP-File"/>
 </p>
 
 ## Random Input Generation
@@ -320,7 +320,7 @@ trick.stop(15)
 Run the script and plot the curves. You will end up with something similar to this:
 
 <p align="center">
-[[/tutorial/images/Trick-QP-Random.png|Trick-QP-Random.png]]
+	<img src="images/Trick-QP-Random.png" alt="Trick-QP-Random.png"/>
 </p>
 
 ## Optimization
@@ -450,5 +450,5 @@ CannonSimObject cso;
 Run the script and plot the curves. You will see this:
 
 <p align="center">
-[[/tutorial/images/Trick-QP-Calculated.png|Trick-QP-Calculated]]
+	<img src="images/Trick-QP-Calculated.png" alt="Trick-QP-Calculated"/>
 </p>

@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Numerical Integration |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Numerical Integration |
 |------------------------------------------------------------------|
 
 <!-- Section -->
@@ -87,11 +87,11 @@ to account for two forces that are acting on the skydiver:
 
 The force of gravity can be calculated using Newton's Law of Gravitation:
 
-[[/tutorial/images/NewtonsLawOfGravitation.png|Figure 1 - Newton's Law of Gravitation]]
+![Figure 1 - Newton's Law of Gravitation](images/NewtonsLawOfGravitation.png)
 
 and the drag force can be calculated using the drag equation:
 
-[[/tutorial/images/DragEquation.png|Figure 1 - Drag Equation]]
+![Figure 2 - Drag Equation](images/DragEquation.png)
 
 Notice that the force of gravity is dependent upon the skydiver position,
 which is an integration result. Therefore the force of gravity needs to be
@@ -460,4 +460,4 @@ perfectionist!
 
 Congratulations, you are now running a simulation with numerical integration.
 
-[[Next Page|ATutDynamicEvents]]
+[Next Page](ATutDynamicEvents)

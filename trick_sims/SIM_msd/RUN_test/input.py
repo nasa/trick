@@ -7,6 +7,7 @@ exec(open("Modified_data/realtime.py").read())
 #==========================================
 varServerPort = trick.var_server_get_port();
 trick.set_var_server_info_msg_on()
+web.server.enable=True
 
 print(varServerPort)
 MsdGui_path = "models/graphics/dist/MsdGui.jar"

@@ -71,4 +71,4 @@ while(True):
 ```
 
 If you are unfamiliar or rusty on how to use the Trick variable server, please see
-the [Variable Server](TutVariableServer) section of the [Trick Tutorial](Tutorial).
+the [Variable Server](/trick/tutorial/TutVariableServer) section of the [Trick Tutorial](/trick/tutorial/Tutorial).

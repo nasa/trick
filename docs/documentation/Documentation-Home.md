@@ -1,4 +1,4 @@
-| [Home](Home) → Documentation Home |
+| [Home](/trick) → Documentation Home |
 |------------------------------------|
 
 # User Guide

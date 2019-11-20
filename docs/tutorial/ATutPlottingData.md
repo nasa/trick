@@ -1,4 +1,4 @@
-| [Home](Home) → [Tutorial Home](Tutorial) → Plotting Recorded Data |
+| [Home](/trick) → [Tutorial Home](Tutorial) → Plotting Recorded Data |
 |-------------------------------------------------------------------|
 
 <a id=viewing-recorded-data></a>
@@ -36,7 +36,7 @@ single window with two plots should pop up. (See Figure 4)
 1. When you are done with the plots you created, close the **Trick
 Plot** window which will also close the window with your plot(s).
 
-[[/tutorial/images/PlotTimeVsPosition.png|Plot of Time vs Position]]
+![Plot of Time vs Position](images/PlotTimeVsPosition.png)
 
 **Figure 4 - Quick Plot Time -vs- Position**
 
@@ -52,7 +52,7 @@ There is the trajectory! :-) Note that the cannonball goes underground. This
 will be fixed later.
 1. When you are done, close the **Trick Plot** window.
 
-[[/tutorial/images/PlotXvsYPosition.png|Plot of X vs Y Position]]
+![Plot of X vs Y Position](images/PlotXvsYPosition.png)
 
 **Figure 5 - Quick Plot X -vs- Y Position**
 
@@ -103,9 +103,9 @@ is a tiny square on each x-y point recorded.
 1. Once you are finished with the plot, close the **Trick Plot**
 window and Trick DP.
 
-[[/tutorial/images/PlotZoomedXYPosition.png|Plot Zoomed X vs Y Position]]
+![Plot Zoomed X vs Y Position](images/PlotZoomedXYPosition.png)
 
 **Figure 6 Zoomed X -vs- Y Position - `DP_cannon_xy`**
 
 ---
-[[Next Page|ATutRunningRealtime]]
+[Next Page](ATutRunningRealtime)
