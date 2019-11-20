@@ -44,12 +44,12 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
 #ifdef LIBCLANG_PATCHLEVEL
     icg_dir << "." << LIBCLANG_PATCHLEVEL ;
 #endif
-#endif
     icg_dir << "/include" ;
     char * resolved_path = realpath(icg_dir.str().c_str(), NULL ) ;
     if ( resolved_path != NULL ) {
         hso.AddPath(resolved_path , clang::frontend::System, IsFramework, IsSysRootRelative);
     }
+#endif
 #endif
 
     fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CXX" , "r") ;
