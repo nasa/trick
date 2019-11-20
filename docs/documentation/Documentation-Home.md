@@ -41,7 +41,7 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Checkpoints](simulation_capabilities/Checkpoints)  
     01. [MemoryManager](simulation_capabilities/memory_manager/MemoryManager)  
     01. [Integrator](simulation_capabilities/Integrator)  
-    01. [Frame Logging](simulation_capabilities/rame-Logging)  
+    01. [Frame Logging](simulation_capabilities/Frame-Logging)  
     01. [Debug Pause](simulation_capabilities/Debug-Pause)  
     01. [Echo Jobs](simulation_capabilities/Echo-jobs)  
     01. [Variable Server](simulation_capabilities/Variable-Server)  
@@ -49,7 +49,8 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Command Line Arguments](simulation_capabilities/Command-Line-Arguments)  
     01. [Environment](simulation_capabilities/Environment)  
     01. [Standard Template Library Checkpointing](simulation_capabilities/STL-Checkpointing) 
-    01. [Threads](simulation_capabilities/Threads) 
+    01. [Threads](simulation_capabilities/Threads)
+    01. [Web Server](simulation_capabilities/web)
 
 01. [Simulation Utilities](simulation_utilities/Simulation-Utilities)  
     01. [Trickcomm](simulation_utilities/Trickcomm)  
