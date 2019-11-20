@@ -90,3 +90,7 @@ set( TRICKMATH_SRC
 )
 
 add_library( trick_math STATIC ${TRICKMATH_SRC})
+
+if(GSL_FOUND)
+    target_include_directories( trick_math PUBLIC ${GSL_INCLUDE_DIRS} )
+endif()
