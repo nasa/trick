@@ -122,7 +122,7 @@ SWIG_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(SWIG_DIRS))
 #-------------------------------------------------------------------------------
 UNIT_TEST_DIRS := \
     $(wildcard ${TRICK_HOME}/trick_source/sim_services/*/test) \
-    $(wildcard ${TRICK_HOME}/trick_source/trick_utils/*/test) \
+    $(wildcard ${TRICK_HOME}/trick_source/trick_utils/*/test)
 ifeq ($(USE_ER7_UTILS), 0)
   UNIT_TEST_DIRS := $(filter-out %Integrator/test,$(UNIT_TEST_DIRS))
 endif
