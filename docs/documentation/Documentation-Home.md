@@ -51,7 +51,7 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Standard Template Library Checkpointing](simulation_capabilities/STL-Checkpointing) 
     01. [Threads](simulation_capabilities/Threads)
 
-01. [Web Server](simulation_capabilities/web)
+01. [Web Server](web)
     01. [Adding a Web Server to Your Sim](web/Adding_a_Web_Server_to_Your_Sim)
     01. [Web Server APIs]
         01. [HTTP-API_alloc_info](web/HTTP-API_alloc_info)
