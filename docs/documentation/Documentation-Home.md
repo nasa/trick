@@ -50,7 +50,15 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Environment](simulation_capabilities/Environment)  
     01. [Standard Template Library Checkpointing](simulation_capabilities/STL-Checkpointing) 
     01. [Threads](simulation_capabilities/Threads)
-    01. [Web Server](simulation_capabilities/web)
+
+01. [Web Server](simulation_capabilities/web)
+    01. [Adding a Web Server to Your Sim](web/Adding_a_Web_Server_to_Your_Sim)
+    01. [Web Server APIs]
+        01. [HTTP-API_alloc_info](web/HTTP-API_alloc_info)
+        01. [WS-API_VariableServer](web/WS-API_VariableServer)
+    01. [Adding New Web Server APIs]
+        01. [Extending_the_HTTP-API](web/Extending_the_HTTP-API)
+        01. [Extending_the_WS-API](web/Extending_the_WS-API)
 
 01. [Simulation Utilities](simulation_utilities/Simulation-Utilities)  
     01. [Trickcomm](simulation_utilities/Trickcomm)  
