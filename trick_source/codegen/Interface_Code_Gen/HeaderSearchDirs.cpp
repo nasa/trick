@@ -36,7 +36,6 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     // Add clang specific include directory first.  Only required on linux systems. :(
     // This is so that ICG will find clang friendly headers first.  gcc headers cause
     // all kinds of problems.  On macs all headers are clang friendly.
-#ifndef EXTERNAL_BUILD
 #if __linux
     std::stringstream icg_dir ;
     icg_dir << LLVM_HOME << "/lib/clang/" ;
@@ -49,7 +48,6 @@ void HeaderSearchDirs::AddCompilerBuiltInSearchDirs () {
     if ( resolved_path != NULL ) {
         hso.AddPath(resolved_path , clang::frontend::System, IsFramework, IsSysRootRelative);
     }
-#endif
 #endif
 
     fp = popen("${TRICK_HOME}/bin/trick-gte TRICK_CXX" , "r") ;

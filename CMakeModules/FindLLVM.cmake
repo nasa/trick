@@ -107,10 +107,13 @@ else()
     llvm_set(HOST_TARGET host-target)
     llvm_set(INCLUDE_DIRS includedir true)
     llvm_set(ROOT_DIR prefix true)
-    llvm_set(ENABLE_ASSERTIONS assertion-mode)
 
     # The LLVM version string _may_ contain a git/svn suffix, so match only the x.y.z part
     string(REGEX MATCH "^[0-9]+[.][0-9]+[.][0-9]+" LLVM_VERSION_BASE_STRING "${LLVM_VERSION_STRING}")
+
+    if(NOT ${LLVM_VERSION_STRING} MATCHES "^3\\.4\\..*")
+        llvm_set(ENABLE_ASSERTIONS assertion-mode)
+    endif()
 
     # Versions below 4.0 do not support components debuginfomsf and demangle
     if(${LLVM_VERSION_STRING} MATCHES "^3\\..*")
@@ -125,7 +128,9 @@ else()
     llvm_set(LDFLAGS ldflags)
     # In LLVM 3.5+, the system library dependencies (e.g. "-lz") are accessed
     # using the separate "--system-libs" flag.
-    llvm_set(SYSTEM_LIBS system-libs)
+    if(NOT ${LLVM_VERSION_STRING} MATCHES "^3\\.4\\..*")
+        llvm_set(SYSTEM_LIBS system-libs)
+    endif()
     string(REPLACE "\n" " " LLVM_LDFLAGS "${LLVM_LDFLAGS} ${LLVM_SYSTEM_LIBS}")
     string(STRIP ${LLVM_LDFLAGS} LLVM_LDFLAGS)
     llvm_set(LIBRARY_DIRS libdir true)
@@ -150,10 +155,12 @@ else()
 
     # Parse LLVM_NATIVE_ARCH manually from LLVMConfig.cmake; including it leads to issues like
     # https://github.com/ldc-developers/ldc/issues/3079.
-    file(STRINGS "${LLVM_CMAKEDIR}/LLVMConfig.cmake" LLVM_NATIVE_ARCH LIMIT_COUNT 1 REGEX "^set\\(LLVM_NATIVE_ARCH (.+)\\)$")
-    string(REGEX MATCH "set\\(LLVM_NATIVE_ARCH (.+)\\)" LLVM_NATIVE_ARCH "${LLVM_NATIVE_ARCH}")
-    set(LLVM_NATIVE_ARCH ${CMAKE_MATCH_1})
-    message(STATUS "LLVM_NATIVE_ARCH: ${LLVM_NATIVE_ARCH}")
+    if(EXISTS "${LLVM_CMAKEDIR}/LLVMConfig.cmake")
+        file(STRINGS "${LLVM_CMAKEDIR}/LLVMConfig.cmake" LLVM_NATIVE_ARCH LIMIT_COUNT 1 REGEX "^set\\(LLVM_NATIVE_ARCH (.+)\\)$")
+        string(REGEX MATCH "set\\(LLVM_NATIVE_ARCH (.+)\\)" LLVM_NATIVE_ARCH "${LLVM_NATIVE_ARCH}")
+        set(LLVM_NATIVE_ARCH ${CMAKE_MATCH_1})
+        message(STATUS "LLVM_NATIVE_ARCH: ${LLVM_NATIVE_ARCH}")
+    endif()
 endif()
 
 # On CMake builds of LLVM, the output of llvm-config --cxxflags does not
@@ -180,6 +187,7 @@ endif()
 
 string(REGEX REPLACE "([0-9]+).*" "\\1" LLVM_VERSION_MAJOR "${LLVM_VERSION_STRING}" )
 string(REGEX REPLACE "[0-9]+\\.([0-9]+).*[A-Za-z]*" "\\1" LLVM_VERSION_MINOR "${LLVM_VERSION_STRING}" )
+string(REGEX REPLACE "[0-9]+\\.[0-9]+\\.([0-9]+).*[A-Za-z]*" "\\1" LLVM_VERSION_PATCH "${LLVM_VERSION_STRING}" )
 
 if (${LLVM_VERSION_STRING} VERSION_LESS ${LLVM_FIND_VERSION})
     message(FATAL_ERROR "Unsupported LLVM version found ${LLVM_VERSION_STRING}. At least version ${LLVM_FIND_VERSION} is required.")
