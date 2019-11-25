@@ -280,6 +280,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("r/s","radian/s"),1.0);
     map.insert(QPair<QString,QString>("r/s","d/s"),      0.0174532925199433);
     map.insert(QPair<QString,QString>("r/s","degrees/s"),0.0174532925199433);
+    map.insert(QPair<QString,QString>("r/s","degree/s"), 0.0174532925199433);
     map.insert(QPair<QString,QString>("r/s","rev/s"), 6.28318530717958647);
     map.insert(QPair<QString,QString>("r/s","rpm"), 6.28318530717958647/60.0);
     map.insert(QPair<QString,QString>("r/s","rev/min"),
@@ -418,6 +419,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("--","1"),   1.0);
     map.insert(QPair<QString,QString>("--","dB"),  1.0);
     map.insert(QPair<QString,QString>("--","*"),   1.0);
+    map.insert(QPair<QString,QString>("--","N/A"), 1.0);
 
     // Micro-gravity
     map.insert(QPair<QString,QString>("micro-g","micro-g"), 1.0);
@@ -428,6 +430,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("1/r","one/r"), 1.0);
     map.insert(QPair<QString,QString>("1/r","1/d"),   1.0/0.0174532925199433);
     map.insert(QPair<QString,QString>("1/r","one/d"), 1.0/0.0174532925199433);
+    map.insert(QPair<QString,QString>("1/r","one/degree"), 1.0/0.0174532925199433);
 
     // Q-Bar-Alpha (has to do with dynamic pressure and angle of attack)
     map.insert(QPair<QString,QString>("N*r/m2","N*r/m2"), 1.0);
