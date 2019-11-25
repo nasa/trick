@@ -128,9 +128,12 @@ void TicLabelsLayoutItem::paint(QPainter *painter,
 
     // Draw!
     QFont fontOrig = painter->font();
-    QFont font105 = fontOrig;
-    font105.setPointSizeF(10.5);
-    painter->setFont(font105);
+    if ( fontOrig.pointSizeF() == 11.0 ) {
+        // Special tweak for a pointsize of 11.0
+        QFont font105 = fontOrig;
+        font105.setPointSizeF(10.5);
+        painter->setFont(font105);
+    }
     foreach ( RulerLabelBox box, boxes ) {
         if ( alignment() == Qt::AlignLeft ) {
             if ( plotYScale == "linear" ) {
