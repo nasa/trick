@@ -285,7 +285,6 @@ PlotMainWindow::PlotMainWindow(
                                       "on Trick var server\n");
     }
 
-
     // creating bviscom to send commands to bvis
     bviscom = new TimeCom(0);
 
@@ -302,11 +301,8 @@ PlotMainWindow::PlotMainWindow(
         bviscom->sendFirstRun(sendRun);
     }
 
-
     // creating a test videowindow
-//    std::setlocale(LC_NUMERIC, "C");
     vidView = new VideoWindow(this);
-//    VideoWindow vidView(this);
     vidView->show();
 
     this->setFocusPolicy(Qt::StrongFocus);
@@ -315,8 +311,6 @@ PlotMainWindow::PlotMainWindow(
             vidView,SLOT(seek_time(double)));
     connect(vidView,SIGNAL(timechangedByMpv(double)),
                            this, SLOT(setTimeFromVideo(double)));
-
-
 
     // Size main window
     QList<int> sizes;
@@ -1242,11 +1236,6 @@ void PlotMainWindow::_startTimeChanged(double startTime)
 
 void PlotMainWindow::_liveTimeChanged(double liveTime)
 {
-    // bvis
-//    bviscom.sendTime2Bvis(liveTime);
-//    printf("Time: %f\n",liveTime);
-    //
-
     QModelIndex curveIdx = _currCurveIdx();
     CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
 
@@ -1544,9 +1533,6 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
 void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
                                                     const QModelIndex &prevIdx)
 {
-//    Q_UNUSED(prevIdx);
-
-
     if ( currIdx.isValid() ) {
         // set all curves in bookview with runID to current
         // Note: column 0 is runID by convention
@@ -1559,10 +1545,7 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
             QString sendRun = QString("%1/").arg(
                         QDir::current().absoluteFilePath(
                             _runs->runDirs().at(runID)));
-//                QString("%1/%2").arg(QDir.absoluteFilePath().arg(
-//        _runs->runDirs().at(runID))
             bviscom->sendRun2Bvis(sendRun);
-//            printf("run=%s\n",sendRun.toLatin1().constData());
         }
     }
 }

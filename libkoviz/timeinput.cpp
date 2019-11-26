@@ -39,8 +39,6 @@ TimeInput::TimeInput(QWidget *parent) :
      _layout->addWidget(_startTimeInput);
      _layout->addWidget(_liveTimeInput);
      _layout->addWidget(_stopTimeInput);
-
-//     bviscom = BvisCom();
 }
 
 QSize TimeInput::sizeHint() const
@@ -116,7 +114,6 @@ void TimeInput::_slotDataChanged(const QModelIndex &topLeft,
         if ( ok ) {
             _liveTimeInput->setText(_format(liveTime));
             emit bvisTimeChanged(liveTime);
-
         }
     }
 }
