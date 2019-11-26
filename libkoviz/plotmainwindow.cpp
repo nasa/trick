@@ -290,7 +290,7 @@ PlotMainWindow::PlotMainWindow(
     }
 
     // creating bviscom to send commands to bvis
-    bviscom = new TimeCom(0);
+    bviscom = new TimeCom(this);
 
     // setting up the send time command signal slot pair for bvis
     // send a time com to Bvis when the time changes

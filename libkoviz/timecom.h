@@ -1,16 +1,16 @@
 #ifndef BVISCOM_H
 #define BVISCOM_H
 
-#include <QWidget>
+#include <QObject>
 #include <QTcpSocket>
 #include <QString>
 #include <QThread>
 
-class TimeCom : public QWidget
+class TimeCom : public QObject
 {
     Q_OBJECT
 public:
-    explicit TimeCom(QWidget *parent = 0);
+    explicit TimeCom(QObject *parent=0);
     ~TimeCom();
 
     int connect2Bvis();

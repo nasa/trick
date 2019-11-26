@@ -1,6 +1,6 @@
 #include "timecom.h"
 
-TimeCom::TimeCom(QWidget *parent) : QWidget(parent)
+TimeCom::TimeCom(QObject* parent) : QObject(parent)
 {
     socket = new QTcpSocket();
     currentRun = QString("");
