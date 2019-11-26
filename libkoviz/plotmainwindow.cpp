@@ -179,6 +179,10 @@ PlotMainWindow::PlotMainWindow(
             SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
             this,
             SLOT(_bookModelRowsAboutToBeRemoved(QModelIndex,int,int)));
+    connect(_bookModel,
+            SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+            this,
+            SLOT(_bookModelDataChanged(QModelIndex,QModelIndex,QVector<int>)));
 
     msplit->addWidget(_bookView);
 
@@ -304,11 +308,7 @@ PlotMainWindow::PlotMainWindow(
     // creating a test videowindow
     vidView = new VideoWindow(this);
     vidView->show();
-
     this->setFocusPolicy(Qt::StrongFocus);
-
-    connect(_timeInput, SIGNAL(bvisTimeChanged(double)),
-            vidView,SLOT(seek_time(double)));
     connect(vidView,SIGNAL(timechangedByMpv(double)),
                            this, SLOT(setTimeFromVideo(double)));
 
@@ -467,6 +467,26 @@ void PlotMainWindow::_bookModelRowsInserted(const QModelIndex &pidx,
                     _bookView->setCurrentCurveRunID(runID);
                 }
             }
+        }
+    }
+}
+
+void PlotMainWindow::_bookModelDataChanged(const QModelIndex &topLeft,
+                                           const QModelIndex &bottomRight,
+                                           const QVector<int> &roles)
+{
+    Q_UNUSED(roles);
+    if ( topLeft != bottomRight ) return;
+    const QAbstractItemModel* model = topLeft.model();
+    if ( !model ) return;
+    if ( topLeft.column() != 1 ) return;
+
+    QString tag = model->data(topLeft.sibling(topLeft.row(),0)).toString();
+    if ( tag == "LiveCoordTime" ) {
+        bool ok;
+        double liveTime = model->data(topLeft).toDouble(&ok);
+        if ( ok ) {
+            vidView->seek_time(liveTime);
         }
     }
 }
