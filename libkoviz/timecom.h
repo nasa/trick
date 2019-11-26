@@ -18,8 +18,6 @@ public:
     int sendRun2Bvis(QString runDir);
     int resendCurTime2Bvis();
     int sendFirstRun(QString firstRun);
-
-private slots:
     int sendTime2Bvis(double liveTime);
 
 private:

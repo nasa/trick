@@ -113,7 +113,6 @@ void TimeInput::_slotDataChanged(const QModelIndex &topLeft,
         double liveTime = model->data(topLeft).toDouble(&ok);
         if ( ok ) {
             _liveTimeInput->setText(_format(liveTime));
-            emit bvisTimeChanged(liveTime);
         }
     }
 }

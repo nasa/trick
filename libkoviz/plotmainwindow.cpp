@@ -292,11 +292,6 @@ PlotMainWindow::PlotMainWindow(
     // creating bviscom to send commands to bvis
     bviscom = new TimeCom(this);
 
-    // setting up the send time command signal slot pair for bvis
-    // send a time com to Bvis when the time changes
-    connect(_timeInput, SIGNAL(bvisTimeChanged(double)),
-            bviscom,SLOT(sendTime2Bvis(double)));
-
     // sending run command if there is only one run
     if ( _monteInputsModel->rowCount() == 1 ) {
         QString sendRun = QString("%1/").arg(
@@ -487,6 +482,7 @@ void PlotMainWindow::_bookModelDataChanged(const QModelIndex &topLeft,
         double liveTime = model->data(topLeft).toDouble(&ok);
         if ( ok ) {
             vidView->seek_time(liveTime);
+            bviscom->sendTime2Bvis(liveTime);
         }
     }
 }
