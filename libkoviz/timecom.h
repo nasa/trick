@@ -1,8 +1,6 @@
 #ifndef BVISCOM_H
 #define BVISCOM_H
 
-//#include <QWidget>
-//#include "bookidxview.h"
 #include <QWidget>
 #include <QTcpSocket>
 #include <QString>
@@ -15,13 +13,6 @@ public:
     explicit TimeCom(QWidget *parent = 0);
     ~TimeCom();
 
-//    QTcpSocket *socket;
-
-//    QTcpSocket* operator->() const
-//    {
-//        return socket;
-//    }
-
     int connect2Bvis();
     int sendCom2Bvis(QString com = "t=8resetcom");
     int sendRun2Bvis(QString runDir);
@@ -30,7 +21,6 @@ public:
 
 private slots:
     int sendTime2Bvis(double liveTime);
-//    void readTime4Koviz();
 
 private:
     QTcpSocket *socket;
@@ -41,4 +31,4 @@ private:
     const int TimeComPort = BvisPort + 1;
 };
 
-#endif // BVISCOM_H
+#endif // TIMECOM_H
