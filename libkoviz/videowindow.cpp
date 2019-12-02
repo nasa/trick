@@ -52,9 +52,14 @@ VideoWindow::VideoWindow(QWidget *parent) :
 }
 
 void VideoWindow::seek_time(double time) {
-    if(!this->hasFocus()){
-        QString com = QString("seek %1 absolute").arg(time);
-        mpv_command_string(mpv, com.toLocal8Bit().data());
+    int isIdle;
+    int ret = mpv_get_property(mpv,"core-idle",MPV_FORMAT_FLAG,&isIdle);
+    if ( ret >= 0 ) {
+        if ( isIdle && parentWidget()->isActiveWindow() ) {
+            // Koviz is driving time
+            QString com = QString("seek %1 absolute").arg(time);
+            mpv_command_string(mpv, com.toLocal8Bit().data());
+        }
     }
 }
 
@@ -69,7 +74,17 @@ void VideoWindow::handle_mpv_event(mpv_event *event)
                 std::stringstream ss;
                 ss << "At: " << time;
                 statusBar()->showMessage(QString::fromStdString(ss.str()));
-                emit timechangedByMpv(time);
+                int isIdle;
+                int ret = mpv_get_property(mpv,"core-idle",MPV_FORMAT_FLAG,
+                                           &isIdle);
+                if ( ret >= 0 ) {
+                    if ( !isIdle || isActiveWindow() ) {
+                        // If mpv playing, update time
+                        // If mpv paused but still active, update time
+                        // If mpv paused and koviz active, do not emit signal
+                        emit timechangedByMpv(time);
+                    }
+                }
             } else if (prop->format == MPV_FORMAT_NONE) {
                 statusBar()->showMessage("");
             }

@@ -319,11 +319,9 @@ PlotMainWindow::PlotMainWindow(
 }
 
 void PlotMainWindow::setTimeFromVideo(double time) {
-    if(vidView->hasFocus()){
-        QModelIndex liveIdx = _bookModel->getDataIndex(QModelIndex(),
-                                                     "LiveCoordTime");
-        _bookModel->setData(liveIdx,time);
-    }
+    QModelIndex liveIdx = _bookModel->getDataIndex(QModelIndex(),
+                                                   "LiveCoordTime");
+    _bookModel->setData(liveIdx,time);
 }
 
 PlotMainWindow::~PlotMainWindow()
