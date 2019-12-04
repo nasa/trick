@@ -273,7 +273,7 @@ all:
 endif
 
 tidy:
-	-rm -f S_source.hh S_sie.resource
+	-rm -f S_source.hh S_sie.resource S_sie.json
 	-rm -f S_main* T_main*
 	-rm -f build/Makefile_*
 
