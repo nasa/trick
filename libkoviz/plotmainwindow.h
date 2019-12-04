@@ -121,6 +121,7 @@ private:
     QAction *_dpAction;
     QAction *_pdfAction;
     QAction *_sessionAction;
+    QAction *_openVideoAction;
     QAction *_exitAction;
     QAction *_showLiveCoordAction;
     QAction *_clearPlotsAction;
@@ -157,6 +158,7 @@ private slots:
      void _saveDP();
      void _savePdf();
      void _saveSession();
+     void _openVideo();
      void _toggleShowLiveCoord();
      void _clearPlots();
      void _clearTables();

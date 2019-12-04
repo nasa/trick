@@ -65,7 +65,8 @@ PlotMainWindow::PlotMainWindow(
     _varsModel(varsModel),
     _monteInputsModel(monteInputsModel),
     _monteInputsView(0),
-    _dpTreeWidget(0)
+    _dpTreeWidget(0),
+    vidView(0)
 {
     // Window title
     if ( titles.size() >= 1 && !titles.at(0).isEmpty() ) {
@@ -300,13 +301,6 @@ PlotMainWindow::PlotMainWindow(
         bviscom->sendFirstRun(sendRun);
     }
 
-    // creating a test videowindow
-    vidView = new VideoWindow(this);
-    vidView->show();
-    this->setFocusPolicy(Qt::StrongFocus);
-    connect(vidView,SIGNAL(timechangedByMpv(double)),
-                           this, SLOT(setTimeFromVideo(double)));
-
     // Size main window
     QList<int> sizes;
     sizes << 420 << 1180;
@@ -339,6 +333,7 @@ void PlotMainWindow::createMenu()
     _pdfAction  = _fileMenu->addAction(tr("Save &PDF"));
     _dpAction  = _fileMenu->addAction(tr("Save &DP"));
     _sessionAction = _fileMenu->addAction(tr("Save &Session"));
+    _openVideoAction = _fileMenu->addAction(tr("Open &Video"));
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
@@ -362,6 +357,7 @@ void PlotMainWindow::createMenu()
     connect(_dpAction, SIGNAL(triggered()),this, SLOT(_saveDP()));
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
     connect(_sessionAction, SIGNAL(triggered()),this, SLOT(_saveSession()));
+    connect(_openVideoAction, SIGNAL(triggered()),this, SLOT(_openVideo()));
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     connect(_showLiveCoordAction, SIGNAL(triggered()),
             this, SLOT(_toggleShowLiveCoord()));
@@ -479,7 +475,9 @@ void PlotMainWindow::_bookModelDataChanged(const QModelIndex &topLeft,
         bool ok;
         double liveTime = model->data(topLeft).toDouble(&ok);
         if ( ok ) {
-            vidView->seek_time(liveTime);
+            if ( vidView ) {
+                vidView->seek_time(liveTime);
+            }
             bviscom->sendTime2Bvis(liveTime);
         }
     }
@@ -1151,6 +1149,24 @@ void PlotMainWindow::_saveSession()
 
         f.close();
     }
+}
+
+void PlotMainWindow::_openVideo()
+{
+    QString filename = QFileDialog::getOpenFileName(this, "Open file");
+    if ( !vidView ) {
+        vidView = new VideoWindow(this);
+        vidView->show();
+        this->setFocusPolicy(Qt::StrongFocus);
+        connect(vidView,SIGNAL(timechangedByMpv(double)),
+                this, SLOT(setTimeFromVideo(double)));
+        vidView->set_file(filename);
+    } else {
+        vidView->set_file(filename);
+        vidView->raise();
+    }
+
+
 }
 
 void PlotMainWindow::_toggleShowLiveCoord()

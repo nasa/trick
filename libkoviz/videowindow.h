@@ -25,7 +25,7 @@ class VideoWindow : public QMainWindow
 public:
     explicit VideoWindow(QWidget *parent = 0);
     ~VideoWindow();
-    bool focussed;
+    void set_file(const QString& fname);
 
 public slots:
     void on_file_open();

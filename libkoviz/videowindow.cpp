@@ -117,12 +117,21 @@ void VideoWindow::on_mpv_events()
 void VideoWindow::on_file_open()
 {
     QString filename = QFileDialog::getOpenFileName(this, "Open file");
+    set_file(filename);
+}
+
+void VideoWindow::set_file(const QString &fname)
+{
     if (mpv) {
-        const QByteArray c_filename = filename.toUtf8();
+        const QByteArray c_filename = fname.toUtf8();
         const char *args[] = {"loadfile", c_filename.data(), NULL};
         mpv_command_async(mpv, 0, args);
+    } else {
+        fprintf(stderr, "koviz [bad scoobs]: VideoWindow::set_file()\n");
+        exit(-1);
     }
 }
+
 
 VideoWindow::~VideoWindow()
 {
