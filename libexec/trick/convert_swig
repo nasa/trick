@@ -94,7 +94,7 @@ my $template_def   = qr/template\s*                        # keyword template
                /sx ;
 my $template_var_def  = qr/(?:\:\:)?[_A-Za-z][:\w]*\s*     # template name
             <[\w\s\*,:<>]*>\s*                             # template parameters
-            [_A-Za-z]\w*\s*;                               # var name ;
+            [_A-Za-z]\w*\s*(?:[{=].*?)?;                   # var name ;
                /sx ;
 
 # This list is the list of all STL types to ignore.
@@ -619,11 +619,9 @@ sub process_class($$$$$) {
         if ( $template_var_def_str ne "" )  {
             # if there is a whiff of const in the template we are punting.
             if ( $template_var_def_str !~ /^const|[<,\s]const\s/ ) {
-                #print "*** template_var = $template_var_def_str ***\n" ;
-                $template_var_def_str =~ /(.*?)([_A-Za-z]\w*)\s*;/s ;
+                $template_var_def_str =~ /(.*?>)\s*([_A-Za-z]\w*).*?;/s ;
                 my ($template_full_type) = $1 ;
                 my ($var_name) = $2 ;
-                #print "*** var_name = $var_name ***\n" ;
                 $$new_contents_ref .= $template_var_def_str ;
 
                 $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
