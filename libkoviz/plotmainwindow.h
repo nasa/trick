@@ -46,6 +46,8 @@ public:
     explicit PlotMainWindow( const QString& trickhost,
                              uint trickport,
                              double trickoffset,
+                             const QString& videoFileName,
+                             double videoOffset,
                              const QString& excludePattern,
                              const QString& filterPattern,
                              const QString& scripts,
@@ -89,6 +91,8 @@ private:
     const QString& _trickhost;
     uint _trickport;
     double _trickoffset;
+    QString _videoFileName;
+    double _videoOffset;
     QString _excludePattern;
     QString _filterPattern;
     QString _scripts;
@@ -149,6 +153,8 @@ private:
 
     VideoWindow* vidView;
     QTcpSocket* _vsSocket ;
+
+    void _openVideoFile(const QString& fname);
 
 
 private slots:

@@ -137,6 +137,8 @@ class SnapOptions : public Options
     QString trickhost;
     uint trickport;
     double trickoffset;
+    QString videoFileName;
+    double videoOffset;
 };
 
 SnapOptions opts;
@@ -247,6 +249,10 @@ int main(int argc, char *argv[])
              "trick var server port");
     opts.add("-trickoffset", &opts.trickoffset, 0.0,
              "trick var server time sync offset");
+    opts.add("-video", &opts.videoFileName, "",
+             "mp4 video filename");
+    opts.add("-videoOffset", &opts.videoOffset, 0.0,
+             "video time sync offset");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -828,6 +834,8 @@ int main(int argc, char *argv[])
             PlotMainWindow w(opts.trickhost,
                              opts.trickport,
                              opts.trickoffset,
+                             opts.videoFileName,
+                             opts.videoOffset,
                              excludePattern,
                              filterPattern,
                              opts.scripts,
@@ -954,6 +962,8 @@ int main(int argc, char *argv[])
                 PlotMainWindow w(opts.trickhost,
                                  opts.trickport,
                                  opts.trickoffset,
+                                 opts.videoFileName,
+                                 opts.videoOffset,
                                  excludePattern,
                                  filterPattern,
                                  opts.scripts,
@@ -981,6 +991,8 @@ int main(int argc, char *argv[])
                 PlotMainWindow w(opts.trickhost,
                                  opts.trickport,
                                  opts.trickoffset,
+                                 opts.videoFileName,
+                                 opts.videoOffset,
                                  excludePattern,
                                  filterPattern,
                                  opts.scripts,

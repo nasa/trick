@@ -26,6 +26,7 @@ public:
     explicit VideoWindow(QWidget *parent = 0);
     ~VideoWindow();
     void set_file(const QString& fname);
+    void set_offset(double timeOffset);
 
 public slots:
     void on_file_open();
@@ -39,6 +40,7 @@ signals:
 private:
     QWidget *mpv_container;
     mpv_handle *mpv;
+    double _timeOffset;
 
     void create_player();
     void handle_mpv_event(mpv_event *event);

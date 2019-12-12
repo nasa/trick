@@ -7,7 +7,8 @@ static void wakeup(void *ctx)
 }
 
 VideoWindow::VideoWindow(QWidget *parent) :
-    QMainWindow(parent)
+    QMainWindow(parent),
+    _timeOffset(0.0)
 {
     std::setlocale(LC_NUMERIC, "C");
     setFocusPolicy(Qt::StrongFocus);
@@ -57,7 +58,7 @@ void VideoWindow::seek_time(double time) {
     if ( ret >= 0 ) {
         if ( isIdle && parentWidget()->isActiveWindow() ) {
             // Koviz is driving time
-            QString com = QString("seek %1 absolute").arg(time);
+            QString com = QString("seek %1 absolute").arg(time+_timeOffset);
             mpv_command_string(mpv, com.toLocal8Bit().data());
         }
     }
@@ -70,7 +71,7 @@ void VideoWindow::handle_mpv_event(mpv_event *event)
         mpv_event_property *prop = (mpv_event_property *)event->data;
         if (strcmp(prop->name, "time-pos") == 0) {
             if (prop->format == MPV_FORMAT_DOUBLE) {
-                double time = *(double *)prop->data;
+                double time = *(double *)prop->data-_timeOffset;
                 std::stringstream ss;
                 ss << "At: " << time;
                 statusBar()->showMessage(QString::fromStdString(ss.str()));
@@ -132,6 +133,10 @@ void VideoWindow::set_file(const QString &fname)
     }
 }
 
+void VideoWindow::set_offset(double timeOffset)
+{
+    _timeOffset = timeOffset;
+}
 
 VideoWindow::~VideoWindow()
 {

@@ -14,10 +14,11 @@
 
 #include "plotmainwindow.h"
 
-PlotMainWindow::PlotMainWindow(
-        const QString& trickhost,
+PlotMainWindow::PlotMainWindow(const QString& trickhost,
         uint trickport,
         double trickoffset,
+        const QString& videoFileName,
+        double videoOffset,
         const QString& excludePattern,
         const QString& filterPattern,
         const QString& scripts,
@@ -47,6 +48,8 @@ PlotMainWindow::PlotMainWindow(
     _trickhost(trickhost),
     _trickport(trickport),
     _trickoffset(trickoffset),
+    _videoFileName(videoFileName),
+    _videoOffset(videoOffset),
     _excludePattern(excludePattern),
     _filterPattern(filterPattern),
     _scripts(scripts),
@@ -299,6 +302,19 @@ PlotMainWindow::PlotMainWindow(
                     QDir::current().absoluteFilePath(
                         _runs->runDirs().at(0)));
         bviscom->sendFirstRun(sendRun);
+    }
+
+    if ( !videoFileName.isEmpty() ) {
+        QFileInfo fi(videoFileName);
+        if ( !fi.isReadable() ) {
+            fprintf(stderr, "koviz [error]: Cannot find or read video "
+                            "\"%s\"\n",videoFileName.toLatin1().constData());
+            exit(-1);
+        }
+        _openVideoFile(videoFileName);
+        if ( vidView ) {
+            vidView->set_offset(videoOffset);
+        }
     }
 
     // Size main window
@@ -1154,19 +1170,25 @@ void PlotMainWindow::_saveSession()
 void PlotMainWindow::_openVideo()
 {
     QString filename = QFileDialog::getOpenFileName(this, "Open file");
+    _openVideoFile(filename);
+}
+
+void PlotMainWindow::_openVideoFile(const QString& fname)
+{
     if ( !vidView ) {
         vidView = new VideoWindow(this);
         vidView->show();
         this->setFocusPolicy(Qt::StrongFocus);
         connect(vidView,SIGNAL(timechangedByMpv(double)),
                 this, SLOT(setTimeFromVideo(double)));
-        vidView->set_file(filename);
+        vidView->set_file(fname);
     } else {
-        vidView->set_file(filename);
+        if ( vidView->isHidden() ) {
+            vidView->show();
+        }
+        vidView->set_file(fname);
         vidView->raise();
     }
-
-
 }
 
 void PlotMainWindow::_toggleShowLiveCoord()
