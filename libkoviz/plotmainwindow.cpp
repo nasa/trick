@@ -1156,12 +1156,19 @@ void PlotMainWindow::_saveSession()
             exit(-1);
         }
         if ( !_map.isEmpty() ) {
-            out << "map: " << _map;
+            out << "map: " << _map << "\n";
         }
         if ( !_mapFile.isEmpty() ) {
-            out << "mapFile: " << _mapFile;
+            out << "mapFile: " << _mapFile << "\n";
         }
 
+        if ( !_videoFileName.isEmpty() ) {
+            out << "video: " << _videoFileName << "\n";
+        }
+
+        if ( _videoOffset != 0.0 ) {
+            out << "videoOffset: " << _videoOffset << "\n";
+        }
 
         f.close();
     }

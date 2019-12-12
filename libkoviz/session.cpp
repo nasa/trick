@@ -14,7 +14,9 @@ Session::Session() :
     _map(""),
     _mapFile(""),
     _isLegend(true),
-    _showTables("")
+    _showTables(""),
+    _videoFileName(""),
+    _videoOffset(0.0)
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -40,7 +42,9 @@ Session::Session(const QString &sessionFileName) :
     _timeName(""),
     _map(""),
     _mapFile(""),
-    _isLegend(true)
+    _isLegend(true),
+    _videoFileName(""),
+    _videoOffset(0.0)
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -353,6 +357,25 @@ Session::Session(const QString &sessionFileName) :
             }
             if ( _filterPattern.endsWith("\"") ) {
                 _filterPattern.chop(1);
+            }
+        } else if ( line.contains("video:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("video:",0,Qt::CaseInsensitive);
+            _videoFileName = line.mid(i+6).trimmed();
+            if ( _videoFileName.startsWith("\"") ) {
+                _videoFileName = _videoFileName.mid(1);
+            }
+            if ( _videoFileName.endsWith("\"") ) {
+                _videoFileName.chop(1);
+            }
+        } else if ( line.contains("videoOffset:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("videoOffset:",0,Qt::CaseInsensitive);
+            bool ok;
+            _videoOffset = line.mid(i+12).trimmed().toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"koviz [error]: videoOffset spec in session "
+                               "file %s is corrupt.\n",
+                        sessionFileName.toLatin1().constData());
+                exit(-1);
             }
         }
     }

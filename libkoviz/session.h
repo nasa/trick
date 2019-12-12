@@ -67,6 +67,8 @@ public:
     QString showTables() const { return _showTables; }
     QString excludePattern() const { return _excludePattern; }
     QString filterPattern() const { return _filterPattern; }
+    QString videoFileName() const { return _videoFileName; }
+    double videoOffset() const { return _videoOffset; }
 
 private:
     Session();
@@ -95,6 +97,8 @@ private:
     QString _showTables; // should be empty or a boolean (poor man's troolean)
     QString _excludePattern;
     QString _filterPattern;
+    QString _videoFileName;
+    double _videoOffset;
 };
 
 #endif // SESSION_H

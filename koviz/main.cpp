@@ -367,6 +367,16 @@ int main(int argc, char *argv[])
         filterPattern = session->filterPattern();
     }
 
+    // Video and VideoOffset
+    QString videoFileName = opts.videoFileName;
+    if ( videoFileName.isEmpty() && session ) {
+        videoFileName = session->videoFileName();
+    }
+    double videoOffset = opts.videoOffset;
+    if ( videoOffset == 0.0 && session ) {
+        videoOffset = session->videoOffset();
+    }
+
     if ( !opts.trk2csvFile.isEmpty() ) {
         QString csvOutFile = opts.outputFileName;
         if ( csvOutFile.isEmpty() ) {
@@ -834,8 +844,8 @@ int main(int argc, char *argv[])
             PlotMainWindow w(opts.trickhost,
                              opts.trickport,
                              opts.trickoffset,
-                             opts.videoFileName,
-                             opts.videoOffset,
+                             videoFileName,
+                             videoOffset,
                              excludePattern,
                              filterPattern,
                              opts.scripts,
@@ -962,8 +972,8 @@ int main(int argc, char *argv[])
                 PlotMainWindow w(opts.trickhost,
                                  opts.trickport,
                                  opts.trickoffset,
-                                 opts.videoFileName,
-                                 opts.videoOffset,
+                                 videoFileName,
+                                 videoOffset,
                                  excludePattern,
                                  filterPattern,
                                  opts.scripts,
@@ -991,8 +1001,8 @@ int main(int argc, char *argv[])
                 PlotMainWindow w(opts.trickhost,
                                  opts.trickport,
                                  opts.trickoffset,
-                                 opts.videoFileName,
-                                 opts.videoOffset,
+                                 videoFileName,
+                                 videoOffset,
                                  excludePattern,
                                  filterPattern,
                                  opts.scripts,
