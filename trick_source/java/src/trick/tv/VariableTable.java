@@ -1,36 +1,20 @@
 package trick.tv;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.Box;
-import javax.swing.DefaultCellEditor;
-import javax.swing.DropMode;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JRootPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -427,10 +411,15 @@ public class VariableTable extends JXTable {
                     selectUnitsIndividually(variable);
                     return null;
                 }
-                else {
-                    return new DefaultCellEditor(new JComboBox(UnitType.getAll(variable.getUnits()).toArray()) {{
+                else if(!UnitType.getAll(variable.getUnits()).isEmpty()){
+                    JComboBox available_units = new JComboBox(UnitType.getAll(variable.getUnits()).toArray()) {{
                         setSelectedItem(variable.getUnits());
-                    }});
+                    }};
+                    return new DefaultCellEditor(available_units);
+                } else {
+                    enterUnits(variable);
+                    return null;
+
                 }
             case 3:
                 return new DefaultCellEditor(new JComboBox(EnumSet.allOf(value.getFormatClass()).toArray()) {{
@@ -457,7 +446,7 @@ public class VariableTable extends JXTable {
             String[] tokens = variable.getUnits().split(afterMathSymbols + beforeNumbers + beforeMathSymbolsNotPreceededByNumbers);
             new JDialog(SwingUtilities.getWindowAncestor(this), "Select Units", ModalityType.APPLICATION_MODAL) {{
 
-                ArrayList<JComboBox<String>> comboBoxes = new ArrayList<>();
+                ArrayList<JComponent> units = new ArrayList<>();
                 ArrayList<String> delimiters = new ArrayList<>();
 
                 final JXButton okButton = new JXButton(new AbstractAction("OK") {
@@ -466,8 +455,14 @@ public class VariableTable extends JXTable {
                     }
                     public void actionPerformed(ActionEvent actionEvent) {
                         String result = "";
-                        for (int i = 0; i < comboBoxes.size(); ++i) {
-                            result += comboBoxes.get(i).getSelectedItem();
+                        for (int i = 0; i < units.size(); ++i) {
+                            JComponent next = units.get(i);
+                            if(next instanceof JComboBox) {
+                                result += ((JComboBox<String>)next).getSelectedItem();
+                            }
+                            if(next instanceof JTextField) {
+                                result += ((JTextField)next).getText();
+                            }
                             if (i < delimiters.size()) {
                                 result += delimiters.get(i);
                             }
@@ -498,12 +493,18 @@ public class VariableTable extends JXTable {
                         boolean unit = true;
                         for (String token : tokens) {
                             if (unit) {
-                                JComboBox<String> comboBox = new JComboBox<String>(
-                                  UnitType.getAll(token).toArray(new String[0])) {{
-                                    setSelectedItem(token);
-                                }};
-                                comboBoxes.add(comboBox);
-                                add(comboBox, constraints);
+                                if(!UnitType.getAll(token).isEmpty()) {
+                                    JComboBox<String> comboBox = new JComboBox<String>(
+                                            UnitType.getAll(token).toArray(new String[0])) {{
+                                        setSelectedItem(token);
+                                    }};
+                                    units.add(comboBox);
+                                    add(comboBox, constraints);
+                                } else {
+                                    JTextField textField = new JTextField("", 10);
+                                    units.add(textField);
+                                    add(textField, constraints);
+                                }
                             }
                             else {
                                 delimiters.add(token);
@@ -530,6 +531,65 @@ public class VariableTable extends JXTable {
             }}.setVisible(true);
         }
     }
+    private void enterUnits(Variable variable) {
+        if (variable != null) {
+            String afterMathSymbols = "(?<=[*/])|";
+            String beforeNumbers = "(?=\\d)|";
+            String beforeMathSymbolsNotPreceededByNumbers = "(?<!\\d)(?=[*/])";
+            String[] tokens = variable.getUnits().split(afterMathSymbols + beforeNumbers + beforeMathSymbolsNotPreceededByNumbers);
+            new JDialog(SwingUtilities.getWindowAncestor(this), "Select Units", ModalityType.APPLICATION_MODAL) {{
+
+                ArrayList<JComboBox<String>> comboBoxes = new ArrayList<>();
+                ArrayList<String> delimiters = new ArrayList<>();
+                JTextField new_unit = new JTextField("", 20);
+                final JXButton okButton = new JXButton(new AbstractAction("OK") {
+                    {
+                        putValue(MNEMONIC_KEY, KeyEvent.VK_O);
+                    }
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        String result = "";
+                        setUnits(getSelectedVariables(), new_unit.getText());
+                        setVisible(false);
+                    }
+                });
+
+                final AbstractAction cancelAction = new AbstractAction("Cancel") {
+                    {
+                        putValue(MNEMONIC_KEY, KeyEvent.VK_C);
+                    }
+                    public void actionPerformed(ActionEvent e) {
+                        setVisible(false);
+                    }
+                };
+
+                setContentPane(new JXPanel(new BorderLayout()) {{
+                    setBorder(new EmptyBorder(5, 5, 5, 5));
+                    add(new JXPanel(new GridBagLayout()) {{
+                        GridBagConstraints constraints = new GridBagConstraints() {{
+                            gridy = 1;
+                            fill = BOTH;
+                            insets = new Insets(5, 2, 5, 2);
+                        }};
+                        add(new_unit, constraints);
+                    }}, BorderLayout.CENTER);
+                    add(new JXPanel(new GridLayout(1, 4)) {{
+                        add(Box.createHorizontalGlue());
+                        add(okButton);
+                        add(new JXButton(cancelAction));
+                        add(Box.createHorizontalGlue());
+                    }}, BorderLayout.SOUTH);
+                }});
+
+                JRootPane rootPane = getRootPane();
+                rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                        KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
+                rootPane.getActionMap().put("cancel", cancelAction);
+                rootPane.setDefaultButton(okButton);
+                pack();
+                setLocationRelativeTo(VariableTable.this);
+            }}.setVisible(true);
+        }
+    }
 
     /**
      * sets the units of all <code>variables</code> to the result of <code>units.toString()</code>.
@@ -538,22 +598,19 @@ public class VariableTable extends JXTable {
      * @param variables the variables whose units to set
      * @param units the new units
      */
+
     private void setUnits(ArrayList<? extends Variable> variables, Object units) {
         for (Variable variable : variables) {
-            for (String string : UnitType.getAll(variable.getUnits())) {
-                if (string.equals(units)) {
-                    try {
-                        variable.sendUnitsToVariableServer(units.toString(),
-                          variableServerConnection);
-                    }
-                    catch (IOException ioException) {
-                        System.err.println("Failed to set variable \"" +
-                          variable + "\" units to \"" + units + "\"");
-                        ioException.printStackTrace(System.err);
-                    }
-                    break;
+                try {
+                    variable.sendUnitsToVariableServer(units.toString(),
+                            variableServerConnection);
                 }
-            }
+                catch (IOException ioException) {
+                    System.err.println("Failed to set variable \"" +
+                            variable + "\" units to \"" + units + "\"");
+                    ioException.printStackTrace(System.err);
+                }
+                break;
         }
     }
 
