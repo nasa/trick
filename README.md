@@ -1,5 +1,7 @@
 <p align=center>
+<a href="https://nasa.github.io/trick">
 <img src="https://raw.github.com/nasa/Trick/master/TrickLogo.png" alt="Trick Logo" height=150px>
+</a>
 </p>
 
 <p align=justify>
