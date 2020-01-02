@@ -1,49 +1,28 @@
 package trick.tv;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.border.EmptyBorder;
-import javax.swing.Box;
-import javax.swing.DefaultCellEditor;
-import javax.swing.DropMode;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JRootPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
-import javax.swing.TransferHandler;
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
-import org.jdesktop.swingx.JXButton;
-import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXPanel;
+
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.decorator.PatternPredicate;
 
-import trick.common.utils.UnitType;
 import trick.common.utils.VariableServerConnection;
 import trick.common.utils.vs.Variable;
 import trick.common.utils.vs.VariableServerFluent;
@@ -423,15 +402,7 @@ public class VariableTable extends JXTable {
             case 1:
                 return value.getCellEditor();
             case 2:
-                if (hasComplexUnits(variable)) {
-                    selectUnitsIndividually(variable);
-                    return null;
-                }
-                else {
-                    return new DefaultCellEditor(new JComboBox(UnitType.getAll(variable.getUnits()).toArray()) {{
-                        setSelectedItem(variable.getUnits());
-                    }});
-                }
+                return getDefaultEditor(String.class);
             case 3:
                 return new DefaultCellEditor(new JComboBox(EnumSet.allOf(value.getFormatClass()).toArray()) {{
                     setSelectedItem(value.getFormat());
@@ -439,97 +410,7 @@ public class VariableTable extends JXTable {
         }
     }
 
-    public boolean hasComplexUnits(Variable variable) {
-        String units = variable.getUnits();
-        return units.contains("*") || units.contains("/");
-    }
 
-    /**
-     * presents a dialog for specifying each individual dimension of a compound unit
-     *
-     * @param variable the variable whose units to set
-     */
-    private void selectUnitsIndividually(Variable variable) {
-        if (variable != null) {
-            String afterMathSymbols = "(?<=[*/])|";
-            String beforeNumbers = "(?=\\d)|";
-            String beforeMathSymbolsNotPreceededByNumbers = "(?<!\\d)(?=[*/])";
-            String[] tokens = variable.getUnits().split(afterMathSymbols + beforeNumbers + beforeMathSymbolsNotPreceededByNumbers);
-            new JDialog(SwingUtilities.getWindowAncestor(this), "Select Units", ModalityType.APPLICATION_MODAL) {{
-
-                ArrayList<JComboBox<String>> comboBoxes = new ArrayList<>();
-                ArrayList<String> delimiters = new ArrayList<>();
-
-                final JXButton okButton = new JXButton(new AbstractAction("OK") {
-                    {
-                    putValue(MNEMONIC_KEY, KeyEvent.VK_O);
-                    }
-                    public void actionPerformed(ActionEvent actionEvent) {
-                        String result = "";
-                        for (int i = 0; i < comboBoxes.size(); ++i) {
-                            result += comboBoxes.get(i).getSelectedItem();
-                            if (i < delimiters.size()) {
-                                result += delimiters.get(i);
-                            }
-                        }
-                        setUnits(getSelectedVariables(), result);
-                        setVisible(false);
-                    }
-                });
-
-                final AbstractAction cancelAction = new AbstractAction("Cancel") {
-                    {
-                    putValue(MNEMONIC_KEY, KeyEvent.VK_C);
-                    }
-                    public void actionPerformed(ActionEvent e) {
-                       setVisible(false);
-                    }
-                };
-
-                setContentPane(new JXPanel(new BorderLayout()) {{
-                    setBorder(new EmptyBorder(5, 5, 5, 5));
-                    add(new JXPanel(new GridBagLayout()) {{
-                        GridBagConstraints constraints = new GridBagConstraints() {{
-                            gridy = 1;
-                            fill = BOTH;
-                            insets = new Insets(5, 2, 5, 2);
-                        }};
-
-                        boolean unit = true;
-                        for (String token : tokens) {
-                            if (unit) {
-                                JComboBox<String> comboBox = new JComboBox<String>(
-                                  UnitType.getAll(token).toArray(new String[0])) {{
-                                    setSelectedItem(token);
-                                }};
-                                comboBoxes.add(comboBox);
-                                add(comboBox, constraints);
-                            }
-                            else {
-                                delimiters.add(token);
-                                add(new JXLabel(token), constraints);
-                            }
-                            unit = !unit;
-                        }
-                    }}, BorderLayout.CENTER);
-                    add(new JXPanel(new GridLayout(1, 4)) {{
-                        add(Box.createHorizontalGlue());
-                        add(okButton);
-                        add(new JXButton(cancelAction));
-                        add(Box.createHorizontalGlue());
-                    }}, BorderLayout.SOUTH);
-                }});
-
-                JRootPane rootPane = getRootPane();
-                rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
-                  KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "cancel");
-                rootPane.getActionMap().put("cancel", cancelAction);
-                rootPane.setDefaultButton(okButton);
-                pack();
-                setLocationRelativeTo(VariableTable.this);
-            }}.setVisible(true);
-        }
-    }
 
     /**
      * sets the units of all <code>variables</code> to the result of <code>units.toString()</code>.
@@ -538,22 +419,19 @@ public class VariableTable extends JXTable {
      * @param variables the variables whose units to set
      * @param units the new units
      */
+
     private void setUnits(ArrayList<? extends Variable> variables, Object units) {
         for (Variable variable : variables) {
-            for (String string : UnitType.getAll(variable.getUnits())) {
-                if (string.equals(units)) {
-                    try {
-                        variable.sendUnitsToVariableServer(units.toString(),
-                          variableServerConnection);
-                    }
-                    catch (IOException ioException) {
-                        System.err.println("Failed to set variable \"" +
-                          variable + "\" units to \"" + units + "\"");
-                        ioException.printStackTrace(System.err);
-                    }
-                    break;
+                try {
+                    variable.sendUnitsToVariableServer(units.toString(),
+                            variableServerConnection);
                 }
-            }
+                catch (IOException ioException) {
+                    System.err.println("Failed to set variable \"" +
+                            variable + "\" units to \"" + units + "\"");
+                    ioException.printStackTrace(System.err);
+                }
+                break;
         }
     }
 
