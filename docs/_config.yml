@@ -1,4 +1,4 @@
 markdown: GFM
-url: "https://nasa.github.io/trick"
+url: "https://nasa.github.io"
 plugins:
   - jekyll-sitemap
