@@ -2,7 +2,3 @@ markdown: GFM
 url: "https://nasa.github.io"
 plugins:
   - jekyll-sitemap
-defaults:
-  -
-    title: page.title
-    
