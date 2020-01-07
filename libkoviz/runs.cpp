@@ -236,6 +236,9 @@ CurveModel* Runs::curveModel(const QString& rundir,
     CurveModel* curveModel = 0;
 
     DataModel* model = _paramModel(y,rundir);
+    if ( !model ) {
+        return 0;
+    }
     int tcol = _paramColumn(model,t) ;
     int xcol = _paramColumn(model,x) ;
     int ycol = _paramColumn(model,y) ;
@@ -296,18 +299,9 @@ DataModel* Runs::_paramModel(const QString &param, const QString& run) const
             }
         }
     }
-    if ( !models ) {
-        fprintf(stderr, "koviz [error]: Problem with var=%s.\n"
-                "  Possible reasons:\n"
-                "   1. The var dne in run=%s\n"
-                "   2. The var is being coplotted and dne in all the runs "
-                "and therefore needs to be mapped\n"
-                "   3. The var is not mapped properly\n",
-                param.toLatin1().constData(),
-                frundir.toLatin1().constData());
-        exit(-1);
+    if ( models ) {
+        model = models->at(row);
     }
-    model = models->at(row);
     return model;
 }
 
