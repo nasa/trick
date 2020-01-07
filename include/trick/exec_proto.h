@@ -39,6 +39,7 @@ extern "C" {
     int exec_get_trap_sigfpe(void) ;
     int exec_get_trap_sigsegv(void) ;
     int exec_get_trap_sigabrt(void) ;
+    int exec_get_trap_sigchld(void) ;
 
     int exec_set_attach_debugger(int on_off) ;
     int exec_set_debugger_command(const char * command) ;
@@ -69,6 +70,7 @@ extern "C" {
     int exec_set_trap_sigfpe(int on_off) ;
     int exec_set_trap_sigsegv(int on_off) ;
     int exec_set_trap_sigabrt(int on_off) ;
+    int exec_set_trap_sigchld(int on_off) ;
     int exec_set_version_date_tag(const char * tag) ;
     int exec_set_build_date(const char * date) ;
     int exec_set_current_version(const char * version) ;
