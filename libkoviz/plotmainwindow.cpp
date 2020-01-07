@@ -315,6 +315,48 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
         if ( vidView ) {
             vidView->set_offset(videoOffset);
         }
+
+        // If there is a single curve in first plot, select it so that
+        // live coords are shown and updating with video
+        if ( _bookModel->isChildIndex(QModelIndex(),"","Pages") ) {
+            QModelIndex pagesIdx = _bookModel->getIndex(QModelIndex(),
+                                                        "Pages","");
+            if ( _bookModel->isChildIndex(pagesIdx, "Pages", "Page") ) {
+                 QModelIndexList pageIdxs = _bookModel->getIndexList(pagesIdx,
+                                                                "Page","Pages");
+                 QModelIndex pageIdx0 = pageIdxs.at(0);
+                 if ( _bookModel->isChildIndex(pageIdx0,"Page", "Plots") ) {
+                     QModelIndex plotsIdx = _bookModel->getIndex(pageIdx0,
+                                                                "Plots","Page");
+                     if ( _bookModel->isChildIndex(plotsIdx,"Plots","Plot")) {
+                         QModelIndexList plotIdxs = _bookModel->getIndexList(
+                                                                 plotsIdx,
+                                                                "Plot","Plots");
+                         QModelIndex plotIdx0 = plotIdxs.at(0);
+                         if ( _bookModel->isChildIndex(plotIdx0,
+                                                       "Plot","Curves")) {
+                             QModelIndex curvesIdx = _bookModel->getIndex(
+                                                               plotIdx0,
+                                                               "Curves","Plot");
+                             if ( _bookModel->isChildIndex(curvesIdx,
+                                                           "Curves","Curve")) {
+                                 QModelIndexList curveIdxs = _bookModel->
+                                                   getIndexList(curvesIdx,
+                                                              "Curve","Curves");
+                                 if ( curveIdxs.size() == 1 ) {
+                                     QModelIndex curveIdx0 = curveIdxs.at(0);
+                                     QModelIndex runIdx = _bookModel->getIndex(
+                                                          curveIdx0,
+                                                         "CurveRunID", "Curve");
+                                     int id = _bookModel->data(runIdx).toInt();
+                                     _bookView->setCurrentCurveRunID(id);
+                                 }
+                             }
+                         }
+                     }
+                 }
+            }
+        }
     }
 
     // Size main window
