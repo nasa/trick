@@ -5,19 +5,19 @@
 This document will walk you through the process of installing Trick on your computer. Please read each section carefully.
 
 # Package Dependencies
-Trick requires various free third party utilities in order to function. All the following products are used by Trick and may already be installed as part of your OS distribution. **Install any missing dependencies with your operating system's [package manager](https://en.wikipedia.org/wiki/Package_manager).**
+Trick requires various free third party utilities in order to function. All the following products are used by Trick and may already be installed as part of your OS distribution. **Install any missing dependencies with your operating system's [package manager](https://en.wikipedia.org/wiki/Package_manager).** For most operating systems, the default version of a dependency will be compatitable with Trick. Please check the specific OS instructions below for your operating system for more details.
 
 | Utility       | Version   | Description               | Usage                                                         |
 |-:|:-:|:-:|:-|
 | [gcc] and g++   | 4.8+      | C/C++ Compiler            | Compiles Trick and Trick simulations.                         |
-| [clang]/[llvm]    | 3.4.2     | C/C++ Compiler            | Utilized by the interface code generator.                     |
-| [python]        | 2.6       | Programming Language      | Lets the user interact with a simulation.                  |
-| [perl]          | 5.6       | Programming Language      | Allows executable scripts in the bin directory to run.        |
-| [java]          | 1.8       | Programming Language      | Necessary for Trick GUIs.                                     |
-| [swig]          | 1.3.40    | Language Interfacing      | Connects the python input processor with Trick's C code.      |
-| [make]          | 3.78      | Build Automation          | Automates the building and cleaning of Trick.                 |
-| [openmotif]     | 2.2.0     | GUI Toolkit               | Covers Trick GUIs not made with Java.                         |
-| [udunits]       | 2.x       | C Unit Library/Database   | Provides support for units of physical quantities.            |
+| [clang]/[llvm]    | 3.4.2+     | C/C++ Compiler            | Utilized by the interface code generator.                     |
+| [python]        | 2.7+      | Programming Language      | Lets the user interact with a simulation.                  |
+| [perl]          | 5.6+      | Programming Language      | Allows executable scripts in the bin directory to run.        |
+| [java]          | 1.8+      | Programming Language      | Necessary for Trick GUIs.                                     |
+| [swig]          | 2.0+      | Language Interfacing      | Connects the python input processor with Trick's C code.      |
+| [make]          | 3.78+     | Build Automation          | Automates the building and cleaning of Trick.                 |
+| [openmotif]     | 2.2.0+    | GUI Toolkit               | Covers Trick GUIs not made with Java.                         |
+| [udunits]       | 2.x+      | C Unit Library/Database   | Provides support for units of physical quantities.            |
 
 [gcc]: https://gcc.gnu.org/
 [clang]: https://clang.llvm.org/
@@ -55,7 +55,7 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 |---|
 |[RedHat Enterprise Linux (RHEL) 7](#redhat7)|
 |[RedHat Enterprise Linux (RHEL) 6](#redhat6)|
-|[Fedora 24](#fedora24)|
+|[Fedora 30, 28, 24](#fedora)|
 |[Ubuntu 16.04/15.10](#ubuntu16.04)|
 |[Ubuntu 15.04](#ubuntu15.04)|
 |[MacOSX 10.12/10.11](#macosx)|
@@ -145,9 +145,9 @@ yum install hdf5-devel gsl-devel gtest-devel
 ```
 
 ---
-<a name="fedora24"></a>
+<a name="fedora"></a>
 
-### Fedora 28, 24
+### Fedora 30, 28, 24
 Trick requires development packages from the base repositories.
 
 ```bash
