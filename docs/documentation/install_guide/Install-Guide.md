@@ -55,7 +55,7 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 |---|
 |[RedHat Enterprise Linux (RHEL) 7](#redhat7)|
 |[RedHat Enterprise Linux (RHEL) 6](#redhat6)|
-|[Fedora 30, 28, 24](#fedora)|
+|[Fedora 32, 30, 28, 24](#fedora)|
 |[Ubuntu 16.04/15.10](#ubuntu16.04)|
 |[Ubuntu 15.04](#ubuntu15.04)|
 |[MacOSX 10.12/10.11](#macosx)|
@@ -147,7 +147,7 @@ yum install hdf5-devel gsl-devel gtest-devel
 ---
 <a name="fedora"></a>
 
-### Fedora 30, 28, 24
+### Fedora 31, 30, 28, 24
 Trick requires development packages from the base repositories.
 
 ```bash
