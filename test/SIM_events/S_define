@@ -40,7 +40,7 @@ class eventSimObject : public Trick::SimObject {
             event0 = (Trick::IPPythonEvent*)alloc_type(1,"Trick::IPPythonEvent");
             event0->set_name("SDEFINE_event");
             event0->condition(0, "True");
-            event0->action(0, "print \"event0\"; result[0] = 1");
+            event0->action(0, "print (\"event0\"); result[0] = 1");
             event0->activate();
 
             ("initialization")  init();
