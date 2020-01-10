@@ -18,6 +18,7 @@ protected:
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
     void wheelEvent(QWheelEvent *e);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

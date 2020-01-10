@@ -1409,8 +1409,7 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                 // click off curves, current unset i.e. "deselect curve"
                 setCurrentIndex(QModelIndex());
             } else if ( !curveIdx.isValid() &&  !currentIndex().isValid() ) {
-                // click off curves when nothing selected -> toggle single/multi
-                event->ignore(); // pass event to page view
+                // click off curves when nothing selected - do nothing
             }
         } else if ( d < 10 && presentation == "error" ) {
             bool isMouseNearCurve = _isErrorCurveNearMousePoint(event->pos());
@@ -1428,8 +1427,7 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
                 // click off curves when curve selected -> deselect
                 setCurrentIndex(QModelIndex());  // toggle to deselect
             } else if ( !currentIndex().isValid() && !isMouseNearCurve ) {
-                // click off curves when nothing selected -> toggle single/multi
-                event->ignore(); // pass event to page
+                // click off curves when nothing selected - do nothing
             } else {
                 fprintf(stderr, "koviz [bad scoobs]: "
                                  "CurvesView::mouseReleaseEvent():2\n");
