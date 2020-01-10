@@ -10,5 +10,4 @@ libkoviz/product_lexer.cpp
 libkoviz/product_lexer.h
 libkoviz/product_parser.cpp
 libkoviz/product_parser.h
-docs/koviz-users-guide.odt
 .qmake.stash
