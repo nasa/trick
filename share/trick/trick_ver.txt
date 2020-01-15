@@ -1,1 +1,1 @@
-current_version = "17.6.dev"
+current_version = "17.5.1"
