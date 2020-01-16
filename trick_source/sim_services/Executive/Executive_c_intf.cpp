@@ -390,6 +390,18 @@ extern "C" int exec_get_trap_sigabrt() {
     return -1 ;
 }
 
+/**
+ * @relates Trick::Executive
+ * @copydoc Trick::Executive::get_trap_sigchld
+ * C wrapper for Trick::Executive::get_trap_sigchld
+ */
+extern "C" int exec_get_trap_sigchld() {
+    if ( the_exec != NULL ) {
+        return (int)the_exec->get_trap_sigchld() ;
+    }
+    return -1 ;
+}
+
 // -------------------------- SET ------------------------
 
 /**
@@ -613,6 +625,18 @@ extern "C" int exec_set_trap_sigsegv( int on_off ) {
 extern "C" int exec_set_trap_sigabrt( int on_off ) {
     if ( the_exec != NULL ) {
         return the_exec->set_trap_sigabrt((bool)on_off) ;
+    }
+    return -1 ;
+}
+
+/**
+ * @relates Trick::Executive
+ * @copydoc Trick::Executive::set_trap_sigsegv
+ * C wrapper for Trick::Executive::set_trap_sigsegv
+ */
+extern "C" int exec_set_trap_sigchld( int on_off ) {
+    if ( the_exec != NULL ) {
+        return the_exec->set_trap_sigchld((bool)on_off) ;
     }
     return -1 ;
 }

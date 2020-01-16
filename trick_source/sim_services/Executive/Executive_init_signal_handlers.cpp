@@ -137,6 +137,32 @@ int Trick::Executive::set_trap_sigabrt(bool on_off) {
 
 /**
 @details
+-# If incoming on_off flag is true assign sig_hand() as the signal handler for SIGCHLD
+-# Else revert to the default signal handler SIG_DFL.
+-# set trap_sigabrt to the current on_off status
+   Requirement [@ref r_exec_signal_0].
+*/
+
+int Trick::Executive::set_trap_sigchld(bool on_off) {
+    static struct sigaction sigact;
+
+    if ( on_off ) {
+        /* Assign sig_hand() as the signal handler for SIGABRT */
+        sigact.sa_handler = (void (*)(int)) child_handler;
+    } else {
+        sigact.sa_handler = SIG_DFL;
+    }
+
+    if (sigaction(SIGCHLD, &sigact, NULL) < 0) {
+        perror("sigaction() failed for SIGCHLD");
+    } else {
+        trap_sigchld = on_off ;
+    }
+    return(0) ;
+}
+
+/**
+@details
 -# Catch SIGBUS, SIGSEGV, and SIGABRT errors. Don't catch SIGFPE
 -# Assign ctrl_c_hand() as the signal handler for SIGINT.
    Requirement [@ref r_exec_signal_0].
@@ -149,11 +175,12 @@ int Trick::Executive::init_signal_handlers() {
 
     static struct sigaction sigact;
 
-    /* By default catch SIGBUS and SIGSEGV.  Don't catch SIGFPE */
+    /* By default catch SIGBUS, SIGSEGV, SIGABRT, and SIGCHLD.  Don't catch SIGFPE */
     set_trap_sigbus(true) ;
     set_trap_sigfpe(false) ;
     set_trap_sigsegv(true) ;
     set_trap_sigabrt(true) ;
+    set_trap_sigchld(true) ;
 
     /* Assign ctrl_c_hand() as the default signal handler for SIGINT (<CTRL-C> keypress). */
     sigact.sa_handler = (void (*)(int)) ctrl_c_hand;
@@ -171,12 +198,6 @@ int Trick::Executive::init_signal_handlers() {
     sigact.sa_handler = (void (*)(int)) usr1_hand;
     if (sigaction(SIGUSR1, &sigact, NULL) < 0) {
         perror("sigaction() failed for SIGUSR1");
-    }
-
-    /* Assign child_handler() as the default signal handler for SIGCHLD. */
-    sigact.sa_handler = (void (*)(int)) child_handler;
-    if (sigaction(SIGCHLD, &sigact, NULL) < 0) {
-        perror("sigaction() failed for SIGCHLD");
     }
 
     return(0) ;
