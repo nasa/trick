@@ -341,12 +341,14 @@ The Executive provides several parameters that can help a model developer debug 
 trick.exec_set_trap_sigbus(int on_off)
 trick.exec_set_trap_sigfpe(int on_off)
 trick.exec_set_trap_sigsegv(int on_off)
+trick.exec_set_trap_sigchld(int on_off)
 trick.exec_get_trap_sigbus()
 trick.exec_get_trap_sigfpe()
 trick.exec_get_trap_sigsegv()
+trick.exec_get_trap_sigchld()
 ```
 
-The set_trap routines listed above set a signal handler for the SIGBUS, SIGFPE, and SIGSEGV signals respectively.  The get_trap routines return the on/off status of the trap.  Trapping the signals allows the Trick to gracefully shutdown the simulation and to possibly write important information about the signal before exiting execution.  Turning off the traps will revert signal handling to the default system signal handler.  By default the traps for SIGBUS and SIGSEGV are true.  SIGFPE is not trapped by default.
+The set_trap routines listed above set a signal handler for the SIGBUS, SIGFPE, SIGSEGV, and SIGCHLD signals respectively.  The get_trap routines return the on/off status of the trap.  Trapping the signals allows the Trick to gracefully shutdown the simulation and to possibly write important information about the signal before exiting execution.  Turning off the traps will revert signal handling to the default system signal handler.  By default the traps for SIGBUS, SIGSEGV, and SIGCHLD are true.  SIGFPE is not trapped by default.
 
 #### Printing a Stack (Call) Trace on Signal
 
