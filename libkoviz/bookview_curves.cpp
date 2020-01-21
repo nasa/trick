@@ -545,7 +545,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
 
         // Draw "Flatline=#" label if curve is flat (constant)
         QRectF cbox = path->boundingRect();
-        if ( cbox.height() == 0.0 ) {
+        if ( cbox.height() == 0.0 && path->elementCount() > 0 ) {
             double y = cbox.y()*ys+yb;
             if (plotYScale=="log") {
                 y = exp10(y) ;
@@ -564,6 +564,15 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
                                  QPointF(0,fontMetrics().ascent())
                                  +QPointF(0,5),yString);
             }
+            painter.setTransform(Tscaled);
+        } else if ( path->elementCount() == 0 ) {
+            // Empty plot
+            QTransform I;
+            painter.setTransform(I);
+            QString lbl("Empty");
+            QRect bb = fontMetrics().boundingRect(lbl);
+            QRect R = viewport()->rect();
+            painter.drawText(R.center()+QPointF(-bb.width()/2,0),lbl);
             painter.setTransform(Tscaled);
         }
 
@@ -1127,7 +1136,7 @@ void CurvesView::_paintErrorplot(const QTransform &T,
         ePen.setColor(_bookModel()->errorLineColor());
     }
     painter.setPen(ePen);
-    if ( ebox.height() == 0.0 ) {
+    if ( ebox.height() == 0.0 && errorPath->elementCount() > 0 ) {
         // Flatline
         QString yval;
         if ( ebox.y() == 0.0 ) {
@@ -1139,6 +1148,14 @@ void CurvesView::_paintErrorplot(const QTransform &T,
         painter.setTransform(I);
         QRectF tbox = T.mapRect(ebox);
         painter.drawText(tbox.topLeft()-QPointF(0,5),yval);
+    } else if ( errorPath->elementCount() == 0 ) {
+        // Empty plot
+        QTransform I;
+        painter.setTransform(I);
+        QString lbl("Empty");
+        QRect bb = fontMetrics().boundingRect(lbl);
+        QRect R = viewport()->rect();
+        painter.drawText(R.center()+QPointF(-bb.width()/2,0),lbl);
     }
     painter.setTransform(T);
     painter.drawPath(*errorPath);
@@ -1262,13 +1279,16 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
 
 QPixmap* CurvesView::_createLivePixmap()
 {
-    QPixmap* livePixmap = new QPixmap(viewport()->rect().size());
-
     if ( viewport()->rect().size().width() == 0 ||
          viewport()->rect().size().height() == 0 ) {
-        delete livePixmap;
         return 0;
     }
+    bool isCurves  = _bookModel()->isChildIndex(rootIndex(),"Plot","Curves");
+    if ( !isCurves ) {
+        return 0;
+    }
+
+    QPixmap* livePixmap = new QPixmap(viewport()->rect().size());
 
     QPainter painter(livePixmap);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -2297,14 +2317,11 @@ void CurvesView::currentChanged(const QModelIndex &current,
 
 void CurvesView::resizeEvent(QResizeEvent *event)
 {
-    QRectF M = _bookModel()->getPlotMathRect(rootIndex());
-
-    if ( M.size().width() > 0 && M.size().height() != 0 ) {
-        if ( _pixmap ) {
-            delete _pixmap;
-        }
-        _pixmap = _createLivePixmap();
+    if ( _pixmap ) {
+        delete _pixmap;
     }
+    _pixmap = _createLivePixmap();
+
     QAbstractItemView::resizeEvent(event);
 }
 

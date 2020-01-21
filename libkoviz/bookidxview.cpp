@@ -626,11 +626,19 @@ void BookIdxView::__paintSymbol(const QPointF& p,
 
 void BookIdxView::_paintGrid(QPainter &painter, const QModelIndex& plotIdx)
 {
-    // If Grid is off, do not paint grid
+    // If Grid DNE or off or math rect is zero, do not paint grid
+    bool isGrid = _bookModel()->isChildIndex(plotIdx,"Plot","PlotGrid");
+    if ( !isGrid ) {
+        return;
+    }
     QModelIndex isGridIdx = _bookModel()->getDataIndex(plotIdx,
                                                        "PlotGrid","Plot");
-    bool isGrid = _bookModel()->data(isGridIdx).toBool();
+    isGrid = _bookModel()->data(isGridIdx).toBool();
     if ( !isGrid ) {
+        return;
+    }
+    const QRectF M = _mathRect();
+    if ( M.width() == 0.0 || M.height() == 0.0 ) {
         return;
     }
 
@@ -652,8 +660,6 @@ void BookIdxView::_paintGrid(QPainter &painter, const QModelIndex& plotIdx)
 
     QVector<QPointF> vLines;
     QVector<QPointF> hLines;
-
-    const QRectF M = _mathRect();
 
     foreach ( double x, xtics ) {
         vLines << QPointF(x,M.top()) << QPointF(x,M.bottom());

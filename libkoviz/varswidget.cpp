@@ -431,14 +431,7 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             }
         }
         _addChild(curveItem, "CurveYUnit", yunit);
-
-        QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
-        bool ok;
-        int runId = runDirName.mid(4).toInt(&ok);
-        if ( !ok ) {
-            runId = r;
-        }
-        _addChild(curveItem, "CurveRunID", runId);
+        _addChild(curveItem, "CurveRunID", r);
         _addChild(curveItem, "CurveXScale", curveModel->x()->scale());
         QHash<QString,QVariant> shifts = _plotModel->getDataHash(QModelIndex(),
                                                               "RunToShiftHash");
@@ -463,7 +456,7 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             _addChild(curveItem, "CurveLineStyle",styles.at(0));
         } else {
             // Color RUNs the same and style each variable differently
-            _addChild(curveItem, "CurveColor", run2color.value(runId));
+            _addChild(curveItem, "CurveColor", run2color.value(r));
             div_t q = div(nCurves-1,rc);
             QString style = styles.at((q.quot)%(styles.size()));
             _addChild(curveItem, "CurveLineStyle", style);
