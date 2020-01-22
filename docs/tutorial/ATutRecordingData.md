@@ -50,7 +50,7 @@ section. This is accomplished by adding execfile to the simulation input file.
 Add the line:
 
 ```python
- execfile("Modified_data/cannon.dr")
+ exec(open("Modified_data/data_record.dr").read())
 ```
 to the top of the `input.py` file and then save it.
 
