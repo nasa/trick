@@ -21,8 +21,8 @@ class LanderSimObject : public Trick::SimObject {
 };
 
 LanderSimObject dyn;
-IntegLoop dyn_integloop(0.10) dyn;
+IntegLoop dyn_integloop(0.1) dyn;
 
 void create_connections() {
-    dyn_integloop.getIntegrator(Runge_Kutta_4, 5);
+    dyn_integloop.getIntegrator(Runge_Kutta_4, 6);
 }
