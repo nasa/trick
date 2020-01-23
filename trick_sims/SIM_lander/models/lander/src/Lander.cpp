@@ -11,6 +11,8 @@ LIBRARY DEPENDENCY:
 #define RAD_PER_DEG (M_PI / 180.0)
 #define DEG_PER_RAD (180.0/ M_PI )
 
+int pid_debug = 0;
+
 PIDController::PIDController( double kp, double ki, double kd, double imax, double dt ) {
     Kp=kp; Ki=ki; Kd=kd; Dt=dt;
     previous_error = 0;
@@ -28,8 +30,10 @@ double PIDController::getOutput(double set_point_value, double measured_value) {
     }
 
     integral = integral + error * Dt;
+
     if (integral < -integral_max) integral = -integral_max;
     if (integral >  integral_max) integral =  integral_max;
+
     derivative = (error - previous_error) / Dt;
     previous_error = error;
     prev_set_point_value = set_point_value;
@@ -52,7 +56,8 @@ int Lander::default_data() {
     angleDot = 0.0;
     angleDDot = 0.0;
 
-    thrust_max = 15000;
+    // thrust_max = 15000;
+    thrust_max = 6500;
     rcs_torque = 50;
     mass = 2000;
     moment_of_inertia = 2000;
@@ -76,13 +81,15 @@ int Lander::default_data() {
 
 int Lander::state_init() {
 
-    posxCntrl  = new PIDController( 0.10, 0.01, 0.60, 10.0, 0.10 );
-    velxCntrl  = new PIDController( 0.10, 0.00, 0.60, 10.0, 0.10 );
+    posxCntrl  = new PIDController( 0.20, 0.01, 0.40, 50.0, 0.10 );
+    velxCntrl  = new PIDController( 0.20, 0.01, 0.40, 50.0, 0.10 );
 
-    posyCntrl  = new PIDController( 0.10, 0.01, 0.60, 10.0, 0.10 );
-    velyCntrl  = new PIDController( 0.50, 0.00, 1.40, 10.0, 0.10 );
+    posyCntrl  = new PIDController( 0.40, 0.1,  1.0, 50.0, 0.10 );
+    velyCntrl  = new PIDController( 0.40, 0.00, 1.0, 10.0, 0.10 );
 
-    angleCntrl = new PIDController( 0.20, 0.00, 0.80, 10.0, 0.10 );
+    angleCntrl = new PIDController( 0.20, 0.02, 0.80, 10.0, 0.10 );
+
+    thrust_controller  = new PIDController( 0.2, 0.001, 0.00, 100.0, 0.10 );
 
     return (0);
 
@@ -92,13 +99,26 @@ int Lander::state_init() {
 int Lander::control() {
 
     if (altitudeCtrlEnabled == 1) {
-         vy_cmd = posyCntrl->getOutput(y_cmd, pos[1]);
-         ay_cmd = g + velyCntrl->getOutput(vy_cmd, vel[1]);
+
+        if (pos[1] < 50.0) {
+             vy_cmd = posyCntrl->getOutput(y_cmd, pos[1]);
+             if (vy_cmd > 50.0 ) vy_cmd = 50.0;
+             if (vy_cmd < -5.0) vy_cmd = -5.0;
+             ay_cmd = g + velyCntrl->getOutput(vy_cmd, vel[1]);
+        } else {
+            // This controller is intended to be more energy efficient.
+             ay_cmd = g + thrust_controller->getOutput(
+                  g * y_cmd,
+                  g * pos[1] + 0.5 * fabs(vel[1]) * vel[1]
+              );
+        }
+
          throttle = (ay_cmd * mass * 100) / thrust_max;
+         if (throttle > 100 ) throttle = 100;
+         if (throttle <   0) throttle = 0;
     }
 
     if (downRangeCtrlEnabled == 1) {
-
         if (throttle >= 10 ) {
             vx_cmd = posxCntrl->getOutput(x_cmd, pos[0]);
             double thrust = (throttle / 100.0) * thrust_max;
@@ -115,7 +135,9 @@ int Lander::control() {
         if (angle_cmd >  MAX_CTRL_ANGLE * RAD_PER_DEG) angle_cmd =  MAX_CTRL_ANGLE * RAD_PER_DEG;
         if (angle_cmd < -MAX_CTRL_ANGLE * RAD_PER_DEG) angle_cmd = -MAX_CTRL_ANGLE * RAD_PER_DEG;
 
+        pid_debug = 1;
         angle_dot_cmd = angleCntrl->getOutput(angle_cmd, angle);
+        pid_debug = 0;
 
         if ((angle_dot_cmd - angleDot) > 0.1 * RAD_PER_DEG) {
             rcs_command =  1;
@@ -130,7 +152,7 @@ int Lander::control() {
     }
 
     throttle += manual_throttle_change_command;
-    if (throttle > 100) throttle = 100;
+    if (throttle > 100 ) throttle = 100;
     if (throttle <   0) throttle = 0;
 
     return (0);

@@ -690,11 +690,11 @@ class ControlPanel extends JPanel implements ActionListener {
                 rangeView.setScale( rangeView.getScale() * 2 );
                 break;
             case "shutdown":
-                rangeView.throttleMaxDown();
                 rangeView.disableAltitudeCtrl();
                 altitudeCtrlPanel.update();
                 rangeView.disableDownRangeCtrl();
                 downRangeCtrlPanel.update();
+                rangeView.throttleMaxDown();
                 break;
             default:
                 System.out.println("Unknown Action Command:" + s);

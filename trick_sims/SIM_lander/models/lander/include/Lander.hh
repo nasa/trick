@@ -49,6 +49,9 @@ class Lander {
 
         PIDController* posxCntrl;
         PIDController* posyCntrl;
+
+        PIDController* thrust_controller;
+
         PIDController* velxCntrl;
         PIDController* velyCntrl;
         PIDController* angleCntrl;
