@@ -25,52 +25,52 @@ set( JAVA_LIBS
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/bsaf-1.9.2.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/org/jdesktop/bsaf/bsaf/1.9.2/bsaf-1.9.2.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/org/jdesktop/bsaf/bsaf/1.9.2/bsaf-1.9.2.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jcommon-1.0.23.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/org/jfree/jcommon/1.0.23/jcommon-1.0.23.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/org/jfree/jcommon/1.0.23/jcommon-1.0.23.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jfreechart-1.0.19.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/org/jfree/jfreechart/1.0.19/jfreechart-1.0.19.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jfreesvg-2.1.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/org/jfree/jfreesvg/2.1/jfreesvg-2.1.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/org/jfree/jfreesvg/2.1/jfreesvg-2.1.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jopt-simple-4.8.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/net/sf/jopt-simple/jopt-simple/4.8/jopt-simple-4.8.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/net/sf/jopt-simple/jopt-simple/4.8/jopt-simple-4.8.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/junit-4.12.jar
-  COMMAND curl --retry 4 -O -s -S http://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar
+  COMMAND curl --retry 4 -O -s -S https://repo1.maven.org/maven2/junit/junit/4.12/junit-4.12.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/swingx-1.6.1.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/org/swinglabs/swingx/1.6.1/swingx-1.6.1.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/org/swinglabs/swingx/1.6.1/swingx-1.6.1.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/hamcrest-core-1.3.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/pdfbox-2.0.11.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/org/apache/pdfbox/pdfbox/2.0.11/pdfbox-2.0.11.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/org/apache/pdfbox/pdfbox/2.0.11/pdfbox-2.0.11.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/fontbox-2.0.11.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/org/apache/pdfbox/fontbox/2.0.11/fontbox-2.0.11.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/org/apache/pdfbox/fontbox/2.0.11/fontbox-2.0.11.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
@@ -80,37 +80,37 @@ add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/commons-log
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jaxb-runtime-2.4.0-b180830.0438.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/org/glassfish/jaxb/jaxb-runtime/2.4.0-b180830.0438/jaxb-runtime-2.4.0-b180830.0438.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/org/glassfish/jaxb/jaxb-runtime/2.4.0-b180830.0438/jaxb-runtime-2.4.0-b180830.0438.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jaxb-xjc-2.4.0-b180830.0438.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb-xjc/2.4.0-b180830.0438/jaxb-xjc-2.4.0-b180830.0438.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb-xjc/2.4.0-b180830.0438/jaxb-xjc-2.4.0-b180830.0438.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jaxb-jxc-2.4.0-b180830.0438.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb-jxc/2.4.0-b180830.0438/jaxb-jxc-2.4.0-b180830.0438.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb-jxc/2.4.0-b180830.0438/jaxb-jxc-2.4.0-b180830.0438.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jaxb-impl-2.4.0-b180830.0438.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb-impl/2.4.0-b180830.0438/jaxb-impl-2.4.0-b180830.0438.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb-impl/2.4.0-b180830.0438/jaxb-impl-2.4.0-b180830.0438.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jaxb-api-2.4.0-b180725.0427.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0.1/jaxb-core-2.3.0.1.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/com/sun/xml/bind/jaxb-core/2.3.0.1/jaxb-core-2.3.0.1.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/jaxb-core-2.3.0.1.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/javax/xml/bind/jaxb-api/2.4.0-b180725.0427/jaxb-api-2.4.0-b180725.0427.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/javax/xml/bind/jaxb-api/2.4.0-b180725.0427/jaxb-api-2.4.0-b180725.0427.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
 add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/libexec/trick/java/lib/javax.activation-1.2.0.jar
-  COMMAND curl --retry 4 -O -s -S http://repo.maven.apache.org/maven2/com/sun/activation/javax.activation/1.2.0/javax.activation-1.2.0.jar
+  COMMAND curl --retry 4 -O -s -S https://repo.maven.apache.org/maven2/com/sun/activation/javax.activation/1.2.0/javax.activation-1.2.0.jar
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/libexec/trick/java/lib
 )
 
