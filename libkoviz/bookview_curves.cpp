@@ -2310,7 +2310,6 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
 void CurvesView::currentChanged(const QModelIndex &current,
                                 const QModelIndex &previous)
 {
-    Q_UNUSED(previous);
     QModelIndex statusIdx = _bookModel()->getDataIndex(QModelIndex(),
                                                        "StatusBarMessage","");
     QString tag = _bookModel()->data(current).toString();
@@ -2323,7 +2322,8 @@ void CurvesView::currentChanged(const QModelIndex &current,
         QString runID = QString("%1").arg(curveRunID);
         QString msg = yName + " {" + yUnit + "} RunID=(" + runID + ")";
         _bookModel()->setData(statusIdx,msg); // PlotMainWindow uses this
-    } else if ( !current.isValid() ) {
+    } else if ( !current.isValid() && previous.isValid() ) {
+        // Clicked off of curve into whitespace
         QString msg = "";
         _bookModel()->setData(statusIdx,msg);
     }
