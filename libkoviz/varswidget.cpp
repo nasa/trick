@@ -413,19 +413,7 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
         } else {
             yunit = curveModel->y()->unit();
             QString u1 = yunit;
-            QString r1 = QFileInfo(curveModel->fileName()).dir().dirName();
-            if ( !Unit::canConvert(u0,u1) ) {
-                fprintf(stderr, "koviz [error]: Unit mismatch for param=%s "
-                                "between the following RUNs:\n"
-                                "        %s {%s}\n"
-                                "        %s {%s}\n",
-                        yName.toLatin1().constData(),
-                        r0.toLatin1().constData(),
-                        u0.toLatin1().constData(),
-                        r1.toLatin1().constData(),
-                        u1.toLatin1().constData());
-                exit(-1);
-            } else {
+            if ( Unit::canConvert(u0,u1) ) {
                 // Use unit of first curve
                 yunit = u0;
             }
