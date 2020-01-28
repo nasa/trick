@@ -2314,7 +2314,7 @@ void CurvesView::currentChanged(const QModelIndex &current,
     QModelIndex statusIdx = _bookModel()->getDataIndex(QModelIndex(),
                                                        "StatusBarMessage","");
     QString tag = _bookModel()->data(current).toString();
-    if ( tag == "Curve" ) {
+    if ( tag == "Curve" && this->hasFocus() ) {
         QString yName = _bookModel()->getDataString(current,
                                                     "CurveYName","Curve");
         QString yUnit = _bookModel()->getDataString(current,
