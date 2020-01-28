@@ -167,6 +167,7 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
         _bookModel->addChild(citem, "Symbolstyle6",symbolstyles.at(5));
         _bookModel->addChild(citem, "Symbolstyle7",symbolstyles.at(6));
     }
+    _bookModel->addChild(rootItem,"StatusBarMessage", "");
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
@@ -211,6 +212,10 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
         _plotTreeView = new QTreeView(lsplit);
         _plotTreeView->setModel(_bookModel);
     }
+
+    _statusBar = new QStatusBar(this);
+    this->setStatusBar(_statusBar);
+    _statusBar->showMessage("");
 
     // Vars/DP Notebook
     _nbDPVars = new QTabWidget(lsplit);
@@ -538,6 +543,22 @@ void PlotMainWindow::_bookModelDataChanged(const QModelIndex &topLeft,
             }
             bviscom->sendTime2Bvis(liveTime);
         }
+    } else if ( tag == "StatusBarMessage" ) {
+        QString msg = _bookModel->data(topLeft).toString();
+        // Replace RunID=(id) with rundir
+        int i = msg.indexOf("RunID=(");
+        if ( i > 0 ) {
+            int j = msg.indexOf("(",i);
+            int k = msg.indexOf(")",j);
+            QString idstr = msg.mid(j+1,k-j-1);
+            bool ok;
+            int id = idstr.toInt(&ok);
+            if ( ok ) {
+                QString runDir = _runs->runDirs().at(id);
+                msg.replace(i,k-i+1,runDir);
+            }
+        }
+        _statusBar->showMessage(msg);
     }
 }
 

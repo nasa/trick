@@ -25,6 +25,7 @@
 #include <QSettings>
 #include <QProcess>
 #include <QTcpSocket>
+#include <QStatusBar>
 
 #include "monte.h"
 #include "dp.h"
@@ -140,6 +141,8 @@ private:
     PlotBookModel* _bookModel;
     QTreeView* _plotTreeView ;
     BookView* _bookView;
+
+    QStatusBar* _statusBar;
 
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
