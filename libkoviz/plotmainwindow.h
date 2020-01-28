@@ -24,6 +24,7 @@
 #include <QDate>
 #include <QSettings>
 #include <QProcess>
+#include <QStatusBar>
 
 #include "monte.h"
 #include "dp.h"
@@ -127,6 +128,8 @@ private:
     QTreeView* _plotTreeView ;
     BookView* _bookView;
 
+    QStatusBar* _statusBar;
+
     bool _isRUN(const QString& fp);
     bool _isMONTE(const QString& fp);
 
@@ -159,6 +162,8 @@ private slots:
      void _bookViewCurrentChanged(const QModelIndex& currIdx,
                                   const QModelIndex& prevIdx);
      void _bookModelRowsInserted(const QModelIndex& pidx, int start, int end);
+     void _bookModelDataChanged(const QModelIndex &topLeft,
+                                const QModelIndex &bottomRight);
      void _scriptError(QProcess::ProcessError error);
 };
 

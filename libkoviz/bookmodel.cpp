@@ -506,6 +506,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(18,0);
         } else if ( searchItemText == "Symbolstyles" ) {
             idx = index(19,0);
+        } else if ( searchItemText == "StatusBarMessage" ) {
+            idx = index(20,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "

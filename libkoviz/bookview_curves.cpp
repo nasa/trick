@@ -2310,8 +2310,23 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
 void CurvesView::currentChanged(const QModelIndex &current,
                                 const QModelIndex &previous)
 {
-    Q_UNUSED(current);
     Q_UNUSED(previous);
+    QModelIndex statusIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                       "StatusBarMessage","");
+    QString tag = _bookModel()->data(current).toString();
+    if ( tag == "Curve" ) {
+        QString yName = _bookModel()->getDataString(current,
+                                                    "CurveYName","Curve");
+        QString yUnit = _bookModel()->getDataString(current,
+                                                    "CurveYUnit","Curve");
+        int curveRunID = _bookModel()->getDataInt(current,"CurveRunID","Curve");
+        QString runID = QString("%1").arg(curveRunID);
+        QString msg = yName + " {" + yUnit + "} RunID=(" + runID + ")";
+        _bookModel()->setData(statusIdx,msg); // PlotMainWindow uses this
+    } else if ( !current.isValid() ) {
+        QString msg = "";
+        _bookModel()->setData(statusIdx,msg);
+    }
     viewport()->update();
 }
 
