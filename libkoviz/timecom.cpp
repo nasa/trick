@@ -53,9 +53,32 @@ int TimeCom::sendTime2Bvis(double liveTime)
     return sendCom2Bvis(currentTime);
 }
 
-int TimeCom::sendRun2Bvis(QString runDir)
+int TimeCom::sendRun2Bvis(QString iRunDir)
 {
-    int ret = sendCom2Bvis(QString("run=%1").arg(runDir));
+    QDir rdir(iRunDir);
+
+    // Locate dir that contains *.motcsv
+    QString runDir;
+    QString cmd;
+    QStringList filter;
+    filter << "*.motcsv";
+    QStringList motcsvs = rdir.entryList(filter,QDir::Files);
+    if ( !motcsvs.isEmpty() ) {
+        runDir = iRunDir;
+    } else {
+        // See if subdir under iRunDir has *.motcsv (normal case)
+        QStringList dirs = rdir.entryList(QDir::Dirs);
+        foreach ( QString dir, dirs ) {
+            QString fdir = iRunDir + "/" + dir;
+            QDir subdir(fdir);
+            if ( ! subdir.entryList(filter,QDir::Files).isEmpty() ) {
+                runDir = subdir.absolutePath();
+                break;
+            }
+        }
+    }
+    cmd = QString("run=%1").arg(runDir);
+    int ret = sendCom2Bvis(cmd);
     if (ret == 0) {
         currentRun = runDir;
     }

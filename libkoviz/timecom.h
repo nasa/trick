@@ -5,6 +5,8 @@
 #include <QTcpSocket>
 #include <QString>
 #include <QThread>
+#include <QDir>
+#include <QFileInfo>
 
 class TimeCom : public QObject
 {
@@ -15,7 +17,7 @@ public:
 
     int connect2Bvis();
     int sendCom2Bvis(QString com = "t=8resetcom");
-    int sendRun2Bvis(QString runDir);
+    int sendRun2Bvis(QString iRunDir);
     int resendCurTime2Bvis();
     int sendFirstRun(QString firstRun);
     int sendTime2Bvis(double liveTime);
