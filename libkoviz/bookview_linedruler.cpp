@@ -61,6 +61,7 @@ void LinedRulerView::dataChanged(const QModelIndex &topLeft,
     if ( topLeft.parent() != rootIndex() ) return;
     if ( topLeft.column() != 1 ) return;
     if ( topLeft != bottomRight ) return;
+    if ( !rootIndex().isValid() ) return;
 
     if ( topLeft == _plotMathRectIdx(rootIndex()) ) {
         viewport()->update();
