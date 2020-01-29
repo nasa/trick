@@ -4,6 +4,6 @@ use FindBin qw($RealBin);
 use lib ("$RealBin/../libexec/trick/pm", "$RealBin/../lib/trick/pm") ;
 use launch_java ;
 
-launch_java("Monte Monitor", "trick.montemonitor.MonteMonitorApplication") ;
+launch_java("Monte Monitor", "MM") ;
 
 
