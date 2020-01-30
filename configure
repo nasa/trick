@@ -6137,7 +6137,7 @@ done
   done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_MVN" && ac_cv_path_MVN="mvn"
+  test -z "$ac_cv_path_MVN" && ac_cv_path_MVN="nomvn"
   ;;
 esac
 fi
@@ -6152,7 +6152,7 @@ fi
 
 
         if test "$ac_cv_path_MVN" = "nomvn"; then :
-  as_fn_error $? "could not find mvn" "$LINENO" 5
+  as_fn_error $? "could not find maven" "$LINENO" 5
 fi
 
 fi

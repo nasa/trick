@@ -36,7 +36,7 @@ sub launch_java($$) {
     if ( $^O eq "darwin" ) {
         $command .= "\\
              -Xdock:name=\"$name\" \\
-             -Xdock:icon=$java_dir/resources/trick_icon.png \\
+             -Xdock:icon=$java_dir/build/classes/common/resources/trick_icon.png \\
              -Djava.net.preferIPv4Stack=true \\" ;        
     }
 

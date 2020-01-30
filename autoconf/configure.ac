@@ -167,8 +167,8 @@ AC_DEFUN([AX_JAVA],[
          [AC_MSG_RESULT([no])
           AC_MSG_ERROR([Trick requires javac version >= 1.8])
          ])
-        AC_PATH_PROG(MVN, mvn, mvn)
-        AS_IF([test "$ac_cv_path_MVN" = "nomvn"],AC_MSG_ERROR([could not find mvn]),[])
+        AC_PATH_PROG(MVN, mvn, nomvn)
+        AS_IF([test "$ac_cv_path_MVN" = "nomvn"],AC_MSG_ERROR([could not find maven]),[])
      ],[])
 ])
 
