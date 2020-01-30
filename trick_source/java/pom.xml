@@ -317,5 +317,18 @@
     </pluginManagement>
   </build>
 
+      <profiles>
+        <profile>
+          <build>
+            <directory>${buildDirectory}</directory>
+          </build>
+    <activation>
+      <property>
+        <name>cmake</name>
+        <value>true</value>
+      </property>
+    </activation>
 
+  </profile>
+    </profiles>
 </project>
