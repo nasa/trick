@@ -18,7 +18,7 @@ jobs:
         apt-get install -y git bison curl flex g++ libx11-dev libxml2-dev libxt-dev
         libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig
         zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
-        libgtest-dev cmake
+        libgtest-dev cmake maven
         
     - name: Build gtest
       run: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
@@ -46,7 +46,7 @@ jobs:
         apt-get install -y git bison curl flex g++ libx11-dev libxml2-dev libxt-dev
         libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig
         zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
-        libgtest-dev cmake
+        libgtest-dev cmake maven
         
     - name: Build gtest
       run: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
@@ -74,7 +74,7 @@ jobs:
         apt-get install -y git bison curl flex g++ libx11-dev libxml2-dev libxt-dev
         libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig
         zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
-        libgtest-dev cmake
+        libgtest-dev cmake maven
         
     - name: Build gtest
       run: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
@@ -106,7 +106,7 @@ jobs:
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew cask install xquartz
-        brew install llvm swig udunits openmotif
+        brew install llvm swig udunits openmotif maven
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
@@ -134,7 +134,7 @@ jobs:
         llvm llvm-devel llvm-static libxml2-devel libX11-devel libXt-devel 
         ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 
         python-devel swig zlib-devel udunits2 udunits2-devel 
-        java-1.8.0-openjdk-devel gtest-devel
+        java-1.8.0-openjdk-devel gtest-devel maven
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
@@ -156,7 +156,7 @@ jobs:
         dnf install -y git bison flex gcc gcc-c++ libxml2-devel make openmotif
         openmotif-devel python-devel perl swig zlib-devel llvm llvm-devel llvm-static
         clang clang-devel perl-Text-Balanced perl-Digest-MD5 udunits2 udunits2-devel
-        java-1.8.0-openjdk-devel ncurses-devel which
+        java-1.8.0-openjdk-devel ncurses-devel maven which
     
     - name: Install gtest
       run:  dnf install -y gtest-devel
