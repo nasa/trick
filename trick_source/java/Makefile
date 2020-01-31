@@ -5,7 +5,7 @@ JAVA_BUILD_DIR = ${TRICK_HOME}/libexec/trick/java/build
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 all:
-	@echo "[32mBuilding java application... For details see ${JAVA_BUILD_DIR}/maven.out[0m"
+	@echo "[32mBuilding java application...[0m"
 	@${MVN} -q package
 
 javadoc:
