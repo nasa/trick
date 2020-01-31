@@ -327,6 +327,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("N*m*s","N*M*s"),    1.0);
     map.insert(QPair<QString,QString>("N*m*s","kg*m2/s"),  1.0);
     map.insert(QPair<QString,QString>("N*m*s","kg*M2/s"),  1.0);
+    map.insert(QPair<QString,QString>("N*m*s","lbf*ft*s"), 1.35581795);
 
     // Pressure
     map.insert(QPair<QString,QString>("N/m2","N/m2"),      1.0);
