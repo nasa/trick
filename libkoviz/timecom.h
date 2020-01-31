@@ -7,6 +7,8 @@
 #include <QThread>
 #include <QDir>
 #include <QFileInfo>
+#include <QByteArray>
+#include <QApplication>
 
 class TimeCom : public QObject
 {
@@ -21,6 +23,12 @@ public:
     int resendCurTime2Bvis();
     int sendFirstRun(QString firstRun);
     int sendTime2Bvis(double liveTime);
+
+signals:
+    void timechangedByBvis(double time);
+
+private slots:
+     void _timeComRead();
 
 private:
     QTcpSocket *socket;

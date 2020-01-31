@@ -3,6 +3,8 @@
 TimeCom::TimeCom(QObject* parent) : QObject(parent)
 {
     socket = new QTcpSocket();
+    connect(socket,SIGNAL(readyRead()),
+            this,SLOT(_timeComRead()));
     currentRun = QString("");
     connect2Bvis();
 }
@@ -49,8 +51,35 @@ int TimeCom::sendCom2Bvis(QString com)
 
 int TimeCom::sendTime2Bvis(double liveTime)
 {
-    currentTime = QString("t=%1").arg(liveTime);
-    return sendCom2Bvis(currentTime);
+    Qt::ApplicationState state = qApp->applicationState();
+    if ( state & Qt::ApplicationActive) {
+        currentTime = QString("t=%1").arg(liveTime);
+        return sendCom2Bvis(currentTime);
+    } else {
+        return 0;
+    }
+}
+
+void TimeCom::_timeComRead()
+{
+    QByteArray bytes = socket->readLine();
+
+    // Read all packets, set bytes to last packet read
+    while (1) {
+        QByteArray line = socket->readLine();
+        if ( line.size() <= 0 ) {
+            break;
+        } else {
+            bytes = line;
+        }
+    }
+
+    QString msg(bytes);
+    QStringList fields = msg.split('=');
+    if ( fields.at(0) == "TIME" ) {
+        double time = fields.at(1).toDouble();
+        emit timechangedByBvis(time);
+    }
 }
 
 int TimeCom::sendRun2Bvis(QString iRunDir)

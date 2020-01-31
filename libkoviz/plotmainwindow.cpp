@@ -300,6 +300,8 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
 
     // creating bviscom to send commands to bvis
     bviscom = new TimeCom(this);
+    connect(bviscom,SIGNAL(timechangedByBvis(double)),
+            this, SLOT(setTimeFromBvis(double)));
 
     // sending run command if there is only one run
     if ( _monteInputsModel->rowCount() == 1 ) {
@@ -376,6 +378,13 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
 }
 
 void PlotMainWindow::setTimeFromVideo(double time) {
+    QModelIndex liveIdx = _bookModel->getDataIndex(QModelIndex(),
+                                                   "LiveCoordTime");
+    _bookModel->setData(liveIdx,time);
+}
+
+void PlotMainWindow::setTimeFromBvis(double time)
+{
     QModelIndex liveIdx = _bookModel->getDataIndex(QModelIndex(),
                                                    "LiveCoordTime");
     _bookModel->setData(liveIdx,time);

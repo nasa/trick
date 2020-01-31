@@ -190,6 +190,7 @@ private slots:
                                 const QVector<int> &roles = QVector<int>());
 
      void setTimeFromVideo(double time);
+     void setTimeFromBvis(double time);
      void _scriptError(QProcess::ProcessError error);
      void _vsRead();
 };
