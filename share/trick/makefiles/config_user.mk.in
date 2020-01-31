@@ -11,6 +11,7 @@ SWIG   = @SWIG@
 PYTHON = @PYTHON@
 CLANG  = @CLANG@
 TEE    = @TEE@
+MVN    = @MVN@
 
 USE_JAVA = @USE_JAVA@
 JAVAC  = @JAVA_CC@
