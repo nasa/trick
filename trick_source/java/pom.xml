@@ -9,8 +9,8 @@
   <version>1.0</version>
 
   <name>trick-java</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
+
+  <url>https://github.com/nasa/trick</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
