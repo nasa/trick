@@ -6,16 +6,47 @@
 
   <groupId>trick-java</groupId>
   <artifactId>trick-java</artifactId>
-  <version>1.0</version>
+  <version>${trick_version}</version>
 
   <name>trick-java</name>
 
   <url>https://github.com/nasa/trick</url>
 
+  <profiles>
+    <profile>
+      <id>cmake</id>
+      <build>
+        <directory>${buildDirectory}</directory>
+      </build>
+      <properties>
+          <trick_version>${TRICK_VERSION}</trick_version>
+      </properties>
+      <activation>
+        <property>
+          <name>cmake</name>
+          <value>true</value>
+        </property>
+      </activation>
+    </profile>
+    <profile>
+      <id>makefile</id>
+        <properties>
+          <trick_version>${env.TRICK_VERSION}</trick_version>
+        </properties>
+      <activation>
+        <property>
+          <name>cmake</name>
+          <value>false</value>
+        </property>
+      </activation>
+    </profile>
+  </profiles>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <trick_version>dev</trick_version>
   </properties>
 
   <dependencies>
@@ -316,17 +347,4 @@
       </plugins>
     </pluginManagement>
   </build>
-  <profiles>
-    <profile>
-      <build>
-        <directory>${buildDirectory}</directory>
-      </build>
-      <activation>
-        <property>
-          <name>cmake</name>
-          <value>true</value>
-        </property>
-      </activation>
-    </profile>
-  </profiles>
 </project>
