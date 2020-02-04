@@ -298,6 +298,33 @@ AC_ARG_ENABLE([offline],
 )
 AC_SUBST([TRICK_OFFLINE])
 
+# If offline is specified, set some compilation flags
+AC_ARG_ENABLE([mongoose],
+  AS_HELP_STRING([--enable-mongoose], [Compile Trick with webserver capabilites.]),
+  AS_IF([test "x$enable_mongoose" = xyes],
+    [
+    TRICK_MONGOOSE="1"
+    AC_MSG_WARN($(tput setaf 1) --enable-mongoose Mongoose is released under GPLv2 and Trick is \
+released under NASA Open Source Agreement 1.3. Distribution must comply with \
+these agreements$(tput sgr0))
+    ], 
+    [TRICK_MONGOOSE="0"]
+  ),
+  [TRICK_MONGOOSE="0"]
+)
+AC_SUBST([TRICK_OFFLINE])
+
+# If offline is specified, set some compilation flags
+AC_ARG_ENABLE([offline],
+  AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
+  AS_IF([test "x$enable_offline" = xyes],
+    [TRICK_OFFLINE="1"], 
+    [TRICK_OFFLINE="0"]
+  ),
+  [TRICK_OFFLINE="0"]
+)
+AC_SUBST([TRICK_OFFLINE])
+
 dnl look for programs we need to compile and run
 AC_PROG_AWK
 AC_PROG_CC

@@ -142,14 +142,16 @@ ICG_EXE := ${TRICK_HOME}/bin/trick-ICG
 ################################################################################
 # DEFAULT TARGET
 # 1 Build Trick-core and Trick Data-products.
-all: no_dp webserver dp
+all: no_dp dp
 	@ echo ; echo "[32mTrick compilation complete:[00m" ; date
 
 ifeq ($(USE_JAVA), 1)
 all: java
 endif
 
-
+ifeq ($(TRICK_MONGOOSE), 1)
+all: webserver
+endif
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
 no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
