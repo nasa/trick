@@ -158,9 +158,6 @@ AC_DEFUN([AX_JAVA],[
                   [USE_JAVA="1"]
                  )
     AC_SUBST([USE_JAVA])
-
-
-
     AS_IF([test "$USE_JAVA" = "1"],[
         AC_PROG_AWK
         AX_PROG_JAVA_CC(javac)

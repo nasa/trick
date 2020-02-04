@@ -144,12 +144,11 @@ ICG_EXE := ${TRICK_HOME}/bin/trick-ICG
 # 1 Build Trick-core and Trick Data-products.
 all: no_dp webserver dp
 	@ echo ; echo "[32mTrick compilation complete:[00m" ; date
-#ifeq ($(TRICK_OFFLINE), 1)
-#all: copy_offline
+
 ifeq ($(USE_JAVA), 1)
 all: java
 endif
-#endif
+
 
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
