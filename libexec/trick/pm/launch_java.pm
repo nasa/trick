@@ -46,7 +46,6 @@ sub launch_java($$) {
        $command .= "$_ ";
     }
 
-    print($command);
     system $command ;
     exit $? >> 8 ;
 }

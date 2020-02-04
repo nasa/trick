@@ -144,10 +144,12 @@ ICG_EXE := ${TRICK_HOME}/bin/trick-ICG
 # 1 Build Trick-core and Trick Data-products.
 all: no_dp webserver dp
 	@ echo ; echo "[32mTrick compilation complete:[00m" ; date
-
+#ifeq ($(TRICK_OFFLINE), 1)
+#all: copy_offline
 ifeq ($(USE_JAVA), 1)
 all: java
 endif
+#endif
 
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
@@ -214,7 +216,7 @@ dp: ${TRICK_HOME}/trick_source/trick_utils/units
 #
 .PHONY: webserver
 webserver: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_HOME}/include/mongoose/mongoose.h
-	@ $(MAKE) -C ${TRICK_HOME}/trick_source/web/HttpServer
+	$(MAKE) -C ${TRICK_HOME}/trick_source/web/HttpServer
 
 #-------------------------------------------------------------------------------
 TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/mongoose
@@ -225,31 +227,51 @@ mongoose.h:
 mongoose.c:
 	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.c
 
+${TRICK_LIB_DIR}/libmongoose.a: ${TRICK_HOME}/include/mongoose/mongoose.h | mongoose.o $(TRICK_LIB_DIR)
+	ar crs $@ mongoose.o
+	@ rm mongoose.o
+	@ rm -f mongoose.h
+	@ echo ; echo "Mongoose library compiled:" ; date
+
+ifeq (${TRICK_OFFLINE}, 0)
+
 mongoose.o: mongoose.h mongoose.c
 	$(CC) $(TRICK_CFLAGS) -c -o mongoose.o mongoose.c
-	rm mongoose.c
-
-${TRICK_LIB_DIR}/libmongoose.a: mongoose.o ${TRICK_HOME}/include/mongoose/mongoose.h | $(TRICK_LIB_DIR)
-	ar crs $@ mongoose.o
-	rm mongoose.o
-	rm mongoose.h
-	@ echo ; echo "Mongoose library compiled:" ; date
+	@ rm mongoose.c
 
 ${TRICK_HOME}/include/mongoose/mongoose.h: mongoose.h | ${TRICK_HOME}/include/mongoose
 	@ cp mongoose.h $@
+
+else
+
+# if trick-offline gets updated, we should rebuild libmongoose
+${TRICK_LIB_DIR}/libmongoose.a: ${TRICK_HOME}/trick-offline/mongoose.h ${TRICK_HOME}/trick-offline/mongoose.c
+
+mongoose.o: trick-offline/mongoose.h trick-offline/mongoose.c
+	$(CC) $(TRICK_CFLAGS) -c -I${TRICK_HOME}/trick-offline -o mongoose.o trick-offline/mongoose.c
+
+${TRICK_HOME}/include/mongoose/mongoose.h: trick-offline/mongoose.h | ${TRICK_HOME}/include/mongoose
+	@ cp ${TRICK_HOME}/trick-offline/mongoose.h $@
+endif
 
 ${TRICK_HOME}/include/mongoose: 
 	@ mkdir $@
 
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools
+
+ifeq (${TRICK_OFFLINE}, 0)
 java:
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java
 
 .PHONY: javadoc
 javadoc:
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java $@
-
+else
+java: | ${TRICK_HOME}/trick-offline
+	mkdir ${TRICK_HOME}/libexec/trick/java/build
+	cp ${TRICK_HOME}/trick-offline/*.jar ${TRICK_HOME}/libexec/trick/java/build
+endif
 #-------------------------------------------------------------------------------
 # 1.4 This target builds the Trick Documentation.
 .PHONY: doxygen

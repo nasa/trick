@@ -158,6 +158,9 @@ AC_DEFUN([AX_JAVA],[
                   [USE_JAVA="1"]
                  )
     AC_SUBST([USE_JAVA])
+
+
+
     AS_IF([test "$USE_JAVA" = "1"],[
         AC_PROG_AWK
         AX_PROG_JAVA_CC(javac)
@@ -167,8 +170,10 @@ AC_DEFUN([AX_JAVA],[
          [AC_MSG_RESULT([no])
           AC_MSG_ERROR([Trick requires javac version >= 1.8])
          ])
-        AC_PATH_PROG(MVN, mvn, nomvn)
-        AS_IF([test "$ac_cv_path_MVN" = "nomvn"],AC_MSG_ERROR([could not find maven]),[])
+        AS_IF([test "$TRICK_OFFLINE" = "0"], [
+          AC_PATH_PROG(MVN, mvn, nomvn)
+          AS_IF([test "$ac_cv_path_MVN" = "nomvn"],AC_MSG_ERROR([could not find maven]),[])
+        ], [])
      ],[])
 ])
 
@@ -284,6 +289,17 @@ AC_ARG_ENABLE([32bit],
   [TRICK_FORCE_32BIT=0]
 )
 AC_SUBST([TRICK_FORCE_32BIT])
+
+# If offline is specified, set some compilation flags
+AC_ARG_ENABLE([offline],
+  AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
+  AS_IF([test "x$enable_offline" = xyes],
+    [TRICK_OFFLINE="1"], 
+    [TRICK_OFFLINE="0"]
+  ),
+  [TRICK_OFFLINE="0"]
+)
+AC_SUBST([TRICK_OFFLINE])
 
 dnl look for programs we need to compile and run
 AC_PROG_AWK

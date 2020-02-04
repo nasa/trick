@@ -674,6 +674,7 @@ ac_ct_CC
 CFLAGS
 CC
 AWK
+TRICK_OFFLINE
 TRICK_FORCE_32BIT
 LIBXML
 X_LIB_DIR
@@ -743,6 +744,7 @@ ac_user_opts='
 enable_option_checking
 with_x
 enable_32bit
+enable_offline
 with_swig
 enable_java
 with_llvm
@@ -1402,6 +1404,9 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-32bit          Force Trick and sims to compile 32bit
+  --enable-offline        Compile Trick in offline mode. Un-tar the
+                          trick-offline directory in TRICK_HOME to use this
+                          feature
   --enable-java           use java (default is yes)
   --enable-er7utils       use er7_utils (default is yes)
 
@@ -3835,6 +3840,22 @@ fi
 
 
 
+# If offline is specified, set some compilation flags
+# Check whether --enable-offline was given.
+if test "${enable_offline+set}" = set; then :
+  enableval=$enable_offline; if test "x$enable_offline" = xyes; then :
+  TRICK_OFFLINE="1"
+else
+  TRICK_OFFLINE="0"
+
+fi
+else
+  TRICK_OFFLINE="0"
+
+fi
+
+
+
 for ac_prog in gawk mawk nawk awk
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
@@ -5912,6 +5933,9 @@ else
 fi
 
 
+
+
+
     if test "$USE_JAVA" = "1"; then :
 
         for ac_prog in gawk mawk nawk awk
@@ -6110,7 +6134,9 @@ $as_echo "no" >&6; }
 
   fi
 
-        # Extract the first word of "mvn", so it can be a program name with args.
+        if test "$TRICK_OFFLINE" = "0"; then :
+
+          # Extract the first word of "mvn", so it can be a program name with args.
 set dummy mvn; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
@@ -6151,8 +6177,10 @@ $as_echo "no" >&6; }
 fi
 
 
-        if test "$ac_cv_path_MVN" = "nomvn"; then :
+          if test "$ac_cv_path_MVN" = "nomvn"; then :
   as_fn_error $? "could not find maven" "$LINENO" 5
+fi
+
 fi
 
 fi
