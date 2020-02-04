@@ -282,10 +282,12 @@ $(foreach JAR,$(JARS),$(eval $(call JAR_FUN,$(JAR))))
 
 ${JAVA_BUILD_DIR}: 
 	mkdir -p ${TRICK_HOME}/libexec/trick/java/build
-endif
 
 java: ${JAR_TARGETS} 
 	@echo offline mode: java code copied successfully
+
+endif
+
 #-------------------------------------------------------------------------------
 # 1.4 This target builds the Trick Documentation.
 .PHONY: doxygen
