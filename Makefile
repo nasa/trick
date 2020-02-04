@@ -246,10 +246,10 @@ else
 # if trick-offline gets updated, we should rebuild libmongoose
 ${TRICK_LIB_DIR}/libmongoose.a: ${TRICK_HOME}/trick-offline/mongoose.h ${TRICK_HOME}/trick-offline/mongoose.c
 
-mongoose.o: trick-offline/mongoose.h trick-offline/mongoose.c
-	$(CC) $(TRICK_CFLAGS) -c -I${TRICK_HOME}/trick-offline -o mongoose.o trick-offline/mongoose.c
+mongoose.o: ${TRICK_HOME}/trick-offline/mongoose.h ${TRICK_HOME}/trick-offline/mongoose.c
+	$(CC) $(TRICK_CFLAGS) -c -I${TRICK_HOME}/trick-offline -o mongoose.o ${TRICK_HOME}/trick-offline/mongoose.c
 
-${TRICK_HOME}/include/mongoose/mongoose.h: trick-offline/mongoose.h | ${TRICK_HOME}/include/mongoose
+${TRICK_HOME}/include/mongoose/mongoose.h: ${TRICK_HOME}/trick-offline/mongoose.h | ${TRICK_HOME}/include/mongoose
 	@ cp ${TRICK_HOME}/trick-offline/mongoose.h $@
 endif
 
@@ -267,10 +267,25 @@ java:
 javadoc:
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java $@
 else
-java: | ${TRICK_HOME}/trick-offline
-	mkdir ${TRICK_HOME}/libexec/trick/java/build
-	cp ${TRICK_HOME}/trick-offline/*.jar ${TRICK_HOME}/libexec/trick/java/build
+JAVA_BUILD_DIR = ${TRICK_HOME}/libexec/trick/java/build
+JAVA_SOURCE_DIR = ${TRICK_HOME}/trick-offline
+JARS = DP Dre JXPlot MM MTV QP Sie SimControl SimSniffer TrickView trick-java-${TRICK_VERSION}
+JAR_TARGETS = $(foreach JAR, $(JARS), ${JAVA_BUILD_DIR}/$(JAR).jar)
+
+define JAR_FUN
+$${JAVA_BUILD_DIR}/$(1).jar: $${JAVA_SOURCE_DIR}/$(1).jar | $${JAVA_BUILD_DIR}
+	cp $$< $$@
+
+endef
+
+$(foreach JAR,$(JARS),$(eval $(call JAR_FUN,$(JAR))))
+
+${JAVA_BUILD_DIR}: 
+	mkdir -p ${TRICK_HOME}/libexec/trick/java/build
 endif
+
+java: ${JAR_TARGETS} 
+	@echo offline mode: java code copied successfully
 #-------------------------------------------------------------------------------
 # 1.4 This target builds the Trick Documentation.
 .PHONY: doxygen
