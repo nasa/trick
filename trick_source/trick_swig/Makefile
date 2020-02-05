@@ -56,9 +56,6 @@ ifeq ($(TRICK_MONGOOSE), 1)
 SWIG_DEFS += -DUSE_MONGOOSE
 endif
 
-foo:
-	echo ${SWIG_DEFS}
-
 default: $(SWIG_OBJECT_FILES) $(TRICK_LIB) $(TEST_DIR)
 
 trick: $(SWIG_OBJECT_FILES) $(OBJECT_FILES) $(TEST_DIR)
