@@ -4,6 +4,8 @@ PURPOSE: (Represent the state and initial conditions of an http server.)
 #ifndef WEB_SERVER_H
 #define WEB_SERVER_H
 
+#if !defined(SWIG) || defined(USE_MONGOOSE)
+
 #include <string>
 #include <map>
 #include <pthread.h>
@@ -62,4 +64,6 @@ class WebServer {
         void handleHTTPGETrequest(struct mg_connection *nc, http_message *hm, std::string handlerName);
         void marshallWebSocketSessionData();
 };
+
+#endif
 #endif

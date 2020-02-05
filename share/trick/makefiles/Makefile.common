@@ -65,7 +65,7 @@ export TRICK_PYTHON_PATH := $(TRICK_PYTHON_PATH)
 export TRICK_GTE_EXT := $(TRICK_GTE_EXT)
 export TRICK_HOST_CPU := $(shell TRICK_FORCE_32BIT=$(TRICK_FORCE_32BIT) $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 export TRICK_EXEC_LINK_LIBS := ${PTHREAD_LIBS} $(PYTHON_LIB) $(UDUNITS_LDFLAGS) $(PLATFORM_LIBS) -lm -ldl
-export TRICK_LIBS := ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm -ltrickHTTP ${TRICK_LIB_DIR}/libmongoose.a
+export TRICK_LIBS := ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
 export TRICK_SYSTEM_LDFLAGS := $(TRICK_SYSTEM_LDFLAGS)
 export TRICK_SWIG_FLAGS := $(TRICK_SWIG_FLAGS)
 export TRICK_SWIG_CFLAGS := $(TRICK_SWIG_CFLAGS)
@@ -169,6 +169,11 @@ ifneq ($(GSL_HOME),)
     endif
     TRICK_EXEC_LINK_LIBS  += -lgsl -lgslcblas
     TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
+endif
+
+ifeq (${TRICK_MONGOOSE},1)
+	TRICK_LIBS += -ltrickHTTP ${TRICK_LIB_DIR}/libmongoose.a
+  TRICK_SWIG_FLAGS += -DUSE_MONGOOSE
 endif
 
 # We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.

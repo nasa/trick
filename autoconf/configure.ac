@@ -312,7 +312,7 @@ these agreements$(tput sgr0))
   ),
   [TRICK_MONGOOSE="0"]
 )
-AC_SUBST([TRICK_OFFLINE])
+AC_SUBST([TRICK_MONGOOSE])
 
 # If offline is specified, set some compilation flags
 AC_ARG_ENABLE([offline],
