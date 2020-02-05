@@ -29,6 +29,7 @@ Trick requires various free third party utilities in order to function. All the 
 [make]: https://www.gnu.org/software/make/
 [openmotif]: http://www.opengroup.org/openmotif/
 [udunits]: https://www.unidata.ucar.edu/software/udunits/
+[maven]: https://maven.apache.org/
 
 ## Notes
 ### Clang/LLVM compiler and libraries
@@ -78,7 +79,7 @@ Trick also requires development packages from the base and epel repositories
 ```bash
 # From the base repository
 yum install bison flex gcc gcc-c++ libxml2-devel make ncurses-devel \
- openmotif openmotif-devel python-devel perl perl-Digest-MD5 swig zlib-devel 
+ openmotif openmotif-devel python-devel perl perl-Digest-MD5 swig maven zlib-devel 
 #UDUnits is required and is in the EPEL repository
 yum install udunits2 udunits2-devel
 ```
@@ -124,7 +125,7 @@ Trick also requires development packages from the base and epel repositories
 ```bash
 # From the base repository
 yum install bison flex gcc gcc-c++ libxml2-devel make \
- openmotif openmotif-devel python-devel perl swig zlib-devel
+ openmotif openmotif-devel python-devel perl swig maven zlib-devel
 #UDUnits is required and is in the EPEL repository
 yum install udunits2 udunits2-devel
 ```
@@ -152,7 +153,7 @@ Trick requires development packages from the base repositories.
 
 ```bash
 dnf install bison flex gcc gcc-c++ libxml2-devel make openmotif \
- openmotif-devel python-devel perl swig zlib-devel llvm llvm-devel \
+ openmotif-devel python-devel perl swig maven zlib-devel llvm llvm-devel \
  llvm-static clang clang-devel perl-Text-Balanced perl-Digest-MD5 \
  udunits2 udunits2-devel ncurses-devel
 ```
@@ -176,7 +177,7 @@ All packages required for Trick may be installed through apt-get.
 
 ```bash
 sudo apt-get install bison curl flex g++ libx11-dev libxml2-dev libxt-dev \
- libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig \
+ libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig maven \
  zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
 ```
 
@@ -234,7 +235,7 @@ brew cask install java xquartz
 6. Finally, install the remaining dependencies.
 
 ```bash
-brew install llvm swig udunits openmotif  
+brew install llvm swig maven udunits openmotif  
 ```
 
 Openmotif may install dependent packages that conflict with other installations, fontconfig and freetype.  Use the following command to skip installing these packages if you encounter conflicts.
@@ -279,7 +280,7 @@ brew cask install java xquartz
 5. Finally, install the remaining dependencies.
 
 ```bash
-brew install llvm swig udunits openmotif  
+brew install llvm swig maven udunits openmotif  
 ```
 
 Openmotif may install dependent packages that conflict with other installations, fontconfig and freetype.  Use the following command to skip installing these packages if you encounter conflicts.
@@ -306,7 +307,7 @@ brew install llvm@5
 sudo apt-get update
 sudo apt install bison curl flex g++ libx11-dev libxml2-dev \
  libxt-dev libxtst6 libxi6 libmotif-common libmotif-dev make python2.7-dev \
- swig zlib1g-dev llvm-6.0-dev llvm clang libclang-dev libudunits2-dev
+ swig maven zlib1g-dev llvm-6.0-dev llvm clang libclang-dev libudunits2-dev
 ```
 
 *Note This will install about 150 dependent packages on a new machine.
@@ -353,7 +354,7 @@ Add the following text to ${HOME}/.gitconfig
 ```bash
 sudo apt install bison curl flex g++ libx11-dev libxml2-dev \
  libxt-dev libmotif-common libmotif-dev make python2.7-dev \
- swig zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
+ swig maven zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
 ```
 
 3.  Install Java JDK 8 through the ppa repository

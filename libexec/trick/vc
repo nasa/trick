@@ -16,7 +16,7 @@ if ( ! exists $ENV{TRICK_HOME} ) {
 if ( $^O eq "darwin" ) {
     $command = "java -classpath $ENV{TRICK_HOME}/bin/java/dist/*:$ENV{TRICK_HOME}/bin/java/lib/* \\
          -Xdock:name=\"Variable Counter\" \\
-         -Xdock:icon=$ENV{TRICK_HOME}/bin/java/resources/trick_icon.png \\
+         -Xdock:icon=$ENV{TRICK_HOME}/libexec/trick/java/build/classes/common/resources/trick_icon.png \\
          trick.vc.VariableCounter " . join (" " , @ARGV) ;
 } else {
     $command = "java -cp $ENV{TRICK_HOME}/bin/java/dist/*:$ENV{TRICK_HOME}/bin/java/lib/* trick.vc.VariableCounter " . join (" " , @ARGV) ;

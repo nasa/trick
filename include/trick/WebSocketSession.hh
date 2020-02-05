@@ -4,6 +4,7 @@ PURPOSE: (Represent Websocket connection.)
 #ifndef WEB_SOCKET_SESSION_HH
 #define WEB_SOCKET_SESSION_HH
 
+#ifdef USE_MONGOOSE
 #include <string>
 #ifndef SWIG
 #include "mongoose/mongoose.h"
@@ -25,4 +26,6 @@ class WebSocketSession {
 
         struct mg_connection* connection;
 };
+
+#endif
 #endif

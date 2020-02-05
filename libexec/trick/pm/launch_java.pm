@@ -31,20 +31,19 @@ sub launch_java($$) {
     chomp($host_cpu) ;
     $ENV{TRICK_HOST_CPU} = $host_cpu ;
 
+    $command = "java -jar ";
+
     if ( $^O eq "darwin" ) {
-        $command = "java -classpath $java_dir/dist/*:$java_dir/lib/*:$java_dir/lib/ \\
+        $command .= "\\
              -Xdock:name=\"$name\" \\
-             -Xdock:icon=$java_dir/resources/trick_icon.png \\
+             -Xdock:icon=$java_dir/build/classes/common/resources/trick_icon.png \\
              -Djava.net.preferIPv4Stack=true \\" ;        
-    } else {
-        $command = "java -cp $java_dir/dist/*:$java_dir/lib/*:$java_dir/lib/ \\" ;
     }
 
-    $command .= "
-             $application" ;
+    $command .= "$java_dir/build/$application.jar ";
 
     foreach (@ARGV) {
-       $command .= " $_" ;
+       $command .= "$_ ";
     }
 
     system $command ;
