@@ -18,7 +18,7 @@ Trick requires various free third party utilities in order to function. All the 
 | [make]          | 3.78+     | Build Automation          | Automates the building and cleaning of Trick.                 |
 | [openmotif]     | 2.2.0+    | GUI Toolkit               | Covers Trick GUIs not made with Java.                         |
 | [udunits]       | 2.x+      | C Unit Library/Database   | Provides support for units of physical quantities.            |
-| [maven]         | x.x       | Java package manager      | Downloads dependenies and builds trick GUIs                   |
+| [maven]         | x.x       | Java package manager      | Downloads Java dependencies and builds trick GUIs                   |
 
 [gcc]: https://gcc.gnu.org/
 [clang]: https://clang.llvm.org/
