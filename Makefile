@@ -151,6 +151,8 @@ endif
 
 ifeq ($(TRICK_MONGOOSE), 1)
 all: webserver
+icg_sim_serv: ${TRICK_HOME}/include/mongoose/mongoose.h
+ICG: ${TRICK_HOME}/include/mongoose/mongoose.h
 endif
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
@@ -188,7 +190,7 @@ $(ER7_UTILS_DIRS): icg_sim_serv
 # 1.1.1.4 Generate interface code (using ICG) for the specified sim_services
 # header files.
 .PHONY: icg_sim_serv
-icg_sim_serv: $(ICG_EXE) ${TRICK_HOME}/include/mongoose/mongoose.h
+icg_sim_serv: $(ICG_EXE)
 	${ICG_EXE} -sim_services -m ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
 # 1.1.1.4.1 Build the Interface Code Generator (ICG) executable.
@@ -465,7 +467,7 @@ uninstall:
 ################################################################################
 # ICG all sim_services files (for testing and debugging ICG).
 # The -f flag forces io_src files to be regenerated whether or not they need to be.
-ICG: $(ICG_EXE) ${TRICK_HOME}/include/mongoose/mongoose.h
+ICG: $(ICG_EXE)
 	$(ICG_EXE) -f -s -m -n ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
 # This builds a tricklib share library.
