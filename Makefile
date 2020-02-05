@@ -222,7 +222,6 @@ webserver: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_HOME}/include/mongoose/mongoos
 	$(MAKE) -C ${TRICK_HOME}/trick_source/web/HttpServer
 
 #-------------------------------------------------------------------------------
-TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/mongoose
 
 mongoose.h:
 	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.h

@@ -4,7 +4,7 @@ PURPOSE: (Represent Websocket connection.)
 #ifndef WEB_SOCKET_SESSION_HH
 #define WEB_SOCKET_SESSION_HH
 
-#if !defined(SWIG) || defined(USE_MONGOOSE)
+#ifdef USE_MONGOOSE
 #include <string>
 #ifndef SWIG
 #include "mongoose/mongoose.h"

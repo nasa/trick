@@ -4,7 +4,7 @@ PURPOSE: (Represent the state and initial conditions of an http server.)
 #ifndef WEB_SERVER_H
 #define WEB_SERVER_H
 
-#if !defined(SWIG) || defined(USE_MONGOOSE)
+#ifdef USE_MONGOOSE
 
 #include <string>
 #include <map>

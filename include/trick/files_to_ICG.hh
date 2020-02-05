@@ -36,8 +36,7 @@
 #include "trick/RealtimeSync.hh"
 #include "trick/ITimer.hh"
 #include "trick/VariableServer.hh"
-#include "trick/WebServer.hh"
-#include "trick/WebSocketSession.hh"
+
 #include "trick/regula_falsi.h"
 #include "trick/Integrator.hh"
 #include "trick/IntegAlgorithms.hh"
@@ -99,5 +98,10 @@
 
 #include "trick/lqueue.h"
 #include "trick/lstack.h"
+
+#ifdef USE_MONGOOSE
+#include "trick/WebServer.hh"
+#include "trick/WebSocketSession.hh"
+#endif
 
 #endif
