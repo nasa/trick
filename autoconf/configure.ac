@@ -291,7 +291,10 @@ AC_SUBST([TRICK_FORCE_32BIT])
 AC_ARG_ENABLE([offline],
   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
   AS_IF([test "x$enable_offline" = xyes],
-    [TRICK_OFFLINE="1"], 
+    [
+      [TRICK_OFFLINE="1"]
+      AC_CHECK_FILE([trick-offline], [], AC_MSG_ERROR([Offline mode requires an uncompressed directory named "trick-offline" in TRICK_HOME]))
+    ], 
     [TRICK_OFFLINE="0"]
   ),
   [TRICK_OFFLINE="0"]
