@@ -1689,6 +1689,10 @@ void PlotMainWindow::_writeSettings()
     settings.setValue("size", size());
     settings.setValue("pos", pos());
     settings.endGroup();
+    settings.beginGroup("VideoWindow");
+    settings.setValue("size", vidView->size());
+    settings.setValue("pos", vidView->pos());
+    settings.endGroup();
 }
 
 // On linux the settings file is in ~/.config/JSC/koviz.conf
@@ -1699,6 +1703,10 @@ void PlotMainWindow::_readSettings()
     settings.beginGroup("PlotMainWindow");
     resize(settings.value("size", QSize(1300, 720)).toSize());
     move(settings.value("pos", QPoint(200, 200)).toPoint());
+    settings.endGroup();
+    settings.beginGroup("VideoWindow");
+    vidView->resize(settings.value("size", QSize(1300, 720)).toSize());
+    vidView->move(settings.value("pos", QPoint(50, 50)).toPoint());
     settings.endGroup();
 }
 
