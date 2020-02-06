@@ -156,6 +156,9 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     /** field for manually entering variables */
     JXTextField manualField;
 
+    /** field for manually entering variables */
+    JXTextField unitField;
+
     /** check box for toggling Variable Tree visibility */
     protected JCheckBoxMenuItem variableTreeCheckBox;
 
@@ -1703,6 +1706,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                     });
                 }};
 
+
                 constraints.weightx = 1;
                 add(manualField, constraints);
                 constraints.weightx = 0;
@@ -1723,7 +1727,36 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                         }
                     }
                 }), constraints);
+
+                constraints = new GridBagConstraints() {{
+                    gridy = 1;
+                    fill = BOTH;
+                }};
+
+
+                add(new JXLabel(" Set Units: "), constraints);
+
+                unitField = new JXTextField() {{
+                    setAction(new AbstractAction() {
+                        {
+                            putValue(SHORT_DESCRIPTION, "Manually change units for all selected rows");
+                        }
+                        public void actionPerformed(ActionEvent actionEvent) {
+                            try {
+                                variableTable.setValueAt(getText(), 0, 2);
+                            }
+                            catch (IndexOutOfBoundsException indexOutOfBoundsException) {
+                                JOptionPane.showMessageDialog(getMainFrame(),
+                                        "No variables selected", "No variables selected",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                        }
+                    });
+                }};
+                constraints.weightx = 1;
+                add(unitField, constraints);
             }};
+
 
             add(manualPanel, BorderLayout.SOUTH);
         }}) {{

@@ -431,7 +431,6 @@ public class VariableTable extends JXTable {
                             variable + "\" units to \"" + units + "\"");
                     ioException.printStackTrace(System.err);
                 }
-                break;
         }
     }
 
