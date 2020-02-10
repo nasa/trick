@@ -6,7 +6,7 @@
 
 <p align=left>
 <a href="https://github.com/nasa/trick/actions?query=workflow%3A%22Trick+CI%22">
-<img src="https://github.com/nasa/trick/workflows/Trick%20CI/badge.svg" alt="Trick Logo" height=30px>
+<img src="https://github.com/nasa/trick/workflows/Trick%20CI/badge.svg?branch=master" alt="Trick Logo" height=30px>
 </a>
 </p>
 
