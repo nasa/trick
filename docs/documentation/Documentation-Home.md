@@ -43,7 +43,7 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Integrator](simulation_capabilities/Integrator)  
     01. [Frame Logging](simulation_capabilities/Frame-Logging)  
     01. [Debug Pause](simulation_capabilities/Debug-Pause)  
-    01. [Echo Jobs](simulation_capabilities/Echo-jobs)  
+    01. [Echo Jobs](simulation_capabilities/Echo-Jobs)  
     01. [Variable Server](simulation_capabilities/Variable-Server)  
     01. [Status Message System](simulation_capabilities/Status-Message-System)  
     01. [Command Line Arguments](simulation_capabilities/Command-Line-Arguments)  
