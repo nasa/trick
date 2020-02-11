@@ -187,7 +187,7 @@ int main(int argc, char * argv[]) {
     ci.createSema(clang::TU_Prefix, NULL);
 
     // Get the full path of the file to be read
-    char buffer[input_file_names[0].size()];
+    char buffer[input_file_names[0].size() + 1];
     strcpy(buffer, input_file_names[0].c_str());
     std::string path(dirname(buffer));
     path += "/";
