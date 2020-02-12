@@ -262,15 +262,18 @@ ${TRICK_HOME}/include/mongoose:
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools
 
+JAVA_BUILD_DIR = ${TRICK_HOME}/libexec/trick/java/build
+
 ifeq (${TRICK_OFFLINE}, 0)
-java:
+java: ${JAVA_BUILD_DIR}
+
+${JAVA_BUILD_DIR}: 
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java
 
 .PHONY: javadoc
 javadoc:
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java $@
 else
-JAVA_BUILD_DIR = ${TRICK_HOME}/libexec/trick/java/build
 JAVA_SOURCE_DIR = ${TRICK_HOME}/trick-offline
 JARS = DP Dre JXPlot MM MTV QP Sie SimControl SimSniffer TrickView trick-java-${TRICK_VERSION}
 JAR_TARGETS = $(foreach JAR, $(JARS), ${JAVA_BUILD_DIR}/$(JAR).jar)
