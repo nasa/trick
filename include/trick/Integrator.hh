@@ -3,7 +3,7 @@
 /**
  PURPOSE: (Integrator Base Class)
  */
-#if defined(TRICK_VER)
+#if defined(TRICK_VER) && !defined(TEST)
     #include "trick/memorymanager_c_intf.h"
     #define INTEG_NEW(class) (class*)TMM_declare_var_1d(#class,1)
     #define INTEG_ALLOC(typespec, num) (typespec*)TMM_declare_var_1d(#typespec,(num))
