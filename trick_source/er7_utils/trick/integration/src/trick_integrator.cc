@@ -193,6 +193,7 @@ TrickIntegrator::initialize_trick_integrator (
 
    // Allocate space for the Trick::Integrator buffers
    state = alloc::allocate_array (num_state);
+   state_origin = alloc::allocate_array<double*>(num_state);
 
    // Initialize the Trick workspace and the Trick/er7_utils interface.
    initialize_trick_workspace ();
@@ -209,6 +210,7 @@ TrickIntegrator::initialize_trick_workspace (
    deriv    = alloc::allocate_array<double*> (buf_size);
    deriv2   = alloc::allocate_array<double*> (buf_size);
    state_ws = alloc::allocate_array<double*> (buf_size);
+
    for (unsigned int ii = 0; ii < buf_size; ++ii) {
       deriv[ii]    = er7_deriv;
       deriv2[ii]   = er7_deriv2;
@@ -304,6 +306,7 @@ TrickIntegrator::deallocate_trick_arrays (
    alloc::deallocate_array (deriv);
    alloc::deallocate_array (deriv2);
    alloc::deallocate_array (state_ws);
+   alloc::deallocate_array (state_origin);
 }
 
 

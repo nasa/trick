@@ -19,6 +19,7 @@ Trick::Integrator::Integrator() {
    deriv = NULL;
    deriv2 = NULL;
    state_ws = NULL;
+   state_origin = NULL;
    time = 0.0;
    time_0 = 0.0;
    verbosity = 0 ;
@@ -85,17 +86,39 @@ int Trick::Integrator::integrate_2nd_order_ode (
     return rc;
 }
 
-void Trick::Integrator::state_in (double* arg1, va_list argp) {
-    int i = 0;
-    double* next_arg = arg1;
-    if (verbosity) message_publish(MSG_DEBUG, "LOAD STATE: ");
-    while (next_arg != (double*) NULL) { 
-        state[i] = *next_arg;
-        if (verbosity) message_publish(MSG_DEBUG,"  %g", *next_arg);
-        next_arg = va_arg(argp, double*);
-        i++;
+void Trick::Integrator::state_reset () {
+
+    if (intermediate_step == 0) {
+        int i = 0;
+        double* next_arg = state_origin[i];
+        if (verbosity) std::cout << "RESET STATE: \n";
+        while (next_arg != (double*) NULL) {
+            *next_arg = state[i];
+            if (verbosity) std::cout << "  " << *next_arg << "\n";
+            i++;
+            next_arg = state_origin[i];
+        }
+        if (verbosity) std::cout << std::endl;
     }
-    if (verbosity) message_publish(MSG_DEBUG,"\n");
+}
+
+void Trick::Integrator::state_in (double* arg1, va_list argp) {
+
+    if (intermediate_step == 0) {
+        int i = 0;
+        double* next_arg = arg1;
+        state_origin[i] = next_arg;
+        if (verbosity) std::cout << "LOAD STATE: \n";
+        while (next_arg != (double*) NULL) { 
+            state_origin[i] = next_arg;
+            state[i] = *next_arg;
+            if (verbosity) std::cout << "  " << *next_arg << "\n";
+            next_arg = va_arg(argp, double*);
+            i++;
+        }
+        state_origin[i] = (double*)NULL;
+        if (verbosity) std::cout << std::endl;
+    }
 }
 
 void Trick::Integrator::state_in (double* arg1, ...) {

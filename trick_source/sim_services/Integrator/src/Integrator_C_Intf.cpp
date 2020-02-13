@@ -29,6 +29,10 @@ extern "C" void set_integ_time(double time_value) {
     trick_curr_integ->time = time_value;
 }
 
+extern "C" void reset_state() {
+    trick_curr_integ->state_reset();
+}
+
 extern "C" void load_state(double* arg1, ... ) {
     va_list argp;
     if (trick_curr_integ != NULL) {

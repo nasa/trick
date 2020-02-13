@@ -14,6 +14,9 @@ void Trick::RK2_Integrator::initialize(int State_size, double Dt) {
     num_state = State_size;
     dt = Dt;
 
+    state_origin =  INTEG_ALLOC( double*, num_state );
+    state_origin[0] = (double*)NULL;
+
     /** Allocate the state vector.*/
     state =  INTEG_ALLOC( double, num_state );
 
@@ -45,6 +48,8 @@ Trick::RK2_Integrator::~RK2_Integrator() {
 
     const int n_steps = 2;
     int i;
+
+    if (state_origin) INTEG_FREE(state_origin);
 
     /** Free the state vector.*/
     if (state) INTEG_FREE(state);
