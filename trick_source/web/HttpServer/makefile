@@ -33,7 +33,7 @@ TRICK_HTTP_OBJS = \
 all: ${TRICK_LIB_DIR}/libtrickHTTP.a
 
 $(TRICK_HTTP_OBJS): $(OBJDIR)/%.o : src/%.cpp | $(OBJDIR)
-	$(CPP) $(CPPFLAGS) ${INCLUDE_DIRS} -c $< -o $@
+	$(CPP) $(CPPFLAGS) ${TRICK_SYSTEM_CXXFLAGS} ${INCLUDE_DIRS} -c $< -o $@
 
 ${TRICK_LIB_DIR}/libtrickHTTP.a: ${TRICK_HTTP_OBJS}
 	ar crs $@ ${TRICK_HTTP_OBJS}

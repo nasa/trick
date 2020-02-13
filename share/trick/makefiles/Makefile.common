@@ -175,7 +175,7 @@ ifeq (${TRICK_MONGOOSE},1)
 	TRICK_LIBS += -ltrickHTTP ${TRICK_LIB_DIR}/libmongoose.a
 	TRICK_SWIG_FLAGS += -DUSE_MONGOOSE
 	TRICK_SYSTEM_CXXFLAGS += -DUSE_MONGOOSE
-	TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/mongoose
+	TRICK_ICG_EXCLUDE += :${TRICK_HOME}/include/mongoose
 endif
 
 # We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.
