@@ -18,7 +18,7 @@ The Trick Simulation Environment, developed at the NASA Johnson Space Center, is
 <table>
     <col width="33%">
     <col width="33%">
-    <col width="33%">babfba=
+    <col width="33%">
     <thead>
         <tr>
             <th><a href="https://nasa.github.io/trick/documentation/install_guide/Install-Guide">Install Guide</a></th>
