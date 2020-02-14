@@ -19,7 +19,9 @@ Trick::Integrator::Integrator() {
    deriv = NULL;
    deriv2 = NULL;
    state_ws = NULL;
+#ifndef USE_ER7_UTILS_INTEGRATORS
    state_origin = NULL;
+#endif
    time = 0.0;
    time_0 = 0.0;
    verbosity = 0 ;
@@ -87,7 +89,8 @@ int Trick::Integrator::integrate_2nd_order_ode (
 }
 
 void Trick::Integrator::state_reset () {
-
+#ifdef USE_ER7_UTILS_INTEGRATORS
+#else
     if (intermediate_step == 0) {
         int i = 0;
         double* next_arg = state_origin[i];
@@ -100,10 +103,24 @@ void Trick::Integrator::state_reset () {
         }
         if (verbosity) std::cout << std::endl;
     }
+#endif
 }
 
+#ifdef USE_ER7_UTILS_INTEGRATORS
 void Trick::Integrator::state_in (double* arg1, va_list argp) {
-
+    int i = 0;
+    double* next_arg = arg1;
+    if (verbosity) message_publish(MSG_DEBUG, "LOAD STATE: ");
+    while (next_arg != (double*) NULL) { 
+        state[i] = *next_arg;
+        if (verbosity) message_publish(MSG_DEBUG, "  %g", *next_arg);
+        next_arg = va_arg(argp, double*);
+        i++;
+    }
+    if (verbosity) message_publish(MSG_DEBUG, "\n");
+}
+#else
+void Trick::Integrator::state_in (double* arg1, va_list argp) {
     if (intermediate_step == 0) {
         int i = 0;
         double* next_arg = arg1;
@@ -120,6 +137,7 @@ void Trick::Integrator::state_in (double* arg1, va_list argp) {
         if (verbosity) std::cout << std::endl;
     }
 }
+#endif
 
 void Trick::Integrator::state_in (double* arg1, ...) {
     va_list argp;

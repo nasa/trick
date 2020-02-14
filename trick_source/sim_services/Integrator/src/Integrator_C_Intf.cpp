@@ -30,7 +30,10 @@ extern "C" void set_integ_time(double time_value) {
 }
 
 extern "C" void reset_state() {
+#ifdef USE_ER7_UTILS_INTEGRATORS
+#else
     trick_curr_integ->state_reset();
+#endif
 }
 
 extern "C" void load_state(double* arg1, ... ) {
