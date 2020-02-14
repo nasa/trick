@@ -238,7 +238,7 @@ ${TRICK_LIB_DIR}/libmongoose.a: ${TRICK_HOME}/include/mongoose/mongoose.h | mong
 ifeq (${TRICK_OFFLINE}, 0)
 
 mongoose.o: mongoose.h mongoose.c
-	$(CC) $(TRICK_CFLAGS) -c -o mongoose.o mongoose.c
+	$(CC) $(TRICK_CFLAGS) ${TRICK_SYSTEM_CXXFLAGS} -c -o mongoose.o mongoose.c
 	@ rm mongoose.c
 
 ${TRICK_HOME}/include/mongoose/mongoose.h: mongoose.h | ${TRICK_HOME}/include/mongoose

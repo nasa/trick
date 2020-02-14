@@ -1,5 +1,6 @@
 TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))..)
 export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 SIMS_TO_COMPILE_ONLY = \
 	SIM_alloc_test \
@@ -69,5 +70,8 @@ data_record_results: $(TRICK_HOME)/trick_test/SIM_test_dr.xml $(DR_RESULTS)
 	diff $(DR_RESULTS)/log_DR_bitfieldsASCII.csv $(DR_RESULTS)/Ref_Logs/log_DR_bitfieldsASCII_Master.csv
 	diff $(DR_RESULTS)/log_DR_typesASCII.csv $(DR_RESULTS)/Ref_Logs/log_DR_typesASCII_Master.csv
 	cmp -b $(DR_RESULTS)/log_DR_bitfieldsBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_bitfieldsBINARY.trk
+ifeq (${TRICK_FORCE_32BIT}, 1)
+	cmp -b $(DR_RESULTS)/log_DR_typesBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_typesBINARY_32.trk
+else
 	cmp -b $(DR_RESULTS)/log_DR_typesBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_typesBINARY.trk
-
+endif
