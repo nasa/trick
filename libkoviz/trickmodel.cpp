@@ -12,7 +12,7 @@ TrickModel::TrickModel(const QStringList& timeNames,
     DataModel(timeNames, trkfile, parent),
     _timeNames(timeNames),_trkfile(trkfile),
     _nrows(0), _row_size(0), _ncols(0), _timeCol(0),_pos_beg_data(0),
-    _mem(0), _data(0), _fd(-1), _iteratorTimeIndex(0)
+    _mem(0), _data(0), _fd(-1), _file(_trkfile),_iteratorTimeIndex(0)
 {
     _load_trick_header();
     map();
@@ -22,14 +22,12 @@ bool TrickModel::_load_trick_header()
 {
     bool ret = true;
 
-    QFile file(_trkfile);
-
-    if (!file.open(QIODevice::ReadOnly)) {
+    if (!_file.open(QIODevice::ReadOnly)) {
         _err_stream << "koviz [error]: could not open "
                     << _trkfile << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
-    QDataStream in(&file);
+    QDataStream in(&_file);
 
     //
     // Trick-version-endian (10 bytes)
@@ -72,15 +70,15 @@ bool TrickModel::_load_trick_header()
     }
     if ( _row_size == 0 ) {
         _err_stream << "koviz [error]: trk file \""
-                    << file.fileName() << "\" is corrupt!\n";
+                    << _file.fileName() << "\" is corrupt!\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
     // Sanity check. Bytes remaining should be a multiple of the record size
-    qint64 nbytes = file.bytesAvailable();
+    qint64 nbytes = _file.bytesAvailable();
     if ( nbytes % _row_size != 0 ) {
         _err_stream << "koviz [error]: trk file \""
-                    << file.fileName() << "\" is corrupt!\n";
+                    << _file.fileName() << "\" is corrupt!\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
@@ -101,12 +99,12 @@ bool TrickModel::_load_trick_header()
     }
 
     // Save address of begin location of data for map()
-    _pos_beg_data = file.pos();
+    _pos_beg_data = _file.pos();
 
     // Calculate number of timestamped records in file
     _nrows = nbytes/(qint64)_row_size;
 
-    file.close();
+    _file.close();
 
     return ret;
 }
@@ -154,19 +152,17 @@ void TrickModel::map()
 {
     if ( _data ) return; // already mapped
 
-    _fd = open(_trkfile.toLatin1().constData(), O_RDONLY);
-    if ( _fd < 0 ) {
-        _err_stream << "koviz [error]: TrickModel could not open "
-                    << _trkfile << "\n";
+    if (!_file.open(QIODevice::ReadOnly)) {
+        _err_stream << "koviz [error]: could not open "
+                    << _file.fileName() << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
-    fstat(_fd, &_fstat);
 
-    _mem = (ptrdiff_t)mmap(NULL,_fstat.st_size,PROT_READ,MAP_SHARED,_fd,0);
+    _mem = (ptrdiff_t) _file.map(0,_file.size());
 
-    if ( (void*)_mem == MAP_FAILED ) {
+    if ( _mem == 0 ) {
         _err_stream << "koviz [error]: TrickModel couldn't allocate memory for : "
-                    << _trkfile << "\n";
+                    << _file.fileName() << "\n";
         throw std::runtime_error(_err_string.toLatin1().constData());
     }
 
@@ -182,8 +178,8 @@ void TrickModel::map()
 void TrickModel::unmap()
 {
     if ( _data ) {
-        munmap((void*)_mem, _fstat.st_size);
-        close(_fd);
+        _file.unmap((uchar*)_mem);
+        _file.close();
         _data = 0 ;
     }
     if ( _iteratorTimeIndex ) {
