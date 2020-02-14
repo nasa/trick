@@ -117,6 +117,7 @@ class TrickModel : public DataModel
     ptrdiff_t _data;
     int _fd;
     struct stat _fstat;
+    QFile _file;
 
     TrickModelIterator* _iteratorTimeIndex;
 
