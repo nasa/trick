@@ -548,7 +548,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         if ( cbox.height() == 0.0 && path->elementCount() > 0 ) {
             double y = cbox.y()*ys+yb;
             if (plotYScale=="log") {
-                y = pow(10.0,y) ;
+                y = pow(10,y) ;
             }
             QString yString = QString("Flatline=%1").arg(y);
             QRectF tbox = Tscaled.mapRect(cbox);
