@@ -12,6 +12,7 @@ int integrate_1st_order_ode(const double* deriv, double* state);
 int integrate_2nd_order_ode(const double* acc, double* vel, double * pos);
 double get_integ_time(void);
 void set_integ_time(double time_value);
+void reset_state();
 void load_state(double* arg1, ... );
 void load_deriv( double* arg1, ...);
 void load_deriv2( double* arg1, ...);

@@ -64,6 +64,10 @@ namespace Trick {
            double const* accel, double* velocity, double* position);
 
 #ifndef SWIGPYTHON
+        void state_reset ();
+#endif
+
+#ifndef SWIGPYTHON
         void state_in (double* arg1, va_list argp);
 #endif
         void state_in (double* arg1, ...)
@@ -123,6 +127,9 @@ namespace Trick {
         bool use_deriv2;                  // -- set by integration technique
 
         double dt;               // -- set by IntegLoopSimObject.cpp
+#ifndef USE_ER7_UTILS_INTEGRATORS
+        double **state_origin;
+#endif
         double *state;
         double **deriv;
         double **deriv2;
@@ -145,10 +152,6 @@ namespace Trick {
 
     Integrator* getIntegrator( Integrator_type Alg, unsigned int State_size, double Dt = 0.0 );
 
-//    Integrator* getEr7Integrator(
-//       er7_utils::Integration::Technique, unsigned int State_size, double Dt);
-
-//    void deleteIntegrator( Integrator*&);
 }
 
 #endif

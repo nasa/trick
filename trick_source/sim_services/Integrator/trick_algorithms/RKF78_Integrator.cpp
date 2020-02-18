@@ -12,6 +12,9 @@ void Trick::RKF78_Integrator::initialize(int State_size, double Dt) {
     dt = Dt;
     num_state = State_size;
 
+    state_origin =  INTEG_ALLOC( double*, num_state );
+    state_origin[0] = (double*)NULL;
+
     /** Allocate the state vector.*/
     state =  INTEG_ALLOC( double, num_state );
 
@@ -43,6 +46,8 @@ Trick::RKF78_Integrator::~RKF78_Integrator() {
 
     const int n_steps = 12;
     int i;
+
+    if (state_origin) INTEG_FREE(state_origin);
 
     /** Free the state vector.*/
     if (state) INTEG_FREE(state);
