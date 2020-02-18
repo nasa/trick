@@ -548,7 +548,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         if ( cbox.height() == 0.0 && path->elementCount() > 0 ) {
             double y = cbox.y()*ys+yb;
             if (plotYScale=="log") {
-                y = exp10(y) ;
+                y = pow(10,y) ;
             }
             QString yString = QString("Flatline=%1").arg(y);
             QRectF tbox = Tscaled.mapRect(cbox);
@@ -859,8 +859,8 @@ void CurvesView::_paintMarkers(QPainter &painter)
         arrow.coord = coord;
 
         // Set arrow text (special syntax for extremums)
-        QString x= isXLogScale ? _format(exp10(coord.x())) : _format(coord.x());
-        QString y= isYLogScale ? _format(exp10(coord.y())) : _format(coord.y());
+        QString x=isXLogScale ? _format(pow(10,coord.x())) : _format(coord.x());
+        QString y=isYLogScale ? _format(pow(10,coord.y())) : _format(coord.y());
         int rc = path->elementCount();
         if ( i > 0 && i < rc-1) {
             // First and last point not considered
@@ -1220,8 +1220,8 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
                                                                "PlotXScale",
                                                                "Plot");
             if ( M_PlotXScale == "log" && R_PlotXScale == "linear" ) {
-                M.setLeft(exp10(M.left()));
-                M.setRight(exp10(M.right()));
+                M.setLeft(pow(10,M.left()));
+                M.setRight(pow(10,M.right()));
             } else if ( M_PlotXScale == "linear" && R_PlotXScale == "log") {
                 if ( M.left() != 0.0 ) {
                     M.setLeft(log10(M.left()));
@@ -1879,7 +1879,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                                                 "StopTime");
                     double time = liveCoord.x();
                     if ( plotXScale == "log" ) {
-                        time = exp10(time);
+                        time = pow(10,time);
                     }
                     if ( time <= start ) {
                         time = start;
@@ -2175,7 +2175,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
 
             double time = liveCoord.x();
             if ( plotXScale == "log" ) {
-                time = exp10(time);
+                time = pow(10,time);
             }
             if ( time <= start ) {
                 model()->setData(liveTimeIdx,start);
