@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 project(trick)
 set(TRICK_MAJOR 19)
-set(TRICK_MINOR 0)
-set(TRICK_TINY 1)
+set(TRICK_MINOR 1)
+set(TRICK_TINY 0)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,6 +11,7 @@ set(TRICK_FORCE_32BIT OFF CACHE BOOL "Set Trick to compile in 32bit mode")
 #set(USE_JAVA ON CACHE BOOL "Use java")
 set(USE_ER7_UTILS ON CACHE BOOL "Use er7_utils")
 set(UDUNITS2_ROOT "" CACHE STRING "UDUNITS home directory")
+set(TRICK_MONGOOSE "0" CACHE STRING "Enable webserver")
 
 #message("UDUNITS2_ROOT = ${UDUNITS2_ROOT}")
 
@@ -60,6 +61,10 @@ if(GSL_FOUND)
     add_definitions( -D_HAVE_GSL)
 endif()
 
+if(USE_MONGOOSE)
+    add_definitions(-DUSE_MONGOOSE)
+endif()
+
 include_directories( ${CMAKE_BINARY_DIR}/include)
 include_directories( ${CMAKE_BINARY_DIR}/include/trick/compat)
 
@@ -84,7 +89,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/share/trick/makefiles/config_user_cma
 ###############################################################
 # mongoose lib
 ###############################################################
-
+if(USE_MONGOOSE)
 add_custom_command(
   OUTPUT ${CMAKE_BINARY_DIR}/include/mongoose/mongoose.h
   COMMAND curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.h
@@ -100,6 +105,7 @@ add_custom_command(
 
 add_library(mongoose STATIC ${CMAKE_BINARY_DIR}/temp_src/mongoose/mongoose.c)
 target_include_directories( mongoose PUBLIC ${CMAKE_BINARY_DIR}/include/mongoose )
+endif()
 
 ###############################################################
 # io_src files
@@ -206,8 +212,6 @@ set( IO_SRC
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_VariableServerListenThread.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_VariableServerReference.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_VariableServerThread.cpp
-  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_WebServer.cpp
-  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_WebSocketSession.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_Zeroconf.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_attributes.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_dllist.cpp
@@ -349,6 +353,15 @@ set(SWIG_FLAGS -DUSE_ER7_UTILS_INTEGRATORS)
 if(GSL_FOUND)
     list( APPEND SWIG_FLAGS -D_HAVE_GSL )
 endif()
+
+if(USE_MONGOOSE)
+  list( APPEND SWIG_FLAGS -DUSE_MONGOOSE)
+  list( APPEND IO_SRC   
+    ${CMAKE_BINARY_DIR}/temp_src/io_src/io_WebServer.cpp
+    ${CMAKE_BINARY_DIR}/temp_src/io_src/io_WebSocketSession.cpp
+  )
+endif()
+
 foreach ( infile ${SWIG_SRC_BASENAME} )
     add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/temp_src/swig/${infile}_wrap.cpp
       COMMAND ${SWIG_EXECUTABLE} ${SWIG_FLAGS} -I${CMAKE_CURRENT_SOURCE_DIR}/trick_source -I${CMAKE_CURRENT_SOURCE_DIR}/include -I${CMAKE_CURRENT_SOURCE_DIR} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${CMAKE_BINARY_DIR}/share/trick/swig ${CMAKE_CURRENT_SOURCE_DIR}/trick_source/trick_swig/${infile}.i
@@ -366,7 +379,7 @@ target_include_directories( trick_pyip PUBLIC trick_source )
 ###############################################################
 # libtrickHTTP.a
 ###############################################################
-
+if(USE_MONGOOSE)
 set( TRICKHTTP_SRC
   trick_source/web/HttpServer/src/VariableServerSession
   trick_source/web/HttpServer/src/VariableServerVariable
@@ -377,7 +390,7 @@ set( TRICKHTTP_SRC
 
 add_library( trickHTTP STATIC ${TRICKHTTP_SRC})
 add_dependencies( trickHTTP mongoose)
-
+endif()
 ###############################################################
 # Other Trick libraries
 ###############################################################
