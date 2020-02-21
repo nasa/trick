@@ -110,6 +110,8 @@ jobs:
       - name: Install Dependencies
         run: |
           ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
+      - name: NPROC
+        run: nproc
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
@@ -127,7 +129,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@master
-   
+    - name: Cores
+      run: sysctl -n hw.ncpu
     - name: Install gtest
       run: |
         wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
