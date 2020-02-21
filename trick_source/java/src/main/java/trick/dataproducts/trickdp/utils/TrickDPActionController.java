@@ -411,17 +411,12 @@ public class TrickDPActionController {
          String fileSeparator = java.io.File.separator;
          String pathSeparator = System.getProperty("path.separator");
          
-         String javaPath = UIUtils.getTrickHome() + fileSeparator + "libexec/trick" + fileSeparator + "java";
-         String distPath = javaPath + fileSeparator + "dist";
-         String libPath = javaPath + fileSeparator + "lib";
-         String classPath = distPath + fileSeparator + "*" + pathSeparator +
-        		            libPath + fileSeparator + "*" + pathSeparator +
-        		            libPath + fileSeparator;
+         String javaPath = UIUtils.getTrickHome() + fileSeparator + "libexec" + fileSeparator + "trick" + fileSeparator + "java";
+         String buildPath = javaPath + fileSeparator + "build";
          
          command.add("java");
-         command.add("-cp");
-         command.add(classPath);
-         command.add("trick.dataproducts.trickqp.TrickQPApplication");    	 
+         command.add("-jar");
+         command.add(buildPath + fileSeparator + "QP.jar");    	 
          
          if (initialArgs != null) {
         	 for (String arg : initialArgs) {
