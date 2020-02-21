@@ -9,13 +9,15 @@ jobs:
       matrix:
         cfg:
 #-------- Operating Systems ----------------
-          - {os: ubuntu, tag: 16.04, arch: debian}
-          - {os: ubuntu, tag: 18.04, arch: debian}
-          - {os: ubuntu, tag: 19.04, arch: debian}
-          - {os: centos, tag: 7,     arch: rhel}
-          - {os: centos, tag: 8,     arch: rhel}
-          - {os: fedora, tag: 30,    arch: rhel}
-          - {os: fedora, tag: 31,    arch: rhel}
+          - { os: ubuntu, tag: 16.04, arch: debian }
+          - { os: ubuntu, tag: 18.04, arch: debian }
+          - { os: ubuntu, tag: 19.04, arch: debian }
+          - { os: debian, tag: 10,    arch: debian }
+          - { os: centos, tag: 7,     arch: rhel   }
+          - { os: centos, tag: 8,     arch: rhel   }
+          - { os: fedora, tag: 30,    arch: rhel   }
+          - { os: fedora, tag: 31,    arch: rhel   }
+
 #-------- Defaults --------------------------
         include:
           - cfg: {}
@@ -31,8 +33,8 @@ jobs:
             install_gtest: echo gtest already installed
             conf_pkg:  echo package manager already configured
             install_cmd: install -y
-#-------- Ubuntu Dependencies ----------------
-          - cfg: {arch: debian}
+#-------- Debian-based Dependencies ----------------
+          - cfg: { arch: debian }
             pkg_mgr: apt-get
             conf_pkg:  apt-get update
             arch_deps: >-
@@ -43,7 +45,6 @@ jobs:
               libxt-dev
               libmotif-common
               libmotif-dev
-              openjdk-8-jdk
               python2.7-dev
               zlib1g-dev
               llvm-dev
@@ -53,7 +54,7 @@ jobs:
               cmake
             install_gtest: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
 #-------- RHEL Dependencies ----------------
-          - cfg: {arch: rhel}
+          - cfg: { arch: rhel }
             arch_deps: >-
               clang-devel
               gcc
@@ -72,30 +73,38 @@ jobs:
               which
               zlib-devel
               gtest-devel
+#-------- Ubuntu Only Dependencies ----------------
+          - cfg: { os: ubuntu }
+            os_deps: >-
+              openjdk-8-jdk
+#-------- Debian OS Only Dependencies ----------------
+          - cfg: { os: debian }
+            os_deps: >-
+              openjdk-11-jdk
 #-------- CentOS Only Dependencies ----------------
-          - cfg: {os: centos}
+          - cfg: { os: centos }
             pkg_mgr: yum
             conf_pkg: yum -y install epel-release && yum -y update
             os_deps: >-
               libX11-devel
               libXt-devel
 #-------- Fedora Only Dependencies ----------------
-          - cfg: {os: fedora}
+          - cfg: { os: fedora }
             pkg_mgr: dnf
             os_deps: >-
               perl-Text-Balanced
               python-devel
 #-------- Version Specific Dependencies ----------------
-          - cfg: {os: centos, tag: 7}
+          - cfg: { os: centos, tag: 7 }
             tag_deps: >-
               python-devel
-          - cfg: {os: centos, tag: 8}
+          - cfg: { os: centos, tag: 8 }
             tag_deps: >-
               python3-devel
-          - cfg: {os: fedora, tag: 31}
+          - cfg: { os: fedora, tag: 31 }
             tag_deps: >-
               diffutils
-          - cfg: {os: centos, tag: 8}
+          - cfg: { os: centos, tag: 8 }
             conf_pkg: >
               yum -y install epel-release &&
               yum -y update &&
@@ -110,15 +119,13 @@ jobs:
       - name: Install Dependencies
         run: |
           ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
-      - name: NPROC
-        run: nproc
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
         uses: actions/checkout@master
       - name: Build trick
         run: |
-          export MAKEFLAGS=-j4
+          export MAKEFLAGS=-j`nproc`
           ./configure
           make
       - name: Test
@@ -129,8 +136,7 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@master
-    - name: Cores
-      run: sysctl -n hw.ncpu
+   
     - name: Install gtest
       run: |
         wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
@@ -204,7 +210,7 @@ jobs:
     - name: Build Trick
       run: |
         yum -y update && yum clean all
-        export MAKEFLAGS=-j4
+        export MAKEFLAGS=-j`nproc`
         ./configure --without-hdf5 --enable-32bit
         make
     
