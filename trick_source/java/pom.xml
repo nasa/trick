@@ -6,7 +6,7 @@
 
   <groupId>trick-java</groupId>
   <artifactId>trick-java</artifactId>
-  <version>${trick_version}</version>
+  <version>19.2.0-beta</version>
 
   <name>trick-java</name>
 
@@ -18,9 +18,6 @@
       <build>
         <directory>${buildDirectory}</directory>
       </build>
-      <properties>
-          <trick_version>${TRICK_VERSION}</trick_version>
-      </properties>
       <activation>
         <property>
           <name>cmake</name>
@@ -30,9 +27,6 @@
     </profile>
     <profile>
       <id>makefile</id>
-        <properties>
-          <trick_version>${env.TRICK_VERSION}</trick_version>
-        </properties>
       <activation>
         <property>
           <name>cmake</name>
