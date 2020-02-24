@@ -30,6 +30,7 @@ jobs:
               make
               maven
               swig
+              cmake
             install_gtest: echo gtest already installed
             conf_pkg:  echo package manager already configured
             install_cmd: install -y
@@ -51,7 +52,6 @@ jobs:
               libclang-dev
               libudunits2-dev
               libgtest-dev
-              cmake
             install_gtest: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
 #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
