@@ -96,7 +96,7 @@ yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel
 Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository. In order to access gtest-devel in the epel repository you need to enable the dnf option PowerTools
 
 ```bash
-yum install -y 'dnf-command(config-manager)' &&
+yum install -y 'dnf-command(config-manager)'
 yum config-manager --enable PowerTools
 yum install hdf5-devel gsl-devel gtest-devel
 ```
