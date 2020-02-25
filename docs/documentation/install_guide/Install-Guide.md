@@ -55,6 +55,7 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 
 | Quick Jump Menu |
 |---|
+|[RedHat Enterprise Linux (RHEL) 8](#redhat8)|
 |[RedHat Enterprise Linux (RHEL) 7](#redhat7)|
 |[RedHat Enterprise Linux (RHEL) 6](#redhat6)|
 |[Fedora 32, 30, 28, 24](#fedora)|
@@ -63,6 +64,42 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 |[MacOSX 10.12/10.11](#macosx)|
 |[Windows 10.0.15063 (Creators Update)](#windows10)|
 
+---
+<a name="redhat8"></a>
+
+### RedHat Enterprise Linux (RHEL) 8
+Trick requires the clang/llvm compiler to compile and link the Trick Interface Code Generator.  clang/llvm is available through the [Extra Packages for Enterprise Linux](https://fedoraproject.org/wiki/EPEL) repository.  Download and install the 'epel-release' package.
+
+
+```bash
+yum install epel-release
+yum update
+
+```
+
+```bash
+yum install bison clang clang-devel cmake flex gcc gcc-c++ git \
+libX11-devel libxml2-devel libXt-devel llvm llvm-devel llvm-static \
+make maven ncurses-devel openmotif openmotif-devel perl \
+perl-Digest-MD5 python3-devel swig udunits2 udunits2-devel which zlib-devel
+```
+
+The javac compiler must be installed.  The javac compiler is included with the Java Development Kit (JDK).  Trick will work with either the Oracle JDK or OpenJDK, but we prefer the Oracle JDK. 
+At the time of this writing (March 2015) the Oracle JDK 1.8 is available from the [Oracle download site](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
+
+Alternatively OpenJDK is available through yum
+
+```bash
+yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel
+```
+
+Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository. In order to access gtest-devel in the epel repository you need to enable the dnf option PowerTools
+
+```bash
+yum install -y 'dnf-command(config-manager)' &&
+yum config-manager --enable PowerTools
+yum install hdf5-devel gsl-devel gtest-devel
+```
 ---
 <a name="redhat7"></a>
 
