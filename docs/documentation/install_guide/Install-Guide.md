@@ -56,6 +56,7 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 | Quick Jump Menu |
 |---|
 |[RedHat Enterprise Linux (RHEL) 8](#redhat8)|
+|[CentOS 8](#redhat8)|
 |[RedHat Enterprise Linux (RHEL) 7](#redhat7)|
 |[RedHat Enterprise Linux (RHEL) 6](#redhat6)|
 |[Fedora 32, 30, 28, 24](#fedora)|
@@ -67,7 +68,7 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 ---
 <a name="redhat8"></a>
 
-### RedHat Enterprise Linux (RHEL) 8
+### RedHat Enterprise Linux (RHEL) 8, CentOS 8
 Trick requires the clang/llvm compiler to compile and link the Trick Interface Code Generator.  clang/llvm is available through the [Extra Packages for Enterprise Linux](https://fedoraproject.org/wiki/EPEL) repository.  Download and install the 'epel-release' package.
 
 
