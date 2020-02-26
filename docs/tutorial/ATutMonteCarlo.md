@@ -224,7 +224,7 @@ In each of the bellow sections, you can repeat these steps to visualize the diff
 Input files allow you to specify the exact values you want on a particular simulation run. Input files are the most precise implementation, but they require more effort to setup and modify later down the road. Input files can contain multiple (tab or space) delimited columns filled with numerical information.
 
 ### Value List
-Create the following input file in your simulation directory with the name **angle\_value\_list**:
+Create the following text file in your simulation directory with the name **angle\_value\_list**:
 
 ```
 5
@@ -270,7 +270,7 @@ trick.stop(15)
 
 ```
 
-Run the simulation and plot the runs like you did earlier. You will see something similar to the following:
+Run the simulation with file.py as your input file and plot the runs like you did earlier. You will see something similar to the following:
 
 <p align="center">
 	<img src="images/Trick-QP-File.png" alt="Trick-QP-File"/>
