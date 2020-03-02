@@ -10,6 +10,7 @@ VideoWindow::VideoWindow(QWidget *parent) :
     QMainWindow(parent),
     _timeOffset(0.0)
 {
+#ifdef HAS_MPV
     std::setlocale(LC_NUMERIC, "C");
     setFocusPolicy(Qt::StrongFocus);
     setWindowTitle("Koviz MPV");
@@ -50,9 +51,11 @@ VideoWindow::VideoWindow(QWidget *parent) :
     if (mpv_initialize(mpv) < 0) {
         throw std::runtime_error("mpv failed to initialize");
     }
+#endif
 }
 
 void VideoWindow::seek_time(double time) {
+#ifdef HAS_MPV
     int isIdle;
     int ret = mpv_get_property(mpv,"core-idle",MPV_FORMAT_FLAG,&isIdle);
     if ( ret >= 0 ) {
@@ -62,8 +65,10 @@ void VideoWindow::seek_time(double time) {
             mpv_command_string(mpv, com.toLocal8Bit().data());
         }
     }
+#endif
 }
 
+#ifdef HAS_MPV
 void VideoWindow::handle_mpv_event(mpv_event *event)
 {
     switch (event->event_id) {
@@ -101,10 +106,12 @@ void VideoWindow::handle_mpv_event(mpv_event *event)
         // Ignore event
     }
 }
+#endif
 
 // This slot is invoked by wakeup() (through the mpv_events signal).
 void VideoWindow::on_mpv_events()
 {
+#ifdef HAS_MPV
     // Process all events, until the event queue is empty.
     while (mpv) {
         mpv_event *event = mpv_wait_event(mpv, 0);
@@ -113,6 +120,7 @@ void VideoWindow::on_mpv_events()
         }
         handle_mpv_event(event);
     }
+#endif
 }
 
 void VideoWindow::on_file_open()
@@ -123,6 +131,7 @@ void VideoWindow::on_file_open()
 
 void VideoWindow::set_file(const QString &fname)
 {
+#ifdef HAS_MPV
     if (mpv) {
         const QByteArray c_filename = fname.toUtf8();
         const char *args[] = {"loadfile", c_filename.data(), NULL};
@@ -131,6 +140,7 @@ void VideoWindow::set_file(const QString &fname)
         fprintf(stderr, "koviz [bad scoobs]: VideoWindow::set_file()\n");
         exit(-1);
     }
+#endif
 }
 
 void VideoWindow::set_offset(double timeOffset)
@@ -140,7 +150,9 @@ void VideoWindow::set_offset(double timeOffset)
 
 VideoWindow::~VideoWindow()
 {
+#ifdef HAS_MPV
     if (mpv) {
         mpv_terminate_destroy(mpv);
     }
+#endif
 }

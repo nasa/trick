@@ -22,6 +22,9 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += printsupport
 }
 
-LIBS += -lmpv
+exists( /usr/include/mpv/client.h ) {
+    DEFINES += HAS_MPV
+    LIBS += -lmpv
+}
 
 #CONFIG += debug

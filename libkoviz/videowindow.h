@@ -15,8 +15,10 @@
 #include <QApplication>
 #include <QTextEdit>
 
+#ifdef HAS_MPV
 #include <mpv/qthelper.hpp>
 #include <mpv/client.h>
+#endif
 
 class VideoWindow : public QMainWindow
 {
@@ -39,11 +41,13 @@ signals:
 
 private:
     QWidget *mpv_container;
-    mpv_handle *mpv;
     double _timeOffset;
-
     void create_player();
+
+#ifdef HAS_MPV
+    mpv_handle *mpv;
     void handle_mpv_event(mpv_event *event);
+#endif
 };
 
-#endif // QTEXAMPLE_H
+#endif

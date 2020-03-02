@@ -312,6 +312,11 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
     }
 
     if ( !videoFileName.isEmpty() ) {
+#ifndef HAS_MPV
+        fprintf(stderr, "koviz [error]: koviz built without mpv video support!"
+                        "  Please install mpv and rebuild koviz!\n");
+        exit(-1);
+#endif
         QFileInfo fi(videoFileName);
         if ( !fi.isReadable() ) {
             fprintf(stderr, "koviz [error]: Cannot find or read video "
@@ -405,7 +410,9 @@ void PlotMainWindow::createMenu()
     _pdfAction  = _fileMenu->addAction(tr("Save &PDF"));
     _dpAction  = _fileMenu->addAction(tr("Save &DP"));
     _sessionAction = _fileMenu->addAction(tr("Save &Session"));
+#ifdef HAS_MPV
     _openVideoAction = _fileMenu->addAction(tr("Open &Video"));
+#endif
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
@@ -429,7 +436,9 @@ void PlotMainWindow::createMenu()
     connect(_dpAction, SIGNAL(triggered()),this, SLOT(_saveDP()));
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
     connect(_sessionAction, SIGNAL(triggered()),this, SLOT(_saveSession()));
+#ifdef HAS_MPV
     connect(_openVideoAction, SIGNAL(triggered()),this, SLOT(_openVideo()));
+#endif
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     connect(_showLiveCoordAction, SIGNAL(triggered()),
             this, SLOT(_toggleShowLiveCoord()));
@@ -1254,6 +1263,11 @@ void PlotMainWindow::_openVideo()
 
 void PlotMainWindow::_openVideoFile(const QString& fname)
 {
+#ifndef HAS_MPV
+        fprintf(stderr, "koviz [error]: koviz built without mpv video support!"
+                        "  Please install mpv and rebuild koviz!\n");
+        exit(-1);
+#endif
     if ( !vidView ) {
         vidView = new VideoWindow(this);
         vidView->show();
@@ -1808,7 +1822,9 @@ void PlotMainWindow::_vsRead()
 
     static double lasttime = -1.0;
     if ( time != lasttime ) {
-        vidView->seek_time(time+_trickoffset);
+        if ( vidView ) {
+            vidView->seek_time(time+_trickoffset);
+        }
         lasttime = time;
     }
 }
