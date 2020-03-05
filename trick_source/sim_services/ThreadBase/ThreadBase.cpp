@@ -17,7 +17,8 @@ Trick::ThreadBase::ThreadBase(std::string in_name) :
  name(in_name) ,
  pthread_id(0) ,
  pid(0) ,
- rt_priority(0)
+ rt_priority(0) ,
+ cpus(0)
 {
 #if __linux
     max_cpu = sysconf( _SC_NPROCESSORS_ONLN ) ;
@@ -36,7 +37,15 @@ Trick::ThreadBase::ThreadBase(std::string in_name) :
 Trick::ThreadBase::~ThreadBase() {
 #if __linux
 #ifdef CPU_FREE
-    CPU_FREE(cpus) ;
+    if(cpus) {
+        CPU_FREE(cpus) ;
+        cpus = 0 ;
+    }
+#else
+    if(cpus) {
+        free(cpus) ;
+        cpus = 0 ;
+    }
 #endif
 #endif
 }
