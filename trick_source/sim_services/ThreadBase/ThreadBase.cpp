@@ -14,11 +14,13 @@
 #include "trick/message_type.h"
 
 Trick::ThreadBase::ThreadBase(std::string in_name) :
- name(in_name) ,
+#if __linux
+ cpus(0),
+#endif
+name(in_name) ,
  pthread_id(0) ,
  pid(0) ,
- rt_priority(0) ,
- cpus(0)
+ rt_priority(0)
 {
 #if __linux
     max_cpu = sysconf( _SC_NPROCESSORS_ONLN ) ;
