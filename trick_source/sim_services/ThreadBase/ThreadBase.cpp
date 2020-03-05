@@ -17,7 +17,7 @@ Trick::ThreadBase::ThreadBase(std::string in_name) :
 #if __linux
  cpus(0),
 #endif
-name(in_name) ,
+ name(in_name) ,
  pthread_id(0) ,
  pid(0) ,
  rt_priority(0)
