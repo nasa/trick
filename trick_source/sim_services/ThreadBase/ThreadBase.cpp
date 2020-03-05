@@ -36,7 +36,7 @@ Trick::ThreadBase::ThreadBase(std::string in_name) :
 
 Trick::ThreadBase::~ThreadBase() {
 #if __linux
-#ifdef CPU_FREE
+#if defined(CPU_ALLOC) && defined(CPU_FREE)
     if(cpus) {
         CPU_FREE(cpus) ;
         cpus = 0 ;
