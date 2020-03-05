@@ -22,7 +22,7 @@ Trick::ThreadBase::ThreadBase(std::string in_name) :
 {
 #if __linux
     max_cpu = sysconf( _SC_NPROCESSORS_ONLN ) ;
-#ifdef CPU_ALLOC
+#if defined(CPU_ALLOC) && defined(CPU_FREE)
     cpus = CPU_ALLOC(max_cpu) ;
     CPU_ZERO_S(CPU_ALLOC_SIZE(max_cpu), cpus) ;
 #else
