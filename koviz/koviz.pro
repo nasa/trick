@@ -35,4 +35,10 @@ INCLUDEPATH += $$PWD/..
 
 LIBS += -L$$PWD/../lib -lkoviz
 
+# Ubuntu libs are order dependent so put after -lkoviz
+exists( /usr/include/mpv/client.h ) {
+    LIBS += -lmpv
+}
+
+
 PRE_TARGETDEPS += $$PWD/../lib/libkoviz.a
