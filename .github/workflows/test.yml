@@ -104,10 +104,10 @@ jobs:
           - cfg: { os: centos, tag: 8 }
             pkg_mgr: dnf
             conf_pkg: >
-              yum -y install epel-release &&
-              yum -y update &&
-              yum install -y 'dnf-command(config-manager)' &&
-              yum config-manager --enable PowerTools
+              dnf -y install epel-release &&
+              dnf -y update &&
+              dnf install -y 'dnf-command(config-manager)' &&
+              dnf config-manager --enable PowerTools
             tag_deps: >-
               python3-devel
           - cfg: { os: fedora, tag: 31 }
