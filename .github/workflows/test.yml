@@ -1,9 +1,11 @@
 name: Trick CI
 
+
 on:
   push:
     paths-ignore:
     - 'docs/**'
+
 
 jobs:
   build:
@@ -20,6 +22,7 @@ jobs:
           - { os: centos, tag: 8,     arch: rhel   }
           - { os: fedora, tag: 30,    arch: rhel   }
           - { os: fedora, tag: 31,    arch: rhel   }
+
 
 #-------- Defaults --------------------------
         include:
@@ -102,17 +105,17 @@ jobs:
             tag_deps: >-
               python-devel
           - cfg: { os: centos, tag: 8 }
-            tag_deps: >-
-              python3-devel
-          - cfg: { os: fedora, tag: 31 }
-            tag_deps: >-
-              diffutils
-          - cfg: { os: centos, tag: 8 }
+            pkg_mgr: dnf
             conf_pkg: >
               yum -y install epel-release &&
               yum -y update &&
               yum install -y 'dnf-command(config-manager)' &&
               yum config-manager --enable PowerTools
+            tag_deps: >-
+              python3-devel
+          - cfg: { os: fedora, tag: 31 }
+            tag_deps: >-
+              diffutils
 #-------- Job definition ----------------
     runs-on: ubuntu-18.04
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
@@ -133,6 +136,7 @@ jobs:
           make
       - name: Test
         run: make test
+
 
   macOS:
     runs-on: macos-latest
