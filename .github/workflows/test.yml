@@ -1,11 +1,9 @@
 name: Trick CI
 
-
 on:
   push:
     paths-ignore:
     - 'docs/**'
-
 
 jobs:
   build:
@@ -22,7 +20,6 @@ jobs:
           - { os: centos, tag: 8,     arch: rhel   }
           - { os: fedora, tag: 30,    arch: rhel   }
           - { os: fedora, tag: 31,    arch: rhel   }
-
 
 #-------- Defaults --------------------------
         include:
@@ -136,7 +133,6 @@ jobs:
           make
       - name: Test
         run: make test
-
 
   macOS:
     runs-on: macos-latest
