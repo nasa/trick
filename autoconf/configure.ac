@@ -362,15 +362,40 @@ AX_PROG_PERL_VERSION([5.14.0], [], [AC_MSG_ERROR([Trick requires perl version >=
 
 AC_ARG_WITH(
   [python],
-  AS_HELP_STRING([--with-python@<:@=DIR@:>@], [python root directory]),
+  AS_HELP_STRING(
+    [--with-python@<:@=DIR@:>@], 
+    [python root directory],
+  ),
   [
     PYTHON_HOME="$withval"
     AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython, "$PYTHON_HOME")
-    AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],AC_MSG_ERROR([could not find python]),[])
-    [
-      PYTHON_CPPFLAGS=`${PYTHON}-config --includes`
-      PYTHON_LIBS=`${PYTHON}-config --libs`
-    ]
+    AS_IF(
+      [test "$ac_cv_path_PYTHON" = "nopython"],
+      [
+	       AC_PATH_PROG(PYTHON, python, nopython, "$PYTHON_HOME")
+	       AS_IF(
+	         [test "$ac_cv_path_PYTHON" = "nopython"],
+          AC_MSG_ERROR([could not find python<version> or python in specified path]),
+          []
+        )
+      ],
+      []
+    )
+    AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_VERSION}-config, nopython-config, "$PYTHON_HOME")
+    AS_IF(
+      [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+      [
+         AC_PATH_PROG(PYTHON_CONFIG, python-config, nopython-config, "$PYTHON_HOME")
+         AS_IF(
+           [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+          AC_MSG_ERROR([could not find python<version>-config or python-config in specified path please install python${PYTHON_VERSION}-dev]),
+          []
+        )
+      ],
+      []
+    )    
+    PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes`
+    PYTHON_LIBS=`${PYTHON_CONFIG} --libs`
   ],
   [
     AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
@@ -388,7 +413,7 @@ AC_ARG_WITH(
       ],
       [AX_PYTHON_DEVEL([>='2.5'])]
     )
-  ]
+  ] 
 )
 
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
