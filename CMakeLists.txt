@@ -314,7 +314,7 @@ set( ER7_UTILS_IO_SRC
 set(ENV{TRICK_ICG_EXCLUDE} ${CMAKE_BINARY_DIR}/include/mongoose)
 set(ICG_FLAGS -I${CMAKE_BINARY_DIR}/include -I${CMAKE_BINARY_DIR}/include/trick/compat -I${UDUNITS2_INCLUDES} -DTRICK_VER=${TRICK_MAJOR} -DUSE_ER7_UTILS_INTEGRATORS)
 add_custom_command(OUTPUT ${IO_SRC} ${ER7_UTILS_IO_SRC}
-  COMMAND TRICK_ICG_EXCLUDE=${CMAKE_BINARY_DIR}/include/mongoose ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/trick-ICG -force -sim_services -m -n -o ${CMAKE_BINARY_DIR}/temp_src/io_src ${ICG_FLAGS} ${CMAKE_BINARY_DIR}/include/trick/files_to_ICG.hh
+  COMMAND TRICK_HOME=${CMAKE_BINARY_DIR} TRICK_ICG_EXCLUDE=${CMAKE_BINARY_DIR}/include/mongoose ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/trick-ICG -force -sim_services -m -n -o ${CMAKE_BINARY_DIR}/temp_src/io_src ${ICG_FLAGS} ${CMAKE_BINARY_DIR}/include/trick/files_to_ICG.hh
   DEPENDS trick-ICG
 )
 
