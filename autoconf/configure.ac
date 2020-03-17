@@ -360,20 +360,35 @@ AS_IF([test "$ac_cv_path_CURL" = "nocurl"],AC_MSG_ERROR([could not find curl]),[
 AC_PATH_PROG(PERL, perl)
 AX_PROG_PERL_VERSION([5.14.0], [], [AC_MSG_ERROR([Trick requires perl version >= 5.14.0])])
 
-AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
-AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],
+AC_ARG_WITH(
+  [python],
+  AS_HELP_STRING([--with-python@<:@=DIR@:>@], [python root directory]),
   [
-    AC_PATH_PROG(PYTHON3, python3, nopython3)
-    AS_IF([test "$ac_cv_path_PYTHON3" = "nopython3"],
-      AC_MSG_ERROR([could not find python or python3]),
-      [
-        PYTHON_CPPFLAGS=`${PYTHON3}-config --includes`
-        PYTHON_LIBS=`${PYTHON3}-config --libs`
-        PYTHON=$PYTHON3
-      ]
-    )
+    PYTHON_HOME="$withval"
+    AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython, "$PYTHON_HOME")
+    AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],AC_MSG_ERROR([could not find python]),[])
+    [
+      PYTHON_CPPFLAGS=`${PYTHON}-config --includes`
+      PYTHON_LIBS=`${PYTHON}-config --libs`
+    ]
   ],
-  [AX_PYTHON_DEVEL([>='2.5'])]
+  [
+    AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
+    AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],
+      [
+        AC_PATH_PROG(PYTHON3, python3, nopython3)
+        AS_IF([test "$ac_cv_path_PYTHON3" = "nopython3"],
+          AC_MSG_ERROR([could not find python or python3]),
+          [
+            PYTHON_CPPFLAGS=`${PYTHON3}-config --includes`
+            PYTHON_LIBS=`${PYTHON3}-config --libs`
+            PYTHON=$PYTHON3
+          ]
+        )
+      ],
+      [AX_PYTHON_DEVEL([>='2.5'])]
+    )
+  ]
 )
 
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
