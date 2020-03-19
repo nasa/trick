@@ -5552,7 +5552,7 @@ fi
 
 fi
     PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes`
-    PYTHON_LIBS=`${PYTHON_CONFIG} --libs`
+    PYTHON_LIBS=`${PYTHON_CONFIG} --ldflags`
 
 else
 
@@ -5645,7 +5645,7 @@ fi
 else
 
             PYTHON_CPPFLAGS=`${PYTHON3}-config --includes`
-            PYTHON_LIBS=`${PYTHON3}-config --libs`
+            PYTHON_LIBS=`${PYTHON3}-config --ldflags`
             PYTHON=$PYTHON3
 
 

@@ -395,7 +395,7 @@ AC_ARG_WITH(
       []
     )    
     PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes`
-    PYTHON_LIBS=`${PYTHON_CONFIG} --libs`
+    PYTHON_LIBS=`${PYTHON_CONFIG} --ldflags`
   ],
   [
     AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
@@ -406,7 +406,7 @@ AC_ARG_WITH(
           AC_MSG_ERROR([could not find python or python3]),
           [
             PYTHON_CPPFLAGS=`${PYTHON3}-config --includes`
-            PYTHON_LIBS=`${PYTHON3}-config --libs`
+            PYTHON_LIBS=`${PYTHON3}-config --ldflags`
             PYTHON=$PYTHON3
           ]
         )
