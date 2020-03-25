@@ -158,7 +158,6 @@ jobs:
         export MAKEFLAGS=-j4
         ./configure
         make
-    
     - name: Run tests
       run: |
         export MAKEFLAGS=-j4
@@ -216,6 +215,5 @@ jobs:
         export MAKEFLAGS=-j`nproc`
         ./configure --without-hdf5 --enable-32bit
         make
-    
     - name: Run tests
       run: make test
