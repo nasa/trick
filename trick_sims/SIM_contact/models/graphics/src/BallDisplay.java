@@ -9,6 +9,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -16,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -37,6 +40,45 @@ class Ball {
         }
     }
 }
+
+class ControlPanel extends JPanel implements ActionListener {
+
+    private RangeView rangeView;
+    private JButton zoomOutButton, zoomInButton;
+
+    public ControlPanel(RangeView view) {
+
+        rangeView = view;
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
+        zoomOutButton = new JButton("Zoom Out");
+        zoomOutButton.addActionListener(this);
+        zoomOutButton.setActionCommand("zoomout");
+        zoomOutButton.setToolTipText("Zoom Out");
+        add(zoomOutButton);
+
+        zoomInButton = new JButton("Zoom In");
+        zoomInButton.addActionListener(this);
+        zoomInButton.setActionCommand("zoomin");
+        zoomInButton.setToolTipText("Zoom In");
+        add(zoomInButton);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String s = e.getActionCommand();
+        switch (s) {
+            case "zoomout":
+                rangeView.setScale( rangeView.getScale() / 2 );
+                break;
+            case "zoomin":
+                rangeView.setScale( rangeView.getScale() * 2 );
+                break;
+            default:
+                System.out.println("Unknown Action Command:" + s);
+                break;
+        }
+    }
+} // class ControlPanel
 
 class RangeView extends JPanel {
 
@@ -128,13 +170,11 @@ public class BallDisplay extends JFrame {
     private RangeView rangeView;
     private BufferedReader in;
     private DataOutputStream out;
-    private JPanel panelGroup0;
-    private JPanel panelGroup1;
 
     public BallDisplay() {
 
         rangeView = null;
-        setTitle("Lander Range");
+        setTitle("Ball Arena");
         setSize(800, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -147,12 +187,20 @@ public class BallDisplay extends JFrame {
         out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
     }
 
-    public void setRangeView (RangeView arena) {
-        rangeView = arena;
-        panelGroup1 = new JPanel();
-        panelGroup1.setLayout(new BoxLayout(panelGroup1, BoxLayout.X_AXIS));
-        panelGroup1.add(rangeView);
-        add(panelGroup1);
+    public void createGUI( int mapScale, int numberOfBalls ) {
+
+        rangeView = new RangeView(mapScale, numberOfBalls);
+        JPanel panel1 = new JPanel();
+        panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
+        panel1.add(rangeView);
+
+        ControlPanel controlPanel = new ControlPanel(rangeView);
+        JPanel panel0 = new JPanel();
+        panel0.setLayout(new BoxLayout(panel0, BoxLayout.Y_AXIS));
+        panel0.add(panel1);
+        panel0.add(controlPanel);
+        add(panel0);
+        setVisible(true);
     }
 
     private static void  printHelpText() {
@@ -187,7 +235,7 @@ public class BallDisplay extends JFrame {
 
         boolean go = true;
         double dt = 0.100;  // Time between updates (seconds).
-        int mapScale = 16 ; // pixels per meter.
+        int mapScale = 32 ; // pixels per meter.
         int nballs = 7;
 
         if (port == 0) {
@@ -203,7 +251,6 @@ public class BallDisplay extends JFrame {
         ballDisplay.connectToServer(host, port);
         ballDisplay.out.writeBytes("trick.var_set_client_tag(\"BallDisplay\") \n");
         ballDisplay.out.flush();
-
 
         // Get the number of  balls.
         ballDisplay.out.writeBytes(
@@ -221,9 +268,7 @@ public class BallDisplay extends JFrame {
             go = false;
         }
 
-        RangeView rangeView = new RangeView(mapScale, nballs);
-        ballDisplay.setRangeView(rangeView);
-        ballDisplay.setVisible(true);
+        ballDisplay.createGUI(mapScale, nballs);
 
         // Get the Radii of the balls.
         for ( ii = 0; ii < nballs; ii ++) {
@@ -240,7 +285,7 @@ public class BallDisplay extends JFrame {
             line = ballDisplay.in.readLine();
             field = line.split("\t");
             for ( ii=0; ii < nballs; ii++) {
-                rangeView.balls[ii].radius = Double.parseDouble( field[ii+1]);
+                ballDisplay.rangeView.balls[ii].radius = Double.parseDouble( field[ii+1]);
             }
         } catch (IOException | NullPointerException e ) {
             go = false;
@@ -266,15 +311,14 @@ public class BallDisplay extends JFrame {
                 // System.out.println("Sim->Client:" + line);
                 field = line.split("\t");
                 for ( ii=0; ii < nballs; ii++) {
-                    rangeView.balls[ii].x = Double.parseDouble( field[2*ii+1]);
-                    rangeView.balls[ii].y = Double.parseDouble( field[2*ii+2]);
+                    ballDisplay.rangeView.balls[ii].x = Double.parseDouble( field[2*ii+1]);
+                    ballDisplay.rangeView.balls[ii].y = Double.parseDouble( field[2*ii+2]);
                 }
             } catch (IOException | NullPointerException e ) {
                 go = false;
             }
             //  Update the scene.
-            rangeView.repaint();
+            ballDisplay.rangeView.repaint();
         } // while
-
     } // main
 } // class
