@@ -1,4 +1,4 @@
-#SIM_contact
+# SIM_contact
 
 SIM_contact simulates the motion, and the collisions of any arbitrary numbers of moving balls.
 
@@ -10,7 +10,7 @@ A graphics client allows you to see the balls in motion:
 
 ![Graphics CLient showing two balls](images/TwoBalls.png)
 
-##Examples
+## Examples
 The configuration for the above display is:
 
 ```
