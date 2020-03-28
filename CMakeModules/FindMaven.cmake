@@ -8,8 +8,8 @@
 #
 # ::
 #
-#   MAVEN_EXECUTABLE: the full path to the tee tool.
-#   MAVEN_FOUND: True if tee has been found.
+#   MAVEN_EXECUTABLE: the full path to the mvn tool.
+#   MAVEN_FOUND: True if mvn has been found.
 
 find_program(MAVEN_EXECUTABLE mvn)
 include (FindPackageHandleStandardArgs)
