@@ -31,6 +31,7 @@ target_compile_options( trick-ICG PUBLIC -DLIBCLANG_MAJOR=${LLVM_VERSION_MAJOR} 
 target_include_directories( trick-ICG PUBLIC ${UDUNITS2_INCLUDES} )
 target_include_directories( trick-ICG PUBLIC ${LLVM_INCLUDE_DIRS} )
 set_property(SOURCE trick-ICG APPEND PROPERTY OBJECT_DEPENDS ${CMAKE_BINARY_DIR}/include/mongoose/mongoose.h)
+set_target_properties( trick-ICG PROPERTIES CXX_STANDARD 14)
 
 target_link_libraries( trick-ICG
     -lclangFrontend
