@@ -10,6 +10,7 @@
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 
+#include "clang/Basic/Builtins.h"
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Basic/TargetOptions.h"
 #include "clang/Basic/TargetInfo.h"
@@ -93,6 +94,9 @@ int main(int argc, char * argv[]) {
     ci.getLangOpts().WChar = true ;
     ci.getLangOpts().CPlusPlus = true ;
     ci.getLangOpts().CPlusPlus11 = true ;
+#if (LIBCLANG_MAJOR >= 6)
+    ci.getLangOpts().CPlusPlus14 = true ;
+#endif
     ci.getLangOpts().CXXOperatorNames = true ;
 #if (LIBCLANG_MAJOR >= 6)
     ci.getLangOpts().DoubleSquareBracketAttributes = true ;
@@ -133,13 +137,18 @@ int main(int argc, char * argv[]) {
     // Set all of the defaults to c++
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 9))
     llvm::Triple trip (to.Triple) ;
-#if (LIBCLANG_MAJOR >= 5)
+#if (LIBCLANG_MAJOR >= 10)
+    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo) ;
+#elif (LIBCLANG_MAJOR >= 5)
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::InputKind::CXX, trip, ppo) ;
 #else
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::IK_CXX, trip, ppo) ;
 #endif
     // setting the language defaults clears the c++11 flag.
     ci.getLangOpts().CPlusPlus11 = true ;
+#if (LIBCLANG_MAJOR >= 6)
+    ci.getLangOpts().CPlusPlus14 = true ;
+#endif
 #endif
     clang::Preprocessor& pp = ci.getPreprocessor();
 
@@ -201,7 +210,11 @@ int main(int argc, char * argv[]) {
         exit(-1);
     }
     // Open up the input file and parse it
+#if (LIBCLANG_MAJOR >= 10)
+    const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath).get();
+#else
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
+#endif
     free(inputFilePath);
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
