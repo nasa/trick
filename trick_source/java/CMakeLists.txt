@@ -17,7 +17,7 @@ set(JAVA_JARS
   ${CMAKE_BINARY_DIR}/libexec/trick/java/build/MM.jar
 )
 
-add_custom_target(java DEPENDS ${JAVA_JARS})
+add_custom_target(java ALL DEPENDS ${JAVA_JARS})
 
 add_custom_command(
   OUTPUT
