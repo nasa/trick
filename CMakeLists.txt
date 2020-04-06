@@ -1,10 +1,29 @@
 cmake_minimum_required(VERSION 3.1)
-project(trick)
+
+# trick is a C/C++ project, but we have some macOS
+# configuration to do before CMake searches for compilers
+project(trick NONE)
 set(TRICK_MAJOR 19)
 set(TRICK_MINOR 2)
 set(TRICK_TINY 0)
 # set TRICK_PRERELEASE TO EMPTY STRING "" ON RELEASE
 set(TRICK_PRERELEASE "-beta")
+
+# On macOS Mojave and Catalina, the compilers in /usr/bin 
+# are the ones that include the correct C standard library system headers
+if(CMAKE_SYSTEM_NAME MATCHES Darwin)
+    if ( (NOT DEFINED CMAKE_C_COMPILER) AND (NOT DEFINED ENV{CC}) AND (EXISTS /usr/bin/cc) )
+        set(CMAKE_C_COMPILER /usr/bin/cc)
+    endif()
+    if ( (NOT DEFINED CMAKE_CXX_COMPILER) AND (NOT DEFINED ENV{CXX}) AND (EXISTS /usr/bin/c++) )
+        set(CMAKE_CXX_COMPILER /usr/bin/c++)
+    endif()
+endif()
+
+
+enable_language(C)
+enable_language(CXX)
+
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
