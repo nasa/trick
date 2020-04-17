@@ -196,46 +196,48 @@ bool CommentSaver::hasICGNoComment( std::string file_name ) {
 std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
     std::set< std::string > ignore_types ;
     std::string th_str = getTrickHeaderComment(file_name) ;
-    if ( ! th_str.empty() ) {
-        int ret ;
-        regex_t reg_expr ;
-        regmatch_t pmatch[10] ;
-        //std::cout << "here in getIgnoreTypes\n" << th_str << std::endl ;
 
-        size_t start = 0 ;
-        start = th_str.find( "trick_exclude_typename") ;
-        while ( start != std::string::npos ) {
-            start += strlen("trick_exclude_typename") ;
-            std::string temp_str = th_str.substr(start) ;
-            memset(pmatch , 0 , sizeof(pmatch)) ;
-            regcomp( &reg_expr , "^\\s*\\{\\s*(\\S+)\\s*\\}" , REG_EXTENDED ) ;
-            ret = regexec( &reg_expr , temp_str.c_str() , 10 , pmatch , 0 ) ;
-            regfree(&reg_expr) ;
-            if ( ret == 0 ) {
-                std::string item = temp_str.substr(pmatch[1].rm_so, pmatch[1].rm_eo) ;
-                // regular expression leaving trailing space and brace. Why?
-                item.erase(item.find_first_of(" \t}")) ;
-                //std::cout << "[31micg_ignore_types[00m " << item << std::endl ;
-                ignore_types.insert(item) ;
-            }
-            start = th_str.find( "trick_exclude_typename", start ) ;
-        }
+    if ( th_str.empty() ) {
+        return ignore_types;
+    }
 
-        //std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
+    int ret ;
+    regex_t reg_expr ;
+    regmatch_t pmatch[10] ;
+    //std::cout << "here in getIgnoreTypes\n" << th_str << std::endl ;
 
+    size_t start = 0 ;
+    start = th_str.find( "trick_exclude_typename") ;
+    while ( start != std::string::npos ) {
+        start += strlen("trick_exclude_typename") ;
+        std::string temp_str = th_str.substr(start) ;
         memset(pmatch , 0 , sizeof(pmatch)) ;
-
-        /* POSIX regular expressions are always greedy, making our job harder.
-           We have to use several regular expressions to get the types.  This was
-           so much easier in perl! */
-
-        /* find the start of the ICG_IGNORE_TYPES field */
-        regcomp( &reg_expr , "(ICG[ _]IGNORE[ _]TYPE(S)?:)" , REG_EXTENDED | REG_ICASE ) ;
-        ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
+        regcomp( &reg_expr , "^\\s*\\{\\s*(\\S+)\\s*\\}" , REG_EXTENDED ) ;
+        ret = regexec( &reg_expr , temp_str.c_str() , 10 , pmatch , 0 ) ;
         regfree(&reg_expr) ;
-        if ( ret != 0 ) {
-            return std::set< std::string >() ;
+        if ( ret == 0 ) {
+            std::string item = temp_str.substr(pmatch[1].rm_so, pmatch[1].rm_eo) ;
+            // regular expression leaving trailing space and brace. Why?
+            item.erase(item.find_first_of(" \t}")) ;
+            //std::cout << "[31micg_ignore_types[00m " << item << std::endl ;
+            ignore_types.insert(item) ;
         }
+        start = th_str.find( "trick_exclude_typename", start ) ;
+    }
+
+    //std::transform(th_str.begin(), th_str.end(), th_str.begin(), ::toupper) ;
+
+    memset(pmatch , 0 , sizeof(pmatch)) ;
+
+    /* POSIX regular expressions are always greedy, making our job harder.
+       We have to use several regular expressions to get the types.  This was
+       so much easier in perl! */
+
+    /* find the start of the ICG_IGNORE_TYPES field */
+    regcomp( &reg_expr , "(ICG[ _]IGNORE[ _]TYPE(S)?:)" , REG_EXTENDED | REG_ICASE ) ;
+    ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
+    regfree(&reg_expr) ;
+    if ( !ret ) {
         th_str = th_str.substr(pmatch[1].rm_eo) ;
 
         /* find the end of the ICG_IGNORE_TYPES field */
@@ -243,23 +245,21 @@ std::set< std::string > CommentSaver::getIgnoreTypes( std::string file_name ) {
         regcomp( &reg_expr , "(\\)\\s*\\))" , REG_EXTENDED ) ;
         ret = regexec( &reg_expr , th_str.c_str() , 10 , pmatch , 0 ) ;
         regfree(&reg_expr) ;
-        if ( ret != 0 ) {
-            return std::set< std::string >() ;
-        }
-        th_str = th_str.substr(0 , pmatch[1].rm_so) ;
-        std::replace( th_str.begin(), th_str.end(), '(', ' ');
-        std::replace( th_str.begin(), th_str.end(), ')', ' ');
-        std::replace( th_str.begin(), th_str.end(), '\n', ' ');
+        if ( !ret ) {
+            th_str = th_str.substr(0 , pmatch[1].rm_so) ;
+            std::replace( th_str.begin(), th_str.end(), '(', ' ');
+            std::replace( th_str.begin(), th_str.end(), ')', ' ');
+            std::replace( th_str.begin(), th_str.end(), '\n', ' ');
 
-        std::stringstream ss(th_str);
-        std::string item;
-        while (std::getline(ss, item, ' ')) {
-            if ( ! item.empty() ) {
-                //std::cout << "[31micg_ignore_types[00m " << item << std::endl ;
-                ignore_types.insert(item) ;
+            std::stringstream ss(th_str);
+            std::string item;
+            while (std::getline(ss, item, ' ')) {
+                if ( ! item.empty() ) {
+                    //std::cout << "[31micg_ignore_types[00m " << item << std::endl ;
+                    ignore_types.insert(item) ;
+                }
             }
         }
-
     }
 
     return ignore_types ;
