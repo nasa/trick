@@ -14,7 +14,7 @@ jobs:
 #-------- Operating Systems ----------------
           - { os: ubuntu, tag: 16.04, arch: debian }
           - { os: ubuntu, tag: 18.04, arch: debian }
-          - { os: ubuntu, tag: 19.04, arch: debian }
+          - { os: ubuntu, tag: 19.10, arch: debian }
           - { os: debian, tag: 10,    arch: debian }
           - { os: centos, tag: 7,     arch: rhel   }
           - { os: centos, tag: 8,     arch: rhel   }
