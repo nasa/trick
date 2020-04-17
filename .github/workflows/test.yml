@@ -17,9 +17,10 @@ jobs:
           - { os: ubuntu, tag: rolling, arch: debian } # 19.10 as of April 2020
           - { os: debian, tag: 10,      arch: debian }               # EOL 2024
           - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
-          - { os: centos, tag: latest,  arch: rhel   }         # 8 as of 4/2020
-          - { os: fedora, tag: latest,  arch: rhel   }        # 31 as of 4/2020
-          - { os: fedora, tag: rawhide, arch: rhel   }        # 33 as of 4/2020
+          - { os: centos, tag: latest,  arch: rhel   }     # 8 as of April 2020
+          - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
+          - { os: fedora, tag: 32,      arch: rhel   }    # 32 as of April 2020
+        # - { os: fedora, tag: rawhide, arch: rhel   } # for thrill-seekers only
 
 #-------- Defaults --------------------------
         include:
