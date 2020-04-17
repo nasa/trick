@@ -70,6 +70,7 @@ static void mangle_template_param(std::string &work_string, const std::string & 
         std::replace( work_string.begin(), work_string.end(), '*', '_') ;
         std::replace( work_string.begin(), work_string.end(), '[', '_') ;
         std::replace( work_string.begin(), work_string.end(), ']', '_') ;
+        std::replace( work_string.begin(), work_string.end(), ':', '_') ;
         work_string.erase(std::remove_if(work_string.begin(), work_string.end(),
         (int(*)(int))std::isspace), work_string.end()) ;
     }
