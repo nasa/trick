@@ -40,12 +40,13 @@ ICG: (NO_COMMENT)
 ```c++
 // Classic header
 /*
-PURPOSE: (some code)
-ICG_EXCLUDE_CLASS: (class_name)
+PURPOSE:
+ICG_IGNORE_TYPE: ((class_name)(another_type))
 */
 
 //Doxygen style header
 /*
 @trick_exclude_typename(class_name)
+@trick_exclude_typename(another_type)
 */
 ```
