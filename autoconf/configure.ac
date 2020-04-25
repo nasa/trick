@@ -381,9 +381,7 @@ AC_ARG_WITH(
       [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
       AC_MSG_ERROR([could not find python<major>-config python<major.minor>-config or python-config in the specified path. Please install the python development package]),
       []
-    )  
-    PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes`
-    PYTHON_LIBS=`${PYTHON_CONFIG} --ldflags`
+    )
   ],
   [
     AC_PATH_PROGS(PYTHON, python${PYTHON_VERSION} python python3, nopython)
@@ -400,10 +398,20 @@ AC_ARG_WITH(
       AC_MSG_ERROR([could not find python<major>-config python<major.minor>-config or python-config. Please install the python development package]),
       []
     )  
-    PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes`
-    PYTHON_LIBS=`${PYTHON_CONFIG} --ldflags`
   ]
 )
+
+PYTHON_LIBS_COMMAND="${PYTHON_CONFIG} --libs"
+
+AX_COMPARE_VERSION(
+  [${PYTHON_MAJORMINOR}],
+  [ge],
+  [3.8],
+  [PYTHON_LIBS_COMMAND="${PYTHON_LIBS_COMMAND} --embed"]
+)
+
+PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes`
+PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
 
 AC_SUBST([PYTHON_CPPFLAGS])
 AC_SUBST([PYTHON_LIBS])
