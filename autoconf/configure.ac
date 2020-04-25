@@ -405,6 +405,10 @@ AC_ARG_WITH(
   ]
 )
 
+AC_SUBST([PYTHON_CPPFLAGS])
+AC_SUBST([PYTHON_LIBS])
+AC_SUBST([PYTHON_EXTRA_LIBS])
+
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
 AX_SWIG_BIN([])

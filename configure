@@ -651,6 +651,9 @@ SWIG_LIB
 SWIG
 SWIG_BIN
 GNUPLOT
+PYTHON_EXTRA_LIBS
+PYTHON_LIBS
+PYTHON_CPPFLAGS
 PYTHON_CONFIG
 PYTHON
 PERL_VERSION
@@ -5570,6 +5573,10 @@ fi
 
 
 fi
+
+
+
+
 
 
 # Extract the first word of "gnuplot", so it can be a program name with args.
