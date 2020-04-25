@@ -101,7 +101,7 @@ jobs:
               diffutils
 #-------- Version Specific Dependencies ----------------
           - cfg: { os: ubuntu, tag: 20.04 }
-            conf_pkg: DEBIAN_FRONTEND=noninteractive && apt-get update
+            conf_pkg: DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y tzdata
           - cfg: { os: centos, tag: 7 }
             tag_deps: >-
               python-devel
