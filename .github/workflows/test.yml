@@ -12,9 +12,9 @@ jobs:
       matrix:
         cfg:
 #-------- Operating Systems ----------------
-          - { os: ubuntu, tag: 16.04,   arch: debian }         # EOL April 2024
-          - { os: ubuntu, tag: 18.04,   arch: debian }         # EOL April 2028
-          - { os: ubuntu, tag: rolling, arch: debian } # 19.10 as of April 2020
+          - { os: ubuntu, tag: 16.04,   arch: debian }         # EOL April 2021
+          - { os: ubuntu, tag: 18.04,   arch: debian }         # EOL April 2023
+          - { os: ubuntu, tag: 20.04,   arch: debian }         # EOL April 2025
           - { os: debian, tag: 10,      arch: debian }               # EOL 2024
           - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
           - { os: centos, tag: latest,  arch: rhel   }     # 8 as of April 2020
@@ -100,6 +100,8 @@ jobs:
               python-devel
               diffutils
 #-------- Version Specific Dependencies ----------------
+          - cfg: { os: ubuntu, tag: 20.04 }
+            conf_pkg: DEBIAN_FRONTEND=noninteractive && apt-get update
           - cfg: { os: centos, tag: 7 }
             tag_deps: >-
               python-devel
