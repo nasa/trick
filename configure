@@ -5691,8 +5691,8 @@ fi
   as_fn_error $? "could not find python or python3" "$LINENO" 5
 else
 
-            # Extract the first word of "python${PYTHON_VERSION}-config", so it can be a program name with args.
-set dummy python${PYTHON_VERSION}-config; ac_word=$2
+            # Extract the first word of "${PYTHON3}-config", so it can be a program name with args.
+set dummy ${PYTHON3}-config; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
 if ${ac_cv_path_PYTHON_CONFIG+:} false; then :
@@ -5778,8 +5778,8 @@ fi
 
                 if test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"; then :
 
-                    # Extract the first word of "python${PYTHON_VERSION}-config", so it can be a program name with args.
-set dummy python${PYTHON_VERSION}-config; ac_word=$2
+                    # Extract the first word of "python-config", so it can be a program name with args.
+set dummy python-config; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 $as_echo_n "checking for $ac_word... " >&6; }
 if ${ac_cv_path_PYTHON_CONFIG+:} false; then :
