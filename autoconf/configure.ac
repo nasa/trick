@@ -368,53 +368,54 @@ AC_ARG_WITH(
   ),
   [
     PYTHON_HOME="$withval"
-    AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython, "$PYTHON_HOME")
+    AC_PATH_PROGS(PYTHON, python${PYTHON_VERSION} python python3, nopython, "$PYTHON_HOME")
     AS_IF(
       [test "$ac_cv_path_PYTHON" = "nopython"],
-      [
-	       AC_PATH_PROG(PYTHON, python, nopython, "$PYTHON_HOME")
-	       AS_IF(
-	         [test "$ac_cv_path_PYTHON" = "nopython"],
-          AC_MSG_ERROR([could not find python<version> or python in specified path]),
-          []
-        )
-      ],
+      AC_MSG_ERROR([could not find python<version> python or python3 in the specefied path. Please install the python development package]),
       []
     )
-    AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_VERSION}-config, nopython-config, "$PYTHON_HOME")
+    PYTHON_MAJORMINOR=`${PYTHON} -c 'import sys; print(str(sys.version_info[[0]])+"."+str(sys.version_info[[1]]))'`
+    PYTHON_MAJOR=`${PYTHON} -c 'import sys; print(str(sys.version_info[[0]]))'`
+    AC_PATH_PROGS(PYTHON_CONFIG, python${PYTHON_MAJORMINOR}-config python${PYTHON_MAJOR}-config python${PYTHON_VERSION}-config python-config, nopython-config, "$PYTHON_HOME")
     AS_IF(
       [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
-      [
-         AC_PATH_PROG(PYTHON_CONFIG, python-config, nopython-config, "$PYTHON_HOME")
-         AS_IF(
-           [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
-          AC_MSG_ERROR([could not find python<version>-config or python-config in specified path please install python${PYTHON_VERSION}-dev]),
-          []
-        )
-      ],
+      AC_MSG_ERROR([could not find python<major>-config python<major.minor>-config or python-config in the specified path. Please install the python development package]),
       []
-    )    
-    PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes`
-    PYTHON_LIBS=`${PYTHON_CONFIG} --ldflags`
+    )
   ],
   [
-    AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
-    AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],
-      [
-        AC_PATH_PROG(PYTHON3, python3, nopython3)
-        AS_IF([test "$ac_cv_path_PYTHON3" = "nopython3"],
-          AC_MSG_ERROR([could not find python or python3]),
-          [
-            PYTHON_CPPFLAGS=`${PYTHON3}-config --includes`
-            PYTHON_LIBS=`${PYTHON3}-config --ldflags`
-            PYTHON=$PYTHON3
-          ]
-        )
-      ],
-      [AX_PYTHON_DEVEL([>='2.5'])]
+    AC_PATH_PROGS(PYTHON, python${PYTHON_VERSION} python python3, nopython)
+    AS_IF(
+      [test "$ac_cv_path_PYTHON" = "nopython"],
+      AC_MSG_ERROR([could not find python<version> python or python3. Please install the python development package]),
+      []
     )
-  ] 
+    PYTHON_MAJORMINOR=`${PYTHON} -c 'import sys; print(str(sys.version_info[[0]])+"."+str(sys.version_info[[1]]))'`
+    PYTHON_MAJOR=`${PYTHON} -c 'import sys; print(str(sys.version_info[[0]]))'`
+    AC_PATH_PROGS(PYTHON_CONFIG, python${PYTHON_MAJORMINOR}-config python${PYTHON_MAJOR}-config python${PYTHON_VERSION}-config python-config, nopython-config)
+    AS_IF(
+      [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+      AC_MSG_ERROR([could not find python<major>-config python<major.minor>-config or python-config. Please install the python development package]),
+      []
+    )  
+  ]
 )
+
+PYTHON_LIBS_COMMAND="${PYTHON_CONFIG} --libs"
+
+AX_COMPARE_VERSION(
+  [${PYTHON_MAJORMINOR}],
+  [ge],
+  [3.8],
+  [PYTHON_LIBS_COMMAND="${PYTHON_LIBS_COMMAND} --embed"]
+)
+
+PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes`
+PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
+
+AC_SUBST([PYTHON_CPPFLAGS])
+AC_SUBST([PYTHON_LIBS])
+AC_SUBST([PYTHON_EXTRA_LIBS])
 
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
