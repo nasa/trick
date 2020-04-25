@@ -385,7 +385,7 @@ AC_ARG_WITH(
     AS_IF(
       [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
       [
-        PYTHON_MAJORMINOR=`${PYTHON} -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
+        PYTHON_MAJORMINOR=`${PYTHON} -c 'import sys; print(str(sys.version_info[[0]])+"."+str(sys.version_info[[1]]))'`
         AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_MAJORMINOR}-config, nopython-config, "$PYTHON_HOME")
         AS_IF(
           [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
@@ -418,7 +418,7 @@ AC_ARG_WITH(
             AS_IF(
               [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
               [
-                PYTHON_MAJORMINOR=`${PYTHON3} -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
+                PYTHON_MAJORMINOR=`${PYTHON3} -c 'import sys; print(str(sys.version_info[[0]])+"."+str(sys.version_info[[1]]))'`
                 AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_MAJORMINOR}-config, nopython-config)
                 AS_IF(
                   [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
