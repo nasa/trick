@@ -405,8 +405,21 @@ AC_ARG_WITH(
         AS_IF([test "$ac_cv_path_PYTHON3" = "nopython3"],
           AC_MSG_ERROR([could not find python or python3]),
           [
-            PYTHON_CPPFLAGS=`${PYTHON3}-config --includes`
-            PYTHON_LIBS=`${PYTHON3}-config --ldflags`
+		    AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_VERSION}-config, nopython-config)
+		    AS_IF(
+		      [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+		      [
+		         AC_PATH_PROG(PYTHON_CONFIG, python-config, nopython-config)
+		         AS_IF(
+		           [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+		          AC_MSG_ERROR([could not find python<version>-config or python-config in specified path please install python${PYTHON_VERSION}-dev]),
+		          []
+		        )
+		      ],
+		      []
+		    )  
+            PYTHON_CPPFLAGS=`${PYTHON-CONFIG} --includes`
+            PYTHON_LIBS=`${PYTHON-CONFIG} --ldflags`
             PYTHON=$PYTHON3
           ]
         )
