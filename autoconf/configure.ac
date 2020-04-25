@@ -372,9 +372,9 @@ AC_ARG_WITH(
     AS_IF(
       [test "$ac_cv_path_PYTHON" = "nopython"],
       [
-	       AC_PATH_PROG(PYTHON, python, nopython, "$PYTHON_HOME")
-	       AS_IF(
-	         [test "$ac_cv_path_PYTHON" = "nopython"],
+	    AC_PATH_PROG(PYTHON, python, nopython, "$PYTHON_HOME")
+	    AS_IF(
+	      [test "$ac_cv_path_PYTHON" = "nopython"],
           AC_MSG_ERROR([could not find python<version> or python in specified path]),
           []
         )
@@ -385,11 +385,18 @@ AC_ARG_WITH(
     AS_IF(
       [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
       [
-         AC_PATH_PROG(PYTHON_CONFIG, python-config, nopython-config, "$PYTHON_HOME")
-         AS_IF(
-           [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
-          AC_MSG_ERROR([could not find python<version>-config or python-config in specified path please install python${PYTHON_VERSION}-dev]),
-          []
+        PYTHON_MAJORMINOR = `${PYTHON} -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
+        AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_MAJORMINOR}-config, nopython-config, "$PYTHON_HOME")
+        AS_IF(
+          [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+          [
+            AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_VERSION}-config, nopython-config, "$PYTHON_HOME")
+            AS_IF(
+              [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+              AC_MSG_ERROR([could not find python<version>-config or python-config in specified path please install python${PYTHON_VERSION}-dev]),
+              []
+            )
+          ]
         )
       ],
       []
@@ -399,25 +406,34 @@ AC_ARG_WITH(
   ],
   [
     AC_PATH_PROG(PYTHON, python${PYTHON_VERSION}, nopython)
-    AS_IF([test "$ac_cv_path_PYTHON" = "nopython"],
+    AS_IF(
+      [test "$ac_cv_path_PYTHON" = "nopython"],
       [
         AC_PATH_PROG(PYTHON3, python3, nopython3)
-        AS_IF([test "$ac_cv_path_PYTHON3" = "nopython3"],
+        AS_IF(
+          [test "$ac_cv_path_PYTHON3" = "nopython3"],
           AC_MSG_ERROR([could not find python or python3]),
           [
-		    AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_VERSION}-config, nopython-config)
-		    AS_IF(
-		      [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
-		      [
-		         AC_PATH_PROG(PYTHON_CONFIG, python-config, nopython-config)
-		         AS_IF(
-		           [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
-		          AC_MSG_ERROR([could not find python<version>-config or python-config in specified path please install python${PYTHON_VERSION}-dev]),
-		          []
-		        )
-		      ],
-		      []
-		    )  
+            AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_VERSION}-config, nopython-config)
+            AS_IF(
+              [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+              [
+                PYTHON_MAJORMINOR = `${PYTHON3} -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
+                AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_MAJORMINOR}-config, nopython-config)
+                AS_IF(
+                  [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+                  [
+                    AC_PATH_PROG(PYTHON_CONFIG, python${PYTHON_VERSION}-config, nopython-config)
+                    AS_IF(
+                      [test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
+                      AC_MSG_ERROR([could not find python<version>-config or python-config in specified path please install python${PYTHON_VERSION}-dev]),
+                      []
+                    )
+                  ]
+                )
+             ],
+             []
+            )    
             PYTHON_CPPFLAGS=`${PYTHON-CONFIG} --includes`
             PYTHON_LIBS=`${PYTHON-CONFIG} --ldflags`
             PYTHON=$PYTHON3
