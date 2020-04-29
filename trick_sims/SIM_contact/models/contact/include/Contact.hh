@@ -14,9 +14,10 @@ class Contact {
         Contact(){}
         Ball ** balls;
         unsigned int nballs;
-        REGULA_FALSI rf ;
-
+        unsigned int numAssociations ;
+        REGULA_FALSI* ballAssociations ;
         void ballCollision(Ball &b1, Ball &b2);
+
         int default_data();
         int state_init();
         int state_deriv();

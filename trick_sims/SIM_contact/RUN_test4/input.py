@@ -5,14 +5,14 @@ trick.var_set_copy_mode(2)
 
 dyn.contact.nballs = 7
 dyn.contact.balls = trick.TMM_declare_var_1d("Ball*", dyn.contact.nballs)
-#                                        x,   y,   vx,  vy,  r
-dyn.contact.balls[0] = trick.make_Ball(-5.0, 0.1, 0.5, 0.0, 0.5, 1.0)
-dyn.contact.balls[1] = trick.make_Ball( 0.0, 0.0, 0.0, 0.0, 0.5, 1.0)
-dyn.contact.balls[2] = trick.make_Ball( 1.2, 0.6, 0.0, 0.0, 0.5, 1.0)
-dyn.contact.balls[3] = trick.make_Ball( 1.2,-0.6, 0.0, 0.0, 0.5, 1.0)
-dyn.contact.balls[4] = trick.make_Ball( 2.4, 1.2, 0.0, 0.0, 0.5, 1.0)
-dyn.contact.balls[5] = trick.make_Ball( 2.4, 0.0, 0.0, 0.0, 0.5, 1.0)
-dyn.contact.balls[6] = trick.make_Ball( 2.4,-1.2, 0.0, 0.0, 0.5, 1.0)
+#                                        x,     y,   vx,  vy,  r
+dyn.contact.balls[0] = trick.make_Ball(-5.0,    0.1, 5.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[1] = trick.make_Ball( 0.0,    0.0, 0.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[2] = trick.make_Ball( 1.05, 0.505, 0.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[3] = trick.make_Ball( 1.05,-0.505, 0.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[4] = trick.make_Ball( 2.10, 1.010, 0.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[5] = trick.make_Ball( 2.10,   0.0, 0.0, 0.0, 0.5, 1.0)
+dyn.contact.balls[6] = trick.make_Ball( 2.10,-1.005, 0.0, 0.0, 0.5, 1.0)
 
 dyn_integloop.getIntegrator(trick.Euler, 2*dyn.contact.nballs)
 

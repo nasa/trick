@@ -7,6 +7,7 @@ LIBRARY DEPENDENCY:
 #include <math.h>
 #include <iostream>
 #include "trick/integrator_c_intf.h"
+#include "trick/memorymanager_c_intf.h"
 #include "../include/Contact.hh"
 
 int Contact::default_data() {
@@ -16,8 +17,20 @@ int Contact::default_data() {
 }
 
 int Contact::state_init() {
-    rf.mode = Decreasing;
-    rf.error_tol = 0.001;
+
+    double now ;
+    numAssociations = (nballs*(nballs-1))/2;
+    ballAssociations = (REGULA_FALSI*)TMM_declare_var_1d("REGULA_FALSI", numAssociations);
+    unsigned int ii,jj;
+    for (ii=1; ii<nballs; ii++) {
+        for (jj=0; jj<ii; jj++) {
+            unsigned int association_index = ii*(ii-1)/2+jj;
+            ballAssociations[association_index].mode = Decreasing;
+            ballAssociations[association_index].error_tol = 0.0000001;
+            now = get_integ_time() ;
+            reset_regula_falsi( now, &ballAssociations[association_index] );
+        }
+    }
     return (0);
 }
 
@@ -28,9 +41,15 @@ int Contact::state_deriv() {
 int Contact::state_integ() {
     int integration_step;
     for (unsigned int ii = 0; ii < nballs; ii++) {
-        // Be sure to fix load_indexed_state() so it only loads @ intermediate_step == 0
+
+#ifdef USE_ER7_UTILS_INTEGRATORS
         load_indexed_state( 2*ii,   balls[ii]->pos[0]);
         load_indexed_state( 2*ii+1, balls[ii]->pos[1]);
+#else
+        load_state_element( 2*ii,   &balls[ii]->pos[0]);
+        load_state_element( 2*ii+1, &balls[ii]->pos[1]);
+#endif
+
     }
     for (unsigned int ii = 0; ii < nballs; ii++) {
         load_indexed_deriv( 2*ii,   balls[ii]->vel[0]);
@@ -70,32 +89,55 @@ void Contact::ballCollision(Ball &b1, Ball &b2) {
 }
 
 double Contact::collision() {
-    double tgo ; /* time-to-go */
+    //double tgo ; /* time-to-go */
     double now ; /* current integration time. */
-    int first, second;
+    unsigned int first, second;
 
-    double min_dist = 1000000.0;
-    for (unsigned int ii = 0; ii < nballs; ii++) {
-        for (unsigned int jj = ii+1; jj < nballs; jj++) {
+    unsigned int association_index;
+    double event_tgo;
+    unsigned int ii,jj;
+
+    now = get_integ_time() ;
+    event_tgo = BIG_TGO;
+
+    for (ii=1; ii<nballs; ii++) {
+        for (jj=0; jj<ii; jj++) {
+            association_index = ii*(ii-1)/2+jj;
             double xdiff = balls[ii]->pos[0] - balls[jj]->pos[0];
             double ydiff = balls[ii]->pos[1] - balls[jj]->pos[1];
-            double dist = sqrt( xdiff * xdiff + ydiff * ydiff) - (balls[ii]->radius + balls[jj]->radius);
-            if (dist < min_dist) {
-                min_dist = dist;
+            double distance = sqrt( xdiff * xdiff + ydiff * ydiff) - (balls[ii]->radius + balls[jj]->radius);
+            ballAssociations[association_index].error = distance;
+            double tgo = regula_falsi( now, &ballAssociations[association_index] ) ;
+
+            if (tgo < BIG_TGO) {
                 first = ii;
                 second = jj;
+                event_tgo = tgo;
             }
         }
     }
-    rf.error = min_dist;
-
-    now = get_integ_time() ;               /* Get the current integration time */
-    tgo = regula_falsi( now, &rf ) ;       /* Estimate remaining integration time. */
-    if (tgo == 0.0) {                      /* If we are at the event, it's action time! */
+    if (event_tgo == 0.0) {
         now = get_integ_time() ;
         ballCollision(*balls[first], *balls[second]);
-        std::cout << "Ball["<<first<<"] and Ball["<<second<<"] collide at t = "<<now<<"." << std::endl;
-        reset_regula_falsi( now, &rf );
+        std::cout << "Balls "<<second<<" and "<<first<<" collide at t = "<<now<<"." << std::endl;
+        //
+        for (ii=1; ii<nballs; ii++) {
+            for (jj=0; jj<ii; jj++) {
+                association_index = ii*(ii-1)/2+jj;
+                if ((ii==first) && (jj==second)) {
+                    reset_regula_falsi( now, &ballAssociations[association_index] );
+                } else {
+                    //Set X_upper and t_upper to event values.
+                    double xdiff = balls[ii]->pos[0] - balls[jj]->pos[0];
+                    double ydiff = balls[ii]->pos[1] - balls[jj]->pos[1];
+                    double distance = sqrt( xdiff * xdiff + ydiff * ydiff) - (balls[ii]->radius + balls[jj]->radius);
+                    ballAssociations[association_index].error = distance;
+                    ballAssociations[association_index].x_upper = distance;
+                    ballAssociations[association_index].t_upper = now;
+                    ballAssociations[association_index].upper_set = 1;
+                }
+            }
+        }
     }
-    return (tgo) ;
+    return (event_tgo) ;
 }

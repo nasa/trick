@@ -15,7 +15,9 @@ void Trick::RK2_Integrator::initialize(int State_size, double Dt) {
     dt = Dt;
 
     state_origin =  INTEG_ALLOC( double*, num_state );
-    state_origin[0] = (double*)NULL;
+    for(i=0; i<num_state ; i++) {
+        state_origin[i] = (double*)NULL;
+    }
 
     /** Allocate the state vector.*/
     state =  INTEG_ALLOC( double, num_state );

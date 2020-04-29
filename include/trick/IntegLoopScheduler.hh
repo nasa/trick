@@ -404,14 +404,17 @@ namespace Trick {
              */
             virtual int integrate_dt (double beg_time, double del_time);
 
+
             /**
              * Process dynamic events.
              *
              * @return          Zero/non-zero success indicator.
              *                  Out-of-sync integrators cause a non-zero return.
-             * @param end_time  Time at the end of the integration interval.
+             * @param start_t  Time at the beginning of the integration interval.
+             * @param end_t    Time at the end of the integration interval.
              */
-            int process_dynamic_events (double end_time);
+            int process_dynamic_events (double start_t, double end_t, unsigned int depth=0);
+
     };
 }
 

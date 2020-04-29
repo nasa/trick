@@ -65,6 +65,7 @@ namespace Trick {
 
 #ifndef SWIGPYTHON
         void state_reset ();
+        void state_element_in (unsigned int index , double* state_p);
 #endif
 
 #ifndef SWIGPYTHON
