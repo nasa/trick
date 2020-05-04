@@ -3,7 +3,7 @@
 static void wakeup(void *ctx)
 {
     VideoWindow *mainwindow = (VideoWindow *)ctx;
-    emit mainwindow->mpv_events();
+    mainwindow->wrap_mpv_events();
 }
 
 VideoWindow::VideoWindow(QWidget *parent) :
@@ -52,6 +52,11 @@ VideoWindow::VideoWindow(QWidget *parent) :
         throw std::runtime_error("mpv failed to initialize");
     }
 #endif
+}
+
+void VideoWindow::wrap_mpv_events()
+{
+    emit mpv_events();
 }
 
 void VideoWindow::seek_time(double time) {

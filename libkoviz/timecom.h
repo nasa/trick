@@ -9,6 +9,7 @@
 #include <QFileInfo>
 #include <QByteArray>
 #include <QApplication>
+#include <stdlib.h>
 
 class TimeCom : public QObject
 {
@@ -33,10 +34,10 @@ private slots:
 private:
     QTcpSocket *socket;
     QString currentRun;
-    QString currentTime = QString("t=0");
-    bool firstRunSent = true;
-    const int BvisPort = 64052;
-    const int TimeComPort = BvisPort + 1;
+    QString currentTime;
+    bool firstRunSent;
+    const int BvisPort;
+    const int TimeComPort;
 };
 
 #endif // TIMECOM_H

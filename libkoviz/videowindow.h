@@ -29,6 +29,7 @@ public:
     ~VideoWindow();
     void set_file(const QString& fname);
     void set_offset(double timeOffset);
+    void wrap_mpv_events();
 
 public slots:
     void on_file_open();

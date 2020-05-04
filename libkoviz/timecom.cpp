@@ -1,6 +1,11 @@
 #include "timecom.h"
 
-TimeCom::TimeCom(QObject* parent) : QObject(parent)
+TimeCom::TimeCom(QObject* parent) : 
+    QObject(parent),
+    currentTime("t=0"),
+    firstRunSent(true),
+    BvisPort(64052),
+    TimeComPort(BvisPort + 1)
 {
     socket = new QTcpSocket();
     connect(socket,SIGNAL(readyRead()),
@@ -51,6 +56,7 @@ int TimeCom::sendCom2Bvis(QString com)
 
 int TimeCom::sendTime2Bvis(double liveTime)
 {
+#if QT_VERSION >= 0x050000
     Qt::ApplicationState state = qApp->applicationState();
     if ( state & Qt::ApplicationActive) {
         currentTime = QString("t=%1").arg(liveTime);
@@ -58,6 +64,10 @@ int TimeCom::sendTime2Bvis(double liveTime)
     } else {
         return 0;
     }
+#else
+    fprintf(stderr, "koviz [error]: Bvis needs qt5 or greater!\n");
+    exit(-1);
+#endif
 }
 
 void TimeCom::_timeComRead()
