@@ -127,14 +127,11 @@ double Contact::collision() {
                 if ((ii==first) && (jj==second)) {
                     reset_regula_falsi( now, &ballAssociations[association_index] );
                 } else {
-                    //Set X_upper and t_upper to event values.
+                    // Update the remaining REGULA_FALSI objects to the current event state.
                     double xdiff = balls[ii]->pos[0] - balls[jj]->pos[0];
                     double ydiff = balls[ii]->pos[1] - balls[jj]->pos[1];
                     double distance = sqrt( xdiff * xdiff + ydiff * ydiff) - (balls[ii]->radius + balls[jj]->radius);
-                    ballAssociations[association_index].error = distance;
-                    ballAssociations[association_index].x_upper = distance;
-                    ballAssociations[association_index].t_upper = now;
-                    ballAssociations[association_index].upper_set = 1;
+                    regula_falsi_set_upper (now, distance, &ballAssociations[association_index]);
                 }
             }
         }

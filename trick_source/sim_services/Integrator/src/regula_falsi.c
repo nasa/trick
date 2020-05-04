@@ -4,6 +4,20 @@
 #define M_ABS(x) ((x) < 0 ? -(x) : (x))
 #include "trick/regula_falsi.h"
 
+void regula_falsi_set_upper (double time, double error, REGULA_FALSI *R) {
+    R->error = error;
+    R->x_upper = error;
+    R->t_upper = time;
+    R->upper_set = 1;
+}
+
+void regula_falsi_set_lower (double time, double error, REGULA_FALSI *R) {
+    R->error = error;
+    R->x_lower = error;
+    R->t_lower = time;
+    R->lower_set = 1;
+}
+
 double regula_falsi(
                            /* Return: Est. time to go to err
                                       function zero point */
@@ -26,15 +40,9 @@ double regula_falsi(
         }
     }
     if (R->error < 0.0) {
-        /* Set lower bounds */
-        R->x_lower = R->error;
-        R->t_lower = time;
-        R->lower_set = 1;
+        regula_falsi_set_lower(time, R->error, R);
     } else if (R->error > 0.0) {
-        /* Set upper bounds */
-        R->x_upper = R->error;
-        R->t_upper = time;
-        R->upper_set = 1;
+        regula_falsi_set_upper(time, R->error, R);
     }
     R->iterations++;
 

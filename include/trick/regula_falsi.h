@@ -54,6 +54,8 @@ typedef struct {
 
 double regula_falsi(double my_time, REGULA_FALSI * R);
 void reset_regula_falsi(double my_time, REGULA_FALSI * R);
+void regula_falsi_set_upper (double my_time, double error, REGULA_FALSI * R);
+void regula_falsi_set_lower (double my_time, double error, REGULA_FALSI * R);
 
 #ifdef __cplusplus
 }
