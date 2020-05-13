@@ -147,10 +147,10 @@ TRICK_GTE_EXT += VAR1 VAR3 VAR4
 ```
 
 At run time:
-* `VAR1` will default to `potato`
-* `VAR2` will be undefined by default, as it was not added to `TRICK_GTE_EXT`
-* `VAR3` will be undefined by default if it was not present in the environment at compile time as it was not explicitly `export`ed in the makefile. If it *was* present in the envinroment at compile time, it will default to `banana`, as such variables are exported by default and explicit assignments override environment values.
-* `VAR4` will default to its compile-time environment value, if any
+* `VAR1` will default to `potato`.
+* `VAR2` will be undefined by default, as it was not added to `TRICK_GTE_EXT`.
+* `VAR3` will be undefined by default if it was not present in the environment at compile time, as it was not explicitly `export`ed in the makefile. If it *was* present in the envinroment at compile time, it will default to `banana`, as such variables are automatically exported, and explicit assignments override environment values in `make`.
+* `VAR4` will default to its compile-time environment value, if any.
 * For each variable, the default value will only be used if that variable is not present in the environment at run time.
 
 ### MAKEFLAGS
