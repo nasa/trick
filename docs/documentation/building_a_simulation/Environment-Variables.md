@@ -123,7 +123,7 @@ setenv TRICK_USER_LINK_LIBS "-L/full/path/to/libs -lfile1 /another/path/to/a/lib
 ```
 ### TRICK_GTE_EXT
 
-`TRICK_GTE_EXT` allows you to compile exported `make` variables into your sim executeable so that default values are available for them at run time. These "baked in" variables will use the default compile-time values only if they are not already defined at run time. You do this by adding them to `TRICK_GTE_EXT`, which is a space-delimited list of names.
+`TRICK_GTE_EXT` allows you to compile exported `make` variables into your sim executable so that default values are available for them at run time. These "baked in" variables will use the default compile-time values only if they are not already defined at run time. You do this by adding them to `TRICK_GTE_EXT`, which is a space-delimited list of names.
 
 **[Defining Variables](https://www.gnu.org/software/make/manual/html_node/Environment.html)**  
 You can define a variable directly in a makefile by making an assignment to it. However, variables can also come from the environment in which `make` is run. Every environment variable that `make` sees when it starts up is transformed into a `make` variable with the same name and value. However, an explicit assignment in a makefile, or with a command argument, overrides the environment.
@@ -133,7 +133,7 @@ You can define a variable directly in a makefile by making an assignment to it. 
 
 1. it is defined in the environment initially
 1. it is set on the command line
-1. it is preceeded by the `export` keyword in a makefile
+1. it is preceded by the `export` keyword in a makefile
 
 In all cases, the name must consist only of letters, numbers, and underscores.
 
@@ -149,7 +149,7 @@ TRICK_GTE_EXT += VAR1 VAR3 VAR4
 At run time:
 * `VAR1` will default to `potato`.
 * `VAR2` will be undefined by default, as it was not added to `TRICK_GTE_EXT`.
-* `VAR3` will be undefined by default if it was not present in the environment at compile time, as it was not explicitly `export`ed in the makefile. If it *was* present in the envinroment at compile time, it will default to `banana`, as such variables are automatically exported, and explicit assignments override environment values in `make`.
+* `VAR3` will be undefined by default if it was not present in the environment at compile time, as it was not explicitly `export`ed in the makefile. If it *was* present in the environment at compile time, it will default to `banana`, as such variables are automatically exported, and explicit assignments override environment values in `make`.
 * `VAR4` will default to its compile-time environment value, if any.
 * For each variable, the default value will only be used if that variable is not present in the environment at run time.
 
