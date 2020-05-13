@@ -121,6 +121,24 @@ export TRICK_USER_LINK_LIBS="-L/full/path/to/libs -lfile1 /another/path/to/a/lib
 ```
 setenv TRICK_USER_LINK_LIBS "-L/full/path/to/libs -lfile1 /another/path/to/a/libfile2.a"
 ```
+### TRICK_GTE_EXT
+
+`TRICK_GTE_EXT` allows you to expose variables defined in makefiles to your sim at runtime. To do so, `export` the variable add it to `TRICK_GTE_EXT`, which is a space-delimited list of names.
+
+```make
+export VAR1 := potato
+export VAR2 := onion
+VAR3 := flapjack
+export VAR4 := banana
+
+TRICK_GTE_EXT += VAR1 VAR2 VAR3
+```
+
+At run time:
+* `VAR1` will be `potato`
+* `VAR2` will be `onion`
+* `VAR3` won't be defined, as it was not `export`ed
+* `VAR4` won't be defined, as it was not added to `TRICK_GTE_EXT`
 
 ### MAKEFLAGS
 
