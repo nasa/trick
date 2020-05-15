@@ -7,7 +7,7 @@
 %define %trick_cast_as(TYPE, NAME)
 
 %inline %{
-/* caseAs##NAME casts incoming ptrs as the target type.  Takes incoming object and tests if it
+/* castAs##NAME casts incoming ptrs as the target type.  Takes incoming object and tests if it
    is a compatible type, a void *, or an integer (raw pointer value).  If it is any of these
    types it returns the incoming value as a pointer to the outgoing type.  The integer
    conversion is used by the input processor to associate named allocations in the
