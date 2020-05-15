@@ -88,7 +88,7 @@ my $class_def   = qr/(?:class|struct)\s*                   # keyword class or st
                (?:\{|:(?!\:))                              # { or punctuator :
              /sx ;
 my $template_def   = qr/template\s*                        # keyword template
-            <[^>]+>\s*                                     # template parameters
+            <.*?>\s*                                       # template parameters
             (?:class|struct)                               # keyword class or struct
             \s+[_A-Za-z]\w*\s*                             # class name
                /sx ;
