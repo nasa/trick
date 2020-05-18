@@ -220,4 +220,4 @@ jobs:
         ./configure --without-hdf5 --enable-32bit
         make
     - name: Run tests
-      run: make test
+      run: make test 
