@@ -641,12 +641,16 @@ sub process_class($$$$$) {
                     #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
                     if ( ! exists $processed_templates{$template_type_no_sp} ) {
 
-                        $$new_contents_ref .= "\n#define TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
+                        my $sanitized_namespace = $curr_namespace =~ s/:/_/gr ;
+                        my $identifier = "${sanitized_namespace}${class_name}_${var_name}" ;
+                        my $trick_swig_template = "TRICK_SWIG_TEMPLATE_$identifier" ;
 
-                        my $typedef = "\n#ifdef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                        $typedef .= "\%template($class_name${var_name}_template) $template_full_type;\n" ;
-                        $typedef .= "#undef TRICK_SWIG_TEMPLATE_$class_name${var_name}_template\n" ;
-                        $typedef .= "#endif\n" ;
+                        $$new_contents_ref .= "\n#define $trick_swig_template\n" ;
+
+                        my $typedef = "\n#ifdef $trick_swig_template\n" ;
+                        $typedef   .= "\%template($identifier) $template_full_type;\n" ;
+                        $typedef   .= "#undef $trick_swig_template\n" ;
+                        $typedef   .= "#endif\n" ;
 
                         if ($qualified) {
                             $global_template_typedefs .= $typedef
