@@ -6,23 +6,7 @@ LIBRARY DEPENDENCIES:
 #ifndef _lander_hh_
 #define _lander_hh_
 
-class PIDController {
-    public:
-    double Kp;
-    double Kd;
-    double Ki;
-    double Dt;
-    double error;
-    double previous_error;
-    double integral;
-    double derivative;
-    //int    first_time;
-    double integral_max;
-    double prev_set_point_value;
-
-    PIDController( double kp, double ki, double kd, double imax, double dt );
-    double getOutput(double commanded_value, double measured_value);
-};
+#include "PIDController/include/PIDController.hh"
 
 class Lander {
 
@@ -30,31 +14,37 @@ class Lander {
         double pos[2] ;    /* (m)     xy-position */
         double vel[2] ;    /* (m/s)   xy-velocity */
         double acc[2] ;    /* (m/s2)  xy-acceleration  */
-        double angle;
-        double angleDot;
-        double angleDDot;
+
+        double pitch;      /* (rad)    pitch angle */
+        double pitchDot;   /* (rad/s)  pitch angular-rate */
+        double pitchDDot;  /* (rad/s2) pitch angular-acceleration */
+
+        double nozzle_angle;       /* (rad) */
+        double main_engine_offset; /* (m) distance of main engine swivel from vehicle center of gravity. */
         double thrust_max;         /* (N) Maximum thrust that the main engine can produce. */
-        double rcs_torque;         /* */
+        double rcs_thrust;         /* (N) Thrust produced when RCS motor is "On". */
+        double rcs_offset;         /* (m) distance of RCS motors from vehicle center of gravity. */
         double mass;               /* (kg) */
         double moment_of_inertia;  /* (kg/m2) */
         double g;                  /* (m/s2) - acceleration of gravity. */
-        int throttle;
-        int rcs_command;
+        int throttle;              /* -- Percentage of thrust_max. Range: 0 .. 100. */
+        int rcs_command;           /* -- -1 = counter-clockwise, 0 = no torque, 1 = clockwise */
 
         // Controls from the client
-        int manual_throttle_change_command;       /* add to throttle */
+        int manual_throttle_change_command;     /* add to throttle */
         int manual_rcs_command;                 /* -1 = counter-clockwise, 0 = no torque, 1 = clockwise */
-        int altitudeCtrlEnabled;
+
+        int altitudeCtrlEnabled;                /* -- 0= disabled, 1=ensabled */
         int downRangeCtrlEnabled;
 
         PIDController* posxCntrl;
         PIDController* posyCntrl;
-
-        PIDController* thrust_controller;
-
+        PIDController* energy_controller;
         PIDController* velxCntrl;
         PIDController* velyCntrl;
-        PIDController* angleCntrl;
+        PIDController* nozzlePitchController;
+        PIDController* nozzlePitchRateController;
+        PIDController* RCSpitchController;
 
         double x_cmd;
         double y_cmd;
@@ -62,8 +52,9 @@ class Lander {
         double vx_cmd;
         double ay_cmd;
         double ax_cmd;
-        double angle_cmd;
-        double angle_dot_cmd;
+        double pitch_cmd;
+        double pitch_dot_cmd;
+        double pitch_ddot_cmd;
 
         int default_data();
         int state_init();

@@ -66,7 +66,9 @@ class RangeView extends JPanel {
     private double[] landerVel;
     private double   landerAngle;
     private double   landerAngleRate;
+    private double   nozzleAngle;
     private int      landerThrottle;    /* percent */
+    private int      rcs_state;
 
     private ScenePoly left_pad, right_pad;
     private ScenePoly left_L1,  right_L1;
@@ -77,6 +79,7 @@ class RangeView extends JPanel {
     private ScenePoly nozzle;
     private ScenePoly left_rcs_pod, right_rcs_pod;
     private ScenePoly left_top_rcs_nozzle, right_top_rcs_nozzle, left_bottom_rcs_nozzle, right_bottom_rcs_nozzle;
+    private ScenePoly left_top_rcs_plume, right_top_rcs_plume, left_bottom_rcs_plume, right_bottom_rcs_plume;
     private ScenePoly docking_ring;
     private ScenePoly flame;
 
@@ -84,7 +87,7 @@ class RangeView extends JPanel {
 
     // Controls
     private int throttleChange ;
-    private int rcs_state;
+    private int rcs_state_chg_cmd;
     private boolean altitudeCtrlEnabled;
     private double altitudeSetPoint;
     private boolean downRangeCtrlEnabled;
@@ -108,6 +111,7 @@ class RangeView extends JPanel {
         landerColor = new Color(150,10,10);
 
         landerAngle = 0.0;
+        nozzleAngle = 0.0;
         landerPos  = new double[]
             {5.0, 0.0};
         landerVel  = new double[]
@@ -204,11 +208,23 @@ class RangeView extends JPanel {
         left_top_rcs_nozzle.y  = new double[] { 0.1, 0.1, 0.2, 0.2 };
         left_top_rcs_nozzle.n = 4;
 
+        left_top_rcs_plume = new ScenePoly();
+        left_top_rcs_plume.color = new Color(255,255,255);
+        left_top_rcs_plume.x = new double[]  { -1.1, -1.2, -1.24, -1.06 };
+        left_top_rcs_plume.y  = new double[] { 0.2, 0.2, 0.4, 0.4 };
+        left_top_rcs_plume.n = 4;
+
         right_top_rcs_nozzle = new ScenePoly();
         right_top_rcs_nozzle.color = new Color(255,100,100);
         right_top_rcs_nozzle.x = new double[]  { 1.12, 1.18, 1.2, 1.1 };
         right_top_rcs_nozzle.y  = new double[] { 0.1, 0.1, 0.2, 0.2 };
         right_top_rcs_nozzle.n = 4;
+
+        right_top_rcs_plume = new ScenePoly();
+        right_top_rcs_plume.color = new Color(255,255,255);
+        right_top_rcs_plume.x = new double[]  { 1.1, 1.2, 1.24, 1.06 };
+        right_top_rcs_plume.y  = new double[] { 0.2, 0.2, 0.4, 0.4 };
+        right_top_rcs_plume.n = 4;
 
         left_bottom_rcs_nozzle = new ScenePoly();
         left_bottom_rcs_nozzle.color = new Color(255,100,100);
@@ -216,11 +232,23 @@ class RangeView extends JPanel {
         left_bottom_rcs_nozzle.y  = new double[] { -0.1, -0.1, -0.2, -0.2 };
         left_bottom_rcs_nozzle.n = 4;
 
+        left_bottom_rcs_plume = new ScenePoly();
+        left_bottom_rcs_plume.color = new Color(255,255,255);
+        left_bottom_rcs_plume.x = new double[]  { -1.1, -1.2, -1.24, -1.06 };
+        left_bottom_rcs_plume.y  = new double[] { -0.2, -0.2, -0.4, -0.4 };
+        left_bottom_rcs_plume.n = 4;
+
         right_bottom_rcs_nozzle = new ScenePoly();
         right_bottom_rcs_nozzle.color = new Color(255,100,100);
         right_bottom_rcs_nozzle.x = new double[]  { 1.12, 1.18, 1.2, 1.1 };
         right_bottom_rcs_nozzle.y  = new double[] { -0.1, -0.1, -0.2, -0.2 };
         right_bottom_rcs_nozzle.n = 4;
+
+        right_bottom_rcs_plume = new ScenePoly();
+        right_bottom_rcs_plume.color = new Color(255,255,255);
+        right_bottom_rcs_plume.x = new double[]  {  1.1,  1.2,  1.24, 1.06 };
+        right_bottom_rcs_plume.y  = new double[] { -0.2, -0.2, -0.4, -0.4 };
+        right_bottom_rcs_plume.n = 4;
 
         docking_ring = new ScenePoly();
         docking_ring.color = new Color(100,100,200);
@@ -249,10 +277,12 @@ class RangeView extends JPanel {
         g.fillPolygon(workPolyX, workPolyY, p.n);
     }
 
-    public void rcs_ccw()       { rcs_state = 1; }
-    public void rcs_cw()        { rcs_state = -1; }
-    public void rcs_zero()      { rcs_state = 0; }
-    public int  get_rcs_state() { return rcs_state; }
+    public void rcs_ccw()         { rcs_state_chg_cmd = 1; }
+    public void rcs_cw()          { rcs_state_chg_cmd = -1; }
+    public void rcs_zero_change() { rcs_state_chg_cmd = 0; }
+
+    public int  get_rcs_state_chg() { return rcs_state_chg_cmd; }
+    public void set_rcs_state(int state) { rcs_state = state; }
 
     public void throttleUp()         { throttleChange =    1; }
     public void throttleDown()       { throttleChange =   -1; }
@@ -274,11 +304,14 @@ class RangeView extends JPanel {
     public void setDownRangeSetPoint(double setpoint) { downRangeSetPoint = setpoint; }
     public double getDownRangeSetPoint()    { return downRangeSetPoint; }
 
-    public void setLanderAngle(double angle_r) {
-        landerAngle = angle_r;
+    public void setLanderAngle(double angle) {
+        landerAngle = angle;
     }
     public void setLanderAngleRate(double angle_rate) {
         landerAngleRate = angle_rate;
+    }
+    public void setNozzleAngle(double angle) {
+        nozzleAngle = angle;
     }
     public void setLanderPos(double x, double y) {
         landerPos[0] = x;
@@ -355,7 +388,7 @@ class RangeView extends JPanel {
         drawScenePoly(g2d, left_L4, landerAngle, landerPos[0], landerPos[1]);
         drawScenePoly(g2d, right_L4, landerAngle, landerPos[0], landerPos[1]);
         drawScenePoly(g2d, fuselage, landerAngle, landerPos[0], landerPos[1]);
-        drawScenePoly(g2d, nozzle, landerAngle, landerPos[0], landerPos[1]);
+        drawScenePoly(g2d, nozzle, (landerAngle + nozzleAngle), landerPos[0], landerPos[1]);
         drawScenePoly(g2d, left_rcs_pod, landerAngle, landerPos[0], landerPos[1]);
         drawScenePoly(g2d, right_rcs_pod, landerAngle, landerPos[0], landerPos[1]);
 
@@ -366,6 +399,14 @@ class RangeView extends JPanel {
         drawScenePoly(g2d, docking_ring, landerAngle, landerPos[0], landerPos[1]);
         drawScenePoly(g2d, flame, landerAngle, landerPos[0], landerPos[1]);
 
+        if ( rcs_state > 0) {
+            drawScenePoly(g2d, left_top_rcs_plume, landerAngle, landerPos[0], landerPos[1]);
+            drawScenePoly(g2d, right_bottom_rcs_plume, landerAngle, landerPos[0], landerPos[1]);
+        } else if ( rcs_state < 0) {
+            drawScenePoly(g2d, right_top_rcs_plume, landerAngle, landerPos[0], landerPos[1]);
+            drawScenePoly(g2d, left_bottom_rcs_plume, landerAngle, landerPos[0], landerPos[1]);
+        }
+
         // ===============================================================================
         // Move the first vertex of the triangular polygon that represents the main-engine
         // plume to make the triangle bigger or smaller depending on the throttle setting.
@@ -373,9 +414,9 @@ class RangeView extends JPanel {
 
         for (ii = 0; ii < flame.n; ii++) {
             workPolyX[ii] = (int)(worldOriginX + scale *
-                ( Math.cos(landerAngle) * flame.x[ii] - Math.sin(landerAngle) * flame.y[ii] + landerPos[0] ));
+                ( Math.cos(landerAngle+nozzleAngle) * flame.x[ii] - Math.sin(landerAngle+nozzleAngle) * flame.y[ii] + landerPos[0] ));
             workPolyY[ii] = (int)(worldOriginY - scale *
-                ( Math.sin(landerAngle) * flame.x[ii] + Math.cos(landerAngle) * flame.y[ii] + landerPos[1] ));
+                ( Math.sin(landerAngle+nozzleAngle) * flame.x[ii] + Math.cos(landerAngle+nozzleAngle) * flame.y[ii] + landerPos[1] ));
         }
         g2d.setPaint(flame.color);
         g2d.fillPolygon(workPolyX, workPolyY, flame.n);
@@ -401,8 +442,8 @@ class RangeView extends JPanel {
         double angle_rate_d = landerAngleRate * 57.29577;
         g2d.drawString ( String.format("SCALE: %d pixels/meter",scale), 20,20);
         g2d.drawString ( String.format("Throttle : [%d]", landerThrottle), 20,40);
-        g2d.drawString ( String.format("Lander Angle (Deg): [%.2f]", angle_d), 20,60);
-        g2d.drawString ( String.format("Lander AngleRate (Deg/s): [%.2f]", angle_rate_d), 20,80);
+        g2d.drawString ( String.format("Lander Pitch (Deg): [%.2f]", angle_d), 20,60);
+        g2d.drawString ( String.format("Lander PitchRate (Deg/s): [%.2f]", angle_rate_d), 20,80);
         g2d.drawString ( String.format("Lander Pos: [%.2f, %.2f]", landerPos[0], landerPos[1]), 20,100);
         g2d.drawString ( String.format("Lander Vel: [%.2f, %.2f]", landerVel[0], landerVel[1]), 20,120);
 
@@ -790,13 +831,15 @@ public class LanderDisplay extends JFrame {
         double posy = 0.0;
         double angle = 0.0;
         double angle_rate = 0.0;
+        double nozzle_angle = 0.0;
         double velx = 0.0;
         double vely = 0.0;
         int throttle = 0;
+        int rcs_state = 0;
 
         // Outbound command variables
         int throttle_delta;
-        int rcs_state;
+        int rcs_state_chg_cmd;
 
         int simMode = 0;
         boolean standalone = false;
@@ -844,11 +887,13 @@ public class LanderDisplay extends JFrame {
         landerDisplay.out.writeBytes( "trick.var_pause() \n" +
                             "trick.var_add(\"dyn.lander.pos[0]\")\n" +
                             "trick.var_add(\"dyn.lander.pos[1]\")\n" +
-                            "trick.var_add(\"dyn.lander.angle\")\n" +
+                            "trick.var_add(\"dyn.lander.pitch\")\n" +
                             "trick.var_add(\"dyn.lander.vel[0]\")\n" +
                             "trick.var_add(\"dyn.lander.vel[1]\")\n" +
-                            "trick.var_add(\"dyn.lander.angleDot\")\n" +
+                            "trick.var_add(\"dyn.lander.pitchDot\")\n" +
+                            "trick.var_add(\"dyn.lander.nozzle_angle\")\n" +
                             "trick.var_add(\"dyn.lander.throttle\")\n" +
+                            "trick.var_add(\"dyn.lander.rcs_command\")\n" +
                             "trick.var_add(\"trick_sys.sched.mode\")\n" +
         //  2) We want the responses in ASCII:
                             "trick.var_ascii() \n" +
@@ -872,8 +917,10 @@ public class LanderDisplay extends JFrame {
                 velx   = Double.parseDouble( field[4]);
                 vely   = Double.parseDouble( field[5]);
                 angle_rate = Double.parseDouble( field[6]);
-                throttle = Integer.parseInt( field[7]);
-                simMode = Integer.parseInt( field[8]);
+                nozzle_angle = Double.parseDouble( field[7]);
+                throttle = Integer.parseInt( field[8]);
+                rcs_state = Integer.parseInt( field[9]);
+                simMode = Integer.parseInt( field[10]);
             } catch (IOException | NullPointerException e ) {
                 go = false;
             }
@@ -882,16 +929,18 @@ public class LanderDisplay extends JFrame {
             rangeView.setLanderPos(posx, posy);
             rangeView.setLanderVel(velx, vely);
             rangeView.setLanderAngle(angle);
+            rangeView.setNozzleAngle(nozzle_angle);
             rangeView.setLanderAngleRate(angle_rate);
             rangeView.setLanderThrottle(throttle);
+            rangeView.set_rcs_state(rcs_state);
 
             throttle_delta = rangeView.getThrottleDelta();
             landerDisplay.out.writeBytes( String.format("dyn.lander.manual_throttle_change_command = %d ;\n", throttle_delta ));
             rangeView.throttleZeroChange();
 
-            rcs_state = rangeView.get_rcs_state();
-            landerDisplay.out.writeBytes( String.format("dyn.lander.manual_rcs_command = %d ;\n", rcs_state ));
-            rangeView.rcs_zero();
+            rcs_state_chg_cmd = rangeView.get_rcs_state_chg();
+            landerDisplay.out.writeBytes( String.format("dyn.lander.manual_rcs_command = %d ;\n", rcs_state_chg_cmd ));
+            rangeView.rcs_zero_change();
 
             if (rangeView.getAltitudeCtrlState()) {
                 landerDisplay.out.writeBytes("dyn.lander.altitudeCtrlEnabled = 1 ;\n");

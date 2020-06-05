@@ -2,7 +2,8 @@
 PURPOSE:
     ( Simulate a Lander. )
 LIBRARY DEPENDENCIES:
-    ((lander/src/Lander.cpp))
+    ((lander/src/Lander.cpp)
+     (PIDController/src/PIDController.cpp))
 *************************************************************/
 #include "sim_objects/default_trick_sys.sm"
 ##include "lander/include/Lander.hh"

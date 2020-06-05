@@ -3,7 +3,8 @@ PURPOSE: ( Simulate a satellite orbiting the Earth. )
 LIBRARY DEPENDENCY:
     ((Lander.o))
 *******************************************************************************/
-#include "../include/Lander.hh"
+#include "lander/include/Lander.hh"
+
 #include "trick/integrator_c_intf.h"
 #include <math.h>
 #include <iostream>
@@ -13,56 +14,25 @@ LIBRARY DEPENDENCY:
 
 int pid_debug = 0;
 
-PIDController::PIDController( double kp, double ki, double kd, double imax, double dt ) {
-    Kp=kp; Ki=ki; Kd=kd; Dt=dt;
-    previous_error = 0;
-    integral = 0;
-    integral_max = imax;
-    prev_set_point_value = 0.0;
-}
-
-double PIDController::getOutput(double set_point_value, double measured_value) {
-
-    error = set_point_value - measured_value;
-
-    if (prev_set_point_value != set_point_value) {
-        previous_error = error;
-    }
-
-    integral = integral + error * Dt;
-
-    if (integral < -integral_max) integral = -integral_max;
-    if (integral >  integral_max) integral =  integral_max;
-
-    derivative = (error - previous_error) / Dt;
-    previous_error = error;
-    prev_set_point_value = set_point_value;
-
-    double pterm = Kp * error;
-    double iterm = Ki * integral;
-    double dterm = Kd * derivative;
-    double output = pterm + iterm + dterm;
-
-    return ( output );
-}
-
 int Lander::default_data() {
 
     pos[0] = 0.0;
     pos[1] = 1.8;
     vel[0] = 0.0;
     vel[1] = 0.0;
-    angle = 0.0;
-    angleDot = 0.0;
-    angleDDot = 0.0;
+    pitch = 0.0;
+    pitchDot = 0.0;
+    pitchDDot = 0.0;
 
-    // thrust_max = 15000;
     thrust_max = 6500;
-    rcs_torque = 50;
+    rcs_thrust = 50;
+    rcs_offset = 1.15;
     mass = 2000;
     moment_of_inertia = 2000;
+    main_engine_offset = 1.0;
     g = 1.62;                  // Gravitional acceleration on the moon.
 
+    nozzle_angle = 0.0;
     throttle = 0;
     rcs_command = 0;
 
@@ -81,79 +51,129 @@ int Lander::default_data() {
 
 int Lander::state_init() {
 
-    posxCntrl  = new PIDController( 0.20, 0.01, 0.40, 50.0, 0.10 );
-    velxCntrl  = new PIDController( 0.20, 0.01, 0.40, 50.0, 0.10 );
+    // =========================================================================
+    //  Horizontal Position Controllers
+    // -------------------------------------------------------------------------
+    // Horizontal Position Controller
+    // Generates x-axis (horizontal) velocity commands.
+    posxCntrl  = new PIDController( 0.20, 0.0, 0.5 , 3.0,  -3.0,  0.10, 0.10 );
+    // -------------------------------------------------------------------------
+    // Horizontal Velocity Controller
+    // Generates x-axis (horizontal) acceleration commands.
+    // We chose to limit it to %5 of maximum possible acceleration.
+    double ax_limit = 0.05 * (thrust_max / mass);
+    velxCntrl  = new PIDController( 0.20, 0.0, 0.5, ax_limit,  -ax_limit,  0.10, 0.10 );
 
-    posyCntrl  = new PIDController( 0.40, 0.1,  1.0, 50.0, 0.10 );
-    velyCntrl  = new PIDController( 0.40, 0.00, 1.0, 10.0, 0.10 );
+    // =========================================================================
+    // Vertical Position Controllers (Below 100 meters)
+    // -------------------------------------------------------------------------
+    // Vertical Position Controller
+    // Generates y-axis (vertical) velocity commands.
+    posyCntrl  = new PIDController( 0.50, 0.1, 0.5, 5.0,  -2.0,  0.10, 0.10 );
+    // -------------------------------------------------------------------------
+    // Vertical Velocity Controller
+    // Generates y-axis (vertical) acceleration commands.
+    // We chose to limit it to %95 of maximum possible acceleration.
+    double ay_limit = 0.95 * (thrust_max / mass);
+    velyCntrl  = new PIDController( 0.50, 0.1, 0.5, ay_limit, -ay_limit,  0.10, 0.10 );
 
-    angleCntrl = new PIDController( 0.20, 0.02, 0.80, 10.0, 0.10 );
+    // =========================================================================
+    // Vertical Position Controller (Above 100 meters)
+    // Generates y-axis (vertical) acceleration commands.
+    // Setpoint: Potential Energy per Kg due to gravity between the commanded altitude and the surface.
+    // Measured value: Total Energy per Kg (Potential + Kinetic) due to the current altitude and altitude rate.
+    // Output: Commanded vertical acceleration.
+    energy_controller  = new PIDController( 0.1, 0.01, 0.1, 30.0,  0.00,   0.10, 0.10 );
 
-    thrust_controller  = new PIDController( 0.2, 0.001, 0.00, 100.0, 0.10 );
+    // =========================================================================
+    // Pitch Controllers (when throttle > 10)
+    // -------------------------------------------------------------------------
+    // Pitch Controller
+    // Generates pitch rate commands (radians / sec)
+    nozzlePitchController = new PIDController( 0.50, 0.0, 0.5, 0.2, -0.2, 0.10 , 0.10);
+
+    // -------------------------------------------------------------------------
+    // Pitch Rate Controller
+    // Generates pitch angular acceleration commands (radians /sec^2)
+    nozzlePitchRateController = new PIDController( 0.50, 0.1, 0.5, 0.2, -0.2, 0.10 , 0.10);
+
+    // =========================================================================
+    // Pitch Controller (when throttle < 10)
+    // -------------------------------------------------------------------------
+    // RCS Pitch Controller
+    // Generates pitch rate commands (radians / sec) for the RCS.
+    RCSpitchController = new PIDController( 0.10, 0.5, 0.0, (RAD_PER_DEG * 2.0), -(RAD_PER_DEG * 2.0), 0.10 , 0.10);
 
     return (0);
-
 }
 
-#define MAX_CTRL_ANGLE 30.0
 int Lander::control() {
 
-    if (altitudeCtrlEnabled == 1) {
+    if (altitudeCtrlEnabled) {
 
-        if (pos[1] < 50.0) {
-             vy_cmd = posyCntrl->getOutput(y_cmd, pos[1]);
-             if (vy_cmd > 50.0 ) vy_cmd = 50.0;
-             if (vy_cmd < -5.0) vy_cmd = -5.0;
-             ay_cmd = g + velyCntrl->getOutput(vy_cmd, vel[1]);
+        double Eppkg = g * y_cmd;                                // Potential Energy per kg.
+        double Etpkg = g * pos[1] + 0.5 * fabs(vel[1]) * vel[1]; // Total Energy per kg.
+        double Ediff = fabs(Eppkg - Etpkg);
+
+        if ((pos[1] < 100.0) && (Ediff < 50.0) ){
+             vy_cmd = posyCntrl->getOutput(y_cmd,  pos[1]);
+             ay_cmd = velyCntrl->getOutput(vy_cmd, vel[1]);
         } else {
             // This controller is intended to be more energy efficient.
-             ay_cmd = g + thrust_controller->getOutput(
-                  g * y_cmd,
-                  g * pos[1] + 0.5 * fabs(vel[1]) * vel[1]
+             ay_cmd = energy_controller->getOutput(
+                  g * y_cmd,                                   // Potential Energy
+                  g * pos[1] + 0.5 * fabs(vel[1]) * vel[1]     // Kinetic Energy
               );
         }
 
-         throttle = (ay_cmd * mass * 100) / thrust_max;
-         if (throttle > 100 ) throttle = 100;
-         if (throttle <   0) throttle = 0;
-    }
+        if ((downRangeCtrlEnabled) && (throttle >= 10)) {
 
-    if (downRangeCtrlEnabled == 1) {
-        if (throttle >= 10 ) {
             vx_cmd = posxCntrl->getOutput(x_cmd, pos[0]);
-            double thrust = (throttle / 100.0) * thrust_max;
-            double a_max = thrust / mass;
             ax_cmd = velxCntrl->getOutput(vx_cmd, vel[0]);
-            if (ax_cmd >  0.707 * a_max ) ax_cmd =  0.707 * a_max ;
-            if (ax_cmd < -0.707 * a_max ) ax_cmd = -0.707 * a_max ;
-            double acc_ratio = ax_cmd / a_max ; // must be between 0..1
-            angle_cmd = -asin( acc_ratio );
+
+            if (ay_cmd > 0.0) {
+                pitch_cmd = -atan( ax_cmd / ay_cmd );
+            } else {
+                pitch_cmd = 0.0;
+            }
+
+            rcs_command = 0;
+
+            pitch_dot_cmd  = nozzlePitchController->getOutput(pitch_cmd, pitch);
+            pitch_ddot_cmd = nozzlePitchRateController->getOutput(pitch_dot_cmd, pitchDot);
+            double thrust = (throttle / 100.0) * thrust_max;
+            // Calculate the nozzle angle that would give us the commanded pitch angular acceleration.
+            nozzle_angle = asin( (moment_of_inertia * pitch_ddot_cmd)/ (main_engine_offset * thrust) );
+
+
         } else {
-            angle_cmd = 0.0;
+            vx_cmd = 0.0;
+            ax_cmd = 0.0;
+            pitch_cmd = 0.0;
+
+            nozzle_angle = 0.0;
+
+            pitch_dot_cmd = RCSpitchController->getOutput(pitch_cmd, pitch);
+
+            if (( pitch_dot_cmd - pitchDot ) > (RAD_PER_DEG * 1.0) ) {
+                rcs_command = 1;
+            } else if (( pitch_dot_cmd - pitchDot ) < (-RAD_PER_DEG * 1.0) ) {
+                rcs_command = -1;
+            }
         }
 
-        if (angle_cmd >  MAX_CTRL_ANGLE * RAD_PER_DEG) angle_cmd =  MAX_CTRL_ANGLE * RAD_PER_DEG;
-        if (angle_cmd < -MAX_CTRL_ANGLE * RAD_PER_DEG) angle_cmd = -MAX_CTRL_ANGLE * RAD_PER_DEG;
+        double a_cmd = sqrt(ax_cmd * ax_cmd + ay_cmd * ay_cmd);
+        throttle = (a_cmd * mass * 100) / thrust_max;
 
-        pid_debug = 1;
-        angle_dot_cmd = angleCntrl->getOutput(angle_cmd, angle);
-        pid_debug = 0;
-
-        if ((angle_dot_cmd - angleDot) > 0.1 * RAD_PER_DEG) {
-            rcs_command =  1;
-        } else if ((angle_dot_cmd - angleDot) < -0.1 * RAD_PER_DEG) {
-            rcs_command = -1;
-        } else {
-            rcs_command =  0;
-        }
-
-    } else {
-        rcs_command = manual_rcs_command;
     }
 
     throttle += manual_throttle_change_command;
     if (throttle > 100 ) throttle = 100;
     if (throttle <   0) throttle = 0;
+
+    rcs_command += manual_rcs_command;
+    if (rcs_command >  1) rcs_command =  1;
+    if (rcs_command < -1) rcs_command = -1;
 
     return (0);
 }
@@ -162,24 +182,28 @@ int Lander::state_deriv() {
 
    double thrust = (throttle / 100.0) * thrust_max;
 
-   acc[0] = (thrust * -sin(angle)) / mass;
-   acc[1] = (thrust *  cos(angle)) / mass - g;
+    acc[0] = (thrust * -sin(pitch)) / mass;
+    acc[1] = (thrust *  cos(pitch)) / mass - g;
 
-   angleDDot = rcs_command * rcs_torque / moment_of_inertia;
+    double torque_main_engine = main_engine_offset * thrust * sin( nozzle_angle );
+    double torque_rcs = rcs_command * rcs_thrust * rcs_offset;
+    double torque_total = torque_main_engine + torque_rcs;
 
-   return(0);
+    pitchDDot = torque_total / moment_of_inertia;
+
+    return(0);
 }
 
 int Lander::state_integ() {
 
    int integration_step;
 
-   load_state ( &pos[0], &pos[1], &vel[0], &vel[1], &angle, &angleDot, (double*)0);
-   load_deriv ( &vel[0], &vel[1], &acc[0], &acc[1], &angleDot, &angleDDot, (double*)0);
+   load_state ( &pos[0], &pos[1], &vel[0], &vel[1], &pitch, &pitchDot, (double*)0);
+   load_deriv ( &vel[0], &vel[1], &acc[0], &acc[1], &pitchDot, &pitchDDot, (double*)0);
 
    integration_step = integrate();
 
-   unload_state( &pos[0], &pos[1], &vel[0], &vel[1], &angle, &angleDot, (double*)0);
+   unload_state( &pos[0], &pos[1], &vel[0], &vel[1], &pitch, &pitchDot, (double*)0);
 
    return(integration_step);
 }
@@ -189,8 +213,8 @@ int Lander::check_ground_contact() {
         pos[1] = 1.8;
         vel[0] = 0.0;
         vel[1] = 0.0;
-        angle = 0.0;
-        angleDot = 0.0;
+        pitch = 0.0;
+        pitchDot = 0.0;
     }
     return(0);
 }
