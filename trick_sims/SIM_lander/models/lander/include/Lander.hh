@@ -45,6 +45,10 @@ class Lander {
         PIDController* nozzlePitchController;
         PIDController* nozzlePitchRateController;
         PIDController* RCSpitchController;
+        PIDController* RCSpitchRateController;
+
+        double RCS_pitch_dot_limit;
+        double RCS_pitch_ddot_limit;
 
         double x_cmd;
         double y_cmd;

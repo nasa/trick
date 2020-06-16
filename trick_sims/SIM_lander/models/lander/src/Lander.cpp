@@ -10,9 +10,7 @@ LIBRARY DEPENDENCY:
 #include <iostream>
 
 #define RAD_PER_DEG (M_PI / 180.0)
-#define DEG_PER_RAD (180.0/ M_PI )
-
-int pid_debug = 0;
+#define DEG_PER_RAD (180.0/ M_PI)
 
 int Lander::default_data() {
 
@@ -31,6 +29,8 @@ int Lander::default_data() {
     moment_of_inertia = 2000;
     main_engine_offset = 1.0;
     g = 1.62;                  // Gravitional acceleration on the moon.
+
+    RCS_pitch_dot_limit = (RAD_PER_DEG * 5.0);
 
     nozzle_angle = 0.0;
     throttle = 0;
@@ -51,63 +51,69 @@ int Lander::default_data() {
 
 int Lander::state_init() {
 
+    RCS_pitch_ddot_limit = (rcs_thrust * rcs_offset) / moment_of_inertia;
+
     // =========================================================================
     //  Horizontal Position Controllers
-    // -------------------------------------------------------------------------
+
     // Horizontal Position Controller
     // Generates x-axis (horizontal) velocity commands.
-    posxCntrl  = new PIDController( 0.20, 0.0, 0.5 , 3.0,  -3.0,  0.10, 0.10 );
-    // -------------------------------------------------------------------------
+    posxCntrl  = new PIDController( 0.08, 0.002, 0.20, 10.0, -10.0,  0.10, 0.10 );
+
     // Horizontal Velocity Controller
     // Generates x-axis (horizontal) acceleration commands.
-    // We chose to limit it to %5 of maximum possible acceleration.
-    double ax_limit = 0.05 * (thrust_max / mass);
-    velxCntrl  = new PIDController( 0.20, 0.0, 0.5, ax_limit,  -ax_limit,  0.10, 0.10 );
+    double ax_limit = 0.30 * (thrust_max / mass);
+    velxCntrl  = new PIDController( 0.18, 0.0, 0.0, ax_limit, -ax_limit,  0.10, 0.10 );
 
     // =========================================================================
     // Vertical Position Controllers (Below 100 meters)
-    // -------------------------------------------------------------------------
+
     // Vertical Position Controller
     // Generates y-axis (vertical) velocity commands.
-    posyCntrl  = new PIDController( 0.50, 0.1, 0.5, 5.0,  -2.0,  0.10, 0.10 );
-    // -------------------------------------------------------------------------
+    posyCntrl  = new PIDController( 0.4, 0.0001, 0.2, 5.0,  -2.0,  0.10, 0.10 );
+
     // Vertical Velocity Controller
     // Generates y-axis (vertical) acceleration commands.
-    // We chose to limit it to %95 of maximum possible acceleration.
     double ay_limit = 0.95 * (thrust_max / mass);
-    velyCntrl  = new PIDController( 0.50, 0.1, 0.5, ay_limit, -ay_limit,  0.10, 0.10 );
+    velyCntrl  = new PIDController( 0.5, 0.1, 0.0, ay_limit, -ay_limit,  0.10, 0.10 );
 
     // =========================================================================
     // Vertical Position Controller (Above 100 meters)
     // Generates y-axis (vertical) acceleration commands.
-    // Setpoint: Potential Energy per Kg due to gravity between the commanded altitude and the surface.
-    // Measured value: Total Energy per Kg (Potential + Kinetic) due to the current altitude and altitude rate.
-    // Output: Commanded vertical acceleration.
-    energy_controller  = new PIDController( 0.1, 0.01, 0.1, 30.0,  0.00,   0.10, 0.10 );
+    // Setpoint: Potential Energy per Kg due to gravity between the commanded
+    // altitude and the surface.
+    // Measured value: Total Energy per Kg (Potential + Kinetic) due to the
+    // current altitude and altitude rate.
+    energy_controller  = new PIDController( 0.1, 0.0001, 0.2, 30.0,  0.00,   0.10, 0.10 );
 
     // =========================================================================
     // Pitch Controllers (when throttle > 10)
-    // -------------------------------------------------------------------------
+
     // Pitch Controller
     // Generates pitch rate commands (radians / sec)
-    nozzlePitchController = new PIDController( 0.50, 0.0, 0.5, 0.2, -0.2, 0.10 , 0.10);
+    nozzlePitchController = new PIDController( 0.50, 0.0, 0.0, RAD_PER_DEG * 20.0, -RAD_PER_DEG * 20.0, 0.10 , 0.10);
 
-    // -------------------------------------------------------------------------
     // Pitch Rate Controller
     // Generates pitch angular acceleration commands (radians /sec^2)
-    nozzlePitchRateController = new PIDController( 0.50, 0.1, 0.5, 0.2, -0.2, 0.10 , 0.10);
+    nozzlePitchRateController = new PIDController( 0.50, 0.0, 0.0, RAD_PER_DEG * 10.0, -RAD_PER_DEG * 10.0, 0.10 , 0.10);
 
     // =========================================================================
     // Pitch Controller (when throttle < 10)
-    // -------------------------------------------------------------------------
+
     // RCS Pitch Controller
     // Generates pitch rate commands (radians / sec) for the RCS.
-    RCSpitchController = new PIDController( 0.10, 0.5, 0.0, (RAD_PER_DEG * 2.0), -(RAD_PER_DEG * 2.0), 0.10 , 0.10);
+    RCSpitchController = new PIDController( 0.30, 0.0, 0.0, RCS_pitch_dot_limit, -RCS_pitch_dot_limit, 0.10 , 0.10);
+
+    // RCS Pitch Rate Controller
+    // Generates pitch rate commands (radians / sec) for the RCS.
+    RCSpitchRateController = new PIDController( 0.60, 0.0, 0.0, RCS_pitch_ddot_limit, -RCS_pitch_ddot_limit, 0.10 , 0.10);
 
     return (0);
 }
 
 int Lander::control() {
+
+    rcs_command = 0;
 
     if (altitudeCtrlEnabled) {
 
@@ -137,8 +143,6 @@ int Lander::control() {
                 pitch_cmd = 0.0;
             }
 
-            rcs_command = 0;
-
             pitch_dot_cmd  = nozzlePitchController->getOutput(pitch_cmd, pitch);
             pitch_ddot_cmd = nozzlePitchRateController->getOutput(pitch_dot_cmd, pitchDot);
             double thrust = (throttle / 100.0) * thrust_max;
@@ -149,16 +153,17 @@ int Lander::control() {
         } else {
             vx_cmd = 0.0;
             ax_cmd = 0.0;
-            pitch_cmd = 0.0;
-
             nozzle_angle = 0.0;
 
+            pitch_cmd = 0.0;
             pitch_dot_cmd = RCSpitchController->getOutput(pitch_cmd, pitch);
-
-            if (( pitch_dot_cmd - pitchDot ) > (RAD_PER_DEG * 1.0) ) {
+            pitch_ddot_cmd = RCSpitchRateController->getOutput(pitch_dot_cmd, pitchDot);
+            if ( pitch_ddot_cmd > 0.1 * RCS_pitch_ddot_limit) {
                 rcs_command = 1;
-            } else if (( pitch_dot_cmd - pitchDot ) < (-RAD_PER_DEG * 1.0) ) {
+            } else if (pitch_ddot_cmd < -0.1 * RCS_pitch_ddot_limit) {
                 rcs_command = -1;
+            } else {
+                rcs_command = 0;
             }
         }
 
