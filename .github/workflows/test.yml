@@ -116,7 +116,7 @@ jobs:
               dnf install -y 'dnf-command(config-manager)' &&
               dnf config-manager --enable PowerTools
             tag_deps: >-
-              python3-devel
+              python3-devel diffutils
 #-------- Job definition ----------------
     runs-on: ubuntu-18.04
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
