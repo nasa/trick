@@ -146,7 +146,7 @@ sub write_makefile_swig() {
 ifeq (\$(IS_CC_CLANG), 1)
     TRICK_SYSTEM_SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
 else
-    TRICK_SYSTEM_SWIG_CFLAGS += -Wno-unused-but-set-variable
+    TRICK_SYSTEM_SWIG_CFLAGS += -Wno-unused-but-set-variable -Wno-maybe-uninitialized
     ifeq (\$(shell test \$(GCC_MAJOR) -ge 8; echo \$\$?), 0)
         TRICK_SYSTEM_SWIG_CFLAGS += -Wno-cast-function-type
     endif
