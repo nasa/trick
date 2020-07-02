@@ -647,7 +647,6 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
 
         if ( xName.isEmpty() ) {
             xName = _timeName;
-            xUnit = "s";
         }
 
         curveModel = _bookModel->createCurve(runId, _timeName, xName, yName);

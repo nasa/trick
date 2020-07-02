@@ -97,7 +97,17 @@ QString dpFileName() {
 
 %%
 
-statements:
+statements: {
+            currTable = 0;
+            currTableVar = 0;
+            currPage = 0;
+            currPlot = 0;
+            currCurve = 0;
+            currXVar = 0;
+            currYVar = 0;
+            currXYPairXVar = 0;
+            currXYPairYVar = 0;
+        }
         | statements program
         | statements { isXYPair = false; isXVar = false; } plot_section
         | statements table_section
@@ -242,9 +252,18 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
         | plot {
                  if ( !isXVar ) {
                      currCurve = currPlot->addCurve();
-                     currXVar = currCurve->setXVarName("");
-                     currXVar->setUnit("--");
-                     currXVar->setLabel("");
+                     if ( !currXVar ) {
+                         currXVar = currCurve->setXVarName("");
+                         currXVar->setUnit("");
+                         currXVar->setLabel("");
+                     } else {
+                         QString xunit = currXVar->unit();
+                         QString xlabel = currXVar->label();
+                         currXVar = currCurve->setXVarName(
+                                       currXVar->name().toLatin1().constData());
+                         currXVar->setUnit(xunit.toLatin1().constData());
+                         currXVar->setLabel(xlabel.toLatin1().constData());
+                     }
                  }
                }
 
