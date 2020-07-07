@@ -140,9 +140,9 @@ var = trick.var_get("my_sim_object.a.ii")
 ## Are there faster ways to implement events?
 Trick has a few alternatives to an input file event. Both method execute faster than a regular input processor event, but are not as flexible.
 
-01.  [A Just in Time (JIT) input file](JIT-Input-Processor) is C++ code that is
+01.  [A Just in Time (JIT) input file](/trick/documentation/simulation_capabilities/JIT-Input-Processor.html) is C++ code that is
 compiled and run during simulation execution.
-02.  [Realtime Injection](Realtime-Injector) stages variable assignments and executes them in bulk at the top of a software frame.
+02.  [Realtime Injection](/trick/documentation/simulation_capabilities/Realtime-Injector.html) stages variable assignments and executes them in bulk at the top of a software frame.
 
 <a name="arethereinputfiletemplatelimitations"></a>
 
