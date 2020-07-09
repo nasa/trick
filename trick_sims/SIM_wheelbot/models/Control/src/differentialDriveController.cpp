@@ -27,9 +27,9 @@ DifferentialDriveController::
     desiredHeadingRate(0.0),
 
     // PID Controller Initialization
-    headingctrl(new PIDController(0.9, 0.5, 0.35, headingRateLimit,
+    headingctrl(new PIDController(1.0, 0.08, 0.5, headingRateLimit,
                                   -headingRateLimit, 0.1, 0.1)),
-    wheelspeedctrl(new PIDController(1.0, 0.065, 0.25, wheelSpeedLimit,
+    wheelspeedctrl(new PIDController(1.0, 0.082, 0.5, wheelSpeedLimit,
                                       -wheelSpeedLimit, 0.1, 0.1))
 { }
 
@@ -48,8 +48,7 @@ int DifferentialDriveController::update( double distance_err,  // m
     // heading desired heading rate is proportional to the heading error.
     if ( cos(heading_err) > cos(2.0 * (PI/180.0))) {
         // PID Controller output for heading
-        double finalheadingrate = heading_err/(2.0*(PI/180.0)) * headingRateLimit;
-        desiredHeadingRate = headingctrl->getOutput(finalheadingrate, heading_err);
+        desiredHeadingRate = headingctrl->getOutput(headingRateLimit, heading_err);
     } else {
         if (heading_err > 0.0) {
             desiredHeadingRate =  headingRateLimit;
@@ -68,8 +67,7 @@ int DifferentialDriveController::update( double distance_err,  // m
         wheelSpeedForRangeRate = availableWheelSpeedForRangeRate;
     } else {
         // PID Controller output for wheelspeed
-        double finalwheelspeed = (distance_err/slowDownDistance) * availableWheelSpeedForRangeRate;
-        wheelSpeedForRangeRate = wheelspeedctrl->getOutput(finalwheelspeed, distance_err);
+        wheelSpeedForRangeRate = wheelspeedctrl->getOutput(availableWheelSpeedForRangeRate, distance_err);
     }
 
     desiredRangeRate = wheelSpeedForRangeRate * wheelRadius;
