@@ -45,20 +45,20 @@ double PIDController::getOutput(double setpoint_value, double measured_value) {
   // Sign Check
   bool same_sign;
   if ((error * output) > 0.0) {
-    same_sign = 1;
+    same_sign = true;
   } else {
-    same_sign = 0;
+    same_sign = false;
   }
 
   //Saturation Check
-  bool output_limited;
+  bool output_limited = false;
   if (output > out_max) {
     output = out_max;
-    output_limited = 1;
+    output_limited = true;
   }
   if (output < out_min) {
     output = out_min;
-    output_limited = 1;
+    output_limited = true;
   }
 
   //AND Gate Check
