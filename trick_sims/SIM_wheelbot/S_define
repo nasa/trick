@@ -2,7 +2,8 @@
 PURPOSE:
     ( Simulate a skydiver jump from very high altitude. )
 LIBRARY DEPENDENCIES:
-    ((Vehicle/src/vehicleOne.cpp))
+    ((Vehicle/src/vehicleOne.cpp)
+    (Control/src/PIDController.cpp))
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
