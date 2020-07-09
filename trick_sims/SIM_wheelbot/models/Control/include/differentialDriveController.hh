@@ -43,7 +43,7 @@ class DifferentialDriveController {
         double desiredRangeRate;
 
         // PID Controller
-        PIDController* headingctrl;
-        PIDController* wheelspeedctrl;
+        PIDController headingctrl;
+        PIDController wheelspeedctrl;
 };
 #endif
