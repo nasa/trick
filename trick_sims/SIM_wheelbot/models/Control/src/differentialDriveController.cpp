@@ -27,10 +27,10 @@ DifferentialDriveController::
     desiredHeadingRate(0.0),
 
     // PID Controller Initialization
-    headingctrl(PIDController(1.0, 0.08, 0.5, headingRateLimit,
-                                  -headingRateLimit, 0.1, 0.1)),
-    wheelspeedctrl(PIDController(1.0, 0.082, 0.5, wheelSpeedLimit,
-                                      -wheelSpeedLimit, 0.1, 0.1))
+    headingctrl(1.0, 0.08, 0.5, headingRateLimit,
+                                  -headingRateLimit, 0.1, 0.1),
+    wheelspeedctrl(1.0, 0.082, 0.5, wheelSpeedLimit,
+                                      -wheelSpeedLimit, 0.1, 0.1)
 { }
 
 void DifferentialDriveController::stop() {
