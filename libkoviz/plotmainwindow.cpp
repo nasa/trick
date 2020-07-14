@@ -1257,8 +1257,44 @@ void PlotMainWindow::_saveSession()
 
 void PlotMainWindow::_openVideo()
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Open file");
-    _openVideoFile(filename);
+    int i = _monteInputsView->currentRun();
+    if ( i >= 0 ) {
+        QString rundir = _runs->runDirs().at(i);
+        QString videoDirName = rundir + "/video";
+        QFileInfo fi(videoDirName);
+        if ( fi.exists() && fi.isDir() ) {
+            QStringList filter;
+            filter << "*.MP4" << "*.mp4" << "*.avi";
+            QDir videoDir(videoDirName);
+            QStringList files = videoDir.entryList(filter, QDir::Files);
+            if ( files.size() > 0 ) {
+                // Pick first video (TODO: Pick from multiple videos)
+                _openVideoFile(videoDir.absoluteFilePath(files.at(0)));
+                if ( vidView ) {
+                    QString f = videoDir.absoluteFilePath("video-offset.txt");
+                    if ( QFileInfo(f).exists() ) {
+                        QFile file(f);
+                        if (file.open(QFile::ReadOnly)) {
+                            QByteArray buf;
+                            buf = file.readLine();
+                            if ( !buf.isEmpty() ) {
+                                // the line is available in buf
+                                QString str(buf);
+                                bool ok;
+                                double offset = str.toDouble(&ok);
+                                if ( ok ) {
+                                    vidView->set_offset(offset);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } else {
+        QString filename = QFileDialog::getOpenFileName(this, "Open file");
+        _openVideoFile(filename);
+    }
 }
 
 void PlotMainWindow::_openVideoFile(const QString& fname)
@@ -1692,6 +1728,7 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
                             _runs->runDirs().at(runID)));
             bviscom->sendRun2Bvis(sendRun);
         }
+        _openVideo();
     }
 }
 
