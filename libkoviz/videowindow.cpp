@@ -41,6 +41,7 @@ VideoWindow::VideoWindow(QWidget *parent) :
     mpv_set_option_string(mpv, "input-default-bindings", "yes");
     mpv_set_option_string(mpv, "input-vo-keyboard", "yes");
     mpv_set_option_string(mpv, "keep-open", "always");
+    mpv_set_option_string(mpv, "osd-level", "0");
     mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
 
     connect(this, &VideoWindow::mpv_events,
