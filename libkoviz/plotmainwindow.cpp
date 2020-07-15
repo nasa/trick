@@ -1295,6 +1295,10 @@ void PlotMainWindow::_openVideo()
         QString filename = QFileDialog::getOpenFileName(this, "Open file");
         _openVideoFile(filename);
     }
+
+    if ( vidView ) {
+        _readVideoWindowSettings();
+    }
 }
 
 void PlotMainWindow::_openVideoFile(const QString& fname)
@@ -1751,19 +1755,30 @@ void PlotMainWindow::_writeSettings()
 // On linux the settings file is in ~/.config/JSC/koviz.conf
 void PlotMainWindow::_readSettings()
 {
-    QSettings settings("JSC", "koviz");
+    _readMainWindowSettings();
+    _readVideoWindowSettings();
+}
 
+void PlotMainWindow::_readMainWindowSettings()
+{
+    QSettings settings("JSC", "koviz");
     settings.beginGroup("PlotMainWindow");
     resize(settings.value("size", QSize(1300, 720)).toSize());
     move(settings.value("pos", QPoint(200, 200)).toPoint());
     settings.endGroup();
+}
+
+void PlotMainWindow::_readVideoWindowSettings()
+{
     if ( vidView ) {
+        QSettings settings("JSC", "koviz");
         settings.beginGroup("VideoWindow");
         vidView->resize(settings.value("size", QSize(1300, 720)).toSize());
         vidView->move(settings.value("pos", QPoint(50, 50)).toPoint());
         settings.endGroup();
     }
 }
+
 
 void PlotMainWindow::closeEvent(QCloseEvent *event)
 {

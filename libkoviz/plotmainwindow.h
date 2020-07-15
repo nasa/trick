@@ -149,6 +149,8 @@ private:
 
     void _readSettings();
     void _writeSettings();
+    void _readMainWindowSettings();
+    void _readVideoWindowSettings();
 
     QModelIndex _currCurveIdx();
 
