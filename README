@@ -1,4 +1,4 @@
-% git clone git@esgl-gitlab.jsc.nasa.gov:koviz/koviz.git
+% git clone https://github.com/nasa/koviz.git
 % cd koviz
 % qmake-qt5
     If command not found, install Qt:
