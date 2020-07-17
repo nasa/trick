@@ -25,6 +25,11 @@ class VehicleController {
     void printDestination();
     void update();
 
+    // Homing functions
+    bool get_homing();
+    bool get_atend();
+    void go_home(std::vector<Point>* HomePoints);
+
     private:
     // Do not allow the default constructor to be used.
     VehicleController();
@@ -34,6 +39,8 @@ class VehicleController {
     Point departure;
     Navigator& navigator;
     DifferentialDriveController& driveController;
+    bool homing;
+    bool atend;
 
     double arrivalDistance;
 };

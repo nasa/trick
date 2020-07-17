@@ -57,7 +57,11 @@ class VehicleOne {
 
     double batteryVoltage;
 
+    std::vector<Point> homewaypoint;
+    bool goinghome;
+
     void add_waypoint(double x, double y);
+    void add_homepoint(double x, double y);
 
     int default_data();
     int state_init();

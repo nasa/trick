@@ -16,6 +16,8 @@ VehicleController::VehicleController( std::vector<Point>* wayPoints,
     }
     waypointQueue = wayPoints;
     destination = waypointQueue->begin();
+    homing = false;
+    atend = false;
     printDestination();
 }
 
@@ -41,10 +43,35 @@ void VehicleController::printDestination() {
     }
 }
 
+// Homing functions
+bool VehicleController::get_homing() {
+    return homing;
+}
+
+bool VehicleController::get_atend() {
+    return atend;
+}
+
+void VehicleController::go_home(std::vector<Point>* homePoints) {
+    waypointQueue = homePoints;
+    destination = waypointQueue->begin();
+    printDestination();
+}
+
 void VehicleController::update() {
 
-    if (destination == waypointQueue->end()) {
+    if (destination == waypointQueue->end() && homing == false) {
         driveController.update(0.0, 0.0);
+        driveController.stop();
+
+        // To control homing: comment out for no homing
+        homing = true;
+
+        if (homing == false) {
+          atend = true;
+        }
+    } else if (destination == waypointQueue->end() && homing == true) {
+        atend = true;
         driveController.stop();
     } else {
         double distance_err = navigator.distanceTo(*destination);
@@ -58,5 +85,3 @@ void VehicleController::update() {
         }
     }
 }
-
-

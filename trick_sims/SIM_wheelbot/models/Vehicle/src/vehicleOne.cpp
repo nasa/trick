@@ -60,6 +60,7 @@ int VehicleOne::default_data() {
     leftMotorSpeed  = 0.0;
 
     batteryVoltage  = 5.0;
+    goinghome = false;
 
     return 0;
 }
@@ -100,13 +101,21 @@ void VehicleOne::add_waypoint(double x, double y) {
     waypointQueue.push_back(wayPoint);
 }
 
+void VehicleOne::add_homepoint(double x, double y) {
+    Point wayPoint(x,y);
+    homewaypoint.push_back(wayPoint);
+}
+
 
 void VehicleOne::control() {
 
     // Perfect Sensors for now.
     navigator->setHeading(heading);
     navigator->setLocation(position[0], position[1]);
-
+    if (vehicleController->get_homing() == true && goinghome == false) {
+        vehicleController->go_home(&homewaypoint);
+        goinghome = true;
+    }
     vehicleController->update();
 }
 
@@ -170,6 +179,19 @@ int VehicleOne::state_deriv() {
    headingAccel = vehicleZTorque / ZAxisMomentofInertia;
 
    // Body Linear Acceleration
+
+   if (vehicleController->get_atend() == true) {
+      forceTotal[0] = 0;
+      forceTotal[1] = 0;
+      rightMotorSpeed = 0;
+      leftMotorSpeed = 0;
+      velocity[0] = 0;
+      velocity[1] = 0;
+      heading = heading;
+      headingRate = 0;
+      headingAccel = 0;
+   }
+
    acceleration[0] = forceTotal[0] / vehicleMass;
    acceleration[1] = forceTotal[1] / vehicleMass;
 

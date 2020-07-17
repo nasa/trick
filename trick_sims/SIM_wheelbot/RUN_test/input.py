@@ -22,6 +22,11 @@ veh.vehicle.arrivalDistance  = 0.1
 #==========================================
 # Add the waypoints to the SIM.
 #==========================================
+
+# Add home point
+veh.vehicle.add_homepoint( float(1.5), float(-1.5))
+
+#Add waypoints
 waypoints_path = "Modified_data/cross.waypoints"
 fp = open(waypoints_path, "r")
 for line in fp:
