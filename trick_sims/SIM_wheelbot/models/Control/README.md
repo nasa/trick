@@ -81,11 +81,11 @@ With **availableWheelSpeedForRangeRate** determined, we can figure our range rat
 #### Calculating the Required Motor Speeds
 
 Now that we've apportioned the available wheel speed to turning and moving, we can figure our right and left wheel speeds:
- 
+
 * [Eq#6] **desiredRightWheelSpeed** =  wheelSpeedForRangeRate + wheelSpeedForHeadingRate
- 
+
 * [Eq#7] **desiredLeftWheelSpeed**  =  wheelSpeedForRangeRate - wheelSpeedForHeadingRate
-    
+
 Here, wheel speed is positive forward, and negative is backwards. For the motor models positive is counter clockwise, and negative is clockwise. So, we have to change sign for the right motor:
 
 <a id=EQ_8_rightMotorSpeedCommand></a>
@@ -94,7 +94,7 @@ Here, wheel speed is positive forward, and negative is backwards. For the motor 
 <a id=EQ_9_leftMotorSpeedCommand></a>
 * [Eq#9] **leftMotorSpeedCommand**  =  desiredLeftWheelSpeed
 
-    
+
 | Access  | Member Name           | Type   | Units  | Value  |
 |---------|-----------------------|--------|--------|--------|
 | private | rightMotorSpeedCommand| double | rad/s  |[Eq#8](#EQ_8_rightMotorSpeedCommand)|
@@ -171,3 +171,27 @@ void printDestination();
 ```
 void update();
 ```
+
+```
+bool get_homing();
+```
+
+Return boolean value of homing (if the vehicle is going to a set home location).
+
+```
+bool get_atend();
+```
+
+Return boolean value of atend (if all waypoints and/or home have been visited).
+
+```
+void go_home(std::vector<Point>* HomePoints);
+```
+
+Sets wayPointQueue to point to new homePoint and destination iterator to begin.
+
+```
+bool homing;
+```
+
+This variable determines whether the vehicle goes home after wayPoints are visited. Comment out line 68 if you do not want to home.

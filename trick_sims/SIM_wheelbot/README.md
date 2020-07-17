@@ -33,7 +33,7 @@ veh.vehicle.wheelSpeedLimit                    | double         | rad/s | 8.880
 veh.vehicle.headingRateLimit                   | double         | rad/s | 𝛑/4
 veh.vehicle.wheelDragConstant                  | double         | --    | 1.875
 veh.vehicle.corningStiffness                   | double         | --    | 10.0
-veh.vehicle.slowDownDistance                   | double         | --    | 0.5 
+veh.vehicle.slowDownDistance                   | double         | --    | 0.5
 veh.vehicle.arrivalDistance                    | double         | --    | 0.1
 
 ![Picture of Vehicle](images/Figure2.png)
@@ -43,6 +43,23 @@ Waypoints, for the vehicle to follow, are added with a call to
 
 veh.vehicle.add_waypoint( double N, double W )
 
+and HomePoint for the vehicle to home to is called to
+
+veh.Vehicle.add_homepoint( double N, double W)
+
+
+#### Enabling or Disabling Homing
+To set a HomePoint:
+
+Edit the fuction veh.vehicle.add_homepoint( float(1.5), float(-1.5)) in the input.py file under RUN_test.
+
+Replace the float values with desired home location.
+
+Under models/Control/src/vehicleController.cpp, locate the declaration:
+
+homing = true;
+
+To disable homing, comment out the line of code.
 
 
 ### Input/Output
