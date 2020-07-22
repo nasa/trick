@@ -39,11 +39,11 @@ void CsvModel::_init()
             if ( i < j ) {
                 unit = item.mid(i+1,j-i-1);
                 if ( !Unit::isUnit(unit) ) {
-                    fprintf(stderr,"koviz [error]: Cannot handle "
+                    fprintf(stderr,"koviz [warning]: Unsupported "
                                    "unit=\"%s\" in file=\"%s\"\n",
                                    unit.toLatin1().constData(),
                                    _csvfile.toLatin1().constData());
-                    exit(-1);
+                    unit = "--";
                 }
             }
             // Assume parameter name precedes unit
