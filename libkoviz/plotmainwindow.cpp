@@ -104,11 +104,7 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
         _bookModel->addChild(rootItem, "LiveCoordTimeIndex",0);
         _bookModel->addChild(rootItem, "StartTime",startTime);
         _bookModel->addChild(rootItem, "StopTime",stopTime);
-        if ( shifts.isEmpty() ) {
-            _bookModel->addChild(rootItem, "Presentation",_presentation);
-        } else {
-            _bookModel->addChild(rootItem, "Presentation","compare");
-        }
+        _bookModel->addChild(rootItem, "Presentation",_presentation);
         _bookModel->addChild(rootItem, "IsShowLiveCoord",true);
         _bookModel->addChild(rootItem, "RunToShiftHash",shifts);
     }
