@@ -9,6 +9,7 @@ std::vector<Point> FindPath( GridSquare* origin, GridSquare* goal, Arena* arena)
     std::vector<GridSquare*> closedSet;
     std::vector<Point> failure;
 
+    int estimated_cost_to_goal; // h(n)
 
     if (arena == (Arena*)0) {
         return failure;
@@ -25,9 +26,9 @@ std::vector<Point> FindPath( GridSquare* origin, GridSquare* goal, Arena* arena)
 
     origin->parent = (GridSquare*)0;
     origin->g_score = 0;
-    int f_score;
-    arena->movementCostEstimate(origin, goal, f_score);
-    origin->f_score = f_score;
+
+    arena->movementCostEstimate(origin, goal, estimated_cost_to_goal);
+    origin->f_score = estimated_cost_to_goal;
 
     openSet.push_back(origin);
 
@@ -94,7 +95,6 @@ std::vector<Point> FindPath( GridSquare* origin, GridSquare* goal, Arena* arena)
 
                     neighbor->parent = current;
                     neighbor->g_score = neighbor_g_score;
-                    int estimated_cost_to_goal;
                     arena->movementCostEstimate(neighbor, goal, estimated_cost_to_goal );
                     neighbor->f_score = neighbor->g_score + estimated_cost_to_goal;
 
