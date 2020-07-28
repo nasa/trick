@@ -32,3 +32,4 @@ trick_source/web/HttpServer/mongoose.c
 trick_source/web/HttpServer/mongoose.h
 trick_source/web/HttpServer/obj/
 trick-offline
+*sim_services_classes.resource

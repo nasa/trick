@@ -237,7 +237,7 @@ class SieSimObject : public Trick::SimObject {
         Trick::Sie sie ;
 
         SieSimObject() {
-            {TRK} P0 ("default_data") sie.process_sim_args() ;
+            {TRK} ("initialization") sie.sie_append_runtime_objs() ;
         }
 }
 

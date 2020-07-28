@@ -10,6 +10,12 @@ void EnumValues::addEnum( std::string in_name , long long in_val ) {
     enum_values.push_back(new_enum) ;
 }
 
+void EnumValues::addFullyQualifiedEnum( std::string in_name , long long in_val ) {
+    std::pair< std::string , long long > new_enum(in_name, in_val) ;
+    fully_qualified_enum_values.push_back(new_enum) ;
+}
+
+
 void EnumValues::setHasDefinition( bool in ) {
     has_definition = in ;
 }

@@ -309,7 +309,7 @@ all: S_sie.resource
 
 S_sie.resource: \$(S_MAIN)
 \t\$(PRINT_SIE)
-\t\$(call ECHO_AND_LOG,./\$(S_MAIN) sie)\n" ;
+\t\$(call ECHO_AND_LOG,\${TRICK_HOME}/\$(LIBEXEC)/trick/sie_concat)" ;
 
 # write out the override files we have read in
 open MAKEFILEOVER, ">build/Makefile_overrides" or die "Could not open build/Makefile_overrides" ;
