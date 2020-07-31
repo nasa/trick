@@ -61,11 +61,12 @@ int VehicleOne::default_data() {
 
     batteryVoltage  = 5.0;
 
+    home = 0;
+
     return 0;
 }
 
 int VehicleOne::state_init() {
-
 
     Point initLocation( position[0],
                         position[1]);
@@ -107,9 +108,13 @@ void VehicleOne::control() {
     navigator->setHeading(heading);
     navigator->setLocation(position[0], position[1]);
 
+    if (home == 1 && end == false) {
+        vehicleController->gohome();
+        end = true;
+    }
+
     vehicleController->update();
 }
-
 
 int VehicleOne::state_deriv() {
 
@@ -168,6 +173,18 @@ int VehicleOne::state_deriv() {
 
    // Body Rotational Acceleration
    headingAccel = vehicleZTorque / ZAxisMomentofInertia;
+
+   if (vehicleController->getexit() == true) {
+      forceTotal[0] = 0;
+      forceTotal[1] = 0;
+      rightMotorSpeed = 0;
+      leftMotorSpeed = 0;
+      velocity[0] = 0;
+      velocity[1] = 0;
+      heading = heading;
+      headingRate = 0;
+      headingAccel = 0;
+   }
 
    // Body Linear Acceleration
    acceleration[0] = forceTotal[0] / vehicleMass;

@@ -57,6 +57,11 @@ class VehicleOne {
 
     double batteryVoltage;
 
+    // Varible Server Client Input
+    int home;
+
+    bool end;
+
     void add_waypoint(double x, double y);
 
     int default_data();

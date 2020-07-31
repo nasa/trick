@@ -7,5 +7,6 @@
 * [Guidance](Guidance/README.md)
 * [Control](Control/README.md)
 * [Graphics](Graphics/README.md)
+* [GUIControl1](GUIControl1/README.md)
 * [Motor](Motor/README.md)
 * [Vehicle](Vehicle/README.md)

@@ -17,6 +17,8 @@ VehicleController::VehicleController( std::vector<Point>* wayPoints,
     waypointQueue = wayPoints;
     destination = waypointQueue->begin();
     printDestination();
+    exit = false;
+    home = false;
 }
 
 void VehicleController::setWayPointQueue( std::vector<Point>* wayPoints ) {
@@ -33,6 +35,11 @@ int VehicleController::getCurrentDestination(Point& currentDestination) {
     return 1;
 }
 
+void VehicleController::gohome() {
+    destination = waypointQueue->end()-1;
+    home = true;
+}
+
 void VehicleController::printDestination() {
     if (destination != waypointQueue->end()) {
         std::cout << "Destination = (" << destination->x << "," << destination->y << ")." << std::endl;
@@ -41,11 +48,17 @@ void VehicleController::printDestination() {
     }
 }
 
+bool VehicleController::getexit() {
+    return exit;
+}
+
 void VehicleController::update() {
 
-    if (destination == waypointQueue->end()) {
-        driveController.update(0.0, 0.0);
-        driveController.stop();
+    if (destination == waypointQueue->end() && exit == false) {
+        if (home == false) {
+            driveController.update(0.0, 0.0);
+        }
+        exit = true;
     } else {
         double distance_err = navigator.distanceTo(*destination);
         if ( distance_err > arrivalDistance) {
@@ -58,5 +71,3 @@ void VehicleController::update() {
         }
     }
 }
-
-

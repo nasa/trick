@@ -24,6 +24,8 @@ class VehicleController {
     void setWayPointQueue( std::vector<Point>* waypointQueue );
     void printDestination();
     void update();
+    void gohome();
+    bool getexit();
 
     private:
     // Do not allow the default constructor to be used.
@@ -34,6 +36,8 @@ class VehicleController {
     Point departure;
     Navigator& navigator;
     DifferentialDriveController& driveController;
+    bool exit;
+    bool home;
 
     double arrivalDistance;
 };
