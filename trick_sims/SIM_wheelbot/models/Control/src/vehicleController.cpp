@@ -19,7 +19,7 @@ VehicleController::VehicleController( std::vector<Point>* wayPoints,
     printDestination();
 
     // Initialize homing variables
-    endofSimulation = false;
+    endofWaypoints = false;
     homeCommanded = false;
 }
 
@@ -51,25 +51,25 @@ void VehicleController::printDestination() {
     }
 }
 
-// Returns the value of the variable endofSimulation
+// Returns the value of the variable endofWaypoints
 bool VehicleController::getStatus() {
-    return endofSimulation;
+    return endofWaypoints;
 }
 
 void VehicleController::update() {
 
-  if (destination == waypointQueue->end() && endofSimulation == false) {
+  if (destination == waypointQueue->end() && endofWaypoints == false) {
       if (homeCommanded == false) {
           driveController.update(0.0, 0.0);
       }
-      endofSimulation = true;
+      endofWaypoints = true;
   } else {
       double distance_err = navigator.distanceTo(*destination);
       if ( distance_err > arrivalDistance) {
           double heading_err = navigator.bearingTo(*destination);
           driveController.update(distance_err, heading_err);
       } else {
-          if (endofSimulation != true) {
+          if (endofWaypoints != true) {
             std::cout << "Arrived at Destination." << std::endl;
             destination ++;
             printDestination();
