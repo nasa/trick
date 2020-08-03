@@ -87,11 +87,11 @@ With **availableWheelSpeedForRangeRate** determined, we can figure our range rat
 #### Calculating the Required Motor Speeds
 
 Now that we've apportioned the available wheel speed to turning and moving, we can figure our right and left wheel speeds:
- 
+
 * [Eq#6] **desiredRightWheelSpeed** =  wheelSpeedForRangeRate + wheelSpeedForHeadingRate
- 
+
 * [Eq#7] **desiredLeftWheelSpeed**  =  wheelSpeedForRangeRate - wheelSpeedForHeadingRate
-    
+
 Here, wheel speed is positive forward, and negative is backwards. For the motor models positive is counter clockwise, and negative is clockwise. So, we have to change sign for the right motor:
 
 <a id=EQ_8_rightMotorSpeedCommand></a>
@@ -100,7 +100,7 @@ Here, wheel speed is positive forward, and negative is backwards. For the motor 
 <a id=EQ_9_leftMotorSpeedCommand></a>
 * [Eq#9] **leftMotorSpeedCommand**  =  desiredLeftWheelSpeed
 
-    
+
 | Access  | Member Name           | Type   | Units  | Value  |
 |---------|-----------------------|--------|--------|--------|
 | private | rightMotorSpeedCommand| double | rad/s  |[Eq#8](#EQ_8_rightMotorSpeedCommand)|
@@ -192,6 +192,17 @@ void update();
 Depending on the vehicles current destination, and its distance from that destination, call the DifferentialDriveController update() method with
 the current distance-error, and heading-error to drive, and steer the vehicle.
 
+```
+void gohome();
+```
+Depending on the vehicle's homeCommanded variable, the gohome() function is called when the car needs to be homed. It sets the iterator to the
+last value in the waypoints list (which is set to be the home point).
+
+```
+bool getStatus();
+```
+Returns the status of the simulation, if it is at end with no destination then the vehicle stops moving. Used to improve end time behavior.
+
 <a id=class-PIDController></a>
 # class PIDController
 
@@ -214,7 +225,7 @@ PIDController::PIDController(
 
 For no filtering, set tc to the value of dt. To filter, set tc a value higher than dt.
 
-               
+
 ```           
 double PIDController::getOutput( double setpoint_value,
                                  double measured_value);

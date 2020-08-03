@@ -21,6 +21,7 @@ veh.vehicle.arrivalDistance  = 0.1
 
 #==========================================
 # Add the waypoints to the SIM.
+# Set a home point by adding it as the last waypoint.
 #==========================================
 waypoints_path = "Modified_data/cross.waypoints"
 fp = open(waypoints_path, "r")
@@ -45,6 +46,23 @@ if (os.path.isfile(EVDisplay_path)) :
 else :
     print('==================================================================================')
     print('EVDisplay needs to be built. Please \"cd\" into models/Graphics and type \"make\".')
+    print('==================================================================================')
+
+#==========================================
+# Start the display VarServer Client
+#==========================================
+varServerPort = trick.var_server_get_port();
+HomeDisplay_path = "models/GUIControl1/dist/HomeDisplay.jar"
+
+if (os.path.isfile(HomeDisplay_path)) :
+    HomeDisplay_cmd = "java -jar " \
+                  + HomeDisplay_path \
+                  + " " + str(varServerPort) + " &" ;
+    print(HomeDisplay_cmd)
+    os.system( HomeDisplay_cmd);
+else :
+    print('==================================================================================')
+    print('HomeDisplay needs to be built. Please \"cd\" into models/GUIControl1 and type \"make\".')
     print('==================================================================================')
 
 trick.stop(100)
