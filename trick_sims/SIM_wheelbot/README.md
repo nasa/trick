@@ -33,7 +33,7 @@ veh.vehicle.wheelSpeedLimit                    | double         | rad/s | 8.880
 veh.vehicle.headingRateLimit                   | double         | rad/s | 𝛑/4
 veh.vehicle.wheelDragConstant                  | double         | --    | 1.875
 veh.vehicle.corningStiffness                   | double         | --    | 10.0
-veh.vehicle.slowDownDistance                   | double         | --    | 0.5 
+veh.vehicle.slowDownDistance                   | double         | --    | 0.5
 veh.vehicle.arrivalDistance                    | double         | --    | 0.1
 
 ![Picture of Vehicle](images/Figure2.png)
@@ -43,6 +43,8 @@ Waypoints, for the vehicle to follow, are added with a call to
 
 veh.vehicle.add_waypoint( double N, double W )
 
+#### Adding Home point
+A home point is designated by the last waypoint in the waypoint file.
 
 
 ### Input/Output

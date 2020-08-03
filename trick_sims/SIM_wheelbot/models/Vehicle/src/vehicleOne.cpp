@@ -61,6 +61,10 @@ int VehicleOne::default_data() {
 
     batteryVoltage  = 5.0;
 
+    // Initialize homing variables
+    homeCommanded = 0;
+    endofHoming = false;
+
     return 0;
 }
 
@@ -107,6 +111,12 @@ void VehicleOne::control() {
     navigator->setHeading(heading);
     navigator->setLocation(position[0], position[1]);
 
+    // Check to see if the variable server client input for homeCommanded has been activated
+    // if so, go home and declare end of simulation
+    if (homeCommanded == 1 && endofHoming == false) {
+        vehicleController->gohome();
+        endofHoming = true;
+    }
     vehicleController->update();
 }
 
@@ -168,6 +178,18 @@ int VehicleOne::state_deriv() {
 
    // Body Rotational Acceleration
    headingAccel = vehicleZTorque / ZAxisMomentofInertia;
+
+   // If the simulation is at the end, the vehicle stops moving
+   if (vehicleController->getStatus() == true) {
+      forceTotal[0] = 0;
+      forceTotal[1] = 0;
+      rightMotorSpeed = 0;
+      leftMotorSpeed = 0;
+      velocity[0] = 0;
+      velocity[1] = 0;
+      headingRate = 0;
+      headingAccel = 0;
+   }
 
    // Body Linear Acceleration
    acceleration[0] = forceTotal[0] / vehicleMass;

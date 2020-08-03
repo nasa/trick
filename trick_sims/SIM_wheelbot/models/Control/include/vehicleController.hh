@@ -25,6 +25,12 @@ class VehicleController {
     void printDestination();
     void update();
 
+    // Homing Functions
+    // Commands wheelbot to navigate to home
+    void gohome();
+    // Returns the value of the variable endofSimulation
+    bool getStatus();
+
     private:
     // Do not allow the default constructor to be used.
     VehicleController();
@@ -34,6 +40,12 @@ class VehicleController {
     Point departure;
     Navigator& navigator;
     DifferentialDriveController& driveController;
+
+    // Homing variables
+    // Records if end of simulation
+    bool endofSimulation;
+    // Records if told to go home
+    bool homeCommanded;
 
     double arrivalDistance;
 };
