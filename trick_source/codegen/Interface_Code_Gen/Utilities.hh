@@ -27,5 +27,6 @@ std::string bold(const std::string& text);
 std::string underline(const std::string& text);
 std::string underline(const std::string& text, unsigned length);
 std::string quote(const std::string& text);
+std::string & replace_special_chars( std::string & str);
 
 #endif

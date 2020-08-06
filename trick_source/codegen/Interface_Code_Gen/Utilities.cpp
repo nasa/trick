@@ -14,6 +14,40 @@ std::string sanitize(const std::string& text) {
     return result ;
 }
 
+// Replace special chars for xml output
+std::string & replace_special_chars( std::string & str) {
+
+    // escape &
+    size_t index = 0;
+    while (index != std::string::npos) {
+        index = str.find("&" , index) ;
+        if ( index != std::string::npos ) {
+            str.replace(index, 1, "&amp;") ;
+            index += 5;
+        }
+    }
+
+    // escape "
+    index = 0;
+    while (index != std::string::npos) {
+        index = str.find("\\\"" , index) ;
+        if ( index != std::string::npos ) {
+            str.replace(index, 2, "&quot;") ;
+        }
+    }
+
+    // escape <
+    index = 0;
+    while (index != std::string::npos) {
+        index = str.find("<" , index) ;
+        if ( index != std::string::npos ) {
+            str.replace(index, 1, "&lt;") ;
+        }
+    }
+
+    return str;
+}
+
 // removes leading and trailing whitespace from a string
 std::string trim(const std::string& str, const std::string& whitespace ) {
     size_t strBegin = str.find_first_not_of(whitespace);

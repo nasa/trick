@@ -272,38 +272,6 @@ void PrintAttributes::printEnum(EnumValues* ev) {
     }
 }
 
-std::string & replace_special_chars( std::string & str) {
-
-    // escape &
-    size_t index = 0;
-    while (index != std::string::npos) {
-        index = str.find("&" , index) ;
-        if ( index != std::string::npos ) {
-            str.replace(index, 1, "&amp;") ;
-            index += 5;
-        }
-    }
-
-    // escape "
-    index = 0;
-    while (index != std::string::npos) {
-        index = str.find("\\\"" , index) ;
-        if ( index != std::string::npos ) {
-            str.replace(index, 2, "&quot;") ;
-        }
-    }
-
-    // escape <
-    index = 0;
-    while (index != std::string::npos) {
-        index = str.find("<" , index) ;
-        if ( index != std::string::npos ) {
-            str.replace(index, 1, "&lt;") ;
-        }
-    }
-
-    return str;
-}
 
 void PrintAttributes::printSieClass( ClassValues * cv ) {
     std::string xmlFileName;
