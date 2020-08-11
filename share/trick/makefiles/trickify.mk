@@ -138,7 +138,7 @@ $(SWIG_OBJECTS): %.o: %.cpp
 
 $(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | %.d $(TRICKIFY_PYTHON_DIR) $(SWIG_OBJECTS:.o=.i)
 	$(info $(call COLOR,SWIGing)    $<)
-	$(call ECHO_AND_LOG,$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<)
+	$(call ECHO_AND_LOG,$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w315 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir $(TRICKIFY_PYTHON_DIR) -o $@ $<)
 
 $(SWIG_OBJECTS:.o=.d): ;
 
