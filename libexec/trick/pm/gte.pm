@@ -49,21 +49,21 @@ sub gte (@) {
                 # remove possible ccache from TRICK_CC
                 $temp =~ s/.*?ccache\s+// ;
                 if ( -e $temp ) {
-                    $ret = `$temp -dumpversion` ;
+                    $ret = `$temp -dumpfullversion -dumpversion` ;
                 }
                 else {
                     printf STDERR "[33mCannot find TRICK_CC = $temp, using /usr/bin/gcc\n" ;
-                    $ret = `/usr/bin/gcc -dumpversion` ;
+                    $ret = `/usr/bin/gcc -dumpfullversion -dumpversion` ;
                 }
             } else {
                 # remove possible ccache from TRICK_CC
                 my ($temp) = $ENV{TRICK_CC} ;
                 $temp =~ s/.*?ccache\s+// ;
-                $ret = `$temp -dumpversion` ;
+                $ret = `$temp --dumpfullversion dumpversion` ;
             }
         }
         else {
-            $ret = `gcc -dumpversion` ;
+            $ret = `gcc -dumpfullversion -dumpversion` ;
         }
         ($gcc_version) = $ret =~ /(\d+(?:\.\d+)?)/ ;
 
