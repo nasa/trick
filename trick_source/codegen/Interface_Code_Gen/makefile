@@ -56,7 +56,7 @@ endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
-CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --system-libs)
+CLANGLIBS += $(filter-out -llibxml2.tbd,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
 CLANGLIBS += -lc++abi
 endif
 
