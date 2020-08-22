@@ -19,6 +19,18 @@ USE_X_WINDOWS = @USE_X_WINDOWS@
 
 LLVM_HOME = @LLVM_ROOT_DIR@
 
+ICG_CLANGLIBS = \
+    -lclangFrontend \
+    -lclangDriver \
+    -lclangSerialization \
+    -lclangParse \
+    -lclangSema \
+    -lclangAnalysis \
+    -lclangEdit \
+    -lclangAST \
+    -lclangLex \
+    -lclangBasic \
+
 PYTHON_INCLUDES = -I@PYTHON_INCLUDE_DIRS@
 PYTHON_LIB = @PYTHON_LIBRARIES@
 
