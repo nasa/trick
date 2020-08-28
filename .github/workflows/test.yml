@@ -98,8 +98,8 @@ jobs:
             conf_pkg: >
               dnf install -y 'dnf-command(config-manager)' &&
               dnf config-manager --enable updates-testing &&
-              dnf install -y clang-10.0.1
             os_deps: >-
+              clang-10.0.1
               perl-Text-Balanced
               python-devel
               diffutils
