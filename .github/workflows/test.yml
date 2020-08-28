@@ -97,7 +97,7 @@ jobs:
             pkg_mgr: dnf
             conf_pkg: >
               dnf install -y 'dnf-command(config-manager)' &&
-              dnf config-manager --enable updates-testing &&
+              dnf config-manager --enable updates-testing
             os_deps: >-
               clang-10.0.1
               perl-Text-Balanced
