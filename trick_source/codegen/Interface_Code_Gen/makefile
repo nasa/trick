@@ -29,17 +29,7 @@ OBJECTS = $(addprefix $(OBJ_DIR)/, $(subst .cpp,.o,$(SOURCES)))
 UDUNITS_OBJS = \
     $(OBJ_DIR)/map_trick_units_to_udunits.o
 
-CLANGLIBS = \
-    -lclangFrontend \
-    -lclangDriver \
-    -lclangSerialization \
-    -lclangParse \
-    -lclangSema \
-    -lclangAnalysis \
-    -lclangEdit \
-    -lclangAST \
-    -lclangLex \
-    -lclangBasic \
+CLANGLIBS = $(ICG_CLANGLIBS)
 
 CXXFLAGS += -DLIBCLANG_MAJOR=$(CLANG_MAJOR) -DLIBCLANG_MINOR=$(CLANG_MINOR)
 ifneq ($(CLANG_PATCHLEVEL),)

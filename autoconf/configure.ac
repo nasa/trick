@@ -441,6 +441,33 @@ AC_PATH_PROG(CLANG, clang, noclang, "$LLVM_BIN_DIR:/bin:/usr/bin:/usr/local/bin:
 AS_IF([test "$ac_cv_path_CLANG" = "noclang"],AC_MSG_ERROR([could not find clang]),[])
 AC_SUBST([LLVM_HOME])
 
+OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"
+NEW_CLANG_LIBS="-lclang-cpp"
+AC_CHECK_FILE([$LLVM_LIB_DIR/libclangFrontend.a],
+  [
+    ICG_CLANGLIBS="$OLD_CLANG_LIBS"
+  ],
+  AC_CHECK_FILE([$LLVM_LIB_DIR/libclangFrontend.so],
+    [
+      ICG_CLANGLIBS="$OLD_CLANG_LIBS"
+    ],
+    AC_CHECK_FILE([$LLVM_LIB_DIR/libclang-cpp.a],
+      [
+        ICG_CLANGLIBS="$NEW_CLANG_LIBS"
+      ],
+      AC_CHECK_FILE([$LLVM_LIB_DIR/libclang-cpp.so],
+        [
+          ICG_CLANGLIBS="$NEW_CLANG_LIBS"
+        ],
+        AC_MSG_ERROR([could not find clang libs in LLVM library: "$LLVM_LIB_DIR"])
+      )
+    )
+  )
+)
+
+AC_SUBST([ICG_CLANGLIBS])
+
+
 AC_DEFUN([AX_CLANG_VERSION], [
   CLANG_VERSION=""
   ax_cv_clang_version="`$CLANG --version | grep "version" | sed "s/.*version \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/"`"
