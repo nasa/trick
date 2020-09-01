@@ -15,10 +15,12 @@
 #include "PrintAttributes.hh"
 #include "PrintFileContentsBase.hh"
 #include "PrintFileContents10.hh"
+#include "FieldDescription.hh"
 #include "HeaderSearchDirs.hh"
 #include "CommentSaver.hh"
 #include "ClassValues.hh"
 #include "EnumValues.hh"
+#include "Utilities.hh"
 
 PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd ,
   CommentSaver & in_cs , clang::CompilerInstance & in_ci, bool in_force , bool in_sim_services_flag ,
@@ -235,6 +237,7 @@ void PrintAttributes::printClass( ClassValues * cv ) {
     if (openIOFile(fileName)) {
         printer->printClass(outfile, cv);
         outfile.close();
+        printSieClass(cv);
     }
 
     if (!isHeaderExcluded(fileName, false)) {
@@ -261,11 +264,66 @@ void PrintAttributes::printEnum(EnumValues* ev) {
     if (openIOFile(fileName)) {
         printer->printEnum(outfile, ev) ;
         outfile.close() ;
+        printSieEnum(&enumValues) ;
     }
     
     if (!isHeaderExcluded(fileName, false)) {
          printer->printEnumMap(enum_map_outfile, ev);
     }
+}
+
+
+void PrintAttributes::printSieClass( ClassValues * cv ) {
+    std::string xmlFileName;
+    if(sim_services_flag) {
+        xmlFileName = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/sim_services_classes.resource";
+    } else {
+        xmlFileName = "build/classes.resource";
+    }
+    std::ofstream ostream(xmlFileName, std::ofstream::app);
+    ostream << "  <class name=\"" << sanitize(cv->getFullyQualifiedMangledTypeName("__")) << "\">\n";
+    for (FieldDescription* fdes : printer->getPrintableFields(*cv)) {
+        std::string type = fdes->getFullyQualifiedMangledTypeName("__");
+        std::replace(type.begin(), type.end(), ':', '_');
+        ostream << "    <member\n"
+                << "      name=\"" << fdes->getName() << "\"\n"
+                << "      type=\"" << replace_special_chars(type) << "\"\n"
+                << "      io_attributes=\"" << fdes->getIO()  << "\"\n"
+                << "      units=\"";
+        if(fdes->isDashDashUnits()) {
+            ostream <<  "--\"" ;
+        } else {
+            ostream << fdes->getUnits()  << "\"" ;
+        }
+        std::string description = fdes->getDescription();
+        if(!description.empty()) {
+            ostream << "\n      description=\"" << replace_special_chars(description) << "\"";
+        }
+        ostream << ">\n" ;
+        for(int i = 0; i < fdes->getNumDims(); i++) {
+            ostream
+                << "      <dimension>" << (fdes->getArrayDim(i) != -1 ? fdes->getArrayDim(i) : 0) << "</dimension>\n";
+        }
+        ostream << "    </member>\n";
+    }
+    ostream << "  </class>\n" << std::endl;
+    ostream.close();
+}
+
+void PrintAttributes::printSieEnum( EnumValues * ev ) {
+    std::string xmlFileName;
+    if(sim_services_flag) {
+        xmlFileName = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/sim_services_classes.resource";
+    } else {
+        xmlFileName = "build/classes.resource";
+    }
+    std::ofstream ostream(xmlFileName, std::ofstream::app);
+    ostream << "  <enumeration name=\"" << sanitize(ev->getFullyQualifiedTypeName("__")) << "\">\n";
+    for(EnumValues::NameValuePair nvp : ev->getFullyQualifiedPairs()) {
+        ostream << "    <pair label =\"" << nvp.first << "\" value=\"" << nvp.second << "\"/>\n";
+    }
+    ostream << "  </enumeration>\n" << std::endl;
+    ostream.close();
 }
 
 void PrintAttributes::createMapFiles() {

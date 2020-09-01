@@ -459,7 +459,7 @@ int Trick::VariableServerThread::send_file(std::string file_name) {
 }
 
 int Trick::VariableServerThread::send_sie_resource() {
-    sie_print_xml() ;
+    //sie_print_xml() ;
     return transmit_file(std::string(command_line_args_get_default_dir()) + "/S_sie.resource") ;
 }
 

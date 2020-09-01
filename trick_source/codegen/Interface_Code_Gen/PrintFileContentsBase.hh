@@ -42,6 +42,9 @@ class PrintFileContentsBase {
         virtual void printEnumMap(std::ostream & ostream, EnumValues * ev) ;
         virtual void printEnumMapFooter(std::ostream & ostream) ;
 
+        /* gets a vector of fields that can be printed */
+        std::vector<FieldDescription*> getPrintableFields(ClassValues& classValues, unsigned int ioMask = 0xFFFFFFF);
+
     protected:
         /** Prints the io_src_allocate function */
         virtual void print_units_map(std::ostream & ostream, ClassValues * cv) ;
@@ -54,9 +57,6 @@ class PrintFileContentsBase {
 
         /* internal function determines if a particular field is printable */
         bool isPrintable(ClassValues * c , FieldDescription *fdes , unsigned int ioMask = 0xFFFFFFF) ;
-
-        /* gets a vector of fields that can be printed */
-        std::vector<FieldDescription*> getPrintableFields(ClassValues& classValues, unsigned int ioMask = 0xFFFFFFF);
 
 } ;
 

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <fstream>
 #include <string.h>
+#include <cstring>
 
 #include "trick/Sie.hh"
 #include "trick/SimObject.hh"
@@ -74,6 +75,32 @@ void Trick::Sie::top_level_objects_print(std::ofstream & sie_out) {
     }
 }
 
+void Trick::Sie::runtime_objects_print(std::fstream & sie_out) {
+    Trick::VARIABLE_MAP_ITER vit ;
+    int jj ;
+
+    for ( vit = trick_MM->variable_map_begin() ; vit != trick_MM->variable_map_end() ; vit++ ) {
+        ALLOC_INFO * alloc_info = (*vit).second ;
+
+        if ( alloc_info != NULL && alloc_info->alloced_in_memory_init == 0) {
+            sie_out << "  <top_level_object" ;
+            sie_out << "\n   name=\"" << vit->first << "\"" ;
+            sie_out << "\n   type=\"" ;
+            std::string type = trickTypeCharString(alloc_info->type, alloc_info->user_type_name );
+            std::replace(type.begin(), type.end(), ':', '_');
+            sie_out <<  type << "\"\n" ;
+            sie_out << "   alloc_memory_init=\"" << alloc_info->alloced_in_memory_init << "\"";
+            sie_out << ">\n" ;
+            if ( alloc_info->num_index > 0 ) {
+                for (jj = 0; jj < alloc_info->num_index; jj++) {
+                    sie_out << "        <dimension>" << alloc_info->index[jj] << "</dimension>\n" ;
+                }
+            }
+            sie_out << "  </top_level_object>\n\n" ;
+        }
+    }
+}
+
 void Trick::Sie::top_level_objects_json(std::ofstream & sie_out) {
     Trick::VARIABLE_MAP_ITER vit ;
     int jj ;
@@ -121,6 +148,36 @@ void Trick::Sie::sie_print_xml() {
     top_level_objects_print(sie_out) ;
     sie_out << "</sie>\n" ;
     sie_out.close() ;
+}
+
+void Trick::Sie::sie_append_runtime_objs() {
+    std::fstream sie_out ;
+    std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource" ;
+    sie_out.open(file_name.c_str(), std::fstream::in | std::fstream::out) ;
+    sie_out.seekg(-1, sie_out.end);
+    const char * comment = "<!--\nRuntime Allocations\nDo not edit this comment or file content past this point\n-->\n";
+    const int commentLength = 86;
+    char buff[commentLength + 1] = {0};
+    char last = '\0';
+    int pos;
+    while(memcmp(comment, buff, commentLength) != 0) {
+        while(last != '!' || sie_out.peek() != '<') {
+            if(sie_out.bad() || sie_out.fail() || sie_out.eof()) {
+                std::cerr << "Error: S_sie.resource is corrupted or outdated. Cannot add runtime/dynamic allocations. Please rerun trick-CP" << std::endl;
+                exit(2);
+            }
+            last = sie_out.peek();
+            sie_out.seekg(-1, std::ios::cur);
+            pos = sie_out.tellg();
+        }
+        sie_out.get(buff, commentLength + 1, '\0');
+        sie_out.seekg(pos - 1);
+    }
+    sie_out.seekg(pos - 1);
+    sie_out.seekp((int)sie_out.tellg() + commentLength + 1);
+    runtime_objects_print(sie_out);
+    sie_out << "</sie>\n";
+    sie_out.close();
 }
 
 void Trick::Sie::sie_print_json() {

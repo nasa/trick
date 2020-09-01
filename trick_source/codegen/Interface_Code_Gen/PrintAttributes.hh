@@ -58,6 +58,12 @@ class PrintAttributes {
         /** Prints an enum to the io_src file */
         virtual void printEnum( EnumValues * in_enum) ;
 
+        /** Prints a class to the XML resource file */
+        void printSieClass( ClassValues * cv ) ;
+
+        /** Prints an enum to the XML resource file */
+        void printSieEnum( EnumValues * ev ) ;
+
         bool isHeaderExcluded(const std::string& header, bool exclude_ext_libs = true);
         void markHeaderAsVisited(const std::string& header);
 

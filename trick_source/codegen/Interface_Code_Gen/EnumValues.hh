@@ -31,6 +31,7 @@ class EnumValues : public ConstructValues {
         EnumValues() ;
 
         void addEnum(std::string in_name , long long in_val) ;
+        void addFullyQualifiedEnum(std::string in_name , long long in_val) ;
 
         void setHasDefinition( bool in ) ;
         bool getHasDefinition() ;
@@ -39,12 +40,20 @@ class EnumValues : public ConstructValues {
             return enum_values;
         }
 
+        const std::vector<NameValuePair>& getFullyQualifiedPairs() {
+            return fully_qualified_enum_values;
+        }
+
         friend std::ostream & operator << (std::ostream & os , EnumValues & ev ) ;
 
     private:
 
         /** List of enums and their values */
         std::vector< NameValuePair > enum_values ;
+
+        /** List of fully qualified enums and their values
+            This is used to generate the S_sie.resource file. */
+        std::vector< NameValuePair > fully_qualified_enum_values ;
 
         bool has_definition ;
 
