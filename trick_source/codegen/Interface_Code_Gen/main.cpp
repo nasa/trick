@@ -50,6 +50,7 @@ llvm::cl::opt<llvm::cl::boolOrDefault> print_trick_icg("print-TRICK-ICG", llvm::
 llvm::cl::alias compat15_alias ("compat15" , llvm::cl::desc("Alias for -c") , llvm::cl::aliasopt(global_compat15)) ;
 llvm::cl::opt<bool> m32("m32", llvm::cl::desc("Generate io code for use with 32bit mode"), llvm::cl::init(false), llvm::cl::ZeroOrMore) ;
 
+
 /**
 Most of the main program is pieced together from examples on the web. We are doing the following:
 
@@ -73,8 +74,18 @@ int main(int argc, char * argv[]) {
     /**
      * Gather all of the command line arguments into lists of include directories, defines, and input files.
      * All other arguments will be ignored.
+     *
+     * Filter out -W because of LLVM cl option that has been enabled and cannot be disabled in LLVM 10 when linking libclang-cpp.so.
+     * TODO: Troubleshoot or contact LLVM for a fix.  
      */
-    llvm::cl::ParseCommandLineOptions(argc, argv);
+    std::vector<const char *> filtered_args;
+    for ( unsigned int ii = 0;  ii < argc ; ii++ ) {
+        if( strncmp(argv[ii], "-W", 2) ) {
+            filtered_args.push_back(argv[ii]);
+        }
+    }
+    
+    llvm::cl::ParseCommandLineOptions(filtered_args.size(), filtered_args.data());
 
     if (input_file_names.empty()) {
         std::cerr << "No header file specified" << std::endl;
