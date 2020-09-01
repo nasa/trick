@@ -17,7 +17,7 @@ sub s_source($) {
     # Generate S_source.c
     open S_SOURCE, ">build/S_source.cpp" or die "Couldn't open build/S_source.cpp!\n";
     open S_SOURCE_H, ">S_source.hh" or die "Couldn't open S_source.hh!\n";
-
+    open CLASSES_RESOURCE, ">build/classes.resource" or die "Couldn't open classes.resource!";
     # Get Trick version
     my ($version, $thread) = get_trick_version() ;
 
@@ -211,13 +211,20 @@ PURPOSE:
         print S_SOURCE " " x 4 , "if ( (ai = get_alloc_info_at(&$inst)) != NULL ) {\n" ;
         print S_SOURCE " " x 8 , "ai->alloced_in_memory_init = 1 ;\n" ;
         print S_SOURCE " " x 4 , "}\n" ;
+        print CLASSES_RESOURCE "  \<top_level_object\n    name=\"$inst\"\n    type=\"$temp_type\"\n    alloc_memory_init=\"1\"\>\n  \</top_level_object\>\n\n";
     }
+
 
     print S_SOURCE " " x 4 , "// Add Integration Loop Sim Object(s) JMP\n" ;
     foreach my $integ_loop ( sort sim_integ_by_name @{$$sim_ref{integ_loop}} ) {
         print S_SOURCE " " x 4 , "exec_add_sim_object(&$$integ_loop{name} , \"$$integ_loop{name}\") ;\n" ;
         print S_SOURCE " " x 4 , "TMM_declare_ext_var(&$$integ_loop{name}, TRICK_STRUCTURED,\"IntegLoopSimObject\", 0, \"$$integ_loop{name}\", 0, NULL) ;\n" ;
+        print S_SOURCE " " x 4 , "if ( (ai = get_alloc_info_at(&$$integ_loop{name})) != NULL ) {\n" ;
+        print S_SOURCE " " x 8 , "ai->alloced_in_memory_init = 1 ;\n" ;
+        print S_SOURCE " " x 4 , "}\n" ;
+        print CLASSES_RESOURCE "  \<top_level_object\n    name=\"$$integ_loop{name}\"\n    type=\"IntegLoopSimObject\"\n    alloc_memory_init=\"1\"\>\n  \</top_level_object\>\n\n";
     }
+    close CLASSES_RESOURCE ;
     print S_SOURCE "\n" ;
 
     print S_SOURCE $$sim_ref{create_connections} ;

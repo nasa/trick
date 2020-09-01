@@ -14,7 +14,7 @@ enum Color {
     SKIP = 95
 };
 
-std::string sanitize(const std::string&);
+std::string sanitize(const std::string&) ;
 std::string trim( const std::string& str, const std::string& whitespace = " \t\n\r" ) ;
 bool isInUserCode( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) ;
 bool isInUserOrTrickCode( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) ;
@@ -27,5 +27,6 @@ std::string bold(const std::string& text);
 std::string underline(const std::string& text);
 std::string underline(const std::string& text, unsigned length);
 std::string quote(const std::string& text);
+std::string & replace_special_chars( std::string & str);
 
 #endif
