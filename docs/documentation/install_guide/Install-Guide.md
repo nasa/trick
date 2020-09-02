@@ -136,9 +136,15 @@ dnf install hdf5-devel gsl-devel gtest-devel
 ### Ubuntu
 All packages required for Trick may be installed through apt-get. If your package manager cannot find these packages, try searching for alternatives, or your Ubuntu version may be too old.
 
-sudo apt-get install bison curl flex g++ libx11-dev libxml2-dev libxt-dev \
- libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig maven \
- zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
+```bash
+#update apt
+apt-get update
+
+# install packages
+apt-get install -y bison clang flex git llvm make maven swig cmake \
+curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
+python2.7-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
+libgtest-dev openjdk-11-jdk 
 
 <a name="macos"></a>
 ---
@@ -251,7 +257,7 @@ Add the following text to ${HOME}/.gitconfig
 
 1.  Set up the Ubuntu Linux Subsystem following these [instructions.](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide)
 
-2. Find the trick instructions for the version of
+2. Install the Ubuntu dependencies from above: [Ubuntu](#ubuntu)
 ```
 
 3. Install an X-windows server like [Xming.](https://sourceforge.net/projects/xming/?source=typ_redirect)
