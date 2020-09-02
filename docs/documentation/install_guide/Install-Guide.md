@@ -53,7 +53,7 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 |[Fedora](#fedora)|
 |[Ubuntu](#ubuntu)|
 |[MacOS](#macos)|
-|[Windows 10](#windows10)|
+|[Windows 10 (Linux Subsystem Only)](#windows10)|
 
 ---
 <a name="redhat8"></a>
@@ -207,7 +207,7 @@ brew install --ignore-dependencies openmotif
 proceed to [Install Trick](#install) section of the install guide
 
 <a name="windows10"></a>
-### Windows 10
+### Windows 10 (Linux Subsystem Only)
 
 1.  Set up the Windows Subsystem for Linux by following the Microsoft Install Guide:
 (link current as of September 2020)
