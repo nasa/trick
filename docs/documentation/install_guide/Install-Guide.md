@@ -145,7 +145,8 @@ apt-get install -y bison clang flex git llvm make maven swig cmake \
 curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
 python2.7-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
 libgtest-dev openjdk-11-jdk 
-
+```
+[Install Trick](#install)
 <a name="macos"></a>
 ---
 ### MacOS Catelina/Mojave
@@ -202,62 +203,13 @@ brew install --ignore-dependencies openmotif
 [Install Trick](#install)
 
 <a name="windows10"></a>
----
-### Windows 10 version 1803 and 1709
+### Windows 10
 
-1.  Install Ubuntu 18.04 in the Windows Linux Subsystem following these [instructions.](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide).
+1.  Set up the Windows Subsystem for Linux by following the Microsoft Install Guide:
+(link current as of September 2020)
+https://docs.microsoft.com/en-us/windows/wsl/install-win10
 
-2. Open a bash shell and install the following packages
-
-```bash
-sudo apt-get update
-sudo apt install bison curl flex g++ libx11-dev libxml2-dev \
- libxt-dev libxtst6 libxi6 libmotif-common libmotif-dev make python2.7-dev \
- swig maven zlib1g-dev llvm-6.0-dev llvm clang libclang-dev libudunits2-dev
-```
-
-*Note This will install about 150 dependent packages on a new machine.
-
-3.  Install Java JDK 11 through the ppa repository
-```bash
-sudo apt-add-repository ppa:linuxuprising/java
-sudo apt update
-sudo apt install oracle-java10-installer
-```
-
-4. Install an X-windows server like [Xming.](https://sourceforge.net/projects/xming/?source=typ_redirect)
-
-5. Ensure hostname resolves to an address.  
-```bash
-# Get name of machine
-hostname
-# Get IP of name
-hostname -i
-# If hostname -i returns an error find IP address
-ifconfig
-# Add an entry to /etc/hosts to associate IP address to hostname "numeric.ip.address hostname"
-sudo <edit_cmd> /etc/hosts
-```
-
-6. You may have to change the sslVersion that git uses.
-```bash
-# Edit ${HOME}/.gitconfig
-<edit_cmd> ${HOME}/.gitconfig
-```
-
-Add the following text to ${HOME}/.gitconfig
-
-```
-[httpd]
-    sslVersion = tlsv1.2
-```
-[Install Trick](#install)
-
-### Windows 10 Version 1703 OS build 15063 (Creators Update)
-
-1.  Set up the Ubuntu Linux Subsystem following these [instructions.](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide)
-
-2. Install the Ubuntu dependencies from above: [Ubuntu](#ubuntu)
+2. Install the Ubuntu dependencies from above on the WSL: [Ubuntu](#ubuntu)
 ```
 
 3. Install an X-windows server like [Xming.](https://sourceforge.net/projects/xming/?source=typ_redirect)
