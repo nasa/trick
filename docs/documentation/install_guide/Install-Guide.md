@@ -82,7 +82,8 @@ yum config-manager --enable PowerTools
 yum install hdf5-devel gsl-devel gtest-devel
 ```
 
-[Install Trick](#install)
+proceed to [Install Trick](#install) section of the install guide
+
 ---
 <a name="redhat7"></a>
 
@@ -110,7 +111,8 @@ Trick makes use of several optional packages if they are present on the system. 
 yum install hdf5-devel gsl-devel gtest-devel
 ```
 
-[Install Trick](#install)
+proceed to [Install Trick](#install) section of the install guide
+
 ---
 <a name="fedora"></a>
 
@@ -131,7 +133,8 @@ dnf install hdf5-devel gsl-devel gtest-devel
 ```
 <a name="ubuntu"></a>
 
-[Install Trick](#install)
+proceed to [Install Trick](#install) section of the install guide
+
 ---
 ### Ubuntu
 All packages required for Trick may be installed through apt-get. If your package manager cannot find these packages, try searching for alternatives, or your Ubuntu version may be too old.
@@ -146,7 +149,8 @@ curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
 python2.7-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
 libgtest-dev openjdk-11-jdk 
 ```
-[Install Trick](#install)
+proceed to [Install Trick](#install) section of the install guide
+
 <a name="macos"></a>
 ---
 ### MacOS Catelina/Mojave
@@ -200,7 +204,7 @@ Openmotif may install dependent packages that conflict with other installations,
 brew install --ignore-dependencies openmotif
 ```
 
-[Install Trick](#install)
+proceed to [Install Trick](#install) section of the install guide
 
 <a name="windows10"></a>
 ### Windows 10
@@ -210,7 +214,6 @@ brew install --ignore-dependencies openmotif
 https://docs.microsoft.com/en-us/windows/wsl/install-win10
 
 2. Install the Ubuntu dependencies from above on the WSL: [Ubuntu](#ubuntu)
-```
 
 3. Install an X-windows server like [Xming.](https://sourceforge.net/projects/xming/?source=typ_redirect)
 
@@ -225,6 +228,8 @@ ifconfig
 # Add an entry to /etc/hosts to associate IP address to hostname "numeric.ip.address hostname"
 sudo <edit_cmd> /etc/hosts
 ```
+
+proceed to [Install Trick](#install) section of the install guide
 
 <a name="install"></a>
 # Install Trick
