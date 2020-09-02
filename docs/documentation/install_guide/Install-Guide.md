@@ -13,7 +13,7 @@ Trick requires various free third party utilities in order to function. All the 
 | [clang]/[llvm]  | 3.4.2+    | C/C++ Compiler            | Utilized by the interface code generator.                     |
 | [python]        | 2.7+      | Programming Language      | Lets the user interact with a simulation.                     |
 | [perl]          | 5.6+      | Programming Language      | Allows executable scripts in the bin directory to run.        |
-| [java]          | 1.8+      | Programming Language      | Necessary for Trick GUIs.                                     |
+| [java]          | 11+       | Programming Language      | Necessary for Trick GUIs.                                     |
 | [swig]          | 2.0+      | Language Interfacing      | Connects the python input processor with Trick's C code.      |
 | [make]          | 3.78+     | Build Automation          | Automates the building and cleaning of Trick.                 |
 | [openmotif]     | 2.2.0+    | GUI Toolkit               | Covers Trick GUIs not made with Java.                         |
@@ -47,8 +47,9 @@ make install
 ```
 
 ### Java
-Trick needs the javac compiler included in the Java Development Kit (JDK). Trick will work with either the Oracle JDK or OpenJDK, but we prefer the Oracle JDK located [here](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
-**Installing both the Oracle JDK and OpenJDK may lead to problems and confusion.** Both use the alternatives program to tell the system which *java* to use, but the OpenJDK packages are inconsistent in their alternatives priority settings and result in unintuitive installation results.
+Trick needs the javac compiler included in the Java Development Kit (JDK). Trick will work with either the Oracle JDK or OpenJDK.
+
+**Installing both the Oracle JDK and OpenJDK may lead to problems and confusion.**
 
 # Operating Systems
 Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX workstation should accept the Trick software with very little source code porting. Below are instructions for installing the prerequisites on popular operating systems here at NASA.
@@ -58,6 +59,7 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 |[RedHat Enterprise Linux (RHEL) 8](#redhat8)|
 |[CentOS 8](#redhat8)|
 |[RedHat Enterprise Linux (RHEL) 7](#redhat7)|
+|[CentOS 7](#redhat7)|
 |[RedHat Enterprise Linux (RHEL) 6](#redhat6)|
 |[Fedora 32, 30, 28, 24](#fedora)|
 |[Ubuntu 16.04/15.10](#ubuntu16.04)|
@@ -73,26 +75,16 @@ Trick requires the clang/llvm compiler to compile and link the Trick Interface C
 
 
 ```bash
-yum install epel-release
-yum update
-
+dnf install epel-release
+dnf update
+dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \
+gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
+ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 \
+udunits2-devel which zlib-devel gtest-devel libX11-devel libXt-devel  \
+python3-devel diffutils
 ```
 
-```bash
-yum install bison clang clang-devel cmake flex gcc gcc-c++ git \
-libX11-devel libxml2-devel libXt-devel llvm llvm-devel llvm-static \
-make maven ncurses-devel openmotif openmotif-devel perl \
-perl-Digest-MD5 python3-devel swig udunits2 udunits2-devel which zlib-devel
-```
 
-The javac compiler must be installed.  The javac compiler is included with the Java Development Kit (JDK).  Trick will work with either the Oracle JDK or OpenJDK, but we prefer the Oracle JDK. 
-At the time of this writing (March 2015) the Oracle JDK 1.8 is available from the [Oracle download site](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
-
-Alternatively OpenJDK is available through yum
-
-```bash
-yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel
-```
 
 Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository. In order to access gtest-devel in the epel repository you need to enable the dnf option PowerTools
 
@@ -104,78 +96,22 @@ yum install hdf5-devel gsl-devel gtest-devel
 ---
 <a name="redhat7"></a>
 
-### RedHat Enterprise Linux (RHEL) 7
+### RedHat Enterprise Linux (RHEL) 7, CentOS 7
 Trick requires the clang/llvm compiler to compile and link the Trick Interface Code Generator.  clang/llvm is available through the [Extra Packages for Enterprise Linux](https://fedoraproject.org/wiki/EPEL) repository.  Download and install the 'epel-release' package.
 
 ```bash
-# From the EPEL repository
-yum install llvm llvm-devel llvm-static clang clang-devel
+# install epel-release
+Run yum -y install epel-release && yum -y update
 
 ```
 
 Trick also requires development packages from the base and epel repositories
 
 ```bash
-# From the base repository
-yum install bison flex gcc gcc-c++ libxml2-devel make ncurses-devel \
- openmotif openmotif-devel python-devel perl perl-Digest-MD5 swig maven zlib-devel 
-#UDUnits is required and is in the EPEL repository
-yum install udunits2 udunits2-devel
-```
-
-The javac compiler must be installed.  The javac compiler is included with the Java Development Kit (JDK).  Trick will work with either the Oracle JDK or OpenJDK, but we prefer the Oracle JDK. 
-At the time of this writing (March 2015) the Oracle JDK 1.8 is available from the [Oracle download site](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
-
-Alternatively OpenJDK is available through yum
-
-```bash
-yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel
-```
-
-Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository
-
-```bash
-yum install hdf5-devel gsl-devel gtest-devel
-```
-
----
-<a name="redhat6"></a>
-
-### RedHat Enterprise Linux (RHEL) 6
-Trick requires gcc version 4.8+ to compile.  gcc 4.9 is available through RHEL's [Software Collections](https://access.redhat.com/documentation/en/red-hat-software-collections/) capability.  To install the software collections, the software collections reposotory needs to be added as a yum repository and the scl-utils package needs to be optionally installed.  The instructions below are specific to Scientific Linux 6, an RHEL derivative.  Repository location will be different for the official RHEL 6 and CentOS.
-
-```bash
-wget http://ftp.scientificlinux.org/linux/scientific/6x/external_products/softwarecollections/yum-conf-softwarecollections-2.0-1.el6.noarch.rpm
-rpm -ivh yum-conf-softwarecollections-2.0-1.el6.noarch.rpm
-
-# From the software collections repository
-yum install devtoolset-3-gcc-c++
-```
-
-Trick requires the clang/llvm compiler to compile and link the Trick Interface Code Generator.  clang/llvm is available through the [Extra Packages for Enterprise Linux](https://fedoraproject.org/wiki/EPEL) repository.  Download and install the 'epel-release' package.
-
-```bash
-# From the EPEL repository
-yum install llvm llvm-devel llvm-static clang clang-devel
-```
-
-Trick also requires development packages from the base and epel repositories
-
-```bash
-# From the base repository
-yum install bison flex gcc gcc-c++ libxml2-devel make \
- openmotif openmotif-devel python-devel perl swig maven zlib-devel
-#UDUnits is required and is in the EPEL repository
-yum install udunits2 udunits2-devel
-```
-
-The javac compiler must be installed.  The javac compiler is included with the Java Development Kit (JDK).  Trick will work with either the Oracle JDK or OpenJDK, but we prefer the Oracle JDK. 
-At the time of this writing (March 2015) the Oracle JDK 1.8 is available from the [Oracle download site](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html).
-
-Alternatively OpenJDK is available through yum
-
-```bash
-yum install java-1.8.0-openjdk java-1.8.0-openjdk-devel
+yum install -y bison clang flex git llvm make maven swig cmake clang-devel \
+gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
+ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 \
+udunits2-devel which zlib-devel gtest-devel libX11-devel libXt-devel python-devel
 ```
 
 Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository
@@ -187,7 +123,7 @@ yum install hdf5-devel gsl-devel gtest-devel
 ---
 <a name="fedora"></a>
 
-### Fedora 31, 30, 28, 24
+### Fedora
 Trick requires development packages from the base repositories.
 
 ```bash
