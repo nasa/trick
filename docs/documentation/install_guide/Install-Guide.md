@@ -39,6 +39,12 @@ Clang/LLVM can be installed and located manually should your package manager fai
 ### Java
 Trick needs the javac compiler included in the Java Development Kit (JDK). Trick will work with either the Oracle JDK or OpenJDK.
 
+
+### Troubleshooting
+If the Trick tests are passing, you can see *exactly* how we configure our test machines on Github's test integration platform, Github Actions.
+
+If logged into any github account on github.com, you can access the [Actions](https://github.com/nasa/trick/actions) tab on the Trick repo page. Go to [Trick-CI](https://github.com/nasa/trick/actions?query=workflow%3A%22Trick+CI%22), and click the latest passing run. Here you can access a log of our shell commands to configure each OS with dependencies and also the commands we use to install Trick. In fact, that is exactly where I go when I want to update the install guide! @spfennell
+
 **Installing both the Oracle JDK and OpenJDK may lead to problems and confusion.**
 
 # Operating Systems
