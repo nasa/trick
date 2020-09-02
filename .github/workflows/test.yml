@@ -63,7 +63,7 @@ jobs:
               clang-devel
               gcc
               gcc-c++
-              java-1.8.0-openjdk-devel
+              java-11-openjdk-devel
               libxml2-devel
               llvm-devel
               llvm-static
@@ -80,7 +80,7 @@ jobs:
 #-------- Ubuntu Only Dependencies ----------------
           - cfg: { os: ubuntu }
             os_deps: >-
-              openjdk-8-jdk
+              openjdk-11-jdk
 #-------- Debian OS Only Dependencies ----------------
           - cfg: { os: debian }
             os_deps: >-
@@ -190,7 +190,7 @@ jobs:
         ncurses-devel.i686 zlib-devel.i686 python-libs.i686
         expat-2.1.0-10.el7_3.i686 glibc-devel-2.17-196.el7.i686
         glibc.i686 glibc-devel.i686 udunits2 udunits2-devel gtest-devel.i686
-        java-1.8.0-openjdk java-1.8.0-openjdk-devel expat-devel.i686
+        java-11-openjdk java-11-openjdk-devel expat-devel.i686
         which gcc-gfortran git wget gsl-devel gtest-devel gsl-devel.i686
         maven udunits2 udunits2-devel
     - name: Symlink python
