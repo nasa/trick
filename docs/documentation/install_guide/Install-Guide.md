@@ -60,12 +60,10 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 |[CentOS 8](#redhat8)|
 |[RedHat Enterprise Linux (RHEL) 7](#redhat7)|
 |[CentOS 7](#redhat7)|
-|[RedHat Enterprise Linux (RHEL) 6](#redhat6)|
-|[Fedora 32, 30, 28, 24](#fedora)|
-|[Ubuntu 16.04/15.10](#ubuntu16.04)|
-|[Ubuntu 15.04](#ubuntu15.04)|
-|[MacOSX 10.12/10.11](#macosx)|
-|[Windows 10.0.15063 (Creators Update)](#windows10)|
+|[Fedora](#fedora)|
+|[Ubuntu](#ubuntu)|
+|[MacOS](#macos)|
+|[Windows 10](#windows10)|
 
 ---
 <a name="redhat8"></a>
@@ -93,6 +91,8 @@ yum install -y 'dnf-command(config-manager)'
 yum config-manager --enable PowerTools
 yum install hdf5-devel gsl-devel gtest-devel
 ```
+
+|[Install Trick](#install)|
 ---
 <a name="redhat7"></a>
 
@@ -120,6 +120,7 @@ Trick makes use of several optional packages if they are present on the system. 
 yum install hdf5-devel gsl-devel gtest-devel
 ```
 
+|[Install Trick](#install)|
 ---
 <a name="fedora"></a>
 
@@ -127,15 +128,10 @@ yum install hdf5-devel gsl-devel gtest-devel
 Trick requires development packages from the base repositories.
 
 ```bash
-dnf install bison flex gcc gcc-c++ libxml2-devel make openmotif \
- openmotif-devel python-devel perl swig maven zlib-devel llvm llvm-devel \
- llvm-static clang clang-devel perl-Text-Balanced perl-Digest-MD5 \
- udunits2 udunits2-devel ncurses-devel
-```
-
-Be sure to install the Oracle JDK. Alternatively, install OpenJDK with this command:
-```bash
-dnf install java-1.8.0-openjdk-devel
+dnf install -y bison clang flex git llvm make maven swig cmake clang-devel \ 
+gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
+ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 udunits2-devel \
+which zlib-devel gtest-devel perl-Text-Balanced python-devel diffutils 
 ```
 
 Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository
@@ -143,36 +139,20 @@ Trick makes use of several optional packages if they are present on the system. 
 ```bash
 dnf install hdf5-devel gsl-devel gtest-devel
 ```
+<a name="ubuntu"></a>
 
+|[Install Trick](#install)|
 ---
-<a name="ubuntu16.04"></a>
+### Ubuntu
+All packages required for Trick may be installed through apt-get. If your package manager cannot find these packages, try searching for alternatives, or your Ubuntu version may be too old.
 
-### Ubuntu 18.04/16.04/15.10
-All packages required for Trick may be installed through apt-get.
-
-```bash
 sudo apt-get install bison curl flex g++ libx11-dev libxml2-dev libxt-dev \
  libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig maven \
  zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
-```
-
----
-<a name="ubuntu15.04"></a>
-
-### Ubuntu 15.04
-Follow the 16.04 instructions above.
-
-Trick requires the clang/llvm compiler to compile and link the Trick Interface Code Generator. The instructions below install clang 3.6. 
-
-```bash
-sudo apt-get install clang-3.6 llvm-3.6 llvm-3.6-dev
-```
-
----
 
 <a name="macosx"></a>
-
-### MacOSX 10.14
+---
+### MacOS Catelina
 
 1. Install XCode from the App Store.
 
@@ -218,60 +198,10 @@ Openmotif may install dependent packages that conflict with other installations,
 brew install --ignore-dependencies openmotif
 ```
 
----
+|[Install Trick](#install)|
 
-<a name="macosx"></a>
-
-### MacOSX 10.13/10.12/10.11
-
-1. Install XCode from the App Store.
-
-2. Download and install Command Line Tools for MacOSX by opening a terminal and running the following command.
-
-```bash
-xcode-select --install
-```
-
-3. Install Homebrew, MacOSX's unofficial package manager.
-
-```bash
-# bash  
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
-or
-```csh
-# csh
-curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install | ruby
-```
-
-4. Install cask to get java and xquartz.
-
-```bash
-# brew install caskroom may not be required anymore
-# brew install caskroom/cask/brew-cask
-brew cask install java xquartz
-```
-
-5. Finally, install the remaining dependencies.
-
-```bash
-brew install llvm swig maven udunits openmotif  
-```
-
-Openmotif may install dependent packages that conflict with other installations, fontconfig and freetype.  Use the following command to skip installing these packages if you encounter conflicts.
-```bash
-brew install --ignore-dependencies openmotif
-```
-
-To configure Trick with an older llvm (No longer needed now that llvm 6 works with Xcode 9.2).
-```bash
-brew install llvm@5
-./configure --with-llvm=/usr/local/opt/llvm@5
-```
-
----
 <a name="windows10"></a>
-
+---
 ### Windows 10 version 1803 and 1709
 
 1.  Install Ubuntu 18.04 in the Windows Linux Subsystem following these [instructions.](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide).
@@ -320,28 +250,18 @@ Add the following text to ${HOME}/.gitconfig
 [httpd]
     sslVersion = tlsv1.2
 ```
+|[Install Trick](#install)|
 
 ### Windows 10 Version 1703 OS build 15063 (Creators Update)
 
 1.  Set up the Ubuntu Linux Subsystem following these [instructions.](https://msdn.microsoft.com/en-us/commandline/wsl/install_guide)
 
-2. Open a bash shell and install the following packages.with
-```bash
-sudo apt install bison curl flex g++ libx11-dev libxml2-dev \
- libxt-dev libmotif-common libmotif-dev make python2.7-dev \
- swig maven zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
+2. Find the trick instructions for the version of
 ```
 
-3.  Install Java JDK 8 through the ppa repository
-```bash
-sudo apt-add-repository ppa:webupd8team/java
-sudo apt-get update
-sudo apt install oracle-java8-installer
-```
+3. Install an X-windows server like [Xming.](https://sourceforge.net/projects/xming/?source=typ_redirect)
 
-4. Install an X-windows server like [Xming.](https://sourceforge.net/projects/xming/?source=typ_redirect)
-
-5. Ensure hostname resolves to an address.  
+4. Ensure hostname resolves to an address.  
 ```bash
 # Get name of machine
 hostname
@@ -353,6 +273,7 @@ ifconfig
 sudo <edit_cmd> /etc/hosts
 ```
 
+<a name="install"></a>
 # Install Trick
 
 ## 1.) Clone Trick
