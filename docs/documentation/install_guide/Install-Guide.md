@@ -92,7 +92,7 @@ yum config-manager --enable PowerTools
 yum install hdf5-devel gsl-devel gtest-devel
 ```
 
-|[Install Trick](#install)|
+[Install Trick](#install)
 ---
 <a name="redhat7"></a>
 
@@ -120,7 +120,7 @@ Trick makes use of several optional packages if they are present on the system. 
 yum install hdf5-devel gsl-devel gtest-devel
 ```
 
-|[Install Trick](#install)|
+[Install Trick](#install)
 ---
 <a name="fedora"></a>
 
@@ -141,7 +141,7 @@ dnf install hdf5-devel gsl-devel gtest-devel
 ```
 <a name="ubuntu"></a>
 
-|[Install Trick](#install)|
+[Install Trick](#install)
 ---
 ### Ubuntu
 All packages required for Trick may be installed through apt-get. If your package manager cannot find these packages, try searching for alternatives, or your Ubuntu version may be too old.
@@ -198,7 +198,7 @@ Openmotif may install dependent packages that conflict with other installations,
 brew install --ignore-dependencies openmotif
 ```
 
-|[Install Trick](#install)|
+[Install Trick](#install)
 
 <a name="windows10"></a>
 ---
@@ -250,7 +250,7 @@ Add the following text to ${HOME}/.gitconfig
 [httpd]
     sslVersion = tlsv1.2
 ```
-|[Install Trick](#install)|
+[Install Trick](#install)
 
 ### Windows 10 Version 1703 OS build 15063 (Creators Update)
 
@@ -305,15 +305,6 @@ Now that Trick has been configured and a makefile has been generated, we can run
 ```bash
 make
 ```
-
-### Install Trick
-You can also install Trick on your machine by running *sudo make install* after you compile Trick.
-
-```bash
-sudo make install
-```
-
-You will need super user privileges in order to copy files directly to the default **/usr/local** directory. This install directory can be modified with the configuration script.
 
 
 ## 4.) Optionally Update Your Environment
