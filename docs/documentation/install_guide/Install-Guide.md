@@ -35,16 +35,6 @@ Trick requires various free third party utilities in order to function. All the 
 ## Notes
 ### Clang/LLVM compiler and libraries
 Clang/LLVM can be installed and located manually should your package manager fail to acquire it. You can tell Trick where to find Clang/LLVM with the "--with-llvm" configuration option specified [below](TODO).
-### 32-bit Mode
-If you intend to build Trick in 32-bit mode, you will need 32-bit versions of the libraries in the above table. If a 32-bit version of udunits is not available through your package manager, you can build it from [source](ftp://ftp.unidata.ucar.edu/pub/udunits/udunits-2.2.25.tar.gz):
-```bash
-tar xfvz udunits-2.2.25.tar.gz
-cd udunits-2.2.25
-export CFLAGS="-m32"
-./configure --prefix=/usr
-make
-make install
-```
 
 ### Java
 Trick needs the javac compiler included in the Java Development Kit (JDK). Trick will work with either the Oracle JDK or OpenJDK.
@@ -150,9 +140,9 @@ sudo apt-get install bison curl flex g++ libx11-dev libxml2-dev libxt-dev \
  libmotif-common libmotif-dev make openjdk-8-jdk python2.7-dev swig maven \
  zlib1g-dev llvm llvm-dev clang libclang-dev libudunits2-dev
 
-<a name="macosx"></a>
+<a name="macos"></a>
 ---
-### MacOS Catelina
+### MacOS Catelina/Mojave
 
 1. Install XCode from the App Store.
 
@@ -164,7 +154,12 @@ xcode-select --install
 
 3. Install system header files into /usr/include
 ```bash
+### Catalina Only
+sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
+
+### Mojave Only
 sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+
 ```
 
 4. Install Homebrew, MacOSX's unofficial package manager.
@@ -319,3 +314,15 @@ Finally, although setting `TRICK_CFLAGS` and `TRICK_CXXFLAGS` is not necessary, 
 *The exception to this is if you're building in 32-bit mode, in which case the `TRICK_FORCE_32BIT` environment variable must be set to `1` before you build Trick or any simulation.
 
 [Continue to Building A Simulation](../building_a_simulation/Building-a-Simulation)
+
+## Notes
+### 32-bit Mode
+If you intend to build Trick in 32-bit mode, you will need 32-bit versions of the libraries in the above table. If a 32-bit version of udunits is not available through your package manager, you can build it from [source](ftp://ftp.unidata.ucar.edu/pub/udunits/udunits-2.2.25.tar.gz):
+```bash
+tar xfvz udunits-2.2.25.tar.gz
+cd udunits-2.2.25
+export CFLAGS="-m32"
+./configure --prefix=/usr
+make
+make install
+```
