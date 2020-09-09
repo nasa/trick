@@ -428,6 +428,9 @@ void PrintAttributes::printIOMakefile() {
         << "        TRICK_IO_CXXFLAGS += -std=c++11" << std::endl
         << "    endif" << std::endl
         << "endif" << std::endl
+        << "ifeq ($(IS_CC_CLANG), 1)" << std::endl
+        << "    TRICK_IO_CXXFLAGS += -std=c++14" << std::endl
+        << "endif" << std::endl
         << std::endl
         << "IO_OBJECTS =" ;
 
