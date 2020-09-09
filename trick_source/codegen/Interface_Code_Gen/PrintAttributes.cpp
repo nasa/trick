@@ -420,10 +420,16 @@ void PrintAttributes::printIOMakefile() {
 
     makefile_io_src.open("build/Makefile_io_src") ;
     makefile_io_src
-        << "TRICK_IO_CXXFLAGS += -std=c++11 -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << std::endl
+        << "TRICK_IO_CXXFLAGS += -Wno-invalid-offsetof -Wno-old-style-cast -Wno-write-strings -Wno-unused-variable" << std::endl
         << std::endl
         << "ifeq ($(IS_CC_CLANG), 0)" << std::endl
         << "    TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << std::endl
+        << "    ifeq ($(shell test $(GCC_MAJOR) -lt 6; echo $$?), 0)" << std::endl
+        << "        TRICK_IO_CXXFLAGS += -std=c++11" << std::endl
+        << "    endif" << std::endl
+        << "endif" << std::endl
+        << "ifeq ($(IS_CC_CLANG), 1)" << std::endl
+        << "    TRICK_IO_CXXFLAGS += -std=c++14" << std::endl
         << "endif" << std::endl
         << std::endl
         << "IO_OBJECTS =" ;
