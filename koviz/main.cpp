@@ -27,7 +27,7 @@ using namespace std;
 #include "libkoviz/dp.h"
 #include "libkoviz/snap.h"
 #include "libkoviz/csv.h"
-#include "libkoviz/trickmodel.h"
+#include "libkoviz/datamodel_trick.h"
 #include "libkoviz/curvemodel.h"
 #include "libkoviz/trick_types.h"
 #include "libkoviz/session.h"

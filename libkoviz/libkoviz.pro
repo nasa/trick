@@ -69,13 +69,13 @@ SOURCES += bookmodel.cpp \
            timeit_linux.cpp \
            timeit_win32.cpp \
            timestamps.cpp \
-           trickmodel.cpp \
+           datamodel.cpp \
+           datamodel_trick.cpp \
+           datamodel_csv.cpp \
            tricktablemodel.cpp \
            plotmainwindow.cpp \
            timeinput.cpp \
-           datamodel.cpp \
            curvemodel.cpp \
-           csvmodel.cpp \
            programmodel.cpp \
            session.cpp \
            plotlayout.cpp \
@@ -137,13 +137,13 @@ HEADERS  += bookmodel.h \
             timeit_win32.h \
             timestamps.h \
             trick_types.h \
-            trickmodel.h \
             tricktablemodel.h \
             plotmainwindow.h \
             timeinput.h \
             datamodel.h \
+            datamodel_csv.h \
+            datamodel_trick.h \
             curvemodel.h \
-            csvmodel.h \
             programmodel.h \
             session.h \
             plotlayout.h \

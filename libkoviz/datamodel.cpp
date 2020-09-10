@@ -1,7 +1,7 @@
 #include <QFileInfo>
 #include "datamodel.h"
-#include "trickmodel.h"
-#include "csvmodel.h"
+#include "datamodel_trick.h"
+#include "datamodel_csv.h"
 
 DataModel *DataModel::createDataModel(const QStringList &timeNames,
                                       const QString &fileName)

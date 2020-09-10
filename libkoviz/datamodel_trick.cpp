@@ -1,4 +1,4 @@
-#include "trickmodel.h"
+#include "datamodel_trick.h"
 #include <QStringList>
 #include <stdio.h>
 #include <stdexcept>

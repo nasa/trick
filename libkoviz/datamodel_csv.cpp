@@ -1,4 +1,4 @@
-#include "csvmodel.h"
+#include "datamodel_csv.h"
 
 QString CsvModel::_err_string;
 QTextStream CsvModel::_err_stream(&CsvModel::_err_string);
