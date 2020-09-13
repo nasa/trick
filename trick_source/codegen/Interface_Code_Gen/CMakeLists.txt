@@ -36,7 +36,7 @@ set (ICG_CLANGLIBS
     -lclangBasic
   )
 
-try_compile(haveOldLibs "${CMAKE_BINARY_DIR}/trick_source/codegen/Interface_Code_Gen" "${PROJECT_SOURCE_DIR}/trick_source/codegen/Interface_Code_Gen/TestICGLinkedLibs.cpp" CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${LLVM_INCLUDE_DIRS}")
+try_compile(haveOldLibs "${CMAKE_BINARY_DIR}" "${PROJECT_SOURCE_DIR}/CMakeTestFiles/TestICGLinkedLibs.cpp" CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${LLVM_INCLUDE_DIRS}")
 if(NOT haveOldLibs)
   set (ICG_CLANGLIBS 
     -lclang-cpp
