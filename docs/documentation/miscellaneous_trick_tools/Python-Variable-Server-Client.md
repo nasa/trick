@@ -142,6 +142,20 @@ Traceback (most recent call last):
 ValueError: dictionary update sequence element #0 has length 1; 2 is required
 ```
 
+### A Special Note for Booleans
+All values from the variable server are strings, and in Python, the only string that converts to `False` is the empty string.
+
+```python
+>>> bool("0")
+True
+>>> bool("False")
+True
+>>> bool("")
+False
+```
+
+Booleans come over the variable server as either “0” or “1”, so passing `type_=bool` will restult in the value always being `True`. Instead, just use `int`. In Python, an int with value 0 is false, and anything else is true, so it will work just fine in conditionals.
+
 ## Specifying Units
 `get_value` has a parameter for that too: `units`.
 
