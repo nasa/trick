@@ -1,6 +1,6 @@
 # MassSpringDamper
 
-This program uses the SemiImplicitEuler integrator to simulate a simple mass-spring-damper.
+This program uses the SA::EulerCromerIntegrator  to simulate a simple mass-spring-damper.
 
 Generate the results as follows:
 '''
