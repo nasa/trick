@@ -31,7 +31,7 @@ void deriv1( double t, double state[], double derivs[], void* udata) {
 
 #define EXCEPTABLE_ERROR 0.00000000001
 
-TEST(Integ_unittest, EulerIntegrator_1) {
+TEST(SAIntegrator_unittest, EulerIntegrator_1) {
 
    double state[4] = {0.0, 0.0, 0.0, 0.0};
    double* state_var_p[4] = { &(state[0]), &(state[1]), &(state[2]), &(state[3])};
@@ -52,7 +52,7 @@ TEST(Integ_unittest, EulerIntegrator_1) {
     EXPECT_NEAR(state[3], (-2*M_PI), EXCEPTABLE_ERROR);
 }
 
-TEST(Integ_unittest, RungeKutta2_1) {
+TEST(SAIntegrator_unittest, RungeKutta2_1) {
 
    double state[4] = {0.0, 0.0, 0.0, 0.0};
    double* state_var_p[4] = { &(state[0]), &(state[1]), &(state[2]), &(state[3]) };
@@ -73,7 +73,7 @@ TEST(Integ_unittest, RungeKutta2_1) {
     EXPECT_NEAR(state[3], 18.0, EXCEPTABLE_ERROR);
 }
 
-TEST(Integ_unittest, RungeKutta4_1) {
+TEST(SAIntegrator_unittest, RungeKutta4_1) {
 
    double state[4] = {0.0, 0.0, 0.0, 0.0};
    double* state_var_p[4] = { &(state[0]), &(state[1]), &(state[2]), &(state[3]) };
@@ -94,7 +94,7 @@ TEST(Integ_unittest, RungeKutta4_1) {
     EXPECT_NEAR(state[3], 20.0, EXCEPTABLE_ERROR);
 }
 
-TEST(Integ_unittest, RungeKutta38_1) {
+TEST(SAIntegrator_unittest, RungeKutta38_1) {
 
    double state[4] = {0.0, 0.0, 0.0, 0.0};
    double* state_var_p[4] = { &(state[0]), &(state[1]), &(state[2]), &(state[3]) };
