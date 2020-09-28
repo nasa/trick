@@ -13,7 +13,7 @@ LIBOBJS = ${OBJDIR}/Integrator.o
 all: test 
 
 test: SAIntegrator_unittest
-        ./SAIntegrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/SAIntegrator_unittest.xml
+	./SAIntegrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/SAIntegrator_unittest.xml
 
 
 SAIntegrator_unittest.o : SAIntegrator_unittest.cc
@@ -29,4 +29,4 @@ clean:
 	${RM} *.o
 
 spotless: clean
-	${RM} Integ_unittest
+	${RM} SAIntegrator_unittest
