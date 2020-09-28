@@ -10,7 +10,7 @@ LIBDIR = ../lib
 LIBNAME = libSAInteg.a
 LIBOBJS = ${OBJDIR}/Integrator.o
 
-all: SAIntegrator_unittest 
+all: test 
 
 test: SAIntegrator_unittest
         ./SAIntegrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/SAIntegrator_unittest.xml
