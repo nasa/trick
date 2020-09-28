@@ -15,12 +15,11 @@ all: test
 test: SAIntegrator_unittest
 	./SAIntegrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/SAIntegrator_unittest.xml
 
-
 SAIntegrator_unittest.o : SAIntegrator_unittest.cc
 	$(CPP) $(CFLAGS) $(INCLUDE_DIRS) -c $<
 
 SAIntegrator_unittest : ${LIBDIR}/${LIBNAME} SAIntegrator_unittest.o
-	$(CPP) $(CFLAGS) -o $@ $^ -lgtest -lgtest_main -lpthread
+	$(CPP) $(CFLAGS) -o $@ $^ -L${LIBDIR} -lSAInteg -lgtest -lgtest_main -lpthread
 
 ${LIBDIR}/${LIBNAME} :
 	$(MAKE) -C ..
