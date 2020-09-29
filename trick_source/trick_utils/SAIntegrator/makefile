@@ -13,7 +13,7 @@ LIBOBJS = ${OBJDIR}/SAIntegrator.o
 all: test examples
 
 test: ${LIBDIR}/${LIBNAME}
-	${MAKE} -C test
+	${MAKE} -C unittest
 
 examples: ${LIBDIR}/${LIBNAME}
 	${MAKE} -C examples
@@ -33,12 +33,12 @@ ${LIBDIR}:
 clean:
 	${RM} *~
 	${RM} ${OBJDIR}
-	${MAKE} -C test clean
+	${MAKE} -C unittest clean
 	${MAKE} -C examples clean
 
 spotless: 
 	${RM} *~
 	${RM} ${OBJDIR}
 	${RM} ${LIBDIR}
-	${MAKE} -C test spotless
+	${MAKE} -C unittest spotless
 	${MAKE} -C examples spotless
