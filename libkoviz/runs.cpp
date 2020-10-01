@@ -42,7 +42,7 @@ Runs::~Runs()
 void Runs::_init()
 {
     QStringList filter;
-    filter << "*.trk" << "*.csv";
+    filter << "*.trk" << "*.csv" << "*.mot";
     QStringList files;
     QHash<QString,QStringList> runToFiles;
     QHash<QString,QString> fileToRun;
@@ -81,7 +81,7 @@ void Runs::_init()
         }
 
         if ( lfiles.empty() ) {
-            _err_stream << "koviz [error]: Either no *.trk/csv files "
+            _err_stream << "koviz [error]: Either no *.trk/csv/mot files "
                            "in run dir: " << run << "\n"
                         << "               or log files were filtered out.\n";
             throw std::invalid_argument(_err_string.toLatin1().constData());

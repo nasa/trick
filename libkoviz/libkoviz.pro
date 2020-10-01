@@ -92,7 +92,8 @@ SOURCES += bookmodel.cpp \
            layoutitem_plottics.cpp \
            layoutitem_paintable.cpp \
            mapvalue.cpp \
-           curvemodelparameter.cpp
+           curvemodelparameter.cpp \
+           datamodel_mot.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -160,7 +161,8 @@ HEADERS  += bookmodel.h \
             layoutitem_plottics.h \
             layoutitem_paintable.h \
             mapvalue.h \
-            curvemodelparameter.h
+            curvemodelparameter.h \
+            datamodel_mot.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y
