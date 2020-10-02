@@ -25,6 +25,7 @@ Some examples of using these integrators can be found in the **examples/** direc
 * [CannonBall](examples/CannonBall/README.md) uses the RK2Integrator.
 * [MassSpringDamper](examples/MassSpringDamper/README.md) uses the EulerCromerIntegrator.
 * [Orbit](examples/Orbit/README.md) uses the EulerCromerIntegrator.
+* [DoubleIntegral](examples/DoubleIntegral/README.md) shows an example of a double integral.
 
 <a id=class-Integrator></a>
 ## class Integrator

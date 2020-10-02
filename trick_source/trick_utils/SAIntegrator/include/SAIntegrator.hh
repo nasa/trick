@@ -1,6 +1,6 @@
 
 namespace SA {
-    
+
     class Integrator {
     protected:
         double time;
@@ -13,6 +13,7 @@ namespace SA {
         virtual void load() = 0;
         virtual void unload() = 0;
         double getTime() {return time;}
+        void setTime(double t) {time = t;}
     };
 
     typedef void (*derivsFunc)( double t, double state[], double derivs[], void* user_data);
@@ -32,10 +33,11 @@ namespace SA {
     public:
         FirstOrderODEIntegrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data);
         ~FirstOrderODEIntegrator();
-        // void init(double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func);
         virtual void undo_step();
         void load();
         void unload();
+        void set_in_vars( double* in_vars[]);
+        void set_out_vars( double* out_vars[]);
     };
 
     class FirstOrderODEVariableStepIntegrator : public FirstOrderODEIntegrator {

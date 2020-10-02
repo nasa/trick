@@ -21,14 +21,28 @@ SA::FirstOrderODEIntegrator::~FirstOrderODEIntegrator() {
 }
 void SA::FirstOrderODEIntegrator::load() {
     reset = false;
-    for (int i=0 ; i<state_size; i++ ) {
-        istate[i] = *(orig_vars[i]);
+    if (orig_vars != NULL) {
+        for (int i=0 ; i<state_size; i++ ) {
+            istate[i] = *(orig_vars[i]);
+        }
+    } else {
+        std::cerr << "Error: SA::FirstOrderODEIntegrator::load(). orig_vars is not set." << std::endl;
     }
 }
 void SA::FirstOrderODEIntegrator::unload() {
-    for (int i=0 ; i<state_size; i++ ) {
-        *(dest_vars[i]) = ostate[i];
+    if (dest_vars != NULL) {
+        for (int i=0 ; i<state_size; i++ ) {
+            *(dest_vars[i]) = ostate[i];
+        }
+    } else {
+        std::cerr << "Error: SA::FirstOrderODEIntegrator::load(). dest_vars is not set." << std::endl;
     }
+}
+void SA::FirstOrderODEIntegrator::set_in_vars( double* in_vars[]){
+    orig_vars = in_vars;
+}
+void SA::FirstOrderODEIntegrator::set_out_vars( double* out_vars[]){
+    dest_vars = out_vars;
 }
 void SA::FirstOrderODEIntegrator::undo_step() {
     if (!reset) {                           // If we've not already reset the integrator, then reset it.
