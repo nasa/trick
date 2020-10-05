@@ -35,18 +35,18 @@ This class represents an **integrator**.
 
 ### Constructor
 
-#### ```Integrator(double dt, void* user_data);```
+#### ```Integrator(double h, void* user_data);```
 
 
 |Parameter|Type        |Description|
 |---------|------------|--------------------|
-|dt       |```double```|Default time step value|
+|h        |```double```|Default step-size|
 |user_data|```void*```| A pointer to user defined data that will be passed to a derivsFunc when called by the Integrator. |
 ### Member Functions
 
 #### ```virtual void step();```
 
-Increment time by the default time-step.
+Increment the independent variable by the default step-size.
 
 #### ```virtual void load() = 0;```
 
@@ -56,20 +56,24 @@ Load the input state.
 
 Load the output state.
 
-#### ```double getTime();```
-Return the integrator time.
+#### ```double getIndyVar();```
+Return the value of the independent variable (i.e, the variable you are integrating over.) If you are integrating over time, this value will be the accumulated time.
+
+#### ```double setIndyVar( double t);```
+Set the value of the independent variable. (i.e, the variable you are integrating over.) If you are integrating over time, this value will be the accumulated time.
+
 
 <a id=typedef-derivsFunc></a>
 ## typedef derivsFunc
 
 ```
-typedef void (*derivsFunc)( double t, double state[], double derivs[], void* user_data);
+typedef void (*derivsFunc)( double x, double state[], double derivs[], void* user_data);
 ```
 where:
 
 |Parameter|Type|Description|
 |---|---|---|
-|t|```double```| time|
+|x|```double```| independent variable |
 |state|```double*```| (input) an array of state variable values |
 |derivs|```double*```| (output) an array into which derivatives are to be returned|
 |user_data|```void*```| a pointer to user_data |
@@ -89,7 +93,7 @@ This class represents an integrator for a first order [Ordinary Differential Equ
 ### Constructor
 
 ```
-FirstOrderODEIntegrator( double dt,
+FirstOrderODEIntegrator( double h,
                          int N,
                          double* in_vars[],
                          double* out_vars[],
@@ -102,7 +106,7 @@ where:
 
 |Parameter|Type|Description|
 |---|---|---|
-|dt|```double```|Default time step value|
+|h|```double```|Default integration step-size. |
 |N|```int```|Number of state variables to be integrated|
 |in_vars|```double*```|Array of pointers to the state variables from which we ```load()``` the integrator state (```in_vars``` and ```out_vars``` will generally point to the same array of pointers.)|
 |out_vars|```double*```|Array of pointers to the state variables to which we ```unload()``` the integrator state (```in_vars``` and ```out_vars``` will generally point to the same array of pointers.)|
@@ -111,25 +115,25 @@ where:
 
 ### Member Functions
 
-#### void step( double dt )
-Integrate over time step specified by **dt**.
+#### void step( double h )
+Integrate over step-size specified by **h**.
 
 |Parameter|Type|Description|
 |---|---|---|
-|dt | double| A variable time-step |
+|h | double| The integration step-size |
 
 #### virtual void undo_step()
 
 If the integrator has not already been reset then :
 
-1. Decrement time by the last time-step dt.
+1. Subtract the last step-size from the independent variable.
 2. Copy the input state back to the origin variables.
 3. Set the integrator's 'reset' mode to true. 
 
 Calling load() sets the 'reset' mode to false. 
 
 #### void step()
-Integrate over the default time-step.
+Integrate over the default step-size.
 
 #### void load()
 Load the integrator's initial state from the variables specified by **in_vars**.
@@ -146,7 +150,7 @@ This class represents an integrator for a first order ODE, that be
 
 ### Constructor
 ### Member Functions
-#### virtual void step( double dt );
+#### virtual void step( double h );
 
 <a id=class-EulerIntegrator></a>
 ## class EulerIntegrator
@@ -156,7 +160,7 @@ Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 The Euler method is a first order numerical integration method. It is the simplest, explicit Runge–Kutta method.
 ### Constructor
 ```
-EulerIntegrator(double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+EulerIntegrator(double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
@@ -169,7 +173,7 @@ This integrator implements
 
 ### Constructor
 ```
-HeunsMethod( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+HeunsMethod( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
@@ -180,7 +184,7 @@ Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 The Runga-Kutta-2 method is a second order, explicit, numerical integration method.
 ### Constructor
 ```
-RK2Integrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+RK2Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
@@ -191,7 +195,7 @@ Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 The Runga-Kutta-4 method is a fourth order, explicit, numerical integration method.
 ### Constructor
 ```
-RK4Integrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+RK4Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
@@ -202,7 +206,7 @@ Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 The Runga-Kutta-3/8 method is a fourth order, explicit, numerical integration method.
 ### Constructor
 ```
-RK3_8Integrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+RK3_8Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
@@ -215,7 +219,7 @@ The ABM2Integrator implements the second-order Adams-Bashforth-Moulton predictor
 
 ### Constructor
 ```
-ABM2Integrator ( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+ABM2Integrator ( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
@@ -228,7 +232,7 @@ The ABM2Integrator implements the second-order Adams-Bashforth-Moulton predictor
 
 ### Constructor
 ```
-ABM4Integrator ( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+ABM4Integrator ( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
 ```
 
 [Constructor Parameters](#FOODEConstructorParameters) are those [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).

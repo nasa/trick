@@ -14,8 +14,6 @@ namespace SA {
         virtual void unload() = 0;
         double getIndyVar() {return indyVar;}
         void setIndyVar(double t) {indyVar = t;}
-        double getTime() {return indyVar;}
-        void setTime(double t) {indyVar = t;}
     };
 
     typedef void (*derivsFunc)( double x, double state[], double derivs[], void* user_data);
