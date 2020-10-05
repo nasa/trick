@@ -47,33 +47,20 @@ void MotModel::_init()
 
 
     // Read in variables
-
-    QStringList items = line.split(',',QString::SkipEmptyParts);
+    line = in.readLine();
+    if ( line.isNull() ) {
+        // No param list!
+        fprintf(stderr, "koviz [error]: malformed *.mot file=%s\n",
+                _motfile.toLatin1().constData());
+        exit(-1);
+    }
+    QStringList items = line.split('\t',QString::SkipEmptyParts);
     int col = 0;
     foreach ( QString item, items ) {
-        QString name;
-        QString unit;
-        if ( item.contains('{') && item.contains('}') ) {
-            // Unit is between curlies
-            int i = item.indexOf('{');
-            int j = item.indexOf('}');
-            if ( i < j ) {
-                unit = item.mid(i+1,j-i-1);
-                if ( !Unit::isUnit(unit) ) {
-                    fprintf(stderr,"koviz [warning]: Unsupported "
-                                   "unit=\"%s\" in file=\"%s\"\n",
-                                   unit.toLatin1().constData(),
-                                   _motfile.toLatin1().constData());
-                    unit = "--";
-                }
-            }
-            // Assume parameter name precedes unit
-            if ( i > 0 ) {
-                name = item.left(i-1).trimmed();
-            }
-        } else {
-            name = item.trimmed();
-            unit = "--";
+        QString name = item.trimmed();
+        QString unit = "--";
+        if ( name == "time" ) {
+            unit = "s";
         }
 
         Parameter* param = new Parameter;
@@ -87,20 +74,19 @@ void MotModel::_init()
     }
     _ncols = col;
 
-    // Make sure time param exists in model and set time column
-    bool isFoundTime = false;
-    foreach (QString timeName, _timeNames) {
-        if ( _paramName2col.contains(timeName)) {
-            _timeCol = _paramName2col.value(timeName) ;
-            isFoundTime = true;
-            break;
-        }
+    if ( _ncols == 0 ) {
+        fprintf(stderr, "koviz [error]: no params in *.mot file=%s\n",
+                         _motfile.toLatin1().constData());
+        exit(-1);
     }
-    if ( ! isFoundTime ) {
-        _err_stream << "koviz [error]: couldn't find time param \""
-                    << _timeNames.join("=") << "\" in file=" << _motfile
-                    << ".  Try setting -timeName on commandline option.";
-        throw std::runtime_error(_err_string.toLatin1().constData());
+
+    // Time param should be column 0
+    if ( _col2param.value(0)->name() == "time" ) {
+        _timeCol = 0;
+    } else {
+        fprintf(stderr, "koviz [error]: \"time\" param not found in "
+                        "file=%s\n",  _motfile.toLatin1().constData());
+        exit(-1);
     }
 
     _iteratorTimeIndex = new MotModelIterator(0,this,
@@ -115,15 +101,26 @@ void MotModel::_init()
     // Allocate to hold *all* parsed data
     _data = (double*)malloc(_nrows*_ncols*sizeof(double));
 
-    // Read in data
+    // Skip header
     in.seek(0);
-    in.readLine(); // mot header line
+    while ( 1 ) {
+        line = in.readLine();
+        if ( line.isNull() ) {
+            break;
+        }
+        if ( line.contains("endheader") ) {
+            break;
+        }
+    }
+    in.readLine();
+
+    // Read in data
     int i = 0;
     while ( !in.atEnd() ) {
         QString line = in.readLine();
         int from = 0;
         while (1) {
-            int j = line.indexOf(',',from);
+            int j = line.indexOf('\t',from);
             if ( j < 0 ) {
                 _data[i] = _convert(line.mid(from,line.size()-from));
                 ++i;
@@ -148,7 +145,11 @@ void MotModel::unmap()
 
 int MotModel::paramColumn(const QString &paramName) const
 {
-    return _paramName2col.value(paramName,-1);
+    int col = _paramName2col.value(paramName,-1);
+    if ( paramName == "sys.exec.out.time" ) {
+        col = _timeCol;
+    }
+    return col;
 }
 
 ModelIterator *MotModel::begin(int tcol, int xcol, int ycol) const
@@ -211,17 +212,9 @@ double MotModel::_convert(const QString &s)
     bool ok;
     val = s.toDouble(&ok);
     if ( !ok ) {
-        QStringList vals = s.split(":");
-        if (vals.length() == 3 ) {
-            // Try converting to a utc timestamp
-            val = 3600.0*vals.at(0).toDouble(&ok);
-            if ( ok ) {
-                val += 60.0*vals.at(1).toDouble(&ok);
-                if ( ok ) {
-                    val += vals.at(2).toDouble(&ok);
-                }
-            }
-        }
+        fprintf(stderr, "koviz [error]: mot file has bad value=%s\n",
+                s.toLatin1().constData());
+        exit(-1);
     }
 
     return val;
