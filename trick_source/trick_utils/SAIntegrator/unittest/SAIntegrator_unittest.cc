@@ -3,17 +3,22 @@
 #include "SAIntegrator.hh"
 #include <math.h>
 
-void deriv4( double t, double state[], double derivs[], void* udata) {
+void deriv4( double t,
+             double state[] __attribute__((unused)),
+             double derivs[],
+             void* udata __attribute__((unused))) {
     double t2 = t*t;
     double t3 = t2*t;
-
     derivs[0] = 3.0*t3 - 3.0*t2 - 3.0*t +  4.0;
     derivs[1] = 2.0*t3 + 1.0*t2 - 5.0*t +  7.0;
     derivs[2] =     t3 +     t2 + 5.0*t +  4.0;
     derivs[3] =     t3 - 6.0*t2 + 4.0*t + 12.0;
 }
 
-void deriv2( double t, double state[], double derivs[], void* udata) {
+void deriv2( double t,
+             double state[] __attribute__((unused)),
+             double derivs[],
+             void* udata __attribute__((unused))) {
 
     derivs[0] = -2.0*t + 3.0;
     derivs[1] =  5.0*t + 4.0;
@@ -21,8 +26,10 @@ void deriv2( double t, double state[], double derivs[], void* udata) {
     derivs[3] =  5.0*t + 4.0;
 }
 
-void deriv1( double t, double state[], double derivs[], void* udata) {
-
+void deriv1( double t __attribute__((unused)),
+             double state[] __attribute__((unused)),
+             double derivs[],
+             void* udata __attribute__((unused))) {
     derivs[0] = 4.0;
     derivs[1] = -4.0;
     derivs[2] = M_PI;

@@ -3,20 +3,22 @@ namespace SA {
 
     class Integrator {
     protected:
-        double time;
-        double default_dt;
-        void * udata;
+        double indyVar;     // Independent Variable
+        double default_h;   // Default step-size
+        void * udata;       // User data
     public:
-        Integrator(double dt, void* user_data): time(0.0), default_dt(dt), udata(user_data) {};
+        Integrator(double h, void* user_data): indyVar(0.0), default_h(h), udata(user_data) {};
         virtual ~Integrator() {}
-        virtual void step() { time += default_dt; }; // Integrate over implicit (default) time step (default: default_dt)
+        virtual void step() { indyVar += default_h; }; // Integrate over default step-size (default_h)
         virtual void load() = 0;
         virtual void unload() = 0;
-        double getTime() {return time;}
-        void setTime(double t) {time = t;}
+        double getIndyVar() {return indyVar;}
+        void setIndyVar(double t) {indyVar = t;}
+        double getTime() {return indyVar;}
+        void setTime(double t) {indyVar = t;}
     };
 
-    typedef void (*derivsFunc)( double t, double state[], double derivs[], void* user_data);
+    typedef void (*derivsFunc)( double x, double state[], double derivs[], void* user_data);
 
     class FirstOrderODEIntegrator : public Integrator {
     protected:
@@ -28,10 +30,10 @@ namespace SA {
         derivsFunc derivs_func;
 
         bool reset;
-        double last_dt; // What was the last step-size? For undo_step().
+        double last_h; // What was the last step-size? For undo_step().
 
     public:
-        FirstOrderODEIntegrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data);
+        FirstOrderODEIntegrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data);
         ~FirstOrderODEIntegrator();
         virtual void undo_step();
         void load();
@@ -43,17 +45,17 @@ namespace SA {
     class FirstOrderODEVariableStepIntegrator : public FirstOrderODEIntegrator {
 
     public:
-        FirstOrderODEVariableStepIntegrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data);
+        FirstOrderODEVariableStepIntegrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data);
         using Integrator::step;
-        virtual void step( double dt );
+        virtual void step( double h );
     };
 
     class EulerIntegrator : public FirstOrderODEVariableStepIntegrator {
         public:
         double *derivs;
-        EulerIntegrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        EulerIntegrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
         ~EulerIntegrator();
-        void step( double dt);
+        void step( double h);
         void step();
     };
 
@@ -62,9 +64,9 @@ namespace SA {
         double *wstate;
         double *derivs[2];
 
-        HeunsMethod( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        HeunsMethod( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
         ~HeunsMethod();
-        void step( double dt);
+        void step( double h);
         void step();
     };
 
@@ -73,9 +75,9 @@ namespace SA {
         double *wstate;
         double *derivs[2];
 
-        RK2Integrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        RK2Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
         ~RK2Integrator();
-        void step( double dt);
+        void step( double h);
         void step();
     };
 
@@ -84,9 +86,9 @@ namespace SA {
         double *wstate[3];
         double *derivs[4];
 
-        RK4Integrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        RK4Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
         ~RK4Integrator();
-        void step( double dt);
+        void step( double h);
         void step();
 
     };
@@ -96,9 +98,9 @@ namespace SA {
         double *wstate[4];
         double *derivs[4];
 
-        RK3_8Integrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        RK3_8Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
         ~RK3_8Integrator();
-        void step( double dt);
+        void step( double h);
         void step();
 
     };
@@ -137,7 +139,7 @@ namespace SA {
     //     unsigned int currentHistorySize;
     //
     // public:
-    //     ABMIntegrator(int history_size, double dt, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+    //     ABMIntegrator(int history_size, double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
     //     ~ABMIntegrator();
     //     void step();
     //     void undo_step();
@@ -154,7 +156,7 @@ namespace SA {
         FirstOrderODEVariableStepIntegrator* priming_integrator;
 
     public:
-        ABM2Integrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        ABM2Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
         ~ABM2Integrator();
         void step();
         void undo_step();
@@ -171,7 +173,7 @@ namespace SA {
         FirstOrderODEVariableStepIntegrator* priming_integrator;
 
     public:
-        ABM4Integrator( double dt, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        ABM4Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
         ~ABM4Integrator();
         void step();
         void undo_step();

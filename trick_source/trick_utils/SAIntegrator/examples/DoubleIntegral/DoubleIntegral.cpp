@@ -21,8 +21,8 @@ void deriv_x( double x, double state_x[], double derivs_x[], void* udata) {
     SA::RK2Integrator* integ_y = context->integ;
     integ_y->set_in_vars(state_y);
     integ_y->set_out_vars(state_y);
-    integ_y->setTime(context->start);
-    while (integ_y->getTime() <= context->end) {
+    integ_y->setIndyVar(context->start);
+    while (integ_y->getIndyVar() <= context->end) {
         integ_y->load();
         integ_y->step();
         integ_y->unload();
@@ -38,8 +38,8 @@ double doubleIntegral( double x_start, double x_end, double y_start, double y_en
     SA::RK2Integrator integ_y (dy, 2, NULL, NULL, deriv_y, NULL);
     IContext y_integ_context = {&integ_y, y_start, y_end};
     SA::RK2Integrator integ_x (dx, 1, state_x, state_x, deriv_x, &y_integ_context);
-    integ_x.setTime(x_start);
-    while (integ_x.getTime()<=x_end) { // x-end
+    integ_x.setIndyVar(x_start);
+    while (integ_x.getIndyVar()<=x_end) {
         integ_x.load();
         integ_x.step();
         integ_x.unload();
