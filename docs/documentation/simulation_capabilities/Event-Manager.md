@@ -1,6 +1,6 @@
 
 This page describes the methods available in the Trick::EventManager and Trick::EventProcessor class.
-See [Input_File](Input-File) for detailed information on the syntax of the input processor file.
+See [Input_File](/trick/documentation/running_a_simulation/Input-File) for detailed information on the syntax of the input processor file.
 
 ### User accessible routines
 
