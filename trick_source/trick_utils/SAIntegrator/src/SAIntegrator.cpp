@@ -22,7 +22,7 @@ SA::FirstOrderODEIntegrator::~FirstOrderODEIntegrator() {
 void SA::FirstOrderODEIntegrator::load() {
     reset = false;
     if (orig_vars != NULL) {
-        for (int i=0 ; i<state_size; i++ ) {
+        for (unsigned int i=0 ; i<state_size; i++ ) {
             istate[i] = *(orig_vars[i]);
         }
     } else {
@@ -31,11 +31,16 @@ void SA::FirstOrderODEIntegrator::load() {
 }
 void SA::FirstOrderODEIntegrator::unload() {
     if (dest_vars != NULL) {
-        for (int i=0 ; i<state_size; i++ ) {
+        for (unsigned int i=0 ; i<state_size; i++ ) {
             *(dest_vars[i]) = ostate[i];
         }
     } else {
         std::cerr << "Error: SA::FirstOrderODEIntegrator::load(). dest_vars is not set." << std::endl;
+    }
+}
+void SA::FirstOrderODEIntegrator::load_from_ostate(){
+    for (unsigned int i=0 ; i<state_size; i++ ) {
+        istate[i] = ostate[i];
     }
 }
 void SA::FirstOrderODEIntegrator::set_in_vars( double* in_vars[]){
@@ -46,7 +51,7 @@ void SA::FirstOrderODEIntegrator::set_out_vars( double* out_vars[]){
 }
 void SA::FirstOrderODEIntegrator::undo_step() {
     if (!reset) {                           // If we've not already reset the integrator, then reset it.
-        for (int i=0 ; i<state_size; i++ ) {
+        for (unsigned int i=0 ; i<state_size; i++ ) {
             *(orig_vars[i]) = istate[i]; // Copy istate values back to the state variables from whence they came.
         }
         indyVar -= last_h;    // Undo the last step.

@@ -36,6 +36,7 @@ namespace SA {
         virtual void undo_step();
         void load();
         void unload();
+        void load_from_ostate();
         void set_in_vars( double* in_vars[]);
         void set_out_vars( double* out_vars[]);
     };
@@ -126,7 +127,6 @@ namespace SA {
         void unload();
     };
 
-    // AdamsBashforthMoulton 4
     // class ABMIntegrator : public FirstOrderODEIntegrator {
     // protected:
     //     double **    deriv_history;
