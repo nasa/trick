@@ -13,7 +13,7 @@ while(my $line = <$classes_resource>) {
 }
 close($classes_resource);
 
-open(my $sim_services_resource, "<", "$ENV{TRICK_HOME}/trick_source/sim_services/include/sim_services_classes.resource")
+open(my $sim_services_resource, "<", "$ENV{TRICK_HOME}/share/trick/xml/sim_services_classes.resource")
 	or open(my $sim_services_resource, "<", "$ENV{TRICK_HOME}/temp_src/io_src/sim_services_classes.resource")
 	or die "cannot open sim_services_classes.resource";
 

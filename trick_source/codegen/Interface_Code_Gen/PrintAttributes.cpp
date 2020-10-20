@@ -279,7 +279,7 @@ void PrintAttributes::printSieClass( ClassValues * cv ) {
     #ifdef EXTERNAL_BUILD
         xmlFileName = output_dir + "/sim_services_classes.resource";
     #else
-        xmlFileName = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/sim_services_classes.resource";
+        xmlFileName = std::string(getenv("TRICK_HOME")) + "/share/trick/xml/sim_services_classes.resource";
     #endif
     } else {
         xmlFileName = "build/classes.resource";
@@ -320,7 +320,7 @@ void PrintAttributes::printSieEnum( EnumValues * ev ) {
     #ifdef EXTERNAL_BUILD
         xmlFileName = output_dir + "/sim_services_classes.resource";
     #else
-        xmlFileName = std::string(getenv("TRICK_HOME")) + "/trick_source/sim_services/include/sim_services_classes.resource";
+        xmlFileName = std::string(getenv("TRICK_HOME")) + "/share/trick/xml/include/sim_services_classes.resource";
     #endif
 
     } else {
