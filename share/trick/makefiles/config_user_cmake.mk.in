@@ -31,7 +31,7 @@ ICG_CLANGLIBS = \
     -lclangLex \
     -lclangBasic \
 
-PYTHON_INCLUDES = -I@PYTHON_INCLUDE_DIRS@
+PYTHON_INCLUDES = -isystem@PYTHON_INCLUDE_DIRS@
 PYTHON_LIB = @PYTHON_LIBRARIES@
 
 # Only add udunits include if it is not in /usr/include.

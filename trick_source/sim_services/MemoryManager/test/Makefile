@@ -7,6 +7,9 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Makefile.common
 
+# Replace -isystem with -I so ICG doesn't skip Trick headers
+TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
+
 #COVERAGE_FLAGS += -fprofile-arcs -ftest-coverage -O0
 #TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
 
