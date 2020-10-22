@@ -66,7 +66,7 @@ bool isInUserCode( clang::CompilerInstance & ci , clang::SourceLocation sl , Hea
     if ( ! fid.isInvalid() ) {
         const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
         if ( fe != NULL ) {
-            char * resolved_path = almostRealPath( fe->getName() ) ;
+            char * resolved_path = almostRealPath( fe->getName().str() ) ;
             if ( resolved_path != NULL ) {
                 if ( hsd.isPathInUserDir(resolved_path)) {
                     ret = true ;
@@ -84,7 +84,7 @@ bool isInUserOrTrickCode( clang::CompilerInstance & ci , clang::SourceLocation s
     if ( ! fid.isInvalid() ) {
         const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
         if ( fe != NULL ) {
-            char * resolved_path = almostRealPath( fe->getName() ) ;
+            char * resolved_path = almostRealPath( fe->getName().str() ) ;
             if ( resolved_path != NULL ) {
                 if ( hsd.isPathInUserOrTrickDir(resolved_path)) {
                     ret = true ;
@@ -103,7 +103,7 @@ std::string getFileName( clang::CompilerInstance & ci , clang::SourceLocation sl
     if ( ! fid.isInvalid() ) {
         const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
         if ( fe != NULL ) {
-            char * resolved_path = almostRealPath( fe->getName() ) ;
+            char * resolved_path = almostRealPath( fe->getName().str() ) ;
             if ( resolved_path != NULL  and hsd.isPathInUserDir(resolved_path)) {
                 file_name.append(resolved_path);
             }

@@ -393,7 +393,7 @@ std::set<std::string> PrintAttributes::getEmptyFiles() {
     std::set<std::string> emptyFiles;
     for (auto fi = ci.getSourceManager().fileinfo_begin() ; fi != ci.getSourceManager().fileinfo_end() ; ++fi ) {
         const clang::FileEntry * fe = (*fi).first ;
-        std::string header_file_name = fe->getName() ;
+        std::string header_file_name = fe->getName().str() ;
 
         if ( visited_files.find(header_file_name) != visited_files.end() ) {
             continue;

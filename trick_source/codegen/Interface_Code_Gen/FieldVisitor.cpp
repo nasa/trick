@@ -228,7 +228,8 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
         std::cout << "FieldVisitor VisitFieldDecl" << std::endl ;
         std::cout << "    is_bitfield = " << fdes->isBitField() << std::endl ;
         std::cout << "    is_canonical = " << qt.isCanonical() << std::endl ;
-        std::cout << "    is_hidden = " << field->isHidden() << std::endl ;
+        // isHidden() removed in clang 11.0
+        //std::cout << "    is_hidden = " << field->isHidden() << std::endl ;
         //field->dump() ;
     }
 

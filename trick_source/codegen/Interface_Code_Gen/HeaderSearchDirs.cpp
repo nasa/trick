@@ -226,7 +226,7 @@ bool HeaderSearchDirs::isPathInUserDir (const std::string& in_dir ) {
 
     clang::HeaderSearch::search_dir_iterator sdi ;
     for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ ) {
-       std::string curr_dir = (*sdi).getName() ;
+       std::string curr_dir = (*sdi).getName().str() ;
         if ( ! in_dir.compare(0, curr_dir.size(), curr_dir)) {
             return false ;
         }
@@ -244,7 +244,7 @@ bool HeaderSearchDirs::isPathInUserOrTrickDir (const std::string& in_dir ) {
 
     clang::HeaderSearch::search_dir_iterator sdi ;
     for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ ) {
-       std::string curr_dir = (*sdi).getName() ;
+       std::string curr_dir = (*sdi).getName().str() ;
         if ( ! in_dir.compare(0, curr_dir.size(), curr_dir)) {
             return false ;
         }
