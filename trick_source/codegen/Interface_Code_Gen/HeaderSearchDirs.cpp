@@ -226,7 +226,11 @@ bool HeaderSearchDirs::isPathInUserDir (const std::string& in_dir ) {
 
     clang::HeaderSearch::search_dir_iterator sdi ;
     for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ ) {
+#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
        std::string curr_dir = (*sdi).getName() ;
+#else
+       std::string curr_dir = (*sdi).getName().str() ;
+#endif
         if ( ! in_dir.compare(0, curr_dir.size(), curr_dir)) {
             return false ;
         }
@@ -244,7 +248,11 @@ bool HeaderSearchDirs::isPathInUserOrTrickDir (const std::string& in_dir ) {
 
     clang::HeaderSearch::search_dir_iterator sdi ;
     for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ ) {
+#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
        std::string curr_dir = (*sdi).getName() ;
+#else
+       std::string curr_dir = (*sdi).getName().str() ;
+#endif
         if ( ! in_dir.compare(0, curr_dir.size(), curr_dir)) {
             return false ;
         }
