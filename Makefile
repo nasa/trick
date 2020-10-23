@@ -346,7 +346,7 @@ sim_test:
 ################################################################################
 
 
-clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java
+clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java clean_sim_serv_xml
 	@/bin/rm -rf $(TRICK_BIN_DIR)
 	@/bin/rm -rf $(TRICK_LIB_DIR)
 
@@ -393,6 +393,9 @@ clean_dp:
 
 clean_java:
 	@ $(MAKE) -C ${TRICK_HOME}/trick_source/java clean
+
+clean_sim_serv_xml:
+	@/bin/rm -rf ${TRICK_HOME}/share/trick/xml/*
 
 
 # FIXME: Seems to me that the for loop below should be removed and that the
