@@ -5599,7 +5599,7 @@ x$ax_compare_version_B" | sed 's/^ *//' | sort -r | sed "s/x${ax_compare_version
       fi
 
 
-PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes`
+PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes | sed 's/-I/-isystem/g'`
 PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
 
 

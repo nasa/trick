@@ -176,7 +176,7 @@ sub parse_s_define ($) {
 
     my @preprocess_output;
 
-    @{$$sim_ref{inc_paths}} = (get_include_paths(), $ENV{TRICK_SYSTEM_CFLAGS} =~ /-I(\S+)/g, "$ENV{TRICK_HOME}/trick_source" , "../include") ;
+    @{$$sim_ref{inc_paths}} = (get_include_paths(), $ENV{TRICK_SYSTEM_CFLAGS} =~ /-(?:I|isystem)(\S+)/g, "$ENV{TRICK_HOME}/trick_source" , "../include") ;
 
     my @valid_inc_paths ;
     foreach (@{$$sim_ref{inc_paths}}) {
