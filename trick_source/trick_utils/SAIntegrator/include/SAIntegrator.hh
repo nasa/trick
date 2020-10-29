@@ -1,107 +1,105 @@
-
+#include "Rootfinder.hh"
 namespace SA {
 
     class Integrator {
     protected:
-        double indyVar;     // Independent Variable
-        double default_h;   // Default step-size
-        void * udata;       // User data
+        double X_in;  // Independent Variable In
+        double X_out; // Independent Variable Out
+        double default_h;  // Default step-size
+        void*  user_data;  // User data
     public:
-        Integrator(double h, void* user_data): indyVar(0.0), default_h(h), udata(user_data) {};
+        Integrator(double h, void* udata): X_in(0.0), X_out(0.0), default_h(h), user_data(udata) {};
         virtual ~Integrator() {}
-        virtual void step() { indyVar += default_h; }; // Integrate over default step-size (default_h)
-        virtual void load() = 0;
-        virtual void unload() = 0;
-        double getIndyVar() {return indyVar;}
-        void setIndyVar(double t) {indyVar = t;}
+        virtual void step();
+        virtual void load();
+        virtual void unload();
+        double getIndyVar();
+        void setIndyVar(double v);
     };
 
-    typedef void (*derivsFunc)( double x, double state[], double derivs[], void* user_data);
+    typedef void (*DerivsFunc)( double x, double state[], double derivs[], void* udata);
 
     class FirstOrderODEIntegrator : public Integrator {
     protected:
         unsigned int state_size; // size of the state vector.
-        double* istate;
-        double* ostate;
-        double** orig_vars;
-        double** dest_vars;
-        derivsFunc derivs_func;
-
-        bool reset;
+        double*  inState;
+        double*  outState;
+        double** inVars;
+        double** outVars;
+        DerivsFunc derivs_func;
         double last_h; // What was the last step-size? For undo_step().
 
     public:
-        FirstOrderODEIntegrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data);
-        ~FirstOrderODEIntegrator();
-        virtual void undo_step();
+        FirstOrderODEIntegrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        virtual ~FirstOrderODEIntegrator();
+        virtual double undo_step();
         void load();
         void unload();
-        void load_from_ostate();
-        void set_in_vars( double* in_vars[]);
-        void set_out_vars( double* out_vars[]);
+        void load_from_outState();
+        double** set_in_vars( double* in_vars[]);
+        double** set_out_vars( double* out_vars[]);
     };
 
-    class FirstOrderODEVariableStepIntegrator : public FirstOrderODEIntegrator {
+    typedef double (*RootErrorFunc)( double x, double state[], RootFinder* root_finder, void* udata);
 
+    class FirstOrderODEVariableStepIntegrator : public FirstOrderODEIntegrator {
+        RootFinder* root_finder;
+        RootErrorFunc root_error_func;
     public:
-        FirstOrderODEVariableStepIntegrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data);
-        using Integrator::step;
-        virtual void step( double h );
+        FirstOrderODEVariableStepIntegrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ~FirstOrderODEVariableStepIntegrator();
+        void add_Rootfinder( RootFinder* root_finder, RootErrorFunc rfunc);
+        // virtual void variable_step( double h)=0;
+        virtual void variable_step( double h);
+        void step();
+    protected:
+        void advanceIndyVar( double h );
+    private:
+        void find_roots(double h, unsigned int depth);
     };
 
     class EulerIntegrator : public FirstOrderODEVariableStepIntegrator {
         public:
         double *derivs;
-        EulerIntegrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        EulerIntegrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         ~EulerIntegrator();
-        void step( double h);
-        void step();
+        void variable_step( double h);
     };
 
     class HeunsMethod : public FirstOrderODEVariableStepIntegrator {
         public:
         double *wstate;
         double *derivs[2];
-
-        HeunsMethod( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        HeunsMethod( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         ~HeunsMethod();
-        void step( double h);
-        void step();
+        void variable_step( double h);
     };
 
     class RK2Integrator : public FirstOrderODEVariableStepIntegrator {
         public:
         double *wstate;
         double *derivs[2];
-
-        RK2Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        RK2Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc derivs_func, void* udata);
         ~RK2Integrator();
-        void step( double h);
-        void step();
+        void variable_step( double h);
     };
 
     class RK4Integrator : public FirstOrderODEVariableStepIntegrator {
         public:
         double *wstate[3];
         double *derivs[4];
-
-        RK4Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        RK4Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         ~RK4Integrator();
-        void step( double h);
-        void step();
-
+        void variable_step( double h);
     };
 
     class RK3_8Integrator : public FirstOrderODEVariableStepIntegrator {
         public:
         double *wstate[4];
         double *derivs[4];
-
-        RK3_8Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        RK3_8Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         ~RK3_8Integrator();
-        void step( double h);
-        void step();
-
+        void variable_step( double h);
     };
 
     class EulerCromerIntegrator : public Integrator {
@@ -115,11 +113,11 @@ namespace SA {
         double* v_out;
         double* g_out;
         double* f_out;
-        derivsFunc gderivs;
-        derivsFunc fderivs;
+        DerivsFunc gderivs;
+        DerivsFunc fderivs;
 
     public:
-        EulerCromerIntegrator(double dt, int N, double* xp[], double* vp[], derivsFunc g, derivsFunc f , void* user_data);
+        EulerCromerIntegrator(double dt, int N, double* xp[], double* vp[], DerivsFunc g, DerivsFunc f , void* udata);
         ~EulerCromerIntegrator();
         void step( double dt);
         void step();
@@ -137,7 +135,7 @@ namespace SA {
     //     unsigned int currentHistorySize;
     //
     // public:
-    //     ABMIntegrator(int history_size, double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+    //     ABMIntegrator(int history_size, double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
     //     ~ABMIntegrator();
     //     void step();
     //     void undo_step();
@@ -154,10 +152,10 @@ namespace SA {
         FirstOrderODEVariableStepIntegrator* priming_integrator;
 
     public:
-        ABM2Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        ABM2Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         ~ABM2Integrator();
         void step();
-        void undo_step();
+        double undo_step();
     };
 
     // AdamsBashforthMoulton 4
@@ -171,9 +169,9 @@ namespace SA {
         FirstOrderODEVariableStepIntegrator* priming_integrator;
 
     public:
-        ABM4Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc derivs_func, void* user_data);
+        ABM4Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         ~ABM4Integrator();
         void step();
-        void undo_step();
+        double undo_step();
     };
 }

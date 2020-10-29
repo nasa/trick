@@ -8,7 +8,8 @@ INCLUDE_DIRS = -Iinclude
 OBJDIR = obj
 LIBDIR = lib
 LIBNAME = libSAInteg.a
-LIBOBJS = ${OBJDIR}/SAIntegrator.o
+LIBOBJS = ${OBJDIR}/SAIntegrator.o \
+	  ${OBJDIR}/RootFinder.o
 
 all: test examples
 

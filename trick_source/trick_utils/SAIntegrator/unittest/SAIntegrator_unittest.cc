@@ -121,3 +121,52 @@ TEST(SAIntegrator_unittest, RungeKutta38_1) {
     EXPECT_NEAR(state[2], (24+2/3.0), EXCEPTABLE_ERROR);
     EXPECT_NEAR(state[3], 20.0, EXCEPTABLE_ERROR);
 }
+
+TEST(SAIntegrator_unittest, EulerIntegrator_undo_step) {
+
+   double state[4] = {0.0, 0.0, 0.0, 0.0};
+   double* state_var_p[4] = { &(state[0]), &(state[1]), &(state[2]), &(state[3])};
+   double dx = 0.1;
+   double x;
+
+   SA::EulerIntegrator integ(dx, 4, state_var_p, state_var_p, deriv1, NULL);
+   integ.load();
+   integ.step();
+   integ.unload();
+
+   x = integ.getIndyVar();
+   EXPECT_NEAR(state[0],   (4.0/10.0), EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[1],  (-4.0/10.0), EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[2],  (M_PI/10.0), EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[3], (-M_PI/10.0), EXCEPTABLE_ERROR);
+   EXPECT_NEAR(x, 0.1, EXCEPTABLE_ERROR);
+
+   integ.undo_step();
+
+   x = integ.getIndyVar();
+   EXPECT_NEAR(state[0],  0.0, EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[1],  0.0, EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[2],  0.0, EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[3],  0.0, EXCEPTABLE_ERROR);
+   EXPECT_NEAR(x, 0.0, EXCEPTABLE_ERROR);
+
+   integ.undo_step();
+
+   x = integ.getIndyVar();
+   EXPECT_NEAR(state[0],  0.0, EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[1],  0.0, EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[2],  0.0, EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[3],  0.0, EXCEPTABLE_ERROR);
+   EXPECT_NEAR(x, 0.0, EXCEPTABLE_ERROR);
+
+   integ.load();
+   integ.step();
+   integ.unload();
+
+   x = integ.getIndyVar();
+   EXPECT_NEAR(state[0],   (4.0/10.0), EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[1],  (-4.0/10.0), EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[2],  (M_PI/10.0), EXCEPTABLE_ERROR);
+   EXPECT_NEAR(state[3], (-M_PI/10.0), EXCEPTABLE_ERROR);
+   EXPECT_NEAR(x, 0.1, EXCEPTABLE_ERROR);
+}
