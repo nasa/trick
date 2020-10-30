@@ -8,6 +8,7 @@ typedef enum {
 class RootFinder {
     public:
         void init();
+        void init( double tolerance, SlopeConstraint constraint);
         RootFinder();
         RootFinder (double tolerance, SlopeConstraint constraint);
         double find_roots( double x, double f_error );

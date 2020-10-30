@@ -16,6 +16,8 @@
 * [class EulerCromerIntegrator](#class-EulerCromerIntegrator)
 * [class ABM2Integrator](#class-ABM2Integrator)
 * [class ABM4Integrator](#class-ABM4Integrator)
+* [enum SlopeConstraint](#enum-SlopeConstraint)
+* [class RootFinder](#class-RootFinder)
 
 <a id=Introduction></a>
 ## Introduction
@@ -36,8 +38,8 @@ This class represents an **integrator**.
 
 |Member    |Type        |Description|
 |----------|------------|--------------------|
-|indyVarIn |```double```|Independent variable value of the input state.|
-|indyVarOut|```double```|Independent variable value of the output state.|
+|X_in |```double```|Independent variable value of the input state.|
+|X_out|```double```|Independent variable value of the output state.|
 |default_h |```double```|Default integration step-size|
 |user_data |```void*``` | A pointer to user defined data that will be passed to user-defined functions when called by the Integrator. |
 
@@ -62,7 +64,7 @@ Derived classes should override this method to perform a numeric integration ste
 
 #### ```virtual void load();```
 
-Derived classes should override this method to load/prepare the integrator for the next integration step. The default behavior is to set the input value of the independent value to its previous output value, i.e, ```indyVarIn = indyVarOut```.
+Derived classes should override this method to load/prepare the integrator for the next integration step. The default behavior is to set the input value of the independent value to its previous output value, i.e, ```X_out = X_out```.
 
 #### ```virtual void unload() = 0;```
 
@@ -138,8 +140,8 @@ where:
 ### Member Functions
 
 #### ```void load()```
-Load the integrator's initial state from the variables specified by **in_vars**. The initial value of the independent variable for the next step will be its final value from the previous step. 
-![load](images/half_load.png)
+Load the integrator's initial state from the variables specified by **in_vars**. The initial value of the independent variable for the next step will be the final value from the previous step. 
+![load](images/load.png)
 
 #### ```void unload()```
 Unload the integrator's result state to the variables specified by **out_vars**.
@@ -173,9 +175,29 @@ where:
 |------------|-----------------|-----------|
 |x           |```double```     | independent variable |
 |state       |```double*```    | array of state variable values |
-|root_finder |```RootFinder*```||
+|root_finder |[RootFinder](class-RootFinder)```*```||
 |udata       |```void*```      | a pointer to user_data.|
 
+This function must return the return value of root_finder->find_roots() as in the example below.
+
+### Example RootErrorFunc from the Cannonball example
+```
+double impact( double t, double state[], RootFinder* root_finder, void* udata) {
+    double root_error = root_finder->find_roots(t, state[1]);
+    if (root_error == 0.0) {
+        printf("---------------------------------------------------------------\n");
+        printf("Impact at t = %5.10f x = %5.10f y = %5.10f.\n", t, state[0], state[1]);
+        printf("---------------------------------------------------------------\n");
+        root_finder->init();
+        state[1] = 0.0000000001; // pos_y
+        state[2] = 0.0;          // vel_x
+        state[3] = 0.0;          // vel_y
+        state[4] = 0.0;          // acc_x
+        state[5] = 0.0;          // acc_y
+    }
+    return (root_error);
+}
+```
 
 <a id=class-FirstOrderODEVariableStepIntegrator></a>
 ## class FirstOrderODEVariableStepIntegrator
@@ -183,8 +205,8 @@ Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
 |Member             |Type                |Description|
 |-------------------|--------------------|-----------|
-| root_finder       |```RootFinder*```   ||
-| root\_error\_func |```RootErrorFunc ```||
+| root_finder       |[RootFinder](class-RootFinder)```*``` |Pointer to a RootFinder object.|
+| root\_error\_func |[RootErrorFunc](#typedef-RootErrorFunc)|Function that specifies what happens when a function-root is found.|
 
 
 ### Description
@@ -203,9 +225,11 @@ Then, if a RootFinder has been specified, search that interval for roots .
 
 #### ```void add_Rootfinder( RootFinder* root_finder, RootErrorFunc rfunc)```
 
+[RootFinder](class-RootFinder)
+
 <a id=class-EulerIntegrator></a>
 ## class EulerIntegrator
-Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 
 ### Description
 The Euler method is a first order numerical integration method. It is the simplest, explicit Runge–Kutta method.
@@ -217,7 +241,7 @@ EulerIntegrator(double h, int N, double* in_vars[], double* out_vars[], derivsFu
 
 <a id=class-HeunsMethod></a>
 ## class HeunsMethod
-Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 ### Description
 This integrator implements 
 [Heun's Method](https://en.wikipedia.org/wiki/Heun%27s_method).
@@ -230,7 +254,7 @@ HeunsMethod( double h, int N, double* in_vars[], double* out_vars[], derivsFunc 
 
 <a id=class-RK2Integrator></a>
 ## class RK2Integrator
-Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 ### Description
 The Runga-Kutta-2 method is a second order, explicit, numerical integration method.
 ### Constructor
@@ -241,7 +265,7 @@ RK2Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFun
 
 <a id=class-RK4Integrator></a>
 ## class RK4Integrator
-Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 ### Description
 The Runga-Kutta-4 method is a fourth order, explicit, numerical integration method.
 ### Constructor
@@ -252,7 +276,7 @@ RK4Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFun
 
 <a id=class-RK3_8Integrator></a>
 ## class RK3_8Integrator
-Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 ### Description
 The Runga-Kutta-3/8 method is a fourth order, explicit, numerical integration method.
 ### Constructor
@@ -290,8 +314,8 @@ ABM4Integrator ( double h, int N, double* in_vars[], double* out_vars[], derivsF
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
 <a id=class-EulerCromerIntegrator></a>
-## EulerCromerIntegrator
-Derived from [class-Integrator](#class-Integrator).
+## class EulerCromerIntegrator
+Derived from [Integrator](#class-Integrator).
 
 ### Description
 EulerCromer is integration method that conserves energy in oscillatory systems better than Runge-Kutta. So, it's good for mass-spring-damper systems, and orbital systems.
@@ -301,7 +325,7 @@ EulerCromer is integration method that conserves energy in oscillatory systems b
 SemiImplicitEuler(double dt, int N, double* xp[], double* vp[], derivsFunc gfunc, derivsFunc ffunc, void* user_data)
 ```
 
-|Parameter|Type         |Description|
+|Parameter  |Type         |Description|
 |-----------|-------------|-----------------------|
 | dt        |```double``` |Default time step value|
 | N         |```int```    |Number of state variables to be integrated|
@@ -310,3 +334,63 @@ SemiImplicitEuler(double dt, int N, double* xp[], double* vp[], derivsFunc gfunc
 | gfunc |[derivsFunc](#typedef-derivsFunc)| A function that returns acceleration |
 | ffunc |[derivsFunc](#typedef-derivsFunc)| A function that returns velocity |
 |user_data  |```void*```| A pointer to user defined data that will be passed to a derivsFunc when called by the Integrator. |
+
+<a id=enum-SlopeConstraint></a>
+## enum SlopeConstraint
+
+| Value             | Meaning |
+|-------------------|---------|
+| Negative          | Require slope of the function to be negative at the root. |
+| Unconstrained     | No constraint. |
+| Positive          | Require slope of the function to be positive at the root. |
+
+<a id=class-RootFinder></a>
+## class RootFinder
+Derived from [RootFinder](#class-RootFinder).
+
+|Member            |Type        |Description |
+|------------------|------------|------------|
+| f_upper          |```double```|  |
+| x_upper          |```double```|  |
+| upper_set        |```bool```  |  |
+| f_lower          |```double```|  |
+| x_lower          |```double```|  |
+| lower_set        |```bool```  |  |
+| prev\_f_error    |```double```|  |
+| f\_error\_tol    |```double```|  |
+| iterations       |```int```   |  |
+| slope_constraint |[SlopeConstraint](#enum-SlopeConstraint)|  |
+| f_slope          |[SlopeConstraint](#enum-SlopeConstraint)|  |
+
+
+### Description
+The RootFinder class uses the [Regula-Falsi](https://en.wikipedia.org/wiki/Regula_falsi)  method to find roots of a function f(x). A root is a value of **x** such that **f(x)=0**.
+
+### Constructors
+
+#### ```RootFinder()```
+Default constructor that calls ```void RootFinder::init()``` below.
+
+#### ```RootFinder(double tolerance, SlopeConstraint constraint)```
+
+|Parameter   |Type         |Description|
+|------------|-------------|-----------------------|
+| tolerance  |```double``` | Error tolerance. |
+| constraint |[SlopeConstraint](#enum-SlopeConstraint)|  |
+
+### Methods
+
+#### ```void init( double tolerance, SlopeConstraint constraint)```
+Initialize the RootFinder with the given tolerance, and SlopeConstraint.
+
+#### ```void RootFinder::init()``` 
+Initialize the RootFinder with the method above with:
+
+* tolerance = ```0.00000000001```
+* slope_constraint = ```Unconstrained```
+
+
+#### ```double find_roots( double x, double f_error )```
+* Returns **DBL_MAX** if no root is detected.
+* Returns **0.0** if a root is detected, and the estimated error in f(x) is within tolerance.
+* Returns **an estimated correction in x** if a root is detected, but the estimated error in f(x) is not within tolerance.

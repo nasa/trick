@@ -3,21 +3,22 @@
 #include <float.h>
 #include <iostream>
 
-void RootFinder::init () {
-    f_error_tol = 0.00000000001;
+void RootFinder::init( double tolerance, SlopeConstraint constraint) {
     iterations = 0;
     prev_f_error = DBL_MAX;
-    slope_constraint = Unconstrained;
     lower_set = false;
     upper_set = false;
+    f_error_tol = tolerance;
+    slope_constraint = constraint;
+}
+void RootFinder::init() {
+    init(0.00000000001, Unconstrained);
+}
+RootFinder::RootFinder (double tolerance, SlopeConstraint constraint) {
+    init(tolerance, constraint);
 }
 RootFinder::RootFinder () {
     init();
-}
-RootFinder::RootFinder (double tolerance, SlopeConstraint constraint) {
-    init();
-    f_error_tol = tolerance;
-    slope_constraint = constraint;
 }
 // Given the values of the independent variable, and the function,
 // estimate the distance of the independent variable from functions root.
