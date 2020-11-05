@@ -3,8 +3,8 @@ namespace SA {
 
     class Integrator {
     protected:
-        double X_in;  // Independent Variable In
-        double X_out; // Independent Variable Out
+        double X_in;       // Independent Variable In
+        double X_out;      // Independent Variable Out
         double default_h;  // Default step-size
         void*  user_data;  // User data
     public:
@@ -21,13 +21,13 @@ namespace SA {
 
     class FirstOrderODEIntegrator : public Integrator {
     protected:
-        unsigned int state_size; // size of the state vector.
-        double*  inState;
-        double*  outState;
-        double** inVars;
-        double** outVars;
-        DerivsFunc derivs_func;
-        double last_h; // What was the last step-size? For undo_step().
+        unsigned int state_size; // Size of the state vector.
+        double*  inState;        // State vector prior to integration step.
+        double*  outState;       // State vector result of integration step.
+        double** inVars;         // Array of pointers to the variables whose values comprise the input state vector.
+        double** outVars;        // Array of pointers to the variables to which the output state vector values are to be disseminated.
+        DerivsFunc derivs_func;  // Pointer to the function that calculates the derivatives to be integrated.
+        double last_h;           // What was the last step-size? For undo_step().
 
     public:
         FirstOrderODEIntegrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
@@ -51,8 +51,6 @@ namespace SA {
         virtual void variable_step( double h);
         void add_Rootfinder( RootFinder* root_finder, RootErrorFunc rfunc);
         void step();
-    // protected:
-        // void advanceIndyVar( double h );
     private:
         void find_roots(double h, unsigned int depth);
     };
