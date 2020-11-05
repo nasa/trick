@@ -108,7 +108,7 @@ Derived from [Integrator](#class-Integrator).
 |outState   |```double*```     |Output state vector from the integrator.|
 |inVars     |```double**```    |Array of pointers to the variables from which input state vector values are copied.|
 |outVars    |```double**```    |Array of pointers to the variables to which output state vector values are copied.|
-|derivs_func|```DerivsFunc```  |Function thats generates the function (an array of state derivatives) to be integrated.|
+|derivs_func|[```DerivsFunc```](#typedef-derivsFunc)|Function thats generates the function (an array of state derivatives) to be integrated.|
 |last_h     |```double```      |the **last** integration step-size.|
 
 ### Description
@@ -134,7 +134,7 @@ where:
 |N            |```int```    |Number of state variables to be integrated|
 |in_vars      |```double*```|Array of pointers to the state variables from which we ```load()``` the integrator state (```in_vars``` and ```out_vars``` will generally point to the same array of pointers.)|
 |out_vars     |```double*```|Array of pointers to the state variables to which we ```unload()``` the integrator state (```in_vars``` and ```out_vars``` will generally point to the same array of pointers.)|
-| derivs_func |[derivsFunc](#typedef-derivsFunc)| Function thats generates the function (the derivatives) to be integrated. |
+| derivs_func |[```derivsFunc```](#typedef-derivsFunc)| Function thats generates the function (the derivatives) to be integrated. |
 |user_data    |```void*```  | A pointer to user defined data that will be passed to a derivsFunc when called by the Integrator. |
 
 ### Member Functions
@@ -157,10 +157,12 @@ Load the integrator's initial state from ```outState```, rather than from the va
 
 #### ```double** set_in_vars( double* in_vars[])```
 Specify the variables from which ```inState``` values are to be copied when ```load()``` is called. The number of elements in this array must equal the number of state variables.
+Return a pointer to the previous array so that it can be deleted if necessary.
 ![set_in_vars](images/set_in_vars.png)
 
 #### ```double** set_out_vars( double* out_vars[])```
 Specify the variables to which ```outState``` values are to be copied when ```unload()``` is called. The number of elements in this array must equal the number of state variables.
+Return a pointer to the previous array so that it can be deleted if necessary.
 ![set_out_vars](images/set_out_vars.png)
 
 <a id=typedef-RootErrorFunc></a>
@@ -173,12 +175,16 @@ where:
 
 |Parameter   |Type             |Description|
 |------------|-----------------|-----------|
-|x           |```double```     | independent variable |
-|state       |```double*```    | array of state variable values |
-|root_finder |[RootFinder](class-RootFinder)```*```||
-|udata       |```void*```      | a pointer to user_data.|
+|x           |```double```     | Independent variable |
+|state       |```double*```    | Array of state variable values |
+|root_finder |[```RootFinder*```](#class-RootFinder)| Class for finding the roots of a function.|
+|udata       |```void*```      | A pointer to user_data.|
 
-This function must return the return value of root_finder->find_roots() as in the example below.
+This **user-supplied** function should:
+ 
+1. Call [```root_finder->find_roots()```](#member-find_roots).
+2. Specify what happens when the root is found, i.e., when ```find_roots()``` returns 0.0.
+3. Return the value returned by ```root_finder->find_roots()``` as in the example below.
 
 ### Example RootErrorFunc from the Cannonball example
 ```
@@ -205,8 +211,8 @@ Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
 |Member             |Type                |Description|
 |-------------------|--------------------|-----------|
-| root_finder       |[RootFinder](class-RootFinder)```*``` |Pointer to a RootFinder object.|
-| root\_error\_func |[RootErrorFunc](#typedef-RootErrorFunc)|Function that specifies what happens when a function-root is found.|
+| root_finder       |[```RootFinder*```](#class-RootFinder) |Pointer to a RootFinder object.|
+| root\_error\_func |[```RootErrorFunc```](#typedef-RootErrorFunc)|Function that specifies what happens when a function-root is found.|
 
 
 ### Description
@@ -221,18 +227,28 @@ Derived classes should override this method to calculate ```outState``` using so
 
 #### ```void step()```
 Call the virtual function (```variable_step()```) with the default step-size.
-Then, if a RootFinder has been specified, search that interval for roots .
+Then, if a RootFinder has been specified (using ```add_Rootfinder()``` below), search that interval for roots .
 
+<a id=method-add_Rootfinder></a>
 #### ```void add_Rootfinder( RootFinder* root_finder, RootErrorFunc rfunc)```
 
-[RootFinder](class-RootFinder)
+|Parameter   |Type         |Description|
+|------------|-------------|-----------------------|
+| root_finder|[```RootFinder*```](#class-RootFinder)| Error tolerance.      |
+| rfunc      |[```RootErrorFunc```](#typedef-RootErrorFunc)| User supplied function that ??? |
+
+Configure the integrator to find roots of state-element vs. independent-variable functions.
+
+
+
+
 
 <a id=class-EulerIntegrator></a>
 ## class EulerIntegrator
 Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 
 ### Description
-The Euler method is a first order numerical integration method. It is the simplest, explicit Runge–Kutta method.
+The Euler method is a first order numerical integration method. It is the simplest, explicit [Runge-Kutta](https://en.wikipedia.org/wiki/Runge–Kutta_methods) method.
 ### Constructor
 ```
 EulerIntegrator(double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
@@ -256,7 +272,10 @@ HeunsMethod( double h, int N, double* in_vars[], double* out_vars[], derivsFunc 
 ## class RK2Integrator
 Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 ### Description
-The Runga-Kutta-2 method is a second order, explicit, numerical integration method.
+```RK2Integrator``` implements the second order, explicit, [Runge-Kutta](https://en.wikipedia.org/wiki/Runge–Kutta_methods) method whose Butcher tableau is as follows.
+
+![RK2_tableau](images/RK2_tableau.png)
+
 ### Constructor
 ```
 RK2Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
@@ -267,7 +286,10 @@ RK2Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFun
 ## class RK4Integrator
 Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 ### Description
-The Runga-Kutta-4 method is a fourth order, explicit, numerical integration method.
+```RK4Integrator``` implements the fourth order, explicit, [Runge-Kutta](https://en.wikipedia.org/wiki/Runge–Kutta_methods) method whose Butcher tableau is as follows.
+
+![RK4_tableau](images/RK4_tableau.png)
+
 ### Constructor
 ```
 RK4Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
@@ -278,7 +300,9 @@ RK4Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFun
 ## class RK3_8Integrator
 Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 ### Description
-The Runga-Kutta-3/8 method is a fourth order, explicit, numerical integration method.
+```RK3_8Integrator``` implements the fourth order, explicit, [Runge-Kutta](https://en.wikipedia.org/wiki/Runge–Kutta_methods) method whose Butcher tableau is as follows.
+
+![RK38_tableau](images/RK38_tableau.png)
 ### Constructor
 ```
 RK3_8Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
@@ -291,7 +315,7 @@ RK3_8Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsF
 Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 ### Description
 
-The ABM2Integrator implements the second-order Adams-Bashforth-Moulton predictor/corrector method. Adams methods maintain a history of derivatives rather than calculating intermediate values like Runga-Kutta methods.
+The ABM2Integrator implements the second-order Adams-Bashforth-Moulton predictor/corrector method. Adams methods maintain a history of derivatives rather than calculating intermediate values like Runge-Kutta methods.
 
 ### Constructor
 ```
@@ -304,7 +328,7 @@ ABM2Integrator ( double h, int N, double* in_vars[], double* out_vars[], derivsF
 Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
 ### Description
-The ABM2Integrator implements the second-order Adams-Bashforth-Moulton predictor/corrector method. Adams methods maintain a history of derivatives rather than calculating intermediate values like Runga-Kutta methods.
+The ABM2Integrator implements the second-order Adams-Bashforth-Moulton predictor/corrector method. Adams methods maintain a history of derivatives rather than calculating intermediate values like Runge-Kutta methods.
 
 ### Constructor
 ```
@@ -331,8 +355,8 @@ SemiImplicitEuler(double dt, int N, double* xp[], double* vp[], derivsFunc gfunc
 | N         |```int```    |Number of state variables to be integrated|
 | xp        |```double*```|Array of pointers to the variables from which we ```load()``` and to which we ```unload()``` the integrator's position values .|
 | vp        |```double*```|Array of pointers to the variables from which we ```load()``` and to which we ```unload()``` the integrator's velocity values .|
-| gfunc |[derivsFunc](#typedef-derivsFunc)| A function that returns acceleration |
-| ffunc |[derivsFunc](#typedef-derivsFunc)| A function that returns velocity |
+| gfunc |[```derivsFunc```](#typedef-derivsFunc)| A function that returns acceleration |
+| ffunc |[```derivsFunc```](#typedef-derivsFunc)| A function that returns velocity |
 |user_data  |```void*```| A pointer to user defined data that will be passed to a derivsFunc when called by the Integrator. |
 
 <a id=enum-SlopeConstraint></a>
@@ -341,7 +365,7 @@ SemiImplicitEuler(double dt, int N, double* xp[], double* vp[], derivsFunc gfunc
 | Value             | Meaning |
 |-------------------|---------|
 | Negative          | Require slope of the function to be negative at the root. |
-| Unconstrained     | No constraint. |
+| Unconstrained     | No slope constraint. |
 | Positive          | Require slope of the function to be positive at the root. |
 
 <a id=class-RootFinder></a>
@@ -359,12 +383,12 @@ Derived from [RootFinder](#class-RootFinder).
 | prev\_f_error    |```double```|  |
 | f\_error\_tol    |```double```|  |
 | iterations       |```int```   |  |
-| slope_constraint |[SlopeConstraint](#enum-SlopeConstraint)|  |
-| f_slope          |[SlopeConstraint](#enum-SlopeConstraint)|  |
+| slope_constraint |[```SlopeConstraint```](#enum-SlopeConstraint)|  |
+| f_slope          |[```SlopeConstraint```](#enum-SlopeConstraint)|  |
 
 
 ### Description
-The RootFinder class uses the [Regula-Falsi](https://en.wikipedia.org/wiki/Regula_falsi)  method to find roots of a function f(x). A root is a value of **x** such that **f(x)=0**.
+The RootFinder class uses the [Regula-Falsi](https://en.wikipedia.org/wiki/Regula_falsi)  method to find roots of a math function. A root is a value of **x** such that **f(x)=0**.
 
 ### Constructors
 
@@ -376,7 +400,7 @@ Default constructor that calls ```void RootFinder::init()``` below.
 |Parameter   |Type         |Description|
 |------------|-------------|-----------------------|
 | tolerance  |```double``` | Error tolerance. |
-| constraint |[SlopeConstraint](#enum-SlopeConstraint)|  |
+| constraint |[```SlopeConstraint```](#enum-SlopeConstraint)|  |
 
 ### Methods
 
@@ -389,7 +413,7 @@ Initialize the RootFinder with the method above with:
 * tolerance = ```0.00000000001```
 * slope_constraint = ```Unconstrained```
 
-
+<a id=member-find_roots></a>
 #### ```double find_roots( double x, double f_error )```
 * Returns **DBL_MAX** if no root is detected.
 * Returns **0.0** if a root is detected, and the estimated error in f(x) is within tolerance.

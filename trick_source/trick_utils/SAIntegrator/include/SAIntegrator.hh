@@ -48,12 +48,11 @@ namespace SA {
     public:
         FirstOrderODEVariableStepIntegrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         ~FirstOrderODEVariableStepIntegrator();
-        void add_Rootfinder( RootFinder* root_finder, RootErrorFunc rfunc);
-        // virtual void variable_step( double h)=0;
         virtual void variable_step( double h);
+        void add_Rootfinder( RootFinder* root_finder, RootErrorFunc rfunc);
         void step();
-    protected:
-        void advanceIndyVar( double h );
+    // protected:
+        // void advanceIndyVar( double h );
     private:
         void find_roots(double h, unsigned int depth);
     };
