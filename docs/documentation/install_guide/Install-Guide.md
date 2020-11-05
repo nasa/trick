@@ -195,18 +195,12 @@ or
 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install | ruby
 ```
 
-5. Install cask to get java and xquartz.
-
-```bash
-# brew install caskroom may not be required anymore
-# brew install caskroom/cask/brew-cask
-brew cask install java xquartz
-```
+5. Install [Java](https://www.java.com/en/download/) and the [JDK](https://www.oracle.com/java/technologies/javase-jdk15-downloads.html) from the respective Oracle websites.
 
 6. Finally, install the remaining dependencies.
 
 ```bash
-brew install llvm swig maven udunits openmotif  
+brew install xquartz llvm swig maven udunits openmotif  
 ```
 
 Openmotif may install dependent packages that conflict with other installations, fontconfig and freetype.  Use the following command to skip installing these packages if you encounter conflicts.
