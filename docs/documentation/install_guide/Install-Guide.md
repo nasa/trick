@@ -195,13 +195,16 @@ or
 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install | ruby
 ```
 
-5. Install [Java](https://www.java.com/en/download/) and the [JDK](https://www.oracle.com/java/technologies/javase-jdk15-downloads.html) from the respective Oracle websites.
-
-6. Finally, install the remaining dependencies.
+5. Install the remaining dependencies.
 
 ```bash
-brew install xquartz llvm swig maven udunits openmotif  
+brew install java xquartz llvm swig maven udunits openmotif  
 ```
+If you have issues installing java with homebrew, you can install java and the jdk from oracle's website:
+
+[Java](https://www.java.com/en/download/)
+
+[JDK](https://www.oracle.com/java/technologies/javase-downloads.html) (click JDK Download)
 
 Openmotif may install dependent packages that conflict with other installations, fontconfig and freetype.  Use the following command to skip installing these packages if you encounter conflicts.
 ```bash
