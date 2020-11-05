@@ -140,7 +140,7 @@ where:
 ### Member Functions
 
 #### ```void load()```
-Load the integrator's initial state from the variables specified by **in_vars**. The initial value of the independent variable for the next step will be the final value from the previous step. 
+Load the integrator's initial state from the variables specified by **in_vars**. Set the initial value of the independent variable for the next step to the final value of the previous step. 
 ![load](images/load.png)
 
 #### ```void unload()```
@@ -148,7 +148,7 @@ Unload the integrator's result state to the variables specified by **out_vars**.
 ![unload](images/unload.png)
 
 #### ```virtual void undo_step()```
-Undo the effect of the last integration step, and unload.
+Undo the effect of the last integration step.
 ![undo_step](images/undo_step.png)
 
 #### ```void load_from_outState()```
