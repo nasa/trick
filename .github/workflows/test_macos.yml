@@ -1,4 +1,4 @@
-name: Trick CI - Linux
+name: Trick CI - macOS
 
 on:
   push:
