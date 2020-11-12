@@ -354,6 +354,8 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
     timer.start();
 #endif
 
+    int nCurves = _plotModel->rowCount(curvesIdx);
+    int ii = nCurves;
     QString u0;
     QString r0;
     for ( int r = 0; r < rc; ++r) {
@@ -435,27 +437,51 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
         _addChild(curveItem, "CurveYBias", curveModel->y()->bias());
 
         // Curve color and linestyle
+        QString color;
+        QString style;
         QStringList styles = _plotModel->lineStyles();
         int nCurves = _plotModel->rowCount(curvesIdx);
         if ( rc == 1 ) {
             // Color each variable differently
             QList<QColor> curveColors = _plotModel->createCurveColors(nCurves);
-            _addChild(curveItem, "CurveColor", curveColors.at(nCurves-1));
-            _addChild(curveItem, "CurveLineStyle",styles.at(0));
+            color = curveColors.at(nCurves-1).name();
+            style = styles.at(0);
         } else {
             // Color RUNs the same and style each variable differently
-            _addChild(curveItem, "CurveColor", run2color.value(r));
+            color = run2color.value(r);
             div_t q = div(nCurves-1,rc);
-            QString style = styles.at((q.quot)%(styles.size()));
-            _addChild(curveItem, "CurveLineStyle", style);
+            style = styles.at((q.quot)%(styles.size()));
         }
+        QModelIndex lcIdx = _plotModel->getIndex(QModelIndex(),
+                                                 "LegendColors","");
+        if ( ii < _plotModel->rowCount(lcIdx) ) {
+            // Possible commandline color override
+            QModelIndex legendColorIdx = _plotModel->index(ii,1,lcIdx);
+            QString legendColor = _plotModel->data(legendColorIdx).toString();
+            if ( !legendColor.isEmpty() ) {
+                color = legendColor;
+            }
+        }
+        QModelIndex lsIdx = _plotModel->getIndex(QModelIndex(),
+                                                 "Linestyles","");
+        if ( ii < _plotModel->rowCount(lsIdx) ) {
+            // Possible commandline linestyle override
+            QModelIndex legendStyleIdx = _plotModel->index(ii,1,lsIdx);
+            QString legendStyle = _plotModel->data(legendStyleIdx).toString();
+            if ( !legendStyle.isEmpty() ) {
+                style = legendStyle;
+            }
+
+        }
+        _addChild(curveItem, "CurveColor", color);
+        _addChild(curveItem, "CurveLineStyle",style);
 
         QString symbolStyle = "none";
-        if ( nCurves <= 7 ) {
-            QModelIndex ssIdx = _plotModel->getIndex(QModelIndex(),
+        QModelIndex ssIdx = _plotModel->getIndex(QModelIndex(),
                                                      "Symbolstyles","");
-            QString ssTag = QString("Symbolstyle%1").arg(nCurves);
-            QString ss = _plotModel->getDataString(ssIdx,ssTag,"Symbolstyles");
+        if ( ii < _plotModel->rowCount(ssIdx) ) {
+            QModelIndex symbolStyleIdx = _plotModel->index(ii,1,ssIdx);
+            QString ss = _plotModel->data(symbolStyleIdx).toString();
             if ( !ss.isEmpty() ) {
                 // Use symbolstyle from commandline
                 symbolStyle = ss;
@@ -464,11 +490,23 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
         _addChild(curveItem, "CurveSymbolStyle", symbolStyle);
 
         _addChild(curveItem, "CurveSymbolSize", "");
-        _addChild(curveItem, "CurveYLabel", "");
         _addChild(curveItem, "CurveXMinRange", -DBL_MAX);
         _addChild(curveItem, "CurveXMaxRange",  DBL_MAX);
         _addChild(curveItem, "CurveYMinRange", -DBL_MAX);
         _addChild(curveItem, "CurveYMaxRange",  DBL_MAX);
+
+        QString yLabel;
+        QModelIndex llIdx = _plotModel->getIndex(QModelIndex(),
+                                                 "LegendLabels","");
+        if ( ii < _plotModel->rowCount(llIdx) ) {
+            QString llTag = QString("Label%1").arg(ii+1);
+            QString ll = _plotModel->getDataString(llIdx,llTag,"LegendLabels");
+            if ( !ll.isEmpty() ) {
+                // Use commandline label
+                yLabel = ll;
+            }
+        }
+        _addChild(curveItem, "CurveYLabel", yLabel);
 
         // Add actual curve model data
         if ( r == rc-1) {
@@ -488,6 +526,8 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
                              .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
         progress.setLabelText(msg);
 #endif
+
+        ++ii;
     }
 
     // Turn signals back on before adding curveModel

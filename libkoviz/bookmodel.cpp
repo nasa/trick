@@ -338,30 +338,15 @@ QList<QColor> PlotBookModel::createCurveColors(int nCurves)
         }
     } else {
         // This is for "rainbow banding" primarily for many monte carlo curves
-        int nBands = 10;
         int hBeg = 10; int hEnd = 230;
-        int q = div(nCurves-1,nBands).quot;
-        if ( q == 0 ) {
-            q = 1.0;
-        }
         for (int i = 0; i < nCurves; ++i ) {
-            int h = qRound((double)(hEnd-hBeg)/(nBands-1.0))*div(i,q).quot+hBeg;
+            int h = qRound((double)i*(hEnd-hBeg)/(nCurves-1.0)) + hBeg;
             int s = qRound(0.75*255);
             int v = qRound(0.87*255);
             colors << QColor::fromHsv(h,s,v);
         }
         colors.removeFirst();
         colors.prepend(burntorange);  // Longhorns #0!
-    }
-
-    // If c1-7 cmdline color option used, override color
-    QModelIndex legendColorsIdx = getIndex(QModelIndex(),"LegendColors");
-    for (int i = 0; i < 7; ++i) {
-        QModelIndex legendColorIdx = index(i,1,legendColorsIdx);
-        QString color = data(legendColorIdx).toString();
-        if ( !color.isEmpty() && i < colors.size()) {
-            colors.replace(i,QColor(color));
-        }
     }
 
     return colors;
@@ -607,12 +592,11 @@ QHash<QString,QVariant> PlotBookModel::getDataHash(const QModelIndex &startIdx,
 
 // no_line currently unsupported
 QVector<qreal> PlotBookModel::getLineStylePattern(
-                                             const QModelIndex &curveIdx) const
+                                             const QString &linestyle) const
 {
     QVector<qreal> pattern;
 
-    QString s =  getDataString(curveIdx,"CurveLineStyle","Curve");
-    s = s.toLower();
+    QString s = linestyle.toLower();
 
     if ( s == "plain" || s.isEmpty()) {
         // pattern is empty
@@ -652,23 +636,6 @@ QStringList PlotBookModel::lineStyles() const
     styles << "plain" << "dash" << "fine_dash" << "med_fine_dash"
            << "long_dash" << "x_long_dash" << "dot_dash"
            << "2_dot_dash" << "3_dot_dash" << "4_dot_dash";
-
-    // If commandline -ls1-7 option used, override linestyle
-    QModelIndex legendIdx = getIndex(QModelIndex(), "Linestyles","");
-    QString ls1 = getDataString(legendIdx,"Linestyle1","Linestyles");
-    QString ls2 = getDataString(legendIdx,"Linestyle2","Linestyles");
-    QString ls3 = getDataString(legendIdx,"Linestyle3","Linestyles");
-    QString ls4 = getDataString(legendIdx,"Linestyle4","Linestyles");
-    QString ls5 = getDataString(legendIdx,"Linestyle5","Linestyles");
-    QString ls6 = getDataString(legendIdx,"Linestyle6","Linestyles");
-    QString ls7 = getDataString(legendIdx,"Linestyle7","Linestyles");
-    if (!ls1.isEmpty() && styles.size() > 0) styles.replace(0,ls1);
-    if (!ls2.isEmpty() && styles.size() > 1) styles.replace(1,ls2);
-    if (!ls3.isEmpty() && styles.size() > 2) styles.replace(2,ls3);
-    if (!ls4.isEmpty() && styles.size() > 3) styles.replace(3,ls4);
-    if (!ls5.isEmpty() && styles.size() > 4) styles.replace(4,ls5);
-    if (!ls6.isEmpty() && styles.size() > 5) styles.replace(5,ls6);
-    if (!ls7.isEmpty() && styles.size() > 6) styles.replace(6,ls7);
 
     return styles;
 }
@@ -1681,15 +1648,10 @@ QStringList PlotBookModel::abbreviateLabels(const QStringList &labels) const
 QStringList PlotBookModel::legendSymbols(const QModelIndex &plotIdx) const
 {
     QStringList symbols;
-
-    QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
-    QModelIndexList curveIdxs = this->curveIdxs(curvesIdx);
-
-    foreach ( QModelIndex curveIdx, curveIdxs ) {
-        QString symbol = getDataString(curveIdx,"CurveSymbolStyle","Curve");
-        symbols << symbol;
+    QList<PlotBookModel::LegendElement> els = _legendElements(plotIdx);
+    foreach (PlotBookModel::LegendElement el, els ) {
+        symbols << el.symbolstyle;
     }
-
     return symbols;
 }
 
@@ -1697,14 +1659,10 @@ QStringList PlotBookModel::legendColors(const QModelIndex &plotIdx) const
 {
     QStringList colors;
 
-    QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
-    QModelIndexList curveIdxs = this->curveIdxs(curvesIdx);
-
-    foreach ( QModelIndex curveIdx, curveIdxs ) {
-        QString color = getDataString(curveIdx,"CurveColor","Curve");
-        colors << color;
+    QList<PlotBookModel::LegendElement> els = _legendElements(plotIdx);
+    foreach (PlotBookModel::LegendElement el, els ) {
+        colors << el.color;
     }
-
     return colors;
 }
 
@@ -1712,14 +1670,10 @@ QStringList PlotBookModel::legendLinestyles(const QModelIndex &plotIdx) const
 {
     QStringList styles;
 
-    QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
-    QModelIndexList curveIdxs = this->curveIdxs(curvesIdx);
-
-    foreach ( QModelIndex curveIdx, curveIdxs ) {
-        QString style = getDataString(curveIdx,"CurveLineStyle","Curve");
-        styles << style;
+    QList<PlotBookModel::LegendElement> els = _legendElements(plotIdx);
+    foreach (PlotBookModel::LegendElement el, els ) {
+        styles << el.linestyle;
     }
-
     return styles;
 }
 
@@ -1727,42 +1681,10 @@ QStringList PlotBookModel::legendLabels(const QModelIndex &plotIdx) const
 {
     QStringList labels;
 
-    QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
-    QModelIndexList curveIdxs = this->curveIdxs(curvesIdx);
-
-    foreach ( QModelIndex curveIdx, curveIdxs ) {
-        // Label (run:var)
-        CurveModel* curveModel = getCurveModel(curveIdx);
-        QString fname = curveModel->fileName();
-        QString runName = QFileInfo(fname).dir().absolutePath();
-
-        QString curveName = getDataString(curveIdx,"CurveYLabel","Curve");
-        if ( curveName.isEmpty() ) {
-            curveName = getDataString(curveIdx,"CurveYName","Curve");
-        }
-        QString label = runName + ":" + curveName;
-        labels << label;
+    QList<PlotBookModel::LegendElement> els = _legendElements(plotIdx);
+    foreach (PlotBookModel::LegendElement el, els ) {
+        labels << el.label;
     }
-
-    labels = abbreviateLabels(labels);
-
-    // If commandline -l1-7 option used, override legend labels
-    QModelIndex legendIdx = getIndex(QModelIndex(), "LegendLabels","");
-    QString l1 = getDataString(legendIdx,"Label1","LegendLabels");
-    QString l2 = getDataString(legendIdx,"Label2","LegendLabels");
-    QString l3 = getDataString(legendIdx,"Label3","LegendLabels");
-    QString l4 = getDataString(legendIdx,"Label4","LegendLabels");
-    QString l5 = getDataString(legendIdx,"Label5","LegendLabels");
-    QString l6 = getDataString(legendIdx,"Label6","LegendLabels");
-    QString l7 = getDataString(legendIdx,"Label7","LegendLabels");
-    if (!l1.isEmpty() && labels.size() > 0) labels.replace(0,l1);
-    if (!l2.isEmpty() && labels.size() > 1) labels.replace(1,l2);
-    if (!l3.isEmpty() && labels.size() > 2) labels.replace(2,l3);
-    if (!l4.isEmpty() && labels.size() > 3) labels.replace(3,l4);
-    if (!l5.isEmpty() && labels.size() > 4) labels.replace(4,l5);
-    if (!l6.isEmpty() && labels.size() > 5) labels.replace(5,l6);
-    if (!l7.isEmpty() && labels.size() > 6) labels.replace(6,l7);
-
     return labels;
 }
 
@@ -1771,15 +1693,15 @@ QList<QPen*> PlotBookModel::legendPens(const QModelIndex &plotIdx,
 {
     QList<QPen*> pens;
 
-    QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
-    QModelIndexList curveIdxs = this->curveIdxs(curvesIdx);
+    QList<PlotBookModel::LegendElement> els = _legendElements(plotIdx);
 
-    foreach ( QModelIndex curveIdx, curveIdxs ) {
-        QString penColor = getDataString(curveIdx, "CurveColor", "Curve");
+    foreach ( PlotBookModel::LegendElement el, els ) {
+
+        QString penColor = el.color;
         QPen* pen = new QPen(penColor);
-        QVector<qreal> pat = getLineStylePattern(curveIdx);
+        QVector<qreal> pat = getLineStylePattern(el.linestyle);
         pen->setDashPattern(pat);
-        QString style = getDataString(curveIdx,"CurveLineStyle","Curve");
+        QString style = el.linestyle;
         style = style.toLower();
         if ( style == "thick_line" ) {
             if ( painterType == QPaintEngine::Pdf) {
@@ -1808,6 +1730,16 @@ bool PlotBookModel::isPageLegend(const QModelIndex &pageIdx) const
 {
     bool isLegend = false;
 
+    // If -legend option off, return false in any case
+    // If -legend option on, it doesn't necessarily mean there is a legend
+    if ( isChildIndex(QModelIndex(),"","IsLegend") ) {
+        QModelIndex isLegendIdx =getDataIndex(QModelIndex(),"IsLegend");
+        bool isLeg = data(isLegendIdx).toBool() ;
+        if ( !isLeg ) {
+            return isLegend;
+        }
+    }
+
     // Check to make sure CurvesIdx exists before calculating
     bool isCurves = true;
     QModelIndexList plotIdxs = this->plotIdxs(pageIdx);
@@ -1818,21 +1750,32 @@ bool PlotBookModel::isPageLegend(const QModelIndex &pageIdx) const
         }
     }
 
-    if ( isCurves && isPlotLegendsSame(pageIdx) ) {
-        int maxCurves = 0;
-        QModelIndexList plotIdxs = this->plotIdxs(pageIdx);
-        foreach ( QModelIndex plotIdx, plotIdxs ) {
-            QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
-            int nCurves = curveIdxs(curvesIdx).size();
-            if ( nCurves > maxCurves ) {
-                maxCurves = nCurves;
-            }
+    // Is commandline legend labels used?
+    bool isLegendLabelOverride = false;
+    QModelIndex legendIdx = getIndex(QModelIndex(), "LegendLabels","");
+    QStringList labels;
+    labels << getDataString(legendIdx,"Label1","LegendLabels");
+    labels << getDataString(legendIdx,"Label2","LegendLabels");
+    labels << getDataString(legendIdx,"Label3","LegendLabels");
+    labels << getDataString(legendIdx,"Label4","LegendLabels");
+    labels << getDataString(legendIdx,"Label5","LegendLabels");
+    labels << getDataString(legendIdx,"Label6","LegendLabels");
+    labels << getDataString(legendIdx,"Label7","LegendLabels");
+    foreach ( QString label, labels ) {
+        if ( ! label.isEmpty() ) {
+            isLegendLabelOverride = true;
+            break;
         }
+    }
 
-        if ( maxCurves > 1 && maxCurves < 8 ) {
-            if ( isChildIndex(QModelIndex(),"","IsLegend") ) {
-                QModelIndex isLegendIdx =getDataIndex(QModelIndex(),"IsLegend");
-                isLegend = data(isLegendIdx).toBool() ;
+    if ( isCurves && isPlotLegendsSame(pageIdx) && isLegendLabelOverride ) {
+        isLegend = true;
+    } else if ( isCurves && isPlotLegendsSame(pageIdx) ) {
+        QModelIndexList plotIdxs = this->plotIdxs(pageIdx);
+        if ( !plotIdxs.isEmpty() ) {
+            QModelIndex plotIdx = plotIdxs.at(0);
+            if ( !legendLabels(plotIdx).isEmpty() ) {
+                isLegend = true;
             }
         }
     }
@@ -2270,6 +2213,134 @@ bool PlotBookModel::_isEqual(double a, double b, ulong maxD,
     }
 
     return ok;
+}
+
+QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
+        const QModelIndex &plotIdx) const
+{
+    QList<PlotBookModel::LegendElement> els;
+
+    QModelIndex curvesIdx = getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = this->curveIdxs(curvesIdx);
+    int nCurves = curveIdxs.size();
+
+    if ( nCurves <= 1 ) {
+        return els;
+    }
+
+    QList<PlotBookModel::LegendElement> overrides = _legendOverrides();
+
+    QStringList labels;
+    if ( nCurves <= overrides.size() ) {
+        foreach ( QModelIndex curveIdx, curveIdxs ) {
+            // Label (run:var)
+            CurveModel* curveModel = getCurveModel(curveIdx);
+            QString fname = curveModel->fileName();
+            QString runName = QFileInfo(fname).dir().absolutePath();
+
+            QString curveName = getDataString(curveIdx,"CurveYLabel","Curve");
+            if ( curveName.isEmpty() ) {
+                curveName = getDataString(curveIdx,"CurveYName","Curve");
+            }
+            QString label = curveName;
+            label = runName + ":" + label;
+
+            labels << label;
+        }
+
+        labels = abbreviateLabels(labels);
+
+        // Override label if -l# option used
+        int i = 0;
+        foreach ( QString label, labels ) {
+            if ( i < overrides.size() ) {
+                PlotBookModel::LegendElement el = overrides.at(i);
+                if ( !el.label.isEmpty() ) {
+                    labels.replace(i,el.label);
+                }
+            }
+            ++i;
+        }
+    }
+
+    bool isOverMax = false;
+    int i = 0;
+    foreach (QModelIndex curveIdx, curveIdxs) {
+        PlotBookModel::LegendElement el;
+        if ( nCurves <= overrides.size() ) {
+            el.label = labels.at(i++);
+        } else {
+            el.label  = getDataString(curveIdx,"CurveYLabel","Curve");
+            if ( el.label.isEmpty() ) {
+                el.label = getDataString(curveIdx,"CurveYName","Curve");
+            }
+        }
+        el.color = getDataString(curveIdx,"CurveColor","Curve");
+        el.linestyle = getDataString(curveIdx, "CurveLineStyle","Curve");
+        el.symbolstyle = getDataString(curveIdx,"CurveSymbolStyle","Curve");
+        if ( !els.contains(el) ) {
+            if ( els.size() < overrides.size() ) {
+                els << el;
+            } else {
+                isOverMax = true;
+                break;
+            }
+        }
+    }
+
+    if ( isOverMax ) {
+        // Take out trailing non-overridden elements
+        int nels = overrides.size(); // noverrides == nels if isOverMax
+        for ( int i = nels-1; i >= 0; --i ) {
+            PlotBookModel::LegendElement override = overrides.at(i);
+            if ( override.isEmpty()  ) {
+                els.removeLast();
+            } else {
+                break;
+            }
+        }
+    }
+
+    // If possible, reorder elements to match overrides
+    foreach ( PlotBookModel::LegendElement override, overrides ) {
+        if ( els.contains(override) ) {
+            int from = els.indexOf(override);
+            int to = overrides.indexOf(override);
+            if ( to >= els.size() ) {
+                to = els.size()-1;
+            }
+            els.move(from,to);
+        }
+    }
+
+    return els;
+}
+
+QList<PlotBookModel::LegendElement> PlotBookModel::_legendOverrides() const
+{
+    QList<PlotBookModel::LegendElement> els;
+    QModelIndex labelsIdx = getIndex(QModelIndex(), "LegendLabels","");
+    QModelIndex colorsIdx = getIndex(QModelIndex(), "LegendColors","");
+    QModelIndex linestylesIdx = getIndex(QModelIndex(), "Linestyles","");
+    QModelIndex symbolstylesIdx = getIndex(QModelIndex(), "Symbolstyles","");
+
+    int rc = rowCount(labelsIdx);
+    for ( int i = 0; i < rc; ++i ) {
+        QModelIndex labelIdx = index(i,1,labelsIdx);
+        QModelIndex colorIdx = index(i,1,colorsIdx);
+        QModelIndex linestyleIdx = index(i,1,linestylesIdx);
+        QModelIndex symbolstyleIdx = index(i,1,symbolstylesIdx);
+
+        PlotBookModel::LegendElement el;
+        el.label = data(labelIdx).toString();
+        el.color = data(colorIdx).toString();
+        el.linestyle = data(linestyleIdx).toString();
+        el.symbolstyle = data(symbolstyleIdx).toString();
+
+        els << el;
+    }
+
+    return els;
 }
 
 QList<double> PlotBookModel::_calcMinorTicSet(double a, double b,

@@ -349,12 +349,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             // Curves
             QStandardItem *curvesItem = _addChild(plotItem,"Curves");
             QList<QColor> colors;
-            if ( rc == 1 ) {
-                int nCurves = plot->curves().size();
-                colors = _bookModel->createCurveColors(nCurves);
-            } else {
-                colors = _bookModel->createCurveColors(rc);
-            }
+            int nCurves = plot->curves().size();
+            colors = _bookModel->createCurveColors(rc*nCurves);
 
             QStringList styles = _bookModel->lineStyles();
 
@@ -375,24 +371,18 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                 timer.start();
 #endif
 
-                QString style = styles.at(i%(styles.size()));
-                if ( rc == 1 ) {
-                    style = styles.at(0);
-                }
+                QString default_style = "plain";
 
                 QString ux0;
                 QString uy0;
                 QString r0;
                 for ( int r = 0; r < rc; ++r) {
 
-                    QString color = colors.at(r).name();
-                    if ( rc == 1 ) {
-                        color = colors.at(i).name();
-                    }
+                    QString color = colors.at(i++).name();
 
                     CurveModel* curveModel = _addCurve(curvesItem,dpcurve,
                                                        dpprogram,_runDirs,r,
-                                                       color,style);
+                                                       color,default_style);
 
                     if ( r == 0 ) {
                         ux0 = curveModel->x()->unit();
@@ -445,8 +435,6 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                         break;
                     }
                 }
-
-                ++i;
 
                 // Update progress dialog
                 progress.setValue(rc);
@@ -787,16 +775,15 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveYBias", y->bias() + curveModel->y()->bias());
     _addChild(curveItem, "CurveSymbolSize",  y->symbolSize());
 
-    int row = _bookModel->indexFromItem(curveItem).row();
+    int row = curveItem->row();
 
     QString symbolStyle = y->symbolStyle() ; // DP symbol style
-    if ( row < 7 ) {
-        QModelIndex ssIdx = _bookModel->getIndex(QModelIndex(),
-                                                 "Symbolstyles","");
+    QModelIndex ssIdx = _bookModel->getIndex(QModelIndex(),"Symbolstyles","");
+    if ( row < _bookModel->rowCount(ssIdx) ) {
         QString ssTag = QString("Symbolstyle%1").arg(row+1);
         QString ss = _bookModel->getDataString(ssIdx,ssTag,"Symbolstyles");
         if ( !ss.isEmpty() ) {
-            // Use symbolstyle from commandline
+            // Use commandline symbolstyle
             symbolStyle = ss;
         }
     }
@@ -806,12 +793,12 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     _addChild(curveItem, "CurveSymbolStyle", symbolStyle);
 
     QString lineStyle = y->lineStyle() ; // DP linestyle
-    if ( row < 7 ) {
-        QModelIndex lsIdx = _bookModel->getIndex(QModelIndex(),"Linestyles","");
+    QModelIndex lsIdx = _bookModel->getIndex(QModelIndex(),"Linestyles","");
+    if ( row < _bookModel->rowCount(lsIdx) ) {
         QString lsTag = QString("Linestyle%1").arg(row+1);
         QString ls = _bookModel->getDataString(lsIdx,lsTag,"Linestyles");
         if ( !ls.isEmpty() ) {
-            // Use linestyle from commandline
+            // Use commandline linestyle
             lineStyle = ls;
         }
     }
@@ -820,10 +807,34 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     }
     _addChild(curveItem, "CurveLineStyle",   lineStyle);
 
-    _addChild(curveItem, "CurveYLabel",      y->label());
+    QString label = y->label();
+    QModelIndex llIdx = _bookModel->getIndex(QModelIndex(),"LegendLabels","");
+    if ( row < _bookModel->rowCount(llIdx) ) {
+        QString llTag = QString("Label%1").arg(row+1);
+        QString ll = _bookModel->getDataString(llIdx,llTag,"LegendLabels");
+        if ( !ll.isEmpty() ) {
+            // Use commandline label
+            label = ll;
+        }
+    }
+    _addChild(curveItem, "CurveYLabel", label);
+
+    // Possible -c# commandline override color option for this curve
+    QString legendColor;
+    QModelIndex legendColorsIdx = _bookModel->getIndex(QModelIndex(),
+                                                       "LegendColors");
+    if ( row < _bookModel->rowCount(legendColorsIdx) ) {
+        QModelIndex legendColorIdx = _bookModel->index(row,1,legendColorsIdx);
+        legendColor = _bookModel->data(legendColorIdx).toString();
+    }
+
+    // Color curve!
     QString color = y->lineColor() ;
-    if ( color.isEmpty() ) {
+    if ( color.isEmpty()) {
         color = defaultColor;
+    }
+    if ( !legendColor.isEmpty() ) {
+        color = legendColor;
     }
     _addChild(curveItem, "CurveColor", color);
 

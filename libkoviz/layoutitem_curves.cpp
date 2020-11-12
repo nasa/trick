@@ -312,7 +312,9 @@ void CurvesLayoutItem::_printCoplot(const QRect& R, const QTransform& T,
         QColor color( _bookModel->getDataString(curveIdx,
                                                 "CurveColor","Curve"));
         pen.setColor(color);
-        pen.setDashPattern(_bookModel->getLineStylePattern(curveIdx));
+        QString linestyle =  _bookModel->getDataString(curveIdx,
+                                                      "CurveLineStyle","Curve");
+        pen.setDashPattern(_bookModel->getLineStylePattern(linestyle));
 
         // Handle thick_line and x_thick_line styles
         QString style = _bookModel->getDataString(curveIdx,

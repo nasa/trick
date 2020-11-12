@@ -266,7 +266,12 @@ QSize PageTitleLayoutItem::_sizeLegend() const
             QStringList labels = _bookModel->legendLabels(plotIdx);
             int w = 0;
             int h = 0;
-            if ( labels.size() == 2 ) {
+            if ( labels.size() == 1 ) {
+                // 1 row 1 column
+                int w0 = fm.boundingRect(labels.at(0)).width();
+                w = w0;
+                h = 2*fm.height()+v;
+            } else if ( labels.size() == 2 ) {
                 // 2 rows 1 column
                 int w0 = fm.boundingRect(labels.at(0)).width();
                 int w1 = fm.boundingRect(labels.at(1)).width();
@@ -374,13 +379,6 @@ void PageTitleLayoutItem::_paintPageLegend(const QRect &R,
                                            const QModelIndex &curvesIdx,
                                            QPainter* painter)
 {
-    const int maxEntries = 7;
-
-    int nCurves = _bookModel->rowCount(curvesIdx);
-    if ( nCurves > maxEntries || nCurves <= 1 ) {
-        return;
-    }
-
     QModelIndex plotIdx = curvesIdx.parent();
     QString pres = _bookModel->getDataString(plotIdx,
                                              "PlotPresentation","Plot");

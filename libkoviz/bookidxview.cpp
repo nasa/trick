@@ -353,13 +353,6 @@ void BookIdxView::_paintCurvesLegend(const QRect& R,
                                      const QModelIndex &curvesIdx,
                                      QPainter &painter)
 {
-    const int maxEntries = 7;
-
-    int nCurves = model()->rowCount(curvesIdx);
-    if ( nCurves > maxEntries || nCurves <= 1 ) {
-        return;
-    }
-
     // If all plots on the page have the same legend, PageTitle will show legend
     if (_bookModel()->isPlotLegendsSame(curvesIdx.parent().parent().parent())) {
         return;

@@ -69,7 +69,7 @@ public:
                           const QString &expectedStartIdxText=QString()) const;
 
     // Convenience for getting QPen line style (see Qt doc)
-    QVector<qreal> getLineStylePattern(const QModelIndex& curveIdx) const;
+    QVector<qreal> getLineStylePattern(const QString& linestyle) const;
 
     QStringList lineStyles() const;
 
@@ -171,6 +171,70 @@ private:
     bool _isEqual(double a, double b, ulong maxD=10,
                   bool isNeighborMethod=true) const;
 
+    struct LegendElement
+    {
+        QString label;
+        QString color;
+        QString linestyle;
+        QString symbolstyle;
+
+        LegendElement() :
+            label(""),
+            color(""),
+            linestyle(""),
+            symbolstyle("")
+        {
+        }
+
+        inline bool isEmpty()
+        {
+            bool is;
+            if ( label.isEmpty() && color.isEmpty()
+                 && linestyle.isEmpty() && symbolstyle.isEmpty() ) {
+                is = true;
+            } else {
+                is = false;
+            }
+            return is;
+        }
+
+        inline bool operator==(const LegendElement& other)
+        {
+            bool isEqual = false;
+
+            QString tlb = this->label;
+            QString tcl = this->color;
+            QString tss = this->symbolstyle;
+            if ( tss.isEmpty() ) {
+                tss = "none";
+            }
+            QString tls = this->linestyle;
+            if ( tls.isEmpty() ) {
+                tls = "plain";
+            }
+
+            QString olb = other.label;
+            QString ocl = other.color;
+            QString oss = other.symbolstyle;
+            if ( oss.isEmpty() ) {
+                oss = "none";
+            }
+            QString ols = other.linestyle;
+            if ( ols.isEmpty() ) {
+                ols = "plain";
+            }
+
+            if ((tlb == olb) && (tcl == ocl) && (tss == oss) && (tls == ols)) {
+                isEqual = true;
+            }
+
+            return isEqual;
+        }
+
+    };
+
+    QList<LegendElement> _legendElements(const QModelIndex& plotIdx) const;
+    QList<LegendElement> _legendOverrides() const;
 };
 
 #endif // PLOTBOOKMODEL_H
