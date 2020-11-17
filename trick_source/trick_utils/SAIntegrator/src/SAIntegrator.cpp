@@ -3,11 +3,33 @@
 #include <iostream>
 #include "SAIntegrator.hh"
 
-void SA::Integrator::step() { X_out = X_in + default_h; }
-void SA::Integrator::load() { X_in = X_out; }
-void SA::Integrator::unload() {}
-double SA::Integrator::getIndyVar() { return X_out; }
-void SA::Integrator::setIndyVar(double v) { X_out = v; }
+void SA::Integrator::advanceIndyVar() {
+    X_out = X_in + default_h;
+}
+void SA::Integrator::step() {
+    advanceIndyVar();
+}
+void SA::Integrator::load() {
+    X_in = X_out;
+}
+void SA::Integrator::unload() {
+    std::cout << "SA::Integrator : Nothing to unload." << std::endl;
+}
+void SA::Integrator::integrate() {
+    load();
+    step();
+    unload();
+}
+double SA::Integrator::undo_integrate() {
+    X_out = X_in;
+    return (default_h);
+}
+double SA::Integrator::getIndyVar() {
+    return X_out;
+}
+void SA::Integrator::setIndyVar(double v) {
+    X_out = v;
+}
 
 // ------------------------------------------------------------
 SA::FirstOrderODEIntegrator::FirstOrderODEIntegrator(
@@ -59,19 +81,34 @@ double** SA::FirstOrderODEIntegrator::set_out_vars( double* out_vars[]){
     outVars = out_vars;
     return (ret);
 }
-double SA::FirstOrderODEIntegrator::undo_step() {
-        for (unsigned int i=0 ; i<state_size; i++ ) {
-            *(inVars[i]) = inState[i];
-        }
-        X_out = X_in;
-    return (last_h);
+double SA::FirstOrderODEIntegrator::undo_integrate() {
+    for (unsigned int i=0 ; i<state_size; i++ ) {
+        *(inVars[i]) = inState[i];
+    }
+    for (unsigned int i=0 ; i<state_size; i++ ) {
+        outState[i] = inState[i];
+    }
+    return (SA::Integrator::undo_integrate());
 }
+void SA::FirstOrderODEIntegrator::step() {
+    double derivs[state_size];
+    (*derivs_func)( X_in, inState, derivs, user_data);
+    for (unsigned int i=0; i<state_size; i++) {
+        outState[i] = inState[i] + derivs[i] * default_h;
+    }
+    advanceIndyVar();
+}
+
 // ------------------------------------------------------------
 SA::FirstOrderODEVariableStepIntegrator::FirstOrderODEVariableStepIntegrator(
     double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
 : FirstOrderODEIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
     root_finder = (RootFinder*) NULL;
     root_error_func = (RootErrorFunc)NULL;
+}
+double SA::FirstOrderODEVariableStepIntegrator::undo_integrate() {
+    SA::FirstOrderODEIntegrator::undo_integrate();
+    return (last_h);
 }
 SA::FirstOrderODEVariableStepIntegrator::~FirstOrderODEVariableStepIntegrator() {
     // User is responsible for deleting the root_finder.
@@ -81,15 +118,23 @@ void SA::FirstOrderODEVariableStepIntegrator::add_Rootfinder(
     root_finder = rootFinder;
     root_error_func = rfunc;
 }
-void SA::FirstOrderODEVariableStepIntegrator::variable_step( double h) {
+void SA::FirstOrderODEVariableStepIntegrator::advanceIndyVar(double h) {
     last_h = h; X_out = X_in + h;
+}
+void SA::FirstOrderODEVariableStepIntegrator::variable_step( double h) {
+    double derivs[state_size];
+    (*derivs_func)( X_in, inState, derivs, user_data);
+    for (unsigned int i=0; i<state_size; i++) {
+        outState[i] = inState[i] + derivs[i] * h;
+    }
+    advanceIndyVar(h);
 }
 void SA::FirstOrderODEVariableStepIntegrator::find_roots(double h, unsigned int depth) {
     double new_h;
     double h_correction = (*root_error_func)( getIndyVar(), outState, root_finder, user_data );
     if (h_correction < 0.0) {
         while (h_correction != 0.0) {
-            new_h = undo_step() + h_correction;
+            new_h = undo_integrate() + h_correction;
             variable_step(new_h);
             h_correction = (*root_error_func)( getIndyVar(), outState, root_finder, user_data );
         }
@@ -106,6 +151,7 @@ void SA::FirstOrderODEVariableStepIntegrator::step() {
         find_roots( default_h, 5 );
     }
 }
+
 // ------------------------------------------------------------
 SA::EulerIntegrator::EulerIntegrator(
     double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
@@ -120,7 +166,7 @@ void SA::EulerIntegrator::variable_step( double h) {
     for (unsigned int i=0; i<state_size; i++) {
         outState[i] = inState[i] + derivs[i] * h;
     }
-    SA::FirstOrderODEVariableStepIntegrator::variable_step(h);
+    advanceIndyVar(h);
 }
 // ------------------------------------------------------------
 SA::HeunsMethod::HeunsMethod(
@@ -146,7 +192,7 @@ void SA::HeunsMethod::variable_step( double h) {
     for (unsigned int i=0; i<state_size; i++) {
         outState[i] = inState[i] + (h/2) * ( derivs[0][i] +  derivs[1][i] );
     }
-    SA::FirstOrderODEVariableStepIntegrator::variable_step(h);
+    advanceIndyVar(h);
 }
 // ------------------------------------------------------------
 SA::RK2Integrator::RK2Integrator(
@@ -172,7 +218,7 @@ void SA::RK2Integrator::variable_step( double h) {
     for (unsigned int i=0; i<state_size; i++) {
         outState[i] = inState[i] + h * derivs[1][i];
     }
-    SA::FirstOrderODEVariableStepIntegrator::variable_step(h);
+    advanceIndyVar(h);
 }
 // ------------------------------------------------------------
 SA::RK4Integrator::RK4Integrator(
@@ -213,7 +259,7 @@ void SA::RK4Integrator::variable_step( double h) {
                                  (1/3.0)* derivs[2][i] +
                                  (1/6.0)* derivs[3][i]) * h;
     }
-    SA::FirstOrderODEVariableStepIntegrator::variable_step(h);
+    advanceIndyVar(h);
 }
 // ------------------------------------------------------------
 SA::RK3_8Integrator::RK3_8Integrator(
@@ -254,138 +300,146 @@ void SA::RK3_8Integrator::variable_step( double h) {
                                  (3/8.0)* derivs[2][i] +
                                  (1/8.0)* derivs[3][i]) * h;
     }
-    SA::FirstOrderODEVariableStepIntegrator::variable_step(h);
+    advanceIndyVar(h);
 }
 // ------------------------------------------------------------
 SA::EulerCromerIntegrator::EulerCromerIntegrator(
     double dt, int N, double* xp[], double* vp[], DerivsFunc gfunc, DerivsFunc ffunc, void* udata)
     :Integrator(dt, udata) {
-    state_size  = N;
-    x_p   = new double*[N];
-    v_p   = new double*[N];
-    x_in  = new double[N];
-    v_in  = new double[N];
-    g_out = new double[N];
-    f_out = new double[N];
-    x_out = new double[N];
-    v_out = new double[N];
+    nDimensions  = N;
+    pos_p   = new double*[N];
+    pos_in  = new double[N];
+    pos_out = new double[N];
+    vel_p   = new double*[N];
+    vel_in  = new double[N];
+    vel_out = new double[N];
+    g_out   = new double[N];
+    f_out   = new double[N];
+
     for (int i=0 ; i<N; i++ ) {
-        x_p[i] = xp[i];
-        v_p[i] = vp[i];
+        pos_p[i] = xp[i];
+        vel_p[i] = vp[i];
     }
     gderivs = gfunc;
     fderivs = ffunc;
 }
 SA::EulerCromerIntegrator::~EulerCromerIntegrator() {
-    delete x_p;
-    delete v_p;
-    delete x_in;
-    delete v_in;
+
+    delete pos_in;
+    delete pos_out;
+    delete vel_in;
+    delete vel_out;
     delete g_out;
     delete f_out;
-    delete x_out;
-    delete v_out;
 }
 void SA::EulerCromerIntegrator::step( double dt) {
-    (*gderivs)( X_in, x_in, g_out, user_data);
-    for (int i=0 ; i<state_size; i++ ) {
-        v_out[i] = v_in[i] + g_out[i] * dt;
+    (*gderivs)( X_in, pos_in, g_out, user_data);
+    for (int i=0 ; i<nDimensions; i++ ) {
+        vel_out[i] = vel_in[i] + g_out[i] * dt;
     }
-    (*fderivs)( X_in, v_in, f_out, user_data);
-    for (int i=0 ; i<state_size; i++ ) {
-        x_out[i] = x_in[i] + f_out[i] * dt;
+    (*fderivs)( X_in, vel_in, f_out, user_data);
+    for (int i=0 ; i<nDimensions; i++ ) {
+        pos_out[i] = pos_in[i] + f_out[i] * dt;
     }
     X_out = X_in + dt;
 }
 void SA::EulerCromerIntegrator::step() {
     step(default_h);
+    // if ((root_finder != NULL) && (root_error_func != NULL)) {
+    //     find_roots( default_h, 5 );
+    // }
 }
 void SA::EulerCromerIntegrator::load() {
-    for (int i=0 ; i<state_size; i++ ) {
-        x_in[i] = *(x_p[i]);
-        v_in[i] = *(v_p[i]);
+    for (int i=0 ; i<nDimensions; i++ ) {
+        pos_in[i] = *(pos_p[i]);
+        vel_in[i] = *(vel_p[i]);
     }
 }
 void SA::EulerCromerIntegrator::unload(){
-    for (int i=0 ; i<state_size; i++ ) {
-        *(x_p[i]) = x_out[i];
-        *(v_p[i]) = v_out[i];
+    for (int i=0 ; i<nDimensions; i++ ) {
+        *(pos_p[i]) = pos_out[i];
+        *(vel_p[i]) = vel_out[i];
     }
+}
+double SA::EulerCromerIntegrator::undo_integrate() {
+    for (int i=0 ; i<nDimensions; i++ ) {
+        *(pos_p[i]) = pos_in[i];
+        *(vel_p[i]) = vel_in[i];
+    }
+    return (SA::Integrator::undo_integrate());
 }
 
 // // Adams-Bashforth Coefficients
-// static const double ABCoeffs[5][5] = {
-//   {1.0,           0.0,           0.0,          0.0,           0.0},
-//   {(3/2.0),      (-1/2.0),       0.0,          0.0,           0.0},
-//   {(23/12.0),    (-16/12.0),    (5/12.0),      0.0,           0.0},
-//   {(55/24.0),    (-59/24.0),    (37/24.0),    (-9/24.0),      0.0},
-//   {(1901/720.0), (-2774/720.0), (2616/720.0), (-1274/720.0), (251/720.0)}
-// };
+static const double ABCoeffs[5][5] = {
+  {1.0,           0.0,           0.0,          0.0,           0.0},
+  {(3/2.0),      (-1/2.0),       0.0,          0.0,           0.0},
+  {(23/12.0),    (-16/12.0),    (5/12.0),      0.0,           0.0},
+  {(55/24.0),    (-59/24.0),    (37/24.0),    (-9/24.0),      0.0},
+  {(1901/720.0), (-2774/720.0), (2616/720.0), (-1274/720.0), (251/720.0)}
+};
 //
 // // Adams-Moulton Coefficients
-// static const double AMCoeffs[5][5] = {
-//   {1.0,          0.0,         0.0,          0.0,         0.0},
-//   {(1/2.0),     (1/2.0),      0.0,          0.0,         0.0},
-//   {(5/12.0),    (8/12.0),    (-1/12.0),     0.0,         0.0},
-//   {(9/24.0),    (19/24.0),   (-5/24.0),    (1/24.0),     0.0},
-//   {(251/720.0), (646/720.0), (-264/720.0), (106/720.0), (-19/720.0)}
-// };
-// SA::ABMIntegrator::ABMIntegrator ( int history_size, double h, int N, double* in_vars[], double* out_vars[], DerivsFunc func, void* udata)
-//     : FirstOrderODEIntegrator(h, N, in_vars, out_vars ,func, udata) {
-//
-//     algorithmHistorySize=history_size; // The amount of history that we intend to use in this ABM integrator.
-//     bufferSize=algorithmHistorySize+1; // The size of the buffer needs to be one more than the history so that an integration step can be reset.
-//     hix=0;
-//     currentHistorySize=0;            // How much derivative history is currently stored int the history buffer. Initially there will be none until we've primed the integrator.
-//     deriv_history = new double*[bufferSize];
-//     for (unsigned int i=0; i<bufferSize ; i++) {
-//         deriv_history[i] = new double[state_size];
-//     }
-//     composite_deriv = new double[state_size];
-// }
-// SA::ABMIntegrator::~ABMIntegrator() {
-//     for (int i=0; i<bufferSize ; i++) {
-//         delete (deriv_history[i]);
-//     }
-//     delete(deriv_history);
-//     delete(composite_deriv);
-// }
-// void SA::ABMIntegrator::step() {
-//
-//     hix = (hix+1)%bufferSize;                          // Move history index forward
-//     // (*derivs_func)( indyVar, inState, deriv_history[hix], user_data);
-//     (*derivs_func)( X_in, inState, deriv_history[hix], user_data); // Calculated and store the deriv for current, corrected state.
-//     // Increase the size of the stored history, up to the limit specified by the user.
-//     currentHistorySize = (currentHistorySize < algorithmHistorySize) ? currentHistorySize+1 : algorithmHistorySize;
-//     // (Predictor) Predict the next state using the Adams-Bashforth explicit method.
-//     for (int i=0; i<state_size; i++) {
-//         composite_deriv[i] = 0.0;
-//         for (int n=0,j=hix; n<currentHistorySize ; n++,j=(j+bufferSize-1)%bufferSize) {
-//             composite_deriv[i] += ABCoeffs[currentHistorySize-1][n] * deriv_history[j][i];
-//         }
-//         outState[i] = inState[i] + default_h * composite_deriv[i];
-//     }
-//     // Move history index forward, so we can temporarily store the derivative of the predicted next state.
-//     // We do not increase the currentHistorySize.
-//     hix = (hix+1)%bufferSize;
-//     (*derivs_func)( X_out, outState, deriv_history[hix], user_data); // Calc deriv for predicted next state.
-//     // (Corrector) Refine the next state using the Adams-Moulton implicit method. This is the corrected next state.
-//     for (int i=0; i<state_size; i++) {
-//         composite_deriv[i] = 0.0;
-//         for (int n=0,j=hix; n<currentHistorySize ; n++,j=(j+bufferSize-1)%bufferSize) {
-//             composite_deriv[i] += AMCoeffs[currentHistorySize-1][n] * deriv_history[j][i];
-//         }
-//         outState[i] = inState[i] + default_h * composite_deriv[i];
-//     }
-//     // Move history index backward, so we over-write the predicted state with the corrected state on our next step().
-//     hix = (hix+bufferSize-1)%bufferSize;
-//     SA::Integrator::step();
-// }
-//
-// double SA::ABMIntegrator::undo_step() {
-//     hix = (hix+bufferSize-1)%bufferSize;
-//     return (FirstOrderODEIntegrator::undo_step());
-// }
+static const double AMCoeffs[5][5] = {
+  {1.0,          0.0,         0.0,          0.0,         0.0},
+  {(1/2.0),     (1/2.0),      0.0,          0.0,         0.0},
+  {(5/12.0),    (8/12.0),    (-1/12.0),     0.0,         0.0},
+  {(9/24.0),    (19/24.0),   (-5/24.0),    (1/24.0),     0.0},
+  {(251/720.0), (646/720.0), (-264/720.0), (106/720.0), (-19/720.0)}
+};
+SA::ABMIntegrator::ABMIntegrator ( int history_size, double h, int N, double* in_vars[], double* out_vars[], DerivsFunc func, void* udata)
+    : FirstOrderODEIntegrator(h, N, in_vars, out_vars ,func, udata) {
+
+    algorithmHistorySize=history_size; // The amount of history that we intend to use in this ABM integrator.
+    bufferSize=algorithmHistorySize+1; // The size of the buffer needs to be one more than the history so that an integration step can be reset.
+    hix=0;
+    currentHistorySize=0;              // How much derivative history is currently stored int the history buffer. Initially there will be none until we've primed the integrator.
+    deriv_history = new double*[bufferSize];
+    for (unsigned int i=0; i<bufferSize ; i++) {
+        deriv_history[i] = new double[state_size];
+    }
+    composite_deriv = new double[state_size];
+}
+SA::ABMIntegrator::~ABMIntegrator() {
+    for (int i=0; i<bufferSize ; i++) {
+        delete (deriv_history[i]);
+    }
+    delete(deriv_history);
+    delete(composite_deriv);
+}
+void SA::ABMIntegrator::step() {
+    hix = (hix+1)%bufferSize;                                      // Move history index forward
+    (*derivs_func)( X_in, inState, deriv_history[hix], user_data); // Calculated and store the deriv for current, corrected state.
+    // Increase the size of the stored history, up to the limit specified by the user.
+    currentHistorySize = (currentHistorySize < algorithmHistorySize) ? currentHistorySize+1 : algorithmHistorySize;
+    // (Predictor) Predict the next state using the Adams-Bashforth explicit method.
+    for (int i=0; i<state_size; i++) {
+        composite_deriv[i] = 0.0;
+        for (int n=0,j=hix; n<currentHistorySize ; n++,j=(j+bufferSize-1)%bufferSize) {
+            composite_deriv[i] += ABCoeffs[currentHistorySize-1][n] * deriv_history[j][i];
+        }
+        outState[i] = inState[i] + default_h * composite_deriv[i];
+    }
+    // Move history index forward, so we can temporarily store the derivative of the predicted next state.
+    // We do not increase the currentHistorySize.
+    hix = (hix+1)%bufferSize;
+    (*derivs_func)( X_out, outState, deriv_history[hix], user_data); // Calc deriv for predicted next state.
+    // (Corrector) Refine the next state using the Adams-Moulton implicit method. This is the corrected next state.
+    for (int i=0; i<state_size; i++) {
+        composite_deriv[i] = 0.0;
+        for (int n=0,j=hix; n<currentHistorySize ; n++,j=(j+bufferSize-1)%bufferSize) {
+            composite_deriv[i] += AMCoeffs[currentHistorySize-1][n] * deriv_history[j][i];
+        }
+        outState[i] = inState[i] + default_h * composite_deriv[i];
+    }
+    // Move history index backward, so we over-write the predicted state with the corrected state on our next step().
+    hix = (hix+bufferSize-1)%bufferSize;
+    SA::Integrator::step();
+}
+
+double SA::ABMIntegrator::undo_integrate() {
+    hix = (hix+bufferSize-1)%bufferSize;
+    return (FirstOrderODEIntegrator::undo_integrate());
+}
 
 // =======================================================================
 static const double AB2Coeffs[2] = {(3/2.0), (-1/2.0)};
@@ -404,7 +458,7 @@ SA::ABM2Integrator::ABM2Integrator (
     }
     composite_deriv = new double[state_size];
 
-    // NEW: Create a priming integrator.
+    // Create a priming integrator.
     double** priming_integrator_in_vars = new double*[state_size];
     for (unsigned int i=0; i<N ; i++) {
         priming_integrator_in_vars[i] = &(inState[i]);
@@ -458,11 +512,11 @@ void SA::ABM2Integrator::step() {
         // Move history index backward, so we over-write the predicted state with the corrected state on our next step().
         hix = (hix+bufferSize-1)%bufferSize;
     }
-    SA::Integrator::step();
+    advanceIndyVar();
 }
-double SA::ABM2Integrator::undo_step() {
+double SA::ABM2Integrator::undo_integrate() {
     hix = (hix+bufferSize-1)%bufferSize;
-    return ( FirstOrderODEIntegrator::undo_step());
+    return ( FirstOrderODEIntegrator::undo_integrate());
 }
 // =======================================================================
 static const double AB4Coeffs[4] = {(55/24.0), (-59/24.0), (37/24.0), (-9/24.0)};
@@ -534,9 +588,9 @@ void SA::ABM4Integrator::step() {
         // Move history index backward, so we over-write the predicted state with the corrected state on our next step().
         hix = (hix+bufferSize-1)%bufferSize;
     }
-    SA::Integrator::step();
+    advanceIndyVar();
 }
-double SA::ABM4Integrator::undo_step() {
+double SA::ABM4Integrator::undo_integrate() {
     hix = (hix+bufferSize-1)%bufferSize;
-    return (FirstOrderODEIntegrator::undo_step());
+    return (FirstOrderODEIntegrator::undo_integrate());
 }

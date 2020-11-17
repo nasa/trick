@@ -15,14 +15,28 @@ LIBDIRS = -L${SAI_LIBDIR} -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib
 
 all: test
 
-test: SAIntegrator_unittest RootFinder_unittest
+test: SAIntegrator_unittest FirstOrderODEIntegrator_unittest FirstOrderODEVariableStepIntegrator_unittest RootFinder_unittest
 	./SAIntegrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/SAIntegrator_unittest.xml
+	./FirstOrderODEIntegrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/FirstOrderODEIntegrator_unittest.xml
+	./FirstOrderODEVariableStepIntegrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/FirstOrderODEVariableStepIntegrator_unittest.xml
 	./RootFinder_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/RootFinder_unittest.xml
 
 SAIntegrator_unittest.o : SAIntegrator_unittest.cc
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) $(INCLUDE_DIRS) -c $<
 
 SAIntegrator_unittest : ${SAI_LIBDIR}/${SAI_LIBNAME} SAIntegrator_unittest.o
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -o $@ $^ ${LIBDIRS} -lSAInteg -lgtest -lgtest_main -lpthread
+
+FirstOrderODEIntegrator_unittest.o : FirstOrderODEIntegrator_unittest.cc
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) $(INCLUDE_DIRS) -c $<
+
+FirstOrderODEIntegrator_unittest : ${SAI_LIBDIR}/${SAI_LIBNAME} FirstOrderODEIntegrator_unittest.o
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -o $@ $^ ${LIBDIRS} -lSAInteg -lgtest -lgtest_main -lpthread
+
+FirstOrderODEVariableStepIntegrator_unittest.o : FirstOrderODEVariableStepIntegrator_unittest.cc
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) $(INCLUDE_DIRS) -c $<
+
+FirstOrderODEVariableStepIntegrator_unittest : ${SAI_LIBDIR}/${SAI_LIBNAME} FirstOrderODEVariableStepIntegrator_unittest.o
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -o $@ $^ ${LIBDIRS} -lSAInteg -lgtest -lgtest_main -lpthread
 
 RootFinder_unittest.o : RootFinder_unittest.cc
@@ -38,4 +52,4 @@ clean:
 	${RM} *.o
 
 spotless: clean
-	${RM} SAIntegrator_unittest
+	${RM} FirstOrderODEVariableStepIntegrator_unittest

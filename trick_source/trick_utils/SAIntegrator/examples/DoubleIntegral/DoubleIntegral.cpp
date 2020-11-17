@@ -23,9 +23,7 @@ void deriv_x( double x, double state_x[], double derivs_x[], void* udata) {
     integ_y->set_out_vars(state_y);
     integ_y->setIndyVar(context->start);
     while (integ_y->getIndyVar() <= context->end) {
-        integ_y->load();
-        integ_y->step();
-        integ_y->unload();
+        integ_y->integrate();
     }
     derivs_x[0] = area; // volume = ∫ area dx
 }
@@ -40,9 +38,7 @@ double doubleIntegral( double x_start, double x_end, double y_start, double y_en
     SA::RK2Integrator integ_x (dx, 1, state_x, state_x, deriv_x, &y_integ_context);
     integ_x.setIndyVar(x_start);
     while (integ_x.getIndyVar()<=x_end) {
-        integ_x.load();
-        integ_x.step();
-        integ_x.unload();
+        integ_x.integrate();
     }
     return volume;
 }

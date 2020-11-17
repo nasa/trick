@@ -27,15 +27,9 @@ void calc_derivs( double t, double state[], double derivs[], void* udata) {
 double impact( double t, double state[], RootFinder* root_finder, void* udata) {
     double root_error = root_finder->find_roots(t, state[1]);
     if (root_error == 0.0) {
-        printf("---------------------------------------------------------------\n");
-        printf("Impact at t = %5.10f x = %5.10f y = %5.10f.\n", t, state[0], state[1]);
-        printf("---------------------------------------------------------------\n");
         root_finder->init();
-        state[1] = 0.0000000001; // pos_y
-        state[2] = 0.0;          // vel_x
-        state[3] = 0.0;          // vel_y
-        state[4] = 0.0;          // acc_x
-        state[5] = 0.0;          // acc_y
+        state[2] =  0.9 * state[2];
+        state[3] = -0.9 * state[3];
     }
     return (root_error);
 }
@@ -55,17 +49,14 @@ int main ( int argc, char* argv[]) {
     double t = 0.0;
     SA::RK2Integrator integ(dt, 6, state_var_p, state_var_p, calc_derivs, NULL);
 
-// Uncomment the following two lines to have the RootFinder detect impact.
-//  RootFinder root_finder(0.00000000001, Negative);
-//  integ.add_Rootfinder(&root_finder, &impact);
+    RootFinder root_finder(0.00000000001, Negative);
+    integ.add_Rootfinder(&root_finder, &impact);
 
     init_state(cannon);
     print_header();
     print_state( t, cannon);
-    while (t < 5.3) {
-        integ.load();
-        integ.step();
-        integ.unload();
+    while (t < 20.0) {
+        integ.integrate();
         t = integ.getIndyVar();
         print_state( t, cannon);
     }
