@@ -8,6 +8,7 @@ PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 *******************************************************************************/
 
 #include "../include/sched.h"
+#include <unistd.h>
 
 int sched_async (
                   /* RETURN: -- Always return zero */

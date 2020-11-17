@@ -1,5 +1,6 @@
-
+#ifndef TRICK_ICG
 #include <Python.h>
+#endif
 #include <iostream>
 #include <sstream>
 

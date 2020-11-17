@@ -32,7 +32,7 @@ endif
 ifeq ($(TRICK_HOST_TYPE), Darwin)
     CFLAGS += -DGTEST_HAS_TR1_TUPLE=0
     MOTIF_INCDIR = -I/sw/include
-    XLIBS = -L/sw/lib -lXm -L/usr/X11R6/lib -L/usr/X11/lib -lXt -lX11
+    XLIBS = -L/sw/lib -lXm -L/usr/X11R6/lib -L/usr/X11/lib
     SDK_DIR = $(shell xcrun --show-sdk-path)
     INCDIRS += -I${SDK_DIR}/usr/include/libxml2
 else
