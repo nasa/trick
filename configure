@@ -5616,12 +5616,6 @@ PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ******" >&5
-$as_echo "$as_me: ******" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${PATH}" >&5
-$as_echo "$as_me: ${PATH}" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ******" >&5
-$as_echo "$as_me: ******" >&6;}
 
 # Check whether --with-local-bin was given.
 if test "${with_local_bin+set}" = set; then :
@@ -5643,12 +5637,6 @@ else
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ******" >&5
-$as_echo "$as_me: ******" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${PATH}" >&5
-$as_echo "$as_me: ${PATH}" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ******" >&5
-$as_echo "$as_me: ******" >&6;}
 # Extract the first word of "gnuplot", so it can be a program name with args.
 set dummy gnuplot; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -9224,10 +9212,3 @@ fi
 
 
 printf "\033[32mconfigure script successfully completed\033[0m\n"
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ******" >&5
-$as_echo "$as_me: ******" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ${PATH}" >&5
-$as_echo "$as_me: ${PATH}" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: ******" >&5
-$as_echo "$as_me: ******" >&6;}
-

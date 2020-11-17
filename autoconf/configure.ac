@@ -456,13 +456,7 @@ PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
 AC_SUBST([PYTHON_CPPFLAGS])
 AC_SUBST([PYTHON_LIBS])
 AC_SUBST([PYTHON_EXTRA_LIBS])
-AC_MSG_NOTICE(******)
-AC_MSG_NOTICE(${PATH})
-AC_MSG_NOTICE(******)
 AX_LOCAL_BIN
-AC_MSG_NOTICE(******)
-AC_MSG_NOTICE(${PATH})
-AC_MSG_NOTICE(******)
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
 AX_SWIG_BIN([])
@@ -579,7 +573,3 @@ AX_ER7_UTILS([])
 AC_OUTPUT([share/trick/makefiles/config_user.mk])
 
 printf "\033@<:@32mconfigure script successfully completed\033@<:@0m\n"
-AC_MSG_NOTICE(******)
-AC_MSG_NOTICE(${PATH})
-AC_MSG_NOTICE(******)
-
