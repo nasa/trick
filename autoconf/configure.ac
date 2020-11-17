@@ -231,7 +231,7 @@ esac
 
 
 dnl add extra paths to find programs
-PATH="/usr/local/bin:${PATH}"
+PATH="${PATH}:/usr/local/bin"
 
 dnl add extra paths to find xml headers and X headers on the mac.
 AS_IF([test "$ON_MAC" = "yes"],

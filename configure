@@ -2500,7 +2500,7 @@ case "${host_os}" in
 esac
 
 
-PATH="/usr/local/bin:${PATH}"
+PATH="${PATH}:/usr/local/bin"
 
 if test "$ON_MAC" = "yes"; then :
 
