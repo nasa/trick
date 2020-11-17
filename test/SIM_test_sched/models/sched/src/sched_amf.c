@@ -9,6 +9,7 @@ PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 
 #include "../include/sched.h"
 #include "sim_services/UnitTest/include/trick_tests.h"
+#include <stdio.h>
 
 int sched_amf(
                   /* RETURN: -- Always return zero */
