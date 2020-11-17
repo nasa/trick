@@ -4,7 +4,7 @@
 
 * [Introduction](#Introduction)
 * [class Integrator](#class-Integrator)
-* [typedef derivsFunc](#typedef-derivsFunc)
+* [typedef DerivsFunc](#typedef-DerivsFunc)
 * [class FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator)
 * [typedef RootErrorFunc](#typedef-RootErrorFunc)
 * [class FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator)
@@ -34,14 +34,15 @@ Some examples of using these integrators can be found in the **examples/** direc
 ## class Integrator
 
 ### Description
-This class represents an **integrator**.
+This base-class represents a numerical **integrator**.
 
-|Member    |Type        |Description|
-|----------|------------|--------------------|
-|X_in |```double```|Independent variable value of the input state.|
-|X_out|```double```|Independent variable value of the output state.|
-|default_h |```double```|Default integration step-size|
-|user_data |```void*``` | A pointer to user defined data that will be passed to user-defined functions when called by the Integrator. |
+### Data Members
+|Member    |Type        |Access   |Description|
+|----------|------------|---------|-----------|
+|X_in      |```double```|Protected|Independent variable value of the input state.|
+|X_out     |```double```|Protected|Independent variable value of the output state.|
+|default_h |```double```|Protected|Default integration step-size|
+|user_data |```void*``` |Protected|A pointer to user defined data that will be passed to user-defined functions when called by the Integrator. |
 
 ### Constructor
 
@@ -56,41 +57,65 @@ This class represents an **integrator**.
 
 #### ```virtual ~Integrator() {}```
 
-### Member Functions
+### Public Member Functions
 
-#### ```virtual void step();```
+<a id=method-Integrator::step></a>
+#### ```virtual void step()```
+Derived classes should override this method to perform a numeric integration step, and then call [```advanceIndyVar()```](#method-Integrator::advanceIndyVar) to advance the independent variable.  The default behavior of this member-function is to call ```advanceIndyVar()```.
 
-Derived classes should override this method to perform a numeric integration step.  The default behavior is to simply increment the independent variable by the default integration step-size.
-
-#### ```virtual void load();```
-
-Derived classes should override this method to load/prepare the integrator for the next integration step. The default behavior is to set the input value of the independent value to its previous output value, i.e, ```X_out = X_out```.
-
-#### ```virtual void unload() = 0;```
-
-Derived classes must override this method to disseminate the values of the output state to their respective destination variables. 
-
-#### ```double getIndyVar();```
-Return the value of the independent variable (i.e, the variable over which you are integrating) If you are integrating over time, this value will be the accumulated time.
-
-#### ```double setIndyVar( double t);```
-Set the value of the independent variable. (i.e, the variable over which you are integrating) If you are integrating over time, this value will be the accumulated time.
+<a id=method-Integrator::load></a>
+#### ```virtual void load()```
+Derived classes should override this method to load/prepare the integrator for the next integration step. The default behavior is to set the input value of the independent variable to its previous output value, i.e, ```X_in = X_out```.
 
 
-<a id=typedef-derivsFunc></a>
-## typedef derivsFunc
+<a id=method-Integrator::unload></a>
+#### ```virtual void unload()```
+Derived classes should override this method to disseminate the values of the output state to their respective destinations. The default behavior is to do nothing.
+
+<a id=method-Integrator::integrate></a>
+#### ```virtual void integrate()```
+Call ```load()```, ```step()```, and ```unload()``` in order.
+
+
+<a id=method-Integrator::undo_integrate></a>
+#### ```virtual double undo_integrate()```
+Derived classes should override this member function to **undo** the effect of ```integrate()``` and return that last step-size. The behavior of this function is to set the output value of the independent variable to its previous input value, i.e, ```X_out = X_in```, and then return the default step-size ```default_h```.
+
+
+<a id=method-Integrator::getIndyVar></a>
+#### ```double getIndyVar()```
+Returns the value of the independent variable (i.e, the variable over which you are integrating) If you are integrating over time, this value will be the accumulated time.
+
+
+<a id=method-Integrator::setIndyVar></a>
+#### ```double setIndyVar( double t)```
+Sets the value of the independent variable. (i.e, the variable over which you are integrating) If you are integrating over time, this will be the accumulated time.
+
+### Protected Member Functions
+
+<a id=method-Integrator::advanceIndyVar></a>
+#### ```void advanceIndyVar()```
+This member function advances the independent variable by the default integration step-size.
+
+
+<a id=typedef-DerivsFunc></a>
+## typedef DerivsFunc
+
+### Description
+This typedef defines a type of C/C++ function whose purpose is to populate
+a state derivative array.
 
 ```
-typedef void (*derivsFunc)( double x, double state[], double derivs[], void* udata);
+typedef void (*DerivsFunc)( double x, double state[], double derivs[], void* udata);
 ```
 where:
 
-|Parameter|Type|Description|
-|---|---|---|
-|x|```double```| independent variable |
-|state|```double*```| (input) an array of state variable values |
-|derivs|```double*```| (output) an array into which derivatives are to be returned|
-|udata|```void*```| a pointer to user_data.|
+|Parameter|Type         |Direction|Description|
+|---------|-------------|---------|-----------|
+|x        |```double``` |IN       |Independent variable.|
+|state    |```double*```|IN       |Array of state variable values.|
+|derivs   |```double*```|OUT      |Array into which derivatives are to be returned.|
+|udata    |```void*```  |IN       |Pointer to user_data.|
 
 #### Example
 ```
@@ -99,20 +124,30 @@ void my_derivs( double t, double state[], double deriv[], void* udata) { ... }
 
 <a id=class-FirstOrderODEIntegrator></a>
 ## class FirstOrderODEIntegrator
-Derived from [Integrator](#class-Integrator).
-
-|Member     |Type              |Description|
-|-----------|------------------|-------------------------|
-|state_size |```unsigned int```|Size of the state vector.|
-|inState    |```double*```     |Input state vector to the integrator.|
-|outState   |```double*```     |Output state vector from the integrator.|
-|inVars     |```double**```    |Array of pointers to the variables from which input state vector values are copied.|
-|outVars    |```double**```    |Array of pointers to the variables to which output state vector values are copied.|
-|derivs_func|[```DerivsFunc```](#typedef-derivsFunc)|Function thats generates the function (an array of state derivatives) to be integrated.|
-|last_h     |```double```      |the **last** integration step-size.|
+Derived from [```Integrator```](#class-Integrator).
 
 ### Description
-This class represents an integrator for a first order [Ordinary Differential Equation (ODE)]([https://en.wikipedia.org/wiki/Ordinary_differential_equation).
+
+This class represents an integrator for a first order [Ordinary Differential Equation]([https://en.wikipedia.org/wiki/Ordinary_differential_equation).
+
+### Data Members
+Those inherited from [Integrator](#class-Integrator) plus:
+
+|Member     |Type              |Access   |Description|
+|-----------|------------------|---------|-----------|
+|state_size |```unsigned int```|Protected|Size of the state vector.|
+|inState    |```double*```     |Protected|Input state vector to the integrator.|
+|outState   |```double*```     |Protected|Output state vector from the integrator.|
+|inVars     |```double**```    |Protected|Array of pointers to the variables from which input state vector values are copied.|
+|outVars    |```double**```    |Protected|Array of pointers to the variables to which output state vector values are copied.|
+|derivs_func|[```DerivsFunc```](#typedef-DerivsFunc)|Protected|Function thats generates the function (an array of state derivatives) to be integrated.|
+
+This class introduces:
+
+* Input and output state arrays.
+* A function that calculates state-derivatives for the integration algorithm.
+* Array of pointers to variables from which to load the input state array, and array of pointers to variables to which to unload the output state array.
+
 
 ### Constructor
 
@@ -121,7 +156,7 @@ FirstOrderODEIntegrator( double h,
                          int N,
                          double* in_vars[],
                          double* out_vars[],
-                         derivsFunc func,
+                         DerivsFunc func,
                          void* user_data); 
 ```
 where:
@@ -134,114 +169,216 @@ where:
 |N            |```int```    |Number of state variables to be integrated|
 |in_vars      |```double*```|Array of pointers to the state variables from which we ```load()``` the integrator state (```in_vars``` and ```out_vars``` will generally point to the same array of pointers.)|
 |out_vars     |```double*```|Array of pointers to the state variables to which we ```unload()``` the integrator state (```in_vars``` and ```out_vars``` will generally point to the same array of pointers.)|
-| derivs_func |[```derivsFunc```](#typedef-derivsFunc)| Function thats generates the function (the derivatives) to be integrated. |
-|user_data    |```void*```  | A pointer to user defined data that will be passed to a derivsFunc when called by the Integrator. |
+| derivs_func |[```DerivsFunc```](#typedef-DerivsFunc)| Function thats generates the function (the derivatives) to be integrated. |
+|user_data    |```void*```  | A pointer to user defined data that will be passed to a DerivsFunc when called by the Integrator. |
 
-### Member Functions
+### Public Member Functions
 
+<a id=method-FirstOrderODEIntegrator::load></a>
 #### ```void load()```
+**Overrides**  [Integrator::load()](#method-Integrator::load)
+
 Load the integrator's initial state from the variables specified by **in_vars**. Set the initial value of the independent variable for the next step to the final value of the previous step. 
 ![load](images/load.png)
 
+
+<a id=method-FirstOrderODEIntegrator::unload></a>
 #### ```void unload()```
+**Overrides** [Integrator::unload()](#method-Integrator::unload)
+
 Unload the integrator's result state to the variables specified by **out_vars**.
 ![unload](images/unload.png)
 
-#### ```virtual void undo_step()```
-Undo the effect of the last integration step.
-![undo_step](images/undo_step.png)
 
+<a id=method-FirstOrderODEIntegrator::step></a>
+#### ```virtual void step()```
+**Overrides** [Integrator::step()](#method-Integrator::step)
+![step](images/step.png)
+Derived classes should override this method to calculate ```outState``` using some integration algorithm, using ```X_in```, ```inState```, and ```derivs_func```, and ```default_h```. The over-riding method should also pass the ```user_data``` when calling the ```DerivsFunc```. The default algorithm is Euler.
+
+
+#### ```void integrate()```
+**Inherited** from [Integrator::integrate()](#method-Integrator::integrate)
+
+<a id=method-FirstOrderODEIntegrator::undo_integrate></a>
+#### ```virtual void undo_integrate()```
+**Overrides** [Integrator::undo_integrate()](#method-Integrator::undo_integrate)
+
+Undo the effect of the last integration step.
+![undo_integrate](images/undo_step.png)
+
+
+<a id=method-FirstOrderODEIntegrator::load_from_outState></a>
 #### ```void load_from_outState()```
-Load the integrator's initial state from ```outState```, rather than from the variables referenced by ```in_vars```.
+
+Load ```inState``` from ```outState```, rather than from the variables referenced by ```in_vars```.
 ![load_from_outState](images/load_from_outState.png)
 
+
+<a id=method-FirstOrderODEIntegrator::set_in_vars></a>
 #### ```double** set_in_vars( double* in_vars[])```
-Specify the variables from which ```inState``` values are to be copied when ```load()``` is called. The number of elements in this array must equal the number of state variables.
-Return a pointer to the previous array so that it can be deleted if necessary.
+
+This function specifies the variables from which ```inState``` values are to be copied, when ```load()``` is called. The number of elements in this array must equal the number of state variables. Return a pointer to the previous array so that it can be deleted if necessary.
 ![set_in_vars](images/set_in_vars.png)
 
+
+<a id=method-FirstOrderODEIntegrator::set_out_vars></a>
 #### ```double** set_out_vars( double* out_vars[])```
-Specify the variables to which ```outState``` values are to be copied when ```unload()``` is called. The number of elements in this array must equal the number of state variables.
-Return a pointer to the previous array so that it can be deleted if necessary.
+This function specifies the variables to which ```outState``` values are to be copied, when ```unload()``` is called. The number of elements in this array must equal the number of state variables. Return a pointer to the previous array so that it can be deleted if necessary.
 ![set_out_vars](images/set_out_vars.png)
+
+
+<a id=method-FirstOrderODEIntegrator::getIndyVar></a>
+#### ```double getIndyVar()```
+**Inherited** from [Integrator::getIndyVar()](#method-Integrator::getIndyVar)
+
+<a id=method-FirstOrderODEIntegrator::setIndyVar></a>
+#### ```double setIndyVar()```
+**Inherited** from [Integrator::setIndyVar()](#method-Integrator::setIndyVar)
+
+### Protected Member Functions
+
+#### ```advanceIndyVar()```
+**Inherited** from [Integrator::advanceIndyVar()](#method-Integrator::advanceIndyVar)
+
 
 <a id=typedef-RootErrorFunc></a>
 ## typedef RootErrorFunc
+
+### Description
+
+This typedef defines a type of C/C++ function whose purpose is to specify the job of a [```RootFinder```](#class-RootFinder).
+
 ```
 typedef double (*RootErrorFunc)( double x, double state[], RootFinder* root_finder, void* udata);
 ```
 
 where:
 
-|Parameter   |Type             |Description|
-|------------|-----------------|-----------|
-|x           |```double```     | Independent variable |
-|state       |```double*```    | Array of state variable values |
-|root_finder |[```RootFinder*```](#class-RootFinder)| Class for finding the roots of a function.|
-|udata       |```void*```      | A pointer to user_data.|
+|Parameter   |Type             |Direction|Description|
+|------------|-----------------|---|--------|
+|x           |```double```     |In | Independent variable |
+|state       |```double*```    |In | Array of state variable values |
+|root_finder |[```RootFinder*```](#class-RootFinder)|In | Class for finding the roots of a function.|
+|udata       |```void*```      |In | A pointer to user_data.|
 
-This **user-supplied** function should:
- 
-1. Call [```root_finder->find_roots()```](#member-find_roots).
-2. Specify what happens when the root is found, i.e., when ```find_roots()``` returns 0.0.
-3. Return the value returned by ```root_finder->find_roots()``` as in the example below.
+A function of type **RootErrorFunc** should:
+
+1. Specify a (math) function f(x) whose roots [x : f(x)=0] the RootFinder is meant to find. 
+    - f(x) is usually a function of the state variables. State variables are themselves functions of x.
+2. Call [```root_finder->find_roots(x, y)```](#member-find_roots), where y = f(x). If it returns 0.0, it's found a root of f(x).
+3. Specify what to do as a result of finding a root.
+4. Return the value returned by ```root_finder->find_roots()```.
 
 ### Example RootErrorFunc from the Cannonball example
 ```
 double impact( double t, double state[], RootFinder* root_finder, void* udata) {
     double root_error = root_finder->find_roots(t, state[1]);
     if (root_error == 0.0) {
-        printf("---------------------------------------------------------------\n");
-        printf("Impact at t = %5.10f x = %5.10f y = %5.10f.\n", t, state[0], state[1]);
-        printf("---------------------------------------------------------------\n");
         root_finder->init();
-        state[1] = 0.0000000001; // pos_y
-        state[2] = 0.0;          // vel_x
-        state[3] = 0.0;          // vel_y
-        state[4] = 0.0;          // acc_x
-        state[5] = 0.0;          // acc_y
+        state[2] =  0.9 * state[2];
+        state[3] = -0.9 * state[3];
     }
     return (root_error);
 }
 ```
+In this example :
+
+* the independent variable is t.
+* y = f(t) = state[1], that is the y (vertical) component of the cannonball position.
+* When ```root_finder->find_roots``` returns 0.0, then the result of finding the root (i.e, [t:state[1]=0]) is to "bounce" the cannon ball, by negating the y component of the velocity, and reducing the magnitude of the velocity by 10%. 
 
 <a id=class-FirstOrderODEVariableStepIntegrator></a>
 ## class FirstOrderODEVariableStepIntegrator
 Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
-|Member             |Type                |Description|
-|-------------------|--------------------|-----------|
-| root_finder       |[```RootFinder*```](#class-RootFinder) |Pointer to a RootFinder object.|
-| root\_error\_func |[```RootErrorFunc```](#typedef-RootErrorFunc)|Function that specifies what happens when a function-root is found.|
-
-
 ### Description
+
 This class represents a first order ODE integrator whose step-size can be varied. 
 
-### Constructor
-### Member Functions
+### Data Members
+Those inherited from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator) plus:
 
+|Member              |Type                |Access   |Description|
+|--------------------|--------------------|---------|-----------|
+| root_finder        |[```RootFinder*```](#class-RootFinder)|Private|Pointer to a RootFinder object.|
+| root\_error\_func  |[```RootErrorFunc```](#typedef-RootErrorFunc)|Private|Function that specifies what happens when a function-root is found.|
+|last_h| ```double```|Protected| Value of h used in the last integration step. |
+
+### Constructor
+
+<a id=FirstOrderODEVariableStepIntegrator::publicMemberFunctions></a>
+### Public Member Functions
+
+<a id=method-FirstOrderODEVariableStepIntegrator::load></a>
+#### ```void load()```
+**Inherited** from [FirstOrderODEIntegrator::load()](#method-FirstOrderODEIntegrator::load)
+
+
+<a id=method-FirstOrderODEVariableStepIntegrator::unload></a>
+#### ```void unload()```
+**Inherited** from [FirstOrderODEIntegrator::unload()](#method-FirstOrderODEIntegrator::unload)
+
+
+<a id=method-FirstOrderODEVariableStepIntegrator::step></a>
+#### ```void step()```
+**Overrides** [FirstOrderODEIntegrator::step()](#method-FirstOrderODEIntegrator::step)
+
+This function calls the virtual function ```variable_step()``` (below) with the default step-size. Then, if a RootFinder has been specified using ```add_Rootfinder()``` (below), search that interval for roots .
+
+<a id=method-FirstOrderODEVariableStepIntegrator::integrate></a>
+#### ```void integrate()```
+**Inherited** from [Integrator::integrate()](#method-Integrator::integrate)
+
+<a id=method-FirstOrderODEVariableStepIntegrator::undo_integrate></a>
+#### ```double undo_integrate()```
+**Overrides** [FirstOrderODEIntegrator::undo_integrate()](#method-FirstOrderODEIntegrator::undo_integrate)                                          
+Call ```FirstOrderODEIntegrator::undo_integrate()```, and then return ```last_h```.
+
+<a id=method-FirstOrderODEVariableStepIntegrator::load_from_outState></a>
+#### ```load_from_outState()```
+**Inherited** from [FirstOrderODEIntegrator::load\_from\_outState()](#method-FirstOrderODEIntegrator::load_from_outState)
+
+<a id=method-FirstOrderODEVariableStepIntegrator::set_in_vars></a>
+#### ```set_in_vars()```
+**Inherited** from [FirstOrderODEIntegrator::set\_in\_vars()](#method-FirstOrderODEIntegrator::set_in_vars)
+
+<a id=method-FirstOrderODEVariableStepIntegrator::set_out_vars></a>
+#### ```set_out_vars()```
+**Inherited** from [FirstOrderODEIntegrator::set\_out\_vars()](#method-FirstOrderODEIntegrator::set_out_vars)
+
+<a id=method-FirstOrderODEVariableStepIntegrator::variable_step></a>
 #### ```virtual void variable_step( double h)```
-Derived classes should override this method to calculate ```outState``` using some integration algorithm, given ```X_in```, ```inState```, and ```derivs_func```. The over-riding method should also pass the ```user_data``` when calling the ```derivsFunc```. The default behavior is to simply add the integration step-size (```h```) to ```X_in```.
+
+|Parameter   |Type         |Description|
+|------------|-------------|-----------------------|
+| h          |```double``` | Integration step-size that overrides the default step-size.|
+
+Derived classes should override this method to calculate ```outState``` using some integration algorithm, given ```h```, ```X_in```, ```inState```, and ```derivs_func```. The over-riding method should also pass the ```user_data``` when calling the ```DerivsFunc```. 
 ![step](images/step.png)
 
-#### ```void step()```
-Call the virtual function (```variable_step()```) with the default step-size.
-Then, if a RootFinder has been specified (using ```add_Rootfinder()``` below), search that interval for roots .
-
-<a id=method-add_Rootfinder></a>
+<a id=method-FirstOrderODEVariableStepIntegrator::add_Rootfinder></a>
 #### ```void add_Rootfinder( RootFinder* root_finder, RootErrorFunc rfunc)```
 
 |Parameter   |Type         |Description|
 |------------|-------------|-----------------------|
-| root_finder|[```RootFinder*```](#class-RootFinder)| Error tolerance.      |
-| rfunc      |[```RootErrorFunc```](#typedef-RootErrorFunc)| User supplied function that ??? |
+| root_finder|[```RootFinder*```](#class-RootFinder)| RootFinder object.      |
+| rfunc      |[```RootErrorFunc```](#typedef-RootErrorFunc)| User supplied function  whose purpose is to specify the job of a RootFinder. |
 
 Configure the integrator to find roots of state-element vs. independent-variable functions.
 
+<a id=method-FirstOrderODEIntegrator::getIndyVar></a>
+#### ```double getIndyVar()```
+**Inherited** from [Integrator::getIndyVar()](#method-Integrator::getIndyVar)
 
+<a id=method-FirstOrderODEIntegrator::setIndyVar></a>
+#### ```double setIndyVar()```
+**Inherited** from [Integrator::setIndyVar()](#method-Integrator::setIndyVar)
 
+### Protected Member Functions
 
+#### ```advanceIndyVar()```
+**Inherited** from [Integrator::advanceIndyVar()](#method-Integrator::advanceIndyVar)
 
 <a id=class-EulerIntegrator></a>
 ## class EulerIntegrator
@@ -249,11 +386,32 @@ Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableS
 
 ### Description
 The Euler method is a first order numerical integration method. It is the simplest, explicit [Runge-Kutta](https://en.wikipedia.org/wiki/Runge–Kutta_methods) method.
+
+### Data Members
+Those inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
+
 ### Constructor
 ```
-EulerIntegrator(double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+EulerIntegrator( double h,
+                 int N,
+                 double* in_vars[],
+                 double* out_vars[],
+                 DerivsFunc func,
+                 void* user_data)
 ```
-[Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+Constructor Parameters are those of [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
+
+### Public Member Functions
+
+* All of the [Public Member Functions of FirstOrderODEVariableStepIntegrator](#FirstOrderODEVariableStepIntegrator::publicMemberFunctions), plus :
+
+<a id=method-FirstOrderODEVariableStepIntegrator::variable_step></a>
+#### ```void variable_step( double h)```
+**Overrides** [FirstOrderODEVariableStepIntegrator::variable_step()](#method-FirstOrderODEVariableStepIntegrator::variable_step)
+
+Calculates ```outState``` from ```h```, ```X_in```, ```inState```, and
+```derivs_func```, using the Euler method.
+
 
 <a id=class-HeunsMethod></a>
 ## class HeunsMethod
@@ -262,11 +420,30 @@ Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableS
 This integrator implements 
 [Heun's Method](https://en.wikipedia.org/wiki/Heun%27s_method).
 
+### Data Members
+Those inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
+
 ### Constructor
 ```
-HeunsMethod( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+HeunsMethod( double h,
+             int N,
+             double* in_vars[],
+             double* out_vars[],
+             DerivsFunc func,
+             void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
+### Public Member Functions
+
+* All of the [Public Member Functions of FirstOrderODEVariableStepIntegrator](#FirstOrderODEVariableStepIntegrator::publicMemberFunctions).
+
+<a id=method-FirstOrderODEVariableStepIntegrator::variable_step></a>
+#### ```void variable_step( double h)```
+**Overrides** [FirstOrderODEVariableStepIntegrator::variable_step()](#method-FirstOrderODEVariableStepIntegrator::variable_step)
+
+Calculates ```outState``` from ```h```, ```X_in```, ```inState```, and
+```derivs_func```, using the Heun's method.
 
 <a id=class-RK2Integrator></a>
 ## class RK2Integrator
@@ -276,11 +453,31 @@ Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableS
 
 ![RK2_tableau](images/RK2_tableau.png)
 
+### Data Members
+Those inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
+
 ### Constructor
 ```
-RK2Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+RK2Integrator( double h,
+               int N,
+               double* in_vars[],
+               double* out_vars[],
+               DerivsFunc func,
+           void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
+### Public Member Functions
+
+* All of the [Public Member Functions of FirstOrderODEVariableStepIntegrator](#FirstOrderODEVariableStepIntegrator::publicMemberFunctions).
+
+<a id=method-FirstOrderODEVariableStepIntegrator::variable_step></a>
+#### ```void variable_step( double h)```
+**Overrides** [FirstOrderODEVariableStepIntegrator::variable_step()](#method-FirstOrderODEVariableStepIntegrator::variable_step)
+
+Calculates ```outState``` from ```h```, ```X_in```, ```inState```, and
+```derivs_func```, using the Runge-Kutta 2 method.
+
 
 <a id=class-RK4Integrator></a>
 ## class RK4Integrator
@@ -290,11 +487,30 @@ Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableS
 
 ![RK4_tableau](images/RK4_tableau.png)
 
+### Data Members
+Those inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
+
 ### Constructor
 ```
-RK4Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+RK4Integrator( double h,
+               int N,
+               double* in_vars[],
+               double* out_vars[],
+               DerivsFunc func,
+               void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
+### Public Member Functions
+
+* All of the [Public Member Functions of FirstOrderODEVariableStepIntegrator](#FirstOrderODEVariableStepIntegrator::publicMemberFunctions).
+
+<a id=method-FirstOrderODEVariableStepIntegrator::variable_step></a>
+#### ```void variable_step( double h)```
+**Overrides** [FirstOrderODEVariableStepIntegrator::variable_step()](#method-FirstOrderODEVariableStepIntegrator::variable_step)
+
+Calculates ```outState``` from ```h```, ```X_in```, ```inState```, and
+```derivs_func```, using the Runge-Kutta 4 method.
 
 <a id=class-RK3_8Integrator></a>
 ## class RK3_8Integrator
@@ -303,12 +519,32 @@ Derived from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableS
 ```RK3_8Integrator``` implements the fourth order, explicit, [Runge-Kutta](https://en.wikipedia.org/wiki/Runge–Kutta_methods) method whose Butcher tableau is as follows.
 
 ![RK38_tableau](images/RK38_tableau.png)
+
+### Data Members
+Those inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
+
 ### Constructor
 ```
-RK3_8Integrator( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+RK3_8Integrator( double h,
+                 int N,
+                 double* in_vars[],
+                 double* out_vars[],
+                 DerivsFunc func,
+                 void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those of
 [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
+### Public Member Functions
+
+* All of the [Public Member Functions of FirstOrderODEVariableStepIntegrator](#FirstOrderODEVariableStepIntegrator::publicMemberFunctions).
+
+<a id=method-FirstOrderODEVariableStepIntegrator::variable_step></a>
+#### ```void variable_step( double h)```
+**Overrides** [FirstOrderODEVariableStepIntegrator::variable_step()](#method-FirstOrderODEVariableStepIntegrator::variable_step)
+
+Calculates ```outState``` from ```h```, ```X_in```, ```inState```, and
+```derivs_func```, using the Runge-Kutta 3/8 method.
 
 <a id=class-ABM2Integrator></a>
 ## class ABM2Integrator
@@ -317,9 +553,17 @@ Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
 The ABM2Integrator implements the second-order Adams-Bashforth-Moulton predictor/corrector method. Adams methods maintain a history of derivatives rather than calculating intermediate values like Runge-Kutta methods.
 
+### Data Members
+Those inherited from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
 ### Constructor
 ```
-ABM2Integrator ( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+ABM2Integrator ( double h,
+                 int N,
+                 double* in_vars[],
+                 double* out_vars[],
+                 DerivsFunc func,
+                 void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
@@ -330,9 +574,17 @@ Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 ### Description
 The ABM2Integrator implements the second-order Adams-Bashforth-Moulton predictor/corrector method. Adams methods maintain a history of derivatives rather than calculating intermediate values like Runge-Kutta methods.
 
+### Data Members
+Those inherited from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
 ### Constructor
 ```
-ABM4Integrator ( double h, int N, double* in_vars[], double* out_vars[], derivsFunc func, void* user_data)
+ABM4Integrator ( double h,
+                 int N,
+                 double* in_vars[],
+                 double* out_vars[],
+                 DerivsFunc func,
+                 void* user_data)
 ```
 
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
@@ -344,51 +596,120 @@ Derived from [Integrator](#class-Integrator).
 ### Description
 EulerCromer is integration method that conserves energy in oscillatory systems better than Runge-Kutta. So, it's good for mass-spring-damper systems, and orbital systems.
 
+### Data Members
+Those inherited from [Integrator](#class-Integrator) plus:
+
+|Member     |Type              |Access   |Description |
+|-----------|------------------|---------|------------|
+|nDimensions|```unsigned int```|Protected|Number of dimensions in position, velocity, and acceleration vectors. Typically 1,2, or 3.|
+| pos_p     |```double**```    |Protected|Array of pointers to variables from which we ```load()``` and to which we ```unload()``` the position values .|
+| vel_p     |```double**```    |Protected|Array of pointers to variables from which we ```load()``` and to which we ```unload()``` the velocity values .|
+| pos_in    |```double*```     |Protected|Position input array.|
+| vel_in    |```double*```     |Protected|Velocity input array.|
+| pos_out   |```double*```     |Protected|Position output array.|
+| vel_out   |```double*```     |Protected|Velocity output array.|
+| g_out     |```double*```     |Protected|Array of accelerations returned from gderivs.|
+| f_out     |```double*```     |Protected|Array of velocities returned from fderivs.|
+| gderivs   |[```DerivsFunc```](#typedef-DerivsFunc)|Protected|A function that returns accelerations.|
+| fderivs   |[```DerivsFunc```](#typedef-DerivsFunc)|Protected|A function that returns velocities.|
+
 ### Constructor
 ```
-SemiImplicitEuler(double dt, int N, double* xp[], double* vp[], derivsFunc gfunc, derivsFunc ffunc, void* user_data)
+EulerCromerIntegrator(double dt,
+                      int N,
+                      double* xp[],
+                      double* vp[],
+                      DerivsFunc gfunc,
+                      DerivsFunc ffunc,
+                      void* user_data)
 ```
 
 |Parameter  |Type         |Description|
 |-----------|-------------|-----------------------|
-| dt        |```double``` |Default time step value|
-| N         |```int```    |Number of state variables to be integrated|
-| xp        |```double*```|Array of pointers to the variables from which we ```load()``` and to which we ```unload()``` the integrator's position values .|
-| vp        |```double*```|Array of pointers to the variables from which we ```load()``` and to which we ```unload()``` the integrator's velocity values .|
-| gfunc |[```derivsFunc```](#typedef-derivsFunc)| A function that returns acceleration |
-| ffunc |[```derivsFunc```](#typedef-derivsFunc)| A function that returns velocity |
-|user_data  |```void*```| A pointer to user defined data that will be passed to a derivsFunc when called by the Integrator. |
+| dt        |```double``` |Default time step value. Sets Integrator::default_h. |
+| N         |```int```    |Sets nDimensions above.|
+| xp        |```double*```|Sets pos_p above.|
+| vp        |```double*```|Sets vel_p above.|
+| gfunc |[```DerivsFunc```](#typedef-DerivsFunc)| Sets gderivs above. |
+| ffunc |[```DerivsFunc```](#typedef-DerivsFunc)| Sets fderivs above. |
+|user_data  |```void*```  | Sets Integrator::user_data. |
+
+### Public Member Functions
+
+#### ```void step( double dt)```
+
+|Parameter   |Type         |Description|
+|------------|-------------|-----------------------|
+| dt         |```double``` | Integration step-size that overrides the default step-size.|
+
+This function calculates ```pos_out``` and ```vel_out``` from ```dt```, ```X_in```, ```pos_in```, ```vel_in```, ```f_func```, and ```gfunc``` using the Euler-Cromer method.
+
+#### ```void step()```
+
+This function calls ```step(dt)``` (above) with the default step-size.
+
+#### ```void load()```
+**Overrides** [Integrator::integrate()](#method-Integrator::integrate)
+Load the integrator's initial state from the variables specified by **xp**, and **vp**. Set the initial value of the independent variable for the next step to the final value of the previous step.
+
+#### ```void unload()```
+**Overrides** [Integrator::integrate()](#method-Integrator::integrate)
+
+Unload the integrator's result state (**pos\_out**, and **vel\_out**) to the variables specified by **xp**, and **vp**.
+
+#### ```void integrate()```
+**Inherited** from [Integrator::integrate()](#method-Integrator::integrate)
+
+#### ```double undo_integrate()```
+**Overrides** [Integrator::undo_integrate()](#method-Integrator::undo_integrate)
+
+Undo the effect of the last integration step.
+
+<a id=method-FirstOrderODEIntegrator::getIndyVar></a>
+#### ```double getIndyVar()```
+**Inherited** from [Integrator::getIndyVar()](#method-Integrator::getIndyVar)
+
+<a id=method-FirstOrderODEIntegrator::setIndyVar></a>
+#### ```double setIndyVar()```
+**Inherited** from [Integrator::setIndyVar()](#method-Integrator::setIndyVar)
+
+### Protected Member Functions
+
+#### ```advanceIndyVar()```
+**Inherited** from [Integrator::advanceIndyVar()](#method-Integrator::advanceIndyVar)
 
 <a id=enum-SlopeConstraint></a>
 ## enum SlopeConstraint
 
+### Description
+
 | Value             | Meaning |
 |-------------------|---------|
-| Negative          | Require slope of the function to be negative at the root. |
-| Unconstrained     | No slope constraint. |
-| Positive          | Require slope of the function to be positive at the root. |
+| Negative          | Require slope of the function to be negative at the root.|
+| Unconstrained     | No slope constraint.|
+| Positive          | Require slope of the function to be positive at the root.|
 
 <a id=class-RootFinder></a>
 ## class RootFinder
-Derived from [RootFinder](#class-RootFinder).
-
-|Member            |Type        |Description |
-|------------------|------------|------------|
-| f_upper          |```double```|  |
-| x_upper          |```double```|  |
-| upper_set        |```bool```  |  |
-| f_lower          |```double```|  |
-| x_lower          |```double```|  |
-| lower_set        |```bool```  |  |
-| prev\_f_error    |```double```|  |
-| f\_error\_tol    |```double```|  |
-| iterations       |```int```   |  |
-| slope_constraint |[```SlopeConstraint```](#enum-SlopeConstraint)|  |
-| f_slope          |[```SlopeConstraint```](#enum-SlopeConstraint)|  |
-
 
 ### Description
 The RootFinder class uses the [Regula-Falsi](https://en.wikipedia.org/wiki/Regula_falsi)  method to find roots of a math function. A root is a value of **x** such that **f(x)=0**.
+
+### Data Members
+|Member            |Type        |Access |Description |
+|------------------|------------|-------|------------|
+| f_upper          |```double```|Private|Error-function value upper bound.|
+| x_upper          |```double```|Private|Independent variable value upper bound.|
+| upper_set        |```bool```  |Private|True = bound is valid. False = not valid.|
+| f_lower          |```double```|Private|Error-function value lower bound.|
+| x_lower          |```double```|Private|Independent variable value lower bound.|
+| lower_set        |```bool```  |Private|True = bound is valid. False = not valid.|
+| prev\_f_error    |```double```|Private|Absolute value of the previous root function value.|
+| f\_error\_tol    |```double```|Private|How close is close enough.|
+| iterations       |```int```   |Private|Number of Regula Falsi iterations.|
+| slope_constraint |[```SlopeConstraint```](#enum-SlopeConstraint)|Private|Find roots with this slope sign.|
+| f_slope          |[```SlopeConstraint```](#enum-SlopeConstraint)|Private|Current root function slope.|
+
 
 ### Constructors
 
@@ -402,7 +723,7 @@ Default constructor that calls ```void RootFinder::init()``` below.
 | tolerance  |```double``` | Error tolerance. |
 | constraint |[```SlopeConstraint```](#enum-SlopeConstraint)|  |
 
-### Methods
+### Public Member Functions
 
 #### ```void init( double tolerance, SlopeConstraint constraint)```
 Initialize the RootFinder with the given tolerance, and SlopeConstraint.

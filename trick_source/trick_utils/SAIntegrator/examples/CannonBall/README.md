@@ -1,6 +1,6 @@
 # CannonBall
 
-This is an example of using the RK2Integrator to create a simple cannon ball simulation.
+This is an example of using the RK2Integrator to create a simple cannon ball simulation. We also use a rootfinder with out integrator to detect contact with the ground, and bounce the cannonball.
 
 ```
 $ make
@@ -9,22 +9,3 @@ $ python plot_trajectory.py
 ```
 
 ![Cannon](images/Cannon.png)
-
-```
-$ make
-$ ./Cannonball
-```
-
-Next edit, and uncomment the indicated lines, recompile, and run. You should see:
-
-```
-5.070, 219.5374398594, 0.6674655000, 43.3012701892, -24.7367000000, 0.0000000000, -9.8100000000
-5.080, 219.9704525612, 0.4196080000, 43.3012701892, -24.8348000000, 0.0000000000, -9.8100000000
-5.090, 220.4034652631, 0.1707695000, 43.3012701892, -24.9329000000, 0.0000000000, -9.8100000000
----------------------------------------------------------------
-Impact at t = 5.0968399592 x = 220.6996441856 y = 0.0000000000.
----------------------------------------------------------------
-5.100, 220.6996441856, 0.0000000001, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000
-5.110, 220.6996441856, 0.0000000001, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000
-5.120, 220.6996441856, 0.0000000001, 0.0000000000, 0.0000000000, 0.0000000000, 0.0000000000
-```
