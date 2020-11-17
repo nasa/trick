@@ -745,6 +745,7 @@ enable_32bit
 enable_offline
 enable_mongoose
 with_python
+with_local_bin
 with_swig
 enable_java
 with_llvm
@@ -1404,6 +1405,10 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-x                use the X Window System
   --with-python[=DIR]     python root directory
+  --without-local-bin     do not add local bin to path (default is enabled
+                          with /usr/local/bin)
+  --with-local-bin[=DIR]  specify a directory to prepend to PATH (default is
+                          /usr/local/bin)
   --with-swig[=DIR]       path of directory containing the SWIG executable.
   --with-llvm[=DIR]       LLVM root directory
   --with-zlib=DIR         root directory path of zlib installation [defaults to
@@ -2388,6 +2393,14 @@ fi
 ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
+
+
+
+
+
+
+
+
 
 
 
@@ -5604,6 +5617,20 @@ PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
 
 
 
+# Check whether --with-local-bin was given.
+if test "${with_local_bin+set}" = set; then :
+  withval=$with_local_bin; if test "x${with_local_bin}" = xyes; then :
+  PATH="/usr/local/bin:${PATH}"
+else
+  if test "x${with_local_bin}" != xno; then :
+  PATH="${withval}:${PATH}"
+fi
+
+fi
+
+fi
+
+
 # Extract the first word of "gnuplot", so it can be a program name with args.
 set dummy gnuplot; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
@@ -5654,9 +5681,6 @@ fi
 # Check whether --with-swig was given.
 if test "${with_swig+set}" = set; then :
   withval=$with_swig; PATH="$withval:${PATH}"
-else
-  PATH="${PATH}:/usr/local/bin"
-
 fi
 
 
