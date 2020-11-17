@@ -136,7 +136,8 @@ AC_DEFUN([AX_GTEST_HOME],[
 AC_DEFUN([AX_SWIG_BIN],[
     AC_ARG_WITH([swig],
                 AS_HELP_STRING([--with-swig@<:@=DIR@:>@], [path of directory containing the SWIG executable.]),
-                PATH="$withval:${PATH}"
+                PATH="$withval:${PATH}",
+                PATH="${PATH}:/usr/local/bin"
                )
     AC_SUBST([SWIG_BIN])
 ])
@@ -229,9 +230,6 @@ case "${host_os}" in
         ;;
 esac
 
-
-dnl add extra paths to find programs
-PATH="${PATH}:/usr/local/bin"
 
 dnl add extra paths to find xml headers and X headers on the mac.
 AS_IF([test "$ON_MAC" = "yes"],

@@ -2500,8 +2500,6 @@ case "${host_os}" in
 esac
 
 
-PATH="${PATH}:/usr/local/bin"
-
 if test "$ON_MAC" = "yes"; then :
 
  # Extract the first word of "xcrun", so it can be a program name with args.
@@ -5656,6 +5654,8 @@ fi
 # Check whether --with-swig was given.
 if test "${with_swig+set}" = set; then :
   withval=$with_swig; PATH="$withval:${PATH}"
+else
+  PATH="${PATH}:/usr/local/bin"
 
 fi
 
