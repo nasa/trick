@@ -648,10 +648,9 @@ JAVA_CC
 USE_JAVA
 SWIG_LIB
 SWIG
-SWIG_BIN
 GNUPLOT
-PYTHON_EXTRA_LIBS
 PYTHON_EXTRA_LDFLAGS
+PYTHON_EXTRA_LIBS
 PYTHON_SITE_PKG
 PYTHON_LIBS
 PYTHON_CPPFLAGS
@@ -739,6 +738,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_prepend_path
 with_x
 enable_32bit
 with_swig
@@ -1395,6 +1395,10 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --without-prepend-path  do not prepend to path (this is default)
+  --with-prepend-path[=DIR]
+                          specify a directory to prepend to PATH (default is
+                          /usr/local/bin)
   --with-x                use the X Window System
   --with-swig[=DIR]       path of directory containing the SWIG executable.
   --with-llvm[=DIR]       LLVM root directory
@@ -2413,6 +2417,14 @@ ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
 
 
 
+
+
+
+
+
+
+
+
 # Make sure we can run config.sub.
 $SHELL "$ac_aux_dir/config.sub" sun4 >/dev/null 2>&1 ||
   as_fn_error $? "cannot run $SHELL $ac_aux_dir/config.sub" "$LINENO" 5
@@ -2496,7 +2508,20 @@ case "${host_os}" in
 esac
 
 
-PATH="/usr/local/bin:${PATH}"
+
+# Check whether --with-prepend-path was given.
+if test "${with_prepend_path+set}" = set; then :
+  withval=$with_prepend_path; if test "x${with_prepend_path}" = xyes; then :
+  PATH="/usr/local/bin:${PATH}"
+else
+  if test "x${with_prepend_path}" != xno; then :
+  PATH="${withval}:${PATH}"
+fi
+
+fi
+fi
+
+
 
 if test "$ON_MAC" = "yes"; then :
 
@@ -5612,13 +5637,13 @@ $as_echo "$PYTHON_SITE_PKG" >&6; }
 	#
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking python extra libraries" >&5
 $as_echo_n "checking python extra libraries... " >&6; }
-	if test -z "$PYTHON_EXTRA_LDFLAGS"; then
-	   PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
+	if test -z "$PYTHON_EXTRA_LIBS"; then
+	   PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
                 conf = distutils.sysconfig.get_config_var; \
                 print (conf('LIBS') + ' ' + conf('SYSLIBS'))"`
 	fi
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_EXTRA_LDFLAGS" >&5
-$as_echo "$PYTHON_EXTRA_LDFLAGS" >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_EXTRA_LIBS" >&5
+$as_echo "$PYTHON_EXTRA_LIBS" >&6; }
 
 
 	#
@@ -5626,13 +5651,13 @@ $as_echo "$PYTHON_EXTRA_LDFLAGS" >&6; }
 	#
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking python extra linking flags" >&5
 $as_echo_n "checking python extra linking flags... " >&6; }
-	if test -z "$PYTHON_EXTRA_LIBS"; then
-		PYTHON_EXTRA_LIBS=`$PYTHON -c "import distutils.sysconfig; \
+	if test -z "$PYTHON_EXTRA_LDFLAGS"; then
+		PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
 			conf = distutils.sysconfig.get_config_var; \
 			print (conf('LINKFORSHARED'))"`
 	fi
-	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_EXTRA_LIBS" >&5
-$as_echo "$PYTHON_EXTRA_LIBS" >&6; }
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $PYTHON_EXTRA_LDFLAGS" >&5
+$as_echo "$PYTHON_EXTRA_LDFLAGS" >&6; }
 
 
 	#
@@ -5759,14 +5784,12 @@ $as_echo "$as_me: could not find gnuplot" >&6;}
 fi
 
 
+
 # Check whether --with-swig was given.
 if test "${with_swig+set}" = set; then :
-  withval=$with_swig; PATH="$withval:${PATH}"
-
-fi
-
-
-
+  withval=$with_swig;
+                  TEMP_PATH="${PATH}"
+                  PATH="$withval:${PATH}"
 
         # Find path to the "swig" executable.
         for ac_prog in swig swig3.0 swig2.0
@@ -5883,6 +5906,132 @@ $as_echo "$as_me: WARNING: cannot determine SWIG version" >&2;}
                         as_fn_error $? "Trick requires SWIG version >= 2.0" "$LINENO" 5
                 fi
         fi
+
+
+                  PATH="${TEMP_PATH}"
+
+else
+
+        # Find path to the "swig" executable.
+        for ac_prog in swig swig3.0 swig2.0
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_SWIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $SWIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_SWIG="$SWIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_SWIG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+SWIG=$ac_cv_path_SWIG
+if test -n "$SWIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $SWIG" >&5
+$as_echo "$SWIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$SWIG" && break
+done
+
+        if test -z "$SWIG" ; then
+                as_fn_error $? "Trick requires SWIG version >= 2.0" "$LINENO" 5
+        elif test -n "2.0" ; then
+                { $as_echo "$as_me:${as_lineno-$LINENO}: checking SWIG version" >&5
+$as_echo_n "checking SWIG version... " >&6; }
+                swig_version=`$SWIG -version 2>&1 | grep 'SWIG Version' | sed 's/.*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/g'`
+                { $as_echo "$as_me:${as_lineno-$LINENO}: result: $swig_version" >&5
+$as_echo "$swig_version" >&6; }
+                if test -n "$swig_version" ; then
+                        # Calculate the required version number components
+                        required=2.0
+                        required_major=`echo $required | sed 's/[^0-9].*//'`
+                        if test -z "$required_major" ; then
+                                required_major=0
+                        fi
+                        required=`echo $required | sed 's/[0-9]*[^0-9]//'`
+                        required_minor=`echo $required | sed 's/[^0-9].*//'`
+                        if test -z "$required_minor" ; then
+                                required_minor=0
+                        fi
+                        required=`echo $required | sed 's/[0-9]*[^0-9]//'`
+                        required_patch=`echo $required | sed 's/[^0-9].*//'`
+                        if test -z "$required_patch" ; then
+                                required_patch=0
+                        fi
+                        # Calculate the available version number components
+                        available=$swig_version
+                        available_major=`echo $available | sed 's/[^0-9].*//'`
+                        if test -z "$available_major" ; then
+                                available_major=0
+                        fi
+                        available=`echo $available | sed 's/[0-9]*[^0-9]//'`
+                        available_minor=`echo $available | sed 's/[^0-9].*//'`
+                        if test -z "$available_minor" ; then
+                                available_minor=0
+                        fi
+                        available=`echo $available | sed 's/[0-9]*[^0-9]//'`
+                        available_patch=`echo $available | sed 's/[^0-9].*//'`
+                        if test -z "$available_patch" ; then
+                                available_patch=0
+                        fi
+                        # Convert the version tuple into a single number for easier comparison.
+                        # Using base 100 should be safe since SWIG internally uses BCD values
+                        # to encode its version number.
+                        required_swig_vernum=`expr $required_major \* 10000 \
+                            \+ $required_minor \* 100 \+ $required_patch`
+                        available_swig_vernum=`expr $available_major \* 10000 \
+                            \+ $available_minor \* 100 \+ $available_patch`
+
+                        if test $available_swig_vernum -lt $required_swig_vernum; then
+                                { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: SWIG version >= 2.0 is required.  You have $swig_version." >&5
+$as_echo "$as_me: WARNING: SWIG version >= 2.0 is required.  You have $swig_version." >&2;}
+                                SWIG=''
+                                as_fn_error $? "Trick requires SWIG version >= 2.0" "$LINENO" 5
+                        else
+                                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SWIG library" >&5
+$as_echo_n "checking for SWIG library... " >&6; }
+                                SWIG_LIB=`$SWIG -swiglib`
+                                { $as_echo "$as_me:${as_lineno-$LINENO}: result: $SWIG_LIB" >&5
+$as_echo "$SWIG_LIB" >&6; }
+
+                        fi
+                else
+                        { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: cannot determine SWIG version" >&5
+$as_echo "$as_me: WARNING: cannot determine SWIG version" >&2;}
+                        SWIG=''
+                        as_fn_error $? "Trick requires SWIG version >= 2.0" "$LINENO" 5
+                fi
+        fi
+
+
+
+fi
+
 
 
 
@@ -7344,7 +7493,6 @@ then
         LDFLAGS="$LDFLAGS -L${ZLIB_HOME}/lib"
         CPPFLAGS="$CPPFLAGS -I${ZLIB_HOME}/include"
   fi
-
   ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -9133,4 +9281,3 @@ fi
 
 
 printf "\033[32mconfigure script successfully completed\033[0m\n"
-
