@@ -136,10 +136,14 @@ AC_DEFUN([AX_GTEST_HOME],[
 AC_DEFUN([AX_SWIG_BIN],[
     AC_ARG_WITH([swig],
                 [AS_HELP_STRING([--with-swig@<:@=DIR@:>@], [path of directory containing the SWIG executable.])],
-                [PATH="$withval:${PATH}"],
-                []
+                [
+                  TEMP_PATH="${PATH}"
+                  PATH="$withval:${PATH}"
+                  AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])
+                  PATH="${TEMP_PATH}"
+                ],
+                [AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])]
                )
-    AC_SUBST([SWIG_BIN])
 ])
 
 AC_DEFUN([AX_UDUNITS_HOME],[
@@ -174,11 +178,11 @@ m4_define([NA_HELP_STRINGS],
 dnl test if want to prepend /usr/local/bin to PATH
 dnl AC_ARG_WITH (package, help-string, [action-if-given], [action-if-not-given])
 AC_DEFUN(
-    [AX_LOCAL_BIN],
+    [AX_PREPEND_PATH],
     [AC_ARG_WITH(
-        [local-bin],
+        [prepend-path],
         [NA_HELP_STRINGS(
-[--without-local-bin], [do not add local bin to path (default is enabled with /usr/local/bin)], [--with-local-bin@<:@=DIR@:>@], [specify a directory to prepend to PATH (default is /usr/local/bin)])], 
+[--without-prepend-path], [do not prepend to path (this is default)], [--with-prepend-path@<:@=DIR@:>@], [specify a directory to prepend to PATH (default is /usr/local/bin)])], 
         [AS_IF(
             [test "x${with_local_bin}" = xyes],
             [PATH="/usr/local/bin:${PATH}"],
@@ -188,7 +192,7 @@ AC_DEFUN(
                 [AC_MSG_NOTICE([did not add bin to path])]
             )]
         )],
-        [PATH="/usr/local/bin:${PATH}"]
+        []
     )]
 )
 
@@ -456,11 +460,10 @@ PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
 AC_SUBST([PYTHON_CPPFLAGS])
 AC_SUBST([PYTHON_LIBS])
 AC_SUBST([PYTHON_EXTRA_LIBS])
-AX_LOCAL_BIN
+AX_PREPEND_PATH
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
-AX_SWIG_BIN([])
-AX_PKG_SWIG(2.0, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])
+AX_SWIG_BIN([2.0])
 AX_JAVA
 
 AX_PTHREAD()

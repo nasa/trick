@@ -650,7 +650,6 @@ JAVA_CC
 USE_JAVA
 SWIG_LIB
 SWIG
-SWIG_BIN
 GNUPLOT
 PYTHON_EXTRA_LIBS
 PYTHON_LIBS
@@ -745,7 +744,7 @@ enable_32bit
 enable_offline
 enable_mongoose
 with_python
-with_local_bin
+with_prepend_path
 with_swig
 enable_java
 with_llvm
@@ -1405,9 +1404,9 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-x                use the X Window System
   --with-python[=DIR]     python root directory
-  --without-local-bin     do not add local bin to path (default is enabled
-                          with /usr/local/bin)
-  --with-local-bin[=DIR]  specify a directory to prepend to PATH (default is
+  --without-prepend-path  do not prepend to path (this is default)
+  --with-prepend-path[=DIR]
+                          specify a directory to prepend to PATH (default is
                           /usr/local/bin)
   --with-swig[=DIR]       path of directory containing the SWIG executable.
   --with-llvm[=DIR]       LLVM root directory
@@ -5617,9 +5616,9 @@ PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
 
 
 
-# Check whether --with-local-bin was given.
-if test "${with_local_bin+set}" = set; then :
-  withval=$with_local_bin; if test "x${with_local_bin}" = xyes; then :
+# Check whether --with-prepend-path was given.
+if test "${with_prepend_path+set}" = set; then :
+  withval=$with_prepend_path; if test "x${with_local_bin}" = xyes; then :
   PATH="/usr/local/bin:${PATH}"
 else
   if test "x${with_local_bin}" != xno; then :
@@ -5631,9 +5630,6 @@ $as_echo "$as_me: did not add bin to path" >&6;}
 fi
 
 fi
-else
-  PATH="/usr/local/bin:${PATH}"
-
 fi
 
 
@@ -5686,11 +5682,9 @@ fi
 
 # Check whether --with-swig was given.
 if test "${with_swig+set}" = set; then :
-  withval=$with_swig; PATH="$withval:${PATH}"
-fi
-
-
-
+  withval=$with_swig;
+                  TEMP_PATH="${PATH}"
+                  PATH="$withval:${PATH}"
 
         # Find path to the "swig" executable.
         for ac_prog in swig swig3.0 swig2.0
@@ -5807,6 +5801,131 @@ $as_echo "$as_me: WARNING: cannot determine SWIG version" >&2;}
                         as_fn_error $? "Trick requires SWIG version >= 2.0" "$LINENO" 5
                 fi
         fi
+
+
+                  PATH="${TEMP_PATH}"
+
+else
+
+        # Find path to the "swig" executable.
+        for ac_prog in swig swig3.0 swig2.0
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_path_SWIG+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  case $SWIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_SWIG="$SWIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_SWIG="$as_dir/$ac_word$ac_exec_ext"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  ;;
+esac
+fi
+SWIG=$ac_cv_path_SWIG
+if test -n "$SWIG"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $SWIG" >&5
+$as_echo "$SWIG" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$SWIG" && break
+done
+
+        if test -z "$SWIG" ; then
+                as_fn_error $? "Trick requires SWIG version >= 2.0" "$LINENO" 5
+        elif test -n "2.0" ; then
+                { $as_echo "$as_me:${as_lineno-$LINENO}: checking SWIG version" >&5
+$as_echo_n "checking SWIG version... " >&6; }
+                swig_version=`$SWIG -version 2>&1 | grep 'SWIG Version' | sed 's/.*\([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/g'`
+                { $as_echo "$as_me:${as_lineno-$LINENO}: result: $swig_version" >&5
+$as_echo "$swig_version" >&6; }
+                if test -n "$swig_version" ; then
+                        # Calculate the required version number components
+                        required=2.0
+                        required_major=`echo $required | sed 's/[^0-9].*//'`
+                        if test -z "$required_major" ; then
+                                required_major=0
+                        fi
+                        required=`echo $required | sed 's/[0-9]*[^0-9]//'`
+                        required_minor=`echo $required | sed 's/[^0-9].*//'`
+                        if test -z "$required_minor" ; then
+                                required_minor=0
+                        fi
+                        required=`echo $required | sed 's/[0-9]*[^0-9]//'`
+                        required_patch=`echo $required | sed 's/[^0-9].*//'`
+                        if test -z "$required_patch" ; then
+                                required_patch=0
+                        fi
+                        # Calculate the available version number components
+                        available=$swig_version
+                        available_major=`echo $available | sed 's/[^0-9].*//'`
+                        if test -z "$available_major" ; then
+                                available_major=0
+                        fi
+                        available=`echo $available | sed 's/[0-9]*[^0-9]//'`
+                        available_minor=`echo $available | sed 's/[^0-9].*//'`
+                        if test -z "$available_minor" ; then
+                                available_minor=0
+                        fi
+                        available=`echo $available | sed 's/[0-9]*[^0-9]//'`
+                        available_patch=`echo $available | sed 's/[^0-9].*//'`
+                        if test -z "$available_patch" ; then
+                                available_patch=0
+                        fi
+                        # Convert the version tuple into a single number for easier comparison.
+                        # Using base 100 should be safe since SWIG internally uses BCD values
+                        # to encode its version number.
+                        required_swig_vernum=`expr $required_major \* 10000 \
+                            \+ $required_minor \* 100 \+ $required_patch`
+                        available_swig_vernum=`expr $available_major \* 10000 \
+                            \+ $available_minor \* 100 \+ $available_patch`
+
+                        if test $available_swig_vernum -lt $required_swig_vernum; then
+                                { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: SWIG version >= 2.0 is required.  You have $swig_version." >&5
+$as_echo "$as_me: WARNING: SWIG version >= 2.0 is required.  You have $swig_version." >&2;}
+                                SWIG=''
+                                as_fn_error $? "Trick requires SWIG version >= 2.0" "$LINENO" 5
+                        else
+                                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SWIG library" >&5
+$as_echo_n "checking for SWIG library... " >&6; }
+                                SWIG_LIB=`$SWIG -swiglib`
+                                { $as_echo "$as_me:${as_lineno-$LINENO}: result: $SWIG_LIB" >&5
+$as_echo "$SWIG_LIB" >&6; }
+
+                        fi
+                else
+                        { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: cannot determine SWIG version" >&5
+$as_echo "$as_me: WARNING: cannot determine SWIG version" >&2;}
+                        SWIG=''
+                        as_fn_error $? "Trick requires SWIG version >= 2.0" "$LINENO" 5
+                fi
+        fi
+
+
+
+fi
 
 
 
