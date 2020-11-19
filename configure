@@ -5618,15 +5618,11 @@ PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
 
 # Check whether --with-prepend-path was given.
 if test "${with_prepend_path+set}" = set; then :
-  withval=$with_prepend_path; if test "x${with_local_bin}" = xyes; then :
+  withval=$with_prepend_path; if test "x${with_prepend_path}" = xyes; then :
   PATH="/usr/local/bin:${PATH}"
 else
-  if test "x${with_local_bin}" != xno; then :
+  if test "x${with_prepend_path}" != xno; then :
   PATH="${withval}:${PATH}"
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: did not add bin to path" >&5
-$as_echo "$as_me: did not add bin to path" >&6;}
-
 fi
 
 fi

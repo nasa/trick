@@ -184,12 +184,12 @@ AC_DEFUN(
         [NA_HELP_STRINGS(
 [--without-prepend-path], [do not prepend to path (this is default)], [--with-prepend-path@<:@=DIR@:>@], [specify a directory to prepend to PATH (default is /usr/local/bin)])], 
         [AS_IF(
-            [test "x${with_local_bin}" = xyes],
+            [test "x${with_prepend_path}" = xyes],
             [PATH="/usr/local/bin:${PATH}"],
             [AS_IF(
-                [test "x${with_local_bin}" != xno],
+                [test "x${with_prepend_path}" != xno],
                 [PATH="${withval}:${PATH}"],
-                [AC_MSG_NOTICE([did not add bin to path])]
+                []
             )]
         )],
         []
