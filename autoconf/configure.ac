@@ -135,10 +135,15 @@ AC_DEFUN([AX_GTEST_HOME],[
 
 AC_DEFUN([AX_SWIG_BIN],[
     AC_ARG_WITH([swig],
-                AS_HELP_STRING([--with-swig@<:@=DIR@:>@], [path of directory containing the SWIG executable.]),
-                PATH="$withval:${PATH}"
+                [AS_HELP_STRING([--with-swig@<:@=DIR@:>@], [path of directory containing the SWIG executable.])],
+                [
+                  TEMP_PATH="${PATH}"
+                  PATH="$withval:${PATH}"
+                  AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])
+                  PATH="${TEMP_PATH}"
+                ],
+                [AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])]
                )
-    AC_SUBST([SWIG_BIN])
 ])
 
 AC_DEFUN([AX_UDUNITS_HOME],[
@@ -149,6 +154,48 @@ AC_DEFUN([AX_UDUNITS_HOME],[
                )
     AC_SUBST([UDUNITS_HOME])
 ])
+
+dnl SOURCE: https://stackoverflow.com/a/59191148
+
+dnl  NA_HELP_STRINGS(list1, help1[, list2, help2[, ... listN, helpN]])
+dnl  **************************************************************************
+dnl
+dnl  Similar to `AS_HELP_STRING()`, but with support for multiple strings, each
+dnl  one associated with one or more options
+dnl
+dnl  From: https://github.com/madmurphy/not-autotools
+dnl
+dnl  **************************************************************************
+m4_define([NA_HELP_STRINGS],
+    [m4_if(m4_count($1), [1],
+        [m4_if([$#], [0], [], [$#], [1],
+            [m4_text_wrap($1, [  ])],
+            [AS_HELP_STRING(m4_normalize($1), [$2])m4_if([$#], [2], [], [m4_newline()NA_HELP_STRINGS(m4_shift2($@))])])],
+        [m4_text_wrap(m4_argn(1, $1)[,], [  ])m4_newline()NA_HELP_STRINGS(m4_dquote(m4_shift($1))m4_if([$#], [1], [], [, m4_shift($@)]))])])
+
+
+
+dnl test if want to prepend /usr/local/bin to PATH
+dnl AC_ARG_WITH (package, help-string, [action-if-given], [action-if-not-given])
+AC_DEFUN(
+    [AX_PREPEND_PATH],
+    [AC_ARG_WITH(
+        [prepend-path],
+        [NA_HELP_STRINGS(
+[--without-prepend-path], [do not prepend to path (this is default)], [--with-prepend-path@<:@=DIR@:>@], [specify a directory to prepend to PATH (default is /usr/local/bin)])], 
+        [AS_IF(
+            [test "x${with_prepend_path}" = xyes],
+            [PATH="/usr/local/bin:${PATH}"],
+            [AS_IF(
+                [test "x${with_prepend_path}" != xno],
+                [PATH="${withval}:${PATH}"],
+                []
+            )]
+        )],
+        []
+    )]
+)
+
 
 dnl test if we want to use java, default to yes
 AC_DEFUN([AX_JAVA],[
@@ -229,9 +276,6 @@ case "${host_os}" in
         ;;
 esac
 
-
-dnl add extra paths to find programs
-PATH="/usr/local/bin:${PATH}"
 
 dnl add extra paths to find xml headers and X headers on the mac.
 AS_IF([test "$ON_MAC" = "yes"],
@@ -416,11 +460,10 @@ PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
 AC_SUBST([PYTHON_CPPFLAGS])
 AC_SUBST([PYTHON_LIBS])
 AC_SUBST([PYTHON_EXTRA_LIBS])
-
+AX_PREPEND_PATH
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
-AX_SWIG_BIN([])
-AX_PKG_SWIG(2.0, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])
+AX_SWIG_BIN([2.0])
 AX_JAVA
 
 AX_PTHREAD()
@@ -533,4 +576,3 @@ AX_ER7_UTILS([])
 AC_OUTPUT([share/trick/makefiles/config_user.mk])
 
 printf "\033@<:@32mconfigure script successfully completed\033@<:@0m\n"
-
