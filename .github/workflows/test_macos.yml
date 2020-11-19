@@ -1,0 +1,36 @@
+name: Trick CI - macOS
+
+on:
+  push:
+    paths-ignore:
+    - 'docs/**'
+
+jobs:
+  macOS:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@master
+   
+    - name: Install gtest
+      run: |
+        wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+        tar xzvf release-1.8.0.tar.gz
+        cd googletest-release-1.8.0/googletest
+        cmake .
+        make
+        make install
+    - name: Install dependencies
+      run: |
+        # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
+        brew cask install xquartz
+        brew install llvm swig udunits openmotif maven
+    - name: Build Trick
+      run: |
+        export MAKEFLAGS=-j4
+        ./configure
+        make
+    - name: Run tests
+      run: |
+        export MAKEFLAGS=-j4
+        make test

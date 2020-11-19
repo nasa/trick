@@ -1,0 +1,19 @@
+name: Test Docker Hub Images
+
+on:
+  schedule:
+    - cron:  '0 0 * * 0'
+  
+jobs:
+  latest:
+    runs-on: ubuntu-18.04
+    container: docker://nasatrick/${{matrix.container}}:latest
+    strategy:
+      matrix:
+        container: [trick_centos7, trick_centos8, trick_ubuntu1804]
+    steps:
+      - name: run tests
+        run: |
+          cd /trick*
+          make test
+          

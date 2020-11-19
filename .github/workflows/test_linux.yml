@@ -1,0 +1,194 @@
+name: Trick CI - Linux
+
+on:
+  push:
+    paths-ignore:
+    - 'docs/**'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+#-------- Operating Systems ----------------
+          - { os: ubuntu, tag: 18.04,   arch: debian }         # EOL April 2023
+          - { os: ubuntu, tag: 20.04,   arch: debian }         # EOL April 2025
+          - { os: debian, tag: 10,      arch: debian }               # EOL 2024
+          - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
+          - { os: centos, tag: latest,  arch: rhel   }     # 8 as of April 2020
+          - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
+        # - { os: fedora, tag: 33,      arch: rhel   } # feeling confident?
+        # - { os: fedora, tag: rawhide, arch: rhel   } # for thrill-seekers only
+
+#-------- Defaults --------------------------
+        include:
+          - cfg: {}
+            deps: >-
+              bison
+              clang
+              flex
+              git
+              llvm
+              make
+              maven
+              swig
+              cmake
+            install_gtest: echo gtest already installed
+            conf_pkg:  echo package manager already configured
+            install_cmd: install -y
+#-------- Debian-based Dependencies ----------------
+          - cfg: { arch: debian }
+            pkg_mgr: apt-get
+            conf_pkg:  apt-get update
+            arch_deps: >-
+              curl
+              g++
+              libx11-dev
+              libxml2-dev
+              libxt-dev
+              libmotif-common
+              libmotif-dev
+              python2.7-dev
+              zlib1g-dev
+              llvm-dev
+              libclang-dev
+              libudunits2-dev
+              libgtest-dev
+            install_gtest: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
+#-------- RHEL Dependencies ----------------
+          - cfg: { arch: rhel }
+            arch_deps: >-
+              clang-devel
+              gcc
+              gcc-c++
+              java-11-openjdk-devel
+              libxml2-devel
+              llvm-devel
+              llvm-static
+              ncurses-devel
+              openmotif
+              openmotif-devel
+              perl
+              perl-Digest-MD5
+              udunits2
+              udunits2-devel
+              which
+              zlib-devel
+              gtest-devel
+#-------- Ubuntu Only Dependencies ----------------
+          - cfg: { os: ubuntu }
+            os_deps: >-
+              openjdk-11-jdk
+#-------- Debian OS Only Dependencies ----------------
+          - cfg: { os: debian }
+            os_deps: >-
+              openjdk-11-jdk
+#-------- CentOS Only Dependencies ----------------
+          - cfg: { os: centos }
+            pkg_mgr: yum
+            conf_pkg: yum -y install epel-release && yum -y update
+            os_deps: >-
+              libX11-devel
+              libXt-devel
+#-------- Fedora Only Dependencies ----------------
+          - cfg: { os: fedora }
+            pkg_mgr: dnf
+            os_deps: >-
+              perl-Text-Balanced
+              python-devel
+              diffutils
+#-------- Version Specific Dependencies ----------------
+          - cfg: { os: ubuntu, tag: 20.04 }
+            conf_pkg: DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y tzdata
+            install_gtest: cd /usr/src/gtest && cmake . && make && cp lib/libgtest* /usr/lib/
+            tag_deps: >-
+              python3.8-dev
+          - cfg: { os: centos, tag: 7 }
+            tag_deps: >-
+              python-devel
+          - cfg: { os: centos, tag: latest }
+            pkg_mgr: dnf
+            conf_pkg: >
+              dnf -y install epel-release &&
+              dnf -y update &&
+              dnf install -y 'dnf-command(config-manager)' &&
+              dnf config-manager --enable PowerTools
+            tag_deps: >-
+              python3-devel diffutils
+#-------- Job definition ----------------
+    runs-on: ubuntu-18.04
+    container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
+    steps:
+      - name: Update Package Manager
+        run: ${{matrix.conf_pkg}}
+      - name: Install Dependencies
+        run: |
+          ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
+      - name: Install GTest
+        run: ${{matrix.install_gtest}}
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Build trick
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          ./configure
+          make
+      - name: Test
+        run: make test
+
+  trick_32bit:
+    runs-on: ubuntu-18.04
+    container: docker://centos:7
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@master
+    - name: Add yum repo
+      run: yum -y install epel-release.noarch
+    - name: Install dependency group
+      run: yum -y groupinstall "Development tools"
+    - name: Install other dependencies
+      run: >
+        yum install -y llvm llvm-devel llvm-static clang clang-devel
+        bison flex gcc gcc-c++ libxml2-devel make cmake wget
+        ncurses-devel openmotif openmotif-devel python-devel perl
+        perl-Digest-MD5 swig zlib-devel glibc.x86_64 libxml2-devel.i686
+        ncurses-devel.i686 zlib-devel.i686 python-libs.i686
+        expat-2.1.0-10.el7_3.i686 glibc-devel-2.17-196.el7.i686
+        glibc.i686 glibc-devel.i686 udunits2 udunits2-devel gtest-devel.i686
+        java-11-openjdk java-11-openjdk-devel expat-devel.i686
+        which gcc-gfortran git wget gsl-devel gtest-devel gsl-devel.i686
+        maven udunits2 udunits2-devel
+    - name: Symlink python
+      run: |
+        cd /usr/lib
+        ln -s ./libpython2.7.so.1.0 libpython2.7.so
+    - name: Install Udunits (32 bit)
+      run: |
+        curl --retry 4 -O https://www.unidata.ucar.edu/downloads/udunits/udunits-2.2.26.tar.gz
+        tar xfvz udunits-2.2.26.tar.gz
+        rm udunits-2.2.26.tar.gz
+        cd udunits-2.2.26
+        export CFLAGS="-m32"
+        ./configure --prefix=/usr
+        make
+        make install
+    - name: Install GTest (32 bit)
+      run: |
+        wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+        tar xfvz release-1.8.0.tar.gz
+        cd googletest-release-1.8.0/googletest
+        export CFLAGS="-m32"
+        export CXXFLAGS="-m32"
+        cmake .
+        make
+        make install
+    - name: Build Trick
+      run: |
+        yum -y update && yum clean all
+        export MAKEFLAGS=-j`nproc`
+        ./configure --without-hdf5 --enable-32bit
+        make
+    - name: Run tests
+      run: make test 
+      
