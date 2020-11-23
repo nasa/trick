@@ -46,6 +46,7 @@ public:
                           QItemSelectionModel*  bookSelectModel,
                           MonteInputsView* monteInputsView,
                           bool isShowTables,
+                          const QStringList& unitOverrides,
                           QWidget *parent = 0);
     ~DPTreeWidget();
     
@@ -65,6 +66,7 @@ private:
     QItemSelectionModel*  _bookSelectModel;
     MonteInputsView* _monteInputsView;
     bool _isShowTables;
+    QStringList _unitOverrides;
     QGridLayout* _gridLayout ;
     QLineEdit* _searchBox;
     DPTreeView* _dpTreeView ;

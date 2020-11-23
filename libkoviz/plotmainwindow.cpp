@@ -39,6 +39,7 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
         const QString &orient, bool isLegend,
         const QString &foreground, const QString &background,
         bool isShowTables,
+        QStringList unitOverrides,
         QString map, QString mapFile,
         Runs* runs,
         QStandardItemModel* varsModel,
@@ -62,6 +63,7 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
     _foreground(foreground),
     _background(background),
     _isShowTables(isShowTables),
+    _unitOverrides(unitOverrides),
     _map(map),
     _mapFile(mapFile),
     _runs(runs),
@@ -221,9 +223,13 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
 
     // Vars Tab
     QFrame* varsFrame = new QFrame(lsplit);
-    _varsWidget = new VarsWidget(_timeNames.at(0), _varsModel,
-                                 _runs->runDirs(), _bookModel,
-                                 _bookView->selectionModel(), _monteInputsView,
+    _varsWidget = new VarsWidget(_timeNames.at(0),
+                                 _varsModel,
+                                 _runs->runDirs(),
+                                 _unitOverrides,
+                                 _bookModel,
+                                 _bookView->selectionModel(),
+                                 _monteInputsView,
                                  varsFrame);
     if ( isPlotAllVars ) {
         _varsWidget->selectAllVars();
@@ -244,6 +250,7 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
                                           _runs->runDirs(), _bookModel,
                                           _bookView->selectionModel(),
                                           _monteInputsView, _isShowTables,
+                                          _unitOverrides,
                                           _dpFrame);
         _nbDPVars->setCurrentIndex(1);
     }
@@ -465,6 +472,7 @@ void PlotMainWindow::_nbCurrentChanged(int i)
                                           _varsModel, _runs->runDirs(), _bookModel,
                                           _bookView->selectionModel(),
                                           _monteInputsView, _isShowTables,
+                                          _unitOverrides,
                                           _dpFrame);
     }
 }

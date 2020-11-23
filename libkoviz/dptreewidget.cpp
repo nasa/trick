@@ -42,7 +42,9 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
                            const QStringList& runDirs,
                            PlotBookModel *bookModel,
                            QItemSelectionModel *bookSelectModel,
-                           MonteInputsView *monteInputsView, bool isShowTables,
+                           MonteInputsView *monteInputsView,
+                           bool isShowTables,
+                           const QStringList &unitOverrides,
                            QWidget *parent) :
     QWidget(parent),
     _idNum(0),
@@ -55,6 +57,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _bookSelectModel(bookSelectModel),
     _monteInputsView(monteInputsView),
     _isShowTables(isShowTables),
+    _unitOverrides(unitOverrides),
     _gridLayout(0),
     _searchBox(0)
 {
@@ -566,16 +569,6 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
 
                 QStandardItem *varItem = _addChild(varsItem,"TableVar");
 
-                // Children
-                _addChild(varItem, "TableVarName",     var->name());
-                _addChild(varItem, "TableVarLabel",    var->label());
-                _addChild(varItem, "TableVarUnit",     var->unit());
-                _addChild(varItem, "TableVarScale",    var->scaleFactor());
-                _addChild(varItem, "TableVarBias",     var->bias());
-                _addChild(varItem, "TableVarMinRange", var->minRange());
-                _addChild(varItem, "TableVarMaxRange", var->maxRange());
-                _addChild(varItem, "TableVarFormat",   var->format());
-
                 // The actual data for the variable will be a trick curve model
                 CurveModel* curveModel = _bookModel->createCurve(i, _timeName,
                                                       var->name(), var->name());
@@ -588,6 +581,28 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                     throw std::runtime_error(
                                             _err_string.toLatin1().constData());
                 }
+
+                // Children
+                _addChild(varItem, "TableVarName",     var->name());
+                _addChild(varItem, "TableVarLabel",    var->label());
+                QString vUnit = var->unit();
+                if ( !_unitOverrides.isEmpty() ) {
+                    foreach ( QString overrideUnit, _unitOverrides ) {
+                        Unit mUnit = Unit::map(curveModel->y()->unit(),
+                                               overrideUnit);
+                        if ( !mUnit.isEmpty() ) {
+                            // No break if found, so last override in list used
+                            vUnit = mUnit.name();
+                        }
+                    }
+                }
+                _addChild(varItem, "TableVarUnit",     vUnit);
+                _addChild(varItem, "TableVarScale",    var->scaleFactor());
+                _addChild(varItem, "TableVarBias",     var->bias());
+                _addChild(varItem, "TableVarMinRange", var->minRange());
+                _addChild(varItem, "TableVarMaxRange", var->maxRange());
+                _addChild(varItem, "TableVarFormat",   var->format());
+
 
                 QVariant v=PtrToQVariant<CurveModel>::convert(curveModel);
                 _addChild(varItem, "TableVarData",v);
@@ -744,9 +759,35 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     // Curve children
     _addChild(curveItem, "CurveTimeName", _timeName);
     _addChild(curveItem, "CurveXName", xName);
+
+    if ( !_unitOverrides.isEmpty() ) {
+        foreach ( QString overrideUnit, _unitOverrides ) {
+            Unit mUnit = Unit::map(curveModel->x()->unit(),
+                                   overrideUnit);
+            if ( !mUnit.isEmpty() ) {
+                // No break if found, so last override in list used
+                xUnit = mUnit.name();
+            }
+        }
+    }
     _addChild(curveItem, "CurveXUnit", xUnit);
+
     _addChild(curveItem, "CurveYName", y->name());
-    _addChild(curveItem, "CurveYUnit", y->unit());
+
+    QString yUnit = y->unit();
+    if ( !_unitOverrides.isEmpty() ) {
+        foreach ( QString overrideUnit, _unitOverrides ) {
+            Unit mUnit = Unit::map(curveModel->y()->unit(),
+                                   overrideUnit);
+            if ( !mUnit.isEmpty() ) {
+                // No break if found, so last override in list used
+                yUnit = mUnit.name();
+            }
+        }
+    }
+    _addChild(curveItem, "CurveYUnit", yUnit);
+
+
     QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
     bool ok;
     int curveRunId = runDirName.mid(4).toInt(&ok);

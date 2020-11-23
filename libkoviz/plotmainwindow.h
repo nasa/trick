@@ -73,6 +73,7 @@ public:
                              const QString& foreground,
                              const QString& background,
                              bool isShowTables,
+                             QStringList unitOverrides,
                              QString map,
                              QString mapFile,
                              Runs* runs,
@@ -106,6 +107,7 @@ private:
     QString _foreground;
     QString _background;
     bool _isShowTables;
+    QStringList _unitOverrides;
     QString _map;
     QString _mapFile;
     Runs* _runs;

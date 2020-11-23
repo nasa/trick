@@ -139,6 +139,7 @@ class SnapOptions : public Options
     double trickoffset;
     QString videoFileName;
     double videoOffset;
+    QString unitOverrides;
 };
 
 SnapOptions opts;
@@ -236,7 +237,8 @@ int main(int argc, char *argv[])
     opts.add("-showTables",&opts.showTables,"","Show DP tables");
     opts.add("-a:{0,1}",&opts.isPlotAllVars,false,"Plot all variables");
     opts.add("-script",&opts.scripts,"",
-             "List of user scripts e.g. -script \"&myscript1 arg1 arg2, &helloworld\"");
+             "List of user scripts e.g. -script \"&myscript1 arg1 arg2, "
+             "&helloworld\"");
     opts.add("-exclude",&opts.excludePattern,"",
              "exclude pattern to filter out RUNs and/or log files");
     opts.add("-filter",&opts.filterPattern,"",
@@ -253,6 +255,8 @@ int main(int argc, char *argv[])
              "mp4 video filename");
     opts.add("-videoOffset", &opts.videoOffset, 0.0,
              "video time sync offset");
+    opts.add("-units", &opts.unitOverrides, "",
+             "comma delimited list of override units e.g. -units \"in,d\"");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -840,6 +844,14 @@ int main(int argc, char *argv[])
             }
         }
 
+        // Unit overrides list
+        QStringList unitOverridesList;
+        foreach ( QString unitOverride, opts.unitOverrides.
+                                        split(',',QString::SkipEmptyParts) ) {
+            unitOverridesList << unitOverride.trimmed();
+        }
+
+
         if ( isPdf ) {
             PlotMainWindow w(opts.trickhost,
                              opts.trickport,
@@ -860,6 +872,7 @@ int main(int argc, char *argv[])
                              orient, isLegend,
                              fg, bg,
                              isShowTables,
+                             unitOverridesList,
                              mapString, mapFile,
                              runs, varsModel, monteInputsModel);
             w.savePdf(pdfOutFile);
@@ -989,6 +1002,7 @@ int main(int argc, char *argv[])
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,
+                                 unitOverridesList,
                                  mapString, mapFile,
                                  runs, varsModel, monteInputsModel);
 #ifdef __linux
@@ -1018,6 +1032,7 @@ int main(int argc, char *argv[])
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,
+                                 unitOverridesList,
                                  mapString, mapFile,
                                  runs, varsModel, monteInputsModel);
                 w.show();

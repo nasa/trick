@@ -25,6 +25,7 @@ public:
     explicit VarsWidget(const QString& timeName,
                         QStandardItemModel* varsModel,
                         const QStringList& runDirs,
+                        const QStringList& unitOverrides,
                         PlotBookModel* plotModel,
                         QItemSelectionModel*  plotSelectModel,
                         MonteInputsView* monteInputsView,
@@ -43,6 +44,7 @@ private:
     QString _timeName;
     QStandardItemModel* _varsModel;
     QStringList _runDirs;
+    QStringList _unitOverrides;
     PlotBookModel* _plotModel;
     QItemSelectionModel*  _plotSelectModel;
     MonteInputsView* _monteInputsView;

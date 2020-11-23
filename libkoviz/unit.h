@@ -23,6 +23,7 @@ class Unit {
 
     QString name() const;
     void setName(const QString& name);
+    bool isEmpty() const;
 
     static bool canConvert(const QString& from,const QString& to);
     static bool isUnit(const QString& name);
@@ -30,6 +31,7 @@ class Unit {
     static double bias(const QString& from, const QString& to);
     static QString next(const QString& unit);
     static QString prev(const QString& unit);
+    static Unit map(const Unit& u1, const Unit& u2);
 
   private:
 

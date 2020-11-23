@@ -7,6 +7,7 @@
 VarsWidget::VarsWidget(const QString &timeName,
                        QStandardItemModel* varsModel,
                        const QStringList& runDirs,
+                       const QStringList &unitOverrides,
                        PlotBookModel *plotModel,
                        QItemSelectionModel *plotSelectModel,
                        MonteInputsView *monteInputsView,
@@ -15,6 +16,7 @@ VarsWidget::VarsWidget(const QString &timeName,
     _timeName(timeName),
     _varsModel(varsModel),
     _runDirs(runDirs),
+    _unitOverrides(unitOverrides),
     _plotModel(plotModel),
     _plotSelectModel(plotSelectModel),
     _monteInputsView(monteInputsView),
@@ -418,6 +420,15 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             if ( Unit::canConvert(u0,u1) ) {
                 // Use unit of first curve
                 yunit = u0;
+            }
+        }
+        if ( !_unitOverrides.isEmpty() ) {
+            foreach ( QString overrideUnit, _unitOverrides ) {
+                Unit mUnit = Unit::map(yunit,overrideUnit);
+                if ( !mUnit.isEmpty() ) {
+                    // No break if found, so last override in list used
+                    yunit = mUnit.name();
+                }
             }
         }
         _addChild(curveItem, "CurveYUnit", yunit);

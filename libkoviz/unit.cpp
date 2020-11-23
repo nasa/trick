@@ -32,6 +32,11 @@ void Unit::setName(const QString& name )
     _name = name ;
 }
 
+bool Unit::isEmpty() const
+{
+    return _name.isEmpty();
+}
+
 bool Unit::canConvert(const QString& from, const QString &to)
 {
     bool can = false;
@@ -214,6 +219,170 @@ QString Unit::prev(const QString &unit)
                 u = units.at(i-1);
             }
             break;
+        }
+    }
+
+    return u;
+}
+
+// Examples:
+// map("m","in") returns "in"
+// map("m/s","in") returns "in/s"
+// map("N/m2","in") returns "lbf*in2"
+// map("r/s","d") returns "d/s"
+// map("r/s2","d") returns "d/s2"
+//
+// This is a helper function that works to allow a user to specify distance,
+// for example, in inches and have koviz set all related units like pressure,
+// velocity etc its "inches" counterpart "psi" and "in/s".
+//
+// This map is not extensive, but meant as a start as uses cases arise
+//
+// If there is no map, a common case, an empty unit is returned
+Unit Unit::map(const Unit &u1, const Unit &u2)
+{
+    Unit u;
+    u.setName("");
+
+    QString fam1 = _family(u1.name());
+    QString fam2 = _family(u2.name());
+    QString name2 = u2.name();
+    if ( name2 == "M" ) {
+        name2 = "m";
+    } else if ( name2 == "degree" ) {
+        name2 = "d";
+    }
+
+
+    if ( fam1 == fam2 ) {
+        // e.g. map(N*m,oz*in) returns oz*in
+        u.setName(name2);
+    } else  if ( fam2 == "m" ) {
+        //
+        // Distance
+        //
+        if ( fam1 == "m/s" ) {
+            // Velocity
+            QString velocity = name2 + "/s";
+            u.setName(velocity);
+        } else if ( fam1 == "m/s2" ) {
+            // Acceleration
+            QString acceleration = name2 + "/s2";
+            u.setName(acceleration);
+        } else if ( fam1 == "N" ) {
+            // Force
+            if ( name2 == "ft" || name2 == "in" ) {
+                u.setName("lbf");
+            } else if ( name2 == "m" ) {
+                u.setName("N");
+            }
+        } else if ( fam1 == "N*m" ) {
+            // Torque
+            if ( name2 == "in" ) {
+                u.setName("lbf*in");
+            } else if ( name2 == "ft" ) {
+                u.setName("lbf*ft");
+            } else if ( name2 == "cm" ) {
+                u.setName("N*cm");
+            }
+        } else if ( fam1 == "m2" ) {
+            // Area
+            if ( name2 == "m" || name2 == "cm"
+                 || name2 == "ft" || name2 == "in" ) {
+                QString area = name2 + "2";
+                u.setName(area);
+            }
+        } else if ( fam1 == "m3" ) {
+            // Volume
+            if ( name2 == "m" || name2 == "cm"
+                 || name2 == "ft" || name2 == "in" ) {
+                QString volume = name2 + "3";
+                u.setName(volume);
+            }
+        } else if ( fam1 == "m3/s" ) {
+            // Volume rate
+            if ( name2 == "m" || name2 == "cm"
+                 || name2 == "ft" || name2 == "in" ) {
+                QString rate = name2 + "3/s";
+                u.setName(rate);
+            }
+        } else if ( fam1 == "N*m*s" ) {
+            // Angular Impulse
+            if ( name2 == "ft" || name2 == "in" ) {
+                u.setName("lbf*ft*s");
+            } else if ( name2 == "m" ) {
+                u.setName("N*m*s");
+            }
+        } else if ( fam1 == "N/m2" ) {
+            // Pressure
+            if ( name2 == "in" || name2 == "ft" ) {
+                u.setName("psi");
+            } else if ( name2 == "m" ) {
+                u.setName("N/m2");
+            }
+        } else if ( fam1 == "N/m" ) {
+            // Stiffness
+            if ( name2 == "in" || name2 == "ft" ) {
+                u.setName("lbf/ft");
+            } else if ( name2 == "m" ) {
+                u.setName("N/m");
+            }
+        } else if ( fam1 == "N*s/m" ) {
+            // Friction constant
+            if ( name2 == "in" || name2 == "ft" ) {
+                u.setName("lbf*s/ft");
+            } else if ( name2 == "m" ) {
+                u.setName("N*s/m");
+            }
+        } else if ( fam1 == "kg/m3" ) {
+            // Density
+            if ( name2 == "in" ) {
+                u.setName("oz/in3");
+            } else if ( name2 == "ft" ) {
+                u.setName("lb/ft3");
+            } else if ( name2 == "m" ) {
+                u.setName("kg/m3");
+            }
+        } else if ( fam1 == "N*r/m2" ) {
+            // Q-Bar-Alpha - dyn pressure and angle of attack
+            if ( name2 == "ft" || name2 == "in" ) {
+                u.setName("lbf*d/ft2");
+            } else if ( name2 == "m" ) {
+                u.setName("N*r/m2");
+            }
+        }
+    } else if ( fam2 == "r" ) {
+        //
+        // Angle
+        //
+        if ( fam1 == "r/s" ) {
+            // Angular Velocity
+            if ( name2 == "r" ) {
+                u.setName("r/s");
+            } else if ( name2 == "d" ) {
+                u.setName("d/s");
+            }
+        } else if ( fam1 == "r/s2" ) {
+            // Angular Acceleration
+            if ( name2 == "r" ) {
+                u.setName("r/s2");
+            } else if ( name2 == "d" ) {
+                u.setName("d/s2");
+            }
+        } else if ( fam1 == "1/r" ) {
+            // 1/angle
+            if ( name2 == "r" ) {
+                u.setName("1/r");
+            } else if ( name2 == "d" ) {
+                u.setName("1/d");
+            }
+        } else if ( fam1 == "N*r/m2" ) {
+            // Q-Bar-Alpha - dyn pressure and angle of attack
+            if ( name2 == "r" ) {
+                u.setName("N*r/m2");
+            } else if ( name2 == "d" ) {
+                u.setName("lbf*d/ft2");
+            }
         }
     }
 
@@ -411,7 +580,10 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("kg/s","lb/s"),  0.4535923697760192);
 
     // Area
-    map.insert(QPair<QString,QString>("m2","m2"), 1.0);
+    map.insert(QPair<QString,QString>("m2","m2"),  1.0);
+    map.insert(QPair<QString,QString>("m2","cm2"), 0.01*0.01);
+    map.insert(QPair<QString,QString>("m2","ft2"), 0.3048*0.3048);
+    map.insert(QPair<QString,QString>("m2","in2"), 0.0254*0.0254);
 
     // Unitless
     map.insert(QPair<QString,QString>("--","--"),  1.0);
@@ -436,7 +608,9 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     // Q-Bar-Alpha (has to do with dynamic pressure and angle of attack)
     map.insert(QPair<QString,QString>("N*r/m2","N*r/m2"), 1.0);
     map.insert(QPair<QString,QString>("N*r/m2","N*rad/m2"), 1.0);
-    map.insert(QPair<QString,QString>("N*r/m2","lbf*degree/ft2"), 
+    map.insert(QPair<QString,QString>("N*r/m2","lbf*d/ft2"),
+                            4.4482216152605*0.0174532925199433/(0.3048*0.3048));
+    map.insert(QPair<QString,QString>("N*r/m2","lbf*degree/ft2"),
                             4.4482216152605*0.0174532925199433/(0.3048*0.3048));
 
     // Miscellaneous
