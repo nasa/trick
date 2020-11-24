@@ -476,12 +476,14 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("N","kN"),  1000.0);
     map.insert(QPair<QString,QString>("N","oz"),     0.2780138509537812);
     map.insert(QPair<QString,QString>("N","lbf"),    4.4482216152605);
+    map.insert(QPair<QString,QString>("N","kip"), 4448.2216152605);
 
     // Torque
     map.insert(QPair<QString,QString>("N*m","N*m"),      1.0);
     map.insert(QPair<QString,QString>("N*m","N*M"),      1.0);
     map.insert(QPair<QString,QString>("N*m","Nm"),       1.0);
     map.insert(QPair<QString,QString>("N*m","lbf*ft"),   1.35581795);
+    map.insert(QPair<QString,QString>("N*m","kip-ft"),   1355.81795);
     map.insert(QPair<QString,QString>("N*m","lbf*in"),   4.4482216152605*0.0254);
     map.insert(QPair<QString,QString>("N*m","oz*in"),    0.00706155195);
     map.insert(QPair<QString,QString>("N*m","N*cm"),     0.01);
