@@ -27,3 +27,9 @@ extern "C" void sie_top_level_objects_print_xml(void) {
         the_sie->top_level_objects_print_xml() ;
     }
 }
+
+extern "C" void sie_append_runtime_objs(void) {
+    if ( the_sie != NULL ) {
+        the_sie->sie_append_runtime_objs() ;
+    }
+}
