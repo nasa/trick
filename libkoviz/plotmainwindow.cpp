@@ -36,6 +36,7 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
         const QStringList &legends, const QStringList &colors,
         const QStringList &linestyles,
         const QStringList &symbolstyles,
+        const QStringList &groups,
         const QString &orient, bool isLegend,
         const QString &foreground, const QString &background,
         bool isShowTables,
@@ -164,6 +165,18 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
         _bookModel->addChild(citem, "Symbolstyle5",symbolstyles.at(4));
         _bookModel->addChild(citem, "Symbolstyle6",symbolstyles.at(5));
         _bookModel->addChild(citem, "Symbolstyle7",symbolstyles.at(6));
+    }
+    if ( groups.size() == 7 ) {
+        QStandardItem *rootItem = _bookModel->invisibleRootItem();
+        QStandardItem *citem;
+        citem = _bookModel->addChild(rootItem, "Groups","");
+        _bookModel->addChild(citem, "Group1",groups.at(0));
+        _bookModel->addChild(citem, "Group2",groups.at(1));
+        _bookModel->addChild(citem, "Group3",groups.at(2));
+        _bookModel->addChild(citem, "Group4",groups.at(3));
+        _bookModel->addChild(citem, "Group5",groups.at(4));
+        _bookModel->addChild(citem, "Group6",groups.at(5));
+        _bookModel->addChild(citem, "Group7",groups.at(6));
     }
     _bookModel->addChild(rootItem,"StatusBarMessage", "");
 
@@ -1177,6 +1190,23 @@ void PlotMainWindow::_saveSession()
         out << "s5: \"" << s5 << "\"\n" ;
         out << "s6: \"" << s6 << "\"\n" ;
         out << "s7: \"" << s7 << "\"\n" ;
+
+        // Groups
+        QModelIndex groupsIdx = _bookModel->getIndex(QModelIndex(),"Groups");
+        QString g1 =_bookModel->getDataString(groupsIdx,"Group1","Groups");
+        QString g2 =_bookModel->getDataString(groupsIdx,"Group2","Groups");
+        QString g3 =_bookModel->getDataString(groupsIdx,"Group3","Groups");
+        QString g4 =_bookModel->getDataString(groupsIdx,"Group4","Groups");
+        QString g5 =_bookModel->getDataString(groupsIdx,"Group5","Groups");
+        QString g6 =_bookModel->getDataString(groupsIdx,"Group6","Groups");
+        QString g7 =_bookModel->getDataString(groupsIdx,"Group7","Groups");
+        out << "g1: \"" << g1 << "\"\n" ;
+        out << "g2: \"" << g2 << "\"\n" ;
+        out << "g3: \"" << g3 << "\"\n" ;
+        out << "g4: \"" << g4 << "\"\n" ;
+        out << "g5: \"" << g5 << "\"\n" ;
+        out << "g6: \"" << g6 << "\"\n" ;
+        out << "g7: \"" << g7 << "\"\n" ;
 
         // Show Legend
         QString isLegend = _bookModel->getDataString(QModelIndex(),"IsLegend");

@@ -68,6 +68,7 @@ public:
                              const QStringList& colors,
                              const QStringList& linestyles,
                              const QStringList& symbolstyles,
+                             const QStringList& groups,
                              const QString& orient,
                              bool isLegend,
                              const QString& foreground,

@@ -54,6 +54,13 @@ public:
     QString symbolstyle5() const { return _symbolstyles.at(4); }
     QString symbolstyle6() const { return _symbolstyles.at(5); }
     QString symbolstyle7() const { return _symbolstyles.at(6); }
+    QString group1() const { return _groups.at(0); }
+    QString group2() const { return _groups.at(1); }
+    QString group3() const { return _groups.at(2); }
+    QString group4() const { return _groups.at(3); }
+    QString group5() const { return _groups.at(4); }
+    QString group6() const { return _groups.at(5); }
+    QString group7() const { return _groups.at(6); }
     QString foreground() const { return _fg; }
     QString background() const { return _bg; }
     double start() const { return _start; }
@@ -84,6 +91,7 @@ private:
     QStringList _legendLabels;
     QStringList _linestyles;
     QStringList _symbolstyles;
+    QStringList _groups;
     QString _fg;
     QString _bg;
     double _start;

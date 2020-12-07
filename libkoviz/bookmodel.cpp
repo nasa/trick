@@ -491,8 +491,10 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(18,0);
         } else if ( searchItemText == "Symbolstyles" ) {
             idx = index(19,0);
-        } else if ( searchItemText == "StatusBarMessage" ) {
+        } else if ( searchItemText == "Groups" ) {
             idx = index(20,0);
+        } else if ( searchItemText == "StatusBarMessage" ) {
+            idx = index(21,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
@@ -1600,8 +1602,7 @@ QStringList PlotBookModel::abbreviateLabels(const QStringList &labels) const
     QStringList vars;
     foreach (QString label, labels) {
         if ( !label.contains(":") ) {
-            fprintf(stderr,"koviz [bad scoobs]: _abbreviateLabels\n");
-            exit(-1);
+            return labels;  // No abbreviation since not colon delimited
         }
         runs << label.split(":").at(0);
         vars << label.split(":").at(1);
@@ -1791,20 +1792,33 @@ bool PlotBookModel::isPlotLegendsSame(const QModelIndex& pageIdx) const
 
         QModelIndexList plotIdxs = this->plotIdxs(pageIdx);
 
-        if ( !plotIdxs.isEmpty() ) {
-            QStringList symbols0 = legendSymbols(plotIdxs.at(0));
-            QStringList styles0  = legendLinestyles(plotIdxs.at(0));
-            QStringList colors0  = legendColors(plotIdxs.at(0));
-            QStringList labels0  = legendLabels(plotIdxs.at(0));
+        if ( plotIdxs.size() == 1 ) {
+            ok = true;
+        } else if ( !plotIdxs.isEmpty() ) {
+            QModelIndex plotIdx0 = plotIdxs.at(0);
+            QList<LegendElement> els0 = _legendElements(plotIdx0);
 
+            bool isFirst = true;
             ok = true;
             foreach ( QModelIndex plotIdx, plotIdxs ) {
-                QStringList symbols = legendSymbols(plotIdx);
-                QStringList styles  = legendLinestyles(plotIdx);
-                QStringList colors  = legendColors(plotIdx);
-                QStringList labels  = legendLabels(plotIdx);
-                if ( symbols0 != symbols || styles0 != styles ||
-                     colors0 != colors || labels0 != labels ) {
+                if ( isFirst ) {
+                    // Skip first element since els0 is first element
+                    isFirst = false;
+                    continue;
+                }
+                QList<LegendElement> els = _legendElements(plotIdx);
+                if ( els0.size() == els.size() ) {
+                    int i = 0;
+                    foreach ( LegendElement el, els ) {
+                        if ( el != els0.at(i++) ) {
+                            ok = false;
+                            break;
+                        }
+                    }
+                    if ( !ok ) {
+                        break;
+                    }
+                } else {
                     ok = false;
                     break;
                 }
@@ -1853,6 +1867,55 @@ QColor PlotBookModel::pageForegroundColor(const QModelIndex &pageIdx) const
     }
 
     return QColor(fgName);
+}
+
+// Does string match expression
+// expression can be a regexp or may be a range
+// This is a helper thing for views
+// e.g. isMatch("RUN_U_dog","_U_") returns true (by regexp)
+//      isMatch("RUN_a_dyn","a|b") returns true (by regexp)
+//      isMatch("RUN_499","250,1000") returns true (by range)
+//      isMatch("RUN_499","500,1000") returns false (by range)
+bool PlotBookModel::isMatch(const QString &str, const QString &exp) const
+{
+    bool ok = false;
+
+#if QT_VERSION >= 0x050000
+    bool isRange = false;
+    if ( str.contains("RUN_") && exp.contains(',') ) {
+        QStringList els = exp.split(',',QString::SkipEmptyParts);
+        if ( els.size() == 2 ) {
+            QString el0 = els.at(0).trimmed();
+            QString el1 = els.at(1).trimmed();
+            int a = el0.toInt(&ok);
+            if ( ok ) {
+                int b = el1.toInt(&ok) ;
+                if ( ok ) {
+                    int i = str.lastIndexOf("RUN_");
+                    QString s = str.mid(i+4);
+                    int runNum = s.toInt(&ok);
+                    if ( ok && a <= b ) {
+                        isRange = true;
+                        if ( a <= runNum && runNum <= b ) {
+                            ok = true;
+                        } else {
+                            ok = false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if ( !isRange ) {
+        // Try regular expression match
+        QRegularExpression rx(exp);
+        QRegularExpressionMatch match = rx.match(str);
+        ok = match.hasMatch();
+    }
+#endif
+
+    return ok;
 }
 
 QList<double> PlotBookModel::majorXTics(const QModelIndex& plotIdx) const
@@ -2229,87 +2292,98 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
     }
 
     QList<PlotBookModel::LegendElement> overrides = _legendOverrides();
-
-    QStringList labels;
-    if ( nCurves <= overrides.size() ) {
-        foreach ( QModelIndex curveIdx, curveIdxs ) {
-            // Label (run:var)
-            CurveModel* curveModel = getCurveModel(curveIdx);
-            QString fname = curveModel->fileName();
-            QString runName = QFileInfo(fname).dir().absolutePath();
-
-            QString curveName = getDataString(curveIdx,"CurveYLabel","Curve");
-            if ( curveName.isEmpty() ) {
-                curveName = getDataString(curveIdx,"CurveYName","Curve");
-            }
-            QString label = curveName;
-            label = runName + ":" + label;
-
-            labels << label;
-        }
-
-        labels = abbreviateLabels(labels);
-
-        // Override label if -l# option used
-        int i = 0;
-        foreach ( QString label, labels ) {
-            if ( i < overrides.size() ) {
-                PlotBookModel::LegendElement el = overrides.at(i);
-                if ( !el.label.isEmpty() ) {
-                    labels.replace(i,el.label);
-                }
-            }
-            ++i;
+    bool isOverrides = false;
+    foreach ( PlotBookModel::LegendElement el, overrides ) {
+        if ( !el.isEmpty() ) {
+            isOverrides = true;
+            break;
         }
     }
 
-    bool isOverMax = false;
+    QStringList labels;
+    foreach (QModelIndex curveIdx, curveIdxs) {
+        QString lbl = getDataString(curveIdx,"CurveYLabel","Curve");
+        if ( lbl.isEmpty() ) {
+            lbl = getDataString(curveIdx,"CurveYName","Curve");
+        }
+        labels << lbl;
+        if ( !isOverrides && labels.size() > overrides.size() ) {
+            // Too many labels for legend, return empty!
+            return els;
+        }
+    }
+    labels = abbreviateLabels(labels);
+
+    bool isGroups = false;
+    QStringList groups;
+    QModelIndex groupsIdx = getIndex(QModelIndex(),"Groups","");
+    int nGroups = rowCount(groupsIdx);
+    for ( int i = 0; i < nGroups; ++i ) {
+        QModelIndex groupIdx = index(i,1,groupsIdx);
+        QString group = data(groupIdx).toString();
+        groups << group;
+        if ( !group.isEmpty() ) {
+            isGroups = true;
+        }
+    }
+
+#if QT_VERSION >= 0x050000
+    QHash<PlotBookModel::LegendElement,int> elHash;
+#endif
     int i = 0;
     foreach (QModelIndex curveIdx, curveIdxs) {
         PlotBookModel::LegendElement el;
-        if ( nCurves <= overrides.size() ) {
-            el.label = labels.at(i++);
-        } else {
-            el.label  = getDataString(curveIdx,"CurveYLabel","Curve");
-            if ( el.label.isEmpty() ) {
-                el.label = getDataString(curveIdx,"CurveYName","Curve");
-            }
-        }
+        el.label = labels.at(i);
         el.color = getDataString(curveIdx,"CurveColor","Curve");
         el.linestyle = getDataString(curveIdx, "CurveLineStyle","Curve");
         el.symbolstyle = getDataString(curveIdx,"CurveSymbolStyle","Curve");
+#if QT_VERSION >= 0x050000
+        if ( !elHash.contains(el) ) {
+            elHash.insert(el,1);
+#else
         if ( !els.contains(el) ) {
-            if ( els.size() < overrides.size() ) {
-                els << el;
-            } else {
-                isOverMax = true;
-                break;
+#endif
+            els << el;
+            if ( isGroups ) {
+                int runid = getDataInt(curveIdx,"CurveRunID","Curve");
+                QString runDir = _runs->runDirs().at(runid);
+                int j = 0;
+                foreach ( QString group, groups ) {
+                    if ( !group.isEmpty() ) {
+                        if ( isMatch(runDir,group) ) {
+                            if ( j < els.size() ) {
+                                // Move element to match group number (-g#)
+                                els.move(els.size()-1,j);
+                            }
+                            break;
+                        }
+                    }
+                    ++j;
+                }
             }
         }
+        ++i;
     }
 
-    if ( isOverMax ) {
-        // Take out trailing non-overridden elements
-        int nels = overrides.size(); // noverrides == nels if isOverMax
-        for ( int i = nels-1; i >= 0; --i ) {
-            PlotBookModel::LegendElement override = overrides.at(i);
-            if ( override.isEmpty()  ) {
+    if ( isOverrides ) {
+       // Resize els to num overrides
+        if ( els.size() > overrides.size() ) {
+
+            // Resize els to match overrides
+            while ( els.size() > overrides.size() ) {
                 els.removeLast();
-            } else {
-                break;
             }
-        }
-    }
 
-    // If possible, reorder elements to match overrides
-    foreach ( PlotBookModel::LegendElement override, overrides ) {
-        if ( els.contains(override) ) {
-            int from = els.indexOf(override);
-            int to = overrides.indexOf(override);
-            if ( to >= els.size() ) {
-                to = els.size()-1;
+            // Remove trailing elements that do not have override
+            int nels = overrides.size();
+            for ( int i = nels-1; i >= 0; --i ) {
+                PlotBookModel::LegendElement override = overrides.at(i);
+                if ( override.isEmpty()  ) {
+                    els.removeLast();
+                } else {
+                    break;
+                }
             }
-            els.move(from,to);
         }
     }
 

@@ -356,8 +356,22 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
     timer.start();
 #endif
 
+    bool isGroups = false;
+    QStringList groups;
+    QModelIndex groupsIdx = _plotModel->getIndex(QModelIndex(),"Groups","");
+    int nGroups = _plotModel->rowCount(groupsIdx);
+    for ( int i = 0; i < nGroups; ++i ) {
+        QModelIndex groupIdx = _plotModel->index(i,1,groupsIdx);
+        QString group = _plotModel->data(groupIdx).toString();
+        groups << group;
+        if ( !group.isEmpty() ) {
+            isGroups = true;
+        }
+    }
+
     int nCurves = _plotModel->rowCount(curvesIdx);
-    int ii = nCurves;
+    int ii = nCurves; // When alt+click adding curves, this is needed
+    int jj = 0;
     QString u0;
     QString r0;
     for ( int r = 0; r < rc; ++r) {
@@ -391,11 +405,18 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
 
         QStandardItem *curveItem = _addChild(curvesItem,"Curve");
 
+        _addChild(curveItem, "CurveRunID", r);
         _addChild(curveItem, "CurveTimeName", _timeName);
         _addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
         _addChild(curveItem, "CurveXName", _timeName);
         _addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
         _addChild(curveItem, "CurveYName", yName);
+        _addChild(curveItem, "CurveXMinRange", -DBL_MAX);
+        _addChild(curveItem, "CurveXMaxRange",  DBL_MAX);
+        _addChild(curveItem, "CurveYMinRange", -DBL_MAX);
+        _addChild(curveItem, "CurveYMaxRange",  DBL_MAX);
+        _addChild(curveItem, "CurveSymbolSize", "");
+
         QString yunit;
         if ( r == 0 ) {
             if ( _plotModel->rowCount(curvesIdx) > 1 ) {
@@ -432,7 +453,7 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             }
         }
         _addChild(curveItem, "CurveYUnit", yunit);
-        _addChild(curveItem, "CurveRunID", r);
+
         _addChild(curveItem, "CurveXScale", curveModel->x()->scale());
         QHash<QString,QVariant> shifts = _plotModel->getDataHash(QModelIndex(),
                                                               "RunToShiftHash");
@@ -447,21 +468,16 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
         _addChild(curveItem, "CurveYScale", curveModel->y()->scale());
         _addChild(curveItem, "CurveYBias", curveModel->y()->bias());
 
-        // Curve color and linestyle
+        // Color
         QString color;
-        QString style;
-        QStringList styles = _plotModel->lineStyles();
-        int nCurves = _plotModel->rowCount(curvesIdx);
+        nCurves = _plotModel->rowCount(curvesIdx);
         if ( rc == 1 ) {
             // Color each variable differently
             QList<QColor> curveColors = _plotModel->createCurveColors(nCurves);
             color = curveColors.at(nCurves-1).name();
-            style = styles.at(0);
         } else {
-            // Color RUNs the same and style each variable differently
+            // Color RUNs the same
             color = run2color.value(r);
-            div_t q = div(nCurves-1,rc);
-            style = styles.at((q.quot)%(styles.size()));
         }
         QModelIndex lcIdx = _plotModel->getIndex(QModelIndex(),
                                                  "LegendColors","");
@@ -470,8 +486,26 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             QModelIndex legendColorIdx = _plotModel->index(ii,1,lcIdx);
             QString legendColor = _plotModel->data(legendColorIdx).toString();
             if ( !legendColor.isEmpty() ) {
-                color = legendColor;
+                QString group;
+                if ( ii < groups.size() ) {
+                    group = groups.at(ii);
+                }
+                if ( group.isEmpty() ) {
+                    color = legendColor;
+                }
             }
+        }
+
+        // Linestyle
+        QString style;
+        QStringList styles = _plotModel->lineStyles();
+        nCurves = _plotModel->rowCount(curvesIdx);
+        if ( rc == 1 ) {
+            style = styles.at(0);
+        } else {
+            // Style each variable differently
+            div_t q = div(nCurves-1,rc);
+            style = styles.at((q.quot)%(styles.size()));
         }
         QModelIndex lsIdx = _plotModel->getIndex(QModelIndex(),
                                                  "Linestyles","");
@@ -480,13 +514,19 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             QModelIndex legendStyleIdx = _plotModel->index(ii,1,lsIdx);
             QString legendStyle = _plotModel->data(legendStyleIdx).toString();
             if ( !legendStyle.isEmpty() ) {
-                style = legendStyle;
+                QString group;
+                if ( ii < groups.size() ) {
+                    group = groups.at(ii);
+                }
+                if ( group.isEmpty() ) {
+                    // E.g. if -l4 dog -ls4 thick_line -g4 99,
+                    //      then override handled in the group logic below
+                    style = legendStyle;
+                }
             }
-
         }
-        _addChild(curveItem, "CurveColor", color);
-        _addChild(curveItem, "CurveLineStyle",style);
 
+        // Symbol Style
         QString symbolStyle = "none";
         QModelIndex ssIdx = _plotModel->getIndex(QModelIndex(),
                                                      "Symbolstyles","");
@@ -494,30 +534,85 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
             QModelIndex symbolStyleIdx = _plotModel->index(ii,1,ssIdx);
             QString ss = _plotModel->data(symbolStyleIdx).toString();
             if ( !ss.isEmpty() ) {
-                // Use symbolstyle from commandline
-                symbolStyle = ss;
+                QString group;
+                if ( ii < groups.size() ) {
+                    group = groups.at(ii);
+                }
+                if ( group.isEmpty() ) {
+                    // Use symbolstyle from commandline
+                    symbolStyle = ss;
+                }
             }
         }
-        _addChild(curveItem, "CurveSymbolStyle", symbolStyle);
 
-        _addChild(curveItem, "CurveSymbolSize", "");
-        _addChild(curveItem, "CurveXMinRange", -DBL_MAX);
-        _addChild(curveItem, "CurveXMaxRange",  DBL_MAX);
-        _addChild(curveItem, "CurveYMinRange", -DBL_MAX);
-        _addChild(curveItem, "CurveYMaxRange",  DBL_MAX);
-
-        QString yLabel;
+        // Label
+        QString yLabel = _runDirs.at(r) + ":" + yName;
         QModelIndex llIdx = _plotModel->getIndex(QModelIndex(),
                                                  "LegendLabels","");
         if ( ii < _plotModel->rowCount(llIdx) ) {
             QString llTag = QString("Label%1").arg(ii+1);
             QString ll = _plotModel->getDataString(llIdx,llTag,"LegendLabels");
             if ( !ll.isEmpty() ) {
-                // Use commandline label
-                yLabel = ll;
+                QString group;
+                if ( ii < groups.size() ) {
+                    group = groups.at(ii);
+                }
+                if ( group.isEmpty() ) {
+                    // Use commandline label
+                    yLabel = ll;
+                }
             }
         }
+
+        // Handle groups (-g1, -g2... -g7 options)
+        if ( isGroups ) {
+            int i = 0;
+            foreach ( QString group, groups ) {
+                if ( !group.isEmpty() ) {
+                    if ( _plotModel->isMatch(curveRunDir,group) ) {
+                        // Color
+                        QModelIndex idx = _plotModel->index(i,1,lcIdx);
+                        QString cc = _plotModel->data(idx).toString();
+                        if ( !cc.isEmpty() ) {
+                            color = cc ;
+                        }
+
+                        // Label
+                        QString llTag = QString("Label%1").arg(i+1);
+                        QString ll = _plotModel->getDataString(llIdx,llTag,
+                                                               "LegendLabels");
+                        if ( !ll.isEmpty() ) {
+                            yLabel = ll ;
+                        } else {
+                            yLabel = group;
+                        }
+
+                        // Linestyle
+                        idx = _plotModel->index(i,1,lsIdx);
+                        QString ls = _plotModel->data(idx).toString();
+                        if ( !ls.isEmpty() ) {
+                            style = ls;
+                        }
+
+                        // Symbolstyle
+                        idx = _plotModel->index(i,1,ssIdx);
+                        QString ss = _plotModel->data(idx).toString();
+                        if ( !ss.isEmpty() ) {
+                            symbolStyle = ss;
+                        }
+
+                        // Match found and handled
+                        break;
+                    }
+                }
+                ++i;
+            }
+        }
+
         _addChild(curveItem, "CurveYLabel", yLabel);
+        _addChild(curveItem, "CurveColor", color);
+        _addChild(curveItem, "CurveLineStyle",style);
+        _addChild(curveItem, "CurveSymbolStyle", symbolStyle);
 
         // Add actual curve model data
         if ( r == rc-1) {
@@ -539,6 +634,7 @@ void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
 #endif
 
         ++ii;
+        ++jj;
     }
 
     // Turn signals back on before adding curveModel

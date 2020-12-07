@@ -140,6 +140,13 @@ class SnapOptions : public Options
     QString videoFileName;
     double videoOffset;
     QString unitOverrides;
+    QString group1;
+    QString group2;
+    QString group3;
+    QString group4;
+    QString group5;
+    QString group6;
+    QString group7;
 };
 
 SnapOptions opts;
@@ -227,6 +234,13 @@ int main(int argc, char *argv[])
     opts.add("-s5",&opts.symbolstyle5,"","Curve Symbolstyle 5");
     opts.add("-s6",&opts.symbolstyle6,"","Curve Symbolstyle 6");
     opts.add("-s7",&opts.symbolstyle7,"","Curve Symbolstyle 7");
+    opts.add("-g1",&opts.group1,"","Group rgx/range 1 e.g. -g1 \"_unstable_\"");
+    opts.add("-g2",&opts.group2,"","Group rgx/range 2 e.g. -g2 \"0,50\"");
+    opts.add("-g3",&opts.group3,"","Group rgx/range 3 e.g. -g3 \"a|b\"");
+    opts.add("-g4",&opts.group4,"","Group rgx/range 4");
+    opts.add("-g5",&opts.group5,"","Group rgx/range 5");
+    opts.add("-g6",&opts.group6,"","Group rgx/range 6");
+    opts.add("-g7",&opts.group7,"","Group rgx/range 7");
     opts.add("-orient",&opts.orient,"",
              "PDF page orientation - landscape or portrait",
              presetOrientation);
@@ -751,6 +765,56 @@ int main(int argc, char *argv[])
                          << opts.symbolstyle7;
         }
 
+        // Make a list of groups
+        QStringList groups;
+        if ( session ) {
+            groups << session->group1() << session->group2()
+                   << session->group3() << session->group4()
+                   << session->group5() << session->group6()
+                   << session->group7();
+            if ( !opts.group1.isEmpty() ) {
+                groups.replace(0,opts.group1);
+            }
+            if ( !opts.group2.isEmpty() ) {
+                groups.replace(1,opts.group2);
+            }
+            if ( !opts.group3.isEmpty() ) {
+                groups.replace(2,opts.group3);
+            }
+            if ( !opts.group4.isEmpty() ) {
+                groups.replace(3,opts.group4);
+            }
+            if ( !opts.group5.isEmpty() ) {
+                groups.replace(4,opts.group5);
+            }
+            if ( !opts.group6.isEmpty() ) {
+                groups.replace(5,opts.group6);
+            }
+            if ( !opts.group7.isEmpty() ) {
+                groups.replace(6,opts.group7);
+            }
+        } else {
+            groups << opts.group1 << opts.group2
+                         << opts.group3 << opts.group4
+                         << opts.group5 << opts.group6
+                         << opts.group7;
+        }
+
+#if QT_VERSION < 0x050000
+        bool isGroups = false;
+        foreach (QString group, groups ) {
+            if ( !group.isEmpty() ) {
+                isGroups = true;
+                break;
+            }
+        }
+        if ( isGroups ) {
+            fprintf(stderr, "koviz [error]: Groups require Qt5!\n");
+            fprintf(stderr, "               You may not use -g# options!\n");
+            exit(-1);
+        }
+#endif
+
         // Time match tolerance
         double tolerance = opts.timeMatchTolerance;
         if ( tolerance == DBL_MAX ) {
@@ -869,6 +933,7 @@ int main(int argc, char *argv[])
                              presentation, QString(), dps, titles,
                              legends, colors, linestyles,
                              symbolstyles,
+                             groups,
                              orient, isLegend,
                              fg, bg,
                              isShowTables,
@@ -999,6 +1064,7 @@ int main(int argc, char *argv[])
                                  presentation, ".", dps, titles,
                                  legends, colors, linestyles,
                                  symbolstyles,
+                                 groups,
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,
@@ -1029,6 +1095,7 @@ int main(int argc, char *argv[])
                                  presentation, runDirs.at(0), QStringList(),
                                  titles, legends, colors, linestyles,
                                  symbolstyles,
+                                 groups,
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,

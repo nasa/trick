@@ -818,66 +818,152 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
 
     int row = curveItem->row();
 
-    QString symbolStyle = y->symbolStyle() ; // DP symbol style
-    QModelIndex ssIdx = _bookModel->getIndex(QModelIndex(),"Symbolstyles","");
+    bool isGroups = false;
+    QStringList groups;
+    QModelIndex groupsIdx = _bookModel->getIndex(QModelIndex(),"Groups","");
+    int nGroups = _bookModel->rowCount(groupsIdx);
+    for ( int i = 0; i < nGroups; ++i ) {
+        QModelIndex groupIdx = _bookModel->index(i,1,groupsIdx);
+        QString group = _bookModel->data(groupIdx).toString();
+        groups << group;
+        if ( !group.isEmpty() ) {
+            isGroups = true;
+        }
+    }
+
+    // Symbol Style
+    QString symbolStyle = y->symbolStyle(); // DP symbol style
+    QModelIndex ssIdx = _bookModel->getIndex(QModelIndex(),
+                                             "Symbolstyles","");
     if ( row < _bookModel->rowCount(ssIdx) ) {
-        QString ssTag = QString("Symbolstyle%1").arg(row+1);
-        QString ss = _bookModel->getDataString(ssIdx,ssTag,"Symbolstyles");
+        QModelIndex symbolStyleIdx = _bookModel->index(row,1,ssIdx);
+        QString ss = _bookModel->data(symbolStyleIdx).toString();
         if ( !ss.isEmpty() ) {
-            // Use commandline symbolstyle
-            symbolStyle = ss;
+            QString group;
+            if ( row < groups.size() ) {
+                group = groups.at(row);
+            }
+            if ( group.isEmpty() ) {
+                // Use symbolstyle from cmdline, otherwise see group logic below
+                symbolStyle = ss;
+            }
         }
     }
     if ( symbolStyle.isEmpty() ) {
         symbolStyle = "none";
     }
-    _addChild(curveItem, "CurveSymbolStyle", symbolStyle);
 
+    // Linestyle
     QString lineStyle = y->lineStyle() ; // DP linestyle
     QModelIndex lsIdx = _bookModel->getIndex(QModelIndex(),"Linestyles","");
     if ( row < _bookModel->rowCount(lsIdx) ) {
-        QString lsTag = QString("Linestyle%1").arg(row+1);
-        QString ls = _bookModel->getDataString(lsIdx,lsTag,"Linestyles");
+        // Possible commandline linestyle override
+        QModelIndex lineStyleIdx = _bookModel->index(row,1,lsIdx);
+        QString ls = _bookModel->data(lineStyleIdx).toString();
         if ( !ls.isEmpty() ) {
-            // Use commandline linestyle
-            lineStyle = ls;
+            QString group;
+            if ( row < groups.size() ) {
+                group = groups.at(row);
+            }
+            if ( group.isEmpty() ) {
+                // E.g. if -l4 dog -ls4 thick_line -g4 99,
+                //      then override handled in the group logic below
+                lineStyle = ls;
+            }
         }
     }
     if ( lineStyle.isEmpty() ) {
         lineStyle = defaultLineStyle;
     }
-    _addChild(curveItem, "CurveLineStyle",   lineStyle);
 
-    QString label = y->label();
+    // Label
+    QString yLabel = y->label();
     QModelIndex llIdx = _bookModel->getIndex(QModelIndex(),"LegendLabels","");
     if ( row < _bookModel->rowCount(llIdx) ) {
         QString llTag = QString("Label%1").arg(row+1);
         QString ll = _bookModel->getDataString(llIdx,llTag,"LegendLabels");
         if ( !ll.isEmpty() ) {
-            // Use commandline label
-            label = ll;
+            QString group;
+            if ( row < groups.size() ) {
+                group = groups.at(row);
+            }
+            if ( group.isEmpty() ) {
+                // Use commandline label
+                yLabel = ll;
+            }
         }
     }
-    _addChild(curveItem, "CurveYLabel", label);
 
-    // Possible -c# commandline override color option for this curve
-    QString legendColor;
-    QModelIndex legendColorsIdx = _bookModel->getIndex(QModelIndex(),
-                                                       "LegendColors");
-    if ( row < _bookModel->rowCount(legendColorsIdx) ) {
-        QModelIndex legendColorIdx = _bookModel->index(row,1,legendColorsIdx);
-        legendColor = _bookModel->data(legendColorIdx).toString();
-    }
-
-    // Color curve!
+    // Color
     QString color = y->lineColor() ;
+    QModelIndex lcsIdx = _bookModel->getIndex(QModelIndex(),"LegendColors","");
+    if ( row < _bookModel->rowCount(lcsIdx) ) {
+        // Possible commandline color override
+        QModelIndex legendColorIdx = _bookModel->index(row,1,lcsIdx);
+        QString legendColor = _bookModel->data(legendColorIdx).toString();
+        if ( !legendColor.isEmpty() ) {
+            QString group;
+            if ( row < groups.size() ) {
+                group = groups.at(row);
+            }
+            if ( group.isEmpty() ) {
+                color = legendColor;
+            }
+        }
+    }
     if ( color.isEmpty()) {
         color = defaultColor;
     }
-    if ( !legendColor.isEmpty() ) {
-        color = legendColor;
+
+    // Handle groups (-g1, -g2... -g7 options)
+    if ( isGroups ) {
+        int i = 0;
+        foreach ( QString group, groups ) {
+            if ( !group.isEmpty() ) {
+                if ( _bookModel->isMatch(curveRunDir,group) ) {
+                    // Color
+                    QModelIndex idx = _bookModel->index(i,1,lcsIdx);
+                    QString cc = _bookModel->data(idx).toString();
+                    if ( !cc.isEmpty() ) {
+                        color = cc ;
+                    }
+
+                    // Label
+                    QString llTag = QString("Label%1").arg(i+1);
+                    QString ll = _bookModel->getDataString(llIdx,llTag,
+                                                           "LegendLabels");
+                    if ( !ll.isEmpty() ) {
+                        yLabel = ll ;
+                    } else {
+                        yLabel = group;
+                    }
+
+                    // Linestyle
+                    idx = _bookModel->index(i,1,lsIdx);
+                    QString ls = _bookModel->data(idx).toString();
+                    if ( !ls.isEmpty() ) {
+                        lineStyle = ls;
+                    }
+
+                    // Symbolstyle
+                    idx = _bookModel->index(i,1,ssIdx);
+                    QString ss = _bookModel->data(idx).toString();
+                    if ( !ss.isEmpty() ) {
+                        symbolStyle = ss;
+                    }
+
+                    // Match found and handled
+                    break;
+                }
+            }
+            ++i;
+        }
     }
+
+    _addChild(curveItem, "CurveYLabel", yLabel);
     _addChild(curveItem, "CurveColor", color);
+    _addChild(curveItem, "CurveLineStyle",   lineStyle);
+    _addChild(curveItem, "CurveSymbolStyle", symbolStyle);
 
     // Finally, add actual curve model data with signals turned on
     QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);

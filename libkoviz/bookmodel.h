@@ -8,6 +8,12 @@
 #include <QPen>
 #include <QVector>
 #include <QPaintEngine>
+#include <QString>
+#include <QStringList>
+#if QT_VERSION >= 0x050000
+#include <QRegularExpressionMatch>
+#include <QHashFunctions>
+#endif
 #include "runs.h"
 #include "unit.h"
 #include "utils.h"
@@ -125,6 +131,9 @@ public:
     QColor pageBackgroundColor(const QModelIndex& pageIdx) const;
     QColor pageForegroundColor(const QModelIndex& pageIdx) const;
 
+    // Misc
+    bool isMatch(const QString& str, const QString& exp) const;
+
 signals:
     
 public slots:
@@ -198,7 +207,7 @@ private:
             return is;
         }
 
-        inline bool operator==(const LegendElement& other)
+        inline bool operator==(const LegendElement& other) const
         {
             bool isEqual = false;
 
@@ -231,10 +240,33 @@ private:
             return isEqual;
         }
 
+        inline bool operator!=(const LegendElement& other) const
+        {
+            if ( *this == other ) {
+                return false;
+            } else {
+                return true;
+            }
+        }
     };
+
+#if QT_VERSION >= 0x050000
+    friend uint qHash(const LegendElement& key, uint seed);
+#endif
 
     QList<LegendElement> _legendElements(const QModelIndex& plotIdx) const;
     QList<LegendElement> _legendOverrides() const;
 };
+
+#if QT_VERSION >= 0x050000
+inline uint qHash(const PlotBookModel::LegendElement &key, uint seed)
+{
+    QString combo = key.label + ',' +
+                    key.color + ',' +
+                    key.linestyle + ',' +
+                    key.symbolstyle;
+    return qHash(combo, seed);
+}
+#endif
 
 #endif // PLOTBOOKMODEL_H
