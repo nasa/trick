@@ -113,7 +113,7 @@ jobs:
               dnf -y install epel-release &&
               dnf -y update &&
               dnf install -y 'dnf-command(config-manager)' &&
-              dnf config-manager --enable PowerTools
+              dnf config-manager --enable powertools
             tag_deps: >-
               python3-devel diffutils
 #-------- Job definition ----------------
