@@ -163,8 +163,8 @@ void Trick::Sie::sie_append_runtime_objs() {
     while(memcmp(comment, buff, commentLength) != 0) {
         while(last != '!' || sie_out.peek() != '<') {
             if(sie_out.bad() || sie_out.fail() || sie_out.eof()) {
-                std::cerr << "Error: S_sie.resource is corrupted or outdated. Cannot add runtime/dynamic allocations. Please rerun trick-CP" << std::endl;
-                exit(2);
+                std::cerr << "Warning: Cannot add runtime/dynamic allocations to S_sie.resource. S_sie.resource is corrupted, outdated, or missing. Please be sure that SIM_*/S_sie.resource is preserved after build time if needed at runtime for trick-tv or other variable server clients. Please also rerun trick-CP." << std::endl;
+                return;
             }
             last = sie_out.peek();
             sie_out.seekg(-1, std::ios::cur);
