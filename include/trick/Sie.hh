@@ -42,11 +42,11 @@ namespace Trick {
             void top_level_objects_print_xml() ;
             void sie_print_json() ;
             void sie_append_runtime_objs() ;
+            void runtime_objects_print(std::fstream & sie_out) ;
 
         private:
 
             void top_level_objects_print(std::ofstream & sie_out) ;
-            void runtime_objects_print(std::fstream & sie_out) ;
             void top_level_objects_json(std::ofstream & sie_out) ;
 
             // These are singleton maps holding all attributes known to the sim
