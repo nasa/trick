@@ -1,7 +1,32 @@
 
 #include <stdlib.h>
-#include <iostream>
+#include <stdexcept>
+#include <iostream>  // std::cout, std::cerr
+#include <algorithm> // std::copy
 #include "SAIntegrator.hh"
+
+static void nil_dfunc( double x,
+                       double state[] __attribute__((unused)),
+                       double derivs[],
+                       void*  udata __attribute__((unused))) {
+    derivs[0] = 0.0;
+}
+static void nil_gfunc( double t,
+                       double x[] __attribute__((unused)),
+                       double v[] __attribute__((unused)),
+                       double derivs[],
+                       void*  udata __attribute__((unused))) {
+    derivs[0] = 0.0;
+}
+// ------------------------------------------------------------
+// Class Integrator
+// ------------------------------------------------------------
+// Default Constructor
+SA::Integrator::Integrator()
+: X_in(0.0), X_out(0.0), default_h(1.0), user_data(NULL) {};
+// Constructor
+SA::Integrator::Integrator(double h, void* udata)
+: X_in(0.0), X_out(0.0), default_h(h), user_data(udata) {};
 
 void SA::Integrator::advanceIndyVar() {
     X_out = X_in + default_h;
@@ -30,21 +55,80 @@ double SA::Integrator::getIndyVar() {
 void SA::Integrator::setIndyVar(double v) {
     X_out = v;
 }
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const Integrator& I) {
+    os << "\n--- Integrator ---";
+    os << "\nX_in      : " << I.X_in;
+    os << "\nX_out     : " << I.X_out;
+    os << "\ndefault_h : " << I.default_h;
+    os << "\nuser_data : " << I.user_data;
+    return os;
+}
 
 // ------------------------------------------------------------
+// Class FirstOrderODEIntegrator
+// ------------------------------------------------------------
+// Default Constructor
+SA::FirstOrderODEIntegrator::FirstOrderODEIntegrator()
+: Integrator() {
+    state_size = 0;
+    inVars = NULL;
+    outVars = NULL;
+    inState = new double[state_size];
+    outState = new double[state_size];
+    derivs_func = nil_dfunc;
+}
+// Constructor
 SA::FirstOrderODEIntegrator::FirstOrderODEIntegrator(
-    double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
 : Integrator(h, udata) {
     state_size = N;
     inVars = in_vars;
     outVars = out_vars;
     inState = new double[state_size];
     outState = new double[state_size];
+    if (dfunc == NULL) throw std::invalid_argument("dfunc must be non-NULL.");
     derivs_func = dfunc;
 }
+// Copy Constructor
+SA::FirstOrderODEIntegrator::FirstOrderODEIntegrator(const FirstOrderODEIntegrator& other)
+: Integrator(other) {
+    state_size = other.state_size;
+    inVars = other.inVars;
+    outVars = other.outVars;
+    inState = new double[state_size];
+    std::copy( other.inState, other.inState + state_size, inState);
+    outState = new double[state_size];
+    std::copy( other.outState, other.outState + state_size, outState);
+    derivs_func = other.derivs_func;
+}
+// Assignment Operator
+SA::FirstOrderODEIntegrator& SA::FirstOrderODEIntegrator::operator=( const SA::FirstOrderODEIntegrator& rhs) {
+    if (this != &rhs) {
+        // Call base assignment operator
+        Integrator::operator=(rhs);
+        // Duplicate rhs arrays
+        double* new_inState = new double[rhs.state_size];
+        std::copy( rhs.inState, rhs.inState + rhs.state_size, new_inState);
+        double* new_outState = new double[rhs.state_size];
+        std::copy( rhs.outState, rhs.outState + rhs.state_size, new_outState);
+        // Delete lhs arrays & replace with rhs arrays
+        if (inState != NULL) delete inState;
+        inState = new_inState;
+        if (outState != NULL) delete outState;
+        outState = new_outState;
+        // Copy primitive members
+        state_size = rhs.state_size;
+        inVars = rhs.inVars;
+        outVars = rhs.outVars;
+        derivs_func = rhs.derivs_func;
+    }
+    return *this;
+}
+// Destructor
 SA::FirstOrderODEIntegrator::~FirstOrderODEIntegrator() {
-    delete inState;
-    delete outState;
+    if (inState != NULL) delete inState;
+    if (outState != NULL) delete outState;
 }
 void SA::FirstOrderODEIntegrator::load() {
     if (inVars != NULL) {
@@ -82,13 +166,16 @@ double** SA::FirstOrderODEIntegrator::set_out_vars( double* out_vars[]){
     return (ret);
 }
 double SA::FirstOrderODEIntegrator::undo_integrate() {
-    for (unsigned int i=0 ; i<state_size; i++ ) {
-        *(inVars[i]) = inState[i];
+    if (inVars != NULL) {
+        for (unsigned int i=0 ; i<state_size; i++ ) {
+            *(inVars[i]) = inState[i];
+        }
+        std::copy(inState, inState + state_size, outState);
+        return (SA::Integrator::undo_integrate());
+    } else {
+        std::cerr << "Error: SA::FirstOrderODEIntegrator::load(). inVars is not set." << std::endl;
     }
-    for (unsigned int i=0 ; i<state_size; i++ ) {
-        outState[i] = inState[i];
-    }
-    return (SA::Integrator::undo_integrate());
+    return (0.0);
 }
 void SA::FirstOrderODEIntegrator::step() {
     double derivs[state_size];
@@ -98,24 +185,88 @@ void SA::FirstOrderODEIntegrator::step() {
     }
     advanceIndyVar();
 }
+static std::ostream& stream_double_array(std::ostream& os, unsigned int n, double* d_array) {
+    if (d_array == NULL) {
+        os << " NULL\n";
+    } else {
+        os << "[";
+        for (int i=0; i<n ; i++) {
+            if (i==0) { os << d_array[i]; }
+            else { os << " ," << d_array[i]; }
+        }
+        os << "]";
+    }
+    return os;
+}
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const FirstOrderODEIntegrator& I) {
+        os << (SA::Integrator)I;
+        os << "\n--- FirstOrderODEIntegrator ---";
+        os << "\nstate_size: " << I.state_size;
+        os << "\ninState   :";
+        stream_double_array(os, I.state_size, I.inState);
+        os << "\noutState  :";
+        stream_double_array(os, I.state_size, I.outState);
+        os << "\ninVars    : " << (void*)I.inVars;
+        os << "\noutVars   : " << (void*)I.outVars;
+        return os;
+}
 
 // ------------------------------------------------------------
+// Class FirstOrderODEVariableStepIntegrator
+// ------------------------------------------------------------
+// Default Constructor
+SA::FirstOrderODEVariableStepIntegrator::FirstOrderODEVariableStepIntegrator()
+: FirstOrderODEIntegrator() {
+    root_finder = (RootFinder*) NULL;
+    root_error_func = (RootErrorFunc) NULL;
+}
+// Constructor
 SA::FirstOrderODEVariableStepIntegrator::FirstOrderODEVariableStepIntegrator(
-    double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
 : FirstOrderODEIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
     root_finder = (RootFinder*) NULL;
-    root_error_func = (RootErrorFunc)NULL;
+    root_error_func = (RootErrorFunc) NULL;
+}
+// Copy Constructor
+SA::FirstOrderODEVariableStepIntegrator::FirstOrderODEVariableStepIntegrator(
+const FirstOrderODEVariableStepIntegrator& other)
+: FirstOrderODEIntegrator(other) {
+    if (other.root_finder != NULL) {
+        root_finder = new RootFinder(*(other.root_finder));
+    } else {
+        root_finder = NULL;
+    }
+    root_error_func = other.root_error_func;
+}
+// Assignment Operator
+SA::FirstOrderODEVariableStepIntegrator& SA::
+FirstOrderODEVariableStepIntegrator::operator=( const SA::FirstOrderODEVariableStepIntegrator& rhs) {
+    FirstOrderODEIntegrator::operator=(rhs);
+    if (root_finder != NULL) delete root_finder;
+    if (rhs.root_finder != NULL) {
+        root_finder = new RootFinder(*(rhs.root_finder));
+    } else {
+        root_finder = NULL;
+    }
+    root_error_func = rhs.root_error_func;
+    return *this;
+}
+// Destructor
+SA::FirstOrderODEVariableStepIntegrator::~FirstOrderODEVariableStepIntegrator() {
+    if (root_finder != NULL) {
+        delete root_finder;
+    }
 }
 double SA::FirstOrderODEVariableStepIntegrator::undo_integrate() {
     SA::FirstOrderODEIntegrator::undo_integrate();
     return (last_h);
 }
-SA::FirstOrderODEVariableStepIntegrator::~FirstOrderODEVariableStepIntegrator() {
-    // User is responsible for deleting the root_finder.
-}
-void SA::FirstOrderODEVariableStepIntegrator::add_Rootfinder(
-    RootFinder* rootFinder, RootErrorFunc rfunc) {
-    root_finder = rootFinder;
+void SA::FirstOrderODEVariableStepIntegrator::add_Rootfinder( double tolerance, SlopeConstraint constraint, RootErrorFunc rfunc) {
+    root_finder = new RootFinder(tolerance, constraint);
+    if (rfunc == NULL) {
+        throw std::invalid_argument("OOPS! RootErrorFunc function-pointer must be NULL.");
+    }
     root_error_func = rfunc;
 }
 void SA::FirstOrderODEVariableStepIntegrator::advanceIndyVar(double h) {
@@ -151,15 +302,63 @@ void SA::FirstOrderODEVariableStepIntegrator::step() {
         find_roots( default_h, 5 );
     }
 }
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const FirstOrderODEVariableStepIntegrator& I) {
+    os << (SA::FirstOrderODEIntegrator)I;
+    os << "\n--- FirstOrderODEVariableStepIntegrator ---";
+    if (I.root_error_func == NULL) {
+        os << "\nroot_error_func: NULL.";
+    } else {
+        os << "\nroot_error_func: " << (void*)I.root_error_func;
+    }
+    if (I.root_finder == NULL) {
+        os << "\nroot_finder: NULL.";
+    } else {
+        os << "\nroot_finder -> " << *(I.root_finder);
+    }
+    return os;
+}
 
 // ------------------------------------------------------------
+// Class EulerIntegrator
+// ------------------------------------------------------------
+// Default Constructor
+SA::EulerIntegrator::EulerIntegrator()
+: FirstOrderODEVariableStepIntegrator() {
+    derivs = new double[state_size];
+}
+// Constructor
 SA::EulerIntegrator::EulerIntegrator(
-    double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
     : FirstOrderODEVariableStepIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
     derivs = new double[N];
 }
+// Copy Constructor
+SA::EulerIntegrator::EulerIntegrator(const EulerIntegrator& other)
+    : FirstOrderODEVariableStepIntegrator(other) {
+    derivs = new double[state_size];
+    std::copy( other.derivs, other.derivs + state_size, derivs);
+}
+// Assignment Operator
+SA::EulerIntegrator& SA::EulerIntegrator::operator=( const SA::EulerIntegrator& rhs) {
+    if (this != &rhs) {
+        double* new_derivs = 0;
+        try {
+            new_derivs = new double[rhs.state_size];
+        } catch (...) {
+            delete new_derivs;
+            throw;
+        }
+        FirstOrderODEVariableStepIntegrator::operator=(rhs);
+        if (derivs != NULL) delete derivs;
+        derivs = new_derivs;
+        std::copy( rhs.derivs, rhs.derivs + state_size, derivs);
+    }
+    return *this;
+}
+//Destructor
 SA::EulerIntegrator::~EulerIntegrator() {
-    delete derivs;
+    if (derivs != NULL) delete derivs;
 }
 void SA::EulerIntegrator::variable_step( double h) {
     (*derivs_func)( X_in, inState, derivs, user_data);
@@ -168,19 +367,72 @@ void SA::EulerIntegrator::variable_step( double h) {
     }
     advanceIndyVar(h);
 }
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const EulerIntegrator& I) {
+    os << (SA::FirstOrderODEVariableStepIntegrator)I;
+    os << "\n--- EulerIntegrator ---";
+    os << "\nderivs    :";
+    stream_double_array(os, I.state_size, I.derivs);
+    return os;
+}
 // ------------------------------------------------------------
+// Class HeunsMethod
+// ------------------------------------------------------------
+// Default Constructor
+SA::HeunsMethod::HeunsMethod()
+: FirstOrderODEVariableStepIntegrator() {
+    wstate = new double[state_size];
+    for (unsigned int i = 0; i < 2 ; i++) {
+        derivs[i] = new double[state_size];
+    }
+}
+// Constructor
 SA::HeunsMethod::HeunsMethod(
-    double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
     : FirstOrderODEVariableStepIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
     wstate = new double[N];
     for (unsigned int i = 0; i < 2 ; i++) {
         derivs[i] = new double[N];
     }
 }
+// Copy Constructor
+SA::HeunsMethod::HeunsMethod(const HeunsMethod& other)
+    : FirstOrderODEVariableStepIntegrator(other) {
+    wstate = new double[state_size];
+    std::copy(other.wstate, other.wstate+state_size, wstate);
+    for (unsigned int i=0 ; i<2; i++ ) {
+        derivs[i] = new double[state_size];
+        std::copy(other.derivs[i], other.derivs[i]+state_size, derivs[i]);
+    }
+}
+// Assignment Operator
+SA::HeunsMethod& SA::HeunsMethod::operator=( const SA::HeunsMethod& rhs) {
+    if (this != &rhs) {
+        // Call base assignment operator
+        FirstOrderODEVariableStepIntegrator::operator=(rhs);
+        // Duplicate rhs arrays
+        double* new_wstate = new double[rhs.state_size];
+        std::copy(rhs.wstate, rhs.wstate + rhs.state_size, new_wstate);
+        double* new_derivs[2];
+        for (unsigned int i=0 ; i<2; i++ ) {
+            new_derivs[i] = new double[rhs.state_size];
+            std::copy(rhs.derivs[i], rhs.derivs[i] + rhs.state_size, new_derivs[i]);
+        }
+        // Delete lhs arrays & replace with rhs arrays
+        if (wstate != NULL) delete wstate;
+        wstate = new_wstate;
+        for (unsigned int i=0 ; i<2; i++ ) {
+            if (derivs[i] != NULL) delete derivs[i];
+            derivs[i] = new_derivs[i];
+        }
+    }
+    return *this;
+}
+// Destructor
 SA::HeunsMethod::~HeunsMethod() {
-    delete wstate;
+    if (wstate != NULL) delete wstate;
     for (unsigned int i = 0; i < 2 ; i++) {
-        delete derivs[i];
+        if (derivs[i] != NULL) delete derivs[i];
     }
 }
 void SA::HeunsMethod::variable_step( double h) {
@@ -194,19 +446,78 @@ void SA::HeunsMethod::variable_step( double h) {
     }
     advanceIndyVar(h);
 }
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const HeunsMethod& I) {
+    os << (SA::FirstOrderODEVariableStepIntegrator)I;
+    os << "\n--- HeunsMethod ---";
+    os << "\nderivs    :[";
+    for (int i=0; i<2 ; i++) {
+        os << "\n";
+        stream_double_array(os, I.state_size, I.derivs[i]);
+    }
+    os << "\n]";
+    os << "\nwstate    :";
+    stream_double_array(os, I.state_size, I.wstate);
+    return os;
+}
 // ------------------------------------------------------------
+// Class RK2Integrator
+// ------------------------------------------------------------
+// Default Constructor
+SA::RK2Integrator::RK2Integrator()
+    : FirstOrderODEVariableStepIntegrator() {
+    wstate = new double[state_size];
+    for (unsigned int i = 0; i < 2 ; i++) {
+        derivs[i] = new double[state_size];
+    }
+}
+// Constructor
 SA::RK2Integrator::RK2Integrator(
-    double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
     : FirstOrderODEVariableStepIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
     wstate = new double[N];
     for (unsigned int i = 0; i < 2 ; i++) {
         derivs[i] = new double[N];
     }
 }
+// Copy Constructor
+SA::RK2Integrator::RK2Integrator(const RK2Integrator& other)
+    : FirstOrderODEVariableStepIntegrator(other) {
+    wstate = new double[state_size];
+    std::copy(other.wstate, other.wstate+state_size, wstate);
+    for (unsigned int i=0 ; i<2; i++ ) {
+        derivs[i] = new double[state_size];
+        std::copy(other.derivs[i], other.derivs[i]+state_size, derivs[i]);
+    }
+}
+// Assignment Operator
+SA::RK2Integrator& SA::RK2Integrator::operator=( const SA::RK2Integrator& rhs) {
+    if (this != &rhs) {
+        // Call base assignment operator
+        FirstOrderODEVariableStepIntegrator::operator=(rhs);
+        // Duplicate rhs arrays
+        double* new_wstate = new double[rhs.state_size];
+        std::copy(rhs.wstate, rhs.wstate + rhs.state_size, new_wstate);
+        double* new_derivs[2];
+        for (unsigned int i=0 ; i<2; i++ ) {
+            new_derivs[i] = new double[rhs.state_size];
+            std::copy(rhs.derivs[i], rhs.derivs[i] + rhs.state_size, new_derivs[i]);
+        }
+        // Delete lhs arrays & replace with rhs arrays
+        if (wstate != NULL) delete wstate;
+        wstate = new_wstate;
+        for (unsigned int i=0 ; i<2; i++ ) {
+            if (derivs[i] != NULL) delete derivs[i];
+            derivs[i] = new_derivs[i];
+        }
+    }
+    return *this;
+}
+// Destructor
 SA::RK2Integrator::~RK2Integrator() {
-    delete (wstate);
+    if (wstate != NULL) delete (wstate);
     for (unsigned int i = 0; i < 2 ; i++) {
-        delete derivs[i];
+        if (derivs[i] != NULL) delete derivs[i];
     }
 }
 void SA::RK2Integrator::variable_step( double h) {
@@ -220,9 +531,36 @@ void SA::RK2Integrator::variable_step( double h) {
     }
     advanceIndyVar(h);
 }
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const RK2Integrator& I) {
+    os << (SA::FirstOrderODEVariableStepIntegrator)I;
+    os << "\n--- RK2Integrator ---";
+    os << "\nderivs    :[";
+    for (int i=0; i<2 ; i++) {
+        os << "\n";
+        stream_double_array(os, I.state_size, I.derivs[i]);
+    }
+    os << "\n]";
+    os << "\nwstate    :";
+    stream_double_array(os, I.state_size, I.wstate);
+    return os;
+}
 // ------------------------------------------------------------
+// Class RK4Integrator
+// ------------------------------------------------------------
+// Default Constructor
+SA::RK4Integrator::RK4Integrator()
+    : FirstOrderODEVariableStepIntegrator() {
+    for (unsigned int i = 0; i < 3 ; i++) {
+        wstate[i] = new double[state_size];
+    }
+    for (unsigned int i = 0; i < 4 ; i++) {
+        derivs[i] = new double[state_size];
+    }
+}
+// Constructor
 SA::RK4Integrator::RK4Integrator(
-    double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
     : FirstOrderODEVariableStepIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
     for (unsigned int i = 0; i < 3 ; i++) {
         wstate[i] = new double[N];
@@ -231,12 +569,53 @@ SA::RK4Integrator::RK4Integrator(
         derivs[i] = new double[N];
     }
 }
+// Copy Constructor
+SA::RK4Integrator::RK4Integrator(const RK4Integrator& other)
+    : FirstOrderODEVariableStepIntegrator(other) {
+    for (unsigned int i=0 ; i<3; i++ ) {
+        wstate[i] = new double[state_size];
+        std::copy(other.wstate[i], other.wstate[i]+state_size, wstate[i]);
+    }
+    for (unsigned int i=0 ; i<4; i++ ) {
+        derivs[i] = new double[state_size];
+        std::copy(other.derivs[i], other.derivs[i]+state_size, derivs[i]);
+    }
+}
+// Assignment Operator
+SA::RK4Integrator& SA::RK4Integrator::operator=( const SA::RK4Integrator& rhs) {
+    if (this != &rhs) {
+        // Call base assignment operator
+        FirstOrderODEVariableStepIntegrator::operator=(rhs);
+        // Duplicate rhs arrays
+        double* new_wstate[3];
+        for (unsigned int i=0 ; i<3; i++ ) {
+            new_wstate[i] = new double[rhs.state_size];
+            std::copy(rhs.wstate[i], rhs.wstate[i] + rhs.state_size, new_wstate[i]);
+        }
+        double* new_derivs[4];
+        for (unsigned int i=0 ; i<4; i++ ) {
+            new_derivs[i] = new double[rhs.state_size];
+            std::copy(rhs.derivs[i], rhs.derivs[i]+ rhs.state_size, new_derivs[i]);
+        }
+        // Delete lhs arrays & replace with rhs arrays
+        for (unsigned int i=0 ; i<3; i++ ) {
+            if (wstate[i] != NULL) delete wstate[i];
+            wstate[i] = new_wstate[i];
+        }
+        for (unsigned int i=0 ; i<4; i++ ) {
+            if (derivs[i] != NULL) delete derivs[i];
+            derivs[i] = new_derivs[i];
+        }
+    }
+    return *this;
+}
+// Destructor
 SA::RK4Integrator::~RK4Integrator() {
     for (unsigned int i = 0; i < 3 ; i++) {
-        delete (wstate[i]);
+        if (wstate[i] != NULL) delete (wstate[i]);
     }
     for (unsigned int i = 0; i < 4 ; i++) {
-        delete (derivs[i]);
+        if (derivs[i] != NULL) delete (derivs[i]);
     }
 }
 void SA::RK4Integrator::variable_step( double h) {
@@ -261,9 +640,40 @@ void SA::RK4Integrator::variable_step( double h) {
     }
     advanceIndyVar(h);
 }
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const RK4Integrator& I) {
+    os << (SA::FirstOrderODEVariableStepIntegrator)I;
+    os << "\n--- RK4Integrator ---";
+    os << "\nderivs    :[";
+    for (int i=0; i<4 ; i++) {
+        os << "\n";
+        stream_double_array(os, I.state_size, I.derivs[i]);
+    }
+    os << "\n]";
+    os << "\nwstate    :[";
+    for (int i=0; i<3 ; i++) {
+        os << "\n";
+        stream_double_array(os, I.state_size, I.wstate[i]);
+    }
+    os << "\n]";
+    return os;
+}
 // ------------------------------------------------------------
+// Class RK3_8Integrator
+// ------------------------------------------------------------
+// Default Constructor
+SA::RK3_8Integrator::RK3_8Integrator()
+    : FirstOrderODEVariableStepIntegrator() {
+    for (unsigned int i = 0; i < 3 ; i++) {
+        wstate[i] = new double[state_size];
+    }
+    for (unsigned int i = 0; i < 4 ; i++) {
+        derivs[i] = new double[state_size];
+    }
+}
+// Constructor
 SA::RK3_8Integrator::RK3_8Integrator(
-    double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
     : FirstOrderODEVariableStepIntegrator(h, N, in_vars, out_vars ,dfunc, udata) {
     for (unsigned int i = 0; i < 3 ; i++) {
         wstate[i] = new double[N];
@@ -272,12 +682,53 @@ SA::RK3_8Integrator::RK3_8Integrator(
         derivs[i] = new double[N];
     }
 }
+// Copy Constructor
+SA::RK3_8Integrator::RK3_8Integrator(const RK3_8Integrator& other)
+    : FirstOrderODEVariableStepIntegrator(other) {
+    for (unsigned int i=0 ; i<3; i++ ) {
+        wstate[i] = new double[state_size];
+        std::copy(other.wstate[i], other.wstate[i]+state_size, wstate[i]);
+    }
+    for (unsigned int i=0 ; i<4; i++ ) {
+        derivs[i] = new double[state_size];
+        std::copy(other.derivs[i], other.derivs[i]+state_size, derivs[i]);
+    }
+}
+// Assignment Operator
+SA::RK3_8Integrator& SA::RK3_8Integrator::operator=( const SA::RK3_8Integrator& rhs) {
+    if (this != &rhs) {
+        // Call base assignment operator
+        FirstOrderODEVariableStepIntegrator::operator=(rhs);
+        // Duplicate rhs arrays
+        double* new_wstate[3];
+        for (unsigned int i=0 ; i<3; i++ ) {
+            new_wstate[i] = new double[rhs.state_size];
+            std::copy(rhs.wstate[i], rhs.wstate[i] + rhs.state_size, new_wstate[i]);
+        }
+        double* new_derivs[4];
+        for (unsigned int i=0 ; i<4; i++ ) {
+            new_derivs[i] = new double[rhs.state_size];
+            std::copy(rhs.derivs[i], rhs.derivs[i] + rhs.state_size, new_derivs[i]);
+        }
+        // Delete lhs arrays & replace with rhs arrays
+        for (unsigned int i=0 ; i<3; i++ ) {
+            if (wstate[i] != NULL) delete wstate[i];
+            wstate[i] = new_wstate[i];
+        }
+        for (unsigned int i=0 ; i<4; i++ ) {
+            if (derivs[i] != NULL) delete derivs[i];
+            derivs[i] = new_derivs[i];
+        }
+    }
+    return *this;
+}
+// Destructor
 SA::RK3_8Integrator::~RK3_8Integrator() {
     for (unsigned int i = 0; i < 3 ; i++) {
-        delete (wstate[i]);
+        if (wstate[i] != NULL) delete (wstate[i]);
     }
     for (unsigned int i = 0; i < 4 ; i++) {
-        delete (derivs[i]);
+        if (derivs[i] != NULL) delete (derivs[i]);
     }
 }
 void SA::RK3_8Integrator::variable_step( double h) {
@@ -302,73 +753,194 @@ void SA::RK3_8Integrator::variable_step( double h) {
     }
     advanceIndyVar(h);
 }
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const RK3_8Integrator& I) {
+    os << (SA::FirstOrderODEVariableStepIntegrator)I;
+    os << "\n--- RK3_8Integrator ---";
+    os << "\nderivs    :[";
+    for (int i=0; i<4 ; i++) {
+        os << "\n";
+        stream_double_array(os, I.state_size, I.derivs[i]);
+    }
+    os << "\n]";
+    os << "\nwstate    :[";
+    for (int i=0; i<3 ; i++) {
+        os << "\n";
+        stream_double_array(os, I.state_size, I.wstate[i]);
+    }
+    os << "\n]";
+    return os;
+}
+
 // ------------------------------------------------------------
+// Class EulerCromerIntegrator
+// ------------------------------------------------------------
+// Default Constructor
+SA::EulerCromerIntegrator::EulerCromerIntegrator()
+    :Integrator() {
+    nDimensions  = 1;
+    last_h = 0.0;
+    pos_p = NULL;
+    pos_in  = new double[nDimensions];
+    pos_out = new double[nDimensions];
+    vel_p = NULL;
+    vel_in  = new double[nDimensions];
+    vel_out = new double[nDimensions];
+    g_out   = new double[nDimensions];
+    gderivs = nil_gfunc;
+}
+// Constructor
 SA::EulerCromerIntegrator::EulerCromerIntegrator(
-    double dt, int N, double* xp[], double* vp[], DerivsFunc gfunc, DerivsFunc ffunc, void* udata)
+    double dt, unsigned int N, double* xp[], double* vp[], Derivs2Func gfunc, void* udata)
     :Integrator(dt, udata) {
     nDimensions  = N;
-    pos_p   = new double*[N];
+    last_h = 0.0;
+    pos_p = xp;
     pos_in  = new double[N];
     pos_out = new double[N];
-    vel_p   = new double*[N];
+    vel_p = vp;
     vel_in  = new double[N];
     vel_out = new double[N];
     g_out   = new double[N];
-    f_out   = new double[N];
-
-    for (int i=0 ; i<N; i++ ) {
-        pos_p[i] = xp[i];
-        vel_p[i] = vp[i];
-    }
     gderivs = gfunc;
-    fderivs = ffunc;
 }
+// Copy Constructor
+SA::EulerCromerIntegrator::EulerCromerIntegrator(const EulerCromerIntegrator& other)
+: Integrator(other.default_h, other.user_data) {
+    nDimensions = other.nDimensions;
+    last_h = other.last_h;
+    pos_p = other.pos_p;
+    pos_in = new double[nDimensions];
+    std::copy( other.pos_in, other.pos_in + nDimensions, pos_in);
+    pos_out = new double[nDimensions];
+    std::copy( other.pos_out, other.pos_out + nDimensions, pos_out);
+    vel_p = other.vel_p;
+    std::copy( other.vel_p, other.vel_p + nDimensions, vel_p);
+    vel_in = new double[nDimensions];
+    std::copy( other.vel_in, other.vel_in + nDimensions, vel_in);
+    vel_out = new double[nDimensions];
+    std::copy( other.vel_out, other.vel_out + nDimensions, vel_out);
+    g_out = new double[nDimensions];
+    std::copy( other.g_out, other.g_out + nDimensions, g_out);
+    gderivs = other.gderivs;
+}
+// Assignment Operator
+SA::EulerCromerIntegrator& SA::EulerCromerIntegrator::operator=( const SA::EulerCromerIntegrator& rhs) {
+    if (this != &rhs) {
+        // Call base assignment operator
+        Integrator::operator=(rhs);
+        // Duplicate the rhs arrays
+        double* new_pos_in  = new double[rhs.nDimensions];
+        std::copy( rhs.pos_in, rhs.pos_in + rhs.nDimensions, new_pos_in);
+        double* new_pos_out = new double[rhs.nDimensions];
+        std::copy( rhs.pos_out, rhs.pos_out + rhs.nDimensions, new_pos_out);
+        double* new_vel_in  = new double[rhs.nDimensions];
+        std::copy( rhs.vel_in, rhs.vel_in + rhs.nDimensions, new_vel_in);
+        double* new_vel_out = new double[rhs.nDimensions];
+        std::copy( rhs.vel_out, rhs.vel_out + rhs.nDimensions, new_vel_out);
+        double* new_g_out = new double[rhs.nDimensions];
+        std::copy( rhs.g_out, rhs.g_out + rhs.nDimensions, new_g_out);
+        // Delete lhs arrays & replace with rhs arrays
+        if (pos_in != NULL) delete pos_in;
+        pos_in = new_pos_in;
+        if (pos_out != NULL) delete pos_out;
+        pos_out = new_pos_out;
+        if (vel_in != NULL) delete vel_in;
+        vel_in = new_vel_in;
+        if (vel_out != NULL) delete vel_out;
+        vel_out = new_vel_out;
+        if (g_out != NULL) delete g_out;
+        g_out = new_g_out;
+        // Copy primitive members
+        last_h = rhs.last_h;
+        pos_p = rhs.pos_p;
+        vel_p = rhs.vel_p;
+        nDimensions = rhs.nDimensions;
+        gderivs = rhs.gderivs;
+    }
+    return *this;
+}
+// Destructor
 SA::EulerCromerIntegrator::~EulerCromerIntegrator() {
-
-    delete pos_in;
-    delete pos_out;
-    delete vel_in;
-    delete vel_out;
-    delete g_out;
-    delete f_out;
+    if (pos_in != NULL)  delete pos_in;
+    if (pos_out != NULL) delete pos_out;
+    if (vel_in != NULL)  delete vel_in;
+    if (vel_out != NULL) delete vel_out;
+    if (g_out != NULL)   delete g_out;
+}
+void SA::EulerCromerIntegrator::advanceIndyVar(double h) {
+    last_h = h; X_out = X_in + h;
 }
 void SA::EulerCromerIntegrator::step( double dt) {
-    (*gderivs)( X_in, pos_in, g_out, user_data);
+    (*gderivs)( X_in, pos_in, vel_in, g_out, user_data);
     for (int i=0 ; i<nDimensions; i++ ) {
         vel_out[i] = vel_in[i] + g_out[i] * dt;
+        pos_out[i] = pos_in[i] + vel_out[i] * dt;
     }
-    (*fderivs)( X_in, vel_in, f_out, user_data);
-    for (int i=0 ; i<nDimensions; i++ ) {
-        pos_out[i] = pos_in[i] + f_out[i] * dt;
-    }
-    X_out = X_in + dt;
+    advanceIndyVar(dt);
 }
 void SA::EulerCromerIntegrator::step() {
     step(default_h);
-    // if ((root_finder != NULL) && (root_error_func != NULL)) {
-    //     find_roots( default_h, 5 );
-    // }
 }
 void SA::EulerCromerIntegrator::load() {
-    for (int i=0 ; i<nDimensions; i++ ) {
-        pos_in[i] = *(pos_p[i]);
-        vel_in[i] = *(vel_p[i]);
+    if ((pos_in != NULL) && (vel_in != NULL)) {
+        for (int i=0 ; i<nDimensions; i++ ) {
+            pos_in[i] = *(pos_p[i]);
+            vel_in[i] = *(vel_p[i]);
+        }
+        Integrator::load();
+    } else {
+        std::cerr << "Error: SA::EulerCromerIntegrator::load(). Input variable pointers (pos_in, vel_in) aren't set." << std::endl;
     }
 }
 void SA::EulerCromerIntegrator::unload(){
-    for (int i=0 ; i<nDimensions; i++ ) {
-        *(pos_p[i]) = pos_out[i];
-        *(vel_p[i]) = vel_out[i];
+    if ((pos_in != NULL) && (vel_in != NULL)) {
+        for (int i=0 ; i<nDimensions; i++ ) {
+            *(pos_p[i]) = pos_out[i];
+            *(vel_p[i]) = vel_out[i];
+        }
+    } else {
+        std::cerr << "Error: SA::EulerCromerIntegrator::load(). Input variable pointers (pos_in, vel_in) aren't set." << std::endl;
     }
 }
 double SA::EulerCromerIntegrator::undo_integrate() {
-    for (int i=0 ; i<nDimensions; i++ ) {
-        *(pos_p[i]) = pos_in[i];
-        *(vel_p[i]) = vel_in[i];
+    if ((pos_in != NULL) && (vel_in != NULL)) {
+        for (unsigned int i=0 ; i<nDimensions; i++ ) {
+            *(pos_p[i]) = pos_in[i];
+            *(vel_p[i]) = vel_in[i];
+        }
+        std::copy(pos_in, pos_in + nDimensions, pos_out);
+        std::copy(vel_in, vel_in + nDimensions, vel_out);
+        return (SA::Integrator::undo_integrate());
+    } else {
+        std::cerr << "Error: SA::EulerCromerIntegrator::undo_integrate(). Input variable pointers (pos_in, vel_in) aren't set." << std::endl;
     }
-    return (SA::Integrator::undo_integrate());
+    return (last_h);
+}
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const EulerCromerIntegrator& I) {
+    os << (SA::Integrator)I;
+    os << "\n--- EulerCromerIntegrator ---";
+    os << "\nnDimensions : " << I.nDimensions;
+    os << "\nlast_h      : " << I.last_h;
+    os << "\npos_p       :" << I.pos_p;
+    os << "\nvel_p       :" << I.vel_p;
+    os << "\npos_in    :";
+    stream_double_array(os, I.nDimensions, I.pos_in);
+    os << "\npos_out    :";
+    stream_double_array(os, I.nDimensions, I.pos_out);
+    os << "\nvel_in    :";
+    stream_double_array(os, I.nDimensions, I.vel_in);
+    os << "\nvel_out    :";
+    stream_double_array(os, I.nDimensions, I.vel_out);
+    os << "\ng_out    :";
+    stream_double_array(os, I.nDimensions, I.g_out);
+    return os;
 }
 
+// ------------------------------------------------------------
+// Class ABMIntegrator
+// ------------------------------------------------------------
 // // Adams-Bashforth Coefficients
 static const double ABCoeffs[5][5] = {
   {1.0,           0.0,           0.0,          0.0,           0.0},
@@ -386,9 +958,15 @@ static const double AMCoeffs[5][5] = {
   {(9/24.0),    (19/24.0),   (-5/24.0),    (1/24.0),     0.0},
   {(251/720.0), (646/720.0), (-264/720.0), (106/720.0), (-19/720.0)}
 };
-SA::ABMIntegrator::ABMIntegrator ( int history_size, double h, int N, double* in_vars[], double* out_vars[], DerivsFunc func, void* udata)
-    : FirstOrderODEIntegrator(h, N, in_vars, out_vars ,func, udata) {
 
+// Default Constructor
+
+// Constructor
+SA::ABMIntegrator::ABMIntegrator ( unsigned int history_size, double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc func, void* udata)
+    : FirstOrderODEIntegrator(h, N, in_vars, out_vars ,func, udata) {
+    if ((history_size < 1) || (history_size > 5)) {
+        throw std::invalid_argument("history_size must be in the range [1..5].");
+    }
     algorithmHistorySize=history_size; // The amount of history that we intend to use in this ABM integrator.
     bufferSize=algorithmHistorySize+1; // The size of the buffer needs to be one more than the history so that an integration step can be reset.
     hix=0;
@@ -399,6 +977,51 @@ SA::ABMIntegrator::ABMIntegrator ( int history_size, double h, int N, double* in
     }
     composite_deriv = new double[state_size];
 }
+// Copy Constructor
+SA::ABMIntegrator::ABMIntegrator(const ABMIntegrator& other)
+: FirstOrderODEIntegrator(other) {
+    bufferSize = other.bufferSize;
+    algorithmHistorySize = other.algorithmHistorySize;
+    hix = other.hix;
+    currentHistorySize = other.currentHistorySize;
+    deriv_history = new double*[bufferSize];
+    for (unsigned int i=0; i<bufferSize ; i++) {
+        deriv_history[i] = new double[state_size];
+        std::copy(other.deriv_history[i], other.deriv_history[i]+state_size, deriv_history[i]);
+    }
+    composite_deriv = new double[state_size];
+    std::copy(other.composite_deriv, other.composite_deriv+state_size, composite_deriv);
+}
+// Assignment Operator
+SA::ABMIntegrator& SA::ABMIntegrator::operator=( const SA::ABMIntegrator& rhs) {
+    if (this != &rhs) {
+        // Call base assignment operator
+        FirstOrderODEIntegrator::operator=(rhs);
+        // Duplicate rhs arrays
+        double** new_deriv_history = new double*[rhs.bufferSize];
+        for (unsigned int i=0 ; i<rhs.bufferSize; i++ ) {
+            new_deriv_history[i] = new double[rhs.state_size];
+            std::copy(rhs.deriv_history[i], rhs.deriv_history[i] + rhs.state_size, new_deriv_history[i]);
+        }
+        double* new_composite_deriv = new double[rhs.state_size];
+        std::copy(rhs.composite_deriv, rhs.composite_deriv+rhs.state_size, new_composite_deriv);
+        // Delete lhs arrays & replace with rhs arrays
+        for (unsigned int i=0 ; i<bufferSize; i++ ) {
+            delete deriv_history[i];
+        }
+        delete deriv_history;
+        deriv_history = new_deriv_history;
+        delete composite_deriv;
+        composite_deriv = new_composite_deriv;
+        // Copy primitive members
+        bufferSize = rhs.bufferSize;
+        algorithmHistorySize = rhs.algorithmHistorySize;
+        hix = rhs.hix;
+        currentHistorySize = rhs.currentHistorySize;
+    }
+    return *this;
+}
+// Destructor
 SA::ABMIntegrator::~ABMIntegrator() {
     for (int i=0; i<bufferSize ; i++) {
         delete (deriv_history[i]);
@@ -433,20 +1056,39 @@ void SA::ABMIntegrator::step() {
     }
     // Move history index backward, so we over-write the predicted state with the corrected state on our next step().
     hix = (hix+bufferSize-1)%bufferSize;
-    SA::Integrator::step();
+    advanceIndyVar();
 }
-
 double SA::ABMIntegrator::undo_integrate() {
     hix = (hix+bufferSize-1)%bufferSize;
     return (FirstOrderODEIntegrator::undo_integrate());
 }
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const ABMIntegrator& I) {
+    os << (SA::FirstOrderODEIntegrator)I;
+    os << "\n--- ABMIntegrator ---";
+    os << "\nbufferSize           : " << I.bufferSize;
+    os << "\nalgorithmHistorySize : " << I.algorithmHistorySize;
+    os << "\nhix                  : " << I.hix;
+    os << "\ncurrentHistorySize   : " << I.currentHistorySize;
+    os << "\nderiv_history        :[";
+    for (int i=0; i<I.bufferSize ; i++) {
+        os << "\n";
+        stream_double_array(os, I.state_size, I.deriv_history[i]);
+    }
+    os << "\n]";
+    os << "\ncomposite_deriv     :";
+    stream_double_array(os, I.state_size, I.composite_deriv);
+    return os;
+}
 
-// =======================================================================
+// ------------------------------------------------------------
+// Class ABM2Integrator
+// ------------------------------------------------------------
 static const double AB2Coeffs[2] = {(3/2.0), (-1/2.0)};
 static const double AM2Coeffs[2] = {(1/2.0),  (1/2.0)};
 
 SA::ABM2Integrator::ABM2Integrator (
-    double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
     : FirstOrderODEIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
     // The amount of history that we intend to use in this ABM integrator.
     bufferSize=2+1; // The size of the buffer needs to be one more than the history so that an integration step can be reset.
@@ -469,6 +1111,52 @@ SA::ABM2Integrator::ABM2Integrator (
     }
     priming_integrator = new SA::RK2Integrator(h, N, priming_integrator_in_vars, priming_integrator_out_vars, dfunc, udata);
 }
+
+
+SA::ABM2Integrator::ABM2Integrator(const ABM2Integrator& other)
+: FirstOrderODEIntegrator(other) {
+    bufferSize = other.bufferSize;
+    hix = other.hix;
+    currentHistorySize = other.currentHistorySize;
+    deriv_history = new double*[bufferSize];
+    for (unsigned int i=0; i<bufferSize ; i++) {
+        deriv_history[i] = new double[state_size];
+        std::copy(other.deriv_history[i], other.deriv_history[i]+state_size, deriv_history[i]);
+    }
+    composite_deriv = new double[state_size];
+    std::copy(other.composite_deriv, other.composite_deriv+state_size, composite_deriv);
+
+    priming_integrator = new RK2Integrator(*other.priming_integrator);
+}
+// Assignment Operator
+SA::ABM2Integrator& SA::ABM2Integrator::operator=( const SA::ABM2Integrator& rhs) {
+    if (this != &rhs) {
+        // Call base assignment operator
+        FirstOrderODEIntegrator::operator=(rhs);
+        // Duplicate rhs arrays
+        double** new_deriv_history = new double*[rhs.bufferSize];
+        for (unsigned int i=0 ; i<rhs.bufferSize; i++ ) {
+            new_deriv_history[i] = new double[rhs.state_size];
+            std::copy(rhs.deriv_history[i], rhs.deriv_history[i] + rhs.state_size, new_deriv_history[i]);
+        }
+        double* new_composite_deriv = new double[rhs.state_size];
+        std::copy(rhs.composite_deriv, rhs.composite_deriv+rhs.state_size, new_composite_deriv);
+        // Delete lhs arrays & replace with rhs arrays
+        for (unsigned int i=0 ; i<bufferSize; i++ ) {
+            delete deriv_history[i];
+        }
+        delete deriv_history;
+        deriv_history = new_deriv_history;
+        delete composite_deriv;
+        composite_deriv = new_composite_deriv;
+        // Copy primitive members
+        bufferSize = rhs.bufferSize;
+        hix = rhs.hix;
+        currentHistorySize = rhs.currentHistorySize;
+    }
+    return *this;
+}
+
 SA::ABM2Integrator::~ABM2Integrator() {
     for (int i=0; i<bufferSize ; i++) {
         delete (deriv_history[i]);
@@ -518,12 +1206,32 @@ double SA::ABM2Integrator::undo_integrate() {
     hix = (hix+bufferSize-1)%bufferSize;
     return ( FirstOrderODEIntegrator::undo_integrate());
 }
-// =======================================================================
+
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const ABM2Integrator& I) {
+    os << (SA::FirstOrderODEIntegrator)I;
+    os << "\n--- ABM2Integrator ---";
+    os << "\nbufferSize           : " << I.bufferSize;
+    os << "\nhix                  : " << I.hix;
+    os << "\ncurrentHistorySize   : " << I.currentHistorySize;
+    os << "\nderiv_history        :[";
+    for (int i=0; i<I.bufferSize ; i++) {
+        os << "\n";
+        stream_double_array(os, I.state_size, I.deriv_history[i]);
+    }
+    os << "\n]";
+    os << "\ncomposite_deriv     :";
+    stream_double_array(os, I.state_size, I.composite_deriv);
+    return os;
+}
+// ------------------------------------------------------------
+// Class ABM4Integrator
+// ------------------------------------------------------------
 static const double AB4Coeffs[4] = {(55/24.0), (-59/24.0), (37/24.0), (-9/24.0)};
 static const double AM4Coeffs[4] = {(9/24.0), (19/24.0), (-5/24.0), (1/24.0)};
 
 SA::ABM4Integrator::ABM4Integrator (
-    double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
     : FirstOrderODEIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
 
     // The amount of history that we intend to use in this ABM integrator.
@@ -545,6 +1253,50 @@ SA::ABM4Integrator::ABM4Integrator (
         priming_integrator_out_vars[i] = &(outState[i]);
     }
     priming_integrator = new SA::RK4Integrator(h, N, priming_integrator_in_vars, priming_integrator_out_vars, dfunc, udata);
+}
+
+SA::ABM4Integrator::ABM4Integrator(const ABM4Integrator& other)
+: FirstOrderODEIntegrator(other) {
+    bufferSize = other.bufferSize;
+    hix = other.hix;
+    currentHistorySize = other.currentHistorySize;
+    deriv_history = new double*[bufferSize];
+    for (unsigned int i=0; i<bufferSize ; i++) {
+        deriv_history[i] = new double[state_size];
+        std::copy(other.deriv_history[i], other.deriv_history[i]+state_size, deriv_history[i]);
+    }
+    composite_deriv = new double[state_size];
+    std::copy(other.composite_deriv, other.composite_deriv+state_size, composite_deriv);
+
+    priming_integrator = new RK4Integrator(*other.priming_integrator);
+}
+// Assignment Operator
+SA::ABM4Integrator& SA::ABM4Integrator::operator=( const SA::ABM4Integrator& rhs) {
+    if (this != &rhs) {
+        // Call base assignment operator
+        FirstOrderODEIntegrator::operator=(rhs);
+        // Duplicate rhs arrays
+        double** new_deriv_history = new double*[rhs.bufferSize];
+        for (unsigned int i=0 ; i<rhs.bufferSize; i++ ) {
+            new_deriv_history[i] = new double[rhs.state_size];
+            std::copy(rhs.deriv_history[i], rhs.deriv_history[i] + rhs.state_size, new_deriv_history[i]);
+        }
+        double* new_composite_deriv = new double[rhs.state_size];
+        std::copy(rhs.composite_deriv, rhs.composite_deriv+rhs.state_size, new_composite_deriv);
+        // Delete lhs arrays & replace with rhs arrays
+        for (unsigned int i=0 ; i<bufferSize; i++ ) {
+            delete deriv_history[i];
+        }
+        delete deriv_history;
+        deriv_history = new_deriv_history;
+        delete composite_deriv;
+        composite_deriv = new_composite_deriv;
+        // Copy primitive members
+        bufferSize = rhs.bufferSize;
+        hix = rhs.hix;
+        currentHistorySize = rhs.currentHistorySize;
+    }
+    return *this;
 }
 SA::ABM4Integrator::~ABM4Integrator() {
     for (int i=0; i<bufferSize ; i++) {
@@ -593,4 +1345,21 @@ void SA::ABM4Integrator::step() {
 double SA::ABM4Integrator::undo_integrate() {
     hix = (hix+bufferSize-1)%bufferSize;
     return (FirstOrderODEIntegrator::undo_integrate());
+}
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const ABM4Integrator& I) {
+    os << (SA::FirstOrderODEIntegrator)I;
+    os << "\n--- ABM4Integrator ---";
+    os << "\nbufferSize           : " << I.bufferSize;
+    os << "\nhix                  : " << I.hix;
+    os << "\ncurrentHistorySize   : " << I.currentHistorySize;
+    os << "\nderiv_history        :[";
+    for (int i=0; i<I.bufferSize ; i++) {
+        os << "\n";
+        stream_double_array(os, I.state_size, I.deriv_history[i]);
+    }
+    os << "\n]";
+    os << "\ncomposite_deriv     :";
+    stream_double_array(os, I.state_size, I.composite_deriv);
+    return os;
 }

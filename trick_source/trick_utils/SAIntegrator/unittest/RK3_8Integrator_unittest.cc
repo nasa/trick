@@ -15,27 +15,6 @@ void deriv4( double t,
     derivs[3] =     t3 - 6.0*t2 + 4.0*t + 12.0;
 }
 
-void deriv2( double t,
-             double state[] __attribute__((unused)),
-             double derivs[],
-             void* udata __attribute__((unused))) {
-
-    derivs[0] = -2.0*t + 3.0;
-    derivs[1] =  5.0*t + 4.0;
-    derivs[2] =  3.0*t - 3.0;
-    derivs[3] =  5.0*t + 4.0;
-}
-
-void deriv1( double t __attribute__((unused)),
-             double state[] __attribute__((unused)),
-             double derivs[],
-             void* udata __attribute__((unused))) {
-    derivs[0] = 4.0;
-    derivs[1] = -4.0;
-    derivs[2] = M_PI;
-    derivs[3] = -M_PI;
-}
-
 #define EXCEPTABLE_ERROR 0.00000000001
 
 TEST(FirstOrderODEVariableStepIntegrator_unittest, RungeKutta38_1) {

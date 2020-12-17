@@ -156,4 +156,65 @@ TEST(FirstOrderODEIntegrator_unittest, test_4) {
 
     double x = integ.getIndyVar();
     EXPECT_NEAR(x, 0.6, EXCEPTABLE_ERROR);
+
+}
+
+TEST(FirstOrderODEIntegrator_unittest, test_copy_constructor) {
+    double h = 0.1;
+    unsigned int N = 4;
+    double vars[4] = {1.0, 2.0, 3.0, 4.0} ;
+    double* varptrs[4] = {&vars[0], &vars[1], &vars[2], &vars[3]};
+
+    SA::FirstOrderODEIntegrator integ1( h, N, varptrs, varptrs, calc_derivs, NULL);
+
+    // Do an integration step to change array values to non-zero.
+    integ1.integrate();
+
+    // Use the copy-constructor to create create a duplicate FirstOrderODEIntegrator.
+    SA::FirstOrderODEIntegrator integ2(integ1);
+
+    // We don't want to unload integ1 here because it will then effect integ2,
+    // since both are pointing to the same input/output arrays.
+    integ1.load(); integ1.step();
+    integ2.load(); integ2.step();
+
+    // Create a text representation for each of the FirstOrderODEIntegrators.
+    std::stringstream ss1;
+    std::stringstream ss2;
+    ss1 << integ1 << std::endl;
+    ss2 << integ2 << std::endl;
+
+    // Compare the text representations. They should be identical.
+    int result = ss1.str().compare(ss2.str());
+    EXPECT_EQ(result, 0);
+}
+
+TEST(FirstOrderODEIntegrator_unittest, test_assignment_operator) {
+    double h = 0.1;
+    unsigned int N = 4;
+    double vars[4] = {1.0, 2.0, 3.0, 4.0} ;
+    double* varptrs[4] = {&vars[0], &vars[1], &vars[2], &vars[3]};
+
+    SA::FirstOrderODEIntegrator integ1( h, N, varptrs, varptrs, calc_derivs, NULL);
+
+    // Do an integration step to change array values to non-zero.
+    integ1.integrate();
+
+    // Use the assignment-operator to create a duplicate FirstOrderODEIntegrator.
+    SA::FirstOrderODEIntegrator integ2 = integ1;
+
+    // We don't want to unload integ1 here because it will then effect integ2,
+    // since both are pointing to the same input/output arrays.
+    integ1.load(); integ1.step();
+    integ2.load(); integ2.step();
+
+    // Create a text representation for each of the FirstOrderODEIntegrators.
+    std::stringstream ss1;
+    std::stringstream ss2;
+    ss1 << integ1 << std::endl;
+    ss2 << integ2 << std::endl;
+
+    // Compare the text representations. They should be identical.
+    int result = ss1.str().compare(ss2.str());
+    EXPECT_EQ(result, 0);
 }

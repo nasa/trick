@@ -48,10 +48,7 @@ int main ( int argc, char* argv[]) {
     double dt = 0.01;
     double t = 0.0;
     SA::RK2Integrator integ(dt, 6, state_var_p, state_var_p, calc_derivs, NULL);
-
-    RootFinder root_finder(0.00000000001, Negative);
-    integ.add_Rootfinder(&root_finder, &impact);
-
+    integ.add_Rootfinder(0.00000000001, Negative, &impact);
     init_state(cannon);
     print_header();
     print_state( t, cannon);

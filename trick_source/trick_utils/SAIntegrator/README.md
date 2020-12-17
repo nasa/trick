@@ -13,6 +13,7 @@
 * [class RK2Integrator](#class-RK2Integrator)
 * [class RK4Integrator](#class-RK4Integrator)
 * [class RK3_8Integrator](#class-RK3_8Integrator)
+* [typedef Derivs2Func](#typedef-Derivs2Func)
 * [class EulerCromerIntegrator](#class-EulerCromerIntegrator)
 * [class ABM2Integrator](#class-ABM2Integrator)
 * [class ABM4Integrator](#class-ABM4Integrator)
@@ -53,9 +54,12 @@ This base-class represents a numerical **integrator**.
 |h        |```double```| Default integration step-size |
 |udata    |```void*``` | A pointer to user defined data that will be passed to user-defined functions when called by the Integrator. |
 
+
 ### Destructor
 
 #### ```virtual ~Integrator() {}```
+
+
 
 ### Public Member Functions
 
@@ -171,6 +175,15 @@ where:
 |out_vars     |```double*```|Array of pointers to the state variables to which we ```unload()``` the integrator state (```in_vars``` and ```out_vars``` will generally point to the same array of pointers.)|
 | derivs_func |[```DerivsFunc```](#typedef-DerivsFunc)| Function thats generates the function (the derivatives) to be integrated. |
 |user_data    |```void*```  | A pointer to user defined data that will be passed to a DerivsFunc when called by the Integrator. |
+
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [class Integrator](#class-Integrator),
+* and the following public member functions:
 
 ### Public Member Functions
 
@@ -307,6 +320,25 @@ Those inherited from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator) p
 
 ### Constructor
 
+```
+FirstOrderODEVariableStepIntegrator( double h,
+                                     unsigned int N,
+                                     double* in_vars[],
+                                     double* out_vars[],
+                                     DerivsFunc dfunc,
+                                     void* udata);
+```
+[Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator),
+* and the following public member functions:
+
 <a id=FirstOrderODEVariableStepIntegrator::publicMemberFunctions></a>
 ### Public Member Functions
 
@@ -401,6 +433,15 @@ EulerIntegrator( double h,
 ```
 Constructor Parameters are those of [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator).
 
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator),
+* and the following public member functions:
+
 ### Public Member Functions
 
 * All of the [Public Member Functions of FirstOrderODEVariableStepIntegrator](#FirstOrderODEVariableStepIntegrator::publicMemberFunctions), plus :
@@ -434,6 +475,15 @@ HeunsMethod( double h,
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator),
+* and the following public member functions:
+
 ### Public Member Functions
 
 * All of the [Public Member Functions of FirstOrderODEVariableStepIntegrator](#FirstOrderODEVariableStepIntegrator::publicMemberFunctions).
@@ -463,9 +513,18 @@ RK2Integrator( double h,
                double* in_vars[],
                double* out_vars[],
                DerivsFunc func,
-           void* user_data)
+               void* user_data)
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator),
+* and the following public member functions:
 
 ### Public Member Functions
 
@@ -501,6 +560,15 @@ RK4Integrator( double h,
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator),
+* and the following public member functions:
+
 ### Public Member Functions
 
 * All of the [Public Member Functions of FirstOrderODEVariableStepIntegrator](#FirstOrderODEVariableStepIntegrator::publicMemberFunctions).
@@ -535,6 +603,15 @@ RK3_8Integrator( double h,
 [Constructor Parameters](#FOODEConstructorParameters) are those of
 [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [FirstOrderODEVariableStepIntegrator](#class-FirstOrderODEVariableStepIntegrator),
+* and the following public member functions:
+
 ### Public Member Functions
 
 * All of the [Public Member Functions of FirstOrderODEVariableStepIntegrator](#FirstOrderODEVariableStepIntegrator::publicMemberFunctions).
@@ -567,6 +644,14 @@ ABM2Integrator ( double h,
 ```
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [[FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
 <a id=class-ABM4Integrator></a>
 ## class ABM4Integrator
 Derived from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
@@ -589,12 +674,56 @@ ABM4Integrator ( double h,
 
 [Constructor Parameters](#FOODEConstructorParameters) are those of [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
 
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [FirstOrderODEIntegrator](#class-FirstOrderODEIntegrator).
+
+
+<a id=typedef-Derivs2Func></a>
+## typedef Derivs2Func
+
+### Description
+This typedef defines a type of C/C++ function whose purpose is to populate
+an array of accelerations, given velocities and positions.
+
+```
+typedef void (*Derivs2Func)( double t, double x[], double v[], double a[], void* udata);
+```
+where:
+
+|Parameter|Type         |Direction|Description|
+|---------|-------------|---------|-----------|
+|t        |```double``` |IN       |Independent variable.|
+|x        |```double*```|IN       |Array of position values.|
+|v        |```double*```|IN       |Array of velocity values.|
+|a        |```double*```|OUT      |Array into which accelerations are to be returned.|
+|udata    |```void*```  |IN       |Pointer to user_data.|
+
+#### Example
+```
+void G( double t, double x[], double v[], double g_out[], void* udata) {
+    MassSpringDamper* msd = (MassSpringDamper*)udata;
+    g_out[0] = -(msd->k/msd->mass) * x[0]
+               -(msd->c/msd->mass) * v[0];
+}
+```
+
 <a id=class-EulerCromerIntegrator></a>
 ## class EulerCromerIntegrator
 Derived from [Integrator](#class-Integrator).
 
 ### Description
 EulerCromer is integration method that conserves energy in oscillatory systems better than Runge-Kutta. So, it's good for mass-spring-damper systems, and orbital systems.
+
+It calculates the next state, from the current state as follows:
+
+![EulerCromerEqs](images/EulerCromerEqs.png)
+
+**a(v(n), x(n), t)** [above] is the function of type [```Derivs2Func```](#typedef-Derivs2Func) below.
 
 ### Data Members
 Those inherited from [Integrator](#class-Integrator) plus:
@@ -609,9 +738,9 @@ Those inherited from [Integrator](#class-Integrator) plus:
 | pos_out   |```double*```     |Protected|Position output array.|
 | vel_out   |```double*```     |Protected|Velocity output array.|
 | g_out     |```double*```     |Protected|Array of accelerations returned from gderivs.|
-| f_out     |```double*```     |Protected|Array of velocities returned from fderivs.|
-| gderivs   |[```DerivsFunc```](#typedef-DerivsFunc)|Protected|A function that returns accelerations.|
-| fderivs   |[```DerivsFunc```](#typedef-DerivsFunc)|Protected|A function that returns velocities.|
+| gderivs   |[```Derivs2Func```](#typedef-Derivs2Func)|Protected|A function that returns accelerations.|
+| last_h    |```double```|Value of h used in the last integration step.|
+
 
 ### Constructor
 ```
@@ -619,8 +748,7 @@ EulerCromerIntegrator(double dt,
                       int N,
                       double* xp[],
                       double* vp[],
-                      DerivsFunc gfunc,
-                      DerivsFunc ffunc,
+                      Derivs2Func gfunc,
                       void* user_data)
 ```
 
@@ -630,9 +758,16 @@ EulerCromerIntegrator(double dt,
 | N         |```int```    |Sets nDimensions above.|
 | xp        |```double*```|Sets pos_p above.|
 | vp        |```double*```|Sets vel_p above.|
-| gfunc |[```DerivsFunc```](#typedef-DerivsFunc)| Sets gderivs above. |
-| ffunc |[```DerivsFunc```](#typedef-DerivsFunc)| Sets fderivs above. |
+| gfunc |[```Derivs2Func```](#typedef-Derivs2Func)| Sets gderivs above. |
 |user_data  |```void*```  | Sets Integrator::user_data. |
+
+In addition to the above constructor, this class provides:
+
+* a copy constructor,
+* a destructor,
+* an assignment operator,
+* an insertion operator,
+* the public member functions inherited from [Integrator](#class-Integrator).
 
 ### Public Member Functions
 

@@ -72,3 +72,35 @@ TEST(Integrator, test_undo_integrate) {
     x = integ.getIndyVar();
     EXPECT_NEAR(x, 4.0, EXCEPTABLE_ERROR);
 }
+
+TEST(Integrator, test_copy_constructor) {
+    std::stringstream ss1;
+    std::stringstream ss2;
+    double h = 0.1;
+    void* udata = NULL;
+    SA::Integrator  integ( h, udata);
+    integ.setIndyVar(4.0);
+    integ.integrate();
+    // Test Copy Constructor
+    SA::Integrator  integ2(integ);
+    ss1 << integ << std::endl;
+    ss2 << integ2 << std::endl;
+    int result = ss1.str().compare(ss2.str());
+    EXPECT_EQ(result, 0);
+}
+
+TEST(Integrator, test_assignment_operator) {
+    std::stringstream ss1;
+    std::stringstream ss2;
+    double h = 0.1;
+    void* udata = NULL;
+    SA::Integrator  integ( h, udata);
+    integ.setIndyVar(4.0);
+    integ.integrate();
+    // Test Copy Constructor
+    SA::Integrator integ2 = integ;
+    ss1 << integ << std::endl;
+    ss2 << integ2 << std::endl;
+    int result = ss1.str().compare(ss2.str());
+    EXPECT_EQ(result, 0);
+}

@@ -1,3 +1,4 @@
+#include <iostream>
 
 typedef enum {
     Negative = -1,
@@ -12,6 +13,7 @@ class RootFinder {
         RootFinder();
         RootFinder (double tolerance, SlopeConstraint constraint);
         double find_roots( double x, double f_error );
+        friend std::ostream& operator<<(std::ostream& os, const RootFinder& rf);
     private:
         double f_upper;
         double x_upper;

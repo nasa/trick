@@ -25,33 +25,25 @@ void print_state( double t, Orbit& orbit ) {
     printf ("%10.10f, %10.10f, %10.10f, %10.10f, %10.10f\n",
              t, orbit.pos[0], orbit.pos[1], orbit.vel[0], orbit.vel[1]);
 }
-void G( double t, double x[], double g_out[], void* udata) {
+void G( double t, double pos[], double vel[], double acc_out[], void* udata) {
     Orbit* orbit = (Orbit*)udata;
-    double d = sqrt( x[0]*x[0] + x[1]*x[1]);
-    g_out[0] = -x[0] * GRAVITATIONAL_CONSTANT * orbit->planet_mass / (d*d*d);
-    g_out[1] = -x[1] * GRAVITATIONAL_CONSTANT * orbit->planet_mass / (d*d*d);
-}
-void F( double t, double v[], double f_out[], void* udata) {
-    f_out[0] = v[0];
-    f_out[1] = v[1];
+    double d = sqrt( pos[0]*pos[0] + pos[1]*pos[1]);
+    acc_out[0] = -pos[0] * GRAVITATIONAL_CONSTANT * orbit->planet_mass / (d*d*d);
+    acc_out[1] = -pos[1] * GRAVITATIONAL_CONSTANT * orbit->planet_mass / (d*d*d);
 }
 int main ( int argc, char* argv[]) {
     Orbit orbit;
+    double time = 0.0;
     double* x_p[2] = { &orbit.pos[0], &orbit.pos[1] };
     double* v_p[2] = { &orbit.vel[0], &orbit.vel[1] };
-    unsigned count = 0;
     double dt = 0.1;
-    double time = count * dt;
     init_state(orbit);
     print_header();
     print_state(time, orbit);
-    SA::EulerCromerIntegrator integ(dt, 2, x_p, v_p, G, F, &orbit);
-    while (time < 6000) {
-        integ.load();
-        integ.step();
-        integ.unload();
-        count ++;
-        time = count * dt;
+    SA::EulerCromerIntegrator integ(dt, 2, x_p, v_p, G, &orbit);
+    while (time < 5600) {
+        integ.integrate();
+        time = integ.getIndyVar();
         print_state(time, orbit);
     }
 }

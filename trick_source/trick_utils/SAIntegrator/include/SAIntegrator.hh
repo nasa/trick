@@ -1,4 +1,6 @@
 #include "Rootfinder.hh"
+#include <iostream>
+
 namespace SA {
 
     class Integrator {
@@ -9,7 +11,8 @@ namespace SA {
         void*  user_data;  // User data
         void advanceIndyVar();
     public:
-        Integrator(double h, void* udata): X_in(0.0), X_out(0.0), default_h(h), user_data(udata) {};
+        Integrator();
+        Integrator(double h, void* udata);
         virtual ~Integrator() {}
         virtual void load();
         virtual void unload();
@@ -18,7 +21,10 @@ namespace SA {
         virtual double undo_integrate();
         double getIndyVar();
         void setIndyVar(double v);
+        friend std::ostream& operator<<(std::ostream& os, const SA::Integrator& I);
     };
+
+    std::ostream& operator<<(std::ostream& os, const Integrator& I);
 
     typedef void (*DerivsFunc)( double x, double state[], double derivs[], void* udata);
 
@@ -30,21 +36,23 @@ namespace SA {
         double** inVars;         // Array of pointers to the variables whose values comprise the input state vector.
         double** outVars;        // Array of pointers to the variables to which the output state vector values are to be disseminated.
         DerivsFunc derivs_func;  // Pointer to the function that calculates the derivatives to be integrated.
-     // void advanceIndyVar();   // Inherited from Integrator::advanceIndyVar()
     public:
-        FirstOrderODEIntegrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        FirstOrderODEIntegrator();
+        FirstOrderODEIntegrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        FirstOrderODEIntegrator(const FirstOrderODEIntegrator& other);
+        FirstOrderODEIntegrator& operator=( const FirstOrderODEIntegrator& other);
         virtual ~FirstOrderODEIntegrator();
         void load();                               // Overrides Integrator::load(), Final
         void unload();                             // Overrides Integrator::unload(), Final
         virtual void step();                       // Overrides Integrator::step(). Virtual
-        // integrate();                               Inherited from Integrator::integrate(), Final
         virtual double undo_integrate();           // Overrides Integrator::undo_integrate(), Virtual
         void load_from_outState();                 // New, Final
         double** set_in_vars( double* in_vars[]);  // New, Final
         double** set_out_vars( double* out_vars[]);// New, Final
-        // double getIndyVar();
-        // void setIndyVar(double v);
+
+        friend std::ostream& operator<<(std::ostream& os, const SA::FirstOrderODEIntegrator& I);
     };
+    std::ostream& operator<<(std::ostream& os, const FirstOrderODEIntegrator& I);
 
     typedef double (*RootErrorFunc)( double x, double state[], RootFinder* root_finder, void* udata);
 
@@ -54,82 +62,96 @@ namespace SA {
         RootErrorFunc root_error_func;
     protected:
         double last_h;
-        // void advanceIndyVar();                                           // Inherited from Integrator::advanceIndyVar(), Final
         void advanceIndyVar( double h);
     public:
-        FirstOrderODEVariableStepIntegrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        FirstOrderODEVariableStepIntegrator();
+        FirstOrderODEVariableStepIntegrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        FirstOrderODEVariableStepIntegrator( const FirstOrderODEVariableStepIntegrator& other);
+        FirstOrderODEVariableStepIntegrator& operator=( const FirstOrderODEVariableStepIntegrator& rhs);
         ~FirstOrderODEVariableStepIntegrator();
-        // load();                                                             Inherited from FirstOrderODEIntegrator, Final
-        // unload();                                                           Inherited from FirstOrderODEIntegrator, Final
         void step();                                                        // Overrides FirstOrderODEIntegrator::step(), Final
-        // integrate();                                                     // Inherited from Integrator
         double undo_integrate();                                            // Overrides FirstOrderODEIntegrator::undo_integrate(), Final
-        // load_from_outState();                                            // Inherited from FirstOrderODEIntegrator, Final
-        // set_in_vars();                                                   // Inherited from FirstOrderODEIntegrator, Final
-        // set_out_vars();                                                  // Inherited from FirstOrderODEIntegrator, Final
         virtual void variable_step( double h);                              // New, Should be overridden in derived classes, Virtual
-        void add_Rootfinder( RootFinder* root_finder, RootErrorFunc rfunc); // New, Final
-        // double getIndyVar();                                             // Inherited from Integrator
-        // void setIndyVar(double v);                                       // Inherited from Integrator
+        void add_Rootfinder( double tolerance, SlopeConstraint constraint, RootErrorFunc rfunc);
+        friend std::ostream& operator<<(std::ostream& os, const SA::FirstOrderODEVariableStepIntegrator& I);
     private:
         void find_roots(double h, unsigned int depth);
     };
+    std::ostream& operator<<(std::ostream& os, const FirstOrderODEVariableStepIntegrator& I);
 
     class EulerIntegrator : public FirstOrderODEVariableStepIntegrator {
         public:
         double *derivs;
-        EulerIntegrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        EulerIntegrator();
+        EulerIntegrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        EulerIntegrator(const EulerIntegrator& other);
+        EulerIntegrator& operator=( const EulerIntegrator& rhs);
         ~EulerIntegrator();
-        // load();                                                              Inherited from FirstOrderODEIntegrator
-        // unload();                                                            Inherited from FirstOrderODEIntegrator
-        // void step();                                                         Inherited from FirstOrderODEVariableStepIntegrator
-        // void integrate()                                                     Inherited from FirstOrderODEVariableStepIntegrator
-        // double undo_integrate();                                             Inherited from FirstOrderODEVariableStepIntegrator
-        // load_from_outState();                                                Inherited from FirstOrderODEIntegrator
-        // set_in_vars();                                                       Inherited from FirstOrderODEIntegrator
-        // set_out_vars();                                                      Inherited from FirstOrderODEIntegrator
-        void variable_step( double h);                                       // Overrides FirstOrderODEVariableStepIntegrator::variable_step()
-        // void integrate(double h)                                             Inherited from FirstOrderODEVariableStepIntegrator
-        // void add_Rootfinder( RootFinder* root_finder, RootErrorFunc rfunc);  Inherited from FirstOrderODEVariableStepIntegrator
-        // double getIndyVar();                                                 Inherited from Integrator
-        // void setIndyVar(double v);                                           Inherited from Integrator
+        void variable_step( double h);
+        friend std::ostream& operator<<(std::ostream& os, const SA::EulerIntegrator& I);
     };
+    std::ostream& operator<<(std::ostream& os, const EulerIntegrator& I);
 
     class HeunsMethod : public FirstOrderODEVariableStepIntegrator {
         public:
         double *wstate;
         double *derivs[2];
-        HeunsMethod( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        HeunsMethod();
+        HeunsMethod( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        HeunsMethod(const HeunsMethod& other);
+        HeunsMethod& operator=( const HeunsMethod& rhs);
         ~HeunsMethod();
-        void variable_step( double h); // Overrides FirstOrderODEVariableStepIntegrator::variable_step()
+        void variable_step( double h);
+        friend std::ostream& operator<<(std::ostream& os, const SA::HeunsMethod& I);
     };
+    std::ostream& operator<<(std::ostream& os, const HeunsMethod& I);
 
     class RK2Integrator : public FirstOrderODEVariableStepIntegrator {
         public:
         double *wstate;
         double *derivs[2];
-        RK2Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc derivs_func, void* udata);
+        RK2Integrator();
+        RK2Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc derivs_func, void* udata);
+        RK2Integrator(const RK2Integrator& other);
+        RK2Integrator& operator=( const RK2Integrator& rhs);
         ~RK2Integrator();
-        void variable_step( double h); // Overrides FirstOrderODEVariableStepIntegrator::variable_step()
+        void variable_step( double h);
+        friend std::ostream& operator<<(std::ostream& os, const SA::RK2Integrator& I);
     };
+    std::ostream& operator<<(std::ostream& os, const RK2Integrator& I);
 
     class RK4Integrator : public FirstOrderODEVariableStepIntegrator {
         public:
         double *wstate[3];
         double *derivs[4];
-        RK4Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+
+        RK4Integrator();
+        RK4Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        RK4Integrator(const RK4Integrator& other);
+        RK4Integrator& operator=( const RK4Integrator& rhs);
         ~RK4Integrator();
-        void variable_step( double h); // Overrides FirstOrderODEVariableStepIntegrator::variable_step()
+        void variable_step( double h);
+        friend std::ostream& operator<<(std::ostream& os, const SA::RK4Integrator& I);
     };
+    std::ostream& operator<<(std::ostream& os, const RK4Integrator& I);
 
     class RK3_8Integrator : public FirstOrderODEVariableStepIntegrator {
         public:
-        double *wstate[4];
+        double *wstate[3];
         double *derivs[4];
-        RK3_8Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+
+        RK3_8Integrator();
+        RK3_8Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        RK3_8Integrator(const RK3_8Integrator& other);
+        RK3_8Integrator& operator=( const RK3_8Integrator& rhs);
         ~RK3_8Integrator();
-        void variable_step( double h); // Overrides FirstOrderODEVariableStepIntegrator::variable_step()
+        void variable_step( double h);
+
+        friend std::ostream& operator<<(std::ostream& os, const SA::RK3_8Integrator& I);
     };
+    std::ostream& operator<<(std::ostream& os, const RK3_8Integrator& I);
+
+    typedef void (*Derivs2Func)( double t, double x[], double v[], double derivs[], void* udata);
 
     class EulerCromerIntegrator : public Integrator {
     protected:
@@ -141,19 +163,24 @@ namespace SA {
         double* pos_out;
         double* vel_out;
         double* g_out;
-        double* f_out;
-        DerivsFunc gderivs;
-        DerivsFunc fderivs;
+        double last_h;
+        Derivs2Func gderivs;
 
     public:
-        EulerCromerIntegrator(double dt, int N, double* xp[], double* vp[], DerivsFunc g, DerivsFunc f , void* udata);
+        EulerCromerIntegrator();
+        EulerCromerIntegrator(double dt, unsigned int N, double* xp[], double* vp[], Derivs2Func g, void* udata);
+        EulerCromerIntegrator(const EulerCromerIntegrator& other);
+        EulerCromerIntegrator& operator=( const EulerCromerIntegrator& rhs);
         ~EulerCromerIntegrator();
+        void advanceIndyVar(double h);
         void step( double dt);
         void step();
         void load();
         void unload();
         double undo_integrate();
+        friend std::ostream& operator<<(std::ostream& os, const SA::EulerCromerIntegrator& I);
     };
+    std::ostream& operator<<(std::ostream& os, const EulerCromerIntegrator& I);
 
     // AdamsBashforthMoulton Self Priming
     class ABMIntegrator : public FirstOrderODEIntegrator {
@@ -165,11 +192,15 @@ namespace SA {
         unsigned int hix;
         unsigned int currentHistorySize;
     public:
-        ABMIntegrator(int history_size, double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ABMIntegrator(unsigned int history_size, double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ABMIntegrator(const ABMIntegrator& other);
+        ABMIntegrator& operator=( const ABMIntegrator& rhs);
         ~ABMIntegrator();
         void step();
         double undo_integrate();
+        friend std::ostream& operator<<(std::ostream& os, const ABMIntegrator& I);
     };
+    std::ostream& operator<<(std::ostream& os, const ABMIntegrator& I);
 
     // AdamsBashforthMoulton 2 with RK2 Priming
     class ABM2Integrator : public FirstOrderODEIntegrator {
@@ -179,13 +210,17 @@ namespace SA {
         unsigned int bufferSize;
         unsigned int hix;
         unsigned int currentHistorySize;
-        FirstOrderODEVariableStepIntegrator* priming_integrator;
+        RK2Integrator* priming_integrator;
     public:
-        ABM2Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ABM2Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ABM2Integrator(const ABM2Integrator& other);
+        ABM2Integrator& operator=( const ABM2Integrator& rhs);
         ~ABM2Integrator();
         void step();
         double undo_integrate();
+        friend std::ostream& operator<<(std::ostream& os, const ABM2Integrator& I);
     };
+    std::ostream& operator<<(std::ostream& os, const ABM2Integrator& I);
 
     // AdamsBashforthMoulton 4 with RK4 Priming
     class ABM4Integrator : public FirstOrderODEIntegrator {
@@ -195,11 +230,15 @@ namespace SA {
         unsigned int bufferSize;
         unsigned int hix;
         unsigned int currentHistorySize;
-        FirstOrderODEVariableStepIntegrator* priming_integrator;
+        RK4Integrator* priming_integrator;
     public:
-        ABM4Integrator( double h, int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ABM4Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ABM4Integrator(const ABM4Integrator& other);
+        ABM4Integrator& operator=( const ABM4Integrator& rhs);
         ~ABM4Integrator();
         void step();
         double undo_integrate();
+        friend std::ostream& operator<<(std::ostream& os, const ABM4Integrator& I);
     };
+    std::ostream& operator<<(std::ostream& os, const ABM4Integrator& I);
 }

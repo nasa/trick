@@ -78,3 +78,12 @@ TEST(RootFinder_unittest, Negative_constraint_with_positive_slope_function) {
     root_error = root_finder->find_roots(9, func_positive_slope(9));
     EXPECT_NEAR(root_error, DBL_MAX, EXCEPTABLE_ERROR);
 }
+
+TEST(RootFinder_unittest, serialize) {
+    RootFinder* root_finder = new RootFinder ( 0.00000000001, Negative );
+    double root_error;
+    root_error = root_finder->find_roots(8, func_positive_slope(8));
+    EXPECT_NEAR(root_error, DBL_MAX, EXCEPTABLE_ERROR);
+    root_error = root_finder->find_roots(9, func_positive_slope(9));
+    EXPECT_NEAR(root_error, DBL_MAX, EXCEPTABLE_ERROR);
+}

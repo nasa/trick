@@ -14,12 +14,18 @@ void RootFinder::init( double tolerance, SlopeConstraint constraint) {
 void RootFinder::init() {
     init(0.00000000001, Unconstrained);
 }
-RootFinder::RootFinder (double tolerance, SlopeConstraint constraint) {
-    init(tolerance, constraint);
-}
+// Default Constructor
 RootFinder::RootFinder () {
     init();
 }
+// Constructor
+RootFinder::RootFinder (double tolerance, SlopeConstraint constraint) {
+    init(tolerance, constraint);
+}
+// Copy Constructor: The default copy_constructor should suffice.
+// Assignment Operator: The default assignment operator should suffice.
+// Destructor: The default destructor should suffice.
+
 // Given the values of the independent variable, and the function,
 // estimate the distance of the independent variable from functions root.
 double RootFinder::find_roots( double x, double f_error ) {
@@ -85,4 +91,16 @@ double RootFinder::find_roots( double x, double f_error ) {
     }
     iterations = 0;
     return (DBL_MAX);
+}
+
+std::ostream& operator<<(std::ostream& os, const RootFinder& rf) {
+    os << "\n--- RootFinder ---";
+    os << "\nupper: {" << rf.f_upper << ',' << rf.x_upper << ',' << rf.upper_set << "}";
+    os << "\nlower: {" << rf.f_lower << ',' << rf.x_lower << ',' << rf.lower_set << "}";
+    os << "\nprev_f_error: " << rf.prev_f_error;
+    os << "\nf_error_tol:" << rf.prev_f_error;
+    os << "\niterations:" << rf.prev_f_error;
+    os << "\nslope_constraint:" << rf.slope_constraint;
+    os << "\nf_slope:" << rf.f_slope;
+    return os;
 }
