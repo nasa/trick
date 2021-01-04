@@ -389,6 +389,34 @@ Unit Unit::map(const Unit &u1, const Unit &u2)
     return u;
 }
 
+QString Unit::showUnits()
+{
+    QString msg;
+
+    QHash<QString,QStringList> fam2mems;
+    QList<QPair<QString,QString> > pairs = _scales.keys();
+    foreach ( QString family, _families() ) {
+        QStringList mems;
+        for ( int i = 0; i < pairs.size(); ++i ) {
+            QPair<QString,QString> pair = pairs.at(i);
+            if ( pair.first == family && pair.second != family ) {
+                mems << pair.second;
+            }
+        }
+        mems.sort();
+        fam2mems.insert(family,mems);
+    }
+
+    foreach ( QString family, _families() ) {
+        msg += family + "\n";
+        foreach ( QString mem, fam2mems.value(family) ) {
+            msg += "  " + mem + "\n";
+        }
+    }
+
+    return msg;
+}
+
 QHash<QPair<QString, QString>, double> Unit::_initScales()
 {
     QHash<QPair<QString, QString>, double> map;
@@ -682,6 +710,24 @@ QStringList Unit::_sortUnits(const QStringList &unitsIn)
     }
 
     return units;
+}
+
+QStringList Unit::_families()
+{
+    QStringList families;
+
+    QList<QPair<QString,QString> > pairs = _scales.keys();
+    for ( int i = 0; i < pairs.size(); ++i ) {
+        QPair<QString,QString> pair = pairs.at(i);
+        QString family = pair.first;
+        if ( !families.contains(family) ) {
+            families.append(family);
+        }
+    }
+
+    families.sort();
+
+    return families;
 }
 
 /*

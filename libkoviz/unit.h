@@ -32,6 +32,7 @@ class Unit {
     static QString next(const QString& unit);
     static QString prev(const QString& unit);
     static Unit map(const Unit& u1, const Unit& u2);
+    static QString showUnits();
 
   private:
 
@@ -42,6 +43,7 @@ class Unit {
     static QHash<QPair<QString,QString>,double> _initBiases();
     static QString _family(const QString& name);
     static QStringList _sortUnits(const QStringList& unitsIn);
+    static QStringList _families();
 
 };
 #endif

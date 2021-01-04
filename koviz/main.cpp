@@ -147,6 +147,7 @@ class SnapOptions : public Options
     QString group5;
     QString group6;
     QString group7;
+    bool isShowUnits;
 };
 
 SnapOptions opts;
@@ -271,11 +272,19 @@ int main(int argc, char *argv[])
              "video time sync offset");
     opts.add("-units", &opts.unitOverrides, "",
              "comma delimited list of override units e.g. -units \"in,d\"");
+    opts.add("-showUnits:{0,1}",&opts.isShowUnits,false,
+             "Print available units");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
     if ( opts.isHelp ) {
         fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
+        return 0;
+    }
+
+    if ( opts.isShowUnits ) {
+        QString msg = Unit::showUnits();
+        fprintf(stdout, "%s", msg.toLatin1().constData());
         return 0;
     }
 
