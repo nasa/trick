@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
     opts.parse(argc,argv, QString("koviz"), &ok);
 
     if ( opts.isHelp ) {
-        fprintf(stderr,"%s\n",opts.usage().toLatin1().constData());
+        fprintf(stdout,"%s\n",opts.usage().toLatin1().constData());
         return 0;
     }
 
