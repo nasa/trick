@@ -12,7 +12,7 @@ data = np.genfromtxt('msd.csv',
 
 curve1 = plt.plot(data['t'], data['pos'], 'C1-')
 plt.title('MSD Position')
-plt.xlabel('position')
-plt.ylabel('time')
+plt.xlabel('time')
+plt.ylabel('position')
 plt.grid(True)
 plt.show()
