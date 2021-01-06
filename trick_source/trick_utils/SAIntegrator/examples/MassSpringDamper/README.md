@@ -3,17 +3,11 @@
 The MassSpringDamper program uses the SA::EulerCromerIntegrator class to
 simulate a forced mass-spring-damper system.
 
-### Initial conditions:
+The mass is chosen to be 1 kg. The damping constant is chosen to be 5 Ns/m.
+The spring constant is calculated for a frequency of 2 hz. Every 5 seconds,
+the system is given an impulse of 500 Newtons for 0.005 seconds.
 
-* mass = 1 kg.
-* spring constant = 157.913670 N/m, gives a frequency of 2 hz.
-* damping constant = 5 Ns/m.
-
-### Run-time:
-
-Every 5 seconds, the system is given an impulse of 500 Newtons for 0.005 seconds.
-
-After each numerical integration time-step, the simulation program prints
+For each numerical integration time-step, the simulation program prints
 
 1. time (s)
 2. position (m)
@@ -43,3 +37,6 @@ $ python plot_position.py
 ```
 
 ![MSD](images/MSD.png)
+
+### References:
+[https://en.wikipedia.org/wiki/Mass-spring-damper_model](https://en.wikipedia.org/wiki/Mass-spring-damper_model)
