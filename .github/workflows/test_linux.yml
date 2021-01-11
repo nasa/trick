@@ -165,10 +165,10 @@ jobs:
         ln -s ./libpython2.7.so.1.0 libpython2.7.so
     - name: Install Udunits (32 bit)
       run: |
-        curl --retry 4 -O https://www.unidata.ucar.edu/downloads/udunits/udunits-2.2.26.tar.gz
-        tar xfvz udunits-2.2.26.tar.gz
-        rm udunits-2.2.26.tar.gz
-        cd udunits-2.2.26
+        curl --retry 4 -O https://artifacts.unidata.ucar.edu/service/rest/repository/browse/downloads-udunits/udunits-2.2.28.tar.gz
+        tar xfvz uudunits-2.2.28.tar.gz
+        rm udunits-2.2.28.tar.gz
+        cd udunits-2.2.28
         export CFLAGS="-m32"
         ./configure --prefix=/usr
         make
