@@ -103,12 +103,14 @@ void PlotTicsLayoutItem::paint(QPainter *painter,
         majors = _bookModel->majorXTics(_plotIdx);
         minors = _bookModel->minorXTics(_plotIdx);
         foreach ( double m, majors ) {
-            majorTics << T.map(QPointF(m,RM.bottom()))
-                      << T.map(QPointF(m,RM.top()));
+            double x = T.map(QPointF(m,1)).x();
+            majorTics << QPointF(x,R.bottom())
+                      << QPointF(x,R.top());
         }
         foreach ( double m, minors ) {
-            minorTics << T.map(QPointF(m,RM.bottom()))
-                      << T.map(QPointF(m,RM.center().y()));
+            double x = T.map(QPointF(m,1)).x();
+            minorTics << QPointF(x,R.bottom())
+                      << QPointF(x,R.center().y());
         }
     } else if ( alignment() == Qt::AlignLeft ) {
         axis << QPointF(x0,y0) << QPointF(x0,y1);
@@ -127,12 +129,14 @@ void PlotTicsLayoutItem::paint(QPainter *painter,
         majors = _bookModel->majorYTics(_plotIdx);
         minors = _bookModel->minorYTics(_plotIdx);
         foreach ( double m, majors ) {
-            majorTics << T.map(QPointF(RM.right(),m))
-                      << T.map(QPointF(RM.left(),m));
+            double y = T.map(QPointF(1,m)).y();
+            majorTics << QPointF(R.right(),y)
+                      << QPointF(R.left(),y);
         }
         foreach ( double m, minors ) {
-            minorTics << T.map(QPointF(RM.right(),m))
-                      << T.map(QPointF(RM.center().x(),m));
+            double y = T.map(QPointF(1,m)).y();
+            minorTics << QPointF(R.right(),y)
+                      << QPointF(R.center().x(),y);
         }
     }
 
