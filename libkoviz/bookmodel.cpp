@@ -495,6 +495,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(20,0);
         } else if ( searchItemText == "StatusBarMessage" ) {
             idx = index(21,0);
+        } else if ( searchItemText == "IsShowPageTitle" ) {
+            idx = index(22,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
@@ -565,6 +567,16 @@ double PlotBookModel::getDataDouble(const QModelIndex &startIdx,
         exit(-1);
     }
     return d;
+}
+
+bool PlotBookModel::getDataBool(const QModelIndex &startIdx,
+                                const QString &searchItemText,
+                                const QString &expectedStartIdxText) const
+{
+    QModelIndex dataIdx = getDataIndex(startIdx,searchItemText,
+                                       expectedStartIdxText);
+    bool ret = data(dataIdx).toBool();
+    return ret;
 }
 
 int PlotBookModel::getDataInt(const QModelIndex &startIdx,
@@ -1737,6 +1749,14 @@ bool PlotBookModel::isPageLegend(const QModelIndex &pageIdx) const
         QModelIndex isLegendIdx =getDataIndex(QModelIndex(),"IsLegend");
         bool isLeg = data(isLegendIdx).toBool() ;
         if ( !isLeg ) {
+            return isLegend;
+        }
+    }
+
+    // If page title is off, return false
+    if ( isChildIndex(QModelIndex(),"","IsShowPageTitle") ) {
+        bool isPageTitle = getDataBool(QModelIndex(),"IsShowPageTitle");
+        if ( !isPageTitle ) {
             return isLegend;
         }
     }

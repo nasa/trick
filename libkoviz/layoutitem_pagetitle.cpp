@@ -48,6 +48,14 @@ QSize PageTitleLayoutItem::sizeHint() const
 {
     QSize size;
 
+    bool isShowPageTitle = _bookModel->getDataBool(QModelIndex(),
+                                                   "IsShowPageTitle","");
+    if ( !isShowPageTitle ) {
+        // If there is no page title, empty title is 10 pixels high
+        size.setHeight(10);
+        return size;
+    }
+
     QFont font(_font);
     font.setPointSize(14); // title1
     QFontMetrics fm1(font);
@@ -80,6 +88,13 @@ void PageTitleLayoutItem::paint(QPainter *painter,
     Q_UNUSED(RG);
     Q_UNUSED(C);
     Q_UNUSED(M);
+
+    bool isShowPageTitle = _bookModel->getDataBool(QModelIndex(),
+                                                   "IsShowPageTitle","");
+    if ( !isShowPageTitle ) {
+        // If there is no page title, nothing to paint
+        return;
+    }
 
     // Save state
     painter->save();

@@ -46,7 +46,8 @@ Session::Session(const QString &sessionFileName) :
     _mapFile(""),
     _isLegend(true),
     _videoFileName(""),
-    _videoOffset(0.0)
+    _videoOffset(0.0),
+    _isShowPageTitle(true)
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -391,6 +392,30 @@ Session::Session(const QString &sessionFileName) :
                                "file %s is corrupt.\n",
                         sessionFileName.toLatin1().constData());
                 exit(-1);
+            }
+        } else if ( line.contains("showPageTitle:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("showPageTitle:",0,Qt::CaseInsensitive);
+            QString isShowTxt = line.mid(i+14).trimmed();
+            if ( isShowTxt.startsWith("\"") ) {
+                isShowTxt = isShowTxt.mid(1);
+            }
+            if ( isShowTxt.endsWith("\"") ) {
+                isShowTxt.chop(1);
+            }
+            bool ok;
+            bool isShow = Options::stringToBool(isShowTxt,&ok);
+            if ( !ok ) {
+                fprintf(stderr,"koviz [error]: bad showPageTitle "
+                               "spec=\"%s\" in session file %s.  "
+                               "Value should be a boolean.\n",
+                               isShowTxt.toLatin1().constData(),
+                               sessionFileName.toLatin1().constData());
+                exit(-1);
+            }
+            if ( isShow ) {
+                _isShowPageTitle = true;
+            } else {
+                _isShowPageTitle = false;
             }
         }
     }

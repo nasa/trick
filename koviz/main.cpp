@@ -148,6 +148,7 @@ class SnapOptions : public Options
     QString group6;
     QString group7;
     bool isShowUnits;
+    bool isShowPageTitle;
 };
 
 SnapOptions opts;
@@ -274,6 +275,8 @@ int main(int argc, char *argv[])
              "comma delimited list of override units e.g. -units \"in,d\"");
     opts.add("-showUnits:{0,1}",&opts.isShowUnits,false,
              "Print available units");
+    opts.add("-showPageTitle:{0,1}",
+             &opts.isShowPageTitle,true, "Show page title and page legend?");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -881,13 +884,17 @@ int main(int argc, char *argv[])
         }
         QHash<QString,QVariant> shifts = getShiftHash(shiftString,runDirs);
 
-        // Is Legend
+        bool isShowPageTitle = opts.isShowPageTitle;
+        if ( isShowPageTitle == true  && session ) {
+            isShowPageTitle = session->isShowPageTitle();
+        }
+
+        // Is page legend
         bool isLegend = opts.isLegend;
-        if ( session ) {
+        if ( isLegend == true && session ) {
             // Since bool is not tri-state, I can't detect if
-            // the commandline was set explicitly, so will just take
+            // the commandline was set explicitly to true, so will just take
             // the setting in the session file if there is a session
-            // i.e. the session takes precedence over the commandline
             isLegend = session->isLegend();
         }
 
@@ -946,6 +953,7 @@ int main(int argc, char *argv[])
                              orient, isLegend,
                              fg, bg,
                              isShowTables,
+                             isShowPageTitle,
                              unitOverridesList,
                              mapString, mapFile,
                              runs, varsModel, monteInputsModel);
@@ -1077,6 +1085,7 @@ int main(int argc, char *argv[])
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,
+                                 isShowPageTitle,
                                  unitOverridesList,
                                  mapString, mapFile,
                                  runs, varsModel, monteInputsModel);
@@ -1108,6 +1117,7 @@ int main(int argc, char *argv[])
                                  orient, isLegend,
                                  fg, bg,
                                  isShowTables,
+                                 isShowPageTitle,
                                  unitOverridesList,
                                  mapString, mapFile,
                                  runs, varsModel, monteInputsModel);

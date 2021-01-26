@@ -76,6 +76,7 @@ public:
     QString filterPattern() const { return _filterPattern; }
     QString videoFileName() const { return _videoFileName; }
     double videoOffset() const { return _videoOffset; }
+    bool isShowPageTitle() const { return _isShowPageTitle; }
 
 private:
     Session();
@@ -107,6 +108,7 @@ private:
     QString _filterPattern;
     QString _videoFileName;
     double _videoOffset;
+    bool _isShowPageTitle;
 };
 
 #endif // SESSION_H

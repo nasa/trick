@@ -34,7 +34,13 @@ void PageLayout::setGeometry(const QRect &rect)
     int h = rect.height();
     int m = rect.width()*0.01;
 
-    int h0 = _items.at(0)->sizeHint().height(); // TitleView is 0
+    // Get PageTitleView height
+    int h0 = _items.at(0)->sizeHint().height(); // PageTitleView is item 0
+    if ( _items.at(0)->widget() ) {
+        // If item is a widget, use it's sizehint since
+        // the item's sizehint is not the same as the item's widget sizehint
+        h0 = _items.at(0)->widget()->sizeHint().height();
+    }
     _items.at(0)->setGeometry(QRect(0,0,w-m,h0));
 
     QList<QLayoutItem*> items;
