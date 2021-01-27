@@ -2,47 +2,53 @@
 #include <stdio.h>
 #include "SAIntegrator.hh"
 
-struct IContext {
-    SA::RK2Integrator* integ;
+struct DefiniteIntegrator {
+    double ivar;
     double start;
     double end;
+    double result;
+    SA::Integrator* integrator;
+    double evaluate ();
 };
-
+double DefiniteIntegrator::evaluate () {
+    result = 0.0;
+    integrator->setIndyVar(start);
+    ivar = start;
+    while (ivar < end) {
+        integrator->integrate();
+        ivar = integrator->getIndyVar();
+    }
+    return result;
+}
+struct IntegContext {
+    DefiniteIntegrator XDI;
+    DefiniteIntegrator YDI;
+};
 void deriv_y( double y, double state_y[], double derivs_y[], void* udata) {
-    double& x = state_y[0];
-    derivs_y[0] = 0.0;           // (dx/dy) = 0, Hold x constant.
-    derivs_y[1] = cos(x)*cos(y); // area = ∫ f(X,y) dy
+    IntegContext& IC = *(IntegContext*)udata;
+    derivs_y[0] = cos(IC.XDI.ivar) * cos(y);
 }
-
 void deriv_x( double x, double state_x[], double derivs_x[], void* udata) {
-    IContext* context = (IContext*)udata;
-    double area = 0.0;
-    double* state_y[2] = { &x, &area };
-    SA::RK2Integrator* integ_y = context->integ;
-    integ_y->set_in_vars(state_y);
-    integ_y->set_out_vars(state_y);
-    integ_y->setIndyVar(context->start);
-    while (integ_y->getIndyVar() <= context->end) {
-        integ_y->integrate();
-    }
-    derivs_x[0] = area; // volume = ∫ area dx
+    IntegContext& IC = *(IntegContext*)udata;
+    derivs_x[0] = IC.YDI.evaluate();
 }
-
 double doubleIntegral( double x_start, double x_end, double y_start, double y_end ) {
-    double volume = 0.0;
-    double dx = 0.01;
-    double dy = 0.01;
-    double* state_x[1] = { &volume };
-    SA::RK2Integrator integ_y (dy, 2, NULL, NULL, deriv_y, NULL);
-    IContext y_integ_context = {&integ_y, y_start, y_end};
-    SA::RK2Integrator integ_x (dx, 1, state_x, state_x, deriv_x, &y_integ_context);
-    integ_x.setIndyVar(x_start);
-    while (integ_x.getIndyVar()<=x_end) {
-        integ_x.integrate();
-    }
-    return volume;
-}
+    IntegContext IC;
+    double dx = (x_end - x_start) / 20.0;
+    double dy = (y_end - y_start) / 20.0;
+    double* state_x[1] = { &IC.XDI.result };
+    double* state_y[1] = { &IC.YDI.result };
 
+    IC.XDI.start = x_start;
+    IC.XDI.end   = x_end;
+    IC.XDI.integrator = new SA::RK4Integrator(dx, 1, state_x, deriv_x, &IC);
+
+    IC.YDI.start = y_start;
+    IC.YDI.end   = y_end;
+    IC.YDI.integrator = new SA::RK4Integrator(dy, 1, state_y, deriv_y, &IC);
+
+    return (IC.XDI.evaluate());
+}
 int main ( int argc, char* argv[]) {
     double vol = doubleIntegral( -M_PI/2.0, M_PI/2.0, -M_PI/2.0, M_PI/2.0 );
     printf("Volume = %g.\n", vol);

@@ -1,12 +1,14 @@
 # Double Integral
 
-This is a code example of how one can do a double integral.
+This is a code example of how one can compute a double integral.
 
 This example code computes the following definate integral :
 
-![Equation](images/Equation.png)
+![Equation](images/Eq1.png)
 
-using the SA::RK2Integrator, with dx = dy = 0.01
+using the SA::RK4Integrator.
+
+The correct answer is 4.
 
 ```
 $ make
