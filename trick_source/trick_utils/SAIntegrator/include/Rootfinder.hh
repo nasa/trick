@@ -1,3 +1,5 @@
+#ifndef ROOTFINDER_HH
+#define ROOTFINDER_HH
 #include <iostream>
 
 typedef enum {
@@ -27,3 +29,4 @@ class RootFinder {
         SlopeConstraint slope_constraint;
         SlopeConstraint f_slope;
 };
+#endif /* ROOTFINDER_HH */
