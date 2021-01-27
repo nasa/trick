@@ -77,8 +77,8 @@ Derived classes should override this method to load/prepare the integrator for t
 Derived classes should override this method to disseminate the values of the output state to their respective destinations. The default behavior is to do nothing.
 
 <a id=method-Integrator::integrate></a>
-#### ```virtual void integrate()```
-Call ```load()```, ```step()```, and ```unload()``` in order.
+#### ```void integrate()```
+Call ```load()```, ```step()```, and ```unload()``` in that order.
 
 
 <a id=method-Integrator::undo_integrate></a>
