@@ -341,6 +341,8 @@ typedef void (*Derivs2Func)( double t, double x[], double v[], double derivs[], 
 
 The sixth, and final argument is the user_data. In this case we're passing the ```msd```, i.e.,(```MassSpringDamper```) object.
 
+#### [Running the MassSpringDamper Example](examples/MassSpringDamper/README.md).
+
 ## Not Just Integrating Over Time
 
 This section demonstrates using SAIntegrator to evaluate a definite integral. using the program in [examples/DefiniteIntegral](examples/DefiniteIntegral/README.md).
