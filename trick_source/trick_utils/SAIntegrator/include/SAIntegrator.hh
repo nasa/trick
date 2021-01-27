@@ -1,3 +1,5 @@
+#ifndef SAINTEGRATOR_HH
+#define SAINTEGRATOR_HH
 #include "Rootfinder.hh"
 #include <iostream>
 
@@ -84,6 +86,7 @@ namespace SA {
         double *derivs;
         EulerIntegrator();
         EulerIntegrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        EulerIntegrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
         EulerIntegrator(const EulerIntegrator& other);
         EulerIntegrator& operator=( const EulerIntegrator& rhs);
         ~EulerIntegrator();
@@ -98,6 +101,7 @@ namespace SA {
         double *derivs[2];
         HeunsMethod();
         HeunsMethod( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        HeunsMethod( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
         HeunsMethod(const HeunsMethod& other);
         HeunsMethod& operator=( const HeunsMethod& rhs);
         ~HeunsMethod();
@@ -112,6 +116,7 @@ namespace SA {
         double *derivs[2];
         RK2Integrator();
         RK2Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc derivs_func, void* udata);
+        RK2Integrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
         RK2Integrator(const RK2Integrator& other);
         RK2Integrator& operator=( const RK2Integrator& rhs);
         ~RK2Integrator();
@@ -127,6 +132,7 @@ namespace SA {
 
         RK4Integrator();
         RK4Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        RK4Integrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
         RK4Integrator(const RK4Integrator& other);
         RK4Integrator& operator=( const RK4Integrator& rhs);
         ~RK4Integrator();
@@ -142,6 +148,7 @@ namespace SA {
 
         RK3_8Integrator();
         RK3_8Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        RK3_8Integrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
         RK3_8Integrator(const RK3_8Integrator& other);
         RK3_8Integrator& operator=( const RK3_8Integrator& rhs);
         ~RK3_8Integrator();
@@ -193,6 +200,7 @@ namespace SA {
         unsigned int currentHistorySize;
     public:
         ABMIntegrator(unsigned int history_size, double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ABMIntegrator(unsigned int history_size, double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
         ABMIntegrator(const ABMIntegrator& other);
         ABMIntegrator& operator=( const ABMIntegrator& rhs);
         ~ABMIntegrator();
@@ -213,6 +221,7 @@ namespace SA {
         RK2Integrator* priming_integrator;
     public:
         ABM2Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ABM2Integrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
         ABM2Integrator(const ABM2Integrator& other);
         ABM2Integrator& operator=( const ABM2Integrator& rhs);
         ~ABM2Integrator();
@@ -233,6 +242,7 @@ namespace SA {
         RK4Integrator* priming_integrator;
     public:
         ABM4Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        ABM4Integrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
         ABM4Integrator(const ABM4Integrator& other);
         ABM4Integrator& operator=( const ABM4Integrator& rhs);
         ~ABM4Integrator();
@@ -242,3 +252,4 @@ namespace SA {
     };
     std::ostream& operator<<(std::ostream& os, const ABM4Integrator& I);
 }
+#endif /* SAINTEGRATOR_HH */

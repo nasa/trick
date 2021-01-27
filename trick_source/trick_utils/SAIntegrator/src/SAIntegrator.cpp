@@ -228,6 +228,7 @@ SA::FirstOrderODEVariableStepIntegrator::FirstOrderODEVariableStepIntegrator(
     root_finder = (RootFinder*) NULL;
     root_error_func = (RootErrorFunc) NULL;
 }
+
 // Copy Constructor
 SA::FirstOrderODEVariableStepIntegrator::FirstOrderODEVariableStepIntegrator(
 const FirstOrderODEVariableStepIntegrator& other)
@@ -333,6 +334,11 @@ SA::EulerIntegrator::EulerIntegrator(
     : FirstOrderODEVariableStepIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
     derivs = new double[N];
 }
+// Constructor
+SA::EulerIntegrator::EulerIntegrator(
+double h, unsigned int N, double* in_out_vars[], DerivsFunc dfunc, void* udata)
+: EulerIntegrator(h, N, in_out_vars, in_out_vars, dfunc, udata) {}
+
 // Copy Constructor
 SA::EulerIntegrator::EulerIntegrator(const EulerIntegrator& other)
     : FirstOrderODEVariableStepIntegrator(other) {
@@ -395,6 +401,11 @@ SA::HeunsMethod::HeunsMethod(
         derivs[i] = new double[N];
     }
 }
+// Constructor
+SA::HeunsMethod::HeunsMethod(
+double h, unsigned int N, double* in_out_vars[], DerivsFunc dfunc, void* udata)
+: HeunsMethod(h, N, in_out_vars, in_out_vars, dfunc, udata) {}
+
 // Copy Constructor
 SA::HeunsMethod::HeunsMethod(const HeunsMethod& other)
     : FirstOrderODEVariableStepIntegrator(other) {
@@ -479,7 +490,13 @@ SA::RK2Integrator::RK2Integrator(
     for (unsigned int i = 0; i < 2 ; i++) {
         derivs[i] = new double[N];
     }
+    std::cout << "RK2 Constructor" << std::endl;
 }
+// EXPERIMENTAL
+SA::RK2Integrator::RK2Integrator(
+double h, unsigned int N, double* in_out_vars[], DerivsFunc dfunc, void* udata)
+: RK2Integrator(h, N, in_out_vars, in_out_vars, dfunc, udata) {}
+
 // Copy Constructor
 SA::RK2Integrator::RK2Integrator(const RK2Integrator& other)
     : FirstOrderODEVariableStepIntegrator(other) {
@@ -569,6 +586,11 @@ SA::RK4Integrator::RK4Integrator(
         derivs[i] = new double[N];
     }
 }
+// Constructor
+SA::RK4Integrator::RK4Integrator(
+double h, unsigned int N, double* in_out_vars[], DerivsFunc dfunc, void* udata)
+: RK4Integrator(h, N, in_out_vars, in_out_vars, dfunc, udata) {}
+
 // Copy Constructor
 SA::RK4Integrator::RK4Integrator(const RK4Integrator& other)
     : FirstOrderODEVariableStepIntegrator(other) {
@@ -682,6 +704,11 @@ SA::RK3_8Integrator::RK3_8Integrator(
         derivs[i] = new double[N];
     }
 }
+// Constructor
+SA::RK3_8Integrator::RK3_8Integrator(
+double h, unsigned int N, double* in_out_vars[], DerivsFunc dfunc, void* udata)
+: RK3_8Integrator(h, N, in_out_vars, in_out_vars, dfunc, udata) {}
+
 // Copy Constructor
 SA::RK3_8Integrator::RK3_8Integrator(const RK3_8Integrator& other)
     : FirstOrderODEVariableStepIntegrator(other) {
@@ -977,6 +1004,11 @@ SA::ABMIntegrator::ABMIntegrator ( unsigned int history_size, double h, unsigned
     }
     composite_deriv = new double[state_size];
 }
+// Constructor
+SA::ABMIntegrator::ABMIntegrator(
+unsigned int history_size, double h, unsigned int N, double* in_out_vars[], DerivsFunc dfunc, void* udata)
+: ABMIntegrator(history_size, h, N, in_out_vars, in_out_vars, dfunc, udata) {}
+
 // Copy Constructor
 SA::ABMIntegrator::ABMIntegrator(const ABMIntegrator& other)
 : FirstOrderODEIntegrator(other) {
@@ -1111,7 +1143,10 @@ SA::ABM2Integrator::ABM2Integrator (
     }
     priming_integrator = new SA::RK2Integrator(h, N, priming_integrator_in_vars, priming_integrator_out_vars, dfunc, udata);
 }
-
+// Constructor
+SA::ABM2Integrator::ABM2Integrator(
+double h, unsigned int N, double* in_out_vars[], DerivsFunc dfunc, void* udata)
+: ABM2Integrator(h, N, in_out_vars, in_out_vars, dfunc, udata) {}
 
 SA::ABM2Integrator::ABM2Integrator(const ABM2Integrator& other)
 : FirstOrderODEIntegrator(other) {
@@ -1254,6 +1289,10 @@ SA::ABM4Integrator::ABM4Integrator (
     }
     priming_integrator = new SA::RK4Integrator(h, N, priming_integrator_in_vars, priming_integrator_out_vars, dfunc, udata);
 }
+// Constructor
+SA::ABM4Integrator::ABM4Integrator(
+double h, unsigned int N, double* in_out_vars[], DerivsFunc dfunc, void* udata)
+: ABM4Integrator(h, N, in_out_vars, in_out_vars, dfunc, udata) {}
 
 SA::ABM4Integrator::ABM4Integrator(const ABM4Integrator& other)
 : FirstOrderODEIntegrator(other) {
