@@ -1,9 +1,7 @@
 # CannonBall
 
 The CannonBall program is an example of using the SA::RK2Integrator
-to create a simple cannon ball simulation. We also use a rootfinder
-with our integrator to detect contact with the ground, and bounce
-the cannonball.
+to create a simple cannon ball simulation. 
 
 For each numerical integration time-step, the simulation program prints:
 
