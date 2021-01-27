@@ -3,7 +3,7 @@ RM = rm -rf
 CC = cc
 CPP = c++
 
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -std=c++11
 INCLUDE_DIRS = -Iinclude
 OBJDIR = obj
 LIBDIR = lib
