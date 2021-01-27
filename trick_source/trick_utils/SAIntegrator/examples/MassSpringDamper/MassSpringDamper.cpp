@@ -34,16 +34,16 @@ void print_header() {
 void print_state( double t, MassSpringDamper& msd ) {
     printf ("%10.10f, %10.10f, %10.10f\n", t, msd.pos, msd.vel);
 }
-void G( double t, double x[], double v[], double g_out[], void* udata) {
+void acceleration( double t, double x[], double v[], double g_out[], void* udata) {
     MassSpringDamper* msd = (MassSpringDamper*)udata;
     g_out[0] = -(msd->k/msd->mass) * x[0]
                -(msd->c/msd->mass) * v[0]
-               + msd->extForce ;
+               + msd->extForce/msd->mass;
 }
 #define N_DIMENSIONS 1
 int main ( int argc, char* argv[]) {
-    const double mass = 1.0; // kg
-    const double frequency = 2; // Hz
+    const double mass = 1.0;            // kg
+    const double frequency = 2;         // Hz
     const double dampingConstant = 5.0; // kg/s = Ns/m
     double springConstant = 4.0 * M_PI * M_PI * frequency * frequency * mass; // kg/s^2 = N/m
     MassSpringDamper msd(springConstant, dampingConstant, mass);
@@ -54,7 +54,7 @@ int main ( int argc, char* argv[]) {
     double dt = 0.001;
     print_header();
     print_state(time, msd);
-    SA::EulerCromerIntegrator integ(dt, N_DIMENSIONS, x_p, v_p, G, &msd);
+    SA::EulerCromerIntegrator integ(dt, N_DIMENSIONS, x_p, v_p, acceleration, &msd);
     while (time < 10) {
         msd.extForce = ImpGen.impulse(time);
         integ.integrate();
