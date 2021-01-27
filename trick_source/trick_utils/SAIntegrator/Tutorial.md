@@ -90,7 +90,7 @@ Functions ```CSV_header()``` and ```CSV_state``` produce comma separated value (
 
 In **main** the following line constructs the Integrator that will propogate our simulation state :
 
-```
+```C++
 SA::RK2Integrator integ(dt, 4, state_var_p, calc_derivs, NULL);
 
 ``` 
@@ -106,7 +106,7 @@ The third specifies which variables comprise the state, to be updated by the Int
 
 The fourth argument of the constructor is a pointer to a function that is responsible for generating state derivatives. Its type is as follows:
 
-```
+```C++
 typedef void (*DerivsFunc)( double x, double state[], double derivs[], void* udata);
 ```
 
@@ -121,7 +121,7 @@ The array ```double* state_var_p[4]```, specifies the state variables to be upda
 
 The cannon ball simulation implements the following ```DerivsFunc```:
 
-```
+```C++
 void calc_derivs( double t, double state[], double derivs[], void* udata) {
     derivs[0] = state[2];
     derivs[1] = state[3];
@@ -143,7 +143,7 @@ For clarity here: state[0] and state[1] represent the cannonball position. state
 
 The while loop, at the bottom of [Cannonball.cpp](#listing-Cannonball.cpp) is where the integration happens. 
 
-```
+```C++
     while (t < 5.1) {
         integ.integrate();
         t = integ.getIndyVar();
@@ -164,7 +164,7 @@ The while loop, at the bottom of [Cannonball.cpp](#listing-Cannonball.cpp) is wh
 
 ```integ.setIndyVar( double )``` sets the independent variable. So if we wanted to start our sim at t=4.0 seconds then we could replace ```double t = 0.0;``` with:
 
-```
+```C++
 double t  = 4.0;
 integ.setIndyVar(t);
 ```
@@ -179,7 +179,7 @@ This section demonstrates how to use a RootFinder with our integrator, using the
 
 The first code addition is to add the following line immediately after the instanciation of ```integ```.
 
-```
+```C++
 integ.add_Rootfinder(1.0e-10, Negative, &impact);
 ```
 The ```add_Rootfinder``` method tells ```integ``` to look for roots. 
@@ -196,13 +196,13 @@ The second argument is the slope constraint. This can have one three values:
 
 The third argument is a pointer to a function responsible for estimating the error. It's type is:
 
-```
+```C++
 typedef double (*RootErrorFunc)( double x, double state[], RootFinder* root_finder, void* udata);
 ```
 
 The RootErrorFunc for BouncyCannonball is defined as:
 
-```
+```C++
 double impact( double t, double state[], RootFinder* root_finder, void* udata) {
     double root_error = root_finder->find_roots(t, state[1]);
     if (root_error == 0.0) {
@@ -240,7 +240,7 @@ The EulerCromer algorithm is not a general-purpose integration algorithm like Ru
 
 **Listing - MassSpringDamper.cpp**
 
-```
+```C++
 #include <math.h>
 #include <stdio.h>
 #include "SAIntegrator.hh"
@@ -429,7 +429,7 @@ This example demonstrates nested integration using the program in [examples/Doub
 <a id=listing-DoubleIntegral.cpp></a>
 ### Listing - DoubleIntegral.cpp
 
-```
+```C++
 #include <math.h>
 #include <stdio.h>
 #include "SAIntegrator.hh"
@@ -503,7 +503,7 @@ In the [DefiniteIntegral](examples/DefiniteIntegral/README.md) example, we use
 
 This is the second of four available RK2Integrator constructors. This constructor interface is common to all of the Integrators derived from class ```SA::FirstOrderODEIntegrator```: ```SA::EulerIntegrator```, ```SA::HeunsMethod```, ```SA::RK2Integrator```, ```SA::RK4Integrator```, and ```SA::RK3_8Integrator```. 
 
-```
+```C++
 RK2Integrator( double h,
                int N,
                double* in_out_vars[],
@@ -529,7 +529,7 @@ For more information, check out the SAIntegrator User's Guide, or even ```SAInte
 This typedef defines a type of C/C++ function whose purpose is to populate
 a state derivative array.
 
-```
+```C++
 typedef void (*DerivsFunc)( double x, double state[], double derivs[], void* udata);
 ```
 where:
@@ -559,7 +559,7 @@ where:
 This typedef defines a type of C/C++ function whose purpose is to populate
 an array of accelerations, given velocities and positions.
 
-```
+```C++
 typedef void (*Derivs2Func)( double t, double x[], double v[], double a[], void* udata);
 ```
 where:
@@ -580,7 +580,7 @@ where:
 
 This typedef defines a type of C/C++ function whose purpose is to specify the job of a [```RootFinder```](#class-RootFinder).
 
-```
+```C++
 typedef double (*RootErrorFunc)( double x, double state[], RootFinder* root_finder, void* udata);
 ```
 
