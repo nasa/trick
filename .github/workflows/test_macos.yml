@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
-        brew cask install xquartz
+        brew install --cask xquartz
         brew install llvm swig udunits openmotif maven
     - name: Build Trick
       run: |
