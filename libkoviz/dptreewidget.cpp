@@ -384,7 +384,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     QString color = colors.at(i++).name();
 
                     CurveModel* curveModel = _addCurve(curvesItem,dpcurve,
-                                                       dpprogram,_runDirs,r,
+                                                       dpprogram,r,
                                                        color,default_style);
 
                     if ( r == 0 ) {
@@ -625,7 +625,6 @@ QStandardItem *DPTreeWidget::_addChild(QStandardItem *parentItem,
 CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                              DPCurve *dpcurve,
                              DPProgram *dpprogram,
-                             const QStringList& runDirs,
                              int runId, const QString& defaultColor,
                              const QString& defaultLineStyle)
 {
@@ -786,16 +785,7 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         }
     }
     _addChild(curveItem, "CurveYUnit", yUnit);
-
-
-    QString runDirName = QFileInfo(curveModel->fileName()).dir().dirName();
-    bool ok;
-    int curveRunId = runDirName.mid(4).toInt(&ok);
-    if ( ok ) {
-        _addChild(curveItem, "CurveRunID", curveRunId);
-    } else {
-        _addChild(curveItem, "CurveRunID", runId);
-    }
+    _addChild(curveItem, "CurveRunID", runId);
     _addChild(curveItem, "CurveXMinRange", x->minRange());
     _addChild(curveItem, "CurveXMaxRange", x->maxRange());
     _addChild(curveItem, "CurveXScale",

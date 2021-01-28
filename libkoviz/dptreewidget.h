@@ -84,7 +84,7 @@ private:
                    const QVariant &childValue=QVariant());
     CurveModel* _addCurve(QStandardItem* curvesItem, DPCurve* dpcurve,
                           DPProgram *dpprogram,
-                          const QStringList &runDirs, int runId,
+                          int runId,
                           const QString &defaultColor,
                           const QString &defaultLineStyle);
     bool _isDP(const QString& fp);

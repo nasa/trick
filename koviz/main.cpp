@@ -2281,61 +2281,27 @@ QStandardItemModel* runsInputModel(const QStringList &runs)
 {
     QStandardItemModel* m = 0;
 
-    bool ok;
+    m = new QStandardItemModel(runs.size(),2);
+    m->setHeaderData(0,Qt::Horizontal,"RunId");
+    m->setHeaderData(1,Qt::Horizontal,"RunName");
 
-    bool isRunNamesNumeric = true;
+    QStringList fruns;
     foreach ( QString run, runs ) {
-        int i = run.lastIndexOf("RUN_");
-        int runId = run.mid(i+4).toInt(&ok); // 4 is for RUN_
-        Q_UNUSED(runId);
-        if ( !ok ) {
-            isRunNamesNumeric = false;
-            break;
-        }
+        QString frun = QFileInfo(run).absoluteFilePath();
+        fruns << frun;
     }
+    QStringList runNames = Runs::abbreviateRunNames(fruns);
 
-    if ( isRunNamesNumeric ) {
-        m = new QStandardItemModel(runs.size(),1);
-        int r = 0 ;
-        m->setHeaderData(0,Qt::Horizontal,"RunId");
-        foreach ( QString run, runs ) {
-            int i = run.lastIndexOf("RUN_");
-            int runId = run.mid(i+4).toInt(&ok); // 4 is for RUN_
-            QString runName = QString("%0").arg(runId);
-            runName = runName.rightJustified(5, '0');
-            runName.prepend("RUN_");
-            m->setHeaderData(r,Qt::Vertical,runName);
-
-            QString runIdString ;
-            runIdString = runIdString.sprintf("%d",runId);
-            NumSortItem *runIdItem = new NumSortItem(runIdString);
-            m->setItem(r,0,runIdItem);
-
-            r++;
-        }
-    } else {
-        m = new QStandardItemModel(runs.size(),2);
-        int r = 0 ;
-        m->setHeaderData(0,Qt::Horizontal,"RunId");
-        m->setHeaderData(1,Qt::Horizontal,"RunName");
-
-        QStringList fruns;
-        foreach ( QString run, runs ) {
-            QString frun = QFileInfo(run).absoluteFilePath();
-            fruns << frun;
-        }
-        QStringList runNames = Runs::abbreviateRunNames(fruns);
-
-        foreach ( QString runName, runNames ) {
-            m->setHeaderData(r,Qt::Vertical,runName);
-            QString runIdString ;
-            runIdString = runIdString.sprintf("%d",r);
-            NumSortItem *runIdItem = new NumSortItem(runIdString);
-            QStandardItem* runNameItem = new QStandardItem(runName);
-            m->setItem(r,0,runIdItem);
-            m->setItem(r,1,runNameItem);
-            r++;
-        }
+    int r = 0 ;
+    foreach ( QString runName, runNames ) {
+        m->setHeaderData(r,Qt::Vertical,runName);
+        QString runIdString ;
+        runIdString = runIdString.sprintf("%d",r);
+        NumSortItem *runIdItem = new NumSortItem(runIdString);
+        QStandardItem* runNameItem = new QStandardItem(runName);
+        m->setItem(r,0,runIdItem);
+        m->setItem(r,1,runNameItem);
+        r++;
     }
 
     return m;
