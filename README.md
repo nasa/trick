@@ -6,13 +6,13 @@
 
 <p align=left>
 <a href="https://github.com/nasa/trick/actions?query=workflow%3A%22Trick+CI%22">
-<img src="https://github.com/nasa/trick/workflows/Trick%20CI%20-%20Linux/badge.svg?branch=master" alt="Trick CI - Linux" height=30px>
+<img src="https://github.com/nasa/trick/workflows/Linux/badge.svg?branch=master" alt="Linux" height=30px>
 </a>
 </p>
 
 <p align=left>
 <a href="https://github.com/nasa/trick/actions?query=workflow%3A%22Trick+CI%22">
-<img src="https://github.com/nasa/trick/workflows/Trick%20CI%20-%20macOS/badge.svg?branch=master" alt="Trick CI - MacOS" height=30px>
+<img src="https://github.com/nasa/trick/workflows/macOS/badge.svg?branch=master" alt="macOS" height=30px>
 </a>
 </p>
 
