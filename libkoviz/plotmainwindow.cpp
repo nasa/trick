@@ -583,19 +583,6 @@ void PlotMainWindow::_bookModelDataChanged(const QModelIndex &topLeft,
         }
     } else if ( tag == "StatusBarMessage" ) {
         QString msg = _bookModel->data(topLeft).toString();
-        // Replace RunID=(id) with rundir
-        int i = msg.indexOf("RunID=(");
-        if ( i > 0 ) {
-            int j = msg.indexOf("(",i);
-            int k = msg.indexOf(")",j);
-            QString idstr = msg.mid(j+1,k-j-1);
-            bool ok;
-            int id = idstr.toInt(&ok);
-            if ( ok ) {
-                QString runDir = _runs->runDirs().at(id);
-                msg.replace(i,k-i+1,runDir);
-            }
-        }
         _statusBar->showMessage(msg);
     }
 }
