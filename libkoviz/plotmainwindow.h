@@ -76,6 +76,7 @@ public:
                              bool isShowTables,
                              bool isShowPageTitle,
                              const QString &isShowPlotLegend,
+                             const QString& plotLegendPosition,
                              QStringList unitOverrides,
                              QString map,
                              QString mapFile,
@@ -112,6 +113,7 @@ private:
     bool _isShowTables;
     bool _isShowPageTitle;
     QString _isShowPlotLegend;
+    QString _plotLegendPosition;
     QStringList _unitOverrides;
     QString _map;
     QString _mapFile;

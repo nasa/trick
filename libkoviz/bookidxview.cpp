@@ -433,9 +433,33 @@ void BookIdxView::__paintCurvesLegend(const QRect& R,
     int h = (n-1)*v + mt + mb + sh;
 
     // Legend box top left point
-    const int top = fh/4;   // top margin
-    const int right = fw/2; // right margin
-    QPoint legendTopLeft(R.right()-w-right,R.top()+top);
+    QString pos = _bookModel()->getDataString(QModelIndex(),
+                                              "PlotLegendPosition","");
+    const int tb = fh/4; // top/bottom margin
+    const int rl = fw/2; // right/left margin
+    QPoint legendTopLeft;
+    if ( pos == "ne" ) { // The default
+        legendTopLeft = QPoint(R.right()-w-rl,R.top()+tb);
+    } else if ( pos == "e" ) {
+        legendTopLeft = QPoint(R.right()-w-rl,R.height()/2-h/2);
+    } else if ( pos == "se" ) {
+        legendTopLeft = QPoint(R.right()-w-rl,R.height()-h-tb);
+    } else if ( pos == "s" ) {
+        legendTopLeft = QPoint(R.width()/2-w/2,R.height()-h-tb);
+    } else if ( pos == "sw" ) {
+        legendTopLeft = QPoint(R.left()+rl,R.height()-h-tb);
+    } else if ( pos == "w" ) {
+        legendTopLeft = QPoint(R.left()+rl,R.height()/2-h/2);
+    } else if ( pos == "nw" ) {
+        legendTopLeft = QPoint(R.left()+rl,R.top()+tb);
+    } else if ( pos == "n" ) {
+        legendTopLeft = QPoint(R.width()/2-w/2,R.top()+tb);
+    } else {
+        fprintf(stderr, "koviz [bad scoobs]: __paintCurvesLegend() has "
+                        "bad legend position \"%s\"\n",
+                pos.toLatin1().constData());
+        exit(-1);
+    }
 
     // Legend box
     QRect LegendBox(legendTopLeft,QSize(w,h));

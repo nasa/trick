@@ -69,6 +69,7 @@ Option::FPresetUInt presetEndRun;
 Option::FPresetQString presetOutputFile;
 Option::FPresetQString presetOrientation;
 Option::FPresetQString presetIsShowPlotLegend;
+Option::FPresetQString presetplotLegendPosition;
 
 class SnapOptions : public Options
 {
@@ -151,6 +152,7 @@ class SnapOptions : public Options
     bool isShowUnits;
     bool isShowPageTitle;
     QString isShowPlotLegend;
+    QString plotLegendPosition;
 };
 
 SnapOptions opts;
@@ -282,6 +284,9 @@ int main(int argc, char *argv[])
     opts.add("-showPlotLegend",
              &opts.isShowPlotLegend,"", "Show plot legend if possible",
              presetIsShowPlotLegend);
+    opts.add("-plotLegendPosition",
+             &opts.plotLegendPosition,"ne","Valid positions are ne,n,nw,w etc.",
+             presetplotLegendPosition);
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -979,6 +984,7 @@ int main(int argc, char *argv[])
                              isShowTables,
                              isShowPageTitle,
                              isShowPlotLegend,
+                             opts.plotLegendPosition,
                              unitOverridesList,
                              mapString, mapFile,
                              runs, varsModel, monteInputsModel);
@@ -1112,6 +1118,7 @@ int main(int argc, char *argv[])
                                  isShowTables,
                                  isShowPageTitle,
                                  isShowPlotLegend,
+                                 opts.plotLegendPosition,
                                  unitOverridesList,
                                  mapString, mapFile,
                                  runs, varsModel, monteInputsModel);
@@ -1145,6 +1152,7 @@ int main(int argc, char *argv[])
                                  isShowTables,
                                  isShowPageTitle,
                                  isShowPlotLegend,
+                                 opts.plotLegendPosition,
                                  unitOverridesList,
                                  mapString, mapFile,
                                  runs, varsModel, monteInputsModel);
@@ -1292,6 +1300,28 @@ void presetIsShowPlotLegend(QString* presVar, const QString& isShow, bool* ok)
             fprintf(stderr, "koviz [error]: option -isShowPlotLegend "
                             "set to \"%s\" should be \"yes\",\"no\" or \"\"\n",
                     isShow.toLatin1().constData());
+        }
+    }
+}
+
+void presetplotLegendPosition(QString* presVar,const QString& position,bool* ok)
+{
+    Q_UNUSED(presVar)
+
+    if ( !position.isEmpty() ) {
+        QStringList positions;
+        positions << "ne" << "n" << "nw" << "w" << "sw" << "s" << "se" << "e";
+        *ok = false;
+        foreach (QString pos, positions) {
+            if ( pos == position ) {
+                *ok = true;
+                break;
+            }
+        }
+        if ( !*ok ) {
+            fprintf(stderr,"koviz [error]: option -plotLegendPosition "
+                           "set to \"%s\" should be \"ne\",\"n\",\"nw\" etc.\n",
+                    position.toLatin1().constData());
         }
     }
 }
