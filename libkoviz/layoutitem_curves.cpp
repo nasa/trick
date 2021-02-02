@@ -191,10 +191,7 @@ void CurvesLayoutItem::paint(QPainter *painter,
     painter->restore();
 
     // Draw legend
-    // If all plots on the page have the same legend, PageTitle will show legend
-    if (!_bookModel->isPlotLegendsSame(curvesIdx.parent().parent().parent())) {
-        _paintCurvesLegend(R,curvesIdx,painter);
-    }
+    _paintCurvesLegend(R,curvesIdx,painter);
 }
 
 void CurvesLayoutItem::_printCoplot(const QRect& R, const QTransform& T,
@@ -715,13 +712,18 @@ void CurvesLayoutItem::_paintCurvesLegend(const QRect& R,
 {
     const int maxEntries = 7;
 
+    QString isShowPlotLegend = _bookModel->getDataString(QModelIndex(),
+                                                         "IsShowPlotLegend","");
+
     int nCurves = _bookModel->rowCount(curvesIdx);
-    if ( nCurves > maxEntries || nCurves <= 1 ) {
+    if ( isShowPlotLegend == "no"  ||
+        (isShowPlotLegend == "" && (nCurves > maxEntries || nCurves <= 1)) ) {
         return;
     }
 
     // If all plots on the page have the same legend, PageTitle will show legend
-    if (_bookModel->isPlotLegendsSame(curvesIdx.parent().parent().parent())) {
+    if (_bookModel->isPlotLegendsSame(curvesIdx.parent().parent().parent())
+        && isShowPlotLegend != "yes" ) {
         return;
     }
 

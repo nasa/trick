@@ -354,7 +354,15 @@ void BookIdxView::_paintCurvesLegend(const QRect& R,
                                      QPainter &painter)
 {
     // If all plots on the page have the same legend, PageTitle will show legend
-    if (_bookModel()->isPlotLegendsSame(curvesIdx.parent().parent().parent())) {
+    // (unless explicitly set via -showPlotLegend option)
+    QString isShowPlotLegend = _bookModel()->getDataString(QModelIndex(),
+                                                         "IsShowPlotLegend","");
+    if ( isShowPlotLegend == "no" ) {
+        return;
+    }
+    bool isPlotLegendsSame = _bookModel()->isPlotLegendsSame(
+                                         curvesIdx.parent().parent().parent());
+    if ( isPlotLegendsSame && isShowPlotLegend != "yes" ) {
         return;
     }
 

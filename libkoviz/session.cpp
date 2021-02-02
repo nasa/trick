@@ -16,7 +16,9 @@ Session::Session() :
     _isLegend(true),
     _showTables(""),
     _videoFileName(""),
-    _videoOffset(0.0)
+    _videoOffset(0.0),
+    _isShowPageTitle(true),
+    _isShowPlotLegend("")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -47,7 +49,8 @@ Session::Session(const QString &sessionFileName) :
     _isLegend(true),
     _videoFileName(""),
     _videoOffset(0.0),
-    _isShowPageTitle(true)
+    _isShowPageTitle(true),
+    _isShowPlotLegend("")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -314,6 +317,15 @@ Session::Session(const QString &sessionFileName) :
             }
             if ( _mapFile.endsWith("\"") ) {
                 _mapFile.chop(1);
+            }
+        } else if ( line.contains("showPlotLegend:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("showPlotLegend:",0,Qt::CaseInsensitive);
+            _isShowPlotLegend = line.mid(i+15).trimmed();
+            if ( _isShowPlotLegend.startsWith("\"") ) {
+                _isShowPlotLegend = _isShowPlotLegend.mid(1);
+            }
+            if ( _isShowPlotLegend.endsWith("\"") ) {
+                _isShowPlotLegend.chop(1);
             }
         } else if ( line.contains("legend:",Qt::CaseInsensitive) ) {
             int i = line.indexOf("legend:",0,Qt::CaseInsensitive);

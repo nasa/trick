@@ -41,6 +41,7 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
         const QString &foreground, const QString &background,
         bool isShowTables,
         bool isShowPageTitle,
+        const QString& isShowPlotLegend,
         QStringList unitOverrides,
         QString map, QString mapFile,
         Runs* runs,
@@ -66,6 +67,7 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
     _background(background),
     _isShowTables(isShowTables),
     _isShowPageTitle(isShowPageTitle),
+    _isShowPlotLegend(isShowPlotLegend),
     _unitOverrides(unitOverrides),
     _map(map),
     _mapFile(mapFile),
@@ -182,6 +184,7 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
     }
     _bookModel->addChild(rootItem,"StatusBarMessage", "");
     _bookModel->addChild(rootItem,"IsShowPageTitle", _isShowPageTitle );
+    _bookModel->addChild(rootItem,"IsShowPlotLegend", _isShowPlotLegend );
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
@@ -1278,6 +1281,10 @@ void PlotMainWindow::_saveSession()
         QString isShowPageTitle = _bookModel->getDataString(
                                     QModelIndex(),"IsShowPageTitle");
         out << "showPageTitle: " << isShowPageTitle << "\n";
+
+        QString isShowPlotLegend = _bookModel->getDataString(
+                                    QModelIndex(),"IsShowPlotLegend");
+        out << "showPlotLegend: " << isShowPlotLegend << "\n";
 
         f.close();
     }

@@ -75,6 +75,7 @@ public:
                              const QString& background,
                              bool isShowTables,
                              bool isShowPageTitle,
+                             const QString &isShowPlotLegend,
                              QStringList unitOverrides,
                              QString map,
                              QString mapFile,
@@ -110,6 +111,7 @@ private:
     QString _background;
     bool _isShowTables;
     bool _isShowPageTitle;
+    QString _isShowPlotLegend;
     QStringList _unitOverrides;
     QString _map;
     QString _mapFile;

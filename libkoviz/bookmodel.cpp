@@ -497,6 +497,8 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(21,0);
         } else if ( searchItemText == "IsShowPageTitle" ) {
             idx = index(22,0);
+        } else if ( searchItemText == "IsShowPlotLegend" ) {
+            idx = index(23,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "

@@ -68,6 +68,7 @@ Option::FPresetUInt presetBeginRun;
 Option::FPresetUInt presetEndRun;
 Option::FPresetQString presetOutputFile;
 Option::FPresetQString presetOrientation;
+Option::FPresetQString presetIsShowPlotLegend;
 
 class SnapOptions : public Options
 {
@@ -149,6 +150,7 @@ class SnapOptions : public Options
     QString group7;
     bool isShowUnits;
     bool isShowPageTitle;
+    QString isShowPlotLegend;
 };
 
 SnapOptions opts;
@@ -277,6 +279,9 @@ int main(int argc, char *argv[])
              "Print available units");
     opts.add("-showPageTitle:{0,1}",
              &opts.isShowPageTitle,true, "Show page title and page legend?");
+    opts.add("-showPlotLegend",
+             &opts.isShowPlotLegend,"", "Show plot legend if possible",
+             presetIsShowPlotLegend);
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -898,6 +903,25 @@ int main(int argc, char *argv[])
             isLegend = session->isLegend();
         }
 
+        // Show plot legend?
+        QString isShowPlotLegend;
+        if ( !opts.isShowPlotLegend.isEmpty() ) {
+            isShowPlotLegend = opts.isShowPlotLegend;
+        } else if ( session ) {
+            isShowPlotLegend = session->isShowPlotLegend();
+        }
+        if ( ! isShowPlotLegend.isEmpty() ) {
+            bool ok;
+            bool yesNo = Options::stringToBool(isShowPlotLegend,&ok);
+            if ( ok ) {
+                if ( yesNo == true ) {
+                    isShowPlotLegend = "yes";
+                } else {
+                    isShowPlotLegend = "no";
+                }
+            }
+        }
+
         // Show Tables (don't show if too many runs since it is *slow*)
         bool isShowTables = (isMonte || runDirs.size() > 7) ? false : true;
         if ( !opts.showTables.isEmpty() ) {  // use cmd line opt if set
@@ -954,6 +978,7 @@ int main(int argc, char *argv[])
                              fg, bg,
                              isShowTables,
                              isShowPageTitle,
+                             isShowPlotLegend,
                              unitOverridesList,
                              mapString, mapFile,
                              runs, varsModel, monteInputsModel);
@@ -1086,6 +1111,7 @@ int main(int argc, char *argv[])
                                  fg, bg,
                                  isShowTables,
                                  isShowPageTitle,
+                                 isShowPlotLegend,
                                  unitOverridesList,
                                  mapString, mapFile,
                                  runs, varsModel, monteInputsModel);
@@ -1118,6 +1144,7 @@ int main(int argc, char *argv[])
                                  fg, bg,
                                  isShowTables,
                                  isShowPageTitle,
+                                 isShowPlotLegend,
                                  unitOverridesList,
                                  mapString, mapFile,
                                  runs, varsModel, monteInputsModel);
@@ -1251,6 +1278,21 @@ void presetOrientation(QString* presVar, const QString& orient, bool* ok)
                         "should be \"landscape\" or \"portrait\"\n",
                 orient.toLatin1().constData());
         *ok = false;
+    }
+}
+
+void presetIsShowPlotLegend(QString* presVar, const QString& isShow, bool* ok)
+{
+    Q_UNUSED(presVar)
+
+    if ( !isShow.isEmpty() ) {
+        bool yesNo = Options::stringToBool(isShow,ok);
+        Q_UNUSED(yesNo)
+        if ( !*ok ) {
+            fprintf(stderr, "koviz [error]: option -isShowPlotLegend "
+                            "set to \"%s\" should be \"yes\",\"no\" or \"\"\n",
+                    isShow.toLatin1().constData());
+        }
     }
 }
 

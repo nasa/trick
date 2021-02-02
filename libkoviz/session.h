@@ -77,6 +77,7 @@ public:
     QString videoFileName() const { return _videoFileName; }
     double videoOffset() const { return _videoOffset; }
     bool isShowPageTitle() const { return _isShowPageTitle; }
+    QString isShowPlotLegend() const { return _isShowPlotLegend; }
 
 private:
     Session();
@@ -109,6 +110,7 @@ private:
     QString _videoFileName;
     double _videoOffset;
     bool _isShowPageTitle;
+    QString _isShowPlotLegend;
 };
 
 #endif // SESSION_H
