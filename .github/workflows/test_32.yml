@@ -13,9 +13,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@master
     - name: Add yum repo
-      run: yum -y install epel-release.noarch
+      run: yum -y install epel-release.noarch && yum -y update
     - name: Install dependency group
-      run: yum -y groupinstall "Development tools"
+      run: yum -y groupinstall "Development tools" yum -y update
     - name: Install other dependencies
       run: >
         yum install -y llvm llvm-devel llvm-static clang clang-devel
