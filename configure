@@ -5570,7 +5570,7 @@ fi
 fi
 
 
-PYTHON_LIBS_COMMAND="${PYTHON_CONFIG} --libs"
+PYTHON_LIBS_COMMAND="${PYTHON_CONFIG} --ldflags --libs"
 
 
 
