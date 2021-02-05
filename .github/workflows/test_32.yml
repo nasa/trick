@@ -23,7 +23,7 @@ jobs:
         yum install -y llvm llvm-devel llvm-static clang clang-devel
         bison flex gcc gcc-c++ libxml2-devel make cmake wget
         ncurses-devel openmotif openmotif-devel python-devel perl
-        perl-Digest-MD5 swig zlib-devel glibc.x86_64 libxml2-devel.i686
+        perl-Digest-MD5 swig3 zlib-devel glibc.x86_64 libxml2-devel.i686
         ncurses-devel.i686 zlib-devel.i686 python-libs.i686
         expat-2.1.0-10.el7_3.i686 glibc-devel-2.17-196.el7.i686
         glibc.i686 glibc-devel.i686 udunits2 udunits2-devel gtest-devel.i686
