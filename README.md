@@ -5,14 +5,20 @@
 </p>
 
 <p align=left>
-<a href="https://github.com/nasa/trick/actions?query=workflow%3A%22Trick+CI%22">
+<a href="https://github.com/nasa/trick/actions?query=workflow%3ALinux">
 <img src="https://github.com/nasa/trick/workflows/Linux/badge.svg?branch=master" alt="Linux" height=30px>
 </a>
 </p>
 
 <p align=left>
-<a href="https://github.com/nasa/trick/actions?query=workflow%3A%22Trick+CI%22">
+<a href="https://github.com/nasa/trick/actions?query=workflow%3AmacOS">
 <img src="https://github.com/nasa/trick/workflows/macOS/badge.svg?branch=master" alt="macOS" height=30px>
+</a>
+</p>
+
+<p align=left>
+<a href="https://github.com/nasa/trick/actions?query=workflow%3A32-bit">
+<img src="https://github.com/nasa/trick/workflows/32-bit/badge.svg?branch=master" alt="macOS" height=30px>
 </a>
 </p>
 
