@@ -20,7 +20,7 @@ jobs:
       run: yum -y groupinstall "Development tools" && yum -y update
     - name: Install other dependencies
       run: >
-        yum install -y llvm llvm-devel llvm-static clang clang-devel
+        yum remove -y swig && yum install -y llvm llvm-devel llvm-static clang clang-devel
         bison flex gcc gcc-c++ libxml2-devel make cmake wget
         ncurses-devel openmotif openmotif-devel python-devel perl
         perl-Digest-MD5 swig3 zlib-devel glibc.x86_64 libxml2-devel.i686
