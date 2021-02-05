@@ -4,6 +4,8 @@ on:
   push:
     paths-ignore:
     - 'docs/**'
+    - '.github/workflows/**'
+    - '!.github/workflows/test_macos.yml'
 
 jobs:
   macOS:
