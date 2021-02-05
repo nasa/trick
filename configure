@@ -5570,7 +5570,7 @@ fi
 fi
 
 
-PYTHON_LIBS_COMMAND="${PYTHON_CONFIG} --libs"
+PYTHON_LIBS_COMMAND="${PYTHON_CONFIG} --ldflags --libs"
 
 
 
@@ -5610,7 +5610,7 @@ x$ax_compare_version_B" | sed 's/^ *//' | sort -r | sed "s/x${ax_compare_version
 
 
 PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes | sed 's/-I/-isystem/g'`
-PYTHON_LIBS=`${PYTHON_LIBS_COMMAND}`
+PYTHON_LIBS=`${PYTHON_LIBS_COMMAND} | tr '\r\n' ' '`
 
 
 
