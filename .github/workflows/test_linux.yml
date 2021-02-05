@@ -97,6 +97,7 @@ jobs:
           - cfg: { os: fedora }
             pkg_mgr: dnf
             os_deps: >-
+              swig
               perl-Text-Balanced
               python-devel
               diffutils
