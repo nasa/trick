@@ -4,6 +4,8 @@ on:
   push:
     paths-ignore:
     - 'docs/**'
+    - '.github/workflows/**'
+    - '!.github/workflows/test_32.yml'
 
 jobs:
   trick_32bit:
