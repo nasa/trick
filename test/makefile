@@ -5,6 +5,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 SIMS_TO_COMPILE_ONLY = \
 	SIM_alloc_test \
 	SIM_default_member_initializer \
+	SIM_delete_default_constructor \
 	SIM_demo_inputfile \
 	SIM_exclusion_mechanisms \
 	SIM_isystem \

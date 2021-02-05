@@ -1,0 +1,22 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ()
+LIBRARY DEPENDENCIES:
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "starter.h"
+##include "empty.h"
+
+class StarterSimObject : public Trick::SimObject {
+
+    public:
+        Starter starter;
+
+        StarterSimObject() : starter(5){
+  
+        }
+};
+
+StarterSimObject starterSimObject;
