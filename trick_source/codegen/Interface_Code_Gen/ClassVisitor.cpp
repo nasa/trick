@@ -172,7 +172,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
         // Test all constructors to see if any of those are the default and public
         clang::CXXRecordDecl::ctor_iterator cit ;
         for ( cit = rec->ctor_begin() ; cit != rec->ctor_end() ; cit++ ) {
-            if ( (*cit)->isDefaultConstructor() and (*cit)->getAccess() == clang::AS_public ) {
+            if ( ( !(*cit)->isDeleted() ) and (*cit)->isDefaultConstructor() and (*cit)->getAccess() == clang::AS_public ) {
                 cval.setHasDefaultConstructor(true) ;
             }
         }

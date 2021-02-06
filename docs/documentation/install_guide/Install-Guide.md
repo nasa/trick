@@ -5,20 +5,20 @@
 This document will walk you through the process of installing Trick on your computer. Please read each section carefully.
 
 # Package Dependencies
-Trick requires various free third party utilities in order to function. All the following products are used by Trick and may already be installed as part of your OS distribution. **Install any missing dependencies with your operating system's [package manager](https://en.wikipedia.org/wiki/Package_manager).** For most operating systems, the default version of a dependency will be compatitable with Trick. Please check the specific OS instructions below for your operating system for more details.
+Trick requires various free third party utilities in order to function. All the following products are used by Trick and may already be installed as part of your OS distribution. **Install any missing dependencies with your operating system's [package manager](https://en.wikipedia.org/wiki/Package_manager).** For most operating systems, the default version of a dependency will be compatitable with Trick. **We strongly recommend that you use your package manager's default versions if they meet Trick's requirements.** Please check the specific OS instructions below for your operating system for more details.
 
-| Utility         | Version   | Description               | Usage                                                         |
-|----------------:|:---------:|:-------------------------:|:--------------------------------------------------------------|
-| [gcc] and g++   | 4.8+      | C/C++ Compiler            | Compiles Trick and Trick simulations.                         |
-| [clang]/[llvm]  | 3.4.2+    | C/C++ Compiler            | Utilized by the interface code generator.                     |
-| [python]        | 2.7+      | Programming Language      | Lets the user interact with a simulation.                     |
-| [perl]          | 5.6+      | Programming Language      | Allows executable scripts in the bin directory to run.        |
-| [java]          | 11+       | Programming Language      | Necessary for Trick GUIs.                                     |
-| [swig]          | 2.0+      | Language Interfacing      | Connects the python input processor with Trick's C code.      |
-| [make]          | 3.78+     | Build Automation          | Automates the building and cleaning of Trick.                 |
-| [openmotif]     | 2.2.0+    | GUI Toolkit               | Covers Trick GUIs not made with Java.                         |
-| [udunits]       | 2.x+      | C Unit Library/Database   | Provides support for units of physical quantities.            |
-| [maven]         | x.x       | Java package manager      | Downloads Java dependencies and builds trick GUIs                   |
+| Utility        | Version | Description             | Usage                                                     | Notes                                                 |
+|---------------:|:-------:|:-----------------------:|:---------------------------------------------------------:|:------------------------------------------------------|
+| [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                       |
+| [clang]/[llvm] | 3.4.2+  | C/C++ Compiler          | Utilized by the interface code generator.                 |                                                       |
+| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.9 as of 02/21    |
+| [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                       |
+| [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                       |
+| [swig]         | 2.0+    | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ required for some unit tests in make test target |
+| [make]         | 3.78+   | Build Automation        | Automates the building and cleaning of Trick.             |                                                       |
+| [openmotif]    | 2.2.0+  | GUI Toolkit             | Covers Trick GUIs not made with Java.                     |                                                       |
+| [udunits]      | 2.x+    | C Unit Library/Database | Provides support for units of physical quantities.        |                                                       |
+| [maven]        | x.x     | Java package manager    | Downloads Java dependencies and builds trick GUIs         |                                                       |
 
 [gcc]: https://gcc.gnu.org/
 [clang]: https://clang.llvm.org/
@@ -109,7 +109,7 @@ Run yum -y install epel-release && yum -y update
 Trick also requires development packages from the base and epel repositories
 
 ```bash
-yum install -y bison clang flex git llvm make maven swig cmake clang-devel \
+yum install -y bison clang flex git llvm make maven swig3 cmake clang-devel \
 gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static \
 ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 \
 udunits2-devel which zlib-devel gtest-devel libX11-devel libXt-devel python-devel

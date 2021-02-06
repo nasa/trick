@@ -34,7 +34,6 @@ jobs:
               llvm
               make
               maven
-              swig
               cmake
             install_gtest: echo gtest already installed
             conf_pkg:  echo package manager already configured
@@ -44,6 +43,7 @@ jobs:
             pkg_mgr: apt-get
             conf_pkg:  apt-get update
             arch_deps: >-
+              swig
               curl
               g++
               libx11-dev
@@ -97,6 +97,7 @@ jobs:
           - cfg: { os: fedora }
             pkg_mgr: dnf
             os_deps: >-
+              swig
               perl-Text-Balanced
               python-devel
               diffutils
@@ -108,6 +109,7 @@ jobs:
               python3.8-dev
           - cfg: { os: centos, tag: 7 }
             tag_deps: >-
+              swig3
               python-devel
           - cfg: { os: centos, tag: latest }
             pkg_mgr: dnf
@@ -117,6 +119,7 @@ jobs:
               dnf install -y 'dnf-command(config-manager)' &&
               dnf config-manager --enable powertools
             tag_deps: >-
+              swig
               python3-devel diffutils
 #-------- Job definition ----------------
     runs-on: ubuntu-18.04
