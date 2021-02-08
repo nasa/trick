@@ -16,12 +16,14 @@ template< class S , typename T > static int convert_and_set( T & output , void *
     if ( temp_m->units.compare("1") ) {
         ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII) ;
         if ( !from ) {
-            PyErr_SetString(PyExc_AttributeError,(std::string("could not covert from units "+temp_m->units).c_str()));
+            std::string temp_str = std::string("could not covert from units " + temp_m->units);
+            PyErr_SetString(PyExc_AttributeError,(temp_str.c_str()));
             return -1 ;
         }
         ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), to_units.c_str(), UT_ASCII) ;
         if ( !to ) {
-            PyErr_SetString(PyExc_AttributeError,(std::string("could not covert to units "+to_units).c_str()));
+            std::string temp_str = std::string("could not covert to units " + to_units) ;
+            PyErr_SetString(PyExc_AttributeError,(temp_str.c_str()));
             return -1 ;
         }
 
