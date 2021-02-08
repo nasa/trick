@@ -12,6 +12,7 @@
         extern ATTRIBUTES attr##TYPE[] ;
 
         std::stringstream os ;
+        std::string temp_str ;
         Trick::PythonPrint pp ;
 
         static char * temp = NULL ;
@@ -26,7 +27,8 @@
         os << "]" ;
 
         temp = (char *)realloc( (void *)temp , os.str().length() + 1 ) ;
-        strncpy(temp , os.str().c_str(), os.str().length()) ;
+        temp_str = os.str() ;
+        strncpy(temp , temp_str.c_str(), os.str().length()) ;
         temp[os.str().length()] = '\0' ;
 
         return temp ;
