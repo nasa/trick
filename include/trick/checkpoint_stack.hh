@@ -75,7 +75,7 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
     unsigned int ii ;
     unsigned int cont_size ;
     std::ostringstream var_declare ;
-    std::string temp_str
+    std::string temp_str ;
 
     std::string * items = nullptr ;
     std::stack<ITEM_TYPE,_Sequence> temp_stack(in_stl) ;

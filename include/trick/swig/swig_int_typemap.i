@@ -120,6 +120,7 @@
               enum SWIGTYPE [ANY] , bool [ANY] ,
               double [ANY] , float [ANY] {
     std::string temp_name ;
+    std::string temp_str ;
 
     swig_ref * t = new swig_ref ;
 
@@ -152,7 +153,8 @@
 
     temp_name = "$symname" ;
     temp_name.erase(temp_name.length() - 4) ;
-    t->ref.attr->units = strdup(Trick::UnitsMap::units_map()->get_units(temp_name).c_str()) ;
+    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+    t->ref.attr->units = strdup(temp_str.c_str()) ;
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
@@ -191,6 +193,7 @@
               enum SWIGTYPE * , bool * ,
               double * , float * {
     std::string temp_name ;
+    std::string temp_str ;
 
     swig_ref * t = new swig_ref ;
 
@@ -224,7 +227,8 @@
 
     temp_name = "$symname" ;
     temp_name.erase(temp_name.length() - 4) ;
-    t->ref.attr->units = strdup(Trick::UnitsMap::units_map()->get_units(temp_name).c_str()) ;
+    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+    t->ref.attr->units = strdup(temp_str.c_str()) ;
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
@@ -304,6 +308,7 @@
     //INT[ANY][ANY] OUT
 
     std::string temp_name ;
+    std::string temp_str ;
 
     swig_ref * t = new swig_ref ;
 
@@ -337,7 +342,8 @@
 
     temp_name = "$symname" ;
     temp_name.erase(temp_name.length() - 4) ;
-    t->ref.attr->units = strdup(Trick::UnitsMap::units_map()->get_units(temp_name).c_str()) ;
+    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+    t->ref.attr->units = strdup(temp_str.c_str()) ;
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
@@ -354,6 +360,7 @@
     //INT * [ANY] OUT
 
     std::string temp_name ;
+    std::string temp_str ;
     $1_basetype dummy ;
     char * type_name = strdup("$1_basetype") ;
 
@@ -391,7 +398,8 @@
 
     temp_name = "$symname" ;
     temp_name.erase(temp_name.length() - 4) ;
-    t->ref.attr->units = strdup(Trick::UnitsMap::units_map()->get_units(temp_name).c_str()) ;
+    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+    t->ref.attr->units = strdup(temp_str.c_str()) ;
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 
@@ -441,6 +449,7 @@
     //INT ** OUT
 
     std::string temp_name ;
+    std::string temp_str ;
 
     swig_ref * t = new swig_ref ;
 
@@ -474,7 +483,8 @@
 
     temp_name = "$symname" ;
     temp_name.erase(temp_name.length() - 4) ;
-    t->ref.attr->units = strdup(Trick::UnitsMap::units_map()->get_units(temp_name).c_str()) ;
+    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+    t->ref.attr->units = strdup(temp_str.c_str()) ;
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 
@@ -495,6 +505,7 @@
     //DOUBLE[ANY][ANY][ANY] OUT
 
     std::string temp_name ;
+    std::string temp_str ;
 
     swig_ref * t = new swig_ref ;
 
@@ -529,7 +540,8 @@
 
     temp_name = "$symname" ;
     temp_name.erase(temp_name.length() - 4) ;
-    t->ref.attr->units = strdup(Trick::UnitsMap::units_map()->get_units(temp_name).c_str()) ;
+    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+    t->ref.attr->units = strdup(temp_str.c_str()) ;
 
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
 }
