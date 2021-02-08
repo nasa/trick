@@ -44,6 +44,10 @@ int checkpoint_map_ik_id(STL & in_map , std::string object_name , std::string va
     typename STL::iterator iter ;
     int status ;
 
+    // used for keeping c_str components of std::strings allocated and accessable 
+    // while they are being used. 
+    std::string temp_str;
+
     typename STL::key_type * keys = nullptr ;
     typename STL::mapped_type * items = nullptr ;
 
@@ -60,9 +64,11 @@ int checkpoint_map_ik_id(STL & in_map , std::string object_name , std::string va
         }
         var_declare << type_string << " "
          << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
-        keys = (typename STL::key_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        temp_str = var_declare.str();
+        keys = (typename STL::key_type *)TMM_declare_var_s(temp_str.c_str()) ;
         if ( keys ) {
-            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
+            temp_str = std::string(object_name + "_" + var_name + "_keys");
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
             //message_publish(1, "HERE with %s\n", var_declare) ;
 
             var_declare.str("") ;
@@ -75,9 +81,11 @@ int checkpoint_map_ik_id(STL & in_map , std::string object_name , std::string va
             }
             var_declare << type_string << " "
              << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
-            items = (typename STL::mapped_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
+            temp_str = var_declare.str();
+            items = (typename STL::mapped_type *)TMM_declare_var_s(temp_str.c_str()) ;
             if ( items ) {
-                TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
+                temp_str = std::string(object_name + "_" + var_name + "_data");
+                TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
                 //message_publish(1, "HERE with %s\n", var_declare) ;
 
                 /* copy the contents of the map the 2 arrays */
@@ -115,6 +123,10 @@ int checkpoint_map_ik_sd(STL & in_map , std::string object_name , std::string va
     typename STL::iterator iter ;
     int status ;
 
+    // used for keeping c_str components of std::strings allocated and accessable 
+    // while they are being used. 
+    std::string temp_str;
+
     typename STL::key_type * keys = nullptr ;
     std::string * items = nullptr ;
 
@@ -131,18 +143,22 @@ int checkpoint_map_ik_sd(STL & in_map , std::string object_name , std::string va
         }
         var_declare << type_string << " "
          << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
-        keys = (typename STL::key_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        temp_str = var_declare.str();
+        keys = (typename STL::key_type *)TMM_declare_var_s(temp_str.c_str()) ;
         if ( keys ) {
-            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
+            temp_str = std::string(object_name + "_" + var_name + "_keys");
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
             //message_publish(1, "HERE with %s\n", var_declare) ;
 
             var_declare.str("") ;
             var_declare.clear() ;
             var_declare << "std::string "
              << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
-            items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+            temp_str = var_declare.str();
+            items = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
             if ( items ) {
-                TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
+                temp_str = std::string(object_name + "_" + var_name + "_data");
+                TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
                 //message_publish(1, "HERE with %s\n", var_declare) ;
 
                 /* copy the contents of the map the 2 arrays */
@@ -188,6 +204,10 @@ int checkpoint_map_sk_id(STL & in_map , std::string object_name , std::string va
     typename STL::iterator iter ;
     int status ;
 
+    // used for keeping c_str components of std::strings allocated and accessable 
+    // while they are being used. 
+    std::string temp_str;
+
     std::string * keys = nullptr ;
     typename STL::mapped_type * items = nullptr ;
 
@@ -197,9 +217,11 @@ int checkpoint_map_sk_id(STL & in_map , std::string object_name , std::string va
     if ( cont_size > 0 ) {
         var_declare << "std::string "
          << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
-        keys = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        temp_str = var_declare.str();
+        keys = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
         if ( keys ) {
-            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
+            temp_str = std::string(object_name + "_" + var_name + "_keys");
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
             //message_publish(1, "HERE with %s\n", var_declare) ;
 
             var_declare.str("") ;
@@ -213,9 +235,11 @@ int checkpoint_map_sk_id(STL & in_map , std::string object_name , std::string va
             }
             var_declare << type_string << " "
              << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
-            items = (typename STL::mapped_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
+            temp_str = var_declare.str() ;
+            items = (typename STL::mapped_type *)TMM_declare_var_s(temp_str.c_str()) ;
             if ( items ) {
-                TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
+                temp_str = std::string(object_name + "_" + var_name + "_data");
+                TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
                 //message_publish(1, "HERE with %s\n", var_declare) ;
 
                 /* copy the contents of the map the 2 arrays */
@@ -260,6 +284,10 @@ int checkpoint_map_stl_sk_sd(STL & in_map , std::string object_name , std::strin
     std::ostringstream var_declare ;
     typename STL::iterator iter ;
 
+    // used for keeping c_str components of std::strings allocated and accessable 
+    // while they are being used. 
+    std::string temp_str;
+
     std::string * keys = nullptr ;
     std::string * items = nullptr ;
 
@@ -269,18 +297,22 @@ int checkpoint_map_stl_sk_sd(STL & in_map , std::string object_name , std::strin
     if ( cont_size > 0 ) {
         var_declare << "std::string "
          << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
-        keys = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        temp_str = var_declare.str();
+        keys = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
         if ( keys ) {
-            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_keys").c_str()) ;
+            temp_str = std::string(object_name + "_" + var_name + "_keys");
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
             //message_publish(1, "HERE with %s\n", var_declare) ;
 
             var_declare.str("") ;
             var_declare.clear() ;
             var_declare << "std::string "
              << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
-            items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+            temp_str = var_declare.str();
+            items = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
             if ( items ) {
-                TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name + "_data").c_str()) ;
+                temp_str = std::string(object_name + "_" + var_name + "_data");
+                TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
                 //message_publish(1, "HERE with %s\n", var_declare) ;
 
                 /* copy the contents of the map the 2 arrays */
@@ -325,10 +357,14 @@ template <class STL>
 int delete_map_allocs(STL & in_map __attribute__ ((unused)), std::string object_name , std::string var_name ) {
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
     REF2 * items_ref ;
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name + std::string("_keys")).c_str()) ;
+    std::string temp_str;
+    temp_str = object_name + std::string("_") + var_name + std::string("_keys");
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
     if ( items_ref != NULL ) {
-        TMM_delete_var_n((object_name + std::string("_") + var_name + std::string("_keys")).c_str() ) ;
-        TMM_delete_var_n((object_name + std::string("_") + var_name + std::string("_data")).c_str() ) ;
+        temp_str = object_name + std::string("_") + var_name + std::string("_keys");
+        TMM_delete_var_n(temp_str.c_str() ) ;
+        temp_str = object_name + std::string("_") + var_name + std::string("_data");
+        TMM_delete_var_n(temp_str.c_str() ) ;
         free(items_ref) ;
     }
     return 0 ;
@@ -359,15 +395,19 @@ int restore_map_ik_id(STL & in_map , std::string object_name , std::string var_n
     unsigned int cont_size ;
 
     REF2 * keys_ref , * items_ref ;
+
+    std::string temp_str;
+
     typename STL::key_type * keys ;
     typename STL::mapped_type * items ;
 
     //message_publish(1, "in regular map template restore\n") ;
 
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
-
-    keys_ref = ref_attributes((char *)(object_name + "_" + var_name + "_keys").c_str()) ;
-    items_ref = ref_attributes((char *)(object_name + "_" + var_name + "_data").c_str()) ;
+    temp_str = object_name + "_" + var_name + "_keys";
+    keys_ref = ref_attributes((char *)temp_str.c_str()) ;
+    temp_str = object_name + "_" + var_name + "_data";
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( keys_ref != NULL && items_ref != NULL ) {
         in_map.clear() ;
@@ -404,6 +444,8 @@ int restore_map_ik_sd(STL & in_map , std::string object_name , std::string var_n
     unsigned int ii ;
     unsigned int cont_size ;
 
+    std::string temp_str;
+
     REF2 * keys_ref , * items_ref ;
     typename STL::key_type * keys ;
     std::string * items ;
@@ -412,8 +454,10 @@ int restore_map_ik_sd(STL & in_map , std::string object_name , std::string var_n
 
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
-    keys_ref = ref_attributes((char *)(object_name + "_" + var_name + "_keys").c_str()) ;
-    items_ref = ref_attributes((char *)(object_name + "_" + var_name + "_data").c_str()) ;
+    temp_str = object_name + "_" + var_name + "_keys";
+    keys_ref = ref_attributes((char *)temp_str.c_str()) ;
+    temp_str = object_name + "_" + var_name + "_data";
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( keys_ref != NULL && items_ref != NULL ) {
         in_map.clear() ;
@@ -454,6 +498,8 @@ int restore_map_sk_id(STL & in_map , std::string object_name , std::string var_n
     unsigned int ii ;
     unsigned int cont_size ;
 
+    std::string temp_str;
+
     REF2 * keys_ref , * items_ref ;
     std::string * keys ;
     typename STL::mapped_type * items ;
@@ -462,8 +508,10 @@ int restore_map_sk_id(STL & in_map , std::string object_name , std::string var_n
 
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
-    keys_ref = ref_attributes((char *)(object_name + "_" + var_name + "_keys").c_str()) ;
-    items_ref = ref_attributes((char *)(object_name + "_" + var_name + "_data").c_str()) ;
+    temp_str = object_name + "_" + var_name + "_keys";
+    keys_ref = ref_attributes((char *)temp_str.c_str()) ;
+    temp_str = object_name + "_" + var_name + "_data";
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( keys_ref != NULL && items_ref != NULL ) {
         in_map.clear() ;
@@ -504,6 +552,8 @@ int restore_map_sk_sd(STL & in_map , std::string object_name , std::string var_n
     unsigned int ii ;
     unsigned int cont_size ;
 
+    std::string temp_str;
+
     REF2 * keys_ref , * items_ref ;
     std::string * keys ;
     std::string * items ;
@@ -512,8 +562,10 @@ int restore_map_sk_sd(STL & in_map , std::string object_name , std::string var_n
 
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
-    keys_ref = ref_attributes((char *)(object_name + "_" + var_name + "_keys").c_str()) ;
-    items_ref = ref_attributes((char *)(object_name + "_" + var_name + "_data").c_str()) ;
+    temp_str = object_name + "_" + var_name + "_keys";
+    keys_ref = ref_attributes((char *)temp_str.c_str()) ;
+    temp_str = object_name + "_" + var_name + "_data";
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( keys_ref != NULL && items_ref != NULL ) {
         in_map.clear() ;
