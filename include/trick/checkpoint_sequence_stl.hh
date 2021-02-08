@@ -34,6 +34,7 @@ int checkpoint_sequence_i(STL & in_stl , std::string object_name , std::string v
     unsigned int ii ;
     unsigned int cont_size ;
     std::ostringstream var_declare ;
+    std::string temp_str; 
     int status ;
 
     typename STL::value_type * items = NULL ;
@@ -55,9 +56,11 @@ int checkpoint_sequence_i(STL & in_stl , std::string object_name , std::string v
         }
         var_declare << type_string << " "
          << object_name << "_" << var_name << "[" << cont_size << "]" ;
-        items = (typename STL::value_type *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        temp_str = var_declare.str() ;
+        items = (typename STL::value_type *)TMM_declare_var_s(temp_str.c_str()) ;
         if ( items ) {
-            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
+            temp_str = std::string(object_name + "_" + var_name);
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
             //message_publish(1, "CHECKPOINT_SEQUENCE_STL with %s\n", var_declare) ;
 
             /* copy the contents of the stl */
@@ -77,6 +80,7 @@ int checkpoint_sequence_s(STL & in_stl , std::string object_name , std::string v
     unsigned int ii ;
     unsigned int cont_size ;
     std::ostringstream var_declare ;
+    std::string temp_str ;
 
     std::string * items ;
     typename STL::iterator it ;
@@ -91,10 +95,12 @@ int checkpoint_sequence_s(STL & in_stl , std::string object_name , std::string v
     if ( cont_size > 0 ) {
 
         var_declare << "std::string " << object_name << "_" << var_name << "[" << cont_size << "]" ;
-        items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        temp_str = var_declare.str() ;
+        items = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
         if ( items ) {
-            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
-            //message_publish(1, "CHECKPOINT_SEQUENCE_STL_STL with %s\n", var_declare.str().c_str()) ;
+            temp_str = std::string(object_name + "_" + var_name) ;
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
+            //message_publish(1, "CHECKPOINT_SEQUENCE_STL_STL with %s\n", temp_str.c_str()) ;
 
             /* create the names of the sub stl checkpoint names we're going to be using */
             for ( ii = 0 , it = in_stl.begin() , end = in_stl.end() ; it != end ; it++ , ii++ ) {
@@ -216,9 +222,11 @@ template <class STL>
 int delete_sequence_alloc(STL & in_stl __attribute__ ((unused)), std::string object_name , std::string var_name ) {
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
     REF2 * items_ref ;
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
+    std::string temp_str = object_name + std::string("_") + var_name ;
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
     if ( items_ref != NULL ) {
-        TMM_delete_var_n((object_name + std::string("_") + var_name).c_str() ) ;
+        temp_str = object_name + std::string("_") + var_name ;
+        TMM_delete_var_n(temp_str.c_str() ) ;
         free(items_ref) ;
     }
     return 0 ;
@@ -267,14 +275,15 @@ int restore_sequence_i(STL & in_stl , std::string object_name , std::string var_
 
     unsigned int ii ;
     unsigned int cont_size ;
+    std::string temp_str ;
 
     REF2 * items_ref ;
     typename STL::value_type * items ;
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_SEQUENCE_STL %s_%s\n", object_name.c_str() , var_name.c_str()) ;
-
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
+    temp_str = object_name + std::string("_") + var_name ;
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( items_ref != NULL ) {
         in_stl.clear() ;
@@ -298,11 +307,12 @@ int restore_sequence_s(STL & in_stl , std::string object_name , std::string var_
 
     REF2 * items_ref ;
     std::string * items ;
+    std::string temp_str ;
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
-
-    items_ref = ref_attributes((char *)(object_name + "_" + var_name).c_str()) ;
+    temp_str = object_name + "_" + var_name ;
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( items_ref != NULL ) {
         in_stl.clear() ;
@@ -334,11 +344,12 @@ int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std
 
     REF2 * items_ref ;
     std::string * items ;
+    std::string temp_str ;
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "%s\n", __PRETTY_FUNCTION__) ;
-
-    items_ref = ref_attributes((char *)(object_name + "_" + var_name).c_str()) ;
+    temp_str = object_name + "_" + var_name ;
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( items_ref != NULL ) {
         items = (std::string *)items_ref->address ;
@@ -363,14 +374,15 @@ template <typename ITEM_TYPE, std::size_t N,
 int restore_stl(std::array<ITEM_TYPE,N> & in_stl , std::string object_name , std::string var_name ) {
     unsigned int ii ;
     unsigned int cont_size ;
+    std::string temp_str ;
 
     REF2 * items_ref ;
     typename std::array<ITEM_TYPE,N>::value_type * items ;
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_SEQUENCE_STL %s_%s\n", object_name.c_str() , var_name.c_str()) ;
-
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
+    temp_str = object_name + std::string("_") + var_name ;
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( items_ref != NULL ) {
         items = (typename std::array<ITEM_TYPE,N>::value_type *)items_ref->address ;
