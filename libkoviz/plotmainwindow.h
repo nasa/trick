@@ -134,6 +134,7 @@ private:
     QMenu *_scriptsMenu;
     QAction *_dpAction;
     QAction *_pdfAction;
+    QAction *_jpgAction;
     QAction *_sessionAction;
     QAction *_openVideoAction;
     QAction *_exitAction;
@@ -177,6 +178,7 @@ private slots:
                                          int start, int end);
      void _saveDP();
      void _savePdf();
+     void _saveJpg();
      void _saveSession();
      void _openVideo();
      void _toggleShowLiveCoord();

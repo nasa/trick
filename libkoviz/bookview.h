@@ -60,6 +60,7 @@ private:
 
 public slots:
     void savePdf(const QString& fname);
+    void saveJpg(const QString& fname);
 
 protected slots:
     void _nbCloseRequested(int tabId);

@@ -183,6 +183,38 @@ void BookView::savePdf(const QString &fname)
     painter.end();
 }
 
+void BookView::saveJpg(const QString &fname)
+{
+    QWidget* page = _nb->currentWidget();
+    int    image_dpi = page->logicalDpiX()*2; // arbitrary factor 2 for highdef
+    double image_width_inches =(double)page->size().width()/page->logicalDpiX();
+    double k = (double)page->size().height()/(double)page->size().width();
+    double image_height_inches = k*image_width_inches;
+    QSize size = page->size();
+    size.setWidth(image_width_inches*image_dpi);
+    size.setHeight(image_height_inches*image_dpi);
+    QPixmap pixmap(size);
+    pixmap.setDevicePixelRatio(image_dpi/page->logicalDpiX());
+
+    // Begin Printing
+    QPainter painter;
+    if (! painter.begin(&pixmap)) {
+        return;
+    }
+    painter.save();
+
+    // Print current page onto pixmap
+    QModelIndex pageIdx = _tabIdToModelIdx(_nb->currentIndex());
+    _printPage(&painter,pageIdx);
+
+    // Save the pixmap to a *.jpg
+    pixmap.save(fname,"JPG");
+
+    // End painting
+    painter.restore();
+    painter.end();
+}
+
 void BookView::_printPage(QPainter *painter, const QModelIndex& pageIdx)
 {
     QPaintDevice* paintDevice = painter->device();
@@ -261,8 +293,10 @@ void BookView::_printPage(QPainter *painter, const QModelIndex& pageIdx)
         item = new XAxisLabelLayoutItem(fm,_bookModel(),plotIdx);
         plotLayout->addItem(item);  // xaxislabel
     }
-    pageLayout.setGeometry(QRect(0,0,paintDevice->width(),
-                                 paintDevice->height()));
+    double pixelRatio = paintDevice->devicePixelRatio();
+    int ww = qRound((double)paintDevice->width()/pixelRatio);
+    int hh = qRound((double)paintDevice->height()/pixelRatio);
+    pageLayout.setGeometry(QRect(0,0,ww,hh));
 
     // Print layouts
     //QColor green(0,255,0);

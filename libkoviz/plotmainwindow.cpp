@@ -433,6 +433,7 @@ void PlotMainWindow::createMenu()
     _fileMenu = new QMenu(tr("&File"), this);
     _optsMenu = new QMenu(tr("&Options"), this);
     _pdfAction  = _fileMenu->addAction(tr("Save &PDF"));
+    _jpgAction  = _fileMenu->addAction(tr("Save &JPG"));
     _dpAction  = _fileMenu->addAction(tr("Save &DP"));
     _sessionAction = _fileMenu->addAction(tr("Save &Session"));
 #ifdef HAS_MPV
@@ -460,6 +461,7 @@ void PlotMainWindow::createMenu()
     }
     connect(_dpAction, SIGNAL(triggered()),this, SLOT(_saveDP()));
     connect(_pdfAction, SIGNAL(triggered()),this, SLOT(_savePdf()));
+    connect(_jpgAction, SIGNAL(triggered()),this, SLOT(_saveJpg()));
     connect(_sessionAction, SIGNAL(triggered()),this, SLOT(_saveSession()));
 #ifdef HAS_MPV
     connect(_openVideoAction, SIGNAL(triggered()),this, SLOT(_openVideo()));
@@ -1013,6 +1015,37 @@ void PlotMainWindow::_savePdf()
                 fprintf(stderr,"dog.pdf.size=%lf bytes\n", fi.size());
             }
             */
+        }
+    }
+}
+
+void PlotMainWindow::_saveJpg()
+{
+    QString fname = QFileDialog::getSaveFileName(this,
+                                                 QString("Save JPG"),
+                                                 QString(""),
+                                                 tr("files (*.jpg)"));
+
+    if ( ! fname.isEmpty() ) {
+
+        int ret = QMessageBox::Save;
+        if ( !fname.endsWith(".jpg") ) {
+            fname += ".jpg";
+            QFileInfo fi(fname);
+            if ( fi.exists() ) {
+                QMessageBox msgBox;
+                msgBox.setStandardButtons(QMessageBox::Save|
+                                          QMessageBox::Cancel);
+                QString msg;
+                msg = "Overwrite: " + fi.fileName() + "?";
+                msgBox.setText(msg);
+                msgBox.setDefaultButton(QMessageBox::Save);
+                ret = msgBox.exec();
+            }
+        }
+
+        if ( ret == QMessageBox::Save ) {
+            _bookView->saveJpg(fname);
         }
     }
 }
