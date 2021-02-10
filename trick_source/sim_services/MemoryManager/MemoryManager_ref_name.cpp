@@ -99,6 +99,15 @@ int Trick::MemoryManager::ref_name(REF2 * R, char *name) {
         }
     }
 
+    if (attr->mods & 1) {
+            ADDRESS_NODE * address_node = new ADDRESS_NODE ;
+            address_node->operator_ = AO_DEREFERENCE ;
+            address_node->operand.address = NULL ;
+            DLL_AddTail(address_node , R->address_path) ;
+
+            addr = *(char**)addr;
+    }
+
     /* Save the address and next attributes in the REF structure.
        If the attributes are dynamically-allocated, reference attributes
        then free them so we don't leak memory.
