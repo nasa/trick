@@ -316,7 +316,11 @@ void CoordArrow::paintMeCenter(QPainter &painter,
 }
 
 CurvesView::CurvesView(QWidget *parent) :
-    BookIdxView(parent),_pixmap(0)
+    BookIdxView(parent),
+    _buttonSelectAndPan(Qt::LeftButton),
+    _buttonRubberBandZoom(Qt::MidButton),
+    _buttonResetView(Qt::RightButton),
+    _pixmap(0)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -1384,14 +1388,14 @@ QPainterPath CurvesView::_stepPath()
 
 void CurvesView::mousePressEvent(QMouseEvent *event)
 {
-    if (  event->button() == Qt::LeftButton ) {
+    if (  event->button() == _buttonSelectAndPan ) {
         _mousePressPos = event->pos();
         _mousePressMathTopLeft = _mathRect().topLeft();
         _mousePressMathRect = _mathRect();
         event->ignore();
-    } else if (  event->button() == Qt::MidButton ) {
+    } else if (  event->button() == _buttonRubberBandZoom ) {
         event->ignore();
-    } else if ( event->button() == Qt::RightButton ) {
+    } else if ( event->button() == _buttonResetView ) {
         QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
                                                        "Curves","Plot");
         QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
@@ -1408,10 +1412,10 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
         isShift = true;
     }
 
-    if (  event->button() == Qt::LeftButton && isShift ) {
+    if (  event->button() == _buttonSelectAndPan && isShift ) {
         // Toggle between single/multi views when clicking with shift key
         event->ignore();
-    } else if (  event->button() == Qt::LeftButton && !isShift ) {
+    } else if (  event->button() == _buttonSelectAndPan && !isShift ) {
         double x0 = _mousePressPos.x();
         double y0 = _mousePressPos.y();
         double x1 = event->pos().x();
@@ -1463,9 +1467,9 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
         } else {
             //event->ignore(); // pass event to parent view for stretch,zoom etc
         }
-    } else if (  event->button() == Qt::MidButton ) {
+    } else if (  event->button() == _buttonResetView ) {
         event->ignore();
-    } else if ( event->button() == Qt::RightButton ) {
+    } else if ( event->button() == _buttonRubberBandZoom ) {
         event->ignore();
     }
 }
@@ -2195,7 +2199,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             viewport()->update();
         }
 
-    } else if ( mouseMove->buttons() == Qt::LeftButton ) {
+    } else if ( mouseMove->buttons() == _buttonSelectAndPan ) {
 
         QRectF M = _mathRect();
         double Mw = M.width();

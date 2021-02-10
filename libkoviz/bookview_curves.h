@@ -159,6 +159,10 @@ private:
     QModelIndex _chooseCurveNearMousePoint(const QPoint& pt);
     bool _isErrorCurveNearMousePoint(const QPoint& pt);
 
+    Qt::MouseButton _buttonSelectAndPan;
+    Qt::MouseButton _buttonRubberBandZoom;
+    Qt::MouseButton _buttonResetView;
+
     QPixmap* _pixmap;
     QRectF _lastM;
     QPixmap* _createLivePixmap();

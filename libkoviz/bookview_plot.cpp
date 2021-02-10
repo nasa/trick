@@ -274,9 +274,11 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
         return QObject::eventFilter(obj, event);
     }
 
+    Qt::MouseButton rubberBandZoomButton = Qt::MidButton;
+
     if (event->type() ==  QEvent::MouseButtonPress ) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        if ( mouseEvent->button() == Qt::MidButton ){
+        if ( mouseEvent->button() == rubberBandZoomButton ){
             _rubberBandOrigin = widget->mapTo(this,mouseEvent->pos());
             if ( !_rubberBand ) {
                 _rubberBand = new QRubberBand(QRubberBand::Rectangle,this);
@@ -287,13 +289,13 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
         event->ignore(); // let my parent page receive mousebuttonpress event
     } else if ( event->type() == QEvent::MouseMove ) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        if ( mouseEvent->buttons() == Qt::MidButton && _rubberBand ){
+        if ( mouseEvent->buttons() == rubberBandZoomButton && _rubberBand ){
             QPoint pt = widget->mapTo(this,mouseEvent->pos());
             _rubberBand->setGeometry(QRect(_rubberBandOrigin,pt).normalized());
         }
     } else if ( event->type() == QEvent::MouseButtonRelease ) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        if ( mouseEvent->button() == Qt::MidButton && _rubberBand ){
+        if ( mouseEvent->button() == rubberBandZoomButton && _rubberBand ){
             QRect R = _rubberBand->geometry();
             QRect P = viewport()->rect();
             if ( R.width() > 20 && R.height() > 20 && P.contains(R) ) {
