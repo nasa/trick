@@ -57,6 +57,7 @@ FieldDescription::FieldDescription(
   is_stl(0) ,
   has_stl_clear(1) ,
   is_static(0) ,
+  is_reference(0) ,
   num_dims(0) ,
   array_sizes() {} ;
 
@@ -541,6 +542,14 @@ void FieldDescription::setStatic(bool yes_no) {
 
 bool FieldDescription::isStatic() {
     return is_static ;
+}
+
+void FieldDescription::setReference(bool yes_no) {
+    is_reference = yes_no ;
+}
+
+bool FieldDescription::isReference() {
+    return is_reference ;
 }
 
 unsigned int FieldDescription::getNumDims() {

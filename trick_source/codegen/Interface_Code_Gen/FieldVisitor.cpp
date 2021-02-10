@@ -43,12 +43,12 @@ bool FieldVisitor::VisitType(clang::Type *t) {
         std::cout << "FieldVisitor VisitType Type = " << t->getTypeClassName() << std::endl ;
         t->dump() ;
     }
-    // If this type is a reference, set IO to 0
     if ( t->isReferenceType() ) {
         if ( debug_level >= 3 ) {
-            std::cout << "FieldVisitor VisitType found reference, setIO = 0 " << std::endl ;
+            std::cout << "FieldVisitor VisitType found reference, setIO = 3 " << std::endl ;
         }
-        fdes->setIO(0) ;
+        fdes->setIO(3) ;
+        fdes->setReference(true) ;
     }
     return true;
 }
