@@ -44,7 +44,8 @@ class PlotMainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit PlotMainWindow( const QString& trickhost,
+    explicit PlotMainWindow( PlotBookModel* bookModel,
+                             const QString& trickhost,
                              uint trickport,
                              double trickoffset,
                              const QString& videoFileName,
@@ -55,28 +56,9 @@ public:
                              bool isDebug,
                              bool isPlotAllVars,
                              const QStringList& timeNames,
-                             double startTime,
-                             double stopTime,
-                             double timeMatchTolerance,
-                             double frequency,
-                             const QHash<QString,QVariant>& shifts,//rundir->val
-                             const QString& presentation,
                              const QString& dpDir,
                              const QStringList& dpFiles,
-                             const QStringList& titles,
-                             const QStringList& legends,
-                             const QStringList& colors,
-                             const QStringList& linestyles,
-                             const QStringList& symbolstyles,
-                             const QStringList& groups,
-                             const QString& orient,
-                             bool isLegend,
-                             const QString& foreground,
-                             const QString& background,
                              bool isShowTables,
-                             bool isShowPageTitle,
-                             const QString &isShowPlotLegend,
-                             const QString& plotLegendPosition,
                              QStringList unitOverrides,
                              QString map,
                              QString mapFile,
@@ -94,6 +76,8 @@ protected:
 
 
 private:
+    PlotBookModel* _bookModel;
+
     const QString& _trickhost;
     uint _trickport;
     double _trickoffset;
@@ -104,16 +88,9 @@ private:
     QString _scripts;
     bool _isDebug;
     QStringList _timeNames;
-    QString _presentation;
     QString _dpDir;
     QStringList _dpFiles;
-    QStringList _titles;
-    QString _foreground;
-    QString _background;
     bool _isShowTables;
-    bool _isShowPageTitle;
-    QString _isShowPlotLegend;
-    QString _plotLegendPosition;
     QStringList _unitOverrides;
     QString _map;
     QString _mapFile;
@@ -148,7 +125,6 @@ private:
     QFrame* _dpFrame ;
     DPTreeWidget* _dpTreeWidget;
 
-    PlotBookModel* _bookModel;
     QTreeView* _plotTreeView ;
     BookView* _bookView;
 

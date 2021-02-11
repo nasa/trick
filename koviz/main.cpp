@@ -960,37 +960,98 @@ int main(int argc, char *argv[])
             unitOverridesList << unitOverride.trimmed();
         }
 
+        // Create book model
+        PlotBookModel* bookModel = new PlotBookModel(timeNames,runs,0,1);
+        if ( titles.size() == 4 ) {
+            QStandardItem *rootItem = bookModel->invisibleRootItem();
+            QStandardItem *citem;
+            citem = bookModel->addChild(rootItem, "DefaultPageTitles","");
+            bookModel->addChild(citem, "Title1",titles.at(0));
+            bookModel->addChild(citem, "Title2",titles.at(1));
+            bookModel->addChild(citem, "Title3",titles.at(2));
+            bookModel->addChild(citem, "Title4",titles.at(3));
+            bookModel->addChild(rootItem, "LiveCoordTime","");
+            bookModel->addChild(rootItem, "LiveCoordTimeIndex",0);
+            bookModel->addChild(rootItem, "StartTime",startTime);
+            bookModel->addChild(rootItem, "StopTime",stopTime);
+            bookModel->addChild(rootItem, "Presentation",presentation);
+            bookModel->addChild(rootItem, "IsShowLiveCoord",true);
+            bookModel->addChild(rootItem, "RunToShiftHash",shifts);
+        }
+        if ( legends.size() == 7 ) {
+            QStandardItem *rootItem = bookModel->invisibleRootItem();
+            QStandardItem *citem;
+            citem = bookModel->addChild(rootItem, "LegendLabels","");
+            bookModel->addChild(citem, "Label1",legends.at(0));
+            bookModel->addChild(citem, "Label2",legends.at(1));
+            bookModel->addChild(citem, "Label3",legends.at(2));
+            bookModel->addChild(citem, "Label4",legends.at(3));
+            bookModel->addChild(citem, "Label5",legends.at(4));
+            bookModel->addChild(citem, "Label6",legends.at(5));
+            bookModel->addChild(citem, "Label7",legends.at(6));
+        }
+        QStandardItem *rootItem = bookModel->invisibleRootItem();
+        bookModel->addChild(rootItem, "Orientation", orient);
+        bookModel->addChild(rootItem, "TimeMatchTolerance", tolerance);
+        bookModel->addChild(rootItem, "Frequency", frequency);
+        bookModel->addChild(rootItem, "IsLegend", isLegend);
+        if ( colors.size() == 7 ) {
+            QStandardItem *rootItem = bookModel->invisibleRootItem();
+            QStandardItem *citem;
+            citem = bookModel->addChild(rootItem, "LegendColors","");
+            bookModel->addChild(citem, "Color1",colors.at(0));
+            bookModel->addChild(citem, "Color2",colors.at(1));
+            bookModel->addChild(citem, "Color3",colors.at(2));
+            bookModel->addChild(citem, "Color4",colors.at(3));
+            bookModel->addChild(citem, "Color5",colors.at(4));
+            bookModel->addChild(citem, "Color6",colors.at(5));
+            bookModel->addChild(citem, "Color7",colors.at(6));
+        }
+        bookModel->addChild(rootItem, "ForegroundColor", fg);
+        bookModel->addChild(rootItem, "BackgroundColor", bg);
+        if ( linestyles.size() == 7 ) {
+            QStandardItem *rootItem = bookModel->invisibleRootItem();
+            QStandardItem *citem;
+            citem = bookModel->addChild(rootItem, "Linestyles","");
+            bookModel->addChild(citem, "Linestyle1",linestyles.at(0));
+            bookModel->addChild(citem, "Linestyle2",linestyles.at(1));
+            bookModel->addChild(citem, "Linestyle3",linestyles.at(2));
+            bookModel->addChild(citem, "Linestyle4",linestyles.at(3));
+            bookModel->addChild(citem, "Linestyle5",linestyles.at(4));
+            bookModel->addChild(citem, "Linestyle6",linestyles.at(5));
+            bookModel->addChild(citem, "Linestyle7",linestyles.at(6));
+        }
+        if ( symbolstyles.size() == 7 ) {
+            QStandardItem *rootItem = bookModel->invisibleRootItem();
+            QStandardItem *citem;
+            citem = bookModel->addChild(rootItem, "Symbolstyles","");
+            bookModel->addChild(citem, "Symbolstyle1",symbolstyles.at(0));
+            bookModel->addChild(citem, "Symbolstyle2",symbolstyles.at(1));
+            bookModel->addChild(citem, "Symbolstyle3",symbolstyles.at(2));
+            bookModel->addChild(citem, "Symbolstyle4",symbolstyles.at(3));
+            bookModel->addChild(citem, "Symbolstyle5",symbolstyles.at(4));
+            bookModel->addChild(citem, "Symbolstyle6",symbolstyles.at(5));
+            bookModel->addChild(citem, "Symbolstyle7",symbolstyles.at(6));
+        }
+        if ( groups.size() == 7 ) {
+            QStandardItem *rootItem = bookModel->invisibleRootItem();
+            QStandardItem *citem;
+            citem = bookModel->addChild(rootItem, "Groups","");
+            bookModel->addChild(citem, "Group1",groups.at(0));
+            bookModel->addChild(citem, "Group2",groups.at(1));
+            bookModel->addChild(citem, "Group3",groups.at(2));
+            bookModel->addChild(citem, "Group4",groups.at(3));
+            bookModel->addChild(citem, "Group5",groups.at(4));
+            bookModel->addChild(citem, "Group6",groups.at(5));
+            bookModel->addChild(citem, "Group7",groups.at(6));
+        }
+        bookModel->addChild(rootItem,"StatusBarMessage", "");
+        bookModel->addChild(rootItem,"IsShowPageTitle", isShowPageTitle );
+        bookModel->addChild(rootItem,"IsShowPlotLegend", isShowPlotLegend );
+        bookModel->addChild(rootItem,"PlotLegendPosition",
+                                     opts.plotLegendPosition );
 
-        if ( isPdf ) {
-            PlotMainWindow w(opts.trickhost,
-                             opts.trickport,
-                             opts.trickoffset,
-                             videoFileName,
-                             videoOffset,
-                             excludePattern,
-                             filterPattern,
-                             opts.scripts,
-                             opts.isDebug,
-                             opts.isPlotAllVars,
-                             timeNames, startTime, stopTime,
-                             tolerance, frequency,
-                             shifts,
-                             presentation, QString(), dps, titles,
-                             legends, colors, linestyles,
-                             symbolstyles,
-                             groups,
-                             orient, isLegend,
-                             fg, bg,
-                             isShowTables,
-                             isShowPageTitle,
-                             isShowPlotLegend,
-                             opts.plotLegendPosition,
-                             unitOverridesList,
-                             mapString, mapFile,
-                             runs, varsModel, monteInputsModel);
-            w.savePdf(pdfOutFile);
-
-        } else if ( isTrk ) {
+        if ( isTrk ) {
 
             QStringList params = DPProduct::tableParamList(dps,timeName);
             if ( params.isEmpty() ) {
@@ -1090,72 +1151,41 @@ int main(int argc, char *argv[])
 
 
         } else {
-            if ( dps.size() > 0 ) {
-#ifdef __linux
-                TimeItLinux timer;
-                timer.start();
-#endif
-                PlotMainWindow w(opts.trickhost,
-                                 opts.trickport,
-                                 opts.trickoffset,
-                                 videoFileName,
-                                 videoOffset,
-                                 excludePattern,
-                                 filterPattern,
-                                 opts.scripts,
-                                 opts.isDebug,
-                                 opts.isPlotAllVars,
-                                 timeNames,
-                                 startTime, stopTime,
-                                 tolerance, frequency,
-                                 shifts,
-                                 presentation, ".", dps, titles,
-                                 legends, colors, linestyles,
-                                 symbolstyles,
-                                 groups,
-                                 orient, isLegend,
-                                 fg, bg,
-                                 isShowTables,
-                                 isShowPageTitle,
-                                 isShowPlotLegend,
-                                 opts.plotLegendPosition,
-                                 unitOverridesList,
-                                 mapString, mapFile,
-                                 runs, varsModel, monteInputsModel);
-#ifdef __linux
-                timer.snap("time=");
-#endif
-                w.show();
-                ret = a.exec();
-            } else {
 
-                PlotMainWindow w(opts.trickhost,
-                                 opts.trickport,
-                                 opts.trickoffset,
-                                 videoFileName,
-                                 videoOffset,
-                                 excludePattern,
-                                 filterPattern,
-                                 opts.scripts,
-                                 opts.isDebug,
-                                 opts.isPlotAllVars,
-                                 timeNames,
-                                 startTime, stopTime,
-                                 tolerance, frequency,
-                                 shifts,
-                                 presentation, runDirs.at(0), QStringList(),
-                                 titles, legends, colors, linestyles,
-                                 symbolstyles,
-                                 groups,
-                                 orient, isLegend,
-                                 fg, bg,
-                                 isShowTables,
-                                 isShowPageTitle,
-                                 isShowPlotLegend,
-                                 opts.plotLegendPosition,
-                                 unitOverridesList,
-                                 mapString, mapFile,
-                                 runs, varsModel, monteInputsModel);
+            QString dpDir;
+            QStringList listDPs;
+            if ( dps.size() > 0 ) {
+                listDPs = dps;
+                dpDir = ".";
+            } else {
+                dpDir = runDirs.at(0);
+            }
+
+            PlotMainWindow w(bookModel,
+                             opts.trickhost,
+                             opts.trickport,
+                             opts.trickoffset,
+                             videoFileName,
+                             videoOffset,
+                             excludePattern,
+                             filterPattern,
+                             opts.scripts,
+                             opts.isDebug,
+                             opts.isPlotAllVars,
+                             timeNames,
+                             dpDir,
+                             listDPs,
+                             isShowTables,
+                             unitOverridesList,
+                             mapString,
+                             mapFile,
+                             runs,
+                             varsModel,
+                             monteInputsModel);
+
+            if ( isPdf ) {
+                w.savePdf(pdfOutFile);
+            } else {
                 w.show();
                 ret = a.exec();
             }
@@ -1167,6 +1197,7 @@ int main(int argc, char *argv[])
         if ( session ) {
             delete session;
         }
+        delete bookModel;
 
     } catch (std::exception &e) {
         fprintf(stderr,"\n%s\n",e.what());

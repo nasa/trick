@@ -14,7 +14,9 @@
 
 #include "plotmainwindow.h"
 
-PlotMainWindow::PlotMainWindow(const QString& trickhost,
+PlotMainWindow::PlotMainWindow(
+        PlotBookModel* bookModel,
+        const QString& trickhost,
         uint trickport,
         double trickoffset,
         const QString& videoFileName,
@@ -25,31 +27,18 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
         bool isDebug,
         bool isPlotAllVars,
         const QStringList &timeNames,
-        double startTime, double stopTime,
-        double timeMatchTolerance,
-        double frequency,
-        const QHash<QString,QVariant>& shifts, // rundir->shiftvalue
-        const QString &presentation,
         const QString &dpDir,
         const QStringList& dpFiles,
-        const QStringList& titles,
-        const QStringList &legends, const QStringList &colors,
-        const QStringList &linestyles,
-        const QStringList &symbolstyles,
-        const QStringList &groups,
-        const QString &orient, bool isLegend,
-        const QString &foreground, const QString &background,
         bool isShowTables,
-        bool isShowPageTitle,
-        const QString& isShowPlotLegend,
-        const QString& plotLegendPosition,
         QStringList unitOverrides,
-        QString map, QString mapFile,
+        QString map,
+        QString mapFile,
         Runs* runs,
         QStandardItemModel* varsModel,
         QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
+    _bookModel(bookModel),
     _trickhost(trickhost),
     _trickport(trickport),
     _trickoffset(trickoffset),
@@ -60,16 +49,9 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
     _scripts(scripts),
     _isDebug(isDebug),
     _timeNames(timeNames),
-    _presentation(presentation),
     _dpDir(dpDir),
     _dpFiles(dpFiles),
-    _titles(titles),
-    _foreground(foreground),
-    _background(background),
     _isShowTables(isShowTables),
-    _isShowPageTitle(isShowPageTitle),
-    _isShowPlotLegend(isShowPlotLegend),
-    _plotLegendPosition(plotLegendPosition),
     _unitOverrides(unitOverrides),
     _map(map),
     _mapFile(mapFile),
@@ -81,9 +63,14 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
     vidView(0)
 {
     // Window title
-    if ( titles.size() >= 1 && !titles.at(0).isEmpty() ) {
+    QModelIndex titlesIdx = _bookModel->getIndex(QModelIndex(),
+                                                 "DefaultPageTitles");
+    QString title1 = _bookModel->getDataString(titlesIdx,
+                                               "Title1",
+                                               "DefaultPageTitles");
+    if ( !title1.isEmpty() ) {
         // Set window title to -t1 title
-        setWindowTitle(titles.at(0));
+        setWindowTitle(title1);
     } else {
         setWindowTitle(tr("koviz!"));
     }
@@ -98,96 +85,6 @@ PlotMainWindow::PlotMainWindow(const QString& trickhost,
     QSplitter* lsplit = new QSplitter(lframe);
     lsplit->setOrientation(Qt::Vertical);
     lgrid->addWidget(lsplit,0,0);
-
-    // Create models
-    _bookModel = new PlotBookModel(_timeNames,_runs,0,1,parent);
-    if ( titles.size() == 4 ) {
-        QStandardItem *rootItem = _bookModel->invisibleRootItem();
-        QStandardItem *citem;
-        citem = _bookModel->addChild(rootItem, "DefaultPageTitles","");
-        _bookModel->addChild(citem, "Title1",titles.at(0));
-        _bookModel->addChild(citem, "Title2",titles.at(1));
-        _bookModel->addChild(citem, "Title3",titles.at(2));
-        _bookModel->addChild(citem, "Title4",titles.at(3));
-        _bookModel->addChild(rootItem, "LiveCoordTime","");
-        _bookModel->addChild(rootItem, "LiveCoordTimeIndex",0);
-        _bookModel->addChild(rootItem, "StartTime",startTime);
-        _bookModel->addChild(rootItem, "StopTime",stopTime);
-        _bookModel->addChild(rootItem, "Presentation",_presentation);
-        _bookModel->addChild(rootItem, "IsShowLiveCoord",true);
-        _bookModel->addChild(rootItem, "RunToShiftHash",shifts);
-    }
-    if ( legends.size() == 7 ) {
-        QStandardItem *rootItem = _bookModel->invisibleRootItem();
-        QStandardItem *citem;
-        citem = _bookModel->addChild(rootItem, "LegendLabels","");
-        _bookModel->addChild(citem, "Label1",legends.at(0));
-        _bookModel->addChild(citem, "Label2",legends.at(1));
-        _bookModel->addChild(citem, "Label3",legends.at(2));
-        _bookModel->addChild(citem, "Label4",legends.at(3));
-        _bookModel->addChild(citem, "Label5",legends.at(4));
-        _bookModel->addChild(citem, "Label6",legends.at(5));
-        _bookModel->addChild(citem, "Label7",legends.at(6));
-    }
-    QStandardItem *rootItem = _bookModel->invisibleRootItem();
-    _bookModel->addChild(rootItem, "Orientation", orient);
-    _bookModel->addChild(rootItem, "TimeMatchTolerance", timeMatchTolerance);
-    _bookModel->addChild(rootItem, "Frequency", frequency);
-    _bookModel->addChild(rootItem, "IsLegend", isLegend);
-    if ( colors.size() == 7 ) {
-        QStandardItem *rootItem = _bookModel->invisibleRootItem();
-        QStandardItem *citem;
-        citem = _bookModel->addChild(rootItem, "LegendColors","");
-        _bookModel->addChild(citem, "Color1",colors.at(0));
-        _bookModel->addChild(citem, "Color2",colors.at(1));
-        _bookModel->addChild(citem, "Color3",colors.at(2));
-        _bookModel->addChild(citem, "Color4",colors.at(3));
-        _bookModel->addChild(citem, "Color5",colors.at(4));
-        _bookModel->addChild(citem, "Color6",colors.at(5));
-        _bookModel->addChild(citem, "Color7",colors.at(6));
-    }
-    _bookModel->addChild(rootItem, "ForegroundColor", foreground);
-    _bookModel->addChild(rootItem, "BackgroundColor", background);
-    if ( linestyles.size() == 7 ) {
-        QStandardItem *rootItem = _bookModel->invisibleRootItem();
-        QStandardItem *citem;
-        citem = _bookModel->addChild(rootItem, "Linestyles","");
-        _bookModel->addChild(citem, "Linestyle1",linestyles.at(0));
-        _bookModel->addChild(citem, "Linestyle2",linestyles.at(1));
-        _bookModel->addChild(citem, "Linestyle3",linestyles.at(2));
-        _bookModel->addChild(citem, "Linestyle4",linestyles.at(3));
-        _bookModel->addChild(citem, "Linestyle5",linestyles.at(4));
-        _bookModel->addChild(citem, "Linestyle6",linestyles.at(5));
-        _bookModel->addChild(citem, "Linestyle7",linestyles.at(6));
-    }
-    if ( symbolstyles.size() == 7 ) {
-        QStandardItem *rootItem = _bookModel->invisibleRootItem();
-        QStandardItem *citem;
-        citem = _bookModel->addChild(rootItem, "Symbolstyles","");
-        _bookModel->addChild(citem, "Symbolstyle1",symbolstyles.at(0));
-        _bookModel->addChild(citem, "Symbolstyle2",symbolstyles.at(1));
-        _bookModel->addChild(citem, "Symbolstyle3",symbolstyles.at(2));
-        _bookModel->addChild(citem, "Symbolstyle4",symbolstyles.at(3));
-        _bookModel->addChild(citem, "Symbolstyle5",symbolstyles.at(4));
-        _bookModel->addChild(citem, "Symbolstyle6",symbolstyles.at(5));
-        _bookModel->addChild(citem, "Symbolstyle7",symbolstyles.at(6));
-    }
-    if ( groups.size() == 7 ) {
-        QStandardItem *rootItem = _bookModel->invisibleRootItem();
-        QStandardItem *citem;
-        citem = _bookModel->addChild(rootItem, "Groups","");
-        _bookModel->addChild(citem, "Group1",groups.at(0));
-        _bookModel->addChild(citem, "Group2",groups.at(1));
-        _bookModel->addChild(citem, "Group3",groups.at(2));
-        _bookModel->addChild(citem, "Group4",groups.at(3));
-        _bookModel->addChild(citem, "Group5",groups.at(4));
-        _bookModel->addChild(citem, "Group6",groups.at(5));
-        _bookModel->addChild(citem, "Group7",groups.at(6));
-    }
-    _bookModel->addChild(rootItem,"StatusBarMessage", "");
-    _bookModel->addChild(rootItem,"IsShowPageTitle", _isShowPageTitle );
-    _bookModel->addChild(rootItem,"IsShowPlotLegend", _isShowPlotLegend );
-    _bookModel->addChild(rootItem,"PlotLegendPosition", _plotLegendPosition );
 
     // Create Plot Tabbed Notebook View Widget
     _bookView = new BookView();
@@ -422,7 +319,6 @@ void PlotMainWindow::setTimeFromBvis(double time)
 
 PlotMainWindow::~PlotMainWindow()
 {
-    delete _bookModel;
     _vsSocket->close();
     delete _vsSocket;
 }
@@ -1101,34 +997,47 @@ void PlotMainWindow::_saveSession()
         }
 
         // Title2
-        if ( !_titles.at(1).contains('\n') ) {
-            out << "t2: " << _titles.at(1) << "\n";
+        QString title2 = _bookModel->getDataString(titlesIdx,
+                                                   "Title2",
+                                                   "DefaultPageTitles");
+        if ( !title2.contains('\n') ) {
+            out << "t2: " << title2 << "\n";
         } else {
             out << "t2: \"\"\n";
         }
 
         // Title3
-        if ( !_titles.at(2).startsWith("User:") ) {
-             out << "t3: " << _titles.at(2) << "\n";
+        QString title3 = _bookModel->getDataString(titlesIdx,
+                                                   "Title3",
+                                                   "DefaultPageTitles");
+        if ( !title3.startsWith("User:") ) {
+             out << "t3: " << title3 << "\n";
         } else {
             out << "t3: \"\"\n";
         }
 
         // Title4
-        if ( !_titles.at(3).startsWith("Date:") ) {
-             out << "t4: " << _titles.at(3) << "\n";
+        QString title4 = _bookModel->getDataString(titlesIdx,
+                                                   "Title4",
+                                                   "DefaultPageTitles");
+        if ( !title4.startsWith("Date:") ) {
+             out << "t4: " << title4 << "\n";
         } else {
             out << "t4: \"\"\n";
         }
 
         // Foreground
-        if ( !_foreground.isEmpty() ) {
-             out << "fg: " << _foreground << "\n";
+        QString fg = _bookModel->getDataString(QModelIndex(),
+                                               "ForegroundColor","");
+        if ( !fg.isEmpty() ) {
+             out << "fg: " << fg << "\n";
         }
 
         // Background
-        if ( !_background.isEmpty() ) {
-             out << "bg: " << _background << "\n";
+        QString bg = _bookModel->getDataString(QModelIndex(),
+                                               "BackgroundColor","");
+        if ( !bg.isEmpty() ) {
+             out << "bg: " << bg << "\n";
         }
 
         // RUN/log Exclude and Filter patterns
