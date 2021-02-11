@@ -215,9 +215,6 @@ PlotMainWindow::PlotMainWindow(
     if (_vsSocket->waitForConnected(500)) {
         fprintf(stderr,"Connected To The Trick Variable Server!\n");
         _vsSocket->write("trick.var_add(\"trick_sys.sched.time_tics\")\n");
-    } else {
-        fprintf(stderr, "koviz [todo]: Timed out waiting "
-                                      "on Trick var server\n");
     }
 
     // creating bviscom to send commands to bvis
