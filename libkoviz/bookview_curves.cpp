@@ -638,6 +638,27 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             pen.setWidthF(w);
             painter.setPen(pen);
             painter.setTransform(Tscaled);
+        } else if ( lineStyle == "scatter" ) {
+            QTransform I;
+            painter.setTransform(I);
+            double w = pen.widthF();
+            pen.setWidthF(1.5);
+            painter.setPen(pen);
+            QBrush origBrush = painter.brush();
+            QBrush brush(Qt::SolidPattern);
+            brush.setColor(color);
+            painter.setBrush(brush);
+            double r = pen.widthF();
+            for ( int i = 0; i < path->elementCount(); ++i ) {
+                QPainterPath::Element el = path->elementAt(i);
+                QPointF p(el.x,el.y);
+                p = Tscaled.map(p);
+                painter.drawEllipse(p,r,r);
+            }
+            pen.setWidthF(w);
+            painter.setPen(pen);
+            painter.setBrush(origBrush);
+            painter.setTransform(Tscaled);
         } else {
             painter.drawPath(*path);
         }

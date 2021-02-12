@@ -622,7 +622,7 @@ QVector<qreal> PlotBookModel::getLineStylePattern(
 
     QString s = linestyle.toLower();
 
-    if ( s == "plain" || s.isEmpty()) {
+    if ( s == "plain" || s == "scatter" || s.isEmpty()) {
         // pattern is empty
     } else if ( s == "dash" ) {
         pattern << 5 << 3;

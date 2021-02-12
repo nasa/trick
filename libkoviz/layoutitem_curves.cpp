@@ -171,6 +171,27 @@ void CurvesLayoutItem::paint(QPainter *painter,
                         pen.setWidthF(w);
                         pixmapPainter.setPen(pen);
                         pixmapPainter.setTransform(Tscaled);
+                    } else if ( lineStyle == "scatter" ) {
+                        QTransform I;
+                        pixmapPainter.setTransform(I);
+                        double w = pen.widthF();
+                        pen.setWidth(3.0);
+                        pixmapPainter.setPen(pen);
+                        QBrush origBrush = pixmapPainter.brush();
+                        QBrush brush(Qt::SolidPattern);
+                        brush.setColor(color);
+                        pixmapPainter.setBrush(brush);
+                        double r = pen.widthF();
+                        for ( int i = 0; i < path->elementCount(); ++i ) {
+                            QPainterPath::Element el = path->elementAt(i);
+                            QPointF p(el.x,el.y);
+                            p = Tscaled.map(p);
+                            pixmapPainter.drawEllipse(p,r,r);
+                        }
+                        pen.setWidthF(w);
+                        pixmapPainter.setPen(pen);
+                        pixmapPainter.setBrush(origBrush);
+                        pixmapPainter.setTransform(Tscaled);
                     } else {
                         pixmapPainter.drawPath(*path);
                     }
@@ -330,9 +351,30 @@ void CurvesLayoutItem::_printCoplot(const QRect& R, const QTransform& T,
             } else {
                 pen.setWidth(pen.widthF()*5.0);
             }
+        } else if ( style == "scatter" ) {
+            if ( pen.widthF() == 0.0 ) {
+                pen.setWidthF(1.0);
+            } else {
+                pen.setWidthF(pen.widthF()*1.0);
+            }
         }
         painter->setPen(pen);
-        painter->drawPath(*path);
+
+        if ( style == "scatter" ) {
+            QBrush origBrush = painter->brush();
+            QBrush brush(Qt::SolidPattern);
+            brush.setColor(color);
+            painter->setBrush(brush);
+            for ( int i = 0; i < path->elementCount(); ++i ) {
+                QPainterPath::Element el = path->elementAt(i);
+                QPointF p(el.x,el.y);
+                double r = pen.widthF();
+                painter->drawEllipse(p,r,r); // Qt would not drawPoint for me!
+            }
+            painter->setBrush(origBrush);
+        } else {
+            painter->drawPath(*path);
+        }
         pen.setWidthF(penWidthOrig);
 
         // Draw symbols
