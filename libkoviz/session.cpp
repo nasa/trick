@@ -50,7 +50,8 @@ Session::Session(const QString &sessionFileName) :
     _videoFileName(""),
     _videoOffset(0.0),
     _isShowPageTitle(true),
-    _isShowPlotLegend("")
+    _isShowPlotLegend(""),
+    _plotLegendPosition("ne")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -428,6 +429,25 @@ Session::Session(const QString &sessionFileName) :
                 _isShowPageTitle = true;
             } else {
                 _isShowPageTitle = false;
+            }
+        } else if ( line.contains("plotLegendPosition:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("plotLegendPosition:",0,Qt::CaseInsensitive);
+            _plotLegendPosition = line.mid(i+19).trimmed();
+            if ( _plotLegendPosition.startsWith("\"") ) {
+                _plotLegendPosition = _plotLegendPosition.mid(1);
+            }
+            if ( _plotLegendPosition.endsWith("\"") ) {
+                _plotLegendPosition.chop(1);
+            }
+            QStringList list;
+            list << "ne" << "e" << "se" << "s" << "sw" << "w" << "nw" << "n" ;
+            if ( ! list.contains(_plotLegendPosition) ) {
+                fprintf(stderr,"koviz [error]: bad plotLegendPosition "
+                               "spec=\"%s\" in session file %s.  "
+                               "Value should be ne,e,se,s,sw,w,nw or n\n",
+                               _plotLegendPosition.toLatin1().constData(),
+                               sessionFileName.toLatin1().constData());
+                exit(-1);
             }
         }
     }

@@ -1228,6 +1228,10 @@ void PlotMainWindow::_saveSession()
                                     QModelIndex(),"IsShowPlotLegend");
         out << "showPlotLegend: " << isShowPlotLegend << "\n";
 
+        QString plotLegendPosition = _bookModel->getDataString(
+                                         QModelIndex(),"PlotLegendPosition");
+        out << "PlotLegendPosition: " << plotLegendPosition << "\n";
+
         f.close();
     }
 }

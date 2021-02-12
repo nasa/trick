@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
              &opts.isShowPlotLegend,"", "Show plot legend if possible",
              presetIsShowPlotLegend);
     opts.add("-plotLegendPosition",
-             &opts.plotLegendPosition,"ne","Valid positions are ne,n,nw,w etc.",
+             &opts.plotLegendPosition,"","Valid positions are ne,n,nw,w etc.",
              presetplotLegendPosition);
     opts.add("-buttonSelectAndPan",
              &opts.buttonSelectAndPan,"left","left or right mouse button");
@@ -936,6 +936,14 @@ int main(int argc, char *argv[])
             }
         }
 
+        // Plot legend position
+        QString plotLegendPosition = "ne";
+        if ( !opts.plotLegendPosition.isEmpty() ) {
+            plotLegendPosition = opts.plotLegendPosition;
+        } else if ( session ) {
+            plotLegendPosition = session->plotLegendPosition();
+        }
+
         // Show Tables (don't show if too many runs since it is *slow*)
         bool isShowTables = (isMonte || runDirs.size() > 7) ? false : true;
         if ( !opts.showTables.isEmpty() ) {  // use cmd line opt if set
@@ -1101,7 +1109,7 @@ int main(int argc, char *argv[])
         bookModel->addChild(rootItem,"IsShowPageTitle", isShowPageTitle );
         bookModel->addChild(rootItem,"IsShowPlotLegend", isShowPlotLegend );
         bookModel->addChild(rootItem,"PlotLegendPosition",
-                                     opts.plotLegendPosition );
+                                     plotLegendPosition );
         bookModel->addChild(rootItem,"ButtonSelectAndPan",
                                      opts.buttonSelectAndPan );
         bookModel->addChild(rootItem,"ButtonZoom",

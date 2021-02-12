@@ -78,6 +78,7 @@ public:
     double videoOffset() const { return _videoOffset; }
     bool isShowPageTitle() const { return _isShowPageTitle; }
     QString isShowPlotLegend() const { return _isShowPlotLegend; }
+    QString plotLegendPosition() const { return _plotLegendPosition; }
 
 private:
     Session();
@@ -111,6 +112,7 @@ private:
     double _videoOffset;
     bool _isShowPageTitle;
     QString _isShowPlotLegend;
+    QString _plotLegendPosition;
 };
 
 #endif // SESSION_H
