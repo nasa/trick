@@ -212,6 +212,15 @@ void PlotView::setModel(QAbstractItemModel *model)
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this,
             SLOT(_childViewCurrentChanged(QModelIndex,QModelIndex)));
+
+    // Mouse
+    QHash<QString,Qt::MouseButton> button2mouse;
+    button2mouse.insert("left",Qt::LeftButton);
+    button2mouse.insert("right",Qt::RightButton);
+    button2mouse.insert("middle",Qt::MiddleButton);
+    QString buttonZoom = _bookModel()->getDataString(
+                                         QModelIndex(),"ButtonZoom","");
+    _buttonRubberBandZoom = button2mouse.value(buttonZoom);
 }
 
 QSize PlotView::minimumSizeHint() const
@@ -274,11 +283,9 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
         return QObject::eventFilter(obj, event);
     }
 
-    Qt::MouseButton rubberBandZoomButton = Qt::MidButton;
-
     if (event->type() ==  QEvent::MouseButtonPress ) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        if ( mouseEvent->button() == rubberBandZoomButton ){
+        if ( mouseEvent->button() == _buttonRubberBandZoom ){
             _rubberBandOrigin = widget->mapTo(this,mouseEvent->pos());
             if ( !_rubberBand ) {
                 _rubberBand = new QRubberBand(QRubberBand::Rectangle,this);
@@ -289,13 +296,13 @@ bool PlotView::eventFilter(QObject *obj, QEvent *event)
         event->ignore(); // let my parent page receive mousebuttonpress event
     } else if ( event->type() == QEvent::MouseMove ) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        if ( mouseEvent->buttons() == rubberBandZoomButton && _rubberBand ){
+        if ( mouseEvent->buttons() == _buttonRubberBandZoom && _rubberBand ){
             QPoint pt = widget->mapTo(this,mouseEvent->pos());
             _rubberBand->setGeometry(QRect(_rubberBandOrigin,pt).normalized());
         }
     } else if ( event->type() == QEvent::MouseButtonRelease ) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-        if ( mouseEvent->button() == rubberBandZoomButton && _rubberBand ){
+        if ( mouseEvent->button() == _buttonRubberBandZoom && _rubberBand ){
             QRect R = _rubberBand->geometry();
             QRect P = viewport()->rect();
             if ( R.width() > 20 && R.height() > 20 && P.contains(R) ) {

@@ -121,6 +121,7 @@ public:
 
 public:
     virtual void setCurrentCurveRunID(int runID);
+    virtual void setModel(QAbstractItemModel *model);
 
 protected:
     virtual void paintEvent(QPaintEvent * event);

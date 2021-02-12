@@ -368,6 +368,28 @@ void CurvesView::setCurrentCurveRunID(int runID)
     }
 }
 
+void CurvesView::setModel(QAbstractItemModel *model)
+{
+
+    BookIdxView::setModel(model);
+
+    QHash<QString,Qt::MouseButton> button2mouse;
+    button2mouse.insert("left",Qt::LeftButton);
+    button2mouse.insert("right",Qt::RightButton);
+    button2mouse.insert("middle",Qt::MiddleButton);
+
+    QString buttonSelect = _bookModel()->getDataString(
+                                         QModelIndex(),"ButtonSelectAndPan","");
+    QString buttonZoom = _bookModel()->getDataString(
+                                         QModelIndex(),"ButtonZoom","");
+    QString buttonReset = _bookModel()->getDataString(
+                                         QModelIndex(),"ButtonReset","");
+
+    _buttonSelectAndPan = button2mouse.value(buttonSelect);
+    _buttonRubberBandZoom = button2mouse.value(buttonZoom);
+    _buttonResetView = button2mouse.value(buttonReset);
+}
+
 void CurvesView::paintEvent(QPaintEvent *event)
 {
 #if 0

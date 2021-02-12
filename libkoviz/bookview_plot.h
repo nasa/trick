@@ -55,6 +55,8 @@ private:
     QPoint _rubberBandOrigin;
     QRubberBand* _rubberBand;
 
+    Qt::MouseButton _buttonRubberBandZoom;
+
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
                              const QModelIndex &bottomRight,

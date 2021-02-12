@@ -153,6 +153,9 @@ class SnapOptions : public Options
     bool isShowPageTitle;
     QString isShowPlotLegend;
     QString plotLegendPosition;
+    QString buttonSelectAndPan;
+    QString buttonZoom;
+    QString buttonReset;
 };
 
 SnapOptions opts;
@@ -287,6 +290,12 @@ int main(int argc, char *argv[])
     opts.add("-plotLegendPosition",
              &opts.plotLegendPosition,"ne","Valid positions are ne,n,nw,w etc.",
              presetplotLegendPosition);
+    opts.add("-buttonSelectAndPan",
+             &opts.buttonSelectAndPan,"left","left or right mouse button");
+    opts.add("-buttonZoom",
+             &opts.buttonZoom,"middle","left, middle or right mouse button");
+    opts.add("-buttonReset",
+             &opts.buttonReset,"right","left, middle or right mouse button");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -960,6 +969,49 @@ int main(int argc, char *argv[])
             unitOverridesList << unitOverride.trimmed();
         }
 
+        // Mouse buttons
+        if ( opts.buttonSelectAndPan != "left" &&
+             opts.buttonSelectAndPan != "right" ) {
+            fprintf(stderr, "koviz [error]: -buttonSelectAndPan is set to "
+                            "\"%s\", should be left or right.\n",
+                    opts.buttonSelectAndPan.toLatin1().constData());
+            exit(-1);
+        }
+        if ( opts.buttonZoom != "left" &&
+             opts.buttonZoom != "right" &&
+             opts.buttonZoom != "middle" ) {
+            fprintf(stderr, "koviz [error]: -buttonZoom is set to "
+                            "\"%s\", should be left,right or middle.\n",
+                    opts.buttonZoom.toLatin1().constData());
+            exit(-1);
+        }
+        if ( opts.buttonReset != "left" &&
+             opts.buttonReset != "right" &&
+             opts.buttonReset != "middle" ) {
+            fprintf(stderr, "koviz [error]: -buttonReset is set to "
+                            "\"%s\", should be left,right or middle.\n",
+                    opts.buttonReset.toLatin1().constData());
+            exit(-1);
+        }
+        if ( opts.buttonSelectAndPan == opts.buttonZoom ) {
+            fprintf(stderr, "koviz [error]: buttonSelectAndPan and "
+                    "buttonZoom both set to \"%s\".\n",
+                    opts.buttonSelectAndPan.toLatin1().constData());
+            exit(-1);
+        }
+        if ( opts.buttonSelectAndPan == opts.buttonReset ) {
+            fprintf(stderr, "koviz [error]: buttonSelectAndPan and "
+                    "buttonReset both set to \"%s\".\n",
+                    opts.buttonSelectAndPan.toLatin1().constData());
+            exit(-1);
+        }
+        if ( opts.buttonZoom == opts.buttonReset ) {
+            fprintf(stderr, "koviz [error]: buttonZoom and "
+                    "buttonReset both set to \"%s\".\n",
+                    opts.buttonZoom.toLatin1().constData());
+            exit(-1);
+        }
+
         // Create book model
         PlotBookModel* bookModel = new PlotBookModel(timeNames,runs,0,1);
         if ( titles.size() == 4 ) {
@@ -1050,6 +1102,12 @@ int main(int argc, char *argv[])
         bookModel->addChild(rootItem,"IsShowPlotLegend", isShowPlotLegend );
         bookModel->addChild(rootItem,"PlotLegendPosition",
                                      opts.plotLegendPosition );
+        bookModel->addChild(rootItem,"ButtonSelectAndPan",
+                                     opts.buttonSelectAndPan );
+        bookModel->addChild(rootItem,"ButtonZoom",
+                                     opts.buttonZoom );
+        bookModel->addChild(rootItem,"ButtonReset",
+                                     opts.buttonReset );
 
         if ( isTrk ) {
 

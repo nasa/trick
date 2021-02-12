@@ -501,6 +501,12 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(23,0);
         } else if ( searchItemText == "PlotLegendPosition" ) {
             idx = index(24,0);
+        } else if ( searchItemText == "ButtonSelectAndPan" ) {
+            idx = index(25,0);
+        } else if ( searchItemText == "ButtonZoom" ) {
+            idx = index(26,0);
+        } else if ( searchItemText == "ButtonReset" ) {
+            idx = index(27,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
