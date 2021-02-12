@@ -2336,6 +2336,7 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Left: _keyPressArrow(Qt::LeftArrow);break;
     case Qt::Key_Right: _keyPressArrow(Qt::RightArrow);break;
     case Qt::Key_Comma: _keyPressComma();break;
+    case Qt::Key_Escape: _keyPressEscape();break;
     default: ; // do nothing
     }
 }
@@ -2510,6 +2511,15 @@ void CurvesView::_keyPressComma()
             _markers << timeAndIdx;
         }
     }
+}
+
+void CurvesView::_keyPressEscape()
+{
+    QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
+                                                   "Curves","Plot");
+    QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+    _bookModel()->setPlotMathRect(bbox,rootIndex());
+    viewport()->update();
 }
 
 TimeAndIndex::TimeAndIndex(double time, int timeIdx, const QModelIndex &idx) :

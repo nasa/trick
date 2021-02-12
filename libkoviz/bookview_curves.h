@@ -180,6 +180,7 @@ private:
     void _keyPressPeriod();
     void _keyPressArrow(const Qt::ArrowType& arrow);
     void _keyPressComma();
+    void _keyPressEscape();
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
