@@ -147,6 +147,29 @@ namespace SA {
     };
     std::ostream& operator<<(std::ostream& os, const RK3_8Integrator& I);
 
+    class RKF45Integrator : public FirstOrderODEIntegrator {
+        protected:
+        double epsilon;
+        double next_h; // the next value of h necessary to maintain accuracy.
+        double last_h;
+        // default_h will represent the maximum value of h.
+        void advanceIndyVar( double h);
+        public:
+        RKF45Integrator();
+        RKF45Integrator( double epsilon, double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
+        RKF45Integrator( double epsilon, double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
+        RKF45Integrator(const RKF45Integrator& other);
+        RKF45Integrator& operator=( const RKF45Integrator& rhs);
+        ~RKF45Integrator();
+        void step();
+        // Returns the next suggested step-size.
+        double adaptive_step( double h);
+
+        friend std::ostream& operator<<(std::ostream& os, const SA::RKF45Integrator& I);
+    };
+    std::ostream& operator<<(std::ostream& os, const RKF45Integrator& I);
+
+
     typedef void (*Derivs2Func)( double t, double x[], double v[], double derivs[], void* udata);
 
     class EulerCromerIntegrator : public Integrator {

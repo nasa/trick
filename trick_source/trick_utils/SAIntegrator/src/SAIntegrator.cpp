@@ -572,6 +572,129 @@ std::ostream& SA::operator<<(std::ostream& os, const RK3_8Integrator& I) {
 }
 
 // ------------------------------------------------------------
+// Class RKF45Integrator
+// ------------------------------------------------------------
+// Default Constructor
+SA::RKF45Integrator::RKF45Integrator() : FirstOrderODEIntegrator() {
+    epsilon = 0.00000000001;
+    next_h = default_h;
+}
+// Constructor
+SA::RKF45Integrator::RKF45Integrator(double eps,
+    double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata)
+    : FirstOrderODEIntegrator(h, N, in_vars, out_vars, dfunc, udata) {
+        epsilon = eps;
+        next_h = h;
+    }
+// Constructor
+SA::RKF45Integrator::RKF45Integrator(double eps,
+double h, unsigned int N, double* in_out_vars[], DerivsFunc dfunc, void* udata)
+: RKF45Integrator(eps, h, N, in_out_vars, in_out_vars, dfunc, udata) {}
+// Copy Constructor
+SA::RKF45Integrator::RKF45Integrator(const RKF45Integrator& other)
+    : FirstOrderODEIntegrator(other) {
+        epsilon = other.epsilon;
+        next_h = other.next_h;
+    }
+// Assignment Operator
+SA::RKF45Integrator& SA::RKF45Integrator::operator=( const SA::RKF45Integrator& rhs) {
+    if (this != &rhs) {
+        FirstOrderODEIntegrator::operator=(rhs);
+    }
+    epsilon = rhs.epsilon;
+    next_h  = rhs.next_h;
+    return *this;
+}
+// Destructor
+SA::RKF45Integrator::~RKF45Integrator() {}
+
+void SA::RKF45Integrator::advanceIndyVar(double h) {
+    last_h = h; X_out = X_in + h;
+}
+void SA::RKF45Integrator::step() {
+    adaptive_step( next_h );
+}
+double SA::RKF45Integrator::adaptive_step(double h) {
+    double wstate[5][state_size];
+    double derivs[6][state_size];
+    double w2[state_size];
+    double R;
+    do {
+
+        (*derivs_func)( X_in, inState, derivs[0], user_data);
+        for (unsigned int i=0; i<state_size; i++) {
+            wstate[0][i] = inState[i] + h * (1/4.0) * derivs[0][i];
+        }
+        (*derivs_func)( X_in + (1/4.0) * h , wstate[0], derivs[1], user_data);
+        for (unsigned int i=0; i<state_size; i++) {
+            wstate[1][i] = inState[i] + h * ((3/32.0)*derivs[0][i] +
+                                             (9/32.0)*derivs[1][i]);
+        }
+        (*derivs_func)( X_in + (3/8.0) * h , wstate[1], derivs[2], user_data);
+        for (unsigned int i=0; i<state_size; i++) {
+            wstate[2][i] = inState[i] + h * (( 1932/2197.0) * derivs[0][i] +
+                                             (-7200/2197.0) * derivs[1][i] +
+                                             ( 7296/2197.0) * derivs[2][i]);
+        }
+        (*derivs_func)( X_in + (12/13.0) * h , wstate[2], derivs[3], user_data);
+        for (unsigned int i=0; i<state_size; i++) {
+            wstate[3][i] = inState[i] + h * (( 439/216.0)  * derivs[0][i] +
+                                             (-8.0)        * derivs[1][i] +
+                                             ( 3680/513.0) * derivs[2][i] +
+                                             (-845/4104.0) * derivs[3][i]);
+        }
+        (*derivs_func)( X_in + h , wstate[3], derivs[4], user_data);
+        for (unsigned int i=0; i<state_size; i++) {
+            wstate[4][i] = inState[i] + h * ((-8/27.0) * derivs[0][i] +
+                                             ( 2.0) * derivs[1][i] +
+                                             (-3544/2565.0) * derivs[2][i] +
+                                             ( 1859/4104.0) * derivs[3][i] +
+                                             (-11/40.0) * derivs[4][i]);
+        }
+        (*derivs_func)( X_in + (1/2.0)* h , wstate[4], derivs[5], user_data);
+        for (unsigned int i=0; i<state_size; i++) {
+            outState[i] = inState[i] + ((25/216.0) * derivs[0][i] +
+                                 (1408/2565.0) * derivs[2][i] +
+                                 (2197/4104.0) * derivs[3][i] +
+                                 (-1/5.0) * derivs[4][i]) * h;
+        }
+        for (unsigned int i=0; i<state_size; i++) {
+            w2[i] = inState[i] + (( 16/135.0) * derivs[0][i] +
+                                  ( 6656/12825.0) * derivs[2][i] +
+                                  ( 28561/56430.0) * derivs[3][i] +
+                                  (-9/50.0) * derivs[4][i] +
+                                  ( 2/55.0) * derivs[5][i]) * h;
+        }
+        last_h = h;
+        R = 0.0;
+        for (unsigned int i=0; i<state_size; i++) {
+            double RI = fabs(outState[i] - w2[i]) / h;
+            if (RI>R) R = RI;
+        }
+        if (R == 0.0) {
+            next_h = default_h;
+        } else {
+            double delta = 0.84 * pow((epsilon/R), 0.25);
+            next_h = delta * h;
+            if (next_h > default_h)
+                next_h = default_h;
+        }
+        h = next_h;
+    } while (R > epsilon);
+
+    advanceIndyVar(last_h);
+    return (default_h);
+}
+
+// Insertion Operator
+std::ostream& SA::operator<<(std::ostream& os, const RKF45Integrator& I) {
+    os << (SA::FirstOrderODEIntegrator)I;
+    os << "\nepsilon: " << I.epsilon;
+    os << "\nnext_h: " << I.next_h;
+    return os;
+}
+
+// ------------------------------------------------------------
 // Class EulerCromerIntegrator
 // ------------------------------------------------------------
 // Default Constructor
