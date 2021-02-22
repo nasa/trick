@@ -598,6 +598,10 @@ int Trick::DataRecordGroup::data_record(double in_time) {
         if ( freq != DR_Always ) {
             for (jj = 0; jj < change_buffer.size() ; jj++) {
                 drb = change_buffer[jj] ;
+                REF2 * ref = drb->ref ;
+                if ( ref->pointer_present == 1 ) {
+                    ref->address = follow_address_path(ref) ;
+                }
                 if ( memcmp( drb->buffer , drb->ref->address , drb->ref->attr->size) ) {
                     change_detected = true ;
                     memcpy( drb->buffer , drb->ref->address , drb->ref->attr->size) ;
