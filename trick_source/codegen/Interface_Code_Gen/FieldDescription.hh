@@ -87,6 +87,8 @@ class FieldDescription : public ConstructValues {
         bool hasSTLClear() ;
         void setStatic( bool yes_no ) ;
         bool isStatic() ;
+        void setReference( bool yes_no ) ;
+        bool isReference() ;
         void setInherited( bool yes_no ) ;
         bool isInherited() ;
         void setVirtualInherited( bool yes_no ) ;
@@ -183,6 +185,9 @@ class FieldDescription : public ConstructValues {
 
         /** is this field declared static */
         bool is_static ;
+
+        /** is this field a reference type */
+        bool is_reference ;
 
         /** map of strings to io numbers.  One copy for all fields */
         static std::map<std::string , unsigned int> io_map ;

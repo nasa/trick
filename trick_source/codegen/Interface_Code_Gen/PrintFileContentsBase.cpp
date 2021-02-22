@@ -63,6 +63,14 @@ bool PrintFileContentsBase::isPrintable( ClassValues * c , FieldDescription * fd
     if ( fdes->isSTL() and fdes->getNumDims() ) {
         return false;
     }
+    /**
+     * It is not possible to take the address of a reference as the referred-to variable's address
+     * is always returned. As such, the init_attr function cannot obtain the absolute address for
+     * static reference variables.
+     */
+    if ( fdes->isStatic() && fdes->isReference() ) {
+        return false;
+    }
     if ( fdes->getAccess() == clang::AS_public || (!fdes->isStatic() && !global_compat15 && !c->isCompat15())) {
         return true;
     }
