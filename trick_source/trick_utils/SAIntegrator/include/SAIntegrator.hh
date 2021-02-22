@@ -83,7 +83,6 @@ namespace SA {
 
     class EulerIntegrator : public FirstOrderODEVariableStepIntegrator {
         public:
-        double *derivs;
         EulerIntegrator();
         EulerIntegrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         EulerIntegrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
@@ -97,8 +96,6 @@ namespace SA {
 
     class HeunsMethod : public FirstOrderODEVariableStepIntegrator {
         public:
-        double *wstate;
-        double *derivs[2];
         HeunsMethod();
         HeunsMethod( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         HeunsMethod( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
@@ -112,8 +109,6 @@ namespace SA {
 
     class RK2Integrator : public FirstOrderODEVariableStepIntegrator {
         public:
-        double *wstate;
-        double *derivs[2];
         RK2Integrator();
         RK2Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc derivs_func, void* udata);
         RK2Integrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
@@ -127,9 +122,6 @@ namespace SA {
 
     class RK4Integrator : public FirstOrderODEVariableStepIntegrator {
         public:
-        double *wstate[3];
-        double *derivs[4];
-
         RK4Integrator();
         RK4Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         RK4Integrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
@@ -143,9 +135,6 @@ namespace SA {
 
     class RK3_8Integrator : public FirstOrderODEVariableStepIntegrator {
         public:
-        double *wstate[3];
-        double *derivs[4];
-
         RK3_8Integrator();
         RK3_8Integrator( double h, unsigned int N, double* in_vars[], double* out_vars[], DerivsFunc dfunc, void* udata);
         RK3_8Integrator( double h, unsigned int N, double* in_out_vars[], DerivsFunc derivs_func, void* udata);
@@ -180,7 +169,7 @@ namespace SA {
         EulerCromerIntegrator& operator=( const EulerCromerIntegrator& rhs);
         ~EulerCromerIntegrator();
         void advanceIndyVar(double h);
-        void step( double dt);
+        void step(double dt);
         void step();
         void load();
         void unload();
