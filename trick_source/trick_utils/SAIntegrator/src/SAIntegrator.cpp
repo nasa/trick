@@ -683,7 +683,7 @@ double SA::RKF45Integrator::adaptive_step(double h) {
     } while (R > epsilon);
 
     advanceIndyVar(last_h);
-    return (default_h);
+    return (next_h);
 }
 
 // Insertion Operator
