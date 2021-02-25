@@ -614,6 +614,9 @@ void SA::RKF45Integrator::advanceIndyVar(double h) {
 void SA::RKF45Integrator::step() {
     adaptive_step( next_h );
 }
+
+double SA::RKF45Integrator::getLastStepSize() {return last_h;}
+
 double SA::RKF45Integrator::adaptive_step(double h) {
     double wstate[5][state_size];
     double derivs[6][state_size];

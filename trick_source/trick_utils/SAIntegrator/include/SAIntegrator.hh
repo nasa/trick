@@ -164,6 +164,7 @@ namespace SA {
         void step();
         // Returns the next suggested step-size.
         double adaptive_step( double h);
+        double getLastStepSize();
 
         friend std::ostream& operator<<(std::ostream& os, const SA::RKF45Integrator& I);
     };
