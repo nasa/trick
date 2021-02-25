@@ -6,6 +6,7 @@ examples:
 	@make -C DefiniteIntegral
 	@make -C DoubleIntegral
 	@make -C Orbit
+	@make -C AsteroidFlyBy
 
 clean:
 	@make -C CannonBall clean
@@ -14,6 +15,7 @@ clean:
 	@make -C DefiniteIntegral clean
 	@make -C DoubleIntegral clean
 	@make -C Orbit clean
+	@make -C AsteroidFlyBy clean
 
 spotless:
 	@make -C CannonBall spotless
@@ -22,3 +24,4 @@ spotless:
 	@make -C DefiniteIntegral spotless
 	@make -C DoubleIntegral spotless
 	@make -C Orbit spotless
+	@make -C AsteroidFlyBy spotless
