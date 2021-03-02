@@ -20,6 +20,7 @@ TEST_PROGRAMS = SAIntegrator_unittest\
 				RK2Integrator_unittest\
 				RK4Integrator_unittest\
 				RK3_8Integrator_unittest\
+				RKF45Integrator_unittest\
 	            RootFinder_unittest
 
 all: test
@@ -32,6 +33,7 @@ test: $(TEST_PROGRAMS)
 	./RK2Integrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/RK2Integrator_unittest.xml
 	./RK4Integrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/RK4Integrator_unittest.xml
 	./RK3_8Integrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/RK3_8Integrator_unittest.xml
+	./RKF45Integrator_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/RKF45Integrator_unittest.xml
 	./RootFinder_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/RootFinder_unittest.xml
 
 SAIntegrator_unittest.o : SAIntegrator_unittest.cc
@@ -76,6 +78,12 @@ RK3_8Integrator_unittest.o : RK3_8Integrator_unittest.cc
 RK3_8Integrator_unittest : ${SAI_LIBDIR}/${SAI_LIBNAME} RK3_8Integrator_unittest.o
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -o $@ $^ ${LIBDIRS} -lSAInteg -lgtest -lgtest_main -lpthread
 # ====
+RKF45Integrator_unittest.o : RKF45Integrator_unittest.cc
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) $(INCLUDE_DIRS) -c $<
+
+RKF45Integrator_unittest : ${SAI_LIBDIR}/${SAI_LIBNAME} RKF45Integrator_unittest.o
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -o $@ $^ ${LIBDIRS} -lSAInteg -lgtest -lgtest_main -lpthread
+# ====
 RootFinder_unittest.o : RootFinder_unittest.cc
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) $(INCLUDE_DIRS) -c $<
 
@@ -96,4 +104,5 @@ spotless: clean
 	${RM} RK2Integrator_unittest
 	${RM} RK4Integrator_unittest
 	${RM} RK3_8Integrator_unittest
+	${RM} RKF45Integrator_unittest
 	${RM} RootFinder_unittest
