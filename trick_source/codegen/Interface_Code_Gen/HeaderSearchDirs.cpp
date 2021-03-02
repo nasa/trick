@@ -246,6 +246,11 @@ bool HeaderSearchDirs::isPathInUserDir (const std::string& in_dir ) {
 
 bool HeaderSearchDirs::isPathInUserOrTrickDir (const std::string& in_dir ) {
 
+    const std::string trick_home{getenv("TRICK_HOME")};
+    if ( ! in_dir.compare(0, trick_home.size(), trick_home)) {
+        return true ;
+    }
+
     clang::HeaderSearch::search_dir_iterator sdi ;
     for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ ) {
 #if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
