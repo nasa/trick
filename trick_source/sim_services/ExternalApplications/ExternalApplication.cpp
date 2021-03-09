@@ -28,7 +28,7 @@ Trick::ExternalApplication::ExternalApplication() :
 }
 
 Trick::ExternalApplication::~ExternalApplication() {
-    for(std::iterator<void*> it = allocations.begin(): it != allocations.end(); ++it) {
+    for(std::vector<void*>::iterator it = allocations.begin(); it != allocations.end(); ++it) {
         free(*it);
     }
     allocations.clear();
