@@ -746,7 +746,9 @@ class InjectorSimObject : public Trick::SimObject {
 
     public:
         Trick::RtiStager  rtis ;
-        std::vector< InjectorExecSimObject * > injector_executor_so ; // trick_io(**)
+        std::vector< InjectorExecSimObject * > injector_executor_so ;
+        std::vector<char *> injector_executor_so_names ;
+         // trick_io(**)
 
         void create_injector_executors() {
             unsigned int ii ;
@@ -756,7 +758,9 @@ class InjectorSimObject : public Trick::SimObject {
                 std::ostringstream oss ;
                 oss << "trick_injector_executor_" << ii ;
                 injector_executor_so.push_back(ieso) ;
-                exec_add_sim_object(ieso, oss.str().c_str()) ;
+                char* name = strdup(oss.str().c_str()) ;
+                injector_executor_so_names.push_back(name);
+                exec_add_sim_object(ieso, name) ;
                 TMM_declare_ext_var(ieso, TRICK_STRUCTURED,"InjectorExecSimObject", 0, oss.str().c_str(), 0, NULL) ;
                 // Add the child thread realtime injector.
                 rtis.AddInjectorExecutor(&(ieso->rtie)) ;
@@ -765,6 +769,12 @@ class InjectorSimObject : public Trick::SimObject {
 
         InjectorSimObject() {
             {TRK} P0 ("default_data") create_injector_executors() ;
+        }
+
+        ~InjectorSimObject() {
+            for(std::vector<char*>::iterator it = injector_executor_so_names.begin(); it != injector_executor_so_names.end(); ++it) {
+            free(*it);
+    }
         }
 } ;
 
