@@ -761,7 +761,7 @@ class InjectorSimObject : public Trick::SimObject {
                 char* name = strdup(oss.str().c_str()) ;
                 injector_executor_so_names.push_back(name);
                 exec_add_sim_object(ieso, name) ;
-                TMM_declare_ext_var(ieso, TRICK_STRUCTURED,"InjectorExecSimObject", 0, oss.str().c_str(), 0, NULL) ;
+                TMM_declare_ext_var(ieso, TRICK_STRUCTURED,"InjectorExecSimObject", 0, name, 0, NULL) ;
                 // Add the child thread realtime injector.
                 rtis.AddInjectorExecutor(&(ieso->rtie)) ;
             }
