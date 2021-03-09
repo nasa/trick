@@ -206,7 +206,7 @@ extern "C" const char *sim_control_panel_get_startup_command(void) {
         Trick::add_external_application(*externalApplication);
     }
 
-    return externalApplication->get_startup_command().c_str();
+    return externalApplication->get_startup_command_c_str();
 }
 
 extern "C" const char *trick_view_get_startup_command(void) {
@@ -219,7 +219,7 @@ extern "C" const char *trick_view_get_startup_command(void) {
         Trick::add_external_application(*externalApplication);
     }
 
-    return externalApplication->get_startup_command().c_str();
+    return externalApplication->get_startup_command_c_str();
 }
 
 extern "C" const char *malfunctions_trick_view_get_startup_command(void) {
@@ -232,7 +232,7 @@ extern "C" const char *malfunctions_trick_view_get_startup_command(void) {
         Trick::add_external_application(*externalApplication);
     }
 
-    return externalApplication->get_startup_command().c_str();
+    return externalApplication->get_startup_command_c_str();
 }
 
 extern "C" const char *monte_monitor_get_startup_command(void) {
@@ -245,7 +245,7 @@ extern "C" const char *monte_monitor_get_startup_command(void) {
         Trick::add_external_application(*externalApplication);
     }
 
-    return externalApplication->get_startup_command().c_str();
+    return externalApplication->get_startup_command_c_str();
 }
 
 extern "C" const char *stripchart_get_startup_command(void) {
@@ -258,7 +258,7 @@ extern "C" const char *stripchart_get_startup_command(void) {
         Trick::add_external_application(*externalApplication);
     }
 
-    return externalApplication->get_startup_command().c_str();
+    return externalApplication->get_startup_command_c_str();
 }
 
 extern "C" void sim_control_panel_launch(void) {

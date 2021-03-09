@@ -28,7 +28,7 @@ namespace Trick {
         ExternalApplication();
 
         /** Destructor. */
-        virtual ~ExternalApplication() {}
+        virtual ~ExternalApplication();
 
         /**
          * Sets #command.
@@ -43,6 +43,13 @@ namespace Trick {
          * @return the launch command
          */
         virtual std::string get_startup_command();
+
+        /**
+         * Gets #command as c str.
+         *
+         * @return the launch command as c str
+         */
+        virtual const char * get_startup_command_c_str();
 
         /**
          * Appends #arguments.
@@ -216,9 +223,6 @@ namespace Trick {
         /** Designates from which source an option is to be used. */
         enum OptionSource {AUTO, USER, NONE};
 
-        /** Command to execute when starting this application. */
-        std::string command;
-
         /** Arguments to be passed after the command. */
         std::ostringstream arguments;
 
@@ -284,6 +288,18 @@ namespace Trick {
 
         /** Creates a string containing the arguements that this application explicitly supports. */
         virtual std::string create_arguments_string();
+        
+        protected:
+
+        /** Command to execute when starting this application. */
+        std::string command;
+
+        /** Pointer to alloc'd command c str for use with external application c_intf */
+        char * command_c_str;
+
+        /** alloc'd addresses to be deallocated during app destruction (currently only
+        used by command_c_str) */
+        std::vector<void*> allocations;
 
         private:
 
