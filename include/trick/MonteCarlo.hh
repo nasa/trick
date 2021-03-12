@@ -535,6 +535,11 @@ namespace Trick {
         std::string get_user_cmd_string();
 
         /**
+         * Gets #user_cmd_string as a char*.
+         */
+        const char* get_user_cmd_string_c_str();
+
+        /**
          * Sets #custom_pre_text.
          */
         void set_custom_pre_text(std::string custom_pre_text);
@@ -545,6 +550,11 @@ namespace Trick {
         std::string get_custom_pre_text();
 
         /**
+         * Gets #custom_pre_text as a char*.
+         */
+        const char* get_custom_pre_text_c_str();
+
+        /**
          * Sets #custom_post_text.
          */
         void set_custom_post_text(std::string custom_post_text);
@@ -553,6 +563,11 @@ namespace Trick {
          * Gets #custom_post_text.
          */
         std::string get_custom_post_text();
+
+        /**
+         * Gets #custom_post_text as a char*.
+         */
+        const char* get_custom_post_text_c_str();
 
         /**
          * Sets #verbosity.

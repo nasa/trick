@@ -99,7 +99,7 @@ extern "C" void mc_set_user_cmd_string(const char *user_cmd_string) {
 
 extern "C" const char *mc_get_user_cmd_string(void) {
     if ( the_mc != NULL ) {
-        return the_mc->get_user_cmd_string().c_str();
+        return the_mc->get_user_cmd_string_c_str();
     }
     return NULL ;
 }
@@ -131,7 +131,7 @@ extern "C" void mc_set_custom_pre_text(const char *custom_pre_text) {
 
 extern "C" const char *mc_get_custom_pre_text(void) {
     if ( the_mc != NULL ) {
-        return the_mc->get_custom_pre_text().c_str();
+        return the_mc->get_custom_pre_text_c_str();
     }
     return NULL ;
 }
@@ -144,7 +144,7 @@ extern "C" void mc_set_custom_post_text(const char *custom_post_text) {
 
 extern "C" const char *mc_get_custom_post_text(void) {
     if ( the_mc != NULL ) {
-        return the_mc->get_custom_post_text().c_str();
+        return the_mc->get_custom_post_text_c_str();
     }
     return NULL ;
 }

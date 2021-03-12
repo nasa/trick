@@ -81,6 +81,10 @@ std::string Trick::MonteCarlo::get_user_cmd_string() {
     return user_cmd_string;
 }
 
+const char* Trick::MonteCarlo::get_user_cmd_string_c_str() {
+    return user_cmd_string.c_str();
+}
+
 void Trick::MonteCarlo::set_custom_pre_text(std::string in_custom_pre_text) {
     this->custom_pre_text = in_custom_pre_text;
 }
@@ -89,12 +93,20 @@ std::string Trick::MonteCarlo::get_custom_pre_text() {
     return custom_pre_text;
 }
 
+const char* Trick::MonteCarlo::get_custom_pre_text_c_str() {
+    return custom_pre_text.c_str();
+}
+
 void Trick::MonteCarlo::set_custom_post_text(std::string in_custom_post_text) {
     this->custom_post_text = in_custom_post_text;
 }
 
 std::string Trick::MonteCarlo::get_custom_post_text() {
     return custom_post_text;
+}
+
+const char* Trick::MonteCarlo::get_custom_post_text_c_str() {
+    return custom_post_text.c_str();
 }
 
 void Trick::MonteCarlo::set_verbosity(Trick::MonteCarlo::Verbosity in_verbosity) {
