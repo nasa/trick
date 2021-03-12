@@ -71,12 +71,14 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
         if ( temp_m->units.compare("1") ) {
             ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII) ;
             if ( !from ) {
-                PyErr_SetString(PyExc_AttributeError,(std::string("could not covert from units "+temp_m->units).c_str()));
+                std::string temp_str = std::string("could not covert from units "+temp_m->units);
+                PyErr_SetString(PyExc_AttributeError,(temp_str.c_str()));
                 return NULL ;
             }
             ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), in_units.c_str(), UT_ASCII) ;
             if ( !to ) {
-                PyErr_SetString(PyExc_AttributeError,(std::string("could not covert to units "+in_units).c_str()));
+                std::string temp_str = std::string("could not covert to units " + in_units);
+                PyErr_SetString(PyExc_AttributeError,(temp_str.c_str()));
                 return NULL ;
             }
 
@@ -100,12 +102,14 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
         if ( temp_m->units.compare("1") ) {
             ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), temp_m->units.c_str(), UT_ASCII) ;
             if ( !from ) {
-                PyErr_SetString(PyExc_AttributeError,(std::string("could not covert from units "+temp_m->units).c_str()));
+                std::string temp_str = std::string("could not covert from units "+temp_m->units);
+                PyErr_SetString(PyExc_AttributeError,(temp_str.c_str())) ;
                 return NULL ;
             }
             ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), in_units.c_str(), UT_ASCII) ;
             if ( !to ) {
-                PyErr_SetString(PyExc_AttributeError,(std::string("could not covert to units "+in_units).c_str()));
+                std::string temp_str = std::string("could not covert to units "+in_units);
+                PyErr_SetString(PyExc_AttributeError,(temp_str.c_str()));
                 return NULL ;
             }
 

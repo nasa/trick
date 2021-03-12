@@ -31,6 +31,7 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
     unsigned int ii ;
     unsigned int cont_size ;
     std::ostringstream var_declare ;
+    std::string temp_str ;
     int status ;
 
     ITEM_TYPE * items = nullptr ;
@@ -49,9 +50,11 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
         }
         var_declare << type_string << " "
          << object_name << "_" << var_name << "[" << cont_size << "]" ;
-        items = (ITEM_TYPE *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        temp_str = var_declare.str() ;
+        items = (ITEM_TYPE *)TMM_declare_var_s(temp_str.c_str()) ;
         if ( items ) {
-            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
+            temp_str = std::string(object_name + "_" + var_name) ;
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
             //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
             for ( ii = 0 ; ii < cont_size ; ii++ ) {
@@ -72,6 +75,7 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
     unsigned int ii ;
     unsigned int cont_size ;
     std::ostringstream var_declare ;
+    std::string temp_str ;
 
     std::string * items = nullptr ;
     std::stack<ITEM_TYPE,_Sequence> temp_stack(in_stl) ;
@@ -82,9 +86,11 @@ int checkpoint_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object
     if ( cont_size > 0 ) {
         var_declare << "std::string "
          << object_name << "_" << var_name << "[" << cont_size << "]" ;
-        items = (std::string *)TMM_declare_var_s(var_declare.str().c_str()) ;
+        temp_str = var_declare.str() ;
+        items = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
         if ( items ) {
-            TMM_add_checkpoint_alloc_dependency(std::string(object_name + "_" + var_name).c_str()) ;
+            temp_str = std::string(object_name + "_" + var_name) ;
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
             //message_publish(1, "CHECKPOINT_STL_STACK with %s\n", var_declare) ;
 
             for ( ii = 0 ; ii < cont_size ; ii++ ) {
@@ -124,14 +130,15 @@ template <typename ITEM_TYPE, typename _Sequence,
 int restore_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_name , std::string var_name ) {
     unsigned int ii ;
     unsigned int cont_size ;
+    std::string temp_str ;
 
     REF2 * items_ref ;
     ITEM_TYPE * items = nullptr ;
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
-
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
+    temp_str = object_name + std::string("_") + var_name ;
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( items_ref != NULL ) {
         cont_size = in_stl.size() ;
@@ -155,14 +162,15 @@ template <typename ITEM_TYPE, typename _Sequence,
 int restore_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_name , std::string var_name ) {
     unsigned int ii ;
     unsigned int cont_size ;
+    std::string temp_str ;
 
     REF2 * items_ref ;
     std::string * items = nullptr ;
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
-
-    items_ref = ref_attributes((char *)(object_name + std::string("_") + var_name).c_str()) ;
+    temp_str = object_name + std::string("_") + var_name ;
+    items_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( items_ref != NULL ) {
         cont_size = in_stl.size() ;

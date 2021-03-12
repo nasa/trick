@@ -21,14 +21,31 @@ Trick::ExternalApplication::ExternalApplication() :
     host_source = port_source = AUTO;
     cycle_period_set = minimum_cycle_period_set = disconnect_behavior_set = height_set =
       width_set = x_set = y_set = auto_reconnect_set = false;
+      
+      // c_intf uses char *, we manage the memory here in external application
+      command_c_str = strdup(command.c_str());
+      allocations.push_back((void*)command_c_str);
+}
+
+Trick::ExternalApplication::~ExternalApplication() {
+    for(std::vector<void*>::iterator it = allocations.begin(); it != allocations.end(); ++it) {
+        free(*it);
+    }
+    allocations.clear();
 }
 
 void Trick::ExternalApplication::set_startup_command(std::string in_command) {
     command = in_command;
+    command_c_str = strdup(in_command.c_str());
+    allocations.push_back((void *) command_c_str);
 }
 
 std::string Trick::ExternalApplication::get_startup_command() {
     return command;
+}
+
+const char * Trick::ExternalApplication::get_startup_command_c_str() {
+    return command_c_str;
 }
 
 void Trick::ExternalApplication::add_arguments(std::string args) {
