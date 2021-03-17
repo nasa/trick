@@ -525,10 +525,12 @@ int main(int argc, char *argv[])
         }
 
         // If outputting to pdf, you must have a DP file and RUN dir
-        if ( isPdf && (dps.size() == 0 || runDirs.size() == 0) ) {
+        if ( isPdf &&
+            ((!opts.isPlotAllVars && dps.size() == 0) || runDirs.size() == 0)){
             fprintf(stderr,
                     "koviz [error] : when using the -pdf option you must "
-                    "specify a DP product file and RUN directory\n");
+                    "specify a RUN directory and DP product file "
+                    "(or -a option to diff all vars) \n");
             exit(-1);
         }
 
