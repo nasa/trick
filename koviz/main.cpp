@@ -530,7 +530,7 @@ int main(int argc, char *argv[])
             fprintf(stderr,
                     "koviz [error] : when using the -pdf option you must "
                     "specify a RUN directory and DP product file "
-                    "(or -a option to diff all vars) \n");
+                    "(or -a option for all vars) \n");
             exit(-1);
         }
 
