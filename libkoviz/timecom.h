@@ -21,7 +21,6 @@ public:
     int connect2Bvis();
     int sendCom2Bvis(QString com = "t=8resetcom");
     int sendRun2Bvis(QString iRunDir);
-    int resendCurTime2Bvis();
     int sendFirstRun(QString firstRun);
     int sendTime2Bvis(double liveTime);
 

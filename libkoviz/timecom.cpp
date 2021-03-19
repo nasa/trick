@@ -124,11 +124,6 @@ int TimeCom::sendRun2Bvis(QString iRunDir)
     return ret;
 }
 
-int TimeCom::resendCurTime2Bvis()
-{
-    return sendCom2Bvis(currentTime);
-}
-
 int TimeCom::sendFirstRun(QString firstRun)
 {
     currentRun = firstRun;
