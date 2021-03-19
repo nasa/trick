@@ -36,7 +36,6 @@ private:
     QString currentTime;
     bool firstRunSent;
     const int BvisPort;
-    const int TimeComPort;
 };
 
 #endif // TIMECOM_H

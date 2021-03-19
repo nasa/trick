@@ -4,8 +4,7 @@ TimeCom::TimeCom(QObject* parent) :
     QObject(parent),
     currentTime("t=0"),
     firstRunSent(true),
-    BvisPort(64052),
-    TimeComPort(BvisPort + 1)
+    BvisPort(64052)
 {
     socket = new QTcpSocket();
     connect(socket,SIGNAL(readyRead()),
