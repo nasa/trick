@@ -227,7 +227,7 @@ PlotMainWindow::PlotMainWindow(
         QString sendRun = QString("%1/").arg(
                     QDir::current().absoluteFilePath(
                         _runs->runDirs().at(0)));
-        bviscom->sendFirstRun(sendRun);
+        bviscom->sendRun2Bvis(sendRun);
     }
 
     if ( !videoFileName.isEmpty() ) {

@@ -18,11 +18,8 @@ public:
     explicit TimeCom(QObject *parent=0);
     ~TimeCom();
 
-    int connect2Bvis();
-    int sendCom2Bvis(QString com = "t=8resetcom");
-    int sendRun2Bvis(QString iRunDir);
-    int sendFirstRun(QString firstRun);
-    int sendTime2Bvis(double liveTime);
+    void sendRun2Bvis(const QString &iRunDir);
+    void sendTime2Bvis(double liveTime);
 
 signals:
     void timechangedByBvis(double time);
@@ -32,10 +29,10 @@ private slots:
 
 private:
     QTcpSocket *socket;
-    QString currentRun;
-    QString currentTime;
-    bool firstRunSent;
     const int BvisPort;
+
+    int _connect2Bvis();
+    void _sendMsg2Bvis(const QString& msg);
 };
 
 #endif // TIMECOM_H

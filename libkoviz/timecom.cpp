@@ -2,15 +2,12 @@
 
 TimeCom::TimeCom(QObject* parent) : 
     QObject(parent),
-    currentTime("t=0"),
-    firstRunSent(true),
     BvisPort(64052)
 {
     socket = new QTcpSocket();
     connect(socket,SIGNAL(readyRead()),
             this,SLOT(_timeComRead()));
-    currentRun = QString("");
-    connect2Bvis();
+    _connect2Bvis();
 }
 
 TimeCom::~TimeCom()
@@ -19,7 +16,7 @@ TimeCom::~TimeCom()
     delete socket;
 }
 
-int TimeCom::connect2Bvis()
+int TimeCom::_connect2Bvis()
 {
     const QString localhost = "127.0.0.1";
     socket->connectToHost(localhost,BvisPort);
@@ -32,36 +29,28 @@ int TimeCom::connect2Bvis()
     return 0;
 }
 
-int TimeCom::sendCom2Bvis(QString com)
+void TimeCom::_sendMsg2Bvis(const QString &msg)
 {
-    if (firstRunSent == false) {
-        com = QString("run=%1").arg(currentRun);
-    }
-
     if (socket->state() != QTcpSocket::ConnectedState) {
-        if(connect2Bvis() != 0) {
-            return 1;
+        if(_connect2Bvis() != 0) {
+            return;
         }
     }
 
-    qint64 bytesWritten = socket->write(
-                (const char *) com.toLocal8Bit().data());
+    qint64 bytesWritten = socket->write(msg.toLocal8Bit().data());
 
-    if (firstRunSent == false && bytesWritten > 0)
-        firstRunSent = true;
-
-    return 0;
+    if ( bytesWritten < 0 ) {
+        fprintf(stderr, "koviz [error]: bvis socket write failed!!!\n");
+    }
 }
 
-int TimeCom::sendTime2Bvis(double liveTime)
+void TimeCom::sendTime2Bvis(double liveTime)
 {
 #if QT_VERSION >= 0x050000
     Qt::ApplicationState state = qApp->applicationState();
     if ( state & Qt::ApplicationActive) {
-        currentTime = QString("t=%1").arg(liveTime);
-        return sendCom2Bvis(currentTime);
-    } else {
-        return 0;
+        QString msg = QString("t=%1").arg(liveTime);
+        _sendMsg2Bvis(msg);
     }
 #else
     fprintf(stderr, "koviz [error]: Bvis needs qt5 or greater!\n");
@@ -91,13 +80,12 @@ void TimeCom::_timeComRead()
     }
 }
 
-int TimeCom::sendRun2Bvis(QString iRunDir)
+void TimeCom::sendRun2Bvis(const QString& iRunDir)
 {
     QDir rdir(iRunDir);
 
     // Locate dir that contains *.motcsv
     QString runDir;
-    QString cmd;
     QStringList filter;
     filter << "*.motcsv";
     QStringList motcsvs = rdir.entryList(filter,QDir::Files);
@@ -115,21 +103,6 @@ int TimeCom::sendRun2Bvis(QString iRunDir)
             }
         }
     }
-    cmd = QString("run=%1").arg(runDir);
-    int ret = sendCom2Bvis(cmd);
-    if (ret == 0) {
-        currentRun = runDir;
-    }
-    return ret;
-}
-
-int TimeCom::sendFirstRun(QString firstRun)
-{
-    currentRun = firstRun;
-    if (0 == sendCom2Bvis())
-    {
-        firstRunSent = true;
-        return 0;
-    }
-    return 1;
+    QString msg = QString("run=%1").arg(runDir);
+    _sendMsg2Bvis(msg);
 }
