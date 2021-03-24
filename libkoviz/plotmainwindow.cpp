@@ -217,9 +217,14 @@ PlotMainWindow::PlotMainWindow(
         _vsSocket->write("trick.var_add(\"trick_sys.sched.time_tics\")\n");
     }
 
-    // creating bviscom to send commands to bvis
-    bviscom = new TimeCom("127.0.0.1", 64052, this);
-    connect(bviscom,SIGNAL(timechangedByBvis(double)),
+    // creating timecom to send commands to "the visualizer" (VIS)
+    _the_visualizer = new TimeCom("127.0.0.1", 64052, this);
+    connect(_the_visualizer,SIGNAL(timechangedByBvis(double)),
+            this, SLOT(setTimeFromBvis(double)));
+
+    // creating timecom to send commands to the koviz blender plugin
+    _blender = new TimeCom("127.0.0.1", 64053, this);
+    connect(_blender,SIGNAL(timechangedByBvis(double)),
             this, SLOT(setTimeFromBvis(double)));
 
     // sending run command if there is only one run
@@ -227,7 +232,7 @@ PlotMainWindow::PlotMainWindow(
         QString sendRun = QString("%1/").arg(
                     QDir::current().absoluteFilePath(
                         _runs->runDirs().at(0)));
-        bviscom->sendRun2Bvis(sendRun);
+        _the_visualizer->sendRun2Bvis(sendRun);
     }
 
     if ( !videoFileName.isEmpty() ) {
@@ -480,7 +485,8 @@ void PlotMainWindow::_bookModelDataChanged(const QModelIndex &topLeft,
             if ( vidView ) {
                 vidView->seek_time(liveTime);
             }
-            bviscom->sendTime2Bvis(liveTime);
+            _the_visualizer->sendTime2Bvis(liveTime);
+            _blender->sendTime2Bvis(liveTime);
         }
     } else if ( tag == "StatusBarMessage" ) {
         QString msg = _bookModel->data(topLeft).toString();
@@ -1711,7 +1717,7 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
             QString sendRun = QString("%1/").arg(
                         QDir::current().absoluteFilePath(
                             _runs->runDirs().at(runID)));
-            bviscom->sendRun2Bvis(sendRun);
+            _the_visualizer->sendRun2Bvis(sendRun);
         }
         _openVideo();
     }

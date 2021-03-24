@@ -140,7 +140,8 @@ private:
 
     QModelIndex _currCurveIdx();
 
-    TimeCom* bviscom;
+    TimeCom* _the_visualizer;
+    TimeCom* _blender;
 
     VideoWindow* vidView;
     QTcpSocket* _vsSocket ;
