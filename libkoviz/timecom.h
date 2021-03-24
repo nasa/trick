@@ -9,6 +9,7 @@
 #include <QFileInfo>
 #include <QByteArray>
 #include <QApplication>
+#include <QStringList>
 #include <stdlib.h>
 
 class TimeCom : public QObject
@@ -20,6 +21,7 @@ public:
 
     void sendRun2Bvis(const QString &iRunDir);
     void sendTime2Bvis(double liveTime);
+    void sendList2Bvis(const QStringList& list);
 
 signals:
     void timechangedByBvis(double time);

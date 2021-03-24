@@ -106,3 +106,14 @@ void TimeCom::sendRun2Bvis(const QString& iRunDir)
     QString msg = QString("run=%1").arg(runDir);
     _sendMsg2Bvis(msg);
 }
+
+void TimeCom::sendList2Bvis(const QStringList &list)
+{
+    QString msg;
+    foreach ( QString el, list ) {
+        msg += el;
+        msg += ',';
+    }
+
+    _sendMsg2Bvis(msg);
+}

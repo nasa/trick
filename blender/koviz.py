@@ -23,7 +23,8 @@ def go():
       
 def koviz_animation_handler(scene):
     t = get_blender_time()
-    KovizOperator.thread.set_koviz_time(t)
+    if t != None :
+        KovizOperator.thread.set_koviz_time(t)
 
 def get_blender_time():
     t = None
@@ -32,7 +33,11 @@ def get_blender_time():
     frame_end = bpy.context.scene.frame_end
     nframes = frame_end - frame_start + 1
     data_start = KovizOperator.get_data_start_time()
-    data_end = KovizOperator.get_data_end_time()   
+    if data_start == None:
+        return None
+    data_end = KovizOperator.get_data_end_time()
+    if data_end == None:
+        return None
     dy = data_end - data_start
     dx = frame_end - frame_start
     if dx > 0 :
@@ -48,6 +53,8 @@ class KovizThread(threading.Thread):
   def __init__(self):
     threading.Thread.__init__(self)
     self.koviz_time = None
+    self.koviz_beg_time = None
+    self.koviz_end_time = None
     self.is_running = False
     self.client_sock = None
     self.data = [0] * self.max_msg_size
@@ -55,15 +62,25 @@ class KovizThread(threading.Thread):
   def start(self):
     self.is_running = True
     self.koviz_time = None
+    self.koviz_beg_time = None
+    self.koviz_end_time = None
     threading.Thread.start(self)
  
   def stop(self):
     self.koviz_time = None
+    self.koviz_beg_time = None
+    self.koviz_end_time = None
     self.is_running = False
 
   def get_koviz_time(self):
       return self.koviz_time
-  
+
+  def get_koviz_beg_time(self):
+      return self.koviz_beg_time
+
+  def get_koviz_end_time(self):
+      return self.koviz_end_time
+
   def set_koviz_time(self,t):
       if not isinstance(t,float) or self.client_sock == None:
           return
@@ -108,19 +125,28 @@ class KovizThread(threading.Thread):
             except socket.timeout:
                 continue
             
-            words = self.data.split('=')
-            if len(words) == 2:
-                if words[0] == 't' and self.isfloat(words[1]):
-                    self.koviz_time = words[1]
-                    # print('KovizThread.koviz_time={}'.format(self.koviz_time))
-            elif len(self.data) == 0:
-                # Client disconnected    
+            if len(self.data) == 0:
+                # Client disconnected
                 break
-            
+
+            fields = self.data.split(',')
+            for field in fields:
+                words = field.split('=')
+                if len(words) == 2:
+                    if words[0] == 't' and self.isfloat(words[1]):
+                        self.koviz_time = float(words[1])
+                        # print('KovizThread.koviz_time={}'.format(self.koviz_time))
+                    elif words[0] == 'begin_time' and self.isfloat(words[1]):
+                        self.koviz_beg_time = float(words[1])
+                    elif words[0] == 'end_time' and self.isfloat(words[1]):
+                        self.koviz_end_time = float(words[1])
+
         print('Close koviz connection')
         self.client_sock.close()
         self.koviz_time = None
-        
+        self.koviz_beg_time = None
+        self.koviz_end_time = None
+
     listen_sock.close()
     print('Closed koviz server!')
     koviz_time = None
@@ -134,16 +160,13 @@ class KovizOperator(bpy.types.Operator) :
   thread = KovizThread()
   timer = None
   
-  # TIM change this (comes from *.trk)
   @staticmethod
   def get_data_start_time():
-      return 0.0
+      return KovizOperator.thread.get_koviz_beg_time()
   
-  # TIM change this (comes from *.trk)
   @staticmethod
   def get_data_end_time():
-      return 300.0
-  
+      return KovizOperator.thread.get_koviz_end_time()
   
   @staticmethod
   def get_anim_frame(t):
@@ -153,7 +176,11 @@ class KovizOperator(bpy.types.Operator) :
       frame_start = bpy.context.scene.frame_start
       frame_end = bpy.context.scene.frame_end
       data_start = KovizOperator.get_data_start_time()
+      if data_start == None :
+          return bpy.context.scene.frame_current
       data_end = KovizOperator.get_data_end_time()   
+      if data_end == None :
+          return bpy.context.scene.frame_current
       dy = frame_end - frame_start
       dx = data_end - data_start
       if dx > 0 :
@@ -175,12 +202,12 @@ class KovizOperator(bpy.types.Operator) :
         koviz_time = KovizOperator.thread.get_koviz_time()
         blender_time = get_blender_time()
         
-        koviz_frame = self.get_anim_frame(koviz_time)
-        blender_frame = bpy.context.scene.frame_current
-
-        if koviz_time != None and koviz_frame != blender_frame :
-            frame = self.get_anim_frame(koviz_time)
-            bpy.context.scene.frame_set(frame)
+        if koviz_time != None and blender_time != None:
+            koviz_frame = self.get_anim_frame(koviz_time)
+            blender_frame = bpy.context.scene.frame_current
+            if koviz_frame != blender_frame :
+                frame = self.get_anim_frame(koviz_time)
+                bpy.context.scene.frame_set(frame)
         
         #t = KovizOperator.get_blender_time()
         #print('sphere.pos=(%g)' % bpy.data.objects['Sphere'].location.x)
