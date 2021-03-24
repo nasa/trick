@@ -323,6 +323,9 @@ PlotMainWindow::~PlotMainWindow()
 {
     _vsSocket->close();
     delete _vsSocket;
+
+    delete _the_visualizer;
+    delete _blender;
 }
 
 void PlotMainWindow::createMenu()
