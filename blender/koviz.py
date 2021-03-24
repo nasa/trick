@@ -9,7 +9,7 @@ import threading
 # Bring up blender in a terminal and call helloworld script
 #    % blender -P /home/kvetter/dev/koviz/blender/koviz-hello-world.py
 # Blender > Animation
-# Bring up koviz on ball sim data (see 300.0 below for other data)
+# Bring up koviz on a RUN
 #    Click a curve and move mouse to see time update
 #    Should see blender animation frame updating
 # Press Blender Animation play button
