@@ -1,8 +1,8 @@
 #include "timecom.h"
-
-TimeCom::TimeCom(QObject* parent) : 
+TimeCom::TimeCom( const QString& host,int port,QObject* parent) :
     QObject(parent),
-    BvisPort(64052)
+    _host(host),
+    _port(port)
 {
     socket = new QTcpSocket();
     connect(socket,SIGNAL(readyRead()),
@@ -18,10 +18,10 @@ TimeCom::~TimeCom()
 
 int TimeCom::_connect2Bvis()
 {
-    const QString localhost = "127.0.0.1";
-    socket->connectToHost(localhost,BvisPort);
+    socket->connectToHost(_host,_port);
     if (socket->waitForConnected(500)) {
-        printf("Connected to bvis!\n");
+        printf("Connected to host=%s port=%d!\n",
+               _host.toLatin1().constData(), _port );
     } else {
         // timed out
         return 1;

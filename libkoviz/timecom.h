@@ -15,7 +15,7 @@ class TimeCom : public QObject
 {
     Q_OBJECT
 public:
-    explicit TimeCom(QObject *parent=0);
+    explicit TimeCom(const QString& host, int port, QObject *parent=0);
     ~TimeCom();
 
     void sendRun2Bvis(const QString &iRunDir);
@@ -29,7 +29,8 @@ private slots:
 
 private:
     QTcpSocket *socket;
-    const int BvisPort;
+    QString _host;
+    int _port;
 
     int _connect2Bvis();
     void _sendMsg2Bvis(const QString& msg);

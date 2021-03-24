@@ -218,7 +218,7 @@ PlotMainWindow::PlotMainWindow(
     }
 
     // creating bviscom to send commands to bvis
-    bviscom = new TimeCom(this);
+    bviscom = new TimeCom("127.0.0.1", 64052, this);
     connect(bviscom,SIGNAL(timechangedByBvis(double)),
             this, SLOT(setTimeFromBvis(double)));
 
