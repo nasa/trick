@@ -27,7 +27,7 @@ Trick::ExternalApplication::ExternalApplication() :
       // c_intf uses char *, we manage the memory here in external application
       command_c_str = (char*)trick_MM->declare_var("char", (command.size() + 1) );
       strcpy(command_c_str, command.c_str());
-      allocations.push_back((void*)command_c_str);
+      allocations.push_back(command_c_str);
 }
 
 Trick::ExternalApplication::~ExternalApplication() {
@@ -41,7 +41,7 @@ void Trick::ExternalApplication::set_startup_command(std::string in_command) {
     command = in_command;
     command_c_str = (char*)trick_MM->declare_var("char", (command.size() + 1) );
     strcpy(command_c_str, command.c_str());
-    allocations.push_back((void *) command_c_str);
+    allocations.push_back((command_c_str);
 }
 
 std::string Trick::ExternalApplication::get_startup_command() {
