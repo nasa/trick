@@ -300,7 +300,7 @@ namespace Trick {
 
         /** alloc'd addresses to be deallocated during app destruction (currently only
         used by command_c_str) */
-        std::vector<void*> allocations;
+        std::vector<char*> allocations;
 
         private:
 
