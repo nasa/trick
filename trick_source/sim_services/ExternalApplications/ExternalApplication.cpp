@@ -31,7 +31,7 @@ Trick::ExternalApplication::ExternalApplication() :
 }
 
 Trick::ExternalApplication::~ExternalApplication() {
-    for(std::vector<void*>::iterator it = allocations.begin(); it != allocations.end(); ++it) {
+    for(std::vector<char*>::iterator it = allocations.begin(); it != allocations.end(); ++it) {
         trick_MM->delete_var(*it);
     }
     allocations.clear();
@@ -41,7 +41,7 @@ void Trick::ExternalApplication::set_startup_command(std::string in_command) {
     command = in_command;
     command_c_str = (char*)trick_MM->declare_var("char", (command.size() + 1) );
     strcpy(command_c_str, command.c_str());
-    allocations.push_back((command_c_str);
+    allocations.push_back((command_c_str));
 }
 
 std::string Trick::ExternalApplication::get_startup_command() {
