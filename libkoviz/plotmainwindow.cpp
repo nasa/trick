@@ -229,10 +229,11 @@ PlotMainWindow::PlotMainWindow(
 
     // sending run command if there is only one run
     if ( _monteInputsModel->rowCount() == 1 ) {
-        QString sendRun = QString("%1/").arg(
+        QString rundir = QString("%1/").arg(
                     QDir::current().absoluteFilePath(
                         _runs->runDirs().at(0)));
-        _the_visualizer->sendRun2Bvis(sendRun);
+        _the_visualizer->sendRun2Bvis(rundir);
+        _blender->sendRun2Bvis(rundir);
     }
 
     if ( !videoFileName.isEmpty() ) {
@@ -1744,10 +1745,11 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
         _bookView->setCurrentCurveRunID(runID);
         if (currIdx.row() != prevIdx.row())
         {
-            QString sendRun = QString("%1/").arg(
-                        QDir::current().absoluteFilePath(
-                            _runs->runDirs().at(runID)));
-            _the_visualizer->sendRun2Bvis(sendRun);
+            QString rundir = QString("%1/").arg(
+                                    QDir::current().absoluteFilePath(
+                                     _runs->runDirs().at(runID)));
+            _the_visualizer->sendRun2Bvis(rundir);
+            _blender->sendRun2Bvis(rundir);
         }
         _openVideo();
     }

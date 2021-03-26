@@ -20,6 +20,9 @@ def go():
     # Register the operator.
     bpy.utils.register_class(KovizOperator)
     bpy.ops.object.koviz_operator()
+
+def get_run_dir():
+    return KovizOperator.thread.get_koviz_run_dir()
       
 def koviz_animation_handler(scene):
     t = get_blender_time()
@@ -55,6 +58,7 @@ class KovizThread(threading.Thread):
     self.koviz_time = None
     self.koviz_beg_time = None
     self.koviz_end_time = None
+    self.koviz_run_dir = None
     self.is_running = False
     self.client_sock = None
     self.data = [0] * self.max_msg_size
@@ -64,12 +68,14 @@ class KovizThread(threading.Thread):
     self.koviz_time = None
     self.koviz_beg_time = None
     self.koviz_end_time = None
+    self.koviz_run_dir = None
     threading.Thread.start(self)
  
   def stop(self):
     self.koviz_time = None
     self.koviz_beg_time = None
     self.koviz_end_time = None
+    self.koviz_run_dir = None
     self.is_running = False
 
   def get_koviz_time(self):
@@ -80,6 +86,9 @@ class KovizThread(threading.Thread):
 
   def get_koviz_end_time(self):
       return self.koviz_end_time
+
+  def get_koviz_run_dir(self):
+      return self.koviz_run_dir
 
   def set_koviz_time(self,t):
       if not isinstance(t,float) or self.client_sock == None:
@@ -140,6 +149,8 @@ class KovizThread(threading.Thread):
                         self.koviz_beg_time = float(words[1])
                     elif words[0] == 'end_time' and self.isfloat(words[1]):
                         self.koviz_end_time = float(words[1])
+                    elif words[0] == 'run':
+                        self.koviz_run_dir = words[1]
 
         print('Close koviz connection')
         self.client_sock.close()

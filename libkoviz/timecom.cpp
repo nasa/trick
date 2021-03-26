@@ -84,23 +84,18 @@ void TimeCom::sendRun2Bvis(const QString& iRunDir)
 {
     QDir rdir(iRunDir);
 
-    // Locate dir that contains *.motcsv
-    QString runDir;
+    QString runDir = iRunDir;
+
+    // If a run subdir contains *.motcsv, send run subdir
     QStringList filter;
     filter << "*.motcsv";
-    QStringList motcsvs = rdir.entryList(filter,QDir::Files);
-    if ( !motcsvs.isEmpty() ) {
-        runDir = iRunDir;
-    } else {
-        // See if subdir under iRunDir has *.motcsv (normal case)
-        QStringList dirs = rdir.entryList(QDir::Dirs);
-        foreach ( QString dir, dirs ) {
-            QString fdir = iRunDir + "/" + dir;
-            QDir subdir(fdir);
-            if ( ! subdir.entryList(filter,QDir::Files).isEmpty() ) {
-                runDir = subdir.absolutePath();
-                break;
-            }
+    QStringList dirs = rdir.entryList(QDir::Dirs);
+    foreach ( QString dir, dirs ) {
+        QString fdir = iRunDir + "/" + dir;
+        QDir subdir(fdir);
+        if ( ! subdir.entryList(filter,QDir::Files).isEmpty() ) {
+            runDir = subdir.absolutePath();
+            break;
         }
     }
     QString msg = QString("run=%1").arg(runDir);
