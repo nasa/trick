@@ -2,9 +2,30 @@
 
 The approach of this tutorial is to explain how to use the SAIntegrator library using the examples in the ```examples/``` directory. 
 
-**There is no need to recreate the source code in this tutorial.** It already exists in the examples. So, read the explanations below, and then go play with the simulations in the examples/ directory to learn how to use the SAIntegrator library. Enjoy!
+**There is no need to recreate the source code in this tutorial.** It already exists in the examples. So, read the explanations below, and then go play with the simulations in the
+**examples/** directory, to learn how to use the SAIntegrator library. Enjoy!
 
-## First Things First
+
+## Contents
+1. [Introduction](#Introduction)
+1. [Basic Numerical Integration](#BasicNumericalIntegration)
+2. [RootFinding (DynamicEvents)](#RootFinding_DynamicEvents)
+3. [Using Euler Cromer](#UsingEulerCromer)
+4. [Not Just Integrating Over Time](#NotJustIntegratingOverTime)
+	* [Definite Integral Example](#DefiniteIntegralExample)
+	* [Double Integral Example](#DoubleIntegralExample)
+5. [Adaptive Step Size Integration](#AdaptiveStepSizeIntegration)
+
+<a id= Introduction></a>
+## Introduction
+
+SAIntegrator is a C++ numerical integration library, that is independent of any other framework.
+It can be used with Trick, or completely independent of it. It provides:
+
+* A variety of Runge-Kutta algorithms each of which supports dynamic events.
+* Euler-Cromer for oscillatory systems like springs and orbits.
+* Runge-Kutta Fehlberg 4(5), a fourth order adaptive step-size algorithm. 
+* Numerous instructive example simulation programs.
 
 ### A Tour of the SAIntegrator Directory
 
@@ -22,7 +43,7 @@ The approach of this tutorial is to explain how to use the SAIntegrator library 
 ### Building the SAIntegrator Library
 In the SAIntegrator directory, run ```make``` to build the library ```lib/libSAInteg.a```, and run the unit-test programs.
 
-
+<a id=BasicNumericalIntegration></a>
 ## Basic Numerical Integration
 
 This section demonstrates the basics of SAIntegrator using the program in
@@ -173,6 +194,7 @@ We also might want to change ```while (t < 5.1)``` to ```while (t < 9.1)```.
 
 #### [How to Run The CannonBall Example](examples/CannonBall/README.md)
 
+<a id=RootFinding_DynamicEvents></a>
 ## RootFinding (Dynamic Events)
 
 This section demonstrates how to use a RootFinder with our integrator, using the program in [examples/BouncyCannonball](examples/BouncyCannonBall/README.md). This example simulates a cannon ball that impacts the ground (defined as pos[1] = 0.0), and bounces. The BouncyCannonball example is the same as the Cannonball example, with some additional code.
@@ -231,6 +253,7 @@ So, the line ```while (t < 5.1) { ``` is changed to
 
 #### [How to Run The BouncyCannonBall Example](examples/BouncyCannonBall/README.md)
 
+<a id=UsingEulerCromer></a>
 ## Using Euler-Cromer
 
 This section demonstrates the ```EulerCromerIntegrator``` class using 
@@ -343,19 +366,21 @@ The sixth, and final argument is the user_data. In this case we're passing the `
 
 #### [Running the MassSpringDamper Example](examples/MassSpringDamper/README.md).
 
+<a id=NotJustIntegratingOverTime></a>
 ## Not Just Integrating Over Time
 
 This section demonstrates using SAIntegrator to evaluate a definite integral. using the program in [examples/DefiniteIntegral](examples/DefiniteIntegral/README.md).
 
-### Description of the problem:
+<a id=DefiniteIntegralExample></a>
+### A Definite Integral Example
 
 Given the coefficients of a third order polynomial, and limits of integration, evaluate the integral :
 
-![PID Controller Diagram](examples/DefiniteIntegral/images/Eq1.png)
+![Def Integral of General 3rd Order Polynomial](examples/DefiniteIntegral/images/Eq1.png)
 
 This example specifically evaluates:
 
-![PID Controller Diagram](examples/DefiniteIntegral/images/Eq2.png)
+![Def Integral of Specific 3rd Order Polynomial](examples/DefiniteIntegral/images/Eq2.png)
 
 <a id=listing-DefiniteIntegral.cpp></a>
 ### Listing - DefiniteIntegral.cpp
@@ -424,6 +449,7 @@ This is to ensure the accuracy of the integration range.
 
 #### [Running the DefiniteIntegral Example](examples/DefiniteIntegral/README.md)
 
+<a id=DoubleIntegralExample></a>
 ### A Double Integral Example
 
 This example demonstrates nested integration using the program in [examples/DoubleIntegral](examples/DoubleIntegral/README.md).
@@ -490,10 +516,112 @@ int main ( int argc, char* argv[]) {
 ```
 In the [DefiniteIntegral](examples/DefiniteIntegral/README.md) example, we use
 ```struct DefiniteIntegrator``` to specify everything necessary to evaluate a single definite integral. But, a nested integrator also needs access to the independent variables of the integrators that "enclose" it. So, in the  DoubleIntegral example we need to modify ```struct DefiniteIntegrator```. First we expose the independent variable (```ivar```) and keep it updated in the ```evaluate``` method. Then we combine, or "stack" two DefiniteIntegrator's in ```struct IntegContext``` to be passed in user_data, so "inner" integrators have access to "outer" integrator's independent variables.
-
+1. 
 #### [Running the Double Integral Example](examples/DoubleIntegral/README.md).
 
-# The End
+<a id=AdaptiveStepSizeIntegration></a>
+## Adaptive Step Size Integration
+
+This section demonstrates the ```RKF45Integrator``` class using 
+the program in [examples/AsteroidFlyBy](examples/AsteroidFlyBy/README.md).
+
+The RKF45Integrator is an adaptive step-size integrator. It adapts the
+integration step-size to maintain a specified accuracy. If a particular step-size 
+doesn't produce the needed accuracy then the step-size is reduced and the integration step is performed again. If the needed accuracy is being produced then the step-size can be increased. There is some over-head in the extra calculations, that estimate the local-error. But, this can be more than made up for by the fact that the step-size is small **only** when necessary.
+
+The listing below is a simulation of a relatively small asteroid flying past the Earth. As the asteroid approaches, and the acceleration of gravity gets stronger, the ```RKF45Integrator``` gradually reduces the step-size to maintain the required accuracy. As the asteroid retreats, the step-size is gradually increased, back to its normal, maximum value.  
+
+<a id=listing-Flyby.cpp></a>
+### Listing - Flyby.cpp
+```
+#include <math.h>
+#include <stdio.h>
+#include "SAIntegrator.hh"
+
+#define GRAVITATIONAL_CONSTANT 6.674e-11
+#define EARTH_MASS 5.9723e24
+#define EARTH_RADIUS 6367500.0
+
+struct Flyby {
+    double pos[2];
+    double vel[2];
+    double planet_mass;
+    Flyby(double px, double py, double vx, double vy, double m);
+};
+Flyby::Flyby(double px, double py, double vx, double vy, double m) {
+    pos[0] = px;
+    pos[1] = py;
+    vel[0] = vx;
+    vel[1] = vy;
+    planet_mass = m;
+}
+void print_header() {
+    printf ("time, dt, flyby.pos[0], flyby.pos[1], flyby.vel[0], flyby.vel[1]\n");
+}
+void print_state( double t, double dt, Flyby& flyby ) {
+    printf ("%10.10f, %10.10f, %10.10f, %10.10f, %10.10f, %10.10f\n",
+             t, dt, flyby.pos[0], flyby.pos[1], flyby.vel[0], flyby.vel[1]);
+}
+void gravity( double t, double* state, double derivs[], void* udata) {
+    Flyby* flyby = (Flyby*)udata;
+    double d = sqrt( state[0]*state[0] + state[1]*state[1]);
+    derivs[0] = state[2];
+    derivs[1] = state[3];
+    derivs[2] = -state[0] * GRAVITATIONAL_CONSTANT * flyby->planet_mass / (d*d*d);
+    derivs[3] = -state[1] * GRAVITATIONAL_CONSTANT * flyby->planet_mass / (d*d*d);
+}
+int main ( int argc, char* argv[]) {
+
+    double sim_duration = 25000.0; // s
+    double dt = 60.0; // s
+    double epsilon = 0.000000001;
+    Flyby flyby(-20.0 * EARTH_RADIUS, 2.0 * EARTH_RADIUS, 10000.0 , 0.0, EARTH_MASS);
+    double* state_p[4] = { &flyby.pos[0], &flyby.pos[1], &flyby.vel[0], &flyby.vel[1] };
+
+    double time = 0.0; // s
+    print_header();
+    print_state(time, dt, flyby);
+
+    SA::RKF45Integrator integ(epsilon, dt, 4, state_p, gravity, &flyby);
+    while (time < sim_duration) {
+        integ.integrate();
+        double last_h = integ.getLastStepSize();
+        time = integ.getIndyVar();
+
+        double r = sqrt( flyby.pos[0]*flyby.pos[0] + flyby.pos[1]*flyby.pos[1]);
+        if (r < EARTH_RADIUS) { printf("Collision\n"); }
+        print_state(time, last_h, flyby);
+    }
+}
+```
+
+ ```struct Flyby ``` specifies the position of an asteroid, and the mass of the planet with which it's interacting. 
+
+The ```print_header```, and ```print_state``` functions generate CSV output for the simulation.
+
+The  function ```gravity```, of type [```DerivsFunc```](#typedef-DerivsFunc) generates derivatives for the ```RKF45Integrator```. 
+
+In ```main```, the following line [constructs](#RKF45IntegratorConstructor3``) our integrator:
+
+```SA::RKF45Integrator integ(epsilon, dt, 4, state_p, gravity, &flyby);```
+
+The first argument (```epsilon```) is unique to adaptive step-size integration. It specifies the allowable "local error", that is: the error per step. The ```RKF45Integrator``` automatically adjusts the step-size needed to achieve this accuracy. Local error is calculated for each state element. The largest of the element errors guides the step-size adaptation of the algorithm.
+
+The second argument (```dt```) specifies the **maximum** integration step-size. Notice the difference between this, and non-adaptive step size integrators. Here, the actual step size is determined by the Runge-Kutta-Fehlberg algorithm. The method ```getLastStepSize()``` returns this actual step-size. It may be smaller than, but will not be larger than ```dt```.
+
+In this simulation, ```dt``` is 60 seconds, but as the asteroid approaches the planet, and the acceleration of gravity increases, the Runge-Kutta-Fehlberg algorithm gradually reduces the step size down to ~ 3 seconds at closest approach to maintain the specified local accuracy.
+
+The third argument specifies the state-size, in this case: 4. 
+
+The fourth argument specifies the list of variables comprising the state: ```flyby.pos[0], flyby.pos[1], flyby.vel[0]), and flyby.vel[1]```.
+
+The fifth argument is a pointer to the derivatives generator function, ```gravity``` of type [(DerivsFunc)](#typedef-DerivsFunc).
+
+The sixth argument is a pointer to the Flyby object.
+
+#### [Running the AsteroidFlyBy Example](examples/AsteroidFlyBy/README.md).
+
+## The End
 
 
 # Appendix
@@ -523,6 +651,37 @@ where:
 |user_data    |```void*```  | A pointer to user defined data that will be passed to a DerivsFunc when called by the Integrator. |
 
 For more information, check out the SAIntegrator User's Guide, or even ```SAIntegrator.hh```.
+
+
+<a id=RKF45IntegratorConstructor3></a>
+## RKF45Integrator Constructor
+
+### Description
+
+This is the third of four available RKF45Integrator constructors.
+
+```C++
+RKF45Integrator( double epsilon,
+                 double h,
+                 unsigned int N,
+                 double* in_out_vars[],
+                 DerivsFunc derivs_func,
+                 void* udata);
+```
+where:
+
+|Parameter    |Type         |Description|
+|-------------|-------------|-----------|
+|epsilon      |```double``` | Specifies the maximum allowable error per step.|
+|h            |```double``` | Default integration step-size. This is the maximum allowable step-size. |
+|N            |```int```    |Number of state variables to be integrated|
+|in\_out\_vars      |```double*```|Array of pointers to the state variables from which we ```load()```, and to which we ```unload()``` the integrator state |
+| derivs_func |[```DerivsFunc```](#typedef-DerivsFunc)| Function thats generates the function (the derivatives) to be integrated. |
+|user_data    |```void*```  | A pointer to user defined data that will be passed to a DerivsFunc when called by the Integrator. |
+
+For more information, check out the SAIntegrator User's Guide, or even ```SAIntegrator.hh```.
+
+
 
 <a id=typedef-DerivsFunc></a>
 ## typedef DerivsFunc
@@ -620,7 +779,7 @@ A function of type **RootErrorFunc** should:
 
 <a id=SideNote1></a>
 ## Side Note 1
-```integ.integrate();``` is implemented as simply:
+```integ.integrate()``` is a convenience function. It's implemented as simply:
 
 ```
 void SA::Integrator::integrate() {
@@ -641,3 +800,4 @@ so,
 with identical results.
 
 Rather than constantly unloading and then reloading our last result, we load from One reason is  ```load_from_outState()```.
+``

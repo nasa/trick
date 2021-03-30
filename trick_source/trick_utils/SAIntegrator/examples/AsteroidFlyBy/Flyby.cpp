@@ -26,7 +26,7 @@ void print_state( double t, double dt, Flyby& flyby ) {
     printf ("%10.10f, %10.10f, %10.10f, %10.10f, %10.10f, %10.10f\n",
              t, dt, flyby.pos[0], flyby.pos[1], flyby.vel[0], flyby.vel[1]);
 }
-void G( double t, double* state, double derivs[], void* udata) {
+void gravity( double t, double* state, double derivs[], void* udata) {
     Flyby* flyby = (Flyby*)udata;
     double d = sqrt( state[0]*state[0] + state[1]*state[1]);
     derivs[0] = state[2];
@@ -46,14 +46,14 @@ int main ( int argc, char* argv[]) {
     print_header();
     print_state(time, dt, flyby);
 
-    SA::RKF45Integrator integ(epsilon, dt, 4, state_p, G, &flyby);
+    SA::RKF45Integrator integ(epsilon, dt, 4, state_p, gravity, &flyby);
     while (time < sim_duration) {
         integ.integrate();
         double last_h = integ.getLastStepSize();
         time = integ.getIndyVar();
 
         double r = sqrt( flyby.pos[0]*flyby.pos[0] + flyby.pos[1]*flyby.pos[1]);
-        if (r < 500000.0) { printf("Collision\n"); }
+        if (r < EARTH_RADIUS) { printf("Collision\n"); }
         print_state(time, last_h, flyby);
     }
 }

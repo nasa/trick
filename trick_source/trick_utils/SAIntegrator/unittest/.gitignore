@@ -4,5 +4,6 @@ FirstOrderODEVariableStepIntegrator_unittest
 RK2Integrator_unittest
 RK3_8Integrator_unittest
 RK4Integrator_unittest
+RKF45Integrator_unittest
 RootFinder_unittest
 SAIntegrator_unittest

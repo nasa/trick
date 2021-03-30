@@ -3,10 +3,6 @@
 The Flyby program uses the **SA::RKF45Integrator** class to simulate
 an asteroid passing near Earth.
 
-The RKF45Integrator is an adaptive step-size integrator. It adapts the
-integration step-size to maintain a specified accuracy. If a particular step-size 
-doesn't produce the needed accuracy then the step-size is reduced and the integration step is performed again. If the needed accuracy is being produced then the step-size can be increased. There is some over-head in the extra calculations, that estimate the local-error. But, this can be more than made up for by the fact that the step-size is small **only** when necessary. 
-
 For each numerical integration time-step, the simulation program prints:
 
 1. time (s)
