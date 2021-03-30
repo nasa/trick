@@ -533,7 +533,7 @@ The listing below is a simulation of a relatively small asteroid flying past the
 
 <a id=listing-Flyby.cpp></a>
 ### Listing - Flyby.cpp
-```
+```C++
 #include <math.h>
 #include <stdio.h>
 #include "SAIntegrator.hh"
@@ -781,7 +781,7 @@ A function of type **RootErrorFunc** should:
 ## Side Note 1
 ```integ.integrate()``` is a convenience function. It's implemented as simply:
 
-```
+```C++
 void SA::Integrator::integrate() {
     load();
     step();
@@ -792,7 +792,7 @@ so,
 
 ```integ.integrate();``` could be replaced with:
 
-```
+```C++
     integ.load();
     integ.step();
     integ.unload();
