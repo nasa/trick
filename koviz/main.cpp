@@ -1256,6 +1256,7 @@ int main(int argc, char *argv[])
 
             if ( isPdf ) {
                 w.savePdf(pdfOutFile);
+                ret = 0;
             } else {
                 w.show();
                 ret = a.exec();
