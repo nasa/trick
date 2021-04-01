@@ -156,6 +156,7 @@ class SnapOptions : public Options
     QString buttonSelectAndPan;
     QString buttonZoom;
     QString buttonReset;
+    QString platform;
 };
 
 SnapOptions opts;
@@ -296,6 +297,8 @@ int main(int argc, char *argv[])
              &opts.buttonZoom,"middle","left, middle or right mouse button");
     opts.add("-buttonReset",
              &opts.buttonReset,"right","left, middle or right mouse button");
+    opts.add("-platform",
+             &opts.platform,"","Set to \"offscreen\" for pdf without X");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
