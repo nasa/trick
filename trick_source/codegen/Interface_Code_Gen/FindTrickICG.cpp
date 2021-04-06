@@ -35,7 +35,7 @@ void FindTrickICG::FileChanged(clang::SourceLocation Loc, FileChangeReason Reaso
     }
 }
 
-#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
+#if (LIBCLANG_MAJOR < 10) // TODO delete when RHEL 7 no longer supported
 void FindTrickICG::FileSkipped(const clang::FileEntry &SkippedFile,
                            const clang::Token &FilenameTok,
                            clang::SrcMgr::CharacteristicKind FileType) {

@@ -20,7 +20,7 @@ class FindTrickICG : public clang::PPCallbacks {
                            clang::SrcMgr::CharacteristicKind FileType,
                            clang::FileID PrevFID = clang::FileID()) ;
 
-#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
+#if (LIBCLANG_MAJOR < 10) // TODO delete when RHEL 7 no longer supported
   virtual void FileSkipped(const clang::FileEntry &SkippedFile,
                            const clang::Token &FilenameTok,
                            clang::SrcMgr::CharacteristicKind FileType) ;
