@@ -20,6 +20,10 @@ class FindTrickICG : public clang::PPCallbacks {
                            clang::SrcMgr::CharacteristicKind FileType,
                            clang::FileID PrevFID = clang::FileID()) ;
 
+    // called when a header file is skipped because of a header guard optimization.
+    virtual void FileSkipped(const clang::FileEntryRef & SkippedFile, const clang::Token & FilenameTok,
+                        clang::SrcMgr::CharacteristicKind FileType) ;
+
     // callbacks called when the preprocessor directives of types are processed.
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     virtual void If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue) ;
