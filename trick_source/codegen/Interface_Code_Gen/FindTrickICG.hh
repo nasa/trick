@@ -20,9 +20,16 @@ class FindTrickICG : public clang::PPCallbacks {
                            clang::SrcMgr::CharacteristicKind FileType,
                            clang::FileID PrevFID = clang::FileID()) ;
 
+#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
+  virtual void FileSkipped(const clang::FileEntry &SkippedFile,
+                           const clang::Token &FilenameTok,
+                           clang::SrcMgr::CharacteristicKind FileType) ;
+#else
     // called when a header file is skipped because of a header guard optimization.
-    virtual void FileSkipped(const clang::FileEntryRef & SkippedFile, const clang::Token & FilenameTok,
+    virtual void FileSkipped(const clang::FileEntryRef & SkippedFile,
+                        const clang::Token & FilenameTok,
                         clang::SrcMgr::CharacteristicKind FileType) ;
+#endif
 
     // callbacks called when the preprocessor directives of types are processed.
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
