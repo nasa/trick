@@ -348,6 +348,26 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             _addChild(plotItem, "PlotBackgroundColor", plot->backgroundColor());
             _addChild(plotItem, "PlotForegroundColor", plot->foregroundColor());
             _addChild(plotItem, "PlotFont",            plot->font());
+            QVariantList listMajorXTics;
+            foreach ( double tic, plot->majorXTics() ) {
+                listMajorXTics << tic;
+            }
+            _addChild(plotItem, "PlotMajorXTics", listMajorXTics);
+            QVariantList listMajorYTics;
+            foreach ( double tic, plot->majorYTics() ) {
+                listMajorYTics << tic;
+            }
+            _addChild(plotItem, "PlotMajorYTics", listMajorYTics);
+            QVariantList listMinorXTics;
+            foreach ( double tic, plot->minorXTics() ) {
+                listMinorXTics << tic;
+            }
+            _addChild(plotItem, "PlotMinorXTics", listMinorXTics);
+            QVariantList listMinorYTics;
+            foreach ( double tic, plot->minorYTics() ) {
+                listMinorYTics << tic;
+            }
+            _addChild(plotItem, "PlotMinorYTics", listMinorYTics);
 
             // Curves
             QStandardItem *curvesItem = _addChild(plotItem,"Curves");

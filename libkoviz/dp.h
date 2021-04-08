@@ -166,6 +166,10 @@ public:
     QString plotXScale() const;
     QString plotYScale() const;
     QString plotRatio() const;
+    QList<double> majorXTics() const;
+    QList<double> majorYTics() const;
+    QList<double> minorXTics() const;
+    QList<double> minorYTics() const;
 
     void setXAxisLabel(const char* label) { _xAxisLabel = label ; }
     void setYAxisLabel(const char* label) { _yAxisLabel = label ; }
@@ -183,6 +187,10 @@ public:
     void setPlotXScale(const QString& plotXScale);
     void setPlotYScale(const QString& plotYScale);
     void setPlotRatio(const QString& plotRatio);
+    void setMajorXTics(const QList<double>& xTics);
+    void setMajorYTics(const QList<double>& yTics);
+    void setMinorXTics(const QList<double>& xTics);
+    void setMinorYTics(const QList<double>& yTics);
 
     QList<DPCurve*> curves() { return _curves; }
     DPCurve* addCurve();
@@ -207,6 +215,10 @@ private:
     QString _plotXScale;
     QString _plotYScale;
     QString _plotRatio;
+    QList<double> _majorXTics;
+    QList<double> _majorYTics;
+    QList<double> _minorXTics;
+    QList<double> _minorYTics;
 };
 
 class DPPage

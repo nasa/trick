@@ -76,6 +76,9 @@ public:
     QHash<QString,QVariant> getDataHash(const QModelIndex& startIdx,
                           const QString& searchItemText,
                           const QString &expectedStartIdxText=QString()) const;
+    QVariantList getDataList(const QModelIndex& startIdx,
+                          const QString& searchItemText,
+                          const QString &expectedStartIdxText=QString()) const;
 
     // Convenience for getting QPen line style (see Qt doc)
     QVector<qreal> getLineStylePattern(const QString& linestyle) const;
@@ -176,12 +179,20 @@ private:
     QString __commonRootName(const QString& a, const QString& b,
                              const QString& sep) const;
 
-    QList<double> _calcMinorTicSet(double a, double b,
-                                   const QString& plotScale) const;
     QList<double> _calcTicSet(double aIn, double bIn,
                               double u, double n) const;
     bool _isEqual(double a, double b, ulong maxD=10,
                   bool isNeighborMethod=true) const;
+
+    QList<double> _majorTics(double a, double b,
+                             const QList<QVariant> &customTics,
+                             const QString& plotScale) const;
+    QList<double> _minorTics(double a, double b,
+                             const QList<QVariant>& customMajorTics,
+                             const QList<QVariant>& customMinorTics,
+                             const QString& plotScale) const;
+    QList<double> __minorTics(double a, double b, QList<double>& Majors,
+                              const QString& plotScale) const;
 
     struct LegendElement
     {

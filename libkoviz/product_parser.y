@@ -9,10 +9,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <QString>
+#include <QList>
 
 extern int yylex(void);
 extern int yylineno;
 extern char* yytext;
+
+QList<double> globalFloatList;
 
 QString dpFileName();
 
@@ -71,7 +74,8 @@ QString dpFileName() {
         int ival ;
         double dval ;
         char sval[1024] ;
-}
+        QList<double>* listOfFloatsPtr;
+};
 
 
 %token DP_PAGE DP_PLOT DP_START DP_STOP
@@ -91,9 +95,13 @@ QString dpFileName() {
 %token DP_GNUPLOT_PAGE_ORIENTATION DP_GNUPLOT_OBJECT
 %token DP_PLOT_X_SCALE DP_PLOT_Y_SCALE
 %token DP_PLOT_RATIO
+%token DP_MAJOR_X_TICS DP_MAJOR_Y_TICS
+%token DP_MINOR_X_TICS DP_MINOR_Y_TICS
 
 %token <sval> DP_STR
 %token <dval> DP_FLOAT
+
+%type <listOfFloatsPtr> float_list
 
 %%
 
@@ -239,6 +247,18 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
         }
         | plot DP_STOP ':' DP_FLOAT {
                 currPlot->setStopTime($4);
+        }
+        | plot DP_MAJOR_X_TICS ':' float_list {
+                currPlot->setMajorXTics(*$4);
+        }
+        | plot DP_MAJOR_Y_TICS ':' float_list {
+                currPlot->setMajorYTics(*$4);
+        }
+        | plot DP_MINOR_X_TICS ':' float_list {
+                currPlot->setMinorXTics(*$4);
+        }
+        | plot DP_MINOR_Y_TICS ':' float_list {
+                currPlot->setMinorYTics(*$4);
         }
         | plot {
                    if ( !isXYPair ) {
@@ -460,6 +480,19 @@ curve: DP_CURVE ':' {
                 msg("CURVE.GNUPLOT_LINE_STYLE not supported");
         }
         ;
+
+float_list: DP_FLOAT {
+                QList<double>* list = &globalFloatList;
+                list->clear();
+                list->append($1);
+                $$ = list;
+        }
+        | float_list ',' DP_FLOAT {
+                $1->append($3);
+                $$ = $1;
+        }
+        ;
+
 
 table_section: DP_TABLES ':' tables
         ;

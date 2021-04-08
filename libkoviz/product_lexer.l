@@ -1,4 +1,5 @@
 %{
+#include <QList>
 #include "product_parser.h"
 %}
 
@@ -58,6 +59,10 @@ Y_AXIS_FORMAT                 [Yy]_[Aa][Xx][Ii][Ss]_[Ff][Oo][Rr][Mm][Aa][Tt]
 Y_MIN_RANGE                   [Yy]_[Mm][Ii][Nn]_[Rr][Aa][Nn][Gg][Ee] 
 Y_MAX_RANGE                   [Yy]_[Mm][Aa][Xx]_[Rr][Aa][Nn][Gg][Ee] 
 Y_VARIABLE                    [Yy]_[Vv][Aa][Rr][Ii][Aa][Bb][Ll][Ee]
+MAJOR_X_TICS                  [Mm][Aa][Jj][Oo][Rr]_[Xx]_[Tt][Ii][Cc][Ss]
+MAJOR_Y_TICS                  [Mm][Aa][Jj][Oo][Rr]_[Yy]_[Tt][Ii][Cc][Ss]
+MINOR_X_TICS                  [Mm][Ii][Nn][Oo][Rr]_[Xx]_[Tt][Ii][Cc][Ss]
+MINOR_Y_TICS                  [Mm][Ii][Nn][Oo][Rr]_[Yy]_[Tt][Ii][Cc][Ss]
 
 QSTR                          \"[^"\n]*["\n] 
 STR                           [a-zA-Z][-_a-zA-Z0-9.\,()\[\]/$#{}]* 
@@ -119,6 +124,10 @@ W                             [ \t]+
 {Y_MAX_RANGE}              { return(DP_Y_MAX_RANGE); }
 {Y_MIN_RANGE}              { return(DP_Y_MIN_RANGE); }
 {Y_VARIABLE}               { return(DP_Y_VARIABLE); }
+{MAJOR_X_TICS}             { return(DP_MAJOR_X_TICS); }
+{MAJOR_Y_TICS}             { return(DP_MAJOR_Y_TICS); }
+{MINOR_X_TICS}             { return(DP_MINOR_X_TICS); }
+{MINOR_Y_TICS}             { return(DP_MINOR_Y_TICS); }
 
 {QSTR}  { 
 

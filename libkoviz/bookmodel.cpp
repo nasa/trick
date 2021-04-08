@@ -614,6 +614,17 @@ QHash<QString,QVariant> PlotBookModel::getDataHash(const QModelIndex &startIdx,
     return hash;
 }
 
+QVariantList PlotBookModel::getDataList(const QModelIndex &startIdx,
+                                      const QString &searchItemText,
+                                      const QString &expectedStartIdxText) const
+{
+    QModelIndex dataIdx = getDataIndex(startIdx,searchItemText,
+                                       expectedStartIdxText);
+    QVariantList list = data(dataIdx).toList();
+    return list;
+
+}
+
 // no_line currently unsupported
 QVector<qreal> PlotBookModel::getLineStylePattern(
                                              const QString &linestyle) const
@@ -1951,43 +1962,161 @@ bool PlotBookModel::isMatch(const QString &str, const QString &exp) const
 QList<double> PlotBookModel::majorXTics(const QModelIndex& plotIdx) const
 {
     QList<double> X;
+
     QRectF r = getPlotMathRect(plotIdx);
     double a = r.left();
     double b = r.right();
-    X = _calcTicSet(a,b,1.0,10.0);
+    QVariantList customTics;
+    if ( isChildIndex(plotIdx, "Plot", "PlotMajorXTics") ) {
+        customTics = getDataList(plotIdx,"PlotMajorXTics","Plot");
+    }
+    QString plotScale;
+    if ( isChildIndex(plotIdx, "Plot", "PlotXScale") ) {
+        plotScale = getDataString(plotIdx,"PlotXScale","Plot");
+    }
+    X = _majorTics(a,b,customTics,plotScale);
+
     return X;
 }
 
 QList<double> PlotBookModel::minorXTics(const QModelIndex &plotIdx) const
 {
     QList<double> X;
+
+    QVariantList customMinorTics;
+    if ( isChildIndex(plotIdx, "Plot", "PlotMinorXTics") ) {
+        customMinorTics = getDataList(plotIdx,"PlotMinorXTics","Plot");
+    }
+
+    QVariantList customMajorTics;
+    if ( isChildIndex(plotIdx, "Plot", "PlotMajorXTics") ) {
+        customMajorTics = getDataList(plotIdx,"PlotMajorXTics","Plot");
+    }
+
     QRectF r = getPlotMathRect(plotIdx);
     double a = r.left();
     double b = r.right();
     QString plotScale = getDataString(plotIdx,"PlotXScale","Plot");
-    X = _calcMinorTicSet(a,b,plotScale);
+
+    X = _minorTics(a,b,customMajorTics,customMinorTics,plotScale);
+
     return X;
 }
 
 QList<double> PlotBookModel::majorYTics(const QModelIndex &plotIdx) const
 {
     QList<double> Y;
+
     QRectF r = getPlotMathRect(plotIdx);
     double a = r.bottom();
     double b = r.top();
-    Y = _calcTicSet(a,b,1.0,10.0);
+    QVariantList customTics;
+    if ( isChildIndex(plotIdx, "Plot", "PlotMajorYTics") ) {
+        customTics = getDataList(plotIdx,"PlotMajorYTics","Plot");
+    }
+    QString plotScale;
+    if ( isChildIndex(plotIdx, "Plot", "PlotYScale") ) {
+        plotScale = getDataString(plotIdx,"PlotYScale","Plot");
+    }
+    Y = _majorTics(a,b,customTics,plotScale);
+
     return Y;
 }
 
 QList<double> PlotBookModel::minorYTics(const QModelIndex &plotIdx) const
 {
     QList<double> Y;
+
+    QVariantList customMinorTics;
+    if ( isChildIndex(plotIdx, "Plot", "PlotMinorYTics") ) {
+        customMinorTics = getDataList(plotIdx,"PlotMinorYTics","Plot");
+    }
+
+    QVariantList customMajorTics;
+    if ( isChildIndex(plotIdx, "Plot", "PlotMajorYTics") ) {
+        customMajorTics = getDataList(plotIdx,"PlotMajorYTics","Plot");
+    }
+
     QRectF r = getPlotMathRect(plotIdx);
     double a = r.bottom();
     double b = r.top();
     QString plotScale = getDataString(plotIdx,"PlotYScale","Plot");
-    Y = _calcMinorTicSet(a,b,plotScale);
+
+    Y = _minorTics(a,b,customMajorTics,customMinorTics,plotScale);
+
     return Y;
+}
+
+QList<double> PlotBookModel::_majorTics(double a, double b,
+                                        const QList<QVariant> &customTics,
+                                        const QString &plotScale) const
+{
+    QList<double> T;
+
+    if ( customTics.isEmpty() || plotScale == "log") {  // normal case
+        // Note: no custom tics in logscale
+        T = _calcTicSet(a,b,1.0,10.0);
+    } else {
+        foreach ( QVariant customTic, customTics ) {
+            bool ok;
+            double tic = customTic.toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr,"koviz [badscoobs]:PlotBookModel::majorTics\n");
+                exit(-1);
+            }
+            if ( a <= tic && tic <= b ) {
+                T << tic;
+            }
+        }
+    }
+    return T;
+}
+
+QList<double> PlotBookModel::_minorTics(double a, double b,
+                                        const QList<QVariant>& customMajorTics,
+                                        const QList<QVariant>& customMinorTics,
+                                        const QString& plotScale) const
+{
+    QList<double> T;
+
+    if ( customMinorTics.isEmpty() || plotScale == "log" ) {
+        QList<double> majorTics;
+        if ( customMajorTics.isEmpty() || plotScale == "log" ) {
+            majorTics = _calcTicSet(a,b,1.0,10.0);
+            T = __minorTics(a,b,majorTics,plotScale);
+        } else {
+            foreach ( QVariant vtic, customMajorTics ) {
+                bool ok;
+                double tic = vtic.toDouble(&ok);
+                if ( !ok ) {
+                    fprintf(stderr, "koviz [bad scoobs]:1 _minorTics\n");
+                    exit(-1);
+                }
+                majorTics << tic;
+            }
+            if ( majorTics.size() >= 2 ) {
+                double firstMajor = majorTics.first();
+                double lastMajor = majorTics.last();
+                foreach ( double tic, __minorTics(a,b,majorTics,plotScale) ) {
+                    // If custom majors, no minors outside majors
+                    if ( firstMajor < tic && tic < lastMajor ) {
+                        T << tic;
+                    }
+                }
+            }
+        }
+    } else {
+        foreach ( QVariant vtic, customMinorTics ) {
+            bool ok;
+            double tic = vtic.toDouble(&ok);
+            if ( !ok ) {
+                fprintf(stderr, "koviz [bad scoobs]:2 _minorTics\n");
+                exit(-1);
+            }
+            T << tic;
+        }
+    }
+    return T;
 }
 
 //
@@ -2447,12 +2576,11 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendOverrides() const
     return els;
 }
 
-QList<double> PlotBookModel::_calcMinorTicSet(double a, double b,
-                                              const QString &plotScale) const
+QList<double> PlotBookModel::__minorTics(double a, double b,
+                                               QList<double> &Majors,
+                                               const QString &plotScale) const
 {
     QList<double> Minors;
-
-    QList<double> Majors = _calcTicSet(a,b,1.0,10.0);
 
     if ( Majors.size() >= 2 ) {
         if ( plotScale == "linear" ) {
@@ -2461,11 +2589,26 @@ QList<double> PlotBookModel::_calcMinorTicSet(double a, double b,
             if ( x-d-d-d >= a ) Minors << x-d-d-d;
             if ( x-d-d >= a )   Minors << x-d-d;
             if ( x-d >= a )     Minors << x-d;
-            foreach (double x, Majors) {
+
+            for ( int ii = 0 ; ii < Majors.size(); ++ii ) {
+                double d;
+                if ( ii == 0 ) {
+                    continue;
+                } else {
+                    d = (Majors.at(ii)-Majors.at(ii-1))/4.0;
+                }
+                double x = Majors.at(ii-1);
                 if ( x+d <= b )     Minors << x+d;
                 if ( x+d+d <= b )   Minors << x+d+d;
                 if ( x+d+d+d <= b ) Minors << x+d+d+d;
             }
+
+            int n = Majors.size()-1;
+            d = (Majors.at(n)-Majors.at(n-1))/4.0;
+            x = Majors.at(n);
+            if ( x+d <= b )     Minors << x+d;
+            if ( x+d+d <= b )   Minors << x+d+d;
+            if ( x+d+d+d <= b ) Minors << x+d+d+d;
         } else if ( plotScale == "log" ) {
             double d = Majors.at(1)-Majors.at(0);
             QList<double> majors;

@@ -543,6 +543,26 @@ QString DPPlot::plotRatio() const
     return _plotRatio;
 }
 
+QList<double> DPPlot::majorXTics() const
+{
+    return _majorXTics;
+}
+
+QList<double> DPPlot::majorYTics() const
+{
+    return _majorYTics;
+}
+
+QList<double> DPPlot::minorXTics() const
+{
+    return _minorXTics;
+}
+
+QList<double> DPPlot::minorYTics() const
+{
+    return _minorYTics;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -616,6 +636,34 @@ void DPPlot::setPlotYScale(const QString &plotYScale)
 void DPPlot::setPlotRatio(const QString &plotRatio)
 {
     _plotRatio = plotRatio;
+}
+
+void DPPlot::setMajorXTics(const QList<double> &xTics)
+{
+    foreach ( double xtic, xTics ) {
+        _majorXTics << xtic;
+    }
+}
+
+void DPPlot::setMajorYTics(const QList<double>& yTics)
+{
+    foreach ( double ytic, yTics ) {
+        _majorYTics << ytic;
+    }
+}
+
+void DPPlot::setMinorXTics(const QList<double> &xTics)
+{
+    foreach ( double xtic, xTics ) {
+        _minorXTics << xtic;
+    }
+}
+
+void DPPlot::setMinorYTics(const QList<double> &yTics)
+{
+    foreach ( double ytic, yTics ) {
+        _minorYTics << ytic;
+    }
 }
 
 DPCurve *DPPlot::addCurve()
