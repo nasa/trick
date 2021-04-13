@@ -604,6 +604,17 @@ int PlotBookModel::getDataInt(const QModelIndex &startIdx,
     return i;
 }
 
+QRectF PlotBookModel::getDataRectF(const QModelIndex &startIdx,
+                                   const QString &searchItemText,
+                                   const QString &expectedStartIdxText) const
+{
+    QModelIndex dataIdx = getDataIndex(startIdx,searchItemText,
+                                       expectedStartIdxText);
+    QRectF R = data(dataIdx).toRectF();
+    return R;
+
+}
+
 QHash<QString,QVariant> PlotBookModel::getDataHash(const QModelIndex &startIdx,
                                  const QString &searchItemText,
                                  const QString &expectedStartIdxText) const

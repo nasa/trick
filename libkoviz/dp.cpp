@@ -563,6 +563,11 @@ QList<double> DPPlot::minorYTics() const
     return _minorYTics;
 }
 
+QRectF DPPlot::rect() const
+{
+    return _rect;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -664,6 +669,11 @@ void DPPlot::setMinorYTics(const QList<double> &yTics)
     foreach ( double ytic, yTics ) {
         _minorYTics << ytic;
     }
+}
+
+void DPPlot::setRect(double x, double y, double w, double h)
+{
+    _rect = QRectF(x,y,w,h);
 }
 
 DPCurve *DPPlot::addCurve()

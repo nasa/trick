@@ -368,6 +368,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                 listMinorYTics << tic;
             }
             _addChild(plotItem, "PlotMinorYTics", listMinorYTics);
+            _addChild(plotItem, "PlotRect", plot->rect());
 
             // Curves
             QStandardItem *curvesItem = _addChild(plotItem,"Curves");

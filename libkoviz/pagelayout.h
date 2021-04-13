@@ -8,6 +8,8 @@
 #include <QString>
 #include <stdio.h>
 
+#include "bookmodel.h"
+
 class PageLayout : public QLayout
 {
 public:
@@ -22,8 +24,15 @@ public:
     virtual QSize sizeHint() const;
     virtual QLayoutItem *takeAt(int index);
 
+    void setModelIndex(PlotBookModel* bookModel, const QModelIndex& pageIdx);
+
 private:
     QList<QLayoutItem*> _items;
+    PlotBookModel* _bookModel;
+    QModelIndex _pageIdx;
+    QRect _calcRect(int pageWidth,int pageHeight,
+                    int titleHeight, const QRectF &r);
+
 };
 
 #endif // PAGELAYOUT_H

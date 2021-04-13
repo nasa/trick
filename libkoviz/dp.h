@@ -170,6 +170,7 @@ public:
     QList<double> majorYTics() const;
     QList<double> minorXTics() const;
     QList<double> minorYTics() const;
+    QRectF rect() const ;
 
     void setXAxisLabel(const char* label) { _xAxisLabel = label ; }
     void setYAxisLabel(const char* label) { _yAxisLabel = label ; }
@@ -191,6 +192,7 @@ public:
     void setMajorYTics(const QList<double>& yTics);
     void setMinorXTics(const QList<double>& xTics);
     void setMinorYTics(const QList<double>& yTics);
+    void setRect(double x, double y, double w, double h);
 
     QList<DPCurve*> curves() { return _curves; }
     DPCurve* addCurve();
@@ -219,6 +221,7 @@ private:
     QList<double> _majorYTics;
     QList<double> _minorXTics;
     QList<double> _minorYTics;
+    QRectF _rect;
 };
 
 class DPPage

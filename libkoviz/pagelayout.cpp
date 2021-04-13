@@ -1,6 +1,9 @@
 #include "pagelayout.h"
 
-PageLayout::PageLayout() : QLayout()
+PageLayout::PageLayout() :
+    QLayout(),
+    _bookModel(0),
+    _pageIdx(QModelIndex())
 {
 }
 
@@ -56,26 +59,40 @@ void PageLayout::setGeometry(const QRect &rect)
         }
     }
 
+    QList<QRectF> plotRects;
+    if (_bookModel->isChildIndex(_pageIdx,"Page","Plots")) {
+        QModelIndex plotsIdx = _bookModel->getIndex(_pageIdx, "Plots","Page");
+        QModelIndexList plotIdxs = _bookModel->getIndexList(plotsIdx,
+                                                              "Plot","Plots");
+        foreach ( QModelIndex plotIdx, plotIdxs ) {
+            if ( _bookModel->isChildIndex(plotIdx,"Plot", "PlotRect") ) {
+                QRectF r = _bookModel->getDataRectF(plotIdx,"PlotRect","Plot");
+                plotRects << r;
+            }
+        }
+    }
+
+    QList<QRect> rects;
     int nPlots = items.size();
     switch ( nPlots ) {
         case 1: {
-            items.at(0)->setGeometry(QRect(m,h0,w-2*m,h-h0));
+            rects << QRect(m,h0,w-2*m,h-h0);
             break;
         }
         case 2: {
             int h1 = (h-h0-2*m)/2;
             int h2 = h-h0-h1-2*m;
-            items.at(0)->setGeometry(QRect(m,h0,w-2*m,h1));
-            items.at(1)->setGeometry(QRect(m,h0+h1+2*m,w-2*m,h2));
+            rects << QRect(m,h0,w-2*m,h1);
+            rects << QRect(m,h0+h1+2*m,w-2*m,h2);
             break;
         }
         case 3: {
             int h1 = (h-h0-4*m)/3;
             int h2 = (h-h0-h1-2*m)/2;
             int h3 = h-h0-h1-h2-4*m;
-            items.at(0)->setGeometry(QRect(m,h0,w-2*m,h1));
-            items.at(1)->setGeometry(QRect(m,h0+h1+2*m,w-2*m,h2));
-            items.at(2)->setGeometry(QRect(m,h0+h1+h2+4*m,w-2*m,h3));
+            rects << QRect(m,h0,w-2*m,h1);
+            rects << QRect(m,h0+h1+2*m,w-2*m,h2);
+            rects << QRect(m,h0+h1+h2+4*m,w-2*m,h3);
             break;
         }
         case 4: {
@@ -83,10 +100,10 @@ void PageLayout::setGeometry(const QRect &rect)
             int h2 = h-h0-h1-2*m;
             int w1 = (w-3*m)/2;
             int w2 = w-3*m-w1;
-            items.at(0)->setGeometry(QRect(m,h0,w1,h1));
-            items.at(1)->setGeometry(QRect(m+w1+m,h0,w2,h1));
-            items.at(2)->setGeometry(QRect(m,h0+h1+2*m,w1,h2));
-            items.at(3)->setGeometry(QRect(m+w1+m,h0+h1+2*m,w2,h2));
+            rects << QRect(m,h0,w1,h1);
+            rects << QRect(m+w1+m,h0,w2,h1);
+            rects << QRect(m,h0+h1+2*m,w1,h2);
+            rects << QRect(m+w1+m,h0+h1+2*m,w2,h2);
             break;
         }
         case 5: {
@@ -95,11 +112,11 @@ void PageLayout::setGeometry(const QRect &rect)
             int h3 = h-h0-h1-h2-4*m;
             int w1 = (w-3*m)/2;
             int w2 = w-3*m-w1;
-            items.at(0)->setGeometry(QRect(m,h0,w1,h1));
-            items.at(1)->setGeometry(QRect(m+w1+m,h0,w2,h1));
-            items.at(2)->setGeometry(QRect(m,h0+h1+2*m,w1,h2));
-            items.at(3)->setGeometry(QRect(m+w1+m,h0+h1+2*m,w2,h2));
-            items.at(4)->setGeometry(QRect(m,h0+h1+h2+4*m,w-2*m,h3));
+            rects << QRect(m,h0,w1,h1);
+            rects << QRect(m+w1+m,h0,w2,h1);
+            rects << QRect(m,h0+h1+2*m,w1,h2);
+            rects << QRect(m+w1+m,h0+h1+2*m,w2,h2);
+            rects << QRect(m,h0+h1+h2+4*m,w-2*m,h3);
             break;
         }
         case 6: {
@@ -108,12 +125,12 @@ void PageLayout::setGeometry(const QRect &rect)
             int h3 = h-h0-h1-h2-4*m;
             int w1 = (w-3*m)/2;
             int w2 = w-3*m-w1;
-            items.at(0)->setGeometry(QRect(m,h0,w1,h1));
-            items.at(1)->setGeometry(QRect(m,h0+h1+2*m,w1,h2));
-            items.at(2)->setGeometry(QRect(m,h0+h1+h2+4*m,w1,h3));
-            items.at(3)->setGeometry(QRect(m+w1+m,h0,w2,h1));
-            items.at(4)->setGeometry(QRect(m+w1+m,h0+h1+2*m,w2,h2));
-            items.at(5)->setGeometry(QRect(m+w1+m,h0+h1+h2+4*m,w2,h3));
+            rects << QRect(m,h0,w1,h1);
+            rects << QRect(m,h0+h1+2*m,w1,h2);
+            rects << QRect(m,h0+h1+h2+4*m,w1,h3);
+            rects << QRect(m+w1+m,h0,w2,h1);
+            rects << QRect(m+w1+m,h0+h1+2*m,w2,h2);
+            rects << QRect(m+w1+m,h0+h1+h2+4*m,w2,h3);
             break;
         }
         case 7: {
@@ -123,16 +140,39 @@ void PageLayout::setGeometry(const QRect &rect)
             int h4 = h-h0-h1-h2-h3-3*m;
             int w1 = (w-3*m)/2;
             int w2 = w-3*m-w1;
-            items.at(0)->setGeometry(QRect(m,h0,w1,h1));
-            items.at(1)->setGeometry(QRect(m,h0+h1+m,w1,h2));
-            items.at(2)->setGeometry(QRect(m,h0+h1+m+h2+m,w1,h3));
-            items.at(3)->setGeometry(QRect(m+w1+m,h0,w2,h1));
-            items.at(4)->setGeometry(QRect(m+w1+m,h0+h1+m,w2,h2));
-            items.at(5)->setGeometry(QRect(m+w1+m,h0+h1+m+h2+m,w2,h3));
-            items.at(6)->setGeometry(QRect(m,h0+h1+h2+h3+3*m,w-m,h4));
+            rects << QRect(m,h0,w1,h1);
+            rects << QRect(m,h0+h1+m,w1,h2);
+            rects << QRect(m,h0+h1+m+h2+m,w1,h3);
+            rects << QRect(m+w1+m,h0,w2,h1);
+            rects << QRect(m+w1+m,h0+h1+m,w2,h2);
+            rects << QRect(m+w1+m,h0+h1+m+h2+m,w2,h3);
+            rects << QRect(m,h0+h1+h2+h3+3*m,w-m,h4);
             break;
         }
     }
+
+    int i = 0;
+    foreach ( QRect rect, rects ) {
+        QRect r = rect;
+        if ( plotRects.size() > i && !plotRects.at(i).isEmpty() ) {
+            r = _calcRect(w,h,h0,plotRects.at(i));
+        }
+        items.at(i)->setGeometry(r);
+        ++i;
+    }
+}
+
+// Calc rect based on r which is a rect with percentages
+QRect PageLayout::_calcRect(int pageWidth,
+                            int pageHeight,
+                            int titleHeight,
+                            const QRectF &r)
+{
+    int x = qRound(r.x()*pageWidth);
+    int y = qRound(r.y()*(pageHeight-titleHeight)+titleHeight);
+    int w = floor(r.width()*pageWidth);
+    int h = floor(r.height()*(pageHeight-titleHeight));
+    return QRect(x,y,w,h);
 }
 
 QSize PageLayout::sizeHint() const
@@ -147,4 +187,11 @@ QLayoutItem *PageLayout::takeAt(int index)
                     "not implemented!\n");
     exit(-1);
     return 0;
+}
+
+void PageLayout::setModelIndex(PlotBookModel *bookModel,
+                               const QModelIndex &pageIdx)
+{
+    _bookModel = bookModel;
+    _pageIdx = pageIdx;
 }

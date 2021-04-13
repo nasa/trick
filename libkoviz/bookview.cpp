@@ -235,6 +235,7 @@ void BookView::_printPage(QPainter *painter, const QModelIndex& pageIdx)
 
     // Load page and plot layouts
     PageLayout pageLayout;
+    pageLayout.setModelIndex(_bookModel(),pageIdx);
     PageTitleLayoutItem* pageTitleLayoutItem = new PageTitleLayoutItem(
                                                   _bookModel(),pageIdx,
                                                   painter->font());

@@ -73,6 +73,9 @@ public:
     int getDataInt(const QModelIndex& startIdx,
                    const QString& searchItemText,
                    const QString &expectedStartIdxText=QString()) const;
+    QRectF getDataRectF(const QModelIndex& startIdx,
+                        const QString& searchItemText,
+                        const QString& expectedStartIdxText=QString()) const;
     QHash<QString,QVariant> getDataHash(const QModelIndex& startIdx,
                           const QString& searchItemText,
                           const QString &expectedStartIdxText=QString()) const;

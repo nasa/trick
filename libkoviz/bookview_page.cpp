@@ -88,7 +88,8 @@ void PageView::_toggleView(QObject* obj)
 }
 
 void PageView::dataChanged(const QModelIndex &topLeft,
-                                const QModelIndex &bottomRight)
+                           const QModelIndex &bottomRight,
+                           const QVector<int> &roles)
 {
     QModelIndex pidx = topLeft.parent();
     if ( pidx != bottomRight.parent() ) return;
@@ -177,6 +178,10 @@ void PageView::setModel(QAbstractItemModel *model)
 
 void PageView::setRootIndex(const QModelIndex &index)
 {
+    QString tag = model()->data(index).toString();
+    if ( tag == "Page" && _bookModel() ) {
+        _grid->setModelIndex(_bookModel(),index);
+    }
     foreach (QAbstractItemView* view, _childViews ) {
         view->setRootIndex(index);
     }

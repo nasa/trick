@@ -273,6 +273,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     }
     _addChild(plotItem, "PlotXAxisLabel", _timeName);
     _addChild(plotItem, "PlotYAxisLabel", yName);
+    _addChild(plotItem, "PlotRect", QRect(0,0,0,0));
 
     QStandardItem *curvesItem = _addChild(plotItem,"Curves");
     QModelIndex curvesIdx = _plotModel->indexFromItem(curvesItem);
