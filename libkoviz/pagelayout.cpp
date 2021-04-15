@@ -75,6 +75,9 @@ void PageLayout::setGeometry(const QRect &rect)
     QList<QRect> rects;
     int nPlots = items.size();
     switch ( nPlots ) {
+        case 0: {
+            break;
+        }
         case 1: {
             rects << QRect(m,h0,w-2*m,h-h0);
             break;
@@ -148,6 +151,33 @@ void PageLayout::setGeometry(const QRect &rect)
             rects << QRect(m+w1+m,h0+h1+m+h2+m,w2,h3);
             rects << QRect(m,h0+h1+h2+h3+3*m,w-m,h4);
             break;
+        }
+        default: {
+            int nrows = ceil(sqrt(nPlots));
+            div_t q = div(nPlots,nrows);
+            int ncols = 0;
+            if ( q.rem == 0 ) {
+                ncols = q.quot;
+            } else {
+                ncols = q.quot+1;
+            }
+            int i = 0;
+            int ww = w/ncols;
+            int hh = (h-h0)/nrows;
+            for ( int r = 0; r < nrows; ++r ) {
+                for ( int c = 0; c < ncols; ++c ) {
+                    if ( i == nPlots ) {
+                        break;
+                    }
+                    int x = c*ww;
+                    int y = h0+r*hh;
+                    if ( i == nPlots-1 ) {
+                        ww = (ncols-c)*ww; // Expand last plot
+                    }
+                    rects << QRect(x,y,ww,hh);
+                    ++i;
+                }
+            }
         }
     }
 
