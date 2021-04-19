@@ -18,11 +18,11 @@ class TestFileSkippedSimObject : public Trick::SimObject {
         Baz baz;
 
         TestFileSkippedSimObject() {
-        	("initialization") trick_ret = bar.test_bar_member_o_correct_offset();
+            ("initialization") trick_ret = bar.test_bar_member_o_correct_offset();
             ("initialization") trick_ret = baz.test_baz_member_m_correct_offset();
             ("default_data") trick_ret = bar.test_bar_member_o_correct_offset();
             ("default_data") trick_ret = baz.test_baz_member_m_correct_offset();
-        	(0.25, "scheduled") trick_ret = bar.test_bar_member_o_correct_offset();
+            (0.25, "scheduled") trick_ret = bar.test_bar_member_o_correct_offset();
             (0.25, "scheduled") trick_ret = baz.test_baz_member_m_correct_offset();
             ("shutdown") trick_ret = bar.test_bar_member_o_correct_offset();
             ("shutdown") trick_ret = baz.test_baz_member_m_correct_offset();
