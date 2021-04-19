@@ -18,10 +18,13 @@ protected:
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
     virtual void paintEvent(QPaintEvent * event);
+    virtual void mousePressEvent(QMouseEvent* event);
+    virtual void mouseReleaseEvent(QMouseEvent* event);
 
 private:
     QLabel* _label;
     QVBoxLayout* _vBoxLayout;
+    QPoint _mousePressPos;
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

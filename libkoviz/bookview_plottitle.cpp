@@ -60,3 +60,29 @@ void PlotTitleView::paintEvent(QPaintEvent *event)
     PlotTitleLayoutItem layoutItem(fontMetrics(),_bookModel(),rootIndex());
     layoutItem.paint(&painter,R,RG,C,M);
 }
+
+void PlotTitleView::mousePressEvent(QMouseEvent *event)
+{
+    if (  event->button() == Qt::LeftButton ) {
+        _mousePressPos = event->pos();
+    }
+}
+
+void PlotTitleView::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (  event->button() == Qt::LeftButton ) {
+        double x0 = _mousePressPos.x();
+        double y0 = _mousePressPos.y();
+        double x1 = event->pos().x();
+        double y1 = event->pos().y();
+        double d = qSqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
+        if ( d < 10 ) {
+            // Toggle between single/multiview if not dragging mouse
+            event->ignore();
+        } else {
+            QAbstractItemView::mouseReleaseEvent(event);
+        }
+    } else {
+        QAbstractItemView::mouseReleaseEvent(event);
+    }
+}
