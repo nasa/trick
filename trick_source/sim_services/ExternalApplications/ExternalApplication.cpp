@@ -32,7 +32,7 @@ Trick::ExternalApplication::ExternalApplication() :
 
 Trick::ExternalApplication::~ExternalApplication() {
     for(std::vector<char*>::iterator it = allocations.begin(); it != allocations.end(); ++it) {
-        trick_MM->delete_var(*it);
+        trick_MM->delete_var( (void*)*it );
     }
     allocations.clear();
 }

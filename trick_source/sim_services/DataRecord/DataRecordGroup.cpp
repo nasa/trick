@@ -725,7 +725,7 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
 
         if(!max_size_warning && (total_bytes_written > max_file_size)) {
             std::cerr << "WARNING: Data record max file size " << (static_cast<double>(max_file_size))/(1<<20) << "MB reached.\n"
-            "https://github.com/nasa/trick/wiki/Data-Record#changing-the-max-file-size-of-a-data-record-group-ascii-and-binary-only" 
+            "https://nasa.github.io/trick/documentation/simulation_capabilities/Data-Record#changing-the-max-file-size-of-a-data-record-group-ascii-and-binary-only" 
             << std::endl;
             max_size_warning = true;
         }
