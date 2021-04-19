@@ -46,6 +46,7 @@ void PageLayout::setGeometry(const QRect &rect)
     }
     _items.at(0)->setGeometry(QRect(0,0,w-m,h0));
 
+    bool isHiddenItems = false; // Hidden items implies toggled to single view
     QList<QLayoutItem*> items;
     int nItems = _items.count();
     for ( int i = 1; i < nItems; ++i ) {
@@ -53,6 +54,8 @@ void PageLayout::setGeometry(const QRect &rect)
         if ( item->widget() ) {
             if ( !item->widget()->isHidden() ) {
                 items << item;
+            } else {
+                isHiddenItems = true;
             }
         } else {
             items << item;
@@ -184,7 +187,8 @@ void PageLayout::setGeometry(const QRect &rect)
     int i = 0;
     foreach ( QRect rect, rects ) {
         QRect r = rect;
-        if ( plotRects.size() > i && !plotRects.at(i).isEmpty() ) {
+        if ( !isHiddenItems &&
+             plotRects.size() > i && !plotRects.at(i).isEmpty() ) {
             r = _calcRect(w,h,h0,plotRects.at(i));
         }
         items.at(i)->setGeometry(r);
