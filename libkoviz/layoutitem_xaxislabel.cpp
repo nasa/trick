@@ -89,7 +89,10 @@ QString XAxisLabelLayoutItem::_xAxisLabelText() const
     QModelIndex curvesIdx = _bookModel->getIndex(_plotIdx,"Curves","Plot");
     QString unit = _bookModel->getCurvesXUnit(curvesIdx);
 
-    label = label + " {" + unit + "}";
+    label = label.trimmed();
+    if ( !label.isEmpty() ) {
+        label = label + " {" + unit + "}";
+    }
 
     return label;
 }
