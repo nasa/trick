@@ -1,10 +1,35 @@
 #include "bookview_plottitle.h"
 
 PlotTitleView::PlotTitleView(QWidget *parent) :
-    BookIdxView(parent)
+    BookIdxView(parent),
+    _buttonSelectAndPan(Qt::LeftButton),
+    _buttonRubberBandZoom(Qt::MidButton),
+    _buttonResetView(Qt::RightButton)
 {
     setFrameShape(QFrame::NoFrame);
     this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
+    setMouseTracking(true);
+}
+
+void PlotTitleView::setModel(QAbstractItemModel *model)
+{
+    BookIdxView::setModel(model);
+
+    QHash<QString,Qt::MouseButton> button2mouse;
+    button2mouse.insert("left",Qt::LeftButton);
+    button2mouse.insert("right",Qt::RightButton);
+    button2mouse.insert("middle",Qt::MiddleButton);
+
+    QString buttonSelect = _bookModel()->getDataString(
+                                         QModelIndex(),"ButtonSelectAndPan","");
+    QString buttonZoom = _bookModel()->getDataString(
+                                         QModelIndex(),"ButtonZoom","");
+    QString buttonReset = _bookModel()->getDataString(
+                                         QModelIndex(),"ButtonReset","");
+
+    _buttonSelectAndPan = button2mouse.value(buttonSelect);
+    _buttonRubberBandZoom = button2mouse.value(buttonZoom);
+    _buttonResetView = button2mouse.value(buttonReset);
 }
 
 // TODO: For now and only handle single item changes
@@ -63,14 +88,16 @@ void PlotTitleView::paintEvent(QPaintEvent *event)
 
 void PlotTitleView::mousePressEvent(QMouseEvent *event)
 {
-    if (  event->button() == Qt::LeftButton ) {
+    if (  event->button() == _buttonSelectAndPan ) {
         _mousePressPos = event->pos();
+    } else if (  event->button() == _buttonRubberBandZoom ) {
+        event->ignore();
     }
 }
 
 void PlotTitleView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (  event->button() == Qt::LeftButton ) {
+    if (  event->button() == _buttonSelectAndPan ) {
         double x0 = _mousePressPos.x();
         double y0 = _mousePressPos.y();
         double x1 = event->pos().x();
@@ -82,7 +109,18 @@ void PlotTitleView::mouseReleaseEvent(QMouseEvent *event)
         } else {
             QAbstractItemView::mouseReleaseEvent(event);
         }
+    } else if ( event->button() == _buttonRubberBandZoom ) {
+        event->ignore();
     } else {
         QAbstractItemView::mouseReleaseEvent(event);
+    }
+}
+
+void PlotTitleView::mouseMoveEvent(QMouseEvent *event)
+{
+    if ( event->buttons() == _buttonRubberBandZoom ) {
+        event->ignore();
+    } else {
+        QAbstractItemView::mouseMoveEvent(event);
     }
 }
