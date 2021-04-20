@@ -60,6 +60,16 @@ void VideoWindow::wrap_mpv_events()
     emit mpv_events();
 }
 
+void VideoWindow::closeEvent(QCloseEvent *event)
+{
+    QSettings settings("JSC", "koviz");
+
+    settings.beginGroup("VideoWindow");
+    settings.setValue("size", size());
+    settings.setValue("pos", pos());
+    settings.endGroup();
+}
+
 void VideoWindow::seek_time(double time) {
 #ifdef HAS_MPV
     int isIdle;

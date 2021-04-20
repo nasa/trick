@@ -14,6 +14,7 @@
 #include <QGridLayout>
 #include <QApplication>
 #include <QTextEdit>
+#include <QSettings>
 
 #ifdef HAS_MPV
 #include <mpv/qthelper.hpp>
@@ -30,6 +31,9 @@ public:
     void set_file(const QString& fname);
     void set_offset(double timeOffset);
     void wrap_mpv_events();
+
+protected:
+     virtual void closeEvent(QCloseEvent *event);
 
 public slots:
     void on_file_open();

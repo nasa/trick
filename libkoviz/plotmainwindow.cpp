@@ -1275,6 +1275,12 @@ void PlotMainWindow::_saveSession()
 
 void PlotMainWindow::_openVideo()
 {
+    QRect lastVideoRect;
+    if ( vidView ) {
+        lastVideoRect.setSize(vidView->size());
+        lastVideoRect.setTopLeft(vidView->pos());
+    }
+
     int i = _monteInputsView->currentRun();
     if ( i >= 0 ) {
         QString rundir = _runs->runDirs().at(i);
@@ -1315,7 +1321,12 @@ void PlotMainWindow::_openVideo()
     }
 
     if ( vidView ) {
-        _readVideoWindowSettings();
+        if ( lastVideoRect.isNull() ) {
+            _readVideoWindowSettings();
+        } else {
+            vidView->resize(lastVideoRect.size());
+            vidView->move(lastVideoRect.topLeft());
+        }
     }
 }
 
