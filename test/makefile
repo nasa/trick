@@ -26,6 +26,7 @@ SIMS_TO_COMPILE_AND_RUN = \
 	SIM_stls \
 	SIM_test_dp \
 	SIM_test_dr \
+	SIM_test_icg_file_skipped \
 	SIM_test_io \
 	SIM_test_ip \
 	SIM_test_sched \

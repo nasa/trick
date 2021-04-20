@@ -35,6 +35,38 @@ void FindTrickICG::FileChanged(clang::SourceLocation Loc, FileChangeReason Reaso
     }
 }
 
+#if (LIBCLANG_MAJOR < 10) // TODO delete when RHEL 7 no longer supported
+void FindTrickICG::FileSkipped(const clang::FileEntry &SkippedFile,
+                           const clang::Token &FilenameTok,
+                           clang::SrcMgr::CharacteristicKind FileType) {
+    std::string file_name = SkippedFile.getName() ;
+#else
+void FindTrickICG::FileSkipped(const clang::FileEntryRef & SkippedFile, const clang::Token & FilenameTok,
+                        clang::SrcMgr::CharacteristicKind FileType) {
+    /* Files that have header guards are only preprocessed once because of an optimization.
+    We still need to add its include chain to compat15 if TRICK_ICG was found when it was
+    originally preprocessed */
+    std::string file_name = SkippedFile.getName().str() ;
+#endif
+    std::string file_path;
+    {
+        char* path_cstr = almostRealPath(file_name.c_str());
+        if(path_cstr != NULL) {
+            file_path = std::string(path_cstr);
+            free(path_cstr);
+        }
+    }
+
+    // Check if skipped header is in Compat15
+    if(hsd.isPathInCompat15(file_path)) {
+        // for each header in the stack, mark them as being exposed to TRICK_ICG
+        for (std::string& file : included_files) {
+            hsd.addTrickICGFoundFile(file);
+        }
+    }
+}
+
+
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
 void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRange, clang::PPCallbacks::ConditionValueKind ConditionValue)
 #else
