@@ -65,10 +65,13 @@ protected:
     PlotBookModel *_bookModel() const;
     QAbstractItemView* _curvesView;
 
+    Qt::MouseButton _buttonSelectAndPan;
+    Qt::MouseButton _buttonRubberBandZoom;
+    Qt::MouseButton _buttonResetView;
+
     QString _curvesXUnit(const QModelIndex& plotIdx) const;
     QString _curvesUnit(const QModelIndex& plotIdx, QChar axis) const;
 
-protected:
     void _paintCurvesLegend(const QRect &R,
                             const QModelIndex& curvesIdx, QPainter &painter);
     void __paintCurvesLegend(const QRect &R,
@@ -81,12 +84,7 @@ protected:
                                QPainter& painter);
     void _paintGrid(QPainter& painter, const QModelIndex &plotIdx);
 
-protected:
     QList<QAbstractItemView*> _childViews;
-
-signals:
-
-public slots:
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

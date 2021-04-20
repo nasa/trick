@@ -121,7 +121,6 @@ public:
 
 public:
     virtual void setCurrentCurveRunID(int runID);
-    virtual void setModel(QAbstractItemModel *model);
 
 protected:
     virtual void paintEvent(QPaintEvent * event);
@@ -159,10 +158,6 @@ private:
 
     QModelIndex _chooseCurveNearMousePoint(const QPoint& pt);
     bool _isErrorCurveNearMousePoint(const QPoint& pt);
-
-    Qt::MouseButton _buttonSelectAndPan;
-    Qt::MouseButton _buttonRubberBandZoom;
-    Qt::MouseButton _buttonResetView;
 
     QPixmap* _pixmap;
     QRectF _lastM;
