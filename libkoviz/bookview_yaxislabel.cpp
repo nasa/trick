@@ -136,12 +136,3 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
         viewport()->update();
     }
 }
-
-void YAxisLabelView::mouseReleaseEvent(QMouseEvent *event)
-{
-    if (  event->button() == Qt::LeftButton ) {
-        event->ignore();
-    } else {
-        QAbstractItemView::mouseReleaseEvent(event);
-    }
-}

@@ -18,9 +18,6 @@ protected:
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
     virtual void paintEvent(QPaintEvent * event);
-    virtual void mousePressEvent(QMouseEvent* event);
-    virtual void mouseReleaseEvent(QMouseEvent* event);
-    virtual void mouseMoveEvent(QMouseEvent* event);
 
 private:
     QLabel* _label;

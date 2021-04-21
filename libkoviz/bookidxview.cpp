@@ -174,16 +174,16 @@ void BookIdxView::scrollTo(const QModelIndex &index,
 
 void BookIdxView::mousePressEvent(QMouseEvent *event)
 {
-    if ( event->button() == Qt::MidButton ){
+    if (  event->button() == _buttonSelectAndPan ) {
+        _mousePressPos = event->pos();
+    } else if (  event->button() == _buttonRubberBandZoom ) {
         event->ignore();
-    } else {
-        QAbstractItemView::mousePressEvent(event);
     }
 }
 
 void BookIdxView::mouseMoveEvent(QMouseEvent *event)
 {
-    if ( event->buttons() == Qt::MidButton ){
+    if ( event->buttons() == _buttonRubberBandZoom ) {
         event->ignore();
     } else {
         QAbstractItemView::mouseMoveEvent(event);
@@ -192,7 +192,19 @@ void BookIdxView::mouseMoveEvent(QMouseEvent *event)
 
 void BookIdxView::mouseReleaseEvent(QMouseEvent *event)
 {
-    if ( event->button() == Qt::MidButton ){
+    if (  event->button() == _buttonSelectAndPan ) {
+        double x0 = _mousePressPos.x();
+        double y0 = _mousePressPos.y();
+        double x1 = event->pos().x();
+        double y1 = event->pos().y();
+        double d = qSqrt((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0));
+        if ( d < 10 ) {
+            // Toggle between single/multiview if not dragging mouse
+            event->ignore();
+        } else {
+            QAbstractItemView::mouseReleaseEvent(event);
+        }
+    } else if ( event->button() == _buttonRubberBandZoom ) {
         event->ignore();
     } else {
         QAbstractItemView::mouseReleaseEvent(event);
