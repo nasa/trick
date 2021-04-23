@@ -18,9 +18,6 @@ protected:
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
 
-private:
-    Qt::Alignment _alignment;
-
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
                              const QModelIndex &bottomRight);

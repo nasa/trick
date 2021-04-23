@@ -3,6 +3,8 @@
 PlotTitleView::PlotTitleView(QWidget *parent) :
     BookIdxView(parent)
 {
+    _alignment = Qt::AlignTop;
+
     setFrameShape(QFrame::NoFrame);
     this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
     setMouseTracking(true);

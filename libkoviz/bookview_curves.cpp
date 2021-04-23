@@ -1408,7 +1408,6 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
 {
     if (  event->button() == _buttonSelectAndPan ) {
         _mousePressPos = event->pos();
-        _mousePressMathTopLeft = _mathRect().topLeft();
         _mousePressMathRect = _mathRect();
         event->ignore();
     } else if (  event->button() == _buttonRubberBandZoom ) {
@@ -1673,7 +1672,7 @@ bool CurvesView::_isErrorCurveNearMousePoint(const QPoint &pt)
     return isNear;
 }
 
-void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
+void CurvesView::mouseMoveEvent(QMouseEvent *event)
 {
     QRectF W = viewport()->rect();
     if ( W.width() < 1 || W.height() < 1 ) return;
@@ -1681,7 +1680,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
     double Ww = W.width();  // greater > 0, by top line
     double Wh = W.height();
 
-    if ( mouseMove->buttons() == Qt::NoButton && currentIndex().isValid() ) {
+    if ( event->buttons() == Qt::NoButton && currentIndex().isValid() ) {
 
         QString tag = model()->data(currentIndex()).toString();
         QString presentation = _bookModel()->getDataString(rootIndex(),
@@ -1690,7 +1689,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
         // If shift pressed while moving the mouse, do not update
         // the live coordinate.  This saves the live coord from
         // being updated while moving the mouse.
-        Qt::KeyboardModifiers keymods = mouseMove->modifiers();
+        Qt::KeyboardModifiers keymods = event->modifiers();
         bool shiftPressed = false;
         if ( keymods & Qt::ShiftModifier ) {
             shiftPressed = true;
@@ -1703,7 +1702,7 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
         double d = M.y() - b*W.y();
         QTransform T(a, 0,
                      0, b, /*+*/ c, d);
-        QPointF wPt = mouseMove->pos();
+        QPointF wPt = event->pos();
         QPointF mPt = T.map(wPt);
 
         if ( !shiftPressed &&
@@ -2217,28 +2216,26 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
             viewport()->update();
         }
 
-    } else if ( mouseMove->buttons() == _buttonSelectAndPan ) {
-
-        QRectF M = _mathRect();
-        double Mw = M.width();
-        double Mh = M.height();
-
-        QTransform T(Mw/Ww, 0.0,  // div by zero checked at top of method
-                     0.0, Mh/Wh,
-                     0.0, 0.0);
-
-        QPointF wPt = mouseMove->pos()-_mousePressPos;
-        QPointF mPt = _mousePressMathTopLeft-T.map(wPt);
+    } else if ( event->buttons() == _buttonSelectAndPan ) {
 
         double k = 0.88;
         QRectF insideRect((1-k)*Ww/2.0,(1-k)*Wh/2.0,k*Ww,k*Wh);
+
         if ( insideRect.contains(_mousePressPos) ) {
             // Pan if mouse press pos is deeper inside window
+            QRectF M = _mathRect();
+            double Mw = M.width();
+            double Mh = M.height();
+            QTransform T(Mw/Ww, 0.0,  // div by zero checked at top of method
+                         0.0, Mh/Wh,
+                         0.0, 0.0);
+            QPointF dW = event->pos()-_mousePressPos;
+            QPointF mPt = _mousePressMathRect.topLeft()-T.map(dW);
             M.moveTo(mPt);
             _bookModel()->setPlotMathRect(M,rootIndex());
             viewport()->update();
         } else {
-            // Scrunch if mouse press pos is on perifery of window
+            // Scale if mouse press pos is on perifery of window
             QRectF leftRect(0,0,
                             (1-k)*Ww/2.0, Wh);
             QRectF rightRect(insideRect.topRight().x(),0,
@@ -2249,76 +2246,22 @@ void CurvesView::mouseMoveEvent(QMouseEvent *mouseMove)
                            insideRect.bottomLeft().y(),
                            insideRect.width(),(1-k)*Wh/2.0);
 
-            QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
-                                                           "Curves","Plot");
-            QRectF B = _bookModel()->calcCurvesBBox(curvesIdx);
-            if ( B.topLeft().y() < B.bottomLeft().y() ) {
-                // Flip if y-axis not directed "up" (this happens with bboxes)
-                B = QRectF(B.bottomLeft(),B.topRight());
-            }
-
-            M = _mousePressMathRect;
-
-            QEasingCurve ez(QEasingCurve::InOutQuad);
-
-            double tx = wPt.x()/(viewport()->width());
-            double ty = wPt.y()/(viewport()->height());
-            double kx = ez.valueForProgress(qAbs(tx));
-            double ky = ez.valueForProgress(qAbs(ty));
-
             if ( rightRect.contains(_mousePressPos) ) {
-                if ( tx < 0 ) {
-                    M.setRight(M.right()+kx*(B.right()-M.right()));
-                } else if ( tx > 0 ) {
-                    M.setRight(M.right()-kx*(B.right()-M.right()));
-                }
-                if ( ty > 0 ) {
-                    M.setTop(M.top()+ky*(B.top()-M.top()));
-                } else if ( ty < 0 ) {
-                    M.setBottom(M.bottom()+ky*(B.bottom()-M.bottom()));
-                }
+                _alignment = Qt::AlignRight;
             } else if ( leftRect.contains(_mousePressPos) ) {
-                if ( tx > 0 ) {
-                    M.setLeft(M.left()-kx*(M.left()-B.left()));
-                } else if ( tx < 0 ) {
-                    M.setLeft(M.left()+kx*(M.left()-B.left()));
-                }
-                if ( ty > 0 ) {
-                    M.setTop(M.top()+ky*(B.top()-M.top()));
-                } else if ( ty < 0 ) {
-                    M.setBottom(M.bottom()+ky*(B.bottom()-M.bottom()));
-                }
+                _alignment = Qt::AlignLeft;
             } else if ( topRect.contains(_mousePressPos) ) {
-                if ( ty > 0 ) {
-                    M.setTop(M.top()+ky*(B.top()-M.top()));
-                } else if ( ty < 0 ) {
-                    M.setTop(M.top()-ky*(B.top()-M.top()));
-                }
-                if ( tx < 0 ) {
-                    M.setRight(M.right()+kx*(B.right()-M.right()));
-                } else if ( tx > 0 ) {
-                    M.setLeft(M.left()-kx*(M.left()-B.left()));
-                }
+                _alignment = Qt::AlignTop;
             } else if ( botRect.contains(_mousePressPos) ) {
-                if ( ty < 0 ) {
-                    M.setBottom(M.bottom()+ky*(B.bottom()-M.bottom()));
-                } else if ( ty > 0 ) {
-                    M.setBottom(M.bottom()-ky*(B.bottom()-M.bottom()));
-                }
-                if ( tx < 0 ) {
-                    M.setRight(M.right()+kx*(B.right()-M.right()));
-                } else if ( tx > 0 ) {
-                    M.setLeft(M.left()-kx*(M.left()-B.left()));
-                }
+                _alignment = Qt::AlignBottom;
             } else {
                 // shouldn't happen, but ignore in any case
             }
 
-            _bookModel()->setPlotMathRect(M,rootIndex());
-            viewport()->update();
+            BookIdxView::mouseMoveEvent(event); // Scale logic here
         }
     } else {
-        mouseMove->ignore();
+        event->ignore();
     }
 }
 

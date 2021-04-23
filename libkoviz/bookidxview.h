@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QPaintEngine>
 #include <QPen>
+#include <QEasingCurve>
 #include <qmath.h>
 #include <cmath>
 #include "bookmodel.h"
@@ -60,6 +61,7 @@ protected:
                               QItemSelectionModel::SelectionFlags command);
     virtual QRegion visualRegionForSelection(
                               const QItemSelection &selection) const;
+    Qt::Alignment _alignment;
 
 protected:
     PlotBookModel *_bookModel() const;
@@ -70,6 +72,7 @@ protected:
     Qt::MouseButton _buttonResetView;
 
     QPoint _mousePressPos;
+    QRectF _mousePressMathRect;
 
     QString _curvesXUnit(const QModelIndex& plotIdx) const;
     QString _curvesUnit(const QModelIndex& plotIdx, QChar axis) const;

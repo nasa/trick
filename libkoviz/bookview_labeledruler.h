@@ -22,9 +22,6 @@ protected:
     virtual void dataChanged(const QModelIndex &topLeft,
                              const QModelIndex &bottomRight);
     virtual void wheelEvent(QWheelEvent *e);
-
-private:
-    Qt::Alignment _alignment;
 };
 
 #endif // LABELEDRULERVIEW_H

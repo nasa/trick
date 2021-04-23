@@ -1,9 +1,10 @@
 #include "bookview_linedruler.h"
 
 LinedRulerView::LinedRulerView(Qt::Alignment alignment, QWidget *parent) :
-    BookIdxView(parent),
-    _alignment(alignment)
+    BookIdxView(parent)
 {
+    _alignment = alignment;
+
     setFrameShape(QFrame::NoFrame);
     if ( _alignment == Qt::AlignTop || _alignment == Qt::AlignBottom ) {
         this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
@@ -14,7 +15,7 @@ LinedRulerView::LinedRulerView(Qt::Alignment alignment, QWidget *parent) :
 
 void LinedRulerView::setModel(QAbstractItemModel* model)
 {
-    QAbstractItemView::setModel(model);
+    BookIdxView::setModel(model);
     if ( model ) {
         disconnect(model,SIGNAL(rowsInserted(QModelIndex,int,int)),
                    this,SLOT(rowsInserted(QModelIndex,int,int)));

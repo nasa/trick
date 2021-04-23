@@ -128,7 +128,7 @@ protected:
     virtual QSize sizeHint() const;
     virtual void mousePressEvent(QMouseEvent* event);
     virtual void mouseReleaseEvent(QMouseEvent* event);
-    virtual void mouseMoveEvent(QMouseEvent* mouseEvent);
+    virtual void mouseMoveEvent(QMouseEvent* event);
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void currentChanged(const QModelIndex& current,
                                 const QModelIndex& previous);
@@ -140,10 +140,6 @@ private:
 
     QPainterPath _sinPath();
     QPainterPath _stepPath();
-
-    QRectF _mousePressMathRect;
-    QPoint _mousePressPos;
-    QPointF _mousePressMathTopLeft;
 
     QList<TimeAndIndex*> _markers;
 

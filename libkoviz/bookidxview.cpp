@@ -176,6 +176,7 @@ void BookIdxView::mousePressEvent(QMouseEvent *event)
 {
     if (  event->button() == _buttonSelectAndPan ) {
         _mousePressPos = event->pos();
+        _mousePressMathRect = _bookModel()->getPlotMathRect(rootIndex());
     } else if (  event->button() == _buttonRubberBandZoom ) {
         event->ignore();
     }
@@ -183,8 +184,115 @@ void BookIdxView::mousePressEvent(QMouseEvent *event)
 
 void BookIdxView::mouseMoveEvent(QMouseEvent *event)
 {
+    if ( ! _curvesView ) {
+        QAbstractItemView::mouseMoveEvent(event);
+        return;
+    }
+
     if ( event->buttons() == _buttonRubberBandZoom ) {
-        event->ignore();
+        event->ignore(); // pass event to plot view event filter
+    } else if ( event->buttons() == _buttonSelectAndPan ) {
+
+        QRectF M = _bookModel()->getPlotMathRect(rootIndex());
+
+        QPointF dW = event->pos()-_mousePressPos;
+
+        QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
+                                                       "Curves","Plot");
+        QRectF B = _bookModel()->calcCurvesBBox(curvesIdx);
+        if ( B.topLeft().y() < B.bottomLeft().y() ) {
+            // Flip if y-axis not directed "up" (this happens with bboxes)
+            B = QRectF(B.bottomLeft(),B.topRight());
+        }
+
+        M = _mousePressMathRect;
+
+        QEasingCurve ez(QEasingCurve::InOutQuad);
+
+        double tx = dW.x()/(_curvesView->viewport()->width());
+        double ty = dW.y()/(_curvesView->viewport()->height());
+        double kx = ez.valueForProgress(qAbs(tx));
+        double ky = ez.valueForProgress(qAbs(ty));
+
+        if ( _alignment == Qt::AlignTop || _alignment == Qt::AlignBottom ) {
+
+            Qt::Alignment sideStartMouseDrag;
+            if ( _mousePressPos.x() > viewport()->width()/2 ) {
+                sideStartMouseDrag = Qt::AlignRight;
+            } else {
+                sideStartMouseDrag = Qt::AlignLeft;
+            }
+
+            if ( sideStartMouseDrag == Qt::AlignRight ) {
+                if ( tx > 0 ) {
+                    M.setRight(M.right()-kx*(B.right()-M.right()));
+                } else if ( tx < 0 ) {
+                    M.setRight(M.right()+kx*(B.right()-M.right()));
+                }
+            } else if ( sideStartMouseDrag == Qt::AlignLeft ) {
+                if ( tx > 0 ) {
+                    M.setLeft(M.left()-kx*(M.left()-B.left()));
+                } else if ( tx < 0 ) {
+                    M.setLeft(M.left()+kx*(M.left()-B.left()));
+                }
+            }
+
+            if ( _alignment == Qt::AlignTop ) {
+                if ( ty > 0 ) {
+                    M.setTop(M.top()+ky*(B.top()-M.top()));
+                } else if ( ty < 0 ) {
+                    M.setTop(M.top()-ky*(B.top()-M.top()));
+                }
+            } else if ( _alignment == Qt::AlignBottom ) {
+                if ( ty > 0 ) {
+                    M.setBottom(M.bottom()-ky*(B.bottom()-M.bottom()));
+                } else if ( ty < 0 ) {
+                    M.setBottom(M.bottom()+ky*(B.bottom()-M.bottom()));
+                }
+            }
+        } else if (_alignment == Qt::AlignLeft || _alignment == Qt::AlignRight){
+
+            Qt::Alignment sideStartMouseDrag;
+            if ( _mousePressPos.y() < viewport()->height()/2 ) {
+                sideStartMouseDrag = Qt::AlignTop;
+            } else {
+                sideStartMouseDrag = Qt::AlignBottom;
+            }
+
+            if ( sideStartMouseDrag == Qt::AlignTop ) {
+                if ( ty > 0 ) {
+                    M.setTop(M.top()+ky*(B.top()-M.top()));
+                } else if ( ty < 0 ) {
+                    M.setTop(M.top()-ky*(B.top()-M.top()));
+                }
+            } else if ( sideStartMouseDrag == Qt::AlignBottom ) {
+                if ( ty > 0 ) {
+                    M.setBottom(M.bottom()-ky*(B.bottom()-M.bottom()));
+                } else if ( ty < 0 ) {
+                    M.setBottom(M.bottom()+ky*(B.bottom()-M.bottom()));
+                }
+            }
+
+            if ( _alignment == Qt::AlignLeft ) {
+                if ( tx > 0 ) {
+                    M.setLeft(M.left()-kx*(M.left()-B.left()));
+                } else if ( tx < 0 ) {
+                    M.setLeft(M.left()+kx*(M.left()-B.left()));
+                }
+            } else if ( _alignment == Qt::AlignRight ) {
+                if ( tx > 0 ) {
+                    M.setRight(M.right()-kx*(B.right()-M.right()));
+                } else if ( tx < 0 ) {
+                    M.setRight(M.right()+kx*(B.right()-M.right()));
+                }
+            }
+        } else {
+            return;
+        }
+
+        _bookModel()->setPlotMathRect(M,rootIndex());
+        viewport()->update();
+
     } else {
         QAbstractItemView::mouseMoveEvent(event);
     }

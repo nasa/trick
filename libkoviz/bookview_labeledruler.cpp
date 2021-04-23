@@ -2,9 +2,10 @@
 
 LabeledRulerView::LabeledRulerView(Qt::Alignment alignment,
                                    QWidget *parent) :
-    BookIdxView(parent),
-    _alignment(alignment)
+    BookIdxView(parent)
 {
+    _alignment = alignment;
+
     setFrameShape(QFrame::NoFrame);
     if ( _alignment == Qt::AlignBottom ) {
         this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
@@ -96,3 +97,4 @@ void LabeledRulerView::wheelEvent(QWheelEvent *e)
 
     _bookModel()->setData(scaleIdx,to);
 }
+
