@@ -159,7 +159,9 @@ curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
 python3-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
 libgtest-dev openjdk-11-jdk 
 
-# set python version in environment to python3 before calling ./configure. 
+# On some versions of Ubuntu (18.04 as of 04/2021), there may be multiple installations of python.
+# Our new python3-dev will be linked to python3 and python3-config in your bin.
+# To help trick find this instead of python2.7, we set an environment variable in our shell before calling configure:
 export PYTHON_VERSION=3
 ```
 
