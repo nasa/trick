@@ -211,7 +211,7 @@ extern "C" int load_checkpoint_job() {
 extern "C" void * get_address( const char * var_name ) {
 
     REF2 * new_ref ;
-    new_ref = ref_attributes((char *)var_name) ;
+    new_ref = ref_attributes(var_name) ;
     void * address ;
 
     if ( new_ref != NULL ) {

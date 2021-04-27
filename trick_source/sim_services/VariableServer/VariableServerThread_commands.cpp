@@ -54,7 +54,7 @@ int Trick::VariableServerThread::var_add(std::string in_name) {
     if ( in_name.compare("time") == 0 ) {
         new_ref = make_time_ref() ;
     } else {
-        new_ref = ref_attributes(const_cast<char*>(in_name.c_str())) ;
+        new_ref = ref_attributes(in_name.c_str()) ;
     }
 
     if ( new_ref == NULL ) {
@@ -181,7 +181,7 @@ int Trick::VariableServerThread::var_exists(std::string in_name) {
     bool error = false ;
 
     unsigned int msg_type ;
-    REF2* var_ref = ref_attributes(const_cast<char*>(in_name.c_str()));
+    REF2* var_ref = ref_attributes(in_name.c_str());
 
     if ( var_ref == (REF2*)NULL ) {
         error = true;

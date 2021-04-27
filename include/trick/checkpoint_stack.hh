@@ -138,7 +138,7 @@ int restore_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + std::string("_") + var_name ;
-    items_ref = ref_attributes((char *)temp_str.c_str()) ;
+    items_ref = ref_attributes(temp_str.c_str()) ;
 
     if ( items_ref != NULL ) {
         cont_size = in_stl.size() ;
@@ -170,7 +170,7 @@ int restore_stl(std::stack<ITEM_TYPE,_Sequence> & in_stl , std::string object_na
 
     //message_publish(1, "RESTORE_STL_STACK %s_%s\n", object_name.c_str() , var_name.c_str()) ;
     temp_str = object_name + std::string("_") + var_name ;
-    items_ref = ref_attributes((char *)temp_str.c_str()) ;
+    items_ref = ref_attributes(temp_str.c_str()) ;
 
     if ( items_ref != NULL ) {
         cont_size = in_stl.size() ;

@@ -324,7 +324,7 @@ int Trick::DataRecordGroup::add_change_variable( std::string in_name ) {
 
     REF2 * ref2 ;
 
-    ref2 = ref_attributes((char *)in_name.c_str()) ;
+    ref2 = ref_attributes(in_name.c_str()) ;
 
     if ( ref2 == NULL || ref2->attr == NULL ) {
         message_publish(MSG_WARNING, "Could not find Data Record change variable %s.\n", in_name.c_str()) ;
@@ -376,7 +376,7 @@ int Trick::DataRecordGroup::init() {
         if ( drb->ref_searched == false ) {
             REF2 * ref2 ;
 
-            ref2 = ref_attributes((char *)drb->name.c_str()) ;
+            ref2 = ref_attributes(drb->name.c_str()) ;
             if ( ref2 == NULL || ref2->attr == NULL ) {
                 message_publish(MSG_WARNING, "Could not find Data Record variable %s.\n", drb->name.c_str()) ;
                 rec_buffer.erase(rec_buffer.begin() + jj--) ;

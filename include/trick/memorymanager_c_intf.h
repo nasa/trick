@@ -57,7 +57,7 @@ int   TMM_init_from_checkpoint( const char* filename);
 int   TMM_add_shared_library_symbols( const char* filename);
 
 
-REF2* ref_attributes(char* name);
+REF2* ref_attributes(const char* name);
 int   ref_var(REF2* R, char* name);
 int   get_size(void *addr) ;
 

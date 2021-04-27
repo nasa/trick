@@ -523,7 +523,7 @@ void var_set_value< void * > ( V_DATA & v_data , void * value ) {
 
 template<class T>
 int var_set_base( const char  * var , T value , const char * units ) {
-    REF2 *ref = ref_attributes((char *)var) ;
+    REF2 *ref = ref_attributes(var) ;
     if ( ref != NULL ) {
         if (ref->attr->io & TRICK_VAR_INPUT) {
             V_TREE v_tree ;

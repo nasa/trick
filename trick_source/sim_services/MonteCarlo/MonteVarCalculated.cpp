@@ -10,7 +10,7 @@ Trick::MonteVarCalculated::MonteVarCalculated(std::string in_name, std::string i
     this->name = in_name;
     this->unit = in_unit;
 
-    ref2 = ref_attributes((char *)name.c_str());
+    ref2 = ref_attributes(name.c_str());
     if (ref2 == NULL) {
         message_publish(MSG_ERROR, "Monte : MonteVarCalculated could not find parameter %s.\n", name.c_str()) ;
     }

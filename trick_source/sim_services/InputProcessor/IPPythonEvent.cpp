@@ -158,7 +158,7 @@ void Trick::IPPythonEvent::restart() {
 
     for (jj=0; jj<condition_count; jj++) {
         if (condition_list[jj]->cond_type==1) { // condition variable
-            condition_list[jj]->ref = ref_attributes((char*)condition_list[jj]->str.c_str());
+            condition_list[jj]->ref = ref_attributes(condition_list[jj]->str.c_str());
         }
         if (condition_list[jj]->cond_type==2) { // condition job
             condition_list[jj]->job = exec_get_job(condition_list[jj]->str.c_str(),1);
@@ -176,7 +176,7 @@ void Trick::IPPythonEvent::restart() {
 int Trick::IPPythonEvent::condition_var(int num, std::string varname, std::string comment) {
     /** @par Detailed Design: */
     /** @li Find the variable reference for the varname string and pass it to condition() */
-    REF2* ref = ref_attributes((char*)varname.c_str());
+    REF2* ref = ref_attributes(varname.c_str());
     /** @li Emit an error if specified varname does not exist. */
     if (ref==NULL) {
         message_publish(MSG_WARNING, "Event condition variable %s not found. Setting condition to False.\n", varname.c_str()) ;
