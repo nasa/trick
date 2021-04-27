@@ -156,7 +156,7 @@ apt-get update
 # install packages
 apt-get install -y bison clang flex git llvm make maven swig cmake \
 curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
-python3.8-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
+python3-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
 libgtest-dev openjdk-11-jdk 
 ```
 proceed to [Install Trick](#install) section of the install guide
