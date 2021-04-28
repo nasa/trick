@@ -666,7 +666,7 @@ class TrickWorkflow(WorkflowCommon):
            (Job() instance for the run directories given or None if error encountered,
             error details or None if successful)
         """
-        if os.system(self.env + ' which koviz >& /dev/null') != 0:
+        if os.system(self.env + ' which koviz > /dev/null 2>&1') != 0:
             msg = "ERROR: koviz is not found in PATH. Returning None in get_koviz_report_job()"
             tprint (msg, 'DARK_RED')
             return None, msg

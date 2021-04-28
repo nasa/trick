@@ -66,5 +66,6 @@ The user guide contains information pertinent to Trick users. These pages will h
 
 01. [Miscellaneous Trick Tools](miscellaneous_trick_tools/Miscellaneous-Trick-Tools)  
     01. [Python Variable Server Client](miscellaneous_trick_tools/Python-Variable-Server-Client)
+    02. [TrickOps Sim Testing Framework](miscellaneous_trick_tools/TrickOps.md)
  
 01. [Software Requirements Specification](software_requirements_specification/SRS)

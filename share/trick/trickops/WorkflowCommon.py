@@ -487,7 +487,7 @@ class WorkflowCommon:
         self.log_dir = log_dir  # Where all logged output will go
         # self.log is where all logging for python script layer goes
         self.log = validate_output_file( os.path.join(self.log_dir,'log.' +
-          unixify_string(str(datetime.datetime.now())) + '.txt'))
+          unixify_string(str(datetime.datetime.now()).replace(':','-')) + '.txt'))
         self.env = env  # Project environment literal string, e.g. "source bashrc"
         self.creation_time = time.time()  # When this instance was created
         self.host_name = socket.gethostname()

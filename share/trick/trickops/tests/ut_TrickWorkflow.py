@@ -13,7 +13,8 @@ class TrickWorkflowTestCase(unittest.TestCase):
     def setUp(self):
         # Nominal no-error when parsing the trick-sims config file scenario
         self.instance = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/',
-          trick_dir=this_trick, config_file=os.path.join(tests_dir,"trick_sims.yml"))
+          trick_dir=this_trick, config_file=os.path.join(tests_dir,"trick_sims.yml"),
+          quiet=True)
 
     def tearDown(self):
         self.instance._cleanup()  # Remove the log file this instance creates
@@ -22,12 +23,14 @@ class TrickWorkflowTestCase(unittest.TestCase):
 
     def setUpWithEmptyConfig(self):
         self.instance = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/',
-          trick_dir=this_trick, config_file=os.path.join(tests_dir,"empty.yml"))
+          trick_dir=this_trick, config_file=os.path.join(tests_dir,"empty.yml"),
+          quiet=True)
 
     def setUpWithErrorConfig(self):
         self.tearDown()  # Cleanup the instance we get by default
         self.instance = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/',
-          trick_dir=this_trick, config_file=os.path.join(tests_dir,"errors.yml"))
+          trick_dir=this_trick, config_file=os.path.join(tests_dir,"errors.yml"),
+          quiet=True)
 
     def test_init_nominal(self):
         self.assertEqual(self.instance.cpus, 3)

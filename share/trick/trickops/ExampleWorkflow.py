@@ -5,7 +5,7 @@ import os, sys
 yml_content=(
 """
 SIM_ball_L1:
-    path: trick_sims/Ball/SIM_ball_L1
+    path: trick_sims/Ball/SIM_ball_this_path_is_bogus
     size: 6000
     runs:
         RUN_test/input.py:
@@ -132,8 +132,6 @@ SIM_trickcomm:
     path: test/SIM_trickcomm
     runs:
         RUN_test/input.py:
-SIM_ball_L1:
-    path: trick_sims/Ball/SIM_ball_L1
 SIM_ball_L2:
     path: trick_sims/Ball/SIM_ball_L2
 SIM_ball_L3:
@@ -180,8 +178,6 @@ SIM_sun:
     path: trick_sims/SIM_sun
 SIM_wheelbot:
     path: trick_sims/SIM_wheelbot
-SIM_ball_L1:
-    path: trick_source/er7_utils/sims/SIM_ball_L1
 SIM_grav:
     path: trick_source/er7_utils/sims/SIM_grav
 """)

@@ -12,7 +12,7 @@ class WorkflowCommonTestCase(unittest.TestCase):
 
     def setUp(self):
         # Nominal instance, using this Trick as top level project
-        self.instance = WorkflowCommon(project_top_level=this_trick, log_dir='/tmp/')
+        self.instance = WorkflowCommon(project_top_level=this_trick, log_dir='/tmp/', quiet=True)
         # Nominal job that just echo's 'hi', this creates it, it doesn't execute it
         self.job_nominal = Job(name='testname', command='echo hi',
           log_file='/tmp/WorkflowCommonTestCase_hi.txt')
@@ -64,7 +64,7 @@ class WorkflowCommonTestCase(unittest.TestCase):
         self.assertTrue(self.instance.creation_time < time.time())
         self.assertTrue(self.instance.host_name != '' )
         self.assertTrue(self.instance.this_os == None )
-        self.assertTrue(self.instance.quiet == False )
+        self.assertTrue(self.instance.quiet == True )
         self.assertTrue(os.getcwd() == this_trick )
         self.assertTrue(self.job_nominal.name == 'testname')
 
