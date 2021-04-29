@@ -445,33 +445,39 @@ class TrickWorkflow(WorkflowCommon):
           if 'valgrind' in c[s]:        # If it's there...
             if not c[s]['valgrind']:  # but None, remove it
               self.config[s].pop('valgrind')
-            elif type( c[s]['valgrind']) is not dict:     # but None, remove it
+            elif type( c[s]['valgrind']) is not dict:     # If it's the wrong type
               cprint("ERROR: Valgrind entry %s is not a dict! Make sure 'valgrind:' ends with a : in "
                    "config file %s. Continuing but skipping this valgrind: section..."
                    % (c[s]['valgrind'], self.config_file), 'DARK_RED')
               self.config[s].pop('valgrind')
-            else:                     # If it's there and a valid list, check flags & runs
-              if 'flags' not in c[s]['valgrind']:
-                self.config[s]['valgrind']['flags'] = ''
-              if 'runs' in  c[s]['valgrind']:       # If it's there...
-                if not c[s]['valgrind']['runs']:  # but None, remove entire valgrind section
-                  cprint("ERROR: %s's valgrind section has no 'run' paths. Continuing but skipping "
-                         "this valgrind section from %s." % (s, self.config_file), 'DARK_RED')
-                  self.config[s].pop('valgrind')
-                else:
-                  for r in c[s]['valgrind']['runs']:  # If it's there and a valid list, check paths
-                    just_RUN = r.split(' ')[0]
-                    if not os.path.exists(os.path.join(self.project_top_level, c[s]['path'], just_RUN)):
-                      cprint("ERROR: %s's valgrind 'run' path %s not found. Continuing but skipping "
-                             "this run from %s." % (s, just_RUN, self.config_file), 'DARK_RED')
-                      self.config[s]['valgrind']['runs'].remove(r)
-                    else:
-                      # Create internal object to be added to thisSim
-                      vRun = TrickWorkflow.Run(sim_dir=self.config[s]['path'], input=r,
-                        binary= 'S_main_' + self.trick_host_cpu + '.exe',
-                        prerun_cmd=self.env, valgrind_flags=self.config[s]['valgrind']['flags'],
-                        log_dir=self.log_dir)
-                      thisSim.add_run(vRun)
+            else:                     # If it's there and a valid dict
+              if self.this_os == 'darwin':
+                cprint("ERROR: Valgrind entry for %s is not valid for platform: %s in "
+                     "config file %s. Continuing but skipping this valgrind: section..."
+                     % (s, self.this_os, self.config_file), 'DARK_RED')
+                self.config[s].pop('valgrind')
+              else:
+                if 'flags' not in c[s]['valgrind']:
+                  self.config[s]['valgrind']['flags'] = ''
+                if 'runs' in  c[s]['valgrind']:       # If it's there...
+                  if not c[s]['valgrind']['runs']:  # but None, remove entire valgrind section
+                    cprint("ERROR: %s's valgrind section has no 'run' paths. Continuing but skipping "
+                           "this valgrind section from %s." % (s, self.config_file), 'DARK_RED')
+                    self.config[s].pop('valgrind')
+                  else:
+                    for r in c[s]['valgrind']['runs']:  # If it's there and a valid list, check paths
+                      just_RUN = r.split(' ')[0]
+                      if not os.path.exists(os.path.join(self.project_top_level, c[s]['path'], just_RUN)):
+                        cprint("ERROR: %s's valgrind 'run' path %s not found. Continuing but skipping "
+                               "this run from %s." % (s, just_RUN, self.config_file), 'DARK_RED')
+                        self.config[s]['valgrind']['runs'].remove(r)
+                      else:
+                        # Create internal object to be added to thisSim
+                        vRun = TrickWorkflow.Run(sim_dir=self.config[s]['path'], input=r,
+                          binary= 'S_main_' + self.trick_host_cpu + '.exe',
+                          prerun_cmd=self.env, valgrind_flags=self.config[s]['valgrind']['flags'],
+                          log_dir=self.log_dir)
+                        thisSim.add_run(vRun)
           # Done building up thisSim, store it off for later
           self.sims.append(thisSim)
         if len(self.sims) < 1:  # At minimum, one valid SIM structure must exist

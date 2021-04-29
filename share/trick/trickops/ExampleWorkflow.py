@@ -4,50 +4,6 @@ import os, sys
 # Create a valid yml config file describing which sims to consider
 yml_content=(
 """
-SIM_ball_L1:
-    path: trick_sims/Ball/SIM_ball_this_path_is_bogus
-    size: 6000
-    runs:
-        RUN_test/input.py:
-SIM_alloc_test:
-    path: test/SIM_alloc_test
-    runs:
-        RUN_test/input.py:
-SIM_default_member_initializer:
-    path: test/SIM_default_member_initializer
-SIM_demo_inputfile:
-    path: test/SIM_demo_inputfile
-    runs:
-        RUN_test/unit_test.py:
-        RUN_test/input.py:
-SIM_demo_sdefine:
-    path: test/SIM_demo_sdefine
-    runs:
-        RUN_test/input.py:
-        RUN_test/unit_test.py:
-SIM_dynamic_sim_object:
-    path: test/SIM_dynamic_sim_object
-    runs:
-        RUN_test/input.py:
-SIM_events:
-    path: test/SIM_events
-    runs:
-        RUN_test/input.py:
-        RUN_test/unit_test.py:
-SIM_exclusion_mechanisms:
-    path: test/SIM_exclusion_mechanisms
-    runs:
-        RUN_test/input.py:
-SIM_isystem:
-    path: test/SIM_isystem
-SIM_leaks:
-    path: test/SIM_leaks
-    runs:
-        RUN_test/input.py:
-SIM_measurement_units:
-    path: test/SIM_measurement_units
-    runs:
-        RUN_test/input.py:
 SIM_parse_s_define:
     path: test/SIM_parse_s_define
 SIM_python_namespace:
@@ -67,7 +23,6 @@ SIM_stls:
     runs:
         RUN_test/input.py:
         RUN_test/unit_test.py:
-
 SIM_swig_template_scoping:
     path: test/SIM_swig_template_scoping
 SIM_target_specific_variables:
@@ -97,10 +52,6 @@ SIM_test_ip:
     path: test/SIM_test_ip
     runs:
         RUN_test/unit_test.py:
-SIM_test_ip2:
-    path: test/SIM_test_ip2
-    runs:
-        RUN_test/input.py:
 SIM_test_sched:
     path: test/SIM_test_sched
     runs:
@@ -109,11 +60,6 @@ SIM_test_sched:
 SIM_test_templates:
     path: test/SIM_test_templates
     runs:
-        RUN_test/unit_test.py:
-SIM_test_varserv:
-    path: test/SIM_test_varserv
-    runs:
-        RUN_test/realtime.py:
         RUN_test/unit_test.py:
 SIM_threads:
     path: test/SIM_threads
@@ -150,14 +96,6 @@ SIM_cannon_numeric:
     path: trick_sims/Cannon/SIM_cannon_numeric
 SIM_monte:
     path: trick_sims/Cannon/SIM_monte
-SIM_ode_ball:
-    path: trick_sims/ODE/SIM_ode_ball
-SIM_ode_buggy:
-    path: trick_sims/ODE/SIM_ode_buggy
-SIM_ros_publisher:
-    path: trick_sims/ROS/SIM_ros_publisher
-SIM_ros_subscriber:
-    path: trick_sims/ROS/SIM_ros_subscriber
 SIM_Ball++_L1:
     path: trick_sims/SIM_Ball++_L1/
 SIM_contact:
@@ -178,8 +116,6 @@ SIM_sun:
     path: trick_sims/SIM_sun
 SIM_wheelbot:
     path: trick_sims/SIM_wheelbot
-SIM_grav:
-    path: trick_source/er7_utils/sims/SIM_grav
 """)
 f = open("/tmp/config.yml", "w")
 f.write(yml_content)
@@ -187,7 +123,7 @@ f.close()
 
 from TrickWorkflow import *
 class ExampleWorkflow(TrickWorkflow):
-    def __init__( self, trick_top_level='/tmp/trick',  quiet=False):
+    def __init__( self, quiet, trick_top_level='/tmp/trick'):
         # Real projects already have trick somewhere, but for this test, just clone it
         if not os.path.exists(trick_top_level):
           os.system('cd %s && git clone https://github.com/nasa/trick' % (os.path.dirname(trick_top_level)))
@@ -204,4 +140,4 @@ class ExampleWorkflow(TrickWorkflow):
       self.status_summary()   # Print a Succinct summary
       return (builds_status or runs_status or self.config_errors)
 if __name__ == "__main__":
-    sys.exit(ExampleWorkflow().run())
+    sys.exit(ExampleWorkflow(quiet=(True if len(sys.argv) > 1 and 'quiet' in sys.argv[1] else False)).run())

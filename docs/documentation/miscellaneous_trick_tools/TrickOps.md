@@ -95,12 +95,18 @@ Included in TrickOps is `ExampleWorkflow.py`, which sets up a simple "build all 
 cd trick/share/trick/trickops/
 ./ExampleWorkflow.py
 ```
-The top of the script creates a yaml file containing a large portion of the sims and runs that ship with trick and writes it to `/tmp/config.yml`. This config file will be input to the framework.  At the bottom of the script is where the magic happens, this is where the TrickOps modules are used:
+When running, you should see output that looks like this:
+
+![ExampleWorkflow In Action](trickops_example.png)
+
+When running, you'll notice that tests occur in two phases. First, sims build in parallel up to three at a time. Then when all builds complete, sims run in parallel up to three at a time. Progress bars show how far along each build and sim run is at any given time. The terminal window will accept scroll wheel and arrow input to view current builds/runs that are longer than the terminal height. 
+
+Looking inside the script, the code at top of the script creates a yaml file containing a large portion of the sims and runs that ship with trick and writes it to `/tmp/config.yml`. This config file will be input to the framework.  At the bottom of the script is where the magic happens, this is where the TrickOps modules are used:
 
 ```python
 from TrickWorkflow import *
 class ExampleWorkflow(TrickWorkflow):
-    def __init__( self, trick_top_level='/tmp/trick',  quiet=False):
+    def __init__( self, quiet, trick_top_level='/tmp/trick'):
         # Real projects already have trick somewhere, but for this test, just clone it
         if not os.path.exists(trick_top_level):
           os.system('cd %s && git clone https://github.com/nasa/trick' % (os.path.dirname(trick_top_level)))
@@ -117,16 +123,19 @@ class ExampleWorkflow(TrickWorkflow):
       self.status_summary()   # Print a Succinct summary
       return (builds_status or runs_status or self.config_errors)
 if __name__ == "__main__":
-    sys.exit(ExampleWorkflow().run())
+    sys.exit(ExampleWorkflow(quiet=(True if len(sys.argv) > 1 and 'quiet' in sys.argv[1] else False)).run())
 ```
-Let's look at a few key parts of the example script. Here, we create a new class arbitrarily named `ExampleWorkflow` which inherits from `TrickWorkflow`, which is a class provided by the `TrickWorkflow.py` module.
+Let's look at a few key parts of the example script. Here, we create a new class arbitrarily named `ExampleWorkflow` which inherits from `TrickWorkflow`, which is a class provided by the `TrickWorkflow.py` module. As part of its class setup, it clones a new `trick` repo from GitHub and places it in `/tmp/`. Since '/tmp/trick' provides many example sims and runs, we eat our own dogfood here and use it to represent our `project_top_level` for example purposes.
 
 ```python
 from TrickWorkflow import *
 class ExampleWorkflow(TrickWorkflow):
-    def __init__( self, trick_top_level='/tmp/trick',  quiet=False):
+    def __init__( self, quiet, trick_top_level='/tmp/trick'):
+        # Real projects already have trick somewhere, but for this test, just clone it
+        if not os.path.exists(trick_top_level):
+          os.system('cd %s && git clone https://github.com/nasa/trick' % (os.path.dirname(trick_top_level)))
 ```
-Although not necessary, our new class's `__init__` method accepts two parameters on initialization, `trick_top_level` and `quiet` which default to `/tmp/trick` and `False` respectively.  Most of the magic happens on the very next line where we call the base-class initializer which accepts four required parameters:
+Our new class `ExampleWorkflow.py` can be initialized however we wish as long as it provides the necessary arguments to it's Base class initializer. In this example, `__init__` takes two parameters: `trick_top_level`  which defaults to `/tmp/trick`, and `quiet` which will be `False` unless `quiet` is found in the command-line args to this script. The magic happens on the very next line where we call the base-class `TrickWorkflow` initializer which accepts four required parameters:
 
 ```python
         TrickWorkflow.__init__(self, project_top_level=trick_top_level, log_dir='/tmp/',
