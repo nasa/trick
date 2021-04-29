@@ -19,22 +19,30 @@ import trick.common.ui.UIUtils;
 import trick.common.ui.components.NumberTextField;
 import trick.common.ui.panels.ListPanel;
 import trick.sie.utils.*;
-
 import javax.swing.*;
 import javax.swing.tree.TreePath;
+import org.jdesktop.swingx.JXButton;
+import org.jdesktop.swingx.JXPanel;
+import org.jdesktop.swingx.JXTextField;
 import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.StringTokenizer;
+import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import trick.common.utils.vs.Variable;
 
 /**
  * Dre - data recording editor application.
@@ -75,7 +83,6 @@ public class DreApplication extends TrickApplication {
     private JPopupMenu treePopup = null;
 
     /** S_sie.resource xml parser */
-    //private SieResourceXMLParser sieXMLParser;
 
     /**
      * The sim objects top level instances
@@ -86,6 +93,11 @@ public class DreApplication extends TrickApplication {
      * The variable (sim objects) tree
      */
     private SieVariableTree varTree;
+
+    /**
+     * Dialog for adding arrayed variables
+     */
+    private AddVariableDialog addVariableDialog;
 
     /**
      * The search panel for the variable tree
@@ -123,7 +135,6 @@ public class DreApplication extends TrickApplication {
     private JRadioButtonMenuItem DRBuffer_item;
     private JRadioButtonMenuItem DRNoBuffer_item;
     private JRadioButtonMenuItem DRRingBuffer_item;
-    //private JRadioButtonMenuItem DRThreadBuffer_item;
 
     private JRadioButtonMenuItem DRAlways_item;
     private JRadioButtonMenuItem DRChanges_item;
@@ -135,8 +146,6 @@ public class DreApplication extends TrickApplication {
      * Vectors to contain the information on the variable
      * being added to the recording list.
      */
-    Vector<VariableName> nameSegment = new Vector<VariableName>();
-    Vector<String> fullName = new Vector<String>();
 
     //========================================
     //	Constructors
@@ -234,7 +243,6 @@ public class DreApplication extends TrickApplication {
         DRBuffer_item.setSelected(true);
         DRNoBuffer_item.setSelected(false);
         DRRingBuffer_item.setSelected(false);
-        //DRThreadBuffer_item.setSelected(false);
     }
 
     @Action
@@ -243,7 +251,6 @@ public class DreApplication extends TrickApplication {
         DRBuffer_item.setSelected(false);
         DRNoBuffer_item.setSelected(true);
         DRRingBuffer_item.setSelected(false);
-        //DRThreadBuffer_item.setSelected(false);
     }
 
     @Action
@@ -252,7 +259,6 @@ public class DreApplication extends TrickApplication {
         DRBuffer_item.setSelected(false);
         DRNoBuffer_item.setSelected(false);
         DRRingBuffer_item.setSelected(true);
-        //DRThreadBuffer_item.setSelected(false);
     }
 
     @Action
@@ -261,7 +267,6 @@ public class DreApplication extends TrickApplication {
         DRBuffer_item.setSelected(false);
         DRNoBuffer_item.setSelected(false);
         DRRingBuffer_item.setSelected(false);
-        //DRThreadBuffer_item.setSelected(true);
     }
 
     @Action
@@ -319,7 +324,6 @@ public class DreApplication extends TrickApplication {
         } else {
             resourceFile = new File(sieResourcePath);
         }
-        //sieXMLParser = null;
         if (!resourceFile.exists()) {
             System.out.println(resourceFile.getName() + " file does not exist. Exit!!!");
             System.exit(0);
@@ -330,14 +334,6 @@ public class DreApplication extends TrickApplication {
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
-
-        /*try {
-            sieXMLParser = new SieResourceXMLParser(resourceFile.getCanonicalPath());
-            sieXMLParser.runParser();
-        } catch (Exception e) {
-            System.out.println("Failed to parse " + resourceFile.getName() + "!");
-            System.exit(0);
-        }*/
 
         treePopup = new JPopupMenu();
 
@@ -357,6 +353,8 @@ public class DreApplication extends TrickApplication {
     @Override
     protected void startup() {
         super.startup();
+
+        addVariableDialog = new AddVariableDialog();
 
         View view = getMainView();
         view.setComponent(createMainPanel());
@@ -489,11 +487,7 @@ public class DreApplication extends TrickApplication {
         optionsMenu.add(DRRingBuffer_item);
         DRRingBuffer_item.setAction(getAction("selectDRRingBuffer"));
 
-        //DRThreadBuffer_item = new JRadioButtonMenuItem("selectDRThreadBuffer");
-        //optionsMenu.add(DRThreadBuffer_item);
-        //DRThreadBuffer_item.setAction(getAction("selectDRThreadBuffer"));
-
-        selectDRBuffer(); // by default, DR_Buffer
+        selectDRBuffer();
 
         return optionsMenu;
     }
@@ -799,81 +793,424 @@ public class DreApplication extends TrickApplication {
     }
 
     /**
-     * routine to add the subscripts to the variable name being created
-     *
-     * @param index int the size of the segments array.
+     * Add the given variable name to DreApplication::variables. 
      */
-    private void addSubscript(int index) {
-        if (nameSegment.get(index).dimensions.size() != 0) {
-            for (int j = 0; j < nameSegment.get(index).dimensions.size(); j++) {
-                int total = fullName.size();
-                for (int ii = 0; ii < total; ii++) {
-                    String temp = fullName.remove(0);
-                    for (int jj = 0; jj < nameSegment.get(index).dimensions.get(j); jj++) {
-                        fullName.add(temp + "[" + jj + "]");
-                    }
-                    if (nameSegment.get(index).dimensions.get(j) == 0) {
-                        fullName.add(temp + "[0]");
-                    }
-                }
-            }
+    private void addVariable(String variable_name) {
+        variables.add(variable_name);
+        selectedVarList.addData(variable_name);
+    }
+
+    /**
+     * Add the given list of variable names to DreApplication::variables. 
+     */
+    protected void addVariables(List<String> variable_names) {
+        for (String name : variable_names) {
+            addVariable(name);
         }
     }
 
     /**
-     * routine to add the segment name to the variable name being created.
-     *
-     * @param name String the segment name of the variable to be data recorded.
+     * Expand index ranges in an arrayed variable to a list of individual array elements. 
      */
-    private void addName(String name) {
-        int total = fullName.size();
-        for (int ii = 0; ii < total; ii++) {
-            String temp = fullName.remove(0);
-            fullName.add(temp + "." + name);
-        }
-    }
+    protected List<String> getVariables(String variable_name) throws InvalidVariableNameException {
+
+        validateVariable(variable_name);
+        /* Remove all white space in the variable_name string. */ 
+        variable_name = variable_name.replaceAll("\\s", "");
+        /* Split the variable_name into segments, delimited by periods. */
+        String[] segments = variable_name.split("\\.");
+        /* The root of the variable name is the first segment minus
+           brackets, and anything in between them. */
+        String variable_name_root = segments[0].replaceFirst("\\[.*\\]", "");
+
+        /* Get the extents of each dimension in the first segment. */
+        ArrayList<String> dimensions = new ArrayList<String>();
+        Matcher matcher = Pattern.compile("(?<=\\[).*?(?=\\])").matcher(segments[0]);
+        while (matcher.find()) {
+            dimensions.add(matcher.group());
+        }    
+        /* Look up the SieTemplate (the data structure that contains
+           the data-type information) that goes with the variable_name_root. */
+        SieTemplate template = null;
+        if (rootTemplates != null) {
+            for (SieTemplate simObject : rootTemplates) {
+                if (simObject.parameter.equals(variable_name_root)) {
+                    template = simObject;
+                    break;
+                }    
+            }    
+        } 
+        /* In case this variable is, or contains an array, call
+           getVariables(template, segments, ...) to expand it into its elements. */
+        return getVariables(template, segments, 0, dimensions, variable_name_root);
+     }
+    
+    /**
+     * Expand index ranges in an arrayed variable to a list of individual array elements. 
+     */
+     List<String> getVariables(SieTemplate template,
+       String[] segments, int segment_index, ArrayList<String> dimensions, String name) {
+
+         ArrayList<String> variables = new ArrayList<String>();
+
+         if (dimensions == null) { 
+             /* We haven't yet parsed the current segment for dimensions, so we need to. */
+             /* Get the name in the current segment, minus anything enclosed in square brackets. */
+             String trimmedName = segments[segment_index].replaceFirst("\\[.*\\]", "");
+             dimensions = new ArrayList<String>();
+             /* Create a Matcher for the dimension-extents enclosed in square brackets, in the current segment. */
+             Matcher matcher = Pattern.compile("(?<=\\[).*?(?=\\])").matcher(segments[segment_index]);
+             /* Find, and add each of the dimension-extents to the dimensions ArrayList. */
+             while (matcher.find()) {
+                 dimensions.add(matcher.group());
+             }
+             /* Get the SieTemplate (i.e., the data-type information) for the current segment. */
+             if (template != null) {
+                 for (SieTemplate child : template.children) {
+                     if (child.parameter.equals(trimmedName)) {
+                         template = child;
+                         break;
+                     }
+                 }
+             }
+             /* Recursive call . */  
+             variables.addAll(getVariables(template, segments, segment_index, dimensions, name + "." + trimmedName));
+         }
+         else if (!dimensions.isEmpty()) {
+             /* We've already checked for dimensions (above). */
+             /* Get/remove the first dimension-index string (there may be more than one).
+                A dimension-index string form is #, or #-# (a range). */
+             String value = dimensions.remove(0);
+             /* Check whether the dimensions represent a range. */
+             int location = value.indexOf('-');
+
+             if (location > -1) {
+                 /* The dimension string contains '-', and therefore represents a range of indices. */
+
+                 /* Get the first (probably lower) index of the range. */
+                 int first = Integer.parseInt(value.substring(0, location));
+                 /* Get the second (probably upper) index of the range. */
+                 int last = Integer.parseInt(value.substring(location + 1));
+                 
+                 /* Create multiple, singly indexed variables for each of the array indices in the range. */
+                 boolean reverse = first > last;
+                 for (int i = first; reverse ? (i >= last) : (i <= last); i += reverse ? -1 : 1) {
+                     variables.addAll(
+                         /* In case this array variable element is itself an array, recursively call
+                            getVariables() to expand it into its elements. */
+                         getVariables(template, segments, segment_index, (ArrayList<String>)dimensions.clone(), name + "[" + i + "]")
+                     );
+                 }
+             }
+             else { 
+                 /* The dimension string doesn't contain '-', and therefore represents a single array index. */
+                 variables.addAll(
+                     /* In case this array variable element is itself an array, recursively call
+                        getVariables() to expand it into its elements.*/
+                     getVariables(template, segments, segment_index, dimensions, name + "[" + Integer.parseInt(value) + "]")
+                 );
+             }
+         }
+         else if (segment_index == segments.length - 1) {
+             /* The dimensions are empty, and segment-index points to the last segment,
+                so we are done expanding this variable, so just add it to the variables array. */
+              variables.add(name);
+         }
+         else { 
+             /* We've checked the current segment for dimensions, and they are empty.
+                This isn't the last segment, so move on to the next segment. */
+             variables.addAll(getVariables(template, segments, segment_index + 1, null, name));
+         }
+         return variables;
+     }
 
     /**
-     * routine to find the segments in the variable name and the subscripts
+     * gets a message describing the syntax error
      *
-     * @param name String the variable's name to be data recorded.
+     * @param text the text containing the error
+     * @param matcher the matcher containing the error
+     *
+     * @return a description of the error
      */
-    private void addVariable(String name) {
-        String[] segments = name.split("\\.");
+     String getMessage(String text, Matcher matcher) {
+         int start = matcher.end() - 6; 
+         int end = matcher.end() + 5; 
+         start = start < 0 ? 0 : start;
+         end = end > text.length() ? text.length() : end; 
+         return text.substring(start, end);
+     }
 
-        for (String segment : segments) {
-            VariableName tempName = new VariableName();
-            Matcher matcher = Pattern.compile("\\[.\\]").matcher(segment);
-            tempName.name = segment.replaceFirst("\\[.*\\]", "");
-
-            while (matcher.find()) {
-                String str_idx = matcher.group().substring(1, matcher.group().length() - 1);
-                tempName.dimensions.add(Integer.parseInt(str_idx));
-            }
-            nameSegment.add(tempName);
-        }
-
-        fullName.add(nameSegment.get(0).name);
-        addSubscript(0);
-        for (int i = 1; i < nameSegment.size(); i++) {
-            addName(nameSegment.get(i).name);
-            addSubscript(i);
-        }
-        for (String aFullName : fullName) {
-            variables.add(aFullName);
-            selectedVarList.addData(aFullName);
-        }
-        fullName.clear();
-        nameSegment.clear();
-    }
-
-
+    /**
+     * checks the validity of the variable name
+     *
+     * @param name the name in question
+     * @throws InvalidVariableNameException InvalidVariableNameException
+     */
+     protected void validateVariable(String name) throws InvalidVariableNameException {
+         name = name.replaceAll("\\s", "");
+         
+         if (name.isEmpty()) {
+             throw new InvalidVariableNameException("Variable names may not be empty.");
+         }
+             
+         Matcher matcher = Pattern.compile("^(?![a-zA-Z_])").matcher(name);
+         if (matcher.find()) {
+             throw new InvalidVariableNameException(
+               "Variable names must start with a letter\n(a-z, A-Z) or an underscore (_).\n\n" +
+               getMessage(name, matcher));
+         }
+         
+         String reducedText = name.replaceAll("\\[.*?\\]|\\.(?!$)", "");
+         matcher = Pattern.compile("\\W").matcher(reducedText); 
+         if (matcher.find()) {
+             throw new InvalidVariableNameException(
+               "Variable names may only include alphanumeric\n" +
+               "characters (a-z, A-Z, 0-9) and underscores (_).\n\n" +
+               getMessage(reducedText, matcher));
+         }
+             
+         matcher = Pattern.compile("(?<![\\w\\]])\\[|\\](?!(?:\\[|\\.|$))").matcher(name);
+         if (matcher.find()) {
+             throw new InvalidVariableNameException(
+               "Indices may only appear at the end of members.\n\n" +
+               getMessage(name, matcher));
+         }
+             
+         matcher = Pattern.compile("\\[(?!\\d+(?:-\\d+)?\\])").matcher(name);
+         if (matcher.find()) {
+             throw new InvalidVariableNameException(
+               "Indices may only be of the form [integer] or [integer-integer].\n\n" +
+               getMessage(name, matcher));
+         }
+     }
+ 
     //========================================
     //    Inner classes
     //========================================
 
     /**
-     * private class to contain the name and the
+     * allows the user to specify the indices of each variable to add
+     */
+    class AddVariableDialog extends JDialog {
+
+        /** the northern panel */
+        JXPanel northPanel = new JXPanel(new GridLayout(0, 1));
+
+        /** regular expression for finding indices */
+        Pattern pattern = Pattern.compile("(?<=\\[)\\d+(?=\\])");
+
+        /** the ok action */
+        final AbstractAction okAction = new AbstractAction("OK") {
+            {
+            putValue(SHORT_DESCRIPTION, "Add variables.");
+            putValue(MNEMONIC_KEY, KeyEvent.VK_O);
+            }
+            public void actionPerformed(ActionEvent actionEvent) {
+
+                try {
+                    ArrayList<String> variables = new ArrayList<String>();
+
+                    for (Component component : northPanel.getComponents()) {
+                        variables.addAll(((VariablePanel)component).constructVariables());
+                    }
+
+                    addVariables(variables);
+                    setVisible(false);
+                }
+                catch (InvalidVariableNameException invalidVariableNameException) {
+                    JOptionPane.showMessageDialog(getMainFrame(),
+                      invalidVariableNameException.toString(), "Invalid Variable Name", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+
+        /** the ok button */
+        JXButton okButton = new JXButton(okAction);
+
+        /**
+         * constructor
+         */
+        public AddVariableDialog() {
+            super(getMainFrame(), "Specify Indices", true);
+
+            final AbstractAction cancelAction = new AbstractAction("Cancel") {
+                {
+                putValue(SHORT_DESCRIPTION, "Cancel variable addition.");
+                putValue(MNEMONIC_KEY, KeyEvent.VK_C);
+                }
+                public void actionPerformed(ActionEvent e) {
+                    setVisible(false);
+                }
+            };
+
+            setContentPane(new JXPanel(new BorderLayout()) {{
+                add(new JScrollPane() {{
+                    setViewportView(new JPanel(new BorderLayout()) {{
+                        add(northPanel, BorderLayout.NORTH);
+                    }});
+                }}, BorderLayout.CENTER);
+
+                add(new JXPanel(new BorderLayout()) {{
+
+                    add(new JXPanel(new GridLayout(1, 4)) {{
+                        add(Box.createHorizontalGlue());
+                        add(okButton);
+                        add(new JXButton(cancelAction));
+                        add(Box.createHorizontalGlue());
+                    }}, BorderLayout.SOUTH);
+
+                }}, BorderLayout.SOUTH);
+            }});
+
+            JRootPane rootPane = getRootPane();
+
+            rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+              KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "AddVariableDialog.cancel");
+            rootPane.getActionMap().put("AddVariableDialog.cancel", cancelAction);
+
+            rootPane.setDefaultButton(okButton);
+        }
+
+        /**
+         * launches the dialog with the <code>pendingVariables</code>
+         *
+         * @param pendingVariables the variables awaiting addition
+         */
+        public void launch(List<String> pendingVariables) {
+
+            for (String variable_name : pendingVariables) {
+                // If any variables are indexable, launch the dialog.
+                if (pattern.matcher(variable_name).find()) {
+                    northPanel.removeAll();
+                    for (String var : pendingVariables) {
+                        northPanel.add(new VariablePanel(var));
+                    }
+                    pack();
+                    setLocationRelativeTo(getMainFrame());
+                    getRootPane().getDefaultButton().requestFocusInWindow();
+                    setVisible(true);
+                    return;
+                }
+            }
+
+            // No indexable variables, just add them all.
+            addVariables(pendingVariables);
+        }
+
+        /**
+         * presents a single variable
+         */
+        class VariablePanel extends JXPanel {
+
+            /** the variable */
+            String variable_name;
+
+            /** a matcher for finding indices */
+            Matcher matcher;
+
+            /** the segments of the variable's name */
+            String[] segments;
+
+            /** the index specifications */
+            ArrayList<JComponent> indices = new ArrayList<JComponent>();
+
+            /**
+             * constructor
+             *
+             * @param variable the variable to add
+             */
+            public VariablePanel(String variable_name) {
+                super(new GridBagLayout());
+                this.variable_name = variable_name; 
+                matcher = pattern.matcher(variable_name);
+                add(new JXButton(new AbstractAction() {
+                    {
+                    putValue(NAME, "Remove");
+                    putValue(SHORT_DESCRIPTION, "Cancel addition of this variable.");
+                    }
+                    public void actionPerformed(ActionEvent event) {
+                        northPanel.remove(VariablePanel.this);
+                        if (northPanel.getComponentCount() == 0) {
+                            AddVariableDialog.this.setVisible(false);
+                        }
+                        else {
+                            northPanel.revalidate();
+                        }
+                    }
+                }));
+                add(Box.createHorizontalStrut(5));
+
+                segments = pattern.split(variable_name);
+                while (matcher.find()) {
+                    int arraySize = Integer.parseInt(matcher.group());
+                    indices.add(arraySize == 0 ? new IndexTextField() : new DoubleComboBox(arraySize));
+                }
+
+                add(new JXLabel() {{
+                    setText(segments[0]);
+                }});
+                for (int i = 0; i < indices.size(); ) {
+                    add(indices.get(i));
+                    final String string = segments[++i];
+                    add(new JXLabel() {{
+                        setText(string);
+                    }});
+                }
+
+                add(Box.createHorizontalGlue(), new GridBagConstraints() {{
+                    weightx = 1;
+                }});
+            }
+
+            /**
+             * Constructs the fully qualified name of the variable
+             *
+             * @return the variable's name
+             */
+            String constructName() {
+                String name = "";
+                for (int i = 0; i < segments.length; ++i) {
+                    name += segments[i];
+                    if (i < indices.size()) {
+                        name += indices.get(i);
+                    }
+                }
+                return name;
+            }
+
+            /**
+             * Returns the variables, with indices expanded, represented by this panel
+             *
+             * @param all variables represented by this panel
+             */
+            public Collection<String> constructVariables()
+              throws InvalidVariableNameException {
+                return getVariables(constructName()); /* getVariables#1 */
+            }
+
+        }
+    }
+
+    /**
+     * Used in the constructor for Variable Panel.
+     * Allows the user to specifiy an index range for pointers
+     */
+    class IndexTextField extends JXTextField {
+
+        public IndexTextField() {
+            setText("0-0");
+            setColumns(4);
+            setHorizontalAlignment(CENTER);
+        }
+
+        @Override
+        public String toString() {
+            return getText();
+        }
+    }
+
+    /**
+     * Private class to contain the name and the
      * dimensions for each segment of variable added.
      */
     private class VariableName {
@@ -887,7 +1224,6 @@ public class DreApplication extends TrickApplication {
      * to the interested parties.
      */
     private class TreeMouseListener extends MouseAdapter {
-
 
         //========================================
         //    MouseListener methods
@@ -943,7 +1279,9 @@ public class DreApplication extends TrickApplication {
                         }
                     }
                 } else if (clickedNode != null && varTree.getModel().isLeaf(clickedNode) && clickedNode.isTrickManaged()) {
-                    addVariable(SieTreeModel.getPathName(clickedPath) + clickedNode);
+                    ArrayList<String> pendingVariables = new ArrayList<String>();
+                    pendingVariables.add( SieTreeModel.getPathName(clickedPath) + clickedNode);
+                    addVariableDialog.launch(pendingVariables);
                 }
             }
 
@@ -955,4 +1293,10 @@ public class DreApplication extends TrickApplication {
         }
     }
 
+    /** exception thrown for poorly formed variable names */
+    class InvalidVariableNameException extends Exception {
+        public InvalidVariableNameException(String description) {
+            super(description);
+        }
+    } 
 }
