@@ -148,7 +148,9 @@ int main(int argc, char * argv[]) {
     // Set all of the defaults to c++
 #if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 9))
     llvm::Triple trip (to.Triple) ;
-#if (LIBCLANG_MAJOR >= 10)
+#if (LIBCLANG_MAJOR >= 12)
+    clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo.Includes) ;
+#elif (LIBCLANG_MAJOR >= 10)
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::Language::CXX, trip, ppo) ;
 #elif (LIBCLANG_MAJOR >= 5)
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::InputKind::CXX, trip, ppo) ;
