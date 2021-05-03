@@ -1055,7 +1055,7 @@ class TrickWorkflow(WorkflowCommon):
             bool
                 False if all comparisons succeed, True if any failed
             """
-            return any([c.compare() for c in self.comparisons])
+            return any([c.compare() != Job.Status.SUCCESS for c in self.comparisons])
 
         def report(self, indent=''):
             """

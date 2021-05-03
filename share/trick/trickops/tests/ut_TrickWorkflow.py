@@ -214,3 +214,21 @@ class TrickWorkflowTestCase(unittest.TestCase):
         self.assertTrue(c.baseline_data == baseline_data)
         self.assertTrue(c.test_data == test_data)
         self.assertTrue(c.error is None)
+
+    def test_run_compare_pass(self):
+        r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py --someflag',
+          binary='S_main_Linux_x86_64.exe')
+        # Use same data to get a pass
+        test_data     = 'share/trick/trickops/tests/baselinedata/log_a.csv'
+        baseline_data = 'share/trick/trickops/tests/baselinedata/log_a.csv'
+        r.add_comparison(test_data, baseline_data)
+        self.assertEqual(r.compare(), 0)
+
+    def test_run_compare_fail(self):
+        r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py --someflag',
+          binary='S_main_Linux_x86_64.exe')
+        # Use same data to get a pass
+        test_data     = 'share/trick/trickops/tests/testdata/log_a.csv'
+        baseline_data = 'share/trick/trickops/tests/baselinedata/log_a.csv'
+        r.add_comparison(test_data, baseline_data)
+        self.assertEqual(r.compare(), 1)
