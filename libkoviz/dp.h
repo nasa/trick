@@ -11,6 +11,7 @@
 #include <QFileInfo>
 #include <QRegExp>
 #include <QHash>
+#include <QRectF>
 #include <stdexcept>
 #include <float.h>
 #include <limits.h>
