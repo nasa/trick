@@ -12,6 +12,12 @@ git clone https://github.com/nasa/koviz.git
 sudo yum install qt5-qtbase-devel gcc gcc-c++ make flex bison
 ```
 
+## Redhat 8+
+
+```sh
+sudo dnf install -y qt5-qtbase-devel bison flex make gcc gcc-c++
+```
+
 ## Ubuntu latest
 ```sh
 sudo apt-get install qtbase5-dev qt5-default
@@ -19,7 +25,7 @@ sudo apt-get install qtbase5-dev qt5-default
 
 # Build
 
-## Redhat
+## Redhat 7 & 8
 
 ```sh
 qmake-qt5
