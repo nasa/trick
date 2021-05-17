@@ -29,7 +29,7 @@ jobs:
         glibc.i686 glibc-devel.i686 udunits2 udunits2-devel gtest-devel.i686
         java-11-openjdk java-11-openjdk-devel expat-devel.i686
         which gcc-gfortran git wget gsl-devel gtest-devel gsl-devel.i686
-        maven udunits2 udunits2-devel
+        maven udunits2 udunits2-devel zip
     - name: Symlink python
       run: |
         cd /usr/lib

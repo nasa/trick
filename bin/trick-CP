@@ -280,7 +280,7 @@ tidy:
 clean: tidy
 	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
 	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
-	-rm -rf build trick
+	-rm -rf build trick trick.zip
 	-rm -f makefile
 
 spotless: clean

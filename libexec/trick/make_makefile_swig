@@ -153,8 +153,8 @@ else
 endif
 
 ifndef TRICK_VERBOSE_BUILD
-    PRINT_SWIG          = \$(info \$(call COLOR,SWIGing)    \$<)
-    PRINT_COMPILE_SWIG  = \$(info \$(call COLOR,Compiling)  \$<)
+    PRINT_SWIG         = \$(info \$(call COLOR,SWIGing)    \$<)
+    PRINT_COMPILE_SWIG = \$(info \$(call COLOR,Compiling)  \$<)
 endif
 
 # TRICK_FIXED_PYTHON ===========================================================
@@ -170,8 +170,6 @@ TRICK_FIXED_PYTHON = \\
 
 \$(TRICK_FIXED_PYTHON): $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%
 \t\$(call ECHO_AND_LOG,/bin/cp -f \$< \$@)
-
-all: \$(TRICK_FIXED_PYTHON)
 
 # SWIG_I =======================================================================
 
@@ -201,7 +199,7 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 \$(SWIG_SRC) : %.cpp: %.i | %.d \$(SWIG_I)
 \t\$(PRINT_SWIG)
-\t\$(call ECHO_AND_LOG,\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w315 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir trick -o \$@ \$<)
+\t\$(call ECHO_AND_LOG,\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w315 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir $swig_sim_dir -o \$@ \$<)
 
 \$(SWIG_SRC:.cpp=.d): ;
 
@@ -218,6 +216,16 @@ SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o
 \$(S_MAIN): \$(SWIG_OBJECTS)
 
 LINK_LISTS += \$(LD_FILELIST)build/py_link_list
+
+# trick.zip ====================================================================
+
+trick.zip: \$(SWIG_SRC) \$(TRICK_FIXED_PYTHON) $swig_sim_dir/__init__.py
+\t\$(info \$(call COLOR,Compiling)  Python modules)
+\t\$(call ECHO_AND_LOG,\$(PYTHON) -m compileall -q $swig_sim_dir)
+\t\$(info \$(call COLOR,Zipping)    Python modules into $swig_sim_dir.zip)
+\t\$(call ECHO_AND_LOG,zip -rq $swig_sim_dir $swig_sim_dir)
+
+all: $swig_sim_dir.zip
 " ;
 
     close MAKEFILE ;
@@ -294,9 +302,9 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITFILE "__path__ = extend_path(__path__, __name__)\n" ;
     print INITFILE "import sys\n" ;
     print INITFILE "import os\n" ;
-    print INITFILE "sys.path.append(os.getcwd() + \"/trick\")\n" ;
+    print INITFILE "sys.path.append(os.getcwd() + \"/trick.zip/trick\")\n" ;
     foreach my $dir ( keys %python_module_dirs ) {
-       print INITFILE "sys.path.append(os.getcwd() + \"/trick/$dir\")\n" ;
+       print INITFILE "sys.path.append(os.getcwd() + \"/trick.zip/trick/$dir\")\n" ;
     }
 
     print INITFILE "\n" ;

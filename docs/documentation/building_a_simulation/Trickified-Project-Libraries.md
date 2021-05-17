@@ -1,13 +1,13 @@
 During a simulation build, Trick generates several rounds of files to support data recording, checkpointing, and Python access:
 
 * Trick generates `S_source.hh` from the `S_define`
-* ICG recursively builds a tree of all header files included from `S_source.hh` and generates an `io_*.cpp` and `py_*.i` file for each
-* SWIG converts all `py_*.i` to `py_*.cpp` files
-* Trick compiles all `io_*.cpp` and `py_*.cpp` files
+* ICG recursively builds a tree of all header files included from `S_source.hh` and generates an `io_*.cpp` and `*_py.i` file for each
+* SWIG converts all `*_py.i` to `*_py.cpp` files
+* Trick compiles all `io_*.cpp` and `*_py.cpp` files
 
 The time required grows with the number of included header files and can represent a significant portion of the build process. During subsequent builds, only headers files that have changed are reprocessed. However, `make clean` removes all of the generated files, so the next build will have to run the entire process again.
 
-For external libraries, which do not change from build to build, this is unnecessary and wasteful. In this case, we would like to compile the `io_*.cpp` and `py_*.cpp` files once and simply link against them during simulation build. As of version 17.1, Trick supports "Trickifying" a set of headers via the `trickify.mk` makefile.
+For external libraries, which do not change from build to build, this is unnecessary and wasteful. In this case, we would like to compile the `io_*.cpp` and `*_py.cpp` files once and simply link against them during simulation build. As of version 17.1, Trick supports "Trickifying" a set of headers via the `trickify.mk` makefile.
 
 # Who's Responsible?
 Support of Trickification is the project owner's responsibility. While it is possible for anyone to Trickify any set of headers, you really want the project to maintain the files we're going to talk about. This will ensure that's it done correctly, in one place, and stays synchronized with the project.
@@ -57,10 +57,11 @@ The result should be:
     trickified/
         S_source.hh
         <b>trickified.o
+        python
         build/
-        python/</b></pre>
+        trick/</b></pre>
 
-`trickified.o` contains all of the `io_*.cpp` and `py_*.cpp` code. The name is configurable via the `TRICKIFY_OBJECT_NAME` variable, which can include directories, which will automatically be created if necessary.  `build` contains a lot of ICG and SWIG artifacts. You can't change its name or location at this time, but it's useful to keep around as it will allow you to rebuild only the parts of the project that change in the future. `python` includes a bunch of crazily-named Python modules which serve as the input file interface to the content of the header files. You can configure its location via the `TRICKIFY_PYTHON_DIR` variable. Directories will be automatically created as needed.
+`trickified.o` contains all of the compiled `io_*.cpp` and `*_py.cpp` code. The name is configurable via the `TRICKIFY_OBJECT_NAME` variable, which can include directories, which will automatically be created if necessary. `build` contains a lot of ICG and SWIG artifacts. You can't change its name or location at this time, but it's useful to keep around as it will allow you to rebuild only the parts of the project that change in the future, and sims that build against your project will need the `*_py.i` files within. `trick` includes a bunch of crazily-named Python modules which serve as the input file interface to the content of the header files. Those modules are compiled and zipped into `python`. The zip file name is configurable via the `TRICKIFY_PYTHON_DIR` variable, which can include directories, which will automatically be created if necessary.
 
 Your Trickified library can be produced in three different formats based on the value of `TRICKIFY_BUILD_TYPE`:
 1. `STATIC` (.a)  
@@ -84,8 +85,9 @@ Let's be honest. You're not going to remember that command line. And who wants t
         <b>Makefile</b>
         S_source.hh
         trickified.o
+        python
         build/
-        python/</pre>
+        trick/</pre>
 
 ```make
 ifndef TRICK_HOME
@@ -105,7 +107,7 @@ all:
         @$(MAKE) -s -f $(TRICKIFY)
 
 clean:
-        @rm -rf build python $(TRICKIFY_OBJECT_NAME)
+        @rm -rf build python trick $(TRICKIFY_OBJECT_NAME)
 ```
 
 Now just type `make` in `trickified` and everything is taken care of. I even added a check to make sure you're using a recent enough version of Trick. I've silenced a lot of make's output because I prefer to see echoed commands only when debugging, but you're welcome to get rid of the `@` and `-s` if you enjoy such verbosity. Note that I've used `TRICKIFY_OBJECT_NAME` to rename the default `trickified.o` to something a little less generic. If you're following along, you can remove the `trickified.o` we built earlier.
@@ -114,9 +116,9 @@ Now just type `make` in `trickified` and everything is taken care of. I even add
 The only Trickification-related files you want under version control are `S_source.hh` and `Makefile`. You should ignore all of the generated files. For instance, the appropriate `.gitignore` for the `trickified` directory when using default values for the Trickification variables is:
 
 ```git
-build
+build/
+trick/
 python
-trick
 *.o
 ```
 
@@ -135,7 +137,7 @@ This line links in the Trickified object. Note that you may need additional flag
 TRICK_EXT_LIB_DIRS += :$(HOME)/myproject
 ```
 
-This line tells Trick to expect `io_*` and `py_*` code for the headers in the specified directory (and all directories below it), but not to generate it itself. This is different than `TRICK_ICG_EXCLUDE` and `TRICK_EXCLUDE`, which cause ICG to ignore the headers entirely. It also tells Trick not to compile any source files in the specified directory (and all directories below it) that may be referenced as `LIBRARY_DEPENDENCIES` in user files. Note that it is a colon-delimited list of paths.
+This line tells Trick to expect `io_*` and `*_py` code for the headers in the specified directory (and all directories below it), but not to generate it itself. This is different than `TRICK_ICG_EXCLUDE` and `TRICK_EXCLUDE`, which cause ICG to ignore the headers entirely. It also tells Trick not to compile any source files in the specified directory (and all directories below it) that may be referenced as `LIBRARY_DEPENDENCIES` in user files. Note that it is a colon-delimited list of paths.
 
 You'll need to be more selective if the sim itself or additional non-Trickified headers or source are under the same directory as Trickified headers or source. You may have to resort to individually specifying the full path to every file to be excluded, perhaps using some fancy `find` options to automatically generate the list.
 
@@ -143,13 +145,13 @@ You'll need to be more selective if the sim itself or additional non-Trickified 
 TRICK_PYTHON_PATH += :$(HOME)/myproject/trickified/python
 ```
 
-This line tells Trick where to find the Python modules generated by SWIG so that you can access the Trickified project from the input file. It is also a colon-delimited list of paths.
+This line tells Trick where to find the zipped Python modules generated by SWIG so that you can access the Trickified project from the input file. It is also a colon-delimited list of paths.
 
 ```make
 TRICK_SWIG_FLAGS += -I$(HOME)/myproject/trickified
 ```
 
-This line tells Trick where to find the `py_*.i` files generated by ICG and should point to the directory containing `build`. These are necessary if any of your headers include headers from the Trickified project, which is likely, since you otherwise wouldn't be using it. It is a space-delimited list of options. Don't forget to prepend the path with `-I`.
+This line tells Trick where to find the `*_py.i` files generated by ICG and should point to the directory containing `build`. These are necessary if any of your headers include headers from the Trickified project, which is likely, since you otherwise wouldn't be using it. It is a space-delimited list of options. Don't forget to prepend the path with `-I`.
 
 ## Simplify Your Users' Lives
 While the above is sufficient to use a Trickified project, it's awfully inconvenient to have to add all that stuff to every sim's `S_overrides.mk`. Plus, there are probably more things that need to be added, like header paths and linker flags for any additional libraries on which the project depends. Your users will love your project even more if you provide them with a makefile they can simply include from their `S_overrides.mk`. And it's not just the users that benefit! You'll have to answer far fewer questions about why they can't get your project compiled into their sim if, when your project inevitably changes, all they have to do is pull down the new makefile instead of changing all of their `S_overrides.mk`. Everybody wins! Turning once again to our example, let's call the makefile `myproject.mk` and put it in the `trickified` directory. You may have a name or location that makes more sense for your project. Maybe you already have a `makefiles` directory, or maybe your project supports a number of third party tools and you have a directory for Trick support. But let's keep the example simple:
@@ -164,8 +166,9 @@ While the above is sufficient to use a Trickified project, it's awfully inconven
         <b>myproject.mk</b>
         S_source.hh
         trickified_myproject.o
+        python
         build/
-        python/</pre>
+        trick/</pre>
 
 Here's the contents of `myproject.mk`. It's everything from the previous section plus some other things you might find useful.
 
@@ -193,7 +196,7 @@ TRICK_CFLAGS   += $(MYPROJECT_INCLUDE) $(MYPROJECT_SOURCE)
 TRICK_CXXFLAGS += $(MYPROJECT_INCLUDE) $(MYPROJECT_SOURCE)
 
 # Enable Trickification support if Trick >= 17.1.
-# Otherwise, let Trick generate all of the io_* and py_* code as usual.
+# Otherwise, let Trick generate all of the io_* and *_py code as usual.
 ifneq ($(wildcard $(TRICK_HOME)/share/trick/makefiles/trickify.mk),)
 
     MYPROJECT_TRICK := $(MYPROJECT_HOME)/trickified/trickified_myproject.o
@@ -202,10 +205,10 @@ ifneq ($(wildcard $(TRICK_HOME)/share/trick/makefiles/trickify.mk),)
     # Trickified project
     TRICK_EXT_LIB_DIRS += :$(MYPROJECT_HOME)
 
-    # Tell Trick where to find the Python modules generated by SWIG
+    # Tell Trick where to find the zipped Python modules generated by SWIG
     TRICK_PYTHON_PATH += :$(MYPROJECT_HOME)/trickified/python
 
-    # Tell SWIG where to find py_*.i files
+    # Tell SWIG where to find *_py.i files
     TRICK_SWIG_FLAGS += -I$(MYPROJECT_HOME)/trickified
 
     # Link in the Trickified object
@@ -234,7 +237,7 @@ include <myproject>/trickified/myproject.mk
 They'll have to replace `<myproject>` with the location to which they installed your project, of course. They might choose to hardcode the path or use a variable, but that's up to them.
 
 # You Still Need a Core Library
-Trickification is great and all, but it only builds the `io_*` and `py_*` code into an object. And because your project's headers and source are now under `TRICK_EXT_LIB_DIRS`, Trick won't be determining dependencies or compiling source code. Trickification thus necessitates that you build all of your source code into a library. There are plenty of internet tutorials available on that topic, so I won't be suggesting anything here. But once you've got that taken care of, you should incorporate it into your user-facing makefile by adding it to `TRICK_LDFLAGS`. You can also create a rule to call its build system and add the library as a prerequisite to `$(S_MAIN)` to have it built along with the sim if necessary.
+Trickification is great and all, but it only builds the `io_*` and `*_py` code into an object. And because your project's headers and source are now under `TRICK_EXT_LIB_DIRS`, Trick won't be determining dependencies or compiling source code. Trickification thus necessitates that you build all of your source code into a library. There are plenty of internet tutorials available on that topic, so I won't be suggesting anything here. But once you've got that taken care of, you should incorporate it into your user-facing makefile by adding it to `TRICK_LDFLAGS`. You can also create a rule to call its build system and add the library as a prerequisite to `$(S_MAIN)` to have it built along with the sim if necessary.
 
 # A Real Life Trickified Project
 Here's a real project we used as the guinea pig for Trickification. It provides a makefile that a user can include from his `S_overrides.mk` that causes both a core library and Trickified object to be built if they don't already exist whenever the sim is compiled. The makefile is located at `3rdParty/trick/makefiles/trickified.mk`. The Trickified stuff is at `3rdParty/trick/lib`.
