@@ -81,7 +81,7 @@
 # 	$(MAKE) -f $(TRICKIFY)
 #
 # clean:
-# 	rm -rf $(TRICKIFY_OBJECT_NAME) build python trick
+# 	rm -rf $(TRICKIFY_OBJECT_NAME) build python .trick
 #
 # -----------------------------------------------------------------------------
 #
@@ -129,7 +129,7 @@ else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
 	$(call ECHO_AND_LOG,ar rcs $@ $^)
 endif
 
-$(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) trick:
+$(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) .trick:
 	@mkdir -p $@
 
 $(IO_OBJECTS): %.o: %.cpp
@@ -144,9 +144,9 @@ $(SWIG_OBJECTS): %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
 	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -Wno-unused-parameter -Wno-shadow -c -o $@ $<)
 
-$(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | %.d trick $(SWIG_OBJECTS:.o=.i)
+$(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | %.d .trick $(SWIG_OBJECTS:.o=.i)
 	$(info $(call COLOR,SWIGing)    $<)
-	$(call ECHO_AND_LOG,$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w315 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir trick -o $@ $<)
+	$(call ECHO_AND_LOG,$(SWIG) $(TRICK_INCLUDE) $(TRICK_DEFINES) $(TRICK_VERSIONS) $(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w315 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir .trick -o $@ $<)
 
 $(SWIG_OBJECTS:.o=.d): ;
 
@@ -161,9 +161,9 @@ $(foreach EXTENSION,H h hh hxx h++ hpp,$(eval $(call create_convert_swig_rule,$(
 
 $(TRICKIFY_PYTHON_DIR): $(SWIG_OBJECTS:.o=.cpp) | $(dir $(TRICKIFY_PYTHON_DIR))
 	$(info $(call COLOR,Compiling)  Python modules)
-	$(call ECHO_AND_LOG,$(PYTHON) -m compileall -q trick)
+	$(call ECHO_AND_LOG,$(PYTHON) -m compileall -q .trick)
 	$(info $(call COLOR,Zipping)    Python modules into $@)
-	$(call ECHO_AND_LOG,cd trick && zip -Arq $@ .)
+	$(call ECHO_AND_LOG,cd .trick && zip -Arq $@ .)
 
 # SWIG_OBJECTS and IO_OBJECTS are meant to contain all of the *_py and io_*
 # object file names, respectively, by looking at products of ICG and

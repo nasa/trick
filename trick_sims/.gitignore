@@ -22,7 +22,8 @@ S_sie.json
 S_source.cpp
 S_source.hh
 T_main_*
-**/SIM_*/trick
+**/SIM_*/.trick
+**/SIM_*/trick.zip
 **/graphics/dist
 **/graphics/manifest
 **/graphics/build

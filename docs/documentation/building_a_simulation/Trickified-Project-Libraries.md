@@ -59,9 +59,9 @@ The result should be:
         <b>trickified.o
         python
         build/
-        trick/</b></pre>
+        .trick/</b></pre>
 
-`trickified.o` contains all of the compiled `io_*.cpp` and `*_py.cpp` code. The name is configurable via the `TRICKIFY_OBJECT_NAME` variable, which can include directories, which will automatically be created if necessary. `build` contains a lot of ICG and SWIG artifacts. You can't change its name or location at this time, but it's useful to keep around as it will allow you to rebuild only the parts of the project that change in the future, and sims that build against your project will need the `*_py.i` files within. `trick` includes a bunch of crazily-named Python modules which serve as the input file interface to the content of the header files. Those modules are compiled and zipped into `python`. The zip file name is configurable via the `TRICKIFY_PYTHON_DIR` variable, which can include directories, which will automatically be created if necessary.
+`trickified.o` contains all of the compiled `io_*.cpp` and `*_py.cpp` code. The name is configurable via the `TRICKIFY_OBJECT_NAME` variable, which can include directories, which will automatically be created if necessary. `build` contains a lot of ICG and SWIG artifacts. You can't change its name or location at this time, but it's useful to keep around as it will allow you to rebuild only the parts of the project that change in the future, and sims that build against your project will need the `*_py.i` files within. `.trick` includes a bunch of crazily-named Python modules which serve as the input file interface to the content of the header files. Those modules are compiled and zipped into `python`. The zip file name is configurable via the `TRICKIFY_PYTHON_DIR` variable, which can include directories, which will automatically be created if necessary.
 
 Your Trickified library can be produced in three different formats based on the value of `TRICKIFY_BUILD_TYPE`:
 1. `STATIC` (.a)  
@@ -87,7 +87,7 @@ Let's be honest. You're not going to remember that command line. And who wants t
         trickified.o
         python
         build/
-        trick/</pre>
+        .trick/</pre>
 
 ```make
 ifndef TRICK_HOME
@@ -107,7 +107,7 @@ all:
         @$(MAKE) -s -f $(TRICKIFY)
 
 clean:
-        @rm -rf build python trick $(TRICKIFY_OBJECT_NAME)
+        @rm -rf build python .trick $(TRICKIFY_OBJECT_NAME)
 ```
 
 Now just type `make` in `trickified` and everything is taken care of. I even added a check to make sure you're using a recent enough version of Trick. I've silenced a lot of make's output because I prefer to see echoed commands only when debugging, but you're welcome to get rid of the `@` and `-s` if you enjoy such verbosity. Note that I've used `TRICKIFY_OBJECT_NAME` to rename the default `trickified.o` to something a little less generic. If you're following along, you can remove the `trickified.o` we built earlier.
@@ -117,7 +117,7 @@ The only Trickification-related files you want under version control are `S_sour
 
 ```git
 build/
-trick/
+.trick/
 python
 *.o
 ```
@@ -168,7 +168,7 @@ While the above is sufficient to use a Trickified project, it's awfully inconven
         trickified_myproject.o
         python
         build/
-        trick/</pre>
+        .trick/</pre>
 
 Here's the contents of `myproject.mk`. It's everything from the previous section plus some other things you might find useful.
 
