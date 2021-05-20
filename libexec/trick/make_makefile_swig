@@ -133,7 +133,8 @@ sub purge_swig_no_files() {
 
 sub write_makefile_swig() {
     my $s_source_md5 = md5_hex(abs_path("S_source.hh")) ;
-    my $swig_sim_dir = "trick" ;
+    my $swig_sim_dir = ".trick" ;
+    my $swig_sim_zip = "trick.zip" ;
     my $swig_src_dir = "build" ;
 
     open MAKEFILE , ">build/Makefile_swig" or die "Could not open build/Makefile_swig for writing" ;
@@ -153,8 +154,8 @@ else
 endif
 
 ifndef TRICK_VERBOSE_BUILD
-    PRINT_SWIG          = \$(info \$(call COLOR,SWIGing)    \$<)
-    PRINT_COMPILE_SWIG  = \$(info \$(call COLOR,Compiling)  \$<)
+    PRINT_SWIG         = \$(info \$(call COLOR,SWIGing)    \$<)
+    PRINT_COMPILE_SWIG = \$(info \$(call COLOR,Compiling)  \$<)
 endif
 
 # TRICK_FIXED_PYTHON ===========================================================
@@ -170,8 +171,6 @@ TRICK_FIXED_PYTHON = \\
 
 \$(TRICK_FIXED_PYTHON): $swig_sim_dir/\% : \${TRICK_HOME}/share/trick/swig/\%
 \t\$(call ECHO_AND_LOG,/bin/cp -f \$< \$@)
-
-all: \$(TRICK_FIXED_PYTHON)
 
 # SWIG_I =======================================================================
 
@@ -201,7 +200,7 @@ SWIG_SRC = \$(subst .i,.cpp,\$(SWIG_I)) $swig_src_dir/top.cpp
 
 \$(SWIG_SRC) : %.cpp: %.i | %.d \$(SWIG_I)
 \t\$(PRINT_SWIG)
-\t\$(call ECHO_AND_LOG,\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w315 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir trick -o \$@ \$<)
+\t\$(call ECHO_AND_LOG,\$(SWIG) \$(TRICK_INCLUDE) \$(TRICK_DEFINES) \$(TRICK_VERSIONS) \$(TRICK_SWIG_FLAGS) -c++ -python -includeall -ignoremissing -w201 -w303 -w315 -w325 -w362 -w389 -w401 -w451 -MMD -MP -outdir $swig_sim_dir -o \$@ \$<)
 
 \$(SWIG_SRC:.cpp=.d): ;
 
@@ -218,6 +217,19 @@ SWIG_OBJECTS = \$(subst .cpp,.o,\$(SWIG_SRC)) $swig_src_dir/init_swig_modules.o
 \$(S_MAIN): \$(SWIG_OBJECTS)
 
 LINK_LISTS += \$(LD_FILELIST)build/py_link_list
+
+# $swig_sim_zip ===================================================================
+
+$swig_sim_zip: \$(SWIG_SRC) \$(TRICK_FIXED_PYTHON) $swig_sim_dir/__init__.py
+\t\$(info \$(call COLOR,Compiling)  Python modules)
+\t\$(call ECHO_AND_LOG,\$(PYTHON) -m compileall -q $swig_sim_dir)
+\t\$(info \$(call COLOR,Zipping)    Python modules into \$@)
+\t\$(call ECHO_AND_LOG,ln -sf $swig_sim_dir trick)
+\t\$(call ECHO_AND_LOG,zip -rq $swig_sim_zip trick)
+\t\$(call ECHO_AND_LOG,rm -f trick)
+
+
+all: $swig_sim_zip
 " ;
 
     close MAKEFILE ;
@@ -285,18 +297,18 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     print INITSWIGFILE "#endif\n" ;
     close INITSWIGFILE ;
 
-    if ( ! -e "trick") {
-        mkdir "trick" ;
+    if ( ! -e $swig_sim_dir) {
+        mkdir $swig_sim_dir ;
     }
-    open INITFILE , ">trick/__init__.py" or die "Could not open trick/__init__.py for writing" ;
+    open INITFILE , ">$swig_sim_dir/__init__.py" or die "Could not open $swig_sim_dir/__init__.py for writing" ;
 
     print INITFILE "from pkgutil import extend_path\n" ;
     print INITFILE "__path__ = extend_path(__path__, __name__)\n" ;
     print INITFILE "import sys\n" ;
     print INITFILE "import os\n" ;
-    print INITFILE "sys.path.append(os.getcwd() + \"/trick\")\n" ;
+    print INITFILE "sys.path.append(os.getcwd() + \"/$swig_sim_zip/trick\")\n" ;
     foreach my $dir ( keys %python_module_dirs ) {
-       print INITFILE "sys.path.append(os.getcwd() + \"/trick/$dir\")\n" ;
+       print INITFILE "sys.path.append(os.getcwd() + \"/$swig_sim_zip/trick/$dir\")\n" ;
     }
 
     print INITFILE "\n" ;
@@ -342,8 +354,8 @@ LINK_LISTS += \$(LD_FILELIST)build/py_link_list
     close INITFILE ;
 
     foreach my $dir ( keys %python_module_dirs ) {
-        system("mkdir -p trick/$dir");
-        open MODULE_INITFILE, ">trick/$dir/__init__.py";
+        system("mkdir -p $swig_sim_dir/$dir");
+        open MODULE_INITFILE, ">$swig_sim_dir/$dir/__init__.py";
         foreach my $file ( @files_to_process ) {
             if ( exists $trick_headers{$file}{python_module_dir} and $trick_headers{$file}{python_module_dir} eq $dir ) {
                 print MODULE_INITFILE "# $file\n" ;

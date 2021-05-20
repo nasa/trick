@@ -110,7 +110,7 @@ int Trick::IPPython::init() {
      "import os\n"
      "import struct\n"
      "import binascii\n"
-     "sys.path.append(os.getcwd())\n"
+     "sys.path.append(os.getcwd() + '/trick.zip')\n"
      "sys.path.append(os.path.join(os.environ['TRICK_HOME'], 'share/trick/pymods'))\n"
      "sys.path += map(str.strip, os.environ['TRICK_PYTHON_PATH'].split(':'))\n"
      "import trick\n"
