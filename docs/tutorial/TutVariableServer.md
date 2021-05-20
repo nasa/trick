@@ -167,7 +167,7 @@ following commands:
 * **trick.var_unpause()**
 
 The [**var_pause**](#api-var-pause), and [**var_unpause**](#api-var-unpause)
-commandsare generally used at the beginning, and ending of variable server
+commands are generally used at the beginning, and ending of variable server
 session configurations. [**var_pause**](#api-var-pause) tells the variable
 server to stop sending data, if it is. [**var_unpause**](#api-var-unpause),
 tells the variable server to start sending data.
@@ -179,7 +179,7 @@ The two [**var_add**](#api-var-add) commands add "dyn.cannon.pos[0]"
 and "dyn.cannon.pos[1]" to the session variable list. 
 
 :warning: Please notice that the quotes around the variable names must be
-escaped with the '\' (baskslash) character.
+escaped with the '\' (backslash) character.
 
 ```
 client_socket.send( "trick.var_add(\"dyn.cannon.pos[0]\") \n" +
@@ -290,11 +290,11 @@ else :
     sys.exit()
 
 # ----------------------------------------------------------------------
-# 2.0 Set client Parameters
+# 2.0 Set client Parameters.
 HEIGHT, WIDTH = 500, 800   # Canvas Dimensions
-MARGIN = 20                # Margins round the axes.
-SCALE = 3                  # Scale = 3 pixels per meter.
-ballRadius = 5             # Ball radius in pixels.
+MARGIN = 20                # Margins around the axes
+SCALE = 3                  # Scale = 3 pixels per meter
+ballRadius = 5             # Ball radius in pixels
 
 # ----------------------------------------------------------------------
 # 3.0 Create constants for clarity.
@@ -303,7 +303,7 @@ MODE_RUN = 5
 
 # ----------------------------------------------------------------------
 # 4.0 Create a variable to indicate that we want to "fire" the cannon,
-#   and a callback function to set it.
+#     and a callback function to set it.
 fireCommand = False
 def cannonFire():
     global fireCommand
@@ -324,12 +324,12 @@ buttonFrame.pack(side=BOTTOM)
 fireButton = Button(buttonFrame,text="fire",command=cannonFire)
 fireButton.pack(side=LEFT)
 
-# 5.3 Add an Initial Speed Scale
+# 5.3 Add an Initial Speed Scale.
 speedScale = Scale(buttonFrame, from_=5, to=50, label="Initial Speed", orient=HORIZONTAL)
 speedScale.pack(side=LEFT)
 speedScale.set(50)
 
-# *5.4 Add an Initial Angle Scale
+# 5.4 Add an Initial Angle Scale.
 angleScale = Scale(buttonFrame, from_=5, to=80, label="Initial Angle", orient=HORIZONTAL)
 angleScale.pack(side=LEFT)
 angleScale.set(30)
@@ -383,7 +383,7 @@ while(True):
     cx,cy = (x*SCALE+MARGIN), (HEIGHT-y*SCALE-MARGIN)
     canvas.coords(cannonBall,cx-ballRadius,cy-ballRadius,cx+ballRadius,cy+ballRadius)
 
-    # 8.4 Get and display current Sim Mode
+    # 8.4 Get and display current Sim Mode.
     simMode = int(field[3])
     if simMode == MODE_FREEZE:
         canvas.itemconfigure(modeText, fill="blue", text="FREEZE")
@@ -407,12 +407,12 @@ while(True):
         if fireCommand:
             fireCommand = False
             fireButton.config(state=DISABLED)
-            # *** Command the sim to assign the slider values to init_speed, and init_angle.
+            # 8.6.1 Command the sim to assign the slider values to init_speed, and init_angle.
             client_socket.send( "dyn.cannon.init_speed = " + str(speedScale.get()) + " \n")
             client_socket.send( "dyn.cannon.init_angle = " + str(angleScale.get()*(math.pi/180.0)) + " \n")
-            # *** Command the sim to re-run the cannon_init job.
+            # 8.6.2 Command the sim to re-run the cannon_init job.
             client_socket.send( "trick.cannon_init( dyn.cannon )\n")
-            # *** Command the sim to RUN mode.
+            # 8.6.3 Command the sim to RUN mode.
             client_socket.send( "trick.exec_run()\n")
     
     # 8.7 Update the Tk graphics.
