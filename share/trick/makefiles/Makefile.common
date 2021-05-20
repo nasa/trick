@@ -3,8 +3,8 @@ CD       := cd
 MV       := /bin/mv
 RM       := /bin/rm
 CP       := /bin/cp
-MAKE_OUT := build/MAKE_out
-MAKE_ERR := build/MAKE_err
+MAKE_OUT := $(abspath build/MAKE_out)
+MAKE_ERR := $(abspath build/MAKE_err)
 
 PWD       = $(shell /bin/pwd)
 COLOR     = [34m$(1)[0m
@@ -14,12 +14,12 @@ ifdef VERBOSE
 endif
 
 ifdef TRICK_VERBOSE_BUILD
-    ECHO_TO_TERMINAL = @echo $1
+    ECHO_TO_TERMINAL = @echo '$1'
 endif
 
 define ECHO_AND_LOG
 $(call ECHO_TO_TERMINAL, $1)
-@echo $1 >> $(MAKE_OUT)
+@echo '$1' >> $(MAKE_OUT)
 @$1 > >($(TEE) -a $(MAKE_OUT)) 2> >($(TEE) -a $(MAKE_ERR) >&2)
 endef
 

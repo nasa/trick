@@ -20,7 +20,8 @@ S_sie.resource
 S_source.cpp
 S_source.hh
 T_main_*
-trick
+.trick
+trick.zip
 jitlib
 build
 S_sie.json
