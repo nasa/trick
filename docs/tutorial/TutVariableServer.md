@@ -5,28 +5,33 @@
 
 **Contents**
 
-* [What Is The Variable Server?](#what-is-a-variable-server)
+* [What Is The Variable Server?](#what-is-the``-variable-server)
     * [Variable Server Sessions](#variable-server-sessions)
-
 * [A Simple Variable Server Client](#a-simple-variable-server-client)
     * [Listing - CannonDisplay_Rev1.py](#listing-CannonDisplay_Rev1-py)
     * [Running The Client](#running-the-client)
     * [How The Client Works](#how-the-client-works)
-* [Getting Values Just Once](#getting-values-just-once)
-* [Running the Client From the Input File](#running-the-client-from-the-input-file)
+    * [Getting Values Just Once](#getting-values-just-once)
 * [A More Realistic Example](#a-more-realistic-example)
+    * [Listing - CannonDisplay_Rev2.py](#listing-CannonDisplay_Rev2-py)
+    * [Controlling the Simulation Mode from a VS Client]
+      (#controlling-the-simulation-mode-from-a-vs-client)
+    * [Initializing the Simulation from a VS Client]
+      (#initializing-the-simulation-from-a-vs-client)
+* [Starting a Client From the Input File](#starting-a-client-from-the-input-file)
 
 ***
 
 This tutorial section will demonstrate how to write a Trick variable server
 client. We'll be writing the clients in Python, but they can be written in any
-language. We'll start out with a minimal client and then gradually update it. 
-We'll be interfacing with our Cannon ball simulation.
+language. We'll start out with a minimal client and then proceed to a more
+realistic example. We'll be interfacing with our Cannon ball simulation.
 
 ***
 
 <a id=what-is-the-variable-server></a>
 ## What is The Variable Server?
+
 Every Trick simulation contains a **Variable Server**, a TCP/IP network service
 for interacting with the simulation while it's running. Like the input-file
 processor, the variable server uses a Python interpreter that's bound to the
@@ -60,6 +65,7 @@ The primary purpose of the [**variable server API**](#the-variable-server-api)
 is to configure the sessions.
 
 ## Approach
+
 Calling functions and setting simulation variables using the variable server is
 done as in the input file. That is, the client sends Python code to the variable
 server where it's executed, to call functions, set variables, or both. In the
@@ -81,19 +87,19 @@ position data, and prints the periodic responses to the screen.
 import sys
 import socket
 
-# Process the command line arguments.
+# 1.0 Process the command line arguments.
 if ( len(sys.argv) == 2) :
     trick_varserver_port = int(sys.argv[1])
 else :
     print( "Usage: vsclient <port_number>")
     sys.exit()
 
-# Connect to the variable server.
+# 2.0 Connect to the variable server.
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect( ("localhost", trick_varserver_port) )
 insock = client_socket.makefile("r")
 
-# Request the cannon ball position.
+# 3.0 Request the cannon ball position.
 client_socket.send( "trick.var_pause()\n" )
 client_socket.send( "trick.var_ascii()\n" )
 client_socket.send( "trick.var_add(\"dyn.cannon.pos[0]\") \n" +
@@ -101,7 +107,7 @@ client_socket.send( "trick.var_add(\"dyn.cannon.pos[0]\") \n" +
                   )
 client_socket.send( "trick.var_unpause()\n" )
 
-# Repeatedly read and process the responses from the variable server.
+# 4.0 Repeatedly read and process the responses from the variable server.
 while(True):
     line = insock.readline()
     if line == '':
@@ -151,8 +157,10 @@ that they were specified in the script.
 <a id=how-the-client-works></a>
 ### How the Client Works
 
-The script first gets the variable server's port number, and creates a TCP/IP connection to it.
-The script then configures the variable server session, with the commands listed below, to periodically send the cannonball position with the following commands:
+The script first gets the variable server's port number, and creates a TCP/IP
+connection to it. The script then configures the variable server session, with
+the commands listed below, to periodically send the cannonball position with the
+following commands:
 
 * **trick.var_pause()**
 * **trick.var_ascii()**
@@ -160,29 +168,38 @@ The script then configures the variable server session, with the commands listed
 * **trick.var_add("dyn.cannon.pos[1]")**
 * **trick.var_unpause()**
 
-The [**var_pause**](#api-var-pause), and [**var_unpause**](#api-var-unpause) commands
-are generally used at the beginning, and ending of variable server session configurations. [**var_pause**](#api-var-pause) tells the variable server to stop
-sending data, if it is. [**var_unpause**](#api-var-unpause), tells the variable server to start sending data.
+The [**var_pause**](#api-var-pause), and [**var_unpause**](#api-var-unpause)
+commandsare generally used at the beginning, and ending of variable server
+session configurations. [**var_pause**](#api-var-pause) tells the variable
+server to stop sending data, if it is. [**var_unpause**](#api-var-unpause),
+tells the variable server to start sending data.
 
-The [**var_ascii**](#api-var-ascii) command then tells the variable server to send messages using an ASCII encoding (rather than
-binary).
+The [**var_ascii**](#api-var-ascii) command then tells the variable server to
+send messages using an ASCII encoding (rather than binary).
 
 The two [**var_add**](#api-var-add) commands add "dyn.cannon.pos[0]"
 and "dyn.cannon.pos[1]" to the session variable list. 
 
-:warning: Please notice that the quotes around the variable names must be escaped with the '\' (baskslash) character.
+:warning: Please notice that the quotes around the variable names must be
+escaped with the '\' (baskslash) character.
 
 ```
 client_socket.send( "trick.var_add(\"dyn.cannon.pos[0]\") \n" +
                     "trick.var_add(\"dyn.cannon.pos[1]\") \n"
                   )
 ```
-When the [**var_unpause**](#api-var-unpause) command is executed, messages containing the values of the variables listed in the session variable list will be repeatedly created, and sent to the client.
 
-By default, the variable server sends data every 0.1 seconds (that is, 10 hertz). This is equivalent to commanding: [**var_cycle(0.1)**](#api-var-cycle).
+When the [**var_unpause**](#api-var-unpause) command is executed, messages
+containing the values of the variables listed in the session variable list will
+be repeatedly created, and sent to the client.
 
+By default, the variable server sends data every 0.1 seconds (that is, 10 hertz).
+This is equivalent to commanding: [**var_cycle(0.1)**](#api-var-cycle).
 
-The script then enters a while-loop that repeatedly 1) waits for, 2) reads, and 3) prints the raw responses from the variable server. The responses are encoded in ASCII, as specified by [**var_ascii**](#api-var-ascii), and are of the following format:
+The script then enters a while-loop that repeatedly 1) waits for, 2) reads, and
+3) prints the raw responses from the variable server. The responses are encoded
+in ASCII, as specified by [**var_ascii**](#api-var-ascii), and are of the
+following format:
 
 ```
 0\t<variable1-value>[\t<variable2-value>...\t <variableN-value> ]\n
@@ -190,11 +207,17 @@ The script then enters a while-loop that repeatedly 1) waits for, 2) reads, and 
 <a id=getting-values-just-once></a>
 ## Getting Values Just Once
 
-Suppose we wanted to get the value of the initial angle of our cannon. We don't need to get it repeatedly, because it doesn't change. We just want to get it once, and then to repeatedly get the position data, which changes over time.
+Suppose we wanted to get the value of the initial angle of our cannon. We don't
+need to get it repeatedly, because it doesn't change. We just want to get it
+once, and then to repeatedly get the position data, which changes over time.
 
-For this situation we can use the [**var_send**](#api-var-send) command, which tells the variable server to send the values specified in the session variable list immediately, regardless of whether [**var_pause**](#api-var-pause) was previously commanded.
+For this situation we can use the [**var_send**](#api-var-send) command, which
+tells the variable server to send the values specified in the session variable
+list immediately, regardless of whether [**var_pause**](#api-var-pause) was
+previously commanded.
 
-To demonstrate how this works, let's add the following code to our script, right after the line where we sent the **var_ascii** command.
+To demonstrate how this works, let's add the following code to our script, right
+after the line where we sent the **var_ascii** command.
 
 ```python
 client_socket.send( "trick.var_add(\"dyn.cannon.init_angle\")\n")
@@ -203,14 +226,21 @@ line = insock.readline()
 print line
 client_socket.send( "trick.var_clear()\n" )
 ```
-In this snippet of code, we add  ```dyn.cannon.init_angle``` to the session variable list.
-Then we call [**var_send**](#api-var-send) to tell the variable server to send us the value, and wait for the response by calling ```insock.readline()```. When it arrives, we print it.
-Before the script adds the cannon position variables, we need to remove ```dyn.cannon.init_angle```, otherwise we'll be getting this in our messages too. We can do this in one of two ways. We can 1) call
-[**var_clear**](#api-var-clear) to clear the the list, or 2) we can call [**var_remove**](#api-var-remove). Specifically we could do the following:
+
+In this snippet of code, we add  ```dyn.cannon.init_angle``` to the session
+variable list. Then we call [**var_send**](#api-var-send) to tell the variable
+server to send us the value, and wait for the response by calling
+```insock.readline()```. When it arrives, we print it. Before the script adds
+the cannon position variables, we need to remove ```dyn.cannon.init_angle```,
+otherwise we'll be getting this in our messages too. We can do this in one of
+two ways. We can 1) call [**var_clear**](#api-var-clear) to clear the the list,
+or 2) we can call [**var_remove**](#api-var-remove). Specifically we could do
+the following:
 
 ```client_socket.send("trick.var_remove(\"dyn.cannon.init_angle\")\n )```
 
-So, when we run the modified client, the first three lines of the output should look something like the following.
+So, when we run the modified client, the first three lines of the output should
+look something like the following.
 
 ```
 0	0.5235987755982988
@@ -219,35 +249,32 @@ So, when we run the modified client, the first three lines of the output should 
 
 0	0	0
 ```
-The first line contains the message type ( which is zero), followed by the value of  ```dyn.cannon.init_angle```. Subsequent lines contain the position data like before.
 
-<a id=running-the-client-from-the-input-file></a>
-## Running a Client From The Input File
-
-Rather than having to start a client each and every time from the command line,
-we can easily start it from the input file using the function
-```trick.var_server_get_port()``` as illustrated in the following input file
-script.
-
-```python
-#==================================
-# Start the variable server client.
-#==================================
-varServerPort = trick.var_server_get_port();
-CannonDisplay_path = os.environ['HOME'] + "/CannonDisplay_Rev1.py"
-if (os.path.isfile(CannonDisplay_path)) :
-    CannonDisplay_cmd = CannonDisplay_path + " " + str(varServerPort) + " &" ;
-    print(CannonDisplay_cmd)
-    os.system( CannonDisplay_cmd);
-else :
-    print('Oops! Can\'t find ' + CannonDisplay_path )
-```
-
-Add this to the bottom of RUN_test/input.py to give it a try.
-***
+The first line contains the message type ( which is zero), followed by the value
+of  ```dyn.cannon.init_angle```. Subsequent lines contain the position data like
+before.
 
 <a id=a-more-realistic-example></a>
 ## A More Realistic Example
+
+In the previous example we only called variable server API functions, like
+```trick.var_add```, ```trick.var_send```, and so forth. But, we're not
+just limited to variable server API calls. The variable server's Python
+interpreter is bound to our simulation's variables and many other functions,
+including those that we've written ourselves. In this example we'll create a
+more interactive client, to initialize our simulation, and to control the
+simulation modes.
+
+The listing below implements a GUI client using **Python** and
+**tkinter** that allows us to:
+
+ 1. Set the initial speed and angle of the cannon ball.
+ 2. Read and display the current simulation MODE.
+ 3. Set the simulation mode (using a "fire" button).
+ 4. Animate the flight of the cannon ball in realtime.
+
+<a id=listing-CannonDisplay_Rev2-py></a>
+**Listing - CannonDisplay_Rev2.py**
 
 ```python
 #!/usr/bin/python
@@ -256,69 +283,81 @@ import socket
 import math
 from Tkinter import *
 
-# Client Parameters
-HEIGHT, WIDTH = 500, 800   # Canvas Dimensions
-MARGIN = 20                # Margins round the axes.
-SCALE = 3                  # Scale = 3 pixels per meter.
-ballRadius = 5             # Ball radius in pixels.
-
-MODE_FREEZE = 1 
-MODE_RUN = 5 
-
-# Variable and Callback for the Fire Button
-fireCommand = False
-def cannonFire():
-    global fireCommand
-    fireCommand = True
-
-# Process the command line arguments.
+# ----------------------------------------------------------------------
+# 1.0 Process the command line arguments, to get the port number.
 if ( len(sys.argv) == 2) :
     trick_varserver_port = int(sys.argv[1])
 else :
     print( "Usage: vsclient <port_number>")
     sys.exit()
 
-# Create a Canvas to draw on.
+# ----------------------------------------------------------------------
+# 2.0 Set client Parameters
+HEIGHT, WIDTH = 500, 800   # Canvas Dimensions
+MARGIN = 20                # Margins round the axes.
+SCALE = 3                  # Scale = 3 pixels per meter.
+ballRadius = 5             # Ball radius in pixels.
+
+# ----------------------------------------------------------------------
+# 3.0 Create constants for clarity.
+MODE_FREEZE = 1 
+MODE_RUN = 5 
+
+# ----------------------------------------------------------------------
+# 4.0 Create a variable to indicate that we want to "fire" the cannon,
+#   and a callback function to set it.
+fireCommand = False
+def cannonFire():
+    global fireCommand
+    fireCommand = True
+
+# ----------------------------------------------------------------------
+# 5.0 Create the GUI
+
+# 5.1 Create a Canvas to draw on.
 tk = Tk()
 canvas = Canvas(tk, width=WIDTH, height=HEIGHT)
 tk.title("CannonBall Display")
 canvas.pack()
 
-# Add a FIRE button
+# 5.2  Add a FIRE button, whose callback sets the fireCommand variable.
 buttonFrame = Frame()
 buttonFrame.pack(side=BOTTOM)
 fireButton = Button(buttonFrame,text="fire",command=cannonFire)
 fireButton.pack(side=LEFT)
 
-# Add an Initial Speed Scale
+# 5.3 Add an Initial Speed Scale
 speedScale = Scale(buttonFrame, from_=5, to=50, label="Initial Speed", orient=HORIZONTAL)
 speedScale.pack(side=LEFT)
 speedScale.set(50)
 
-# Add an Initial Angle Scale
+# *5.4 Add an Initial Angle Scale
 angleScale = Scale(buttonFrame, from_=5, to=80, label="Initial Angle", orient=HORIZONTAL)
 angleScale.pack(side=LEFT)
 angleScale.set(30)
 
-# Create coordinate axes on the canvas.
+# 5.5 Create coordinate axes on the canvas.
 xAxis = canvas.create_line(MARGIN,HEIGHT-MARGIN,WIDTH,HEIGHT-MARGIN)
 yAxis = canvas.create_line(MARGIN,HEIGHT-MARGIN,MARGIN,0)
 
-# Create an oval object to represent the cannonball.
+# 5.6 Create an oval object to represent the cannonball.
 cannonBall = canvas.create_oval(0,0,ballRadius,ballRadius, fill="orange")
 
-# Create a text field on the canvas for the simulation mode display.
+# 5.7 Create a text field on the canvas for the simulation mode display.
 modeText = canvas.create_text(WIDTH/2, 20, text="--unknown-mode--")
 
+# 5.8 Create text fields on the canvas for time and position of impact display.
 impactTimeText = canvas.create_text(WIDTH/2, 40, text="")
 impactPosText =  canvas.create_text(WIDTH/2, 60, text="")
 
-# Connect to the variable server.
+# ----------------------------------------------------------------------
+# 6.0 Connect to the variable server.
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect( ("localhost", trick_varserver_port) )
 insock = client_socket.makefile("r")
 
-# Request the cannon ball position.
+# ----------------------------------------------------------------------
+# 7.0 Request the cannon ball position, the sim mode, and the impact info.
 client_socket.send( "trick.var_set_client_tag(\"myvsclient\") \n")
 client_socket.send( "trick.var_debug(3)\n" )
 client_socket.send( "trick.var_pause()\n" )
@@ -330,21 +369,23 @@ client_socket.send( "trick.var_add(\"dyn.cannon.pos[0]\") \n" +
                     "trick.var_add(\"dyn.cannon.impactTime\") \n" )
 client_socket.send( "trick.var_unpause()\n" )
 
-# Repeatedly read and process the responses from the variable server.
+# ----------------------------------------------------------------------
+# 8.0 Repeatedly read and process the responses from the variable server.
 while(True):
+    # 8.1 Read the response line from the variable server.
     line = insock.readline()
     if line == '':
         break
 
-    # Split the response line into value fields.
+    # 8.2 Split the line into an array of value fields.
     field = line.split("\t")
 
-    # Update Ball Position
+    # 8.3 Get the position of the ball and update it on the canvas.
     x,y = float(field[1]), float(field[2])
     cx,cy = (x*SCALE+MARGIN), (HEIGHT-y*SCALE-MARGIN)
     canvas.coords(cannonBall,cx-ballRadius,cy-ballRadius,cx+ballRadius,cy+ballRadius)
 
-    # Update Sim Mode
+    # 8.4 Get and display current Sim Mode
     simMode = int(field[3])
     if simMode == MODE_FREEZE:
         canvas.itemconfigure(modeText, fill="blue", text="FREEZE")
@@ -353,30 +394,103 @@ while(True):
     else:
         canvas.itemconfigure(modeText, text="--unknown-mode--")
 
+    # 8.5 When impact occurs display the impact info, and command the sim from RUN mode to FREEZE mode.
     impact = int(field[4])
     if simMode == MODE_RUN:
         if impact:
+            # 8.5.1 Display the impact info on the canvas.
             canvas.itemconfigure(impactTimeText, text="Impact time = " + field[5])
             canvas.itemconfigure(impactPosText, text="Impact pos  = (" + field[1] + "," + field[2] + ")")
+            # 8.5.2 Command the sim to FREEZE mode.
             client_socket.send( "trick.exec_freeze()\n")
 
-    # Command the sim from Freeze to Run, when the "Fire" button is pressed.
+    # 8.6 When the "Fire" button is pressed, command the sim from FREEZE mode to RUN mode.
     if simMode == MODE_FREEZE:
         if fireCommand:
             fireCommand = False
             fireButton.config(state=DISABLED)
+            # *** Command the sim to assign the slider values to init_speed, and init_angle.
             client_socket.send( "dyn.cannon.init_speed = " + str(speedScale.get()) + " \n")
             client_socket.send( "dyn.cannon.init_angle = " + str(angleScale.get()*(math.pi/180.0)) + " \n")
+            # *** Command the sim to re-run the cannon_init job.
             client_socket.send( "trick.cannon_init( dyn.cannon )\n")
+            # *** Command the sim to RUN mode.
             client_socket.send( "trick.exec_run()\n")
-
+    
+    # 8.7 Update the Tk graphics.
     tk.update()
 
-# Keep the window open, when the data stops.
+# ----------------------------------------------------------------------
+# 9.0 Keep the window open, when the data stops.
 tk.mainloop()
 
 ```
 
+<a id=controlling-the-simulation-mode-from-a-vs-client></a>
+### Controlling the Simulation Mode from a VS Client
+
+The current simulation mode is stored in the ```trick_sys.sched.mode``` variable.
+So, we request that in addition to our other variables in section 7.0 of the
+listing. 
+
+The only simulation modes that are available to our client are FREEZE, and RUN.
+The variable server isn't available in other modes. The numeric values of these
+modes are:
+
+* MODE_FREEZE = 1 
+* MODE_RUN = 5 
+
+To set the simulation mode, we need to use the following functions:
+
+* ```trick.exec_run()``` - commands the sim to RUN mode.
+* ```trick.exec_freeze()``` - commands the sim to FREEZE mode.
+
+as in sections 8.5, and 8.6 of the listing.
+
+Don't set ```trick_sys.sched.mode```.
+
+<a id=initializing-the-simulation-from-a-vs-client></a>
+### Initializing the Simulation from a VS Client
+
+To set simulation values, we simply create and send Python assignment statements.
+
+```
+ client_socket.send( "dyn.cannon.init_speed = " + str(speedScale.get()) + " \n")
+ client_socket.send( "dyn.cannon.init_angle = " + str(angleScale.get()*(math.pi/180.0)) 
+```
+
+Just because the variable server isn't available during INITIALIZATION mode,
+doesn't mean we can't initialize our sim. We can just call our initialization
+jobs directly.
+
+```
+client_socket.send( "trick.cannon_init( dyn.cannon )\n")
+```
+
+<a id=starting-a-client-from-the-input-file></a>
+## Starting a Client From The Input File
+
+Rather than having to start a client each and every time from the command line,
+we can easily start it from the input file using the function
+```trick.var_server_get_port()``` as illustrated in the following input file
+script.
+
+```python
+#==================================
+# Start the variable server client.
+#==================================
+varServerPort = trick.var_server_get_port();
+CannonDisplay_path = os.environ['HOME'] + "/CannonDisplay_Rev2.py"
+if (os.path.isfile(CannonDisplay_path)) :
+    CannonDisplay_cmd = CannonDisplay_path + " " + str(varServerPort) + " &" ;
+    print(CannonDisplay_cmd)
+    os.system( CannonDisplay_cmd);
+else :
+    print('Oops! Can\'t find ' + CannonDisplay_path )
+```
+
+Add this to the bottom of RUN_test/input.py to give it a try.
+***
 
 ## Appendix
 
@@ -394,11 +508,14 @@ tk.mainloop()
 <a id=the-variable-server-api></a>
 ### The Variable Server API
 
-The following functions are a subset of variable server API functions that are used in this tutorial:
+``
+The following functions are a subset of variable server API functions that are
+used in this tutorial:
 
 <a id=api-var-add></a>
 **var\_add( variable_name )** -
-Add a name to the session variable list. The value of the added variable will transmitted in subsequent variable server messages.
+Add a name to the session variable list. The value of the added variable will
+transmitted in subsequent variable server messages.
 
 <a id=api-var-ascii></a>
 **var\_ascii()** -
