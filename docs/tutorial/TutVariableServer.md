@@ -14,10 +14,8 @@
     * [Getting Values Just Once](#getting-values-just-once)
 * [A More Realistic Example](#a-more-realistic-example)
     * [Listing - CannonDisplay_Rev2.py](#listing-CannonDisplay_Rev2-py)
-    * [Controlling the Simulation Mode from a VS Client]
-      (#controlling-the-simulation-mode-from-a-vs-client)
-    * [Initializing the Simulation from a VS Client]
-      (#initializing-the-simulation-from-a-vs-client)
+    * [Controlling the Simulation Mode from a VS Client](#controlling-the-simulation-mode-from-a-vs-client)
+    * [Initializing the Simulation from a VS Client](#initializing-the-simulation-from-a-vs-client)
 * [Starting a Client From the Input File](#starting-a-client-from-the-input-file)
 
 ***
