@@ -227,14 +227,14 @@ Disconnects the current client from the variable server.
 trick.var_exists( string var_name )
 ```
 
-To test if a variable name exists.  A special return message is sent to the client when
+To test if a variable name exists.  A special response is sent to the client when
 this command is processed.
 
-The return message is in this format:
+In **var_binary** mode, the (4 byte) message indicator of the response will be 1,
+followed by a (1 byte) value of 0 or 1 to indicate the existence of the variable.
 
-```
-1<1 byte binary 0 or 1>
-```
+In **var_ascii** mode: the message indicator of the response will be "1" followed
+by a tab, then an ASCII "0" or "1" to indicate the existence of the variable.
 
 #### Changing the Return Value Cycle Rate
 
