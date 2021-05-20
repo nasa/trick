@@ -3,7 +3,7 @@
 
 <!-- Section -->
 <a id=introduction></a>
-# :checkered_flag: Introduction
+# 🏁 Introduction
 
 **Contents**
 
