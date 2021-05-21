@@ -78,6 +78,8 @@ void LabeledRulerView::dataChanged(const QModelIndex &topLeft,
 
 void LabeledRulerView::wheelEvent(QWheelEvent *e)
 {
+    Q_UNUSED(e);
+
     QString from ;
     QModelIndex scaleIdx;
     if ( _alignment == Qt::AlignBottom ) {

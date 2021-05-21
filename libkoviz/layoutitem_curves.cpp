@@ -421,8 +421,6 @@ void CurvesLayoutItem::__paintSymbol(const QPointF &p,
     pen.setStyle(Qt::SolidLine);
     painter->setPen(pen);
 
-    double xHeight = painter->fontMetrics().xHeight();
-
     if ( symbol == "circle" ) {
         painter->drawEllipse(p,36,36);
     } else if ( symbol == "thick_circle" ) {

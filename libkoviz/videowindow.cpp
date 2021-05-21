@@ -62,6 +62,8 @@ void VideoWindow::wrap_mpv_events()
 
 void VideoWindow::closeEvent(QCloseEvent *event)
 {
+    Q_UNUSED(event);
+
     QSettings settings("JSC", "koviz");
 
     settings.beginGroup("VideoWindow");

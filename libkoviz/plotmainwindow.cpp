@@ -880,15 +880,17 @@ void PlotMainWindow::_saveDP()
     }
 
     // Tables
+#if 0
     int tableNum = 1;
     QModelIndex tablesIdx = _bookModel->getIndex(QModelIndex(),"Tables");
     QModelIndexList tableIdxs = _bookModel->getIndexList(tablesIdx,"Table");
+    // TODO Save DP Tables
     foreach ( QModelIndex tableIdx, tableIdxs ) {
         if ( tableNum == 1 ) {
             out << "TABLES:\n";
         }
-        // TODO Save DP Tables !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     }
+#endif
 
     dp.close();
 }
