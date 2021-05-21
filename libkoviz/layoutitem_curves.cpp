@@ -68,12 +68,12 @@ void CurvesLayoutItem::paint(QPainter *painter,
         QString plotPresentation = _bookModel->getDataString(_plotIdx,
                                                      "PlotPresentation","Plot");
         if ( plotPresentation == "compare" ) {
-            _printCoplot(R,T,painter,_plotIdx);
+            _printCoplot(T,painter,_plotIdx);
         } else if (plotPresentation == "error" || plotPresentation.isEmpty()) {
-            _printErrorplot(R,T,painter,_plotIdx);
+            _printErrorplot(T,painter,_plotIdx);
         } else if ( plotPresentation == "error+compare" ) {
-            _printErrorplot(R,T,painter,_plotIdx);
-            _printCoplot(R,T,painter,_plotIdx);
+            _printErrorplot(T,painter,_plotIdx);
+            _printCoplot(T,painter,_plotIdx);
         } else {
             fprintf(stderr,"koviz [bad scoobs]: printCurves() : pres=\"%s\" "
                            "not recognized.\n",
@@ -200,7 +200,7 @@ void CurvesLayoutItem::paint(QPainter *painter,
             QRectF S(pixmap.rect());
             painter->drawPixmap(R,pixmap,S);
         } else {
-            _printCoplot(R,T,painter,_plotIdx);
+            _printCoplot(T,painter,_plotIdx);
         }
     }
 
@@ -215,7 +215,7 @@ void CurvesLayoutItem::paint(QPainter *painter,
     _paintCurvesLegend(R,curvesIdx,painter);
 }
 
-void CurvesLayoutItem::_printCoplot(const QRect& R, const QTransform& T,
+void CurvesLayoutItem::_printCoplot(const QTransform& T,
                             QPainter *painter, const QModelIndex &plotIdx)
 {
     double start = _bookModel->getDataDouble(QModelIndex(),"StartTime");
@@ -555,8 +555,7 @@ void CurvesLayoutItem::__paintSymbol(const QPointF &p,
     painter->setPen(origPen);
 }
 
-void CurvesLayoutItem::_printErrorplot(const QRect& R,
-                                       const QTransform& T,
+void CurvesLayoutItem::_printErrorplot(const QTransform& T,
                                        QPainter *painter,
                                        const QModelIndex &plotIdx)
 {

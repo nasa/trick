@@ -30,10 +30,10 @@ private:
     QPixmap* _pixmap;
     QRect _rect;
 
-    void _printCoplot(const QRect& R, const QTransform& T,
+    void _printCoplot(const QTransform& T,
                       QPainter *painter, const QModelIndex &plotIdx);
-    void _printErrorplot(const QRect& R, const QTransform& T,
-                      QPainter *painter, const QModelIndex &plotIdx);
+    void _printErrorplot(const QTransform& T,
+                         QPainter *painter, const QModelIndex &plotIdx);
     void __paintSymbol(const QPointF &p,
                        const QString &symbol, QPainter* painter);
     void _paintGrid(QPainter* painter,
