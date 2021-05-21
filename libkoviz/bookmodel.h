@@ -22,6 +22,7 @@
 #include <QList>
 #include <QColor>
 #include <cmath>
+#include <string.h>
 
 class PlotBookModel : public QStandardItemModel
 {

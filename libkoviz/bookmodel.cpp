@@ -2373,39 +2373,49 @@ bool PlotBookModel::_isEqual(double a, double b, ulong maxD,
 
     if ( isNeighborMethod && sizeof(double) == sizeof(ulong)) {
         ulong n = maxD;
+        ulong na = maxD;
+        ulong nb = maxD;
         if ( a == 0 ) {
             if ( b > 0 ) {
-                n = (*(ulong*)&b);
+                memcpy(&n,&b,sizeof(ulong));
             } else if ( b < 0 ) {
                 double bb = qAbs(b);
-                n = *(ulong*)&bb;
+                memcpy(&n,&bb,sizeof(ulong));
             }
         } else if ( a > 0 ) {
             if ( b == 0 ) {
-                n = (*(ulong*)&a);
+                memcpy(&n,&a,sizeof(ulong));
             } else if ( b > 0 ) {
+                memcpy(&na,&a,sizeof(ulong));
+                memcpy(&nb,&b,sizeof(ulong));
                 if ( b > a ) {
-                    n = (*(ulong*)&b - *(ulong*)&a);
+                    n = nb - na;
                 } else {
-                    n = (*(ulong*)&a - *(ulong*)&b);
+                    n = na - nb;
                 }
             } else if ( b < 0 ) {
                 double bb = qAbs(b);
-                n = (*(ulong*)&a + *(ulong*)&bb);
+                memcpy(&na,&a,sizeof(ulong));
+                memcpy(&nb,&bb,sizeof(ulong));
+                n = na + nb;
             }
         } else if ( a < 0 ) {
             if ( b == 0 ) {
-                n = (*(ulong*)&a);
+                memcpy(&n,&a,sizeof(ulong));
             } else if ( b > 0 ) {
                 double aa = qAbs(a);
-                n = (*(ulong*)&aa + *(ulong*)&b);
+                memcpy(&na,&aa,sizeof(ulong));
+                memcpy(&nb,&b,sizeof(ulong));
+                n = na + nb;
             } else if ( b < 0 ) {
                 double aa = qAbs(a);
                 double bb = qAbs(b);
+                memcpy(&na,&aa,sizeof(ulong));
+                memcpy(&nb,&bb,sizeof(ulong));
                 if ( bb > aa ) {
-                    n = (*(ulong*)&bb - *(ulong*)&aa);
+                    n = nb - na;
                 } else {
-                    n = (*(ulong*)&aa - *(ulong*)&bb);
+                    n = na - nb;
                 }
             }
         } else {
