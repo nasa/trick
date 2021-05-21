@@ -5,6 +5,7 @@
 
 %option yylineno
 %option noyywrap
+%option nounput
 
 BACKGROUND_COLOR              [Bb][Aa][Cc][Kk][Gg][Rr][Oo][Uu][Nn][Dd]_[Cc][Oo][Ll][Oo][Rr]
 BIAS                          [Bb][Ii][Aa][Ss] 
