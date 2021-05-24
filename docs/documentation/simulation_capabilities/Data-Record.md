@@ -257,44 +257,126 @@ The DRBinary recording format is a Trick simulation specific format.  Files writ
 log_<group_name>.trk.  The contents of this file type are readable by the Trick Data Products packages from
 Trick 07 to the current version.  The format of the file follows.
 
-<table>
-<tr><th>Value</th><th>Description</th><th>Type</th><th>Bytes</th></tr>
-<tr><td colspan=4 align=center>START OF HEADER</td></tr>
-<tr><td>Trick-\<vv\>-\<e\></td><td>\<vv\> is trick version, 2 characters (e.g. 07)
-\<e\> is endianness, 1 character: L for little endian, B for big endian</td><td>string</td><td>10</td></tr>
-<tr><td>\<numparms\></td><td>Number of parameters recorded</td><td>int</td><td>4</td></tr>
-<tr><td>17</td><td>parameter \#1 Name string length</td><td>int</td><td>4</td></tr>
-<tr><td>sys.exec.out.time</td><td>parameter \#1 Name (1st parameter is always the system time)</td><td>string</td><td>17</td></tr>
-<tr><td>1</td><td>parameter \#1 Units Name string length</td><td>int</td><td>4</td></tr>
-<tr><td>s</td><td>parameter \#1 Units Name</td><td>string</td><td>1</td></tr>
-<tr><td>10</td><td>parameter \#1 Type (see Table 15)</td><td>int</td><td>4</td></tr>
-<tr><td>8</td><td>parameter \#1 Size (number of bytes the value occupies)</td><td>int</td><td>4</td></tr>
-<tr><td>\<namelen\></td><td>parameter \#2 Name string length</td><td>int</td><td>4</td></tr>
-<tr><td>\<name\></td><td>parameter \#2 Name</td><td>string</td><td>\<namelen\></td></tr>
-<tr><td>\<unitlen\></td><td>parameter \#2 Units Name string length</td><td>int</td><td>4</td></tr>
-<tr><td>\<unit\></td><td>parameter \#2 Units Name</td><td>string</td><td>\<unitlen\></td></tr>
-<tr><td>\<type\></td><td>parameter \#2 Type</td><td>int</td><td>4</td></tr>
-<tr><td><size></td><td>parameter \#2 Size</td><td>int</td><td>4</td></tr>
-<tr><td></td><td>.</td><td></td><td></td></tr>
-<tr><td></td><td>.</td><td></td><td></td></tr>
-<tr><td></td><td>.</td><td></td><td></td></tr>
-<tr><td>\<namelen\></td><td>parameter \#n Name string length</td><td>int</td><td>4</td></tr>
-<tr><td>\<name\></td><td>parameter \#n Name</td><td>string</td><td>\<namelen\></td></tr>
-<tr><td>\<unitlen\></td><td>parameter \#n Units Name string length</td><td>int</td><td>4</td></tr>
-<tr><td>\<unit\></td><td>parameter \#n Units Name</td><td>string</td><td>\<unitlen\></td></tr>
-<tr><td>\<type\></td><td>parameter \#n Type</td><td>int</td><td>4</td></tr>
-<tr><td><size></td><td>parameter \#n Size</td><td>int</td><td>4</td></tr>
-<tr><td colspan=4 align=center>END OF HEADER, START OF RECORDED DATA</td></tr>
-<tr><td>\<value\></td><td>parameter \#1 Value</td><td>10</td><td>8</td></tr>
-<tr><td>\<value\></td><td>parameter \#2 Value</td><td>\<type\></td><td>\<size\></td></tr>
-<tr><td></td><td>.</td><td></td><td></td></tr>
-<tr><td></td><td>.</td><td></td><td></td></tr>
-<tr><td></td><td>.</td><td></td><td></td></tr>
-<tr><td>\<value\></td><td>parameter \#n Value</td><td>\<type\></td><td>\<size\></td></tr>
-<tr><td colspan=4 align=center>REPEAT RECORDED DATA FOR EACH CYCLE</td></tr>
-<tr><td colspan=4 align=center>END OF RECORDED DATA</td></tr>
-</table>
+<a id=drbinary-file></a>
+### DRBinary-File
+|Value|Description|Type|#Bytes|
+|---|---|---|---|
+|Trick-\<vv>-\<e>| \<vv> is trick version (2 chars, "07" or "10"). \<e> is endianness (1 char) 'L' -> little endian, and 'B' -> big endian.|char|10|
+|*numparms*|Number of recorded variables |char|4|
+|| List of Variable Descriptors | [Variable-Descriptor-List](#variable-descriptor-list)||
+|| List Data Records |[Data-Record-List](#data-record-list)||
+|EOF| End of File |||
 
+
+<a id=variable-descriptor-list></a>
+#### Variable-Descriptor-List
+A Variable-Descriptor-List is a sequence of [Variable-Descriptors](#variable-descriptor).
+The number of descriptors in the list is specified by *numparms*. The list describes each of the recorded variables, starting with the simulation time variable.
+
+|Value|Description|Type|#Bytes|
+|---|---|---|---|
+|[*Time-Variable-Descriptor*](#time-variable-descriptor)| Descriptor for Variable # 1. This first descriptor always represents the simulation time variable.| [Variable-Descriptor](#variable-descriptor) |34|
+|...|...|...|...|
+|| Descriptor for Variable # *numparms* |[Variable-Descriptor](#variable-descriptor)|variable|
+
+<a id=variable-descriptor></a>
+#### Variable-Descriptor
+A Variable-Descriptor describes a recorded variable. 
+
+|Value|Description|Type|Bytes|
+|---|---|---|---|
+| *namelen*| Length of Variable Name |int|4|
+| *name*   | Variable Name ||*namelen*|
+| *unitlen*| Length of Variable Units |int|4|
+| *unit*   | Variable Units ||*unitlen*|
+| *type*   | Variable Type (see Notes 2. & 3.)|int|4|
+| *sizeof(type)*   | Variable Type Size |int|4|
+
+**Notes:**
+
+1. the size of a Variable-Descriptor in bytes = *namelen* + *unitlen* + 16.
+2. If *vv* = "07", use [Trick 07 Data Types](#trick-07-data-types).
+3. If *vv* = "10", use [Trick 10 Data Types](#trick-10-data-types).
+
+<a id=time-variable-descriptor></a>
+#### *Time-Variable-Descriptor*
+|Value|Description|Type|Bytes|
+|---|---|---|---|
+|17| Length of Variable Name |int|4|
+|```sys.exec.out.time```| Variable Name |char|17|
+|1| Length of Variable Units |int|4|
+|```s```| Variable Units (see Note 1.) |char|1|
+|11| Variable Type |int|4|
+|8| Variable Type Size |int|4|
+
+**Notes:**
+
+1. Here, we are assuming "vv" = "10", and so, referring to [Trick 10 Data Types](#trick-10-data-types), Variable Type = 11, which corresponds to **double**.
+
+<a id=data-record-list></a>
+#### Data-Record-List
+A Data-Record-List contains a collection of [Data-Records](#data-record), at regular times.
+
+|Value|Description|Type|Bytes|
+|---|---|---|---|
+||Data-Record #1|[Data-Record](#data-record)||
+|...|...|...|...|
+||Data-Record #Last|[Data-Record](#data-record)||
+
+<a id=data-record></a>
+#### Data-Record
+A Data-Record contains a collection of values for each of the variables we are recording, at a specific time.
+
+|Value|Description|Type|Bytes|
+|---|---|---|---|
+|*time*|Value of Variable #1 (time) |*typeof( Variable#1 )*|*sizeof( typeof( Variable#1))* = 8|
+|...|...|...|...|
+|*value*|Value of Variable #numparms |*typeof( Variable#numparms)*|*sizeof( type-of( Variable#numparms))* |
+
+<a id=trick-07-data-types></a>
+###Trick 7 Data Types
+The following data-types were used in Trick-07 data recording files (that is for, *vv* = "07").
+
+|Type value|Data Type|
+|---|---|
+|0|char|
+|1|unsigned char|
+|2|string (char\*)|
+|3|short|
+|4|unsigned short|
+|5|int|
+|6|unsigned int|
+|7|long|
+|8|unsigned long|
+|9|float|
+|10|double|
+|11|Bit field|
+|12|unsigned Bit field|
+|13|long long|
+|14|unsigned long long|
+|17|Boolean (C++)|
+
+<a id=trick-10-data-types></a>
+###Trick 10 Data Types
+The following data-types are used in Trick versions >= 10, that is for, *vv* = "10".
+
+|Type value|Data Type|
+|---|---|
+|1 | char |
+|2|unsigned char|
+|4| short |
+|5|unsigned short|
+|6| int |
+|7|unsigned int|
+|8| long |
+|9|unsigned long|
+|10| float |
+|11| double |
+|12|Bit field|
+|13|unsigned Bit field|
+|14|long long|
+|15|unsigned long long|
+|17|Boolean (C++)``|
 ### DRHDF5 Recording Format
 
 HDF5 recording format is an industry conforming HDF5 formatted file.  Files written in this format are named
