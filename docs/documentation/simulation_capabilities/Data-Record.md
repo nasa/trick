@@ -334,7 +334,7 @@ A Data-Record contains a collection of values for each of the variables we are r
 |*value*|Value of Variable #numparms |*typeof( Variable#numparms)*|*sizeof( type-of( Variable#numparms))* |
 
 <a id=trick-07-data-types></a>
-###Trick 7 Data Types
+### Trick 7 Data Types
 The following data-types were used in Trick-07 data recording files (that is for, *vv* = "07").
 
 |Type value|Data Type|
@@ -357,7 +357,7 @@ The following data-types were used in Trick-07 data recording files (that is for
 |17|Boolean (C++)|
 
 <a id=trick-10-data-types></a>
-###Trick 10 Data Types
+### Trick 10 Data Types
 The following data-types are used in Trick versions >= 10, that is for, *vv* = "10".
 
 |Type value|Data Type|
