@@ -19,7 +19,7 @@ jobs:
           - { os: debian, tag: 10,      arch: debian }               # EOL 2024
           - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
           - { os: centos, tag: latest,  arch: rhel   }     # 8 as of April 2020
-          - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
+        # - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
         # - { os: fedora, tag: 33,      arch: rhel   } # feeling confident?
         # - { os: fedora, tag: rawhide, arch: rhel   } # for thrill-seekers only
 
