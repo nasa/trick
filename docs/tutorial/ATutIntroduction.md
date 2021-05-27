@@ -20,7 +20,7 @@
 Trick is a NASA Open Source simulation framework for running time-based physics
 models. It builds executable simulations with a common architecture, using user
 supplied simulation definition files and user supplied "model code". A Trick
-based simulation, provides many capabilities such realtime
+based simulation provides many capabilities such as realtime
 synchronization, job scheduling, simulation state save and restore (checkpoint),
 data-recording, interactive variable manipulation (variable server), numeric
 state integration and an input processor. It also includes tools for plotting

@@ -155,7 +155,7 @@ Best practice is to add library dependencies for source code files for prototype
 
 ###### `ICG_IGNORE_TYPES`
 
-The `ICG IGNORE TYPES` field lists the structs or classes to be ignored. Any parameters of this type or inherited from are ignored. The `ICG IGNORE TYPES` field only valid for the current file. It does not extend to included header files.
+The `ICG IGNORE TYPES` field lists the structs or classes to be ignored. Any parameters of this type or inherited from are ignored. The `ICG IGNORE TYPES` field is only valid for the current file. It does not extend to included header files.
 
 ###### `PYTHON_MODULE`
 
@@ -242,7 +242,7 @@ Trick allows any data type declaration within the data structure `typedef` state
 1 `(un)signed short`,
 1 `(un)signed long`,
 1 `(un)signed char`,
-1 `(un)singed long long`,
+1 `(un)signed long long`,
 1 `(un)signed short int`,
 1 `(un)signed long int`,
 1 `float`,
@@ -330,14 +330,14 @@ Each parameter declaration within a data structure definition may be accompanied
 
 The first three fields in the parameter comment are optional and specify the input/output processing for the parameter. I/O permissions may be set globally or individual capabilities may set their permissions separately. I/O permissions for checkpointing is available to set separately.
 
-To set all permissions for general variable access start the comment with one of the following fields, `[**|*i|*o|*io]`. `trick_io([**|*i|*o|*io])` or `io([**|*i|*o|*io])` are equivalent forms to set general variable access.
+To set all permissions for general variable access, start the comment with one of the following fields, `[**|*i|*o|*io]`, `trick_io([**|*i|*o|*io])` or `io([**|*i|*o|*io])`. These are equivalent forms to set general variable access.
 
-* `**` indicates that Trick will not allow input or output for this parameter; i.e. the user can not input this parameter,record this parameter, or view its value.
+* `**` indicates that Trick will not allow input or output for this parameter; i.e. the user can not input this parameter, record this parameter, or view its value.
 * `*i` indicates that only input is allowed for the parameter. Parameter may be input through the checkpoint file or ref_assignment, but the parameter will not be recordable or written to a checkpoint file.
 * `*o` indicates only output is allowed for the parameter. Parameter may be checkpointed or logged only. They are not reloaded during a checkpoint reload.
 * `*io` specifies that both input and output are allowed for the parameter. This is the default condition if the field is omitted from the comment. Parameter may be in input file, may be checkpointed and logged.
 
-Checkpoint I/O may be set separately by adding `trick_chkpnt_io([**|*i|*o|*io])` or `cio([**|*i|*o|*io])` to the comment. If this optional field is not present the general I/O access field is used to determine checkpoint permissions.
+Checkpoint I/O may be set separately by adding `trick_chkpnt_io([**|*i|*o|*io])` or `cio([**|*i|*o|*io])` to the comment. If this optional field is not present, the general I/O access field is used to determine checkpoint permissions.
 
 * `**` indicates that Trick will not allow checkpoint input or output. General variable access may still be available.
 * `*i` indicates only checkpoint input is allowed for the parameter. Parameters will not be written to the checkpoint.
