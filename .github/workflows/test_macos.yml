@@ -6,6 +6,7 @@ on:
     - 'docs/**'
     - '.github/workflows/**'
     - '!.github/workflows/test_macos.yml'
+  pull_request:
 
 jobs:
   macOS:
