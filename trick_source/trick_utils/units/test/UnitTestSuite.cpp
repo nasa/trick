@@ -501,7 +501,7 @@ TEST_F(UnitConversion, KelvinToRankine)
   test_conversion_no_throw("K", "R", 0.0, 1.8, TOL);
 }
 
-TEST_F(UnitConversion, RankineToCelcius)
+TEST_F(UnitConversion, RankineToCelsius)
 {
   test_conversion_no_throw("R", "C", -273.15, (5.0/9.0), TOL);
 }
