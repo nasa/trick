@@ -10,7 +10,7 @@ Trick requires various free third party utilities in order to function. All the 
 | Utility        | Version | Description             | Usage                                                     | Notes                                                 |
 |---------------:|:-------:|:-----------------------:|:---------------------------------------------------------:|:------------------------------------------------------|
 | [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                       |
-| [clang]/[llvm] | 3.4.2+  | C/C++ Compiler          | Utilized by the interface code generator.                 |                                                       |
+| [clang]/[llvm] | 3.4.2+ (<=11 on mac)  | C/C++ Compiler          | Utilized by the interface code generator.                 |                                                       |
 | [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.9 as of 02/21    |
 | [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                       |
 | [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                       |
@@ -202,10 +202,11 @@ or
 curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install | ruby
 ```
 
-5. Install the remaining dependencies.
+5. Install the remaining dependencies. Currently llvm 12 with homebrew is not supported, so we need to treat it specially by installing v11 and linking it.
 
 ```bash
-brew install java xquartz llvm swig maven udunits openmotif  
+brew install java xquartz llvm@11 swig maven udunits openmotif 
+brew link llvm llvm@11
 ```
 If you have issues installing java with homebrew, you can install java and the jdk from oracle's website:
 
