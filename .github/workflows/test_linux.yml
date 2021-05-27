@@ -96,13 +96,13 @@ jobs:
               libX11-devel
               libXt-devel
 #-------- Fedora Only Dependencies ----------------
-          - cfg: { os: fedora }
-            pkg_mgr: dnf
-            os_deps: >-
-              swig
-              perl-Text-Balanced
-              python-devel
-              diffutils
+#           - cfg: { os: fedora }
+#             pkg_mgr: dnf
+#             os_deps: >-
+#               swig
+#               perl-Text-Balanced
+#               python-devel
+#               diffutils
 #-------- Version Specific Dependencies ----------------
           - cfg: { os: ubuntu, tag: 20.04 }
             conf_pkg: DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y tzdata
