@@ -387,10 +387,10 @@ class EventManagerSimObject : public Trick::SimObject {
                 std::ostringstream oss ;
                 oss << "thread_process_event_" << ii ;
                 thread_process_event_so.push_back(tpeso) ;
-                char* name = strdup(oss.str().c_str()) ;
-                thread_process_event_so_names.push_back(name) ; 
-                exec_add_sim_object(tpeso, name) ;
-                TMM_declare_ext_var(tpeso, TRICK_STRUCTURED,"ThreadProcessEventSimObject", 0, name, 0, NULL) ;
+                char* tpe_name = strdup(oss.str().c_str()) ;
+                thread_process_event_so_names.push_back(tpe_name) ; 
+                exec_add_sim_object(tpeso, tpe_name) ;
+                TMM_declare_ext_var(tpeso, TRICK_STRUCTURED,"ThreadProcessEventSimObject", 0, tpe_name, 0, NULL) ;
                 // Add the child thread event processor.
                 em.add_event_processor(&(tpeso->ep)) ;
             }
@@ -767,10 +767,10 @@ class InjectorSimObject : public Trick::SimObject {
                 std::ostringstream oss ;
                 oss << "trick_injector_executor_" << ii ;
                 injector_executor_so.push_back(ieso) ;
-                char* name = strdup(oss.str().c_str()) ;
-                injector_executor_so_names.push_back(name);
-                exec_add_sim_object(ieso, name) ;
-                TMM_declare_ext_var(ieso, TRICK_STRUCTURED,"InjectorExecSimObject", 0, name, 0, NULL) ;
+                char* injector_name = strdup(oss.str().c_str()) ;
+                injector_executor_so_names.push_back(injector_name);
+                exec_add_sim_object(ieso, injector_name) ;
+                TMM_declare_ext_var(ieso, TRICK_STRUCTURED,"InjectorExecSimObject", 0, injector_name, 0, NULL) ;
                 // Add the child thread realtime injector.
                 rtis.AddInjectorExecutor(&(ieso->rtie)) ;
             }
