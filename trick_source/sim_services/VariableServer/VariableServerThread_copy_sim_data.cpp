@@ -25,7 +25,7 @@ int Trick::VariableServerThread::copy_sim_data() {
 
             // if this variable is unresolved, try to resolve it
             if (curr_var->ref->address == &bad_ref_int) {
-                REF2 *new_ref = ref_attributes(const_cast<char*>(curr_var->ref->reference));
+                REF2 *new_ref = ref_attributes(curr_var->ref->reference);
                 if (new_ref != NULL) {
                     curr_var->ref = new_ref;
                 }

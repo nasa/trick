@@ -453,7 +453,7 @@ extern "C" int ref_allocate(REF2 *R, int num) {
  @relates Trick::MemoryManager
  This is the C Language version of Trick::MemoryManager::ref_attributes( name).
  */
-extern "C" REF2* ref_attributes( char* name) {
+extern "C" REF2* ref_attributes(const char* name) {
     if (trick_MM != NULL) {
         return( trick_MM->ref_attributes( name));
     } else {

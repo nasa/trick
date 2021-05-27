@@ -202,7 +202,7 @@ int delete_stl(std::pair<FIRST, SECOND> & in_stl __attribute__ ((unused)) , std:
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
     REF2 * items_ref ;
     std::string temp_str = object_name + "_" + var_name + "_first";
-    items_ref = ref_attributes((char *)temp_str.c_str()) ;
+    items_ref = ref_attributes(temp_str.c_str()) ;
     if ( items_ref != NULL ) {
         temp_str = object_name + "_" + var_name + "_first";
         TMM_delete_var_n(temp_str.c_str() ) ;

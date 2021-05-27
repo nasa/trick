@@ -405,9 +405,9 @@ int restore_map_ik_id(STL & in_map , std::string object_name , std::string var_n
 
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
     temp_str = object_name + "_" + var_name + "_keys";
-    keys_ref = ref_attributes((char *)temp_str.c_str()) ;
+    keys_ref = ref_attributes(temp_str.c_str()) ;
     temp_str = object_name + "_" + var_name + "_data";
-    items_ref = ref_attributes((char *)temp_str.c_str()) ;
+    items_ref = ref_attributes(temp_str.c_str()) ;
 
     if ( keys_ref != NULL && items_ref != NULL ) {
         in_map.clear() ;
@@ -455,9 +455,9 @@ int restore_map_ik_sd(STL & in_map , std::string object_name , std::string var_n
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     temp_str = object_name + "_" + var_name + "_keys";
-    keys_ref = ref_attributes((char *)temp_str.c_str()) ;
+    keys_ref = ref_attributes(temp_str.c_str()) ;
     temp_str = object_name + "_" + var_name + "_data";
-    items_ref = ref_attributes((char *)temp_str.c_str()) ;
+    items_ref = ref_attributes(temp_str.c_str()) ;
 
     if ( keys_ref != NULL && items_ref != NULL ) {
         in_map.clear() ;
@@ -509,9 +509,9 @@ int restore_map_sk_id(STL & in_map , std::string object_name , std::string var_n
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     temp_str = object_name + "_" + var_name + "_keys";
-    keys_ref = ref_attributes((char *)temp_str.c_str()) ;
+    keys_ref = ref_attributes(temp_str.c_str()) ;
     temp_str = object_name + "_" + var_name + "_data";
-    items_ref = ref_attributes((char *)temp_str.c_str()) ;
+    items_ref = ref_attributes(temp_str.c_str()) ;
 
     if ( keys_ref != NULL && items_ref != NULL ) {
         in_map.clear() ;
