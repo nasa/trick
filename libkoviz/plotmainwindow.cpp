@@ -94,10 +94,6 @@ PlotMainWindow::PlotMainWindow(
             this,
             SLOT(_bookViewCurrentChanged(QModelIndex,QModelIndex)));
     connect(_bookModel,
-            SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this,
-            SLOT(_bookModelRowsInserted(QModelIndex,int,int)));
-    connect(_bookModel,
             SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
             this,
             SLOT(_bookModelRowsAboutToBeRemoved(QModelIndex,int,int)));
@@ -471,29 +467,6 @@ void PlotMainWindow::_bookViewCurrentChanged(const QModelIndex &currIdx,
         }
         if ( isShowLiveTime ) {
             _timeInput->showLiveTime();
-        }
-    }
-}
-
-void PlotMainWindow::_bookModelRowsInserted(const QModelIndex &pidx,
-                                            int start, int end)
-{
-    Q_UNUSED(start);
-    Q_UNUSED(end);
-
-    if ( _monteInputsView ) {
-        if ( _bookModel->isIndex(pidx,"Curve") ) {
-            QModelIndex miCurrIdx = _monteInputsView->currentIndex();
-            if ( miCurrIdx.isValid() ) {
-                int row = miCurrIdx.row();
-                QModelIndex runIdx =  _monteInputsView->model()->index(row,0);
-                int runID = _monteInputsView->model()->data(runIdx).toInt();
-                int curveRunID = _bookModel->getDataInt(pidx,
-                                                        "CurveRunID", "Curve");
-                if ( runID == curveRunID ) {
-                    _bookView->setCurrentCurveRunID(runID);
-                }
-            }
         }
     }
 }
