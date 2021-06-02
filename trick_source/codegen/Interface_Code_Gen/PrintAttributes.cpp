@@ -421,6 +421,7 @@ void PrintAttributes::printIOMakefile() {
     std::ofstream makefile_io_src ;
     std::ofstream makefile_ICG ;
     std::ofstream io_link_list ;
+    std::ofstream trickify_io_link_list ;
     std::ofstream ICG_processed ;
     std::ofstream ext_lib ;
 
@@ -476,10 +477,13 @@ void PrintAttributes::printIOMakefile() {
 
        io_link_list lists all io object files to be linked.
 
+       trickify_io_link_list lists all io object files to be linked for a Trickified project.
+
        ICG_process lists all header files to be used by SWIG.
      */
     makefile_ICG.open("build/Makefile_ICG") ;
     io_link_list.open("build/io_link_list") ;
+    trickify_io_link_list.open("build/trickify_io_link_list") ;
     ICG_processed.open("build/ICG_processed") ;
 
     makefile_ICG << "build/Makefile_io_src:" ;
@@ -488,6 +492,7 @@ void PrintAttributes::printIOMakefile() {
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
         io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
+        trickify_io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
         ICG_processed << (*mit).first << std::endl ;
     }
     makefile_ICG.close() ;
@@ -500,6 +505,7 @@ void PrintAttributes::printIOMakefile() {
 
     io_link_list << "build/class_map.o" << std::endl ;
     io_link_list.close() ;
+    trickify_io_link_list.close() ;
 
     ext_lib.open("build/ICG_ext_lib") ;
     for ( auto& file : ext_lib_io_files ) {

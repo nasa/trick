@@ -139,6 +139,7 @@ sub write_makefile_swig() {
 
     open MAKEFILE , ">build/Makefile_swig" or die "Could not open build/Makefile_swig for writing" ;
     open PY_LINK_LIST , ">build/py_link_list" or die "Could not open build/py_link_list for writing" ;
+    open TRICKIFY_PY_LINK_LIST , ">build/trickify_py_link_list" or die "Could not open build/trickify_py_link_list for writing" ;
     print PY_LINK_LIST "build/init_swig_modules.o\n" ;
     print PY_LINK_LIST "build/top.o\n" ;
 
@@ -180,6 +181,7 @@ SWIG_I =" ;
         (my $swig_file = $file) =~ s/(\.[^.]*)?$/_py/ ;
         print MAKEFILE " \\\n    build$swig_file.i" ;
         print PY_LINK_LIST "build$swig_file.o\n" ;
+        print TRICKIFY_PY_LINK_LIST "build$swig_file.o\n" ;
     }
 
     print MAKEFILE "
@@ -234,6 +236,7 @@ all: $swig_sim_zip
 
     close MAKEFILE ;
     close PY_LINK_LIST ;
+    close TRICKIFY_PY_LINK_LIST ;
 
     open SWIGLIB , ">build/S_library_swig" or die "Could not open build/S_library_swig for writing" ;
     foreach my $file ( @files_to_process ) {

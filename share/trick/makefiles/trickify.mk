@@ -103,11 +103,12 @@ TRICKIFY_PYTHON_DIR := $(abspath $(TRICKIFY_PYTHON_DIR))
 include $(dir $(lastword $(MAKEFILE_LIST)))Makefile.common
 
 BUILD_DIR := $(dir $(MAKE_OUT))
+PY_LINK_LIST := $(BUILD_DIR)trickify_py_link_list
+IO_LINK_LIST := $(BUILD_DIR)trickify_io_link_list
+LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
 ifneq ($(wildcard $(BUILD_DIR)),)
-    SWIG_OBJECTS := $(shell cat $(BUILD_DIR)S_library_swig)
-    SWIG_OBJECTS := $(addprefix $(BUILD_DIR),$(addsuffix _py.o,$(basename $(SWIG_OBJECTS))))
-    IO_OBJECTS := $(shell find $(BUILD_DIR) -name "io_*.cpp")
-    IO_OBJECTS := $(IO_OBJECTS:.cpp=.o)
+    SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
+    IO_OBJECTS   := $(shell cat $(IO_LINK_LIST))
 endif
 
 TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
@@ -122,11 +123,11 @@ all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
 	$(info $(call COLOR,Linking)    $@)
 ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
-	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $^)
+	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $(LINK_LISTS))
 else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) -shared -o $@ $^)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) -shared -o $@ $(LINK_LISTS))
 else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
-	$(call ECHO_AND_LOG,ar rcs $@ $^)
+	$(call ECHO_AND_LOG,ar rcs $@ $(LINK_LISTS))
 endif
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) .trick:
@@ -153,7 +154,7 @@ $(SWIG_OBJECTS:.o=.d): ;
 -include $(SWIG_OBJECTS:.o=.d)
 
 define create_convert_swig_rule
-$(BUILD_DIR)/%_py.i: /%.$1
+$(shell basename $(BUILD_DIR))/%_py.i: /%.$1
 	$$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig $${TRICK_CONVERT_SWIG_FLAGS} $$<)
 endef
 
