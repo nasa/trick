@@ -119,14 +119,20 @@ TRICK_EXT_LIB_DIRS :=
 .PHONY: all
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
-$(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
+$(BUILD_DIR)S_library_swig_objects: $(BUILD_DIR)S_library_swig
+	echo $(SWIG_OBJECTS) | tr " " "\n" > $(BUILD_DIR)S_library_swig_objects
+
+$(BUILD_DIR)io_objects: $(IO_OBJECTS)
+	echo $(IO_OBJECTS) | tr " " "\n" > $(BUILD_DIR)io_objects
+
+$(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) $(BUILD_DIR)S_library_swig_objects $(BUILD_DIR)io_objects | $(dir $(TRICKIFY_OBJECT_NAME))
 	$(info $(call COLOR,Linking)    $@)
 ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
-	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $^)
+	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ @$(BUILD_DIR)S_library_swig_objects @$(BUILD_DIR)io_objects)
 else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) -shared -o $@ $^)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) -shared -o $@ @$(BUILD_DIR)S_library_swig_objects @$(BUILD_DIR)io_objects)
 else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
-	$(call ECHO_AND_LOG,ar rcs $@ $^)
+	$(call ECHO_AND_LOG,ar rcs $@ @$(BUILD_DIR)S_library_swig_objects @$(BUILD_DIR)io_objects)
 endif
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) .trick:
