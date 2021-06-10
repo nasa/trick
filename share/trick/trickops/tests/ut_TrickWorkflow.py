@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, shutil
 import unittest
 import pdb
 from testconfig import this_trick, tests_dir
@@ -17,8 +17,9 @@ class TrickWorkflowTestCase(unittest.TestCase):
           quiet=True)
 
     def tearDown(self):
-        self.instance._cleanup()  # Remove the log file this instance creates
-        del self.instance
+        if self.instance:
+            self.instance._cleanup()  # Remove the log file this instance creates
+            del self.instance
         self.instance = None
 
     def setUpWithEmptyConfig(self):
@@ -26,10 +27,10 @@ class TrickWorkflowTestCase(unittest.TestCase):
           trick_dir=this_trick, config_file=os.path.join(tests_dir,"empty.yml"),
           quiet=True)
 
-    def setUpWithErrorConfig(self):
+    def setUpWithErrorConfig(self, file):
         self.tearDown()  # Cleanup the instance we get by default
         self.instance = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/',
-          trick_dir=this_trick, config_file=os.path.join(tests_dir,"errors.yml"),
+          trick_dir=this_trick, config_file=os.path.join(tests_dir,file),
           quiet=True)
 
     def test_init_nominal(self):
@@ -47,11 +48,34 @@ class TrickWorkflowTestCase(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             self.setUpWithEmptyConfig()
 
+    def test_init_bad_yaml_so_raises(self):
+        with self.assertRaises(RuntimeError):
+            self.setUpWithErrorConfig("errors_fatal1.yml")
+        with self.assertRaises(RuntimeError):
+            self.setUpWithErrorConfig("errors_fatal2.yml")
+
     def test_init_errors_but_no_raise(self):
-        self.setUpWithErrorConfig()
+        self.setUpWithErrorConfig("errors_nonfatal.yml")
         self.assertTrue(self.instance.config_errors)
         self.assertEqual(self.instance.parallel_safety , 'loose')
-        self.assertEqual(len(self.instance.sims), 2)
+        self.assertEqual(len(self.instance.sims), 4)
+        self.assertEqual(len(self.instance.get_sim('SIM_ball_L1').get_runs()), 1)
+        self.assertEqual(len(self.instance.get_sim('SIM_ball_L1').get_valgrind_runs()), 0)
+        self.assertEqual(len(self.instance.get_sim('SIM_alloc_test').get_runs()), 1)
+        self.assertEqual(len(self.instance.get_sim('SIM_alloc_test').get_valgrind_runs()), 0)
+        self.assertEqual(self.instance.config['SIM_alloc_test']['runs']['RUN_test/input.py']['extension'], 'foobar')
+        self.assertEqual(len(self.instance.get_sim('SIM_events').get_runs()), 0)
+        self.assertTrue('fine1' in self.instance.get_sim('SIM_events').labels)
+        self.assertTrue('fine2' in self.instance.get_sim('SIM_events').labels)
+        self.assertEqual(self.instance.get_sim('SIM_threads').get_run('RUN_test/sched.py').returns, 0)
+        self.assertEqual(self.instance.get_sim('SIM_threads').get_run('RUN_test/amf.py').returns, 0)
+        self.assertEqual(self.instance.get_sim('SIM_threads').get_run('RUN_test/async.py').returns, 0)
+        self.assertEqual(self.instance.get_sim('SIM_threads').get_run('RUN_test/unit_test.py').returns, 7)
+        self.assertTrue(self.instance.get_sim('SIM_demo_inputfile') is None)
+        self.assertTrue(self.instance.get_sim('SIM_L1_ball') is None)
+        self.assertTrue(self.instance.get_sim('SIM_foobar') is None)
+        self.assertTrue(self.instance.get_sim('SIM_parachute') is None)
+
         self.assertTrue(self.instance.config['extension_example'])
         self.instance.report()
 
@@ -232,3 +256,80 @@ class TrickWorkflowTestCase(unittest.TestCase):
         baseline_data = 'share/trick/trickops/tests/baselinedata/log_a.csv'
         r.add_comparison(test_data, baseline_data)
         self.assertEqual(r.compare(), 1)
+
+    def setup_deep_directory_structure(self, runs, parallel_safety='loose'):
+        '''
+        Build a temporary dir structure to test deep pathing
+        runs is a list of runs relative to SIM_fake directory
+        returns: str/path of config file for this deep setup
+        '''
+        deep_root = os.path.join(tests_dir, 'deep/')
+        SIM_root = os.path.join(deep_root, 'SIM_fake/')
+        for run in runs:
+          just_RUN_rel = os.path.dirname(run)
+          just_RUN_root = os.path.join(SIM_root, just_RUN_rel)
+          SIM_root_rel =  os.path.relpath(SIM_root, this_trick)
+          os.makedirs(just_RUN_root, exist_ok=True)
+          Path(os.path.join(SIM_root,run)).touch()
+        yml_content=textwrap.dedent("""
+        globals:
+            parallel_safety: """ + parallel_safety + """
+        SIM_fake:
+            path: """ +  SIM_root_rel + """
+            runs:
+        """)
+        for run in runs:
+            yml_content += "        " + run + ":\n"
+
+        config_file = os.path.join(deep_root, "config.yml")
+        f = open(config_file, "w")
+        f.write(yml_content)
+        f.close()
+        return(config_file)
+    def teardown_deep_directory_structure(self):
+        # Clean up the dirs we created
+        deep_root = os.path.join(tests_dir, 'deep/')
+        shutil.rmtree(deep_root)
+
+    def test_deep_directory_structure_nominal(self):
+        '''
+        Set up a deep directory structure for sims and runs which will exercise
+        some of the path logic in _validate_config(). Nominal with no errors
+        '''
+        self.tearDown()  # Cleanup the instance we get by default, don't need it
+        config_file = self.setup_deep_directory_structure(runs=['SET_fake/RUN_fake/input.py'])
+        self.instance = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/',
+          trick_dir=this_trick, config_file=config_file, quiet=True)
+        self.assertEqual(len(self.instance.get_sims()), 1)
+        self.assertEqual(len(self.instance.get_sim('SIM_fake').get_runs()), 1)
+        self.teardown_deep_directory_structure()
+
+    def test_deep_directory_structure_loose(self):
+        '''
+        Set up a deep directory structure for sims and runs which will exercise
+        some of the path logic in _validate_config(). Duplicate runs with
+        parallel safety = loose, should not error.
+        '''
+        self.tearDown()  # Cleanup the instance we get by default, don't need it
+        config_file = self.setup_deep_directory_structure(runs=['SET_fake/RUN_fake/input.py',
+          'SET_fake/RUN_fake/test.py'])
+        self.instance = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/',
+          trick_dir=this_trick, config_file=config_file, quiet=True)
+        self.assertEqual(len(self.instance.get_sims()), 1)
+        self.assertEqual(len(self.instance.get_sim('SIM_fake').get_runs()), 2)
+        self.teardown_deep_directory_structure()
+
+    def test_deep_directory_structure_strict_error(self):
+        '''
+        Set up a deep directory structure for sims and runs which will exercise
+        some of the path logic in _validate_config(). Duplicate runs with
+        parallel safety = strict, should non-fatal error.
+        '''
+        self.tearDown()  # Cleanup the instance we get by default, don't need it
+        config_file = self.setup_deep_directory_structure(runs=['SET_fake/RUN_fake/input.py',
+          'SET_fake/RUN_fake/test.py'], parallel_safety='strict')
+        self.instance = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/',
+          trick_dir=this_trick, config_file=config_file, quiet=True)
+        self.assertEqual(len(self.instance.get_sims()), 1)
+        self.assertEqual(len(self.instance.get_sim('SIM_fake').get_runs()), 1)
+        self.teardown_deep_directory_structure()

@@ -185,7 +185,7 @@ class TrickWorkflow(WorkflowCommon):
                 return sim
         return None
 
-    def get_sims(self, labels):
+    def get_sims(self, labels=None):
         """
         Get a list of Sim() instances by label or labels listed in self.config_file
 
@@ -194,8 +194,9 @@ class TrickWorkflow(WorkflowCommon):
 
         Parameters
         ----------
-        labels : str or list
-            label or labels that each sim must have to be returned by this function
+        labels : str or list or None
+            label or labels that each sim must have to be returned by this functionr.
+            If None, return all sims
 
         Returns
         -------
@@ -208,6 +209,9 @@ class TrickWorkflow(WorkflowCommon):
         TypeError
             If labels is not a str or list
         """
+        # If no labels given, just return the full list
+        if not labels:
+            return self.sims
         sims_found = []
         ls = []
         if type(labels) == str:
@@ -242,7 +246,7 @@ class TrickWorkflow(WorkflowCommon):
                 y = yaml.load(file)
             return y
         except Exception as e:
-            tprint("Unable to parse config file: %s\nError: %s" % (config_file,e), 'DARK_RED')
+            tprint("Unable to parse config file: %s\nERROR: %s" % (config_file,e), 'DARK_RED')
             return None
 
     def _validate_config(self):
@@ -293,13 +297,30 @@ class TrickWorkflow(WorkflowCommon):
         RuntimeError
             If self.config has insufficient content
         """
-        # All error messages should trigger self.config_errors to be True
+        # All error messages in config validation will trigger self.config_errors to be True
         def cprint(msg, color):
             self.config_errors = True
             tprint(msg, color)
+
+        # Utility method for ensuring a variable is the expected type. Returns True if type
+        # matches expected type, False otherwise. If fatal=True, raise RuntimeError.
+        def type_expected(var, expected_type, fatal=False, extra_msg=''):
+            if type(var) != expected_type:
+                prepend = "FATAL: " if fatal else "ERROR: "
+                msg =(prepend + "Entry resembling %s expected to be %s, but got %s instead. Please"
+                      " look for errors in %s. " %
+                      ( str(var), expected_type, type(var), self.config_file) + extra_msg)
+                cprint(msg, 'DARK_RED')
+                if fatal:
+                    raise RuntimeError(msg)
+                else:
+                    return False
+            return True
+
         c = copy.deepcopy(self.config)  # Make a copy for extra saftey
         if not c:  # If entire config is empty
-            msg = "ERROR Config file %s is empty. Cannot continue." % (self.config_file)
+            msg =("ERROR: Config file %s could not be loaded. Make sure file exists and is valid YAML syntax."
+                  " Cannot continue." % (self.config_file))
             cprint(msg, 'DARK_RED')
             self._cleanup()
             raise RuntimeError(msg)
@@ -316,12 +337,14 @@ class TrickWorkflow(WorkflowCommon):
             if 'parallel_safety' not in c['globals'] or not c['globals']['parallel_safety']:
                 self.parallel_safety = 'loose'
             elif  c['globals']['parallel_safety'] != 'loose' and c['globals']['parallel_safety'] != 'strict':
-                cprint( "ERROR parallel_safety value of %s in config file %s is unsupported. Defaulting to"
+                cprint( "ERROR: parallel_safety value of %s in config file %s is unsupported. Defaulting to"
                   " 'loose' and continuing..." % (c['globals']['parallel_safety'], self.config_file),
                   'DARK_RED')
                 self.parallel_safety = 'loose'
             else:
                 self.parallel_safety = c['globals']['parallel_safety']
+        if not type_expected(c, expected_type=dict, fatal=True, extra_msg='Cannot continue.'):
+          pass  # Unreachable, type_expected will raise
         c.pop('globals', None) # Remove to iterate on the rest of the non-global content
         all_sim_paths = [] # Keep a list of all paths for uniqueness check
         # Check sub-parameters of SIM entries
@@ -334,11 +357,9 @@ class TrickWorkflow(WorkflowCommon):
           # If the structure doesn't start with SIM, ignore it and move on
           if not s.lower().startswith('sim'):
             continue
-          if type(c[s]) is not dict:
-            cprint("ERROR: SIM entry %s is not a dict!. SIM definitions must start with SIM, end"
-                   " with :, and contain the path: <path/to/SIM> key-value pair. Continuing but"
-                   " ignoring this entry from %s."
-                    % (s, self.config_file), 'DARK_RED')
+          # If what's stored under SIM_..: is not itself a dict
+          if not type_expected(c[s], expected_type=dict, extra_msg="SIM definitions must start with SIM, end"
+                   " with :, and contain the path: <path/to/SIM> key-value pair. Skipping over %s." % c[s]):
             self.config.pop(s)
             continue
           # If optional entries missing, or None, set defaults
@@ -361,8 +382,14 @@ class TrickWorkflow(WorkflowCommon):
                 % (s, self.config_file), 'DARK_RED')
             self.config.pop(s)
             continue
-          if 'labels' not in c[s] or not c[s]['labels']:
-              self.config[s]['labels'] = []
+          # Ensure labels is a list of strings
+          if ('labels' not in c[s] or not c[s]['labels'] or not type_expected(
+            c[s]['labels'], expected_type=list, extra_msg='Ignoring labels.')):
+            self.config[s]['labels'] = []
+          else:
+            sanitized_labels =( [l for l in c[s]['labels'] if type_expected(
+              l, expected_type=str, extra_msg='Ignoring label "%s".' % l) ] )
+            self.config[s]['labels'] = sanitized_labels
           # Create internal object to be populated with runs, valgrind runs, etc
           thisSim = TrickWorkflow.Sim(name=s, sim_dir=self.config[s]['path'],
             description=self.config[s]['description'], labels=self.config[s]['labels'],
@@ -371,19 +398,16 @@ class TrickWorkflow(WorkflowCommon):
           all_sim_paths.append(c[s]['path'])
           # RUN sanity checks
           if 'runs' in c[s]:         # If it's there...
-            if not c[s]['runs']:     # but None, remove it
+            if not type_expected(c[s]['runs'], expected_type=dict,
+              extra_msg='Skipping entire run: section in %s' % c[s]):
               self.config[s].pop('runs')
-            elif type( c[s]['runs']) is not dict:     # but None, remove it
-              cprint("ERROR: Run %s is not a dict! Make sure the 'RUN...:' ends with a : in config file %s."
-                   " Continuing but skipping this run: section..."
-                   % (c[s]['runs'], self.config_file), 'DARK_RED')
-              self.config[s].pop('runs')
-              continue
             else:                  # If it's there and a valid list, check paths
               all_run_paths = []   # Keep a list of all paths for uniqueness check
               for r in c[s]['runs']:
-                just_RUN = r.split(' ')[0]
-                just_RUN_dir = r.split('/')[0]
+                if not type_expected(r, expected_type=str, extra_msg='Skipping this run.'):
+                  continue
+                just_RUN = r.split()[0]
+                just_RUN_dir = os.path.dirname(just_RUN)
                 if not os.path.exists(os.path.join(self.project_top_level, c[s]['path'], just_RUN)):
                   cprint("ERROR: %s's 'run' path %s not found. Continuing but skipping this run "
                     "from %s." % (s, just_RUN, self.config_file), 'DARK_RED')
@@ -406,8 +430,12 @@ class TrickWorkflow(WorkflowCommon):
                   c[s]['runs'][r] = dict(self.config[s]['runs'][r])
                 elif 'returns' not in c[s]['runs'][r]:
                   self.config[s]['runs'][r]['returns'] = 0
-                elif (type(c[s]['runs'][r]['returns']) != int or
-                  c[s]['runs'][r]['returns'] < 0 or c[s]['runs'][r]['returns'] > 255):
+
+                elif (not type_expected(c[s]['runs'][r]['returns'], expected_type=int,
+                  extra_msg='Continuing but ignoring %s %s "returns:" value "%s"' %
+                  (s, r, c[s]['runs'][r]['returns']))):
+                  self.config[s]['runs'][r]['returns'] = 0 # Default to zero
+                elif (c[s]['runs'][r]['returns'] < 0 or c[s]['runs'][r]['returns'] > 255):
                   cprint("ERROR: %s's run '%s' has invalid 'returns' value (must be 0-255). "
                     "Continuing but assuming this run is expected to return 0 in %s." % (s, r, self.config_file),
                     'DARK_RED')
@@ -424,6 +452,9 @@ class TrickWorkflow(WorkflowCommon):
                   pass # Deliberately leave open for workflows to extend how comparisons are defined
                 else:  # If it's a list, make sure it fits the 'path vs. path' format
                   for cmp in c[s]['runs'][r]['compare']:
+                    if not type_expected(cmp, expected_type=str,
+                      extra_msg='Continuing but ignoring comparison %s' % cmp):
+                      continue
                     if ' vs. ' not in cmp:
                       cprint("ERROR: %s's run %s comparison '%s' does not match expected pattern. Must be of "
                         "form: 'path/to/log1 vs. path/to/log2'. Continuing but ignoring this comparison in %s."
@@ -443,12 +474,8 @@ class TrickWorkflow(WorkflowCommon):
                 thisSim.add_run(thisRun)
           # SIM's valgrind RUN path checks
           if 'valgrind' in c[s]:        # If it's there...
-            if not c[s]['valgrind']:  # but None, remove it
-              self.config[s].pop('valgrind')
-            elif type( c[s]['valgrind']) is not dict:     # If it's the wrong type
-              cprint("ERROR: Valgrind entry %s is not a dict! Make sure 'valgrind:' ends with a : in "
-                   "config file %s. Continuing but skipping this valgrind: section..."
-                   % (c[s]['valgrind'], self.config_file), 'DARK_RED')
+            if not type_expected(c[s]['valgrind'], expected_type=dict,
+              extra_msg='Skipping entire valgrind: section in %s' % c[s]):
               self.config[s].pop('valgrind')
             else:                     # If it's there and a valid dict
               if self.this_os == 'darwin':
@@ -460,13 +487,14 @@ class TrickWorkflow(WorkflowCommon):
                 if 'flags' not in c[s]['valgrind']:
                   self.config[s]['valgrind']['flags'] = ''
                 if 'runs' in  c[s]['valgrind']:       # If it's there...
-                  if not c[s]['valgrind']['runs']:  # but None, remove entire valgrind section
-                    cprint("ERROR: %s's valgrind section has no 'run' paths. Continuing but skipping "
-                           "this valgrind section from %s." % (s, self.config_file), 'DARK_RED')
+                  if not type_expected(c[s]['valgrind']['runs'], expected_type=list,
+                     extra_msg='Skipping this valgrind runs: section for %s' % c[s]):
                     self.config[s].pop('valgrind')
                   else:
                     for r in c[s]['valgrind']['runs']:  # If it's there and a valid list, check paths
-                      just_RUN = r.split(' ')[0]
+                      if not type_expected(r, expected_type=str, extra_msg='Skipping this valgrind run.'):
+                        continue
+                      just_RUN = r.split()[0]
                       if not os.path.exists(os.path.join(self.project_top_level, c[s]['path'], just_RUN)):
                         cprint("ERROR: %s's valgrind 'run' path %s not found. Continuing but skipping "
                                "this run from %s." % (s, just_RUN, self.config_file), 'DARK_RED')
@@ -872,6 +900,17 @@ class TrickWorkflow(WorkflowCommon):
 
             """
             return self.runs
+
+        def get_valgrind_runs(self):
+            """
+            Get all Run() instances associated with this sim
+
+            >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
+            >>> s.get_valgrind_runs()  # This sim has no runs
+            []
+
+            """
+            return self.valgrind_runs
 
         def add_run( self, run):
             """
