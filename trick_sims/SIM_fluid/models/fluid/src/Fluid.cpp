@@ -10,12 +10,12 @@ LIBRARY DEPENDENCY:
 int Fluid::default_data() {
 	n_particles = 1024;
 	
-	const float PARTICLE_DIST = 5.f;
-	for(int i = 0; i < 32; i++) {
-		for(int j = 0; j < 32; j++) {
-			particles.push_back(Particle(PARTICLE_DIST * i, PARTICLE_DIST * j, 0));
+	for (int i = 0; i < EDGE_NUM_PARTICLES; i++) {
+		for (int j = 0; j < EDGE_NUM_PARTICLES; j++) {
+			for (int k = 0; k < PARTICLE_DEPTH; k++) {
+				particles.push_back(Particle(PARTICLE_DIST * i, PARTICLE_DIST * j, PARTICLE_DIST * k));
+			}
 		}
-		
 	}
 	
 	return 0;
@@ -26,18 +26,6 @@ int Fluid::update_SPH() {
 	return 0;
 
 }
-
-void initSPH() {
-	for (int i = 0; i < EDGE_NUM_PARTICLES; i++) {
-		for (int j = 0; j < EDGE_NUM_PARTICLES; j++) {
-			for (int k = 0; k < PARTICLE_DEPTH; k++) {
-				particles.push_back(Particle(PARTICLE_DIST * i, PARTICLE_DIST * j, PARTICLE_DIST * k, ParticleType::FluidParticle));
-			}
-		}
-	}
-}
-
-
 
 
 void computeDensityAndPressure(int p_start, int p_end) {
