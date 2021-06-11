@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include "sph.h"
 
-extern void updateSPH_GPU(std::vector<Particle> &particles);
+
 
 std::vector<Particle> particles;
 std::unordered_map<int, std::vector<Particle>> spatial_grid;
@@ -173,16 +173,11 @@ void timeIntegration(int p_start, int p_end) {
 
 
 void updateSPH(int p_start, int p_end) {
-	//buildSpatialGrid();
-	updateSPH_GPU(particles);
 
-	/*
 	verletUpdatePosition(p_start, p_end);
 	computeDensityAndPressure(p_start, p_end);
 	computeForces(p_start, p_end);
-	timeIntegration(p_start, p_end);*/
-	
-	//spatial_grid.clear();
+	timeIntegration(p_start, p_end);
 
 }
 
