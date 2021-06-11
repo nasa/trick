@@ -8,7 +8,7 @@
 
 
 std::vector<Particle> particles;
-std::unordered_map<int, std::vector<Particle>> spatial_grid;
+//std::unordered_map<int, std::vector<Particle>> spatial_grid;
 
 void initSPH() {
 	for (int i = 0; i < EDGE_NUM_PARTICLES; i++) {
@@ -21,45 +21,6 @@ void initSPH() {
 }
 
 
-void buildSpatialGrid() {
-	spatial_grid.clear();
-	for (auto& pi : particles) {
-		int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
-		int grid_y = CELLS_PER_DIM * ((pi.pos.y + BOUND) / (2 * BOUND));
-		int grid_z = CELLS_PER_DIM * ((pi.pos.z + BOUND) / (2 * BOUND));
-		int grid_key = grid_x + grid_y * CELLS_PER_DIM + grid_z * CELLS_PER_DIM * CELLS_PER_DIM;
-
-		if (spatial_grid.find(grid_key) == spatial_grid.end()) {
-			std::vector<Particle> single_particle;
-			single_particle.push_back(pi);
-			spatial_grid[grid_key] = single_particle;
-		}
-		else {
-			spatial_grid[grid_key].push_back(pi);
-		}
-
-	}
-}
-
-bool checkBounds(int x, int y, int z) {
-	return x >= 0 && x < CELLS_PER_DIM&& y >= 0 && y < CELLS_PER_DIM&& z >= 0 && z < CELLS_PER_DIM;
-}
-
-std::vector<Particle> getNeighbors(int grid_x, int grid_y, int grid_z) {
-	std::vector<Particle> neighbors;
-	for (int x = grid_x - 1; x <= grid_x + 1; x++) {
-		for (int y = grid_y - 1; y <= grid_y + 1; y++) {
-			for (int z = grid_z - 1; z <= grid_z + 1; z++) {
-				int grid_key = x + y * CELLS_PER_DIM + z * CELLS_PER_DIM * CELLS_PER_DIM;
-				if (checkBounds(x, y, z) && spatial_grid.find(grid_key) != spatial_grid.end()) {
-					std::vector<Particle> cell_particles = spatial_grid[grid_key];
-					neighbors.insert(neighbors.end(), cell_particles.begin(), cell_particles.end());
-				}
-			}
-		}
-	}
-	return neighbors;
-}
 
 
 void computeDensityAndPressure(int p_start, int p_end) {
@@ -67,13 +28,15 @@ void computeDensityAndPressure(int p_start, int p_end) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
 		pi.rho = 0;
+		/*
 		int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
 		int grid_y = CELLS_PER_DIM * ((pi.pos.y + BOUND) / (2 * BOUND));
 		int grid_z = CELLS_PER_DIM * ((pi.pos.z + BOUND) / (2 * BOUND));
-		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);*/
 		//if (candidate_neighbors.size() != 0)
 			//printf("neighbors size: %d\n", candidate_neighbors.size());
-		for (auto& pj : candidate_neighbors) {
+		//for (auto& pj : candidate_neighbors) {
+		for (auto& pj : particles) {
 			glm::vec3 rij = pj.pos - pi.pos;
 			float r = glm::length(rij);
 			if (r >= 0 && r <= H) {
@@ -96,14 +59,13 @@ void computeForces(int p_start, int p_end) {
 		glm::vec3 pressure_force(0, 0, 0);
 		glm::vec3 viscosity_force(0, 0, 0);
 
-		int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
+		/*int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
 		int grid_y = CELLS_PER_DIM * ((pi.pos.y + BOUND) / (2 * BOUND));
 		int grid_z = CELLS_PER_DIM * ((pi.pos.z + BOUND) / (2 * BOUND));
-		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);*/
 		//printf("force neighbors size: %d\n", candidate_neighbors.size());
-		for (auto& pj : candidate_neighbors) {
-			//for (int j = p_start; j < p_end; j++) {
-				//Particle &pj = particles[j];
+		//for (auto& pj : candidate_neighbors) {
+		for (auto& pj : particles) {
 			if (&pi != &pj) {
 				glm::vec3 rij = pj.pos - pi.pos;
 				float r = glm::length(rij);
@@ -192,4 +154,47 @@ std::vector<float> getParticlePositions() {
 	}
 	return positions;
 }
+
+
+
+/*
+void buildSpatialGrid() {
+	spatial_grid.clear();
+	for (auto& pi : particles) {
+		int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
+		int grid_y = CELLS_PER_DIM * ((pi.pos.y + BOUND) / (2 * BOUND));
+		int grid_z = CELLS_PER_DIM * ((pi.pos.z + BOUND) / (2 * BOUND));
+		int grid_key = grid_x + grid_y * CELLS_PER_DIM + grid_z * CELLS_PER_DIM * CELLS_PER_DIM;
+
+		if (spatial_grid.find(grid_key) == spatial_grid.end()) {
+			std::vector<Particle> single_particle;
+			single_particle.push_back(pi);
+			spatial_grid[grid_key] = single_particle;
+		}
+		else {
+			spatial_grid[grid_key].push_back(pi);
+		}
+
+	}
+}
+
+bool checkBounds(int x, int y, int z) {
+	return x >= 0 && x < CELLS_PER_DIM&& y >= 0 && y < CELLS_PER_DIM&& z >= 0 && z < CELLS_PER_DIM;
+}
+
+std::vector<Particle> getNeighbors(int grid_x, int grid_y, int grid_z) {
+	std::vector<Particle> neighbors;
+	for (int x = grid_x - 1; x <= grid_x + 1; x++) {
+		for (int y = grid_y - 1; y <= grid_y + 1; y++) {
+			for (int z = grid_z - 1; z <= grid_z + 1; z++) {
+				int grid_key = x + y * CELLS_PER_DIM + z * CELLS_PER_DIM * CELLS_PER_DIM;
+				if (checkBounds(x, y, z) && spatial_grid.find(grid_key) != spatial_grid.end()) {
+					std::vector<Particle> cell_particles = spatial_grid[grid_key];
+					neighbors.insert(neighbors.end(), cell_particles.begin(), cell_particles.end());
+				}
+			}
+		}
+	}
+	return neighbors;
+}*/
 
