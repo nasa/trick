@@ -30,12 +30,6 @@ const static int PARTICLE_DEPTH = 4;
 const static int NUM_PARTICLES = PARTICLE_DEPTH * EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES;
 const static float PARTICLE_DIST = 5;
 
-// rigid body parameters
-const static int EDGE_NUM_RIGID_PARTICLES = 10;
-const static int PARTICLE_HEIGHT = 1;
-const static int NUM_RIGID_PARTICLES = PARTICLE_HEIGHT * EDGE_NUM_RIGID_PARTICLES * EDGE_NUM_RIGID_PARTICLES;
-const static float RIGID_DAMPING = -1.f;
-const static float RIGID_PARTICLE_DIST = 2;
 
 // boundary parameters 
 const static float EPS = H; // boundary epsilon
@@ -47,9 +41,6 @@ const static float BOUND = 100;
 const int CELL_SIZE = 2 * H;
 const int CELLS_PER_DIM = BOUND / CELL_SIZE;
 
-enum class ParticleType {
-	FluidParticle, RigidBody
-};
 
 
 struct Particle {
@@ -63,7 +54,6 @@ struct Particle {
 		type(type_) {}
 	glm::vec3 pos, velocity, force;
 	float rho, pressure, psi;
-	ParticleType type;
 };
 
 
@@ -76,9 +66,7 @@ void computeDensityAndPressure(int p_start, int p_end);
 void computeForces(int p_start, int p_end);
 void updateSPH(int p_start, int p_end);
 
-void initRigidBody();
-void updateRigid();
-std::vector<float> getRigidPositions();
+
 
 std::vector<Particle> getNeighbors(int grid_x, int grid_y, int grid_z);
 std::vector<float> getParticlePositions();
