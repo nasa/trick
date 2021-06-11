@@ -41,18 +41,10 @@ void initSPH() {
 
 
 void computeDensityAndPressure(int p_start, int p_end) {
-	//for (auto &pi : particles) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
 		pi.rho = 0;
-		/*
-		int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
-		int grid_y = CELLS_PER_DIM * ((pi.pos.y + BOUND) / (2 * BOUND));
-		int grid_z = CELLS_PER_DIM * ((pi.pos.z + BOUND) / (2 * BOUND));
-		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);*/
-		//if (candidate_neighbors.size() != 0)
-			//printf("neighbors size: %d\n", candidate_neighbors.size());
-		//for (auto& pj : candidate_neighbors) {
+
 		for (auto& pj : particles) {
 			float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
 			float r = std::sqrt(rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2]);
@@ -70,18 +62,11 @@ void computeDensityAndPressure(int p_start, int p_end) {
 
 void computeForces(int p_start, int p_end) {
 
-	//for(auto &pi : particles) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
 		float pressure_force[3] = {0, 0, 0};
 		float viscosity_force[3] = {0, 0, 0};
 
-		/*int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
-		int grid_y = CELLS_PER_DIM * ((pi.pos.y + BOUND) / (2 * BOUND));
-		int grid_z = CELLS_PER_DIM * ((pi.pos.z + BOUND) / (2 * BOUND));
-		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);*/
-		//printf("force neighbors size: %d\n", candidate_neighbors.size());
-		//for (auto& pj : candidate_neighbors) {
 		for (auto& pj : particles) {
 			if (&pi != &pj) {
 				float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
