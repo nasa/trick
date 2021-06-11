@@ -22,6 +22,8 @@ int Fluid::default_data() {
 }
 
 int Fluid::update_SPH() {
+	int p_start = 0;
+	int p_end = particles.size();
 	verletUpdatePosition(p_start, p_end);
 	computeDensityAndPressure(p_start, p_end);
 	computeForces(p_start, p_end);
