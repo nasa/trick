@@ -8,6 +8,12 @@ PURPOSE: (Simulate a fluid using smoothed particle hydrodynamics (SPH).)
 
 
 class Fluid {
+	private:
+		void computeDensityAndPressure(int p_start, int p_end);
+		void computeForces(int p_start, int p_end);
+		void verletUpdatePosition(int p_start, int p_end);
+		void timeIntegration(int p_start, int p_end);
+		std::vector<float> getParticlePositions();
 	public:
 		Fluid(){}
 		std::vector<Particle> particles;

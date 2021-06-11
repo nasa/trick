@@ -22,7 +22,7 @@ int Fluid::default_data() {
 }
 
 int Fluid::update_SPH() {
-		verletUpdatePosition(p_start, p_end);
+	verletUpdatePosition(p_start, p_end);
 	computeDensityAndPressure(p_start, p_end);
 	computeForces(p_start, p_end);
 	timeIntegration(p_start, p_end);
@@ -34,7 +34,7 @@ int Fluid::update_SPH() {
 
 
 
-void computeDensityAndPressure(int p_start, int p_end) {
+void Fluid::computeDensityAndPressure(int p_start, int p_end) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
 		pi.rho = 0;
@@ -54,7 +54,7 @@ void computeDensityAndPressure(int p_start, int p_end) {
 }
 
 
-void computeForces(int p_start, int p_end) {
+void Fluid::computeForces(int p_start, int p_end) {
 
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
@@ -92,14 +92,14 @@ void computeForces(int p_start, int p_end) {
 	
 }
 
-void verletUpdatePosition(int p_start, int p_end) {
+void Fluid::verletUpdatePosition(int p_start, int p_end) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
 		//pi.pos += DT * pi.velocity;
 	}
 }
 // Velocity Verlet time integrator
-void timeIntegration(int p_start, int p_end) {
+void Fluid::timeIntegration(int p_start, int p_end) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
 		pi.pos[0] += DT * pi.velocity[0];
@@ -142,7 +142,7 @@ void timeIntegration(int p_start, int p_end) {
 
 
 
-std::vector<float> getParticlePositions() {
+std::vector<float> Fluid::getParticlePositions() {
 	std::vector<float> positions;
 	for (auto& pi : particles) {
 		positions.push_back(pi.pos[0]);
