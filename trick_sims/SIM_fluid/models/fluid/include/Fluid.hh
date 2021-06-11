@@ -5,7 +5,7 @@ PURPOSE: (Simulate a fluid using smoothed particle hydrodynamics (SPH).)
 #define _fluid_hh_
 #include "Particle.hh"
 #include <vector>
-
+#include <cmath>
 
 class Fluid {
 	private:
@@ -38,9 +38,9 @@ class Fluid {
 		const float DT = 0.001f;
 
 		// smoothing kernels and their gradients
-		const float POLY6 = 315.f / (64.f * M_PI * pow(H, 9.f));
-		const float SPIKY_GRAD = -45.f / (M_PI * pow(H, 6.f));
-		const float VISC_LAP = 45.f / (M_PI * pow(H, 6.f));
+		const float POLY6 = 315.f / (64.f * M_PI * std::pow(H, 9.f));
+		const float SPIKY_GRAD = -45.f / (M_PI * std::pow(H, 6.f));
+		const float VISC_LAP = 45.f / (M_PI * std::pow(H, 6.f));
 
 		// number of particles on the edge of the square
 		const int EDGE_NUM_PARTICLES = 32;
