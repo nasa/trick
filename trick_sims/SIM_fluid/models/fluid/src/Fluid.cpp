@@ -83,11 +83,13 @@ void Fluid::computeForces(int p_start, int p_end) {
 		pi.force[0] = viscosity_force[0] + pressure_force[0] + gravity_force[0];
 		pi.force[1] = viscosity_force[1] + pressure_force[1] + gravity_force[1];
 		pi.force[2] = viscosity_force[2] + pressure_force[2] + gravity_force[2];
+		/*
 		if (isnan(pi.force[0]) || isnan(pi.force[1]) || isnan(pi.force[2])) {
 			pi.force[0] = gravity_force[0];
 			pi.force[1] = gravity_force[1];
 			pi.force[2] = gravity_force[2];
 		}
+		*/
 	}
 	
 }
