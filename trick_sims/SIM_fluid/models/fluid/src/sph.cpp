@@ -1,10 +1,5 @@
-#include <glm/gtx/component_wise.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <glm/gtx/io.hpp>
-#include <glm/glm.hpp>
 #include "sph.h"
-
+#include <cmath>
 
 
 std::vector<Particle> particles;
@@ -37,8 +32,8 @@ void computeDensityAndPressure(int p_start, int p_end) {
 			//printf("neighbors size: %d\n", candidate_neighbors.size());
 		//for (auto& pj : candidate_neighbors) {
 		for (auto& pj : particles) {
-			glm::vec3 rij = pj.pos - pi.pos;
-			float r = glm::length(rij);
+			float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
+			float r = std::sqrt(rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2]);
 			if (r >= 0 && r <= H) {
 				pi.rho += MASS * POLY6 * pow(HSQ - r * r, 3);
 			}
@@ -56,8 +51,8 @@ void computeForces(int p_start, int p_end) {
 	//for(auto &pi : particles) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
-		glm::vec3 pressure_force(0, 0, 0);
-		glm::vec3 viscosity_force(0, 0, 0);
+		float pressure_force[3] = {0, 0, 0};
+		float viscosity_force[3] = {0, 0, 0};
 
 		/*int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
 		int grid_y = CELLS_PER_DIM * ((pi.pos.y + BOUND) / (2 * BOUND));
@@ -67,23 +62,30 @@ void computeForces(int p_start, int p_end) {
 		//for (auto& pj : candidate_neighbors) {
 		for (auto& pj : particles) {
 			if (&pi != &pj) {
-				glm::vec3 rij = pj.pos - pi.pos;
-				float r = glm::length(rij);
-				glm::vec3 rij_hat = glm::normalize(rij);
+				float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
+				float r = std::sqrt(rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2]);
+				float rij_hat[3] = {rij[0] / r, rij[1] / r, rij[2] / r};
 				if (r > 0 && r <= H) {
-					pressure_force -= rij_hat * MASS * (pi.pressure + pj.pressure) / (2 * pj.rho) * SPIKY_GRAD * pow(H - r, 2);
-
-					viscosity_force += VISC * MASS * ((pj.velocity - pi.velocity) / pj.rho) * VISC_LAP * (H - r);
+					pressure_force[0] -= rij_hat[0] * MASS * (pi.pressure + pj.pressure) / (2 * pj.rho) * SPIKY_GRAD * pow(H - r, 2);
+					pressure_force[1] -= rij_hat[1] * MASS * (pi.pressure + pj.pressure) / (2 * pj.rho) * SPIKY_GRAD * pow(H - r, 2);
+					pressure_force[2] -= rij_hat[2] * MASS * (pi.pressure + pj.pressure) / (2 * pj.rho) * SPIKY_GRAD * pow(H - r, 2);
+					
+					viscosity_force[0] += VISC * MASS * ((pj.velocity[0] - pi.velocity[0]) / pj.rho) * VISC_LAP * (H - r);
+					viscosity_force[1] += VISC * MASS * ((pj.velocity[1] - pi.velocity[1]) / pj.rho) * VISC_LAP * (H - r);
+					viscosity_force[2] += VISC * MASS * ((pj.velocity[2] - pi.velocity[2]) / pj.rho) * VISC_LAP * (H - r);
 
 
 				}
 			}
 		}
-		glm::vec3 gravity_force = pi.rho * G;
-		pi.force = viscosity_force + pressure_force + gravity_force;
-		
-		if (isnan(pi.force.x) || isnan(pi.force.y) || isnan(pi.force.z)) {
-			pi.force = gravity_force;
+		float gravity_force[3] = {pi.rho * G[0], pi.rho * G[1], pi.rho * G[2]};
+		pi.force[0] = viscosity_force[0] + pressure_force[0] + gravity_force[0];
+		pi.force[1] = viscosity_force[1] + pressure_force[1] + gravity_force[1];
+		pi.force[2] = viscosity_force[2] + pressure_force[2] + gravity_force[2];
+		if (isnan(pi.force[0]) || isnan(pi.force[1]) || isnan(pi.force[2])) {
+			pi.force[0] = gravity_force[0];
+			pi.force[1] = gravity_force[1];
+			pi.force[2] = gravity_force[2];
 		}
 	}
 	
@@ -99,36 +101,40 @@ void verletUpdatePosition(int p_start, int p_end) {
 void timeIntegration(int p_start, int p_end) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
-		pi.pos += DT * pi.velocity;
-		pi.velocity += DT * pi.force / pi.rho;
-
-		if (pi.pos.z - EPS < -BOUND) {
-			pi.velocity.z *= BOUND_DAMPING;
-			pi.pos.z = -BOUND + EPS;
+		pi.pos[0] += DT * pi.velocity[0];
+		pi.pos[1] += DT * pi.velocity[1];
+		pi.pos[2] += DT * pi.velocity[2];
+		pi.velocity[0] += DT * pi.force[0] / pi.rho;
+		pi.velocity[1] += DT * pi.force[1] / pi.rho;
+		pi.velocity[2] += DT * pi.force[2] / pi.rho;
+		
+		if (pi.pos[2] - EPS < -BOUND) {
+			pi.velocity[2] *= BOUND_DAMPING;
+			pi.pos[2] = -BOUND + EPS;
 		}
 
-		if (pi.pos.z + EPS > BOUND) {
-			pi.velocity.z *= BOUND_DAMPING;
-			pi.pos.z = BOUND - EPS;
+		if (pi.pos[2] + EPS > BOUND) {
+			pi.velocity[2] *= BOUND_DAMPING;
+			pi.pos[2] = BOUND - EPS;
 		}
 
-		if (pi.pos.y - EPS < -BOUND) {
-			pi.velocity.y *= BOUND_DAMPING;
-			pi.pos.y = -BOUND + EPS;
+		if (pi.pos[1] - EPS < -BOUND) {
+			pi.velocity[1] *= BOUND_DAMPING;
+			pi.pos[1] = -BOUND + EPS;
 		}
 
-		if (pi.pos.y + EPS > BOUND) {
-			pi.velocity.y *= BOUND_DAMPING;
-			pi.pos.y = BOUND - EPS;
+		if (pi.pos[1] + EPS > BOUND) {
+			pi.velocity[1] *= BOUND_DAMPING;
+			pi.pos[1] = BOUND - EPS;
 		}
 
-		if (pi.pos.x - EPS < -BOUND) {
-			pi.velocity.x *= BOUND_DAMPING;
-			pi.pos.x = -BOUND + EPS;
+		if (pi.pos[0] - EPS < -BOUND) {
+			pi.velocity[0] *= BOUND_DAMPING;
+			pi.pos[0] = -BOUND + EPS;
 		}
-		if (pi.pos.x + EPS > BOUND) {
-			pi.velocity.x *= BOUND_DAMPING;
-			pi.pos.x = BOUND - EPS;
+		if (pi.pos[0] + EPS > BOUND) {
+			pi.velocity[0] *= BOUND_DAMPING;
+			pi.pos[0] = BOUND - EPS;
 		}
 	}
 }
@@ -148,9 +154,9 @@ void updateSPH(int p_start, int p_end) {
 std::vector<float> getParticlePositions() {
 	std::vector<float> positions;
 	for (auto& pi : particles) {
-		positions.push_back(pi.pos.x);
-		positions.push_back(pi.pos.y);
-		positions.push_back(pi.pos.z);
+		positions.push_back(pi.pos[0]);
+		positions.push_back(pi.pos[1]);
+		positions.push_back(pi.pos[2]);
 	}
 	return positions;
 }

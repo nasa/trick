@@ -2,11 +2,10 @@
 #include <vector>
 //#include <tuple>
 //#include <unordered_map>
-#include "glm/glm.hpp"
 
 const static float G_STRENGTH = 600;
 // external graviational force
-const static glm::vec3 G(0.f, G_STRENGTH * -9.8f, 0.f);
+const static float G[3] = {0.f, G_STRENGTH * -9.8f, 0.f};
 const static float REST_DENS = 1000.f;
 const static float GAS_CONST = 100.f;
 // kernel radius
@@ -45,16 +44,17 @@ const int CELLS_PER_DIM = BOUND / CELL_SIZE;*/
 
 
 struct Particle {
-	Particle(float x_, float y_, float z_, ParticleType type_) :
-		pos(x_, y_, z_),
-		velocity(0.f, 0.f, 0.f),
-		force(0.f, 0.f, 0.f),
+	Particle(float x_, float y_, float z_) :
+		pos {x_, y_, z_},
+		velocity {0.f, 0.f, 0.f},
+		force {0.f, 0.f, 0.f},
 		rho(0),
-		psi(0),
-		pressure(0.f),
-		type(type_) {}
-	glm::vec3 pos, velocity, force;
-	float rho, pressure, psi;
+		pressure(0.f) {}
+	float pos[3];
+	float velocity[3];
+	float force[3];
+	float rho;
+	float pressure;
 };
 
 
