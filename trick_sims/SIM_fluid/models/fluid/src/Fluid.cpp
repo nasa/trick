@@ -22,10 +22,16 @@ int Fluid::default_data() {
 }
 
 int Fluid::update_SPH() {
-	//updateSPH_GPU(particles);
+		verletUpdatePosition(p_start, p_end);
+	computeDensityAndPressure(p_start, p_end);
+	computeForces(p_start, p_end);
+	timeIntegration(p_start, p_end);
 	return 0;
 
 }
+
+
+
 
 
 void computeDensityAndPressure(int p_start, int p_end) {
@@ -132,16 +138,6 @@ void timeIntegration(int p_start, int p_end) {
 			pi.pos[0] = BOUND - EPS;
 		}
 	}
-}
-
-
-void updateSPH(int p_start, int p_end) {
-
-	verletUpdatePosition(p_start, p_end);
-	computeDensityAndPressure(p_start, p_end);
-	computeForces(p_start, p_end);
-	timeIntegration(p_start, p_end);
-
 }
 
 
