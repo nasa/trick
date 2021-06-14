@@ -54,7 +54,7 @@ class Fluid {
 		float EPS = H; // boundary epsilon
 		float BOUND_DAMPING = -.9f;
 
-		float BOUND = 100;
+		float BOUND = 400;
 };
 
 #endif
