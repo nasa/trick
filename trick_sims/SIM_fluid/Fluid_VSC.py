@@ -16,14 +16,17 @@ client_socket.connect( ("localhost", trick_varserver_port) )
 insock = client_socket.makefile("r")
 
 # Request size of BOUND in order to determine window size
+# Also request the number of particles for rendering
 client_socket.send("trick.var_pause()\n".encode())
 client_socket.send("trick.var_ascii()\n".encode())
 client_socket.send("trick.var_add(\"dyn.fluid.BOUND\")\n".encode())
+client_socket.send("trick.var_add(\"dyn.fluid.NUM_PARTICLES\")\n".encode())
 client_socket.send("trick.var_unpause()\n".encode())
 line = insock.readline()
 field = line.split("\t")
 print(field)
 BOUND = int(field[1])
+NUM_PARTICLES = int(field[2])
 HEIGHT = 2 * BOUND
 WIDTH = HEIGHT
 """
@@ -50,14 +53,14 @@ canvas.pack()
 # Create oval objects to represent fluid particles
 particle_radius = 2;
 fluidParticles = []
-for i in range(1024):
+for i in range(NUM_PARTICLES):
 	fluidParticles.append(canvas.create_oval(0, 0, particle_radius, particle_radius, fill="blue"))
 
 
 
 client_socket.send("trick.var_pause()\n".encode())
 client_socket.send("trick.var_ascii()\n".encode())
-for i in range(1024):
+for i in range(NUM_PARTICLES):
 	client_socket.send("trick.var_add(\"dyn.fluid.particlesArr[{}].pos[0]\")\n".format(i).encode())
 	client_socket.send("trick.var_add(\"dyn.fluid.particlesArr[{}].pos[1]\")\n".format(i).encode())
 client_socket.send("trick.var_unpause()\n".encode())
@@ -69,9 +72,10 @@ while (True):
 		break
 	field = line.split("\t")
 	# Get position of particle and update it on the canvas
-	for i in range(1024):
-		x = float(field[2 * i])
-		y = float(field[2 * i + 1])
+	for i in range(NUM_PARTICLES):
+		# TODO: calculate correct offset to index into field (one particle is not rendering correctly)
+		x = float(field[2 * i + 1])
+		y = float(field[2 * i + 2])
 		cx = x + BOUND
 		cy = HEIGHT - (y + BOUND)
 		canvas.coords(fluidParticles[i], cx - particle_radius, cy - particle_radius, cx + particle_radius, cy+ particle_radius)
