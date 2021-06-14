@@ -25,7 +25,7 @@ fluidParticle = canvas.create_oval(0, 0, particle_radius, particle_radius, fill=
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect( ("localhost", trick_varserver_port) )
 insock = client_socket.makefile("r")
-
+"""
 # Unit test 0: request viscosity of the fluid
 client_socket.send("trick.var_pause()\n".encode())
 client_socket.send("trick.var_ascii()\n".encode())
@@ -37,7 +37,7 @@ client_socket.send("trick.var_pause()\n".encode())
 client_socket.send("trick.var_ascii()\n".encode())
 client_socket.send("trick.var_add(\"dyn.fluid.particlesArr[0].pos[0]\")\n".encode())
 client_socket.send("trick.var_unpause()\n".encode())
-
+"""
 
 client_socket.send("trick.var_pause()\n".encode())
 client_socket.send("trick.var_ascii()\n".encode())
