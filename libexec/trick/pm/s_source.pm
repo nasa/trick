@@ -17,7 +17,7 @@ sub s_source($) {
     # Generate S_source.c
     open S_SOURCE, ">build/S_source.cpp" or die "Couldn't open build/S_source.cpp!\n";
     open S_SOURCE_H, ">S_source.hh" or die "Couldn't open S_source.hh!\n";
-    open CLASSES_RESOURCE, ">build/classes.resource" or die "Couldn't open classes.resource!";
+    open TOP_LEVEL_OBJECTS_RESOURCE, ">build/top_level_objects.resource" or die "Couldn't open top_level_objects.resource!";
     # Get Trick version
     my ($version, $thread) = get_trick_version() ;
 
@@ -211,7 +211,7 @@ PURPOSE:
         print S_SOURCE " " x 4 , "if ( (ai = get_alloc_info_at(&$inst)) != NULL ) {\n" ;
         print S_SOURCE " " x 8 , "ai->alloced_in_memory_init = 1 ;\n" ;
         print S_SOURCE " " x 4 , "}\n" ;
-        print CLASSES_RESOURCE "  \<top_level_object\n    name=\"$inst\"\n    type=\"$temp_type\"\n    alloc_memory_init=\"1\"\>\n  \</top_level_object\>\n\n";
+        print TOP_LEVEL_OBJECTS_RESOURCE "  \<top_level_object\n    name=\"$inst\"\n    type=\"$temp_type\"\n    alloc_memory_init=\"1\"\>\n  \</top_level_object\>\n\n";
     }
 
 
@@ -222,9 +222,9 @@ PURPOSE:
         print S_SOURCE " " x 4 , "if ( (ai = get_alloc_info_at(&$$integ_loop{name})) != NULL ) {\n" ;
         print S_SOURCE " " x 8 , "ai->alloced_in_memory_init = 1 ;\n" ;
         print S_SOURCE " " x 4 , "}\n" ;
-        print CLASSES_RESOURCE "  \<top_level_object\n    name=\"$$integ_loop{name}\"\n    type=\"IntegLoopSimObject\"\n    alloc_memory_init=\"1\"\>\n  \</top_level_object\>\n\n";
+        print TOP_LEVEL_OBJECTS_RESOURCE "  \<top_level_object\n    name=\"$$integ_loop{name}\"\n    type=\"IntegLoopSimObject\"\n    alloc_memory_init=\"1\"\>\n  \</top_level_object\>\n\n";
     }
-    close CLASSES_RESOURCE ;
+    close TOP_LEVEL_OBJECTS_RESOURCE ;
     print S_SOURCE "\n" ;
 
     print S_SOURCE $$sim_ref{create_connections} ;
