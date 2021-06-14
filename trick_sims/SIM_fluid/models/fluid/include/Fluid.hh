@@ -17,7 +17,6 @@ class Fluid {
 	public:
 		Fluid(){}
 		std::vector<Particle> particles;
-		unsigned int n_particles;
 		
 		int default_data();
 		int update_SPH();

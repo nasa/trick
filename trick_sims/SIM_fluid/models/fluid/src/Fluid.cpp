@@ -8,7 +8,6 @@ LIBRARY DEPENDENCY:
 
 
 int Fluid::default_data() {
-	n_particles = 1024;
 	
 	for (int i = 0; i < EDGE_NUM_PARTICLES; i++) {
 		for (int j = 0; j < EDGE_NUM_PARTICLES; j++) {
