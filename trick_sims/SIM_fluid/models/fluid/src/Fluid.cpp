@@ -16,6 +16,7 @@ int Fluid::default_data() {
 			}
 		}
 	}
+	particlesArr = &particles[0];
 	
 	return 0;
 }

@@ -18,6 +18,7 @@ class Fluid {
 		Fluid(){}
 		std::vector<Particle> particles;
 		
+		
 		int default_data();
 		int update_SPH();
 		
@@ -43,10 +44,11 @@ class Fluid {
 
 		// number of particles on the edge of the square
 		int EDGE_NUM_PARTICLES = 32;
-		int PARTICLE_DEPTH = 4;
+		int PARTICLE_DEPTH = 1;
 		int NUM_PARTICLES = PARTICLE_DEPTH * EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES;
 		float PARTICLE_DIST = 5;
 
+		Particle* particlesArr;
 
 		// boundary parameters 
 		float EPS = H; // boundary epsilon
