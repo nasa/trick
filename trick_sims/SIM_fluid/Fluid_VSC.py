@@ -70,8 +70,8 @@ while (True):
 	field = line.split("\t")
 	# Get position of particle and update it on the canvas
 	for i in range(1024):
-		x = float(field[2 * i + 1])
-		y = float(field[2 * i + 2])
+		x = float(field[2 * i])
+		y = float(field[2 * i + 1])
 		cx = x + BOUND
 		cy = HEIGHT - (y + BOUND)
 		canvas.coords(fluidParticles[i], cx - particle_radius, cy - particle_radius, cx + particle_radius, cy+ particle_radius)
