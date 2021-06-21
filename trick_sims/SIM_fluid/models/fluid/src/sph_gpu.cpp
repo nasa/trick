@@ -1,13 +1,17 @@
-#include "cuda_runtime.h"
-#include "sph_gpu.cuh"
 
+
+#include "cuda_runtime.h"
+#include "sph_gpu.h"
+#include <stdio.h>
+//#include "../include/Particle.hh"
 
 #define NUM_THREADS 1024
+/*
 bool particlesOnGPU = false;
 Particle* d_particles;
-int* d_n;
+int* d_n;*/
 
-
+/*
 __global__ void computeDensityAndPressureGPU(Particle* particles, int* n) {
 	int tid = threadIdx.x;
 	// assuming n is a multiple of NUM_THREADS
@@ -31,6 +35,7 @@ __global__ void computeDensityAndPressureGPU(Particle* particles, int* n) {
 		pi.pressure = GAS_CONST * (pi.rho - REST_DENS);
 	}
 }
+
 
 __global__ void computeForcesGPU(Particle* particles, int* n) {
 	int tid = threadIdx.x;
@@ -120,10 +125,18 @@ __global__ void timeIntegrationGPU(Particle* particles, int* n) {
 		}
 	}
 
+}*/
+
+__global__ void testKernel() {
+	printf("Test message from kernel function!\n");
+	
 }
 
-void updateSPH_GPU(std::vector<Particle> &particles) {
-
+void updateSPH_GPU(void) {
+	//printf("Test message from CPU function in CUDA file\n");
+	testKernel<<<1, NUM_THREADS>>>();
+	
+	/*
 	if (!particlesOnGPU) {
 
 		int n = NUM_PARTICLES;
@@ -141,13 +154,14 @@ void updateSPH_GPU(std::vector<Particle> &particles) {
 
 	computeDensityAndPressureGPU << <1, NUM_THREADS >> > (d_particles, d_n);
 
+	
 	computeForcesGPU << <1, NUM_THREADS >> > (d_particles, d_n);
 	
 	timeIntegrationGPU << <1, NUM_THREADS >> > (d_particles, d_n);
 
 	cudaDeviceSynchronize();
 
-	cudaMemcpy(particles.data(), d_particles, NUM_PARTICLES * sizeof(Particle), cudaMemcpyDeviceToHost);
+	cudaMemcpy(particles.data(), d_particles, NUM_PARTICLES * sizeof(Particle), cudaMemcpyDeviceToHost);*/
 
 
 }

@@ -1,4 +1,7 @@
-#include <vector>
+
+//#include <vector>
+//#include <stdio.h>
+/*
 #include <tuple>
 #include <unordered_map>
 #include "lib/glm/glm.hpp"
@@ -37,8 +40,11 @@
 // parameters for spatial grid
 const int CELL_SIZE = 2 * H;
 const int CELLS_PER_DIM = BOUND / CELL_SIZE;
+*/
+#ifndef SPH_GPU_H
+#define SPH_GPU_H
+void updateSPH_GPU(void);
 
+#endif
 
-
-void updateSPH_GPU();
-std::vector<float> getParticlePositions();
+//std::vector<float> getParticlePositions();
