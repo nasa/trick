@@ -2,14 +2,13 @@
 PURPOSE: (Simulate a fluid using smoothed particle hydrodynamics (SPH).)
 LIBRARY DEPENDENCY:
 	((Fluid.o)
-	 (Particle.o)
-	 (sph_gpu.o))
+	 (Particle.o))
 *******************************************************************************/
 #include "../include/Fluid.hh"
 #include "../include/Particle.hh"
 //#include "sph_gpu.h"
 
-void updateSPH_GPU(void);
+extern void callVectorAdd(void);
 
 
 int Fluid::default_data() {
@@ -34,7 +33,7 @@ int Fluid::update_SPH() {
 	computeDensityAndPressure(p_start, p_end);
 	computeForces(p_start, p_end);
 	timeIntegration(p_start, p_end);*/
-	updateSPH_GPU();
+	callVectorAdd();
 	return 0;
 
 }
