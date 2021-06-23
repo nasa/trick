@@ -8,10 +8,11 @@
 
 bool particlesOnGPU = false;
 Particle* d_particles;
+Fluid* d_fluid;
 int* d_n;
 
-/*
-__global__ void computeDensityAndPressureGPU(Particle* particles, int* n) {
+
+__global__ void computeDensityAndPressureGPU(Particle* particles, int* n, Fluid* fluid) {
 	int tid = threadIdx.x;
 	// assuming n is a multiple of NUM_THREADS
 	int block_size = *n / NUM_THREADS;
@@ -25,16 +26,17 @@ __global__ void computeDensityAndPressureGPU(Particle* particles, int* n) {
 		for (int j = 0; j < *n; j++) {
 			//Particle & pj = candidate_neighbors[j];
 			Particle& pj = particles[j];
-			glm::vec3 rij = pj.pos - pi.pos;
-			float r = glm::length(rij);
-			if (r >= 0 && r <= H) {
-				pi.rho += MASS * POLY6 * pow(HSQ - r * r, 3.f);
+			float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
+			float r = sqrt(rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2]);
+			if (r >= 0 && r <= fluid->H) {
+				pi.rho += fluid->MASS * fluid->POLY6 * pow(fluid->HSQ - r * r, 3.f);
 			}
 		}
-		pi.pressure = GAS_CONST * (pi.rho - REST_DENS);
+		pi.pressure = fluid->GAS_CONST * (pi.rho - fluid->REST_DENS);
 	}
 }
 
+/*
 
 __global__ void computeForcesGPU(Particle* particles, int* n) {
 	int tid = threadIdx.x;
@@ -127,8 +129,6 @@ __global__ void timeIntegrationGPU(Particle* particles, int* n) {
 }*/
 
 void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
-	//printf("Test message from CPU function in CUDA file\n");
-	//testKernel<<<1, NUM_THREADS>>>();
 	int n = fluid->NUM_PARTICLES;
 	
 	if (!particlesOnGPU) {
@@ -136,9 +136,10 @@ void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 		
 
 		cudaMalloc(&d_particles, n * sizeof(Particle));
-
+		cudaMalloc(&d_fluid, sizeof(Fluid));
 		cudaMalloc(&d_n, sizeof(int));
 
+		cudaMemcpy(d_fluid, fluid, sizeof(Fluid), cudaMemcpyHostToDevice);
 		cudaMemcpy(d_particles, particles.data(), n * sizeof(Particle), cudaMemcpyHostToDevice);
 		cudaMemcpy(d_n, &n, sizeof(int), cudaMemcpyHostToDevice);
 		particlesOnGPU = true;
@@ -146,8 +147,7 @@ void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 
 	//verletUpdatePosition<<<1, NUM_THREADS>>>(d_particles, d_n);
 
-	//computeDensityAndPressureGPU << <1, NUM_THREADS >> > (d_particles, d_n);
-
+	computeDensityAndPressureGPU << <1, NUM_THREADS >> > (d_particles, d_n, d_fluid);
 	
 	//computeForcesGPU << <1, NUM_THREADS >> > (d_particles, d_n);
 	
