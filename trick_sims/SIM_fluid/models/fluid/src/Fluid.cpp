@@ -8,7 +8,7 @@ LIBRARY DEPENDENCY:
 #include "../include/Particle.hh"
 //#include "sph_gpu.h"
 
-extern void callVectorAdd(void);
+extern void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid);
 
 
 int Fluid::default_data() {
@@ -33,7 +33,7 @@ int Fluid::update_SPH() {
 	computeDensityAndPressure(p_start, p_end);
 	computeForces(p_start, p_end);
 	timeIntegration(p_start, p_end);*/
-	callVectorAdd();
+	updateSPH_GPU(particles, this);
 	return 0;
 
 }
