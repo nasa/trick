@@ -36,9 +36,9 @@ __global__ void computeDensityAndPressureGPU(Particle* particles, int* n, Fluid*
 	}
 }
 
-/*
 
-__global__ void computeForcesGPU(Particle* particles, int* n) {
+
+__global__ void computeForcesGPU(Particle* particles, int* n, Fluid* fluid) {
 	int tid = threadIdx.x;
 	// assuming n is a multiple of NUM_THREADS
 	int block_size = *n / NUM_THREADS;
@@ -48,31 +48,38 @@ __global__ void computeForcesGPU(Particle* particles, int* n) {
 	//for(auto &pi : particles) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
-		glm::vec3 pressure_force(0, 0, 0);
-		glm::vec3 viscosity_force(0, 0, 0);
+		float pressure_force[3] = {0, 0, 0};
+		float viscosity_force[3] = {0, 0, 0};
 		//Particle* candidate_neighbors = all_neighbors[i];
 		for (int j = 0; j < *n; j++) {
 			//Particle& pj = candidate_neighbors[j];
 			Particle& pj = particles[j];
 			if (&pi != &pj) {
-				glm::vec3 rij = pj.pos - pi.pos;
-				float r = glm::length(rij);
-				glm::vec3 rij_hat = glm::normalize(rij);
-				if (r > 0 && r <= H) {
-					pressure_force -= rij_hat * MASS * (pi.pressure + pj.pressure) / (2 * pj.rho) * SPIKY_GRAD * pow(H - r, 2.f);
+				float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
+				float r = std::sqrt(rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2]);
+				float rij_hat[3] = {rij[0] / r, rij[1] / r, rij[2] / r};
+				if (r > 0 && r <= fluid->H) {
+					pressure_force[0] -= rij_hat[0] * fluid->MASS * (pi.pressure + pj.pressure) / (2 * pj.rho) * fluid->SPIKY_GRAD * pow(fluid->H - r, 2.f);
+					pressure_force[1] -= rij_hat[1] * fluid->MASS * (pi.pressure + pj.pressure) / (2 * pj.rho) * fluid->SPIKY_GRAD * pow(fluid->H - r, 2.f);
+					pressure_force[2] -= rij_hat[2] * fluid->MASS * (pi.pressure + pj.pressure) / (2 * pj.rho) * fluid->SPIKY_GRAD * pow(fluid->H - r, 2.f);
 
-					viscosity_force += VISC * MASS * ((pj.velocity - pi.velocity) / pj.rho) * VISC_LAP * (H - r);
+					viscosity_force[0] += fluid->VISC * fluid->MASS * ((pj.velocity[0] - pi.velocity[0]) / pj.rho) * fluid->VISC_LAP * (fluid->H - r);
+					viscosity_force[1] += fluid->VISC * fluid->MASS * ((pj.velocity[1] - pi.velocity[1]) / pj.rho) * fluid->VISC_LAP * (fluid->H - r);
+					viscosity_force[2] += fluid->VISC * fluid->MASS * ((pj.velocity[2] - pi.velocity[2]) / pj.rho) * fluid->VISC_LAP * (fluid->H - r);
 
 
 				}
 			}
 		}
-		glm::vec3 G(0.f, G_STRENGTH * -9.8f, 0.f);
-		glm::vec3 gravity_force = pi.rho * G;
-		pi.force = viscosity_force + pressure_force + gravity_force;
+		float G[3] = {0.f, fluid->G_STRENGTH * -9.8f, 0.f};
+		float gravity_force[3] = {pi.rho * G[0], pi.rho * G[1], pi.rho * G[2]};
+		pi.force[0] = viscosity_force[0] + pressure_force[0] + gravity_force[0];
+		pi.force[1] = viscosity_force[1] + pressure_force[1] + gravity_force[1];
+		pi.force[2] = viscosity_force[2] + pressure_force[2] + gravity_force[2];
 	}
 
 }
+/*
 __global__ void verletUpdatePosition(Particle* particles, int* n) {
 	int tid = threadIdx.x;
 	// assuming n is a multiple of NUM_THREADS
@@ -149,7 +156,7 @@ void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 
 	computeDensityAndPressureGPU << <1, NUM_THREADS >> > (d_particles, d_n, d_fluid);
 	
-	//computeForcesGPU << <1, NUM_THREADS >> > (d_particles, d_n);
+	computeForcesGPU << <1, NUM_THREADS >> > (d_particles, d_n, d_fluid);
 	
 	//timeIntegrationGPU << <1, NUM_THREADS >> > (d_particles, d_n);
 
