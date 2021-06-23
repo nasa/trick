@@ -79,8 +79,8 @@ __global__ void computeForcesGPU(Particle* particles, int* n, Fluid* fluid) {
 	}
 
 }
-/*
-__global__ void verletUpdatePosition(Particle* particles, int* n) {
+
+__global__ void verletUpdatePosition(Particle* particles, int* n, Fluid* fluid) {
 	int tid = threadIdx.x;
 	// assuming n is a multiple of NUM_THREADS
 	int block_size = *n / NUM_THREADS;
@@ -88,10 +88,12 @@ __global__ void verletUpdatePosition(Particle* particles, int* n) {
 	int p_end = (tid + 1) * block_size;
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
-		pi.pos += DT * pi.velocity;
+		pi.pos[0] += fluid->DT * pi.velocity[0];
+		pi.pos[1] += fluid->DT * pi.velocity[1];
+		pi.pos[2] += fluid->DT * pi.velocity[2];
 	}
 }
-*/
+
 __global__ void timeIntegrationGPU(Particle* particles, int* n, Fluid* fluid) {
 	int tid = threadIdx.x;
 	// assuming n is a multiple of NUM_THREADS
@@ -151,7 +153,7 @@ void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 		particlesOnGPU = true;
 	}
 
-	//verletUpdatePosition<<<1, NUM_THREADS>>>(d_particles, d_n);
+	verletUpdatePosition<<<1, NUM_THREADS>>>(d_particles, d_n, d_fluid);
 
 	computeDensityAndPressureGPU << <1, NUM_THREADS >> > (d_particles, d_n, d_fluid);
 	
