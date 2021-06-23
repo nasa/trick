@@ -2,14 +2,13 @@
 
 #include "cuda_runtime.h"
 #include "sph_gpu.h"
-#include <stdio.h>
-//#include "../include/Particle.hh"
+
 
 #define NUM_THREADS 1024
-/*
+
 bool particlesOnGPU = false;
 Particle* d_particles;
-int* d_n;*/
+int* d_n;
 
 /*
 __global__ void computeDensityAndPressureGPU(Particle* particles, int* n) {
@@ -127,41 +126,36 @@ __global__ void timeIntegrationGPU(Particle* particles, int* n) {
 
 }*/
 
-__global__ void testKernel() {
-	printf("Test message from kernel function!\n");
-	
-}
-
-void updateSPH_GPU(void) {
+void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 	//printf("Test message from CPU function in CUDA file\n");
-	testKernel<<<1, NUM_THREADS>>>();
+	//testKernel<<<1, NUM_THREADS>>>();
+	int n = fluid->NUM_PARTICLES;
 	
-	/*
 	if (!particlesOnGPU) {
 
-		int n = NUM_PARTICLES;
+		
 
-		cudaMalloc(&d_particles, NUM_PARTICLES * sizeof(Particle));
+		cudaMalloc(&d_particles, n * sizeof(Particle));
 
 		cudaMalloc(&d_n, sizeof(int));
 
-		cudaMemcpy(d_particles, particles.data(), NUM_PARTICLES * sizeof(Particle), cudaMemcpyHostToDevice);
+		cudaMemcpy(d_particles, particles.data(), n * sizeof(Particle), cudaMemcpyHostToDevice);
 		cudaMemcpy(d_n, &n, sizeof(int), cudaMemcpyHostToDevice);
 		particlesOnGPU = true;
 	}
 
-	verletUpdatePosition<<<1, NUM_THREADS>>>(d_particles, d_n);
+	//verletUpdatePosition<<<1, NUM_THREADS>>>(d_particles, d_n);
 
-	computeDensityAndPressureGPU << <1, NUM_THREADS >> > (d_particles, d_n);
+	//computeDensityAndPressureGPU << <1, NUM_THREADS >> > (d_particles, d_n);
 
 	
-	computeForcesGPU << <1, NUM_THREADS >> > (d_particles, d_n);
+	//computeForcesGPU << <1, NUM_THREADS >> > (d_particles, d_n);
 	
-	timeIntegrationGPU << <1, NUM_THREADS >> > (d_particles, d_n);
+	//timeIntegrationGPU << <1, NUM_THREADS >> > (d_particles, d_n);
 
 	cudaDeviceSynchronize();
 
-	cudaMemcpy(particles.data(), d_particles, NUM_PARTICLES * sizeof(Particle), cudaMemcpyDeviceToHost);*/
+	cudaMemcpy(particles.data(), d_particles, n * sizeof(Particle), cudaMemcpyDeviceToHost);
 
 
 }
