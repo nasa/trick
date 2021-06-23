@@ -91,8 +91,8 @@ __global__ void verletUpdatePosition(Particle* particles, int* n) {
 		pi.pos += DT * pi.velocity;
 	}
 }
-
-__global__ void timeIntegrationGPU(Particle* particles, int* n) {
+*/
+__global__ void timeIntegrationGPU(Particle* particles, int* n, Fluid* fluid) {
 	int tid = threadIdx.x;
 	// assuming n is a multiple of NUM_THREADS
 	int block_size = *n / NUM_THREADS;
@@ -101,47 +101,46 @@ __global__ void timeIntegrationGPU(Particle* particles, int* n) {
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
 		//pi.pos += DT * pi.velocity;
-		pi.velocity += DT * pi.force / pi.rho;
+		pi.velocity[0] += fluid->DT * pi.force[0] / pi.rho;
+		pi.velocity[1] += fluid->DT * pi.force[1] / pi.rho;
+		pi.velocity[2] += fluid->DT * pi.force[2] / pi.rho;
 
-		if (pi.pos.z - EPS < -BOUND) {
-			pi.velocity.z *= BOUND_DAMPING;
-			pi.pos.z = -BOUND + EPS;
+		if (pi.pos[2] - fluid->EPS < -fluid->BOUND) {
+			pi.velocity[2] *= fluid->BOUND_DAMPING;
+			pi.pos[2] = -fluid->BOUND + fluid->EPS;
 		}
 
-		if (pi.pos.z + EPS > BOUND) {
-			pi.velocity.z *= BOUND_DAMPING;
-			pi.pos.z = BOUND - EPS;
+		if (pi.pos[2] + fluid->EPS > fluid->BOUND) {
+			pi.velocity[2] *= fluid->BOUND_DAMPING;
+			pi.pos[2] = fluid->BOUND - fluid->EPS;
 		}
 
-		if (pi.pos.y - EPS < -BOUND) {
-			pi.velocity.y *= BOUND_DAMPING;
-			pi.pos.y = -BOUND + EPS;
+		if (pi.pos[1] - fluid->EPS < -fluid->BOUND) {
+			pi.velocity[1] *= fluid->BOUND_DAMPING;
+			pi.pos[1] = -fluid->BOUND + fluid->EPS;
 		}
 
-		if (pi.pos.y + EPS > BOUND) {
-			pi.velocity.y *= BOUND_DAMPING;
-			pi.pos.y = BOUND - EPS;
+		if (pi.pos[1] + fluid->EPS > fluid->BOUND) {
+			pi.velocity[1] *= fluid->BOUND_DAMPING;
+			pi.pos[1] = fluid->BOUND - fluid->EPS;
 		}
 
-		if (pi.pos.x - EPS < -BOUND) {
-			pi.velocity.x *= BOUND_DAMPING;
-			pi.pos.x = -BOUND + EPS;
+		if (pi.pos[0] - fluid->EPS < -fluid->BOUND) {
+			pi.velocity[0] *= fluid->BOUND_DAMPING;
+			pi.pos[0] = -fluid->BOUND + fluid->EPS;
 		}
-		if (pi.pos.x + EPS > BOUND) {
-			pi.velocity.x *= BOUND_DAMPING;
-			pi.pos.x = BOUND - EPS;
+		if (pi.pos[0] + fluid->EPS > fluid->BOUND) {
+			pi.velocity[0] *= fluid->BOUND_DAMPING;
+			pi.pos[0] = fluid->BOUND - fluid->EPS;
 		}
 	}
 
-}*/
+}
 
 void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 	int n = fluid->NUM_PARTICLES;
 	
 	if (!particlesOnGPU) {
-
-		
-
 		cudaMalloc(&d_particles, n * sizeof(Particle));
 		cudaMalloc(&d_fluid, sizeof(Fluid));
 		cudaMalloc(&d_n, sizeof(int));
@@ -158,7 +157,7 @@ void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 	
 	computeForcesGPU << <1, NUM_THREADS >> > (d_particles, d_n, d_fluid);
 	
-	//timeIntegrationGPU << <1, NUM_THREADS >> > (d_particles, d_n);
+	timeIntegrationGPU << <1, NUM_THREADS >> > (d_particles, d_n, d_fluid);
 
 	cudaDeviceSynchronize();
 
