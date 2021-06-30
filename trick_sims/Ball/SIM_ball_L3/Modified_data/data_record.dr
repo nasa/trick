@@ -18,19 +18,19 @@ def add_dr_group():
     global DR_GROUP_ID
     global drg
     group_name = "Ball1"
-    drg.append( trick.DRBinary(group_name) )
+    drg.append( trick.DRAscii(group_name) )
     drg[DR_GROUP_ID].set_freq(trick.sim_services.DR_Always)
     drg[DR_GROUP_ID].enable()
     drg[DR_GROUP_ID].set_cycle(0.1)
 
-    drg[DR_GROUP_ID].add_variable("ball.state.output.position[0]")
-    drg[DR_GROUP_ID].add_variable("ball.state.output.position[1]")
-    drg[DR_GROUP_ID].add_variable("ball.state.output.velocity[0]")
-    drg[DR_GROUP_ID].add_variable("ball.state.output.velocity[1]")
-    drg[DR_GROUP_ID].add_variable("ball.state.output.acceleration[0]")
-    drg[DR_GROUP_ID].add_variable("ball.state.output.acceleration[1]")
-    drg[DR_GROUP_ID].add_variable("ball.state.output.external_force[0]")
-    drg[DR_GROUP_ID].add_variable("ball.state.output.external_force[1]")
+    drg[DR_GROUP_ID].add_variable("ball1.state.output.position[0]")
+    drg[DR_GROUP_ID].add_variable("ball1.state.output.position[1]")
+    drg[DR_GROUP_ID].add_variable("ball1.state.output.velocity[0]")
+    drg[DR_GROUP_ID].add_variable("ball1.state.output.velocity[1]")
+    drg[DR_GROUP_ID].add_variable("ball1.state.output.acceleration[0]")
+    drg[DR_GROUP_ID].add_variable("ball1.state.output.acceleration[1]")
+    drg[DR_GROUP_ID].add_variable("ball1.state.output.external_force[0]")
+    drg[DR_GROUP_ID].add_variable("ball1.state.output.external_force[1]")
     drg[DR_GROUP_ID].add_variable("ball2.state.output.position[0]")
     drg[DR_GROUP_ID].add_variable("ball2.state.output.position[1]")
     drg[DR_GROUP_ID].add_variable("ball2.state.output.velocity[0]")
@@ -61,12 +61,12 @@ def add_dr_group():
     global DR_GROUP_ID
     global drg
     group_name = "BallControl"
-    drg.append( trick.sim_services.DRBinary(group_name) )
+    drg.append( trick.sim_services.DRAscii(group_name) )
     drg[DR_GROUP_ID].set_freq(trick.sim_services.DR_Always)
     drg[DR_GROUP_ID].enable()
     drg[DR_GROUP_ID].set_cycle(0.02)
 
-    drg[DR_GROUP_ID].add_variable("ball.altimeter.output.altitude")
+    drg[DR_GROUP_ID].add_variable("ball1.altimeter.output.altitude")
     drg[DR_GROUP_ID].add_variable("ball2.altimeter.output.altitude")
 
     trick_data_record.drd.add_group( drg[DR_GROUP_ID], trick.DR_Buffer )

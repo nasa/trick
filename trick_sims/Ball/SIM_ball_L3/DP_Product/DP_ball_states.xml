@@ -17,11 +17,11 @@
             </yaxis>
             <curve>
                 <var label="Time" units="s">sys.exec.out.time</var>
-                <var gnuplot_line_style="lines" label="X Pos" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">ball.state.output.position[0]</var>
+                <var gnuplot_line_style="lines" label="X Pos" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">ball1.state.output.position[0]</var>
             </curve>
             <curve>
                 <var label="Time" units="s">sys.exec.out.time</var>
-                <var gnuplot_line_style="lines" label="Y Pos" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m">ball.state.output.position[1]</var>
+                <var gnuplot_line_style="lines" label="Y Pos" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m">ball1.state.output.position[1]</var>
             </curve>
             <curve>
                 <var units="s">sys.exec.out.time</var>
@@ -42,11 +42,11 @@
             </yaxis>
             <curve>
                 <var label="Time" units="s">sys.exec.out.time</var>
-                <var gnuplot_line_style="lines" label="X Vel" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s">ball.state.output.velocity[0]</var>
+                <var gnuplot_line_style="lines" label="X Vel" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s">ball1.state.output.velocity[0]</var>
             </curve>
             <curve>
                 <var label="Time" units="s">sys.exec.out.time</var>
-                <var gnuplot_line_style="lines" label="Y Vel" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m/s">ball.state.output.velocity[1]</var>
+                <var gnuplot_line_style="lines" label="Y Vel" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m/s">ball1.state.output.velocity[1]</var>
             </curve>
             <curve>
                 <var label="Time" units="s">sys.exec.out.time</var>
@@ -67,11 +67,11 @@
             </yaxis>
             <curve>
                 <var label="Time" units="s">sys.exec.out.time</var>
-                <var gnuplot_line_style="lines" label="X Acc" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">ball.state.output.acceleration[0]</var>
+                <var gnuplot_line_style="lines" label="X Acc" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">ball1.state.output.acceleration[0]</var>
             </curve>
             <curve>
                 <var label="Time" units="s">sys.exec.out.time</var>
-                <var gnuplot_line_style="lines" label="Y Acc" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m/s2">ball.state.output.acceleration[1]</var>
+                <var gnuplot_line_style="lines" label="Y Acc" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m/s2">ball1.state.output.acceleration[1]</var>
             </curve>
             <curve>
                 <var label="Time" units="s">sys.exec.out.time</var>
@@ -94,8 +94,8 @@
                 <label>Y Pos</label>
             </yaxis>
             <curve>
-                <var label="X Pos" units="m">ball.state.output.position[0]</var>
-                <var gnuplot_line_style="lines" label="Y Pos" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">ball.state.output.position[1]</var>
+                <var label="X Pos" units="m">ball1.state.output.position[0]</var>
+                <var gnuplot_line_style="lines" label="Y Pos" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">ball1.state.output.position[1]</var>
             </curve>
         </plot>
         <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
@@ -107,8 +107,8 @@
                 <label>Y Vel</label>
             </yaxis>
             <curve>
-                <var label="X Vel" units="m/s">ball.state.output.velocity[0]</var>
-                <var gnuplot_line_style="lines" label="Y Vel" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s">ball.state.output.velocity[1]</var>
+                <var label="X Vel" units="m/s">ball1.state.output.velocity[0]</var>
+                <var gnuplot_line_style="lines" label="Y Vel" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s">ball1.state.output.velocity[1]</var>
             </curve>
         </plot>
         <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
@@ -120,8 +120,8 @@
                 <label>Y Accel</label>
             </yaxis>
             <curve>
-                <var units="m/s2">ball.state.output.acceleration[0]</var>
-                <var gnuplot_line_style="lines" label="Y Acc" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">ball.state.output.acceleration[1]</var>
+                <var units="m/s2">ball1.state.output.acceleration[0]</var>
+                <var gnuplot_line_style="lines" label="Y Acc" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">ball1.state.output.acceleration[1]</var>
             </curve>
         </plot>
         <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">

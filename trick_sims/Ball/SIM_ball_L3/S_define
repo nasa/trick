@@ -19,6 +19,8 @@ LIBRARY DEPENDENCIES:
      (ball/L2/src/ball_state_deriv.c)
      (ball/L2/src/ball_state_init.c)
      (ball/L2/src/ball_state_integ.c)
+     (ball/L3/src/ball_ensemble_integ.c)
+     (ball/L3/src/ball_ensemble_collision.c)
     )
 *************************************************************/
 
@@ -29,29 +31,23 @@ LIBRARY DEPENDENCIES:
 ##include "ball/L2/include/ball_control.h"
 ##include "ball/L2/include/ball_jet.h"
 ##include "ball/L2/include/ball_state.h"
+##include "ball/L3/include/ball_ensemble.h"
 
 %{
 
 // Allow C++ access to the these C functions
 extern "C" {
-
     int ball_altimeter(BALT*,double*) ;
     int ball_altimeter_default_data(BALT*) ;
-    double ball_ceiling(BSTATE*) ;
     int ball_control(BCONTROL*,double) ;
-    double ball_floor(BSTATE*) ;
     int ball_force_default_data(BFORCE*) ;
     int ball_force_field(BFORCE*,double*) ;
     int ball_jet(BJET*,Flag*) ;
-    double ball_left_wall(BSTATE*) ;
-    double ball_right_wall(BSTATE*) ;
     int ball_state_default_data(BSTATE*) ;
     int ball_state_deriv(BSTATE*) ;
     int ball_state_init(BSTATE*) ;
-    int ball_state_integ(BSTATE*) ;
     int ball_jet_default_data(BJET*) ;
     int ball_control_default_data(BCONTROL*) ;
-
 }
 
 %}
@@ -83,38 +79,47 @@ class ballSimObject : public Trick::SimObject {
             // EOM DERIVATIVE AND STATE INTEGRATION JOBS
             ("derivative") ball_force_field( &force, state.output.position ) ;
             ("derivative") ball_state_deriv( &state ) ;
-            ("integration") ball_state_integ( &state ) ;
-
-            // DYNAMIC EVENT JOBS
-            ("dynamic_event") ball_floor( &state ) ;
-            ("dynamic_event") ball_right_wall( &state ) ;
-            ("dynamic_event") ball_ceiling( &state ) ;
-            ("dynamic_event") ball_left_wall( &state ) ;
 
             // ALTITUDE SENSING, CONTROL, AND EFFECTING
             (0.01, "sensor") ball_altimeter( &altimeter, &state.output.position[1] ) ;
             (0.01, "scheduled") ball_control( &control, altimeter.output.altitude ) ;
             (0.01, "effector") ball_jet( &jet, &control.output.jet_command[0] );
         }
-
 } ;
 
 // Instantiations
-ballSimObject ball ;
+ballSimObject ball1 ;
 ballSimObject ball2 ;
 
-collect ball.state.work.external_force  = { ball.force.output.force[0] ,
-                                            ball.jet.output.force[0] } ;
+class ensembleSimObject : public Trick::SimObject {
+
+    public:
+    BSTATE* states[2];
+    ensembleSimObject () {
+        ("integration") ball_ensemble_integ( states ) ;
+        ("dynamic_event") ball_ensemble_collision( states ) ;
+    }
+} ;
+
+// Instantiation
+ensembleSimObject ensemble;
+
+collect ball1.state.work.external_force = { ball1.force.output.force[0] ,
+                                            ball1.jet.output.force[0] } ;
 collect ball2.state.work.external_force = { ball2.force.output.force[0] ,
                                             ball2.jet.output.force[0] } ;
 
-IntegLoop my_integ_loop (0.01) ball, ball2;
+IntegLoop my_integ_loop (0.01) ball1, ball2, ensemble ;
 
 
 // Connect objects
 void create_connections() {
 
     exec_set_freeze_frame(0.10) ;
-    my_integ_loop.getIntegrator(Runge_Kutta_2, 4);
 
+    /* We are integrating the ensemble; that is, ball1 and ball2 at the same time. */
+    my_integ_loop.getIntegrator(Runge_Kutta_4, 8);
+
+    ensemble.states[0] = &(ball1.state);
+    ensemble.states[1] = &(ball2.state);
 }

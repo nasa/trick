@@ -11,11 +11,11 @@
             <title>Ball X,Y External Forces</title>
             <curve>
                 <var label="time" units="s">sys.exec.out.time</var>
-                <var gnuplot_line_style="lines" label="external_force" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="N">ball.state.output.external_force[0]</var>
+                <var gnuplot_line_style="lines" label="external_force" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="N">ball1.state.output.external_force[0]</var>
             </curve>
             <curve>
                 <var label="time" units="s">sys.exec.out.time</var>
-                <var gnuplot_line_style="lines" label="Y Force" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="N">ball.state.output.external_force[1]</var>
+                <var gnuplot_line_style="lines" label="Y Force" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="N">ball1.state.output.external_force[1]</var>
             </curve>
             <curve>
                 <var label="time" units="s">sys.exec.out.time</var>
@@ -35,8 +35,8 @@
                 <label>Y Force</label>
             </yaxis>
             <curve>
-                <var label="X Force" units="N">ball.state.output.external_force[0]</var>
-                <var gnuplot_line_style="lines" label="Y Force" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="N">ball.state.output.external_force[1]</var>
+                <var label="X Force" units="N">ball1.state.output.external_force[0]</var>
+                <var gnuplot_line_style="lines" label="Y Force" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="N">ball1.state.output.external_force[1]</var>
             </curve>
             <curve>
                 <var label="X Force" units="N">ball2.state.output.external_force[0]</var>
