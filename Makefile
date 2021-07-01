@@ -154,6 +154,8 @@ all: webserver
 icg_sim_serv: ${TRICK_HOME}/include/mongoose/mongoose.h
 ICG: ${TRICK_HOME}/include/mongoose/mongoose.h
 endif
+
+all: civetweb
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
 no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
@@ -222,6 +224,24 @@ dp: ${TRICK_HOME}/trick_source/trick_utils/units
 .PHONY: webserver
 webserver: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_HOME}/include/mongoose/mongoose.h
 	$(MAKE) -C ${TRICK_HOME}/trick_source/web/HttpServer
+
+
+CIVET_CLONE_DIR = civetweb_clone
+
+.PHONY: civetweb
+civetweb: ${TRICK_LIB_DIR}/libcivetweb.a 
+	$(MAKE) -C ${TRICK_HOME}/trick_source/web/CivetServer
+
+${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR} 
+	cp ${CIVET_CLONE_DIR}/libcivetweb.a $(TRICK_LIB_DIR)/libcivetweb.a
+	mkdir -p ${TRICK_HOME}/include/civet/
+	cp ${CIVET_CLONE_DIR}/include/civetweb.h ${TRICK_HOME}/include/civet/civetweb.h
+	cp ${CIVET_CLONE_DIR}/include/CivetServer.h ${TRICK_HOME}/include/civet/CivetServer.h	
+
+${CIVET_CLONE_DIR}:
+	git clone https://github.com/civetweb/civetweb.git $@	
+	cd ${CIVET_CLONE_DIR} && make lib WITH_CPP=1 WITH_WEBSOCKET=1 NO_SSL=1
+
 
 #-------------------------------------------------------------------------------
 
