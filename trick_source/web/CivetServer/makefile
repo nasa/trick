@@ -30,12 +30,12 @@ TRICK_HTTP_OBJS = \
 ##                            MODEL TARGETS                                ##
 #############################################################################
 
-all: ${TRICK_LIB_DIR}/libtrickHTTP.a
+all: ${TRICK_LIB_DIR}/libtrickCivet.a
 
 $(TRICK_HTTP_OBJS): $(OBJDIR)/%.o : src/%.cpp | $(OBJDIR)
 	$(CPP) $(CPPFLAGS) ${TRICK_SYSTEM_CXXFLAGS} ${INCLUDE_DIRS} -c $< -o $@
 
-${TRICK_LIB_DIR}/libtrickHTTP.a: ${TRICK_HTTP_OBJS}
+${TRICK_LIB_DIR}/libtrickCivet.a: ${TRICK_HTTP_OBJS}
 	ar crs $@ ${TRICK_HTTP_OBJS}
 
 # ---------------------------------------------------------------------------

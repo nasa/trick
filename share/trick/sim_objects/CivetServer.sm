@@ -1,0 +1,27 @@
+/************************TRICK HEADER*************************
+PURPOSE: 
+    (Trick HTTP Server)
+LIBRARY DEPENDENCIES:
+    (
+     (/home/cherpin/git/trick/trick_source/web/HttpServer/src/CivetServer.cpp)
+    )
+
+*************************************************************/
+##include "trick/CivetServer.hh"
+
+class MyCivetServerSimObject : public Trick::SimObject {
+
+    public:
+        MyCivetServer server ;
+
+        MyCivetServerSimObject() {
+            ("default_data") server.default_data() ;
+            ("initialization") server.init() ;
+            ("freeze") server.http_top_of_frame() ;
+            ("top_of_frame") server.http_top_of_frame() ;
+            ("shutdown") server.shutdown() ;
+        }
+};
+
+MyCivetServerSimObject web;
+
