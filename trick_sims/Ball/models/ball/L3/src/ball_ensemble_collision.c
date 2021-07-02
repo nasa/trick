@@ -19,7 +19,8 @@ double ball_ensemble_collision( BSTATE * states[2] ) {
     double event_tgo;
     event_tgo = BIG_TGO;
 
-    for (int i=0 ; i < 2 ; i++) {
+    int i;
+    for (i=0 ; i<2 ; i++) {
         tgo = ball_ceiling( states[i]);
         if (tgo < event_tgo) event_tgo = tgo;
         tgo = ball_floor( states[i] ) ;
