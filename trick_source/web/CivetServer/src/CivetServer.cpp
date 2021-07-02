@@ -21,7 +21,7 @@ PURPOSE: (Represent the state and initial conditions for my server)
 
 #include "civet/CivetServer.h"
 #include "civet/civetweb.h"
-// #include "handlers.cpp"
+#include "../include/http_GET_handlers.hh"
 
 
 void MyCivetServer::deleteWebSocketSession(struct mg_connection * nc) {
@@ -53,10 +53,10 @@ void* start_civet(void* obj)
 		std::cout << "ERROR: Could not create server." << std::endl;
 	}
 
-	// mg_set_request_handler(server->ctx, "/api/http/vs_connections", handle_HTTP_GET_vs_connections, NULL);
-	// mg_set_request_handler(server->ctx, "/api/http/alloc_info", handle_HTTP_GET_alloc_info, NULL);
+	mg_set_request_handler(server->ctx, "/api/http/vs_connections", handle_HTTP_GET_vs_connections, NULL);
+	mg_set_request_handler(server->ctx, "/api/http/alloc_info", handle_HTTP_GET_alloc_info, NULL);
 
-	// mg_set_websocket_handler(server->ctx, "/api/ws/VariableServer", ws_connect_handler, ws_ready_handler, ws_data_handler, ws_close_handler, obj);
+	mg_set_websocket_handler(server->ctx, "/api/ws/VariableServer", ws_connect_handler, ws_ready_handler, ws_data_handler, ws_close_handler, obj);
 
 }
 

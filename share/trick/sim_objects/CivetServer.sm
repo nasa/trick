@@ -24,4 +24,3 @@ class MyCivetServerSimObject : public Trick::SimObject {
 };
 
 MyCivetServerSimObject web;
-
