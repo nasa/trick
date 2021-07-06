@@ -103,5 +103,6 @@
 #include "trick/WebServer.hh"
 #include "trick/WebSocketSession.hh"
 #endif
+#include "trick/CivetServer.hh"
 
 #endif
