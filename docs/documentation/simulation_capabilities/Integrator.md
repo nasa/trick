@@ -85,9 +85,9 @@ If a developer wishes to use their own integration scheme, then the <i> integrat
 should be reviewed so that the proper interfaces can be maintained.  The <i> integrate() </i> source code is
 located in the ${TRICK_HOME}/trick_source/sim_services/integ/integrate.c file.
 
-@section LEVEL3 Integrator Control Inputs
+Integrator Control Inputs
 There can be any number of <i> integration </i> class jobs listed within the S_define file;
-each integration job should have an associated <i> INTEGRATOR </i> data structure declaration.
+each integration job should have an associated <i> IntegLoop </i> declaration.
 The available inputs for state integration control are listed in Table 18.
 
 Table 18 State Integration Control Inputs
