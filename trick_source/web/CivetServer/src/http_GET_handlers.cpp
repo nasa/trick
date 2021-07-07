@@ -17,6 +17,9 @@ extern Trick::VariableServer * the_vs ;
 #include "trick/MemoryManager.hh"
 extern Trick::MemoryManager* trick_MM;
 
+static const std::string ws_api_prefix = "/api/ws";
+static const std::string ws_http_prefix = "/api/http";
+
 void http_send(struct mg_connection *conn, const char* msg, int len, int chunk_size) {
     int size = len;
     int count = 0;
@@ -36,7 +39,51 @@ void http_send(struct mg_connection *conn, const char* msg, int len, int chunk_s
 
 ///// HTTP
 
-int handle_HTTP_GET_vs_connections(struct mg_connection* conn, void *cbdata) {
+
+int parent_http_handler(struct mg_connection* conn, void *data) {
+    std::cout << "Parent handler called" << std::endl;
+    MyCivetServer* server = (MyCivetServer*)data;
+    const struct mg_request_info* ri = mg_get_request_info(conn);
+    std::string uri = ri->local_uri_raw;
+    if (uri.rfind(ws_http_prefix, 0) == 0) {
+        std::string httpType = uri.substr(ws_http_prefix.size() + 1, uri.size());
+        std::map<std::string, httpMethodHandler>::iterator iter;
+        iter = server->httpGETHandlerMap.find(httpType);
+		if (iter != server->httpGETHandlerMap.end()) {
+			httpMethodHandler handler = iter->second;
+			handler(conn, (void*)data);
+		} else {
+            mg_printf(conn,
+	          "HTTP/1.1 200 OK\r\nConnection: "
+	          "close\r\nTransfer-Encoding: chunked\r\n");
+	        mg_printf(conn, "Content-Type: text/plain\r\n\r\n");    
+            std::stringstream ss;
+            ss << "Error: http api " << httpType << " is not implemented.";
+            http_send(conn, ss.str().c_str(), ss.str().size(), 100);
+        }
+        return 200;
+    } else {
+        mg_printf(conn,
+	          "HTTP/1.1 200 OK\r\nConnection: "
+	          "close\r\nTransfer-Encoding: chunked\r\n");
+	    mg_printf(conn, "Content-Type: text/plain\r\n\r\n");
+        std::stringstream ss;
+        ss << "Error: invalid url.";
+        http_send(conn, ss.str().c_str(), ss.str().size(), 100);
+        return 404;
+    }
+}
+
+void handle_hello_world(struct mg_connection* conn, void* ignore) {
+    mg_printf(conn,
+	          "HTTP/1.1 200 OK\r\nConnection: "
+	          "close\r\nTransfer-Encoding: chunked\r\n");
+	mg_printf(conn, "Content-Type: text/plain\r\n\r\n");
+    std::string msg = "Hello world";
+    http_send(conn, msg.c_str(), msg.size(), 100);
+}
+
+void handle_HTTP_GET_vs_connections(struct mg_connection* conn, void *cbdata) {
     mg_printf(conn,
 	          "HTTP/1.1 200 OK\r\nConnection: "
 	          "close\r\nTransfer-Encoding: chunked\r\n");
@@ -47,10 +94,9 @@ int handle_HTTP_GET_vs_connections(struct mg_connection* conn, void *cbdata) {
     std::string someJSON = ss.str();
 
     http_send(conn, someJSON.c_str(), someJSON.length(), 100);
-    return 200;
 }
 
-int handle_HTTP_GET_alloc_info(struct mg_connection *conn, void* ignore) {
+void handle_HTTP_GET_alloc_info(struct mg_connection *conn, void* ignore) {
     mg_printf(conn,
 	          "HTTP/1.1 200 OK\r\nConnection: "
 	          "close\r\nTransfer-Encoding: chunked\r\n");
@@ -70,7 +116,6 @@ int handle_HTTP_GET_alloc_info(struct mg_connection *conn, void* ignore) {
 
     http_send(conn, someJSON.c_str(), someJSON.length(), 100);
 
-    return 200;
 }
 
 ///// websockets
@@ -110,8 +155,15 @@ int ws_connect_handler(const struct mg_connection *conn,
 void ws_ready_handler(struct mg_connection *conn, void *my_server)
 {
 	MyCivetServer* server = (MyCivetServer*) my_server;
-	WebSocketSession* session = server->makeWebSocketSession(conn, "VariableServer"); //TODO: Make this dynamic
-	server->addWebSocketSession(conn, session);
+    const struct mg_request_info* ri = mg_get_request_info(conn);
+    std::string uri = ri->local_uri_raw;
+    if (uri.rfind(ws_api_prefix, 0) == 0) {
+        std::string wsType = uri.substr(ws_api_prefix.size() + 1, uri.size());
+	    WebSocketSession* session = server->makeWebSocketSession(conn, wsType);
+	    server->addWebSocketSession(conn, session);
+    } else {
+        std::cout << "Trick Webserver: WEBSOCKET_REQUEST: URI does not start with API prefix.\n" << std::endl;
+    }
 }	
 
 int ws_data_handler(struct mg_connection *conn, int bits,
@@ -140,12 +192,4 @@ void ws_close_handler(const struct mg_connection *conn,
 {
 	MyCivetServer* server = (MyCivetServer*) my_server;
 	server->deleteWebSocketSession(const_cast<mg_connection*>(conn));
-}
-
-//Hooks
-
-int begin_request(struct mg_connection* conn) {
-    std::cout << "Processing request" << std::endl;
-    // std::cin.get();
-    return 0;
 }
