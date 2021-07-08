@@ -19,11 +19,11 @@ typedef void (*httpMethodHandler)(struct mg_connection *, void* cbdata);
 class MyCivetServer {
     public:
 
-        unsigned int port;
-        bool enable;
-        bool debug;
+        unsigned int port; 
+        bool enable;       
+        bool debug;        
 
-        struct mg_context *ctx;
+        struct mg_context *ctx; /* ** civetweb */
 
         // Trick Job-Functins
         int default_data();
@@ -33,8 +33,6 @@ class MyCivetServer {
         int http_top_of_frame();
 
         //TODO: Make these private and fix threading design issue
-        // std::mutex mtx;
-        // std::unordered_set<crow::websocket::connection*> connections;
         pthread_t server_thread;                                                /* ** */
         bool sessionDataMarshalled;                                             /* ** */
         pthread_mutex_t lock_loop;                                              /* ** */
