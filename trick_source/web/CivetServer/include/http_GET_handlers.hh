@@ -8,8 +8,10 @@ LIBRARY DEPENDENCIES:
 
 #include "civet/CivetServer.h"
 
-int handle_HTTP_GET_vs_connections(struct mg_connection *nc, void* cbdata);
-int handle_HTTP_GET_alloc_info(struct mg_connection *nc, void* ignore);
+int parent_http_handler(struct mg_connection* conn, void *cbdata);
+void handle_hello_world(struct mg_connection* conn, void* ignore);
+void handle_HTTP_GET_vs_connections(struct mg_connection *nc, void* cbdata);
+void handle_HTTP_GET_alloc_info(struct mg_connection *nc, void* ignore);
 
 int echo_connect_handler(const struct mg_connection *conn,
 				     void *cbdata);
@@ -34,5 +36,6 @@ int ws_data_handler(struct mg_connection *conn, int bits,
 void ws_close_handler(const struct mg_connection *conn,
 				    void *my_server);
 
+int begin_request(struct mg_connection* conn);
 
 #endif

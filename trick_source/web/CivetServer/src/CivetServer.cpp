@@ -1,6 +1,8 @@
 /************************************************************************
 PURPOSE: (Represent the state and initial conditions for my server)
 **************************************************************************/
+
+
 #include <sys/stat.h> // for mkdir()
 #include <unistd.h>   // for symlink(), access()
 #include <stdlib.h>   // for getenv()
@@ -23,6 +25,7 @@ PURPOSE: (Represent the state and initial conditions for my server)
 #include "civet/civetweb.h"
 #include "../include/http_GET_handlers.hh"
 
+pthread_mutex_t lock_requests;
 
 void MyCivetServer::deleteWebSocketSession(struct mg_connection * nc) {
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
@@ -37,10 +40,12 @@ void MyCivetServer::deleteWebSocketSession(struct mg_connection * nc) {
 void* start_civet(void* obj)
 {
 	MyCivetServer* server = (MyCivetServer*)obj;
+
 	mg_init_library(0);
 
 	struct mg_callbacks callbacks;
 	memset(&callbacks, 0, sizeof(callbacks));
+    callbacks.begin_request = begin_request;
 
 	std::string port = std::to_string(server->port);
 	const char*options[] = {
@@ -53,9 +58,8 @@ void* start_civet(void* obj)
 		std::cout << "ERROR: Could not create server." << std::endl;
 	}
 
-	mg_set_request_handler(server->ctx, "/api/http/vs_connections", handle_HTTP_GET_vs_connections, NULL);
-	mg_set_request_handler(server->ctx, "/api/http/alloc_info", handle_HTTP_GET_alloc_info, NULL);
 
+    mg_set_request_handler(server->ctx, "/api/http", parent_http_handler, (void*)server);
 	mg_set_websocket_handler(server->ctx, "/api/ws/VariableServer", ws_connect_handler, ws_ready_handler, ws_data_handler, ws_close_handler, obj);
 
 }
@@ -78,11 +82,24 @@ int MyCivetServer::default_data() {
     debug = true;
 	sessionDataMarshalled = false;
 
-	pthread_mutex_lock(&WebSocketSessionMakerMapLock);
-	WebSocketSessionMakerMap.insert(std::pair<std::string, WebSocketSessionMaker>("VariableServer", makeVariableServerSession));
-	pthread_mutex_unlock(&WebSocketSessionMakerMapLock);
+    installWebSocketSessionMaker("VariableServer", makeVariableServerSession);
+    installHTTPGEThandler("test", handle_hello_world);
+    installHTTPGEThandler("vs_connections", handle_HTTP_GET_vs_connections);
+    installHTTPGEThandler("alloc_info", handle_HTTP_GET_alloc_info);
     
     return 0;
+}
+
+void MyCivetServer::installHTTPGEThandler(std::string handlerName, httpMethodHandler handler) {
+    pthread_mutex_lock(&httpGETHandlerMapLock);
+    httpGETHandlerMap.insert(std::pair<std::string, httpMethodHandler>(handlerName, handler));
+    pthread_mutex_unlock(&httpGETHandlerMapLock);
+}
+
+void MyCivetServer::installWebSocketSessionMaker(std::string name, WebSocketSessionMaker maker) {
+    pthread_mutex_lock(&WebSocketSessionMakerMapLock);
+    WebSocketSessionMakerMap.insert(std::pair<std::string, WebSocketSessionMaker>(name, maker));
+    pthread_mutex_unlock(&WebSocketSessionMakerMapLock);
 }
 
 void MyCivetServer::addWebSocketSession(struct mg_connection *nc, WebSocketSession* session) {
@@ -104,7 +121,8 @@ void* main_loop(void* S) {
 	std::cout << "Starting main loop" << std::endl;
 	while(1) {
 		pthread_mutex_lock(&server->lock_loop);
-
+        pthread_mutex_unlock(&lock_requests);
+        // std::cout << "Entering loop." << std::endl;
 		if (!server->sessionDataMarshalled) {
 			server->marshallWebSocketSessionData();
 		}
@@ -216,5 +234,25 @@ int MyCivetServer::shutdown() {
 
 int MyCivetServer::join() {
     pthread_join(server_thread, NULL);
+    return 0;
+}
+
+
+pthread_mutex_t conn_map_lock;
+std::map<struct mg_connection*, int> g_conn_map;
+int last_conn_id = 0;
+
+int begin_request(struct mg_connection* conn) {
+    pthread_mutex_lock(&lock_requests);
+
+    pthread_mutex_lock(&conn_map_lock);
+	g_conn_map.insert(std::pair<struct mg_connection*, int>(conn, last_conn_id));
+    last_conn_id++;
+    pthread_mutex_unlock(&conn_map_lock);
+    
+    std::map<struct mg_connection*, int>::iterator iter;
+    iter = g_conn_map.find(conn);
+    int id = iter->second;
+    std::cout << "Processing request: " << id << std::endl;
     return 0;
 }
