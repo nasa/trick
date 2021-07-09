@@ -8,13 +8,13 @@
 std::vector<float> receiveParticlePositions(int sockfd) {
 	std::vector<float> positions;
 	
-	char* pause_cmd = "trick.var_pause()\n";
+	char pause_cmd[] = "trick.var_pause()\n";
 	send(sockfd, pause_cmd, strlen(pause_cmd), 0);
-	char* ascii_cmd = "trick.var_ascii()\n";
+	char ascii_cmd[] = "trick.var_ascii()\n";
 	send(sockfd, ascii_cmd, strlen(ascii_cmd), 0);
-	char* var_cmd = "trick.var_add(\"dyn.fluid.NUM_PARTICLES\")\n";
+	char var_cmd[] = "trick.var_add(\"dyn.fluid.NUM_PARTICLES\")\n";
 	send(sockfd, var_cmd, strlen(var_cmd), 0);
-	char* unpause_cmd = "trick.var_unpause()\n";
+	char unpause_cmd[] = "trick.var_unpause()\n";
 	send(sockfd, unpause_cmd, strlen(unpause_cmd), 0);
 	
 	int BUF_SIZE = 1024;
