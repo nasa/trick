@@ -4,7 +4,7 @@
 #include <cstring>
 #include <stdio.h>
 #include <stdlib.h>
-#include <vector>
+#include "client.h"
 
 // return socket file descriptor of Trick variable server
 int setupComm() {
@@ -19,7 +19,7 @@ int setupComm() {
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	
-	if((status = getaddrinfo("127.0.0.1", "45705", &hints, &servinfo)) != 0) {
+	if((status = getaddrinfo("127.0.0.1", "46589", &hints, &servinfo)) != 0) {
 		
 	}
 	//for(p = servinfo; p != NULL; p = p->ai_next) {
@@ -113,7 +113,7 @@ std::vector<float> receiveParticlePositions(int sockfd) {
 	/* End parsing positions*/ 
 	for(int i = 0; i < positions.size() / 2; i++) {
 		
-		printf("Particle %d: (%f, %f)\n", i, positions[2 * i], positions[2 * i + 1]);
+		//printf("Particle %d: (%f, %f)\n", i, positions[2 * i], positions[2 * i + 1]);
 	}
 
 
@@ -121,7 +121,7 @@ std::vector<float> receiveParticlePositions(int sockfd) {
 	
 	return positions;
 }
-
+/*
 int main() {
 	int sockfd = setupComm();
 	
@@ -130,4 +130,4 @@ int main() {
 	return 0;
 
 	
-}
+}*/
