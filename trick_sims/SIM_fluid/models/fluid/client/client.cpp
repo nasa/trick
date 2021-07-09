@@ -6,6 +6,28 @@
 #include <stdlib.h>
 #include <vector>
 
+// return socket file descriptor of Trick variable server
+int setupComm() {
+	int status;
+	struct addrinfo hints;
+	struct addrinfo *servinfo;
+	struct addrinfo *p;
+	int sockfd;
+	
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+	
+	if((status = getaddrinfo("127.0.0.1", "45705", &hints, &servinfo)) != 0) {
+		
+	}
+	//for(p = servinfo; p != NULL; p = p->ai_next) {
+	sockfd = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
+	connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen);
+
+	return sockfd;
+}
 
 std::vector<float> receiveParticlePositions(int sockfd) {
 	std::vector<float> positions;
@@ -101,23 +123,7 @@ std::vector<float> receiveParticlePositions(int sockfd) {
 }
 
 int main() {
-	int status;
-	struct addrinfo hints;
-	struct addrinfo *servinfo;
-	struct addrinfo *p;
-	int sockfd;
-	
-	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_UNSPEC;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_flags = AI_PASSIVE;
-	
-	if((status = getaddrinfo("127.0.0.1", "45705", &hints, &servinfo)) != 0) {
-		
-	}
-	//for(p = servinfo; p != NULL; p = p->ai_next) {
-	sockfd = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
-	connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen);
+	int sockfd = setupComm();
 	
 	receiveParticlePositions(sockfd);
 	
