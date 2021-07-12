@@ -28,22 +28,23 @@ const static float VISC_LAP = 45.f / (M_PI * pow(H, 6.f));
 
 // number of particles on the edge of the square
 const static int EDGE_NUM_PARTICLES = 32;
-const static int PARTICLE_DEPTH = 1;
+const static int PARTICLE_DEPTH = 2;
 const static int NUM_PARTICLES = PARTICLE_DEPTH * EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES;
 const static float PARTICLE_DIST = 5;
 
 // rigid body parameters
-const static int EDGE_NUM_RIGID_PARTICLES = 10;
-const static int PARTICLE_HEIGHT = 1;
+/*
+const static int EDGE_NUM_RIGID_PARTICLES = 8;
+const static int PARTICLE_HEIGHT = 8;
 const static int NUM_RIGID_PARTICLES = PARTICLE_HEIGHT * EDGE_NUM_RIGID_PARTICLES * EDGE_NUM_RIGID_PARTICLES;
 const static float RIGID_DAMPING = -1.f;
-const static float RIGID_PARTICLE_DIST = 2;
+const static float RIGID_PARTICLE_DIST = 2;*/
 
 // boundary parameters 
 const static float EPS = H; // boundary epsilon
 const static float BOUND_DAMPING = -.9f;
 
-const static float BOUND = 400;
+const static float BOUND = 100;
 
 // parameters for spatial grid
 const int CELL_SIZE = 2 * H;

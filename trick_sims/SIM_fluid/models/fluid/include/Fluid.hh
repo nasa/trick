@@ -43,8 +43,8 @@ class Fluid {
 		float VISC_LAP = 45.f / (M_PI * std::pow(H, 6.f));
 
 		// number of particles on the edge of the square
-		int EDGE_NUM_PARTICLES = 20;
-		int PARTICLE_DEPTH = 1;
+		int EDGE_NUM_PARTICLES = 32;
+		int PARTICLE_DEPTH = 2;
 		int NUM_PARTICLES = PARTICLE_DEPTH * EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES;
 		float PARTICLE_DIST = 5;
 
@@ -54,7 +54,7 @@ class Fluid {
 		float EPS = H; // boundary epsilon
 		float BOUND_DAMPING = -.9f;
 
-		float BOUND = 400;
+		float BOUND = 300;
 };
 
 #endif
