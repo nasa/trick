@@ -13,26 +13,20 @@ int setupComm() {
 	struct addrinfo *servinfo;
 	struct addrinfo *p;
 	int sockfd;
-	
+
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	
-	if((status = getaddrinfo("127.0.0.1", "46589", &hints, &servinfo)) != 0) {
+	if((status = getaddrinfo("127.0.0.1", "42887", &hints, &servinfo)) != 0) {
 		
 	}
 	//for(p = servinfo; p != NULL; p = p->ai_next) {
 	sockfd = socket(servinfo->ai_family, servinfo->ai_socktype, servinfo->ai_protocol);
 	connect(sockfd, servinfo->ai_addr, servinfo->ai_addrlen);
 
-	return sockfd;
-}
-
-std::vector<float> receiveParticlePositions(int sockfd) {
-	std::vector<float> positions;
-	
-	char pause_cmd[] = "trick.var_pause()\n";
+		char pause_cmd[] = "trick.var_pause()\n";
 	send(sockfd, pause_cmd, strlen(pause_cmd), 0);
 	char ascii_cmd[] = "trick.var_ascii()\n";
 	send(sockfd, ascii_cmd, strlen(ascii_cmd), 0);
@@ -66,28 +60,39 @@ std::vector<float> receiveParticlePositions(int sockfd) {
 	for(int i = 0; i < num_particles; i++) {
 		char pos_x_cmd[BUF_SIZE];
 		char pos_y_cmd[BUF_SIZE];
+		char pos_z_cmd[BUF_SIZE];
 		sprintf(pos_x_cmd, "trick.var_add(\"dyn.fluid.particlesArr[%d].pos[%d]\")\n", i, 0);
 		sprintf(pos_y_cmd, "trick.var_add(\"dyn.fluid.particlesArr[%d].pos[%d]\")\n", i, 1);
+		sprintf(pos_z_cmd, "trick.var_add(\"dyn.fluid.particlesArr[%d].pos[%d]\")\n", i, 2);
 
 		send(sockfd, pos_x_cmd, strlen(pos_x_cmd), 0);
 		send(sockfd, pos_y_cmd, strlen(pos_y_cmd), 0);
+		send(sockfd, pos_z_cmd, strlen(pos_z_cmd), 0);
 	}
 
 	//sprintf(pos_y_cmd, "trick.var_add(\"dyn.fluid.particlesArr[%d].pos[%d]\")\n", i, 1);
 		
 	send(sockfd, unpause_cmd, strlen(unpause_cmd), 0); //unpause comm
 
-	int float_len = 11;
-	int components = 2;
+	return sockfd;
+}
+
+std::vector<float> receiveParticlePositions(int sockfd) {
+	std::vector<float> positions;
+	
+	int num_particles = 2048;
+
+	int float_len = 14;
+	int components = 3;
 	int message_code = 1;
 	int PARTICLE_BUF_SIZE = (num_particles * components + message_code) * float_len;
 	char particle_pos_buf[PARTICLE_BUF_SIZE];
 	
 
 	// found experimentally
-	int PACKET_SIZE = 8188;
+	int PACKET_SIZE = 8100;
 	int offset = 0;
-	numbytes = recv(sockfd, particle_pos_buf + offset, PARTICLE_BUF_SIZE - offset, 0);
+	int numbytes = recv(sockfd, particle_pos_buf + offset, PARTICLE_BUF_SIZE - offset, 0);
 	printf("num bytes: %d | buf size: %d\n", numbytes, PARTICLE_BUF_SIZE);
 	while (numbytes >= PACKET_SIZE) {
 		
@@ -101,7 +106,7 @@ std::vector<float> receiveParticlePositions(int sockfd) {
 	particle_pos_buf[offset] = '\0';
 	/* Parse particle positions */
 	//printf("%s\n", particle_pos_buf);
-	token = strtok(particle_pos_buf, "\t");
+	char* token = strtok(particle_pos_buf, "\t");
 	token = strtok(NULL, "\t");
 	
 	while(token != NULL) {
@@ -111,9 +116,9 @@ std::vector<float> receiveParticlePositions(int sockfd) {
 		token = strtok(NULL, "\t");
 	}
 	/* End parsing positions*/ 
-	for(int i = 0; i < positions.size() / 2; i++) {
+	for(int i = 0; i < 5; i++) {
 		
-		//printf("Particle %d: (%f, %f)\n", i, positions[2 * i], positions[2 * i + 1]);
+		printf("Particle %d: (%f, %f, %f)\n", i, positions[3 * i], positions[3 * i + 1], positions[3 * i + 2]);
 	}
 
 
