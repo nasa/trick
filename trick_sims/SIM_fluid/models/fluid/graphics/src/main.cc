@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
 	}
 
 	/* Initialize SPH simulation state */
-	initSPH();
+	//initSPH();
 	std::vector<float> particle_positions = receiveParticlePositions(sockfd);
 	
 
@@ -323,7 +323,7 @@ int main(int argc, char* argv[])
 			printf("%f\n", time);
 		}*/
 		
-		//particle_positions = receiveParticlePositions(sockfd);
+		particle_positions = receiveParticlePositions(sockfd);
 
 		// Setup TBO
 		glBindBuffer(GL_TEXTURE_BUFFER, sphTBO);
