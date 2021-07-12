@@ -11,3 +11,6 @@ if (os.path.isfile(fluid_graphics_path)) :
 	os.system(fluid_graphics_cmd)
 else :
 	print('Oops! Can\'t find ' + fluid_graphics_path)
+
+trick.var_set_copy_mode(0)	
+trick.var_cycle(0.02)

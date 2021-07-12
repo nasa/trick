@@ -24,7 +24,7 @@ client_socket.send("trick.var_add(\"dyn.fluid.NUM_PARTICLES\")\n".encode())
 client_socket.send("trick.var_unpause()\n".encode())
 line = insock.readline()
 field = line.split("\t")
-print(field)
+#print(field)
 BOUND = int(field[1])
 NUM_PARTICLES = int(field[2])
 HEIGHT = 2 * BOUND
@@ -74,13 +74,13 @@ while (True):
 	# Get position of particle and update it on the canvas
 	for i in range(NUM_PARTICLES):
 		# TODO: calculate correct offset to index into field (one particle is not rendering correctly)
+		y = float(field[2 * i])
 		x = float(field[2 * i + 1])
-		y = float(field[2 * i + 2])
 		cx = x + BOUND
 		cy = HEIGHT - (y + BOUND)
 		canvas.coords(fluidParticles[i], cx - particle_radius, cy - particle_radius, cx + particle_radius, cy+ particle_radius)
 	
-	print(line)
+	#print(line)
 	# Update the Tk graphics
 	tk.update()
 	
