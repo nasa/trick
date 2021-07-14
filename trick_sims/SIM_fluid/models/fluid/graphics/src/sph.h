@@ -27,8 +27,8 @@ const static float SPIKY_GRAD = -45.f / (M_PI * pow(H, 6.f));
 const static float VISC_LAP = 45.f / (M_PI * pow(H, 6.f));
 
 // number of particles on the edge of the square
-const static int EDGE_NUM_PARTICLES = 32;
-const static int PARTICLE_DEPTH = 2;
+const static int EDGE_NUM_PARTICLES = 20;
+const static int PARTICLE_DEPTH = 1;
 const static int NUM_PARTICLES = PARTICLE_DEPTH * EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES;
 const static float PARTICLE_DIST = 5;
 

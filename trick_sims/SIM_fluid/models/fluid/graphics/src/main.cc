@@ -2,7 +2,6 @@
 
 #include "sph.h"
 #include "gui.h"
-#include "custom_client.h"
 
 #include <fstream>
 #include <iostream>
@@ -139,8 +138,6 @@ int main(int argc, char* argv[])
 	std::cout << argv[1] << std::endl;
 	GLFWwindow *window = init_glefw();
 	GUI gui(window, window_width, window_height, preview_height);
-	
-	int sockfd = setupComm();
 
 
 	/* Load particle models from .obj file */
@@ -164,8 +161,8 @@ int main(int argc, char* argv[])
 	}
 
 	/* Initialize SPH simulation state */
-	//initSPH();
-	std::vector<float> particle_positions;
+	initSPH();
+	std::vector<float> particle_positions = getParticlePositions();
 	
 
 	glm::vec4 light_position = glm::vec4(0.0f, 0.0f, BOUND + 10.0f, 1.0f);
@@ -316,14 +313,14 @@ int main(int argc, char* argv[])
 
 		glfwSetWindowTitle(window, title.str().data());
 
-		/*
+		
 		if (!paused) {
 			updateSPH(0, EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES * PARTICLE_DEPTH);
 			time += DT;
 			printf("%f\n", time);
-		}*/
+		}
 		
-		particle_positions = receiveParticlePositions(sockfd);
+		particle_positions = getParticlePositions();
 
 		// Setup TBO
 		glBindBuffer(GL_TEXTURE_BUFFER, sphTBO);
