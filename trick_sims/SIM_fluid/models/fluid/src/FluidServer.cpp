@@ -39,9 +39,29 @@ void FluidServer::initConnection() {
 	clientfd = newfd;
 }
 
-void FluidServer::sendParticleData() {
+void FluidServer::sendParticleData(Fluid* fluid) {
 
+
+	// one packet sent containing all particle position data
+	int PACKET_SIZE = fluid->NUM_PARTICLES * 3 * sizeof(float);
+	char packet[PACKET_SIZE];
+	int packet_offset = 0;
+	/*
+	for (int i = 0; i < fluid->NUM_PARTICLES; i++) {
+		memcpy(packet + packet_offset, &fluid->particles[i].pos[0], sizeof(float));
+		packet_offset += sizeof(float);
+		memcpy(packet + packet_offset, &fluid->particles[i].pos[1], sizeof(float));
+		packet_offset += sizeof(float);
+		memcpy(packet + packet_offset, &fluid->particles[i].pos[2], sizeof(float));
+		packet_offset += sizeof(float);
+	}*/
+
+	int bytes_sent = send(clientfd, packet, PACKET_SIZE, 0); 
+	send(clientfd, packet + bytes_sent, PACKET_SIZE - bytes_sent, 0);
 	
-	int bytes_sent = send(clientfd, "Hello from server!", 19, 0); 
+	packet_offset = 0;
+	
+	
+	
 	
 }
