@@ -1,6 +1,20 @@
 TRICK_CFLAGS += -Imodels -I/usr/local/cuda/include
 TRICK_CXXFLAGS += -Imodels -I/usr/local/cuda/include
-TRICK_USER_LINK_LIBS += models/fluid/src/gpuCode.o models/fluid/src/sph_gpu.o -L/usr/local/cuda/lib64 -lcudart -lcudadevrt
+TRICK_USER_LINK_LIBS += models/fluid/src/gpuCode.o models/fluid/src/sph_gpu.o -L/usr/local/cuda/lib64 -lcudart -lcudadevrt -lglfw -lGL -lGLEW -pthread
+
+$(S_MAIN): models/fluid/graphics/src/opengl_caller.o models/fluid/graphics/src/opengl.o models/fluid/graphics/src/gui.o models/fluid/graphics/src/sph.o
+
+models/fluid/graphics/src/opengl_caller.o: models/fluid/graphics/src/opengl_caller.cpp
+	g++ -c models/fluid/graphics/src/opengl_caller.cpp
+
+models/fluid/graphics/src/opengl.o: models/fluid/graphics/src/opengl.cc
+	g++ -c models/fluid/graphics/src/opengl.cpp
+
+models/fluid/graphics/src/gui.o: models/fluid/graphics/src/gui.cc
+	g++ -c models/fluid/graphics/src/gui.cpp
+
+models/fluid/graphics/src/sph.o: models/fluid/graphics/src/sph.cpp
+	g++ -c models/fluid/graphics/src/sph.cpp
 
 $(S_MAIN): models/fluid/src/gpuCode.o
 
