@@ -2,7 +2,7 @@
 
 #include "sph.h"
 #include "gui.h"
-#include "client.h"
+#include "custom_client.h"
 
 #include <fstream>
 #include <iostream>
@@ -165,7 +165,7 @@ int main(int argc, char* argv[])
 
 	/* Initialize SPH simulation state */
 	//initSPH();
-	std::vector<float> particle_positions = receiveParticlePositions(sockfd);
+	std::vector<float> particle_positions;
 	
 
 	glm::vec4 light_position = glm::vec4(0.0f, 0.0f, BOUND + 10.0f, 1.0f);
