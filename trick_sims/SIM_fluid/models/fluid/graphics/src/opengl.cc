@@ -126,7 +126,7 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 
 
 
-int main(int argc, char* argv[])
+int openGLMain(int argc, char* argv[])
 {
 
 	if (argc < 2) {
