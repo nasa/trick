@@ -3,30 +3,21 @@ PURPOSE:
 	( Simulate a Lagrangian fluid using smoothed particle hydrodynamics. )
 LIBRARY DEPENDENCIES:
 	((fluid/src/Fluid.cpp)
-	 (fluid/src/Particle.cpp)
-	 (fluid/src/FluidServer.cpp))
+	 (fluid/src/Particle.cpp))
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
 ##include "fluid/include/Fluid.hh"
-##include "fluid/include/FluidServer.hh"
 
 class FluidSimObject : public Trick::SimObject {
 	public:
 		Fluid fluid;
-		FluidServer fluidserver;
 
 	FluidSimObject() {
 		("default_data") 			fluid.default_data() ;
-
-		("initialization")			fluidserver.initConnection();
-		("initialization") 			fluidserver.sendParticleData(&fluid);
 		
-
 
 		(0.02, "scheduled") 		fluid.update_SPH() ;
-		(0.04, "scheduled")			fluidserver.sendParticleData(&fluid);
-		
 	}
 
 };
