@@ -20,9 +20,12 @@ class FluidSimObject : public Trick::SimObject {
 		("default_data") 			fluid.default_data() ;
 
 		("initialization")			fluidserver.initConnection();
+		("initialization") 			fluidserver.sendParticleData(&fluid);
+		
+
 
 		(0.02, "scheduled") 		fluid.update_SPH() ;
-		(0.02, "scheduled")			fluidserver.sendParticleData();
+		(0.04, "scheduled")			fluidserver.sendParticleData(&fluid);
 		
 	}
 
