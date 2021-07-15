@@ -1,10 +1,11 @@
 #include <thread>
+#include "../../include/Fluid.hh"
 
-extern int openGLMain();
+extern int openGLMain(Fluid* fluid);
 
-void openGLCaller() {
+void openGLCaller(Fluid* fluid) {
     {
-        std::thread openGLThread(openGLMain);
+        std::thread openGLThread(openGLMain, fluid);
         openGLThread.detach();
     }
 }

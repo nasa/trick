@@ -1,5 +1,6 @@
 #include <GL/glew.h>
 
+#include "../../include/Fluid.hh"
 #include "sph.h"
 #include "gui.h"
 
@@ -126,9 +127,9 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 
 
 
-int openGLMain()
+int openGLMain(Fluid* fluid)
 {
-
+	printf("number of particles from openGLMain: %d\n", fluid->NUM_PARTICLES);
 
 
 	char* obj_file = "100_sphere.obj";
