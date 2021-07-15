@@ -7,14 +7,14 @@
 
 
 
-std::vector<Particle> particles;
-std::unordered_map<int, std::vector<Particle>> spatial_grid;
+std::vector<ParticleGL> particles;
+std::unordered_map<int, std::vector<ParticleGL>> spatial_grid;
 
 void initSPH() {
 	for (int i = 0; i < EDGE_NUM_PARTICLES; i++) {
 		for (int j = 0; j < EDGE_NUM_PARTICLES; j++) {
 			for (int k = 0; k < PARTICLE_DEPTH; k++) {
-				particles.push_back(Particle(PARTICLE_DIST * i, PARTICLE_DIST * j, PARTICLE_DIST * k, ParticleType::FluidParticle));
+				particles.push_back(ParticleGL(PARTICLE_DIST * i, PARTICLE_DIST * j, PARTICLE_DIST * k, ParticleType::FluidParticle));
 			}
 		}
 	}
@@ -29,7 +29,7 @@ void buildSpatialGrid() {
 		int grid_key = grid_x + grid_y * CELLS_PER_DIM + grid_z * CELLS_PER_DIM * CELLS_PER_DIM;
 
 		if (spatial_grid.find(grid_key) == spatial_grid.end()) {
-			std::vector<Particle> single_particle;
+			std::vector<ParticleGL> single_particle;
 			single_particle.push_back(pi);
 			spatial_grid[grid_key] = single_particle;
 		}
@@ -44,14 +44,14 @@ bool checkBounds(int x, int y, int z) {
 	return x >= 0 && x < CELLS_PER_DIM&& y >= 0 && y < CELLS_PER_DIM&& z >= 0 && z < CELLS_PER_DIM;
 }
 
-std::vector<Particle> getNeighbors(int grid_x, int grid_y, int grid_z) {
-	std::vector<Particle> neighbors;
+std::vector<ParticleGL> getNeighbors(int grid_x, int grid_y, int grid_z) {
+	std::vector<ParticleGL> neighbors;
 	for (int x = grid_x - 1; x <= grid_x + 1; x++) {
 		for (int y = grid_y - 1; y <= grid_y + 1; y++) {
 			for (int z = grid_z - 1; z <= grid_z + 1; z++) {
 				int grid_key = x + y * CELLS_PER_DIM + z * CELLS_PER_DIM * CELLS_PER_DIM;
 				if (checkBounds(x, y, z) && spatial_grid.find(grid_key) != spatial_grid.end()) {
-					std::vector<Particle> cell_particles = spatial_grid[grid_key];
+					std::vector<ParticleGL> cell_particles = spatial_grid[grid_key];
 					neighbors.insert(neighbors.end(), cell_particles.begin(), cell_particles.end());
 				}
 			}
@@ -64,12 +64,12 @@ std::vector<Particle> getNeighbors(int grid_x, int grid_y, int grid_z) {
 void computeDensityAndPressure(int p_start, int p_end) {
 	//for (auto &pi : particles) {
 	for (int i = p_start; i < p_end; i++) {
-		Particle& pi = particles[i];
+		ParticleGL& pi = particles[i];
 		pi.rho = 0;
 		int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
 		int grid_y = CELLS_PER_DIM * ((pi.pos.y + BOUND) / (2 * BOUND));
 		int grid_z = CELLS_PER_DIM * ((pi.pos.z + BOUND) / (2 * BOUND));
-		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+		std::vector<ParticleGL> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
 		//if (candidate_neighbors.size() != 0)
 			//printf("neighbors size: %d\n", candidate_neighbors.size());
 		for (auto& pj : candidate_neighbors) {
@@ -91,14 +91,14 @@ void computeForces(int p_start, int p_end) {
 
 	//for(auto &pi : particles) {
 	for (int i = p_start; i < p_end; i++) {
-		Particle& pi = particles[i];
+		ParticleGL& pi = particles[i];
 		glm::vec3 pressure_force(0, 0, 0);
 		glm::vec3 viscosity_force(0, 0, 0);
 
 		int grid_x = CELLS_PER_DIM * ((pi.pos.x + BOUND) / (2 * BOUND));
 		int grid_y = CELLS_PER_DIM * ((pi.pos.y + BOUND) / (2 * BOUND));
 		int grid_z = CELLS_PER_DIM * ((pi.pos.z + BOUND) / (2 * BOUND));
-		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+		std::vector<ParticleGL> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
 		//printf("force neighbors size: %d\n", candidate_neighbors.size());
 		for (auto& pj : candidate_neighbors) {
 			//for (int j = p_start; j < p_end; j++) {
@@ -128,14 +128,14 @@ void computeForces(int p_start, int p_end) {
 
 void verletUpdatePosition(int p_start, int p_end) {
 	for (int i = p_start; i < p_end; i++) {
-		Particle& pi = particles[i];
+		ParticleGL& pi = particles[i];
 		//pi.pos += DT * pi.velocity;
 	}
 }
 // Velocity Verlet time integrator
 void timeIntegration(int p_start, int p_end) {
 	for (int i = p_start; i < p_end; i++) {
-		Particle& pi = particles[i];
+		ParticleGL& pi = particles[i];
 		pi.pos += DT * pi.velocity;
 		pi.velocity += DT * pi.force / pi.rho;
 

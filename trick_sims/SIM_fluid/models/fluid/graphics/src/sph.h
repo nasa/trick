@@ -55,8 +55,8 @@ enum class ParticleType {
 };
 
 
-struct Particle {
-	Particle(float x_, float y_, float z_, ParticleType type_) :
+struct ParticleGL {
+	ParticleGL(float x_, float y_, float z_, ParticleType type_) :
 		pos(x_, y_, z_),
 		velocity(0.f, 0.f, 0.f),
 		force(0.f, 0.f, 0.f),
@@ -83,5 +83,5 @@ void initRigidBody();
 void updateRigid();
 std::vector<float> getRigidPositions();
 
-std::vector<Particle> getNeighbors(int grid_x, int grid_y, int grid_z);
+std::vector<ParticleGL> getNeighbors(int grid_x, int grid_y, int grid_z);
 std::vector<float> getParticlePositions();
