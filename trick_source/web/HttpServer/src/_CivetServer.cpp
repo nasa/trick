@@ -20,7 +20,7 @@ PURPOSE: (Represent the state and initial conditions for my server)
 #include "trick/WebSocketSession.hh"
 
 #include "civet/CivetServer.h"
-#include "civet/civetweb.h"
+
 #include "handlers.cpp"
 
 

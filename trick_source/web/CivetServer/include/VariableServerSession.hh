@@ -7,7 +7,9 @@ PURPOSE: (Represent the state of a variable server websocket connection.)
 
 #include <vector>
 #include <string>
+
 #include "civet/CivetServer.h"
+
 #include "trick/WebSocketSession.hh"
 #include "VariableServerVariable.hh"
 

@@ -156,6 +156,8 @@ ICG: ${TRICK_HOME}/include/mongoose/mongoose.h
 endif
 
 all: civetweb
+icg_sim_serv: civetweb
+ICG: civetweb
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
 no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
@@ -232,7 +234,7 @@ CIVET_CLONE_DIR = civetweb_clone
 civetweb: ${TRICK_LIB_DIR}/libcivetweb.a 
 	$(MAKE) -C ${TRICK_HOME}/trick_source/web/CivetServer
 
-${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR} 
+${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR} | ${TRICK_LIB_DIR}
 	cp ${CIVET_CLONE_DIR}/libcivetweb.a $(TRICK_LIB_DIR)/libcivetweb.a
 	mkdir -p ${TRICK_HOME}/include/civet/
 	cp ${CIVET_CLONE_DIR}/include/civetweb.h ${TRICK_HOME}/include/civet/civetweb.h

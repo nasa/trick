@@ -8,7 +8,7 @@ LIBRARY DEPENDENCIES:
 #include "trick/CivetServer.hh"
 
 #include "civet/CivetServer.h"
-#include "civet/civetweb.h"
+
 #include <sstream>
 
 #include "trick/VariableServer.hh"

@@ -8,7 +8,9 @@ LIBRARY DEPENDENCIES:
 
 #include <time.h>
 #include <vector>
+
 #include "civet/CivetServer.h"
+
 #include <iostream>
 #include <trick/reference.h>
 

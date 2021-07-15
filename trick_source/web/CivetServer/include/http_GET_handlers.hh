@@ -5,6 +5,7 @@ LIBRARY DEPENDENCIES:
 **************************************************************************/
 #ifndef HANDLE_HTTP_GET_HANDLERS_HH
 #define HANDLE_HTTP_GET_HANDLERS_HH
+#include <cstddef>
 
 #include "civet/CivetServer.h"
 

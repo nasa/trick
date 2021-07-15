@@ -3,7 +3,7 @@ PURPOSE:
     (Trick HTTP Server)
 LIBRARY DEPENDENCIES:
     (
-     (/home/cherpin/git/trick_fork/trick_source/web/CivetServer/src/CivetServer.cpp)
+     (../../../lib/libcivetweb.a)
     )
 
 *************************************************************/
