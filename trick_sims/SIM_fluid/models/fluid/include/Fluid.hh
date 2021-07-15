@@ -13,9 +13,9 @@ class Fluid {
 		void computeForces(int p_start, int p_end);
 		void verletUpdatePosition(int p_start, int p_end);
 		void timeIntegration(int p_start, int p_end);
-		std::vector<float> getParticlePositions();
 	public:
-		Fluid(){}
+		Fluid(){};
+		std::vector<float> getParticlePositions();
 		std::vector<Particle> particles;
 		
 		
