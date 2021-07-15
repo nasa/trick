@@ -159,9 +159,7 @@ int openGLMain(Fluid* fluid)
 		}
 	}
 
-	/* Initialize SPH simulation state */
-	initSPH();
-	std::vector<float> particle_positions = getParticlePositions();
+	std::vector<float> particle_positions = fluid->getParticlePositions();
 	
 
 	glm::vec4 light_position = glm::vec4(0.0f, 0.0f, BOUND + 10.0f, 1.0f);
@@ -311,15 +309,15 @@ int openGLMain(Fluid* fluid)
 		}
 
 		glfwSetWindowTitle(window, title.str().data());
-
+		/*
 		
 		if (!paused) {
 			updateSPH(0, EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES * PARTICLE_DEPTH);
 			time += DT;
 			printf("%f\n", time);
 		}
-		
-		particle_positions = getParticlePositions();
+		*/
+		particle_positions = fluid->getParticlePositions();
 
 		// Setup TBO
 		glBindBuffer(GL_TEXTURE_BUFFER, sphTBO);
