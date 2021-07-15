@@ -126,16 +126,14 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 
 
 
-int openGLMain(int argc, char* argv[])
+int openGLMain()
 {
 
-	if (argc < 2) {
-		std::cerr << "Input model file is missing" << std::endl;
-		std::cerr << "Usage: " << argv[0] << " <OBJ file>" << std::endl;
-		return -1;
-	}
 
-	std::cout << argv[1] << std::endl;
+
+	char* obj_file = "100_sphere.obj";
+
+	std::cout << obj_file << std::endl;
 	GLFWwindow *window = init_glefw();
 	GUI gui(window, window_width, window_height, preview_height);
 
@@ -144,11 +142,11 @@ int openGLMain(int argc, char* argv[])
 	std::vector<glm::vec4> sph_vertices;
 	std::vector<glm::uvec3> sph_faces;
 
-	loadObj(argv[1], sph_vertices, sph_faces, 0);
+	loadObj(obj_file, sph_vertices, sph_faces, 0);
 
 	int num_vert = sph_vertices.size();
 	for (int i = 1; i < NUM_PARTICLES; i++) {
-		loadObj(argv[1], sph_vertices, sph_faces, i * num_vert);
+		loadObj(obj_file, sph_vertices, sph_faces, i * num_vert);
 	}
 
 	/* Assign index to each particle model */

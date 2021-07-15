@@ -1,14 +1,10 @@
 #include <thread>
 
-extern int openGLMain(int argc, char* argv[]);
+extern int openGLMain();
 
 void openGLCaller() {
-    int argc = 2;
-    char* argv[] = {"./sim", "../100_sphere.obj"};
-    
     {
-        std::thread openGLThread(openGLMain, argc, argv);
+        std::thread openGLThread(openGLMain);
         openGLThread.detach();
     }
-    
 }
