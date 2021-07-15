@@ -7,6 +7,7 @@ LIBRARY DEPENDENCY:
 #include "../include/Fluid.hh"
 #include "../include/Particle.hh"
 //#include "sph_gpu.h"
+extern void openGLCaller();
 
 extern void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid);
 
@@ -21,6 +22,8 @@ int Fluid::default_data() {
 		}
 	}
 	particlesArr = &particles[0];
+
+	openGLCaller();
 	
 	return 0;
 }
