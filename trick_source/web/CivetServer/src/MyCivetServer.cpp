@@ -297,7 +297,9 @@ std::vector<std::string> split(std::string s, std::string delim) {
 
 int MyCivetServer::http_top_of_frame() {
     if (ctx != NULL) {
-		// marshallWebSocketSessionData(); //TODO: Only do this if time_homogenous is on.
+        if (time_homogeneous) {
+		    marshallWebSocketSessionData();
+        }
 		unlockConnections();
 	}
     return 0;
