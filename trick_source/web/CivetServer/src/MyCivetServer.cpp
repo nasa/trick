@@ -204,7 +204,6 @@ int MyCivetServer::default_data() {
     document_root = "www";
 
     installWebSocketSessionMaker("VariableServer", makeVariableServerSession);
-    installHTTPGEThandler("test", handle_hello_world); //TODO: Remove this or make it better for testing
     installHTTPGEThandler("vs_connections", handle_HTTP_GET_vs_connections);
     installHTTPGEThandler("alloc_info", handle_HTTP_GET_alloc_info);
     

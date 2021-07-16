@@ -50,7 +50,7 @@ void http_send(struct mg_connection *conn, const char* msg, int len, int chunk_s
     if (chunk_size > size) {
         chunk_size = len;
     }
-    while (size > 0) {
+    while (size > chunk_size) {
         std::string buff = std::string(msg).substr(count * chunk_size, chunk_size);
         mg_send_chunk(conn, buff.c_str(), buff.length());
         count++;
@@ -58,6 +58,7 @@ void http_send(struct mg_connection *conn, const char* msg, int len, int chunk_s
     }
     std::string buff = std::string(msg).substr(count * chunk_size, chunk_size);
     mg_send_chunk(conn, buff.c_str(), buff.length());
+    mg_send_chunk(conn, "", 0);
 }
 
 ///// HTTP
@@ -90,11 +91,6 @@ int parent_http_handler(struct mg_connection* conn, void *data) {
     }
 }
 
-void handle_hello_world(struct mg_connection* conn, void* ignore) {
-    std::string msg = "Hello world";
-    http_send_ok(conn, msg.c_str(), msg.size(), 100);
-}
-
 void handle_HTTP_GET_vs_connections(struct mg_connection* conn, void *cbdata) {
     std::stringstream ss;
     ss << *the_vs << std::endl;
@@ -111,15 +107,25 @@ void handle_HTTP_GET_alloc_info(struct mg_connection *conn, void* ignore) {
     const struct mg_request_info* ri = mg_get_request_info(conn);
     int max_size = 100;
     char start_str[max_size], count_str[max_size];
-    mg_get_var2(ri->request_uri, strlen(ri->request_uri), "start", start_str, max_size, 0);
-    mg_get_var2(ri->request_uri, strlen(ri->request_uri), "count", count_str, max_size, 0);
+
+    int error_code;
+    std::string data = ri->query_string;
+    message_publish(MSG_DEBUG, "query_string = %s\n", data.c_str());
+    error_code = mg_get_var(data.c_str(), strlen(data.c_str()), "start", start_str, max_size);
+    if (error_code < 0) {
+        message_publish(MSG_WARNING, "Could not find uri param: start. Error code: %i\n", error_code);
+    }
+    error_code = mg_get_var(data.c_str(), strlen(data.c_str()), "count", count_str, max_size);
+    if (error_code < 0) {
+        message_publish(MSG_WARNING, "Could not find uri param: count. Error code: %i\n", error_code);
+    }
     mg_send_http_ok(conn, "text/plain", -1);
-    std::stringstream ss;
     int start = strtol(start_str, NULL, 0);
     int count = strtol(count_str, NULL, 0);
+    std::stringstream ss;
     trick_MM->write_JSON_alloc_list(ss, start, count);
+    
     std::string someJSON = ss.str();
-
     http_send(conn, someJSON.c_str(), someJSON.length(), 100);
 
 }

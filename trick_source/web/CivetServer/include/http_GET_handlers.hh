@@ -17,7 +17,6 @@ int http_send_error(struct mg_connection *conn, int error_code, const char* msg,
 
 int parent_http_handler(struct mg_connection* conn, void *cbdata);
 
-void handle_hello_world(struct mg_connection* conn, void* ignore);
 void handle_HTTP_GET_vs_connections(struct mg_connection *nc, void* cbdata);
 void handle_HTTP_GET_alloc_info(struct mg_connection *nc, void* ignore);
 
