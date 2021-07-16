@@ -5,13 +5,16 @@ LIBRARY DEPENDENCIES:
     (
      (cannon/gravity/src/cannon_init.c)
      (cannon/gravity/src/cannon_numeric.c)
+     (httpMethods/handle_HTTP_GET_hello.c)
+     (httpMethods/TimeSession.cpp)
     )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
-// #include "sim_objects/WebServer.sm"
 #include "sim_objects/CivetServer.sm"
 ##include "cannon/gravity/include/cannon_numeric.h"
+##include "httpMethods/handle_HTTP_GET_hello.h"
+##include "httpMethods/TimeSession.hh"
 
 class CannonSimObject : public Trick::SimObject {
 
@@ -32,4 +35,6 @@ IntegLoop dyn_integloop (0.01) dyn;
 
 void create_connections() {
     dyn_integloop.getIntegrator(Runge_Kutta_4, 5);
+    web.server.installHTTPGEThandler( "hello", &handle_HTTP_GET_hello );
+    web.server.installWebSocketSessionMaker( "Time", &makeTimeSession );
 }
