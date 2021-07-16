@@ -20,8 +20,10 @@ class MyCivetServer {
     public:
 
         unsigned int port; 
+        const char* document_root;
         bool enable;       
         bool debug;        
+        bool time_homogeneous;
 
         struct mg_context *ctx; /* ** civetweb */
 

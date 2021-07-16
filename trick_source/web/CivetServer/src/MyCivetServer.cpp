@@ -1,18 +1,16 @@
 /************************************************************************
 PURPOSE: (Represent the state and initial conditions for my server)
 **************************************************************************/
-
-
 #include <sys/stat.h> // for mkdir()
 #include <unistd.h>   // for symlink(), access()
 #include <stdlib.h>   // for getenv()
 #include <dirent.h>   // for opendir(), readdir()
 #include <iostream>
 #include <fstream>
-#include "trick/MyCivetServer.hh"
 #include <string.h>
 #include <string>
 
+#include "trick/MyCivetServer.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/input_processor_proto.h"
@@ -57,7 +55,8 @@ void* start_civet(void* obj)
 	server->ctx = mg_start(&callbacks, 0, options);
 
 	if (server->ctx == NULL) {
-		std::cout << "ERROR: Could not create server." << std::endl;
+		message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener.\n"
+                            "Perhaps another program is already using port %s.\n", port);
 	}
 
 
@@ -83,9 +82,11 @@ int MyCivetServer::default_data() {
     enable = true;
     debug = true;
 	sessionDataMarshalled = false;
+    time_homogeneous = false;
+    document_root = "www";
 
     installWebSocketSessionMaker("VariableServer", makeVariableServerSession);
-    installHTTPGEThandler("test", handle_hello_world);
+    installHTTPGEThandler("test", handle_hello_world); //TODO: Remove this or make it better for testing
     installHTTPGEThandler("vs_connections", handle_HTTP_GET_vs_connections);
     installHTTPGEThandler("alloc_info", handle_HTTP_GET_alloc_info);
     
@@ -116,15 +117,14 @@ void* main_loop(void* S) {
 	bool messageSent;
 	int rc = pthread_create(&civet_thread, NULL, start_civet, S);
 	if (rc) {
-		std::cout << "Error:unable to create thread," << rc << std::endl;
+		message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener.\n"
+                            "Perhaps another program is already using port %s.\n");
 		exit(-1);
 	}
 
-	std::cout << "Starting main loop" << std::endl;
 	while(1) {
 		pthread_mutex_lock(&server->lock_loop);
         pthread_mutex_unlock(&lock_requests);
-        // std::cout << "Entering loop." << std::endl;
 		if (!server->sessionDataMarshalled) {
 			server->marshallWebSocketSessionData();
 		}
@@ -150,18 +150,17 @@ void* main_loop(void* S) {
 
 int MyCivetServer::init() {
     if (enable) {
-         int rc;
-
-        std::cout << "Init MyCivetServer..." << std::endl;
+        int rc;
         rc = pthread_create(&server_thread, NULL, main_loop, (void*)this);
         if (rc) {
-            std::cout << "Error:unable to create thread," << rc << std::endl;
-                exit(-1);
+            
+            return 1;
         }
-        std::cout << "Finished init.  Server is now listening" << std::endl;
-
+        message_publish(MSG_INFO, "Trick Webserver: Listening on port. %i\n", port);
+        message_publish(MSG_INFO, "Trick Webserver: Document root = \"%s.\"\n", document_root);
     } else {
-        std::cout << "Not starting my server because it is not enabled." << std::endl;
+        message_publish(MSG_INFO, "Trick Webserver: DISABLED. To enable, add "
+                                  "\"web.server.enable = True\" to your input file.\n");
     }
     return 0;
 }
@@ -226,10 +225,9 @@ void MyCivetServer::marshallWebSocketSessionData() {
 
 int MyCivetServer::shutdown() {
     if (enable) {
-        std::cout << "Closing server." << std::endl;
+        message_publish(MSG_INFO,"Trick Webserver: Shutting down on port %i.\n", port);
 		mg_stop(ctx);
 		mg_exit_library();
-        // join();
     }
     return 0;
 }
