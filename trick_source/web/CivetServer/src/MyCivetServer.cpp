@@ -371,10 +371,6 @@ void MyCivetServer::handleHTTPGETrequest(struct mg_connection *conn, const struc
 			httpMethodHandler handler = iter->second;
 			handler(conn, (void*)this);
 		} else {
-            // mg_printf(conn,
-	        //   "HTTP/1.1 200 OK\r\nConnection: "
-	        //   "close\r\nTransfer-Encoding: chunked\r\n");
-	        // mg_printf(conn, "Content-Type: text/plain\r\n\r\n");    
             std::stringstream ss;
             ss << "Error: http api " << handlerName << " is not implemented.";
             http_send_ok(conn, ss.str().c_str(), ss.str().size(), 100);

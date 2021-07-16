@@ -52,7 +52,6 @@ void http_send(struct mg_connection *conn, const char* msg, int len, int chunk_s
     }
     while (size > 0) {
         std::string buff = std::string(msg).substr(count * chunk_size, chunk_size);
-        std::cout << "Sending chunk: " << buff << std::endl;
         mg_send_chunk(conn, buff.c_str(), buff.length());
         count++;
         size = size - chunk_size;
@@ -141,7 +140,7 @@ void echo_ready_handler(struct mg_connection *conn, void *cbdata)
 int echo_data_handler(struct mg_connection *conn, int bits,
 				  char *data, size_t data_len, void *cbdata)
 {
-    std::cout << "from client:" << data << std::endl;
+    message_publish(MSG_INFO, "Trick Webserver: websocket message from client:%s\n", data);
     mg_websocket_write(conn, MG_WEBSOCKET_OPCODE_TEXT, data, strlen(data));
     return 1;
 }
