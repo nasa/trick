@@ -56,6 +56,9 @@ class MyCivetServer {
         void deleteWebSocketSession(struct mg_connection * nc);
         void installHTTPGEThandler(std::string handlerName, httpMethodHandler handler);
         void installWebSocketSessionMaker(std::string name, WebSocketSessionMaker maker);
+        void handleWebSocketClientMessage(struct mg_connection *conn, const char* data);
+        void handleHTTPGETrequest(struct mg_connection *conn, const struct mg_request_info* ri, std::string handlerName);
+
 
         std::string tmp_string;
 

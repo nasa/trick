@@ -9,6 +9,7 @@ PURPOSE: (Represent the state and initial conditions for my server)
 #include <fstream>
 #include <string.h>
 #include <string>
+#include <sstream>
 
 #include "trick/MyCivetServer.hh"
 #include "trick/message_proto.h"
@@ -25,7 +26,7 @@ PURPOSE: (Represent the state and initial conditions for my server)
 
 #include "../include/http_GET_handlers.hh"
 
-pthread_mutex_t lock_requests;
+// pthread_mutex_t lock_requests;
 
 void MyCivetServer::deleteWebSocketSession(struct mg_connection * nc) {
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
@@ -241,7 +242,7 @@ void* main_loop(void* S) {
 
 	while(1) {
 		pthread_mutex_lock(&server->lock_loop);
-        pthread_mutex_unlock(&lock_requests);
+        // pthread_mutex_unlock(&lock_requests);
 		if (!server->sessionDataMarshalled) {
 			server->marshallWebSocketSessionData();
 		}
@@ -354,22 +355,48 @@ int MyCivetServer::join() {
     return 0;
 }
 
+void MyCivetServer::handleWebSocketClientMessage(struct mg_connection *conn, const char* data) {
+    std::map<mg_connection*, WebSocketSession*>::iterator iter;
+    iter = webSocketSessionMap.find(conn);
+    if (iter != webSocketSessionMap.end()) {
+        WebSocketSession* session = iter->second;
+        session->handleMessage(data);
+    }
+}
 
-pthread_mutex_t conn_map_lock;
-std::map<struct mg_connection*, int> g_conn_map;
-int last_conn_id = 0;
+void MyCivetServer::handleHTTPGETrequest(struct mg_connection *conn, const struct mg_request_info* ri, std::string handlerName) {
+        std::map<std::string, httpMethodHandler>::iterator iter;
+        iter = httpGETHandlerMap.find(handlerName);
+		if (iter != httpGETHandlerMap.end()) {
+			httpMethodHandler handler = iter->second;
+			handler(conn, (void*)this);
+		} else {
+            // mg_printf(conn,
+	        //   "HTTP/1.1 200 OK\r\nConnection: "
+	        //   "close\r\nTransfer-Encoding: chunked\r\n");
+	        // mg_printf(conn, "Content-Type: text/plain\r\n\r\n");    
+            std::stringstream ss;
+            ss << "Error: http api " << handlerName << " is not implemented.";
+            http_send_ok(conn, ss.str().c_str(), ss.str().size(), 100);
+        }
+}
+
+
+// pthread_mutex_t conn_map_lock;
+// std::map<struct mg_connection*, int> g_conn_map;
+// int last_conn_id = 0;
 
 int begin_request(struct mg_connection* conn) {
-    pthread_mutex_lock(&lock_requests);
+    // pthread_mutex_lock(&lock_requests);
 
-    pthread_mutex_lock(&conn_map_lock);
-	g_conn_map.insert(std::pair<struct mg_connection*, int>(conn, last_conn_id));
-    last_conn_id++;
-    pthread_mutex_unlock(&conn_map_lock);
+    // pthread_mutex_lock(&conn_map_lock);
+	// g_conn_map.insert(std::pair<struct mg_connection*, int>(conn, last_conn_id));
+    // last_conn_id++;
+    // pthread_mutex_unlock(&conn_map_lock);
     
-    std::map<struct mg_connection*, int>::iterator iter;
-    iter = g_conn_map.find(conn);
-    int id = iter->second;
-    std::cout << "Processing request: " << id << std::endl;
+    // std::map<struct mg_connection*, int>::iterator iter;
+    // iter = g_conn_map.find(conn);
+    // int id = iter->second;
+    // std::cout << "Processing request: " << id << std::endl;
     return 0;
 }

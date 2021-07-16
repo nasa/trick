@@ -3,7 +3,12 @@ exec(open("Modified_data/realtime.py").read())
 #==========================================
 # Start the Cannonball Graphics Client
 #==========================================
-trick.var_server_set_port(5001);
+web.server.enable = True
+web.server.debug = True
+web.server.port = 8888
+web.server.document_root = "www"
+
+# trick.var_server_set_port(5001);
 varServerPort = trick.var_server_get_port();
 CannonDisplay_path = "../models/graphics/dist/CannonDisplay.jar"
 

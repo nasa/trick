@@ -11,7 +11,12 @@ LIBRARY DEPENDENCIES:
 #include "civet/CivetServer.h"
 #endif
 
+void http_send(struct mg_connection *conn, const char* msg, int len, int chunk_size);
+int http_send_ok(struct mg_connection *conn, const char* msg, int len, int chunk_size);
+int http_send_error(struct mg_connection *conn, int error_code, const char* msg, int len, int chunk_size);
+
 int parent_http_handler(struct mg_connection* conn, void *cbdata);
+
 void handle_hello_world(struct mg_connection* conn, void* ignore);
 void handle_HTTP_GET_vs_connections(struct mg_connection *nc, void* cbdata);
 void handle_HTTP_GET_alloc_info(struct mg_connection *nc, void* ignore);
