@@ -49,7 +49,7 @@ void* start_civet(void* obj)
 
 	std::string port = std::to_string(server->port);
 	const char*options[] = {
-		"listening_ports", port.c_str(), "document_root", "www", 0
+		"listening_ports", port.c_str(), "document_root", server->document_root, "enable_directory_listing", "yes", 0
 	};
 
 	server->ctx = mg_start(&callbacks, 0, options);
@@ -64,6 +64,123 @@ void* start_civet(void* obj)
     mg_set_request_handler(server->ctx, "/api/http", parent_http_handler, (void*)server);
 	mg_set_websocket_handler(server->ctx, "/api/ws/VariableServer", ws_connect_handler, ws_ready_handler, ws_data_handler, ws_close_handler, obj);
 
+}
+
+static const char * style_css =
+    "h1 {"
+        "font-family: fantasy, cursive, serif;"
+        "font-size: 32px;"
+        "margin-left: 1em;"
+    "}"
+    "h2 {"
+        "font-family: sans-serif;"
+        "font-size: 18px;"
+        "margin-left: 1em;"
+    "}"
+    "a {"
+        "font-family: sans-serif;"
+        "font-size: 16px;"
+    "}"
+    "div.header { background-image: linear-gradient(#afafff, white); }";
+
+static const char * index_html =
+    "<!DOCTYPE html>\n"
+    "<html>\n"
+    "<head>\n"
+        "<link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">\n"
+        "<title>Trick Simulation</title>\n"
+        "<div class=\"header\">\n"
+            "<table>\n"
+                "<th><img src=\"images/trick_icon.png\" height=\"64\" width=\"64\"></th>\n"
+                "<th><h1>Trick Simulation</h1></th>\n"
+            "</table>\n"
+        "</div>\n"
+    "</head>\n"
+    "<body>\n"
+    "<div style=\"background:#efefef\">\n"
+      "<ul>\n"
+      "<li><a href=\"http://github.com/nasa/trick\">Trick on GitHub</a></li>\n"
+      "<li><a href=\"http://github.com/nasa/trick/wiki/Tutorial\">Trick Tutorial</a></li>\n"
+      "<li><a href=\"http://github.com/nasa/trick/wiki/Documentation-Home\">Trick Documentation</a></li>\n"
+      "</ul>\n"
+    "</div>\n"
+    "<div style=\"background:#efefef\">\n"
+      "<ul>\n"
+      "<li><a href=\"/apps\">Applications</a></li>\n"
+      "</ul>\n"
+    "</div>\n"
+    "</body>\n"
+    "</html>";
+
+static int confirmDocumentRoot ( std::string documentRoot ) {
+
+    if ( access( documentRoot.c_str(), F_OK ) != -1 ) {
+        message_publish(MSG_INFO, "Trick Webserver: Document root \"%s\" exists.\n", documentRoot.c_str());
+    } else {
+        message_publish(MSG_INFO, "Trick Webserver: Document root \"%s\" doesn't exist, so we'll create it.\n", documentRoot.c_str());
+
+    	char* trick_home = getenv("TRICK_HOME");
+        std::string trickHome = std::string(trick_home);
+
+        if (trick_home != NULL) {
+            if ( mkdir( documentRoot.c_str(), 0700) == 0) {
+
+                 std::string styleFilePath = documentRoot + "/style.css";
+                 std::fstream style_fs (styleFilePath, std::fstream::out);
+                 style_fs << style_css << std::endl;
+                 style_fs.close();
+
+                 std::string appsDirPath = documentRoot + "/apps";
+                 if ( mkdir( appsDirPath.c_str(), 0700) == 0) {
+                     DIR *dr;
+                     struct dirent * dir_entry;
+                     std::string trickAppsDirPath = trickHome + "/trick_source/web/apps";
+                     if ( (dr = opendir(trickAppsDirPath.c_str())) != NULL) {
+                         while (( dir_entry = readdir(dr)) != NULL) {
+                             std::string fName = std::string( dir_entry->d_name);
+                             std::string sPath = trickAppsDirPath + '/' + fName;
+                             std::string dPath = appsDirPath + '/' + fName;
+                             symlink(sPath.c_str(), dPath.c_str());
+                         }
+                     }
+                 } else {
+                     message_publish(MSG_ERROR, "Trick Webserver: Failed to create \"%s\".\n", appsDirPath.c_str());
+                     return 1;
+                 }
+
+                 std::string imagesDirPath = documentRoot + "/images";
+                 if ( mkdir( imagesDirPath.c_str(), 0700) == 0) {
+                     DIR *dr;
+                     struct dirent * dir_entry;
+                     std::string trickImagesDirPath = trickHome + "/trick_source/web/images";
+                     if ( (dr = opendir(trickImagesDirPath.c_str())) != NULL) {
+                         while (( dir_entry = readdir(dr)) != NULL) {
+                             std::string fName = std::string( dir_entry->d_name);
+                             std::string sPath = trickImagesDirPath + '/' + fName;
+                             std::string dPath = imagesDirPath + '/' + fName;
+                             symlink(sPath.c_str(), dPath.c_str());
+                         }
+                     }
+                 } else {
+                     message_publish(MSG_ERROR, "Trick Webserver: Failed to create \"%s\".\n", imagesDirPath.c_str());
+                     return 1;
+                 }
+
+                 std::string indexFilePath = documentRoot + "/index.html";
+                 std::fstream index_fs (indexFilePath, std::fstream::out);
+                 index_fs << index_html << std::endl;
+                 index_fs.close();
+
+             } else {
+                 message_publish(MSG_ERROR, "Trick Webserver: Failed to create \"%s\".\n", documentRoot.c_str());
+                 return 1;
+             }
+        } else {
+             message_publish(MSG_ERROR, "Trick Webserver: TRICK_HOME is not set.\n");
+             return 1;
+        }
+    }
+    return 0;
 }
 
 WebSocketSession* MyCivetServer::makeWebSocketSession(mg_connection *nc, std::string name) {
@@ -149,9 +266,9 @@ void* main_loop(void* S) {
 
 
 int MyCivetServer::init() {
-    message_publish(MSG_DEBUG, "Enable is %i\n", enable);
     if (enable == 1) {
         int rc;
+        confirmDocumentRoot( std::string(document_root) );
         rc = pthread_create(&server_thread, NULL, main_loop, (void*)this);
         if (rc) {
             return 1;
