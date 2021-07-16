@@ -8,7 +8,9 @@ PURPOSE: (Represent the state of a variable server websocket connection.)
 #include <vector>
 #include <string>
 
+#ifndef SWIG
 #include "civet/CivetServer.h"
+#endif
 
 #include "trick/WebSocketSession.hh"
 #include "VariableServerVariable.hh"

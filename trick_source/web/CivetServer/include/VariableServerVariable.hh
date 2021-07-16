@@ -9,7 +9,9 @@ LIBRARY DEPENDENCIES:
 #include <time.h>
 #include <vector>
 
+#ifndef SWIG
 #include "civet/CivetServer.h"
+#endif
 
 #include <iostream>
 #include <trick/reference.h>

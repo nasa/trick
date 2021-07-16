@@ -23,7 +23,7 @@ TRICK_HTTP_OBJS = \
        ${OBJDIR}/VariableServerSession.o \
        ${OBJDIR}/VariableServerVariable.o \
        ${OBJDIR}/http_GET_handlers.o \
-       ${OBJDIR}/CivetServer.o \
+       ${OBJDIR}/MyCivetServer.o \
        ${OBJDIR}/simpleJSON.o
 
 #############################################################################

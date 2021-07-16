@@ -180,7 +180,6 @@ endif
 
 TRICK_LIBS += ${TRICK_LIB_DIR}/libcivetweb.a ${TRICK_LIB_DIR}/libtrickCivet.a
 TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/civet
-TRICK_SWIG_EXCLUDE += ${TRICK_HOME}/include/civet
 
 # We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.
 ifdef GCC_COLORS

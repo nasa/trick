@@ -1,13 +1,7 @@
 /************************TRICK HEADER*************************
-PURPOSE: 
-    (Trick HTTP Server)
-LIBRARY DEPENDENCIES:
-    (
-     (../../../lib/libcivetweb.a)
-    )
-
+PURPOSE: (Trick HTTP Server)
 *************************************************************/
-##include "trick/CivetServer.hh"
+##include "trick/MyCivetServer.hh"
 
 class MyCivetServerSimObject : public Trick::SimObject {
 

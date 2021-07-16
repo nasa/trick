@@ -7,7 +7,7 @@ PURPOSE: (Represent the state and initial conditions for my server)
 #include <dirent.h>   // for opendir(), readdir()
 #include <iostream>
 #include <fstream>
-#include "trick/CivetServer.hh"
+#include "trick/MyCivetServer.hh"
 #include <string.h>
 #include <string>
 
@@ -19,7 +19,9 @@ PURPOSE: (Represent the state and initial conditions for my server)
 #include "../include/VariableServerSession.hh"
 #include "trick/WebSocketSession.hh"
 
+#ifndef SWIG
 #include "civet/CivetServer.h"
+#endif
 
 #include "handlers.cpp"
 

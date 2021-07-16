@@ -5,9 +5,11 @@ LIBRARY DEPENDENCIES:
 **************************************************************************/
 
 #include "../include/http_GET_handlers.hh"
-#include "trick/CivetServer.hh"
+#include "trick/MyCivetServer.hh"
 
+#ifndef SWIG
 #include "civet/CivetServer.h"
+#endif
 
 #include <sstream>
 

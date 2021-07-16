@@ -7,7 +7,9 @@ LIBRARY DEPENDENCIES:
 #define HANDLE_HTTP_GET_HANDLERS_HH
 #include <cstddef>
 
+#ifndef SWIG
 #include "civet/CivetServer.h"
+#endif
 
 int parent_http_handler(struct mg_connection* conn, void *cbdata);
 void handle_hello_world(struct mg_connection* conn, void* ignore);
