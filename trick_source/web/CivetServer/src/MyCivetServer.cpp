@@ -55,8 +55,9 @@ void* start_civet(void* obj)
 	server->ctx = mg_start(&callbacks, 0, options);
 
 	if (server->ctx == NULL) {
-		message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener.\n"
-                            "Perhaps another program is already using port %s.\n", port);
+		message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener, exiting Simulation.\n"
+                            "Perhaps another program is already using port %i.\n", server->port);
+        exit(-1);
 	}
 
 
@@ -117,8 +118,7 @@ void* main_loop(void* S) {
 	bool messageSent;
 	int rc = pthread_create(&civet_thread, NULL, start_civet, S);
 	if (rc) {
-		message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener.\n"
-                            "Perhaps another program is already using port %s.\n");
+        //TODO: Put error message here
 		exit(-1);
 	}
 
@@ -154,7 +154,6 @@ int MyCivetServer::init() {
         int rc;
         rc = pthread_create(&server_thread, NULL, main_loop, (void*)this);
         if (rc) {
-            //TODO: Put a error message here
             return 1;
         }
         message_publish(MSG_INFO, "Trick Webserver: Listening on port. %i\n", port);
