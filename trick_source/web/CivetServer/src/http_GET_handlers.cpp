@@ -22,7 +22,7 @@ extern Trick::VariableServer * the_vs ;
 extern Trick::MemoryManager* trick_MM;
 
 static const std::string ws_api_prefix = "/api/ws";
-static const std::string ws_http_prefix = "/api/http";
+static const std::string http_api_prefix = "/api/http";
 
 int http_send_error(struct mg_connection *conn, int error_code, const char* msg, int len, int chunk_size) { //TODO: Make this display correctly
     message_publish(MSG_DEBUG, "Sending error msg: %s\n", msg);
@@ -70,8 +70,8 @@ int parent_http_handler(struct mg_connection* conn, void *data) {
     std::string uri = ri->local_uri_raw;
     if (server->debug) { message_publish(MSG_INFO, "Trick Webserver: HTTP_REQUEST: URI = \"%s\".\n", uri.c_str()); }
     std::string httpType = "";
-    if (ws_http_prefix.size() < uri.size()) {
-        httpType = uri.substr(ws_http_prefix.size() + 1, uri.size());
+    if (http_api_prefix.size() < uri.size()) {
+        httpType = uri.substr(http_api_prefix.size() + 1, uri.size());
     }
     if (httpType != "") {
         if (server->debug) { message_publish(MSG_DEBUG, "HTTP_REQUEST: METHOD = \"%s\"\n", ri->request_method); }
@@ -126,30 +126,6 @@ void handle_HTTP_GET_alloc_info(struct mg_connection *conn, void* ignore) {
 
 ///// websockets
 
-int echo_connect_handler(const struct mg_connection *conn,
-				     void *cbdata)
-{
-	int ret_val = 0;
-	return ret_val;
-}
-
-void echo_ready_handler(struct mg_connection *conn, void *cbdata)
-{
-}
-
-int echo_data_handler(struct mg_connection *conn, int bits,
-				  char *data, size_t data_len, void *cbdata)
-{
-    message_publish(MSG_INFO, "Trick Webserver: websocket message from client:%s\n", data);
-    mg_websocket_write(conn, MG_WEBSOCKET_OPCODE_TEXT, data, strlen(data));
-    return 1;
-}
-
-void echo_close_handler(const struct mg_connection *conn,
-				    void *cbdata)
-{
-}
-
 int ws_connect_handler(const struct mg_connection *conn,
 				     void *ignore)
 {
@@ -163,19 +139,19 @@ void ws_ready_handler(struct mg_connection *conn, void *my_server)
     const struct mg_request_info* ri = mg_get_request_info(conn);
     std::string uri = ri->local_uri_raw;
     if (server->debug) { message_publish(MSG_INFO,"Trick Webserver: WEBSOCKET_REQUEST: URI = \"%s\".\n", uri.c_str()); }
-    if (uri.rfind(ws_api_prefix, 0) == 0) {
-        std::string wsType = uri.substr(ws_api_prefix.size() + 1, uri.size());
-	    WebSocketSession* session = server->makeWebSocketSession(conn, wsType);
-        if (session != NULL) {
-	        server->addWebSocketSession(conn, session);
-            if (server->debug) { message_publish(MSG_INFO, "Trick Webserver: WEBSOCKET[%p] OPENED. URI=\"%s\".\n", (void*)conn, uri.c_str()); }
-        } else {
-            message_publish(MSG_ERROR, "Trick Webserver: No such web socket interface: \"%s\".\n", uri.c_str()); 
-        }
-    } else {
-        message_publish(MSG_ERROR, "Trick Webserver: WEBSOCKET_REQUEST: URI does not start with API prefix.\n");
+    std::string wsType = "";
+    if (ws_api_prefix.size() < uri.size()) {
+        wsType = uri.substr(ws_api_prefix.size() + 1, uri.size());
     }
-}	
+    WebSocketSession* session = server->makeWebSocketSession(conn, wsType);
+    if (session != NULL) {
+        if (server->debug) { message_publish(MSG_INFO, "Trick Webserver: WEBSOCKET[%p] OPENED. URI=\"%s\".\n", (void*)conn, uri.c_str()); }
+        server->addWebSocketSession(conn, session);
+    } else {
+        message_publish(MSG_ERROR, "Trick Webserver: No such web socket interface: \"%s\".\n", uri.c_str()); 
+        mg_websocket_write(conn, MG_WEBSOCKET_OPCODE_CONNECTION_CLOSE, NULL, 0);
+    }
+}
 
 int ws_data_handler(struct mg_connection *conn, int bits,
 				  char *data, size_t data_len, void *my_server)

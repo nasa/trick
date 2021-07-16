@@ -63,7 +63,7 @@ void* start_civet(void* obj)
 
 
     mg_set_request_handler(server->ctx, "/api/http", parent_http_handler, (void*)server);
-	mg_set_websocket_handler(server->ctx, "/api/ws/VariableServer", ws_connect_handler, ws_ready_handler, ws_data_handler, ws_close_handler, obj);
+	mg_set_websocket_handler(server->ctx, "/api/ws", ws_connect_handler, ws_ready_handler, ws_data_handler, ws_close_handler, obj);
 
 }
 
@@ -192,7 +192,6 @@ WebSocketSession* MyCivetServer::makeWebSocketSession(mg_connection *nc, std::st
         return maker(nc);
     } else {
         return NULL;
-       mg_websocket_write(nc, MG_WEBSOCKET_OPCODE_TEXT, "ERROR: Could not create web socket session", 0);
     }
 }
 
