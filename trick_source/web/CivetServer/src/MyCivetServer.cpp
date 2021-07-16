@@ -79,8 +79,8 @@ WebSocketSession* MyCivetServer::makeWebSocketSession(mg_connection *nc, std::st
 
 int MyCivetServer::default_data() {
     port = 8888;
-    enable = true;
-    debug = true;
+    enable = false;
+    debug = false;
 	sessionDataMarshalled = false;
     time_homogeneous = false;
     document_root = "www";
@@ -149,11 +149,12 @@ void* main_loop(void* S) {
 
 
 int MyCivetServer::init() {
-    if (enable) {
+    message_publish(MSG_DEBUG, "Enable is %i\n", enable);
+    if (enable == 1) {
         int rc;
         rc = pthread_create(&server_thread, NULL, main_loop, (void*)this);
         if (rc) {
-            
+            //TODO: Put a error message here
             return 1;
         }
         message_publish(MSG_INFO, "Trick Webserver: Listening on port. %i\n", port);
