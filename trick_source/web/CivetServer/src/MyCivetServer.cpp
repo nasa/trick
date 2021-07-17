@@ -26,8 +26,6 @@ PURPOSE: (Represent the state and initial conditions for my server)
 
 #include "../include/http_GET_handlers.hh"
 
-// pthread_mutex_t lock_requests;
-
 void MyCivetServer::deleteWebSocketSession(struct mg_connection * nc) {
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = webSocketSessionMap.find(nc);
@@ -36,35 +34,6 @@ void MyCivetServer::deleteWebSocketSession(struct mg_connection * nc) {
         delete session;
         webSocketSessionMap.erase(iter);
     }
-}
-
-void* start_civet(void* obj)
-{
-	MyCivetServer* server = (MyCivetServer*)obj;
-
-	mg_init_library(0);
-
-	struct mg_callbacks callbacks;
-	memset(&callbacks, 0, sizeof(callbacks));
-    callbacks.begin_request = begin_request;
-
-	std::string port = std::to_string(server->port);
-	const char*options[] = {
-		"listening_ports", port.c_str(), "document_root", server->document_root, "enable_directory_listing", "yes", 0
-	};
-
-	server->ctx = mg_start(&callbacks, 0, options);
-
-	if (server->ctx == NULL) {
-		message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener, exiting Simulation.\n"
-                            "Perhaps another program is already using port %i.\n", server->port);
-        exit(-1);
-	}
-
-
-    mg_set_request_handler(server->ctx, "/api/http", parent_http_handler, (void*)server);
-	mg_set_websocket_handler(server->ctx, "/api/ws", ws_connect_handler, ws_ready_handler, ws_data_handler, ws_close_handler, obj);
-
 }
 
 static const char * style_css =
@@ -202,6 +171,7 @@ int MyCivetServer::default_data() {
 	sessionDataMarshalled = false;
     time_homogeneous = false;
     document_root = "www";
+    shutting_down = false;
 
     installWebSocketSessionMaker("VariableServer", makeVariableServerSession);
     installHTTPGEThandler("vs_connections", handle_HTTP_GET_vs_connections);
@@ -229,18 +199,14 @@ void MyCivetServer::addWebSocketSession(struct mg_connection *nc, WebSocketSessi
 }
 
 void* main_loop(void* S) {
-	pthread_t civet_thread;
 	MyCivetServer* server = (MyCivetServer*) S;
 	bool messageSent;
-	int rc = pthread_create(&civet_thread, NULL, start_civet, S);
-	if (rc) {
-        //TODO: Put error message here
-		exit(-1);
-	}
 
 	while(1) {
 		pthread_mutex_lock(&server->lock_loop);
-        // pthread_mutex_unlock(&lock_requests);
+        if (server->shutting_down) {
+            return NULL;
+        }
 		if (!server->sessionDataMarshalled) {
 			server->marshallWebSocketSessionData();
 		}
@@ -249,25 +215,46 @@ void* main_loop(void* S) {
 		messageSent = false;
 		pthread_mutex_lock(&server->WebSocketSessionMapLock);
 		for (iter = server->webSocketSessionMap.begin(); iter != server->webSocketSessionMap.end(); iter++ ) {
-			struct mg_connection* conn = iter->first;
 			WebSocketSession* session = iter->second;
 			session->sendMessage();
 			messageSent = true;
 		}
-		if (messageSent) {
+		if (messageSent) { //If any  message was sent we say the data is now not marshalled.
 			server->sessionDataMarshalled = false;
 		}
 		pthread_mutex_unlock(&server->WebSocketSessionMapLock);
 	}
-
-	pthread_join(civet_thread, NULL);
 }
 
 
 int MyCivetServer::init() {
     if (enable == 1) {
-        int rc;
+        //Setting up server
         confirmDocumentRoot( std::string(document_root) );
+        mg_init_library(0);
+
+        struct mg_callbacks callbacks;
+        memset(&callbacks, 0, sizeof(callbacks));
+        //Add callback functions here
+
+        const char*options[] = {
+            "listening_ports", std::to_string(port).c_str(), "document_root", document_root, "enable_directory_listing", "yes", 0
+        };
+
+        ctx = mg_start(&callbacks, 0, options);
+
+        if (ctx == NULL) {
+            message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener, exiting Simulation.\n"
+                                "Perhaps another program is already using port %i.\n", port);
+            exit(-1);
+        }
+
+        //Assigning general handlers.
+        mg_set_request_handler(ctx, "/api/http", parent_http_handler, (void*)this);
+        mg_set_websocket_handler(ctx, "/api/ws", ws_connect_handler, ws_ready_handler, ws_data_handler, ws_close_handler, (void*)this);
+
+        //Starting the main loop
+        int rc;
         rc = pthread_create(&server_thread, NULL, main_loop, (void*)this);
         if (rc) {
             return 1;
@@ -344,6 +331,9 @@ void MyCivetServer::marshallWebSocketSessionData() {
 int MyCivetServer::shutdown() {
     if (enable) {
         message_publish(MSG_INFO,"Trick Webserver: Shutting down on port %i.\n", port);
+        shutting_down = true;
+        unlockConnections();
+        join();
 		mg_stop(ctx);
 		mg_exit_library();
     }
@@ -375,24 +365,4 @@ void MyCivetServer::handleHTTPGETrequest(struct mg_connection *conn, const struc
             ss << "Error: http api " << handlerName << " is not implemented.";
             http_send_ok(conn, ss.str().c_str(), ss.str().size(), 100);
         }
-}
-
-
-// pthread_mutex_t conn_map_lock;
-// std::map<struct mg_connection*, int> g_conn_map;
-// int last_conn_id = 0;
-
-int begin_request(struct mg_connection* conn) {
-    // pthread_mutex_lock(&lock_requests);
-
-    // pthread_mutex_lock(&conn_map_lock);
-	// g_conn_map.insert(std::pair<struct mg_connection*, int>(conn, last_conn_id));
-    // last_conn_id++;
-    // pthread_mutex_unlock(&conn_map_lock);
-    
-    // std::map<struct mg_connection*, int>::iterator iter;
-    // iter = g_conn_map.find(conn);
-    // int id = iter->second;
-    // std::cout << "Processing request: " << id << std::endl;
-    return 0;
 }
