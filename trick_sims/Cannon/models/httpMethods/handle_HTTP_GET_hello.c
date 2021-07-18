@@ -1,4 +1,5 @@
-#include "civet/CivetInclude.h"
+#include "civet/CivetServer.h"
+#include "civet/civetweb.h"
 #include <string.h>
 
 void handle_HTTP_GET_hello(struct mg_connection *nc, void *hm) {
