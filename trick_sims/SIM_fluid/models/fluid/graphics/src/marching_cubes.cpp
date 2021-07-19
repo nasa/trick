@@ -1,6 +1,12 @@
 #include "marching_cubes.h"
 #include "mc_tables.h"
 
+glm::vec4 vlerp(float isoLevel, glm::vec4 vectorA, glm::vec4 vectorB, float valueA, float valueB) {
+    float t = (isoLevel - std::min(valueA, valueB)) / std::abs(valueA - valueB);
+
+    return vectorA * t + vectorB * (1 - t);
+}
+
 void generateCellMesh(GridCell &grid, double isoLevel, std::vector<glm::uvec3> &triangles, std::vector<glm::vec4> &vertices)
 {
     int geometryCaseIndex = 0;
