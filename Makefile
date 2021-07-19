@@ -242,7 +242,7 @@ ${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR} | ${TRICK_LIB_DIR}
 
 ${CIVET_CLONE_DIR}:
 	git clone https://github.com/civetweb/civetweb.git $@	
-	cd ${CIVET_CLONE_DIR} && make lib WITH_CPP=1 WITH_WEBSOCKET=1 NO_SSL=1
+	cd ${CIVET_CLONE_DIR} && make lib WITH_CPP=1 WITH_WEBSOCKET=1
 
 
 #-------------------------------------------------------------------------------

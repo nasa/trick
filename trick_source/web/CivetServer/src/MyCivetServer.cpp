@@ -172,6 +172,8 @@ int MyCivetServer::default_data() {
     time_homogeneous = false;
     document_root = "www";
     shutting_down = false;
+    path_to_ssl_cert = "~/.ssl/server.pem"; //TODO:Make a better default path
+    ssl_enable = false;
 
     installWebSocketSessionMaker("VariableServer", makeVariableServerSession);
     installHTTPGEThandler("vs_connections", handle_HTTP_GET_vs_connections);
@@ -228,7 +230,9 @@ void* main_loop(void* S) {
 
 
 int MyCivetServer::init() {
-    if (enable == 1) {
+    if (enable) {
+        if (debug) { message_publish(MSG_DEBUG, "Trick Webserver: Debug logging is enabled.\n"); }
+
         //Setting up server
         confirmDocumentRoot( std::string(document_root) );
         mg_init_library(0);
@@ -237,16 +241,38 @@ int MyCivetServer::init() {
         memset(&callbacks, 0, sizeof(callbacks));
         //Add callback functions here
 
-        const char*options[] = {
-            "listening_ports", std::to_string(port).c_str(), "document_root", document_root, "enable_directory_listing", "yes", 0
+        std::string port_str; 
+        if (ssl_enable) {
+            port_str = std::to_string(port) + "s"; //s at the end of the port specifies ssl.
+            message_publish(MSG_INFO, "Trick Webserver: SSL is enabled\n");
+            message_publish(MSG_INFO, "Trick Webserver: Current path to ssl certificate is %s. To change this put \"web.server.path_to_ssl_cert = \'/path/to/cert\'\" in your input file.\n", path_to_ssl_cert);
+        } else {
+            message_publish(MSG_INFO, "Trick Webserver: SSL is not enabled. To enable put \"web.server.ssl_enable = True\" in your input file.\n");
+            port_str = std::to_string(port);
+        }
+        const char* options[] = {
+            "listening_ports", port_str.c_str(), "ssl_certificate", path_to_ssl_cert, "document_root", document_root, "enable_directory_listing", "yes", 0
         };
 
-        ctx = mg_start(&callbacks, 0, options);
+        // const char*options[] = {
+        //     "listening_ports", "5000s", "ssl_certificate", "server.pemadfa", "document_root", document_root, "enable_directory_listing", "yes", 0
+        // };
 
+        if (debug) {
+            message_publish(MSG_DEBUG, "Trick Webserver: Starting webserver with the following options:\n");
+            for (int i=0; options[i] != 0; i+=2) {
+                message_publish(MSG_DEBUG, "Trick Webserver: \t%s = %s\n", options[i], options[i+1]);
+            }
+        }
+
+        ctx = mg_start(&callbacks, 0, options);
         if (ctx == NULL) {
             message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener, exiting Simulation.\n"
                                 "Perhaps another program is already using port %i.\n", port);
             exit(-1);
+        } else {
+            message_publish(MSG_INFO, "Trick Webserver: Listening on port. %i\n", port);
+            message_publish(MSG_INFO, "Trick Webserver: Document root = \"%s.\"\n", document_root);
         }
 
         //Assigning general handlers.
@@ -257,10 +283,9 @@ int MyCivetServer::init() {
         int rc;
         rc = pthread_create(&server_thread, NULL, main_loop, (void*)this);
         if (rc) {
-            return 1;
+            message_publish(MSG_ERROR, "Trick Webserver: Failed to create main loop.  Web socket connections will not work.");
+            exit(-1);
         }
-        message_publish(MSG_INFO, "Trick Webserver: Listening on port. %i\n", port);
-        message_publish(MSG_INFO, "Trick Webserver: Document root = \"%s.\"\n", document_root);
     } else {
         message_publish(MSG_INFO, "Trick Webserver: DISABLED. To enable, add "
                                   "\"web.server.enable = True\" to your input file.\n");
