@@ -87,6 +87,9 @@ int parent_http_handler(struct mg_connection* conn, void *data) {
         } else if (method == "DELETE") {
             std::string msg = "DELETE method not allowed";
             return http_send_error(conn, 405, msg.c_str(), msg.size(), 100);
+        } else if (method == "POST") {
+            std::string msg = "POST method not allowed";
+            return http_send_error(conn, 405, msg.c_str(), msg.size(), 100);
         }
     }
 }
@@ -108,16 +111,24 @@ void handle_HTTP_GET_alloc_info(struct mg_connection *conn, void* ignore) {
     int max_size = 100;
     char start_str[max_size], count_str[max_size];
 
-    int error_code;
-    std::string data = ri->query_string;
-    message_publish(MSG_DEBUG, "query_string = %s\n", data.c_str());
-    error_code = mg_get_var(data.c_str(), strlen(data.c_str()), "start", start_str, max_size);
-    if (error_code < 0) {
-        message_publish(MSG_WARNING, "Could not find uri param: start. Error code: %i\n", error_code);
+    int error_code1, error_code2;
+    assert(ri != NULL);
+    if (ri->query_string != NULL) {
+        std::string data = ri->query_string;
+        message_publish(MSG_DEBUG, "query_string = %s\n", data.c_str());
+        error_code1 = mg_get_var(data.c_str(), strlen(data.c_str()), "start", start_str, max_size);
+        error_code2 = mg_get_var(data.c_str(), strlen(data.c_str()), "count", count_str, max_size);
+    } else {
+        error_code1 = -1;
+        error_code2 = -1;
     }
-    error_code = mg_get_var(data.c_str(), strlen(data.c_str()), "count", count_str, max_size);
-    if (error_code < 0) {
-        message_publish(MSG_WARNING, "Could not find uri param: count. Error code: %i\n", error_code);
+    if (error_code1 < 0) {
+        message_publish(MSG_WARNING, "Could not find uri param: start. Error code: %i\n", error_code1);
+        strncpy(start_str, "0", 1);
+    }
+    if (error_code2 < 0) {
+        message_publish(MSG_WARNING, "Could not find uri param: count. Error code: %i\n", error_code2);
+        strncpy(start_str, "0", 1);
     }
     mg_send_http_ok(conn, "text/plain", -1);
     int start = strtol(start_str, NULL, 0);
