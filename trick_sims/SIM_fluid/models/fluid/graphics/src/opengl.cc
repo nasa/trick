@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 
-#include "../../include/Fluid.hh"
 #include "gui.h"
+#include "sph.h"
 #include "grid_cell.h"
 #include "marching_cubes.h"
 
@@ -43,6 +43,9 @@ extern int selectedKeyframe;
 
 enum {kVertexBuffer, kParticleIndex, kIndexBuffer, kNumVbos};
 GLuint mesh_buffer_objects[kNumVbos];
+
+
+
 
 
 void ErrorCallback(int error, const char* description) {
@@ -131,7 +134,6 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 
 int main()
 {
-	int BOUND = 100;
 
 	char* obj_file = "../100_sphere.obj";
 
@@ -139,9 +141,23 @@ int main()
 	GLFWwindow *window = init_glefw();
 	GUI gui(window, window_width, window_height, preview_height);
 
+	initSPH();
+	std::vector<float> particlePositions = getParticlePositions();
 
-	std::vector<glm::vec4> cube_vertices;
+	std::vector<GridCell> gridCells;
+	initializeGridCells(gridCells, BOUND, 128);
+	printf("Grid cells size: %d\n", gridCells.size());
+	updateIsoValues(gridCells, particlePositions, 10);
+	std::vector<glm::vec4> mesh_vertices;
+	std::vector<glm::uvec3> mesh_faces;
 
+	for (int i = 0; i < gridCells.size(); i++) {
+		generateCellMesh(gridCells[i], 50, mesh_faces, mesh_vertices);
+	}
+	
+	printf("size of faces: %d\n", mesh_faces.size());
+
+	/*
 	GridCell testCell;
 
 	int vertIdx = 0;
@@ -152,14 +168,7 @@ int main()
 				vertIdx++;
 			}
 		}
-	}
-
-	std::vector<glm::vec4> mesh_vertices;
-	std::vector<glm::uvec3> mesh_faces;
-
-
-
-	generateCellMesh(testCell, 0.5, mesh_faces, mesh_vertices);
+	}*/
 
 	printf("size of vertices: %d\n", mesh_vertices.size());
 	
@@ -253,6 +262,7 @@ int main()
 	double time = 0.0f;
 	
 	while (!glfwWindowShouldClose(window)) {
+	//while (true) {
 		// Setup some basic window stuff.
 		
 		glfwGetFramebufferSize(window, &window_width, &window_height);
@@ -263,11 +273,11 @@ int main()
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_MULTISAMPLE);
 		glEnable(GL_BLEND);
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDepthFunc(GL_LESS);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glCullFace(GL_BACK);
+		//glCullFace(GL_BACK);
 		
 		gui.updateMatrices();
 		mats = gui.getMatrixPointers();
@@ -289,6 +299,20 @@ int main()
 				<< std::setfill('0') << std::setw(6)
 				<< time << " sec";
 		}
+		if (!paused) {
+			updateSPH(0, NUM_PARTICLES);
+			particlePositions = getParticlePositions();
+			updateIsoValues(gridCells, particlePositions, 30);
+			mesh_vertices.clear();
+			mesh_faces.clear();
+			
+			for (int i = 0; i < gridCells.size(); i++) {
+				generateCellMesh(gridCells[i], 50, mesh_faces, mesh_vertices);
+			}
+		}
+		/* Marching Cubes Update */
+
+		
 
 		glfwSetWindowTitle(window, title.str().data());
 
@@ -318,6 +342,7 @@ int main()
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 	}
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
 	exit(EXIT_SUCCESS);
