@@ -1,6 +1,34 @@
 #include "grid_cell.h"
 #include "iostream"
 
+void updateIsoValues(std::vector<GridCell>& gridCells, std::vector<float> particlePositions, float radius) {
+    int numParticles = particlePositions.size() / 3;
+    for (int i = 0; i < gridCells.size(); i++) {
+        GridCell& current = gridCells[i];
+        for (int j = 0; j < 8; j++) {
+            
+			
+            glm::vec3 vertexPos(current.vertices[j]);
+			current.isoValues[j] = glm::length(vertexPos);
+			/*
+            for (int k = 0; k < numParticles; k++) {
+                float x = particlePositions[3*k];
+                float y = particlePositions[3*k+1];
+                float z = particlePositions[3*k+2];
+                glm::vec3 particlePos(x, y, z);
+                if (glm::length(vertexPos - particlePos) < radius) {
+                    current.isoValues[j]++;
+                    
+                }
+            }*/
+            //printf("isoValue: %f \n", current.isoValues[j]);
+        }
+    }
+}
+
+
+
+
 
 void initializeGridCells(std::vector<GridCell>& gridCells, double bound, int amountPerDim) {
 	double min = -bound;
