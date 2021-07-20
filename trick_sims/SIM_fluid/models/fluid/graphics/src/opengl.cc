@@ -2,6 +2,7 @@
 
 #include "../../include/Fluid.hh"
 #include "gui.h"
+#include <unistd.h>
 
 #include <fstream>
 #include <iostream>
@@ -350,10 +351,13 @@ int openGLMain(Fluid* fluid)
 		
 		glDrawElements(GL_TRIANGLES, 3 * sph_faces.size(), GL_UNSIGNED_INT, 0);
 	
-
+		
 	
 		glfwPollEvents();
 		glfwSwapBuffers(window);
+		
+		double refreshRate = 60;
+		usleep(1000000 / refreshRate);
 	}
 	glfwDestroyWindow(window);
 	glfwTerminate();
