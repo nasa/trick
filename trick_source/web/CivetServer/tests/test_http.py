@@ -1,30 +1,35 @@
+from _pytest.mark import param
 import requests
 from pprint import pprint
 import logging
 import os
 import subprocess
 
-host = "localhost:8888"
+from requests.api import get
+
+from parameters import Params
+params = Params()
 
 def test_alloc_info():
-    endpoint = "api/http/alloc_info"
-    url = f"http://{host}/{endpoint}"
-    print("url:", url)
-    res = requests.get(f"http://{host}/{endpoint}")
-    assert res.json()["alloc_list"] == []
+    url = params.get_url("api/http/alloc_info")
+    res = requests.get(url, verify=False)
+    data = res.json()
+    assert len(data["alloc_list"]) == 10
+    assert data["chunk_size"] == 10
+    assert data["chunk_start"] == 0
+    assert data["alloc_total"] == 49
 
 def test_alloc_info_2():
     endpoint = "api/http/alloc_info?start=0&count=10"
-    url = f"http://{host}/{endpoint}"
-    print("url:", url)
-    res = requests.get(f"http://{host}/{endpoint}")
+    url = params.get_url(endpoint)
+    res = requests.get(url, verify=False)
     assert len(res.json()["alloc_list"]) == 10
 
 def test_vs_connections():
-    subprocess.Popen("nc localhost 5001".split())
+    subprocess.Popen(f"nc localhost {params.get_var_server_port()}".split())
     endpoint = "api/http/vs_connections"
-    url = f"http://{host}/{endpoint}"
-    res = requests.get(url)
+    url = params.get_url(endpoint)
+    res = requests.get(url, verify=False)
     assert res.json()["variable_server_connections"][0]["connection"]["client_IP_address"] == "127.0.0.1"
 
 

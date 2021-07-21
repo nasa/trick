@@ -128,7 +128,7 @@ void handle_HTTP_GET_alloc_info(struct mg_connection *conn, void* ignore) {
     }
     if (error_code2 < 0) {
         message_publish(MSG_WARNING, "Could not find uri param: count. Error code: %i\n", error_code2);
-        strncpy(start_str, "0", 1);
+        strncpy(count_str, "10", 2); //By default we show 10.
     }
     mg_send_http_ok(conn, "text/plain", -1);
     int start = strtol(start_str, NULL, 0);
