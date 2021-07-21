@@ -1,4 +1,5 @@
-from _pytest.mark import param
+from sys import path
+import pytest
 import requests
 from pprint import pprint
 import logging
@@ -9,6 +10,17 @@ from requests.api import get
 
 from parameters import Params
 params = Params()
+
+@pytest.fixture(scope="session", autouse=True)
+def build_sim():
+    path_to_sim = os.path.join(os.environ.get("TRICK_HOME", None), "trick_sims", "Cannon", "SIM_cannon_numeric")
+    cmd = f'echo "cd {path_to_sim} && ./S_main_Linux_9.3_x86_64.exe RUN_test/input.py &" | /bin/bash'
+    print("....................Running:", cmd)
+    p = subprocess.run(cmd, shell=True)
+    yield
+    os.system("pgrep S_ | xargs kill -9")
+
+
 
 def test_alloc_info():
     url = params.get_url("api/http/alloc_info")
