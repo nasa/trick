@@ -36,7 +36,7 @@ async def test_time(time_path):
 		async with websockets.connect(time_path, ssl=ssl_context) as websocket:
 			await websocket.send("LOCAL")
 			count = 0
-			while count < 10:
+			while count < 2:
 				message = await websocket.recv()
 				test_format = "Time: %H:%M Date: %m/%d/%Y\n" #Not checking seconds.
 				time =  datetime.datetime.strftime(datetime.datetime.strptime(message, "Time: %H:%M:%S Date: %m/%d/%Y\n"), test_format)
