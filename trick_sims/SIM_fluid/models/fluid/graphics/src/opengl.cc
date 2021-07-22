@@ -144,15 +144,21 @@ int main()
 	initSPH();
 	std::vector<float> particlePositions = getParticlePositions();
 
+	
+	const int MC_GRID_DIM = 16;
+	const int RADIUS = 4 * BOUND / MC_GRID_DIM;
+	// number of particles within MC GridCell vertex;
+	double PARTICLES_WITHIN_VERTEX = 5;
+
 	std::vector<GridCell> gridCells;
-	initializeGridCells(gridCells, BOUND, 128);
+	initializeGridCells(gridCells, BOUND, MC_GRID_DIM);
 	printf("Grid cells size: %d\n", gridCells.size());
-	updateIsoValues(gridCells, particlePositions, 10);
+	updateIsoValues(gridCells, particlePositions, RADIUS);
 	std::vector<glm::vec4> mesh_vertices;
 	std::vector<glm::uvec3> mesh_faces;
 
 	for (int i = 0; i < gridCells.size(); i++) {
-		generateCellMesh(gridCells[i], 50, mesh_faces, mesh_vertices);
+		generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
 	}
 	
 	printf("size of faces: %d\n", mesh_faces.size());
@@ -191,7 +197,7 @@ int main()
 	// Describe vertex data to OpenGL
 	glBufferData(GL_ARRAY_BUFFER, 
 				sizeof(float) * mesh_vertices.size() * 4, mesh_vertices.data(),
-				GL_STATIC_DRAW);
+				GL_DYNAMIC_DRAW);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
@@ -201,7 +207,7 @@ int main()
 	// Describe elemnt array buffer to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
 					sizeof(uint32_t) * mesh_faces.size() * 3,
-					mesh_faces.data(), GL_STATIC_DRAW);
+					mesh_faces.data(), GL_DYNAMIC_DRAW);
 
 	// Setup vertex shader.
 	GLuint vertex_shader_id = 0;
@@ -260,7 +266,8 @@ int main()
 	float aspect = 0.0f;
 	bool draw_floor = false;
 	double time = 0.0f;
-	
+	int timeStep = 0;
+	int oldMeshFaces = mesh_faces.size();
 	while (!glfwWindowShouldClose(window)) {
 	//while (true) {
 		// Setup some basic window stuff.
@@ -300,21 +307,45 @@ int main()
 				<< time << " sec";
 		}
 		if (!paused) {
-			updateSPH(0, NUM_PARTICLES);
-			particlePositions = getParticlePositions();
-			updateIsoValues(gridCells, particlePositions, 30);
-			mesh_vertices.clear();
-			mesh_faces.clear();
-			
-			for (int i = 0; i < gridCells.size(); i++) {
-				generateCellMesh(gridCells[i], 50, mesh_faces, mesh_vertices);
+
+
+
+			time+= DT;
+			printf("time: %f\n", time);
+			//updateSPH(0, NUM_PARTICLES);
+			//particlePositions = getParticlePositions();
+			for (int i = 0; i < particlePositions.size() / 3; i++) {
+				particlePositions[3 * i + 1] -= 1;
 			}
+			printf("%f\n", particlePositions[1]);
+			if (timeStep % 1 == 0) {
+				//updateIsoValues(gridCells, particlePositions, RADIUS);
+
+				 
+				printf("%d\n", mesh_vertices.size()); 
+				for (int i = 0; i < gridCells.size(); i++) {
+					generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
+				}
+				printf("%d\n", mesh_vertices.size());
+			}
+			timeStep++;
+			PARTICLES_WITHIN_VERTEX+=1;
+
+						/* Update mesh face and vertex buffers data after updating isoValues */
+			glBindVertexArray(meshVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBuffer]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_vertices.size(), mesh_vertices.data(), GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBuffer]);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+								sizeof(uint32_t) * mesh_faces.size() * 3,
+								mesh_faces.data(), GL_DYNAMIC_DRAW);
+
 		}
-		/* Marching Cubes Update */
 
 		
+		//glBindBUffer(GL_FACE)
 
-		glfwSetWindowTitle(window, title.str().data());
 
 		// Switch VAO
 		glBindVertexArray(meshVAO);
@@ -336,7 +367,7 @@ int main()
 		
 		
 		glDrawElements(GL_TRIANGLES, 3 * mesh_faces.size(), GL_UNSIGNED_INT, 0);
-	
+
 
 	
 		glfwPollEvents();
