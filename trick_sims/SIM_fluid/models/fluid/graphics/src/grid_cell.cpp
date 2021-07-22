@@ -4,12 +4,16 @@
 void updateIsoValues(std::vector<GridCell>& gridCells, std::vector<float> particlePositions, float radius) {
     int numParticles = particlePositions.size() / 3;
     for (int i = 0; i < gridCells.size(); i++) {
-        GridCell& current = gridCells[i];
+        GridCell& current = gridCells[i]; 
         for (int j = 0; j < 8; j++) {
             
-			
+			// current.isoValues[j] = 0;
             glm::vec3 vertexPos(current.vertices[j]);
+			float x = vertexPos[0];
+			float y = vertexPos[1];
+			float z = vertexPos[2];
 			current.isoValues[j] = glm::length(vertexPos);
+			
 			/*
             for (int k = 0; k < numParticles; k++) {
                 float x = particlePositions[3*k];
