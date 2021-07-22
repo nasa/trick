@@ -146,9 +146,9 @@ int main()
 
 	
 	const int MC_GRID_DIM = 16;
-	const int RADIUS = 4 * BOUND / MC_GRID_DIM;
+	const int RADIUS = 2 * BOUND / MC_GRID_DIM;
 	// number of particles within MC GridCell vertex;
-	double PARTICLES_WITHIN_VERTEX = 5;
+	int PARTICLES_WITHIN_VERTEX = 1;
 
 	std::vector<GridCell> gridCells;
 	initializeGridCells(gridCells, BOUND, MC_GRID_DIM);
@@ -314,27 +314,36 @@ int main()
 			printf("time: %f\n", time);
 			//updateSPH(0, NUM_PARTICLES);
 			//particlePositions = getParticlePositions();
-			for (int i = 0; i < particlePositions.size() / 3; i++) {
-				particlePositions[3 * i + 1] -= 1;
-			}
+			/*for (int i = 0; i < particlePositions.size() / 3; i++) {
+				particlePositions[3 * i + 1] -= .1;
+			}*/
 			printf("%f\n", particlePositions[1]);
-			if (timeStep % 1 == 0) {
+			//if (timeStep % 1 == 0) {
 				//updateIsoValues(gridCells, particlePositions, RADIUS);
 
-				 
-				printf("%d\n", mesh_vertices.size()); 
-				for (int i = 0; i < gridCells.size(); i++) {
-					generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
-				}
-				printf("%d\n", mesh_vertices.size());
+			/*	 
+			printf("%d\n", mesh_vertices.size()); 
+			mesh_vertices.clear();
+			mesh_faces.clear();
+			gridCells.clear();
+			initializeGridCells(gridCells, BOUND, MC_GRID_DIM);
+			updateIsoValues(gridCells, particlePositions, RADIUS);
+			for (int i = 0; i < gridCells.size(); i++) {
+				generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
 			}
-			timeStep++;
-			PARTICLES_WITHIN_VERTEX+=1;
+			printf("%d\n", mesh_vertices.size());
+			printf("%d\n", mesh_faces.size());*/
+			//}
+			//timeStep++;
+			//PARTICLES_WITHIN_VERTEX+=1;
 
 						/* Update mesh face and vertex buffers data after updating isoValues */
+			for (int i = 0; i < mesh_vertices.size(); i++) {
+				mesh_vertices[i][1] -= 2;
+			}
 			glBindVertexArray(meshVAO);
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBuffer]);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * mesh_vertices.size(), mesh_vertices.data(), GL_DYNAMIC_DRAW);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, 4 * sizeof(float) * mesh_vertices.size(), mesh_vertices.data());
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBuffer]);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
