@@ -1,8 +1,8 @@
 class Params:
     #Change the following to change the default parameters
     def __init__(self) -> None:
-        self.__port = 8888
-        self.__var_server_port = 5001
+        self.__port = 9000
+        self.__var_server_port = 9001
         self.__host = "localhost"
         self.__enable_ssl = False
         self.__test_time = True
