@@ -144,11 +144,12 @@ def test_bool_to_sting():
     assert bool_to_string(False) == "no"
 
 def test_run():
+    dir_path = os.path.dirname(os.path.realpath(__file__))
     stdout = run('echo Hello World!')
     assert stdout == "Hello World!\n"
     stdout = run("configure")
     assert stdout == "/bin/sh: 1: configure: not found\n"
-    stdout = run("python3 check_env.py", "hello")
+    stdout = run(f"python3 {dir_path}/check_env.py", "hello")
     assert stdout == "Hello World!\n"
 
 def test_envvar():
