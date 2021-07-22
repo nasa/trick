@@ -13,73 +13,32 @@ from requests.api import get
 
 # TODO: Get rid of this and use automatic discovery when Trick requires Python 2.7
 path.append("../..")
-from parameters import Params
-params = Params()
+from utils import params, is_web_server_started
 
-@pytest.fixture(scope="session", autouse=True)
-def build_sim():
-    trick_home = os.environ["TRICK_HOME"]
-    path_to_sim = os.path.join(trick_home, "trick_sims", "Cannon", "SIM_cannon_numeric")
-    input_folder = "RUN_test"
-    # test_input_file = f"tmp_input_for_test_{datetime.datetime.now()}.py"
-    test_input_file = f"tmp_input_for_test.py"
-    with open(os.path.join(path_to_sim, input_folder, test_input_file), "w") as f:
-        f.write( \
-            f"""web.server.enable = True
-web.server.debug = False
-web.server.ssl_enable = {params.get_ssl_enable()}
-web.server.path_to_ssl_cert = '{params.get_ssl_cert_path()}'
-web.server.port = {params.get_port()}
+@pytest.mark.webserver
+class TestWebserverHttp:    
+    def test_alloc_info(self):
+        url = params.get_url("api/http/alloc_info")
+        res = requests.get(url, verify=False)
+        data = res.json()
+        assert len(data["alloc_list"]) == 10
+        assert data["chunk_size"] == 10
+        assert data["chunk_start"] == 0
+        assert data["alloc_total"] == 49
 
-trick.var_server_set_port({params.get_var_server_port()})
+    def test_alloc_info_2(self):
+        endpoint = "api/http/alloc_info?start=0&count=10"
+        url = params.get_url(endpoint)
+        res = requests.get(url, verify=False)
+        assert len(res.json()["alloc_list"]) == 10
 
-exec(open("Modified_data/realtime.py").read())
-exec(open("Modified_data/cannon.dr").read())""")
-    
-    build_cmd = f"echo \"cd {path_to_sim} && make -C {trick_home}/trick_source/web/CivetServer && make clean && {trick_home}/bin/trick-CP\" | /bin/bash"
-    print("....................Running:", build_cmd)
-    subprocess.run(build_cmd, shell=True)
-    
-    cmd = f'echo "cd {path_to_sim} && ./S_main_Linux_9.3_x86_64.exe {os.path.join(input_folder, test_input_file)} &" | /bin/bash'
-    print("....................Running:", cmd)
-    subprocess.run(cmd, shell=True)
-    
-    while True:
-        p = subprocess.run(f"echo \"netstat -tulpan | grep {params.get_port()}\" | /bin/bash", capture_output=True, shell=True)
-        print(f"Checking for port output: {p.stdout}")
-        sleep(.1) #We sleep to use less recourses
-        if p.stdout != b"":
-            break
-    yield
-    os.system("pgrep S_ | xargs kill -9")
-    os.remove(os.path.join(path_to_sim, input_folder, test_input_file))
-
-def pytest_collection_modifyitems(items):
-    for item in items:
-        item.add_marker(pytest.mark.webserver)
-
-def test_alloc_info():
-    url = params.get_url("api/http/alloc_info")
-    res = requests.get(url, verify=False)
-    data = res.json()
-    assert len(data["alloc_list"]) == 10
-    assert data["chunk_size"] == 10
-    assert data["chunk_start"] == 0
-    assert data["alloc_total"] == 49
-
-def test_alloc_info_2():
-    endpoint = "api/http/alloc_info?start=0&count=10"
-    url = params.get_url(endpoint)
-    res = requests.get(url, verify=False)
-    assert len(res.json()["alloc_list"]) == 10
-
-def test_vs_connections():
-    subprocess.Popen(f"nc localhost {params.get_var_server_port()}".split())
-    sleep(.2) #Wait for the connection to persist.
-    endpoint = "api/http/vs_connections"
-    url = params.get_url(endpoint)
-    res = requests.get(url, verify=False)
-    assert res.json()["variable_server_connections"][0]["connection"]["client_IP_address"] == "127.0.0.1"
+    def test_vs_connections(self):
+        subprocess.Popen(f"nc localhost {params.get_var_server_port()}".split())
+        sleep(.2) #Wait for the connection to persist.
+        endpoint = "api/http/vs_connections"
+        url = params.get_url(endpoint)
+        res = requests.get(url, verify=False)
+        assert res.json()["variable_server_connections"][0]["connection"]["client_IP_address"] == "127.0.0.1"
 
 
 

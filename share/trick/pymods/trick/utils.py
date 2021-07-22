@@ -1,16 +1,41 @@
+from time import sleep
+import subprocess
+import os
+
 #This file contains variables for the civet_server tests
 class Params:
     #Change the following to change the default parameters
     def __init__(self) -> None:
-        self.__port = 9000
-        self.__var_server_port = 9001
+        self.__port = 5000
+        self.__var_server_port = 5001
         self.__host = "localhost"
         self.__enable_ssl = False
         self.__test_time = True
         # self.__ssl_cert_path = "server.pem"
         # self.__ssl_cert_path = "/home/cherpin/git/trick_fork/trick_sims/Cannon/SIM_cannon_numeric/server.pem"
         self.__ssl_cert_path = "/home/cherpin/.ssl/server.pem"
+        self.__build_sim = False
+        self.__start_sim = False
+        self.__trick_home = os.environ["TRICK_HOME"]
+        self.__path_to_sim = os.path.join(self.get_trick_home(), "trick_sims", "Cannon", "SIM_cannon_numeric")
+        self.__input_folder = "RUN_test"
+        self.__test_input_file = f"tmp_input_for_test.py"
     
+    def get_trick_home(self):
+        return self.__trick_home
+    def get_path_to_sim(self):
+        return self.__path_to_sim
+    def get_input_folder(self):
+        return self.__input_folder
+    def get_test_input_file(self):
+        return self.__test_input_file
+
+    def get_start_sim(self):
+        return self.__start_sim
+
+    def get_build_sim(self):
+        return self.__build_sim
+
     def get_ssl_cert_path(self):
         return self.__ssl_cert_path
 
@@ -38,3 +63,13 @@ class Params:
 
     def get_ws_url(self, endpoint):
         return f"ws{ 's' if self.get_ssl_enable() else '' }://{self.get_host()}:{self.get_port()}/{endpoint}"
+
+params = Params()
+def is_web_server_started():
+    for _ in range(10): #Wait 10 seconds i.e 50 * .1 seconds
+        p = subprocess.run(f"echo \"netstat -tulpan | grep {params.get_port()}\" | /bin/bash", capture_output=True, shell=True)
+        # print(f"Checking for port output: {p.stdout}")
+        sleep(.1) #We sleep to use less recourses
+        if p.stdout != b"":
+            return True
+    return False
