@@ -1,7 +1,10 @@
 import pytest
-from main import App, ChooseConfigure, LandingPage
 from tkinter.constants import END
 import os
+import sys
+
+sys.path.append(os.path.join(os.environ.get("TRICK_HOME", "../../../../../.."), "trick_source/trick_gsetup"))
+from main import App, ChooseConfigure, LandingPage
 
 def set_bool(bool, value):
     bool.bool.set(value)
