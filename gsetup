@@ -1,0 +1,5 @@
+#!/usr/bin/python3
+import os
+from trick_source.trick_gsetup.main import main
+
+main()

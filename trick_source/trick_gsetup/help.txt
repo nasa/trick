@@ -1,0 +1,117 @@
+`configure' configures Trick 17+ to adapt to many kinds of systems.
+
+Usage: ../git/trick/configure [OPTION]... [VAR=VALUE]...
+
+To assign environment variables (e.g., CC, CFLAGS...), specify them as
+VAR=VALUE.  See below for descriptions of some of the useful variables.
+
+Defaults for the options are specified in brackets.
+
+Configuration:
+  -h, --help              display this help and exit
+      --help=short        display options specific to this package
+      --help=recursive    display the short help of all the included packages
+  -V, --version           display version information and exit
+  -q, --quiet, --silent   do not print `checking ...' messages
+      --cache-file=FILE   cache test results in FILE [disabled]
+  -C, --config-cache      alias for `--cache-file=config.cache'
+  -n, --no-create         do not create output files
+      --srcdir=DIR        find the sources in DIR [configure dir or `..']
+
+Installation directories:
+  --prefix=PREFIX         install architecture-independent files in PREFIX
+                          [/usr/local]
+  --exec-prefix=EPREFIX   install architecture-dependent files in EPREFIX
+                          [PREFIX]
+
+By default, `make install' will install all the files in
+`/usr/local/bin', `/usr/local/lib' etc.  You can specify
+an installation prefix other than `/usr/local' using `--prefix',
+for instance `--prefix=$HOME'.
+
+For better control, use the options below.
+
+Fine tuning of the installation directories:
+  --bindir=DIR            user executables [EPREFIX/bin]
+  --sbindir=DIR           system admin executables [EPREFIX/sbin]
+  --libexecdir=DIR        program executables [EPREFIX/libexec]
+  --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
+  --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
+  --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --libdir=DIR            object code libraries [EPREFIX/lib]
+  --includedir=DIR        C header files [PREFIX/include]
+  --oldincludedir=DIR     C header files for non-gcc [/usr/include]
+  --datarootdir=DIR       read-only arch.-independent data root [PREFIX/share]
+  --datadir=DIR           read-only architecture-independent data [DATAROOTDIR]
+  --infodir=DIR           info documentation [DATAROOTDIR/info]
+  --localedir=DIR         locale-dependent data [DATAROOTDIR/locale]
+  --mandir=DIR            man documentation [DATAROOTDIR/man]
+  --docdir=DIR            documentation root [DATAROOTDIR/doc/trick]
+  --htmldir=DIR           html documentation [DOCDIR]
+  --dvidir=DIR            dvi documentation [DOCDIR]
+  --pdfdir=DIR            pdf documentation [DOCDIR]
+  --psdir=DIR             ps documentation [DOCDIR]
+
+X features:
+  --x-includes=DIR    X include files are in DIR
+  --x-libraries=DIR   X library files are in DIR
+
+System types:
+  --build=BUILD     configure for building on BUILD [guessed]
+  --host=HOST       cross-compile to build programs to run on HOST [BUILD]
+
+Optional Features:
+  --disable-option-checking  ignore unrecognized --enable/--with options
+  --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+  --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-32bit          Force Trick and sims to compile 32bit
+  --enable-offline        Compile Trick in offline mode. Un-tar the
+                          trick-offline directory in TRICK_HOME to use this
+                          feature
+  --enable-mongoose       Compile Trick with webserver capabilites.
+  --enable-java           use java (default is yes)
+  --enable-er7utils       use er7_utils (default is yes)
+
+Optional Packages:
+  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-x                use the X Window System
+  --with-python[=DIR]     python root directory
+  --without-prepend-path  do not prepend to path (this is default)
+  --with-prepend-path[=DIR]
+                          specify a directory to prepend to PATH (default is
+                          /usr/local/bin)
+  --with-swig[=DIR]       path of directory containing the SWIG executable.
+  --with-llvm[=DIR]       LLVM root directory
+  --with-zlib=DIR         root directory path of zlib installation [defaults to
+                          /usr/local or /usr if not found in /usr/local]
+  --without-zlib          to disable zlib usage completely
+  --with-udunits[=DIR]    UDUnits root directory
+  --with-hdf5[=DIR]       HDF5 root directory
+  --with-dmtcp[=DIR]      DMTCP root directory
+  --with-tpro[=DIR]       TPRO root directory
+  --with-bc635[=DIR]      BC635 root directory
+  --with-gsl[=DIR]        GSL root directory
+  --with-gtest[=DIR]      GTEST root directory
+
+Some influential environment variables:
+  XMKMF       Path to xmkmf, Makefile generator for X Window System
+  CXX         C++ compiler command
+  CXXFLAGS    C++ compiler flags
+  LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
+              nonstandard directory <lib dir>
+  LIBS        libraries to pass to the linker, e.g. -l<library>
+  CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
+              you have headers in a nonstandard directory <include dir>
+  CXXCPP      C++ preprocessor
+  CC          C compiler command
+  CFLAGS      C compiler flags
+  JAVA_CC     java compiler command
+  JAVA_CC_FLAGS
+              java compiler flags
+  CPP         C preprocessor
+
+Use these variables to override the choices made by `configure' or to help
+it to find libraries and programs with nonstandard names/locations.
+
+Report bugs to the package provider.
