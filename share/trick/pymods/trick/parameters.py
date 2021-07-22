@@ -1,3 +1,4 @@
+#This file contains variables for the civet_server tests
 class Params:
     #Change the following to change the default parameters
     def __init__(self) -> None:

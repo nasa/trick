@@ -11,6 +11,8 @@ import datetime
 
 from requests.api import get
 
+# TODO: Get rid of this and use automatic discovery when Trick requires Python 2.7
+path.append("../..")
 from parameters import Params
 params = Params()
 
@@ -51,6 +53,10 @@ exec(open("Modified_data/cannon.dr").read())""")
     yield
     os.system("pgrep S_ | xargs kill -9")
     os.remove(os.path.join(path_to_sim, input_folder, test_input_file))
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        item.add_marker(pytest.mark.webserver)
 
 def test_alloc_info():
     url = params.get_url("api/http/alloc_info")

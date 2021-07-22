@@ -15,3 +15,6 @@ trick.add_read(read, "trick.ball_print(ball.state)")
 # Set the stop time
 trick.exec_set_terminate_time(300.0)
 
+trick.var_server_set_port(7000)
+trick.exec_set_freeze_command(True)
+
