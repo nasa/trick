@@ -89,7 +89,7 @@ class TestWebserverWs:
 		path = os.path.join(params.get_path_to_sim(), file_to_create)
 		if os.path.exists(path):
 			os.remove(path)
-			warning = "This test proves that we have shell access through the websocket api."
+			warning = "This test proves that we have shell access through the websocket api.  Is this a security concern?  Should this test fail if shell access is available?"
 			print(warning)
 			assert 1
 			# raise RuntimeError(warning)

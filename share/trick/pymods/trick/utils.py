@@ -6,16 +6,16 @@ import os
 class Params:
     #Change the following to change the default parameters
     def __init__(self) -> None:
-        self.__port = 5000
-        self.__var_server_port = 5001
+        self.__port = 9000
+        self.__var_server_port = 9001
         self.__host = "localhost"
-        self.__enable_ssl = False
+        self.__enable_ssl = True
         self.__test_time = True
         # self.__ssl_cert_path = "server.pem"
         # self.__ssl_cert_path = "/home/cherpin/git/trick_fork/trick_sims/Cannon/SIM_cannon_numeric/server.pem"
         self.__ssl_cert_path = "/home/cherpin/.ssl/server.pem"
         self.__build_sim = False
-        self.__start_sim = False
+        self.__start_sim = True
         self.__trick_home = os.environ["TRICK_HOME"]
         self.__path_to_sim = os.path.join(self.get_trick_home(), "trick_sims", "Cannon", "SIM_cannon_numeric")
         self.__input_folder = "RUN_test"
@@ -43,7 +43,10 @@ class Params:
         return self.__port
 
     def get_host(self):
-        return self.__host
+        if self.get_ssl_enable():
+            return self.__host + ".ssl"
+        else:
+            return self.__host
 
     def get_ssl_enable(self):
         return self.__enable_ssl

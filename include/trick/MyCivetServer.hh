@@ -26,6 +26,7 @@ class MyCivetServer {
         bool time_homogeneous;
         const char* path_to_ssl_cert;
         bool ssl_enable;
+        const char* error_log_file;
 
         struct mg_context *ctx; /* ** civetweb */
 

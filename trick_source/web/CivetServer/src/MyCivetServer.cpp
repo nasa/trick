@@ -174,6 +174,7 @@ int MyCivetServer::default_data() {
     shutting_down = false;
     path_to_ssl_cert = "~/.ssl/server.pem"; //TODO:Make a better default path
     ssl_enable = false;
+    error_log_file = "civet_server_error.log";
 
     installWebSocketSessionMaker("VariableServer", makeVariableServerSession);
     installHTTPGEThandler("vs_connections", handle_HTTP_GET_vs_connections);
@@ -251,7 +252,9 @@ int MyCivetServer::init() {
             port_str = std::to_string(port);
         }
         const char* options[] = {
-            "listening_ports", port_str.c_str(), "ssl_certificate", path_to_ssl_cert, "document_root", document_root, "enable_directory_listing", "yes", 0
+            "listening_ports", port_str.c_str(), "ssl_certificate", path_to_ssl_cert, "document_root", document_root, "enable_directory_listing", "yes"
+                , "error_log_file", error_log_file
+                , 0
         };
 
         // const char*options[] = {
@@ -268,7 +271,7 @@ int MyCivetServer::init() {
         ctx = mg_start(&callbacks, 0, options);
         if (ctx == NULL) {
             message_publish(MSG_ERROR, "Trick Webserver: Failed to create listener, exiting Simulation.\n"
-                                "Perhaps another program is already using port %i.\n", port);
+                                "Perhaps another program is already using port %i.  See %s file for more information.\n", port, error_log_file);
             exit(-1);
         } else {
             message_publish(MSG_INFO, "Trick Webserver: Listening on port. %i\n", port);

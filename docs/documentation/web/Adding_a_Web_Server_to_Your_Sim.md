@@ -10,14 +10,15 @@ To add a web server to your simulation, simply include the CivetServer sim modul
 
 The following (input.py) parameters are available to configure your web server:   
 
-|Parameter Name          | Default Value        | Description                                                     |
-|------------------------|----------------------|-----------------------------------------------------------------|
-|web.server.enable       | False                |Must be explicitly enabled                                       |
-|web.server.port         | "8888"               |Web servers “listen” port                                        |
-|web.server.document_root| "www"                |Web servers document root                                        |
-|web.server.debug        | False                |Print Client/Server Communication.                               |
-|web.server.ssl_enable   | False                |Encrypt traffic. Uses https instead of http.                     |
-|web.server.path_to_ssl_cert|"~/.ssl/server.pem"|Path to your certificate.  This is only used if ssl_enable = True|
+|Parameter Name             | Default Value             | Description                                                     |
+|---------------------------|---------------------------|-----------------------------------------------------------------|
+|web.server.enable          | False                     |Must be explicitly enabled                                       |
+|web.server.port            | "8888"                    |Web servers “listen” port                                        |
+|web.server.document_root   | "www"                     |Web servers document root                                        |
+|web.server.debug           | False                     |Print Client/Server Communication.                               |
+|web.server.ssl_enable      | False                     |Encrypt traffic. Uses https instead of http.                     |
+|web.server.path_to_ssl_cert|"~/.ssl/server.pem"        |Path to your certificate.  This is only used if ssl_enable = True|
+|web.server.error_log_file  | "civet_server_error.log"  |CivetWeb error log file.                                         |
 
 For your web server to be active, you must at least specify the following :   
 
