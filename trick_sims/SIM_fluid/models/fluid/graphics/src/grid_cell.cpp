@@ -7,24 +7,26 @@ void updateIsoValues(std::vector<GridCell>& gridCells, std::vector<float> partic
         GridCell& current = gridCells[i]; 
         for (int j = 0; j < 8; j++) {
             
-			// current.isoValues[j] = 0;
+			current.isoValues[j] = 0;
+			
             glm::vec3 vertexPos(current.vertices[j]);
-			float x = vertexPos[0];
+			/*float x = vertexPos[0];
 			float y = vertexPos[1];
 			float z = vertexPos[2];
-			current.isoValues[j] = glm::length(vertexPos);
+			current.isoValues[j] = glm::length(vertexPos);*/
 			
-			/*
+			
             for (int k = 0; k < numParticles; k++) {
                 float x = particlePositions[3*k];
                 float y = particlePositions[3*k+1];
                 float z = particlePositions[3*k+2];
                 glm::vec3 particlePos(x, y, z);
                 if (glm::length(vertexPos - particlePos) < radius) {
-                    current.isoValues[j]++;
+                    current.isoValues[j]+=1;
                     
                 }
-            }*/
+            }
+			//if (current.isoValues[j] > 0)
             //printf("isoValue: %f \n", current.isoValues[j]);
         }
     }
