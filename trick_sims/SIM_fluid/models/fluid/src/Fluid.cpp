@@ -49,7 +49,28 @@ void Fluid::buildSpatialGrid()
 	}
 }
 
-
+std::vector<Particle> Fluid::getCandidateNeighbors(float x, float y, float z) {
+	const int CELLS_PER_DIM = (2 * BOUND) / (2 * H);
+	int gridX = (x + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
+	int gridY = (y + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
+	int gridZ = (z + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
+	std::vector<Particle> neighbors;
+	for(int curX = gridX - 1; curX <= gridX + 1; curX++) {
+		for(int curY = gridY - 1; curY <= gridY + 1; curY++) {
+			for(int curZ = gridZ - 1; curZ <= gridZ + 1; curZ++) {
+				int gridKey = gridX * CELLS_PER_DIM * CELLS_PER_DIM  + gridY * CELLS_PER_DIM + gridZ;
+				if(spatialGrid.find(gridKey) != spatialGrid.end()) {
+					std::vector<Particle> cellParticles = spatialGrid[gridKey];
+					for (int i = 0; i < cellParticles.size(); i++) {
+						neighbors.push_back(cellParticles[i]);
+					}
+			
+				}
+			}
+		}
+	}
+	return neighbors;
+}
 
 int Fluid::update_SPH() {
 	// CPU simulation
