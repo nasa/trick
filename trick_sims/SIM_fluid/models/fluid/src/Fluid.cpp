@@ -28,15 +28,40 @@ int Fluid::default_data() {
 	return 0;
 }
 
+
+void Fluid::buildSpatialGrid()
+{
+	spatialGrid.clear();
+	const int CELLS_PER_DIM = (2 * BOUND) / (2 * H);
+	for (int i = 0; i < particles.size(); i++) {
+		
+		int gridX = (particles[i].pos[0] + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
+		int gridY = (particles[i].pos[1] + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
+		int gridZ = (particles[i].pos[2] + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
+		int gridKey = gridX * CELLS_PER_DIM * CELLS_PER_DIM  + gridY * CELLS_PER_DIM + gridZ;
+		if (spatialGrid.find(gridKey) != spatialGrid.end()) {
+			spatialGrid[gridKey].push_back(particles[i]);
+		} else {
+			std::vector<Particle> particlesInCell;
+			particlesInCell.push_back(particles[i]);
+			spatialGrid[gridKey] = particlesInCell;
+		}
+	}
+}
+
+
+
 int Fluid::update_SPH() {
-	/*
+	// CPU simulation
+	
 	int p_start = 0;
 	int p_end = particles.size();
 	verletUpdatePosition(p_start, p_end);
 	computeDensityAndPressure(p_start, p_end);
 	computeForces(p_start, p_end);
-	timeIntegration(p_start, p_end);*/
-	updateSPH_GPU(particles, this);
+	timeIntegration(p_start, p_end);
+	// GPU simulation
+	/*updateSPH_GPU(particles, this);*/
 	return 0;
 
 }
