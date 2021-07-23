@@ -5,6 +5,7 @@ PURPOSE: (Simulate a fluid using smoothed particle hydrodynamics (SPH).)
 #define _fluid_hh_
 #include "Particle.hh"
 #include <vector>
+#include <unordered_map>
 #include <cmath>
 
 class Fluid {
@@ -13,8 +14,13 @@ class Fluid {
 		void computeForces(int p_start, int p_end);
 		void verletUpdatePosition(int p_start, int p_end);
 		void timeIntegration(int p_start, int p_end);
+		void buildSpatialGrid();
+		std::vector<Particle> getCandidateNeighbors(float x, float y, float z);
+
+
 	public:
 		Fluid(){};
+		std::unordered_map<int, std::vector<Particle>> spatialGrid;
 		std::vector<float> getParticlePositions();
 		std::vector<Particle> particles;
 		
