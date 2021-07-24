@@ -9,7 +9,7 @@ class Params:
         self.__port = 9000
         self.__var_server_port = 9001
         self.__host = "localhost"
-        self.__enable_ssl = True
+        self.__enable_ssl = False
         self.__test_time = True
         # self.__ssl_cert_path = "server.pem"
         # self.__ssl_cert_path = "/home/cherpin/git/trick_fork/trick_sims/Cannon/SIM_cannon_numeric/server.pem"
