@@ -138,8 +138,8 @@ jobs:
         run: |
           pwd
           echo $TEST
-          echo echo workspace is $TRICK_HOME
-          echo file in workspace: 
+          echo workspace is $TRICK_HOME
+          echo files in workspace: 
           ls -la $TRICK_HOME
         env:
           TEST: Hello World!
@@ -154,6 +154,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@master
       - name: Create testing environment
+      - name: Info after checkout
+        run: |
+          pwd
+          echo $TEST
+          echo workspace is $TRICK_HOME
+          echo files in workspace: 
+          ls -la $TRICK_HOME
+        env:
+          TEST: Hello World!
+          TRICK_HOME: ${{ github.worspace }}
         run: |
           cd share/trick/pymods/trick/
           python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
