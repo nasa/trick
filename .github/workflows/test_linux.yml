@@ -147,15 +147,15 @@ jobs:
         run: |
           cd share/trick/pymods/trick/
           python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
-      - name: Run Civet Tests
-        run: |
-          cd share/trick/pymods/trick/
-          . .venv/bin/activate
-          ./run_tests.py
       - name: Build trick
         run: |
           export MAKEFLAGS=-j`nproc`
           ./configure
           make
+      - name: Run Civet Tests
+        run: |
+          cd share/trick/pymods/trick/
+          . .venv/bin/activate
+          ./run_tests.py
       - name: Test
         run: make test
