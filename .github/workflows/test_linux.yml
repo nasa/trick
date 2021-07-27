@@ -134,7 +134,10 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Python packages
         run: |
-          python -m pip install -r share/trick/pymods/trick/requirements.txt
+          python -m pip install websockets
+          python -m pip install requests
+          python -m pip install pytest
+          python -m pip install pytest-asyncio
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
