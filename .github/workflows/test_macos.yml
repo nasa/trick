@@ -10,7 +10,6 @@ on:
 
 jobs:
   macOS:
-    python-version: [3.6, 3.7, 3.8, 3.9, pypy2, pypy3]
     runs-on: macos-latest
     steps:
     - name: Checkout repository
