@@ -153,7 +153,6 @@ jobs:
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
         uses: actions/checkout@master
-      - name: Create testing environment
       - name: Info after checkout
         run: |
           pwd
@@ -164,6 +163,7 @@ jobs:
         env:
           TEST: Hello World!
           TRICK_HOME: ${{ github.worspace }}
+      - name: Create testing environment
         run: |
           cd share/trick/pymods/trick/
           python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
