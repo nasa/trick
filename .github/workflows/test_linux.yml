@@ -127,6 +127,7 @@ jobs:
 #-------- Job definition ----------------
     runs-on: ubuntu-18.04
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
+      options: --user 1001
     steps:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
