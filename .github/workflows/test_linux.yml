@@ -134,7 +134,6 @@ jobs:
         # uses: actions/setup-python@v2
         # with:
           # python-version: ${{ matrix.python-version }}
-      - name: Install Python packages
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
