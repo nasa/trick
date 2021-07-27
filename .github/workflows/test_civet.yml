@@ -5,7 +5,7 @@ on:
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
-    - '!.github/workflows/trickops.yml'
+    - '!.github/workflows/test_civet.yml'
   pull_request:
 
 defaults:
