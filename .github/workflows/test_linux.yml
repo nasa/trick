@@ -134,11 +134,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Python packages
         run: |
-          python -m pip install --upgrade pip --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org
-          python -m pip install websockets --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org
-          python -m pip install requests --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org
-          python -m pip install pytest --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org
-          python -m pip install pytest-asyncio --trusted-host pypi.python.org --trusted-host files.pythonhosted.org --trusted-host pypi.org
+          python -m pip install --upgrade pip
+          python -m pip install websockets
+          python -m pip install requests
+          python -m pip install pytest
+          python -m pip install pytest-asyncio
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
