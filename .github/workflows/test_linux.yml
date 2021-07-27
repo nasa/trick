@@ -138,8 +138,12 @@ jobs:
         run: |
           pwd
           echo $TEST
+          echo echo workspace is $TRICK_HOME
+          echo file in workspace: 
+          ls -la $TRICK_HOME
         env:
           TEST: Hello World!
+          TRICK_HOME: ${{ github.worspace }}
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
@@ -164,6 +168,6 @@ jobs:
           . .venv/bin/activate
           ./run_tests.py
         env:
-          TRICK_HOME: "/"
+          TRICK_HOME: "${{ github.workspace }}/trick"
       - name: Test
         run: make test
