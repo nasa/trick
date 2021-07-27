@@ -342,7 +342,7 @@ premade:
 #                                   TESTING
 ################################################################################
 # This target runs Trick's Unit-tests and simulation-tests.
-test: unit_test sim_test
+test: unit_test sim_test pytest
 	@ echo "All tests completed sucessfully"
 
 .PHONY: $(UNIT_TEST_DIRS)
@@ -360,6 +360,9 @@ $(DPX_UNIT_TEST_DIR):
 sim_test:
 	@ $(MAKE) -C test
 	@ $(MAKE) -C trick_sims test
+
+pytest:
+	make -C share/trick/pymods/trick
 
 #requirements:
 #	@ $(MAKE) -C trick_test/requirements_docs install

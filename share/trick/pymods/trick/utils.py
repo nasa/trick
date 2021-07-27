@@ -14,9 +14,9 @@ class Params:
         # self.__ssl_cert_path = "server.pem"
         # self.__ssl_cert_path = "/home/cherpin/git/trick_fork/trick_sims/Cannon/SIM_cannon_numeric/server.pem"
         self.__ssl_cert_path = "/home/cherpin/.ssl/server.pem"
-        self.__build_sim = False
+        self.__build_sim = True
         self.__start_sim = True
-        self.__trick_home = os.environ["TRICK_HOME"]
+        self.__trick_home = os.environ.get("TRICK_HOME", "../../../../")
         self.__path_to_sim = os.path.join(self.get_trick_home(), "trick_sims", "Cannon", "SIM_cannon_numeric")
         self.__input_folder = "RUN_test"
         self.__test_input_file = f"tmp_input_for_test.py"
@@ -69,10 +69,12 @@ class Params:
 
 params = Params()
 def is_web_server_started():
-    for _ in range(10): #Wait 10 seconds i.e 50 * .1 seconds
+    for _ in range(20): #Wait 2 seconds i.e 20 * .1 seconds
         p = subprocess.run(f"echo \"netstat -tulpan | grep {params.get_port()}\" | /bin/bash", capture_output=True, shell=True)
-        # print(f"Checking for port output: {p.stdout}")
+        print(f"Checking for port output: {p.stdout}")
         sleep(.1) #We sleep to use less recourses
-        if p.stdout != b"":
+        if "LISTEN" in p.stdout.decode():
+            print("Stdout is:", p.stdout)
+            os.system("/bin/bash")
             return True
     return False

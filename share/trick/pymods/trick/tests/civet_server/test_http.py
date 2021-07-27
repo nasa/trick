@@ -9,6 +9,7 @@ from time import sleep
 import shutil
 import datetime
 
+path.append(os.path.join(os.environ.get("TRICK_HOME", "../../../.."), "trick_source/trick_gsetup"))
 from requests.api import get
 
 # TODO: Get rid of this and use automatic discovery when Trick requires Python 2.7
@@ -24,7 +25,7 @@ class TestWebserverHttp:
         assert len(data["alloc_list"]) == 10
         assert data["chunk_size"] == 10
         assert data["chunk_start"] == 0
-        assert data["alloc_total"] == 49
+        assert data["alloc_total"] == 48
 
     def test_alloc_info_2(self):
         endpoint = "api/http/alloc_info?start=0&count=10"

@@ -2,11 +2,13 @@ import inspect
 import os
 import sys
 import unittest
+import pytest
 
 # TODO: Get rid of this and use automatic discovery when Trick requires Python 2.7
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))), '..')))
 from variable_server import *
 
+# @pytest.mark.variableserver
 class TestVariableServer(unittest.TestCase):
 
     def setUp(self):
