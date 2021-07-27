@@ -4,7 +4,7 @@ import os
 
 def pause(my_str):
 	print("Type exit to continue:" + my_str)
-	os.system("/bin/bash")
+	# os.system("/bin/bash")
 	# input()
 
 #This file contains variables for the civet_server tests
@@ -21,8 +21,11 @@ class Params:
 		self.__ssl_cert_path = "/home/cherpin/.ssl/server.pem"
 		self.__build_sim = True
 		self.__start_sim = True
-		self.__trick_home = os.environ.get("TRICK_HOME", "../../../../")
-		self.__path_to_sim = os.path.join(self.get_trick_home(), "trick_sims", "Cannon", "SIM_cannon_numeric")
+		self.__trick_home = os.environ.get("TRICK_HOME", None)
+		if not self.__trick_home:
+			print("ERROR:", "TRICK_HOME not found")
+		# self.__trick_home = None
+		self.__path_to_sim = os.path.join(self.get_trick_home(), "trick_sims", "Cannon", "SIM_cannon_numeric") #TODO: Make the getter do this operation
 		self.__input_folder = "RUN_test"
 		self.__test_input_file = f"tmp_input_for_test.py"
 	
@@ -73,6 +76,7 @@ class Params:
 		return f"ws{ 's' if self.get_ssl_enable() else '' }://{self.get_host()}:{self.get_port()}/{endpoint}"
 
 params = Params()
+
 def is_web_server_started():
 	for _ in range(20): #Wait 2 seconds i.e 20 * .1 seconds, must wait for service to get to listening state.
 		p = subprocess.run(f"echo \"netstat -tulpan | grep {params.get_port()}\" | /bin/bash", capture_output=True, shell=True)

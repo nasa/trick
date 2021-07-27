@@ -14,7 +14,7 @@ from requests.api import get
 
 # TODO: Get rid of this and use automatic discovery when Trick requires Python 2.7
 path.append("../..")
-from utils import params, is_web_server_started
+from utils import is_web_server_started, params
 
 @pytest.mark.webserver
 class TestWebserverHttp:    

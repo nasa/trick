@@ -157,5 +157,7 @@ jobs:
           cd share/trick/pymods/trick/
           . .venv/bin/activate
           ./run_tests.py
+        env:
+          TRICK_HOME: "."
       - name: Test
         run: make test

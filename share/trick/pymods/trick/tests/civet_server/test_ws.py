@@ -11,7 +11,7 @@ import pathlib
 import ssl
 
 sys.path.append("../..")
-from utils import params, is_web_server_started
+from utils import is_web_server_started, params
 
 @pytest.mark.webserver
 class TestWebserverWs:
