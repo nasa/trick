@@ -13,7 +13,6 @@ import ssl
 sys.path.append("../..")
 from utils import params, is_web_server_started
 
-
 @pytest.mark.webserver
 class TestWebserverWs:
 	if params.get_ssl_enable():
