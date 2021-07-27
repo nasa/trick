@@ -25,14 +25,13 @@ class Params:
 		if not self.__trick_home:
 			print("ERROR:", "TRICK_HOME not found")
 		# self.__trick_home = None
-		self.__path_to_sim = os.path.join(self.get_trick_home(), "trick_sims", "Cannon", "SIM_cannon_numeric") #TODO: Make the getter do this operation
 		self.__input_folder = "RUN_test"
 		self.__test_input_file = f"tmp_input_for_test.py"
 	
 	def get_trick_home(self):
 		return self.__trick_home
 	def get_path_to_sim(self):
-		return self.__path_to_sim
+		return os.path.join(self.get_trick_home(), "trick_sims", "Cannon", "SIM_cannon_numeric")
 	def get_input_folder(self):
 		return self.__input_folder
 	def get_test_input_file(self):

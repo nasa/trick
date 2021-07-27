@@ -134,6 +134,12 @@ jobs:
         # uses: actions/setup-python@v2
         # with:
           # python-version: ${{ matrix.python-version }}
+      - name: Info
+        run: |
+          pwd
+          echo $TEST
+        env:
+          TEST: Hello World!
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
@@ -158,6 +164,6 @@ jobs:
           . .venv/bin/activate
           ./run_tests.py
         env:
-          TRICK_HOME: "../../../../"
+          TRICK_HOME: "/"
       - name: Test
         run: make test
