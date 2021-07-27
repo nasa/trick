@@ -149,6 +149,7 @@ jobs:
           python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
       - name: Run Civet Tests
         run: |
+          cd share/trick/pymods/trick/
           . .venv/bin/activate
           ./run_tests.py
       - name: Build trick
