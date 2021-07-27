@@ -34,7 +34,7 @@ jobs:
       - name: run Python tests
         run: |
           cd share/trick/pymods/trick/
-          source ../.venv/bin/activate
+          source .venv/bin/activate
           ./run_tests.py
       # - uses: actions/upload-artifact@master
       #   if: ${{ always() }}
@@ -64,7 +64,7 @@ jobs:
       - name: run Python tests
         run: |
           cd share/trick/pymods/trick/tests/
-          source ../.venv/bin/activate
+          source .venv/bin/activate
           ./run_tests.py
       # - uses: actions/upload-artifact@master
       #   if: ${{ always() }}
