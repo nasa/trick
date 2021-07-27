@@ -139,6 +139,10 @@ jobs:
       - name: Install Dependencies
         run: |
           ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
+      - name: Install GTest
+        run: ${{matrix.install_gtest}}
+      - name: Checkout repository
+        uses: actions/checkout@master
       - name: Create testing environment
         run: |
           cd share/trick/pymods/trick/
@@ -147,10 +151,6 @@ jobs:
         run: |
           source .venv/bin/activate
           ./run_tests.py
-      - name: Install GTest
-        run: ${{matrix.install_gtest}}
-      - name: Checkout repository
-        uses: actions/checkout@master
       - name: Build trick
         run: |
           export MAKEFLAGS=-j`nproc`
