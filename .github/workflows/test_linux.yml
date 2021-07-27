@@ -146,10 +146,10 @@ jobs:
       - name: Create testing environment
         run: |
           cd share/trick/pymods/trick/
-          python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
+          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
       - name: Run Civet Tests
         run: |
-          source .venv/bin/activate
+          . .venv/bin/activate
           ./run_tests.py
       - name: Build trick
         run: |
