@@ -135,6 +135,9 @@ jobs:
           ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
       - name: Install GTest
         run: ${{matrix.install_gtest}}
+      - name: Install Python packages
+        run: |
+          python -m pip install -r share/trick/pymods/trick/requirements.txt
       - name: Checkout repository
         uses: actions/checkout@master
       - name: Build trick
