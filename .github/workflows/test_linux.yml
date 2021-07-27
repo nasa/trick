@@ -158,6 +158,6 @@ jobs:
           . .venv/bin/activate
           ./run_tests.py
         env:
-          TRICK_HOME: "."
+          TRICK_HOME: "../../../../"
       - name: Test
         run: make test
