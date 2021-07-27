@@ -38,6 +38,8 @@ jobs:
               maven
               cmake
               zip
+              python3
+              python3-venv
             install_gtest: echo gtest already installed
             conf_pkg:  echo package manager already configured
             install_cmd: install -y
@@ -128,22 +130,25 @@ jobs:
     runs-on: ubuntu-18.04
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
     steps:
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
+      # - name: Set up Python ${{ matrix.python-version }}
+        # uses: actions/setup-python@v2
+        # with:
+          # python-version: ${{ matrix.python-version }}
       - name: Install Python packages
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install websockets
-          python -m pip install requests
-          python -m pip install pytest
-          python -m pip install pytest-asyncio
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
         run: |
           ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
+      - name: Install Python Dependencies
+        run: |
+            cd share/trick/pymods/trick
+            python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
+      - name: Run Pytest
+        run: |
+            cd share/trick/pymods/trick
+            source .venv/bin/activate
+            ./run_tests.py
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
