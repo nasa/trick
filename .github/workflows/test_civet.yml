@@ -13,6 +13,15 @@ defaults:
     shell: bash
 
 jobs:
+  # all:
+  #   matrix:
+  #     cfg:
+  #       - { os: ubuntu, tag: 20.04, arch: debian}
+  #       - { os: centos, tag: latest, arch: rhel}
+  #     include:
+  #       - cfg: {}
+  #       - cfg: { os: ubuntu }
+  #         deps
   trickops-tests-ubuntu:
     name: Unit Tests Ubuntu:20.04
     runs-on: ubuntu-20.04
@@ -20,29 +29,17 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: install dependencies
-        # Note that perl is for trick-gte which TrickOps runs and qt and everything after it is for koviz
         run: |
           export DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y git python3 python3-venv perl perl-modules-5.30 qtbase5-dev wget unzip g++ make flex bison
       - name: create virtual environment
         run: |
           cd share/trick/pymods/trick/
           python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
-      # - name: get and build koviz
-      #   run: |
-      #     cd /tmp/ && wget -q https://github.com/nasa/koviz/archive/refs/heads/master.zip && unzip master.zip
-      #     cd /tmp/koviz-master/ &&  qmake && make
       - name: run Python tests
         run: |
           cd share/trick/pymods/trick/
           source .venv/bin/activate
           ./run_tests.py
-      # - uses: actions/upload-artifact@master
-      #   if: ${{ always() }}
-      #   with:
-      #     name: doctests
-      #     path: |
-      #       share/trick/trickops/tests/*_doctest_log.txt
-      #       /tmp/log.*
 
   trickops-tests-centos8:
     name: Unit Tests CentOS:latest
@@ -57,22 +54,11 @@ jobs:
         run: |
           cd share/trick/pymods/trick/
           python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
-      # - name: get and build koviz
-      #   run: |
-      #     cd /tmp/ && wget -q https://github.com/nasa/koviz/archive/refs/heads/master.zip && unzip master.zip
-      #     cd /tmp/koviz-master/ &&  qmake-qt5 && make
       - name: run Python tests
         run: |
-          cd share/trick/pymods/trick/tests/
+          cd share/trick/pymods/trick/
           source .venv/bin/activate
           ./run_tests.py
-      # - uses: actions/upload-artifact@master
-      #   if: ${{ always() }}
-      #   with:
-      #     name: doctests
-      #     path: |
-      #       share/trick/trickops/tests/*_doctest_log.txt
-      #       /tmp/log.*
 
 # TODO: ExampleWorkflow.py is not included here because it needs a built Trick
 #  to function correctly and I don't want to duplicate the Trick build testing
