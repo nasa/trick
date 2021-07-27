@@ -7,7 +7,6 @@ PURPOSE: (Represent the state and initial conditions of an http server.)
 #include <string>
 #include <map>
 #include <pthread.h>
-#include <unordered_set>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <vector>
