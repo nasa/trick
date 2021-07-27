@@ -1,7 +1,7 @@
 PYTHON = python
 
 test:
-	venv/bin/python -m pytest tests/civet_server/test_http.py tests/civet_server/test_ws.py # tests/gsetup
+	$(PYTHON) -m pytest tests/civet_server/test_http.py tests/civet_server/test_ws.py # tests/gsetup
 
 venv:
 	$(PYTHON) -m pip install virtualenv
