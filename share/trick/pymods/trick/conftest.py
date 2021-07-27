@@ -6,7 +6,7 @@ import subprocess
 import inspect
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))), '../..')))
-from trick.utils import is_web_server_started, params
+from utils import is_web_server_started, params
 
 # store history of failures per test class name and per index in parametrize (if parametrize used)
 web_server_status = {}
@@ -56,7 +56,6 @@ trick.exec_set_freeze_command(True)""")
         cmd = f'echo "cd {params.get_path_to_sim()} && ./S_main_Linux_9.3_x86_64.exe {os.path.join(params.get_input_folder(), params.get_test_input_file())} &" | /bin/bash'
         print("....................Running:", cmd)
         subprocess.run(cmd, shell=True)
-        os.system("/bin/bash")
 
 @pytest.fixture(scope="session", autouse=True)
 def close_sim():

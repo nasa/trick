@@ -74,7 +74,5 @@ def is_web_server_started():
         print(f"Checking for port output: {p.stdout}")
         sleep(.1) #We sleep to use less recourses
         if "LISTEN" in p.stdout.decode():
-            print("Stdout is:", p.stdout)
-            os.system("/bin/bash")
             return True
     return False
