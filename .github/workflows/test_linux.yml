@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, pypy2, pypy3]
+        python-version: [3.6]
         cfg:
 #-------- Operating Systems ----------------
           - { os: ubuntu, tag: 18.04,   arch: debian }         # EOL April 2023
@@ -143,4 +143,4 @@ jobs:
           ./configure
           make
       - name: Test
-        run: make test
+        run: make pytest
