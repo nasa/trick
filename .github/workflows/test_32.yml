@@ -10,6 +10,7 @@ on:
 
 jobs:
   trick_32bit:
+    python-version: [3.6, 3.7, 3.8, 3.9, pypy2, pypy3]
     runs-on: ubuntu-18.04
     container: docker://centos:7
     steps:
