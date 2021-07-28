@@ -67,11 +67,11 @@ trick.exec_set_freeze_command(True)""")
 		print("Directory listing:")
 		os.listdir(".")
 
-		cmd = f"find / -name \"S_main*\""
-		print("....................Running:", cmd)
-		pause("Before find")
-		subprocess.run(cmd, shell=True)
-		pause("After find")
+		# cmd = f"find / -name \"S_main*\""
+		# print("....................Running:", cmd)
+		# pause("Before find")
+		# subprocess.run(cmd, shell=True)
+		# pause("After find")
 		if not os.path.exists(os.path.join(pathToSim, "S_main_Linux_9.3_x86_64.exe")):
 			build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash"
 			print("....................Running:", build_cmd)
