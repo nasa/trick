@@ -175,7 +175,9 @@ jobs:
       - name: Build Cannon Sim
         run: |
           cd trick_sims/Cannon/SIM_cannon_numeric
-          trick-CP
+          $TRICK_HOME/bin/trick-CP
+        env:
+          TRICK_HOME: "${{ github.workspace }}"
       - name: Run Civet Tests
         run: |
           trick_sims/Cannon/SIM_cannon_numeric/S_main_Linux_9.3_x86_64.exe trick_sims/Cannon/SIM_cannon_numeric/RUN_test/input.py
