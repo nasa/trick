@@ -56,9 +56,9 @@ trick.exec_set_freeze_command(True)""")
 		print("To turn auto rebuild off, in utils.py, self.__build_sim = False.  Note: it's important that SIM rebuild is current.")
 		print("#"*10)
 
-		# build_cmd = f"echo \"cd {pathToSim} && make -C {params.get_trick_home()}/trick_source/web/CivetServer\" | /bin/bash" #TODO: Only rebuild if nessary. 
-		# print("....................Running:", build_cmd)
-		# subprocess.run(build_cmd, shell=True)
+		build_cmd = f"echo \"cd {pathToSim} && make -C {params.get_trick_home()}/trick_source/web/CivetServer\" | /bin/bash" #TODO: Only rebuild if nessary. 
+		print("....................Running:", build_cmd)
+		subprocess.run(build_cmd, shell=True)
 
 		# clean_cmd = f"echo \"cd {pathToSim} && make clean\" | /bin/bash"
 		# print("....................Running:", build_cmd)
