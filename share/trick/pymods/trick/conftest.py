@@ -72,10 +72,9 @@ trick.exec_set_freeze_command(True)""")
 		# pause("Before find")
 		# subprocess.run(cmd, shell=True)
 		# pause("After find")
-		if not os.path.exists(os.path.join(pathToSim, params.get_sim_name())):
-			build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash"
-			print("....................Running:", build_cmd)
-			subprocess.run(build_cmd, shell=True)
+		build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash"
+		print("....................Running:", build_cmd)
+		subprocess.run(build_cmd, shell=True)
 
 	# pause("After build before start")
 	if params.get_start_sim():
