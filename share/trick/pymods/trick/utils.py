@@ -19,7 +19,7 @@ class Params:
 		# self.__ssl_cert_path = "server.pem"
 		# self.__ssl_cert_path = "/home/cherpin/git/trick_fork/trick_sims/Cannon/SIM_cannon_numeric/server.pem"
 		self.__ssl_cert_path = "/home/cherpin/.ssl/server.pem"
-		self.__build_sim = False
+		self.__build_sim = True
 		self.__start_sim = True
 		self.__trick_home = os.environ.get("TRICK_HOME", None)
 		if not self.__trick_home:

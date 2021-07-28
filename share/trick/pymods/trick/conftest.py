@@ -46,18 +46,29 @@ trick.itimer_enable()
 trick.exec_set_enable_freeze(True)
 trick.exec_set_freeze_command(True)""")
 	
+	pathToSim=params.get_path_to_sim()
 	if params.get_build_sim():
 		#TODO: Need make file to only rebuild only when necessary, otherwise, test need to rebuild and this is time consuming.
 		print("#"*10)
 		print("Auto rebuilding sim.  Auto rebuild will build the SIM everytime the test is run, which can take some time.")
 		print("To turn auto rebuild off, in utils.py, self.__build_sim = False.  Note: it's important that SIM rebuild is current.")
 		print("#"*10)
-		build_cmd = f"echo \"cd {params.get_path_to_sim()} && make -C {params.get_trick_home()}/trick_source/web/CivetServer && make clean || {params.get_trick_home()}/bin/trick-CP\" | /bin/bash" #TODO: Only rebuild if nessary. 
+
+		build_cmd = f"echo \"cd {pathToSim} && make -C {params.get_trick_home()}/trick_source/web/CivetServer\" | /bin/bash" #TODO: Only rebuild if nessary. 
 		print("....................Running:", build_cmd)
 		subprocess.run(build_cmd, shell=True)
-	
+
+		clean_cmd = f"echo \"cd {pathToSim} && make clean\" | /bin/bash"
+		print("....................Running:", build_cmd)
+		subprocess.run(clean_cmd, shell=True)
+		
+		if not os.path.exists(os.path.join(pathToSim, "S_main_Linux_9.3_x86_64.exe")):
+			build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash"
+			print("....................Running:", build_cmd)
+			subprocess.run(build_cmd, shell=True)
+
+	# pause("After build before start")
 	if params.get_start_sim():
-		pathToSim=params.get_path_to_sim()
 		if not os.path.exists(os.path.join(pathToSim, "S_main_Linux_9.3_x86_64.exe")):
 			raise RuntimeError(f"Sim executable does not exist in {pathToSim}.  Build this sim before running this test.")
 		cmd = f'echo "cd {pathToSim} && ./S_main_Linux_9.3_x86_64.exe {os.path.join(params.get_input_folder(), params.get_test_input_file())} &" | /bin/bash'
