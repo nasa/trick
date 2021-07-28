@@ -166,7 +166,6 @@ jobs:
           ls -la $TRICK_HOME
           netstat -tulpan
           whereis nc
-          ping 8.8.8.8
         env:
           TEST: Hello World!
           TRICK_HOME: ${{ github.workspace }}
