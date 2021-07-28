@@ -58,7 +58,6 @@ trick.exec_set_freeze_command(True)""")
 	
 	if params.get_start_sim():
 		pathToSim=params.get_path_to_sim()
-		pause()
 		if not os.path.exists(os.path.join(pathToSim, "S_main_Linux_9.3_x86_64.exe")):
 			raise RuntimeError(f"Sim executable does not exist in {pathToSim}.  Build this sim before running this test.")
 		cmd = f'echo "cd {pathToSim} && ./S_main_Linux_9.3_x86_64.exe {os.path.join(params.get_input_folder(), params.get_test_input_file())} &" | /bin/bash'

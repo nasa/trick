@@ -174,7 +174,10 @@ jobs:
           make
       - name: Run Civet Tests
         run: |
-          cd share/trick/pymods/trick/
+          cd ${{ github.workspace }}/trick_sims/Cannon/SIM_cannon_numeric
+          ${{ github.workspace }}/bin/trick-CP
+          ./S_main_Linux_9.3_x86_64.exe RUN_test/input.py
+          cd #{{ github.workspace }}/share/trick/pymods/trick/
           . .venv/bin/activate
           ./run_tests.py
         env:
