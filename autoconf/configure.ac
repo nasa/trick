@@ -362,12 +362,12 @@ AC_SUBST([TRICK_OFFLINE])
 #AC_SUBST([TRICK_MONGOOSE])
 
 AC_ARG_ENABLE([civet],
-  AS_HELP_STRING([--disable-civet], [Compilel Trick without webserver capabilities.]),
-  AS_IF([test "x$disable_mongoose" = xyes]),
+  AS_HELP_STRING([--disable-civet], [Compile Trick without webserver capabilites.]),
+  AS_IF([test "x$disable_civet" = xyes],
     [
-      TRICK_CIVET="0"
-    ],
-    [TRICK_CIVET="1"]
+    TRICK_CIVET="1"
+    ], 
+    [TRICK_CIVET="0"]
   ),
   [TRICK_CIVET="0"]
 )
