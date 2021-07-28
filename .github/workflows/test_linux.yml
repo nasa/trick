@@ -182,7 +182,6 @@ jobs:
       #     TRICK_HOME: "${{ github.workspace }}"
       - name: Run Civet Tests
         run: |
-# trick_sims/Cannon/SIM_cannon_numeric/S_main_Linux_9.3_x86_64.exe trick_sims/Cannon/SIM_cannon_numeric/RUN_test/input.py
           cd share/trick/pymods/trick/
           . .venv/bin/activate
           ./run_tests.py
