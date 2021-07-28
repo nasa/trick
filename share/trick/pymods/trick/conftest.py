@@ -58,9 +58,9 @@ trick.exec_set_freeze_command(True)""")
 		print("....................Running:", build_cmd)
 		subprocess.run(build_cmd, shell=True)
 
-		clean_cmd = f"echo \"cd {pathToSim} && make clean\" | /bin/bash"
-		print("....................Running:", build_cmd)
-		subprocess.run(clean_cmd, shell=True)
+		# clean_cmd = f"echo \"cd {pathToSim} && make clean\" | /bin/bash"
+		# print("....................Running:", build_cmd)
+		# subprocess.run(clean_cmd, shell=True)
 		
 		if not os.path.exists(os.path.join(pathToSim, "S_main_Linux_9.3_x86_64.exe")):
 			build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash"
