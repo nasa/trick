@@ -1,0 +1,1 @@
+g++ gui.cc sph.cpp opengl.cc marching_cubes.cpp grid_cell.cpp -lglfw -lGL -lGLEW -o sim -pthread
