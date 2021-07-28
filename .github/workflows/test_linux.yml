@@ -172,12 +172,14 @@ jobs:
           export MAKEFLAGS=-j`nproc`
           ./configure
           make
+      - name: Build Cannon Sim
+        run: |
+          cd trick_sims/Cannon/SIM_cannon_numeric
+          trick-CP
       - name: Run Civet Tests
         run: |
-          cd ${{ github.workspace }}/trick_sims/Cannon/SIM_cannon_numeric
-          ${{ github.workspace }}/bin/trick-CP
-          ./S_main_Linux_9.3_x86_64.exe RUN_test/input.py
-          cd #{{ github.workspace }}/share/trick/pymods/trick/
+          trick_sims/Cannon/SIM_cannon_numeric/S_main_Linux_9.3_x86_64.exe trick_sims/Cannon/SIM_cannon_numeric/RUN_test/input.py
+          cd share/trick/pymods/trick/
           . .venv/bin/activate
           ./run_tests.py
         env:
