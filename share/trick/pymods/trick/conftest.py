@@ -10,20 +10,22 @@ from utils import is_web_server_started, params, pause
 
 # store history of failures per test class name and per index in parametrize (if parametrize used)
 web_server_status = {}
+web_server_status2 = None
 
-def pytest_runtest_setup(item):
-	if "webserver" in item.keywords:
-		#retrieve the class name of the test
-		cls_name = str(item.cls)
-		status = web_server_status.get(cls_name, None)
-		if status == None:
-			print(f"Building and starting sim for class {cls_name}")
-			build_sim()
-			status = is_web_server_started()
-			web_server_status[cls_name] = status
-			print(f"Web server status for {cls_name} = {status}")
-		if not web_server_status[cls_name]:
-			pytest.fail("web server is not started.")
+# def pytest_runtest_setup(item):
+# 	if "webserver" in item.keywords:
+# 		#retrieve the class name of the test
+# 		cls_name = str(item.cls)
+# 		# status = web_server_status.get(cls_name, None)
+# 		status = web_server_status2
+# 		if status == None:
+# 			print(f"Building and starting sim for class {cls_name}")
+# 			build_sim()
+# 			status = is_web_server_started()
+# 			web_server_status[cls_name] = status
+# 			print(f"Web server status for {cls_name} = {status}")
+# 		if not status:
+# 			pytest.fail("web server is not started.")
 
 # @pytest.fixture(scope="session", autouse=True)
 
@@ -77,6 +79,9 @@ trick.exec_set_freeze_command(True)""")
 
 @pytest.fixture(scope="session", autouse=True)
 def close_sim():
+	build_sim()
+	if not is_web_server_started():
+		pytest.fail("web server is not started.")		
 	yield
 	if params.get_start_sim():
 		os.system("pgrep S_ | xargs kill -9")
