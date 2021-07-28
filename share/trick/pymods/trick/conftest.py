@@ -12,21 +12,16 @@ from utils import is_web_server_started, params, pause
 web_server_status = {}
 
 def pytest_runtest_setup(item):
-	pause("start of test")
 	if "webserver" in item.keywords:
 		#retrieve the class name of the test
 		cls_name = str(item.cls)
 		status = web_server_status.get(cls_name, None)
 		if status == None:
 			print(f"Building and starting sim for class {cls_name}")
-			pause("before build sim")
 			build_sim()
-			pause("here 2")
 			status = is_web_server_started()
 			web_server_status[cls_name] = status
 			print(f"Web server status for {cls_name} = {status}")
-		pause("here 1")
-		
 		if not web_server_status[cls_name]:
 			pytest.fail("web server is not started.")
 
@@ -57,12 +52,13 @@ trick.exec_set_freeze_command(True)""")
 		print("Auto rebuilding sim.  Auto rebuild will build the SIM everytime the test is run, which can take some time.")
 		print("To turn auto rebuild off, in utils.py, self.__build_sim = False.  Note: it's important that SIM rebuild is current.")
 		print("#"*10)
-		build_cmd = f"echo \"cd {params.get_path_to_sim()} && make -C {params.get_trick_home()}/trick_source/web/CivetServer && (make clean || {params.get_trick_home()}/bin/trick-CP)\" | /bin/bash"
+		build_cmd = f"echo \"cd {params.get_path_to_sim()} && make -C {params.get_trick_home()}/trick_source/web/CivetServer && make clean || {params.get_trick_home()}/bin/trick-CP\" | /bin/bash" #TODO: Only rebuild if nessary. 
 		print("....................Running:", build_cmd)
 		subprocess.run(build_cmd, shell=True)
 	
 	if params.get_start_sim():
 		pathToSim=params.get_path_to_sim()
+		pause()
 		if not os.path.exists(os.path.join(pathToSim, "S_main_Linux_9.3_x86_64.exe")):
 			raise RuntimeError(f"Sim executable does not exist in {pathToSim}.  Build this sim before running this test.")
 		cmd = f'echo "cd {pathToSim} && ./S_main_Linux_9.3_x86_64.exe {os.path.join(params.get_input_folder(), params.get_test_input_file())} &" | /bin/bash'

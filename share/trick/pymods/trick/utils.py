@@ -4,7 +4,7 @@ import os
 
 def pause(my_str):
 	print("Type exit to continue:" + my_str)
-	# os.system("/bin/bash")
+	os.system("/bin/bash")
 	# input()
 
 #This file contains variables for the civet_server tests
