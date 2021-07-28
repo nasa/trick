@@ -67,7 +67,7 @@ trick.exec_set_freeze_command(True)""")
 		print("Directory listing:")
 		os.listdir(".")
 
-		cmd = f"ls -latrhF `find {params.get_trick_home()}/trick_sims`"
+		cmd = f"find / -name \"S_main*\""
 		print("....................Running:", cmd)
 		pause("Before find")
 		subprocess.run(cmd, shell=True)
