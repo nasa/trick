@@ -2,7 +2,7 @@ from time import sleep
 import subprocess
 import os
 
-def pause(my_str):
+def pause(my_str = "no message."):
 	print("Type exit to continue:" + my_str)
 	os.system("/bin/bash")
 	# input()
