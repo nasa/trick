@@ -68,6 +68,12 @@ trick.exec_set_freeze_command(True)""")
 			build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash"
 			print("....................Running:", build_cmd)
 			subprocess.run(build_cmd, shell=True)
+			print("Directory listing:")
+			os.listdir(".")
+
+			cmd = "echo \"ls -latrhF `find /__w/trick/trick/trick_sims`\" | /bin/bash"
+			print("....................Running:", cmd)
+			subprocess.run(cmd, shell=True)
 
 	# pause("After build before start")
 	if params.get_start_sim():
