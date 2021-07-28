@@ -28,6 +28,14 @@ class Params:
 		self.__input_folder = "RUN_test"
 		self.__test_input_file = f"tmp_input_for_test.py"
 	
+	def get_sim_name(self):
+		sim_name = None
+		for file in os.listdir(self.get_path_to_sim()):
+			if file.startswith("S_main"):
+				sim_name = file
+		if sim_name == None:
+			raise RuntimeError(f"Did not find sim executable.  Please make sure the sim in {self.get_path_to_sim()} is compiled.")
+		return sim_name
 	def get_trick_home(self):
 		return self.__trick_home
 	def get_path_to_sim(self):

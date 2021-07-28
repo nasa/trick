@@ -72,16 +72,16 @@ trick.exec_set_freeze_command(True)""")
 		# pause("Before find")
 		# subprocess.run(cmd, shell=True)
 		# pause("After find")
-		if not os.path.exists(os.path.join(pathToSim, "S_main_Linux_9.3_x86_64.exe")):
+		if not os.path.exists(os.path.join(pathToSim, params.get_sim_name())):
 			build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash"
 			print("....................Running:", build_cmd)
 			subprocess.run(build_cmd, shell=True)
 
 	# pause("After build before start")
 	if params.get_start_sim():
-		if not os.path.exists(os.path.join(pathToSim, "S_main_Linux_9.3_x86_64.exe")):
+		if not os.path.exists(os.path.join(pathToSim, params.get_sim_name())):
 			raise RuntimeError(f"Sim executable does not exist in {pathToSim}.  Build this sim before running this test.")
-		cmd = f'echo "cd {pathToSim} && ./S_main_Linux_9.3_x86_64.exe {os.path.join(params.get_input_folder(), params.get_test_input_file())} &" | /bin/bash'
+		cmd = f'echo "cd {pathToSim} && ./{params.get_sim_name()} {os.path.join(params.get_input_folder(), params.get_test_input_file())} &" | /bin/bash'
 		print("....................Running:", cmd)
 		subprocess.run(cmd, shell=True)
 
