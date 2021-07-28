@@ -149,15 +149,18 @@ ifeq ($(USE_JAVA), 1)
 all: java
 endif
 
-ifeq ($(TRICK_MONGOOSE), 1)
-all: webserver
-icg_sim_serv: ${TRICK_HOME}/include/mongoose/mongoose.h
-ICG: ${TRICK_HOME}/include/mongoose/mongoose.h
-endif
+#ifeq ($(TRICK_MONGOOSE), 1)
+#all: webserver
+#icg_sim_serv: ${TRICK_HOME}/include/mongoose/mongoose.h
+#ICG: ${TRICK_HOME}/include/mongoose/mongoose.h
+#endif
 
+ifeq ($(TRICK_CIVET), 1)
 all: civetweb
 icg_sim_serv: civetweb
 ICG: civetweb
+endif
+
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
 no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)

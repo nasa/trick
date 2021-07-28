@@ -4,6 +4,8 @@ PURPOSE: (Represent the state and initial conditions of an http server.)
 #ifndef CIVET_SERVER_H
 #define CIVET_SERVER_H
 
+#ifdef USE_CIVET
+
 #include <string>
 #include <map>
 #include <pthread.h>
@@ -77,4 +79,5 @@ struct Data {
     std::string name;
 };
 
+#endif
 #endif

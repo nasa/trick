@@ -346,20 +346,32 @@ AC_ARG_ENABLE([offline],
 AC_SUBST([TRICK_OFFLINE])
 
 # If offline is specified, set some compilation flags
-AC_ARG_ENABLE([mongoose],
-  AS_HELP_STRING([--enable-mongoose], [Compile Trick with webserver capabilites.]),
-  AS_IF([test "x$enable_mongoose" = xyes],
+#AC_ARG_ENABLE([mongoose],
+#  AS_HELP_STRING([--enable-mongoose], [Compile Trick with webserver capabilites.]),
+#  AS_IF([test "x$enable_mongoose" = xyes],
+#    [
+#    TRICK_MONGOOSE="1"
+#    AC_MSG_WARN($(tput setaf 1) --enable-mongoose Mongoose is released under GPLv2 and Trick is \
+#released under NASA Open Source Agreement 1.3. Distribution must comply with \
+#these agreements$(tput sgr0))
+#    ], 
+#    [TRICK_MONGOOSE="0"]
+#  ),
+#  [TRICK_MONGOOSE="0"]
+#)
+#AC_SUBST([TRICK_MONGOOSE])
+
+AC_ARG_ENABLE([civet],
+  AS_HELP_STRING([--disable-civet], [Compilel Trick without webserver capabilities.]),
+  AS_IF([test "x$disable_mongoose" = xyes]),
     [
-    TRICK_MONGOOSE="1"
-    AC_MSG_WARN($(tput setaf 1) --enable-mongoose Mongoose is released under GPLv2 and Trick is \
-released under NASA Open Source Agreement 1.3. Distribution must comply with \
-these agreements$(tput sgr0))
-    ], 
-    [TRICK_MONGOOSE="0"]
+      TRICK_CIVET="0"
+    ],
+    [TRICK_CIVET="1"]
   ),
-  [TRICK_MONGOOSE="0"]
+  [TRICK_CIVET="0"]
 )
-AC_SUBST([TRICK_MONGOOSE])
+AC_SUBST([TRICK_CIVET])
 
 # If offline is specified, set some compilation flags
 AC_ARG_ENABLE([offline],

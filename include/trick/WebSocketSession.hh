@@ -4,6 +4,7 @@ PURPOSE: (Represent Websocket connection.)
 #ifndef WEB_SOCKET_SESSION_HH
 #define WEB_SOCKET_SESSION_HH
 
+#ifdef USE_CIVET
 #include <string>
 #ifndef SWIG
 #include "civet/CivetServer.h"
@@ -26,4 +27,5 @@ class WebSocketSession {
         struct mg_connection* connection;
 };
 
+#endif
 #endif
