@@ -143,7 +143,7 @@ jobs:
           ls -la $TRICK_HOME
         env:
           TEST: Hello World!
-          TRICK_HOME: ${{ github.worspace }}
+          TRICK_HOME: ${{ github.workspace }}
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
@@ -162,7 +162,7 @@ jobs:
           ls -la $TRICK_HOME
         env:
           TEST: Hello World!
-          TRICK_HOME: ${{ github.worspace }}
+          TRICK_HOME: ${{ github.workspace }}
       - name: Create testing environment
         run: |
           cd share/trick/pymods/trick/
@@ -174,10 +174,11 @@ jobs:
           make
       - name: Run Civet Tests
         run: |
+          export TRICK_HOME=pwd
           cd share/trick/pymods/trick/
           . .venv/bin/activate
           ./run_tests.py
         env:
-          TRICK_HOME: "${{ github.workspace }}/trick"
+          TRICK_HOME: "${{ github.workspace }}"
       - name: Test
         run: make test
