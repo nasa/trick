@@ -64,16 +64,18 @@ trick.exec_set_freeze_command(True)""")
 		# print("....................Running:", build_cmd)
 		# subprocess.run(clean_cmd, shell=True)
 		
+		print("Directory listing:")
+		os.listdir(".")
+
+		cmd = f"ls -latrhF `find {params.get_trick_home()}/trick_sims`"
+		print("....................Running:", cmd)
+		pause("Before find")
+		subprocess.run(cmd, shell=True)
+		pause("After find")
 		if not os.path.exists(os.path.join(pathToSim, "S_main_Linux_9.3_x86_64.exe")):
 			build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash"
 			print("....................Running:", build_cmd)
 			subprocess.run(build_cmd, shell=True)
-			print("Directory listing:")
-			os.listdir(".")
-
-			cmd = "echo \"ls -latrhF `find /__w/trick/trick/trick_sims`\" | /bin/bash"
-			print("....................Running:", cmd)
-			subprocess.run(cmd, shell=True)
 
 	# pause("After build before start")
 	if params.get_start_sim():
