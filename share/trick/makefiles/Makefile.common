@@ -184,7 +184,7 @@ else
     ifneq (${TRICK_FORCE_32BIT},1)
         TRICK_CIVET=1
         TRICK_LIBS += ${TRICK_LIB_DIR}/libcivetweb.a ${TRICK_LIB_DIR}/libtrickCivet.a
-        TRICK_SWIG_FLAGS += DUSE_CIVET
+        TRICK_SWIG_FLAGS += -DUSE_CIVET
         TRICK_SYSTEM_CXXFLAGS += -DUSE_CIVET
         TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/civet
     else
