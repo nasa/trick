@@ -1,0 +1,21 @@
+name: Civet_Linux
+
+on:
+  push:
+    paths-ignore:
+    - 'docs/**'
+    - '.github/workflows/**'
+    - '!.github/workflows/shell.yml'
+  pull_request:
+
+jobs:
+  build:
+  runs-on: ubuntu-18.04
+  container: docker://ubuntu:latest
+  - name: Update Package Manager
+    run: apt-get DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y tzdata
+  - name: Install dependencies
+    run: |
+      apt-get install -y net-tools
+  - name: Test connection
+    run: ping 8.8.8.8
