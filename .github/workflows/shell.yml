@@ -17,6 +17,6 @@ jobs:
       run: DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y tzdata
     - name: Install dependencies
       run: |
-        apt-get install -y net-tools
+        apt-get install -y net-tools iputils-ping
     - name: Test connection
       run: ping 8.8.8.8
