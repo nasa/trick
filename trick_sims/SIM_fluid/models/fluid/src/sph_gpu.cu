@@ -8,6 +8,8 @@
 
 bool particlesOnGPU = false;
 Particle* d_particles;
+Particle** d_spatial_grid;
+int* d_cell_counts;
 Fluid* d_fluid;
 int* d_n;
 
@@ -22,16 +24,58 @@ __global__ void computeDensityAndPressureGPU(Particle* particles, int* n, Fluid*
 	for (int i = p_start; i < p_end; i++) {
 		Particle& pi = particles[i];
 		pi.rho = 0;
-		//Particle* candidate_neighbors = all_neighbors[i];
+		
 		for (int j = 0; j < *n; j++) {
-			//Particle & pj = candidate_neighbors[j];
+			
+			//Particle &pj = candidate_neighbors[j];
+			
 			Particle& pj = particles[j];
 			float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
 			float r = sqrt(rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2]);
 			if (r >= 0 && r <= fluid->H) {
 				pi.rho += fluid->MASS * fluid->POLY6 * pow(fluid->HSQ - r * r, 3.f);
+				
 			}
 		}
+/*
+		int grid_x = fluid->CELLS_PER_DIM * ((pi.pos[0] + fluid->BOUND) / (2 * fluid->BOUND));
+		int grid_y = fluid->CELLS_PER_DIM * ((pi.pos[1] + fluid->BOUND) / (2 * fluid->BOUND));
+		int grid_z = fluid->CELLS_PER_DIM * ((pi.pos[2] + fluid->BOUND) / (2 * fluid->BOUND));
+
+		
+		
+		for (int x = grid_x - 1; x <= grid_x + 1; x++) {
+			for (int y = grid_y - 1; y <= grid_y + 1; y++) {
+				for (int z = grid_z - 1; z <= grid_z + 1; z++) {
+					
+					if (x >= 0 && x < fluid->CELLS_PER_DIM && y >= 0 && y < fluid->CELLS_PER_DIM && z >= 0 && z < fluid->CELLS_PER_DIM) {
+						int grid_idx = x + y * fluid->CELLS_PER_DIM + z * fluid->CELLS_PER_DIM * fluid->CELLS_PER_DIM;
+						int num_neighbors = cell_counts[grid_idx];
+						if (num_neighbors == 0) {
+							continue;
+						}
+						Particle* candidate_neighbors = spatial_grid[grid_idx];
+						
+						
+						for (int j = 0; j < num_neighbors; j++) {
+							
+							Particle &pj = candidate_neighbors[j];
+							
+							//Particle& pj = particles[j];
+							float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
+							float r = sqrt(rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2]);
+							if (r >= 0 && r <= fluid->H) {
+								pi.rho += fluid->MASS * fluid->POLY6 * pow(fluid->HSQ - r * r, 3.f);
+								
+							}
+						}
+						
+					}
+				}
+			}
+		}
+*/
+
 		pi.pressure = fluid->GAS_CONST * (pi.rho - fluid->REST_DENS);
 	}
 }
@@ -141,7 +185,8 @@ __global__ void timeIntegrationGPU(Particle* particles, int* n, Fluid* fluid) {
 
 void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 	int n = fluid->NUM_PARTICLES;
-	
+	int num_cells = std::pow(fluid->CELLS_PER_DIM, 3);
+
 	if (!particlesOnGPU) {
 		cudaMalloc(&d_particles, n * sizeof(Particle));
 		cudaMalloc(&d_fluid, sizeof(Fluid));
@@ -151,7 +196,58 @@ void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 		cudaMemcpy(d_particles, particles.data(), n * sizeof(Particle), cudaMemcpyHostToDevice);
 		cudaMemcpy(d_n, &n, sizeof(int), cudaMemcpyHostToDevice);
 		particlesOnGPU = true;
+
+		/*
+		cudaMallocManaged(&d_spatial_grid, num_cells * sizeof(Particle*));
+		cudaMallocManaged(&d_cell_counts, num_cells * sizeof(int));
+		
+		for (int i = 0; i < num_cells; i++) 
+		{
+			if (fluid->spatialGrid.find(i) != fluid->spatialGrid.end()) {
+				
+				std::vector<Particle> cellParticles = fluid->spatialGrid[i];
+				
+				Particle* array;
+				cudaMallocManaged(&array, cellParticles.size() * sizeof(Particle));
+				d_cell_counts[i] = cellParticles.size();
+
+				for(int j = 0; j < cellParticles.size(); j++) {
+					array[j] = cellParticles[j];
+				}
+
+
+				d_spatial_grid[i] = array;
+			} else {
+				cudaMalloc(&d_spatial_grid[i], sizeof(Particle));
+				d_cell_counts[i] = n;
+			}
+		}
+	} else {
+		for (int i = 0; i < num_cells; i++) 
+		{
+			if (fluid->spatialGrid.find(i) != fluid->spatialGrid.end()) {
+				
+				std::vector<Particle> cellParticles = fluid->spatialGrid[i];
+				
+				Particle* array;
+				cudaMallocManaged(&array, cellParticles.size() * sizeof(Particle));
+				d_cell_counts[i] = cellParticles.size();
+
+				for(int j = 0; j < cellParticles.size(); j++) {
+					array[j] = cellParticles[j];
+				}
+
+				cudaFree(d_spatial_grid[i]);
+				d_spatial_grid[i] = array;
+			} else {
+				d_cell_counts[i] = n;
+			}
+		}*/
 	}
+
+
+
+
 
 	verletUpdatePosition<<<1, NUM_THREADS>>>(d_particles, d_n, d_fluid);
 
@@ -164,7 +260,16 @@ void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 	cudaDeviceSynchronize();
 
 	cudaMemcpy(particles.data(), d_particles, n * sizeof(Particle), cudaMemcpyDeviceToHost);
+/*
+	for (int i = 0; i < num_cells; i++) 
+	{
+		cudaFree(&d_spatial_grid[i]);
+			
+	}
+*/
 
+	
+	
 
 }
 
