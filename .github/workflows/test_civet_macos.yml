@@ -35,10 +35,10 @@ jobs:
         brew install --cask xquartz
         brew install llvm@11 swig udunits openmotif maven
         brew link llvm llvm@11
-     - name: Create testing environment
-        run: |
-          cd share/trick/pymods/trick/
-          python -m virtualenv .venv && . .venv/bin/activate && pip install -r requirements.txt
+    - name: Create testing environment
+      run: |
+        cd share/trick/pymods/trick/
+        python -m virtualenv .venv && . .venv/bin/activate && pip install -r requirements.txt
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
