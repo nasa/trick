@@ -2,7 +2,7 @@
 
 #include "gui.h"
 #include <unistd.h>
-#include "sph.h"
+#include "../../include/Fluid.hh"
 #include "grid_cell.h"
 #include "marching_cubes.h"
 
@@ -133,7 +133,7 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 
 
 
-int main()
+int openGLMain(Fluid* fluid)
 {
 
 	char* obj_file = "../100_sphere.obj";
@@ -142,17 +142,16 @@ int main()
 	GLFWwindow *window = init_glefw();
 	GUI gui(window, window_width, window_height, preview_height);
 
-	initSPH();
-	std::vector<float> particlePositions = getParticlePositions();
+	std::vector<float> particlePositions = fluid->getParticlePositions();
 
 	
 	const int MC_GRID_DIM = 16;
-	const int RADIUS = 2 * BOUND / MC_GRID_DIM;
+	const int RADIUS = 2 * fluid->BOUND / MC_GRID_DIM;
 	// number of particles within MC GridCell vertex;
 	int PARTICLES_WITHIN_VERTEX = 1;
 
 	std::vector<GridCell> gridCells;
-	initializeGridCells(gridCells, BOUND, MC_GRID_DIM);
+	initializeGridCells(gridCells, fluid->BOUND, MC_GRID_DIM);
 	printf("Grid cells size: %d\n", gridCells.size());
 	updateIsoValues(gridCells, particlePositions, RADIUS);
 	std::vector<glm::vec4> mesh_vertices;
@@ -180,7 +179,7 @@ int main()
 	printf("size of vertices: %d\n", mesh_vertices.size());
 	
 
-	glm::vec4 light_position = glm::vec4(0.0f, 0.0f, BOUND + 10.0f, 1.0f);
+	glm::vec4 light_position = glm::vec4(0.0f, 0.0f, fluid->BOUND + 10.0f, 1.0f);
 	MatrixPointers mats; 
 
 	/* Initialize mesh OpenGL Program */
@@ -307,55 +306,54 @@ int main()
 				<< std::setfill('0') << std::setw(6)
 				<< time << " sec";
 		}
-		if (!paused) {
+		
 
 
 
-			time+= DT;
-			printf("time: %f\n", time);
-			updateSPH(0, NUM_PARTICLES);
-			particlePositions = getParticlePositions();
-			/*for (int i = 0; i < particlePositions.size() / 3; i++) {
-				particlePositions[3 * i + 1] -= 1;
-			}*/
-			printf("%f\n", particlePositions[1]);
-			if (timeStep % 10 == 0) {
-				updateIsoValues(gridCells, particlePositions, RADIUS);
+		time+= fluid->DT;
+		printf("time: %f\n", time);
 
-					
-				printf("%d\n", mesh_vertices.size()); 
-				mesh_vertices.clear();
-				mesh_faces.clear();
-				gridCells.clear();
-				initializeGridCells(gridCells, BOUND, MC_GRID_DIM);
+		particlePositions = fluid->getParticlePositions();
+		/*for (int i = 0; i < particlePositions.size() / 3; i++) {
+			particlePositions[3 * i + 1] -= 1;
+		}*/
+		printf("%f\n", particlePositions[1]);
+		if (fluid->timeSteps % 10 == 0) {
+			updateIsoValues(gridCells, particlePositions, RADIUS);
+
 				
-				updateIsoValues(gridCells, particlePositions, RADIUS);
-				for (int i = 0; i < gridCells.size(); i++) {
-					generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
-				}
-				
-				printf("%d\n", mesh_vertices.size());
-				printf("%d\n", mesh_faces.size());
-				//}
-				//timeStep++;
-				//PARTICLES_WITHIN_VERTEX+=1;
-
-							/* Update mesh face and vertex buffers data after updating isoValues */
-				/*
-				for (int i = 0; i < mesh_vertices.size(); i++) {
-					mesh_vertices[i][1] -= 2;
-				}*/
-				glBindVertexArray(meshVAO);
-				glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBuffer]);
-				glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float) * mesh_vertices.size(), mesh_vertices.data(), GL_DYNAMIC_DRAW);
-
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBuffer]);
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
-									sizeof(uint32_t) * mesh_faces.size() * 3,
-									mesh_faces.data(), GL_DYNAMIC_DRAW);
+			printf("%d\n", mesh_vertices.size()); 
+			mesh_vertices.clear();
+			mesh_faces.clear();
+			gridCells.clear();
+			initializeGridCells(gridCells, fluid->BOUND, MC_GRID_DIM);
+			
+			updateIsoValues(gridCells, particlePositions, RADIUS);
+			for (int i = 0; i < gridCells.size(); i++) {
+				generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
 			}
-			timeStep++;
+			
+			printf("%d\n", mesh_vertices.size());
+			printf("%d\n", mesh_faces.size());
+			//}
+			//timeStep++;
+			//PARTICLES_WITHIN_VERTEX+=1;
+
+						/* Update mesh face and vertex buffers data after updating isoValues */
+			/*
+			for (int i = 0; i < mesh_vertices.size(); i++) {
+				mesh_vertices[i][1] -= 2;
+			}*/
+			glBindVertexArray(meshVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBuffer]);
+			glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float) * mesh_vertices.size(), mesh_vertices.data(), GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBuffer]);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+								sizeof(uint32_t) * mesh_faces.size() * 3,
+								mesh_faces.data(), GL_DYNAMIC_DRAW);
 		}
+		
 
 		
 		//glBindBUffer(GL_FACE)
