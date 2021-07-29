@@ -85,12 +85,12 @@ class Params:
 
 params = Params()
 
-def is_web_server_started():
+def is_web_server_started(port=params.get_port(), status_method="LISTEN"):
 	isConnectionOpen = False
-	for _ in range(20): #Wait 2 seconds i.e 20 * .1 seconds, must wait for service to get to listening state.
+	for _ in range(20): #Wait up to 2 seconds i.e 20 * .1 seconds, must wait for service to get to listening state.
 		for connection in psutil.net_connections():
 			local_address = connection.laddr
-			if len(local_address) > 1 and local_address[1] == params.get_port() and connection.status == "LISTEN":
+			if len(local_address) > 1 and local_address[1] == port and connection.status == status_method:
 				isConnectionOpen = True
 				break
 		if isConnectionOpen:
