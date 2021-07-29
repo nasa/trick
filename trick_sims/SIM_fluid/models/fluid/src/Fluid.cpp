@@ -86,6 +86,7 @@ int Fluid::update_SPH() {
 	timeIntegration(p_start, p_end);
 	// GPU simulation
 	//updateSPH_GPU(particles, this);
+	timeSteps++;
 	return 0;
 
 }

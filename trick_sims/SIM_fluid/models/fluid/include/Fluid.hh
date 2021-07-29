@@ -50,8 +50,8 @@ class Fluid {
 		float VISC_LAP = 45.f / (M_PI * std::pow(H, 6.f));
 
 		// number of particles on the edge of the square
-		int EDGE_NUM_PARTICLES = 20;
-		int PARTICLE_DEPTH = 4;
+		int EDGE_NUM_PARTICLES = 10;
+		int PARTICLE_DEPTH = 1;
 		int NUM_PARTICLES = PARTICLE_DEPTH * EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES;
 		float PARTICLE_DIST = 5;
 
@@ -61,11 +61,14 @@ class Fluid {
 		float EPS = H; // boundary epsilon
 		float BOUND_DAMPING = -.9f;
 
-		float BOUND = 200;
+		float BOUND = 100;
 
 		// parameters for spatial grid
 		int CELL_SIZE = 2 * H;
 		int CELLS_PER_DIM = 2 * BOUND / CELL_SIZE;
+
+		// number of timesteps simulated
+		int timeSteps = 0;
 };
 
 #endif
