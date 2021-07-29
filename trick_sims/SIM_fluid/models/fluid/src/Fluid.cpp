@@ -7,6 +7,9 @@ LIBRARY DEPENDENCY:
 #include "../include/Fluid.hh"
 #include "../include/Particle.hh"
 //#include "sph_gpu.h"
+#include <iostream>
+#include <iterator>
+
 extern void openGLCaller(Fluid* fluid);
 
 extern void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid);
@@ -29,42 +32,39 @@ int Fluid::default_data() {
 }
 
 
-void Fluid::buildSpatialGrid()
-{
+void Fluid::buildSpatialGrid() {
 	spatialGrid.clear();
-	const int CELLS_PER_DIM = (2 * BOUND) / (2 * H);
-	for (int i = 0; i < particles.size(); i++) {
-		
-		int gridX = (particles[i].pos[0] + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
-		int gridY = (particles[i].pos[1] + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
-		int gridZ = (particles[i].pos[2] + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
-		int gridKey = gridX * CELLS_PER_DIM * CELLS_PER_DIM  + gridY * CELLS_PER_DIM + gridZ;
-		if (spatialGrid.find(gridKey) != spatialGrid.end()) {
-			spatialGrid[gridKey].push_back(particles[i]);
-		} else {
-			std::vector<Particle> particlesInCell;
-			particlesInCell.push_back(particles[i]);
-			spatialGrid[gridKey] = particlesInCell;
+	for (auto& pi : particles) {
+		int grid_x = CELLS_PER_DIM * ((pi.pos[0] + BOUND) / (2 * BOUND));
+		int grid_y = CELLS_PER_DIM * ((pi.pos[1] + BOUND) / (2 * BOUND));
+		int grid_z = CELLS_PER_DIM * ((pi.pos[2] + BOUND) / (2 * BOUND));
+		int grid_key = grid_x + grid_y * CELLS_PER_DIM + grid_z * CELLS_PER_DIM * CELLS_PER_DIM;
+
+		if (spatialGrid.find(grid_key) == spatialGrid.end()) {
+			std::vector<Particle> single_particle;
+			single_particle.push_back(pi);
+			spatialGrid[grid_key] = single_particle;
 		}
+		else {
+			spatialGrid[grid_key].push_back(pi);
+		}
+
 	}
 }
 
-std::vector<Particle> Fluid::getCandidateNeighbors(float x, float y, float z) {
-	const int CELLS_PER_DIM = (2 * BOUND) / (2 * H);
-	int gridX = (x + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
-	int gridY = (y + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
-	int gridZ = (z + BOUND) / (2 * BOUND) * CELLS_PER_DIM;
+bool Fluid::checkBounds(int x, int y, int z) {
+	return x >= 0 && x < CELLS_PER_DIM&& y >= 0 && y < CELLS_PER_DIM&& z >= 0 && z < CELLS_PER_DIM;
+}
+
+std::vector<Particle> Fluid::getNeighbors(int grid_x, int grid_y, int grid_z) {
 	std::vector<Particle> neighbors;
-	for(int curX = gridX - 1; curX <= gridX + 1; curX++) {
-		for(int curY = gridY - 1; curY <= gridY + 1; curY++) {
-			for(int curZ = gridZ - 1; curZ <= gridZ + 1; curZ++) {
-				int gridKey = gridX * CELLS_PER_DIM * CELLS_PER_DIM  + gridY * CELLS_PER_DIM + gridZ;
-				if(spatialGrid.find(gridKey) != spatialGrid.end()) {
-					std::vector<Particle> cellParticles = spatialGrid[gridKey];
-					for (int i = 0; i < cellParticles.size(); i++) {
-						neighbors.push_back(cellParticles[i]);
-					}
-			
+	for (int x = grid_x - 1; x <= grid_x + 1; x++) {
+		for (int y = grid_y - 1; y <= grid_y + 1; y++) {
+			for (int z = grid_z - 1; z <= grid_z + 1; z++) {
+				int grid_key = x + y * CELLS_PER_DIM + z * CELLS_PER_DIM * CELLS_PER_DIM;
+				if (checkBounds(x, y, z) && spatialGrid.find(grid_key) != spatialGrid.end()) {
+					std::vector<Particle> cell_particles = spatialGrid[grid_key];
+					neighbors.insert(neighbors.end(), cell_particles.begin(), cell_particles.end());
 				}
 			}
 		}
@@ -72,8 +72,11 @@ std::vector<Particle> Fluid::getCandidateNeighbors(float x, float y, float z) {
 	return neighbors;
 }
 
+
 int Fluid::update_SPH() {
 	// CPU simulation
+	
+	buildSpatialGrid();
 	
 	int p_start = 0;
 	int p_end = particles.size();
@@ -82,7 +85,7 @@ int Fluid::update_SPH() {
 	computeForces(p_start, p_end);
 	timeIntegration(p_start, p_end);
 	// GPU simulation
-	/*updateSPH_GPU(particles, this);*/
+	//updateSPH_GPU(particles, this);
 	return 0;
 
 }
@@ -96,10 +99,16 @@ void Fluid::computeDensityAndPressure(int p_start, int p_end) {
 		Particle& pi = particles[i];
 		pi.rho = 0;
 
-		for (auto& pj : particles) {
+		int grid_x = CELLS_PER_DIM * ((pi.pos[0] + BOUND) / (2 * BOUND));
+		int grid_y = CELLS_PER_DIM * ((pi.pos[1] + BOUND) / (2 * BOUND));
+		int grid_z = CELLS_PER_DIM * ((pi.pos[2] + BOUND) / (2 * BOUND));
+		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+		
+		for (auto& pj : candidate_neighbors) {
 			float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
 			float r = std::sqrt(rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2]);
 			if (r >= 0 && r <= H) {
+				//printf("size of neighbors: %lu\n", candidate_neighbors.size());
 				pi.rho += MASS * POLY6 * pow(HSQ - r * r, 3);
 			}
 
@@ -118,7 +127,11 @@ void Fluid::computeForces(int p_start, int p_end) {
 		float pressure_force[3] = {0, 0, 0};
 		float viscosity_force[3] = {0, 0, 0};
 
-		for (auto& pj : particles) {
+		int grid_x = CELLS_PER_DIM * ((pi.pos[0] + BOUND) / (2 * BOUND));
+		int grid_y = CELLS_PER_DIM * ((pi.pos[1] + BOUND) / (2 * BOUND));
+		int grid_z = CELLS_PER_DIM * ((pi.pos[2] + BOUND) / (2 * BOUND));
+		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+		for (auto& pj : candidate_neighbors) {
 			if (&pi != &pj) {
 				float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
 				float r = std::sqrt(rij[0] * rij[0] + rij[1] * rij[1] + rij[2] * rij[2]);
@@ -140,13 +153,13 @@ void Fluid::computeForces(int p_start, int p_end) {
 		pi.force[0] = viscosity_force[0] + pressure_force[0] + gravity_force[0];
 		pi.force[1] = viscosity_force[1] + pressure_force[1] + gravity_force[1];
 		pi.force[2] = viscosity_force[2] + pressure_force[2] + gravity_force[2];
-		/*
-		if (isnan(pi.force[0]) || isnan(pi.force[1]) || isnan(pi.force[2])) {
+		
+		if (std::isnan(pi.force[0]) || std::isnan(pi.force[1]) || std::isnan(pi.force[2])) {
 			pi.force[0] = gravity_force[0];
 			pi.force[1] = gravity_force[1];
 			pi.force[2] = gravity_force[2];
 		}
-		*/
+		
 	}
 	
 }
