@@ -250,7 +250,7 @@ ${TRICK_HOME}/include/civet/CivetServer.h: ${CIVET_CLONE_DIR} ${TRICK_HOME}/incl
 	cp ${CIVET_CLONE_DIR}/include/CivetServer.h ${TRICK_HOME}/include/civet/CivetServer.h	
 
 ${CIVET_CLONE_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}
-	$(MAKE) -C ${CIVET_CLONE_DIR} lib WITH_CPP=1 WITH_WEBSOCKET=1
+	$(MAKE) -C ${CIVET_CLONE_DIR} lib COPT=${CIVET_COMPILE_FAGS} WITH_CPP=1 WITH_WEBSOCKET=1
 
 ${CIVET_CLONE_DIR}:
 	git clone --branch v1.14 --depth 1 https://github.com/civetweb/civetweb.git $@
