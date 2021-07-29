@@ -3,7 +3,6 @@
 #include "cuda_runtime.h"
 
 #include "grid_cell.h"
-#include "sph.h"
 #include <stdio.h>
 
 
