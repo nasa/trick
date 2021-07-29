@@ -5,7 +5,7 @@ on:
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
-    - '!.github/workflows/test_linux.yml'
+    - '!.github/workflows/test_civet_linux.yml'
   pull_request:
 
 jobs:

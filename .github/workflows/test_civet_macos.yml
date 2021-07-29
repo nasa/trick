@@ -1,11 +1,11 @@
-name: macOS
+name: Civet_macOS
 
 on:
   push:
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
-    - '!.github/workflows/test_macos.yml'
+    - '!.github/workflows/test_civet_macos.yml'
   pull_request:
 
 jobs:
