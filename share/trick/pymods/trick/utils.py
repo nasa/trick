@@ -1,6 +1,7 @@
 from time import sleep
 import subprocess
 import os
+import psutil
 
 def pause(my_str = "no message."):
 	print("Type exit to continue:" + my_str)
@@ -28,6 +29,14 @@ class Params:
 		self.__input_folder = "RUN_test"
 		self.__test_input_file = f"tmp_input_for_test.py"
 	
+	def get_sim_name(self):
+		sim_name = None
+		for file in os.listdir(self.get_path_to_sim()):
+			if file.startswith("S_main"):
+				sim_name = file
+		if sim_name == None:
+			raise RuntimeError(f"Did not find sim executable.  Please make sure the sim in {self.get_path_to_sim()} is compiled.")
+		return sim_name
 	def get_trick_home(self):
 		return self.__trick_home
 	def get_path_to_sim(self):
@@ -76,14 +85,20 @@ class Params:
 
 params = Params()
 
-def is_web_server_started():
-	for _ in range(20): #Wait 2 seconds i.e 20 * .1 seconds, must wait for service to get to listening state.
-		cmd = f"echo \"netstat -tulpan | grep {params.get_port()}\" | /bin/bash"
-		p = subprocess.run(cmd, capture_output=True, shell=True)
-		print("runing........", cmd)
-		print(f"Checking for port output: {p.stdout}")
-		print(f"Error is: {p.stderr}")
-		sleep(.1) #We sleep to use less recourses
-		if "LISTEN" in p.stdout.decode():
-			return True
-	return False
+def is_web_server_started(port=params.get_port(), status_method="LISTEN"):
+	isConnectionOpen = False
+	try:
+		for _ in range(20): #Wait up to 2 seconds i.e 20 * .1 seconds, must wait for service to get to listening state.
+			for connection in psutil.net_connections():
+				local_address = connection.laddr
+				if len(local_address) > 1 and local_address[1] == port and connection.status == status_method:
+					isConnectionOpen = True
+					break
+			if isConnectionOpen:
+				break
+			sleep(.1) #We sleep to use less recourses
+	except psutil.AccessDenied as e:
+		print("psutil.net_connections() requires root access on mac.  Sleeping for 2 seconds instead.")
+		isConnectionOpen = True
+		sleep(2)
+	return isConnectionOpen

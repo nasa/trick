@@ -18,15 +18,18 @@ path.append("../..")
 from utils import is_web_server_started, params
 
 def open_connections(numConnections):
-    processes = []
+    sockets = []
     for _ in range(numConnections):
-        processes.append(subprocess.Popen(f"nc -s 127.0.0.1 localhost {params.get_var_server_port()}".split())) #Connect to webserver to establish connections.
+        sockets.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+        sockets[-1].connect(("127.0.0.1", params.get_var_server_port()))
     sleep(1) #Wait for the connection to persist.
-    return processes
+    return sockets
 
-def kill_processes(processes):
-    for p in processes:
-        p.kill()
+def close_sockets(sockets):
+    for s in sockets:
+        port = s.getsockname()[1]
+        s.close()
+        # is_web_server_started(port, "")
     sleep(1)
 
 def get_vs_open_connections():
@@ -65,15 +68,15 @@ class TestWebserverHttp:
         assert res.json()["alloc_total"] == 48, "Expecting 48 memory allocations."
 
     def test_vs_connections(self):
-        processes = open_connections(1)
+        sockets = open_connections(1)
         webResponse=get_vs_open_connections()
-        kill_processes(processes)
+        close_sockets(sockets)
         assert webResponse.json()["variable_server_connections"][0]["connection"]["client_IP_address"] == "127.0.0.1"
         assert len(webResponse.json()["variable_server_connections"]) == 1
 
-        processes = open_connections(50)
+        sockets = open_connections(50)
         webResponse=get_vs_open_connections()
-        kill_processes(processes)
+        close_sockets(sockets)
         assert webResponse.json()["variable_server_connections"][0]["connection"]["client_IP_address"] == "127.0.0.1"
         assert len(webResponse.json()["variable_server_connections"]) == 50, "Should be able to open more than 1 connection." #Todo: determine appropriate number of simultaneous connections to test
 

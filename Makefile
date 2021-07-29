@@ -237,16 +237,18 @@ CIVET_CLONE_DIR = civetweb_clone
 civetweb: ${TRICK_LIB_DIR}/libcivetweb.a 
 	$(MAKE) -C ${TRICK_HOME}/trick_source/web/CivetServer
 
-${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR} | ${TRICK_LIB_DIR}
+${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR} ${CIVET_CLONE_DIR}/libcivetweb.a | ${TRICK_LIB_DIR}
 	cp ${CIVET_CLONE_DIR}/libcivetweb.a $(TRICK_LIB_DIR)/libcivetweb.a
 	mkdir -p ${TRICK_HOME}/include/civet/
 	cp ${CIVET_CLONE_DIR}/include/civetweb.h ${TRICK_HOME}/include/civet/civetweb.h
 	cp ${CIVET_CLONE_DIR}/include/CivetServer.h ${TRICK_HOME}/include/civet/CivetServer.h	
 
+${CIVET_CLONE_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}
+	cd ${CIVET_CLONE_DIR} && make lib WITH_CPP=1 WITH_WEBSOCKET=1
+
 ${CIVET_CLONE_DIR}:
 	git clone https://github.com/civetweb/civetweb.git $@	
 	cd $@ && git checkout tags/v1.14
-	cd ${CIVET_CLONE_DIR} && make lib WITH_CPP=1 WITH_WEBSOCKET=1
 
 
 #-------------------------------------------------------------------------------

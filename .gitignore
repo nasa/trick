@@ -36,3 +36,4 @@ trick-offline
 *sim_services_classes.resource
 civetweb_clone/
 include/civet/
+.vscode/
