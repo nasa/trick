@@ -156,9 +156,7 @@ endif
 #endif
 
 ifeq ($(TRICK_CIVET), 1)
-all: civetweb
-icg_sim_serv: civetweb
-ICG: civetweb
+icg_sim_serv: ${TRICK_LIB_DIR}/libtrickCivet.a
 endif
 
 #-------------------------------------------------------------------------------
@@ -234,22 +232,26 @@ webserver: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_HOME}/include/mongoose/mongoos
 CIVET_CLONE_DIR = civetweb_clone
 
 .PHONY: civetweb
-civetweb: ${TRICK_LIB_DIR}/libcivetweb.a 
+civetweb: ${TRICK_LIB_DIR}/libtrickCivet.a
+
+${TRICK_LIB_DIR}/libtrickCivet.a: ${TRICK_LIB_DIR}/libcivetweb.a ${TRICK_HOME}/include/civet/civetweb.h ${TRICK_HOME}/include/civet/CivetServer.h
 	$(MAKE) -C ${TRICK_HOME}/trick_source/web/CivetServer
 
-${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR} ${CIVET_CLONE_DIR}/libcivetweb.a | ${TRICK_LIB_DIR}
+${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}/libcivetweb.a | ${TRICK_LIB_DIR}
 	cp ${CIVET_CLONE_DIR}/libcivetweb.a $(TRICK_LIB_DIR)/libcivetweb.a
 	mkdir -p ${TRICK_HOME}/include/civet/
+
+${TRICK_HOME}/include/civet/civetweb.h: ${CIVET_CLONE_DIR}
 	cp ${CIVET_CLONE_DIR}/include/civetweb.h ${TRICK_HOME}/include/civet/civetweb.h
+
+${TRICK_HOME}/include/civet/CivetServer.h: ${CIVET_CLONE_DIR}
 	cp ${CIVET_CLONE_DIR}/include/CivetServer.h ${TRICK_HOME}/include/civet/CivetServer.h	
 
 ${CIVET_CLONE_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}
-	cd ${CIVET_CLONE_DIR} && make lib WITH_CPP=1 WITH_WEBSOCKET=1
+	$(MAKE) -C ${CIVET_CLONE_DIR} lib WITH_CPP=1 WITH_WEBSOCKET=1
 
 ${CIVET_CLONE_DIR}:
-	git clone https://github.com/civetweb/civetweb.git $@	
-	cd $@ && git checkout tags/v1.14
-
+	git clone --branch v1.14 --depth 1 https://github.com/civetweb/civetweb.git $@
 
 #-------------------------------------------------------------------------------
 

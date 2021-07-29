@@ -178,7 +178,7 @@ endif
 #	TRICK_ICG_EXCLUDE += :${TRICK_HOME}/include/mongoose
 #endif
 
-ifeq (${TRICK_MONGOOSE},1) #TODO: Make this use a civet flag instead of a mongoose flag
+ifeq (${TRICK_MONGOOSE},1) #TODO: Make this use a civet flag instead of a mongoose flag and fix repeated logic.
     TRICK_CIVET=0
 else
     ifneq (${TRICK_FORCE_32BIT},1)
