@@ -17,10 +17,10 @@ jobs:
     - name: Install python
       run: |
         brew install python
-        python -m ensurepip --upgrade
-        pip install virtualenv
-        python --version
-        pip --version
+        python3 -m ensurepip --upgrade
+        pip3 install virtualenv
+        python3 --version
+        pip3 --version
     - name: Install gtest
       run: |
         wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
@@ -38,7 +38,7 @@ jobs:
     - name: Create testing environment
       run: |
         cd share/trick/pymods/trick/
-        python -m virtualenv .venv && . .venv/bin/activate && pip install -r requirements.txt
+        python3 -m virtualenv .venv && . .venv/bin/activate && pip install -r requirements.txt
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
