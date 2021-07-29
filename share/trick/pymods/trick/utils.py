@@ -87,13 +87,18 @@ params = Params()
 
 def is_web_server_started(port=params.get_port(), status_method="LISTEN"):
 	isConnectionOpen = False
-	for _ in range(20): #Wait up to 2 seconds i.e 20 * .1 seconds, must wait for service to get to listening state.
-		for connection in psutil.net_connections():
-			local_address = connection.laddr
-			if len(local_address) > 1 and local_address[1] == port and connection.status == status_method:
-				isConnectionOpen = True
+	try:
+		for _ in range(20): #Wait up to 2 seconds i.e 20 * .1 seconds, must wait for service to get to listening state.
+			for connection in psutil.net_connections():
+				local_address = connection.laddr
+				if len(local_address) > 1 and local_address[1] == port and connection.status == status_method:
+					isConnectionOpen = True
+					break
+			if isConnectionOpen:
 				break
-		if isConnectionOpen:
-			break
-		sleep(.1) #We sleep to use less recourses
+			sleep(.1) #We sleep to use less recourses
+	except psutil.AccessDenied as e:
+		print("psutil.net_connections() requires root access on mac.  Sleeping for 2 seconds instead.")
+		isConnectionOpen = True
+		sleep(2)
 	return isConnectionOpen
