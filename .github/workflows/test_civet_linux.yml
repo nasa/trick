@@ -1,4 +1,4 @@
-name: Linux
+name: Civet_Linux
 
 on:
   push:
@@ -59,6 +59,10 @@ jobs:
               libclang-dev
               libudunits2-dev
               libgtest-dev
+              python3
+              python3-venv
+              net-tools
+              netcat
             install_gtest: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
 #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
@@ -80,6 +84,9 @@ jobs:
               which
               zlib-devel
               gtest-devel
+              python3-devel
+              net-tools
+              nc
 #-------- Ubuntu Only Dependencies ----------------
           - cfg: { os: ubuntu }
             os_deps: >-
@@ -127,6 +134,20 @@ jobs:
     runs-on: ubuntu-18.04
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
     steps:
+      # - name: Set up Python ${{ matrix.python-version }}
+        # uses: actions/setup-python@v2
+        # with:
+          # python-version: ${{ matrix.python-version }}
+      - name: Info
+        run: |
+          pwd
+          echo $TEST
+          echo workspace is $TRICK_HOME
+          echo files in workspace: 
+          ls -la $TRICK_HOME
+        env:
+          TEST: Hello World!
+          TRICK_HOME: ${{ github.workspace }}
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
@@ -136,10 +157,39 @@ jobs:
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
         uses: actions/checkout@master
+      - name: Info after checkout
+        run: |
+          pwd
+          echo $TEST
+          echo workspace is $TRICK_HOME
+          echo files in workspace: 
+          ls -la $TRICK_HOME
+          netstat -tulpan
+          whereis nc
+        env:
+          TEST: Hello World!
+          TRICK_HOME: ${{ github.workspace }}
+      - name: Create testing environment
+        run: |
+          cd share/trick/pymods/trick/
+          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
       - name: Build trick
         run: |
           export MAKEFLAGS=-j`nproc`
           ./configure
           make
-      - name: Test
-        run: make test
+      # - name: Build Cannon Sim
+      #   run: |
+      #     cd trick_sims/Cannon/SIM_cannon_numeric
+      #     ls -la
+      #     $TRICK_HOME/bin/trick-CP
+      #     ls -la
+      #   env:
+      #     TRICK_HOME: "${{ github.workspace }}"
+      - name: Run Civet Tests
+        run: |
+          cd share/trick/pymods/trick/
+          . .venv/bin/activate
+          ./run_tests.py
+        env:
+          TRICK_HOME: "${{ github.workspace }}"
