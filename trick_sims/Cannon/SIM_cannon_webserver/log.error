@@ -1,0 +1,4 @@
+[1627052322] [error] [client ] ssl_use_pem_file: cannot open certificate file /home/cherpin/.ssl/server.pem1: error:02001002:system library:fopen:No such file or directory
+[1627052322] [error] [client ] Error initializing SSL context
+[1627052348] [error] [client ] ssl_use_pem_file: cannot open certificate file /home/cherpin/.ssl/server.pem1: error:02001002:system library:fopen:No such file or directory
+[1627052348] [error] [client ] Error initializing SSL context

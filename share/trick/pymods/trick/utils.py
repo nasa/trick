@@ -40,7 +40,7 @@ class Params:
 	def get_trick_home(self):
 		return self.__trick_home
 	def get_path_to_sim(self):
-		return os.path.join(self.get_trick_home(), "trick_sims", "Cannon", "SIM_cannon_numeric")
+		return os.path.join(self.get_trick_home(), "trick_sims", "Cannon", "SIM_cannon_webserver")
 	def get_input_folder(self):
 		return self.__input_folder
 	def get_test_input_file(self):

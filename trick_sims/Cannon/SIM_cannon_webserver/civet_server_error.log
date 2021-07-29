@@ -1,0 +1,61 @@
+[1627019884] [error] [client ] ssl_use_pem_file: cannot open certificate file server2.pem: error:02001002:system library:fopen:No such file or directory
+[1627019884] [error] [client ] Error initializing SSL context
+[1627020168] [error] [client ] ssl_use_pem_file: cannot open certificate file server2.pem: error:02001002:system library:fopen:No such file or directory
+[1627020168] [error] [client ] Error initializing SSL context
+[1627020209] [error] [client ] ssl_use_pem_file: cannot open certificate file server2.pem: error:02001002:system library:fopen:No such file or directory
+[1627020209] [error] [client ] Error initializing SSL context
+[1627020293] [error] [client ] ssl_use_pem_file: cannot open certificate file /home/cherpin/.ssl/temp/server.pem: error:02001002:system library:fopen:No such file or directory
+[1627020293] [error] [client ] Error initializing SSL context
+[1627020369] [error] [client ] ssl_use_pem_file: cannot open certificate file /home/cherpin/.ssl/temp/server.pem: error:140AB18F:SSL routines:SSL_CTX_use_certificate:ee key too small
+[1627020369] [error] [client ] Error initializing SSL context
+[1627020490] [error] [client ] ssl_use_pem_file: cannot open certificate file /home/cherpin/.ssl/temp/server.pem: error:140AB18F:SSL routines:SSL_CTX_use_certificate:ee key too small
+[1627020490] [error] [client ] Error initializing SSL context
+[1627021005] [error] [client ] ssl_use_pem_file: cannot open certificate file /home/cherpin/.ssl/server.pem: error:140AB18F:SSL routines:SSL_CTX_use_certificate:ee key too small
+[1627021005] [error] [client ] Error initializing SSL context
+[1627021051] [error] [client ] ssl_use_pem_file: cannot open certificate file /home/cherpin/.ssl/server.pem: error:140AB18F:SSL routines:SSL_CTX_use_certificate:ee key too small
+[1627021051] [error] [client ] Error initializing SSL context
+[1627021380] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021380] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021380] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021414] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021414] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021414] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021423] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021423] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021423] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021487] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021487] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021487] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021493] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021493] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021493] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021573] [error] [client 127.0.0.1] SSL syscall error 0
+[1627021688] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021688] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021688] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021688] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021688] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021688] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021700] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021700] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627021700] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627047794] [error] [client 127.0.0.1] SSL syscall error 0
+[1627047846] [error] [client 127.0.0.1] SSL syscall error 0
+[1627047883] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627047883] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627047883] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627047892] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627047892] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627047892] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627047892] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627047892] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627051754] [error] [client 127.0.0.1] SSL syscall error 0
+[1627051779] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627051781] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627051794] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627051808] [error] [client 127.0.0.1] sslize error: error:14094416:SSL routines:ssl3_read_bytes:sslv3 alert certificate unknown
+[1627063781] [error] [client 127.0.0.1] sslize error: error:1408F09C:SSL routines:ssl3_get_record:http request
+[1627063781] [error] [client 127.0.0.1] sslize error: error:1408F09C:SSL routines:ssl3_get_record:http request
+[1627063781] [error] [client 127.0.0.1] sslize error: error:1408F09C:SSL routines:ssl3_get_record:http request
+[1627063781] [error] [client 127.0.0.1] sslize error: error:1408F09C:SSL routines:ssl3_get_record:http request
+[1627063781] [error] [client 127.0.0.1] sslize error: error:1408F09C:SSL routines:ssl3_get_record:http request
