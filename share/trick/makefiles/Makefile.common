@@ -171,13 +171,6 @@ ifneq ($(GSL_HOME),)
     TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
 endif
 
-#ifeq (${TRICK_MONGOOSE},1)
-#	TRICK_LIBS += -ltrickHTTP ${TRICK_LIB_DIR}/libmongoose.a
-#	TRICK_SWIG_FLAGS += -DUSE_MONGOOSE
-#	TRICK_SYSTEM_CXXFLAGS += -DUSE_MONGOOSE
-#	TRICK_ICG_EXCLUDE += :${TRICK_HOME}/include/mongoose
-#endif
-
 ifeq (${TRICK_MONGOOSE},1) #TODO: Make this use a civet flag instead of a mongoose flag
     TRICK_CIVET=0
 else
