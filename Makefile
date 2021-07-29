@@ -239,12 +239,14 @@ ${TRICK_LIB_DIR}/libtrickCivet.a: ${TRICK_LIB_DIR}/libcivetweb.a ${TRICK_HOME}/i
 
 ${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}/libcivetweb.a | ${TRICK_LIB_DIR}
 	cp ${CIVET_CLONE_DIR}/libcivetweb.a $(TRICK_LIB_DIR)/libcivetweb.a
-	mkdir -p ${TRICK_HOME}/include/civet/
 
-${TRICK_HOME}/include/civet/civetweb.h: ${CIVET_CLONE_DIR}
+${TRICK_HOME}/include/civet:
+	mkdir -p ${TRICK_HOME}/include/civet
+
+${TRICK_HOME}/include/civet/civetweb.h: ${CIVET_CLONE_DIR} ${TRICK_HOME}/include/civet
 	cp ${CIVET_CLONE_DIR}/include/civetweb.h ${TRICK_HOME}/include/civet/civetweb.h
 
-${TRICK_HOME}/include/civet/CivetServer.h: ${CIVET_CLONE_DIR}
+${TRICK_HOME}/include/civet/CivetServer.h: ${CIVET_CLONE_DIR} ${TRICK_HOME}/include/civet
 	cp ${CIVET_CLONE_DIR}/include/CivetServer.h ${TRICK_HOME}/include/civet/CivetServer.h	
 
 ${CIVET_CLONE_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}
