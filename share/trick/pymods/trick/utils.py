@@ -1,6 +1,7 @@
 from time import sleep
 import subprocess
 import os
+import psutil
 
 def pause(my_str = "no message."):
 	print("Type exit to continue:" + my_str)
@@ -85,14 +86,14 @@ class Params:
 params = Params()
 
 def is_web_server_started():
+	isConnectionOpen = False
 	for _ in range(20): #Wait 2 seconds i.e 20 * .1 seconds, must wait for service to get to listening state.
-		cmd = f"echo \"netstat -tulpan | grep {params.get_port()}\" | /bin/bash"
-		# p = subprocess.run(cmd, capture_output=True, shell=True)
-		output = subprocess.getoutput(cmd)
-		print("runing........", cmd)
-		print(f"Checking for port output: {output}")
-		print(f"Error is: {output}")
+		for connection in psutil.net_connections():
+			local_address = connection.laddr
+			if len(local_address) > 1 and local_address[1] == params.get_port() and connection.status == "LISTEN":
+				isConnectionOpen = True
+				break
+		if isConnectionOpen:
+			break
 		sleep(.1) #We sleep to use less recourses
-		if "LISTEN" in output:
-			return True
-	return False
+	return isConnectionOpen
