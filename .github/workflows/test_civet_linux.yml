@@ -61,8 +61,7 @@ jobs:
               libgtest-dev
               python3
               python3-venv
-              net-tools
-              netcat
+              python3-dev
             install_gtest: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
 #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
@@ -85,8 +84,6 @@ jobs:
               zlib-devel
               gtest-devel
               python3-devel
-              net-tools
-              nc
 #-------- Ubuntu Only Dependencies ----------------
           - cfg: { os: ubuntu }
             os_deps: >-
@@ -164,8 +161,6 @@ jobs:
           echo workspace is $TRICK_HOME
           echo files in workspace: 
           ls -la $TRICK_HOME
-          netstat -tulpan
-          whereis nc
         env:
           TEST: Hello World!
           TRICK_HOME: ${{ github.workspace }}
