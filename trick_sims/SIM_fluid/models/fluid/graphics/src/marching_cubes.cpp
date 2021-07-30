@@ -13,21 +13,21 @@ void generateCellMesh(GridCell &grid, double isoLevel, std::vector<glm::uvec3> &
 {
     int geometryCaseIndex = 0;
     int startTriangleIdx = vertices.size();
-    if (grid.isoValues[0] < isoLevel)
+    if (grid.isoValues[0] > isoLevel)
         geometryCaseIndex |= 1;
-    if (grid.isoValues[1] < isoLevel)
+    if (grid.isoValues[1] > isoLevel)
         geometryCaseIndex |= 2;
-    if (grid.isoValues[2] < isoLevel)
+    if (grid.isoValues[2] > isoLevel)
         geometryCaseIndex |= 4;
-    if (grid.isoValues[3] < isoLevel)
+    if (grid.isoValues[3] > isoLevel)
         geometryCaseIndex |= 8;
-    if (grid.isoValues[4] < isoLevel)
+    if (grid.isoValues[4] > isoLevel)
         geometryCaseIndex |= 16;
-    if (grid.isoValues[5] < isoLevel)
+    if (grid.isoValues[5] > isoLevel)
         geometryCaseIndex |= 32;
-    if (grid.isoValues[6] < isoLevel)
+    if (grid.isoValues[6] > isoLevel)
         geometryCaseIndex |= 64;
-    if (grid.isoValues[7] < isoLevel)
+    if (grid.isoValues[7] > isoLevel)
         geometryCaseIndex |= 128;
 
     // no edges in grid cell contain a triangle vertex
