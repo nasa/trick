@@ -8,6 +8,7 @@ const float kFov = 45.0f;
 
 
 extern bool paused;
+extern bool meshMode;
 
 GUI::GUI(GLFWwindow* window, int view_width, int view_height, int preview_height)
 	:window_(window), preview_height_(preview_height)
@@ -51,6 +52,8 @@ void GUI::keyCallback(int key, int scancode, int action, int mods)
 		fps_mode_ = !fps_mode_;
 	} else if (key == GLFW_KEY_P && action != GLFW_RELEASE) {
 		paused = !paused;
+	} else if (key == GLFW_KEY_M && action != GLFW_RELEASE) {
+		meshMode = !meshMode;
 	}
 
 }

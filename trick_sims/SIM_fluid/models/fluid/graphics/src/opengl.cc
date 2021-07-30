@@ -50,6 +50,7 @@ const std::string window_title = "Animation";
 
 
 bool paused = true;
+bool meshMode = false;
 
 extern int selectedKeyframe;
 
@@ -421,7 +422,7 @@ int openGLMain(Fluid* fluid)
 				<< std::setfill('0') << std::setw(6)
 				<< time << " sec";
 		}
-		bool meshMode = true;
+		
 		if (meshMode) {
 			particlePositions = fluid->getParticlePositions();
 
