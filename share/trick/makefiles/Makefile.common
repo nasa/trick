@@ -188,7 +188,7 @@ ifneq (${TRICK_MONGOOSE},1) #TODO: Make this use a civet flag instead of a mongo
     TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/civet
 
     ifeq (${TRICK_FORCE_32BIT},1)
-        CIVET_COMPILE_FAGS+=-m32
+        CIVET_COMPILE_FAGS=-m32 #TODO Append and don't reset variable.  Currently when we do this it adds a space.
     endif
 endif
 
