@@ -13,6 +13,17 @@
 
 #include "glm/gtx/io.hpp"
 
+const char* particle_vertex_shader =
+#include "shaders/particle.vert"
+;
+
+const char* particle_geometry_shader =
+#include "shaders/particle.geom"
+;
+
+const char* particle_fragment_shader = 
+#include "shaders/particle.frag"
+;
 
 const char* mesh_vertex_shader =
 #include "shaders/mesh.vert"
@@ -42,8 +53,13 @@ bool paused = true;
 
 extern int selectedKeyframe;
 
-enum {kVertexBuffer, kParticleIndex, kIndexBuffer, kNumVbos};
-GLuint mesh_buffer_objects[kNumVbos];
+
+enum {kVertexBufferMesh, kIndexBufferMesh, kNumVbosMesh};
+enum {kVertexBufferParticle, kParticleIndex, kIndexBufferParticle, kNumVbosParticle};
+
+
+GLuint mesh_buffer_objects[kNumVbosMesh];
+GLuint particle_buffer_objects[kNumVbosParticle];
 
 
 
@@ -136,11 +152,34 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 int openGLMain(Fluid* fluid)
 {
 
-	char* obj_file = "../100_sphere.obj";
+	char* obj_file = "100_sphere.obj";
 
 	std::cout << obj_file << std::endl;
+
+
 	GLFWwindow *window = init_glefw();
 	GUI gui(window, window_width, window_height, preview_height);
+
+	std::vector<glm::vec4> particle_vertices;
+	std::vector<glm::uvec3> particle_faces;
+
+
+	loadObj(obj_file, particle_vertices, particle_faces, 0);
+	int num_vert = particle_vertices.size();
+
+	for (int i = 1; i < fluid->NUM_PARTICLES; i++) {
+		loadObj(obj_file, particle_vertices, particle_faces, i * num_vert);
+	}
+
+	/* Assign index to each particle model */
+	std::vector<int> particle_idx;
+
+	for(int i = 0; i < fluid->NUM_PARTICLES; i++) {
+		for (int p = 0; p < num_vert; p++) {
+			particle_idx.push_back(i);
+		}
+	}
+
 
 	std::vector<float> particlePositions = fluid->getParticlePositions();
 
@@ -174,10 +213,10 @@ int openGLMain(Fluid* fluid)
 	glBindVertexArray(meshVAO);
 	
 	// Generate VBOs for mesh program
-	glGenBuffers(kNumVbos, &mesh_buffer_objects[0]);
+	glGenBuffers(kNumVbosMesh, &mesh_buffer_objects[0]);
 
 	// Setup particle vertex data in VBO
-	glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBuffer]);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBufferMesh]);
 	// Describe vertex data to OpenGL
 	glBufferData(GL_ARRAY_BUFFER, 
 				sizeof(float) * mesh_vertices.size() * 4, mesh_vertices.data(),
@@ -187,41 +226,38 @@ int openGLMain(Fluid* fluid)
 
 
 	// Setup element array buffer. 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBuffer]);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBufferMesh]);
 	// Describe elemnt array buffer to OpenGL
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
 					sizeof(uint32_t) * mesh_faces.size() * 3,
 					mesh_faces.data(), GL_DYNAMIC_DRAW);
 
-	// Setup vertex shader.
-	GLuint vertex_shader_id = 0;
-	const char* vertex_source_pointer = mesh_vertex_shader;
-	vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader_id, 1, &vertex_source_pointer, nullptr);
-	glCompileShader(vertex_shader_id);
+	// Setup mesh vertex shader.
+	GLuint mesh_vertex_shader_id = 0;
+	mesh_vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(mesh_vertex_shader_id, 1, &mesh_vertex_shader, nullptr);
+	glCompileShader(mesh_vertex_shader_id);
 
 
-	// Setup geometry shader.
-	GLuint geometry_shader_id = 0;
-	const char* geometry_source_pointer = mesh_geometry_shader;
-	geometry_shader_id = glCreateShader(GL_GEOMETRY_SHADER);
-	glShaderSource(geometry_shader_id, 1, &geometry_source_pointer, nullptr);
-	glCompileShader(geometry_shader_id);
+	// Setup mesh geometry shader.
+	GLuint mesh_geometry_shader_id = 0;
+	mesh_geometry_shader_id = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(mesh_geometry_shader_id, 1, &mesh_geometry_shader, nullptr);
+	glCompileShader(mesh_geometry_shader_id);
 
 
-	// Setup fragment shader.
-	GLuint fragment_shader_id = 0;
-	const char* fragment_source_pointer = mesh_fragment_shader;
-	fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader_id, 1, &fragment_source_pointer, nullptr);
-	glCompileShader(fragment_shader_id);
+	// Setup mesh fragment shader.
+	GLuint mesh_fragment_shader_id = 0;
+	mesh_fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(mesh_fragment_shader_id, 1, &mesh_fragment_shader, nullptr);
+	glCompileShader(mesh_fragment_shader_id);
 
 	// Setup program for the particles, and get its locations.
 	GLuint mesh_program_id = 0;
 	mesh_program_id = glCreateProgram();
-	glAttachShader(mesh_program_id, vertex_shader_id);
-	glAttachShader(mesh_program_id, geometry_shader_id);
-	glAttachShader(mesh_program_id, fragment_shader_id);
+	glAttachShader(mesh_program_id, mesh_vertex_shader_id);
+	glAttachShader(mesh_program_id, mesh_geometry_shader_id);
+	glAttachShader(mesh_program_id, mesh_fragment_shader_id);
 
 	// Bind attributes.
 	glBindAttribLocation(mesh_program_id, 0, "vertex_position");
@@ -229,23 +265,120 @@ int openGLMain(Fluid* fluid)
 	glLinkProgram(mesh_program_id);
 
 
-	// Get the uniform locations.
-	GLint projection_matrix_location = 0;
-	projection_matrix_location =
+	// Get the mesh uniform locations.
+	GLint mesh_projection_matrix_location = 0;
+	mesh_projection_matrix_location =
 		glGetUniformLocation(mesh_program_id, "projection");
 
-	GLint view_matrix_location = 0;
-	view_matrix_location = 
+	GLint mesh_view_matrix_location = 0;
+	mesh_view_matrix_location = 
 		glGetUniformLocation(mesh_program_id, "view");
 
-	GLint model_matrix_location = 0;
-	model_matrix_location = 
+	GLint mesh_model_matrix_location = 0;
+	mesh_model_matrix_location = 
 		glGetUniformLocation(mesh_program_id, "model");
 
-	GLint light_position_location = 0;
-	light_position_location = 
+	GLint mesh_light_position_location = 0;
+	mesh_light_position_location = 
 		glGetUniformLocation(mesh_program_id, "light_position");
 
+	/* Initialize particle OpenGL Program */
+	GLuint particleVAO;
+	// Setup VAO for particle program
+	glGenVertexArrays(1, &particleVAO);
+	// Bind VAO for particle program
+	glBindVertexArray(particleVAO);
+	
+	// Generate VBOs for particle program
+	glGenBuffers(kNumVbosParticle, &particle_buffer_objects[0]);
+
+	// Setup particle vertex data in VBO
+	glBindBuffer(GL_ARRAY_BUFFER, particle_buffer_objects[kVertexBufferParticle]);
+	// Describe vertex data to OpenGL
+	glBufferData(GL_ARRAY_BUFFER, 
+				sizeof(float) * particle_vertices.size() * 4, particle_vertices.data(),
+				GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	// Setup particle index datas in VBO
+	glBindBuffer(GL_ARRAY_BUFFER, particle_buffer_objects[kParticleIndex]);
+	// Describe particle index data to OpenGL
+	glBufferData(GL_ARRAY_BUFFER, sizeof(int) * particle_idx.size(), particle_idx.data(), GL_STATIC_DRAW);
+	glVertexAttribIPointer(1, 1, GL_INT, 0, 0);
+	glEnableVertexAttribArray(1);
+
+
+	// Setup element array buffer. 
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, particle_buffer_objects[kIndexBufferParticle]);
+	// Describe element array buffer to OpenGL
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+					sizeof(uint32_t) * particle_faces.size() * 3,
+					particle_faces.data(), GL_DYNAMIC_DRAW);
+
+	// Setup particle vertex shader.
+	GLuint particle_vertex_shader_id = 0;
+	particle_vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(particle_vertex_shader_id, 1, &particle_vertex_shader, nullptr);
+	glCompileShader(particle_vertex_shader_id);
+
+
+	// Setup particle geometry shader.
+	GLuint particle_geometry_shader_id = 0;
+	particle_geometry_shader_id = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(particle_geometry_shader_id, 1, &particle_geometry_shader, nullptr);
+	glCompileShader(particle_geometry_shader_id);
+
+
+	// Setup particle fragment shader.
+	GLuint particle_fragment_shader_id = 0;
+	particle_fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(particle_fragment_shader_id, 1, &particle_fragment_shader, nullptr);
+	glCompileShader(particle_fragment_shader_id);
+
+	// Setup program for the particles, and get its locations.
+	GLuint particle_program_id = 0;
+	particle_program_id = glCreateProgram();
+	glAttachShader(particle_program_id, particle_vertex_shader_id);
+	glAttachShader(particle_program_id, particle_geometry_shader_id);
+	glAttachShader(particle_program_id, particle_fragment_shader_id);
+
+	// Bind attributes.
+	glBindAttribLocation(particle_program_id, 0, "vertex_position");
+	glBindAttribLocation(particle_program_id, 1, "idx");
+	glBindFragDataLocation(particle_program_id, 0, "fragment_color");
+	glLinkProgram(particle_program_id);
+
+
+	// Get the particle uniform locations.
+	GLint particle_projection_matrix_location = 0;
+	particle_projection_matrix_location =
+		glGetUniformLocation(particle_program_id, "projection");
+
+	GLint particle_view_matrix_location = 0;
+	particle_view_matrix_location = 
+		glGetUniformLocation(particle_program_id, "view");
+
+	GLint particle_model_matrix_location = 0;
+	particle_model_matrix_location = 
+		glGetUniformLocation(particle_program_id, "model");
+
+	GLint particle_light_position_location = 0;
+	particle_light_position_location = 
+		glGetUniformLocation(particle_program_id, "light_position");
+
+	/* Setup TBO for particle position data*/
+	GLuint sphTBO;
+	GLuint sph_tbo_texture;
+	glGenBuffers(1, &sphTBO);
+	glBindBuffer(GL_TEXTURE_BUFFER, sphTBO);
+	glBufferData(GL_TEXTURE_BUFFER, sizeof(float) * particlePositions.size(), particlePositions.data(), GL_DYNAMIC_DRAW);
+
+
+	glGenTextures(1, &sph_tbo_texture);
+	glBindBuffer(GL_TEXTURE_BUFFER, 0);
+
+	GLint sph_tbo_pos = glGetUniformLocation(particle_program_id, "sph_tbo_pos");
 
 	float aspect = 0.0f;
 	bool draw_floor = false;
@@ -288,55 +421,89 @@ int openGLMain(Fluid* fluid)
 				<< std::setfill('0') << std::setw(6)
 				<< time << " sec";
 		}
-		
+		bool meshMode = true;
+		if (meshMode) {
+			particlePositions = fluid->getParticlePositions();
 
-		particlePositions = fluid->getParticlePositions();
+			if (fluid->timeSteps % 10 == 0) {
+				updateIsoValues(gridCells, particlePositions, RADIUS);
+				
+				mesh_vertices.clear();
+				mesh_faces.clear();
+				gridCells.clear();
+				initializeGridCells(gridCells, fluid->BOUND, MC_GRID_DIM);
+				
+				updateIsoValues(gridCells, particlePositions, RADIUS);
+				for (int i = 0; i < gridCells.size(); i++) {
+					generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
+				}
+				
+				glBindVertexArray(meshVAO);
+				glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBufferMesh]);
+				glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float) * mesh_vertices.size(), mesh_vertices.data(), GL_DYNAMIC_DRAW);
 
-		if (fluid->timeSteps % 10 == 0) {
-			updateIsoValues(gridCells, particlePositions, RADIUS);
-			
-			mesh_vertices.clear();
-			mesh_faces.clear();
-			gridCells.clear();
-			initializeGridCells(gridCells, fluid->BOUND, MC_GRID_DIM);
-			
-			updateIsoValues(gridCells, particlePositions, RADIUS);
-			for (int i = 0; i < gridCells.size(); i++) {
-				generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBufferMesh]);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+									sizeof(uint32_t) * mesh_faces.size() * 3,
+									mesh_faces.data(), GL_DYNAMIC_DRAW);
 			}
-			
+
+
+			// Switch VAO
 			glBindVertexArray(meshVAO);
-			glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBuffer]);
-			glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float) * mesh_vertices.size(), mesh_vertices.data(), GL_DYNAMIC_DRAW);
 
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBuffer]);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
-								sizeof(uint32_t) * mesh_faces.size() * 3,
-								mesh_faces.data(), GL_DYNAMIC_DRAW);
+			// Switch Program
+			glUseProgram(mesh_program_id);
+
+			// Pass uniforms
+			glUniformMatrix4fv(mesh_projection_matrix_location, 1, GL_FALSE,
+				&((*mats.projection)[0][0]));
+
+			glUniformMatrix4fv(mesh_view_matrix_location, 1, GL_FALSE,
+				&((*mats.view)[0][0]));
+			
+			glUniformMatrix4fv(mesh_model_matrix_location, 1, GL_FALSE,
+				&((*mats.model)[0][0]));
+			
+			glUniform4fv(mesh_light_position_location, 1, &light_position[0]);
+			
+			
+			glDrawElements(GL_TRIANGLES, 3 * mesh_faces.size(), GL_UNSIGNED_INT, 0);
+		} else {
+			particlePositions = fluid->getParticlePositions();
+
+			// Switch VAO
+			glBindVertexArray(particleVAO);
+
+			// Switch Program
+			glUseProgram(particle_program_id);
+
+			// Setup TBO
+			glBindBuffer(GL_TEXTURE_BUFFER, sphTBO);
+			glBufferData(GL_TEXTURE_BUFFER, sizeof(float) * particlePositions.size(), particlePositions.data(), GL_DYNAMIC_DRAW);
+
+			// Pass uniforms
+			glUniformMatrix4fv(particle_projection_matrix_location, 1, GL_FALSE,
+				&((*mats.projection)[0][0]));
+
+			glUniformMatrix4fv(particle_view_matrix_location, 1, GL_FALSE,
+				&((*mats.view)[0][0]));
+			
+			glUniformMatrix4fv(particle_model_matrix_location, 1, GL_FALSE,
+				&((*mats.model)[0][0]));
+			
+			glUniform4fv(particle_light_position_location, 1, &light_position[0]);
+			
+			
+			
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_BUFFER, sph_tbo_texture);
+			glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, sphTBO);
+
+			glUniform1i(sph_tbo_pos, 0);
+
+			glDrawElements(GL_TRIANGLES, 3 * particle_faces.size(), GL_UNSIGNED_INT, 0);
 		}
-
-
-		// Switch VAO
-		glBindVertexArray(meshVAO);
-
-		// Switch Program
-		glUseProgram(mesh_program_id);
-
-		// Pass uniforms
-		glUniformMatrix4fv(projection_matrix_location, 1, GL_FALSE,
-			&((*mats.projection)[0][0]));
-
-		glUniformMatrix4fv(view_matrix_location, 1, GL_FALSE,
-			&((*mats.view)[0][0]));
-		
-		glUniformMatrix4fv(model_matrix_location, 1, GL_FALSE,
-			&((*mats.model)[0][0]));
-		
-		glUniform4fv(light_position_location, 1, &light_position[0]);
-		
-		
-		glDrawElements(GL_TRIANGLES, 3 * mesh_faces.size(), GL_UNSIGNED_INT, 0);
-
 	
 		glfwPollEvents();
 		glfwSwapBuffers(window);
