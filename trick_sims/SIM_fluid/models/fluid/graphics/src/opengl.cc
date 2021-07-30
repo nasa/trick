@@ -152,7 +152,7 @@ int openGLMain(Fluid* fluid)
 
 	std::vector<GridCell> gridCells;
 	initializeGridCells(gridCells, fluid->BOUND, MC_GRID_DIM);
-	printf("Grid cells size: %d\n", gridCells.size());
+	
 	updateIsoValues(gridCells, particlePositions, RADIUS);
 	std::vector<glm::vec4> mesh_vertices;
 	std::vector<glm::uvec3> mesh_faces;
@@ -161,22 +161,6 @@ int openGLMain(Fluid* fluid)
 		generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
 	}
 	
-	printf("size of faces: %d\n", mesh_faces.size());
-
-	/*
-	GridCell testCell;
-
-	int vertIdx = 0;
-	for (int i = 0; i <= 1; i++) {
-		for (int j = 0; j <= 1; j++) {
-			for (int k = 0; k <= 1; k++) {
-				testCell.vertices[vertIdx] = 10.f * glm::vec4(i, j, k, 0);
-				vertIdx++;
-			}
-		}
-	}*/
-
-	printf("size of vertices: %d\n", mesh_vertices.size());
 	
 
 	glm::vec4 light_position = glm::vec4(0.0f, 0.0f, fluid->BOUND + 10.0f, 1.0f);
@@ -269,8 +253,6 @@ int openGLMain(Fluid* fluid)
 	int timeStep = 0;
 	int oldMeshFaces = mesh_faces.size();
 	while (!glfwWindowShouldClose(window)) {
-	//while (true) {
-		// Setup some basic window stuff.
 		
 		glfwGetFramebufferSize(window, &window_width, &window_height);
 		glViewport(0, 0, window_width, window_height);
@@ -308,21 +290,11 @@ int openGLMain(Fluid* fluid)
 		}
 		
 
-
-
-		time+= fluid->DT;
-		printf("time: %f\n", time);
-
 		particlePositions = fluid->getParticlePositions();
-		/*for (int i = 0; i < particlePositions.size() / 3; i++) {
-			particlePositions[3 * i + 1] -= 1;
-		}*/
-		printf("%f\n", particlePositions[1]);
+
 		if (fluid->timeSteps % 10 == 0) {
 			updateIsoValues(gridCells, particlePositions, RADIUS);
-
-				
-			printf("%d\n", mesh_vertices.size()); 
+			
 			mesh_vertices.clear();
 			mesh_faces.clear();
 			gridCells.clear();
@@ -333,17 +305,6 @@ int openGLMain(Fluid* fluid)
 				generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
 			}
 			
-			printf("%d\n", mesh_vertices.size());
-			printf("%d\n", mesh_faces.size());
-			//}
-			//timeStep++;
-			//PARTICLES_WITHIN_VERTEX+=1;
-
-						/* Update mesh face and vertex buffers data after updating isoValues */
-			/*
-			for (int i = 0; i < mesh_vertices.size(); i++) {
-				mesh_vertices[i][1] -= 2;
-			}*/
 			glBindVertexArray(meshVAO);
 			glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBuffer]);
 			glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float) * mesh_vertices.size(), mesh_vertices.data(), GL_DYNAMIC_DRAW);
@@ -353,10 +314,6 @@ int openGLMain(Fluid* fluid)
 								sizeof(uint32_t) * mesh_faces.size() * 3,
 								mesh_faces.data(), GL_DYNAMIC_DRAW);
 		}
-		
-
-		
-		//glBindBUffer(GL_FACE)
 
 
 		// Switch VAO
@@ -379,7 +336,6 @@ int openGLMain(Fluid* fluid)
 		
 		
 		glDrawElements(GL_TRIANGLES, 3 * mesh_faces.size(), GL_UNSIGNED_INT, 0);
-
 
 	
 		glfwPollEvents();
