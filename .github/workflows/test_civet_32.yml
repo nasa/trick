@@ -24,7 +24,7 @@ jobs:
         python3 --version
     - name: Build Python environment
       run: |
-        cd /share/trick/pymods/trick
+        cd share/trick/pymods/trick
         python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
     - name: Install dependency group
       run: yum -y groupinstall "Development tools" && yum -y update
