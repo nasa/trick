@@ -1,4 +1,4 @@
-#Extending the WebSocket-API
+## Extending the WebSocket-API
 
 ## When You Create a WebSocket Connection
 

@@ -149,12 +149,6 @@ ifeq ($(USE_JAVA), 1)
 all: java
 endif
 
-#ifeq ($(TRICK_MONGOOSE), 1)
-#all: webserver
-#icg_sim_serv: ${TRICK_HOME}/include/mongoose/mongoose.h
-#ICG: ${TRICK_HOME}/include/mongoose/mongoose.h
-#endif
-
 ifeq ($(TRICK_CIVET), 1)
 icg_sim_serv: ${TRICK_LIB_DIR}/libtrickCivet.a
 endif
@@ -224,10 +218,9 @@ dp: ${TRICK_HOME}/trick_source/trick_utils/units
 
 #-------------------------------------------------------------------------------
 #
-.PHONY: webserver
-webserver: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_HOME}/include/mongoose/mongoose.h
-	$(MAKE) -C ${TRICK_HOME}/trick_source/web/HttpServer
 
+#-------------------------------------------------------------------------------
+# 1.2 Build Trick's CivetWeb webserver.
 
 CIVET_CLONE_DIR = civetweb_clone
 
@@ -254,44 +247,6 @@ ${CIVET_CLONE_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}
 
 ${CIVET_CLONE_DIR}:
 	git clone --branch v1.14 --depth 1 https://github.com/civetweb/civetweb.git $@
-
-#-------------------------------------------------------------------------------
-
-mongoose.h:
-	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.h
-
-mongoose.c:
-	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.c
-
-${TRICK_LIB_DIR}/libmongoose.a: ${TRICK_HOME}/include/mongoose/mongoose.h | mongoose.o $(TRICK_LIB_DIR)
-	ar crs $@ mongoose.o
-	@ rm mongoose.o
-	@ rm -f mongoose.h
-	@ echo ; echo "Mongoose library compiled:" ; date
-
-ifeq (${TRICK_OFFLINE}, 0)
-
-mongoose.o: mongoose.h mongoose.c
-	$(CC) $(TRICK_CFLAGS) ${TRICK_SYSTEM_CXXFLAGS} -c -o mongoose.o mongoose.c
-	@ rm mongoose.c
-
-${TRICK_HOME}/include/mongoose/mongoose.h: mongoose.h | ${TRICK_HOME}/include/mongoose
-	@ cp mongoose.h $@
-
-else
-
-# if trick-offline gets updated, we should rebuild libmongoose
-${TRICK_LIB_DIR}/libmongoose.a: ${TRICK_HOME}/trick-offline/mongoose.h ${TRICK_HOME}/trick-offline/mongoose.c
-
-mongoose.o: ${TRICK_HOME}/trick-offline/mongoose.h ${TRICK_HOME}/trick-offline/mongoose.c
-	$(CC) $(TRICK_CFLAGS) -c -I${TRICK_HOME}/trick-offline -o mongoose.o ${TRICK_HOME}/trick-offline/mongoose.c
-
-${TRICK_HOME}/include/mongoose/mongoose.h: ${TRICK_HOME}/trick-offline/mongoose.h | ${TRICK_HOME}/include/mongoose
-	@ cp ${TRICK_HOME}/trick-offline/mongoose.h $@
-endif
-
-${TRICK_HOME}/include/mongoose: 
-	@ mkdir $@
 
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools
