@@ -144,7 +144,6 @@
 #include "trick/vval.h"
 #include "trick/Flag.h"
 #include "trick/UdUnits.hh"
-#include "trick/WebServer.hh"
 #include "trick/MyCivetServer.hh"
 
 #ifdef USE_ER7_UTILS_INTEGRATORS
