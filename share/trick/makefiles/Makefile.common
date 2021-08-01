@@ -172,17 +172,12 @@ ifneq ($(GSL_HOME),)
 endif
 
 TRICK_CIVET=0
-CIVET_COMPILE_FAGS=
 ifneq (${TRICK_MONGOOSE},1) #TODO: Make this use a civet flag instead of a mongoose flag.
     TRICK_CIVET=1
     TRICK_LIBS += ${TRICK_LIB_DIR}/libcivetweb.a ${TRICK_LIB_DIR}/libtrickCivet.a
     TRICK_SWIG_FLAGS += -DUSE_CIVET
     TRICK_SYSTEM_CXXFLAGS += -DUSE_CIVET
     TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/civet
-
-    ifeq (${TRICK_FORCE_32BIT},1)
-        CIVET_COMPILE_FAGS=-m32 #TODO Append and don't reset variable.  Currently when we do this it adds a space.
-    endif
 endif
 
 # We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.
