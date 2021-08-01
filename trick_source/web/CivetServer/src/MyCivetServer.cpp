@@ -212,8 +212,6 @@ void* main_loop(void* S) {
         pthread_mutex_lock(&server->lock_loop);
         while (!server->service_connections)
             pthread_cond_wait(&server->cond_loop, &server->lock_loop);
-		//pthread_mutex_lock(&server->lock_loop);
-        //pthread_cond_wait(&server->cond_loop, &server->lock_loop);
         if (server->shutting_down) {
             return NULL;
         }
@@ -226,9 +224,7 @@ void* main_loop(void* S) {
 		pthread_mutex_lock(&server->WebSocketSessionMapLock);
 		for (iter = server->webSocketSessionMap.begin(); iter != server->webSocketSessionMap.end(); iter++ ) {
 			WebSocketSession* session = iter->second;
-            message_publish(MSG_DEBUG, "Sending message...\n"); 
 			session->sendMessage();
-            message_publish(MSG_DEBUG, "Message sent.\n"); 
 			messageSent = true;
 		}
 		if (messageSent) { //If any  message was sent we say the data is now not marshalled.
@@ -267,10 +263,6 @@ int MyCivetServer::init() {
                 , "error_log_file", error_log_file
                 , 0
         };
-
-        // const char*options[] = {
-        //     "listening_ports", "5000s", "ssl_certificate", "server.pemadfa", "document_root", document_root, "enable_directory_listing", "yes", 0
-        // };
 
         if (debug) {
             message_publish(MSG_DEBUG, "Trick Webserver: Starting webserver with the following options:\n");
@@ -326,26 +318,16 @@ int MyCivetServer::http_top_of_frame() {
         if (time_homogeneous) {
 		    marshallWebSocketSessionData();
         }
-        message_publish(MSG_DEBUG, "Top of frame.\n");
 		unlockConnections();
 	}
     return 0;
 }
 
 void MyCivetServer::unlockConnections() {
-	//pthread_mutex_unlock(&lock_loop);
     pthread_mutex_lock(&lock_loop);
     service_connections = true;
     pthread_cond_signal(&cond_loop);
     pthread_mutex_unlock(&lock_loop);
-    // std::map<mg_connection*, WebSocketSession*>::iterator iter;
-    // pthread_mutex_lock(&WebSocketSessionMapLock);
-    // for (iter = webSocketSessionMap.begin(); iter != webSocketSessionMap.end(); iter++ ) {
-    //     WebSocketSession* session = iter->second;
-	// 	mg_unlock_connection(session->connection);
-    // }
-    // sessionDataMarshalled = true;
-    // pthread_mutex_unlock(&WebSocketSessionMapLock);
 }
 
 void MyCivetServer::sendWebSocketSessionMessages(struct mg_connection *nc) {

@@ -92,7 +92,8 @@ int parent_http_handler(struct mg_connection* conn, void *data) {
             return http_send_error(conn, 405, msg.c_str(), msg.size(), 100);
         }
     }
-    // TODO add return value
+    std::string msg = "No endpoint given.  To access the api use the /api/http/<endpoint>.";
+    return http_send_error(conn, 405, msg.c_str(), msg.size(), 100);
 }
 
 void handle_HTTP_GET_vs_connections(struct mg_connection* conn, void *cbdata) {
