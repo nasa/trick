@@ -28,7 +28,7 @@ You can use your own certificate but to create a self signed certificate follow 
 add the following lines to your input file
 ```python
 web.server.ssl_enable = True
-web.server.path_to_ssl_cert = server.pem
+web.server.path_to_ssl_cert = "server.pem"
 ```
 Where server.pem is the path to the server.pem file you created when creating a SSL certificate
 

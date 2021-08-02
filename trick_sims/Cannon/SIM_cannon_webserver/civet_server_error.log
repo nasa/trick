@@ -59,3 +59,21 @@
 [1627063781] [error] [client 127.0.0.1] sslize error: error:1408F09C:SSL routines:ssl3_get_record:http request
 [1627063781] [error] [client 127.0.0.1] sslize error: error:1408F09C:SSL routines:ssl3_get_record:http request
 [1627063781] [error] [client 127.0.0.1] sslize error: error:1408F09C:SSL routines:ssl3_get_record:http request
+[1627917267] [error] [client 127.0.0.1] sslize error: error:14094418:SSL routines:ssl3_read_bytes:tlsv1 alert unknown ca
+[1627917267] [error] [client 127.0.0.1] sslize error: error:14094418:SSL routines:ssl3_read_bytes:tlsv1 alert unknown ca
+[1627917267] [error] [client 127.0.0.1] sslize error: error:14094418:SSL routines:ssl3_read_bytes:tlsv1 alert unknown ca
+[1627917267] [error] [client 127.0.0.1] sslize error: error:14094418:SSL routines:ssl3_read_bytes:tlsv1 alert unknown ca
+[1627917267] [error] [client 127.0.0.1] SSL syscall error 0
+[1627917267] [error] [client 127.0.0.1] SSL syscall error 0
+[1627917267] [error] [client 127.0.0.1] SSL syscall error 0
+[1627917267] [error] [client 127.0.0.1] SSL syscall error 0
+[1627917267] [error] [client 127.0.0.1] SSL syscall error 0
+[1627917509] [error] [client 127.0.0.1] sslize error: error:14094418:SSL routines:ssl3_read_bytes:tlsv1 alert unknown ca
+[1627917509] [error] [client 127.0.0.1] sslize error: error:14094418:SSL routines:ssl3_read_bytes:tlsv1 alert unknown ca
+[1627917509] [error] [client 127.0.0.1] sslize error: error:14094418:SSL routines:ssl3_read_bytes:tlsv1 alert unknown ca
+[1627917509] [error] [client 127.0.0.1] sslize error: error:14094418:SSL routines:ssl3_read_bytes:tlsv1 alert unknown ca
+[1627917509] [error] [client 127.0.0.1] SSL syscall error 0
+[1627917509] [error] [client 127.0.0.1] SSL syscall error 0
+[1627917509] [error] [client 127.0.0.1] SSL syscall error 0
+[1627917509] [error] [client 127.0.0.1] SSL syscall error 0
+[1627917509] [error] [client 127.0.0.1] SSL syscall error 0

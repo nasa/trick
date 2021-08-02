@@ -6,7 +6,6 @@ import psutil
 def pause(my_str = "no message."):
 	print("Type exit to continue:" + my_str)
 	# os.system("/bin/bash")
-	# input()
 
 #This file contains variables for the civet_server tests
 class Params:
@@ -17,15 +16,12 @@ class Params:
 		self.__host = "localhost"
 		self.__enable_ssl = False
 		self.__test_time = True
-		# self.__ssl_cert_path = "server.pem"
-		# self.__ssl_cert_path = "/home/cherpin/git/trick_fork/trick_sims/Cannon/SIM_cannon_numeric/server.pem"
-		self.__ssl_cert_path = "/home/cherpin/.ssl/server.pem"
+		self.__ssl_cert_path = os.path.join(os.environ["TRICK_HOME"], "trick_sims", "Cannon", "SIM_cannon_webserver", "server.pem")
 		self.__build_sim = True
 		self.__start_sim = True
-		self.__trick_home = os.environ.get("TRICK_HOME", None)
+		self.__trick_home = os.environ["TRICK_HOME"]
 		if not self.__trick_home:
-			print("ERROR:", "TRICK_HOME not found")
-		# self.__trick_home = None
+			print("ERROR:", "TRICK_HOME not found in environment variables.")
 		self.__input_folder = "RUN_test"
 		self.__test_input_file = f"tmp_input_for_test.py"
 	

@@ -12,23 +12,6 @@ from utils import is_web_server_started, params, pause
 web_server_status = {}
 web_server_status2 = None
 
-# def pytest_runtest_setup(item):
-# 	if "webserver" in item.keywords:
-# 		#retrieve the class name of the test
-# 		cls_name = str(item.cls)
-# 		# status = web_server_status.get(cls_name, None)
-# 		status = web_server_status2
-# 		if status == None:
-# 			print(f"Building and starting sim for class {cls_name}")
-# 			build_sim()
-# 			status = is_web_server_started()
-# 			web_server_status[cls_name] = status
-# 			print(f"Web server status for {cls_name} = {status}")
-# 		if not status:
-# 			pytest.fail("web server is not started.")
-
-# @pytest.fixture(scope="session", autouse=True)
-
 def build_sim():
 	with open(os.path.join(params.get_path_to_sim(), params.get_input_folder(), params.get_test_input_file()), "w") as f:
 		f.write( \
@@ -56,27 +39,17 @@ trick.exec_set_freeze_command(True)""")
 		print("To turn auto rebuild off, in utils.py, self.__build_sim = False.  Note: it's important that SIM rebuild is current.")
 		print("#"*10)
 
-		build_cmd = f"echo \"cd {pathToSim} && make -C {params.get_trick_home()}/trick_source/web/CivetServer\" | /bin/bash" #TODO: Only rebuild if nessary. 
+		build_cmd = f"echo \"cd {pathToSim} && make -C {params.get_trick_home()}/trick_source/web/CivetServer\" | /bin/bash" #TODO: Only rebuild if necessary. 
 		print("....................Running:", build_cmd)
 		subprocess.run(build_cmd, shell=True)
 
-		# clean_cmd = f"echo \"cd {pathToSim} && make clean\" | /bin/bash"
-		# print("....................Running:", build_cmd)
-		# subprocess.run(clean_cmd, shell=True)
-		
 		print("Directory listing:")
 		os.listdir(".")
 
-		# cmd = f"find / -name \"S_main*\""
-		# print("....................Running:", cmd)
-		# pause("Before find")
-		# subprocess.run(cmd, shell=True)
-		# pause("After find")
-		build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash"
+		build_cmd = f"echo \"cd {pathToSim} && {params.get_trick_home()}/bin/trick-CP\" | /bin/bash" #TODO: perform a make clean if webserver code gets updated because trick-CP will no update the sim to include in changes to the webserver.
 		print("....................Running:", build_cmd)
 		subprocess.run(build_cmd, shell=True)
 
-	# pause("After build before start")
 	if params.get_start_sim():
 		if not os.path.exists(os.path.join(pathToSim, params.get_sim_name())):
 			raise RuntimeError(f"Sim executable does not exist in {pathToSim}.  Build this sim before running this test.")
