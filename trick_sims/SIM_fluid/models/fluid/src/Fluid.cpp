@@ -6,7 +6,6 @@ LIBRARY DEPENDENCY:
 *******************************************************************************/
 #include "../include/Fluid.hh"
 #include "../include/Particle.hh"
-//#include "sph_gpu.h"
 #include <iostream>
 #include <iterator>
 
