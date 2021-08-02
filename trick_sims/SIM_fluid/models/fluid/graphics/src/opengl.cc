@@ -178,20 +178,16 @@ int openGLMain(Fluid* fluid)
 	std::vector<float> particlePositions = fluid->getParticlePositions();
 
 	
-	const int MC_GRID_DIM = 16;
-	const int RADIUS = 2 * fluid->BOUND / MC_GRID_DIM;
-	// number of particles within MC GridCell vertex;
-	int PARTICLES_WITHIN_VERTEX = 1;
 
 	std::vector<GridCell> gridCells;
-	initializeGridCells(gridCells, fluid->BOUND, MC_GRID_DIM);
+	initializeGridCells(gridCells, fluid->BOUND, fluid->MC_GRID_DIM);
 	
-	updateIsoValues(gridCells, particlePositions, RADIUS);
+	updateIsoValues(gridCells, particlePositions, fluid->ISO_RADIUS);
 	std::vector<glm::vec4> mesh_vertices;
 	std::vector<glm::uvec3> mesh_faces;
 
 	for (int i = 0; i < gridCells.size(); i++) {
-		generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
+		generateCellMesh(gridCells[i], fluid->PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
 	}
 	
 	
@@ -420,16 +416,16 @@ int openGLMain(Fluid* fluid)
 			particlePositions = fluid->getParticlePositions();
 
 			if (fluid->timeSteps % 10 == 0) {
-				updateIsoValues(gridCells, particlePositions, RADIUS);
+				updateIsoValues(gridCells, particlePositions, fluid->ISO_RADIUS);
 				
 				mesh_vertices.clear();
 				mesh_faces.clear();
 				gridCells.clear();
-				initializeGridCells(gridCells, fluid->BOUND, MC_GRID_DIM);
+				initializeGridCells(gridCells, fluid->BOUND, fluid->MC_GRID_DIM);
 				
-				updateIsoValues(gridCells, particlePositions, RADIUS);
+				updateIsoValues(gridCells, particlePositions, fluid->ISO_RADIUS);
 				for (int i = 0; i < gridCells.size(); i++) {
-					generateCellMesh(gridCells[i], PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
+					generateCellMesh(gridCells[i], fluid->PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
 				}
 				
 				glBindVertexArray(meshVAO);

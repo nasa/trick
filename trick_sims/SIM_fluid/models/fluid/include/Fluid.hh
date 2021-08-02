@@ -69,6 +69,11 @@ class Fluid {
 
 		// number of timesteps simulated
 		int timeSteps = 0;
+
+		// parameters for marching cubes
+		int MC_GRID_DIM = 16;
+		int ISO_RADIUS = 2 * BOUND / MC_GRID_DIM;
+		int PARTICLES_WITHIN_VERTEX = 1; // number of particles within MC GridCell vertex;
 };
 
 #endif
