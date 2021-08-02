@@ -92,6 +92,7 @@ int parent_http_handler(struct mg_connection* conn, void *data) {
             return http_send_error(conn, 405, msg.c_str(), msg.size(), 100);
         }
     }
+    // TODO add return value
 }
 
 void handle_HTTP_GET_vs_connections(struct mg_connection* conn, void *cbdata) {

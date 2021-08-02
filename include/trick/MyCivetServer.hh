@@ -42,6 +42,8 @@ class MyCivetServer {
         pthread_t server_thread;                                                /* ** */
         bool sessionDataMarshalled;                                             /* ** */
         pthread_mutex_t lock_loop;                                              /* ** */
+	pthread_cond_t cond_loop;
+	bool service_connections = true;
         bool shutting_down;                                                     /* ** */
 
         std::map<std::string, WebSocketSessionMaker> WebSocketSessionMakerMap;  /* ** */
