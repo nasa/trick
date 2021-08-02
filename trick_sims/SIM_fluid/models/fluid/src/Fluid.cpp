@@ -73,21 +73,26 @@ std::vector<Particle> Fluid::getNeighbors(int grid_x, int grid_y, int grid_z) {
 
 
 int Fluid::update_SPH() {
-	// CPU simulation
+	if (gpuMode) {
+		// GPU simulation
+		updateSPH_GPU(particles, this);
+	} else {
+		// CPU simulation
+		if (cpuNeighborList) {
+			buildSpatialGrid();
+		}
+			
 	
-	buildSpatialGrid();
+		int p_start = 0;
+		int p_end = particles.size();
+		verletUpdatePosition(p_start, p_end);
+		computeDensityAndPressure(p_start, p_end);
+		computeForces(p_start, p_end);
+		timeIntegration(p_start, p_end);
+	}
 	
-	int p_start = 0;
-	int p_end = particles.size();
-	verletUpdatePosition(p_start, p_end);
-	computeDensityAndPressure(p_start, p_end);
-	computeForces(p_start, p_end);
-	timeIntegration(p_start, p_end);
-	// GPU simulation
-	//updateSPH_GPU(particles, this);
 	timeSteps++;
 	return 0;
-
 }
 
 
@@ -102,7 +107,13 @@ void Fluid::computeDensityAndPressure(int p_start, int p_end) {
 		int grid_x = CELLS_PER_DIM * ((pi.pos[0] + BOUND) / (2 * BOUND));
 		int grid_y = CELLS_PER_DIM * ((pi.pos[1] + BOUND) / (2 * BOUND));
 		int grid_z = CELLS_PER_DIM * ((pi.pos[2] + BOUND) / (2 * BOUND));
-		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+
+		std::vector<Particle> candidate_neighbors;
+		if(cpuNeighborList) {
+			candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+		} else {
+			candidate_neighbors = particles;
+		}
 		
 		for (auto& pj : candidate_neighbors) {
 			float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
@@ -130,7 +141,12 @@ void Fluid::computeForces(int p_start, int p_end) {
 		int grid_x = CELLS_PER_DIM * ((pi.pos[0] + BOUND) / (2 * BOUND));
 		int grid_y = CELLS_PER_DIM * ((pi.pos[1] + BOUND) / (2 * BOUND));
 		int grid_z = CELLS_PER_DIM * ((pi.pos[2] + BOUND) / (2 * BOUND));
-		std::vector<Particle> candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+		std::vector<Particle> candidate_neighbors;
+		if (cpuNeighborList) {
+			candidate_neighbors = getNeighbors(grid_x, grid_y, grid_z);
+		}  else {
+			candidate_neighbors = particles;
+		}
 		for (auto& pj : candidate_neighbors) {
 			if (&pi != &pj) {
 				float rij[3] = {pj.pos[0] - pi.pos[0], pj.pos[1] - pi.pos[1], pj.pos[2] - pi.pos[2]};
