@@ -100,7 +100,7 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 	while (getline(obj_file, line)) {
 		if (line.at(0) == 'v') {
 			const char* buf = line.c_str();
-			char* ptr = (char*)malloc(strlen(buf));
+			char* ptr = (char*)malloc(strlen(buf) + 1);
 			strcpy(ptr, buf);
 			char* token = strtok(ptr, " ");
 
@@ -116,11 +116,11 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 
 
 			vertices.push_back(glm::vec4(line_vertices[0], line_vertices[1], line_vertices[2], 1.0f));
-
+			free(ptr);
 		}
 		else if (line.at(0) == 'f') {
 			const char* buf = line.c_str();
-			char* ptr = (char*)malloc(strlen(buf));
+			char* ptr = (char*)malloc(strlen(buf) + 1);
 			strcpy(ptr, buf);
 			char* token = strtok(ptr, " ");
 
@@ -136,7 +136,7 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 
 
 			indices.push_back(glm::uvec3(cur_vertex + line_indicies[0] - 1, cur_vertex + line_indicies[1] - 1, cur_vertex + line_indicies[2] - 1));
-
+			free(ptr);
 		}
 	}
 }
