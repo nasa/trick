@@ -35,7 +35,7 @@ class Fluid {
 		float REST_DENS = 1000.f;
 		float GAS_CONST = 100.f;
 		// kernel radius
-		float H = 15.f;
+		float H = 16.f;
 		float HSQ = H * H;
 		// assume all particles have the same mass
 		float MASS = 65.f;
@@ -50,8 +50,8 @@ class Fluid {
 		float VISC_LAP = 45.f / (M_PI * std::pow(H, 6.f));
 
 		// number of particles on the edge of the square
-		int EDGE_NUM_PARTICLES = 20;
-		int PARTICLE_DEPTH = 4;
+		int EDGE_NUM_PARTICLES = 32;
+		int PARTICLE_DEPTH = 2;
 		int NUM_PARTICLES = PARTICLE_DEPTH * EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES;
 		float PARTICLE_DIST = 5;
 
@@ -59,9 +59,9 @@ class Fluid {
 
 		// boundary parameters 
 		float EPS = H; // boundary epsilon
-		float BOUND_DAMPING = -.9f;
+		float BOUND_DAMPING = -.5f;
 
-		float BOUND = 200;
+		float BOUND = 240;
 
 		// parameters for spatial grid
 		int CELL_SIZE = 2 * H;
@@ -71,12 +71,12 @@ class Fluid {
 		int timeSteps = 0;
 
 		// parameters for marching cubes
-		int MC_GRID_DIM = 16;
-		int ISO_RADIUS = 2 * BOUND / MC_GRID_DIM;
+		int MC_GRID_DIM = 64;
+		int ISO_RADIUS = H;
 		int PARTICLES_WITHIN_VERTEX = 1; // number of particles within MC GridCell vertex;
 
 		// simulation modes
-		bool gpuMode = false;
+		bool gpuMode = true;
 		bool cpuNeighborList = true;
 };
 
