@@ -6,8 +6,6 @@
 #include "trick/Clock.hh"
 #include "trick/clock_proto.h"
 #include "trick/GetTimeOfDayClock.hh"
-#include "trick/TPROCTEClock.hh"
-#include "trick/BC635Clock.hh"
 #include "trick/JobData.hh"
 
 namespace Trick {
