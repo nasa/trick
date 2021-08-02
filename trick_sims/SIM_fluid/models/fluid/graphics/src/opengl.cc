@@ -1,16 +1,14 @@
 #include <GL/glew.h>
-
-#include "gui.h"
-#include <unistd.h>
-#include "../../include/Fluid.hh"
-#include "grid_cell.h"
-#include "marching_cubes.h"
-
 #include <fstream>
 #include <iostream>
 #include <cstring>
 #include <vector>
+#include <unistd.h>
 
+#include "../../include/Fluid.hh"
+#include "gui.h"
+#include "grid_cell.h"
+#include "marching_cubes.h"
 #include "glm/gtx/io.hpp"
 
 const char* particle_vertex_shader =
@@ -52,8 +50,6 @@ const std::string window_title = "Animation";
 bool paused = true;
 bool meshMode = false;
 
-extern int selectedKeyframe;
-
 
 enum {kVertexBufferMesh, kIndexBufferMesh, kNumVbosMesh};
 enum {kVertexBufferParticle, kParticleIndex, kIndexBufferParticle, kNumVbosParticle};
@@ -61,9 +57,6 @@ enum {kVertexBufferParticle, kParticleIndex, kIndexBufferParticle, kNumVbosParti
 
 GLuint mesh_buffer_objects[kNumVbosMesh];
 GLuint particle_buffer_objects[kNumVbosParticle];
-
-
-
 
 
 void ErrorCallback(int error, const char* description) {
