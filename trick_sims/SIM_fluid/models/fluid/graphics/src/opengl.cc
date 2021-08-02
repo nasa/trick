@@ -393,24 +393,6 @@ int openGLMain(Fluid* fluid)
 		
 		gui.updateMatrices();
 		mats = gui.getMatrixPointers();
-
-		std::stringstream title;
-
-		title << window_title;
-		if (!paused) {
-			title << " Playing: "
-			      << std::setprecision(2)
-			      << std::setfill('0') << std::setw(6)
-			      << time << " sec";
-			
-		}
-		else
-		{
-			title << " Paused: "
-				<< std::setprecision(2)
-				<< std::setfill('0') << std::setw(6)
-				<< time << " sec";
-		}
 		
 		if (meshMode) {
 			particlePositions = fluid->getParticlePositions();
