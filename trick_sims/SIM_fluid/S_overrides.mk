@@ -35,10 +35,8 @@ $(GRAPHICS_DIR)/iso_values.o: $(GRAPHICS_DIR)/iso_values.cu
 
 $(SIM_DIR)/gpuCode.o: $(SIM_DIR)/sph_gpu.o
 	nvcc -arch=sm_35 -dlink $(SIM_DIR)/sph_gpu.o $(GRAPHICS_DIR)/iso_values.o $(GRAPHICS_DIR)/opengl_caller.o $(GRAPHICS_DIR)/opengl.o $(GRAPHICS_DIR)/gui.o $(GRAPHICS_DIR)/grid_cell.o $(GRAPHICS_DIR)/marching_cubes.o $(S_OBJECTS) -o $(SIM_DIR)/gpuCode.o
-	#nvcc -arch=sm_35 -dlink $(TRICK_SYSTEM_LDFLAGS) $(S_OBJECTS) $(LINK_LISTS) $(TRICK_LDFLAGS) $(TRICK_USER_LINK_LIBS) $(READ_ONLY_LIBS) $(LD_WHOLE_ARCHIVE) $(TRICK_LIBS) $(LD_NO_WHOLE_ARCHIVE) $(TRICK_EXEC_LINK_LIBS)
 	
 clean: my_clean
-	
 	
 my_clean:
 	-rm -rf $(SIM_DIR)/sph_gpu.o $(SIM_DIR)/gpuCode.o $(GRAPHICS_DIR)/grid_cell.o $(GRAPHICS_DIR)/gui.o $(GRAPHICS_DIR)/iso_values.o $(GRAPHICS_DIR)/marching_cubes.o $(GRAPHICS_DIR)/opengl_caller.o $(GRAPHICS_DIR)/opengl.o
