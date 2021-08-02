@@ -39,8 +39,6 @@
 #include "trick/units_conv.h"
 
 #include "trick/GetTimeOfDayClock.hh"
-#include "trick/BC635Clock.hh"
-#include "trick/TPROCTEClock.hh"
 #include "trick/clock_proto.h"
 #include "trick/CommandLineArguments.hh"
 #include "trick/command_line_protos.h"
