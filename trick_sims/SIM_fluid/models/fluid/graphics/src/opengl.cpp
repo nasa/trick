@@ -58,6 +58,38 @@ enum {kVertexBufferParticle, kParticleIndex, kIndexBufferParticle, kNumVbosParti
 GLuint mesh_buffer_objects[kNumVbosMesh];
 GLuint particle_buffer_objects[kNumVbosParticle];
 
+GLuint meshVAO;
+GLint mesh_projection_matrix_location = 0;
+GLint mesh_view_matrix_location = 0;
+GLint mesh_model_matrix_location = 0;
+GLint mesh_light_position_location = 0;
+GLuint mesh_program_id = 0;
+
+std::vector<GridCell> gridCells;
+std::vector<glm::vec4> mesh_vertices;
+std::vector<glm::uvec3> mesh_faces;
+
+GLuint particleVAO;
+GLint particle_projection_matrix_location = 0;
+GLint particle_view_matrix_location = 0;
+GLint particle_model_matrix_location = 0;
+GLint particle_light_position_location = 0;
+GLuint particle_program_id = 0;
+
+std::vector<glm::vec4> particle_vertices;
+std::vector<glm::uvec3> particle_faces;
+std::vector<int> particle_idx;
+
+GLuint sphTBO;
+GLuint sph_tbo_texture;
+GLint sph_tbo_pos;
+
+std::vector<float> particlePositions;
+MatrixPointers mats; 
+glm::vec4 light_position;
+
+const int ONE_SECOND = 1000000;
+GLFWwindow *window;
 
 void ErrorCallback(int error, const char* description) {
 	std::cerr << "GLFW Error: " << description << "\n";
@@ -143,60 +175,9 @@ loadObj(const std::string& file, std::vector<glm::vec4>& vertices,
 
 
 
-int openGLMain(Fluid* fluid)
-{
-
-	char* obj_file = "100_sphere.obj";
-
-	std::cout << obj_file << std::endl;
-
-
-	GLFWwindow *window = init_glefw();
-	GUI gui(window, window_width, window_height, preview_height);
-
-	std::vector<glm::vec4> particle_vertices;
-	std::vector<glm::uvec3> particle_faces;
-
-
-	loadObj(obj_file, particle_vertices, particle_faces, 0);
-	int num_vert = particle_vertices.size();
-
-	for (int i = 1; i < fluid->NUM_PARTICLES; i++) {
-		loadObj(obj_file, particle_vertices, particle_faces, i * num_vert);
-	}
-
-	/* Assign index to each particle model */
-	std::vector<int> particle_idx;
-
-	for(int i = 0; i < fluid->NUM_PARTICLES; i++) {
-		for (int p = 0; p < num_vert; p++) {
-			particle_idx.push_back(i);
-		}
-	}
-
-
-	std::vector<float> particlePositions = fluid->getParticlePositions();
-
-	
-
-	std::vector<GridCell> gridCells;
-	initializeGridCells(gridCells, fluid->BOUND, fluid->MC_GRID_DIM);
-	
-	updateIsoValues(gridCells, particlePositions, fluid->ISO_RADIUS);
-	std::vector<glm::vec4> mesh_vertices;
-	std::vector<glm::uvec3> mesh_faces;
-
-	for (int i = 0; i < gridCells.size(); i++) {
-		generateCellMesh(gridCells[i], fluid->PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
-	}
-	
-	
-
-	glm::vec4 light_position = glm::vec4(0.0f, 0.0f, fluid->BOUND + 10.0f, 1.0f);
-	MatrixPointers mats; 
-
+void meshGLInit() {
 	/* Initialize mesh OpenGL Program */
-	GLuint meshVAO;
+	
 	// Setup VAO for mesh program
 	glGenVertexArrays(1, &meshVAO);
 	// Bind VAO for mesh program
@@ -243,7 +224,7 @@ int openGLMain(Fluid* fluid)
 	glCompileShader(mesh_fragment_shader_id);
 
 	// Setup program for the particles, and get its locations.
-	GLuint mesh_program_id = 0;
+	
 	mesh_program_id = glCreateProgram();
 	glAttachShader(mesh_program_id, mesh_vertex_shader_id);
 	glAttachShader(mesh_program_id, mesh_geometry_shader_id);
@@ -256,24 +237,27 @@ int openGLMain(Fluid* fluid)
 
 
 	// Get the mesh uniform locations.
-	GLint mesh_projection_matrix_location = 0;
+	
 	mesh_projection_matrix_location =
 		glGetUniformLocation(mesh_program_id, "projection");
 
-	GLint mesh_view_matrix_location = 0;
+	
 	mesh_view_matrix_location = 
 		glGetUniformLocation(mesh_program_id, "view");
 
-	GLint mesh_model_matrix_location = 0;
+	
 	mesh_model_matrix_location = 
 		glGetUniformLocation(mesh_program_id, "model");
 
-	GLint mesh_light_position_location = 0;
+	
 	mesh_light_position_location = 
 		glGetUniformLocation(mesh_program_id, "light_position");
+}
 
+
+void particleGLInit() {
 	/* Initialize particle OpenGL Program */
-	GLuint particleVAO;
+	
 	// Setup VAO for particle program
 	glGenVertexArrays(1, &particleVAO);
 	// Bind VAO for particle program
@@ -327,7 +311,7 @@ int openGLMain(Fluid* fluid)
 	glCompileShader(particle_fragment_shader_id);
 
 	// Setup program for the particles, and get its locations.
-	GLuint particle_program_id = 0;
+	
 	particle_program_id = glCreateProgram();
 	glAttachShader(particle_program_id, particle_vertex_shader_id);
 	glAttachShader(particle_program_id, particle_geometry_shader_id);
@@ -341,25 +325,26 @@ int openGLMain(Fluid* fluid)
 
 
 	// Get the particle uniform locations.
-	GLint particle_projection_matrix_location = 0;
+
 	particle_projection_matrix_location =
 		glGetUniformLocation(particle_program_id, "projection");
 
-	GLint particle_view_matrix_location = 0;
+	
 	particle_view_matrix_location = 
 		glGetUniformLocation(particle_program_id, "view");
 
-	GLint particle_model_matrix_location = 0;
+	
 	particle_model_matrix_location = 
 		glGetUniformLocation(particle_program_id, "model");
 
-	GLint particle_light_position_location = 0;
+	
 	particle_light_position_location = 
 		glGetUniformLocation(particle_program_id, "light_position");
+}
 
+void particleTBOInit() {
 	/* Setup TBO for particle position data*/
-	GLuint sphTBO;
-	GLuint sph_tbo_texture;
+
 	glGenBuffers(1, &sphTBO);
 	glBindBuffer(GL_TEXTURE_BUFFER, sphTBO);
 	glBufferData(GL_TEXTURE_BUFFER, sizeof(float) * particlePositions.size(), particlePositions.data(), GL_DYNAMIC_DRAW);
@@ -368,120 +353,168 @@ int openGLMain(Fluid* fluid)
 	glGenTextures(1, &sph_tbo_texture);
 	glBindBuffer(GL_TEXTURE_BUFFER, 0);
 
-	GLint sph_tbo_pos = glGetUniformLocation(particle_program_id, "sph_tbo_pos");
+	
+	sph_tbo_pos = glGetUniformLocation(particle_program_id, "sph_tbo_pos");
+}
 
-	float aspect = 0.0f;
-	bool draw_floor = false;
-	double time = 0.0f;
-	int timeStep = 0;
-	int oldMeshFaces = mesh_faces.size();
+void setupParticleProgram() {
+	// Switch VAO
+	glBindVertexArray(particleVAO);
+
+	// Switch Program
+	glUseProgram(particle_program_id);
+
+	// Setup TBO
+	glBindBuffer(GL_TEXTURE_BUFFER, sphTBO);
+	glBufferData(GL_TEXTURE_BUFFER, sizeof(float) * particlePositions.size(), particlePositions.data(), GL_DYNAMIC_DRAW);
+
+	// Pass uniforms
+	glUniformMatrix4fv(particle_projection_matrix_location, 1, GL_FALSE,
+		&((*mats.projection)[0][0]));
+
+	glUniformMatrix4fv(particle_view_matrix_location, 1, GL_FALSE,
+		&((*mats.view)[0][0]));
+	
+	glUniformMatrix4fv(particle_model_matrix_location, 1, GL_FALSE,
+		&((*mats.model)[0][0]));
+	
+	glUniform4fv(particle_light_position_location, 1, &light_position[0]);
+	
+	
+	
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_BUFFER, sph_tbo_texture);
+	glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, sphTBO);
+
+	glUniform1i(sph_tbo_pos, 0);
+
+}
+
+void setupMeshProgram() {
+	// Switch VAO
+	glBindVertexArray(meshVAO);
+
+	// Switch Program
+	glUseProgram(mesh_program_id);
+
+	// Pass uniforms
+	glUniformMatrix4fv(mesh_projection_matrix_location, 1, GL_FALSE,
+		&((*mats.projection)[0][0]));
+
+	glUniformMatrix4fv(mesh_view_matrix_location, 1, GL_FALSE,
+		&((*mats.view)[0][0]));
+	
+	glUniformMatrix4fv(mesh_model_matrix_location, 1, GL_FALSE,
+		&((*mats.model)[0][0]));
+	
+	glUniform4fv(mesh_light_position_location, 1, &light_position[0]);
+			
+}
+
+void updateMesh(Fluid* fluid) {
+	updateIsoValues(gridCells, particlePositions, fluid->ISO_RADIUS);
+	
+	mesh_vertices.clear();
+	mesh_faces.clear();
+	gridCells.clear();
+	initializeGridCells(gridCells, fluid->BOUND, fluid->MC_GRID_DIM);
+	
+	updateIsoValues(gridCells, particlePositions, fluid->ISO_RADIUS);
+	for (int i = 0; i < gridCells.size(); i++) {
+		generateCellMesh(gridCells[i], fluid->PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
+	}
+	
+	glBindVertexArray(meshVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBufferMesh]);
+	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float) * mesh_vertices.size(), mesh_vertices.data(), GL_DYNAMIC_DRAW);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBufferMesh]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+						sizeof(uint32_t) * mesh_faces.size() * 3,
+						mesh_faces.data(), GL_DYNAMIC_DRAW);
+}
+
+void initGeometry(Fluid* fluid) {
+	char* obj_file = "100_sphere.obj";
+	loadObj(obj_file, particle_vertices, particle_faces, 0);
+	int num_vert = particle_vertices.size();
+
+	for (int i = 1; i < fluid->NUM_PARTICLES; i++) {
+		loadObj(obj_file, particle_vertices, particle_faces, i * num_vert);
+	}
+
+	/* Assign index to each particle model */
+	
+
+	for(int i = 0; i < fluid->NUM_PARTICLES; i++) {
+		for (int p = 0; p < num_vert; p++) {
+			particle_idx.push_back(i);
+		}
+	}
+
+	particlePositions = fluid->getParticlePositions();
+
+	
+
+	initializeGridCells(gridCells, fluid->BOUND, fluid->MC_GRID_DIM);
+	
+	updateIsoValues(gridCells, particlePositions, fluid->ISO_RADIUS);
+
+
+	for (int i = 0; i < gridCells.size(); i++) {
+		generateCellMesh(gridCells[i], fluid->PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
+	}
+	
+	
+
+	glm::vec4 light_position = glm::vec4(0.0f, 0.0f, fluid->BOUND + 10.0f, 1.0f);
+}
+
+void configureViewport() {
+	glfwGetFramebufferSize(window, &window_width, &window_height);
+	glViewport(0, 0, window_width, window_height);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_BLEND);
+	//glEnable(GL_CULL_FACE);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDepthFunc(GL_LESS);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glCullFace(GL_BACK);
+}
+
+int openGLMain(Fluid* fluid)
+{
+	window = init_glefw();
+	GUI gui(window, window_width, window_height, preview_height);
+	
+	initGeometry(fluid);
+	meshGLInit();
+	particleGLInit();
+	particleTBOInit();
+
 	while (!glfwWindowShouldClose(window)) {
-		
-		glfwGetFramebufferSize(window, &window_width, &window_height);
-		glViewport(0, 0, window_width, window_height);
-		
-		
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_MULTISAMPLE);
-		glEnable(GL_BLEND);
-		//glEnable(GL_CULL_FACE);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glDepthFunc(GL_LESS);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		//glCullFace(GL_BACK);
-		
+		configureViewport();
+
 		gui.updateMatrices();
 		mats = gui.getMatrixPointers();
+		particlePositions = fluid->getParticlePositions();
 		
 		if (meshMode) {
-			particlePositions = fluid->getParticlePositions();
-
-			if (fluid->timeSteps % 10 == 0) {
-				updateIsoValues(gridCells, particlePositions, fluid->ISO_RADIUS);
-				
-				mesh_vertices.clear();
-				mesh_faces.clear();
-				gridCells.clear();
-				initializeGridCells(gridCells, fluid->BOUND, fluid->MC_GRID_DIM);
-				
-				updateIsoValues(gridCells, particlePositions, fluid->ISO_RADIUS);
-				for (int i = 0; i < gridCells.size(); i++) {
-					generateCellMesh(gridCells[i], fluid->PARTICLES_WITHIN_VERTEX, mesh_faces, mesh_vertices);
-				}
-				
-				glBindVertexArray(meshVAO);
-				glBindBuffer(GL_ARRAY_BUFFER, mesh_buffer_objects[kVertexBufferMesh]);
-				glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(float) * mesh_vertices.size(), mesh_vertices.data(), GL_DYNAMIC_DRAW);
-
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_buffer_objects[kIndexBufferMesh]);
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
-									sizeof(uint32_t) * mesh_faces.size() * 3,
-									mesh_faces.data(), GL_DYNAMIC_DRAW);
-			}
-
-
-			// Switch VAO
-			glBindVertexArray(meshVAO);
-
-			// Switch Program
-			glUseProgram(mesh_program_id);
-
-			// Pass uniforms
-			glUniformMatrix4fv(mesh_projection_matrix_location, 1, GL_FALSE,
-				&((*mats.projection)[0][0]));
-
-			glUniformMatrix4fv(mesh_view_matrix_location, 1, GL_FALSE,
-				&((*mats.view)[0][0]));
-			
-			glUniformMatrix4fv(mesh_model_matrix_location, 1, GL_FALSE,
-				&((*mats.model)[0][0]));
-			
-			glUniform4fv(mesh_light_position_location, 1, &light_position[0]);
-			
-			
+			if (fluid->timeSteps % fluid->mcUpdateFreq == 0)
+				updateMesh(fluid);
+			setupMeshProgram();
 			glDrawElements(GL_TRIANGLES, 3 * mesh_faces.size(), GL_UNSIGNED_INT, 0);
 		} else {
-			particlePositions = fluid->getParticlePositions();
-
-			// Switch VAO
-			glBindVertexArray(particleVAO);
-
-			// Switch Program
-			glUseProgram(particle_program_id);
-
-			// Setup TBO
-			glBindBuffer(GL_TEXTURE_BUFFER, sphTBO);
-			glBufferData(GL_TEXTURE_BUFFER, sizeof(float) * particlePositions.size(), particlePositions.data(), GL_DYNAMIC_DRAW);
-
-			// Pass uniforms
-			glUniformMatrix4fv(particle_projection_matrix_location, 1, GL_FALSE,
-				&((*mats.projection)[0][0]));
-
-			glUniformMatrix4fv(particle_view_matrix_location, 1, GL_FALSE,
-				&((*mats.view)[0][0]));
-			
-			glUniformMatrix4fv(particle_model_matrix_location, 1, GL_FALSE,
-				&((*mats.model)[0][0]));
-			
-			glUniform4fv(particle_light_position_location, 1, &light_position[0]);
-			
-			
-			
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_BUFFER, sph_tbo_texture);
-			glTexBuffer(GL_TEXTURE_BUFFER, GL_R32F, sphTBO);
-
-			glUniform1i(sph_tbo_pos, 0);
-
+			setupParticleProgram();
 			glDrawElements(GL_TRIANGLES, 3 * particle_faces.size(), GL_UNSIGNED_INT, 0);
 		}
 	
 		glfwPollEvents();
 		glfwSwapBuffers(window);
 		
-		double refreshRate = 60;
-		usleep(1000000 / refreshRate);
+		usleep(ONE_SECOND / fluid->refreshRate);
 	}
 
 	glfwDestroyWindow(window);
