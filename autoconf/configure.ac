@@ -346,6 +346,16 @@ AC_ARG_ENABLE([offline],
 AC_SUBST([TRICK_OFFLINE])
 
 # If offline is specified, set some compilation flags
+AC_ARG_ENABLE([offline],
+  AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
+  AS_IF([test "x$enable_offline" = xyes],
+    [TRICK_OFFLINE="1"], 
+    [TRICK_OFFLINE="0"]
+  ),
+  [TRICK_OFFLINE="0"]
+)
+AC_SUBST([TRICK_OFFLINE])
+
 AC_ARG_ENABLE([civet],
   AS_HELP_STRING([--enable-civet], [Compile Trick with webserver capabilites.]),
   AS_IF([test "x$enable_civet" = xyes],
@@ -362,10 +372,8 @@ AC_SUBST([TRICK_DISABLE_CIVET])
 AC_ARG_ENABLE([offline],
   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
   AS_IF([test "x$enable_offline" = xyes],
-    [TRICK_OFFLINE="1"], 
-    [TRICK_OFFLINE="0"]
+    [TRICK_DISABLE_CIVET="1"], 
   ),
-  [TRICK_OFFLINE="0"]
 )
 AC_SUBST([TRICK_OFFLINE])
 

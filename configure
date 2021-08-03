@@ -3888,6 +3888,21 @@ fi
 
 
 # If offline is specified, set some compilation flags
+# Check whether --enable-offline was given.
+if test "${enable_offline+set}" = set; then :
+  enableval=$enable_offline; if test "x$enable_offline" = xyes; then :
+  TRICK_OFFLINE="1"
+else
+  TRICK_OFFLINE="0"
+
+fi
+else
+  TRICK_OFFLINE="0"
+
+fi
+
+
+
 # Check whether --enable-civet was given.
 if test "${enable_civet+set}" = set; then :
   enableval=$enable_civet; if test "x$enable_civet" = xyes; then :
@@ -3909,14 +3924,8 @@ fi
 # Check whether --enable-offline was given.
 if test "${enable_offline+set}" = set; then :
   enableval=$enable_offline; if test "x$enable_offline" = xyes; then :
-  TRICK_OFFLINE="1"
-else
-  TRICK_OFFLINE="0"
-
+  TRICK_DISABLE_CIVET="1"
 fi
-else
-  TRICK_OFFLINE="0"
-
 fi
 
 
