@@ -1,3 +1,5 @@
+/* Adapted from Paul Bourke's "Polygonising a scalar field" */ 
+
 #include "marching_cubes.h"
 #include "mc_tables.h"
 
