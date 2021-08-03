@@ -246,7 +246,7 @@ ${TRICK_HOME}/include/civet/CivetServer.h: ${CIVET_CLONE_DIR} ${TRICK_HOME}/incl
 ifeq (${TRICK_FORCE_32BIT},1)
 CIVET_COMPILE_FAGS=-m32
 else
-CIVET_COMPILE_FAGS=-m32
+CIVET_COMPILE_FAGS=
 endif
 
 ${CIVET_CLONE_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}
