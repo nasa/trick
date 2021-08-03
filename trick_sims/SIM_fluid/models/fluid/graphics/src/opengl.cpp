@@ -435,12 +435,12 @@ void updateMesh(Fluid* fluid) {
 }
 
 void initGeometry(Fluid* fluid) {
-	char* obj_file = "100_sphere.obj";
-	loadObj(obj_file, particle_vertices, particle_faces, 0);
+	
+	loadObj(fluid->obj_file, particle_vertices, particle_faces, 0);
 	int num_vert = particle_vertices.size();
 
 	for (int i = 1; i < fluid->NUM_PARTICLES; i++) {
-		loadObj(obj_file, particle_vertices, particle_faces, i * num_vert);
+		loadObj(fluid->obj_file, particle_vertices, particle_faces, i * num_vert);
 	}
 
 	/* Assign index to each particle model */

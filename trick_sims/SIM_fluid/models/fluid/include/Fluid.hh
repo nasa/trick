@@ -80,7 +80,9 @@ class Fluid {
 		bool cpuNeighborList = true;
 
 		int refreshRate = 60; // set refresh rate for graphics
-		int mcUpdateFreq = 10; // update the fluid mesh every multiple of mcUpdateFreq frames
+		int mcUpdateFreq = 1; // update the fluid mesh every multiple of mcUpdateFreq frames
+
+		std::string obj_file = "100_sphere.obj";
 };
 
 #endif
