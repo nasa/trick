@@ -19,11 +19,11 @@ $(GRAPHICS_DIR)/marching_cubes.o: $(GRAPHICS_DIR)/marching_cubes.cpp
 $(GRAPHICS_DIR)/opengl_caller.o: $(GRAPHICS_DIR)/opengl_caller.cpp
 	g++ -c $(GRAPHICS_DIR)/opengl_caller.cpp -o $(GRAPHICS_DIR)/opengl_caller.o
 
-$(GRAPHICS_DIR)/opengl.o: $(GRAPHICS_DIR)/opengl.cc
-	g++ -c $(GRAPHICS_DIR)/opengl.cc -o $(GRAPHICS_DIR)/opengl.o
+$(GRAPHICS_DIR)/opengl.o: $(GRAPHICS_DIR)/opengl.cpp
+	g++ -c $(GRAPHICS_DIR)/opengl.cpp -o $(GRAPHICS_DIR)/opengl.o
 
-$(GRAPHICS_DIR)/gui.o: $(GRAPHICS_DIR)/gui.cc
-	g++ -c $(GRAPHICS_DIR)/gui.cc -o $(GRAPHICS_DIR)/gui.o
+$(GRAPHICS_DIR)/gui.o: $(GRAPHICS_DIR)/gui.cpp
+	g++ -c $(GRAPHICS_DIR)/gui.cpp -o $(GRAPHICS_DIR)/gui.o
 
 $(S_MAIN): $(SIM_DIR)/gpuCode.o
 
