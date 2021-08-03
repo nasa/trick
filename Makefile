@@ -242,6 +242,13 @@ ${TRICK_HOME}/include/civet/civetweb.h: ${CIVET_CLONE_DIR} ${TRICK_HOME}/include
 ${TRICK_HOME}/include/civet/CivetServer.h: ${CIVET_CLONE_DIR} ${TRICK_HOME}/include/civet
 	cp ${CIVET_CLONE_DIR}/include/CivetServer.h ${TRICK_HOME}/include/civet/CivetServer.h	
 
+
+ifeq (${TRICK_FORCE_32BIT},1)
+CIVET_COMPILE_FAGS=-m32
+else
+CIVET_COMPILE_FAGS=-m32
+endif
+
 ${CIVET_CLONE_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}
 	$(MAKE) -C ${CIVET_CLONE_DIR} lib COPT=${CIVET_COMPILE_FAGS} WITH_CPP=1 WITH_WEBSOCKET=1
 
