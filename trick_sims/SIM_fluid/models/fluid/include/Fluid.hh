@@ -50,8 +50,8 @@ class Fluid {
 		float VISC_LAP = 45.f / (M_PI * std::pow(H, 6.f));
 
 		// number of particles on the edge of the square
-		int EDGE_NUM_PARTICLES = 32;
-		int PARTICLE_DEPTH = 2;
+		int EDGE_NUM_PARTICLES = 40;
+		int PARTICLE_DEPTH = 1;
 		int NUM_PARTICLES = PARTICLE_DEPTH * EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES;
 		float PARTICLE_DIST = 5;
 
@@ -61,7 +61,7 @@ class Fluid {
 		float EPS = H; // boundary epsilon
 		float BOUND_DAMPING = -.5f;
 
-		float BOUND = 240;
+		float BOUND = 200;
 
 		// parameters for spatial grid
 		int CELL_SIZE = 2 * H;
@@ -71,13 +71,16 @@ class Fluid {
 		int timeSteps = 0;
 
 		// parameters for marching cubes
-		int MC_GRID_DIM = 64;
+		int MC_GRID_DIM = 16;
 		int ISO_RADIUS = H;
 		int PARTICLES_WITHIN_VERTEX = 1; // number of particles within MC GridCell vertex;
 
 		// simulation modes
 		bool gpuMode = true;
 		bool cpuNeighborList = true;
+
+		int refreshRate = 60; // set refresh rate for graphics
+		int mcUpdateFreq = 10; // update the fluid mesh every multiple of mcUpdateFreq frames
 };
 
 #endif
