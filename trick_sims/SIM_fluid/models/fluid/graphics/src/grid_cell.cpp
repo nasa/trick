@@ -1,5 +1,4 @@
 #include "grid_cell.h"
-#include "iostream"
 #include "iso_values.h"
 
 void updateIsoValues(std::vector<GridCell>& gridCells, std::vector<float> particlePositions, float radius) {

@@ -1,0 +1,1 @@
+int openGLMain(Fluid* fluid);

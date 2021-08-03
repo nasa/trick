@@ -1,7 +1,6 @@
 #include <thread>
 #include "../../include/Fluid.hh"
-
-extern int openGLMain(Fluid* fluid);
+#include "opengl.h"
 
 void openGLCaller(Fluid* fluid) {
     {

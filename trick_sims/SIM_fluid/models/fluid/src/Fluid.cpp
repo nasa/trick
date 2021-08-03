@@ -6,12 +6,10 @@ LIBRARY DEPENDENCY:
 *******************************************************************************/
 #include "../include/Fluid.hh"
 #include "../include/Particle.hh"
+#include "../graphics/src/opengl_caller.h"
+#include "sph_gpu.h"
 #include <iostream>
 #include <iterator>
-
-extern void openGLCaller(Fluid* fluid);
-
-extern void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid);
 
 
 int Fluid::default_data() {
