@@ -1,170 +1,199 @@
+# Realtime-Clock
 
-A realtime clock is an optional feature for Trick simulations.
+**Contents**
 
-The Trick::Clock base class provides Trick with a consistent interface to different
-realtime clocks.  The base class provides a common set of routines called by
-Trick::RealtimeSync to get and reset the realtime clock.
+* [Creating a Real-Time Clock Interface with Trick::Clock](#creating-a-clock)<br>
+* [Installing a Trick::Clock In Your Simulation](#installing-a-clock)<br>
+* [Example Implementation of a Trick::Clock](#example-implemntation)<br>
 
-Trick provides built in support for using the system clock (Trick::GetTimeOfDayClock).
+***
 
-Trick also provides built in support for using Spectracom's TPRO IRIG-B clock board,
-also referred as a Central Timing Equipment (CTE) board.  TPRO CTE support is off
-by default.  To enable TPRO CTE support Trick must be built with TPRO driver support.
-Go to http://www.spectracomcorp.com for driver support for your particular board.
-To enable TPRO CTE support, run ${TRICK_HOME/configure --tprocte=/paht/to/tpropci.
-Recompile Trick after the configure script.
+* [**Looking For The Current Simulation Time?**](#looking-for-sim-time)<br>
 
-### Creating a User Defined Real-Time Clock
+***
 
-Clocks may be created by users.  To create a new clock, the class must inherit from
-the Trick::Clock.  Trick::Clock is an abstract class with several methods for the user
-to implement.  These methods provide the hardware specific code to initalize, access, and
-shutdown clock hardware. See [${TRICK_HOME}/trick_source/sim_services/Clock](../blob/master/trick_source/sim_services/Clock) for examples
-to how we implemented the GettimeofDay and the TPRO_CTE clock.  This is the list of
-routines that must be implemented by the user:
+Every real-time simulation requires a clock to which its tasks can be synchronized. By default, a Trick simulation uses the local system clock, by calling *gettimeofday()*. When simulations running on different computers need to cooperate they need to be synchronized to the same clock. So, sometimes we want our simulation to synchronize a to an **external** clock rather than the local one. The ```Trick::Clock``` base class provides a way to create an interface between an external time source, and a real-time Trick simulation.
 
-##### Trick::Clock::clock_init()
+<a id=creating-a-clock></a>
+## Creating a Real-Time Clock Interface with Trick::Clock
 
-Opens the clock hardware, initializes the clock, etc.
+The Trick::Clock class is declared in ```trick/Clock.hh```. Deriving a new clock interface class from it requires the following three member functions to be implemented.
 
-##### Trick::Clock::wall_clock_time()
+***
 
-Gets the wall clock time.  Returns the time in integer number of tics of 1us.
-
-##### Trick::Clock::clock_spin(long long req_time)
-
-Waits for real-time to catch up to the requested simulation time.  Polling or waiting
-for an interrupt are typical methods for spinning.
-
-##### Trick::Clock::clock_stop()
-
-Shuts down clock hardware, closes devices, etc.
-
-### Specifying the Real-Time Clock
-
-Trick instantiates an instance of the Trick::GetTimeOfDayClock by default.
-Trick includes a realtime clock based on a TPRO timing card.  TPRO support must be enabled when compiling Trick core.  A Trick::TPROCTEClock class may be included in an S_define file with <code>##include "sim_objects/TPROClock.sm"</code>.
-
-Trick defaults to the Trick::GetTimeOfDay clock. To switch to the TPRO CTE clock
-or a user defined clock use the following line in the Python input file.
-
+```c
+int Trick::Clock::clock_init();
 ```
-# Changes to the TPRO CTE clock
-trick.real_time_change_clock(trick_tpro.tpro_cte)
-# Changes to a user defined clock
-trick.real_time_change_clock(<user defined clock>)
+#### 1. clock\_init's Responsibilities
+1. If necessary, initialize the time source. This may involve opening and initializing a hardware device, or a network socket connection. 
+2. If an error occurs, return a non-zero error code, otherwise call ```set_global_clock()``` and return 0.
+
+***
+
+```c
+long long Trick::Clock::wall_clock_time()
 ```
+#### 2. wall\_clock\_time's Responsibilities
+1. Get the time from the time source.
+2. Return the time in microseconds, or 0 if there **is** an error.
 
-### Accessing the Real-Time Clock
+***
 
-Typically, users will not have to access the real-time clock directly, the
-Trick::RealtimeSync uses the real time clock to synchronize to real time.  However
-there are several user accessible routines to control the clock and get the status.
-
+```c
+int Trick::Clock::clock_stop()
 ```
-#include "trick_source/sim_services/Clock/include/clock_proto.h" for these routines
+#### 3. clock_stop's Responsibilities
+1. If necessary, disconnect from the time source.
+2. If an error occurs, return a non-zero error code, otherwise return 0.
+
+***
+
+<a id=installing-a-clock></a>
+
+## Installing a Trick::Clock In Your Simulation
+
+By default, Trick uses a derivative of  ```Trick::Clock``` called ```Trick::GetTimeOfDayClock```.
+
+Suppose we've derived a new class ```CuckooClock``` from ```Trick::Clock```, and have created an instance of it:
+
+```c
+chalet.my_clock = new CuckooClock();
 ```
 
-#### Clock Time
+In our simulation's S_define file, we could change the real-time scheduler's clock from the default ```Trick::GetTimeOfDayClock``` to our new ```CuckooClock``` using ```real_time_change_clock()```, declared in ```trick/realtimesync_proto.h```.
 
+```c
+void create_connections() {
+    chalet.my_clock = new CuckooClock();
+    real_time_change_clock(chalet.my_clock);
+}
 ```
-long long clock_time() ;
-```
+We could also change the ```Trick::Clock``` in our input file as follows:
 
-```
-# Python access
-trick.clock_time()
-```
-
-Gives you real-time referenced from simulation start.  The returned value is in tics.
-A tic is set amount of time, set by the Trick::Executive, usually 1us.
-
-#### Wall Clock Time
-
-```
-long long wall_clock_time() ;
+```c
+trick.real_time_change_clock(chalet.my_clock)
 ```
 
-```
-# Python access
-trick.wall_clock_time()
-```
+<a id=example-implemntation></a>
+## An Example Implementation of a Trick::Clock
 
-Gives you the actual time from the clock.  The returned value is in tics
-A tic is set amount of time, set by the Trick::Executive, usually 1us.
+The following code is an example implementation of a Trick::Clock, called TPROCTEClock. It provides an interface between Trick's real-time job scheduler and Spectracom's TPRO IRIG-B clock board. This is one of many available time sources that one might use. Note that driver support for timing cards, like the "tpro.h" and "tsync.h" files below, must be acquired from the card's vendor.
 
-#### Clock Spin
+<a id=listing_1_Clock-header-file></a>
+### TPROCTEClock Header File
+```c
+/*
+PURPOSE: ( TPRO CTE Clock )
+*/
+#ifndef TPROCTECLOCK_HH
+#define TPROCTECLOCK_HH
+#include <string>
+#include "trick/Clock.hh"
+#ifdef _TPRO_CTE
+extern "C" {
+#include "tpro.h"
+#include "tsync.h"
+}
+#endif
 
-```
-int clock_spin(long long ref) ;
-```
-
-
-```
-# Python access
-trick.clock_spin(<ref_time>)
-```
-
-Calling clock spin will cause the simulation to enter a loop and wait until
-realtime catches up to simulation time.  This is not typically called by
-users.
-
-#### Reset Clock Reference
-
-```
-long long clock_reset(long long ref) ;
-```
-
-```
-# Python access
-trick.clock_reset(<ref_time>)
-```
-
-Resetting the clock synchronizes the "reference" time to the real-time clock.
-The reference time is typically the current simulation time.
-
-#### Manually Setting Clock Reference
-
-```
-int clock_set_reference(long long wall_clock_time) ;
+class TPROCTEClock : public Trick::Clock {
+    public:
+        TPROCTEClock() ;
+        ~TPROCTEClock() ;
+        int clock_init() ;
+        long long wall_clock_time() ;
+        int clock_stop() ;
+        std::string dev_name ;
+    private:
+#ifdef _TPRO_CTE
+        TPRO_BoardObj *pBoard ;  /* ** board handle */
+#endif
+    } ;
+#endif
 ```
 
-```
-# Python access
-trick.clock_set_reference(<wall_clock_time>)
-```
+<a id=listing_2_clock-init></a>
+### TPROCTEClock::clock_init
 
-This manually synchronizes the clock's reference to the incoming wall clock time.
-This routine is used internally to synchronize the simulation time to a whole
-second multiple of the real time clock.
+Here, we initialize the timing card by opening the device file, getting a device handle. Then we wait for for it to be available. If an error occurs, return a non-zero error code, otherwise we call ```set_global_clock()``` and return 0.
 
-#### Getting the Clock Ratio
-
-```
-double clock_get_rt_clock_ratio() ;
-```
-
-```
-# Python access
-trick.clock_get_rt_clock_ratio()
-```
-
-The realtime clock has the ability to run at a ratio to realtime.  This routine
-gets the current set ratio.
-
-#### Setting the Clock Ratio
-
-```
-int clock_set_rt_clock_ratio(double in_rt_clock_ratio) ;
-```
-
-```
-# Python access
-trick.clock_set_rt_clock_ratio()
+```c
+int TPROCTEClock::clock_init() {
+#ifdef _TPRO_CTE
+    unsigned char  rv; 
+    /* Open the TPRO/TSAT device */
+    rv = TPRO_open(&pBoard, (char *)dev_name.c_str());
+    /* If unable to open the TPRO/TSAT device... */
+    if (rv != TPRO_SUCCESS) {
+        printf (" Could Not Open '%s'!! [%d]\n", dev_name.c_str(), rv);
+        return (1);
+    }   
+    /* Wait until this handle is the first user of the device. */
+    if (TPRO_setPropDelayCorr(pBoard, NULL) != TPRO_SUCCESS) {
+        printf(" Waiting to become first user...\n");
+        while (TPRO_setPropDelayCorr(pBoard, NULL) != TPRO_SUCCESS);
+    }   
+    set_global_clock() ;
+    return 0 ; 
+#else
+    printf("ERROR: Not configured for TPRO CTE card.");
+    return -1 ;
+#endif
+}
 ```
 
-The realtime clock has the ability to run at a ratio to realtime.  This routine
-sets the current set ratio.  A simulation may not be able to run fast enough to
-honor the set ratio.  In this case the simulation will run as fast as possible.
+### TPROCTEClock::wall\_clock\_time
+In this function, we get the time from the timing card, and convert it to microseconds before returning it. If the attempt to get the time fails, we return 0.
 
-[Continue to Realtime Timer](Realtime-Timer)
+```c
+long long TPROCTEClock::wall_clock_time() {
+#ifdef _TPRO_CTE
+    TSYNC_HWTimeSecondsObj hwTime;
+    /* Send Get Seconds Time message */
+    TSYNC_ERROR err = TSYNC_HW_getTimeSec(pBoard, &hwTime);
+    if (err != TSYNC_SUCCESS) {
+        printf("  Error: %s.\n", tsync_strerror(err));
+        return 0;
+    }   
+    /* If sucessful convert the TPRO time to microsconds. */.
+    return hwTime.time.seconds * 1000000LL + (hwTime.time.ns /1000);
+#else
+    printf("ERROR: Not configured for TPRO CTE card.");
+    return 0 ; 
+#endif
+}
+```
+
+### TPROCTEClock::clock\_stop
+
+This function simply closes the handle to the device, and returns 0.
+
+```c
+int TPROCTEClock::clock_stop() {
+#ifdef _TPRO_CTE
+    unsigned char rv ;
+    rv = TPRO_close(pBoard);
+    /* If unable to close the TPRO/TSAT device... */
+    if (rv != TPRO_SUCCESS) {
+        printf (" Could Not Close Board!! [%d]\n", rv);
+    }
+#endif
+    return 0 ;
+}
+```
+<a id=looking-for-sim-time></a>
+## Looking For The Current Simulation Time ?
+
+Trick::Clock is a class for creating interfaces between timing hardware, or other time sources and Trick's realtime synchronization subsystem. It does not maintain the simulation time. That's maintained by the Trick Executive.
+
+What you may be looking for is the function 
+
+```c
+double exec_get_sim_time(void) ;
+```
+
+defined in ```exec_proto.h```.
+
+
+
+ 

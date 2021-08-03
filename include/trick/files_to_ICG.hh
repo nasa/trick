@@ -3,8 +3,6 @@
 
 #include "trick/reference_frame.h"
 #include "trick/GetTimeOfDayClock.hh"
-#include "trick/BC635Clock.hh"
-#include "trick/TPROCTEClock.hh"
 #include "trick/CommandLineArguments.hh"
 #include "trick/DMTCP.hh"
 #include "trick/Executive.hh"

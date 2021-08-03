@@ -20,26 +20,19 @@ endif
 BASE_OBJECTS = ../object_${TRICK_HOST_CPU}/Clock.o\
                ../object_${TRICK_HOST_CPU}/clock_c_intf.o
 
-BC635_CLOCK_OBJECTS        = ${BASE_OBJECTS} BC635Clock_test.o ../object_${TRICK_HOST_CPU}/BC635Clock.o exec_get_rt_nap_stub.o
 
 GETTIMEOFDAY_CLOCK_OBJECTS = ${BASE_OBJECTS} GetTimeOfDayClock_test.o ../object_${TRICK_HOST_CPU}/GetTimeOfDayClock.o exec_get_rt_nap_stub.o
 
-TPROCTE_CLOCK_OBJECTS      = ${BASE_OBJECTS} TPROCTEClock_test.o ../object_${TRICK_HOST_CPU}/TPROCTEClock.o exec_get_rt_nap_stub.o
-
-
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = TPROCTEClock_test BC635Clock_test GetTimeOfDayClock_test
+TESTS = GetTimeOfDayClock_test
 
 # House-keeping build targets.
 
 all : $(TESTS)
 
-# TODO: These tests fail on virtual machine platforms.  They need to be reviewed
 test: $(TESTS)
-	#./GetTimeOfDayClock_test --gtest_output=xml:${TRICK_HOME}/trick_test/GetTimeOfDayClock.xml
-	#./TPROCTEClock_test --gtest_output=xml:${TRICK_HOME}/trick_test/TPROCTEClock.xml
-	#./BC635Clock_test --gtest_output=xml:${TRICK_HOME}/trick_test/BC635Clock.xml
+	./GetTimeOfDayClock_test --gtest_output=xml:${TRICK_HOME}/trick_test/GetTimeOfDayClock.xml
 
 clean :
 	rm -f $(TESTS) *.o
@@ -48,18 +41,6 @@ GetTimeOfDayClock_test.o : GetTimeOfDayClock_test.cpp
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
 GetTimeOfDayClock_test : ${GETTIMEOFDAY_CLOCK_OBJECTS}
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
-
-TPROCTEClock_test.o : TPROCTEClock_test.cpp
-	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
-
-TPROCTEClock_test : ${TPROCTE_CLOCK_OBJECTS}
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
-
-BC635Clock_test.o : BC635Clock_test.cpp
-	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
-
-BC635Clock_test : ${BC635_CLOCK_OBJECTS}
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
 
 exec_get_rt_nap_stub.o : exec_get_rt_nap_stub.cpp

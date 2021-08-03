@@ -5,7 +5,7 @@
 
 **Contents**
 
-* [What Is The Variable Server?](#what-is-the``-variable-server)
+* [What Is The Variable Server?](#what-is-the-variable-server)
     * [Variable Server Sessions](#variable-server-sessions)
 * [A Simple Variable Server Client](#a-simple-variable-server-client)
     * [Listing - CannonDisplay_Rev1.py](#listing-CannonDisplay_Rev1-py)
