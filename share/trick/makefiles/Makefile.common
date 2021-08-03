@@ -173,7 +173,7 @@ endif
 
 TRICK_CIVET=0
 CIVET_COMPILE_FAGS=
-ifneq (${TRICK_MONGOOSE},1) #TODO: Make this use a civet flag instead of a mongoose flag.
+ifneq (${TRICK_DISABLE_CIVET},1)
     TRICK_CIVET=1
     TRICK_LIBS += ${TRICK_LIB_DIR}/libcivetweb.a ${TRICK_LIB_DIR}/libtrickCivet.a
     TRICK_SWIG_FLAGS += -DUSE_CIVET
