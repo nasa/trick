@@ -1,8 +1,7 @@
 /********************************* TRICK HEADER *******************************
 PURPOSE: (Simulate a fluid using smoothed particle hydrodynamics (SPH).)
 LIBRARY DEPENDENCY:
-	((Fluid.o)
-	 (Particle.o))
+	((Fluid.o))
 *******************************************************************************/
 #include "../include/Fluid.hh"
 #include "../include/Particle.hh"
