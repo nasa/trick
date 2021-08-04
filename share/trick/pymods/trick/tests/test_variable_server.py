@@ -2,27 +2,25 @@ import inspect
 import os
 import sys
 import unittest
-import pytest
 
 # TODO: Get rid of this and use automatic discovery when Trick requires Python 2.7
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))), '..')))
 from variable_server import *
 
-# @pytest.mark.variableserver
 class TestVariableServer(unittest.TestCase):
 
     def setUp(self):
         self.variable_server = VariableServer('localhost', 7000)
         self.variables = [
-            Variable('ball.state.input.position[0]', type_=int),
-            Variable('ball.state.input.mass', units='g', type_=float)
+            Variable('ball.obj.state.input.position[0]', type_=int),
+            Variable('ball.obj.state.input.mass', units='g', type_=float)
         ]
 
     def tearDown(self):
         self.variable_server.close()
 
     def test_get_value(self):
-        variable = 'ball.state.input.mass'
+        variable = 'ball.obj.state.input.mass'
 
         self.assertEqual('10',
           self.variable_server.get_value(variable))
@@ -51,7 +49,7 @@ class TestVariableServer(unittest.TestCase):
           type_=dict)
 
     def test_set_value(self):
-        variable = 'ball.state.input.position[1]'
+        variable = 'ball.obj.state.input.position[1]'
         self.variable_server.set_value(variable, 1337)
         self.assertEqual('1337', self.variable_server.get_value(variable))
         self.variable_server.set_value(variable, 1337, 'km')
@@ -81,13 +79,13 @@ class TestVariableServer(unittest.TestCase):
         self.assertRaises(
           UnitsConversionError,
           self.variable_server.add_variables,
-          Variable('ball.state.input.mass', units='fjarnskaggl'))
+          Variable('ball.obj.state.input.mass', units='fjarnskaggl'))
 
         # bad type
         self.assertRaises(
           ValueError,
           self.variable_server.add_variables,
-          Variable('ball.state.input.mass', type_=dict))
+          Variable('ball.obj.state.input.mass', type_=dict))
 
 
     def test_remove_variables(self):
