@@ -117,12 +117,9 @@ TEST_F(GetTimeOfDayClockTest, ClockSpin) {
 
     dClk.clock_spin(tim_curr + spin_time);
 
-    // I think we have to account for a race condition between
-    // wall_clock_time() and the execution time of this test code. (J.Penn)
     // We know that the time difference must be at least as long as the spin_time.
+    // But that's all we know.
     EXPECT_GE((timclk->wall_clock_time() - tim_curr), spin_time);
-    // But, it can't be much longer. Allow 10 micro-seconds to allow for code execution time.
-    EXPECT_LE((timclk->wall_clock_time() - tim_curr), spin_time+10);
 
     delete timclk;
 }
