@@ -34,3 +34,4 @@ civetweb_clone/
 include/civet/
 .vscode/
 civet_server_error.log
+server.pem
