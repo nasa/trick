@@ -318,11 +318,15 @@ cd prebuiltTrick && ./configure && make java
 ```
  
 2. Copy the java jars to the environment that you need to build trick on. They are nested in the libexec directory as specified below. The directory should be at the top level of trick, called trick/trick-offline.
- 
+
+``` 
 mkdir trick/trick-offline
 cp prebuiltTrick/libexec/trick/java/build/*.jar trick/trick-offline
+```
 
 3. When you configure, use the flag --enable-offline.
+```
 ./configure --enable-offline …<other flags>
+```
 
-4. Follow regular install instructions
+4. Follow regular install instructions above. 
