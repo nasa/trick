@@ -1,11 +1,11 @@
-name: civet_32-bit
+name: Python Tests 32-bit
 
 on:
   push:
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
-    - '!.github/workflows/test_civet_32.yml'
+    - '!.github/workflows/python_tests_32.yml'
   pull_request:
 
 jobs:
@@ -39,7 +39,7 @@ jobs:
         glibc.i686 glibc-devel.i686 udunits2 udunits2-devel gtest-devel.i686
         java-11-openjdk java-11-openjdk-devel expat-devel.i686
         which gcc-gfortran git wget gsl-devel gtest-devel gsl-devel.i686
-        maven udunits2 udunits2-devel zip
+        maven udunits2 udunits2-devel zip python3-tkinter xorg-x11-server-Xvfb
     - name: Symlink python
       run: |
         cd /usr/lib

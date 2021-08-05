@@ -1,11 +1,11 @@
-name: Civet_macOS
+name: Python Tests MacOS
 
 on:
   push:
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
-    - '!.github/workflows/test_civet_macos.yml'
+    - '!.github/workflows/python_tests_macos.yml'
   pull_request:
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew install --cask xquartz
-        brew install llvm@11 swig udunits openmotif maven
+        brew install llvm@11 swig udunits openmotif maven python-tk
         brew link llvm llvm@11
     - name: Create testing environment
       run: |
@@ -46,10 +46,8 @@ jobs:
         make
     - name: Run Civet Tests
       run: |
-          cd share/trick/pymods/trick/
-          . .venv/bin/activate
-          ./run_tests.py
+        cd share/trick/pymods/trick/
+        . .venv/bin/activate
+        ./run_tests.py
       env:
         TRICK_HOME: "${{ github.workspace }}"
-        
-        
