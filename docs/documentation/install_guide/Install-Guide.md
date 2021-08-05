@@ -304,3 +304,25 @@ export CFLAGS="-m32"
 make
 make install
 ```
+
+### Offline Mode
+#### (No maven) (19.1 and up)
+Because java is virtual machine code and is portable, you can copy the java applications that have already been built on a different machine into your trick installation on the target machine. If trick is configured in this way, it no longer relies on maven or calls it (in the target environment only). If you know someone trustworthy who has built Trick already, they can provide the built java code to you (you can skip step 1 below).
+ 
+Trick jars are all-in-one and contain everything they need to run. You will still need maven on the machine where you build the trick java jars.
+ 
+1. Pre-build your java code on a machine with trick dependencies, including maven and internet access.
+```
+# On source machine with trick dependencies, internet, and maven
+cd prebuiltTrick && ./configure && make java
+```
+ 
+2. Copy the java jars to the environment that you need to build trick on. They are nested in the libexec directory as specified below. The directory should be at the top level of trick, called trick/trick-offline.
+ 
+mkdir trick/trick-offline
+cp prebuiltTrick/libexec/trick/java/build/*.jar trick/trick-offline
+
+3. When you configure, use the flag --enable-offline.
+./configure --enable-offline …<other flags>
+
+4. Follow regular install instructions
