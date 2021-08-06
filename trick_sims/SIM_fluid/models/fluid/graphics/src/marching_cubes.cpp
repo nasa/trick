@@ -89,14 +89,12 @@ void generateCellMesh(GridCell &grid, double isoLevel, std::vector<glm::uvec3> &
 
     // Add triangle indices to triangles
     
-    int i = 0;
-    while (triTable[geometryCaseIndex][i] != -1) {
+    for(int i = 0; triTable[geometryCaseIndex][i] != -1; i += 3) {
         int idxOne = triTable[geometryCaseIndex][i];
         int idxTwo = triTable[geometryCaseIndex][i+1];
         int idxThree = triTable[geometryCaseIndex][i+2];
         triangles.push_back(glm::uvec3(idxOne + startTriangleIdx, idxTwo + startTriangleIdx, idxThree + startTriangleIdx));
-        i += 3;
     }
 
-}
 
+}
