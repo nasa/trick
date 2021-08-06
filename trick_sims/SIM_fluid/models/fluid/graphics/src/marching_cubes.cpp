@@ -15,78 +15,30 @@ void generateCellMesh(GridCell &grid, double isoLevel, std::vector<glm::uvec3> &
 {
     int geometryCaseIndex = 0;
     int startTriangleIdx = vertices.size();
-    if (grid.isoValues[0] > isoLevel)
-        geometryCaseIndex |= 1;
-    if (grid.isoValues[1] > isoLevel)
-        geometryCaseIndex |= 2;
-    if (grid.isoValues[2] > isoLevel)
-        geometryCaseIndex |= 4;
-    if (grid.isoValues[3] > isoLevel)
-        geometryCaseIndex |= 8;
-    if (grid.isoValues[4] > isoLevel)
-        geometryCaseIndex |= 16;
-    if (grid.isoValues[5] > isoLevel)
-        geometryCaseIndex |= 32;
-    if (grid.isoValues[6] > isoLevel)
-        geometryCaseIndex |= 64;
-    if (grid.isoValues[7] > isoLevel)
-        geometryCaseIndex |= 128;
+    for (int i = 0; i < 8; i++) {
+        if (grid.isoValues[i] > isoLevel) {
+            geometryCaseIndex |= (1 << i);
+        }
+    }
 
     // no edges in grid cell contain a triangle vertex
     if(edgeTable[geometryCaseIndex] == 0)
         return;
     
+    static const int EDGE_CONNECTIONS[12][2] = {{0,1}, {1,2}, {2,3}, {3, 0}, {4,5}, {5,6}, {6,7}, {7, 4}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
+
     glm::vec4 origin = glm::vec4(0, 0, 0, 1);
     // On edges that contain a triangle vertex, interpolate that triangle vertex based on the isovalues of the endpoint vertices of that edge
-    if (edgeTable[geometryCaseIndex] & 1)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[0], grid.vertices[1], grid.isoValues[0], grid.isoValues[1]));
-    else
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 2)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[1], grid.vertices[2], grid.isoValues[1], grid.isoValues[2]));
-    else
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 4)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[2], grid.vertices[3], grid.isoValues[2], grid.isoValues[3]));
-    else 
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 8) 
-        vertices.push_back(vlerp(isoLevel, grid.vertices[3], grid.vertices[0], grid.isoValues[3], grid.isoValues[0]));
-    else 
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 16)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[4], grid.vertices[5], grid.isoValues[4], grid.isoValues[5]));
-    else 
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 32)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[5], grid.vertices[6], grid.isoValues[5], grid.isoValues[6]));
-    else
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 64)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[6], grid.vertices[7], grid.isoValues[6], grid.isoValues[7]));
-    else 
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 128)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[7], grid.vertices[4], grid.isoValues[7], grid.isoValues[4]));
-    else
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 256)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[0], grid.vertices[4], grid.isoValues[0], grid.isoValues[4]));
-    else
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 512)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[1], grid.vertices[5], grid.isoValues[1], grid.isoValues[5]));
-    else
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 1024)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[2], grid.vertices[6], grid.isoValues[2], grid.isoValues[6]));
-    else
-        vertices.push_back(origin);
-    if (edgeTable[geometryCaseIndex] & 2048)
-        vertices.push_back(vlerp(isoLevel, grid.vertices[3], grid.vertices[7], grid.isoValues[3], grid.isoValues[7]));
-    else 
-        vertices.push_back(origin);
-
+    for (int i = 0; i < 12; i++) {
+        if (edgeTable[geometryCaseIndex] & (1 << i)) {
+            int vertexOne = EDGE_CONNECTIONS[i][0];
+            int vertexTwo = EDGE_CONNECTIONS[i][1];
+            vertices.push_back(vlerp(isoLevel, grid.vertices[vertexOne], grid.vertices[vertexTwo], grid.isoValues[vertexOne], grid.isoValues[vertexTwo]));
+        } else {
+            vertices.push_back(origin);
+        }
+    }
+    
     // Add triangle indices to triangles
     
     for(int i = 0; triTable[geometryCaseIndex][i] != -1; i += 3) {
