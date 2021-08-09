@@ -60,5 +60,6 @@ void updateIsoValuesGPUCaller(std::vector<GridCell>& gridCells, std::vector<floa
 
 	cudaMemcpy(gridCells.data(), d_gridCells, gridCells.size() * sizeof(GridCell), cudaMemcpyDeviceToHost);
 
-
+    cudaFree(d_gridCells);
+    cudaFree(d_particlePositions);
 }
