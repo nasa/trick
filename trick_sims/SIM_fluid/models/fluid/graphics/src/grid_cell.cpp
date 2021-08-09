@@ -3,8 +3,11 @@
 
 void updateIsoValues(std::vector<GridCell>& gridCells, std::vector<float> particlePositions, float radius) {
     updateIsoValuesGPUCaller(gridCells, particlePositions, radius);
+	// TODO: give user the ability to toggle between GPU and CPU marching cubes
+
+	/* updateIsoValues implementation on CPU
 	int numParticles = particlePositions.size() / 3;
-	/*for (int i = 0; i < gridCells.size(); i++) {
+	for (int i = 0; i < gridCells.size(); i++) {
         GridCell& current = gridCells[i]; 
         for (int j = 0; j < 8; j++) {
             
