@@ -6,12 +6,13 @@
 
 #define NUM_THREADS 1024
 
-bool particlesOnGPU = false;
 Particle* d_particles;
 Particle** d_spatial_grid;
 int* d_cell_counts;
 Fluid* d_fluid;
 int* d_n;
+
+
 
 
 __global__ void computeDensityAndPressureGPU(Particle* particles, int* n, Fluid* fluid) {
@@ -305,21 +306,20 @@ __global__ void timeIntegrationGPU(Particle* particles, int* n, Fluid* fluid) {
 	}
 }
 
-void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
+void initSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 	int n = fluid->NUM_PARTICLES;
-	int num_cells = std::pow(fluid->CELLS_PER_DIM, 3);
+	
+	cudaMalloc(&d_particles, n * sizeof(Particle));
+	cudaMalloc(&d_fluid, sizeof(Fluid));
+	cudaMalloc(&d_n, sizeof(int));
 
-	if (!particlesOnGPU) {
-		cudaMalloc(&d_particles, n * sizeof(Particle));
-		cudaMalloc(&d_fluid, sizeof(Fluid));
-		cudaMalloc(&d_n, sizeof(int));
+	cudaMemcpy(d_fluid, fluid, sizeof(Fluid), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_particles, particles.data(), n * sizeof(Particle), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_n, &n, sizeof(int), cudaMemcpyHostToDevice);
+		
 
-		cudaMemcpy(d_fluid, fluid, sizeof(Fluid), cudaMemcpyHostToDevice);
-		cudaMemcpy(d_particles, particles.data(), n * sizeof(Particle), cudaMemcpyHostToDevice);
-		cudaMemcpy(d_n, &n, sizeof(int), cudaMemcpyHostToDevice);
-		particlesOnGPU = true;
-
-		/*
+	/*
+		int num_cells = std::pow(fluid->CELLS_PER_DIM, 3);
 		cudaMallocManaged(&d_spatial_grid, num_cells * sizeof(Particle*));
 		cudaMallocManaged(&d_cell_counts, num_cells * sizeof(int));
 		
@@ -365,11 +365,11 @@ void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 				d_cell_counts[i] = n;
 			}
 		}*/
-	}
+	
+}
 
-
-
-
+void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
+	int n = fluid->NUM_PARTICLES;
 
 	verletUpdatePosition<<<1, NUM_THREADS>>>(d_particles, d_n, d_fluid);
 

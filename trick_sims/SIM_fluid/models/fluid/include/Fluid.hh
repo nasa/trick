@@ -27,6 +27,7 @@ class Fluid {
 		
 		
 		int default_data();
+		int init_cuda();
 		int update_SPH();
 		
 		float G_STRENGTH = 600;
@@ -50,8 +51,8 @@ class Fluid {
 		float VISC_LAP = 45.f / (M_PI * std::pow(H, 6.f));
 
 		// number of particles on the edge of the square
-		int EDGE_NUM_PARTICLES = 40;
-		int PARTICLE_DEPTH = 1;
+		int EDGE_NUM_PARTICLES = 20;
+		int PARTICLE_DEPTH = 4;
 		int NUM_PARTICLES = PARTICLE_DEPTH * EDGE_NUM_PARTICLES * EDGE_NUM_PARTICLES;
 		float PARTICLE_DIST = 5;
 

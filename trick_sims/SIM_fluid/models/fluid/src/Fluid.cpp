@@ -27,6 +27,10 @@ int Fluid::default_data() {
 	return 0;
 }
 
+int Fluid::init_cuda() {
+	initSPH_GPU(particles, this);
+	return 0;
+} 
 
 void Fluid::buildSpatialGrid() {
 	spatialGrid.clear();

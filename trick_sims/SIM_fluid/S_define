@@ -15,7 +15,7 @@ class FluidSimObject : public Trick::SimObject {
 
 	FluidSimObject() {
 		("default_data") 			fluid.default_data() ;
-		
+		("initialization")			fluid.init_cuda();
 
 		(0.02, "scheduled") 		fluid.update_SPH() ;
 	}
