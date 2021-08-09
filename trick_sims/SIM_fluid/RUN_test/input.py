@@ -1,6 +1,8 @@
-import math
 from enum import Enum
+import math
+
 exec(open("Modified_data/realtime.py").read())
+
 dyn.fluid.BOUND = 300
 dyn.fluid.ISO_RADIUS = 32
 
@@ -22,19 +24,18 @@ if mode == Mode.PARABOLOID:
         dyn.fluid.particlesArr[i].pos[0] = tx * 4
         dyn.fluid.particlesArr[i].pos[2] = tz * 4 
         dyn.fluid.particlesArr[i].pos[1] = tx * tx + tz * tz
-if mode == Mode.COSINE:
+
+elif mode == Mode.COSINE:
     # cosine wave initial condition
     for i in range(dyn.fluid.NUM_PARTICLES):
         t = i / 2
         dyn.fluid.particlesArr[i].pos[1] = 15 * math.cos(math.radians(t))
 
-
-
 elif mode == Mode.CIRCLES:
-    dyn.fluid.NUM_PARTICLES = 800
-    
-    n = int(dyn.fluid.NUM_PARTICLES)
     # concentric circles initial conditions
+    dyn.fluid.NUM_PARTICLES = 800
+    n = int(dyn.fluid.NUM_PARTICLES)
+
     for i in range(n):
         theta = (360 / (n / 2)) * i
         print(theta)
