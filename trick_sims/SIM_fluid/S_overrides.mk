@@ -40,4 +40,3 @@ clean: my_clean
 	
 my_clean:
 	-rm -rf $(SIM_DIR)/sph_gpu.o $(SIM_DIR)/gpuCode.o $(GRAPHICS_DIR)/grid_cell.o $(GRAPHICS_DIR)/gui.o $(GRAPHICS_DIR)/iso_values.o $(GRAPHICS_DIR)/marching_cubes.o $(GRAPHICS_DIR)/opengl_caller.o $(GRAPHICS_DIR)/opengl.o
-	
