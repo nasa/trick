@@ -8,5 +8,6 @@
 #define SPH_GPU_H
 void initSPH_GPU(std::vector<Particle>& particles, Fluid* fluid);
 void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid);
+void shutdownSPH_GPU(std::vector<Particle>& particles, Fluid* fluid);
 
 #endif

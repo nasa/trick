@@ -242,3 +242,9 @@ std::vector<float> Fluid::getParticlePositions() {
 }
 
 
+int Fluid::shutdown_cuda() {
+	shutdownSPH_GPU(particles, this);
+	return 0;
+}
+
+

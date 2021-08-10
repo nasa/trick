@@ -29,6 +29,7 @@ class Fluid {
 		int default_data();
 		int init_cuda();
 		int update_SPH();
+		int shutdown_cuda();
 		
 		float G_STRENGTH = 600;
 		// external graviational force

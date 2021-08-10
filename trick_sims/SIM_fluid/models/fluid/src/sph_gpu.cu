@@ -395,3 +395,8 @@ void updateSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
 
 }
 
+void shutdownSPH_GPU(std::vector<Particle>& particles, Fluid* fluid) {
+	cudaFree(d_particles);
+	cudaFree(d_fluid);
+	cudaFree(d_n);
+}
