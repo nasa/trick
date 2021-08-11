@@ -1,0 +1,13 @@
+*__pycache__*
+.vscode/*
+config.log
+config.status
+share/trick/makefiles/config_user.mk
+*.json
+!tests/config_for_test_app_with_file.json
+build/*
+main
+main.spec
+*practice*
+*.cache
+help.txt

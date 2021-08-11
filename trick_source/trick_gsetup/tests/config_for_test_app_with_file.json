@@ -1,0 +1,33 @@
+{
+    "sections" : {
+        "test_cases" : {
+            "size" : 12,
+            "options" : {
+                "option_name0" : {
+                    "type" : "dir",
+                    "value" : "/home/cherpin"
+                },
+                "option_name1" : {
+                    "type" : "dir",
+                    "value" : "/home/cherpin",
+                    "width" : 20
+                },
+                "option_name2" : {
+                    "type" : "dir",
+                    "width" : 20
+                },
+                "option_name3" : {
+                    "type" : "bool"
+                },
+                "option_name4" : {
+                    "type" : "bool",
+                    "value" : true
+                },
+                "option_name5" : {
+                    "type" : "bool",
+                    "value" : "yes"
+                }
+            }
+        }
+    }
+}
