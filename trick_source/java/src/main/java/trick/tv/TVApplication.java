@@ -2218,7 +2218,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     }
 
     /**
-     * allows the user to specifiy an index range for pointers
+     * allows the user to specify an index range for pointers
      */
     class IndexTextField extends JXTextField {
 

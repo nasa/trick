@@ -287,7 +287,7 @@ namespace Trick {
         /** Indicates that the use rhas specified a y-coordinate. */
         bool y_set;
 
-        /** Creates a string containing the arguements that this application explicitly supports. */
+        /** Creates a string containing the arguments that this application explicitly supports. */
         virtual std::string create_arguments_string();
         
         protected:

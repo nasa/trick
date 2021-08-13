@@ -207,7 +207,7 @@ int Trick::ThreadBase::execute_priority() {
 
     int ret;
 
-    /* Declare scheduling paramters. */
+    /* Declare scheduling parameters. */
     int max_priority;
     int min_priority;
     int prev_priority;

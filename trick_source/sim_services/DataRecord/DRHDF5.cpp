@@ -173,7 +173,7 @@ int Trick::DRHDF5::format_specific_init() {
         hdf5_info->dataset = H5PTcreate_fl(root_group, rec_buffer[ii]->ref->reference, datatype, chunk_size, 1) ;
 
         if ( hdf5_info->dataset == H5I_BADID ) {
-            message_publish(MSG_ERROR, "An error occured in data record group \"%s\" when adding \"%s\".\n",
+            message_publish(MSG_ERROR, "An error occurred in data record group \"%s\" when adding \"%s\".\n",
              group_name.c_str() , rec_buffer[ii]->ref->reference) ;
         }
 
@@ -293,7 +293,7 @@ int Trick::DRHDF5::format_specific_write_data(unsigned int writer_offset __attri
     for (ii = 0; ii < parameters.size(); ii++) {
 
         /* Each parameters[] element contains a DataRecordBuffer class.
-         * So there is a seperate DataRecordBuffer per variable.
+         * So there is a separate DataRecordBuffer per variable.
          * Point to the value to be recorded. */
         HDF5_INFO * hi = parameters[ii] ;
         buf = hi->drb->buffer + (writer_offset * hi->drb->ref->attr->size) ;

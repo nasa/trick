@@ -24,7 +24,7 @@ namespace Trick {
             /** Number of significant digits to use in time print.\n */
             int num_digits ;
 
-            /** Print format that accomodates enough significant digits to handle tics_per_sec */
+            /** Print format that accommodates enough significant digits to handle tics_per_sec */
             char print_format[64] ;
 
             /**

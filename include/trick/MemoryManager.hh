@@ -670,7 +670,7 @@ namespace Trick {
             CheckPointAgent* defaultCheckPointAgent; /**< ** the classic Check point agent. */
 
             bool reduced_checkpoint;    /**< -- true = Don't write zero valued variables in the checkpoint. false= Write all values. */
-            bool hexfloat_checkpoint;   /**< -- true = Represent floating point values as hexidecimal to preserve precision. false= Normal. */
+            bool hexfloat_checkpoint;   /**< -- true = Represent floating point values as hexadecimal to preserve precision. false= Normal. */
             bool expanded_arrays;       /**< -- true = array element values are set in separate assignments. */
 
             ALLOC_INFO_MAP  alloc_info_map;  /**< ** Map of <address, ALLOC_INFO*> key-value pairs for each of the managed allocations. */

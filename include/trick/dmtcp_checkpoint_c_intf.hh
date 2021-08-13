@@ -17,7 +17,7 @@ extern "C" {
 /* call DMTCP function dmtcpIsEnabled() */
 int dmtcp_is_enabled() ;
 
-/* call DMTCP funcion dmtcpRunCommand() */
+/* call DMTCP function dmtcpRunCommand() */
 int call_dmtcp();
 
 /* DMTCP jobs to run pre, post, and restart. Arguments for dmtcpInstallHooks() - defined in dmtcp/src/dmtcpaware.c */

@@ -18,7 +18,7 @@ int eigen_jacobi(double **k,    /* In: Input stiffness matrix */
                  double **v,    /* Out: Output a set of eigen vectors */
                  double *alpha, /* Out: Output a set of eigen values */
                  int m,         /* In: Input dimension of matrix */
-                 int mmax,      /* In: Input maximun dimension of matrix */
+                 int mmax,      /* In: Input maximum dimension of matrix */
                  int sort)
 {                                      /* In: Input sorting flag */
     int i, ip1, j, n, jmin, loop;

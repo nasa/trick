@@ -116,7 +116,7 @@ int Trick::JSONVariableServer::check_and_move_listen_device() {
 /*
 @details
 -# Loop forever for new connections
- -# create a new VariableServerThread when new conection found
+ -# create a new VariableServerThread when new connection found
  -# create new VariableServerThread thread
 */
 void * Trick::JSONVariableServer::thread_body() {

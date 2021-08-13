@@ -72,8 +72,8 @@ typedef struct _TrickErrorHndlr {
 void trick_error_func_default(
         TrickErrorHndlr * error_hndlr, /* IN: -- Error object */
         TrickErrorLevel level,         /* IN: -- Error level */
-        char *file,        /* IN: -- File in which error ocurred */
-        int line,          /* IN: -- Line in which error ocurred */
+        char *file,        /* IN: -- File in which error occurred */
+        int line,          /* IN: -- Line in which error occurred */
         char *msg);        /* IN: -- Error message  */
 
 void trick_error_init(  /* RETURN: -- None  */
@@ -157,8 +157,8 @@ void trick_error_report(
         TrickErrorHndlr * error_hndlr, /* IN: -- Error object */
         TrickErrorLevel error_level,   /* IN: -- Err level for
                                                  this error */
-        const char *file,              /* IN: -- File in which error_ occured */
-        int line,                      /* IN: -- Line number where error_ occured */
+        const char *file,              /* IN: -- File in which error_ occurred */
+        int line,                      /* IN: -- Line number where error_ occurred */
         const char *format,            /* IN: -- Error_ message format */
         ...);                          /* IN: ** variable length arg list */
 

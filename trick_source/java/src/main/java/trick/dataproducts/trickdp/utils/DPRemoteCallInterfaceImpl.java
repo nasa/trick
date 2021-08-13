@@ -16,7 +16,7 @@ import trick.dataproducts.utils.Session;
 /**
  * Implementation for remote calles needed for trick_dp.
  * Basically, other application can make these calls to 
- * trick_dp applicaiton if necessary.
+ * trick_dp application if necessary.
  * 
  * @since Trick 10
  */

@@ -18,7 +18,7 @@
    Requirement [@ref r_exec_time_1].
 -# If an exception is caught, print as much error information available based
    on execption type caught and exit.
--# If no execption is caught return 0
+-# If no exception is caught return 0
 */
 int Trick::Executive::init() {
 

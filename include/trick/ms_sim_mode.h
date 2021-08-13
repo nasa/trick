@@ -8,7 +8,7 @@ PROGRAMMERS:
 
 /**
  * @class MS_SIM_COMMAND sim_mode.h
- * The MS_SIM_COMMAND enumeration represents the TRICK simulation commmands.
+ * The MS_SIM_COMMAND enumeration represents the TRICK simulation commands.
  */
 
 #ifndef MS_SIMMODE_HH

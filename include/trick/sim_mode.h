@@ -8,7 +8,7 @@ PROGRAMMERS:
 
 /**
  * @enum SIM_COMMAND
- * The SIM_COMMAND enumeration represents the TRICK simulation commmands.
+ * The SIM_COMMAND enumeration represents the TRICK simulation commands.
  */
 
 #ifndef SIMMODE_HH

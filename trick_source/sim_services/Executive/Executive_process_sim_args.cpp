@@ -21,7 +21,7 @@
 /**
 @details
 -# If there are command line arguments
-   -# If the argument is "trick_version" print out the verion of Trick used to build the
+   -# If the argument is "trick_version" print out the version of Trick used to build the
       simulation and exit.
    -# If the argument is "help" print out a help message about the possible command line
       arguments and exit.

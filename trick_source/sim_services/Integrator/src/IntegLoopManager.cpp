@@ -157,7 +157,7 @@ void Trick::IntegrationManager::create_sim_object_info (
 
 /**
  Transfer the relegated jobs in a SimObjectIntegInfo to the SimObjectIntegInfo
- specfied by the relegated job's sup_class_data handle.
+ specified by the relegated job's sup_class_data handle.
  @param sim_obj_info A member of the manager's sim_objects_info vector.
  */
 void Trick::IntegrationManager::transfer_relegated_jobs (

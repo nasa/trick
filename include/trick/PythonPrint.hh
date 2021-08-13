@@ -15,13 +15,13 @@ class PythonPrint: public CheckPointAgent {
 
     /**
      Test incoming attributes permission check.
-     @param attr Attributes with permision to check.
+     @param attr Attributes with permission to check.
      */
     virtual bool input_perm_check(ATTRIBUTES * attr) ;
 
     /**
      Test incoming attributes permission check.
-     @param attr Attributes with permision to check.
+     @param attr Attributes with permission to check.
      */
     virtual bool output_perm_check(ATTRIBUTES * attr) ;
 

@@ -175,7 +175,7 @@ TEST_F(CompositeDataTypeTest, assignValue_1) {
 
 TEST_F(CompositeDataTypeTest, assignValue_2) {
 
-    /* Requirment:  */
+    /* Requirement:  */
     ClassTwo classTwo;
     classTwo.x = 0;
     classTwo.y = 0.0;
@@ -209,7 +209,7 @@ TEST_F(CompositeDataTypeTest, assignValue_2) {
 
 TEST_F(CompositeDataTypeTest, assignValue_3) {
 
-    /* Requirment:  */
+    /* Requirement:  */
     ClassThree classThree;
     classThree.pos[0] = 0.0;
     classThree.pos[1] = 0.0;
@@ -300,7 +300,7 @@ TEST_F(CompositeDataTypeTest, assignValue_5) {
 
 TEST_F(CompositeDataTypeTest, printValue_4) {
 
-    /* Requirment:  */
+    /* Requirement:  */
 
     ClassFour classFour;
     classFour.x[0] = 0.0;

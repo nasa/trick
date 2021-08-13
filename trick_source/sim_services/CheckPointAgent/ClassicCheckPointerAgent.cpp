@@ -148,7 +148,7 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
    Given an address, that is within the bounds of a composite
    object (i.e., a struct or class instance), return the corresponding sub-name.
 
-   A return value of NULL indicates an error occured. Note that this is not
+   A return value of NULL indicates an error occurred. Note that this is not
    the same as a return value of "", which is valid.
 
    The following BNF production describes a valid sub-reference:

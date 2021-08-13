@@ -62,7 +62,7 @@ typedef struct {
 /**
  * ATTRIBUTES are data structures that represent detailed descriptions of data
  * types, including how an instance of a datatype is represented in memory.
- * ATTRIBUTES are fundemental to the design of Trick's Memory Management.
+ * ATTRIBUTES are fundamental to the design of Trick's Memory Management.
  *
  * The ICG code generator generates arrays of ATTRIBUTES, of varying lengths,
  * for each of the structured datat types that it finds in a header (.h or .hh)

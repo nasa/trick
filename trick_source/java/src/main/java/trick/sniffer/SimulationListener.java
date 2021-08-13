@@ -26,7 +26,7 @@ public interface SimulationListener {
     /**
      * called when the source experiences an unhandled exception
      *
-     * @param exception the exception that occured
+     * @param exception the exception that occurred
      */
     public void exceptionOccurred(Exception exception);
 

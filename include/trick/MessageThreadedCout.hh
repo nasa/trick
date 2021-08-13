@@ -1,6 +1,6 @@
 /*
     PURPOSE:
-        (Print messages to std::cout on a seperate thread)
+        (Print messages to std::cout on a separate thread)
 */
 
 #ifndef MESSAGETHREADEDCOUT_HH

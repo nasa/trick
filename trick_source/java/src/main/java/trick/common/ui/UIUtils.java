@@ -421,7 +421,7 @@ public class UIUtils {
 	/**
 	 * Search to see if an input string has the search string. 
 	 * The search string can have "*". If there is no wildcard, 
-	 * it simply checks if inputStr string contians the searchStr string.
+	 * it simply checks if inputStr string contains the searchStr string.
 	 * 
 	 * @param inputStr - the input search string.
 	 * @param searchStr - the search string which searching is based upon.

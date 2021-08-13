@@ -13,7 +13,7 @@
 
 /*
    compactdefaultargs fixes a bug with enumeration default arguments not being
-   recogized in function calls starting in swig 3.0.x
+   recognized in function calls starting in swig 3.0.x
  */
 %feature("compactdefaultargs") ;
 

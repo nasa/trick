@@ -26,7 +26,7 @@
 -# The recording group is set to allocate a maximum of 100,000 records in memory
 -# The recording group is set to record at a cycle period of 0.1 seconds.
 -# The first recording parameter is assigned to simulation time.  The name of
-   the parmeter is named "sys.exec.out.time" to preserve backwards compatibility
+   the parameter is named "sys.exec.out.time" to preserve backwards compatibility
    with older %Trick releases.
 -# The call_function and call_function_double functions inherited from the SimObject
    are populated.  The data_record function is added as a job for this SimObject.

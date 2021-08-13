@@ -69,7 +69,7 @@ class Event {
         void activate() { active = true ; } ;
 
         /**
-         @brief @userdesc Command to turn off processing of event (can be overriden by manual mode).
+         @brief @userdesc Command to turn off processing of event (can be overridden by manual mode).
          @par Python Usage:
          @code <event_object>.deactivate() @endcode
          @return always 0

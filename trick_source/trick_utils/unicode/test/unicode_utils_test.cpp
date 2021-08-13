@@ -304,7 +304,7 @@ TEST(unescape_to_utf8, non_ascii_chars) {
 }
 
 TEST(unescape_to_utf8, insufficient_hex_digits_1) {
-    /* The \U escape code expects exactly 8 hexidecimal digits to follow.
+    /* The \U escape code expects exactly 8 hexadecimal digits to follow.
        If fewer than 8 are present, then an error message should result.
        Note: "\U10110" will fail in a C/C++ literal at compile time too,
        because it is incomplete. It should be "\U00010110".
@@ -319,7 +319,7 @@ TEST(unescape_to_utf8, insufficient_hex_digits_1) {
 }
 
 TEST(unescape_to_utf8, insufficient_hex_digits_2) {
-    /* The \u escape code expects exactly 4 hexidecimal digits to follow.
+    /* The \u escape code expects exactly 4 hexadecimal digits to follow.
        If fewer than 4 are present, then an error message should result.
        Note: "\u3d5" will fail in a C/C++ literal at compile time too,
        because it is incomplete. It should be "\u03d5".

@@ -91,7 +91,7 @@ typedef struct {
     double mu;            /* -- mean for gauss/poisson distribution */
     double min;           /* -- Minimum value in range */
     double max;           /* -- Maximum value in range */
-    int rel_min;          /* -- Minimun is a relative minimum */
+    int rel_min;          /* -- Minimum is a relative minimum */
     int rel_max;          /* -- Maximum is a relative maximum */
     int sigma_range;      /* --  Sigma range for output random num
                                  Must be > 0 for triangular gauss.

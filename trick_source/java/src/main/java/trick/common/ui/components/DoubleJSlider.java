@@ -188,7 +188,7 @@ public class DoubleJSlider extends JSlider implements ChangeListener{
         DoubleJSlider slider;
         
         /**
-         * Constructor with specifed slider.
+         * Constructor with specified slider.
          * 
          * @param slider	The specified {@link DoubleJSlider}.
          */

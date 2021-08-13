@@ -171,11 +171,11 @@ std::string Trick::DMTCP::getScriptName() {
         mmw_script_name = stripped_name;
     }
 
-    // User specifed a valid script name (or is using default script name)
+    // User specified a valid script name (or is using default script name)
     if ( ( mmw_script_name == default_script_name.str() ) or ( !isSpecialCharacter( mmw_script_name ) ) )
         restart_script_name = mmw_script_name;
 
-    // User specifed an invalid script name
+    // User specified an invalid script name
     else {
         std::cout << mmw_script_name.c_str() << " is not a valid name. The default DMTCP script name will be used: " << default_script_name.str() << endl;
         restart_script_name = default_script_name.str();

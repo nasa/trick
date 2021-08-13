@@ -28,7 +28,7 @@
 @design
 -# This signal handler processes SIGFPE
 -# Write a message to stderr that a signal has been caught.
--# In Linux print out the type of floating point error that occured.
+-# In Linux print out the type of floating point error that occurred.
 -# If attach_debugger == true, attempt to attach a debugger to the current process.
 -# Else if stack_trace == true, attempt to attach a debugger to print a stack trace.
 -# Exit the process with a -2 return.

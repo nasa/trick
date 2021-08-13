@@ -21,7 +21,7 @@
 /**
  * @relates Trick::Executive
  * C binded function to handle the SIGFPE signal.  The handler prints which type of
- * floating point error has occured and calls exec_terminate()
+ * floating point error has occurred and calls exec_terminate()
  * @return void
  */
 #if (__APPLE__ | __CYGWIN__ | __INTERIX )

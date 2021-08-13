@@ -18,7 +18,7 @@ Adds an event to mtv list.
 
 -# Check to see if the event is already in the mtv list, return if it is.
 -# Increment the number of events in the mtv list.
--# Reallocate the mtv_list to accomodate the new event.
+-# Reallocate the mtv_list to accommodate the new event.
 -# Assign the last element of mtv_list to the incoming event.
 -# Increment the update ticker so mtv knows something changed.
 */

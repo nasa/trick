@@ -12,7 +12,7 @@
    -# The scheduler will immediately return if the job returns a
       non-zero return code.  The return code of the job will be
       returned from Trick::Executive::init().
--# If no execption is thrown return 0
+-# If no exception is thrown return 0
 */
 int Trick::MonteCarlo::run_queue(Trick::ScheduledJobQueue* queue, std::string in_string) {
     int ret = 0 ;

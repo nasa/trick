@@ -156,7 +156,7 @@ public class MonteMonitorApplication extends RunTimeTrickApplication {
                     removeSlave(i);
                 }
 
-                // Start getting updates in an infinite backgound Worker thread.
+                // Start getting updates in an infinite background Worker thread.
                 new Monitor().execute();
                 variableServerConnection.clear();
                 variableServerConnection.add("trick_mc.mc.actual_num_runs");

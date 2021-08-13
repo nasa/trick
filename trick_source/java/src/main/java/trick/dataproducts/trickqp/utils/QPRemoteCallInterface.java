@@ -14,7 +14,7 @@ import java.rmi.RemoteException;
 /**
  * Interface for remote calles needed for trick_qp.
  * Basically, other application can make these calls to 
- * trick_qp applicaiton if necessary.
+ * trick_qp application if necessary.
  * 
  * @since Trick 10
  */

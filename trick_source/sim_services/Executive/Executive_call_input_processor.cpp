@@ -12,7 +12,7 @@
    -# The scheduler will immediately return if the default_data job returns a
       non-zero return code.  The return code of the default_data job will be
       returned from Trick::Executive::init().
--# If no execption is thrown return 0
+-# If no exception is thrown return 0
 */
 int Trick::Executive::call_input_processor() {
 

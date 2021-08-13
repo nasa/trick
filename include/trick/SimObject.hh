@@ -1,6 +1,6 @@
 /*
 PURPOSE:
-    ( The base SimObject class that all simobjects and capabilites of Trick derive from )
+    ( The base SimObject class that all simobjects and capabilities of Trick derive from )
 
 PROGRAMMERS:
     ((Alex Lin) (NASA) (May 2009) (OO))

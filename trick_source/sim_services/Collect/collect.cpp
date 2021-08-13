@@ -5,7 +5,7 @@
 
 /**
 @brief
-Adds the addess, collectee, to the list pointed to by collector.  Returns a new pointer
+Adds the address, collectee, to the list pointed to by collector.  Returns a new pointer
 to the new list.  The old list a collector will be freed.
 @details
 -# Get the current list length
@@ -46,7 +46,7 @@ void ** add_collect( void ** collector , void * collectee ) {
 
 /**
 @brief
-Deletes the addess, collectee, from the list pointed to by collector.  Returns a new pointer
+Deletes the address, collectee, from the list pointed to by collector.  Returns a new pointer
 to the new list.  The old list a collector will be freed.
 @details
 -# Get the current list length

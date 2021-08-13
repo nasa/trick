@@ -62,7 +62,7 @@ namespace Trick {
 
             /**
              * @brief Sets the rt_clock_ratio
-             * @return returns 0 if clock_ratio sucessfully set.
+             * @return returns 0 if clock_ratio successfully set.
              */
             int set_rt_clock_ratio(double) ;
 

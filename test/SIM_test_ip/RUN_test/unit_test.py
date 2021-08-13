@@ -978,7 +978,7 @@ def main():
 
 ######################################################################################################################
 
-    test_suite = "unsinged long"
+    test_suite = "unsigned long"
 
     test_so.obj.ul = 95
     TRICK_EXPECT_EQ( test_so.obj.ul , 95 , test_suite , "assignment" )

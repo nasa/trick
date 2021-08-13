@@ -39,7 +39,7 @@ namespace Trick {
     void remove_external_application(ExternalApplication &externalApplication);
 
     /**
-     * removes all externalApplications from managment
+     * removes all externalApplications from management
      *
      * @relates Trick::ExternalApplication
      */

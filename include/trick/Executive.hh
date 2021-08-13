@@ -105,7 +105,7 @@ namespace Trick {
             /** Freeze mode software frame time. All freeze jobs will be called at this frequency.\n */
             double freeze_frame;              /**< trick_units(s) */
 
-            /** Freeze mode sofware frame in integer tics.\n */
+            /** Freeze mode software frame in integer tics.\n */
             long long freeze_frame_tics ;     /**< trick_units(--) */
 
             /** Next software frame time in integer tics.\n */
@@ -210,7 +210,7 @@ namespace Trick {
             /** Queue to hold unfreeze jobs.\n */
             Trick::ScheduledJobQueue time_tic_changed_queue ; /**< trick_io(**) */
 
-            /** Enough threads to accomodate the number of children specified in the S_define file.\n */
+            /** Enough threads to accommodate the number of children specified in the S_define file.\n */
             std::vector <Trick::Threads *> threads ;               /**< trick_io(**) */
 
             /** Number of scheduled job type classes defined in the S_define file.\n */

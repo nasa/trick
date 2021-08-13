@@ -2,7 +2,7 @@
    PURPOSE: (Returns value of parameter referenced by right side parameter.)
 
    ASSUMPTIONS AND LIMITATIONS: ((Handles only the following 'C' types: char, unsigned char, char*, int, unsigned int,
-   long, unsinged long, short, unsigned short, float, double))
+   long, unsigned long, short, unsigned short, float, double))
 
    PROGRAMMERS: (((Alex Lin) (NASA) (9/00))) */
 

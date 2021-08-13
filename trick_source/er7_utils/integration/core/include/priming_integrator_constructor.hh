@@ -70,7 +70,7 @@ public:
    /**
     * Indicate whether the integration technique will always takes a
     * pre-determined number of integration steps per integration cycle.@n
-    * This implemenetation assumes the primary technique is a fixed step
+    * This implementation assumes the primary technique is a fixed step
     * integrator, but that the primer might not be.
     * @return True if the primer is also fixed step, false otherwise.
     */

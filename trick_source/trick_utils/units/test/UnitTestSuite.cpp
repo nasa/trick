@@ -777,7 +777,7 @@ TEST_F(UnitConversion, InvalidFootPound)
 }
 
 //Invalid Conversion Tests
-//Should throw an exception (exeption = PASS)
+//Should throw an exception (exception = PASS)
 
 TEST_F(UnitConversion, NewtonMeterToInvalidFootPound)
 {

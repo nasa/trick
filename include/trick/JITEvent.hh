@@ -49,7 +49,7 @@ class JITEvent : public Trick::Event {
 
         void get_func_ptr_from_name() ;
 
-        /** pointer to funtion to run when event fires */
+        /** pointer to function to run when event fires */
         int (*func_ptr)(void) ; // trick_io(**)
 
 } ;

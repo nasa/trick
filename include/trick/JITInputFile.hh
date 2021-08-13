@@ -62,7 +62,7 @@ class JITInputFile {
         int process_sim_args() ;
 
         /**
-         Called as an intialization job to compile and run the input file
+         Called as an initialization job to compile and run the input file
          @return 0 for success, compilation error code if compilation fails.
         */
         int init() ;
@@ -102,7 +102,7 @@ class JITInputFile {
         /** C++ input file from the command line if one was specified. */
         std::string input_file ;
 
-        /** Map of source file name to structue holding library name and library handle */
+        /** Map of source file name to structure holding library name and library handle */
         std::map< std::string , JITLibInfo > file_to_libinfo_map ;
 
 } ;

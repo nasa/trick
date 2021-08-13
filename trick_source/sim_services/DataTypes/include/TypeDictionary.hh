@@ -22,7 +22,7 @@ class TypeDictionary {
     const DataType* getDataType(std::string typeName);
 
     /**
-     Add a type definiton to the dictionary.
+     Add a type definition to the dictionary.
      */
     void addTypeDefinition(std::string name, DataType * typeSpec)
          ;

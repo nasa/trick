@@ -762,7 +762,7 @@ namespace Trick {
 
 #if 0
         /**
-            Overload default implentation of Scheduler::add_sim_object
+            Overload default implementation of Scheduler::add_sim_object
          */
         virtual int add_sim_object( Trick::SimObject * in_object ) ;
 #endif

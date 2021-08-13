@@ -23,7 +23,7 @@ namespace Trick {
   Operation Scenario:
   @li On a lower priority thread, a request is made to change the value of an item at a certain time.
   @li This item (event) gets placed in a list
-  @li A higher piority thread gets the information and changes the value of the data
+  @li A higher priority thread gets the information and changes the value of the data
   @li memory operation (creation and deletion) take place in the lower priority threads.
 
 */

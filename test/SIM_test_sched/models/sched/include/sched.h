@@ -18,7 +18,7 @@ typedef struct { /* SCHEDULE ------------------------------------------------*/
   double acc ;    /* m/s2 Acceleration */
   double mass ;   /* kg   Mass */
   int amf     ;   /* --   Just a test variable */
-  int amf_error ; /* --  Order error occured in amf job */
+  int amf_error ; /* --  Order error occurred in amf job */
   REGULA_FALSI rf ; /* -- Dynamic event */
 
 } SCHEDULE ; /*--------------------------------------------------------------*/

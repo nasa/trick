@@ -70,7 +70,7 @@ public class TrickFileFilter implements java.io.FileFilter {
 	}
 	
 	/**
-	 * Sets file name mathing criteria for the filter.
+	 * Sets file name matching criteria for the filter.
 	 * 
 	 * @param matching	This filter cannot be accepted if {@link File} is a file and 
 	 *                  its name doesn't contain the matching string.	

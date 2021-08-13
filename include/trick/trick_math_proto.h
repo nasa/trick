@@ -546,7 +546,7 @@ double gauss_rnd_bell(RAND_GENERATOR * G);
 #endif
 
 /*
- * Function macros to provide backward compatability with earlier versions
+ * Function macros to provide backward compatibility with earlier versions
  */
 #define deuler_123( ang, mat, method ) \
           euler123( ang, mat, method, (double*)0, __FILE__, __LINE__ )

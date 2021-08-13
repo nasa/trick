@@ -1034,7 +1034,7 @@ int LogData::setUnit(int paramIdx, std::string to_units)
         return (1);
 }
 
-/** Get the value of a paramter at a given time stamp
+/** Get the value of a parameter at a given time stamp
  *  Find value around an epsilon of time stamp
  *  return -1 if can't find value with time stamp
  */
@@ -1221,7 +1221,7 @@ void LogGroup::getMinMaxStats(const char *param,
         log[yLogIdx]->getMinMaxStats(yIdx, tmin, min, tmax, max);
 }
 
-/** Set scale factor for given paramter and given factor */
+/** Set scale factor for given parameter and given factor */
 int LogGroup::setScaleFactor(int logIdx, int paramIdx, double factor)
 {
 
@@ -1292,7 +1292,7 @@ int LogGroup::setUnit(const char *paramName, std::string u)
         return (1);
 }
 
-/** Get the value of a paramter at a given time stamp
+/** Get the value of a parameter at a given time stamp
  *  Return value around an epsilon of time stamp
  */
 int LogGroup::getValueAtTime( const char *paramName,
@@ -1656,7 +1656,7 @@ void IterMultiRun::operator++(int) {
         }
 
         // Get all values in all data log groups
-        // Also get mininum time stamp from all log data files
+        // Also get minimum time stamp from all log data files
         t1 = iter1_->getTime();
         t2 = iter2_->getTime();
         if ( t1 <= t2 ) {
@@ -1673,8 +1673,8 @@ void IterMultiRun::operator++(int) {
                 (*iter2_)++ ;
         }
 
-        // Now that a time step has occured
-        // Get the new mininum time stamp
+        // Now that a time step has occurred
+        // Get the new minimum time stamp
         t1 = iter1_->getTime();
         t2 = iter2_->getTime();
         if ( t1 <= t2 ) {
@@ -1855,7 +1855,7 @@ int IterPreserveTime::stepInTime() {
         char* rec ;
 
         // Get all values in all data log groups
-        // Also get mininum time stamp from all log data files
+        // Also get minimum time stamp from all log data files
         minTime = getTime();
 
         // Take a step through time (sounds like a song)
@@ -1878,8 +1878,8 @@ int IterPreserveTime::stepInTime() {
                 return(1) ;
         }
 
-        // Now that a time step has occured
-        // Get the new mininum time stamp and associated
+        // Now that a time step has occurred
+        // Get the new minimum time stamp and associated
         // values from all log data files
         minTime = getTime();
 

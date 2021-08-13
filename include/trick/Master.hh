@@ -30,7 +30,7 @@ namespace Trick {
 
     /**
      * This class keeps the remote execution information for each slave simulation controlled by the
-     * master.  It also contains the actual conneciton structure to each slave simulation.
+     * master.  It also contains the actual connection structure to each slave simulation.
      *
      * @author Robert W. Bailey from 1991-1992
      * @author Many other Trick developers of the past
@@ -60,7 +60,7 @@ namespace Trick {
              in which case the master will no longer communicate with the slave.\n */
             bool activated ;                 /**< trick_units(--) */
 
-            /** Indicates "dmtcp" or "ascii" slave. Used to contruct sync_port_tag (default is "undefined").\n*/
+            /** Indicates "dmtcp" or "ascii" slave. Used to construct sync_port_tag (default is "undefined").\n*/
             std::string slave_type;          /**< trick_units(--) */
 
             /** Slave's dmtcp port if slave_type "dmtcp" (=0 if slave_type "ascii").\n*/

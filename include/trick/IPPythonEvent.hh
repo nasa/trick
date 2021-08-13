@@ -81,7 +81,7 @@ namespace Trick {
             /** True for a user input event, false for a read or other trick event.\n */
             bool is_user_event ;                    /**< trick_io(*io) trick_units(--) */
 
-            /** @userdesc True when user issues a manual command, normal condition evaluation is overriden.\n */
+            /** @userdesc True when user issues a manual command, normal condition evaluation is overridden.\n */
             bool manual ;                           /**< trick_io(*io) trick_units(--) */
 
             /** @userdesc True when event fired because of a manual_on or manual_fire command.\n */

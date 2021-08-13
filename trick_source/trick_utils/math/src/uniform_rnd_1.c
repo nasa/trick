@@ -32,7 +32,7 @@
 #include "trick/trick_math.h"
 
 #ifndef HZ
-#define HZ 100                         /* This is a kludge to accomodate for Darwin. On Darwin HZ is actually a kernal
+#define HZ 100                         /* This is a kludge to accommodate for Darwin. On Darwin HZ is actually a kernal
                                           global variable. I suppose I should use that but this will suffice. */
 #endif
 

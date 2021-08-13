@@ -59,7 +59,7 @@ TEST_F(MM_write_checkpoint_hexfloat, dbl_singleton) {
     *dbl_p = 3.1415;
 
     // 3. Tell the MemoryManager that when checkpointing, floating point values
-    // are to be represented as hexidecimal values (to preserve precision).
+    // are to be represented as hexadecimal values (to preserve precision).
     memmgr->set_hexfloat_checkpoint(1);
 
     // 4. Write a checkpoint to the stream.
@@ -92,7 +92,7 @@ TEST_F(MM_write_checkpoint_hexfloat, dbl_array) {
     dbl_p[2] = 3.3;
 
     // 3. Tell the MemoryManager that when checkpointing, floating point values
-    // are to be represented as hexidecimal values (to preserve precision).
+    // are to be represented as hexadecimal values (to preserve precision).
     memmgr->set_hexfloat_checkpoint(1);
 
     // 4. Write a checkpoint to the stream.

@@ -139,7 +139,7 @@ namespace Trick {
             int set_max_samples(int num) ;
 
             /**
-             @brief Clears data_record informtion realted to frame logging durning the checkpoint reload.
+             @brief Clears data_record information realted to frame logging durning the checkpoint reload.
              @return always 0
             */
             int clear_data_record_info() ;

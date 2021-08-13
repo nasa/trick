@@ -15,11 +15,11 @@
 -# The scheduler calls Executive::loop_multi_thread() if more than one thread of
    execution is present.
    Requirement  [@ref r_exec_mode_1]
--# If an exception is caught, the return code, file where the exception occured, and the
+-# If an exception is caught, the return code, file where the exception occurred, and the
    reason for the exception is saved.  The exception return code is returned.
 -# If an unknown exception is caught, set the exception return code to -1, the file to unknown, and the
    reason for the exception as unknown.  The exception return code is returned.
--# If no execption is caught return 0
+-# If no exception is caught return 0
 */
 int Trick::Executive::loop() {
 

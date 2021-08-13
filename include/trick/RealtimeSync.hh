@@ -172,7 +172,7 @@ namespace Trick {
             virtual void get_sim_start_time() ;
 
             /**
-             @brief Ends the actual elapsed timer for initalization
+             @brief Ends the actual elapsed timer for initialization
              @return always 0
              */
             virtual void get_sim_end_init_time() ;

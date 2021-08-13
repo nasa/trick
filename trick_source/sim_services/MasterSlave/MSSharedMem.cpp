@@ -66,7 +66,7 @@ int Trick::MSSharedMem::accept() {
     tsm_dev.size = sizeof(MSSharedMemData);
     ret = tsm_init(&tsm_dev);
     shm_addr = (MSSharedMemData*) tsm_dev.addr;
-    /** @li Save master process id so we can keep master and slave data seperate. */
+    /** @li Save master process id so we can keep master and slave data separate. */
     // (the master calls accept)
     if (ret==TSM_SUCCESS) {
         shm_addr->master_pid = getpid();

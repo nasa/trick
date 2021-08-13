@@ -90,7 +90,7 @@ int Trick::Executive::add_jobs_to_queue( Trick::SimObject * in_sim_object , bool
         ret = add_job_to_queue(temp_job) ;
 
         /* If add_jobs is called during initialization, restart_flag == false,
-           calcluate the cycle/start/stop times for the job */
+           calculate the cycle/start/stop times for the job */
         if ( (restart_flag == false) and (temp_job->job_class >= scheduled_start_index) and (ret == 0 )) {
 
             temp_job->calc_cycle_tics() ;

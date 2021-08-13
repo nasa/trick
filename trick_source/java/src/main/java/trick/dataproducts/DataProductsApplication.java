@@ -502,7 +502,7 @@ public abstract class DataProductsApplication extends TrickApplication {
     }
 
     /**
-     * Resets all commond fields if available.
+     * Resets all command fields if available.
      */
     public void resetCommonFields() {
         if (titleField != null) {
