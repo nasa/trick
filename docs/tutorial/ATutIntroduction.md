@@ -70,22 +70,22 @@ first, by following the directions at: [Install Guide](/trick/documentation/inst
 
 Once Trick is installed on your machine, you will need add the Trick **bin**
 directory to your execution path. For the sake of example, let us assume that
-you installed Trick in your home directory, and you named your Trick directory
-**trick.git**. If you named it something different, then use that name instead
-in the scripts below.
+you installed Trick in your home directory, and you used the default name for
+the repository, which is **trick**. If you named it something different, then 
+use that name instead in the scripts below.
 
 If you are using **bash**, then add the following lines to your **.profile**
 file.
 
 ```bash
-export TRICK_HOME="${HOME}/trick.git"
+export TRICK_HOME="${HOME}/trick"
 export PATH=${PATH}:${TRICK_HOME}/bin
 ```
 
 If you are using **csh** or **tcsh**, then add the following lines to your **.cshrc** file.
 
 ```csh
-setenv TRICK_HOME ${HOME}/trick.git
+setenv TRICK_HOME ${HOME}/trick
 setenv PATH ${PATH}:${TRICK_HOME}/bin
 ```
 
