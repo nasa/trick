@@ -1,0 +1,25 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+	( Simulate a Lagrangian fluid using smoothed particle hydrodynamics. )
+LIBRARY DEPENDENCIES:
+	((fluid/src/Fluid.cpp)
+	 (fluid/src/Particle.cpp))
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+##include "fluid/include/Fluid.hh"
+
+class FluidSimObject : public Trick::SimObject {
+	public:
+		Fluid fluid;
+
+	FluidSimObject() {
+		("default_data") 			fluid.default_data() ;
+		("initialization")			fluid.init_cuda() ;
+		(0.02, "scheduled") 		fluid.update_SPH() ;
+		("shutdown")				fluid.shutdown_cuda() ;
+	}
+
+};
+
+FluidSimObject dyn;

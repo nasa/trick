@@ -1,0 +1,1 @@
+g++ -c gui.cc sph.cpp opengl.cc marching_cubes.cpp grid_cell.cpp; nvcc -c iso_values.cu; nvcc gui.o sph.o opengl.o marching_cubes.o grid_cell.o iso_values.o -lglfw -lGL -lGLEW -o mc_gpu
