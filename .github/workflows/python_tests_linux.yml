@@ -1,0 +1,186 @@
+name: Python Tests Linux
+
+on:
+  push:
+    paths-ignore:
+    - 'docs/**'
+    - '.github/workflows/**'
+    - '!.github/workflows/python_tests_linux.yml'
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+#-------- Operating Systems ----------------
+          - { os: ubuntu, tag: 18.04,   arch: debian }         # EOL April 2023
+          - { os: ubuntu, tag: 20.04,   arch: debian }         # EOL April 2025
+          - { os: debian, tag: 10,      arch: debian }               # EOL 2024
+          - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
+          - { os: centos, tag: latest,  arch: rhel   }     # 8 as of April 2020
+        # - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
+        # - { os: fedora, tag: 33,      arch: rhel   } # feeling confident?
+        # - { os: fedora, tag: rawhide, arch: rhel   } # for thrill-seekers only
+
+#-------- Defaults --------------------------
+        include:
+          - cfg: {}
+            deps: >-
+              bison
+              clang
+              flex
+              git
+              llvm
+              make
+              maven
+              cmake
+              zip
+            install_gtest: echo gtest already installed
+            conf_pkg:  echo package manager already configured
+            install_cmd: install -y
+#-------- Debian-based Dependencies ----------------
+          - cfg: { arch: debian }
+            pkg_mgr: apt-get
+            conf_pkg: DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y tzdata
+            arch_deps: >-
+              swig
+              curl
+              g++
+              libx11-dev
+              libxml2-dev
+              libxt-dev
+              libmotif-common
+              libmotif-dev
+              python2.7-dev
+              zlib1g-dev
+              llvm-dev
+              libclang-dev
+              libudunits2-dev
+              libgtest-dev
+              python3
+              python3-tk
+              python3-venv
+              python3-dev
+              xvfb
+            install_gtest: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
+#-------- RHEL Dependencies ----------------
+          - cfg: { arch: rhel }
+            arch_deps: >-
+              clang-devel
+              gcc
+              gcc-c++
+              java-11-openjdk-devel
+              libxml2-devel
+              llvm-devel
+              llvm-static
+              ncurses-devel
+              openmotif
+              openmotif-devel
+              perl
+              perl-Digest-MD5
+              udunits2
+              udunits2-devel
+              which
+              zlib-devel
+              gtest-devel
+              python3-devel
+              python3-tkinter
+              xorg-x11-server-Xvfb
+#-------- Ubuntu Only Dependencies ----------------
+          - cfg: { os: ubuntu }
+            os_deps: >-
+              openjdk-11-jdk
+#-------- Debian OS Only Dependencies ----------------
+          - cfg: { os: debian }
+            os_deps: >-
+              openjdk-11-jdk
+#-------- CentOS Only Dependencies ----------------
+          - cfg: { os: centos }
+            pkg_mgr: yum
+            conf_pkg: yum -y install epel-release && yum -y update
+            os_deps: >-
+              libX11-devel
+              libXt-devel
+#-------- Fedora Only Dependencies ----------------
+#           - cfg: { os: fedora }
+#             pkg_mgr: dnf
+#             os_deps: >-
+#               swig
+#               perl-Text-Balanced
+#               python-devel
+#               diffutils
+#-------- Version Specific Dependencies ----------------
+          - cfg: { os: ubuntu, tag: 20.04 }
+            conf_pkg: DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y tzdata
+            install_gtest: cd /usr/src/gtest && cmake . && make && cp lib/libgtest* /usr/lib/
+            tag_deps: >-
+              python3.8-dev
+          - cfg: { os: centos, tag: 7 }
+            tag_deps: >-
+              swig3
+              python-devel
+          - cfg: { os: centos, tag: latest }
+            pkg_mgr: dnf
+            conf_pkg: >
+              dnf -y install epel-release &&
+              dnf -y update &&
+              dnf install -y 'dnf-command(config-manager)' &&
+              dnf config-manager --enable powertools
+            tag_deps: >-
+              swig
+              python3-devel diffutils
+#-------- Job definition ----------------
+    runs-on: ubuntu-18.04
+    container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
+    steps:
+      # - name: Set up Python ${{ matrix.python-version }}
+        # uses: actions/setup-python@v2
+        # with:
+          # python-version: ${{ matrix.python-version }}
+      - name: Info
+        run: |
+          pwd
+          echo $TEST
+          echo workspace is $TRICK_HOME
+          echo files in workspace: 
+          ls -la $TRICK_HOME
+        env:
+          TEST: Hello World!
+          TRICK_HOME: ${{ github.workspace }}
+      - name: Update Package Manager
+        run: ${{matrix.conf_pkg}}
+      - name: Install Dependencies
+        run: |
+          ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
+      - name: Install GTest
+        run: ${{matrix.install_gtest}}
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Info after checkout
+        run: |
+          pwd
+          echo $TEST
+          echo workspace is $TRICK_HOME
+          echo files in workspace: 
+          ls -la $TRICK_HOME
+        env:
+          TEST: Hello World!
+          TRICK_HOME: ${{ github.workspace }}
+      - name: Create testing environment
+        run: |
+          cd share/trick/pymods/trick/
+          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+      - name: Build trick
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          ./configure
+          make
+      - name: Run Civet Tests
+        run: |
+          cd share/trick/pymods/trick/
+          . .venv/bin/activate
+          ./run_tests.py
+        env:
+          TRICK_HOME: "${{ github.workspace }}"

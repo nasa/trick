@@ -1,0 +1,80 @@
+name: Python Tests 32-bit
+
+on:
+  push:
+    paths-ignore:
+    - 'docs/**'
+    - '.github/workflows/**'
+    - '!.github/workflows/python_tests_32.yml'
+  pull_request:
+
+jobs:
+  trick_32bit:
+    runs-on: ubuntu-18.04
+    container: docker://centos:7
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@master
+    - name: Add yum repo
+      run: yum -y install epel-release.noarch && yum -y update
+    - name: Install python dependencies
+      run: yum install -y python3-venv python3 python3-pip python3-devel gcc
+    - name: Info
+      run: |
+        python3 --version
+    - name: Build Python environment
+      run: |
+        cd share/trick/pymods/trick
+        python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+    - name: Install dependency group
+      run: yum -y groupinstall "Development tools" && yum -y update
+    - name: Install other dependencies
+      run: >
+        yum remove -y swig && yum install -y llvm llvm-devel llvm-static clang clang-devel
+        bison flex gcc gcc-c++ libxml2-devel make cmake wget
+        ncurses-devel openmotif openmotif-devel python-devel perl
+        perl-Digest-MD5 swig3 zlib-devel glibc.x86_64 libxml2-devel.i686
+        ncurses-devel.i686 zlib-devel.i686 python-libs.i686
+        expat-2.1.0-10.el7_3.i686 glibc-devel-2.17-196.el7.i686
+        glibc.i686 glibc-devel.i686 udunits2 udunits2-devel gtest-devel.i686
+        java-11-openjdk java-11-openjdk-devel expat-devel.i686
+        which gcc-gfortran git wget gsl-devel gtest-devel gsl-devel.i686
+        maven udunits2 udunits2-devel zip python3-tkinter xorg-x11-server-Xvfb
+    - name: Symlink python
+      run: |
+        cd /usr/lib
+        ln -s ./libpython2.7.so.1.0 libpython2.7.so
+    - name: Install Udunits (32 bit)
+      run: |
+        cd /
+        curl --retry 4 -O https://artifacts.unidata.ucar.edu/repository/downloads-udunits/udunits-2.2.28.tar.gz 
+        tar xfvz udunits-2.2.28.tar.gz
+        rm -rf udunits-2.2.28.tar.gz
+        cd udunits-2.2.28
+        export CFLAGS="-m32"
+        ./configure
+        make
+        make install
+    - name: Install GTest (32 bit)
+      run: |
+        wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+        tar xfvz release-1.8.0.tar.gz
+        cd googletest-release-1.8.0/googletest
+        export CFLAGS="-m32"
+        export CXXFLAGS="-m32"
+        cmake .
+        make
+        make install
+    - name: Build Trick
+      run: |
+        yum -y update && yum clean all
+        export MAKEFLAGS=-j`nproc`
+        ./configure --without-hdf5 --enable-32bit
+        make
+    - name: Run civet tests
+      run: |
+        cd share/trick/pymods/trick/
+        . .venv/bin/activate
+        ./run_tests.py
+      env:
+        TRICK_HOME: "${{ github.workspace }}"

@@ -4,10 +4,10 @@ PURPOSE: (Represent Websocket connection.)
 #ifndef WEB_SOCKET_SESSION_HH
 #define WEB_SOCKET_SESSION_HH
 
-#ifdef USE_MONGOOSE
+#ifdef USE_CIVET
 #include <string>
 #ifndef SWIG
-#include "mongoose/mongoose.h"
+#include "civet/CivetServer.h"
 #endif
 
 class WebSocketSession {

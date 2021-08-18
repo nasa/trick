@@ -1,4 +1,4 @@
-#Extending the WebSocket-API
+## Extending the WebSocket-API
 
 ## When You Create a WebSocket Connection
 
@@ -37,13 +37,19 @@ PURPOSE: (Represent Websocket connection.)
 
 #include <string>
 #ifndef SWIG
-#include "mongoose/mongoose.h"
+#include "civet/CivetServer.h"
 #endif
 
 class WebSocketSession {
     public:
         WebSocketSession(struct mg_connection *nc):connection(nc){};
         virtual ~WebSocketSession() {};
+
+        /**
+           When HTTP_Server::time_homogeneous is set, WebSocketSession::marshallData() is called from the main
+           sim thread in a "top_of_frame" job, so that all of the data can be staged at
+           the same sim-time, in other words it's time-homogeneous.
+        */
         virtual void marshallData()=0;
         virtual void sendMessage()=0;
         virtual int  handleMessage(std::string)=0;
@@ -109,6 +115,7 @@ Below is our implementation. Notice the function ```makeTimeSession``` at the bo
 #include <time.h>
 #include <iostream>
 #include "TimeSession.hh"
+#include <cstring>
 
 // CONSTRUCTOR
 TimeSession::TimeSession( struct mg_connection *nc ) : WebSocketSession(nc) {
@@ -139,7 +146,7 @@ void TimeSession::sendMessage() {
     int year    = theTime->tm_year + 1900;
 
     sprintf(message, "Time: %02d:%02d:%02d Date: %02d/%02d/%d\n", hours, minutes, seconds, month, day, year);
-    mg_send_websocket_frame(connection, WEBSOCKET_OP_TEXT, message, strlen(message));
+    mg_websocket_write(connection, MG_WEBSOCKET_OPCODE_TEXT, message, strlen(message));
 }
 
 int TimeSession::handleMessage(std::string client_msg) {
@@ -180,14 +187,15 @@ LIBRARY DEPENDENCIES:
     (
      (cannon/gravity/src/cannon_init.c)
      (cannon/gravity/src/cannon_numeric.c)
-     (httpMethods/TimeSession.cpp)                                    // <--(1)
+     (httpMethods/handle_HTTP_GET_hello.c)
+     (httpMethods/TimeSession.cpp)
     )
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
-#include "sim_objects/WebServer.sm"                                   // <--(2)
+#include "sim_objects/CivetServer.sm"
 ##include "cannon/gravity/include/cannon_numeric.h"
-##include "httpMethods/TimeSession.hh"                                // <--(3)
+##include "httpMethods/TimeSession.hh"
 
 class CannonSimObject : public Trick::SimObject {
 
@@ -204,11 +212,12 @@ class CannonSimObject : public Trick::SimObject {
 } ;
 CannonSimObject dyn ;
 
-IntegLoop dyn_integloop (0.10) dyn;
+IntegLoop dyn_integloop (0.01) dyn;
 
 void create_connections() {
     dyn_integloop.getIntegrator(Runge_Kutta_4, 5);
-    web.server.installWebSocketSessionMaker("Time", &makeTimeSession);  // <--(4)
+    web.server.installHTTPGEThandler( "hello", &handle_HTTP_GET_hello );
+    web.server.installWebSocketSessionMaker( "Time", &makeTimeSession );
 }
 ```
 

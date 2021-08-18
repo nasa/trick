@@ -97,8 +97,8 @@
 #include "trick/lqueue.h"
 #include "trick/lstack.h"
 
-#ifdef USE_MONGOOSE
-#include "trick/WebServer.hh"
+#ifdef USE_CIVET
+#include "trick/MyCivetServer.hh"
 #include "trick/WebSocketSession.hh"
 #endif
 

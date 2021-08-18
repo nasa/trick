@@ -1,21 +1,24 @@
 # Adding a Web Server to Your Sim
 
-To add a web server to your simulation, simply include the WebServer sim module into your **S_define** file:
+To add a web server to your simulation, simply include the CivetServer sim module into your **S_define** file:
 
 ```
-#include "sim_objects/WebServer.sm"
+#include "sim_objects/CivetServer.sm"
 ```
 
 ## Configuration of the Web Server
 
 The following (input.py) parameters are available to configure your web server:   
 
-|Parameter Name          | Default Value| Description                      |
-|------------------------|--------------|----------------------------------|
-|web.server.enable       | False        |Must be explicitly enabled        |
-|web.server.port         | "8888"       |Web servers “listen” port         |
-|web.server.document_root| "www"        |Web servers document root         |
-|web.server.debug        | False        |Print Client/Server Communication.|
+|Parameter Name             | Default Value             | Description                                                     |
+|---------------------------|---------------------------|-----------------------------------------------------------------|
+|web.server.enable          | False                     |Must be explicitly enabled                                       |
+|web.server.port            | "8888"                    |Web servers “listen” port                                        |
+|web.server.document_root   | "www"                     |Web servers document root                                        |
+|web.server.debug           | False                     |Print Client/Server Communication.                               |
+|web.server.ssl_enable      | False                     |Encrypt traffic. Uses https instead of http.                     |
+|web.server.path_to_ssl_cert|"~/.ssl/server.pem"        |Path to your certificate.  This is only used if ssl_enable = True|
+|web.server.error_log_file  | "civet_server_error.log"  |CivetWeb error log file.                                         |
 
 For your web server to be active, you must at least specify the following :   
 
@@ -47,7 +50,7 @@ The web server, if enabled, will start during sim initialization. When it does, 
 
 
 ## Connecting to Your Web Server
-Assuming that you accepted the default port, connect to ```http://localhost:8888/``` from your web browser. This will display the index.html file in your root directory.
+Assuming that you accepted the default port, connect to ```http://localhost:8888/``` (```https://localhost:8888/``` if ssl_enable=True) from your web browser. This will display the index.html file in your root directory.
 
 
 ## The Default Document Root Directory

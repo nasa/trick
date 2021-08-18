@@ -1,0 +1,53 @@
+name: Python Tests MacOS
+
+on:
+  push:
+    paths-ignore:
+    - 'docs/**'
+    - '.github/workflows/**'
+    - '!.github/workflows/python_tests_macos.yml'
+  pull_request:
+
+jobs:
+  macOS:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@master
+    - name: Install python
+      run: |
+        brew install python
+        python3 -m ensurepip --upgrade
+        pip3 install virtualenv
+        python3 --version
+        pip3 --version
+    - name: Install gtest
+      run: |
+        wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+        tar xzvf release-1.8.0.tar.gz
+        cd googletest-release-1.8.0/googletest
+        cmake .
+        make
+        make install
+    - name: Install dependencies
+      run: |
+        # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
+        brew install --cask xquartz
+        brew install llvm@11 swig udunits openmotif maven python-tk
+        brew link llvm llvm@11
+    - name: Create testing environment
+      run: |
+        cd share/trick/pymods/trick/
+        python3 -m virtualenv .venv && . .venv/bin/activate && pip install -r requirements.txt
+    - name: Build Trick
+      run: |
+        export MAKEFLAGS=-j4
+        ./configure
+        make
+    - name: Run Civet Tests
+      run: |
+        cd share/trick/pymods/trick/
+        . .venv/bin/activate
+        ./run_tests.py
+      env:
+        TRICK_HOME: "${{ github.workspace }}"

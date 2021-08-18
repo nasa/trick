@@ -1,17 +1,17 @@
-##Extending the HTTP-API
+## Extending the HTTP-API
 
-The HTTP-API is implemented as a collection of ```httpMethodHandlers```. An ```httpMethodHandler``` is a pointer to a function that is expected to respond to an HTTP GET request, using the **Cesanta Mongoose** framework. An ```httpMethodHandler``` is defined (in ```trick/WebServer.hh```) as follows:
+The HTTP-API is implemented as a collection of ```httpMethodHandlers```. An ```httpMethodHandler``` is a pointer to a function that is expected to respond to an HTTP GET request, using the **CivetWeb** framework. An ```httpMethodHandler``` is defined (in ```trick/CivetWeb.hh```) as follows:
 
 
 
 
 
 ```c
-typedef void (*httpMethodHandler)(struct mg_connection*, struct http_message*);
+typedef void (*httpMethodHandler)(struct mg_connection *, void* cbdata);
 ```
 
-Documentation for the **Cesanta Mongoose Networking Library** can be found at:
-[https://cesanta.com/docs/overview/intro.html](https://cesanta.com/docs/overview/intro.html)
+Documentation for the **CivetWeb Networking Library** can be found at:
+[https://cesanta.com/docs/overview/intro.html](http://civetweb.github.io/civetweb/)
 
 ## Example HTTP-API Extension
 
@@ -34,7 +34,7 @@ The following two files will be our implementation of an ```httpMethodHandler```
 #define HANDLE_HTTP_GET_HELLO
 
 #ifndef SWIG
-void handle_HTTP_GET_hello(struct mg_connection *nc, struct http_message *hm);
+void handle_HTTP_GET_hello(struct mg_connection *nc, void *hm);
 #endif
 
 #endif
@@ -43,14 +43,16 @@ void handle_HTTP_GET_hello(struct mg_connection *nc, struct http_message *hm);
 **```handle_HTTP_GET_hello.c```**
 
 ```c
-#include "mongoose/mongoose.h"
+#include "civet/CivetServer.h"
+#include "civet/civetweb.h"
+#include <string.h>
 
-void handle_HTTP_GET_hello(struct mg_connection *nc, struct http_message *hm) {
+void handle_HTTP_GET_hello(struct mg_connection *nc, void *hm) {
     mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
     const char* json_text =
         "{ \"greeting\" : \"Hello Trick Sim Developer!\" }";
-    mg_printf_http_chunk(nc, "%s", json_text);
-    mg_send_http_chunk(nc, "", 0);
+    mg_send_chunk(nc, json_text, strlen(json_text));
+    mg_send_chunk(nc, "", 0);
 }
 ```
 
@@ -84,7 +86,7 @@ LIBRARY DEPENDENCIES:
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
-#include "sim_objects/WebServer.sm"
+#include "sim_objects/CivetServer.sm"
 ##include "cannon/gravity/include/cannon_numeric.h"
 ##include "httpMethods/handle_HTTP_GET_hello.h"
 

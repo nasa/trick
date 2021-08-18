@@ -171,11 +171,13 @@ ifneq ($(GSL_HOME),)
     TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
 endif
 
-ifeq (${TRICK_MONGOOSE},1)
-	TRICK_LIBS += -ltrickHTTP ${TRICK_LIB_DIR}/libmongoose.a
-	TRICK_SWIG_FLAGS += -DUSE_MONGOOSE
-	TRICK_SYSTEM_CXXFLAGS += -DUSE_MONGOOSE
-	TRICK_ICG_EXCLUDE += :${TRICK_HOME}/include/mongoose
+TRICK_CIVET=0
+ifneq (${TRICK_DISABLE_CIVET},1)
+    TRICK_CIVET=1
+    TRICK_LIBS += ${TRICK_LIB_DIR}/libcivetweb.a ${TRICK_LIB_DIR}/libtrickCivet.a
+    TRICK_SWIG_FLAGS += -DUSE_CIVET
+    TRICK_SYSTEM_CXXFLAGS += -DUSE_CIVET
+    TRICK_ICG_EXCLUDE += ${TRICK_HOME}/include/civet
 endif
 
 # We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.

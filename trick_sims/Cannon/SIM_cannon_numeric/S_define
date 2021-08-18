@@ -9,7 +9,7 @@ LIBRARY DEPENDENCIES:
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
-// #include "sim_objects/WebServer.sm"
+//#include "sim_objects/CivetServer.sm"
 ##include "cannon/gravity/include/cannon_numeric.h"
 
 class CannonSimObject : public Trick::SimObject {

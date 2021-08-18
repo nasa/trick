@@ -27,9 +27,11 @@ autom4te.cache
 trick_test
 gmon.out
 *init_log.csv*
-include/mongoose/
-trick_source/web/HttpServer/mongoose.c
-trick_source/web/HttpServer/mongoose.h
-trick_source/web/HttpServer/obj/
+trick_source/web/CivetServer/obj/
 trick-offline
 *sim_services_classes.resource
+civetweb_clone/
+include/civet/
+.vscode/
+civet_server_error.log
+server.pem

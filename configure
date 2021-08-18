@@ -671,7 +671,7 @@ ac_ct_CC
 CFLAGS
 CC
 AWK
-TRICK_MONGOOSE
+TRICK_DISABLE_CIVET
 TRICK_OFFLINE
 TRICK_FORCE_32BIT
 LIBXML
@@ -717,6 +717,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -742,7 +743,7 @@ enable_option_checking
 with_x
 enable_32bit
 enable_offline
-enable_mongoose
+enable_civet
 with_python
 with_prepend_path
 with_swig
@@ -812,6 +813,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE_TARNAME}'
@@ -1064,6 +1066,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1201,7 +1212,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1354,6 +1365,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1395,7 +1407,7 @@ Optional Features:
   --enable-offline        Compile Trick in offline mode. Un-tar the
                           trick-offline directory in TRICK_HOME to use this
                           feature
-  --enable-mongoose       Compile Trick with webserver capabilites.
+  --enable-civet          Compile Trick with webserver capabilites.
   --enable-java           use java (default is yes)
   --enable-er7utils       use er7_utils (default is yes)
 
@@ -3876,30 +3888,6 @@ fi
 
 
 # If offline is specified, set some compilation flags
-# Check whether --enable-mongoose was given.
-if test "${enable_mongoose+set}" = set; then :
-  enableval=$enable_mongoose; if test "x$enable_mongoose" = xyes; then :
-
-    TRICK_MONGOOSE="1"
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: $(tput setaf 1) --enable-mongoose Mongoose is released under GPLv2 and Trick is \
-released under NASA Open Source Agreement 1.3. Distribution must comply with \
-these agreements$(tput sgr0)" >&5
-$as_echo "$as_me: WARNING: $(tput setaf 1) --enable-mongoose Mongoose is released under GPLv2 and Trick is \
-released under NASA Open Source Agreement 1.3. Distribution must comply with \
-these agreements$(tput sgr0)" >&2;}
-
-else
-  TRICK_MONGOOSE="0"
-
-fi
-else
-  TRICK_MONGOOSE="0"
-
-fi
-
-
-
-# If offline is specified, set some compilation flags
 # Check whether --enable-offline was given.
 if test "${enable_offline+set}" = set; then :
   enableval=$enable_offline; if test "x$enable_offline" = xyes; then :
@@ -3911,6 +3899,33 @@ fi
 else
   TRICK_OFFLINE="0"
 
+fi
+
+
+
+# Check whether --enable-civet was given.
+if test "${enable_civet+set}" = set; then :
+  enableval=$enable_civet; if test "x$enable_civet" = xyes; then :
+
+    TRICK_DISABLE_CIVET="0"
+
+else
+  TRICK_DISABLE_CIVET="1"
+
+fi
+else
+  TRICK_DISABLE_CIVET="0"
+
+fi
+
+
+
+# If offline is specified, set some compilation flags
+# Check whether --enable-offline was given.
+if test "${enable_offline+set}" = set; then :
+  enableval=$enable_offline; if test "x$enable_offline" = xyes; then :
+  TRICK_DISABLE_CIVET="1"
+fi
 fi
 
 
