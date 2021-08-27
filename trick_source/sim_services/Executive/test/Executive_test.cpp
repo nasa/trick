@@ -796,18 +796,19 @@ TEST_F(ExecutiveTest , SetSignalHandlers) {
     EXPECT_TRUE( sigact.sa_handler == sig_hand ) ;
     sigaction(SIGSEGV, NULL , &sigact) ;
     EXPECT_TRUE( sigact.sa_handler == sig_hand ) ;
-    sigaction(SIGCHLD, NULL , &sigact) ;
-    EXPECT_TRUE( sigact.sa_handler == child_handler ) ;
     sigaction(SIGFPE, NULL , &sigact) ;
     EXPECT_TRUE( sigact.sa_handler == SIG_DFL ) ;
 
     exec.set_trap_sigbus(1) ;
     exec.set_trap_sigsegv(1) ;
     exec.set_trap_sigfpe(1) ;
+    exec.set_trap_sigchld(1) ;
     sigaction(SIGBUS, NULL , &sigact) ;
     EXPECT_TRUE( sigact.sa_handler == sig_hand ) ;
     sigaction(SIGSEGV, NULL , &sigact) ;
     EXPECT_TRUE( sigact.sa_handler == sig_hand ) ;
+    sigaction(SIGCHLD, NULL , &sigact) ;
+    EXPECT_TRUE( sigact.sa_handler == child_handler ) ;
     sigaction(SIGFPE, NULL , &sigact) ;
 #if __APPLE__
     EXPECT_TRUE( sigact.sa_handler == fpe_sig_handler ) ;
