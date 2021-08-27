@@ -253,7 +253,7 @@ ${CIVET_CLONE_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}
 	$(MAKE) -C ${CIVET_CLONE_DIR} lib COPT=${CIVET_COMPILE_FAGS} WITH_CPP=1 WITH_WEBSOCKET=1
 
 ${CIVET_CLONE_DIR}:
-	git clone --branch v1.14 --depth 1 https://github.com/civetweb/civetweb.git $@
+	git clone --branch v1.14 --depth 1 -c advice.detachedHead=false https://github.com/civetweb/civetweb.git $@
 
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools
