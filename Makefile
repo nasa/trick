@@ -29,7 +29,6 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/CommandLineArguments \
 	${TRICK_HOME}/trick_source/sim_services/DataRecord \
 	${TRICK_HOME}/trick_source/sim_services/DebugPause \
-	${TRICK_HOME}/trick_source/sim_services/DMTCP \
 	${TRICK_HOME}/trick_source/sim_services/EchoJobs \
 	${TRICK_HOME}/trick_source/sim_services/Environment \
 	${TRICK_HOME}/trick_source/sim_services/EventManager \

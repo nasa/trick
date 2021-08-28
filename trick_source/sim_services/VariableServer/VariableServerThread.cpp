@@ -43,7 +43,6 @@ Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
     connection.blockio_limit = 0.0 ;
     connection.blockio_type = TC_COMM_BLOCKIO ;
     connection.client_id = 0 ;
-    connection.dmtcp_use_real = 1 ;
     strcpy(connection.client_tag, "") ;
     connection.error_handler = (TrickErrorHndlr *) calloc(1, (int)sizeof(TrickErrorHndlr));
     connection.error_handler->report_level = TRICK_ERROR_CAUTION;

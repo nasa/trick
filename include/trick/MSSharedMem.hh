@@ -66,7 +66,7 @@ namespace Trick {
         MSQ_DECLARE (master_command, MS_SIM_COMMAND)
         MSQ_DECLARE (slave_command, MS_SIM_COMMAND)
         // checkpoint data is not sent every frame, so dont need a queue
-        int slave_port;                         /**< trick_units(--) slave's dmtcp checkpoint port */
+        int slave_port;                         /**< trick_units(--) slave's checkpoint port */
         char chkpnt_name[256];                  /**< trick_units(--) checkpoint dir/filename */
     } MSSharedMemData;
 
@@ -140,7 +140,7 @@ namespace Trick {
             virtual MS_SIM_COMMAND read_command() ;
 
             /**
-             @brief Read a port number (i.e. dmtcp port) from the other simulation.
+             @brief Read a port number from the other simulation.
              @return the port read or MS_ERROR_PORT if the read failed
              */
             virtual int read_port() ;
@@ -164,7 +164,7 @@ namespace Trick {
             virtual int write_command(MS_SIM_COMMAND command) ;
 
             /**
-             @brief Writes a port number (i.e. dmtcp port) to the other simulation.
+             @brief Writes a port number to the other simulation.
              @return the number of bytes written
              */
             virtual int write_port(int port) ;

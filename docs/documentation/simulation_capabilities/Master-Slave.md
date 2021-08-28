@@ -110,35 +110,6 @@ new_slave.chkpnt_load_auto = 0
 
 in which case your Slave would have to have its own model code to perform a checkpoint dump/load.
 
-If the Slave simulation was built with DMTCP enabled (for more information see TBD DMTCP Section), you can set the following variable
-in the Master input file, causing the Slave to dump/load a binary DMTCP checkpoint when the Master commands:
-
-```
-new_slave.chkpnt_binary = 1
-```
-
-Note that when loading a binary DMTCP checkpoint, the checkpoint is a new executable file that must be run. When the
-Master commands a checkpoint (and chkpnt_load_auto=1), the Slave will send the Master its checkpoint file name path
-and then terminate itself. The Master will then automatically restart the Slave by executing that checkpoint file.
-If chkpnt_load_auto=0, the user is responsible for terminating and restarting the Slave.
-
-To run the Slave with DMTCP enabled, you'll have to modify some of the Slave's attributes in the Master input file.
-
-- S_main_name normally defaults to your Slave's executable, which Trick fills in for you. But you will set it to instead run the dmtcp_checkpoint command.
-- run_input_file should not change from what your Slave would normally run, but it needs the keyword "dmtcp" specified after it.
-- sync_error_terminate needs to be 0 because the Slave must be terminated before the Master restarts it, and we don't want Master to also terminate.
-- reconnect_wait_limit is the time the Master will then wait for the Slave to be restarted and get reconnected with the Master. If the Slave does not
-reconnect within this time, the Master will deactivate the Slave for the rest of the simulation.
-
-Here's an example:
-
-```
-new_slave.S_main_name = "/users/bob/dmtcp-1.2.7/bin/dmtcp_checkpoint --quiet --new-coordinator --checkpoint-open-files --ckptdir ./dmtcp_checkpoints ./S_main_Linux_4.4_x86_64.exe"
-new_slave.run_input_file = "RUN_test/slave.py dmtcp"
-new_slave.sync_error_terminate = 0
-new_slave.reconnect_wait_limit = 10.0
-```
-
 When chkpnt_load_auto=1, the Slave restarting and reconnecting should occur within a second or two. If chkpnt_load_auto=0, the user has
 to restart the slave himself (and may even be typing in the checkpoint executable on the command line), so reconnect_wait_limit should be
 set accordingly.

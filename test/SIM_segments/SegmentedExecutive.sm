@@ -45,11 +45,6 @@ class SysSimObject : public Trick::SimObject {
             //{TRK} P0 ("restart") sched.restart() ;
             {TRK} P65534 ("restart") exec_collect_init() ;
 
-#ifndef TRICK_NO_DMTCP
-            {TRK} ("dmtcp_restart") sched.write_s_job_execution(NULL) ;
-            {TRK} ("dmtcp_restart") sched.write_s_run_summary(NULL) ;
-#endif
-
             {TRK} ("system_moding") sched.sched_freeze_to_exec_command(false) ;
             {TRK} ("end_of_frame") sched.sched_freeze_to_exec_command(true) ;
             {TRK} ("end_of_frame") sched.async_freeze_to_exec_command() ;

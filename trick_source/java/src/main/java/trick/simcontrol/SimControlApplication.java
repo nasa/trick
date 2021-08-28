@@ -171,7 +171,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private static String host;
     private static int port = -1;
     private static boolean isRestartOptionOn;
-    private static boolean isDmtcpOptionOn;
     
     // The object of SimState that has Sim state data.
     private SimState simState;
@@ -276,20 +275,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     @Action
     public void freezeSim() {
         actionController.handleFreeze(debug_flag);
-    }
-
-    @Action
-    public void dumpDMTCPChkpnt() {
-
-        if ( isDmtcpOptionOn ) {
-            String chkpt_dir = simState.getRunPath();
-            String fileName  = "dmtcp_chkpnt_" + simState.getTwoFractionFormatted(simState.getExecOutTime());
-    
-            actionController.handleDumpDMTCPChkpnt(chkpt_dir, fileName, getMainFrame());
-    
-            runtimeStatePanel.setTitle("Dumping DMTCP Checkpoint");
-            currentSimStatusDesc = "PreCheckpoint";
-        }
     }
 
     @Action
@@ -692,15 +677,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             commandLine = matcher.replaceAll("");
         }
 
-        // check to see if -dmtcp is used
-        Pattern dmtcpOptionPattern = Pattern.compile("(\\-dmtcp)(,|$)");
-        Matcher dmtcp_matcher = dmtcpOptionPattern.matcher(commandLine);
-
-        if (dmtcp_matcher.find()) {
-            isDmtcpOptionOn = true;
-            commandLine = dmtcp_matcher.replaceAll("");            
-        }
-        
         // check to see if -auto_exit is used
         Pattern autoExitOptionPattern = Pattern.compile("(\\-auto\\_exit)(,|$)");
         Matcher autoExitMatcher = autoExitOptionPattern.matcher(commandLine);
@@ -995,13 +971,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         titledCommandsPanel.setContentContainer(commandsPanel);
         
         GridLayout gridLayout = null;
-        if (!isDmtcpOptionOn) {
-        	// 2 columns and 5 rows, each component has the same width and height.
-            gridLayout = new GridLayout(5,2,2,4);
-        } else {
-        	// 2 columns and 6 rows
-            gridLayout = new GridLayout(6,2,2,4);
-        }
+        // 2 columns and 5 rows, each component has the same width and height.
+        gridLayout = new GridLayout(5,2,2,4);
         
         commandsPanel.setLayout(gridLayout);
 
@@ -1051,12 +1022,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         });
 
         commandsPanel.add(liteButton);
-
-        if (isDmtcpOptionOn) {
-            commandsPanel.add(new JButton(getAction("dumpDMTCPChkpnt")));
-            dumpChkpntASCIIButton.setText("Dump ASCII Chkpnt");
-            loadChkpntButton.setText("Load ASCII Chkpnt");
-        }
 
         commandsPanel.add(new JButton(getAction("quit")));
 
@@ -1232,18 +1197,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     }
 
     /**
-     * Get the process id of DMTCP 
-     */
-     public void isDmtcpRunning() {
-
-        if (isDmtcpOptionOn) {
-            setActionsEnabled("dumpDMTCPChkpnt",true);
-        } else {
-            setActionsEnabled("dumpDMTCPChkpnt",false);
-        }   
-     }
-
-    /**
      * Updates the GUI as needed if SIM states are changed.
      */
     private void updateGUI() {
@@ -1293,7 +1246,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                     } else {
                         enableAllCommands();
                         setActionsEnabled("freezeSim,quit", false);
-                        isDmtcpRunning(); /* if DMTCP is not running, disable button on control panel */
                     }
                     logoImagePanel.pause();
                     break;
@@ -1303,7 +1255,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                     disableAllCommands();
                     setActionsEnabled("freezeSim,lite", true);
                     if (debug_flag != 0) {
-                        setActionsEnabled("stepSim,dumpDMTCPChkpnt", true);
                         setActionsEnabled("stepSim,dumpChkpntASCII", true);
                     }
                     logoImagePanel.resume();
@@ -1349,7 +1300,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         ArrayList<String> actions = new ArrayList<String>();
 
         actions.add("stepSim,recordingSim,startSim,realtime,freezeSim," +
-        		"dumpDMTCPChkpnt,dumpChkpntASCII,shutdownSim,loadChkpnt,lite,quit");
+        		"dumpChkpntASCII,shutdownSim,loadChkpnt,lite,quit");
         return actions.toArray(new String[0]);
     }
 

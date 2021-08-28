@@ -19,7 +19,6 @@ a replacement SimObject will create an uncompilable sim.
 #define TRICK_NO_MASTERSLAVE
 #define TRICK_NO_INSTRUMENTATION
 #define TRICK_NO_INTEGRATE
-#define TRICK_NO_DMTCP
 #define TRICK_NO_REALTIMEINJECTOR
 #define TRICK_NO_ZEROCONF
 #define TRICK_NO_UNITTEST
@@ -33,7 +32,6 @@ a replacement SimObject will create an uncompilable sim.
 ##include <cstdarg>
 
 ##include "trick/SimObject.hh"
-##include "trick/DMTCP.hh"
 ##include "trick/exec_proto.h"
 ##include "trick/exec_proto.hh"
 ##include "trick/Executive.hh"
@@ -146,11 +144,6 @@ class SysSimObject : public Trick::SimObject {
             //{TRK} P0 ("restart") sched.restart() ;
             {TRK} P65534 ("restart") exec_collect_init() ;
 
-#ifndef TRICK_NO_DMTCP
-            {TRK} ("dmtcp_restart") sched.write_s_job_execution(NULL) ;
-            {TRK} ("dmtcp_restart") sched.write_s_run_summary(NULL) ;
-#endif
-
             {TRK} ("system_moding") sched.sched_freeze_to_exec_command(false) ;
             {TRK} ("end_of_frame") sched.sched_freeze_to_exec_command(true) ;
             {TRK} ("end_of_frame") sched.async_freeze_to_exec_command() ;
@@ -217,7 +210,6 @@ class CheckPointRestartSimObject : public Trick::SimObject {
             {TRK} P1 ("initialization") cpr.write_pre_init_checkpoint() ;
             {TRK} P65535 ("initialization") cpr.write_post_init_checkpoint() ;
             {TRK} P0 ("system_checkpoint") cpr.write_checkpoint() ;
-            {TRK} P0 ("top_of_frame") cpr.write_dmtcp_checkpoint() ;
             {TRK} P0 ("system_checkpoint") cpr.safestore_checkpoint() ;
 
             {TRK} P0 ("shutdown") cpr.write_end_checkpoint() ;
@@ -285,9 +277,6 @@ class MessageSimObject : public Trick::SimObject {
             {TRK} ("exec_time_tic_changed") mpublisher.init() ;
 
             {TRK} P1 ("restart") mdevice.restart() ;
-#ifndef TRICK_NO_DMTCP
-            {TRK} P1 ("dmtcp_restart") mdevice.restart() ;
-#endif
             {TRK} ("shutdown") mtcout.shutdown() ;
             {TRK} ("shutdown") mdevice.shutdown() ;
 
@@ -463,10 +452,6 @@ class VariableServerSimObject : public Trick::SimObject {
 #endif
             {TRK} P1 ("initialization") Trick::launch_all_external_applications();
 
-#ifndef TRICK_NO_DMTCP
-            {TRK} P1 ("dmtcp_restart") vs.restart() ;
-            {TRK} P1 ("dmtcp_restart") Trick::launch_all_external_applications();
-#endif
             {TRK} ("preload_checkpoint") vs.suspendPreCheckpointReload();
             {TRK} ("restart") vs.restart();
             {TRK} ("restart") vs.resumePostCheckpointReload();
@@ -535,9 +520,6 @@ class DataRecordDispatcherSimObject : public Trick::SimObject {
             {TRK} ("end_of_frame") drd.signal_thread() ;
             {TRK} ("preload_checkpoint") drd.preload_checkpoint() ;
             {TRK} ("restart") drd.restart() ;
-#ifndef TRICK_NO_DMTCP
-            {TRK} ("dmtcp_restart") drd.dmtcp_restart() ;
-#endif
             {TRK} ("shutdown")     drd.shutdown() ;
         }
 
@@ -567,9 +549,6 @@ class RTSyncSimObject : public Trick::SimObject {
             {TRK} P65535 ("initialization") rt_sync.get_sim_end_init_time() ;
 
             {TRK} P65535 ("restart")        rt_sync.restart(exec_get_time_tics()) ;
-#ifndef TRICK_NO_DMTCP
-            {TRK} P65535 ("dmtcp_restart")  rt_sync.restart(exec_get_time_tics()) ;
-#endif
 
             {TRK} ("freeze_init")           rt_sync.freeze_init(exec_get_freeze_frame()) ;
             {TRK} P65535 ("freeze")         rt_sync.freeze_pause(exec_get_freeze_frame()) ;
@@ -638,10 +617,6 @@ class MasterSlaveSimObject : public Trick::SimObject {
             {TRK} P0 ("initialization") slave.init() ;
             {TRK} ("checkpoint") master.checkpoint() ;
             {TRK} ("preload_checkpoint") master.preload_checkpoint() ;
-#ifndef TRICK_NO_DMTCP
-            {TRK} ("dmtcp_pre") master.checkpoint() ;
-            {TRK} ("dmtcp_restart") slave.dmtcp_restart() ;
-#endif
 
             {TRK} P65534 ("end_of_frame")   master.end_of_frame_status_from_slave() ; // must occur BEFORE rt_monitor
             {TRK} P65535 ("end_of_frame")   master.end_of_frame_status_to_slave() ;   // must occur AFTER  rt_monitor
@@ -725,21 +700,6 @@ class IntegLoopSimObject : public Trick::SimObject {
         }
 }
 #endif
-#endif
-
-#ifndef TRICK_NO_DMTCP
-class DMTCPSimObject : public Trick::SimObject {
-    public:
-        Trick::DMTCP dmtcp ;
-        DMTCPSimObject() {
-            exec_register_scheduler(&dmtcp) ;
-
-            {TRK} ("initialization") dmtcp.init() ;
-            {TRK} ("freeze") dmtcp.freeze() ;
-        }
-}
-
-DMTCPSimObject trick_dmtcp ;
 #endif
 
 #ifndef TRICK_NO_REALTIMEINJECTOR

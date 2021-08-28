@@ -141,7 +141,6 @@ set( IO_SRC
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_CheckPointRestart.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_Clock.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_CommandLineArguments.cpp
-  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_DMTCP.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_DRAscii.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_DRBinary.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_DRHDF5.cpp

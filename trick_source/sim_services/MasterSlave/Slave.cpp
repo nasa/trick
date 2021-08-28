@@ -39,16 +39,6 @@ int Trick::Slave::process_sim_args() {
     return(0) ;
 }
 
-int Trick::Slave::dmtcp_restart() {
-    if ( enabled ) {
-        reconnected = true ;
-        connection->disconnect();
-        connection->connect();
-    }
-
-    return(0) ;
-}
-
 int Trick::Slave::init() {
 
     std::string rts_disable_name ;
@@ -132,17 +122,6 @@ std::string Trick::Slave::get_checkpoint_name(MS_SIM_COMMAND command) {
             file_name_stream << "chkpnt_" << std::fixed << std::setprecision(2) << exec_get_sim_time() ;
         }
     }
-#ifdef _DMTCP
-    // dmtcp_checkpoint() only wants a filename -- no dir path
-    if (command == MS_ChkpntDumpBinCmd) {
-        if (chkpnt_name[0] != MS_ERROR_NAME) {
-            file_name_stream << "dmtcp_" << std::string(strrchr(chkpnt_name, '/')+1); // dmtcp_ + filename
-            //std::cout << "----> Slave: parsed checkpoint file name: " << file_name_stream.str() << std::endl;
-        } else {
-            file_name_stream << ""; // dmtcp will create default name
-        }
-    }
-#endif
     // ascii load_checkpoint() wants the dir/filename path
     if (command == MS_ChkpntLoadAsciiCmd) {
         dir = command_line_args_get_output_dir(); // run dir
@@ -152,22 +131,6 @@ std::string Trick::Slave::get_checkpoint_name(MS_SIM_COMMAND command) {
             file_name_stream << dir << "/chkpnt_" << std::fixed << std::setprecision(2) << exec_get_sim_time() ;
         }
     }
-#ifdef _DMTCP
-    // dmtcp load wants full dir/filename path that will be sent to the master
-    if (command == MS_ChkpntLoadBinCmd) {
-        dir = getenv("DMTCP_CHECKPOINT_DIR"); // env variable set by dmtcp
-        if (chkpnt_name[0] != MS_ERROR_NAME) {
-            file_name_stream << dir << "/dmtcp_" << std::string(strrchr(chkpnt_name, '/')+1); // dmtcp dir / filename
-        } else { // create default name
-            file_name_stream << dir << "/dmtcp_chkpnt_" << std::fixed << std::setprecision(2) << exec_get_sim_time() ;
-        }
-        if (file_name_stream.str().length() > sizeof(chkpnt_name)-1) {
-           message_publish(MSG_ERROR, "Slave could not send checkpoint name to master because name too long (max = %d).\n",
-                           sizeof(chkpnt_name)) ;
-           file_name_stream << MS_ERROR_NAME; // send error character
-        }
-    }
-#endif
 
     return(file_name_stream.str()) ;
 }
@@ -178,10 +141,6 @@ int Trick::Slave::end_of_frame() {
     MS_SIM_COMMAND command ;
     MS_SIM_COMMAND slave_command ;
     std::string chkpt_name_str;
-#ifdef _DMTCP
-    int dmtcp_port;
-    std::string dmtcp_port_str;
-#endif
 
     /** @par Detailed Design */
     if ( (enabled) and (activated) ){
@@ -252,40 +211,12 @@ int Trick::Slave::end_of_frame() {
                 chkpt_name_str = get_checkpoint_name(MS_ChkpntDumpAsciiCmd);
                 checkpoint(chkpt_name_str.c_str());
                 break;
-            case (MS_ChkpntDumpBinCmd):    // Master tells slave to dump a binary checkpoint
-                message_publish(MSG_WARNING , "Slave received Checkpoint Dump Binary command from master.\n") ;
-#ifdef _DMTCP
-                chkpt_name_str = get_checkpoint_name(MS_ChkpntDumpBinCmd);
-                dmtcp_checkpoint(chkpt_name_str.c_str());
-#endif
-                break;
             /** @li if reading the master mode command returned a checkpoint load command, load a checkpoint */
             case (MS_ChkpntLoadAsciiCmd):  // Master tells slave to load an ascii checkpoint
                 message_publish(MSG_WARNING , "Slave received Checkpoint Load command from master.\n") ;
                 chkpt_name_str = get_checkpoint_name(MS_ChkpntLoadAsciiCmd);
                 load_checkpoint(chkpt_name_str.c_str()); // load done in freeze or end_of_frame job
                 //load_checkpoint_job(); // do the load NOW
-                break;
-            case (MS_ChkpntLoadBinCmd):    // Master tells slave to load a binary checkpoint
-                message_publish(MSG_WARNING , "Slave received Checkpoint Load Binary command from master.\n") ;
-#ifdef _DMTCP
-                chkpt_name_str = get_checkpoint_name(MS_ChkpntLoadBinCmd);
-                strcpy(chkpnt_name, chkpt_name_str.c_str());
-                // write the dmtcp_coordinator port to the master so it can kill the coordinator when restarting slave
-                dmtcp_port = 0;
-                dmtcp_port_str= getenv("DMTCP_PORT"); // env variable set by dmtcp
-                if (dmtcp_port_str.length() > 0) {
-                    sscanf(dmtcp_port_str.c_str(), "%d", &dmtcp_port);
-                }
-                // this tells master we are sending port number and file name next
-                connection->write_command(MS_ChkpntLoadBinCmd) ;
-                connection->write_port(dmtcp_port) ;
-                connection->write_name(chkpnt_name, sizeof(chkpnt_name)) ;
-                // this is just an ack so we know master received port before we kill socket by shutting down
-                command = connection->read_command() ;
-fprintf(stderr, "SLAVE GOT ACK %d\n", command);
-                exec_terminate_with_return(0, __FILE__, __LINE__, "YOU MUST NOW RUN SLAVE'S DMTCP CHECKPOINT FILE!.");
-#endif
                 break;
             default:
                 /** @li if reading the master mode command returned an Executive mode, set the slave mode command to the master mode command */

@@ -122,8 +122,6 @@ typedef struct {
     int socket_type ;                  /* ** Socket type SOCK_STREAM or SOCK_DGRAM */
     TCCommFlag disabled;               /* -- Connection enabled flag */
     TCCommFlag disable_handshaking;    /* -- Set this to skip handshaking in tc_connect and tc_accept. */
-    int dmtcp_use_real ;               /* -- if true, use dlsym to lookup connect/accept calls. Used with DMTCP sockets
-                                             if false call connect/accept directly. */
     double blockio_limit;              /* s  Block I/O timeout limit */
     TCCommBlocking blockio_type;       /* -- E.g. spinloops */
     unsigned char byte_info[TC_BYTE_INFO_LENGTH]; /* ** byte swap info */

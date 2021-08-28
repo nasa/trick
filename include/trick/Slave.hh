@@ -36,7 +36,7 @@ namespace Trick {
             /* True when this slave is enabled (default is false), see process_sim_args.\n */
             bool enabled ;                    /**< trick_units(--) */
 
-            /* True when this slave has reconnected (dmtcp_restart) */
+            /* True when this slave has reconnected */
             bool reconnected ;                /**< trick_units(--) */
 
             /* True when this slave has sent ReconnectCmd to master (default is false).\n */
@@ -45,8 +45,7 @@ namespace Trick {
             /* True when this slave has published a message that it has reconnected to master(default is false).\n */
             bool msg_published;               /**< trick_units(--) */
 
-            /** @userdesc Read in master's checkpoint file name here, used for forming slave's checkpoint file name.\n
-                 Also used to send slave's dmtcp checkpoint file name to master when loading dmtcp checkpoint.\n **/
+            /** @userdesc Read in master's checkpoint file name here, used for forming slave's checkpoint file name.\n **/
             char chkpnt_name[256];            /**< trick_units(--) */
 
             /** @userdesc True means terminate the slave if it loses synchronization with the master.\n
@@ -84,12 +83,6 @@ namespace Trick {
              @return always 0
              */
             int init() ;
-
-            /**
-             @brief Reconnect master/slave communications for dmtcp restart.
-             @return always 0
-             */
-            int dmtcp_restart() ;
 
             /**
              @brief Read the master's checkpoint name.

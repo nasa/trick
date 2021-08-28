@@ -57,20 +57,11 @@ namespace Trick {
             /** Times to dump a checkpoint. Saved as simulation tics.\n */
             std::priority_queue< long long, std::vector< long long >, std::greater< long long > > checkpoint_times ; /**< trick_units(--) */
 
-            /** Times to dump a dmtcp_checkpoint. Saved as simulation tics.\n */
-            std::priority_queue< long long, std::vector< long long >, std::greater< long long > > dmtcp_checkpoint_times ; /**< trick_units(--) */
-
             /** Period to dump a recurring checkpoint. Saved as simulation tics.\n */
             long long safestore_period ;                            /**< trick_units(--) */
 
-            /** Period to dump a recurring dmtcp checkpoint. Saved as simulation tics.\n */
-            long long dmtcp_safestore_period ;                            /**< trick_units(--) */
-
             /** Next time to dump a recurring checkpoint. Saved as simulation tics.\n */
             long long safestore_time ;                              /**< trick_units(--) */
-
-            /** Next time to dump a recurring dmtcp checkpoint. Saved as simulation tics.\n */
-            long long dmtcp_safestore_time ;                              /**< trick_units(--) */
 
             /** If true take a pre_init_checkpoint\n */
             bool pre_init_checkpoint ;                              /**< trick_units(--) */
@@ -83,9 +74,6 @@ namespace Trick {
 
             /** If true enable taking safestore checkpoints\n */
             bool safestore_enabled ;                                /**< trick_units(--) */
-
-            /** If true enable taking safestore checkpoints\n */
-            bool dmtcp_safestore_enabled ;                                /**< trick_units(--) */
 
             /** output_directory/checkpoint_file_name to dump for a checkpoint\n */
             std::string output_file ;                               /**< ** */
@@ -147,15 +135,6 @@ namespace Trick {
             int set_safestore_enabled(bool yes_no) ;
 
             /**
-             @brief @userdesc Command to set the dmtcp_safestore_enabled flag.  If dmtcp_safestore_enabled is set
-             periodic checkpoints will be done according to dmtcp_safestore_period that was set in dmtcp_checkpoint_safestore().
-             The checkpointed file name is @e dmtcp_chkpnt_safestore.
-             @par Python Usage:
-             @code trick.dmtcp_checkpoint_safestore_set_enabled(<yes_no>) @endcode
-             @param yes_no - boolean yes (C integer 1) = dump periodic checkpoint, no (C integer 0) = do not dump
-             @return always 0
-             */
-            int dmtcp_set_safestore_enabled(bool yes_no) ;
 
             /**
              @brief @userdesc Command to get the name of the checkpoint dump file.
@@ -201,16 +180,6 @@ namespace Trick {
             int set_safestore_time(double in_time) ;
 
             /**
-             @brief @userdesc Command to set the desired period that dmtcp safestore checkpoints will be dumped. (Sets dmtcp_safestore_period to the integral time tic value corresponding
-             to the incoming in_time so that checkpoint occurs periodically.)
-             @par Python Usage:
-             @code trick.dmtcp_checkpoint_safestore(<in_time>) @endcode
-             @param in_time - desired dmtcp safestore checkpoint time period in seconds.
-             @return always 0
-             */
-            int dmtcp_set_safestore_time(double in_time) ;
-
-            /**
              @brief @userdesc Command to dump a checkpoint now to the specified file.
              Calls the MemoryManager checkpoint method with the string argument file_name
              and sim objects list string separated by "," to specify which sim objects need
@@ -234,34 +203,6 @@ namespace Trick {
              @return always 0
              */
             virtual int checkpoint(double in_time) ;
-
-            /**
-             @brief @userdesc Command to dump a checkpoint now to the specified file.
-             Calls the MemoryManager checkpoint method with the string argument file_name
-             and sim objects list string separated by "," to specify which sim objects need
-             checkpointing. If sim objects are not specified, all will be checkpointed.
-             @par Python Usage:
-             @code trick.dmtcp_checkpoint() @endcode
-             @param file_name - optional: name of checkpoint file to dump (default is "dmtcp_chkpnt_<time>")
-             @param print_status - optional: boolean yes (C integer 1) = print the dump checkpoint status message
-             @param obj_list_str - optional: sim objects list string for checkpointing (default is dump all)
-             @return always 0
-             */
-            virtual int dmtcp_checkpoint(std::string file_name = "") ;
-
-            /**
-             @brief @userdesc Command to dump a checkpoint at in_time. (Sets checkpoint_time to the integral time tic value corresponding
-             to the incoming in_time so that checkpoint occurs once at that time at the end of the execution frame.)
-             The checkpointed file name is @e dmtcp_chkpnt_<in_time>.
-             @par Python Usage:
-             @code trick.checkpoint_bianry(<in_time>) @endcode
-             @param in_time - desired checkpoint time in seconds.
-             @return always 0
-             */
-            virtual int dmtcp_checkpoint(double in_time) ;
-
-            /* helper function to generate DMTCP restart script file name */
-            void setDMTCPFilename( std::string file_name = "");
 
             /**
              * Executes the pre_init_checkpoint
@@ -288,14 +229,6 @@ namespace Trick {
              * @return always 0
              */
             virtual int write_checkpoint() ;
-
-            /**
-             * Creates a file name based on the simulation time, "checkpoint_<time>" and
-             * calls checkpoint(string) routine with the filename
-             * @param sim_time_tics - current simulation time
-             * @return always 0
-             */
-            virtual int write_dmtcp_checkpoint() ;
 
             /**
              * Creates a file name based on the simulation time, "checkpoint_<time>" and
