@@ -970,9 +970,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         JXPanel commandsPanel = new JXPanel();
         titledCommandsPanel.setContentContainer(commandsPanel);
         
-        GridLayout gridLayout = null;
         // 2 columns and 5 rows, each component has the same width and height.
-        gridLayout = new GridLayout(5,2,2,4);
+        GridLayout gridLayout = new GridLayout(5,2,2,4);
         
         commandsPanel.setLayout(gridLayout);
 

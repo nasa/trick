@@ -534,5 +534,5 @@ AX_ER7_UTILS([])
 AC_CONFIG_FILES([share/trick/makefiles/config_user.mk])
 AC_OUTPUT
 
-
+printf "\033@<:@32mconfigure script successfully completed\033@<:@0m\n"
 

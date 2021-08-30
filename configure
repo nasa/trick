@@ -11291,6 +11291,6 @@ printf "%s\n" "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2
 fi
 
 
-
+printf "\033[32mconfigure script successfully completed\033[0m\n"
 
 
