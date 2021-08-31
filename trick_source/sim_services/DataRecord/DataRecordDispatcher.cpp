@@ -15,11 +15,6 @@
 #include <sys/syscall.h>
 #endif
 
-#if _DMTCP
-#include <dlfcn.h>
-#include "dmtcpaware.h"
-#endif
-
 #include "trick/DataRecordDispatcher.hh"
 #include "trick/exec_proto.h"
 #include "trick/exec_proto.hh"
@@ -80,27 +75,7 @@ int Trick::DataRecordDispatcher::remove_files() {
 
     std::string command;
     command = std::string("/bin/rm -rf ") + command_line_args_get_output_dir() + std::string("/log_*") ;
-#ifdef _DMTCP
-    if( dmtcpIsEnabled() ) {
-        std::string real_system_name ;
-        void* dlhandle ;
-        void (*real_system_ptr)(const char *) = NULL ;
-        dlhandle = dlopen( NULL, RTLD_LAZY) ;
-        real_system_name = "_real_system" ;
-        real_system_ptr = (void (*)(const char *))dlsym( dlhandle , real_system_name.c_str()) ;
-        if ( real_system_ptr != NULL ) {
-            printf("\nDataRecordDispatcher::remove_files() calling DMTCP _real_system \"%s\"\n" , command.c_str()) ;
-            (*real_system_ptr)(command.c_str()) ;
-        } else {
-            system(command.c_str());
-        }
-        dlclose(dlhandle) ;
-    } else {
-        system(command.c_str());
-    }
-#else
     system(command.c_str());
-#endif
     return 0 ;
 }
 
@@ -253,19 +228,6 @@ int Trick::DataRecordDispatcher::restart() {
     remove_files() ;
     return 0 ;
 }
-
-/**
-@details
--# Call the restart job for all of the groups.
-*/
-int Trick::DataRecordDispatcher::dmtcp_restart() {
-    unsigned int ii ;
-    for ( ii = 0 ; ii < groups.size() ; ii++ ) {
-        groups[ii]->dmtcp_restart() ;
-    }
-    return 0 ;
-}
-
 
 /**
 @details

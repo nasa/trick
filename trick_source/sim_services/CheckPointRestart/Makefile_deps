@@ -20,8 +20,6 @@ object_${TRICK_HOST_CPU}/next_attr_name.o: next_attr_name.cpp \
  ${TRICK_HOME}/include/trick/CheckPointRestart_c_intf.hh 
 object_${TRICK_HOST_CPU}/stl_type_name_convert.o: stl_type_name_convert.cpp 
 object_${TRICK_HOST_CPU}/CheckPointRestart.o: CheckPointRestart.cpp \
- ${TRICK_HOME}/include/trick/DMTCP.hh \
- ${TRICK_HOME}/include/trick/dmtcp_checkpoint_c_intf.hh \
  ${TRICK_HOME}/include/trick/Scheduler.hh \
  ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
  ${TRICK_HOME}/include/trick/JobData.hh \

@@ -85,9 +85,6 @@ namespace Trick {
             /** @brief Calls init() to create thread for writing simulation data to disk during restart. */
             int restart() ;
 
-            /** @brief Calls restart of all data recording groups. */
-            int dmtcp_restart() ;
-
             /** @brief Stop data recording during simulation shutdown. */
             virtual int shutdown() ;
 

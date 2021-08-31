@@ -350,32 +350,6 @@ public class SimControlActionController {
 	}
 	
 	/**
-	 * Invoked when the user presses Dump DMTCP Chkpnt button.
-         * @param dir directory to dump checkpoint
-         * @param fileName name of checkpoint file
-         * @param dialogParent dialogParent
-	 */
-	public void handleDumpDMTCPChkpnt(String dir, String fileName, Component dialogParent) {	
-
-            File selectedFile = UIUtils.chooseSaveFile(dir, fileName, null, dialogParent);
-
-            if (selectedFile != null) {			
-
-                String parentPath = selectedFile.getParent();
-
-                if ( !dir.equals(parentPath) ) {
-
-                    System.out.println("Path was not updated! DMTCP checkpoints are saved in the --chkpt directory specified in s_main_dmtcp." );
-                }
-                try {	    	
-
-                   simcom.put("trick.dmtcp_checkpoint(\"" + selectedFile.getName() + "\")\n");   
-
-                } catch (IOException e) {}
-	    }
-        }
-	
-	/**
 	 * Invoked when the user presses Shutdown button.
 	 */
 	public void handleShutdown() {

@@ -16,12 +16,6 @@
 #include "trick/tc_proto.h"
 #include "trick/trick_byteswap.h"
 
-#if _DMTCP
-#include <dlfcn.h>
-#include "dmtcpaware.h"
-#endif
-
-
 int tc_connect_(TCDevice * device, const char *file, int line)
 {
     struct sockaddr_in sockin;
@@ -120,27 +114,7 @@ int tc_connect_(TCDevice * device, const char *file, int line)
     /*
      *  Establish the connection to the selected server
      */
-#if _DMTCP
-    if( dmtcpIsEnabled() && device->dmtcp_use_real ) {
-        const char real_connect_name[] = "_real_connect" ;
-        void* dlhandle ;
-        int (*real_connect_ptr)( int, struct sockaddr *,socklen_t) = NULL ;
-
-        dlhandle = dlopen( NULL, RTLD_LAZY) ;
-        real_connect_ptr = (int (*)(int, struct sockaddr *,socklen_t))dlsym( dlhandle , real_connect_name) ;
-        if ( real_connect_ptr != NULL ) {
-            printf("calling DMTCP _real_connect %s:%d\n", file , line) ;
-            ret = (*real_connect_ptr)(the_socket, (struct sockaddr *) &sockin, (socklen_t) sizeof(sockin)) ;
-        } else {
-            ret = connect(the_socket, (struct sockaddr *) &sockin, (socklen_t) sizeof(sockin));
-        }
-        dlclose(dlhandle) ;
-    } else {
-        ret = connect(the_socket, (struct sockaddr *) &sockin, (socklen_t) sizeof(sockin));
-    }
-#else
     ret = connect(the_socket, (struct sockaddr *) &sockin, (socklen_t) sizeof(sockin));
-#endif
 
     if ( ret < 0) {
         trick_error_report(device->error_handler,TRICK_ERROR_ALERT, file, line, "%s: could not connect to host: %s\n", client_str, strerror(errno));

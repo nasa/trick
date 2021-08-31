@@ -28,8 +28,6 @@ typedef enum {
     MS_ReconnectCmd =       12,  /* Master/Slave: slave reconnected after chkpnt load */
     MS_ChkpntDumpAsciiCmd = 13,  /* Master/Slave: master tells slave to dump an ascii chkpnt */
     MS_ChkpntLoadAsciiCmd = 14,  /* Master/Slave: master tells slave to load an ascii chkpnt */
-    MS_ChkpntDumpBinCmd =   15,  /* Master/Slave: master tells slave to dump a binary chkpnt */
-    MS_ChkpntLoadBinCmd =   16   /* Master/Slave: master tells slave to load a binary chkpnt */
 
 } MS_SIM_COMMAND;
 

@@ -90,7 +90,6 @@ int Trick::MSSharedMem::connect() {
         tsm_dev.size = sizeof(MSSharedMemData);
         ret = tsm_init(&tsm_dev);
     } else {
-    // handle reconnecting for dmtcp restart
         ret = tsm_reconnect(&tsm_dev);
     }
     shm_addr = (MSSharedMemData*) tsm_dev.addr;

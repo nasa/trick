@@ -34,7 +34,6 @@ if hasattr(top.cvar, 'trick_message'):
 # from checkpoint restart
 if hasattr(top.cvar, 'trick_cpr'):
     checkpoint = top.cvar.trick_cpr.cpr.checkpoint
-    dmtcp_checkpoint = top.cvar.trick_cpr.cpr.dmtcp_checkpoint
     load_checkpoint = top.cvar.trick_cpr.cpr.load_checkpoint
 
 # from the input processor

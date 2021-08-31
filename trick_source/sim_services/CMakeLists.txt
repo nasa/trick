@@ -17,8 +17,6 @@ set( SS_SRC
   Collect/collect
   CommandLineArguments/CommandLineArguments
   CommandLineArguments/command_line_c_intf
-  DMTCP/DMTCP
-  DMTCP/dmtcp_checkpoint_c_intf
   DataRecord/DRAscii
   DataRecord/DRBinary
   DataRecord/DRHDF5

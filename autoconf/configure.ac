@@ -49,50 +49,6 @@ AC_DEFUN([AX_HDF5_HOME],[
     AC_SUBST([HDF5_HOME])
 ])
 
-AC_DEFUN([AX_DMTCP_HOME],[
-    AC_ARG_WITH([dmtcp],
-                AS_HELP_STRING([--with-dmtcp@<:@=DIR@:>@], [DMTCP root directory]),
-                [DMTCP_HOME="$withval"
-                 AS_IF([test "$DMTCP_HOME" = "yes"],
-                  AC_CHECK_HEADER(dmtcpaware.h,[DMTCP_HOME="/usr"],AC_MSG_ERROR([could not find dmtcpaware.h])),
-                  AC_CHECK_FILE([$DMTCP_HOME/include/dmtcpaware.h],
-                               [],
-                               AC_MSG_ERROR([could not find $DMTCP_HOME/include/dmtcpaware.h])
-                              )
-                )],
-                [DMTCP_HOME=""]
-               )
-    AC_SUBST([DMTCP_HOME])
-])
-
-AC_DEFUN([AX_TPRO_HOME],[
-    AC_ARG_WITH([tpro],
-                AS_HELP_STRING([--with-tpro@<:@=DIR@:>@], [TPRO root directory]),
-                [TPRO_HOME="$withval"
-                 AC_CHECK_FILE([$TPRO_HOME/linux/h/tpro.h],
-                               [],
-                               AC_MSG_ERROR([could not find $TPRO_HOME/linux/h/tpro.h])
-                              )
-                ],
-                [TPRO_HOME=""]
-               )
-    AC_SUBST([TPRO_HOME])
-])
-
-AC_DEFUN([AX_BC635_HOME],[
-    AC_ARG_WITH([bc635],
-                AS_HELP_STRING([--with-bc635@<:@=DIR@:>@], [BC635 root directory]),
-                [BC635_HOME="$withval"
-                 AC_CHECK_FILE([$BC635_HOME/sample/bcuser.h],
-                               [],
-                               AC_MSG_ERROR([could not find $BC635_HOME/sample/bcuser.h])
-                              )
-                ],
-                [BC635_HOME=""]
-               )
-    AC_SUBST([BC635_HOME])
-])
-
 AC_DEFUN([AX_GSL_HOME],[
     AC_ARG_WITH([gsl],
                 AS_HELP_STRING([--with-gsl@<:@=DIR@:>@], [GSL root directory]),
@@ -571,13 +527,12 @@ AC_SUBST([UDUNITS_EXCLUDE])
 
 dnl process the other optional command line arguments
 AX_HDF5_HOME([])
-AX_DMTCP_HOME([])
-AX_TPRO_HOME([])
-AX_BC635_HOME([])
 AX_GSL_HOME([])
 AX_GTEST_HOME([])
 AX_ER7_UTILS([])
 
-AC_OUTPUT([share/trick/makefiles/config_user.mk])
+AC_CONFIG_FILES([share/trick/makefiles/config_user.mk])
+AC_OUTPUT
 
 printf "\033@<:@32mconfigure script successfully completed\033@<:@0m\n"
+

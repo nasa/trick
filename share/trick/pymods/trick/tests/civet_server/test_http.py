@@ -46,25 +46,25 @@ class TestWebserverHttp:
         res = requests.get(url, verify=False) #verify=False says to not verify https for self-signed cert
         assert res.status_code == 404, f"Requested URL should not exist.  Status code 404 was not returned. Response text:\n#######\n{res.text}\n#######"
 
-    def test_alloc_info(self):
-        url = params.get_url("api/http/alloc_info")
-        res = requests.get(url, verify=False) #verify=False says to not verify https for self-signed cert
-        print(f"Response: {res.text}")
-        assert res.status_code == 200, "Requested URL does not exist."
-        data = res.json()
-        assert len(data["alloc_list"]) == 10, "Expecting default &count to be 10."
-        assert data["chunk_size"] == 10, "Expecting default &count to be 10."
-        assert data["chunk_start"] == 0, "expecting default &start to be 0."
-        assert "alloc_total" in res.json(), "Expecting alloc_total field to exist."
+#    def test_alloc_info(self):
+#        url = params.get_url("api/http/alloc_info")
+#        res = requests.get(url, verify=False) #verify=False says to not verify https for self-signed cert
+#        print(f"Response: {res.text}")
+#        assert res.status_code == 200, "Requested URL does not exist."
+#        data = res.json()
+#        assert len(data["alloc_list"]) == 10, "Expecting default &count to be 10."
+#        assert data["chunk_size"] == 10, "Expecting default &count to be 10."
+#        assert data["chunk_start"] == 0, "expecting default &start to be 0."
+#        assert "alloc_total" in res.json(), "Expecting alloc_total field to exist."
     
-    def test_alloc_info_2(self):
-        start = 2
-        count = 12
-        endpoint = f"api/http/alloc_info?start={start}&count={count}"
-        url = params.get_url(endpoint)
-        res = requests.get(url, verify=False)
-        assert len(res.json()["alloc_list"]) == count
-        assert res.json()["chunk_start"] == start
+#    def test_alloc_info_2(self):
+#        start = 2
+#        count = 12
+#        endpoint = f"api/http/alloc_info?start={start}&count={count}"
+#        url = params.get_url(endpoint)
+#        res = requests.get(url, verify=False)
+#        assert len(res.json()["alloc_list"]) == count
+#        assert res.json()["chunk_start"] == start
 
     def test_vs_connections(self):
         sockets = open_connections(1)

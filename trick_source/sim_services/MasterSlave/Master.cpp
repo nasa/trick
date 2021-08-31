@@ -47,7 +47,6 @@ Trick::SlaveInfo::SlaveInfo() {
     reconnect_count = 0;
     chkpnt_dump_auto = true ;
     chkpnt_load_auto = true ;
-    chkpnt_binary = false ;
 }
 
 int Trick::SlaveInfo::set_connection_type(Trick::MSConnect * in_connection) {
@@ -145,10 +144,6 @@ int Trick::SlaveInfo::start() {
     if ( ! run_input_file.empty() ) {
 
         startup_command << " " << run_input_file ;
-
-        /** @li check to see if master is running with dmtcp slave */
-        if (run_input_file.find("dmtcp") != std::string::npos)
-            slave_type = "dmtcp";
     }
 
     /** @li Add the connection specific arguments to the startup command */
@@ -234,15 +229,11 @@ int Trick::SlaveInfo::read_slave_status() {
                     }
                     else {
                         message_publish(MSG_WARNING, "Slave is exiting.\n") ;
-                        // if reconnect_wait_limit is set, master waits for slave to reconnect (e.g. dmtcp restarting)
+                        // if reconnect_wait_limit is set, master waits for slave to reconnect
                         if (reconnect_wait_limit > 0.0) {
                             message_publish(MSG_WARNING, "Master will wait %f seconds for slave to reconnect.\n", reconnect_wait_limit) ;
                             // make reads (shared mem connection) return quickly so we don't overrun waiting for reconnect
-                            // TODO: for socket connection we will overrun in the accept call (see restart_dmtcp_slave)
                             connection->set_sync_wait_limit(exec_get_freeze_frame());
-                            if (chkpnt_binary) {
-                                restart_dmtcp_slave(); // restart the slave dmtcp executable
-                            }
                         }
                         else {
                             message_publish(MSG_WARNING, "reconnect_wait_limit: 0.0 - Master will stop communicating with slave.\n") ;
@@ -250,13 +241,6 @@ int Trick::SlaveInfo::read_slave_status() {
                         }
                         return(0) ;
                     }
-                    break ;
-                case (MS_ChkpntLoadBinCmd):
-                    // slave has received our load command and is now sending us his dmtcp port and checkpoint file name
-                    dmtcp_port = connection->read_port() ;
-                    connection->read_name(chkpnt_name, sizeof(chkpnt_name)); // dir/filename
-                    message_publish(MSG_WARNING , "Master received DMTCP Port and Checkpoint Filename from slave.\n");
-                    connection->write_command((MS_SIM_COMMAND)exec_get_exec_command()) ; // send this as an ack so slove can shut down
                     break ;
                 case (MS_FreezeCmd):
                     /** @li if the current slave is freezing, freeze the master too */
@@ -288,12 +272,6 @@ int Trick::SlaveInfo::write_master_status() {
         /** @li write the current exec_command according to the master to the slave */
         connection->write_command((MS_SIM_COMMAND)exec_get_exec_command()) ;
     }
-    if ((MS_SIM_COMMAND)exec_get_exec_command() == MS_ChkpntLoadBinCmd) {
-        // dmtcp slave will exit, so stop writing status to slave until it reconnects
-        // reconnect_count prevents us from writing status to slave, & is incremented every freeze cycle until we have reconnected
-        reconnect_count = 1;
-    }
-
     return(0) ;
 }
 
@@ -460,22 +438,10 @@ int Trick::Master::checkpoint() {
         std::string full_path_name = checkpoint_get_output_file();
         for ( ii = 0 ; ii < slaves.size() ; ii++ ) {
             if (slaves[ii]->chkpnt_dump_auto) {
-                if (slaves[ii]->chkpnt_binary) {
-                    if (slaves[ii]->slave_type == "dmtcp") {
-                        exec_set_exec_command((SIM_COMMAND)MS_ChkpntDumpBinCmd) ;
-                        slaves[ii]->write_master_status() ;
-                        slaves[ii]->write_master_chkpnt_name(full_path_name) ;
-                        exec_set_exec_command(save_command) ;
-                    } else {
-                        message_publish(MSG_ERROR, "Slave is not running under dmtcp control so it cannot dump binary checkpoint.\n") ;
-                        slaves[ii]->write_master_status() ;
-                    }
-                } else { // ascii
-                    exec_set_exec_command((SIM_COMMAND)MS_ChkpntDumpAsciiCmd) ;
-                    slaves[ii]->write_master_status() ;
-                    slaves[ii]->write_master_chkpnt_name(full_path_name) ;
-                    exec_set_exec_command(save_command) ;
-                }
+                exec_set_exec_command((SIM_COMMAND)MS_ChkpntDumpAsciiCmd) ;
+                slaves[ii]->write_master_status() ;
+                slaves[ii]->write_master_chkpnt_name(full_path_name) ;
+                exec_set_exec_command(save_command) ;
             } else { // no auto dump
                 slaves[ii]->write_master_status() ;
             }
@@ -496,22 +462,10 @@ int Trick::Master::preload_checkpoint() {
         std::string full_path_name = checkpoint_get_load_file();
         for ( ii = 0 ; ii < slaves.size() ; ii++ ) {
             if (slaves[ii]->chkpnt_load_auto) {
-                if (slaves[ii]->chkpnt_binary) {
-                    if (slaves[ii]->slave_type == "dmtcp") {
-                        exec_set_exec_command((SIM_COMMAND)MS_ChkpntLoadBinCmd) ;
-                        slaves[ii]->write_master_status() ;
-                        slaves[ii]->write_master_chkpnt_name(full_path_name) ;
-                        exec_set_exec_command(save_command) ;
-                    } else {
-                        message_publish(MSG_ERROR, "Slave is not running under dmtcp control so it cannot load binary checkpoint.\n") ;
-                        slaves[ii]->write_master_status() ;
-                    }
-                } else { // ascii
-                    exec_set_exec_command((SIM_COMMAND)MS_ChkpntLoadAsciiCmd) ;
-                    slaves[ii]->write_master_status() ;
-                    slaves[ii]->write_master_chkpnt_name(full_path_name) ;
-                    exec_set_exec_command(save_command) ;
-                }
+                exec_set_exec_command((SIM_COMMAND)MS_ChkpntLoadAsciiCmd) ;
+                slaves[ii]->write_master_status() ;
+                slaves[ii]->write_master_chkpnt_name(full_path_name) ;
+                exec_set_exec_command(save_command) ;
             } else { // no auto load
                 slaves[ii]->write_master_status() ;
             }
@@ -548,92 +502,6 @@ int Trick::Master::shutdown() {
     }
     return(0) ;
 }
-
-int Trick::SlaveInfo::restart_dmtcp_slave() {
-#ifdef _DMTCP
-    FILE *fp;
-    char *dmtcp_path, line[256];
-    std::string config_file;
-    std::string dmtcp_command;
-    std::stringstream dmtcp_port_str;
-    pid_t pid, dmtcp_pid;
-
-    /** @par Detailed Design: */
-    if ( enabled ) {
-        if (slave_type != "dmtcp") {
-            message_publish(MSG_ERROR, "Cannot auto-start slave because it was not running under dmtcp control.\n") ;
-            return(0);
-        }
-        /** @li If chkpnt_load_auto is specified, restart the slave by executing the user-supplied chkpnt_name... */
-        if (chkpnt_load_auto) {
-            if (chkpnt_name[0] == MS_ERROR_NAME) {
-                message_publish(MSG_WARNING, "Cannot auto-start slave because master did not receive chkpnt_name from slave.\n");
-            } else {
-                /** @li First kill slave's dmtcp_coordinator because sometimes it does not quit like it's supposed to. */
-                if (dmtcp_port > 0) { // slave sends 0 if it can't get the port num from the environment
-                    /** @li Get dmtcp path from trick's configure output file (dmtcp is only supported in linux). */
-                    config_file = std::string(getenv("TRICK_HOME")) + "/config_Linux.mk";
-                    if ((fp = fopen(config_file.c_str() , "r")) != NULL ) {
-                        while (fgets(line, sizeof(line), fp) != NULL) {
-                            if (strncmp(line, "DMTCP", 5)==0) {
-                                dmtcp_path = strchr(line, '/');
-                                dmtcp_path[strlen(dmtcp_path)-1] = '\0'; // remove newline character
-                                break;
-                            }
-                        }
-                    }
-                    /** @li Issue a dmtcp_command to kill the dmtcp_coordinator. */
-                    fprintf(stderr, "Master attempting to kill slave's dmtcp_coordinator port= %ld"
-                                    " (it may not exist, that's ok)\n", dmtcp_port);
-                    //dmtcp_command.str(""); // reset our command string
-                    dmtcp_command = dmtcp_path + std::string("/bin/dmtcp_command");
-                    if (access(dmtcp_command.c_str(), F_OK) != 0) {
-                        fprintf(stderr, "\nCould not find %s in order to kill the dmtcp_coordinator.\n",
-                                        dmtcp_command.c_str());
-                    } else {
-                        //dmtcp_command << " --quiet -p " << dmtcp_port << " q";
-                        message_publish(MSG_WARNING, "Restarting DMTCP coordinator\n");
-                        if((dmtcp_pid = fork()) == 0) {
-                            setsid();
-                            dmtcp_port_str << dmtcp_port;
-                            int execReturn = execl(dmtcp_command.c_str(), "dmtcp_command", "--quiet", "-p", dmtcp_port_str.str().c_str(), "q", NULL);
-                            _Exit(0);
-                        } else {
-                            int f_status = 0;
-                            if(dmtcp_pid > 0) {
-                                waitpid(dmtcp_pid, &f_status, 0);
-                            } else {
-                                message_publish(MSG_ERROR, "Unable to send DMTCP restart command\n");
-                            }
-                        }
-                        //system(dmtcp_command.str().c_str());
-                    }
-                } // end if dmtcp_port > 0
-                /** @li Finally invoke the slave's dmtcp checkpoint script. */
-                message_publish(MSG_WARNING, "Auto-starting slave: %s.\n", chkpnt_name);
-                if ((pid = fork()) == 0) {
-                    setsid();
-                    std::istringstream sChkpnt(chkpnt_name);
-                    std::string fileName;
-                    while (std::getline(sChkpnt, fileName, '/'));
-                    //fprintf(stderr, "------> Starting: %s\n", fileName.c_str());
-                    int execReturn = execl(chkpnt_name, fileName.c_str(), NULL);
-                    _Exit(0);
-                }
-            }
-        } // end chkpnt_auto
-        /** @li If our connection is a socket, disconnect the socket and call accept again */
-        if (dynamic_cast<MSSocket*>(connection)) {
-            connection->disconnect();
-            //TODO: this will block until slave restarts, possibly causing overruns in freeze mode
-            connection->accept();
-        }
-        reconnect_count = 0; // start writing status to slave again
-    }
-#endif
-    return(0) ;
-}
-
 
 /**
  * @relates Trick::Master

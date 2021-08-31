@@ -47,10 +47,6 @@
 #ifdef HDF5
 #include "trick/DRHDF5.hh"
 #endif
-#ifdef DMTCP
-#include "trick/DMTCP.hh"
-#include "trick/dmtcp_checkpoint_c_intf.hh"
-#endif
 #include "trick/DataRecordDispatcher.hh"
 #include "trick/data_record_proto.h"
 #include "trick/DebugPause.hh"

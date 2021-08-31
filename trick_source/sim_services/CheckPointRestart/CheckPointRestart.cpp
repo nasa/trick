@@ -9,11 +9,6 @@
 #include <sys/stat.h>
 #include <string.h>
 
-#ifdef _DMTCP
-#include "dmtcpaware.h"
-#endif
-
-#include "trick/DMTCP.hh"
 #include "trick/CheckPointRestart.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/SimObject.hh"
@@ -74,11 +69,6 @@ int Trick::CheckPointRestart::set_end_checkpoint(bool yes_no) {
 
 int Trick::CheckPointRestart::set_safestore_enabled(bool yes_no) {
     safestore_enabled = yes_no ;
-    return(0) ;
-}
-
-int Trick::CheckPointRestart::dmtcp_set_safestore_enabled(bool yes_no) {
-    dmtcp_safestore_enabled = yes_no ;
     return(0) ;
 }
 
@@ -155,25 +145,6 @@ int Trick::CheckPointRestart::set_safestore_time(double in_time) {
     if ( safestore_checkpoint_job != NULL ) {
         safestore_checkpoint_job->next_tics = safestore_time ;
     }
-
-    return(0) ;
-}
-
-int Trick::CheckPointRestart::dmtcp_set_safestore_time(double in_time) {
-
-    long long software_frame_tics ;
-
-    if ( in_time < 10 ) {
-        std::cout << "\nA DMTCP Safestore Interval less than 10 seconds is not recommended.\n\n";
-    }
-
-    dmtcp_safestore_period = (long long)(in_time * exec_get_time_tic_value()) ;
-    software_frame_tics = exec_get_software_frame_tics() ;
-
-    if ( dmtcp_safestore_period % software_frame_tics ) {
-        dmtcp_safestore_period = ((dmtcp_safestore_time / software_frame_tics) + 1 ) * software_frame_tics ;
-    }
-    dmtcp_safestore_time = dmtcp_safestore_period ;
 
     return(0) ;
 }
@@ -284,82 +255,6 @@ int Trick::CheckPointRestart::write_checkpoint() {
     }
 
     return(0) ;
-}
-
-void  Trick::CheckPointRestart::setDMTCPFilename( std::string file_name __attribute__((unused))) {
-#ifdef _DMTCP
-       if (!file_name.compare("") ) {
-
-           std::stringstream file_name_stream ;
-           SIM_MODE sim_mode ;
-           sim_mode = exec_get_mode() ;
-
-           if (sim_mode == Initialization)
-               file_name_stream << "dmtcp_chkpnt_init";
-           else
-               file_name_stream << "dmtcp_chkpnt_" << std::fixed << std::setprecision(2) << exec_get_sim_time() ;
-
-           file_name = file_name_stream.str() ;
-       }
-
-       dmtcp_job_queue( file_name );
-#endif
-}
-
-int Trick::CheckPointRestart::dmtcp_checkpoint( std::string file_name __attribute__((unused))) {
-#ifdef _DMTCP
-    SIM_MODE sim_mode ;
-    sim_mode = exec_get_mode() ;
-
-    setDMTCPFilename( file_name );
-    dmtcp_set_checkpoint_now();
-
-    //fix for what I believe is a dmtcp bug: --DANNY
-    //      When you do a dmtcp_checkpoint from sim control panel (in freeze), the var server calls parse()
-    //      in the input processor which calls this function -- IPParse locks ip_mutex before
-    //      the parse call and unlocks it after the parse call. BUT if you call_dmtcp right now
-    //      the checkpoint can occur while ip_mutex is still locked. When you do a dmtcp restart,
-    //      the sim hangs because it cannot unlock ip_mutex (dmtcp claims to handle mutexes, doh!).
-    //      SO, don't do call_dmtcp here in freeze, it will be called in the dmtcp freeze job. This "fixes"
-    //      the problem, although the var server is a thread so we're technically still vulnerable.
-    if ((sim_mode != Initialization) && (sim_mode != Freeze))
-        call_dmtcp();
-#endif
-    return 0;
-}
-
-int Trick::CheckPointRestart::dmtcp_checkpoint( double in_time __attribute__((unused))) {
-#ifdef _DMTCP
-    long long curr_time = exec_get_time_tics() ;
-    long long new_time = (long long)(in_time * exec_get_time_tic_value()) ;
-
-    if ( new_time >= curr_time )
-        dmtcp_checkpoint_times.push( new_time ) ;
-#endif
-    return 0 ;
-}
-
-int Trick::CheckPointRestart::write_dmtcp_checkpoint() {
-#ifdef _DMTCP
-
-    long long curr_time = exec_get_time_tics() ;
-
-    if ( (!dmtcp_checkpoint_times.empty() )  and (curr_time == dmtcp_checkpoint_times.top()) ) {
-
-        dmtcp_checkpoint();
-
-        while ( !dmtcp_checkpoint_times.empty() and (dmtcp_checkpoint_times.top() == curr_time) )
-            dmtcp_checkpoint_times.pop() ;
-    }
-
-    if ( (dmtcp_safestore_enabled)  && (curr_time == dmtcp_safestore_time) ){
-
-        dmtcp_checkpoint("dmtcp_chkpnt_safestore");
-        dmtcp_safestore_time += dmtcp_safestore_period ;
-    }
-
-#endif
-    return 0;
 }
 
 int Trick::CheckPointRestart::write_pre_init_checkpoint() {

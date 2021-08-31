@@ -6,10 +6,6 @@
 #include <vector>
 #include <cstring>
 
-#if _DMTCP
-#include "dmtcpaware.h"
-#endif
-
 #include "trick/ExternalApplication.hh"
 #include "trick/ExternalApplicationManager.hh"
 #include "trick/variable_server_proto.h"
@@ -170,45 +166,10 @@ void Trick::ExternalApplication::launch() {
         argv = command_line_args_get_argv() ;
 
         oss << command << " " << arguments.str() << " " << create_arguments_string() ;
-        if (argc > 2) {
-            for (int i=0;i<argc;i++) {
-                if (!strcmp(argv[i], "dmtcp")) {
-                    oss << " -dmtcp" ;
-                    break ;
-            }
-        }
-        }
         oss << " &";
 
-#ifdef _DMTCP
-        if( dmtcpIsEnabled() ) {
-            std::string real_system_name ;
-
-            void* dlhandle ;
-            void (*real_system_ptr)(const char *) = NULL ;
-
-            dlhandle = dlopen( NULL, RTLD_LAZY) ;
-
-            real_system_name = "_real_system" ;
-            real_system_ptr = (void (*)(const char *))dlsym( dlhandle , real_system_name.c_str()) ;
-
-
-            if ( real_system_ptr != NULL ) {
-                std::cout << "\nExternalApplication::launch() calling DMTCP _real_system \"" << oss.str() << "\n";
-                (*real_system_ptr)(oss.str().c_str()) ;
-            } else {
-                std::cout << "calling DMTCP  \"" << oss.str().c_str() << "\"" << std::endl;
-                system(oss.str().c_str());
-            }
-
-            dlclose(dlhandle) ;
-        } else {
-            system(oss.str().c_str());
-        }
-#else
         std::cout << oss.str() << std::endl;
         system(oss.str().c_str());
-#endif
     }
 }
 
