@@ -253,6 +253,10 @@ class TrickModel : public DataModel
             {
                 return (double) *((char *)(addr));
             }
+            case TRICK_10_UNSIGNED_LONG:
+            {
+                return (double) *((unsigned long*)(addr));
+            }
             default:
             {
                 fprintf(stderr,
