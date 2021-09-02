@@ -510,6 +510,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("N*m","N*m"),      1.0);
     map.insert(QPair<QString,QString>("N*m","N*M"),      1.0);
     map.insert(QPair<QString,QString>("N*m","Nm"),       1.0);
+    map.insert(QPair<QString,QString>("N*m","N.m"),      1.0);
     map.insert(QPair<QString,QString>("N*m","lbf*ft"),   1.35581795);
     map.insert(QPair<QString,QString>("N*m","kip-ft"),   1355.81795);
     map.insert(QPair<QString,QString>("N*m","lbf*in"),   4.4482216152605*0.0254);
