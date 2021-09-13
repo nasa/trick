@@ -2,11 +2,17 @@ name: Python Tests 32-bit
 
 on:
   push:
+    # Temporarily disable all tests for Issue #1188.
+    branches-ignore:
+    - '**'
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
     - '!.github/workflows/python_tests_32.yml'
   pull_request:
+    # Temporarily disable all tests for Issue #1188.
+    branches-ignore:
+    - '**'
 
 jobs:
   trick_32bit:

@@ -2,11 +2,17 @@ name: Python Tests Linux
 
 on:
   push:
+    # Temporarily disable all tests for Issue #1188.
+    branches-ignore:
+    - '**'
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
     - '!.github/workflows/python_tests_linux.yml'
   pull_request:
+    # Temporarily disable all tests for Issue #1188.
+    branches-ignore:
+    - '**'
 
 jobs:
   build:
