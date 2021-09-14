@@ -380,8 +380,28 @@ void HeaderSearchDirs::addDefines ( std::vector<std::string> & defines ) {
 
     // Add -D command line arguments as well as "#define TRICK_ICG" to the preprocessor
     unsigned int ii ;
-    std::string predefines("#define TRICK_ICG\n") ;
-    predefines += "#define __STRICT_ANSI__\n" ;
+    std::string predefines("#define TRICK_ICG\n");
+    predefines += "#define __STRICT_ANSI__\n";
+
+    // These defines come from running "clang -dM -E - < /dev/null".  Can't find how they get added in normal
+    // compilation.  This isn't the prettiest, but it gets the defines defined.
+    predefines += "#define __GCC_ASM_FLAG_OUTPUTS__ 1\n";
+    predefines += "#define __GCC_ATOMIC_BOOL_LOCK_FREE 2\n";
+    predefines += "#define __GCC_ATOMIC_CHAR16_T_LOCK_FREE 2\n";
+    predefines += "#define __GCC_ATOMIC_CHAR32_T_LOCK_FREE 2\n";
+    predefines += "#define __GCC_ATOMIC_CHAR_LOCK_FREE 2\n";
+    predefines += "#define __GCC_ATOMIC_INT_LOCK_FREE 2\n";
+    predefines += "#define __GCC_ATOMIC_LLONG_LOCK_FREE 2\n";
+    predefines += "#define __GCC_ATOMIC_LONG_LOCK_FREE 2\n";
+    predefines += "#define __GCC_ATOMIC_POINTER_LOCK_FREE 2\n";
+    predefines += "#define __GCC_ATOMIC_SHORT_LOCK_FREE 2\n";
+    predefines += "#define __GCC_ATOMIC_TEST_AND_SET_TRUEVAL 1\n";
+    predefines += "#define __GCC_ATOMIC_WCHAR_T_LOCK_FREE 2\n";
+    predefines += "#define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_1 1\n";
+    predefines += "#define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_2 1\n";
+    predefines += "#define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4 1\n";
+    predefines += "#define __GCC_HAVE_SYNC_COMPARE_AND_SWAP_8 1\n";
+
     for ( ii = 0 ; ii < defines.size() ; ii++ ) {
         size_t found = defines[ii].find("=") ;
         if ( found != defines[ii].npos ) {
