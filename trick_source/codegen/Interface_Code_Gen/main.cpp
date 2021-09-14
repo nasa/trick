@@ -65,6 +65,7 @@ void set_lang_opts(clang::CompilerInstance & ci) {
 #endif
     // Activate C++17 parsing
 #if (LIBCLANG_MAJOR >= 10)
+    ci.getLangOpts().GNUCVersion = true ;
     ci.getLangOpts().CPlusPlus17 = true ;
 #endif
 }
