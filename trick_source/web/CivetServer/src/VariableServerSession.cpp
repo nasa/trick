@@ -16,8 +16,8 @@ LIBRARY DEPENDENCIES:
 #include "trick/memorymanager_c_intf.h"
 #include "trick/input_processor_proto.h"
 #include "trick/exec_proto.h"
-#include "../include/VariableServerSession.hh"
-#include "../include/simpleJSON.hh"
+#include "VariableServerSession.hh"
+#include "simpleJSON.hh"
 
 // CONSTRUCTOR
 VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSocketSession(nc) {

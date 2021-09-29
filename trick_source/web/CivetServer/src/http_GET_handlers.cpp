@@ -4,7 +4,7 @@ LIBRARY DEPENDENCIES:
     ( (../src/http_GET_handlers.o))
 **************************************************************************/
 
-#include "../include/http_GET_handlers.hh"
+#include "http_GET_handlers.hh"
 #include "trick/MyCivetServer.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"

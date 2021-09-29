@@ -648,6 +648,8 @@ ac_header_cxx_list=
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 USE_ER7_UTILS
+USE_CIVETWEB
+CIVETWEB_HOME
 GTEST_HOME
 GSL_HOME
 HDF5_HOME
@@ -699,7 +701,6 @@ LD
 TEE
 GCC_VERSION
 AWK
-TRICK_DISABLE_CIVET
 TRICK_OFFLINE
 TRICK_FORCE_32BIT
 LIBXML
@@ -772,7 +773,6 @@ enable_option_checking
 with_x
 enable_32bit
 enable_offline
-enable_civet
 with_python
 with_prepend_path
 with_swig
@@ -783,6 +783,7 @@ with_udunits
 with_hdf5
 with_gsl
 with_gtest
+with_civetweb
 enable_er7utils
 '
       ac_precious_vars='build_alias
@@ -1432,7 +1433,6 @@ Optional Features:
   --enable-offline        Compile Trick in offline mode. Un-tar the
                           trick-offline directory in TRICK_HOME to use this
                           feature
-  --enable-civet          Compile Trick with webserver capabilites.
   --enable-java           use java (default is yes)
   --enable-er7utils       use er7_utils (default is yes)
 
@@ -1454,6 +1454,7 @@ Optional Packages:
   --with-hdf5[=DIR]       HDF5 root directory
   --with-gsl[=DIR]        GSL root directory
   --with-gtest[=DIR]      GTEST root directory
+  --with-civetweb[=DIR]   CIVETWEB root directory
 
 Some influential environment variables:
   CC          C compiler command
@@ -2866,6 +2867,9 @@ ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+
 
 
 
@@ -5058,36 +5062,26 @@ fi
 
 
 
-# Check whether --enable-civet was given.
-if test ${enable_civet+y}
-then :
-  enableval=$enable_civet; if test "x$enable_civet" = xyes
-then :
-
-    TRICK_DISABLE_CIVET="0"
-
-else $as_nop
-  TRICK_DISABLE_CIVET="1"
-
-fi
-else $as_nop
-  TRICK_DISABLE_CIVET="0"
-
-fi
-
-
+# AC_ARG_ENABLE([civet],
+#   AS_HELP_STRING([--enable-civet], [Compile Trick with webserver capabilites.]),
+#   AS_IF([test "x$enable_civet" = xyes],
+#     [
+#     TRICK_DISABLE_CIVET="0"
+#     ],
+#     [TRICK_DISABLE_CIVET="1"]
+#   ),
+#   [TRICK_DISABLE_CIVET="0"]
+# )
+# AC_SUBST([TRICK_DISABLE_CIVET])
 
 # If offline is specified, set some compilation flags
-# Check whether --enable-offline was given.
-if test ${enable_offline+y}
-then :
-  enableval=$enable_offline; if test "x$enable_offline" = xyes
-then :
-  TRICK_DISABLE_CIVET="1"
-fi
-fi
-
-
+# AC_ARG_ENABLE([offline],
+#   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
+#   AS_IF([test "x$enable_offline" = xyes],
+#     [TRICK_DISABLE_CIVET="1"],
+#   ),
+# )
+# AC_SUBST([TRICK_OFFLINE])
 
 for ac_prog in gawk mawk nawk awk
 do
@@ -10116,6 +10110,77 @@ fi
 
 
 fi
+
+
+
+
+
+# Check whether --with-civetweb was given.
+if test ${with_civetweb+y}
+then :
+  withval=$with_civetweb; # --with option was provided.
+                CIVETWEB_HOME="$withval"
+                 USE_CIVETWEB="0"
+                # check whether directory arg was also provided.
+                 if test "$CIVETWEB_HOME" = "yes"
+then :
+  ac_fn_cxx_check_header_compile "$LINENO" "civetweb.h" "ac_cv_header_civetweb_h" "$ac_includes_default"
+if test "x$ac_cv_header_civetweb_h" = xyes
+then :
+  CIVETWEB_HOME="/usr"; USE_CIVETWEB="1"
+else $as_nop
+  as_fn_error $? "could not find civetweb.h" "$LINENO" 5
+fi
+
+else $as_nop
+  # else check whether --without-civet or --with-civet=no specified.
+                   if test "$CIVETWEB_HOME" = "no"
+then :
+  CIVETWEB_HOME=""
+else $as_nop
+  # else --with-civet was provided with a directory path.
+                         as_ac_File=`printf "%s\n" "ac_cv_file_$CIVETWEB_HOME/include/civetweb.h" | $as_tr_sh`
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CIVETWEB_HOME/include/civetweb.h" >&5
+printf %s "checking for $CIVETWEB_HOME/include/civetweb.h... " >&6; }
+if eval test \${$as_ac_File+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "$CIVETWEB_HOME/include/civetweb.h"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+eval ac_res=\$$as_ac_File
+	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf "%s\n" "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"
+then :
+  USE_CIVETWEB="1"
+else $as_nop
+  as_fn_error $? "could not find $CIVETWEB_HOME/include/civetweb.h" "$LINENO" 5
+fi
+
+fi
+fi
+
+else $as_nop
+  # --with option not provided.
+                ac_fn_cxx_check_header_compile "$LINENO" "civetweb.h" "ac_cv_header_civetweb_h" "$ac_includes_default"
+if test "x$ac_cv_header_civetweb_h" = xyes
+then :
+  CIVETWEB_HOME="/usr"; USE_CIVETWEB="1"
+else $as_nop
+  CIVETWEB_HOME=""; USE_CIVETWEB="0"
+fi
+
+
+
+fi
+
 
 
 

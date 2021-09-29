@@ -4,7 +4,7 @@ PURPOSE: (Represent Websocket connection.)
 #ifndef WEB_SOCKET_SESSION_HH
 #define WEB_SOCKET_SESSION_HH
 
-#ifdef USE_CIVET
+#if USE_CIVETWEB
 #include <string>
 #ifndef SWIG
 #include "civet/CivetServer.h"
@@ -28,4 +28,4 @@ class WebSocketSession {
 };
 
 #endif
-#endif
+#endif 

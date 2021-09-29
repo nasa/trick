@@ -1,5 +1,5 @@
 #include "trick/memorymanager_c_intf.h" // for get_size.
-#include "../include/VariableServerVariable.hh"
+#include "VariableServerVariable.hh"
 #include <math.h> // for fpclassify
 #include <iomanip> // for setprecision
 #include <stdarg.h>

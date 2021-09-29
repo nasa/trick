@@ -148,8 +148,8 @@ ifeq ($(USE_JAVA), 1)
 all: java
 endif
 
-ifeq ($(TRICK_CIVET), 1)
-icg_sim_serv: ${TRICK_LIB_DIR}/libtrickCivet.a
+ifeq ($(USE_CIVETWEB), 1)
+all: civetweb
 endif
 
 #-------------------------------------------------------------------------------
@@ -221,38 +221,11 @@ dp: ${TRICK_HOME}/trick_source/trick_utils/units
 #-------------------------------------------------------------------------------
 # 1.2 Build Trick's CivetWeb webserver.
 
-CIVET_CLONE_DIR = civetweb_clone
-
 .PHONY: civetweb
 civetweb: ${TRICK_LIB_DIR}/libtrickCivet.a
 
-${TRICK_LIB_DIR}/libtrickCivet.a: ${TRICK_LIB_DIR}/libcivetweb.a ${TRICK_HOME}/include/civet/civetweb.h ${TRICK_HOME}/include/civet/CivetServer.h
+${TRICK_LIB_DIR}/libtrickCivet.a:
 	$(MAKE) -C ${TRICK_HOME}/trick_source/web/CivetServer
-
-${TRICK_LIB_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}/libcivetweb.a | ${TRICK_LIB_DIR}
-	cp ${CIVET_CLONE_DIR}/libcivetweb.a $(TRICK_LIB_DIR)/libcivetweb.a
-
-${TRICK_HOME}/include/civet:
-	mkdir -p ${TRICK_HOME}/include/civet
-
-${TRICK_HOME}/include/civet/civetweb.h: ${CIVET_CLONE_DIR} ${TRICK_HOME}/include/civet
-	cp ${CIVET_CLONE_DIR}/include/civetweb.h ${TRICK_HOME}/include/civet/civetweb.h
-
-${TRICK_HOME}/include/civet/CivetServer.h: ${CIVET_CLONE_DIR} ${TRICK_HOME}/include/civet
-	cp ${CIVET_CLONE_DIR}/include/CivetServer.h ${TRICK_HOME}/include/civet/CivetServer.h	
-
-
-ifeq (${TRICK_FORCE_32BIT},1)
-CIVET_COMPILE_FAGS=-m32
-else
-CIVET_COMPILE_FAGS=
-endif
-
-${CIVET_CLONE_DIR}/libcivetweb.a: ${CIVET_CLONE_DIR}
-	$(MAKE) -C ${CIVET_CLONE_DIR} lib COPT=${CIVET_COMPILE_FAGS} WITH_CPP=1 WITH_WEBSOCKET=1
-
-${CIVET_CLONE_DIR}:
-	git clone --branch v1.14 --depth 1 -c advice.detachedHead=false https://github.com/civetweb/civetweb.git $@
 
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools

@@ -89,6 +89,37 @@ AC_DEFUN([AX_GTEST_HOME],[
     AC_SUBST([GTEST_HOME])
 ])
 
+AC_DEFUN([AX_CIVETWEB_HOME],[
+    AC_ARG_WITH([civetweb],
+                AS_HELP_STRING([--with-civetweb@<:@=DIR@:>@],
+                  [CIVETWEB root directory]),
+                # --with option was provided.
+                [CIVETWEB_HOME="$withval"
+                 USE_CIVETWEB="0"
+                # check whether directory arg was also provided.
+                 AS_IF([test "$CIVETWEB_HOME" = "yes"],
+                   AC_CHECK_HEADER(civetweb.h,
+                     [CIVETWEB_HOME="/usr"; USE_CIVETWEB="1"],
+                     AC_MSG_ERROR([could not find civetweb.h])),
+                   # else check whether --without-civet or --with-civet=no specified.
+                   AS_IF([test "$CIVETWEB_HOME" = "no"],
+                     [CIVETWEB_HOME=""],
+                         # else --with-civet was provided with a directory path.
+                         AC_CHECK_FILE([$CIVETWEB_HOME/include/civetweb.h],
+                           [USE_CIVETWEB="1"],
+                           AC_MSG_ERROR([could not find $CIVETWEB_HOME/include/civetweb.h]))))
+                ],
+                # --with option not provided.
+                [AC_CHECK_HEADER(civetweb.h,
+                   [CIVETWEB_HOME="/usr"; USE_CIVETWEB="1"],
+                   [CIVETWEB_HOME=""; USE_CIVETWEB="0"])
+                ]
+               )
+    AC_SUBST([CIVETWEB_HOME])
+    AC_SUBST([USE_CIVETWEB])
+])
+
+
 AC_DEFUN([AX_SWIG_BIN],[
     AC_ARG_WITH([swig],
                 [AS_HELP_STRING([--with-swig@<:@=DIR@:>@], [path of directory containing the SWIG executable.])],
@@ -312,26 +343,26 @@ AC_ARG_ENABLE([offline],
 )
 AC_SUBST([TRICK_OFFLINE])
 
-AC_ARG_ENABLE([civet],
-  AS_HELP_STRING([--enable-civet], [Compile Trick with webserver capabilites.]),
-  AS_IF([test "x$enable_civet" = xyes],
-    [
-    TRICK_DISABLE_CIVET="0"
-    ], 
-    [TRICK_DISABLE_CIVET="1"]
-  ),
-  [TRICK_DISABLE_CIVET="0"]
-)
-AC_SUBST([TRICK_DISABLE_CIVET])
+# AC_ARG_ENABLE([civet],
+#   AS_HELP_STRING([--enable-civet], [Compile Trick with webserver capabilites.]),
+#   AS_IF([test "x$enable_civet" = xyes],
+#     [
+#     TRICK_DISABLE_CIVET="0"
+#     ], 
+#     [TRICK_DISABLE_CIVET="1"]
+#   ),
+#   [TRICK_DISABLE_CIVET="0"]
+# )
+# AC_SUBST([TRICK_DISABLE_CIVET])
 
 # If offline is specified, set some compilation flags
-AC_ARG_ENABLE([offline],
-  AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
-  AS_IF([test "x$enable_offline" = xyes],
-    [TRICK_DISABLE_CIVET="1"], 
-  ),
-)
-AC_SUBST([TRICK_OFFLINE])
+# AC_ARG_ENABLE([offline],
+#   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
+#   AS_IF([test "x$enable_offline" = xyes],
+#     [TRICK_DISABLE_CIVET="1"], 
+#   ),
+# )
+# AC_SUBST([TRICK_OFFLINE])
 
 dnl look for programs we need to compile and run
 AC_PROG_AWK
@@ -529,6 +560,7 @@ dnl process the other optional command line arguments
 AX_HDF5_HOME([])
 AX_GSL_HOME([])
 AX_GTEST_HOME([])
+AX_CIVETWEB_HOME([])
 AX_ER7_UTILS([])
 
 AC_CONFIG_FILES([share/trick/makefiles/config_user.mk])

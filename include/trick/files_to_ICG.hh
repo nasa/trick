@@ -96,7 +96,7 @@
 #include "trick/lqueue.h"
 #include "trick/lstack.h"
 
-#ifdef USE_CIVET
+#ifdef USE_CIVETWEB
 #include "trick/MyCivetServer.hh"
 #include "trick/WebSocketSession.hh"
 #endif

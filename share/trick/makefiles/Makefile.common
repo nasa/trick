@@ -171,7 +171,11 @@ ifneq ($(GSL_HOME),)
     TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
 endif
 
-TRICK_CIVET=0
+ifeq (${USE_CIVETWEB},1)
+    TRICK_LIBS += ${CIVETWEB_HOME}/libcivetweb.a ${TRICK_LIB_DIR}/libtrickCivet.a
+    TRICK_SWIG_FLAGS += -DUSE_CIVETWEB
+    TRICK_SYSTEM_CXXFLAGS += -DUSE_CIVETWEB
+endif
 
 # We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.
 ifdef GCC_COLORS

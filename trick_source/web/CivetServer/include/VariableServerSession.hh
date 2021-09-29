@@ -12,7 +12,7 @@ PURPOSE: (Represent the state of a variable server websocket connection.)
 #include "civet/CivetServer.h"
 #endif
 
-#include "trick/WebSocketSession.hh"
+#include "WebSocketSession.hh"
 #include "VariableServerVariable.hh"
 
 class VariableServerSession : public WebSocketSession {

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
-#include "../include/simpleJSON.hh"
+#include "simpleJSON.hh"
 
 class LexicalAnalyzer {
 public:

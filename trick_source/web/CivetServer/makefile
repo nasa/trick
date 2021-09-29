@@ -11,7 +11,7 @@ MKDIR = mkdir
 CFLAGS = -g -Wall
 CPPFLAGS = -g -Wall -std=c++11
 
-INCLUDE_DIRS = -Iinclude -I${TRICK_HOME}/include
+INCLUDE_DIRS = -I${PWD}/include -I${CIVETWEB_HOME}/include -I${TRICK_HOME}/include
 
 OBJDIR = obj
 LIBDIR = lib
