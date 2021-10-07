@@ -81,7 +81,7 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
     }
 
     /**
-     * <ul><li> Try to remove this run from the queue in case it was requeue by #check_timeouts.
+     * <ul><li> Try to remove this run from the queue in case it was requeued by #check_timeouts.
      * This covers the case in which the master determines that a slave has timed out, requeues
      * the run, and then the slave reports results.
      */
@@ -154,12 +154,6 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
             handle_retry(slave, MonteRun::MC_CANT_CREATE_OUTPUT_DIR);
             break;
 
-        /**
-         * <li> Timeouts are redispatched. However, we must first check to
-         * see if this run has already been processed in #check_timeouts, which
-         * can occur when the master determines that a slave has timed out, and
-         * then that slave itself reports a timeout. </ul>
-         */
         case MonteRun::MC_RUN_TIMED_OUT:
             if (verbosity >= MC_ERROR) {
                 message_publish(
@@ -167,10 +161,7 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
                   "Monte [Master] %s:%d reported a timeout for run %d.\n",
                   slave.machine_name.c_str(), slave.id, slave.current_run->id);
             }
-            if (slave.state != MonteSlave::MC_UNRESPONSIVE_RUNNING &&
-                slave.state != MonteSlave::MC_UNRESPONSIVE_STOPPING) {
-                handle_retry(slave, MonteRun::MC_RUN_TIMED_OUT);
-            }
+            handle_retry(slave, MonteRun::MC_RUN_TIMED_OUT);
             break;
 
         default:
