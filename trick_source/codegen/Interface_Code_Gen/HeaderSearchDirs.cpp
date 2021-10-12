@@ -380,8 +380,8 @@ void HeaderSearchDirs::addDefines ( std::vector<std::string> & defines ) {
 
     // Add -D command line arguments as well as "#define TRICK_ICG" to the preprocessor
     unsigned int ii ;
-    std::string predefines("#define TRICK_ICG\n") ;
-    predefines += "#define __STRICT_ANSI__\n" ;
+    std::string predefines("#define TRICK_ICG\n");
+    predefines += "#define __STRICT_ANSI__\n";
     for ( ii = 0 ; ii < defines.size() ; ii++ ) {
         size_t found = defines[ii].find("=") ;
         if ( found != defines[ii].npos ) {
@@ -392,7 +392,6 @@ void HeaderSearchDirs::addDefines ( std::vector<std::string> & defines ) {
         predefines += std::string("#define ") + defines[ii] + "\n" ;
     }
     pp.setPredefines(pp.getPredefines() + "\n" + predefines) ;
-
 }
 
 void HeaderSearchDirs::addTrickICGFoundFile ( std::string file_name ) {
