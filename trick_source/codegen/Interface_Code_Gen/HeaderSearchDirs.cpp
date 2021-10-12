@@ -206,6 +206,7 @@ void HeaderSearchDirs::addSearchDirs ( std::vector<std::string> & include_dirs,
     AddCompilerBuiltInSearchDirs() ;
     ApplyHeaderSearchOptions() ;
     AddDirsAndFiles("TRICK_ICG_EXCLUDE", icg_exclude_dirs) ;
+    AddDirsAndFiles("TRICK_SYSTEM_ICG_EXCLUDE", icg_exclude_dirs) ;
     AddDirsAndFiles("TRICK_EXCLUDE", exclude_dirs) ;
     AddDirsAndFiles("TRICK_EXT_LIB_DIRS", ext_lib_dirs) ;
     AddDirsAndFiles("TRICK_ICG_NOCOMMENT", icg_nocomment_dirs) ;
