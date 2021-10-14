@@ -174,9 +174,11 @@ ifneq ($(GSL_HOME),)
 endif
 
 ifeq (${USE_CIVETWEB},1)
-    TRICK_LIBS += ${CIVETWEB_HOME}/libcivetweb.a ${TRICK_LIB_DIR}/libtrickCivet.a
+    TRICK_LIBS +=  -ltrickCivet
+    TRICK_EXEC_LINK_LIBS += -L${CIVETWEB_HOME}/lib -lcivetweb -lz
     TRICK_SWIG_FLAGS += -DUSE_CIVETWEB
     TRICK_SYSTEM_CXXFLAGS += -DUSE_CIVETWEB
+    TRICK_SYSTEM_ICG_EXCLUDE += ${CIVETWEB_HOME}
 endif
 
 # We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.

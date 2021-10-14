@@ -18,7 +18,7 @@ PURPOSE: (Represent the state and initial conditions for my server)
 #include "trick/exec_proto.h"
 #include "simpleJSON.hh"
 #include "VariableServerSession.hh"
-#include "WebSocketSession.hh"
+#include "trick/WebSocketSession.hh"
 
 #ifndef SWIG
 #include "civet/CivetServer.h"

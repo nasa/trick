@@ -10159,10 +10159,43 @@ eval ac_res=\$$as_ac_File
 printf "%s\n" "$ac_res" >&6; }
 if eval test \"x\$"$as_ac_File"\" = x"yes"
 then :
-  USE_CIVETWEB="1"
+
+cat >>confdefs.h <<_ACEOF
+#define `printf "%s\n" "HAVE_$CIVETWEB_HOME/include/civetweb.h" | $as_tr_cpp` 1
+_ACEOF
+USE_CIVETWEB="1"
 else $as_nop
-  as_fn_error $? "could not find $CIVETWEB_HOME/include/civetweb.h" "$LINENO" 5
+  as_fn_error $? "Could not find all of the civetweb files." "$LINENO" 5
 fi
+as_ac_File=`printf "%s\n" "ac_cv_file_$CIVETWEB_HOME/lib/libcivetweb.a" | $as_tr_sh`
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $CIVETWEB_HOME/lib/libcivetweb.a" >&5
+printf %s "checking for $CIVETWEB_HOME/lib/libcivetweb.a... " >&6; }
+if eval test \${$as_ac_File+y}
+then :
+  printf %s "(cached) " >&6
+else $as_nop
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "$CIVETWEB_HOME/lib/libcivetweb.a"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+eval ac_res=\$$as_ac_File
+	       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+printf "%s\n" "$ac_res" >&6; }
+if eval test \"x\$"$as_ac_File"\" = x"yes"
+then :
+
+cat >>confdefs.h <<_ACEOF
+#define `printf "%s\n" "HAVE_$CIVETWEB_HOME/lib/libcivetweb.a" | $as_tr_cpp` 1
+_ACEOF
+USE_CIVETWEB="1"
+else $as_nop
+  as_fn_error $? "Could not find all of the civetweb files." "$LINENO" 5
+fi
+
 
 fi
 fi

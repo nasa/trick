@@ -105,9 +105,10 @@ AC_DEFUN([AX_CIVETWEB_HOME],[
                    AS_IF([test "$CIVETWEB_HOME" = "no"],
                      [CIVETWEB_HOME=""],
                          # else --with-civet was provided with a directory path.
-                         AC_CHECK_FILE([$CIVETWEB_HOME/include/civetweb.h],
+                         AC_CHECK_FILES([$CIVETWEB_HOME/include/civetweb.h $CIVETWEB_HOME/lib/libcivetweb.a],
                            [USE_CIVETWEB="1"],
-                           AC_MSG_ERROR([could not find $CIVETWEB_HOME/include/civetweb.h]))))
+                           AC_MSG_ERROR([Could not find all of the civetweb files.]))
+                 ))
                 ],
                 # --with option not provided.
                 [AC_CHECK_HEADER(civetweb.h,

@@ -12,8 +12,8 @@ PURPOSE: (Represent the state and initial conditions of an http server.)
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <vector>
+#include "trick/WebSocketSession.hh"
 
-class WebSocketSession;
 typedef WebSocketSession* (*WebSocketSessionMaker)(struct mg_connection *nc);
 typedef void (*httpMethodHandler)(struct mg_connection *, void* cbdata);
 
