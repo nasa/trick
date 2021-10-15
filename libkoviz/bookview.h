@@ -1,7 +1,6 @@
 #ifndef BOOKVIEW_H
 #define BOOKVIEW_H
 
-#include <QTabWidget>
 #include <QVBoxLayout>
 #include <QFileInfo>
 #include <QPrinter>
@@ -21,6 +20,7 @@
 #include <math.h>
 
 #include "bookidxview.h"
+#include "bookview_tabwidget.h"
 #include "bookview_page.h"
 #include "bookview_tablepage.h"
 #include "bookmodel.h"
@@ -42,6 +42,7 @@ class BookView : public BookIdxView
     Q_OBJECT
 public:
     explicit BookView(QWidget *parent = 0);
+    virtual void setModel(PlotBookModel *model);
 
 protected:
     virtual void currentChanged(const QModelIndex& current,
@@ -51,7 +52,7 @@ protected:
 
 private:
     QVBoxLayout* _mainLayout;
-    QTabWidget* _nb;
+    BookViewTabWidget* _nb;
     int _modelIdxToTabId(const QModelIndex& idx);
     QModelIndex _tabIdToModelIdx(int tabId);
 

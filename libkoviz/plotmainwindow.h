@@ -119,6 +119,7 @@ private:
     QAction *_clearPlotsAction;
     QAction *_clearTablesAction;
     QAction *_plotAllVarsAction;
+    QAction *_enableDragDropAction;
 
     QTabWidget* _nbDPVars;
     VarsWidget* _varsWidget;
@@ -163,6 +164,7 @@ private slots:
      void _clearTables();
      void _launchScript(QAction *action);
      void _plotAllVars();
+     void _toggleEnableDragDrop(bool isChecked);
 
      void _startTimeChanged(double startTime);
      void _liveTimeChanged(double liveTime);

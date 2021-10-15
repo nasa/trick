@@ -5,10 +5,11 @@ BookView::BookView(QWidget *parent) :
 {
     _mainLayout = new QVBoxLayout;
 
-    _nb = new QTabWidget(this);
+    _nb = new BookViewTabWidget(this);
     _nb->setTabsClosable(true);
     _nb->setFocusPolicy(Qt::StrongFocus);
     _nb->setMovable(true);
+    _nb->setAcceptDrops(true);
 
     connect(_nb,SIGNAL(tabCloseRequested(int)),
             this,SLOT(_nbCloseRequested(int)));
@@ -16,6 +17,12 @@ BookView::BookView(QWidget *parent) :
     _mainLayout->addWidget(_nb);
 
     setLayout(_mainLayout);
+}
+
+void BookView::setModel(PlotBookModel *model)
+{
+    _nb->setBookModel(model);
+    BookIdxView::setModel(model);
 }
 
 

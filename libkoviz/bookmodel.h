@@ -10,6 +10,9 @@
 #include <QPaintEngine>
 #include <QString>
 #include <QStringList>
+#include <QWidget>
+#include <QProgressDialog>
+#include "timeit_linux.h"
 #if QT_VERSION >= 0x050000
 #include <QRegularExpressionMatch>
 #include <QHashFunctions>
@@ -123,6 +126,17 @@ public:
     QList<double> minorXTics(const QModelIndex& plotIdx) const;
     QList<double> majorYTics(const QModelIndex& plotIdx) const;
     QList<double> minorYTics(const QModelIndex& plotIdx) const;
+    QStandardItem* createPageItem();
+    QStandardItem* createPlotItem(QStandardItem* pageItem,
+                                  const QString &timeName,
+                                  const QString& yName,
+                                  const QStringList &unitOverrides,
+                                  QWidget *parent);
+    void createCurves(QModelIndex curvesIdx,
+                      const QString &timeName,
+                      const QString &yName,
+                      const QStringList& unitOverrides,
+                      QWidget* parent);
 
     // Utility for abbreviating a list of run:var names
     QStringList abbreviateLabels(const QStringList &labels) const;

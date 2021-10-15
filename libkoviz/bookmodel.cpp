@@ -2058,6 +2058,389 @@ QList<double> PlotBookModel::minorYTics(const QModelIndex &plotIdx) const
     return Y;
 }
 
+QStandardItem *PlotBookModel::createPageItem()
+{
+    QModelIndex pagesIdx = getIndex(QModelIndex(), "Pages");
+    QStandardItem* pagesItem = itemFromIndex(pagesIdx);
+    QStandardItem* pageItem = addChild(pagesItem, "Page");
+
+    QString fg = getDataString(QModelIndex(),"ForegroundColor");
+    if ( fg.isEmpty() ) {
+        fg = "#000000";
+    }
+    QString bg = getDataString(QModelIndex(),"BackgroundColor");
+    if ( bg.isEmpty() ) {
+        bg = "#FFFFFF";
+    }
+
+    static int pageId = 0 ;
+    QString pageName = QString("Page_%0").arg(pageId++);
+    addChild(pageItem, "PageName", pageName);
+    addChild(pageItem, "PageTitle", "Koviz");
+    addChild(pageItem, "PageStartTime", -DBL_MAX);
+    addChild(pageItem, "PageStopTime",   DBL_MAX);
+    addChild(pageItem, "PageBackgroundColor", bg);
+    addChild(pageItem, "PageForegroundColor", fg);
+    addChild(pageItem, "Plots");
+
+    return pageItem;
+}
+
+QStandardItem* PlotBookModel::createPlotItem(QStandardItem *pageItem,
+                                             const QString& timeName,
+                                             const QString &yName,
+                                             const QStringList& unitOverrides,
+                                             QWidget* parent)
+{
+    QModelIndex pageIdx = indexFromItem(pageItem);
+    QModelIndex plotsIdx = getIndex(pageIdx, "Plots", "Page");
+    QStandardItem* plotsItem = itemFromIndex(plotsIdx);
+    QStandardItem* plotItem = addChild(plotsItem, "Plot");
+
+    int plotId = plotItem->row();
+    QString plotName = QString("Plot_%0").arg(plotId);
+
+    addChild(plotItem, "PlotName", plotName);
+    addChild(plotItem, "PlotTitle", "");
+    addChild(plotItem, "PlotMathRect", QRectF());
+    addChild(plotItem, "PlotStartTime", -DBL_MAX);
+    addChild(plotItem, "PlotStopTime",   DBL_MAX);
+    addChild(plotItem, "PlotGrid", true);
+    addChild(plotItem, "PlotRatio", "");
+    addChild(plotItem, "PlotXScale", "linear");
+    addChild(plotItem, "PlotYScale", "linear");
+    addChild(plotItem, "PlotXMinRange", -DBL_MAX);
+    addChild(plotItem, "PlotXMaxRange",  DBL_MAX);
+    addChild(plotItem, "PlotYMinRange", -DBL_MAX);
+    addChild(plotItem, "PlotYMaxRange",  DBL_MAX);
+    addChild(plotItem, "PlotBackgroundColor", "#FFFFFF");
+    addChild(plotItem, "PlotForegroundColor", "#000000");
+    addChild(plotItem, "PlotPresentation", "compare");
+    addChild(plotItem, "PlotXAxisLabel", timeName);
+    addChild(plotItem, "PlotYAxisLabel", yName);
+    addChild(plotItem, "PlotRect", QRect(0,0,0,0));
+
+    QStandardItem *curvesItem = addChild(plotItem,"Curves");
+    QModelIndex curvesIdx = indexFromItem(curvesItem);
+    createCurves(curvesIdx,timeName,yName,unitOverrides,parent);
+}
+
+void PlotBookModel::createCurves(QModelIndex curvesIdx,
+                                 const QString& timeName,
+                                 const QString &yName,
+                                 const QStringList &unitOverrides,
+                                 QWidget *parent)
+{
+    // Turn off model signals when adding children for significant speedup
+    bool block = blockSignals(true);
+
+    int rc = _runs->runDirs().count();
+    QList<QColor> colors = createCurveColors(rc);
+
+    // Setup progress bar dialog for time intensive loads
+    QProgressDialog progress("Loading curves...", "Abort", 0, rc, parent);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(500);
+
+#ifdef __linux
+    TimeItLinux timer;
+    timer.start();
+#endif
+
+    bool isGroups = false;
+    QStringList groups;
+    QModelIndex groupsIdx = getIndex(QModelIndex(),"Groups","");
+    int nGroups = rowCount(groupsIdx);
+    for ( int i = 0; i < nGroups; ++i ) {
+        QModelIndex groupIdx = index(i,1,groupsIdx);
+        QString group = data(groupIdx).toString();
+        groups << group;
+        if ( !group.isEmpty() ) {
+            isGroups = true;
+        }
+    }
+
+    int nCurves = rowCount(curvesIdx);
+    int ii = nCurves; // When alt+click adding curves, this is needed
+    int jj = 0;
+    QString u0;
+    QString r0;
+    for ( int r = 0; r < rc; ++r) {
+
+        // Update progress dialog
+        progress.setValue(r);
+        if (progress.wasCanceled()) {
+            break;
+        }
+
+        CurveModel* curveModel = createCurve(r,timeName,timeName,yName);
+        if ( !curveModel ) {
+            // This should not happen
+            fprintf(stderr, "koviz [bad scoobs]: bookmodel.cpp\n"
+                            "curve(%d,%s,%s,%s) failed.  Aborting!!!\n",
+                    r,
+                    timeName.toLatin1().constData(),
+                    timeName.toLatin1().constData(),
+                    yName.toLatin1().constData());
+            exit(-1);
+        }
+
+        QStandardItem* curvesItem = itemFromIndex(curvesIdx);
+        QStandardItem *curveItem = addChild(curvesItem,"Curve");
+
+        addChild(curveItem, "CurveRunID", r);
+        addChild(curveItem, "CurveTimeName", timeName);
+        addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
+        addChild(curveItem, "CurveXName", timeName);
+        addChild(curveItem, "CurveXUnit", curveModel->t()->unit()); // yes,t
+        addChild(curveItem, "CurveYName", yName);
+        addChild(curveItem, "CurveXMinRange", -DBL_MAX);
+        addChild(curveItem, "CurveXMaxRange",  DBL_MAX);
+        addChild(curveItem, "CurveYMinRange", -DBL_MAX);
+        addChild(curveItem, "CurveYMaxRange",  DBL_MAX);
+        addChild(curveItem, "CurveSymbolSize", "");
+
+        QString yunit;
+        if ( r == 0 ) {
+            if ( rowCount(curvesIdx) > 1 ) {
+                // Multiple vars on plot with single run
+                QModelIndex curveIdx0 = getIndex(curvesIdx,"Curve", "Curves");
+                u0 = getDataString(curveIdx0,"CurveYUnit","Curve");
+                QString u1 = curveModel->y()->unit();
+                if ( Unit::canConvert(u0,u1) ) {
+                    yunit = u0;
+                } else {
+                    yunit = u1;
+                }
+            } else {
+                u0 = curveModel->y()->unit();
+                yunit = u0;
+            }
+            r0 = QFileInfo(curveModel->fileName()).dir().dirName();
+        } else {
+            yunit = curveModel->y()->unit();
+            QString u1 = yunit;
+            if ( Unit::canConvert(u0,u1) ) {
+                // Use unit of first curve
+                yunit = u0;
+            }
+        }
+        if ( !unitOverrides.isEmpty() ) {
+            foreach ( QString overrideUnit, unitOverrides ) {
+                Unit mUnit = Unit::map(yunit,overrideUnit);
+                if ( !mUnit.isEmpty() ) {
+                    // No break if found, so last override in list used
+                    yunit = mUnit.name();
+                }
+            }
+        }
+        addChild(curveItem, "CurveYUnit", yunit);
+
+        addChild(curveItem, "CurveXScale", curveModel->x()->scale());
+        QHash<QString,QVariant> shifts = getDataHash(QModelIndex(),
+                                                     "RunToShiftHash");
+        QString curveRunDir = QFileInfo(curveModel->fileName()).absolutePath();
+        if ( shifts.contains(curveRunDir) ) {
+            double shiftVal = shifts.value(curveRunDir).toDouble();
+            addChild(curveItem, "CurveXBias", shiftVal);
+        } else {
+            // x bias can be set in a mapfile
+            addChild(curveItem, "CurveXBias", curveModel->x()->bias());
+        }
+        addChild(curveItem, "CurveYScale", curveModel->y()->scale());
+        addChild(curveItem, "CurveYBias", curveModel->y()->bias());
+
+        // Color
+        QString color;
+        nCurves = rowCount(curvesIdx);
+        if ( rc == 1 ) {
+            // Color each variable differently
+            QList<QColor> curveColors = createCurveColors(nCurves);
+            color = curveColors.at(nCurves-1).name();
+        } else {
+            // Color RUNs the same
+            color = colors.at(r).name();
+        }
+        QModelIndex lcIdx = getIndex(QModelIndex(),"LegendColors","");
+        if ( ii < rowCount(lcIdx) ) {
+            // Possible commandline color override
+            QModelIndex legendColorIdx = index(ii,1,lcIdx);
+            QString legendColor = data(legendColorIdx).toString();
+            if ( !legendColor.isEmpty() ) {
+                QString group;
+                if ( ii < groups.size() ) {
+                    group = groups.at(ii);
+                }
+                if ( group.isEmpty() ) {
+                    color = legendColor;
+                }
+            }
+        }
+
+        // Linestyle
+        QString style;
+        QStringList styles = lineStyles();
+        nCurves = rowCount(curvesIdx);
+        if ( rc == 1 ) {
+            style = styles.at(0);
+        } else {
+            // Style each variable differently
+            div_t q = div(nCurves-1,rc);
+            style = styles.at((q.quot)%(styles.size()));
+        }
+        QModelIndex lsIdx = getIndex(QModelIndex(),"Linestyles","");
+        if ( ii < rowCount(lsIdx) ) {
+            // Possible commandline linestyle override
+            QModelIndex legendStyleIdx = index(ii,1,lsIdx);
+            QString legendStyle = data(legendStyleIdx).toString();
+            if ( !legendStyle.isEmpty() ) {
+                QString group;
+                if ( ii < groups.size() ) {
+                    group = groups.at(ii);
+                }
+                if ( group.isEmpty() ) {
+                    // E.g. if -l4 dog -ls4 thick_line -g4 99,
+                    //      then override handled in the group logic below
+                    style = legendStyle;
+                }
+            }
+        }
+
+        // Symbol Style
+        QString symbolStyle = "none";
+        QModelIndex ssIdx = getIndex(QModelIndex(),"Symbolstyles","");
+        if ( ii < rowCount(ssIdx) ) {
+            QModelIndex symbolStyleIdx = index(ii,1,ssIdx);
+            QString ss = data(symbolStyleIdx).toString();
+            if ( !ss.isEmpty() ) {
+                QString group;
+                if ( ii < groups.size() ) {
+                    group = groups.at(ii);
+                }
+                if ( group.isEmpty() ) {
+                    // Use symbolstyle from commandline
+                    symbolStyle = ss;
+                }
+            }
+        }
+
+        // Label
+        QString yLabel = _runs->runDirs().at(r) + ":" + yName;
+        QModelIndex llIdx = getIndex(QModelIndex(),"LegendLabels","");
+        if ( ii < rowCount(llIdx) ) {
+            QString llTag = QString("Label%1").arg(ii+1);
+            QString ll = getDataString(llIdx,llTag,"LegendLabels");
+            if ( !ll.isEmpty() ) {
+                QString group;
+                if ( ii < groups.size() ) {
+                    group = groups.at(ii);
+                }
+                if ( group.isEmpty() ) {
+                    // Use commandline label
+                    yLabel = ll;
+                }
+            }
+        }
+
+        // Handle groups (-g1, -g2... -g7 options)
+        if ( isGroups ) {
+            int i = 0;
+            foreach ( QString group, groups ) {
+                if ( !group.isEmpty() ) {
+                    if ( isMatch(curveRunDir,group) ) {
+                        // Color
+                        QModelIndex idx = index(i,1,lcIdx);
+                        QString cc = data(idx).toString();
+                        if ( !cc.isEmpty() ) {
+                            color = cc ;
+                        }
+
+                        // Label
+                        QString llTag = QString("Label%1").arg(i+1);
+                        QString ll = getDataString(llIdx,llTag, "LegendLabels");
+                        if ( !ll.isEmpty() ) {
+                            yLabel = ll ;
+                        } else {
+                            yLabel = group;
+                        }
+
+                        // Linestyle
+                        idx = index(i,1,lsIdx);
+                        QString ls = data(idx).toString();
+                        if ( !ls.isEmpty() ) {
+                            style = ls;
+                        }
+
+                        // Symbolstyle
+                        idx = index(i,1,ssIdx);
+                        QString ss = data(idx).toString();
+                        if ( !ss.isEmpty() ) {
+                            symbolStyle = ss;
+                        }
+
+                        // Match found and handled
+                        break;
+                    }
+                }
+                ++i;
+            }
+        }
+
+        addChild(curveItem, "CurveYLabel", yLabel);
+        addChild(curveItem, "CurveColor", color);
+        addChild(curveItem, "CurveLineStyle",style);
+        addChild(curveItem, "CurveSymbolStyle", symbolStyle);
+
+        // Add actual curve model data
+        if ( r == rc-1) {
+            // Turn signals on for last curve for pixmap update
+            blockSignals(false);
+        }
+        QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
+        addChild(curveItem, "CurveData", v);
+        if ( r == rc-1) {
+            blockSignals(true);
+        }
+
+#ifdef __linux
+        int secs = qRound(timer.stop()/1000000.0);
+        div_t d = div(secs,60);
+        QString msg = QString("Loaded %1 of %2 curves (%3 min %4 sec)")
+                             .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
+        progress.setLabelText(msg);
+#endif
+
+        ++ii;
+        ++jj;
+    }
+
+    // Turn signals back on before adding curveModel
+    blockSignals(block);
+
+    // Update progress dialog
+    progress.setValue(rc);
+
+    // Initialize plot math rect
+    QRectF bbox = calcCurvesBBox(curvesIdx);
+    QModelIndex plotIdx = curvesIdx.parent();
+    QModelIndex pageIdx = plotIdx.parent().parent();
+    QModelIndex plotMathRectIdx = getDataIndex(plotIdx,
+                                               "PlotMathRect",
+                                               "Plot");
+    QModelIndexList siblingPlotIdxs = plotIdxs(pageIdx);
+    foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+        if ( isXTime(siblingPlotIdx) ) {
+            QRectF sibPlotRect = getPlotMathRect(siblingPlotIdx);
+            if ( sibPlotRect.width() > 0 ) {
+                bbox.setLeft(sibPlotRect.left());
+                bbox.setRight(sibPlotRect.right());
+            }
+            break;
+        }
+    }
+    setData(plotMathRectIdx,bbox);
+}
+
 QList<double> PlotBookModel::_majorTics(double a, double b,
                                         const QList<QVariant> &customTics,
                                         const QString &plotScale) const

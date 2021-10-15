@@ -342,6 +342,8 @@ void PlotMainWindow::createMenu()
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
     _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
     _plotAllVarsAction = _optsMenu->addAction(tr("PlotAllVars"));
+    _enableDragDropAction = _optsMenu->addAction(tr("EnableDragAndDrop"));
+    _enableDragDropAction->setCheckable(true);
     _showLiveCoordAction->setCheckable(true);
     _showLiveCoordAction->setChecked(true);
     _menuBar->addMenu(_fileMenu);
@@ -374,6 +376,8 @@ void PlotMainWindow::createMenu()
 
     connect(_plotAllVarsAction, SIGNAL(triggered()),
             this, SLOT(_plotAllVars()));
+    connect(_enableDragDropAction, SIGNAL(toggled(bool)),
+            this, SLOT(_toggleEnableDragDrop(bool)));
     setMenuWidget(_menuBar);
 }
 
@@ -1396,6 +1400,11 @@ void PlotMainWindow::_plotAllVars()
 {
     _varsWidget->selectAllVars();
     _varsWidget->clearSelection();
+}
+
+void PlotMainWindow::_toggleEnableDragDrop(bool isChecked )
+{
+    _varsWidget->setDragEnabled(isChecked);
 }
 
 void PlotMainWindow::_startTimeChanged(double startTime)

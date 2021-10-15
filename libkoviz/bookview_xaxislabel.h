@@ -5,6 +5,7 @@
 #include <QString>
 #include <QWheelEvent>
 #include <QList>
+#include <QMimeData>
 #include "bookidxview.h"
 #include "layoutitem_xaxislabel.h"
 
@@ -19,6 +20,7 @@ protected:
     virtual QSize minimumSizeHint() const;
     virtual QSize sizeHint() const;
     virtual void wheelEvent(QWheelEvent* e);
+    virtual void dropEvent(QDropEvent *event);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

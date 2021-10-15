@@ -34,6 +34,7 @@ public:
 
     void clearSelection();
     void selectAllVars();
+    void setDragEnabled(bool isEnabled);
 
 
 signals:
@@ -58,7 +59,6 @@ private:
     int _qpId;
 
     QModelIndex _findSinglePlotPageWithCurve(const QString& curveYName);
-    QStandardItem* _createPageItem();
     void _addCurves(QModelIndex curvesIdx, const QString& yName);
     QStandardItem* _addChild(QStandardItem* parentItem,
                    const QString& childTitle,

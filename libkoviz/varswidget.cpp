@@ -40,6 +40,7 @@ VarsWidget::VarsWidget(const QString &timeName,
 
     // Vars list view
     _listView = new QListView(parent);
+    _listView->setDragEnabled(false);
     _listView->setModel(_varsFilterModel);
     _gridLayout->addWidget(_listView,1,0);
     _listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -68,6 +69,10 @@ void VarsWidget::_varsSelectModelSelectionChanged(
                                 const QItemSelection &prevVarSelection)
 {
     Q_UNUSED(prevVarSelection); // TODO: handle deselection (prevSelection)
+
+    if ( _listView->dragEnabled() ) {
+        return;
+    }
 
     if ( currVarSelection.size() == 0 ) return;
 
@@ -106,7 +111,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
 
             if ( ! pageIdx.isValid() ) {
                 // No page w/ single plot of selected var,so create plot of var
-                QStandardItem* pageItem = _createPageItem();
+                QStandardItem* pageItem = _plotModel->createPageItem();
                 _addPlotToPage(pageItem,currVarSelection.indexes().at(0));
                 pageIdx = _plotModel->indexFromItem(pageItem);
                 _plotSelectModel->setCurrentIndex(pageIdx,
@@ -120,7 +125,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
         } else {  // Multiple items selected (make pages of 6 plots per page)
             QModelIndex currIdx = _plotSelectModel->currentIndex();
             if ( !currIdx.isValid() ) {
-                QStandardItem* pageItem = _createPageItem();
+                QStandardItem* pageItem = _plotModel->createPageItem();
                 pageIdx = _plotModel->indexFromItem(pageItem);
             } else {
                 pageIdx = _plotModel->getIndex(currIdx, "Page");
@@ -145,7 +150,7 @@ void VarsWidget::_varsSelectModelSelectionChanged(
                 QModelIndex varIdx = currVarIdxs.takeFirst();
                 int nPlots = _plotModel->plotIdxs(pageIdx).size();
                 if ( nPlots == 6 ) {
-                    pageItem = _createPageItem();
+                    pageItem = _plotModel->createPageItem();
                     pageIdx = _plotModel->indexFromItem(pageItem);
                 }
                 _addPlotToPage(pageItem,varIdx);
@@ -208,31 +213,15 @@ void VarsWidget::selectAllVars()
     _listView->selectAll();
 }
 
-QStandardItem* VarsWidget::_createPageItem()
+void VarsWidget::setDragEnabled(bool isEnabled)
 {
-    QModelIndex pagesIdx = _plotModel->getIndex(QModelIndex(), "Pages");
-    QStandardItem* pagesItem = _plotModel->itemFromIndex(pagesIdx);
-    QStandardItem* pageItem = _addChild(pagesItem, "Page");
-
-    QString fg = _plotModel->getDataString(QModelIndex(),"ForegroundColor");
-    if ( fg.isEmpty() ) {
-        fg = "#000000";
+    _varsSelectModel->clear();
+    if ( isEnabled ) {
+        _listView->setSelectionMode(QAbstractItemView::SingleSelection);
+    } else {
+        _listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     }
-    QString bg = _plotModel->getDataString(QModelIndex(),"BackgroundColor");
-    if ( bg.isEmpty() ) {
-        bg = "#FFFFFF";
-    }
-
-    QString pageName = QString("QP_%0:qp.page.%0").arg(_qpId++);
-    _addChild(pageItem, "PageName", pageName);
-    _addChild(pageItem, "PageTitle", "Koviz");
-    _addChild(pageItem, "PageStartTime", -DBL_MAX);
-    _addChild(pageItem, "PageStopTime",   DBL_MAX);
-    _addChild(pageItem, "PageBackgroundColor", bg);
-    _addChild(pageItem, "PageForegroundColor", fg);
-    _addChild(pageItem, "Plots");
-
-    return pageItem;
+    _listView->setDragEnabled(isEnabled);
 }
 
 void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
@@ -271,13 +260,36 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     } else {
         _addChild(plotItem, "PlotPresentation", "compare");
     }
-    _addChild(plotItem, "PlotXAxisLabel", _timeName);
     _addChild(plotItem, "PlotYAxisLabel", yName);
     _addChild(plotItem, "PlotRect", QRect(0,0,0,0));
 
     QStandardItem *curvesItem = _addChild(plotItem,"Curves");
     QModelIndex curvesIdx = _plotModel->indexFromItem(curvesItem);
     _addCurves(curvesIdx,yName);
+
+    // Calculate xaxislabel based on curves just added
+    QString xAxisLabel(_timeName);
+    QModelIndexList curveIdxs = _plotModel->curveIdxs(curvesIdx);
+    bool isFirstCurve = true;
+    QString label;
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        QString  l = _plotModel->getDataString(curveIdx,
+                                               "CurveTimeName","Curve");
+        if ( isFirstCurve ) {
+            label = l;
+            isFirstCurve = false;
+        } else {
+            if ( l != label ) {
+                // Two curves with different timeNames
+                label.clear();
+                break;
+            }
+        }
+    }
+    if ( !label.isEmpty() ) {
+        xAxisLabel = label;
+    }
+    _addChild(plotItem, "PlotXAxisLabel", xAxisLabel);
 
     // Reset monte carlo input view current idx to signal current changed
     int currRunId = -1;
@@ -332,6 +344,10 @@ void VarsWidget::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
     }
 }
 
+// TODO: Replace with _plotModel->createCurves() since almost duplicate code
+//       This uses monteInputsView.  I think the book model would have
+//       to have a pointer to the monteInputsView or model :(
+//       The reason for the monte inputs view is to colorband runs by sort order
 void VarsWidget::_addCurves(QModelIndex curvesIdx, const QString &yName)
 {
     // Turn off model signals when adding children for significant speedup

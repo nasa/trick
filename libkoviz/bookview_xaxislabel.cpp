@@ -5,7 +5,83 @@ XAxisLabelView::XAxisLabelView(QWidget *parent) :
 {
     setFrameShape(QFrame::NoFrame);
     this->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
+    setAcceptDrops(true);
 }
+
+// See: https://www.walletfox.com/course/dragdroplistscene.php
+void XAxisLabelView::dropEvent(QDropEvent *event)
+  {
+    QString mimeType("application/x-qabstractitemmodeldatalist");
+    if ( event->mimeData()->hasFormat(mimeType) ) {
+        QByteArray bytes = event->mimeData()->data(mimeType);
+        QDataStream stream(&bytes,QIODevice::ReadOnly);
+        int row,col;
+        QMap<int, QVariant> valueMap;
+        stream >> row >> col >> valueMap;
+        if ( !valueMap.isEmpty() ) {
+            QString dropString = valueMap.value(0).toString();
+            QModelIndex plotIdx = rootIndex();
+            QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                               "PlotXAxisLabel",
+                                                               "Plot");
+            _bookModel()->setData(xAxisLabelIdx,dropString);
+            QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,
+                                                           "Curves","Plot");
+            QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                              "Curve","Curves");
+            bool block = _bookModel()->blockSignals(true);
+            foreach ( QModelIndex curveIdx, curveIdxs ) {
+                QModelIndex xNameIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXName","Curve");
+                QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXUnit","Curve");
+                QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveData","Curve");
+                int runRow = _bookModel()->getDataInt(curveIdx,
+                                                      "CurveRunID","Curve");
+                QString tName = _bookModel()->getDataString(curveIdx,
+                                                      "CurveTimeName", "Curve");
+                QString yName = _bookModel()->getDataString(curveIdx,
+                                                         "CurveYName", "Curve");
+                QString xName = dropString;
+                CurveModel* curveModel = _bookModel()->createCurve(runRow,
+                                                             tName,xName,yName);
+                QString xUnit = curveModel->x()->unit();
+                _bookModel()->setData(xNameIdx,xName);
+                _bookModel()->setData(xUnitIdx,xUnit);
+                 QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
+                _bookModel()->setData(curveDataIdx,v);
+            }
+            _bookModel()->blockSignals(block);
+
+            // Reset plot math rect
+            QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+            plotIdx = curvesIdx.parent();
+            QModelIndex pageIdx = plotIdx.parent().parent();
+            QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(plotIdx,
+                                                           "PlotMathRect",
+                                                           "Plot");
+            QModelIndexList siblingPlotIdxs = _bookModel()->plotIdxs(pageIdx);
+            foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+                bool isXTime = _bookModel()->isXTime(siblingPlotIdx);
+                if ( isXTime ) {
+                    QRectF sibPlotRect = _bookModel()->
+                                                getPlotMathRect(siblingPlotIdx);
+                    if ( sibPlotRect.width() > 0 ) {
+                        bbox.setLeft(sibPlotRect.left());
+                        bbox.setRight(sibPlotRect.right());
+                    }
+                    break;
+                }
+            }
+            _bookModel()->setData(plotMathRectIdx,bbox);
+
+        }
+        event->accept();
+    } else {
+        event->ignore();
+    }
+  }
 
 void XAxisLabelView::paintEvent(QPaintEvent *event)
 {
