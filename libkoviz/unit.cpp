@@ -498,6 +498,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("kg","lb"),      0.4535923697760192);
     map.insert(QPair<QString,QString>("kg","g"),       0.001);
     map.insert(QPair<QString,QString>("kg","mt"),   1000.0);
+    map.insert(QPair<QString,QString>("kg","slinch"),175.126835246476);
 
     // Force
     map.insert(QPair<QString,QString>("N","N"),      1.0);
