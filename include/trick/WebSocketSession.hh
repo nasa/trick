@@ -6,7 +6,7 @@ PURPOSE: (Represent Websocket connection.)
 
 #include <string>
 #ifndef SWIG
-#include "civet/CivetServer.h"
+#include "CivetServer.h"
 #endif
 
 class WebSocketSession {

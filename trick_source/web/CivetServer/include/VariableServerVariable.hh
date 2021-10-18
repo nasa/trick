@@ -10,7 +10,7 @@ LIBRARY DEPENDENCIES:
 #include <vector>
 
 #ifndef SWIG
-#include "civet/CivetServer.h"
+#include "CivetServer.h"
 #endif
 
 #include <iostream>
