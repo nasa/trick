@@ -72,4 +72,8 @@ Trick::MonteCarlo::~MonteCarlo() {
     connection_device.error_handler = NULL ;
 }
 
+const char* Trick::MonteRun::exit_status_string(ExitStatus exit_status) {
+    return MC_exit_status_string[exit_status];
+}
+
 
