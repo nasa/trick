@@ -2122,13 +2122,14 @@ QStandardItem* PlotBookModel::createPlotItem(QStandardItem *pageItem,
 
     QStandardItem *curvesItem = addChild(plotItem,"Curves");
     QModelIndex curvesIdx = indexFromItem(curvesItem);
-    createCurves(curvesIdx,timeName,yName,unitOverrides,parent);
+    createCurves(curvesIdx,timeName,yName,unitOverrides,0,parent);
 }
 
 void PlotBookModel::createCurves(QModelIndex curvesIdx,
                                  const QString& timeName,
                                  const QString &yName,
                                  const QStringList &unitOverrides,
+                                 QAbstractItemModel* monteModel,
                                  QWidget *parent)
 {
     // Turn off model signals when adding children for significant speedup
@@ -2136,6 +2137,15 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
 
     int rc = _runs->runDirs().count();
     QList<QColor> colors = createCurveColors(rc);
+
+    QHash<int,QString> run2color;
+    if ( monteModel ) {
+        for ( int r = 0; r < rc; ++r ) {
+            QModelIndex runIdx = monteModel->index(r,0);
+            int runId = monteModel->data(runIdx).toInt();
+            run2color.insert(runId, colors.at(r).name());
+        }
+    }
 
     // Setup progress bar dialog for time intensive loads
     QProgressDialog progress("Loading curves...", "Abort", 0, rc, parent);
@@ -2259,7 +2269,11 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
             color = curveColors.at(nCurves-1).name();
         } else {
             // Color RUNs the same
-            color = colors.at(r).name();
+            if ( monteModel ) {
+                color = run2color.value(r);
+            } else {
+                color = colors.at(r).name();
+            }
         }
         QModelIndex lcIdx = getIndex(QModelIndex(),"LegendColors","");
         if ( ii < rowCount(lcIdx) ) {

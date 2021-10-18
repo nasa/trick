@@ -136,6 +136,7 @@ public:
                       const QString &timeName,
                       const QString &yName,
                       const QStringList& unitOverrides,
+                      QAbstractItemModel *monteModel,
                       QWidget* parent);
 
     // Utility for abbreviating a list of run:var names
