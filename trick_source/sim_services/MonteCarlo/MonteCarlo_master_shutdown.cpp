@@ -61,7 +61,6 @@ void Trick::MonteCarlo::shutdown_slaves() {
     }
 }
 
-
 void Trick::MonteCarlo::print_statistics(FILE** fp) {
 
     fprintf(*fp,

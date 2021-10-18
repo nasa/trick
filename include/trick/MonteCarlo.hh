@@ -63,8 +63,6 @@ namespace Trick {
             MC_UNRECOGNIZED_RETURN_CODE /**< unrecognized return code */
         };
 
-
-
         /** Unique identifier sequentially assigned, starting at zero, by the master. */
         unsigned int id;           /**< \n trick_units(--) */
 
@@ -96,7 +94,7 @@ namespace Trick {
             exit_status(MC_RUN_INCOMPLETE) {}
 
         /* return exit status string that matches enum value */
-        static const char* exit_status_string(ExitStatus exit_status);
+        const char* exit_status_string();
     };
 
     /**
