@@ -107,7 +107,7 @@ void Trick::MonteCarlo::print_statistics(FILE** fp) {
         fprintf(*fp, "\nThe following runs failed to complete:\n");
         for (const MonteRun* run : error_runs) {
             fprintf(*fp, "RUN_%05d MonteRun::ExitStatus = %s (%d)\n", run->id,
-              Trick::MonteRun::exit_status_string(run->exit_status), run->exit_status);
+              run->exit_status_string(), run->exit_status);
         }
     }
 }

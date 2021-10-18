@@ -94,7 +94,7 @@ namespace Trick {
             exit_status(MC_RUN_INCOMPLETE) {}
 
         /* return exit status string that matches enum value */
-        const char* exit_status_string();
+        const char* exit_status_string() const;
     };
 
     /**
