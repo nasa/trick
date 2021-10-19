@@ -317,7 +317,8 @@ void CoordArrow::paintMeCenter(QPainter &painter,
 
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),
-    _pixmap(0)
+    _pixmap(0),
+    _isLastPoint(false)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -1013,11 +1014,29 @@ void CurvesView::_keyPressPeriod()
 
         QString x = _format(coord.x());
         QString y = _format(coord.y());
-        fprintf(stderr,"coord=(%s,%s)\n",
-                       x.toLatin1().constData(),
-                       y.toLatin1().constData());
+        QString coordStr = QString("coord=(%1,%2)").arg(x).arg(y);
+        fprintf(stderr,"%-40s",coordStr.toLatin1().constData());
+
+        if ( _isLastPoint ) {
+            QPointF dPoint = coord-_lastPoint;
+            QString dX = _format(dPoint.x());
+            QString dY = _format(dPoint.y());
+            QString xUnit = _bookModel()->getDataString(curveIdx,
+                                                        "CurveXUnit","Curve");
+            QString yUnit = _bookModel()->getDataString(curveIdx,
+                                                        "CurveYUnit","Curve");
+            QString xStr = QString("dx=%1 {%2}").arg(dX).arg(xUnit);
+            QString yStr = QString("dy=%1 {%2}").arg(dY).arg(yUnit);
+            fprintf(stderr,"%-25s %-25s\n",
+                    xStr.toLatin1().constData(),
+                    yStr.toLatin1().constData());
+        } else {
+            fprintf(stderr, "\n");
+        }
 
         curveModel->unmap();
+        _isLastPoint = true;
+        _lastPoint = coord;
     }
 }
 
