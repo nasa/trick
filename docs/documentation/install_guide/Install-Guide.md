@@ -203,7 +203,7 @@ IMPORTANT: Add java and javac from openjdk to your path.
 
 ```
 # temporarily for this terminal session:
-export PATH="/usr/local/opt/openjdk/bin:$PATH
+export PATH="/usr/local/opt/openjdk/bin:$PATH"
 # OR we can add it to .zshrc so it is always added to path when opening a new terminal:
 echo 'export PATH="/usr/local/opt/openjdk/bin:$PATH"' >> ~/.zshrc
 ```
