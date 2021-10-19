@@ -9,7 +9,7 @@ PURPOSE: (Represent the state of a variable server websocket connection.)
 #include <string>
 
 #ifndef SWIG
-#include "civet/CivetServer.h"
+#include "CivetServer.h"
 #endif
 
 #include "trick/WebSocketSession.hh"

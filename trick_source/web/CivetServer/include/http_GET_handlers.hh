@@ -8,7 +8,7 @@ LIBRARY DEPENDENCIES:
 #include <cstddef>
 
 #ifndef SWIG
-#include "civet/CivetServer.h"
+#include "CivetServer.h"
 #endif
 
 void http_send(struct mg_connection *conn, const char* msg, int len, int chunk_size);

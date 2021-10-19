@@ -10,7 +10,7 @@ LIBRARY DEPENDENCIES:
 #include "trick/message_type.h"
 
 #ifndef SWIG
-#include "civet/CivetServer.h"
+#include "CivetServer.h"
 #endif
 
 #include <sstream>

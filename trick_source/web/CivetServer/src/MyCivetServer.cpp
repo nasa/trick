@@ -21,7 +21,7 @@ PURPOSE: (Represent the state and initial conditions for my server)
 #include "trick/WebSocketSession.hh"
 
 #ifndef SWIG
-#include "civet/CivetServer.h"
+#include "CivetServer.h"
 #endif
 
 #include "../include/http_GET_handlers.hh"
