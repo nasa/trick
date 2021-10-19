@@ -169,8 +169,52 @@ export PYTHON_VERSION=3
 proceed to [Install Trick](#install) section of the install guide
 
 <a name="macos"></a>
+### macOS BigSur
+
+1. Install XCode from the App Store.
+
+2. Download and install Command Line Tools for macOS by opening a terminal and running the following command.
+
+```bash
+xcode-select --install
+```
+
+3. Install Homebrew, macOS's unofficial package manager.
+
+```bash
+# bash  
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+```
+
+4. Install the remaining dependencies. Currently llvm 12 with homebrew is not supported, so we need to treat it specially by installing v11 and configuring trick to use it. Also when installing java (defaults to openjdk) with homebrew, we need to add it to our path.
+
+```bash
+brew install java xquartz llvm@11 swig maven udunits openmotif 
+
+```
+
+IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm@11.
+
+```
+./configure --with-llvm=/usr/local/opt/llvm@11 <other configure flags>
+```
+
+IMPORTANT: Add java and javac from openjdk to your path. 
+
+```
+# temporarily for this terminal session:
+export PATH="/usr/local/opt/openjdk/bin:$PATH
+# OR we can add it to .zshrc so it is always added to path when opening a new terminal:
+echo 'export PATH="/usr/local/opt/openjdk/bin:$PATH"' >> ~/.zshrc
+```
+
+Openmotif may install dependent packages that conflict with other installations, fontconfig and freetype.  Use the following command to skip installing these packages if you encounter conflicts.
+```bash
+brew install --ignore-dependencies openmotif
+```
+
 ---
-### MacOS Catelina/Mojave
+### macOS Catelina/Mojave
 
 1. Install XCode from the App Store.
 
@@ -190,7 +234,7 @@ sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_heade
 
 ```
 
-4. Install Homebrew, MacOSX's unofficial package manager.
+4. Install Homebrew, macOS's unofficial package manager.
 
 ```bash
 # bash  
@@ -206,13 +250,13 @@ curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install | r
 
 ```bash
 brew install java xquartz llvm@11 swig maven udunits openmotif 
-brew link llvm llvm@11
+
 ```
-If you have issues installing java with homebrew, you can install java and the jdk from oracle's website:
 
-[Java](https://www.java.com/en/download/)
+IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm@11.
 
-[JDK](https://www.oracle.com/java/technologies/javase-downloads.html) (click JDK Download)
+```
+./configure --with-llvm=/usr/local/opt/llvm@11 <other configure flags>
 
 Openmotif may install dependent packages that conflict with other installations, fontconfig and freetype.  Use the following command to skip installing these packages if you encounter conflicts.
 ```bash
