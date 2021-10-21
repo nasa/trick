@@ -157,6 +157,8 @@ private:
 
     QPixmap* _pixmap;
     QRectF _lastM;
+    bool _isMeasure;
+    QPoint _mouseCurrPos;
     QPixmap* _createLivePixmap();
 
     QString _format(double d);

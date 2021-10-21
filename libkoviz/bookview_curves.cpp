@@ -318,6 +318,7 @@ void CoordArrow::paintMeCenter(QPainter &painter,
 CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),
     _pixmap(0),
+    _isMeasure(false),
     _isLastPoint(false)
 {
     setFocusPolicy(Qt::StrongFocus);
@@ -444,6 +445,12 @@ void CurvesView::paintEvent(QPaintEvent *event)
 
     // Draw markers
     _paintMarkers(painter);
+
+    if ( _isMeasure ) {
+        painter.drawEllipse(_mousePressPos,3,3);
+        painter.drawEllipse(_mouseCurrPos,2,2);
+        painter.drawLine(_mousePressPos,_mouseCurrPos);
+    }
 #endif
 }
 
@@ -1425,6 +1432,7 @@ QPainterPath CurvesView::_stepPath()
 
 void CurvesView::mousePressEvent(QMouseEvent *event)
 {
+    _mouseCurrPos = event->pos();
     if (  event->button() == _buttonSelectAndPan ) {
         _mousePressPos = event->pos();
         _mousePressMathRect = _mathRect();
@@ -1446,6 +1454,11 @@ void CurvesView::mouseReleaseEvent(QMouseEvent *event)
     Qt::KeyboardModifiers keymods = event->modifiers();
     if ( keymods & Qt::ShiftModifier ) {
         isShift = true;
+    }
+
+    if ( _isMeasure ) {
+        viewport()->update();
+        _isMeasure = false;
     }
 
     if (  event->button() == _buttonSelectAndPan && isShift ) {
@@ -1698,6 +1711,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *event)
 
     double Ww = W.width();  // greater > 0, by top line
     double Wh = W.height();
+
+    _mouseCurrPos = event->pos();
 
     if ( event->buttons() == Qt::NoButton && currentIndex().isValid() ) {
 
@@ -2237,47 +2252,93 @@ void CurvesView::mouseMoveEvent(QMouseEvent *event)
 
     } else if ( event->buttons() == _buttonSelectAndPan ) {
 
-        double k = 0.88;
-        QRectF insideRect((1-k)*Ww/2.0,(1-k)*Wh/2.0,k*Ww,k*Wh);
+        Qt::KeyboardModifiers keymods = event->modifiers();
+        bool isAltKey = false;
+        if ( keymods & Qt::AltModifier ) {
+            isAltKey = true;
+        }
 
-        if ( insideRect.contains(_mousePressPos) ) {
-            // Pan if mouse press pos is deeper inside window
-            QRectF M = _mathRect();
-            double Mw = M.width();
-            double Mh = M.height();
-            QTransform T(Mw/Ww, 0.0,  // div by zero checked at top of method
-                         0.0, Mh/Wh,
-                         0.0, 0.0);
-            QPointF dW = event->pos()-_mousePressPos;
-            QPointF mPt = _mousePressMathRect.topLeft()-T.map(dW);
-            M.moveTo(mPt);
-            _bookModel()->setPlotMathRect(M,rootIndex());
-            viewport()->update();
-        } else {
-            // Scale if mouse press pos is on perifery of window
-            QRectF leftRect(0,0,
-                            (1-k)*Ww/2.0, Wh);
-            QRectF rightRect(insideRect.topRight().x(),0,
-                             (1-k)*Ww/2.0,Wh);
-            QRectF topRect(insideRect.topLeft().x(), 0,
-                           insideRect.width(),(1-k)*Wh/2.0);
-            QRectF botRect(insideRect.bottomLeft().x(),
-                           insideRect.bottomLeft().y(),
-                           insideRect.width(),(1-k)*Wh/2.0);
-
-            if ( rightRect.contains(_mousePressPos) ) {
-                _alignment = Qt::AlignRight;
-            } else if ( leftRect.contains(_mousePressPos) ) {
-                _alignment = Qt::AlignLeft;
-            } else if ( topRect.contains(_mousePressPos) ) {
-                _alignment = Qt::AlignTop;
-            } else if ( botRect.contains(_mousePressPos) ) {
-                _alignment = Qt::AlignBottom;
-            } else {
-                // shouldn't happen, but ignore in any case
+        if ( isAltKey ) {
+            // Measuring line with dx,dy
+            _isMeasure = true; // Tell paint event to draw line
+            QRectF M = _bookModel()->getPlotMathRect(rootIndex());
+            QRectF W = viewport()->rect();
+            QString xScale = _bookModel()->getDataString(rootIndex(),
+                                                         "PlotXScale", "Plot");
+            QString yScale = _bookModel()->getDataString(rootIndex(),
+                                                         "PlotYScale", "Plot");
+            double M_x_pres = M.left()+_mousePressPos.x()*(M.width()/W.width());
+            double M_x_curr = M.left()+ _mouseCurrPos.x()*(M.width()/W.width());
+            if ( xScale == "log" ) {
+                M_x_pres = pow(10,M_x_pres);
+                M_x_curr = pow(10,M_x_curr);
             }
+            double dx = qAbs(M_x_curr-M_x_pres);
 
-            BookIdxView::mouseMoveEvent(event); // Scale logic here
+            double M_y_pres = M.top()-
+                              _mousePressPos.y()*qAbs(M.height()/W.height());
+            double M_y_curr = M.top()-
+                               _mouseCurrPos.y()*qAbs(M.height()/W.height());
+            if ( yScale == "log" ) {
+                M_y_pres = pow(10,M_y_pres);
+                M_y_curr = pow(10,M_y_curr);
+            }
+            double dy = qAbs(M_y_curr-M_y_pres);
+
+            QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),
+                                                           "Curves","Plot");
+            QString xUnit = _bookModel()->getCurvesXUnit(curvesIdx);
+            QString yUnit = _bookModel()->getCurvesYUnit(curvesIdx);
+            QModelIndex statusIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                         "StatusBarMessage","");
+             QString msg = QString("dx=%1 {%2} dy=%3 {%4}")
+                                  .arg(dx).arg(xUnit).arg(dy).arg(yUnit);
+             _bookModel()->setData(statusIdx,msg);
+             viewport()->update();
+        } else {
+            // Pan or scale
+            double k = 0.88;
+            QRectF insideRect((1-k)*Ww/2.0,(1-k)*Wh/2.0,k*Ww,k*Wh);
+
+            if ( insideRect.contains(_mousePressPos) ) {
+                // Pan if mouse press pos is deeper inside window
+                QRectF M = _mathRect();
+                double Mw = M.width();
+                double Mh = M.height();
+                QTransform T(Mw/Ww, 0.0,  // div by zero checked at top of method
+                             0.0, Mh/Wh,
+                             0.0, 0.0);
+                QPointF dW = event->pos()-_mousePressPos;
+                QPointF mPt = _mousePressMathRect.topLeft()-T.map(dW);
+                M.moveTo(mPt);
+                _bookModel()->setPlotMathRect(M,rootIndex());
+                viewport()->update();
+            } else {
+                // Scale if mouse press pos is on perifery of window
+                QRectF leftRect(0,0,
+                                (1-k)*Ww/2.0, Wh);
+                QRectF rightRect(insideRect.topRight().x(),0,
+                                 (1-k)*Ww/2.0,Wh);
+                QRectF topRect(insideRect.topLeft().x(), 0,
+                               insideRect.width(),(1-k)*Wh/2.0);
+                QRectF botRect(insideRect.bottomLeft().x(),
+                               insideRect.bottomLeft().y(),
+                               insideRect.width(),(1-k)*Wh/2.0);
+
+                if ( rightRect.contains(_mousePressPos) ) {
+                    _alignment = Qt::AlignRight;
+                } else if ( leftRect.contains(_mousePressPos) ) {
+                    _alignment = Qt::AlignLeft;
+                } else if ( topRect.contains(_mousePressPos) ) {
+                    _alignment = Qt::AlignTop;
+                } else if ( botRect.contains(_mousePressPos) ) {
+                    _alignment = Qt::AlignBottom;
+                } else {
+                    // shouldn't happen, but ignore in any case
+                }
+
+                BookIdxView::mouseMoveEvent(event); // Scale logic here
+            }
         }
     } else {
         event->ignore();
