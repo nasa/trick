@@ -2134,6 +2134,8 @@ QStandardItem* PlotBookModel::createPlotItem(QStandardItem *pageItem,
     QStandardItem *curvesItem = addChild(plotItem,"Curves");
     QModelIndex curvesIdx = indexFromItem(curvesItem);
     createCurves(curvesIdx,timeName,yName,unitOverrides,0,parent);
+
+    return plotItem;
 }
 
 void PlotBookModel::createCurves(QModelIndex curvesIdx,
