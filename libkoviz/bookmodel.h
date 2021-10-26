@@ -109,6 +109,7 @@ public:
 
     // Convenience wrappers for getIndexList
     QModelIndexList pageIdxs() const ;
+    QModelIndexList tableIdxs() const ;
     QModelIndexList plotIdxs(const QModelIndex& pageIdx) const ;
     QModelIndexList curveIdxs(const QModelIndex& curvesIdx) const ;
 

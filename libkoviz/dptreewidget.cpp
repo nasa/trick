@@ -236,22 +236,51 @@ void DPTreeWidget::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
     QModelIndex srcIdx = _dpFilterModel->mapToSource(currIdx);
     QString fp = _dpModel->filePath(srcIdx);
     if ( _isDP(fp) ) {
-        bool isCreated = false;
+        bool isPage = false;
+        bool isTable = false;
         foreach (QModelIndex pageIdx, _bookModel->pageIdxs() ) {
+            // Search pages
             QString pageName = _bookModel->getDataString(pageIdx,
                                                          "PageName","Page");
             QString pageFileName = pageName.split(":").at(0);
             if ( pageFileName == fp ) {
                 _bookSelectModel->setCurrentIndex(pageIdx,
                                                   QItemSelectionModel::Current);
-                isCreated = true;
+                isPage = true;
                 break;
             }
         }
-        if ( !isCreated ) {
+        if ( !isPage ) {
+            // Search tables
+            foreach (QModelIndex tableIdx, _bookModel->tableIdxs() ) {
+                // Search pages
+                QString tableName = _bookModel->getDataString(tableIdx,
+                                                           "TableName","Table");
+                QString tableFileName = tableName.split(":").at(0);
+                if ( tableFileName == fp ) {
+                    _bookSelectModel->setCurrentIndex(tableIdx,
+                                                  QItemSelectionModel::Current);
+                    isTable = true;
+                    break;
+                }
+            }
+        }
+        if ( !isPage && !isTable ) {
+            int nPages0 = _bookModel->pageIdxs().size();
+            int nTables0 = _bookModel->tableIdxs().size();
             _createDP(fp);
-            _bookSelectModel->setCurrentIndex(_bookModel->pageIdxs().last(),
-                                              QItemSelectionModel::Current);
+            int nPages1 = _bookModel->pageIdxs().size();
+            int nTables1 = _bookModel->tableIdxs().size();
+            if ( nPages0 < nPages1 ) {
+                // A page was added, set tab to new page
+                _bookSelectModel->setCurrentIndex(_bookModel->pageIdxs().last(),
+                                                  QItemSelectionModel::Current);
+            } else if ( nTables0 < nTables1 ) {
+                // A table was added, set tab to new table
+                _bookSelectModel->setCurrentIndex(
+                                                 _bookModel->tableIdxs().last(),
+                                                 QItemSelectionModel::Current);
+            }
         }
     }
 }

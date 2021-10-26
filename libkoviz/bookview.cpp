@@ -42,6 +42,18 @@ void BookView::currentChanged(const QModelIndex &current,
                 break;
             }
         }
+    } else if ( _bookModel()->isIndex(current,"Table") ) {
+        QString tableName = _bookModel()->getDataString(current,
+                                                       "TableName","Table");
+        tableName = tableName.split(":").at(0);
+        QFileInfo fi(tableName);
+        tableName = fi.fileName() + ".table";
+        for (int i = 0; i < _nb->count(); ++i) {
+            if ( _nb->tabText(i) == tableName ) {
+                _nb->setCurrentIndex(i);
+                break;
+            }
+        }
     }
 }
 

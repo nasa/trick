@@ -206,7 +206,18 @@ QModelIndexList PlotBookModel::pageIdxs() const
 {
     QModelIndexList idxs;
     if ( isChildIndex(QModelIndex(),"","Pages") ) {
-        idxs = getIndexList(QModelIndex(), "Page");
+        QModelIndex pagesIdx = getIndex(QModelIndex(),"Pages","");
+        idxs = getIndexList(pagesIdx, "Page", "Pages");
+    }
+    return idxs;
+}
+
+QModelIndexList PlotBookModel::tableIdxs() const
+{
+    QModelIndexList idxs;
+    if ( isChildIndex(QModelIndex(),"","Tables") ) {
+        QModelIndex tablesIdx = getIndex(QModelIndex(),"Tables","");
+        idxs = getIndexList(tablesIdx,"Table", "Tables");
     }
     return idxs;
 }
