@@ -396,7 +396,14 @@ AC_PATH_PROG(CURL, curl, nocurl)
 AS_IF([test "$ac_cv_path_CURL" = "nocurl"],AC_MSG_ERROR([could not find curl]),[])
 AC_PATH_PROG(PERL, perl)
 AX_PROG_PERL_VERSION([5.14.0], [], [AC_MSG_ERROR([Trick requires perl version >= 5.14.0])])
+AC_PATH_PROG(ZIP, zip, nozip)
+AS_IF([test "$ac_cv_path_ZIP" = "nozip"],AC_MSG_ERROR([Trick now requires zip but it could not be found. Please install zip. We recommend you use your OS package manager]),[])
 
+
+dnl add PYTHON_VERSION to influential env variables
+AC_ARG_VAR([PYTHON_VERSION],[Adds suffix to python search e.g. PYTHON_VERSION=3 will look for python3])
+
+dnl find python
 AC_ARG_WITH(
   [python],
   AS_HELP_STRING(
