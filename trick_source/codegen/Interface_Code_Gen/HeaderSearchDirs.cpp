@@ -302,28 +302,21 @@ bool HeaderSearchDirs::isPathInExtLib (const std::string& in_dir ) {
     return false ;
 }
 
-bool HeaderSearchDirs::isPathInICGNoComment (const std::string& in_file ) {
-
-    char * resolved_path = almostRealPath(in_file.c_str() ) ;
-
-    if ( resolved_path != NULL ) {
-        std::string dir = std::string(dirname(resolved_path)) + "/";
-
-        if ( icg_nocomment_files.find(dir) == icg_nocomment_files.end() ) {
-
-            icg_nocomment_files[dir] = false ;
-            std::vector<std::string>::iterator vit ;
-            for ( vit = icg_nocomment_dirs.begin() ; vit != icg_nocomment_dirs.end() ; vit++ ) {
-                if ( ! dir.compare(0, (*vit).size(), (*vit))) {
-                    icg_nocomment_files[dir] = true ;
-                    break ;
-                }
-            }
-        }
-        free(resolved_path) ;
+bool HeaderSearchDirs::isPathInICGNoComment (const std::string& in_dir ) {
+    if ( icg_nocomment_files.find(dir) != icg_nocomment_files.end() ) {
         return icg_nocomment_files[dir] ;
     }
-    return false ;
+    else {
+        std::vector<std::string>::iterator vit ;
+        for ( vit = icg_nocomment_dirs.begin() ; vit != icg_nocomment_dirs.end() ; vit++ ) {
+            if ( ! dir.compare(0, (*vit).size(), (*vit))) {
+                icg_nocomment_files[dir] = true ;
+                return true;
+            }
+        }
+        icg_nocomment_files[dir] = false ;
+        return false;
+    }   
 }
 
 bool HeaderSearchDirs::isPathInCompat15 (const std::string& in_dir ) {
