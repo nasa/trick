@@ -303,18 +303,18 @@ bool HeaderSearchDirs::isPathInExtLib (const std::string& in_dir ) {
 }
 
 bool HeaderSearchDirs::isPathInICGNoComment (const std::string& in_dir ) {
-    if ( icg_nocomment_files.find(dir) != icg_nocomment_files.end() ) {
-        return icg_nocomment_files[dir] ;
+    if ( icg_nocomment_files.find(in_dir) != icg_nocomment_files.end() ) {
+        return icg_nocomment_files[in_dir] ;
     }
     else {
         std::vector<std::string>::iterator vit ;
         for ( vit = icg_nocomment_dirs.begin() ; vit != icg_nocomment_dirs.end() ; vit++ ) {
-            if ( ! dir.compare(0, (*vit).size(), (*vit))) {
-                icg_nocomment_files[dir] = true ;
+            if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
+                icg_nocomment_files[in_dir] = true ;
                 return true;
             }
         }
-        icg_nocomment_files[dir] = false ;
+        icg_nocomment_files[in_dir] = false ;
         return false;
     }   
 }
