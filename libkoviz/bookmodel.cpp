@@ -1102,9 +1102,36 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
     return bbox;
 }
 
-// Note:
-//   No scaling or bias is done linear plot scale since it is done
+// Note 1:
+//   No scaling or bias is done for linear plot scale since it is done
 //   via the paint transform. For log scale, the path is scaled/biased.
+// Note 2:
+//   For the live coord to work, every point in the curve model
+//   must have an associated point in the path.  There are two issues.
+//         1) If the model point is close to or the same as the previously
+//            added point, Qt will not add the point to the path
+//         2) If the model point is a NAN, Qt will not add the point to
+//            the path
+//   A trick I did to force Qt to draw successive identical points
+//   or points that are very close to one another is to
+//   add a different point (+1.0) and then change the point i.e.:
+//                    // Add (x,y) twice to path in succession
+//                    path->lineTo(x,y);
+//                    path->lineTo(x+1.0,y+1.0);
+//                    int n = path->elementCount();
+//                    path->setElementPositionAt(n-1,x,y);
+//   The trick for NANs is to add a point to the path that is already on the
+//   path.  If the model has points [(0,7),(1,3),(2,4),(3,nan),(4,8)], the path
+//   should skip from (2,4) to (4,8).  To make that happen, replace (3,nan)
+//   with (2,4).  The extra (2,4) point keeps model to path one-to-one and is
+//   effectively the same path (a drawback is that the duplicated point is
+//   sticky).
+//
+//   If all points in the curve model are nans, no points will be added to
+//   the path, so the returned path is empty.  The plot will show up as "Empty".
+//   This happens, for example, when a motion capture marker is never viewable,
+//   the plot of the marker position will show up as "Empty" since there are
+//   no valid points in the marker trajectory.
 QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
                                                double startTime,double stopTime,
                                                double xs, double xb,
@@ -1123,6 +1150,7 @@ QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
 
     double f = getDataDouble(QModelIndex(),"Frequency");
     bool isFirst = true;
+    int cntNANs = 0;
     while ( !it->isDone() ) {
         double t = it->t();
         if ( f > 0.0 ) {
@@ -1165,7 +1193,26 @@ QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
 
         if ( isFirst ) {
             path->moveTo(x,y);
-            isFirst = false;
+            if ( path->elementCount() == 1 ) {
+                isFirst = false;
+                for ( int i = 0; i < cntNANs; ++i ) {
+                    // Beginning of path was nans
+                    // Add first good point to beginning of path cntNANs times
+                    int m = path->elementCount();
+                    path->lineTo(x+1.0,y+1.0); // see Note 2 at top of method
+                    int n = path->elementCount();
+                    if ( n > m ) {
+                        path->setElementPositionAt(n-1,x,y);
+                    } else {
+                        fprintf(stderr, "koviz [error]: __createPainterPath:1: "
+                                "could not add point (%g,%g)\n", x,y);
+                    }
+                }
+            } else {
+                // Point not added, probably a nan
+                // Count number nans that are at beginning of path
+                ++cntNANs;
+            }
         } else {
             int m = path->elementCount();
             path->lineTo(x,y);
@@ -1176,11 +1223,29 @@ QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
                  * This bit of code tries to force Qt to add the
                  * lineTo(x,y) no matter how close the two points
                  * are to one another.
+                 * See Note 2 at top of method for more details
                  */
                 path->lineTo(x+1.0,y+1.0);
                 int o = path->elementCount();
-                if ( o > m ) {
-                    path->setElementPositionAt(o-1,x,y);
+                if ( o > 0 ) {
+                    if ( o > m ) {
+                        path->setElementPositionAt(o-1,x,y);
+                    } else {
+                        // If that fails, more than likely x or y is nan
+                        // Draw a line from the last point to itself
+                        // See Note 2 at top of method for more details
+                        QPainterPath::Element el = path->elementAt(o-1);
+                        int i = path->elementCount();
+                        path->lineTo(el.x+1,el.y+1);
+                        int j = path->elementCount();
+                        if ( i < j ) {
+                            path->setElementPositionAt(j-1,el.x,el.y);
+                        } else {
+                            fprintf(stderr,
+                                    "koviz [error] : __createPainterPath:2:"
+                                    " could not add point (%g,%g)\n",el.x,el.y);
+                        }
+                    }
                 }
             }
         }
