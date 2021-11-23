@@ -1884,6 +1884,13 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
                 }
             }
             if ( !ok ) {
+                // If a single char, convert to unicode numeric value
+                if ( s.size() == 1 ) {
+                    val = s.at(0).unicode();
+                    ok = true;
+                }
+            }
+            if ( !ok ) {
                 QFileInfo fi(csvFileName);
                 fprintf(stderr,
                  "koviz [error]: Bad value \"%s\" on line %d in file %s\n",
