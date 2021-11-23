@@ -237,6 +237,12 @@ double CsvModel::_convert(const QString &s)
             }
         }
     }
+    if ( !ok ) {
+        // If single char, convert to unicode value
+        if ( s.size() == 1 ) {
+            val = s.at(0).unicode();
+        }
+    }
 
     return val;
 }
