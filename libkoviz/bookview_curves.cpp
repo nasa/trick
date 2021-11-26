@@ -1304,6 +1304,11 @@ void CurvesView::dataChanged(const QModelIndex &topLeft,
                 delete _pixmap;
             }
             _pixmap = _createLivePixmap();
+        } else if ( tag == "CurveYBias" ) {
+            if ( _pixmap ) {
+                delete _pixmap;
+            }
+            _pixmap = _createLivePixmap();
         } else if ( tag == "CurveColor") {
             if ( _pixmap ) {
                 delete _pixmap;
@@ -1436,6 +1441,24 @@ void CurvesView::mousePressEvent(QMouseEvent *event)
     if (  event->button() == _buttonSelectAndPan ) {
         _mousePressPos = event->pos();
         _mousePressMathRect = _mathRect();
+        if ( currentIndex().isValid() ) {
+            QString tag = model()->data(currentIndex()).toString();
+            QString presentation = _bookModel()->getDataString(rootIndex(),
+                                                  "PlotPresentation","Plot");
+            if ( (tag == "Curve" &&
+                  (presentation == "compare" || presentation.isEmpty())) ) {
+
+                CurveModel* curveModel =
+                                    _bookModel()->getCurveModel(currentIndex());
+                if ( curveModel ) {
+                    QModelIndex curveIdx = currentIndex();
+                    _mousePressXBias = _bookModel()->getDataDouble(curveIdx,
+                                                          "CurveXBias","Curve");
+                    _mousePressYBias = _bookModel()->getDataDouble(curveIdx,
+                                                          "CurveYBias","Curve");
+                }
+            }
+        }
         event->ignore();
     } else if (  event->button() == _buttonRubberBandZoom ) {
         event->ignore();
@@ -2257,8 +2280,12 @@ void CurvesView::mouseMoveEvent(QMouseEvent *event)
         if ( keymods & Qt::AltModifier ) {
             isAltKey = true;
         }
+        bool isCtrlKey = false;
+        if ( keymods & Qt::ControlModifier ) {
+            isCtrlKey = true;
+        }
 
-        if ( isAltKey ) {
+        if ( isAltKey && !isCtrlKey ) {
             // Measuring line with dx,dy
             _isMeasure = true; // Tell paint event to draw line
             QRectF M = _bookModel()->getPlotMathRect(rootIndex());
@@ -2295,6 +2322,140 @@ void CurvesView::mouseMoveEvent(QMouseEvent *event)
                                   .arg(dx).arg(xUnit).arg(dy).arg(yUnit);
              _bookModel()->setData(statusIdx,msg);
              viewport()->update();
+
+        } else if ( isCtrlKey == true && currentIndex().isValid() ) {
+            // Drag curve (snap to init point of another curve with ctrl+alt)
+            QString tag = model()->data(currentIndex()).toString();
+            QString presentation = _bookModel()->getDataString(rootIndex(),
+                                                     "PlotPresentation","Plot");
+            QString xScale = _bookModel()->getDataString(rootIndex(),
+                                                         "PlotXScale","Plot");
+            QString yScale = _bookModel()->getDataString(rootIndex(),
+                                                         "PlotYScale","Plot");
+            bool isScaleLinear = false;
+            if ( xScale == "linear" && yScale == "linear" ) {
+                isScaleLinear = true;
+            } else {
+                QMessageBox msgBox;
+                QString msg = QString("Curve dragging only "
+                                      "works in linear scale");
+                msgBox.setText(msg);
+                msgBox.exec();
+            }
+            if ( (tag == "Curve" && isScaleLinear &&
+                 (presentation == "compare" || presentation.isEmpty())) ) {
+
+                QModelIndex curveIdx = currentIndex();
+                CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+
+                if ( curveModel ) {
+                    QTransform M2W = _coordToPixelTransform();
+                    double xInitWin = 0.0;
+                    double yInitWin = 0.0;
+                    double xInit = 0.0;
+                    double yInit = 0.0;
+                    double xInitBias = 0.0;
+                    double yInitBias = 0.0;
+                    curveModel->map();
+                    ModelIterator* it = curveModel->begin();
+                    it->start();
+                    if ( ! it->isDone() ) {
+                        double xs = _bookModel()->getDataDouble(
+                                                curveIdx,"CurveXScale","Curve");
+                        double xb = _bookModel()->getDataDouble(
+                                                curveIdx,"CurveXBias","Curve");
+                        double ys = _bookModel()->getDataDouble(
+                                                curveIdx,"CurveYScale","Curve");
+                        double yb = _bookModel()->getDataDouble(
+                                                curveIdx,"CurveYBias","Curve");
+                        xInitBias = xb;
+                        yInitBias = yb;
+                        xInit = it->at(0)->x()*xs + xb;
+                        yInit = it->at(0)->y()*ys + yb;
+                        QPointF p(xInit,yInit);
+                        p = M2W.map(p);
+                        xInitWin = p.x();
+                        yInitWin = p.y();
+                    }
+                    curveModel->unmap();
+                    delete it;
+
+                    bool isSnap = false;
+                    double xSnapBias = 0.0;
+                    double ySnapBias = 0.0;
+                    if ( isAltKey ) {
+                        QModelIndex curvesIdx = curveIdx.parent();
+                        QModelIndexList curveIdxs = _bookModel()->
+                                      getIndexList(curvesIdx, "Curve","Curves");
+                        foreach ( QModelIndex crvIdx, curveIdxs ) {
+                            if ( crvIdx == currentIndex() ) {
+                                continue;
+                            }
+                            CurveModel* curve = _bookModel()->
+                                    getCurveModel(crvIdx);
+                            if ( curve ) {
+                                curve->map();
+                                ModelIterator* it = curve->begin();
+                                it->start();
+                                if ( ! it->isDone() ) {
+                                    double xs = _bookModel()->getDataDouble(
+                                                  crvIdx,"CurveXScale","Curve");
+                                    double xb = _bookModel()->getDataDouble(
+                                                   crvIdx,"CurveXBias","Curve");
+                                    double ys = _bookModel()->getDataDouble(
+                                                  crvIdx,"CurveYScale","Curve");
+                                    double yb = _bookModel()->getDataDouble(
+                                                   crvIdx,"CurveYBias","Curve");
+                                    double x0 = it->at(0)->x()*xs + xb;
+                                    double y0 = it->at(0)->y()*ys + yb;
+                                    QPointF p(x0,y0);
+                                    p = M2W.map(p);
+                                    double xWin = p.x();
+                                    double yWin = p.y();
+
+                                    double dxw = xInitWin-xWin;
+                                    double dyw = yInitWin-yWin;
+                                    double d = qSqrt(dxw*dxw + dyw*dyw);
+
+                                    if ( d < 30 ) {
+                                        isSnap = true;
+                                        double dx = xInit-x0;
+                                        double dy = yInit-y0;
+                                        xSnapBias = xInitBias-dx;
+                                        ySnapBias = yInitBias-dy;
+                                        break;
+                                    }
+
+                                }
+                                delete it;
+                                curve->unmap();
+                            }
+                        }
+                    }
+
+                    QModelIndex xBiasIdx = _bookModel()->getDataIndex(
+                                                 curveIdx,"CurveXBias","Curve");
+                    QModelIndex yBiasIdx = _bookModel()->getDataIndex(
+                                                 curveIdx,"CurveYBias","Curve");
+                    if ( isSnap ) {
+                        _bookModel()->setData(xBiasIdx, xSnapBias);
+                        _bookModel()->setData(yBiasIdx, ySnapBias);
+                    } else {
+                        QRectF M = _mathRect();
+                        double Mw = M.width();
+                        double Mh = M.height();
+                        QTransform W2M(Mw/Ww, 0.0, // div by zero checked at top
+                                       0.0, Mh/Wh,
+                                       0.0, 0.0);
+                        QPointF dW = event->pos()-_mousePressPos;
+                        QPointF dM = W2M.map(dW);
+                        double xbias = _mousePressXBias+dM.x();
+                        double ybias = _mousePressYBias+dM.y();
+                        _bookModel()->setData(xBiasIdx, xbias);
+                        _bookModel()->setData(yBiasIdx, ybias);
+                    }
+                }
+            }
         } else {
             // Pan or scale
             double k = 0.88;

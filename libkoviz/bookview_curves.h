@@ -19,6 +19,7 @@
 #include <QImage>
 #include <QFontMetrics>
 #include <QPoint>
+#include <QMessageBox>
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
@@ -160,6 +161,9 @@ private:
     bool _isMeasure;
     QPoint _mouseCurrPos;
     QPixmap* _createLivePixmap();
+
+    double _mousePressXBias;
+    double _mousePressYBias;
 
     QString _format(double d);
 
