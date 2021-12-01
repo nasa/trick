@@ -135,8 +135,6 @@ namespace Trick {
             int set_safestore_enabled(bool yes_no) ;
 
             /**
-
-            /**
              @brief @userdesc Command to get the name of the checkpoint dump file.
              @par Python Usage:
              @code trick.checkpoint_get_output_file() @endcode
