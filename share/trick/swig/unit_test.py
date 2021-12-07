@@ -26,7 +26,7 @@ def TRICK_EXPECT_NE( a , b, test_suite, test_case):
     if a != b:
         trick.add_test_result( test_suite , test_case , "") ;
     else:
-        trick.add_test_result( test_suite , test_case , "TRICK_EXPECT_EQ failed") ;
+        trick.add_test_result( test_suite , test_case , "TRICK_EXPECT_NE failed") ;
         print ("a = {}".format(a))
         print ("b = {}".format(b))
 
