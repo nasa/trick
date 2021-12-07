@@ -183,7 +183,7 @@ xcode-select --install
 
 ```bash
 # bash  
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
 4. Install the remaining dependencies. Currently llvm 12 with homebrew is not supported, so we need to treat it specially by installing v11 and configuring trick to use it. Also when installing java (defaults to openjdk) with homebrew, we need to add it to our path.
