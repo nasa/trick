@@ -369,6 +369,17 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                 } else {
                     if ( !plot->presentation().isEmpty() ) {
                         // Presentation specified in DP file
+                        if ( plot->presentation() != "compare" &&
+                             plot->presentation() != "error" &&
+                             plot->presentation() != "error+compare" ) {
+                            fprintf(stderr,
+                                    "koviz [error]: bad presentation=%s "
+                                    "in dpfile=%s \n",
+                                    plot->presentation().toLatin1().constData(),
+                                    dpfile.toLatin1().constData());
+                            exit(-1);
+
+                        }
                         _addChild(plotItem, "PlotPresentation",
                                   plot->presentation());
                     } else {
