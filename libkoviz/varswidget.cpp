@@ -257,7 +257,11 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     if ( rc == 2 ) {
         QString presentation = _plotModel->getDataString(QModelIndex(),
                                                          "Presentation");
-        _addChild(plotItem, "PlotPresentation", presentation);
+        if ( ! presentation.isEmpty() ) {
+            _addChild(plotItem, "PlotPresentation", presentation);
+        } else {
+            _addChild(plotItem, "PlotPresentation", "compare");
+        }
     } else {
         _addChild(plotItem, "PlotPresentation", "compare");
     }

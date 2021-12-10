@@ -689,9 +689,6 @@ int main(int argc, char *argv[])
         if ( presentation.isEmpty() && session ) {
             presentation = session->presentation();
         }
-        if ( presentation.isEmpty() ){
-            presentation = "compare";
-        }
 
         // Make a list of legend labels
         QStringList legends;

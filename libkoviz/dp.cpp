@@ -349,7 +349,8 @@ DPPlot::DPPlot(const QDomElement &e) :
     _foregroundColor("#000000"),
     _font(""),
     _plotXScale("linear"),
-    _plotYScale("linear")
+    _plotYScale("linear"),
+    _presentation("")
 {
     QDomElement el = e;
 
@@ -429,7 +430,8 @@ DPPlot::DPPlot(const char *title) :
     _foregroundColor("#000000"),
     _font(""),
     _plotXScale("linear"),
-    _plotYScale("linear")
+    _plotYScale("linear"),
+    _presentation("")
 {
 }
 
@@ -568,6 +570,11 @@ QRectF DPPlot::rect() const
     return _rect;
 }
 
+QString DPPlot::presentation() const
+{
+    return _presentation;
+}
+
 void DPPlot::setXMinRange(double xMin)
 {
     _xMinRange = xMin;
@@ -674,6 +681,11 @@ void DPPlot::setMinorYTics(const QList<double> &yTics)
 void DPPlot::setRect(double x, double y, double w, double h)
 {
     _rect = QRectF(x,y,w,h);
+}
+
+void DPPlot::setPresentation(const QString &presentation)
+{
+    _presentation = presentation;
 }
 
 DPCurve *DPPlot::addCurve()

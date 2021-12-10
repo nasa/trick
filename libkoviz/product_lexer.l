@@ -65,6 +65,7 @@ MAJOR_Y_TICS                  [Mm][Aa][Jj][Oo][Rr]_[Yy]_[Tt][Ii][Cc][Ss]
 MINOR_X_TICS                  [Mm][Ii][Nn][Oo][Rr]_[Xx]_[Tt][Ii][Cc][Ss]
 MINOR_Y_TICS                  [Mm][Ii][Nn][Oo][Rr]_[Yy]_[Tt][Ii][Cc][Ss]
 RECT                          [Rr][Ee][Cc][Tt]
+PRESENTATION                  [Pp][Rr][Ee][Ss][Ee][Nn][Tt][Aa][Tt][Ii][Oo][Nn]
 
 QSTR                          \"[^"\n]*["\n] 
 STR                           [a-zA-Z][-_a-zA-Z0-9.\,()\[\]/$#{}]* 
@@ -131,6 +132,7 @@ W                             [ \t]+
 {MINOR_X_TICS}             { return(DP_MINOR_X_TICS); }
 {MINOR_Y_TICS}             { return(DP_MINOR_Y_TICS); }
 {RECT}                     { return(DP_RECT); }
+{PRESENTATION}             { return(DP_PRESENTATION); }
 
 {QSTR}  { 
 

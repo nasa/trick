@@ -363,7 +363,18 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             if ( rc == 2 && plot->curves().size() == 1 ) {
                 QString presentation = _bookModel->getDataString(QModelIndex(),
                                                                "Presentation");
-                _addChild(plotItem, "PlotPresentation", presentation);
+                if ( !presentation.isEmpty() ) {
+                    // Commandline argument -pres given
+                    _addChild(plotItem, "PlotPresentation", presentation);
+                } else {
+                    if ( !plot->presentation().isEmpty() ) {
+                        // Presentation specified in DP file
+                        _addChild(plotItem, "PlotPresentation",
+                                  plot->presentation());
+                    } else {
+                        _addChild(plotItem, "PlotPresentation","compare");
+                    }
+                }
             } else {
                 _addChild(plotItem, "PlotPresentation", "compare");
             }

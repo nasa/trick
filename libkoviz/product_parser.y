@@ -98,6 +98,7 @@ QString dpFileName() {
 %token DP_MAJOR_X_TICS DP_MAJOR_Y_TICS
 %token DP_MINOR_X_TICS DP_MINOR_Y_TICS
 %token DP_RECT
+%token DP_PRESENTATION
 
 %token <sval> DP_STR
 %token <dval> DP_FLOAT
@@ -263,6 +264,9 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
         }
         | plot DP_RECT ':' DP_FLOAT ',' DP_FLOAT ',' DP_FLOAT ',' DP_FLOAT {
                 currPlot->setRect($4,$6,$8,$10);
+        }
+        | plot DP_PRESENTATION ':' DP_STR  {
+                currPlot->setPresentation($4);
         }
         | plot {
                    if ( !isXYPair ) {
