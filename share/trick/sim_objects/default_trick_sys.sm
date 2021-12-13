@@ -715,9 +715,8 @@ class InjectorSimObject : public Trick::SimObject {
 
     public:
         Trick::RtiStager  rtis ;
-        std::vector< InjectorExecSimObject * > injector_executor_so ;
+        std::vector< InjectorExecSimObject * > injector_executor_so ; // trick_io(**)
         std::vector<char *> injector_executor_so_names ;
-         // trick_io(**)
 
         void create_injector_executors() {
             unsigned int ii ;
