@@ -366,7 +366,7 @@ class EventManagerSimObject : public Trick::SimObject {
         Trick::EventManager em ;
         Trick::EventProcessor ep ;
         std::vector< ThreadProcessEventSimObject * > thread_process_event_so ; // ** ignore for checkpointing
-        std::vector<char *> thread_process_event_so_names ;
+        std::vector<char *> thread_process_event_so_names ; // trick_io(**)
 
         void create_thread_process_event() {
             unsigned int ii ;
@@ -716,7 +716,7 @@ class InjectorSimObject : public Trick::SimObject {
     public:
         Trick::RtiStager  rtis ;
         std::vector< InjectorExecSimObject * > injector_executor_so ; // trick_io(**)
-        std::vector<char *> injector_executor_so_names ;
+        std::vector<char *> injector_executor_so_names ; // trick_io(**)
 
         void create_injector_executors() {
             unsigned int ii ;
