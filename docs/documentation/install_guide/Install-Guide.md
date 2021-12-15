@@ -193,10 +193,15 @@ brew install java xquartz llvm@11 swig maven udunits openmotif
 
 ```
 
-IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm@11.
-
+IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm@11. It is also possible that the current iteration of our configure script will not be able to find the udunits package, so you may need to point trick to udunits as well.
+You can find the path of llvm and udunits by executing the following commands:
 ```
-./configure --with-llvm=/usr/local/opt/llvm@11 <other configure flags>
+brew info llvm@11
+brew info udunits
+```
+Then enter the path to llvm (and udunits) when you execute the configure command in place of the placeholders:
+```
+./configure --with-llvm=<enter path to llvm> --with-udunits=<path to udunits> <other configure flags (if any)>
 ```
 
 IMPORTANT: Add java and javac from openjdk to your path. 
