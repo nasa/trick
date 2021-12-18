@@ -1,20 +1,37 @@
 # Hot-Air Balloon Simulation
-A hot-air balloon is a lighter than air air-craft consisting of 1) an envelope (the big air-bag), 2) a burner system to heat the air in the envelope, and 3) a basket to carry fuel and passengers.
+A hot-air balloon is a lighter than air aircraft consisting of
 
-As the air inside the envelope is heated it becomes less dense than the cooler outside air, making the balloon more buoyant. This is how we will control the balloon, by changing the temperature of the air in the balloon’s envelope.
+1. an envelope (the big air-bag),
+2. a burner system to heat the air in the envelope, and
+3. a basket to carry fuel and passengers.
 
+The motion of the balloon is controlled by changing the temperature of the air within the envelope. As the temperature of the air within the envelope increases, its density, and therefore its mass decreases. When the total mass of the balloon becomes less the mass of the cooler outside air that it displaces, the balloon will ascend.
 
 ![Balloon Parts](Images/Picture1.png)
 
-The characteristics of the outside-air will be determined using a static atmospheric model called the US Standard Atmosphere.
+## Building the Simulation
+In the ```SIM_balloon``` directory, type **```trick-CP```** to build the simulation executable. When it's complete, you should see:
+
+```
+=== Simulation make complete ===
+```
+Now **cd** into ```models/graphics/``` and type **make**. This builds the graphics client for the simulation.
+
+## Running the Simulation
+In the SIM_balloon directory:
+
+```
+% S_main_*.exe RUN_test/input.py
+```
+The Sim Control Panel, and a graphics client called "Balloon Range" should appear.
+
+Click the Start on the Trick Sim Control Panel.
 
 ## U.S. Standard Atmosphere Model
 
 The US Standard Atmosphere is a static model of pressure, temperature, density, gravitational acceleration, and viscosity as functions of altitude. 
 
-In this simulation, the following four C-language functions are implemented using
-data found at [www.engineeringtoolbox.com](https://www.engineeringtoolbox.com/standard-atmosphere-d_604.html). 
-
+In the ```models/atmosphere``` directory of SIM_balloon we've implemented the following four C-language functions using data found at [www.engineeringtoolbox.com](https://www.engineeringtoolbox.com/standard-atmosphere-d_604.html). The functions are valid for altitudes between -1000 meters and 80,000 meters.
 
 ```double US_STD_density( double alt_m);```
 
@@ -32,8 +49,6 @@ Returns atmospheric temperature (℃) at the given altitude (m).
 
 Returns atmospheric pressure (pascals) at the given altitude (m).
 
-
-
 ## Dynamics Model
 
 The forces acting on our balloon will be those of gravity, buoyancy and aerodynamic drag.
@@ -44,7 +59,7 @@ To determine the balloon’s motion, we first need to know it’s acceleration. 
 
 ![Equation 1](Images/Equation1.png)
 
-To help us calculate these forces we’ll use a static atmosphere model called The US Standard Atmosphere.
+To help us calculate these forces we use the US Standard Atmosphere model described above.
 
 To find the state of the balloon, we integrate acceleration over time to get velocity. We then integrate velocity over time to get position.
 
@@ -65,18 +80,17 @@ The total balloon mass is the sum of the fixed mass and the mass of the heated a
 ![Equation 1](Images/Equation3.png)
 
 ##### Balloon Fixed Mass
+
 The fixed mass is simply the sum of the balloon component masses:
 
-| Balloon Component    | mass     |
-|----------------------|----------|
-| Envelope.            | 113.4 kg |
-| Basket               | 63.5 kg  |
-| Burner System        | 206.4 kg |
-| Payload (passengers) | 300.0 kg |
-| -------------------- | ---------|
-| **m_fixed**          | **683.3 kg** |
-
-
+| Balloon Component    | mass (m)   |
+|----------------------|-----------:|
+| Envelope             |   113.4 kg |
+| Basket               |    63.5 kg |
+| Burner System        |   206.4 kg |
+| Payload (passengers) |   300.0 kg |
+| -------------------- | -------------|
+| **m<sub>fixed</sub>**| **683.3 kg** |
 
 #### Mass of Air in the Balloon
 
@@ -106,7 +120,7 @@ To calculate air density (𝝆) we use the following form of the Ideal Gas Law.
 
 * p is just the standard pressure (in pascals) at the balloon's current altitude. Use ```US_STD_pressure(altitude)```.
 * R<sub>air</sub> is the specific gas constant for dry air. R<sub>air</sub> = 287.055 J/kg K.
-* T is the temperature of the gas in kelvin. The conversion from Celsius to kelvin is T-kelvin = T-celcius + 273.15.
+* T is the temperature of the gas in kelvin. The conversion from Celsius to kelvin is T<sub>kelvin</sub> = T<sub>celsius</sub> + 273.15.
 
 ---
 
