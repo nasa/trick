@@ -153,12 +153,12 @@ Here, we can do that same calculation for air mass as before, using
 
 ### Force of Drag
 
-As the balloon moves upward, or downward, it will be subjected to an atmospheric drag force. Drag is a function of the balloon’s shape [ represented by the coefficient of drag (Cd) ], the density of the air (𝝆), and the cross-sectional area (A) perpendicular to the velocity (v). The drag force points in the opposite direction as the velocity.
+As the balloon moves upward, or downward, it will be subjected to an atmospheric drag force. Drag is a function of the balloon’s shape [ represented by the coefficient of drag (C<sub>d</sub>) ], the density of the air (𝝆), and the cross-sectional area (A) perpendicular to the velocity (v). The drag force points in the opposite direction as the velocity.
 
 <a id=Equation-10></a>
 ![Equation 10](Images/Equation10.png)
 
-For our balloon, we’ll assume Cd = 0.5, the coefficient of drag for a sphere.
+For our balloon, we’ll assume C<sub>d</sub> = 0.5, the coefficient of drag for a sphere.
 Since the balloon will be moving through our “standard atmosphere” 𝝆 = ```US_STD_density(altitude)```.
 
 We’ll calculate the cross-sectional area (A) from the radius of the spherical portion of our balloon.
