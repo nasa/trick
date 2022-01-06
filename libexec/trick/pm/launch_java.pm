@@ -37,7 +37,8 @@ sub launch_java($$) {
         $command .= "\\
              -Xdock:name=\"$name\" \\
              -Xdock:icon=$java_dir/build/classes/trick/common/resources/trick_icon.png \\
-             -Djava.net.preferIPv4Stack=true \\" ;        
+             -Djava.net.preferIPv4Stack=true \\
+             --add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED \\" ;
     }
 
     $command .= "$java_dir/build/$application.jar ";
@@ -45,7 +46,6 @@ sub launch_java($$) {
     foreach (@ARGV) {
        $command .= "$_ ";
     }
-
     system $command ;
     exit $? >> 8 ;
 }
