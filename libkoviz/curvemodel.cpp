@@ -1,9 +1,20 @@
 #include "curvemodel.h"
 
+CurveModel::CurveModel() :
+    _real(0),
+    _imag(0),
+    _datamodel(0),
+    _t(0),
+    _x(0),
+    _y(0)
+{}
+
 CurveModel::CurveModel(DataModel *datamodel,
                        int tcol, int xcol, int ycol,
                        QObject *parent) :
     QAbstractTableModel(parent),
+    _real(0),
+    _imag(0),
     _datamodel(datamodel),
     _tcol(tcol),
     _xcol(xcol),
@@ -22,9 +33,18 @@ CurveModel::CurveModel(DataModel *datamodel,
 
 CurveModel::~CurveModel()
 {
-    delete _t;
-    delete _x;
-    delete _y;
+    if ( _t ) delete _t;
+    if ( _x ) delete _x;
+    if ( _y ) delete _y;
+    if ( _real ) {
+        free(_real);
+        _real = 0;
+    }
+    if ( _imag ) {
+        free(_imag);
+        _imag = 0;
+    }
+
 }
 
 int CurveModel::rowCount(const QModelIndex &pidx) const

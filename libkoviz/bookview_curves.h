@@ -28,6 +28,8 @@
 #include "curvemodel.h"
 #include "roundoff.h"
 #include "layoutitem_curves.h"
+#include "curvemodel_fft.h"
+#include "curvemodel_ifft.h"
 
 class TimeAndIndex
 {
@@ -180,6 +182,7 @@ private:
     void _keyPressArrow(const Qt::ArrowType& arrow);
     void _keyPressComma();
     void _keyPressEscape();
+    void _keyPressF();
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

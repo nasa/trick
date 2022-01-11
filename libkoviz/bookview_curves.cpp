@@ -2517,6 +2517,7 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Right: _keyPressArrow(Qt::RightArrow);break;
     case Qt::Key_Comma: _keyPressComma();break;
     case Qt::Key_Escape: _keyPressEscape();break;
+    case Qt::Key_F: _keyPressF();break;
     default: ; // do nothing
     }
 }
@@ -2700,6 +2701,108 @@ void CurvesView::_keyPressEscape()
     QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
     _bookModel()->setPlotMathRect(bbox,rootIndex());
     viewport()->update();
+}
+
+// Toggle between Time and Frequency domain
+void CurvesView::_keyPressF()
+{
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    // All curves should be time or frequency domain (x should be "s" or "Hz")
+    bool isTimeDomain = true;
+    bool isFrequencyDomain = true;
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel ) {
+            QString xUnit = _bookModel()->getDataString(curveIdx,
+                                                        "CurveXUnit","Curve");
+            if ( xUnit == "s" ) {
+                isFrequencyDomain = false;
+            } else if ( xUnit == "Hz" ) {
+                isTimeDomain = false;
+            } else {
+                isTimeDomain = false;
+                isFrequencyDomain = false;
+                break;
+            }
+        } else {
+            isTimeDomain = false;
+            isFrequencyDomain = false;
+            break;
+        }
+    }
+    if ( !isTimeDomain && !isFrequencyDomain ) {
+        fprintf(stderr, "koviz [error]: Attempting to do fft or ifft on data "
+                        "where x units are neither seconds or Hz.\n");
+        exit(-1);
+    }
+
+    QRectF M = _bookModel()->getPlotMathRect(rootIndex());
+
+    if ( isTimeDomain ) {
+        // TimeDomain -> FrequencyDomain
+        bool block = _bookModel()->blockSignals(true);
+        foreach ( QModelIndex curveIdx, curveIdxs ) {
+            CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+            if ( curveModel ) {
+                CurveModel* fft = new CurveModelFFT(curveModel,
+                                                    M.left(),M.right());
+                QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXUnit","Curve");
+                _bookModel()->setData(xUnitIdx,"Hz");
+                QVariant v = PtrToQVariant<CurveModel>::convert(fft);
+                QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+                _bookModel()->setData(curveDataIdx,v);
+                delete curveModel;
+            }
+        }
+        QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+        _bookModel()->setPlotMathRect(bbox,rootIndex());
+
+        QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                       "PlotXAxisLabel","Plot");
+        _bookModel()->setData(xAxisLabelIdx,"Frequency");
+
+        _bookModel()->blockSignals(block);
+
+        QModelIndex xScaleIdx = _bookModel()->getDataIndex(plotIdx,
+                                                           "PlotXScale","Plot");
+        _bookModel()->setData(xScaleIdx,"log");
+    } else {
+        // FrequencyDomain -> TimeDomain
+        bool block = _bookModel()->blockSignals(true);
+        foreach ( QModelIndex curveIdx, curveIdxs ) {
+            CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+            if ( curveModel ) {
+                CurveModel* ifft = new CurveModelIFFT(curveModel,
+                                                    M.left(),M.right());
+                QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXUnit","Curve");
+                _bookModel()->setData(xUnitIdx,"s");
+                QVariant v = PtrToQVariant<CurveModel>::convert(ifft);
+                QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+                _bookModel()->setData(curveDataIdx,v);
+                delete curveModel;
+            }
+        }
+        QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+        _bookModel()->setPlotMathRect(bbox,rootIndex());
+
+        QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                       "PlotXAxisLabel","Plot");
+        _bookModel()->setData(xAxisLabelIdx,"Time");
+
+        _bookModel()->blockSignals(block);
+
+        QModelIndex xScaleIdx = _bookModel()->getDataIndex(plotIdx,
+                                                           "PlotXScale","Plot");
+        _bookModel()->setData(xScaleIdx,"linear");
+    }
 }
 
 TimeAndIndex::TimeAndIndex(double time, int timeIdx, const QModelIndex &idx) :

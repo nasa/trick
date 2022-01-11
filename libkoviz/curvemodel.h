@@ -13,27 +13,32 @@ class CurveModel : public QAbstractTableModel
 
   public:
 
+    CurveModel() ;
+
     explicit CurveModel(DataModel* datamodel,
                         int tcol, int xcol, int ycol,
                         QObject *parent = 0);
 
-    ~CurveModel();
+    virtual ~CurveModel();
 
-    CurveModelParameter* t() { return _t; }
-    CurveModelParameter* x() { return _x; }
-    CurveModelParameter* y() { return _y; }
+    virtual CurveModelParameter* t() { return _t; }
+    virtual CurveModelParameter* x() { return _x; }
+    virtual CurveModelParameter* y() { return _y; }
 
-    QString fileName() const { return _datamodel->fileName(); }
+    virtual QString fileName() const { return _datamodel->fileName(); }
 
-    void map() { _datamodel->map(); }
-    void unmap() { _datamodel->unmap(); }
-    ModelIterator* begin() const { return _datamodel->begin(_tcol,_xcol,_ycol);}
-    int indexAtTime(double time) { return _datamodel->indexAtTime(time); }
+    virtual void map() { _datamodel->map(); }
+    virtual void unmap() { _datamodel->unmap(); }
+    virtual ModelIterator* begin() const { return _datamodel->begin(_tcol,_xcol,_ycol);}
+    virtual int indexAtTime(double time) { return _datamodel->indexAtTime(time); }
 
     virtual int rowCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual QVariant data (const QModelIndex & index,
                            int role = Qt::DisplayRole ) const ;
+
+    double* _real; // cache for fft
+    double* _imag; // cache for fft
 
   private:
 

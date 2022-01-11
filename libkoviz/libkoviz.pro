@@ -94,7 +94,10 @@ SOURCES += bookmodel.cpp \
            mapvalue.cpp \
            curvemodelparameter.cpp \
            datamodel_mot.cpp \
-           bookview_tabwidget.cpp
+           bookview_tabwidget.cpp \
+           fft.cpp \
+           curvemodel_fft.cpp \
+           curvemodel_ifft.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -164,7 +167,10 @@ HEADERS  += bookmodel.h \
             mapvalue.h \
             curvemodelparameter.h \
             datamodel_mot.h \
-            bookview_tabwidget.h
+            bookview_tabwidget.h \
+            fft.h \
+            curvemodel_fft.h \
+            curvemodel_ifft.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y
