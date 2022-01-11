@@ -111,7 +111,7 @@ void CurveModelFFT::_init(CurveModel* curveModel)
     it = it->at(i0);
     double goodVal = 0.0;
     while ( !it->isDone() ) {
-        if ( ::isnan(it->y()) ) {
+        if ( std::isnan(it->y()) ) {
             it->next();
             continue;
         }
@@ -125,7 +125,7 @@ void CurveModelFFT::_init(CurveModel* curveModel)
     it = it->at(i0);
     while ( !it->isDone() && i < N ) {
         _real[i] = it->y()*ys+yb;
-        if ( ::isnan(_real[i]) ) {
+        if ( std::isnan(_real[i]) ) {
             _real[i] = goodVal;
         }
         _imag[i] = 0.0;
