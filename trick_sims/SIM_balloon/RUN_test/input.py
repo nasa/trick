@@ -5,6 +5,7 @@ dyn.balloon.pos[0] = 0
 dyn.balloon.vel[0] = 0.0
 dyn.balloon.vel[1] = 0.0
 dyn.balloon.envelope_air_temperature = 92.0
+dyn.balloon.wind_speed = 0.0
 
 # ==========================================
 # Start the Satellite Graphics Client

@@ -27,7 +27,8 @@ int Balloon::default_data() {
     envelope_radius          = 8.5;
     envelope_theta           = 45 * (M_PI/180.0);
 
-    Cd = 0.5;
+    Cd[0] = 0.5;
+    Cd[1] = 0.5;
 
     return (0);
 }
@@ -42,9 +43,13 @@ int Balloon::state_deriv() {
     double total_mass = calc_total_mass();
     double F_gravity  = total_mass * (-US_STD_gravity( pos[1])); /* Equation #2 */
     double F_buoyancy = calc_buoyancy_force();
-    double F_drag     = calc_drag_force();
+    double F_drag[2];
+    calc_drag_force(F_drag);
     acc[0] = 0.0;
-    acc[1] = (F_gravity + F_buoyancy + F_drag) / total_mass; /* Equation #1 */
+
+    acc[0] = (F_drag[0]) / total_mass;                          /* Equation #1 */
+    acc[1] = (F_gravity + F_buoyancy + F_drag[1]) / total_mass; /* Equation #1 */
+
     return(0);
 }
 
@@ -105,21 +110,45 @@ double Balloon::calc_fixed_mass() {
     return (envelope_mass + basket_mass + burner_system_mass + payload_mass);
 }
 
-double Balloon::calc_drag_force() {
+void Balloon::calc_drag_force(double *F_drag) {
+    double altitude = pos[1];
 
-    double A = M_PI * envelope_radius * envelope_radius; /* Equation 11 */
-    return (- Cd * 0.5 * US_STD_density(pos[1]) * abs(vel[1]) * vel[1] * A); /* Equation 10 */
+    /* Equation 11 */
+    double v_tas[2];
+    v_tas[0] = vel[0] - wind_speed;
+    v_tas[1] = vel[1];
+
+    double A[2];
+    A[0] = (0.75 * M_PI + 1.0) * envelope_radius * envelope_radius; /* Equation 13 */
+    A[1] = M_PI * envelope_radius * envelope_radius; /* Equation 12 */
+
+    /* Equation 10 */
+    F_drag[0] = -( 0.5 * US_STD_density(altitude) * abs(v_tas[0]) * v_tas[0] * Cd[0] * A[0] );
+    F_drag[1] = -( 0.5 * US_STD_density(altitude) * abs(v_tas[1]) * v_tas[1] * Cd[1] * A[1] );
+
+    return;
 }
 
 int Balloon::control() {
     if ( temperature_change_command != 0) {
         envelope_air_temperature += temperature_change_command;
+        temperature_change_command = 0;
     }
     if (envelope_air_temperature > 120.0) {
         envelope_air_temperature = 120.0;
     }
     if (envelope_air_temperature < 80.0) {
         envelope_air_temperature = 80.0;
+    }
+    if ( wind_change_command != 0) {
+        wind_speed += wind_change_command;
+        wind_change_command = 0;
+    }
+    if (wind_speed > 10.0) {
+        wind_speed = 10.0;
+    }
+    if (wind_speed < -10.0) {
+        wind_speed = -10.0;
     }
     return(0);
 }

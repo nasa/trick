@@ -49,6 +49,7 @@ Returns atmospheric temperature (℃) at the given altitude (m).
 
 Returns atmospheric pressure (pascals) at the given altitude (m).
 
+
 ## Dynamics Model
 
 The forces acting on our balloon will be those of gravity, buoyancy and aerodynamic drag.
@@ -151,20 +152,34 @@ Here, we can do that same calculation for air mass as before, using
 
 ---
 
-### Force of Drag
+### Force of Drag Due to Motion and Wind
 
-As the balloon moves upward, or downward, it will be subjected to an atmospheric drag force. Drag is a function of the balloon’s shape [ represented by the coefficient of drag (C<sub>d</sub>) ], the density of the air (𝝆), and the cross-sectional area (A) perpendicular to the velocity (v). The drag force points in the opposite direction as the velocity.
+As a balloon moves through the air, it encounters an atmospheric drag force. This force is a function of:
+
+* the density of the surrounding air (𝝆),
+* the balloons velocity with respect to the surrounding air (v<sub>TAS</sub>),
+* the balloons coefficient of drag (C<sub>d</sub>) perpendicular to v<sub>TAS</sub>, and
+* the cross-sectional area (A) perpendicular to v<sub>TAS</sub>,
+
 
 <a id=Equation-10></a>
 ![Equation 10](Images/Equation10.png)
 
-For our balloon, we’ll assume C<sub>d</sub> = 0.5, the coefficient of drag for a sphere.
 Since the balloon will be moving through our “standard atmosphere” 𝝆 = ```US_STD_density(altitude)```.
 
-We’ll calculate the cross-sectional area (A) from the radius of the spherical portion of our balloon.
+The velocity of the balloon through the surrounding air (v<sub>TAS</sub>) is equal to its velocity with respect to the ground (v<sub>balloon</sub>) minus the wind velocity (v<sub>wind</sub>). **TAS** stands for True air speed.
 
 <a id=Equation-11></a>
-![Equation 11](Images/Equation11.png)
+![Equation 10](Images/Equation11.png)
+
+The default value of C<sub>d</sub> = 0.5 (the coefficient of drag for a sphere) for both the horizontal and vertical axes of motion.
+
+We can calculate the cross-sectional area (A) from the radius of the spherical portion of our balloon.
+
+For vertical motion:
+![Equation 12](Images/Equation12.png)
+For horizontal motion:
+![Equation 13](Images/Equation13.png)
 
 ## Graphics
 

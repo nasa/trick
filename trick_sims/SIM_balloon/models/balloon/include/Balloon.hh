@@ -18,7 +18,8 @@ class Balloon {
 	double envelope_air_temperature;
 	double envelope_radius;
 	double envelope_theta;
-	double Cd;
+	double wind_speed;
+	double Cd[2];
 
     // Calculated Variables
 	double acc[2];
@@ -27,6 +28,7 @@ class Balloon {
 
     // Control Variable
     int temperature_change_command;
+    int wind_change_command;
 
     // Methods
     int default_data();
@@ -42,7 +44,7 @@ class Balloon {
     double calc_heated_air_density();
     double calc_buoyancy_force();
     double calc_displaced_air_mass();
-    double calc_drag_force();
+    void calc_drag_force(double * F);
     double volume_of_a_spherical_dome( double r, double h);
     double volume_of_a_cone( double r, double h);
 };

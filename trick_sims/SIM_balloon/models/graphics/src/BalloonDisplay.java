@@ -67,6 +67,7 @@ class RangeView extends JPanel {
     private double[] balloonPos;
     private double[] balloonVel;
     private int      envelopeAirTemp; /* degrees C */
+    private int      windSpeed;
     private double   envelope_radius;
     private double   envelope_theta;
 
@@ -78,6 +79,7 @@ class RangeView extends JPanel {
 
     // Controls
     private int deltaTemp ;
+    private int deltaWind ;
 
     /**
      * Class constructor.
@@ -87,6 +89,7 @@ class RangeView extends JPanel {
         setScale(mapScale);
 
         deltaTemp = 0;
+        deltaWind = 0;
 
         skyColor    = new Color(184,202,231);
         groundColor = new Color(100,140, 60);
@@ -105,6 +108,7 @@ class RangeView extends JPanel {
         envelope_theta = Math.toRadians(45.0);
 
         envelopeAirTemp = 0;
+        windSpeed = 0;
 
         cone = new ScenePoly();
         cone.color = envelope_color_1;
@@ -152,6 +156,11 @@ class RangeView extends JPanel {
     public void resetDeltaTemp() { deltaTemp =    0; }
     public int  getDeltaTemp()   { return deltaTemp; }
 
+    public void incWind() { deltaWind =    1; }
+    public void decWind() { deltaWind =   -1; }
+    public void resetDeltaWind() { deltaWind =    0; }
+    public int  getDeltaWind()   { return deltaWind; }
+
     public void setballoonPos(double x, double y) {
         balloonPos[0] = x;
         balloonPos[1] = y;
@@ -162,6 +171,9 @@ class RangeView extends JPanel {
     }
     public void setAirTemp(int temperature) {
         envelopeAirTemp = temperature;
+    }
+    public void setWindSpeed(int speed) {
+        windSpeed = speed;
     }
 
     public void setScale (int mapScale) {
@@ -300,10 +312,12 @@ class RangeView extends JPanel {
         // ===============================================================================
         // Draw Information
         // ===============================================================================
+        g2d.setPaint(Color.BLACK);
         g2d.drawString ( String.format("SCALE: %d pixels/meter",scale), 20,20);
         g2d.drawString ( String.format("Envelope Air-Temp (°C) : [%d]", envelopeAirTemp), 20,40);
-        g2d.drawString ( String.format("Balloon Pos: [%.2f, %.2f]", balloonPos[0], balloonPos[1]), 20,60);
-        g2d.drawString ( String.format("Balloon Vel: [%.2f, %.2f]", balloonVel[0], balloonVel[1]), 20,80);
+        g2d.drawString ( String.format("Wind Speed (m/s) : [%d]", windSpeed), 20,60);
+        g2d.drawString ( String.format("Balloon Pos: [%.2f, %.2f]", balloonPos[0], balloonPos[1]), 20,80);
+        g2d.drawString ( String.format("Balloon Vel: [%.2f, %.2f]", balloonVel[0], balloonVel[1]), 20,100);
 
     }
 
@@ -360,12 +374,55 @@ class TemperatureCtrlPanel extends JPanel implements ActionListener {
     }
 }
 
+class WindCtrlPanel extends JPanel implements ActionListener {
+    private RangeView rangeView;
+    private JButton increaseWindButton, decreaseWindButton;
+
+    public WindCtrlPanel(RangeView view) {
+        rangeView = view;
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+
+        increaseWindButton = new JButton("\u25b6");
+        increaseWindButton.addActionListener(this);
+        increaseWindButton.setActionCommand("increaseWind");
+        increaseWindButton.setToolTipText("Increase Wind");
+
+        decreaseWindButton = new JButton("\u25c0");
+        decreaseWindButton.addActionListener(this);
+        decreaseWindButton.setActionCommand("decreaseWind");
+        decreaseWindButton.setToolTipText("Decrease Wind");
+
+        add(decreaseWindButton);
+        add(increaseWindButton);
+
+
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String s = e.getActionCommand();
+        switch (s) {
+            case "increaseWind":
+                rangeView.incWind();
+                break;
+            case "decreaseWind":
+                rangeView.decWind();
+                break;
+            default:
+                System.out.println("Unknown Action Command:" + s);
+                break;
+        }
+    }
+}
+
+
 class ControlPanel extends JPanel implements ActionListener {
 
     private RangeView rangeView;
     private JButton zoomOutButton, zoomInButton;
     private JButton shutDownButton;
     private TemperatureCtrlPanel temperatureCtrlPanel;
+    private WindCtrlPanel windCtrlPanel;
 
     public ControlPanel(RangeView view) {
 
@@ -380,6 +437,15 @@ class ControlPanel extends JPanel implements ActionListener {
         temperatureCtrlPanel = new TemperatureCtrlPanel(rangeView);
         labeledTemperatureCtrlPanel.add( temperatureCtrlPanel );
         add(labeledTemperatureCtrlPanel);
+
+        JPanel labeledWindCtrlPanel = new JPanel();
+        labeledWindCtrlPanel.setLayout(new BoxLayout(labeledWindCtrlPanel, BoxLayout.Y_AXIS));
+        JLabel windControlLabel = new JLabel("Wind Control");
+        windControlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labeledWindCtrlPanel.add(windControlLabel);
+        windCtrlPanel = new WindCtrlPanel(rangeView);
+        labeledWindCtrlPanel.add( windCtrlPanel );
+        add(labeledWindCtrlPanel);
 
         zoomOutButton = new JButton("Zoom Out");
         zoomOutButton.addActionListener(this);
@@ -499,9 +565,11 @@ public class BalloonDisplay extends JFrame {
         double  velx = 0.0;
         double  vely = 0.0;
         int     airtemp = 0;
+        int     windspeed = 0;
 
         // Outbound command variables
         int temperature_change_command;
+        int wind_change_command;
 
         int simMode = 0;
         boolean standalone = false;
@@ -552,6 +620,7 @@ public class BalloonDisplay extends JFrame {
                             "trick.var_add(\"dyn.balloon.vel[0]\")\n" +
                             "trick.var_add(\"dyn.balloon.vel[1]\")\n" +
                             "trick.var_add(\"dyn.balloon.envelope_air_temperature\")\n" +
+                            "trick.var_add(\"dyn.balloon.wind_speed\")\n" +
                             "trick.var_add(\"trick_sys.sched.mode\")\n" +
         //  2) We want the responses in ASCII:
                             "trick.var_ascii() \n" +
@@ -574,7 +643,8 @@ public class BalloonDisplay extends JFrame {
                 velx    = Double.parseDouble( field[3]);
                 vely    = Double.parseDouble( field[4]);
                 airtemp = Integer.parseInt( field[5]);
-                simMode = Integer.parseInt( field[6]);
+                windspeed = Integer.parseInt( field[6]);
+                simMode = Integer.parseInt( field[7]);
             } catch (IOException | NullPointerException e ) {
                 go = false;
             }
@@ -583,10 +653,19 @@ public class BalloonDisplay extends JFrame {
             rangeView.setballoonPos(posx, posy);
             rangeView.setBalloonVel(velx, vely);
             rangeView.setAirTemp(airtemp);
+            rangeView.setWindSpeed(windspeed);
 
             temperature_change_command = rangeView.getDeltaTemp();
-            balloonDisplay.out.writeBytes( String.format("dyn.balloon.temperature_change_command = %d ;\n", temperature_change_command ));
-            rangeView.resetDeltaTemp();
+            if (temperature_change_command != 0) {
+                balloonDisplay.out.writeBytes( String.format("dyn.balloon.temperature_change_command = %d ;\n", temperature_change_command ));
+                rangeView.resetDeltaTemp();
+            }
+
+            wind_change_command = rangeView.getDeltaWind();
+            if (wind_change_command != 0) {
+                balloonDisplay.out.writeBytes( String.format("dyn.balloon.wind_change_command = %d ;\n", wind_change_command ));
+                rangeView.resetDeltaWind();
+            }
 
             balloonDisplay.out.flush();
 
