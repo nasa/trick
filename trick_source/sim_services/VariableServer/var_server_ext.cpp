@@ -543,6 +543,8 @@ int var_set_base( const char  * var , T value , const char * units ) {
         } else {
             message_publish(MSG_WARNING,"Cannot assign to %s because io_spec does not allow input\n", var) ;
         }
+    } else {
+        message_publish(MSG_WARNING,"reference attributes not found for variable %s in call to var_set\n", var) ;
     }
     return 0 ;
 }
