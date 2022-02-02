@@ -116,6 +116,7 @@ jobs:
           - cfg: { os: centos, tag: latest }
             pkg_mgr: dnf
             conf_pkg: >
+              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
               dnf -y install epel-release &&
               dnf -y update &&
               dnf install -y 'dnf-command(config-manager)' &&
