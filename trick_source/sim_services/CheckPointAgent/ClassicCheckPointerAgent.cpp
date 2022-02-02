@@ -193,8 +193,11 @@ static char *getCompositeSubReference(
     while ((A[i].name[0] != '\0')) {
 
         // Calculate the size (temp_size) of the referenced member variable.
-        if (A[i].num_index != 0) {
-            if (A[i].index[A[i].num_index - 1].size == 0) {
+        // Added mods bit 0 check to see if the member variable is a reference.
+        // If so, size is that of a pointer. TODO verify this is the correct approach,
+        // adding it in for now to test and hotfix. - Scott Fennell 2/1/22
+        if (A[i].num_index != 0 || (A[i].mods & 1) == 1) {
+            if (A[i].index[A[i].num_index - 1].size == 0 || (A[i].mods & 1) == 1) {
                 temp_size = sizeof(void*);
             } else {
                 temp_size = A[i].size;
