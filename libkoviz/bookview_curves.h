@@ -20,6 +20,10 @@
 #include <QFontMetrics>
 #include <QPoint>
 #include <QMessageBox>
+#include <QVBoxLayout>
+#include <QSlider>
+#include <QLineEdit>
+#include <QIntValidator>
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
@@ -30,6 +34,7 @@
 #include "layoutitem_curves.h"
 #include "curvemodel_fft.h"
 #include "curvemodel_ifft.h"
+#include "curvemodel_bw.h"
 
 class TimeAndIndex
 {
@@ -183,6 +188,15 @@ private:
     void _keyPressComma();
     void _keyPressEscape();
     void _keyPressF();
+    void _keyPressB();
+
+    QFrame* _bw_frame;
+    QLineEdit* _bw_label;
+    QSlider* _bw_slider;
+
+private slots:
+    void _keyPressBSliderChanged(int value);
+    void _keyPressBLineEditReturnPressed();
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

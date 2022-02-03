@@ -142,5 +142,11 @@ void CurveModelIFFT::_init(CurveModel* curveModel)
         _data[i*_ncols+2] = _real[i]/N;
     }
 
+    // Clear cache
+    free(_real);
+    free(_imag);
+    _real = 0;
+    _imag = 0;
+
     curveModel->unmap();
 }

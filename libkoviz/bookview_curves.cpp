@@ -319,7 +319,10 @@ CurvesView::CurvesView(QWidget *parent) :
     BookIdxView(parent),
     _pixmap(0),
     _isMeasure(false),
-    _isLastPoint(false)
+    _isLastPoint(false),
+    _bw_frame(0),
+    _bw_label(0),
+    _bw_slider(0)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -2518,6 +2521,7 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Comma: _keyPressComma();break;
     case Qt::Key_Escape: _keyPressEscape();break;
     case Qt::Key_F: _keyPressF();break;
+    case Qt::Key_B: _keyPressB();break;
     default: ; // do nothing
     }
 }
@@ -2763,6 +2767,13 @@ void CurvesView::_keyPressF()
         QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
         _bookModel()->setPlotMathRect(bbox,rootIndex());
 
+        QModelIndex startTimeIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                            "StartTime");
+        _bookModel()->setData(startTimeIdx,-DBL_MAX);
+        QModelIndex stopTimeIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                           "StopTime");
+        _bookModel()->setData(stopTimeIdx,DBL_MAX);
+
         QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
                                                        "PlotXAxisLabel","Plot");
         _bookModel()->setData(xAxisLabelIdx,"Frequency");
@@ -2802,6 +2813,207 @@ void CurvesView::_keyPressF()
         QModelIndex xScaleIdx = _bookModel()->getDataIndex(plotIdx,
                                                            "PlotXScale","Plot");
         _bookModel()->setData(xScaleIdx,"linear");
+    }
+}
+
+void CurvesView::_keyPressB()
+{
+    if ( ! _bw_frame ) {
+        _bw_frame = new QFrame(this);
+        _bw_slider = new QSlider(_bw_frame);
+        _bw_label = new QLineEdit(_bw_frame);
+
+        // Shrink text box since default stretches over plot
+        QFontMetrics fm(_bw_label->font());
+        int w = fm.averageCharWidth()*7; // 7 is an arbitrary init value
+        _bw_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+        _bw_label->setMinimumWidth(w);
+
+        // Validate label entry
+        QIntValidator* v = new QIntValidator(this);
+        _bw_label->setValidator(v);
+
+    } else if ( _bw_frame->isHidden() ) {
+        _bw_frame->show();
+        return;
+    } else {
+        _bw_frame->hide();
+        return;
+    }
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(_bw_label);
+    layout->addWidget(_bw_slider);
+    _bw_frame->setLayout(layout);
+
+    connect(_bw_slider,SIGNAL(valueChanged(int)),
+            this,SLOT(_keyPressBSliderChanged(int)));
+    connect(_bw_label,SIGNAL(returnPressed()),
+            this,SLOT(_keyPressBLineEditReturnPressed()));
+
+    // Get Nyquist frequency for bw filter
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+    double dtMin = DBL_MAX;
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel ) {
+            curveModel->map();
+            int N = 0;
+            double dt = 0.0;
+            bool isFirst = true;
+            double lastTime = 0.0;
+            double lastDt = 0.0;
+            ModelIterator* it = curveModel->begin();
+            while ( !it->isDone() ) {
+                if ( isFirst ) {
+                    isFirst = false;
+                } else {
+                    dt = it->t() - lastTime;
+                    if (lastDt > 0.0 && dt > 0.0 && qAbs(dt-lastDt) > 1.0e-9) {
+                        QMessageBox msgBox;
+                        QString msg = QString(
+                                    "Butterworth filter expects "
+                                    "uniform sampling frequency.  "
+                                    "Data has variable dt.  Bailing!");
+                        msgBox.setText(msg);
+                        msgBox.exec();
+                        delete it;
+                        curveModel->unmap();
+                        _bw_frame->hide();
+                        return;
+                    } else if ( dt == 0.0 ) {
+                        QMessageBox msgBox;
+                        QString msg = QString(
+                                   "Butterworth filter expects "
+                                   "uniform sampling frequency.  "
+                                   "Data has two values with same time stamp.  "
+                                   "Bailing!");
+                        msgBox.setText(msg);
+                        msgBox.exec();
+                        delete it;
+                        curveModel->unmap();
+                        _bw_frame->hide();
+                        return;
+                    }
+                    lastDt = dt;
+                }
+                lastTime = it->t();
+                ++N;
+                it->next();
+            }
+            if ( dt > 0 && dt < dtMin ) {
+                dtMin = dt;
+            }
+
+            double minSamplingRate = 4.0; // Hz
+            if ( dtMin > 1/minSamplingRate ) {
+                QMessageBox msgBox;
+                QString msg = QString(
+                            "Attempted filter of data with a low sampling rate "
+                            "of %1Hz.  "
+                            "Butterworth filter expects "
+                            "a sampling frequency greater than %2Hz.  "
+                            "Bailing!").arg(1/dtMin).arg(minSamplingRate);
+                msgBox.setText(msg);
+                msgBox.exec();
+                _bw_frame->hide();
+                return;
+            }
+
+            // Cache off original data for later filtering (use _real as cache)
+            curveModel->_real = (double*)malloc(N*sizeof(double));
+
+            it = it->at(0);
+            double goodVal = 0.0;
+            while ( !it->isDone() ) {
+                if ( std::isnan(it->y()) ) {
+                    it->next();
+                    continue;
+                }
+                goodVal = it->y();
+                break;
+            }
+
+            int i = 0;
+            it = it->at(0);
+            while ( !it->isDone() ) {
+                curveModel->_real[i] = it->y();
+                if ( std::isnan(curveModel->_real[i]) ) {
+                    curveModel->_real[i] = goodVal;
+                }
+                goodVal = curveModel->_real[i];
+                it->next();
+                ++i;
+            }
+        }
+    }
+    int maxFilterFreq = 0; // Nyquist frequency - 1
+    if ( qRound(1.0/dtMin) % 2 == 0 ) {
+        // even
+        maxFilterFreq = qRound(0.5*(1.0/dtMin))-1;
+    } else {
+        // odd
+        maxFilterFreq = qFloor(0.5*(1.0/dtMin));
+    }
+    _bw_slider->setRange(1,maxFilterFreq);
+    QIntValidator* v = (QIntValidator*)_bw_label->validator();
+    v->setRange(1,maxFilterFreq);
+    if ( maxFilterFreq > 7 ) {
+        _bw_slider->setValue(7); // Setting to 7Hz just because it works a lot
+    } else {
+        _bw_slider->setValue(1);
+    }
+
+    _bw_slider->show();
+    _bw_label->show();
+    _bw_frame->show();
+}
+
+void CurvesView::_keyPressBSliderChanged(int value)
+{
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    bool block = _bookModel()->blockSignals(true);
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel ) {
+            CurveModel* bw = new CurveModelBW(curveModel,value);
+            QVariant v = PtrToQVariant<CurveModel>::convert(bw);
+            QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+            _bookModel()->setData(curveDataIdx,v);
+            curveModel->_real = 0; // Zero out cache since bw now owns it
+            delete curveModel;
+        }
+    }
+    _bookModel()->blockSignals(block);
+
+    // Reset bounding box so that plot refreshes (optimizing redraw)
+    QRectF Z; // Empty
+    QRectF M = _bookModel()->getPlotMathRect(plotIdx);
+    _bookModel()->setPlotMathRect(Z,plotIdx);
+    _bookModel()->setPlotMathRect(M,plotIdx);
+
+    // Update lineedit label
+    QString s = QString("%1").arg(value);
+    _bw_label->setText(s);
+}
+
+void CurvesView::_keyPressBLineEditReturnPressed()
+{
+    QString s = _bw_label->text();
+    bool ok;
+    int value = s.toInt(&ok);
+    if ( ok ) {
+        _keyPressBSliderChanged(value);
+
+        // Update slider
+        _bw_slider->setValue(value);
     }
 }
 
