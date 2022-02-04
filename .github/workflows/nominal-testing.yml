@@ -41,7 +41,10 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: install dependencies
-        run: dnf install -y qt5-qtbase-devel bison flex make gcc gcc-c++
+        run: |
+             sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
+             sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+             dnf install -y qt5-qtbase-devel bison flex make gcc gcc-c++
       - name: qmake
         run:  qmake-qt5
       - name: make
