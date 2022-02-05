@@ -2,15 +2,38 @@
 PURPOSE: (Testing)
 */
 
-typedef struct udt1 {
+struct UDT1 {
     double x;
     struct udt1 *udt_p;
     double *dbl_p;
-} UDT1;
+};
 
-typedef struct udt2 {
+struct UDT2 {
     UDT1   udt1_var;
     double x;
     struct udt1 *udt_p;
     double *dbl_p;
-} UDT2;
+};
+
+struct UDT3 {
+	int & i_r;
+	bool bl;
+	double & dbl_r;
+
+	UDT3() = delete;
+};
+
+
+struct UDT4 {
+	UDT3 & udt3_ref;
+	bool * bl_p;
+	UDT2 & udt2_ref;
+	double dbl;
+
+	UDT4() = delete;
+};
+
+struct UDT5 {
+    double y;
+    UDT2 udt1_2d_arr[3][4];
+};
