@@ -98,6 +98,12 @@ typedef struct ATTRIBUTES_tag {
                                 bit 0 = c++ reference var
                                 bit 1 = c++ static var
                                 bit 2 = "--" units
+                                bit 3-8:
+                                if c++ reference bit is set, width of reference attribute.
+                                else not set.
+                                    Why: because `size` is the size of the type, not the reference
+                                    reference is the size of a pointer because of compiler implementations, but
+                                    is not enforced by C++ standard (could change).
                                 bit 31 = deprecated var */
 
     long offset;        /**< -- Offset in bytes of this parameter from beginning of data structure */
