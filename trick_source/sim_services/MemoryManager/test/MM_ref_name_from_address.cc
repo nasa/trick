@@ -119,7 +119,6 @@ TEST_F(MM_ref_name_from_address, test9) {
 
   UDT5* udt5_p1 = (UDT5*)memmgr->declare_var("UDT5 udt5_var");
   std::string ref_name = memmgr->ref_name_from_address(&(udt5_p1->udt2_2d_arr[2][1].x));
-  EXPECT_EQ("&udt5_var.dt1_2d_arr[2][1].x", ref_name);
+  EXPECT_EQ("&udt5_var.udt2_2d_arr[2][1].x", ref_name);
 
 }
-
