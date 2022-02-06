@@ -55,6 +55,7 @@ TEST_F(MM_ref_name_from_address, test4) {
 
 }
 
+#if __GNUC__ > 4
 TEST_F(MM_ref_name_from_address, test5) {
   int i;
   double d;
@@ -82,7 +83,7 @@ TEST_F(MM_ref_name_from_address, test6) {
 
 }
 
-#if __GNUC__ > 4
+
 TEST_F(MM_ref_name_from_address, test7) {
   int i;
   double d;
