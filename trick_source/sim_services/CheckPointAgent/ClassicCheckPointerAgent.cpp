@@ -227,7 +227,7 @@ static int getCompositeSubReference(
     char* reference_name            /* destination return value of sub reference name*/
     ) {
 
-    int   i = 0, j;
+    int   j, k, m;
     long  offset;
     int   my_index[9];
     int   ret;
@@ -365,9 +365,13 @@ static int getCompositeSubReference(
 /**** Go find the subreference for the arrayed struct member and append *********/
 
     /* get the offset into the array that rAddr points to */
-    offset = Ai->size;
+    offset = 0;
     for (j = 0; j < Ai->num_index; j++) {
-        offset *= my_index[j];
+      m = my_index[j];
+      for(int k = j + 1; m && (k < Ai->num_index); k++) {
+        m *= Ai->index[k].size;
+      }
+      offset += m*Ai->size;
     }
 
     {
