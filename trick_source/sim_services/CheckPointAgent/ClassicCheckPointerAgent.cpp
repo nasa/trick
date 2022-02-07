@@ -201,10 +201,11 @@ static ATTRIBUTES* findMember(ATTRIBUTES* A, long referenceOffset) {
 // STATIC FUNCTION
 /*
    Given an address, that is within the bounds of a composite
-   object (i.e., a struct or class instance), return the corresponding sub-name.
+   object (i.e., a struct or class instance), store the corresponding sub-name
+   in reference_name buffer and return.
 
-   A return value of NULL indicates an error occured. Note that this is not
-   the same as a return value of "", which is valid.
+   A return value of 1 indicates an error occured. A return value of 0 indicates
+   success.
 
    The following BNF production describes a valid sub-reference:
 
