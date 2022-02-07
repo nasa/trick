@@ -409,7 +409,7 @@ Trick parses function declarations for input file use. The python input processo
 
 Trick attempts to process user defined templates. Simple templates are handled. We do not have a good definition of simple. Typedefs of templates is supported and encouraged. All protected and private data is ignored within templates. This is because it is not possible to specify the correct io_src friend function. Templates within templates are not processed. Finally abstract templates are not supported by Trick. These templates should be excluded from Trick processing. See below to see how to exclude code from processing.
 
-STLs may be used in models. However, STL variables are not data recordable, they are not visible in the variable server, nor are they directly accessible in the input file. STL variables may be checkpointed with user help. Trick provides function templates to checkpoint and restore STLs. The user needs to call 3 functions, a checkpoint, post_checkpoint, and restart class jobs.
+STLs may be used in models. However, STL variables are not data recordable, they are not visible in the variable server, nor are they directly accessible in the input file. Some STLs are automatically checkpointed: array, vector, list, deque, set, multiset map, multimap, stack, queue, priority_queue, pair.
 
 ```C++
 // A class with STLs to be checkpointed. 3 methods are defined to help Trick checkpoint the STLs
