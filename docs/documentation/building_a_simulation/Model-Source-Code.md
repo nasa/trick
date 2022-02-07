@@ -411,58 +411,6 @@ Trick attempts to process user defined templates. Simple templates are handled. 
 
 STLs may be used in models. However, STL variables are not data recordable, they are not visible in the variable server, nor are they directly accessible in the input file. Some STLs are automatically checkpointed: array, vector, list, deque, set, multiset map, multimap, stack, queue, priority_queue, pair.
 
-```C++
-// A class with STLs to be checkpointed. 3 methods are defined to help Trick checkpoint the STLs
-class STLCheckpoint {
-public:
-std::map< int , double > my_double_map ;
-std::vector < double > my_double_vec ;
-int checkpoint(string object_name);
-int post_checkpoint(string object_name);
-int restart(string object_name);
-} ;
-// The checkpoint job converts STLs to array data.
-int STLCheckpoint::checkpoint(string object_name) {
-/* checkpoint_stl is a templated function that takes an STL,
-a sim_object name, and a variable name (usually the same
-as the STL name) as arguments. It outputs memory_manager
-arrays named object_name.<variable_name> that contain the
-data in the STLs.
-*/
-checkpoint_stl(my_double_map, object_name , “my_double_map”) ;
-checkpoint_stl(my_double_vec , object_name ,“my_double_vec”) ;
-}
-// The post_checkpoint job frees memory allocated in checkpoint job
-int STLCheckpoint::post_checkpoint(string object_name) {
-//delete_stl takes the same arguments as checkpoint_stl
-checkpoint_stl(my_double_map, object_name , “my_double_map”) ;
-checkpoint_stl(my_double_vec , object_name ,“my_double_vec”) ;
-}
-// The restart job restores STLs from a checkpoint file.
-int STLCheckpoint::restart(string object_name) {
-//restore_stl takes the same arguments as checkpoint_stl
-restore_stl(my_double_map, object_name , “my_double_map”) ;
-resotre_stl(my_double_vec , object_name ,“my_double_vec”) ;
-}
-```
-
-Calls to checkpoint the STLs in the S_define.
-
-```C++
-class theSimObject : public Trick::SimObject {
-public:
-STLCheckpoint stls ;
-theSimObject() {
-/*
-"name" is the string that is the sim_object
-instance name. It is present in all sim objects
-and automatically set by Trick.
-*/
-("checkpoint") stls.checkpoint(name) ;
-("post_checkpoint") stls.post_checkpoint(name) ;
-("restart") stls.restart(name) ;
-} ;
-```
 
 ##### Noncopyable Objects
 
