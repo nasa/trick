@@ -148,7 +148,7 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
 /* 
    Given an offset, that is within the bounds of a composite
    object (i.e., a struct or class instance), return the corresponding 
-   ATTRIBUTE pointer (singular).
+   ATTRIBUTES pointer (singular).
 
    Helper function for getCompositeSubReference.
 .
@@ -225,7 +225,7 @@ static int getCompositeSubReference(
     ATTRIBUTES** left_type,         /* Attributes of type we are looking for */
     void*        structure_address, /* Address of struct we are in */
     ATTRIBUTES*  A,                 /* Attributes of current struct we are in */
-    char* reference_name            /* destination return value of sub reference name*/
+    char* reference_name            /* destination buffer of composite subreference */
     ) {
 
     int   j, k, m;
@@ -240,7 +240,7 @@ static int getCompositeSubReference(
 
     long referenceOffset = (long)rAddr - (long)sAddr;
 
-    // selected attribute
+    // selected ATTRIBUTES stucture from A (singular)
     ATTRIBUTES* Ai;
 
 
@@ -253,7 +253,7 @@ static int getCompositeSubReference(
     // If name is empty, we have failed. 
     Ai = findMember(A, referenceOffset);
 
-/******Failed to find member, set reference_name to offset only and return ****/
+/******If failed to find member, set reference_name to offset only and return ****/
     if (Ai->name[0] == '\0') {
         /* If we fail to find a member corresponding to the reference address,
            it must mean that the ATTRIBUTES don't contain a description for
@@ -275,7 +275,7 @@ static int getCompositeSubReference(
 /* We found a member corresponding to the reference address, so print it's name. */
     sprintf(reference_name, ".%s", Ai->name);
 
-/* The referenced member variable is an intrinsic type */
+/* If the referenced member variable is an intrinsic type */
     if (Ai->type != TRICK_STRUCTURED) {
 
 /* If the reference address is non-array or a pointer, return reference_name as is */
@@ -315,7 +315,6 @@ static int getCompositeSubReference(
     return 0;
     }
 /******** TRICK_STRUCTURED ****************************************************/
-
     /* if it is a reference, do nothing and return */
     if ((Ai->mods & 1) == 1) { // Ai->type == TRICK_STRUCTURED
         return 0;
