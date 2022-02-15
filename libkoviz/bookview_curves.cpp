@@ -3080,12 +3080,40 @@ void CurvesView::_keyPressG()
             double dt = 0.0;
             bool isFirst = true;
             double lastTime = 0.0;
+            double lastDt = 0.0;
             ModelIterator* it = curveModel->begin();
             while ( !it->isDone() ) {
                 if ( isFirst ) {
                     isFirst = false;
                 } else {
                     dt = it->t() - lastTime;
+                    if (lastDt > 0.0 && dt > 0.0 && qAbs(dt-lastDt) > 1.0e-9) {
+                        QMessageBox msgBox;
+                        QString msg = QString(
+                                    "Savitzky-Golay filter expects "
+                                    "uniform sampling frequency.  "
+                                    "Data has variable dt.  Bailing!");
+                        msgBox.setText(msg);
+                        msgBox.exec();
+                        delete it;
+                        curveModel->unmap();
+                        _sg_frame->hide();
+                        return;
+                    } else if ( dt == 0.0 ) {
+                        QMessageBox msgBox;
+                        QString msg = QString(
+                                   "Savitzky-Golay filter expects "
+                                   "uniform sampling frequency.  "
+                                   "Data has two values with same time stamp.  "
+                                   "Bailing!");
+                        msgBox.setText(msg);
+                        msgBox.exec();
+                        delete it;
+                        curveModel->unmap();
+                        _sg_frame->hide();
+                        return;
+                    }
+                    lastDt = dt;
                 }
                 lastTime = it->t();
                 ++N;
