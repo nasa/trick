@@ -19,7 +19,7 @@ jobs:
           - { os: ubuntu, tag: 20.04,   arch: debian }         # EOL April 2025
           - { os: debian, tag: 10,      arch: debian }               # EOL 2024
           - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
-          - { os: centos, tag: 8,  arch: rhel   }     # 8 as of April 2020
+        # - { os: centos, tag: 8,      arch: rhel   }     # 8 as of April 2020
           - { os: rockylinux, tag: latest, arch: rhel}
         # - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
         # - { os: fedora, tag: 33,      arch: rhel   } # feeling confident?
@@ -114,17 +114,17 @@ jobs:
             tag_deps: >-
               swig3
               python-devel
-          - cfg: { os: centos, tag: 8 }
-            pkg_mgr: dnf
-            conf_pkg: >
-              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
-              dnf -y install epel-release &&
-              dnf -y update &&
-              dnf install -y 'dnf-command(config-manager)' &&
-              dnf config-manager --enable powertools
-            tag_deps: >-
-              swig
-              python3-devel diffutils
+#           - cfg: { os: centos, tag: 8 }
+#             pkg_mgr: dnf
+#             conf_pkg: >
+#               sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
+#               dnf -y install epel-release &&
+#               dnf -y update &&
+#               dnf install -y 'dnf-command(config-manager)' &&
+#               dnf config-manager --enable powertools
+#             tag_deps: >-
+#               swig
+#               python3-devel diffutils
           - cfg: { os: rockylinux }
             pkg_mgr: dnf
             conf_pkg: >
