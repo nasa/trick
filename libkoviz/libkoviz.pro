@@ -99,7 +99,9 @@ SOURCES += bookmodel.cpp \
            curvemodel_fft.cpp \
            curvemodel_ifft.cpp \
            filter.c \
-           curvemodel_bw.cpp
+           curvemodel_bw.cpp \
+           curvemodel_sg.cpp \
+           filter_sgolay.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -174,7 +176,9 @@ HEADERS  += bookmodel.h \
             curvemodel_fft.h \
             curvemodel_ifft.h \
             filter.h \
-            curvemodel_bw.h
+            curvemodel_bw.h \
+            curvemodel_sg.h \
+            filter_sgolay.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

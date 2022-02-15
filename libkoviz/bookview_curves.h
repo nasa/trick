@@ -35,6 +35,7 @@
 #include "curvemodel_fft.h"
 #include "curvemodel_ifft.h"
 #include "curvemodel_bw.h"
+#include "curvemodel_sg.h"
 
 class TimeAndIndex
 {
@@ -189,14 +190,24 @@ private:
     void _keyPressEscape();
     void _keyPressF();
     void _keyPressB();
+    void _keyPressG();
 
     QFrame* _bw_frame;
     QLineEdit* _bw_label;
     QSlider* _bw_slider;
 
+    QFrame* _sg_frame;
+    QLineEdit* _sg_window;
+    QLineEdit* _sg_degree;
+    QSlider* _sg_slider;
+    void _keyPressGChange(int window, int degree);
+
 private slots:
     void _keyPressBSliderChanged(int value);
     void _keyPressBLineEditReturnPressed();
+    void _keyPressGSliderChanged(int value);
+    void _keyPressGLineEditReturnPressed();
+    void _keyPressGDegreeReturnPressed();
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,

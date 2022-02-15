@@ -322,7 +322,10 @@ CurvesView::CurvesView(QWidget *parent) :
     _isLastPoint(false),
     _bw_frame(0),
     _bw_label(0),
-    _bw_slider(0)
+    _bw_slider(0),
+    _sg_frame(0),
+    _sg_window(0),
+    _sg_slider(0)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -2522,6 +2525,7 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Escape: _keyPressEscape();break;
     case Qt::Key_F: _keyPressF();break;
     case Qt::Key_B: _keyPressB();break;
+    case Qt::Key_G: _keyPressG();break;
     default: ; // do nothing
     }
 }
@@ -2829,6 +2833,8 @@ void CurvesView::_keyPressB()
         _bw_label->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
         _bw_label->setMinimumWidth(w);
 
+        _bw_label->setToolTip("Frequency");
+
         // Validate label entry
         QIntValidator* v = new QIntValidator(this);
         _bw_label->setValidator(v);
@@ -3014,6 +3020,225 @@ void CurvesView::_keyPressBLineEditReturnPressed()
 
         // Update slider
         _bw_slider->setValue(value);
+    }
+}
+
+void CurvesView::_keyPressG()
+{
+    if ( ! _sg_frame ) {
+        _sg_frame = new QFrame(this);
+        _sg_slider = new QSlider(_sg_frame);
+        _sg_window = new QLineEdit(_sg_frame);
+        _sg_degree = new QLineEdit(_sg_frame);
+
+        // Shrink text box since default stretches over plot
+        QFontMetrics fm(_sg_window->font());
+        int w = fm.averageCharWidth()*7; // 7 is an arbitrary init value
+        _sg_window->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+        _sg_window->setMinimumWidth(w);
+        _sg_window->setToolTip("SG Window");
+        _sg_degree->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+        _sg_degree->setMinimumWidth(w);
+        _sg_degree->setToolTip("Degree: 2-6");
+
+        // Validate label entry
+        QIntValidator* v = new QIntValidator(this);
+        _sg_window->setValidator(v);
+        _sg_degree->setValidator(new QIntValidator(this));
+
+    } else if ( _sg_frame->isHidden() ) {
+        _sg_frame->show();
+        return;
+    } else {
+        _sg_frame->hide();
+        return;
+    }
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(_sg_degree);
+    layout->addWidget(_sg_window);
+    layout->addWidget(_sg_slider);
+    _sg_frame->setLayout(layout);
+
+    connect(_sg_slider,SIGNAL(valueChanged(int)),
+            this,SLOT(_keyPressGSliderChanged(int)));
+    connect(_sg_window,SIGNAL(returnPressed()),
+            this,SLOT(_keyPressGLineEditReturnPressed()));
+    connect(_sg_degree,SIGNAL(returnPressed()),
+            this,SLOT(_keyPressGDegreeReturnPressed()));
+
+    // Get data's dt for sgolay window
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+    double dtMin = DBL_MAX;
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel ) {
+            curveModel->map();
+            int N = 0;
+            double dt = 0.0;
+            bool isFirst = true;
+            double lastTime = 0.0;
+            ModelIterator* it = curveModel->begin();
+            while ( !it->isDone() ) {
+                if ( isFirst ) {
+                    isFirst = false;
+                } else {
+                    dt = it->t() - lastTime;
+                }
+                lastTime = it->t();
+                ++N;
+                it->next();
+            }
+            if ( dt > 0 && dt < dtMin ) {
+                dtMin = dt;
+            }
+
+            double minSamplingRate = 4.0; // Hz
+            if ( dtMin > 1/minSamplingRate ) {
+                QMessageBox msgBox;
+                QString msg = QString(
+                            "Attempted filter of data with a low sampling rate "
+                            "of %1Hz.  "
+                            "S-Golay smoothing function expects "
+                            "a sampling frequency greater than %2Hz.  "
+                            "Bailing!").arg(1/dtMin).arg(minSamplingRate);
+                msgBox.setText(msg);
+                msgBox.exec();
+                _sg_frame->hide();
+                return;
+            }
+
+            // Cache off original data for later filtering (use _real as cache)
+            curveModel->_real = (double*)malloc(N*sizeof(double));
+
+            it = it->at(0);
+            double goodVal = 0.0;
+            while ( !it->isDone() ) {
+                if ( std::isnan(it->y()) ) {
+                    it->next();
+                    continue;
+                }
+                goodVal = it->y();
+                break;
+            }
+
+            int i = 0;
+            it = it->at(0);
+            while ( !it->isDone() ) {
+                curveModel->_real[i] = it->y();
+                if ( std::isnan(curveModel->_real[i]) ) {
+                    curveModel->_real[i] = goodVal;
+                }
+                goodVal = curveModel->_real[i];
+                it->next();
+                ++i;
+            }
+        }
+    }
+    int maxRange = (int)((1.0/dtMin)/5.0);
+    if ( maxRange > 999 ) {
+        maxRange = 999;
+    }
+    _sg_slider->setRange(3,maxRange);
+    QIntValidator* v = (QIntValidator*)_sg_window->validator();
+    v->setRange(3,maxRange);
+    v = (QIntValidator*)_sg_degree->validator();
+    v->setRange(2,6);
+    QString degree = QString("%1").arg(2);
+    _sg_degree->setText(degree);
+    _sg_slider->setValue((int)(maxRange/3));  // Initial guess that works a lot
+
+    _sg_slider->show();
+    _sg_window->show();
+    _sg_frame->show();
+
+}
+
+void CurvesView::_keyPressGChange(int window, int degree)
+{
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    bool block = _bookModel()->blockSignals(true);
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel ) {
+            CurveModel* sg = new CurveModelSG(curveModel,window,degree);
+            QVariant v = PtrToQVariant<CurveModel>::convert(sg);
+            QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+            _bookModel()->setData(curveDataIdx,v);
+            curveModel->_real = 0; // Zero out cache since sg now owns it
+            delete curveModel;
+        }
+    }
+    _bookModel()->blockSignals(block);
+
+    // Reset bounding box so that plot refreshes (optimizing redraw)
+    QRectF Z; // Empty
+    QRectF M = _bookModel()->getPlotMathRect(plotIdx);
+    _bookModel()->setPlotMathRect(Z,plotIdx);
+    _bookModel()->setPlotMathRect(M,plotIdx);
+}
+
+void CurvesView::_keyPressGSliderChanged(int value)
+{
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    bool block = _bookModel()->blockSignals(true);
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel ) {
+            CurveModel* sg = new CurveModelSG(curveModel,value,3);
+            QVariant v = PtrToQVariant<CurveModel>::convert(sg);
+            QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+            _bookModel()->setData(curveDataIdx,v);
+            curveModel->_real = 0; // Zero out cache since sg now owns it
+            delete curveModel;
+        }
+    }
+    _bookModel()->blockSignals(block);
+
+    // Reset bounding box so that plot refreshes (optimizing redraw)
+    QRectF Z; // Empty
+    QRectF M = _bookModel()->getPlotMathRect(plotIdx);
+    _bookModel()->setPlotMathRect(Z,plotIdx);
+    _bookModel()->setPlotMathRect(M,plotIdx);
+
+    // Update lineedit label
+    QString s = QString("%1").arg(value);
+    _sg_window->setText(s);
+}
+
+void CurvesView::_keyPressGLineEditReturnPressed()
+{
+    QString s = _sg_window->text();
+    bool ok;
+    int value = s.toInt(&ok);
+    if ( ok ) {
+        _keyPressGSliderChanged(value);
+        _sg_slider->setValue(value);
+    }
+}
+
+void CurvesView::_keyPressGDegreeReturnPressed()
+{
+    QString s = _sg_degree->text();
+    bool ok;
+    int degree = s.toInt(&ok);
+    if ( ok ) {
+        int window = _sg_window->text().toInt(&ok);
+        if ( ok ) {
+            _keyPressGChange(window,degree);
+        }
     }
 }
 
