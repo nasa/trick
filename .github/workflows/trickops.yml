@@ -45,16 +45,15 @@ jobs:
             share/trick/trickops/tests/*_doctest_log.txt
             /tmp/log.*
 
-  trickops-tests-centos8:
-    name: Unit Tests CentOS:latest
+  trickops-tests-rockylinux8:
+    name: Unit Tests RockyLinux8
     runs-on: ubuntu-20.04
-    container: centos:latest
+    container: rockylinux:8
     steps:
       - uses: actions/checkout@master
       - name: install dependencies
         # Note that perl is for trick-gte which TrickOps runs and qt and everything after it is for koviz
         run: |
-          sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-*
           dnf install -y git python3-devel which perl perl-Digest-MD5 qt5-qtbase-devel bison clang flex make gcc gcc-c++ wget
       - name: create virtual environment
         run: |
