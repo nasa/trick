@@ -23,7 +23,7 @@ To get the current simulation time in time-tics we use:
 long long exec_get_time_tics( void );
 ```
 
-And, to get the number of time tics per second, so we can convert between simulation time in seconds and time-tics, we use the following awkwardly name function:
+And, to get the number of time tics per second, so we can convert between simulation time in seconds and time-tics, we use the following awkwardly named function:
 
 ```
 int exec_get_time_tic_value( void );
