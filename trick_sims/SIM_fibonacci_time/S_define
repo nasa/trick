@@ -1,0 +1,21 @@
+/************************************************************
+PURPOSE:
+    ( Simulate a satellite orbiting the Earth. )
+LIBRARY DEPENDENCIES:
+    ((satellite/src/Fibonacci_time.cpp))
+*************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "fibonacci_time/include/Fibonacci_time.hh"
+class Fibonacci_timeSimObject : public Trick::SimObject {
+    public:
+    Fibonacci_time fibonacci_time;
+
+    Fibonacci_timeSimObject() {
+        ("default_data")     fibonacci_time.default_data() ;
+        ("initialization")   fibonacci_time.state_init() ;
+        (1.0, "scheduled")   fibonacci_time.scheduled_job_1() ;
+        ("automatic")        fibonacci_time.automatic_job_1() ;
+    }
+};
+
+Fibonacci_timeSimObject dyn;
