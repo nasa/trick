@@ -43,7 +43,10 @@ AC_DEFUN([AX_HDF5_HOME],[
                  ]
                )
     AS_IF([test "$HDF5_HOME" != ""],
-      [AC_CHECK_LIB(hdf5, main, [],AC_MSG_ERROR([could not find libhdf5]))]
+      [
+      LDFLAGS="${LDFLAGS} -L${HDF5_HOME}/lib"
+      AC_CHECK_LIB(hdf5, main, [],AC_MSG_ERROR([could not find libhdf5]))
+      ]
       []
     )
     AC_SUBST([HDF5_HOME])
@@ -65,7 +68,10 @@ AC_DEFUN([AX_GSL_HOME],[
                 [AC_CHECK_HEADER(gsl/gsl_rng.h, [GSL_HOME="/usr"], [GSL_HOME=""])]
                )
     AS_IF([test "$GSL_HOME" != ""],
-      [AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]),[-lgslcblas])],
+      [
+      LDFLAGS="${LDFLAGS} -L${GSL_HOME}/lib"
+      AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]),[-lgslcblas])
+      ],
       []
     )
     AC_SUBST([GSL_HOME])
