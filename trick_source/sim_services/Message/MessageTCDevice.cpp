@@ -72,7 +72,6 @@ void * Trick::MessageTCDeviceListenThread::thread_body() {
             new_connection->disable_handshaking = TC_COMM_TRUE ;
             new_connection->blockio_limit = 0.0 ;
             new_connection->blockio_type = TC_COMM_BLOCKIO ;
-            new_connection->dmtcp_use_real = 1 ;
             new_connection->client_id = 0 ;
             strcpy(new_connection->client_tag, "") ;
             new_connection->error_handler = (TrickErrorHndlr *) calloc(1, (int)sizeof(TrickErrorHndlr));

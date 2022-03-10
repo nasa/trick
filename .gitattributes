@@ -14,5 +14,6 @@ tutorial.doc export-ignore
 users_guide.html export-ignore
 MonteCarlo_Presentation.pptx export-ignore
 Trick_07_to_10.pptx export-ignore
-Trick_Checkpointing_DMTCP.pptx export-ignore
 trick_source/data_products/DPX/test export-ignore
+configure linguist-generated=true
+*.dr linguist-language=Python

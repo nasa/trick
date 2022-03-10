@@ -46,15 +46,6 @@ const char * checkpoint_get_load_file() ;
 /* checkpoint call accessible from C code */
 int checkpoint( const char * file_name );
 
-/* set dmtcp safestore_enabled flag */
-int dmtcp_checkpoint_safestore(int yes_no) ;
-
-/* dmtcp safestore checkpoint call accessible from C code */
-int dmtcp_checkpoint_safestore_period( double in_period ) ;
-
-/* dmtcp checkpoint call accessible from C code */
-int dmtcp_checkpoint( const char * file_name );
-
 /* checkpoint for specific sim objects call from C code */
 int checkpoint_objects( const char * file_name, const char * objects ) ;
 

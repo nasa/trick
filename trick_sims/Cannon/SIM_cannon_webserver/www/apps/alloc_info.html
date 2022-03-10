@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Trick Memory Allocations</title>
+</head>
+
+<style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 8px; }
+    tr:nth-child(even){background-color: #f2f2f2}
+    th { background-color: #562399; color: white; }
+</style>
+
+<body>
+<header>
+</header>
+<div class="trickMemoryAllocations">
+</div>
+<div class="navigation" style="background:#562399">
+    <button class="previous" style="font-size:20px" onClick="previous_page()">Previous</button>
+    <button class="next" style="font-size:20px" onClick="next_page()">Next</button>
+
+    <select id="countSelect" style="font-size:20px" onChange="updatePageWithSelectedCount()">
+        <option value="10" >10 per page</option>
+        <option value="20" >20 per page</option>
+        <option value="50" >50 per page</option>
+        <option value="100">100 per page</option>
+    </select>
+</div>
+
+<script type="text/javascript">
+
+function showHeader(allocData) {
+
+    let para = document.createElement('p');
+    para.textContent = `URL: ${document.URL}`;
+    header.appendChild(para);
+
+    let label = document.createElement('h2');
+    label.textContent = 'Trick Memory Allocations';
+    header.appendChild(label);
+}
+
+function updateHeader(allocData) {
+     let first = allocData.chunk_start + 1;
+     let last = allocData.chunk_start + allocData.alloc_list.length;
+     let label = header.getElementsByTagName("h2")[0];
+     label.textContent = `Trick Memory Allocations (${first}..${last}) of ${allocData.alloc_total}`;
+}
+
+function createAllocInfoTable(allocData) {
+     let mytable = document.createElement('table');
+     let trow = document.createElement('tr');
+     let table_headings = ['Name', 'Address', 'Num', 'Size', 'Type Specifier', 'StorageClass'];
+     for (let i = 0; i < table_headings.length ; i++) {
+         let th = document.createElement('th');
+         th.textContent = table_headings[i];
+         trow.appendChild(th);
+     }
+     mytable.appendChild(trow);
+     for (let i = 0; i < allocData.alloc_list.length; i++) {
+         let trow = document.createElement('tr');
+         let td1 = document.createElement('td');
+         td1.textContent = allocData.alloc_list[i].name;
+         let td2 = document.createElement('td');
+         td2.textContent = allocData.alloc_list[i].start;
+         let td3 = document.createElement('td');
+         td3.textContent = allocData.alloc_list[i].num;
+         let td4 = document.createElement('td');
+         td4.textContent = allocData.alloc_list[i].size;
+         let td5 = document.createElement('td');
+         td5.textContent = allocData.alloc_list[i].type;
+         let td6 = document.createElement('td');
+         td6.textContent = allocData.alloc_list[i].stcl;
+         trow.appendChild(td1);
+         trow.appendChild(td2);
+         trow.appendChild(td3);
+         trow.appendChild(td4);
+         trow.appendChild(td5);
+         trow.appendChild(td6);
+         mytable.appendChild(trow);
+     }
+     return mytable;
+}
+
+function updateNavButtons(allocData) {
+    nextButton.style.opacity = "1.0"
+    if (allocData.chunk_start + allocData.chunk_size >= allocData.alloc_total) {
+        nextButton.style.opacity = "0.6";
+    }
+        prevButton.style.opacity = "1.0";
+    if (allocData.chunk_start - allocData.chunk_size < 0) {
+        prevButton.style.opacity = "0.6";
+    }
+}
+
+function updatePage(start, count) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+            allocData = JSON.parse(xhr.responseText);
+            let newTable = createAllocInfoTable(allocData);
+            let oldTable = trickMemoryAllocations.getElementsByTagName("table")[0];
+            trickMemoryAllocations.replaceChild(newTable, oldTable);
+            updateNavButtons(allocData);
+            updateHeader(allocData);
+        }
+    }
+    xhr.open('GET', `/api/http/alloc_info?start=${start}&count=${count}`);
+    xhr.send(null);
+}
+
+function updatePageWithSelectedCount() {
+    let newCount = parseInt( document.getElementById("countSelect").value, 10);
+    updatePage(allocData.chunk_start, newCount);
+}
+
+function next_page() {
+    let nextStart = allocData.chunk_start + allocData.chunk_size;
+    if (nextStart < allocData.alloc_total) {
+        updatePage(nextStart, allocData.chunk_size);
+    }
+}
+
+function previous_page() {
+    if (allocData.chunk_start > 0) {
+        let prevStart = allocData.chunk_start - allocData.chunk_size;
+        if (prevStart < 0) prevStart = 0;
+        updatePage(prevStart, allocData.chunk_size);
+    }
+}
+
+var myOrigin = new URL(document.URL);
+var header = document.querySelector('header');
+var trickMemoryAllocations = document.querySelector('div.trickMemoryAllocations');
+var prevButton = document.querySelector('button.previous');
+var nextButton = document.querySelector('button.next');
+var allocData;
+let xhr = new XMLHttpRequest();
+xhr.onreadystatechange = function() {
+    if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+        allocData = JSON.parse(xhr.responseText);
+        showHeader();
+        let allocInfoTable = createAllocInfoTable(allocData);
+        trickMemoryAllocations.appendChild(allocInfoTable);
+        updateNavButtons(allocData);
+        updateHeader(allocData);
+    }
+}
+xhr.open('GET', '/api/http/alloc_info?start=0&count=10');
+xhr.send(null);
+
+</script>
+</body>
+</html>

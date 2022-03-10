@@ -72,28 +72,10 @@ extern "C" int checkpoint_safestore( int yes_no ) {
 
 /**
  * @relates Trick::CheckPointRestart
- * @copydoc Trick::CheckPointRestart::dmtcp_set_safestore_enabled
- */
-extern "C" int dmtcp_checkpoint_safestore( int yes_no ) {
-    the_cpr->dmtcp_set_safestore_enabled(bool(yes_no)) ;
-    return(0) ;
-}
-
-/**
- * @relates Trick::CheckPointRestart
  * @copydoc Trick::CheckPointRestart::set_safestore_time
  */
 extern "C" int checkpoint_safestore_period( double in_time ) {
     the_cpr->set_safestore_time(in_time) ;
-    return(0) ;
-}
-
-/**
- * @relates Trick::CheckPointRestart
- * @copydoc Trick::CheckPointRestart::dmtcp_set_safestore_time
- */
-extern "C" int dmtcp_checkpoint_safestore_period( double in_time ) {
-    the_cpr->dmtcp_set_safestore_time(in_time) ;
     return(0) ;
 }
 
@@ -128,21 +110,6 @@ extern "C" const char * checkpoint_get_load_file() {
 
    return the_cpr->get_load_file() ;
 
-}
-
-
-/**
- * @relates Trick::CheckPointRestart
- @brief @userdesc Command to dump a checkpoint now to the specified file.
- This is invoked when the user clicks the "Dump DMTCP Chkpnt" button on the sim control panel.
- @par Python Usage:
- @code trick.dmtcp_checkpoint("<file_name>") @endcode
- @param file_name - name of checkpoint file to dump (leave blank and Trick will use filename "dmtcp_chkpnt_<simtime>"
- @return always 0
- */
-extern "C" int dmtcp_checkpoint( const char * file_name __attribute__((unused))) {
-    the_cpr->dmtcp_checkpoint( std::string(file_name) );
-    return(0) ;
 }
 
 /**

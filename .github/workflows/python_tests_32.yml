@@ -2,12 +2,17 @@ name: Python Tests 32-bit
 
 on:
   push:
+    # Temporarily disable all tests for Issue #1188.
+    branches-ignore:
+    - '**'
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
     - '!.github/workflows/python_tests_32.yml'
   pull_request:
-
+    # Temporarily disable all tests for Issue #1188.
+    branches-ignore:
+    - '**'
 jobs:
   trick_32bit:
     runs-on: ubuntu-18.04
@@ -76,4 +81,10 @@ jobs:
         . share/trick/pymods/trick/.venv/bin/activate
         cd trick_source/trick_gsetup
         ./run_tests.py
-
+    - name: Run civet tests
+      run: |
+        cd share/trick/pymods/trick/
+        . .venv/bin/activate
+        ./run_tests.py
+      env:
+        TRICK_HOME: "${{ github.workspace }}"

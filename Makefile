@@ -29,7 +29,6 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/CommandLineArguments \
 	${TRICK_HOME}/trick_source/sim_services/DataRecord \
 	${TRICK_HOME}/trick_source/sim_services/DebugPause \
-	${TRICK_HOME}/trick_source/sim_services/DMTCP \
 	${TRICK_HOME}/trick_source/sim_services/EchoJobs \
 	${TRICK_HOME}/trick_source/sim_services/Environment \
 	${TRICK_HOME}/trick_source/sim_services/EventManager \
@@ -149,11 +148,10 @@ ifeq ($(USE_JAVA), 1)
 all: java
 endif
 
-ifeq ($(TRICK_MONGOOSE), 1)
-all: webserver
-icg_sim_serv: ${TRICK_HOME}/include/mongoose/mongoose.h
-ICG: ${TRICK_HOME}/include/mongoose/mongoose.h
+ifeq ($(USE_CIVETWEB), 1)
+all: civetweb
 endif
+
 #-------------------------------------------------------------------------------
 # 1.1 Build Trick-core
 no_dp: $(TRICK_LIB) $(TRICK_SWIG_LIB)
@@ -219,47 +217,15 @@ dp: ${TRICK_HOME}/trick_source/trick_utils/units
 
 #-------------------------------------------------------------------------------
 #
-.PHONY: webserver
-webserver: ${TRICK_LIB_DIR}/libmongoose.a ${TRICK_HOME}/include/mongoose/mongoose.h
-	$(MAKE) -C ${TRICK_HOME}/trick_source/web/HttpServer
 
 #-------------------------------------------------------------------------------
+# 1.2 Build Trick's CivetWeb webserver.
 
-mongoose.h:
-	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.h
+.PHONY: civetweb
+civetweb: ${TRICK_LIB_DIR}/libtrickCivet.a
 
-mongoose.c:
-	curl --retry 4 -O https://raw.githubusercontent.com/cesanta/mongoose/6.16/mongoose.c
-
-${TRICK_LIB_DIR}/libmongoose.a: ${TRICK_HOME}/include/mongoose/mongoose.h | mongoose.o $(TRICK_LIB_DIR)
-	ar crs $@ mongoose.o
-	@ rm mongoose.o
-	@ rm -f mongoose.h
-	@ echo ; echo "Mongoose library compiled:" ; date
-
-ifeq (${TRICK_OFFLINE}, 0)
-
-mongoose.o: mongoose.h mongoose.c
-	$(CC) $(TRICK_CFLAGS) ${TRICK_SYSTEM_CXXFLAGS} -c -o mongoose.o mongoose.c
-	@ rm mongoose.c
-
-${TRICK_HOME}/include/mongoose/mongoose.h: mongoose.h | ${TRICK_HOME}/include/mongoose
-	@ cp mongoose.h $@
-
-else
-
-# if trick-offline gets updated, we should rebuild libmongoose
-${TRICK_LIB_DIR}/libmongoose.a: ${TRICK_HOME}/trick-offline/mongoose.h ${TRICK_HOME}/trick-offline/mongoose.c
-
-mongoose.o: ${TRICK_HOME}/trick-offline/mongoose.h ${TRICK_HOME}/trick-offline/mongoose.c
-	$(CC) $(TRICK_CFLAGS) -c -I${TRICK_HOME}/trick-offline -o mongoose.o ${TRICK_HOME}/trick-offline/mongoose.c
-
-${TRICK_HOME}/include/mongoose/mongoose.h: ${TRICK_HOME}/trick-offline/mongoose.h | ${TRICK_HOME}/include/mongoose
-	@ cp ${TRICK_HOME}/trick-offline/mongoose.h $@
-endif
-
-${TRICK_HOME}/include/mongoose: 
-	@ mkdir $@
+${TRICK_LIB_DIR}/libtrickCivet.a:
+	$(MAKE) -C ${TRICK_HOME}/trick_source/web/CivetServer
 
 #-------------------------------------------------------------------------------
 # 1.3 Build Trick's Java Tools
@@ -337,6 +303,10 @@ $(DPX_UNIT_TEST_DIR):
 sim_test:
 	@ $(MAKE) -C test
 	@ $(MAKE) -C trick_sims test
+
+pytest:
+	make -C share/trick/pymods/trick
+
 
 #requirements:
 #	@ $(MAKE) -C trick_test/requirements_docs install

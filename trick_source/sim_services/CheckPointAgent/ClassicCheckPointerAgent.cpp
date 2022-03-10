@@ -143,57 +143,32 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
     }
 }
 
+
 // STATIC FUNCTION
-/*
-   Given an address, that is within the bounds of a composite
-   object (i.e., a struct or class instance), return the corresponding sub-name.
+/* 
+   Given an offset, that is within the bounds of a composite
+   object (i.e., a struct or class instance), return the corresponding 
+   ATTRIBUTES pointer (singular).
 
-   A return value of NULL indicates an error occured. Note that this is not
-   the same as a return value of "", which is valid.
-
-   The following BNF production describes a valid sub-reference:
-
-   <sub_reference> --> ""
-                     | "+" + <offset>
-                     | "[" + <index>+ "]" + <sub_reference>
-                     | "." + <member_name> + <sub_reference>
-
-   <offset> is an integer. It is the the reference offset minus the offset of
-   the last data member.
-   <index> is an integer. It is an array index.
-   <member_name> is a name of a member of the given composite type.
+   Helper function for getCompositeSubReference.
+.
 */
 
-static char *getCompositeSubReference(
-    void*        reference_address, /* Address we are looking for */
-    ATTRIBUTES** left_type,         /* Attributes of type we are looking for */
-    void*        structure_address, /* Address of struct we are in */
-    ATTRIBUTES*  A                  /* Attributes of current struct we are in */
-    ) {
-
-    int   i = 0, j;
-    long  offset;
-    int   my_index[9];
-    char* ret;
-    char  reference_name[512];
-    int   size, last_size;
-    int   temp_size;
-
-    char* rAddr = (char*)reference_address;
-    char* sAddr = (char*)structure_address;
-
-    long referenceOffset = (long)rAddr - (long)sAddr;
-
-    if ( referenceOffset < 0) {
-        message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Address to find is less than struct address.\n") ;
-        return NULL;
-    }
-
+static ATTRIBUTES* findMember(ATTRIBUTES* A, long referenceOffset) {
+    int i = 0;
+    int j;
+    int temp_size;
     /* Find the member which contains the address pointed to by rAddr */
     while ((A[i].name[0] != '\0')) {
 
-        // Calculate the size (temp_size) of the referenced member variable.
-        if (A[i].num_index != 0) {
+        // if mod bit 0 is set, A[i] is a reference. Width of reference is stored
+        // in mod bits 3-8. We could use sizeof(void*), but that is implementation
+        // specific and not required by C++ standard.
+        if ((A[i].mods & 1) == 1) {
+          temp_size = ((A[i].mods >> 3) & 0x3F);
+          // Calculate the size (temp_size) of the referenced member variable.
+        } else if (A[i].num_index != 0) {
+            // if size of last valid index is 0, then we are looking at a pointer
             if (A[i].index[A[i].num_index - 1].size == 0) {
                 temp_size = sizeof(void*);
             } else {
@@ -220,7 +195,66 @@ static char *getCompositeSubReference(
         }
     }
 
-    if (A[i].name[0] == '\0') {
+    return &(A[i]);
+}
+
+// STATIC FUNCTION
+/*
+   Given an address, that is within the bounds of a composite
+   object (i.e., a struct or class instance), store the corresponding sub-name
+   in reference_name buffer and return.
+
+   A return value of 1 indicates an error occured. A return value of 0 indicates
+   success.
+
+   The following BNF production describes a valid sub-reference:
+
+   <sub_reference> --> ""
+                     | "+" + <offset>
+                     | "[" + <index>+ "]" + <sub_reference>
+                     | "." + <member_name> + <sub_reference>
+
+   <offset> is an integer. It is the the reference offset minus the offset of
+   the last data member.
+   <index> is an integer. It is an array index.
+   <member_name> is a name of a member of the given composite type.
+*/
+
+static int getCompositeSubReference(
+    void*        reference_address, /* Address we are looking for */
+    ATTRIBUTES** left_type,         /* Attributes of type we are looking for */
+    void*        structure_address, /* Address of struct we are in */
+    ATTRIBUTES*  A,                 /* Attributes of current struct we are in */
+    char* reference_name            /* destination buffer of composite subreference */
+    ) {
+
+    int   j, k, m;
+    long  offset;
+    int   my_index[9];
+    int   ret;
+    int   size, last_size;
+    int   temp_size;
+
+    char* rAddr = (char*)reference_address;
+    char* sAddr = (char*)structure_address;
+
+    long referenceOffset = (long)rAddr - (long)sAddr;
+
+    // selected ATTRIBUTES stucture from A (singular)
+    ATTRIBUTES* Ai;
+
+
+    if ( referenceOffset < 0) {
+        message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Address to find is less than struct address.\n") ;
+        return 1;
+    }
+
+    // Find the structure member that corresponds to the reference address.
+    // If name is empty, we have failed. 
+    Ai = findMember(A, referenceOffset);
+
+/******If failed to find member, set reference_name to offset only and return ****/
+    if (Ai->name[0] == '\0') {
         /* If we fail to find a member corresponding to the reference address,
            it must mean that the ATTRIBUTES don't contain a description for
            that particular member, i.e., it was **'ed out. In this case, we can only
@@ -229,119 +263,129 @@ static char *getCompositeSubReference(
         if (referenceOffset == 0) {
             reference_name[0] = '\0' ;
         } else if (referenceOffset > 0) {
-            sprintf(reference_name," + %ld", referenceOffset);
+            sprintf(reference_name, " + %ld" , referenceOffset);
         } else {
-            return NULL; // ERROR
+            return 1; // ERROR
+        }
+        return 0;
+    }
+
+/******************************************************************************/
+    
+/* We found a member corresponding to the reference address, so print it's name. */
+    sprintf(reference_name, ".%s", Ai->name);
+
+/* If the referenced member variable is an intrinsic type */
+    if (Ai->type != TRICK_STRUCTURED) {
+
+/* If the reference address is non-array or a pointer, return reference_name as is */
+        if((Ai->num_index == 0) || (Ai->index[0].size == 0)) {
+            return 0;
         }
 
-    } else {
+/* else, rAddr is pointing to an array, determine its dimensions and determine 
+   the element pointed to by rAddr. Then print the index and return */
 
-        // We found a member corresponding corresponding to the reference address, so print it's name.
-        sprintf(reference_name, ".%s", A[i].name);
+        offset = (long) rAddr - ((long) sAddr + Ai->offset);
+        size = last_size = Ai->size;
 
-        // If the referenced member variable is an intrinsic type.
-        if (A[i].type != TRICK_STRUCTURED) {
-
-            /* If rAddr in pointing to an array then determine its dimensions and determine the element pointed to by rAddr */
-            if ((A[i].num_index != 0) && (A[i].index[0].size != 0)) {
-
-                offset = (long) rAddr - ((long) sAddr + A[i].offset);
-                size = last_size = A[i].size;
-
-                /* Calculate the number of fixed dimensions. */
-                int num_fixed_dims = 0;
-                for (j = 0; j < A[i].num_index; j++) {
-                    if (A[i].index[j].size > 0) {
-                        num_fixed_dims++;
-                    }
-                }
-
-                // Calculate the array indices for the right-side.
-                for (j = num_fixed_dims - 1; j >= 0; j--) {
-                    size *= A[i].index[j].size;
-                    if(!size) {
-                      std::cerr << "Checkpoint Agent " << __FUNCTION__ << " ERROR: divide by zero during array indices calculation" << std::endl;
-                      return NULL;
-                    }
-                    my_index[j] = (int) ((offset % size) / last_size);
-                    offset -= last_size * my_index[j];
-                    last_size = size;
-                }
-
-                for (j = 0; j < num_fixed_dims; j++) {
-                    sprintf(&reference_name[strlen(reference_name)], "[%d]", my_index[j]);
-                }
+        /* Calculate the number of fixed dimensions. */
+        int num_fixed_dims = 0;
+        for (j = 0; j < Ai->num_index; j++) {
+            if (Ai->index[j].size > 0) {
+                num_fixed_dims++;
             }
+        }
 
+        // Calculate the array indices for the right-side.
+        for (j = num_fixed_dims - 1; j >= 0; j--) {
+            size *= Ai->index[j].size;
+            if(!size) {
+              std::cerr << "Checkpoint Agent " << __FUNCTION__ << " ERROR: divide by zero during array indices calculation" << std::endl;
+              return 1;
+            }
+            my_index[j] = (int) ((offset % size) / last_size);
+            offset -= last_size * my_index[j];
+            last_size = size;
+        }
+
+        for (j = 0; j < num_fixed_dims; j++) {
+            sprintf(&reference_name[strlen(reference_name)], "[%d]", my_index[j]);
+        }
+    return 0;
+    }
+/******** TRICK_STRUCTURED ****************************************************/
+    /* if it is a reference, do nothing and return */
+    if ((Ai->mods & 1) == 1) { // Ai->type == TRICK_STRUCTURED
+        return 0;
+    }
+/*if member is an unarrayed struct, continue to call getCompositeSubReference.*/
+    if (Ai->num_index == 0) {
+        char buf[256];
+        ret = getCompositeSubReference( rAddr, left_type, sAddr + Ai->offset, (ATTRIBUTES *) Ai->attr, buf);
+
+        if (ret == 0) {
+            sprintf(&reference_name[strlen(reference_name)],"%s", buf);
         } else {
+            return 1; // ERROR.
+        }
+    return 0;
+    }
 
-            /* Member is an unarrayed struct, continue to call getCompositeSubReference. */
-            if (A[i].num_index == 0) {
+/***** If the member is not a pointer do nothing and return *******************/
+    if (Ai->index[0].size == 0) {
+        return 0;
+    }
 
-                ret = getCompositeSubReference( rAddr, left_type, sAddr + A[i].offset, (ATTRIBUTES *) A[i].attr);
+/*********** Member is an arrayed struct **************************************/ 
 
-                if (ret != NULL) {
-                    sprintf(&reference_name[strlen(reference_name)],"%s", ret);
-                    free(ret);
-                } else {
-                    // ERROR.
-                }
+    offset = (long) rAddr - ((long) sAddr + Ai->offset);
+    size = last_size = Ai->size;
 
-            } else {
+    /* Calculate the indices into the array */
+    for (j = Ai->num_index - 1; j >= 0; j--) {
+        if (Ai->index[j].size != 0) {
+            size *= Ai->index[j].size;
+        }
+        my_index[j] = (int) ((offset % size) / last_size);
+        offset -= last_size * my_index[j];
+        last_size = size;
+    }
 
-                /* Member is an arrayed struct, or a pointer to a struct ... */
 
-                offset = (long) rAddr - ((long) sAddr + A[i].offset);
-                size = last_size = A[i].size;
+    for (j = 0; j < Ai->num_index; j++) {
+        sprintf(&reference_name[strlen(reference_name)], "[%d]", my_index[j]);
+    }
 
-                /* Note that there's nothing more to do for a pointer to a struct. */
+    /* if left_type specifies the current member, stop here */
+    if ( (left_type != NULL) && (*left_type != NULL) && (Ai->attr == (*left_type)->attr)) {
+        return 0;
+    } 
 
-                if (A[i].index[0].size != 0 ) {
+/**** Go find the subreference for the arrayed struct member and append *********/
 
-                    /* Member is an arrayed struct. */
-                    /* Calculate the indices into the array */
-                    for (j = A[i].num_index - 1; j >= 0; j--) {
-                        if (A[i].index[j].size != 0) {
-                            size *= A[i].index[j].size;
-                        }
-                        my_index[j] = (int) ((offset % size) / last_size);
-                        offset -= last_size * my_index[j];
-                        last_size = size;
-                    }
+    /* get the offset into the array that rAddr points to */
+    offset = 0;
+    for (j = 0; j < Ai->num_index; j++) {
+      m = my_index[j];
+      for(int k = j + 1; m && (k < Ai->num_index); k++) {
+        m *= Ai->index[k].size;
+      }
+      offset += m*Ai->size;
+    }
 
-                    if ( (left_type != NULL) && (*left_type != NULL) && (A[i].attr == (*left_type)->attr)) {
+    {
+        char buf[256];
+        ret = getCompositeSubReference( rAddr, left_type, sAddr + Ai->offset + offset, (ATTRIBUTES *) Ai->attr, buf);
 
-                        for (j = 0; j < A[i].num_index; j++) {
-                            sprintf(&reference_name[strlen(reference_name)], "[%d]", my_index[j]);
-                        }
-
-                    } else {
-
-                        /* get the offset into the array that rAddr points to */
-                        offset = A[i].size;
-                        for (j = 0; j < A[i].num_index; j++) {
-                            offset *= my_index[j];
-                        }
-
-                        for (j = 0; j < A[i].num_index; j++) {
-                            sprintf(&reference_name[strlen(reference_name)], "[%d]", my_index[j]);
-                        }
-
-                        ret = getCompositeSubReference( rAddr, left_type, sAddr + A[i].offset + offset, (ATTRIBUTES *) A[i].attr);
-
-                        if (ret != NULL) {
-                            sprintf(&reference_name[strlen(reference_name)], "%s", ret);
-                            free(ret);
-                        } else {
-                            return NULL; // ERROR
-                        }
-                    }
-                }
-            }
+        if (ret == 0) {
+            sprintf(&reference_name[strlen(reference_name)], "%s", buf);
+        } else {
+            return 1; // ERROR
         }
     }
 
-    return (strdup(reference_name));
+    return 0;
 }
 
 
@@ -353,15 +397,15 @@ std::string Trick::ClassicCheckPointAgent::get_var_name( void* addr,
                                                          void* struct_addr,
                                                          std::string name,
                                                          ATTRIBUTES** left_type) {
-    char *ret;
+    char reference_name[256];
+    int ret;
     std::string var_name;
 
     var_name = name;
-    ret = getCompositeSubReference( addr, left_type, struct_addr, A);
+    ret = getCompositeSubReference( addr, left_type, struct_addr, A, reference_name );
 
-    if (ret != NULL) {
-        var_name += ret;
-        free(ret);
+    if (ret == 0) {
+        var_name += reference_name;
     } else {
           std::stringstream ss;
           ss << "Checkpoint Agent ERROR: Unable to create a subreference of variable \"" << name << "\"."

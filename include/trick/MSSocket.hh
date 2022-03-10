@@ -98,7 +98,7 @@ namespace Trick {
             virtual MS_SIM_COMMAND read_command() ;
 
             /**
-             @brief Read a port number (i.e. dmtcp port) from the other simulation. Calls tc_read.
+             @brief Read a port number from the other simulation. Calls tc_read.
              @return the port read or MS_ERROR_PORT if the read failed
              */
             virtual int read_port() ;
@@ -122,7 +122,7 @@ namespace Trick {
             virtual int write_command(MS_SIM_COMMAND command) ;
 
             /**
-             @brief Writes a port number (i.e. dmtcp port) to the other simulation. Calls tc_write.
+             @brief Writes a port number to the other simulation. Calls tc_write.
              @return the number of bytes written
              */
             virtual int write_port(int port) ;

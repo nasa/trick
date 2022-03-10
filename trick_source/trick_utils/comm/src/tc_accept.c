@@ -13,12 +13,6 @@
 #include "trick/tc_proto.h"
 #include "trick/trick_byteswap.h"
 
-#if _DMTCP
-#include <dlfcn.h>
-#include "dmtcpaware.h"
-#endif
-
-
 int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, int line)
 {
     socklen_t length;
@@ -35,27 +29,7 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
     memset(&s_in, 0, sizeof(struct sockaddr_in)) ;
     /* Accept On Listen Device */
     length = sizeof(s_in);
-#if _DMTCP
-    if( dmtcpIsEnabled() && device->dmtcp_use_real ) {
-        const char real_accept_name[] = "_real_accept" ;
-        void* dlhandle ;
-        int (*real_accept_ptr)( int, struct sockaddr *,socklen_t *) = NULL ;
-
-        dlhandle = dlopen( NULL, RTLD_LAZY) ;
-        real_accept_ptr = (int (*)(int, struct sockaddr *,socklen_t *))dlsym( dlhandle , real_accept_name) ;
-        if ( real_accept_ptr != NULL ) {
-            printf("calling DMTCP _real_accept %s:%d\n", file , line) ;
-            the_socket = (*real_accept_ptr)(listen_device->socket, (struct sockaddr *) &s_in, &length) ;
-        } else {
-            the_socket = accept(listen_device->socket, (struct sockaddr *) &s_in, &length);
-        }
-        dlclose(dlhandle) ;
-    } else {
-        the_socket = accept(listen_device->socket, (struct sockaddr *) &s_in, &length);
-    }
-#else
     the_socket = accept(listen_device->socket, (struct sockaddr *) &s_in, &length);
-#endif
 
     sprintf(client_str, "(ID = %d  tag = %s)", listen_device->client_id, listen_device->client_tag);
 

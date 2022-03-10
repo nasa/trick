@@ -76,7 +76,8 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
         ostream << ", sizeof(" << fdes.getTypeName() << ")" ;
     }
     ostream << ", 0, 0, Language_CPP" ; // range_min, range_max, language
-    ostream << ", " << fdes.isReference() + (fdes.isStatic() << 1) + (fdes.isDashDashUnits() << 2) << "," << std::endl ; // mods
+    // mods (see attributes.h for descriptions)
+    ostream << ", " << fdes.isReference() + (fdes.isStatic() << 1) + (fdes.isDashDashUnits() << 2) + (fdes.isReference() ? (((fdes.getFieldWidth() / 8) & 0x3F) << 3) : 0) << "," << std::endl ; // mods
     if ( fdes.isBitField() ) {
         // For bitfields we need the offset to start on 4 byte boundaries because that is what our
         // insert and extract bitfield routines work with.

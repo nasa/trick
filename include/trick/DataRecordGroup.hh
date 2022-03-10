@@ -288,12 +288,6 @@ namespace Trick {
             virtual int restart() ;
 
             /**
-             @brief Restart data recording, add data_record job to the executive scheduler.
-             @returns always 0
-            */
-            virtual int dmtcp_restart() ;
-
-            /**
              @brief Writes format specific information to the top line of the log header file.
              @returns always 0
             */

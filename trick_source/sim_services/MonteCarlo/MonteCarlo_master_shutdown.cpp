@@ -60,10 +60,8 @@ void Trick::MonteCarlo::shutdown_slaves() {
         }
     }
 }
+
 void Trick::MonteCarlo::print_statistics(FILE** fp) {
-    static const char *exit_status_string[] =
-      {"Incomplete", "Complete", "Core Dumped", "Timed Out",
-       "No Permission to Output Directory", "Bad Input" } ;
 
     fprintf(*fp,
       "\nMonte Carlo complete: %u runs (%zu successful) (%zu non-zero exit status) (%zu errors) (%u out of range)\n",
@@ -109,7 +107,7 @@ void Trick::MonteCarlo::print_statistics(FILE** fp) {
         fprintf(*fp, "\nThe following runs failed to complete:\n");
         for (const MonteRun* run : error_runs) {
             fprintf(*fp, "RUN_%05d MonteRun::ExitStatus = %s (%d)\n", run->id,
-              exit_status_string[run->exit_status], run->exit_status);
+              run->exit_status_string(), run->exit_status);
         }
     }
 }

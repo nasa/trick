@@ -175,12 +175,12 @@ int Trick::Executive::init_signal_handlers() {
 
     static struct sigaction sigact;
 
-    /* By default catch SIGBUS, SIGSEGV, SIGABRT, and SIGCHLD.  Don't catch SIGFPE */
+    /* By default catch SIGBUS, SIGSEGV, SIGABRT.  Don't catch SIGFPE, SIGCHLD */
     set_trap_sigbus(true) ;
     set_trap_sigfpe(false) ;
     set_trap_sigsegv(true) ;
     set_trap_sigabrt(true) ;
-    set_trap_sigchld(true) ;
+    set_trap_sigchld(false) ;
 
     /* Assign ctrl_c_hand() as the default signal handler for SIGINT (<CTRL-C> keypress). */
     sigact.sa_handler = (void (*)(int)) ctrl_c_hand;

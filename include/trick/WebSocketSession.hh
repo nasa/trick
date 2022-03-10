@@ -4,10 +4,9 @@ PURPOSE: (Represent Websocket connection.)
 #ifndef WEB_SOCKET_SESSION_HH
 #define WEB_SOCKET_SESSION_HH
 
-#ifdef USE_MONGOOSE
 #include <string>
 #ifndef SWIG
-#include "mongoose/mongoose.h"
+#include "CivetServer.h"
 #endif
 
 class WebSocketSession {
@@ -24,8 +23,7 @@ class WebSocketSession {
         virtual void sendMessage()=0;
         virtual int  handleMessage(std::string)=0;
 
-        struct mg_connection* connection;
+        struct mg_connection* connection; /* ** */
 };
 
-#endif
 #endif

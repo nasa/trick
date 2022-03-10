@@ -206,6 +206,7 @@ void HeaderSearchDirs::addSearchDirs ( std::vector<std::string> & include_dirs,
     AddCompilerBuiltInSearchDirs() ;
     ApplyHeaderSearchOptions() ;
     AddDirsAndFiles("TRICK_ICG_EXCLUDE", icg_exclude_dirs) ;
+    AddDirsAndFiles("TRICK_SYSTEM_ICG_EXCLUDE", icg_exclude_dirs) ;
     AddDirsAndFiles("TRICK_EXCLUDE", exclude_dirs) ;
     AddDirsAndFiles("TRICK_EXT_LIB_DIRS", ext_lib_dirs) ;
     AddDirsAndFiles("TRICK_ICG_NOCOMMENT", icg_nocomment_dirs) ;
@@ -301,28 +302,21 @@ bool HeaderSearchDirs::isPathInExtLib (const std::string& in_dir ) {
     return false ;
 }
 
-bool HeaderSearchDirs::isPathInICGNoComment (const std::string& in_file ) {
-
-    char * resolved_path = almostRealPath(in_file.c_str() ) ;
-
-    if ( resolved_path != NULL ) {
-        std::string dir = std::string(dirname(resolved_path)) + "/";
-
-        if ( icg_nocomment_files.find(dir) == icg_nocomment_files.end() ) {
-
-            icg_nocomment_files[dir] = false ;
-            std::vector<std::string>::iterator vit ;
-            for ( vit = icg_nocomment_dirs.begin() ; vit != icg_nocomment_dirs.end() ; vit++ ) {
-                if ( ! dir.compare(0, (*vit).size(), (*vit))) {
-                    icg_nocomment_files[dir] = true ;
-                    break ;
-                }
+bool HeaderSearchDirs::isPathInICGNoComment (const std::string& in_dir ) {
+    if ( icg_nocomment_files.find(in_dir) != icg_nocomment_files.end() ) {
+        return icg_nocomment_files[in_dir] ;
+    }
+    else {
+        std::vector<std::string>::iterator vit ;
+        for ( vit = icg_nocomment_dirs.begin() ; vit != icg_nocomment_dirs.end() ; vit++ ) {
+            if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
+                icg_nocomment_files[in_dir] = true ;
+                return true;
             }
         }
-        free(resolved_path) ;
-        return icg_nocomment_files[dir] ;
-    }
-    return false ;
+        icg_nocomment_files[in_dir] = false ;
+        return false;
+    }   
 }
 
 bool HeaderSearchDirs::isPathInCompat15 (const std::string& in_dir ) {
@@ -380,8 +374,8 @@ void HeaderSearchDirs::addDefines ( std::vector<std::string> & defines ) {
 
     // Add -D command line arguments as well as "#define TRICK_ICG" to the preprocessor
     unsigned int ii ;
-    std::string predefines("#define TRICK_ICG\n") ;
-    predefines += "#define __STRICT_ANSI__\n" ;
+    std::string predefines("#define TRICK_ICG\n");
+    predefines += "#define __STRICT_ANSI__\n";
     for ( ii = 0 ; ii < defines.size() ; ii++ ) {
         size_t found = defines[ii].find("=") ;
         if ( found != defines[ii].npos ) {
@@ -392,7 +386,6 @@ void HeaderSearchDirs::addDefines ( std::vector<std::string> & defines ) {
         predefines += std::string("#define ") + defines[ii] + "\n" ;
     }
     pp.setPredefines(pp.getPredefines() + "\n" + predefines) ;
-
 }
 
 void HeaderSearchDirs::addTrickICGFoundFile ( std::string file_name ) {

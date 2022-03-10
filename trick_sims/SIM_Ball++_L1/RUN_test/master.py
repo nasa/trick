@@ -13,9 +13,6 @@ new_connection = trick.MSSocket()
 new_slave = trick.SlaveInfo()
 new_slave.set_connection_type(new_connection)
 new_slave.sim_path = trick.get_trick_env("TRICK_HOME") + "/trick_sims/SIM_Ball++_L1"
-#if trick.dmtcp_is_enabled() == 1:
-#    new_slave.S_main_name = "dmtcp_checkpoint --checkpoint-open-files  ./S_main_${TRICK_HOST_CPU}.exe"
-#print "hey " , trick.dmtcp_is_enabled()
 new_slave.run_input_file = "RUN_slave/slave.py"
 new_slave.sync_error_terminate = 1
 trick_master_slave.master.add_slave(new_slave)

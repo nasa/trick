@@ -2,12 +2,17 @@ name: Python Tests Linux
 
 on:
   push:
+    # Temporarily disable all tests for Issue #1188.
+    branches-ignore:
+    - '**'
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
     - '!.github/workflows/python_tests_linux.yml'
   pull_request:
-
+    # Temporarily disable all tests for Issue #1188.
+    branches-ignore:
+    - '**'
 jobs:
   build:
     strategy:
@@ -124,6 +129,7 @@ jobs:
           - cfg: { os: centos, tag: latest }
             pkg_mgr: dnf
             conf_pkg: >
+              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
               dnf -y install epel-release &&
               dnf -y update &&
               dnf install -y 'dnf-command(config-manager)' &&
@@ -182,3 +188,10 @@ jobs:
           . share/trick/pymods/trick/.venv/bin/activate
           cd trick_source/trick_gsetup
           ./run_tests.py
+      - name: Run Civet Tests
+        run: |
+          cd share/trick/pymods/trick/
+          . .venv/bin/activate
+          ./run_tests.py
+        env:
+          TRICK_HOME: "${{ github.workspace }}"

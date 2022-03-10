@@ -60,11 +60,8 @@ namespace Trick {
              in which case the master will no longer communicate with the slave.\n */
             bool activated ;                 /**< trick_units(--) */
 
-            /** Indicates "dmtcp" or "ascii" slave. Used to contruct sync_port_tag (default is "undefined").\n*/
+            /** Indicates "ascii" slave. Used to contruct sync_port_tag (default is "undefined").\n*/
             std::string slave_type;          /**< trick_units(--) */
-
-            /** Slave's dmtcp port if slave_type "dmtcp" (=0 if slave_type "ascii").\n*/
-            long long dmtcp_port;            /**< trick_units(--) */
 
             /** @userdesc Which remote shell shall the master use to start the slave.\n
              TRICK_SSH means use ssh (the default), TRICK_RSH means use rsh, TRICK_USER_REMOTE_SH means use custom.\n */
@@ -92,16 +89,10 @@ namespace Trick {
             /** @userdesc When master dumps a checkpoint, command the slave to dump a checkpoint (default=true).\n */
             bool chkpnt_dump_auto;                /**< trick_units(--) */
 
-            /** @userdesc When master loads a checkpoint, command the slave to load a checkpoint (default=true).\n
-                If chkpnt_binary is true, the slave will terminate and the master will load the slave's dmtcp checkpoint.\n */
+            /** @userdesc When master loads a checkpoint, command the slave to load a checkpoint (default=true).\n */
             bool chkpnt_load_auto;                /**< trick_units(--) */
 
-            /** @userdesc When master dumps/loads a checkpoint, this indicates the format of the slave checkpoint.\n
-                The default = false which means the typical trick ascii checkpoint. True means a dmtcp checkpoint.\n */
-            bool chkpnt_binary;                   /**< trick_units(--) */
-
-            /** @userdesc Send master's checkpoint file name to slave from here.\n
-                 Also used to read dmtcp checkpoint file name from slave when loading dmtcp checkpoint.\n **/
+            /** @userdesc Send master's checkpoint file name to slave from here.\n **/
             char chkpnt_name[256];                /**< trick_units(--) */
 
             /** @userdesc The "RUN_<dir>/<input_file>" of the slave to use as the parameter to S_main_name.\n */
@@ -166,12 +157,6 @@ namespace Trick {
              */
             int write_master_chkpnt_name(std::string full_path_name) ;
 
-            /**
-             @brief Restart the slave's DMTCP executable after 1) killing its dmtcp_coordinator, and
-             2) disconnecting and starting a new master/slave socket connection.
-             @return always 0
-             */
-             int restart_dmtcp_slave();
     } ;
 
     /**

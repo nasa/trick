@@ -51,6 +51,24 @@ llvm::cl::alias compat15_alias ("compat15" , llvm::cl::desc("Alias for -c") , ll
 llvm::cl::opt<bool> m32("m32", llvm::cl::desc("Generate io code for use with 32bit mode"), llvm::cl::init(false), llvm::cl::ZeroOrMore) ;
 
 
+void set_lang_opts(clang::CompilerInstance & ci) {
+    ci.getLangOpts().CXXExceptions = true ;
+    // Activate C++11 parsing
+    ci.getLangOpts().Bool = true ;
+    ci.getLangOpts().WChar = true ;
+    ci.getLangOpts().CPlusPlus = true ;
+    ci.getLangOpts().CPlusPlus11 = true ;
+    ci.getLangOpts().CXXOperatorNames = true ;
+#if (LIBCLANG_MAJOR >= 6)
+    ci.getLangOpts().CPlusPlus14 = true ;
+    ci.getLangOpts().DoubleSquareBracketAttributes = true ;
+#endif
+    // Activate C++17 parsing
+#if (LIBCLANG_MAJOR >= 10)
+    ci.getLangOpts().GNUCVersion = true ;
+    ci.getLangOpts().CPlusPlus17 = true ;
+#endif
+}
 /**
 Most of the main program is pieced together from examples on the web. We are doing the following:
 
@@ -99,19 +117,7 @@ int main(int argc, char * argv[]) {
     ci.createDiagnostics();
     ci.getDiagnosticOpts().ShowColors = 1 ;
     ci.getDiagnostics().setIgnoreAllWarnings(true) ;
-    ci.getLangOpts().CXXExceptions = true ;
-    // Activate C++11 parsing
-    ci.getLangOpts().Bool = true ;
-    ci.getLangOpts().WChar = true ;
-    ci.getLangOpts().CPlusPlus = true ;
-    ci.getLangOpts().CPlusPlus11 = true ;
-#if (LIBCLANG_MAJOR >= 6)
-    ci.getLangOpts().CPlusPlus14 = true ;
-#endif
-    ci.getLangOpts().CXXOperatorNames = true ;
-#if (LIBCLANG_MAJOR >= 6)
-    ci.getLangOpts().DoubleSquareBracketAttributes = true ;
-#endif
+    set_lang_opts(ci);
 
     // Create all of the necessary managers.
     ci.createFileManager();
@@ -157,13 +163,16 @@ int main(int argc, char * argv[]) {
 #else
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts(), clang::IK_CXX, trip, ppo) ;
 #endif
-    // setting the language defaults clears the c++11 flag.
-    ci.getLangOpts().CPlusPlus11 = true ;
-#if (LIBCLANG_MAJOR >= 6)
-    ci.getLangOpts().CPlusPlus14 = true ;
-#endif
+
+    // setting the language defaults clears some of the language opts, set them again.
+    set_lang_opts(ci);
+
 #endif
     clang::Preprocessor& pp = ci.getPreprocessor();
+
+#if (LIBCLANG_MAJOR >= 10)
+    clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts());
+#endif
 
     // Add all of the include directories to the preprocessor
     HeaderSearchDirs hsd(ci.getPreprocessor().getHeaderSearchInfo(), ci.getHeaderSearchOpts(), pp, sim_services_flag);

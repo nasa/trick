@@ -45,10 +45,10 @@ jobs:
             share/trick/trickops/tests/*_doctest_log.txt
             /tmp/log.*
 
-  trickops-tests-centos8:
-    name: Unit Tests CentOS:latest
+  trickops-tests-rockylinux8:
+    name: Unit Tests RockyLinux8
     runs-on: ubuntu-20.04
-    container: centos:latest
+    container: rockylinux:8
     steps:
       - uses: actions/checkout@master
       - name: install dependencies

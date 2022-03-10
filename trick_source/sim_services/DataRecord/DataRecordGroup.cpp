@@ -107,9 +107,6 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name ) :
     add_job(0, 5, (char *)"restart", NULL, 1.0, (char *)"restart", (char *)"TRK", 60001) ;
     add_job(0, 6, (char *)"shutdown", NULL, 1.0, (char *)"shutdown", (char *)"TRK") ;
 
-    // (Alex 1/15/14) The dmtcp_restart job is called by the DataRecordDispatcher... is the
-    // dispatcher necessary anymore?
-
     write_job = add_job(0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
 
     add_time_variable() ;
@@ -527,14 +524,6 @@ int Trick::DataRecordGroup::restart() {
     return 0 ;
 }
 
-/**
-@details
--# This restart is targetted at DMTCP restarts where we only need to rewrite the header.
-*/
-int Trick::DataRecordGroup::dmtcp_restart() {
-    return write_header() ;
-}
-
 int Trick::DataRecordGroup::write_header() {
 
     unsigned int jj ;
@@ -546,9 +535,6 @@ int Trick::DataRecordGroup::write_header() {
 
     out_stream.open(header_name.c_str(), std::fstream::out ) ;
     if ( ! out_stream  ||  ! out_stream.good() ) {
-#ifndef _DMTCP
-        message_publish(MSG_ERROR, "Can't open Data Record file %s.\n", header_name.c_str()) ;
-#endif
         return -1;
     }
 

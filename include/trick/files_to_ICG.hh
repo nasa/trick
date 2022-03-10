@@ -4,7 +4,6 @@
 #include "trick/reference_frame.h"
 #include "trick/GetTimeOfDayClock.hh"
 #include "trick/CommandLineArguments.hh"
-#include "trick/DMTCP.hh"
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
 #include "trick/Environment.hh"
@@ -97,8 +96,8 @@
 #include "trick/lqueue.h"
 #include "trick/lstack.h"
 
-#ifdef USE_MONGOOSE
-#include "trick/WebServer.hh"
+#ifdef USE_CIVETWEB
+#include "trick/MyCivetServer.hh"
 #include "trick/WebSocketSession.hh"
 #endif
 

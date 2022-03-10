@@ -1,0 +1,20 @@
+/************************TRICK HEADER*************************
+PURPOSE: (Trick HTTP Server)
+*************************************************************/
+##include "trick/MyCivetServer.hh"
+
+class MyCivetServerSimObject : public Trick::SimObject {
+
+    public:
+        MyCivetServer server ;
+
+        MyCivetServerSimObject() {
+            ("default_data") server.default_data() ;
+            ("initialization") server.init() ;
+            ("freeze") server.http_top_of_frame() ;
+            ("top_of_frame") server.http_top_of_frame() ;
+            ("shutdown") server.shutdown() ;
+        }
+};
+
+MyCivetServerSimObject web;

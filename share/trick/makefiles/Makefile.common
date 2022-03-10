@@ -50,6 +50,7 @@ ifndef TRICK_LD
     export TRICK_LD := $(LD)
 endif
 
+# setting makefile variable to shell environment variable (?)
 export TRICK_CFLAGS := $(TRICK_CFLAGS)
 export TRICK_CXXFLAGS := $(TRICK_CXXFLAGS)
 export TRICK_LDFLAGS := $(TRICK_LDFLAGS)
@@ -67,6 +68,7 @@ export TRICK_HOST_CPU := $(shell TRICK_FORCE_32BIT=$(TRICK_FORCE_32BIT) $(TRICK_
 export TRICK_EXEC_LINK_LIBS := ${PTHREAD_LIBS} $(PYTHON_LIB) $(UDUNITS_LDFLAGS) $(PLATFORM_LIBS) -lm -ldl
 export TRICK_LIBS := ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
 export TRICK_SYSTEM_LDFLAGS := $(TRICK_SYSTEM_LDFLAGS)
+export TRICK_SYSTEM_ICG_EXCLUDE := $(TRICK_SYSTEM_ICG_EXCLUDE)
 export TRICK_SWIG_FLAGS := $(TRICK_SWIG_FLAGS)
 export TRICK_SWIG_CFLAGS := $(TRICK_SWIG_CFLAGS)
 export TRICK_CONVERT_SWIG_FLAGS := $(TRICK_CONVERT_SWIG_FLAGS)
@@ -171,11 +173,12 @@ ifneq ($(GSL_HOME),)
     TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
 endif
 
-ifeq (${TRICK_MONGOOSE},1)
-	TRICK_LIBS += -ltrickHTTP ${TRICK_LIB_DIR}/libmongoose.a
-	TRICK_SWIG_FLAGS += -DUSE_MONGOOSE
-	TRICK_SYSTEM_CXXFLAGS += -DUSE_MONGOOSE
-	TRICK_ICG_EXCLUDE += :${TRICK_HOME}/include/mongoose
+ifeq (${USE_CIVETWEB},1)
+    TRICK_LIBS += -ltrickCivet
+    TRICK_EXEC_LINK_LIBS += -L${CIVETWEB_HOME}/lib -lcivetweb -lz
+    TRICK_SYSTEM_CXXFLAGS += -I$(CIVETWEB_HOME)/include
+    TRICK_SYSTEM_CXXFLAGS += -DUSE_CIVETWEB
+    TRICK_SYSTEM_ICG_EXCLUDE += ${CIVETWEB_HOME}
 endif
 
 # We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.

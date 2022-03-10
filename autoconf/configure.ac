@@ -43,54 +43,13 @@ AC_DEFUN([AX_HDF5_HOME],[
                  ]
                )
     AS_IF([test "$HDF5_HOME" != ""],
-      [AC_CHECK_LIB(hdf5, main, [],AC_MSG_ERROR([could not find libhdf5]))]
+      [
+      LDFLAGS="${LDFLAGS} -L${HDF5_HOME}/lib"
+      AC_CHECK_LIB(hdf5, main, [],AC_MSG_ERROR([could not find libhdf5]))
+      ]
       []
     )
     AC_SUBST([HDF5_HOME])
-])
-
-AC_DEFUN([AX_DMTCP_HOME],[
-    AC_ARG_WITH([dmtcp],
-                AS_HELP_STRING([--with-dmtcp@<:@=DIR@:>@], [DMTCP root directory]),
-                [DMTCP_HOME="$withval"
-                 AS_IF([test "$DMTCP_HOME" = "yes"],
-                  AC_CHECK_HEADER(dmtcpaware.h,[DMTCP_HOME="/usr"],AC_MSG_ERROR([could not find dmtcpaware.h])),
-                  AC_CHECK_FILE([$DMTCP_HOME/include/dmtcpaware.h],
-                               [],
-                               AC_MSG_ERROR([could not find $DMTCP_HOME/include/dmtcpaware.h])
-                              )
-                )],
-                [DMTCP_HOME=""]
-               )
-    AC_SUBST([DMTCP_HOME])
-])
-
-AC_DEFUN([AX_TPRO_HOME],[
-    AC_ARG_WITH([tpro],
-                AS_HELP_STRING([--with-tpro@<:@=DIR@:>@], [TPRO root directory]),
-                [TPRO_HOME="$withval"
-                 AC_CHECK_FILE([$TPRO_HOME/linux/h/tpro.h],
-                               [],
-                               AC_MSG_ERROR([could not find $TPRO_HOME/linux/h/tpro.h])
-                              )
-                ],
-                [TPRO_HOME=""]
-               )
-    AC_SUBST([TPRO_HOME])
-])
-
-AC_DEFUN([AX_BC635_HOME],[
-    AC_ARG_WITH([bc635],
-                AS_HELP_STRING([--with-bc635@<:@=DIR@:>@], [BC635 root directory]),
-                [BC635_HOME="$withval"
-                 AC_CHECK_FILE([$BC635_HOME/sample/bcuser.h],
-                               [],
-                               AC_MSG_ERROR([could not find $BC635_HOME/sample/bcuser.h])
-                              )
-                ],
-                [BC635_HOME=""]
-               )
-    AC_SUBST([BC635_HOME])
 ])
 
 AC_DEFUN([AX_GSL_HOME],[
@@ -109,7 +68,10 @@ AC_DEFUN([AX_GSL_HOME],[
                 [AC_CHECK_HEADER(gsl/gsl_rng.h, [GSL_HOME="/usr"], [GSL_HOME=""])]
                )
     AS_IF([test "$GSL_HOME" != ""],
-      [AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]),[-lgslcblas])],
+      [
+      LDFLAGS="${LDFLAGS} -L${GSL_HOME}/lib"
+      AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]),[-lgslcblas])
+      ],
       []
     )
     AC_SUBST([GSL_HOME])
@@ -132,6 +94,38 @@ AC_DEFUN([AX_GTEST_HOME],[
                )
     AC_SUBST([GTEST_HOME])
 ])
+
+AC_DEFUN([AX_CIVETWEB_HOME],[
+    AC_ARG_WITH([civetweb],
+                AS_HELP_STRING([--with-civetweb@<:@=DIR@:>@],
+                  [CIVETWEB root directory]),
+                # --with option was provided.
+                [CIVETWEB_HOME="$withval"
+                 USE_CIVETWEB="0"
+                # check whether directory arg was also provided.
+                 AS_IF([test "$CIVETWEB_HOME" = "yes"],
+                   AC_CHECK_HEADER(civetweb.h,
+                     [CIVETWEB_HOME="/usr"; USE_CIVETWEB="1"],
+                     AC_MSG_ERROR([could not find civetweb.h])),
+                   # else check whether --without-civet or --with-civet=no specified.
+                   AS_IF([test "$CIVETWEB_HOME" = "no"],
+                     [CIVETWEB_HOME=""],
+                         # else --with-civet was provided with a directory path.
+                         AC_CHECK_FILES([$CIVETWEB_HOME/include/civetweb.h $CIVETWEB_HOME/lib/libcivetweb.a],
+                           [USE_CIVETWEB="1"],
+                           AC_MSG_ERROR([Could not find all of the civetweb files.]))
+                 ))
+                ],
+                # --with option not provided.
+                [AC_CHECK_HEADER(civetweb.h,
+                   [CIVETWEB_HOME="/usr"; USE_CIVETWEB="1"],
+                   [CIVETWEB_HOME=""; USE_CIVETWEB="0"])
+                ]
+               )
+    AC_SUBST([CIVETWEB_HOME])
+    AC_SUBST([USE_CIVETWEB])
+])
+
 
 AC_DEFUN([AX_SWIG_BIN],[
     AC_ARG_WITH([swig],
@@ -346,22 +340,6 @@ AC_ARG_ENABLE([offline],
 AC_SUBST([TRICK_OFFLINE])
 
 # If offline is specified, set some compilation flags
-AC_ARG_ENABLE([mongoose],
-  AS_HELP_STRING([--enable-mongoose], [Compile Trick with webserver capabilites.]),
-  AS_IF([test "x$enable_mongoose" = xyes],
-    [
-    TRICK_MONGOOSE="1"
-    AC_MSG_WARN($(tput setaf 1) --enable-mongoose Mongoose is released under GPLv2 and Trick is \
-released under NASA Open Source Agreement 1.3. Distribution must comply with \
-these agreements$(tput sgr0))
-    ], 
-    [TRICK_MONGOOSE="0"]
-  ),
-  [TRICK_MONGOOSE="0"]
-)
-AC_SUBST([TRICK_MONGOOSE])
-
-# If offline is specified, set some compilation flags
 AC_ARG_ENABLE([offline],
   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
   AS_IF([test "x$enable_offline" = xyes],
@@ -371,6 +349,27 @@ AC_ARG_ENABLE([offline],
   [TRICK_OFFLINE="0"]
 )
 AC_SUBST([TRICK_OFFLINE])
+
+# AC_ARG_ENABLE([civet],
+#   AS_HELP_STRING([--enable-civet], [Compile Trick with webserver capabilites.]),
+#   AS_IF([test "x$enable_civet" = xyes],
+#     [
+#     TRICK_DISABLE_CIVET="0"
+#     ], 
+#     [TRICK_DISABLE_CIVET="1"]
+#   ),
+#   [TRICK_DISABLE_CIVET="0"]
+# )
+# AC_SUBST([TRICK_DISABLE_CIVET])
+
+# If offline is specified, set some compilation flags
+# AC_ARG_ENABLE([offline],
+#   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
+#   AS_IF([test "x$enable_offline" = xyes],
+#     [TRICK_DISABLE_CIVET="1"], 
+#   ),
+# )
+# AC_SUBST([TRICK_OFFLINE])
 
 dnl look for programs we need to compile and run
 AC_PROG_AWK
@@ -403,7 +402,14 @@ AC_PATH_PROG(CURL, curl, nocurl)
 AS_IF([test "$ac_cv_path_CURL" = "nocurl"],AC_MSG_ERROR([could not find curl]),[])
 AC_PATH_PROG(PERL, perl)
 AX_PROG_PERL_VERSION([5.14.0], [], [AC_MSG_ERROR([Trick requires perl version >= 5.14.0])])
+AC_PATH_PROG(ZIP, zip, nozip)
+AS_IF([test "$ac_cv_path_ZIP" = "nozip"],AC_MSG_ERROR([Trick now requires zip but it could not be found. Please install zip. We recommend you use your OS package manager]),[])
 
+
+dnl add PYTHON_VERSION to influential env variables
+AC_ARG_VAR([PYTHON_VERSION],[Adds suffix to python search e.g. PYTHON_VERSION=3 will look for python3])
+
+dnl find python
 AC_ARG_WITH(
   [python],
   AS_HELP_STRING(
@@ -566,13 +572,13 @@ AC_SUBST([UDUNITS_EXCLUDE])
 
 dnl process the other optional command line arguments
 AX_HDF5_HOME([])
-AX_DMTCP_HOME([])
-AX_TPRO_HOME([])
-AX_BC635_HOME([])
 AX_GSL_HOME([])
 AX_GTEST_HOME([])
+AX_CIVETWEB_HOME([])
 AX_ER7_UTILS([])
 
-AC_OUTPUT([share/trick/makefiles/config_user.mk])
+AC_CONFIG_FILES([share/trick/makefiles/config_user.mk])
+AC_OUTPUT
 
 printf "\033@<:@32mconfigure script successfully completed\033@<:@0m\n"
+

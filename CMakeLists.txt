@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.1)
 # trick is a C/C++ project, but we have some macOS
 # configuration to do before CMake searches for compilers
 project(trick NONE)
-set(TRICK_MAJOR 19)
-set(TRICK_MINOR 4)
+set(TRICK_MAJOR 23)
+set(TRICK_MINOR 0)
 set(TRICK_TINY 0)
 # set TRICK_PRERELEASE TO EMPTY STRING "" ON RELEASE
 set(TRICK_PRERELEASE "-beta")
@@ -141,7 +141,6 @@ set( IO_SRC
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_CheckPointRestart.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_Clock.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_CommandLineArguments.cpp
-  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_DMTCP.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_DRAscii.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_DRBinary.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_DRHDF5.cpp

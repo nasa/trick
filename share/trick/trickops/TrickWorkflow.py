@@ -238,12 +238,12 @@ class TrickWorkflow(WorkflowCommon):
         Returns
         -------
         dict or None
-            dictionary representation of YAML content as parsed by yaml.load()
+            dictionary representation of YAML content as parsed by yaml.safe_load()
             or None if parsing failed
         """
         try:
             with open(config_file) as file:
-                y = yaml.load(file)
+                y = yaml.safe_load(file)
             return y
         except Exception as e:
             tprint("Unable to parse config file: %s\nERROR: %s" % (config_file,e), 'DARK_RED')

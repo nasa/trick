@@ -47,10 +47,6 @@
 #ifdef HDF5
 #include "trick/DRHDF5.hh"
 #endif
-#ifdef DMTCP
-#include "trick/DMTCP.hh"
-#include "trick/dmtcp_checkpoint_c_intf.hh"
-#endif
 #include "trick/DataRecordDispatcher.hh"
 #include "trick/data_record_proto.h"
 #include "trick/DebugPause.hh"
@@ -142,7 +138,7 @@
 #include "trick/vval.h"
 #include "trick/Flag.h"
 #include "trick/UdUnits.hh"
-#include "trick/WebServer.hh"
+#include "trick/MyCivetServer.hh"
 
 #ifdef USE_ER7_UTILS_INTEGRATORS
 #include "er7_utils/integration/core/include/integrator_constructor_factory.hh"

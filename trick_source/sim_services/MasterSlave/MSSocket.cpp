@@ -48,15 +48,7 @@ std::string Trick::MSSocket::add_sim_args( std::string slave_type ) {
     /** @li create a unique identifier based on the <machine>_<current pid>. */
     gethostname(master_host, (size_t) 80);
 
-    /** @li if master is running with dmtcp slave or vice versa, use "_dmtcp_multiconnect_tag"
-            for sync_port_tag. on restart, dmtcp will retain original slave pid, which will not
-            match restarted master pid. sync_port_tag must match for master and slave(s) to
-            connect/reconnect via tc_multiconnect() */
-
-    if  (slave_type == "dmtcp")
-        temp_stream << master_host << "_dmtcp_multiconnect_tag" ;
-    else
-        temp_stream << master_host << "_" << getpid() ;
+    temp_stream << master_host << "_" << getpid() ;
 
     sync_port_tag = temp_stream.str() ;
 
