@@ -9,6 +9,7 @@ To configure Trick to support the civetweb web server, you'll need to
 ### Building the Civetweb Library
 ```bash
 cd $(CIVETWEB_HOME)
+mkdir lib
 make install-lib PREFIX=. CAN_INSTALL=1 WITH_WEBSOCKET=1
 ```
 ### Configuring Trick with Civetweb
