@@ -124,6 +124,7 @@ private:
     void _keyPressF();
     void _keyPressB();
     void _keyPressG();
+    void _keyPressMinus();
 
     QFrame* _bw_frame;
     QLineEdit* _bw_label;

@@ -2211,6 +2211,7 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_F: _keyPressF();break;
     case Qt::Key_B: _keyPressB();break;
     case Qt::Key_G: _keyPressG();break;
+    case Qt::Key_Minus: _keyPressMinus();break;
     default: ; // do nothing
     }
 }
@@ -2952,6 +2953,47 @@ void CurvesView::_keyPressGDegreeReturnPressed()
         if ( ok ) {
             _keyPressGChange(window,degree);
         }
+    }
+}
+
+void CurvesView::_keyPressMinus()
+{
+    QModelIndex curveIdx;
+    if ( !currentIndex().isValid() ) {
+        // If curve not selected, but only a single curve on plot, use it
+        QModelIndex plotIdx = rootIndex();
+        QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+        int nCurves = _bookModel()->rowCount(curvesIdx);
+        if ( nCurves == 1 ) {
+            curveIdx = _bookModel()->
+                       getIndexList(curvesIdx,"Curve","Curves").at(0);
+        }
+    } else {
+        QModelIndex gpidx = currentIndex().parent().parent();
+        QString tag = model()->data(currentIndex()).toString();
+        if (currentIndex().isValid() && tag == "Curve" && gpidx == rootIndex()){
+            // Curve is selected
+            curveIdx = currentIndex();
+        }
+    }
+
+    if ( curveIdx.isValid() ) {
+        QModelIndex yScaleIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYScale","Curve");
+        double yScale = -1.0*_bookModel()->data(yScaleIdx).toDouble();
+        _bookModel()->setData(yScaleIdx,yScale);
+
+        // Reset bounding box
+        QModelIndex plotIdx = rootIndex();
+        QModelIndex curvesIdx = curveIdx.parent();
+        QRectF M = _bookModel()->calcCurvesBBox(curvesIdx);
+        _bookModel()->setPlotMathRect(M,plotIdx);
+    } else {
+        QMessageBox msgBox;
+        QString msg = QString("Please select curve to flip, "
+                              "then press the minus key.");
+        msgBox.setText(msg);
+        msgBox.exec();
     }
 }
 
