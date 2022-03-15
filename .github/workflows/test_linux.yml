@@ -57,8 +57,8 @@ jobs:
               libclang-dev
               libudunits2-dev
               libgtest-dev
-            install_gtest: >
-              ${{matrix.pkg_mgr}} install -y libgtest-dev
+            install_gtest: |
+              apt-get install -y libgtest-dev
               cd /usr/src/gtest
               cmake .
               make
@@ -108,7 +108,10 @@ jobs:
 #               diffutils
 #-------- Version Specific Dependencies ----------------
           - cfg: { os: ubuntu, tag: 20.04 }
-            conf_pkg: DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y tzdata
+            conf_pkg: |
+            DEBIAN_FRONTEND=noninteractive
+            apt-get update
+            apt-get install -y tzdata
             install_gtest: cd /usr/src/gtest && cmake . && make && cp lib/libgtest* /usr/lib/
             tag_deps: >-
               python3.8-dev
@@ -118,17 +121,17 @@ jobs:
               python-devel
           - cfg: { os: rockylinux }
             pkg_mgr: dnf
-            conf_pkg: >
-              dnf -y install epel-release &&
-              dnf -y update &&
-              dnf install -y 'dnf-command(config-manager)' &&
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
               dnf config-manager --enable powertools
           - cfg: { os: oraclelinux }
             pkg_mgr: dnf
-            conf_pkg: >
-              dnf -y install epel-release &&
+            conf_pkg: |
+              dnf -y install epel-release
               dnf -y update
-              dnf install -y 'dnf-command(config-manager)' &&
+              dnf install -y 'dnf-command(config-manager)'
               dnf config-manager --enable ol8_codeready_builder
           - cfg: { tag: 8 }
             tag_deps: >-
@@ -141,8 +144,7 @@ jobs:
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
-        run: |
-          ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
+        run: ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
