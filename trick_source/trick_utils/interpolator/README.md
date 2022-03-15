@@ -117,7 +117,7 @@ In this situation we have two independent variables. Therefore we have two break
 #define HEIGHT_BP_SIZE 6
 
 /* ---------------------------------------------------------------------------------*/
-/* NOTICE that we've coverted kg to lb, and m to inches in the breakpoint arrays.   */
+/* NOTICE that we've converted kg to lb, and m to inches in the breakpoint arrays.  */
 /* This just demonstrates a units conversion trick in breakpoint arrays.            */
 /* ---------------------------------------------------------------------------------*/
 
@@ -167,13 +167,13 @@ Trick::Interpolator* bmi_interpolator =
 ```
 
 ### Using the Interpolator
-To use the interpolator, we simply call the **```eval()```** member function as follows, assuming that ```time``` and ```thrust``` are of type ```double```.
+To use the interpolator, we simply call the **```eval()```** member function as follows, assuming that ```bmi```, ```weight```, and ```height``` are of type ```double```.
 
 ```
     try {
         bmi = bmi_interpolator->eval( weight, height );
     } catch (std::logic_error e) {
-        std::cerr << "Out of bounds." << std::endl;
+        std::cerr << "Arguments beyond the limits of the BMI interpolation table." << std::endl;
     }
 ```
 
