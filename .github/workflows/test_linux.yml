@@ -15,16 +15,12 @@ jobs:
       matrix:
         cfg:
 #-------- Operating Systems ----------------
-          - { os: ubuntu, tag: 18.04,   arch: debian }         # EOL April 2023
-          - { os: ubuntu, tag: 20.04,   arch: debian }         # EOL April 2025
-          - { os: debian, tag: 10,      arch: debian }               # EOL 2024
-          - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
-        # - { os: centos, tag: 8,      arch: rhel   }     # 8 as of April 2020
-          - { os: rockylinux, tag: 8, arch: rhel}
-          - { os: oraclelinux, tag: 8, arch: rhel}
-        # - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
-        # - { os: fedora, tag: 33,      arch: rhel   } # feeling confident?
-        # - { os: fedora, tag: rawhide, arch: rhel   } # for thrill-seekers only
+          - { os: ubuntu, tag: 18.04,   arch: debian }
+          - { os: ubuntu, tag: 20.04,   arch: debian }
+          - { os: debian, tag: 10,      arch: debian }
+          - { os: centos, tag: 7,       arch: rhel   }
+          - { os: rockylinux, tag: 8,   arch: rhel   }
+          - { os: oraclelinux, tag: 8,  arch: rhel   }
 
 #-------- Defaults --------------------------
         include:
@@ -61,7 +57,12 @@ jobs:
               libclang-dev
               libudunits2-dev
               libgtest-dev
-            install_gtest: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
+            install_gtest: >
+              ${{pkg_mgr}} install -y libgtest-dev
+              cd /usr/src/gtest
+              cmake .
+              make
+              cp libgtest* /usr/lib/
 #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
             arch_deps: >-
@@ -115,17 +116,6 @@ jobs:
             tag_deps: >-
               swig3
               python-devel
-#           - cfg: { os: centos, tag: 8 }
-#             pkg_mgr: dnf
-#             conf_pkg: >
-#               sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
-#               dnf -y install epel-release &&
-#               dnf -y update &&
-#               dnf install -y 'dnf-command(config-manager)' &&
-#               dnf config-manager --enable powertools
-#             tag_deps: >-
-#               swig
-#               python3-devel diffutils
           - cfg: { os: rockylinux }
             pkg_mgr: dnf
             conf_pkg: >
