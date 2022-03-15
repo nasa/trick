@@ -40,7 +40,7 @@ jobs:
             install_cmd: install -y
 #-------- Debian-based Dependencies ----------------
           - cfg: { arch: debian }
-            pkg_mgr: &deb_pkg apt-get
+            pkg_mgr: apt-get
             conf_pkg:  apt-get update
             arch_deps: >-
               swig
@@ -58,7 +58,7 @@ jobs:
               libudunits2-dev
               libgtest-dev
             install_gtest: >
-              *deb_pkg install -y libgtest-dev
+              ${{matrix.pkg_mgr}} install -y libgtest-dev
               cd /usr/src/gtest
               cmake .
               make
