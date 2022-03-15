@@ -57,6 +57,7 @@ jobs:
               libclang-dev
               libudunits2-dev
               libgtest-dev
+              default-jdk
             install_gtest: |
               apt-get install -y libgtest-dev
               cd /usr/src/gtest
@@ -83,18 +84,12 @@ jobs:
               which
               zlib-devel
               gtest-devel
-#-------- Ubuntu Only Dependencies ----------------
-          - cfg: { os: ubuntu }
-            os_deps: >-
-              openjdk-11-jdk
-#-------- Debian OS Only Dependencies ----------------
-          - cfg: { os: debian }
-            os_deps: >-
-              openjdk-11-jdk
 #-------- CentOS Only Dependencies ----------------
           - cfg: { os: centos }
             pkg_mgr: yum
-            conf_pkg: yum -y install epel-release && yum -y update
+            conf_pkg: | 
+              yum -y install epel-release
+              yum -y update
             os_deps: >-
               libX11-devel
               libXt-devel
@@ -108,11 +103,6 @@ jobs:
 #               diffutils
 #-------- Version Specific Dependencies ----------------
           - cfg: { os: ubuntu, tag: 20.04 }
-            conf_pkg: |
-              DEBIAN_FRONTEND=noninteractive
-              apt-get update
-              apt-get install -y tzdata
-            install_gtest: cd /usr/src/gtest && cmake . && make && cp lib/libgtest* /usr/lib/
             tag_deps: >-
               python3.8-dev
           - cfg: { os: centos, tag: 7 }
