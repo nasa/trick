@@ -28,6 +28,8 @@ Trick::Interpolator (double* Table,
 double Trick::Interpolator::eval (double param1, ...)
 ```
 This member function returns an estimate of the function represented by the interpolator.
+If the arguments are out side the bounds the interpolator break points, a ```std::logic_error```
+exception will be thrown. 
 
 # Examples
 
