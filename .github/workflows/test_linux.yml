@@ -20,7 +20,7 @@ jobs:
           - { os: debian, tag: 10,      arch: debian }               # EOL 2024
           - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
         # - { os: centos, tag: 8,      arch: rhel   }     # 8 as of April 2020
-          - { os: rockylinux, tag: latest, arch: rhel}
+          - { os: rockylinux, tag: 8, arch: rhel}
           - { os: oraclelinux, tag: 8, arch: rhel}
         # - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
         # - { os: fedora, tag: 33,      arch: rhel   } # feeling confident?
@@ -126,7 +126,7 @@ jobs:
 #             tag_deps: >-
 #               swig
 #               python3-devel diffutils
-          - cfg: { os: rockylinux, os: oraclelinux }
+          - cfg: { tag: 8 }
             pkg_mgr: dnf
             conf_pkg: >
               dnf -y install epel-release &&
