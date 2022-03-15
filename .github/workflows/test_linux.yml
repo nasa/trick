@@ -58,7 +58,7 @@ jobs:
               libudunits2-dev
               libgtest-dev
             install_gtest: >
-              ${{pkg_mgr}} install -y libgtest-dev
+              ${{matrix.pkg_mgr}} install -y libgtest-dev
               cd /usr/src/gtest
               cmake .
               make
