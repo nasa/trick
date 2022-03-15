@@ -126,13 +126,18 @@ jobs:
 #             tag_deps: >-
 #               swig
 #               python3-devel diffutils
-          - cfg: { tag: 8 }
+          - cfg: { os: rockylinux }
             pkg_mgr: dnf
             conf_pkg: >
               dnf -y install epel-release &&
               dnf -y update &&
               dnf install -y 'dnf-command(config-manager)' &&
               dnf config-manager --enable powertools
+          - cfg: { os: oraclelinux }
+            conf_pkg: >
+              dnf -y install epel-release &&
+              dnf -y update
+          - cfg: { tag: 8 }
             tag_deps: >-
               swig
               python3-devel diffutils
