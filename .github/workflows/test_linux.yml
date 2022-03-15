@@ -138,6 +138,8 @@ jobs:
             conf_pkg: >
               dnf -y install epel-release &&
               dnf -y update
+              dnf install -y 'dnf-command(config-manager)' &&
+              dnf config-manager --enable ol8_codeready_builder
           - cfg: { tag: 8 }
             tag_deps: >-
               swig
