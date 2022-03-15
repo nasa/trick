@@ -109,9 +109,9 @@ jobs:
 #-------- Version Specific Dependencies ----------------
           - cfg: { os: ubuntu, tag: 20.04 }
             conf_pkg: |
-            DEBIAN_FRONTEND=noninteractive
-            apt-get update
-            apt-get install -y tzdata
+              DEBIAN_FRONTEND=noninteractive
+              apt-get update
+              apt-get install -y tzdata
             install_gtest: cd /usr/src/gtest && cmake . && make && cp lib/libgtest* /usr/lib/
             tag_deps: >-
               python3.8-dev
