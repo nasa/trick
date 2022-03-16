@@ -106,8 +106,8 @@ jobs:
             tag_deps: >-
               python3.8-dev
             conf_pkg: |
-            DEBIAN_FRONTEND=noninteractive
-            apt-get update
+              DEBIAN_FRONTEND=noninteractive
+              apt-get update
           - cfg: { os: centos, tag: 7 }
             tag_deps: >-
               swig3
@@ -147,5 +147,18 @@ jobs:
           export MAKEFLAGS=-j`nproc`
           ./configure
           make
+      - name:
+      - name: Upload Trick Build
+        uses: uses: actions/upload-artifact@v3.0.0
+        with:
+          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}
+          path: |
+            bin
+            include
+            lib
+            share
+            libexec
+         retention-days: 1
+        
       - name: Test
         run: make test
