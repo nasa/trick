@@ -22,6 +22,7 @@ jobs:
           - { os: centos,      tag: 7,       arch: rhel,   arch_ver: 7  }
           - { os: rockylinux,  tag: 8,       arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,       arch: rhel,   arch_ver: 8  }
+          - { os: almalinux  , tag: 8,       arch: rhel,   arch_ver: 8  }
 
 #-------- Defaults --------------------------
         include:
@@ -105,6 +106,9 @@ jobs:
               dnf -y install epel-release
               dnf -y update
               dnf install -y 'dnf-command(config-manager)'
+            install_gtest: |
+              dnf config-manager --enable powertools
+              dnf install -y gtest-devel
 #-------- Debian 11-based Only Dependencies ----------------              
           - cfg: { arch: debian, arch_ver: 11 }
             tag_deps: >-
@@ -114,11 +118,6 @@ jobs:
               apt-get update
               apt-get install -y tzdata
 #-------- OS and Version Specific Dependencies ----------------
-          - cfg: { os: rockylinux }
-            pkg_mgr: dnf
-            install_gtest: |
-              dnf config-manager --enable powertools
-              dnf install -y gtest-devel
           - cfg: { os: oraclelinux }
             pkg_mgr: dnf
             install_gtest: |
