@@ -147,9 +147,8 @@ jobs:
           export MAKEFLAGS=-j`nproc`
           ./configure
           make
-      - name:
       - name: Upload Trick Build
-        uses: uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v3.0.0
         with:
           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}
           path: |
@@ -158,7 +157,7 @@ jobs:
             lib
             share
             libexec
-         retention-days: 1
+          retention-days: 1
         
       - name: Test
         run: make test
