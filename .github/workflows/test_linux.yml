@@ -15,12 +15,13 @@ jobs:
       matrix:
         cfg:
 #-------- Operating Systems ----------------
-          - { os: ubuntu, tag: 18.04,   arch: debian }
-          - { os: ubuntu, tag: 20.04,   arch: debian }
-          - { os: debian, tag: 10,      arch: debian }
-          - { os: centos, tag: 7,       arch: rhel   }
-          - { os: rockylinux, tag: 8,   arch: rhel   }
-          - { os: oraclelinux, tag: 8,  arch: rhel   }
+          - { os: ubuntu,      tag: 18.04,   arch: debian, arch_ver: 10 }
+          - { os: ubuntu,      tag: 20.04,   arch: debian, arch_ver: 11 }
+          - { os: debian,      tag: 10,      arch: debian, arch_ver: 10 }
+          - { os: debian,      tag: 11,      arch: debian, arch_ver: 11 }
+          - { os: centos,      tag: 7,       arch: rhel,   arch_ver: 7  }
+          - { os: rockylinux,  tag: 8,       arch: rhel,   arch_ver: 8  }
+          - { os: oraclelinux, tag: 8,       arch: rhel,   arch_ver: 8  }
 
 #-------- Defaults --------------------------
         include:
@@ -83,9 +84,8 @@ jobs:
               udunits2-devel
               which
               zlib-devel
-              gtest-devel
-#-------- CentOS Only Dependencies ----------------
-          - cfg: { os: centos }
+#-------- RHEL 7-based Only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 7 }
             pkg_mgr: yum
             conf_pkg: | 
               yum -y install epel-release
@@ -93,43 +93,37 @@ jobs:
             os_deps: >-
               libX11-devel
               libXt-devel
-#-------- Fedora Only Dependencies ----------------
-#           - cfg: { os: fedora }
-#             pkg_mgr: dnf
-#             os_deps: >-
-#               swig
-#               perl-Text-Balanced
-#               python-devel
-#               diffutils
-#-------- Version Specific Dependencies ----------------
-          - cfg: { os: ubuntu, tag: 20.04 }
+              swig3
+              python-devel
+              gtest-devel
+#-------- RHEL 8-based Only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 8 }
+            tag_deps: >-
+              swig
+              python3-devel diffutils
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
+#-------- Debian 11-based Only Dependencies ----------------              
+          - cfg: { arch: debian, arch_ver: 11 }
             tag_deps: >-
               python3.8-dev
             conf_pkg: |
               export DEBIAN_FRONTEND=noninteractive
               apt-get update
-          - cfg: { os: centos, tag: 7 }
-            tag_deps: >-
-              swig3
-              python-devel
+              apt-get install -y tzdata
+#-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: rockylinux }
             pkg_mgr: dnf
-            conf_pkg: |
-              dnf -y install epel-release
-              dnf -y update
-              dnf install -y 'dnf-command(config-manager)'
+            install_gtest: |
               dnf config-manager --enable powertools
+              dnf install -y gtest-devel
           - cfg: { os: oraclelinux }
             pkg_mgr: dnf
-            conf_pkg: |
-              dnf -y install epel-release
-              dnf -y update
-              dnf install -y 'dnf-command(config-manager)'
+            install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
-          - cfg: { tag: 8 }
-            tag_deps: >-
-              swig
-              python3-devel diffutils
+              dnf install -y gtest-devel
 #-------- Job definition ----------------
     runs-on: ubuntu-18.04
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
