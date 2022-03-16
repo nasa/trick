@@ -105,6 +105,9 @@ jobs:
           - cfg: { os: ubuntu, tag: 20.04 }
             tag_deps: >-
               python3.8-dev
+            conf_pkg: |
+            DEBIAN_FRONTEND=noninteractive
+            apt-get update
           - cfg: { os: centos, tag: 7 }
             tag_deps: >-
               swig3
