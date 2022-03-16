@@ -22,7 +22,7 @@ jobs:
           - { os: centos,      tag: 7,       arch: rhel,   arch_ver: 7  }
           - { os: rockylinux,  tag: 8,       arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,       arch: rhel,   arch_ver: 8  }
-          - { os: almalinux  , tag: 8,       arch: rhel,   arch_ver: 8  }
+          - { os: almalinux,   tag: 8,       arch: rhel,   arch_ver: 8  }
 
 #-------- Defaults --------------------------
         include:
@@ -60,12 +60,6 @@ jobs:
               libudunits2-dev
               libgtest-dev
               default-jdk
-            install_gtest: |
-              apt-get install -y libgtest-dev
-              cd /usr/src/gtest
-              cmake .
-              make
-              cp libgtest* /usr/lib/
 #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
             arch_deps: >-
@@ -99,6 +93,7 @@ jobs:
               gtest-devel
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
+            pkg_mgr: dnf
             tag_deps: >-
               swig
               python3-devel diffutils
@@ -109,6 +104,13 @@ jobs:
             install_gtest: |
               dnf config-manager --enable powertools
               dnf install -y gtest-devel
+#-------- Debian 10-based Only Dependencies ----------------
+            install_gtest: |
+              apt-get install -y libgtest-dev
+              cd /usr/src/gtest
+              cmake .
+              make
+              cp libgtest* /usr/lib/
 #-------- Debian 11-based Only Dependencies ----------------              
           - cfg: { arch: debian, arch_ver: 11 }
             tag_deps: >-
@@ -117,9 +119,14 @@ jobs:
               export DEBIAN_FRONTEND=noninteractive
               apt-get update
               apt-get install -y tzdata
+            install_gtest: |
+              apt-get install -y libgtest-dev
+              cd /usr/src/gtest
+              cmake .
+              make
+              cp lib/libgtest* /usr/lib/
 #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux }
-            pkg_mgr: dnf
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
               dnf install -y gtest-devel
@@ -130,7 +137,13 @@ jobs:
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
-        run: ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
+        run: >
+          ${{matrix.pkg_mgr}} 
+          ${{matrix.install_cmd}} 
+          ${{matrix.deps}} 
+          ${{matrix.arch_deps}} 
+          ${{matrix.os_deps}} 
+          ${{matrix.tag_deps}}
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
