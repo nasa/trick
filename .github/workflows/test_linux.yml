@@ -105,6 +105,7 @@ jobs:
               dnf config-manager --enable powertools
               dnf install -y gtest-devel
 #-------- Debian 10-based Only Dependencies ----------------
+          - cfg: { arch: debian, arch_ver: 10 }
             install_gtest: |
               apt-get install -y libgtest-dev
               cd /usr/src/gtest
