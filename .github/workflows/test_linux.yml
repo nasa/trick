@@ -24,7 +24,7 @@ jobs:
           - { os: rockylinux,  tag: 8,       arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,       arch: rhel,   arch_ver: 8  }
           - { os: almalinux,   tag: 8,       arch: rhel,   arch_ver: 8  }
-        python: [2.7, 3]
+        python: [2, 3]
 
 #-------- Defaults --------------------------
         include:
@@ -44,7 +44,6 @@ jobs:
             install_cmd: install -y
 #-------- Debian-based Dependencies ----------------
           - cfg: { arch: debian }
-            py_suffix: "-dev"
             pkg_mgr: apt-get
             conf_pkg:  apt-get update
             arch_deps: >-
@@ -62,9 +61,10 @@ jobs:
               libudunits2-dev
               libgtest-dev
               default-jdk
+              python2.7-dev
+              python3-dev
 #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
-            py_suffix: "-devel"
             arch_deps: >-
               clang-devel
               gcc
@@ -82,6 +82,8 @@ jobs:
               udunits2-devel
               which
               zlib-devel
+              python2-devel
+              python3-devel
 #-------- RHEL 7-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 7 }
             pkg_mgr: yum
@@ -92,14 +94,13 @@ jobs:
               libX11-devel
               libXt-devel
               swig3
-              python-devel
               gtest-devel
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
             tag_deps: >-
               swig
-              python3-devel diffutils
+              diffutils
             conf_pkg: |
               dnf -y install epel-release
               dnf -y update
@@ -117,8 +118,6 @@ jobs:
               cp libgtest* /usr/lib/
 #-------- Debian 11-based Only Dependencies ----------------              
           - cfg: { arch: debian, arch_ver: 11 }
-            tag_deps: >-
-              python3-dev
             conf_pkg: |
               export DEBIAN_FRONTEND=noninteractive
               apt-get update
@@ -148,7 +147,6 @@ jobs:
           ${{matrix.arch_deps}} 
           ${{matrix.os_deps}} 
           ${{matrix.tag_deps}}
-          python${{matrix.python}}${{matrix.py_suffix}}
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
@@ -159,17 +157,18 @@ jobs:
           export PYTHON_VERSION=${{matrix.python}}
           ./configure
           make
-      - name: Upload Trick Build
-        uses: actions/upload-artifact@v3.0.0
-        with:
-          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}
-          path: |
-            bin
-            include
-            lib
-            share
-            libexec
-          retention-days: 1
+# Uncomment for build artifacts          
+#       - name: Upload Trick Build
+#         uses: actions/upload-artifact@v3.0.0
+#         with:
+#           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}
+#           path: |
+#             bin
+#             include
+#             lib
+#             share
+#             libexec
+#           retention-days: 1
         
       - name: Test
         run: make test
