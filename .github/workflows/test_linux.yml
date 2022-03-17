@@ -24,6 +24,7 @@ jobs:
           - { os: rockylinux,  tag: 8,       arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,       arch: rhel,   arch_ver: 8  }
           - { os: almalinux,   tag: 8,       arch: rhel,   arch_ver: 8  }
+        python: [2, 3]
 
 #-------- Defaults --------------------------
         include:
@@ -43,6 +44,7 @@ jobs:
             install_cmd: install -y
 #-------- Debian-based Dependencies ----------------
           - cfg: { arch: debian }
+            py_suffix: "-dev"
             pkg_mgr: apt-get
             conf_pkg:  apt-get update
             arch_deps: >-
@@ -54,7 +56,6 @@ jobs:
               libxt-dev
               libmotif-common
               libmotif-dev
-              python-dev
               zlib1g-dev
               llvm-dev
               libclang-dev
@@ -63,6 +64,7 @@ jobs:
               default-jdk
 #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
+            py_suffix: "-devel"
             arch_deps: >-
               clang-devel
               gcc
@@ -146,6 +148,7 @@ jobs:
           ${{matrix.arch_deps}} 
           ${{matrix.os_deps}} 
           ${{matrix.tag_deps}}
+          python${{matrix.python}}${{matrix.py_suffix}}
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
@@ -153,6 +156,7 @@ jobs:
       - name: Build trick
         run: |
           export MAKEFLAGS=-j`nproc`
+          export PYTHON_VERSION=${{matrix.python}}
           ./configure
           make
       - name: Upload Trick Build
