@@ -24,7 +24,7 @@ jobs:
           - { os: rockylinux,  tag: 8,       arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,       arch: rhel,   arch_ver: 8  }
           - { os: almalinux,   tag: 8,       arch: rhel,   arch_ver: 8  }
-        python: [2, 3]
+        python: [2.7, 3]
 
 #-------- Defaults --------------------------
         include:
