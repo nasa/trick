@@ -7,6 +7,7 @@ on:
     - '.github/workflows/**'
     - '!.github/workflows/test_linux.yml'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,15 +16,15 @@ jobs:
       matrix:
         cfg:
 #-------- Operating Systems ----------------
-          - { os: ubuntu, tag: 18.04,   arch: debian }         # EOL April 2023
-          - { os: ubuntu, tag: 20.04,   arch: debian }         # EOL April 2025
-          - { os: debian, tag: 10,      arch: debian }               # EOL 2024
-          - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
-        # - { os: centos, tag: 8,      arch: rhel   }     # 8 as of April 2020
-          - { os: rockylinux, tag: latest, arch: rhel}
-        # - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
-        # - { os: fedora, tag: 33,      arch: rhel   } # feeling confident?
-        # - { os: fedora, tag: rawhide, arch: rhel   } # for thrill-seekers only
+          - { os: ubuntu,      tag: 18.04,   arch: debian, arch_ver: 10 }
+          - { os: ubuntu,      tag: 20.04,   arch: debian, arch_ver: 11 }
+          - { os: debian,      tag: 10,      arch: debian, arch_ver: 10 }
+          - { os: debian,      tag: 11,      arch: debian, arch_ver: 11 }
+          - { os: centos,      tag: 7,       arch: rhel,   arch_ver: 7  }
+          - { os: rockylinux,  tag: 8,       arch: rhel,   arch_ver: 8  }
+          - { os: oraclelinux, tag: 8,       arch: rhel,   arch_ver: 8  }
+          - { os: almalinux,   tag: 8,       arch: rhel,   arch_ver: 8  }
+        python: [2, 3]
 
 #-------- Defaults --------------------------
         include:
@@ -54,13 +55,14 @@ jobs:
               libxt-dev
               libmotif-common
               libmotif-dev
-              python2.7-dev
               zlib1g-dev
               llvm-dev
               libclang-dev
               libudunits2-dev
               libgtest-dev
-            install_gtest: cd /usr/src/gtest && cmake . && make && cp libgtest* /usr/lib/
+              default-jdk
+              python2.7-dev
+              python3-dev
 #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
             arch_deps: >-
@@ -80,61 +82,57 @@ jobs:
               udunits2-devel
               which
               zlib-devel
-              gtest-devel
-#-------- Ubuntu Only Dependencies ----------------
-          - cfg: { os: ubuntu }
-            os_deps: >-
-              openjdk-11-jdk
-#-------- Debian OS Only Dependencies ----------------
-          - cfg: { os: debian }
-            os_deps: >-
-              openjdk-11-jdk
-#-------- CentOS Only Dependencies ----------------
-          - cfg: { os: centos }
+              python2-devel
+              python3-devel
+#-------- RHEL 7-based Only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 7 }
             pkg_mgr: yum
-            conf_pkg: yum -y install epel-release && yum -y update
+            conf_pkg: | 
+              yum -y install epel-release
+              yum -y update
             os_deps: >-
               libX11-devel
               libXt-devel
-#-------- Fedora Only Dependencies ----------------
-#           - cfg: { os: fedora }
-#             pkg_mgr: dnf
-#             os_deps: >-
-#               swig
-#               perl-Text-Balanced
-#               python-devel
-#               diffutils
-#-------- Version Specific Dependencies ----------------
-          - cfg: { os: ubuntu, tag: 20.04 }
-            conf_pkg: DEBIAN_FRONTEND=noninteractive && apt-get update && apt-get install -y tzdata
-            install_gtest: cd /usr/src/gtest && cmake . && make && cp lib/libgtest* /usr/lib/
-            tag_deps: >-
-              python3.8-dev
-          - cfg: { os: centos, tag: 7 }
-            tag_deps: >-
               swig3
-              python-devel
-#           - cfg: { os: centos, tag: 8 }
-#             pkg_mgr: dnf
-#             conf_pkg: >
-#               sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
-#               dnf -y install epel-release &&
-#               dnf -y update &&
-#               dnf install -y 'dnf-command(config-manager)' &&
-#               dnf config-manager --enable powertools
-#             tag_deps: >-
-#               swig
-#               python3-devel diffutils
-          - cfg: { os: rockylinux }
+              gtest-devel
+#-------- RHEL 8-based Only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
-            conf_pkg: >
-              dnf -y install epel-release &&
-              dnf -y update &&
-              dnf install -y 'dnf-command(config-manager)' &&
-              dnf config-manager --enable powertools
             tag_deps: >-
               swig
-              python3-devel diffutils
+              diffutils
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
+            install_gtest: |
+              dnf config-manager --enable powertools
+              dnf install -y gtest-devel
+#-------- Debian 10-based Only Dependencies ----------------
+          - cfg: { arch: debian, arch_ver: 10 }
+            install_gtest: |
+              apt-get install -y libgtest-dev
+              cd /usr/src/gtest
+              cmake .
+              make
+              cp libgtest* /usr/lib/
+#-------- Debian 11-based Only Dependencies ----------------              
+          - cfg: { arch: debian, arch_ver: 11 }
+            conf_pkg: |
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update
+              apt-get install -y tzdata
+            install_gtest: |
+              apt-get install -y libgtest-dev
+              cd /usr/src/gtest
+              cmake .
+              make
+              cp lib/libgtest* /usr/lib/
+#-------- OS and Version Specific Dependencies ----------------
+          - cfg: { os: oraclelinux }
+            install_gtest: |
+              dnf config-manager --enable ol8_codeready_builder
+              dnf install -y gtest-devel
 #-------- Job definition ----------------
     runs-on: ubuntu-18.04
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
@@ -142,16 +140,39 @@ jobs:
       - name: Update Package Manager
         run: ${{matrix.conf_pkg}}
       - name: Install Dependencies
-        run: |
-          ${{matrix.pkg_mgr}} ${{matrix.install_cmd}} ${{matrix.deps}} ${{matrix.arch_deps}} ${{matrix.os_deps}} ${{matrix.tag_deps}}
+        run: >
+          ${{matrix.pkg_mgr}} 
+          ${{matrix.install_cmd}} 
+          ${{matrix.deps}} 
+          ${{matrix.arch_deps}} 
+          ${{matrix.os_deps}} 
+          ${{matrix.tag_deps}}
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
         uses: actions/checkout@master
-      - name: Build trick
+      - name: Configure Trick
         run: |
           export MAKEFLAGS=-j`nproc`
+          export PYTHON_VERSION=${{matrix.python}}
           ./configure
+      - name: Build Trick
+        run: | 
+          export MAKEFLAGS=-j`nproc`
           make
       - name: Test
         run: make test
+
+# Uncomment for build artifacts          
+#       - name: Upload Trick Build
+#         uses: actions/upload-artifact@v3.0.0
+#         with:
+#           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}
+#           path: |
+#             bin
+#             include
+#             lib
+#             share
+#             libexec
+#           retention-days: 1
+        
