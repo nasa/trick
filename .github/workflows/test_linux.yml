@@ -54,7 +54,7 @@ jobs:
               libxt-dev
               libmotif-common
               libmotif-dev
-              python3-dev
+              python-dev
               zlib1g-dev
               llvm-dev
               libclang-dev
@@ -116,7 +116,7 @@ jobs:
 #-------- Debian 11-based Only Dependencies ----------------              
           - cfg: { arch: debian, arch_ver: 11 }
             tag_deps: >-
-              python3.8-dev
+              python3-dev
             conf_pkg: |
               export DEBIAN_FRONTEND=noninteractive
               apt-get update
