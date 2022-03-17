@@ -162,7 +162,13 @@ jobs:
           make
       - name: Test
         run: make test
-
+      - name: Upload Tests
+        uses: actions/upload-artifact@v3.0.0
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}
+          path: trick_test/*.xml
+          retention-days: 1
 # Uncomment for build artifacts          
 #       - name: Upload Trick Build
 #         uses: actions/upload-artifact@v3.0.0
