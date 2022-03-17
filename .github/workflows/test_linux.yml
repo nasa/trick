@@ -158,7 +158,7 @@ jobs:
           ./configure
       - name: Build Trick
         run: | 
-          echo $PYTHON_VERSION
+          export MAKEFLAGS=-j`nproc`
           make
       - name: Test
         run: make test
