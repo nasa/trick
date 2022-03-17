@@ -151,12 +151,18 @@ jobs:
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
         uses: actions/checkout@master
-      - name: Build trick
+      - name: Configure Trick
         run: |
           export MAKEFLAGS=-j`nproc`
           export PYTHON_VERSION=${{matrix.python}}
           ./configure
+      - name: Build Trick
+        run: | 
+          echo $PYTHON_VERSION
           make
+      - name: Test
+        run: make test
+
 # Uncomment for build artifacts          
 #       - name: Upload Trick Build
 #         uses: actions/upload-artifact@v3.0.0
@@ -170,5 +176,3 @@ jobs:
 #             libexec
 #           retention-days: 1
         
-      - name: Test
-        run: make test
