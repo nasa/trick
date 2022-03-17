@@ -7,6 +7,7 @@ on:
     - '.github/workflows/**'
     - '!.github/workflows/test_linux.yml'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
