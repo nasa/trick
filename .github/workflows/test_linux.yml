@@ -134,7 +134,7 @@ jobs:
               dnf config-manager --enable ol8_codeready_builder
               dnf install -y gtest-devel
 #-------- Job definition ----------------
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
     steps:
       - name: Update Package Manager
@@ -162,12 +162,18 @@ jobs:
           make
       - name: Test
         run: make test
-
+      - name: Upload Tests
+        uses: actions/upload-artifact@v3.0.0
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
+          path: trick_test/*.xml
+          retention-days: 1
 # Uncomment for build artifacts          
 #       - name: Upload Trick Build
 #         uses: actions/upload-artifact@v3.0.0
 #         with:
-#           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}
+#           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
 #           path: |
 #             bin
 #             include
@@ -176,3 +182,29 @@ jobs:
 #             libexec
 #           retention-days: 1
         
+#   report:
+#     needs: [build]
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         cfg:
+# #-------- Operating Systems ----------------
+#           - { os: ubuntu,      tag: 18.04,   arch: debian, arch_ver: 10 }
+#           - { os: ubuntu,      tag: 20.04,   arch: debian, arch_ver: 11 }
+#           - { os: debian,      tag: 10,      arch: debian, arch_ver: 10 }
+#           - { os: debian,      tag: 11,      arch: debian, arch_ver: 11 }
+#           - { os: centos,      tag: 7,       arch: rhel,   arch_ver: 7  }
+#           - { os: rockylinux,  tag: 8,       arch: rhel,   arch_ver: 8  }
+#           - { os: oraclelinux, tag: 8,       arch: rhel,   arch_ver: 8  }
+#           - { os: almalinux,   tag: 8,       arch: rhel,   arch_ver: 8  }
+#         python: [2, 3]
+
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: dorny/test-reporter@v1
+#       with:
+#         artifact: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}} # artifact name
+#         name: Results_Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}} # Name of the check run which will be created
+#         path: '*.xml'                     # Path to test results (inside artifact .zip)
+#         reporter: java-junit              # Format of test results
+    
