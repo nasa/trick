@@ -1,10 +1,11 @@
 name: 'Report'
+
 on:
   workflow_run:
     workflows: ['Linux']                     # runs after CI workflow
     types:
       - completed
-
+jobs:
   report:
     strategy:
       fail-fast: false
