@@ -1256,8 +1256,7 @@ void PlotMainWindow::_openVideo()
 {
     QRect lastVideoRect;
     if ( vidView ) {
-        lastVideoRect.setSize(vidView->size());
-        lastVideoRect.setTopLeft(vidView->pos());
+        lastVideoRect = vidView->geometry();
     }
 
     int i = _monteInputsView->currentRun();
