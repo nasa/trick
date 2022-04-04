@@ -10,7 +10,7 @@ Trick requires various free third party utilities in order to function. All the 
 | Utility        | Version | Description             | Usage                                                     | Notes                                                 |
 |---------------:|:-------:|:-----------------------:|:---------------------------------------------------------:|:------------------------------------------------------|
 | [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                       |
-| [clang]/[llvm] | 3.4.2+ (<=11 on mac)  | C/C++ Compiler          | Utilized by the interface code generator.                 |                                                       |
+| [clang]/[llvm] | 3.4.2+ (<=11 on mac)  | C/C++ Compiler          | Utilized by the interface code generator.   |                                                       |
 | [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.9 as of 02/21    |
 | [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                       |
 | [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                       |
@@ -169,9 +169,9 @@ export PYTHON_VERSION=3
 proceed to [Install Trick](#install) section of the install guide
 
 <a name="macos"></a>
-### macOS BigSur
+### macOS BigSur (Monterey support is limited)
 
-1. Install XCode from the App Store.
+1. Install XCode from the App Store. (Note: Xcode 13.2 and lower supported. Monterey users will need to downgrade their command line tools to 13.2 if 13.3 is installed. Xcode Command line Tools 13.2 can be found at developer.apple.com)
 
 2. Download and install Command Line Tools for macOS by opening a terminal and running the following command.
 
