@@ -55,6 +55,10 @@ all: $(ICG)
 $(ICG): $(OBJECTS) $(UDUNITS_OBJS)
 	$(CXX) -o $@ $(OBJECTS) $(UDUNITS_OBJS) $(CLANGLIBS) $(LLVMLDFLAGS)
 
+ifeq ($(TRICK_HOST_TYPE),Darwin)
+	@install_name_tool -add_rpath `$(LLVM_HOME)/bin/llvm-config --libdir` $(ICG)
+endif
+
 # Only FieldDescription.cpp includes the units conversion header.
 $(OBJ_DIR)/FieldDescription.o : CXXFLAGS += -I$(TRICK_HOME)/include
 $(OBJ_DIR)/HeaderSearchDirs.o : CXXFLAGS += -DLLVM_HOME=\"${LLVM_HOME}\"
