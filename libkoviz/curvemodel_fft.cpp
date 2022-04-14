@@ -8,7 +8,8 @@ CurveModelFFT::CurveModelFFT(CurveModel *curveModel,
     _nrows(0),
     _t(new CurveModelParameter),
     _x(new CurveModelParameter),
-    _y(new CurveModelParameter)
+    _y(new CurveModelParameter),
+    _iteratorTimeIndex(0)
 {
     if ( curveModel->x()->unit() != "s" ) {
         fprintf(stderr,"koviz [bad scoobs]: CurveModelFFT given curve with "
@@ -16,6 +17,8 @@ CurveModelFFT::CurveModelFFT(CurveModel *curveModel,
                 curveModel->x()->unit().toLatin1().constData());
         exit(-1);
     }
+
+    _iteratorTimeIndex = new FFTModelIterator(this);
 
     _fileName = curveModel->fileName();
     _t->setName("frequency");
@@ -40,9 +43,51 @@ ModelIterator* CurveModelFFT::begin() const
 
 int CurveModelFFT::indexAtTime(double time)
 {
-    fprintf(stderr, "CurveModelFFT::indexAtTime() not implemented ("
-                    "time=%g)\n", time);
-    exit(-1);
+    return _idxAtTimeBinarySearch(_iteratorTimeIndex,0,rowCount()-1,time);
+}
+
+int CurveModelFFT::_idxAtTimeBinarySearch (FFTModelIterator* it,
+                                       int low, int high, double time)
+{
+        if (high <= 0 ) {
+                return 0;
+        }
+        if (low >= high) {
+                // Time not found, choose closest near high
+                double t1 = it->at(high-1)->t();
+                double t2 = it->at(high)->t();
+                double t3 = t2;
+                it = it->at(high+1);
+                if ( !it->isDone() ) {
+                    t3 = it->at(high+1)->t();
+                }
+
+                int i;
+                if ( qAbs(time-t1) < qAbs(time-t2) ) {
+                    if ( qAbs(time-t1) < qAbs(time-t3) ) {
+                        i = high-1;
+                    } else {
+                        i = high+1;
+                    }
+                } else {
+                    if ( qAbs(time-t2) < qAbs(time-t3) ) {
+                        i = high;
+                    } else {
+                        i = high+1;
+                    }
+                }
+                return i;
+        } else {
+                int mid = (low + high)/2;
+                if (time == it->at(mid)->t()) {
+                        return mid;
+                } else if ( time < it->at(mid)->t() ) {
+                        return _idxAtTimeBinarySearch(it,
+                                                      low, mid-1, time);
+                } else {
+                        return _idxAtTimeBinarySearch(it, mid+1, high, time);
+                }
+        }
 }
 
 int CurveModelFFT::rowCount(const QModelIndex &pidx) const
@@ -82,7 +127,7 @@ void CurveModelFFT::_init(CurveModel* curveModel)
     ModelIterator* it = curveModel->begin();
     it = it->at(i0);
     while ( !it->isDone() ) {
-        if ( it->t() > _endTime ) {
+        if ( it->x() > _endTime ) {
             break;
         }
         ++N;
@@ -94,10 +139,10 @@ void CurveModelFFT::_init(CurveModel* curveModel)
 
     double dt = 0;
     it = it->at(i0);
-    double t = it->t();
+    double t = it->x();
     it->next();
     while ( !it->isDone() ) {
-        dt = it->t() - t;
+        dt = it->x() - t;
         if ( dt > 0 ) {
             break;
         }

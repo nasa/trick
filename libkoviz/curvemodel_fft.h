@@ -10,6 +10,9 @@
 #include "curvemodel.h"
 #include "fft.h"
 
+class CurveModelFFT;
+class FFTModelIterator;
+
 class CurveModelFFT : public CurveModel
 {
   Q_OBJECT
@@ -54,7 +57,11 @@ class CurveModelFFT : public CurveModel
     CurveModelParameter* _x;
     CurveModelParameter* _y;
 
+    FFTModelIterator* _iteratorTimeIndex;
+
     void _init(CurveModel *curveModel);
+    int _idxAtTimeBinarySearch (FFTModelIterator *it,
+                                int low, int high, double time);
 };
 
 class FFTModelIterator : public ModelIterator
