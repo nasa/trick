@@ -527,27 +527,63 @@ void CurvesView::_paintMarkers(QPainter &painter)
         i = i+ii;  // LiveCoordTimeIndex is normally 0
 
         if ( tag == "Curve" ) {
-            // If x is not time (e.g. ball xy orbit), i is calculated from
-            // the curve model instead of the path
             QModelIndex curveIdx = marker->modelIdx();
             CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
             curveModel->map();
             QModelIndex plotIdx = marker->modelIdx().parent().parent();
-            if ( !_bookModel()->isXTime(plotIdx) ) {
-                // e.g. ball xy curve where x is position[0]
-                double f = _bookModel()->getDataDouble(QModelIndex(),
-                                                       "Frequency");
-                if ( f != 0.0 ) {
-                    // If frequency != 0.0, the path and curveModel iterator
-                    // are not aligned in time and 'i' cannot easily be solved
-                    fprintf(stderr, "koviz [todo]: support live coord "
-                                    "for xy curve where x is not time "
-                                    "and frequency is not zero.\n");
-                    exit(-1);
-                }
-                double start = _bookModel()->getDataDouble(QModelIndex(),
-                                                           "StartTime");
+            int nels = path->elementCount();
+            int npts = curveModel->rowCount();
+            if ( !_bookModel()->isXTime(plotIdx) || nels != npts ) {
+                // If X is not time, then x is e.g. xpos in ball xy orbit
+                //
+                // If nels != npts, the number of elements in the path do not
+                // match the number points in the data - most likely culled
+                //
+                // i is calculated from the curve model instead of the path
+                // since the path does not have time
+                //
+                // i is a best guess
                 i = curveModel->indexAtTime(marker->time());
+
+                if ( nels < npts ) {
+                    // Points have been culled out of the data leaving the
+                    // path with less elements than the curve
+                    // This can happen when:
+                    //    1) Log(curve) removes zeroes
+                    //    2) Frequency is given, points culled out of curve
+                    // Search for first element that matches curve point at time
+                    ModelIterator* it = curveModel->begin();
+                    double xs = _bookModel()->xScale(curveIdx);
+                    double xb = _bookModel()->xBias(curveIdx);
+                    double ys = _bookModel()->yScale(curveIdx);
+                    double yb = _bookModel()->yBias(curveIdx);
+                    double x = it->at(i)->x()*xs+xb;
+                    double y = it->at(i)->y()*ys+yb;
+                    if ( isXLogScale ) {
+                        x = log10(x);
+                    }
+                    if ( isYLogScale ) {
+                        y = log10(y);
+                    }
+                    int j = (i < nels) ? i : nels - 1;
+                    while ( j >= 0 ) {
+                        QPainterPath::Element el = path->elementAt(j);
+                        if ( el.x == x && el.y == y ) {
+                            i = j;
+                            break;
+                        }
+                        --j;
+                    }
+                    delete it;
+                } else if ( nels > npts ) {
+                    // There are more elements in the path than points
+                    // on the curve.  Shouldn't happen, but if it does
+                    // don't show markers
+                    painter.restore();
+                    curveModel->unmap();
+                    return;
+                }
+
                 /* There may be duplicate timestamps in sequence - goto first */
                 ModelIterator* it = curveModel->begin();
                 double iTime = it->at(i)->t();
@@ -558,7 +594,10 @@ void CurvesView::_paintMarkers(QPainter &painter)
                         break;
                     }
                 }
+                delete it;
                 i = i + ii;
+                double start = _bookModel()->getDataDouble(QModelIndex(),
+                                                           "StartTime");
                 int j = curveModel->indexAtTime(start);
                 i = i - j;
                 if ( i < 0 ) {
