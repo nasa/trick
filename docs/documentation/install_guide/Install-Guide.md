@@ -10,7 +10,7 @@ Trick requires various free third party utilities in order to function. All the 
 | Utility        | Version | Description             | Usage                                                     | Notes                                                 |
 |---------------:|:-------:|:-----------------------:|:---------------------------------------------------------:|:------------------------------------------------------|
 | [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                       |
-| [clang]/[llvm] | 3.4.2+ (<=11 on mac)  | C/C++ Compiler          | Utilized by the interface code generator.   |                                                       |
+| [clang]/[llvm] | <=13 (14 not currently supported)  | C/C++ Compiler          | Utilized by the interface code generator.   |                                                       |
 | [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.9 as of 02/21    |
 | [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                       |
 | [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                       |
@@ -53,7 +53,7 @@ Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX wo
 |[CentOS 7](#redhat7)|
 |[Fedora](#fedora)|
 |[Ubuntu](#ubuntu)|
-|[MacOS](#macos)|
+|[macOS](#macos)|
 |[Windows 10 (Linux Subsystem Only)](#windows10)|
 
 ---
@@ -169,106 +169,54 @@ export PYTHON_VERSION=3
 proceed to [Install Trick](#install) section of the install guide
 
 <a name="macos"></a>
-### macOS BigSur (Monterey support is limited)
+### macOS Monterey, Big Sur, Catalina
 
-1. Install XCode from the App Store. (Note: Xcode 13.2 and lower supported. Monterey users will need to downgrade their command line tools to 13.2 if 13.3 is installed. Xcode Command line Tools 13.2 can be found at developer.apple.com)
+1. Install the latest Xcode. I recommend installing Xcode through the App Store.
 
-2. Download and install Command Line Tools for macOS by opening a terminal and running the following command.
+2. Download and install Xcode Command Line Tools for macOS. The following command in the terminal should do the job:
 
 ```bash
 xcode-select --install
 ```
 
-3. Install Homebrew, macOS's unofficial package manager.
+3. Install Homebrew, macOS's unofficial package manager. They typically have a single line that can be executed in your terminal to install brew at their homepage at https://brew.sh/
+
+
+4. Install the following dependencies using brew (note, we do not currently support installing llvm through brew. Trick WILL NOT work with brew's llvm. See step 5). 
 
 ```bash
-# bash  
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-4. Install the remaining dependencies. Currently llvm 12 with homebrew is not supported, so we need to treat it specially by installing v11 and configuring trick to use it. Also when installing java (defaults to openjdk) with homebrew, we need to add it to our path.
-
-```bash
-brew install java xquartz llvm@11 swig maven udunits openmotif 
+brew install java xquartz swig maven udunits openmotif 
 
 ```
+IMPORTANT: Make sure to follow the instructions for adding java to your path provided by brew. If you missed them, you can see them again by using `brew info java`.
 
-IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm@11. It is also possible that the current iteration of our configure script will not be able to find the udunits package, so you may need to point trick to udunits as well.
-You can find the path of llvm and udunits by executing the following commands:
+5. Download and un-compress the latest pre-built clang+llvm 13 from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
+and download the latest version of 13 from the release assets. 13.0.1 is the latest as of the writing of this guide, the link I used is below:
+https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/clang+llvm-13.0.1-x86_64-apple-darwin.tar.xz
+Tip: I suggest renaming the untar'd directory to something simple like llvm13 and putting it in your home directory or development environment.
+
+6. Read the following macOS optional steps/caveats and then go to the Install Trick section of this document. 
+
+IMPORTANT: Your mac might complain during configuration or build that llvm is downloaded from the internet and can not be trusted. You may need to find a safe solution for this on your own. DO THIS AT YOUR OWN RISK: What worked for us was enabling Settings->Security & Privacy->Privacy->Developer Tools->Terminal. 
+
+IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm. It is also possible that the current iteration of our configure script will not be able to find the udunits package, so you may need to point trick to udunits as well.
+You can find the path of udunits by executing the following command:
+
 ```
-brew info llvm@11
 brew info udunits
 ```
 Then enter the path to llvm (and udunits) when you execute the configure command in place of the placeholders:
 ```
 ./configure --with-llvm=<enter path to llvm> --with-udunits=<path to udunits> <other configure flags (if any)>
 ```
-
-IMPORTANT: Add java and javac from openjdk to your path. 
-
+e.g.
 ```
-# temporarily for this terminal session:
-export PATH="/usr/local/opt/openjdk/bin:$PATH"
-# OR we can add it to .zshrc so it is always added to path when opening a new terminal:
-echo 'export PATH="/usr/local/opt/openjdk/bin:$PATH"' >> ~/.zshrc
-```
-
-Openmotif may install dependent packages that conflict with other installations, fontconfig and freetype.  Use the following command to skip installing these packages if you encounter conflicts.
-```bash
-brew install --ignore-dependencies openmotif
-```
-
----
-### macOS Catelina/Mojave
-
-1. Install XCode from the App Store.
-
-2. Download and install Command Line Tools for MacOSX by opening a terminal and running the following command.
-
-```bash
-xcode-select --install
-```
-
-3. Install system header files into /usr/include
-```bash
-### Catalina Only
-sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
-
-### Mojave Only
-sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
-
-```
-
-4. Install Homebrew, macOS's unofficial package manager.
-
-```bash
-# bash  
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
-or
-```csh
-# csh
-curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install | ruby
-```
-
-5. Install the remaining dependencies. Currently llvm 12 with homebrew is not supported, so we need to treat it specially by installing v11 and linking it.
-
-```bash
-brew install java xquartz llvm@11 swig maven udunits openmotif 
-
-```
-
-IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm@11.
-
-```
-./configure --with-llvm=/usr/local/opt/llvm@11 <other configure flags>
-
-Openmotif may install dependent packages that conflict with other installations, fontconfig and freetype.  Use the following command to skip installing these packages if you encounter conflicts.
-```bash
-brew install --ignore-dependencies openmotif
+./configure --with-llvm=/Users/trickguy/llvm13 --with-udunits=/usr/local/Cellar/udunits/2.2.28
 ```
 
 proceed to [Install Trick](#install) section of the install guide
+
+---
 
 <a name="windows10"></a>
 ### Windows 10 (Linux Subsystem Only)
@@ -315,7 +263,7 @@ cd ${HOME}/trick
 ./configure
 ```
 
-The *configure* script will generate makefiles and locate project dependencies automatically. It may be necessary to specify dependency paths manually. Run the following command to see the possible options *configure* will accept.
+The *configure* script will generate makefiles and locate project dependencies automatically. It may be necessary to specify dependency paths manually. Run the following command to see the possible options *configure* will accept. If you are having trouble with this step, make sure there were not details in the OS section of this document that you missed.
 
 ```bash
 ./configure --help
