@@ -21,7 +21,7 @@ class CurveModelFFT : public CurveModel
 
   public:
 
-    explicit CurveModelFFT(CurveModel* curveModel,
+    explicit CurveModelFFT(CurveModel* curveModel, double xb, double xs,
                            double begX, double endX);
 
     ~CurveModelFFT();
@@ -47,6 +47,8 @@ class CurveModelFFT : public CurveModel
     QString _fileName;
     double _begX;
     double _endX;
+    double _xb;
+    double _xs;
     double* _data;
     int _ncols;
     int _nrows;

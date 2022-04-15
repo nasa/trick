@@ -1,9 +1,12 @@
 #include "curvemodel_fft.h"
 
 CurveModelFFT::CurveModelFFT(CurveModel *curveModel,
+                             double xb, double xs,
                              double begX, double endX) :
     _begX(begX),
     _endX(endX),
+    _xb(xb),
+    _xs(xs),
     _ncols(3),
     _nrows(0),
     _t(new CurveModelParameter),
@@ -127,7 +130,7 @@ void CurveModelFFT::_init(CurveModel* curveModel)
     int N = 0;
     ModelIterator* it = curveModel->begin();
     while ( !it->isDone() ) {
-        if ( it->x() < _begX ) {
+        if ( it->x()*_xs+_xb < _begX ) {
             it->next();
             ++i;
             continue;
@@ -135,7 +138,7 @@ void CurveModelFFT::_init(CurveModel* curveModel)
         if ( i0 == -1 ) {
             i0 = i;
         }
-        if ( it->x() > _endX ) {
+        if ( it->x()*_xs+_xb > _endX ) {
             break;
         }
         ++N;
@@ -148,10 +151,10 @@ void CurveModelFFT::_init(CurveModel* curveModel)
 
     double dt = 0;
     it = it->at(i0);
-    double t = it->x();
+    double t = it->x()*_xs+_xb;
     it->next();
     while ( !it->isDone() ) {
-        dt = it->x() - t;
+        dt = it->x()*_xs+_xb - t;
         if ( dt > 0 ) {
             break;
         }

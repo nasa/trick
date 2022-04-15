@@ -2471,11 +2471,22 @@ void CurvesView::_keyPressF()
         foreach ( QModelIndex curveIdx, curveIdxs ) {
             CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
             if ( curveModel ) {
+                double xb = _bookModel()->getDataDouble(curveIdx,
+                                                        "CurveXBias","Curve");
+                double xs = _bookModel()->getDataDouble(curveIdx,
+                                                        "CurveXScale","Curve");
                 CurveModel* fft = new CurveModelFFT(curveModel,
+                                                    xb,xs,
                                                     M.left(),M.right());
                 QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveXUnit","Curve");
+                QModelIndex xBiasIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXBias","Curve");
+                QModelIndex xScaleIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveXScale","Curve");
                 _bookModel()->setData(xUnitIdx,"Hz");
+                _bookModel()->setData(xBiasIdx,0.0);
+                _bookModel()->setData(xScaleIdx,1.0);
                 QVariant v = PtrToQVariant<CurveModel>::convert(fft);
                 QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
                                                            "CurveData","Curve");
