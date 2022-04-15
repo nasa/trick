@@ -2445,32 +2445,22 @@ void CurvesView::_keyPressF()
                                                            "Curve","Curves");
 
     // All curves should be time or frequency domain (x should be "s" or "Hz")
-    bool isTimeDomain = true;
-    bool isFrequencyDomain = true;
-    foreach ( QModelIndex curveIdx, curveIdxs ) {
-        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
-        if ( curveModel ) {
-            QString xUnit = _bookModel()->getDataString(curveIdx,
-                                                        "CurveXUnit","Curve");
-            if ( xUnit == "s" ) {
-                isFrequencyDomain = false;
-            } else if ( xUnit == "Hz" ) {
-                isTimeDomain = false;
-            } else {
-                isTimeDomain = false;
-                isFrequencyDomain = false;
-                break;
-            }
-        } else {
-            isTimeDomain = false;
-            isFrequencyDomain = false;
-            break;
-        }
+    bool isTimeDomain = false;
+    bool isFrequencyDomain = false;
+    QString xUnit = _bookModel()->getCurvesXUnit(curvesIdx);
+    if ( xUnit == "s" ) {
+        isTimeDomain = true;
+    } else if ( xUnit == "Hz" ) {
+        isFrequencyDomain = true;
     }
     if ( !isTimeDomain && !isFrequencyDomain ) {
-        fprintf(stderr, "koviz [error]: Attempting to do fft or ifft on data "
-                        "where x units are neither seconds or Hz.\n");
-        exit(-1);
+        QMessageBox msgBox;
+        QString msg = QString("Attempting to take Fourier transform on data "
+                              "where x units are neither seconds or Hz. "
+                              "Aborting!");
+        msgBox.setText(msg);
+        msgBox.exec();
+        return;
     }
 
     QRectF M = _bookModel()->getPlotMathRect(rootIndex());
