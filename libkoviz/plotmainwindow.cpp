@@ -453,17 +453,17 @@ void PlotMainWindow::_bookViewCurrentChanged(const QModelIndex &currIdx,
             curveModel->map();
             ModelIterator* it = curveModel->begin();
             int n = curveModel->rowCount();
-            double begin_time = it->at(0)->t();
-            double end_time = it->at(n-1)->t();
-            QString el1 = QString("begin_time=%1").arg(begin_time);
-            QString el2 = QString("end_time=%1").arg(end_time);
-            list.append(el1);
-            list.append(el2);
+            if ( n > 0 ) {
+                double begin_time = it->at(0)->t();
+                double end_time = it->at(n-1)->t();
+                QString el1 = QString("begin_time=%1").arg(begin_time);
+                QString el2 = QString("end_time=%1").arg(end_time);
+                list.append(el1);
+                list.append(el2);
+                _blender->sendList2Bvis(list);
+            }
             delete it;
             curveModel->unmap();
-
-            _blender->sendList2Bvis(list);
-
         } else if ( _bookModel->isIndex(currIdx,"Plot") ) {
             if (_bookModel->getDataString(currIdx,"PlotPresentation")=="error"){
                 isShowLiveTime = true;
