@@ -1,9 +1,9 @@
 #include "curvemodel_fft.h"
 
 CurveModelFFT::CurveModelFFT(CurveModel *curveModel,
-                             double begTime, double endTime) :
-    _begTime(begTime),
-    _endTime(endTime),
+                             double begX, double endX) :
+    _begX(begX),
+    _endX(endX),
     _ncols(3),
     _nrows(0),
     _t(new CurveModelParameter),
@@ -122,20 +122,29 @@ void CurveModelFFT::_init(CurveModel* curveModel)
 {
     curveModel->map();
 
+    int i = 0;
+    int i0 = -1;
     int N = 0;
-    int i0 = curveModel->indexAtTime(_begTime);
     ModelIterator* it = curveModel->begin();
-    it = it->at(i0);
     while ( !it->isDone() ) {
-        if ( it->x() > _endTime ) {
+        if ( it->x() < _begX ) {
+            it->next();
+            ++i;
+            continue;
+        }
+        if ( i0 == -1 ) {
+            i0 = i;
+        }
+        if ( it->x() > _endX ) {
             break;
         }
         ++N;
         it->next();
     }
 
-    _real = (double*)malloc(N*sizeof(double));
-    _imag = (double*)malloc(N*sizeof(double));
+    if ( i0 == -1 || N < 2 ) {
+        return;
+    }
 
     double dt = 0;
     it = it->at(i0);
@@ -149,9 +158,11 @@ void CurveModelFFT::_init(CurveModel* curveModel)
         it->next();
     }
     if ( dt == 0 ) {
-        fprintf(stderr, "koviz [error]: dt=0.0, cannot take fft\n");
-        exit(-1);
+        return;
     }
+
+    _real = (double*)malloc(N*sizeof(double));
+    _imag = (double*)malloc(N*sizeof(double));
 
     it = it->at(i0);
     double goodVal = 0.0;
@@ -166,7 +177,7 @@ void CurveModelFFT::_init(CurveModel* curveModel)
 
     double ys = 1.0;
     double yb = 0.0;
-    int i = 0;
+    i = 0;
     it = it->at(i0);
     while ( !it->isDone() && i < N ) {
         _real[i] = it->y()*ys+yb;

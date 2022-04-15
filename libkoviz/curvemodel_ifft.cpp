@@ -18,13 +18,6 @@ CurveModelIFFT::CurveModelIFFT(CurveModel *curveModel,
         exit(-1);
     }
 
-    if ( curveModel->_real == 0 || curveModel->_imag == 0 ) {
-        fprintf(stderr,"koviz [error]: CurveModelIFFT expects FFT "
-                    "data from time history prior to running the inverse FFT.\n"
-                    "Bailing!\n");
-        exit(-1);
-    }
-
     _fileName = curveModel->fileName();
     _t->setName("time");
     _t->setUnit("s");
@@ -35,7 +28,11 @@ CurveModelIFFT::CurveModelIFFT(CurveModel *curveModel,
 
     _iteratorTimeIndex = new IFFTModelIterator(this);
 
-    _init(curveModel);
+    if ( curveModel->_real != 0 && curveModel->_imag != 0 ) {
+        _init(curveModel);
+    } else {
+        // IFFT is empty - so nothing to do
+    }
 }
 
 // See ~CurveModel() too
