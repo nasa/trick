@@ -53,6 +53,33 @@ class TimeAndIndex
     QModelIndex _modelIdx;
 };
 
+class FFTCurveCache
+{
+  public:
+    FFTCurveCache(double xbias, double xscale, CurveModel* curveModel);
+    double xbias() const ;
+    double xscale() const ;
+    CurveModel* curveModel() const ;
+
+  private:
+    FFTCurveCache() {}
+    double _xbias;
+    double _xscale;
+    CurveModel*  _curveModel;
+};
+
+class FFTCache
+{
+  public:
+    FFTCache();
+    bool isCache;
+    QString xAxisLabel;
+    QRectF M;
+    double start;
+    double stop;
+    QList<FFTCurveCache*> curveCaches;
+};
+
 class CurvesView : public BookIdxView
 {
     Q_OBJECT
@@ -135,6 +162,8 @@ private:
     QLineEdit* _sg_degree;
     QSlider* _sg_slider;
     void _keyPressGChange(int window, int degree);
+
+    FFTCache _fftCache ;
 
 private slots:
     void _keyPressBSliderChanged(int value);

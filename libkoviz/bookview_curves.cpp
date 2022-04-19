@@ -27,6 +27,10 @@ CurvesView::~CurvesView()
     foreach ( TimeAndIndex* marker, _markers ) {
         delete marker;
     }
+    foreach ( FFTCurveCache* cache,  _fftCache.curveCaches ) {
+        delete cache->curveModel();
+        delete cache;
+    }
 }
 
 void CurvesView::setCurrentCurveRunID(int runID)
@@ -2462,87 +2466,103 @@ void CurvesView::_keyPressF()
         msgBox.exec();
         return;
     }
+    if ( isFrequencyDomain && !_fftCache.isCache ) {
+        QMessageBox msgBox;
+        QString msg = QString("Attempting to take Inverse Fourier transform "
+                              "on data logged in Hz.  Sorry, this is not "
+                              "implemented. Aborting!");
+        msgBox.setText(msg);
+        msgBox.exec();
+        return;
+    }
 
     QRectF M = _bookModel()->getPlotMathRect(rootIndex());
 
+    QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                       "PlotXAxisLabel","Plot");
+    QModelIndex startTimeIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                          "StartTime");
+    QModelIndex stopTimeIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                         "StopTime");
+
     if ( isTimeDomain ) {
         // TimeDomain -> FrequencyDomain
+        _fftCache.isCache = true;
+        _fftCache.xAxisLabel = _bookModel()->data(xAxisLabelIdx).toString();
+        _fftCache.M = M;
+        _fftCache.start = _bookModel()->data(startTimeIdx).toDouble();
+        _fftCache.stop = _bookModel()->data(stopTimeIdx).toDouble();
+        _fftCache.curveCaches.clear();
         bool block = _bookModel()->blockSignals(true);
         foreach ( QModelIndex curveIdx, curveIdxs ) {
             CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
-            if ( curveModel ) {
-                double xb = _bookModel()->getDataDouble(curveIdx,
-                                                        "CurveXBias","Curve");
-                double xs = _bookModel()->getDataDouble(curveIdx,
-                                                        "CurveXScale","Curve");
-                CurveModel* fft = new CurveModelFFT(curveModel,
-                                                    xb,xs,
-                                                    M.left(),M.right());
-                QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
-                                                          "CurveXUnit","Curve");
-                QModelIndex xBiasIdx = _bookModel()->getDataIndex(curveIdx,
-                                                          "CurveXBias","Curve");
-                QModelIndex xScaleIdx = _bookModel()->getDataIndex(curveIdx,
-                                                         "CurveXScale","Curve");
-                _bookModel()->setData(xUnitIdx,"Hz");
-                _bookModel()->setData(xBiasIdx,0.0);
-                _bookModel()->setData(xScaleIdx,1.0);
-                QVariant v = PtrToQVariant<CurveModel>::convert(fft);
-                QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+            double xb = _bookModel()->getDataDouble(curveIdx,
+                                                    "CurveXBias","Curve");
+            double xs = _bookModel()->getDataDouble(curveIdx,
+                                                    "CurveXScale","Curve");
+            FFTCurveCache* cache = new FFTCurveCache(xb,xs,curveModel);
+            _fftCache.curveCaches.append(cache);
+
+            CurveModel* fft = new CurveModelFFT(curveModel,
+                                                xb,xs,
+                                                M.left(),M.right());
+            QVariant v = PtrToQVariant<CurveModel>::convert(fft);
+            QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
                                                            "CurveData","Curve");
-                _bookModel()->setData(curveDataIdx,v);
-                delete curveModel;
-            }
+            QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXUnit","Curve");
+            QModelIndex xBiasIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXBias","Curve");
+            QModelIndex xScaleIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveXScale","Curve");
+            _bookModel()->setData(xUnitIdx,"Hz");
+            _bookModel()->setData(xBiasIdx,0.0);
+            _bookModel()->setData(xScaleIdx,1.0);
+            _bookModel()->setData(curveDataIdx,v);
         }
         QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
         _bookModel()->setPlotMathRect(bbox,rootIndex());
-
-        QModelIndex startTimeIdx = _bookModel()->getDataIndex(QModelIndex(),
-                                                            "StartTime");
         _bookModel()->setData(startTimeIdx,-DBL_MAX);
-        QModelIndex stopTimeIdx = _bookModel()->getDataIndex(QModelIndex(),
-                                                           "StopTime");
         _bookModel()->setData(stopTimeIdx,DBL_MAX);
-
-        QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
-                                                       "PlotXAxisLabel","Plot");
         _bookModel()->setData(xAxisLabelIdx,"Frequency");
-
         _bookModel()->blockSignals(block);
-
         QModelIndex xScaleIdx = _bookModel()->getDataIndex(plotIdx,
                                                            "PlotXScale","Plot");
         _bookModel()->setData(xScaleIdx,"log");
     } else {
         // FrequencyDomain -> TimeDomain
+        _bookModel()->setData(xAxisLabelIdx,_fftCache.xAxisLabel);
+        _bookModel()->setPlotMathRect(_fftCache.M,plotIdx);
+        _bookModel()->setData(startTimeIdx,_fftCache.start);
+        _bookModel()->setData(stopTimeIdx,_fftCache.stop);
         bool block = _bookModel()->blockSignals(true);
         foreach ( QModelIndex curveIdx, curveIdxs ) {
+            QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXUnit","Curve");
+            _bookModel()->setData(xUnitIdx,"s");
+            QModelIndex xBiasIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveXBias","Curve");
+            QModelIndex xScaleIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveXScale","Curve");
+            QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+            FFTCurveCache* cache = _fftCache.curveCaches.takeFirst();
+
+            _bookModel()->setData(xBiasIdx,cache->xbias());
+            _bookModel()->setData(xScaleIdx,cache->xscale());
+
             CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
             if ( curveModel ) {
-                CurveModel* ifft = new CurveModelIFFT(curveModel,
-                                                    M.left(),M.right());
-                QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
-                                                          "CurveXUnit","Curve");
-                _bookModel()->setData(xUnitIdx,"s");
-                QVariant v = PtrToQVariant<CurveModel>::convert(ifft);
-                QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
-                                                           "CurveData","Curve");
-                _bookModel()->setData(curveDataIdx,v);
                 delete curveModel;
             }
+            QVariant v=PtrToQVariant<CurveModel>::convert(cache->curveModel());
+            _bookModel()->setData(curveDataIdx,v);
         }
-        QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
-        _bookModel()->setPlotMathRect(bbox,rootIndex());
-
-        QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
-                                                       "PlotXAxisLabel","Plot");
-        _bookModel()->setData(xAxisLabelIdx,"Time");
-
-        _bookModel()->blockSignals(block);
-
         QModelIndex xScaleIdx = _bookModel()->getDataIndex(plotIdx,
                                                            "PlotXScale","Plot");
         _bookModel()->setData(xScaleIdx,"linear");
+        _bookModel()->blockSignals(block);
+        _bookModel()->setPlotMathRect(_fftCache.M,plotIdx);
     }
 }
 
@@ -3057,4 +3077,33 @@ int TimeAndIndex::timeIdx() const
 QModelIndex TimeAndIndex::modelIdx() const
 {
     return _modelIdx;
+}
+
+
+FFTCurveCache::FFTCurveCache(double xbias, double xscale,
+                             CurveModel* curveModel) :
+    _xbias(xbias),
+    _xscale(xscale),
+    _curveModel(curveModel)
+{
+}
+
+double FFTCurveCache::xbias() const
+{
+    return _xbias;
+}
+
+double FFTCurveCache::xscale() const
+{
+    return _xscale;
+}
+
+CurveModel* FFTCurveCache::curveModel() const
+{
+    return _curveModel;
+}
+
+FFTCache::FFTCache() :
+    isCache(false)
+{
 }
