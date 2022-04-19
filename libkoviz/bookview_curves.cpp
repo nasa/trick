@@ -1691,73 +1691,76 @@ void CurvesView::mouseMoveEvent(QMouseEvent *event)
                         }
                     }
 
-                    // Set live coord in model
-                    double start = _bookModel()->getDataDouble(QModelIndex(),
-                                                               "StartTime");
-                    double stop = _bookModel()->getDataDouble(QModelIndex(),
-                                                "StopTime");
-                    double time = liveCoord.x();
-                    if ( plotXScale == "log" ) {
-                        time = pow(10,time);
-                    }
-                    if ( time <= start ) {
-                        time = start;
-                    } else if ( time >= stop ) {
-                        time = stop;
-                    }
-                    model()->setData(liveTimeIdx,time);
+                    if ( rc > 0 ) {
+                        // Set live coord in model
+                        double start =_bookModel()->getDataDouble(QModelIndex(),
+                                                                   "StartTime");
+                        double stop = _bookModel()->getDataDouble(QModelIndex(),
+                                                                  "StopTime");
+                        double time = liveCoord.x();
+                        if ( plotXScale == "log" ) {
+                            time = pow(10,time);
+                        }
+                        if ( time <= start ) {
+                            time = start;
+                        } else if ( time >= stop ) {
+                            time = stop;
+                        }
+                        model()->setData(liveTimeIdx,time);
 
-                    // If timestamps are identical, set liveTimeIndex so
-                    // that livecoord is set to max y value
-                    if ( plotXScale == "log") {
-                        time = log10(time);
-                    }
-                    int i =  _idxAtTimeBinarySearch(path,0,rc-1,(time-xb)/xs);
-                    double iTime = path->elementAt(i).x;
-                    int j = i;  // j is start index of identical timestamps
-                    for ( int l = i; l >= 0; --l ) {
-                        double lTime = path->elementAt(l).x;
-                        if ( iTime != lTime ) {
-                            break;
-                        } else {
-                            j = l;
+                        // If timestamps are identical, set liveTimeIndex so
+                        // that livecoord is set to max y value
+                        if ( plotXScale == "log") {
+                            time = log10(time);
                         }
-                    }
-                    int nels = path->elementCount();
-                    int k = j; // k is last index of identical timestamps
-                    for (int l = j; l < nels; ++l) {
-                        double lTime = path->elementAt(l).x;
-                        if ( iTime != lTime ) {
-                            break;
-                        } else {
-                            k = l;
-                        }
-                    }
-                    int liveCoordTimeIdx = 0;
-                    if ( k - j > 1 ) {
-                        // Find index of max y of identical timestamps
-                        // Note: min is not used even if mouse below curve.
-                        //       This is because I simply didn't want any
-                        //       more code
-                        double maxY = -DBL_MAX;
-                        int m = 0 ;
-                        for (int l = j; l <= k; ++l) {
-                            double x = path->elementAt(l).x;
-                            double y = path->elementAt(l).y;
-                            if ( y > maxY ) {
-                                maxY = y;
-                                liveCoordTimeIdx = m;
-                            }
-                            if ( x != iTime ) {
+                        int i =  _idxAtTimeBinarySearch(path,0,
+                                                        rc-1,(time-xb)/xs);
+                        double iTime = path->elementAt(i).x;
+                        int j = i;  // j is start index of identical timestamps
+                        for ( int l = i; l >= 0; --l ) {
+                            double lTime = path->elementAt(l).x;
+                            if ( iTime != lTime ) {
                                 break;
+                            } else {
+                                j = l;
                             }
-                            ++m;
                         }
+                        int nels = path->elementCount();
+                        int k = j; // k is last index of identical timestamps
+                        for (int l = j; l < nels; ++l) {
+                            double lTime = path->elementAt(l).x;
+                            if ( iTime != lTime ) {
+                                break;
+                            } else {
+                                k = l;
+                            }
+                        }
+                        int liveCoordTimeIdx = 0;
+                        if ( k - j > 1 ) {
+                            // Find index of max y of identical timestamps
+                            // Note: min is not used even if mouse below curve.
+                            //       This is because I simply didn't want any
+                            //       more code
+                            double maxY = -DBL_MAX;
+                            int m = 0 ;
+                            for (int l = j; l <= k; ++l) {
+                                double x = path->elementAt(l).x;
+                                double y = path->elementAt(l).y;
+                                if ( y > maxY ) {
+                                    maxY = y;
+                                    liveCoordTimeIdx = m;
+                                }
+                                if ( x != iTime ) {
+                                    break;
+                                }
+                                ++m;
+                            }
+                        }
+                        QModelIndex idx = _bookModel()->getDataIndex(
+                                    QModelIndex(),
+                                    "LiveCoordTimeIndex","");
+                        _bookModel()->setData(idx,liveCoordTimeIdx);
                     }
-                    QModelIndex idx = _bookModel()->getDataIndex(
-                                                       QModelIndex(),
-                                                       "LiveCoordTimeIndex","");
-                    _bookModel()->setData(idx,liveCoordTimeIdx);
                 } else {  // Curve x is not time e.g. ball xy-position
 
                     double start = _bookModel()->getDataDouble(QModelIndex(),
