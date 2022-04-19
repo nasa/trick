@@ -1757,8 +1757,8 @@ void CurvesView::mouseMoveEvent(QMouseEvent *event)
                             }
                         }
                         QModelIndex idx = _bookModel()->getDataIndex(
-                                    QModelIndex(),
-                                    "LiveCoordTimeIndex","");
+                                                       QModelIndex(),
+                                                       "LiveCoordTimeIndex","");
                         _bookModel()->setData(idx,liveCoordTimeIdx);
                     }
                 } else {  // Curve x is not time e.g. ball xy-position
