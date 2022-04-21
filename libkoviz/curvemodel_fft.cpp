@@ -70,13 +70,21 @@ int CurveModelFFT::_idxAtTimeBinarySearch (FFTModelIterator* it,
                     if ( qAbs(time-t1) < qAbs(time-t3) ) {
                         i = high-1;
                     } else {
-                        i = high+1;
+                        if ( !it->isDone() ) {
+                            i = high+1;
+                        } else {
+                            i = high;
+                        }
                     }
                 } else {
                     if ( qAbs(time-t2) < qAbs(time-t3) ) {
                         i = high;
                     } else {
-                        i = high+1;
+                        if ( !it->isDone() ) {
+                            i = high+1;
+                        } else {
+                            i = high;
+                        }
                     }
                 }
                 return i;

@@ -263,7 +263,38 @@ int TrickModel::_idxAtTimeBinarySearch (TrickModelIterator* it,
                 return 0;
         }
         if (low >= high) {
-                return ( it->at(high)->t() > time ) ? high-1 : high;
+                // Time not found, choose closest near high
+                double t1 = it->at(high-1)->t();
+                double t2 = it->at(high)->t();
+                double t3 = t2;
+                it = it->at(high+1);
+                if ( !it->isDone() ) {
+                    t3 = it->at(high+1)->t();
+                }
+
+                int i;
+                if ( qAbs(time-t1) < qAbs(time-t2) ) {
+                    if ( qAbs(time-t1) < qAbs(time-t3) ) {
+                        i = high-1;
+                    } else {
+                        if ( !it->isDone() ) {
+                            i = high+1;
+                        } else {
+                            i = high;
+                        }
+                    }
+                } else {
+                    if ( qAbs(time-t2) < qAbs(time-t3) ) {
+                        i = high;
+                    } else {
+                        if ( !it->isDone() ) {
+                            i = high+1;
+                        } else {
+                            i = high;
+                        }
+                    }
+                }
+                return i;
         } else {
                 int mid = (low + high)/2;
                 if (time == it->at(mid)->t()) {
