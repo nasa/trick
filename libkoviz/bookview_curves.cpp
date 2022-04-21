@@ -542,12 +542,19 @@ void CurvesView::_paintMarkers(QPainter &painter)
                 //
                 // If nels != npts, the number of elements in the path do not
                 // match the number points in the data - most likely culled
+                // due to start/stop time or log eliminating zeroes
                 //
                 // i is calculated from the curve model instead of the path
                 // since the path does not have time
                 //
                 // i is a best guess
-                i = curveModel->indexAtTime(marker->time());
+                double xb = _bookModel()->xBias(curveIdx);
+                if ( _bookModel()->isXTime(plotIdx) ) {
+                    // Take time shift into account
+                    i = curveModel->indexAtTime(marker->time()-xb);
+                } else {
+                    i = curveModel->indexAtTime(marker->time());
+                }
 
                 if ( nels < npts ) {
                     // Points have been culled out of the data leaving the
@@ -555,19 +562,22 @@ void CurvesView::_paintMarkers(QPainter &painter)
                     // This can happen when:
                     //    1) Log(curve) removes zeroes
                     //    2) Frequency is given, points culled out of curve
+                    //    3) Start/stop time given, points lopped off ends
                     // Search for first element that matches curve point at time
                     ModelIterator* it = curveModel->begin();
-                    double xs = _bookModel()->xScale(curveIdx);
-                    double xb = _bookModel()->xBias(curveIdx);
-                    double ys = _bookModel()->yScale(curveIdx);
-                    double yb = _bookModel()->yBias(curveIdx);
-                    double x = it->at(i)->x()*xs+xb;
-                    double y = it->at(i)->y()*ys+yb;
+                    double x = it->at(i)->x(); // scale/bias only done if log
+                    double y = it->at(i)->y();
                     if ( isXLogScale ) {
-                        x = log10(x);
+                        // If logscale, scale and bias baked in path
+                        // Otherwise, scale and bias in path transform
+                        // not in path
+                        double xs = _bookModel()->xScale(curveIdx);
+                        x = log10(x*xs+xb);
                     }
                     if ( isYLogScale ) {
-                        y = log10(y);
+                        double ys = _bookModel()->yScale(curveIdx);
+                        double yb = _bookModel()->yBias(curveIdx);
+                        y = log10(y*ys+yb);
                     }
                     int j = (i < nels) ? i : nels - 1;
                     while ( j >= 0 ) {
@@ -577,6 +587,10 @@ void CurvesView::_paintMarkers(QPainter &painter)
                             break;
                         }
                         --j;
+                    }
+                    if ( i >= nels ) {
+                        // Point not found, set to init
+                        i = 0;
                     }
                     delete it;
                 } else if ( nels > npts ) {
@@ -600,18 +614,6 @@ void CurvesView::_paintMarkers(QPainter &painter)
                 }
                 delete it;
                 i = i + ii;
-                double start = _bookModel()->getDataDouble(QModelIndex(),
-                                                           "StartTime");
-                int j = curveModel->indexAtTime(start);
-                i = i - j;
-                if ( i < 0 ) {
-                    // This can happen when liveCoord is unset (0.0) initially
-                    curveModel->unmap();
-                    continue;
-                }
-                if ( i > high ) {
-                    i = high;
-                }
             }
             curveModel->unmap();
         }
