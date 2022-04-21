@@ -1434,6 +1434,10 @@ void PlotMainWindow::_startTimeChanged(double startTime)
 void PlotMainWindow::_liveTimeChanged(double liveTime)
 {
     QModelIndex curveIdx = _currCurveIdx();
+    if ( !curveIdx.isValid() ) {
+        return;
+    }
+
     CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
 
     if ( curveModel ) {
