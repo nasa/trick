@@ -46,7 +46,9 @@ bool EnumVisitor::VisitEnumType(clang::EnumType *et) {
         size_t pos ;
         // If this enumeration is anonymous return an error condition
         if ((pos = enum_type_name.find("<anonymous")) != std::string::npos or
-            (pos = enum_type_name.find("(anonymous")) != std::string::npos) {
+            //(pos = enum_type_name.find("(anonymous")) != std::string::npos) {
+            (pos = enum_type_name.find("(anonymous")) != std::string::npos or
+            (pos = enum_type_name.find("(unnamed")) != std::string::npos) {
             eval.setName("") ;
             return false ;
         }
