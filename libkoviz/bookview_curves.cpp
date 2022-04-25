@@ -2573,6 +2573,23 @@ void CurvesView::_keyPressF()
 
 void CurvesView::_keyPressB()
 {
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel->x()->unit() != "s" ) {
+            QMessageBox msgBox;
+            QString msg = QString("Butterworth filter expects xunits to be "
+                                  "seconds.  Please try again.\n");
+            msgBox.setText(msg);
+            msgBox.exec();
+            return;
+        }
+    }
+
     if ( ! _bw_frame ) {
         _bw_frame = new QFrame(this);
         _bw_slider = new QSlider(_bw_frame);
@@ -2608,10 +2625,6 @@ void CurvesView::_keyPressB()
             this,SLOT(_keyPressBLineEditReturnPressed()));
 
     // Get Nyquist frequency for bw filter
-    QModelIndex plotIdx = rootIndex();
-    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
-    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
-                                                           "Curve","Curves");
     double dtMin = DBL_MAX;
     foreach ( QModelIndex curveIdx, curveIdxs ) {
         CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
@@ -2776,6 +2789,22 @@ void CurvesView::_keyPressBLineEditReturnPressed()
 
 void CurvesView::_keyPressG()
 {
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel->x()->unit() != "s" ) {
+            QMessageBox msgBox;
+            QString msg = QString("S-Golay filter expects xunits to be "
+                                  "seconds.  Please try again.\n");
+            msgBox.setText(msg);
+            msgBox.exec();
+            return;
+        }
+    }
+
     if ( ! _sg_frame ) {
         _sg_frame = new QFrame(this);
         _sg_slider = new QSlider(_sg_frame);
@@ -2818,10 +2847,6 @@ void CurvesView::_keyPressG()
             this,SLOT(_keyPressGDegreeReturnPressed()));
 
     // Get data's dt for sgolay window
-    QModelIndex plotIdx = rootIndex();
-    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
-    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
-                                                           "Curve","Curves");
     double dtMin = DBL_MAX;
     foreach ( QModelIndex curveIdx, curveIdxs ) {
         CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
