@@ -2490,6 +2490,12 @@ void CurvesView::_keyPressF()
     QModelIndex stopTimeIdx = _bookModel()->getDataIndex(QModelIndex(),
                                                          "StopTime");
 
+    QProgressDialog progress("Time/Frequency domain", "Abort", 0,
+                             curveIdxs.size(), this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(500);
+    int i = 0;
+
     if ( isTimeDomain ) {
         // TimeDomain -> FrequencyDomain
         _fftCache.isCache = true;
@@ -2524,6 +2530,14 @@ void CurvesView::_keyPressF()
             _bookModel()->setData(xBiasIdx,0.0);
             _bookModel()->setData(xScaleIdx,1.0);
             _bookModel()->setData(curveDataIdx,v);
+
+            progress.setValue(i++);
+            if (progress.wasCanceled()) {
+                break;
+            }
+            QString msg = QString("Loaded %1 of %2 curves")
+                             .arg(i).arg(curveIdxs.size());
+            progress.setLabelText(msg);
         }
         QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
         _bookModel()->setPlotMathRect(bbox,rootIndex());
@@ -2562,6 +2576,14 @@ void CurvesView::_keyPressF()
             }
             QVariant v=PtrToQVariant<CurveModel>::convert(cache->curveModel());
             _bookModel()->setData(curveDataIdx,v);
+
+            progress.setValue(i++);
+            if (progress.wasCanceled()) {
+                break;
+            }
+            QString msg = QString("Loaded %1 of %2 curves")
+                             .arg(i).arg(curveIdxs.size());
+            progress.setLabelText(msg);
         }
         QModelIndex xScaleIdx = _bookModel()->getDataIndex(plotIdx,
                                                            "PlotXScale","Plot");
@@ -2569,6 +2591,8 @@ void CurvesView::_keyPressF()
         _bookModel()->blockSignals(block);
         _bookModel()->setPlotMathRect(_fftCache.M,plotIdx);
     }
+
+    progress.setValue(curveIdxs.size());
 }
 
 void CurvesView::_keyPressB()

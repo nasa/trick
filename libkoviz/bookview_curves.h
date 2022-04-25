@@ -24,6 +24,7 @@
 #include <QSlider>
 #include <QLineEdit>
 #include <QIntValidator>
+#include <QProgressDialog>
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
