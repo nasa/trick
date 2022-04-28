@@ -7,6 +7,7 @@ unexport TRICK_PYTHON_PATH
 
 SIMS_TO_COMPILE_ONLY = \
 	SIM_alloc_test \
+	SIM_anon_enum \
 	SIM_default_member_initializer \
 	SIM_delete_default_constructor \
 	SIM_demo_inputfile \
