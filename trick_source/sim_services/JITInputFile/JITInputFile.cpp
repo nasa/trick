@@ -134,7 +134,11 @@ int Trick::JITInputFile::compile(std::string file_name) {
     outfile << std::endl << std::endl ;
     // rule to link shared library
     outfile << library_fullpath_name << ": " << object_fullpath_name << std::endl ;
-    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " -shared -o $@ $<" << std::endl << std::endl ;
+#ifdef __APPLE__
+    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " -shared -undefined dynamic_lookup -o $@ $< " << std::endl << std::endl ;
+#else
+    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " -shared -o $@ $< " << std::endl << std::endl ;
+#endif
     // rule to compile cpp file
     outfile << object_fullpath_name << ": " << file_name << std::endl ;
     outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " " << get_trick_env((char *)"TRICK_CXXFLAGS") ;
