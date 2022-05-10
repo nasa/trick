@@ -2259,6 +2259,7 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_F: _keyPressF();break;
     case Qt::Key_B: _keyPressB();break;
     case Qt::Key_G: _keyPressG();break;
+    case Qt::Key_D: _keyPressD();break;
     case Qt::Key_Minus: _keyPressMinus();break;
     default: ; // do nothing
     }
@@ -2982,6 +2983,66 @@ void CurvesView::_keyPressG()
     _sg_window->show();
     _sg_frame->show();
 
+}
+
+void CurvesView::_keyPressD()
+{
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    // xunit should be in seconds
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel->x()->unit() != "s" ) {
+            QMessageBox msgBox;
+            QString msg = QString("Sorry, attempting to take derivive with "
+                                  "xunit=%1.  The derivative expects the logged"
+                                  " xunits to be seconds.\n")
+                                  .arg(curveModel->x()->unit());
+            msgBox.setText(msg);
+            msgBox.exec();
+            return;
+        }
+    }
+
+    QProgressDialog progress("Derivative", "Abort", 0,
+                             curveIdxs.size(), this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(500);
+    int i = 0;
+
+    bool block = _bookModel()->blockSignals(true);
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        CurveModel* deriv = new CurveModelDerivative(curveModel);
+        QVariant v = PtrToQVariant<CurveModel>::convert(deriv);
+        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+        QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveYUnit","Curve");
+        _bookModel()->setData(yUnitIdx,deriv->y()->unit());
+        _bookModel()->setData(curveDataIdx,v);
+
+        progress.setValue(i++);
+        if (progress.wasCanceled()) {
+            break;
+        }
+        QString msg = QString("Loaded %1 of %2 curves")
+                .arg(i).arg(curveIdxs.size());
+        progress.setLabelText(msg);
+    }
+    _bookModel()->blockSignals(block);
+    QModelIndex yAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                       "PlotYAxisLabel","Plot");
+    QString yAxisLabel = _bookModel()->data(yAxisLabelIdx).toString();
+    QString dYAxisLabel = "d\'(" + yAxisLabel + ")";
+    _bookModel()->setData(yAxisLabelIdx,dYAxisLabel);
+    QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+    _bookModel()->setPlotMathRect(bbox,rootIndex());
+
+    progress.setValue(curveIdxs.size());
 }
 
 void CurvesView::_keyPressGChange(int window, int degree)

@@ -38,6 +38,7 @@
 #include "curvemodel_ifft.h"
 #include "curvemodel_bw.h"
 #include "curvemodel_sg.h"
+#include "curvemodel_deriv.h"
 
 class TimeAndIndex
 {
@@ -152,6 +153,7 @@ private:
     void _keyPressF();
     void _keyPressB();
     void _keyPressG();
+    void _keyPressD();
     void _keyPressMinus();
 
     QFrame* _bw_frame;

@@ -10,6 +10,8 @@
 #include <QPair>
 #include <QString>
 #include <QStringList>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,6 +35,7 @@ class Unit {
     static QString prev(const QString& unit);
     static Unit map(const Unit& u1, const Unit& u2);
     static QString showUnits();
+    static QString derivative(const QString& unit);
 
   private:
 

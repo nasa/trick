@@ -417,6 +417,35 @@ QString Unit::showUnits()
     return msg;
 }
 
+QString Unit::derivative(const QString &unit)
+{
+    QString derivUnit;
+
+    QRegularExpression re0("/s$");
+    QRegularExpression re1("/s(\\d+)$");
+    QRegularExpressionMatch match0 = re0.match(unit);
+    QRegularExpressionMatch match1 = re1.match(unit);
+    if ( match0.hasMatch() ) {
+        derivUnit = unit;
+        derivUnit.replace(re0,"/s2");
+    } else if ( match1.hasMatch() ) {
+        bool ok;
+        int n = match1.captured(1).toInt(&ok);
+        if ( ok ) {
+            QString s = QString("/s%1").arg(++n);
+            derivUnit.replace(re1,s);
+        }
+    } else {
+        derivUnit = unit + "/s";
+    }
+
+    if ( !Unit::isUnit(derivUnit) ) {
+        derivUnit = "--";
+    }
+
+    return derivUnit;
+}
+
 QHash<QPair<QString, QString>, double> Unit::_initScales()
 {
     QHash<QPair<QString, QString>, double> map;
