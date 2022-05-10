@@ -36,6 +36,7 @@ void BookViewTabWidget::dropEvent(QDropEvent *event)
                                                 "sys.exec.out.time",
                                                  dropString,
                                                  emptyUnitOverrides,this);
+                Q_UNUSED(plotItem);
             }
         }
     }
