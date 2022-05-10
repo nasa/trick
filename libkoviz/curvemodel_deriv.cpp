@@ -344,9 +344,9 @@ void CurveModelDerivative::_init(CurveModel* curveModel)
                     m1 = 0.0;
                 }
                 double m = (m0+m1)/2.0;
-                if ( isnan(m0) && !isnan(m1) ) {
+                if ( std::isnan(m0) && !std::isnan(m1) ) {
                     m = m1;
-                } else if ( !isnan(m0) && isnan(m1) ) {
+                } else if ( !std::isnan(m0) && std::isnan(m1) ) {
                     m = m0;
                 }
                 _data[i*_ncols+2] = m;
