@@ -339,6 +339,7 @@ void PlotMainWindow::createMenu()
 #endif
     _exitAction = _fileMenu->addAction(tr("E&xit"));
     _showLiveCoordAction = _optsMenu->addAction(tr("ShowLiveCoord"));
+    _refreshPlotsAction  = _optsMenu->addAction(tr("RefreshPlots"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
     _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
     _plotAllVarsAction = _optsMenu->addAction(tr("PlotAllVars"));
@@ -369,6 +370,8 @@ void PlotMainWindow::createMenu()
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     connect(_showLiveCoordAction, SIGNAL(triggered()),
             this, SLOT(_toggleShowLiveCoord()));
+    connect(_refreshPlotsAction, SIGNAL(triggered()),
+            this, SLOT(_refreshPlots()));
     connect(_clearPlotsAction, SIGNAL(triggered()),
             this, SLOT(_clearPlots()));
     connect(_clearTablesAction, SIGNAL(triggered()),
@@ -1342,6 +1345,27 @@ void PlotMainWindow::_toggleShowLiveCoord()
     } else {
         _bookModel->setData(isShowIdx,true);   // show
         _showLiveCoordAction->setChecked(true);
+    }
+}
+
+void PlotMainWindow::_refreshPlots()
+{
+    foreach (QModelIndex pageIdx, _bookModel->pageIdxs()) {
+        // For now just reset curve x/y bias to undo any curve shifting
+        foreach (QModelIndex plotIdx, _bookModel->plotIdxs(pageIdx)) {
+            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
+                                                         "Curves","Plot");
+            foreach (QModelIndex curveIdx, _bookModel->curveIdxs(curvesIdx)) {
+                QModelIndex xBiasIdx = _bookModel->getDataIndex(curveIdx,
+                                                          "CurveXBias","Curve");
+                _bookModel->setData(xBiasIdx,0);
+                QModelIndex yBiasIdx = _bookModel->getDataIndex(curveIdx,
+                                                          "CurveYBias","Curve");
+                _bookModel->setData(yBiasIdx,0);
+            }
+            QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+            _bookModel->setPlotMathRect(bbox,plotIdx);
+        }
     }
 }
 
