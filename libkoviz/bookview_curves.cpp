@@ -2997,7 +2997,7 @@ void CurvesView::_keyPressD()
         CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
         if ( curveModel->x()->unit() != "s" ) {
             QMessageBox msgBox;
-            QString msg = QString("Sorry, attempting to take derivive with "
+            QString msg = QString("Sorry, attempting to take derivative with "
                                   "xunit=%1.  The derivative expects the logged"
                                   " xunits to be seconds.\n")
                                   .arg(curveModel->x()->unit());
