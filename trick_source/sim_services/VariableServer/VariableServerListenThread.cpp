@@ -47,6 +47,10 @@ std::string Trick::VariableServerListenThread::get_user_tag() {
     return user_tag ;
 }
 
+std::string& Trick::VariableServerListenThread::get_user_tag_ref() {
+    return user_tag ;
+}
+
 void Trick::VariableServerListenThread::set_user_tag(std::string in_tag) {
     user_tag = in_tag ;
 }

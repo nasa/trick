@@ -434,7 +434,7 @@ extern "C" void var_server_set_source_address(const char * source_address) {
  * C wrapper Trick::VariableServer::get_user_tag
  */
 extern "C" const char * var_server_get_user_tag(void) {
-    return(the_vs->get_listen_thread().get_user_tag().c_str()) ;
+    return(the_vs->get_listen_thread().get_user_tag_ref().c_str()) ;
 }
 
 /**
