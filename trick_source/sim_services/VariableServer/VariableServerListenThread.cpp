@@ -47,7 +47,7 @@ std::string Trick::VariableServerListenThread::get_user_tag() {
     return user_tag ;
 }
 
-std::string& Trick::VariableServerListenThread::get_user_tag_ref() {
+const std::string& Trick::VariableServerListenThread::get_user_tag_ref() {
     return user_tag ;
 }
 
