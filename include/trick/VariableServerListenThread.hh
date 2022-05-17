@@ -29,6 +29,7 @@ namespace Trick {
             void set_port(unsigned short in_port) ;
 
             std::string get_user_tag() ;
+            std::string& get_user_tag_ref() ;
             void set_user_tag(std::string in_tag) ;
 
             void set_source_address(const char * address) ;
