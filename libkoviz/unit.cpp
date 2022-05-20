@@ -486,6 +486,7 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("m/s2","m/s2"),       1.0);
     map.insert(QPair<QString,QString>("m/s2","M/s2"),       1.0);
     map.insert(QPair<QString,QString>("m/s2","cm/s2"),      0.01);
+    map.insert(QPair<QString,QString>("m/s2","mm/s2"),      0.001);
     map.insert(QPair<QString,QString>("m/s2","in/s2"),      0.0254);
     map.insert(QPair<QString,QString>("m/s2","ft/s2"),      0.3048);
 
