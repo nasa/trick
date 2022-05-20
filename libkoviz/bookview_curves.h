@@ -82,6 +82,38 @@ class FFTCache
     QList<FFTCurveCache*> curveCaches;
 };
 
+class DerivCurveCache
+{
+  public:
+    DerivCurveCache(CurveModel* curveModel, const QString yUnit);
+    CurveModel* curveModel() const ;
+    QString yUnit() const ;
+
+  private:
+    DerivCurveCache() {}
+    CurveModel*  _curveModel;
+    QString _yUnit;
+};
+
+class DerivPlotCache
+{
+  public:
+    DerivPlotCache();
+    ~DerivPlotCache();
+    QString yAxisLabel;
+    QString yUnit;
+    QRectF M;
+    QList<DerivCurveCache*> curveCaches;
+};
+
+class DerivCache
+{
+  public:
+    DerivCache();
+    ~DerivCache();
+    QList<DerivPlotCache*> plotCaches;
+};
+
 class CurvesView : public BookIdxView
 {
     Q_OBJECT
@@ -154,6 +186,7 @@ private:
     void _keyPressB();
     void _keyPressG();
     void _keyPressD();
+    void _keyPressI();
     void _keyPressMinus();
 
     QFrame* _bw_frame;
@@ -167,6 +200,7 @@ private:
     void _keyPressGChange(int window, int degree);
 
     FFTCache _fftCache ;
+    DerivCache _derivCache ;
 
 private slots:
     void _keyPressBSliderChanged(int value);

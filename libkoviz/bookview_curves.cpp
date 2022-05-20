@@ -2260,6 +2260,7 @@ void CurvesView::keyPressEvent(QKeyEvent *event)
     case Qt::Key_B: _keyPressB();break;
     case Qt::Key_G: _keyPressG();break;
     case Qt::Key_D: _keyPressD();break;
+    case Qt::Key_I: _keyPressI();break;
     case Qt::Key_Minus: _keyPressMinus();break;
     default: ; // do nothing
     }
@@ -3007,6 +3008,20 @@ void CurvesView::_keyPressD()
         }
     }
 
+    // Cache
+    DerivPlotCache* plotCache = new DerivPlotCache();
+    plotCache->yAxisLabel = _bookModel()->getDataString(plotIdx,
+                                                       "PlotYAxisLabel","Plot");
+    plotCache->M = _bookModel()->getPlotMathRect(plotIdx);
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        QString yUnit = _bookModel()->getDataString(curveIdx,
+                                                   "CurveYUnit","Curve");
+        DerivCurveCache* curveCache = new DerivCurveCache(curveModel,yUnit);
+        plotCache->curveCaches.append(curveCache);
+    }
+    _derivCache.plotCaches.append(plotCache);
+
     QProgressDialog progress("Derivative", "Abort", 0,
                              curveIdxs.size(), this);
     progress.setWindowModality(Qt::WindowModal);
@@ -3024,12 +3039,13 @@ void CurvesView::_keyPressD()
                                                            "CurveData","Curve");
         QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveYUnit","Curve");
+        _bookModel()->setData(yUnitIdx,"--");  // temp for conversion below
+        _bookModel()->setData(curveDataIdx,v);
         if ( Unit::canConvert(deriv->y()->unit(),plotDerivUnit) ) {
             _bookModel()->setData(yUnitIdx,plotDerivUnit);
         } else {
             _bookModel()->setData(yUnitIdx,deriv->y()->unit());
         }
-        _bookModel()->setData(curveDataIdx,v);
 
         progress.setValue(i++);
         if (progress.wasCanceled()) {
@@ -3049,6 +3065,46 @@ void CurvesView::_keyPressD()
     _bookModel()->setPlotMathRect(bbox,rootIndex());
 
     progress.setValue(curveIdxs.size());
+}
+
+void CurvesView::_keyPressI()
+{
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    if ( _derivCache.plotCaches.isEmpty() ) {
+        QMessageBox msgBox;
+        QString msg = QString("Sorry, integration not yet supported!\n");
+        msgBox.setText(msg);
+        msgBox.exec();
+        return;
+    }
+
+    DerivPlotCache* plotCache = _derivCache.plotCaches.takeLast();
+    bool block = _bookModel()->blockSignals(true);
+    int i = 0;
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        DerivCurveCache* curveCache = plotCache->curveCaches.at(i++);
+        QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveYUnit","Curve");
+        _bookModel()->setData(yUnitIdx,curveCache->yUnit());
+        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+        if ( curveModel ) {
+            delete curveModel;
+        }
+        QVariant v=PtrToQVariant<CurveModel>::convert(curveCache->curveModel());
+        _bookModel()->setData(curveDataIdx,v);
+    }
+    _bookModel()->blockSignals(block);
+    QModelIndex yAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                       "PlotYAxisLabel","Plot");
+    _bookModel()->setData(yAxisLabelIdx,plotCache->yAxisLabel);
+    _bookModel()->setPlotMathRect(plotCache->M,plotIdx);
+
 }
 
 void CurvesView::_keyPressGChange(int window, int degree)
@@ -3227,4 +3283,43 @@ CurveModel* FFTCurveCache::curveModel() const
 FFTCache::FFTCache() :
     isCache(false)
 {
+}
+
+DerivPlotCache::DerivPlotCache()
+{
+}
+
+DerivPlotCache::~DerivPlotCache()
+{
+}
+
+DerivCache::DerivCache()
+{
+}
+
+DerivCache::~DerivCache()
+{
+    foreach ( DerivPlotCache* plotCache, plotCaches ) {
+        foreach ( DerivCurveCache* curveCache, plotCache->curveCaches ) {
+            delete curveCache;
+        }
+        delete plotCache;
+    }
+}
+
+DerivCurveCache::DerivCurveCache(CurveModel *curveModel,
+                                 const QString yUnit) :
+    _curveModel(curveModel),
+    _yUnit(yUnit)
+{
+}
+
+CurveModel *DerivCurveCache::curveModel() const
+{
+    return _curveModel;
+}
+
+QString DerivCurveCache::yUnit() const
+{
+    return _yUnit;
 }
