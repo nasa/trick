@@ -1,0 +1,27 @@
+/************************************************************
+PURPOSE:
+    ( Simulate a Crew Module. )
+LIBRARY DEPENDENCIES:
+    ((CrewModule/src/CrewModuleDynamics.o)
+     (CrewModule/src/CrewModuleShape.o))
+**************************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "CrewModule/include/CrewModuleDynamics.hh"
+
+class CrewModuleSimObject : public Trick::SimObject {
+    public:
+    CrewModuleDynamics dyn;
+
+    CrewModuleSimObject() {
+        ("default_data")            dyn.init_defaults() ;
+        ("derivative")              dyn.calc_derivatives() ;
+        ("integration") trick_ret = dyn.calc_state() ;
+    }
+};
+
+CrewModuleSimObject crewModule;
+IntegLoop dyn_integloop(0.1) crewModule;
+
+void create_connections() {
+    dyn_integloop.getIntegrator(Runge_Kutta_4, 18);
+}
