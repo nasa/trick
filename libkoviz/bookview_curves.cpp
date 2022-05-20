@@ -3014,6 +3014,8 @@ void CurvesView::_keyPressD()
     int i = 0;
 
     bool block = _bookModel()->blockSignals(true);
+    QString plotUnit = _bookModel()->getCurvesYUnit(curvesIdx);
+    QString plotDerivUnit = Unit::derivative(plotUnit);
     foreach ( QModelIndex curveIdx, curveIdxs ) {
         CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
         CurveModel* deriv = new CurveModelDerivative(curveModel);
@@ -3022,7 +3024,11 @@ void CurvesView::_keyPressD()
                                                            "CurveData","Curve");
         QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveYUnit","Curve");
-        _bookModel()->setData(yUnitIdx,deriv->y()->unit());
+        if ( Unit::canConvert(deriv->y()->unit(),plotDerivUnit) ) {
+            _bookModel()->setData(yUnitIdx,plotDerivUnit);
+        } else {
+            _bookModel()->setData(yUnitIdx,deriv->y()->unit());
+        }
         _bookModel()->setData(curveDataIdx,v);
 
         progress.setValue(i++);
