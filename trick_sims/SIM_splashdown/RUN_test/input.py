@@ -33,5 +33,5 @@ if (os.path.isfile(CMDisplay_path)) :
     os.system( CMDisplay_cmd);
 else :
     print('==================================================================================')
-    print('CrewModuleDisplay needs to be built. Please \"cd\" into ../models/CrewModuleGraphics and type \"make\".')
+    print('CrewModuleDisplay needs to be built. Please \"cd\" into ../models/CrewModuleGraphics and type \"mvn package\".')
     print('==================================================================================')
