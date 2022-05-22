@@ -26,7 +26,7 @@ class CrewModuleView extends JPanel {
 
     private Color waterColor;
     private Color vehicleColor;
-    private Color CBColor;
+    // private Color CBColor;
     private double[] vehiclePos;
     private double[] centerOfBuoyancy;
     private double bodyToWorldRotation[][];
@@ -51,7 +51,7 @@ class CrewModuleView extends JPanel {
 
         waterColor  = new  Color(220,220,250,180);
         vehicleColor = new Color(100,100,100);
-        CBColor = new Color(0,100,255);
+        // CBColor = new Color(0,100,255);
 
         vehiclePos  = new double[] {0.0, 0.0, 0.0};
         centerOfBuoyancy  = new double[] {0.0, 0.0, 0.0};
@@ -253,11 +253,15 @@ class CrewModuleView extends JPanel {
         // =========================
         // Center of Buoyancy Point
         // =========================
-        g2d.setPaint( CBColor);
         int CB_screen[] = {0, 0};
         worldToScreenPoint( CB_screen, centerOfBuoyancy);
-        fillCenteredCircle(g2d, CB_screen[0], CB_screen[1], 15);
-        g2d.drawString("CB", CB_screen[0]+10, CB_screen[1]+5);
+        int CB_symbol_size = 15;
+        g2d.setPaint( Color.WHITE);
+        fillCenteredCircle(g2d, CB_screen[0], CB_screen[1], CB_symbol_size);
+        g2d.setPaint( Color.BLUE);
+        g2d.fillArc( CB_screen[0]-CB_symbol_size/2, CB_screen[1]-CB_symbol_size/2, CB_symbol_size, CB_symbol_size,   0, 90 );
+        g2d.fillArc( CB_screen[0]-CB_symbol_size/2, CB_screen[1]-CB_symbol_size/2, CB_symbol_size, CB_symbol_size, 180, 90);
+        // g2d.drawString("CB", CB_screen[0]+10, CB_screen[1]+5);
 
         // =========================
         // Center of Gravity Point

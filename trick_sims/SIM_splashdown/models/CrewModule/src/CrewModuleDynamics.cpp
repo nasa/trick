@@ -27,16 +27,16 @@ void CrewModuleDynamics::init_defaults() {
     angular_momentum[1] = 0.0;
     angular_momentum[2] = 0.0;
     crewModuleShape.transformCoordinates(R, position);
-    double A=2, B=2, C=2;
-    I_body[0][0] = mass_vehicle * 0.2 * (B*B + C*C);
+    double A=1, B=1, C=1;
+    I_body[0][0] = mass_vehicle * (B*B + C*C);
     I_body[0][1] = 0.0;
     I_body[0][2] = 0.0;
     I_body[1][0] = 0.0;
-    I_body[1][1] = mass_vehicle * 0.2 * (A*A + C*C);
+    I_body[1][1] = mass_vehicle * (A*A + C*C);
     I_body[1][2] = 0.0;
     I_body[2][0] = 0.0;
     I_body[2][1] = 0.0;
-    I_body[2][2] = mass_vehicle * 0.2 * (A*A + B*B);
+    I_body[2][2] = mass_vehicle * (A*A + B*B);
     dm_invert(I_body_inverse, I_body);
 }
 
@@ -73,6 +73,10 @@ void CrewModuleDynamics::calcVolumeAndCenterOfBuoyancy() {
         center_of_buoyancy[0] = sum_r_dv[0] / volume_displaced;
         center_of_buoyancy[1] = sum_r_dv[1] / volume_displaced;
         center_of_buoyancy[2] = sum_r_dv[2] / volume_displaced;
+    } else {
+        center_of_buoyancy[0] = position[0];
+        center_of_buoyancy[1] = position[1];
+        center_of_buoyancy[2] = position[2];
     }
 }
 
@@ -99,9 +103,9 @@ void CrewModuleDynamics::calcAngularVelocity() {
 }
 
 void CrewModuleDynamics::calcBuoyancyTorque() {
-  double lever[3];
-  V_SUB(lever, center_of_buoyancy, position);
-  V_CROSS(torque_buoyancy, lever, force_buoyancy);
+    double lever[3];
+    V_SUB(lever, center_of_buoyancy, position);
+    V_CROSS(torque_buoyancy, lever, force_buoyancy);
 }
 
 void CrewModuleDynamics::calcDragTorque() {
@@ -128,7 +132,7 @@ void CrewModuleDynamics::calcGravityForce() {
 }
 
 void CrewModuleDynamics::calcDragForce() {
-  V_SCALE(force_drag, velocity, -2000.0);
+    V_SCALE(force_drag, velocity, -2000.0);
 }
 
 void CrewModuleDynamics::calcTotalForce() {
@@ -140,40 +144,44 @@ void CrewModuleDynamics::calcTotalForce() {
 }
 
 int CrewModuleDynamics::calc_derivatives() {
-  crewModuleShape.transformCoordinates(R, position);
-  calcVolumeAndCenterOfBuoyancy ();
-  calcBuoyancyForce();
-  calcTotalForce();
-  calcVelocity();
-  calcTotalTorque();
-  calcRDot();
-  return 0;
+    crewModuleShape.transformCoordinates(R, position);
+    calcVolumeAndCenterOfBuoyancy ();
+    calcBuoyancyForce();
+    calcTotalForce();
+    calcVelocity();
+    calcTotalTorque();
+    calcRDot();
+    return 0;
 }
 
 int CrewModuleDynamics::calc_state() {
     int ipass;
-    load_state( &momentum[0], &momentum[1], &momentum[2],
-                &position[0], &position[1], &position[2],
-                &angular_momentum[0], &angular_momentum[1], &angular_momentum[2],
-                &R[0][0],&R[0][1],&R[0][2],
-                &R[1][0],&R[1][1],&R[1][2],
-                &R[2][0],&R[2][1],&R[2][2],
-                NULL);
-    load_deriv( &force_total[0], &force_total[1], &force_total[2],
-                &velocity[0], &velocity[1], &velocity[2],
-                &torque_total[0], &torque_total[1], &torque_total[2],
-                &Rdot[0][0],&Rdot[0][1],&Rdot[0][2],
-                &Rdot[1][0],&Rdot[1][1],&Rdot[1][2],
-                &Rdot[2][0],&Rdot[2][1],&Rdot[2][2],
-                NULL);
+    load_state(
+        &momentum[0], &momentum[1], &momentum[2],
+        &position[0], &position[1], &position[2],
+        &angular_momentum[0], &angular_momentum[1], &angular_momentum[2],
+        &R[0][0],&R[0][1],&R[0][2],
+        &R[1][0],&R[1][1],&R[1][2],
+        &R[2][0],&R[2][1],&R[2][2],
+        NULL);
+    load_deriv(
+        &force_total[0], &force_total[1], &force_total[2],
+        &velocity[0], &velocity[1], &velocity[2],
+        &torque_total[0], &torque_total[1], &torque_total[2],
+        &Rdot[0][0],&Rdot[0][1],&Rdot[0][2],
+        &Rdot[1][0],&Rdot[1][1],&Rdot[1][2],
+        &Rdot[2][0],&Rdot[2][1],&Rdot[2][2],
+        NULL);
     ipass = integrate();
-    unload_state( &momentum[0], &momentum[1], &momentum[2],
-                  &position[0], &position[1], &position[2],
-                  &angular_momentum[0], &angular_momentum[1], &angular_momentum[2],
-                  &R[0][0],&R[0][1],&R[0][2],
-                  &R[1][0],&R[1][1],&R[1][2],
-                  &R[2][0],&R[2][1],&R[2][2],
-                  NULL);
+    unload_state(
+        &momentum[0], &momentum[1], &momentum[2],
+        &position[0], &position[1], &position[2],
+        &angular_momentum[0], &angular_momentum[1], &angular_momentum[2],
+        &R[0][0],&R[0][1],&R[0][2],
+        &R[1][0],&R[1][1],&R[1][2],
+        &R[2][0],&R[2][1],&R[2][2],
+        NULL);
+        int axis = 0;
+        dm_orthonormal(R, &axis); // Square up the rotation matrix.
     return(ipass);
-
 }
