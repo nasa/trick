@@ -26,7 +26,6 @@ class CrewModuleView extends JPanel {
 
     private Color waterColor;
     private Color vehicleColor;
-    // private Color CBColor;
     private double[] vehiclePos;
     private double[] centerOfBuoyancy;
     private double bodyToWorldRotation[][];
@@ -51,7 +50,6 @@ class CrewModuleView extends JPanel {
 
         waterColor  = new  Color(220,220,250,180);
         vehicleColor = new Color(100,100,100);
-        // CBColor = new Color(0,100,255);
 
         vehiclePos  = new double[] {0.0, 0.0, 0.0};
         centerOfBuoyancy  = new double[] {0.0, 0.0, 0.0};
@@ -113,7 +111,6 @@ class CrewModuleView extends JPanel {
         veh_vrtx_screen = new int[veh_vrtx_body.length][2];
 
         veh_edges = new int[][]
-
         { /* connect top-center and upper ring */
           { 0, 1},{ 0, 2},{ 0, 3},{ 0, 4},{ 0, 5},{ 0, 6},{ 0, 7},{ 0, 8},{ 0, 9},{ 0,10},{ 0,11},{ 0,12},
           /* connect upper ring points */
@@ -158,6 +155,7 @@ class CrewModuleView extends JPanel {
     public void setVantageRange( double range) {
       vantageDistance = range;
     }
+
     public void setBodyToWorldRotation( double xx, double xy, double xz,
                                         double yx, double yy, double yz,
                                         double zx, double zy, double zz ) {
@@ -171,6 +169,7 @@ class CrewModuleView extends JPanel {
       bodyToWorldRotation[2][1] = zy;
       bodyToWorldRotation[2][2] = zz;
     }
+
     public void mouseVantage(int dx, int dy) {
       vantageAzimuth   += (dx * Math.PI) / getWidth();
       if (vantageAzimuth >  Math.PI) vantageAzimuth -= Math.PI;
@@ -181,6 +180,7 @@ class CrewModuleView extends JPanel {
       updateVantageRotation();
       repaint();
     }
+
     public void updateVantageRotation() {
       double Rotation_about_Y[][] = {
         { Math.cos(vantageElevation), 0.0, Math.sin(vantageElevation)},
@@ -195,6 +195,7 @@ class CrewModuleView extends JPanel {
       };
       MatrixOps.MtimesM( vantageRotation, Rotation_about_Y, Rotation_about_Z);
     }
+
     public void worldToScreenPoint( int result[], double X_world[]) {
       // X_world to X_vantage
       double x_vantage[] = new double[3];
@@ -204,6 +205,7 @@ class CrewModuleView extends JPanel {
       result[0] = (int)(perspective_scale * x_vantage[1] + screen_half_width);
       result[1] = (int)(screen_half_height - perspective_scale * x_vantage[2]);
     }
+
     public void setVehPos( double x, double y, double z) {
         vehiclePos[0] = x;
         vehiclePos[1] = y;
@@ -214,12 +216,6 @@ class CrewModuleView extends JPanel {
         centerOfBuoyancy[0] = CBx;
         centerOfBuoyancy[1] = CBy;
         centerOfBuoyancy[2] = CBz;
-    }
-
-    private void fillCenteredCircle(Graphics2D g, int x, int y, int r) {
-        x = x-(r/2);
-        y = y-(r/2);
-        g.fillOval(x,y,r,r);
     }
 
     private void doDrawing( Graphics g) {
@@ -235,7 +231,7 @@ class CrewModuleView extends JPanel {
         g2d.fillRect(0, 0, width, height);
 
         // ======================
-        // WATER
+        //       Draw Water
         // ======================
         g2d.setPaint( waterColor);
         int pt[] = {0, 0};
@@ -250,33 +246,32 @@ class CrewModuleView extends JPanel {
         g2d.setPaint( Color.BLUE);
         g2d.drawPolygon(wx, wy, 4);
 
-        // =========================
-        // Center of Buoyancy Point
-        // =========================
+        // =============================
+        // Draw Center of Buoyancy Point
+        // =============================
         int CB_screen[] = {0, 0};
-        worldToScreenPoint( CB_screen, centerOfBuoyancy);
         int CB_symbol_size = 15;
+        worldToScreenPoint( CB_screen, centerOfBuoyancy);
         g2d.setPaint( Color.WHITE);
-        fillCenteredCircle(g2d, CB_screen[0], CB_screen[1], CB_symbol_size);
+        g2d.fillOval(CB_screen[0]-CB_symbol_size/2, CB_screen[1]-CB_symbol_size/2, CB_symbol_size, CB_symbol_size);
         g2d.setPaint( Color.BLUE);
         g2d.fillArc( CB_screen[0]-CB_symbol_size/2, CB_screen[1]-CB_symbol_size/2, CB_symbol_size, CB_symbol_size,   0, 90 );
         g2d.fillArc( CB_screen[0]-CB_symbol_size/2, CB_screen[1]-CB_symbol_size/2, CB_symbol_size, CB_symbol_size, 180, 90);
-        // g2d.drawString("CB", CB_screen[0]+10, CB_screen[1]+5);
 
-        // =========================
-        // Center of Gravity Point
-        // =========================
+        // ============================
+        // Draw Center of Gravity Point
+        // ============================
         int CG_screen[] = {0, 0};
-        worldToScreenPoint( CG_screen, vehiclePos);
         int CG_symbol_size = 15;
+        worldToScreenPoint( CG_screen, vehiclePos);
         g2d.setPaint( Color.WHITE);
-        fillCenteredCircle(g2d, CG_screen[0], CG_screen[1], CG_symbol_size);
+        g2d.fillOval(CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size);
         g2d.setPaint( Color.BLACK);
         g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size,   0, 90 );
         g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size, 180, 90);
 
         // ======================
-        // VEHICLE
+        //      Draw Vehicle
         // ======================
         g2d.setPaint( vehicleColor);
         for (int i=0; i<veh_vrtx_body.length ; i++) {
@@ -290,9 +285,9 @@ class CrewModuleView extends JPanel {
           g2d.drawLine( point0[0], point0[1], point1[0], point1[1]);
         }
 
-        // ======================
-        // WORLD COORDINATE AXES
-        // ======================
+        // ==========================
+        // Draw World Coordinate Axes
+        // ==========================
         double origin_world[] = {0.0, 0.0, 0.0};
         int origin_screen[] = {0, 0};
         worldToScreenPoint( origin_screen, origin_world);
