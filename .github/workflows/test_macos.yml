@@ -28,11 +28,10 @@ jobs:
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew install --cask xquartz
         brew install llvm@11 swig udunits openmotif maven
-        brew link llvm llvm@11
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        ./configure
+        ./configure --with-llvm=/usr/local/opt/llvm@11
         make
     - name: Run tests
       run: |
