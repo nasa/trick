@@ -11,6 +11,10 @@ std::string sanitize(const std::string& text) {
     for (char c : {'<', '>', ' ', ',', ':', '*', '[', ']'}) {
         std::replace(result.begin(), result.end(), c, '_');
     }
+    // Catches templates with negative default values (iss #660)
+    for (char c : {'-'}) {
+        std::replace(result.begin(), result.end(), c, 'n');
+    }
     return result ;
 }
 
