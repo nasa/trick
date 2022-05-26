@@ -74,8 +74,8 @@ you installed Trick in your home directory, and you used the default name for
 the repository, which is **trick**. If you named it something different, then 
 use that name instead in the scripts below.
 
-If you are using **bash**, then add the following lines to your **.profile**
-file.
+If you are using **bash or ksh**, then add the following lines to the file that is automatically sourced by your terminal. Based on your platform this could be **.profile, .bash_profile, .bashrc, .zshrc** or others. Google "How to edit PATH variable" on google to find a wealth of information on this subject.  
+file. 
 
 ```bash
 export TRICK_HOME="${HOME}/trick"
