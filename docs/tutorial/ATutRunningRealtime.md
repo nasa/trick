@@ -62,8 +62,8 @@ The `realtime.py` file must be included in the RUN_test/input.py file. When
 finished, the latest version of the input file should look like the following:
 
 ```python
-execfile("Modified_data/realtime.py")
-execfile("Modified_data/cannon.dr")
+exec(open("Modified_data/realtime.py").read())
+exec(open("Modified_data/cannon.dr").read())
 trick.stop(5.2)
 ```
 
