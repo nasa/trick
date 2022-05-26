@@ -710,16 +710,14 @@ You should, ultimately see :
 
 ![Simulation Make Complete](images/SimMakeComplete.png)
 
-Now, take a look at the sim directory. Is there an `S_main*.exe` file ??? If so,
-cool deal. If not, scream!, then take a look at the next section "Troubleshooting A
-Bad Build". If all went well, you will notice several other files now resident in
-the `SIM_cannon_analytic` directory.
+Now, take a look at the sim directory. Is there an `S_main*.exe` file?? (* is a wildcard, instead of * you will see the name of your platform). If so, cool deal. If not, scream!, then take a look at the next section "Troubleshooting A Bad Build". If all went well, you will notice several other files now resident in the `SIM_cannon_analytic` directory.
 
 ```bash
 % ls
-S_default.dat        S_overrides.mk       build
-S_define             S_sie.resource       makefile
-S_main_Darwin_13.exe S_source.hh          trick
+Modified_data		S_overrides.mk		makefile
+RUN_test		S_sie.resource		trick.zip
+S_define		S_source.hh
+S_main_<your_platform_name_here>.exe	build
 ```
 
 #### Troubleshooting A Bad Build
