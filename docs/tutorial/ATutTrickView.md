@@ -79,7 +79,7 @@ TV_cannon file we saved off in the last step. There are two ways to do this.
 
 ```bash
 % cd $HOME/trick_sims/SIM_cannon_analytic
-% S_main*exe RUN_test/input.py
+% ./S_main*exe RUN_test/input.py &
 ```
 
 1. Choose "Actions->Start Trick View" from sim control panel.
