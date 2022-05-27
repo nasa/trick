@@ -81,7 +81,7 @@ position data, and prints the periodic responses to the screen.
 **Listing - CannonDisplay_Rev1.py**
 
 ```python
-#!/usr/bin/python
+#!/usr/bin/python2
 import sys
 import socket
 
@@ -235,7 +235,7 @@ two ways. We can 1) call [**var_clear**](#api-var-clear) to clear the the list,
 or 2) we can call [**var_remove**](#api-var-remove). Specifically we could do
 the following:
 
-```client_socket.send("trick.var_remove(\"dyn.cannon.init_angle\")\n )```
+```client_socket.send("trick.var_remove(\"dyn.cannon.init_angle\")\n")```
 
 So, when we run the modified client, the first three lines of the output should
 look something like the following.
@@ -275,7 +275,7 @@ The listing below implements a GUI client using **Python** and
 **Listing - CannonDisplay_Rev2.py**
 
 ```python
-#!/usr/bin/python
+#!/usr/bin/python2
 import sys 
 import socket
 import math
