@@ -64,10 +64,9 @@ is to configure the sessions.
 
 ## Approach
 
-Calling functions and setting simulation variables using the variable server is
-done as in the input file. That is, the client sends Python code to the variable
-server where it's executed, to call functions, set variables, or both. In the
-following sections we'll see examples of these. We'll also learn how to use the
+Calling functions and setting simulation variables with the variable server client is a similar process to doing the same with the input file. The client sends Python code to the variable
+server, where it's executed to call functions, set variables, or both. In the
+following sections, we'll see examples of these. We'll also learn how to use the
 variable server API to get data back to the client.
 
 <a id=a-simple-variable-server-client></a>
