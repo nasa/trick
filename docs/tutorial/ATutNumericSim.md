@@ -264,7 +264,7 @@ int cannon_deriv(CANNON* C) {
     return(0);
 }
 ```
-:point_right: **Add cannon\_deriv() to cannon\_numeric.c.**
+👉 **Add cannon\_deriv() to cannon\_numeric.c.**
 
 <a id=creating-an-integration-class-job></a>
 #### Creating an Integration Class Job
@@ -320,7 +320,7 @@ int cannon_integ(CANNON* C) {
 
 ```
 
-:point_right: **Add cannon\_integ() to cannon\_numeric.c.**
+👉 **Add cannon\_integ() to cannon\_numeric.c.**
 
 <a id=updating-the-s_define-file></a>
 ## Updating the S_define File
