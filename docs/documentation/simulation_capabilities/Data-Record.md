@@ -36,7 +36,7 @@ Note: drg is just an example name.  Any name may be used.
 
 ### Adding a Variable To Be Recorded
 
-To add variables to the recording group call the <tt>drg.add_variable("<string_of_variable_name">)</tt> method of the recording group.
+To add variables to the recording group call the <tt>drg.add_variable("<string_of_variable_name>")</tt> method of the recording group.
 For example:
 
 ```python
@@ -44,7 +44,7 @@ drg.add_variable("ball.obj.state.output.position[0]")
 drg.add_variable("ball.obj.state.output.position[1]")
 ```
 
-An optional alias may also be specified in the method as <tt>drg.add_variable("<string_of_variable_name"> [, "<alias>"])</tt>.  
+An optional alias may also be specified in the method as <tt>drg.add_variable("<string_of_variable_name>" [, "<alias>"])</tt>.  
 If an alias is present as a second argument, the alias name will be used in the data recording file instead of the actual variable name.
 For example:
 
@@ -121,18 +121,18 @@ recording groups as well as record a single point of data.
 
 ```c++
 /* C code */
-dr_enable_group("<group_name">) ;
-dr_disable_group("<group_name">) ;
-dr_record_now_group("<group_name">) ;
+dr_enable_group("<group_name>") ;
+dr_disable_group("<group_name>") ;
+dr_record_now_group("<group_name>") ;
 ```
 
 This is the Python input file version:
 
 ```python
 # Python code
-trick.dr_enable_group("<group_name">) ;  # same as <group_name>.enable()
-trick.dr_disable_group("<group_name">) ; # same as <group_name>.disable()
-trick.dr_record_now_group("<group_name">) ;
+trick.dr_enable_group("<group_name>") ;  # same as <group_name>.enable()
+trick.dr_disable_group("<group_name>") ; # same as <group_name>.disable()
+trick.dr_record_now_group("<group_name>") ;
 ```
 
 ### Changing the thread Data Recording runs on.

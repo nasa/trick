@@ -64,10 +64,9 @@ is to configure the sessions.
 
 ## Approach
 
-Calling functions and setting simulation variables using the variable server is
-done as in the input file. That is, the client sends Python code to the variable
-server where it's executed, to call functions, set variables, or both. In the
-following sections we'll see examples of these. We'll also learn how to use the
+Calling functions and setting simulation variables with the variable server client is a similar process to doing the same with the input file. The client sends Python code to the variable
+server, where it's executed to call functions, set variables, or both. In the
+following sections, we'll see examples of these. We'll also learn how to use the
 variable server API to get data back to the client.
 
 <a id=a-simple-variable-server-client></a>
@@ -89,7 +88,7 @@ import socket
 if ( len(sys.argv) == 2) :
     trick_varserver_port = int(sys.argv[1])
 else :
-    print( "Usage: vsclient <port_number>")
+    print( "Usage: python<version_number> CannonDisplay_Rev1.py <port_number>")
     sys.exit()
 
 # 2.0 Connect to the variable server.
@@ -178,7 +177,7 @@ send messages using an ASCII encoding (rather than binary).
 The two [**var_add**](#api-var-add) commands add "dyn.cannon.pos[0]"
 and "dyn.cannon.pos[1]" to the session variable list. 
 
-:warning: Please notice that the quotes around the variable names must be
+⚠️ Please notice that the quotes around the variable names must be
 escaped with the '\' (backslash) character.
 
 ```
