@@ -89,7 +89,7 @@ import socket
 if ( len(sys.argv) == 2) :
     trick_varserver_port = int(sys.argv[1])
 else :
-    print( "Usage: vsclient <port_number>")
+    print( "Usage: python<version_number> CannonDisplay_Rev1.py <port_number>")
     sys.exit()
 
 # 2.0 Connect to the variable server.
