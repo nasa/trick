@@ -178,7 +178,7 @@ send messages using an ASCII encoding (rather than binary).
 The two [**var_add**](#api-var-add) commands add "dyn.cannon.pos[0]"
 and "dyn.cannon.pos[1]" to the session variable list. 
 
-:warning: Please notice that the quotes around the variable names must be
+⚠️ Please notice that the quotes around the variable names must be
 escaped with the '\' (backslash) character.
 
 ```
