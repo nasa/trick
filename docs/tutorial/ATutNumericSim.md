@@ -373,7 +373,7 @@ void create_connections() {
 
 The first line here defines an integration scheduler called `dyn_integloop` that executes `derivative` and `integration` jobs in the *dyn* SimObject. The integration rate is specified in parentheses.
 
-`create_connections` is a special function-like construct whose code is copied into S_source.cpp and is executed directly after SimObject instantiations. Common uses are to 1) instanciate integrators, and 2) connect data structures between SimObjects.
+`create_connections` is a special function-like construct whose code is copied into S_source.cpp and is executed directly after SimObject instantiations. Common uses are to 1) instantiate integrators, and 2) connect data structures between SimObjects.
 
 `dyn_integloop.getIntegrator` configures our integration scheduler. Its first argument specifies the integration algorithm to be used. In the case `Runge_Kutta_4`. The second argument is the number of variables that are to be integrated. There are four variables for this simulation (pos[0], pos[1], vel[0], vel[1]).
 
