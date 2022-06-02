@@ -18,6 +18,7 @@ jobs:
 #-------- Operating Systems ----------------
           - { os: ubuntu,      tag: 18.04,   arch: debian, arch_ver: 10 }
           - { os: ubuntu,      tag: 20.04,   arch: debian, arch_ver: 11 }
+          - { os: ubuntu,      tag: 22.04,   arch: debian, arch_ver: 12 }
           - { os: debian,      tag: 10,      arch: debian, arch_ver: 10 }
           - { os: debian,      tag: 11,      arch: debian, arch_ver: 11 }
           - { os: centos,      tag: 7,       arch: rhel,   arch_ver: 7  }
@@ -63,6 +64,12 @@ jobs:
               default-jdk
               python2.7-dev
               python3-dev
+            install_gtest: |
+              apt-get install -y libgtest-dev
+              cd /usr/src/gtest
+              cmake .
+              make
+              cp lib/libgtest* /usr/lib/
 #-------- RHEL Dependencies ----------------
           - cfg: { arch: rhel }
             arch_deps: >-
@@ -122,12 +129,6 @@ jobs:
               export DEBIAN_FRONTEND=noninteractive
               apt-get update
               apt-get install -y tzdata
-            install_gtest: |
-              apt-get install -y libgtest-dev
-              cd /usr/src/gtest
-              cmake .
-              make
-              cp lib/libgtest* /usr/lib/
 #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux }
             install_gtest: |
