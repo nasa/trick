@@ -124,12 +124,23 @@ jobs:
               cmake .
               make
               cp libgtest* /usr/lib/
+            tag_deps: >-
+              llvm-dev
+              libclang-dev
 #-------- Debian 11-based Only Dependencies ----------------              
           - cfg: { arch: debian, arch_ver: 11 }
             conf_pkg: |
               export DEBIAN_FRONTEND=noninteractive
               apt-get update
               apt-get install -y tzdata
+            tag_deps: >-
+              llvm-dev
+              libclang-dev
+#-------- Debian 12-based Only Dependencies ----------------
+          - cfg: { arch: debian, arch_ver: 12 }
+            tag_deps: >-
+              llvm-13-dev
+              libclang-13-dev
 #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux }
             install_gtest: |
