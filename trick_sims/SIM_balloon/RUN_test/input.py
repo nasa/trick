@@ -1,4 +1,4 @@
-execfile("Modified_data/realtime.py")
+exec(open("./Modified_data/realtime.py").read())
 
 dyn.balloon.pos[0] = 0
 #dyn.balloon.pos[1] = 136.89

@@ -1,4 +1,4 @@
-execfile("Modified_data/realtime.py")
+exec(open("./Modified_data/realtime.py").read())
 
 # Variable Server Data should be copied at top of frame.
 trick.var_set_copy_mode(2)

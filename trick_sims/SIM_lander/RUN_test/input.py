@@ -1,4 +1,4 @@
-execfile("Modified_data/realtime.py")
+exec(open("./Modified_data/realtime.py").read())
 
 dyn.lander.pos[0] = 0
 dyn.lander.pos[1] = 1.8
