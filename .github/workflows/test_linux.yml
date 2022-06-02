@@ -21,7 +21,7 @@ jobs:
           - { os: ubuntu,      tag: 22.04,   arch: debian, arch_ver: 12 }
           - { os: debian,      tag: 10,      arch: debian, arch_ver: 10 }
           - { os: debian,      tag: 11,      arch: debian, arch_ver: 11 }
-          - { os: debian,      tag: 11,      arch: debian, arch_ver: 12 }
+          - { os: debian,      tag: 12,      arch: debian, arch_ver: 12 }
           - { os: centos,      tag: 7,       arch: rhel,   arch_ver: 7  }
           - { os: rockylinux,  tag: 8,       arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,       arch: rhel,   arch_ver: 8  }
