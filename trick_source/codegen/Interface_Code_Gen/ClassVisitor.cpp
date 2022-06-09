@@ -79,10 +79,11 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
             /* This is an embedded enumeration within a class.  Only process it if is public */
             if ( ed->getAccess() == clang::AS_public ) {
                 EnumVisitor evis(ci, hsd) ;
-                evis.TraverseDecl(ed) ;
-                #if (LIBCLANG_MAJOR >= 14)
+                // Before llvm 14, TraverseDecl also traversed the type.
+                // llvm believed this to be a bug, so now we call TraverseType
+                // instead of TraverseDecl.
+                // evis.TraverseDecl(ed) ;
                 evis.TraverseType(clang::QualType(ed->getTypeForDecl(), 0));
-                #endif
                 pa.printEnum(evis.get_enum_data()) ;
             } else {
                 // protected and private embedded classes cannot be used outside of their class
