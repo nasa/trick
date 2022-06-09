@@ -98,7 +98,13 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
             clang::EnumDecl * ed = static_cast<clang::EnumDecl *>(d) ;
             if ( isInUserCode(ci , ed->RBRACELOC(), hsd) ) {
                 EnumVisitor evis(ci, hsd) ;
+                // Before llvm 14, TraverseDecl also traversed the type.
+                // llvm believed this to be a bug, so now we call TraverseType
+                // in addition to TraverseDecl.
                 evis.TraverseDecl(ed) ;
+                #if (LIBCLANG_MAJOR >= 14)
+                evis.TraverseType(clang::QualType(ed->getTypeForDecl(), 0));
+                #endif
                 //if ( evis.get_enum_data() != NULL ) {
                     pa.printEnum(evis.get_enum_data()) ;
                 //}
