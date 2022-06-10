@@ -47,7 +47,7 @@ DP_LIBS         = -L${TRICK_HOME}/trick_source/data_products/lib_${TRICK_HOST_CP
 MODEL_LIBS      = -lxml2 \
                   -L${DPX_DIR}/lib_${TRICK_HOST_CPU} -lDPM \
                   -L${TRICK_HOME}/trick_source/data_products/lib_${TRICK_HOST_CPU} -ltrick_units \
-                  ${GTEST_LIBS} -lpthread -ludunits2
+                  ${GTEST_LIBS} -lpthread -ludunits2 ${UDUNITS_LDFLAGS}
 CONTROLLER_LIBS = -lDPC \
                   ${MODEL_LIBS} ${DP_LIBS} \
                   ${XLIBS} ${LIBRTDEF} \
