@@ -215,7 +215,7 @@ int main(int argc, char * argv[]) {
     ci.setASTConsumer(astConsumer);
 #endif
     ci.createASTContext();
-    ci.createSema(clang::TU_Prefix, NULL);
+    ci.createSema(clang::TU_Complete, NULL);
 
     // Get the full path of the file to be read
     char buffer[input_file_names[0].size() + 1];
