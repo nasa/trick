@@ -170,7 +170,7 @@ proceed to [Install Trick](#install) section of the install guide
 
 <a name="macos"></a>
 ### macOS Monterey, Big Sur, Catalina
-
+#### These instructions are for Intel-based macs. For the latest Apple silicon (M1) instructions see this issue: https://github.com/nasa/trick/issues/1283
 1. Install the latest Xcode. I recommend installing Xcode through the App Store.
 
 2. Download and install Xcode Command Line Tools for macOS. The following command in the terminal should do the job:
