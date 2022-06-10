@@ -199,7 +199,7 @@ Tip: I suggest renaming the untar'd directory to something simple like llvm13 an
 
 IMPORTANT: Your mac might complain during configuration or build that llvm is downloaded from the internet and can not be trusted. You may need to find a safe solution for this on your own. DO THIS AT YOUR OWN RISK: What worked for us was enabling Settings->Security & Privacy->Privacy->Developer Tools->Terminal. 
 
-IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm. It is also possible that the current iteration of our configure script will not be able to find the udunits package, so you may need to point trick to udunits as well.
+IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm. It is also possible that the current iteration of our configure script will not be able to find the udunits package, so you may need to point trick to udunits as well (I believe this is only an issue on M1 macs).
 You can find the path of udunits by executing the following command:
 
 ```
