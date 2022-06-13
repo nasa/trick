@@ -185,7 +185,7 @@ xcode-select --install
 4. Install the following dependencies using brew (note, we do not currently support installing llvm through brew. Trick WILL NOT work with brew's llvm. See step 5). 
 
 ```bash
-brew install java xquartz swig maven udunits openmotif 
+brew install python java xquartz swig maven udunits openmotif 
 
 ```
 IMPORTANT: Make sure to follow the instructions for adding java to your path provided by brew. If you missed them, you can see them again by using `brew info java`.
