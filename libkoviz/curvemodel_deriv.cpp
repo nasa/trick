@@ -22,7 +22,8 @@ CurveModelDerivative::CurveModelDerivative(CurveModel *curveModel) :
     _t->setUnit(curveModel->t()->unit());
     _x->setName(curveModel->x()->name());
     _x->setUnit(curveModel->x()->unit());
-    _y->setName(curveModel->y()->name());
+    QString yName = "d'(" + curveModel->y()->name() + ")";
+    _y->setName(yName);
 
     QString dUnit = Unit::derivative(curveModel->y()->unit());
     _y->setUnit(dUnit);

@@ -446,6 +446,42 @@ QString Unit::derivative(const QString &unit)
     return derivUnit;
 }
 
+QString Unit::integral(const QString &unit)
+{
+    QString integUnit;
+
+    QRegularExpression re0("(\\w+)/s$");
+    QRegularExpression re1("(\\w+)/s(\\d+)$");
+    QRegularExpressionMatch match0 = re0.match(unit);
+    QRegularExpressionMatch match1 = re1.match(unit);
+    if ( match0.hasMatch() ) {
+        integUnit = match0.captured(1);
+    } else if ( match1.hasMatch() ) {
+        bool ok;
+        QString u = match1.captured(1);
+        int n = match1.captured(2).toInt(&ok);
+        if ( ok ) {
+            if ( n == 2 ) {
+                integUnit = QString("%1/s").arg(u);
+            } else {
+                integUnit = QString("%1/s%2").arg(u).arg(--n);
+            }
+        }
+    } else if ( unit == "N" ) {
+        integUnit = "N*s";
+    } else if ( unit == "N*m" ) {
+        integUnit = "N*m*s";
+    } else {
+        integUnit = "--";
+    }
+
+    if ( !Unit::isUnit(integUnit) ) {
+        integUnit = "--";
+    }
+
+    return integUnit;
+}
+
 QHash<QPair<QString, QString>, double> Unit::_initScales()
 {
     QHash<QPair<QString, QString>, double> map;

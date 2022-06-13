@@ -50,5 +50,9 @@ void PageTitleView::dataChanged(const QModelIndex &topLeft,
     } else if ( tag == "CurveData") {
         viewport()->update();
         updateGeometry();
+    } else if ( tag == "CurveYName") {
+        viewport()->update();
+    } else if ( tag == "CurveYLabel" ) {
+        viewport()->update();
     }
 }

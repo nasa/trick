@@ -10,7 +10,8 @@ CurvesView::CurvesView(QWidget *parent) :
     _bw_slider(0),
     _sg_frame(0),
     _sg_window(0),
-    _sg_slider(0)
+    _sg_slider(0),
+    _integ_frame(0)
 {
     setFocusPolicy(Qt::StrongFocus);
     setFrameShape(QFrame::NoFrame);
@@ -2993,6 +2994,19 @@ void CurvesView::_keyPressD()
     QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
                                                            "Curve","Curves");
 
+    // Plot presentation should be compare
+    QString plotPresentation = _bookModel()->getDataString(plotIdx,
+                                                     "PlotPresentation","Plot");
+    if ( plotPresentation != "compare" ) {
+        QMessageBox msgBox;
+        QString msg = QString("Attempting to take derivative with plot "
+                              "presentation=%1.  The derivative only works in "
+                              "compare mode.\n").arg(plotPresentation);
+        msgBox.setText(msg);
+        msgBox.exec();
+        return;
+    }
+
     // xunit should be in seconds
     foreach ( QModelIndex curveIdx, curveIdxs ) {
         CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
@@ -3008,65 +3022,152 @@ void CurvesView::_keyPressD()
         }
     }
 
-    // Cache
-    DerivPlotCache* plotCache = new DerivPlotCache();
-    plotCache->yAxisLabel = _bookModel()->getDataString(plotIdx,
-                                                       "PlotYAxisLabel","Plot");
-    plotCache->M = _bookModel()->getPlotMathRect(plotIdx);
-    foreach ( QModelIndex curveIdx, curveIdxs ) {
-        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
-        QString yUnit = _bookModel()->getDataString(curveIdx,
-                                                   "CurveYUnit","Curve");
-        DerivCurveCache* curveCache = new DerivCurveCache(curveModel,yUnit);
-        plotCache->curveCaches.append(curveCache);
+    // If user added curves to plot - cache is no longer valid
+    if ( !_integCache.plotCaches.isEmpty()) {
+        int nCachedCurves = _integCache.plotCaches.last()->curveCaches.size();
+        int ncurves = curveIdxs.size();
+        if ( nCachedCurves != ncurves ) {
+            QMessageBox msgBox;
+            QString msg = QString("Curves added after last integration.  "
+                                  "Please clear plot and try again.");
+            msgBox.setText(msg);
+            msgBox.exec();
+            return;
+        }
     }
-    _derivCache.plotCaches.append(plotCache);
 
-    QProgressDialog progress("Derivative", "Abort", 0,
-                             curveIdxs.size(), this);
-    progress.setWindowModality(Qt::WindowModal);
-    progress.setMinimumDuration(500);
-    int i = 0;
+    if ( _integCache.plotCaches.isEmpty()) {
 
-    bool block = _bookModel()->blockSignals(true);
-    QString plotUnit = _bookModel()->getCurvesYUnit(curvesIdx);
-    QString plotDerivUnit = Unit::derivative(plotUnit);
-    foreach ( QModelIndex curveIdx, curveIdxs ) {
-        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
-        CurveModel* deriv = new CurveModelDerivative(curveModel);
-        QVariant v = PtrToQVariant<CurveModel>::convert(deriv);
-        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+        // Cache
+        DerivPlotCache* plotCache = new DerivPlotCache();
+        plotCache->yAxisLabel = _bookModel()->getDataString(plotIdx,
+                                                       "PlotYAxisLabel","Plot");
+        plotCache->M = _bookModel()->getPlotMathRect(plotIdx);
+        foreach ( QModelIndex curveIdx, curveIdxs ) {
+            CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+            QString yUnit = _bookModel()->getDataString(curveIdx,
+                                                        "CurveYUnit","Curve");
+            QString yLabel = _bookModel()->getDataString(curveIdx,
+                                                         "CurveYLabel","Curve");
+            DerivCurveCache* curveCache = new DerivCurveCache(curveModel,
+                                                              yUnit,yLabel);
+            plotCache->curveCaches.append(curveCache);
+        }
+        _derivCache.plotCaches.append(plotCache);
+
+        QProgressDialog progress("Derivative", "Abort", 0,
+                                 curveIdxs.size(), this);
+        progress.setWindowModality(Qt::WindowModal);
+        progress.setMinimumDuration(500);
+        int i = 0;
+
+        bool block = _bookModel()->blockSignals(true);
+        QString plotUnit = _bookModel()->getCurvesYUnit(curvesIdx);
+        QString plotDerivUnit = Unit::derivative(plotUnit);
+        foreach ( QModelIndex curveIdx, curveIdxs ) {
+            CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+            CurveModel* deriv = new CurveModelDerivative(curveModel);
+            QVariant v = PtrToQVariant<CurveModel>::convert(deriv);
+            QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
                                                            "CurveData","Curve");
-        QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
+            QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveYUnit","Curve");
-        _bookModel()->setData(yUnitIdx,"--");  // temp for conversion below
-        _bookModel()->setData(curveDataIdx,v);
-        if ( Unit::canConvert(deriv->y()->unit(),plotDerivUnit) ) {
-            _bookModel()->setData(yUnitIdx,plotDerivUnit);
-        } else {
-            _bookModel()->setData(yUnitIdx,deriv->y()->unit());
-        }
+            _bookModel()->setData(yUnitIdx,"--");  // temp for conversion below
+            _bookModel()->setData(curveDataIdx,v);
+            if ( Unit::canConvert(deriv->y()->unit(),plotDerivUnit) ) {
+                _bookModel()->setData(yUnitIdx,plotDerivUnit);
+            } else {
+                _bookModel()->setData(yUnitIdx,deriv->y()->unit());
+            }
 
-        progress.setValue(i++);
-        if (progress.wasCanceled()) {
-            break;
+            QModelIndex yNameIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYName","Curve");
+            QModelIndex yLabelIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYLabel","Curve");
+            _bookModel()->setData(yNameIdx, deriv->y()->name());
+            _bookModel()->setData(yLabelIdx, deriv->y()->name());
+
+            progress.setValue(i++);
+            if (progress.wasCanceled()) {
+                break;
+            }
+            QString msg = QString("Loaded %1 of %2 curves")
+                    .arg(i).arg(curveIdxs.size());
+            progress.setLabelText(msg);
         }
-        QString msg = QString("Loaded %1 of %2 curves")
-                .arg(i).arg(curveIdxs.size());
-        progress.setLabelText(msg);
-    }
-    _bookModel()->blockSignals(block);
-    QModelIndex yAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+        _bookModel()->blockSignals(block);
+
+        // Yaxislabel and refresh plot with new bounding box
+        QModelIndex yAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
                                                        "PlotYAxisLabel","Plot");
-    QString yAxisLabel = _bookModel()->data(yAxisLabelIdx).toString();
-    QString dYAxisLabel = "d\'(" + yAxisLabel + ")";
-    _bookModel()->setData(yAxisLabelIdx,dYAxisLabel);
-    QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
-    _bookModel()->setPlotMathRect(bbox,rootIndex());
+        QString yAxisLabel = _bookModel()->data(yAxisLabelIdx).toString();
+        QString dYAxisLabel = "d\'(" + yAxisLabel + ")";
+        _bookModel()->setData(yAxisLabelIdx,dYAxisLabel);
+        QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+        _bookModel()->setPlotMathRect(bbox,rootIndex());
 
-    progress.setValue(curveIdxs.size());
+        progress.setValue(curveIdxs.size());
+    } else {
+        IntegPlotCache* plotCache = _integCache.plotCaches.takeLast();
+        if ( _integ_ival ) {
+            QString s = QString("%1").arg(plotCache->initialValue);
+            _integ_ival->setText(s);
+        }
+        bool block = _bookModel()->blockSignals(true);
+        int i = 0;
+        foreach ( QModelIndex curveIdx, curveIdxs ) {
+            IntegCurveCache* curveCache = plotCache->curveCaches.at(i++);
+            QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveYUnit","Curve");
+            _bookModel()->setData(yUnitIdx,curveCache->yUnit());
+            QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+            CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+            if ( curveModel ) {
+                delete curveModel;
+            }
+            QVariant v=PtrToQVariant<CurveModel>::convert(
+                                                      curveCache->curveModel());
+            _bookModel()->setData(curveDataIdx,v);
+
+            QModelIndex yNameIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYName","Curve");
+            QModelIndex yLabelIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYLabel","Curve");
+            _bookModel()->setData(yNameIdx,
+                                  curveCache->curveModel()->y()->name());
+            _bookModel()->setData(yLabelIdx, curveCache->yLabel());
+        }
+        _bookModel()->blockSignals(block);
+        QModelIndex yAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                       "PlotYAxisLabel","Plot");
+        _bookModel()->setData(yAxisLabelIdx,plotCache->yAxisLabel);
+        _bookModel()->setPlotMathRect(plotCache->M,plotIdx);
+    }
+
+    // Since signals blocked above for performance, refresh yname/ylabels
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        QModelIndex yNameIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveYName","Curve");
+        QModelIndex yLabelIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveYLabel","Curve");
+        QString yName = _bookModel()->getDataString(curveIdx,
+                                                    "CurveYName","Curve");
+        QString yLabel = _bookModel()->getDataString(curveIdx,
+                                                     "CurveYLabel","Curve");
+        _bookModel()->setData(yNameIdx, "");
+        _bookModel()->setData(yLabelIdx, "");
+        _bookModel()->setData(yNameIdx, yName);
+        _bookModel()->setData(yLabelIdx, yLabel);
+    }
+
+    if ( _integ_frame && _integCache.plotCaches.isEmpty() ) {
+        // Hide integ init value entry box
+        _integ_frame->hide();
+    }
 }
 
+// Integrate
 void CurvesView::_keyPressI()
 {
     QModelIndex plotIdx = rootIndex();
@@ -3074,37 +3175,188 @@ void CurvesView::_keyPressI()
     QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
                                                            "Curve","Curves");
 
-    if ( _derivCache.plotCaches.isEmpty() ) {
+    QString plotPresentation = _bookModel()->getDataString(plotIdx,
+                                                     "PlotPresentation","Plot");
+    if ( plotPresentation != "compare" ) {
         QMessageBox msgBox;
-        QString msg = QString("Sorry, integration not yet supported!\n");
+        QString msg = QString("Attempting integrate with plot "
+                              "presentation=%1.  The integral only works in "
+                              "compare mode.\n").arg(plotPresentation);
         msgBox.setText(msg);
         msgBox.exec();
         return;
     }
 
-    DerivPlotCache* plotCache = _derivCache.plotCaches.takeLast();
-    bool block = _bookModel()->blockSignals(true);
-    int i = 0;
+    // xunit should be in seconds
     foreach ( QModelIndex curveIdx, curveIdxs ) {
-        DerivCurveCache* curveCache = plotCache->curveCaches.at(i++);
-        QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
-                                                          "CurveYUnit","Curve");
-        _bookModel()->setData(yUnitIdx,curveCache->yUnit());
-        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
-                                                           "CurveData","Curve");
         CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
-        if ( curveModel ) {
-            delete curveModel;
+        if ( curveModel->x()->unit() != "s" ) {
+            QMessageBox msgBox;
+            QString msg = QString("Sorry, attempting integrate with "
+                                  "xunit=%1.  The integral expects the logged"
+                                  " xunits to be seconds.\n")
+                                  .arg(curveModel->x()->unit());
+            msgBox.setText(msg);
+            msgBox.exec();
+            return;
         }
-        QVariant v=PtrToQVariant<CurveModel>::convert(curveCache->curveModel());
-        _bookModel()->setData(curveDataIdx,v);
     }
-    _bookModel()->blockSignals(block);
-    QModelIndex yAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
-                                                       "PlotYAxisLabel","Plot");
-    _bookModel()->setData(yAxisLabelIdx,plotCache->yAxisLabel);
-    _bookModel()->setPlotMathRect(plotCache->M,plotIdx);
 
+    // If user added curves to plot - cache is no longer valid
+    if ( !_derivCache.plotCaches.isEmpty()) {
+        int nCachedCurves = _derivCache.plotCaches.last()->curveCaches.size();
+        int ncurves = curveIdxs.size();
+        if ( nCachedCurves != ncurves ) {
+            QMessageBox msgBox;
+            QString msg = QString("Curves added after last derivative.  "
+                                  "Please clear plot and try again.");
+            msgBox.setText(msg);
+            msgBox.exec();
+            return;
+        }
+    }
+
+    if ( ! _integ_frame && _derivCache.plotCaches.isEmpty()) {
+        _integ_frame = new QFrame(this);
+        _integ_ival = new QLineEdit(_integ_frame);
+        _integ_ival->setText("0.0");
+        connect(_integ_ival,SIGNAL(returnPressed()),
+                this,SLOT(_keyPressIInitValueReturnPressed()));
+
+        // Shrink text box since default stretches over plot
+        QFontMetrics fm(_integ_ival->font());
+        int w = fm.averageCharWidth()*16; // 16 is arbitrary
+        _integ_ival->setSizePolicy(QSizePolicy::Ignored,QSizePolicy::Preferred);
+        _integ_ival->setMinimumWidth(w);
+        _integ_ival->setToolTip("Initial integration value");
+
+        // Validate label entry
+        QDoubleValidator* v = new QDoubleValidator(this);
+        _integ_ival->setValidator(v);
+
+        QVBoxLayout *layout = new QVBoxLayout();
+        layout->addWidget(_integ_ival);
+        _integ_frame->setLayout(layout);
+        _integ_frame->show();
+    }
+
+    if ( _derivCache.plotCaches.isEmpty()) {
+
+        // Show integ init value entry box
+        _integ_frame->show();
+
+        // Cache
+        IntegPlotCache* plotCache = new IntegPlotCache();
+        plotCache->initialValue = _integ_ival->text().toDouble();
+        plotCache->yAxisLabel = _bookModel()->getDataString(plotIdx,
+                                                       "PlotYAxisLabel","Plot");
+        plotCache->M = _bookModel()->getPlotMathRect(plotIdx);
+        foreach ( QModelIndex curveIdx, curveIdxs ) {
+            CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+            QString yLabel = _bookModel()->getDataString(curveIdx,
+                                                        "CurveYLabel","Curve");
+            QString yUnit = _bookModel()->getDataString(curveIdx,
+                                                        "CurveYUnit","Curve");
+            IntegCurveCache* curveCache = new IntegCurveCache(curveModel,
+                                                              yLabel,yUnit);
+            plotCache->curveCaches.append(curveCache);
+        }
+        _integCache.plotCaches.append(plotCache);
+
+        // Integrate
+        double ival = _integ_ival->text().toDouble();
+        QString plotUnit = _bookModel()->getCurvesYUnit(curvesIdx);
+        QString plotIntegUnit = Unit::integral(plotUnit);
+        bool block = _bookModel()->blockSignals(true);
+        foreach ( QModelIndex curveIdx, curveIdxs ) {
+            CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+            CurveModel* integ = new CurveModelIntegral(curveModel,ival);
+            QVariant v = PtrToQVariant<CurveModel>::convert(integ);
+            QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+            QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveYUnit","Curve");
+            _bookModel()->setData(yUnitIdx,"--");  // temp for conversion below
+            _bookModel()->setData(curveDataIdx,v);
+            if ( Unit::canConvert(integ->y()->unit(),plotIntegUnit) ) {
+                _bookModel()->setData(yUnitIdx,plotIntegUnit);
+            } else {
+                _bookModel()->setData(yUnitIdx,integ->y()->unit());
+            }
+
+            QModelIndex yNameIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYName","Curve");
+            QModelIndex yLabelIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYLabel","Curve");
+            _bookModel()->setData(yNameIdx, integ->y()->name());
+            _bookModel()->setData(yLabelIdx, integ->y()->name());
+        }
+        _bookModel()->blockSignals(block);
+        QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+        _bookModel()->setPlotMathRect(bbox,rootIndex());
+
+        // Set YAxisLabel
+        QModelIndex yAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                       "PlotYAxisLabel","Plot");
+        QString yAxisLabel = _bookModel()->data(yAxisLabelIdx).toString();
+        QChar integSymbol(8747);
+        QString iYAxisLabel;
+        if ( _integCache.plotCaches.size() == 1 ) {
+            iYAxisLabel = QString("%1(%2)").arg(integSymbol).arg(yAxisLabel);
+        } else {
+            iYAxisLabel = QString("%1%2").arg(integSymbol).arg(yAxisLabel);
+        }
+        _bookModel()->setData(yAxisLabelIdx,iYAxisLabel);
+
+    } else {
+        DerivPlotCache* plotCache = _derivCache.plotCaches.takeLast();
+        bool block = _bookModel()->blockSignals(true);
+        int i = 0;
+        foreach ( QModelIndex curveIdx, curveIdxs ) {
+            DerivCurveCache* curveCache = plotCache->curveCaches.at(i++);
+            QModelIndex yUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveYUnit","Curve");
+            _bookModel()->setData(yUnitIdx,curveCache->yUnit());
+            QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+            CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
+            if ( curveModel ) {
+                delete curveModel;
+            }
+            QVariant v=PtrToQVariant<CurveModel>::convert(
+                                                      curveCache->curveModel());
+            _bookModel()->setData(curveDataIdx,v);
+
+            QModelIndex yNameIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYName","Curve");
+            QModelIndex yLabelIdx = _bookModel()->getDataIndex(curveIdx,
+                                                         "CurveYLabel","Curve");
+            _bookModel()->setData(yNameIdx,
+                                  curveCache->curveModel()->y()->name());
+            _bookModel()->setData(yLabelIdx, curveCache->yLabel());
+        }
+        _bookModel()->blockSignals(block);
+        QModelIndex yAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
+                                                       "PlotYAxisLabel","Plot");
+        _bookModel()->setData(yAxisLabelIdx,plotCache->yAxisLabel);
+        _bookModel()->setPlotMathRect(plotCache->M,plotIdx);
+    }
+
+    // Since signals blocked above for performance, refresh yname/ylabels
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        QModelIndex yNameIdx = _bookModel()->getDataIndex(curveIdx,
+                                                          "CurveYName","Curve");
+        QModelIndex yLabelIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveYLabel","Curve");
+        QString yName = _bookModel()->getDataString(curveIdx,
+                                                    "CurveYName","Curve");
+        QString yLabel = _bookModel()->getDataString(curveIdx,
+                                                     "CurveYLabel","Curve");
+        _bookModel()->setData(yNameIdx, "");
+        _bookModel()->setData(yLabelIdx, "");
+        _bookModel()->setData(yNameIdx, yName);
+        _bookModel()->setData(yLabelIdx, yLabel);
+    }
 }
 
 void CurvesView::_keyPressGChange(int window, int degree)
@@ -3191,6 +3443,37 @@ void CurvesView::_keyPressGDegreeReturnPressed()
             _keyPressGChange(window,degree);
         }
     }
+}
+
+// Re-integrate using initial value from entry box
+void CurvesView::_keyPressIInitValueReturnPressed()
+{
+    bool ok;
+    double ival = _integ_ival->text().toDouble(&ok);
+    if ( !ok ) {
+        // Since there is a validator this should never happen
+        fprintf(stderr, "koviz [bad scoobs]:keyPressIInitValueReturnPressed\n");
+        exit(-1);
+    }
+
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                           "Curve","Curves");
+
+    // Integrate from cached state using updated initial value
+    IntegPlotCache* cache = _integCache.plotCaches.last();
+    int i = 0;
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        CurveModel* curveModel = cache->curveCaches.at(i++)->curveModel();
+        CurveModel* integ = new CurveModelIntegral(curveModel,ival);
+        QVariant v = PtrToQVariant<CurveModel>::convert(integ);
+        QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+        _bookModel()->setData(curveDataIdx,v);
+    }
+    QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+    _bookModel()->setPlotMathRect(bbox,rootIndex());
 }
 
 void CurvesView::_keyPressMinus()
@@ -3308,9 +3591,10 @@ DerivCache::~DerivCache()
 }
 
 DerivCurveCache::DerivCurveCache(CurveModel *curveModel,
-                                 const QString yUnit) :
+                                 const QString &yUnit, const QString &yLabel) :
     _curveModel(curveModel),
-    _yUnit(yUnit)
+    _yUnit(yUnit),
+    _yLabel(yLabel)
 {
 }
 
@@ -3320,6 +3604,57 @@ CurveModel *DerivCurveCache::curveModel() const
 }
 
 QString DerivCurveCache::yUnit() const
+{
+    return _yUnit;
+}
+
+QString DerivCurveCache::yLabel() const
+{
+    return _yLabel;
+}
+
+IntegPlotCache::IntegPlotCache() :
+    initialValue(0.0)
+{
+}
+
+IntegPlotCache::~IntegPlotCache()
+{
+}
+
+IntegCache::IntegCache()
+{
+}
+
+IntegCache::~IntegCache()
+{
+    foreach ( IntegPlotCache* plotCache, plotCaches ) {
+        foreach ( IntegCurveCache* curveCache, plotCache->curveCaches ) {
+            delete curveCache;
+        }
+        delete plotCache;
+    }
+}
+
+IntegCurveCache::IntegCurveCache(CurveModel *curveModel,
+                                 const QString &yLabel, const QString &yUnit) :
+    _curveModel(curveModel),
+    _yLabel(yLabel),
+    _yUnit(yUnit)
+{
+}
+
+CurveModel *IntegCurveCache::curveModel() const
+{
+    return _curveModel;
+}
+
+QString IntegCurveCache::yLabel() const
+{
+    return _yLabel;
+}
+
+QString IntegCurveCache::yUnit() const
 {
     return _yUnit;
 }

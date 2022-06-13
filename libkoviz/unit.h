@@ -36,6 +36,7 @@ class Unit {
     static Unit map(const Unit& u1, const Unit& u2);
     static QString showUnits();
     static QString derivative(const QString& unit);
+    static QString integral(const QString& unit);
 
   private:
 

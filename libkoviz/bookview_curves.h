@@ -39,6 +39,7 @@
 #include "curvemodel_bw.h"
 #include "curvemodel_sg.h"
 #include "curvemodel_deriv.h"
+#include "curvemodel_integ.h"
 
 class TimeAndIndex
 {
@@ -85,14 +86,18 @@ class FFTCache
 class DerivCurveCache
 {
   public:
-    DerivCurveCache(CurveModel* curveModel, const QString yUnit);
+    DerivCurveCache(CurveModel* curveModel,
+                    const QString& yUnit,
+                    const QString& yLabel);
     CurveModel* curveModel() const ;
     QString yUnit() const ;
+    QString yLabel() const;
 
   private:
     DerivCurveCache() {}
     CurveModel*  _curveModel;
     QString _yUnit;
+    QString _yLabel;
 };
 
 class DerivPlotCache
@@ -112,6 +117,43 @@ class DerivCache
     DerivCache();
     ~DerivCache();
     QList<DerivPlotCache*> plotCaches;
+};
+
+class IntegCurveCache
+{
+  public:
+    IntegCurveCache(CurveModel* curveModel,
+                    const QString& yLabel,
+                    const QString& yUnit);
+    CurveModel* curveModel() const ;
+    QString yLabel() const ;
+    QString yUnit() const ;
+
+  private:
+    IntegCurveCache() {}
+    CurveModel*  _curveModel;
+    QString _yLabel;
+    QString _yUnit;
+};
+
+class IntegPlotCache
+{
+  public:
+    IntegPlotCache();
+    ~IntegPlotCache();
+    double initialValue;
+    QString yAxisLabel;
+    QString yUnit;
+    QRectF M;
+    QList<IntegCurveCache*> curveCaches;
+};
+
+class IntegCache
+{
+  public:
+    IntegCache();
+    ~IntegCache();
+    QList<IntegPlotCache*> plotCaches;
 };
 
 class CurvesView : public BookIdxView
@@ -199,8 +241,12 @@ private:
     QSlider* _sg_slider;
     void _keyPressGChange(int window, int degree);
 
+    QFrame* _integ_frame;
+    QLineEdit* _integ_ival;
+
     FFTCache _fftCache ;
     DerivCache _derivCache ;
+    IntegCache _integCache ;
 
 private slots:
     void _keyPressBSliderChanged(int value);
@@ -208,6 +254,7 @@ private slots:
     void _keyPressGSliderChanged(int value);
     void _keyPressGLineEditReturnPressed();
     void _keyPressGDegreeReturnPressed();
+    void _keyPressIInitValueReturnPressed();
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft,
