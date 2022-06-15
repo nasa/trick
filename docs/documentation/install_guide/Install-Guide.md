@@ -14,7 +14,7 @@ Trick requires various free third party utilities in order to function. All the 
 | [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.9 as of 02/21    |
 | [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                       |
 | [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                       |
-| [swig]         | 2.0+    | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ required for some unit tests in make test target |
+| [swig]         | 2.0-3.0 | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ required for some unit tests in make test target |
 | [make]         | 3.78+   | Build Automation        | Automates the building and cleaning of Trick.             |                                                       |
 | [openmotif]    | 2.2.0+  | GUI Toolkit             | Covers Trick GUIs not made with Java.                     |                                                       |
 | [udunits]      | 2.x+    | C Unit Library/Database | Provides support for units of physical quantities.        |                                                       |
@@ -185,7 +185,7 @@ xcode-select --install
 4. Install the following dependencies using brew (note, we do not currently support installing llvm through brew. Trick WILL NOT work with brew's llvm. See step 5). 
 
 ```bash
-brew install python java xquartz swig maven udunits openmotif 
+brew install python java xquartz swig@3 maven udunits openmotif 
 
 ```
 IMPORTANT: Make sure to follow the instructions for adding java to your path provided by brew. If you missed them, you can see them again by using `brew info java`.
