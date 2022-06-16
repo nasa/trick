@@ -24,23 +24,41 @@ import trick.matrixOps.MatrixOps;
 
 class CrewModuleView extends JPanel {
 
-    private Color waterColor;
-    private Color vehicleColor;
-    private double[] vehiclePos;
-    private double[] centerOfBuoyancy;
-    private double bodyToWorldRotation[][];
-    private double vantageAzimuth;
-    private double vantageElevation;
-    private double vantageRotation[][];
-    private double vantageDistance;
-    private double beta;
     private int screen_half_width;
     private int screen_half_height;
+
+    private double illumination_vector[]; // World coordinates
+
+    private double vantageAzimuth;
+    private double vantageElevation;
+
+    private double vantageDistance;
+    private double beta;
+
+    private double worldToVantageRotation[][];
+
+    private Color waterColor;
+    private double water_vrtx_world[][];
+
+    private int water_poly_x[];
+    private int water_poly_y[];
+
+    private Color vehicleLineColor;
+    private double[] vehiclePos;
+    private double[] centerOfBuoyancy;
+
+    private double bodyToWorldRotation[][];
+
     private double veh_vrtx_body[][];
     private double veh_vrtx_world[][];
-    private int veh_vrtx_screen[][];
+    private int    veh_vrtx_screen[][];
+
     private int veh_edges[][];
-    private double water_vrtx_world[][];
+    private int veh_triangles[][];
+
+    private double veh_unit_normals_body[][];
+    private double veh_unit_normals_world[][];
+    private double veh_unit_normals_vantage[][];
 
     public CrewModuleView() {
 
@@ -48,23 +66,41 @@ class CrewModuleView extends JPanel {
         addMouseListener(viewListener);
         addMouseMotionListener(viewListener);
 
+        // Direction of light.
+        illumination_vector = new double[] {-0.707, 0.0, -0.707};
+
+        // Observer location, looking toward the world origin.
+        vantageAzimuth   = Math.toRadians(45.0);
+        vantageElevation = Math.toRadians(20.0);
+        vantageDistance = 12.0;
+
+        // Half field of view angle
+        beta = Math.toRadians(40.0);
+
+        worldToVantageRotation = new double[3][3];
+        setAzElRotation(worldToVantageRotation, vantageAzimuth, vantageElevation);
+
         waterColor  = new  Color(220,220,250,180);
-        vehicleColor = new Color(100,100,100);
+        water_vrtx_world = new double[][]
+          {
+            { 5.000, 5.000, 0.000},
+            { 5.000,-5.000, 0.000},
+            {-5.000,-5.000, 0.000},
+            {-5.000, 5.000, 0.000}
+          };
+
+        water_poly_x = new int[water_vrtx_world.length];
+        water_poly_y = new int[water_vrtx_world.length];
+
+        vehicleLineColor = Color.GRAY;
 
         vehiclePos  = new double[] {0.0, 0.0, 0.0};
+
         centerOfBuoyancy  = new double[] {0.0, 0.0, 0.0};
+
         bodyToWorldRotation = new double[][] {{1.0, 0.0, 0.0},
                                               {0.0, 1.0, 0.0},
                                               {0.0, 0.0, 1.0}};
-        vantageAzimuth   = Math.toRadians(45.0);
-        vantageElevation = Math.toRadians(20.0);
-        vantageRotation = new double[][] {{1.0, 0.0, 0.0},
-                                          {0.0, 1.0, 0.0},
-                                          {0.0, 0.0, 1.0}};
-        updateVantageRotation();
-
-        vantageDistance = 15.0;
-        beta = Math.toRadians(30.0);
 
         veh_vrtx_body = new double[][]
           { { 0.000, 0.000, 2.400}, /*   0 top point*/
@@ -127,13 +163,34 @@ class CrewModuleView extends JPanel {
           {25,37},{26,37},{27,37},{28,37},{29,37},{30,37},{31,37},{32,37},{33,37},{34,37},{35,37},{36,37}
         };
 
-        water_vrtx_world = new double[][]
-          {
-            { 5.000, 5.000, 0.000},
-            { 5.000,-5.000, 0.000},
-            {-5.000,-5.000, 0.000},
-            {-5.000, 5.000, 0.000}
-          };
+        // The order of the vertices in each of the triangles is significant. The points should follow
+        // a path counter clock wise about the triangle's normal vector. The position normal side of
+        // the triangle is the visable side.
+
+        veh_triangles = new int[][]
+        {
+          { 0, 1, 2},{ 0, 2, 3},{ 0, 3, 4},{ 0, 4, 5},{ 0, 5, 6},{ 0, 6, 7},{ 0, 7, 8},{ 0, 8, 9},{ 0, 9,10},{ 0,10,11},{ 0,11,12},{ 0,12, 1},
+          { 2, 1,13},{ 3, 2,14},{ 4, 3,15},{ 5, 4,16},{ 6, 5,17},{ 7, 6,18},{ 8, 7,19},{ 9, 8,20},{10, 9,21},{11,10,22},{12,11,23},{ 1,12,24},
+          { 2,13,14},{ 3,14,15},{ 4,15,16},{ 5,16,17},{ 6,17,18},{ 7,18,19},{ 8,19,20},{ 9,20,21},{10,21,22},{11,22,23},{12,23,24},{1,24,13},
+          {14,13,25},{15,14,26},{16,15,27},{17,16,28},{18,17,29},{19,18,30},{20,19,31},{21,20,32},{22,21,33},{23,22,34},{24,23,35},{13,24,36},
+          {14,25,26},{15,26,27},{16,27,28},{17,28,29},{18,29,30},{19,30,31},{20,31,32},{21,32,33},{22,33,34},{23,34,35},{24,35,36},{13,36,25},
+          {25,37,26},{26,37,27},{27,37,28},{28,37,29},{29,37,30},{30,37,31},{31,37,32},{32,37,33},{33,37,34},{34,37,35},{35,37,36},{36,37,25}
+        };
+
+        veh_unit_normals_body = new double[veh_triangles.length][3];
+        double v1[] = {0.0, 0.0, 0.0};
+        double v2[] = {0.0, 0.0, 0.0};
+        for (int i=0; i < veh_unit_normals_body.length; i++ ) {
+            MatrixOps.VminusV (v1, veh_vrtx_body[ veh_triangles[i][1] ], veh_vrtx_body[ veh_triangles[i][0] ]);
+            MatrixOps.VminusV (v2, veh_vrtx_body[ veh_triangles[i][2] ], veh_vrtx_body[ veh_triangles[i][0] ]);
+            MatrixOps.VcrossV (veh_unit_normals_body[i], v1, v2);
+            double vmag = MatrixOps.Vmagnitude(veh_unit_normals_body[i]);
+            MatrixOps.Vscale (veh_unit_normals_body[i], veh_unit_normals_body[i], 1.0/vmag);
+        }
+
+        veh_unit_normals_world = new double[ veh_unit_normals_body.length ][3];
+        veh_unit_normals_vantage = new double[ veh_unit_normals_body.length ][3];
+
     }
 
     private class ViewListener extends MouseInputAdapter {
@@ -177,33 +234,33 @@ class CrewModuleView extends JPanel {
       vantageElevation += (dy * Math.PI) / getHeight();
       if (vantageElevation >  Math.toRadians( 89.0)) vantageElevation = Math.toRadians( 89.0);
       if (vantageElevation <  Math.toRadians(-89.0)) vantageElevation = Math.toRadians(-89.0);
-      updateVantageRotation();
+      setAzElRotation(worldToVantageRotation, vantageAzimuth, vantageElevation);
       repaint();
     }
 
-    public void updateVantageRotation() {
+    public void setAzElRotation(double RotationMatrix[][], double azimuth, double elevation) {
       double Rotation_about_Y[][] = {
-        { Math.cos(vantageElevation), 0.0, Math.sin(vantageElevation)},
+        { Math.cos(elevation), 0.0, Math.sin(elevation)},
         {                 0.0, 1.0,                 0.0},
-        {-Math.sin(vantageElevation), 0.0, Math.cos(vantageElevation)}
+        {-Math.sin(elevation), 0.0, Math.cos(elevation)}
       };
 
       double Rotation_about_Z[][] = {
-        {Math.cos(vantageAzimuth), -Math.sin(vantageAzimuth), 0.0},
-        {Math.sin(vantageAzimuth),  Math.cos(vantageAzimuth), 0.0},
+        {Math.cos(azimuth), -Math.sin(azimuth), 0.0},
+        {Math.sin(azimuth),  Math.cos(azimuth), 0.0},
         {              0.0,                0.0, 1.0}
       };
-      MatrixOps.MtimesM( vantageRotation, Rotation_about_Y, Rotation_about_Z);
+      MatrixOps.MtimesM( RotationMatrix, Rotation_about_Y, Rotation_about_Z);
     }
 
-    public void worldToScreenPoint( int result[], double X_world[]) {
-      // X_world to X_vantage
-      double x_vantage[] = new double[3];
-      MatrixOps.MtimesV(x_vantage, vantageRotation, X_world);
-      // X_vantage to screen
-      double perspective_scale = screen_half_width/(Math.tan(beta)*(vantageDistance-x_vantage[0]));
-      result[0] = (int)(perspective_scale * x_vantage[1] + screen_half_width);
-      result[1] = (int)(screen_half_height - perspective_scale * x_vantage[2]);
+    public void worldToScreenPoint( int result[], double V_world[]) {
+      double V_vantage[] = new double[3];
+      // Tranform vector in world coordinates to vantage coordinates.
+      MatrixOps.MtimesV(V_vantage, worldToVantageRotation, V_world);
+      // Perspective projection of point in 3D vantage coordinates to 2D screen coordinates.
+      double perspective_scale = screen_half_width/(Math.tan(beta)*(vantageDistance-V_vantage[0]));
+      result[0] = (int)(perspective_scale * V_vantage[1] + screen_half_width);
+      result[1] = (int)(screen_half_height - perspective_scale * V_vantage[2]);
     }
 
     public void setVehPos( double x, double y, double z) {
@@ -232,23 +289,83 @@ class CrewModuleView extends JPanel {
 
         // ======================
         //       Draw Water
-        // ======================
+
         g2d.setPaint( waterColor);
-        int pt[] = {0, 0};
-        int wx[] = {0, 0, 0, 0};
-        int wy[] = {0, 0, 0, 0};
+        int pt[] = {0,0};
         for (int i=0; i<water_vrtx_world.length ; i++) {
           worldToScreenPoint( pt, water_vrtx_world[i]);
-          wx[i] = pt[0];
-          wy[i] = pt[1];
+          water_poly_x[i] = pt[0];
+          water_poly_y[i] = pt[1];
         }
-        g2d.fillPolygon(wx, wy, 4);
+        g2d.fillPolygon(water_poly_x, water_poly_y, 4);
         g2d.setPaint( Color.BLUE);
-        g2d.drawPolygon(wx, wy, 4);
+        g2d.drawPolygon(water_poly_x, water_poly_y, 4);
+
+        // ========================
+        //       Draw Vehicle
+
+        // Transform the vehicle vertices from body -> world, apply the vehicle position offset, and then to 2D screen points.
+        for (int i=0; i<veh_vrtx_body.length ; i++) {
+          MatrixOps.MtimesV(veh_vrtx_world[i], bodyToWorldRotation, veh_vrtx_body[i]);
+          MatrixOps.VplusV(veh_vrtx_world[i], veh_vrtx_world[i], vehiclePos);
+
+          worldToScreenPoint (veh_vrtx_screen[i], veh_vrtx_world[i]);
+        }
+
+        // Draw Solid Model
+
+        for (int i=0; i<veh_triangles.length ; i++) {
+            double LOS_vantage[] = {1.0, 0.0, 0.0};
+            double veh_RGB[] = {255.0, 255.0, 250.0};
+
+            // Proportion of the total light due to ambiant light, the remainder is proportion of reflected light.
+            double ambiant = 0.8; // Must be between 0.0 and 1.0.
+
+            // Transform the vehicle triangle normals from Body -> World -> Vantage
+            MatrixOps.MtimesV(veh_unit_normals_world[i], bodyToWorldRotation, veh_unit_normals_body[i]);
+            MatrixOps.MtimesV(veh_unit_normals_vantage[i], worldToVantageRotation, veh_unit_normals_world[i]);
+
+            // Render the triangle only if it's facing us.
+            double facing_angle = MatrixOps.VdotV(veh_unit_normals_vantage[i], LOS_vantage);
+            if ( (facing_angle > 0.0) && (facing_angle < Math.toRadians(90))) {
+
+                // Calculate the (diffuse) reflection intensity.
+                double neg_illumination_vector[] = {0.0, 0.0, 0.0};
+                MatrixOps.Vscale(neg_illumination_vector, illumination_vector, -1.0);
+                double diffuse_intensity = MatrixOps.VdotV(neg_illumination_vector, veh_unit_normals_world[i]);
+                if (diffuse_intensity < 0.0) diffuse_intensity = 0.0;
+
+                // The color intensity is a combination of ambiant light intensity,
+                // and diffuse reflection intensity.
+                double color_intensity = (ambiant + (1.0 - ambiant) * diffuse_intensity);
+                int CCR = (int) (veh_RGB[0] * color_intensity);
+                int CCG = (int) (veh_RGB[1] * color_intensity);
+                int CCB = (int) (veh_RGB[2] * color_intensity);
+                g2d.setPaint( new Color(CCR, CCG, CCB));
+
+                // Draw the triangle.
+                int triangle_poly_x[] = {0, 0, 0};
+                int triangle_poly_y[] = {0, 0, 0};
+                for (int j=0; j < 3; j++) {
+                  triangle_poly_x[j] = veh_vrtx_screen[ veh_triangles[i][j] ][0];
+                  triangle_poly_y[j] = veh_vrtx_screen[ veh_triangles[i][j] ][1];
+                }
+                g2d.fillPolygon(triangle_poly_x, triangle_poly_y, 3);
+            }
+        }
+
+        // Draw Wireframe Model
+
+        // g2d.setPaint( vehicleLineColor );
+        for (int i=0; i<veh_edges.length; i++) {
+          int point0[] = veh_vrtx_screen[ veh_edges[i][0] ];
+          int point1[] = veh_vrtx_screen[ veh_edges[i][1] ];
+          g2d.drawLine( point0[0], point0[1], point1[0], point1[1]);
+        }
 
         // =============================
         // Draw Center of Buoyancy Point
-        // =============================
+
         int CB_screen[] = {0, 0};
         int CB_symbol_size = 15;
         worldToScreenPoint( CB_screen, centerOfBuoyancy);
@@ -260,7 +377,7 @@ class CrewModuleView extends JPanel {
 
         // ============================
         // Draw Center of Gravity Point
-        // ============================
+
         int CG_screen[] = {0, 0};
         int CG_symbol_size = 15;
         worldToScreenPoint( CG_screen, vehiclePos);
@@ -270,24 +387,9 @@ class CrewModuleView extends JPanel {
         g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size,   0, 90 );
         g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size, 180, 90);
 
-        // ======================
-        //      Draw Vehicle
-        // ======================
-        g2d.setPaint( vehicleColor);
-        for (int i=0; i<veh_vrtx_body.length ; i++) {
-          MatrixOps.MtimesV(veh_vrtx_world[i], bodyToWorldRotation, veh_vrtx_body[i]);
-          MatrixOps.VplusV(veh_vrtx_world[i], veh_vrtx_world[i], vehiclePos);
-          worldToScreenPoint (veh_vrtx_screen[i], veh_vrtx_world[i]);
-        }
-        for (int i=0; i<veh_edges.length; i++) {
-          int point0[] = veh_vrtx_screen[ veh_edges[i][0] ];
-          int point1[] = veh_vrtx_screen[ veh_edges[i][1] ];
-          g2d.drawLine( point0[0], point0[1], point1[0], point1[1]);
-        }
-
         // ==========================
         // Draw World Coordinate Axes
-        // ==========================
+
         double origin_world[] = {0.0, 0.0, 0.0};
         int origin_screen[] = {0, 0};
         worldToScreenPoint( origin_screen, origin_world);

@@ -86,19 +86,54 @@ public class MatrixOps {
     }
 
     public static void VplusV(double R[], double A[], double B[]) {
-        int A_rows = A.length;
-        int B_rows = B.length;
-        int R_rows = R.length;
-
-        if ((A_rows != B_rows) || (A_rows != R_rows)) {
-          System.out.println( "\n vector are wrong size.");
+        if ((A.length != B.length) || (A.length != R.length)) {
+          System.out.println( "\n MatrixOps::VplusV : Vectors are not the same size.");
         }
-        for (int i=0; i<A_rows ; i++) {
+        for (int i=0; i<A.length ; i++) {
           R[i] = A[i] + B[i];
         }
     }
 
-    public static double vector_magnitude (double V[]) {
+    public static void VminusV(double R[], double A[], double B[]) {
+        if ((A.length != B.length) || (A.length != R.length)) {
+          System.out.println( "\n MatrixOps::VminusV : Vectors are not the same size.");
+          return;
+        }
+        for (int i=0; i<A.length ; i++) {
+          R[i] = A[i] - B[i];
+        }
+    }
+    public static void VcrossV(double R[], double A[], double B[]) {
+        if ((R.length != 3) || (A.length != 3) || (B.length != 3)) {
+          System.out.println( "\n MatrixOps::VcrossV : All vector args must be length 3.");
+          return;
+        }
+        R[0] = A[1] * B[2] - A[2] * B[1];
+        R[1] = A[2] * B[0] - A[0] * B[2];
+        R[2] = A[0] * B[1] - A[1] * B[0];
+    }
+    public static double VdotV(double A[], double B[]) {
+        if (A.length != B.length) {
+          System.out.println( "\n MatrixOps::VdotV : Vectors are not the same size.");
+          return 0.0;
+        }
+        double R = 0.0;
+        for (int i=0; i<A.length ; i++) {
+          R += A[i] * B[i];
+        }
+        return R;
+    }
+    public static void Vscale(double R[], double A[], double S) {
+        if (A.length != R.length) {
+          System.out.println( "\n MatrixOps::Vscale : Input and output vectors are not the same size.");
+          return;
+        }
+        for (int i=0; i<A.length ; i++) {
+          R[i] = A[i] * S;
+        }
+    }
+
+    public static double Vmagnitude (double V[]) {
         double S = 0;
         for (int i =0; i < V.length ; i++) {
             S += V[i]*V[i];

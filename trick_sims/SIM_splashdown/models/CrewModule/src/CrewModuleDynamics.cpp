@@ -7,16 +7,29 @@
 #include "trick/trick_math_proto.h"
 
 const double acceleration_of_gravity[3] = {0.0, 0.0, -9.81};
-const double density_of_water = 1025.0;  // kg/m^3  Density of sea water.
 
 CrewModuleDynamics::CrewModuleDynamics() {
     init_defaults();
+}
+
+void CrewModuleDynamics::init_inertia_tensor(double A, double B, double C) {
+  I_body[0][0] = mass_vehicle * (B*B + C*C);
+  I_body[0][1] = 0.0;
+  I_body[0][2] = 0.0;
+  I_body[1][0] = 0.0;
+  I_body[1][1] = mass_vehicle * (A*A + C*C);
+  I_body[1][2] = 0.0;
+  I_body[2][0] = 0.0;
+  I_body[2][1] = 0.0;
+  I_body[2][2] = mass_vehicle * (A*A + B*B);
+  dm_invert(I_body_inverse, I_body);
 }
 
 void CrewModuleDynamics::init_defaults() {
     M_IDENT(R);
     M_INIT(Rdot);
     mass_vehicle = 9300.0;
+    density_of_water = 1025.0;
     momentum[0] = 0.0;
     momentum[1] = 0.0;
     momentum[2] = 0.0;
@@ -27,17 +40,7 @@ void CrewModuleDynamics::init_defaults() {
     angular_momentum[1] = 0.0;
     angular_momentum[2] = 0.0;
     crewModuleShape.transformCoordinates(R, position);
-    double A=1, B=1, C=1;
-    I_body[0][0] = mass_vehicle * (B*B + C*C);
-    I_body[0][1] = 0.0;
-    I_body[0][2] = 0.0;
-    I_body[1][0] = 0.0;
-    I_body[1][1] = mass_vehicle * (A*A + C*C);
-    I_body[1][2] = 0.0;
-    I_body[2][0] = 0.0;
-    I_body[2][1] = 0.0;
-    I_body[2][2] = mass_vehicle * (A*A + B*B);
-    dm_invert(I_body_inverse, I_body);
+    init_inertia_tensor(1.0, 1.0, 1.0);
 }
 
 void CrewModuleDynamics::calcVolumeAndCenterOfBuoyancy() {
