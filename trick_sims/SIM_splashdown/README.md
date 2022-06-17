@@ -189,7 +189,7 @@ Default value is the density of sea water:
 <a id=total_torque></a>
 #### Total Torque
 
-The total torque acting on the crew module is the sum of the [buoyancy torque](#buoyancy_torque), and [drag torque](drag_torque).
+The total torque acting on the crew module is the sum of the [buoyancy torque](#buoyancy_torque), and [drag torque](#drag_torque).
 
 ![torque_total_equation](Images/torque_total_equation_12_pt.png)
 
@@ -198,7 +198,7 @@ The total torque acting on the crew module is the sum of the [buoyancy torque](#
 <a id=buoyancy_torque></a>
 #### Buoyancy Torque
 
-The [force of buoyancy](force_of_buoyancy) acts on the [center of buoyancy](#center_of_buoyancy), that is: the center of mass of the displaced water. So the torque on the vehicle due to buoyancy is:
+The [force of buoyancy](#force_of_buoyancy) acts on the [center of buoyancy](#center_of_buoyancy), that is: the center of mass of the displaced water. So the torque on the vehicle due to buoyancy is:
 
 <a id=Equation-5></a>
 ![Equation 5](Images/torque_buoyancy_equation_12_pt.png)
@@ -264,7 +264,7 @@ Default value is:
 
 The following convenience function:
 
-```crewModule.dyn.init_inertia_tensor(double A, double B, double C);```
+**```crewModule.dyn.init_inertia_tensor(double A, double B, double C);```**
 
 sets the diagonal elements as follows:
 
@@ -308,4 +308,4 @@ In this simulation, the shape of the crew module is defined by a sphere, a cone,
 ```bool CrewModuleShape::containsPoint(double (&test_point)[3])``` returns ```true``` if the given point is 1) in the sphere, 2) in the cone, and 3) on the correct side of the plane.
 
 <a id=inside_pseudo_function></a>
-The pseudo-function ```inside(double p[3])``` used in the integrals above represents logic that determines whether a point is within the displaced volume of water. A point is within the displaced volume if 1) it is within the crew module volume, that is ```containsPoint``` returns ```true```, and 2) it is below the surface of the water, that is the z component of the point is less than 0. 
+The pseudo-function ```inside(double p[3])``` used in the integrals [above](#displaced_volume) represents logic that determines whether a point is within the displaced volume of water. A point is within the displaced volume if 1) it is within the crew module volume, that is ```containsPoint``` returns ```true```, and 2) it is below the surface of the water, that is the z component of the point is less than 0. 
