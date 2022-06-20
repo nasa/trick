@@ -43,7 +43,7 @@ Trick needs the javac compiler included in the Java Development Kit (JDK). Trick
 **Installing both the Oracle JDK and OpenJDK may lead to problems and confusion.**
 
 # Operating Systems
-Trick runs on GNU/Linux and MacOSX, though any System V/POSIX compatible UNIX workstation should accept the Trick software with very little source code porting. Below are instructions for installing the prerequisites on popular operating systems here at NASA.
+Trick runs on GNU/Linux and macOS, though any System V/POSIX compatible UNIX workstation should accept the Trick software with very little source code porting. Below are instructions for installing the prerequisites on popular operating systems here at NASA.
 
 | Quick Jump Menu |
 |---|
