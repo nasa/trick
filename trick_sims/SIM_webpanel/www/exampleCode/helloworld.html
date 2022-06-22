@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/CSS" href="mystyle.css">
+
+    <header>
+        <h1> Working with HTML, JS, and CSS</h1>
+    </header>
+    <body>
+        <script type="text/javascript" src="helloworld.js">
+            function displayDate(){
+                document.write(Date());
+            }
+        </script>
+
+        <!--Changes content of own element using "this" keyword-->
+        <button onclick="this.innerHTML = Date()"> What time is it? </button>
+        <!-- SHOWS AN ALERT WINDOW-->
+        <button onclick="alert('HI')">CLICK ON ME PLEASE</button>
+        <table>
+            <caption><b>Astrological Signs</b></caption>
+            <thead>
+                <tr>
+                <th style="background-color:white" class="empty"></th>
+                <th class="fire">Aries</th>
+                <th class="earth">Taurus</th>
+                <th class="earth">Virgo</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th class="side">Element</th>
+                    <td>Fire</td>
+                    <td>Earth</td>
+                    <td>Earth</td>
+                </tr>
+                <tr>
+                    <th class="side">Symbol</th>
+                    <td>Ram</td>
+                    <td>Bull</td>
+                    <td>Maiden</td>
+                </tr>
+                <tr>
+                    <th class="side">Planet</th>
+                    <td>Mars</td>
+                    <td>Venus</td>
+                    <td>Mercury</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <script>
+            zero.addEventListener('mouseenter', function onClick(){
+                zero.style.backgroundColor = 'red';
+                zero.style.color = "blue";
+            });
+            zero.addEventListener('mouseleave', function onClick(){
+                zero.style.backgroundColor = 'black';
+                zero.style.color = "white";
+            });
+            flower.addEventListener('mouseenter', function onClick(){
+                flower.innerHTML="Click for a surprise"
+            });
+            
+        </script>
+        
+    </body>    
+</html>
