@@ -1,0 +1,122 @@
+html{
+    font-family: sans-serif;
+     background-color: rgb(235, 232, 232); 
+}
+*{
+   /* outline: 2px solid orange; */
+}
+body{
+    /* overflow-x: hidden; */
+}
+div.header{
+    background-image: linear-gradient(#afafff, white)
+}
+
+table.variables {
+    border-collapse: collapse;
+    width: 50%
+}
+th.table, td{
+    border: 2px solid black;
+    text-align: center;
+    font-size: smaller;
+  /* width: 50%; */
+}
+tr:nth-child(even){
+    background-color: #afafff,;
+}
+h2,h1{
+    text-align: center;
+    width: 50%;
+}
+button{
+    border: none;
+    /* background-color: rgb(199, 199, 199); */
+    font-size: larger;
+}
+table{
+    width: 100px;
+}
+
+#command{
+    border: 1px solid black;
+    background-color: rgb(103, 161, 243); /* 133,172, 228 */
+    text-align: left; 
+}
+.commands{
+   /* background-color: rgb(56, 55, 100); */
+    width: 10vw;
+    
+}
+#variableDisplay {
+    display: flex;
+    flex-direction: column;
+}
+hr{
+    size: 1px;
+}
+#parent{
+    display: grid;
+  /*  grid-template-columns: auto auto auto auto;
+   grid-template-rows: auto auto auto auto; */
+    grid-template-columns: 1fr 300px 1fr;
+    grid-gap: 1rem;
+    
+   
+   
+}
+#navchild{
+   /* background-color: orange; */
+    grid-row: 2;
+    grid-column: 1/span 4;
+    border-bottom: 1px solid black;
+    
+}
+#modechild{
+   /* background-color:rgb(14, 236, 25); */
+    grid-row: 3;
+    grid-column: 1;
+    border:  1px solid black;
+    
+}
+#headerchild{
+  /*  background-color: rgb(207, 207, 207); */
+    grid-row: 1;
+    grid-column: 1/ span 4;
+    font-size: smaller;
+    
+
+}
+#tablechild{
+   /* background-color: blue; */
+    grid-row: 4;
+    grid-column: 4;
+}
+#buttonchild{
+    grid-row: 4;
+    grid-column: 1;
+   /*  background-color: red; */
+    border: 1px solid black;
+   
+   
+}
+#barchild{
+    grid-row: 3;
+    grid-column: 2/span 3;
+    /* background-color: rgb(255, 1, 149) */
+}
+#bottomchild{
+    grid-row: 5;
+    grid-column: 1/span 2;
+   /*  background-color: rgb(251, 255, 13); */
+}
+#extrabottomchild{
+    grid-row: 6;
+    grid-column: 1/span 2;
+    /*background-color: rgb(0, 225, 255); */
+}
+
+#timechild{
+    grid-row: 4;
+    grid-column: 2;
+}

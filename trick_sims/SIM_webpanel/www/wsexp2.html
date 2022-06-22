@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/CSS" href="wsexp.css">
+    <title>WS Experiments</title>
+<!--START OF GRID LAYOUT -->
+<body>
+    <div id="parent"> 
+        <nav id="navchild" style="font-size: small">
+            <button onclick="file()" style="float: right; border: 1px solid black;"><u>F</u>ile</button>
+            <button onclick="actions()" style="float: right; border: 1px solid black;"><u>A</u>ctions</button>
+        </nav>
+        <header id="headerchild">
+            <img src="images/trick_icon.png" height="60" width="60" style="float: left;">
+            <h1>Sim Control</h1>
+            <hr>
+        </header> 
+        <div id="tablechild"> 
+            
+            <table class="variables" style="width: 100%;">
+                <div>
+                <h2 style="width: 100%; text-align: center;">Simulation Variable Table</h2>
+                    <tr>
+                        <th class="table">Variable</th>
+                        <th class="table">Value</th>
+                    </tr> 
+                </div>
+            </table>
+        </div>
+        <div id="modechild">
+        <table style="width: 100%;">
+            <tr>
+                <th style="background-color: rgb(103, 161, 243)">MODE</th>
+                <tr>
+                    <td>PERCENTAGE</td>
+                </tr>
+                
+            </tr>
+        </table>
+        </div>
+        <div id="buttonchild" >
+            <table class="commands"style="width: 100%; height: 100%;" >
+       
+                <th id="command" colspan="2" >Commands</th>
+                
+                <tr>
+                    <td><button onclick="stepSIM(value)">Step</button> </td>
+                    <td><button onclick="">Data Rec On</button></td>
+                </tr>
+           
+                <tr>
+                    <td><button onclick="startSIM()">Start</button></td>
+                    <td><button onclick="stopSIM()">RealTime On</button></td>
+                </tr>
+                <tr>
+                   <td><button onclick="freezeSIM()">Freeze</button></td> 
+                   <td><button onclick="">Dump Chkpnt</button></td>
+                </tr>
+                <tr>
+                    <td><button onclick="shutdownSIM()">Shutdown</button></td> 
+                    <td><button onclick="">Load Chkpnt</button></td> 
+                </tr>
+                <tr>
+                    <!-- Instead of resizing the window, I would like to 
+                    create a second window that contains the buttons and what not -->
+                    <td><button onclick="liteSIM()">Lite</button></td> 
+                    <td><button onclick="">E<u>x</u>it</button></td> 
+                </tr>
+           
+            </table>
+        </div>
+        <div id="barchild">
+            Here is a place for the buttons that start Trick TV, MTV, and Throttle.
+            <hr>
+        </div>
+        <div id="bottomchild">
+            <table style="width: 100vw;"> 
+                <tr> 
+                    <th style="background-color: rgb(103, 161, 243)">Simulations/Overruns</th>
+                </tr>
+                <tr>
+                    <td>This is where the path goes</td>
+                </tr>
+            </table>
+        </div>
+        <div id="extrabottomchild"> 
+            <table style="width: 100vw;"> 
+                <tr> 
+                    <th style="background-color: rgb(103, 161, 243)">Status Messages</th>
+                </tr>
+                <tr>
+                    <td>Space for the status messages</td>
+                </tr>
+            </table>
+        </div>
+        <div id="timechild">
+            <table style="height: 85%">
+                <tr>
+                    <th style="background-color: rgb(103, 161, 243)" >Time</th>
+                </tr>
+                <tr>
+                    <th>RET (sec)</th>
+                </tr>
+                <tr>
+                    <td id="RET" script="displayTime()">0</td>
+                </tr>
+                <tr>
+                    <th>Sim / Real Time</th>
+                </tr>
+                    <td>1</td>
+            </table>
+        </div>
+    </div>
+    
+
+  
+    <div id="output">
+        <script type="text/javascript">
+           
+            function log(s) {
+                var p = document.createElement("p");
+                p.style.wordWrap = "break-word";
+                p.textContent = s;
+                output.appendChild(p);
+            }
+            function sendMessage(msg) {
+                ws.send(msg);
+                log("Sent : " + msg);
+            }
+            // Interface to Trick WebSocket Variable Server
+            function setPeriod(period) {
+                sendMessage(`{"cmd":"var_cycle","period":${period}}`);
+            }
+            function addVarTableRow(name, value) {
+                // create a row in the table that contains two <td>s, one for the var_name and one for its value.
+                let tr = document.createElement('tr');  
+                let td1 = document.createElement('td');
+                td1.textContent = `${name}`;
+                let td2 = document.createElement('td');
+                td2.textContent = `${value}`;
+                td2.className = "values";
+                tr.appendChild(td1);
+                tr.appendChild(td2);
+                varTable.appendChild(tr);
+            }
+            function addVariable(name, value) {
+                sendMessage(`{"cmd":"var_add","var_name": "${name}"}`);
+                addVarTableRow(name, value);
+            }
+            function shutdownSIM(){
+                sendMessage(`{"cmd": "python", "pycode": "trick.stop()"}`);
+            }
+            function startSIM(){
+              /* send message through wire from variable server client (website) to
+              the variable server (which controls the mode via the Java file ???) */
+                sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
+            }
+            function freezeSIM(){
+                sendMessage(`{"cmd": "python", "pycode": "trick.exec_freeze()"}`);
+            }
+            function liteSIM(){
+                window.resizeBy(10,50);
+                window.resizeTo(100,50);
+            }
+            function stepSIM(value){
+                // Now the button is not functioning at all 
+                log("The value is " + trick_instruments.debug_pause.debug_pause_flag);
+                sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_on()"}`);
+
+                let debug_flag = 0;
+                if (debug_flag == 0){
+                    sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_on()"}`);
+                    sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
+                } else {
+                    sendMessage(`{"cmd": "python", "pycode": "trick.debug_signal()"}`);
+
+                }
+               
+                //sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
+            }
+            function displayTime(value){
+                document.getElementById("RET").textContent = `${value}`;
+            }
+            var varTable = document.querySelector('table.variables');
+            var ws = new WebSocket('ws://localhost:8888/api/ws/VariableServer');
+  
+            // WebSocket Event Handlers
+            ws.onopen = function(e) {
+                log("Connection established");
+                setPeriod(100);
+                addVarTableRow("Time", 0.0);
+                addVariable("trick_sys.sched.mode", 1);
+                addVariable("trick_sys.name", 'trick_sys');
+                addVariable("dyn.balloon.pos[0]", 0.0);
+                addVariable("dyn.balloon.pos[1]", 0.0);
+                addVariable("dyn.balloon.vel[0]", 0.0);
+                addVariable("dyn.balloon.vel[1]", 0.0);
+                addVariable("dyn.balloon.envelope_air_temperature", 92.0);
+                addVariable("dyn.balloon.wind_speed", 0.0);
+                addVariable("trick_instruments.debug_pause.debug_pause_flag", false);
+                sendMessage('{\"cmd\":\"var_unpause\"}');
+
+            };
+            ws.onmessage = function(e) {
+               log("Recieved : " + e.data);
+               let msg = JSON.parse(e.data);
+               if (msg.msg_type == "values") {
+                   let valueNodes = varTable.getElementsByClassName("values");
+                   valueNodes[0].textContent = msg.time;
+                   displayTime(msg.time); 
+                   valueNodes[9].textContent = msg.trick_instruments.debug_pause.debug_pause_flag;
+                   //stepSim(msg.trick_instruments.debug_pause.debug_pause_flag);
+                   for (let i = 0; i < msg.values.length; i++ ) {
+                        valueNodes[i+1].textContent = msg.values[i];
+                       
+                   }
+               }
+
+            }; 	
+            ws.onerror = function(e) {
+               console.log("WebSocket Error: " , e);
+               handleErrors(e);
+            };
+            ws.onclose = function(e) {
+               console.log("Connection closed", e);
+            };
+  
+        </script>
+    </div>
+</body>
+</html>

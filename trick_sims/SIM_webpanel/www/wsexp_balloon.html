@@ -1,0 +1,162 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <title>WS Experiments</title>
+    <div class="parent"></div>
+    <div>
+    <h1>TRICK SIMULATION VARIABLE SERVER CLIENT</h1>
+    </div>
+  </head>
+  <hr>
+  <body>
+    <link rel="stylesheet" type="text/CSS" href="trick.css">
+
+    
+    <!--<link rel="stylesheet" type="text/CSS" href="example.css"> -->
+
+    <!--HOW TO MAKE BUTTONS SIDE BY SIDE -->
+   <div class="parent">
+    
+        
+            <div class="variableDisplay"></div>
+                <table class="variables">
+                    <th><h2>Simulation Variable Table</h2></th>
+                        <tr> 
+                            <th>Variable</th>
+                            <th>Value</th>
+                        </tr>
+                </table>
+            
+     
+  
+
+    
+            <!--
+                <button onclick="startSIM()">Start</button> 
+            <button onclick="stopSIM()">Stop</button>
+            <button onclick="shutdownSIM()">Shut down</button>
+    -->
+
+
+
+
+
+
+
+        <div class="variableDisplay"></div>
+      
+        <table class="variables">
+            <h2>Simulation Variable Table</h2>
+            <tr> 
+
+                <th>Variable</th>
+                <th>Value</th>
+            </tr>
+        </table>
+ 
+        <!--<div class="child"><button onclick="startSIM()"><button onclick="stopSIM()"></button>Start</button> </div>-->
+        <!--<div class="child"><button onclick="stopSIM()">Stop</button></div> -->
+              
+  
+    
+<!--
+     <button onclick="startSIM()">Start</button> 
+     <button onclick="stopSIM()">Stop</button>
+      <div class="variableDisplay"></div>
+      <h1>Simulation Variable Table</h1>
+      <table class="variables">
+          <tr>
+              <th>Variable</th>
+              <th>Value</th>
+          </tr>
+      </table>
+      -->
+    </div>
+     <div id="output"></div> 
+      <script type="text/javascript">
+
+          function log(s) {
+              var p = document.createElement("p");
+              p.style.wordWrap = "break-word";
+              p.textContent = s;
+              output.appendChild(p);
+          }
+          function sendMessage(msg) {
+              ws.send(msg);
+              log("Sent : " + msg);
+          }
+
+          // Interface to Trick WebSocket Variable Server
+          function setPeriod(period) {
+              sendMessage(`{"cmd":"var_cycle","period":${period}}`);
+          }
+          function addVarTableRow(name, value) {
+              // create a row in the table that contains two <td>s, one for the var_name and one for its value.
+              let tr = document.createElement('tr');
+              let td1 = document.createElement('td');
+              td1.textContent = `${name}`;
+              let td2 = document.createElement('td');
+              td2.textContent = `${value}`;
+              td2.className = "values";
+              tr.appendChild(td1);
+              tr.appendChild(td2);
+              varTable.appendChild(tr);
+          }
+          function addVariable(name, value) {
+              sendMessage(`{"cmd":"var_add","var_name": "${name}"}`);
+              addVarTableRow(name, value);
+          }
+          function shutdownSIM(){
+            sendMessage(`{"cmd": "python", "pycode": "trick.exec_stop()\n"}`);
+          }
+          function startSIM(name, value){
+            /* send message through wire from variable server client (website) to
+            the variable server (which controls the mode via the Java file ???) */
+               sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
+          }
+          function stopSIM(name,value){
+            sendMessage(`{"cmd": "python", "pycode": "trick.exec_freeze()"}`);
+          }
+          var varTable = document.querySelector('table.variables');
+          var ws = new WebSocket('ws://localhost:8888/api/ws/VariableServer');
+
+          // WebSocket Event Handlers
+          ws.onopen = function(e) {
+              log("Connection established");
+              setPeriod(100);
+              addVarTableRow("Time", 0.0);
+              addVariable("trick_sys.sched.mode", 1);
+              addVariable("trick_sys.name", 'trick_sys');
+              addVariable("dyn.balloon.pos[0]", 0.0);
+              addVariable("dyn.balloon.pos[1]", 0.0);
+              addVariable("dyn.balloon.vel[0]", 0.0);
+              addVariable("dyn.balloon.vel[1]", 0.0);
+              addVariable("dyn.balloon.envelope_air_temperature", 92.0);
+              addVariable("dyn.balloon.wind_speed", 0.0);
+
+              // Requesting the sim mode but it returns an error 
+              
+              sendMessage("{\"cmd\":\"var_unpause\"}");
+          };
+          ws.onmessage = function(e) {
+             log("Recieved : " + e.data);
+             let msg = JSON.parse(e.data);
+             if (msg.msg_type == "values") {
+                 let valueNodes = varTable.getElementsByClassName("values");
+                 valueNodes[0].textContent = msg.time;
+                 for (let i = 0; i < msg.values.length; i++ ) {
+                     valueNodes[i+1].textContent = msg.values[i];
+                 }
+             }
+          };
+          ws.onerror = function(e) {
+             console.log("WebSocket Error: " , e);
+             handleErrors(e);
+          };
+          ws.onclose = function(e) {
+             console.log("Connection closed", e);
+          };
+
+      </script>
+  </body>
+</html>
