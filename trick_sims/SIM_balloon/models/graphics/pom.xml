@@ -81,7 +81,7 @@
               <manifest>
                 <addClasspath>true</addClasspath>
                 <classpathPrefix>lib/</classpathPrefix>
-                <mainClass>trick.CMDisplay</mainClass>
+                <mainClass>BalloonDisplay</mainClass>
               </manifest>
             </archive>
           </configuration>
