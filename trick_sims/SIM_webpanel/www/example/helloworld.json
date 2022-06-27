@@ -1,0 +1,24 @@
+[{
+    "firstName": "Zero",
+    "lastName": "Nelson",
+    "favs": ["ice cream", "flowers", "peace"],
+    "car": {
+        "make&model": "Mazda 6",
+        "year": 2011,
+        "color": "gray",
+        "type": "sedan"
+    }
+}
+,{
+    "firstName": "Litzy",
+    "lastName": "Membrano",
+    "favs": ["food", "flowers", "Zero"],
+    "car": {
+        "make&model": "Toyota Yaris",
+        "year": 2010,
+        "color": "blue",
+        "type": "sedan"
+
+    }
+}
+]

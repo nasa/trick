@@ -1,0 +1,5 @@
+h1 {font-family: sans-serif, cursive, serif;font-size: 32px;margin-left: 1em;}
+h2 {font-family: sans-serif;font-size: 18px;margin-left: 1em;}
+a {font-family: sans-serif;font-size: 16px;}
+div.header { background-image: linear-gradient(#afafff, white);}
+.button{width: 20%}
