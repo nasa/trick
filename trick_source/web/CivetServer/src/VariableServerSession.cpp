@@ -41,7 +41,7 @@ VariableServerSession::~VariableServerSession() {
    (The specified period between messages).
 */
 void VariableServerSession::marshallData() {
-    long long simulation_time_tics = exec_get_time_tics();
+    long long simulation_time_tics = exec_get_time_tics() + exec_get_freeze_time_tics();
     if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
         stageValues();
         nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
@@ -170,7 +170,7 @@ void VariableServerSession::addVariable(char* vname){
 }
 
 void VariableServerSession::stageValues() {
-    stageTime = (double)exec_get_time_tics() / exec_get_time_tic_value();
+    stageTime = (double)(exec_get_time_tics() + exec_get_freeze_time_tics()) / exec_get_time_tic_value();
     std::vector<VariableServerVariable*>::iterator it;
     for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
         (*it)->stageValue();
