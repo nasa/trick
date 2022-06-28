@@ -149,7 +149,7 @@ public class ProductVar {
 				return 4.0;
 			}	
 		},
-		SYMBOL_MEDIEUM("Medieum") {
+		SYMBOL_MEDIUM("Medium") {
 			@Override
 			public double getDouble() {
 				return 6.0;
@@ -744,7 +744,7 @@ public class ProductVar {
     		}
     	}
     	
-    	double size = SymbolSize.SYMBOL_MEDIEUM.getDouble();
+    	double size = SymbolSize.SYMBOL_MEDIUM.getDouble();
     	if (symbolSize != null) {
     		size = symbolSize.getDouble();
     	}
