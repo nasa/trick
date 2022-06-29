@@ -170,7 +170,7 @@ void VariableServerSession::addVariable(char* vname){
 }
 
 void VariableServerSession::stageValues() {
-    stageTime = (double)(exec_get_time_tics() + exec_get_freeze_time_tics()) / exec_get_time_tic_value();
+    stageTime = (double)(exec_get_time_tics()) / exec_get_time_tic_value();
     std::vector<VariableServerVariable*>::iterator it;
     for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
         (*it)->stageValue();
