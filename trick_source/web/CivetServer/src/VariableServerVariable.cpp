@@ -119,6 +119,9 @@ void VariableServerVariable::writeValue( std::ostream& outs ) {
         case TRICK_UNSIGNED_SHORT:
             outs << std::dec << *(unsigned short*)stageBuffer;
             break;
+        case TRICK_ENUMERATED:
+            outs << std::dec << *(int*)stageBuffer;
+            break;
         case TRICK_INTEGER:
             outs << std::dec << *(int*)stageBuffer;
             break;
