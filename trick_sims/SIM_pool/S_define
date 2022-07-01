@@ -1,0 +1,24 @@
+/************************************************************
+PURPOSE:
+    ( Simulation of Pool Table. )
+LIBRARY DEPENDENCIES:
+    ((pool_table/src/pool_table.cpp))
+*************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "pool_table/include/pool_table.hh"
+
+class PoolTableSimObject : public Trick::SimObject {
+    public:
+    PoolTable table;
+
+    PoolTableSimObject() {
+        ("default_data")            table.default_data() ;
+        ("initialization")          table.state_init() ;
+        ("derivative")              table.state_deriv() ;
+        ("integration") trick_ret = table.state_integ() ;
+        ("dynamic_event")           table.collision() ;
+    }
+};
+
+PoolTableSimObject dyn;
+IntegLoop dyn_integloop(0.1) dyn;
