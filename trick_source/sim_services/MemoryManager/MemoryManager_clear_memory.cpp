@@ -307,7 +307,7 @@ void Trick::MemoryManager::reset_memory() {
 
     n_addrs = deletion_list.size();
     for (ii = 0 ; ii < n_addrs ; ii ++) {
-        delete_var( deletion_list[ii], false);
+        delete_var( deletion_list[ii], true);
     }
 
     // reset counter to 100mil.  This (hopefully) ensures all alloc'ed ids are after external variables.
