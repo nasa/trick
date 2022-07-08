@@ -157,6 +157,8 @@ class SnapOptions : public Options
     QString buttonZoom;
     QString buttonReset;
     QString platform;
+    QString xaxislabel;
+    QString yaxislabel;
 };
 
 SnapOptions opts;
@@ -299,6 +301,10 @@ int main(int argc, char *argv[])
              &opts.buttonReset,"right","left, middle or right mouse button");
     opts.add("-platform",
              &opts.platform,"","Set to \"offscreen\" for pdf without X");
+    opts.add("-xaxislabel",
+             &opts.xaxislabel,"","X axis label override");
+    opts.add("-yaxislabel",
+             &opts.yaxislabel,"","Y axis label override");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -1022,6 +1028,16 @@ int main(int argc, char *argv[])
             exit(-1);
         }
 
+        // Axis labels
+        QString xaxislabel = opts.xaxislabel;
+        if ( xaxislabel.isEmpty() && session ) {
+            xaxislabel = session->xAxisLabel();
+        }
+        QString yaxislabel = opts.yaxislabel;
+        if ( yaxislabel.isEmpty() && session ) {
+            yaxislabel = session->yAxisLabel();
+        }
+
         // Create book model
         PlotBookModel* bookModel = new PlotBookModel(timeNames,runs,0,1);
         if ( titles.size() == 4 ) {
@@ -1114,10 +1130,10 @@ int main(int argc, char *argv[])
                                      plotLegendPosition );
         bookModel->addChild(rootItem,"ButtonSelectAndPan",
                                      opts.buttonSelectAndPan );
-        bookModel->addChild(rootItem,"ButtonZoom",
-                                     opts.buttonZoom );
-        bookModel->addChild(rootItem,"ButtonReset",
-                                     opts.buttonReset );
+        bookModel->addChild(rootItem,"ButtonZoom",opts.buttonZoom );
+        bookModel->addChild(rootItem,"ButtonReset",opts.buttonReset );
+        bookModel->addChild(rootItem,"XAxisLabel",xaxislabel );
+        bookModel->addChild(rootItem,"YAxisLabel",yaxislabel );
 
         if ( isTrk ) {
 

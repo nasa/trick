@@ -84,14 +84,20 @@ QString XAxisLabelLayoutItem::_xAxisLabelText() const
         return label;
     }
 
-    label = _bookModel->getDataString(_plotIdx,"PlotXAxisLabel");
+    // Try commandline option for xaxislabel
+    label = _bookModel->getDataString(QModelIndex(),"XAxisLabel");
 
-    QModelIndex curvesIdx = _bookModel->getIndex(_plotIdx,"Curves","Plot");
-    QString unit = _bookModel->getCurvesXUnit(curvesIdx);
+    if ( label.isEmpty() ) {
+        // Normal case when xaxislabel not overridden with command line option
+        label = _bookModel->getDataString(_plotIdx,"PlotXAxisLabel");
 
-    label = label.trimmed();
-    if ( !label.isEmpty() ) {
-        label = label + " {" + unit + "}";
+        QModelIndex curvesIdx = _bookModel->getIndex(_plotIdx,"Curves","Plot");
+        QString unit = _bookModel->getCurvesXUnit(curvesIdx);
+
+        label = label.trimmed();
+        if ( !label.isEmpty() ) {
+            label = label + " {" + unit + "}";
+        }
     }
 
     return label;

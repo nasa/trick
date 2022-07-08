@@ -18,7 +18,9 @@ Session::Session() :
     _videoFileName(""),
     _videoOffset(0.0),
     _isShowPageTitle(true),
-    _isShowPlotLegend("")
+    _isShowPlotLegend(""),
+    _xAxisLabel(""),
+    _yAxisLabel("")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -51,7 +53,9 @@ Session::Session(const QString &sessionFileName) :
     _videoOffset(0.0),
     _isShowPageTitle(true),
     _isShowPlotLegend(""),
-    _plotLegendPosition("ne")
+    _plotLegendPosition("ne"),
+    _xAxisLabel(""),
+    _yAxisLabel("")
 {
     _titles << "" << "" << "" << "";
     _colors << "" << "" << ""
@@ -448,6 +452,24 @@ Session::Session(const QString &sessionFileName) :
                                _plotLegendPosition.toLatin1().constData(),
                                sessionFileName.toLatin1().constData());
                 exit(-1);
+            }
+        } else if ( line.contains("xaxislabel:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("xaxislabel:",0,Qt::CaseInsensitive);
+            _xAxisLabel = line.mid(i+11).trimmed();
+            if ( _xAxisLabel.startsWith("\"") ) {
+                _xAxisLabel = _xAxisLabel.mid(1);
+            }
+            if ( _xAxisLabel.endsWith("\"") ) {
+                _xAxisLabel.chop(1);
+            }
+        } else if ( line.contains("yaxislabel:",Qt::CaseInsensitive) ) {
+            int i = line.indexOf("yaxislabel:",0,Qt::CaseInsensitive);
+            _yAxisLabel = line.mid(i+11).trimmed();
+            if ( _yAxisLabel.startsWith("\"") ) {
+                _yAxisLabel = _yAxisLabel.mid(1);
+            }
+            if ( _yAxisLabel.endsWith("\"") ) {
+                _yAxisLabel.chop(1);
             }
         }
     }

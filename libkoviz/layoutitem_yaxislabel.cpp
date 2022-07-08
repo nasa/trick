@@ -86,14 +86,20 @@ QString YAxisLabelLayoutItem::_yAxisLabelText() const
         return label;
     }
 
-    label = _bookModel->getDataString(_plotIdx,"PlotYAxisLabel");
+    // Try commandline option for yaxislabel
+    label = _bookModel->getDataString(QModelIndex(),"YAxisLabel");
 
-    QModelIndex curvesIdx = _bookModel->getIndex(_plotIdx,"Curves","Plot");
-    QString unit = _bookModel->getCurvesYUnit(curvesIdx);
+    if ( label.isEmpty() ) {
+        // Normal case when yaxislabel not overridden with command line option
+        label = _bookModel->getDataString(_plotIdx,"PlotYAxisLabel");
 
-    label = label.trimmed();
-    if ( !label.isEmpty() ) {
-        label = label + " {" + unit + "}";
+        QModelIndex curvesIdx = _bookModel->getIndex(_plotIdx,"Curves","Plot");
+        QString unit = _bookModel->getCurvesYUnit(curvesIdx);
+
+        label = label.trimmed();
+        if ( !label.isEmpty() ) {
+            label = label + " {" + unit + "}";
+        }
     }
 
     return label;

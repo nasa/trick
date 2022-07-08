@@ -79,6 +79,8 @@ public:
     bool isShowPageTitle() const { return _isShowPageTitle; }
     QString isShowPlotLegend() const { return _isShowPlotLegend; }
     QString plotLegendPosition() const { return _plotLegendPosition; }
+    QString xAxisLabel() const { return _xAxisLabel; }
+    QString yAxisLabel() const { return _yAxisLabel; }
 
 private:
     Session();
@@ -113,6 +115,8 @@ private:
     bool _isShowPageTitle;
     QString _isShowPlotLegend;
     QString _plotLegendPosition;
+    QString _xAxisLabel;
+    QString _yAxisLabel;
 };
 
 #endif // SESSION_H
