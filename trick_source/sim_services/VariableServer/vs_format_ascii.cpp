@@ -129,13 +129,23 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             sprintf(value, "%s%u", value, (unsigned int)cv_convert_double(var->conversion_factor,*(unsigned int *)buf_ptr));
             break;
 
-        case TRICK_LONG:
-            sprintf(value, "%s%ld", value, (long)cv_convert_double(var->conversion_factor,*(long *)buf_ptr));
+        case TRICK_LONG: {
+            long l = *(long *)buf_ptr;
+            if (var->conversion_factor != cv_get_trivial()) {
+                l = (long)cv_convert_double(var->conversion_factor, l);
+            }
+            sprintf(value, "%s%ld", value, l);
             break;
+        }
 
-        case TRICK_UNSIGNED_LONG:
-            sprintf(value, "%s%lu", value, (unsigned long)cv_convert_double(var->conversion_factor,*(unsigned long *)buf_ptr));
+        case TRICK_UNSIGNED_LONG: {
+            unsigned long ul = *(unsigned long *)buf_ptr;
+            if (var->conversion_factor != cv_get_trivial()) {
+                ul = (unsigned long)cv_convert_double(var->conversion_factor, ul);
+            }
+            sprintf(value, "%s%lu", value, ul);
             break;
+        }
 
         case TRICK_FLOAT:
             sprintf(value, "%s%.8g", value, cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
@@ -145,21 +155,23 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             sprintf(value, "%s%.16g", value, cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
             break;
 
-        case TRICK_LONG_LONG:
-            // This is a work-round for when terminate_time is not defined and is requested through variable server.
-            // When sim terminate time is not defined, the related variable is the max of the type.
-            // The unit conversion calculation will throw floating point exception.
-            // For trick_sys.sched.terminate_time, there is no need to perform such conversion.
-            if (!var_name.compare("trick_sys.sched.terminate_time")) {
-                    sprintf(value, "%s%lld", value, *(long long *)buf_ptr);
-            } else {
-                    sprintf(value, "%s%lld", value, (long long)cv_convert_double(var->conversion_factor,*(long long *)buf_ptr));
+        case TRICK_LONG_LONG: {
+            long long ll = *(long long *)buf_ptr;
+            if (var->conversion_factor != cv_get_trivial()) {
+                ll = (long long)cv_convert_double(var->conversion_factor, ll);
             }
+            sprintf(value, "%s%lld", value, ll);
             break;
+        }
 
-        case TRICK_UNSIGNED_LONG_LONG:
-            sprintf(value, "%s%llu", value,(unsigned long long)cv_convert_double(var->conversion_factor,*(unsigned long long *)buf_ptr));
+        case TRICK_UNSIGNED_LONG_LONG: {
+            unsigned long long ull = *(unsigned long long *)buf_ptr;
+            if (var->conversion_factor != cv_get_trivial()) {
+                ull = (unsigned long long)cv_convert_double(var->conversion_factor, ull);
+            }
+            sprintf(value, "%s%llu", value, ull);
             break;
+        }
 
         case TRICK_NUMBER_OF_TYPES:
             sprintf(value, "BAD_REF" );
