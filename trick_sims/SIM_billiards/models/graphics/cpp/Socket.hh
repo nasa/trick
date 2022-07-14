@@ -9,7 +9,8 @@
 class Socket {
 
   public:
-    Socket (std::string hostname, int port);
+    Socket ();
+    int init(std::string hostname, int port);
 
     int send (std::string message);
     int operator<< (std::string message);
@@ -18,8 +19,9 @@ class Socket {
     void operator>> (std::string& ret);
 
   private:
-    int port;
-    std::string hostname;
-    int socket_fd;
+    int _port;
+    std::string _hostname;
+    int _socket_fd;
+    bool _initialized;
 
 };

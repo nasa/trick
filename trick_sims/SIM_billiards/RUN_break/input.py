@@ -2,7 +2,7 @@ import math
 
 exec(open("./Modified_data/realtime.py").read())
 
-dyn.table.numBalls = 11
+dyn.table.numBalls = 16
 dyn.table.balls = trick.TMM_declare_var_1d("Ball*", dyn.table.numBalls)
 
 ballRadius = 0.02
@@ -30,11 +30,11 @@ dyn.table.addBall(center_x+unit_pos[0]*6*(ballRadius+tol), center_y+unit_pos[1]*
 dyn.table.addBall(center_x+unit_neg[0]*6*(ballRadius+tol), center_y+unit_neg[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
 dyn.table.addBall(center_x+unit_pos[0]*6*(ballRadius+tol), center_y+unit_pos[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
 
-# dyn.table.addBall(center_x+unit_neg[0]*8*(ballRadius+tol), center_y+unit_neg[1]*8*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_pos[0]*8*(ballRadius+tol), center_y+unit_pos[1]*8*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_neg[0]*8*(ballRadius+tol), center_y+unit_neg[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_pos[0]*8*(ballRadius+tol), center_y+unit_pos[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_pos[0]*8*(ballRadius+tol), center_y, ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_neg[0]*8*(ballRadius+tol), center_y+unit_neg[1]*8*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*8*(ballRadius+tol), center_y+unit_pos[1]*8*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_neg[0]*8*(ballRadius+tol), center_y+unit_neg[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*8*(ballRadius+tol), center_y+unit_pos[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*8*(ballRadius+tol), center_y, ballMass, ballRadius, False)
 
 corners = [-.5, -.25, .5, .25]
 
@@ -110,13 +110,17 @@ bumperShapes = [    [bumperBorders[0][0], bumperBorders[0][1]-bumperWidth, bumpe
 
 bumperShapeTypes = [3, 3, 3, 3, 3, 3, 2, 2,2,2,2, 2, 2, 2,2,2, 2, 2]
 
-dyn.table.numBumpers = len(bumperBorders)
+
+bumperNum = len(bumperBorders)
+print("Num bumpers: ", len(bumperBorders))
+dyn.table.numBumpers = bumperNum
 dyn.table.bumpers = trick.TMM_declare_var_1d("Bumper*", dyn.table.numBumpers)
 
-for i in range(len(bumperBorders)):
-    id = dyn.table.addBumper(len(bumperShapes[i])/2, bumperBorders[i][0], bumperBorders[i][1], bumperBorders[i][2],bumperBorders[i][3])
-    dyn.table.bumpers[id][0].numPoints = len(bumperShapes[i])/2
-    dyn.table.bumpers[id][0].renderedShape = trick.TMM_declare_var_1d("Vec*", dyn.table.bumpers[id].numPoints)
+for i in range(bumperNum):
+    numPoints = len(bumperShapes[i])/2
+    id = dyn.table.addBumper(numPoints, bumperBorders[i][0], bumperBorders[i][1], bumperBorders[i][2],bumperBorders[i][3])
+    dyn.table.bumpers[id][0].numPoints = numPoints
+    dyn.table.bumpers[id][0].renderedShape = trick.TMM_declare_var_1d("Vec*", numPoints)
 
     dyn.table.bumpers[id][0].shapeType = bumperShapeTypes[i]
     for j in range(0, len(bumperShapes[i]), 2):
