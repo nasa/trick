@@ -17,7 +17,6 @@ class PoolTableSimObject : public Trick::SimObject {
         ("derivative")              table.state_deriv() ;
         ("integration") trick_ret = table.state_integ() ;
         ("dynamic_event")           table.collision() ;
-        // ("dynamic_event")           table.bumperCollision() ; 
     }
 };
 

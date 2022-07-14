@@ -54,7 +54,7 @@ bumperWidth = 0.03
 
 
 dyn.table.numTablePoints = 6
-dyn.table.tableShape = trick.TMM_declare_var_1d("Point*", dyn.table.numTablePoints)
+dyn.table.tableShape = trick.TMM_declare_var_1d("Vec*", dyn.table.numTablePoints)
 dyn.table.tableShapeType = 0  # generic
 for corner in corners:
     dyn.table.addPointToTable(corner[0], corner[1])
@@ -77,7 +77,7 @@ for i in range(len(corners)):
     id = dyn.table.addBumper(3, p1[0], p1[1], p2[0], p2[1])
     dyn.table.bumpers[id][0].shapeType = 2 # Triangle i guess?
     dyn.table.bumpers[id][0].numPoints = 3
-    dyn.table.bumpers[id][0].renderedShape = trick.TMM_declare_var_1d("Point*", dyn.table.bumpers[id].numPoints)
+    dyn.table.bumpers[id][0].renderedShape = trick.TMM_declare_var_1d("Vec*", dyn.table.bumpers[id].numPoints)
     dyn.table.addPointToBumper(id, p1[0], p1[1])
     dyn.table.addPointToBumper(id, p2[0], p2[1])
     p3 = [(p1[0] + p2[0])/2,(p1[1] + p2[1])/2]
@@ -91,7 +91,7 @@ dyn_integloop.getIntegrator(trick.Euler, 6*dyn.table.numBalls)
 varServerPort = trick.var_server_get_port();
 
 # This will definitely change to something else
-PoolTableDisplay_path = "models/graphics/libigl-example-project/build/example"
+PoolTableDisplay_path = "models/graphics/cpp/build/PoolTableDisplay"
 
 
 if (os.path.isfile(PoolTableDisplay_path)) :
@@ -100,9 +100,9 @@ if (os.path.isfile(PoolTableDisplay_path)) :
     print(PoolTableDisplay_cmd)
     os.system( PoolTableDisplay_cmd);
 else :
-    print('=================================================================================================')
-    print('PoolTableDisplay needs to be built. Please \"cd\" into ../models/graphics/java and type \"make\".')
-    print('=================================================================================================')
+    print('===================================')
+    print('PoolTableDisplay needs to be built.')
+    print('===================================')
 
 
 # PoolTableDisplay_path = "models/graphics/java/dist/PoolTableDisplay.jar"

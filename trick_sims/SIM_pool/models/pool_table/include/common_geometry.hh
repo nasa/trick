@@ -6,18 +6,29 @@ LIBRARY DEPENDENCY:
 #ifndef _common_hh_
 #define _common_hh_
 
+#include "math.h"
+#include "iostream"
+
 // Should maybe swap this for eigen stuff at some point
 class Vec {
     public:
         Vec(double x, double y) : _x(x), _y(y), _z(0) {}
         Vec(double x, double y, double z) : _x(x), _y(y), _z(z) {}
-        Vec() {}
+        Vec() : _x(0), _y(0), _z(0) {}
 
         Vec operator+ (const Vec& other) {
             Vec sum;
             sum._x = _x + other._x;
             sum._y = _y + other._y;
             sum._z = _z + other._z;
+            return sum;
+        }
+
+        Vec operator- (const Vec& other) {
+            Vec sum;
+            sum._x = _x - other._x;
+            sum._y = _y - other._y;
+            sum._z = _z - other._z;
             return sum;
         }
 
@@ -29,7 +40,21 @@ class Vec {
             return ret;
         }
 
-        double& operator() (int index) {
+        double dot(const Vec& other) {
+            double ret = 0;
+            ret += _x * other._x;
+            ret += _y * other._y;
+            ret += _z * other._z;
+
+            return ret;
+        }
+
+        // Dot product
+        double operator* (const Vec& other) {
+            return dot(other);
+        }
+
+        double& operator[] (int index) {
             if (index == 0) {
                 return _x;
             } else if (index == 1) {
@@ -41,20 +66,32 @@ class Vec {
             // Throw an error i guess
         }
 
+        void setZero() {
+            _x = 0;
+            _y = 0;
+            _z = 0;
+        }
+
+        double norm() {
+            return sqrt(_x*_x + _y*_y + _z*_z);
+        }
+
         Vec normalized () {
-            Vec norm;
-            
+            Vec ret(*this);
+
+            return ret * (1.0 / this->norm());
         }
 
         double& x () { return _x; }
         double& y () { return _y; }
         double& z () { return _z; }
 
-
-    private:
         double _x;
         double _y;
         double _z;
+
+    private:
+
 };
 
 class Line {
@@ -73,5 +110,7 @@ enum PolygonType {
   RECTANGLE,
   QUAD
 };
+
+
 
 #endif

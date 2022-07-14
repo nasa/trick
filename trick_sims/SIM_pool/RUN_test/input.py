@@ -42,7 +42,7 @@ bumperWidth = 0.03
 
 
 dyn.table.numTablePoints = 2
-dyn.table.tableShape = trick.TMM_declare_var_1d("Point*", dyn.table.numTablePoints)
+dyn.table.tableShape = trick.TMM_declare_var_1d("Vec*", dyn.table.numTablePoints)
 dyn.table.tableShapeType = 3  # rectangle
 dyn.table.addPointToTable(corners[0], corners[1])
 dyn.table.addPointToTable(corners[2], corners[3])
@@ -112,7 +112,7 @@ dyn.table.bumpers = trick.TMM_declare_var_1d("Bumper*", dyn.table.numBumpers)
 for i in range(len(bumperBorders)):
     id = dyn.table.addBumper(len(bumperShapes[i])/2, bumperBorders[i][0], bumperBorders[i][1], bumperBorders[i][2],bumperBorders[i][3])
     dyn.table.bumpers[id][0].numPoints = len(bumperShapes[i])/2
-    dyn.table.bumpers[id][0].renderedShape = trick.TMM_declare_var_1d("Point*", dyn.table.bumpers[id].numPoints)
+    dyn.table.bumpers[id][0].renderedShape = trick.TMM_declare_var_1d("Vec*", dyn.table.bumpers[id].numPoints)
 
     dyn.table.bumpers[id][0].shapeType = bumperShapeTypes[i]
     for j in range(0, len(bumperShapes[i]), 2):
@@ -127,7 +127,7 @@ dyn_integloop.getIntegrator(trick.Euler, 6*dyn.table.numBalls)
 varServerPort = trick.var_server_get_port();
 
 # This will definitely change to something else
-PoolTableDisplay_path = "models/graphics/libigl-example-project/build/example"
+PoolTableDisplay_path = "models/graphics/cpp/build/PoolTableDisplay"
 
 
 if (os.path.isfile(PoolTableDisplay_path)) :
@@ -136,9 +136,9 @@ if (os.path.isfile(PoolTableDisplay_path)) :
     print(PoolTableDisplay_cmd)
     os.system( PoolTableDisplay_cmd);
 else :
-    print('=================================================================================================')
-    print('PoolTableDisplay needs to be built. Please \"cd\" into ../models/graphics/java and type \"make\".')
-    print('=================================================================================================')
+    print('===================================')
+    print('PoolTableDisplay needs to be built.')
+    print('===================================')
 
 
 # PoolTableDisplay_path = "models/graphics/java/dist/PoolTableDisplay.jar"

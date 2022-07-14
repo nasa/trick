@@ -11,6 +11,8 @@ LIBRARY DEPENDENCY:
 #include "../include/pool_table.hh"
 #include "trick/trick_math_proto.h"
 
+
+// Leaving these here, but should probably go somewhere else
 double dot(                  /* Return: Scalar dot or inner product */
                  double vec1[],        /* In: Vector 1 */
                  double vec2[],        /* In: Vector 2 */
@@ -33,9 +35,6 @@ void mProduct (double product[2], double matrix[2][2], double vec[2]) {
     product[0] = matrix[0][0] * vec[0] + matrix[1][0] * vec[1];
     product[1] = matrix[0][1] * vec[0] + matrix[1][1] * vec[1];
 }
-
-
-
 
 int PoolTable::default_data() {
     // balls.clear();
@@ -66,6 +65,7 @@ int PoolTable::state_init() {
         }
     }
 
+    // Bumper/ball collisions
     bumperBallCombos = numBalls * numBumpers;
     bumperAssociations = (REGULA_FALSI*)TMM_declare_var_1d("REGULA_FALSI", bumperBallCombos);
     for (ii=0; ii<numBalls; ii++) {
@@ -112,9 +112,8 @@ int PoolTable::state_deriv() {
             continue;
         }
 
-        if (abs(dv_mag(balls[i]->vel)) > frictionTolerance) {
-            double velocityNorm[3];
-            dv_norm(velocityNorm, balls[i]->vel);
+        if (balls[i]->vel.norm() > frictionTolerance) {
+            Vec velocityNorm = balls[i]->vel.normalized();
 
             balls[i]->accel[0] = - (frictionScale * frictionRolling * velocityNorm[0]);
             balls[i]->accel[1] = - (frictionScale * frictionRolling * velocityNorm[1]);
@@ -147,8 +146,6 @@ int PoolTable::state_integ() {
             continue;
         }
 
-        // State - Need to load 4 values for each ball, but will have to have more when we add angular stuff
-        // pos[0] pos[1] vel[0] vel[1]
         int inner_index = 0;
         load_indexed_state(n*i + inner_index++, balls[i]->pos[0]);
         load_indexed_state(n*i + inner_index++, balls[i]->pos[1]);
@@ -159,16 +156,14 @@ int PoolTable::state_integ() {
         load_indexed_state(n*i + inner_index++, balls[i]->vel[2]);
 
         // Derivatives of all of this junk
-        // vel[0] vel[1] accel[0] accel[1]
-
         inner_index = 0;
         load_indexed_deriv(n*i + inner_index++, balls[i]->vel[0]);
         load_indexed_deriv(n*i + inner_index++, balls[i]->vel[1]);
         load_indexed_deriv(n*i + inner_index++, balls[i]->vel[2]);
 
-        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[0]);     // Needs to be accel[0]
-        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[1]);     // Needs to be accel[1]
-        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[2]);     // Needs to be accel[2]
+        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[0]);   
+        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[1]);   
+        load_indexed_deriv(n*i + inner_index++, balls[i]->accel[2]);   
 
     }
 
@@ -179,7 +174,7 @@ int PoolTable::state_integ() {
             continue;
         }
 
-        // pos[0] pos[1] vel[0] vel[1]
+        // pos[0] pos[1] pos[2] vel[0] vel[1] vel[2]
         int inner_index = 0;
         balls[i]->pos[0] = unload_indexed_state(n*i + inner_index++);
         balls[i]->pos[1] = unload_indexed_state(n*i + inner_index++);
@@ -198,19 +193,13 @@ int PoolTable::state_integ() {
     return integration_step;
 }
 
-double closestPointOnLine(Line& line, double pos[2], double result[2], bool print) {
-    double m[3];
-    double a[3] = {line.p1.x, line.p1.y};
-    double b[3] = {line.p2.x, line.p2.y};
-    double diff[3];
+double closestPointOnLine(Line& line, Vec pos, Vec& result, bool print) {
+    Vec a(line.p1);
+    Vec b(line.p2);
+    Vec diff = pos - a;
+    Vec m = b - a;
 
-    dv_sub(diff, pos, a);
-    dv_sub(m, b, a);
-
-    double t = dot(diff, m, 2) / dot(m, m, 2);
-
-    // if (print)
-    //     std::cout << "t: " << t << std::endl;
+    double t = (diff * m) / (m * m);
 
     if (t < 0)
         t = 0;
@@ -218,10 +207,8 @@ double closestPointOnLine(Line& line, double pos[2], double result[2], bool prin
     if (t > 1)
         t = 1;
 
-    scaleInPlace(m, t, 2);
-    dv_add(result, a, m);
-    // if (print)
-    //     std::cout << "Result: " << result[0] << " " << result[1] << std::endl;
+    m = m * t;
+    result = a + m;
 
     return t;
 }
@@ -253,19 +240,14 @@ double PoolTable::collision() {
             if (!balls[jj]->inPlay) {
                 continue;
             }
-            
-            double diff[3];
-            dv_sub(diff, balls[ii]->pos, balls[jj]->pos);
-            double distanceBetweenBalls = dv_mag(diff);
+
             unsigned int associationIndex = ii*(ii-1)/2+jj;
 
             // boundary is distance between balls - radiuses of balls
+            double distanceBetweenBalls = (balls[ii]->pos - balls[jj]->pos).norm();
             double error = distanceBetweenBalls - (balls[ii]->radius + balls[jj]->radius);
-
-            // std::cout << "Distance between centers: " << distanceBetweenBalls << std::endl;
-            // std::cout << "Radiuses: " << balls[ii]->radius << " " << balls[jj]->radius << std::endl;
-            // std::cout << "Error calculation: " << error << std::endl;
             ballAssociations[associationIndex].error = error;
+
             double this_tgo = regula_falsi( now, &(ballAssociations[associationIndex])) ;
             
             if (this_tgo < event_tgo) {
@@ -276,6 +258,7 @@ double PoolTable::collision() {
                 std::cout << "Found colliding balls" << std::endl;
 
                 // Add this collision to a list of collisions to process
+                // probably don't need to do this
                 collisionsToProcess.push_back(ii);
                 collisionsToProcess.push_back(jj);
                 reset_regula_falsi( now, &(ballAssociations[associationIndex]) );
@@ -288,25 +271,16 @@ double PoolTable::collision() {
 
     // Handle collisions
     for (int i = 0; i < collisionsToProcess.size(); i+=2) {
-        // if (allowCollisions == false) {
-        //     return event_tgo;
-        // }
-        // allowCollisions = false;
         int index1 = collisionsToProcess[i];
         int index2 = collisionsToProcess[i+1];
         std::cout << "Collision detected between balls " << index1 << " and " << index2 << std::endl;
 
-        double q1[3];
-        dv_copy(q1, balls[index1]->pos);
-        double q2[3];
-        dv_copy(q2, balls[index2]->pos);
-
+        Vec q1(balls[index1]->pos);
+        Vec q2(balls[index2]->pos);
 
         // dg = (q1 - q2) / (|q1 - q2|)
-        double diff[3];
-        dv_sub(diff, q1, q2);
-        double dg[3];
-        dv_norm(dg, diff);
+        Vec diff = q1 - q2;
+        Vec dg = diff.normalized();
 
         // Have to stuff both velocities and dg values into 4d vector to do the calculation
         // Otherwise I have to do more math
@@ -320,22 +294,14 @@ double PoolTable::collision() {
         scaleInPlace(dg4, impulse, 4);
 
         // Impulse[0:1] is x and y components of what should be applied to v1, Impulse[2:3] goes to v2
-        double impulse1[3] = {dg4[0], dg4[1], 0};
-        double impulse2[3] = {dg4[2], dg4[3], 0};
+        Vec impulse1(dg4[0], dg4[1], 0);
+        Vec impulse2(dg4[2], dg4[3], 0);
 
-        double newV1[3];
-        dv_copy(newV1, balls[index1]->vel);
-        double newV2[3];
-        dv_copy(newV2, balls[index2]->vel);
+        Vec newV1(balls[index1]->vel);
+        Vec newV2(balls[index2]->vel);
 
-        scaleInPlace(newV1, balls[index1]->mass, 3);
-        scaleInPlace(newV2, balls[index2]->mass, 3);
-
-        dv_sub(newV1, newV1, impulse1);
-        dv_sub(newV2, newV2, impulse2);
-
-        scaleInPlace(newV1, 1.0 / balls[index1]->mass, 3);
-        scaleInPlace(newV2, 1.0 / balls[index2]->mass, 3);
+        newV1 = ((newV1 * balls[index1]->mass) - impulse1) * (1.0 / balls[index1]->mass);
+        newV2 = ((newV2 * balls[index2]->mass) - impulse2) * (1.0 / balls[index2]->mass);
 
         std::cout << "Impulses applied: \n\tV1: " << newV1[0] << " " << newV1[1] << " \n\tV2: " << newV2[0] << " " << newV2[1] << std::endl;
 
@@ -346,46 +312,22 @@ double PoolTable::collision() {
         balls[index2]->vel[1] = newV2[1];
     }
 
-    // std::cout << "Ball 0 pos: " << balls[0]->pos[0] << " " << balls[0]->pos[1] << std::endl;
-    // std::cout << "Bumper 0 pos: " << bumpers[0]->border.p1.x << " " << bumpers[0]->border.p1.y << " " << bumpers[0]->border.p2.x << " " << bumpers[0]->border.p2.y << std::endl;
-
     int numBumperCollisions = 0;
     for (ii=0; ii<numBalls; ii++) {
         if (!balls[ii]->inPlay) {
                 continue;
         }
-        // if (numBumperCollisions > 0)
-        //     break;
         for (jj=0; jj<numBumpers; jj++) {
-            // if (numBumperCollisions > 0)
-            //     break;
             unsigned int association_index = (ii*numBumpers) + jj;
+
             Ball *ball = balls[ii];
             Bumper *bumper = bumpers[jj];
-            //Point ballPos(ball->pos[0], ball->pos[1]);
-            double closestPointOnBumper[3] = {0, 0, 0};
-            if (ii == 0 && jj == 3) {
-                double t = closestPointOnLine(bumper->border, ball->pos, closestPointOnBumper, true);
-                // std::cout << "Closest point on bumper: " << closestPointOnBumper[0] << " " << closestPointOnBumper[1] << std::endl;
 
-            } else {
-                double t = closestPointOnLine(bumper->border, ball->pos, closestPointOnBumper, false);
-            }
-            double diff[3];
-
-            // dv_sub(diff, ball->pos, closestPointOnBumper);
-            diff[0] = ball->pos[0] - closestPointOnBumper[0];
-            diff[1] = ball->pos[1] - closestPointOnBumper[1];
-            diff[2] = 0;
-
-            double distanceToBumper = abs(dv_mag(diff)) - ball->radius;
-
+            Vec closestPointOnBumper;
+            double t = closestPointOnLine(bumper->border, ball->pos, closestPointOnBumper, true);
+            double distanceToBumper = (ball->pos - closestPointOnBumper).norm() - ball->radius;
             bumperAssociations[association_index].error = distanceToBumper;
-            // if (ii == 0 && jj == 3) {
-            //     std::cout << "Ball pos: " << balls[ii]->pos[0] << " " << balls[ii]->pos[1] << std::endl;
-            //     std::cout << "Closest point on bumper: " << closestPointOnBumper[0] << " " << closestPointOnBumper[1] << std::endl;
-            //     std::cout << "Distance to bumper: " << bumperAssociations[association_index].error << std::endl;
-            // }
+
             double this_tgo = regula_falsi( now, &(bumperAssociations[association_index])) ;
             if (this_tgo < event_tgo) {
                 event_tgo = this_tgo;
@@ -394,25 +336,21 @@ double PoolTable::collision() {
             if (this_tgo == 0) {
                 numBumperCollisions++;
                 std::cout << "Found colliding ball " << ii << " and bumper " << jj << std::endl;
-
                 reset_regula_falsi( now, &(bumperAssociations[association_index]) );
 
-                if (numBumperCollisions > 1) 
+                if (numBumperCollisions > 1) {
+                    // When a ball hits exactly a corner of 2 bumpers, both collisions will be detected and impulses applied.
+                    // But since an impulse takes into consideration the original velocity, the second impulse applied
+                    // just cancels out the first one most of the time. Both impulses should be identical since the
+                    // collision point is the same, so make sure only 1 gets applied. This is kind of hacky
                     continue;
+                }
                     
-                double q1[3];
-                dv_copy(q1, ball->pos);
-                double q2[3];
-                dv_copy(q2, closestPointOnBumper);
-                q1[2] = 0;
-                q2[2] = 0;
+                Vec q1(ball->pos);
+                Vec q2(closestPointOnBumper);
 
-
-                // dg = (q1 - q2) / (|q1 - q2|)
-                double diff[3];
-                dv_sub(diff, q1, q2);
-                double dg[3];
-                dv_norm(dg, diff);
+                Vec diff = q1 - q2;
+                Vec dg = diff.normalized();
 
                 // Have to stuff both velocities and dg values into 4d vector to do the calculation
                 // Otherwise I have to do more math
@@ -432,21 +370,13 @@ double PoolTable::collision() {
                 scaleInPlace(dg4, impulse, 4);
 
                 // Impulse[0:1] is x and y components of what should be applied to v1, Impulse[2:3] goes to v2
-                double impulse1[3] = {dg4[0], dg4[1], 0};
-                double impulse2[3] = {dg4[2], dg4[3], 0};
+                Vec impulse1(dg4[0], dg4[1], 0);
+                Vec impulse2(dg4[2], dg4[3], 0);
 
-                double newV1[3];
-                dv_copy(newV1, ball->vel);
-                // double newV2[3] = {0, 0};
 
-                scaleInPlace(newV1, ball->mass, 3);
-                // scaleInPlace(newV2, balls[index2]->mass, 3);
+                Vec newV1 (ball->vel);
 
-                dv_sub(newV1, newV1, impulse1);
-                // dv_sub(newV2, newV2, impulse2);
-
-                scaleInPlace(newV1, 1.0 / ball->mass, 3);
-                // scaleInPlace(newV2, 1.0 / balls[index2]->mass, 3);
+                newV1 = ((newV1 * ball->mass) - impulse1) * (1.0 / ball->mass);
 
                 std::cout << "Impulses applied: \n\tV1: " << newV1[0] << " " << newV1[1] << std::endl;
 
@@ -472,16 +402,11 @@ double PoolTable::collision() {
             unsigned int association_index = (ii*numPockets) + jj;
             Ball *ball = balls[ii];
             Pocket *pocket = pockets[jj];
-            double pocketPos[3] = {pocket->x, pocket->y, 0};
-
-            double diff[3];
-            dv_sub(diff, ball->pos, pocketPos);
-            double distance = dv_mag(diff);
 
             // Ball is pocketed when center is within pocket radius
-            double error = distance - (pocket->radius);
-
+            double error = (ball->pos - pocket->pos).norm() - (pocket->radius);
             pocketAssociations[association_index].error = error;
+
             double this_tgo = regula_falsi( now, &(pocketAssociations[association_index]));
 
             if (this_tgo < event_tgo) {
@@ -489,7 +414,7 @@ double PoolTable::collision() {
             }
 
             if (this_tgo == 0) {
-                std::cout << "Found pocketed ball" << std::endl;
+                std::cout << "Found pocketed ball " << ii << std::endl;
                 reset_regula_falsi( now, &(pocketAssociations[association_index]) );
                 removeBall(ii);
             }
@@ -510,20 +435,17 @@ void PoolTable::resetCueBall(double x, double y) {
     balls[cueBallIndex]->inPlay = true;
 }
 
-
-
 void PoolTable::applyCueForce(double x_end, double y_end) {
     applyCueForce(x_end, y_end, 0, 0, 0);
 }
-
 
 void PoolTable::applyCueForce(double x_end, double y_end, double cueHorizontalDisplacement, double cueVerticalDisplacement, double cueAngle) {
     std::cout << "Applying cue force" << std::endl;
 
     // assume index 0 is cue ball
     int cueIndex = 0;
-    double cueEnd[3] = {x_end, y_end};
-    double cueBallPos[3] = {balls[cueIndex]->pos[0], balls[cueIndex]->pos[1]};
+    Vec cueEnd(x_end, y_end);
+    Vec cueBallPos(balls[cueIndex]->pos);
 
     double r = balls[cueIndex]->radius;
     double m = balls[cueIndex]->mass;
@@ -535,37 +457,21 @@ void PoolTable::applyCueForce(double x_end, double y_end, double cueHorizontalDi
     double theta = cueAngle * M_PI / 180.0;
     double angleScaling = 1.0 + (cueAngle / 25.0);
 
-    double cueAxis[3];
-    dv_sub(cueAxis, cueEnd, cueBallPos);
-    double cue_v = dv_mag(cueAxis) * cueForceScale * angleScaling;
-    dv_norm(cueAxis, cueAxis);
+    Vec cueAxis = cueEnd - cueBallPos;
+    double cue_v = cueAxis.norm() * cueForceScale * angleScaling;
+    cueAxis = cueAxis.normalized();
+
     double axis2[2] = {cueAxis[0], cueAxis[1]};
 
     double force = (2 * m * cue_v) / (1.0 * (m / cueMass) + (5.0 / (2.0*pow(r, 2))) * (pow(a,2) + pow(b,2)*pow(cos(theta),2) + pow(c,2)*pow(sin(theta),2) - 2*b*c*sin(theta)*cos(theta)));
 
     // Velocity in the frame of the cue
-    double v_b[2] = {0, -force/m * cos(theta)};
+    double v_multiplier = -force/m * cos(theta);
+    Vec velocityAfterHit = cueAxis * v_multiplier;
 
-    // Rotate to table frame
-    double y_unit[2] = {0, 1};
-    double rot = acos(dot(axis2, y_unit, 2) / 1.0);
-    if (cueAxis[0] < 0) {
-        rot = -rot;
-    }
+    std::cout << "Velocity of ball after cue hit: " << velocityAfterHit[0] << " " << velocityAfterHit[1] << std::endl;
 
-    double rotationMatrix[2][2];
-    rotationMatrix[0][0] = cos(rot);
-    rotationMatrix[0][1] = -sin(rot);
-    rotationMatrix[1][0] = sin(rot);
-    rotationMatrix[1][1] = cos(rot);
-
-    double v_table[2];
-    mProduct(v_table, rotationMatrix, v_b);
-
-    std::cout << "Velocity of ball after cue hit: " << v_table[0] << " " << v_table[1] << std::endl;
-
-    balls[cueIndex]->vel[0] = v_table[0];
-    balls[cueIndex]->vel[1] = v_table[1];
+    balls[cueIndex]->vel = velocityAfterHit;
 
     // TODO: logic for angular and relative velocity
 
@@ -605,8 +511,8 @@ int PoolTable::addPointToBumper(int id, double x, double y) {
 int PoolTable::addPointToTable(double x, double y) {
     int id = nextTablePointSlot++;
     if (id < numTablePoints) {
-        Point * point = (Point*) TMM_declare_var_s("Point");
-        tableShape[id] = (new (point) Point(x, y));
+        Vec * point = (Vec*) TMM_declare_var_s("Vec");
+        tableShape[id] = (new (point) Vec(x, y));
         return id;
     }
     return -1;

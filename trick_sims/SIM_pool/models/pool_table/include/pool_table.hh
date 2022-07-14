@@ -82,7 +82,7 @@ class PoolTable {
         double frictionScale = 1;
         double frictionTolerance = 0.0005;
         double coefficientOfElasticity = .95;
-        double cueForceScale = 1.0;
+        double cueForceScale = 0.6;
         double cueMass = 1.0;
 
         int cueBallIndex = 0;

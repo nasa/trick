@@ -13,10 +13,9 @@ class Pocket {
     public:
         // Have to have a default constructor or trick freaks out
         Pocket() {}
-        Pocket(double x, double y, double r) : x(x), y(y), radius(r) {}
+        Pocket(double x, double y, double r) : pos(x,y), radius(r) {}
 
-        double x;
-        double y;
+        Vec pos;
         double radius;
     
 };
