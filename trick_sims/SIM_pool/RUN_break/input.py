@@ -2,7 +2,7 @@ import math
 
 exec(open("./Modified_data/realtime.py").read())
 
-dyn.table.numBalls = 2
+dyn.table.numBalls = 16
 dyn.table.balls = trick.TMM_declare_var_1d("Ball*", dyn.table.numBalls)
 
 ballRadius = 0.02
@@ -14,23 +14,27 @@ center_x = 0.2;
 center_y = 0;
 tol = 1e-4;
 
-dyn.table.defaultCueBallX = -0.05;
-dyn.table.defaultCueBallY = 0.1;
-dyn.table.addBall(-0.05, 0.1, ballMass, ballRadius, False)
+dyn.table.addBall(-.3, 0, ballMass, ballRadius, False)
 
-dyn.table.addBall(-0.055, 0.15, ballMass, ballRadius, False)
+dyn.table.addBall(center_x, center_y, ballMass, ballRadius, False)
 
-# dyn.table.addBall(center_x+unit_neg[0]*2*(ballRadius+tol), center_y+unit_neg[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_pos[0]*2*(ballRadius+tol), center_y+unit_pos[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_neg[0]*2*(ballRadius+tol), center_y+unit_neg[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*2*(ballRadius+tol), center_y+unit_pos[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
 
-# dyn.table.addBall(center_x+unit_neg[0]*4*(ballRadius+tol), center_y+unit_neg[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_pos[0]*4*(ballRadius+tol), center_y+unit_pos[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_pos[0]*4*(ballRadius+tol), center_y, ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_neg[0]*4*(ballRadius+tol), center_y+unit_neg[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*4*(ballRadius+tol), center_y+unit_pos[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*4*(ballRadius+tol), center_y, ballMass, ballRadius, False)
 
-# dyn.table.addBall(center_x+unit_neg[0]*6*(ballRadius+tol), center_y+unit_neg[1]*6*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_pos[0]*6*(ballRadius+tol), center_y+unit_pos[1]*6*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_neg[0]*6*(ballRadius+tol), center_y+unit_neg[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
-# dyn.table.addBall(center_x+unit_pos[0]*6*(ballRadius+tol), center_y+unit_pos[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_neg[0]*6*(ballRadius+tol), center_y+unit_neg[1]*6*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*6*(ballRadius+tol), center_y+unit_pos[1]*6*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_neg[0]*6*(ballRadius+tol), center_y+unit_neg[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*6*(ballRadius+tol), center_y+unit_pos[1]*2*(ballRadius+tol), ballMass, ballRadius, False)
+
+dyn.table.addBall(center_x+unit_neg[0]*8*(ballRadius+tol), center_y+unit_neg[1]*8*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*8*(ballRadius+tol), center_y+unit_pos[1]*8*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_neg[0]*8*(ballRadius+tol), center_y+unit_neg[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*8*(ballRadius+tol), center_y+unit_pos[1]*4*(ballRadius+tol), ballMass, ballRadius, False)
+dyn.table.addBall(center_x+unit_pos[0]*8*(ballRadius+tol), center_y, ballMass, ballRadius, False)
 
 corners = [-.5, -.25, .5, .25]
 

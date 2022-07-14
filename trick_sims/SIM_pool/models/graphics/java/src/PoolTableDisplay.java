@@ -24,7 +24,7 @@ import javax.swing.JPanel;
 
 
 class Ball {
-    static int numColors = 9;
+    static int numColors = 8;
     static Color[] colorList = {
         Color.WHITE,
         Color.YELLOW,
@@ -45,7 +45,7 @@ class Ball {
         identity = id;
         x = 0.0;
         y = 0.0;
-        radius = 0.5;
+        radius = 1.0;
         color = colorList[id % numColors];
     }
 }
@@ -159,8 +159,8 @@ class RangeView extends JPanel {
             int bx = (int)(worldOriginX + scale * balls[ii].x);
             int by = (int)(worldOriginY - scale * balls[ii].y);
             drawCenteredCircle(g2d, bx, by, (int)(scale * 2 * balls[ii].radius));
-            g2d.setPaint(Color.BLACK);
-            g2d.drawString ( String.format("%d",ii), bx,by);
+            // g2d.setPaint(Color.BLACK);
+            // g2d.drawString ( String.format("%d",ii), bx,by);
         }
 
         g2d.drawString ( String.format("SCALE: %d pixels/meter",scale), 20,20);
@@ -294,7 +294,7 @@ public class PoolTableDisplay extends JFrame {
             line = poolTableDisplay.in.readLine();
             field = line.split("\t");
             for ( ii=0; ii < nballs; ii++) {
-                // poolTableDisplay.rangeView.balls[ii].radius = Double.parseDouble( field[ii+1]);
+                poolTableDisplay.rangeView.balls[ii].radius = Double.parseDouble( field[ii+1]);
             }
         } catch (IOException | NullPointerException e ) {
             go = false;
