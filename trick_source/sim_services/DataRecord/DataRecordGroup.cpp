@@ -686,39 +686,41 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
     unsigned int num_to_write ;
     unsigned int writer_offset ;
 
-    if ( record and inited and (buffer_type == DR_No_Buffer or must_write) and (total_bytes_written <= max_file_size)) {
+    if (exec_get_mode() != ExitMode) { /* TEST FIX #1290 */
+        if ( record and inited and (buffer_type == DR_No_Buffer or must_write) and (total_bytes_written <= max_file_size)) {
 
-        // buffer_mutex is used in this one place to prevent forced calls of write_data
-        // to not overwrite data being written by the asynchronous thread.
-        pthread_mutex_lock(&buffer_mutex) ;
-        local_buffer_num = buffer_num ;
-        if ( (local_buffer_num - writer_num) > max_num ) {
-            num_to_write = max_num ;
-        } else {
-            num_to_write = (local_buffer_num - writer_num) ;
+            // buffer_mutex is used in this one place to prevent forced calls of write_data
+            // to not overwrite data being written by the asynchronous thread.
+            pthread_mutex_lock(&buffer_mutex) ;
+            local_buffer_num = buffer_num ;
+            if ( (local_buffer_num - writer_num) > max_num ) {
+                num_to_write = max_num ;
+            } else {
+                num_to_write = (local_buffer_num - writer_num) ;
+            }
+            writer_num = local_buffer_num - num_to_write ;
+
+            //! This loop pulls a "row" of time homogeneous data and writes it to the file
+            while ( writer_num != local_buffer_num ) {
+
+                writer_offset = writer_num % max_num ;
+                //! keep record of bytes written to file. Default max is 1GB
+                total_bytes_written += format_specific_write_data(writer_offset) ;
+                writer_num++ ;
+
+            }
+
+            if(!max_size_warning && (total_bytes_written > max_file_size)) {
+                std::cerr << "WARNING: Data record max file size " << (static_cast<double>(max_file_size))/(1<<20) << "MB reached.\n"
+                "https://nasa.github.io/trick/documentation/simulation_capabilities/Data-Record#changing-the-max-file-size-of-a-data-record-group-ascii-and-binary-only" 
+                << std::endl;
+                max_size_warning = true;
+            }
+
+            pthread_mutex_unlock(&buffer_mutex) ;
+
         }
-        writer_num = local_buffer_num - num_to_write ;
-
-        //! This loop pulls a "row" of time homogeneous data and writes it to the file
-        while ( writer_num != local_buffer_num ) {
-
-            writer_offset = writer_num % max_num ;
-            //! keep record of bytes written to file. Default max is 1GB
-            total_bytes_written += format_specific_write_data(writer_offset) ;
-            writer_num++ ;
-
-        }
-
-        if(!max_size_warning && (total_bytes_written > max_file_size)) {
-            std::cerr << "WARNING: Data record max file size " << (static_cast<double>(max_file_size))/(1<<20) << "MB reached.\n"
-            "https://nasa.github.io/trick/documentation/simulation_capabilities/Data-Record#changing-the-max-file-size-of-a-data-record-group-ascii-and-binary-only" 
-            << std::endl;
-            max_size_warning = true;
-        }
-
-        pthread_mutex_unlock(&buffer_mutex) ;
-
-    }
+    } /* TEST FIX #1290 */
 
     return 0 ;
 }
