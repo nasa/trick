@@ -11,7 +11,7 @@
             <button onclick="actions()" style="float: right; border: 1px solid black;"><u>A</u>ctions</button>
         </nav>
         <header id="headerchild">
-            <img src="images/trick_icon.png" height="60" width="60" style="float: left;">
+            <img src="../images/trick.png" style="float: left; width: 15%">
             <h1>Sim Control</h1>
             <hr>
         </header> 
@@ -39,32 +39,31 @@
         </table>
         </div>
         <div id="buttonchild" >
-            <table class="commands"style="width: 100%; height: 100%;" >
+            <table class="commands"style="width: 100%; height: 100%;">
        
                 <th id="command" colspan="2" >Commands</th>
                 
                 <tr>
-                    <td><button onclick="stepSIM(value)">Step</button> </td>
-                    <td><button onclick="">Data Rec On</button></td>
+                    <td><button onclick="stepSIM(value)" class="cmdbtn" id="step" >Step</button> </td>
+                    <td><button onclick="recordSIM()" class="cmdbtn" id="data" checked="checked">Data Rec On</button></td>
                 </tr>
            
                 <tr>
-                    <td><button onclick="startSIM()">Start</button></td>
-                    <td><button onclick="stopSIM()">RealTime On</button></td>
+                    <td><button onclick="startSIM()" class="cmdbtn" id="start">Start</button></td>
+                    <td><button onclick="realtimeSim()" class="cmdbtn" id="realtime">RealTime On</button></td>
                 </tr>
                 <tr>
-                   <td><button onclick="freezeSIM(value)" id="freeze">Freeze</button></td> 
-                   <td><button onclick="">Dump Chkpnt</button></td>
+                   <td><button onclick="freezeSIM()" class="cmdbtn" id="freeze">Freeze</button></td> 
+                   <td><button onclick="dumpChkpnt()" class="cmdbtn" id="dump">Dump Chkpnt</button></td>
                 </tr>
                 <tr>
-                    <td><button onclick="shutdownSIM()">Shutdown</button></td> 
-                    <td><button onclick="">Load Chkpnt</button></td> 
+                    <td><button onclick="shutdownSIM()" class="cmdbtn" id="shutdown">Shutdown</button></td> 
+                    <td><button onclick="loadChkpnt()" class="cmdbtn" id="load">Load Chkpnt</button></td> 
                 </tr>
                 <tr>
-                    <!-- Instead of resizing the window, I would like to 
-                    create a second window that contains the buttons and what not -->
-                    <td><button onclick="liteSIM()">Lite</button></td> 
-                    <td><button onclick="">E<u>x</u>it</button></td> 
+                    <td><button onclick="getAllButtons()">Buttons</button></td> 
+                    <td colspan="2"><button onclick="window.close()" class="cmdbtn" id="exit">E<u>x</u>it</button></td> 
+                    <td><button onclick="setTime(value)">EXP</button></td> 
                 </tr>
            
             </table>
@@ -102,7 +101,7 @@
                     <th>RET (sec)</th>
                 </tr>
                 <tr>
-                    <td id="RET" script="displayTime()">0</td>
+                    <td id="RET" script="setTime()">0</td>
                 </tr>
                 <tr>
                     <th>Sim / Real Time</th>
@@ -111,12 +110,17 @@
             </table>
         </div>
     </div>
-    
 
-  
     <div id="output">
         <script type="text/javascript">
+           // Sets the data rec and real time on by default 
+            document.getElementById("data").checked = true;
+            document.getElementById("realtime").checked = true;
+            var dir;
+            var tiempo;
+        
            
+
             function log(s) {
                 var p = document.createElement("p");
                 p.style.wordWrap = "break-word";
@@ -125,9 +129,8 @@
             }
             function sendMessage(msg) {
                 ws.send(msg);
-                log("Sent : " + msg);
+                //log("Sent : " + msg);
             }
-  
             // Interface to Trick WebSocket Variable Server
             function setPeriod(period) {
                 sendMessage(`{"cmd":"var_cycle","period":${period}}`);
@@ -148,62 +151,114 @@
                 sendMessage(`{"cmd":"var_add","var_name": "${name}"}`);
                 addVarTableRow(name, value);
             }
+            // Functions for buttons 
             function shutdownSIM(){
                 sendMessage(`{"cmd": "python", "pycode": "trick.stop()"}`);
             }
             function startSIM(){
-              /* send message through wire from variable server client (website) to
-              the variable server (which controls the mode via the Java file ???) */
                 sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
             }
-            function freezeSIM(value){
-                //log("The value is " + value);
+            function freezeSIM(){
                 sendMessage(`{"cmd": "python", "pycode": "trick.exec_freeze()"}`);
                 sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_off()"}`);
-
-               
-               // Need to fetch an updated value from the server 
-
-               // this function only works when value is false 
-               // because the debug_variable isn't updated????
-               /* if (value == false){
-                   sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_off()"}`);
-                } */
             }
-            function liteSIM(){
-                window.resizeBy(10,50);
-                window.resizeTo(100,50);
+            function recordSIM(){
+                var databtn = document.getElementById("data");
+                if (databtn.checked == false){
+                    databtn.innerText = "Data Rec On";
+                    sendMessage(`{"cmd": "python", "pycode": "trick.dr_enable()"}`);
+                    databtn.checked = true;
+                } else {
+                    databtn.innerText = "Data Rec Off";
+                    sendMessage(`{"cmd": "python", "pycode": "trick.dr_disable()"}`);
+                    databtn.checked = false;
+                }
             }
-            function stepSIM(value){
+            function realtimeSim(){
+                var rtbtn = document.getElementById("realtime");
+              
+              
+              if (rtbtn.checked == false){
+                  rtbtn.innerText = "RealTime On";
+                  sendMessage(`{"cmd": "python", "pycode": "trick.real_time_enable()"}`);
+                  rtbtn.checked = true;
+              } else {
+                  rtbtn.innerText = "RealTime Off";
+                  sendMessage(`{"cmd": "python", "pycode": "trick.real_time_disable()"}`);
+                  rtbtn.checked = false;
+              }
+            }
+            function stepSIM(){
                 sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_on()"}`);
                 sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
                 sendMessage(`{"cmd": "python", "pycode": "trick.debug_signal()"}`);
+            }
+            function setTime(t){
+                tiempo = t.toFixed(2);
+                //tiempo.toFixed(2);
+                document.getElementById("RET").textContent = tiempo;
+            }
+            function setDir (r,d){
+                dir = d + "/" + r;
+            }
             
-                /* log("The value is " + value);
-                if (value == false){
-                    sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_on()"}`);
-                    sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
             
-                } else {
-                    sendMessage(`{"cmd": "python", "pycode": "trick.debug_signal()"}`);
-
-                }
+            // MY EXPERIMENTS
+            function loadChkpnt (){
+              var file = "chkpnt_" + tiempo;
+    
+              sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${dir}' + '/' + '${file}')"}`);
+            }
+            function dumpChkpnt (){
+                var file = "chkpnt_" + tiempo;
+                
+                sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint('${file}')"}`);
                
-                sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`); */
+               /* Unable to do send last command due to no checkpoint objects 
+               
+               sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint_objects('${file}' + ',' + '${checkpointObjects}')"}`);
+                 if (file != null){
+                    
+                        if (checkpointObjects == null || "".equals(checkpointObjects)){
+                            sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint('${file}')"}`);
+                        } else {
+                            sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint_objects('${file}' + ',' + '${checkpointObjects}')"}`);
+                        }
+                } */
             }
-            function displayTime(value){
-                document.getElementById("RET").textContent = value;
+            // Working on enable/disable buttons
+            function enableAllButtons(commandStr, flag){
+                if (commandStr != null){
+                    const commands = commandStr.split(", ");
+                    setCommandsEnabled(acts, flag);
+                }
             }
-            
+            function disableAllButtons(commands, flag){
+                const button = document.querySelectorAll('button');
+               // button.disabled = true; 
+            }
+            function getAllButtons (){
+                const commands = ["step", "start", "freeze", "shutdown", "data", "realtime",
+                "dump", "load"];
+                for (let x = 0; x < commands.length; x++){
+                    document.getElementById(commands[x]);
+                    const button = document.querySelector(commands[x]);
+                    button.disabled = true;
+                    console.log(commands[x]);
+                }
+
+            }
+
+            // END OF EXPERIMENT 
             var varTable = document.querySelector('table.variables');
             var ws = new WebSocket('ws://localhost:8888/api/ws/VariableServer');
-  
+             
             // WebSocket Event Handlers
             ws.onopen = function(e) {
                 log("Connection established");
                 setPeriod(100);
                 addVarTableRow("Time", 0.0);
-                addVariable("trick_sys.sched.mode", 1);
+                addVariable("trick_sys.sched.mode", 0);
                 addVariable("trick_sys.name", 'trick_sys');
                 addVariable("dyn.balloon.pos[0]", 0.0);
                 addVariable("dyn.balloon.pos[1]", 0.0);
@@ -211,45 +266,37 @@
                 addVariable("dyn.balloon.vel[1]", 0.0);
                 addVariable("dyn.balloon.envelope_air_temperature", 92.0);
                 addVariable("dyn.balloon.wind_speed", 0.0);
-                addVariable("trick_instruments.debug_pause.debug_pause_flag", 0);
-                
-               
-                // Requesting the sim mode but it returns an error 
-                
+                addVariable("trick_cmd_args.cmd_args.run_dir"); 
+                addVariable("trick_cmd_args.cmd_args.default_dir");
                 sendMessage('{\"cmd\":\"var_unpause\"}');
+               // addVariable("trick_instruments.debug_pause.debug_pause_flag", 0);
+                
             };
             ws.onmessage = function(e) {
-               log("Recieved : " + e.data);
+              //  log("Recieved : " + e.data);
                let msg = JSON.parse(e.data);
                if (msg.msg_type == "values") {
                    let valueNodes = varTable.getElementsByClassName("values");
                    valueNodes[0].textContent = msg.time;
-                   displayTime(msg.time);
+                   setTime(msg.time);
                    for (let i = 0; i < msg.values.length; i++ ) {
                        valueNodes[i+1].textContent = msg.values[i];
                    }
-                   valueNodes[9].textContent = msg.trick_instruments.debug_pause.debug_pause_flag;
-                   freezeSIM(msg.trick_instruments.debug_pause.debug_pause_flag);
+                   let runDir = valueNodes[9].textContent;
+                   let defDir = valueNodes[10].textContent;
+                   setDir(runDir, defDir);
                    
-                   /*
-                   log("The time is " + msg.time);
-                   displayTime(msg.time); // going to constantly reupdate the time as the value comes in 
-                   // getting the value of the debug variable and assigning it to debug_flag
-                   valueNodes[8].textContent = msg.trick_instruments.debug_pause.debug_pause_flag;
-                   debug_flag = msg.trick_instruments.debug_pause.debug_pause_flag;
-                   log("The debug variable is " + msg.trick_instruments.debug_pause.debug_pause_flag);
-                   
-                   stepSim(msg.trick_instruments.debug_pause.debug_pause_flag);
-                   // freezeSIM(debug_flag); */
-                   
+                
                }
+              
             }; 	
             ws.onerror = function(e) {
                console.log("WebSocket Error: " , e);
-               handleErrors(e);
+              // handleErrors(e);
             };
             ws.onclose = function(e) {
                console.log("Connection closed", e);
+               window.close();
             };
   
         </script>

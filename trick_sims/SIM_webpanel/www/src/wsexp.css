@@ -2,19 +2,20 @@ html{
     font-family: sans-serif;
      background-color: rgb(235, 232, 232); 
 }
-*{
-   /* outline: 2px solid orange; */
+/*
+{
+   outline: 2px solid orange;
 }
 body{
-    /* overflow-x: hidden; */
-}
+     overflow-x: hidden; 
+} */
 div.header{
     background-image: linear-gradient(#afafff, white)
 }
 
 table.variables {
     border-collapse: collapse;
-    width: 50%
+    width: 50%;
 }
 th.table, td{
     border: 2px solid black;
@@ -22,8 +23,8 @@ th.table, td{
     font-size: smaller;
   /* width: 50%; */
 }
-tr:nth-child(even){
-    background-color: #afafff,;
+div.tablechild tr:nth-child(even){
+    background-color: #8888f3;
 }
 h2,h1{
     text-align: center;
@@ -33,6 +34,11 @@ button{
     border: none;
     /* background-color: rgb(199, 199, 199); */
     font-size: larger;
+    width: 100%;
+  
+}
+.cmdbtn:hover{
+    background-color: pink;
 }
 table{
     width: 100px;
@@ -45,16 +51,15 @@ table{
 }
 .commands{
    /* background-color: rgb(56, 55, 100); */
-    width: 10vw;
-    
+    width: 10vw;    
 }
 #variableDisplay {
     display: flex;
     flex-direction: column;
 }
-hr{
+/*hr{
     size: 1px;
-}
+} */
 #parent{
     display: grid;
   /*  grid-template-columns: auto auto auto auto;
@@ -91,6 +96,7 @@ hr{
    /* background-color: blue; */
     grid-row: 4;
     grid-column: 4;
+    
 }
 #buttonchild{
     grid-row: 4;
