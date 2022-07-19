@@ -168,6 +168,7 @@ export PYTHON_VERSION=3
 
 proceed to [Install Trick](#install) section of the install guide
 
+---
 <a name="macos"></a>
 ### macOS Monterey, Big Sur, Catalina
 #### These instructions are for Intel-based macs. For the latest Apple silicon (M1) instructions see this issue: https://github.com/nasa/trick/issues/1283
@@ -212,6 +213,17 @@ Then enter the path to llvm (and udunits) when you execute the configure command
 e.g.
 ```
 ./configure --with-llvm=/Users/trickguy/llvm13 --with-udunits=/usr/local/Cellar/udunits/2.2.28
+```
+
+OPTIONAL: Trick uses google test (gtest) version 1.8 for unit testing. To install gtest:
+```
+brew install wget
+wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+tar xzvf release-1.8.0.tar.gz
+cd googletest-release-1.8.0/googletest
+cmake .
+make
+make install
 ```
 
 proceed to [Install Trick](#install) section of the install guide
