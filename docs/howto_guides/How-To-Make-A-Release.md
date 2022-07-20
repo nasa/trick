@@ -33,7 +33,7 @@ https://github.com/nasa/trick/commit/a317c222748e706e89b7f344f6910d1f39824feb
 ### Change version numbers back to prerelease and push
   * reverse the process of changing the version numbers, updating to the next minor prerelease version (or major version if planning a major release soon). 
   * Remember to add the -beta postfix to the version number
-  * `git commit -m "update version numbers to prerelease X.Y.Z-beta"
+  * `git commit -m "update version numbers to prerelease X.Y.Z-beta"`
   * `git push origin master`
 ### Create the release through the github UI
   * This process is subject to change, so I'm posting the link to GitHub documentation here:
