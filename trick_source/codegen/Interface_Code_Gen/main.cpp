@@ -64,8 +64,14 @@ void set_lang_opts(clang::CompilerInstance & ci) {
     ci.getLangOpts().DoubleSquareBracketAttributes = true ;
 #endif
     // Activate C++17 parsing
+#ifdef TRICK_GCC_VERSION
+const char * gcc_version = TRICK_GCC_VERSION;
+#else
+const char * gcc_version = "";
+#endif
+
 #if (LIBCLANG_MAJOR >= 10)
-    ci.getLangOpts().GNUCVersion = true ;
+    ci.getLangOpts().GNUCVersion = gccVersionToIntOrDefault(gcc_version, 40805);
     ci.getLangOpts().CPlusPlus17 = true ;
 #endif
 }
