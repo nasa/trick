@@ -27,9 +27,9 @@ https://github.com/nasa/trick/commit/a317c222748e706e89b7f344f6910d1f39824feb
 * In trick_source/java/pom.xml change the <version> tag to the new version and remove any postfixes
 * In CMakeLists.txt change TRICK_MAJOR TRICK_MINOR TRICK_TINY to match the current version, and set TRICK_PRERELEASE to an empty string
 ### Create a commit, tag, and push to github.com
-  * `git commit -m "update version numbers for Trick Simulation Environment X.Y.Z"
+  * `git commit -m "update version numbers for Trick Simulation Environment X.Y.Z"`
   * `git tag -a <Version Number> -m "Trick Simulation Environment <Version Number>"` e.g. `git tag -a 25.0.0 -m "Trick Simulation Environment 25.0.0"`
-  * `git push origin <tagname>
+  * `git push origin <tagname>`
 ### Change version numbers back to prerelease and push
   * reverse the process of changing the version numbers, updating to the next minor prerelease version (or major version if planning a major release soon). 
   * Remember to add the -beta postfix to the version number
