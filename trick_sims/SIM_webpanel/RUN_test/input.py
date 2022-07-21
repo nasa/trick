@@ -41,11 +41,11 @@ BrowserClient_path = "www/src/wsexp.html"
 
 if (os.path.isfile(BrowserClient_path)) :
     BrowserClient_cmd = "firefox " \
-                    + BrowserClient_path \
-                    + " "   + "&";
+                 + BrowserClient_path \
+                + " "   + "&";
     print(BrowserClient_cmd)
     os.system(BrowserClient_cmd);
 else :
-    print('==================================================================================')
-    print('Unable to open web panel. Please update the browser client path in input file')
-    print('==================================================================================')
+   print('==================================================================================')
+   print('Unable to open web panel. Please update the browser client path in input file')
+   print('==================================================================================')

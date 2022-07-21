@@ -2,106 +2,106 @@
 <html>
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/CSS" href="wsexp.css">
-    <title>WS Experiments</title>
+    <title>Trick Sim Control</title>
+
 <!--START OF GRID LAYOUT -->
 <body>
     <div id="parent"> 
-        <nav id="navchild" style="font-size: small">
-            <button onclick="file()" style="float: right; border: 1px solid black;"><u>F</u>ile</button>
-            <button onclick="actions()" style="float: right; border: 1px solid black;"><u>A</u>ctions</button>
+        <nav id="navchild">
+            <button class="navbutton"><u>F</u>ile</button>
+            <button class="navbutton"><u>A</u>ctions</button>
         </nav>
         <header id="headerchild">
-            <img src="../images/trick.png" style="float: left; width: 15%">
+            <img src="../images/trick.png" id="trickpic">
             <h1>Sim Control</h1>
-            <hr>
+            <hr id="line" >
         </header> 
         <div id="tablechild"> 
             
-            <table class="variables" style="width: 100%;">
-                <div>
-                <h2 style="width: 100%; text-align: center;">Simulation Variable Table</h2>
+            <table class="variables">
+                <h2>Simulation Variable Table</h2>
                     <tr>
                         <th class="table">Variable</th>
                         <th class="table">Value</th>
                     </tr> 
-                </div>
             </table>
         </div>
         <div id="modechild">
-        <table style="width: 100%;">
+        <table class="modebar">
             <tr>
-                <th style="background-color: rgb(103, 161, 243)">MODE</th>
+                <th id="modeheader">Mode</th>
                 <tr>
-                    <td>PERCENTAGE</td>
+                    <td>0%</td>
                 </tr>
                 
             </tr>
         </table>
         </div>
         <div id="buttonchild" >
-            <table class="commands"style="width: 100%; height: 100%;">
+            <table class="commands">
        
                 <th id="command" colspan="2" >Commands</th>
-                
+            
                 <tr>
-                    <td><button onclick="stepSIM(value)" class="cmdbtn" id="step" >Step</button> </td>
-                    <td><button onclick="recordSIM()" class="cmdbtn" id="data" checked="checked">Data Rec On</button></td>
+                    <td class="cmdbtn"><button class="cmdbtn" id="step" >Step</button> </td>
+                    <td class="cmdbtn"><button class="cmdbtn" id="data" checked="checked">Data Rec On</button></td>
                 </tr>
            
                 <tr>
-                    <td><button onclick="startSIM()" class="cmdbtn" id="start">Start</button></td>
-                    <td><button onclick="realtimeSim()" class="cmdbtn" id="realtime">RealTime On</button></td>
+                    <td class="cmdbtn"><button class="cmdbtn" id="start">Start</button></td>
+                    <td class="cmdbtn"><button class="cmdbtn" id="realtime">RealTime On</button></td>
                 </tr>
                 <tr>
-                   <td><button onclick="freezeSIM()" class="cmdbtn" id="freeze">Freeze</button></td> 
-                   <td><button onclick="dumpChkpnt()" class="cmdbtn" id="dump">Dump Chkpnt</button></td>
+                   <td class="cmdbtn" ><button class="cmdbtn" id="freeze">Freeze</button></td> 
+                   <td class="cmdbtn"><button class="cmdbtn" id="dump">Dump Chkpnt</button></td>
                 </tr>
                 <tr>
-                    <td><button onclick="shutdownSIM()" class="cmdbtn" id="shutdown">Shutdown</button></td> 
-                    <td><button onclick="loadChkpnt()" class="cmdbtn" id="load">Load Chkpnt</button></td> 
+                    <td class="cmdbtn"><button class="cmdbtn" id="shutdown">Shutdown</button></td> 
+                    <td class="cmdbtn"><button class="cmdbtn" id="load">Load Chkpnt</button></td> 
                 </tr>
+                <!--My experiments-->
                 <tr>
-                    <td><button onclick="getAllButtons()">Buttons</button></td> 
-                    <td colspan="2"><button onclick="window.close()" class="cmdbtn" id="exit">E<u>x</u>it</button></td> 
-                    <td><button onclick="setTime(value)">EXP</button></td> 
+                 
+                    <td class="cmdbtn" colspan="2"><button onclick="window.close()" class="cmdbtn" id="exit">E<u>x</u>it</button></td> 
+                   <!-- <td><button onclick="setSimTime(value)">EXP</button></td> -->
                 </tr>
            
             </table>
         </div>
         <div id="barchild">
             Here is a place for the buttons that start Trick TV, MTV, and Throttle.
-            <hr>
+            <hr id="line">
         </div>
         <div id="bottomchild">
-            <table style="width: 100vw;"> 
+            <table  class="bottomchild"> 
                 <tr> 
-                    <th style="background-color: rgb(103, 161, 243)">Simulations/Overruns</th>
+                    <th class="bottomheader">Simulations/Overruns</th>
                 </tr>
                 <tr>
-                    <td>This is where the path goes</td>
+                    <td id="path" >Trick Simulation Path</td>
+                </tr>
+                <tr> 
+                    <th class="bottomheader" >Status Messages</th>
+                </tr>
+                <tr>
+                    <td>Status Message</td>
+                </tr>
+                <tr>
+                    <th id="isconnected"></th>
                 </tr>
             </table>
         </div>
-        <div id="extrabottomchild"> 
-            <table style="width: 100vw;"> 
-                <tr> 
-                    <th style="background-color: rgb(103, 161, 243)">Status Messages</th>
-                </tr>
-                <tr>
-                    <td>Space for the status messages</td>
-                </tr>
-            </table>
-        </div>
+      
         <div id="timechild">
-            <table style="height: 85%">
+            <table id="timetable">
                 <tr>
-                    <th style="background-color: rgb(103, 161, 243)" >Time</th>
+                    <th id="timeheader">Time</th>
                 </tr>
                 <tr>
                     <th>RET (sec)</th>
                 </tr>
                 <tr>
-                    <td id="RET" script="setTime()">0</td>
+                    <td id="RET" script="setSimTime()">0</td>
                 </tr>
                 <tr>
                     <th>Sim / Real Time</th>
@@ -113,14 +113,6 @@
 
     <div id="output">
         <script type="text/javascript">
-           // Sets the data rec and real time on by default 
-            document.getElementById("data").checked = true;
-            document.getElementById("realtime").checked = true;
-            var dir;
-            var tiempo;
-        
-           
-
             function log(s) {
                 var p = document.createElement("p");
                 p.style.wordWrap = "break-word";
@@ -151,66 +143,109 @@
                 sendMessage(`{"cmd":"var_add","var_name": "${name}"}`);
                 addVarTableRow(name, value);
             }
-            // Functions for buttons 
-            function shutdownSIM(){
+           
+            // Button Functions
+            document.getElementById("shutdown").onclick = function shutdownSIM(){
                 sendMessage(`{"cmd": "python", "pycode": "trick.stop()"}`);
             }
-            function startSIM(){
+            document.getElementById("start").onclick = function startSIM(){
                 sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
             }
-            function freezeSIM(){
+            document.getElementById("freeze").onclick = function freezeSIM(){
                 sendMessage(`{"cmd": "python", "pycode": "trick.exec_freeze()"}`);
                 sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_off()"}`);
             }
-            function recordSIM(){
-                var databtn = document.getElementById("data");
-                if (databtn.checked == false){
-                    databtn.innerText = "Data Rec On";
-                    sendMessage(`{"cmd": "python", "pycode": "trick.dr_enable()"}`);
-                    databtn.checked = true;
-                } else {
-                    databtn.innerText = "Data Rec Off";
-                    sendMessage(`{"cmd": "python", "pycode": "trick.dr_disable()"}`);
-                    databtn.checked = false;
-                }
-            }
-            function realtimeSim(){
-                var rtbtn = document.getElementById("realtime");
-              
-              
-              if (rtbtn.checked == false){
-                  rtbtn.innerText = "RealTime On";
-                  sendMessage(`{"cmd": "python", "pycode": "trick.real_time_enable()"}`);
-                  rtbtn.checked = true;
-              } else {
-                  rtbtn.innerText = "RealTime Off";
-                  sendMessage(`{"cmd": "python", "pycode": "trick.real_time_disable()"}`);
-                  rtbtn.checked = false;
-              }
-            }
-            function stepSIM(){
+            document.getElementById("step").onclick = function stepSIM(){
                 sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_on()"}`);
                 sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
                 sendMessage(`{"cmd": "python", "pycode": "trick.debug_signal()"}`);
             }
-            function setTime(t){
-                tiempo = t.toFixed(2);
-                //tiempo.toFixed(2);
-                document.getElementById("RET").textContent = tiempo;
+            // Sets the data rec and real time on by default 
+            document.getElementById("data").checked = true;
+            document.getElementById("realtime").checked = true;
+            document.getElementById("data").onclick =function dataRecordSim(){
+                var dataRecButton = document.getElementById("data");
+                if (dataRecButton.checked == false){
+                    dataRecButton.innerText = "Data Rec On";
+                    sendMessage(`{"cmd": "python", "pycode": "trick.dr_enable()"}`);
+                    dataRecButton.checked = true;
+                } else {
+                    dataRecButton.innerText = "Data Rec Off";
+                    sendMessage(`{"cmd": "python", "pycode": "trick.dr_disable()"}`);
+                    dataRecButton.checked = false;
+                }
             }
-            function setDir (r,d){
-                dir = d + "/" + r;
+            document.getElementById("realtime").onclick =function realtimeSim(){
+                var realtimeButton = document.getElementById("realtime");
+              
+              
+                if (realtimeButton.checked == false){
+                  realtimeButton.innerText = "RealTime On";
+                  sendMessage(`{"cmd": "python", "pycode": "trick.real_time_enable()"}`);
+                  realtimeButton.checked = true;
+                    } else {
+                  realtimeButton.innerText = "RealTime Off";
+                  sendMessage(`{"cmd": "python", "pycode": "trick.real_time_disable()"}`);
+                  realtimeButton.checked = false;
+                }
+            }
+            // Sets sim time and directory for load/dump 
+            // Creates object for sim information such as time and directory
+            var simInfo = new Object();
+            function setSimTime(t){
+                simInfo.time = t.toFixed(2);
+                document.getElementById("RET").innerHTML = simInfo.time;
+            }
+            function setSimDir (r,d){
+                simInfo.dir = d + "/" + r;
+               // console.log(simInfo.dir);
+                document.getElementById("path").innerHTML = simInfo.dir;
+            }
+            function setSimMode(m){
+                simInfo.mode = m;
+
+                switch (m){
+                    case '0':
+                        document.getElementById("modeheader").innerText = "Initialization Mode";
+                    break;
+                    case '1':
+                        document.getElementById("modeheader").innerText = "Freeze Mode";
+                    break;
+                    case '4':
+                        document.getElementById("modeheader").innerText = "Debug Stepping Mode";
+                    break;
+                    case '5':
+                        document.getElementById("modeheader").innerText = "Run Mode";
+                    break;
+                    case '6': 
+                        document.getElementById("modeheader").innerText = "Exit Mode";
+                    break;
+                    default:
+                        document.getElementById("modeheader").innerText = "N/A";
+
+                }
+            }
+            function setServerPort(p){
+                simInfo.port = p;
+                document.getElementById("isconnected").innerHTML = "Connection established on port " + simInfo.port;
+
+            }
+            function changeServerPort(){
+                var newPort = prompt("Enter new port: ");
+                // can we use python to change input.py web.server.port
+               // sendMessage(`{"cmd": "python", "pycode": "'web.server.port' + '=' + '${newPort}'"}`);
+                sendMessage(`{"cmd": "python", "pycode": "'Trick::ExternalApplication::set_port'"}`);
+
             }
             
             
             // MY EXPERIMENTS
             function loadChkpnt (){
-              var file = "chkpnt_" + tiempo;
-    
-              sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${dir}' + '/' + '${file}')"}`);
+                var file = "chkpnt_" + simTime;
+                sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${simDir}' + '/' + '${file}')"}`);
             }
             function dumpChkpnt (){
-                var file = "chkpnt_" + tiempo;
+                var file = "chkpnt_" + simTime;
                 
                 sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint('${file}')"}`);
                
@@ -226,6 +261,7 @@
                         }
                 } */
             }
+        
             // Working on enable/disable buttons
             function enableAllButtons(commandStr, flag){
                 if (commandStr != null){
@@ -255,8 +291,16 @@
              
             // WebSocket Event Handlers
             ws.onopen = function(e) {
-                log("Connection established");
+               // document.getElementById("isconnected").innerHTML = "Connection established " + windowPort;
+               // let windowLocation = window.location.host;
+               // log("Connection established");
                 setPeriod(100);
+                changeServerPort();
+                sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.run_dir"}`);
+                sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.default_dir"}`);
+                sendMessage(`{"cmd":"var_add","var_name": "web.server.port"}`);
+                sendMessage(`{"cmd":"var_send"}`); 
+                sendMessage('{"cmd":"var_clear"}');
                 addVarTableRow("Time", 0.0);
                 addVariable("trick_sys.sched.mode", 0);
                 addVariable("trick_sys.name", 'trick_sys');
@@ -266,29 +310,33 @@
                 addVariable("dyn.balloon.vel[1]", 0.0);
                 addVariable("dyn.balloon.envelope_air_temperature", 92.0);
                 addVariable("dyn.balloon.wind_speed", 0.0);
-                addVariable("trick_cmd_args.cmd_args.run_dir"); 
-                addVariable("trick_cmd_args.cmd_args.default_dir");
-                sendMessage('{\"cmd\":\"var_unpause\"}');
-               // addVariable("trick_instruments.debug_pause.debug_pause_flag", 0);
-                
+                sendMessage('{"cmd":"var_unpause"}');
             };
             ws.onmessage = function(e) {
-              //  log("Recieved : " + e.data);
+               //log("Recieved : " + e.data);
                let msg = JSON.parse(e.data);
+               console.log(msg);
                if (msg.msg_type == "values") {
-                   let valueNodes = varTable.getElementsByClassName("values");
-                   valueNodes[0].textContent = msg.time;
-                   setTime(msg.time);
-                   for (let i = 0; i < msg.values.length; i++ ) {
+                let valueNodes = varTable.getElementsByClassName("values");
+                valueNodes[0].textContent = msg.time;
+                let simMode = valueNodes[1].textContent;
+                setSimMode(simMode);
+                setSimTime(msg.time);
+                for (let i = 0; i < msg.values.length; i++ ) {
                        valueNodes[i+1].textContent = msg.values[i];
+                       //console.log(msg.values[i]);
                    }
-                   let runDir = valueNodes[9].textContent;
-                   let defDir = valueNodes[10].textContent;
-                   setDir(runDir, defDir);
-                   
-                
+
+                if (msg.values.length == 3){
+                    let runDir = msg.values[0];
+                    console.log(runDir);
+                    let defDir = msg.values[1];
+                    console.log(defDir);
+                    setSimDir(runDir, defDir);
+                    let serverPort = msg.values[2];
+                    setServerPort(serverPort);
+                }
                }
-              
             }; 	
             ws.onerror = function(e) {
                console.log("WebSocket Error: " , e);
@@ -296,7 +344,7 @@
             };
             ws.onclose = function(e) {
                console.log("Connection closed", e);
-               window.close();
+              // window.close();
             };
   
         </script>
