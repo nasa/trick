@@ -50,7 +50,9 @@ void * Trick::DRDWriterThread::thread_body() {
         pthread_cond_wait(&(drd_mutexes.dr_go_cv), &(drd_mutexes.dr_go_mutex));
         for ( unsigned int ii = 0 ; ii < groups.size() ; ii++ ) {
             if ( groups[ii]->buffer_type == Trick::DR_Buffer ) {
+                // pthread_mutex_lock(&groups[ii]->buffer_index_mutex);
                 groups[ii]->write_data(true) ;
+                // pthread_mutex_unlock(&groups[ii]->buffer_index_mutex);
             }
         }
     }
@@ -90,6 +92,7 @@ int Trick::DataRecordDispatcher::init() {
     pthread_mutex_lock(&drd_mutexes.init_complete_mutex);
     drd_writer_thread.create_thread() ;
     pthread_cond_wait(&drd_mutexes.init_complete_cv, &drd_mutexes.init_complete_mutex);
+    pthread_mutex_unlock(&drd_mutexes.init_complete_mutex);
 
     return(0) ;
 }
@@ -237,10 +240,13 @@ int Trick::DataRecordDispatcher::restart() {
 */
 int Trick::DataRecordDispatcher::shutdown() {
 
-    if ( drd_writer_thread.get_pthread_id() != 0 ) {
+    pthread_t tid = drd_writer_thread.get_pthread_id();
+    if ( tid != 0 ) {
         pthread_mutex_lock( &drd_mutexes.dr_go_mutex);
-        pthread_cancel( drd_writer_thread.get_pthread_id()) ;
+        pthread_cancel(tid) ;
         pthread_mutex_unlock( &drd_mutexes.dr_go_mutex);
+
+        pthread_join(tid, (void **) NULL);
     }
 
     return(0) ;

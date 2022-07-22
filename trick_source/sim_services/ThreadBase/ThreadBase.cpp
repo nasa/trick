@@ -296,6 +296,7 @@ int Trick::ThreadBase::create_thread() {
 int Trick::ThreadBase::cancel_thread() {
     if ( pthread_id != 0 ) {
         pthread_cancel(pthread_id) ;
+        pthread_join(pthread_id, (void **) NULL);
     }
     return(0) ;
 }
