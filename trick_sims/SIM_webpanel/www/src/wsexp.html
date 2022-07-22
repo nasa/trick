@@ -8,8 +8,16 @@
 <body>
     <div id="parent"> 
         <nav id="navchild">
-            <button class="navbutton"><u>F</u>ile</button>
-            <button class="navbutton"><u>A</u>ctions</button>
+            <table>
+                <th>
+                    <button class="navbutton"><u>F</u>ile</button>
+                    <button class="navbutton"><u>A</u>ctions</button>
+                </th>
+                <th>
+                    <button class="navbutton"><u>F</u>ile</button>
+                    <button class="navbutton"><u>A</u>ctions</button>
+                </th>
+            </table>
         </nav>
         <header id="headerchild">
             <img src="../images/trick.png" id="trickpic">
@@ -41,12 +49,10 @@
             <table class="commands">
        
                 <th id="command" colspan="2" >Commands</th>
-            
                 <tr>
                     <td class="cmdbtn"><button class="cmdbtn" id="step" >Step</button> </td>
                     <td class="cmdbtn"><button class="cmdbtn" id="data" checked="checked">Data Rec On</button></td>
                 </tr>
-           
                 <tr>
                     <td class="cmdbtn"><button class="cmdbtn" id="start">Start</button></td>
                     <td class="cmdbtn"><button class="cmdbtn" id="realtime">RealTime On</button></td>
@@ -69,7 +75,11 @@
             </table>
         </div>
         <div id="barchild">
-            Here is a place for the buttons that start Trick TV, MTV, and Throttle.
+            <table id="bartable">
+                <th class="bartable"><button></button>A</th>
+                <th class="bartable"><button></button>B</th>
+                <th class="bartable"><button></button>C</th>
+            </table>
             <hr id="line">
         </div>
         <div id="bottomchild">
@@ -183,10 +193,14 @@
                   realtimeButton.innerText = "RealTime On";
                   sendMessage(`{"cmd": "python", "pycode": "trick.real_time_enable()"}`);
                   realtimeButton.checked = true;
-                    } else {
+                  document.querySelector("#step").disabled = false;
+
+                } else {
                   realtimeButton.innerText = "RealTime Off";
                   sendMessage(`{"cmd": "python", "pycode": "trick.real_time_disable()"}`);
                   realtimeButton.checked = false;
+                  document.querySelector("#step").disabled = true;
+
                 }
             }
             // Sets sim time and directory for load/dump 
@@ -203,26 +217,52 @@
             }
             function setSimMode(m){
                 simInfo.mode = m;
-
+                document.querySelector(".cmdbtn").disabled = false;
+                // everything is originally enabled 
                 switch (m){
                     case '0':
                         document.getElementById("modeheader").innerText = "Initialization Mode";
+                        document.querySelector(".cmdbtn").disabled = false;
+                        document.querySelector("#freeze").disabled = true;
+                        document.querySelector("#exit").disabled = true;
                     break;
                     case '1':
                         document.getElementById("modeheader").innerText = "Freeze Mode";
+                        document.querySelector(".cmdbtn").disabled = false;
+                        document.querySelector("#freeze").disabled = true;
+                        document.querySelector("#exit").disabled = true;
                     break;
                     case '4':
                         document.getElementById("modeheader").innerText = "Debug Stepping Mode";
+                        document.querySelector(".cmdbtn").disabled = false;
+                        document.querySelector("#start").disabled = true;
+                        document.querySelector("#shutdown").disabled = true;
+                        document.querySelector("#load").disabled = true;
+                        document.querySelector("#realtime").disabled = true;
+                        document.querySelector("#data").disabled = true;
                     break;
                     case '5':
                         document.getElementById("modeheader").innerText = "Run Mode";
+                        document.querySelector(".cmdbtn").disabled = false;
+                        document.querySelector("#step").disabled = true;
+                        document.querySelector("#shutdown").disabled = true;
+                        document.querySelector("#load").disabled = true;
+                        document.querySelector("#dump").disabled = true;
+                        document.querySelector("#realtime").disabled = true;
+                        document.querySelector("#data").disabled = true;
+                        document.querySelector("#freeze").disabled = false;
+                        document.querySelector("#start").disabled = true;
+
+
                     break;
                     case '6': 
                         document.getElementById("modeheader").innerText = "Exit Mode";
+                        document.querySelector(".cmdbtn").disabled = false;
                     break;
                     default:
                         document.getElementById("modeheader").innerText = "N/A";
-
+                        document.querySelector(".cmdbtn").disabled = false;
+                        break;
                 }
             }
             function setServerPort(p){
@@ -238,14 +278,20 @@
 
             }
             
-            
             // MY EXPERIMENTS
-            function loadChkpnt (){
-                var file = "chkpnt_" + simTime;
-                sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${simDir}' + '/' + '${file}')"}`);
+            document.getElementById("load").onclick = function loadChkpnt (){
+                var file = prompt("Enter file to load: ", "chkpnt_" + simInfo.time);
+    
+                
+
+                
+              //  var file = "chkpnt_" + simTime;
+                sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${simInfo.dir}' + '/' + '${file}')"}`);
             }
-            function dumpChkpnt (){
-                var file = "chkpnt_" + simTime;
+            document.getElementById("dump").onclick = function dumpChkpnt (){
+                var file = prompt("Enter file to dump: ", "chkpnt_" + simInfo.time);
+
+                //var file = "chkpnt_" + simTime;
                 
                 sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint('${file}')"}`);
                
@@ -295,7 +341,7 @@
                // let windowLocation = window.location.host;
                // log("Connection established");
                 setPeriod(100);
-                changeServerPort();
+                //changeServerPort();
                 sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.run_dir"}`);
                 sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.default_dir"}`);
                 sendMessage(`{"cmd":"var_add","var_name": "web.server.port"}`);
