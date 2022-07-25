@@ -1,0 +1,7 @@
+To configure Trick, 
+type: 
+./configure --with-civetweb=<Path of civet web> 
+Make
+
+Once completed, go to the sim and type:
+trick-CP
