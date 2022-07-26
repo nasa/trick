@@ -21,7 +21,7 @@ class WebSocketSession {
         */
         virtual void marshallData()=0;
         virtual void sendMessage()=0;
-        virtual int  handleMessage(std::string)=0;
+        virtual int  handleMessage(const std::string&)=0;
 
         struct mg_connection* connection; /* ** */
 };

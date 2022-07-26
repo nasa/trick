@@ -15,7 +15,7 @@ class TimeSession : public WebSocketSession {
         ~TimeSession();
         void marshallData();
         void sendMessage();
-        int  handleMessage(std::string);
+        int  handleMessage(const std::string&);
     private:
         time_t now;
         Zone zone;

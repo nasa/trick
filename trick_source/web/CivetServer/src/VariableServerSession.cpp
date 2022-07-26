@@ -73,7 +73,7 @@ void VariableServerSession::sendMessage() {
 }
 
 // Base class virtual function.
-int VariableServerSession::handleMessage(std::string client_msg) {
+int VariableServerSession::handleMessage(const std::string& client_msg) {
 
      int status = 0;
      std::vector<Member*> members = parseJSON(client_msg.c_str());
