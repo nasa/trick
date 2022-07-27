@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     container: docker://oraclelinux:8
     steps:
+    - name: install tar
+      run: dnf -y install tar
     - name: Checkout repository
       uses: actions/checkout@master
     - name: Add dnf repo
