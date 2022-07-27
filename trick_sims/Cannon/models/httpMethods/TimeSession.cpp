@@ -36,7 +36,7 @@ void TimeSession::sendMessage() {
     mg_websocket_write(connection, MG_WEBSOCKET_OPCODE_TEXT, message, strlen(message));
 }
 
-int TimeSession::handleMessage(std::string client_msg) {
+int TimeSession::handleMessage(const std::string& client_msg) {
 
    if (client_msg.compare("GMT") == 0) {
        zone = TimeSession::GMT;
