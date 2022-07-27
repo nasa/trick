@@ -163,7 +163,9 @@ jobs:
           export MAKEFLAGS=-j`nproc`
           make
       - name: Test
-        run: make test
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          make test
       - name: Upload Tests
         uses: actions/upload-artifact@v3.0.0
         if: success() || failure()    # run this step even if previous step failed
