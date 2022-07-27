@@ -31,7 +31,7 @@ jobs:
         udunits2-devel wget which zip zlib-devel zlib-devel.i686
     - name: Symlink python
       run: |
-        ln -s /lib/libpython3.6m.so.1.0 /lib/libpython3.6m
+        ln -s /lib/libpython3.6m.so.1.0 /lib/libpython3.6m.so
     - name: Install Udunits (32 bit)
       run: |
         cd /
