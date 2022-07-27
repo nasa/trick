@@ -10,7 +10,7 @@ on:
 
 jobs:
   trick_32bit:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container: docker://oraclelinux:8
     steps:
     - name: Checkout repository
