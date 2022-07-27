@@ -46,17 +46,17 @@ REF2* Trick::VariableServerThread::make_error_ref(std::string in_name) {
     return new_ref;
 }
 
-int Trick::VariableServerThread::var_add(std::string in_name) {
-
-    VariableReference * new_var ;
+Trick::VariableReference* Trick::VariableServerThread::create_var_reference(std::string in_name) {
     REF2 * new_ref ;
 
+    // Time var is treated specially
     if ( in_name.compare("time") == 0 ) {
         new_ref = make_time_ref() ;
     } else {
         new_ref = ref_attributes(in_name.c_str()) ;
     }
 
+    // Check error cases
     if ( new_ref == NULL ) {
         message_publish(MSG_ERROR, "Variable Server could not find variable %s.\n", in_name.c_str());
         new_ref = make_error_ref(in_name);
@@ -81,7 +81,12 @@ int Trick::VariableServerThread::var_add(std::string in_name) {
         new_ref = make_error_ref(in_name);
     }
 
-    new_var = new VariableReference(new_ref) ;
+    // Actually constructs the variable reference in the success case
+    return new VariableReference(new_ref) ;
+}
+
+int Trick::VariableServerThread::var_add(std::string in_name) {
+    VariableReference * new_var = create_var_reference(in_name);
     vars.push_back(new_var) ;
 
     return(0) ;
@@ -90,6 +95,28 @@ int Trick::VariableServerThread::var_add(std::string in_name) {
 int Trick::VariableServerThread::var_add(std::string var_name, std::string units_name) {
     var_add(var_name) ;
     var_units(var_name, units_name) ;
+    return(0) ;
+}
+
+std::vector<std::string> split (const std::string& str, const char delim) {
+  std::stringstream ss(str);
+  std::string s;
+  std::vector<std::string> ret;
+  while (std::getline(ss, s, delim)) {
+    ret.push_back(s);
+  }
+  return ret;
+}
+
+int Trick::VariableServerThread::var_send_once(std::string in_name) {
+    std::vector<VariableReference *> givenVars;
+    auto varNames = split(in_name, ',');
+    for (auto& varName : varNames) {
+        givenVars.push_back(create_var_reference(varName));
+    }
+    copy_sim_data(givenVars);
+    write_data(givenVars);
+
     return(0) ;
 }
 
@@ -217,6 +244,7 @@ int Trick::VariableServerThread::var_clear() {
     }
     return(0) ;
 }
+
 
 int Trick::VariableServerThread::var_send() {
     copy_sim_data();

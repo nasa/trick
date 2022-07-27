@@ -60,6 +60,15 @@ int var_exists(std::string in_name) {
     return(0) ;
 }
 
+int var_send_once(std::string in_name) {
+    Trick::VariableServerThread * vst ;
+    vst = get_vst() ;
+    if (vst != NULL ) {
+        vst->var_send_once(in_name) ;
+    }
+    return(0) ;
+}
+
 int var_send() {
     Trick::VariableServerThread * vst ;
     vst = get_vst() ;

@@ -14,6 +14,8 @@
 #include "trick/ThreadBase.hh"
 #include "trick/VariableServerReference.hh"
 #include "trick/variable_server_sync_types.h"
+#include "trick/variable_server_message_types.h"
+
 
 namespace Trick {
 
@@ -119,6 +121,15 @@ namespace Trick {
              @return always 0
             */
             int var_exists( std::string in_name ) ;
+
+            /**
+             @brief @userdesc Command to immediately send the value of the variable.
+             @par Python Usage:
+             @code trick.var_send_once("<in_name>") @endcode
+             @param in_name - the variable name to retrieve
+             @return always 0
+            */
+            int var_send_once( std::string in_name ) ;
 
             /**
              @brief @userdesc Command to instruct the variable server to immediately send back the values of
@@ -369,10 +380,17 @@ namespace Trick {
             */
             int copy_sim_data();
 
+            int copy_sim_data(std::vector<VariableReference *> given_vars);
+
             /**
              @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
             */
             int write_data();
+
+            /**
+             @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
+            */
+            int write_data(std::vector<VariableReference *> var) ;
 
             /**
              @brief gets the send_stdio flag.
@@ -428,7 +446,13 @@ namespace Trick {
             /**
              @brief Called by write_data to write data to socket in var_binary format.
             */
-            int write_binary_data( int Start, char *buf1, int PacketNum );
+            int write_binary_data( int Start, char *buf1, const std::vector<VariableReference *>& givenVars, VS_MESSAGE_TYPE messageType);
+            int write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& givenVars, VS_MESSAGE_TYPE messageType );
+
+
+            int copy_sim_data_single(VariableReference * curr_var) ;
+
+            VariableReference* create_var_reference(std::string in_name);
 
             /**
              @brief Make a time reference.
