@@ -63,4 +63,8 @@ jobs:
         ./configure --without-hdf5 --enable-32bit
         make
     - name: Run tests
-      run: make test 
+      run: |
+        export CFLAGS="-m32"
+        export CXXFLAGS="-m32"
+        export MAKEFLAGS=-j`nproc`
+        make test 
