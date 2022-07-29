@@ -122,14 +122,24 @@ namespace Trick {
             */
             int var_exists( std::string in_name ) ;
 
+            // /**
+            //  @brief @userdesc Command to immediately send the value of one variable 
+            //  @par Python Usage:
+            //  @code trick.var_send_once("<in_name_list>") @endcode
+            //  @param in_name_list - the variables name to retrieve, comma separated
+            //  @return always 0
+            // */
+            // int var_send_once( std::string in_name ) ;
+
             /**
-             @brief @userdesc Command to immediately send the value of the variable.
+             @brief @userdesc Command to immediately send the value of a comma separated list of variables
              @par Python Usage:
-             @code trick.var_send_once("<in_name>") @endcode
-             @param in_name - the variable name to retrieve
+             @code trick.var_send_once("<in_name_list>", <number of variables in list>) @endcode
+             @param in_name_list - the variables name to retrieve, comma separated
+             @param numVars - number of vars in in_name_list
              @return always 0
             */
-            int var_send_once( std::string in_name ) ;
+            int var_send_once(std::string in_name_list, int numVars);
 
             /**
              @brief @userdesc Command to instruct the variable server to immediately send back the values of
@@ -380,7 +390,11 @@ namespace Trick {
             */
             int copy_sim_data();
 
-            int copy_sim_data(std::vector<VariableReference *> given_vars);
+            /**
+             @brief Copy given variable values from Trick memory to each variable's output buffer.
+             cyclical indicated whether it is a normal cyclical copy or a send_once copy
+            */
+            int copy_sim_data(std::vector<VariableReference *> given_vars, bool cyclical);
 
             /**
              @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
@@ -444,14 +458,18 @@ namespace Trick {
             int transmit_file(std::string file_name);
 
             /**
-             @brief Called by write_data to write data to socket in var_binary format.
+             @brief Called by write_data to write given variables to socket in var_binary format.
             */
             int write_binary_data( int Start, char *buf1, const std::vector<VariableReference *>& givenVars, VS_MESSAGE_TYPE messageType);
+
+            /**
+             @brief Called by write_data to write given variables to socket in var_ascii format.
+            */
             int write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& givenVars, VS_MESSAGE_TYPE messageType );
 
-
-            int copy_sim_data_single(VariableReference * curr_var) ;
-
+            /**
+             @brief Construct a variable reference from the string in_name and handle error checking
+            */
             VariableReference* create_var_reference(std::string in_name);
 
             /**

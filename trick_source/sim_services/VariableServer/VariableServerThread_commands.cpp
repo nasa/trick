@@ -53,6 +53,7 @@ Trick::VariableReference* Trick::VariableServerThread::create_var_reference(std:
     if ( in_name.compare("time") == 0 ) {
         new_ref = make_time_ref() ;
     } else {
+        // otherwise ref_attributes takes care of the hard part
         new_ref = ref_attributes(in_name.c_str()) ;
     }
 
@@ -98,6 +99,7 @@ int Trick::VariableServerThread::var_add(std::string var_name, std::string units
     return(0) ;
 }
 
+// TODO: This should go somewhere else probably?
 std::vector<std::string> split (const std::string& str, const char delim) {
   std::stringstream ss(str);
   std::string s;
@@ -108,17 +110,24 @@ std::vector<std::string> split (const std::string& str, const char delim) {
   return ret;
 }
 
-int Trick::VariableServerThread::var_send_once(std::string in_name) {
+int Trick::VariableServerThread::var_send_once(std::string in_name, int numVars) {
+    std::vector<std::string> varNames = split(in_name, ',');
+
+    if (varNames.size() != numVars) {
+        message_publish(MSG_ERROR, "Number of variables sent to var_send_once (%d) does not match numVars (%d).\n", varNames.size(), numVars);
+        return -1;
+    }
+
     std::vector<VariableReference *> givenVars;
-    auto varNames = split(in_name, ',');
     for (auto& varName : varNames) {
         givenVars.push_back(create_var_reference(varName));
     }
-    copy_sim_data(givenVars);
+    copy_sim_data(givenVars, false);
     write_data(givenVars);
 
     return(0) ;
 }
+
 
 int Trick::VariableServerThread::var_remove(std::string in_name) {
 

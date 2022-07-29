@@ -506,21 +506,21 @@ std::vector<std::string> split (std::string& str, const char delim) {
   return ret;
 }
 
-std::vector<double> parseTrickResponse(std::vector<std::string> list) {
-  std::vector<double> ret;
-  for (int i = 1; i < list.size(); i++) {
-    ret.push_back(stod(list[i]));
-  }
-  return ret;
-}
+// std::vector<double> parseTrickResponse(std::vector<std::string> list) {
+//   std::vector<double> ret;
+//   for (int i = 1; i < list.size(); i++) {
+//     ret.push_back(stod(list[i]));
+//   }
+//   return ret;
+// }
 
-std::vector<int> parseTrickResponseInt(std::vector<std::string> list) {
-  std::vector<int> ret;
-  for (int i = 1; i < list.size(); i++) {
-    ret.push_back(stoi(list[i]));
-  }
-  return ret;
-}
+// std::vector<int> parseTrickResponseInt(std::vector<std::string> list) {
+//   std::vector<int> ret;
+//   for (int i = 1; i < list.size(); i++) {
+//     ret.push_back(stoi(list[i]));
+//   }
+//   return ret;
+// }
 
 double totalTime = 0;
 std::vector<double> requestTime;
@@ -552,6 +552,8 @@ T getVar(Socket& socket, std::string varName) {
   std::string requestString = "trick.var_send_once(\"" + varName + "\")\n";
   std::string reply;
 
+  std::cout << "Request sent: " << requestString << std::endl;
+
   socket << requestString;
   socket >> reply;
 
@@ -566,24 +568,18 @@ std::string format(const std::string& formatString, int num) {
     return std::string(buf);
 }
 
-// Wrapper for sprintf use case bc im tired of dealing with std::string vs char* stuff
-std::string formatSpecial(const std::string& formatString, int num, std::string s) {
-    char buf[STR_MAX];
-    sprintf(buf, formatString.c_str(), num, s.c_str());
-    return std::string(buf);
-}
-
 // Assumes the varName string has a %d in it
 template <typename T> 
 std::vector<T> getVarList(Socket& socket, std::string varName, int num) {
   std::string totalRequest = "";
   std::vector<T> result;
-  for (int i = 0; i < num; i++) {
+  totalRequest += format(varName, 0);
+  for (int i = 1; i < num; i++) {
+    totalRequest += ", ";
     totalRequest += format(varName, i);
-    totalRequest += ",";
   }
 
-  std::string requestString = "trick.var_send_once(\"" + totalRequest + "\")\n";
+  std::string requestString = "trick.var_send_once(\"" + totalRequest + "\", " + std::to_string(num) + ")\n";
 
   std::string reply;
   socket << requestString;
@@ -625,6 +621,7 @@ int main(int argc, char *argv[])
   socket << "trick.var_set_client_tag(\"PoolTableDisplay\") \n";
 
   int numBalls = getVar<int>(socket, "dyn.table.numBalls");
+  // int numBalls = 16;
   std::vector<double> radii = getVarList<double>(socket, "dyn.table.balls[%d][0].radius", numBalls);
   int numTablePoints = getVar<int>(socket, "dyn.table.numTablePoints");
   enum PolygonType tableShape = PolygonType(getVar<int>(socket, "dyn.table.tableShapeType"));
@@ -660,6 +657,8 @@ int main(int argc, char *argv[])
     }
   }
 
+  table.addShape(railData, Eigen::Vector3d(.3, .2, .15), true, tableShape, layer_RAIL);
+
   // pockets
   int numPockets = getVar<int>(socket, "dyn.table.numPockets");
   
@@ -673,7 +672,6 @@ int main(int argc, char *argv[])
   // bumpers
   int numBumpers = getVar<int>(socket, "dyn.table.numBumpers");
   for (int i = 0; i < numBumpers; i++) {
-    // std::string requestString = "dyn.table.bumpers[%d][0].numPoints";
     int numPoints = getVar<int>(socket,format("dyn.table.bumpers[%d][0].numPoints", i));
     PolygonType bumperShapeType = PolygonType(getVar<int>(socket,format("dyn.table.bumpers[%d][0].shapeType", i)));
 
@@ -689,13 +687,7 @@ int main(int argc, char *argv[])
 
   }
 
-  std::cout << "Got bumper info" << std::endl;
-
-
-  table.addShape(railData, Eigen::Vector3d(.3, .2, .15), true, tableShape, layer_RAIL);
-
   // Request all of the ball positions
-  std::cout << "Requesting ball info" << std::endl;
 
   std::vector<double> ball_x = getVarList<double>(socket, "dyn.table.balls[%d][0].pos._x", numBalls);
   std::vector<double> ball_y = getVarList<double>(socket, "dyn.table.balls[%d][0].pos._y", numBalls);
@@ -703,10 +695,6 @@ int main(int argc, char *argv[])
     Eigen::Vector3d circleColor = ball_colors[i % ball_colors.size()];
     table.addShape(std::vector<double>({ball_x[i], ball_y[i], radii[i]}), circleColor, false, CIRCLE, layer_BALL);
   }
-
-  std::cout << "Got ball info" << std::endl;
-
-  std::cout << "*********************** End of setup" << std::endl;
 
   bool mousePressed = false;
   double mouseX = 0;
@@ -755,7 +743,7 @@ int main(int argc, char *argv[])
   view->callback_pre_draw = [&](igl::opengl::glfw::Viewer& viewer) -> bool {
     // Look for new data and redraw
     socket >> reply;
-    std::vector<double> replyData = parseTrickResponse(split(reply, '\t'));
+    std::vector<double> replyData = trickResponseConvert<double>(reply);
 
     if (replyData.size() <= 1) {
       return false;
