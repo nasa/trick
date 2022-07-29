@@ -122,15 +122,6 @@ namespace Trick {
             */
             int var_exists( std::string in_name ) ;
 
-            // /**
-            //  @brief @userdesc Command to immediately send the value of one variable 
-            //  @par Python Usage:
-            //  @code trick.var_send_once("<in_name_list>") @endcode
-            //  @param in_name_list - the variables name to retrieve, comma separated
-            //  @return always 0
-            // */
-            // int var_send_once( std::string in_name ) ;
-
             /**
              @brief @userdesc Command to immediately send the value of a comma separated list of variables
              @par Python Usage:

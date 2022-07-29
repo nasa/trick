@@ -78,30 +78,6 @@ int var_send_once(std::string in_name, int num) {
     return(0) ;
 }
 
-// int var_send_once(int num, ...) {
-//     std::cout << "In send once with num " << num << std::endl;
-//     Trick::VariableServerThread * vst ;
-//     vst = get_vst() ;
-//     if (vst != NULL ) {
-//         std::vector<std::string> in_vars;
-//         std::cout << "va_list" << std::endl;
-//         va_list(argslist);
-//         std::cout << "va_start" << std::endl;
-//         va_start(argslist, num);
-//         int count = 0;
-//         for (int i = 0; i < num; i++) {
-//             std::cout << "va_arg" << std::endl;
-//             char * token = va_arg(argslist, char *);
-//             std::cout << "Variadic function token " << count++ << ": " << token << std::endl;
-//             in_vars.emplace_back(token);
-//         }
-
-//         va_end(argslist);
-//         vst->var_send_once(in_vars) ;
-//     }
-//     return(0) ;
-// }
-
 int var_send() {
     Trick::VariableServerThread * vst ;
     vst = get_vst() ;

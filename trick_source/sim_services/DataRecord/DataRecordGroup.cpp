@@ -361,7 +361,6 @@ int Trick::DataRecordGroup::init() {
     file_name = output_dir + "/log_" + group_name ;
 
     pthread_mutex_init(&buffer_mutex, NULL);
-    // pthread_mutex_init(&buffer_index_mutex, NULL);
 
     // Allocate recording space for time.
     rec_buffer[0]->buffer = (char *)calloc(max_num , rec_buffer[0]->ref->attr->size) ;
@@ -580,7 +579,6 @@ int Trick::DataRecordGroup::data_record(double in_time) {
     bool change_detected = false ;
 
     //TODO: does not handle bitfields correctly!
-    // pthread_mutex_lock(&buffer_index_mutex);
     if ( record == true ) {
         if ( freq != DR_Always ) {
             for (jj = 0; jj < change_buffer.size() ; jj++) {
@@ -676,8 +674,6 @@ int Trick::DataRecordGroup::data_record(double in_time) {
             buffer_num++ ;
         }
     }
-    // pthread_mutex_unlock(&buffer_index_mutex);
-
 
     return(0) ;
 
