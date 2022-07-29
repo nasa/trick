@@ -9,7 +9,6 @@
 #include <sstream>
 #include <stdlib.h> 
 #include <string> 
-#include <chrono>
 
 #include "Socket.hh"
 
@@ -154,7 +153,7 @@ class Circle : public Polygon {
     }
 
     bool isValid() const {
-      return points.size() == vertexMax;
+      return points.size() == 1 && radius >= 0;
     }
 
     RenderedShape *render() const {
@@ -299,14 +298,11 @@ class Table {
 
     // Need to have an agreed upon way to send over variables
     int addShape(std::vector<double> shapeData, Eigen::Vector3d color, bool isStatic, PolygonType type, double layer) {
-      // std::cout << "In AddShape" << std::endl;
       Polygon *shape;
 
       switch (type) {
-
         case GENERIC: {
           // Number of points is just data / 2 i guess
-          // std::cout << "Creating generic polygon with " << shapeData.size()/2 << " points" << std::endl;
           Polygon *newPolygon = new Polygon(shapeData.size()/2, layer);
           for (int i = 0; i < shapeData.size(); i+=2) {
             double x = shapeData[i];
@@ -317,7 +313,6 @@ class Table {
           break;
         }
         case CIRCLE: {
-          // std::cout << "Adding circle" << std::endl;
           if (shapeData.size() != 3) {
             std::cout << "Bad shapedata size for circle" << std::endl;
             return -1;
@@ -346,7 +341,6 @@ class Table {
           break;
         }
         case RECTANGLE: {
-          // std::cout << "In rectangle" << std::endl;
           Rectangle *newRectangle = new Rectangle(layer);
           if (shapeData.size() != 4) {
             std::cout << "Bad shapedata size for rectangle" << std::endl;
@@ -482,14 +476,12 @@ class Table {
 
   private:
     std::vector<Polygon *> staticShapes;
+    std::vector<Polygon *> movingShapes;
     std::vector<RenderedShape *> staticRenderedShapes;
     std::vector<RenderedShape *> movingRenderedShapes;
     int numStaticVertices;
     int numStaticFaces;
     bool staticRendered = false;
-
-    std::vector<Polygon *> movingShapes;
-
 };
 
 void printUsage() {
@@ -506,22 +498,6 @@ std::vector<std::string> split (std::string& str, const char delim) {
   return ret;
 }
 
-// std::vector<double> parseTrickResponse(std::vector<std::string> list) {
-//   std::vector<double> ret;
-//   for (int i = 1; i < list.size(); i++) {
-//     ret.push_back(stod(list[i]));
-//   }
-//   return ret;
-// }
-
-// std::vector<int> parseTrickResponseInt(std::vector<std::string> list) {
-//   std::vector<int> ret;
-//   for (int i = 1; i < list.size(); i++) {
-//     ret.push_back(stoi(list[i]));
-//   }
-//   return ret;
-// }
-
 double totalTime = 0;
 std::vector<double> requestTime;
 
@@ -537,7 +513,6 @@ T stringConvert (const std::string& str)
 template <typename T> 
 std::vector<T> trickResponseConvert (std::string& response)
 {
-    // std::cout << "Parsing response: " << response << std::endl;
     auto responseSplit = split(response, '\t');
     std::vector<T> result;
     // ignore index 0
@@ -551,8 +526,6 @@ template <typename T>
 T getVar(Socket& socket, std::string varName) {
   std::string requestString = "trick.var_send_once(\"" + varName + "\")\n";
   std::string reply;
-
-  std::cout << "Request sent: " << requestString << std::endl;
 
   socket << requestString;
   socket >> reply;
