@@ -9,7 +9,7 @@ on:
   pull_request:
 
 jobs:
-  trick_32bit:
+  trick_32bit_oracle:
     runs-on: ubuntu-latest
     container: docker://oraclelinux:8
     steps:
@@ -43,6 +43,9 @@ jobs:
         make install
         cd /
         rm -rf udunit-2.2.28
+    - name: install_gtest: |
+        dnf config-manager --enable ol8_codeready_builder
+        dnf install -y gtest-devel
     - name: Install GTest (32 bit)
       run: |
         wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
