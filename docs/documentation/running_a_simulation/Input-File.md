@@ -587,8 +587,6 @@ trick.add_event_after(over100_event, "data_record_group1.Ball")
 Many of Trick's functions can be called using Python commands in the input file (or via the variable server)
 to perform various operations or to customize/configure Trick.
 
-Look for a Trick flag icon like this beside each user callable function for details in the Class pages listed below.
-
 ### I Just Want to Know How Do I Set this Value...
 
 [Continue to Runtime GUIs](runtime_guis/Runtime-GUIs)

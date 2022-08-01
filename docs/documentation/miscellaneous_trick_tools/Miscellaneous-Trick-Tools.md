@@ -12,8 +12,8 @@ into a simulation which uses the types parsed.
 The command syntax for the ICG is as follows (with restrictions outlined afterward):
 
 ```
-<b>UNIX Prompt></b> ICG [-d] [-D <define>] [-U <undefine>] <filename>.h
-<b>UNIX Prompt></b> ICG -u
+$ ICG [-d] [-D <define>] [-U <undefine>] <filename>.h
+$ ICG -u
 ```
 
 The ICG can process multiple files at a
@@ -64,7 +64,7 @@ definition files. This ensures the io_*.c files created by ICG are processed by
 make_build. The command syntax for make_build is as follows:
 
 ```
-<b>UNIX Prompt></b> make_build [lib <lib_name>]
+$ make_build [lib <lib_name>]
 ```
 
 The lib argument causes make_build to generate Makefile syntax for building an
@@ -83,7 +83,7 @@ source local to that directory or a library.
 Makefile options may be found by typing in:
 
 ```
-<b>UNIX Prompt></b> make help
+$ make help
 ```
 
 Additional documentation for make can be found in UNIX manuals for your workstation.
@@ -95,14 +95,14 @@ It's errr.  Uhhh.  clock something..."  Try running this in your built simulatio
 directory where the S_sie.resource file is located.
 
 ```
-<b>UNIX Prompt></b> sie [-nocase] <search string>
+$ sie [-nocase] <search string>
 ```
 
 As an example, if you know the parameter name contains clock but don't know
 anything else, try:
 
 ```
-<b>UNIX Prompt></b> sie clock
+$ sie clock
 ```
 
 The search returns each %Trick processed variable (including Trick's "sys" variables)
@@ -118,7 +118,7 @@ simply specify the -nocase option.
 The following command will kill all simulations and their children that you own.
 
 ```
-<b>UNIX Prompt></b> kill_sim
+$ kill_sim
 ```
 
 ### Current Trick Version 
@@ -126,7 +126,7 @@ The following command will kill all simulations and their children that you own.
 The following command echoes the installed %Trick version release:
 
 ```
-<b>UNIX Prompt></b> trick_version
+$ trick_version
 ```
 
 ### Checksumming
@@ -134,7 +134,7 @@ The following command echoes the installed %Trick version release:
 Trick comes with a file that contains checksums for the %Trick package. You may run:
 
 ```
-<b>UNIX Prompt></b> trick_verify_checksums
+$ trick_verify_checksums
 ```
 
 at any time to see what, if any, files have changed from the original package. The checksum is

@@ -4,7 +4,7 @@ It also details the operation of the Trick Interface Code Generator (ICG) that p
 
 #### Programming Language Support
 
-The majority of model source for simulations is written in C and C++ . Trick supports auto generating IO code to peek and poke C and C++ structures, classes, and enumerations. Trick also generates the necessary makefile rules to compile and link C and C++ model code into the simulation.
+The majority of model source for simulations is written in C and C++. Trick supports auto generating IO code to peek and poke C and C++ structures, classes, and enumerations. Trick also generates the necessary makefile rules to compile and link C and C++ model code into the simulation.
 
 Models written in other languages may be included in the simulation. It is possible to include Fortran 77, Fortran 90, Ada, and/or Java code in the simulation. These models cannot be called directly from the Trick scheduler, but may be called through C language wrapper functions provided by the user that executes the other language calls.
 
@@ -41,43 +41,48 @@ Introduced in Trick 16
 */
 
 typedef enum {
-    enum_label [=enum_value],
+    enum_label [= enum_value],
     last_enum_label [= enum_value]
-} enum_name ;
+} enum_name;
 
 [typedef] struct [struct_tag] {
     char|short|int|long|long long|
     unsigned char|unsigned short|unsigned int|unsigned long|unsigned long long|
-    float|double [*]* param_name [[dim]]* ;
+    float|double [*]* param_name [[dim]]*;
         /* [**|*i|*o|*io] (trick_io|io)([**|*i|*o|*io]) (trick_chkpnt_io|cio)([**|*i|*o|*io])
            trick_units([measurement_units]) description */
 
-    any_other_type [*]* param_name [[dim]]* ;
+    any_other_type [*]* param_name [[dim]]*;
         /* [**|*i|*o|*io] trick_io([**|*i|*o|*io]) trick_chkpnt_io([**|*i|*o|*io])
            trick_units(measurement_units) description */
-} struct_name ;
+} struct_name;
 
 class <class_name> {
     [
-     friend InputProcessor ;
-     friend init_attr<class_name>() ;
+     friend InputProcessor;
+     friend init_attr<class_name>();
     ]
 
     (public|protected|private):
     char|short|int|long|long long|
     unsigned char|unsigned short|unsigned int|unsigned long|unsigned long long|
-    float|double [*]* param_name [[dim]]* ;
+    float|double [*]* param_name [[dim]]*;
         /* [**|*i|*o|*io] trick_io([**|*i|*o|*io]) trick_chkpnt_io([**|*i|*o|*io])
            trick_units([measurement_units]) description */
 
-    any_other_type [*]* param_name [[dim]]* ;
+    any_other_type [*]* param_name [[dim]]*;
         /* [**|*i|*o|*io] trick_io([**|*i|*o|*io]) trick_chkpnt_io([**|*i|*o|*io])
            trick_units([measurement_units])measurement_units description */
-} ;
+};
 ```
 ##### Comment Header
 
-The Trick comment header, which is optional, begins with `/* PURPOSE:`. Within the Trick comment header, the `PROGRAMMERS`, `REFERENCES`, `ASSUMPTIONS AND LIMITATIONS` and `ICG` are optional entries. Since parentheses, (), are used to delineate fields within the comment header, parentheses are not allowed as characters within the comment fields. Any other formatted comments may appear before and/or after the Trick comment header.
+The Trick comment header, which is optional, begins with `/* PURPOSE:`. Within
+the Trick comment header, the `PROGRAMMERS`, `REFERENCES`, `ASSUMPTIONS AND
+LIMITATIONS` and `ICG` are optional entries. Since parentheses, (), are used to
+delineate fields within the comment header, parentheses are not allowed as
+characters within the comment header's fields. Any other formatted comments may appear
+before and/or after the Trick comment header.
 
 ###### C++ Language Override, `LANGUAGE: (C++)`
 
@@ -126,11 +131,11 @@ For references to objects outside the current source directory, the directory pa
 
 There are two ways to specify dependencies to actual libraries, i.e. lib\*.a files:
 
-`* <relative path>="">/<libraryname>.a`
+`* <relative path>="">/<library name>.a`
 
 If you use a relative path to the library, Trick will search the TRICK_CFLAGS for a directory that contains source code for the library. Once Trick locates the source code, it will automatically build the library and link it in the simulation.
 
-`* <libraryname>.a`
+`* <library name>.a`
 
 If you do NOT specify a relative path, Trick will NOT build the library for you. It will simply search your -L paths in your `TRICK_USER_LINK_LIBS` for the library. If found, it will link the library into the simulation.
 
@@ -189,8 +194,8 @@ a.h
 
 ```C
 typedef enum {
-   FIRST_ENUM = 45
-} A_ENUM ;
+  FIRST_ENUM = 45
+} A_ENUM;
 ```
 
 b.h
@@ -207,7 +212,7 @@ typedef enum {
   THIRD_ENUM = FIRST_ENUM * 3,
   FOURTH_ENUM = SECOND_ENUM * 4,
   FIFTH_ENUM = ME_TOO * 6
-} B_ENUM ;
+} B_ENUM;
 ```
 
 c.h
@@ -222,7 +227,7 @@ typedef struct {
   int ia1[FIRST_ENUM];            /* No comment necessary */
   int ia2[SECOND_ENUM];           /* No comment necessary */
   int ia3[FIFTH_ENUM];            /* No comment necessary */
-} DATA ;
+} DATA;
 ```
 
 ##### Data Structure Definitions and Parameter Declarations
@@ -283,43 +288,43 @@ typedef double my_double;
 typedef my_short my_short2;
 
 struct Animal_Sound {
-   int moo ;            /* -- Cow */
-   int baa ;            /* -- Lamb */
-   int sss ;            /* -- Snake */
+   int moo;            /* -- Cow */
+   int baa;            /* -- Lamb */
+   int sss;            /* -- Snake */
 };
 
 typedef struct {
-  my_uchar uc ;         /* -- unsigned char */
-  my_char  c ;          /* -- char */
-  my_char  ca[80] ;     /* -- char */
-  my_wchar  wc;          /* -- wchar_t */
-  my wchar wca[100];   /* -- wchar_t */
-  my_shortint si ;      /* -- short int */
-  my_short *s ;         /* -- short stuff */
-  my_ushortint usi ;    /* -- short stuff */
-  my_ushort us ;        /* -- short stuff */
-  my_int i ;            /* -- count */
-  my_int ia[5] ;        /* -- count */
-  my_uint ui ;          /* -- count */
-  my_longint li ;       /* -- count */
-  my_long l ;           /* -- count */
-  my_ulongint uli ;     /* -- count */
-  my_ulong ul ;         /* -- count */
-  my_float f ;          /* -- count */
-  my_double d ;         /* -- count */
-  my_short2 s20;        /* -- short 20 */
-  my_short2 s21;        /* -- short 21 */
-  struct Animal_Sound as /* -- Wild Kingdom */
-} DATA ;
+  my_uchar uc;             /* -- unsigned char */
+  my_char c;               /* -- char */
+  my_char ca[80];          /* -- char */
+  my_wchar wc;             /* -- wchar_t */
+  my wchar wca[100];       /* -- wchar_t */
+  my_shortint si;          /* -- short int */
+  my_short *s;             /* -- short stuff */
+  my_ushortint usi;        /* -- short stuff */
+  my_ushort us;            /* -- short stuff */
+  my_int i;                /* -- count */
+  my_int ia[5];            /* -- count */
+  my_uint ui;              /* -- count */
+  my_longint li;           /* -- count */
+  my_long l;               /* -- count */
+  my_ulongint uli;         /* -- count */
+  my_ulong ul;             /* -- count */
+  my_float f;              /* -- count */
+  my_double d;             /* -- count */
+  my_short2 s20;           /* -- short 20 */
+  my_short2 s21;           /* -- short 21 */
+  struct Animal_Sound as;  /* -- Wild Kingdom */
+} DATA;
 
 typedef DATA MY_DATA;
 typedef MY_DATA MY_DATA_2;
 
 typedef struct {
-   DATA id;        /* -- testing typedef of struct */
-   MY_DATA mid;    /* -- testing typedef of struct */
-   MY_DATA_2 mid2; /* -- testing typedef of struct */
-} DATA_2 ;
+  DATA id;        /* -- testing typedef of struct */
+  MY_DATA mid;    /* -- testing typedef of struct */
+  MY_DATA_2 mid2; /* -- testing typedef of struct */
+} DATA_2;
 ```
 
 ##### Parameter Comments
@@ -345,7 +350,7 @@ Checkpoint I/O may be set separately by adding `trick_chkpnt_io([**|*i|*o|*io])`
 * `*io` specifies that both input and output are allowed for the checkpointing.
 
 ###### The Measurement Units Specification
-The second field, `trick_units([measurement_units])`, is a required field and specifies the internal source code units for the parameter. These units are important because they give the input processor the knowledge of what units the user's input data needs to be converted to. Trick uses a third-party package, UDUNITS, for units support. It's syntax is specified [here](https://www.unidata.ucar.edu/software/udunits/udunits-current/doc/udunits/udunits2lib.html#Syntax).
+The second field, `trick_units([measurement_units])`, is a required field and specifies the internal source code units for the parameter. These units are important because they give the input processor the knowledge of what units the user's input data needs to be converted to. Trick uses a third-party package, UDUNITS, for units support. It's syntax is specified [here](https://www.unidata.ucar.edu/software/udunits/udunits-2.2.28/udunits2lib.html#Syntax).
 
 ###### User Defined Attributes Fields
 
@@ -364,8 +369,8 @@ C++ headers may include constructs and concepts not found in C header files. In 
 Trick generates several files to support its various features. The data recorder and checkpointer rely on code produced by the Interface Code Generator (ICG), which bookkeeps the memory layout of variables within the simulation. `public` members are always available to these features. `protected` and `private` data is also available if there is no use of `TRICK_ICG` in the header file. If use is found, Trick will issue a warning during simulation compilation, and `private` and `protected` data will only be accessible to Trick if the following `friend`s are added to the offending classes:
 
 ```C++
-friend class InputProcessor ;
-friend void init_attr<class_name>() ;
+friend class InputProcessor;
+friend void init_attr<class_name>();
 ```
 
 The input processor and variable server rely on code produced by a third-party tool, the [Simplified Wrapper and Interface Generator (SWIG)](http://www.swig.org/). SWIG provides the functions that allow access to simulation variables from Python contexts. These features can only access `public` members. It is not possible to expose `protected` and `private` data to them.
@@ -385,20 +390,20 @@ Currently one level of namespace is supported. Additional levels of namespaces a
 
 ```C++
 namespace my_ns {
-// BB is processed
-class BB {
-public:
-std::string str ;
-// Class CC is ignored.
-class CC {
-...
-}
-} ;
-// Everything enclosed in inner_ns is ignored.
-namespace inner_ns {
-...
-} ;
-} ;
+  // BB is processed
+  class BB {
+   public:
+    std::string str;
+    // Class CC is ignored.
+    class CC {
+      ...
+    }
+  };
+  // Everything enclosed in inner_ns is ignored.
+  namespace inner_ns {
+    ...
+  };
+};
 ```
 
 ##### Function Overloading
@@ -417,9 +422,9 @@ STLs may be used in models. However, STL variables are not data recordable, they
 Sometimes classes contain members that are not copyable or the math modeler wants to prevent the class from being copied. Declaring an unimplemented private copy constructor and assignment, "=", operator prevents the class from being copied.
 ```C++
 class CantCopyMe {
-private:
-CantCopyMe( const CantCopyMe & ) ;
-CantCopyMe & operator = ( const CantCopyMe ) ;
+ private:
+  CantCopyMe(const CantCopyMe&);
+  CantCopyMe& operator= (const CantCopyMe);
 }
 ```
 
@@ -427,17 +432,17 @@ When using such classes in Trick, classes that include non copyable classes must
 
 ```C++
 class MysimObject : public Trick::SimObject {
-public:
-CantCopyMe ccm ;
-private:
-MysimObject( const MysimObject & ) ;
-MysimObject& operator = ( const MysimObject) ;
+ public:
+  CantCopyMe ccm;
+ private:
+  MysimObject(const MysimObject&);
+  MysimObject& operator= (const MysimObject);
 }
 ```
 
 ##### Source Code in Header Files
 
-Trick attempts to skip over class code in header files while searching for class variables and method declarations. However, code can sometimes confuse Trick and cause it to abort processing of header files. It is recommended to keep code out of the header file..
+Trick attempts to skip over class code in header files while searching for class variables and method declarations. However, code can sometimes confuse Trick and cause it to abort processing of header files. It is recommended to keep code out of the header file.
 
 ##### Library Dependencies
 
@@ -447,7 +452,7 @@ It is good practice to list all the source code files that define class methods 
 
 There are several ways to exclude code from processing.
 
-Excluding Directories
+###### Excluding Directories
 
 Add paths to exclude to the TRICK_ICG_EXCLUDE environment variable or makefile variable. This works for both C and C++ headers.
 
@@ -467,7 +472,7 @@ code that cannot be processed by ICG or SWIG
 #endif
 ```
 
-##### Source Files
+#### Source Files
 
 By source files, in this context, we mean functional model source code, i.e. *.c files.
 
@@ -476,9 +481,11 @@ By source files, in this context, we mean functional model source code, i.e. *.c
 PURPOSE:
     (Purpose statement.)
 [REFERENCES:
-    ((Reference #1) (Reference #n)])]
+    ((Reference #1)
+    [(Reference #n)])]
 [ASSUMPTIONS AND LIMITATIONS:
-    ((Assumption #1) (Assumption #n)])]
+    ((Assumption #1)
+    [(Assumption #n)])]
 [LIBRARY DEPENDENCY:
     (
      (object.o|lib.a|lib.so|<relative_path>/lib.a)
@@ -486,7 +493,7 @@ PURPOSE:
     )]
 [PROGRAMMERS:
    (((Name) (Company) (Date) [(other info)])
-   [((Name) (Company) (Date) [(other info)])]]
+   [((Name) (Company) (Date) [(other info)])])]
 */
 
 // source code...
@@ -510,6 +517,6 @@ Trick is only interested in the header comment if one is present in source code 
 
 ##### Trick Version Compatibility
 
-Trick is always changing. The interface to Trick functions may change with each major version. Sometimes even minor version upgrades changes the interface. When Trick builds model source code it includes -DTRICK_VER=<version> and -DTRICK_MINOR=<minor_version> to the TRICK_CFLAGS and TRICK_CXXFLAGS. This allows developers to key off the Trick version in model source code. If there are any compile issues dependent on Trick version, this #define may be useful.
+Trick is always changing. The interface to Trick functions may change with each major version. Sometimes even minor version upgrades change the interface. When Trick builds model source code, it includes -DTRICK_VER=<version> and -DTRICK_MINOR=<minor_version> to the TRICK_CFLAGS and TRICK_CXXFLAGS. This allows developers to key off the Trick version in model source code. If there are any compile issues dependent on Trick version, this #define may be useful.
 
 [Continue to Environment Variables](Environment-Variables)
