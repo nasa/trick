@@ -36,7 +36,8 @@ SIMS_TO_COMPILE_AND_RUN = \
 	SIM_test_sched \
 	SIM_test_templates \
 	SIM_threads \
-	SIM_trickified
+	SIM_trickified \
+	SIM_test_varserv
 
 # Sims with problems, no purpose, or maybe shouldn't be a test
 # SIM_leaks ( should be deleted )

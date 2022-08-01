@@ -11,6 +11,7 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 
 #ifndef VS_HH
 #define VS_HH
+
 class VSTest {
 	public:
 
@@ -19,13 +20,13 @@ class VSTest {
 		char got_read[80];
 		double cycle_rate;
 
-		TCDevice bob;
+		TCDevice comm_device;
 
 		char 				a;
 		unsigned char 		b;
 		short				c;
 		unsigned short  	d;
-		int 				e; /*  M xy-position */
+		int 				e; /*  m xy-position */
 		unsigned int 		f;
 		long				g;
 		unsigned long		h;
@@ -34,7 +35,7 @@ class VSTest {
 		long long			k;
 		unsigned long long	l;
 		bool                m;
-
+		int 				n[5];
 
 		VSTest();
 		~VSTest();
@@ -51,8 +52,13 @@ class VSTest {
 		int testAddRemove();
 		int testExists();
 		int testPause();
-		int testOther();
-		int testCycle();
+		int testSendOnce();
+		int testUnits();
+
+
+		// Not yet implemented
+		// int testBinary();
+		// int testCycle();
 
 	private:
 		int get_line(char* thing);

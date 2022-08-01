@@ -15,21 +15,21 @@ int VSTest::init() {
 	char msg[256];
 
 	port_num = var_server_get_port();
-	hostest = var_server_get_hostname();
+	hostest = "localhost";
 
-	memset(&bob, '\0', sizeof(TCDevice));
+	memset(&comm_device, '\0', sizeof(TCDevice));
 
-	bob.hostname = const_cast<char*>(hostest);
-	bob.port = port_num;
+	comm_device.hostname = const_cast<char*>(hostest);
+	comm_device.port = port_num;
 
 	//std::cout << bob.hostname << bob.port << std::endl;
 
-	bob.disable_handshaking = TC_COMM_TRUE;
-	bob.disabled = TC_COMM_FALSE;
+	comm_device.disable_handshaking = TC_COMM_TRUE;
+	comm_device.disabled = TC_COMM_FALSE;
 
-	tc_connect(&bob);
+	tc_connect(&comm_device);
 
-	if ( tc_isValid (&bob) ) {
+	if ( tc_isValid (&comm_device) ) {
 		printf ("connection is valid\n");
 	} else {
 		printf ("connection is NOT valid\n");

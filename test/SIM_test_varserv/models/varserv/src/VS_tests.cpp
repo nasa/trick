@@ -33,49 +33,83 @@ int VSTest::strcmp_IgnoringWhiteSpace(const char* s1, const char* s2) {
     }
 }
 
-
+// Not really sure what this is supposed to be testing, should probably just remove
 // Expect cycle time of 0.01 s
-int VSTest::testCycle() {
+// int VSTest::testCycle() {
+//     char msg[256];
+//     char suite[] = "VariableServerTest";
+// /*
+//     int num, num2;
+//     double cpu_t, cpu_st;
+//     struct rusage cpu_usg;
+
+//     sprintf(msg,"trick.var_add(\"vsx.vst.l\")\n");
+//     vs_write(msg);
+
+//     // currently bad programming, could get stuck in this loop
+//     while (true) {
+//         getrusage(RUSAGE_SELF, &cpu_usg);
+//         cpu_st = ((double) cpu_usg.ru_utime.tv_sec) + ((double) cpu_usg.ru_utime.tv_usec/1000000.0);
+
+//         num = tc_pending(&bob);
+//         //first read.
+//         if (num) {
+//             break;
+//         }
+//     }
+
+//     while (true) {
+//         getrusage(RUSAGE_SELF, &cpu_usg);
+//         cpu_t = ((double) cpu_usg.ru_utime.tv_sec) + ((double) cpu_usg.ru_utime.tv_usec/1000000.0);
+
+//         num2 = tc_pending(&bob);
+
+//         if (num2 == 2*num) {
+//             break;
+//         }
+//     }
+
+//     //std::cout << cpu_t - cpu_st << std::endl;
+
+//     sprintf(msg,"trick.var_clear()\n");
+//     vs_write(msg);
+// */
+// }
+
+
+int VSTest::testUnits() {
     char msg[256];
     char suite[] = "VariableServerTest";
-/*
-    int num, num2;
-    double cpu_t, cpu_st;
-    struct rusage cpu_usg;
+    int result;
 
-    sprintf(msg,"trick.var_add(\"vsx.vst.l\")\n");
+    // INVALID UNIT CHANGE
+    sprintf(msg,"trick.var_add(\"vsx.vst.c\")\ntrick.var_units(\"vsx.vst.c\",\"g\")\n");
     vs_write(msg);
+    std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
+    vs_read();
+    result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableInvalidUnits")
 
-    // currently bad programming, could get stuck in this loop
-    while (true) {
-        getrusage(RUSAGE_SELF, &cpu_usg);
-        cpu_st = ((double) cpu_usg.ru_utime.tv_sec) + ((double) cpu_usg.ru_utime.tv_usec/1000000.0);
+    // TODO - way to test that error is shown?
 
-        num = tc_pending(&bob);
-        //first read.
-        if (num) {
-            break;
-        }
-    }
+    // ADD UNITS
+    sprintf(msg,"trick.var_add(\"vsx.vst.e\",\"m\")\n");
+    vs_write(msg);
+    vs_read();
+    result = strcmp_IgnoringWhiteSpace("0  -1234  -123456 {m}", got_read);
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableAddUnits")
 
-    while (true) {
-        getrusage(RUSAGE_SELF, &cpu_usg);
-        cpu_t = ((double) cpu_usg.ru_utime.tv_sec) + ((double) cpu_usg.ru_utime.tv_usec/1000000.0);
+    // CHANGE UNITS
+    sprintf(msg,"trick.var_units(\"vsx.vst.e\",\"ft\")\n");
+    vs_write(msg);
+    vs_read();
+    result = strcmp_IgnoringWhiteSpace("0  -1234  -405039 {ft}", got_read);
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableChangeUnits")
 
-        num2 = tc_pending(&bob);
-
-        if (num2 == 2*num) {
-            break;
-        }
-    }
-
-    //std::cout << cpu_t - cpu_st << std::endl;
-
+    // CLEAR VARIABLE SERVER
     sprintf(msg,"trick.var_clear()\n");
     vs_write(msg);
-*/
 }
-
 
 int VSTest::testAddRemove() {
     char msg[256];
@@ -89,37 +123,32 @@ int VSTest::testAddRemove() {
     std::cout << got_read << std::endl;
     result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableAddNoUnits")
-    trick_test_add_parent( suite , "VariableAddNoUnits" , "3700107028");
 
     vs_read();
     result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableAddCyclic")
-    trick_test_add_parent( suite , "VariableAddCyclic" , "3700107028");
 
-    // INVALID UNIT CHANGE
-    sprintf(msg,"trick.var_units(\"vsx.vst.c\",\"g\")\n");
-    vs_write(msg);
-    std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
-    vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
-    TRICK_EXPECT_EQ(result, 0, suite, "VariableInvalidUnits")
-    trick_test_add_parent( suite , "VariableInvalidUnits" , "");
+    // // INVALID UNIT CHANGE
+    // sprintf(msg,"trick.var_units(\"vsx.vst.c\",\"g\")\n");
+    // vs_write(msg);
+    // std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
+    // vs_read();
+    // result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
+    // TRICK_EXPECT_EQ(result, 0, suite, "VariableInvalidUnits")
 
-    // ADD UNITS
-    sprintf(msg,"trick.var_add(\"vsx.vst.e\",\"M\")\n");
-    vs_write(msg);
-    vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  -1234  -123456 {M}", got_read);
-    TRICK_EXPECT_EQ(result, 0, suite, "VariableAddUnits")
-    trick_test_add_parent( suite , "VariableAddUnits" , "3700107028");
+    // // ADD UNITS
+    // sprintf(msg,"trick.var_add(\"vsx.vst.e\",\"m\")\n");
+    // vs_write(msg);
+    // vs_read();
+    // result = strcmp_IgnoringWhiteSpace("0  -1234  -123456 {m}", got_read);
+    // TRICK_EXPECT_EQ(result, 0, suite, "VariableAddUnits")
 
-    // CHANGE UNITS
-    sprintf(msg,"trick.var_units(\"vsx.vst.e\",\"ft\")\n");
-    vs_write(msg);
-    vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  -1234  -405039 {ft}", got_read);
-    TRICK_EXPECT_EQ(result, 0, suite, "VariableChangeUnits")
-    trick_test_add_parent( suite , "VariableChangeUnits" , "2710769246");
+    // // CHANGE UNITS
+    // sprintf(msg,"trick.var_units(\"vsx.vst.e\",\"ft\")\n");
+    // vs_write(msg);
+    // vs_read();
+    // result = strcmp_IgnoringWhiteSpace("0  -1234  -405039 {ft}", got_read);
+    // TRICK_EXPECT_EQ(result, 0, suite, "VariableChangeUnits")
 
     // REMOVE SINGLE VARIABLE
     sprintf(msg,"trick.var_remove(\"vsx.vst.e\")\n");
@@ -127,16 +156,43 @@ int VSTest::testAddRemove() {
     vs_read();
     result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableRemove")
-    trick_test_add_parent( suite , "VariableRemove" , "806750761");
 
     // CLEAR VARIABLE SERVER
     sprintf(msg,"trick.var_clear()\n");
     vs_write(msg);
     vs_read();
     TRICK_EXPECT_EQ(strcmp(got_read, ""), 0, suite, "VariableClear")
-    trick_test_add_parent( suite , "VariableClear" , "835578702");
 
     return(0);
+}
+
+int VSTest::testSendOnce() {
+    char msg[256];
+    char suite[] = "VariableServerTest";
+    int result;
+
+    // SEND ONCE
+    sprintf(msg,"trick.var_send_once(\"vsx.vst.e\")\n");
+    vs_write(msg);
+    vs_read();
+    result = strcmp_IgnoringWhiteSpace("5  -123456", got_read);
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableSendOnce")
+    trick_test_add_parent( suite , "VariableSendOnce" , "");
+
+    // SEND ONCE LIST
+    sprintf(msg,"trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 3)\n");
+    vs_write(msg);
+    vs_read();
+    result = strcmp_IgnoringWhiteSpace("5   0   1   2", got_read);
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableSendOnceList")
+
+    // SEND ONCE LIST - WRONG INDICES
+    sprintf(msg,"trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 4)\n");
+    vs_write(msg);
+    std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
+    vs_read();
+    result = strcmp_IgnoringWhiteSpace("", got_read);
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableSendOnceListError")
 }
 
 int VSTest::testExists() {
@@ -156,9 +212,10 @@ int VSTest::testExists() {
     sprintf(msg,"trick.var_exists(\"vsx.vst.z\")\n");
     vs_write(msg);
     vs_read();
+    std::cout << "Check variable doesn't exist: " << got_read << std::endl;
     result = strcmp_IgnoringWhiteSpace("1  0",got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableNotExists")
-    trick_test_add_parent( suite , "VariableNotExists" , "3587464751");
+    // trick_test_add_parent( suite , "VariableNotExists" , "3587464751");
 
     sprintf(msg,"trick.var_clear()\n");
     vs_write(msg);
@@ -215,15 +272,20 @@ int VSTest::testPause() {
     return(0);
 }
 
-int VSTest::testOther() {
-    char msg[256];
-    char suite[] = "VariableServerTest";
+// int VSTest::testBinary() {
+//     char msg[256];
+//     char suite[] = "VariableServerTest";
 
-    sprintf(msg,"trick.var_binary()\n");
-    vs_write(msg);
-    sprintf(msg,"trick.var_add(\"vsx.vst.l\")\n");
-    vs_write(msg);
-    vs_read();
 
-    return(0);
-}
+//     // Not really sure how to test this one
+//     // sprintf(msg,"trick.var_clear()\n");
+//     // vs_write(msg);
+//     // vs_read();
+//     // sprintf(msg,"trick.var_binary()\n");
+//     // vs_write(msg);
+//     // sprintf(msg,"trick.var_add(\"vsx.vst.l\")\ntrick.var_send()\n");
+//     // vs_write(msg);
+//     // vs_read();
+
+//     return(0);
+// }
