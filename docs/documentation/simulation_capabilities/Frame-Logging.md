@@ -20,7 +20,7 @@ trick.add_read(600.0, "trick.frame_log_off()")
 trick.add_read(1500.0, "trick.frame_log_on()")
 ```
 
-### User accessible routines
+## User accessible routines
 
 ```
 int frame_log_on() ;

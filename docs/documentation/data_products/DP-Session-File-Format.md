@@ -2,7 +2,7 @@
 Since Trick 10, the DP Session file is changed to XML format. The Session XML Document
 Type Definitions(DTD) is defined as following:
 
-### Session.dtd
+## Session.dtd
 
 ```
 <!-- Trick DP Session definition -->
@@ -95,7 +95,7 @@ The optional <b>machine, port</b> attributes of <b>session</b> specify the name 
 number for plotting.
 
 
-### DP Session File Example
+## DP Session File Example
 
 ```
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>

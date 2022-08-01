@@ -3,7 +3,7 @@ The Trick::CommandLineArguments class stores the command line arguments specifie
 by the user when starting the simulation.  The class provides routines to
 access the arguments.
 
-### Accessing the Command Line Arguments
+## Accessing the Command Line Arguments
 
 The command line arguments are available to user classes through the following two calls.
 
@@ -21,7 +21,7 @@ const char * command_line_args_get_default_dir() ;
 const char * command_line_args_get_cmdline_name() ;
 ```
 
-### Modifying the Output Directory
+## Modifying the Output Directory
 
 By default the RUN directory of the input file is the output directory.  To change this
 specify the <tt>-O</tt> or the <tt>-OO</tt> command line arguments.
@@ -32,7 +32,7 @@ S_main_${TRICK_HOST_CPU}.exe RUN_dir/input.py -O <output_dir>
 
 All Trick core output files will be written to the specified <output_dir>.
 
-### TimeStamping the Output Directory
+## TimeStamping the Output Directory
 
 The user may also specify a time stamped output directory in the input file.
 

@@ -17,7 +17,7 @@ case you must provide your own class derived from MSConnect.
 Master/Slave synchronization is an optional class and need not be specified in 
 the S_define file when building a normal (non-Master/Slave) simulation.
 
-### User accessible routines
+## User accessible routines
 
 The following routine is used to create a socket connection for either Master or Slave:
 
@@ -58,12 +58,12 @@ int Trick::Slave::set_connection_type(Trick::MSConnect * in_connection) ;
 Trick::Slave::sync_error_terminate
 ```
 
-### Input File Setup
+## Input File Setup
 
 The way to set up Master/Slave synchronization is to use the above routines and attributes
 in a Python input file. Here is an example of how to set up a Master and a Slave in their respective input files.
 
-#### Master Input File Example
+### Master Input File Example
 
 ```
 new_connection = trick.MSSocket() 
@@ -77,7 +77,7 @@ master_slave.master.add_slave(new_slave)
 master_slave.master.enable()
 ```
 
-#### Slave Input File Example
+### Slave Input File Example
 
 ```
 new_connection = trick.MSSocket() 
@@ -85,7 +85,7 @@ master_slave.slave.set_connection_type(new_connection)
 master_slave.slave.sync_error_terminate = 1
 ```
 
-#### Dumping and Loading a Checkpoint
+### Dumping and Loading a Checkpoint
 
 By default, the Master will command the Slave to dump or load a checkpoint when the Master dumps or loads a checkpoint.
 The Master will send its checkpoint file name to the Slave, and the Slave will use that file name for its checkpoint (in

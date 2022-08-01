@@ -2,13 +2,13 @@ This section details the syntax for creating headers and source code that Trick 
 
 It also details the operation of the Trick Interface Code Generator (ICG) that processes headers, and the Module Interface Specification Processor (MIS) that processes source code.
 
-#### Programming Language Support
+## Programming Language Support
 
 The majority of model source for simulations is written in C and C++. Trick supports auto generating IO code to peek and poke C and C++ structures, classes, and enumerations. Trick also generates the necessary makefile rules to compile and link C and C++ model code into the simulation.
 
 Models written in other languages may be included in the simulation. It is possible to include Fortran 77, Fortran 90, Ada, and/or Java code in the simulation. These models cannot be called directly from the Trick scheduler, but may be called through C language wrapper functions provided by the user that executes the other language calls.
 
-#### C Header Files
+## Header Files
 
 Trick processes header files in order to auto generate IO source code for the simulation. IO source code is the heart of how Trick does its input processing. The following describes the syntax for a header file.
 
@@ -75,7 +75,7 @@ class <class_name> {
            trick_units([measurement_units])measurement_units description */
 };
 ```
-##### Comment Header
+### Comment Header
 
 The Trick comment header, which is optional, begins with `/* PURPOSE:`. Within
 the Trick comment header, the `PROGRAMMERS`, `REFERENCES`, `ASSUMPTIONS AND
@@ -84,17 +84,17 @@ delineate fields within the comment header, parentheses are not allowed as
 characters within the comment header's fields. Any other formatted comments may appear
 before and/or after the Trick comment header.
 
-###### C++ Language Override, `LANGUAGE: (C++)`
+#### C++ Language Override, `LANGUAGE: (C++)`
 
 If a header file has a C++ extension (e.g *.hh ) Trick’s parsers will realize that it is a C++ file and handle it appropriately. If the extension is *.h, Trick will assume it is a C file (not C++). If you want to make a C++ header file name with the *.h extension, you must explicitly tell Trick it is a C++ file with the `LANGUAGE: (C++)` declaration in the Trick comment header.
 
-###### Telling ICG to ignore this header file, `ICG: (No)`
+#### Telling ICG to ignore this header file, `ICG: (No)`
 
 If `ICG: (No)` is in the comment header, Trick will not to process the header. This is useful if the header contains anything that Trick cannot process, or if the programmer wishes Trick to skip this header. For skipping entire sets of headers, see next item.
 
 If `ICG: (Nocomment)` is in the comment header, Trick will not process any comments within the file. This option is useful if the user wants ICG to process the file but the file does not have comments that are Trick compliant.
 
-###### Library Dependencies
+#### Library Dependencies
 
 ```
 LIBRARY DEPENDENCY:
@@ -158,19 +158,19 @@ LIBRARY DEPENDENCY:
 
 Best practice is to add library dependencies for source code files for prototypes listed in the header.
 
-###### `ICG_IGNORE_TYPES`
+#### `ICG_IGNORE_TYPES`
 
 The `ICG IGNORE TYPES` field lists the structs or classes to be ignored. Any parameters of this type or inherited from are ignored. The `ICG IGNORE TYPES` field is only valid for the current file. It does not extend to included header files.
 
-###### `PYTHON_MODULE`
+#### `PYTHON_MODULE`
 
 Specifying a `python_module` name will place any class/struct and function definitions in this header file in a python module of the same name. All classes and functions are flattened into the python `trick` namespace by default. This capability allows users to avoid possible name collisions between names when they are flattened.
 
-##### Compiler Directives
+### Compiler Directives
 
 Trick handles all compiler directives (`#if`, `#ifdef`, `#endif`, `#define`, `#include`, etc.) ICG also uses the -D and -U command line arguments for defines and undefines, respectively.
 
-##### trick_parse
+### trick_parse
 
 The trick_parse directive is a Doxygen style field serving the same functionality as the `PURPOSE:` keyword and `ICG: (No)`.  The trick_parse directive like all Doxygen style directives are prefixed with either a `\` or an `@` character.
 
@@ -180,11 +180,11 @@ The trick_parse directive is a Doxygen style field serving the same functionalit
 
 `@trick_parse(dependencies_only)`:  Treat this comment as the Trick header comment.  Search for library dependencies in this comment.  Do not process the file any further.
 
-##### `trick_exclude_typename`
+### `trick_exclude_typename`
 
 `@trick_exclude_typename(type)` is equivalent to `ICG_IGNORE_TYPES` in a Doxygen style field. The `trick_exclude` field lists the structs or classes to be ignored.  Multiple `trick_exclude_typename` fields may be used to ignore multiple types.
   
-##### Enumerated Type Definitions
+### Enumerated Type Definitions
 
 Trick provides complete support for enumerated types. Simple mathematical expressions using enumerated types are supported as well.
 
@@ -230,11 +230,11 @@ typedef struct {
 } DATA;
 ```
 
-##### Data Structure Definitions and Parameter Declarations
+### Data Structure Definitions and Parameter Declarations
 
 The data structure type definition statements, `typedef struct { ... } name;`, and `typedef union { ... } name;` `struct Foo { } name;` follows standard C syntax, and are supported by Trick. However, Trick requires a C comment immediately following every parameter declaration.
 
-##### Parameter Data Types
+### Parameter Data Types
 
 Trick allows any data type declaration within the data structure `typedef` statement. However, only the following data types will be processed by Trick:
 
@@ -259,13 +259,13 @@ Trick allows any data type declaration within the data structure `typedef` state
 
 All other types are ignored. Types may be defined and used within the same header if the types are defined before they are used (this is a C syntax rule, too).
 
-##### Pointers
+### Pointers
 
 Any combination of pointers and array dimensions up to 8 dimensions may be used for parameter declarations; for example, `double ** four_dimensional_array[2][2];`, will be processed. Void pointers and function pointers are not processed. Parameters declared with pointers (like `four_dimensional_array` example), are treated differently; these are called unconstrained arrays. Trick will generate dynamic memory allocation source code for the developer which allows the developer to size the array dimensions (represented by the pointers) via special syntax in the runstream input file. The developer may 1) use the input file to input data to the arrays, 2) output the data via standard Trick logging functions, or 3) share the data through the variable server.
 
 The user does have the option to perform their own memory management for parameters declared as pointers. In this case, instead of specifying the allocation in the input file, the user may allocate the data in a job. In order for Trick to process the data as if it was its own managed memory (and provide capabilities like logging, checkpointing, etc.), the memory address, and number and size of the allocation must be passed to the Trick `TMM_declare_extern_var` function. The user is also responsible for freeing the memory when done.
 
-##### Intrinsic typedef and struct Support
+### Intrinsic typedef and struct Support
 
 Types declared using `typedef struct`, `typedef union`, and `typedef enum` are recognized by Trick. Intrinsic typedefs are supported as well and may be nested in structures. The example that follows details a header that Trick will handle:
 
@@ -327,11 +327,11 @@ typedef struct {
 } DATA_2;
 ```
 
-##### Parameter Comments
+### Parameter Comments
 
 Each parameter declaration within a data structure definition may be accompanied by a trailing comment. There are six possible fields in the parameter comment, but only two are required. All six fields of the parameter comment are stored for later reuse at simulation runtime.
 
-###### The Input/Output Specification
+#### The Input/Output Specification
 
 The first three fields in the parameter comment are optional and specify the input/output processing for the parameter. I/O permissions may be set globally or individual capabilities may set their permissions separately. I/O permissions for checkpointing is available to set separately.
 
@@ -349,22 +349,22 @@ Checkpoint I/O may be set separately by adding `trick_chkpnt_io([**|*i|*o|*io])`
 * `*o` indicates only checkpoint output is allowed for the parameter. Parameter is written to the checkpoint, but not reloaded.
 * `*io` specifies that both input and output are allowed for the checkpointing.
 
-###### The Measurement Units Specification
+#### The Measurement Units Specification
 The second field, `trick_units([measurement_units])`, is a required field and specifies the internal source code units for the parameter. These units are important because they give the input processor the knowledge of what units the user's input data needs to be converted to. Trick uses a third-party package, UDUNITS, for units support. It's syntax is specified [here](https://www.unidata.ucar.edu/software/udunits/udunits-2.2.28/udunits2lib.html#Syntax).
 
-###### User Defined Attributes Fields
+#### User Defined Attributes Fields
 
 Following the measurement units specification, in the parameter comment, are two optional, user-defined attribute fields. Using these fields, a user can associate (up to 2) character strings with a parameter. These strings are stored in the ATTRIBUTES structures (in the io_src directory) generated by ICG. The first of these optional fields is delimited by brackets (‘[‘ and ‘]’) and is stored in the element ATTRIBUTES->alias. The second is delimited by braces (‘{‘ and ‘}’) and is stored in the element ATTRIBUTES->user_defined. The definition of the ATTRIBUTES structure is found in $TRICK_HOME/trick_source/sim_services/include/attributes.h.
 
-###### Description Fields
+#### Description Fields
 
 The description field is required and must be the last field of the comment. The description field is basically everything after the first three fields. The description field may span multiple lines.
 
-##### C++ Header Files
+### C++ Header Files
 
 C++ headers may include constructs and concepts not found in C header files. In addition to all C syntax, Trick parses and understands many C++ features.
 
-##### Public, Protected, and Private Access
+### Public, Protected, and Private Access
 
 Trick generates several files to support its various features. The data recorder and checkpointer rely on code produced by the Interface Code Generator (ICG), which bookkeeps the memory layout of variables within the simulation. `public` members are always available to these features. `protected` and `private` data is also available if there is no use of `TRICK_ICG` in the header file. If use is found, Trick will issue a warning during simulation compilation, and `private` and `protected` data will only be accessible to Trick if the following `friend`s are added to the offending classes:
 
@@ -375,7 +375,7 @@ friend void init_attr<class_name>();
 
 The input processor and variable server rely on code produced by a third-party tool, the [Simplified Wrapper and Interface Generator (SWIG)](http://www.swig.org/). SWIG provides the functions that allow access to simulation variables from Python contexts. These features can only access `public` members. It is not possible to expose `protected` and `private` data to them.
 
-##### Inheritance
+### Inheritance
 
 Trick may use model code with any type of inheritance. Some limitations are present to Trick's ability to input process, checkpoint, etc. inherited variables.
 
@@ -384,7 +384,7 @@ Trick may use model code with any type of inheritance. Some limitations are pres
 * Multiple inheritance is processed but not well tested.
 * Template inheritance is not currently supported.
 
-##### Namespaces
+### Namespaces
 
 Currently one level of namespace is supported. Additional levels of namespaces are ignored. Similarly classes and enumerations embedded in other classes are ignored.
 
@@ -406,18 +406,18 @@ namespace my_ns {
 };
 ```
 
-##### Function Overloading
+### Function Overloading
 
 Trick parses function declarations for input file use. The python input processor understands class method overloading. Overloaded methods with different arguments may be called in the input files. Default arguments are to methods are understood and honored in the input file. Operator overloading is skipped by Trick processors. Operator overloading is not implemented in the input file.
 
-##### Templates and the Standard Template Libraries (STL)
+### Templates and the Standard Template Libraries (STL)
 
 Trick attempts to process user defined templates. Simple templates are handled. We do not have a good definition of simple. Typedefs of templates is supported and encouraged. All protected and private data is ignored within templates. This is because it is not possible to specify the correct io_src friend function. Templates within templates are not processed. Finally abstract templates are not supported by Trick. These templates should be excluded from Trick processing. See below to see how to exclude code from processing.
 
-STLs may be used in models. However, STL variables are not data recordable, they are not visible in the variable server, nor are they directly accessible in the input file. Some STLs are automatically checkpointed: array, vector, list, deque, set, multiset map, multimap, stack, queue, priority_queue, pair.
+STLs may be used in models. However, STL variables are not data recordable, they are not visible in the variable server, nor are they directly accessible in the input file. Some STLs are automatically checkpointed: `array`, `vector`, `list`, `deque`, `set`, `multiset`, `map`, `multimap`, `stack`, `queue`, `priority_queue`, `pair`.
 
 
-##### Noncopyable Objects
+### Noncopyable Objects
 
 Sometimes classes contain members that are not copyable or the math modeler wants to prevent the class from being copied. Declaring an unimplemented private copy constructor and assignment, "=", operator prevents the class from being copied.
 ```C++
@@ -440,27 +440,27 @@ class MysimObject : public Trick::SimObject {
 }
 ```
 
-##### Source Code in Header Files
+### Source Code in Header Files
 
 Trick attempts to skip over class code in header files while searching for class variables and method declarations. However, code can sometimes confuse Trick and cause it to abort processing of header files. It is recommended to keep code out of the header file.
 
-##### Library Dependencies
+### Library Dependencies
 
 It is good practice to list all the source code files that define class methods in the class header file.
 
-##### Excluding Header File Code
+### Excluding Header File Code
 
 There are several ways to exclude code from processing.
 
-###### Excluding Directories
+#### Excluding Directories
 
 Add paths to exclude to the TRICK_ICG_EXCLUDE environment variable or makefile variable. This works for both C and C++ headers.
 
-###### Excluding File
+#### Excluding File
 
 Add `ICG: (No)` to the Trick comment header.
 
-###### Excluding Lines
+#### Excluding Lines
 
 When processing header files Trick defines 2 #define variables, TRICK_ICG and SWIG. Code may be excluded by enclosing it in #ifndef blocks.
 ```C++
@@ -472,7 +472,7 @@ code that cannot be processed by ICG or SWIG
 #endif
 ```
 
-#### Source Files
+## Source Files
 
 By source files, in this context, we mean functional model source code, i.e. *.c files.
 
@@ -499,11 +499,11 @@ PURPOSE:
 // source code...
 ```
 
-##### Comment Header
+### Comment Header
 
 The Trick header is an optional comment block at the top of each source file. It is used for auto-documentation, and more importantly is the means of specifying dependencies to objects or libraries not processed by Trick. Separate functions within a source file do NOT require additional headers. Since parentheses, ( ), are used to delineate fields within the comment header, parentheses are not allowed as characters within the comment fields. NOTE: Even if you are coding a C++ file, you must still specify the comment header using C style comments (not C++ style comments).
 
-###### Job Description
+#### Job Description
 
 * The PURPOSE field should be a brief description of what the module does.
 * The REFERENCES field may contain any number of references, with each reference possessing any number of sub items; notice the nested parentheses for the REFERENCES field.
@@ -511,11 +511,11 @@ The Trick header is an optional comment block at the top of each source file. It
 * The LIBRARY DEPENDENCIES. See Library_Dependencies section in the model header section
 * The PROGRAMMERS field may contain any number of programmer fields, each of which may contain any number of sub items; e.g. programmer name, company, mod date, etc. The programmer fields are meant to provide an in-code means to track code changes.
 
-##### Source Code
+### Source Code
 
 Trick is only interested in the header comment if one is present in source code files. Anything goes for the rest of the source code file.
 
-##### Trick Version Compatibility
+### Trick Version Compatibility
 
 Trick is always changing. The interface to Trick functions may change with each major version. Sometimes even minor version upgrades change the interface. When Trick builds model source code, it includes -DTRICK_VER=<version> and -DTRICK_MINOR=<minor_version> to the TRICK_CFLAGS and TRICK_CXXFLAGS. This allows developers to key off the Trick version in model source code. If there are any compile issues dependent on Trick version, this #define may be useful.
 
