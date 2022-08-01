@@ -95,29 +95,44 @@ If `ICG: (No)` is in the comment header, Trick will not to process the header. T
 If `ICG: (Nocomment)` is in the comment header, Trick will not process any comments within the file. This option is useful if the user wants ICG to process the file but the file does not have comments that are Trick compliant.
 
 #### Library Dependencies
+Library dependencies are the model source code files required by the simulation.
+They can be listed 1) within model header files, 2) within model source files,
+or 3) within the `S_define`. Each library dependency only needs to be listed once,
+and the preferred approach is to list each library dependency within its
+respective model header file.
 
+<b>Listing Library Dependencies Within Model Header Files:</b> (preferred approach)<br>
+Listing library dependencies within the model header files is as simple as
+providing the path of each source file for which the header file makes
+declarations. The path should be relative to the base path that was set in
+S_overrides.mk (See the link below).
+
+[Compiling and Building the Simulation](https://nasa.github.io/trick/tutorial/ATutAnalyticSim#compiling-and-building-the-simulation)
+
+By doing it this way, you don't have to recall every single source file in your
+simulation when you're listing the library dependencies. You only need to list
+the source files relevant to the current header file, and Trick does the heavy
+lifting by bringing them all together when it processes the header files.
+
+A model header consistent with this approach would contain a
+`LIBRARY DEPENDENCY` field that looked like the following:<br>
 ```
 LIBRARY DEPENDENCY:
-    ((relative_path/model_1.c)
-     (relative_path/model_2.cpp))
+    ((relative_path/source_file.c)
+     (relative_path/other_source_file.cpp))
 ```
 
-Library dependencies list out model source code files required by the simulation. There are several locations to add library dependencies, one of which is in model source headers. The format of dependencies in the S_define file is a relative path to the model source file. The path is relative to -I include paths found in TRICK_CFLAGS and TRICK_CXXFLAGS.
+<b>Listing Library Dependencies Within Model Source Files:</b><br>
+If you find it more intuitive to instead list library dependencies for each
+model source file, it is possible to do so. In each model source file, list the
+object files and libraries that the current model source file depends on.
+Self-references are allowed, but not necessary. For a file `this.c` which calls
+* a function within the file `that.c`
+* a function in a user object `library my_library/libdog.a`
+* a function in a shared library `libcow.so`
+* a function `foo.c`
 
-For example if the full path to our model is /this/is/a/full/path/to/model.c and in our TRICK_CFLAGS we have -I/this/is/a/full as one of the included search paths, the library dependency must complete the full path to the file, in this case path/to/model.c. Library dependencies in the S_define file differ from ones found in model source code as they must be the full path to the source file not the object file.
-
-This is the preferred library dependency syntax. There are other forms of library dependencies that are still valid and listed below.
-
-The LIBRARY DEPENDENCY field may contain the object code files which the current file depends on. A self-reference is not necessary.
-
-For example, for a file this.c which calls
-
-* a function within the file that.c
-* a function in a user object library my_library/libdog.a
-* a function foo.c
-
-The `LIBRARY DEPENDENCY` field might look like this:
-
+The `LIBRARY DEPENDENCY` field might look like this:<br>
 ```
 LIBRARY DEPENDENCY:
     ((this.o)
@@ -156,7 +171,11 @@ LIBRARY DEPENDENCY:
      (${FOO_ENV_VAR}/foo.o))
 ```
 
-Best practice is to add library dependencies for source code files for prototypes listed in the header.
+<b>Listing Library Dependencies Within the `S_define`:</b><br>
+Listing library dependencies within the `S_define` is just like listing them
+within the model header files, but all model source files are listed in one spot
+instead of per header file. If you choose to do it this way, don't forget to
+update the list each time you add or remove a model source file.
 
 #### `ICG_IGNORE_TYPES`
 
