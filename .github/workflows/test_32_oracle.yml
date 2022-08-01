@@ -43,7 +43,8 @@ jobs:
         make install
         cd /
         rm -rf udunit-2.2.28
-    - name: install_gtest: |
+    - name: Install GTest: 
+      run: |
         dnf config-manager --enable ol8_codeready_builder
         dnf install -y gtest-devel
     - name: Install GTest (32 bit)
