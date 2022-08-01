@@ -13,15 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     container: docker://oraclelinux:8
     steps:
-    - name: install tar
-      run: dnf -y install tar
-    - name: Checkout repository
-      uses: actions/checkout@master
     - name: Add dnf repo
       run: dnf -y install epel-release && dnf -y update
     - name: Install other dependencies
       run: >
-        dnf install -y bison clang clang-devel cmake diffutils
+        dnf install -y tar bison clang clang-devel cmake diffutils
         expat-devel.i686 expat.i686 flex gcc gcc-c++ git glibc-devel.i686
         glibc.i686 glibc.x86_64 gsl-devel gsl-devel.i686 java-11-openjdk
         java-11-openjdk-devel libstdc++-devel libstdc++-devel.i686 libxml2-devel
@@ -40,6 +36,8 @@ jobs:
         rm -rf udunits-2.2.28.tar.gz
         cd udunits-2.2.28
         export CFLAGS="-m32"
+        export CXXFLAGS="-m32"
+        export MAKEFLAGS=-j`nproc`
         ./configure
         make
         make install
@@ -52,9 +50,12 @@ jobs:
         cd googletest-release-1.8.0/googletest
         export CFLAGS="-m32"
         export CXXFLAGS="-m32"
+        export MAKEFLAGS=-j`nproc`
         cmake .
         make
         make install
+    - name: Checkout repository
+      uses: actions/checkout@master
     - name: Build Trick
       run: |
         export CFLAGS="-m32"
