@@ -45,7 +45,7 @@ namespace Trick {
     class IExecutive : public Trick::Scheduler {
         public:
             /** gets #except_return */
-            virtual int get_except_return() const;
+            virtual int get_except_return() const = 0;
 
         // protected:
         //     /** Attempts to attach a debugger in the event a signal shuts down the simulation.\n */
