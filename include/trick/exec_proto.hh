@@ -2,10 +2,10 @@
 #ifndef EXEC_PROTO_HH
 #define EXEC_PROTO_HH
 
-#include "trick/Executive.hh"
+#include "trick/IExecutive.hh"
 #include "trick/SimObject.hh"
 
-Trick::Executive * exec_get_exec_cpp() ;
+Trick::IExecutive * exec_get_exec_cpp() ;
 
 int exec_add_sim_object( Trick::SimObject * , const char * = NULL ) ;
 int exec_remove_sim_object( Trick::SimObject * ) ;

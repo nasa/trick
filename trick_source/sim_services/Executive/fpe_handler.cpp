@@ -15,7 +15,7 @@
 #include <fenv.h>
 #endif
 
-#include "trick/Executive.hh"
+#include "trick/IExecutive.hh"
 #include "trick/exec_proto.hh"
 
 /**
@@ -31,7 +31,7 @@ void fpe_sig_handler(int sig __attribute__ ((unused)), siginfo_t * sip __attribu
 #endif
 {
 
-    Trick::Executive * E = exec_get_exec_cpp();
+    Trick::IExecutive * E = exec_get_exec_cpp();
 
 #if __APPLE__
     siginfo_t * sip = NULL ;

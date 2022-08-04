@@ -6,6 +6,7 @@
 
 #define protected public
 #include "trick/ExecutiveException.hh"
+#include "trick/IExecutive.hh"
 #include "trick/Executive.hh"
 #include "trick/exec_proto.h"
 #include "trick/exec_proto.hh"

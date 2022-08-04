@@ -10,7 +10,7 @@
 #include "trick/ExecutiveException.hh"
 #include "trick/TrickConstant.hh"
 
-Trick::Executive * the_exec ;
+Trick::IExecutive * the_exec ;
 
 Trick::Executive::Executive() {
 

@@ -11,7 +11,7 @@ PROGRAMMERS:                 ( (Robert W. Bailey) (LinCom) (April 1992) )
 #include <iostream>
 #include <locale.h>
 
-#include "trick/Executive.hh"
+#include "trick/IExecutive.hh"
 #include "trick/command_line_protos.h"
 #include "trick/exec_proto.hh"
 
@@ -37,7 +37,7 @@ int master( int nargs, char **args) {
     command_line_args_process_sim_args(nargs, args) ;
 
     /* get the exec pointer */
-    Trick::Executive * exec = exec_get_exec_cpp() ;
+    Trick::IExecutive * exec = exec_get_exec_cpp() ;
 
     ret = exec->init() ;
 

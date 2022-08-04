@@ -9,7 +9,7 @@
 #include "trick/message_type.h"
 #include "trick/exec_proto.h"
 
-extern Trick::Executive * the_exec ;
+extern Trick::IExecutive * the_exec ;
 
 void Trick::MonteCarlo::set_enabled(bool in_enabled) {
     this->enabled = in_enabled;

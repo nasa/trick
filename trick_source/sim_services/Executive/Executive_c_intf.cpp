@@ -3,20 +3,20 @@
 #include <vector>
 #include <string>
 
-#include "trick/Executive.hh"
+#include "trick/IExecutive.hh"
 #include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
 #include "trick/exec_proto.hh"
 
 /* Global singleton pointer to the executive */
-extern Trick::Executive * the_exec ;
+extern Trick::IExecutive * the_exec ;
 
 /**
  * @relates Trick::Executive
  * returns a pointer to the simulation executive
  * @return Executive
  */
-Trick::Executive * exec_get_exec_cpp() {
+Trick::IExecutive * exec_get_exec_cpp() {
     return ( the_exec ) ;
 }
 
