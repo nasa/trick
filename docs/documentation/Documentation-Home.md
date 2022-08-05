@@ -51,14 +51,14 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Standard Template Library Checkpointing](simulation_capabilities/STL-Checkpointing) 
     01. [Threads](simulation_capabilities/Threads)
 
-01. Web Server
-    01. [Adding a Web Server to Your Sim](web/Adding_a_Web_Server_to_Your_Sim)
-    01. Web Server APIs
-        01. [HTTP-API_alloc_info](web/HTTP-API_alloc_info)
-        01. [WS-API_VariableServer](web/WS-API_VariableServer)
-    01. Adding New Web Server APIs
-        01. [Extending_the_HTTP-API](web/Extending_the_HTTP-API)
-        01. [Extending_the_WS-API](web/Extending_the_WS-API)
+01. [Web Server](web/Webserver)
+    01. [Configure Trick with Civetweb](web/Configure-Civetweb)
+    01. [Add SSL encryption to your webserver](web/SSL)
+    01. [Web Server APIs](web/Webserver-apis)
+        01. [HTTP alloc API](web/http-alloc-api.md)
+        01. [WS Variable Server API](web/ws-variable-server-api.md)
+        01. [Extend the HTTP API](web/Extend-http-api.md)
+        01. [Extend the WS API](web/Extend-ws-api.md)
 
 01. [Simulation Utilities](simulation_utilities/Simulation-Utilities)  
     01. [Trickcomm](simulation_utilities/Trickcomm)  

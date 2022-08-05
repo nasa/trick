@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Running a Simulation](Running-a-Simulation) → Input File |
+|------------------------------------------------------------------|
 
 The primary interface between the simulation executable and the user is the runstream
 input file. The Trick simulation input file syntax is Python.  All Python syntax rules

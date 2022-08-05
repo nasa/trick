@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Realtime Clock |
+|------------------------------------------------------------------|
+
 # Realtime-Clock
 
 **Contents**
@@ -194,6 +197,6 @@ double exec_get_sim_time(void) ;
 
 defined in ```exec_proto.h```.
 
-
+Continue to [Realtime Timer](Realtime-Timer)
 
  

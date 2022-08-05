@@ -1,3 +1,7 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Building a Simulation](Building-a-Simulation) → Making the Simulation |
+|------------------------------------------------------------------|
+
+
 ### Simulation Compilation Environment Variables
 
 The -Ipaths in TRICK_CFLAGS and TRICK_CXXFLAGS tell Trick where to find model source files.  The flags also can contain compiler settings, for instance the -g flag is used for compiling in debug mode. See section Trick_Environment for more detail and information on variables for linking in external libraries, setting the compiler etc.
