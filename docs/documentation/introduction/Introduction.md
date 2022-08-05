@@ -1,4 +1,4 @@
-| [Home](/trick) → [Documentation Home](documentation) → Introduction |
+| [Home](/trick) → [Documentation Home](/trick/documentation/Documentation-Home) → Introduction |
 |------------------------------------------------------------------|
 
 The responsibility for this document lies with the [Simulation and Graphics Branch (ER7)](https://er.jsc.nasa.gov/ER7/) of the [Automation, Robotics and Simulation Division](https://er.jsc.nasa.gov/) of the NASA JSC Engineering Directorate.
