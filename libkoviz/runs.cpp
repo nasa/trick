@@ -350,6 +350,16 @@ int Runs::_paramColumn(DataModel* model, const QString &param) const
         }
     }
     if ( col < 0 ) {
+        // If param is a mapped param, search each param in map
+        QStringList params = param.split('=');
+        foreach ( QString p, params ) {
+            col = model->paramColumn(p);
+            if ( col >= 0 ) {
+                break;
+            }
+        }
+    }
+    if ( col < 0 ) {
         fprintf(stderr, "koviz [error]: Could not find:\n"
                         "         variable=%s\n"
                         "         in file=%s\n",
