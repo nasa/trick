@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Threads |
+|------------------------------------------------------------------|
+
 # The ThreadBase Class
 
 A trick sim is a multi-threaded process, and all of the threads that are created by Trick or Trick generated code inherit from the abstract class ThreadBase. ThreadBase classes have the capability to change the priority and cpu affinity of the thread. ThreadBase classes include trick_sys threads as well as user defined threads from the S_define:
@@ -70,4 +73,5 @@ Set the priority for the thread. See the man page for sched(7) for more details.
 ```cpp
 int set_priority(unsigned int req_priority)
 ```
-[Continue to Simulation Utilities](/trick/documentation/simulation_utilities/Simulation-Utilities)
+
+[Continue to Web Server](../web/Webserver)

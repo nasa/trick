@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → Miscellaneous Trick Tools |
+|------------------------------------------------------------------|
 
 ### Interface Code Generator - ICG
 

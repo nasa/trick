@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → JIT Input Processor |
+|------------------------------------------------------------------|
+
 A JIT input file is a C++ input file that can be used along side a python input file, or even replace the python input file.  The JIT input file includes "S_source.hh" that gives it access to the entire simulation.  The code in a JIT input file is compiled into a shared library during simulation initialization.  The simulation dynamically opens the shared library and runs a specific function called "run_me" that must be defined in the JIT input file.  There are a couple of advantages to this type of input file.
 
 1.  Once compiled, a JIT input file is orders of magnitude faster to execute than a python equivalent.  That is because there is no python is involved, everything is C++.

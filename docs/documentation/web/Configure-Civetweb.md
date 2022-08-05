@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Web Server](Webserver) → Configuring Trick with Civetweb |
+|------------------------------------------------------------------|
+
 ## Configuring Trick with Civetweb
 To configure Trick to support the civetweb web server, you'll need to
 
@@ -19,3 +22,5 @@ cd $(TRICK_HOME)
 make clean
 make
 ```
+
+Continue to [Adding SSL Encryption](SSL)

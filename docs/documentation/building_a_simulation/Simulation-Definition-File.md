@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Building a Simulation](Building-a-Simulation) → Simulation Definition File |
+|------------------------------------------------------------------|
+
 The Simulation Definition File or S_define is the file which lays out the architecture
 of the simulation.  Details about job frequencies, job class, job data, importing/exporting
 data to other simulations, freeze cycles, integration, etc. are all housed in this one file.

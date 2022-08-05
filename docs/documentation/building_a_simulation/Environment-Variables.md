@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Building a Simulation](Building-a-Simulation) → Environment Variables |
+|------------------------------------------------------------------|
+
 Trick uses a list of variables for building sims e.g. TRICK_CFLAGS and TRICK_CXXFLAGS.  Each variable has a default value that may be overridden by setting the value in the environment. Trick resolves these variables by a call to a function called "trick-gte". Type in "${TRICK_HOME}/bin/trick-gte" on the command line to see what the "Trick environment" is.
 
 ### Adding ${TRICK_HOME}/bin to PATH

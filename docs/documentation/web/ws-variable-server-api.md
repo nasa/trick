@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Web Server](Webserver) → [APIs](WebServerAPIs) → WS Variable Server API |
+|------------------------------------------------------------------|
+
 # WS-API: VariableServer 
 
 ```ws://localhost:8888/api/ws/VariableServer```
@@ -208,3 +211,5 @@ Response to the ```units``` command (*above*).
   </body>
 </html>
 ```
+
+Continue to [Extending the HTTP API](Extend-http-api)
