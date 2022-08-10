@@ -28,6 +28,8 @@ namespace Trick {
             pthread_cond_t init_complete_cv;        /**< trick_io(**) */
             /** Data writer initialized mutex. */
             pthread_mutex_t init_complete_mutex;    /**< trick_io(**) */
+            /** Flag to exit (instead of pthread_cancel) */
+            bool cancelled;
     } ;
 
     class DRDWriterThread : public Trick::ThreadBase {
