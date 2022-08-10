@@ -100,4 +100,6 @@ int Trick::VariableServerThread::copy_sim_data(std::vector<VariableReference *> 
 
         pthread_mutex_unlock(&copy_mutex) ;
     }
+
+    return 0;
 }

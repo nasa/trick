@@ -133,8 +133,7 @@ Control Panel, as shown below.
 The output of the script will display three columns of numbers. The left most
 number is the [variable server message type](#variable-server-message-types).
 Here, a message type of 0 indicates that the message is the (tab delimited) list
-of the values we requested. This is the only message type we'll be concerned
-with in this tutorial. The two columns to the right of the message number are
+of the values we requested. The two columns to the right of the message number are
 the values of ```dyn.cannon.pos[0]``` and ```dyn.cannon.pos[1]```, in the order
 that they were specified in the script. 
 
@@ -208,12 +207,66 @@ Suppose we wanted to get the value of the initial angle of our cannon. We don't
 need to get it repeatedly, because it doesn't change. We just want to get it
 once, and then to repeatedly get the position data, which changes over time.
 
-For this situation we can use the [**var_send**](#api-var-send) command, which
-tells the variable server to send the values specified in the session variable
-list immediately, regardless of whether [**var_pause**](#api-var-pause) was
-previously commanded.
+For this situation, we can take one of several approaches. The most straightforward
+is the [**var_send_once**](#api-var-send-once) command, which tells the variable
+server to send the values sent as arguments immediately, regardless of whether 
+[**var_pause**](#api-var-pause) was previously commanded. 
 
 To demonstrate how this works, let's add the following code to our script, right
+after the line where we sent the **var_ascii** command.
+
+```python
+client_socket.send( "trick.var_send_once(\"dyn.cannon.init_angle\")\n")
+line = insock.readline()
+print line
+```
+
+In this code, we simply ask the variable server to immediately send the value of ```dyn.cannon.init_angle```,
+call ```insock.readline()``` to wait for a response, and print the response when it is received. 
+[**var_send_once**](#api-var-send-once) does not alter the session variable list in any way.
+
+When we run the client, the first few lines of output should look something like:
+
+```
+5	0.5235987755982988
+
+0	0	0
+
+0	0	0
+```
+
+The [**var_send_once**](#api-var-send-once) command uses a [message type](#variable-server-message-types) of 5 
+to allow a programmer to differentiate between normal session variables and var_send_once variables. var_send_once
+does not alter or interfere with the session variable list, which would allow both of these features to be
+used simultaneously in a sim.
+
+The [**var_send_once**](#api-var-send-once) also allows a user to request multiple variables in a single
+command. [**var_send_once**](#api-var-send-once) can accept a comma-separated list of variables as the
+first argument and the number of variables in the list as the second argument.
+In our example, suppose we also wanted to retrieve the initial speed of the cannonball.
+We could retrieve both variables with a single command:
+
+```python
+client_socket.send( "trick.var_send_once(\"dyn.cannon.init_angle, dyn.cannon.init_speed\", 2)\n")
+```
+
+Now, when we run the client, we get both the init_angle and the init_speed with the first message.
+
+```
+5	0.5235987755982988	50
+
+0	0	0
+
+0	0	0
+```
+
+
+Another commonly used pattern to retrieve variables only once is to use the [**var_add**](#api-var-add), 
+[**var_send**](#api-var-send), and [**var_clear**](#api-var-clear) commands. [**var_send**](#api-var-send) tells 
+the variable server to send all **session** variables immediately regardless of whether [**var_pause**](#api-var-pause) 
+was previously commanded.
+
+To demonstrate how this works, replace the code in the previous listing with the snippet below, right
 after the line where we sent the **var_ascii** command.
 
 ```python
@@ -223,6 +276,8 @@ line = insock.readline()
 print line
 client_socket.send( "trick.var_clear()\n" )
 ```
+
+
 
 In this snippet of code, we add  ```dyn.cannon.init_angle``` to the session
 variable list. Then we call [**var_send**](#api-var-send) to tell the variable
@@ -501,6 +556,7 @@ Add this to the bottom of RUN_test/input.py to give it a try.
 | VS\_SIE\_RESOURCE |  2    | Response to send_sie_resource|
 | VS\_LIST\_SIZE    |  3    | Response to var_send_list_size or send_event_data|
 | VS\_STDIO         |  4    | Values Redirected from stdio if var_set_send_stdio is enabled| 
+| VS\_SEND\_ONCE    |  5    | Response to var\_send\_once|
 
 <a id=the-variable-server-api></a>
 ### The Variable Server API
@@ -544,6 +600,13 @@ Resume periodic responses.
 <a id=api-var-send></a>
 **var\_send()** -
 Send response immediately.
+
+<a id=api-var-send-once></a>
+**var\_send\_once( variable_name )** -
+Immediately send the value of variable_name
+
+**var\_send\_once( variable_list, num_variables )** -
+Immediately send the value of all variables in the comma separated variable_list, or an error if the number of variables in the list does not match num_variables
 
 <a id=api-var-clear></a>
 **var\_clear()** -

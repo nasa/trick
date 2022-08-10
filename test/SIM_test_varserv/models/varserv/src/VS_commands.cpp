@@ -72,9 +72,6 @@ int VSTest::vs_read() {
             break;
         }
     }
-    //std::cout << (cpu_t - cpu_st) << std::endl;
-    //std::cout << read_buffer << std::endl;
-    //printLine();
 
     return(0);
 }

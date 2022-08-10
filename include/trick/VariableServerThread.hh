@@ -127,10 +127,10 @@ namespace Trick {
              @par Python Usage:
              @code trick.var_send_once("<in_name_list>", <number of variables in list>) @endcode
              @param in_name_list - the variables name to retrieve, comma separated
-             @param numVars - number of vars in in_name_list
+             @param num_vars - number of vars in in_name_list
              @return always 0
             */
-            int var_send_once(std::string in_name_list, int numVars);
+            int var_send_once(std::string in_name_list, int num_vars);
 
             /**
              @brief @userdesc Command to instruct the variable server to immediately send back the values of
@@ -451,12 +451,12 @@ namespace Trick {
             /**
              @brief Called by write_data to write given variables to socket in var_binary format.
             */
-            int write_binary_data( int Start, char *buf1, const std::vector<VariableReference *>& givenVars, VS_MESSAGE_TYPE messageType);
+            int write_binary_data( int Start, char *buf1, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
 
             /**
              @brief Called by write_data to write given variables to socket in var_ascii format.
             */
-            int write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& givenVars, VS_MESSAGE_TYPE messageType );
+            int write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
 
             /**
              @brief Construct a variable reference from the string in_name and handle error checking

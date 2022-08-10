@@ -55,11 +55,6 @@ class VSTest {
 		int testSendOnce();
 		int testUnits();
 
-
-		// Not yet implemented
-		// int testBinary();
-		// int testCycle();
-
 	private:
 		int get_line(char* thing);
 		int strcmp_IgnoringWhiteSpace(const char* s1, const char* s2);

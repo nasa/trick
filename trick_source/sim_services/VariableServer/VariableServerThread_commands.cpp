@@ -99,31 +99,31 @@ int Trick::VariableServerThread::var_add(std::string var_name, std::string units
     return(0) ;
 }
 
-// TODO: This should go somewhere else probably?
+// Helper function for var_send_once
 std::vector<std::string> split (const std::string& str, const char delim) {
-  std::stringstream ss(str);
-  std::string s;
-  std::vector<std::string> ret;
-  while (std::getline(ss, s, delim)) {
-    ret.push_back(s);
-  }
-  return ret;
+    std::stringstream ss(str);
+    std::string s;
+    std::vector<std::string> ret;
+    while (std::getline(ss, s, delim)) {
+        ret.push_back(s);
+    }
+    return ret;
 }
 
-int Trick::VariableServerThread::var_send_once(std::string in_name, int numVars) {
-    std::vector<std::string> varNames = split(in_name, ',');
+int Trick::VariableServerThread::var_send_once(std::string in_name, int num_vars) {
+    std::vector<std::string> var_names = split(in_name, ',');
 
-    if (varNames.size() != numVars) {
-        message_publish(MSG_ERROR, "Number of variables sent to var_send_once (%d) does not match numVars (%d).\n", varNames.size(), numVars);
+    if (var_names.size() != num_vars) {
+        message_publish(MSG_ERROR, "Number of variables sent to var_send_once (%d) does not match num_vars (%d).\n", var_names.size(), num_vars);
         return -1;
     }
 
-    std::vector<VariableReference *> givenVars;
-    for (auto& varName : varNames) {
-        givenVars.push_back(create_var_reference(varName));
+    std::vector<VariableReference *> given_vars;
+    for (auto& varName : var_names) {
+        given_vars.push_back(create_var_reference(varName));
     }
-    copy_sim_data(givenVars, false);
-    write_data(givenVars);
+    copy_sim_data(given_vars, false);
+    write_data(given_vars);
 
     return(0) ;
 }
