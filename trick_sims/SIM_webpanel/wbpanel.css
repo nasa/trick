@@ -1,0 +1,42 @@
+html {
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+body {
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+}
+/* GRID CONTAINERS */
+#parent {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-gap: 1rem;
+    width: 100vw;
+    height: 100vh;
+}
+#headerchild {
+    grid-row: 1;
+    grid-column: 1/span 4;
+}
+#navchild {
+    grid-row: 2;
+    grid-column: 1;
+    font-size: small;
+}
+#tablechild {
+    grid-row: 4/span all;
+    grid-column: 3/span all;
+}
+#modechild {
+    grid-row: 3;
+    grid-column: 1;
+}
+#buttonchild {
+    grid-row: 4;
+    grid-column: 1;
+}
+#barchild {
+    grid-row: 2;
+    grid-column: 2/span 3;
+
+}

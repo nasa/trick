@@ -99,7 +99,7 @@ class RangeView extends JPanel {
         balloonVel  = new double[]
             {0.0, 0.0};
 
-        envelope_color_1 = new  Color(254,181, 36);
+        envelope_color_1 = new  Color(128,0, 128);
         envelope_color_2 = new  Color(251,  0, 21);
         basket_color     = new  Color(220,180,120);
         envelope_phong   = new  Color(220,220,220,80);

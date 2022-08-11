@@ -4,28 +4,18 @@
     <link rel="stylesheet" type="text/CSS" href="wsexp.css">
     <title>Trick Sim Control</title>
 
-<!--START OF GRID LAYOUT -->
 <body>
+    <!--START OF GRID LAYOUT -->
     <div id="parent"> 
-        <nav id="navchild">
-            <table>
-                <th>
-                    <button class="navbutton"><u>F</u>ile</button>
-                    <button class="navbutton"><u>A</u>ctions</button>
-                </th>
-                <th>
-                    <button class="navbutton"><u>F</u>ile</button>
-                    <button class="navbutton"><u>A</u>ctions</button>
-                </th>
-            </table>
-        </nav>
         <header id="headerchild">
             <img src="../images/trick.png" id="trickpic">
             <h1>Sim Control</h1>
             <hr id="line" >
         </header> 
+        <div id="connectionchild">
+            <h2 id="isconnected"></h2>
+        </div>
         <div id="tablechild"> 
-            
             <table class="variables">
                 <h2>Simulation Variable Table</h2>
                     <tr>
@@ -39,16 +29,16 @@
             <tr>
                 <th id="modeheader">Mode</th>
                 <tr>
-                    <td>0%</td>
+                    <td class="output">0%</td>
                 </tr>
                 
             </tr>
         </table>
         </div>
         <div id="buttonchild" >
-            <table class="commands">
+            <table class="buttontable">
        
-                <th id="command" colspan="2" >Commands</th>
+                <th id="buttonheader" colspan="2" >Commands</th>
                 <tr>
                     <td class="cmdbtn"><button class="cmdbtn" id="step" >Step</button> </td>
                     <td class="cmdbtn"><button class="cmdbtn" id="data" checked="checked">Data Rec On</button></td>
@@ -65,43 +55,40 @@
                     <td class="cmdbtn"><button class="cmdbtn" id="shutdown">Shutdown</button></td> 
                     <td class="cmdbtn"><button class="cmdbtn" id="load">Load Chkpnt</button></td> 
                 </tr>
-                <!--My experiments-->
                 <tr>
                  
                     <td class="cmdbtn" colspan="2"><button onclick="window.close()" class="cmdbtn" id="exit">E<u>x</u>it</button></td> 
-                   <!-- <td><button onclick="setSimTime(value)">EXP</button></td> -->
                 </tr>
            
             </table>
         </div>
-        <div id="barchild">
+       <!-- <div id="barchild">
+            
             <table id="bartable">
-                <th class="bartable"><button></button>A</th>
-                <th class="bartable"><button></button>B</th>
-                <th class="bartable"><button></button>C</th>
+                <th class="bartable"><button class="barbtn"></button>Trick View</th>
+                <th class="bartable"><button class="barbtn"></button>MTV</th>
+                <th class="bartable"><button class="barbtn"></button>Throttle</th>
             </table>
-            <hr id="line">
-        </div>
+            -->
+           <!-- <hr id="line">
+        </div> -->
         <div id="bottomchild">
-            <table  class="bottomchild"> 
+            <table  class="bottomtable"> 
                 <tr> 
                     <th class="bottomheader">Simulations/Overruns</th>
                 </tr>
                 <tr>
-                    <td id="path" >Trick Simulation Path</td>
+                    <td class="output" id="path">Trick Simulation Path</td>
                 </tr>
+                
                 <tr> 
                     <th class="bottomheader" >Status Messages</th>
                 </tr>
                 <tr>
-                    <td>Status Message</td>
-                </tr>
-                <tr>
-                    <th id="isconnected"></th>
+                    <td class="output" >Status Message</td>
                 </tr>
             </table>
         </div>
-      
         <div id="timechild">
             <table id="timetable">
                 <tr>
@@ -111,20 +98,21 @@
                     <th>RET (sec)</th>
                 </tr>
                 <tr>
-                    <td id="RET" script="setSimTime()">0</td>
+                    <td id="RET" class="output" script="setSimTime()">0</td>
                 </tr>
                 <tr>
                     <th>Sim / Real Time</th>
                 </tr>
-                    <td>1</td>
+                    <td class="output">1</td>
             </table>
         </div>
     </div>
 
+    <!--START OF JAVASCRIPT-->
     <div id="output">
         <script type="text/javascript">
             function log(s) {
-                var p = document.createElement("p");
+               var p = document.createElement("p");
                 p.style.wordWrap = "break-word";
                 p.textContent = s;
                 output.appendChild(p);
@@ -172,7 +160,6 @@
             }
             // Sets the data rec and real time on by default 
             document.getElementById("data").checked = true;
-            document.getElementById("realtime").checked = true;
             document.getElementById("data").onclick =function dataRecordSim(){
                 var dataRecButton = document.getElementById("data");
                 if (dataRecButton.checked == false){
@@ -185,6 +172,8 @@
                     dataRecButton.checked = false;
                 }
             }
+
+            document.getElementById("realtime").checked = true;
             document.getElementById("realtime").onclick =function realtimeSim(){
                 var realtimeButton = document.getElementById("realtime");
               
@@ -203,8 +192,8 @@
 
                 }
             }
-            // Sets sim time and directory for load/dump 
             // Creates object for sim information such as time and directory
+            // Set sim time, directory, mode, and port 
             var simInfo = new Object();
             function setSimTime(t){
                 simInfo.time = t.toFixed(2);
@@ -217,24 +206,24 @@
             }
             function setSimMode(m){
                 simInfo.mode = m;
-                document.querySelector(".cmdbtn").disabled = false;
+               document.querySelector(".cmdbtn").disabled = false;
                 // everything is originally enabled 
                 switch (m){
                     case '0':
                         document.getElementById("modeheader").innerText = "Initialization Mode";
-                        document.querySelector(".cmdbtn").disabled = false;
+                       // document.querySelector(".cmdbtn").disabled = false;
                         document.querySelector("#freeze").disabled = true;
                         document.querySelector("#exit").disabled = true;
                     break;
                     case '1':
                         document.getElementById("modeheader").innerText = "Freeze Mode";
                         document.querySelector(".cmdbtn").disabled = false;
-                        document.querySelector("#freeze").disabled = true;
-                        document.querySelector("#exit").disabled = true;
+                        
+                       // document.querySelector("#freeze").disabled = true;
+                      //  document.querySelector("#exit").disabled = true;
                     break;
                     case '4':
                         document.getElementById("modeheader").innerText = "Debug Stepping Mode";
-                        document.querySelector(".cmdbtn").disabled = false;
                         document.querySelector("#start").disabled = true;
                         document.querySelector("#shutdown").disabled = true;
                         document.querySelector("#load").disabled = true;
@@ -243,69 +232,39 @@
                     break;
                     case '5':
                         document.getElementById("modeheader").innerText = "Run Mode";
-                        document.querySelector(".cmdbtn").disabled = false;
-                        document.querySelector("#step").disabled = true;
-                        document.querySelector("#shutdown").disabled = true;
-                        document.querySelector("#load").disabled = true;
-                        document.querySelector("#dump").disabled = true;
-                        document.querySelector("#realtime").disabled = true;
-                        document.querySelector("#data").disabled = true;
                         document.querySelector("#freeze").disabled = false;
-                        document.querySelector("#start").disabled = true;
-
+                     
 
                     break;
                     case '6': 
                         document.getElementById("modeheader").innerText = "Exit Mode";
-                        document.querySelector(".cmdbtn").disabled = false;
+                        
                     break;
                     default:
                         document.getElementById("modeheader").innerText = "N/A";
-                        document.querySelector(".cmdbtn").disabled = false;
+                        
                         break;
                 }
+                document.querySelector(".cmdbtn").disabled = false;
             }
             function setServerPort(p){
                 simInfo.port = p;
                 document.getElementById("isconnected").innerHTML = "Connection established on port " + simInfo.port;
 
             }
+            /*
             function changeServerPort(){
                 var newPort = prompt("Enter new port: ");
-                // can we use python to change input.py web.server.port
-               // sendMessage(`{"cmd": "python", "pycode": "'web.server.port' + '=' + '${newPort}'"}`);
-                sendMessage(`{"cmd": "python", "pycode": "'Trick::ExternalApplication::set_port'"}`);
-
             }
-            
+            */
             // MY EXPERIMENTS
             document.getElementById("load").onclick = function loadChkpnt (){
                 var file = prompt("Enter file to load: ", "chkpnt_" + simInfo.time);
-    
-                
-
-                
-              //  var file = "chkpnt_" + simTime;
                 sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${simInfo.dir}' + '/' + '${file}')"}`);
             }
             document.getElementById("dump").onclick = function dumpChkpnt (){
                 var file = prompt("Enter file to dump: ", "chkpnt_" + simInfo.time);
-
-                //var file = "chkpnt_" + simTime;
-                
                 sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint('${file}')"}`);
-               
-               /* Unable to do send last command due to no checkpoint objects 
-               
-               sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint_objects('${file}' + ',' + '${checkpointObjects}')"}`);
-                 if (file != null){
-                    
-                        if (checkpointObjects == null || "".equals(checkpointObjects)){
-                            sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint('${file}')"}`);
-                        } else {
-                            sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint_objects('${file}' + ',' + '${checkpointObjects}')"}`);
-                        }
-                } */
             }
         
             // Working on enable/disable buttons
@@ -317,7 +276,6 @@
             }
             function disableAllButtons(commands, flag){
                 const button = document.querySelectorAll('button');
-               // button.disabled = true; 
             }
             function getAllButtons (){
                 const commands = ["step", "start", "freeze", "shutdown", "data", "realtime",
@@ -337,11 +295,7 @@
              
             // WebSocket Event Handlers
             ws.onopen = function(e) {
-               // document.getElementById("isconnected").innerHTML = "Connection established " + windowPort;
-               // let windowLocation = window.location.host;
-               // log("Connection established");
                 setPeriod(100);
-                //changeServerPort();
                 sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.run_dir"}`);
                 sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.default_dir"}`);
                 sendMessage(`{"cmd":"var_add","var_name": "web.server.port"}`);
@@ -359,7 +313,7 @@
                 sendMessage('{"cmd":"var_unpause"}');
             };
             ws.onmessage = function(e) {
-               //log("Recieved : " + e.data);
+               log("Recieved : " + e.data);
                let msg = JSON.parse(e.data);
                console.log(msg);
                if (msg.msg_type == "values") {
@@ -370,7 +324,6 @@
                 setSimTime(msg.time);
                 for (let i = 0; i < msg.values.length; i++ ) {
                        valueNodes[i+1].textContent = msg.values[i];
-                       //console.log(msg.values[i]);
                    }
 
                 if (msg.values.length == 3){
@@ -381,16 +334,16 @@
                     setSimDir(runDir, defDir);
                     let serverPort = msg.values[2];
                     setServerPort(serverPort);
-                }
+                    }
                }
             }; 	
             ws.onerror = function(e) {
                console.log("WebSocket Error: " , e);
-              // handleErrors(e);
+               handleErrors(e);
             };
             ws.onclose = function(e) {
                console.log("Connection closed", e);
-              // window.close();
+               window.close();
             };
   
         </script>

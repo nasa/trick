@@ -91,7 +91,7 @@ class RangeView extends JPanel {
         deltaTemp = 0;
         deltaWind = 0;
 
-        skyColor    = new Color(184,202,231);
+        skyColor    = new Color(113,188,225);
         groundColor = new Color(100,140, 60);
 
         balloonPos  = new double[]
@@ -99,9 +99,9 @@ class RangeView extends JPanel {
         balloonVel  = new double[]
             {0.0, 0.0};
 
-        envelope_color_1 = new  Color(254,181, 36);
-        envelope_color_2 = new  Color(251,  0, 21);
-        basket_color     = new  Color(220,180,120);
+        envelope_color_1 = new  Color(51,0, 102);
+        envelope_color_2 = new  Color(255,  204, 51);
+        basket_color     = new  Color(0,0,0);
         envelope_phong   = new  Color(220,220,220,80);
 
         envelope_radius = 8.5;

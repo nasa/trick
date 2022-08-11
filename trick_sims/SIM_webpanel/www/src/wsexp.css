@@ -1,183 +1,151 @@
-html{
-    font-family: sans-serif;
-    width: 100vw;
-    height: 100vh;
-    
-  /* background-color: rgb(235, 232, 232); */
-    /*background-image: linear-gradient(rgb(146, 146, 146), white); */
+html {
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
-body{
+body {
     margin: 0;
     width: 100vw;
-    height:100vh;
+    height: 100vh;
+}
+h1,h2 {
+    text-align: center;
+    width: 100%;
+}
+/* GRID CONTAINERS */
+#parent {
+    display: grid;
+   /* grid-template-columns: 1fr 1fr 1fr; */
+    grid-template-columns: 1fr 1fr 2fr;
+    width: 100vw;
+    height: 100vh;
+   /* background-color: palegoldenrod; */
+}
+#headerchild {
+    grid-row: 1;
+    grid-column: 1/span 4;
     
 }
-
-
-button.navbutton{
-    float: right;
-    border: 1px solid black;
+/*#navchild {
+    grid-row: 2;
+    grid-column: 2;
+    font-size: small;
+    background-color: purple;
+}*/
+#connectionchild {
+    grid-row:  4;
+    grid-column:3/span all;
+   
 }
-#trickpic{
+#tablechild {
+    grid-row: 3;
+    grid-column: 3/span all;
+   
+}
+#modechild {
+    grid-row: 2;
+    grid-column: 1;
+    /*grid-row: 3;
+    grid-row: 2;
+    grid-column: 1; */
+    
+}
+#buttonchild {
+    grid-row: 3;
+    grid-column: 1;
+}
+/*#barchild {
+    grid-row: 2;
+    grid-column: 2/span 3;
+    background-color: yellow;
+} */
+#bottomchild {
+    grid-row: 4;
+    grid-column: 1;
+}
+#timechild {
+    grid-row: 3;
+    grid-column: 2;
+}
+
+/* END OF GRID CONTAINERS */
+/* START OF GRID CONTAINER CHILDREN */
+#trickpic {
     float: left;
     width: 20%;
 }
-#modeheader{
+#line {
+    border: 2px solid orangered;
+}
+
+.navbutton {
+    float: left;
+    border: 1px solid red
+}
+.variables {
+    width: 100%;
+    border: 2px solid hotpink;
+}
+.table {
+    border: 2px solid darkblue;
     background-color: rgb(57, 139, 253);
-
-  /*background-color: rgb(103, 161, 243);*/
+    text-align: center;
+    font-size:small;
 }
-.modebar{
+.modebar {
     width: 100%;
-}
-table.variables {
-  /*  border-collapse: collapse; */
-    width: 50% /* or 50% */
-    
-}
-th.table{
-    border: 2px solid black;
-    background-color: rgb(57, 139, 253);
-    
-
-   /* background-color:rgb(103, 161, 243); */
     text-align: center;
-    font-size: smaller;
-  /* width: 50%; */
-}
-td{
-    border:2px solid black;
-    text-align: center;
-    font-size: medium;
-} 
-table.variables tr:nth-child(odd){
-    background-color: rgb(218, 216, 216);
-}
-h2,h1{
-    text-align: center;
-    width: 100%;
-}
-button{
-    border: none;
-    /* background-color: rgb(199, 199, 199); */
-    font-size: larger;
-    width: 100%;
-  
-}
-.cmdbtn{
-    background-color: rgb(218, 216, 216);
-    text-align: center;
-   
-}
-.cmdbtn:hover{
-    background-color: pink;
-}
-/*table{
-    width: 100px;
-} */
-
-#command{
     border: 1px solid black;
+}
+#modeheader {
     background-color: rgb(57, 139, 253);
-    /*background-color: rgb(103, 161, 243); 133,172, 228 */
-    text-align: left; 
-}
-.commands{
-   /* background-color: rgb(56, 55, 100); */
-    width: 100%;
-    height: 100%;  
-}
-#parent{
-    display: grid;
-  
-   grid-template-columns: 1fr 1fr 1fr; 
-  
-    grid-gap: 1rem;
-    width: 100vw;
-    height: 100vh;
-   
-   
-   
-}
-#navchild{
-   /* background-color: orange; */
-    grid-row: 2;
-    grid-column: 1/span 1;
-    font-size: small; 
-}
-#modechild{
-   /* background-color:rgb(14, 236, 25); */
-    grid-row: 3;
-    grid-column: 1;
-    /*border:  1px solid black;  */
-    
-}
-#headerchild{
-  /*  background-color: rgb(207, 207, 207); */
-    grid-row: 1;
-    grid-column: 1/ span 4;
-    
-    
-
-}
-#tablechild{
-    /*background-color: blue; */
-    grid-row: 4/span all;
-    grid-column: 3/span all;
-  
-    text-align:center;
-    
-}
-#buttonchild{
-    grid-row: 4;
-    grid-column: 1;
-   /*  background-color: red; */
     border: 1px solid black;
+}
+.buttontable {
     width: 100%;
-   
-}
-#barchild{
-    grid-row: 2;
-    grid-column: 2/span 3;
-    /* background-color: rgb(255, 1, 149) */
-}
-#line{
-    
-    border-top: 2px solid black;
-    
-}
-
-.bottomchild{
-    width: 50vw;
-    /*width: 100vw; */
-}
-.bottomheader{
-    background-color: rgb(57, 139, 253);
-   
-}
-
-
-
-#timetable{
     height: 100%;
 }
-#timeheader{
+#buttonheader {
     background-color: rgb(57, 139, 253);
-   /* background-color: rgb(103, 161, 243);*/
-
+    border: 1px solid black; 
+    text-align: left;
+}
+.cmdbtn {
+    background-color: rgb(218, 216, 216);
+    text-align: center;
+    border: none;
+    cursor: pointer;
+}
+#bartable {
+    width: 100%;
+}
+.bottomheader {
+    background-color: rgb(57, 139, 253);
+}
+.bottomtable {
+    width: 100%;
+}
+.output {
+    text-align: center;
+    border: 1px solid black;
+   
+}
+#timetable{
+  /*  width: 100%; */
+  height: 100%;
+    
 }
 
-/* Grid Layout Children */
-#timechild{
-    grid-row: 4;
-    grid-column: 2;
+#timeheader { 
+    background-color: rgb(57, 139, 253);
+    border: 1px solid black;
+    height: 18%;
 }
-#bottomchild{
-    grid-row: 5;
-    grid-column: 1;
+.barbtn {
+    border: none;
 }
-#barchild{
-    grid-row: 2;
-    grid-column: 2/span 3;
-
+#isconnected {
+    text-align: center;
+    align-items: center;
+}
+td {
+    border:1px solid pink;
 }
