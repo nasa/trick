@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Master/Slave |
+|------------------------------------------------------------------|
 
 Master/Slave is a way to do distributed processing in Trick using multiple simulations.
 Master/Slave synchronization synchronizes a master simulation to one or more slave

@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Realtime |
+|------------------------------------------------------------------|
 
 Trick provides a real-time processing capability which is different from many real-time
 simulation capabilities. The Trick executive is a "time based" executive and can run in

@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Realtime Timer |
+|------------------------------------------------------------------|
 
 A realtime sleep timer is an optional class for Trick simulations.
 

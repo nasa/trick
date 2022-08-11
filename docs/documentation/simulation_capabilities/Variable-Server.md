@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Variable Server |
+|------------------------------------------------------------------|
 
 When running a Trick simulation, unless specifically turned off, a server called the
 "variable server" is always up and listening in a separate thread of execution. The

@@ -177,10 +177,12 @@ int ws_data_handler(struct mg_connection *conn, int bits,
 {
 	int rvalue = 1;
     MyCivetServer* server = (MyCivetServer*) my_server;
-    if (server->debug) { message_publish(MSG_INFO, "Trick Webserver: WEBSOCKET[%p] RECIEVED: \"%s\".\n", (void*)conn, data); }
+    std::string msg(data, data_len);
+    if (server->debug) { message_publish(MSG_INFO, "Trick Webserver: WEBSOCKET[%p] RECIEVED: \"%s\".\n", (void*)conn, msg.c_str()); }
 
 	if (data_len > 0) { 
-		server->handleWebSocketClientMessage(conn, data);
+        std::string msg(data, data_len);
+		server->handleWebSocketClientMessage(conn, msg);
 	} 
      return rvalue;
 }

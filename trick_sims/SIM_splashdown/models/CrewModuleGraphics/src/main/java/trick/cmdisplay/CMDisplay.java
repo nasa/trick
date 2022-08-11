@@ -44,6 +44,8 @@ class CrewModuleView extends JPanel {
     private int water_poly_y[];
 
     private Color vehicleLineColor;
+    private Color vehicleFillColor;
+
     private double[] vehiclePos;
     private double[] centerOfBuoyancy;
 
@@ -93,6 +95,7 @@ class CrewModuleView extends JPanel {
         water_poly_y = new int[water_vrtx_world.length];
 
         vehicleLineColor = Color.GRAY;
+        vehicleFillColor = new  Color(255,255,250);
 
         vehiclePos  = new double[] {0.0, 0.0, 0.0};
 
@@ -177,6 +180,7 @@ class CrewModuleView extends JPanel {
           {25,37,26},{26,37,27},{27,37,28},{28,37,29},{29,37,30},{30,37,31},{31,37,32},{32,37,33},{33,37,34},{34,37,35},{35,37,36},{36,37,25}
         };
 
+        // Create the normals for the triangles
         veh_unit_normals_body = new double[veh_triangles.length][3];
         double v1[] = {0.0, 0.0, 0.0};
         double v2[] = {0.0, 0.0, 0.0};
@@ -231,7 +235,7 @@ class CrewModuleView extends JPanel {
       vantageAzimuth   += (dx * Math.PI) / getWidth();
       if (vantageAzimuth >  Math.PI) vantageAzimuth -= Math.PI;
       if (vantageAzimuth < -Math.PI) vantageAzimuth += Math.PI;
-      vantageElevation += (dy * Math.PI) / getHeight();
+      vantageElevation -= (dy * Math.PI) / getHeight();
       if (vantageElevation >  Math.toRadians( 89.0)) vantageElevation = Math.toRadians( 89.0);
       if (vantageElevation <  Math.toRadians(-89.0)) vantageElevation = Math.toRadians(-89.0);
       setAzElRotation(worldToVantageRotation, vantageAzimuth, vantageElevation);
@@ -275,6 +279,22 @@ class CrewModuleView extends JPanel {
         centerOfBuoyancy[2] = CBz;
     }
 
+     public void drawLineSegmentInWorld(Graphics2D g, Color color, double start[], double end[]) {
+       g.setPaint(color);
+       int start_screen[] = {0, 0};
+       int end_screen[] = {0, 0};
+       worldToScreenPoint( start_screen, start);
+       worldToScreenPoint( end_screen, end);
+       g.drawLine( start_screen[0], start_screen[1], end_screen[0], end_screen[1]);
+     }
+
+     public void drawLabelInWorld(Graphics2D g, Color color, double loc_world[], String s) {
+       g.setPaint(color);
+       int loc_screen[] = {0, 0};
+       worldToScreenPoint( loc_screen, loc_world);
+       g.drawString ( s, loc_screen[0], loc_screen[1]);
+     }
+
     private void doDrawing( Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
 
@@ -302,7 +322,7 @@ class CrewModuleView extends JPanel {
         g2d.drawPolygon(water_poly_x, water_poly_y, 4);
 
         // ========================
-        //       Draw Vehicle
+        //       Draw vehicle
 
         // Transform the vehicle vertices from body -> world, apply the vehicle position offset, and then to 2D screen points.
         for (int i=0; i<veh_vrtx_body.length ; i++) {
@@ -316,10 +336,6 @@ class CrewModuleView extends JPanel {
 
         for (int i=0; i<veh_triangles.length ; i++) {
             double LOS_vantage[] = {1.0, 0.0, 0.0};
-            double veh_RGB[] = {255.0, 255.0, 250.0};
-
-            // Proportion of the total light due to ambiant light, the remainder is proportion of reflected light.
-            double ambiant = 0.8; // Must be between 0.0 and 1.0.
 
             // Transform the vehicle triangle normals from Body -> World -> Vantage
             MatrixOps.MtimesV(veh_unit_normals_world[i], bodyToWorldRotation, veh_unit_normals_body[i]);
@@ -329,26 +345,31 @@ class CrewModuleView extends JPanel {
             double facing_angle = MatrixOps.VdotV(veh_unit_normals_vantage[i], LOS_vantage);
             if ( (facing_angle > 0.0) && (facing_angle < Math.toRadians(90))) {
 
-                // Calculate the (diffuse) reflection intensity.
+                // Calculate the diffuse reflection intensity.
                 double neg_illumination_vector[] = {0.0, 0.0, 0.0};
                 MatrixOps.Vscale(neg_illumination_vector, illumination_vector, -1.0);
                 double diffuse_intensity = MatrixOps.VdotV(neg_illumination_vector, veh_unit_normals_world[i]);
                 if (diffuse_intensity < 0.0) diffuse_intensity = 0.0;
 
+                // Proportion of the total light due to ambiant light.
+                // (1.0 - ambient) is the proportion of reflected light.
+                double ambiant = 0.8; // Must be between 0.0 and 1.0.
+
                 // The color intensity is a combination of ambiant light intensity,
                 // and diffuse reflection intensity.
                 double color_intensity = (ambiant + (1.0 - ambiant) * diffuse_intensity);
-                int CCR = (int) (veh_RGB[0] * color_intensity);
-                int CCG = (int) (veh_RGB[1] * color_intensity);
-                int CCB = (int) (veh_RGB[2] * color_intensity);
-                g2d.setPaint( new Color(CCR, CCG, CCB));
-
+                g2d.setPaint( new Color( (int)(vehicleFillColor.getRed()   * color_intensity),
+                                         (int)(vehicleFillColor.getGreen() * color_intensity),
+                                         (int)(vehicleFillColor.getBlue()  * color_intensity)));
                 // Draw the triangle.
                 int triangle_poly_x[] = {0, 0, 0};
                 int triangle_poly_y[] = {0, 0, 0};
+                // For each point of the triangle.
                 for (int j=0; j < 3; j++) {
+
                   triangle_poly_x[j] = veh_vrtx_screen[ veh_triangles[i][j] ][0];
                   triangle_poly_y[j] = veh_vrtx_screen[ veh_triangles[i][j] ][1];
+
                 }
                 g2d.fillPolygon(triangle_poly_x, triangle_poly_y, 3);
             }
@@ -356,7 +377,7 @@ class CrewModuleView extends JPanel {
 
         // Draw Wireframe Model
 
-        // g2d.setPaint( vehicleLineColor );
+        g2d.setPaint( vehicleLineColor );
         for (int i=0; i<veh_edges.length; i++) {
           int point0[] = veh_vrtx_screen[ veh_edges[i][0] ];
           int point1[] = veh_vrtx_screen[ veh_edges[i][1] ];
@@ -365,7 +386,6 @@ class CrewModuleView extends JPanel {
 
         // =============================
         // Draw Center of Buoyancy Point
-
         int CB_screen[] = {0, 0};
         int CB_symbol_size = 15;
         worldToScreenPoint( CB_screen, centerOfBuoyancy);
@@ -377,7 +397,6 @@ class CrewModuleView extends JPanel {
 
         // ============================
         // Draw Center of Gravity Point
-
         int CG_screen[] = {0, 0};
         int CG_symbol_size = 15;
         worldToScreenPoint( CG_screen, vehiclePos);
@@ -389,32 +408,16 @@ class CrewModuleView extends JPanel {
 
         // ==========================
         // Draw World Coordinate Axes
-
         double origin_world[] = {0.0, 0.0, 0.0};
-        int origin_screen[] = {0, 0};
-        worldToScreenPoint( origin_screen, origin_world);
-
-        g2d.setPaint(Color.RED);
         double x_axis_world[] = {5.0, 0.0, 0.0};
-        int x_axis_screen[] = {0, 0};
-        worldToScreenPoint( x_axis_screen, x_axis_world);
-        g2d.drawLine( origin_screen[0], origin_screen[1], x_axis_screen[0], x_axis_screen[1]);
-        g2d.drawString ( "X", x_axis_screen[0],x_axis_screen[1]);
-
-        g2d.setPaint(Color.GREEN);
+        drawLineSegmentInWorld(g2d, Color.RED, origin_world, x_axis_world);
+        drawLabelInWorld(g2d, Color.RED, x_axis_world, "X");
         double y_axis_world[] = {0.0, 5.0, 0.0};
-        int y_axis_screen[] = {0, 0};
-        worldToScreenPoint( y_axis_screen, y_axis_world);
-        g2d.drawLine( origin_screen[0], origin_screen[1], y_axis_screen[0], y_axis_screen[1]);
-        g2d.drawString ( "Y", y_axis_screen[0],y_axis_screen[1]);
-
-        g2d.setPaint(Color.BLUE);
+        drawLineSegmentInWorld(g2d, Color.GREEN, origin_world, y_axis_world);
+        drawLabelInWorld(g2d, Color.GREEN, y_axis_world, "Y");
         double z_axis_world[] = {0.0, 0.0, 5.0};
-        int z_axis_screen[] = {0, 0};
-        worldToScreenPoint( z_axis_screen, z_axis_world);
-        g2d.drawLine( origin_screen[0], origin_screen[1], z_axis_screen[0], z_axis_screen[1]);
-        g2d.drawString ( "Z", z_axis_screen[0],z_axis_screen[1]);
-
+        drawLineSegmentInWorld(g2d, Color.BLUE, origin_world, z_axis_world);
+        drawLabelInWorld(g2d, Color.BLUE, z_axis_world, "Z");
     }
 
     @Override

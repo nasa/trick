@@ -1,44 +1,46 @@
 html {
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+ font-family: Arial;
 }
 body {
-    margin: 0;
+    margin: auto;
     width: 100vw;
     height: 100vh;
+    font-family:
 }
 h1,h2 {
     text-align: center;
     width: 100%;
 }
-/* GRID CONTAINERS */
+/* -------------------GRID CONTAINERS----------------- */
 #parent {
     display: grid;
    /* grid-template-columns: 1fr 1fr 1fr; */
     grid-template-columns: 1fr 1fr 2fr;
+    grid-template-rows: .5fr .5fr 1fr 1fr;
+    
     width: 100vw;
     height: 100vh;
-   /* background-color: palegoldenrod; */
+    background-color: grey; 
 }
 #headerchild {
     grid-row: 1;
     grid-column: 1/span 4;
-    
+    background-color: yellowgreen; 
 }
-/*#navchild {
-    grid-row: 2;
-    grid-column: 2;
-    font-size: small;
-    background-color: purple;
-}*/
 #connectionchild {
     grid-row:  4;
     grid-column:3/span all;
-   
+    background-color: goldenrod; 
+}
+#fontchild {
+    grid-row: 1;
+    grid-column: 3;
+   /* background-color:green; */
 }
 #tablechild {
     grid-row: 3;
     grid-column: 3/span all;
-   
+    background-color:orangered;
 }
 #modechild {
     grid-row: 2;
@@ -46,28 +48,27 @@ h1,h2 {
     /*grid-row: 3;
     grid-row: 2;
     grid-column: 1; */
-    
+    background-color: indigo; 
 }
 #buttonchild {
     grid-row: 3;
     grid-column: 1;
+    background-color: turquoise; 
 }
-/*#barchild {
-    grid-row: 2;
-    grid-column: 2/span 3;
-    background-color: yellow;
-} */
+
 #bottomchild {
     grid-row: 4;
     grid-column: 1;
+    background-color: hotpink; 
 }
 #timechild {
     grid-row: 3;
     grid-column: 2;
+    background-color: chartreuse; 
 }
-
 /* END OF GRID CONTAINERS */
-/* START OF GRID CONTAINER CHILDREN */
+
+/* --------------START OF GRID CONTAINER CHILDREN----------------*/
 #trickpic {
     float: left;
     width: 20%;
@@ -148,4 +149,7 @@ h1,h2 {
 }
 td {
     border:1px solid pink;
+}
+label, select{
+    float: right;
 }

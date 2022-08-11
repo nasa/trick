@@ -1,5 +1,5 @@
-| [Home](Home) → [Documentation Home](Documentation-Home) → Monte Carlo |
-|--------------------------------------------------------------------------------------|
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Monte Carlo |
+|------------------------------------------------------------------|
 
 # Introduction
 Monte Carlo is an advanced simulation capability provided by Trick that allows users to repeatedly run copies of a simulation with different input values. Users can vary the input space of a simulation via input file, random value generation, or by calculating values from previous Monte Carlo runs in a process called optimization.

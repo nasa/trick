@@ -6,7 +6,7 @@
 #include "trick/MemoryManager.hh"
 
 // MEMBER FUNCTION
-int Trick::MemoryManager::delete_var(void* address, bool destroy ) {
+int Trick::MemoryManager::delete_var(void* address ) {
 
     if (address == 0) {
         if (debug_level) {
@@ -37,9 +37,7 @@ int Trick::MemoryManager::delete_var(void* address, bool destroy ) {
          */
         if ( alloc_info->stcl == TRICK_LOCAL ) {
             if ( alloc_info->alloc_type == TRICK_ALLOC_MALLOC ) {
-                if (destroy) {
-                    io_src_destruct_class( alloc_info );
-                }
+                io_src_destruct_class( alloc_info );
                 free( address);
             } else if ( alloc_info->alloc_type == TRICK_ALLOC_NEW ) {
                 io_src_delete_class( alloc_info );

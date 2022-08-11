@@ -37,10 +37,10 @@
             return addr ; \
         } ; \
         static void operator delete (void *p) { \
-            if ( get_alloc_info_at(p) ) { trick_MM->delete_var(p, false) ; free(p) ; } \
+            if ( get_alloc_info_at(p) ) { trick_MM->delete_var(p) ; free(p) ; } \
         } ; \
         static void operator delete[] (void *p) { \
-            if ( get_alloc_info_at(p) ) { trick_MM->delete_var(p, false) ; free(p) ; } \
+            if ( get_alloc_info_at(p) ) { trick_MM->delete_var(p) ; free(p) ; } \
         } ;
 #endif
 

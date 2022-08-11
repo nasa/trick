@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Data Record |
+|------------------------------------------------------------------|
 
 Data Recording provides the capability to specify any number of data recording groups,
 each with an unlimited number of parameter references, and with each group recording

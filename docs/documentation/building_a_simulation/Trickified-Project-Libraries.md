@@ -1,3 +1,7 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Building a Simulation](Building-a-Simulation) → Trickified Project Libraries |
+|------------------------------------------------------------------|
+
+
 During a simulation build, Trick generates several rounds of files to support data recording, checkpointing, and Python access:
 
 * Trick generates `S_source.hh` from the `S_define`

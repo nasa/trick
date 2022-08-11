@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html id="html">
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/CSS" href="wsexp.css">
     <title>Trick Sim Control</title>
@@ -13,7 +13,17 @@
             <hr id="line" >
         </header> 
         <div id="connectionchild">
-            <h2 id="isconnected"></h2>
+            <h2 id="isconnected">No connection</h2>
+        </div>
+        <div id="fontchild"> 
+            <select id="font" onchange="changeFont(this)">
+                <option value="arial">Arial</option>
+                <option value="serif">Serif</option>
+                <option value="sans-serif">Sans-serif</option>
+                <option value="system-ui">System-ui</option>
+                <option value="monospace">Monospace</option>
+            </select>
+            <label>Font:  </label>
         </div>
         <div id="tablechild"> 
             <table class="variables">
@@ -289,6 +299,10 @@
 
             }
 
+            function changeFont(font){
+                var window = document.getElementById("html");
+                window.style.fontFamily = font.value;
+            }
             // END OF EXPERIMENT 
             var varTable = document.querySelector('table.variables');
             var ws = new WebSocket('ws://localhost:8888/api/ws/VariableServer');
@@ -339,11 +353,11 @@
             }; 	
             ws.onerror = function(e) {
                console.log("WebSocket Error: " , e);
-               handleErrors(e);
+              // handleErrors(e);
             };
             ws.onclose = function(e) {
                console.log("Connection closed", e);
-               window.close();
+               //window.close();
             };
   
         </script>
