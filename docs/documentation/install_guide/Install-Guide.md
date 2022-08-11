@@ -9,16 +9,16 @@ Trick requires various free third party utilities in order to function. All the 
 
 | Utility        | Version | Description             | Usage                                                     | Notes                                                 |
 |---------------:|:-------:|:-----------------------:|:---------------------------------------------------------:|:------------------------------------------------------|
-| [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                       |
-| [clang]/[llvm] | <=13 (14 not currently supported)  | C/C++ Compiler          | Utilized by the interface code generator.   |                                                       |
-| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.9 as of 02/21    |
-| [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                       |
-| [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                       |
-| [swig]         | 2.x-3.x | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ required for some unit tests in make test target |
-| [make]         | 3.78+   | Build Automation        | Automates the building and cleaning of Trick.             |                                                       |
-| [openmotif]    | 2.2.0+  | GUI Toolkit             | Covers Trick GUIs not made with Java.                     |                                                       |
-| [udunits]      | 2.x+    | C Unit Library/Database | Provides support for units of physical quantities.        |                                                       |
-| [maven]        | x.x     | Java package manager    | Downloads Java dependencies and builds trick GUIs         |                                                       |
+| [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                        |
+| [clang]/[llvm] | <=14    | C/C++ Compiler          | Utilized by the interface code generator.                 | Trick Versions <= 19.3 should use LLVM <= 9        |
+| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.9 as of 02/21  |
+| [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                        |
+| [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                        |
+| [swig]         | 2.x-3.x | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ required for some unit tests in make test target. SWIG 4.x is compatible with Trick, but has some issues https://github.com/nasa/trick/issues/1288 |
+| [make]         | 3.78+   | Build Automation        | Automates the building and cleaning of Trick.             |                                                        |
+| [openmotif]    | 2.2.0+  | GUI Toolkit             | Covers Trick GUIs not made with Java.                     |                                                        |
+| [udunits]      | 2.x+    | C Unit Library/Database | Provides support for units of physical quantities.        |                                                        |
+| [maven]        | x.x     | Java package manager    | Downloads Java dependencies and builds trick GUIs         |                                                        |
 
 [gcc]: https://gcc.gnu.org/
 [clang]: https://clang.llvm.org/
@@ -48,7 +48,9 @@ Trick runs on GNU/Linux and macOS, though any System V/POSIX compatible UNIX wor
 | Quick Jump Menu |
 |---|
 |[RedHat Enterprise Linux (RHEL) 8](#redhat8)|
-|[CentOS 8](#redhat8)|
+|[Oracle Linux 8](#redhat8)|
+|[AlmaLinux 8](#redhat8)|
+|[Rocky Linux 8](#redhat8)|
 |[RedHat Enterprise Linux (RHEL) 7](#redhat7)|
 |[CentOS 7](#redhat7)|
 |[Fedora](#fedora)|
@@ -68,7 +70,7 @@ The configuration for these tests can be found in the [trick/.github/workflow/te
 ---
 <a name="redhat8"></a>
 
-### RedHat Enterprise Linux (RHEL) 8, CentOS 8
+### RedHat Enterprise Linux (RHEL) 8, Oracle Linux 8, Rocky Linux 8, AlmaLinux 8
 Trick requires the clang/llvm compiler to compile and link the Trick Interface Code Generator.  clang/llvm is available through the [Extra Packages for Enterprise Linux](https://fedoraproject.org/wiki/EPEL) repository.  Download and install the 'epel-release' package.
 
 
@@ -84,12 +86,21 @@ python3-devel diffutils
 
 
 
-Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository. In order to access gtest-devel in the epel repository you need to enable the dnf option PowerTools
+Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository. In order to access gtest-devel in the epel repository on RHEL 8 you need to enable the dnf repo CodeReady Linux Builder. In Rocky Linux and Alma Linux you can instead enable the Power Tools Repo. On Oracle Linux 8 you must enable OL8 CodeReady Builder. 
 
+See RedHat's documentation to enable the CodeReady Linux Builder repository:
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/package_manifest/codereadylinuxbuilder-repository
+
+On AlmaLinux 8, Rocky Linux 8:
 ```bash
-yum install -y 'dnf-command(config-manager)'
-yum config-manager --enable PowerTools
-yum install hdf5-devel gsl-devel gtest-devel
+dnf config-manager --enable powertools
+  dnf install -y gtest-devel
+```
+
+On Oracle Linux 8:
+```
+dnf config-manager --enable ol8_codeready_builder
+dnf install -y gtest-devel
 ```
 
 proceed to [Install Trick](#install) section of the install guide
