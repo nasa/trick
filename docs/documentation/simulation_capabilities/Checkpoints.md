@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Checkpoints |
+|------------------------------------------------------------------|
+
 The Trick CheckPointWriter is a C++ Class that implements checkpointing.
 
 ## Checkpointing

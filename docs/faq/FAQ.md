@@ -175,4 +175,7 @@ var = trick.var_get("my_sim_object.b.a[1].t")
 <a name="istrickgfgfongmoecfrvads"></a>
 
 ## Is Trick gluten-free, grass-fed, organic, non-GMO, environmentally conservative, free-range, vegan, and dolphin safe?
-Yes.
+
+Trick is composed entirely of information. It contains no matter, organic or otherwise. Therefore Trick contains no gluten,
+GMOs, nor is it fed by grass, vegetables, or meat. Trick could be described as environmentally conservative in that it runs on numerous POSIX (Unix-like) operating systems. Trick is of course free-range! It's Opensource!, and freely available to anyone, even dolphins with internet access.
+

@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Web Server](Webserver) → Adding SSL Encryption to your Webserver |
+|------------------------------------------------------------------|
+
 # Adding SSL Encryption to Your Webserver
 
 ## Getting started
@@ -34,3 +37,5 @@ Where server.pem is the path to the server.pem file you created when creating a 
 
 ## Access your webserver
 Now that ssl encryption is enabled, to access you webserver use https://localhost.ssl:8888 instead of http and wss://localhost.ssl:8888 for http and ws protocals respectively.
+
+Continue to [Adding SSL Encryption](SSL)

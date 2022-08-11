@@ -1,3 +1,7 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Miscellaneous Trick Tools](Miscellaneous-Trick-Tools) → Python Variable Server Client |
+|------------------------------------------------------------------|
+
+
 `variable_server.py` is a Python module for communicating with a sim's variable server from a Python program. Its primary purpose is to easily get and set variable values and units, but it also includes some additional convenience methods for affecting the sim's state. The code itself is well-commented, so I won't be reproducing the API here. Run `pydoc variable_server` (in the containing directory) for that.
 
 # Release Your Resources!
@@ -384,4 +388,4 @@ class Variable(__builtin__.object)
  |  should not directly change any part of this class.
 ```
 
-[Continue to Software Requirements](software_requirements_specification/SRS)
+[Continue to Trick Ops](TrickOps)

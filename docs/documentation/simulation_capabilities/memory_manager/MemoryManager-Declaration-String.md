@@ -1,3 +1,7 @@
+| [Home](/trick) → [Documentation Home](../../Documentation-Home) → [Simulation Capabilities](../Simulation-Capabilities) → [Memory Manager](MemoryManager) → Declaration String|
+|------------------------------------------------------------------|
+
+
 ### Memory Manager Declaration
 A declaration provides a data type description of a chunk of memory.
 

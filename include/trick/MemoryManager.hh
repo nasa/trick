@@ -301,7 +301,7 @@ namespace Trick {
              @param address - the address of the variable.
              @return 0 = SUCCESS, 1 = FAILURE
              */
-            int delete_var(void* address, bool destroy = true);
+            int delete_var(void* address);
 
             /**
              Forget about the variable with the given name and deallocate the memory associated with it.

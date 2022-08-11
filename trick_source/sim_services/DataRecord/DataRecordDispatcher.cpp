@@ -29,6 +29,7 @@ Trick::DRDMutexes::DRDMutexes() {
     pthread_mutex_init(&dr_go_mutex, NULL);
     pthread_cond_init(&init_complete_cv, NULL);
     pthread_mutex_init(&init_complete_mutex, NULL);
+    cancelled = false;
 }
 
 Trick::DRDWriterThread::DRDWriterThread(DRDMutexes & in_mutexes, std::vector <Trick::DataRecordGroup *> & in_groups) :
@@ -48,6 +49,10 @@ void * Trick::DRDWriterThread::thread_body() {
        then call the write_data method for all of the groups */
     while(1) {
         pthread_cond_wait(&(drd_mutexes.dr_go_cv), &(drd_mutexes.dr_go_mutex));
+        if (drd_mutexes.cancelled) {
+            pthread_mutex_unlock(&(drd_mutexes.dr_go_mutex));
+            pthread_exit(0);
+        }
         for ( unsigned int ii = 0 ; ii < groups.size() ; ii++ ) {
             if ( groups[ii]->buffer_type == Trick::DR_Buffer ) {
                 groups[ii]->write_data(true) ;
@@ -90,6 +95,7 @@ int Trick::DataRecordDispatcher::init() {
     pthread_mutex_lock(&drd_mutexes.init_complete_mutex);
     drd_writer_thread.create_thread() ;
     pthread_cond_wait(&drd_mutexes.init_complete_cv, &drd_mutexes.init_complete_mutex);
+    pthread_mutex_unlock(&drd_mutexes.init_complete_mutex);
 
     return(0) ;
 }
@@ -239,7 +245,9 @@ int Trick::DataRecordDispatcher::shutdown() {
 
     if ( drd_writer_thread.get_pthread_id() != 0 ) {
         pthread_mutex_lock( &drd_mutexes.dr_go_mutex);
-        pthread_cancel( drd_writer_thread.get_pthread_id()) ;
+        // pthread_cancel( drd_writer_thread.get_pthread_id()) ;
+        drd_mutexes.cancelled = true;
+        pthread_cond_signal(&drd_mutexes.dr_go_cv);
         pthread_mutex_unlock( &drd_mutexes.dr_go_mutex);
     }
 

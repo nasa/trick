@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Debug Pause |
+|------------------------------------------------------------------|
 
 Debug Pause is a debugging feature provided by Trick. When turned on, Debug Pause will print the current simulation time and
 the name of the current job, and pause the simulation @e before the job is executed. Debug Pause provides a way for the user to step

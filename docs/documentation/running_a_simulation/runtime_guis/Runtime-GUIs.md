@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../../Documentation-Home) → [Running a Simulation](../Running-a-Simulation) → Runtime GUIs |
+|------------------------------------------------------------------|
+
 Trick provides the following graphical user interfaces:
 
 ### Simulation Control Panel

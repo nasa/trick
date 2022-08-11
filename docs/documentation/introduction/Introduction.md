@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → Introduction |
+|------------------------------------------------------------------|
+
 The responsibility for this document lies with the [Simulation and Graphics Branch (ER7)](https://er.jsc.nasa.gov/ER7/) of the [Automation, Robotics and Simulation Division](https://er.jsc.nasa.gov/) of the NASA JSC Engineering Directorate.
 
 The purpose of this document is to provide Trick simulation developers and users with a detailed user’s reference guide on how to install Trick, use Trick processors and utilities, and how to operate a simulation from execution to data post processing.

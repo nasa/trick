@@ -3,6 +3,7 @@
 #include <libgen.h>
 #include <stdlib.h>
 #include <sstream>
+#include <cstring>
 
 #include "Utilities.hh"
 
@@ -190,4 +191,40 @@ std::string underline(const std::string& text, unsigned length) {
 
 std::string quote(const std::string& text) {
     return "\"" + text + "\"";
+}
+
+
+// This function will accept version numbers with Major, Major.Minor, or Major.Minor.Patch. 
+// It removes non-numerical prefixes or postfixes to the version number. The return value
+// is an int with the format MMmmpp, which is what llvm LangOpts.gnucversion expects.
+// If there is a problem or no verno is provided, it returns the default value. 
+int gccVersionToIntOrDefault(const char* verno, int def) {
+    const int buffersize = 32;
+    // need mutable characters for strtok
+    char verbuf[buffersize];
+    if(verno == nullptr || verno[0] == '\0' || strlen(verno) >= buffersize) {
+        // Invalid GCC version string, returning default GCC version
+        return def;
+    }
+    strcpy(verbuf, verno);
+    const int len = strlen(verbuf);
+    const char* majMinPatch[3] = {"0", "0", "0"};
+    // Setting non-numerals to the delimeter (might catch vernos with prefix or postfix)
+    for(int i = 0; i < len; i++) {
+        if(verbuf[i] < '0' || verbuf[i] > '9') {
+            verbuf[i] = '.';
+        }
+    }
+    char* next = strtok(verbuf, ".");
+    for(int i = 0; next != nullptr && i < 3; i++) {
+        majMinPatch[i] = next;
+        next = strtok(nullptr, ".");
+    }
+    // This is the format that LLVM expects for the version number
+    int result = 10000*atoi(majMinPatch[0]) + 100*atoi(majMinPatch[1]) + atoi(majMinPatch[2]);
+    if(result > 999999) {
+        std::cerr << "Warning: GCC_VERSION is invalid version number: " << result << ". Setting ICG to use default GCC version: " << def << std::endl;
+        return def;
+    }
+    return result;
 }

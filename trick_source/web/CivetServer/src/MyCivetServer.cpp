@@ -371,7 +371,7 @@ int MyCivetServer::join() {
     return 0;
 }
 
-void MyCivetServer::handleWebSocketClientMessage(struct mg_connection *conn, const char* data) {
+void MyCivetServer::handleWebSocketClientMessage(struct mg_connection *conn, const std::string& data) {
     std::map<mg_connection*, WebSocketSession*>::iterator iter;
     iter = webSocketSessionMap.find(conn);
     if (iter != webSocketSessionMap.end()) {
