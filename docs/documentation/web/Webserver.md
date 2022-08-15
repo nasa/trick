@@ -3,7 +3,7 @@
 
 # Adding a Web Server to Your Sim
 
-If Trick is [configured with Civetweb](Configuring_TRICK_with_Civetweb.md),
+If Trick is [configured with Civetweb](Configure-Civetweb.md),
 adding a web server to your simulation simply requires including the CivetServer sim module into your **S_define** file:
 
 ```
