@@ -1158,7 +1158,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         statusLabel = new JXLabel("");
         
         statusBar.add(statusLabel);
-
+        
         JPanel hostPortPanel = new JPanel();
         hostPortPanel.setLayout(new BorderLayout());
         JXTitledSeparator hostPortHeader = new JXTitledSeparator();

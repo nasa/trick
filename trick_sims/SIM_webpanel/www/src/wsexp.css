@@ -1,11 +1,12 @@
 html {
  font-family: Arial;
+overflow-x: hidden !important;
+
 }
 body {
     margin: auto;
     width: 100vw;
     height: 100vh;
-    font-family:
 }
 h1,h2 {
     text-align: center;
@@ -14,33 +15,33 @@ h1,h2 {
 /* -------------------GRID CONTAINERS----------------- */
 #parent {
     display: grid;
-   /* grid-template-columns: 1fr 1fr 1fr; */
-    grid-template-columns: 1fr 1fr 2fr;
-    grid-template-rows: .5fr .5fr 1fr 1fr;
-    
+ /*  grid-template-columns: 1fr 1fr 1fr .5fr;
+    grid-template-rows: .15fr .5fr 1fr 1fr; */
+    grid-template-columns: 1fr 1fr;
+    column-gap: 30px;
     width: 100vw;
     height: 100vh;
-    background-color: grey; 
+    /*background-color: grey; */
 }
 #headerchild {
     grid-row: 1;
     grid-column: 1/span 4;
-    background-color: yellowgreen; 
+  /*  background-color: yellowgreen; */
 }
 #connectionchild {
     grid-row:  4;
     grid-column:3/span all;
-    background-color: goldenrod; 
+   /*  background-color: goldenrod; */
 }
 #fontchild {
     grid-row: 1;
-    grid-column: 3;
-   /* background-color:green; */
+    grid-column: 4/span all;
+    display: flex;
+    flex-direction: column-reverse;
 }
 #tablechild {
     grid-row: 3;
     grid-column: 3/span all;
-    background-color:orangered;
 }
 #modechild {
     grid-row: 2;
@@ -48,23 +49,23 @@ h1,h2 {
     /*grid-row: 3;
     grid-row: 2;
     grid-column: 1; */
-    background-color: indigo; 
+   /*  background-color: indigo; */
 }
 #buttonchild {
     grid-row: 3;
     grid-column: 1;
-    background-color: turquoise; 
+ /*    background-color: turquoise; */
 }
 
 #bottomchild {
     grid-row: 4;
     grid-column: 1;
-    background-color: hotpink; 
+  /*   background-color: hotpink; */
 }
 #timechild {
     grid-row: 3;
     grid-column: 2;
-    background-color: chartreuse; 
+  /*   background-color: chartreuse; */
 }
 /* END OF GRID CONTAINERS */
 
@@ -148,8 +149,5 @@ h1,h2 {
     align-items: center;
 }
 td {
-    border:1px solid pink;
-}
-label, select{
-    float: right;
+    border:1px solid pink; 
 }
