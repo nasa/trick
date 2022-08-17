@@ -7,11 +7,12 @@
 <body>
     <!--START OF GRID LAYOUT -->
     <div id="parent"> 
+        <!-- Header Section -->
         <header id="headerchild">
             <img src="../images/trick.png" id="trickpic">
             <h1>Sim Control</h1>
             <label>Font:  </label>
-            <select onchange="changeFont(this)">
+            <select class="font" onchange="changeFontType(this)">
                 <option value="arial">Arial</option>
                 <option value="serif">Serif</option>
                 <option value="sans-serif">Sans-serif</option>
@@ -19,33 +20,21 @@
                 <option value="monospace">Monospace</option>
             </select>
             <label>Size:  </label>
-            <select onchange="changeFont(this)">
+            <select  class="font" onchange="changeFontSize(this)" >
                 <option value="small">Small</option>
                 <option value="medium">Medium</option>
                 <option value="large">Large</option>
             </select>
-            <input type="range" min="1.0" max="100" id="throttle">
+            <input type="range" min="1.0" max="10.0" id="throttle">
+            <input type="number" min="1" max="10" oninput="throttleSlider()">
+            <p id="slidervalue"></p>
             <hr id="line">
         </header> 
+        <!-- Connection Status Section -->
         <div id="connectionchild">
             <h2 id="isconnected">No connection</h2>
-        </div>
-       <!-- <div id="fontchild"> 
-            <select onchange="changeFont(this)">
-                <option value="arial">Arial</option>
-                <option value="serif">Serif</option>
-                <option value="sans-serif">Sans-serif</option>
-                <option value="system-ui">System-ui</option>
-                <option value="monospace">Monospace</option>
-            </select>
-            <label>Font:  </label>
-            <select onchange="changeFont(this)">
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-            </select>
-            <label>Size:  </label>
-        </div>-->
+        </div>.
+        <!-- Variable Table Section -->
         <div id="tablechild"> 
             <table class="variables">
                 <h2>Simulation Variable Table</h2>
@@ -55,6 +44,7 @@
                     </tr> 
             </table>
         </div>
+        <!-- Mode Status Section -->
         <div id="modechild">
         <table class="modebar">
             <tr>
@@ -66,6 +56,7 @@
             </tr>
         </table>
         </div>
+        <!-- Button Section -->
         <div id="buttonchild" >
             <table class="buttontable">
        
@@ -88,7 +79,7 @@
                 </tr>
                 <tr>
                  
-                    <td class="cmdbtn" colspan="2"><button onclick="window.close()" class="cmdbtn" id="exit">E<u>x</u>it</button></td> 
+                    <td class="cmdbtn" colspan="2"><button class="cmdbtn" id="exit">E<u>x</u>it</button></td> 
                 </tr>
            
             </table>
@@ -103,6 +94,7 @@
             -->
            <!-- <hr id="line">
         </div> -->
+        <!-- Bottom Section below Buttons -->
         <div id="bottomchild">
             <table  class="bottomtable"> 
                 <tr> 
@@ -120,6 +112,7 @@
                 </tr>
             </table>
         </div>
+        <!-- Time Section -->
         <div id="timechild">
             <table id="timetable">
                 <tr>
@@ -134,7 +127,7 @@
                 <tr>
                     <th>Sim / Real Time</th>
                 </tr>
-                    <td class="output">1</td>
+                    <td class="output" id="ratio">0</td>
             </table>
         </div>
     </div>
@@ -142,7 +135,11 @@
     <!--START OF JAVASCRIPT-->
     <div id="output">
         <script type="text/javascript">
-          //  var simInfo = new Object();
+            document.getElementById("throttle").oninput = function throttleSlider(){
+                document.getElementById("slidervalue").innerHTML = this.value;
+                var newRatio = this.value;
+                sendMessage(`{"cmd": "python", "pycode": "trick.real_time_set_rt_clock_ratio('${newRatio}')"}`);
+            }
             function log(s) {
                var p = document.createElement("p");
                 p.style.wordWrap = "break-word";
@@ -173,8 +170,10 @@
                 sendMessage(`{"cmd":"var_add","var_name": "${name}"}`);
                 addVarTableRow(name, value);
             }
-           
-            // Button Functions
+            // Functions for buttons
+            document.getElementById("exit").onclick = function exitSIM(){
+                window.close();
+            }
             document.getElementById("shutdown").onclick = function shutdownSIM(){
                 sendMessage(`{"cmd": "python", "pycode": "trick.stop()"}`);
             }
@@ -190,7 +189,7 @@
                 sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
                 sendMessage(`{"cmd": "python", "pycode": "trick.debug_signal()"}`);
             }
-            // Sets the data rec and real time on by default 
+            // Sets the data recording on by default
             document.getElementById("data").checked = true;
             document.getElementById("data").onclick =function dataRecordSim(){
                 var dataRecButton = document.getElementById("data");
@@ -204,12 +203,10 @@
                     dataRecButton.checked = false;
                 }
             }
-
+            // Sets  realtime on by default
             document.getElementById("realtime").checked = true;
             document.getElementById("realtime").onclick =function realtimeSim(){
                 var realtimeButton = document.getElementById("realtime");
-              
-              
                 if (realtimeButton.checked == false){
                   realtimeButton.innerText = "RealTime On";
                   sendMessage(`{"cmd": "python", "pycode": "trick.real_time_enable()"}`);
@@ -221,11 +218,25 @@
                   sendMessage(`{"cmd": "python", "pycode": "trick.real_time_disable()"}`);
                   realtimeButton.checked = false;
                   document.querySelector("#step").disabled = true;
-
                 }
             }
-            // Creates object for sim information such as time and directory
-            // Set sim time, directory, mode, and port 
+            document.getElementById("load").onclick = function loadChkpnt (){
+                var file = prompt("Enter file to load: ", "chkpnt_" + simInfo.time);
+                sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${simInfo.dir}' + '/' + '${file}')"}`);
+            }
+            document.getElementById("dump").onclick = function dumpChkpnt (){
+                var file = prompt("Enter file to dump: ", "chkpnt_" + simInfo.time);
+                sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint('${file}')"}`);
+            }
+            function changeFontSize(font){
+                var window = document.getElementById("html");
+                window.style.fontSize = font.value;
+            }
+            function changeFontType(font){
+                var window = document.getElementById("html");
+                window.style.fontFamily = font.value;
+            }
+            // Creates sim information object and sets properties
             var simInfo = new Object();
             function setSimTime(t){
                 simInfo.time = t.toFixed(2);
@@ -236,10 +247,15 @@
                // console.log(simInfo.dir);
                 document.getElementById("path").innerHTML = simInfo.dir;
             }
+            function setServerPort(p){
+                simInfo.port = p;
+                document.getElementById("isconnected").innerHTML = "Connection established on port " + simInfo.port;
+            }
             function setSimMode(m){
                 simInfo.mode = m;
-               document.querySelector(".cmdbtn").disabled = false;
-                // everything is originally enabled 
+                // Every button is enabled by default
+                document.querySelector(".cmdbtn").disabled = false;
+        
                 switch (m){
                     case '0':
                         document.getElementById("modeheader").innerText = "Initialization Mode";
@@ -276,66 +292,16 @@
                     default:
                         document.getElementById("modeheader").innerText = "N/A";
                         
-                        break;
+                    break;
                 }
                 document.querySelector(".cmdbtn").disabled = false;
             }
-            function setServerPort(p){
-                simInfo.port = p;
-                document.getElementById("isconnected").innerHTML = "Connection established on port " + simInfo.port;
-
+            function setSimRatio(r){
+                simInfo.ratio = r;
+                document.getElementById("ratio").innerText = simInfo.ratio;
             }
-            /*
-            function changeServerPort(){
-                var newPort = prompt("Enter new port: ");
-            }
-            */
-            document.getElementById("load").onclick = function loadChkpnt (){
-                var file = prompt("Enter file to load: ", "chkpnt_" + simInfo.time);
-                sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${simInfo.dir}' + '/' + '${file}')"}`);
-            }
-            document.getElementById("dump").onclick = function dumpChkpnt (){
-                var file = prompt("Enter file to dump: ", "chkpnt_" + simInfo.time);
-                sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint('${file}')"}`);
-            }
-        
-            // Working on enable/disable buttons
-            function enableAllButtons(commandStr, flag){
-                if (commandStr != null){
-                    const commands = commandStr.split(", ");
-                    setCommandsEnabled(acts, flag);
-                }
-            }
-            function disableAllButtons(commands, flag){
-                const button = document.querySelectorAll('button');
-            }
-            function getAllButtons (){
-                const commands = ["step", "start", "freeze", "shutdown", "data", "realtime",
-                "dump", "load"];
-                for (let x = 0; x < commands.length; x++){
-                    document.getElementById(commands[x]);
-                    const button = document.querySelector(commands[x]);
-                    button.disabled = true;
-                    console.log(commands[x]);
-                }
-
-            }
-            function changeFont(font){
-                var window = document.getElementById("html");
-                if (font == "small" || "medium" || "large"){
-                    window.style.fontSize = font.value;
-                }
-                window.style.fontFamily = font.value;
-            }
-            // END OF EXPERIMENT 
             var varTable = document.querySelector('table.variables');
             var ws = new WebSocket('ws://localhost:8888/api/ws/VariableServer');
-            /*function displayStatusMsg (d, r, input){
-                let path = d + "/" + r + "/send_hs";
-                console.log(path);  
-            } */
-            function th
-            // WebSocket Event Handlers
             ws.onopen = function(e) {
                 setPeriod(100);
                 sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.run_dir"}`);
@@ -352,6 +318,8 @@
                 addVariable("dyn.balloon.vel[1]", 0.0);
                 addVariable("dyn.balloon.envelope_air_temperature", 92.0);
                 addVariable("dyn.balloon.wind_speed", 0.0);
+                addVariable("trick_real_time.gtod_clock.rt_clock_ratio", 0.0);
+
                 sendMessage('{"cmd":"var_unpause"}');
             };
             ws.onmessage = function(e) {
@@ -362,19 +330,20 @@
                 let valueNodes = varTable.getElementsByClassName("values");
                 valueNodes[0].textContent = msg.time;
                 let simMode = valueNodes[1].textContent;
+                let simRatio = valueNodes[9].textContent;
                 setSimMode(simMode);
                 setSimTime(msg.time);
+                setSimRatio(simRatio);
                 for (let i = 0; i < msg.values.length; i++ ) {
                        valueNodes[i+1].textContent = msg.values[i];
                    }
-
-                if (msg.values.length == 3){
-                    let runDir = msg.values[0];
-                    let defDir = msg.values[1];
-                    displayStatusMsg(defDir, runDir);
-                    setSimDir(runDir, defDir);
-                    let serverPort = msg.values[2];
-                    setServerPort(serverPort);
+                    if (msg.values.length == 3){
+                        let runDir = msg.values[0];
+                        let defDir = msg.values[1];
+                       // displayStatusMsg(defDir, runDir);
+                        setSimDir(runDir, defDir);
+                        let serverPort = msg.values[2];
+                        setServerPort(serverPort);
                     }
                }
             }; 	
