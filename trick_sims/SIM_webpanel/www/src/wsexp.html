@@ -10,13 +10,28 @@
         <header id="headerchild">
             <img src="../images/trick.png" id="trickpic">
             <h1>Sim Control</h1>
-            <hr id="line" >
+            <label>Font:  </label>
+            <select onchange="changeFont(this)">
+                <option value="arial">Arial</option>
+                <option value="serif">Serif</option>
+                <option value="sans-serif">Sans-serif</option>
+                <option value="system-ui">System-ui</option>
+                <option value="monospace">Monospace</option>
+            </select>
+            <label>Size:  </label>
+            <select onchange="changeFont(this)">
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+            </select>
+            <input type="range" min="1.0" max="100" id="throttle">
+            <hr id="line">
         </header> 
         <div id="connectionchild">
             <h2 id="isconnected">No connection</h2>
         </div>
-        <div id="fontchild"> 
-            <select id="font" onchange="changeFont(this)">
+       <!-- <div id="fontchild"> 
+            <select onchange="changeFont(this)">
                 <option value="arial">Arial</option>
                 <option value="serif">Serif</option>
                 <option value="sans-serif">Sans-serif</option>
@@ -24,7 +39,13 @@
                 <option value="monospace">Monospace</option>
             </select>
             <label>Font:  </label>
-        </div>
+            <select onchange="changeFont(this)">
+                <option value="small">Small</option>
+                <option value="medium">Medium</option>
+                <option value="large">Large</option>
+            </select>
+            <label>Size:  </label>
+        </div>-->
         <div id="tablechild"> 
             <table class="variables">
                 <h2>Simulation Variable Table</h2>
@@ -95,7 +116,7 @@
                     <th class="bottomheader" >Status Messages</th>
                 </tr>
                 <tr>
-                    <td class="output" >Status Message</td>
+                    <td class="output" id="statusmsg">Status Message</td>
                 </tr>
             </table>
         </div>
@@ -121,6 +142,7 @@
     <!--START OF JAVASCRIPT-->
     <div id="output">
         <script type="text/javascript">
+          //  var simInfo = new Object();
             function log(s) {
                var p = document.createElement("p");
                 p.style.wordWrap = "break-word";
@@ -129,7 +151,7 @@
             }
             function sendMessage(msg) {
                 ws.send(msg);
-                //log("Sent : " + msg);
+                log("Sent : " + msg);
             }
             // Interface to Trick WebSocket Variable Server
             function setPeriod(period) {
@@ -228,6 +250,7 @@
                     case '1':
                         document.getElementById("modeheader").innerText = "Freeze Mode";
                         document.querySelector(".cmdbtn").disabled = false;
+                        document.getElementById("statusmsg").innerHTML = "Freeze On";
                         
                        // document.querySelector("#freeze").disabled = true;
                       //  document.querySelector("#exit").disabled = true;
@@ -239,12 +262,12 @@
                         document.querySelector("#load").disabled = true;
                         document.querySelector("#realtime").disabled = true;
                         document.querySelector("#data").disabled = true;
+                        document.getElementById("statusmsg").innerText = "Freeze On";
                     break;
                     case '5':
                         document.getElementById("modeheader").innerText = "Run Mode";
                         document.querySelector("#freeze").disabled = false;
-                     
-
+                        document.getElementById("statusmsg").innerText = "Freeze Off";
                     break;
                     case '6': 
                         document.getElementById("modeheader").innerText = "Exit Mode";
@@ -267,7 +290,6 @@
                 var newPort = prompt("Enter new port: ");
             }
             */
-            // MY EXPERIMENTS
             document.getElementById("load").onclick = function loadChkpnt (){
                 var file = prompt("Enter file to load: ", "chkpnt_" + simInfo.time);
                 sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${simInfo.dir}' + '/' + '${file}')"}`);
@@ -298,15 +320,21 @@
                 }
 
             }
-
             function changeFont(font){
                 var window = document.getElementById("html");
+                if (font == "small" || "medium" || "large"){
+                    window.style.fontSize = font.value;
+                }
                 window.style.fontFamily = font.value;
             }
             // END OF EXPERIMENT 
             var varTable = document.querySelector('table.variables');
             var ws = new WebSocket('ws://localhost:8888/api/ws/VariableServer');
-             
+            /*function displayStatusMsg (d, r, input){
+                let path = d + "/" + r + "/send_hs";
+                console.log(path);  
+            } */
+            function th
             // WebSocket Event Handlers
             ws.onopen = function(e) {
                 setPeriod(100);
@@ -327,7 +355,7 @@
                 sendMessage('{"cmd":"var_unpause"}');
             };
             ws.onmessage = function(e) {
-               log("Recieved : " + e.data);
+               //log("Recieved : " + e.data);
                let msg = JSON.parse(e.data);
                console.log(msg);
                if (msg.msg_type == "values") {
@@ -342,9 +370,8 @@
 
                 if (msg.values.length == 3){
                     let runDir = msg.values[0];
-                    console.log(runDir);
                     let defDir = msg.values[1];
-                    console.log(defDir);
+                    displayStatusMsg(defDir, runDir);
                     setSimDir(runDir, defDir);
                     let serverPort = msg.values[2];
                     setServerPort(serverPort);
