@@ -11,7 +11,7 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 
 int VSTest::shutdown() {
 
-	tc_disconnect(&bob);
+	tc_disconnect(&comm_device);
 
 	return(0);
 }

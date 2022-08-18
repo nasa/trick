@@ -41,7 +41,7 @@ int VSTest::vs_write(char* cmd_buffer) {
     int nbytes;
 
     nbytes = strlen(cmd_buffer);
-    tc_write(&bob, cmd_buffer, nbytes);
+    tc_write(&comm_device, cmd_buffer, nbytes);
 
     return(0);
 }
@@ -65,16 +65,13 @@ int VSTest::vs_read() {
             break;
         }
 
-        num = tc_pending(&bob);
+        num = tc_pending(&comm_device);
         if (num) {
-            tc_read(&bob, read_buffer, num);
+            tc_read(&comm_device, read_buffer, num);
                      get_line(read_buffer);
             break;
         }
     }
-    //std::cout << (cpu_t - cpu_st) << std::endl;
-    //std::cout << read_buffer << std::endl;
-    //printLine();
 
     return(0);
 }

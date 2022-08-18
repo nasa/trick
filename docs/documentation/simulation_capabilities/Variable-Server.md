@@ -189,6 +189,22 @@ trick.var_send()
 The var_send command forces the variable server to return the list of values to the
 client immediately.
 
+#### Sending variables only once and immediately
+
+```python
+trick.var_send_once( string var_name)
+```
+
+The var_send_once command forces the variable server to return the value of the given
+variable to the client immediately.
+
+```python
+trick.var_send_once( string var_list, int num_vars)
+```
+
+var_send_once can also accept a comma separated list of variables. The number of variables
+in this list must match num_vars, or it will not be processed.
+
 #### Changing the Units
 
 ```python
@@ -386,12 +402,17 @@ unprintable character) that occurs within the character string value will appear
 escaped character, i.e. preceded by a backslash.
 
 The 1st value returned in the list will always be a message indicator. The possible
-values of the message indicator are:
-- 0 returned variable value(s) from var_add or var_send
-- 1 returned value from var_exists
-- 2 returned value from send_sie_resource (special command used by Trick View)
-- 3 returned value from send_event_data (special command used by Events/Malfunctions Trick View) or var_send_list_size
-- 4 values redirected from stdio if var_set_send_stdio is enabled
+values of the message indicator listen in the table below.
+
+| Name              | Value | Meaning |
+|-------------------|-------|---------|
+| VS\_IP\_ERROR     | -1    | Protocol Error|
+| VS\_VAR\_LIST     |  0    | A list of variable values. |
+| VS\_VAR\_EXISTS   |  1    | Response to var\_exists( variable_name )|
+| VS\_SIE\_RESOURCE |  2    | Response to send_sie_resource|
+| VS\_LIST\_SIZE    |  3    | Response to var_send_list_size or send_event_data|
+| VS\_STDIO         |  4    | Values Redirected from stdio if var_set_send_stdio is enabled| 
+| VS\_SEND\_ONCE    |  5    | Response to var\_send\_once|
 
 If the variable units are also specified along with the variable name in a var_add or
 var_units command, then that variable will also have its units specification returned following
