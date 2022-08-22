@@ -7,16 +7,16 @@ On MacOS, the ability to dump a core file must be enabled. The following steps d
 ### 1. Ensure ```/cores``` Directory is Writable
 Core-files are stored in the ```/cores``` directory on MacOS. You must have permission to write to it. To ensure this:
 
-```%``````sudo chmod 1777 /cores```
+```% sudo chmod 1777 /cores```
 
 ### 2. Set Kernel State to Allow Core-dumps
 The kernel state variable ```kern.coredump``` must be set in order to dump core-files. This needs to be set only once; it is persistent between reboots. To set it:
 
-```%``````sudo sysctl kern.coredump=1```
+```% sudo sysctl kern.coredump=1```
 
 To check its current value:
 
-```%``````sudo sysctl kern.coredump```
+```% sudo sysctl kern.coredump```
 
 ### 3. Code-sign the Executable
 
@@ -32,7 +32,7 @@ Using this ```.entitlements``` file, sign the executable:
 
 Before running the executable from which you want a core-dump run the following :
 
-```%``````ulimit -c unlimited```
+```% ulimit -c unlimited```
 
 This sets shell resources necessary for a core-dump. This setting is not persistent between shells.
 
