@@ -40,6 +40,7 @@ This sets shell resources necessary for a core-dump. This setting is not persist
 
 
 ### segv.c
+
 ```C
 int main() {
     int *p = (void*)0;
@@ -49,6 +50,7 @@ int main() {
 ```
 
 ### makefile
+
 ```Makefile
 all: segv
 
