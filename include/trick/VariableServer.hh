@@ -108,15 +108,31 @@ namespace Trick {
             void add_vst(pthread_t thread_id, VariableServerThread * in_vst ) ;
 
             /**
+             @brief Adds a vst to the map.
+            */
+            void add_session(pthread_t thread_id, VariableServerSession * in_session ) ;
+
+            /**
              @brief Get a vst mapped by thread id
              @return the VariableServerThread mapped to the thread id if found, or NULL if not found.
             */
             Trick::VariableServerThread * get_vst(pthread_t thread_id) ;
 
             /**
+             @brief Get a session mapped by thread id
+             @return the VariableServerSession mapped to the thread id if found, or NULL if not found.
+            */
+            Trick::VariableServerSession * get_session(pthread_t thread_id) ;
+
+            /**
              @brief Delete a vst in the map
             */
             void delete_vst(pthread_t thread_id) ;
+
+            /**
+             @brief Delete a session in the map
+            */
+            void delete_session(pthread_t thread_id) ;
 
             /**
              @brief @userdesc Return host name from the listen device.
@@ -283,6 +299,7 @@ namespace Trick {
 
             /** Map thread id to the VariableServerThread object.\n */
             std::map < pthread_t , VariableServerThread * > var_server_threads ; /**<  trick_io(**) */
+            std::map < pthread_t , VariableServerSession * > var_server_sessions ; /**<  trick_io(**) */
 
             /** Mutex to ensure only one thread manipulates the map of var_server_threads\n */
             pthread_mutex_t map_mutex ;     /**<  trick_io(**) */
@@ -294,8 +311,6 @@ namespace Trick {
     } ;
 
 }
-
-int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_size);
 
 Trick::VariableServer * var_server_get_var_server() ;
 
@@ -331,8 +346,8 @@ int var_set_freeze_frame_multiple(unsigned int mult) ;
 int var_set_freeze_frame_offset(unsigned int offset) ;
 int var_byteswap(bool on_off) ;
 
-int var_signal() ;
-int var_multicast(bool on_off) ;
+// int var_signal() ;
+// int var_multicast(bool on_off) ;
 
 int var_send_list_size() ;
 

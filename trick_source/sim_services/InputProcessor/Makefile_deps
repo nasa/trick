@@ -135,6 +135,6 @@ object_${TRICK_HOST_CPU}/MTV.o: MTV.cpp ${TRICK_HOME}/include/trick/MTV.hh \
  ${TRICK_HOME}/include/trick/variable_server_sync_types.h \
  ${TRICK_HOME}/include/trick/VariableServerThread.hh \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
- ${TRICK_HOME}/include/trick/VariableServerReference.hh \
+ ${TRICK_HOME}/include/trick/VariableReference.hh \
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
  ${TRICK_HOME}/include/trick/EventManager_c_intf.hh 

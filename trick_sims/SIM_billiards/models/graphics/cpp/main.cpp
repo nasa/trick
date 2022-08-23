@@ -492,7 +492,7 @@ std::vector<std::string> split (std::string& str, const char delim) {
   std::stringstream ss(str);
   std::string s;
   std::vector<std::string> ret;
-  while (std::getline(ss, s, delim)) {
+  while (ss >> s) {
     ret.push_back(s);
   }
   return ret;
@@ -526,9 +526,11 @@ template <typename T>
 T getVar(Socket& socket, std::string varName) {
   std::string requestString = "trick.var_send_once(\"" + varName + "\")\n";
   std::string reply;
+  // std::cout << "Request: " << requestString << std::endl;
 
   socket << requestString;
   socket >> reply;
+  // std::cout << "Reply: " << reply << std::endl;
 
   return stringConvert<T>(split(reply, '\t')[1]);
 }
@@ -554,10 +556,13 @@ std::vector<T> getVarList(Socket& socket, std::string varName, int num) {
   }
 
   std::string requestString = "trick.var_send_once(\"" + totalRequest + "\", " + std::to_string(num) + ")\n";
+  // std::cout << "Request: " << requestString << std::endl;
 
   std::string reply;
   socket << requestString;
   socket >> reply;
+
+  // std::cout << "Reply: " << reply << std::endl;
   return trickResponseConvert<T>(reply);
 }
 
@@ -604,6 +609,13 @@ int main(int argc, char *argv[])
   std::vector<double> tablePoints = fold(table_x, table_y);
 
   Table table;
+  // std::cout << "TablePoints: ";
+  
+  for (auto point : tablePoints ) {
+    // std::cout << point << " ";
+  }
+  // std::cout << "\ttableShape: " << tableShape << std::endl;
+
   table.addShape(tablePoints, Eigen::Vector3d(0.2, 0.6, 0.2), true, tableShape, layer_TABLE);
 
   // Make the rail - translate each point on the table out from center by railWidth
@@ -697,7 +709,7 @@ int main(int argc, char *argv[])
     std::string cueRequest = "";
     std::string templateString = "dyn.table.applyCueForce(%.3f, %.3f) \n";
 
-    char buf[128];
+    char buf[2048];
     snprintf(buf, sizeof(buf), templateString.c_str(), mouseX, mouseY);
     cueRequest += std::string(buf);
     socket << cueRequest;
@@ -716,7 +728,10 @@ int main(int argc, char *argv[])
 
   view->callback_pre_draw = [&](igl::opengl::glfw::Viewer& viewer) -> bool {
     // Look for new data and redraw
+    // std::cout << "Waiting vars" << std::endl;
     socket >> reply;
+    // std::cout << "Got vars: " << reply << std::endl;
+
     std::vector<double> replyData = trickResponseConvert<double>(reply);
 
     if (replyData.size() <= 1) {
@@ -804,7 +819,7 @@ int main(int argc, char *argv[])
   std::string positionRequest = "";
   char * templateString = "trick.var_add(\"dyn.table.balls[%d][0].pos._x\")\ntrick.var_add(\"dyn.table.balls[%d][0].pos._y\")\ntrick.var_add(\"dyn.table.balls[%d][0].inPlay\")\n";
   for (int i = 0; i < numBalls; i++) {
-    char buf[128];
+    char buf[2048];
     snprintf(buf, sizeof(buf), templateString, i, i, i);
     positionRequest += std::string(buf);
   }

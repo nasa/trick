@@ -8,8 +8,11 @@
 
 #include <string>
 #include <iostream>
-#include "trick/tc.h"
+// #include "trick/tc.h"
+#include "trick/ClientListener.hh"
 #include "trick/SysThread.hh"
+#include "trick/MulticastManager.hh"
+
 
 namespace Trick {
 
@@ -41,8 +44,6 @@ namespace Trick {
             virtual int init_listen_device() ;
             virtual int check_and_move_listen_device() ;
 
-            void create_tcp_socket(const char * address, unsigned short in_port ) ;
-
             virtual void * thread_body() ;
 
             int restart() ;
@@ -51,17 +52,21 @@ namespace Trick {
             void pause_listening() ;
             void restart_listening() ;
 
+            void create_tcp_socket(const char * address, unsigned short in_port ) ;
+
             virtual void dump( std::ostream & oss = std::cout ) ;
 
         protected:
+            void initializeMulticast();
+
             /** Requested variable server source address\n */
-            std::string source_address ;       /**<  trick_units(--) */
+            std::string requested_source_address ;       /**<  trick_units(--) */
 
             /** Requested variable server port number.\n */
-            unsigned short port ;       /**<  trick_units(--) */
+            unsigned short requested_port ;       /**<  trick_units(--) */
 
             /** User requested specific port number\n */
-            bool user_port_requested ;  /**<  trick_units(--) */
+            bool user_requested_address ;  /**<  trick_units(--) */
 
             /** User defined unique tag to easily identify this variable server port.\n */
             std::string user_tag;          /**<  trick_units(--) */
@@ -69,8 +74,11 @@ namespace Trick {
             /** Turn on/off broadcasting of variable server port.\n */
             bool broadcast ;       /**<  trick_units(--) */
 
-            /** The listen device\n */
-            TCDevice listen_dev;        /**<  trick_io(**) */
+            /** The listen device */
+            ClientListener listener;
+
+            /* Multicast broadcaster */
+            MulticastManager multicast;
 
             /** The mutex to stop accepting new connections during restart\n */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */

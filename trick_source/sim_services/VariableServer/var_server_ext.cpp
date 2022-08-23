@@ -11,161 +11,215 @@
 
 extern Trick::VariableServer * the_vs ;
 
+int command_debug = 0;
+
 Trick::VariableServerThread * get_vst() {
     return the_vs->get_vst(pthread_self()) ;
 }
 
+Trick::VariableServerSession * get_session() {
+    return the_vs->get_session(pthread_self()) ;
+}
+
 int var_add(std::string in_name) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_add(in_name) ;
+    if (command_debug) {
+        std::cout << "var_add: " << in_name << std::endl;
+    }
+
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_add(in_name) ;
     }
     return(0) ;
 }
 
 int var_add(std::string in_name, std::string in_units) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_add(in_name, in_units) ;
+    if (command_debug) {
+        std::cout << "var_add: " << in_name << std::endl;
+    }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_add(in_name, in_units) ;
     }
     return(0) ;
 }
 
 int var_remove(std::string in_name) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_remove(in_name) ;
+    if (command_debug) {
+        std::cout << "var_remove: " << in_name << std::endl;
+    }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_remove(in_name) ;
     }
     return(0) ;
 }
 
 int var_units(std::string var_name , std::string units_name) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_units(var_name , units_name) ;
+    if (command_debug) {
+        std::cout << "var_units: " << var_name << std::endl;
+    }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_units(var_name , units_name) ;
     }
     return(0) ;
 }
 
 int var_exists(std::string in_name) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_exists(in_name) ;
+    if (command_debug) {
+        std::cout << "var_exists: " << in_name << std::endl;
+    }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_exists(in_name) ;
     }
     return(0) ;
 }
 
 int var_send_once(std::string in_name) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_send_once(in_name, 1) ;
+    if (command_debug) {
+        std::cout << "var_send_once: " << in_name << std::endl;
+    }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_send_once(in_name, 1) ;
     }
     return(0) ;
 }
 
 int var_send_once(std::string in_name, int num) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_send_once(in_name, num) ;
+    if (command_debug) {
+        std::cout << "var_send_once: " << in_name << std::endl;
+    }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_send_once(in_name, num) ;
     }
     return(0) ;
 }
 
 int var_send() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_send() ;
+    if (command_debug) {
+        std::cout << "var_send: " << std::endl;
+    }
+
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_send() ;
     }
     return(0) ;
 }
 
 int var_clear() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_clear() ;
+    if (command_debug) {
+        std::cout << "var_clear: " << std::endl;
     }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_clear() ;
+    }
+
+    // std::cout << "Done with var_clear" << std::endl;
     return(0) ;
 }
 
 int var_cycle(double in_rate) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_cycle(in_rate) ;
+    if (command_debug) {
+        std::cout << "var_cycle: " << in_rate << std::endl;
+    }
+
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_cycle(in_rate) ;
     }
     return(0) ;
 }
 
 int var_pause() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->set_pause(true) ;
+    if (command_debug) {
+        std::cout << "var_pause" << std::endl;
+    }
+
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->set_pause(true) ;
     }
     return(0) ;
 
 }
 
 int var_unpause() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->set_pause(false) ;
+    if (command_debug) {
+        std::cout << "var_unpause" << std::endl;
+    }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->set_pause(false) ;
     }
     return(0) ;
 
 }
 
 int var_exit() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_exit() ;
+     if (command_debug) {
+        std::cout << "var_exit" << std::endl;
+    }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_exit() ;
     }
     return(0) ;
 }
 
 int var_validate_address(int on_off) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_validate_address((bool)on_off) ;
+    if (command_debug) {
+        std::cout << "var_validate_address" << std::endl;
+    }
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_validate_address((bool)on_off) ;
     }
     return(0) ;
 }
 
 int var_debug(int level) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_debug(level) ;
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_debug(level) ;
     }
     return(0) ;
 }
 
 int var_ascii() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_ascii() ;
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_ascii() ;
     }
     return(0) ;
 }
 
 int var_binary() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_binary() ;
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_binary() ;
     }
     return(0) ;
 }
@@ -176,19 +230,19 @@ int var_retry_bad_ref() {
 }
 
 int var_binary_nonames() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_binary_nonames() ;
+    Trick::VariableServerSession * session  = get_session();
+    
+    if (session != NULL ) {
+        session->var_binary_nonames() ;
     }
     return(0) ;
 }
 
 int var_set_copy_mode(int mode) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_set_copy_mode(mode) ;
+    Trick::VariableServerSession * session = get_session();
+    
+    if (session != NULL ) {
+        session->var_set_copy_mode(mode) ;
         if ( mode == VS_COPY_SCHEDULED ) {
             the_vs->get_next_sync_call_time() ;
             the_vs->get_next_freeze_call_time() ;
@@ -198,28 +252,25 @@ int var_set_copy_mode(int mode) {
 }
 
 int var_set_write_mode(int mode) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_set_write_mode(mode) ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->var_set_write_mode(mode) ;
     }
     return 0 ;
 }
 
 int var_set_send_stdio(int mode) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->set_send_stdio((bool)mode) ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->set_send_stdio((bool)mode) ;
     }
     return 0 ;
 }
 
 int var_sync(int mode) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_sync(mode) ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->var_sync(mode) ;
         if ( mode ) {
             the_vs->get_next_sync_call_time() ;
             the_vs->get_next_freeze_call_time() ;
@@ -229,73 +280,66 @@ int var_sync(int mode) {
 }
 
 int var_set_frame_multiple(unsigned int mult) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_set_frame_multiple(mult) ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->var_set_frame_multiple(mult) ;
     }
     return 0 ;
 }
 
 int var_set_frame_offset(unsigned int offset) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_set_frame_offset(offset) ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->var_set_frame_offset(offset) ;
     }
     return 0 ;
 }
 
 int var_set_freeze_frame_multiple(unsigned int mult) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_set_freeze_frame_multiple(mult) ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->var_set_freeze_frame_multiple(mult) ;
     }
     return 0 ;
 }
 
 int var_set_freeze_frame_offset(unsigned int offset) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_set_freeze_frame_offset(offset) ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->var_set_freeze_frame_offset(offset) ;
     }
     return 0 ;
 }
 
 int var_byteswap(bool on_off) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_byteswap(on_off) ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->var_byteswap(on_off) ;
     }
     return(0) ;
 }
 
-int var_signal() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_signal() ;
-    }
-    return(0) ;
-}
+// int var_signal() {
+// Trick::VariableServerSession * session = get_session();
+//     if (session != NULL ) {
+//         session->var_signal() ;
+//     }
+//     return(0) ;
+// }
 
-int var_multicast(bool on_off) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->var_multicast(on_off) ;
-    }
-    return(0) ;
-}
+// int var_multicast(bool on_off) {
+// Trick::VariableServerSession * session = get_session();
+//     if (session != NULL ) {
+//         session->var_multicast(on_off) ;
+//     }
+//     return(0) ;
+// }
 
 int var_write_stdio(int stream , std::string text ) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL and vst->get_send_stdio() == true) {
-        vst->write_stdio(stream, text) ;
+    // std::cout << "Executing var_write_stdio" << std::endl;
+    Trick::VariableServerSession * session = get_session();
+    if (session != NULL and session->get_send_stdio() == true) {
+        session->write_stdio(stream, text) ;
     } else {
         if ( stream == 1 ) {
             fprintf( stdout , "%s" , text.c_str() ) ;
@@ -307,14 +351,14 @@ int var_write_stdio(int stream , std::string text ) {
 }
 
 int var_set_client_tag( std::string text ) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
+    if (command_debug) {
+        std::cout << "var_set_client_tag: " << text << std::endl;
+    }
+    Trick::VariableServerThread * vst = get_vst();
     if (vst != NULL) {
-        // tag char declared length is 80
-        if (text.length()>=80) {
-            text.resize(79);
-        }
-        strcpy(vst->get_connection().client_tag, text.c_str());
+
+        vst->set_client_tag(text);
+        
 #if __linux
 #ifdef __GNUC__
 #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
@@ -328,55 +372,53 @@ int var_set_client_tag( std::string text ) {
 }
 
 int var_send_list_size() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->send_list_size() ;
+    if (command_debug) {
+        std::cout << "var_send_list_size" << std::endl;
+    }   
+
+    Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->send_list_size() ;
     }
     return(0) ;
 }
 
 int send_sie_resource() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->send_sie_resource() ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->send_sie_resource() ;
     }
     return 0 ;
 }
 
 int send_sie_class() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->send_sie_class() ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->send_sie_class() ;
     }
     return 0 ;
 }
 
 int send_sie_enum() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        vst->send_sie_enum() ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        session->send_sie_enum() ;
     }
     return 0 ;
 }
 
 int send_sie_top_level_objects() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        return vst->send_sie_top_level_objects() ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        return session->send_sie_top_level_objects() ;
     }
     return 0 ;
 }
 
 int send_file(std::string file_name) {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        return vst->send_file(file_name) ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        return session->send_file(file_name) ;
     }
     return 0 ;
 }
@@ -384,20 +426,18 @@ int send_file(std::string file_name) {
 
 // Command to turn on log to playback file
 int var_server_log_on() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        return vst->set_log_on() ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        return session->set_log_on() ;
     }
     return 0 ;
 }
 
 // Command to turn off log to playback file
 int var_server_log_off() {
-    Trick::VariableServerThread * vst ;
-    vst = get_vst() ;
-    if (vst != NULL ) {
-        return vst->set_log_off() ;
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        return session->set_log_off() ;
     }
     return 0 ;
 }
@@ -416,7 +456,9 @@ extern "C" void var_server_list_connections(void) {
  * C wrapper Trick::VariableServer::get_hostname
  */
 extern "C" const char * var_server_get_hostname(void) {
-    return(the_vs->get_hostname()) ;
+    const char * ret = (the_vs->get_hostname()) ;
+    printf("varserverext:  %s", ret);
+    return ret;
 }
 
 /**
@@ -556,8 +598,10 @@ int var_set_base( const char  * var , T value , const char * units ) {
             ref_assignment(ref , &v_tree) ;
             if(ref->units != NULL) {
                 free(ref->units) ;
+                ref->units = NULL;
             }
             free(ref) ;
+            ref = NULL;
         } else {
             message_publish(MSG_WARNING,"Cannot assign to %s because io_spec does not allow input\n", var) ;
         }

@@ -16,6 +16,7 @@ Trick::VariableServer::VariableServer() :
 }
 
 Trick::VariableServer::~VariableServer() {
+
 }
 
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServer& vs) {
@@ -65,8 +66,8 @@ bool Trick::VariableServer::get_log() {
 void Trick::VariableServer::set_var_server_log_on() {
     log = true;
     // turn log on for all current vs clients
-    std::map < pthread_t , VariableServerThread * >::iterator it ;
-    for ( it = var_server_threads.begin() ; it != var_server_threads.end() ; it++ ) {
+    std::map < pthread_t , VariableServerSession * >::iterator it ;
+    for ( it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
         (*it).second->set_log_on();
     }
 }
@@ -74,14 +75,15 @@ void Trick::VariableServer::set_var_server_log_on() {
 void Trick::VariableServer::set_var_server_log_off() {
     log = false;
     // turn log off for all current vs clients
-    std::map < pthread_t , VariableServerThread * >::iterator it ;
-    for ( it = var_server_threads.begin() ; it != var_server_threads.end() ; it++ ) {
+    std::map < pthread_t , VariableServerSession * >::iterator it ;
+    for ( it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
         (*it).second->set_log_off();
     }
 }
 
 const char * Trick::VariableServer::get_hostname() {
-    return (listen_thread.get_hostname()) ;
+    const char * ret = (listen_thread.get_hostname()) ;
+    return ret;
 }
 
 Trick::VariableServerListenThread & Trick::VariableServer::get_listen_thread() {
@@ -91,6 +93,12 @@ Trick::VariableServerListenThread & Trick::VariableServer::get_listen_thread() {
 void Trick::VariableServer::add_vst(pthread_t in_thread_id, VariableServerThread * in_vst) {
     pthread_mutex_lock(&map_mutex) ;
     var_server_threads[in_thread_id] = in_vst ;
+    pthread_mutex_unlock(&map_mutex) ;
+}
+
+void Trick::VariableServer::add_session(pthread_t in_thread_id, VariableServerSession * in_session) {
+    pthread_mutex_lock(&map_mutex) ;
+    var_server_sessions[in_thread_id] = in_session ;
     pthread_mutex_unlock(&map_mutex) ;
 }
 
@@ -106,9 +114,27 @@ Trick::VariableServerThread * Trick::VariableServer::get_vst(pthread_t thread_id
     return ret ;
 }
 
+Trick::VariableServerSession * Trick::VariableServer::get_session(pthread_t thread_id) {
+    std::map < pthread_t , Trick::VariableServerSession * >::iterator it ;
+    Trick::VariableServerSession * ret = NULL ;
+    pthread_mutex_lock(&map_mutex) ;
+    it = var_server_sessions.find(thread_id) ;
+    if ( it != var_server_sessions.end() ) {
+        ret = (*it).second ;
+    }
+    pthread_mutex_unlock(&map_mutex) ;
+    return ret ;
+}
+
 void Trick::VariableServer::delete_vst(pthread_t thread_id) {
     pthread_mutex_lock(&map_mutex) ;
     var_server_threads.erase(thread_id) ;
+    pthread_mutex_unlock(&map_mutex) ;
+}
+
+void Trick::VariableServer::delete_session(pthread_t thread_id) {
+    pthread_mutex_lock(&map_mutex) ;
+    var_server_sessions.erase(thread_id) ;
     pthread_mutex_unlock(&map_mutex) ;
 }
 
