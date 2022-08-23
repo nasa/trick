@@ -17,7 +17,6 @@
 #include <QSettings>
 
 #ifdef HAS_MPV
-#include <mpv/qthelper.hpp>
 #include <mpv/client.h>
 #endif
 
