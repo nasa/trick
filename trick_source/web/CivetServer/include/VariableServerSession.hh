@@ -41,7 +41,7 @@ class VariableServerSession : public WebSocketSession {
         double stageTime;
         bool dataStaged;
 
-        std::vector<VariableServerVariable*> sessionVariables;
+        std::vector<VariableServerVariable*> session_variables;
         bool cyclicSendEnabled;
         long long nextTime;
         long long intervalTimeTics;

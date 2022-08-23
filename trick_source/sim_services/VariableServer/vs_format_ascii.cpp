@@ -22,180 +22,185 @@ size_t escape_str(const char *in_s, char *out_s);
 
 #define MAX_VAL_STRLEN 2048
 
+// This seems to have a pretty big buffer overflow risk.
+// value is a limited size region, but there are no checks
+// on array size. Maybe it happens somewhere else?
 int vs_format_ascii(Trick::VariableReference * var, char *value) {
 
     /* for string types, return -1 if string is too big to fit in buffer (MAX_VAL_STRLEN) */
-    REF2 * ref ;
-    ref = var->ref ;
-    std::string var_name = ref->reference;
+//     REF2 * ref ;
+//     ref = var->ref ;
+//     std::string var_name = ref->reference;
 
-    // handle returning an array
-    int size = 0 ;
-    value[0] = '\0' ;
-    // data to send was copied to buffer in copy_sim_data
-    void * buf_ptr = var->buffer_out ;
-    while (size < var->size) {
-        size += var->ref->attr->size ;
+//     // handle returning an array
+//     int size = 0 ;
+//     value[0] = '\0' ;
+//     // data to send was copied to buffer in copy_sim_data
+//     void * buf_ptr = var->buffer_out ;
+//     while (size < var->size) {
+//         size += var->ref->attr->size ;
 
-        switch (ref->attr->type) {
+//         switch (ref->attr->type) {
 
-        case TRICK_CHARACTER:
-            if (ref->attr->num_index == ref->num_index) {
-                sprintf(value, "%s%d", value,(char)cv_convert_double(var->conversion_factor, *(char *)buf_ptr));
-            } else {
-                /* All but last dim specified, leaves a char array */
-                escape_str((char *) buf_ptr, value);
-                size = var->size ;
-            }
-            break;
-        case TRICK_UNSIGNED_CHARACTER:
-            if (ref->attr->num_index == ref->num_index) {
-                sprintf(value, "%s%u", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
-            } else {
-                /* All but last dim specified, leaves a char array */
-                escape_str((char *) buf_ptr, value);
-                size = var->size ;
-            }
-            break;
+//         case TRICK_CHARACTER:
+//             if (ref->attr->num_index == ref->num_index) {
+//                 // Is this trying to convert a char to a double, and then converting it back to a char????
+//                 // Why????
+//                 sprintf(value, "%s%d", value,(char)cv_convert_double(var->conversion_factor, *(char *)buf_ptr));
+//             } else {
+//                 /* All but last dim specified, leaves a char array */
+//                 escape_str((char *) buf_ptr, value);
+//                 size = var->size ;
+//             }
+//             break;
+//         case TRICK_UNSIGNED_CHARACTER:
+//             if (ref->attr->num_index == ref->num_index) {
+//                 sprintf(value, "%s%u", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
+//             } else {
+//                 /* All but last dim specified, leaves a char array */
+//                 escape_str((char *) buf_ptr, value);
+//                 size = var->size ;
+//             }
+//             break;
 
-        case TRICK_WCHAR:{
-                if (ref->attr->num_index == ref->num_index) {
-                    sprintf(value, "%s%d", value,*(wchar_t *) buf_ptr);
-                } else {
-                    // convert wide char string char string
-                    size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
-                    if (len > MAX_VAL_STRLEN) {
-                        return (-1);
-                    }
-                    wcs_to_ncs((wchar_t *) buf_ptr, value, len);
-                    size = var->size ;
-                }
-            }
-            break;
+//         case TRICK_WCHAR:{
+//                 if (ref->attr->num_index == ref->num_index) {
+//                     sprintf(value, "%s%d", value,*(wchar_t *) buf_ptr);
+//                 } else {
+//                     // convert wide char string char string
+//                     size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
+//                     if (len > MAX_VAL_STRLEN) {
+//                         return (-1);
+//                     }
+//                     wcs_to_ncs((wchar_t *) buf_ptr, value, len);
+//                     size = var->size ;
+//                 }
+//             }
+//             break;
 
-        case TRICK_STRING:
-            if ((char *) buf_ptr != NULL) {
-                escape_str((char *) buf_ptr, value);
-                size = var->size ;
-            } else {
-                value[0] = '\0';
-            }
-            break;
+//         case TRICK_STRING:
+//             if ((char *) buf_ptr != NULL) {
+//                 escape_str((char *) buf_ptr, value);
+//                 size = var->size ;
+//             } else {
+//                 value[0] = '\0';
+//             }
+//             break;
 
-        case TRICK_WSTRING:
-            if ((wchar_t *) buf_ptr != NULL) {
-                // convert wide char string char string
-                size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
-                if (len > MAX_VAL_STRLEN) {
-                    return (-1);
-                }
-                wcs_to_ncs((wchar_t *) buf_ptr, value, len);
-                size = var->size ;
-            } else {
-                value[0] = '\0';
-            }
-            break;
+//         case TRICK_WSTRING:
+//             if ((wchar_t *) buf_ptr != NULL) {
+//                 // convert wide char string char string
+//                 size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
+//                 if (len > MAX_VAL_STRLEN) {
+//                     return (-1);
+//                 }
+//                 wcs_to_ncs((wchar_t *) buf_ptr, value, len);
+//                 size = var->size ;
+//             } else {
+//                 value[0] = '\0';
+//             }
+//             break;
 
-#if ( __linux | __sgi )
-        case TRICK_BOOLEAN:
-            sprintf(value, "%s%d", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
-            break;
-#endif
+// #if ( __linux | __sgi )
+//         case TRICK_BOOLEAN:
+//             sprintf(value, "%s%d", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
+//             break;
+// #endif
 
-        case TRICK_SHORT:
-            sprintf(value, "%s%d", value, (short)cv_convert_double(var->conversion_factor,*(short *)buf_ptr));
-            break;
+//         case TRICK_SHORT:
+//             sprintf(value, "%s%d", value, (short)cv_convert_double(var->conversion_factor,*(short *)buf_ptr));
+//             break;
 
-        case TRICK_UNSIGNED_SHORT:
-            sprintf(value, "%s%u", value,(unsigned short)cv_convert_double(var->conversion_factor,*(unsigned short *)buf_ptr));
-            break;
+//         case TRICK_UNSIGNED_SHORT:
+//             sprintf(value, "%s%u", value,(unsigned short)cv_convert_double(var->conversion_factor,*(unsigned short *)buf_ptr));
+//             break;
 
-        case TRICK_INTEGER:
-        case TRICK_ENUMERATED:
-#if ( __sun | __APPLE__ )
-        case TRICK_BOOLEAN:
-#endif
-            sprintf(value, "%s%d", value, (int)cv_convert_double(var->conversion_factor,*(int *)buf_ptr));
-            break;
+//         case TRICK_INTEGER:
+//         case TRICK_ENUMERATED:
+// #if ( __sun | __APPLE__ )
+//         case TRICK_BOOLEAN:
+// #endif
+//             sprintf(value, "%s%d", value, (int)cv_convert_double(var->conversion_factor,*(int *)buf_ptr));
+//             break;
 
-        case TRICK_BITFIELD:
-            sprintf(value, "%d", GET_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
-            break;
+//         case TRICK_BITFIELD:
+//             sprintf(value, "%d", GET_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
+//             break;
 
-        case TRICK_UNSIGNED_BITFIELD:
-            sprintf(value, "%u", GET_UNSIGNED_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
-            break;
-        case TRICK_UNSIGNED_INTEGER:
-            sprintf(value, "%s%u", value, (unsigned int)cv_convert_double(var->conversion_factor,*(unsigned int *)buf_ptr));
-            break;
+//         case TRICK_UNSIGNED_BITFIELD:
+//             sprintf(value, "%u", GET_UNSIGNED_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
+//             break;
+//         case TRICK_UNSIGNED_INTEGER:
+//             sprintf(value, "%s%u", value, (unsigned int)cv_convert_double(var->conversion_factor,*(unsigned int *)buf_ptr));
+//             break;
 
-        case TRICK_LONG: {
-            long l = *(long *)buf_ptr;
-            if (var->conversion_factor != cv_get_trivial()) {
-                l = (long)cv_convert_double(var->conversion_factor, l);
-            }
-            sprintf(value, "%s%ld", value, l);
-            break;
-        }
+//         case TRICK_LONG: {
+//             long l = *(long *)buf_ptr;
+//             if (var->conversion_factor != cv_get_trivial()) {
+//                 l = (long)cv_convert_double(var->conversion_factor, l);
+//             }
+//             sprintf(value, "%s%ld", value, l);
+//             break;
+//         }
 
-        case TRICK_UNSIGNED_LONG: {
-            unsigned long ul = *(unsigned long *)buf_ptr;
-            if (var->conversion_factor != cv_get_trivial()) {
-                ul = (unsigned long)cv_convert_double(var->conversion_factor, ul);
-            }
-            sprintf(value, "%s%lu", value, ul);
-            break;
-        }
+//         case TRICK_UNSIGNED_LONG: {
+//             unsigned long ul = *(unsigned long *)buf_ptr;
+//             if (var->conversion_factor != cv_get_trivial()) {
+//                 ul = (unsigned long)cv_convert_double(var->conversion_factor, ul);
+//             }
+//             sprintf(value, "%s%lu", value, ul);
+//             break;
+//         }
 
-        case TRICK_FLOAT:
-            sprintf(value, "%s%.8g", value, cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
-            break;
+//         case TRICK_FLOAT:
+//             sprintf(value, "%s%.8g", value, cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
+//             break;
 
-        case TRICK_DOUBLE:
-            sprintf(value, "%s%.16g", value, cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
-            break;
+//         case TRICK_DOUBLE:
+//             sprintf(value, "%s%.16g", value, cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
+//             break;
 
-        case TRICK_LONG_LONG: {
-            long long ll = *(long long *)buf_ptr;
-            if (var->conversion_factor != cv_get_trivial()) {
-                ll = (long long)cv_convert_double(var->conversion_factor, ll);
-            }
-            sprintf(value, "%s%lld", value, ll);
-            break;
-        }
+//         case TRICK_LONG_LONG: {
+//             long long ll = *(long long *)buf_ptr;
+//             if (var->conversion_factor != cv_get_trivial()) {
+//                 ll = (long long)cv_convert_double(var->conversion_factor, ll);
+//             }
+//             sprintf(value, "%s%lld", value, ll);
+//             break;
+//         }
 
-        case TRICK_UNSIGNED_LONG_LONG: {
-            unsigned long long ull = *(unsigned long long *)buf_ptr;
-            if (var->conversion_factor != cv_get_trivial()) {
-                ull = (unsigned long long)cv_convert_double(var->conversion_factor, ull);
-            }
-            sprintf(value, "%s%llu", value, ull);
-            break;
-        }
+//         case TRICK_UNSIGNED_LONG_LONG: {
+//             unsigned long long ull = *(unsigned long long *)buf_ptr;
+//             if (var->conversion_factor != cv_get_trivial()) {
+//                 ull = (unsigned long long)cv_convert_double(var->conversion_factor, ull);
+//             }
+//             sprintf(value, "%s%llu", value, ull);
+//             break;
+//         }
 
-        case TRICK_NUMBER_OF_TYPES:
-            sprintf(value, "BAD_REF" );
-            break;
+//         case TRICK_NUMBER_OF_TYPES:
+//             sprintf(value, "BAD_REF" );
+//             break;
 
-        default:{
-                return (-1);
-            }
-        } // end switch
+//         default:{
+//                 return (-1);
+//             }
+//         } // end switch
 
-        if (size < var->size) {
-        // if returning an array, continue array as comma separated values
-            strcat(value, ",") ;
-            buf_ptr = (void*) ((long)buf_ptr + var->ref->attr->size) ;
-        }
-    } //end while
+//         if (size < var->size) {
+//         // if returning an array, continue array as comma separated values
+//             strcat(value, ",") ;
+//             buf_ptr = (void*) ((long)buf_ptr + var->ref->attr->size) ;
+//         }
+//     } //end while
 
-    if (ref->units) {
-        if ( ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
-            sprintf(value, "%s {--}", value);
-        } else {
-            sprintf(value, "%s {%s}", value, ref->units);
-        }
-    }
+//     if (ref->units) {
+//         if ( ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+//             sprintf(value, "%s {--}", value);
+//         } else {
+//             sprintf(value, "%s {%s}", value, ref->units);
+//         }
+//     }
 
     return (0);
 }

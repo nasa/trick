@@ -6,7 +6,7 @@ void exit_var_thread(void *in_vst) {
     Trick::VariableServerThread * vst = (Trick::VariableServerThread *) in_vst ;
     Trick::VariableServer * vs = vst->get_vs() ;
 
-    tc_disconnect(&vst->get_connection());
+    // tc_disconnect(&vst->get_connection());
 
     // Tell the variable server that this thread is exiting.
     vs->delete_vst(vst->get_pthread_id()) ;

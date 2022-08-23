@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "trick/VariableServerThread.hh"
 
+// This should maybe go somewhere completely different
+// Leaving it in thread for now
 void Trick::VariableServerThread::preload_checkpoint() {
 
     // Stop variable server processing at the top of the processing loop.
@@ -19,14 +21,8 @@ void Trick::VariableServerThread::preload_checkpoint() {
 
     // Temporarily "disconnect" the variable references from Trick Managed Memory
     // by tagging each as a "bad reference".
-    std::vector <VariableReference *>::iterator it ;
-    for (it = vars.begin(); it != vars.end() ; it++) {
-        (*it)->ref->address = (char*)&bad_ref_int;
-        (*it)->ref->attr = new ATTRIBUTES() ;
-        (*it)->ref->attr->type = TRICK_NUMBER_OF_TYPES ;
-        (*it)->ref->attr->units = (char *)"--" ;
-        (*it)->ref->attr->size = sizeof(int) ;
-    }
+    session->disconnect_references();
+
 
     // Allow data copying to continue.
     pthread_mutex_unlock(&copy_mutex);

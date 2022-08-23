@@ -42,7 +42,7 @@ void * Trick::VariableServerThread::thread_body() {
     connection_accepted = true ;
 
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) ;
-    pthread_cleanup_push(exit_var_thread, (void *) this);
+    pthread_cleanup_push(exit_var_thread, (void *) this) ;
 
     /* Save off the host and port information of the source port.  We want to ignore messages from
        this port if we are a multicast socket */
@@ -61,94 +61,102 @@ void * Trick::VariableServerThread::thread_body() {
 
     // if log is set on for variable server (e.g., in input file), turn log on for each client
     if (vs->get_log()) {
-        log = true ;
+        session->set_log_on();
     }
 
     try {
         while (1) {
 
             // Pause here if we are in a restart condition
+            // This is not great, this should be a cv instead
             pthread_mutex_lock(&restart_pause) ;
+            // lock(pause_lock)
+            // while (should_pause) {
+            //   wait(pause_cv)
+            // }
+            // unlock(pause_lock)
+
+            session->handleMessage();
 
             /* Check the length of the message on the socket */
-            nbytes = recvfrom( connection.socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
-            if (nbytes == 0 ) {
-                break ;
-            }
+            // nbytes = recvfrom( connection.socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
+            // if (nbytes == 0 ) {
+            //     break ;
+            // }
 
-            if (nbytes != -1) { // -1 means socket is nonblocking and no data to read
-                /* find the last newline that is present on the socket */
-                incoming_msg[nbytes] = '\0' ;
-                last_newline = rindex( incoming_msg , '\n') ;
+            // if (nbytes != -1) { // -1 means socket is nonblocking and no data to read
+            //     /* find the last newline that is present on the socket */
+            //     incoming_msg[nbytes] = '\0' ;
+            //     last_newline = rindex( incoming_msg , '\n') ;
 
-                /* if there is a newline then there is a complete command on the socket */
-                if ( last_newline != NULL ) {
-                    /* only remove up to (and including) the last newline on the socket */
-                    size = last_newline - incoming_msg + 1;
-                    if ( conn_type == UDP ) {
-                        // Save the remote host information, that is where we are going to send replies.
-                        sock_size = sizeof(connection.remoteServAddr) ;
-                        nbytes = recvfrom( connection.socket, incoming_msg, size, 0 ,
-                         (struct sockaddr *)&connection.remoteServAddr, &sock_size ) ;
-                    } else if ( conn_type == MCAST ) {
-                        // Save the remove host information for test against ourself.
-                        struct sockaddr_in s_in ;
-                        sock_size = sizeof(s_in) ;
-                        nbytes = recvfrom( connection.socket, incoming_msg, size, 0 ,
-                         (struct sockaddr *)&s_in, &sock_size ) ;
-                        // If this message is from us, then ignore it.
-                        if ( s_in.sin_addr.s_addr == self_s_in.sin_addr.s_addr and s_in.sin_port == self_s_in.sin_port) {
-                            nbytes = 0 ;
-                        }
-                    } else {
-                        // We know where we are sending information, no need to save it.
-                        nbytes = recvfrom( connection.socket, incoming_msg, size, 0 , NULL, NULL ) ;
-                    }
-                } else {
-                    nbytes = 0 ;
-                }
-            }
+            //     /* if there is a newline then there is a complete command on the socket */
+            //     if ( last_newline != NULL ) {
+            //         /* only remove up to (and including) the last newline on the socket */
+            //         size = last_newline - incoming_msg + 1;
+            //         if ( conn_type == UDP ) {
+            //             // Save the remote host information, that is where we are going to send replies.
+            //             sock_size = sizeof(connection.remoteServAddr) ;
+            //             nbytes = recvfrom( connection.socket, incoming_msg, size, 0 ,
+            //              (struct sockaddr *)&connection.remoteServAddr, &sock_size ) ;
+            //         } else if ( conn_type == MCAST ) {
+            //             // Save the remove host information for test against ourself.
+            //             struct sockaddr_in s_in ;
+            //             sock_size = sizeof(s_in) ;
+            //             nbytes = recvfrom( connection.socket, incoming_msg, size, 0 ,
+            //              (struct sockaddr *)&s_in, &sock_size ) ;
+            //             // If this message is from us, then ignore it.
+            //             if ( s_in.sin_addr.s_addr == self_s_in.sin_addr.s_addr and s_in.sin_port == self_s_in.sin_port) {
+            //                 nbytes = 0 ;
+            //             }
+            //         } else {
+            //             // We know where we are sending information, no need to save it.
+            //             nbytes = recvfrom( connection.socket, incoming_msg, size, 0 , NULL, NULL ) ;
+            //         }
+            //     } else {
+            //         nbytes = 0 ;
+            //     }
+            // }
 
-            if ( nbytes > 0 ) {
+            // if ( nbytes > 0 ) {
 
-                msg_len = nbytes ;
-                if (debug >= 3) {
-                    message_publish(MSG_DEBUG, "%p tag=<%s> var_server received bytes = msg_len = %d\n", &connection, connection.client_tag, nbytes);
-                }
+            //     msg_len = nbytes ;
+            //     if (debug >= 3) {
+            //         message_publish(MSG_DEBUG, "%p tag=<%s> var_server received bytes = msg_len = %d\n", &connection, connection.client_tag, nbytes);
+            //     }
 
-                incoming_msg[msg_len] = '\0' ;
+            //     incoming_msg[msg_len] = '\0' ;
 
-                if (vs->get_info_msg() || (debug >= 1)) {
-                    message_publish(MSG_DEBUG, "%p tag=<%s> var_server received: %s", &connection, connection.client_tag, incoming_msg) ;
-                }
-                if (log) {
-                    message_publish(MSG_PLAYBACK, "tag=<%s> time=%f %s", connection.client_tag, exec_get_sim_time(), incoming_msg) ;
-                }
+            //     if (vs->get_info_msg() || (debug >= 1)) {
+            //         message_publish(MSG_DEBUG, "%p tag=<%s> var_server received: %s", &connection, connection.client_tag, incoming_msg) ;
+            //     }
+            //     if (log) {
+            //         message_publish(MSG_PLAYBACK, "tag=<%s> time=%f %s", connection.client_tag, exec_get_sim_time(), incoming_msg) ;
+            //     }
 
-                for( ii = 0 , jj = 0 ; ii <= msg_len ; ii++ ) {
-                    if ( incoming_msg[ii] != '\r' ) {
-                        stripped_msg[jj++] = incoming_msg[ii] ;
-                    }
-                }
+            //     for( ii = 0 , jj = 0 ; ii <= msg_len ; ii++ ) {
+            //         if ( incoming_msg[ii] != '\r' ) {
+            //             stripped_msg[jj++] = incoming_msg[ii] ;
+            //         }
+            //     }
 
-                ip_parse(stripped_msg); /* returns 0 if no parsing error */
+            //     ip_parse(stripped_msg); /* returns 0 if no parsing error */
 
-            }
+            // }
 
             /* break out of loop if exit command found */
             if (exit_cmd == true) {
                 break;
             }
 
-            if ( copy_mode == VS_COPY_ASYNC ) {
-                copy_sim_data() ;
+            if ( session->get_copy_mode() == VS_COPY_ASYNC ) {
+                session->copy_sim_data() ;
             }
 
-            if ( (write_mode == VS_WRITE_ASYNC) or
-                 ((copy_mode == VS_COPY_ASYNC) and (write_mode == VS_WRITE_WHEN_COPIED)) or
+            if ( (session->get_write_mode() == VS_WRITE_ASYNC) or
+                 ((session->get_copy_mode() == VS_COPY_ASYNC) and (session->get_write_mode() == VS_WRITE_WHEN_COPIED)) or
                  (! is_real_time()) ) {
                 if ( !pause_cmd ) {
-                    ret = write_data() ;
+                    ret = session->write_data() ;
                     if ( ret < 0 ) {
                         break ;
                     }
@@ -156,7 +164,7 @@ void * Trick::VariableServerThread::thread_body() {
             }
             pthread_mutex_unlock(&restart_pause) ;
 
-            usleep((unsigned int) (update_rate * 1000000));
+            usleep((unsigned int) (session->get_update_rate() * 1000000));
         }
     } catch (Trick::ExecutiveException & ex ) {
         message_publish(MSG_ERROR, "\nVARIABLE SERVER COMMANDED exec_terminate\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n" ,

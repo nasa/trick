@@ -60,8 +60,8 @@ void VariableServerSession::sendMessage() {
         ss << "  \"time\" : " << std::setprecision(16) << stageTime << ",\n";
         ss << "  \"values\" : [\n";
 
-        for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
-            if (it != sessionVariables.begin()) ss << ",\n";
+        for (it = session_variables.begin(); it != session_variables.end(); it++ ) {
+            if (it != session_variables.begin()) ss << ",\n";
             (*it)->writeValue(ss);
          }
          ss << "]}" << std::endl;
@@ -165,14 +165,14 @@ void VariableServerSession::addVariable(char* vname){
         // This REF2 object will "belong" to the VariableServerSessionVariable, so it has
         // the right and responsibility to free() it in its destructor.
         VariableServerVariable *sessionVariable = new VariableServerVariable( new_ref ) ;
-        sessionVariables.push_back( sessionVariable ) ;
+        session_variables.push_back( sessionVariable ) ;
     }
 }
 
 void VariableServerSession::stageValues() {
     stageTime = (double)(exec_get_time_tics()) / exec_get_time_tic_value();
     std::vector<VariableServerVariable*>::iterator it;
-    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+    for (it = session_variables.begin(); it != session_variables.end(); it++ ) {
         (*it)->stageValue();
     }
     dataStaged = true;
@@ -184,16 +184,14 @@ void VariableServerSession::unpause() { cyclicSendEnabled = true;  }
 
 void VariableServerSession::clear() {
         std::vector<VariableServerVariable*>::iterator it;
-        it = sessionVariables.begin();
-        while (it != sessionVariables.end()) {
+        it = session_variables.begin();
+        while (it != session_variables.end()) {
             delete *it;
-            it = sessionVariables.erase(it);
+            it = session_variables.erase(it);
         }
 }
 
 void VariableServerSession::exit() {}
-
-int VariableServerSession::bad_ref_int = 0 ;
 
 #define MAX_MSG_SIZE 4096
 int VariableServerSession::sendErrorMessage(const char* fmt, ... ) {
@@ -251,7 +249,7 @@ int VariableServerSession::sendUnitsMessage(const char* vname) {
     std::vector<VariableServerVariable*>::iterator it;
     std::stringstream ss;
     ss << "{ \"msg_type\": \"units\", \"var_name\": \"" << vname << "\", \"data\": \"";
-    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+    for (it = session_variables.begin(); it != session_variables.end(); it++ ) {
         if(!strcmp((*it)->getName(), vname)) {
             ss << (
                 (
