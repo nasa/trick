@@ -6,10 +6,10 @@
 
 int Trick::VariableServer::copy_data_freeze() {
 
-    std::map < pthread_t , VariableServerThread * >::iterator it ;
+    std::map < pthread_t , VariableServerSession * >::iterator it ;
 
     pthread_mutex_lock(&map_mutex) ;
-    for ( it = var_server_threads.begin() ; it != var_server_threads.end() ; it++ ) {
+    for ( it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
         (*it).second->copy_data_freeze() ;
     }
     pthread_mutex_unlock(&map_mutex) ;

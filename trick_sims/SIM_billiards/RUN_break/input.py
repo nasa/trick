@@ -146,17 +146,3 @@ else :
     print('===================================')
     print('PoolTableDisplay needs to be built.')
     print('===================================')
-
-
-# PoolTableDisplay_path = "models/graphics/java/dist/PoolTableDisplay.jar"
-
-# if (os.path.isfile(PoolTableDisplay_path)) :
-#     PoolTableDisplay_cmd = "java -jar " \
-#                    + PoolTableDisplay_path \
-#                    + " " + str(varServerPort) + " &" ;
-#     print(PoolTableDisplay_cmd)
-#     os.system( PoolTableDisplay_cmd);
-# else :
-#     print('=================================================================================================')
-#     print('PoolTableDisplay needs to be built. Please \"cd\" into ../models/graphics/java and type \"make\".')
-#     print('=================================================================================================')

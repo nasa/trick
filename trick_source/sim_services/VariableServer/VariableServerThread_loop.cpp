@@ -22,141 +22,81 @@ void exit_var_thread(void *in_vst) ;
 
 void * Trick::VariableServerThread::thread_body() {
 
-    int ii , jj;
-    int msg_len;
-    int ret;
-    int nbytes = -1;
-    char *last_newline ;
-    unsigned int size ;
-    socklen_t sock_size ;
-
     //  We need to make the thread to VariableServerThread map before we accept the connection.
     //  Otherwise we have a race where this thread is unknown to the variable server and the
     //  client gets confirmation that the connection is ready for communication.
     vs->add_vst( pthread_self() , this ) ;
 
-    if ( listen_dev->socket_type == SOCK_STREAM ) {
-        tc_accept(listen_dev, &connection);
-        tc_blockio(&connection, TC_COMM_ALL_OR_NOTHING);
+    // Accept client connection
+    int accept_status = accept(listener, &connection);
+    if (accept_status != 0) {
+        // TODO: Use a real error handler
+        std::cout << "Accept failed, variable server session exiting" << std::endl;
+        vs->delete_vst(pthread_self());
+
+        // Tell main thread that we failed to initialize
+        pthread_mutex_lock(&connection_status_mutex);
+        connection_status = CONNECTION_FAIL;
+        pthread_cond_signal(&connection_status_cv);
+        pthread_mutex_unlock(&connection_status_mutex);
+
+        pthread_exit(NULL);
     }
-    connection_accepted = true ;
+
+    connection.setBlockMode(TC_COMM_ALL_OR_NOTHING);
+
+    // Create session
+    session = new VariableServerSession(&connection);
+    vs->add_session( pthread_self(), session );
+
+    // Tell main that we are ready
+    pthread_mutex_lock(&connection_status_mutex);
+    connection_status = CONNECTION_SUCCESS;
+    pthread_cond_signal(&connection_status_cv);
+    pthread_mutex_unlock(&connection_status_mutex);
+
 
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) ;
-    pthread_cleanup_push(exit_var_thread, (void *) this);
-
-    /* Save off the host and port information of the source port.  We want to ignore messages from
-       this port if we are a multicast socket */
-    struct sockaddr_in self_s_in ;
-    int s_in_size =  sizeof(self_s_in) ;
-    if ( conn_type == MCAST ) {
-        getsockname( connection.socket , (struct sockaddr *)&self_s_in, (socklen_t *)&s_in_size) ;
-        if ( self_s_in.sin_addr.s_addr == 0 ) {
-            char hname[80];
-            struct hostent *ip_host;
-            gethostname(hname, (size_t) 80);
-            ip_host = gethostbyname(hname);
-            memcpy(&(self_s_in.sin_addr.s_addr), ip_host->h_addr, (size_t) ip_host->h_length);
-        }
-    }
+    pthread_cleanup_push(exit_var_thread, (void *) this) ;
 
     // if log is set on for variable server (e.g., in input file), turn log on for each client
     if (vs->get_log()) {
-        log = true ;
+        session->set_log_on();
     }
 
     try {
         while (1) {
-
             // Pause here if we are in a restart condition
             pthread_mutex_lock(&restart_pause) ;
 
-            /* Check the length of the message on the socket */
-            nbytes = recvfrom( connection.socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
-            if (nbytes == 0 ) {
-                break ;
-            }
+            // Look for a message from the client
+            // Parse and execute if one is availible
+            session->handleMessage();
 
-            if (nbytes != -1) { // -1 means socket is nonblocking and no data to read
-                /* find the last newline that is present on the socket */
-                incoming_msg[nbytes] = '\0' ;
-                last_newline = rindex( incoming_msg , '\n') ;
-
-                /* if there is a newline then there is a complete command on the socket */
-                if ( last_newline != NULL ) {
-                    /* only remove up to (and including) the last newline on the socket */
-                    size = last_newline - incoming_msg + 1;
-                    if ( conn_type == UDP ) {
-                        // Save the remote host information, that is where we are going to send replies.
-                        sock_size = sizeof(connection.remoteServAddr) ;
-                        nbytes = recvfrom( connection.socket, incoming_msg, size, 0 ,
-                         (struct sockaddr *)&connection.remoteServAddr, &sock_size ) ;
-                    } else if ( conn_type == MCAST ) {
-                        // Save the remove host information for test against ourself.
-                        struct sockaddr_in s_in ;
-                        sock_size = sizeof(s_in) ;
-                        nbytes = recvfrom( connection.socket, incoming_msg, size, 0 ,
-                         (struct sockaddr *)&s_in, &sock_size ) ;
-                        // If this message is from us, then ignore it.
-                        if ( s_in.sin_addr.s_addr == self_s_in.sin_addr.s_addr and s_in.sin_port == self_s_in.sin_port) {
-                            nbytes = 0 ;
-                        }
-                    } else {
-                        // We know where we are sending information, no need to save it.
-                        nbytes = recvfrom( connection.socket, incoming_msg, size, 0 , NULL, NULL ) ;
-                    }
-                } else {
-                    nbytes = 0 ;
-                }
-            }
-
-            if ( nbytes > 0 ) {
-
-                msg_len = nbytes ;
-                if (debug >= 3) {
-                    message_publish(MSG_DEBUG, "%p tag=<%s> var_server received bytes = msg_len = %d\n", &connection, connection.client_tag, nbytes);
-                }
-
-                incoming_msg[msg_len] = '\0' ;
-
-                if (vs->get_info_msg() || (debug >= 1)) {
-                    message_publish(MSG_DEBUG, "%p tag=<%s> var_server received: %s", &connection, connection.client_tag, incoming_msg) ;
-                }
-                if (log) {
-                    message_publish(MSG_PLAYBACK, "tag=<%s> time=%f %s", connection.client_tag, exec_get_sim_time(), incoming_msg) ;
-                }
-
-                for( ii = 0 , jj = 0 ; ii <= msg_len ; ii++ ) {
-                    if ( incoming_msg[ii] != '\r' ) {
-                        stripped_msg[jj++] = incoming_msg[ii] ;
-                    }
-                }
-
-                ip_parse(stripped_msg); /* returns 0 if no parsing error */
-
-            }
-
-            /* break out of loop if exit command found */
-            if (exit_cmd == true) {
+            // Check to see if exit is necessary
+            if (session->exit_cmd == true) {
                 break;
             }
 
-            if ( copy_mode == VS_COPY_ASYNC ) {
-                copy_sim_data() ;
+            // Copy data out of sim if async mode
+            if ( session->get_copy_mode() == VS_COPY_ASYNC ) {
+                session->copy_sim_data() ;
             }
+    
+            bool should_write_async = (session->get_write_mode() == VS_WRITE_ASYNC) || 
+                                        ( session->get_copy_mode() == VS_COPY_ASYNC && (session->get_write_mode() == VS_WRITE_WHEN_COPIED)) || 
+                                        (! is_real_time());
 
-            if ( (write_mode == VS_WRITE_ASYNC) or
-                 ((copy_mode == VS_COPY_ASYNC) and (write_mode == VS_WRITE_WHEN_COPIED)) or
-                 (! is_real_time()) ) {
-                if ( !pause_cmd ) {
-                    ret = write_data() ;
-                    if ( ret < 0 ) {
-                        break ;
-                    }
+            // Write data out to connection if async mode and not paused
+            if ( should_write_async && !session->get_pause()) {
+                int ret = session->write_data() ;
+                if ( ret < 0 ) {
+                    break ;
                 }
             }
             pthread_mutex_unlock(&restart_pause) ;
 
-            usleep((unsigned int) (update_rate * 1000000));
+            usleep((unsigned int) (session->get_update_rate() * 1000000));
         }
     } catch (Trick::ExecutiveException & ex ) {
         message_publish(MSG_ERROR, "\nVARIABLE SERVER COMMANDED exec_terminate\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n" ,
@@ -192,7 +132,7 @@ void * Trick::VariableServerThread::thread_body() {
     }
 
     if (debug >= 3) {
-        message_publish(MSG_DEBUG, "%p tag=<%s> var_server receive loop exiting\n", &connection, connection.client_tag);
+        message_publish(MSG_DEBUG, "%p tag=<%s> var_server receive loop exiting\n", &connection, connection.get_client_tag().c_str());
     }
 
     pthread_cleanup_pop(1);

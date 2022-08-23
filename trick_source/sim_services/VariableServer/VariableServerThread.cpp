@@ -7,73 +7,32 @@
 
 Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 
-Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
- Trick::SysThread("VarServer", true) ,
- listen_dev(in_listen_dev) {
+Trick::VariableServerThread::VariableServerThread(ClientListener * in_listen_dev) :
+ Trick::SysThread("VarServer") , debug(0),
+ listener(in_listen_dev), session(NULL) {
 
-    debug = 0 ;
-    enabled = true ;
-    log = false ;
-    connection_accepted = false ;
-    conn_type = TCP ;
-    copy_mode = VS_COPY_ASYNC ;
-    write_mode = VS_WRITE_ASYNC ;
-    frame_multiple = 1 ;
-    frame_offset = 0 ;
-    freeze_frame_multiple = 1 ;
-    freeze_frame_offset = 0 ;
-    binary_data = false;
-    multicast = false;
-    byteswap = false ;
+    connection_status = CONNECTION_PENDING ;
 
-    pause_cmd = false ;
-    exit_cmd = false ;
+    connection.initialize();
 
-    validate_address = false ;
-    send_stdio = false ;
+    pthread_mutex_init(&connection_status_mutex, NULL);
+    pthread_cond_init(&connection_status_cv, NULL);
 
-    update_rate = 0.1 ;
-    cycle_tics = (long long)(update_rate * exec_get_time_tic_value()) ;
-
-    next_tics = TRICK_MAX_LONG_LONG ;
-    freeze_next_tics = TRICK_MAX_LONG_LONG ;
-
-    connection.disabled = TC_COMM_FALSE ;
-    connection.disable_handshaking = TC_COMM_TRUE ;
-    connection.blockio_limit = 0.0 ;
-    connection.blockio_type = TC_COMM_BLOCKIO ;
-    connection.client_id = 0 ;
-    strcpy(connection.client_tag, "") ;
-    connection.error_handler = (TrickErrorHndlr *) calloc(1, (int)sizeof(TrickErrorHndlr));
-    connection.error_handler->report_level = TRICK_ERROR_CAUTION;
-
-    pthread_mutex_init(&copy_mutex, NULL);
     pthread_mutex_init(&restart_pause, NULL);
 
-    var_data_staged = false;
-    packets_copied = 0 ;
-
-    incoming_msg = (char *) calloc(1, MAX_CMD_LEN);
-    stripped_msg = (char *) calloc(1, MAX_CMD_LEN);
-
 }
 
-Trick::VariableServerThread::~VariableServerThread() {
-    free( incoming_msg ) ;
-    free( stripped_msg ) ;
-}
-
+Trick::VariableServerThread::~VariableServerThread() {}
 
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& vst) {
-
     // Write a JSON representation of a Trick::VariableServerThread to an ostream.
     struct sockaddr_in otherside;
     socklen_t len = (socklen_t)sizeof(otherside);
 
     s << "  \"connection\":{\n";
-    s << "    \"client_tag\":\"" << vst.connection.client_tag << "\",\n";
+    s << "    \"client_tag\":\"" << vst.connection.get_client_tag() << "\",\n";
 
-    int err = getpeername(vst.connection.socket, (struct sockaddr*)&otherside, &len);
+    int err = getpeername(vst.connection.get_socket(), (struct sockaddr*)&otherside, &len);
 
     if (err == 0) {
         s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\",\n";
@@ -83,24 +42,8 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
         s << "    \"client_port\":\"unknown\",";
     }
 
-    if (vst.binary_data) {
-        s << "    \"format\":\"BINARY\",\n";
-    } else {
-        s << "    \"format\":\"ASCII\",\n";
-    }
-    s << "    \"update_rate\":" << vst.update_rate << ",\n";
+    s << *(vst.session);
 
-    s << "    \"variables\":[\n";
-
-    int n_vars = (int)vst.vars.size();
-    for (int i=0 ; i<n_vars ; i++) {
-        s << *(vst.vars[i]);
-        if ((n_vars-i)>1) {
-            s << "," ;
-        }
-        s << "\n";
-    }
-    s << "    ]\n";
     s << "  }" << std::endl;
     return s;
 }
@@ -109,38 +52,60 @@ void Trick::VariableServerThread::set_vs_ptr(Trick::VariableServer * in_vs) {
     vs = in_vs ;
 }
 
-// Command to turn on log to varserver_log file
-int Trick::VariableServerThread::set_log_on() {
-    log = true;
-    return(0) ;
-}
-
-// Command to turn off log to varserver_log file
-int Trick::VariableServerThread::set_log_off() {
-    log = false;
-    return(0) ;
-}
-
-long long Trick::VariableServerThread::get_next_tics() {
-    if ( ! enabled ) {
-        return TRICK_MAX_LONG_LONG ;
-    }
-    return next_tics ;
-}
-
-long long Trick::VariableServerThread::get_freeze_next_tics() {
-    if ( ! enabled ) {
-        return TRICK_MAX_LONG_LONG ;
-    }
-    return freeze_next_tics ;
-}
-
 Trick::VariableServer * Trick::VariableServerThread::get_vs() {
     return vs ;
 }
 
-TCDevice & Trick::VariableServerThread::get_connection() {
-    return connection ;
+void Trick::VariableServerThread::set_client_tag(std::string tag) {
+    connection.set_client_tag(tag);
+}
+
+Trick::ConnectionStatus Trick::VariableServerThread::wait_for_accept() {
+
+    pthread_mutex_lock(&connection_status_mutex);
+    while ( connection_status == CONNECTION_PENDING ) {
+        pthread_cond_wait(&connection_status_cv, &connection_status_mutex);
+    }
+    pthread_mutex_unlock(&connection_status_mutex);
+
+    return connection_status;
+}
+
+// This should maybe go somewhere completely different
+// Leaving it in thread for now
+// Gets called from the main thread as a job
+void Trick::VariableServerThread::preload_checkpoint() {
+
+    // Stop variable server processing at the top of the processing loop.
+    pthread_mutex_lock(&restart_pause);
+
+    // Let the thread complete any data copying it has to do
+    // and then suspend data copying until the checkpoint is reloaded.
+    pthread_mutex_lock(&(session->copy_mutex));
+
+    // Save the pause state of this thread.
+    saved_pause_cmd = session->get_pause();
+
+    // Disallow data writing.
+    session->set_pause(true);
+
+    // Temporarily "disconnect" the variable references from Trick Managed Memory
+    // by tagging each as a "bad reference".
+    session->disconnect_references();
+
+
+    // Allow data copying to continue.
+    pthread_mutex_unlock(&(session->copy_mutex));
+
+}
+
+// Gets called from the main thread as a job
+void Trick::VariableServerThread::restart() {
+    // Set the pause state of this thread back to its "pre-checkpoint reload" state.
+    session->set_pause(saved_pause_cmd) ;
+
+    // Restart the variable server processing.
+    pthread_mutex_unlock(&restart_pause);
 }
 
 

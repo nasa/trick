@@ -95,6 +95,7 @@ UTILS_DIRS := \
 	${TRICK_HOME}/trick_source/trick_utils/interpolator \
 	${TRICK_HOME}/trick_source/trick_utils/trick_adt \
 	${TRICK_HOME}/trick_source/trick_utils/comm \
+	${TRICK_HOME}/trick_source/trick_utils/connection_handlers \
 	${TRICK_HOME}/trick_source/trick_utils/shm \
 	${TRICK_HOME}/trick_source/trick_utils/math \
 	${TRICK_HOME}/trick_source/trick_utils/units \
@@ -105,6 +106,7 @@ UTILS_OBJS := $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(UTILS_DIRS))
 
 # filter out the directories that make their own libraries
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/comm/%, $(UTILS_OBJS))
+UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/connection_handlers/%, $(UTILS_OBJS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/math/%, $(UTILS_OBJS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/units/%, $(UTILS_OBJS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/var_binary_parser/%, $(UTILS_OBJS))
@@ -458,6 +460,7 @@ uninstall:
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/liber7_utils.a
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick.a
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_comm.a
+	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_connection_handlers.a
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_math.a
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_mm.a
 	rm -f ${PREFIX}/$(notdir ${TRICK_LIB_DIR})/libtrick_pyip.a

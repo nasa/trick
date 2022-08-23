@@ -2,12 +2,14 @@
 #include <iostream>
 #include <string.h>
 
-#include "trick/VariableServer.hh"
+#include "trick/VariableServerSession.hh"
 #include "trick/variable_server_sync_types.h"
 #include "trick/exec_proto.h"
 #include "trick/realtimesync_proto.h"
 
-int Trick::VariableServerThread::copy_data_freeze() {
+// These methods should be called from main thread jobs
+
+int Trick::VariableServerSession::copy_data_freeze() {
 
     int ret = 0 ;
     long long curr_frame = exec_get_freeze_frame_count() ;
@@ -28,7 +30,7 @@ int Trick::VariableServerThread::copy_data_freeze() {
     return ret ;
 }
 
-int Trick::VariableServerThread::copy_data_freeze_scheduled(long long curr_tics) {
+int Trick::VariableServerSession::copy_data_freeze_scheduled(long long curr_tics) {
 
     int ret = 0 ;
 
@@ -47,7 +49,7 @@ int Trick::VariableServerThread::copy_data_freeze_scheduled(long long curr_tics)
     return ret ;
 }
 
-int Trick::VariableServerThread::copy_data_scheduled(long long curr_tics) {
+int Trick::VariableServerSession::copy_data_scheduled(long long curr_tics) {
 
     int ret = 0 ;
 
@@ -66,7 +68,7 @@ int Trick::VariableServerThread::copy_data_scheduled(long long curr_tics) {
     return ret ;
 }
 
-int Trick::VariableServerThread::copy_data_top() {
+int Trick::VariableServerSession::copy_data_top() {
 
     int ret = 0 ;
     long long curr_frame = exec_get_frame_count() ;

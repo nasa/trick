@@ -37,6 +37,14 @@ class SimTestWorkflow(TrickWorkflow):
          # are only in the remaining_run_jobs list. - Jordan 2/2023
          remaining_run_jobs.remove(job)
 
+      # Some tests fail intermittently for reasons not related to the tests themselves, mostly network weirdness.
+      # Allow retries so that we can still cover some network-adjacent code
+      retry_allowed_sims = self.get_sims(labels='retries_allowed')
+      retry_allowed_jobs = [run.get_run_job() for run in [item for sublist in [sim.get_runs() for sim in retry_allowed_sims] for item in sublist]]
+      for job in retry_allowed_jobs:
+         run_jobs.remove(job)
+
+
       builds_status = self.execute_jobs(build_jobs, max_concurrent=self.cpus, header='Executing all sim builds.')
       first_phase_run_status = self.execute_jobs(first_run_jobs, max_concurrent=self.cpus, header="Executing first phase runs.")
       runs_status   = self.execute_jobs(remaining_run_jobs,   max_concurrent=self.cpus, header='Executing remaining runs.')

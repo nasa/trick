@@ -5,7 +5,7 @@ from trick.unit_test import *
 
 def main():
 
-	trick.var_server_set_port(40000)
+	trick.var_server_set_port(4000)
 	trick.var_ascii()
 	trick.real_time_enable()
 	trick.exec_set_software_frame(0.01)
