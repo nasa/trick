@@ -31,13 +31,13 @@ class VariableServerSession : public WebSocketSession {
         void clear();
         void exit();
 
-        static int bad_ref_int ;
+        // static int bad_ref_int ;
 
     private:
         int sendErrorMessage(const char* fmt, ... );
         int sendSieMessage(void);
         int sendUnitsMessage(const char* vname);
-        REF2* make_error_ref(const char* in_name);
+        // REF2* make_error_ref(const char* in_name);
         double stageTime;
         bool dataStaged;
 

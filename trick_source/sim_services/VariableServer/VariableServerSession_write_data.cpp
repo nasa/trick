@@ -283,7 +283,7 @@ int Trick::VariableServerSession::write_data() {
     }
 }
 
-int Trick::VariableServerSession::write_data(std::vector<VariableReference *> given_vars) { 
+int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& given_vars) { 
     // do not send anything when there are no variables!
     if ( given_vars.size() == 0) {
         return(0);

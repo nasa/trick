@@ -19,6 +19,7 @@
 
 
 int Trick::VariableServerSession::var_add(std::string in_name) {
+    std::cout << "In var_add with variable " << in_name << std::endl; 
     VariableReference * new_var = new VariableReference(in_name);
     session_variables.push_back(new_var) ;
 
@@ -182,17 +183,25 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
 }
 
 int Trick::VariableServerSession::var_clear() {
+    std::cout << "Session Var_clear" << std::endl;
     while( !session_variables.empty() ) {
+        std::cout << "Deleting variable reference " << session_variables.back()->getName() << std::endl;
         delete session_variables.back();
         session_variables.pop_back();
     }
+
+    std::cout << "Done with var_clear" << std::endl;
+
     return(0) ;
 }
 
 
 int Trick::VariableServerSession::var_send() {
+    std::cout << "In var_send" << std::endl;
     copy_sim_data();
+    std::cout << "Done copying" << std::endl;
     write_data();
+    std::cout << "Done writing" << std::endl;
     return(0) ;
 }
 

@@ -342,7 +342,7 @@ namespace Trick {
             /**
              @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
             */
-            int write_data(std::vector<VariableReference *> var) ;
+            int write_data(std::vector<VariableReference *>& var) ;
 
             /**
              @brief Copy client variable values from Trick memory to each variable's output buffer.
@@ -353,7 +353,7 @@ namespace Trick {
              @brief Copy given variable values from Trick memory to each variable's output buffer.
              cyclical indicated whether it is a normal cyclical copy or a send_once copy
             */
-            int copy_sim_data(std::vector<VariableReference *> given_vars, bool cyclical);
+            int copy_sim_data(std::vector<VariableReference *>& given_vars, bool cyclical);
 
             int var_exit();
 
@@ -381,6 +381,7 @@ namespace Trick {
             int write_binary_data( int Start, char *buf1, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
             int write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
             int write_stdio(int stream, std::string text);
+
 
     private:
         // int sendErrorMessage(const char* fmt, ... );

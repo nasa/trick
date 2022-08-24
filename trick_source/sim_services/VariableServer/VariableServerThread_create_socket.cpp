@@ -6,6 +6,7 @@
 #include "trick/message_type.h"
 
 int Trick::VariableServerThread::create_udp_socket(const char * address, unsigned short in_port) {
+    std::cout << "In Create UDP Socket" << std::endl;
     // listen_dev = &connection ;
     // tc_init_with_connection_info(&connection, AF_INET, SOCK_DGRAM, address, in_port) ;
     // message_publish(MSG_INFO, "Created udp variable server %s:%d\n", listen_dev->hostname, listen_dev->port) ;
@@ -15,6 +16,8 @@ int Trick::VariableServerThread::create_udp_socket(const char * address, unsigne
 }
 
 int Trick::VariableServerThread::create_mcast_socket(const char * mcast_address, const char * address, unsigned short in_port) {
+        std::cout << "In Create mcast Socket" << std::endl;
+
     // int ret ;
     // if ( mcast_address == NULL || mcast_address[0] == '\0' ) {
     //     message_publish(MSG_ERROR, "Multicast address must be defined.\n") ;

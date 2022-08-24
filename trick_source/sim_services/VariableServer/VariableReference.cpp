@@ -23,21 +23,32 @@ Trick::VariableReference::VariableReference(std::string var_name) {
     // Handle error cases
     if ( var_info == NULL ) {
         // sendErrorMessage("Variable Server could not find variable %s.\n", var_name);
+        printf("Variable Server could not find variable %s.\n", var_name.c_str());
+
         var_info = make_error_ref(var_name);
     } else if ( var_info->attr ) {
         if ( var_info->attr->type == TRICK_STRUCTURED ) {
             // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name);
+            printf("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name.c_str());
+
             free(var_info);
+            var_info = NULL;
             var_info = make_error_ref(var_name);
 
         } else if ( var_info->attr->type == TRICK_STL ) {
             // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name);
+            printf("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
+
             free(var_info);
+            var_info = NULL;
             var_info = make_error_ref(var_name);
         }
     } else {
         // sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
+        printf("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
+
         free(var_info);
+        var_info = NULL;
         var_info = make_error_ref(var_name);
     }
 
@@ -61,8 +72,8 @@ Trick::VariableReference::VariableReference(std::string var_name) {
     } else {
         // Unconstrained array
         if ((var_info->attr->num_index - var_info->num_index) > 1 ) {
-            // printf("Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", var_info->reference);
-            // printf("Data is not contiguous so returned values are unpredictable.\n") ;
+            printf("Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", var_info->reference);
+            printf("Data is not contiguous so returned values are unpredictable.\n") ;
         }
         if ( var_info->attr->type == TRICK_CHARACTER ) {
             string_type = TRICK_STRING ;
@@ -83,13 +94,29 @@ Trick::VariableReference::VariableReference(std::string var_name) {
     stage_buffer = calloc(size, 1) ;
     write_buffer = calloc(size, 1) ;
 
+    std::cout << "Successfully created reference" << std::endl;
     // Done!
 }
 
 Trick::VariableReference::~VariableReference() {
-    if (var_info != NULL) free( var_info );
-    if (stage_buffer != NULL) free (stage_buffer);
-    if (write_buffer != NULL) free (write_buffer);
+    std::cout << "In destructor for VariableReference" << std::endl;
+    if (var_info != NULL) {
+        std::cout << "Nulling out var_info" << std::endl;
+        //free( var_info );
+        var_info = NULL;
+    }
+    if (stage_buffer != NULL) {
+        std::cout << "Freeing stage_buffer" << std::endl;
+        free (stage_buffer);
+        stage_buffer = NULL;
+    }
+    if (write_buffer != NULL) {
+        std::cout << "Freeing write_buffer" << std::endl;
+        // free (write_buffer);
+        write_buffer = NULL;
+    }
+
+    std::cout << "End of destructor" << std::endl;
 }
 
 const char* Trick::VariableReference::getName() {
@@ -101,8 +128,10 @@ const char* Trick::VariableReference::getUnits() {
 }
 
 int Trick::VariableReference::setUnits(char * new_units) {
-    if (var_info->units != NULL) 
+    if (var_info->units != NULL)  {
         free(var_info->units);
+        var_info->units = NULL;
+    }
     
     var_info->units = new_units;
 }
@@ -116,7 +145,7 @@ int Trick::VariableReference::setConversionFactor(cv_converter * new_conversion_
 
 void Trick::VariableReference::stageValue() {
     // Copy <size> bytes from <address> to staging_point.
-
+    std::cout << "Beginning of stageValue for value " << getName() << std::endl;
 
     if (var_info->address == &bad_ref_int) {
         REF2 *new_ref = ref_attributes(var_info->reference);
@@ -131,6 +160,7 @@ void Trick::VariableReference::stageValue() {
         if (address == NULL) {
             std::string save_name(var_info->reference) ;
             free(var_info) ;
+            var_info = NULL;
             var_info = make_error_ref(save_name) ;
             address = var_info->address ;
         } else if ( need_validate ) {
@@ -144,6 +174,7 @@ void Trick::VariableReference::stageValue() {
                     (get_alloc_info_of(address) == NULL) ) {
                 std::string save_name(var_info->reference) ;
                 free(var_info) ;
+                var_info = NULL;
                 var_info = make_error_ref(save_name) ;
                 address = var_info->address ;
             }
@@ -181,10 +212,13 @@ void Trick::VariableReference::stageValue() {
         }
     }
     if(address != NULL) {
+        std::cout << "Doing the memcopy..." << std::endl;
         memcpy( stage_buffer , address , size ) ;
     }
 
     staged = true;
+    std::cout << "Done with stageing" << std::endl;
+
 }
 
 static void write_escaped_string( std::ostream& os, const char* s) {
@@ -428,3 +462,8 @@ void Trick::VariableReference::prepareForWrite() {
     staged = false;
     write_ready = true;
 }
+
+void Trick::VariableReference::writeValueBinary( std::ostream& out ) {
+
+}
+

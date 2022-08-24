@@ -39,11 +39,7 @@ namespace Trick {
              @brief Constructor.
              @param listen_dev - the TCDevice set up in listen()
             */
-        //    TCDevice * listen_dev;
-
-           // Not sure why we have a reference to the listening device
             VariableServerThread(TCDevice * in_listen_dev ) ;
-            // VariableServerThread(TCD * conn);
 
             virtual ~VariableServerThread() ;
             /**
@@ -69,9 +65,9 @@ namespace Trick {
              @brief Internal function used by input processor to send stdout and stderr to the client.
              @return always 0
             */
-            int write_stdio(int stream , std::string text ) ;
+            // int write_stdio(int stream , std::string text ) ;
 
-            int freeze_init() ;
+            // int freeze_init() ;
 
             // int copy_data_freeze() ;
             // int copy_data_freeze_scheduled(long long curr_tics) ;
@@ -83,8 +79,8 @@ namespace Trick {
             // Is this restarting thread itself or session?
             void restart() ;
 
-            long long get_next_tics() ;
-            long long get_freeze_next_tics() ;
+            // long long get_next_tics() ;
+            // long long get_freeze_next_tics() ;
 
             // Do these actually get used?
             // Mcast seems like no
@@ -101,7 +97,7 @@ namespace Trick {
             */
             int create_mcast_socket(const char * mcast_address, const char * address, unsigned short in_port) ;
 
-
+            TCDevice & get_connection();
 
         protected:
 

@@ -22,6 +22,8 @@ void exit_var_thread(void *in_vst) ;
 
 void * Trick::VariableServerThread::thread_body() {
 
+    std::cout << "In VST loop" << std::endl;
+
     int ii , jj;
     int msg_len;
     int ret;
@@ -35,10 +37,21 @@ void * Trick::VariableServerThread::thread_body() {
     //  client gets confirmation that the connection is ready for communication.
     vs->add_vst( pthread_self() , this ) ;
 
+    std::cout << "Added VST to map" << std::endl;
+
     if ( listen_dev->socket_type == SOCK_STREAM ) {
         tc_accept(listen_dev, &connection);
         tc_blockio(&connection, TC_COMM_ALL_OR_NOTHING);
     }
+    std::cout << "Accepted VST connection" << std::endl;
+
+    session = new VariableServerSession(&connection);
+    std::cout << "Created Session" << std::endl;
+
+    vs->add_session( pthread_self(), session );
+    std::cout << "Added session to map" << std::endl;
+
+    // This 100% needs to be synchronized
     connection_accepted = true ;
 
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) ;
@@ -46,18 +59,18 @@ void * Trick::VariableServerThread::thread_body() {
 
     /* Save off the host and port information of the source port.  We want to ignore messages from
        this port if we are a multicast socket */
-    struct sockaddr_in self_s_in ;
-    int s_in_size =  sizeof(self_s_in) ;
-    if ( conn_type == MCAST ) {
-        getsockname( connection.socket , (struct sockaddr *)&self_s_in, (socklen_t *)&s_in_size) ;
-        if ( self_s_in.sin_addr.s_addr == 0 ) {
-            char hname[80];
-            struct hostent *ip_host;
-            gethostname(hname, (size_t) 80);
-            ip_host = gethostbyname(hname);
-            memcpy(&(self_s_in.sin_addr.s_addr), ip_host->h_addr, (size_t) ip_host->h_length);
-        }
-    }
+    // struct sockaddr_in self_s_in ;
+    // int s_in_size =  sizeof(self_s_in) ;
+    // if ( conn_type == MCAST ) {
+    //     getsockname( connection.socket , (struct sockaddr *)&self_s_in, (socklen_t *)&s_in_size) ;
+    //     if ( self_s_in.sin_addr.s_addr == 0 ) {
+    //         char hname[80];
+    //         struct hostent *ip_host;
+    //         gethostname(hname, (size_t) 80);
+    //         ip_host = gethostbyname(hname);
+    //         memcpy(&(self_s_in.sin_addr.s_addr), ip_host->h_addr, (size_t) ip_host->h_length);
+    //     }
+    // }
 
     // if log is set on for variable server (e.g., in input file), turn log on for each client
     if (vs->get_log()) {
@@ -66,7 +79,7 @@ void * Trick::VariableServerThread::thread_body() {
 
     try {
         while (1) {
-
+            std::cout << "Top of VST Loop" << std::endl;
             // Pause here if we are in a restart condition
             // This is not great, this should be a cv instead
             pthread_mutex_lock(&restart_pause) ;
@@ -144,6 +157,9 @@ void * Trick::VariableServerThread::thread_body() {
             // }
 
             /* break out of loop if exit command found */
+
+            std::cout << "Finished handling message" << std::endl;
+
             if (exit_cmd == true) {
                 break;
             }
@@ -164,6 +180,7 @@ void * Trick::VariableServerThread::thread_body() {
             }
             pthread_mutex_unlock(&restart_pause) ;
 
+            std::cout << "gonna snooze" << std::endl;
             usleep((unsigned int) (session->get_update_rate() * 1000000));
         }
     } catch (Trick::ExecutiveException & ex ) {

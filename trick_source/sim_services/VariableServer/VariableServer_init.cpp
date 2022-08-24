@@ -5,6 +5,7 @@
 int Trick::VariableServer::init() {
 
     int ret ;
+    std::cout << "In VS Init" << std::endl;
 
     /* start up a thread for the input processor variable server */
     if ( enabled ) {

@@ -20,6 +20,7 @@ Trick::VariableServerSession * get_session() {
 }
 
 int var_add(std::string in_name) {
+    std::cout << "Executing var_add" << std::endl;
     Trick::VariableServerSession * session;
     
     if (session != NULL ) {
@@ -65,6 +66,7 @@ int var_exists(std::string in_name) {
 }
 
 int var_send_once(std::string in_name) {
+    std::cout << "Executing var_send_once" << std::endl;
     Trick::VariableServerSession * session;
     
     if (session != NULL ) {
@@ -83,6 +85,7 @@ int var_send_once(std::string in_name, int num) {
 }
 
 int var_send() {
+    std::cout << "Executing var_send" << std::endl;
     Trick::VariableServerSession * session;
     
     if (session != NULL ) {
@@ -92,6 +95,7 @@ int var_send() {
 }
 
 int var_clear() {
+    std::cout << "Executing var_clear" << std::endl;
     Trick::VariableServerSession * session;
     
     if (session != NULL ) {
@@ -286,7 +290,8 @@ Trick::VariableServerSession * session = get_session();
 // }
 
 int var_write_stdio(int stream , std::string text ) {
-Trick::VariableServerSession * session = get_session();
+    std::cout << "Executing var_write_stdio" << std::endl;
+    Trick::VariableServerSession * session = get_session();
     if (session != NULL and session->get_send_stdio() == true) {
         session->write_stdio(stream, text) ;
     } else {
@@ -299,25 +304,26 @@ Trick::VariableServerSession * session = get_session();
     return(0) ;
 }
 
-// int var_set_client_tag( std::string text ) {
-// Trick::VariableServerSession * session = get_session();
-//     if (session != NULL) {
-//         // tag char declared length is 80
-//         if (text.length()>=80) {
-//             text.resize(79);
-//         }
-//         strcpy(session->get_connection().client_tag, text.c_str());
-// #if __linux
-// #ifdef __GNUC__
-// #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
-//         std::string short_str = std::string("VS_") + text.substr(0,12) ;
-//         pthread_setname_np(pthread_self(), short_str.c_str()) ;
-// #endif
-// #endif
-// #endif
-//     }
-//     return(0) ;
-// }
+int var_set_client_tag( std::string text ) {
+    std::cout << "Executing var_set_client_tag" << std::endl;
+    Trick::VariableServerThread * vst = get_vst();
+    if (vst != NULL) {
+        // tag char declared length is 80
+        if (text.length()>=80) {
+            text.resize(79);
+        }
+        strcpy(vst->get_connection().client_tag, text.c_str());
+#if __linux
+#ifdef __GNUC__
+#if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
+        std::string short_str = std::string("VS_") + text.substr(0,12) ;
+        pthread_setname_np(pthread_self(), short_str.c_str()) ;
+#endif
+#endif
+#endif
+    }
+    return(0) ;
+}
 
 int var_send_list_size() {
 Trick::VariableServerSession * session = get_session();
@@ -540,8 +546,10 @@ int var_set_base( const char  * var , T value , const char * units ) {
             ref_assignment(ref , &v_tree) ;
             if(ref->units != NULL) {
                 free(ref->units) ;
+                ref->units = NULL;
             }
             free(ref) ;
+            ref = NULL;
         } else {
             message_publish(MSG_WARNING,"Cannot assign to %s because io_spec does not allow input\n", var) ;
         }

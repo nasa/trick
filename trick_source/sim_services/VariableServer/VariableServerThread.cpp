@@ -9,7 +9,9 @@ Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 
 Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
  Trick::ThreadBase("VarServer") ,
- listen_dev(in_listen_dev) {
+ listen_dev(in_listen_dev), session(NULL) {
+
+    std::cout << "Creating VST" << std::endl;
 
     // debug = 0 ;
     // enabled = true ;
@@ -38,14 +40,14 @@ Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
     // next_tics = TRICK_MAX_LONG_LONG ;
     // freeze_next_tics = TRICK_MAX_LONG_LONG ;
 
-    // connection.disabled = TC_COMM_FALSE ;
-    // connection.disable_handshaking = TC_COMM_TRUE ;
-    // connection.blockio_limit = 0.0 ;
-    // connection.blockio_type = TC_COMM_BLOCKIO ;
-    // connection.client_id = 0 ;
-    // strcpy(connection.client_tag, "") ;
-    // connection.error_handler = (TrickErrorHndlr *) calloc(1, (int)sizeof(TrickErrorHndlr));
-    // connection.error_handler->report_level = TRICK_ERROR_CAUTION;
+    connection.disabled = TC_COMM_FALSE ;
+    connection.disable_handshaking = TC_COMM_TRUE ;
+    connection.blockio_limit = 0.0 ;
+    connection.blockio_type = TC_COMM_BLOCKIO ;
+    connection.client_id = 0 ;
+    strcpy(connection.client_tag, "") ;
+    connection.error_handler = (TrickErrorHndlr *) calloc(1, (int)sizeof(TrickErrorHndlr));
+    connection.error_handler->report_level = TRICK_ERROR_CAUTION;
 
     pthread_mutex_init(&copy_mutex, NULL);
     pthread_mutex_init(&restart_pause, NULL);
@@ -141,8 +143,8 @@ Trick::VariableServer * Trick::VariableServerThread::get_vs() {
     return vs ;
 }
 
-// TCDevice & Trick::VariableServerThread::get_connection() {
-//     return connection ;
-// }
+TCDevice & Trick::VariableServerThread::get_connection() {
+    return connection ;
+}
 
 

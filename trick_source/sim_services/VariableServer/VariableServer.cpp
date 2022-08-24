@@ -11,6 +11,7 @@ Trick::VariableServer::VariableServer() :
  info_msg(false),
  log(false)
 {
+    std::cout << "In VS Init" << std::endl;
     the_vs = this ;
     pthread_mutex_init(&map_mutex, NULL);
 }
