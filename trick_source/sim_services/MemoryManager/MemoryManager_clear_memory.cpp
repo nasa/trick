@@ -92,7 +92,7 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
                *(void**)final_address = (void*)NULL;
                break;
            case TRICK_STRING :
-               final_address = (char*)base_address + offset * sizeof(void*);
+               final_address = (char*)base_address + offset * sizeof(std::string);
                *(std::string*)final_address = "";
                break;
            case TRICK_STL :
