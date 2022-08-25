@@ -186,7 +186,8 @@ int Trick::VariableServerSession::write_ascii_data(char * dest_buf, const std::v
     // std::cout << "Writing ascii data with " << given_vars.size() << " vars and message type " << message_type << std::endl;
 
     std::stringstream oss ;
-    oss << message_type << "\t";
+    oss.clear();
+    oss << (int)message_type << '\t';
 
     for (int i = 0; i < given_vars.size(); i++) {
         // std::cout << "Writing var" << i << " to ascii stream" << std::endl; 
@@ -226,11 +227,12 @@ int Trick::VariableServerSession::write_ascii_data(char * dest_buf, const std::v
         // strcat(dest_buf, curr_buf);
         // strcat(dest_buf, "\t");
 
-        oss << "\t";
+        oss << '\t';
     }
 
-    oss << "\n";
+    oss << '\n';
     std::string message = oss.str();
+    
     int len = message.length() +1 ;
 
     // std::cout << "Sending message: " << message << std::endl;
@@ -240,7 +242,7 @@ int Trick::VariableServerSession::write_ascii_data(char * dest_buf, const std::v
 
         char *send_buf = new char[len];
         strcpy(send_buf, message.c_str());
-        send_buf[len-1] = '\0';
+        // send_buf[len-1] = '\0';
         if (debug >= 2) {
             message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
                             connection, connection->client_tag, (int)strlen(dest_buf), dest_buf) ;

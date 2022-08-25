@@ -126,7 +126,7 @@ int Trick::VariableServerSession::handleMessage() {
 
 
     if ( nbytes > 0 ) {
-        std::cout << "Client <" << connection->client_tag << "> sent message: " << incoming_msg << std::endl;
+        // std::cout << "Client <" << connection->client_tag << "> sent message: " << incoming_msg << std::endl;
 
         int msg_len = nbytes ;
         if (debug >= 3) {
