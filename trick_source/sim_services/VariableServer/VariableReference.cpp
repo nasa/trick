@@ -3,6 +3,7 @@
 #include <udunits2.h>
 #include <math.h> // for fpclassify
 #include <iomanip> // for setprecision
+#include <string.h>
 
 #include "trick/VariableReference.hh"
 #include "trick/memorymanager_c_intf.h"

@@ -237,10 +237,10 @@ int Trick::VariableServerSession::write_ascii_data(char * dest_buf, const std::v
 
     // std::cout << "Sending message: " << message << std::endl;
 
-    if ( len > 0 ) {
+    if ( len > 0 && len < MAX_MSG_LEN) {
         // dest_buf[ strlen(dest_buf) - 1 ] = '\n';
 
-        char *send_buf = new char[len];
+        char send_buf[MAX_MSG_LEN];
         strcpy(send_buf, message.c_str());
         // send_buf[len-1] = '\0';
         if (debug >= 2) {
@@ -253,6 +253,8 @@ int Trick::VariableServerSession::write_ascii_data(char * dest_buf, const std::v
             std::cout << "Message byte length does not match bytes sent." << std::endl;
             return(-1) ;
         }
+    } else {
+        std::cout << "*************TODO: Split up large messages" << std::endl;
     }
 
     return 0;

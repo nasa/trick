@@ -33,6 +33,10 @@ Trick::VariableServerSession::VariableServerSession(TCDevice * conn) {
 
     exit_cmd = false;
 
+    incoming_msg = (char *) calloc(MAX_CMD_LEN, 1);
+    stripped_msg = (char *) calloc(MAX_CMD_LEN, 1);
+
+
     pthread_mutex_init(&copy_mutex, NULL);
 }
 
@@ -85,7 +89,7 @@ void Trick::VariableServerSession::sendMessage() {
 int Trick::VariableServerSession::handleMessage() {
     // std::cout << "Handling message" << std::endl;
 
-    char * incoming_msg = (char *) calloc(MAX_CMD_LEN, 1);
+    // char * incoming_msg = (char *) calloc(MAX_CMD_LEN, 1);
     int nbytes = recvfrom( connection->socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
     if (nbytes == 0 ) {
         return 0;
@@ -142,7 +146,7 @@ int Trick::VariableServerSession::handleMessage() {
         //     message_publish(MSG_PLAYBACK, "tag=<%s> time=%f %s", connection->client_tag, exec_get_sim_time(), incoming_msg) ;
         // }
 
-        char * stripped_msg = (char *) calloc (MAX_CMD_LEN, 1);
+        // char * stripped_msg = (char *) calloc (MAX_CMD_LEN, 1);
         for( int ii = 0 , jj = 0 ; ii <= msg_len ; ii++ ) {
             if ( incoming_msg[ii] != '\r' ) {
                 stripped_msg[jj++] = incoming_msg[ii] ;

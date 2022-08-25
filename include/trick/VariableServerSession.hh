@@ -476,7 +476,8 @@ namespace Trick {
         int packets_copied;
 
 
-
+        char * incoming_msg;
+        char * stripped_msg;
 
         static const unsigned int MAX_CMD_LEN = 200000 ;
     };
