@@ -233,7 +233,7 @@ int Trick::VariableServerSession::write_ascii_data(char * dest_buf, const std::v
     oss << '\n';
     std::string message = oss.str();
     
-    int len = message.length() +1 ;
+    int len = message.length() ;
 
     // std::cout << "Sending message: " << message << std::endl;
 
@@ -247,6 +247,7 @@ int Trick::VariableServerSession::write_ascii_data(char * dest_buf, const std::v
             message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
                             connection, connection->client_tag, (int)strlen(dest_buf), dest_buf) ;
         }
+        // std::cout << "Writing data" << std::endl;
         int ret = tc_write(connection, send_buf, len);
         if ( ret != len ) {
             std::cout << "Message byte length does not match bytes sent." << std::endl;
