@@ -30,6 +30,10 @@ Trick::VariableServerSession::VariableServerSession(TCDevice * conn) {
     send_stdio = false ;
     var_data_staged = false;
     packets_copied = 0 ;
+
+    exit_cmd = false;
+
+    pthread_mutex_init(&copy_mutex, NULL);
 }
 
 Trick::VariableServerSession::~VariableServerSession() {}
@@ -79,7 +83,7 @@ void Trick::VariableServerSession::sendMessage() {
 }
 
 int Trick::VariableServerSession::handleMessage() {
-    std::cout << "Handling message" << std::endl;
+    // std::cout << "Handling message" << std::endl;
 
     char * incoming_msg = (char *) calloc(MAX_CMD_LEN, 1);
     int nbytes = recvfrom( connection->socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
@@ -120,9 +124,9 @@ int Trick::VariableServerSession::handleMessage() {
         }
     }
 
-    std::cout << "Processing message received: " << incoming_msg << std::endl;
 
     if ( nbytes > 0 ) {
+        std::cout << "Client <" << connection->client_tag << "> sent message: " << incoming_msg << std::endl;
 
         int msg_len = nbytes ;
         if (debug >= 3) {
@@ -145,9 +149,9 @@ int Trick::VariableServerSession::handleMessage() {
             }
         }
 
-        std::cout << "About to try to parse message" << std::endl;
+        // std::cout << "About to try to parse message" << std::endl;
         ip_parse(stripped_msg); /* returns 0 if no parsing error */
-        std::cout << "Finished parsing and executing message" << std::endl;
+        // std::cout << "Finished parsing and executing message" << std::endl;
 
     }
 }

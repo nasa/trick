@@ -20,8 +20,8 @@ Trick::VariableServerSession * get_session() {
 }
 
 int var_add(std::string in_name) {
-    std::cout << "Executing var_add" << std::endl;
-    Trick::VariableServerSession * session;
+    // std::cout << "Executing var_add" << std::endl;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_add(in_name) ;
@@ -30,7 +30,7 @@ int var_add(std::string in_name) {
 }
 
 int var_add(std::string in_name, std::string in_units) {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_add(in_name, in_units) ;
@@ -39,7 +39,7 @@ int var_add(std::string in_name, std::string in_units) {
 }
 
 int var_remove(std::string in_name) {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_remove(in_name) ;
@@ -48,7 +48,7 @@ int var_remove(std::string in_name) {
 }
 
 int var_units(std::string var_name , std::string units_name) {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_units(var_name , units_name) ;
@@ -57,7 +57,7 @@ int var_units(std::string var_name , std::string units_name) {
 }
 
 int var_exists(std::string in_name) {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_exists(in_name) ;
@@ -66,8 +66,8 @@ int var_exists(std::string in_name) {
 }
 
 int var_send_once(std::string in_name) {
-    std::cout << "Executing var_send_once" << std::endl;
-    Trick::VariableServerSession * session;
+    // std::cout << "Executing var_send_once" << std::endl;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_send_once(in_name, 1) ;
@@ -76,7 +76,7 @@ int var_send_once(std::string in_name) {
 }
 
 int var_send_once(std::string in_name, int num) {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_send_once(in_name, num) ;
@@ -85,8 +85,10 @@ int var_send_once(std::string in_name, int num) {
 }
 
 int var_send() {
-    std::cout << "Executing var_send" << std::endl;
-    Trick::VariableServerSession * session;
+    // std::cout << "Executing var_send" << std::endl;
+    // std::cout << "Pthread in var_send: " << pthread_self() << std::endl;
+
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_send() ;
@@ -95,17 +97,19 @@ int var_send() {
 }
 
 int var_clear() {
-    std::cout << "Executing var_clear" << std::endl;
-    Trick::VariableServerSession * session;
+    // // std::cout << "Executing var_clear" << std::endl;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_clear() ;
     }
+
+    // std::cout << "Done with var_clear" << std::endl;
     return(0) ;
 }
 
 int var_cycle(double in_rate) {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_cycle(in_rate) ;
@@ -114,7 +118,7 @@ int var_cycle(double in_rate) {
 }
 
 int var_pause() {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->set_pause(true) ;
@@ -124,7 +128,7 @@ int var_pause() {
 }
 
 int var_unpause() {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->set_pause(false) ;
@@ -134,7 +138,7 @@ int var_unpause() {
 }
 
 int var_exit() {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_exit() ;
@@ -143,7 +147,7 @@ int var_exit() {
 }
 
 int var_validate_address(int on_off) {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_validate_address((bool)on_off) ;
@@ -152,7 +156,7 @@ int var_validate_address(int on_off) {
 }
 
 int var_debug(int level) {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_debug(level) ;
@@ -161,7 +165,7 @@ int var_debug(int level) {
 }
 
 int var_ascii() {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_ascii() ;
@@ -170,7 +174,7 @@ int var_ascii() {
 }
 
 int var_binary() {
-    Trick::VariableServerSession * session;
+    Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
         session->var_binary() ;
@@ -290,7 +294,7 @@ Trick::VariableServerSession * session = get_session();
 // }
 
 int var_write_stdio(int stream , std::string text ) {
-    std::cout << "Executing var_write_stdio" << std::endl;
+    // std::cout << "Executing var_write_stdio" << std::endl;
     Trick::VariableServerSession * session = get_session();
     if (session != NULL and session->get_send_stdio() == true) {
         session->write_stdio(stream, text) ;
@@ -305,7 +309,7 @@ int var_write_stdio(int stream , std::string text ) {
 }
 
 int var_set_client_tag( std::string text ) {
-    std::cout << "Executing var_set_client_tag" << std::endl;
+    // std::cout << "Executing var_set_client_tag" << std::endl;
     Trick::VariableServerThread * vst = get_vst();
     if (vst != NULL) {
         // tag char declared length is 80
@@ -397,7 +401,7 @@ Trick::VariableServer * var_server_get_var_server() {
 }
 
 extern "C" void var_server_list_connections(void) {
-    std::cout << *the_vs << std::endl;
+    // std::cout << *the_vs << std::endl;
 }
 
 /**

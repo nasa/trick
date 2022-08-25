@@ -11,7 +11,7 @@ void Trick::VariableServerThread::preload_checkpoint() {
 
     // Let the thread complete any data copying it has to do
     // and then suspend data copying until the checkpoint is reloaded.
-    pthread_mutex_lock(&copy_mutex);
+    pthread_mutex_lock(&(session->copy_mutex));
 
     // Save the pause state of this thread.
     saved_pause_cmd = pause_cmd;
@@ -25,7 +25,7 @@ void Trick::VariableServerThread::preload_checkpoint() {
 
 
     // Allow data copying to continue.
-    pthread_mutex_unlock(&copy_mutex);
+    pthread_mutex_unlock(&(session->copy_mutex));
 
 }
 

@@ -22,7 +22,7 @@ void exit_var_thread(void *in_vst) ;
 
 void * Trick::VariableServerThread::thread_body() {
 
-    std::cout << "In VST loop" << std::endl;
+    // std::cout << "In VST loop" << std::endl;
 
     int ii , jj;
     int msg_len;
@@ -37,19 +37,19 @@ void * Trick::VariableServerThread::thread_body() {
     //  client gets confirmation that the connection is ready for communication.
     vs->add_vst( pthread_self() , this ) ;
 
-    std::cout << "Added VST to map" << std::endl;
+    // std::cout << "Added VST to map" << std::endl;
 
     if ( listen_dev->socket_type == SOCK_STREAM ) {
         tc_accept(listen_dev, &connection);
         tc_blockio(&connection, TC_COMM_ALL_OR_NOTHING);
     }
-    std::cout << "Accepted VST connection" << std::endl;
+    // std::cout << "Accepted VST connection" << std::endl;
 
     session = new VariableServerSession(&connection);
-    std::cout << "Created Session" << std::endl;
+    // std::cout << "Created Session" << std::endl;
 
     vs->add_session( pthread_self(), session );
-    std::cout << "Added session to map" << std::endl;
+    // std::cout << "Added session to map" << std::endl;
 
     // This 100% needs to be synchronized
     connection_accepted = true ;
@@ -79,7 +79,7 @@ void * Trick::VariableServerThread::thread_body() {
 
     try {
         while (1) {
-            std::cout << "Top of VST Loop" << std::endl;
+            // std::cout << "Top of VST Loop" << std::endl;
             // Pause here if we are in a restart condition
             // This is not great, this should be a cv instead
             pthread_mutex_lock(&restart_pause) ;
@@ -158,9 +158,10 @@ void * Trick::VariableServerThread::thread_body() {
 
             /* break out of loop if exit command found */
 
-            std::cout << "Finished handling message" << std::endl;
+            // // std::cout << "Finished handling message" << std::endl;
 
-            if (exit_cmd == true) {
+            if (session->exit_cmd == true) {
+                std::cout << "Got exit command for client " << connection.client_tag << std::endl;
                 break;
             }
 
@@ -172,6 +173,7 @@ void * Trick::VariableServerThread::thread_body() {
                  ((session->get_copy_mode() == VS_COPY_ASYNC) and (session->get_write_mode() == VS_WRITE_WHEN_COPIED)) or
                  (! is_real_time()) ) {
                 if ( !pause_cmd ) {
+                    // std::cout << "Writing out data" << std::endl;
                     ret = session->write_data() ;
                     if ( ret < 0 ) {
                         break ;
@@ -180,7 +182,7 @@ void * Trick::VariableServerThread::thread_body() {
             }
             pthread_mutex_unlock(&restart_pause) ;
 
-            std::cout << "gonna snooze" << std::endl;
+            // // std::cout << "gonna snooze" << std::endl;
             usleep((unsigned int) (session->get_update_rate() * 1000000));
         }
     } catch (Trick::ExecutiveException & ex ) {

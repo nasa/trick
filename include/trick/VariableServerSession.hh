@@ -382,6 +382,10 @@ namespace Trick {
             int write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
             int write_stdio(int stream, std::string text);
 
+        pthread_mutex_t copy_mutex;
+
+        /** Toggle to indicate var_exit commanded.\n */
+        bool exit_cmd ;                  /**<  trick_io(**) */
 
     private:
         // int sendErrorMessage(const char* fmt, ... );
@@ -471,10 +475,8 @@ namespace Trick {
 
         int packets_copied;
 
-        pthread_mutex_t copy_mutex;
 
-        /** Toggle to indicate var_exit commanded.\n */
-        bool exit_cmd ;                  /**<  trick_io(**) */
+
 
         static const unsigned int MAX_CMD_LEN = 200000 ;
     };

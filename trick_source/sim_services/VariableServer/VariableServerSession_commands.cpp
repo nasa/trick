@@ -19,9 +19,12 @@
 
 
 int Trick::VariableServerSession::var_add(std::string in_name) {
-    std::cout << "In var_add with variable " << in_name << std::endl; 
+    // std::cout << "In var_add with variable " << in_name << std::endl; 
     VariableReference * new_var = new VariableReference(in_name);
+    // std::cout << "About to push to session vars" << std::endl; 
     session_variables.push_back(new_var) ;
+
+    // std::cout << "Size of session vars: " << session_variables.size() << std::endl;
 
     return(0) ;
 }
@@ -169,39 +172,39 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         if (debug >= 2) {
             // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending 1 binary byte\n", &connection, connection.client_tag);
         }
-        // tc_write(&connection, (char *) buf1, 5);
+        tc_write(connection, (char *) buf1, 5);
     } else {
         /* send ascii "1" or "0" */
         sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
         if (debug >= 2) {
             // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", &connection, connection.client_tag, buf1) ;
         }
-        // tc_write(&connection, (char *) buf1, strlen(buf1));
+        tc_write(connection, (char *) buf1, strlen(buf1));
     }
 
     return(0) ;
 }
 
 int Trick::VariableServerSession::var_clear() {
-    std::cout << "Session Var_clear" << std::endl;
+    // std::cout << "Session Var_clear" << std::endl;
     while( !session_variables.empty() ) {
-        std::cout << "Deleting variable reference " << session_variables.back()->getName() << std::endl;
+        // std::cout << "Deleting variable reference " << session_variables.back()->getName() << std::endl;
         delete session_variables.back();
         session_variables.pop_back();
     }
 
-    std::cout << "Done with var_clear" << std::endl;
+    // std::cout << "Done with var_clear" << std::endl;
 
     return(0) ;
 }
 
 
 int Trick::VariableServerSession::var_send() {
-    std::cout << "In var_send" << std::endl;
+    // std::cout << "In var_send" << std::endl;
     copy_sim_data();
-    std::cout << "Done copying" << std::endl;
+    // std::cout << "Done copying" << std::endl;
     write_data();
-    std::cout << "Done writing" << std::endl;
+    // std::cout << "Done writing" << std::endl;
     return(0) ;
 }
 
@@ -355,14 +358,14 @@ int Trick::VariableServerSession::send_list_size() {
         if (debug >= 2) {
             // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d event variables\n", &connection, connection.client_tag, var_count);
         }
-        // tc_write(&connection, (char *) buf1, 12);
+        tc_write(connection, (char *) buf1, 12);
     } else {
         // ascii
         sprintf(buf1, "%d\t%d\n", VS_LIST_SIZE, var_count);
         if (debug >= 2) {
             // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", &connection, connection.client_tag, buf1) ;
         }
-        // tc_write(&connection, (char *) buf1, strlen(buf1));
+        tc_write(connection, (char *) buf1, strlen(buf1));
     }
 
     return 0 ;

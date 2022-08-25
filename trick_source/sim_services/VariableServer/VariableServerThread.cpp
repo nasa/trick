@@ -28,8 +28,8 @@ Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
     // multicast = false;
     // byteswap = false ;
 
-    pause_cmd = false ;
-    exit_cmd = false ;
+    // pause_cmd = false ;
+    // exit_cmd = false ;
 
     // validate_address = false ;
     // send_stdio = false ;
@@ -49,7 +49,7 @@ Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
     connection.error_handler = (TrickErrorHndlr *) calloc(1, (int)sizeof(TrickErrorHndlr));
     connection.error_handler->report_level = TRICK_ERROR_CAUTION;
 
-    pthread_mutex_init(&copy_mutex, NULL);
+    // pthread_mutex_init(&copy_mutex, NULL);
     pthread_mutex_init(&restart_pause, NULL);
 
     // var_data_staged = false;
@@ -146,5 +146,7 @@ Trick::VariableServer * Trick::VariableServerThread::get_vs() {
 TCDevice & Trick::VariableServerThread::get_connection() {
     return connection ;
 }
+
+
 
 

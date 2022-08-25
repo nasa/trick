@@ -141,7 +141,7 @@ namespace Trick {
             // bool validate_address ;          /**<  trick_io(**) */
 
             /** The mutex to protect variable output buffers when copying variable values to them from Trick memory.\n */
-            pthread_mutex_t copy_mutex ;     /**<  trick_io(**) */
+            // pthread_mutex_t copy_mutex ;     /**<  trick_io(**) */
 
             /** The mutex pauses all processing during checkpoint restart */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */
