@@ -381,11 +381,11 @@ in the table is the default ordering.
 
 ```C++
 job_class_order {
-   my_job_class_1 ;
-   my_job_class_2 ;
-   scheduled ;
-   my_job_class_3 ;
-}
+   my_job_class_1 ,
+   my_job_class_2 ,
+   scheduled ,
+   my_job_class_3
+};
 ```
 
 ### Simulation Object C++ properties
