@@ -22,7 +22,7 @@ extern "C" {
 #define MAX_MSG_LEN    8192
 
 
-int Trick::VariableServerSession::write_binary_data( int Start, char *buf1, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) {
+int Trick::VariableServerSession::write_binary_data( int Start, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) {
     // int vars = 0;
     // int i;
     // int ret ;
@@ -179,103 +179,46 @@ int Trick::VariableServerSession::write_binary_data( int Start, char *buf1, cons
     return 0;
 }
 
-int Trick::VariableServerSession::write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type ) {
+int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type ) {
 
-    
-    // sprintf(dest_buf, "%d\t", message_type) ;
-    // std::cout << "Writing ascii data with " << given_vars.size() << " vars and message type " << message_type << std::endl;
+    // Load everything into a stringstream
+    std::stringstream message_stream ;
+    message_stream.clear();
 
-    std::stringstream oss ;
-    oss.clear();
-    oss << (int)message_type << '\t';
+    // Load message type first
+    message_stream << (int)message_type << '\t';
 
+    // Load each variable
     for (int i = 0; i < given_vars.size(); i++) {
-        // std::cout << "Writing var" << i << " to ascii stream" << std::endl; 
-        // char curr_buf[MAX_MSG_LEN];
-        int ret = 0;    
-
-        given_vars[i]->writeValueAscii(oss);
-
-        if (ret < 0) {
-            message_publish(MSG_WARNING, "%p Variable Server string buffer[%d] too small for symbol %s, TRUNCATED IT.\n",
-                            &connection, MAX_MSG_LEN, given_vars[i]->getName() );
-        }
-
-        /* make sure this message will fit in a packet by itself */
-        // if( strlen( curr_buf ) + 2 > MAX_MSG_LEN ) {
-        //     message_publish(MSG_WARNING, "%p Variable Server buffer[%d] too small for symbol %s, TRUNCATED IT.\n",
-        //                     &connection, MAX_MSG_LEN, given_vars[i]->getName() );
-        //     curr_buf[MAX_MSG_LEN - 1] = '\0';
-        // }
-
-        // int len = strlen(dest_buf) ;
-        /* make sure there is space for the next tab or next newline and null */
-        // if( len + strlen( curr_buf ) + 2 > MAX_MSG_LEN ) {
-        //     // If there isn't, send incomplete message
-        //     // if (debug >= 2) {
-        //     //     message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
-        //     //                     &connection, connection.client_tag, (int)strlen(dest_buf), dest_buf) ;
-        //     // }
-
-        //     ret = tc_write(connection, (char *) dest_buf, len);
-        //     if ( ret != len ) {
-        //         return(-1) ;
-        //     }
-        //     dest_buf[0] = '\0';
-        // }
-
-        // strcat(dest_buf, curr_buf);
-        // strcat(dest_buf, "\t");
-
-        oss << '\t';
+        given_vars[i]->writeValueAscii(message_stream);
+        message_stream << '\t';
     }
 
-    oss << '\n';
-    std::string message = oss.str();
-    
+    // End with newline
+    message_stream << '\n';
+
+    std::string message = message_stream.str();
     int len = message.length() ;
 
-    // std::cout << "Sending message: " << message << std::endl;
-
+    // Send :)
     if ( len > 0 && len < MAX_MSG_LEN) {
-        // dest_buf[ strlen(dest_buf) - 1 ] = '\n';
-
-        char send_buf[MAX_MSG_LEN];
-        strcpy(send_buf, message.c_str());
-        // send_buf[len-1] = '\0';
         if (debug >= 2) {
             message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
-                            connection, connection->client_tag, (int)strlen(dest_buf), dest_buf) ;
+                            connection, connection->get_client_tag().c_str(), len, message.c_str()) ;
         }
-        // std::cout << "Writing data" << std::endl;
-        int ret = tc_write(connection, send_buf, len);
+        int ret = connection->write(message, len);
         if ( ret != len ) {
-            std::cout << "Message byte length does not match bytes sent." << std::endl;
+            std::cout << "Message byte length(" << len << ") does not match bytes sent(" << ret <<")." << std::endl;
             return(-1) ;
         }
-    } else {
-        std::cout << "*************TODO: Split up large messages" << std::endl;
-    }
+    } 
 
     return 0;
 }
 
 int Trick::VariableServerSession::write_data() {
 
-    // // std::cout << "Pthread in write_data: " << pthread_self() << std::endl;
-
-    int ret;
-    unsigned int i ;
-    char buf1[ MAX_MSG_LEN ];
-    int len ;
-
-    // // std::cout << "In write data with " << session_variables.size() << " vars" << std::endl;
-
     // do not send anything when there are no variables!
-    // if ( session_variables.size() == 0 or packets_copied == 0 ) {
-    //     return 0;
-    // }
-
     if ( session_variables.size() == 0 ) {
         return 0;
     }
@@ -297,13 +240,12 @@ int Trick::VariableServerSession::write_data() {
             /* Relinquish sole access to vars[ii]->buffer_in. */
             pthread_mutex_unlock(&copy_mutex) ;
 
-            // // std::cout << "All vars staged" << std::endl;
-
+            char buf1[ MAX_MSG_LEN ];
             if (binary_data) {
-                int index = 0;            
+                int index = 0;
 
                 do {
-                    ret = write_binary_data( index, buf1, session_variables, VS_VAR_LIST );
+                    int ret = write_binary_data( index, session_variables, VS_VAR_LIST );
                     if ( ret >= 0 ) {
                         index = ret ;
                     } else {
@@ -314,8 +256,7 @@ int Trick::VariableServerSession::write_data() {
                 return 0;
 
             } else { /* ascii mode */
-                // std::cout << "Going to write_ascii_data" << std::endl;
-                return write_ascii_data(buf1, session_variables, VS_VAR_LIST );
+                return write_ascii_data(session_variables, VS_VAR_LIST );
             }
         } else {
             std::cout << "Didn't get lock, error message " << lock_ret << "\tEINVAL: " << EINVAL << "\tEBUSY: " << EBUSY << std::endl;
@@ -346,7 +287,7 @@ int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& g
             int index = 0;
 
             do {
-                int ret = write_binary_data( index, buf1, given_vars, VS_SEND_ONCE );
+                int ret = write_binary_data( index, given_vars, VS_SEND_ONCE );
                 if ( ret >= 0 ) {
                     index = ret ;
                 } else {
@@ -357,7 +298,7 @@ int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& g
             return 0;
 
         } else { /* ascii mode */
-            return write_ascii_data(buf1, given_vars, VS_SEND_ONCE);
+            return write_ascii_data( given_vars, VS_SEND_ONCE);
         }
     }
 }

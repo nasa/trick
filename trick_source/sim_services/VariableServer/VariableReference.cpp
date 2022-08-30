@@ -146,7 +146,6 @@ int Trick::VariableReference::setConversionFactor(cv_converter * new_conversion_
 
 void Trick::VariableReference::stageValue() {
     // Copy <size> bytes from <address> to staging_point.
-    // // std::cout << "Beginning of stageValue for value " << getName() << std::endl;
 
     if (var_info->address == &bad_ref_int) {
         REF2 *new_ref = ref_attributes(var_info->reference);
@@ -213,12 +212,10 @@ void Trick::VariableReference::stageValue() {
         }
     }
     if(address != NULL) {
-        // // std::cout << "Doing the memcopy..." << std::endl;
         memcpy( stage_buffer , address , size ) ;
     }
 
     staged = true;
-    // std::cout << "Done with stageing" << std::endl;
 
 }
 

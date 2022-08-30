@@ -9,7 +9,7 @@ PURPOSE: (Represent the state of a variable server websocket connection.)
 #include <string>
 
 #include "trick/VariableReference.hh"
-// #include "trick/ClientConnection.hh"
+#include "trick/ClientConnection.hh"
 #include "trick/variable_server_sync_types.h"
 #include "trick/tc.h"
 #include "trick/variable_server_message_types.h"
@@ -18,7 +18,7 @@ PURPOSE: (Represent the state of a variable server websocket connection.)
 namespace Trick {
     class VariableServerSession {
     public:
-        VariableServerSession(TCDevice * connection);
+        VariableServerSession(ClientConnection * connection);
         ~VariableServerSession();
         void sendMessage();
         int  handleMessage();
@@ -121,266 +121,272 @@ namespace Trick {
         int var_clear() ;
 
         /**
-             @brief @userdesc Turns on validating addresses before they are referenced
-             @par Python Usage:
-             @code trick.var_validate_address() @endcode
-             @return always 0
-            */
-            int var_validate_address(bool on_off) ;
+         @brief @userdesc Turns on validating addresses before they are referenced
+            @par Python Usage:
+            @code trick.var_validate_address() @endcode
+            @return always 0
+        */
+        int var_validate_address(bool on_off) ;
 
-            /**
-             @brief @userdesc Command to instruct the variable server to output debug information.
-             @par Python Usage:
-             @code trick.var_debug(<level>) @endcode
-             @return always 0
-             @param level - 1,2,or 3, higher number increases amount of info output
-            */
-            int var_debug(int level) ;
+        /**
+         @brief @userdesc Command to instruct the variable server to output debug information.
+            @par Python Usage:
+            @code trick.var_debug(<level>) @endcode
+            @return always 0
+            @param level - 1,2,or 3, higher number increases amount of info output
+        */
+        int var_debug(int level) ;
 
-            /**
-             @brief @userdesc Command to instruct the variable server to return values in ASCII format (this is the default).
-             @par Python Usage:
-             @code trick.var_ascii() @endcode
-             @return always 0
-            */
-            int var_ascii() ;
+        /**
+         @brief @userdesc Command to instruct the variable server to return values in ASCII format (this is the default).
+            @par Python Usage:
+            @code trick.var_ascii() @endcode
+            @return always 0
+        */
+        int var_ascii() ;
 
-            /**
-             @brief @userdesc Command to instruct the variable server to return values in binary format.
-             @par Python Usage:
-             @code trick.var_binary() @endcode
-             @return always 0
-            */
-            int var_binary() ;
+        /**
+         @brief @userdesc Command to instruct the variable server to return values in binary format.
+            @par Python Usage:
+            @code trick.var_binary() @endcode
+            @return always 0
+        */
+        int var_binary() ;
 
-            /**
-             @brief @userdesc Command to instruct the variable server to return values in binary format,
-             but saves space in the returned messages
-             by omitting the variable names.
-             @par Python Usage:
-             @code trick.var_binary_nonames() @endcode
-             @return always 0
-            */
-            int var_binary_nonames() ;
+        /**
+         @brief @userdesc Command to instruct the variable server to return values in binary format,
+            but saves space in the returned messages
+            by omitting the variable names.
+            @par Python Usage:
+            @code trick.var_binary_nonames() @endcode
+            @return always 0
+        */
+        int var_binary_nonames() ;
 
-            /**
-             @brief @userdesc Command to tell the server when to copy data
-             - VS_COPY_ASYNC = copies data asynchronously. (default)
-             - VS_COPY_SCHEDULED = copies data as an automatic_last job in main thread
-             - VS_COPY_TOP_OF_FRAME = copies data at top of frame
-             @par Python Usage:
-             @code trick.var_set_copy_mode(<mode>) @endcode
-             @param mode - One of the above enumerations
-             @return 0 if successful, -1 if error
-            */
-            int var_set_copy_mode(int on_off) ;
+        /**
+         @brief @userdesc Command to tell the server when to copy data
+            - VS_COPY_ASYNC = copies data asynchronously. (default)
+            - VS_COPY_SCHEDULED = copies data as an automatic_last job in main thread
+            - VS_COPY_TOP_OF_FRAME = copies data at top of frame
+            @par Python Usage:
+            @code trick.var_set_copy_mode(<mode>) @endcode
+            @param mode - One of the above enumerations
+            @return 0 if successful, -1 if error
+        */
+        int var_set_copy_mode(int on_off) ;
 
-            /**
-             @brief @userdesc Command to tell the server when to copy data
-             - VS_WRITE_ASYNC = writes data asynchronously. (default)
-             - VS_WRITE_WHEN_COPIED = writes data as soon as it's copied from sim
-             @par Python Usage:
-             @code trick.var_set_write_mode(<mode>) @endcode
-             @param mode - One of the above enumerations
-             @return 0 if successful, -1 if error
-            */
-            int var_set_write_mode(int on_off) ;
+        /**
+         @brief @userdesc Command to tell the server when to copy data
+            - VS_WRITE_ASYNC = writes data asynchronously. (default)
+            - VS_WRITE_WHEN_COPIED = writes data as soon as it's copied from sim
+            @par Python Usage:
+            @code trick.var_set_write_mode(<mode>) @endcode
+            @param mode - One of the above enumerations
+            @return 0 if successful, -1 if error
+        */
+        int var_set_write_mode(int on_off) ;
 
-            /**
-             @brief @userdesc Command to put the current variable server/client connection in sync mode,
-             so that values to be sent to the client
-             are guaranteed to be homogenous, that is from the same execution frame (the default is asynchronous).
-             - async/async mode: the variable server thread itself copies the client data,
-               independent of the execution frame so may not be homogenous.
-             - sync/async mode: a variable server automatic_last job retrieves client requested data.
-               Data is sent asynchronously on separate thread.
-             - sync/sync mode: a variable server automatic_last job retrieves client requested data.
-               Data is sent in same automatic_last job.
-             .
-             @par Python Usage:
-             @code trick.var_sync(<on_off>) @endcode
-             @param on_off - 0 = fully asynchronous. 1 = sync data gather, async socket write.
-              2 = sync data gather, sync socket write
-             @return always 0
-            */
-            int var_sync(int on_off) ;
+        /**
+         @brief @userdesc Command to put the current variable server/client connection in sync mode,
+            so that values to be sent to the client
+            are guaranteed to be homogenous, that is from the same execution frame (the default is asynchronous).
+            - async/async mode: the variable server thread itself copies the client data,
+            independent of the execution frame so may not be homogenous.
+            - sync/async mode: a variable server automatic_last job retrieves client requested data.
+            Data is sent asynchronously on separate thread.
+            - sync/sync mode: a variable server automatic_last job retrieves client requested data.
+            Data is sent in same automatic_last job.
+            .
+            @par Python Usage:
+            @code trick.var_sync(<on_off>) @endcode
+            @param on_off - 0 = fully asynchronous. 1 = sync data gather, async socket write.
+            2 = sync data gather, sync socket write
+            @return always 0
+        */
+        int var_sync(int on_off) ;
 
-            /**
-             @brief @userdesc Set the frame multiple
-             @par Python Usage:
-             @code trick.var_set_frame_multiple(<mult>) @endcode
-             @param mult - The requested multiple
-             @return 0
-            */
-            int var_set_frame_multiple(unsigned int mult) ;
+        /**
+         @brief @userdesc Set the frame multiple
+            @par Python Usage:
+            @code trick.var_set_frame_multiple(<mult>) @endcode
+            @param mult - The requested multiple
+            @return 0
+        */
+        int var_set_frame_multiple(unsigned int mult) ;
 
-            /**
-             @brief @userdesc Set the frame offset
-             @par Python Usage:
-             @code trick.var_set_frame_offset(<offset>) @endcode
-             @param offset - The requested offset
-             @return 0
-            */
-            int var_set_frame_offset(unsigned int offset) ;
+        /**
+         @brief @userdesc Set the frame offset
+            @par Python Usage:
+            @code trick.var_set_frame_offset(<offset>) @endcode
+            @param offset - The requested offset
+            @return 0
+        */
+        int var_set_frame_offset(unsigned int offset) ;
 
-            /**
-             @brief @userdesc Set the frame multiple
-             @par Python Usage:
-             @code trick.var_set_freeze_frame_multiple(<mult>) @endcode
-             @param mult - The requested multiple
-             @return 0
-            */
-            int var_set_freeze_frame_multiple(unsigned int mult) ;
+        /**
+         @brief @userdesc Set the frame multiple
+            @par Python Usage:
+            @code trick.var_set_freeze_frame_multiple(<mult>) @endcode
+            @param mult - The requested multiple
+            @return 0
+        */
+        int var_set_freeze_frame_multiple(unsigned int mult) ;
 
-            /**
-             @brief @userdesc Set the frame offset
-             @par Python Usage:
-             @code trick.var_set_freeze_frame_offset(<offset>) @endcode
-             @param offset - The requested offset
-             @return 0
-            */
-            int var_set_freeze_frame_offset(unsigned int offset) ;
+        /**
+         @brief @userdesc Set the frame offset
+            @par Python Usage:
+            @code trick.var_set_freeze_frame_offset(<offset>) @endcode
+            @param offset - The requested offset
+            @return 0
+        */
+        int var_set_freeze_frame_offset(unsigned int offset) ;
 
-            /**
-             @brief @userdesc Command to instruct the variable server to byteswap the return values
-             (only has an effect in var_binary mode).
-             The default is no byteswap - it is assumed server and client are same endianness.
-             If not, the user must issue the var_byteswap command.
-             @par Python Usage:
-             @code trick.var_byteswap(<on_off>) @endcode
-             @param on_off - true (or 1) to byteswap the return data, false (or 0) to return data as is
-             @return always 0
-            */
-            int var_byteswap(bool on_off) ;
+        /**
+         @brief @userdesc Command to instruct the variable server to byteswap the return values
+            (only has an effect in var_binary mode).
+            The default is no byteswap - it is assumed server and client are same endianness.
+            If not, the user must issue the var_byteswap command.
+            @par Python Usage:
+            @code trick.var_byteswap(<on_off>) @endcode
+            @param on_off - true (or 1) to byteswap the return data, false (or 0) to return data as is
+            @return always 0
+        */
+        int var_byteswap(bool on_off) ;
 
-            /**
-             @brief @userdesc Command to turn on variable server logged messages to a playback file.
-             All messages received from all clients will be saved to file named "playback" in the RUN directory.
-             @par Python Usage:
-             @code trick.set_log_on() @endcode
-             @return always 0
-            */
-            int set_log_on() ;
+        /**
+         @brief @userdesc Command to turn on variable server logged messages to a playback file.
+            All messages received from all clients will be saved to file named "playback" in the RUN directory.
+            @par Python Usage:
+            @code trick.set_log_on() @endcode
+            @return always 0
+        */
+        int set_log_on() ;
 
-            /**
-             @brief @userdesc Command to turn off variable server logged messages to a playback file.
-             @par Python Usage:
-             @code trick.set_log_off() @endcode
-             @return always 0
-            */
-            int set_log_off() ;
+        /**
+         @brief @userdesc Command to turn off variable server logged messages to a playback file.
+            @par Python Usage:
+            @code trick.set_log_off() @endcode
+            @return always 0
+        */
+        int set_log_off() ;
 
-            /**
-             @brief Command to send the number of items in the var_add list.
-             The variable server sends a message indicator of "3", followed by the total number of variables being sent.
-            */
-            int send_list_size();
+        /**
+         @brief Command to send the number of items in the var_add list.
+            The variable server sends a message indicator of "3", followed by the total number of variables being sent.
+        */
+        int send_list_size();
 
-            /**
-             @brief Special command to instruct the variable server to send the contents of the S_sie.resource file; used by TV.
-             The variable server sends a message indicator of "2", followed by a tab, followed by the file contents
-             which are then sent as sequential ASCII messages with a maximum size of 4096 bytes each.
-            */
-            int send_sie_resource();
+        /**
+         @brief Special command to instruct the variable server to send the contents of the S_sie.resource file; used by TV.
+            The variable server sends a message indicator of "2", followed by a tab, followed by the file contents
+            which are then sent as sequential ASCII messages with a maximum size of 4096 bytes each.
+        */
+        int send_sie_resource();
 
-            /**
-             @brief Special command to only send the class sie class information
-            */
-            int send_sie_class();
+        /**
+         @brief Special command to only send the class sie class information
+        */
+        int send_sie_class();
 
-            /**
-             @brief Special command to only send the enumeration sie class information
-            */
-            int send_sie_enum();
+        /**
+         @brief Special command to only send the enumeration sie class information
+        */
+        int send_sie_enum();
 
-            /**
-             @brief Special command to only send the top level objects sie class information
-            */
-            int send_sie_top_level_objects();
+        /**
+         @brief Special command to only send the top level objects sie class information
+        */
+        int send_sie_top_level_objects();
 
-            /**
-             @brief Special command to send an arbitrary file through the variable server.
-            */
-            int send_file(std::string file_name);
+        /**
+         @brief Special command to send an arbitrary file through the variable server.
+        */
+        int send_file(std::string file_name);
 
-            /**
-             @brief gets the send_stdio flag.
-            */
-            bool get_send_stdio() ;
+        /**
+         @brief gets the send_stdio flag.
+        */
+        bool get_send_stdio() ;
 
-            /**
-             @brief sets the send_stdio flag.
-            */
-            int set_send_stdio(bool on_off) ;
+        /**
+         @brief sets the send_stdio flag.
+        */
+        int set_send_stdio(bool on_off) ;
 
-            /**
-             @brief @userdesc Command to set the frequencty at which the variable server will send values
-             of variables that have been registered using
-             the var_add command. If var_cycle is not specified, the default cycle is 0.1 seconds.
-             @par Python Usage:
-             @code trick.var_cycle(<in_cycle>) @endcode
-             @param in_cycle - the desired frequency in seconds
-             @return always 0
-            */
-            int var_cycle(double in_cycle) ;
+        /**
+         @brief @userdesc Command to set the frequencty at which the variable server will send values
+            of variables that have been registered using
+            the var_add command. If var_cycle is not specified, the default cycle is 0.1 seconds.
+            @par Python Usage:
+            @code trick.var_cycle(<in_cycle>) @endcode
+            @param in_cycle - the desired frequency in seconds
+            @return always 0
+        */
+        int var_cycle(double in_cycle) ;
 
-            /**
-             @brief Get the pause state of this thread.
-            */
-            bool get_pause() ;
+        /**
+         @brief Get the pause state of this thread.
+        */
+        bool get_pause() ;
 
-            /**
-             @brief Set the pause state of this thread.
-            */
-            void set_pause(bool on_off) ;
+        /**
+         @brief Set the pause state of this thread.
+        */
+        void set_pause(bool on_off) ;
 
-            /**
-             @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
-            */
-            int write_data();
+        /**
+         @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
+        */
+        int write_data();
 
-            /**
-             @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
-            */
-            int write_data(std::vector<VariableReference *>& var) ;
+        /**
+         @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
+        */
+        int write_data(std::vector<VariableReference *>& var) ;
 
-            /**
-             @brief Copy client variable values from Trick memory to each variable's output buffer.
-            */
-            int copy_sim_data();
+        /**
+         @brief Copy client variable values from Trick memory to each variable's output buffer.
+        */
+        int copy_sim_data();
 
-            /**
-             @brief Copy given variable values from Trick memory to each variable's output buffer.
-             cyclical indicated whether it is a normal cyclical copy or a send_once copy
-            */
-            int copy_sim_data(std::vector<VariableReference *>& given_vars, bool cyclical);
+        /**
+         @brief Copy given variable values from Trick memory to each variable's output buffer.
+            cyclical indicated whether it is a normal cyclical copy or a send_once copy
+        */
+        int copy_sim_data(std::vector<VariableReference *>& given_vars, bool cyclical);
 
-            int var_exit();
+        int var_exit();
 
-            int transmit_file(std::string sie_file);
+        int transmit_file(std::string sie_file);
 
-            int copy_data_freeze();
-            int copy_data_freeze_scheduled(long long curr_tics);
-            int copy_data_scheduled(long long curr_tics);
-            int copy_data_top();
+        int copy_data_freeze();
+        int copy_data_freeze_scheduled(long long curr_tics);
+        int copy_data_scheduled(long long curr_tics);
+        int copy_data_top();
 
-            VS_COPY_MODE get_copy_mode();
-        
-            VS_WRITE_MODE get_write_mode();
+        // VS_COPY_MODE get_copy_mode();
+        // VS_WRITE_MODE get_write_mode();
 
-            void disconnect_references();
+        void disconnect_references();
 
-            long long get_next_tics();
+        long long get_next_tics();
 
-            long long get_freeze_next_tics();
+        long long get_freeze_next_tics();
 
-            int freeze_init();
+        int freeze_init();
 
-            double get_update_rate();
+        double get_update_rate();
 
-            int write_binary_data( int Start, char *buf1, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
-            int write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
-            int write_stdio(int stream, std::string text);
+        // These should be private probably
+        int write_binary_data( int Start, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
+        int write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
+        int write_stdio(int stream, std::string text);
+
+        // Is this good design? ¯\_(ツ)_/¯
+        bool should_write_async();
+        bool should_write_sync();
+        bool should_copy_async();
+        bool should_copy_sync();
 
         pthread_mutex_t copy_mutex;
 
@@ -391,11 +397,11 @@ namespace Trick {
         // int sendErrorMessage(const char* fmt, ... );
         // int sendSieMessage(void);
         // int sendUnitsMessage(const char* vname);
-        // ClientConnection * connection;
 
         // These are going to be removed in favor of a more generic object.
-        // TCDevice * listen_dev;          /**<  trick_io(**) */
-        TCDevice * connection;
+        // TCDevice * connection;
+
+        ClientConnection * connection;
         /** The trickcomm device used for the connection to the client.\n */
 
         VariableReference * find_session_variable(std::string name);
@@ -475,11 +481,9 @@ namespace Trick {
 
         int packets_copied;
 
+        // char * incoming_msg;
+        // char * stripped_msg;
 
-        char * incoming_msg;
-        char * stripped_msg;
-
-        static const unsigned int MAX_CMD_LEN = 200000 ;
     };
 }
 

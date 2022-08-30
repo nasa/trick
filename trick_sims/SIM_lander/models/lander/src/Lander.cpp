@@ -12,6 +12,8 @@ LIBRARY DEPENDENCY:
 #define RAD_PER_DEG (M_PI / 180.0)
 #define DEG_PER_RAD (180.0/ M_PI)
 
+int Lander::other() {}
+
 int Lander::default_data() {
 
     pos[0] = 0.0;

@@ -18,6 +18,7 @@ class LanderSimObject : public Trick::SimObject {
         (0.1, "scheduled")          lander.control() ;
         ("integration") trick_ret = lander.state_integ() ;
         ("post_integration") lander.check_ground_contact() ;
+        lander.other() ;
     }
 };
 

@@ -1133,3 +1133,22 @@ object_${TRICK_HOST_CPU}/VariableServerSession.o: VariableServerSession.cpp \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/TrickConstant.hh 
+ object_${TRICK_HOST_CPU}/TCConnection.o: TCConnection.cpp \
+ ${TRICK_HOME}/include/trick/TCConnection.hh \
+ ${TRICK_HOME}/include/trick/ClientConnection.hh \
+ ${TRICK_HOME}/include/trick/VariableServerThread.hh \
+ ${TRICK_HOME}/include/trick/tc.h \
+ ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/VariableReference.hh \
+ ${TRICK_HOME}/include/trick/VariableServerSession.hh \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/variable_server_sync_types.h \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/TrickConstant.hh  \
+ ${TRICK_HOME}/include/trick/tc_proto.h

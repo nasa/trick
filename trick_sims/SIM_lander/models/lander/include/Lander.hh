@@ -66,5 +66,6 @@ class Lander {
         int state_integ();
         int check_ground_contact();
         int control();
+        int other();
 };
 #endif

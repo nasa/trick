@@ -1572,6 +1572,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         @Override
         protected void finished() {
             try {
+                System.out.println("Finished with health status socket channel");
                 if (healthStatusSocketChannel != null) {
                     healthStatusSocketChannel.close() ;
                 }
@@ -1606,7 +1607,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
                     if (statusSimcom != null) {
 
-                        results = statusSimcom.get().split("\t");
+                        String resultsStr = statusSimcom.get();
+                        if (resultsStr == null) 
+                            continue;
+
+                        results = resultsStr.split("\t");
                         ii = 1 ;
 
                         // whenever there is data in statusSimcom socket, do something

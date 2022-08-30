@@ -1,17 +1,36 @@
 /************************************************************************
 PURPOSE: (Abstract base class for a connection to a client. Should
-be used by variable server and web server connections. )
+be inherited by variable server and web server connections. )
 LIBRARY DEPENDENCIES:
     () )
 **************************************************************************/
 
-#include <iostream>
+#ifndef CLIENT_CONNECTION_HH
+#define CLIENT_CONNECTION_HH
+
 #include <string>
+#include <atomic>
 
-class ClientConnection {
-    
-    virtual int initialize() = 0;
-    virtual int write (std::string& message) = 0;
-    virtual int read  (std::string& message) = 0;
+namespace Trick {
+    class ClientConnection {
+        public: 
+            // Should this be here? ¯\_(ツ)_/¯
+            enum ConnectionType { TCP, UDP, MCAST, WS } ;
 
-};
+            virtual int initialize() = 0;
+            virtual int write (std::string& message, int len) = 0;
+            virtual int read  (std::string& message, int len) = 0;
+            virtual int disconnect () = 0;
+            virtual std::string get_client_tag () = 0;
+            virtual int set_client_tag(std::string tag) = 0;
+            
+            static const unsigned int MAX_CMD_LEN = 200000 ;
+
+        protected:
+            ConnectionType _connection_type;
+            std::atomic_bool _is_initialized;
+
+    };
+}
+
+#endif

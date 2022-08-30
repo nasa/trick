@@ -8,6 +8,7 @@ void exit_var_thread(void *in_vst) {
 
     // tc_disconnect(&vst->get_connection());
 
+    vs->delete_session(vst->get_pthread_id());
     // Tell the variable server that this thread is exiting.
     vs->delete_vst(vst->get_pthread_id()) ;
 
