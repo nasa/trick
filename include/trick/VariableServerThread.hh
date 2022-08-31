@@ -116,6 +116,9 @@ namespace Trick {
             bool connection_accepted ;       /**<  trick_io(**) */
 
     } ;
+
+    std::ostream& operator<< (std::ostream& s, VariableServerThread& vst);
+
 }
 
 #endif

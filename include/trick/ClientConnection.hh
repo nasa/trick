@@ -9,7 +9,7 @@ LIBRARY DEPENDENCIES:
 #define CLIENT_CONNECTION_HH
 
 #include <string>
-#include <atomic>
+// #include <atomic>
 
 namespace Trick {
     class ClientConnection {
@@ -28,7 +28,9 @@ namespace Trick {
 
         protected:
             ConnectionType _connection_type;
-            std::atomic_bool _is_initialized;
+
+            // RHEL appears to have an issue with std::atomic
+            // std::atomic_bool _is_initialized;
 
     };
 }
