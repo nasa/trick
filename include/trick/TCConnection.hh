@@ -6,6 +6,7 @@
 
 
 namespace Trick {
+    
     class TCConnection : public ClientConnection {
         public:
 
@@ -33,6 +34,8 @@ namespace Trick {
         private:
             TCDevice _device;
     };
+
+    int accept(TCDevice *listener, TCConnection* connection);
 }
 
 #endif

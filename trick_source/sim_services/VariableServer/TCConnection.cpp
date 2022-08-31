@@ -27,7 +27,7 @@ int Trick::TCConnection::initialize() {
 
 int Trick::TCConnection::write (std::string& message, int len) {
     char send_buf[message.length()+1];
-    std::strcpy (send_buf, message.c_str());
+    strcpy (send_buf, message.c_str());
     int ret = tc_write(&_device, send_buf, len);
     return ret;
 }
@@ -83,7 +83,12 @@ std::string Trick::TCConnection::get_client_tag () {
 
 int Trick::TCConnection::set_client_tag(std::string tag) {
     // Max size of device client tag is 80
-    strlcpy(_device.client_tag, tag.c_str(), 80);
+    
+    // TODO: Make 80 a constant somewhere, probably in TC device
+    if (tag.length() >= 80) {
+        tag.resize(79);
+    }
+    strcpy(_device.client_tag, tag.c_str());
     return 0;
 }
 
