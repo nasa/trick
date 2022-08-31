@@ -110,10 +110,10 @@ void Trick::VariableServerThread::preload_checkpoint() {
     pthread_mutex_lock(&(session->copy_mutex));
 
     // Save the pause state of this thread.
-    saved_pause_cmd = pause_cmd;
+    saved_pause_cmd = session->get_pause();
 
     // Disallow data writing.
-    pause_cmd = true ;
+    session->set_pause(true);
 
     // Temporarily "disconnect" the variable references from Trick Managed Memory
     // by tagging each as a "bad reference".
@@ -127,7 +127,7 @@ void Trick::VariableServerThread::preload_checkpoint() {
 
 void Trick::VariableServerThread::restart() {
     // Set the pause state of this thread back to its "pre-checkpoint reload" state.
-    pause_cmd = saved_pause_cmd ;
+    session->set_pause(saved_pause_cmd) ;
 
     // Restart the variable server processing.
     pthread_mutex_unlock(&restart_pause);

@@ -11,7 +11,7 @@
 
 extern Trick::VariableServer * the_vs ;
 
-int command_debug = 1;
+int command_debug = 0;
 
 Trick::VariableServerThread * get_vst() {
     return the_vs->get_vst(pthread_self()) ;

@@ -83,7 +83,7 @@ void * Trick::VariableServerThread::thread_body() {
             if ( session->should_write_async() ) {
                 
                 // Don't write anything if we are paused
-                if ( !pause_cmd ) {
+                if ( !session->get_pause() ) {
                     int ret = session->write_data() ;
                     if ( ret < 0 ) {
                         break ;

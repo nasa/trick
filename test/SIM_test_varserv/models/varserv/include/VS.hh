@@ -6,6 +6,7 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 ********************************************************************************/
 #include <wchar.h>
 #include <string.h>
+#include <string>
 #include "trick_utils/comm/include/tc.h"
 #include "trick_utils/comm/include/tc_proto.h"
 
@@ -57,7 +58,7 @@ class VSTest {
 
 	private:
 		int get_line(char* thing);
-		int strcmp_IgnoringWhiteSpace(const char* s1, const char* s2);
+		int strcmp_IgnoringWhiteSpace(std::string s1, const char* s2);
 };
 
 #endif

@@ -103,7 +103,7 @@ namespace Trick {
             /** The mutex pauses all processing during checkpoint restart */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */
 
-            bool pause_cmd;
+            // bool pause_cmd;
             bool saved_pause_cmd;
 
             /** The simulation time converted to seconds\n */

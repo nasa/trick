@@ -14,7 +14,8 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 #include "sim_services/VariableServer/include/VariableServer.hh"
 #include "sim_services/UnitTest/include/trick_tests.h"
 
-int VSTest::strcmp_IgnoringWhiteSpace(const char* s1, const char* s2) {
+int VSTest::strcmp_IgnoringWhiteSpace(std::string s1_str, const char* s2) {
+    const char * s1 = s1_str.c_str();
     int i1 = 0;
     int i2 = 0;
 
@@ -37,28 +38,37 @@ int VSTest::testUnits() {
     char msg[256];
     char suite[] = "VariableServerTest";
     int result;
+    std::string expected;
 
     // INVALID UNIT CHANGE
     sprintf(msg,"trick.var_add(\"vsx.vst.c\")\ntrick.var_units(\"vsx.vst.c\",\"g\")\n");
     vs_write(msg);
     std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
+    expected = "0  -1234";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableInvalidUnits")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
 
     // ADD UNITS
     sprintf(msg,"trick.var_add(\"vsx.vst.e\",\"m\")\n");
     vs_write(msg);
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  -1234  -123456 {m}", got_read);
+    expected = "0  -1234  -123456 {m}";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableAddUnits")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     // CHANGE UNITS
     sprintf(msg,"trick.var_units(\"vsx.vst.e\",\"ft\")\n");
     vs_write(msg);
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  -1234  -405039 {ft}", got_read);
+    expected = "0  -1234  -405039 {ft}";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableChangeUnits")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     // CLEAR VARIABLE SERVER
     sprintf(msg,"trick.var_clear()\n");
@@ -74,26 +84,38 @@ int VSTest::testAddRemove() {
     sprintf(msg,"trick.var_add(\"vsx.vst.c\")\n");
     vs_write(msg);
     vs_read();
-    std::cout << got_read << std::endl;
-    result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
+    std::string expected = "0  -1234";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableAddNoUnits")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
+    expected = "0  -1234";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableAddCyclic")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     // REMOVE SINGLE VARIABLE
     sprintf(msg,"trick.var_remove(\"vsx.vst.e\")\n");
     vs_write(msg);
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
+    expected = "0  -1234";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableRemove")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     // CLEAR VARIABLE SERVER
     sprintf(msg,"trick.var_clear()\n");
     vs_write(msg);
     vs_read();
-    TRICK_EXPECT_EQ(strcmp(got_read, ""), 0, suite, "VariableClear")
+    expected = "";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableClear")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     return(0);
 }
@@ -102,51 +124,67 @@ int VSTest::testSendOnce() {
     char msg[256];
     char suite[] = "VariableServerTest";
     int result;
+    std::string expected;
 
     // SEND ONCE
     sprintf(msg,"trick.var_send_once(\"vsx.vst.e\")\n");
     vs_write(msg);
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("5  -123456", got_read);
+
+    expected = "5  -123456";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableSendOnce")
-    trick_test_add_parent( suite , "VariableSendOnce" , "");
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     // SEND ONCE LIST
     sprintf(msg,"trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 3)\n");
     vs_write(msg);
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("5   0   1   2", got_read);
+    expected = "5   0   1   2";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableSendOnceList")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     // SEND ONCE LIST - WRONG INDICES
     sprintf(msg,"trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 4)\n");
     vs_write(msg);
     std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("", got_read);
+    expected = "";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableSendOnceListError")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 }
 
 int VSTest::testExists() {
     char msg[256];
     char suite[] = "VariableServerTest";
     int result;
+    std::string expected;
 
     // VARIABLE EXISTS
     sprintf(msg,"trick.var_exists(\"vsx.vst.e\")\n");
     vs_write(msg);
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("1  1",got_read);
+    expected = "1  1";
+    result = strcmp_IgnoringWhiteSpace(expected,got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableExists")
-    trick_test_add_parent( suite , "VariableExists" , "3587464751");
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     // VARIABLE DOES NOT EXIST
     sprintf(msg,"trick.var_exists(\"vsx.vst.z\")\n");
     vs_write(msg);
     vs_read();
     std::cout << "Check variable doesn't exist: " << got_read << std::endl;
-    result = strcmp_IgnoringWhiteSpace("1  0",got_read);
+    expected = "1  0";
+    result = strcmp_IgnoringWhiteSpace(expected,got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableNotExists")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
+
 
     sprintf(msg,"trick.var_clear()\n");
     vs_write(msg);
@@ -158,6 +196,7 @@ int VSTest::testPause() {
     char msg[256];
     char suite[] = "VariableServerTest";
     int result;
+    std::string expected;
 
     sprintf(msg,"trick.var_add(\"vsx.vst.f\")\n");
     vs_write(msg);
@@ -169,33 +208,40 @@ int VSTest::testPause() {
     vs_write(msg);
     vs_read();
     vs_read();
-    TRICK_EXPECT_EQ(strcmp(got_read, ""), 0, suite, "VariablePause")
-    trick_test_add_parent( suite , "VariablePause" , "964174074");
+    expected = "";
+    result = strcmp(got_read, expected.c_str());
+    TRICK_EXPECT_EQ(result, 0, suite, "VariablePause")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
 
     // SEND
     sprintf(msg,"trick.var_send()\n");
     vs_write(msg);
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  123456  1234.5677", got_read);
+    expected = "0  123456  1234.5677";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableSend")
-    trick_test_add_parent( suite , "VariableSend" , "67211805");
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
 
     vs_read();
-    TRICK_EXPECT_EQ(strcmp(got_read, ""), 0, suite, "VariableSendNoCyclic")
-    trick_test_add_parent( suite , "VariableSendNoCyclic" , "67211805");
+    expected = "";
+    result = strcmp(got_read, expected.c_str());
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableSendNoCyclic")
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
 
     // UNPAUSE
     sprintf(msg,"trick.var_unpause()\n");
     vs_write(msg);
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  123456  1234.5677", got_read);
+    expected = "0  123456  1234.5677";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableUnpause")
-    trick_test_add_parent( suite , "VariableUnpause" , "964174074");
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
 
     vs_read();
-    result = strcmp_IgnoringWhiteSpace("0  123456  1234.5677", got_read);
+    expected = "0  123456  1234.5677";
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableUnpauseCyclic")
-    trick_test_add_parent( suite , "VariableUnpauseCyclic" , "964174074");
+    std::cout << "Actual: " << got_read << "\tExpected: " << expected << std::endl;
 
     sprintf(msg,"trick.var_clear()\n");
     vs_write(msg);

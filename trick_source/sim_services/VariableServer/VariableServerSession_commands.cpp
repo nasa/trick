@@ -92,7 +92,6 @@ int Trick::VariableServerSession::var_units(std::string var_name, std::string un
     // Why did we decide to use a lambda this one time in all of trick
     auto publish = [](MESSAGE_TYPE type, const std::string& message) {
         std::ostringstream oss;
-        oss << "Variable Server: " << message << std::endl;
         message_publish(type, oss.str().c_str());
     };
 
@@ -172,7 +171,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         if (write_string.length() != 5) {
             std::cout << "PROBLEM WITH STRING LENGTH: VAR_EXISTS BINARY" << std::endl;
         }
-        connection->write(write_string, ClientConnection::MAX_CMD_LEN);
+        connection->write(write_string, write_string.length());
     } else {
         /* send ascii "1" or "0" */
         sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
@@ -183,7 +182,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         if (write_string.length() != strlen(buf1)) {
             std::cout << "PROBLEM WITH STRING LENGTH: VAR_EXISTS ASCII" << std::endl;
         }
-        connection->write(write_string, ClientConnection::MAX_CMD_LEN);
+        connection->write(write_string, write_string.length());
     }
 
     return(0) ;
@@ -360,7 +359,7 @@ int Trick::VariableServerSession::send_list_size() {
         if (write_string.length() != 12) {
             std::cout << "PROBLEM WITH STRING LENGTH: SEND_LIST_SIZE BINARY" << std::endl;
         }
-        connection->write(write_string, ClientConnection::MAX_CMD_LEN);
+        connection->write(write_string, write_string.length());
         // tc_write(connection, (char *) buf1, 12);
     } else {
         // ascii
@@ -372,7 +371,7 @@ int Trick::VariableServerSession::send_list_size() {
         if (write_string.length() != strlen(buf1)) {
             std::cout << "PROBLEM WITH STRING LENGTH: SEND_LIST_SIZE ASCII" << std::endl;
         }
-        connection->write(write_string, ClientConnection::MAX_CMD_LEN);
+        connection->write(write_string, write_string.length());
         // tc_write(connection, (char *) buf1, strlen(buf1));
     }
 
