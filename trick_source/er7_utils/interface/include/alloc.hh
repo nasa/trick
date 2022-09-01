@@ -177,7 +177,10 @@ namespace er7_utils {
       template <typename T>
       inline void delete_object (T*& obj) {
          if (obj) {
-            TMM_delete_var_a (type_traits::get_allocated_pointer (obj));
+            if (get_alloc_info_of(obj) != 0x0)
+            {
+               TMM_delete_var_a (type_traits::get_allocated_pointer (obj));
+            }
             obj = 0;
          }
       }

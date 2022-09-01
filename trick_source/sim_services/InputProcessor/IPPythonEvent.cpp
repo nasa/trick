@@ -72,15 +72,31 @@ Trick::IPPythonEvent::IPPythonEvent() {
 
 Trick::IPPythonEvent::~IPPythonEvent() {
 
-    for (int ii=0; ii<condition_count; ii++) {
-        TMM_delete_var_a(condition_list[ii]);
+    if (TMM_is_alloced((char *)condition_list))
+    {
+       for (int ii=0; ii<condition_count; ii++) {
+           if (TMM_is_alloced((char *)condition_list[ii]))
+           {
+              TMM_delete_var_a(condition_list[ii]);
+           }
+           condition_list[ii] = 0x0;
+       }
+       TMM_delete_var_a(condition_list);
     }
-    TMM_delete_var_a(condition_list);
+    condition_list = 0x0;
 
-    for (int ii=0; ii<action_count; ii++) {
-        TMM_delete_var_a(action_list[ii]);
+    if (TMM_is_alloced((char *)action_list))
+    {
+       for (int ii=0; ii<action_count; ii++) {
+           if (TMM_is_alloced((char *)action_list[ii]))
+           {
+              TMM_delete_var_a(action_list[ii]);
+           }
+           action_list[ii] = 0x0;
+       }
+       TMM_delete_var_a(action_list);
     }
-    TMM_delete_var_a(action_list);
+    action_list = 0x0;
 }
 
 void Trick::IPPythonEvent::set_python_processor(Trick::IPPython * in_ip) {
