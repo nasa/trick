@@ -1,4 +1,5 @@
 #include "trick/MulticastManager.hh"
+#include <string.h>
 
 Trick::MulticastManager::MulticastManager() {
     mcast_socket = socket(AF_INET, SOCK_DGRAM, 0);
