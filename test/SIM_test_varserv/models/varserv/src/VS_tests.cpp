@@ -8,6 +8,7 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 *******************************************************************************/
 
 #include <sys/resource.h>
+#include <unistd.h>
 
 #include "../include/VS.hh"
 #include "sim_services/VariableServer/include/variable_server_proto.h"
@@ -35,6 +36,7 @@ int VSTest::strcmp_IgnoringWhiteSpace(std::string s1_str, const char* s2) {
 }
 
 int VSTest::testUnits() {
+    usleep(1000);
     char msg[256];
     char suite[] = "VariableServerTest";
     int result;
@@ -76,6 +78,7 @@ int VSTest::testUnits() {
 }
 
 int VSTest::testAddRemove() {
+    usleep(1000);
     char msg[256];
     char suite[] = "VariableServerTest";
     int result;
@@ -121,6 +124,8 @@ int VSTest::testAddRemove() {
 }
 
 int VSTest::testSendOnce() {
+    usleep(1000);
+
     char msg[256];
     char suite[] = "VariableServerTest";
     int result;
@@ -160,6 +165,8 @@ int VSTest::testSendOnce() {
 }
 
 int VSTest::testExists() {
+    usleep(1000);
+
     char msg[256];
     char suite[] = "VariableServerTest";
     int result;
@@ -193,6 +200,8 @@ int VSTest::testExists() {
 }
 
 int VSTest::testPause() {
+    usleep(1000);
+
     char msg[256];
     char suite[] = "VariableServerTest";
     int result;

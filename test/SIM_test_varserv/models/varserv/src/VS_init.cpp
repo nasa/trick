@@ -10,10 +10,13 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 #include "../include/VS.hh"
 #include "sim_services/VariableServer/include/variable_server_proto.h"
 #include "sim_services/VariableServer/include/VariableServer.hh"
+#include "sim_services/UnitTest/include/trick_tests.h"
 
 int VSTest::init() {
 	char msg[256];
 
+
+	TRICK_EXPECT_EQ(var_server_get_port(), 40000, "VariableServerTest", "SetPortNumber");
 	port_num = var_server_get_port();
 	hostest = "localhost";
 
@@ -22,7 +25,6 @@ int VSTest::init() {
 	comm_device.hostname = const_cast<char*>(hostest);
 	comm_device.port = port_num;
 
-	//std::cout << bob.hostname << bob.port << std::endl;
 
 	comm_device.disable_handshaking = TC_COMM_TRUE;
 	comm_device.disabled = TC_COMM_FALSE;

@@ -20,7 +20,6 @@ namespace Trick {
     public:
         VariableServerSession(ClientConnection * connection);
         ~VariableServerSession();
-        void sendMessage();
         int  handleMessage();
 
         /**
@@ -397,9 +396,6 @@ namespace Trick {
         // int sendErrorMessage(const char* fmt, ... );
         // int sendSieMessage(void);
         // int sendUnitsMessage(const char* vname);
-
-        // These are going to be removed in favor of a more generic object.
-        // TCDevice * connection;
 
         ClientConnection * connection;
         /** The trickcomm device used for the connection to the client.\n */

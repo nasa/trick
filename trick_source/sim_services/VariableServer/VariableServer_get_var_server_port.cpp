@@ -2,14 +2,13 @@
 #include <stdio.h>
 #include "trick/VariableServer.hh"
 
-// this file is bullshit, i dont know what any of this is supposed to be and i hate it
 
 int Trick::VariableServer::create_tcp_socket(const char * address, unsigned short in_port ) {
     Trick::VariableServerListenThread * new_listen_thread = new Trick::VariableServerListenThread ;
     new_listen_thread->create_tcp_socket(address, in_port) ;
     new_listen_thread->copy_cpus(listen_thread.get_cpus()) ;
     new_listen_thread->create_thread() ;
-    additional_listen_threads[new_listen_thread->get_pthread_id()] = new_listen_thread ;
+    // additional_listen_threads[new_listen_thread->get_pthread_id()] = new_listen_thread ;
 
     return 0 ;
 }

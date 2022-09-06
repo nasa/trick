@@ -16,6 +16,7 @@ Trick::VariableServer::VariableServer() :
 }
 
 Trick::VariableServer::~VariableServer() {
+
 }
 
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServer& vs) {
@@ -81,7 +82,9 @@ void Trick::VariableServer::set_var_server_log_off() {
 }
 
 const char * Trick::VariableServer::get_hostname() {
-    return (listen_thread.get_hostname()) ;
+    const char * ret = (listen_thread.get_hostname()) ;
+    std::cout << "VariableServer: " << ret << std::endl;
+    return ret;
 }
 
 Trick::VariableServerListenThread & Trick::VariableServer::get_listen_thread() {

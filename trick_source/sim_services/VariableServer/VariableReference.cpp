@@ -254,8 +254,6 @@ static void write_escaped_string( std::ostream& os, const char* s) {
 void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
     // This is copied and modified from vs_format_ascii
     // There's a lot here that doesn't make sense to me that I need to come back to
-    // Why is everything using cv_convert_double?????
-    // Why would we ever need to use unit conversion on a boolean?
     // There seems to be a huge buffer overflow issue in the original.
     // Only strings are checked for length, arrays aren't
     // But using a stream instead should make that better
@@ -264,110 +262,6 @@ void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
     // std::cout << "Starting writeValueAscii for " << getName() << std::endl;
     int bytes_written = 0;
     void * buf_ptr = write_buffer ;
-
-    // std::cout << "Var should be: " << buf_ptr << std::endl;
-
-//     switch(var_info->attr->type) {
-//         case TRICK_UNSIGNED_CHARACTER:
-//             outs << std::dec << (int)*(unsigned char*)write_buffer ;
-//         break;
-//         case TRICK_BOOLEAN:
-//             if (*(bool*)write_buffer) {
-//                 outs << 1 ;
-//             } else {
-//                 outs << 0 ;
-//             }
-//         break;
-//         case TRICK_CHARACTER:
-//             if (isprint( *(char*)write_buffer) ) {
-//                 outs << *(char*)write_buffer ;
-//             } else {
-//                 unsigned int ch = *(unsigned char*)write_buffer;
-//                   outs << "\\x" << std::hex << ch ;
-//             }
-//         break;
-//         case TRICK_WCHAR:
-//             outs << std::dec << *(wchar_t*)write_buffer;
-//             break;
-//         case TRICK_SHORT:
-//             outs << std::dec << *(short*)write_buffer;
-//             break;
-//         case TRICK_UNSIGNED_SHORT:
-//             outs << std::dec << *(unsigned short*)write_buffer;
-//             break;
-//         case TRICK_ENUMERATED:
-//             outs << std::dec << *(int*)write_buffer;
-//             break;
-//         case TRICK_INTEGER:
-//             outs << std::dec << *(int*)write_buffer;
-//             break;
-//         case TRICK_UNSIGNED_INTEGER:
-//             outs << std::dec << *(unsigned int*)write_buffer;
-//             break;
-//         case TRICK_LONG:
-//             outs << std::dec << *(long*)write_buffer;
-//             break;
-//         case TRICK_UNSIGNED_LONG:
-//             outs << std::dec << *(unsigned long*)write_buffer;
-//             break;
-//         case TRICK_FLOAT:
-//             if (fpclassify( *(float*)write_buffer) != FP_NAN) {
-//                 outs << std::setprecision(8) << *(float*)write_buffer;
-//             } else {
-//                 outs << "NAN";
-//             }
-//             break;
-//         case TRICK_DOUBLE:
-//             if (fpclassify( *(double*)write_buffer) != FP_NAN) {
-//                 outs << std::setprecision(16) << *(double*)write_buffer;
-//             } else {
-//                 outs << "NAN";
-//             }
-//             break;
-// //        case TRICK_BITFIELD: {
-// //                int sbf = 0;
-// //                src_addr = (char*)stageBuffer + offset * (size_t)attr->size;
-// //                if (attr->size == sizeof(int)) {
-// //                     sbf = extract_bitfield_any( *(int*)src_addr, attr->size, attr->index[0].start, attr->index[0].size);
-// //                } else if (attr->size == sizeof(short)) {
-// //                     sbf = extract_bitfield_any( *(short*)src_addr, attr->size, attr->index[0].start, attr->index[0].size);
-// //                } else if (attr->size == sizeof(char)) {
-// //                     sbf = extract_bitfield_any( *(char*)src_addr, attr->size, attr->index[0].start, attr->index[0].size);
-// //                } else {
-// //                     message_publish(MSG_ERROR, "Checkpoint Agent INTERNAL ERROR:\n"
-// //                                                "Unsupported bitfield size (%d) bytes.\n", attr->size) ;
-// //                }
-// //                outs << std::dec << sbf;
-// //            } break;
-// //        case TRICK_UNSIGNED_BITFIELD: {
-// //                int bf = 0;
-// //                src_addr = (char*)stageBuffer + offset * (size_t)attr->size;
-// //                if (attr->size == sizeof(int)) {
-// //                     bf = extract_unsigned_bitfield_any( *(unsigned int*)src_addr, attr->size, attr->index[0].start, attr->index[0].size);
-// //                } else if (attr->size == sizeof(short)) {
-// //                     bf = extract_unsigned_bitfield_any( *(unsigned short*)src_addr, attr->size, attr->index[0].start, attr->index[0].size);
-// //                } else if (attr->size == sizeof(char)) {
-// //                     bf = extract_unsigned_bitfield_any( *(unsigned char*)src_addr, attr->size, attr->index[0].start, attr->index[0].size);
-// //                } else {
-// //                     message_publish(MSG_ERROR, "Checkpoint Agent INTERNAL ERROR:\n"
-// //                                                "Unsupported bitfield size (%d) bytes.\n", attr->size) ;
-// //                }
-// //                outs << std::dec << bf;
-// //            } break;
-//         case TRICK_LONG_LONG:
-//             outs << std::dec << *(long long*)write_buffer;
-//             break;
-//         case TRICK_UNSIGNED_LONG_LONG:
-//             outs << std::dec << *(unsigned long long*)write_buffer;
-//             break;
-//         case TRICK_STRING:
-//             write_escaped_string(outs, (*(std::string*)write_buffer).c_str());
-//             break;
-//         default:
-//             // outs << "\"Error\""; // ERROR
-//             // std::cout << "AAAAHH" << std::endl;
-//             break;
-//     }
 
     while (bytes_written < size) {
         // std::cout << "bytes_written: " << bytes_written << "\tsize: " << size << std::endl;
@@ -545,8 +439,6 @@ void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
             out << " {" << var_info->units << "}";
         }
     }
-
-    // std::cout << "Done with writeValueAscii for " << getName() << std::endl;
 
 }
 

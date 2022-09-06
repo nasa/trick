@@ -9,10 +9,10 @@ int Trick::VariableServer::restart() {
     if ( listen_thread.get_pthread_id() == 0 ) {
         listen_thread.create_thread() ;
     }
-    std::map < pthread_t , VariableServerListenThread * >::iterator it ;
-    for( it = additional_listen_threads.begin() ; it != additional_listen_threads.end() ; it++ ) {
-        (*it).second->restart() ;
-    }
+    // std::map < pthread_t , VariableServerListenThread * >::iterator it ;
+    // for( it = additional_listen_threads.begin() ; it != additional_listen_threads.end() ; it++ ) {
+    //     (*it).second->restart() ;
+    // }
     return 0 ;
 }
 

@@ -7,8 +7,6 @@
 
 
 Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
-    std::cout << "Creating Session" << std::endl;
-
     debug = 0 ;
     enabled = true ;
     log = false ;
@@ -76,10 +74,6 @@ long long Trick::VariableServerSession::get_freeze_next_tics() {
         return TRICK_MAX_LONG_LONG ;
     }
     return freeze_next_tics ;
-}
-
-void Trick::VariableServerSession::sendMessage() {
-
 }
 
 int Trick::VariableServerSession::handleMessage() {

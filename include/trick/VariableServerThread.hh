@@ -16,11 +16,15 @@
 #include "trick/VariableServerSession.hh"
 #include "trick/variable_server_sync_types.h"
 #include "trick/variable_server_message_types.h"
-
+#include "trick/ClientListener.hh"
 
 namespace Trick {
 
     class VariableServer ;
+
+    /** Flag to indicate the connection has been made\n */
+    enum ConnectionStatus { CONNECTION_PENDING, CONNECTION_SUCCESS, CONNECTION_FAIL };
+
 
 /**
   This class provides variable server command processing on a separate thread for each client.
@@ -29,8 +33,6 @@ namespace Trick {
     class VariableServerThread : public Trick::ThreadBase {
 
         public:
-            // Are UDP or MCAST ever actually used?
-
             // Is this ever actually used?
             friend std::ostream& operator<< (std::ostream& s, Trick::VariableServerThread& vst);
 
@@ -38,7 +40,7 @@ namespace Trick {
              @brief Constructor.
              @param listen_dev - the TCDevice set up in listen()
             */
-            VariableServerThread(TCDevice * in_listen_dev ) ;
+            VariableServerThread(ClientListener * in_listen_dev ) ;
 
             virtual ~VariableServerThread() ;
             /**
@@ -52,7 +54,7 @@ namespace Trick {
             /**
              @brief Block until thread has accepted connection
             */
-            void wait_for_accept() ;
+            ConnectionStatus wait_for_accept() ;
 
             /**
              @brief The main loop of the variable server thread that reads and processes client commands.
@@ -82,14 +84,9 @@ namespace Trick {
 
             /** The listen device from the variable server\n */
             // TODO: These should become ClientConnections or TCConnections
-            TCDevice * listen_dev;          /**<  trick_io(**) */
-            // TCDevice connection;          /**<  trick_io(**) */
-
-            
+            // TCDevice * listen_dev;          /**<  trick_io(**) */
+            ClientListener * listener;
             TCConnection connection;
-
-            /** The type of connection we have.\n */
-            // ConnectionType conn_type ;      /**<  trick_io(**) */
 
             /** Value (1,2,or 3) that causes the variable server to output increasing amounts of debug information.\n */
             int debug ;                      /**<  trick_io(**) */
@@ -97,8 +94,10 @@ namespace Trick {
             /** Toggle to enable/disable this variable server thread.\n */
             bool enabled ;                   /**<  trick_io(**) */
 
-            pthread_mutex_t connection_accepted_mutex;
-            pthread_cond_t connection_accepted_cv;
+            ConnectionStatus connection_status ;       /**<  trick_io(**) */
+            pthread_mutex_t connection_status_mutex;
+            pthread_cond_t connection_status_cv;
+
 
             /** The mutex pauses all processing during checkpoint restart */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */
@@ -111,10 +110,6 @@ namespace Trick {
 
             /** Toggle to tell variable server to send data multicast or point to point.\n */
             bool multicast ;                 /**<  trick_io(**) */
-
-            /** Flag to indicate the connection has been made\n */
-            bool connection_accepted ;       /**<  trick_io(**) */
-
     } ;
 
     std::ostream& operator<< (std::ostream& s, VariableServerThread& vst);

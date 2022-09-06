@@ -14,7 +14,8 @@ def main():
 	trick_utest.unit_tests.set_file_name( os.getenv("TRICK_HOME") + "/trick_test/SIM_test_varserv.xml" ) 
 	trick_utest.unit_tests.set_test_name( "VariableServerTest" )
 
-	TRICK_EXPECT_EQ(trick.var_server_get_port(), 40000, "VariableServerTest", "SetPortNumber")
+	# This won't pass, since the port doesn't actually get set until initialization jobs which are run after this
+	# TRICK_EXPECT_EQ(trick.var_server_get_port(), 40000, "VariableServerTest", "SetPortNumber")
 
 	trick.exec_set_terminate_time(3000.0)
 

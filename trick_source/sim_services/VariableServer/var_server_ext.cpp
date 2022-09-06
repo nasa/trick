@@ -456,7 +456,9 @@ extern "C" void var_server_list_connections(void) {
  * C wrapper Trick::VariableServer::get_hostname
  */
 extern "C" const char * var_server_get_hostname(void) {
-    return(the_vs->get_hostname()) ;
+    const char * ret = (the_vs->get_hostname()) ;
+    printf("varserverext:  %s", ret);
+    return ret;
 }
 
 /**

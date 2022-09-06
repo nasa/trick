@@ -1,12 +1,15 @@
 #ifndef TC_CONNECTION_HH
 #define TC_CONNECTION_HH
 
-#include "ClientConnection.hh"
+#include "trick/ClientConnection.hh"
+#include "trick/ClientListener.hh"
 #include "tc.h"
 
 
 namespace Trick {
     
+    class ClientListener;
+
     class TCConnection : public ClientConnection {
         public:
 
@@ -28,14 +31,14 @@ namespace Trick {
             // I think this should be called only by the listener
             // int accept (TCConnection * client);
 
-            friend int accept(TCDevice *listener, TCConnection* connection);
+            friend int accept(ClientListener* listener, TCConnection* connection);
 
 
         private:
             TCDevice _device;
     };
 
-    int accept(TCDevice *listener, TCConnection* connection);
+    int accept(ClientListener* listener, TCConnection* connection);
 }
 
 #endif

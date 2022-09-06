@@ -27,10 +27,21 @@ void * Trick::VariableServerThread::thread_body() {
     //  client gets confirmation that the connection is ready for communication.
     vs->add_vst( pthread_self() , this ) ;
 
-
     // Accept client connection
-    int accept_status = accept(listen_dev, &connection);
-    std::cout << "Tried to accept connection, status: " << accept_status << std::endl;
+    int accept_status = accept(listener, &connection);
+    if (accept_status != 0) {
+        // TODO: Use a real error handler
+        std::cout << "Accept failed, variable server session exiting" << std::endl;
+        vs->delete_vst(pthread_self());
+
+        // Tell main thread that we failed to initialize
+        pthread_mutex_lock(&connection_status_mutex);
+        connection_status = CONNECTION_FAIL;
+        pthread_cond_signal(&connection_status_cv);
+        pthread_mutex_unlock(&connection_status_mutex);
+
+        pthread_exit(NULL);
+    }
 
     connection.setBlockMode(TC_COMM_ALL_OR_NOTHING);
 
@@ -39,10 +50,10 @@ void * Trick::VariableServerThread::thread_body() {
     vs->add_session( pthread_self(), session );
 
     // Tell main that we are ready
-    pthread_mutex_lock(&connection_accepted_mutex);
-    connection_accepted = true;
-    pthread_cond_signal(&connection_accepted_cv);
-    pthread_mutex_unlock(&connection_accepted_mutex);
+    pthread_mutex_lock(&connection_status_mutex);
+    connection_status = CONNECTION_SUCCESS;
+    pthread_cond_signal(&connection_status_cv);
+    pthread_mutex_unlock(&connection_status_mutex);
 
 
     pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) ;
@@ -70,7 +81,6 @@ void * Trick::VariableServerThread::thread_body() {
 
             // Check to see if exit is necessary
             if (session->exit_cmd == true) {
-                std::cout << "Got exit command for client " << connection.get_client_tag() << std::endl;
                 break;
             }
 
@@ -79,15 +89,11 @@ void * Trick::VariableServerThread::thread_body() {
                 session->copy_sim_data() ;
             }
 
-            // Write data out to connection if async mode
-            if ( session->should_write_async() ) {
-                
-                // Don't write anything if we are paused
-                if ( !session->get_pause() ) {
-                    int ret = session->write_data() ;
-                    if ( ret < 0 ) {
-                        break ;
-                    }
+            // Write data out to connection if async mode and not paused
+            if ( session->should_write_async() && !session->get_pause()) {
+                int ret = session->write_data() ;
+                if ( ret < 0 ) {
+                    break ;
                 }
             }
             pthread_mutex_unlock(&restart_pause) ;

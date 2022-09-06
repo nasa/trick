@@ -782,6 +782,8 @@ object_${TRICK_HOST_CPU}/VariableServerListenThread.o: VariableServerListenThrea
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
+ ${TRICK_HOME}/include/trick/ClientListener.hh \
+ ${TRICK_HOME}/include/trick/MulticastManager.hh \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
  ${TRICK_HOME}/include/trick/VariableServerThread.hh \
  ${TRICK_HOME}/include/trick/VariableReference.hh \
@@ -1136,6 +1138,7 @@ object_${TRICK_HOST_CPU}/VariableServerSession.o: VariableServerSession.cpp \
  object_${TRICK_HOST_CPU}/TCConnection.o: TCConnection.cpp \
  ${TRICK_HOME}/include/trick/TCConnection.hh \
  ${TRICK_HOME}/include/trick/ClientConnection.hh \
+ ${TRICK_HOME}/include/trick/ClientListener.hh \
  ${TRICK_HOME}/include/trick/VariableServerThread.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -1151,4 +1154,16 @@ object_${TRICK_HOST_CPU}/VariableServerSession.o: VariableServerSession.cpp \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h \
  ${TRICK_HOME}/include/trick/TrickConstant.hh  \
+ ${TRICK_HOME}/include/trick/tc_proto.h
+object_${TRICK_HOST_CPU}/ClientListener.o: ClientListener.cpp \
+ ${TRICK_HOME}/include/trick/TCConnection.hh \
+ ${TRICK_HOME}/include/trick/ClientConnection.hh \
+ ${TRICK_HOME}/include/trick/ClientListener.hh \
+ ${TRICK_HOME}/include/trick/tc.h \
+ ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
+ ${TRICK_HOME}/include/trick/tc_proto.h
+ object_${TRICK_HOST_CPU}/MulticastManager.o: MulticastManager.cpp \
+ ${TRICK_HOME}/include/trick/MulticastManager.hh \
+ ${TRICK_HOME}/include/trick/tc.h \
+ ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
  ${TRICK_HOME}/include/trick/tc_proto.h

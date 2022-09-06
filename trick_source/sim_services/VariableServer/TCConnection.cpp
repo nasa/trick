@@ -6,9 +6,9 @@
 
 Trick::TCConnection::TCConnection () {}
 
-int Trick::accept(TCDevice *listener, Trick::TCConnection *connection) {
-    if ( listener->socket_type == SOCK_STREAM ) {
-        return tc_accept(listener, &(connection->_device));        
+int Trick::accept(ClientListener *listener, Trick::TCConnection *connection) {
+    if ( listener->_listen_dev.socket_type == SOCK_STREAM ) {
+        return tc_accept(&(listener->_listen_dev), &(connection->_device));        
     }
 
     return 0;

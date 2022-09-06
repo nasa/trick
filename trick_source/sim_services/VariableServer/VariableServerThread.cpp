@@ -7,18 +7,16 @@
 
 Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 
-Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
+Trick::VariableServerThread::VariableServerThread(ClientListener * in_listen_dev) :
  Trick::ThreadBase("VarServer") ,
- listen_dev(in_listen_dev), session(NULL) {
+ listener(in_listen_dev), session(NULL) {
 
-    std::cout << "Creating VST" << std::endl;
-
-    connection_accepted = false ;
+    connection_status = CONNECTION_PENDING ;
 
     connection.initialize();
 
-    pthread_mutex_init(&connection_accepted_mutex, NULL);
-    pthread_cond_init(&connection_accepted_cv, NULL);
+    pthread_mutex_init(&connection_status_mutex, NULL);
+    pthread_cond_init(&connection_status_cv, NULL);
 
     pthread_mutex_init(&restart_pause, NULL);
 
@@ -82,24 +80,20 @@ void Trick::VariableServerThread::set_client_tag(std::string tag) {
     connection.set_client_tag(tag);
 }
 
+Trick::ConnectionStatus Trick::VariableServerThread::wait_for_accept() {
 
-
-// TCDevice & Trick::VariableServerThread::get_connection() {
-//     return connection ;
-// }
-
-void Trick::VariableServerThread::wait_for_accept() {
-
-    pthread_mutex_lock(&connection_accepted_mutex);
-    while ( connection_accepted == false ) {
-        pthread_cond_wait(&connection_accepted_cv, &connection_accepted_mutex);
+    pthread_mutex_lock(&connection_status_mutex);
+    while ( connection_status == CONNECTION_PENDING ) {
+        pthread_cond_wait(&connection_status_cv, &connection_status_mutex);
     }
-    pthread_mutex_unlock(&connection_accepted_mutex);
+    pthread_mutex_unlock(&connection_status_mutex);
 
+    return connection_status;
 }
 
 // This should maybe go somewhere completely different
 // Leaving it in thread for now
+// Gets called from the main thread as a job
 void Trick::VariableServerThread::preload_checkpoint() {
 
     // Stop variable server processing at the top of the processing loop.
@@ -125,6 +119,7 @@ void Trick::VariableServerThread::preload_checkpoint() {
 
 }
 
+// Gets called from the main thread as a job
 void Trick::VariableServerThread::restart() {
     // Set the pause state of this thread back to its "pre-checkpoint reload" state.
     session->set_pause(saved_pause_cmd) ;
