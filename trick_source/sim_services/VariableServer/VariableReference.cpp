@@ -339,7 +339,12 @@ void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
 
 #if ( __linux | __sgi )
         case TRICK_BOOLEAN:
-            out << (unsigned char)cv_convert_double(conversion_factor,*(unsigned char *)buf_ptr);
+            // out << (unsigned char)cv_convert_double(conversion_factor,*(unsigned char *)buf_ptr);
+            if (*(bool *) buf_ptr) {
+                out << 1;
+            } else {
+                out << 0;
+            }
             break;
 #endif
 
