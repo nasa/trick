@@ -23,6 +23,7 @@ namespace Trick {
             virtual int disconnect () = 0;
             virtual std::string get_client_tag () = 0;
             virtual int set_client_tag(std::string tag) = 0;
+            virtual int setBlockMode (int mode) = 0;
             
             static const unsigned int MAX_CMD_LEN = 200000 ;
 

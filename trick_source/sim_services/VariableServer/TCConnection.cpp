@@ -97,8 +97,8 @@ int Trick::TCConnection::disconnect () {
     return tc_disconnect(&_device);
 }
 
-int Trick::TCConnection::setBlockMode(TCCommBlocking block_mode) {
-    return tc_blockio(&_device, block_mode);
+int Trick::TCConnection::setBlockMode(int block_mode) {
+    return tc_blockio(&_device, (TCCommBlocking)block_mode);
 }
 
 int Trick::TCConnection::setErrorReporting (bool on) {

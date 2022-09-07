@@ -181,17 +181,18 @@ int Trick::VariableServerSession::write_binary_data( int Start, const std::vecto
 
 int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type ) {
 
+
     // Load everything into a stringstream
     std::stringstream message_stream ;
     message_stream.clear();
 
     // Load message type first
-    message_stream << (int)message_type << '\t';
+    message_stream << (int)message_type;
 
     // Load each variable
     for (int i = 0; i < given_vars.size(); i++) {
-        given_vars[i]->writeValueAscii(message_stream);
         message_stream << '\t';
+        given_vars[i]->writeValueAscii(message_stream);
     }
 
     // End with newline

@@ -363,7 +363,7 @@ int Trick::VariableServerSession::send_list_size() {
         // tc_write(connection, (char *) buf1, 12);
     } else {
         // ascii
-        sprintf(buf1, "%d\t%d\n", VS_LIST_SIZE, var_count);
+        sprintf(buf1, "%d\t%d\n\0", VS_LIST_SIZE, var_count);
         if (debug >= 2) {
             // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", &connection, connection.client_tag, buf1) ;
         }
@@ -372,85 +372,86 @@ int Trick::VariableServerSession::send_list_size() {
             std::cout << "PROBLEM WITH STRING LENGTH: SEND_LIST_SIZE ASCII" << std::endl;
         }
         connection->write(write_string, write_string.length());
-        // tc_write(connection, (char *) buf1, strlen(buf1));
     }
 
     return 0 ;
 }
 
-// TODO: all this file stuff
-
 int Trick::VariableServerSession::transmit_file(std::string sie_file) {
-    // const unsigned int packet_size = 4095 ;
-    // FILE * fp ;
-    // unsigned int file_size ;
-    // unsigned int current_size = 0 ;
-    // unsigned int bytes_read ;
-    // char buffer[packet_size] ;
-    // int ret ;
+    const unsigned int packet_size = 4095 ;
+    FILE * fp ;
+    unsigned int file_size ;
+    unsigned int current_size = 0 ;
+    unsigned int bytes_read ;
+    char buffer[packet_size] ;
+    int ret ;
 
-    // if (debug >= 2) {
-    //     // message_publish(MSG_DEBUG,"%p tag=<%s> var_server opening %s.\n", &connection, connection.client_tag, sie_file.c_str()) ;
-    // }
+    if (debug >= 2) {
+        message_publish(MSG_DEBUG,"%p tag=<%s> var_server opening %s.\n", connection, connection->get_client_tag().c_str(), sie_file.c_str()) ;
+    }
 
-    // if ((fp = fopen(sie_file.c_str() , "r")) == NULL ) {
-    //     message_publish(MSG_ERROR,"Variable Server Error: Cannot open %s.\n", sie_file.c_str()) ;
-    //     sprintf(buffer, "%d\t-1\n", VS_SIE_RESOURCE) ;
-    //     // tc_write(&connection , buffer , strlen(buffer)) ;
-    //     return(-1) ;
-    // }
+    if ((fp = fopen(sie_file.c_str() , "r")) == NULL ) {
+        message_publish(MSG_ERROR,"Variable Server Error: Cannot open %s.\n", sie_file.c_str()) ;
+        sprintf(buffer, "%d\t-1\n", VS_SIE_RESOURCE) ;
+        std::string message(buffer);
+        connection->write(message, message.length());
+        return(-1) ;
+    }
 
-    // fseek(fp , 0L, SEEK_END) ;
-    // file_size = ftell(fp) ;
+    fseek(fp , 0L, SEEK_END) ;
+    file_size = ftell(fp) ;
 
-    // sprintf(buffer, "%d\t%u\n" , VS_SIE_RESOURCE, file_size) ;
-    // // tc_write(&connection , buffer , strlen(buffer)) ;
-    // rewind(fp) ;
+    sprintf(buffer, "%d\t%u\n\0" , VS_SIE_RESOURCE, file_size) ;
+    std::string message(buffer);
+    connection->write(message, message.length());
+    rewind(fp) ;
 
-    // // Switch to blocking writes since this could be a large transfer.
-    // // if (tc_blockio(&connection, TC_COMM_BLOCKIO)) {
-    // //     message_publish(MSG_DEBUG,"Variable Server Error: Failed to set TCDevice to TC_COMM_BLOCKIO.\n");
-    // // }
+    // Switch to blocking writes since this could be a large transfer.
+    if (connection->setBlockMode(TC_COMM_BLOCKIO)) {
+        message_publish(MSG_DEBUG,"Variable Server Error: Failed to set TCDevice to TC_COMM_BLOCKIO.\n");
+    }
 
-    // while ( current_size < file_size ) {
-    //     bytes_read = fread(buffer , 1 , packet_size , fp) ;
-    //     // ret = tc_write(&connection , buffer , bytes_read ) ;
-    //     if (ret != (int)bytes_read) {
-    //         message_publish(MSG_ERROR,"Variable Server Error: Failed to send SIE file.\n", sie_file.c_str()) ;
-    //         return(-1);
-    //     }
-    //     current_size += bytes_read ;
-    // }
+    while ( current_size < file_size ) {
+        bytes_read = fread(buffer , 1 , packet_size , fp) ;
+        std::string message(buffer);
+        message.resize(bytes_read);
+        ret = connection->write(message, bytes_read);
+        if (ret != (int)bytes_read) {
+            message_publish(MSG_ERROR,"Variable Server Error: Failed to send SIE file. Bytes read: %d Bytes sent: %d\n", bytes_read, ret) ;
+            return(-1);
+        }
+        current_size += bytes_read ;
+    }
 
-    // // Switch back to non-blocking writes.
-    // // if (tc_blockio(&connection, TC_COMM_NOBLOCKIO)) {
-    // //     message_publish(MSG_ERROR,"Variable Server Error: Failed to set TCDevice to TC_COMM_NOBLOCKIO.\n");
-    // //     return(-1);
-    // // }
+    // Switch back to non-blocking writes.
+    if (connection->setBlockMode(TC_COMM_NOBLOCKIO)) {
+        message_publish(MSG_ERROR,"Variable Server Error: Failed to set TCDevice to TC_COMM_NOBLOCKIO.\n");
+        return(-1);
+    }
 
-    // return(0) ;
+    return(0) ;
 }
 
 int Trick::VariableServerSession::send_file(std::string file_name) {
-    // return transmit_file(file_name) ;
+    return transmit_file(file_name) ;
 }
 
 int Trick::VariableServerSession::send_sie_resource() {
-    // sie_append_runtime_objs() ;
-    // return transmit_file(std::string(command_line_args_get_default_dir()) + "/S_sie.resource") ;
+    sie_append_runtime_objs() ;
+    return transmit_file(std::string(command_line_args_get_default_dir()) + "/S_sie.resource") ;
 }
 
 int Trick::VariableServerSession::send_sie_class() {
-    // sie_class_attr_map_print_xml() ;
-    // return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_class.xml") ;
+    sie_class_attr_map_print_xml() ;
+    return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_class.xml") ;
 }
 
 int Trick::VariableServerSession::send_sie_enum() {
-    // sie_enum_attr_map_print_xml() ;
-    // return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_enum.xml") ;
+    sie_enum_attr_map_print_xml() ;
+    return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_enum.xml") ;
 }
 
 int Trick::VariableServerSession::send_sie_top_level_objects() {
-    // sie_top_level_objects_print_xml() ;
-    // return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_top_level_objects.xml") ;
+    sie_top_level_objects_print_xml() ;
+    return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_top_level_objects.xml") ;
 }

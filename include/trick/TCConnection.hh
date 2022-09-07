@@ -22,7 +22,7 @@ namespace Trick {
             std::string get_client_tag () override;
             int set_client_tag(std::string tag) override;
 
-            int setBlockMode(TCCommBlocking block_mode);
+            int setBlockMode(int block_mode) override;
             int setErrorReporting (bool on);
 
             static const unsigned int MAX_CMD_LEN = 200000 ;
