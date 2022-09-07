@@ -49,3 +49,13 @@ else :
    print('==================================================================================')
    print('Unable to open web panel. Please update the browser client path in input file')
    print('==================================================================================')
+
+#rickView_cmd = "trick-tv --port" + web.server.port;
+
+#if (os.path.isfile(BrowserClient_path)):
+#    print(TrickView_cmd)
+#    os.system(TrickView_cmd);
+#else :
+#   print('==================================================================================')
+#   print('Unable to open Trick View. Please update the browser client path in input file')
+#   print('==================================================================================')

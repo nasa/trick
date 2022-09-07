@@ -7,45 +7,43 @@
 <body>
     <!--START OF GRID LAYOUT -->
     <div id="parent"> 
+        <!-- Header Section -->
         <header id="headerchild">
-            <img src="../images/trick.png" id="trickpic">
             <h1>Sim Control</h1>
+
+            <div id="headerdiv">
+           <img src="../images/trick.png" id="trickpic">
+           <!-- Start of dropdown menu -->
+           <div class="dropdown">
+            <button class="dropbtn"><u>A</u>ctions</button>
+            <div class="dropdown-content">
+                <button id="f-at">Freeze At...</button>
+                <button id="f-in">Freeze In...</button>
+                <button id="throttle">Throttle...</button>
+                <button id="objects">Checkpoint Objects</button>
+                <button id="TV">Trick View</button>
+                <button id="MTV">Event/Malfunction TV</button>
+            </div>
+        </div>
+           <!-- Section for font changer -->
+            <div id="selectfont">
             <label>Font:  </label>
-            <select onchange="changeFont(this)">
+            <select onchange="changeFontType(this)">
                 <option value="arial">Arial</option>
                 <option value="serif">Serif</option>
                 <option value="sans-serif">Sans-serif</option>
                 <option value="system-ui">System-ui</option>
                 <option value="monospace">Monospace</option>
             </select>
-            <label>Size:  </label>
-            <select onchange="changeFont(this)">
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-            </select>
-            <input type="range" min="1.0" max="100" id="throttle">
-            <hr id="line">
+            </div>
+            </div>
+            <hr id="line"> 
         </header> 
+        <!-- Connection Status Section -->
         <div id="connectionchild">
             <h2 id="isconnected">No connection</h2>
-        </div>
-       <!-- <div id="fontchild"> 
-            <select onchange="changeFont(this)">
-                <option value="arial">Arial</option>
-                <option value="serif">Serif</option>
-                <option value="sans-serif">Sans-serif</option>
-                <option value="system-ui">System-ui</option>
-                <option value="monospace">Monospace</option>
-            </select>
-            <label>Font:  </label>
-            <select onchange="changeFont(this)">
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-            </select>
-            <label>Size:  </label>
-        </div>-->
+        </div>.
+        <!-- Variable Table Section -->
         <div id="tablechild"> 
             <table class="variables">
                 <h2>Simulation Variable Table</h2>
@@ -55,6 +53,7 @@
                     </tr> 
             </table>
         </div>
+        <!-- Mode Status Section -->
         <div id="modechild">
         <table class="modebar">
             <tr>
@@ -62,10 +61,10 @@
                 <tr>
                     <td class="output">0%</td>
                 </tr>
-                
             </tr>
         </table>
         </div>
+        <!-- Button Section -->
         <div id="buttonchild" >
             <table class="buttontable">
        
@@ -88,21 +87,12 @@
                 </tr>
                 <tr>
                  
-                    <td class="cmdbtn" colspan="2"><button onclick="window.close()" class="cmdbtn" id="exit">E<u>x</u>it</button></td> 
+                    <td class="cmdbtn" colspan="2"><button class="cmdbtn" id="exit">E<u>x</u>it</button></td> 
                 </tr>
            
             </table>
         </div>
-       <!-- <div id="barchild">
-            
-            <table id="bartable">
-                <th class="bartable"><button class="barbtn"></button>Trick View</th>
-                <th class="bartable"><button class="barbtn"></button>MTV</th>
-                <th class="bartable"><button class="barbtn"></button>Throttle</th>
-            </table>
-            -->
-           <!-- <hr id="line">
-        </div> -->
+        <!-- Bottom Section below Buttons -->
         <div id="bottomchild">
             <table  class="bottomtable"> 
                 <tr> 
@@ -120,6 +110,7 @@
                 </tr>
             </table>
         </div>
+        <!-- Time Section -->
         <div id="timechild">
             <table id="timetable">
                 <tr>
@@ -134,260 +125,248 @@
                 <tr>
                     <th>Sim / Real Time</th>
                 </tr>
-                    <td class="output">1</td>
+                    <td class="output" id="ratio">0</td>
             </table>
         </div>
     </div>
+</body>
+    <script id="output">
+        /*function throttleSlider(value){
+        var newRatio = document.getElementById("throttle").value;
+        document.getElementById("slidervalue").innerHTML = newRatio;
+        sendMessage(`{"cmd": "python", "pycode": "trick.real_time_set_rt_clock_ratio(${newRatio})"}`);
+        } */
+        function log(s) {
+            var p = document.createElement("p");
+            p.style.wordWrap = "break-word";
+            p.textContent = s;
+            output.appendChild(p);
+        }
+        function sendMessage(msg) {
+            ws.send(msg);
+            log("Sent : " + msg);
+        }
+        // Interface to Trick WebSocket Variable Server
+        function setPeriod(period) {
+            sendMessage(`{"cmd":"var_cycle","period":${period}}`);
+        }
+        function addVarTableRow(name, value) {
+            // create a row in the table that contains two <td>s, one for the var_name and one for its value.
+            let tr = document.createElement('tr');  
+            let td1 = document.createElement('td');
+            td1.textContent = `${name}`;
+            let td2 = document.createElement('td');
+            td2.textContent = `${value}`;
+            td2.className = "values";
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            varTable.appendChild(tr);
+        }
+        function addVariable(name, value) {
+            sendMessage(`{"cmd":"var_add","var_name": "${name}"}`);
+            addVarTableRow(name, value);
+        }
+        // Functions for buttons
+        document.getElementById("exit").onclick = function exitSIM(){
+            window.close();
+        }
+        document.getElementById("shutdown").onclick = function shutdownSIM(){
+            sendMessage(`{"cmd": "python", "pycode": "trick.stop()"}`);
+        }
+        document.getElementById("start").onclick = function startSIM(){
+            sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
+        }
+        document.getElementById("freeze").onclick = function freezeSIM(){
+            sendMessage(`{"cmd": "python", "pycode": "trick.exec_freeze()"}`);
+            sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_off()"}`);
+        }
+        document.getElementById("step").onclick = function stepSIM(){
+            sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_on()"}`);
+            sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
+            sendMessage(`{"cmd": "python", "pycode": "trick.debug_signal()"}`);
+        }
+        // Sets the data recording on by default
+        document.getElementById("data").checked = true;
+        document.getElementById("data").onclick =function dataRecordSim(){
+            var dataRecButton = document.getElementById("data");
+            if (dataRecButton.checked == false){
+                dataRecButton.innerText = "Data Rec On";
+                sendMessage(`{"cmd": "python", "pycode": "trick.dr_enable()"}`);
+                dataRecButton.checked = true;
+            } else {
+                dataRecButton.innerText = "Data Rec Off";
+                sendMessage(`{"cmd": "python", "pycode": "trick.dr_disable()"}`);
+                dataRecButton.checked = false;
+            }
+        }
+        // Sets  realtime on by default
+        document.getElementById("realtime").checked = true;
+        document.getElementById("realtime").onclick =function realtimeSim(){
+            var realtimeButton = document.getElementById("realtime");
+            if (realtimeButton.checked == false){
+            realtimeButton.innerText = "RealTime On";
+            sendMessage(`{"cmd": "python", "pycode": "trick.real_time_enable()"}`);
+            realtimeButton.checked = true;
+            document.querySelector("#step").disabled = false;
 
-    <!--START OF JAVASCRIPT-->
-    <div id="output">
-        <script type="text/javascript">
-          //  var simInfo = new Object();
-            function log(s) {
-               var p = document.createElement("p");
-                p.style.wordWrap = "break-word";
-                p.textContent = s;
-                output.appendChild(p);
+            } else {
+            realtimeButton.innerText = "RealTime Off";
+            sendMessage(`{"cmd": "python", "pycode": "trick.real_time_disable()"}`);
+            realtimeButton.checked = false;
+            document.querySelector("#step").disabled = true;
             }
-            function sendMessage(msg) {
-                ws.send(msg);
-                log("Sent : " + msg);
-            }
-            // Interface to Trick WebSocket Variable Server
-            function setPeriod(period) {
-                sendMessage(`{"cmd":"var_cycle","period":${period}}`);
-            }
-            function addVarTableRow(name, value) {
-                // create a row in the table that contains two <td>s, one for the var_name and one for its value.
-                let tr = document.createElement('tr');  
-                let td1 = document.createElement('td');
-                td1.textContent = `${name}`;
-                let td2 = document.createElement('td');
-                td2.textContent = `${value}`;
-                td2.className = "values";
-                tr.appendChild(td1);
-                tr.appendChild(td2);
-                varTable.appendChild(tr);
-            }
-            function addVariable(name, value) {
-                sendMessage(`{"cmd":"var_add","var_name": "${name}"}`);
-                addVarTableRow(name, value);
-            }
-           
-            // Button Functions
-            document.getElementById("shutdown").onclick = function shutdownSIM(){
-                sendMessage(`{"cmd": "python", "pycode": "trick.stop()"}`);
-            }
-            document.getElementById("start").onclick = function startSIM(){
-                sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
-            }
-            document.getElementById("freeze").onclick = function freezeSIM(){
-                sendMessage(`{"cmd": "python", "pycode": "trick.exec_freeze()"}`);
-                sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_off()"}`);
-            }
-            document.getElementById("step").onclick = function stepSIM(){
-                sendMessage(`{"cmd": "python", "pycode": "trick.debug_pause_on()"}`);
-                sendMessage(`{"cmd": "python", "pycode": "trick.exec_run()"}`);
-                sendMessage(`{"cmd": "python", "pycode": "trick.debug_signal()"}`);
-            }
-            // Sets the data rec and real time on by default 
-            document.getElementById("data").checked = true;
-            document.getElementById("data").onclick =function dataRecordSim(){
-                var dataRecButton = document.getElementById("data");
-                if (dataRecButton.checked == false){
-                    dataRecButton.innerText = "Data Rec On";
-                    sendMessage(`{"cmd": "python", "pycode": "trick.dr_enable()"}`);
-                    dataRecButton.checked = true;
-                } else {
-                    dataRecButton.innerText = "Data Rec Off";
-                    sendMessage(`{"cmd": "python", "pycode": "trick.dr_disable()"}`);
-                    dataRecButton.checked = false;
-                }
-            }
-
-            document.getElementById("realtime").checked = true;
-            document.getElementById("realtime").onclick =function realtimeSim(){
-                var realtimeButton = document.getElementById("realtime");
-              
-              
-                if (realtimeButton.checked == false){
-                  realtimeButton.innerText = "RealTime On";
-                  sendMessage(`{"cmd": "python", "pycode": "trick.real_time_enable()"}`);
-                  realtimeButton.checked = true;
-                  document.querySelector("#step").disabled = false;
-
-                } else {
-                  realtimeButton.innerText = "RealTime Off";
-                  sendMessage(`{"cmd": "python", "pycode": "trick.real_time_disable()"}`);
-                  realtimeButton.checked = false;
-                  document.querySelector("#step").disabled = true;
-
-                }
-            }
-            // Creates object for sim information such as time and directory
-            // Set sim time, directory, mode, and port 
-            var simInfo = new Object();
-            function setSimTime(t){
-                simInfo.time = t.toFixed(2);
-                document.getElementById("RET").innerHTML = simInfo.time;
-            }
-            function setSimDir (r,d){
-                simInfo.dir = d + "/" + r;
-               // console.log(simInfo.dir);
-                document.getElementById("path").innerHTML = simInfo.dir;
-            }
-            function setSimMode(m){
-                simInfo.mode = m;
-               document.querySelector(".cmdbtn").disabled = false;
-                // everything is originally enabled 
-                switch (m){
-                    case '0':
-                        document.getElementById("modeheader").innerText = "Initialization Mode";
-                       // document.querySelector(".cmdbtn").disabled = false;
-                        document.querySelector("#freeze").disabled = true;
-                        document.querySelector("#exit").disabled = true;
-                    break;
-                    case '1':
-                        document.getElementById("modeheader").innerText = "Freeze Mode";
-                        document.querySelector(".cmdbtn").disabled = false;
-                        document.getElementById("statusmsg").innerHTML = "Freeze On";
-                        
-                       // document.querySelector("#freeze").disabled = true;
-                      //  document.querySelector("#exit").disabled = true;
-                    break;
-                    case '4':
-                        document.getElementById("modeheader").innerText = "Debug Stepping Mode";
-                        document.querySelector("#start").disabled = true;
-                        document.querySelector("#shutdown").disabled = true;
-                        document.querySelector("#load").disabled = true;
-                        document.querySelector("#realtime").disabled = true;
-                        document.querySelector("#data").disabled = true;
-                        document.getElementById("statusmsg").innerText = "Freeze On";
-                    break;
-                    case '5':
-                        document.getElementById("modeheader").innerText = "Run Mode";
-                        document.querySelector("#freeze").disabled = false;
-                        document.getElementById("statusmsg").innerText = "Freeze Off";
-                    break;
-                    case '6': 
-                        document.getElementById("modeheader").innerText = "Exit Mode";
-                        
-                    break;
-                    default:
-                        document.getElementById("modeheader").innerText = "N/A";
-                        
-                        break;
-                }
-                document.querySelector(".cmdbtn").disabled = false;
-            }
-            function setServerPort(p){
-                simInfo.port = p;
-                document.getElementById("isconnected").innerHTML = "Connection established on port " + simInfo.port;
-
-            }
-            /*
-            function changeServerPort(){
-                var newPort = prompt("Enter new port: ");
-            }
-            */
-            document.getElementById("load").onclick = function loadChkpnt (){
-                var file = prompt("Enter file to load: ", "chkpnt_" + simInfo.time);
-                sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${simInfo.dir}' + '/' + '${file}')"}`);
-            }
-            document.getElementById("dump").onclick = function dumpChkpnt (){
-                var file = prompt("Enter file to dump: ", "chkpnt_" + simInfo.time);
+        }
+        // Create global variable for checkpoint objects
+        let checkpointObjects;
+        document.getElementById("objects").onclick = function getCheckpointObjects(){
+            checkpointObjects = prompt("Enter checkpoint objects (separated by ,):");
+        }
+        document.getElementById("load").onclick = function loadChkpnt (){
+            var file = prompt("Enter file to load: ", "chkpnt_" + simInfo.time);
+            console.log("The objects are " + checkpointObjects);
+            sendMessage(`{"cmd": "python", "pycode": "trick.load_checkpoint('${simInfo.dir}' + '/' + '${file}')"}`);
+        }
+        document.getElementById("dump").onclick = function dumpChkpnt (){
+            var file = prompt("Enter file to dump: ", "chkpnt_" + simInfo.time);
+            if (checkpointObjects == null){
                 sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint('${file}')"}`);
+            } else {
+                sendMessage(`{"cmd": "python", "pycode": "trick.checkpoint_objects('${file}','${checkpointObjects}')"}`);
             }
-        
-            // Working on enable/disable buttons
-            function enableAllButtons(commandStr, flag){
-                if (commandStr != null){
-                    const commands = commandStr.split(", ");
-                    setCommandsEnabled(acts, flag);
-                }
-            }
-            function disableAllButtons(commands, flag){
-                const button = document.querySelectorAll('button');
-            }
-            function getAllButtons (){
-                const commands = ["step", "start", "freeze", "shutdown", "data", "realtime",
-                "dump", "load"];
-                for (let x = 0; x < commands.length; x++){
-                    document.getElementById(commands[x]);
-                    const button = document.querySelector(commands[x]);
-                    button.disabled = true;
-                    console.log(commands[x]);
-                }
+        }
+        function changeFontSize(font){
+            var window = document.getElementById("html");
+            window.style.fontSize = font.value; 
+        }
+        function changeFontType(font){
+            var window = document.getElementById("html");
+            window.style.fontFamily = font.value;
+        }
+        document.getElementById("f-at").onclick = function freezeAt(){
+            var time = prompt("Freeze sim at (enter RET): ");
+            sendMessage(`{"cmd": "python", "pycode": "trick.freeze(${time})"}`);
+        }
+        document.getElementById("f-in").onclick = function freezeAt(){
+            var time = prompt("Freeze sim in this many seconds: ");
+            sendMessage(`{"cmd": "python", "pycode": "trick.freeze(${time})"}`);
+        }
+        document.getElementById("throttle").onclick = function changeRatio(){
+            var newRatio = prompt ("Enter value for ratio: ");
+            sendMessage(`{"cmd": "python", "pycode": "trick.real_time_set_rt_clock_ratio(${newRatio})"}`); 
+        }
+        // Creates sim information object and sets properties
+        var simInfo = new Object();
+        function setSimTime(t){
+            simInfo.time = t.toFixed(2);
+            document.getElementById("RET").innerHTML = simInfo.time;
+        }
+        function setSimDir (r,d){
+            simInfo.dir = d + "/" + r;
+            document.getElementById("path").innerHTML = simInfo.dir;
+        }
+        function setServerPort(p){
+            simInfo.port = p;
+            document.getElementById("isconnected").innerHTML = "Connection established on port " + simInfo.port;
+        }
+        function setSimMode(m){
+            simInfo.mode = m;
+            // Every button is enabled by default
+            document.querySelector(".cmdbtn").disabled = false;
 
+            switch (m){
+                case '0':
+                    document.getElementById("modeheader").innerText = "Initialization ";
+                    document.querySelector("#freeze").disabled = true;
+                    document.querySelector("#exit").disabled = true;
+                break;
+                case '1':
+                    document.getElementById("modeheader").innerText = "Freeze";
+                    document.querySelector(".cmdbtn").disabled = false;
+                    document.getElementById("statusmsg").innerHTML = "Freeze On";
+                break;
+                case '4':
+                    document.getElementById("modeheader").innerText = "Debug Stepping Mode";
+                    document.querySelector("#start").disabled = true;
+                    document.querySelector("#shutdown").disabled = true;
+                    document.querySelector("#load").disabled = true;
+                    document.querySelector("#realtime").disabled = true;
+                    document.querySelector("#data").disabled = true;
+                    document.getElementById("statusmsg").innerText = "Freeze On";
+                break;
+                case '5':
+                    document.getElementById("modeheader").innerText = "Run";
+                    document.querySelector("#freeze").disabled = false;
+                    document.getElementById("statusmsg").innerText = "Freeze Off";
+                break;
+                case '6': 
+                    document.getElementById("modeheader").innerText = "Exit";
+                    
+                break;
+                default:
+                    document.getElementById("modeheader").innerText = "N/A";
+                    
+                break;
             }
-            function changeFont(font){
-                var window = document.getElementById("html");
-                if (font == "small" || "medium" || "large"){
-                    window.style.fontSize = font.value;
-                }
-                window.style.fontFamily = font.value;
-            }
-            // END OF EXPERIMENT 
-            var varTable = document.querySelector('table.variables');
-            var ws = new WebSocket('ws://localhost:8888/api/ws/VariableServer');
-            /*function displayStatusMsg (d, r, input){
-                let path = d + "/" + r + "/send_hs";
-                console.log(path);  
-            } */
-            function th
-            // WebSocket Event Handlers
-            ws.onopen = function(e) {
-                setPeriod(100);
-                sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.run_dir"}`);
-                sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.default_dir"}`);
-                sendMessage(`{"cmd":"var_add","var_name": "web.server.port"}`);
-                sendMessage(`{"cmd":"var_send"}`); 
-                sendMessage('{"cmd":"var_clear"}');
-                addVarTableRow("Time", 0.0);
-                addVariable("trick_sys.sched.mode", 0);
-                addVariable("trick_sys.name", 'trick_sys');
-                addVariable("dyn.balloon.pos[0]", 0.0);
-                addVariable("dyn.balloon.pos[1]", 0.0);
-                addVariable("dyn.balloon.vel[0]", 0.0);
-                addVariable("dyn.balloon.vel[1]", 0.0);
-                addVariable("dyn.balloon.envelope_air_temperature", 92.0);
-                addVariable("dyn.balloon.wind_speed", 0.0);
-                sendMessage('{"cmd":"var_unpause"}');
-            };
-            ws.onmessage = function(e) {
-               //log("Recieved : " + e.data);
-               let msg = JSON.parse(e.data);
-               console.log(msg);
-               if (msg.msg_type == "values") {
-                let valueNodes = varTable.getElementsByClassName("values");
-                valueNodes[0].textContent = msg.time;
-                let simMode = valueNodes[1].textContent;
-                setSimMode(simMode);
-                setSimTime(msg.time);
-                for (let i = 0; i < msg.values.length; i++ ) {
-                       valueNodes[i+1].textContent = msg.values[i];
-                   }
+            document.querySelector(".cmdbtn").disabled = false;
+        }
+        function setSimRatio(r){
+            simInfo.ratio = r;
+            document.getElementById("ratio").innerText = simInfo.ratio;
+        }
 
+        var varTable = document.querySelector('table.variables');
+        var ws = new WebSocket('ws://localhost:8888/api/ws/VariableServer');
+        ws.onopen = function(e) {
+            setPeriod(100);
+            sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.run_dir"}`);
+            sendMessage(`{"cmd":"var_add","var_name": "trick_cmd_args.cmd_args.default_dir"}`);
+            sendMessage(`{"cmd":"var_add","var_name": "web.server.port"}`);
+            sendMessage(`{"cmd":"var_send"}`); 
+            sendMessage('{"cmd":"var_clear"}');
+            addVarTableRow("Time", 0.0);
+            addVariable("trick_sys.sched.mode", 0);
+            addVariable("trick_sys.name", 'trick_sys');
+            addVariable("dyn.balloon.pos[0]", 0.0);
+            addVariable("dyn.balloon.pos[1]", 0.0);
+            addVariable("dyn.balloon.vel[0]", 0.0);
+            addVariable("dyn.balloon.vel[1]", 0.0);
+            addVariable("dyn.balloon.envelope_air_temperature", 92.0);
+            addVariable("dyn.balloon.wind_speed", 0.0);
+            addVariable("trick_real_time.gtod_clock.rt_clock_ratio", 0.0);
+            sendMessage('{"cmd":"var_unpause"}');
+        };
+        ws.onmessage = function(e) {
+        //log("Recieved : " + e.data);
+        let msg = JSON.parse(e.data);
+        console.log(msg);
+        if (msg.msg_type == "values") {
+            let valueNodes = varTable.getElementsByClassName("values");
+            valueNodes[0].textContent = msg.time;
+            let simMode = valueNodes[1].textContent;
+            let simRatio = valueNodes[9].textContent;
+            setSimMode(simMode);
+            setSimTime(msg.time);
+            setSimRatio(simRatio);
+            for (let i = 0; i < msg.values.length; i++ ) {
+                valueNodes[i+1].textContent = msg.values[i];
+            }
                 if (msg.values.length == 3){
                     let runDir = msg.values[0];
                     let defDir = msg.values[1];
-                    displayStatusMsg(defDir, runDir);
                     setSimDir(runDir, defDir);
                     let serverPort = msg.values[2];
                     setServerPort(serverPort);
-                    }
-               }
-            }; 	
-            ws.onerror = function(e) {
-               console.log("WebSocket Error: " , e);
-              // handleErrors(e);
-            };
-            ws.onclose = function(e) {
-               console.log("Connection closed", e);
-               //window.close();
-            };
-  
+                }
+        }
+        }; 	
+        ws.onerror = function(e) {
+        console.log("WebSocket Error: " , e);
+        // handleErrors(e);
+        };
+        ws.onclose = function(e) {
+        console.log("Connection closed", e);
+        //window.close();
+        };
+
         </script>
-    </div>
-</body>
 </html>
