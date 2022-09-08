@@ -41,6 +41,7 @@ int VSTest::vs_write(char* cmd_buffer) {
     int nbytes;
 
     nbytes = strlen(cmd_buffer);
+    std::cout << "Nbytes : " << nbytes << std::endl;
     tc_write(&comm_device, cmd_buffer, nbytes);
 
     return(0);
@@ -49,7 +50,7 @@ int VSTest::vs_write(char* cmd_buffer) {
 int VSTest::vs_read() {
     int num;
     double cpu_t, cpu_st;
-    char read_buffer[256];
+    char read_buffer[4096];
 
     struct rusage cpu_usg;
     getrusage(RUSAGE_SELF, &cpu_usg);

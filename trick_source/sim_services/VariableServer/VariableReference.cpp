@@ -61,7 +61,7 @@ Trick::VariableReference::VariableReference(std::string var_name) {
     deref = false;
 
     // Deal with weirdness around string vs wstring
-    TRICK_TYPE string_type = var_info->attr->type ;
+    string_type = var_info->attr->type ;
 
     if ( var_info->num_index == var_info->attr->num_index ) {
         // single value
@@ -151,7 +151,6 @@ int Trick::VariableReference::setConversionFactor(cv_converter * new_conversion_
 
 void Trick::VariableReference::stageValue() {
     // Copy <size> bytes from <address> to staging_point.
-
     if (var_info->address == &bad_ref_int) {
         REF2 *new_ref = ref_attributes(var_info->reference);
         if (new_ref != NULL) {
@@ -192,7 +191,9 @@ void Trick::VariableReference::stageValue() {
     // if this variable is a string we need to get the raw character string out of it.
     if (( string_type == TRICK_STRING ) && !deref) {
         std::string * str_ptr = (std::string *)var_info->address ;
+        // I don't think we can do this? c_str is on stack
         address = (void *)(str_ptr->c_str()) ;
+        std::cout << "Staging std::string with value " << str_ptr->c_str() << std::endl;
     }
 
     // if this variable itself is a pointer, dereference it

@@ -37,6 +37,8 @@ class VSTest {
 		unsigned long long	l;
 		bool                m;
 		int 				n[5];
+		std::string o;
+		char * p;
 
 		VSTest();
 		~VSTest();
@@ -55,6 +57,7 @@ class VSTest {
 		int testPause();
 		int testSendOnce();
 		int testUnits();
+		int testStrings();
 
 	private:
 		int get_line(char* thing);

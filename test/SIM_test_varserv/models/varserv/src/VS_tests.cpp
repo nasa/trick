@@ -35,6 +35,36 @@ int VSTest::strcmp_IgnoringWhiteSpace(std::string s1_str, const char* s2) {
     }
 }
 
+int VSTest::testStrings() {
+    usleep(1000);
+    char msg[256];
+    char suite[] = "VariableServerTest";
+    int result;
+    std::string expected;
+
+    sprintf(msg, "trick.var_clear()\n");
+    vs_write(msg);
+
+
+    expected = std::string("5\tYou will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
+    sprintf(msg, "trick.var_send_once(\"vsx.vst.o\")\n\0");
+    vs_write(msg);
+    vs_read();
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
+    std::cout << "\tExpected: " << expected << "\n\tGot: " << got_read << "\n\tResult: " << result << std::endl;
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableServerStdString")
+
+	expected = std::string("5\tI am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
+    sprintf(msg, "trick.var_send_once(\"vsx.vst.p\")\n\0");
+    vs_write(msg);
+    vs_read();
+    result = strcmp_IgnoringWhiteSpace(expected, got_read);
+    std::cout << "\tExpected: " << expected << "\n\tGot: " << got_read << "\n\tResult: " << result << std::endl;
+    TRICK_EXPECT_EQ(result, 0, suite, "VariableServerCharPtr")
+
+    return 0;
+}
+
 int VSTest::testUnits() {
     usleep(1000);
     char msg[256];

@@ -27,6 +27,7 @@ class testSimObject : public Trick::SimObject {
 			("initialization") vst.testExists();
 			("initialization") vst.testPause();
 			("initialization") vst.testSendOnce();	
+			("initialization") vst.testStrings();	
 			("shutdown") vst.shutdown();
 		}
 };
