@@ -85,5 +85,7 @@ else
 	cmp -b $(DR_RESULTS)/log_DR_typesBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_typesBINARY.trk
 endif
 
+TEST_CLIENT_LIBS := -lpthread -lgtest -lgtest_main
+
 test_client: $(TRICK_HOME)/test/SIM_test_varserv/models/test_client/test_client.cpp 
-	cd $(TRICK_HOME)/test/SIM_test_varserv/models/test_client; $(TRICK_CXX) test_client.cpp  -lgtest -lgtest_main -o test_client
+	cd $(TRICK_HOME)/test/SIM_test_varserv/models/test_client; $(TRICK_CXX) test_client.cpp -o test_client $(TEST_CLIENT_LIBS)
