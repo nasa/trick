@@ -16,12 +16,12 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 class VSTest {
 	public:
 
-		unsigned short port_num;
-		const char * hostest;
-		char got_read[80];
-		double cycle_rate;
+		// unsigned short port_num;
+		// const char * hostest;
+		// char got_read[80];
+		// double cycle_rate;
 
-		TCDevice comm_device;
+		// TCDevice comm_device;
 
 		char 				a;
 		unsigned char 		b;
@@ -45,23 +45,23 @@ class VSTest {
 
 		int init();
 		int default_vars();
-		int vs_write(char* cmd_buffer);
-		int vs_read();
-		void printLine();
+		// int vs_write(char* cmd_buffer);
+		// int vs_read();
+		// void printLine();
 
 		int shutdown();
 
 		// TEST FUNCTIONS
-		int testAddRemove();
-		int testExists();
-		int testPause();
-		int testSendOnce();
-		int testUnits();
-		int testStrings();
+		// int testAddRemove();
+		// int testExists();
+		// int testPause();
+		// int testSendOnce();
+		// int testUnits();
+		// int testStrings();
 
 	private:
-		int get_line(char* thing);
-		int strcmp_IgnoringWhiteSpace(std::string s1, const char* s2);
+		// int get_line(char* thing);
+		// int strcmp_IgnoringWhiteSpace(std::string s1, const char* s2);
 };
 
 #endif

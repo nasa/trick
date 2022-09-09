@@ -5,8 +5,6 @@ LIBRARY DEPENDENCIES:
      (varserv/src/VS.cpp)
      (varserv/src/VS_init.cpp)
      (varserv/src/VS_default_data.cpp)
-     (varserv/src/VS_commands.cpp)
-     (varserv/src/VS_tests.cpp)
      (varserv/src/VS_shutdown.cpp)
 )
 *************************************************************/
@@ -22,17 +20,9 @@ class testSimObject : public Trick::SimObject {
 		testSimObject() {
 			("default_data") vst.default_vars();
 			("initialization") vst.init();
-			("initialization") vst.testAddRemove();
-			("initialization") vst.testUnits();
-			("initialization") vst.testExists();
-			("initialization") vst.testPause();
-			("initialization") vst.testSendOnce();	
-			("initialization") vst.testStrings();	
 			("shutdown") vst.shutdown();
 		}
 };
 
 // Instantiations
 testSimObject vsx;
-
-

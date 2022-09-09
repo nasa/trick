@@ -193,7 +193,6 @@ void Trick::VariableReference::stageValue() {
         std::string * str_ptr = (std::string *)var_info->address ;
         // I don't think we can do this? c_str is on stack
         address = (void *)(str_ptr->c_str()) ;
-        std::cout << "Staging std::string with value " << str_ptr->c_str() << std::endl;
     }
 
     // if this variable itself is a pointer, dereference it

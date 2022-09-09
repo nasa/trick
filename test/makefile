@@ -36,7 +36,8 @@ SIMS_TO_COMPILE_AND_RUN = \
 	SIM_test_sched \
 	SIM_test_templates \
 	SIM_threads \
-	SIM_trickified 
+	SIM_trickified \
+	SIM_test_varserv
 
 # Sims with problems, no purpose, or maybe shouldn't be a test
 # SIM_leaks ( should be deleted )
@@ -49,7 +50,7 @@ SIMS_TO_COMPILE_AND_RUN = \
 EXECUTABLES = $(addsuffix /T_main_${TRICK_HOST_CPU}_test.exe, $(SIMS_TO_COMPILE_AND_RUN) $(SIMS_TO_COMPILE_ONLY))
 UNIT_TEST_RESULTS = $(addprefix $(TRICK_HOME)/trick_test/, $(addsuffix .xml, $(SIMS_TO_COMPILE_AND_RUN)))
 
-test: $(EXECUTABLES) $(UNIT_TEST_RESULTS) data_record_results
+test: test_client $(EXECUTABLES) $(UNIT_TEST_RESULTS) data_record_results 
 
 clean:
 	rm -f $(UNIT_TEST_RESULTS)
@@ -64,6 +65,8 @@ clean:
 			$(MAKE) -C $$i spotless ; \
 		fi \
 	done
+
+	rm -f $(TRICK_HOME)/test/SIM_test_varserv/models/test_client/test_client
 
 $(EXECUTABLES):
 	@ cd $(@D) ; ${TRICK_HOME}/bin/trick-CP -t
@@ -81,3 +84,6 @@ ifeq (${TRICK_FORCE_32BIT}, 1)
 else
 	cmp -b $(DR_RESULTS)/log_DR_typesBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_typesBINARY.trk
 endif
+
+test_client: $(TRICK_HOME)/test/SIM_test_varserv/models/test_client/test_client.cpp 
+	cd $(TRICK_HOME)/test/SIM_test_varserv/models/test_client; g++ -lgtest -lgtest_main test_client.cpp -o test_client
