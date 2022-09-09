@@ -86,4 +86,4 @@ else
 endif
 
 test_client: $(TRICK_HOME)/test/SIM_test_varserv/models/test_client/test_client.cpp 
-	cd $(TRICK_HOME)/test/SIM_test_varserv/models/test_client; g++ -lgtest -lgtest_main test_client.cpp -o test_client
+	cd $(TRICK_HOME)/test/SIM_test_varserv/models/test_client; $(TRICK_CXX) test_client.cpp  -lgtest -lgtest_main -o test_client
