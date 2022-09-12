@@ -1,7 +1,9 @@
 | [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → STL Checkpointing |
 |------------------------------------------------------------------|
 
-Trick checkpoints the following STL types: array, vector, list, deque, set, multiset map, multimap, stack, queue, priority_queue, pair.
 
+Trick does not currently support checkpointing C++ Standard Template Library (STL) types, although we working on it.
+
+For those data-structures you intend to checkpoint, you should avoid using STLs.
 
 [Continue to Threads](Threads)

@@ -97,7 +97,7 @@ BaseIntegrationGroup::swap (
 BaseIntegrationGroup::~BaseIntegrationGroup (
    void)
 {
-   Er7UtilsDeletable::delete_instance (integ_controls);
+   alloc::delete_object (integ_controls);
 }
 
 

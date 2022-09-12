@@ -40,7 +40,6 @@ SIMS_TO_COMPILE_AND_RUN = \
 
 # Sims with problems, no purpose, or maybe shouldn't be a test
 # SIM_leaks ( should be deleted )
-# SIM_test_varserv  ( not sure what it is testing )
 # SIM_dynamic_sim_object ( not running, class won't instantiate )
 # SIM_segments  ( not a test, but a demo )
 
