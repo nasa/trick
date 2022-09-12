@@ -62,7 +62,7 @@ h1,h2 {
 #headerchild {
     grid-row: 1;
     grid-column: 1/span 4;
-  /*  background-color: yellowgreen; */
+   /* background-color: yellowgreen; */
 }
 #connectionchild {
     grid-row:  4;
