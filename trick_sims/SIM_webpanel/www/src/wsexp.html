@@ -27,7 +27,7 @@
            <!-- Section for font changer -->
             <div id="selectfont">
             <label>Font:  </label>
-            <select onchange="changeFontType(this)">
+            <select class="font" onchange="changeFontType(this)">
                 <option value="arial">Arial</option>
                 <option value="serif">Serif</option>
                 <option value="sans-serif">Sans-serif</option>
@@ -41,23 +41,8 @@
         <!-- Connection Status Section -->
         <div id="connectionchild">
             <h2 id="isconnected">No connection</h2>
-        </div>
-       <!-- <div id="fontchild"> 
-            <select onchange="changeFont(this)">
-                <option value="arial">Arial</option>
-                <option value="serif">Serif</option>
-                <option value="sans-serif">Sans-serif</option>
-                <option value="system-ui">System-ui</option>
-                <option value="monospace">Monospace</option>
-            </select>
-            <label>Font:  </label>
-            <select onchange="changeFont(this)">
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-            </select>
-            <label>Size:  </label>
-        </div>-->
+        </div>.
+        <!-- Variable Table Section -->
         <div id="tablechild"> 
             <table class="variables">
                 <h2>Simulation Variable Table</h2>
@@ -277,8 +262,9 @@
         }
             function setSimMode(m){
                 simInfo.mode = m;
-               document.querySelector(".cmdbtn").disabled = false;
-                // everything is originally enabled 
+                // Every button is enabled by default
+                document.querySelector(".cmdbtn").disabled = false;
+        
                 switch (m){
                     case '0':
                         document.getElementById("modeheader").innerText = "Initialization Mode";
@@ -311,7 +297,7 @@
                     default:
                         document.getElementById("modeheader").innerText = "N/A";
                         
-                        break;
+                    break;
                 }
                 document.querySelector(".cmdbtn").disabled = false;
             }
@@ -319,14 +305,6 @@
                 simInfo.ratio = r;
                 document.getElementById("ratio").innerText = simInfo.ratio;
             }
-            function changeFont(font){
-                var window = document.getElementById("html");
-                if (font == "small" || "medium" || "large"){
-                    window.style.fontSize = font.value;
-                }
-                window.style.fontFamily = font.value;
-            }
-            // END OF EXPERIMENT 
             var varTable = document.querySelector('table.variables');
             var ws = new WebSocket('ws://localhost:8888/api/ws/VariableServer');
             /*function displayStatusMsg (d, r, input){
@@ -351,31 +329,31 @@
                 addVariable("dyn.balloon.envelope_air_temperature", 92.0);
                 addVariable("dyn.balloon.wind_speed", 0.0);
                 addVariable("trick_real_time.gtod_clock.rt_clock_ratio", 0.0);
-                sendMessage('{"cmd":"var_unpause"}');
-        };
-        ws.onmessage = function(e) {
-        //log("Recieved : " + e.data);
-        let msg = JSON.parse(e.data);
-        console.log(msg);
-        if (msg.msg_type == "values") {
-            let valueNodes = varTable.getElementsByClassName("values");
-            valueNodes[0].textContent = msg.time;
-            let simMode = valueNodes[1].textContent;
-            let simRatio = valueNodes[9].textContent;
-            setSimMode(simMode);
-            setSimTime(msg.time);
-            setSimRatio(simRatio);
-            for (let i = 0; i < msg.values.length; i++ ) {
-                valueNodes[i+1].textContent = msg.values[i];
-            }
 
-                if (msg.values.length == 3){
-                    let runDir = msg.values[0];
-                    let defDir = msg.values[1];
-                    //displayStatusMsg(defDir, runDir);
-                    setSimDir(runDir, defDir);
-                    let serverPort = msg.values[2];
-                    setServerPort(serverPort);
+                sendMessage('{"cmd":"var_unpause"}');
+            };
+            ws.onmessage = function(e) {
+               //log("Recieved : " + e.data);
+               let msg = JSON.parse(e.data);
+               console.log(msg);
+               if (msg.msg_type == "values") {
+                let valueNodes = varTable.getElementsByClassName("values");
+                valueNodes[0].textContent = msg.time;
+                let simMode = valueNodes[1].textContent;
+                let simRatio = valueNodes[9].textContent;
+                setSimMode(simMode);
+                setSimTime(msg.time);
+                setSimRatio(simRatio);
+                for (let i = 0; i < msg.values.length; i++ ) {
+                       valueNodes[i+1].textContent = msg.values[i];
+                   }
+                    if (msg.values.length == 3){
+                        let runDir = msg.values[0];
+                        let defDir = msg.values[1];
+                       // displayStatusMsg(defDir, runDir);
+                        setSimDir(runDir, defDir);
+                        let serverPort = msg.values[2];
+                        setServerPort(serverPort);
                     }
                }
             }; 	
