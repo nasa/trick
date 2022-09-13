@@ -6,6 +6,7 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+
 #include <gtest/gtest.h>
 
 #define SOCKET_BUF_SIZE 20480
@@ -230,6 +231,7 @@ TEST_F (VariableServerTest, Exists) {
     expected = std::string("1  0");
 
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
 }
 
 TEST_F (VariableServerTest, Pause) {
@@ -270,7 +272,16 @@ int main(int argc, char **argv) {
 
     Socket socket;
     socket.init("localhost", 40000);
-
+    
+    if (result == 0) {
+        // Success
+        std::cout << "Exiting peacefully!" << std::endl;
+        socket << "vsx.vst.success() \n";
+    } else {
+        // Failure
+        std::cout << "Exiting with failure!" << std::endl;
+        socket << "vsx.vst.fail() \n";
+    }
     socket << "trick.stop() \n";
 
     return result;

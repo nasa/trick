@@ -15,14 +15,6 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 
 class VSTest {
 	public:
-
-		// unsigned short port_num;
-		// const char * hostest;
-		// char got_read[80];
-		// double cycle_rate;
-
-		// TCDevice comm_device;
-
 		char 				a;
 		unsigned char 		b;
 		short				c;
@@ -40,28 +32,25 @@ class VSTest {
 		std::string o;
 		char * p;
 
+		int status;
+
 		VSTest();
 		~VSTest();
 
 		int init();
 		int default_vars();
-		// int vs_write(char* cmd_buffer);
-		// int vs_read();
-		// void printLine();
-
+		
 		int shutdown();
 
-		// TEST FUNCTIONS
-		// int testAddRemove();
-		// int testExists();
-		// int testPause();
-		// int testSendOnce();
-		// int testUnits();
-		// int testStrings();
+		int success();
+		int fail();
 
-	private:
-		// int get_line(char* thing);
-		// int strcmp_IgnoringWhiteSpace(std::string s1, const char* s2);
+		char *status_messages[3] = {
+			"Variable Server Test Success",
+			"Variable Server Test Failure",
+			"Client failed to connect"
+		};
+
 };
 
 #endif
