@@ -14,11 +14,17 @@
 class Socket {
 
   public:
+
+    int max_retries = 10;
+
     Socket() : _initialized(false) {}
     int init(std::string hostname, int port) {
         _hostname = hostname;
         _port = port;
-        _socket_fd = socket(AF_INET, SOCK_STREAM, 0);
+        int tries = 0;
+
+        while ((_socket_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0 && tries < max_retries) tries++;
+
         if (_socket_fd < 0) {
             std::cout << "Socket connection failed" << std::endl;
             return -1;
@@ -33,12 +39,19 @@ class Socket {
             return -1;
         } 
 
-        if (connect(_socket_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+        tries = 0;
+        int connection_status;
+
+        while ((connection_status = connect(_socket_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr))) < 0 && tries < max_retries) tries++;
+
+        if (connection_status < 0) {
             std::cout << "Connection failed" << std::endl;
             return -1;
         }
 
         _initialized = true;
+
+        return 0;
     }
 
     int send (std::string message) {
@@ -104,19 +117,23 @@ int strcmp_IgnoringWhiteSpace(std::string s1_str, std::string s2_str) {
 class VariableServerTest : public ::testing::Test {
     protected:
         VariableServerTest() {
-            socket.init("localhost", 40000);
-            std::stringstream request;
-            request << "trick.var_set_client_tag(\"VSTest";
-            request << numSession++;
-            request << "\") \n";
+            socket_status = socket.init("localhost", 40000);
 
-            socket << request.str();
+            if (socket_status == 0) {
+                std::stringstream request;
+                request << "trick.var_set_client_tag(\"VSTest";
+                request << numSession++;
+                request << "\") \n";
+
+                socket << request.str();
+            }
         }
         ~VariableServerTest() {
             socket << "trick.var_exit()\n";
         }
 
         Socket socket;
+        int socket_status;
 
         static int numSession;
 };
@@ -125,6 +142,10 @@ int VariableServerTest::numSession = 0;
 
 
 TEST_F (VariableServerTest, Strings) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
     std::string reply;
     socket << "trick.var_send_once(\"vsx.vst.o\")\n";
     socket >> reply;
@@ -140,6 +161,10 @@ TEST_F (VariableServerTest, Strings) {
 }
 
 TEST_F (VariableServerTest, AddRemove) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
     std::string reply;
     std::string expected;
 
@@ -168,6 +193,10 @@ TEST_F (VariableServerTest, AddRemove) {
 
 
 TEST_F (VariableServerTest, Units) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
     std::string reply;
     std::string expected;
 
@@ -192,6 +221,10 @@ TEST_F (VariableServerTest, Units) {
 }
 
 TEST_F (VariableServerTest, SendOnce) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
     std::string reply;
     std::string expected;
 
@@ -216,6 +249,10 @@ TEST_F (VariableServerTest, SendOnce) {
 }
 
 TEST_F (VariableServerTest, Exists) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
     std::string reply;
     std::string expected;
 
@@ -235,6 +272,10 @@ TEST_F (VariableServerTest, Exists) {
 }
 
 TEST_F (VariableServerTest, Pause) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+    
     std::string reply;
     std::string expected;
 
