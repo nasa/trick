@@ -382,7 +382,7 @@ class RangeView extends JPanel {
         drawScenePoly(g2d, left_L1, landerAngle, landerPos[0], landerPos[1]);
         drawScenePoly(g2d, right_L1, landerAngle, landerPos[0], landerPos[1]);
         drawScenePoly(g2d, left_L2, landerAngle, landerPos[0], landerPos[1]);
-        drawScenePoly(g2d, right_L2, landerAngle, landerPos[0], landerPos[1]);
+        drawScenePoly(g2d, right_L2, la0nderAngle, landerPos[0], landerPos[1]);
         drawScenePoly(g2d, left_L3, landerAngle, landerPos[0], landerPos[1]);
         drawScenePoly(g2d, right_L3, landerAngle, landerPos[0], landerPos[1]);
         drawScenePoly(g2d, left_L4, landerAngle, landerPos[0], landerPos[1]);

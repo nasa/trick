@@ -1,4 +1,3 @@
-
 package trick;
 
 import java.awt.Graphics2D;
