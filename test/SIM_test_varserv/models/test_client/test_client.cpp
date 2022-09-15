@@ -84,6 +84,10 @@ class Socket {
         ret = receive();
     }
 
+    void close() {
+        ::close(_socket_fd);
+    }
+
   private:
     int _port;
     std::string _hostname;
@@ -130,6 +134,7 @@ class VariableServerTest : public ::testing::Test {
         }
         ~VariableServerTest() {
             socket << "trick.var_exit()\n";
+            socket.close();
         }
 
         Socket socket;
