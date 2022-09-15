@@ -50,7 +50,7 @@ SIMS_TO_COMPILE_AND_RUN = \
 EXECUTABLES = $(addsuffix /T_main_${TRICK_HOST_CPU}_test.exe, $(SIMS_TO_COMPILE_AND_RUN) $(SIMS_TO_COMPILE_ONLY))
 UNIT_TEST_RESULTS = $(addprefix $(TRICK_HOME)/trick_test/, $(addsuffix .xml, $(SIMS_TO_COMPILE_AND_RUN)))
 
-test: test_client $(EXECUTABLES) $(UNIT_TEST_RESULTS) data_record_results 
+test: $(EXECUTABLES) $(UNIT_TEST_RESULTS) data_record_results 
 
 clean:
 	rm -f $(UNIT_TEST_RESULTS)
@@ -65,8 +65,6 @@ clean:
 			$(MAKE) -C $$i spotless ; \
 		fi \
 	done
-
-	rm -f $(TRICK_HOME)/test/SIM_test_varserv/models/test_client/test_client
 
 $(EXECUTABLES):
 	@ cd $(@D) ; ${TRICK_HOME}/bin/trick-CP -t
@@ -85,7 +83,4 @@ else
 	cmp -b $(DR_RESULTS)/log_DR_typesBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_typesBINARY.trk
 endif
 
-TEST_CLIENT_LIBS := -lpthread -lgtest -lgtest_main
 
-test_client: $(TRICK_HOME)/test/SIM_test_varserv/models/test_client/test_client.cpp 
-	cd $(TRICK_HOME)/test/SIM_test_varserv/models/test_client; $(TRICK_CXX) test_client.cpp -o test_client $(TEST_CLIENT_LIBS)
