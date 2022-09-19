@@ -171,7 +171,7 @@ jobs:
         uses: actions/upload-artifact@v3.0.0
         if: success() || failure()    # run this step even if previous step failed
         with:
-          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
+          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}${{matrix.erinteg}}
           path: trick_test/*.xml
           retention-days: 1
 # Uncomment for build artifacts          
