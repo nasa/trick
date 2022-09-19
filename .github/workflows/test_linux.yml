@@ -158,7 +158,7 @@ jobs:
         run: |
           export MAKEFLAGS=-j`nproc`
           export PYTHON_VERSION=${{matrix.python}}
-          ./configure [ noerinteg = ${{matrix.erinteg}} ] && `echo --enable-er7utils=no` 
+          ./configure `[ noerinteg = ${{matrix.erinteg}} ] && echo --enable-er7utils=no` 
       - name: Build Trick
         run: |
           export MAKEFLAGS=-j`nproc`
