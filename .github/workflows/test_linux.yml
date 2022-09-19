@@ -27,6 +27,7 @@ jobs:
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
           - { os: almalinux,   tag: 8,        arch: rhel,   arch_ver: 8  }
         python: [2, 3]
+        erinteg: [erinteg, noerinteg]
 
 #-------- Defaults --------------------------
         include:
@@ -157,7 +158,7 @@ jobs:
         run: |
           export MAKEFLAGS=-j`nproc`
           export PYTHON_VERSION=${{matrix.python}}
-          ./configure
+          ./configure [ noerinteg = ${{matrix.erinteg}} ] && `echo --enable-er7utils=no` 
       - name: Build Trick
         run: |
           export MAKEFLAGS=-j`nproc`
