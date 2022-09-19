@@ -14,6 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        erinteg: [erinteg]
         cfg:
 #-------- Operating Systems ----------------
           - { os: ubuntu,      tag: 18.04,    arch: debian, arch_ver: 10 }
@@ -28,7 +29,6 @@ jobs:
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8, erinteg: noerinteg }
           - { os: almalinux,   tag: 8,        arch: rhel,   arch_ver: 8  }
         python: [2, 3]
-        erinteg: [erinteg]
 
 #-------- Defaults --------------------------
         include:
