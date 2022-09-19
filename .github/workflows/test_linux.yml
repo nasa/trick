@@ -25,8 +25,10 @@ jobs:
           - { os: centos,      tag: 7,        arch: rhel,   arch_ver: 7  }
           - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
+          - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8, erinteg: noerinteg }
           - { os: almalinux,   tag: 8,        arch: rhel,   arch_ver: 8  }
         python: [2, 3]
+        erinteg: [erinteg]
 
 #-------- Defaults --------------------------
         include:
@@ -157,7 +159,7 @@ jobs:
         run: |
           export MAKEFLAGS=-j`nproc`
           export PYTHON_VERSION=${{matrix.python}}
-          ./configure
+          ./configure `[ noerinteg = ${{matrix.erinteg}} ] && echo --enable-er7utils=no` 
       - name: Build Trick
         run: |
           export MAKEFLAGS=-j`nproc`
@@ -170,7 +172,7 @@ jobs:
         uses: actions/upload-artifact@v3.0.0
         if: success() || failure()    # run this step even if previous step failed
         with:
-          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
+          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}${{matrix.erinteg}}
           path: trick_test/*.xml
           retention-days: 1
 # Uncomment for build artifacts          
