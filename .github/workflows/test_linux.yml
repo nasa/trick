@@ -25,9 +25,10 @@ jobs:
           - { os: centos,      tag: 7,        arch: rhel,   arch_ver: 7  }
           - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
+          - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8, erinteg: noerinteg }
           - { os: almalinux,   tag: 8,        arch: rhel,   arch_ver: 8  }
         python: [2, 3]
-        erinteg: [erinteg, noerinteg]
+        erinteg: [erinteg]
 
 #-------- Defaults --------------------------
         include:
