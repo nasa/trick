@@ -8,9 +8,14 @@ class theSimObject : public Trick::SimObject {
         STLCheckpoint stlc ;
 
         /** Constructor to add the jobs */
-        theSimObject() : stlc("Petunia") {
-            (1.0, "scheduled") stlc.speak() ;
+        theSimObject() : stlc() {
+            ("initialization") stlc.addData();
+            (1.0, "scheduled") stlc.test () ;
+            (1.0, "scheduled") stlc.print () ;
+
         }
+
+
 
 } ;
 

@@ -1,19 +1,22 @@
 
 #include "sim_services/Message/include/message_proto.h"
 #include "STLCheckpoint.hh"
-
+#include "trick/memorymanager_c_intf.h"
+#include <iostream>
+#include <vector>
+#include "sim_services/UnitTest/include/trick_tests.h"
 /* These 2 constructors add different data to an STLCheckpoint. */
 
 STLCheckpoint::STLCheckpoint() {
     return ;
 }
 
-STLCheckpoint::STLCheckpoint(std::string in_name) :
-  vector_vector_double(4, std::vector<double>(3)) ,
-  vector_vector_vector_double(5, std::vector<std::vector<double> >(4, std::vector<double>(3)))
-{
+int STLCheckpoint::addData() {
+    dataJobRun = true;
+    vector_vector_double = std::vector< std::vector< double > >(4, std::vector<double>(3));
+    vector_vector_vector_double = std::vector< std::vector< std::vector< double > > >(5, std::vector<std::vector<double> >(4, std::vector<double>(3)));
 
-    name = in_name ;
+    std::cout << "Adding hardcoded data to sim" << std::endl;
 
     double_map[44.4] = 444.4 ;
     double_map[55.5] = 555.5 ;
@@ -61,9 +64,9 @@ STLCheckpoint::STLCheckpoint(std::string in_name) :
     int_multimap.insert(std::pair<int, int>(44,444)) ;
     int_multimap.insert(std::pair<int, int>(55,555)) ;
     int_multimap.insert(std::pair<int, int>(66,666)) ;
-    int_multimap.insert(std::pair<int, int>(44,444)) ;
-    int_multimap.insert(std::pair<int, int>(55,555)) ;
-    int_multimap.insert(std::pair<int, int>(66,666)) ;
+    int_multimap.insert(std::pair<int, int>(44,4444)) ;
+    int_multimap.insert(std::pair<int, int>(55,5555)) ;
+    int_multimap.insert(std::pair<int, int>(66,6666)) ;
 
     string_key_multimap.insert(std::pair<std::string, int>("four", 4)) ;
     string_key_multimap.insert(std::pair<std::string, int>("five", 5)) ;
@@ -275,30 +278,128 @@ STLCheckpoint::STLCheckpoint(std::string in_name) :
     vector_vector_vector_double[4][3][1] = 4010 ;
     vector_vector_vector_double[4][3][2] = 4011 ;
 
-    return ;
+    return 0;
 }
 
-int STLCheckpoint::speak() {
-    //message_publish(1,"Quack!\n") ;
-    //message_publish(1,"double_vector: %f %f %f\n", double_vector[0], double_vector[1], double_vector[2]) ;
-    //message_publish(1,"vector_vector_double[1]: %f %f %f\n",
-    // vector_vector_double[1][0], vector_vector_double[1][1], vector_vector_double[1][2]) ;
-    //message_publish(1,"vector_vector_vector_double[4][2]: %f %f %f\n",
-    // vector_vector_vector_double[4][2][0], vector_vector_vector_double[4][2][1], vector_vector_vector_double[4][2][2]) ;
-    //message_publish(1,"string_vector[0]: %s\n", string_vector[0].c_str()) ;
-    //message_publish(1,"map_int_vector_int[1][1] = %d\n", map_int_vector_int[1][1]) ;
-    //message_publish(1,"gcd = %d\n", gcd[std::pair<int, int >(24,30)]) ;
-    //message_publish(1,"common_multiples = %d\n", common_multiples[std::pair<int, int >(3,5)][1]) ;
-    //message_publish(1,"common_multiples = %d\n", common_multiples[std::pair<int, int >(3,5)][1]) ;
-    //message_publish(1,"int_pair_int_int.second.second = %d\n", int_pair_int_int.second.second) ;
-    //message_publish(1,"pair_int_int_int.first.second = %d\n", pair_int_int_int.first.second) ;
-    //message_publish(1,"pair_pair_pair.second.first = %d\n", pair_pair_pair.second.first) ;
-    //message_publish(1,"int_queue.front = %d\n", int_queue.front()) ;
-    //message_publish(1,"int_priority_queue.top = %d\n", int_priority_queue.top()) ;
-    //message_publish(1,"uint_stack.top = %d\n", uint_stack.top()) ;
-    //message_publish(1,"queue_vector_int.front()[3] = %d\n", queue_vector_int.front()[3]) ;
-    //message_publish(1,"priority_queue_vector_int.top()[2] = %d\n", priority_queue_vector_int.top()[2]) ;
+int STLCheckpoint::print() {
+    message_publish(1,"Quack!\n") ;
+    message_publish(1, "Double vector size: %d", double_vector.size() );
+    message_publish(1,"double_vector: %f %f %f\n", double_vector[0], double_vector[1], double_vector[2]) ;
+    message_publish(1,"vector_vector_double[1]: %f %f %f\n",
+    vector_vector_double[1][0], vector_vector_double[1][1], vector_vector_double[1][2]) ;
+    message_publish(1,"vector_vector_vector_double[4][2]: %f %f %f\n",
+    vector_vector_vector_double[4][2][0], vector_vector_vector_double[4][2][1], vector_vector_vector_double[4][2][2]) ;
+    message_publish(1,"string_vector[0]: %s\n", string_vector[0].c_str()) ;
+    message_publish(1,"map_int_vector_int[1][1] = %d\n", map_int_vector_int[1][1]) ;
+    message_publish(1,"gcd = %d\n", gcd[std::pair<int, int >(24,30)]) ;
+    message_publish(1,"common_multiples = %d\n", common_multiples[std::pair<int, int >(3,5)][1]) ;
+    message_publish(1,"common_multiples = %d\n", common_multiples[std::pair<int, int >(3,5)][1]) ;
+    message_publish(1,"int_pair_int_int.second.second = %d\n", int_pair_int_int.second.second) ;
+    message_publish(1,"pair_int_int_int.first.second = %d\n", pair_int_int_int.first.second) ;
+    message_publish(1,"pair_pair_pair.second.first = %d\n", pair_pair_pair.second.first) ;
+    message_publish(1,"int_queue.front = %d\n", int_queue.front()) ;
+    message_publish(1,"int_priority_queue.top = %d\n", int_priority_queue.top()) ;
+    message_publish(1,"uint_stack.top = %d\n", uint_stack.top()) ;
+    message_publish(1,"queue_vector_int.front()[3] = %d\n", queue_vector_int.front()[3]) ;
+    message_publish(1,"priority_queue_vector_int.top()[2] = %d\n", priority_queue_vector_int.top()[2]) ;
     message_publish(1,"stack_vector_int.top()[1] = %d\n", stack_vector_int.top()[1]) ;
     return 0 ;
 }
 
+int STLCheckpoint::test() {
+    std::cout << "Running test jobs" << std::endl;
+    const char *test_suite = "STLCheckpoint";
+
+    TRICK_EXPECT_EQ( double_vector.size(), 3, test_suite, "double_vector size");
+    TRICK_EXPECT_EQ( double_vector[0], 4, test_suite, "double_vector[0]");
+    TRICK_EXPECT_EQ( double_vector[1], 5, test_suite, "double_vector[1]");
+    TRICK_EXPECT_EQ( double_vector[2], 6, test_suite, "double_vector[2]");
+    TRICK_EXPECT_EQ( vector_vector_double[1][0], 103, test_suite, "vector_vector_double[1][0]");
+    TRICK_EXPECT_EQ( vector_vector_double[1][1], 104, test_suite, "vector_vector_double[1][1]");
+    TRICK_EXPECT_EQ( vector_vector_double[1][2], 105, test_suite, "vector_vector_double[1][2]");
+    TRICK_EXPECT_EQ( vector_vector_vector_double[4][2][0], 4006, test_suite, "vector_vector_vector_double[4][2][0]");
+    TRICK_EXPECT_EQ( vector_vector_vector_double[4][2][1], 4007, test_suite, "vector_vector_vector_double[4][2][1]");
+    TRICK_EXPECT_EQ( vector_vector_vector_double[4][2][2], 4008, test_suite, "vector_vector_vector_double[4][2][2]");
+    TRICK_EXPECT_EQ( string_vector[0], std::string("It"), test_suite, "string_vector");
+    std::cout << string_vector[0] << std::endl;
+
+    std::cout << "In the middle of test jobs" << std::endl;
+
+    TRICK_EXPECT_EQ( double_map[44.4], 444.4, test_suite, "double_map[44.4]" );
+
+    TRICK_EXPECT_EQ( string_data_map[7], std::string("seiben"), test_suite, "string_data_map[7]" );
+    TRICK_EXPECT_EQ( string_data_map[9], std::string("neun") , test_suite, "string_data_map[9]");
+
+    std::vector< int > v ;
+    v.push_back(2) ;
+    v.push_back(4) ;
+    v.push_back(6) ;
+    v.push_back(8) ;
+    TRICK_EXPECT_EQ( map_int_vector_int[1], v, test_suite, "map_int_vector_int[1]");
+
+    std::pair< int , int > p ;
+    p.first = 24 ;
+    p.second = 30 ;
+    TRICK_EXPECT_EQ(gcd[p], 6, test_suite, "gcd[p]" );
+
+    p.first = 50 ;
+    p.second = 60 ;
+    std::pair< int , int > q ;
+    q.first = 70 ;
+    q.second = 80 ;
+    TRICK_EXPECT_EQ( map_pair_pair[p], q, test_suite, "map_pair_pair[p]" );
+
+    p.first = 3 ;
+    p.second = 5 ;
+    v.clear() ;
+    v.push_back(15) ;
+    v.push_back(30) ;
+    v.push_back(45) ;
+    v.push_back(60) ;
+    TRICK_EXPECT_EQ( common_multiples[p], v, test_suite, "common_multiples" );
+
+    TRICK_EXPECT_EQ( string_map["sister"], "Lisa", test_suite, "string_map[\"sister\"]" );
+    TRICK_EXPECT_EQ( string_map["dog"], "Santa's Little Helper", test_suite, "string_map[\"dog\"]" );
+
+    
+    // I think the easiest way to test the multimaps is to just rebuild copies and compare
+    std::multimap<int, int> int_multimap_copy;
+    int_multimap_copy.insert(std::pair<int, int>(44,444)) ;
+    int_multimap_copy.insert(std::pair<int, int>(55,555)) ;
+    int_multimap_copy.insert(std::pair<int, int>(66,666)) ;
+    int_multimap_copy.insert(std::pair<int, int>(44,4444)) ;
+    int_multimap_copy.insert(std::pair<int, int>(55,5555)) ;
+    int_multimap_copy.insert(std::pair<int, int>(66,6666)) ;
+    TRICK_EXPECT_EQ(int_multimap, int_multimap_copy , test_suite, "int_multimap");
+
+    int_multimap_copy.insert(std::pair<int, int>(66,66666)) ;
+    TRICK_EXPECT_NE(int_multimap, int_multimap_copy , test_suite, "int_multimap_fail");
+
+    std::multimap<std::string, int> string_key_multimap_copy;
+    string_key_multimap_copy.insert(std::pair<std::string, int>("four", 4)) ;
+    string_key_multimap_copy.insert(std::pair<std::string, int>("five", 5)) ;
+    string_key_multimap_copy.insert(std::pair<std::string, int>("six", 6)) ;
+    string_key_multimap_copy.insert(std::pair<std::string, int>("four", 44)) ;
+    string_key_multimap_copy.insert(std::pair<std::string, int>("five",  55)) ;
+    string_key_multimap_copy.insert(std::pair<std::string, int>("six", 66)) ;
+    TRICK_EXPECT_EQ(string_key_multimap, string_key_multimap_copy , test_suite, "string_key_multimap");
+
+    std::multimap<int, std::string> string_data_multimap_copy;
+    string_data_multimap_copy.insert(std::pair<int, std::string>(7, "seiben")) ;
+    string_data_multimap_copy.insert(std::pair<int, std::string>(8, "acht")) ;
+    string_data_multimap_copy.insert(std::pair<int, std::string>(9, "neun")) ;
+    string_data_multimap_copy.insert(std::pair<int, std::string>(7, "seven")) ;
+    string_data_multimap_copy.insert(std::pair<int, std::string>(8, "eight")) ;
+    string_data_multimap_copy.insert(std::pair<int, std::string>(9, "nine")) ;
+    TRICK_EXPECT_EQ(string_data_multimap, string_data_multimap_copy , test_suite, "string_data_multimap");
+
+    std::multimap<std::string, std::string> string_multimap_copy;
+    string_multimap_copy.insert(std::pair<std::string, std::string>("sister","Lisa")) ;
+    string_multimap_copy.insert(std::pair<std::string, std::string>("dog","Santa's Little Helper")) ;
+    string_multimap_copy.insert(std::pair<std::string, std::string>("sister","Meg")) ;
+    string_multimap_copy.insert(std::pair<std::string, std::string>("dog","Brian")) ;
+    TRICK_EXPECT_EQ(string_multimap, string_multimap_copy , test_suite, "string_multimap");
+
+    // TODO: check everything i guess
+
+}

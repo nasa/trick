@@ -23,8 +23,11 @@ class STLCheckpoint {
     public:
 
         STLCheckpoint() ;
-        STLCheckpoint(std::string in_name) ;
-        int speak() ;
+        int addData() ;
+        int print() ;
+        int test() ;
+
+        bool dataJobRun;
 
         std::string name ;
 
@@ -84,6 +87,7 @@ class STLCheckpoint {
         std::vector< std::vector< double > > vector_vector_double ;
         std::vector< std::vector< std::vector< double > > > vector_vector_vector_double ;
         //std::vector< std::list< double >  > vector_list_double ;
+
 } ;
 
 #endif
