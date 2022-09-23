@@ -1,0 +1,44 @@
+object_${TRICK_HOST_CPU}/Sie.o: Sie.cpp ${TRICK_HOME}/include/trick/Sie.hh \
+ ${TRICK_HOME}/include/trick/AttributesMap.hh \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/EnumAttributesMap.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/exec_proto.hh \
+ ${TRICK_HOME}/include/trick/Executive.hh \
+ ${TRICK_HOME}/include/trick/Scheduler.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/Threads.hh \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/ThreadTrigger.hh \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h \
+ ${TRICK_HOME}/include/trick/MemoryManager.hh \
+ ${TRICK_HOME}/include/trick/mm_error.h \
+ ${TRICK_HOME}/include/trick/CheckPointAgent.hh 
+object_${TRICK_HOST_CPU}/EnumAttributesMap.o: EnumAttributesMap.cpp \
+ ${TRICK_HOME}/include/trick/EnumAttributesMap.hh \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h 
+object_${TRICK_HOST_CPU}/sie_c_intf.o: sie_c_intf.cpp ${TRICK_HOME}/include/trick/Sie.hh \
+ ${TRICK_HOME}/include/trick/AttributesMap.hh \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/EnumAttributesMap.hh \
+ ${TRICK_HOME}/include/trick/sie_c_intf.h 
+object_${TRICK_HOST_CPU}/AttributesMap.o: AttributesMap.cpp \
+ ${TRICK_HOME}/include/trick/AttributesMap.hh \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h 

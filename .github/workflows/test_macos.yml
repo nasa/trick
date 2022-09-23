@@ -1,0 +1,34 @@
+name: macOS
+
+on:
+  push:
+    paths-ignore:
+    - 'docs/**'
+    - '.github/workflows/**'
+    - '!.github/workflows/test_macos.yml'
+  pull_request:
+
+jobs:
+  macOS:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@master
+   
+    - name: Install gtest
+      run: |
+        brew install googletest
+    - name: Install dependencies
+      run: |
+        # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
+        brew install --cask xquartz
+        brew install llvm@11 swig udunits openmotif maven
+    - name: Build Trick
+      run: |
+        export MAKEFLAGS=-j4
+        ./configure --with-llvm=/usr/local/opt/llvm@11
+        make
+    - name: Run tests
+      run: |
+        export MAKEFLAGS=-j4
+        make test

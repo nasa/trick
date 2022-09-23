@@ -1,0 +1,34 @@
+/************************TRICK HEADER*************************
+PURPOSE: (Test that ICG generates the correct offsets for compat15 headers even
+When they are skipped by header guard optimization. This is implemented in
+ICG's FindTrickICG class)
+LIBRARY DEPENDENCIES:
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "Bar.hh"
+##include "Baz.hh"
+
+class TestFileSkippedSimObject : public Trick::SimObject {
+
+    public:
+
+        Bar bar;
+        Baz baz;
+
+        TestFileSkippedSimObject() {
+            ("initialization") trick_ret = bar.test_bar_member_o_correct_offset();
+            ("initialization") trick_ret = baz.test_baz_member_m_correct_offset();
+            ("default_data") trick_ret = bar.test_bar_member_o_correct_offset();
+            ("default_data") trick_ret = baz.test_baz_member_m_correct_offset();
+            (0.25, "scheduled") trick_ret = bar.test_bar_member_o_correct_offset();
+            (0.25, "scheduled") trick_ret = baz.test_baz_member_m_correct_offset();
+            ("shutdown") trick_ret = bar.test_bar_member_o_correct_offset();
+            ("shutdown") trick_ret = baz.test_baz_member_m_correct_offset();
+        }
+};
+
+TestFileSkippedSimObject testfsSimObject;
+
+

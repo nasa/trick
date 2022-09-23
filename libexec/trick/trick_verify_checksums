@@ -1,0 +1,78 @@
+#!/usr/bin/perl -w
+
+use strict;
+use File::Find;
+use Cwd;
+
+my ( $s1 , $s2 , $name ) ;
+my ( %checksum ) ;
+my $num_diff = 0 ;
+
+my $cwd = cwd() ;
+
+# What kinda name is bm build?
+sub _bm_build {
+    my $condition = shift;
+    my @regexp = @_;  # this MUST not be local(); need my()
+    my $expr = join $condition => map { "m/\$regexp[$_]/o" } (0..$#regexp);
+    my $match_func = eval "sub { $expr }";
+    die if $@;  # propagate $@; this shouldn't happen!
+    return $match_func;
+}
+
+# BM or else what???
+sub bm_or  { _bm_build('||', @_) }
+
+my $ignore_file = bm_or qw{ checksums io_src swig \.svn docs xml(/|$) \.\.\. object compout
+                  lib_[DRIS] \.[oa]$ \.clex$ _lex\.c \.y.[ch] \.l.c Master.cpp 
+                  bin_  mini_catalog catalog/  dr_name_parser.[ch] 
+                  input_parser.[ch]  ref_parser.[ch] monte_parser.[ch] 
+                  \.orig } ;
+
+my $trick_checksums = "$ENV{TRICK_HOME}/bin/checksums" ;
+chdir "$ENV{TRICK_HOME}" ;
+open CHECK, "$trick_checksums" or die "could not open $trick_checksums" ;
+while (<CHECK>) {
+        ( $s1 , $s2 , $name ) = split ;
+        $checksum{$name} = { s1 => $s1 , s2 => $s2 } ;
+}
+close CHECK ;
+
+find(\&verify_checksum, '.');
+
+exit($num_diff) ;
+
+sub verify_checksum {
+    my $curr_name = $_ ;
+    my $name = $File::Find::name ;
+    my $sum ;
+    my ($s1 , $s2) ;
+    my $full_name ;
+    $_ = $name ;
+    return if ( &$ignore_file ) ;
+    ($full_name = $name) =~ s!^\./!$ENV{TRICK_HOME}/! ;
+    if ( $full_name ne "" and ! -d $full_name ) {
+        if ( $^O eq "linux" ) {
+            $sum = `/usr/bin/sum -s $full_name` ;
+        }
+        elsif ( $^O eq "darwin" ) {
+            $sum = `/usr/bin/cksum -o 2 $full_name`
+        }
+        else {
+            $sum = `/usr/bin/sum $full_name`
+        }
+  
+        ($s1 , $s2) =  $sum =~ /(\d+)\s+(\d+)/ ;
+        #printf "%5d %10d %s\n" , $s1 , $s2 , $name ;
+        if ( ! exists $checksum{$name} ) {
+            print "New file $name\n" ;
+            $num_diff++ ;
+        }
+        elsif ( $s1 != $checksum{$name}{s1} or 
+                $s2 != $checksum{$name}{s2} ) {
+            print "Checksum difference for $name\n" ;
+            $num_diff++ ;
+        }
+ 
+    }
+}

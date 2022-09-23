@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="trickView" type="trickView"/>
+
+  <xs:element name="tvBoolean" type="tvBoolean"/>
+
+  <xs:element name="tvByte" type="tvByte"/>
+
+  <xs:element name="tvDouble" type="tvDouble"/>
+
+  <xs:element name="tvEnumeration" type="tvEnumeration"/>
+
+  <xs:element name="tvFloat" type="tvFloat"/>
+
+  <xs:element name="tvInteger" type="tvInteger"/>
+
+  <xs:element name="tvLong" type="tvLong"/>
+
+  <xs:element name="tvShort" type="tvShort"/>
+
+  <xs:element name="tvString" type="tvString"/>
+
+  <xs:element name="vsBoolean" type="vsBoolean"/>
+
+  <xs:element name="vsByte" type="vsByte"/>
+
+  <xs:element name="vsDouble" type="vsDouble"/>
+
+  <xs:element name="vsFloat" type="vsFloat"/>
+
+  <xs:element name="vsInteger" type="vsInteger"/>
+
+  <xs:element name="vsLong" type="vsLong"/>
+
+  <xs:element name="vsShort" type="vsShort"/>
+
+  <xs:element name="vsString" type="vsString"/>
+
+  <xs:complexType name="trickView">
+    <xs:sequence>
+      <xs:element name="enumeration" type="enumeration" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="stripChart" type="stripChart" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="variable" type="variable" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="cyclePeriod" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="enumeration">
+    <xs:sequence>
+      <xs:element name="pairs">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="key" minOccurs="0" type="xs:string"/>
+                  <xs:element name="value" minOccurs="0" type="xs:string"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="name" type="xs:ID"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="stripChart">
+    <xs:sequence>
+      <xs:element name="bounds" type="bounds"/>
+      <xs:element name="rangeAxis" type="axis"/>
+      <xs:element name="domainAxis" type="axis"/>
+      <xs:element name="plotBackgroundRgb" type="xs:int"/>
+      <xs:element name="outlineRgb" type="xs:int"/>
+      <xs:element name="isHorizontal" type="xs:boolean"/>
+      <xs:element name="title" type="title" minOccurs="0"/>
+      <xs:element name="backgroundRgb" type="xs:int"/>
+      <xs:element name="isBackgroundSet" type="xs:boolean"/>
+      <xs:element name="isAntiAliased" type="xs:boolean"/>
+      <xs:element name="areSettingsVisible" type="xs:boolean"/>
+      <xs:element name="isLegendVisible" type="xs:boolean"/>
+      <xs:element name="arePointsVisible" type="xs:boolean"/>
+      <xs:element name="areLinesVisible" type="xs:boolean"/>
+      <xs:element name="fixedAutoRange" type="xs:double"/>
+      <xs:element name="mode" type="mode"/>
+      <xs:element name="plottedVariable" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="domainVariable" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="bounds">
+    <xs:sequence>
+      <xs:element name="height" type="xs:int"/>
+      <xs:element name="width" type="xs:int"/>
+      <xs:element name="y" type="xs:int"/>
+      <xs:element name="x" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="axis">
+    <xs:sequence>
+      <xs:element name="range" type="range"/>
+      <xs:element name="tickLabelRgb" type="xs:int"/>
+      <xs:element name="tickLabelFont" type="font"/>
+      <xs:element name="areTickLabelsVisible" type="xs:boolean"/>
+      <xs:element name="areTickMarksVisible" type="xs:boolean"/>
+      <xs:element name="rgb" type="xs:int"/>
+      <xs:element name="font" type="font"/>
+      <xs:element name="label" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="range">
+    <xs:sequence>
+      <xs:element name="upper" type="xs:double"/>
+      <xs:element name="lower" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="font">
+    <xs:sequence>
+      <xs:element name="size" type="xs:int"/>
+      <xs:element name="style" type="xs:int"/>
+      <xs:element name="name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="title">
+    <xs:sequence>
+      <xs:element name="rgb" type="xs:int"/>
+      <xs:element name="font" type="font"/>
+      <xs:element name="text" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="variable">
+    <xs:sequence>
+      <xs:choice>
+        <xs:element ref="vsBoolean"/>
+        <xs:element ref="vsByte"/>
+        <xs:element ref="vsDouble"/>
+        <xs:element ref="vsFloat"/>
+        <xs:element ref="vsInteger"/>
+        <xs:element ref="vsLong"/>
+        <xs:element ref="vsShort"/>
+        <xs:element ref="vsString"/>
+        <xs:element ref="tvBoolean"/>
+        <xs:element ref="tvByte"/>
+        <xs:element ref="tvDouble"/>
+        <xs:element ref="tvEnumeration"/>
+        <xs:element ref="tvFloat"/>
+        <xs:element ref="tvInteger"/>
+        <xs:element ref="tvLong"/>
+        <xs:element ref="tvShort"/>
+        <xs:element ref="tvString"/>
+      </xs:choice>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="units" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="vsValue" abstract="true">
+    <xs:sequence/>
+  </xs:complexType>
+
+  <xs:complexType name="vsBoolean">
+    <xs:complexContent>
+      <xs:extension base="vsValue">
+        <xs:sequence>
+          <xs:element name="value" type="xs:boolean"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="vsByte">
+    <xs:complexContent>
+      <xs:extension base="vsValue">
+        <xs:sequence>
+          <xs:element name="value" type="xs:byte"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="vsDouble">
+    <xs:complexContent>
+      <xs:extension base="vsValue">
+        <xs:sequence>
+          <xs:element name="value" type="xs:double"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="vsFloat">
+    <xs:complexContent>
+      <xs:extension base="vsValue">
+        <xs:sequence>
+          <xs:element name="value" type="xs:float"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="vsInteger">
+    <xs:complexContent>
+      <xs:extension base="vsValue">
+        <xs:sequence>
+          <xs:element name="value" type="xs:int"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="vsLong">
+    <xs:complexContent>
+      <xs:extension base="vsValue">
+        <xs:sequence>
+          <xs:element name="value" type="xs:long"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="vsShort">
+    <xs:complexContent>
+      <xs:extension base="vsValue">
+        <xs:sequence>
+          <xs:element name="value" type="xs:short"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="vsString">
+    <xs:complexContent>
+      <xs:extension base="vsValue">
+        <xs:sequence>
+          <xs:element name="value" type="xs:string" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="tvBoolean">
+    <xs:complexContent>
+      <xs:extension base="vsBoolean">
+        <xs:sequence>
+          <xs:element name="format" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="Boolean"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="tvByte">
+    <xs:complexContent>
+      <xs:extension base="vsByte">
+        <xs:sequence>
+          <xs:element name="format" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="Character"/>
+                <xs:enumeration value="Binary"/>
+                <xs:enumeration value="Decimal"/>
+                <xs:enumeration value="Octal"/>
+                <xs:enumeration value="Hexadecimal"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="tvDouble">
+    <xs:complexContent>
+      <xs:extension base="vsDouble">
+        <xs:sequence>
+          <xs:element name="format" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="Decimal"/>
+                <xs:enumeration value="Hexadecimal"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="tvEnumeration">
+    <xs:complexContent>
+      <xs:extension base="vsValue">
+        <xs:sequence>
+          <xs:element name="enumeration" type="xs:IDREF"/>
+          <xs:element name="value" type="xs:string"/>
+          <xs:element name="format" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="Enumeration"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="tvFloat">
+    <xs:complexContent>
+      <xs:extension base="vsFloat">
+        <xs:sequence>
+          <xs:element name="format" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="Decimal"/>
+                <xs:enumeration value="Hexadecimal"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="tvInteger">
+    <xs:complexContent>
+      <xs:extension base="vsInteger">
+        <xs:sequence>
+          <xs:element name="format" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="Binary"/>
+                <xs:enumeration value="Decimal"/>
+                <xs:enumeration value="Octal"/>
+                <xs:enumeration value="Hexadecimal"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="tvLong">
+    <xs:complexContent>
+      <xs:extension base="vsLong">
+        <xs:sequence>
+          <xs:element name="format" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="Binary"/>
+                <xs:enumeration value="Decimal"/>
+                <xs:enumeration value="Octal"/>
+                <xs:enumeration value="Hexadecimal"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="tvShort">
+    <xs:complexContent>
+      <xs:extension base="vsShort">
+        <xs:sequence>
+          <xs:element name="format" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="Binary"/>
+                <xs:enumeration value="Decimal"/>
+                <xs:enumeration value="Octal"/>
+                <xs:enumeration value="Hexadecimal"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="tvString">
+    <xs:complexContent>
+      <xs:extension base="vsString">
+        <xs:sequence>
+          <xs:element name="format" minOccurs="0">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:enumeration value="String"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="mode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="All"/>
+      <xs:enumeration value="Strip"/>
+      <xs:enumeration value="Fixed"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "../../XML/DTD/Product.dtd">
+
+<!-- Description: Plot of Y(t) vs. t, no attributes or titles -->
+
+<product version="1.0">
+   <page>
+      <plot>
+         <curve>
+            <var>s_simtime</var>
+            <var>dvvl_01c_3</var>
+         </curve>
+      </plot>
+   </page>
+</product>

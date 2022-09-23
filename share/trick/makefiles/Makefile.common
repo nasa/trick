@@ -1,0 +1,203 @@
+SHELL    := /bin/bash
+CD       := cd
+MV       := /bin/mv
+RM       := /bin/rm
+CP       := /bin/cp
+MAKE_OUT := $(abspath build/MAKE_out)
+MAKE_ERR := $(abspath build/MAKE_err)
+
+PWD       = $(shell /bin/pwd)
+COLOR     = [34m$(1)[0m
+
+ifdef VERBOSE
+    TRICK_VERBOSE_BUILD := 1
+endif
+
+ifdef TRICK_VERBOSE_BUILD
+    ECHO_TO_TERMINAL = @echo '$1'
+endif
+
+define ECHO_AND_LOG
+$(call ECHO_TO_TERMINAL, $1)
+@echo '$1' >> $(MAKE_OUT)
+@$1 > >($(TEE) -a $(MAKE_OUT)) 2> >($(TEE) -a $(MAKE_ERR) >&2)
+endef
+
+export TRICK_HOME      := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../../..)
+export TRICK_HOST_TYPE := $(shell  $(TRICK_HOME)/bin/trick-gte TRICK_HOST_TYPE)
+export TRICK_VERSION   := $(shell  $(TRICK_HOME)/bin/trick-version -v)
+export TRICK_MAJOR     := $(shell  $(TRICK_HOME)/bin/trick-version -y)
+export TRICK_MINOR     := $(shell  $(TRICK_HOME)/bin/trick-version -m)
+
+-include $(TRICK_HOME)/share/trick/makefiles/config_user.mk
+include $(TRICK_HOME)/share/trick/makefiles/config_${TRICK_HOST_TYPE}.mk
+
+ifndef TRICK_CC
+    export TRICK_CC := $(CC)
+endif
+
+# TODO: Remove support for TRICK_CPPC in 2021
+ifdef TRICK_CPPC
+    $(warning TRICK_CPPC is deprecated, use TRICK_CXX instead)
+    export TRICK_CXX := $(TRICK_CPPC)
+endif
+
+ifndef TRICK_CXX
+    export TRICK_CXX := $(CXX)
+endif
+
+ifndef TRICK_LD
+    export TRICK_LD := $(LD)
+endif
+
+# setting makefile variable to shell environment variable (?)
+export TRICK_CFLAGS := $(TRICK_CFLAGS)
+export TRICK_CXXFLAGS := $(TRICK_CXXFLAGS)
+export TRICK_LDFLAGS := $(TRICK_LDFLAGS)
+export TRICK_SFLAGS := $(TRICK_SFLAGS)
+export TRICK_EXCLUDE := $(TRICK_EXCLUDE)
+export TRICK_ICG_COMPAT15 := $(TRICK_ICG_COMPAT15)
+export TRICK_ICG_EXCLUDE := $(TRICK_ICG_EXCLUDE)
+export TRICK_ICG_IGNORE_TYPES := $(TRICK_ICG_IGNORE_TYPES)
+export TRICK_ICG_NOCOMMENT := $(TRICK_ICG_NOCOMMENT)
+export TRICK_SWIG_EXCLUDE := $(TRICK_SWIG_EXCLUDE)
+export TRICK_EXT_LIB_DIRS := $(TRICK_EXT_LIB_DIRS)
+export TRICK_PYTHON_PATH := $(TRICK_PYTHON_PATH)
+export TRICK_GTE_EXT := $(TRICK_GTE_EXT)
+export TRICK_HOST_CPU := $(shell TRICK_FORCE_32BIT=$(TRICK_FORCE_32BIT) $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
+export TRICK_EXEC_LINK_LIBS := ${PTHREAD_LIBS} $(PYTHON_LIB) $(UDUNITS_LDFLAGS) $(PLATFORM_LIBS) -lm -ldl
+export TRICK_LIBS := ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
+export TRICK_SYSTEM_LDFLAGS := $(TRICK_SYSTEM_LDFLAGS)
+export TRICK_SYSTEM_ICG_EXCLUDE := $(TRICK_SYSTEM_ICG_EXCLUDE)
+export TRICK_SWIG_FLAGS := $(TRICK_SWIG_FLAGS)
+export TRICK_SWIG_CFLAGS := $(TRICK_SWIG_CFLAGS)
+export TRICK_CONVERT_SWIG_FLAGS := $(TRICK_CONVERT_SWIG_FLAGS)
+
+IO_SRC_DIR       := io_src/
+OBJ_DIR          := object_${TRICK_HOST_CPU}
+TRICK_STATIC_LIB := ${TRICK_LIB_DIR}/libtrick.a
+TRICK_RANLIB      =
+
+
+ifndef CONFIG_MK
+    ifneq ($(MAKECMDGOALS), clean)
+        $(error Please run $(TRICK_HOME)/configure before running make)
+    endif
+endif
+
+# Where are the libexec executables
+ifneq ($(wildcard $(TRICK_HOME)/libexec),)
+    LIBEXEC = libexec
+else
+    LIBEXEC = lib
+endif
+
+TRICK_INCLUDES := -isystem${TRICK_HOME}/trick_source -isystem${TRICK_HOME}/include -isystem${TRICK_HOME}/include/trick/compat
+TRICK_VERSIONS := -DTRICK_VER=$(TRICK_MAJOR) -DTRICK_MINOR=$(TRICK_MINOR)
+
+export TRICK_SYSTEM_CXXFLAGS := $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic $(UDUNITS_INCLUDES)
+export TRICK_SYSTEM_SFLAGS   := -I${TRICK_HOME}/share/trick -I${TRICK_HOME}/share $(TRICK_INCLUDES) $(TRICK_VERSIONS)
+
+HAVE_ZEROCONF ?= 0
+ifeq ($(HAVE_ZEROCONF),1)
+    TRICK_SYSTEM_CXXFLAGS += -DHAVE_ZEROCONF
+endif
+
+ifeq ($(USE_ER7_UTILS),ON)
+    ER7_UTILS_HOME := $(TRICK_HOME)/trick_source/er7_utils
+    TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
+    TRICK_LIBS += -ler7_utils
+    ifneq ($(wildcard ${ER7_UTILS_HOME}/CheckpointHelper),)
+        USE_ER7_UTILS_CHECKPOINTHELPER = 1
+        TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_CHECKPOINTHELPER
+   endif
+endif
+# older test, remove when cmake is only build system
+ifeq ($(USE_ER7_UTILS), 1)
+    ER7_UTILS_HOME := $(TRICK_HOME)/trick_source/er7_utils
+    TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_INTEGRATORS
+    TRICK_LIBS += -ler7_utils
+    ifneq ($(wildcard ${ER7_UTILS_HOME}/CheckpointHelper),)
+        USE_ER7_UTILS_CHECKPOINTHELPER = 1
+        TRICK_SYSTEM_CXXFLAGS += -DUSE_ER7_UTILS_CHECKPOINTHELPER
+   endif
+endif
+
+ifeq ($(TRICK_FORCE_32BIT),ON)
+   TRICK_ICGFLAGS += -m32
+   TRICK_SYSTEM_CXXFLAGS += -m32
+   TRICK_SYSTEM_LDFLAGS  += -m32
+   LD_PARTIAL            += -melf_i386
+endif
+# older test, remove when cmake is only build system
+ifeq ($(TRICK_FORCE_32BIT), 1)
+   TRICK_ICGFLAGS += -m32
+   TRICK_SYSTEM_CXXFLAGS += -m32
+   TRICK_SYSTEM_LDFLAGS  += -m32
+   LD_PARTIAL            += -melf_i386
+endif
+
+IS_CC_CLANG = $(shell ${TRICK_CXX} -xc /dev/null -dM -E | grep -c __clang__)
+ifeq ($(IS_CC_CLANG), 1)
+   TRICK_SYSTEM_CXXFLAGS += -fcolor-diagnostics
+else
+   GCC_MAJOR := $(shell $(TRICK_CC) -dumpversion | cut -f1 -d.)
+   GCC_MINOR := $(shell $(TRICK_CC) -dumpversion | cut -f2 -d.)
+endif
+
+ifneq ($(HDF5),)
+    ifneq ($(HDF5),/usr)
+        HDF5_LIB := -L$(HDF5)/lib -lhdf5_hl -lhdf5 -lsz
+        HAVE_HDF5_HOME_LIB64 := $(shell test -e ${HDF5}/lib64 && echo "1")
+        ifeq ($(HAVE_HDF5_HOME_LIB64),1)
+            HDF5_LIB = -L$(HDF5)/lib64 $(HDF5_LIB)
+        endif
+    else
+        HDF5_LIB = -lhdf5_hl -lhdf5
+    endif
+    TRICK_EXEC_LINK_LIBS += ${HDF5_LIB}
+endif
+
+ifneq ($(GSL_HOME),)
+    ifneq ($(GSL_HOME),/usr)
+        HAVE_GSL_HOME_LIB64 := $(shell test -e ${GSL_HOME}/lib64 && echo "1")
+        ifeq ($(HAVE_GSL_HOME_LIB64),1)
+            TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib64
+        endif
+        TRICK_EXEC_LINK_LIBS += -L$(GSL_HOME)/lib
+        ifneq ($(GSL_HOME),/usr/local)
+            TRICK_SYSTEM_CXXFLAGS += -I$(GSL_HOME)/include
+        endif
+    endif
+    TRICK_EXEC_LINK_LIBS  += -lgsl -lgslcblas
+    TRICK_SYSTEM_CXXFLAGS += -D_HAVE_GSL
+endif
+
+ifeq (${USE_CIVETWEB},1)
+    TRICK_LIBS += -ltrickCivet
+    TRICK_EXEC_LINK_LIBS += -L${CIVETWEB_HOME}/lib -lcivetweb -lz
+    TRICK_SYSTEM_CXXFLAGS += -I$(CIVETWEB_HOME)/include
+    TRICK_SYSTEM_CXXFLAGS += -DUSE_CIVETWEB
+    TRICK_SYSTEM_ICG_EXCLUDE += ${CIVETWEB_HOME}
+endif
+
+# We pipe the output of compiler through tee.  If the user wanted gcc color, make sure they get it.
+ifdef GCC_COLORS
+    TRICK_SYSTEM_CXXFLAGS += -fdiagnostics-color=always
+endif
+
+# -fexceptions is included to propogate execptions through C code.
+export TRICK_SYSTEM_CFLAGS := $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
+
+# append additional c and cxx flags defined in config_*.mk files.
+TRICK_SYSTEM_CFLAGS   += $(TRICK_ADDITIONAL_CFLAGS)
+TRICK_SYSTEM_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
+
+TRICK_INCLUDE  = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i and $$i ne "/usr/include")}') \
+                 $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')
+
+TRICK_DEFINES  = $(shell $(PERL) -e '@defines = "${TRICK_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}') \
+                 $(shell $(PERL) -e '@defines = "${TRICK_SYSTEM_CFLAGS}" =~ /-D\s*(\S+)/g ; foreach $$i (@defines) { print "-D$$i "}')
+
+DEPFILE = $(PWD)/Makefile_deps
+DEPTEMPFILE = $(PWD)/Makefile_temp_depends

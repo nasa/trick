@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<trickView>
+    <cyclePeriod>0.5</cyclePeriod>
+    <variable>
+        <name>sun_predictor.sun.observer_latitude</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">29.55298</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.observer_longitude</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">95.09379</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.JD</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">2457640.489930556</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>day</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.right_ascension</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">167.8068202634749</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.declination</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">5.231987781012053</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.solar_azimuth</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">270.6069780426451</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
+    <variable>
+        <name>sun_predictor.sun.solar_elevation</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">9.581945411050764</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>degree</units>
+    </variable>
+</trickView>

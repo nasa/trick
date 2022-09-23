@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "Product.dtd">
+
+<!-- Description: Plot of Y(t) vs. X(t) no attributes or titles -->
+
+<product version="1.0">
+   <page>
+      <plot>
+         <curve>
+            <var>sun_predictor.sun.solar_azimuth</var>
+            <var>sun_predictor.sun.solar_elevation</var>
+         </curve>
+      </plot>
+   </page>
+</product>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "Product.dtd">
+<product background_color="#e6e6e6" foreground_color="#000000" version="1.0">
+    <tstart>-1.0E20</tstart>
+    <tstop>1.0E20</tstop>
+    <frequency>0.0</frequency>
+    <page background_color="#e6e6e6" foreground_color="#000000" hcells="0" vcells="0">
+        <title>Page</title>
+        <plot background_color="#f0f0ff" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Sun Elevation vs. Time</title>
+            <xaxis>
+                <label>Time</label>
+            </xaxis>
+            <yaxis>
+                <label>Elevation</label>
+            </yaxis>
+            <curve>
+                <var units="hr">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" line_color="#323200" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="degree">sun_predictor.sun.solar_elevation</var>
+            </curve>
+        </plot>
+    </page>
+    <page background_color="#e6e6e6" foreground_color="#000000" hcells="0" vcells="0">
+        <title>Page</title>
+        <plot background_color="#fffff0" foreground_color="#000000" grid="Yes" grid_color="azure3">
+            <title>Plot</title>
+            <curve>
+                <var units="degree">sun_predictor.sun.solar_azimuth</var>
+                <var gnuplot_line_style="lines" line_color="brown" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="degree">sun_predictor.sun.solar_elevation</var>
+            </curve>
+        </plot>
+    </page>
+    <page background_color="#e6e6e6" foreground_color="#000000" hcells="0" vcells="0">
+        <title>Page</title>
+        <plot background_color="#f0fff0" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Sun Azimuth vs. Time</title>
+            <xaxis>
+                <label>Time</label>
+            </xaxis>
+            <yaxis>
+                <label>Azimuth</label>
+            </yaxis>
+            <curve>
+                <var units="hr">sys.exec.out.time</var>
+                <var units="degree">sun_predictor.sun.solar_azimuth</var>
+            </curve>
+        </plot>
+    </page>
+</product>

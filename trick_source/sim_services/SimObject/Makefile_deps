@@ -1,0 +1,6 @@
+object_${TRICK_HOST_CPU}/JobData.o: JobData.cpp ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh 
+object_${TRICK_HOST_CPU}/SimObject.o: SimObject.cpp ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh 

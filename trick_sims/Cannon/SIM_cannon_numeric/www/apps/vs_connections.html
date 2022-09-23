@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Variable Server Connections</title>
+  </head>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { text-align: left; padding: 8px; }
+    tr:nth-child(even){background-color: #f2f2f2}
+    th { background-color: #562399; color: white; }
+  </style>
+  <body>
+      <header>
+      </header>
+      <section>
+      </section>
+      <script type="text/javascript">
+        function showHeader() {
+
+            let para = document.createElement('p');
+            para.textContent = `URL: ${document.URL}`;
+            header.appendChild(para);
+
+            let label = document.createElement('h2');
+            label.textContent = 'Variable Server Connections';
+            header.appendChild(label);
+        }
+        function showVSConnections(myObj) {
+            let mytable = document.createElement('table');
+            let trow = document.createElement('tr');
+            let table_headings = ['Name', 'Address', 'Port', 'Format', 'Rate'];
+            for (let i = 0; i < table_headings.length ; i++) {
+                let th = document.createElement('th');
+                th.textContent = table_headings[i];
+                trow.appendChild(th);
+            }
+            mytable.appendChild(trow);
+            for (let i = 0; i < myObj.variable_server_connections.length; i++) {
+                let trow = document.createElement('tr');
+                let td1 = document.createElement('td');
+                td1.textContent = myObj.variable_server_connections[i].connection.client_tag;
+                let td2 = document.createElement('td');
+                td2.textContent = myObj.variable_server_connections[i].connection.client_IP_address;
+                let td3 = document.createElement('td');
+                td3.textContent = myObj.variable_server_connections[i].connection.client_port;
+                let td4 = document.createElement('td');
+                td4.textContent = myObj.variable_server_connections[i].connection.format;
+                let td5 = document.createElement('td');
+                td5.textContent = myObj.variable_server_connections[i].connection.update_rate;
+                trow.appendChild(td1);
+                trow.appendChild(td2);
+                trow.appendChild(td3);
+                trow.appendChild(td4);
+                trow.appendChild(td5);
+                mytable.appendChild(trow);
+            }
+            section.appendChild(mytable);
+        }
+
+        var header = document.querySelector('header');
+        var section = document.querySelector('section');
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                var myObj = JSON.parse(xhr.responseText);
+                showHeader();
+                showVSConnections(myObj);
+            }
+        }
+        xhr.open('GET', '/api/http/vs_connections');
+        xhr.send(null);
+        </script>
+  </body>
+</html>

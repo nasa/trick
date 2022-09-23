@@ -1,0 +1,7 @@
+# YAML file with fatal error used for unit testing
+# The runs: section has invalid YAML syntax
+SIM_alloc_test:
+    path: test/SIM_alloc_test
+    runs:
+       - RUN_test/input.py:
+       RUN_test/input.py:

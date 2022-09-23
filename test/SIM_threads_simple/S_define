@@ -1,0 +1,37 @@
+#include "sim_objects/default_trick_sys.sm"
+
+class testSimObject : public Trick::SimObject {
+
+    public:
+        int print_time (int thread) {
+            message_publish(1, "thread %d: time = %8.2f\n", thread, exec_get_sim_time()) ;
+            return 0  ;
+        } ;
+
+        /* This job takes longer than 0.1 seconds to run */
+        int slow_print_time (int thread) {
+            message_publish(1, "thread %d: time = %8.2f\n", thread, exec_get_sim_time()) ;
+            usleep(100000) ;
+            return 0  ;
+        } ;
+
+        testSimObject() {
+            (1.0, "scheduled") print_time(0) ;
+            C1 (0.5, "scheduled") print_time(1) ;
+            C2 (0.1, "scheduled") slow_print_time(2) ;
+        }
+
+} ;
+
+// Instantiations
+testSimObject test ;
+
+// Connect objects
+void create_connections() {
+
+    // Set the default termination time
+    exec_set_terminate_time(30.0) ;
+    exec_set_freeze_frame(1.0) ;
+
+}
+

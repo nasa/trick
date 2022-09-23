@@ -1,0 +1,45 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+     (dp/src/dp.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "dp/include/dp.h"
+
+%{
+
+// Allow C++ access to the these C functions
+extern "C" {
+    extern int dp(DP_TEST*) ;
+}
+
+%}
+
+//=============================================================================
+// SIM_OBJECT: dp
+// This sim object test data products.
+//=============================================================================
+class testSimObject : public Trick::SimObject {
+
+    public:
+        DP_TEST     test ;
+
+        testSimObject() {
+            (0.01, "scheduled") trick_ret = dp( &test ) ;
+        }
+
+} ;
+
+// Instantiations
+testSimObject dpx ;
+
+
+// Connect objects
+void create_connections() {
+
+}

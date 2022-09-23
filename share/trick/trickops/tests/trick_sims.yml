@@ -1,0 +1,223 @@
+# This is a file containing trick sims from this repository to be used
+# for unit testing the trickops module. size, labels, comparisons, and
+# valgrind entries are meaningless outside this unit testing framework
+# and are only added here for internal tests
+SIM_ball_L1:
+    path: trick_sims/Ball/SIM_ball_L1
+    size: 6000
+    runs:
+        RUN_test/input.py:
+            analyze: echo hi
+            compare:
+               - share/trick/trickops/tests/testdata/log_a.csv vs. share/trick/trickops/tests/baselinedata/log_a.csv
+    valgrind:
+        flags: -v
+        runs:
+            - RUN_test/input.py
+SIM_alloc_test:
+    path: test/SIM_alloc_test
+    runs:
+        RUN_test/input.py:
+SIM_default_member_initializer:
+    path: test/SIM_default_member_initializer
+SIM_demo_inputfile:
+    path: test/SIM_demo_inputfile
+    labels:
+      - unit_test
+    runs:
+        RUN_test/unit_test.py:
+        RUN_test/input.py:
+SIM_demo_sdefine:
+    path: test/SIM_demo_sdefine
+    labels:
+      - demo
+      - unit_test
+    runs:
+        RUN_test/input.py:
+        RUN_test/unit_test.py:
+SIM_dynamic_sim_object:
+    path: test/SIM_dynamic_sim_object
+    runs:
+        RUN_test/input.py:
+SIM_events:
+    path: test/SIM_events
+    labels:
+      - events
+      - unit_test
+    runs:
+        RUN_test/input.py:
+        RUN_test/unit_test.py:
+SIM_exclusion_mechanisms:
+    path: test/SIM_exclusion_mechanisms
+    runs:
+        RUN_test/input.py:
+SIM_isystem:
+    path: test/SIM_isystem
+SIM_leaks:
+    path: test/SIM_leaks
+    runs:
+        RUN_test/input.py:
+SIM_measurement_units:
+    path: test/SIM_measurement_units
+    runs:
+        RUN_test/input.py:
+SIM_parse_s_define:
+    path: test/SIM_parse_s_define
+SIM_python_namespace:
+    path: test/SIM_python_namespace
+    labels:
+      - python_namespace
+      - unit_test
+    runs:
+        RUN_test/unit_test.py:
+SIM_rti:
+    path: test/SIM_rti
+    runs:
+        RUN_test/unit_test.py:
+    labels:
+      - unit_test
+SIM_segments:
+    path: test/SIM_segments
+    runs:
+        RUN_test/input.py:
+SIM_stls:
+    path: test/SIM_stls
+    labels:
+      - unit_test
+    runs:
+        RUN_test/input.py:
+        RUN_test/unit_test.py:
+
+SIM_swig_template_scoping:
+    path: test/SIM_swig_template_scoping
+SIM_target_specific_variables:
+    path: test/SIM_target_specific_variables
+SIM_test_abstract:
+    path: test/SIM_test_abstract
+    runs:
+        RUN_test/input.py:
+SIM_test_dp:
+    path: test/SIM_test_dp
+    labels:
+      - unit_test
+    runs:
+        RUN_test/unit_test.py:
+        RUN_test/input.py:
+SIM_test_dr:
+    path: test/SIM_test_dr
+    labels:
+      - unit_test
+    runs:
+        RUN_test/unit_test.py:
+SIM_test_inherit:
+    path: test/SIM_test_inherit
+    runs:
+        RUN_test/input.py:
+SIM_test_io:
+    path: test/SIM_test_io
+    labels:
+      - unit_test
+    runs:
+        RUN_test/unit_test.py:
+SIM_test_ip:
+    path: test/SIM_test_ip
+    labels:
+      - unit_test
+    runs:
+        RUN_test/unit_test.py:
+SIM_test_ip2:
+    path: test/SIM_test_ip2
+    runs:
+        RUN_test/input.py:
+SIM_test_sched:
+    path: test/SIM_test_sched
+    labels:
+      - unit_test
+    runs:
+        RUN_test/input.py:
+        RUN_test/unit_test.py:
+SIM_test_templates:
+    path: test/SIM_test_templates
+    labels:
+      - unit_test
+    runs:
+        RUN_test/unit_test.py:
+SIM_test_varserv:
+    path: test/SIM_test_varserv
+    labels:
+      - unit_test
+    runs:
+        RUN_test/realtime.py:
+        RUN_test/unit_test.py:
+SIM_threads:
+    path: test/SIM_threads
+    labels:
+      - unit_test
+    runs:
+        RUN_test/sched.py:
+        RUN_test/amf.py:
+        RUN_test/async.py:
+        RUN_test/unit_test.py:
+SIM_threads_simple:
+    path: test/SIM_threads_simple
+    runs:
+        RUN_test/input.py:
+        RUN_test/sched.py:
+        RUN_test/async.py:
+SIM_trickcomm:
+    path: test/SIM_trickcomm
+    runs:
+        RUN_test/input.py:
+SIM_ball_L2:
+    path: trick_sims/Ball/SIM_ball_L2
+SIM_ball_L3:
+    path: trick_sims/Ball/SIM_ball_L3
+SIM_amoeba:
+    path: trick_sims/Cannon/SIM_amoeba
+SIM_cannon_aero:
+    path: trick_sims/Cannon/SIM_cannon_aero
+SIM_cannon_analytic:
+    path: trick_sims/Cannon/SIM_cannon_analytic
+SIM_cannon_eulercromer:
+    path: trick_sims/Cannon/SIM_cannon_eulercromer
+SIM_cannon_jet:
+    path: trick_sims/Cannon/SIM_cannon_jet
+SIM_cannon_numeric:
+    path: trick_sims/Cannon/SIM_cannon_numeric
+SIM_monte:
+    path: trick_sims/Cannon/SIM_monte
+SIM_ode_ball:
+    path: trick_sims/ODE/SIM_ode_ball
+SIM_ode_buggy:
+    path: trick_sims/ODE/SIM_ode_buggy
+SIM_ros_publisher:
+    path: trick_sims/ROS/SIM_ros_publisher
+SIM_ros_subscriber:
+    path: trick_sims/ROS/SIM_ros_subscriber
+SIM_Ball++_L1:
+    path: trick_sims/SIM_Ball++_L1/
+SIM_contact:
+    path: trick_sims/SIM_contact
+SIM_lander:
+    path: trick_sims/SIM_lander
+SIM_msd:
+    path: trick_sims/SIM_msd
+SIM_parachute:
+    path: trick_sims/SIM_parachute
+SIM_rocket:
+    path: trick_sims/SIM_rocket
+SIM_sat2d:
+    path: trick_sims/SIM_sat2d
+SIM_satellite:
+    path: trick_sims/SIM_satellite
+SIM_sun:
+    path: trick_sims/SIM_sun
+SIM_wheelbot:
+    path: trick_sims/SIM_wheelbot
+SIM_ball_L1_er7_utils:
+    path: trick_source/er7_utils/sims/SIM_ball_L1
+SIM_grav:
+    path: trick_source/er7_utils/sims/SIM_grav
+
+non_sim_extension_example:
+  will: be ignored by TrickWorkflow parsing for derived classes to implement as they wish

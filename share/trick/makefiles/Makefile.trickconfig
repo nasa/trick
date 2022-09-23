@@ -1,0 +1,9 @@
+# Utility makefile for trick-config
+
+
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+
+# prints the value of a makefile variable, example invocation "make print-TRICK_CXXFLAGS"
+# This rule is used by trick-config
+print-%:
+	@echo '$*=$($*)'

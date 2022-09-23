@@ -1,0 +1,29 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ( Simulate a skydiver jump from very high altitude. )
+LIBRARY DEPENDENCIES:
+    ((Vehicle/src/vehicleOne.cpp)
+    (Control/src/PIDController.cpp))
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "Vehicle/include/vehicleOne.hh"
+
+class VehicleSimObject : public Trick::SimObject {
+
+    public:
+    VehicleOne vehicle;
+
+    VehicleSimObject() {
+        ("default_data")     vehicle.default_data() ;
+        ("initialization")   vehicle.state_init() ;
+        (0.10, "scheduled")  vehicle.control();
+        ("derivative")       vehicle.state_deriv() ;
+        ("integration") trick_ret = vehicle.state_integ() ;
+    }
+};
+
+VehicleSimObject veh ;
+
+IntegLoop veh_integloop (0.10) veh;

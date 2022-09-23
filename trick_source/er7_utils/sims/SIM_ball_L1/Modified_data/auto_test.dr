@@ -1,0 +1,41 @@
+
+# $Id: auto_test.dr 1154 2010-10-15 18:38:48Z wwoodard $
+
+
+''' Ensure variable is defined '''
+try:
+    DR_GROUP_ID
+except NameError:
+    def initialize_globals():
+        global DR_GROUP_ID  # Create global variable when not defined
+        global drg          # Create a data recording group variable
+        DR_GROUP_ID = 0
+        drg = []            # Initialize variable as an empty array
+    initialize_globals()
+
+
+"""
+Auto Testing Data Recording Template.
+"""
+def add_auto_group():
+    global DR_GROUP_ID
+    global drg
+    group_name = "auto"
+    drg.append( trick.DRAscii(group_name) )
+    drg[DR_GROUP_ID].set_freq(trick.DR_Always)
+    drg[DR_GROUP_ID].enable()
+    drg[DR_GROUP_ID].set_cycle(10.0)
+
+    drg[DR_GROUP_ID].add_variable("ball.state.output.position[0]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.position[1]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.velocity[0]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.velocity[1]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.acceleration[0]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.acceleration[1]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.external_force[0]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.external_force[1]")
+
+    data_record.drd.add_group( drg[DR_GROUP_ID], trick.DR_Buffer )
+
+add_auto_group()
+DR_GROUP_ID += 1

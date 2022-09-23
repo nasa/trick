@@ -1,0 +1,5 @@
+object_${TRICK_HOST_CPU}/Scheduler.o: Scheduler.cpp ${TRICK_HOME}/include/trick/Scheduler.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh 

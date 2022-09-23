@@ -1,0 +1,20 @@
+#include "sim_objects/default_trick_sys.sm"
+##include "Foo.hh"
+
+class Sandbox : public Trick::SimObject {
+
+    public:
+    // These should get TRICK_SWIG_TEMPLATE lines
+    Foo<int> foo{1};
+    Foo<int> foo2 = {2};
+    Foo<int> foo3;
+
+    // Functions should not
+    template<class T> void bar();
+
+    private:
+    void operator=(const Sandbox&);
+
+};
+
+Sandbox sandbox;

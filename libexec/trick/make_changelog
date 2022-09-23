@@ -1,0 +1,39 @@
+#!/usr/bin/python
+import subprocess
+
+# These releases tags should be kept in chronological order, latest first.
+releases = ['15.0.0.changelog',
+            '15.0.beta']
+
+# Create a markdown version of the changelog.
+def make_md_changelog():
+   print "![trick_logo](https://raw.github.com/nasa/Trick/master/trick-0.png)"
+   for i in range( len(releases)-1 ):
+       print '### Trick ' + releases[i+1] + ' Change Log'
+
+       command = 'git log ' + releases[i] + '...' + releases[i+1] + \
+       ' --pretty=format:\'* [view commit](http://github.com/nasa/Trick/commit/%H) %s\'' + \
+       ' --reverse'
+       output = subprocess.check_output( command, shell=True )
+       print output
+
+
+# Create an html version of the changelog.
+def make_html_changelog():
+
+   print '<!DOCTYPE html>'
+   print '<html>'
+   print '<body>'
+   print '<img src="https://raw.github.com/nasa/Trick/master/trick-0.png" alt="trick_logo">'
+
+   for i in range( len(releases)-1 ):
+       print '<h1> Trick ' + releases[i+1] + ' Change Log</h1>'
+
+       command = 'git log ' + releases[i] + '...' + releases[i+1] + \
+       ' --pretty=format:\'<li> <a href="http://github.com/nasa/Trick/commit/%H">view commit &bull;</a> %s</li>\'' + \
+       ' --reverse'
+       output = subprocess.check_output( command, shell=True )
+       print output
+
+if __name__ == '__main__':
+    make_md_changelog()

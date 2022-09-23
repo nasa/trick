@@ -1,0 +1,57 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+     (Sun/src/JD.c)
+     (Sun/src/lh_coords.c)
+     (Sun/src/sidereal.c)
+     (Sun/src/sun_pos.c)
+     (Sun/src/sun_pred_cyclic.c)
+     (Sun/src/sun_pred_default_data.c)
+     (Sun/src/sun_pred_fast_display.c)
+     (Sun/src/sun_pred_init.c)
+     (Sun/src/sun_pred_shutdown.c)
+     (Sun/src/sun_pred_slow_display.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+
+##include "Sun/include/sun_pred.h"
+##include "sim_services/MemoryManager/include/wcs_ext.h"
+
+//=============================================================================
+// SIM_OBJECT: sun_predictor
+// This sim object models the position of the sun.
+//=============================================================================
+class heliosSimObject : public Trick::SimObject {
+
+    public:
+        SUN_PRED    sun ;
+
+        heliosSimObject() {
+            // DATA STRUCTURE DECLARATIONS
+            ("default_data") sun_pred_default_data( &sun ) ;
+
+            // INITIALIZATION JOBS
+            ("initialization") sun_pred_init( &sun ) ;
+
+            (1.00, "scheduled") trick_ret = sun_pred_cyclic( &sun, exec_get_sim_time()) ;
+            (1.00, "scheduled") trick_ret = sun_pred_fast_display( &sun ) ;
+            (10.00, "scheduled") trick_ret = sun_pred_slow_display( &sun ) ;
+
+            ("shutdown") sun_pred_shutdown() ;
+        }
+
+} ;
+
+// Instantiations
+heliosSimObject sun_predictor ;
+
+
+// Connect objects
+void create_connections() {
+
+}

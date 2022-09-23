@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+
+use File::Basename ;
+use Cwd 'abs_path';
+use Getopt::Long ;
+use strict;
+
+# read the trick_ver.txt file and print the trick version
+sub print_version() {
+    my @all_lines ;
+    my $file_contents ;
+    my ($current_version) ;
+    my $trick_ver_txt = "$ENV{TRICK_HOME}/share/trick/trick_ver.txt" ;
+    open FILE, "$trick_ver_txt" or die "$0: Couldn't find $trick_ver_txt\n" ;
+    @all_lines = <FILE> ;
+    close FILE ;
+    $file_contents  = join  "" , @all_lines ;
+    ($current_version) = $file_contents =~ /current_version\s*=\s*"([^"]+)"/ ;
+    print "$current_version\n" ;
+}
+
+# print the prefix which is also TRICK_HOME
+sub print_prefix() {
+    print "$ENV{TRICK_HOME}\n" ;
+}
+
+# Run a special rule in Makefile.sim that prints the value of the environment variable we request
+sub print_makefile_var($) {
+    open(README, "make -f $ENV{TRICK_HOME}/share/trick/makefiles/Makefile.trickconfig print-@_ | ") or
+     die "Couldn't fork $!\n" ;
+    while (<README>) {
+        /=(.*)/ && print "$1\n" ;
+    }
+    close(README) ;
+}
+
+sub print_usage() {
+    print "\
+Usage: trick-config <OPTION>
+
+Options:
+    --version     Print Trick version
+    --prefix      Print the installation prefix (TRICK_HOME)
+    --includedir  Directory containing Trick headers (TRICK_INCLUDES)
+    --libdir      Directory containing Trick libraries (TRICK_LIB_DIR)
+    --cflags      C compiler flags set by Trick (TRICK_SYSTEM_CFLAGS)
+    --cxxflags    C++ compiler flags set by Trick (TRICK_SYSTEM_CXXFLAGS)
+    --ldflags     Print Linker flags (TRICK_EXEC_LINK_LIBS)
+    --libs        Libraries needed to link against Trick components (TRICK_LIBS)
+" ;
+}
+
+sub print_usage_error() {
+    print_usage() ;
+    exit 1 ;
+}
+
+# Print usage if no arguments given
+print_usage_error() if ( scalar @ARGV == 0 ) ;
+
+# Set TRICK_HOME environment variable if it does not exist. TRICK_HOME is parent directory
+$ENV{"TRICK_HOME"} = dirname(dirname(abs_path($0))) if (!exists $ENV{"TRICK_HOME"}) ;
+
+# Process arguments
+Getopt::Long::Configure ("bundling");
+GetOptions ( "version" => sub {print_version();},
+             "prefix" => sub {print_prefix();},
+             "includedir" => sub {print_makefile_var("TRICK_INCLUDES");},
+             "libdir" => sub {print_makefile_var("TRICK_LIB_DIR");},
+             "cflags" => sub {print_makefile_var("TRICK_SYSTEM_CFLAGS");},
+             "cxxflags" => sub {print_makefile_var("TRICK_SYSTEM_CXXFLAGS");},
+             "ldflags" => sub {print_makefile_var("TRICK_EXEC_LINK_LIBS");},
+             "libs" => sub {print_makefile_var("TRICK_LIBS");},
+             "help|h" => sub {print_usage()},
+             ) or print_usage_error() ;
+

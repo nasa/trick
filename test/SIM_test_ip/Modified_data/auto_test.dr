@@ -1,0 +1,158 @@
+
+''' Ensure variable is defined '''
+try:
+    DR_GROUP_ID
+except NameError:
+    def initialize_globals():
+        global DR_GROUP_ID  # Create global variable when not defined
+        global drg          # Create a data recording group variable
+        DR_GROUP_ID = 0
+        drg = []            # Initialize variable as an empty array
+    initialize_globals()
+
+
+#sys.exec.record.directory = "" ; ''' Full path to output directory '''
+#sys.exec.record.terminate_on_bad_ref = Yes ; ''' Yes = Terminate sim when a parameter name cannot be found, No = skip ref '''
+
+def add_dr_group():
+    global DR_GROUP_ID
+    global drg
+    group_name = "auto"
+    drg.append( trick.sim_services.DRAscii(group_name) )
+    drg[DR_GROUP_ID].set_fixed_ascii(True)
+    drg[DR_GROUP_ID].set_freq(trick.sim_services.DR_Always)
+    drg[DR_GROUP_ID].enable()
+    drg[DR_GROUP_ID].set_cycle(1.0)
+
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[0].bits_a")
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[0].bits_b")
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[0].bits_c")
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[0].bits_d")
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[0].doub_x")
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[1].bits_a")
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[1].bits_b")
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[1].bits_c")
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[1].bits_d")
+    drg[DR_GROUP_ID].add_variable("test.ip.bits[1].doub_x")
+
+    drg[DR_GROUP_ID].add_variable("test.ip.strings_good")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_types.s")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_types.us")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_types.i")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_types.ui")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_types.l")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_types.ul")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_types.f")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_types.d")
+
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.sa[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.usa[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.ia[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.uia[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.la[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.ula[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.fa[0][0][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.fa[0][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.fa[1][0][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.fa[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.da[0][0][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.da[0][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.da[1][0][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_array_types.da[1][1][0]")
+
+    drg[DR_GROUP_ID].add_variable("test.ip.c_pointer_types.uspp[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_pointer_types.ipp[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_pointer_types.uipp[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_pointer_types.lpp[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_pointer_types.ulpp[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_pointer_types.fpp[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_pointer_types.dpp[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_mixed_types.spa[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_mixed_types.uspa[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_mixed_types.uipa[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_mixed_types.lpa[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_mixed_types.ulpa[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_mixed_types.fpa[1][1][0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.c_mixed_types.dpa[1][1][0]")
+
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].second[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].second[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].second[3]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].second[4]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[3]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[4]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[5]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[6]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[7]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[8]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].meter[9]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].radian[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].radian[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].radian[3]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].radian[4]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].kilogram[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].kilogram[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].kilogram[3]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].kilogram[4]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].kilogram[5]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].newton[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].newton[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].newton[3]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].newton[4]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].volt[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].volt[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].amp[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].amp[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].ohm[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].ohm[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].celsius[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].celsius[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].celsius[3]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].fahrenheit[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].fahrenheit[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].fahrenheit[3]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].temp_rate[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].temp_rate[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].temp_rate[3]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].area[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].area[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].area[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].volume[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].volume[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].volume[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].velocity[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].velocity[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].velocity[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].velocity_eng[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].velocity_eng[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].accel[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].accel[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].accel[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].inertia[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].inertia[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].inertia[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].torque[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].torque[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].torque[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].pressure[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].pressure[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].pressure[2]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].density[0]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].density[1]")
+    drg[DR_GROUP_ID].add_variable("test.ip.units_test[0][0][0].density[2]";
+
+    trick_data_record.drd.add_group( drg[DR_GROUP_ID], trick.DR_Buffer )
+add_dr_group()
+
+
+"""
+add 1 to DR_GROUP_ID, THIS SETS DR_GROUP_ID UP
+FOR THE NEXT DATA RECORDING FILE
+"""
+def increment_group_id():
+    global DR_GROUP_ID
+    DR_GROUP_ID += 1
+increment_group_id()

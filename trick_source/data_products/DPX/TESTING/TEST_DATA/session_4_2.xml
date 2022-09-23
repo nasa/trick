@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE session  PUBLIC "-//Tricklab//DTD Session V1.0//EN" "Session.dtd">
+<!-- This is an XML comment -->
+<session version="1.0" presentation="DELTA">
+    <tstart>0.0</tstart>
+    <tstop>86400.0</tstop>
+    <frequency>50.0</frequency>
+    <runs>
+        <dir>RUN1</dir>
+        <dir>RUN2</dir>
+    </runs>
+    <product_files>
+        <file>product_4.xml</file>
+    </product_files>
+</session>

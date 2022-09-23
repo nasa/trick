@@ -1,0 +1,90 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This is an example of how to replace the default executive
+     with one that understands sim segments)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+// Include the experimental Segmented Executive.  Must be included before default_trick_sys.sm
+#include "SegmentedExecutive.sm"
+#include "sim_objects/default_trick_sys.sm"
+
+class fswSimObject : public Trick::SimObject {
+
+    public:
+        fswSimObject() {
+            (0.1 , "scheduled") scheduled_1() ;
+            (0.1 , "scheduled") scheduled_2() ;
+        }
+
+        int scheduled_1() {
+            message_publish(MSG_NORMAL, "running %s\n" , __func__ ) ;
+            return 0 ;
+        }
+        int scheduled_2() {
+            message_publish(MSG_NORMAL, "running %s\n" , __func__ ) ;
+            return 0 ;
+        }
+} ;
+
+fswSimObject fsw ;
+IntegLoopSimObject my_integ_loop(0.01, 0, &fsw, (void *)NULL);
+
+// Includes a derived Segment class, SegmentA
+##include "SegmentedExecutive/include/ExampleSegments.hh"
+
+class segmentSimObject : public Trick::SimObject {
+
+    public:
+        Trick::Segment pn ;
+        SegmentA pa ;
+        SegmentB pb ;
+
+        segmentSimObject( Trick::SegmentedExecutive & sched , Trick::IntegLoopScheduler & integ_sched ) :
+         pn("None") ,
+         pa("A", "segment_a_enter", "segment_a_exit", integ_sched) ,
+         pb("B", "segment_b_enter", "segment_b_exit", integ_sched) {
+            /* Segments must be added to the executive during sim_object construction, not jobs */
+            sched.add_segment(&pn) ;
+            sched.add_segment(&pa) ;
+            sched.add_segment(&pb) ;
+
+            ("segment_a_enter") print_A_enter() ;
+            ("segment_a_exit") print_A_exit() ;
+            ("segment_b_enter") print_B_enter() ;
+        }
+
+        int print_A_enter() {
+            message_publish(MSG_NORMAL, "calling segment A enter job\n") ;
+            return 0 ;
+        }
+        int print_A_exit() {
+            message_publish(MSG_NORMAL, "calling segment A exit job\n") ;
+            return 0 ;
+        }
+        int print_B_enter() {
+            message_publish(MSG_NORMAL, "calling segment B enter job\n") ;
+            return 0 ;
+        }
+
+    private:
+        segmentSimObject &operator=(const segmentSimObject &);
+
+} ;
+
+segmentSimObject segments(trick_sys.sched, my_integ_loop.integ_sched) ;
+
+
+// Connect objects
+void create_connections() {
+
+    // Set the default termination time
+    exec_set_terminate_time(300.0) ;
+    trick_sys.sched.set_freeze_frame(0.10) ;
+
+    fsw.add_tag("A") ;
+    fsw.add_tag_to_job("B", "scheduled_2") ;
+}
+

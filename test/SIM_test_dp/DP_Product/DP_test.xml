@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "Product.dtd">
+<product background_color="#e6e6e6" foreground_color="#000000" version="1.0">
+    <tstart>-1.0E20</tstart>
+    <tstop>1.0E20</tstop>
+    <frequency>0.0</frequency>
+    <page background_color="#e6e6e6" foreground_color="#000000" hcells="0" vcells="0">
+        <title>Plot Test</title>
+        <plot background_color="#e6e6e6" foreground_color="#000000" grid="No" grid_color="#ffffff">
+            <title>Doubles</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Double-1" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="kg*m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].d[0]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Double-2" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="kg*m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].d[1]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Double-3" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="kg*m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].d[2]</var>
+            </curve>
+        </plot>
+        <plot background_color="#e6e6e6" foreground_color="#000000" grid="No" grid_color="#ffffff">
+            <title>Floats</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Float-1" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].f[0]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Float-2" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].f[1]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Float-3" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].f[2]</var>
+            </curve>
+        </plot>
+        <plot background_color="#e6e6e6" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Ints</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Int-1" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">dpx.test.s3[1].s2[1][1].s1[1][1].i[0]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Int-2" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">dpx.test.s3[1].s2[1][1].s1[1][1].i[1]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Int-3" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">dpx.test.s3[1].s2[1][1].s1[1][1].i[2]</var>
+            </curve>
+        </plot>
+        <plot background_color="#e6e6e6" foreground_color="#000000" grid="No" grid_color="#ffffff">
+            <title>Elvis Test</title>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="One for the money" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="kg*m/s2">dpx.test.s3[1].s2[0][0].s1[0][0].d[0]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Two for the show" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="kg*m/s2">dpx.test.s3[1].s2[1][1].s1[0][0].d[1]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Three to get ready" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="kg*m/s2">dpx.test.s3[1].s2[2][1].s1[1][1].d[2]</var>
+            </curve>
+        </plot>
+    </page>
+    <table>
+        <title>Table</title>
+        <column>
+            <units>--</units>
+            <var units="s">sys.exec.out.time</var>
+        </column>
+        <column>
+            <label>Double-1</label>
+            <units>--</units>
+            <var label="Double-1" units="kg*m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].d[0]</var>
+        </column>
+        <column>
+            <label>Double-2</label>
+            <units>--</units>
+            <var label="Double-2" units="kg*m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].d[1]</var>
+        </column>
+        <column>
+            <label>Double-3</label>
+            <units>--</units>
+            <var label="Double-3" units="kg*m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].d[2]</var>
+        </column>
+        <column>
+            <label>Float-1</label>
+            <units>--</units>
+            <var label="Float-1" units="m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].f[0]</var>
+        </column>
+        <column>
+            <label>Float-2</label>
+            <units>--</units>
+            <var label="Float-2" units="m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].f[1]</var>
+        </column>
+        <column>
+            <label>Float-3</label>
+            <units>--</units>
+            <var label="Float-3" units="m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].f[2]</var>
+        </column>
+        <column>
+            <label>Int-1</label>
+            <units>--</units>
+            <var label="Int-1" units="m">dpx.test.s3[1].s2[1][1].s1[1][1].i[0]</var>
+        </column>
+        <column>
+            <label>Int-2</label>
+            <units>--</units>
+            <var label="Int-2" units="m">dpx.test.s3[1].s2[1][1].s1[1][1].i[1]</var>
+        </column>
+        <column>
+            <label>Int-3</label>
+            <units>--</units>
+            <var label="Int-3" units="m">dpx.test.s3[1].s2[1][1].s1[1][1].i[2]</var>
+        </column>
+        <column>
+            <label>Value 1</label>
+            <units>--</units>
+            <var label="Value 1" units="kg*m/s2">dpx.test.s3[0].s2[0][0].s1[0][0].d[0]</var>
+        </column>
+        <column>
+            <label>Value 2</label>
+            <units>--</units>
+            <var label="Value 2" units="kg*m/s2">dpx.test.s3[0].s2[0][1].s1[0][2].d[1]</var>
+        </column>
+        <column>
+            <label>Value 3</label>
+            <units>--</units>
+            <var label="Value 3" units="kg*m/s2">dpx.test.s3[0].s2[1][1].s1[0][0].d[2]</var>
+        </column>
+        <column>
+            <label>Value 1</label>
+            <units>--</units>
+            <var label="Value 1" units="kg*m/s2">dpx.test.s3[1].s2[0][0].s1[0][0].d[0]</var>
+        </column>
+        <column>
+            <label>Value 2</label>
+            <units>--</units>
+            <var label="Value 2" units="kg*m/s2">dpx.test.s3[1].s2[1][1].s1[0][0].d[1]</var>
+        </column>
+        <column>
+            <label>Value 3</label>
+            <units>--</units>
+            <var label="Value 3" units="kg*m/s2">dpx.test.s3[1].s2[1][1].s1[1][1].d[2]</var>
+        </column>
+    </table>
+</product>

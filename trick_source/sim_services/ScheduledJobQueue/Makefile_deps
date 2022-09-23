@@ -1,0 +1,11 @@
+object_${TRICK_HOST_CPU}/ScheduledJobQueue.o: ScheduledJobQueue.cpp \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueueInstrument.hh \
+ ${TRICK_HOME}/include/trick/TrickConstant.hh 
+object_${TRICK_HOST_CPU}/ScheduledJobQueueInstrument.o: ScheduledJobQueueInstrument.cpp \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueueInstrument.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh 

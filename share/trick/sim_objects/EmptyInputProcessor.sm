@@ -1,0 +1,49 @@
+
+%{
+extern "C" {
+
+/* The input processsor is expected to provide ip_parse for other sim_objects.
+   Provide an empty implementation if the regular input processor is not included.
+*/
+int ip_parse(const char * in_string) {
+    return(0) ;
+}
+
+/* Attributes for the input processor are expected because they are processed
+   by ICG -sim_services when Trick core was compiled.  Provide empty attributes
+   for the io_code that is now missing.
+ */
+ATTRIBUTES attrTrick__InputProcessor[] = {
+{ "", "", "--", "", "",
+  "",
+  3,TRICK_VOID,0,0,0,Language_CPP,0,
+  0,NULL,0,{{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}} } };
+ATTRIBUTES attrTrick__IPPython[] = {
+{ "", "", "--", "", "",
+  "",
+  3,TRICK_VOID,0,0,0,Language_CPP,0,
+  0,NULL,0,{{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}} } };
+ATTRIBUTES attrTrick__condition_t[] = {
+{ "", "", "--", "", "",
+  "",
+  3,TRICK_VOID,0,0,0,Language_CPP,0,
+  0,NULL,0,{{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}} } };
+ATTRIBUTES attrTrick__action_t[] = {
+{ "", "", "--", "", "",
+  "",
+  3,TRICK_VOID,0,0,0,Language_CPP,0,
+  0,NULL,0,{{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}} } };
+ATTRIBUTES attrTrick__IPPythonEvent[] = {
+{ "", "", "--", "", "",
+  "",
+  3,TRICK_VOID,0,0,0,Language_CPP,0,
+  0,NULL,0,{{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}} } };
+ATTRIBUTES attrTrick__MTV[] = {
+{ "", "", "--", "", "",
+  "",
+  3,TRICK_VOID,0,0,0,Language_CPP,0,
+  0,NULL,0,{{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}} } };
+
+}
+%}
+

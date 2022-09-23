@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>FAQ</title>
+</head>
+<body BGCOLOR="#ffffff">
+<H1>FAQ</H1>
+<pre>
+<h2>I brought up trick_dp, but there is nothing there.</h2>
+Data needs to be in SIM_/RUN_ prefixed directories. 
+Start trick_dp in a directory that contains SIMs/RUNs
+SIMs must have a DP_Product directory too.
+The DP_Product directory holds DP spec files.
+
+<h2>I don't have any DP files?  How do I make them?</h2>
+Select a run, and click the blue lightning bolt icon
+to build a DP spec file.
+
+<h2>How do I remove a DP or RUN from the selection box?</h2>
+Double click the item in the selection box, it will disappear.
+
+<h2>How do I compare two sets of data?</h2>
+Select the two RUNs to compare.  Then select a DP file.
+Then click the collate or delta icon. The collate will place
+curves from each set of data on the same plot.  The delta will difference
+the data point by point where the time stamps match.
+
+<h2>How do I plot multiple variables in the same plot?</h2>
+Use quickplot to specify the variables that you want to see. Plotting multiple 
+variables in the same plot can be done by adding mutiple curves to the same plot.
+Each curve has exactly one X variable and one Y variable. Even though all X variable 
+may be the same in the some cases, the X variable still needs to be specified for a curve.
+A variable can not be added directly to a plot. It has be added to a curve of a plot.
+
+In quickplot, variable names that are not shared by all selected RUNs are
+highlighted in red color.  If there are variables having different names meaning the 
+same thing, You have to use "varcase" to generate a plot for those variables.  
+Refer to Help in quickplot for instructions on adding curves.
+
+<h2>How do I compare two variables in the same RUN (set of data)?</h2>
+You have to use quickplot for this.  See the "function f" icon on quickplot.
+
+<h2>How do I send a plot to a file or printer?</h2>
+See general usage.
+
+</pre>
+</body>
+</html>

@@ -1,0 +1,771 @@
+<?xml version="1.1" encoding="UTF-8" ?>
+
+<Form version="1.5" maxVersion="1.7">
+  <NonVisualComponents>
+    <Container class="javax.swing.JMenuBar" name="menuBar">
+      <Properties>
+        <Property name="name" type="java.lang.String" value="menuBar" noResource="true"/>
+      </Properties>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout">
+        <Property name="useNullLayout" type="boolean" value="true"/>
+      </Layout>
+      <SubComponents>
+        <Menu class="javax.swing.JMenu" name="fileMenu">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="fileMenu.text"/>
+            <Property name="name" type="java.lang.String" value="fileMenu" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
+          </AuxValues>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="loadMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="load_event" methodName="load_event"/>
+                </Property>
+                <Property name="icon" type="javax.swing.Icon" resourceKey="loadMenuItem.icon"/>
+                <Property name="text" type="java.lang.String" resourceKey="loadMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="loadMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="saveMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="save_event" methodName="save_event"/>
+                </Property>
+                <Property name="icon" type="javax.swing.Icon" resourceKey="saveMenuItem.icon"/>
+                <Property name="text" type="java.lang.String" resourceKey="saveMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="saveMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator4">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jSeparator4" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JCheckBoxMenuItem" name="confirmExitMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="show_exit_prompt" methodName="show_exit_prompt"/>
+                </Property>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="confirmExitMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="confirmExitMenuItem" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="confirmExitMenuItem.setSelected(MtvApp.confirmExit);"/>
+              </AuxValues>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="exitMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="org.jdesktop.application.Application" id="quit" methodName="quit"/>
+                </Property>
+                <Property name="name" type="java.lang.String" value="exitMenuItem" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+                <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
+              </AuxValues>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="viewMenu">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="viewMenu.text"/>
+            <Property name="name" type="java.lang.String" value="viewMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="deleteMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="delete_event" methodName="delete_event"/>
+                </Property>
+                <Property name="icon" type="javax.swing.Icon" resourceKey="deleteMenuItem.icon"/>
+                <Property name="text" type="java.lang.String" resourceKey="deleteMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="deleteMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="customizeMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="customize_event_display" methodName="customize_event_display"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="customizeMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="customizeMenuItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="customizeMenuItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="editMenu">
+          <Properties>
+            <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+              <action class="trick.mtv.MtvView" id="edit_new_event" methodName="edit_new_event"/>
+            </Property>
+            <Property name="text" type="java.lang.String" resourceKey="editMenu.text"/>
+            <Property name="name" type="java.lang.String" value="editMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="createMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="edit_new_event" methodName="edit_new_event"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="createMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="createMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="edit_deleteMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="delete_line" methodName="delete_line"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="edit_deleteMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="edit_deleteMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="edit_addlineMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="edit_addlineMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="edit_addlineMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <Menu class="javax.swing.JMenu" name="edit_addstmtMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="edit_addstmtMenu.text"/>
+                <Property name="name" type="java.lang.String" value="edit_addstmtMenu" noResource="true"/>
+              </Properties>
+              <SubComponents>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_actionMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_actionMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_actionMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_action_disableMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_action_disableMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_action_disableMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem1">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="jMenuItem1.text"/>
+                    <Property name="name" type="java.lang.String" value="jMenuItem1" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem2">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="jMenuItem2.text"/>
+                    <Property name="name" type="java.lang.String" value="jMenuItem2" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem3">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="jMenuItem3.text"/>
+                    <Property name="name" type="java.lang.String" value="jMenuItem3" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator1">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="jSeparator1" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_activateMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_activateMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_activateMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_add_eventMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_add_eventMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_add_eventMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_add_event_afterMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_add_event_afterMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_add_event_afterMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_add_event_beforeMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_add_event_beforeMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_add_event_beforeMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator2">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="jSeparator2" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_conditionMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_conditionMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_conditionMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_condition_allMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_condition_allMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_condition_allMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_condition_disableMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_condition_disableMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_condition_disableMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_condition_hold_onMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_condition_hold_onMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_condition_hold_onMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem4">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="jMenuItem4.text"/>
+                    <Property name="name" type="java.lang.String" value="jMenuItem4" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="jMenuItem5">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="jMenuItem5.text"/>
+                    <Property name="name" type="java.lang.String" value="jMenuItem5" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JPopupMenu$Separator" name="jSeparator3">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="jSeparator3" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+                <MenuItem class="javax.swing.JMenuItem" name="edit_cycleMenuItem">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="add_line" methodName="add_line"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="edit_cycleMenuItem.text"/>
+                    <Property name="name" type="java.lang.String" value="edit_cycleMenuItem" noResource="true"/>
+                  </Properties>
+                </MenuItem>
+              </SubComponents>
+            </Menu>
+          </SubComponents>
+        </Menu>
+        <Menu class="javax.swing.JMenu" name="cycleMenu">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="cycleMenu.text"/>
+            <Property name="name" type="java.lang.String" value="cycleMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JRadioButtonMenuItem" name="cycleMenuItem05">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="set_cycle" methodName="set_cycle"/>
+                </Property>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="cycleMenuItem05.text"/>
+                <Property name="name" type="java.lang.String" value="cycleMenuItem05" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JRadioButtonMenuItem" name="cycleMenuItem10">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="set_cycle" methodName="set_cycle"/>
+                </Property>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="cycleMenuItem10.text"/>
+                <Property name="name" type="java.lang.String" value="cycleMenuItem10" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JRadioButtonMenuItem" name="cycleMenuItem25">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="set_cycle" methodName="set_cycle"/>
+                </Property>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="cycleMenuItem25.text"/>
+                <Property name="name" type="java.lang.String" value="cycleMenuItem25" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JRadioButtonMenuItem" name="cycleMenuItem50">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="set_cycle" methodName="set_cycle"/>
+                </Property>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="cycleMenuItem50.text"/>
+                <Property name="name" type="java.lang.String" value="cycleMenuItem50" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JRadioButtonMenuItem" name="cycleMenuItem75">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="set_cycle" methodName="set_cycle"/>
+                </Property>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="cycleMenuItem75.text"/>
+                <Property name="name" type="java.lang.String" value="cycleMenuItem75" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JRadioButtonMenuItem" name="cycleMenuItem100">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="trick.mtv.MtvView" id="set_cycle" methodName="set_cycle"/>
+                </Property>
+                <Property name="selected" type="boolean" value="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="cycleMenuItem100.text"/>
+                <Property name="name" type="java.lang.String" value="cycleMenuItem100" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="//DANNY set 0.50 as default&#xa;cycle_group = new ButtonGroup();&#xa;cycleMenuItem05.setActionCommand(&quot;0.05&quot;);&#xa;cycle_group.add(cycleMenuItem05);&#xa;cycleMenuItem10.setActionCommand(&quot;0.10&quot;);&#xa;cycle_group.add(cycleMenuItem10);&#xa;cycleMenuItem25.setActionCommand(&quot;0.25&quot;);&#xa;cycle_group.add(cycleMenuItem25);&#xa;cycleMenuItem50.setActionCommand(&quot;0.50&quot;);&#xa;cycle_group.add(cycleMenuItem50);&#xa;cycleMenuItem75.setActionCommand(&quot;0.75&quot;);&#xa;cycle_group.add(cycleMenuItem75);&#xa;cycleMenuItem100.setActionCommand(&quot;1.00&quot;);&#xa;cycle_group.add(cycleMenuItem100);&#xa;&#xa;cycleMenuItem50.setSelected(true);"/>
+              </AuxValues>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JPanel" name="statusPanel">
+      <Properties>
+        <Property name="name" type="java.lang.String" value="statusPanel" noResource="true"/>
+      </Properties>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JLabel" name="status_label">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="status_label.text"/>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[550, 20]"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="status_label" noResource="true"/>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[750, 20]"/>
+            </Property>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JSeparator" name="statusPanelSeparator">
+          <Properties>
+            <Property name="name" type="java.lang.String" value="statusPanelSeparator" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JLabel" name="statusMessageLabel">
+          <Properties>
+            <Property name="name" type="java.lang.String" value="statusMessageLabel" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JLabel" name="host_label">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="host_label.text"/>
+            <Property name="name" type="java.lang.String" value="host_label" noResource="true"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="host_field">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="host_field.text"/>
+            <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+              <action class="trick.mtv.MtvView" id="connect" methodName="connect"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="host_field" noResource="true"/>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[450, 28]"/>
+            </Property>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JLabel" name="port_label">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="port_label.text"/>
+            <Property name="name" type="java.lang.String" value="port_label" noResource="true"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JTextField" name="port_field">
+          <Properties>
+            <Property name="text" type="java.lang.String" resourceKey="port_field.text"/>
+            <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+              <action class="trick.mtv.MtvView" id="connect" methodName="connect"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="port_field" noResource="true"/>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[100, 28]"/>
+            </Property>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JLabel" name="statusAnimationLabel">
+          <Properties>
+            <Property name="horizontalAlignment" type="int" value="2"/>
+            <Property name="name" type="java.lang.String" value="statusAnimationLabel" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="false"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="2"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JProgressBar" name="progressBar">
+          <Properties>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[0, 0]"/>
+            </Property>
+            <Property name="name" type="java.lang.String" value="progressBar" noResource="true"/>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[0, 0]"/>
+            </Property>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="connect_button">
+          <Properties>
+            <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+              <action class="trick.mtv.MtvView" id="connect" methodName="connect"/>
+            </Property>
+            <Property name="text" type="java.lang.String" resourceKey="connect_button.text"/>
+            <Property name="name" type="java.lang.String" value="connect_button" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+          </AuxValues>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Container class="javax.swing.JTabbedPane" name="jTabbedPane1">
+      <Properties>
+        <Property name="name" type="java.lang.String" value="jTabbedPane1" noResource="true"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="// enable/diable appropriate menus when a tab is selected&#xa;jTabbedPane1.addChangeListener(new ChangeListener() {&#xa;    public void stateChanged(ChangeEvent evt) {&#xa;        current_tab = ((JTabbedPane)evt.getSource()).getSelectedIndex();&#xa;        if (current_tab==0) {&#xa;        // View&#xa;            viewMenu.setEnabled(true);&#xa;            editMenu.setEnabled(false);&#xa;            cycleMenu.setEnabled(true);&#xa;        } else {&#xa;        // Edit&#xa;            viewMenu.setEnabled(false);&#xa;            if (!edit_event_name.equals(&quot;put_new_event_name_here&quot;)) {&#xa;                editMenu.setEnabled(true);&#xa;            }&#xa;            cycleMenu.setEnabled(false);&#xa;        }&#xa;    }&#xa;});"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
+      <SubComponents>
+        <Container class="javax.swing.JPanel" name="viewPanel">
+          <Properties>
+            <Property name="name" type="java.lang.String" value="viewPanel" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+          </AuxValues>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="View">
+                <Property name="tabTitle" type="java.lang.String" resourceKey="viewPanel.TabConstraints.tabTitle"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+          <SubComponents>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jScrollPane1" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="Center"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="event_table">
+                  <Properties>
+                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor" postCode="for (int ii=0; ii&lt;col_names.length; ii++) {&#xa;    event_table.getColumnModel().getColumn(ii).setCellRenderer(new EventTableRenderer());&#xa;}&#xa;event_table.getColumnModel().getColumn(7).setCellEditor(new DefaultCellEditor(comboBox));&#xa;&#xa;event_table.getModel().addTableModelListener(new TableModelListener() {&#xa;    public void tableChanged(TableModelEvent tme) {&#xa;        if (tme.getType() == TableModelEvent.UPDATE) {&#xa;            String name, modestr, command;&#xa;            int row = tme.getFirstRow();&#xa;            int column = tme.getColumn();&#xa;            //System.out.println(&quot;LISTEN &quot; + row + &quot;, &quot; + column + &quot; changed.&quot;&#xa;                //+ &quot; The new value: &quot; + event_table.getValueAt(row, column));&#xa;            if (mode_selected) { // Mode&#xa;            // mousePressed detected the user click in a row&apos;s Mode combo box&#xa;                try {&#xa;                    name = trick.mtv.MtvApp.mtv_events.get(eventmap[row]).name;&#xa;                    modestr = (String)event_table.getValueAt(row, column);&#xa;                    //System.out.println(&quot;   mode= &quot; + modestr);&#xa;                    if (modestr == &quot;Manual FIRE&quot;) {&#xa;                        command = &quot;.manual_fire()&quot;;&#xa;                        mode[row] = Mode.MANUALON;&#xa;                    } else if (modestr == &quot;Manual ON&quot;) {&#xa;                        command = &quot;.manual_on()&quot;;&#xa;                        mode[row] = Mode.MANUALON;&#xa;                    } else if (modestr == &quot;Manual OFF&quot;) {&#xa;                        command = &quot;.manual_off()&quot;;&#xa;                        mode[row] = Mode.MANUALOFF;&#xa;                    } else { // Normal&#xa;                        command = &quot;.manual_done()&quot;;&#xa;                        mode[row] = Mode.NORMAL;&#xa;                    }&#xa;                    //System.out.println(&quot;   cmd= &quot; + name + command);&#xa;                    MtvApp.vscom.put(name + command);&#xa;                    // paused when user pressed mouse, so unpause after choice is made&#xa;                    //System.out.println(&quot;=============== unpause ==============&quot;);&#xa;                    MtvApp.vscom.unpause();&#xa;                } catch (IOException ioe) {&#xa;                    System.out.println(&quot;MTV tableChanged() &quot; +ioe.toString() +&quot;.&quot;);&#xa;&#x9;        }&#xa;                mode_selected = false;&#xa;            }&#xa;        }&#xa;    }&#xa;});&#xa;event_table.addMouseListener(new MouseAdapter() {&#xa;&#xa;    public void mousePressed(MouseEvent e) {&#xa;        if (event_table.isEnabled()) {&#xa;            //System.out.println(&quot;&lt;press&gt;&quot;);&#xa;            // Handle user choosing Mode here&#xa;            JTable target = (JTable)e.getSource();&#xa;            int row = target.getSelectedRow();&#xa;            int column = target.getSelectedColumn();&#xa;            String mode, name, command;&#xa;            // handle the user click in Active / Hold / Mode column&#xa;            if (event_table.isCellEditable(row,column)) {&#xa;                //System.out.println(&quot;PRESS &quot; + row + &quot;, &quot; + column);&#xa;                name = MtvApp.mtv_events.get(eventmap[row]).name;&#xa;                command = &quot;&quot;;&#xa;                if (column==7) { // Mode&#xa;                    // can&apos;t do the command here because user has to click again to make selection&#xa;                    // so set a flag that will make the tableChanged function handle it&#xa;                    mode_selected = true;&#xa;                    command = &quot;&lt;mode&gt;...&quot;;&#xa;                    // pause while user makes choice&#xa;                    //System.out.println(&quot;===============+ pause +==============&quot;); &#xa;                    try {&#xa;                        MtvApp.vscom.pause();&#xa;                    } catch (IOException ioe) {&#xa;                        System.out.println(&quot;MTV mousePressed() &quot; +ioe.toString() +&quot;.&quot;);&#xa;&#x9;            }          &#xa;                }&#xa;                //System.out.println(&quot;   cmd= &quot; + name + command);&#xa;            } else {&#xa;                // user clicked in non-edittable cell&#xa;            }&#xa;        } // end isEnabled&#xa;    }&#xa;&#xa;    public void mouseReleased(MouseEvent e) {&#xa;        if (event_table.isEnabled()) {&#xa;            //System.out.println(&quot;&lt;release&gt;&quot;);&#xa;            // Handle user clicking Active/Hold checkboxes here&#xa;            JTable target = (JTable)e.getSource();&#xa;            int row = target.getSelectedRow();&#xa;            int column = target.getSelectedColumn();&#xa;            String mode, name, command;&#xa;            boolean checked;&#xa;            if (event_table.isCellEditable(row,column)) {&#xa;                //System.out.println(&quot;RELEASE &quot; + row + &quot;, &quot; + column);&#xa;                name = MtvApp.mtv_events.get(eventmap[row]).name;&#xa;                command = &quot;&quot;;&#xa;                if (column==0) { // Active&#xa;                    checked = (Boolean)event_table.getValueAt(row, column);&#xa;                    active[row] = checked;&#xa;                    // if this is an event row, make sure its conditions/actions rows are set to same active color&#xa;                    if (rowtype[row]== RowType.EVENT) {&#xa;                        int ii = row+1;&#xa;                        while (MtvApp.mtv_events.get(eventmap[ii]).row==row) {&#xa;                            // set its value (to the current value) to make the cell renderer get called&#xa;                            event_table.setValueAt(event_table.getValueAt(ii,0),ii,0);&#xa;                            ii++;&#xa;                            if (ii==event_table_rows.size()) {&#xa;                                break;&#xa;                            }&#xa;                        }&#xa;                    }&#xa;                    //System.out.println(&quot;   active= &quot; + checked);&#xa;                    if (checked) {&#xa;                        if (rowtype[row]== RowType.EVENT) {&#xa;                            command = name + &quot;.activate()&quot;;&#xa;                        } else if (rowtype[row]== RowType.CONDITION) {&#xa;                            command = name + &quot;.condition_enable(&quot; + condactnum[row] + &quot;)&quot;;&#xa;                        } else { // ACTION&#xa;                            command = name + &quot;.action_enable(&quot; + condactnum[row] + &quot;)&quot;;&#xa;                        }&#xa;                    } else { // not checked&#xa;                        if (rowtype[row]== RowType.EVENT) {&#xa;                            command = name + &quot;.deactivate()&quot;;&#xa;                        } else if (rowtype[row]== RowType.CONDITION) {&#xa;                            command = name + &quot;.condition_disable(&quot; + condactnum[row] + &quot;)&quot;;&#xa;                        } else { // ACTION&#xa;                            command = name + &quot;.action_disable(&quot; + condactnum[row] + &quot;)&quot;;&#xa;                        }&#xa;                    }&#xa;                }&#xa;                if (column==6) { // Hold&#xa;                    checked = (Boolean)event_table.getValueAt(row, column);&#xa;                    //System.out.println(&quot;   hold= &quot; + checked);&#xa;                    if (checked) {&#xa;                        command = name + &quot;.condition_hold_on(&quot; + condactnum[row] + &quot;)&quot;;&#xa;                    } else { // not checked&#xa;                        command = name + &quot;.condition_hold_off(&quot; + condactnum[row] + &quot;)&quot;;&#xa;                    }&#xa;                }&#xa;                if (column==8) { // Added&#xa;                    checked = (Boolean)event_table.getValueAt(row, column);&#xa;                    //System.out.println(&quot;   added= &quot; + checked);&#xa;                    // make sure its conditions/actions rows are set to same active color&#xa;                    int ii = row+1;&#xa;                    while (MtvApp.mtv_events.get(eventmap[ii]).row==row) {&#xa;                        // simply set any row value (to the current value) to make the cell renderer get called&#xa;                        event_table.setValueAt(event_table.getValueAt(ii,0),ii,0);&#xa;                        ii++;&#xa;                        if (ii==event_table_rows.size()) {&#xa;                            break;&#xa;                        }&#xa;                    }&#xa;                    MtvApp.mtv_events.get(eventmap[row]).added = checked;&#xa;                    if (checked) {&#xa;                        // if it has a target job, insert it before/after that job&#xa;                        int before_after = MtvApp.mtv_events.get(eventmap[row]).before_after;&#xa;                        if (before_after==1) {&#xa;                            command = &quot;trick.add_event_before(&quot; + name +&quot;, \&quot;&quot; &#xa;                                      +MtvApp.mtv_events.get(eventmap[row]).target_job+ &quot;\&quot;)&quot;;&#xa;                        } else if (before_after==2) {&#xa;                            command = &quot;trick.add_event_after(&quot; + name +&quot;, \&quot;&quot; &#xa;                                      +MtvApp.mtv_events.get(eventmap[row]).target_job+ &quot;\&quot;)&quot;;&#xa;                        } else {&#xa;                            command = &quot;trick.add_event(&quot; + name + &quot;)&quot;;&#xa;                        }&#xa;                    } else { // not checked&#xa;                        command = &quot;trick.remove_event(&quot; + name + &quot;)&quot;;&#xa;                    }&#xa;                }&#xa;                if (column != 7) {&#xa;                    //System.out.println(&quot;   cmd= &quot; + command);&#xa;                    try {&#xa;                        MtvApp.vscom.put(command);&#xa;                    } catch (IOException ioe) {&#xa;                        System.out.println(&quot;MTV mouseReleased() &quot; +ioe.toString() +&quot;.&quot;);&#xa;                    }&#xa;&#x9;        }&#xa;                // deselect the row after click is done&#xa;                event_table.clearSelection();&#xa;            } else {&#xa;                // user clicked in non-edittable cell&#xa;            }&#xa;        } // end isEnabled&#xa;    }&#xa;});">
+                      <Connection code="&#xa;    new javax.swing.table.DefaultTableModel(&#xa;        /***&#xa;        new Object [][] {&#xa;            {null, null, null, null, null, null, null, null, null}&#xa;        },&#xa;        new String [] {&#xa;            &quot;Active&quot;, &quot;Name&quot;, &quot;Fired Time&quot;, &quot;Fired Count&quot;, &quot;Ran Time&quot;, &quot;Ran Count&quot;, &quot;Hold&quot;, &quot;Enabled&quot;, &quot;Mode&quot;, &quot;Added&quot;&#xa;        }&#xa;        ***/&#xa;        event_table_rows, event_table_cols&#xa;    ) {&#xa;        Class[] types = new Class [] {&#xa;            java.lang.Boolean.class, java.lang.String.class,&#xa;            java.lang.Double.class, java.lang.Integer.class,&#xa;            java.lang.Double.class, java.lang.Integer.class,&#xa;            java.lang.Boolean.class, java.lang.Object.class,&#xa;            java.lang.Boolean.class&#xa;            //java.lang.String.class&#xa;        }; //DANNY added hidden column on end?&#xa;&#xa;        public Class getColumnClass(int columnIndex) {&#xa;            return types [columnIndex];&#xa;        }&#xa;&#xa;        public boolean isCellEditable(int rowIndex, int columnIndex) {&#xa;            if (canEditRow[rowIndex]) {&#xa;                return canEdit[rowIndex][columnIndex];&#xa;            }&#xa;            return false;&#xa;        }&#xa;&#xa;    }" type="code"/>
+                    </Property>
+                    <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+                      <TableColumnModel selectionModel="1"/>
+                    </Property>
+                    <Property name="gridColor" type="java.awt.Color" resourceKey="event_table.gridColor"/>
+                    <Property name="name" type="java.lang.String" value="event_table" noResource="true"/>
+                    <Property name="showGrid" type="boolean" value="true"/>
+                    <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
+                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                    </Property>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodePre" type="java.lang.String" value="// Mode combobox&#xa;comboBox = new javax.swing.JComboBox();&#xa;comboBox.addItem(&quot;Normal&quot;);&#xa;comboBox.addItem(&quot;Manual FIRE&quot;);&#xa;comboBox.addItem(&quot;Manual ON&quot;);&#xa;comboBox.addItem(&quot;Manual OFF&quot;);&#xa;mode_selected = false;&#xa;&#xa;event_table_rows = new Vector&lt;Object&gt;();&#xa;event_table_cols = new Vector&lt;String&gt;();&#xa;String[] col_names = {&quot;Active&quot;, &quot;Name&quot;, &quot;Fired Time&quot;, &quot;Fired Count&quot;, &quot;Ran Time&quot;, &quot;Ran Count&quot;, &quot;Hold&quot;, &quot;Mode&quot;, &quot;Added&quot;};&#xa;for (int ii=0; ii&lt;col_names.length; ii++) {&#xa;    event_table_cols.addElement((String) col_names[ii]);&#xa;}"/>
+                    <AuxValue name="JavaCodeGenerator_DeclarationPost" type="java.lang.String" value="public Vector&lt;Object&gt; event_table_rows;&#xa;public Vector&lt;String&gt; event_table_cols;&#xa;public boolean mode_selected; // user clicked a row&apos;s Mode combobox"/>
+                    <AuxValue name="JavaCodeGenerator_DeclarationPre" type="java.lang.String" value="public ButtonGroup cycle_group;&#xa;public javax.swing.JComboBox comboBox; // Mode"/>
+                    <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="MtvView_event_table"/>
+                    <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+                  </AuxValues>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JToolBar" name="toolBar">
+              <Properties>
+                <Property name="rollover" type="boolean" value="true"/>
+                <Property name="borderPainted" type="boolean" value="false"/>
+                <Property name="name" type="java.lang.String" value="toolBar" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="//DANNY&#xa;toolBar.setLayout(new javax.swing.BoxLayout(toolBar, javax.swing.BoxLayout.LINE_AXIS));"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="First"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JLabel" name="tool_label">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" resourceKey="tool_label.text"/>
+                    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[550, 16]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="tool_label" noResource="true"/>
+                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[550, 16]"/>
+                    </Property>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="simtime_label">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" resourceKey="simtime_label.text"/>
+                    <Property name="name" type="java.lang.String" value="simtime_label" noResource="true"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="simtime_text">
+                  <Properties>
+                    <Property name="background" type="java.awt.Color" resourceKey="simtime_text.background"/>
+                    <Property name="editable" type="boolean" value="false"/>
+                    <Property name="text" type="java.lang.String" resourceKey="simtime_text.text"/>
+                    <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+                      <Border info="null"/>
+                    </Property>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[80, 28]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="simtime_text" noResource="true"/>
+                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[80, 28]"/>
+                    </Property>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+                  </AuxValues>
+                </Component>
+                <Component class="trick.common.ui.panels.SmallTrickIconLabel" name="trick_icon">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="trick_icon" noResource="true"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+          </SubComponents>
+        </Container>
+        <Container class="javax.swing.JPanel" name="editPanel">
+          <Properties>
+            <Property name="name" type="java.lang.String" value="editPanel" noResource="true"/>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+          </AuxValues>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Edit">
+                <Property name="tabTitle" type="java.lang.String" resourceKey="editPanel.TabConstraints.tabTitle"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
+          <SubComponents>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jScrollPane2" noResource="true"/>
+              </Properties>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="Center"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="edit_table">
+                  <Properties>
+                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="model" type="code"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="edit_table" noResource="true" postCode="for (int ii=0; ii&lt;col_names2.length; ii++) {&#xa;    edit_table.getColumnModel().getColumn(ii).setCellRenderer(new EditTableRenderer());&#xa;}&#xa;//DANNY set column widths&#xa;        edit_table.getColumnModel().getColumn(0).setMinWidth(50);&#xa;        edit_table.getColumnModel().getColumn(0).setPreferredWidth(150);&#xa;        edit_table.getColumnModel().getColumn(0).setMaxWidth(500);&#xa;        edit_table.getColumnModel().getColumn(0).setHeaderValue(&quot;Event Syntax&quot;);&#xa;        edit_table.getColumnModel().getColumn(1).setMinWidth(40);&#xa;        edit_table.getColumnModel().getColumn(1).setPreferredWidth(40);&#xa;        edit_table.getColumnModel().getColumn(1).setMaxWidth(40);&#xa;        edit_table.getColumnModel().getColumn(1).setHeaderValue(&quot;&quot;);&#xa;        edit_table.getColumnModel().getColumn(2).setMinWidth(50);&#xa;        edit_table.getColumnModel().getColumn(2).setPreferredWidth(300);&#xa;        edit_table.getColumnModel().getColumn(2).setMaxWidth(500);&#xa;        edit_table.getColumnModel().getColumn(2).setHeaderValue(&quot;User Data&quot;);&#xa;        edit_table.getColumnModel().getColumn(3).setMinWidth(40);&#xa;        edit_table.getColumnModel().getColumn(3).setPreferredWidth(40);&#xa;        edit_table.getColumnModel().getColumn(3).setMaxWidth(40);&#xa;        edit_table.getColumnModel().getColumn(3).setHeaderValue(&quot;&quot;);"/>
+                    <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
+                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                    </Property>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_DeclarationPost" type="java.lang.String" value="private javax.swing.table.DefaultTableModel model;&#xa;private JTextArea user_text;&#xa;public Vector&lt;Object&gt; edit_table_rows;&#xa;private Vector&lt;String&gt; edit_table_cols;"/>
+                    <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="edit_table_rows = new Vector&lt;Object&gt;();&#xa;edit_table_cols = new Vector&lt;String&gt;();&#xa;user_text = new JTextArea();&#xa;String[] col_names2 = {&quot;Event Syntax&quot;, &quot;&quot;, &quot;User Data&quot;, &quot;&quot;};&#xa;for (int ii=0; ii&lt;col_names2.length; ii++) {&#xa;    edit_table_cols.addElement((String) col_names2[ii]);&#xa;}&#xa;model = new javax.swing.table.DefaultTableModel(&#xa;    edit_table_rows, edit_table_cols&#xa;    /***&#xa;    new Object [][] {&#xa;        {event_name+ &quot; = trick.sim_services.IPPythonEvent&quot;, &quot;(\&quot;&quot;, event_name, &quot;\&quot;)&quot;} // row0&#xa;    }&#xa;    new String [] {&#xa;        &quot;Event Syntax&quot;, &quot;&quot;, &quot;User Data&quot;, &quot;&quot;&#xa;    }***/&#xa;) {&#xa;    Class[] types = new Class [] {&#xa;        java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class&#xa;    };&#xa;    boolean[] canEdit = new boolean [] {&#xa;        false, false, true, false&#xa;    };&#xa;&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return types [columnIndex];&#xa;    }&#xa;&#xa;    public boolean isCellEditable(int rowIndex, int columnIndex) {&#xa;        return canEdit [columnIndex];&#xa;    }&#xa;};"/>
+                  </AuxValues>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JToolBar" name="toolBar2">
+              <Properties>
+                <Property name="rollover" type="boolean" value="true"/>
+                <Property name="borderPainted" type="boolean" value="false"/>
+                <Property name="name" type="java.lang.String" value="toolBar2" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="//DANNY&#xa;toolBar2.setLayout(new javax.swing.BoxLayout(toolBar2, javax.swing.BoxLayout.LINE_AXIS));"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="First"/>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JLabel" name="jLabel1">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" resourceKey="jLabel1.text"/>
+                    <Property name="name" type="java.lang.String" value="jLabel1" noResource="true"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="eventTextField">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="edit_event_name" type="code"/>
+                    </Property>
+                    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[540, 28]"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="eventTextField" noResource="true"/>
+                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[540, 28]"/>
+                    </Property>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="eventTextFieldActionPerformed"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JButton" name="send_button">
+                  <Properties>
+                    <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                      <action class="trick.mtv.MtvView" id="send_to_sim" methodName="send_to_sim"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" resourceKey="send_button.text"/>
+                    <Property name="toolTipText" type="java.lang.String" resourceKey="send_button.toolTipText"/>
+                    <Property name="focusable" type="boolean" value="false"/>
+                    <Property name="horizontalTextPosition" type="int" value="0"/>
+                    <Property name="name" type="java.lang.String" value="send_button" noResource="true"/>
+                    <Property name="verticalTextPosition" type="int" value="3"/>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+                  </AuxValues>
+                </Component>
+                <Component class="trick.common.ui.panels.SmallTrickIconLabel" name="trick_icon2">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="trick_icon2" noResource="true"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+          </SubComponents>
+        </Container>
+      </SubComponents>
+    </Container>
+  </NonVisualComponents>
+  <Properties>
+    <Property name="component" type="javax.swing.JComponent" editor="org.netbeans.modules.form.ComponentChooserEditor">
+      <ComponentRef name="jTabbedPane1"/>
+    </Property>
+    <Property name="menuBar" type="javax.swing.JMenuBar" editor="org.netbeans.modules.form.ComponentChooserEditor">
+      <ComponentRef name="menuBar"/>
+    </Property>
+    <Property name="statusBar" type="javax.swing.JComponent" editor="org.netbeans.modules.form.ComponentChooserEditor">
+      <ComponentRef name="statusPanel"/>
+    </Property>
+  </Properties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="2"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,2,99,0,0,3,68"/>
+  </AuxValues>
+</Form>

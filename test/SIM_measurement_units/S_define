@@ -1,0 +1,133 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+class unitSimObject : public Trick::SimObject {
+
+    public:
+
+        // test map_trick_units_to_udunits to convert old symbols to udunits
+        double r ; // trick_units((r)) test
+        double r2 ; // trick_units(r2) test
+        double r2pers ; // trick_units(r2/s) test
+        double rhat2pers ; // trick_units(r^2/s) test
+        double d ; // trick_units(d) test
+        double cnt ; // trick_units(cnt) test
+        double crazy ; // trick_units(as^2*am3/d2/r*cnt/one*F/C*R/v) test
+        double another_crazy ; // trick_units((m^2*kg3)/(degree2/rad)*(count/1)*(degF/degC*degR/V)) test
+
+        // Time variables and prefixes
+        double s ; // trick_units(s) test
+        double ps ; // trick_units(ps) test
+        double ns ; // trick_units(ns) test
+        double us ; // trick_units(us) test
+        double ms ; // trick_units(ms) test
+        double cs ; // trick_units(cs) test
+        double ds ; // trick_units(ds) test
+        double das ; // trick_units(das) test
+        double hs ; // trick_units(hs) test
+        double ks ; // trick_units(ks) test
+        double Ms ; // trick_units(Ms) test
+        double Gs ; // trick_units(Gs) test
+        double Ts ; // trick_units(Ts) test
+        double min ; // trick_units(min) test
+        double hr ; // trick_units(hr) test
+        double day ; // trick_units(day) test
+
+        // Length
+        double m ; // trick_units(m) test
+        double ft ; // trick_units(ft) test
+        double kft ; // trick_units(kft) test
+        double inch ; // trick_units(in) test
+        double yd ; // trick_units(yd) test
+        double mi ; // trick_units(mi) test
+        double nmile ; // trick_units(nmile) test
+
+        // Angle
+        double rad ; // trick_units(rad) test
+        double degree ; // trick_units(degree) test
+        double arcsecond ; // trick_units(arcsecond) test
+        double arcminute ; // trick_units(arcminute) test
+        double revolution ; // trick_units(revolution) test
+
+        // Mass
+        double g ; // trick_units(g) test
+        double ug ; // trick_units(μg) test
+        double kg ; // trick_units(kg) test
+        double t ; // trick_units(t) test
+        double slug ; // trick_units(slug) test
+        double lb ; // trick_units(lb) test
+
+        // Force
+        double N ; // trick_units(N) test
+        double ozf ; // trick_units(ozf) test
+        double lbf ; // trick_units(lbf) test
+
+        // Electrical
+        double V ; // trick_units(V) test
+        double A ; // trick_units(A) test
+        double ohm ; // trick_units(ohm) test
+        double omega ; // trick_units(Ω) test
+
+        // Temperature
+        double degC ; // trick_units(℃) test
+        double degF ; // trick_units(°F) test
+        double K ; // trick_units(K) test
+        double degR ; // trick_units(degR) test
+
+        // Energy
+        double J ; // trick_units(J) test
+        double BTU ; // trick_units(BTU) test
+        double ton_TNT ; // trick_units(ton_TNT) test
+        double Wh ; // trick_units(W*h) test
+        double kWh ; // trick_units(kW*h) test
+
+        // Power
+        double W ; // trick_units(W) test
+        double hp ; // trick_units(hp) test
+
+        // Pressure
+        double Pa ; // trick_units(Pa) test
+        double psi ; // trick_units(psi) test
+        double atm ; // trick_units(atm) test
+        double mmHg ; // trick_units(mmHg) test
+        double inHg ; // trick_units(inHg) test
+        double cmH2O ; // trick_units(cmH2O) test
+        double inch_H2O_39F ; // trick_units(inch_H2O_39F) test
+
+        // Volume
+        double l ; // trick_units(l) test
+        double gallon ; // trick_units(gallon) test
+        double floz ; // trick_units(floz) test
+
+        // Frequency
+        double Hz ; // trick_units(Hz) test
+
+        // Unitless
+        double one ; // trick_units(1) test
+        double count ; // trick_units(count) test
+        double mol ; // trick_units(mol) test
+
+        // furlongs/fortnight
+        double furlong ; // trick_units(furlong) test
+        double fortnight ; // trick_units(fortnight) test
+        double fpf ; // trick_units(furlong/fortnight) test
+        double mps ; // trick_units(m/s) test
+
+        // Exponentiation testing
+        double accel ; // trick_units(m/s²) test
+        double m3 ; // trick_units(m³) test
+        double dashdash ; // trick_units(--) test
+
+        // Using dot as multiplication symbol
+        double torque ; // trick_units(N·m) test
+
+        unitSimObject() { }
+} ;
+
+// Instantiations
+unitSimObject unit ;
+

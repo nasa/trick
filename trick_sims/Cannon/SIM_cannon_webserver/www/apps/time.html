@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>WS Example</title>
+  </head>
+  <body>
+      <div id="output"></div>
+      <script type="text/javascript">
+
+          function log(s) {
+              var p = document.createElement("p");
+              p.style.wordWrap = "break-word";
+              p.textContent = s;
+              output.appendChild(p);
+          }
+
+          var ws = new WebSocket('ws://localhost:8888/api/ws/Time');
+
+          // WebSocket Event Handlers
+          ws.onopen = function(e) {
+              ws.send("GMT");
+          };
+          ws.onmessage = function(e) {
+             log(e.data);
+          };
+          ws.onerror = function(e) {
+             console.log("WebSocket Error: " , e);
+             handleErrors(e);
+          };
+          ws.onclose = function(e) {
+             console.log("Connection closed", e);
+          };
+
+      </script>
+  </body>
+</html>

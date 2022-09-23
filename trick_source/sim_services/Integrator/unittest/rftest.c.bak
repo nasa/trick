@@ -1,0 +1,51 @@
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "regula_falsi.h"
+
+
+int main( int argc, char*argv[]) {
+
+  double t;
+  double ti;
+  double t_end;
+  double tgo;
+  double dt = 0.2;
+  REGULA_FALSI rf;
+
+  t = ti = 0.0;
+  t_end = t + dt;
+
+  reset_regula_falsi(t, &rf);
+  rf.error_tol = 1.0e-15;
+  rf.mode = Any;
+
+  do {
+
+      rf.error = sin( ti);
+      tgo = regula_falsi(ti, &rf); 
+
+      if ( ti + tgo > t_end) {
+         /** Advance */
+         t = ti = t_end ;
+         t_end = t + dt ;
+
+      } else if ( fabs(tgo) > rf.error_tol ) {
+         ti += tgo;
+
+      } else {
+         printf("ROOT @ ti = %14.10g\n", ti);
+
+         reset_regula_falsi(ti, &rf);
+
+         /** Advance */
+         t = ti = t_end ;
+         t_end = t + dt ;
+      }
+
+
+  } while ( t < 15.0);
+
+  exit(0);
+
+}

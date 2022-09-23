@@ -1,0 +1,374 @@
+#!/usr/bin/perl
+
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
+
+use strict ;
+use File::Basename ;
+use Cwd ;
+use Cwd 'abs_path';
+use trick_version ;
+use get_lib_deps ;
+use verbose_build ;
+
+my %processed_files ;
+my %non_lib_processed_files ;
+my $any_deps_changed = 0 ;
+my $verbose_build = verbose_build() ;
+
+sub exist_lib_deps(@) {
+    my (@files_to_process) = @_ ;
+    foreach my $l ( @files_to_process ) {
+        next if ( $l eq "" ) ;
+        next if ( $l =~ /^-|\.a$/ ) ;
+        next if ( ! -e $l ) ;
+        my ( $file, $dir, $suffix) = fileparse($l, qr/\.[^.]*/) ;
+        my ($lib_dep_file_name) = "build$dir${file}${suffix}.lib_deps" ;
+        if ( ! -e $lib_dep_file_name ) {
+            $any_deps_changed = 1 ;
+            print "[34mNew Dep[0m    $l\n" ;
+            return 1 ;
+        }
+    }
+    return 0 ;
+}
+
+sub read_lib_deps($@) {
+    my ($indent , @files_to_process) = @_ ;
+    foreach my $l ( @files_to_process ) {
+        next if ( $l eq "" ) ;
+        if ( ! exists $processed_files{$l} ) {
+            $processed_files{$l} = 1 ;
+            next if ( $l =~ /^-|\.a$/ ) ;
+            $non_lib_processed_files{$l} = 1 ;
+            my ( $file, $dir, $suffix) = fileparse($l, qr/\.[^.]*/) ;
+            my ($lib_dep_file_name) = "build$dir${file}${suffix}.lib_deps" ;
+            if ( -e $lib_dep_file_name ) {
+               open FH, "$lib_dep_file_name" or die 'cannot open $lib_dep_file_name' ;
+               my (@all_lines) = <FH> ;
+               close FH ;
+               chomp @all_lines ;
+               read_lib_deps($indent + 1 , @all_lines) ;
+            } else {
+                print "[34mDepTracing[0m " , " " x $indent, "$l\n" ;
+                if ( -e $l ) {
+                    my $deps_changed ;
+                    my @resolved_files ;
+                    ($deps_changed , @resolved_files) = write_lib_deps($l) ;
+                    $any_deps_changed |= $deps_changed ;
+                    read_lib_deps($indent + 1 , @resolved_files) ;
+                }
+            }
+        } elsif ( $verbose_build ) {
+            print "[34mSkipping[0m   Previously processed file \"$l\"\n" ;
+        }
+    }
+}
+
+# Update any possibly out of date lib_dep files
+if ( scalar @ARGV ) {
+    # Arguments are all files (headers and source) that are newer than the makefile.
+    # Keep track if any dependencies changed
+    for my $f ( @ARGV ) {
+        # Filter out Makefile_io_src_deps, Makefie_io_src, and S_source.hh from the argument list.
+        # These are dependencies in the makefile.
+        # S_source.hh will be passed in as a full path again if the file has changed.
+        next if ( $f eq "build/Makefile_src_deps" or $f eq "build/Makefile_io_src" or $f eq "S_source.hh") ;
+        my $deps_changed ;
+        my @resolved_files ;
+        print "[34mDepTracing[0m " , "$f\n" ;
+        ($deps_changed , @resolved_files ) = write_lib_deps($f) ;
+        $any_deps_changed |= $deps_changed ;
+    }
+} else {
+    # no arguments mean we are calling this for the first time.  Always make makefile
+    $any_deps_changed = 1 ;
+}
+
+if ( ! -e "build/Makefile_src") {
+    $any_deps_changed = 1 ;
+}
+
+# Read in dependency tree starting at the roots.  The dependency tree starts with all of the
+# header files ICG processed and the lib deps listed in the S_define file.
+open FILE, "build/ICG_processed" or die 'cannot open build/ICG_processed' ;
+my (@top_file_names) = <FILE> ;
+close FILE ;
+open FILE, "build/ICG_no_found" or die 'cannot open build/ICG_no_found' ;
+my (@ICG_no_file_names) = <FILE> ;
+close FILE ;
+push @top_file_names , @ICG_no_file_names ;
+open FILE, "build/S_define.lib_deps" or die 'cannot open build/S_define.lib_deps' ;
+my (@s_define_lib_deps) = <FILE> ;
+close FILE ;
+push @top_file_names , @s_define_lib_deps ;
+chomp @top_file_names ;
+
+# See if any depenendices lack a .lib_deps file.  If it does we need to continue
+$any_deps_changed |= exist_lib_deps(@top_file_names) ;
+
+# if no dependencies have changed, "touch" Makefile_src and exit
+if ( $any_deps_changed == 0 ) {
+    utime(undef, undef, "build/Makefile_src") ;
+    exit ;
+}
+
+# We are here if dependencies have changed or we're running for the first time.
+# Read in all of the lib_dep files.
+# read_lib_deps wil create lib_dep files that don't exist and read them in too.
+read_lib_deps(0, @top_file_names) ;
+
+#print map {"$_\n"} (sort keys %processed_files) ;
+
+my ($n , $f , $k , $i , $m);
+my @all_cfly_files ;
+my @all_read_only_libs ;
+my @all_compile_libs ;
+my %files_by_dir ;
+
+@all_cfly_files = keys %processed_files ;
+@all_read_only_libs = sort (grep /^-/ , @all_cfly_files) ;
+@all_compile_libs = grep /\.a$/ , @all_cfly_files ;
+@all_compile_libs = sort (grep !/trick_source/ , @all_compile_libs) ;
+@all_cfly_files = sort (grep !/^-|trick_source|a$/ , @all_cfly_files) ;
+
+sub add_file($) {
+    my ($name, $path, $extension) = fileparse($_[0], qr/\.[^.]*/) ;
+    push @{$files_by_dir{$path}{$extension}} , $name ;
+}
+
+sub add_files_in_directory($) {
+    opendir THISDIR, "$_[0]" or die "Could not open $_[0]" ;
+    my @files = grep !/^\./ , readdir THISDIR ;
+    foreach ( @files ) {
+        add_file($_[0] . "/" . $_) ;
+    }
+    closedir THISDIR ;
+}
+
+# split off files by directory
+foreach ( @all_cfly_files ) {
+    add_file($_);
+}
+
+# get all of the files required by compiled libraries
+# compile all files as normal files,  we're not going to make a library anymore.
+foreach ( @all_compile_libs ) {
+    my $path = abs_path(dirname($_));
+    add_files_in_directory($path) ;
+    $path .= "/src" ;
+    add_files_in_directory($path) if -e "$path" ;
+}
+
+# sort and weed out duplicate files
+foreach my $directory ( keys %files_by_dir ) {
+    my %temp_hash ;
+    foreach my $extension ( keys %{$files_by_dir{$directory}} ) {
+        undef %temp_hash ;
+        @{$files_by_dir{$directory}{$extension}} = sort grep ++$temp_hash{$_} < 2, @{$files_by_dir{$directory}{$extension}} ;
+    }
+}
+
+my $wd = abs_path(cwd()) ;
+my $dt = localtime();
+my ($trick_ver) = get_trick_version() ;
+chomp $trick_ver ;
+
+open MAKEFILE , ">build/Makefile_src" or return ;
+
+print MAKEFILE
+"################################################################################
+# Makefile:
+#    This is a makefile for maintaining the
+#    '$wd'
+#    simulation directory. This makefile was automatically generated by trick-CP
+#
+################################################################################
+# Creation:
+#    Author: Trick Configuration Processor - trick-CP Version $trick_ver
+#    Date:   $dt
+#
+################################################################################
+
+ifdef VERBOSE
+    TRICK_VERBOSE_BUILD=1
+endif
+
+ifndef TRICK_VERBOSE_BUILD
+    PRINT_COMPILE    = \$(info \$(call COLOR,Compiling)  \$<)
+    PRINT_EXE_LINK   = \$(info \$(call COLOR,Linking)    \$@)
+    PRINT_SIE        = \$(info \$(call COLOR,Writing)    \$@)
+endif
+
+S_MAIN  = S_main_\${TRICK_HOST_CPU}.exe
+ifeq (\$(MAKECMDGOALS), test)
+    TRICK_HOST_CPU := \$(shell \$(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)_test
+    S_MAIN  = T_main_\${TRICK_HOST_CPU}.exe
+endif
+
+# S_OBJECTS ====================================================================
+
+S_OBJECTS = build/S_source.o
+
+build/S_source.o: build/S_source.cpp | build/S_source.d
+\t\$(PRINT_COMPILE)
+\t\$(call ECHO_AND_LOG,\$(TRICK_CXX) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\<)
+
+build/S_source.d: ;
+
+-include build/S_source.d
+
+# MODEL_OBJECTS ================================================================
+
+# This function allows users to specify target-specific variables for individual
+# or groups of source files. For example:
+# \$(call FIND_MODEL_OBJECTS, /path/to/file /path/to/directory \$(LIST_OF_PATHS)): TRICK_CXXFLAGS += -Werror
+FIND_MODEL_OBJECTS = \$(foreach PATH, \$1, \$(filter \$(addprefix build, \$(addsuffix %, \$(PATH))), \$(MODEL_OBJECTS)))
+
+" ;
+
+# List out all of the object files and put the list in a file that we can pass to the linker.
+# Passing all of them directly to the linker in the command line can exceed the line limit.
+open MODEL_LINK_LIST, ">build/model_link_list" or die "Could not open build/model_link_list" ;
+
+my %files_by_extension ;
+foreach my $directory ( keys %files_by_dir ) {
+    foreach my $extension ( grep { /^\.(c|cc|C|cxx|cpp|c\+\+)$/ } keys %{$files_by_dir{$directory}} ) {
+        foreach my $file ( @{$files_by_dir{$directory}{$extension}} ) {
+            push @{$files_by_extension{$extension}} , "build$directory$file.o" ;
+        }
+    }
+}
+
+foreach my $extension ( keys %files_by_extension ) {
+    print MAKEFILE "MODEL_OBJECTS${extension} :=" ;
+        foreach my $file ( @{$files_by_extension{$extension}} ) {
+            print MAKEFILE " \\\n    $file" ;
+            print MODEL_LINK_LIST "$file\n" ;
+    }
+    print MAKEFILE "\n\n"
+}
+close MODEL_LINK_LIST ;
+
+print MAKEFILE "MODEL_OBJECTS :=" ;
+foreach my $extension ( keys %files_by_extension ) {
+    print MAKEFILE " \${MODEL_OBJECTS$extension}" ;
+}
+
+# Write out the compile rules for each type of file.
+print MAKEFILE "
+
+# We use .SECONDEXPANSION here to allow us to use automatic vairiables in the prerequisite list
+# in order to add to each target an order-only dependency on its directory.
+# See https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
+# and https://www.gnu.org/software/make/manual/html_node/Secondary-Expansion.html
+
+.SECONDEXPANSION:" ;
+
+foreach my $extension ( keys %files_by_extension ) {
+    my $compiler = "TRICK_" . ($extension eq ".c" ? "CC" : "CXX") ;
+    my $flags = $extension eq ".c" ? "C" : "CXX" ;
+    my $command = "\$($compiler) \$(TRICK_${flags}FLAGS) \$(TRICK_SYSTEM_${flags}FLAGS) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$<" ;
+    print MAKEFILE "
+
+\${MODEL_OBJECTS$extension} : build/%.o : /%$extension | build/%.d \$\$(dir \$\$\@)
+\t\$(PRINT_COMPILE)
+\t\$(call ECHO_AND_LOG,$command)" ;
+}
+
+print MAKEFILE "
+
+\$(sort \$(dir \$(MODEL_OBJECTS))):
+\t\@mkdir -p \$\@
+
+\$(MODEL_OBJECTS:.o=.d): ;
+
+-include \$(MODEL_OBJECTS:.o=.d)
+
+LINK_LISTS += \$(LD_FILELIST)build/model_link_list
+" ;
+
+# print out the libraries we link
+print MAKEFILE "
+# S_MAIN =======================================================================
+
+READ_ONLY_LIBS =";
+foreach ( @all_read_only_libs ) {
+    print MAKEFILE " \\\n    $_" ;
+}
+
+print MAKEFILE "
+
+all: S_sie.resource
+
+\$(S_MAIN): S_source.hh \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
+\t\$(PRINT_EXE_LINK)
+\t\$(call ECHO_AND_LOG,\$(TRICK_CXX) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS))
+
+# SIE ==========================================================================
+
+S_sie.resource: \$(S_MAIN)
+\t\$(PRINT_SIE)
+\t\$(call ECHO_AND_LOG,\${TRICK_HOME}/\$(LIBEXEC)/trick/sie_concat)" ;
+
+# write out the override files we have read in
+open MAKEFILEOVER, ">build/Makefile_overrides" or die "Could not open build/Makefile_overrides" ;
+foreach $k ( sort keys %files_by_dir ) {
+    # Look for makefile_overrides in the current directory.
+    # If no such file exists AND this directory is named "src", look for it one level up.
+    # Silly, but baggage we're stuck with.
+    my $makefile_overrides = "${k}makefile_overrides" ;
+    if (not -e $makefile_overrides and $k =~ /\/src\/$/) {
+        $makefile_overrides = dirname($k) . "/makefile_overrides" ;
+    }
+    if (open OV_FILE, $makefile_overrides) {
+        while ( <OV_FILE> ) {
+            s/(#.*)// ;
+            my ($comment) = $1 ;
+            s/\$[{(]CURDIR[})]\/(\S+)/$k\/$1/g ;
+            s/(?:\$[{(]CURDIR[})]\/)?(\S*)\$[{(]OBJ_DIR[})]/$k\/$1object_\${TRICK_HOST_CPU}/g ;
+            s/\$[{(]CURDIR[})]/$k/g ;
+            while ( s,/[^/.]+/\.\.,, ) {}
+            s//$comment/ ;
+            if ( s/^objects\s*:\s*// ) {
+                foreach my $extension ( keys %files_by_extension ) {
+                    foreach my $file (@{$files_by_dir{$k}{$extension}}) {
+                        $files_by_dir{$k}{overrides} .= "build$k${file}.o \\\n" ;
+                    }
+                }
+                $files_by_dir{$k}{overrides} .= ": $_"
+            }
+            elsif ( s/(.+)_objects\s*:\s*// ) {
+                if (scalar @{$files_by_dir{$k}{".$1"}}) {
+                    foreach my $file (@{$files_by_dir{$k}{".$1"}}) {
+                        $files_by_dir{$k}{overrides} .= "build$k$file.o \\\n" ;
+                    }
+                    $files_by_dir{$k}{overrides} .= ": $_"
+                }
+            }
+            else {
+                $files_by_dir{$k}{overrides} .= $_ ;
+            }
+        }
+        close OV_FILE ;
+        print MAKEFILEOVER "# Overrides from $makefile_overrides\n" ;
+        print MAKEFILEOVER "MAKEFILE_LIST += $makefile_overrides\n\n" ;
+        print MAKEFILEOVER "$files_by_dir{$k}{overrides}\n" ;
+        print MAKEFILEOVER "MAKEFILE_LIST := \$(filter-out $makefile_overrides,\$(MAKEFILE_LIST))\n\n" ;
+    }
+}
+close MAKEFILEOVER ;
+
+# write out all of files we processed as dependencies to Makefile_src
+open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;
+print MAKEFILEDEPS "build/Makefile_src:" ;
+print MAKEFILEDEPS map {"\\\n $_"} (sort keys %non_lib_processed_files) ;
+print MAKEFILEDEPS "\n\n" ;
+print MAKEFILEDEPS map {"$_:\n"} (sort keys %non_lib_processed_files) ;
+close MAKEFILEDEPS ;
+
+# write out all of the files we used to S_library_list
+open LIB_LIST, ">build/S_library_list" or die "Could not open build/S_library_list" ;
+print LIB_LIST map {"$_\n"} (sort keys %processed_files) ;
+close LIB_LIST ;
+

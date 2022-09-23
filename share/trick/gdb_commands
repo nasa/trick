@@ -1,0 +1,3 @@
+thread apply all bt
+echo \n
+quit

@@ -1,0 +1,176 @@
+
+###############################################################
+# Build Java
+###############################################################
+
+
+set(JAVA_JARS
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/MTV.jar
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/TrickView.jar
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/JXPlot.jar
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/QP.jar
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/DP.jar
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/Sie.jar
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/Dre.jar
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/SimControl.jar
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/SimSniffer.jar
+  ${CMAKE_BINARY_DIR}/libexec/trick/java/build/MM.jar
+)
+
+add_custom_target(java ALL DEPENDS ${JAVA_JARS})
+
+add_custom_command(
+  OUTPUT
+		${JAVA_JARS}
+  COMMAND COMMAND 
+    ${MAVEN_EXECUTABLE} -q package -Dcmake=true -DbuildDirectory=${CMAKE_BINARY_DIR}/libexec/trick/java/build
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  DEPENDS
+    src/main/java/trick/dre/DreApplication.java
+    src/main/java/trick/sniffer/SimulationSniffer.java
+    src/main/java/trick/sniffer/SimulationInformation.java
+    src/main/java/trick/sniffer/SimulationListener.java
+    src/main/java/trick/sniffer/SimSnifferApplication.java
+    src/main/java/trick/simcontrol/utils/SimControlActionController.java
+    src/main/java/trick/simcontrol/utils/SimState.java
+    src/main/java/trick/simcontrol/SimControlApplication.java
+    src/main/java/trick/test/Client.java
+    src/main/java/trick/tv/TVApplication.java
+    src/main/java/trick/tv/StripChart.java
+    src/main/java/trick/tv/TVVariableTree.java
+    src/main/java/trick/tv/StripChartManager.java
+    src/main/java/trick/tv/DoubleComboBox.java
+    src/main/java/trick/tv/TVBean.java
+    src/main/java/trick/tv/TVDouble.java
+    src/main/java/trick/tv/TVInteger.java
+    src/main/java/trick/tv/TrickViewFluent.java
+    src/main/java/trick/tv/VariableTable.java
+    src/main/java/trick/tv/TVLong.java
+    src/main/java/trick/tv/TVEnumeration.java
+    src/main/java/trick/tv/TVShort.java
+    src/main/java/trick/tv/TVByte.java
+    src/main/java/trick/tv/TVBoolean.java
+    src/main/java/trick/tv/TVString.java
+    src/main/java/trick/tv/TVFloat.java
+    src/main/java/trick/common/ui/panels/ConnectionStatusBar.java
+    src/main/java/trick/common/ui/panels/FindBar.java
+    src/main/java/trick/common/ui/panels/SmallTrickIconLabel.java
+    src/main/java/trick/common/ui/panels/AnimationPlayer.java
+    src/main/java/trick/common/ui/panels/DataPanel.java
+    src/main/java/trick/common/ui/panels/ListPanel.java
+    src/main/java/trick/common/ui/panels/DynamicTree.java
+    src/main/java/trick/common/ui/UIUtils.java
+    src/main/java/trick/common/ui/components/DoubleJSlider.java
+    src/main/java/trick/common/ui/components/NumberTextField.java
+    src/main/java/trick/common/ui/components/CommonTreeNode.java
+    src/main/java/trick/common/ui/components/FontChooser.java
+    src/main/java/trick/common/ui/TrickFileFilter.java
+    src/main/java/trick/common/utils/vs/VSFloat.java
+    src/main/java/trick/common/utils/vs/VariableListener.java
+    src/main/java/trick/common/utils/vs/VSShort.java
+    src/main/java/trick/common/utils/vs/VSString.java
+    src/main/java/trick/common/utils/vs/VariableTracker.java
+    src/main/java/trick/common/utils/vs/VSBoolean.java
+    src/main/java/trick/common/utils/vs/Variable.java
+    src/main/java/trick/common/utils/vs/VariableServerFluent.java
+    src/main/java/trick/common/utils/vs/VSDouble.java
+    src/main/java/trick/common/utils/vs/VSInteger.java
+    src/main/java/trick/common/utils/vs/VSValue.java
+    src/main/java/trick/common/utils/vs/VSLong.java
+    src/main/java/trick/common/utils/vs/VSByte.java
+    src/main/java/trick/common/utils/SortedListModel.java
+    src/main/java/trick/common/utils/UnitType.java
+    src/main/java/trick/common/utils/DataReader.java
+    src/main/java/trick/common/utils/XMLCreator.java
+    src/main/java/trick/common/utils/ErrorChecker.java
+    src/main/java/trick/common/utils/UnitInfixExpression.java
+    src/main/java/trick/common/utils/CSVDataReader.java
+    src/main/java/trick/common/utils/LogVar.java
+    src/main/java/trick/common/utils/VariableServerConnection.java
+    src/main/java/trick/common/utils/BinaryDataReader.java
+    src/main/java/trick/common/utils/LogHeaderReader.java
+    src/main/java/trick/common/utils/TrickColors.java
+    src/main/java/trick/common/TrickApplication.java
+    src/main/java/trick/common/RunTimeTrickApplication.java
+    src/main/java/trick/vc/VariableCounter.java
+    src/main/java/trick/dataproducts/plot/JXPlotApplication.java
+    src/main/java/trick/dataproducts/plot/utils/TrickChart.java
+    src/main/java/trick/dataproducts/plot/utils/TrickChartControlPanel.java
+    src/main/java/trick/dataproducts/plot/utils/TrickXYPlot.java
+    src/main/java/trick/dataproducts/plot/utils/TrickChartFrame.java
+    src/main/java/trick/dataproducts/plot/utils/TrickXYSeries.java
+    src/main/java/trick/dataproducts/plot/utils/PlotUtils.java
+    src/main/java/trick/dataproducts/plot/utils/TrickChartPanel.java
+    src/main/java/trick/dataproducts/plot/utils/TrickChartTheme.java
+    src/main/java/trick/dataproducts/plot/utils/TrickFrame.java
+    src/main/java/trick/dataproducts/plot/utils/TrickXYLineAndShapeRenderer.java
+    src/main/java/trick/dataproducts/plot/utils/editor/DefaultLogAxisEditor.java
+    src/main/java/trick/dataproducts/plot/utils/editor/TrickTitleEditor.java
+    src/main/java/trick/dataproducts/plot/utils/editor/TrickNumberAxisEditor.java
+    src/main/java/trick/dataproducts/plot/utils/editor/TrickChartEditorManager.java
+    src/main/java/trick/dataproducts/plot/utils/editor/TrickChartEditor.java
+    src/main/java/trick/dataproducts/plot/utils/editor/TrickPolarPlotEditor.java
+    src/main/java/trick/dataproducts/plot/utils/editor/TrickPlotEditor.java
+    src/main/java/trick/dataproducts/plot/utils/editor/TrickChartEditorFactory.java
+    src/main/java/trick/dataproducts/plot/utils/editor/TrickValueAxisEditor.java
+    src/main/java/trick/dataproducts/plot/utils/editor/TrickAxisEditor.java
+    src/main/java/trick/dataproducts/plot/utils/TrickTableFrame.java
+    src/main/java/trick/dataproducts/utils/FileTreeNode.java
+    src/main/java/trick/dataproducts/utils/SessionRunTransferHandler.java
+    src/main/java/trick/dataproducts/utils/SessionXMLCreator.java
+    src/main/java/trick/dataproducts/utils/SessionRun.java
+    src/main/java/trick/dataproducts/utils/SimRunTree.java
+    src/main/java/trick/dataproducts/utils/SimDPTree.java
+    src/main/java/trick/dataproducts/utils/Session.java
+    src/main/java/trick/dataproducts/utils/SimRunDPTree.java
+    src/main/java/trick/dataproducts/utils/SessionDomParser.java
+    src/main/java/trick/dataproducts/utils/FileTreePanel.java
+    src/main/java/trick/dataproducts/trickqp/TrickQPApplication.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductTable.java
+    src/main/java/trick/dataproducts/trickqp/utils/TrickQPActionController.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductDataPanel.java
+    src/main/java/trick/dataproducts/trickqp/utils/QPRemoteCallInterface.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductVar.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductVarcase.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductMeasurement.java
+    src/main/java/trick/dataproducts/trickqp/utils/Product.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductColumn.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductPlot.java
+    src/main/java/trick/dataproducts/trickqp/utils/DataTransferHandler.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductCurve.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductPage.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductTree.java
+    src/main/java/trick/dataproducts/trickqp/utils/CommonProduct.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductExternalFunction.java
+    src/main/java/trick/dataproducts/trickqp/utils/QPRemoteCallInterfaceImpl.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductXMLCreator.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductDomParser.java
+    src/main/java/trick/dataproducts/trickqp/utils/ProductAxis.java
+    src/main/java/trick/dataproducts/trickqp/utils/VarListPanel.java
+    src/main/java/trick/dataproducts/DataProductsApplication.java
+    src/main/java/trick/dataproducts/trickdp/TrickDPApplication.java
+    src/main/java/trick/dataproducts/trickdp/utils/DPRemoteCallInterfaceImpl.java
+    src/main/java/trick/dataproducts/trickdp/utils/DPRemoteCallInterface.java
+    src/main/java/trick/dataproducts/trickdp/utils/TrickDPActionController.java
+    src/main/java/trick/dataproducts/trickdp/utils/PDFBooklet.java
+    src/main/java/trick/Template.java
+    src/main/java/trick/sie/utils/TreeModelExclusionFilter.java
+    src/main/java/trick/sie/utils/TreeModelSortingFilter.java
+    src/main/java/trick/sie/utils/SearchListener.java
+    src/main/java/trick/sie/utils/SieEnumeration.java
+    src/main/java/trick/sie/utils/VariableList.java
+    src/main/java/trick/sie/utils/Searcher.java
+    src/main/java/trick/sie/utils/SearchPanel.java
+    src/main/java/trick/sie/utils/SieTree.java
+    src/main/java/trick/sie/utils/SieTemplate.java
+    src/main/java/trick/sie/utils/SieVariableTree.java
+    src/main/java/trick/sie/utils/SieTreeModel.java
+    src/main/java/trick/sie/utils/TreeModelFilter.java
+    src/main/java/trick/sie/utils/SieResourceDomParser.java
+    src/main/java/trick/sie/SieApplication.java
+    src/main/java/trick/montemonitor/Slave.java
+    src/main/java/trick/montemonitor/MonteMonitorApplication.java
+    src/main/java/trick/mtv/MtvApp.java
+    src/main/java/trick/mtv/MtvView.java
+)
+

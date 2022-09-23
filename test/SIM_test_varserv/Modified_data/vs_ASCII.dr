@@ -1,0 +1,28 @@
+global DR_GROUP_ID
+global vsg
+try:
+    if DR_GROUP_ID >= 0:
+        DR_GROUP_ID += 1
+except NameError:
+    DR_GROUP_ID = 0
+    vsg = []
+
+vsg.append(trick.DRAscii("vs_ASCII"))
+vsg[DR_GROUP_ID].set_freq(trick.DR_Always)
+vsg[DR_GROUP_ID].set_cycle(0.1)
+vsg[DR_GROUP_ID].set_single_prec_only(False)
+vsg[DR_GROUP_ID].add_variable("vsx.vst.a")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.b")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.c")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.d")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.e")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.f")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.g")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.h")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.i")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.j")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.k")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.l")
+vsg[DR_GROUP_ID].add_variable("vsx.vst.m")
+trick.add_data_record_group(vsg[DR_GROUP_ID], trick.DR_Buffer)
+vsg[DR_GROUP_ID].enable()

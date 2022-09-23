@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+
+use FindBin qw($RealBin);
+use lib ("$RealBin/../libexec/trick/pm", "$RealBin/../lib/trick/pm") ;
+use gte ;
+use strict ;
+
+print gte(@ARGV) ;
+

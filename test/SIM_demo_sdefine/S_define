@@ -1,0 +1,179 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+
+##include <math.h>
+##include "sim_services/Message/include/message_proto.h"
+##include "sim_services/Integrator/include/Integrator.hh"
+##include "sim_services/Integrator/include/integrator_c_intf.h"
+
+/* base ball... get it? :) */
+class ballSimObject : public Trick::SimObject {
+
+    public:
+        double mass;
+        double input_position[2];
+        double speed;
+        double elevation;
+
+        double output_position[2];
+        double output_velocity[2];
+        double output_acceleration[2];
+        double output_external_force[2];
+
+        double origin[2];
+        double input_force;
+        double output_force[2];
+
+
+        int force_default_data () {
+
+            origin[0] = 0.0 ;
+            origin[1] = 2.0 ;
+            input_force = 8.0 ;
+
+            return(0) ;
+        } ;
+
+        int state_default_data () {
+            mass = 10.0 ;
+            speed = 3.5 ;
+            elevation = 0.785398163 ;
+            input_position[0] = 5.0 ;
+            input_position[1] = 5.0 ;
+
+            return(0) ;
+        } ;
+
+        int state_init() {
+            /* TRANSFER INPUT POSITION STATES TO OUTPUT POSITION STATES */
+            output_position[0] = input_position[0];  /* X state */
+            output_position[1] = input_position[1];  /* Y state */
+
+            /* TRANSFER INPUT SPEED AND ELEVATION INTO THE VELOCITY VECTOR */
+            output_velocity[0] = speed * cos( elevation ); /* X velocity */
+            output_velocity[1] = speed * sin( elevation ); /* Y velocity */
+
+            return(0) ;
+        } ;
+
+        int force_field() {
+            /* LOCAL VARIABLE DECLARATIONS */
+            double mag;
+            double rel_pos[2];
+            double unit[2];
+
+            /* GET RELATIVE VECTOR FROM BALL TO FORCE ORIGIN */
+            rel_pos[0] = origin[0] - output_position[0];
+            rel_pos[1] = origin[1] - output_position[1];
+
+            /* GET UNIT VECTOR AND POSITION MAGNITUDE FROM BALL TO FORCE ORIGIN */
+            /* Note sigularity when ball position = force origin. */
+            mag = sqrt( rel_pos[0]*rel_pos[0] + rel_pos[1]*rel_pos[1] );
+            unit[0] = rel_pos[0] / mag;
+            unit[1] = rel_pos[1] / mag;
+
+            /* COMPUTE EXTERNAL FORCE ON BALL IN THE DIRECTION OF THE UNIT VECTOR */
+            output_force[0] = input_force * (unit[0]);
+            output_force[1] = input_force * (unit[1]);
+
+            return(0) ;
+        } ;
+
+        int state_deriv() {
+
+            output_external_force[0] = output_force[0] ;
+            output_external_force[1] = output_force[1] ;
+
+            /* SOLVE FOR THE X AND Y ACCELERATIONS OF THE BALL */
+            output_acceleration[0] = output_external_force[0] / mass;
+            output_acceleration[1] = output_external_force[1] / mass;
+
+            return(0) ;
+        };
+
+        int state_integ() {
+
+            int ipass;
+
+            /* LOAD THE POSITION AND VELOCITY STATES */
+            load_state(
+                &output_position[0] ,
+                &output_position[1] ,
+                &output_velocity[0] ,
+                &output_velocity[1] ,
+                NULL
+            );
+
+            /* LOAD THE POSITION AND VELOCITY STATE DERIVATIVES */
+            load_deriv(
+                &output_velocity[0] ,
+                &output_velocity[1] ,
+                &output_acceleration[0] ,
+                &output_acceleration[1] ,
+                NULL
+            );
+
+            /* CALL THE TRICK INTEGRATION SERVICE */
+            ipass = integrate();
+
+            /* UNLOAD THE NEW POSITION AND VELOCITY STATES */
+            unload_state(
+                &output_position[0] ,
+                &output_position[1] ,
+                &output_velocity[0] ,
+                &output_velocity[1] ,
+                NULL
+            );
+
+            /* RETURN */
+            return( ipass );
+
+        } ;
+
+        int state_print() {
+            message_publish(8, "time = %f , position = %f , %f\n" , exec_get_sim_time() , output_position[0] , output_position[1]) ;
+            return 0 ;
+        } ;
+
+        ballSimObject() {
+            ("default_data") force_default_data() ;
+            ("default_data") state_default_data() ;
+
+            ("initialization") state_init() ;
+
+            ("derivative") force_field() ;
+            ("derivative") state_deriv() ;
+            ("integration") trick_ret = state_integ() ;
+
+            (10.0, "scheduled") trick_ret = state_print() ;
+
+            ("freeze") state_print() ;
+        }
+
+} ;
+
+// Instantiations
+ballSimObject ball ;
+
+IntegLoop my_integ_loop (0.01) ball;
+
+
+// Connect objects
+void create_connections() {
+
+    // Set the default termination time
+    exec_set_terminate_time(300.0) ;
+    exec_set_freeze_frame(0.10) ;
+
+    my_integ_loop.getIntegrator(Runge_Kutta_2, 4);
+
+}
+

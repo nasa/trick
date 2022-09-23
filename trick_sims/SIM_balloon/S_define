@@ -1,0 +1,30 @@
+/************************************************************
+PURPOSE:
+    ( Simulate a hot-air balloon. )
+LIBRARY DEPENDENCIES:
+    ((balloon/src/Balloon.cpp)
+     (atmosphere/src/atmosphere.c))
+*************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "balloon/include/Balloon.hh"
+
+class BalloonSimObject : public Trick::SimObject {
+    public:
+    Balloon balloon;
+
+    BalloonSimObject() {
+        ("default_data")            balloon.default_data() ;
+        ("initialization")          balloon.state_init() ;
+        ("derivative")              balloon.state_deriv() ;
+        (0.1, "scheduled")          balloon.control() ;
+        ("integration") trick_ret = balloon.state_integ() ;
+        ("post_integration") balloon.check_ground_contact() ;
+    }
+};
+
+BalloonSimObject dyn;
+IntegLoop dyn_integloop(0.1) dyn;
+
+void create_connections() {
+    dyn_integloop.getIntegrator(Runge_Kutta_4, 4);
+}

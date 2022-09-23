@@ -1,0 +1,18 @@
+#include "sim_objects/default_trick_sys.sm"
+
+##include "STLCheckpoint.hh"
+
+class theSimObject : public Trick::SimObject {
+
+    public:
+        STLCheckpoint stlc ;
+
+        /** Constructor to add the jobs */
+        theSimObject() : stlc("Petunia") {
+            (1.0, "scheduled") stlc.speak() ;
+        }
+
+} ;
+
+theSimObject the_object ;
+

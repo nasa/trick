@@ -1,0 +1,48 @@
+#include "sim_objects/default_trick_sys.sm"
+
+##include "threads/include/Thread1.h"
+
+class testSimObject : public Trick::SimObject {
+
+    public:
+        int print_time (int thread) {
+            message_publish(1, "thread %d: time = %8.2f\n", thread, exec_get_sim_time()) ;
+            return 0  ;
+        } ;
+
+        testSimObject() {
+            (10.0, "scheduled") print_time(0) ;
+            C1 (1.0, "scheduled") print_time(1) ;
+        }
+
+} ;
+
+class OverrunSimObject : public Trick::SimObject
+{
+public:
+    Thread1 thread_25ms;
+    Thread1 thread_50ms;
+    Thread1 thread_100ms;
+
+    OverrunSimObject() : thread_25ms(24000) , thread_50ms(48000) , thread_100ms(96000)
+    {
+        (0.025, "scheduled") trick_ret = thread_25ms.Step();
+        C1 (0.05, "scheduled") trick_ret = thread_50ms.Step();
+        C2 (0.1, "scheduled") trick_ret = thread_100ms.Step();
+    }
+} ;
+
+// Instantiations
+testSimObject test ;
+OverrunSimObject deadlock_test;
+
+
+// Connect objects
+void create_connections() {
+
+    // Set the default termination time
+    exec_set_terminate_time(10.0) ;
+    exec_set_freeze_frame(1.0) ;
+
+}
+

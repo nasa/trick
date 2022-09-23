@@ -1,0 +1,29 @@
+#include "sim_objects/default_trick_sys.sm"
+
+##include "TemplateTest.hh"
+
+class templateSimObject : public Trick::SimObject {
+
+    public:
+        TemplateTest tobj ;
+
+        templateSimObject() {
+            (1.0, "scheduled") trick_ret = print() ;
+        }
+
+        int print() { std::cout << "In print()" << std::endl ; return 0 ; } ;
+
+} ;
+
+// Instantiations
+templateSimObject tso ;
+
+// Connect objects
+void create_connections() {
+
+    // Set the default termination time
+    trick_sys.sched.set_terminate_time(1.0) ;
+    trick_sys.sched.set_freeze_frame(0.10) ;
+
+}
+

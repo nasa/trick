@@ -1,0 +1,23 @@
+object_${TRICK_HOST_CPU}/GetTimeOfDayClock.o: GetTimeOfDayClock.cpp \
+ ${TRICK_HOME}/include/trick/GetTimeOfDayClock.hh \
+ ${TRICK_HOME}/include/trick/Clock.hh \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h 
+object_${TRICK_HOST_CPU}/BC635Clock.o: BC635Clock.cpp \
+ ${TRICK_HOME}/include/trick/BC635Clock.hh \
+ ${TRICK_HOME}/include/trick/Clock.hh \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h \
+ ${TRICK_HOME}/include/trick/release.h 
+object_${TRICK_HOST_CPU}/Clock.o: Clock.cpp ${TRICK_HOME}/include/trick/Clock.hh \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/release.h 
+object_${TRICK_HOST_CPU}/TPROCTEClock.o: TPROCTEClock.cpp \
+ ${TRICK_HOME}/include/trick/TPROCTEClock.hh \
+ ${TRICK_HOME}/include/trick/Clock.hh \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h \
+ ${TRICK_HOME}/include/trick/release.h 
+object_${TRICK_HOST_CPU}/clock_c_intf.o: clock_c_intf.cpp ${TRICK_HOME}/include/trick/Clock.hh \
+ ${TRICK_HOME}/include/trick/clock_proto.h 

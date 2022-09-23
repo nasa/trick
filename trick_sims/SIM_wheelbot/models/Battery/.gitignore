@@ -1,0 +1,6 @@
+# Ignore compiled objects and libraries
+lib
+obj
+*.o
+test/BatteryTest
+XMLtestReports

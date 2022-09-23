@@ -1,0 +1,8 @@
+object_${TRICK_HOST_CPU}/SimTime_c_intf.o: SimTime_c_intf.cpp \
+ ${TRICK_HOME}/include/trick/SimTime.hh \
+ ${TRICK_HOME}/include/trick/time_offset.h \
+ ${TRICK_HOME}/include/trick/simtime_proto.h 
+object_${TRICK_HOST_CPU}/SimTime.o: SimTime.cpp ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/SimTime.hh \
+ ${TRICK_HOME}/include/trick/time_offset.h 

@@ -1,0 +1,11 @@
+object_${TRICK_HOST_CPU}/EchoJobs_c_intf.o: EchoJobs_c_intf.cpp \
+ ${TRICK_HOME}/include/trick/EchoJobs.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh 
+object_${TRICK_HOST_CPU}/EchoJobs.o: EchoJobs.cpp ${TRICK_HOME}/include/trick/EchoJobs.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h 

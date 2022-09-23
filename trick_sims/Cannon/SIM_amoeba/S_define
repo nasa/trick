@@ -1,0 +1,94 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+     (cannon/aero/src/cannon_collect_forces.c)
+     (cannon/aero/src/cannon_force_cross.c)
+     (cannon/aero/src/cannon_force_drag.c)
+     (cannon/aero/src/cannon_force_jet.c)
+     (cannon/aero/src/cannon_force_gravity.c)
+     (cannon/aero/src/cannon_force_lift.c)
+     (cannon/aero/src/cannon_jet_control.c)
+     (cannon/aero/src/cannon_impact_monte.c)
+     (cannon/aero/src/cannon_monte_default_data.c)
+     (cannon/aero/src/cannon_init_aero.c)
+     (cannon/aero/src/cannon_integ_aero.c)
+     (cannon/optim/src/cannon_init_amoeba.c)
+     (cannon/optim/src/cannon_post_master.c)
+     (cannon/optim/src/cannon_pre_master.c)
+     (cannon/optim/src/cannon_post_slave.c)
+     (cannon/optim/src/cannon_pre_slave.c)
+     (cannon/optim/src/amoeba.c)              
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+
+##include "cannon/aero/include/cannon_aero.h"
+##include "cannon/aero/include/cannon_monte_proto.h"
+##include "cannon/optim/include/amoeba.h"
+##include "cannon/optim/include/amoeba_proto.h"
+
+class CannonSimObject : public Trick::SimObject {
+
+    public:
+        CANNON_AERO baseball ;
+
+        CannonSimObject() {
+            ("default_data") cannon_monte_default_data( &baseball ) ;
+
+            ("initialization") cannon_init_aero( &baseball ) ;
+
+            ("derivative") cannon_force_gravity( &baseball ) ;
+            ("derivative") cannon_force_drag( &baseball ) ;
+            ("derivative") cannon_force_lift( &baseball ) ;
+            ("derivative") cannon_force_cross( &baseball ) ;
+            ("derivative") cannon_collect_forces( &baseball ) ;
+            ("integration") trick_ret = cannon_integ_aero( &baseball ) ;
+
+            ("dynamic_event") cannon_impact_monte( &baseball ) ;
+
+            (0.1, "scheduled") cannon_jet_control( &baseball ) ;
+
+            (0.1, "effector") trick_ret = cannon_force_jet( &baseball ) ;
+        }
+
+} ;
+
+// Instantiation
+CannonSimObject dyn ;
+
+class OptimSimObject : public Trick::SimObject {
+
+    public:
+        AMOEBA      amoeba ;
+        CANNON_AERO *dyn_ptr ;
+
+
+        OptimSimObject() {
+             ("monte_master_init") cannon_init_amoeba( &amoeba ) ;
+             ("monte_master_pre")  cannon_pre_master( dyn_ptr, &amoeba ) ;
+             ("monte_slave_pre")   cannon_pre_slave( dyn_ptr ) ;
+             ("monte_master_post") cannon_post_master( dyn_ptr, &amoeba ) ;
+             ("monte_slave_post")  cannon_post_slave( dyn_ptr ) ;
+        }
+
+} ;
+
+// Instantiation
+OptimSimObject optimizer ;
+
+collect dyn.baseball.force_collect = {
+        dyn.baseball.force_gravity[0],
+        dyn.baseball.force_drag[0],
+        dyn.baseball.force_magnus[0],
+        dyn.baseball.force_cross[0],
+        dyn.baseball.force_jet[0] } ;
+
+IntegLoop dyn_integloop (0.01) dyn;
+
+void create_connections() {
+    optimizer.dyn_ptr = &dyn.baseball;
+}

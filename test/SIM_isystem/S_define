@@ -1,0 +1,6 @@
+#include "sim_objects/default_trick_sys.sm"
+
+##include "Foo.hh"
+##include "Warning.hh"
+
+class Sandbox : public Trick::SimObject {};

@@ -1,0 +1,18 @@
+global DR_GROUP_ID
+global drg
+try:
+    if DR_GROUP_ID >= 0:
+        DR_GROUP_ID += 1
+except NameError:
+    DR_GROUP_ID = 0
+    drg = []
+
+drg.append(trick.DRAscii("cannon"))
+drg[DR_GROUP_ID].set_freq(trick.DR_Always)
+drg[DR_GROUP_ID].set_cycle(0.01)
+drg[DR_GROUP_ID].set_single_prec_only(False)
+drg[DR_GROUP_ID].add_variable("dyn.baseball.pos[0]")
+drg[DR_GROUP_ID].add_variable("dyn.baseball.pos[1]")
+drg[DR_GROUP_ID].add_variable("dyn.baseball.pos[2]")
+trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
+drg[DR_GROUP_ID].enable()

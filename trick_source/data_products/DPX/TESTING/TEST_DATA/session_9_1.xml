@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE session  PUBLIC "-//Tricklab//DTD Session V1.0//EN" "Session.dtd">
+
+<!-- This is an XML comment -->
+
+<session version="1.0" presentation="comparison">
+    <tstart>0</tstart>
+    <tstop>86400</tstop>
+    <frequency>50.0</frequency>
+    <run> <dir>BUNCHORUNS/RUN1</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN2</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN3</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN4</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN5</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN6</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN7</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN8</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN9</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN10</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN11</dir> </run>
+    <run> <dir>BUNCHORUNS/RUN12</dir> </run>
+    <product_files>
+        <file>product_9.xml</file>
+    </product_files>
+</session>

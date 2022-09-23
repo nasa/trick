@@ -1,0 +1,7 @@
+In your .cshrc file, add the following to set up your "locale":
+
+setenv LC_CTYPE en_US.utf8
+setenv LC_COLLATE POSIX
+
+For more information about these environment variables, type% man locale
+(and be sure to source it ).

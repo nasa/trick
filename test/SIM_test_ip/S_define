@@ -1,0 +1,149 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "test_ip/include/ClassOfEverything.hh"
+##include "test_ip/include/OverloadedVariable.hh"
+
+class testSimObject : public Trick::SimObject {
+
+    public:
+        bool test_false() {
+            return false ;
+        }
+        bool test_true() {
+            return true ;
+        }
+
+        ClassOfEverything obj ;
+        TEST_STRUCT t ;
+        my_ns::AA ns_test ;
+        Abstract * a ;
+        Abstract ** alist ;
+        Abstract * aarray[4] ;
+
+        std::vector< Abstract * > vap ;
+        std::vector< Abstract * > vap2 ;
+        std::vector< std::vector < Abstract * > > vvap ;
+
+#ifndef __APPLE__
+        Child1 c1 ;
+        Child2 c2 ;
+        MomMom * mm ;
+#endif
+
+        testSimObject() {}
+
+    private:
+        testSimObject (const testSimObject &);
+        testSimObject & operator= (const testSimObject &);
+
+} ;
+
+
+%header{
+// Name the Abstract * vector type for SWIG.
+##ifdef SWIG
+%template(AbstractVector) std::vector< Abstract * >;
+%template(AbstractVectorVector) std::vector< std::vector< Abstract * > > ;
+##endif
+%}
+
+class disabledSimObject : public Trick::SimObject {
+    public:
+        void print_me() {
+            message_publish( 7 , "\033[31mThis statement in disabledSimObject should not print because the sim object is disabled!!!\033[0m\n" ) ;
+            add_test_result( "IPtest" , "Disable sim_object" , "job not disabled\n") ;
+        }
+        disabledSimObject() {
+            ("initialization") print_me() ;
+            (10.0 , "scheduled") print_me() ;
+        }
+} ;
+
+class emptySimObject : public Trick::SimObject {
+
+    public:
+        ClassOfEverything obj ;
+
+    private:
+        emptySimObject (const emptySimObject &);
+        emptySimObject & operator= (const emptySimObject &);
+
+} ;
+
+class reallyemptySimObject : public Trick::SimObject {
+    public:
+        int ii ;
+} ;
+
+class plainClass {
+    public:
+        double d ;
+        float f ;
+        plainClass() : d() , f() {} ;
+}
+
+// Instantiations
+testSimObject test_so ;
+disabledSimObject disabled_obj ;
+
+template <class T, typename U>
+class TemplatedSimObject : public Trick::SimObject {
+    public:
+        T t ;
+        U u ;
+        TemplatedSimObject() : t(25) , u(37) {
+        }
+} ;
+
+/*
+  Templated SimObjects Howto:
+
+  Jobs with templated SimObjects will work without any extra work from the user.  To use
+  templated SimObjects in the input file, we need some help from the user.  Perhaps someday
+  the convert_swig script will add this code automatically, but for now it's a manual
+  process.  We need to create a typedef from the templated type to a name without the [<,>]
+  or space characters.  It must be formed by removing all spaces and transforming [<,>]
+  characters to "_".  The template and trick_cast_as statements are required for SWIG and
+  use the typedef name we just created.
+*/
+
+%inline{
+typedef TemplatedSimObject<int,double > TemplatedSimObject_int_double_ ;
+##ifdef SWIG
+%template (TemplatedSimObject_int_double_) TemplatedSimObject<int, double > ;
+%trick_cast_as (TemplatedSimObject_int_double_,  TemplatedSimObject_int_double_) ;
+##endif
+%}
+
+TemplatedSimObject<int, double > tso ;
+
+// Using the typedef name for the template will also work.
+//TemplatedSimObject_int_double_ tso ;
+
+/*
+  You can inherit from templated sim objects.  As with using the templated sim
+  object directly, the typedef and SWIG section is required to access the values
+  within the template.
+*/
+class InheritFromTemplatedSimObject : public TemplatedSimObject< int, double > {
+   public:
+        int ii ;
+} ;
+
+InheritFromTemplatedSimObject iftso ;
+
+// Connect objects
+void create_connections() {
+    // Set the default termination time
+    trick_sys.sched.set_terminate_time(1.0) ;
+    trick_sys.sched.set_freeze_frame(0.10) ;
+}
+

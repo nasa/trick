@@ -1,0 +1,71 @@
+
+''' Ensure variable is defined '''
+try:
+    DR_GROUP_ID
+except NameError:
+    def initialize_globals():
+        global DR_GROUP_ID  # Create global variable when not defined
+        global drg          # Create a data recording group variable
+        DR_GROUP_ID = 0
+        drg = []            # Initialize variable as an empty array
+    initialize_globals()
+
+
+"""
+Default Data Recording Template.
+"""
+def add_dr_group():
+    global DR_GROUP_ID
+    global drg
+    group_name = "Ball1"
+    drg.append( trick.DRBinary(group_name) )
+    drg[DR_GROUP_ID].set_freq(trick.DR_Always)
+    drg[DR_GROUP_ID].enable()
+    drg[DR_GROUP_ID].set_cycle(0.1)
+
+    drg[DR_GROUP_ID].add_variable("ball.state.output.position[0]", "ball.state.out.position[0]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.position[1]", "ball.state.out.position[1]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.velocity[0]", "ball.state.out.velocity[0]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.velocity[1]", "ball.state.out.velocity[1]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.acceleration[0]", "ball.state.out.acceleration[0]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.acceleration[1]", "ball.state.out.acceleration[1]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.external_force[0]", "ball.state.out.external_force[0]")
+    drg[DR_GROUP_ID].add_variable("ball.state.output.external_force[1]", "ball.state.out.external_force[1]")
+
+    trick_data_record.drd.add_group( drg[DR_GROUP_ID], trick.DR_Buffer )
+add_dr_group()
+
+
+"""
+add 1 to DR_GROUP_ID, THIS SETS DR_GROUP_ID UP
+FOR THE NEXT DATA RECORDING FILE
+"""
+def increment_group_id():
+    global DR_GROUP_ID
+    DR_GROUP_ID += 1
+increment_group_id()
+
+
+"""
+Control System Recording Group.
+"""
+def add_dr_group():
+    global DR_GROUP_ID
+    global drg
+    group_name = "BallControl"
+    drg.append( trick.DRBinary(group_name) )
+    drg[DR_GROUP_ID].set_freq(trick.DR_Always)
+    drg[DR_GROUP_ID].enable()
+    drg[DR_GROUP_ID].set_cycle(0.02)
+
+    drg[DR_GROUP_ID].add_variable("ball.altimeter.output.altitude")
+
+    trick_data_record.drd.add_group( drg[DR_GROUP_ID], trick.DR_Buffer )
+add_dr_group()
+
+
+"""
+add 1 to DR_GROUP_ID, THIS SETS DR_GROUP_ID UP
+FOR THE NEXT DATA RECORDING FILE
+"""
+increment_group_id()

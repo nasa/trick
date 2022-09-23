@@ -1,0 +1,18 @@
+object_${TRICK_HOST_CPU}/RealtimeSync.o: RealtimeSync.cpp \
+ ${TRICK_HOME}/include/trick/RealtimeSync.hh \
+ ${TRICK_HOME}/include/trick/Clock.hh \
+ ${TRICK_HOME}/include/trick/Timer.hh \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h \
+ ${TRICK_HOME}/include/trick/TrickConstant.hh 
+object_${TRICK_HOST_CPU}/RealtimeSync_c_intf.o: RealtimeSync_c_intf.cpp \
+ ${TRICK_HOME}/include/trick/RealtimeSync.hh \
+ ${TRICK_HOME}/include/trick/Clock.hh \
+ ${TRICK_HOME}/include/trick/Timer.hh \
+ ${TRICK_HOME}/include/trick/realtimesync_proto.h \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h 

@@ -1,0 +1,2 @@
+#include "sim_objects/default_trick_sys.sm"
+##include "Classes.hh"

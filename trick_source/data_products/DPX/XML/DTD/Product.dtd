@@ -1,0 +1,93 @@
+<!-- Trick DP Product definition -->
+<!-- V 1.0 -->
+<!ELEMENT fname       (#PCDATA)>
+<!ELEMENT title       (#PCDATA)>
+<!ELEMENT tstart      (#PCDATA)>
+<!ELEMENT tstop       (#PCDATA)>
+<!ELEMENT frequency   (#PCDATA)>
+<!ELEMENT label       (#PCDATA)>
+<!ELEMENT units       (#PCDATA)>
+<!ELEMENT measurement (var, units)>
+<!ELEMENT var         (#PCDATA)>
+
+<!-- A varcase construct is used to indicate that two or variable names mean the same thing.
+     If the data for a curve can't be found for the first name, try the second and so forth.
+-->
+<!ELEMENT varcase     (var, var, var?)>
+<!ELEMENT xaxis       (label?, units?)>
+<!ELEMENT yaxis       (label?, units?)>
+<!ELEMENT zaxis       (label?, units?)>
+<!ELEMENT column      (label?, units?, var)>
+<!ELEMENT curve       ((var, var, var?)|varcase+)>
+<!ELEMENT table       (title?, tstart?, tstop?, frequency?, column+)>
+<!ELEMENT plot        (title?, tstart?, tstop?, frequency?, (xaxis|yaxis|zaxis)*, curve+)>
+<!ELEMENT page        (title?, tstart?, tstop?, frequency?, plot+)>
+<!ELEMENT inputs      (var+)>
+<!ELEMENT outputs     (measurement+)>
+<!ELEMENT extfn       (fname, inputs, outputs)>
+<!ELEMENT product     (title?, tstart?, tstop?, frequency?, extfn*, (page|table)+)>
+
+<!ATTLIST product version                 CDATA #REQUIRED>
+<!ATTLIST product foreground_color        CDATA #IMPLIED>
+<!ATTLIST product background_color        CDATA #IMPLIED>
+
+<!ATTLIST page foreground_color           CDATA #IMPLIED>
+<!ATTLIST page background_color           CDATA #IMPLIED>
+<!ATTLIST page hcells                     CDATA #IMPLIED>
+<!ATTLIST page vcells                     CDATA #IMPLIED>
+
+<!ATTLIST page presentation               CDATA #IMPLIED>
+<!ATTLIST page gnuplot_template           CDATA #IMPLIED>
+<!ATTLIST page gnuplot_object             CDATA #IMPLIED>
+<!ATTLIST page gnuplot_geom               CDATA #IMPLIED>
+<!ATTLIST page gnuplot_plot_ratio         CDATA #IMPLIED>
+<!ATTLIST page gnuplot_page_orientation   CDATA #IMPLIED>
+
+<!ATTLIST table foreground_color          CDATA #IMPLIED>
+<!ATTLIST table background_color          CDATA #IMPLIED>
+
+<!ATTLIST plot x_scale                    CDATA #IMPLIED>
+<!ATTLIST plot xmin                       CDATA #IMPLIED>
+<!ATTLIST plot xmax                       CDATA #IMPLIED>
+<!ATTLIST plot y_scale                    CDATA #IMPLIED>
+<!ATTLIST plot ymin                       CDATA #IMPLIED>
+<!ATTLIST plot ymax                       CDATA #IMPLIED>
+<!ATTLIST plot grid                       CDATA #IMPLIED>
+<!ATTLIST plot grid_color                 CDATA #IMPLIED>
+<!ATTLIST plot foreground_color           CDATA #IMPLIED>
+<!ATTLIST plot background_color           CDATA #IMPLIED>
+<!ATTLIST plot font                       CDATA #IMPLIED>
+
+<!-- The format attribute specifies the printf() format string to    -->
+<!-- be used for printing y variable data. (e.g., "%18.6e")              -->
+<!ATTLIST yaxis format                    CDATA #IMPLIED>
+
+<!-- The format attribute specifies the printf() format string to    -->
+<!-- be used for printing column data. (e.g., "%18.6e")              -->
+<!ATTLIST column format                   CDATA #IMPLIED>
+
+<!-- =============================================================== -->
+<!-- <var> ATTRIBUTES                                                -->
+<!-- =============================================================== -->
+<!ATTLIST var label                       CDATA #IMPLIED>
+
+<!-- <var>'s from_units attribute specifies the units to be assumed  -->
+<!-- for the recorded data if and only if the recorded data doesn't  -->
+<!-- contain units information for it's variables. -->
+<!-- This attribute is used for data streams that don't supply       -->
+<!-- actual units. For streams that supply actual units (like .trk   -->
+<!-- files) this attribute is ignored. -->
+<!ATTLIST var from_units                  CDATA #IMPLIED>
+
+<!-- <var>'s units attribute indicates the units that recorded data -->
+<!-- should be converted to, below being displayed.                 -->
+<!ATTLIST var units                       CDATA #IMPLIED>
+
+<!ATTLIST var bias                        CDATA #IMPLIED>
+<!ATTLIST var scale                       CDATA #IMPLIED>
+<!ATTLIST var max                         CDATA #IMPLIED>
+<!ATTLIST var symbol_style                CDATA #IMPLIED>
+<!ATTLIST var symbol_size                 CDATA #IMPLIED>
+<!ATTLIST var line_style                  CDATA #IMPLIED>
+<!ATTLIST var line_color                  CDATA #IMPLIED>
+<!ATTLIST var gnuplot_line_style          CDATA #IMPLIED>

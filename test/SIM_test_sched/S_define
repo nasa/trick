@@ -1,0 +1,87 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+
+##include "sched/include/sched.h"
+##include "sched/include/sched_proto.h"
+
+//=============================================================================
+// SIM_OBJECT: parent
+// This sim object models scheduling test.
+//=============================================================================
+class ParentSimObject : public Trick::SimObject {
+
+    public:
+        SCHEDULE    sched ;
+
+        ParentSimObject() {
+            ("default_data") sched_default_data( &sched ) ;
+
+            ("initialization") sched_init( &sched ) ;
+
+            ("integration") trick_ret = sched_integ( &sched ) ;
+            ("derivative") sched_deriv( &sched ) ;
+
+            ("dynamic_event") sched_dyn_event( &sched ) ;
+
+            (0.1, "scheduled")         sched_scheduled( &sched ) ;
+            (0.2, "environment")       sched_environment( &sched ) ;
+            (0.3, "sensor")            sched_sensor( &sched ) ;
+            (0.4, "sensor_reflector")  sched_sensor_reflector( &sched ) ;
+            (0.4, "sensor_receiver")   sched_sensor_receiver( &sched ) ;
+            (0.5, "sensor_emitter")    sched_sensor_emitter( &sched ) ;
+            (0.6, "effector_receiver") sched_effector_receiver( &sched ) ;
+            (0.7, "effector_emitter")  sched_effector_emitter( &sched ) ;
+            (0.8, "effector")          sched_effector( &sched ) ;
+            (0.9, "logging")           sched_logging( &sched ) ;
+        }
+
+} ;
+
+
+//=============================================================================
+// SIM_OBJECT: children
+// This sim object models scheduling test.
+//=============================================================================
+class ChildSimObject : public Trick::SimObject {
+
+    public:
+        ParentSimObject* ptr2parent ;
+
+        ChildSimObject() {
+
+            /*----- INIT ----------*/
+            C1 (0.9, "logging") sched_logging( &ptr2parent->sched ) ;
+            C2 (0.8, "scheduled") sched_amf( &ptr2parent->sched ) ;
+            C3 (0.5, "scheduled") sched_async( &ptr2parent->sched ) ;
+        }
+
+} ;
+
+// Instantiations
+ParentSimObject parent ;
+ChildSimObject children ;
+
+IntegLoop my_integ_loop (0.1) parent;
+
+
+// Connect objects
+void create_connections() {
+
+    children.ptr2parent = &parent ;
+
+    /* Set child threads */
+    exec_set_thread_process_type( 1 , Trick::PROCESS_TYPE_SCHEDULED ) ;
+    exec_set_thread_process_type( 2 , Trick::PROCESS_TYPE_AMF_CHILD ) ;
+    exec_set_thread_process_type( 3 , Trick::PROCESS_TYPE_ASYNC_CHILD ) ;
+
+    exec_set_thread_amf_cycle_time(2, 0.8);
+    exec_set_software_frame(0.1);
+
+    exec_add_depends_on_job( "children.sched_logging" , 1 , "parent.sched_logging" , 1 ) ;
+    exec_add_depends_on_job( "children.sched_amf" , 1 , "parent.sched_effector" , 1 ) ;
+}

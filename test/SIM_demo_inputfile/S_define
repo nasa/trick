@@ -1,0 +1,13 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+##include "InputProcessSimObject/include/InputProcessSimObject.hh"
+
+
+// This is an empty S_define file.  Everything is created in the input file!!!

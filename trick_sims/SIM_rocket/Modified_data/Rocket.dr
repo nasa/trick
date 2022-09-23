@@ -1,0 +1,35 @@
+global DR_GROUP_ID
+global drg
+try:
+    if DR_GROUP_ID >= 0:
+        DR_GROUP_ID += 1
+except NameError:
+    DR_GROUP_ID = 0
+    drg = []
+
+drg.append(trick.DRAscii("Rocket"))
+drg[DR_GROUP_ID].set_freq(trick.DR_Always)
+drg[DR_GROUP_ID].set_cycle(0.01)
+drg[DR_GROUP_ID].set_single_prec_only(False)
+drg[DR_GROUP_ID].add_variable("dyn.rocket.vel_unit[0]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.vel_unit[1]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.thrust_force[0]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.thrust_force[1]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.drag_force[0]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.drag_force[1]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.gravity_force[0]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.gravity_force[1]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.total_force[0]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.total_force[1]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.mission_time")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.total_mass")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.mass_rate")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.position[0]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.position[1]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.velocity[0]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.velocity[1]")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.coefficient_of_drag")
+drg[DR_GROUP_ID].add_variable("dyn.rocket.empty_mass")
+drg[DR_GROUP_ID].set_max_file_size(1 * 1073741824) # multiply converts GiB to B --Dr. Dre
+trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
+drg[DR_GROUP_ID].enable()

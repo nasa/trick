@@ -1,0 +1,13 @@
+ 0.5, -0.5, 0.0,images/wp0.png
+ 1.5, -0.5, 0.0,images/wp1.png
+ 1.5,  0.5, 0.0,images/wp2.png
+ 0.5,  0.5, 0.0,images/wp3.png
+ 0.5,  1.5, 0.0,images/wp4.png
+-0.5,  1.5, 0.0,images/wp5.png
+-0.5,  0.5, 0.0,images/wp6.png
+-1.5,  0.5, 0.0,images/wp7.png
+-1.5, -0.5, 0.0,images/wp8.png
+-0.5, -0.5, 0.0,images/wp9.png
+-0.5, -1.5, 0.0,images/wp10.png
+ 0.5, -1.5, 0.0,images/wp11.png
+ 0.0,  0.0, 0.0,images/CompassRose.png

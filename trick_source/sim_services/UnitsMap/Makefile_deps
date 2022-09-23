@@ -1,0 +1,1 @@
+object_${TRICK_HOST_CPU}/UnitsMap.o: UnitsMap.cpp ${TRICK_HOME}/include/trick/UnitsMap.hh 

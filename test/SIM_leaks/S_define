@@ -1,0 +1,37 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+LIBRARY DEPENDENCIES:
+    (
+     (Leaker/Leaker.cpp)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+%{
+int Leaker() ;
+%}
+
+/**
+  This class is the base ball class
+ */
+class ballSimObject : public Trick::SimObject {
+
+    public:
+        /** Constructor to add the jobs */
+        ballSimObject() {
+            ("initialization") trick_ret = Leaker() ;
+        }
+} ;
+
+// Instantiations
+ballSimObject ball ;
+
+// Connect objects
+void create_connections() {
+    // Set the default termination time
+    exec_set_terminate_time(1.0) ;
+    trick_sys.sched.set_freeze_frame(0.10) ;
+}
+

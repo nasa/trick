@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+
+# trick_dp that determines trick_home based on execution location of this script.
+
+use File::Basename ;
+use Cwd 'abs_path';
+
+if ( ! exists $ENV{TRICK_HOME} ) {
+    $trick_bin = dirname(abs_path($0)) ;
+    $trick_home = dirname($trick_bin) ;
+
+    # set TRICK_HOME based on the value of trick_home
+    $ENV{TRICK_HOME} = $trick_home ;
+}
+
+if ( $^O eq "darwin" ) {
+    $command = "java -classpath $ENV{TRICK_HOME}/bin/java/dist/*:$ENV{TRICK_HOME}/bin/java/lib/* \\
+         -Xdock:name=\"Variable Counter\" \\
+         -Xdock:icon=$ENV{TRICK_HOME}/libexec/trick/java/build/classes/common/resources/trick_icon.png \\
+         trick.vc.VariableCounter " . join (" " , @ARGV) ;
+} else {
+    $command = "java -cp $ENV{TRICK_HOME}/bin/java/dist/*:$ENV{TRICK_HOME}/bin/java/lib/* trick.vc.VariableCounter " . join (" " , @ARGV) ;
+}
+system $command ;
+exit $? >> 8;
+

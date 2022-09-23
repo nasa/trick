@@ -1,0 +1,337 @@
+# These are valgrind warnings found in libraries we do not control.  Suppress them!
+
+{
+    unint00
+    Memcheck:Value4
+    fun:PyObject_*
+}
+{
+    uninit01
+    Memcheck:Value8
+    fun:PyObject_*
+}
+{
+    uninit02
+    Memcheck:Value8
+    obj:/lib64/libnss_ldap*
+}
+{
+    uninit03
+    Memcheck:Value8
+    fun:memcpy
+    obj:/lib*/libnss_ldap*
+}
+{
+    uninit04
+    Memcheck:Value8
+    fun:memmove
+    obj:/lib*/libnss_ldap*
+}
+{
+    uninit05
+    Memcheck:Value8
+    fun:__memmove_chk
+    obj:/lib*/libnss_ldap*
+}
+{
+    uninit06
+    Memcheck:Value8
+    fun:strcasecmp
+    obj:/lib*/libnss_ldap*
+}
+{
+    uninit07
+    Memcheck:Value8
+    fun:____strtol_l_internal
+    obj:/lib*/libnss_ldap*
+}
+
+{
+    read00
+    Memcheck:Addr1
+    fun:H5*
+}
+{
+    read01
+    Memcheck:Addr4
+    fun:H5*
+}
+{
+    read02
+    Memcheck:Addr4
+    fun:PyObject_*
+}
+
+{
+    cond00
+    Memcheck:Cond
+    fun:PyObject_*
+}
+{
+    cond01
+    Memcheck:Cond
+    fun:__strcpy_chk
+     obj:/usr/lib*/libpython*
+}
+{
+    cond02
+    Memcheck:Cond
+    fun:bcmp
+    fun:H5P_set
+}
+{
+    cond03
+    Memcheck:Cond
+    fun:memcpy
+    obj:/lib*/libnss_ldap*
+}
+{
+    cond04
+    Memcheck:Cond
+    fun:memmove
+    obj:/lib*/libnss_ldap*
+}
+{
+    cond05
+    Memcheck:Cond
+    fun:memset
+    obj:/lib*/libnss_ldap*
+}
+{
+    cond06
+    Memcheck:Cond
+    fun:__memmove_chk
+    obj:/lib*/libnss_ldap*
+}
+{
+    cond07
+    Memcheck:Cond
+    fun:____strtol_l_internal
+    obj:/lib*/libnss_ldap*
+}
+{
+    cond08
+    Memcheck:Cond
+    fun:strcasecmp
+    fun:_nss_ldap_oc_check
+}
+{
+    cond09
+    Memcheck:Cond
+    fun:strlen
+    fun:_nss_ldap_assign_attrval
+}
+{
+    cond10
+    Memcheck:Cond
+    fun:strncpy
+    fun:_nss_ldap_assign_attrval
+}
+{
+    cond11
+    Memcheck:Value8
+    obj:/usr/lib64/libz.*
+}
+{
+    cond12
+    Memcheck:Cond
+    obj:/usr/lib64/libz.*
+}
+{
+    cond13
+    Memcheck:Cond
+    obj:/lib64/libnss_ldap*
+}
+
+{
+   param00
+   Memcheck:Param
+   write(buf)
+   obj:/lib64/libc-2.5.so
+}
+
+# Scientific Linux 6.1 gcc 4.4 known system call errors that can't be fixed
+{
+   sl_suppress00
+   Memcheck:Cond
+   fun:__printf_fp
+}
+{
+   sl_suppress01
+   Memcheck:Cond
+   fun:*
+   fun:__printf_fp
+}
+{
+   sl_suppress02
+   Memcheck:Value8
+   fun:__printf_fp
+}
+{
+   sl_suppress08
+   Memcheck:Value8
+   fun:__mpn_mul_1
+}
+{
+   sl_suppress10
+   Memcheck:Value8
+   fun:*
+   fun:__printf_fp
+}
+{
+   sl_suppress11
+   Memcheck:Value8
+   fun:__mpn_divrem
+}
+{
+   sl_suppress12
+   Memcheck:Cond
+   fun:__mpn_divrem
+}
+{
+   sl_suppress13
+   Memcheck:Cond
+   fun:strlen
+}
+{
+   sl_suppress14
+   Memcheck:Cond
+   fun:vfprintf
+}
+{
+   sl_suppress15
+   Memcheck:Param
+   write(buf)
+   obj:/lib*/libc*.so
+}
+{
+   sl_suppress16
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_new_object
+}
+{
+   sl_suppress17
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+}
+{
+   sl_suppress18
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_check_map_versions
+}
+{
+   sl_suppress19
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+}
+{
+   sl_suppress20
+   Memcheck:Leak
+   fun:malloc
+   fun:expand_dynamic_string_token
+}
+{
+   sl_suppress21
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+}
+
+# Known leaks from Python 2.6 on SL 6.1
+{
+   python_leak00
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib64/libpython*
+}
+{
+   python_leak01
+   Memcheck:Leak
+   fun:malloc
+   fun:PyObject_Malloc
+}
+{
+   python_leak02
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/lib64/libpython*
+}
+{
+   python_leak03
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib64/libpython*
+}
+{
+   python_leak04
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:Py_InitializeEx
+}
+
+
+# Known leaks from SWIG code
+{
+   swig_leak00
+   Memcheck:Leak
+   fun:malloc
+   fun:SwigPyClientData_New
+}
+{
+   swig_leak01
+   Memcheck:Leak
+   fun:malloc
+   fun:SWIG_Python_addvarlink
+}
+
+# Known io_src leak
+{
+   io_src_cxa_demangle
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib64/libstdc++.so.6.0.13
+   obj:/usr/lib64/libstdc++.so.6.0.13
+   fun:__cxa_demangle
+}
+
+# These are errors I can't get rid of in the Variable server (Alex 5/10/11)
+# CentOS 5.3
+{
+   VariableServer::listen strlen
+   Memcheck:Cond
+   fun:strlen
+   fun:vfprintf
+   fun:vsprintf
+   fun:sprintf
+   fun:_ZN5Trick14VariableServer6listenEv
+}
+{
+   VariableServer::listen sendto condition
+   Memcheck:Cond
+   fun:_ZN5Trick14VariableServer6listenEv
+   fun:var_serve_init
+}
+{
+   VariableServer::listen sendto param
+   Memcheck:Param
+   socketcall.sendto(msg)
+   obj:/lib64/libc-2.5.so
+   fun:_ZN5Trick14VariableServer6listenEv
+}
+
+# freeing add_collect variables is somewhat risky to do automatically, so
+# we're going to suppress the leak for now.
+{
+   add_collect_leak
+   Memcheck:Leak
+   fun:malloc
+   fun:_Z11add_collectPPvS_
+}
+

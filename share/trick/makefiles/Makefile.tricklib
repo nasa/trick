@@ -1,0 +1,197 @@
+
+ifeq ($(wildcard src),src)
+SRC_DIR := src/
+CD_CMD := cd ./src ;
+UP_DIR := ../
+else
+SRC_DIR :=
+CD_CMD :=
+UP_DIR :=
+endif
+
+# This allows directories to override the default TRICK_LIB variable
+ifndef TRICK_LIB
+TRICK_LIB := $(TRICK_LIB_DIR)/libtrick.a
+endif
+
+#
+# Make information
+#
+DEPFILE = $(PWD)/Makefile_deps
+DEPTEMPFILE = $(PWD)/Makefile_temp_depends
+
+#############################################################################
+##                        FILE NAME DEFINITIONS                            ##
+#############################################################################
+
+L_SRC  = $(wildcard $(SRC_DIR)*.l)
+L_C    = $(subst .l,.lex.c,$(L_SRC))
+L_C_PREMADE = $(subst .l,.lex.c_premade,$(L_SRC))
+L_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .l,.lex.o,$(L_SRC))))
+
+Y_SRC  = $(wildcard $(SRC_DIR)*.y)
+Y_C    = $(subst .y,.tab.cpp,$(Y_SRC))
+Y_C_PREMADE = $(subst .y,.tab.c_premade,$(Y_SRC))
+Y_H    = $(subst .y,.tab.hpp,$(Y_SRC))
+Y_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .y,.tab.o,$(Y_SRC))))
+
+C_SRC = $(filter-out $(Y_C) $(L_C), $(wildcard $(SRC_DIR)*.c))
+
+CYL_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .c,.o,$(C_SRC))))
+CL_OBJS = $(filter-out $(Y_OBJS), $(CYL_OBJS))
+C_OBJS = $(filter-out $(L_OBJS), $(CL_OBJS))
+
+CPP_C_SRC = $(wildcard $(SRC_DIR)*.C)
+CPP_CC_SRC = $(wildcard $(SRC_DIR)*.cc)
+CPP_CPP_SRC = $(wildcard $(SRC_DIR)*.cpp)
+CPP_CXX_SRC = $(wildcard $(SRC_DIR)*.cxx)
+CPP_CPLUS_SRC = $(wildcard $(SRC_DIR)*.c++)
+CPP_SRC = $(CPP_C_SRC) $(CPP_CC_SRC) $(CPP_CPP_SRC) $(CPP_CXX_SRC) $(CPP_CPLUS_SRC)
+CPP_C_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .C,.o,$(CPP_C_SRC))))
+CPP_CC_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .cc,.o,$(CPP_CC_SRC))))
+CPP_CPP_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .cpp,.o,$(CPP_CPP_SRC))))
+CPP_CXX_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .cxx,.o,$(CPP_CXX_SRC))))
+CPP_CPLUS_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .c++,.o,$(CPP_CPLUS_SRC))))
+CPP_OBJS = $(CPP_C_OBJS) $(CPP_CC_OBJS) $(CPP_CPP_OBJS) $(CPP_CXX_OBJS) $(CPP_CPLUS_OBJS)
+
+IO_C_SRC = $(wildcard $(IO_SRC_DIR)*.c)
+IO_C_OBJS =$(subst io_src,$(OBJ_DIR),$(subst .c,.o,$(IO_C_SRC)))
+
+IO_CPP_SRC = $(wildcard $(IO_SRC_DIR)*.cpp)
+IO_CPP_OBJS =$(subst io_src,$(OBJ_DIR),$(subst .cpp,.o,$(IO_CPP_SRC)))
+
+IO_SRC = $(IO_C_SRC) $(IO_CPP_SRC)
+IO_OBJS = $(IO_C_OBJS) $(IO_CPP_OBJS)
+
+ifndef OBJECT_FILES
+OBJECT_FILES = $(IO_OBJS) $(L_OBJS) $(Y_OBJS) $(C_OBJS) $(CPP_OBJS) 
+endif
+
+#############################################################################
+##                            MODEL TARGETS                                ##
+#############################################################################
+
+default: objects $(TRICK_LIB)
+
+trick: objects
+
+premade: $(L_C_PREMADE) $(Y_C_PREMADE)
+
+objects: $(OBJECT_FILES)
+	@ echo "[32m$(CURDIR) object files up to date[00m"
+
+$(TRICK_LIB) : $(OBJECT_FILES) | $(TRICK_LIB_DIR)
+	ar crs $@ $(OBJECT_FILES)
+
+$(OBJ_DIR):
+	mkdir -p $@
+
+$(TRICK_LIB_DIR):
+	mkdir -p $@
+
+#
+# IO_OBJS
+#
+
+$(IO_C_OBJS): $(OBJ_DIR)/%.o : $(IO_SRC_DIR)%.c | $(OBJ_DIR)
+	$(TRICK_CC) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) -c $< -o $@
+
+$(IO_CPP_OBJS): TRICK_SYSTEM_CXXFLAGS += -std=c++11
+$(IO_CPP_OBJS): TRICK_SYSTEM_CXXFLAGS += -Wno-invalid-offsetof
+ifeq ($(IS_CC_CLANG), 0)
+ # cannot get an "expr" command to work on all platforms.  Falling back to reliable perl. :)
+ GCCVERSIONGTEQ48 := $(shell perl -e 'printf "%d\n", ($(GCC_MAJOR)>4)||(($(GCC_MAJOR)==4)&&($(GCC_MINOR)>=8)) ;' )
+ ifeq ($(GCCVERSIONGTEQ48), 1)
+  $(IO_CPP_OBJS): TRICK_CXXFLAGS += -Wno-unused-but-set-variable
+ endif
+endif
+
+$(IO_CPP_OBJS): $(OBJ_DIR)/%.o : $(IO_SRC_DIR)%.cpp | $(OBJ_DIR)
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
+
+#
+#
+# C_OBJS
+#
+
+$(C_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c | $(OBJ_DIR)
+	$(CD_CMD) $(TRICK_CC) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) -c ${<F} -o $(UP_DIR)$@
+
+#
+# CPP_OBJS
+#
+
+$(CPP_C_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.C | $(OBJ_DIR)
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CFLAGS) $(TRICK_SYSTEM_CFLAGS) -c ${<F} -o $(UP_DIR)$@
+
+$(CPP_CC_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.cc | $(OBJ_DIR)
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+
+$(CPP_CPP_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.cpp | $(OBJ_DIR)
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+
+$(CPP_CXX_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.cxx | $(OBJ_DIR)
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+
+$(CPP_CPLUS_OBJS): $(OBJ_DIR)/%.o : $(SRC_DIR)%.c++ | $(OBJ_DIR)
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+
+#
+# LEX/YACC SOURCE
+#
+
+$(L_C) : $(SRC_DIR)%.lex.c : $(SRC_DIR)%.l
+	$(LEX) -o $@ $< || ( $(CD_CMD) ln -s ${@F}_premade ${@F} )
+
+$(L_C_PREMADE) : $(SRC_DIR)%.lex.c_premade : $(SRC_DIR)%.l
+	$(LEX) -o $@ $<
+
+$(Y_H) : $(SRC_DIR)%.tab.hpp : $(SRC_DIR)%.tab.cpp
+
+$(Y_C) : $(SRC_DIR)%.tab.cpp : $(SRC_DIR)%.y
+	$(YACC) -d -o $@ $< || ( $(CD_CMD) ln -s ${@F}_premade ${@F} ; ln -s ${@F:.c=.h}_premade ${@F:.c=.h}) 
+
+$(Y_C_PREMADE) : $(SRC_DIR)%.tab.c_premade : $(SRC_DIR)%.y
+	$(YACC) -d -o $@ $<
+
+$(L_OBJS) : $(OBJ_DIR)/%.lex.o : $(SRC_DIR)%.lex.c $(SRC_DIR)%.tab.hpp  | $(OBJ_DIR)
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+
+$(Y_OBJS) : $(OBJ_DIR)/%.tab.o : $(SRC_DIR)%.tab.cpp  | $(OBJ_DIR)
+	$(CD_CMD) $(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c ${<F} -o $(UP_DIR)$@
+
+
+#
+# OTHER RULES
+#
+
+depend:
+	@ $(TRICK_CXX) -MM $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(C_SRC) $(CPP_SRC) >> $(DEPTEMPFILE)
+	@ $(PERL) ${TRICK_HOME}/$(LIBEXEC)/trick/depend_cp $(DEPTEMPFILE) > $(DEPFILE)
+	@ $(RM) $(DEPTEMPFILE)
+	@ echo "Created dependency file $(DEPFILE)"
+
+io_clean: 
+	$(RM) -rf io_src
+
+real_clean: clean io_clean
+	$(RM) -rf xml *~ *.bak core
+	@ echo "Directory is really clean!"
+
+clean: 
+	$(RM) -rf $(OBJ_DIR) $(L_C) $(Y_C) $(Y_H)
+
+help :
+	@ echo -e "\n\
+Source Directory Make Options:\n\
+    make               - Compiles are source files\n\
+\n\
+    make depend        - Adds file dependencies to Makefile\n\
+\n\
+    make io_clean      - Deletes the local io_src directory\n\
+\n\
+    make clean         - Deletes the object code directory\n\
+\n\
+    make real_clean    - Deletes xml/, io_src/,\n\
+                         and object_${TRICK_HOST_CPU}/ directories\n"
+

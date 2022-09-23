@@ -1,0 +1,169 @@
+#! /usr/bin/perl
+
+use File::Basename ;
+use Cwd ;
+use strict ;
+use Getopt::Long ;
+use Pod::Usage ;
+use Pod::Text ;
+use Cwd 'abs_path';
+
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
+
+use parse_s_define ;
+use gte ;
+use s_source ;
+use trick_print ;
+use trick_version ;
+use get_paths ;
+use verbose_build ;
+
+my %sim ;
+my $cwd = cwd();
+my $verbose_build = verbose_build() ;
+my @ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
+
+# override the print format for help message
+*Pod::Text::seq_i = sub { return "[04m" . $_[1] . "[00m" } ;
+
+# set default verbose level
+$sim{args}{v} = 2 ;
+$sim{args}{o} = "build/CP_out" ;
+$sim{args}{p} = 1 ;
+
+#--------------------------------------------------------------
+# Process command line arguments
+Getopt::Long::Configure ("bundling");
+GetOptions ( "no-python|p" => sub { $sim{args}{p} = 0 } ,
+         "debug|g" => sub { $sim{args}{v} = 3 ; } ,
+         "help|h|?" => \$sim{args}{h} ,
+         "outfile|o=s" => \$sim{args}{o} ,
+         "t" => \$sim{args}{t} ,
+         "verbose|v=i" => \$sim{args}{v}
+       ) or pod2usage(1) ;
+
+pod2usage(1) if $sim{args}{h} ;
+
+# Get Trick version
+my ($version, $thread) = get_trick_version() ;
+$thread =~ s/\d+\.// ;
+
+if ( ! -e "build" ) {
+     mkdir  "build", 0755 ;
+}
+
+local *OUTFILE ;
+open OUTFILE , ">$sim{args}{o}" or warn "CP cannot open $sim{args}{o} for writing\n" ;
+$sim{fh} = *OUTFILE ;
+print OUTFILE "Output for $0 version $version-$thread at " . localtime() . "\n\n" ;
+
+
+# if no python is specified, turn off the python InputProcessor sim_object in S_define.
+if ( $sim{args}{p} == 0 ) {
+    $ENV{TRICK_SYSTEM_SFLAGS} .= " -DTRICK_NO_INPUTPROCESSOR" ;
+}
+
+#--------------------------------------------------------------
+# Parse the S_define file
+
+trick_print($sim{fh}, "Parsing    " , "title_blue" , $sim{args}{v}) ;
+trick_print($sim{fh}, "S_define" , "title_white" , $sim{args}{v}) ;
+trick_print($sim{fh}, "\n" , "title_white" , $sim{args}{v}) if ( $sim{args}{v} != 1 ) ;
+
+parse_s_define(\%sim) ;
+
+trick_print( $sim{fh}, "Finished   " , "normal_blue" , $ sim{args}{v} ) ;
+trick_print( $sim{fh}, "S_define\n" , "normal_white" , $ sim{args}{v} ) ;
+
+#--------------------------------------------------------------
+# Make S_source.c
+
+trick_print($sim{fh}, "Writing    ", "title_blue", $sim{args}{v});
+trick_print($sim{fh}, "S_source.c\n", "title_white", $sim{args}{v});
+s_source( \%sim ) ;
+
+#--------------------------------------------------------------
+# close
+
+chdir ($cwd) ;
+close OUTFILE ;
+
+#--------------------------------------------------------------
+# Write out the library dependencies found in the S_define file.
+open LIBDEP, ">build/S_define.lib_deps" ;
+foreach my $file ( @{$sim{mis_entry_files}} ) {
+    if ( $file ne "" ) {
+        $file = abs_path(dirname($file)) . "/" . basename($file) ;
+        if ( my $path = get_containing_path( $file, @ext_lib_paths ) ) {
+            print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$path[24m" . substr($file, length $path) . "\n" if $verbose_build ;
+            next ;
+        }
+        print LIBDEP "$file\n" ;
+    }
+}
+close LIBDEP ;
+
+################################################################################
+# END MAIN
+################################################################################
+
+__END__
+
+=head1 NAME
+
+CP - Trick Configuration Processor
+
+=head1 SYNOPSIS
+
+CP [-defghmprsz?] [--debug] [--help] [-o I<outfile>] [--outfile=I<outfile>] 
+[-v I<level>] [--verbose=I<level>] [--model_dirs]
+
+=head1 DESCRIPTION
+
+See the Trick User's guide for B<CP>
+
+=head1 OPTIONS
+   
+=over 8
+
+=item B<-e>
+
+S_main_\${TRICK_HOST_CPU}.exe (Master executable)
+
+=item B<-f>
+
+Force CP to process S_define without catalog/cache
+
+=item B<-g> | B<--debug>
+
+Set the verbose level to 3
+
+=item B<-h> | B<-?> | B<--help>
+
+Print this help message
+
+=item B<-m>
+
+Makefile (Simulation make file)
+
+=item B<-o> I<file_name> | B<--outfile>=I<outfile>
+
+output all CP output to an external file
+
+=item B<-p>
+
+Create a simulation without python input processor.
+
+=item B<-v> I<level> | B<--verbose>=I<level>
+
+Set the verbose level.  Valid entries are 0-3.
+
+=item B<-DTRICK_VER=x.x>
+
+Note: -DTRICK_VER=x.x is automatically used when parsing header files and the S_define file
+
+=back
+
+=cut
+

@@ -1,0 +1,4 @@
+
+TRICK_CFLAGS += -I.
+TRICK_CXXFLAGS += -I.
+

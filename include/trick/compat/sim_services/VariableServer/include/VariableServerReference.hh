@@ -1,0 +1,1 @@
+#include "trick/VariableServerReference.hh"

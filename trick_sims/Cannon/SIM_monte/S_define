@@ -1,0 +1,73 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This S_define works with the jet simulation (RUN_tcltk input files))
+LIBRARY DEPENDENCIES:
+    (
+      (cannon/aero/src/cannon_init_aero.c)
+      (cannon/aero/src/cannon_force_gravity.c)
+      (cannon/aero/src/cannon_force_drag.c)
+      (cannon/aero/src/cannon_force_lift.c)
+      (cannon/aero/src/cannon_force_cross.c)
+      (cannon/aero/src/cannon_collect_forces.c)
+      (cannon/aero/src/cannon_integ_aero.c)
+      (cannon/aero/src/cannon_impact_monte.c)
+      (cannon/aero/src/cannon_force_jet.c)  
+      (cannon/aero/src/cannon_jet_control.c)
+      (cannon/aero/src/cannon_monte_default_data.c)
+      (cannon/optim/src/monte_shutdown.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "cannon/aero/include/cannon_aero.h"
+##include "cannon/aero/include/cannon_monte_proto.h"
+##include "cannon/optim/include/optim_proto.h"
+
+class CannonSimObject : public Trick::SimObject {
+
+    public:
+        CANNON_AERO baseball;
+
+        CannonSimObject() {
+
+            ("default_data") cannon_monte_default_data( &baseball ) ;
+
+            ("initialization") cannon_init_aero( &baseball ) ;
+
+            ("derivative") cannon_force_gravity( &baseball ) ;
+            ("derivative") cannon_force_drag( &baseball ) ;
+            ("derivative") cannon_force_lift( &baseball ) ;
+            ("derivative") cannon_force_cross( &baseball ) ;
+            ("derivative") cannon_collect_forces( &baseball ) ;
+            ("integration") trick_ret = cannon_integ_aero( &baseball ) ;
+
+            (0.1, "effector") cannon_force_jet( &baseball ) ;
+
+            ("dynamic_event") cannon_impact_monte( &baseball ) ;
+
+            (0.1, "scheduled") cannon_jet_control( &baseball ) ;
+        }
+} ;
+
+CannonSimObject dyn ;
+
+IntegLoop dyn_integloop (0.01) dyn ;
+
+//The below simobject is for the unit test only
+class TestSimObject : public Trick::SimObject {
+    public:
+
+        TestSimObject() {
+            ("monte_master_shutdown")  cannon_master_shutdown() ;
+        }
+};
+   
+TestSimObject testcase;
+
+collect dyn.baseball.force_collect = { 
+        dyn.baseball.force_gravity[0],
+        dyn.baseball.force_drag[0],
+        dyn.baseball.force_magnus[0],
+        dyn.baseball.force_cross[0],
+        dyn.baseball.force_jet[0]} ;

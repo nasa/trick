@@ -1,0 +1,186 @@
+#!/usr/bin/perl
+
+use File::Basename ;
+use strict ;
+use Cwd ;
+
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
+
+use cp_cache ;
+
+my $struct_param_info ;
+my ($file_contents) ;
+
+#print "$ARGV[0]" ;
+$struct_param_info = read_struct_param_info() ;
+
+foreach my $arg ( @ARGV ) {
+    my (%possible_names) ;
+    my (%reverse_pn) ;
+    my (@object_names) ;
+    my ($object_name) ;
+    my (@lines) ;
+    my $new_file_name  ;
+    my ($my_convert_used ) = 0 ;
+    my ($param ) = "test" ;
+    my ($pointer_dims)  ;
+
+    print "$arg\n" ;
+
+    open ( FILE, $arg ) ; 
+    while ( <FILE> ) {
+        if (/^\s*([_A-Za-z][\w_]*)[.\[]/ ) {
+            $possible_names{$1}++ ;
+        }
+        push @lines , $_ ;
+    }
+    $file_contents = join "" , @lines ;
+    %reverse_pn = reverse %possible_names ;
+
+    @object_names = sort { $a <=> $b } keys %reverse_pn ;
+    $object_name = $reverse_pn{@object_names[0]} ;
+
+    print "object_name = $object_name\n" ;
+
+    $new_file_name = $arg ;
+    $new_file_name =~ s/\.[^\.]*$// ;
+    $new_file_name .= "." . $$struct_param_info{$object_name}{language} ;
+    print "new_file_name = $new_file_name\n" ;
+    open ( NEWFILE, ">$new_file_name" ); 
+
+    #print keys %{$$struct_param_info{$object_name}{params}} , "\n\n" ;
+
+    print NEWFILE "#include \"$$struct_param_info{$object_name}{header_file}\"\n\n" ;
+    print NEWFILE "#include \"sim_services/include/exec_proto.h\"\n\n" ;
+    print NEWFILE "#include \"trick_utils/units/include/units_conv.h\"\n\n" ;
+
+    $pointer_dims = "*" ;
+    if ( $$struct_param_info{$object_name}{language} eq "cpp" ) {
+        print NEWFILE "#include \"InputProcessor.hh\"\n\n" ;
+        print NEWFILE "void InputProcessor::default_data_$object_name( $object_name $pointer_dims $param ) {\n\n" ;
+    } else {
+        print NEWFILE "void default_data_$object_name( $object_name $pointer_dims $param ) ;\n\n" ;
+        print NEWFILE "void default_data_$object_name( $object_name $pointer_dims $param ) {\n\n" ;
+    }
+
+
+    while ( $file_contents =~ s/^(.*?)(?:($object_name\s*(?:\.|\[|\s).*?)\s*(?:\{(.*?)\})?\s*=(.*?);)//s ) {
+        my ($other_content) = $1 ;
+        my ($left_side) = $2 ;
+        my ($units) = $3 ;
+        my ($right_side) = $4 ;
+
+        my (@right_list) ;
+        my ($attr_units) ;
+        my ($need_units_conversion) = 0 ;
+        my ($need_index) = 0 ;
+        my ($index_is_integer) = 0 ;
+        my ($index, $offset) ;
+        my ($l_type , $last_name ) ;
+
+        $other_content =~ s/^\n// ;
+        print NEWFILE "$other_content" ;
+        #print NEWFILE "/* $left_side $units = $right_side */\n" ;
+
+        my $temp_left = $left_side ;
+        my ($next_name) ;
+        $temp_left =~ s/\[.*?\]//g ;
+        my (@left_list) = split /\.|->/ , $temp_left ; 
+        #print NEWFILE "/* left_list @left_list */\n" ;
+        $l_type = shift @left_list ;
+        $last_name = pop @left_list ;
+        while ( $next_name = shift @left_list ) {
+            $l_type = $$struct_param_info{$l_type}{attr}{$next_name}{p_type} ;
+            #print NEWFILE "/* next_name = $next_name , new_type = $l_type */\n" ;
+        }
+
+        if ( $units ne "" ) {
+            $attr_units = $$struct_param_info{$l_type}{attr}{$last_name}{p_unit} ;
+            #print NEWFILE "/* unit = $attr_units */\n" ;
+            if ( $units ne $attr_units ) {
+                $my_convert_used = $need_units_conversion = 1 ;
+                print NEWFILE "conv_fn_s(\"$units\" , \"$attr_units\" , \&my_convert) ;\n" ;
+            }
+        }
+        
+        $left_side =~ s/$object_name\s*(\.|\[)?/(\*$param)$1/g ;
+        $right_side =~ s/\n//g ;
+
+        if ( $right_side =~ /alloc/ ) {
+            my $temp_left = $left_side ;
+            my ($num_dim_specified, $attr_num_dim) ;
+            my ($cast_dims, $alloc_type_dims) ;
+
+            $num_dim_specified = 0 ;
+            while ($temp_left =~ s/\s*\[.*?\]\s*$//) {
+                $num_dim_specified++ ;
+            }
+
+            if ( $last_name ne "" ) {
+                $attr_num_dim = $$struct_param_info{$l_type}{attr}{$last_name}{p_point} ;
+                $l_type = $$struct_param_info{$l_type}{attr}{$last_name}{p_type} ;
+            } else {
+                #$attr_num_dim = length($$str{pointers}) ;
+                #$l_type = $$str{strname} ;
+            }
+            print NEWFILE "/* dims $l_type $num_dim_specified , $attr_num_dim */\n" ;
+            $cast_dims = "*" x ($attr_num_dim - $num_dim_specified) ;
+            $alloc_type_dims = "*" x ($attr_num_dim - $num_dim_specified - 1) ;
+            $right_side =~ s/alloc\s*\((.*?)\)/($l_type $cast_dims)ip_alloc\($1,sizeof($l_type $alloc_type_dims)\)/ ;
+            @right_list[0] = $right_side ;
+        }
+        else {
+            #my (@strings) ;
+            #@strings = $right_side , m/\".*?\"/sg ;
+            #$right_side , m/\".*?\"/sg ;
+            @right_list = split /,/ , $right_side ;
+
+            if ( $left_side =~ s/\[([^\]]+)\]\s*$// ) {
+                ($index) = $1 ;
+                $need_index = 1 ;
+                $index =~ s/(^\s+|\s+$)//g ;
+                #print NEWFILE "/* index = $index */\n" ;
+                if ( $index =~ /^\d+$/ ) {
+                    $index_is_integer = 1 ;
+                }
+            }
+        }
+
+        $offset = 0 ;
+        foreach my $r ( @right_list ) {
+            my ($index_print) ;
+            if ( $need_index ) {
+                if ( $index_is_integer == 1 ) {
+                    $index_print = "\[" . ($index + $offset++) . "\]" ;
+                } else {
+                    $index_print = "\[$index + " . $offset++ . "\]" ;
+                }
+            }
+            if ( $r =~ /\s*(\".*?\")\s*/ ) {
+                if ( $$struct_param_info{$l_type}{attr}{$last_name}{p_point} > 0 ) {
+                    $r = "ip_strdup($1)" ;
+                }
+                else {
+                    print NEWFILE "strcpy($left_side$index_print , $1) ;\n" ;
+                    next ;
+                    #$r = "ip_strdup($1)" ;
+                }
+            }
+            print NEWFILE "    $left_side$index_print = " ;
+            if ( $need_units_conversion ) {
+                print NEWFILE "convert_units( $r , \&my_convert ) ;\n" ;
+            } else {
+                print NEWFILE "$r ;\n" ;
+            }
+        }
+    }
+
+    print NEWFILE "$file_contents" ;
+    print NEWFILE "(void)my_convert ;\n" if ( $my_convert_used == 0 ) ;
+    print NEWFILE "}\n" ;
+}
+
+exit ;
+
+

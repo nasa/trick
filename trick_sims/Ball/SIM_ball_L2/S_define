@@ -1,0 +1,119 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+     (ball/L2/src/ball_altimeter.c)
+     (ball/L2/src/ball_altimeter_default_data.c)
+     (ball/L2/src/ball_ceiling.c)
+     (ball/L2/src/ball_control.c)
+     (ball/L2/src/ball_control_default_data.c)
+     (ball/L2/src/ball_floor.c)
+     (ball/L1/src/ball_force_field.c)
+     (ball/L2/src/ball_force_default_data.c)
+     (ball/L2/src/ball_jet.c)
+     (ball/L2/src/ball_jet_default_data.c)
+     (ball/L2/src/ball_left_wall.c)
+     (ball/L2/src/ball_right_wall.c)
+     (ball/L2/src/ball_state_default_data.c)
+     (ball/L2/src/ball_state_deriv.c)
+     (ball/L2/src/ball_state_init.c)
+     (ball/L2/src/ball_state_integ.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "ball/L1/include/ball_force.h"
+##include "ball/L2/include/ball_altimeter.h"
+##include "ball/L2/include/ball_control.h"
+##include "ball/L2/include/ball_jet.h"
+##include "ball/L2/include/ball_state.h"
+
+%{
+
+// Allow C++ access to the these C functions
+extern "C" {
+
+    int ball_altimeter(BALT*,double*) ;
+    int ball_altimeter_default_data(BALT*) ;
+    double ball_ceiling(BSTATE*) ;
+    int ball_control(BCONTROL*,double) ;
+    double ball_floor(BSTATE*) ;
+    int ball_force_default_data(BFORCE*) ;
+    int ball_force_field(BFORCE*,double*) ;
+    int ball_jet(BJET*,Flag*) ;
+    double ball_left_wall(BSTATE*) ;
+    double ball_right_wall(BSTATE*) ;
+    int ball_state_default_data(BSTATE*) ;
+    int ball_state_deriv(BSTATE*) ;
+    int ball_state_init(BSTATE*) ;
+    int ball_state_integ(BSTATE*) ;
+    int ball_jet_default_data(BJET*) ;
+    int ball_control_default_data(BCONTROL*) ;
+
+}
+
+%}
+
+//=============================================================================
+// SIM_OBJECT: ball
+// This sim object models a ball.
+//=============================================================================
+class ballSimObject : public Trick::SimObject {
+
+    public:
+        BSTATE      state ;
+        BFORCE      force ;
+        BALT        altimeter ;
+        BCONTROL    control ;
+        BJET        jet ;
+
+        ballSimObject() : state() , force() , altimeter() , control() , jet() {
+
+            // DATA STRUCTURE DECLARATIONS
+            ("default_data") ball_state_default_data( &state ) ;
+            ("default_data") ball_force_default_data( &force ) ;
+            ("default_data") ball_jet_default_data( &jet ) ;
+            ("default_data") ball_altimeter_default_data( &altimeter ) ;
+            ("default_data") ball_control_default_data( &control ) ;
+
+            // INITIALIZATION JOBS
+            ("initialization") ball_state_init( &state ) ;
+
+            // EOM DERIVATIVE AND STATE INTEGRATION JOBS
+            ("derivative") ball_force_field( &force, state.output.position ) ;
+            ("derivative") ball_state_deriv( &state ) ;
+            ("integration") trick_ret= ball_state_integ( &state ) ;
+
+            // DYNAMIC EVENT JOBS
+            ("dynamic_event") ball_floor( &state) ;
+            ("dynamic_event") ball_right_wall( &state) ;
+            ("dynamic_event") ball_ceiling( &state) ;
+            ("dynamic_event") ball_left_wall( &state) ;
+
+            // ALTITUDE SENSING, CONTROL, AND EFFECTING
+            (0.01, "sensor") ball_altimeter( &altimeter, &state.output.position[1] ) ;
+            (0.01, "scheduled") ball_control( &control, altimeter.output.altitude ) ;
+            (0.01, "effector") ball_jet( &jet, &control.output.jet_command[0] );
+
+        }
+
+} ;
+
+// Instantiations
+ballSimObject ball ;
+
+collect ball.state.work.external_force = { ball.force.output.force[0] ,
+                                           ball.jet.output.force[0]
+                                         } ;
+IntegLoop my_integ_loop (0.01) ball;
+
+
+// Connect objects
+void create_connections() {
+
+    exec_set_freeze_frame(0.10) ;
+    my_integ_loop.getIntegrator(Runge_Kutta_2, 4);
+
+}

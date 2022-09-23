@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "../../XML/DTD/Product.dtd">
+<product version="1.0" foreground_color="#ffffff" background_color="#885588"> 
+	<page foreground_color="#ffffff" 
+		  background_color="#885588" 
+		  hcells="1" vcells="2"
+		  presentation="SIMPLE"
+		  gnuplot_template="this one"
+		  gnuplot_object="ball"
+		  gnuplot_geom="square"
+		  gnuplot_plot_ratio="1.5"
+		  gnuplot_page_orientation="landscape">
+		<title>This is a page</title>
+		<tstart>5</tstart>
+		<tstop>900</tstop>
+		<frequency>2.0</frequency>
+		<plot x_scale="1.0" xmin="-100000" xmax="100000"
+			  y_scale="2.0" ymin="-200000" ymax="200000"
+			  grid="yes"  grid_color="pink"
+			  foreground_color="#ffffff" background_color="#000000"
+			  font="helvetica">
+			<title>This is a page</title>
+			<tstart>8</tstart>
+			<tstop>850</tstop>
+			<frequency>5.0</frequency>
+			<xaxis>
+				<label>Mass</label>
+		    	<units>g</units>
+			</xaxis>
+			<yaxis>
+		    	<label>Density</label>
+		    	<units>K</units>
+			</yaxis>
+			<curve>
+				<var label="Variable X"
+					 from_units="s" 		  units="min"
+					 bias="left?" 	scale="4" max="100000000"
+					 symbol_style="circles"   symbol_size="small"
+					 line_style="dotted" 	  line_color="green"
+					 gnuplot_line_style="box">sun_predictor.sun.observer_offset_from_UTC</var>
+				<var>sun_predictor.sun.observer_latitude</var>
+			</curve>
+		</plot>
+	</page>
+	<table foreground_color="#ffffff" 
+		   background_color="#000000">
+		<title>This is a table</title>
+		<tstart>10</tstart>
+		<tstop>200</tstop>
+		<frequency>70.0</frequency>
+		<column format="feng shui">
+			<label>Time</label>
+			<units>kg</units>
+			<var label="Variable 1"
+			     from_units="day"      units="s"
+			     bias="italics"   scale="4" max="100000000"
+			     symbol_style="asterisk"   symbol_size="large"
+			     line_style="thick"      line_color="blue"
+			     gnuplot_line_style="thick">sys.exec.out.time</var>
+		</column>
+		<column format="normal">
+			<label>Pressure</label>
+		    <units>ft</units>
+		    <var label="Variable 2"
+		         from_units="revolution"           units="arcsecond"
+		         bias="left?"   scale="4" max="34579257"
+		         symbol_style="dot"   symbol_size="huge"
+		         line_style="shiny"      line_color="yellow"
+		         gnuplot_line_style="normal">sun_predictor.sun.hour_angle</var>
+		</column>
+	</table>
+</product>
+

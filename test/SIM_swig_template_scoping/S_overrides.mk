@@ -1,0 +1,3 @@
+TRICK_CONVERT_SWIG_FLAGS := -s
+TRICK_CFLAGS += -Imodels
+TRICK_CXXFLAGS += -Imodels

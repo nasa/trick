@@ -1,0 +1,64 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (Test the io attributes of variables)
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+class testIOSimObject : public Trick::SimObject {
+
+    public:
+        /* The next 16 variables test all io combinations */
+        double d0 ;                 /**< trick_chkpnt_io(**) trick_io(**) trick_units(m) comment */
+        double d1 ;                 /**< trick_chkpnt_io(**) trick_io(*o) trick_units(m) comment */
+        double d2 ;                 /**< trick_chkpnt_io(**) trick_io(*i) trick_units(m) comment */
+        double d3 ;                 /**< trick_chkpnt_io(**) trick_io(*io) trick_units(m) comment */
+        double d4 ;                 /**< trick_chkpnt_io(*o) trick_io(**) trick_units(m) comment */
+        double d5 ;                 /**< trick_chkpnt_io(*o) trick_io(*o) trick_units(m) comment */
+        double d6 ;                 /**< trick_chkpnt_io(*o) trick_io(*i) trick_units(m) comment */
+        double d7 ;                 /**< trick_chkpnt_io(*o) trick_io(*io) trick_units(m) comment */
+        double d8 ;                 /**< trick_chkpnt_io(*i) trick_io(**) trick_units(m) comment */
+        double d9 ;                 /**< trick_chkpnt_io(*i) trick_io(*o) trick_units(m) comment */
+        double d10 ;                 /**< trick_chkpnt_io(*i) trick_io(*i) trick_units(m) comment */
+        double d11 ;                 /**< trick_chkpnt_io(*i) trick_io(*io) trick_units(m) comment */
+        double d12 ;                 /**< trick_chkpnt_io(*io) trick_io(**) trick_units(m) comment */
+        double d13 ;                 /**< trick_chkpnt_io(*io) trick_io(*o) trick_units(m) comment */
+        double d14 ;                 /**< trick_chkpnt_io(*io) trick_io(*i) trick_units(m) comment */
+        double d15 ;                 /**< trick_chkpnt_io(*io) trick_io(*io) trick_units(m) comment */
+
+        /* Here to test the other input types, char ptr and address */
+        char * cp ;
+        double * dp ;
+
+        testIOSimObject() {
+            d0 = 100.0 ;
+            d1 = 101.0 ;
+            d2 = 102.0 ;
+            d3 = 103.0 ;
+            d4 = 104.0 ;
+            d5 = 105.0 ;
+            d6 = 106.0 ;
+            d7 = 107.0 ;
+            d8 = 108.0 ;
+            d9 = 109.0 ;
+            d10 = 110.0 ;
+            d11 = 111.0 ;
+            d12 = 112.0 ;
+            d13 = 113.0 ;
+            d14 = 114.0 ;
+            d15 = 115.0 ;
+
+            cp = NULL ;
+            dp = NULL ;
+        }
+} ;
+
+%header{
+##ifdef SWIG
+// This SWIG statement give us the capability to print the entire class with a single print
+%struct_str(testIOSimObject)
+##endif
+%}
+
+testIOSimObject test_io ;
+

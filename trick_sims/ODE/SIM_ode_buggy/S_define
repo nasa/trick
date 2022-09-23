@@ -1,0 +1,50 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#define DRAW_THREAD C1
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "Buggy/Buggy.hh"
+##include "DrawStuff/DrawStuff.hh"
+
+%{
+const double BuggySimObject::time_step = 0.05 ;
+%}
+
+/**
+  This class is the base ball class
+ */
+class BuggySimObject : public Trick::SimObject {
+
+    public:
+
+        Buggy buggy ;
+        DrawStuff drawstuff ;
+
+        static const double time_step ;
+
+        /** Constructor to add the jobs */
+        BuggySimObject() {
+            ("initialization") buggy.init() ;
+            (time_step, "scheduled") buggy.step(time_step) ;
+            DRAW_THREAD (1000000.0, "scheduled") drawstuff.draw() ;
+            ("shutdown") drawstuff.shutdown() ;
+            ("shutdown") buggy.shutdown() ;
+        }
+} ;
+
+// Instantiations
+BuggySimObject buggy_so ;
+
+// Connect objects
+void create_connections() {
+    // Set the default termination time
+    //exec_set_terminate_time(300.0) ;
+}
+

@@ -1,0 +1,34 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+##include "ClassOfEverything.hh"
+
+class testSimObject : public Trick::SimObject {
+
+    public:
+        ClassOfEverything obj ;
+        testSimObject() {}
+
+    private:
+        testSimObject (const testSimObject &);
+        testSimObject & operator= (const testSimObject &);
+
+} ;
+
+// Instantiations
+testSimObject test_so ;
+
+// Connect objects
+void create_connections() {
+
+    // Set the default termination time
+    trick_sys.sched.set_terminate_time(1.0) ;
+    trick_sys.sched.set_freeze_frame(0.10) ;
+}
+

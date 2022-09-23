@@ -1,0 +1,23 @@
+/************************************************************
+PURPOSE:
+    ( Simulation of Ball Contact. )
+LIBRARY DEPENDENCIES:
+    ((contact/src/Contact.cpp))
+*************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "contact/include/Contact.hh"
+class ContactSimObject : public Trick::SimObject {
+    public:
+    Contact contact;
+
+    ContactSimObject() {
+        ("default_data")            contact.default_data() ;
+        ("initialization")          contact.state_init() ;
+        ("derivative")              contact.state_deriv() ;
+        ("integration") trick_ret = contact.state_integ() ;
+        ("dynamic_event")           contact.collision() ;
+    }
+};
+
+ContactSimObject dyn;
+IntegLoop dyn_integloop(0.1) dyn;

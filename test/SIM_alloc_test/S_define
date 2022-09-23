@@ -1,0 +1,23 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This sim shows the different ways to allocate a class in)
+     the input file.)
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "allocation/include/AllocTest.hh"
+
+class AllocTestSimObject : public Trick::SimObject {
+
+    public:
+
+        AllocTest at ;
+        AllocTestWithMMInterface atwmmi ;
+
+        AllocTestSimObject() {
+        }
+} ;
+
+AllocTestSimObject alloc_test ;
+

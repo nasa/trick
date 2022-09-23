@@ -1,0 +1,42 @@
+#######################################################################################
+                README: UNIT TEST-REQUIREMENTS LINKAGE INSTRUCTIONS
+                ---------------------------------------------------
+Author: Lindsay Landry
+#######################################################################################
+
+Good unit tests should prove or verify requirements.
+
+To link your unit tests to requirements, you first need to include the RequirementScribe
+class in your unit test:
+
+	#include "trick_utils/reqs/include/RequirementScribe.hh"
+
+Then, instantiate a RequirementScribe class (it's easiest to do this in the test class you
+define):
+	
+	Trick::RequirementScribe scribe;
+
+Finally, to link to a requirement, call the add_requirement function in a testcase and
+indicate the tag number of the requirement you want to link to:
+
+	TEST_F(TestSuite, TestCase) {
+		scribe.add_requirement("34749701347");
+		.
+		.
+		.
+	}
+
+You can add multiple unit tests to the same requirement.
+
+You can also link one unit test to multiple requirements. To do this, make a list of 
+the tags passed to "add_requirement" separated by spaces and/or commas:
+
+	scribe.add_requirement("924759056, 247569693 41342435,12312405   34523462346");
+
+
+***FURTHER RESOURCES***
+ For instructions on how to add requirements to the tree or to look at the current set of
+ requirements, go to:
+    ${TRICK_HOME}/trick_test/requirements_docs/
+ and look at the README document.
+

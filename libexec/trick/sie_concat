@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+package sie_concat;
+
+open(my $S_sie_resource, ">", "./S_sie.resource")
+	or die "cannot open S_sie.resource $!";
+print $S_sie_resource "<?xml version=\"1.0\"?>\n\n<sie>\n\n";
+
+
+open(my $classes_resource, "<", "build/classes.resource")
+	or die "cannot open build/classes.resource";
+while(my $line = <$classes_resource>) {
+	print $S_sie_resource $line;
+}
+
+close($classes_resource);
+
+open(my $top_level_objects_resource, "<", "build/top_level_objects.resource")
+	or die "cannot open build/top_level_objects.resource";
+while(my $line = <$top_level_objects_resource>) {
+	print $S_sie_resource $line;
+}
+
+close($top_level_objects_resource);
+
+my $sim_services_resource;
+open($sim_services_resource, "<", "$ENV{TRICK_HOME}/share/trick/xml/sim_services_classes.resource")
+    or open($sim_services_resource, "<", "$ENV{TRICK_HOME}/temp_src/io_src/sim_services_classes.resource")
+	or die "cannot open sim_services_classes.resource";
+
+while(my $line = <$sim_services_resource>) {
+	print $S_sie_resource $line;
+}
+
+close($sim_services_resource);
+print $S_sie_resource "<!--\nRuntime Allocations\nDo not edit this comment or file content past this point\n-->\n";
+print $S_sie_resource "</sie>";
+close($S_sie_resource);

@@ -1,0 +1,55 @@
+/*****    
+ PURPOSE: (test Trick input file events)
+******/
+
+#include "sim_objects/default_trick_sys.sm"
+
+class eventSimObject : public Trick::SimObject {
+
+    public:
+        Trick::IPPythonEvent * event0; // ** event pointer for event we create in S_define
+        bool cond_var_false;       // -- use for event condition variable
+        bool cond_var_true;        // -- use for event condition variable
+        int count;                 // -- referenced by event actions
+
+        bool cond_job_true() {
+            return true;
+        }
+        bool cond_job_false() {
+            return false;
+        }
+
+        void init() {
+            fprintf(stderr, "I am in init\n");
+        }
+        void sched() {
+            fprintf(stderr, "I am in sched %f\n\n", exec_get_sim_time());
+        }
+        void sched_count() {
+            count++;
+        }
+        void shutdown() {
+            fprintf(stderr, "I am in shutdown\n");
+        }
+
+        eventSimObject() : cond_var_false(false),
+                           cond_var_true(true),
+                           count(0) {
+
+            // create an event, add it in the input file
+            event0 = (Trick::IPPythonEvent*)alloc_type(1,"Trick::IPPythonEvent");
+            event0->set_name("SDEFINE_event");
+            event0->condition(0, "True");
+            event0->action(0, "print (\"event0\"); result[0] = 1");
+            event0->activate();
+
+            ("initialization")  init();
+            (0.5, "scheduled")  sched();
+            (1.0, "scheduled")  sched_count();
+            ("shutdown")        shutdown();
+
+            ("malfunction")  trick_ret=cond_job_true(); // will use for an event condition
+        }
+
+} ;
+eventSimObject ev;

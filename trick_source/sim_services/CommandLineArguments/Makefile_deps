@@ -1,0 +1,12 @@
+object_${TRICK_HOST_CPU}/CommandLineArguments.o: CommandLineArguments.cpp \
+ ${TRICK_HOME}/include/trick/CommandLineArguments.hh \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h 
+object_${TRICK_HOST_CPU}/command_line_c_intf.o: command_line_c_intf.cpp \
+ ${TRICK_HOME}/include/trick/CommandLineArguments.hh 

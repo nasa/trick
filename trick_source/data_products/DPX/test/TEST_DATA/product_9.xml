@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "../../XML/DTD/Product.dtd">
+
+<!-- Description: multiple plots, no attributes -->
+
+<product version="1.0">
+   <page vcells="3">
+      <title>Page of Squiggles</title>
+      <plot>
+         <title>Squiggle 1</title>
+         <curve>
+            <var>sys.exec.out.time</var>
+            <var>sun_predictor.sun.JD</var>
+         </curve>
+      </plot>
+      <plot>
+        <title>Squiggle 2</title> 
+		<curve>
+            <var>sys.exec.out.time</var>
+            <var>sun_predictor.sun.declination</var>
+         </curve>
+      </plot>
+      <plot>
+        <title>Squiggle 3</title> 
+		<curve>
+            <var>sys.exec.out.time</var>
+            <var>sun_predictor.sun.hour_angle</var>
+         </curve>
+      </plot>
+   </page>
+</product>

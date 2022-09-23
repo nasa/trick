@@ -1,0 +1,22 @@
+#!/bin/sh
+
+if  [ `uname -s` = "SunOS" ]
+    then MY_UID=`/usr/xpg4/bin/id -u`
+else
+    MY_UID=`id -u`
+fi
+
+if [ `uname -s` = "Linux" ]
+    then PS_ARGS="-fw -u $MY_UID"
+elif [ `uname -s` = "Darwin" ]
+    then PS_ARGS="-u $MY_UID"
+else
+    PS_ARGS="-f -u $MY_UID"
+fi
+
+MY_PROCESSES=`ps $PS_ARGS | grep [sST]_main_ | grep -v grep | awk '{print $2}'`
+
+for i in $MY_PROCESSES
+    do echo "kill -9 $i"
+        `kill -9 $i`
+done

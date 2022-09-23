@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "Product.dtd">
+<product background_color="#ede9e3" foreground_color="#000000" version="1.0">
+    <title>Ball X,Y Position, Velocity, and Acceleration States</title>
+    <tstart>-1.0E20</tstart>
+    <tstop>1.0E20</tstop>
+    <frequency>0.0</frequency>
+    <page background_color="#ede9e3" foreground_color="#000000" hcells="0" vcells="0">
+        <title>Ball X,Y Position, Velocity, and Acceleration States</title>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Ball Acceleration States</title>
+            <xaxis>
+                <label>Time</label>
+            </xaxis>
+            <yaxis>
+                <label>Accel</label>
+            </yaxis>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="X Pos" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">ball1.state.output.position[0]</var>
+            </curve>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Y Pos" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m">ball1.state.output.position[1]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="X Pos" line_color="#ff0000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">ball2.state.output.position[0]</var>
+            </curve>
+            <curve>
+                <var units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Y Pos" line_color="#ff0000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m">ball2.state.output.position[1]</var>
+            </curve>
+        </plot>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Ball Velocity States</title>
+            <xaxis>
+                <label>Time</label>
+            </xaxis>
+            <yaxis>
+                <label>Velocity</label>
+            </yaxis>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="X Vel" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s">ball1.state.output.velocity[0]</var>
+            </curve>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Y Vel" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m/s">ball1.state.output.velocity[1]</var>
+            </curve>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="X Vel" line_color="#ff0000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s">ball2.state.output.velocity[0]</var>
+            </curve>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Y Vel" line_color="#ff0000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m/s">ball2.state.output.velocity[1]</var>
+            </curve>
+        </plot>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Ball Acceleration States</title>
+            <xaxis>
+                <label>Time</label>
+            </xaxis>
+            <yaxis>
+                <label>Accel</label>
+            </yaxis>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="X Acc" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">ball1.state.output.acceleration[0]</var>
+            </curve>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Y Acc" line_color="#000000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m/s2">ball1.state.output.acceleration[1]</var>
+            </curve>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="X Acc" line_color="#ff0000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">ball2.state.output.acceleration[0]</var>
+            </curve>
+            <curve>
+                <var label="Time" units="s">sys.exec.out.time</var>
+                <var gnuplot_line_style="lines" label="Y Acc" line_color="#ff0000" line_style="Med_Fine_Dash" symbol_size="Tiny" symbol_style="None" units="m/s2">ball2.state.output.acceleration[1]</var>
+            </curve>
+        </plot>
+    </page>
+    <page background_color="#ede9e3" foreground_color="#000000" hcells="0" vcells="0">
+        <title>Ball X,Y Cross Plots</title>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Ball Y vs X Position</title>
+            <xaxis>
+                <label>X Pos</label>
+            </xaxis>
+            <yaxis>
+                <label>Y Pos</label>
+            </yaxis>
+            <curve>
+                <var label="X Pos" units="m">ball1.state.output.position[0]</var>
+                <var gnuplot_line_style="lines" label="Y Pos" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">ball1.state.output.position[1]</var>
+            </curve>
+        </plot>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Ball Y vs X Velocity</title>
+            <xaxis>
+                <label>X Vel</label>
+            </xaxis>
+            <yaxis>
+                <label>Y Vel</label>
+            </yaxis>
+            <curve>
+                <var label="X Vel" units="m/s">ball1.state.output.velocity[0]</var>
+                <var gnuplot_line_style="lines" label="Y Vel" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s">ball1.state.output.velocity[1]</var>
+            </curve>
+        </plot>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Ball Y vs X Acceleration</title>
+            <xaxis>
+                <label>X Accel</label>
+            </xaxis>
+            <yaxis>
+                <label>Y Accel</label>
+            </yaxis>
+            <curve>
+                <var units="m/s2">ball1.state.output.acceleration[0]</var>
+                <var gnuplot_line_style="lines" label="Y Acc" line_color="#000000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">ball1.state.output.acceleration[1]</var>
+            </curve>
+        </plot>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Plot</title>
+            <curve>
+                <var label="X Pos" units="m">ball2.state.output.position[0]</var>
+                <var gnuplot_line_style="lines" label="X Pos" line_color="#ff0000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m">ball2.state.output.position[1]</var>
+            </curve>
+        </plot>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Plot</title>
+            <curve>
+                <var label="X Vel" units="m/s">ball2.state.output.velocity[0]</var>
+                <var gnuplot_line_style="lines" label="Y Vel" line_color="#ff0000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s">ball2.state.output.velocity[1]</var>
+            </curve>
+        </plot>
+        <plot background_color="#ede9e3" foreground_color="#000000" grid="Yes" grid_color="#ffffff">
+            <title>Plot</title>
+            <curve>
+                <var label="X Acc" units="m/s2">ball2.state.output.acceleration[0]</var>
+                <var gnuplot_line_style="lines" label="Y Acc" line_color="#ff0000" line_style="Plain" symbol_size="Tiny" symbol_style="None" units="m/s2">ball2.state.output.acceleration[1]</var>
+            </curve>
+        </plot>
+    </page>
+</product>

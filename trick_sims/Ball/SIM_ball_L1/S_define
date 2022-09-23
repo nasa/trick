@@ -1,0 +1,141 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This Trick header comment lists out simulation model file dependencies that are not c++.
+     The model files are complete relative path to the "C" file and not the object file as
+     in the source code comments.  Multiple trick comments with multiple sets of
+     LIBRARY DEPENDENCIES are allowed in the S_define file.)
+LIBRARY DEPENDENCIES:
+    (
+    )
+DEFAULT DATA:
+    (
+    )
+*************************************************************/
+
+/*
+ * There are 2 types of include files in Trick 10 S_define files.  The single "#"
+ * include files are processed with the S_define file is parsed. Therefore any files
+ * that are single "#" included will be processed by CP.  Files with a single "#"
+ * usually include SimObject definitions and instantiations.
+ *
+ * Files with a double "##" are passed to S_source.hh.  They are not processed by
+ * CP except for stripping a "#" and copying the resultant string to S_source.hh.
+ * files with a double "##" usually contain structure/class definitions of the models
+ * used in the simulation.
+ */
+
+/*
+ * default_trick_sys.sm contains the default Trick system SimObjects and instantiations.
+ * Users are free to include a different file that lists out a different set of
+ * system objects.
+ */
+#include "sim_objects/default_trick_sys.sm"
+
+/*
+ * Header files that contain structure/class definitions are included using the
+ * double "##" notation.
+ */
+##include "ball/L1/include/ball_state.h"
+##include "ball/L1/include/ball_force.h"
+##include "ball/L1/include/ball_proto.h"
+
+/*
+ * %header{ ... %} is a new feature in Trick 10 that copys user code to the S_source.hh
+ */
+%header{
+
+/*
+ * Header files listed here will be included in S_source.hh but not be input processed.
+ * If the prototype file ball_proto.h was included here, the simulation would have
+ * compiled, but the ball routines would not be available in the input processor.
+ */
+// ##include "ball/L1/include/ball_proto.h"
+
+%}
+
+/*
+ * %{ ... %} contains user code that is copied into S_source.cpp
+ */
+%{
+
+// This user code section is empty for this simulation
+
+%}
+
+/*
+ * sim_objects are defined and instantiated separately in Trick 10 S_define files.
+ * Each sim_object is a C++ class definition.  Each sim_object class must inherit
+ * from "public Trick::SimObject" or another SimObject.
+ *
+ */
+class ballSimObject : public Trick::SimObject {
+
+    /*
+     * Data members and functions may be public or private.  If members are
+     * labled private they will not be available in the input processor.
+     */
+    public:
+
+        /*
+         * Model structures/classes are declared as member data in the SimObject
+         */
+        BSTATE      state ;
+        BFORCE      force ;
+
+        /*
+         * Jobs are declared in the constructors of the SimObject.  The job syntax is
+         * unchanged from Trick 07.  The constructors may have arguments which may be
+         * used as job. state and force are zeroed out at construction time using the
+         * ballSimObject() constructor initializer list.
+         */
+        ballSimObject() : state() , force() {
+
+            /*
+             * One of several ways to get default data into the simulation is to create
+             * default data class jobs.  default_data class jobs are run before initialization
+             */
+
+            ("default_data") ball_state_default_data( &state ) ;
+            ("default_data") ball_force_default_data( &force ) ;
+
+            // INITIALIZATION JOBS
+            ("initialization") ball_state_init( &state ) ;
+
+            // EOM DERIVATIVE AND STATE INTEGRATION JOBS
+            ("derivative") ball_force_field( &force, state.output.position ) ;
+            ("derivative") ball_state_deriv( &state ) ;
+            ("integration") trick_ret = ball_state_integ( &state ) ;
+
+            (10.0 , "scheduled") ball_print( &state ) ;
+        }
+
+} ;
+
+/*
+ * SimObjects are instantiated.  SimObjects may be multiply instantiated.
+ */
+ballSimObject ball ;
+
+
+collect ball.state.work.external_force = { ball.force.output.force[0] };
+
+/*
+ * Integrate statements have an argument after the integrate keyword that
+ * specifies the name of the integrator SimObject.  This name is accessible
+ * within the input processor.
+ */
+integrate my_integ_loop (0.01) ball;
+
+
+#define NUM_VARIABLES   4   /* x,y position state and x,y velocity state */
+
+/*
+ * All code listed in the create_connections routine is copied into S_source.cpp and is
+ * executed directly after simobject instantiations.  This routine may be used to
+ * to connect data structures between SimObjects.
+ */
+void create_connections() {
+
+    // We can set a default integrator here.  This can be overridden in the input file.
+    my_integ_loop.getIntegrator( Runge_Kutta_2, NUM_VARIABLES);
+}

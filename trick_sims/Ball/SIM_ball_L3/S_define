@@ -1,0 +1,125 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+     (ball/L2/src/ball_altimeter.c)
+     (ball/L2/src/ball_altimeter_default_data.c)
+     (ball/L2/src/ball_ceiling.c)
+     (ball/L2/src/ball_control.c)
+     (ball/L2/src/ball_control_default_data.c)
+     (ball/L2/src/ball_floor.c)
+     (ball/L1/src/ball_force_field.c)
+     (ball/L2/src/ball_force_default_data.c)
+     (ball/L2/src/ball_jet.c)
+     (ball/L2/src/ball_jet_default_data.c)
+     (ball/L2/src/ball_left_wall.c)
+     (ball/L2/src/ball_right_wall.c)
+     (ball/L2/src/ball_state_default_data.c)
+     (ball/L2/src/ball_state_deriv.c)
+     (ball/L2/src/ball_state_init.c)
+     (ball/L2/src/ball_state_integ.c)
+     (ball/L3/src/ball_ensemble_integ.c)
+     (ball/L3/src/ball_ensemble_collision.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "ball/L1/include/ball_force.h"
+##include "ball/L2/include/ball_altimeter.h"
+##include "ball/L2/include/ball_control.h"
+##include "ball/L2/include/ball_jet.h"
+##include "ball/L2/include/ball_state.h"
+##include "ball/L3/include/ball_ensemble.h"
+
+%{
+
+// Allow C++ access to the these C functions
+extern "C" {
+    int ball_altimeter(BALT*,double*) ;
+    int ball_altimeter_default_data(BALT*) ;
+    int ball_control(BCONTROL*,double) ;
+    int ball_force_default_data(BFORCE*) ;
+    int ball_force_field(BFORCE*,double*) ;
+    int ball_jet(BJET*,Flag*) ;
+    int ball_state_default_data(BSTATE*) ;
+    int ball_state_deriv(BSTATE*) ;
+    int ball_state_init(BSTATE*) ;
+    int ball_jet_default_data(BJET*) ;
+    int ball_control_default_data(BCONTROL*) ;
+}
+
+%}
+
+//=============================================================================
+// SIM_OBJECT: ball
+// This sim object models a ball.
+//=============================================================================
+class ballSimObject : public Trick::SimObject {
+
+    public:
+        BSTATE      state ;
+        BFORCE      force ;
+        BALT        altimeter ;
+        BCONTROL    control ;
+        BJET        jet ;
+
+        ballSimObject() : state() , force() , altimeter() , control() , jet() {
+            // DATA STRUCTURE DECLARATIONS
+            ("default_data") ball_state_default_data( &state ) ;
+            ("default_data") ball_force_default_data( &force ) ;
+            ("default_data") ball_altimeter_default_data( &altimeter ) ;
+            ("default_data") ball_control_default_data( &control ) ;
+            ("default_data") ball_jet_default_data( &jet ) ;
+
+            // INITIALIZATION JOBS
+            ("initialization") ball_state_init( &state ) ;
+
+            // EOM DERIVATIVE AND STATE INTEGRATION JOBS
+            ("derivative") ball_force_field( &force, state.output.position ) ;
+            ("derivative") ball_state_deriv( &state ) ;
+
+            // ALTITUDE SENSING, CONTROL, AND EFFECTING
+            (0.01, "sensor") ball_altimeter( &altimeter, &state.output.position[1] ) ;
+            (0.01, "scheduled") ball_control( &control, altimeter.output.altitude ) ;
+            (0.01, "effector") ball_jet( &jet, &control.output.jet_command[0] );
+        }
+} ;
+
+// Instantiations
+ballSimObject ball1 ;
+ballSimObject ball2 ;
+
+class ensembleSimObject : public Trick::SimObject {
+
+    public:
+    BSTATE* states[2];
+    ensembleSimObject () {
+        ("integration") ball_ensemble_integ( states ) ;
+        ("dynamic_event") ball_ensemble_collision( states ) ;
+    }
+} ;
+
+// Instantiation
+ensembleSimObject ensemble;
+
+collect ball1.state.work.external_force = { ball1.force.output.force[0] ,
+                                            ball1.jet.output.force[0] } ;
+collect ball2.state.work.external_force = { ball2.force.output.force[0] ,
+                                            ball2.jet.output.force[0] } ;
+
+IntegLoop my_integ_loop (0.01) ball1, ball2, ensemble ;
+
+
+// Connect objects
+void create_connections() {
+
+    exec_set_freeze_frame(0.10) ;
+
+    /* We are integrating the ensemble; that is, ball1 and ball2 at the same time. */
+    my_integ_loop.getIntegrator(Runge_Kutta_4, 8);
+
+    ensemble.states[0] = &(ball1.state);
+    ensemble.states[1] = &(ball2.state);
+}

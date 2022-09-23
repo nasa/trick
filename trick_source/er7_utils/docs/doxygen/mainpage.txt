@@ -1,0 +1,21 @@
+/**
+@mainpage ER7 Numerical Utilities
+These pages present the ER7 numerical utilities 0.9 API in HTML format.
+
+@n Click on
+ - "Main Page" to display this page.
+ - "Related Page" to display related pages.
+ - "Modules" to see a hierarchical presentation of the ER7 utilities package.
+ - "Data Structures" to see a clickable list of all the ER7 utilities classes.
+ - "Files" to see a clickable list of the source and header files.
+
+@section code_caveat Caveat on Displayed Source Code
+
+These doxygen pages include facsimiles of the ER7 utilities source code.
+A word of warning: These are facsimiles.
+Some differences do exist between the true source code and the source presented
+in this API documentation. In particular,
+  - The line numbers differ between the displayed source and the true source.
+  - The combination of the preparation of files for doxygen and the processing
+    by doxygen strips some comments from the displayed source.
+*/

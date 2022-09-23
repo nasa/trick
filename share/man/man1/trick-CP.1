@@ -1,0 +1,59 @@
+.TH trick-CP 1 "July 29, 2016" "Trick" "Trick User's Manual"
+.SH NAME
+trick-CP \- Trick Configuration Processor
+.SH SYNOPSIS
+\fBtrick-CP\fP [OPTION]...
+.SH DESCRIPTION
+\fBtrick-CP\fP is the Trick environment Configuration Processor.  trick-CP parses the
+simulation definition file, S_define, searching for math models to include in
+the simulation.  trick-CP will search for the math models within the search paths
+included in TRICK_CFLAGS and TRICK_CXXFLAGS environment variables.  trick-CP will
+generate code to call math models listed in the S_define file and will generate
+a makefile to build these math models.
+
+.SS Options
+.TP
+\fB-g, --debug\fP
+Print the \fIS_define\fP file as it is processed by trick-CP.  (This may help the
+user find problems with his/her simulation configuration).
+.TP
+\fB-h, --help\fP
+Print the trick-CP help message
+.TP
+\fB-o, --outfile\fP \fIFILE_NAME\fP
+Send CP output to FILE_NAME
+.TP
+\fB-p, --no-python\fP
+Exclude python input processor from simulation.
+.TP
+\fB-t\fP
+Create a unit test simulation where TRICK_UNIT_TEST is defined during compilation
+.TP
+\fB-v, --verbose\fP
+Set the verbose level.  Valid entries are 0-3
+.SH FILES
+.TP
+\fIbuild/S_source.cpp\fP
+The simulation-specific executive source code file.
+.TP
+\fIbuild/S_library_list\fP
+The simulation-specific object code link list file.
+.TP
+.SH ENVIRONMENT
+.TP
+\fB${TRICK_CPFLAGS}\fP
+Arguments to send to trick-CP
+.TP
+\fB${TRICK_HOME}\fP
+Contains path to Trick root directory
+.SH "SEE ALSO"
+All Trick model developers and users should go through the tutorial found
+in the \fITrick Simulation Environment User Training Materials\fP.
+The canonical reference for all Trick commands, files and utilities is the
+\fITrick Simulation Environment User's Guide\fP.  Information specific to a
+given release of Trick tools is contained in the \fITrick Simulation
+Environment Version Description\fP for that release.
+.SH HISTORY
+1991-2002 : The \fBtrick-CP\fP utility in C was written by Rob Bailey.
+
+2003-2016 : The \fBtrick-CP\fP utility ported to Perl was written by Alex Lin.

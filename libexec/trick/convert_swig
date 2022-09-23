@@ -1,0 +1,774 @@
+#!/usr/bin/perl
+
+use FindBin qw($RealBin);
+use strict ;
+use Getopt::Long;
+use Pod::Usage;
+use Pod::Text;
+use Text::Balanced qw ( extract_bracketed );
+use lib "$RealBin/pm" ;
+use File::Basename ;
+use Cwd 'abs_path' ;
+use gte ;
+use trick_version ;
+use Digest::MD5 qw(md5_hex) ;
+use File::Path qw(make_path) ;
+use html ;
+use get_paths ;
+use verbose_build ;
+
+##
+## ================================================================================
+## Program: convert_swig
+##
+## The purpose of convert_swig is to create SWIG interface files for the given
+## C/C++ header file (usually S_source.hh) and each of the header files that it
+## (recursively) includes. SWIG (Simplified Wrapper and Interface Generator) is
+## an interface compiler that connects programs written in C and C++ with scripting
+## languagues such as Perl and Python.
+##
+
+my $usage="
+Name:
+    convert_swig - Convert a C/C++ header file into a SWIG interface file.
+                   SWIG (Simplified Wrapper and Interface Generator) is an
+                   interface compiler that connects programs written in C
+                   and C++ with scripting languagues such as Perl and Python.
+
+Options:
+    -h, --help
+            display this help and exit
+    -s, --stl
+            Allow convert_swig to process STLs
+
+Usage:
+    convert_swig <IN_FILES>
+
+Examples:
+    % convert_swig include/Ball.hh
+    % convert_swig S_source.hh
+" ;
+
+
+my $help = '';  # option variable with default value (false)
+my $stls = 0;  # option variable with default value (false)
+
+my %sim ;
+my %out_of_date ;
+my ($version, $thread, $year) ;
+my %processed_templates ;
+my $global_template_typedefs ;
+
+my $typedef_def = qr/typedef\s+                            # the word typedef
+               (?:[_A-Za-z][\s\w]*\s*)                     # resolved type
+               (?:[_A-Za-z]\w*)                            # new type
+               \s*;                                        # semicolon
+             /sx ;
+
+my $typedef_enum_def = qr/typedef\s+enum\s*                # the words typedef enum
+               (?:\s+[_A-Za-z]\w*)?\s*                     # optional name
+               {(?:\s*\d+\s*)*                             # opening brace and possible comments
+               (?:.*?}\s*                                  # everything to closing brace
+               [\w,\s\*]*\s*;)                             # enum name and ;
+             /sx ;
+
+my $typedef_const_struct  = qr/typedef\s+const\s+(?:struct|union)\s*     # the words typedef const struct|union
+               (?:\s+[_A-Za-z]\w*)?\s*                     # optional name
+               {                                           # opening brace
+             /sx ;
+my $typedef_struct  = qr/typedef\s+(?:struct|union)\s*     # the words typedef struct|union
+               (?:\s+[_A-Za-z]\w*)?\s*                     # optional name
+               {                                           # opening brace
+             /sx ;
+my $namespace_def = qr/namespace\s*                        # keyword namespace
+             (?:\s+[_A-Za-z]\w*)                           # class name
+            /sx ;
+my $class_def   = qr/(?:class|struct)\s*                   # keyword class or struct
+               (?:\s+[_A-Za-z]\w*)\s*                      # class name
+               (?:\{|:(?!\:))                              # { or punctuator :
+             /sx ;
+my $template_def   = qr/template\s*                        # keyword template
+            <.*?>\s*                                       # template parameters
+            (?:class|struct)                               # keyword class or struct
+            \s+[_A-Za-z]\w*\s*                             # class name
+               /sx ;
+my $template_var_def  = qr/(?:\:\:)?[_A-Za-z][:\w]*\s*     # template name
+            <[\w\s\*,:<>]*>\s*                             # template parameters
+            [_A-Za-z]\w*\s*(?:[{=].*?)?;                   # var name ;
+               /sx ;
+
+# This list is the list of all STL types to ignore.
+my %all_stl_names = qw(vector 1 list 1 deque 1 set 1 multiset 1 map 1 unordered_map 1 multimap 1 hash_set 1
+     hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
+     array 1
+     std::vector 1 std::list 1 std::deque 1 std::set 1 std::multiset 1 std::map 1 std::unordered_map 1 std::multimap 1 std::hash_set 1
+     std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
+     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1) ;
+
+# This is a partial list of STL types to ignore.  We do not ignore vector, map, list if we allow STLs
+my %stl_names = qw(deque 1 set 1 multiset 1 unordered_map 1 multimap 1 hash_set 1
+     hash_multiset 1 hash_map 1 hash_multimap 1 stack 1 queue 1 priority_queue 1 bitset 1 auto_ptr 1
+     array 1
+     std::deque 1 std::set 1 std::multiset 1 std::unordered_map 1 std::multimap 1 std::hash_set 1
+     std::hash_multiset 1 std::hash_map 1 std::hash_multimap 1 std::stack 1 std::queue 1 std::priority_queue 1
+     std::bitset 1 std::auto_ptr 1 pair 1 std::pair 1 std::tr1::shared_ptr 1 std::array 1) ;
+
+Getopt::Long::Configure ("bundling");
+GetOptions ( "stl|s" => sub { $stls = 1 } ,
+             'help|h' => \$help ) or usage() ;
+
+if ( $help ) {
+    usage() ;
+}
+
+($version, $thread) = get_trick_version() ;
+($year) = $version =~ /^(\d+)/ ;
+
+my @include_dirs       = get_include_paths() ;
+my @defines            = get_defines() ;
+my @exclude_paths      = get_paths("TRICK_EXCLUDE") ;
+my @swig_exclude_paths = get_paths("TRICK_SWIG_EXCLUDE") ;
+
+if ( "$ENV{'TRICK_CFLAGS'} $ENV{'TRICK_CXXFLAGS'}" !~ /DTRICK_VER=/ ) {
+    push @defines , "-DTRICK_VER=$year" ;
+}
+
+if ( scalar @ARGV == 0 ) {
+    my ($s_library_swig) = "build/S_library_swig" ;
+    open FILE_LIST, $s_library_swig or die "Could not open $s_library_swig" ;
+    while ( <FILE_LIST> ) {
+        chomp ;
+
+        my ($f) = $_ ;
+        my ($swig_dir , $base_file , $swig_file ) ;
+
+        $base_file = basename($f) ;
+        $base_file =~ s/\.[^\.]+$// ;
+
+        $swig_dir = dirname($f) ;
+        $swig_dir = "build/$swig_dir" ;
+        $swig_file = "$swig_dir/${base_file}_py.i" ;
+
+        #print "$swig_file\n" ;
+        $out_of_date{$f} = 1 ;
+    }
+} else {
+    #print "HERE I AM @ARGV\n" ;
+    map { $out_of_date{$_} = 1 } @ARGV ;
+}
+
+## The global hash %out_of_date represents a list of header files whose
+## corresponding .i files need to be regenerated.
+##
+
+if ( scalar keys %out_of_date == 0 ) {
+    exit ;
+}
+
+## Finally, call process_file() to create SWIG interface files for each of the out_of_date headers.
+##
+
+process_file() ;
+
+##
+## ================================================================================
+## process_file
+##
+## Synopsis
+##
+## This subroutine processes S_source.h and each of it's requisite header files to
+## generate the corresponding SWIG interfaces files.
+##
+## Parameters
+##
+## sim_ref
+##
+## The name of input file, invariably "S_source.hh".
+##
+
+sub process_file() {
+
+##  Foreach out_of_date header file, generate a SWIG interface file.
+
+    foreach my $f ( keys %out_of_date ) {
+
+        my @class_names ;
+        my ($raw_contents , $contents , $new_contents ) ;
+        my ($curr_dir) ;
+
+        next if ( $f =~ /^$ENV{TRICK_HOME}\/include/ ) ;
+        next if ( $f =~ /^$ENV{TRICK_HOME}\/trick_source/ ) ;
+
+        # clear the processed templates per each file
+        undef %processed_templates ;
+
+##      Read in the entire file contents into raw_contents.
+        open IN_FILE, $f ;
+        local $/ ;
+        $raw_contents = <IN_FILE> ;
+
+        # remove all comments, they can cause all kinds of trouble
+        # leave the line continuation character if present
+        $raw_contents =~ s/\/\*(?:.*?)\*\/|\/\/(?:.*?)(\\)?(\n)/$1\n/sg ;
+
+
+##      The init_attr functions cause problems when we try and wrap them with SWIG.
+##      We can safely remove them from the header files.
+##      Remove the friend init_attr functions that appear in multiline define statements
+        $raw_contents =~ s/\\\n\s*friend\s+void\s+init_attr[^(]+\s*\(\s*\)(\s*);?/$1/sg ;
+##      Remove the friend init_attr functions outside of multiline define statements
+        $raw_contents =~ s/friend\s+void\s+init_attr[^(]+\s*\(\s*\)(\s*);?/$1/sg ;
+        #$raw_contents =~ s/friend\s+void\s+init_attr[^;]+;//sg ;
+        $raw_contents =~ s/__const/const/sg ;
+
+##      For each of the #includes in the out_of_date header file
+##      create a corresponding %import directive.
+        outer:
+        foreach (split /^/, $raw_contents) {
+
+            if ( /^\s*\#\s*include\s+([^\n]+)/ ) {
+                my $file_name = $1 ;
+
+                # strip trailing whitespace
+                $file_name =~ s/\s+$// ;
+
+                # ignore <> includes
+                if ( $file_name =~ /\</ ) {
+                    next ;
+                }
+
+                # normalize trick includes
+                $file_name =~ s/"//g ;
+                if ( $file_name =~ /sim_services/ or $file_name =~ /trick_utils/ or $file_name =~ /trick\//)  {
+                    $contents .= "\%import(module=\"sim_services\") \"trick/" . basename($file_name) . "\"\n" ;
+                    next ;
+                }
+
+                # Convert relative paths to absolute paths
+                if ( $file_name !~ /^\// ) {
+                    foreach my $i ( dirname($f) , @include_dirs ) {
+                        my $candidate_path = "$i/$file_name" ;
+                        if ( -e $candidate_path ) {
+                            $file_name = $candidate_path ;
+                            last ;
+                        }
+                    }
+                }
+
+                # Get the canonical path (resolve ., .., and symbolic links)
+                $file_name = abs_path(dirname($file_name)) . "/" . basename($file_name) ;
+
+
+                # Skip excluded paths
+                foreach my $i ( @exclude_paths, @swig_exclude_paths ) {
+                    if ( $file_name =~ /^\Q$i/ ) {
+                        next outer ;
+                    }
+                }
+                $file_name = "build" . $file_name ;
+                $file_name =~ s/\.[^\.]+?$/\_py.i/ ;
+                $contents .= "\%import \"$file_name\"\n" ;
+            } else {
+                $contents .= $_ ;
+            }
+        }
+
+##      Process the contents of the out_of_date header file to create the corresponding SWIG interface.
+
+        process_contents( \$contents , \$new_contents , "" , \@class_names ) ;
+
+##      Generate a module name and path for the SWIG interface file.
+
+        my $md5_sum = md5_hex($f) ;
+
+        my ($out_dir) = dirname($f) ;
+        $out_dir = "build$out_dir" ;
+
+        my $out_file ;
+        $out_file = basename($f) ;
+        $out_file =~ s/(\.h|\.H|\.hh|\.h\+\+|\.hxx|\.hpp)$/_py\.i/ ;
+
+        $out_file = "$out_dir/${out_file}" ;
+
+        if ( ! -e $out_dir ) {
+            make_path($out_dir) ;
+        }
+
+##      Open the SWIG interface file.
+##      In the SWIG interface file, write a %module directive that identifies the module.
+##      In the SWIG interface file, write a #include directive to include trick_swig interface utilities.
+##      In the SWIG interface file, write a #include directive to include the header
+##      file to which this interface file corresponds and from which it was derived.
+##      In the SWIG interface file, create a SWIG interface for each class declared in the corresponding header file using the
+##      %trick_swig_class_typemap() macro. This macro is defined in swig_class_typedef.i, included by trick_swig.i (see above).
+##      Write the SWIG interface code (processed header file) and the header file contents.
+##      Close the SWIG interface file.
+
+        open OUT, ">$out_file" ;
+
+        print OUT "\%module m$md5_sum\n\n" ;
+
+        print OUT "%include \"trick/swig/trick_swig.i\"\n\n" ;
+
+        print OUT "
+\%insert(\"begin\") \%{
+#include <Python.h>
+#include <cstddef>
+\%}
+
+\%{
+#include \"$f\"
+\%}\n" ;
+
+        print OUT "\n" ;
+        my %class_typemap_printed ;
+        foreach my $c ( @class_names ) {
+            if ( ! exists $class_typemap_printed{$c} ) {
+                my $c_ = $c ;
+                $c_ =~ s/\:/_/g ;
+                print OUT "\%trick_swig_class_typemap($c, $c_)\n" ;
+                $class_typemap_printed{$c} = 1 ;
+            }
+        }
+        print OUT "\n$new_contents" ;
+        print OUT "$contents\n" ;
+        print OUT $global_template_typedefs ;
+        # Add a trick_cast_as macro line for each class parsed in the file.  These lines must appear at the bottom of the
+        # file to ensure they are not in a namespace directive and they are after the #define statements they depend on.
+        undef %class_typemap_printed ;
+        foreach my $c ( @class_names ) {
+            if ( ! exists $class_typemap_printed{$c} ) {
+                my $c_ = $c ;
+                $c_ =~ s/\:/_/g ;
+                print OUT "#ifdef TRICK_SWIG_DEFINED_$c_\n" ;
+                print OUT "\%trick_cast_as($c, $c_)\n" ;
+                print OUT "#endif\n" ;
+                $class_typemap_printed{$c} = 1 ;
+            }
+        }
+        close OUT ;
+
+        print "[34mWriting[0m    $out_file\n" if not verbose_build() ;
+    }
+
+}
+
+sub usage() {
+    print "$usage\n" ;
+    exit ;
+}
+
+## ================================================================================
+## process_contents
+##
+## Synopsis
+##
+## Process header file contents for use in the corresponding SWIG interface file.
+##
+## Parameters
+##
+## contents_ref
+## (IN) reference to header file contents that are to be converted to a SWIG interface.
+##
+## new_contents_ref
+## (OUT) SWIG interface code, derived from the header file contents.
+##
+## curr_namespace
+## (IN) current namespace.
+##
+## class_names_ref
+## (OUT) reference to an array of class and/or struct names encountered when
+## processing the header file contents.
+##
+## Function Dependencies
+##
+## process_typedef_struct()
+## process_namespace()
+## process_class()
+##
+
+sub process_contents($$$$) {
+    my ( $contents_ref , $new_contents_ref , $curr_namespace , $class_names_ref ) = @_ ;
+
+    while ( $$contents_ref =~ s/^(.*?)(?:($typedef_struct)|
+                                    ($typedef_const_struct)|
+                                    ($template_def)|
+                                    ($namespace_def)|
+                                    ($class_def))//sx ) {
+        my ( $non_var ) = $1 ;
+        my ( $typedef_struct_string ) = $2 ;
+        my ( $typedef_const_struct_string ) = $3 ;
+        my ( $template_string ) = $4 ;
+        my ( $namespace_string ) = $5 ;
+        my ( $class_string ) = $6 ;
+
+## Handle the case of: non_var
+        if ( $non_var ne "" )  {
+            $$new_contents_ref .= $non_var ;
+        }
+
+##
+## Handle the case of: typedef_struct ==> typedef (struct | union ) <name> '{' ...
+##
+        if ( $typedef_struct_string ne "" )  {
+            process_typedef_struct($typedef_struct_string , $contents_ref, $new_contents_ref, $class_names_ref) ;
+        }
+##
+## Handle the case of: typedef_struct ==> typedef const (struct | union ) <name> '{' ...
+##
+        if ( $typedef_const_struct_string ne "" )  {
+            process_typedef_const_struct($typedef_const_struct_string , $contents_ref) ;
+        }
+##
+## Handle the case of: template_def ==> template '<' <template-parameters> '>' class <class-name> ...
+## This is required so that templated classes do not match the plain class definition.
+##
+        if ( $template_string ne "" )  {
+            $$new_contents_ref .= $template_string ;
+            process_template( $contents_ref , $new_contents_ref ) ;
+        }
+##
+## Handle the case of: namespace_def ==> namespace <name>
+##
+        if ( $namespace_string ne "" )  {
+            process_namespace( $namespace_string , $contents_ref , $new_contents_ref , $curr_namespace ,
+                               $class_names_ref ) ;
+        }
+##
+##  Handle the case of: class_def ==> ( class | struct ) <class-name> ( '{' | ':' )
+##
+        if ( $class_string ne "" )  {
+            process_class( $class_string , $contents_ref , $new_contents_ref , $curr_namespace ,
+                           $class_names_ref ) ;
+        }
+    }
+}
+
+## ================================================================================
+## process_template
+##
+## Synopsis
+##
+## Process template class definitions.  We want to pass through the contents the template
+## without processing. We use extract_bracketed to find the whole template definition
+## and copy that into new_contents_ref.
+##
+## Parameters
+##
+## contents_ref
+## (IN) This is a reference to the remainder of the header file (following the
+## above string) to be processed.
+##
+## new_contents_ref
+## (OUT) The SWIG code generated so far.
+##
+sub process_template($$) {
+    my ( $contents_ref , $new_contents_ref ) = @_ ;
+    my $extracted ;
+
+    if ( $$contents_ref =~ s/^(\s*;)//s ) {
+        $$new_contents_ref .= $1 ;
+    } else {
+        # grab all of the text including the opening bracket.
+        $$contents_ref =~ s/^(.*?\s*\{)//s ;
+        $$new_contents_ref .= $1 ;
+
+        # grab the rest of the template
+        ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
+
+        # remove added extra opening "brace"
+        $extracted =~ s/^\{// ;
+        $extracted =~ s/const\s+static/static const/g ;
+
+        $$new_contents_ref .= $extracted ;
+    }
+}
+
+## ================================================================================
+## process_namespace
+##
+## Synopsis
+##
+## Process namespaces found in a header file for use in the corresponding SWIG
+## interface file.
+##
+## Parameters
+##
+## namespace
+## (IN) This is a string of the form: B<namespace> B<I<name>>, that was extracted
+## from the header file contents. In the contents there should remain the bracketed
+## content to which this namespace applies.
+##
+## contents_ref
+## (IN) This is a reference to the remainder of the header file (following the
+## above string) to be processed.
+##
+## new_contents_ref
+## (OUT) The SWIG code generated so far.
+##
+## curr_namespace
+## (IN) current namespace.
+##
+## class_names_ref
+## (OUT) reference to an array of class and/or struct names encountered when
+## processing the header file contents.
+##
+## Function Dependencies
+##
+## extract_bracketed()
+## process_contents()
+##
+sub process_namespace($$$$$) {
+    my ( $namespace_string , $contents_ref , $new_contents_ref ,
+         $curr_namespace , $class_names_ref ) = @_ ;
+    my $extracted ;
+    my ($namespace_name) ;
+
+    # Get the name of this namespace and add it to the current namespace
+    $namespace_string =~ /namespace\s+([_A-Za-z]\w*)/sx ;
+    $namespace_name = $curr_namespace . "$1::" ;
+    #print "*** namespace_name = $namespace_name ***\n" ;
+
+    $$new_contents_ref .= $namespace_string ;
+
+    # Extract the contents of the namespace
+    ($extracted, $$contents_ref) = extract_bracketed( $$contents_ref , "{}") ;
+
+    # Process the contents of the namespace
+    process_contents( \$extracted , $new_contents_ref , $namespace_name , $class_names_ref ) ;
+
+    # Append whatever wasn't matched in process contents to the new file.
+    $$new_contents_ref .= $extracted ;
+}
+
+## ================================================================================
+## process_class
+##
+## Synopsis
+## Process classes declarations found in a header file for use in the corresponding
+## SWIG interface file.
+##
+## Parameters
+##
+## class_string
+## (IN) This is a string of the form: ( class | struct ) <class-name> ( '{' | ':' )
+##
+## contents_ref
+## (IN) This is a reference to the remainder of the header file (following the
+## class_string) to be processed.
+##
+## new_contents_ref
+## (OUT) The SWIG code generated so far.
+##
+## curr_namespace
+## (IN) current namespace.
+##
+## class_names_ref
+## (OUT) reference to an array of class and/or struct names encountered when
+## processing the header file contents.
+##
+## <func-depend name="extract_bracketed">
+
+sub process_class($$$$$) {
+    my ( $class_string , $contents_ref , $new_contents_ref , $curr_namespace ,
+         $class_names_ref ) = @_ ;
+
+    my $extracted ;
+    my ($class_name) ;
+    my $template_typedefs ;
+
+
+## Extract the class_name from the class_string
+    $class_string =~ /^(?:class|struct)\s+               # keyword class or struct
+                      ([_A-Za-z]\w*)                     # class name
+                      \s*[\{\:]$
+                     /sx or die "Internal error" ;
+    $class_name = $1 ;
+    $$new_contents_ref .= $class_string ;
+
+    if ( $class_string !~ /\{$/ ) {
+        $$contents_ref =~ s/^(.*?\s*\{)//s ;
+        $$new_contents_ref .= $1 ;
+    }
+
+    ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
+
+    # remove the trailing semicolon because we may append text to the class.
+    $$contents_ref =~ s/^\s*;//s ;
+
+    #remove added extra opening "brace"
+    $extracted =~ s/^\{// ;
+
+    #print "*** extracted = $extracted ***\n" ;
+    #print "*** contents = $$contents_ref ***\n" ;
+
+    # SWIG doesn't like "const static".  Change it to "static const"
+    $extracted =~ s/const\s+static/static const/g ;
+
+    # templated variables need to be declared with the SWIG %template directive.
+    # This loop looks for any templated variables and creates the %template lines.
+    while ( $extracted =~ s/^(.*?)(?:($template_var_def))//sx ) {
+        my ( $non_var ) = $1 ;
+        my ( $template_var_def_str ) = $2 ;
+
+        if ( $non_var ne "" )  {
+            #print "*** non_var = $non_var ***\n" ;
+            $$new_contents_ref .= $non_var ;
+        }
+
+        if ( $template_var_def_str ne "" )  {
+            # if there is a whiff of const in the template we are punting.
+            if ( $template_var_def_str !~ /^const|[<,\s]const\s/ ) {
+                $template_var_def_str =~ /(.*?>)\s*([_A-Za-z]\w*).*?;/s ;
+                my ($template_full_type) = $1 ;
+                my ($var_name) = $2 ;
+                $$new_contents_ref .= $template_var_def_str ;
+
+                $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
+                my ($template_type) = $1 ;
+                # ignore some STL types and types that involve std::wstring
+                if ( ((  $stls and ! exists $stl_names{$template_type})
+                   or ( !$stls and ! exists $all_stl_names{$template_type} ))
+                   and $template_full_type !~ /(std::)?wstring/ ) {
+
+                    my ($template_type_no_sp) = $template_full_type ;
+                    $template_type_no_sp =~ s/\s//g ;
+
+                    # If the type is qualified, assume it's fully qualified and put the
+                    # %template directive in the global namespace.
+                    # See https://github.com/nasa/trick/issues/768
+                    my $qualified = $template_type_no_sp =~ /^\w+(::)\w+</ ;
+                    #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
+                    if ( ! exists $processed_templates{$template_type_no_sp} ) {
+
+                        my $sanitized_namespace = $curr_namespace =~ s/:/_/gr ;
+                        my $identifier = "${sanitized_namespace}${class_name}_${var_name}" ;
+                        my $trick_swig_template = "TRICK_SWIG_TEMPLATE_$identifier" ;
+
+                        $$new_contents_ref .= "\n#define $trick_swig_template\n" ;
+
+                        my $typedef = "\n#ifdef $trick_swig_template\n" ;
+                        $typedef   .= "\%template($identifier) $template_full_type;\n" ;
+                        $typedef   .= "#undef $trick_swig_template\n" ;
+                        $typedef   .= "#endif\n" ;
+
+                        if ($qualified) {
+                            $global_template_typedefs .= $typedef
+                        } else {
+                            $template_typedefs .= $typedef
+                        }
+
+                        $processed_templates{$template_type_no_sp} = 1 ;
+                    }
+                }
+            }
+        }
+    }
+    #print "*** unprocessed extracted = $extracted ***\n" ;
+
+    push @$class_names_ref , "$curr_namespace$class_name" ;
+
+    # write the class contents and semicolon to ensure any template declarations below are after the semicolon.
+    $$new_contents_ref .= $extracted . ";\n" ;
+    # write out the templated variable declaration lines found in this class.
+    $$new_contents_ref .= $template_typedefs ;
+
+    my $c_ = "$curr_namespace$class_name" ;
+    $c_ =~ s/\:/_/g ;
+    # Add a #define line that signals that this class has been processed by swig. Classes excluded in #if 0 blocks will
+    # not have this #define defined.
+    $$new_contents_ref .= "#define TRICK_SWIG_DEFINED_$c_" ;
+}
+
+## ================================================================================
+## process_typedef_struct
+##
+## Synopsis
+##
+## Process a type definition of a struct or union to make it suitable as SWIG
+## interface code. Extract the struct (or union) name and bracketed contents from
+## the header file text (typedef_struct_string and contents_ref) . Record the
+## extracted names in the list referenced by class_names_ref, and then reconsistute
+## the type definition, via the new_contents_ref.
+##
+## Parameters
+##
+## typedef_struct_string
+## (IN) This is a string of the form: 
+##     "typedef struct [<name>] {"   OR   "typedef union [<name>] {" </parameter>
+##
+## contents_ref
+## (IN) This is a reference to the remainder of the header file (following the
+## above string) to be processed.
+##
+## new_contents_ref
+## (OUT) The SWIG code generated so far.
+##
+## class_names_ref
+## (OUT) reference to an array of class and/or struct names encountered when
+## processing the header file contents.
+##
+sub process_typedef_struct($$$$) {
+
+    my ($typedef_struct_string , $contents_ref, $new_contents_ref , $class_names_ref) = @_ ;
+
+    my $extracted ;
+    my ($begin, $tail , $struct_names, @struct_names) ;
+
+    #print "*** typedef_struct_string = $typedef_struct_string ***\n" ;
+
+    $$new_contents_ref .= $typedef_struct_string ;
+
+    $typedef_struct_string =~ s/((?:typedef\s+)?(struct|union)\s*   # the words typedef struct|union
+         ([_A-Za-z]\w*)?\s*                                         # optional name
+         {)//sx ;
+    $begin = $3 ;
+
+    ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
+    #print "*** extracted = $extracted ***\n" ;
+
+    #remove added extra opening "brace"
+    $extracted =~ s/{// ;
+
+    $$contents_ref =~ s/^(\s*([\w,\s\*]+)?\s*;)//sx ;
+    $tail = $1 ;
+    $struct_names = $2 ;
+
+    $struct_names =~ s/\s//g ;
+    @struct_names = split /,/ , $struct_names ;
+
+    if ( $begin ne "" ) {
+        push @$class_names_ref , $begin ;
+    }
+    foreach my $s ( @struct_names ) {
+        if ( $s !~ /\*/ ) {
+            push @$class_names_ref , $s ;
+        }
+    }
+
+    $$new_contents_ref .= $extracted . $tail ;
+
+}
+
+
+## ================================================================================
+## process_typedef_const_struct
+##
+## Synopsis
+##
+## Process a typedef const struct definition.  SWIG doesn't like this construct.
+## If we find one, we ignore the contents by finding the end of the definition
+## and throwing it all out.
+##
+
+sub process_typedef_const_struct($$$$) {
+
+    my ($typedef_const_struct_string , $contents_ref ) = @_ ;
+    my $extracted ;
+
+    ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
+    $$contents_ref =~ s/^(\s*([\w,\s\*]+)?\s*;)//sx ;
+
+}
+
+__END__

@@ -1,0 +1,291 @@
+#!/usr/bin/perl
+
+# It is so hard getting the absolute path of the current script in bash
+# so I converted CP back to perl. :)
+
+use File::Basename ;
+use Cwd ;
+use Cwd 'abs_path';
+use Pod::Usage ;
+use Pod::Text ;
+
+$trick_bin = dirname(abs_path($0)) ;
+$trick_home = dirname($trick_bin) ;
+
+### Set TRICK_VERBOSE_BUILD if VERBOSE is defined (synonyms) ###
+if(defined $ENV{'VERBOSE'}) {
+    $ENV{'TRICK_VERBOSE_BUILD'} = 1;
+}
+
+#### Handle arguments ####
+$numArgs = $#ARGV + 1;
+$makefileAddArgs = ' ';
+$sdefine_dir = ".";
+$sdefine = "S_define";
+$makefile = "makefile";
+foreach $argnum (0 .. $#ARGV) {
+    $arg = $ARGV[$argnum];
+    if ($arg =~ /(\w+)=(\w+)/ ) {
+        $makefileAddArgs = $makefileAddArgs . $1 . "=" . $2 . " ";
+    } elsif ($arg eq "-C" || $arg eq "--directory" ) {
+        $sdefine_dir = abs_path($ARGV[$argnum + 1]);
+        $makefileAddArgs = $makefileAddArgs . " -C $sdefine_dir ";
+        $sdefine = $sdefine_dir . "/${sdefine}";
+        $makefile = $sdefine_dir . "/${makefile}";
+        shift
+    } elsif ($arg =~ /-d/ ) {
+        $makefileAddArgs = $makefileAddArgs . " debug ";
+    } elsif ($arg =~ /-t/ ) {
+        $makefileAddArgs = $makefileAddArgs . " test ";
+    } elsif($arg=~ /-h/ ) {
+        pod2usage(-sections => "NAME|SYNOPSIS|DESCRIPTION|OPTIONS|FILES", -verbose => 99) ;
+    } else {
+        $ENV{TRICK_CPFLAGS} .= " $arg" ;
+    }
+}
+
+if ( -f $sdefine ) {
+    if ( not -w $sdefine_dir ) {
+        print $sdefine_dir , " is not writable\n" ;
+        print "trick-CP aborted\n" ;
+        exit 1 ;
+    }
+    unlink "build/Makefile_sim", $makefile ;
+    $makefile_text = do { local $/; <main::DATA> } ;
+    $makefile_text =~ s/SUB_TRICK_HOME/$trick_home/ ;
+    $makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/ ;
+    open MAKEFILE, ">$makefile" ;
+    print MAKEFILE $makefile_text ;
+    close MAKEFILE ;
+    system("make -f makefile " . $makefileAddArgs) ;
+    exit $? >> 8;
+} else {
+    print "S_define does not exist" ;
+    exit 1 ;
+}
+
+# trick-CP help message
+
+=pod
+
+=head1 NAME
+
+trick-CP - Trick Configuration Processor
+
+=head1 SYNOPSIS
+
+trick-CP [OPTION]...
+
+=head1 DESCRIPTION
+
+trick-CP  is  the  Trick environment Configuration Processor.  trick-CP
+parses the simulation definition file,  S_define,  searching  for  math
+models to include in the simulation.  trick-CP will search for the math
+models  within  the  search  paths   included   in   TRICK_CFLAGS   and
+TRICK_CXXFLAGS  environment  variables.  trick-CP will generate code to
+call math models listed in the S_define file and will generate a  make‐
+file to build these math models.
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-g> | B<--debug>
+
+Print  the  S_define file as it is processed by trick-CP.  (This
+may help the user find problems with his/her simulation configu‐
+ration).
+
+=item B<-h> | B<--help>
+
+Print the trick-CP help message (this message)
+
+=item B<-o> | B<--outfile> I<FILE_NAME>
+
+Send CP output to FILE_NAME
+
+=item B<-C> | B<--directory> I<SIM_DIRECTORY_NAME>
+
+Build a simulation located in a different directory than the current
+working directory.
+
+=item B<-p> | B<--no-python>
+
+Exclude python input processor from simulation.
+
+=item B<-t>
+
+Create a unit test simulation where TRICK_UNIT_TEST is defined during compilation
+
+=item B<-v> | B<--verbose>
+
+Set the verbose level. Valid entries are 0-3
+
+=back
+
+=head1 FILES
+
+=over 8
+
+=item B<build/S_source.cpp>
+
+The simulation-specific executive source code file.
+
+=item B<build/S_library_list>
+
+The simulation-specific object code link list file.
+
+=back
+
+=cut
+
+__END__
+# CP found at SUB_TRICK_BIN
+
+# Disable built-in implicit rules to increase build speed.
+.SUFFIXES:
+
+.PHONY: all
+
+ifndef TRICK_HOME
+    export TRICK_HOME := SUB_TRICK_HOME
+endif
+
+-include S_pre.mk
+
+ifneq ($(wildcard ${TRICK_HOME}/share/trick/makefiles/Makefile.common),)
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+
+ifndef TRICK_VERBOSE_BUILD
+    PRINT_CP            = $(info $(call COLOR,Running)    configuration_processor)
+    PRINT_ICG           = $(info $(call COLOR,Running)    ICG)
+    PRINT_MAKEFILE_SRC  = $(info $(call COLOR,Writing)    Makefile_src)
+    PRINT_MAKEFILE_SWIG = $(info $(call COLOR,Writing)    Makefile_swig)
+endif
+
+all:
+	$(info [32mTrick Build Process Complete[00m)
+
+test: TRICK_SYSTEM_CFLAGS += -DTRICK_UNIT_TEST
+test: TRICK_SYSTEM_CXXFLAGS += -DTRICK_UNIT_TEST
+test: all
+
+debug: TRICK_CPFLAGS += --debug
+debug: all
+
+build:
+	@mkdir -p $@
+
+$(TRICK_STATIC_LIB):
+	$(info Cannot find $@. Please build Trick for this platform.)
+	@exit -1
+
+# CP creates S_source.hh required for ICG and SWIG processing
+S_source.hh: S_define | build
+	$(PRINT_CP)
+	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS))
+
+build/Makefile_S_define: S_source.hh
+	$(PRINT_S_DEF_DEPS)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF build/Makefile_S_define -x c++ S_define)
+
+# Automatic and manual ICG rules
+ICG:
+	$(PRINT_ICG)
+	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh)
+
+
+force_ICG:
+	$(PRINT_ICG)
+	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -force -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh)
+
+# Create makefile for IO code
+build/Makefile_io_src: S_source.hh | build
+	$(PRINT_ICG)
+	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} $<)
+
+# Create makefile for source code
+build/Makefile_src: build/Makefile_src_deps build/Makefile_io_src S_source.hh
+	$(PRINT_MAKEFILE_SRC)
+	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $? 2>&1)
+
+build/Makefile_src_deps: ;
+
+# Create makefile for SWIG code
+build/Makefile_swig: S_source.hh build/Makefile_swig_deps
+	$(PRINT_MAKEFILE_SWIG)
+	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig)
+
+build/Makefile_swig_deps: ;
+
+# Forcibly (re)create all SWIG input (.i) files. This rule is never run by the normal
+# build process.
+.PHONY: convert_swig
+convert_swig: build/S_library_swig
+	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS})
+
+# Force S_define_exp to be remade each time this rule runs
+.PHONY: S_define_exp
+S_define_exp:
+	$(TRICK_CC) -E -C -xc++ ${TRICK_SFLAGS} $(TRICK_SYSTEM_SFLAGS) S_define > $@
+
+# prints the value of a makefile variable, example invocation "make print-TRICK_CXXFLAGS"
+# This rule is used by trick-config
+print-%:
+	@echo '$*=$($*)'
+
+help:
+	@echo -e "\
+Simulation make options:\n\
+    make [debug] [TRICK_VERBOSE_BUILD=1] [VERBOSE=1] - Makes everything: S_main and S_sie.resource\n\
+    make sie                     - Builds the S_sie.resource file.\n\
+    make clean                   - Removes all object files in simulation directory\n\
+    make spotless                - Performs a clean\n\
+    make apocalypse              - Performs a clean\n\
+    make print-<variable>        - Prints a makefile or environment variable"
+
+CLEAN_TARGETS = tidy clean spotless distclean apocalypse
+ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
+include build/Makefile_S_define
+include build/Makefile_src
+include build/Makefile_src_deps
+include build/Makefile_io_src
+include build/Makefile_swig
+include build/Makefile_swig_deps
+-include build/Makefile_ICG
+endif
+-include build/Makefile_overrides
+-include S_overrides.mk
+-include S_post.mk
+
+ifndef MAKE_RESTARTS
+REMOVE_MAKE_OUT := $(shell rm -f $(MAKE_OUT))
+ifeq ($(MAKECMDGOALS),)
+    $(info $(call COLOR,Building with the following compilation flags:))
+    $(info TRICK_CFLAGS   = [36m$(TRICK_CFLAGS)[0m)
+    $(info TRICK_CXXFLAGS = [36m$(TRICK_CXXFLAGS)[0m)
+endif
+endif
+
+else
+all:
+	$(error error with TRICK_HOME, cannot find ${TRICK_HOME}/share/trick/makefiles/Makefile.common)
+endif
+
+tidy:
+	-rm -f S_source.hh S_sie.resource S_sie.json
+	-rm -f S_main* T_main*
+	-rm -f build/Makefile_*
+
+clean: tidy
+	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
+	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
+	-rm -rf build .trick trick.zip
+	-rm -f makefile
+
+spotless: clean
+
+distclean: clean
+
+apocalypse: clean
+	@echo "[31mI love the smell of napalm in the morning[0m"

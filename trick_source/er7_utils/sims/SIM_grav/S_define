@@ -1,0 +1,213 @@
+// Define the phase initialization priorities.
+// NOTE: Initialization jobs lacking an assigned phase initialization priority
+// run after all initialization jobs that have assigned phase init priorities.
+#define P_TIME  P10   // Highest priority; these jobs only depend on time
+#define P_ENV   P20   // Environment initializations
+#define P_EPH   P20   // Environment initializations
+#define P_BODY  P40   // Orbital body initializations
+#define P_DYN   P50   // State-dependent initializations
+#define P_GRAV  P100  // Gravitation derivatives
+
+
+#define DYNAMICS 0.5
+#define LOW_RATE_ENV 600
+
+
+// Include the Trick system sim objects
+#include "sim_objects/default_trick_sys.sm"
+
+// Include the JEOD system sim object
+#include "JEOD_S_modules/jeod_sys.sm"
+
+// Include the JEOD time sim object with TAI, UTC, UT1, TT, and GMST enabled
+#define TIME_MODEL_GMST
+#define TIME_MODEL_UTC
+#define TIME_MODEL_UT1
+#define TIME_MODEL_TT
+#include "JEOD_S_modules/jeod_time.sm"
+
+
+##include "dynamics/dyn_manager/include/dyn_manager.hh"
+##include "dynamics/dyn_manager/include/dyn_manager_init.hh"
+##include "dynamics/body_action/include/body_action.hh"
+
+class DynamicsSimObject: public Trick::SimObject {
+
+public:
+   DynManager             dyn_manager;
+   DynManagerInit         dyn_manager_init;
+
+   // Constructor
+   DynamicsSimObject (
+      TimeManager & time_manager_in)
+   :
+      time_manager (time_manager_in)
+   {
+
+      //
+      // Initialization jobs
+      //
+      P_ENV  ("initialization") dyn_manager.initialize_model (
+         dyn_manager_init, time_manager);
+      P_BODY ("initialization") dyn_manager.initialize_simulation ( );
+
+
+      //
+      // Environment class jobs
+      //
+      (DYNAMICS, "environment") dyn_manager.update_ephemerides ( );
+      (DYNAMICS, "environment") dyn_manager.perform_actions ( );
+
+      //
+      // Derivative class jobs
+      //
+      P_GRAV ("derivative") dyn_manager.gravitation ( );
+      ("derivative") dyn_manager.compute_derivatives ( );
+   }
+
+private:
+   // Reference to the external time manager.
+   TimeManager & time_manager;
+
+   // Unimplemented copy constructor and assignment operator
+   DynamicsSimObject (const DynamicsSimObject&);
+   DynamicsSimObject & operator = (const DynamicsSimObject&);
+
+};
+
+DynamicsSimObject dynamics (jeod_time.time_manager);
+
+
+#include "JEOD_S_modules/environment.sm"
+
+#include "JEOD_S_modules/earth_GGM02C_RNP.sm"
+#include "JEOD_S_modules/sun_basic.sm"
+#include "JEOD_S_modules/moon_basic.sm"
+
+// Include headers for classes that this class contains:
+##include <stdio.h>
+##include "dynamics/dyn_body/include/simple_6dof_dyn_body.hh"
+##include "dynamics/body_action/include/mass_body_init.hh"
+##include "dynamics/body_action/include/dyn_body_init_trans_state.hh"
+##include "environment/gravity/include/spherical_harmonics_gravity_controls.hh"
+##include "er7_utils/interface/include/alloc.hh"
+##include "er7_utils/to_trick/include/getIntegrator.hh"
+##include "sim_services/Integrator/include/Integrator.hh"
+
+class VehSimObject: public Trick::SimObject {
+
+public:
+   Simple6DofDynBody dyn_body;
+   MassBodyInit mass_init;
+   DynBodyInitTransState trans_init;
+   SphericalHarmonicsGravityControls * grav_ctrl_ptr;
+   SphericalHarmonicsGravityControls  earth_grav_ctrl;
+   SphericalHarmonicsGravityControls  sun_grav_ctrl;
+   SphericalHarmonicsGravityControls  moon_grav_ctrl;
+
+   Integrator_type trick_technique;
+   er7_utils::Integration::Technique er7_technique;
+   bool use_trick_integ;
+
+
+  // Constructor
+  VehSimObject(
+     DynManager & dyn_manager_in)
+  :
+     dyn_body(),
+     trans_init(),
+     grav_ctrl_ptr(0),
+     earth_grav_ctrl(),
+     sun_grav_ctrl(),
+     moon_grav_ctrl(),
+     dyn_manager(dyn_manager_in),
+     integrator(0)
+  {
+     //
+     // Initialization and shutdown jobs
+     //
+     P_ENV  ("initialization") create_integrator ();
+     P_ENV  ("initialization") dyn_body.initialize_model (dyn_manager);
+
+     ("shutdown") destroy_integrator ();
+
+     //  
+     // Integration jobs
+     //  
+     ("integration", &integrator) trick_ret = integrate ();
+   }
+
+   void create_integrator ()
+   {
+      if (use_trick_integ) {
+         integrator = Trick::getIntegrator (trick_technique, 6, DYNAMICS);
+      }
+      else if (trick_technique != User_Defined) {
+         integrator = TrickgetIntegrator (trick_technique, 6, DYNAMICS);
+      }
+      else {
+         integrator = TrickgetEr7Integrator (er7_technique, 6, DYNAMICS);
+      }
+   }
+
+   void destroy_integrator () {
+      printf ("Final position: %.4f, %.4f, %.4f\n",
+              dyn_body.composite_body.state.trans.position[0],
+              dyn_body.composite_body.state.trans.position[1],
+              dyn_body.composite_body.state.trans.position[2]);
+
+      TrickdeleteIntegrator (integrator);
+   }
+
+
+   int integrate ()
+   {
+      int rc;
+
+      Vector3::copy (dyn_body.composite_body.state.trans.position,
+                     integrator->state);
+      if (integrator->use_deriv2) {
+         Vector3::copy (dyn_body.composite_body.state.trans.velocity,
+                        integrator->deriv[integrator->intermediate_step]);
+         Vector3::copy (dyn_body.derivs.trans_accel,
+                        integrator->deriv2[integrator->intermediate_step]);
+      }
+      else {
+         Vector3::copy (dyn_body.composite_body.state.trans.velocity,
+                        integrator->state+3);
+         Vector3::copy (dyn_body.composite_body.state.trans.velocity,
+                        integrator->deriv[integrator->intermediate_step]);
+         Vector3::copy (dyn_body.derivs.trans_accel,
+                        integrator->deriv[integrator->intermediate_step]+3);
+      }
+
+      rc = integrator->integrate();
+
+      Vector3::copy (integrator->state_ws[integrator->intermediate_step],
+                     dyn_body.composite_body.state.trans.position);
+      Vector3::copy (integrator->state_ws[integrator->intermediate_step]+3,
+                     dyn_body.composite_body.state.trans.velocity);
+
+      return rc;
+   }
+
+
+private:
+
+   // References to items from other sim objects
+   DynManager & dyn_manager;
+
+   // Local
+   Trick::Integrator* integrator;
+   double state[6];
+   double deriv[6];
+
+   // Unimplemented copy constructor and assignment operator
+   VehSimObject (const VehSimObject&);
+   VehSimObject & operator = (const VehSimObject&);
+};
+
+VehSimObject vehicle (dynamics.dyn_manager);
+
+
+IntegLoop sim_integ_loop (DYNAMICS) dynamics, earth, moon, vehicle;

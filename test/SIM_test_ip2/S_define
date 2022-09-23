@@ -1,0 +1,69 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This comment lists out the other object files that are not included from c++ headers)
+LIBRARY DEPENDENCIES:
+    (
+     (ip2/src/ip.c)
+     (ip2/src/ip_test_init.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+
+##include "ip2/include/ip.h"
+
+%{
+
+// Allow C++ access to the these C functions
+extern "C" {
+    extern int ip_test_init(LINKED_LIST**) ;
+    extern int ip_test(INT_STR*) ;
+}
+
+%}
+
+#define FREQ 1
+
+//=============================================================================
+// SIM_OBJECT: ip2
+// This sim object test ip
+//=============================================================================
+class ip2SimObject : public Trick::SimObject {
+
+    public:
+        /*----- DATA STRUCTURE DECLARATIONS -----*/
+        char buf[100] ;
+        UCHAR_STR   uc_test ;
+        SHORT_STR   s_test ;
+        USHORT_STR  us_test ;
+        INT_STR     i_test ;
+        UINT_STR    ui_test ;
+        LONG_STR    l_test ;
+        ULONG_STR   ul_test ;
+        LONG_LONG_STR ll_test ;
+        ULONG_LONG_STR ull_test ;
+        FLOAT_STR   f_test ;
+        DOUBLE_STR  d_test ;
+        EVERYTHING  everything ;
+        LINKED_LIST linked_list ;
+        LINKED_LIST *llp ;
+
+
+        ip2SimObject() {
+
+            ("initialization") ip_test_init( &llp ) ;
+
+            (FREQ, "scheduled") trick_ret = ip_test( &i_test ) ;
+        }
+
+} ;
+
+// Instantiations
+ip2SimObject ip2 ;
+
+
+// Connect objects
+void create_connections() {
+
+}

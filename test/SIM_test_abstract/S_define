@@ -1,0 +1,36 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "abstract_test/ball.hh"
+
+/**
+  This class is the base ball class
+ */
+class ballSimObject : public Trick::SimObject {
+
+    public:
+        /** The actual ball object */
+        Ball * ball_ptr ;
+
+        /** Constructor to add the jobs */
+        ballSimObject() {
+            (1.0 , "scheduled") ball_ptr->print_type() ;
+        }
+} ;
+
+// Instantiations
+ballSimObject ball ;
+
+// Connect objects
+void create_connections() {
+    // Set the default termination time
+    trick_sys.sched.set_terminate_time(1.0) ;
+}
+

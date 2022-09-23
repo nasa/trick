@@ -1,0 +1,50 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#define DRAW_THREAD C1
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "Ball/Ball.hh"
+##include "DrawStuff/DrawStuff.hh"
+
+%{
+const double OdeBallSimObject::time_step = 0.01 ;
+%}
+
+/**
+  This class is the base ball class
+ */
+class OdeBallSimObject : public Trick::SimObject {
+
+    public:
+
+        Ball ball ;
+        DrawStuff drawstuff ;
+
+        static const double time_step ;
+
+        /** Constructor to add the jobs */
+        OdeBallSimObject() {
+            ("initialization") ball.init() ;
+            (time_step, "scheduled") ball.step(time_step) ;
+            DRAW_THREAD (1000000.0, "scheduled") drawstuff.draw() ;
+            ("shutdown") drawstuff.shutdown() ;
+            ("shutdown") ball.shutdown() ;
+        }
+} ;
+
+// Instantiations
+OdeBallSimObject ball_so ;
+
+// Connect objects
+void create_connections() {
+    // Set the default termination time
+    exec_set_terminate_time(300.0) ;
+}
+

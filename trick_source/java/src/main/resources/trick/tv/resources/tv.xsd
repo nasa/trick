@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="vsValue" type="vsValue"/>
+
+  <xs:complexType name="title">
+    <xs:sequence>
+      <xs:element name="text" type="xs:string"/>
+      <xs:element name="font" type="font"/>
+      <xs:element name="rgb" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="font">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="style" type="xs:int"/>
+      <xs:element name="size" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="range">
+    <xs:sequence>
+      <xs:element name="lower" type="xs:double"/>
+      <xs:element name="upper" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="axis">
+    <xs:sequence>
+      <xs:element name="label" type="xs:string"/>
+      <xs:element name="font" type="font"/>
+      <xs:element name="rgb" type="xs:int"/>
+      <xs:element name="areTickMarksVisible" type="xs:boolean"/>
+      <xs:element name="areTickLabelsVisible" type="xs:boolean"/>
+      <xs:element name="tickLabelFont" type="font"/>
+      <xs:element name="tickLabelRgb" type="xs:int"/>
+      <xs:element name="range" type="range"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="bounds">
+    <xs:sequence>
+      <xs:element name="x" type="xs:int"/>
+      <xs:element name="y" type="xs:int"/>
+      <xs:element name="width" type="xs:int"/>
+      <xs:element name="height" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="stripChart">
+    <xs:sequence>
+      <xs:element name="domainVariable" type="xs:string"/>
+      <xs:element name="plottedVariable" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="mode" type="mode"/>
+      <xs:element name="fixedAutoRange" type="xs:double"/>
+      <xs:element name="areLinesVisible" type="xs:boolean"/>
+      <xs:element name="arePointsVisible" type="xs:boolean"/>
+      <xs:element name="isLegendVisible" type="xs:boolean"/>
+      <xs:element name="areSettingsVisible" type="xs:boolean"/>
+      <xs:element name="isAntiAliased" type="xs:boolean"/>
+      <xs:element name="isBackgroundSet" type="xs:boolean"/>
+      <xs:element name="backgroundRgb" type="xs:int"/>
+      <xs:element name="title" type="title" minOccurs="0"/>
+      <xs:element name="isHorizontal" type="xs:boolean"/>
+      <xs:element name="outlineRgb" type="xs:int"/>
+      <xs:element name="plotBackgroundRgb" type="xs:int"/>
+      <xs:element name="domainAxis" type="axis"/>
+      <xs:element name="rangeAxis" type="axis"/>
+      <xs:element name="bounds" type="bounds"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="tvBean">
+    <xs:sequence>
+      <xs:element name="cyclePeriod" type="xs:double"/>
+      <xs:element name="variable" type="variable" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="stripChart" type="stripChart" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="enumeration" type="enumeration" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="variable">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element ref="vsValue"/>
+      <xs:element name="state" type="state" minOccurs="0"/>
+      <xs:element name="units" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="vsValue" abstract="true">
+    <xs:sequence>
+      <xs:element name="value" type="xs:anyType" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="enumeration">
+    <xs:sequence>
+      <xs:element name="name" type="xs:ID"/>
+      <xs:element name="pairs">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="key" minOccurs="0" type="xs:string"/>
+                  <xs:element name="value" minOccurs="0" type="xs:string"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="mode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="All"/>
+      <xs:enumeration value="Strip"/>
+      <xs:enumeration value="Fixed"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="state">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Unknown"/>
+      <xs:enumeration value="Invalid"/>
+      <xs:enumeration value="Valid"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+

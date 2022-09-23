@@ -1,0 +1,107 @@
+object_${TRICK_HOST_CPU}/DataRecordGroup.o: DataRecordGroup.cpp \
+ ${TRICK_HOME}/include/trick/DataRecordGroup.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h 
+object_${TRICK_HOST_CPU}/DRBinary.o: DRBinary.cpp ${TRICK_HOME}/include/trick/DRBinary.hh \
+ ${TRICK_HOME}/include/trick/DataRecordGroup.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/bitfield_proto.h 
+object_${TRICK_HOST_CPU}/data_record_utilities.o: data_record_utilities.cpp \
+ ${TRICK_HOME}/include/trick/data_record_proto.h \
+ ${TRICK_HOME}/include/trick/DataRecordGroup.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/DataRecordDispatcher.hh \
+ ${TRICK_HOME}/include/trick/Scheduler.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh 
+object_${TRICK_HOST_CPU}/DataRecordDispatcher.o: DataRecordDispatcher.cpp \
+ ${TRICK_HOME}/include/trick/DataRecordDispatcher.hh \
+ ${TRICK_HOME}/include/trick/Scheduler.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/DataRecordGroup.hh \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/exec_proto.hh \
+ ${TRICK_HOME}/include/trick/Executive.hh \
+ ${TRICK_HOME}/include/trick/Scheduler.hh \
+ ${TRICK_HOME}/include/trick/ScheduledJobQueue.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/Threads.hh \
+ ${TRICK_HOME}/include/trick/sim_mode.h \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h 
+object_${TRICK_HOST_CPU}/DRAscii.o: DRAscii.cpp ${TRICK_HOME}/include/trick/DRAscii.hh \
+ ${TRICK_HOME}/include/trick/DataRecordGroup.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h \
+ ${TRICK_HOME}/include/trick/bitfield_proto.h 
+object_${TRICK_HOST_CPU}/DRHDF5.o: DRHDF5.cpp ${TRICK_HOME}/include/trick/DRHDF5.hh \
+ ${TRICK_HOME}/include/trick/DataRecordGroup.hh \
+ ${TRICK_HOME}/include/trick/SimObject.hh \
+ ${TRICK_HOME}/include/trick/JobData.hh \
+ ${TRICK_HOME}/include/trick/InstrumentBase.hh \
+ ${TRICK_HOME}/include/trick/reference.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h \
+ ${TRICK_HOME}/include/trick/value.h \
+ ${TRICK_HOME}/include/trick/dllist.h \
+ ${TRICK_HOME}/include/trick/command_line_protos.h \
+ ${TRICK_HOME}/include/trick/memorymanager_c_intf.h \
+ ${TRICK_HOME}/include/trick/var.h \
+ ${TRICK_HOME}/include/trick/io_alloc.h \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h 

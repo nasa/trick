@@ -1,0 +1,59 @@
+
+''' Ensure variable is defined '''
+try:
+    DR_GROUP_ID
+except NameError:
+    def initialize_globals():
+        global DR_GROUP_ID  # Create global variable when not defined
+        global drg          # Create a data recording group variable
+        DR_GROUP_ID = 0
+        drg = []            # Initialize variable as an empty array
+    initialize_globals()
+
+
+def add_dr_group():
+    global DR_GROUP_ID
+    global drg
+    group_name = "helios"
+    drg.append( trick.DRBinary(group_name) )
+    drg[DR_GROUP_ID].set_freq(trick.sim_services.DR_Always)
+    drg[DR_GROUP_ID].single_prec_only = False
+    drg[DR_GROUP_ID].enable()
+    drg[DR_GROUP_ID].set_cycle(1.0)
+
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.JD")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.declination")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.hour_angle")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.local_sidereal_time")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.observer_latitude")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.observer_longitude")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.observer_offset_from_UTC")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.right_ascension")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.sidereal_time_at_Greenwich")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.solar_azimuth")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.solar_elevation")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.local_time.day")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.local_time.hour")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.local_time.min")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.local_time.month")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.local_time.sec")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.local_time.year")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.utc.day")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.utc.hour")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.utc.min")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.utc.month")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.utc.sec")
+    drg[DR_GROUP_ID].add_variable("sun_predictor.sun.utc.year")
+
+    trick_data_record.drd.add_group( drg[DR_GROUP_ID], trick.DR_Buffer )
+add_dr_group()
+
+
+"""
+add 1 to DR_GROUP_ID, THIS SETS DR_GROUP_ID UP
+FOR THE NEXT DATA RECORDING FILE
+"""
+def increment_group_id():
+    global DR_GROUP_ID
+    DR_GROUP_ID += 1
+increment_group_id()

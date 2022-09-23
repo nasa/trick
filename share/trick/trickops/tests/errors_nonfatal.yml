@@ -1,0 +1,79 @@
+# YAML file with many errors for unit testing
+# Global configuration parameters
+
+globals:
+  parallel_safety: unsupported_value
+
+extension_example:
+  should: be ignored by this framework
+
+# This sim exists, but has duplicate run entries which is an error
+SIM_ball_L1:
+    path: trick_sims/Ball/SIM_ball_L1
+    size: 6000
+    runs:
+        RUN_test/input.py:
+        RUN_test/input.py:
+    valgrind:
+      runs:
+        RUN_test/input.py:    # Wrong type, dict
+        - RUN_test/input.py:  # Should be list of str not list of dict
+
+# This sim exists, but its valgrind section is empty and its runs have problems
+SIM_alloc_test:
+    path: test/SIM_alloc_test
+    valgrind:
+    runs:
+        RUN_buddy/input.py:          # Doesn't exist
+        RUN_test/input.py:           # Does exist
+            extension: foobar        # Should be retained in self.config but not used
+            compare:
+                - RUN_test/log.trk:  # Should be list of str not list of dict
+                - share/trick/trickops/tests/testdata/log_a.csv vs. share/trick/trickops/tests/baselinedata/log_a.csv  # OK
+
+# This sim exists but has problems with types of internal variables
+SIM_events:
+    path: test/SIM_events
+    labels:
+      - fine1
+      - broke1:     # Should be list of str not list of dict
+      - broke2:     # Should be list of str not list of dict
+      - fine2
+    runs:
+      - RUN_test/input.py:      # List of dicts, should be ignored
+      - RUN_test/unit_test.py:  # List of dicts, should be ignored
+    valgrind:  # Empty so should be ignored
+      runs:
+
+# Sim exists, but runs have bad return values
+SIM_threads:
+    path: test/SIM_threads
+    runs:
+        RUN_test/sched.py:
+          returns:        # Empty so should print error and be ignored
+        RUN_test/amf.py:
+          returns: 270    # Invalid range
+        RUN_test/async.py:
+          returns: hello   # Invalid type
+        RUN_test/unit_test.py:
+          returns: 7       # Valid type and range
+
+# Missing the required path: so should be ignored
+SIM_demo_inputfile:
+
+# This sim has duplicate non-unique path which is an error
+SIM_L1_ball:
+    path: trick_sims/Ball/SIM_ball_L1
+
+# This sim doesn't exist
+SIM_foobar:
+    path: test/SIM_foobar
+    runs:
+        RUN_hi/input.py:
+
+# Sim exists but path is bad yaml syntax (no space)
+SIM_parachute:
+    path:trick_sims/SIM_parachute
+
+# Should be ignored
+999:

@@ -1,0 +1,40 @@
+
+<!-- Trick DP Session definition -->
+<!-- V 1.0 -->
+
+<!ELEMENT tstart        (#PCDATA)>
+<!ELEMENT tstop         (#PCDATA)>
+<!ELEMENT frequency     (#PCDATA)>
+<!ELEMENT file          (#PCDATA)>
+<!ELEMENT dir           (#PCDATA)>
+<!ELEMENT timename      (#PCDATA)>
+<!ELEMENT run           (dir)>
+<!ELEMENT product_files (file+)>
+<!ELEMENT session       ((tstart|tstop|frequency)*, run+, product_files)>
+
+<!ATTLIST run timename              CDATA #IMPLIED>
+
+<!ATTLIST session version           CDATA #REQUIRED>
+
+<!-- session@presentation attribute
+     
+     "simple"     - One curve per plot. #plots = #runs x #plot_specifications
+     "comparsion" - Multiple runs per plot. 
+     "delta"      - difference of two runs.
+     "contrast"   - some wierd thing Danny dreamed up.
+-->
+<!ATTLIST session presentation      CDATA #REQUIRED>
+
+<!-- session@mode attribute
+     Indicates a restriction on what in a DP file.
+
+     "plot"   - means that only the plots described in a DP file may be created.
+     "table"  - means that only tables described in a DP file may be created.
+      default - all plots and tables in the DP may be created.
+-->
+<!ATTLIST session mode              CDATA #IMPLIED>
+
+<!ATTLIST session device            CDATA #IMPLIED>
+<!ATTLIST session gnuplot_terminal  CDATA #IMPLIED>
+<!ATTLIST session machine           CDATA #IMPLIED>
+<!ATTLIST session port              CDATA #IMPLIED>

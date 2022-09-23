@@ -1,0 +1,52 @@
+#!/usr/bin/perl
+
+use Cwd ;
+use File::Basename;
+use strict ;
+
+my $dir ;
+my $dir_no_src ;
+my $word ;
+my $cont ;
+
+open FILE, "@ARGV[0]" or die "Could not open @ARGV[0]" ;
+
+while ( <FILE> ) {
+    if ( /^# Dependencies for/ ) {
+        ($dir) = $_ =~ /(\/.*)$/ ;
+        ($dir_no_src = $dir) =~ s/src\/// ;
+        print ;
+        next ;
+    }
+    elsif ( /^#/ ) {
+        next ;
+    }
+    $cont = 0 ;
+    foreach $word ( split ) {
+        if ( $word =~ /:/ ) {
+            if ( $word =~ /S_[Ss]ource/ ) {
+                $word = "lib_\${TRICK_HOST_CPU}/$word" ;
+            }
+            else {
+                $word = "${dir_no_src}object_\${TRICK_HOST_CPU}/$word"
+            }
+        }
+        elsif ( $word eq "\\" ) {
+            $word = "\\\n" ;
+            $cont = 1 ;
+        }
+        else {
+            if ( $word !~ /^\// and $dir ne "\/" ) {
+                $word = "$dir$word" ;
+            }
+            while ( $word =~ s,/[^/]+/\.\.,, ) {}  # remove ..
+        }
+        # Substitute beginning of full path with an environment variable.
+        $word =~ s/$ENV{"TRICK_HOME"}/\${TRICK_HOME}/gs ;
+        print "$word " ;
+    }
+    if ( $cont == 0 ) {
+        print "\n" ;
+    }
+}
+

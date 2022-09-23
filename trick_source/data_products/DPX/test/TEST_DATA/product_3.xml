@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE product PUBLIC "-//Tricklab//DTD Product V1.0//EN" "../../XML/DTD/Product.dtd">
+
+<!-- Description: Table, no attributes, titles -->
+
+<product version="1.0">
+      <table>
+         <column>
+            <units>s</units>
+            <var>sys.exec.out.time</var>
+         </column>
+         <column>
+            <var>sun_predictor.sun.solar_azimuth</var>
+         </column>
+         <column>
+            <var>sun_predictor.sun.solar_elevation</var>
+         </column>
+      </table>
+</product>

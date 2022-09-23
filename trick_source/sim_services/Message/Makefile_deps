@@ -1,0 +1,51 @@
+object_${TRICK_HOST_CPU}/PlaybackFile.o: PlaybackFile.cpp \
+ ${TRICK_HOME}/include/trick/PlaybackFile.hh \
+ ${TRICK_HOME}/include/trick/MessageFile.hh \
+ ${TRICK_HOME}/include/trick/MessageSubscriber.hh \
+ ${TRICK_HOME}/include/trick/message_type.h 
+object_${TRICK_HOST_CPU}/MessagePublisher.o: MessagePublisher.cpp \
+ ${TRICK_HOME}/include/trick/MessagePublisher.hh \
+ ${TRICK_HOME}/include/trick/MessageSubscriber.hh \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h \
+ ${TRICK_HOME}/include/trick/exec_proto.h \
+ ${TRICK_HOME}/include/trick/sim_mode.h 
+object_${TRICK_HOST_CPU}/MessageLCout.o: MessageLCout.cpp \
+ ${TRICK_HOME}/include/trick/MessageLCout.hh \
+ ${TRICK_HOME}/include/trick/MessageSubscriber.hh 
+object_${TRICK_HOST_CPU}/MessageTCDevice.o: MessageTCDevice.cpp \
+ ${TRICK_HOME}/include/trick/MessageTCDevice.hh \
+ ${TRICK_HOME}/include/trick/MessageSubscriber.hh \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/tc.h \
+ ${TRICK_HOME}/include/trick/trick_byteswap.h \
+ ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
+ ${TRICK_HOME}/include/trick/message_type.h \
+ ${TRICK_HOME}/include/trick/montecarlo_c_intf.h \
+ ${TRICK_HOME}/include/trick/tc_proto.h \
+ ${TRICK_HOME}/include/trick/tc.h \
+ ${TRICK_HOME}/include/trick/attributes.h \
+ ${TRICK_HOME}/include/trick/parameter_types.h 
+object_${TRICK_HOST_CPU}/Message_c_intf.o: Message_c_intf.cpp \
+ ${TRICK_HOME}/include/trick/MessagePublisher.hh \
+ ${TRICK_HOME}/include/trick/MessageSubscriber.hh \
+ ${TRICK_HOME}/include/trick/MessageCout.hh \
+ ${TRICK_HOME}/include/trick/MessageFile.hh \
+ ${TRICK_HOME}/include/trick/MessageTCDevice.hh \
+ ${TRICK_HOME}/include/trick/ThreadBase.hh \
+ ${TRICK_HOME}/include/trick/tc.h \
+ ${TRICK_HOME}/include/trick/trick_byteswap.h \
+ ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
+ ${TRICK_HOME}/include/trick/message_proto.h \
+ ${TRICK_HOME}/include/trick/message_type.h 
+object_${TRICK_HOST_CPU}/message_publish_standalone.o: message_publish_standalone.cpp 
+object_${TRICK_HOST_CPU}/MessageCout.o: MessageCout.cpp \
+ ${TRICK_HOME}/include/trick/MessageCout.hh \
+ ${TRICK_HOME}/include/trick/MessageSubscriber.hh \
+ ${TRICK_HOME}/include/trick/message_type.h 
+object_${TRICK_HOST_CPU}/MessageSubscriber.o: MessageSubscriber.cpp \
+ ${TRICK_HOME}/include/trick/MessageSubscriber.hh 
+object_${TRICK_HOST_CPU}/MessageFile.o: MessageFile.cpp \
+ ${TRICK_HOME}/include/trick/MessageFile.hh \
+ ${TRICK_HOME}/include/trick/MessageSubscriber.hh \
+ ${TRICK_HOME}/include/trick/command_line_protos.h 

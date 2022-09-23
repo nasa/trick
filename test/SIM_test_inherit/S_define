@@ -1,0 +1,43 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (blah blah blah)
+LIBRARY DEPENDENCIES:
+    (
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+class BaseSimObject : public Trick::SimObject {
+
+    public:
+        void print_me() {
+            message_publish( MSG_NORMAL , "In base sim_object\n" ) ;
+        }
+
+        /** Constructor to add the jobs */
+        BaseSimObject() {
+            (10.0, "scheduled") print_me() ;
+        }
+} ;
+
+class DerivedBallSimObject : public BaseSimObject {
+    public:
+        void print_me() {
+            message_publish( MSG_NORMAL , "In derived sim_object\n" ) ;
+        }
+        DerivedBallSimObject() {
+            (10.0, "scheduled") print_me() ;
+        }
+}
+
+// Instantiations
+DerivedBallSimObject ball ;
+
+// Connect objects
+void create_connections() {
+    // Set the default termination time
+    trick_sys.sched.set_terminate_time(10.0) ;
+    trick_sys.sched.set_freeze_frame(0.10) ;
+}
+

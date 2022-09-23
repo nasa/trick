@@ -1,0 +1,24 @@
+
+DPX DIRECTORIES
+---------------
+The following directories are contained within DPX:
+
+DPX/APPS                    - Applications
+DPX/DPC                     - DPC Controller source code.
+DPX/DPM                     - DPX Model source code.
+DPX/DPV                     - DPX View source code.
+DPX/DPX.doxygen             - Doxygen configuration file.
+DPX/README                  - This file
+DPX/TESTING                 - Testing applications for various components of
+                              the DPX libraries.
+DPX/XML                     - XML related files.
+DPX/makefile                - Builds libDPM, libDPC, DPX Documentation, Test
+                              applications and User applications
+
+The following directories are created as a result of: % make all
+
+DPX/docs                    - Contains Doxygen generated documentation.
+                              To view the documentation:
+                              %firefox DOCS/html/index.html &
+DPX/lib_${TRICK_HOST_CPU}   - Contains libDPM.a and libDPC.a
+

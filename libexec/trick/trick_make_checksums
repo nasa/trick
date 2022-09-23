@@ -1,0 +1,52 @@
+#!/usr/bin/perl -w
+
+# set TRICK_SOURCE_CM_DIR and TRICK_SOURCE_WORK dir
+# to the CM and work dir respectively.
+# This script will run under 5.00x but the results
+# are not reliable.  Under perl 5.6.0 it works well.
+
+use strict;
+use File::Find;
+use Cwd;
+
+my $cwd = cwd() ;
+
+# bm_build and bm_or taken from www.perl.com 
+sub _bm_build {
+    my $condition = shift;
+    my @regexp = @_;  # this MUST not be local(); need my()
+    my $expr = join $condition => map { "m/\$regexp[$_]/o" } (0..$#regexp);
+    my $match_func = eval "sub { $expr }";
+    die if $@;  # propagate $@; this shouldn't happen!
+    return $match_func;
+}
+sub bm_or  { _bm_build('||', @_) }
+
+my $ignore = bm_or qw{ io_src xml(/|$) SCCS catalog \.\.\. \/object \.bak$ 
+ bin_ lib_ \.[oa]$ \.clex$ [Mm]akefile \.checksums } ;
+
+unlink "$cwd/.checksums" if ( -e "$cwd/.checksums" ) ;
+
+find(\&all_files, '.');
+
+sub all_files {
+    my $curr_name = $_ ;
+    my $name = $File::Find::name ;
+    if ( $name ne "." ) {
+        $_ = $name ;
+        return if ( &$ignore ) ;
+        if ( -f $curr_name ) {
+            if ( $^O eq "linux" ) {
+                system "cd $cwd ; /usr/bin/sum -s $name >> $cwd/.checksums" ;
+            }
+            elsif ( $^O eq "darwin" ) {
+                system "cd $cwd ; /usr/bin/cksum -o 2 $name >> $cwd/.checksums" ;
+            }
+            else {
+                system "cd $cwd ; /usr/bin/sum $name >> $cwd/.checksums" ;
+            }
+        }
+    }
+}
+
+

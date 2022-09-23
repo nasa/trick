@@ -1,0 +1,34 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This S_define is used with RUN_integ input file)
+LIBRARY DEPENDENCIES:
+    (
+     (cannon/gravity/src/cannon_init.c)
+     (cannon/gravity/src/cannon_numeric.c)
+     (cannon/gravity/src/cannon_ec_integ.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "cannon/gravity/include/cannon_eulercromer.h"
+
+class CannonSimObject : public Trick::SimObject {
+
+    public:
+        CANNON      cannon ;
+
+        CannonSimObject() {
+            ("default_data") cannon_default_data( &cannon ) ;
+
+            ("initialization") cannon_init( &cannon ) ;
+
+            ("derivative") cannon_deriv( &cannon ) ;
+            ("integration") trick_ret = cannon_ec_integ( &cannon ) ;
+        }
+} ;
+
+// Instantiations
+CannonSimObject dyn ;
+
+IntegLoop dyn_integloop (0.01) dyn;

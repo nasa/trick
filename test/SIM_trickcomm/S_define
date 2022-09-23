@@ -1,0 +1,56 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ( This S_define is to be used with RUN_trickcomm input file )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "test_struct.h"
+
+// Put an extern line for attrTEST_DATA_STRUCT in S_source.hh
+// Don't let SWIG process the line
+%header{
+##ifndef SWIG
+extern ATTRIBUTES attrTEST_DATA_STRUCT[] ;
+##endif
+%}
+
+class CannonSimObject : public Trick::SimObject {
+
+    public:
+        TCDevice connection ;
+        TEST_DATA_STRUCT tds ;
+        TEST_DATA_STRUCT read_tds ;
+
+        /* Initialize client's connection to server */
+        void init_comm() {
+            connection.port = 9000 ;
+            connection.hostname = strdup("localhost") ;
+            connection.disable_handshaking = TC_COMM_TRUE ;
+            tc_connect( &connection ) ;
+        }
+
+        void send_test() {
+            usleep(100) ;
+            fprintf(stderr, "before write int1 =%x  int2 =%x\n", tds.int1 , tds.int2 ) ;
+            fprintf(stderr, "before write long1=%lx  long2=%lx\n", tds.long1 , tds.long2 ) ;
+            tc_write_byteswap( &connection, (char *)&tds, sizeof(TEST_DATA_STRUCT), attrTEST_DATA_STRUCT) ;
+            tc_read_byteswap( &connection, (char *)&read_tds, sizeof(TEST_DATA_STRUCT), attrTEST_DATA_STRUCT) ;
+            fprintf(stderr, "after read int1 =%x  int2 =%x\n", read_tds.int1 , read_tds.int2 ) ;
+            fprintf(stderr, "after read long1=%lx  long2=%lx\n", read_tds.long1 , read_tds.long2 ) ;
+        }
+
+        CannonSimObject() : connection() , tds() {
+            tds.int1 = 1234 ;
+            tds.int2 = 5678 ;
+            tds.long1 = 8888 ;
+            tds.long2 = 9999 ;
+            ("initialization") init_comm() ;
+            (1.0, "scheduled") send_test() ;
+        }
+
+} ;
+
+// Instantiations
+CannonSimObject dyn ;
+

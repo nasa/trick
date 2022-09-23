@@ -1,0 +1,50 @@
+/************************TRICK HEADER*************************
+PURPOSE: (Tutorial, Section 8)
+
+LIBRARY DEPENDENCY: ((cannon/aero/src/cannon_init_aero.c)
+                     (cannon/aero/src/cannon_force_gravity.c)
+                     (cannon/aero/src/cannon_force_drag.c)
+                     (cannon/aero/src/cannon_force_lift.c)
+                     (cannon/aero/src/cannon_force_cross.c)
+                     (cannon/aero/src/cannon_collect_forces.c)
+                     (cannon/aero/src/cannon_integ_aero.c)
+                     (cannon/aero/src/cannon_impact_aero.c)
+                     (cannon/aero/src/cannon_aero_default_data.c)
+                   )
+*************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+
+##include "cannon/aero/include/cannon_aero.h"
+##include "cannon/aero/include/cannon_aero_proto.h"
+
+class CannonSimObject : public Trick::SimObject {
+
+    public:
+        CANNON_AERO baseball;
+
+        CannonSimObject() {
+
+            ("default_data") cannon_aero_default_data( &baseball ) ;
+
+            ("initialization") cannon_init_aero( &baseball ) ;
+
+            ("derivative") cannon_force_gravity( &baseball ) ;
+            ("derivative") cannon_force_drag( &baseball ) ;
+            ("derivative") cannon_force_lift( &baseball ) ;
+            ("derivative") cannon_force_cross( &baseball ) ;
+            ("derivative") cannon_collect_forces( &baseball ) ;
+            ("integration") trick_ret = cannon_integ_aero( &baseball ) ;
+
+            ("dynamic_event") cannon_impact_aero( &baseball ) ;
+        }
+} ;
+
+CannonSimObject dyn ;
+
+IntegLoop dyn_integloop (0.01) dyn ;
+
+collect dyn.baseball.force_collect = {
+        dyn.baseball.force_gravity[0],
+        dyn.baseball.force_drag[0],
+        dyn.baseball.force_magnus[0],
+        dyn.baseball.force_cross[0]} ;
