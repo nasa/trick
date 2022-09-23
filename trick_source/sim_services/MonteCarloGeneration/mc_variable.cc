@@ -5,7 +5,7 @@ PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
 **********************************************************************/
 
-#include "../include/mc_variable.hh"
+#include "trick/mc_variable.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/exec_proto.h"

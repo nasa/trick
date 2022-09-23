@@ -5,7 +5,7 @@ PURPOSE: ( Implementation of a class to support generation and assignment
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
 **********************************************************************/
-#include "mc_variable_random_normal.hh"
+#include "trick/mc_variable_random_normal.hh"
 
 //#include "../../math_utils/include/math_utils.hh" // MathUtils::*
 

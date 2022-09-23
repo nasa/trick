@@ -1,0 +1,24 @@
+object_${TRICK_HOST_CPU}/mc_master.o: mc_master.cc \
+	${TRICK_HOME}/include/trick/mc_master.hh \
+	${TRICK_HOME}/include/trick/message_type.h \
+	${TRICK_HOME}/include/trick/message_proto.h \
+	${TRICK_HOME}/include/trick/exec_proto.h 
+object_${TRICK_HOST_CPU}/mc_variable.o: mc_variable.cc \
+	${TRICK_HOME}/include/trick/mc_variable.hh \
+	${TRICK_HOME}/include/trick/message_type.h \
+	${TRICK_HOME}/include/trick/message_proto.h \
+	${TRICK_HOME}/include/trick/exec_proto.h 
+object_${TRICK_HOST_CPU}/mc_variable_file.o: mc_variable_file.cc \
+ 	${TRICK_HOME}/include/trick/mc_variable_file.hh \
+	${TRICK_HOME}/include/trick/message_type.h \
+	${TRICK_HOME}/include/trick/message_proto.h \
+	${TRICK_HOME}/include/trick/exec_proto.h 
+object_${TRICK_HOST_CPU}/mc_variable_random_normal.o: mc_variable_random_normal.cc \
+	${TRICK_HOME}/include/trick/mc_variable_random_normal.hh \
+	${TRICK_HOME}/include/trick/message_type.h \
+	${TRICK_HOME}/include/trick/message_proto.h \
+	${TRICK_HOME}/include/trick/exec_proto.h 
+object_${TRICK_HOST_CPU}/mc_variable_random_string.o: mc_variable_random_string.cc \
+	${TRICK_HOME}/include/trick/mc_variable_random_string.hh 
+object_${TRICK_HOST_CPU}/mc_variable_random_string.o: mc_variable_random_uniform.cc \
+	${TRICK_HOME}/include/trick/mc_variable_random_uniform.hh 

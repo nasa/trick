@@ -4,7 +4,7 @@ PURPOSE: (Provides the front-end interface to the monte-carlo model)
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
 **********************************************************************/
-#include "../include/mc_master.hh"
+#include "trick/mc_master.hh"
 
 #include <iterator> // std::prev
 #include <fstream>  // std::ofstream

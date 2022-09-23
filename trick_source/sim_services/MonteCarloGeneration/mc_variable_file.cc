@@ -10,7 +10,7 @@ PROGRAMMERS:
 #include "trick/exec_proto.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
-#include "../include/mc_variable_file.hh"
+#include "trick/mc_variable_file.hh"
 
 /*****************************************************************************
 Constructor

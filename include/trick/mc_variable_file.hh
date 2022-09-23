@@ -15,7 +15,7 @@ PROGRAMMERS:
 #include <list>
 //include "jeod/models/utils/message/include/message_handler.hh"
 
-#include "mc_variable.hh"
+#include "trick/mc_variable.hh"
 
 /*****************************************************************************
 MonteCarloVariableFile

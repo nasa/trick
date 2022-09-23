@@ -13,15 +13,15 @@ PROGRAMMERS:
 MC_Test sim object
 ****************************************************************************/
 
-##include "../include/mc_master.hh"
-##include "../include/mc_python_code.hh"
-##include "../include/mc_variable_random_uniform.hh"
-##include "../include/mc_variable_random_normal.hh"
-##include "../include/mc_variable_random_string.hh"
-##include "../include/mc_variable_random_bool.hh"
-##include "../include/mc_variable_file.hh"
-##include "../include/mc_variable_fixed.hh"
-##include "../include/mc_variable_semi_fixed.hh"
+##include "trick/mc_master.hh"
+##include "trick/mc_python_code.hh"
+##include "trick/mc_variable_random_uniform.hh"
+##include "trick/mc_variable_random_normal.hh"
+##include "trick/mc_variable_random_string.hh"
+##include "trick/mc_variable_random_bool.hh"
+##include "trick/mc_variable_file.hh"
+##include "trick/mc_variable_fixed.hh"
+##include "trick/mc_variable_semi_fixed.hh"
 
 class MC_TestSimObject : public Trick::SimObject
 {

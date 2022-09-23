@@ -6,7 +6,7 @@ PURPOSE: ( Implementation of a class to support generation and assignment
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
 **********************************************************************/
-#include "mc_variable_random_uniform.hh"
+#include "trick/mc_variable_random_uniform.hh"
 
 /*****************************************************************************
 Constructor
