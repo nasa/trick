@@ -716,10 +716,14 @@ QHash<QPair<QString, QString>, double> Unit::_initScales()
     map.insert(QPair<QString,QString>("Hz","Hz"), 1.0);
     map.insert(QPair<QString,QString>("Hz","1/s"), 1.0);
 
+    // Moment of Inertia
+    map.insert(QPair<QString,QString>("kg*m2","kg*m2"), 1.0);
+    map.insert(QPair<QString,QString>("kg*m2","sl*ft2"), 
+                                      14.5939029300000*0.3048*0.3048);
+
     // Miscellaneous
     map.insert(QPair<QString,QString>("rad2/s2","rad2/s2"), 1.0);
     map.insert(QPair<QString,QString>("m2/s2","m2/s2"), 1.0);
-    map.insert(QPair<QString,QString>("kg*m2","kg*m2"), 1.0);
     map.insert(QPair<QString,QString>("kg*m/s2","kg*m/s2"), 1.0);
     map.insert(QPair<QString,QString>("kg*m2/s","kg*m2/s"), 1.0);
     map.insert(QPair<QString,QString>("kg*m2/s2","kg*m2/s2"), 1.0);
