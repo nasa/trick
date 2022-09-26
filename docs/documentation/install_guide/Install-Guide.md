@@ -47,6 +47,7 @@ Trick runs on GNU/Linux and macOS, though any System V/POSIX compatible UNIX wor
 
 | Quick Jump Menu |
 |---|
+|[Troubleshooting](#trouble)|
 |[RedHat Enterprise Linux (RHEL) 8](#redhat8)|
 |[Oracle Linux 8](#redhat8)|
 |[AlmaLinux 8](#redhat8)|
@@ -59,6 +60,7 @@ Trick runs on GNU/Linux and macOS, though any System V/POSIX compatible UNIX wor
 |[Windows 10 (Linux Subsystem Only)](#windows10)|
 
 ---
+<a name="trouble"></a>
 ### Troubleshooting
 
 #### Environment Variables
@@ -74,6 +76,9 @@ CFLAGS, CXXFLAGS, LDFLAGS # If these flags are set they may affect flags passed 
 If the Trick tests are passing, you can see *exactly* how we configure our test machines on Github's test integration platform, Github Actions.
 
 If logged into any github account on github.com, you can access the [Actions](https://github.com/nasa/trick/actions) tab on the Trick repo page. Go to [Trick-CI](https://github.com/nasa/trick/actions?query=workflow%3A%22Trick+CI%22), and click the latest passing run. Here you can access a log of our shell commands to configure each OS with dependencies and also the commands we use to install Trick. In fact, that is exactly where I go when I want to update the install guide! @spfennell
+
+#### Weird Linker Error
+It is possible you may have an old version of Trick installed, and Trick's libraries are on your LDPATH and interfering with your new build. The solution is to uninstall the old version before building the new one. Call `sudo make uninstall` from any Trick top level directory and it will remove the old libraries.
 
 The configuration for these tests can be found in the [trick/.github/workflow/test.yml](https://github.com/nasa/trick/blob/master/.github/workflows/test.yml) file.
 
