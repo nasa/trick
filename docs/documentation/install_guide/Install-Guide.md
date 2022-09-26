@@ -47,7 +47,6 @@ Trick runs on GNU/Linux and macOS, though any System V/POSIX compatible UNIX wor
 
 | Quick Jump Menu |
 |---|
-|[Troubleshooting](#trouble)|
 |[RedHat Enterprise Linux (RHEL) 8](#redhat8)|
 |[Oracle Linux 8](#redhat8)|
 |[AlmaLinux 8](#redhat8)|
@@ -58,6 +57,7 @@ Trick runs on GNU/Linux and macOS, though any System V/POSIX compatible UNIX wor
 |[Ubuntu](#ubuntu)|
 |[macOS](#macos)|
 |[Windows 10 (Linux Subsystem Only)](#windows10)|
+|[Troubleshooting](#trouble)|
 
 ---
 <a name="trouble"></a>
