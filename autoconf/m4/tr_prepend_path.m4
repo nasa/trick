@@ -1,9 +1,7 @@
-
-
 dnl test if want to prepend /usr/local/bin to PATH
 dnl AC_ARG_WITH (package, help-string, [action-if-given], [action-if-not-given])
-AC_DEFUN(
-    [TR_PREPEND_PATH],
+
+AC_DEFUN([TR_PREPEND_PATH],
     [AC_ARG_WITH(
         [prepend-path],
         [NA_HELP_STRINGS(

@@ -772,6 +772,7 @@ with_x
 enable_32bit
 enable_offline
 with_python
+with_prepend_path
 with_swig
 enable_java
 with_llvm
@@ -1438,6 +1439,10 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-x                use the X Window System
   --with-python[=DIR]     python root directory
+  --without-prepend-path  do not prepend to path (this is default)
+  --with-prepend-path[=DIR]
+                          specify a directory to prepend to PATH (default is
+                          /usr/local/bin)
   --with-swig[=DIR]       path of directory containing the SWIG executable.
   --with-llvm[=DIR]       LLVM root directory
   --with-zlib=DIR         root directory path of zlib installation [defaults to
@@ -2863,12 +2868,6 @@ ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-
-
-
-
-
 
 
 
@@ -7313,7 +7312,24 @@ PYTHON_LIBS=`${PYTHON_LIBS_COMMAND} | tr '\r\n' ' '`
 
 
 
-TR_PREPEND_PATH
+
+
+# Check whether --with-prepend-path was given.
+if test ${with_prepend_path+y}
+then :
+  withval=$with_prepend_path; if test "x${with_prepend_path}" = xyes
+then :
+  PATH="/usr/local/bin:${PATH}"
+else $as_nop
+  if test "x${with_prepend_path}" != xno
+then :
+  PATH="${withval}:${PATH}"
+fi
+
+fi
+fi
+
+
 # Extract the first word of "gnuplot", so it can be a program name with args.
 set dummy gnuplot; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5

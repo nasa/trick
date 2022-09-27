@@ -1,36 +1,12 @@
 dnl To generate a new top level configure script from this autoconf directory
-dnl 1.  aclocal -Im4
-dnl 2.  autoconf -Im4 -o ../configure
-dnl If you run into "configure.ac:15: error: possibly undefined macro: AC_MSG_ERROR",
-dnl try:
-dnl     autoreconf -fi -Im4
+dnl 1.  aclocal
+dnl 2.  autoconf -o ../configure
 
 AC_INIT([Trick],[17+])
 AC_LANG(C++)
 
 AC_CONFIG_AUX_DIR([autoconf])
 AC_CONFIG_MACRO_DIRS([m4])
-
-
-dnl SOURCE: https://stackoverflow.com/a/59191148
-
-dnl  NA_HELP_STRINGS(list1, help1[, list2, help2[, ... listN, helpN]])
-dnl  **************************************************************************
-dnl
-dnl  Similar to `AS_HELP_STRING()`, but with support for multiple strings, each
-dnl  one associated with one or more options
-dnl
-dnl  From: https://github.com/madmurphy/not-autotools
-dnl
-dnl  **************************************************************************
-m4_define([NA_HELP_STRINGS],
-    [m4_if(m4_count($1), [1],
-        [m4_if([$#], [0], [], [$#], [1],
-            [m4_text_wrap($1, [  ])],
-            [AS_HELP_STRING(m4_normalize($1), [$2])m4_if([$#], [2], [], [m4_newline()NA_HELP_STRINGS(m4_shift2($@))])])],
-        [m4_text_wrap(m4_argn(1, $1)[,], [  ])m4_newline()NA_HELP_STRINGS(m4_dquote(m4_shift($1))m4_if([$#], [1], [], [, m4_shift($@)]))])])
-
-
 
 dnl get the host and build.
 AC_CANONICAL_HOST
@@ -239,10 +215,11 @@ AX_COMPARE_VERSION(
 PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes | sed 's/-I/-isystem/g'`
 PYTHON_LIBS=`${PYTHON_LIBS_COMMAND} | tr '\r\n' ' '`
 
+
 AC_SUBST([PYTHON_CPPFLAGS])
 AC_SUBST([PYTHON_LIBS])
 AC_SUBST([PYTHON_EXTRA_LIBS])
-TR_PREPEND_PATH
+TR_PREPEND_PATH()
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
 TR_SWIG_BIN([2.0])
