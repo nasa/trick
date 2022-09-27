@@ -9,6 +9,7 @@ AC_INIT([Trick],[17+])
 AC_LANG(C++)
 
 AC_CONFIG_AUX_DIR([autoconf])
+AC_CONFIG_MACRO_DIRS([m4])
 
 
 dnl SOURCE: https://stackoverflow.com/a/59191148
@@ -72,7 +73,7 @@ AS_IF([test "$no_x" = "yes"],
     AS_IF([test "x$x_includes" = "x"],[],[X_INCLUDE_DIR=-I$x_includes])
     AS_IF([test "x$x_libraries" = "x"],[],[X_LIB_DIR=-L$x_libraries])
     AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
-    AX_JSC_DIRS([])
+    TR_JSC_DIRS([])
   ]
 )
 AC_SUBST([USE_X_WINDOWS])
@@ -152,7 +153,7 @@ AC_PROG_CC
 AC_PROG_CXX
 
 dnl do not test gcc version on mac.  clang as gcc will return version and it's not >= 4.8
-AS_IF([test "$ON_MAC" = "no"],[AX_GCC_VERSION],[])
+AS_IF([test "$ON_MAC" = "no"],[TR_GCC_VERSION],[])
 dnl if the compiler is gcc, test for gcc >= 4.8
 AS_IF([test "x$GCC_VERSION" = "x"],[],
  [AC_MSG_CHECKING([gcc version >= 4.8])
@@ -169,7 +170,7 @@ AC_PATH_PROG(TEE, tee, notee)
 AS_IF([test "$ac_cv_path_TEE" = "notee"],AC_MSG_ERROR([could not find tee]),[])
 AC_PATH_PROG(LD, ld, nold)
 AS_IF([test "$ac_cv_path_LD" = "nold"],AC_MSG_ERROR([could not find ld]),[])
-AC_PROG_LEX
+AC_PROG_LEX([noyywrap])
 AS_IF([test "x$LEX" = "x:"],AC_MSG_ERROR([could not find flex]),[])
 AC_PATH_PROG(BISON, bison, nobison)
 AS_IF([test "$ac_cv_path_BISON" = "nobison"],AC_MSG_ERROR([could not find bison]),[])
@@ -241,18 +242,18 @@ PYTHON_LIBS=`${PYTHON_LIBS_COMMAND} | tr '\r\n' ' '`
 AC_SUBST([PYTHON_CPPFLAGS])
 AC_SUBST([PYTHON_LIBS])
 AC_SUBST([PYTHON_EXTRA_LIBS])
-AX_PREPEND_PATH
+TR_PREPEND_PATH
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
-AX_SWIG_BIN([2.0])
-AX_JAVA
+TR_SWIG_BIN([2.0])
+TR_JAVA
 
 AX_PTHREAD()
 AX_PROG_PERL_MODULES( Text::Balanced ,[],AC_MSG_ERROR([could not find perl modules Text::Balanced]))
 AX_PROG_PERL_MODULES( Digest::MD5,[],AC_MSG_ERROR([could not find perl module Digest::MD5]))
 
 dnl process the optional --with-llvm command line arguments
-AX_LLVM_HOME([])
+TR_LLVM_HOME([])
 LLVM_LIB_DIR=`$LLVM_CONFIG --libdir`
 LLVM_BIN_DIR=`$LLVM_CONFIG --bindir`
 LLVM_INCLUDE_DIR=`$LLVM_CONFIG --includedir`
@@ -291,7 +292,7 @@ AC_CHECK_FILE([$LLVM_LIB_DIR/libclangFrontend.a],
 
 AC_SUBST([ICG_CLANGLIBS])
 
-AX_CLANG_VERSION
+TR_CLANG_VERSION
 dnl if llvm/clang, test for version >= 3.4.2
 AS_IF([test "x$CLANG_VERSION" = "x"],[],
  [AC_MSG_CHECKING([clang version >= 3.4.2])
@@ -304,7 +305,7 @@ AS_IF([test "x$CLANG_VERSION" = "x"],[],
 AX_CHECK_ZLIB([],AC_MSG_ERROR([could not find zlib]))
 
 dnl look for udunits in /usr/include and /usr/include/udunits2
-AX_UDUNITS_HOME([])
+TR_UDUNITS_HOME([])
 AS_IF([test "$UDUNITS_HOME" = ""],
  [
   AC_CHECK_HEADER([udunits2.h],
@@ -336,11 +337,11 @@ AC_SUBST([UDUNITS_LDFLAGS])
 AC_SUBST([UDUNITS_EXCLUDE])
 
 dnl process the other optional command line arguments
-AX_HDF5_HOME([])
-AX_GSL_HOME([])
-AX_GTEST_HOME([])
-AX_CIVETWEB_HOME([])
-AX_ER7_UTILS([])
+TR_HDF5_HOME([])
+TR_GSL_HOME([])
+TR_GTEST_HOME([])
+TR_CIVETWEB_HOME([])
+TR_ER7_UTILS([])
 
 AC_CONFIG_FILES([share/trick/makefiles/config_user.mk])
 AC_OUTPUT

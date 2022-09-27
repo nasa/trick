@@ -6566,67 +6566,7 @@ then :
 else $as_nop
   LEXLIB=$ac_cv_lib_lex
 fi
-  ac_save_LIBS="$LIBS"
-      LIBS=
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing yywrap" >&5
-printf %s "checking for library containing yywrap... " >&6; }
-if test ${ac_cv_search_yywrap+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
 
-namespace conftest {
-  extern "C" int yywrap ();
-}
-int
-main (void)
-{
-return conftest::yywrap ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' fl l
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_cxx_try_link "$LINENO"
-then :
-  ac_cv_search_yywrap=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_yywrap+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_yywrap+y}
-then :
-
-else $as_nop
-  ac_cv_search_yywrap=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_yywrap" >&5
-printf "%s\n" "$ac_cv_search_yywrap" >&6; }
-ac_res=$ac_cv_search_yywrap
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  LEXLIB="$LIBS"
-fi
-
-      LIBS="$ac_save_LIBS"
 fi
 
 
