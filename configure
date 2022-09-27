@@ -1439,10 +1439,10 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-x                use the X Window System
   --with-python[=DIR]     python root directory
-  --without-prepend-path  do not prepend to path (this is default)
   --with-prepend-path[=DIR]
                           specify a directory to prepend to PATH (default is
-                          /usr/local/bin)
+                          /usr/local/bin). Use --without-prepend-path for no
+                          directory.
   --with-swig[=DIR]       path of directory containing the SWIG executable.
   --with-llvm[=DIR]       LLVM root directory
   --with-zlib=DIR         root directory path of zlib installation [defaults to
