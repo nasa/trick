@@ -8,8 +8,8 @@ PURPOSE: Provides a one-stop shop for all MonteCarlo operations that Trick
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2018) (Antares) (initial)))
 ***********************************************************************/
-#ifndef SIM_OBJECT_ANTARES_MONTE_CARLO
-#define SIM_OBJECT_ANTARES_MONTE_CARLO
+#ifndef SIM_OBJECT_MONTE_CARLO_Generation
+#define SIM_OBJECT_MONTE_CARLO_Generation
 ##include "trick/mc_master.hh"
 ##include "trick/mc_python_code.hh"
 ##include "trick/mc_variable_random_uniform.hh"
@@ -33,7 +33,7 @@ class MonteCarloGeneratorSimObject : public Trick::SimObject
     mc_master(location)
   {
     // pre-initialization assignments:
-    P_MONTECARLO ("initialization") generate_dispersions();
+    P07 ("initialization") generate_dispersions();
   }
   void generate_dispersions()
   {

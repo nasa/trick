@@ -12,16 +12,6 @@ PROGRAMMERS:
 MC_Test sim object
 ****************************************************************************/
 
-##include "trick/mc_master.hh"
-##include "trick/mc_python_code.hh"
-##include "trick/mc_variable_random_uniform.hh"
-##include "trick/mc_variable_random_normal.hh"
-##include "trick/mc_variable_random_string.hh"
-##include "trick/mc_variable_random_bool.hh"
-##include "trick/mc_variable_file.hh"
-##include "trick/mc_variable_fixed.hh"
-##include "trick/mc_variable_semi_fixed.hh"
-
 class MC_TestSimObject : public Trick::SimObject
 {
  public:
@@ -41,15 +31,13 @@ class MC_TestSimObject : public Trick::SimObject
   std::string x_fixed_value_string;
   int    x_sdefine_routine_called;
 
-  MonteCarloMaster master;
   MonteCarloVariableFile mc_var_file;
 
   MC_TestSimObject()
       :
-	master("test.mc_master"),
       mc_var_file("test.x_file_lookup[0]", "Modified_data/datafile.txt", 3)
   {
-	("initialization") master.execute();	
+	("initialization") monte_carlo.generate_dispersions();	
     	(1.0,"environment") output_strings();
   };
 
