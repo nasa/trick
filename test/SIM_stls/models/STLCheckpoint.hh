@@ -57,6 +57,10 @@ class STLCheckpoint {
 
         std::set< int > int_set ;
         std::set< std::string > string_set ;
+        // std::set< std::vector<int> > vector_set;
+
+        std::queue< std::vector<int> > vector_queue;
+
 
         std::multiset< long > long_multiset ;
         std::multiset< std::string > string_multiset ;
@@ -78,6 +82,10 @@ class STLCheckpoint {
         std::pair< std::string , int > string_first_pair ;
         std::pair< int , std::string > string_second_pair ;
         std::pair< std::string , std::string > string_pair ;
+
+        std::pair< int, std::vector<int> > int_vec_pair;
+        std::pair< std::vector<int>, int > vec_int_pair;
+        std::pair< std::vector<int>, std::vector<int> > vec_vec_pair;
 
         std::pair< int , std::pair< int, int > > int_pair_int_int ;
         std::pair< std::pair< int, int > , int > pair_int_int_int ;

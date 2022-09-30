@@ -37,7 +37,8 @@ TESTS = MM_creation_unittest \
         MM_write_checkpoint_hexfloat \
 	MM_get_enumerated\
 	MM_ref_name_from_address \
-		Bitfield_tests
+		Bitfield_tests \
+		MM_stl_checkpoint
 
 #OTHER_OBJECTS = ../../include/object_${TRICK_HOST_CPU}/io_JobData.o \
 #                ../../include/object_${TRICK_HOST_CPU}/io_SimObject.o
@@ -65,6 +66,7 @@ test: $(TESTS)
 	./MM_get_enumerated --gtest_output=xml:${TRICK_HOME}/trick_test/MM_get_enumerated.xml
 	./MM_ref_name_from_address --gtest_output=xml:${TRICK_HOME}/trick_test/MM_ref_name_from_address.xml
 	./Bitfield_tests --gtest_output=xml:${TRICK_HOME}/trick_test/Bitfield_tests.xml
+	./MM_stl_checkpoint --gtest_output=xml:${TRICK_HOME}/trick_test/MM_stl_checkpoint.xml
 
 code-coverage: test
 	# Give rid of any old code-coverage HTML we may have.
@@ -111,6 +113,10 @@ io_MM_get_enumerated.o : MM_get_enumerated.hh
 io_MM_ref_name_from_address.o :	MM_ref_name_from_address.hh
 	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CPPFLAGS) $<
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c io_src/io_MM_ref_name_from_address.cpp
+
+io_MM_stl_testbed.o :	MM_stl_testbed.hh
+	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CPPFLAGS) $<
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c io_src/io_MM_stl_testbed.cpp
 
 MM_creation_unittest.o : MM_creation_unittest.cc
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
@@ -166,6 +172,12 @@ MM_write_checkpoint_hexfloat.o : MM_write_checkpoint_hexfloat.cc
 Bitfield_tests.o : Bitfield_tests.cpp
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
+MM_stl_restore.o : MM_stl_restore.cc
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
+
+MM_stl_checkpoint.o : MM_stl_checkpoint.cc MM_stl_testbed.hh MM_test.hh
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
+
 MM_creation_unittest : MM_creation_unittest.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
@@ -218,4 +230,10 @@ MM_write_checkpoint_hexfloat : MM_write_checkpoint_hexfloat.o io_MM_write_checkp
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 Bitfield_tests : Bitfield_tests.o
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+MM_stl_restore : MM_stl_restore.o io_MM_stl_testbed.o
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+MM_stl_checkpoint : MM_stl_checkpoint.o io_MM_stl_testbed.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

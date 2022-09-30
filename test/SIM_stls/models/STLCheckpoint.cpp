@@ -121,6 +121,23 @@ int STLCheckpoint::addData() {
     string_set.insert("abc") ;
     string_set.insert("def") ;
 
+    // for (int j = 0; j < 5; j++) {
+    //     std::vector<int> temp;
+    //     for (int i = j; i < 10; i++) {
+    //         temp.push_back(i);
+    //     }
+    //     vector_set.insert(temp);
+    // }
+
+    for (int j = 0; j < 5; j++) {
+        std::vector<int> temp;
+        for (int i = j; i < 10; i++) {
+            temp.push_back(i);
+        }
+        vector_queue.push(temp);
+    }
+
+
     long_multiset.insert(8000) ;
     long_multiset.insert(4000) ;
     long_multiset.insert(4000) ;
@@ -199,6 +216,27 @@ int STLCheckpoint::addData() {
     pair_pair_pair.first.second = 52 ;
     pair_pair_pair.second.first = 53 ;
     pair_pair_pair.second.second = 54 ;
+
+    int_vec_pair.first = 5;
+    int_vec_pair.second.push_back(5);
+    int_vec_pair.second.push_back(10);
+    int_vec_pair.second.push_back(15);
+    int_vec_pair.second.push_back(20);
+
+    vec_int_pair.second = 5;
+    vec_int_pair.first.push_back(5);
+    vec_int_pair.first.push_back(10);
+    vec_int_pair.first.push_back(15);
+    vec_int_pair.first.push_back(20);
+
+    vec_vec_pair.first.push_back(5);
+    vec_vec_pair.first.push_back(10);
+    vec_vec_pair.first.push_back(15);
+    vec_vec_pair.first.push_back(20);
+    vec_vec_pair.second.push_back(5);
+    vec_vec_pair.second.push_back(10);
+    vec_vec_pair.second.push_back(15);
+    vec_vec_pair.second.push_back(20);
 
     vector_vector_double[0][0] = 100 ;
     vector_vector_double[0][1] = 101 ;
@@ -401,5 +439,27 @@ int STLCheckpoint::test() {
     TRICK_EXPECT_EQ(string_multimap, string_multimap_copy , test_suite, "string_multimap");
 
     // TODO: check everything i guess
+
+
+    // Check all the int/vec combo pairs together, for laziness
+    // TRICK_EXPECT_EQ(int_vec_pair.first, 5, test_suite, "int_vec_pair.first");
+    // TRICK_EXPECT_EQ(vec_int_pair.second, 5, test_suite, "vec_int_pair.second");
+
+    // TRICK_EXPECT_EQ(int_vec_pair.second.size(), 4, test_suite, "int_vec_pair.second.size");
+    // TRICK_EXPECT_EQ(vec_int_pair.first.size(), 4, test_suite, "vec_int_pair.first.size");
+    // TRICK_EXPECT_EQ(vec_vec_pair.first.size(), 4, test_suite, "vec_vec_pair.first.size");
+    // TRICK_EXPECT_EQ(vec_vec_pair.second.size(), 4, test_suite, "vec_vec_pair.second.size");
+
+    // for (int i = 0; i < int_vec_pair.second.size(); i++) {
+    //     TRICK_EXPECT_EQ(int_vec_pair.second[i], (i+1)*5, test_suite, "int_vec_pair.second elems");
+    //     TRICK_EXPECT_EQ(vec_int_pair.first[i], (i+1)*5, test_suite, "vec_int_pair.first elems");
+    //     TRICK_EXPECT_EQ(vec_vec_pair.first[i], (i+1)*5, test_suite, "vec_vec_pair.first elems");
+    //     TRICK_EXPECT_EQ(vec_vec_pair.second[i], (i+1)*5, test_suite, "vec_vec_pair.second elems");
+
+    // }
+
+    
+
+
 
 }

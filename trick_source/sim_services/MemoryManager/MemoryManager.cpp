@@ -7,7 +7,7 @@ Trick::MemoryManager * trick_MM = NULL;
 
 // CLASS VARIABLE INITIALIZATION
 int Trick::MemoryManager::instance_count = 0;
-
+bool Trick::MemoryManager::restore_stls_default = true;
 
 // CONSTRUCTOR
 Trick::MemoryManager::MemoryManager()
