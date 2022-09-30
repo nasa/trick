@@ -6,7 +6,6 @@ PROGRAMMERS: (((Alex Lin) (NASA) (8/06) (--)))
 #include <iostream>
 #include <pthread.h>
 #include "trick/VariableServer.hh"
-#include "trick/variable_server_message_types.h"
 #include "trick/parameter_types.h"
 #include "trick/bitfield_proto.h"
 #include "trick/trick_byteswap.h"
@@ -21,7 +20,9 @@ extern "C" {
 
 #define MAX_MSG_LEN    8192
 
-int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, int PacketNum ) {
+
+int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) {
+    int vars = 0;
     int i;
     int ret ;
     int HeaderSize, MessageSize;
@@ -32,27 +33,28 @@ int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, int P
     char * address = 0 ;
     char* param_name;
 
-    //remove warning for unused PacketNum... to be deleted.
-    (void)PacketNum ;
-
     /* start the offset 4 bytes into the message, we'll subtract the sizeof offset at the end */
     offset = sizeof(msg_type) + sizeof(offset) ;
 
-    /* if we are here the msg_type is good, so send a 0, swapped or not 0 is still 0 */
-    msg_type = VS_VAR_LIST ;
+    if (byteswap) {
+        /* Swap message type bytes */
+        msg_type = trick_byteswap_int((int)message_type) ;
+    } else {
+        msg_type = message_type;
+    }
     memcpy(buf1, &msg_type , sizeof(msg_type)) ;
     HeaderSize = sizeof(msg_type);
 
     offset += sizeof(unsigned int) ;
     HeaderSize += sizeof(unsigned int);
 
-    for (i = Start; i < (int)vars.size() ; i++) {
+    for (i = Start; i < (int)given_vars.size() ; i++) {
 
         // data to send was copied to buffer in copy_sim_data
-        address = (char *)vars[i]->buffer_out;
-        size = vars[i]->size ;
+        address = (char *)given_vars[i]->buffer_out;
+        size = given_vars[i]->size ;
 
-        param_name = vars[i]->ref->reference;
+        param_name = given_vars[i]->ref->reference;
         len = strlen(param_name)  ;
         // when var_binary_nonames, do not put the variable names into the message to be sent
         if (binary_data_nonames) {
@@ -66,7 +68,7 @@ int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, int P
             message_publish(MSG_WARNING, "%p Variable Server buffer[%d] too small (need %d) for symbol %s, SKIPPING IT.\n",
                             &connection, MAX_MSG_LEN,
                             (int)(HeaderSize + MessageSize),
-                            vars[i]->ref->reference );
+                            given_vars[i]->ref->reference );
             continue;
         }
 
@@ -81,7 +83,7 @@ int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, int P
                     offset += len ;
                 }
 
-                swap_int = trick_byteswap_int(vars[i]->ref->attr->type) ;
+                swap_int = trick_byteswap_int(given_vars[i]->ref->attr->type) ;
                 memcpy(&buf1[offset] , &swap_int , sizeof(int)) ;
                 offset += sizeof(int) ;
 
@@ -90,7 +92,7 @@ int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, int P
                 offset += sizeof(size) ;
 
                 /* TODO: There is a bug here, this call will want to swap the entire buffer, we may not have the whole buffer */
-                trick_bswap_buffer(&buf1[offset], address, vars[i]->ref->attr, 1);
+                trick_bswap_buffer(&buf1[offset], address, given_vars[i]->ref->attr, 1);
                 offset += size ;
             }
             else {
@@ -105,21 +107,21 @@ int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, int P
                     offset += len ;
                 }
 
-                memcpy(&buf1[offset] , &vars[i]->ref->attr->type , sizeof(int)) ;
+                memcpy(&buf1[offset] , &given_vars[i]->ref->attr->type , sizeof(int)) ;
                 offset += sizeof(int) ;
 
                 memcpy(&buf1[offset] , &size , sizeof(size)) ;
                 offset += sizeof(size) ;
 
-                switch ( vars[i]->ref->attr->type ) {
+                switch ( given_vars[i]->ref->attr->type ) {
                     case TRICK_BITFIELD:
-                        temp_i = GET_BITFIELD(address , vars[i]->ref->attr->size ,
-                          vars[i]->ref->attr->index[0].start, vars[i]->ref->attr->index[0].size) ;
+                        temp_i = GET_BITFIELD(address , given_vars[i]->ref->attr->size ,
+                          given_vars[i]->ref->attr->index[0].start, given_vars[i]->ref->attr->index[0].size) ;
                         memcpy(&buf1[offset] , &temp_i , (size_t)size) ;
                     break ;
                     case TRICK_UNSIGNED_BITFIELD:
-                        temp_ui = GET_UNSIGNED_BITFIELD(address , vars[i]->ref->attr->size ,
-                                vars[i]->ref->attr->index[0].start, vars[i]->ref->attr->index[0].size) ;
+                        temp_ui = GET_UNSIGNED_BITFIELD(address , given_vars[i]->ref->attr->size ,
+                                given_vars[i]->ref->attr->index[0].start, given_vars[i]->ref->attr->index[0].size) ;
                         memcpy(&buf1[offset] , &temp_ui , (size_t)size) ;
                     break ;
                     case TRICK_NUMBER_OF_TYPES:
@@ -176,6 +178,65 @@ int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, int P
     return i;
 }
 
+int Trick::VariableServerThread::write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type ) {
+
+    sprintf(dest_buf, "%d\t", message_type) ;
+
+    for (int i = 0; i < given_vars.size(); i++) {
+        char curr_buf[MAX_MSG_LEN];
+        int ret = vs_format_ascii( given_vars[i] , curr_buf);
+
+        if (ret < 0) {
+            message_publish(MSG_WARNING, "%p Variable Server string buffer[%d] too small for symbol %s, TRUNCATED IT.\n",
+                            &connection, MAX_MSG_LEN, given_vars[i]->ref->reference );
+        }
+
+        /* make sure this message will fit in a packet by itself */
+        if( strlen( curr_buf ) + 2 > MAX_MSG_LEN ) {
+            message_publish(MSG_WARNING, "%p Variable Server buffer[%d] too small for symbol %s, TRUNCATED IT.\n",
+                            &connection, MAX_MSG_LEN, given_vars[i]->ref->reference );
+            curr_buf[MAX_MSG_LEN - 1] = '\0';
+        }
+
+        int len = strlen(dest_buf) ;
+
+        /* make sure there is space for the next tab or next newline and null */
+        if( len + strlen( curr_buf ) + 2 > MAX_MSG_LEN ) {
+            // If there isn't, send incomplete message
+            if (debug >= 2) {
+                message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
+                                &connection, connection.client_tag, (int)strlen(dest_buf), dest_buf) ;
+            }
+
+            ret = tc_write(&connection, (char *) dest_buf, len);
+            if ( ret != len ) {
+                return(-1) ;
+            }
+            dest_buf[0] = '\0';
+        }
+
+        strcat(dest_buf, curr_buf);
+        strcat(dest_buf, "\t");
+    }
+
+    int len = strlen(dest_buf) ;
+
+    if ( len > 0 ) {
+        dest_buf[ strlen(dest_buf) - 1 ] = '\n';
+
+        if (debug >= 2) {
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
+                            &connection, connection.client_tag, (int)strlen(dest_buf), dest_buf) ;
+        }
+        int ret = tc_write(&connection, (char *) dest_buf, (int)strlen(dest_buf));
+        if ( ret != (int)strlen(dest_buf) ) {
+            return(-1) ;
+        }
+    }
+
+    return 0;
+}
+
 int Trick::VariableServerThread::write_data() {
 
     int ret;
@@ -185,7 +246,7 @@ int Trick::VariableServerThread::write_data() {
 
     // do not send anything when there are no variables!
     if ( vars.size() == 0 or packets_copied == 0 ) {
-        return(0);
+        return 0;
     }
 
     /* Acquire sole access to vars[ii]->buffer_in. */
@@ -204,77 +265,60 @@ int Trick::VariableServerThread::write_data() {
         pthread_mutex_unlock(&copy_mutex) ;
 
         if (binary_data) {
-            int Index = 0;
-            int PacketNumber = 0;
+            int index = 0;            
 
             do {
-                ret = write_binary_data( Index, buf1, PacketNumber );
+                ret = write_binary_data( index, buf1, vars, VS_VAR_LIST );
                 if ( ret >= 0 ) {
-                    Index = ret ;
+                    index = ret ;
                 } else {
                     return(-1) ;
                 }
-                PacketNumber++;
-            } while( Index < (int)vars.size() );
+            } while( index < (int)vars.size() );
+
+            return 0;
 
         } else { /* ascii mode */
-            char val[MAX_MSG_LEN];
-
-            sprintf(buf1, "0\t") ;
-
-            for (i = 0; i < vars.size(); i++) {
-
-                ret = vs_format_ascii( vars[i] , val);
-
-                if (ret < 0) {
-                    message_publish(MSG_WARNING, "%p Variable Server string buffer[%d] too small for symbol %s, TRUNCATED IT.\n",
-                                    &connection, MAX_MSG_LEN, vars[i]->ref->reference );
-                }
-
-                /* make sure this message will fit in a packet by itself */
-                if( strlen( val ) + 2 > MAX_MSG_LEN ) {
-                    message_publish(MSG_WARNING, "%p Variable Server buffer[%d] too small for symbol %s, TRUNCATED IT.\n",
-                                    &connection, MAX_MSG_LEN, vars[i]->ref->reference );
-                    val[MAX_MSG_LEN - 1] = '\0';
-                }
-
-                len = strlen(buf1) ;
-
-                /* make sure there is space for the next tab or next newline and null */
-                if( len + strlen( val ) + 2 > MAX_MSG_LEN ) {
-
-                    if (debug >= 2) {
-                        message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
-                                        &connection, connection.client_tag, (int)strlen(buf1), buf1) ;
-                    }
-
-                    ret = tc_write(&connection, (char *) buf1, len);
-                    if ( ret != len ) {
-                        return(-1) ;
-                    }
-                    buf1[0] = '\0';
-                }
-
-                strcat(buf1, val);
-                strcat(buf1, "\t");
-            }
-
-            len = strlen(buf1) ;
-
-            if ( len > 0 ) {
-                buf1[ strlen(buf1) - 1 ] = '\n';
-
-                if (debug >= 2) {
-                    message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
-                                    &connection, connection.client_tag, (int)strlen(buf1), buf1) ;
-                }
-                ret = tc_write(&connection, (char *) buf1, (int)strlen(buf1));
-                if ( ret != (int)strlen(buf1) ) {
-                    return(-1) ;
-                }
-            }
+            return write_ascii_data(buf1, vars, VS_VAR_LIST );
         }
     }
+}
 
-    return (0);
+int Trick::VariableServerThread::write_data(std::vector<VariableReference *> given_vars) { 
+    // do not send anything when there are no variables!
+    if ( given_vars.size() == 0) {
+        return(0);
+    }
+
+    /* Acquire sole access to vars[ii]->buffer_in. */
+    if ( pthread_mutex_trylock(&copy_mutex) == 0 ) {
+        // Swap buffer_in and buffer_out for each vars[ii].
+        for (int i = 0 ; i < given_vars.size() ; i++ ) {
+            void *temp_p              = given_vars[i]->buffer_in;
+            given_vars[i]->buffer_in  = given_vars[i]->buffer_out;
+            given_vars[i]->buffer_out = temp_p;
+        }
+        /* Relinquish sole access to vars[ii]->buffer_in. */
+        pthread_mutex_unlock(&copy_mutex) ;
+
+        char buf1[ MAX_MSG_LEN ];
+
+        if (binary_data) {
+            int index = 0;
+
+            do {
+                int ret = write_binary_data( index, buf1, given_vars, VS_SEND_ONCE );
+                if ( ret >= 0 ) {
+                    index = ret ;
+                } else {
+                    return(-1) ;
+                }
+            } while( index < (int)given_vars.size() );
+
+            return 0;
+
+        } else { /* ascii mode */
+            return write_ascii_data(buf1, given_vars, VS_SEND_ONCE);
+        }
+    }
 }

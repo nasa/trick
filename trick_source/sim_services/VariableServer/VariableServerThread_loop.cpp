@@ -179,8 +179,9 @@ void * Trick::VariableServerThread::thread_body() {
     } catch (...) {
 #ifdef __linux
 #ifdef __GNUC__
-#if __GNUC__ == 4 && __GNUC_MINOR__ == 1
-        //for gcc 4.1.2 or whatever glib version in RHEL 5 that does not work with the abi::__forced_unwind
+#if (__GNUC__ == 4 && __GNUC_MINOR__ == 1) || __GNUC__ == 12
+        // for gcc 4.1.2 or whatever glib version in RHEL 5 that does not work with the abi::__forced_unwind
+        // Also seems to have a problem with gcc 12
         throw;
 #else
         message_publish(MSG_ERROR, "\nVARIABLE SERVER caught unknown exception\n" ) ;

@@ -579,7 +579,6 @@ int Trick::DataRecordGroup::data_record(double in_time) {
     bool change_detected = false ;
 
     //TODO: does not handle bitfields correctly!
-
     if ( record == true ) {
         if ( freq != DR_Always ) {
             for (jj = 0; jj < change_buffer.size() ; jj++) {
@@ -691,6 +690,7 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
         // buffer_mutex is used in this one place to prevent forced calls of write_data
         // to not overwrite data being written by the asynchronous thread.
         pthread_mutex_lock(&buffer_mutex) ;
+
         local_buffer_num = buffer_num ;
         if ( (local_buffer_num - writer_num) > max_num ) {
             num_to_write = max_num ;

@@ -23,11 +23,10 @@ class testSimObject : public Trick::SimObject {
 			("default_data") vst.default_vars();
 			("initialization") vst.init();
 			("initialization") vst.testAddRemove();
+			("initialization") vst.testUnits();
 			("initialization") vst.testExists();
 			("initialization") vst.testPause();
-			("initialization") vst.testOther();	
-			//(1.0, "scheduled") trick_ret = vst.testing();
-
+			("initialization") vst.testSendOnce();	
 			("shutdown") vst.shutdown();
 		}
 };
