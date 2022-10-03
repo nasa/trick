@@ -70,3 +70,64 @@
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.1 Truncated by Prescribed Range](#Truncated by Prescribed Range)
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.2 Truncated by Difference from Mean](#Truncated by Difference from Mean)
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.3 Truncated by Standard Deviations from Mean](#Truncated by Standard Deviations from Mean)
+
+## Revision History
+| Version | Date | Author | Purpose |
+| :--- |:---| :--- | :--- |
+| 1 | April 2020 | Gary Turner | Initial Version |
+| 2 | March 2021 | Gary Turner | Added Verification |
+| 3 | October 2022 | Isaac Reaves | Converted to Markdown |
+
+## 1 Introduction
+The MonteCarlo Model is used to disperse the values assigned to variables at the start of a simulation. Dispersing the initial
+conditions and configurations for the simulation allows for robust testing and statistical analysis of the probability of
+undesirable outcomes, and measuring the confidence levels associated with achieving desirable outcomes.
+
+Conventionally, most of the time we think about dispersing variables, we think about apply some sort of statistical
+distribution to the value. Most often, that is a normal or uniform distribution, but there may be situations in which other
+distributions are desired. In particular, this model provides an extensible framework allowing for any type of distribution to
+be applied to any variable.
+
+For extensive analysis of safety-critical scenarios, where it is necessary to demonstrate high probability of success with high
+confidence, traditional MonteCarlo analyses require often many thousands of runs. For long duration simulations, it may
+not be feasible to run the number of simulations necessary to reach the high confidence of high success probability that is
+necessary to meet requirements. Typically, failure cases occur out near the edges of state-space, but most of the runs will be
+“right down the middle”; using conventional MonteCarlo techniques, most of these runs are completely unnecessary. With
+a Sequential-MonteCarlo configuration, a small number of runs can be executed, allowing for identification of problem
+areas, and a focussing of the distribution on those areas of state-space, thereby reducing the overall number of runs while
+adding complexity to the setup. While this model does not (at this time) provide a Sequential-MonteCarlo capability, the
+organization of the model has been designed to support external tools seeking to sequentially modify the distributions being
+applied to the dispersed variables, and generate new dispersion sets.
+
+## 2 Requirements
+1. The model shall provide common statistical distribution capabilities, including:
+
+⋅⋅⋅(a). Uniform distribution between specified values 
+⋅⋅⋅i. as a floating-point value 
+⋅⋅⋅ii. as an integer value 
+⋅⋅⋅(b) Normal distribution, specified by mean and standard deviation 
+⋅⋅⋅(c) Truncated Normal Distribution, including 
+ ⋅⋅⋅i. symmetric and asymmetric truncations 
+ ⋅⋅⋅ii. it shall be possible to specify truncations by: 
+ ⋅⋅⋅A. some number of standard deviations from the mean, 
+ ⋅⋅⋅B. a numerical difference from the mean, and 
+ ⋅⋅⋅C. an upper and lower limit 
+
+ 2. The model shall provide an extensible framework suitable for supporting other statistical distributions
+ 3. The model shall provide the ability to assign a common value to all runs:
+(a) This value could be a fixed, user-defined value
+(b) This value could be a random assignment, generated once and then applied to all runs
+ 4. The model shall provide the capability to read values from a pre-generated file instead of generating its own values
+ 5. The model shall provide the ability to randomly select from a discrete data set, including:
+(a) enumerations,
+(b) character-strings,
+(c) boolean values, and
+(d) numerical values
+ 6. The model shall provide the capability to compute follow-on variables, the values of which are a function of one or
+more dispersed variables with values generated using any of the methods in requirements 1-5.
+ 7. The model shall provide a record of the generated distributions, allowing for repeated execution of the same
+scenario using exactly the same conditions.
+ 8. The model shall provide summary data of the dispersions which have been applied, including:
+(a) number of dispersions
+(b) types of dispersions
+(c) correlations between variables
