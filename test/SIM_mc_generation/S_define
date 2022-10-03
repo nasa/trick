@@ -6,7 +6,7 @@ PROGRAMMERS:
     )
 *****************************************************************************/
 #include "sim_objects/default_trick_sys.sm"
-#include "sim_objects/MonteCarloGenerate.sm"
+#include "../../share/trick/sim_objects/MonteCarloGenerate.sm"
 
 /*****************************************************************************
 MC_Test sim object
