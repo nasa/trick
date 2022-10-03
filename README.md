@@ -102,16 +102,16 @@ applied to the dispersed variables, and generate new dispersion sets.
 ## 2 Requirements
 1. The model shall provide common statistical distribution capabilities, including:
 
-⋅⋅⋅(a). Uniform distribution between specified values 
-⋅⋅⋅i. as a floating-point value 
-⋅⋅⋅ii. as an integer value 
-⋅⋅⋅(b) Normal distribution, specified by mean and standard deviation 
-⋅⋅⋅(c) Truncated Normal Distribution, including 
- ⋅⋅⋅i. symmetric and asymmetric truncations 
- ⋅⋅⋅ii. it shall be possible to specify truncations by: 
- ⋅⋅⋅A. some number of standard deviations from the mean, 
- ⋅⋅⋅B. a numerical difference from the mean, and 
- ⋅⋅⋅C. an upper and lower limit 
+   (a). Uniform distribution between specified values  
+      i. as a floating-point value  
+      ii. as an integer value  
+   (b) Normal distribution, specified by mean and standard deviation  
+   (c) Truncated Normal Distribution, including  
+      i. symmetric and asymmetric truncations  
+      ii. it shall be possible to specify truncations by:  
+         A. some number of standard deviations from the mean,  
+         B. a numerical difference from the mean, and  
+         C. an upper and lower limit  
 
  2. The model shall provide an extensible framework suitable for supporting other statistical distributions
  3. The model shall provide the ability to assign a common value to all runs:
