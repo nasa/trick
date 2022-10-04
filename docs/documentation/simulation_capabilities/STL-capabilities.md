@@ -3,11 +3,31 @@
 
 # Standard Template Libraries (STL) in Trick
 
-STLs may be used in models. However, STL variables (currently) are not data recordable, visible in the variable server, nor directly accessible in the input file. Some STLs can be checkpointed: array, vector, list, deque, set, multiset map, multimap, stack, queue, priority_queue, pair.
+STLs may be used in models. However, STL variables (currently) are not data recordable, visible in the variable server, nor directly accessible in the input file. Some STLs can be checkpointed: array, vector, list, deque, set, multiset, map, multimap, stack, queue, priority_queue, pair.
 
 STL classes cannot be directly registered with the memory manager, but they can be processed by the checkpoint agent when nested inside normal C++ classes (including sim objects). 
 
-STL checkpoint restore may slow down the default data jobs of some sims. To disable STL checkpoint restore
+STL checkpoint restore may slow down the default data jobs of some sims. STL restore is on by default. To turn off STL restore:
+
+If using memory manager through the C interface:
+```
+int TMM_set_stl_restore (int on_off);
+```
+
+If using the memory manager through the C++ interface, set the default or pass a parameter to your read_checkpoint function of choice:
+```
+int set_restore_stls_default (bool on);
+int read_checkpoint( std::istream* in_s, bool do_restore_stls = restore_stls_default);
+int read_checkpoint_from_string( const char* s, bool do_restore_stls = restore_stls_default );
+int init_from_checkpoint( std::istream* in_s, bool do_restore_stls = restore_stls_default);
+```
+
+If using the checkpoint restart C interface:
+```
+int load_checkpoint_stls( const char * file_name, int with_stls ) ;
+```
+
+
 
 ## What works:
 

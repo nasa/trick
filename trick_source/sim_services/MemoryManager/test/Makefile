@@ -14,7 +14,7 @@ TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 #TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
 
 # Flags passed to the preprocessor.
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra ${COVERAGE_FLAGS} -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
+TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare ${COVERAGE_FLAGS} -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
 TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 
@@ -38,7 +38,8 @@ TESTS = MM_creation_unittest \
 	MM_get_enumerated\
 	MM_ref_name_from_address \
 		Bitfield_tests \
-		MM_stl_checkpoint
+		MM_stl_checkpoint \
+		MM_stl_restore
 
 #OTHER_OBJECTS = ../../include/object_${TRICK_HOST_CPU}/io_JobData.o \
 #                ../../include/object_${TRICK_HOST_CPU}/io_SimObject.o
@@ -67,6 +68,8 @@ test: $(TESTS)
 	./MM_ref_name_from_address --gtest_output=xml:${TRICK_HOME}/trick_test/MM_ref_name_from_address.xml
 	./Bitfield_tests --gtest_output=xml:${TRICK_HOME}/trick_test/Bitfield_tests.xml
 	./MM_stl_checkpoint --gtest_output=xml:${TRICK_HOME}/trick_test/MM_stl_checkpoint.xml
+	./MM_stl_restore --gtest_output=xml:${TRICK_HOME}/trick_test/MM_stl_restore.xml
+
 
 code-coverage: test
 	# Give rid of any old code-coverage HTML we may have.
@@ -172,7 +175,7 @@ MM_write_checkpoint_hexfloat.o : MM_write_checkpoint_hexfloat.cc
 Bitfield_tests.o : Bitfield_tests.cpp
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
-MM_stl_restore.o : MM_stl_restore.cc
+MM_stl_restore.o : MM_stl_restore.cc MM_stl_testbed.hh MM_test.hh
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
 MM_stl_checkpoint.o : MM_stl_checkpoint.cc MM_stl_testbed.hh MM_test.hh
