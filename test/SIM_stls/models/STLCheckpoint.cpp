@@ -11,6 +11,18 @@ STLCheckpoint::STLCheckpoint() {
     return ;
 }
 
+template <typename T>
+void compare_data_structures_with_top(T a, T b, std::string test_name) {
+    const char *test_suite = "STLCheckpoint";
+
+    TRICK_EXPECT_EQ(a.size(), b.size(), test_suite, test_name.c_str());
+    while (!a.empty()) {
+        TRICK_EXPECT_EQ(a.top(), b.top(), test_suite, test_name.c_str());
+        a.pop();
+        b.pop();
+    }
+}
+
 int STLCheckpoint::addData() {
     dataJobRun = true;
     vector_vector_double = std::vector< std::vector< double > >(4, std::vector<double>(3));
@@ -170,8 +182,10 @@ int STLCheckpoint::addData() {
     string_stack.push("with the bigger") ;
     string_stack.push("Gee Bees") ;
 
-    stack_vector_int.push(v) ;
-    stack_vector_int.push(v) ;
+    std::vector<int> temp_v1 = {1, 2, 3, 4};
+    std::vector<int> temp_v2 = {5, 6, 7, 8};
+    stack_vector_int.push(temp_v1) ;
+    stack_vector_int.push(temp_v2) ;
 
     int_queue.push(1) ;
     int_queue.push(2) ;
@@ -193,11 +207,11 @@ int STLCheckpoint::addData() {
     string_priority_queue.push("an") ;
     string_priority_queue.push("iPhone 4") ;
 
-    queue_vector_int.push(v) ;
-    queue_vector_int.push(v) ;
+    queue_vector_int.push(temp_v1) ;
+    queue_vector_int.push(temp_v2) ;
 
-    priority_queue_vector_int.push(v) ;
-    priority_queue_vector_int.push(v) ;
+    priority_queue_vector_int.push(temp_v1) ;
+    priority_queue_vector_int.push(temp_v2) ;
 
     int_pair.first = 10 ;
     int_pair.second = 20 ;
@@ -387,9 +401,6 @@ int STLCheckpoint::test() {
     TRICK_EXPECT_EQ( vector_vector_vector_double[4][2][1], 4007, test_suite, "vector_vector_vector_double[4][2][1]");
     TRICK_EXPECT_EQ( vector_vector_vector_double[4][2][2], 4008, test_suite, "vector_vector_vector_double[4][2][2]");
     TRICK_EXPECT_EQ( string_vector[0], std::string("It"), test_suite, "string_vector");
-    std::cout << string_vector[0] << std::endl;
-
-    std::cout << "In the middle of test jobs" << std::endl;
 
     TRICK_EXPECT_EQ( double_map[44.4], 444.4, test_suite, "double_map[44.4]" );
 
@@ -491,13 +502,147 @@ int STLCheckpoint::test() {
     for (int i = 0; i < vec_user_defined_ptr.size(); i++) {
         TRICK_EXPECT_EQ(vec_user_defined_ptr[i]->vec.size(), 10, test_suite, "vec_user_defined_ptr");
         TRICK_EXPECT_EQ(vec_user_defined_ptr[i]->a, 888, test_suite, "vec_user_defined_ptr");
+        std::vector<int> test_vec;
         for (int j = i; j < i+vec_user_defined_ptr[i]->vec.size(); j++) {
-            TRICK_EXPECT_EQ(vec_user_defined_ptr[i]->vec[j-i], j, test_suite, "vec_user_defined_ptr");
+            test_vec.push_back(j);
         }
+        TRICK_EXPECT_EQ(vec_user_defined_ptr[i]->vec, test_vec, test_suite, "vec_user_defined_ptr");
     }
 
 
-    // TODO: fix this case
+    std::vector<std::string> string_vector_copy = {"It", "has", "the", "Wi-Fies"};
+    TRICK_EXPECT_EQ(string_vector, string_vector_copy, test_suite, "string_vector");
+
+    std::list<short> short_list_copy = {400, 401, 402};
+    int list_index = 0;
+    TRICK_EXPECT_EQ(short_list, short_list_copy, test_suite, "short_list");
+
+    std::list<std::string> string_list_copy = {"I", "don't", "care"};
+    TRICK_EXPECT_EQ(string_list, string_list_copy, test_suite, "string_list");
+
+    std::deque<float> float_deque_copy = {98.7, 65.4, 32.1};
+    TRICK_EXPECT_EQ(float_deque, float_deque_copy, test_suite, "float_deque");
+
+    std::deque<std::string> string_deque_copy = {"Welcome", "to", "PhoneMart"};
+    TRICK_EXPECT_EQ(string_deque, string_deque_copy, test_suite, "string_deque");
+
+    std::set<int> int_set_copy = {8000, 4000, 2000, 1000};
+    TRICK_EXPECT_EQ(int_set, int_set_copy, test_suite, "int_set");
+
+    std::set<std::string> string_set_copy = {"efg", "abc", "def"};
+    TRICK_EXPECT_EQ(string_set, string_set_copy, test_suite, "string_set");
+
+    std::queue<std::vector<int>> vector_queue_copy;
+    for (int j = 0; j < 5; j++) {
+        std::vector<int> temp;
+        for (int i = j; i < 10; i++) {
+            temp.push_back(i);
+        }
+        vector_queue_copy.push(temp);
+    }
+    TRICK_EXPECT_EQ(vector_queue, vector_queue_copy, test_suite, "vector_queue");
+
+    std::multiset<long> long_multiset_copy = {8000, 4000, 4000, 2000, 1000};
+    TRICK_EXPECT_EQ(long_multiset, long_multiset_copy, test_suite, "long_multiset");
+
+    std::multiset<std::string> string_multiset_copy = {"efg", "abc", "def", "efg", "abc", "def"};
+    TRICK_EXPECT_EQ(string_multiset, string_multiset_copy, test_suite, "string_multiset");
+
+    std::stack<unsigned int> uint_stack_copy;
+    uint_stack_copy.push(1) ;
+    uint_stack_copy.push(2) ;
+    uint_stack_copy.push(3) ;
+    uint_stack_copy.push(4) ;
+    TRICK_EXPECT_EQ(uint_stack, uint_stack_copy, test_suite, "uint_stack");
+
+    std::stack<std::string> string_stack_copy;
+    string_stack_copy.push("I") ;
+    string_stack_copy.push("want the one") ;
+    string_stack_copy.push("with the bigger") ;
+    string_stack_copy.push("Gee Bees") ;
+    TRICK_EXPECT_EQ(string_stack, string_stack_copy, test_suite, "string_stack");
+
+    std::stack<std::vector<int>> stack_vector_int_copy;
+    std::vector<int> temp_v1 = {1, 2, 3, 4};
+    std::vector<int> temp_v2 = {5, 6, 7, 8};
+    stack_vector_int_copy.emplace(temp_v1) ;
+    stack_vector_int_copy.emplace(temp_v2) ;
+    TRICK_EXPECT_EQ(stack_vector_int, stack_vector_int_copy, test_suite, "stack_vector_int");
+
+    std::queue<int> int_queue_copy;
+    int_queue_copy.push(1) ;
+    int_queue_copy.push(2) ;
+    int_queue_copy.push(3) ;
+    int_queue_copy.push(4) ;
+    TRICK_EXPECT_EQ(int_queue, int_queue_copy, test_suite, "int_queue");
+
+    std::queue<std::string> string_queue_copy;
+    string_queue_copy.push("I") ;
+    string_queue_copy.push("want") ;
+    string_queue_copy.push("an") ;
+    string_queue_copy.push("iPhone 4") ;
+    TRICK_EXPECT_EQ(string_queue, string_queue_copy, test_suite, "string_queue");
+
+    // Why doesn't priority_queue have the == operator but literally everything else does >:(
+    std::priority_queue<int> int_priority_queue_copy;
+    int_priority_queue_copy.push(3) ;
+    int_priority_queue_copy.push(2) ;
+    int_priority_queue_copy.push(4) ;
+    int_priority_queue_copy.push(1) ;
+    compare_data_structures_with_top(int_priority_queue_copy, int_priority_queue, "int_priority_queue");
+
+    std::priority_queue<std::string> string_priority_queue_copy;
+    string_priority_queue_copy.push("I") ;
+    string_priority_queue_copy.push("want") ;
+    string_priority_queue_copy.push("an") ;
+    string_priority_queue_copy.push("iPhone 4") ;
+    compare_data_structures_with_top(string_priority_queue_copy, string_priority_queue, "string_priority_queue");
+
+    std::queue<std::vector<int>> queue_vector_int_copy;
+    queue_vector_int_copy.emplace(temp_v1) ;
+    queue_vector_int_copy.emplace(temp_v2) ;
+    TRICK_EXPECT_EQ(queue_vector_int, queue_vector_int_copy, test_suite, "queue_vector_int");
+
+    std::priority_queue<std::vector<int>> priority_queue_vector_int_copy;
+    priority_queue_vector_int_copy.emplace(temp_v1) ;
+    priority_queue_vector_int_copy.emplace(temp_v2) ;
+    compare_data_structures_with_top(priority_queue_vector_int_copy, priority_queue_vector_int, "priority_queue_vector_int");
+
+    std::pair<int,int> int_pair_copy(10,20);
+    TRICK_EXPECT_EQ(int_pair, int_pair_copy, test_suite, "int_pair");
+
+    std::pair< std::string , int > string_first_pair_copy ("string first", 25);
+    TRICK_EXPECT_EQ(string_first_pair, string_first_pair_copy, test_suite, "string_first_pair");
+
+    std::pair< int , std::string > string_second_pair_copy (25, "string second");
+    TRICK_EXPECT_EQ(string_second_pair_copy, string_second_pair, test_suite, "string_second_pair");
+
+    std::pair< std::string , std::string > string_pair_copy ("pair first string", "pair second string");
+    TRICK_EXPECT_EQ(string_pair_copy, string_pair, test_suite, "string_pair");
+
+
+    std::pair< int , std::pair< int, int > > int_pair_int_int_copy;
+    int_pair_int_int_copy.first = 200 ;
+    p.first = 10 ;
+    p.second = 20 ;
+    int_pair_int_int_copy.second = p ;
+    TRICK_EXPECT_EQ(int_pair_int_int_copy, int_pair_int_int, test_suite, "int_pair_int_int");
+
+    std::pair< std::pair< int, int > , int > pair_int_int_int_copy;
+    p.first = 15 ;
+    p.second = 12 ;
+    pair_int_int_int_copy.first = p ;
+    pair_int_int_int_copy.second = 180 ;
+    TRICK_EXPECT_EQ(pair_int_int_int_copy, pair_int_int_int, test_suite, "pair_int_int_int");
+
+    std::pair< std::pair< int, int > , std::pair< int, int > > pair_pair_pair_copy ;
+    pair_pair_pair_copy.first.first = 51 ;
+    pair_pair_pair_copy.first.second = 52 ;
+    pair_pair_pair_copy.second.first = 53 ;
+    pair_pair_pair_copy.second.second = 54 ;
+    TRICK_EXPECT_EQ(pair_pair_pair_copy, pair_pair_pair, test_suite, "pair_pair_pair");
+
+ // TODO: fix this case
     // Check all the int/vec combo pairs together, for laziness
     // TRICK_EXPECT_EQ(int_vec_pair.first, 5, test_suite, "int_vec_pair.first");
     // TRICK_EXPECT_EQ(vec_int_pair.second, 5, test_suite, "vec_int_pair.second");
@@ -516,7 +661,4 @@ int STLCheckpoint::test() {
     // }
 
     
-
-
-
 }
