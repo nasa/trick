@@ -22,7 +22,7 @@ public:
     // In addition, if the template argument is another STL container, a separate implementation is enabled to 
     // support recursion. (intrinsic:i vs stl:s in var names here)
     // Therefore, each of the 11 supported types presents 3 * 2^(num template args) implementations to test,
-    // plus strings and pairs are sometimes handled strangely so those should probably be included here too *cries*
+    // plus strings and pairs are sometimes handled strangely so those should probably be included here too
 
     std::vector<int> i_vec;
     std::vector<std::vector<int>> i_s_vec;

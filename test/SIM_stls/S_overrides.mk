@@ -4,8 +4,6 @@ TRICK_CXXFLAGS += -I./models
 
 TRICK_CXXFLAGS += -std=c++11
 
-
-# /Users/jndeans/trick/trick_test/SIM_stls.xml: setup
 test: setup
 
 setup: T_main_${TRICK_HOST_CPU}.exe 
@@ -15,4 +13,4 @@ setup: T_main_${TRICK_HOST_CPU}.exe
 clean: checkpoint_clean
 
 checkpoint_clean:
-	rm -f RUN_test/chkpnt_in1234
+	rm -f RUN_test/chkpnt_in

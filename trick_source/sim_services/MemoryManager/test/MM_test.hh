@@ -98,8 +98,6 @@ void validate_alloc_info(Trick::MemoryManager *memmgr,
 
 
 
-// This is maybe unnecessary, I'm just trying to learn templates
-
 // This one is for anything integral
 // char, short, int, long, long long
 template <typename T, typename std::enable_if<!std::is_floating_point<T>::value>::type* = nullptr>
