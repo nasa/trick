@@ -26,6 +26,7 @@ public:
 
     std::vector<int> i_vec;
     std::vector<std::vector<int>> i_s_vec;
+    std::vector<std::pair<int,int>> s_vec;
     std::vector<std::string> string_vec;
 
     std::pair<double,float> i_i_pair;
@@ -51,19 +52,17 @@ public:
     std::set<char> i_set;
     // These fail in CP right now
     // std::set   <std::pair<int,int>> s_set;
-    std::vector<std::pair<int,int>> s_vec;
-
     // std::set<std::map<int,int>> nested_map_set;
 
-    // this one will as well
-    std::multiset<int> int_multiset;
+    // this one will as well, if we put any STL containers in there
+    std::multiset<int> i_multiset;
 
     std::array<char, 10> i_array;
     std::array<std::pair<int,int>, 10> pair_array;
     std::array<std::string, 10> string_array;
     std::array<std::vector<int>, 10> vec_array;
 
-    
+    // This does not currently work in the unit tests
     std::vector<SimpleWrapper> vec_user_defined;
 
     std::array<std::map<std::pair<int, int>,std::vector<std::stack<std::string>>>, 5> recursive_nightmare;

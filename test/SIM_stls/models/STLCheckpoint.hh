@@ -18,6 +18,13 @@
 #include <queue>
 #include <utility>
 
+
+class SimpleWrapper {
+    public:
+        int a;
+        std::vector<int> vec;
+};
+
 class STLCheckpoint {
 
     public:
@@ -95,6 +102,10 @@ class STLCheckpoint {
         std::vector< std::vector< double > > vector_vector_double ;
         std::vector< std::vector< std::vector< double > > > vector_vector_vector_double ;
         //std::vector< std::list< double >  > vector_list_double ;
+
+        std::vector<SimpleWrapper> vec_user_defined;
+        std::vector<SimpleWrapper *> vec_user_defined_ptr;
+
 
 } ;
 

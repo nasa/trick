@@ -58,6 +58,15 @@ int STLCheckpoint::addData() {
     v.push_back(60) ;
     common_multiples.insert(std::pair< std::pair< int, int >, std::vector< int > >(p,v)) ;
 
+    p.first = 3 ;
+    p.second = 7 ;
+    v.clear() ;
+    v.push_back(21) ;
+    v.push_back(42) ;
+    v.push_back(84) ;
+    v.push_back(168) ;
+    common_multiples.insert(std::pair< std::pair< int, int >, std::vector< int > >(p,v)) ;
+
     string_map[std::string("sister")] = std::string("Lisa") ;
     string_map[std::string("dog")] = std::string("Santa's Little Helper") ;
 
@@ -316,6 +325,25 @@ int STLCheckpoint::addData() {
     vector_vector_vector_double[4][3][1] = 4010 ;
     vector_vector_vector_double[4][3][2] = 4011 ;
 
+
+    for (int i = 0; i < 10; i++) {
+        SimpleWrapper temp_wrapper;
+        temp_wrapper.a = 888;
+        for (int j = i; j < i+10; j++) {
+            temp_wrapper.vec.push_back(j);
+        }
+        vec_user_defined.emplace_back(temp_wrapper);
+    }
+
+    for (int i = 0; i < 10; i++) {
+        SimpleWrapper * temp_wrapper = (SimpleWrapper *) TMM_declare_var_s("SimpleWrapper");
+        temp_wrapper->a = 888;
+        for (int j = i; j < i+10; j++) {
+            temp_wrapper->vec.push_back(j);
+        }
+        vec_user_defined_ptr.push_back(temp_wrapper);
+    }
+
     return 0;
 }
 
@@ -396,11 +424,21 @@ int STLCheckpoint::test() {
     v.push_back(60) ;
     TRICK_EXPECT_EQ( common_multiples[p], v, test_suite, "common_multiples" );
 
+    p.first = 3 ;
+    p.second = 7 ;
+    v.clear() ;
+    v.push_back(21) ;
+    v.push_back(42) ;
+    v.push_back(84) ;
+    v.push_back(168) ;
+    TRICK_EXPECT_EQ( common_multiples[p], v, test_suite, "common_multiples" );
+
+
     TRICK_EXPECT_EQ( string_map["sister"], "Lisa", test_suite, "string_map[\"sister\"]" );
     TRICK_EXPECT_EQ( string_map["dog"], "Santa's Little Helper", test_suite, "string_map[\"dog\"]" );
 
     
-    // I think the easiest way to test the multimaps is to just rebuild copies and compare
+    // The easiest way to test the multimaps is to just rebuild copies and compare
     std::multimap<int, int> int_multimap_copy;
     int_multimap_copy.insert(std::pair<int, int>(44,444)) ;
     int_multimap_copy.insert(std::pair<int, int>(55,555)) ;
@@ -438,9 +476,28 @@ int STLCheckpoint::test() {
     string_multimap_copy.insert(std::pair<std::string, std::string>("dog","Brian")) ;
     TRICK_EXPECT_EQ(string_multimap, string_multimap_copy , test_suite, "string_multimap");
 
-    // TODO: check everything i guess
+
+    // TODO: fix this case
+    // TRICK_EXPECT_EQ(vec_user_defined.size(), 10, test_suite, "vec_user_defined");
+    // for (int i = 0; i < vec_user_defined.size(); i++) {
+    //     TRICK_EXPECT_EQ(vec_user_defined[i].vec.size(), 10, test_suite, "vec_user_defined");
+    //     TRICK_EXPECT_EQ(vec_user_defined[i].a, 888, test_suite, "vec_user_defined");
+    //     for (int j = i; j < i+vec_user_defined[i].vec.size(); j++) {
+    //         TRICK_EXPECT_EQ(vec_user_defined[i].vec[j-i], j, test_suite, "vec_user_defined");
+    //     }
+    // }
+
+    TRICK_EXPECT_EQ(vec_user_defined_ptr.size(), 10, test_suite, "vec_user_defined_ptr");
+    for (int i = 0; i < vec_user_defined_ptr.size(); i++) {
+        TRICK_EXPECT_EQ(vec_user_defined_ptr[i]->vec.size(), 10, test_suite, "vec_user_defined_ptr");
+        TRICK_EXPECT_EQ(vec_user_defined_ptr[i]->a, 888, test_suite, "vec_user_defined_ptr");
+        for (int j = i; j < i+vec_user_defined_ptr[i]->vec.size(); j++) {
+            TRICK_EXPECT_EQ(vec_user_defined_ptr[i]->vec[j-i], j, test_suite, "vec_user_defined_ptr");
+        }
+    }
 
 
+    // TODO: fix this case
     // Check all the int/vec combo pairs together, for laziness
     // TRICK_EXPECT_EQ(int_vec_pair.first, 5, test_suite, "int_vec_pair.first");
     // TRICK_EXPECT_EQ(vec_int_pair.second, 5, test_suite, "vec_int_pair.second");
