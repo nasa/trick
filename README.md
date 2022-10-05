@@ -228,3 +228,28 @@ be executed.
 No mathematical formulation. The random number generators use the C++ <random> library.
 
 ### 4 User's Guide
+
+### 4.1 What to expect
+
+This role played by this model can be easily misunderstood, so let’s start there.
+This model generates Python files containing assignments to variables.
+
+That’s it!! It does not manage MonteCarlo runs. It does not execute any simulations. When it runs, it creates the requested
+number of Python files and exits.
+
+This design is deliberate; we want the model to generate the instruction sets that will allow execution of a set of dispersed
+configurations. At that point, the simulation should cease, returning control to the user to distribute the execution of those
+configurations according to whatever distribution mechanism they desire. This could be:
+
+* something really simple, like a wild-card, <executive> MONTE_RUN_test/RUN*/monte_input.py
+* a batch-script,
+* a set of batch-scripts launching subsets onto different machines,
+* a load-management service, like SLURM
+* any other mechanism tailored to the user’s currently available computing resources
+
+The intention is that the model runs very early in the simulation sequence. If the model is inactive (as when running a
+regular, non-MonteCarlo run), it will take no action. But when this model is activated, the user should expect the simulation
+to terminate before it starts on any propagation.
+
+When a simulation executes with this model active, the only result of the simulation will be the generation of files
+containing the assignments to the dispersed variables. The simulation should be expected to terminate at t=0.
