@@ -35,6 +35,7 @@ public:
     std::pair<std::vector<int>,std::stack<float>> s_s_pair;
     std::pair<double,std::vector<bool>> i_v_pair;
     std::pair<std::pair<int,int>, int> pair_pair;
+    std::pair< int , std::pair< int, int > > int_pair_pair;
 
     std::map<int, double> i_i_map;
     std::map<int, std::stack<std::string>> i_s_map;
@@ -50,12 +51,15 @@ public:
     std::stack<std::list<float>> nested_list_stack;
 
     std::set<char> i_set;
-    // These fail in CP right now
-    // std::set   <std::pair<int,int>> s_set;
-    // std::set<std::map<int,int>> nested_map_set;
+    std::set<std::vector<int>> vector_set;
+    std::set   <std::pair<int,int>> s_set;
+    std::set<std::map<short,double>> nested_map_set;
 
     // this one will as well, if we put any STL containers in there
     std::multiset<int> i_multiset;
+    std::multiset<std::vector<int>> vector_multiset;
+    std::multiset   <std::pair<int,int>> s_multiset;
+    std::multiset<std::map<short,double>> nested_map_multiset;
 
     std::array<char, 10> i_array;
     std::array<std::pair<int,int>, 10> pair_array;

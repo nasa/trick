@@ -64,13 +64,19 @@ class STLCheckpoint {
 
         std::set< int > int_set ;
         std::set< std::string > string_set ;
-        // std::set< std::vector<int> > vector_set;
+        std::set< std::vector<int> > vector_set;
+        std::set< std::pair<std::string, int> > pair_set;    
+        std::set<std::map<short,double>> nested_map_set;
+
 
         std::queue< std::vector<int> > vector_queue;
 
 
         std::multiset< long > long_multiset ;
         std::multiset< std::string > string_multiset ;
+        std::multiset< std::pair< int,int > > pair_multiset ;
+        std::multiset< std::vector< int > > vec_multiset ;
+
 
         std::stack< unsigned int > uint_stack ;
         std::stack< std::string > string_stack ;
