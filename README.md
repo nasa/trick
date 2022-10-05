@@ -66,7 +66,7 @@
 #### &nbsp; &nbsp; [5.3 Distribution Analyses](#Distribution Analyses)
 ##### &nbsp; &nbsp; &nbsp; &nbsp; [5.3.1 Uniform Distribution](#Uniform Distribution)
 ##### &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2 Normal Distribution](#Normal Distribution)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [Any normal distribution may be truncated. As we saw in section 5.1.3, a normal distribution can be truncated according to one of 3 methods for specifying the range:](#truncation)
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.0 Any normal distribution may be truncated. As we saw in section 5.1.3, a normal distribution can be truncated according to one of 3 methods for specifying the range:](#truncation)
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.1 Truncated by Prescribed Range](#Truncated by Prescribed Range)
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.2 Truncated by Difference from Mean](#Truncated by Difference from Mean)
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.3 Truncated by Standard Deviations from Mean](#Truncated by Standard Deviations from Mean)
@@ -100,34 +100,40 @@ organization of the model has been designed to support external tools seeking to
 applied to the dispersed variables, and generate new dispersion sets.
 
 ## 2 Requirements
-1. The model shall provide common statistical distribution capabilities, including:
+### 1. The model shall provide common statistical distribution capabilities, including:
+#### &nbsp; &nbsp; (a). Uniform distribution between specified values  
+##### &nbsp; &nbsp; &nbsp; &nbsp; i. as a floating-point value  
+##### &nbsp; &nbsp; &nbsp; &nbsp; ii. as an integer value  
+#### &nbsp; &nbsp; (b) Normal distribution, specified by mean and standard deviation  
+#### &nbsp; &nbsp; (c) Truncated Normal Distribution, including  
+##### &nbsp; &nbsp; &nbsp; &nbsp; i. symmetric and asymmetric truncations  
+##### &nbsp; &nbsp; &nbsp; &nbsp; ii. it shall be possible to specify truncations by:  
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; A. some number of standard deviations from the mean,  
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; B. a numerical difference from the mean, and  
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; C. an upper and lower limit  
+### 2. The model shall provide an extensible framework suitable for supporting other statistical distributions
+### 3. The model shall provide the ability to assign a common value to all runs:
+#### &nbsp; &nbsp; (a) This value could be a fixed, user-defined value
+#### &nbsp; &nbsp; (b) This value could be a random assignment, generated once and then applied to all runs
+### 4. The model shall provide the capability to read values from a pre-generated file instead of generating its own values
+### 5. The model shall provide the ability to randomly select from a discrete data set, including:
+#### &nbsp; &nbsp; (a) enumerations,
+#### &nbsp; &nbsp; (b) character-strings,
+#### &nbsp; &nbsp; (c) boolean values, and
+#### &nbsp; &nbsp; (d) numerical values
+### 6. The model shall provide the capability to compute follow-on variables, the values of which are a function of one or more dispersed variables with values generated using any of the methods in requirements 1-5.
+### 7. The model shall provide a record of the generated distributions, allowing for repeated execution of the same scenario using exactly the same conditions.
+### 8. The model shall provide summary data of the dispersions which have been applied, including:
+#### &nbsp; &nbsp; (a) number of dispersions
+#### &nbsp; &nbsp; (b) types of dispersions
+#### &nbsp; &nbsp; (c) correlations between variables
 
-   (a). Uniform distribution between specified values  
-      i. as a floating-point value  
-      ii. as an integer value  
-   (b) Normal distribution, specified by mean and standard deviation  
-   (c) Truncated Normal Distribution, including  
-      i. symmetric and asymmetric truncations  
-      ii. it shall be possible to specify truncations by:  
-         A. some number of standard deviations from the mean,  
-         B. a numerical difference from the mean, and  
-         C. an upper and lower limit  
-
- 2. The model shall provide an extensible framework suitable for supporting other statistical distributions
- 3. The model shall provide the ability to assign a common value to all runs:
-(a) This value could be a fixed, user-defined value
-(b) This value could be a random assignment, generated once and then applied to all runs
- 4. The model shall provide the capability to read values from a pre-generated file instead of generating its own values
- 5. The model shall provide the ability to randomly select from a discrete data set, including:
-(a) enumerations,
-(b) character-strings,
-(c) boolean values, and
-(d) numerical values
- 6. The model shall provide the capability to compute follow-on variables, the values of which are a function of one or
-more dispersed variables with values generated using any of the methods in requirements 1-5.
- 7. The model shall provide a record of the generated distributions, allowing for repeated execution of the same
-scenario using exactly the same conditions.
- 8. The model shall provide summary data of the dispersions which have been applied, including:
-(a) number of dispersions
-(b) types of dispersions
-(c) correlations between variables
+## 3 Model Specification
+### 3.1 Code Structure
+The model can be broken down into its constituent classes; there are two principle components to the model – the variables,
+and the management of the variables.
+### 3.1.1 Variable Management (MonteCarloMaster) 
+MonteCarloMaster is the manager of the MonteCarlo variables. This class controls how many sets of dispersed variables
+are to be generated; for each set, it has the responsibility for
+* instructing each variable to generate its own dispersed value
+* collecting those values and writing them to an external file
