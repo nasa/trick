@@ -63,7 +63,7 @@ void validate_temp_sequence (Trick::MemoryManager * memmgr, std::string object_n
 
 }
 
-void validate_links (Trick::MemoryManager * memmgr, std::string object_name, std::string top_level_name, std::vector<int> lengths) {
+void validate_links_sequences (Trick::MemoryManager * memmgr, std::string object_name, std::string top_level_name, std::vector<int> lengths) {
     std::string temp_name = object_name + "_" + top_level_name;
     ASSERT_TRUE(memmgr->var_exists(temp_name) == 1);
 
@@ -97,6 +97,16 @@ void validate_links_pairs (Trick::MemoryManager * memmgr, std::string object_nam
         ASSERT_TRUE(memmgr->var_exists(second_name) == 1);
     }
 }
+
+void validate_link_from_pair (Trick::MemoryManager * memmgr, std::string object_name, std::string top_level_name) {
+    std::string temp_name = object_name + "_" + top_level_name;
+    ASSERT_TRUE(memmgr->var_exists(temp_name) == 1);
+
+    REF2 * link_ref = memmgr->ref_attributes(temp_name.c_str());
+    std::string * link_name = (std::string *) link_ref->address;
+    EXPECT_EQ(link_name[0], "inner");
+}
+
 
 template <typename T>
 void validate_temp_set (Trick::MemoryManager * memmgr, std::string object_name, std::string var_name, std::set<T> expected_data) {
@@ -241,7 +251,7 @@ TEST_F(MM_stl_checkpoint, i_s_vec ) {
         validate_temp_sequence<int>(memmgr, std::string("my_alloc"), var_name, test_data[i]);
     }
 
-    validate_links(memmgr, std::string("my_alloc"), std::string("i_s_vec"), std::vector<int>(10, 10));
+    validate_links_sequences(memmgr, std::string("my_alloc"), std::string("i_s_vec"), std::vector<int>(10, 10));
 }
 
 TEST_F(MM_stl_checkpoint, string_vec ) {
@@ -313,7 +323,7 @@ TEST_F(MM_stl_checkpoint, i_i_pair ) {
     validate_temp_pair<double,float>(memmgr, std::string("my_alloc"), vec_attr->name, std::pair<double,float>(test_data[0], test_data[1]));  
 }
 
-TEST_F(MM_stl_checkpoint, DISABLED_i_s_pair ) {
+TEST_F(MM_stl_checkpoint, i_s_pair ) {
     // ARRANGE
     // Make a testbed
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
@@ -333,13 +343,11 @@ TEST_F(MM_stl_checkpoint, DISABLED_i_s_pair ) {
     (vec_attr->checkpoint_stl)((void *) &testbed->i_s_pair, "my_alloc", vec_attr->name) ;
     
     // ASSERT
-    validate_links(memmgr, std::string("my_alloc"), std::string("i_s_pair_second"), std::vector<int>(1, test_val.size()));
     validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("i_s_pair_second_inner"), test_val);  
-    // Oh boy this one actually doesn't work!!!!!
-    // TODO: fix i_s_pair 
+    validate_link_from_pair(memmgr, std::string("my_alloc"), std::string("i_s_pair_second"));
 }
 
-TEST_F(MM_stl_checkpoint, DISABLED_s_i_pair ) {
+TEST_F(MM_stl_checkpoint, s_i_pair ) {
     // ARRANGE
     // Make a testbed
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
@@ -360,15 +368,12 @@ TEST_F(MM_stl_checkpoint, DISABLED_s_i_pair ) {
     
     // ASSERT
     validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("s_i_pair_first_inner"), test_key);  
-
-    // Oh boy this one actually doesn't work!!!!!
-    // Same as the other one
-    // TODO: fix s_i_pair
+    validate_link_from_pair(memmgr, std::string("my_alloc"), std::string("s_i_pair_first"));
 }
 
 
 
-TEST_F(MM_stl_checkpoint, DISABLED_i_v_pair ) {
+TEST_F(MM_stl_checkpoint, i_v_pair ) {
     // ARRANGE
     // Make a testbed
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
@@ -388,10 +393,8 @@ TEST_F(MM_stl_checkpoint, DISABLED_i_v_pair ) {
     (vec_attr->checkpoint_stl)((void *) &testbed->i_v_pair, "my_alloc", vec_attr->name) ;
     
     // ASSERT
-    validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("i_v_pair_second"), test_val);  
-
-    // Oh boy this one actually doesn't work!!!!!
-    // TODO: fix i_s_pair 
+    validate_temp_sequence<bool>(memmgr, std::string("my_alloc"), std::string("i_v_pair_second_inner"), test_val);  
+    validate_link_from_pair(memmgr, std::string("my_alloc"), std::string("i_v_pair_second"));
 }
 
 
@@ -414,7 +417,8 @@ TEST_F(MM_stl_checkpoint, pair_pair ) {
     
     // ASSERT
     validate_single(memmgr, std::string("my_alloc"), std::string("pair_pair_second"), 3);
-    validate_temp_pair(memmgr, std::string("my_alloc"), std::string("pair_pair_first"), std::pair<int,int>(1, 2));
+    validate_temp_pair(memmgr, std::string("my_alloc"), std::string("pair_pair_first_inner"), std::pair<int,int>(1, 2));
+    validate_link_from_pair(memmgr, std::string("my_alloc"), std::string("pair_pair_first"));
 }
 
 
@@ -487,7 +491,7 @@ TEST_F(MM_stl_checkpoint, i_s_map ) {
         sorted_lengths.push_back(expected_data.size());
     }
 
-    validate_links(memmgr, std::string("my_alloc"), std::string("i_s_map_data"), sorted_lengths);
+    validate_links_sequences(memmgr, std::string("my_alloc"), std::string("i_s_map_data"), sorted_lengths);
 }
 
 
@@ -529,7 +533,7 @@ TEST_F(MM_stl_checkpoint, s_i_map ) {
         values_in_the_right_order.push_back(it.second);
         lengths_in_the_right_order.push_back(it.first.size());
     }
-    validate_links(memmgr, std::string("my_alloc"), std::string("s_i_map_keys"), lengths_in_the_right_order);
+    validate_links_sequences(memmgr, std::string("my_alloc"), std::string("s_i_map_keys"), lengths_in_the_right_order);
     validate_temp_sequence(memmgr, std::string("my_alloc"), std::string("s_i_map_data"), values_in_the_right_order);
 }
 
@@ -572,7 +576,7 @@ TEST_F(MM_stl_checkpoint, s_s_map ) {
     }
 
     validate_links_pairs(memmgr, std::string("my_alloc"), std::string("s_s_map_keys"), test_map.size());
-    validate_links(memmgr, std::string("my_alloc"), std::string("s_s_map_data"), data_lengths);
+    validate_links_sequences(memmgr, std::string("my_alloc"), std::string("s_s_map_data"), data_lengths);
 }
 
 
@@ -658,7 +662,7 @@ TEST_F(MM_stl_checkpoint, nested_list_queue ) {
         data_index += list_sizes[i];
     }
 
-    validate_links(memmgr, std::string("my_alloc"), std::string("nested_list_queue"), list_sizes);
+    validate_links_sequences(memmgr, std::string("my_alloc"), std::string("nested_list_queue"), list_sizes);
 }
 
 
@@ -748,7 +752,7 @@ TEST_F(MM_stl_checkpoint, nested_list_stack ) {
         data_index += list_sizes[i];
     }
 
-    validate_links(memmgr, std::string("my_alloc"), std::string("nested_list_stack"), std::vector<int>(list_sizes.rbegin(), list_sizes.rend()));
+    validate_links_sequences(memmgr, std::string("my_alloc"), std::string("nested_list_stack"), std::vector<int>(list_sizes.rbegin(), list_sizes.rend()));
 }
 
 
@@ -942,7 +946,7 @@ TEST_F(MM_stl_checkpoint, vec_array ) {
         validate_temp_sequence(memmgr, std::string("my_alloc"), var_name, std::vector<int>(test_data.begin() + (i*10), test_data.begin() +((i+1)*10)));
     }
 
-    validate_links(memmgr, std::string("my_alloc"), std::string("vec_array"), std::vector<int>(10, 10));
+    validate_links_sequences(memmgr, std::string("my_alloc"), std::string("vec_array"), std::vector<int>(10, 10));
 }
 
 TEST_F(MM_stl_checkpoint, DISABLED_vec_user_defined ) {

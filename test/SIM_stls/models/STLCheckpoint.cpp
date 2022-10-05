@@ -644,21 +644,21 @@ int STLCheckpoint::test() {
 
  // TODO: fix this case
     // Check all the int/vec combo pairs together, for laziness
-    // TRICK_EXPECT_EQ(int_vec_pair.first, 5, test_suite, "int_vec_pair.first");
-    // TRICK_EXPECT_EQ(vec_int_pair.second, 5, test_suite, "vec_int_pair.second");
+    TRICK_EXPECT_EQ(int_vec_pair.first, 5, test_suite, "int_vec_pair.first");
+    TRICK_EXPECT_EQ(vec_int_pair.second, 5, test_suite, "vec_int_pair.second");
 
-    // TRICK_EXPECT_EQ(int_vec_pair.second.size(), 4, test_suite, "int_vec_pair.second.size");
-    // TRICK_EXPECT_EQ(vec_int_pair.first.size(), 4, test_suite, "vec_int_pair.first.size");
-    // TRICK_EXPECT_EQ(vec_vec_pair.first.size(), 4, test_suite, "vec_vec_pair.first.size");
-    // TRICK_EXPECT_EQ(vec_vec_pair.second.size(), 4, test_suite, "vec_vec_pair.second.size");
+    TRICK_EXPECT_EQ(int_vec_pair.second.size(), 4, test_suite, "int_vec_pair.second.size");
+    TRICK_EXPECT_EQ(vec_int_pair.first.size(), 4, test_suite, "vec_int_pair.first.size");
+    TRICK_EXPECT_EQ(vec_vec_pair.first.size(), 4, test_suite, "vec_vec_pair.first.size");
+    TRICK_EXPECT_EQ(vec_vec_pair.second.size(), 4, test_suite, "vec_vec_pair.second.size");
 
-    // for (int i = 0; i < int_vec_pair.second.size(); i++) {
-    //     TRICK_EXPECT_EQ(int_vec_pair.second[i], (i+1)*5, test_suite, "int_vec_pair.second elems");
-    //     TRICK_EXPECT_EQ(vec_int_pair.first[i], (i+1)*5, test_suite, "vec_int_pair.first elems");
-    //     TRICK_EXPECT_EQ(vec_vec_pair.first[i], (i+1)*5, test_suite, "vec_vec_pair.first elems");
-    //     TRICK_EXPECT_EQ(vec_vec_pair.second[i], (i+1)*5, test_suite, "vec_vec_pair.second elems");
+    for (int i = 0; i < int_vec_pair.second.size(); i++) {
+        TRICK_EXPECT_EQ(int_vec_pair.second[i], (i+1)*5, test_suite, "int_vec_pair.second elems");
+        TRICK_EXPECT_EQ(vec_int_pair.first[i], (i+1)*5, test_suite, "vec_int_pair.first elems");
+        TRICK_EXPECT_EQ(vec_vec_pair.first[i], (i+1)*5, test_suite, "vec_vec_pair.first elems");
+        TRICK_EXPECT_EQ(vec_vec_pair.second[i], (i+1)*5, test_suite, "vec_vec_pair.second elems");
 
-    // }
+    }
 
     
 }

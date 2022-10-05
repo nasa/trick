@@ -6,6 +6,12 @@
 #include "MM_stl_testbed.hh"
 #include "MM_test.hh"
 
+#include "trick/checkpoint_sequence_stl.hh"
+#include "trick/checkpoint_map.hh"
+#include "trick/checkpoint_stack.hh"
+#include "trick/checkpoint_queue.hh"
+#include "trick/checkpoint_pair.hh"
+
 /*
  This tests the allocation of user-defined types using MemoryManager::declare_var().
  */
@@ -201,7 +207,7 @@ TEST_F(MM_stl_restore, i_i_pair ) {
     EXPECT_EQ(memmgr->var_exists("my_alloc_i_i_pair_second"), 0);
 }
 
-TEST_F(MM_stl_restore, DISABLED_i_s_pair ) {
+TEST_F(MM_stl_restore, i_s_pair ) {
     // ARRANGE
     // make a testbed object
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
@@ -211,9 +217,11 @@ TEST_F(MM_stl_restore, DISABLED_i_s_pair ) {
 
     // Register the expected temporary variables with the memory manager
     double * first_data = (double *) memmgr->declare_var("double my_alloc_i_s_pair_first");
-    bool * second_data = (bool *) memmgr->declare_var("bool my_alloc_i_s_pair_second[20]");
+    std::string * second_link = (std::string *) memmgr->declare_var("std::string my_alloc_i_s_pair_second"); 
+    bool * second_data = (bool *) memmgr->declare_var("bool my_alloc_i_s_pair_second_inner[20]");
 
     *first_data = test_first;
+    *second_link = std::string("inner");
     for (int i = 0; i < test_second.size(); i++) {
         second_data[i] = test_second[i];
     }
@@ -234,10 +242,10 @@ TEST_F(MM_stl_restore, DISABLED_i_s_pair ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_i_s_pair_first"), 0);
-    EXPECT_EQ(memmgr->var_exists("my_alloc_i_s_pair_second"), 0);
+    EXPECT_EQ(memmgr->var_exists("my_alloc_i_s_pair_second_inner"), 0);
 }
 
-TEST_F(MM_stl_restore, DISABLED_s_i_pair ) {
+TEST_F(MM_stl_restore, s_i_pair ) {
     // ARRANGE
     // make a testbed object
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
@@ -246,7 +254,9 @@ TEST_F(MM_stl_restore, DISABLED_s_i_pair ) {
     double test_second  = random<double>();
 
     // Register the expected temporary variables with the memory manager
-    bool * first_data = (bool *) memmgr->declare_var("bool my_alloc_s_i_pair_first[20]");
+    bool * first_data = (bool *) memmgr->declare_var("bool my_alloc_s_i_pair_first_inner[20]");
+    std::string * first_link = (std::string *) memmgr->declare_var("std::string my_alloc_s_i_pair_first");
+    *first_link = "inner";
     double * second_data = (double *) memmgr->declare_var("double my_alloc_s_i_pair_second");
 
     for (int i = 0; i < test_first.size(); i++) {
@@ -263,18 +273,18 @@ TEST_F(MM_stl_restore, DISABLED_s_i_pair ) {
     // ASSERT
     // Make sure the STL has been populated
     EXPECT_EQ(testbed->s_i_pair.second, test_second);
-    EXPECT_EQ(testbed->s_i_pair.first.size(), test_first.size());
+    ASSERT_EQ(testbed->s_i_pair.first.size(), test_first.size());
     for (int i = 0; i < test_first.size(); i++) {
         EXPECT_EQ(testbed->s_i_pair.first.front(), test_first[i]);
         testbed->s_i_pair.first.pop();
     }
 
     // Check that all the temporary variables have been deleted
-    EXPECT_EQ(memmgr->var_exists("my_alloc_s_i_pair_first"), 0);
+    EXPECT_EQ(memmgr->var_exists("my_alloc_s_i_pair_first_inner"), 0);
     EXPECT_EQ(memmgr->var_exists("my_alloc_s_i_pair_second"), 0);
 }
 
-TEST_F(MM_stl_restore, DISABLED_s_s_pair ) {
+TEST_F(MM_stl_restore, s_s_pair ) {
     // ARRANGE
     // make a testbed object
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
@@ -283,8 +293,15 @@ TEST_F(MM_stl_restore, DISABLED_s_s_pair ) {
     std::vector<float> test_second = get_test_data<float>(20);
 
     // Register the expected temporary variables with the memory manager
-    bool * first_data = (bool *) memmgr->declare_var("bool my_alloc_s_s_pair_first[20]");
-    double * second_data = (double *) memmgr->declare_var("double my_alloc_s_s_pair_second");
+    int * first_data = (int *) memmgr->declare_var("int my_alloc_s_s_pair_first_inner[20]");
+    float * second_data = (float *) memmgr->declare_var("float my_alloc_s_s_pair_second_inner[20]");
+
+    std::string * first_link  = (std::string *) memmgr->declare_var("std::string my_alloc_s_s_pair_first");
+    std::string * second_link = (std::string *) memmgr->declare_var("std::string my_alloc_s_s_pair_second");
+    *first_link  = std::string("inner");
+    *second_link  = std::string("inner");
+
+
 
     for (int i = 0; i < test_first.size(); i++) {
         first_data[i] = test_first[i];
@@ -304,13 +321,13 @@ TEST_F(MM_stl_restore, DISABLED_s_s_pair ) {
     EXPECT_EQ(testbed->s_s_pair.second.size(), test_second.size());
     for (int i = 0; i < test_first.size(); i++) {
         EXPECT_EQ(testbed->s_s_pair.first[i], test_first[i]);
-        EXPECT_EQ(testbed->s_s_pair.second.top(), test_second[test_second.size()-1-i]);
+        EXPECT_EQ(testbed->s_s_pair.second.top(), test_second[i]);
         testbed->s_s_pair.second.pop();
     }
 
     // Check that all the temporary variables have been deleted
-    EXPECT_EQ(memmgr->var_exists("my_alloc_s_s_pair_first"), 0);
-    EXPECT_EQ(memmgr->var_exists("my_alloc_s_s_pair_second"), 0);
+    EXPECT_EQ(memmgr->var_exists("my_alloc_s_s_pair_first_inner"), 0);
+    EXPECT_EQ(memmgr->var_exists("my_alloc_s_s_pair_second_inner"), 0);
 }
 
 TEST_F(MM_stl_restore, pair_pair ) {
@@ -323,11 +340,12 @@ TEST_F(MM_stl_restore, pair_pair ) {
     int test_second = random<int>();
 
     // Register the expected temporary variables with the memory manager
-    int * first_first_data = (int *) memmgr->declare_var("int my_alloc_pair_pair_first_first");
-    int * first_second_data = (int *) memmgr->declare_var("int my_alloc_pair_pair_first_second");
+    int * first_first_data = (int *) memmgr->declare_var("int my_alloc_pair_pair_first_inner_first");
+    int * first_second_data = (int *) memmgr->declare_var("int my_alloc_pair_pair_first_inner_second");
     int * second_data = (int *) memmgr->declare_var("int my_alloc_pair_pair_second");
 
-    (void) memmgr->declare_var("std::string my_alloc_pair_pair_first[1]");
+    std::string * first_link =  (std::string *) memmgr->declare_var("std::string my_alloc_pair_pair_first[1]");
+    *first_link = std::string ("inner");
 
     *first_first_data = test_first_first;
     *first_second_data = test_first_second;
@@ -346,8 +364,8 @@ TEST_F(MM_stl_restore, pair_pair ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_pair_pair_first"), 0);
-    EXPECT_EQ(memmgr->var_exists("my_alloc_pair_pair_first_first"), 0);
-    EXPECT_EQ(memmgr->var_exists("my_alloc_pair_pair_first_second"), 0);
+    EXPECT_EQ(memmgr->var_exists("my_alloc_pair_pair_first_inner_first"), 0);
+    EXPECT_EQ(memmgr->var_exists("my_alloc_pair_pair_first_inner_second"), 0);
     EXPECT_EQ(memmgr->var_exists("my_alloc_pair_pair_second"), 0);
 }
 
@@ -402,12 +420,15 @@ TEST_F(MM_stl_restore, i_s_map ) {
         std::string var_name = "std::string my_alloc_i_s_map_data_" + std::to_string(i) + "[" + std::to_string(6) + "]";
         std::string * val_temp = (std::string *) memmgr->declare_var(var_name.c_str());
 
+        std::vector<std::string> test_strings_easy = {"a", "b", "c", "d", "e", "f"};
         for (int j = 0; j < 6; j++) {
-            val_temp[j] = test_data[(i*6) + j];
+            // val_temp[j] = std::string(test_data[(i*6) + j]);
+            val_temp[j] = std::string(test_strings_easy[j]);
+
 
             // Create a map of expected data along side so that we don't have to deal with ordering stuff
             // Reverse order of the data since it's a stack
-            test_map[test_keys[i]].push(test_data[((i+1)*6)-1-j]);
+            test_map[test_keys[i]].push(std::string(test_strings_easy[5-j]));
         }
     }
 
@@ -884,7 +905,7 @@ TEST_F(MM_stl_restore, pair_array ) {
         *temp_second = test_second[i];
 
         // Build a copy of the expected data
-        expected[i] = std::pair<short,double>(test_first[i], test_second[i]);
+        expected[i] = std::pair<int,int>(test_first[i], test_second[i]);
     }
 
     // ACT
