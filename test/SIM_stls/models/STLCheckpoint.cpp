@@ -445,8 +445,8 @@ int STLCheckpoint::test() {
     TRICK_EXPECT_EQ( common_multiples[p], v, test_suite, "common_multiples" );
 
 
-    TRICK_EXPECT_EQ( string_map["sister"], "Lisa", test_suite, "string_map[\"sister\"]" );
-    TRICK_EXPECT_EQ( string_map["dog"], "Santa's Little Helper", test_suite, "string_map[\"dog\"]" );
+    TRICK_EXPECT_EQ( string_map["sister"], "Lisa", test_suite, "string_map[sister]" );
+    TRICK_EXPECT_EQ( string_map["dog"], "Santa's Little Helper", test_suite, "string_map[dog]" );
 
     
     // The easiest way to test the multimaps is to just rebuild copies and compare
