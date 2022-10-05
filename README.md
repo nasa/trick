@@ -199,12 +199,17 @@ symbol will be assigned to this variable.
 
 * MonteCarloPythonLineExec provides a line of executable Python code that can be used to compute the value of this
 variable. So rather than generating an assignment statement, e.g.
-> ```var_x = 5```
+
+```
+var_x = 5
+```
 
 when the MonteCarloMaster processes an instance of this class, it will use a character string to generate an
 instruction statement, e.g.
 
-> ```var_x = math.sin(2 * math.pi * object.circle_fraction)```
+```
+var_x = math.sin(2 * math.pi * object.circle_fraction)
+```
 
 (in this case, the character string would be “math.sin(2 * math.pi * object.circle_fraction)” and
 object.circle_fraction could be a previously-dispersed variable).
@@ -214,7 +219,10 @@ opposed to random distributions within a domain. These are commonly implemented 
 the MonteCarloPythonLineExec to generate them internally. The first data assignment made in each file is to a
 run-number, which can be used as an index. The example shown below will generate a sweep across the domain
 [20,45) in steps of 2.5.
-> ```object.sweep_variable = (monte_carlo.master.monte_run_number % 10) * 2.5 + 20```
+
+```
+object.sweep_variable = (monte_carlo.master.monte_run_number % 10) * 2.5 + 20
+```
 
    * MonteCarloPythonFileExec is used when simple assignments and one-line instructions are insufficient, such as
 when one generated-value that feeds into an analytical algorithm to generate multiple other values. With this class,
@@ -247,9 +255,40 @@ configurations according to whatever distribution mechanism they desire. This co
 * a load-management service, like SLURM
 * any other mechanism tailored to the user’s currently available computing resources
 
-The intention is that the model runs very early in the simulation sequence. If the model is inactive (as when running a
-regular, non-MonteCarlo run), it will take no action. But when this model is activated, the user should expect the simulation
-to terminate before it starts on any propagation.
+The intention is that the model runs very early in the simulation sequence. If the model is inactive (as when running a regular, non-MonteCarlo run), it will take no action. But when this model is activated, the user should expect the simulation to terminate before it starts on any propagation.
 
-When a simulation executes with this model active, the only result of the simulation will be the generation of files
-containing the assignments to the dispersed variables. The simulation should be expected to terminate at t=0.
+When a simulation executes with this model active, the only result of the simulation will be the generation of files containing the assignments to the dispersed variables. The simulation should be expected to terminate at t=0.
+
+### 4.1.1 Trick Users
+
+The model is currently configured for users of the Trick simulation engine. The functionality of the model is almost exclusively independent of the chosen simulation engine, with the exceptions being the shutdown sequence, and the application of units information in the variables.
+
+Found at the end of the MonteCarloMaster::execute() method, the following code:
+
+```
+exec_terminate_with_return(0, __FILE__, __LINE__,message.c_str());
+```
+
+is a Trick instruction set to end the simulation.
+
+Found at the end of MonteCarloVariable::insert_units(), the following code:
+
+``` 
+// TODO: Pick a unit-conversion mechanism
+// Right now, the only one available is Trick:
+trick_units( pos_equ+1);
+```
+
+provides the call to
+
+```
+MonteCarloVariable::trick_units(
+ size_t insertion_pt)
+{
+ command.insert(insertion_pt, " trick.attach_units(\"" + units + "\",");
+ command.append(")");
+```
+
+which appends Trick instructions to interpret the generated value as being represented in the specified units.
+
+The rest of the User’s Guide will use examples of configurations for Trick-simulation input files
