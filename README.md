@@ -137,3 +137,47 @@ MonteCarloMaster is the manager of the MonteCarlo variables. This class controls
 are to be generated; for each set, it has the responsibility for
 * instructing each variable to generate its own dispersed value
 * collecting those values and writing them to an external file
+### 3.1.2 Dispersed Variables (MonteCarloVariable)
+MonteCarloVariable is an abstract class that forms the basis for all dispersed variables. The following classes inherit from
+MonteCarloVariable:
+* MonteCarloVariableFile will extract a value for its variable from a specified text file. Typically, a data file will
+comprise some number of rows and some number of columns of data. Each column of data represents the possible
+values for one variable. Each row of data represents a correlated set of data to be applied to several variables; each
+data-set generation will be taken from one line of data. Typically, each subsequent data-set will be generated from the
+next line of data; however, this is not required.
+* In some situations, it is desirable to have the next line of data to be used for any given data set be somewhat randomly
+chosen. This has the disadvantageous effect of having some data sets being used more than others, but it supports
+better cross-population when multiple data files are being used. 
+    * For example, if file1 contained 2 data sets and file2 contained 4 data sets, then a sequential sweep through
+these file would set up a repeating pattern with line 1 of file2 always being paired with line 1 of file1. For
+example, in 8 runs, we would get this pattern of line numbers from each run:
+        * (1,1), (2,2), (1,3), (2,4), (1,1), (2,2), (1,3), (2,4)
+    * If the first file was allowed to skip a line, the pattern can produce a more comprehensive combination of
+data:
+        * (1,1), (1,2), (2,3), (1,4), (2,1), (2,2), (2,3), (1,4)
+* MonteCarloVariableFixed provides fixed-values to a variable for all generated data-sets. The values can be
+represented as a double, int, or STL-string. 
+* MonteCarloVariableRandom is the base class for all variables being assigned a random value. The values can be
+represented as a double, int, or STL-string. There are several subclasses:
+    * MonteCarloVariableRandomNormal provides a variable with a value dispersed according to a normal
+distribution specified by its mean and standard deviation.
+    * MonteCarloVariableRandomUniformInt provides a variable with a value dispersed according to a uniform
+distribution specified by its upper and lower bounds. This class represents a discrete distribution, providing an
+integer value.
+    * MonteCarloVariableRandomUniform provides a variable with a value dispersed according to a uniform
+distribution specified by its upper and lower bounds. This class represents a continuous distribution.
+        * MonteCarloVariableRandomStringSet represents a discrete variable, drawn from a set of STL-strings. The
+class inherits from MonteCarloVariableRandomUniform; this distribution generates a continuous value in [0,1)
+and scales and casts that to an integer index in {0, …, size-1} where size is the number of available strings
+from which to choose.
+
+   Note – an astute reader may question why the discrete MonteCarloVariableRandomStringSet inherits from
+the continuous MonteCarloVariableRandomUniform rather than from the discrete
+MonteCarloVariableRandomUniformInt. The rationale is based on the population of the vector of
+selectable strings in this class. It is desirable to have this vector be available for population outside the
+construction of the class, so at construction time the size of this vector is not known. However, the
+construction of the MonteCarloVariableRandomUniformInt requires specifying the lower and upper
+bounds, which would be 0 and size-1 respectively. Because size is not known at construction, this cannot
+be specified. Conversely, constructing a MonteCarloVariableRandomUniform with bounds at [0,1) still
+allows for scaling to the eventual size of the strings vector.
+
