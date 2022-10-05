@@ -113,12 +113,6 @@ memorymanager->declare_var_extern(&my_vector, "std::vector<int> my_vector_alloca
 
 ## Known bugs
 
-The types in an std::pair cannot be sequence STL types (vector, queue, stack, etc).
-```
-    // This will fail to checkpoint
-    std::pair<int, std::vector<int>> 
-```
-
 The types inside an std::set cannot be any STL types (excluding strings).
 ```
     // This will fail to compile
