@@ -8,7 +8,7 @@
     "@material-ui/icons": "^4.2.1",
     "@material-ui/lab": "^4.0.0-alpha.24",
     "@material-ui/styles": "^4.2.1",
-    "plotly.js": "^1.49.0",
+    "plotly.js": "^1.58.5",
     "prettier": "^1.18.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
