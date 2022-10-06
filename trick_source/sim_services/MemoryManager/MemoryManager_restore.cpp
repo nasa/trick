@@ -26,6 +26,7 @@ int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stl
        emitError("Checkpoint restore failed.") ;
     }
 
+
     // Search for stls and restore them
     if(do_restore_stl) {
         for ( pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
@@ -113,6 +114,7 @@ int Trick::MemoryManager::init_from_checkpoint(const char* filename, bool restor
     }
 
     read_checkpoint( filename, restore_stls);
+
 
     if (debug_level) {
         std::cout << std::endl << "Initialization from checkpoint finished." << std::endl;
