@@ -235,7 +235,7 @@ be executed.
 ### 3.2 Mathematical Formulation
 No mathematical formulation. The random number generators use the C++ <random> library.
 
-### 4 User's Guide
+## 4 User's Guide
 
 ### 4.1 What to expect
 
@@ -259,7 +259,7 @@ The intention is that the model runs very early in the simulation sequence. If t
 
 When a simulation executes with this model active, the only result of the simulation will be the generation of files containing the assignments to the dispersed variables. The simulation should be expected to terminate at t=0.
 
-### 4.1.1 Trick Users
+#### 4.1.1 Trick Users
 
 The model is currently configured for users of the Trick simulation engine. The functionality of the model is almost exclusively independent of the chosen simulation engine, with the exceptions being the shutdown sequence, and the application of units information in the variables.
 
@@ -292,3 +292,21 @@ MonteCarloVariable::trick_units(
 which appends Trick instructions to interpret the generated value as being represented in the specified units.
 
 The rest of the User’s Guide will use examples of configurations for Trick-simulation input files
+
+### 4.1.2 Non-Trick Users
+
+To configure the model for simulation engines other than Trick, the Trick-specific content identified above should be replaced with equivalent content that will result in:
+* the shutdown of the simulation, and
+* the conversion of units from the type specified in the distribution specification to the type native to the variable to which the generated value is to be assigned.
+
+While the rest of the User’s Guide will use examples of configurations for Trick-simulation input files, understand that these are mostly just C++ or Python code setting the values in this model to make it work as desired. Similar assignments would be required for any other simulation engine.
+
+### 4.2 MonteCarlo Manager (MonteCarloMaster)
+### 4.2.1 Instantiation
+
+The instantiation of MonteCarloMaster would typically be done directly in the S_module. The construction of this instance takes a single argument, a STL-string describing its own location within the simulation data-structure.
+
+The MonteCarloMaster class has a single public-interface method call, MonteCarloMaster::execute(). This method has 2 gate-keeping flags that must be set (the reason for there being 2 will be explained later):
+* active
+* generate_dispersions
+If either of these flags is false (for reference, active is constructed as false and generate_dispersions is constructed as true) then this method returns with no action. If both are true, then the model will generate the dispersions, write those dispersions to the external files, and shut down the simulation.
