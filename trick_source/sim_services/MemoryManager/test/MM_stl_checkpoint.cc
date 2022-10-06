@@ -945,7 +945,74 @@ TEST_F(MM_stl_checkpoint, vec_array ) {
     validate_links(memmgr, std::string("my_alloc"), std::string("vec_array"), std::vector<int>(10, 10));
 }
 
-TEST_F(MM_stl_checkpoint, DISABLED_vec_user_defined ) {
+TEST_F(MM_stl_checkpoint, vec_user_defined ) {
+    // Make a testbed
+    // ARRANGE
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
+
+    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.vec_user_defined")->attr;
+
+    int numObj = 10;
+    std::vector<int> test_ints = get_test_data<int>(5 * numObj);
+    std::vector<long long> test_longs = get_test_data<long long>(numObj);
+    std::vector<std::string> test_strings = get_test_data<std::string>(numObj);
+
+    for (int i = 0; i < numObj; i++) {
+        UserClass temp;
+        for (int j = 0; j < 5; j++) {
+            temp.a[j] = test_ints[i*5+j];
+        }
+        temp.b = test_longs[i];
+        temp.c = test_strings[i];
+
+        // just make a pointer to another one with the same data
+        std::string var_decl = "UserClass ptr_" + std::to_string(i);
+        UserClass * user_class_ptr = (UserClass *) memmgr->declare_var(var_decl.c_str());
+        for (int j = 0; j < 5; j++) {
+            user_class_ptr->a[j] = test_ints[i*5+j];
+        }
+        user_class_ptr->b = test_longs[i];
+        user_class_ptr->c = test_strings[i];
+
+        temp.d = user_class_ptr;
+
+        testbed->vec_user_defined.emplace_back(temp);
+    }
+
+    // ACT
+    // Call the checkpoint function that is being tested
+    (vec_attr->checkpoint_stl)((void *) &testbed->vec_user_defined, "my_alloc", vec_attr->name) ;
+
+    // ASSERT
+    ASSERT_TRUE(memmgr->var_exists("my_alloc_vec_user_defined") == 1);
+
+    REF2 * data_ref = memmgr->ref_attributes("my_alloc_vec_user_defined");
+    UserClass * data = (UserClass *) data_ref->address;
+
+    ASSERT_TRUE(data != NULL);
+    EXPECT_EQ(data_ref->attr->num_index, 1);
+    ASSERT_EQ(data_ref->attr->index[0].size, numObj);
+
+    for (int i = 0; i < numObj; i++) {
+        std::string var_name = "ptr_" + std::to_string(i);
+        ASSERT_TRUE(memmgr->var_exists(var_name));
+        REF2 * ptr_ref = memmgr->ref_attributes(var_name.c_str());
+        UserClass * ptr_data = (UserClass *) ptr_ref->address;
+
+        for (int j = 0; j < 5; j++) {
+            EXPECT_EQ(data[i].a[j], test_ints[i*5+j]);
+            EXPECT_EQ(ptr_data->a[j], test_ints[i*5+j]);
+        }
+
+        EXPECT_EQ(data[i].b, test_longs[i]);
+        EXPECT_EQ(ptr_data->b, test_longs[i]);
+
+        EXPECT_EQ(data[i].c, test_strings[i]);
+        EXPECT_EQ(ptr_data->c, test_strings[i]);   
+    }
+}
+
+TEST_F(MM_stl_checkpoint, DISABLED_vec_user_defined_stl ) {
     // Make a testbed
     // ARRANGE
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
@@ -953,25 +1020,20 @@ TEST_F(MM_stl_checkpoint, DISABLED_vec_user_defined ) {
     std::vector<std::vector<int>> test_data;
     for (int i = 0; i < 10; i++) {
         std::vector<int> test_data_inner = get_test_data<int>(10);
-        SimpleWrapper temp_wrapper;
+        UserClassStl temp_wrapper;
         temp_wrapper.vec = std::vector<int>(test_data_inner);
-        testbed->vec_user_defined.emplace_back(temp_wrapper);
+        testbed->vec_user_defined_stl.emplace_back(temp_wrapper);
         test_data.emplace_back(test_data_inner);
     }
 
-    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.vec_user_defined")->attr;
+    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.vec_user_defined_stl")->attr;
 
     // ACT
     // Call the checkpoint function that is being tested
-    (vec_attr->checkpoint_stl)((void *) &testbed->vec_user_defined, "my_alloc", vec_attr->name) ;
+    (vec_attr->checkpoint_stl)((void *) &testbed->vec_user_defined_stl, "my_alloc", vec_attr->name) ;
 
     // ASSERT
-    // for (int i = 0; i < test_data.size(); i++) {
-    //     std::string var_name = "i_s_vec_" + std::to_string(i);
-    //     validate_temp_sequence<int>(memmgr, std::string("my_alloc"), var_name, test_data[i]);
-    // }
-
-    // validate_links(memmgr, std::string("my_alloc"), std::string("vec_user_defined"), std::vector<int>(10, 10));
+    
 }
 
 
@@ -1056,6 +1118,4 @@ TEST_F(MM_stl_checkpoint, recursive_nightmare ) {
             }
         }
     }
-
-    // TODO: test the links
 }

@@ -8,10 +8,36 @@
 #include <array>
 #include <string>
 
-class SimpleWrapper {
+#include <iostream>
+
+class UserClassStl {
     public:
         int a;
         std::vector<int> vec;
+};
+
+class UserClass {
+    public:
+        UserClass () : d(NULL) {}
+        int a[5];
+        long long b;
+        std::string c;
+        UserClass * d = NULL;
+
+        bool operator== (const UserClass& other) const {
+            for (int i = 0; i < 5; i++) {
+                if (a[i] != other.a[i])
+                    return false;
+            }
+
+            if (d == NULL ^ other.d == NULL) return false;
+            return b == other.b && c == other.c && (d == NULL || *d == *(other.d));
+        }
+
+        bool operator != (const UserClass& other) const {
+            return !(*this == other);
+        }
+
 };
 
 class STLTestbed {
@@ -62,8 +88,11 @@ public:
     std::array<std::string, 10> string_array;
     std::array<std::vector<int>, 10> vec_array;
 
+    std::vector<UserClass> vec_user_defined;
+
     // This does not currently work in the unit tests
-    std::vector<SimpleWrapper> vec_user_defined;
+    std::vector<UserClassStl> vec_user_defined_stl;
+
 
     std::array<std::map<std::pair<int, int>,std::vector<std::stack<std::string>>>, 5> recursive_nightmare;
 };

@@ -25,6 +25,14 @@ class SimpleWrapper {
         std::vector<int> vec;
 };
 
+class UserClass {
+    public:
+        int a[5];
+        long long b;
+        std::string c;
+        UserClass * d;
+};
+
 class STLCheckpoint {
 
     public:
@@ -103,6 +111,7 @@ class STLCheckpoint {
         std::vector< std::vector< std::vector< double > > > vector_vector_vector_double ;
         //std::vector< std::list< double >  > vector_list_double ;
 
+        std::vector<UserClass> vec_user_simple;
         std::vector<SimpleWrapper> vec_user_defined;
         std::vector<SimpleWrapper *> vec_user_defined_ptr;
 
