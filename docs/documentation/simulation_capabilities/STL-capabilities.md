@@ -119,12 +119,4 @@ The types in an std::pair cannot be sequence STL types (vector, queue, stack, et
     std::pair<int, std::vector<int>> 
 ```
 
-The types inside an std::set cannot be any STL types (excluding strings).
-```
-    // This will fail to compile
-    std::set<std::vector<int>> 
-```
-
-These bugs are being worked on.
-
 [Continue to Threads](Threads)
