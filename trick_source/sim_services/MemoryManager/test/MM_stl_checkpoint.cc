@@ -868,7 +868,7 @@ TEST_F(MM_stl_checkpoint, nested_map_set ) {
     for (int i = 0; i < 10; i++) {
         std::map<short,double> temp_map;
         for (int j = 0; j < 10; j++) {
-            temp_map[test_keys[i*10+j]] = test_vals[test_keys[i*10+j]];
+            temp_map[test_keys[i*10+j]] = test_vals[i*10+j];
         }
         expected.emplace(temp_map);
         testbed->nested_map_set.emplace(temp_map);
@@ -1012,7 +1012,7 @@ TEST_F(MM_stl_checkpoint, nested_map_multiset ) {
     for (int i = 0; i < 10; i++) {
         std::map<short,double> temp_map;
         for (int j = 0; j < 10; j++) {
-            temp_map[test_keys[i*10+j]] = test_vals[test_keys[i*10+j]];
+            temp_map[test_keys[i*10+j]] = test_vals[i*10+j];
         }
         expected.emplace(temp_map);
         expected.emplace(temp_map);
