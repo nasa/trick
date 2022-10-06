@@ -951,6 +951,7 @@ TEST_F(MM_stl_restore, nested_map_set ) {
     // ASSERT
     ASSERT_EQ(testbed->nested_map_set, expected);
 
+
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_set"), 0);
     for (int i = 0; i < expected.size(); i++) {
@@ -1191,7 +1192,7 @@ TEST_F(MM_stl_restore, pair_array ) {
         *temp_second = test_second[i];
 
         // Build a copy of the expected data
-        expected[i] = std::pair<short,double>(test_first[i], test_second[i]);
+        expected[i] = std::pair<int,int>(test_first[i], test_second[i]);
     }
 
     // ACT

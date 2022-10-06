@@ -102,7 +102,7 @@ void validate_alloc_info(Trick::MemoryManager *memmgr,
 // char, short, int, long, long long
 template <typename T, typename std::enable_if<!std::is_floating_point<T>::value>::type* = nullptr>
 T random() {
-    return (T) (rand() % 1000);
+    return (T) (rand());
 }
 
 // This should just catch bools
