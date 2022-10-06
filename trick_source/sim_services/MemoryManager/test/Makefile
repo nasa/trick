@@ -18,6 +18,17 @@ TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wext
 TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 
+# This is supposed to be a development hack so that I don't have to clean rebuild Trick every time I change the stl_checkpoint files.
+# This should be deleted before it is merged into master.
+STL_CHECKPOINT_FILES = checkpoint_pair.hh \
+					  checkpoint_sequence_stl.hh \
+					  checkpoint_map.hh \
+					  checkpoint_queue.hh \
+					  checkpoint_stack.hh
+
+STL_CHECKPOINT_DEPS = $(addprefix $(TRICK_HOME)/include/trick/, $(STL_CHECKPOINT_FILES))
+					  
+
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
 TESTS = MM_creation_unittest \
@@ -175,10 +186,10 @@ MM_write_checkpoint_hexfloat.o : MM_write_checkpoint_hexfloat.cc
 Bitfield_tests.o : Bitfield_tests.cpp
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
-MM_stl_restore.o : MM_stl_restore.cc MM_stl_testbed.hh MM_test.hh
+MM_stl_restore.o : MM_stl_restore.cc MM_stl_testbed.hh MM_test.hh $(STL_CHECKPOINT_DEPS)
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
-MM_stl_checkpoint.o : MM_stl_checkpoint.cc MM_stl_testbed.hh MM_test.hh
+MM_stl_checkpoint.o : MM_stl_checkpoint.cc MM_stl_testbed.hh MM_test.hh $(STL_CHECKPOINT_DEPS)
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
 MM_creation_unittest : MM_creation_unittest.o
