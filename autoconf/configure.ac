@@ -12,48 +12,14 @@ dnl get the host and build.
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
 
-dnl AC_CANONICAL_HOST provides platform.  MacOSX is diverging... have to do special things
-ON_MAC=no
-case "${host_os}" in
-    darwin*)
-        ON_MAC=yes
-        ;;
-    *)
-        ;;
-esac
-
-
-dnl add extra paths to find xml headers and X headers on the mac.
-AS_IF([test "$ON_MAC" = "yes"],
-[
- AC_PATH_PROG(XCRUN, xcrun, noxcrun)
- AS_IF([test "$ac_cv_path_XCRUN" = "norun"],AC_MSG_ERROR([could not find xcrun - install Xcode command line tools]),[])
- XCODE_SDK_PATH=`$XCRUN --show-sdk-path`
- XTRAINCPATHS="-I/usr/X11/include -I${XCODE_SDK_PATH}/usr/include -I${XCODE_SDK_PATH}/usr/include/libxml2"
-],
-[
- XTRAINCPATHS="-I/usr/include/libxml2/"
-])
-CFLAGS="$CFLAGS $XTRAINCPATHS"
-CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
+dnl check if we are on a mac
+TR_MAC_DARWIN()
+dnl add x11 libs to environment
+TR_X11()
 
 dnl look for X windows libraries and headers we need to compile
 dnl these checks must be done before we force 32bit mode.
-AC_PATH_X
-AS_IF([test "$no_x" = "yes"],
-  [
-    USE_X_WINDOWS=0
-  ],
-  [
-    USE_X_WINDOWS=1
-    AS_IF([test "x$x_includes" = "x"],[],[X_INCLUDE_DIR=-I$x_includes])
-    AS_IF([test "x$x_libraries" = "x"],[],[X_LIB_DIR=-L$x_libraries])
-    AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
-    TR_JSC_DIRS([])
-  ]
-)
-AC_SUBST([USE_X_WINDOWS])
-AC_SUBST([X_LIB_DIR])
+TR_XWINDOWS()
 
 dnl TODO Need to check 64bit only!
 AC_CHECK_LIB(xml2, main,

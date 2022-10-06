@@ -2951,20 +2951,21 @@ case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 
 
-ON_MAC=no
-case "${host_os}" in
-    darwin*)
-        ON_MAC=yes
-        ;;
-    *)
-        ;;
-esac
+
+        ON_MAC=no
+    case "${host_os}" in
+        darwin*)
+            ON_MAC=yes
+            ;;
+        *)
+            ;;
+    esac
 
 
-if test "$ON_MAC" = "yes"
+    if test "$ON_MAC" = "yes"
 then :
 
- # Extract the first word of "xcrun", so it can be a program name with args.
+     # Extract the first word of "xcrun", so it can be a program name with args.
 set dummy xcrun; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -3010,20 +3011,21 @@ printf "%s\n" "no" >&6; }
 fi
 
 
- if test "$ac_cv_path_XCRUN" = "norun"
+     if test "$ac_cv_path_XCRUN" = "norun"
 then :
   as_fn_error $? "could not find xcrun - install Xcode command line tools" "$LINENO" 5
 fi
- XCODE_SDK_PATH=`$XCRUN --show-sdk-path`
- XTRAINCPATHS="-I/usr/X11/include -I${XCODE_SDK_PATH}/usr/include -I${XCODE_SDK_PATH}/usr/include/libxml2"
+     XCODE_SDK_PATH=`$XCRUN --show-sdk-path`
+     XTRAINCPATHS="-I/usr/X11/include -I${XCODE_SDK_PATH}/usr/include -I${XCODE_SDK_PATH}/usr/include/libxml2"
 
 else $as_nop
 
- XTRAINCPATHS="-I/usr/include/libxml2/"
+     XTRAINCPATHS="-I/usr/include/libxml2/"
 
 fi
-CFLAGS="$CFLAGS $XTRAINCPATHS"
-CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
+    CFLAGS="$CFLAGS $XTRAINCPATHS"
+    CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
+
 
 
 
@@ -4525,7 +4527,37 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for X" >&5
+ac_header= ac_cache=
+for ac_item in $ac_header_cxx_list
+do
+  if test $ac_cache; then
+    ac_fn_cxx_check_header_compile "$LINENO" $ac_header ac_cv_header_$ac_cache "$ac_includes_default"
+    if eval test \"x\$ac_cv_header_$ac_cache\" = xyes; then
+      printf "%s\n" "#define $ac_item 1" >> confdefs.h
+    fi
+    ac_header= ac_cache=
+  elif test $ac_header; then
+    ac_cache=$ac_item
+  else
+    ac_header=$ac_item
+  fi
+done
+
+
+
+
+
+
+
+
+if test $ac_cv_header_stdlib_h = yes && test $ac_cv_header_string_h = yes
+then :
+
+printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
+
+fi
+
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for X" >&5
 printf %s "checking for X... " >&6; }
 
 
@@ -4754,56 +4786,27 @@ else
 printf "%s\n" "libraries $x_libraries, headers $x_includes" >&6; }
 fi
 
-ac_header= ac_cache=
-for ac_item in $ac_header_cxx_list
-do
-  if test $ac_cache; then
-    ac_fn_cxx_check_header_compile "$LINENO" $ac_header ac_cv_header_$ac_cache "$ac_includes_default"
-    if eval test \"x\$ac_cv_header_$ac_cache\" = xyes; then
-      printf "%s\n" "#define $ac_item 1" >> confdefs.h
-    fi
-    ac_header= ac_cache=
-  elif test $ac_header; then
-    ac_cache=$ac_item
-  else
-    ac_header=$ac_item
-  fi
-done
-
-
-
-
-
-
-
-
-if test $ac_cv_header_stdlib_h = yes && test $ac_cv_header_string_h = yes
+	if test "$no_x" = "yes"
 then :
 
-printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
-
-fi
-if test "$no_x" = "yes"
-then :
-
-    USE_X_WINDOWS=0
+	    USE_X_WINDOWS=0
 
 else $as_nop
 
-    USE_X_WINDOWS=1
-    if test "x$x_includes" = "x"
+	    USE_X_WINDOWS=1
+	    if test "x$x_includes" = "x"
 then :
 
 else $as_nop
   X_INCLUDE_DIR=-I$x_includes
 fi
-    if test "x$x_libraries" = "x"
+	    if test "x$x_libraries" = "x"
 then :
 
 else $as_nop
   X_LIB_DIR=-L$x_libraries
 fi
-    ac_fn_cxx_check_header_compile "$LINENO" "X11/Intrinsic.h" "ac_cv_header_X11_Intrinsic_h" "$ac_includes_default"
+	    ac_fn_cxx_check_header_compile "$LINENO" "X11/Intrinsic.h" "ac_cv_header_X11_Intrinsic_h" "$ac_includes_default"
 if test "x$ac_cv_header_X11_Intrinsic_h" = xyes
 then :
 
@@ -4896,6 +4899,7 @@ fi
 
 
 fi
+
 
 
 
