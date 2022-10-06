@@ -892,13 +892,13 @@ TEST_F(MM_stl_checkpoint, nested_map_set ) {
 
 // Multisets
 
-TEST_F(MM_stl_checkpoint, i_set ) {
+TEST_F(MM_stl_checkpoint, i_multiset ) {
     // ARRANGE
     // Make a testbed
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     // Likely to be some repeats in here
-    std::vector<char> test_data = get_test_data<char>(1000);
+    std::vector<int> test_data = get_test_data<int>(1000);
 
     std::multiset<int> expected;
 
@@ -910,25 +910,25 @@ TEST_F(MM_stl_checkpoint, i_set ) {
         expected.insert(test_data[i]);
     }
 
-    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.i_set")->attr;
+    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.i_multiset")->attr;
 
     // ACT
     // Call the checkpoint function that is being tested
-    (vec_attr->checkpoint_stl)((void *) &testbed->i_set, "my_alloc", vec_attr->name) ;
+    (vec_attr->checkpoint_stl)((void *) &testbed->i_multiset, "my_alloc", vec_attr->name) ;
 
     // ASSERT
-    validate_temp_set<char>(memmgr, std::string("my_alloc"), std::string("i_set"), std::set<char> (test_data.begin(), test_data.end()));
+    validate_temp_sequence<int>(memmgr, std::string("my_alloc"), std::string("i_multiset"), std::vector<int> (expected.begin(), expected.end()));
 }
 
-TEST_F(MM_stl_checkpoint, vector_set ) {
+TEST_F(MM_stl_checkpoint, vector_multiset ) {
     // ARRANGE
     // Make a testbed
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
-    std::vector<char> test_data = get_test_data<char>(1000);
+    std::vector<int> test_data = get_test_data<int>(1000);
     std::vector<int> sizes = {500, 250, 125, 62, 31, 15, 7, 3, 1, 6};
     // The ordering is confusing on these, so just make a copy and use that
-    std::set<std::vector<int>> expected_data;
+    std::multiset<std::vector<int>> expected_data;
     // Prepare the STL to be tested
     int start_index = 0;
     for (int i = 0; i < sizes.size(); i++) {
@@ -936,31 +936,33 @@ TEST_F(MM_stl_checkpoint, vector_set ) {
         for (int j = 0; j < sizes[i]; j++) {
             temp_vec.push_back(test_data[start_index+j]);
         }
-        testbed->vector_set.insert(std::vector<int>(temp_vec));
+        // just add 2?
+        testbed->vector_multiset.insert(std::vector<int>(temp_vec));
+        testbed->vector_multiset.insert(std::vector<int>(temp_vec));
+        expected_data.insert(std::vector<int>(temp_vec));
         expected_data.insert(std::vector<int>(temp_vec));
 
         start_index += sizes[i];
     }
 
-    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.vector_set")->attr;
+    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.vector_multiset")->attr;
 
     // ACT
     // Call the checkpoint function that is being tested
-    (vec_attr->checkpoint_stl)((void *) &testbed->vector_set, "my_alloc", vec_attr->name) ;
+    (vec_attr->checkpoint_stl)((void *) &testbed->vector_multiset, "my_alloc", vec_attr->name) ;
 
     // ASSERT
     int index = 0;
     std::vector<int> sizes_in_right_order;
     for (std::vector<int> vec : expected_data) {
-        std::string var_name = "vector_set_" + std::to_string(index++); 
+        std::string var_name = "vector_multiset_" + std::to_string(index++); 
         validate_temp_sequence<int>(memmgr, std::string("my_alloc"), var_name, vec);
         sizes_in_right_order.push_back(vec.size());
     }
-    validate_links(memmgr, std::string("my_alloc"), std::string("vector_set"), sizes_in_right_order);
-    // validate_temp_set<char>(memmgr, std::string("my_alloc"), std::string("vector_set"), std::set<char> (test_data.begin(), test_data.end()));
+    validate_links(memmgr, std::string("my_alloc"), std::string("vector_multiset"), sizes_in_right_order);
 }
 
-TEST_F(MM_stl_checkpoint, s_set ) {
+TEST_F(MM_stl_checkpoint, s_multiset ) {
     // ARRANGE
     // Make a testbed
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
@@ -969,31 +971,33 @@ TEST_F(MM_stl_checkpoint, s_set ) {
     std::vector<int> test_second = get_test_data<int>(10);
 
     // make a copy to deal with ordering
-    std::set<std::pair<int,int>> expected;
+    std::multiset<std::pair<int,int>> expected;
 
     // Prepare the STL to be tested
     for (int i = 0; i < test_first.size(); i++) {
-        testbed->s_set.insert(std::pair<int,int>(test_first[i], test_second[i]));
+        testbed->s_multiset.insert(std::pair<int,int>(test_first[i], test_second[i]));
+        testbed->s_multiset.insert(std::pair<int,int>(test_first[i], test_second[i]));
+        expected.insert(std::pair<int,int>(test_first[i], test_second[i]));
         expected.insert(std::pair<int,int>(test_first[i], test_second[i]));
     }
 
-    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.s_set")->attr;
+    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.s_multiset")->attr;
 
     // ACT
     // Call the checkpoint function that is being tested
-    (vec_attr->checkpoint_stl)((void *) &testbed->s_set, "my_alloc", vec_attr->name) ;
+    (vec_attr->checkpoint_stl)((void *) &testbed->s_multiset, "my_alloc", vec_attr->name) ;
 
     // ASSERT
     int index = 0;
     for (std::pair<int,int> expected_pair : expected) {
-        std::string var_name = "s_set_" + std::to_string(index++);
+        std::string var_name = "s_multiset_" + std::to_string(index++);
         validate_temp_pair(memmgr, std::string("my_alloc"), var_name, std::pair<int,int>(expected_pair.first, expected_pair.second));
     }
-    validate_links_pairs(memmgr, "my_alloc", "s_set", test_first.size());
+    validate_links_pairs(memmgr, "my_alloc", "s_multiset", expected.size());
 }
 
 
-TEST_F(MM_stl_checkpoint, nested_map_set ) {
+TEST_F(MM_stl_checkpoint, nested_map_multiset ) {
     // // ARRANGE
     // // Make a testbed
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
@@ -1003,7 +1007,7 @@ TEST_F(MM_stl_checkpoint, nested_map_set ) {
     // Prepare the STL to be tested
     
     // Make a copy to deal with ordering mess
-    std::set<std::map<short,double>> expected;
+    std::multiset<std::map<short,double>> expected;
 
     for (int i = 0; i < 10; i++) {
         std::map<short,double> temp_map;
@@ -1011,19 +1015,21 @@ TEST_F(MM_stl_checkpoint, nested_map_set ) {
             temp_map[test_keys[i*10+j]] = test_vals[test_keys[i*10+j]];
         }
         expected.emplace(temp_map);
-        testbed->nested_map_set.emplace(temp_map);
+        expected.emplace(temp_map);
+        testbed->nested_map_multiset.emplace(temp_map);
+        testbed->nested_map_multiset.emplace(temp_map);
     }
 
-    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.nested_map_set")->attr;
+    ATTRIBUTES* vec_attr = memmgr->ref_attributes("my_alloc.nested_map_multiset")->attr;
 
     // ACT
     // Call the checkpoint function that is being tested
-    (vec_attr->checkpoint_stl)((void *) &testbed->nested_map_set, "my_alloc", vec_attr->name) ;
+    (vec_attr->checkpoint_stl)((void *) &testbed->nested_map_multiset, "my_alloc", vec_attr->name) ;
 
     // ASSERT
     int index = 0;
     for (std::map<short,double> expected_map : expected) {
-        std::string var_name = "nested_map_set_" + std::to_string(index++);
+        std::string var_name = "nested_map_multiset_" + std::to_string(index++);
         validate_temp_map(memmgr, "my_alloc", var_name, expected_map);
     }
 

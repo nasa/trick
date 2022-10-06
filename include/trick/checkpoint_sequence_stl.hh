@@ -112,7 +112,6 @@ int checkpoint_sequence_s(STL & in_stl , std::string object_name , std::string v
                 index_string << ii ;
                 //message_publish(1, "recursive call to checkpoint_stl %s\n", __PRETTY_FUNCTION__) ;
                 checkpoint_stl( const_cast<typename STL::value_type &>(*it) , object_name + "_" + var_name , index_string.str() ) ;
-                // checkpoint_stl( (*it) , object_name + "_" + var_name , index_string.str() ) ;
             
             }
         }
