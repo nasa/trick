@@ -9,4 +9,4 @@ are compiled into the sim.
 const char * get_trick_env( char * variable_name )
 ```
 
-[Continue to STL Checkpointing](STL-Checkpointing)
+[Continue to STL Checkpointing](STL-Capabilities)
