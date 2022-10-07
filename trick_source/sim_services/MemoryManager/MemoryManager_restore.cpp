@@ -115,7 +115,6 @@ int Trick::MemoryManager::init_from_checkpoint(const char* filename, bool restor
 
     read_checkpoint( filename, restore_stls);
 
-
     if (debug_level) {
         std::cout << std::endl << "Initialization from checkpoint finished." << std::endl;
         std::cout.flush();

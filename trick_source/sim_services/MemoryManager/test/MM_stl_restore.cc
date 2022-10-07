@@ -823,14 +823,322 @@ TEST_F(MM_stl_restore, i_set ) {
     EXPECT_EQ(memmgr->var_exists("my_alloc_i_set"), 0);
 }
 
-// These can't be written yet since the data structures will fail at compile time
 
-TEST_F(MM_stl_restore, DISABLED_s_set ) { }
+TEST_F(MM_stl_restore, s_set ) { 
+    // ARRANGE
+    // make a testbed object
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    ATTRIBUTES * attr =  memmgr->ref_attributes("my_alloc.s_set")->attr;
 
-TEST_F(MM_stl_restore, DISABLED_nested_map_set ) { }
+    std::vector<int> test_first= get_test_data<int>(20);
+    std::vector<int> test_second = get_test_data<int>(20);
 
-TEST_F(MM_stl_restore, DISABLED_i_multiset ) { }
+    std::set<std::pair<int,int>> expected;
 
+    std::string * data_links  = (std::string *) memmgr->declare_var("std::string my_alloc_s_set[20]");
+
+    for (int i = 0; i < test_first.size(); i++) {
+        data_links[i] = "my_alloc_s_set_" + std::to_string(i);
+
+        std::string first_var_name = "int my_alloc_s_set_" + std::to_string(i) + "_first";
+        std::string second_var_name = "int my_alloc_s_set_" + std::to_string(i) + "_second";
+
+        int * temp_first = (int *)memmgr->declare_var(first_var_name.c_str());
+        *temp_first = test_first[i];
+        int * temp_second = (int *)memmgr->declare_var(second_var_name.c_str());
+        *temp_second = test_second[i];
+
+        // Build a copy of the expected data
+        expected.insert(std::pair<int,double>(test_first[i], test_second[i]));
+    }
+
+    // ACT
+    (attr->restore_stl)((void *) &testbed->s_set, "my_alloc", attr->name) ;
+
+    // ASSERT
+    // Make sure the STL has been populated
+    EXPECT_EQ(testbed->s_set, expected);
+
+    // Check that all the temporary variables have been deleted
+    EXPECT_EQ(memmgr->var_exists("my_alloc_s_set"), 0);
+    for (int i = 0; i < test_first.size(); i++) {
+        EXPECT_EQ(memmgr->var_exists("my_alloc_s_set_" + std::to_string(i) + "_first"), 0);
+        EXPECT_EQ(memmgr->var_exists("my_alloc_s_set_" + std::to_string(i) + "_second"), 0);
+    }
+}
+
+TEST_F(MM_stl_restore, vector_set ) { 
+    // ARRANGE
+    // make a testbed object
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.vector_set")->attr;
+
+    std::vector<int> test_data = get_test_data<int>(50);
+    // Make sure we can handle lists of different sizes
+    std::vector<int> lengths = {20, 4, 1, 1, 14, 10};
+
+    // Build a copy of the expected data
+    std::set<std::vector<int>> expected;
+
+    // Register the expected temporary variables with the memory manager
+    int start_index = 0;
+    std::string * nested_list_links = (std::string *) memmgr->declare_var( "std::string my_alloc_vector_set[6]");
+    for (int i = 0; i < lengths.size(); i++) {
+        nested_list_links[i] = "my_alloc_vector_set_" + std::to_string(i);
+
+        std::string temp_var_name = "int my_alloc_vector_set_" + std::to_string(i) + "[" + std::to_string(lengths[i]) + "]";
+        std::vector<int> temp_expected;
+        int * temp_arr = (int *)memmgr->declare_var(temp_var_name.c_str());
+        for (int j = 0; j < lengths[i]; j++) {
+            temp_arr[j] = test_data[start_index + j];
+            temp_expected.push_back(test_data[start_index + j]);
+        }
+
+        expected.insert(temp_expected);
+
+        start_index += lengths[i];
+    }
+
+    // ACT
+    (attr->restore_stl)((void *) &testbed->vector_set, "my_alloc", attr->name) ;
+
+    // ASSERT
+    // Make sure the STL has been populated
+    ASSERT_EQ(testbed->vector_set, expected);
+
+    // Check that all the temporary variables have been deleted
+    EXPECT_EQ(memmgr->var_exists("my_alloc_vector_set"), 0);
+    for (int i = 0; i < test_data.size()/2; i++) {
+        EXPECT_EQ(memmgr->var_exists("my_alloc_vector_set_" + std::to_string(i)), 0);
+    }
+}
+
+TEST_F(MM_stl_restore, nested_map_set ) { 
+    // ARRANGE
+    // make a testbed object
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.nested_map_set")->attr;
+
+    std::vector<short> test_keys = get_test_data<short>(60);
+    std::vector<double> test_vals = get_test_data<double>(60);
+
+    std::set<std::map<short,double>> expected;
+
+    std::string * nested_map_links = (std::string *) memmgr->declare_var( "std::string my_alloc_nested_map_set[6]");
+    for (int i = 0; i < 6; i++) {
+        nested_map_links[i] = "my_alloc_nested_map_set_" + std::to_string(i);
+
+        std::string keys_var_name = "short my_alloc_nested_map_set_" + std::to_string(i) + "_keys[10]";
+        std::string vals_var_name = "double my_alloc_nested_map_set_" + std::to_string(i) + "_data[10]";
+
+        short * map_keys_temp = (short *) memmgr->declare_var( keys_var_name.c_str() );
+        double * map_vals_temp = (double *) memmgr->declare_var( vals_var_name.c_str() );
+
+        std::map<short,double> temp_map;
+        for (int j = 0; j < 10; j++) {
+            map_keys_temp[j] = test_keys[(i*10) + j];
+            map_vals_temp[j] = test_vals[(i*10) + j];
+
+            temp_map[test_keys[(i*10) + j]] = test_vals[(i*10) + j];
+        }
+
+        expected.emplace(temp_map);
+    }
+
+    // ACT
+    (attr->restore_stl)((void *) &testbed->nested_map_set, "my_alloc", attr->name) ;
+
+    // ASSERT
+    ASSERT_EQ(testbed->nested_map_set, expected);
+
+
+    // Check that all the temporary variables have been deleted
+    EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_set"), 0);
+    for (int i = 0; i < expected.size(); i++) {
+        EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_set_" + std::to_string(i) + "_data"), 0);
+        EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_set_" + std::to_string(i) + "_vals"), 0);
+    }
+}
+
+// Multiset
+
+TEST_F(MM_stl_restore, i_multiset ) {
+    // ARRANGE
+    // make a testbed object
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.i_multiset")->attr;
+
+
+    std::vector<int> test_data = get_test_data<int>(100);
+    std::multiset<int> expected;
+
+    // Make the expected structure first
+    for (int val : test_data) {
+        expected.insert(val);
+        expected.insert(val);
+    }
+
+    // Register the expected temporary variables with the memory manager
+    std::string var_name = "int my_alloc_i_multiset[" + std::to_string(expected.size()) + "]";
+    int * temp_data = (int *) memmgr->declare_var(var_name.c_str());
+    int index = 0;
+    for (const int val : expected) {
+        temp_data[index++] = val;
+    }
+
+    // ACT
+    (attr->restore_stl)((void *) &testbed->i_multiset, "my_alloc", attr->name) ;
+
+    // ASSERT
+    // Make sure the STL has been populated
+    EXPECT_EQ(testbed->i_multiset, expected);
+
+    // Check that all the temporary variables have been deleted
+    EXPECT_EQ(memmgr->var_exists("my_alloc_i_multiset"), 0);
+}
+
+
+TEST_F(MM_stl_restore, s_multiset ) { 
+    // ARRANGE
+    // make a testbed object
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    ATTRIBUTES * attr =  memmgr->ref_attributes("my_alloc.s_multiset")->attr;
+
+    std::vector<int> test_first= get_test_data<int>(20);
+    std::vector<int> test_second = get_test_data<int>(20);
+
+    std::multiset<std::pair<int,int>> expected;
+
+    std::string * data_links  = (std::string *) memmgr->declare_var("std::string my_alloc_s_multiset[40]");
+
+    for (int i = 0; i < test_first.size(); i++) {
+        // just insert the same thing twice
+        for (int j = 0; j < 2; j++) {
+            data_links[i*2+j] = "my_alloc_s_multiset_" + std::to_string(i*2+j);
+
+            std::string first_var_name = "int my_alloc_s_multiset_" + std::to_string(i*2+j) + "_first";
+            std::string second_var_name = "int my_alloc_s_multiset_" + std::to_string(i*2+j) + "_second";
+
+            int * temp_first = (int *)memmgr->declare_var(first_var_name.c_str());
+            *temp_first = test_first[i];
+            int * temp_second = (int *)memmgr->declare_var(second_var_name.c_str());
+            *temp_second = test_second[i];
+
+            // Build a copy of the expected data
+            expected.insert(std::pair<int,double>(test_first[i], test_second[i]));
+        }
+    }
+
+    // ACT
+    (attr->restore_stl)((void *) &testbed->s_multiset, "my_alloc", attr->name) ;
+
+    // ASSERT
+    // Make sure the STL has been populated
+    EXPECT_EQ(testbed->s_multiset, expected);
+
+    // Check that all the temporary variables have been deleted
+    EXPECT_EQ(memmgr->var_exists("my_alloc_s_multiset"), 0);
+    for (int i = 0; i < expected.size(); i++) {
+        EXPECT_EQ(memmgr->var_exists("my_alloc_s_multiset_" + std::to_string(i) + "_first"), 0);
+        EXPECT_EQ(memmgr->var_exists("my_alloc_s_multiset_" + std::to_string(i) + "_second"), 0);
+    }
+}
+
+TEST_F(MM_stl_restore, vector_multiset ) { 
+    // ARRANGE
+    // make a testbed object
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.vector_multiset")->attr;
+
+    std::vector<int> test_data = get_test_data<int>(50);
+    // Make sure we can handle lists of different sizes
+    std::vector<int> lengths = {20, 4, 1, 1, 14, 10};
+
+    // Build a copy of the expected data
+    std::multiset<std::vector<int>> expected;
+
+    // Register the expected temporary variables with the memory manager
+    int start_index = 0;
+    std::string * nested_list_links = (std::string *) memmgr->declare_var( "std::string my_alloc_vector_multiset[12]");
+    for (int i = 0; i < lengths.size(); i++) {
+        for (int j = 0; j < 2; j++) {
+            nested_list_links[i*2+j] = "my_alloc_vector_multiset_" + std::to_string(i*2+j);
+
+            std::string temp_var_name = "int my_alloc_vector_multiset_" + std::to_string(i*2+j) + "[" + std::to_string(lengths[i]) + "]";
+            std::vector<int> temp_expected;
+            int * temp_arr = (int *)memmgr->declare_var(temp_var_name.c_str());
+            for (int k = 0; k < lengths[i]; k++) {
+                temp_arr[k] = test_data[start_index + k];
+                temp_expected.push_back(test_data[start_index + k]);
+            }
+
+            expected.insert(temp_expected);
+
+        }
+        start_index += lengths[i];
+    }
+
+    // ACT
+    (attr->restore_stl)((void *) &testbed->vector_multiset, "my_alloc", attr->name) ;
+
+    // ASSERT
+    // Make sure the STL has been populated
+    ASSERT_EQ(testbed->vector_multiset, expected);
+
+    // Check that all the temporary variables have been deleted
+    EXPECT_EQ(memmgr->var_exists("my_alloc_vector_multiset"), 0);
+    for (int i = 0; i < expected.size(); i++) {
+        EXPECT_EQ(memmgr->var_exists("my_alloc_vector_multiset_" + std::to_string(i)), 0);
+    }
+}
+
+TEST_F(MM_stl_restore, nested_map_multiset ) { 
+    // ARRANGE
+    // make a testbed object
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.nested_map_multiset")->attr;
+
+    std::vector<short> test_keys = get_test_data<short>(60);
+    std::vector<double> test_vals = get_test_data<double>(60);
+
+    std::multiset<std::map<short,double>> expected;
+
+    std::string * nested_map_links = (std::string *) memmgr->declare_var( "std::string my_alloc_nested_map_multiset[12]");
+    for (int i = 0; i < 6; i++) {
+        for (int k = 0; k < 2; k++) {
+            nested_map_links[i] = "my_alloc_nested_map_multiset_" + std::to_string(i*2+k);
+
+            std::string keys_var_name = "short my_alloc_nested_map_multiset_" + std::to_string(i*2+k) + "_keys[10]";
+            std::string vals_var_name = "double my_alloc_nested_map_multiset_" + std::to_string(i*2+k) + "_data[10]";
+
+            short * map_keys_temp = (short *) memmgr->declare_var( keys_var_name.c_str() );
+            double * map_vals_temp = (double *) memmgr->declare_var( vals_var_name.c_str() );
+
+            std::map<short,double> temp_map;
+            for (int j = 0; j < 10; j++) {
+                map_keys_temp[j] = test_keys[(i*10) + j];
+                map_vals_temp[j] = test_vals[(i*10) + j];
+
+                temp_map[test_keys[(i*10) + j]] = test_vals[(i*10) + j];
+            }
+
+            expected.emplace(temp_map);
+        }
+    }
+
+    // ACT
+    (attr->restore_stl)((void *) &testbed->nested_map_multiset, "my_alloc", attr->name) ;
+
+    // ASSERT
+    ASSERT_EQ(testbed->nested_map_multiset, expected);
+
+    // Check that all the temporary variables have been deleted
+    EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_multiset"), 0);
+    for (int i = 0; i < expected.size(); i++) {
+        EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_multiset_" + std::to_string(i) + "_data"), 0);
+        EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_multiset_" + std::to_string(i) + "_vals"), 0);
+    }
+}
 
 TEST_F(MM_stl_restore, i_array ) {
     // ARRANGE
@@ -884,7 +1192,7 @@ TEST_F(MM_stl_restore, pair_array ) {
         *temp_second = test_second[i];
 
         // Build a copy of the expected data
-        expected[i] = std::pair<short,double>(test_first[i], test_second[i]);
+        expected[i] = std::pair<int,int>(test_first[i], test_second[i]);
     }
 
     // ACT
