@@ -2,6 +2,7 @@
 PURPOSE: (Testing)
 */
 #include <string>
+#include <vector>
 
 typedef struct {
     unsigned int a :3;
@@ -93,3 +94,26 @@ class UDT7 {
     char B[32][4];
 };
 
+class Foo {
+    public:
+    int a;
+    double b;
+    std::vector<int> c;
+};
+
+class VectorWrapper {
+    public:
+    int operator[] (int index) {
+        return vec[index];            
+    }
+
+    void push_back(int val) {
+        vec.push_back(val);
+    }
+
+    int size() {
+        return vec.size();
+    }
+    std::vector<int> vec;
+
+};

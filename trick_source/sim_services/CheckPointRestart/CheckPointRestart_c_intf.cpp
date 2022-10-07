@@ -160,6 +160,30 @@ extern "C" int load_checkpoint( const char * file_name ) {
 
 /**
  * @relates Trick::CheckPointRestart
+ * @copydoc Trick::CheckPointRestart::load_checkpoint
+ */
+extern "C" int load_checkpoint_stls( const char * file_name, int on_off ) {
+
+    the_cpr->load_checkpoint(std::string(file_name), (bool) on_off) ;
+
+    return(0) ;
+
+}
+
+/**
+ * @relates Trick::CheckPointRestart
+ * @copydoc Trick::CheckPointRestart::load_checkpoint
+ */
+extern "C" int load_checkpoint_objects( const char * file_name ) {
+
+    the_cpr->load_checkpoint(std::string(file_name)) ;
+
+    return(0) ;
+
+}
+
+/**
+ * @relates Trick::CheckPointRestart
  * @copydoc Trick::CheckPointRestart::load_checkpoint_job
  */
 extern "C" int load_checkpoint_job() {

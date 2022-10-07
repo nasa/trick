@@ -371,32 +371,32 @@ namespace Trick {
              Restore a checkpoint from the given stream.
              @param in_s - input stream.
              */
-            int read_checkpoint( std::istream* in_s, bool do_restore_stls=false);
+            int read_checkpoint( std::istream* in_s, bool do_restore_stls = restore_stls_default);
 
             /**
              Read a checkpoint from the file of the given name.
              @param filename - name of the checkpoint file to be read.
              */
-            int read_checkpoint( const char* filename);
+            int read_checkpoint( const char* filename, bool do_restore_stls = restore_stls_default);
 
             /**
              Read a checkpoint from the given string.
              @param s - string containing the checkpoint info.
              */
-            int read_checkpoint_from_string( const char* s );
+            int read_checkpoint_from_string( const char* s, bool do_restore_stls = restore_stls_default );
 
             /**
              Delete all TRICK_LOCAL variables and clear all TRICK_EXTERN variables. Then read
              and restore the checkpoint from the given stream.
              @param in_s - input stream.
              */
-            int init_from_checkpoint( std::istream* in_s);
+            int init_from_checkpoint( std::istream* in_s, bool do_restore_stls = restore_stls_default);
 
             /**
              Delete all TRICK_LOCAL variables and clear all TRICK_EXTERN variables. Then read
              and restore the checkpoint of the given filename.
              */
-            int init_from_checkpoint( const char* filename);
+            int init_from_checkpoint( const char* filename, bool do_restore_stls = restore_stls_default);
 
             /**
              Deallocate the memory for all TRICK_LOCAL variables and then forget about them.
@@ -661,6 +661,10 @@ namespace Trick {
 
             void write_JSON_alloc_info( std::ostream& s, ALLOC_INFO *alloc_info) ;
             void write_JSON_alloc_list( std::ostream& s, int start_ix, int num) ;
+
+            int set_restore_stls_default (bool on);
+            static bool restore_stls_default;  /**< -- true = restore STL variables on checkpoint restore if user does not specify option. false = don't */
+
 
         private:
 

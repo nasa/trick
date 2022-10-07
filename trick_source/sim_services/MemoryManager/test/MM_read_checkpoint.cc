@@ -262,8 +262,74 @@ TEST_F(MM_read_checkpoint, 2D_char_array) {
 
         EXPECT_EQ(result, 0);
     }
+}
 
+TEST_F(MM_read_checkpoint, WrappedStl) {
+    memmgr->read_checkpoint_from_string(
+            "VectorWrapper my_vec;"
+            "int my_vec_vec[4];"
+            "clear_all_vars();"
+            "my_vec_vec = "
+            "{10, 20, 30, 40};");
 
+    VectorWrapper * vector = (VectorWrapper *) memmgr->ref_attributes("my_vec")->address;
 
+    ASSERT_EQ(vector->vec.size(), 4);
+    for (int i = 0; i < 4; i++) {
+        EXPECT_EQ(vector->vec[i], (i+1)*10);
+    }
+}
 
+TEST_F(MM_read_checkpoint, WrappedStlPreDeclared) {
+    VectorWrapper * vector = (VectorWrapper *) memmgr->declare_var("VectorWrapper my_vec");
+
+    memmgr->read_checkpoint_from_string(
+            "int my_vec_vec[4];"
+            "clear_all_vars();"
+            "my_vec_vec = "
+            "{10, 20, 30, 40};");
+
+    ASSERT_EQ(vector->vec.size(), 4);
+    for (int i = 0; i < 4; i++) {
+        EXPECT_EQ(vector->vec[i], (i+1)*10);
+    }
+}
+
+TEST_F(MM_read_checkpoint, encapsulated_stl_test) {
+
+        // std::vector<int> my_vector;
+        Foo * my_foo_ptr = (Foo *) memmgr->declare_var("Foo my_foo");
+
+        memmgr->read_checkpoint_from_string(
+            "int my_foo_c[3];"
+            "my_foo.a = 5;"
+            "my_foo.b = 5.5;"
+            "my_foo_c = {1, 2, 3, 4};"
+        );
+
+        EXPECT_EQ(my_foo_ptr->a, 5);
+        EXPECT_EQ(my_foo_ptr->b, 5.5);
+        
+        ASSERT_EQ(my_foo_ptr->c.size(), 3);
+        EXPECT_EQ(my_foo_ptr->c[0], 1);
+        EXPECT_EQ(my_foo_ptr->c[1], 2);
+        EXPECT_EQ(my_foo_ptr->c[2], 3);
+}
+
+TEST_F(MM_read_checkpoint, encapsulated_stl_test_stl_disabled) {
+
+        // std::vector<int> my_vector;
+        Foo * my_foo_ptr = (Foo *) memmgr->declare_var("Foo my_foo");
+
+        memmgr->read_checkpoint_from_string(
+            "int my_foo_c[3];"
+            "my_foo.a = 5;"
+            "my_foo.b = 5.5;"
+            "my_foo_c = {1, 2, 3, 4};", false);
+
+        EXPECT_EQ(my_foo_ptr->a, 5);
+        EXPECT_EQ(my_foo_ptr->b, 5.5);
+        
+        // c should not be restored
+        ASSERT_EQ(my_foo_ptr->c.size(), 0);
 }
