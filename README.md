@@ -352,3 +352,15 @@ if monte_carlo.master.active:
 
 Let’s break this down, because it explains the reason for having 2 flags:
 
+| Generate_dispersions | Active | Result |
+| :--- |:---| :--- |
+| false | false | Regular (non-monte-carlo) run |
+| false | true | Run scenario with monte-carlo configuration and pregenerated dispersions |
+| true | false | Regular (non-monte-carlo) runs |
+| true | true | Generate dispersions for this scenario, but do not run the scenario |
+
+ 1. If the master is inactive, this content is passed over and the input file runs just as it would without this content
+ 2. Having the master active flag set to true instructs the simulation that the execution is intended to be part of a monte-carlo analysis. Now there are 2 types of executions that fit this intent:
+    * The generation of the dispersion files
+    * The execution of this run with the application of previously-generated dispersions
+
