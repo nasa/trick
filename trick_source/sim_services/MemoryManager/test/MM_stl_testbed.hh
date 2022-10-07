@@ -59,7 +59,6 @@ public:
     std::pair<std::vector<int>,std::stack<float>> s_s_pair;
     std::pair<double,std::vector<bool>> i_v_pair;
     std::pair<std::pair<int,int>, int> pair_pair;
-    std::pair< int , std::pair< int, int > > int_pair_pair;
 
     std::map<int, double> i_i_map;
     std::map<int, std::stack<std::string>> i_s_map;

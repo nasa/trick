@@ -46,7 +46,7 @@ If it is in a class that is nested in a `sim_object`, it will be registered with
 
 You can nest an arbitrary amount of STLs, they will all be checkpointed as long as 
 the base is a member of a class that is registered with the memory manager. There
-are a some [**limitations**](#limitations) and exceptions due to [**bugs**](#known_bugs) at the moment (but hopefully not forever!)
+are a some known [**limitations**](#limitations).
 
 ```
 class AnyClass {
@@ -109,14 +109,5 @@ memorymanager->declare_var_extern(&my_vector, "std::vector<int> my_vector_alloca
 ```
 
 
-<a id=known-bugs></a>
-
-## Known bugs
-
-The types in an std::pair cannot be sequence STL types (vector, queue, stack, etc).
-```
-    // This will fail to checkpoint
-    std::pair<int, std::vector<int>> 
-```
 
 [Continue to Threads](Threads)
