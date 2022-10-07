@@ -26,6 +26,7 @@ int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stl
        emitError("Checkpoint restore failed.") ;
     }
 
+
     // Search for stls and restore them
     if(do_restore_stl) {
         for ( pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {

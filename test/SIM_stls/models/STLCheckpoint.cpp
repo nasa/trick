@@ -142,13 +142,27 @@ int STLCheckpoint::addData() {
     string_set.insert("abc") ;
     string_set.insert("def") ;
 
-    // for (int j = 0; j < 5; j++) {
-    //     std::vector<int> temp;
-    //     for (int i = j; i < 10; i++) {
-    //         temp.push_back(i);
-    //     }
-    //     vector_set.insert(temp);
-    // }
+    for (int j = 0; j < 5; j++) {
+        std::vector<int> temp;
+        for (int i = j; i < 10; i++) {
+            temp.push_back(i);
+        }
+        vector_set.insert(temp);
+    }
+
+    pair_set.emplace("One", 1);
+    pair_set.emplace("Two", 2);
+    pair_set.emplace("Three", 3);
+
+    std::map<short,double> m;
+    m[5] = 500.5;
+    m[1] = 100.1;
+    std::map<short,double> m2;
+    m2[5] = 5000.5;
+    m2[1] = 1000.1; 
+
+    nested_map_set.insert(m);
+    nested_map_set.insert(m2);
 
     for (int j = 0; j < 5; j++) {
         std::vector<int> temp;
@@ -171,6 +185,16 @@ int STLCheckpoint::addData() {
     string_multiset.insert("efg") ;
     string_multiset.insert("abc") ;
     string_multiset.insert("def") ;
+
+    pair_multiset.emplace(5, 5);
+    pair_multiset.emplace(5, 5);
+    pair_multiset.emplace(5, 4);
+    pair_multiset.emplace(4, 4);
+
+    vec_multiset.emplace(std::vector<int>({1,2,3,4}));
+    vec_multiset.emplace(std::vector<int>({1,2,3,4}));
+    vec_multiset.emplace(std::vector<int>({1,2,3,4,5}));
+
 
     uint_stack.push(1) ;
     uint_stack.push(2) ;
@@ -339,6 +363,27 @@ int STLCheckpoint::addData() {
     vector_vector_vector_double[4][3][1] = 4010 ;
     vector_vector_vector_double[4][3][2] = 4011 ;
 
+    for (int i = 0; i < 10; i++) {
+        UserClass temp;
+        for (int j = 0; j < 5; j++) {
+            temp.a[j] = i+j;
+        }
+        temp.b = 8888888888;
+        temp.c = "Here is a test string";
+
+        // We'll just make a pointer to the same stuff 
+
+        UserClass * user_class_ptr = (UserClass *) TMM_declare_var_s("UserClass");
+        for (int j = 0; j < 5; j++) {
+            user_class_ptr->a[j] = i+j;
+        }
+        user_class_ptr->b = 8888888888;
+        user_class_ptr->c = "Here is a test string";
+
+        temp.d = user_class_ptr;
+
+        vec_user_simple.emplace_back(temp);
+    }
 
     for (int i = 0; i < 10; i++) {
         SimpleWrapper temp_wrapper;
@@ -445,8 +490,8 @@ int STLCheckpoint::test() {
     TRICK_EXPECT_EQ( common_multiples[p], v, test_suite, "common_multiples" );
 
 
-    TRICK_EXPECT_EQ( string_map["sister"], "Lisa", test_suite, "string_map[\"sister\"]" );
-    TRICK_EXPECT_EQ( string_map["dog"], "Santa's Little Helper", test_suite, "string_map[\"dog\"]" );
+    TRICK_EXPECT_EQ( string_map["sister"], "Lisa", test_suite, "string_map[sister]" );
+    TRICK_EXPECT_EQ( string_map["dog"], "Santa's Little Helper", test_suite, "string_map[dog]" );
 
     
     // The easiest way to test the multimaps is to just rebuild copies and compare
@@ -532,6 +577,33 @@ int STLCheckpoint::test() {
     std::set<std::string> string_set_copy = {"efg", "abc", "def"};
     TRICK_EXPECT_EQ(string_set, string_set_copy, test_suite, "string_set");
 
+    std::set<std::vector<int>> vector_set_copy;
+    for (int j = 0; j < 5; j++) {
+        std::vector<int> temp;
+        for (int i = j; i < 10; i++) {
+            temp.push_back(i);
+        }
+        vector_set_copy.insert(temp);
+    }
+    TRICK_EXPECT_EQ(vector_set, vector_set_copy, test_suite, "vector_set");
+
+    std::set<std::pair<std::string, int>> pair_set_copy;
+    pair_set_copy.emplace("One", 1);
+    pair_set_copy.emplace("Two", 2);
+    pair_set_copy.emplace("Three", 3);
+    TRICK_EXPECT_EQ(pair_set, pair_set_copy, test_suite, "pair_set");
+
+    std::set<std::map<short,double>> nested_map_set_copy;
+    std::map<short,double> m;
+    m[5] = 500.5;
+    m[1] = 100.1;
+    std::map<short,double> m2;
+    m2[5] = 5000.5;
+    m2[1] = 1000.1; 
+    nested_map_set_copy.insert(m);
+    nested_map_set_copy.insert(m2);
+    TRICK_EXPECT_EQ(nested_map_set, nested_map_set_copy, test_suite, "nested_map_set");
+
     std::queue<std::vector<int>> vector_queue_copy;
     for (int j = 0; j < 5; j++) {
         std::vector<int> temp;
@@ -547,6 +619,19 @@ int STLCheckpoint::test() {
 
     std::multiset<std::string> string_multiset_copy = {"efg", "abc", "def", "efg", "abc", "def"};
     TRICK_EXPECT_EQ(string_multiset, string_multiset_copy, test_suite, "string_multiset");
+
+    std::multiset<std::pair<int,int>> pair_multiset_copy;
+    pair_multiset_copy.emplace(5, 5);
+    pair_multiset_copy.emplace(5, 5);
+    pair_multiset_copy.emplace(5, 4);
+    pair_multiset_copy.emplace(4, 4);
+    TRICK_EXPECT_EQ(pair_multiset, pair_multiset_copy, test_suite, "pair_multiset");
+
+    std::multiset<std::vector<int>> vec_multiset_copy;
+    vec_multiset_copy.emplace(std::vector<int>({1,2,3,4}));
+    vec_multiset_copy.emplace(std::vector<int>({1,2,3,4}));
+    vec_multiset_copy.emplace(std::vector<int>({1,2,3,4,5}));
+    TRICK_EXPECT_EQ(vec_multiset, vec_multiset_copy, test_suite, "vec_multiset");
 
     std::stack<unsigned int> uint_stack_copy;
     uint_stack_copy.push(1) ;
@@ -642,7 +727,6 @@ int STLCheckpoint::test() {
     pair_pair_pair_copy.second.second = 54 ;
     TRICK_EXPECT_EQ(pair_pair_pair_copy, pair_pair_pair, test_suite, "pair_pair_pair");
 
- // TODO: fix this case
     // Check all the int/vec combo pairs together, for laziness
     TRICK_EXPECT_EQ(int_vec_pair.first, 5, test_suite, "int_vec_pair.first");
     TRICK_EXPECT_EQ(vec_int_pair.second, 5, test_suite, "vec_int_pair.second");
@@ -658,6 +742,21 @@ int STLCheckpoint::test() {
         TRICK_EXPECT_EQ(vec_vec_pair.first[i], (i+1)*5, test_suite, "vec_vec_pair.first elems");
         TRICK_EXPECT_EQ(vec_vec_pair.second[i], (i+1)*5, test_suite, "vec_vec_pair.second elems");
 
+    }
+
+
+    TRICK_EXPECT_EQ(vec_user_simple.size(), 10, test_suite, "vec_user_simple")
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 5; j++) {
+            TRICK_EXPECT_EQ(vec_user_simple[i].a[j], i+j, test_suite, "vec_user_simple");
+            TRICK_EXPECT_EQ(vec_user_simple[i].d->a[j], i+j, test_suite, "vec_user_simple");
+        }
+
+        TRICK_EXPECT_EQ(vec_user_simple[i].b, 8888888888, test_suite, "vec_user_simple");
+        TRICK_EXPECT_EQ(vec_user_simple[i].d->b, 8888888888, test_suite, "vec_user_simple");
+
+        TRICK_EXPECT_EQ(vec_user_simple[i].c, "Here is a test string", test_suite, "vec_user_simple");
+        TRICK_EXPECT_EQ(vec_user_simple[i].d->c, "Here is a test string", test_suite, "vec_user_simple");
     }
 
     

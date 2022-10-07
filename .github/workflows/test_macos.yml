@@ -2,6 +2,8 @@ name: macOS
 
 on:
   push:
+    branches:
+        - master
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'

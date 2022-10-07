@@ -8,10 +8,34 @@
 #include <array>
 #include <string>
 
-class SimpleWrapper {
+class UserClassStl {
     public:
         int a;
         std::vector<int> vec;
+};
+
+class UserClass {
+    public:
+        UserClass () : d(NULL) {}
+        int a[5];
+        long long b;
+        std::string c;
+        UserClass * d = NULL;
+
+        bool operator== (const UserClass& other) const {
+            for (int i = 0; i < 5; i++) {
+                if (a[i] != other.a[i])
+                    return false;
+            }
+
+            if (d == NULL ^ other.d == NULL) return false;
+            return b == other.b && c == other.c && (d == NULL || *d == *(other.d));
+        }
+
+        bool operator != (const UserClass& other) const {
+            return !(*this == other);
+        }
+
 };
 
 class STLTestbed {
@@ -50,20 +74,26 @@ public:
     std::stack<std::list<float>> nested_list_stack;
 
     std::set<char> i_set;
-    // These fail in CP right now
-    // std::set   <std::pair<int,int>> s_set;
-    // std::set<std::map<int,int>> nested_map_set;
+    std::set<std::vector<int>> vector_set;
+    std::set   <std::pair<int,int>> s_set;
+    std::set<std::map<short,double>> nested_map_set;
 
     // this one will as well, if we put any STL containers in there
     std::multiset<int> i_multiset;
+    std::multiset<std::vector<int>> vector_multiset;
+    std::multiset   <std::pair<int,int>> s_multiset;
+    std::multiset<std::map<short,double>> nested_map_multiset;
 
     std::array<char, 10> i_array;
     std::array<std::pair<int,int>, 10> pair_array;
     std::array<std::string, 10> string_array;
     std::array<std::vector<int>, 10> vec_array;
 
+    std::vector<UserClass> vec_user_defined;
+
     // This does not currently work in the unit tests
-    std::vector<SimpleWrapper> vec_user_defined;
+    std::vector<UserClassStl> vec_user_defined_stl;
+
 
     std::array<std::map<std::pair<int, int>,std::vector<std::stack<std::string>>>, 5> recursive_nightmare;
 };
