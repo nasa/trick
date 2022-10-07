@@ -1285,5 +1285,69 @@ TEST_F(MM_stl_restore, vec_array ) {
     }
 }
 
+TEST_F(MM_stl_restore, vec_user_defined ) {
+    // ARRANGE
+    // make a testbed object
+    STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");  
+    ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc.vec_user_defined")->attr;
+
+    int numObj = 10;
+    std::vector<int> test_ints = get_test_data<int>(5 * numObj);
+    std::vector<long long> test_longs = get_test_data<long long>(numObj);
+    std::vector<std::string> test_strings = get_test_data<std::string>(numObj);
+
+    // Register the expected temporary variables with the memory manager
+    UserClass * data = (UserClass *) memmgr->declare_var("UserClass my_alloc_vec_user_defined[10]");
+
+    // Create an structure holding the expected final container
+    std::vector<UserClass> expected;
+
+    for (int i = 0; i < numObj; i++) {
+        UserClass temp;
+        for (int j = 0; j < 5; j++) {
+            temp.a[j] = test_ints[i*5+j];
+            data[i].a[j] = test_ints[i*5+j];
+        }
+        data[i].b = test_longs[i];
+        data[i].c = test_strings[i];
+
+        temp.b = test_longs[i];
+        temp.c = test_strings[i];
+
+        // just make a pointer to another one with the same data
+        std::string var_decl = "UserClass ptr_" + std::to_string(i);
+        UserClass * user_class_ptr = (UserClass *) memmgr->declare_var(var_decl.c_str());
+        UserClass * expected_ptr = new UserClass();
+
+        for (int j = 0; j < 5; j++) {
+            user_class_ptr->a[j] = test_ints[i*5+j];
+            expected_ptr->a[j] = test_ints[i*5+j];
+
+        }
+        user_class_ptr->b = test_longs[i];
+        user_class_ptr->c = test_strings[i];
+
+        expected_ptr->b = test_longs[i];
+        expected_ptr->c = test_strings[i];
+
+        data[i].d = user_class_ptr;
+        temp.d = expected_ptr;
+
+        expected.emplace_back(temp);
+    }
+
+
+    // ACT
+    (attr->restore_stl)((void *) &testbed->vec_user_defined, "my_alloc", attr->name) ;
+
+    // ASSERT
+    // Make sure the STL has been populated
+    EXPECT_EQ(testbed->vec_user_defined, expected);
+
+    // Check that all the temporary variables have been deleted
+    EXPECT_EQ(memmgr->var_exists("my_alloc_vec_user_defined"), 0);
+}
+
+
 TEST_F(MM_stl_restore, recursive_nightmare ) {
 }

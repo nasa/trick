@@ -38,6 +38,9 @@ SIMS_TO_COMPILE_AND_RUN = \
 	SIM_threads \
 	SIM_trickified
 
+# SIM_stls will run twice. First run is RUN_test/setup.py, which is added as a dependency to test in its S_overrides.mk file
+# The second run is the normal RUN_test/unit_test.py which is run through this makefile.
+
 # Sims with problems, no purpose, or maybe shouldn't be a test
 # SIM_leaks ( should be deleted )
 # SIM_dynamic_sim_object ( not running, class won't instantiate )

@@ -363,6 +363,27 @@ int STLCheckpoint::addData() {
     vector_vector_vector_double[4][3][1] = 4010 ;
     vector_vector_vector_double[4][3][2] = 4011 ;
 
+    for (int i = 0; i < 10; i++) {
+        UserClass temp;
+        for (int j = 0; j < 5; j++) {
+            temp.a[j] = i+j;
+        }
+        temp.b = 8888888888;
+        temp.c = "Here is a test string";
+
+        // We'll just make a pointer to the same stuff 
+
+        UserClass * user_class_ptr = (UserClass *) TMM_declare_var_s("UserClass");
+        for (int j = 0; j < 5; j++) {
+            user_class_ptr->a[j] = i+j;
+        }
+        user_class_ptr->b = 8888888888;
+        user_class_ptr->c = "Here is a test string";
+
+        temp.d = user_class_ptr;
+
+        vec_user_simple.emplace_back(temp);
+    }
 
     for (int i = 0; i < 10; i++) {
         SimpleWrapper temp_wrapper;
@@ -469,8 +490,8 @@ int STLCheckpoint::test() {
     TRICK_EXPECT_EQ( common_multiples[p], v, test_suite, "common_multiples" );
 
 
-    TRICK_EXPECT_EQ( string_map["sister"], "Lisa", test_suite, "string_map[\"sister\"]" );
-    TRICK_EXPECT_EQ( string_map["dog"], "Santa's Little Helper", test_suite, "string_map[\"dog\"]" );
+    TRICK_EXPECT_EQ( string_map["sister"], "Lisa", test_suite, "string_map[sister]" );
+    TRICK_EXPECT_EQ( string_map["dog"], "Santa's Little Helper", test_suite, "string_map[dog]" );
 
     
     // The easiest way to test the multimaps is to just rebuild copies and compare
@@ -723,6 +744,20 @@ int STLCheckpoint::test() {
     //     TRICK_EXPECT_EQ(vec_vec_pair.second[i], (i+1)*5, test_suite, "vec_vec_pair.second elems");
 
     // }
+
+    TRICK_EXPECT_EQ(vec_user_simple.size(), 10, test_suite, "vec_user_simple")
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 5; j++) {
+            TRICK_EXPECT_EQ(vec_user_simple[i].a[j], i+j, test_suite, "vec_user_simple");
+            TRICK_EXPECT_EQ(vec_user_simple[i].d->a[j], i+j, test_suite, "vec_user_simple");
+        }
+
+        TRICK_EXPECT_EQ(vec_user_simple[i].b, 8888888888, test_suite, "vec_user_simple");
+        TRICK_EXPECT_EQ(vec_user_simple[i].d->b, 8888888888, test_suite, "vec_user_simple");
+
+        TRICK_EXPECT_EQ(vec_user_simple[i].c, "Here is a test string", test_suite, "vec_user_simple");
+        TRICK_EXPECT_EQ(vec_user_simple[i].d->c, "Here is a test string", test_suite, "vec_user_simple");
+    }
 
     
 }
