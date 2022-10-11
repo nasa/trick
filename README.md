@@ -5,7 +5,17 @@
 ### [2. Requirements](#Requirements)
 ### [3. Model Specification](#Model Specification)
 #### &nbsp; &nbsp; [3.1 Code Structure](#Code Structure)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [3.1.1 Variable Management (MonteCarloMaster)](#Variable Management)
+##### &nbsp; &nbsp; &nbsp; &nbsp; [3.1.1 Variable Man###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.2 Initiating MonteCarlo](#Initiating MonteCarlo)
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.3 Additional Configurations](#Additional Configurations)
+#### &nbsp; &nbsp; [4.3 MonteCarlo Variables (MonteCarloVariable)](#MonteCarlo Variables)
+##### &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1 Instantiation and Registration](#Instantiation and Registration)
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.1 Python input file implementation for Trick:](#Python input file implementation for Trick:)
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.3 C++ implementation in its own class:](#C++ implementation in its own class:)
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.3 C++ implementation within a Trick S-module:](#C++ implementation within a Trick S-module:)
+##### &nbsp; &nbsp; &nbsp; &nbsp; [4.3.2 Input-file Access](#Input-file Access)
+##### &nbsp; &nbsp; &nbsp; &nbsp; [4.3.3 Configuration](#Configuration)
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.1 MonteCarloVariable](#MonteCarloVariable)
+###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.2 MonteCarloVariableFile](#MonteCarloVariableFile)agement (MonteCarloMaster)](#Variable Management)
 ##### &nbsp; &nbsp; &nbsp; &nbsp; [3.1.2 Disperesd Variables (MonteCarloVariable)](#Disperesd Variables)
 #### &nbsp; &nbsp; [3.2 Mathematical Formulation](#Mathematical Formulation)
 ### [4. User's Guide](#User's Guide)
@@ -16,17 +26,7 @@
 ##### &nbsp; &nbsp; &nbsp; &nbsp; [4.2.1 Instantiation](#Instantiation)
 ##### &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2 Configuration](#Configuration)
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.1 Modifications to the regular input file](#Modifications to the regular input file)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.2 Initiating MonteCarlo](#Initiating MonteCarlo)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.3 Additional Configurations](#Additional Configurations)
-#### &nbsp; &nbsp; [4.3 MonteCarlo Variables (MonteCarloVariable)](#MonteCarlo Variables)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1 Instantiation and Registration](#Instantiation and Registration)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.1 Python input file implementation for Trick:](#Python input file implementation for Trick:)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.3 C++ implementation in its own class:](#C++ implementation in its own class:)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.3 C++ implementation within a Trick S-module:](#C++ implementation within a Trick S-module:)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.3.2 Input-file Access](#Input-file Access)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.3.3 Configuration](#Configuration)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.1 MonteCarloVariable](#MonteCarloVariable)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.2 MonteCarloVariableFile](#MonteCarloVariableFile)
+
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.3 MonteCarloVariableFixed](#MonteCarloVariableFixed)
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.4 MonteCarloVariableRandomBool](#MonteCarloVariableRandomBool)
 ###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.5 MonteCarloVariableRandomNormal](#MonteCarloVariableRandomNormal)
@@ -761,3 +761,40 @@ RUN_019: test.x_uniform = 18.70087251269727
 Logged data matches Monte-input data
 
 ```
+
+### 5.1.2 Normal Distribution
+
+```
+mc_var = trick.MonteCarloVariableRandomNormal( "test.x_normal", 2, 10, 2)
+
+RUN_000: test.x_normal = 9.954870507417668
+RUN_001: test.x_normal = 11.32489560639709
+RUN_002: test.x_normal = 8.225020001340255
+RUN_003: test.x_normal = 9.078215205210737
+RUN_004: test.x_normal = 8.61231801622891
+RUN_005: test.x_normal = 10.72611121241102
+RUN_006: test.x_normal = 14.56731728448253
+RUN_007: test.x_normal = 9.489924230632374
+RUN_008: test.x_normal = 11.10848764602406
+RUN_009: test.x_normal = 11.9273239842278
+RUN_010: test.x_normal = 15.29213437867134
+RUN_011: test.x_normal = 9.912272360185705
+RUN_012: test.x_normal = 8.068760643545902
+RUN_013: test.x_normal = 11.75732773681084
+RUN_014: test.x_normal = 5.508250256729741
+RUN_015: test.x_normal = 12.23915038957531
+RUN_016: test.x_normal = 7.89126396796938
+RUN_017: test.x_normal = 7.982216956806577
+RUN_018: test.x_normal = 9.864955835300426
+RUN_019: test.x_normal = 9.837149685311553
+
+Logged data matches Monte-input data
+~~~
+
+### 5.1.3 Truncated Normal Distribution
+
+There are several methods by which a normal distribution can be truncated; these are explored here and in more detail in section 5.3.2.
+
+### 5.1.3.1 Truncated by Standard Deviations from Mean
+
+Distribution ~N(10,2) truncated to lie with 0.5 standard deviations from the mean should produce a distribution with values in the range (9, 11)
