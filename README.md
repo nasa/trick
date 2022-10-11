@@ -954,3 +954,8 @@ RUN_002: test.x_normal_length = trick.attach_units("ft", 8.225020001340255)
 RUN_003: test.x_normal_length = trick.attach_units("ft", 9.078215205210737)
 RUN_004: test.x_normal_length = trick.attach_units("ft", 8.61231801622891)
 ```
+
+| | RUN_000 | RUN_001 | RUN_002 | RUN_003 | RUN_004 |
+| :--- | :---| :--- | :---| :--- | :--- |
+| generated value (ft) | 9.954860507 | 11.324895606 | 8.225020001 | 9.078215205 | 8.612318016 |
+| 
