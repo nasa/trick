@@ -681,3 +681,19 @@ The model is designed to be extensible and while we have tried to cover the most
     * Populate the command variable inherited from MonteCarloVariable. This is the STL string representing the content that the MonteCarloMaster will place into the generated dispersion files.
     * Call the insert_units() method inherited from MonteCarloVariable
     * Set the command_generated flag to true if the command has been successfully generated.
+
+## 5 Verification
+
+The verification of the model is provided in directory verif/SIM_verif.
+
+This verification package comprises runs categorized into several sections:
+
+* RUN_nominal contains an example of each type of assignment available to the model. This is the primary test
+* RUN_random* contains a more in-depth look at the random variables, including consideration of the generated distribution.
+* RUN_file* considers the different configurations of using data read from a file.
+* RUN_generate_meta_data_early tests the consequence of generating meta data before the assignments have been prepared
+* RUN_remove_variable tests the ability to remove a variable from distribution.
+* RUN_WARN* test the misconfigurations that should lead to warning messages.
+* RUN_ERROR* test the misconfigurations that should lead to error messages.
+* IO* test problems associated with reading or writing from the specified files.
+* FAIL* test the misconfigurations that should lead to terminal failure.
