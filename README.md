@@ -388,3 +388,133 @@ generating the dispersion files and shutting down the simulation.
 ### 4.2.2.2 Initiating MonteCarlo
 
 Somewhere outside this file, the active and generate_dispersion flags must be set. This can be performed either in a separate input file or via a command-line argument. Unless the command-line argument capability is already supported, by far the easiest mechanism is to create a new input file that subsequently reads the existing input file:
+
+```
+monte_carlo.master.activate("RUN_1")
+exec(open("RUN_1/input.py").read())
+```
+
+The activate method takes a single string argument, representing the name of the run. This must be exactly the same name as the directory containing the original input file, “RUN_1” in the example above. This argument is used in 2 places (<argument> in these descriptions refers to the content of the argument string):
+
+* In the creation of a MONTE_<argument> directory. This directory will contain some number of sub-directories identified as, for example, RUN_01, RUN_02, RUN_03, etc. each of which will contain one of the generated dispersion files.
+* In the instructions written into the generated dispersion files to execute the content of the input file found in <argument>.
+
+### 4.2.2.3 Additional Configurations
+
+There are additional configurations instructing the MonteCarloMaster on the generation of the new dispersion files. Depending on the use-case, these could either be embedded within the “if monte_carlo.master.generate_dispersions:” block of the original input file, or in the secondary input file (or command-line arguments if configured to do so).
+
+* Number of runs is controlled with a single statement, e.g.
+
+    ```monte_carlo.master.set_num_runs(10)```
+
+* Generation of meta-data. The meta-data provides a summary of which variables are being dispersed, the type of dispersion applied to each, the random seeds being used, and correlation between different variables. This is written out to a file called MonteCarlo_Meta_data_output in the MONTE_* directory.
+
+    ```monte_carlo.master.generate_meta_data = True```
+
+* Changing the name of the automatically-generated monte-directory. By default, this takes the form “MONTE_<run_name>” as assigned in the MonteCarloMaster::activate(...) method. The monte_dir variable is public and can be reset after activation and before the MonteCarloMaster::execute() method runs. This is particularly useful if it is desired to compare two distribution sets for the same run.
+
+    ```monte_carlo.master.monte_dir = “MONTE_RUN_1_vers2”```
+
+* Changing the input file name. It is expected that most applications of this model will run with a typical organization of a Trick simulation. Consequently, the original input file is probably named input.py, and this is the default setting for the input_file_name variable. However, to support other cases, this variable is public and can be changed at any time between construction and the execution of the MonteCarloMaster::execute() method.
+
+    ```monte_carlo.master.input_file_name = “modified_input.py”```
+
+* Padding the filenames of the generated files. By default, the generated RUN directories in the generated MONTE_* directory will have their numerical component padded according to the number of runs. When:
+    * between 1 - 10 runs are generated, the directories will be named RUN_0, RUN_1, … 
+    * between 11-100 runs are generated, the directories will be named RUN_00, RUN_01, …
+    * between 101-1000 runs are generated, the directories will be named RUN_000, RUN_001, …
+    * etc.
+
+    Specification of a minimum padding width is supported. For example, it might be desired to create 3 runs with names RUN_00000, RUN_00001, and RUN_00002, in which case the minimum-padding should be specified as 5 characters
+
+    ```monte_carlo.master.minimum_padding = 5```
+
+*Changing the run-name. For convenience, the run-name is provided as an argument in the MonteCarloMaster::activate(...) method. The run_name variable is public, and can be reset after activation and before the MonteCarloMaster::execute() method runs. Because this setting determines which run is to be launched from the dispersion files, resetting run_name has limited application – effectively limited to correcting an error, which could typically be more easily corrected directly.
+
+    ```monte_carlo.master.run_name = “RUN_2”```
+
+### 4.3 MonteCarlo Variables (MonteCarloVariable)
+
+The instantiation of the MonteCarloVariable instances is typically handled as a user-input to the simulation without requiring re-compilation. As such, these are usually implemented in Python input files. This is not a requirement, and these instances can be compiled as part of the simulation build. Both cases are presented.
+
+### 4.3.1 Instantiation and Registration
+
+For each variable to be dispersed, an instance of a MonteCarloVariable must be created, and that instance registered with the MonteCarloMaster instance:
+
+1. Identify the type of dispersion desired
+2. Select the appropriate type of MonteCarloVariable to provide that dispersion.
+3. Create the new instance using its constructor.
+4. Register it with the MonteCarloMaster using the MonteCarloMaster::add_variable( MonteVarloVariable&) method
+
+### 4.3.1.1 Python input file implementation for Trick:
+
+When the individual instances are registered with the master, it only records the address of those instances. A user may create completely new variable names for each dispersion, or use a generic name as illustrated in the example below. Because these are typically created within a Python function, it is important to add the thisown=False instruction on each creation to prevent its destruction when the function returns.
+
+```
+mc_var = trick.MonteCarloVariableRandomUniform( "object.x_uniform", 0, 10, 20)
+mc_var.thisown = False
+monte_carlo.master.add_variable(mc_var)
+mc_var = trick.MonteCarloVariableRandomNormal( "object.x_normal", 0, 0, 5)
+mc_var.thisown = False
+monte_carlo.master.add_variable(mc_var)
+```
+
+### 4.3.1.2 C++ implementation in its own class:
+
+In this case, the instances do have to be uniquely named.
+
+Note that the registering of the variables could be done in the class constructor rather than in an additional method (process_variables), thereby eliminating the need to store the reference to MonteCarloMaster. In this case, the generate_dispersions flag is completely redundant because the variables are already registered by the time the input file is executed. Realize, however, that doing so does carry the overhead of registering those variables with the MonteCarloMaster every time the simulation starts up. This can a viable solution when there are only a few MonteCarloVariable instances, but is generally not recommended; using an independent method (process_variables) allows restricting the registering of the variables to be executed only when generating new dispersions.
+
+```
+class MonteCarloVarSet {
+ private:
+ MonteCarloMaster & master;
+ public:
+ MonteCarloVariableRandomUniform x_uniform;
+ MonteCarloVariableRandomNormal x_normal;
+ …
+ MonteCarloVarSet( MonteCarloMaster & master_)
+ :
+ master(master_),
+ x_uniform("object.x_uniform", 0, 10, 20),
+ x_normal ("object.x_normal", 0, 0, 5),
+ ...
+ { };
+ void process_variables() {
+ master.add_variable(x_uniform);
+ master.add_variable(x_normal);
+ ...
+ }
+};
+```
+
+### 4.3.1.3 C++ implementation within a Trick S-module:
+
+Instantiating the variables into the same S-module as the master is also a viable design pattern. However, this can lead to a very long S-module so is typically only recommended when there are few variables. As with the C++ implementation in a class, the variables can be registered with the master in the constructor rather than in an additional method, with the same caveats presented earlier.
+
+```
+if monte_carlo.master.active:
+ if monte_carlo.master.generate_dispersions:
+ exec(open(“Modified_data/monte_variables.py").read())
+```
+
+(where monte_variables.py is the file containing the mc_var = … content described earlier)
+
+If using a (compiled) C++ implementation with a method to process the registration, that method call must be contained inside the generate_dispersions gate in the input file:
+
+```
+if monte_carlo.master.active:
+ if monte_carlo.master.generate_dispersions:
+ monte_carlo_variables.process_variables()
+``` 
+
+If using a (compiled) C++ implementation with the registration conducted at construction, the generate_dispersions flag is not used in the input file.
+
+```
+if monte_carlo.master.active:
+ # add only those lines such as logging configuration
+```
+
+### 4.3.3 Configuration
+
+For all variable-types, the variable_name is provided as the first argument to the constructor. This variable name must include the full address from the top level of the simulation. After this argument, each variable type differs in its construction arguments and subsequent configuration options.
