@@ -915,4 +915,42 @@ RUN_011: test.x_normal_trunc[3] = 11.41102171943641
 Logged data matches Monte-input data
 ```
 
-###
+### 5.1.5 Truncated on Right Only
+
+Distribution ~N(10,2) truncated on the right only at 4.0 should produce a distribution with values in the range (−∞,4.0]
+
+```
+mc_var = trick.MonteCarloVariableRandomNormal ( "test.x_normal_trunc[4]", 2, 10, 2)
+mc_var.truncate_high(4, trick.MonteCarloVariableRandomNormal.Absolute)
+
+RUN_000: test.x_normal_trunc[4] = 3.772280419911035
+RUN_001: test.x_normal_trunc[4] = 3.806042167887552
+RUN_002: test.x_normal_trunc[4] = 2.291328792360356
+RUN_003: test.x_normal_trunc[4] = 3.354371206758478
+RUN_004: test.x_normal_trunc[4] = 2.901755006167329
+RUN_005: test.x_normal_trunc[4] = 1.969547280869834
+RUN_006: test.x_normal_trunc[4] = 1.398353722126554
+RUN_007: test.x_normal_trunc[4] = 3.858009610124997
+RUN_008: test.x_normal_trunc[4] = 3.691946831230261
+RUN_009: test.x_normal_trunc[4] = 3.655165469770109
+RUN_010: test.x_normal_trunc[4] = 3.780650644038053
+RUN_011: test.x_normal_trunc[4] = 3.461168743091792
+RUN_012: test.x_normal_trunc[4] = 3.914540451839235
+
+Logged data matches Monte-input data
+```
+
+### 5.1.6 Dispersion in Non-native units
+
+Any distribution could be used for this verification; a normal distribution is chosen arbitrarily. The distribution ~N(10,2), with units of feet, assigned to a variable with native units of meters.
+
+```
+mc_var = trick.MonteCarloVariableRandomNormal ( "test.x_normal_length", 2, 10, 2)
+mc_var.units = "ft"
+
+RUN_000: test.x_normal_length = trick.attach_units("ft", 9.954870507417668)
+RUN_001: test.x_normal_length = trick.attach_units("ft", 11.32489560639709)
+RUN_002: test.x_normal_length = trick.attach_units("ft", 8.225020001340255)
+RUN_003: test.x_normal_length = trick.attach_units("ft", 9.078215205210737)
+RUN_004: test.x_normal_length = trick.attach_units("ft", 8.61231801622891)
+```
