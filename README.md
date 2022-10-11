@@ -518,3 +518,53 @@ if monte_carlo.master.active:
 ### 4.3.3 Configuration
 
 For all variable-types, the variable_name is provided as the first argument to the constructor. This variable name must include the full address from the top level of the simulation. After this argument, each variable type differs in its construction arguments and subsequent configuration options.
+
+### 4.3.3.1 MonteCarloVariable
+
+MonteCarloVariable is an abstract class; its instantiable implementations are presented below. There is one important configuration for general application to these implementations, the setting of units. In a typical simulation, a variable has an inherent unit-type; these are often SI units, but may be based on another system. Those native units may be different to those in which the distribution is described. In this case, assigning the generated numerical value to the variable without heed to the units mismatch would result in significant error.
+
+```set_units(std::string units)```
+
+This method specifies that the numerical value being generated is to be interpreted in the specified units.
+
+Notes
+* if it is known that the variable’s native units and the dispersion units match (including the case of a dimensionless value), this method is not needed.
+* This method is not applicable to all types of MonteCarloVariable; use with MonteCarloVariableRandomBool and MonteCarloPython* is considered undefined behavior.
+
+### 4.3.3.2 MonteCarloVariableFile
+
+The construction arguments are:
+
+1. variable name
+2. filename containing the data
+3. column number containing data for this variable
+4. (optional) first column number. This defaults to 1, but some users may want to zero-index their column numbers, in which case it can be set to 0.
+
+There is no additional configuration beyond the constructor.
+
+### 4.3.3.3 MonteCarloVariableFixed
+
+The construction arguments are:
+1. variable name
+2. value to be assigned
+There is no additional configuration beyond the constructor
+
+### 4.3.3.5 MonteCarloVariableRandomNormal
+The construction arguments are:
+1. variable name
+2. seed for random generator, defaults to 0
+3. mean of distribution, defaults to 0
+4. standard-deviation of distribution, defaults to 1.
+
+The normal distribution may be truncated, and there are several configuration settings associated with truncation. Note that for all of these truncation options, if the lower truncation bound is set to be larger than the upper truncation bound, the generation of the dispersed value will fail and the simulation will terminate without generation of files. If the upper andlower bound are set to be equal, the result will be a forced assignment to that value.
+
+TruncationType
+This is an enumerated type, supporting the specification of the truncation limits in one of three ways:
+* StandardDeviation. The distribution will be truncated at the specified number(s) of standard deviations away from the mean.
+* Relative. The distribution will be truncated at the specified value(s) relative to the mean value.
+* Absolute. The distribution will be truncated at the specified value(s).
+
+max_num_tries
+The truncation is performed by repeatedly generating a number from the unbounded distribution until one is found that lies within the truncation limits. This max_num_tries value determines how many attempts may be made before the algorithm concedes. It defaults to 10,000. If a value has not been found within the specified number of tries, an error message is sent and the value is calculated according to the following rules:
+* For a distribution truncated at only one end, the truncation limit is used
+* For a distribution truncated at both ends, the midpoint value between the two truncation limits is used.
