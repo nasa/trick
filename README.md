@@ -709,3 +709,27 @@ Execution of RUN_nominal/input.py results in:
         * monte_values. A list of the values assigned to each variable identified in monte_variables for this specific run.
     * monte_variables. A copy of the file found in each RUN*.
     * monte_values_all_runs. A concatenation of all the RUN_*/monte_values files
+* Execution of the generated monte-input.py files
+    * This generates a file log_test_data.csv in each RUN*, which contains the values of the variables located in the simulation as generated in that scenario. This is a more comprehensive set than that found in monte_variables because it includes assignments to variables that cannot be expressed as simple direct assignments. The values of those variables included in monte_variables should match those found in log_test_data.csv.
+
+In this section, we will consider each assignment generation one at a time. For each generation type, the same presentation format will be used:
+* the generation command will be provided, highlighted in yellow. e.g.:
+
+``` mc_var = trick.MonteCarloVariableRandomUniform( "test.x_uniform", 0, 10, 20) ```
+
+* The relevant lines from the monte-input files is shown, highlighted in teal. Note – this is a concatentation of lines taken from each monte-input file, typically 1 line per file; these lines do not exist as a block anywhere in MONTE_RUN_nominal.
+    * In most cases, these lines are simple assignments of the form:
+
+``` test.x_uniform = 11.31537787738761 ```
+
+    * In some cases, they are Python instructions:
+
+``` test.x_line_command = test.x_integer * test.x_uniform ```
+
+* Where the data in log_test_data.csv is required to confirm expected execution of the monte-input file contents, these logged outputs will be presented, highlighted in orange
+
+* ```x_line_command (logged) 0 0 24.37918372 16.78864717 19.34692896```
+* Where messages or content are broadcast to stdout, these will be included highlighted in green:
+* RUN_000: Standalone_function received a value of 10.7052
+
+### 5.1.1 Uniform Distribution
