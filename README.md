@@ -798,3 +798,121 @@ There are several methods by which a normal distribution can be truncated; these
 ### 5.1.3.1 Truncated by Standard Deviations from Mean
 
 Distribution ~N(10,2) truncated to lie with 0.5 standard deviations from the mean should produce a distribution with values in the range (9, 11)
+
+```
+mc_var = trick.MonteCarloVariableRandomNormal ( "test.x_normal_trunc[1]", 2, 10, 2)
+mc_var.truncate(0.5, trick.MonteCarloVariableRandomNormal.Relative)
+
+RUN_000: test.x_normal_trunc[0] = 9.954870507417668
+RUN_001: test.x_normal_trunc[0] = 9.078215205210737
+RUN_002: test.x_normal_trunc[0] = 10.72611121241102
+RUN_003: test.x_normal_trunc[0] = 9.489924230632374
+RUN_004: test.x_normal_trunc[0] = 9.912272360185705
+RUN_005: test.x_normal_trunc[0] = 9.864955835300426
+RUN_006: test.x_normal_trunc[0] = 9.837149685311553
+RUN_007: test.x_normal_trunc[0] = 9.507649693417006
+RUN_008: test.x_normal_trunc[0] = 10.56080947072924
+RUN_009: test.x_normal_trunc[0] = 10.19631186831437
+RUN_010: test.x_normal_trunc[0] = 9.804159469162096
+RUN_011: test.x_normal_trunc[0] = 10.10165106830803
+RUN_012: test.x_normal_trunc[0] = 9.057434611329896
+RUN_013: test.x_normal_trunc[0] = 10.12373334458601
+RUN_014: test.x_normal_trunc[0] = 9.661517044726127
+RUN_015: test.x_normal_trunc[0] = 10.00965925367215
+RUN_016: test.x_normal_trunc[0] = 9.952858400406081
+RUN_017: test.x_normal_trunc[0] = 10.30478920309146
+RUN_018: test.x_normal_trunc[0] = 10.27803333258882
+RUN_019: test.x_normal_trunc[0] = 9.366018370198786
+
+Logged data matches Monte-input data
+```
+
+### 5.1.3.2 Truncated by Difference from Mean
+
+Distribution ~N(10,2) truncated to lie within [-0.5, +0.7] from the mean should produce a distribution with values in the range (9.5, 10.7)
+
+```
+mc_var = trick.MonteCarloVariableRandomNormal ( "test.x_normal_trunc[1]", 2, 10, 2)
+mc_var.truncate(-0.5, 0.7, trick.MonteCarloVariableRandomNormal.Relative)
+
+RUN_000: test.x_normal_trunc[1] = 9.954870507417668
+RUN_001: test.x_normal_trunc[1] = 9.912272360185705
+RUN_002: test.x_normal_trunc[1] = 9.864955835300426
+RUN_003: test.x_normal_trunc[1] = 9.837149685311553
+RUN_004: test.x_normal_trunc[1] = 9.507649693417006
+RUN_005: test.x_normal_trunc[1] = 10.56080947072924
+RUN_006: test.x_normal_trunc[1] = 10.19631186831437
+RUN_007: test.x_normal_trunc[1] = 9.804159469162096
+RUN_008: test.x_normal_trunc[1] = 10.10165106830803
+RUN_009: test.x_normal_trunc[1] = 10.12373334458601
+RUN_010: test.x_normal_trunc[1] = 9.661517044726127
+RUN_011: test.x_normal_trunc[1] = 10.00965925367215
+RUN_012: test.x_normal_trunc[1] = 9.952858400406081
+RUN_013: test.x_normal_trunc[1] = 10.30478920309146
+RUN_014: test.x_normal_trunc[1] = 10.27803333258882
+RUN_015: test.x_normal_trunc[1] = 10.03792379373566
+RUN_016: test.x_normal_trunc[1] = 10.20959040504398
+RUN_017: test.x_normal_trunc[1] = 10.65930415393322
+RUN_018: test.x_normal_trunc[1] = 10.06884635542625
+RUN_019: test.x_normal_trunc[1] = 10.50899736993173
+
+Logged data matches Monte-input data
+```
+
+### 5.1.3.3 Truncated by Specified Bounds
+
+Distribution ~N(10,2) truncated directly to to lie within range [9.9, 11.0] 
+
+```
+mc_var = trick.MonteCarloVariableRandomNormal ( "test.x_normal_trunc[2]", 2, 10, 2)
+mc_var.truncate(9.9,11, trick.MonteCarloVariableRandomNormal.Absolute)
+
+RUN_000: test.x_normal_trunc[2] = 9.954870507417668
+RUN_001: test.x_normal_trunc[2] = 10.72611121241102
+RUN_002: test.x_normal_trunc[2] = 9.912272360185705
+RUN_003: test.x_normal_trunc[2] = 10.56080947072924
+RUN_004: test.x_normal_trunc[2] = 10.19631186831437
+RUN_005: test.x_normal_trunc[2] = 10.10165106830803
+RUN_006: test.x_normal_trunc[2] = 10.12373334458601
+RUN_007: test.x_normal_trunc[2] = 10.00965925367215
+RUN_008: test.x_normal_trunc[2] = 9.952858400406081
+RUN_009: test.x_normal_trunc[2] = 10.30478920309146
+RUN_010: test.x_normal_trunc[2] = 10.27803333258882
+RUN_011: test.x_normal_trunc[2] = 10.03792379373566
+RUN_012: test.x_normal_trunc[2] = 10.20959040504398
+RUN_013: test.x_normal_trunc[2] = 10.65930415393322
+RUN_014: test.x_normal_trunc[2] = 10.86586573576455
+RUN_015: test.x_normal_trunc[2] = 10.87710866037394
+RUN_016: test.x_normal_trunc[2] = 10.06884635542625
+RUN_017: test.x_normal_trunc[2] = 10.50899736993173
+RUN_018: test.x_normal_trunc[2] = 10.80302599545891
+RUN_019: test.x_normal_trunc[2] = 10.95710819942595
+
+Logged data matches Monte-input data
+```
+
+### 5.1.4 Truncated on Left Only
+
+Distribution ~N(10,2) truncated on the left only at 9.9 should produce a distribution with values in the range [ 9.9 , ∞)
+
+```
+mc_var = trick.MonteCarloVariableRandomNormal ( "test.x_normal_trunc[3]", 2, 10, 2)
+mc_var.truncate_low(9.9, trick.MonteCarloVariableRandomNormal.Absolute)
+
+RUN_000: test.x_normal_trunc[3] = 9.954870507417668
+RUN_001: test.x_normal_trunc[3] = 11.32489560639709
+RUN_002: test.x_normal_trunc[3] = 10.72611121241102
+RUN_003: test.x_normal_trunc[3] = 14.56731728448253
+RUN_004: test.x_normal_trunc[3] = 11.10848764602406
+RUN_005: test.x_normal_trunc[3] = 11.9273239842278
+RUN_006: test.x_normal_trunc[3] = 15.29213437867134
+RUN_007: test.x_normal_trunc[3] = 9.912272360185705
+RUN_008: test.x_normal_trunc[3] = 11.75732773681084
+RUN_009: test.x_normal_trunc[3] = 12.23915038957531
+RUN_010: test.x_normal_trunc[3] = 15.67043193912775
+RUN_011: test.x_normal_trunc[3] = 11.41102171943641
+
+Logged data matches Monte-input data
+```
+
+###
