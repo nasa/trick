@@ -386,3 +386,5 @@ else:
 generating the dispersion files and shutting down the simulation. 
 
 ### 4.2.2.2 Initiating MonteCarlo
+
+Somewhere outside this file, the active and generate_dispersion flags must be set. This can be performed either in a separate input file or via a command-line argument. Unless the command-line argument capability is already supported, by far the easiest mechanism is to create a new input file that subsequently reads the existing input file:
