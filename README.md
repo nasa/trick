@@ -720,11 +720,11 @@ In this section, we will consider each assignment generation one at a time. For 
 * The relevant lines from the monte-input files is shown, highlighted in teal. Note – this is a concatentation of lines taken from each monte-input file, typically 1 line per file; these lines do not exist as a block anywhere in MONTE_RUN_nominal.
     * In most cases, these lines are simple assignments of the form:
 
-``` test.x_uniform = 11.31537787738761 ```
+   ``` test.x_uniform = 11.31537787738761 ```
 
     * In some cases, they are Python instructions:
 
-``` test.x_line_command = test.x_integer * test.x_uniform ```
+   ``` test.x_line_command = test.x_integer * test.x_uniform ```
 
 * Where the data in log_test_data.csv is required to confirm expected execution of the monte-input file contents, these logged outputs will be presented, highlighted in orange
 
@@ -733,3 +733,31 @@ In this section, we will consider each assignment generation one at a time. For 
 * RUN_000: Standalone_function received a value of 10.7052
 
 ### 5.1.1 Uniform Distribution
+
+``` 
+mc_var = trick.MonteCarloVariableRandomUniform( "test.x_uniform", 0, 10, 20)
+
+RUN_000: test.x_uniform = 15.92844616516683
+RUN_001: test.x_uniform = 18.44265744256598
+RUN_002: test.x_uniform = 18.5794561998983
+RUN_003: test.x_uniform = 18.47251737384331
+RUN_004: test.x_uniform = 16.23563696496108
+RUN_005: test.x_uniform = 13.84381708373757
+RUN_006: test.x_uniform = 12.97534605357234
+RUN_007: test.x_uniform = 10.56712975933164
+RUN_008: test.x_uniform = 12.72656294741589
+RUN_009: test.x_uniform = 14.77665111744646
+RUN_010: test.x_uniform = 18.12168726649071
+RUN_011: test.x_uniform = 14.79977171525567
+RUN_012: test.x_uniform = 13.92784793294977
+RUN_013: test.x_uniform = 18.36078769044391
+RUN_014: test.x_uniform = 13.37396161647289
+RUN_015: test.x_uniform = 16.48171876577458
+RUN_016: test.x_uniform = 13.68241537367044
+RUN_017: test.x_uniform = 19.5715515451334
+RUN_018: test.x_uniform = 11.40350777604188
+RUN_019: test.x_uniform = 18.70087251269727
+
+Logged data matches Monte-input data
+
+```
