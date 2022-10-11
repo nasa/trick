@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "trick/SimObject.hh"
+#include "trick/message_proto.h"
 
 Trick::SimObject::~SimObject() {
     while ( !jobs.empty() ) {
@@ -106,10 +107,21 @@ void Trick::SimObject::enable_all_jobs() {
     }
 }
 
+void Trick::SimObject::enable() {
+    message_publish(MSG_WARNING,"SimObject::enable has been deprecated, use SimObject::enable_all_jobs instead\n") ;
+    enable_all_jobs();
+}
+
+
 void Trick::SimObject::disable_all_jobs() {
     std::vector <Trick::JobData *>::iterator it ;
     for ( it = jobs.begin() ; it != jobs.end() ; it++ ) {
        (*it)->disable() ;
     }
+}
+
+void Trick::SimObject::disable() {
+    message_publish(MSG_WARNING,"SimObject::disable has been deprecated, use SimObject::disable_all_jobs instead\n") ;
+    disable_all_jobs();
 }
 

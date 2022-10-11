@@ -423,6 +423,13 @@ namespace Trick {
             int get_sim_objects(std::vector<Trick::SimObject *> & in_sim_objects) ;
 
             /**
+             Search for a sim object with the given name.
+             @param sim_object_name - name of desired SimObject
+             @return Pointer to sim object or NULL if not found
+            */
+            SimObject * get_sim_object_by_name(std::string sim_object_name);
+
+            /**
              @userdesc Command to get the real-time software frame in seconds.
              @par Python Usage:
              @code <my_double> = trick.exec_get_software_frame() @endcode

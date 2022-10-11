@@ -45,7 +45,7 @@ namespace Trick {
             bool object_disabled;                              /* trick_units(--) */
 
             /** Save the job disabled states when the entire sim object is disabled */
-            std::map <std::string, bool> saved_job_states;    /* trick_io(**) */
+            std::map <Trick::JobData *, bool> saved_job_states;    /* trick_io(**) */
 
             /** Included simobjects -- currently not used */
             std::vector <SimObject *> pre_component_objects ;  /* trick_io(**) */
@@ -107,11 +107,13 @@ namespace Trick {
              * Enables all jobs in the SimObject
              */
             void enable_all_jobs() ;
+            void enable() ;
 
             /**
              * Disables all jobs in the SimObject
              */
             void disable_all_jobs() ;
+            void disable();
 
             /**
              * Calls all jobs that are not "dynamic_event" class

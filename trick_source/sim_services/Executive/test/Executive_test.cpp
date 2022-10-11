@@ -846,8 +846,6 @@ TEST_F(ExecutiveTest , JobOnOff) {
 }
 
 TEST_F(ExecutiveTest , SimObjectJobsOnOff) {
-	//req.add_requirement("3132950280");
-
     Trick::JobData * curr_job ;
 
     exec_add_sim_object(&so1 , "so1") ;
@@ -866,26 +864,33 @@ TEST_F(ExecutiveTest , SimObjectJobsOnOff) {
 }
 
 TEST_F(ExecutiveTest , SimObjectOnOff) {
-	//req.add_requirement("3132950280");
-
-    Trick::JobData * curr_job ;
 
     exec_add_sim_object(&so1 , "so1") ;
 
     // Test that after disabling and enabling sim object, top_of_frame is still disabled
-    curr_job = exec.get_job( std::string("so1.top_of_frame_1")) ;
+    Trick::JobData * curr_job = exec.get_job( std::string("so1.top_of_frame_1")) ;
     ASSERT_FALSE( curr_job == NULL ) ;
 
     curr_job->disable();
 
     EXPECT_EQ(exec.set_sim_object_onoff("so1" , 0), 0) ;
-    EXPECT_EQ( exec.get_sim_object_onoff("so1"), 0);
-    EXPECT_EQ( curr_job->disabled , true) ;
+    EXPECT_EQ(exec.get_sim_object_onoff("so1"), 0);
+    EXPECT_EQ(curr_job->disabled , true) ;
+
+    // Add an extra job
+    so1.add_job(1, 100, "scheduled", NULL, 1, "child_job_1", "TRK") ;
+    exec.add_jobs_to_queue(&so1, false);
+
+    Trick::JobData * new_job = exec.get_job( std::string ("so1.child_job_1"));
+    ASSERT_FALSE( new_job == NULL ) ;
 
     EXPECT_EQ(exec.set_sim_object_onoff("so1" , 1), 0) ;
     EXPECT_EQ( exec.get_sim_object_onoff("so1"), 1);
     EXPECT_EQ( curr_job->disabled , true) ;
+    EXPECT_EQ( new_job->disabled , false) ;
 
+    EXPECT_EQ(exec.set_sim_object_onoff("so2" , 1), -1) ;
+    EXPECT_EQ(exec.get_sim_object_onoff("so2"), -1) ;
 }
 
 TEST_F(ExecutiveTest , LockMemory) {

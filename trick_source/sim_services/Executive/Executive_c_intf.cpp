@@ -1022,6 +1022,20 @@ int exec_get_sim_objects(std::vector<Trick::SimObject *>& in_sim_objects ) {
     return -1 ;
 }
 
+
+/**
+ * @relates Trick::Executive
+ * @copydoc Trick::Executive::get_sim_objects
+ * Wrapper for Trick::Executive::get_sim_objects
+ */
+Trick::SimObject * exec_get_sim_object_by_name(std::string sim_object_name) {
+    if ( the_exec != NULL ) {
+        return the_exec->get_sim_object_by_name(sim_object_name) ;
+    }
+    return NULL ;
+}
+
+
 /**
  * @relates Trick::Executive
  * @copydoc Trick::Executive::get_job

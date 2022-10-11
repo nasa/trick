@@ -4,64 +4,59 @@
 #include "trick/Executive.hh"
 
 int Trick::Executive::set_sim_object_jobs_onoff(std::string sim_object_name, int on) {
-    for ( int ii = 0 ; ii < sim_objects.size() ; ii++ ) {
-        if ( ! sim_objects[ii]->name.compare(sim_object_name) ) {
-            if (on) {
-                sim_objects[ii]->enable_all_jobs();
-            } else {
-                sim_objects[ii]->disable_all_jobs();
-            }
 
-            return 0;
-        }
+    SimObject * sim_object = get_sim_object_by_name(sim_object_name);
+    if (sim_object == NULL) {
+        return -1;
     }
 
-    return -1;
+    if (on) {
+        sim_object->enable_all_jobs();
+    } else {
+        sim_object->disable_all_jobs();
+    }
+
+    return 0;
 }
 
 
 int Trick::Executive::set_sim_object_onoff(std::string sim_object_name, int on) {
+    
+    SimObject * sim_object = get_sim_object_by_name(sim_object_name);
+    if (sim_object == NULL) {
+        return -1;
+    }
 
-    SimObject * so ;
-    unsigned int ii , jj ;
-
-    for ( ii = 0 ; ii < sim_objects.size() ; ii++ ) {
-        if ( ! sim_objects[ii]->name.compare(sim_object_name) ) {
-
-            so = sim_objects[ii] ;
-
-            so->object_disabled = !on;
-            if (on) {
-                // Apply saved state
-                for ( jj = 0 ; jj < so->jobs.size() ; jj++ ) {
-                    std::map<std::string, bool>::iterator saved_state_it = so->saved_job_states.find(so->jobs[jj]->name);
-                    if (saved_state_it != so->saved_job_states.end()) {
-                        so->jobs[jj]->disabled = saved_state_it->second;
-                    } else {
-                        // If job is not in map, turn it on
-                        so->jobs[jj]->disabled = false;
-                    }
-                }
-                so->saved_job_states.clear();
+    sim_object->object_disabled = !on;
+    if (on) {
+        // Apply saved state
+        for ( int i = 0 ; i < sim_object->jobs.size() ; i++ ) {
+            std::map<Trick::JobData *, bool>::iterator saved_state_it = sim_object->saved_job_states.find(sim_object->jobs[i]);
+            if (saved_state_it != sim_object->saved_job_states.end()) {
+                sim_object->jobs[i]->disabled = saved_state_it->second;
             } else {
-                for ( jj = 0 ; jj < so->jobs.size() ; jj++ ) {
-                    // Save state, turn off
-                    so->saved_job_states[so->jobs[jj]->name] = so->jobs[jj]->disabled;
-                    so->jobs[jj]->disabled = true ;
-                }
+                // If job is not in map, turn it on
+                sim_object->jobs[i]->disabled = false;
             }
-            return(0) ;
+        }
+        sim_object->saved_job_states.clear();
+    } else {
+        for ( int i = 0 ; i < sim_object->jobs.size() ; i++ ) {
+            // Save state, turn off
+            sim_object->saved_job_states[sim_object->jobs[i]] = sim_object->jobs[i]->disabled;
+            sim_object->jobs[i]->disabled = true ;
         }
     }
-    return(-1) ;
+    return(0) ;
 }
 
 int Trick::Executive::get_sim_object_onoff (std::string sim_object_name) {
-    for ( int ii = 0 ; ii < sim_objects.size() ; ii++ ) {
-        if ( ! sim_objects[ii]->name.compare(sim_object_name) ) {
-            return !sim_objects[ii]->object_disabled ;
-        }
+
+     SimObject * sim_object = get_sim_object_by_name(sim_object_name);
+    if (sim_object == NULL) {
+        return -1;
     }
-    return -1;
+
+    return !(sim_object->object_disabled) ;
 }
 
