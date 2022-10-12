@@ -789,7 +789,7 @@ RUN_018: test.x_normal = 9.864955835300426
 RUN_019: test.x_normal = 9.837149685311553
 
 Logged data matches Monte-input data
-~~~
+```
 
 ### 5.1.3 Truncated Normal Distribution
 
@@ -959,3 +959,114 @@ RUN_004: test.x_normal_length = trick.attach_units("ft", 8.61231801622891)
 | :--- | :---| :--- | :---| :--- | :--- |
 | generated value (ft) | 9.954860507 | 11.324895606 | 8.225020001 | 9.078215205 | 8.612318016 |
 | converted value (m) | 3.034244531 | 3.451828181 | 2.506986096 | 2.767039994 | 2.625034531 |
+| Logged Value | 3.034244531 | 3.451828181 | 2.506986096 | 2.767039994 | 2.625034531 |
+
+### 5.1.7 Discrete Integer (Uniform Distribution)
+
+Note that the range for a discrete variable includes the limits, in this case the distribution is ~U(0,2) which should generate values 0, 1, or 2 for each run.
+
+```
+mc_var = trick.MonteCarloVariableRandomUniformInt ( "test.x_integer", 1, 0, 2)
+RUN_000: test.x_integer = 1
+RUN_001: test.x_integer = 2
+RUN_002: test.x_integer = 2
+RUN_003: test.x_integer = 2
+RUN_004: test.x_integer = 0
+RUN_005: test.x_integer = 0
+RUN_006: test.x_integer = 0
+RUN_007: test.x_integer = 2
+RUN_008: test.x_integer = 0
+RUN_009: test.x_integer = 0
+RUN_010: test.x_integer = 0
+RUN_011: test.x_integer = 1
+RUN_012: test.x_integer = 0
+RUN_013: test.x_integer = 1
+RUN_014: test.x_integer = 1
+RUN_015: test.x_integer = 2
+RUN_016: test.x_integer = 1
+RUN_017: test.x_integer = 2
+RUN_018: test.x_integer = 1
+RUN_019: test.x_integer = 2
+Logged data matches Monte-input data
+```
+
+### 5.1.8 Discrete String (Uniform Distribution)
+
+Three strings are provided from which to select randomly:
+* “ABC”
+* “DEF”
+* ‘GHIJKL’
+
+Note single quotes and double quotes are used to confirm the model supports both.
+
+```
+mc_var = trick.MonteCarloVariableRandomStringSet ( "test.x_string", 3)
+mc_var.add_string("\"ABC\"")
+mc_var.add_string("\"DEF\"")
+mc_var.add_string("'GHIJKL'")
+
+RUN_000: test.x_string = "ABC“
+RUN_001: test.x_string = 'GHIJKL’
+RUN_002: test.x_string = "ABC“
+RUN_003: test.x_string = "DEF“
+RUN_004: test.x_string = "DEF“
+RUN_005: test.x_string = "ABC“
+RUN_006: test.x_string = "ABC“
+RUN_007: test.x_string = "ABC“
+RUN_008: test.x_string = "ABC“
+RUN_009: test.x_string = 'GHIJKL’
+RUN_010: test.x_string = "ABC“
+RUN_011: test.x_string = "DEF“
+RUN_012: test.x_string = "ABC“
+
+Logged data matches Monte-input data
+```
+
+### 5.1.9 Discrete Boolean (Uniform Distribution)
+
+```
+mc_var = trick.MonteCarloVariableRandomBool( "test.x_boolean", 4)
+
+RUN_000: test.x_boolean = True
+RUN_001: test.x_boolean = False
+RUN_002: test.x_boolean = True
+RUN_003: test.x_boolean = True
+RUN_004: test.x_boolean = True
+RUN_005: test.x_boolean = False
+RUN_006: test.x_boolean = False
+RUN_007: test.x_boolean = True
+RUN_008: test.x_boolean = True
+RUN_009: test.x_boolean = True
+RUN_010: test.x_boolean = False
+RUN_011: test.x_boolean = True
+RUN_012: test.x_boolean = False
+RUN_000: test.x_boolean = True
+RUN_001: test.x_boolean = False
+RUN_002: test.x_boolean = True
+RUN_003: test.x_boolean = True
+RUN_004: test.x_boolean = True
+RUN_005: test.x_boolean = False
+RUN_006: test.x_boolean = False
+RUN_007: test.x_boolean = True
+RUN_008: test.x_boolean = True
+RUN_009: test.x_boolean = True
+RUN_010: test.x_boolean = False
+RUN_011: test.x_boolean = True
+RUN_012: test.x_boolean = False
+
+Matches Monte-input data, with True substituted by 1 and False substituted by 0
+```
+
+### 5.1.10 Python Code Injection
+
+This type of variable provides the ability to assign a value to a variable that is the output of a function or script
+
+### 5.1.10.1 Line of Code
+
+If 2 arguments are provided to MonteCarloPythonLineExec, the arguments are interpreted as:
+* 1st argument is the assignment
+* 2nd argument is the instruction
+
+In this case, we multiply two previously generated values: test.x_integer, and test.x_uniform
+
+```
