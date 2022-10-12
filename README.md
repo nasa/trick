@@ -1070,3 +1070,15 @@ If 2 arguments are provided to MonteCarloPythonLineExec, the arguments are inter
 In this case, we multiply two previously generated values: test.x_integer, and test.x_uniform
 
 ```
+mc_var = trick. MonteCarloPythonLineExec( "test.x_line_command",
+                                          "test.x_integer * test.x_uniform")
+RUN_000: test.x_line_command = test.x_integer * test.x_uniform
+(identical for all runs)
+```
+
+| | RUN_000 | RUN_001 | RUN_002 | RUN_003 | RUN_004 |
+| :--- | :---| :--- | :---| :--- | :--- |
+| x_interger | 1 | 2 | 3 | 4 | 5 |
+| x_uniform  | 15.928446165 | 18.442657443 | 18.579456199 | 18.472517374 | 16.235636965 |
+| product | 15.928446165 | 36.885314886 | 37.158912398 | 36.945034748 | 0 |
+| 
