@@ -8,7 +8,7 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Makefile.common
 
 # Flags passed to the preprocessor.
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
+TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
 
 TRICK_LIBS = -L ${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick 
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
@@ -31,7 +31,7 @@ clean :
 	rm -f $(TESTS) *.o
 
 Executive_test.o : Executive_test.cpp
-	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
 
 Executive_test : Executive_test.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ $(OTHER_OBJECTS) $(TRICK_LIBS) $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

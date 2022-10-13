@@ -1,0 +1,69 @@
+name: Code Coverage
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+    - 'docs/**'
+    - '.github/workflows/**'
+    - '!.github/workflows/code_coverage.yml'
+  pull_request:
+
+jobs:
+  code-coverage:
+    runs-on: ubuntu-latest
+    container: docker://oraclelinux:8
+    steps:
+    - name: Update Package Manager
+      run: |
+          dnf -y install epel-release
+          dnf -y update
+          dnf install -y 'dnf-command(config-manager)'
+
+    - name: Install Dependencies
+      run: |
+        dnf install -y bison clang flex git llvm make maven cmake zip  clang-devel gcc gcc-c++ java-11-openjdk-devel libxml2-devel llvm-devel llvm-static ncurses-devel openmotif openmotif-devel perl perl-Digest-MD5 udunits2 udunits2-devel which zlib-devel python2-devel python3-devel swig diffutils lcov
+
+    - name: Install GTest
+      run: |
+        dnf config-manager --enable ol8_codeready_builder
+        dnf install -y gtest-devel
+
+    - name: Checkout repository
+      uses: actions/checkout@master
+
+    - name: Configure Trick
+      run: |
+          export MAKEFLAGS=-j`nproc`
+          export PYTHON_VERSION=3
+          ./configure
+    - name: Build Trick
+      run: |
+          export MAKEFLAGS=-j`nproc`
+          export CFLAGS="-fprofile-arcs -ftest-coverage -O0"
+          export CXXFLAGS="-fprofile-arcs -ftest-coverage -O0"
+          export LDFLAGS="-fprofile-arcs -ftest-coverage -O0"
+          export TRICK_CFLAGS="-fprofile-arcs -ftest-coverage -O0"
+          export TRICK_CXXFLAGS="-fprofile-arcs -ftest-coverage -O0"
+          export TRICK_SYSTEM_LDFLAGS="-fprofile-arcs -ftest-coverage -O0"
+          export TRICK_SYSTEM_CFLAGS="-fprofile-arcs -ftest-coverage -O0"
+          export TRICK_SYSTEM_CXXFLAGS="-fprofile-arcs -ftest-coverage -O0"
+          make
+    - name: Generate Code Coverage
+      run: |
+        export MAKEFLAGS=-j`nproc`
+        export CFLAGS="-fprofile-arcs -ftest-coverage -O0"
+        export CXXFLAGS="-fprofile-arcs -ftest-coverage -O0"
+        export LDFLAGS="-fprofile-arcs -ftest-coverage -O0"
+        export TRICK_CFLAGS="-fprofile-arcs -ftest-coverage -O0"
+        export TRICK_CXXFLAGS="-fprofile-arcs -ftest-coverage -O0"
+        export TRICK_SYSTEM_LDFLAGS="-fprofile-arcs -ftest-coverage -O0"
+        export TRICK_SYSTEM_CFLAGS="-fprofile-arcs -ftest-coverage -O0"
+        export TRICK_SYSTEM_CXXFLAGS="-fprofile-arcs -ftest-coverage -O0"
+        make code-coverage
+    - name: Upload to Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: "./coverage.info"
