@@ -1,7 +1,8 @@
 <p align=center>
-<a href="https://nasa.github.io/trick">
-<img src="https://raw.github.com/nasa/Trick/master/TrickLogo.png" alt="Trick Logo" height=150px>
-</a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.github.com/nasa/Trick/master/TrickLogo_darkmode.png">
+  <img alt="Trick logo" src="https://raw.github.com/nasa/Trick/master/TrickLogo.png" height=150px>
+</picture>
 </p>
 
 <p align=left>
