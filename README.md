@@ -1310,7 +1310,7 @@ mc_var.max_skip = 3
 ```
 
 | run number | x_file_lookup[0] | x_file_lookup[1] | x_file_lookup[2] | (line number) | lines skipped |
-| :--- | :---| :--- | :---| :--- | 
+| :--- | :---| :--- | :---| :--- | :--- |
 | 0 | 2 | 1 | 0 | 1 | |
 | 1 | 12 | 11 | 10 | 2 | 0 |
 | 2 | 12 | 11 | 10 | 2 | 3 |
@@ -1344,3 +1344,22 @@ Each file contains a single column of data:
 * single_col_1.txt contains values 1 to 15
 * single_col_2.txt contains values 16 to 30
 * single_col_3.txt contains values 31 to 55
+
+MONTE_RUN_file_skip2/monte_values_all_runs contains a summary of the assigned values. The line number and number of skipped lines added for clarification:
+
+| run number | x_file_lookup[0] | x_file_lookup[1] | x_file_lookup[2] | (line number) | lines skipped |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 0 | 1 | 16 | 31 | 1 1 1 | |
+| 1 | 2 | 17 | 32 | 2 2 2 | 0 0 0 |
+| 2 | 4 | 20 | 36 | 4 5 6 | 1 2 3 |
+| 3 | 5 | 22 | 38 | 5 7 8 | 0 1 1 |
+| 4 | 7 | 24 | 41 | 7 9 11 | 1 1 2 |
+
+### 5.3 Distribution Analyses
+
+For these distributions, we increased the number of data points to 10,000 to get a better visualization of the distribution.
+
+### 5.3.1 Uniform Distribution
+
+Here we test the distribution of both continuous (left) and discrete (right) variables
+
