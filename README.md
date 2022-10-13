@@ -1081,4 +1081,266 @@ RUN_000: test.x_line_command = test.x_integer * test.x_uniform
 | x_interger | 1 | 2 | 3 | 4 | 5 |
 | x_uniform  | 15.928446165 | 18.442657443 | 18.579456199 | 18.472517374 | 16.235636965 |
 | product | 15.928446165 | 36.885314886 | 37.158912398 | 36.945034748 | 0 |
-| 
+| x_line_comand (logged) | 15.928446165 | 36.885314886 | 37.158912398 | 0 |
+
+### 5.1.10.2 Execution of a Function
+
+Where 1 argument is provided to MonteCarloPythonLineExec, it is interpreted as a command to be inserted into the monteinput file. In this case, we have a C++ function defined:
+
+```
+void standalone_function( double value)
+{
+ std::cout << "\nStandalone_function received a value of " << value << "\n";
+ x_sdefine_routine_called = 1;
+}
+```
+
+As a proxy for whether this was called during phase #2, two outputs are available:
+* Output to screen
+* The loggable variable x_sdefine_routine_called, which defaults to 0 and is only reset by this method.
+
+```
+mc_var = trick.MonteCarloPythonLineExec( "test.standalone_function( test.x_normal)")
+
+RUN_000: test.standalone_function( test.x_normal)
+(identical for all runs)
+
+RUN_000: Standalone_function received a value of 9.9545
+RUN_001: Standalone_function received a value of 11.3249
+etc.
+
+test.x_sdefine_routine_called has a value of 1 for all runs
+```
+
+### 5.1.10.3 Execution of File or Script
+
+File Modified_data/sample.py contains the following code:
+
+```
+test.x_file_command[0] = 1
+test.x_file_command[1] = test.mc_master.monte_run_number
+test.x_file_command[2] = test.x_file_command[0] + test.x_file_command[1]
+```
+As a proxy for whether this was called during phase #2, the x_file_command values can be logged.
+```
+mc_var = trick.MonteCarloPythonFileExec( "Modified_data/sample.py")
+
+RUN_000: exec(open('Modified_data/sample.py').read())
+(identical for all runs)
+```
+
+| | RUN_000 | RUN_001 | RUN_002 | RUN_003 | RUN_004 |
+| :--- | :---| :--- | :---| :--- | :--- |
+| monte_run_number | 0 | 1 | 2 | 3 | 4 |
+| file_command[0] (logged) | 1 | 1 | 1 | 1 | 1 |
+| file_command[1] (logged) | 0 | 1 | 2 | 3 | 4 |
+| file_command[2] (logged) | 1 | 2 | 3 | 4 | 5 |
+
+### 5.1.11 Extraction From File
+
+This test only operates with a sequential file read, with each subsequent run reading from the next line of the file. See
+section 5.2 for verification of random line selection logic.
+
+3 values are extracted from columns 3, 2, and 1 in order from file Modified_data/datafile.txt:
+
+```
+0 1 2 3 4
+# comment
+10 11 12 13 14
+<--------- <blank line>
+20 21 22 23 24
+ <--------- <contains only white space>
+30 31 32 33 34
+```
+
+Comments, blank lines, and lines containing only white-space should be skipped
+
+When file-end is reached, the file should wrap back to the beginning
+
+```
+mc_var1 = trick.MonteCarloVariableFile( "test.x_file_lookup[0]",
+ "Modified_data/datafile.txt",
+ 3)
+…
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[1]",
+ "Modified_data/datafile.txt",
+ 2)
+…
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[2]",
+ "Modified_data/datafile.txt",
+ 1)
+
+RUN_000: test.x_file_lookup[0] = 2
+RUN_000: test.x_file_lookup[1] = 1
+RUN_000: test.x_file_lookup[2] = 0
+
+RUN_001: test.x_file_lookup[0] = 12
+RUN_001: test.x_file_lookup[1] = 11
+RUN_001: test.x_file_lookup[2] = 10
+
+RUN_002: test.x_file_lookup[0] = 22
+RUN_002: test.x_file_lookup[1] = 21
+RUN_002: test.x_file_lookup[2] = 20
+
+RUN_003: test.x_file_lookup[0] = 32
+RUN_003: test.x_file_lookup[1] = 31
+RUN_003: test.x_file_lookup[2] = 30
+
+RUN_004: test.x_file_lookup[0] = 2
+RUN_004: test.x_file_lookup[1] = 1
+RUN_004: test.x_file_lookup[2] = 0
+
+RUN_005: test.x_file_lookup[0] = 12
+RUN_005: test.x_file_lookup[1] = 11
+RUN_005: test.x_file_lookup[2] = 10
+
+RUN_006: test.x_file_lookup[0] = 22
+RUN_006: test.x_file_lookup[1] = 21
+RUN_006: test.x_file_lookup[2] = 20
+
+RUN_007: test.x_file_lookup[0] = 32
+RUN_007: test.x_file_lookup[1] = 31
+RUN_007: test.x_file_lookup[2] = 30
+
+RUN_008: test.x_file_lookup[0] = 2
+RUN_008: test.x_file_lookup[1] = 1
+RUN_008: test.x_file_lookup[2] = 0
+
+RUN_009: test.x_file_lookup[0] = 12
+RUN_009: test.x_file_lookup[1] = 11
+RUN_009: test.x_file_lookup[2] = 10
+
+RUN_010: test.x_file_lookup[0] = 22
+RUN_010: test.x_file_lookup[1] = 21
+RUN_010: test.x_file_lookup[2] = 20
+
+RUN_011: test.x_file_lookup[0] = 32
+RUN_011: test.x_file_lookup[1] = 31
+RUN_011: test.x_file_lookup[2] = 30
+```
+
+| run number | x_file_lookup[0] | x_file_lookup[1] | x_file_lookup[2] | (line number) |
+| :--- | :---| :--- | :---| :--- | 
+| 0 | 2 | 1 | 0 | 1|
+| 1 | 12 | 11 | 10 | 2 |
+| 2 | 22 | 21 | 20 | 3 |
+| 3 | 32 | 31 | 30 | 4 |
+| 4 | 2 | 1 | 0 | 1 |
+| 5 | 12 | 11 | 10 | 2 |
+| 6 | 22 | 21 | 20 | 3 |
+| 7 | 32 | 31 | 30 | 4 |
+| 8 | 2 | 1 | 0 | 1 |
+
+Note - last column (line number) is added for a reference
+
+### 5.1.12 Assignment of Fixed Value
+
+3 options implemented:
+
+* int           value = 7
+* double        value = 7.0
+* std::string   value = "7"
+
+``` 
+mc_var = trick.MonteCarloVariableFixed( "test.x_fixed_value_int", 7)
+…
+mc_var = trick.MonteCarloVariableFixed( "test.x_fixed_value_double", 7.0)
+…
+mc_var = trick.MonteCarloVariableFixed( "test.x_fixed_value_string", "\"7\"")
+
+RUN_000: test.x_fixed_value_int = 7
+RUN_000: test.x_fixed_value_double = 7
+RUN_000: test.x_fixed_value_string = "7"
+(identical for all runs)
+
+All values are logged with value 7
+```
+
+### 5.1.13 Assignment of Semi-Fixed Value
+
+A semi-fixed value is a value generated for the first run, and held at that value for all subsequent runs. This case takes the value of mc_var1, the local variable used in generating the values for test.x_file_lookup[0] The variable should therefore match that of test.x_file_lookup[0] from RUN_000, and take this value for all runs.
+
+```
+mc_var = trick.MonteCarloVariableSemiFixed( "test.x_semi_fixed_value", mc_var1 )
+
+RUN_000: test.x_semi_fixed_value = 2
+(identical for all runs)
+
+Note– test.x_file_lookup[0] = 2 for RUN_000
+
+Logged data matches Monte-input data
+```
+
+### 5.2 Reading Values From a File
+
+As with the earlier case in section 5.1.11, the data is read from the file with the following contents.
+
+```
+0 1 2 3 4
+# comment
+10 11 12 13 14
+ <--------- <blank line>
+20 21 22 23 24
+ <--------- <contains only white space>
+30 31 32 33 34
+```
+
+This test investigates the options for randomizing which values are drawn from the file
+
+### 5.2.1 Sequential Lines
+
+With this option, each subsequent run reads the next line from the file, wrapping back to the top of the file when it reaches the end. This has been investigated in section 5.1.11.
+
+### 5.2.2 Random Lines with Linked Variables
+
+This option uses the max_skip variable to allow some number of lines to be randomly passed over; the next run does not need to read the next line.
+
+Note – when multiple variables are being drawn from the same file, each variable must be given the same max_skip value or an error will be flagged. It is not possible to draw two variables from different lines of the same file.
+
+```
+test.mc_master.set_num_runs(10)
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[0]", "Modified_data/datafile.txt", 3)
+mc_var.max_skip = 3
+…
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[1]", "Modified_data/datafile.txt", 2)
+mc_var.max_skip = 3
+…
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[2]", "Modified_data/datafile.txt", 1)
+mc_var.max_skip = 3
+```
+
+| run number | x_file_lookup[0] | x_file_lookup[1] | x_file_lookup[2] | (line number) | lines skipped |
+| :--- | :---| :--- | :---| :--- | 
+| 0 | 2 | 1 | 0 | 1 | |
+| 1 | 12 | 11 | 10 | 2 | 0 |
+| 2 | 12 | 11 | 10 | 2 | 3 |
+| 3 | 32 | 31 | 30 | 4 | 1 |
+| 4 | 22 | 21 | 20 | 3 | 2 |
+| 5 | 32 | 31 | 30 | 4 | 0 | 
+| 6 | 2 | 1 | 0 | 1 | 0 |
+| 7 | 32 | 31 | 30 | 4 | 2 |
+| 8 | 22 | 21 | 20 | 3 | 3 |
+
+Note - line number and number of skipped lines added for clarification):
+
+### 5.2.3 Random Lines with Independent Variables
+
+Must use independent data files if variables are not to be correlated (i.e. all extracted from the same line). It is not possible
+to have multiple variables drawn from different lines of one file.
+
+```
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[0]", "Modified_data/single_col_1.txt", 0, 0)
+mc_var.max_skip = 1
+…
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[1]", "Modified_data/single_col_2.txt", 0, 0)
+mc_var.max_skip = 2
+…
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[2]", "Modified_data/single_col_3.txt", 0, 0)
+mc_var.max_skip = 3
+```
+
+Each file contains a single column of data:
+
+* single_col_1.txt contains values 1 to 15
+* single_col_2.txt contains values 16 to 30
+* single_col_3.txt contains values 31 to 55
