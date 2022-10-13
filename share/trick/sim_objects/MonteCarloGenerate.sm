@@ -1,18 +1,15 @@
-/*****************************************************************************
-PURPOSE: (TO BE COMPLETED)
+/*******************************TRICK HEADER******************************
+PURPOSE: Provides a one-stop shop for all MonteCarlo operations that Trick
+         cannot support, including:
+         - assignment of values to non-floats
+         - assignment of variables to other dispersed variables
+         - computation of variables as a function of one or more dispersed
+           variables.
 PROGRAMMERS:
-    (
-     ((Name) (Org) (Date) (Project) (purpose))
-    )
-*****************************************************************************/
-#include "sim_objects/default_trick_sys.sm"
-//include "jeod_sys.sm"
-
-
-/*****************************************************************************
-MC_Test sim object
-****************************************************************************/
-
+  (((Gary Turner) (OSR) (October 2018) (Antares) (initial)))
+***********************************************************************/
+#ifndef SIM_OBJECT_MONTE_CARLO_Generation
+#define SIM_OBJECT_MONTE_CARLO_Generation
 ##include "trick/mc_master.hh"
 ##include "trick/mc_python_code.hh"
 ##include "trick/mc_variable_random_uniform.hh"
@@ -23,51 +20,44 @@ MC_Test sim object
 ##include "trick/mc_variable_fixed.hh"
 ##include "trick/mc_variable_semi_fixed.hh"
 
-class MC_TestSimObject : public Trick::SimObject
+##include "trick/MonteCarlo.hh"
+class MonteCarloGeneratorSimObject : public Trick::SimObject
 {
+ protected:
+  Trick::MonteCarlo * mc;
  public:
-  double x_uniform;
-  double x_normal;
-  double x_normal_trunc[5];
-  double x_normal_length; // (m) Dispersed in ft.
-  double x_line_command;
-  double x_file_command[3];
-  double x_file_lookup[3];
-  double x_fixed_value_double;
-  double x_semi_fixed_value;
-  int    x_fixed_value_int;
-  int    x_integer;
-  bool   x_boolean;
-  std::string x_string;
-  std::string x_fixed_value_string;
-  int    x_sdefine_routine_called;
-
-  MonteCarloMaster  mc_master;
-  MonteCarloVariableFile mc_var_file;
-
-  MC_TestSimObject()
-      :
-      mc_master("test.mc_master"),
-      mc_var_file("test.x_file_lookup[0]", "Modified_data/datafile.txt", 3)
+  MonteCarloMaster mc_master;
+  MonteCarloGeneratorSimObject(std::string location, Trick::MonteCarlo * mc_)
+  :
+    mc(mc_),
+    mc_master(location)
   {
-
-    ("initialization")   mc_master.execute();
-    (1.0,"environment") output_strings();
-  };
-
-  // standalone_function is used to test using an instance of
-  // MonteCarloPythonLineExec to execute a standalone function.
-  void standalone_function( double value)
+    // pre-initialization assignments:
+    P07 ("initialization") generate_dispersions();
+  }
+  void generate_dispersions()
   {
-    std::cout << "\nStandalone_function received a value of " << value << "\n";
-    x_sdefine_routine_called = 1;
+    if (!mc_master.active || !mc_master.generate_dispersions) return;
+    const std::vector<Trick::MonteVar*> variables = mc->get_variables();
+    if (!variables.empty()) {
+      std::string temp;
+      for (auto it :variables) {
+        temp = "The variable " + it->name + " was added improperly. Details:\n" + it->describe_variable();
+        std::string isaacRError = std::string("isaacRError: ") + __FILE__ + " " + std::to_string(__LINE__) + "Monte Carlo Variable added using wrong method\n" + temp.c_str();
+	message_publish(MSG_ERROR, isaacRError.c_str());
+      }
+	std::string isaacRError = std::string("isaacRError: ") + __FILE__ + " " + std::to_string(__LINE__) + "Monte Carlo variable(s) added using wrong method\nAt least one variable was added using Trick's built-in Monte Carlo\nmechanism. These variables would not be dispersed because the Antares\nmonte-carlo mechanism is being used instead. Replace trick.MonteVar* with\nAntares_MonteVar*  or contact a member of the Antares core team for\nsupport.\n";
+	message_publish(MSG_ERROR, isaacRError.c_str());
+	exec_terminate_with_return(1, __FILE__, __LINE__, isaacRError.c_str());
+      }
+    mc_master.execute();
   }
  private:
-  void output_strings() {
-    std::cout << "\nstrings : " << x_string << " : " << x_fixed_value_string << "\n";
-  }
-  MC_TestSimObject( const MC_TestSimObject&);
-  MC_TestSimObject & operator= ( const MC_TestSimObject&);
-
+  // copy constructor, operator= blocked:
+  MonteCarloGeneratorSimObject (const MonteCarloGeneratorSimObject&);
+  MonteCarloGeneratorSimObject & operator = ( const MonteCarloGeneratorSimObject&);
 };
-MC_TestSimObject test;
+MonteCarloGeneratorSimObject monte_carlo("monte_carlo.master", &trick_mc.mc);
+#endif
+
+
