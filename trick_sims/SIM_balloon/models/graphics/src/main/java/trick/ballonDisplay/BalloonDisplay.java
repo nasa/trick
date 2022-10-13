@@ -577,7 +577,7 @@ public class BalloonDisplay extends JFrame {
         int mapScale = 32 ; // pixels per meter.
 
         RangeView rangeView = new RangeView( mapScale);
-        BalloonDisplay balloonDisplay = new BalloonDisplay( rangeView);
+        BalloonDisplay balloonDisplay = new BalloonDisplay(arena);
         balloonDisplay.setVisible(true);
         balloonDisplay.drawRangeView();
 
