@@ -41,7 +41,7 @@ GetTimeOfDayClock_test.o : GetTimeOfDayClock_test.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
 
 GetTimeOfDayClock_test : ${GETTIMEOFDAY_CLOCK_OBJECTS}
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ ${LIBS}
 
 exec_get_rt_nap_stub.o : exec_get_rt_nap_stub.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
