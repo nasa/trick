@@ -1363,3 +1363,4 @@ For these distributions, we increased the number of data points to 10,000 to get
 
 Here we test the distribution of both continuous (left) and discrete (right) variables
 
+![logo](docs/Monte_Carlo_GenerationUniformGenerationGraph.PNG)
