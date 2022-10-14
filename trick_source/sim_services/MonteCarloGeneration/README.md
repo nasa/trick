@@ -1363,10 +1363,46 @@ For these distributions, we increased the number of data points to 10,000 to get
 
 Here we test the distribution of both continuous (left) and discrete (right) variables
 
-![logo](images/Monte_Carlo_GenerationNormalDistributionGraph.PNG)
+![logo](images/Monte_Carlo_GenerationUniforimDistributionGraph.PNG)
 
 ### 5.3.2 Nomral Distibution
 
 For the analysis of the normal distribution, we start with 4 unique distributions, illustrated below:
 
 ![logo](images/Monte_Carlo_GenerationNormalDistributionGraph.PNG)
+
+Any normal distribution may be truncated. As we saw in section 5.1.3, a normal distribution can be truncated according to one of 3 methods for specifying the range:
+* a prescribed range (Absolute)
+* some number of standard deviations relative to the mean (StandardDeviation)
+* some a prescribed range relative to the mean (Relative)
+
+For each of these options, there are 4 options for specifying how to truncate:
+
+* symmetric (about the mean or about 0) – uses truncate(…) with 1 numerical argument; the truncation is applied within +- the value specified in the argument.
+* asymmetric, truncated on both sides – uses truncate(…) with 2 numerical arguments; the first argument provides the left-truncation and the 2nd argument the right-truncation.
+* truncated on the left only – uses truncate_low(…) with 1 numerical argument specifying the left-truncation.
+* truncated on the right only – uses truncate_high(…) with 1 numerical argument specifying the right-truncation.
+
+These 12 options will be investigated in more detail here, with graphical illustrations of the consequences of each.
+
+For each case, two plots are shown:
+
+1. the plot on the left is that of a distribution with no truncation applied
+2. the lot on the right is that of the same distribution with the truncation applied.
+
+### 5.3.2.1 Truncated by Prescribed Range
+
+symmetric (about 0)
+truncate(10, Absolute)
+
+![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph1.PNG)
+
+asymmetric, truncated on both sides
+truncate(72.5, 85, Absolute)
+
+![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph2.PNG)
+
+truncated on the left only
+truncate_low(90, Absolute)
+
+![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph3.PNG)
