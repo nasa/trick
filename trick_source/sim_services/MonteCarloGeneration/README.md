@@ -1363,4 +1363,10 @@ For these distributions, we increased the number of data points to 10,000 to get
 
 Here we test the distribution of both continuous (left) and discrete (right) variables
 
-![logo](docs/Monte_Carlo_GenerationUniformGenerationGraph.PNG)
+![logo](images/Monte_Carlo_GenerationNormalDistributionGraph.PNG)
+
+### 5.3.2 Nomral Distibution
+
+For the analysis of the normal distribution, we start with 4 unique distributions, illustrated below:
+
+![logo](images/Monte_Carlo_GenerationNormalDistributionGraph.PNG)
