@@ -1,7 +1,7 @@
 # MonteCarloGeneration Model
 
 ## Table of Contents
-### [1. Introduction](Introduction)
+### [1. Introduction](#Introduction)
 ### [2. Requirements](#Requirements)
 ### [3. Model Specification](#Model Specification)
 #### &nbsp; &nbsp; [3.1 Code Structure](#Code Structure)
@@ -1408,3 +1408,20 @@ truncated on the left only
 truncate_low(90, Absolute)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph3.PNG)
+
+truncated on the right only
+truncate_high(135, Absolute)
+
+![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph4.PNG)
+
+### 5.3.2.2 Truncated by Difference from Mean
+
+symmetric (about the mean)
+truncate(10,Relative)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph1.PNG)
+
+asymmetric, truncated on both sides
+truncate(-2.5,10,Relative)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph2.PNG)
