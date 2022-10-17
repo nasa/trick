@@ -1,76 +1,8 @@
 # MonteCarloGeneration Model
 
-## Table of Contents
+# Table of Contents
 
-* [Introduction](#Introduction)
-### [2. Requirements](#Requirements)
-### [3. Model Specification](#Model Specification)
-#### &nbsp; &nbsp; [3.1 Code Structure](#Code Structure)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [3.1.1 Variable Man###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.2 Initiating MonteCarlo](#Initiating MonteCarlo)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.3 Additional Configurations](#Additional Configurations)
-#### &nbsp; &nbsp; [4.3 MonteCarlo Variables (MonteCarloVariable)](#MonteCarlo Variables)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1 Instantiation and Registration](#Instantiation and Registration)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.1 Python input file implementation for Trick:](#Python input file implementation for Trick:)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.3 C++ implementation in its own class:](#C++ implementation in its own class:)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.3 C++ implementation within a Trick S-module:](#C++ implementation within a Trick S-module:)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.3.2 Input-file Access](#Input-file Access)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.3.3 Configuration](#Configuration)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.1 MonteCarloVariable](#MonteCarloVariable)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.2 MonteCarloVariableFile](#MonteCarloVariableFile)agement (MonteCarloMaster)](#Variable Management)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [3.1.2 Disperesd Variables (MonteCarloVariable)](#Disperesd Variables)
-#### &nbsp; &nbsp; [3.2 Mathematical Formulation](#Mathematical Formulation)
-### [4. User's Guide](#User's Guide)
-#### &nbsp; &nbsp; [4.1 What to expect](#What to expect)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.1.1 Trick Users](#Trick Users)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.1.2 Disperesd Variables (MonteCarloVariable)](#Disperesd Variables)
-#### &nbsp; &nbsp; [4.2 MonteCarlo Manager (MonteCarloMaster)](#MonteCarlo Manager)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.2.1 Instantiation](#Instantiation)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2 Configuration](#Configuration)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.2.2.1 Modifications to the regular input file](#Modifications to the regular input file)
-
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.3 MonteCarloVariableFixed](#MonteCarloVariableFixed)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.4 MonteCarloVariableRandomBool](#MonteCarloVariableRandomBool)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.5 MonteCarloVariableRandomNormal](#MonteCarloVariableRandomNormal)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.6 MonteCarloVariableRandomStringSet](#MonteCarloVariableRandomStringSet)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.7 MonteCarloVariableRandomUniform](#MonteCarloVariableRandomUniform)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.8 MonteCarloVariableRandomUniformInt](#MonteCarloVariableRandomUniformInt)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.9 MonteCarloVariableSemiFixed](#MonteCarloVariableSemiFixed)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.10 MonteCarloPythonLineExec](#MonteCarloPythonLineExec)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [4.3.1.11 MonteCarloPythonFileExec](#MonteCarloPythonFileExec)
-#### &nbsp; &nbsp; [4.4 Information on the Generated Files](#Information on the Generated Files)
-#### &nbsp; &nbsp; [4.5 Extension](#Extension)
-### [5. Verification](#Verification)
-#### &nbsp; &nbsp; [5.1 RUN_nominal](#RUN_nominal)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.1 Uniform Distribution](#Uniform Distribution)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.2 Normal Distribution](#Normal Distribution)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.3 Truncated Normal Distribution](#Truncated Normal Distribution)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.1.1 Truncated by Standard Deviations from Mean](#Truncated by Standard Deviations from Mean)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.1.2 Truncated by Difference from Mean](#Truncated by Difference from Mean)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.1.3 Truncated by Specified Bounds](#Truncated by Specified Bounds)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.4 Truncated on Left Only](#Truncated on Left Only)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.5 Truncated on Right Only](#Truncated on Right Only)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.6 Dispersion in Non-native units](#Dispersion in Non-native units)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.7 Discrete Integer (Uniform Distribution)](#Discrete Integer)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.8 Discrete String (Uniform Distribution)](#Discrete String)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.9 Discrete Boolean (Uniform Distribution)](#Discrete Boolean)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.10 Python Code Injection](#Python Code Injection)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.1.10.1 Line of Code](#Line of Code)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.1.10.2 Execution of a Function](#Execution of a Function)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.1.10.3 Execution of File or Script](#Execution of File or Script)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.11 Extraction From File](#Extraction From File)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.12 Assignment of Fixed Value](#Assignment of Fixed Value)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.1.13 Assignment of Semi-Fixed Value](#Assignment of Semi-Fixed Value)
-#### &nbsp; &nbsp; [5.2 Reading Values From a File](#Reading Values From a File)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.2.1 Sequential Lines](#Sequential Lines)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.2.2 Random Lines with Linked Variables](#Random Lines with Linked Variables)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.2.3 Random Lines with Independent Variables](#Random Lines with Independent Variables)
-#### &nbsp; &nbsp; [5.3 Distribution Analyses](#Distribution Analyses)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.3.1 Uniform Distribution](#Uniform Distribution)
-##### &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2 Normal Distribution](#Normal Distribution)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.0 Any normal distribution may be truncated. As we saw in section 5.1.3, a normal distribution can be truncated according to one of 3 methods for specifying the range:](#truncation)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.1 Truncated by Prescribed Range](#Truncated by Prescribed Range)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.2 Truncated by Difference from Mean](#Truncated by Difference from Mean)
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; [5.3.2.3 Truncated by Standard Deviations from Mean](#Truncated by Standard Deviations from Mean)
+[[_TOC_]]
 
 ## Revision History
 | Version | Date | Author | Purpose |
@@ -102,37 +34,37 @@ organization of the model has been designed to support external tools seeking to
 applied to the dispersed variables, and generate new dispersion sets.
 
 <a id=Requirements></a>
-## 2 Requirements
-### 1. The model shall provide common statistical distribution capabilities, including:
-#### &nbsp; &nbsp; (a). Uniform distribution between specified values  
-##### &nbsp; &nbsp; &nbsp; &nbsp; i. as a floating-point value  
-##### &nbsp; &nbsp; &nbsp; &nbsp; ii. as an integer value  
-#### &nbsp; &nbsp; (b) Normal distribution, specified by mean and standard deviation  
-#### &nbsp; &nbsp; (c) Truncated Normal Distribution, including  
-##### &nbsp; &nbsp; &nbsp; &nbsp; i. symmetric and asymmetric truncations  
-##### &nbsp; &nbsp; &nbsp; &nbsp; ii. it shall be possible to specify truncations by:  
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; A. some number of standard deviations from the mean,  
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; B. a numerical difference from the mean, and  
-###### &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; C. an upper and lower limit  
-### 2. The model shall provide an extensible framework suitable for supporting other statistical distributions
-### 3. The model shall provide the ability to assign a common value to all runs:
-#### &nbsp; &nbsp; (a) This value could be a fixed, user-defined value
-#### &nbsp; &nbsp; (b) This value could be a random assignment, generated once and then applied to all runs
-### 4. The model shall provide the capability to read values from a pre-generated file instead of generating its own values
-### 5. The model shall provide the ability to randomly select from a discrete data set, including:
-#### &nbsp; &nbsp; (a) enumerations,
-#### &nbsp; &nbsp; (b) character-strings,
-#### &nbsp; &nbsp; (c) boolean values, and
-#### &nbsp; &nbsp; (d) numerical values
-### 6. The model shall provide the capability to compute follow-on variables, the values of which are a function of one or more dispersed variables with values generated using any of the methods in requirements 1-5.
-### 7. The model shall provide a record of the generated distributions, allowing for repeated execution of the same scenario using exactly the same conditions.
-### 8. The model shall provide summary data of the dispersions which have been applied, including:
-#### &nbsp; &nbsp; (a) number of dispersions
-#### &nbsp; &nbsp; (b) types of dispersions
-#### &nbsp; &nbsp; (c) correlations between variables
+# 2 Requirements
+* The model shall provide common statistical distribution capabilities, including:
+    * Uniform distribution between specified values  
+        * as a floating-point value  
+        * as an integer value  
+    * Normal distribution, specified by mean and standard deviation  
+    * Truncated Normal Distribution, including  
+        * symmetric and asymmetric truncations  
+        * it shall be possible to specify truncations by:  
+            * some number of standard deviations from the mean,  
+            * a numerical difference from the mean, and  
+            * an upper and lower limit  
+* The model shall provide an extensible framework suitable for supporting other statistical distributions
+* The model shall provide the ability to assign a common value to all runs:
+    * This value could be a fixed, user-defined value
+    * This value could be a random assignment, generated once and then applied to all runs
+* The model shall provide the capability to read values from a pre-generated file instead of generating its own values
+* The model shall provide the ability to randomly select from a discrete data set, including:
+    * enumerations,
+    * character-strings,
+    * boolean values, and
+    * numerical values
+* The model shall provide the capability to compute follow-on variables, the values of which are a function of one or more dispersed variables with values generated using any of the methods in requirements 1-5.
+* The model shall provide a record of the generated distributions, allowing for repeated execution of the same scenario using exactly the same conditions.
+* The model shall provide summary data of the dispersions which have been applied, including:
+    * number of dispersions
+    * types of dispersions
+    * correlations between variables
 
-## 3 Model Specification
-### 3.1 Code Structure
+# 3 Model Specification
+## 3.1 Code Structure
 The model can be broken down into its constituent classes; there are two principle components to the model – the variables,
 and the management of the variables.
 ### 3.1.1 Variable Management (MonteCarloMaster) 
@@ -235,12 +167,12 @@ the identifying variable_name is used to identify the variable whose value is to
 the MonteCarloPythonFileExec implementation, the variable_name is hijacked to provide the name of the file to
 be executed.
 
-### 3.2 Mathematical Formulation
+## 3.2 Mathematical Formulation
 No mathematical formulation. The random number generators use the C++ <random> library.
 
-## 4 User's Guide
+# 4 User's Guide
 
-### 4.1 What to expect
+## 4.1 What to expect
 
 This role played by this model can be easily misunderstood, so let’s start there.
 This model generates Python files containing assignments to variables.
@@ -262,7 +194,7 @@ The intention is that the model runs very early in the simulation sequence. If t
 
 When a simulation executes with this model active, the only result of the simulation will be the generation of files containing the assignments to the dispersed variables. The simulation should be expected to terminate at t=0.
 
-#### 4.1.1 Trick Users
+## 4.1.1 Trick Users
 
 The model is currently configured for users of the Trick simulation engine. The functionality of the model is almost exclusively independent of the chosen simulation engine, with the exceptions being the shutdown sequence, and the application of units information in the variables.
 
@@ -296,7 +228,7 @@ which appends Trick instructions to interpret the generated value as being repre
 
 The rest of the User’s Guide will use examples of configurations for Trick-simulation input files
 
-### 4.1.2 Non-Trick Users
+## 4.1.2 Non-Trick Users
 
 To configure the model for simulation engines other than Trick, the Trick-specific content identified above should be replaced with equivalent content that will result in:
 * the shutdown of the simulation, and
@@ -304,7 +236,7 @@ To configure the model for simulation engines other than Trick, the Trick-specif
 
 While the rest of the User’s Guide will use examples of configurations for Trick-simulation input files, understand that these are mostly just C++ or Python code setting the values in this model to make it work as desired. Similar assignments would be required for any other simulation engine.
 
-### 4.2 MonteCarlo Manager (MonteCarloMaster)
+## 4.2 MonteCarlo Manager (MonteCarloMaster)
 ### 4.2.1 Instantiation
 
 The instantiation of MonteCarloMaster would typically be done directly in the S_module. The construction of this instance takes a single argument, a STL-string describing its own location within the simulation data-structure.
@@ -341,7 +273,7 @@ The configuration of the MonteCarloMaster is something to be handled as a user-i
 * modifications to the regular input file, and 
 * new file-input or other external monte-carlo initiation mechanism
 
-### 4.2.2.1 Modifications to the regular input file
+#### 4.2.2.1 Modifications to the regular input file
 
 A regular input file sets up a particular scenario for a nominal run. To add monte-carlo capabilities to this input file, the
 following code should be inserted somewhere in the file:
@@ -388,7 +320,7 @@ else:
  3. If the generate_dispersions flag is also set to true, the MonteCarloMaster::execute() method will execute,
 generating the dispersion files and shutting down the simulation. 
 
-### 4.2.2.2 Initiating MonteCarlo
+#### 4.2.2.2 Initiating MonteCarlo
 
 Somewhere outside this file, the active and generate_dispersion flags must be set. This can be performed either in a separate input file or via a command-line argument. Unless the command-line argument capability is already supported, by far the easiest mechanism is to create a new input file that subsequently reads the existing input file:
 
@@ -402,7 +334,7 @@ The activate method takes a single string argument, representing the name of the
 * In the creation of a MONTE_<argument> directory. This directory will contain some number of sub-directories identified as, for example, RUN_01, RUN_02, RUN_03, etc. each of which will contain one of the generated dispersion files.
 * In the instructions written into the generated dispersion files to execute the content of the input file found in <argument>.
 
-### 4.2.2.3 Additional Configurations
+#### 4.2.2.3 Additional Configurations
 
 There are additional configurations instructing the MonteCarloMaster on the generation of the new dispersion files. Depending on the use-case, these could either be embedded within the “if monte_carlo.master.generate_dispersions:” block of the original input file, or in the secondary input file (or command-line arguments if configured to do so).
 
@@ -436,7 +368,7 @@ There are additional configurations instructing the MonteCarloMaster on the gene
 
     ```monte_carlo.master.run_name = “RUN_2”```
 
-### 4.3 MonteCarlo Variables (MonteCarloVariable)
+## 4.3 MonteCarlo Variables (MonteCarloVariable)
 
 The instantiation of the MonteCarloVariable instances is typically handled as a user-input to the simulation without requiring re-compilation. As such, these are usually implemented in Python input files. This is not a requirement, and these instances can be compiled as part of the simulation build. Both cases are presented.
 
@@ -449,7 +381,7 @@ For each variable to be dispersed, an instance of a MonteCarloVariable must be c
 3. Create the new instance using its constructor.
 4. Register it with the MonteCarloMaster using the MonteCarloMaster::add_variable( MonteVarloVariable&) method
 
-### 4.3.1.1 Python input file implementation for Trick:
+#### 4.3.1.1 Python input file implementation for Trick:
 
 When the individual instances are registered with the master, it only records the address of those instances. A user may create completely new variable names for each dispersion, or use a generic name as illustrated in the example below. Because these are typically created within a Python function, it is important to add the thisown=False instruction on each creation to prevent its destruction when the function returns.
 
@@ -462,7 +394,7 @@ mc_var.thisown = False
 monte_carlo.master.add_variable(mc_var)
 ```
 
-### 4.3.1.2 C++ implementation in its own class:
+#### 4.3.1.2 C++ implementation in its own class:
 
 In this case, the instances do have to be uniquely named.
 
@@ -491,7 +423,7 @@ class MonteCarloVarSet {
 };
 ```
 
-### 4.3.1.3 C++ implementation within a Trick S-module:
+#### 4.3.1.3 C++ implementation within a Trick S-module:
 
 Instantiating the variables into the same S-module as the master is also a viable design pattern. However, this can lead to a very long S-module so is typically only recommended when there are few variables. As with the C++ implementation in a class, the variables can be registered with the master in the constructor rather than in an additional method, with the same caveats presented earlier.
 
@@ -522,7 +454,7 @@ if monte_carlo.master.active:
 
 For all variable-types, the variable_name is provided as the first argument to the constructor. This variable name must include the full address from the top level of the simulation. After this argument, each variable type differs in its construction arguments and subsequent configuration options.
 
-### 4.3.3.1 MonteCarloVariable
+#### 4.3.3.1 MonteCarloVariable
 
 MonteCarloVariable is an abstract class; its instantiable implementations are presented below. There is one important configuration for general application to these implementations, the setting of units. In a typical simulation, a variable has an inherent unit-type; these are often SI units, but may be based on another system. Those native units may be different to those in which the distribution is described. In this case, assigning the generated numerical value to the variable without heed to the units mismatch would result in significant error.
 
@@ -534,7 +466,7 @@ Notes
 * if it is known that the variable’s native units and the dispersion units match (including the case of a dimensionless value), this method is not needed.
 * This method is not applicable to all types of MonteCarloVariable; use with MonteCarloVariableRandomBool and MonteCarloPython* is considered undefined behavior.
 
-### 4.3.3.2 MonteCarloVariableFile
+#### 4.3.3.2 MonteCarloVariableFile
 
 The construction arguments are:
 
@@ -545,14 +477,14 @@ The construction arguments are:
 
 There is no additional configuration beyond the constructor.
 
-### 4.3.3.3 MonteCarloVariableFixed
+#### 4.3.3.3 MonteCarloVariableFixed
 
 The construction arguments are:
 1. variable name
 2. value to be assigned
 There is no additional configuration beyond the constructor
 
-### 4.3.3.5 MonteCarloVariableRandomNormal
+#### 4.3.3.5 MonteCarloVariableRandomNormal
 The construction arguments are:
 1. variable name
 2. seed for random generator, defaults to 0
@@ -597,7 +529,7 @@ untruncate()
 
 This method removes previously configured truncation limits.
 
-### 4.3.3.6 MonteCarloVariableRandomStringSet
+#### 4.3.3.6 MonteCarloVariableRandomStringSet
 
 The construction arguments are:
 1. variable name
@@ -609,7 +541,7 @@ add_string(std::string new_string)
 
 This method adds the specified string (new_string) to the vector of available strings
 
-### 4.3.3.7 MonteCarloVariableRandomUniform
+#### 4.3.3.7 MonteCarloVariableRandomUniform
 
 The construction arguments are:
 1. variable name
@@ -619,7 +551,7 @@ The construction arguments are:
 
 There is no additional configuration beyond the constructor
 
-### 4.3.3.8 MonteCarloVariableRandomUniformInt
+#### 4.3.3.8 MonteCarloVariableRandomUniformInt
 
 The construction arguments are:
 1. variable name
@@ -629,7 +561,7 @@ The construction arguments are:
 
 There is no additional configuration beyond the constructor
 
-### 4.3.3.9 MonteCarloVariableSemiFixed
+#### 4.3.3.9 MonteCarloVariableSemiFixed
 
 The construction arguments are:
 1. variable name
@@ -637,7 +569,7 @@ The construction arguments are:
 
 There is no additional configuration beyond the constructor.
 
-4.3.3.10 MonteCarloPythonLineExec
+#### 4.3.3.10 MonteCarloPythonLineExec
 
 The construction arguments are:
 1. variable name
@@ -645,13 +577,13 @@ The construction arguments are:
 
 There is no additional configuration beyond the constructor.
 
-### 4.3.3.11 MonteCarloPythonFileExec
+#### 4.3.3.11 MonteCarloPythonFileExec
 The construction argument is:
 1. name of the file to be executed from the generated input file.
 
 There is no additional configuration beyond the constructor.
 
-### 4.4 Information on the Generated Files
+## 4.4 Information on the Generated Files
 
 This section is for informational purposes only to describe the contents of the automatically-generated dispersion files. Users do not need to take action on any content in here.
 
@@ -676,7 +608,7 @@ object.test_variable1 = 1.23456789
 ...
 ```
 
-### 4.5 Extension
+## 4.5 Extension
 
 The model is designed to be extensible and while we have tried to cover the most commonly used applications, complete anticipation of all use-case needs is impossible. The most likely candidate for extension is in the area of additional distributions. In this case:
 * A new distribution should be defined in its own class
@@ -685,7 +617,7 @@ The model is designed to be extensible and while we have tried to cover the most
     * Call the insert_units() method inherited from MonteCarloVariable
     * Set the command_generated flag to true if the command has been successfully generated.
 
-## 5 Verification
+# 5 Verification
 
 The verification of the model is provided in directory verif/SIM_verif.
 
@@ -701,7 +633,7 @@ This verification package comprises runs categorized into several sections:
 * IO* test problems associated with reading or writing from the specified files.
 * FAIL* test the misconfigurations that should lead to terminal failure.
 
-### 5.1 RUN_nominal
+## 5.1 RUN_nominal
 
 Execution of RUN_nominal/input.py results in:
 
@@ -798,7 +730,7 @@ Logged data matches Monte-input data
 
 There are several methods by which a normal distribution can be truncated; these are explored here and in more detail in section 5.3.2.
 
-### 5.1.3.1 Truncated by Standard Deviations from Mean
+#### 5.1.3.1 Truncated by Standard Deviations from Mean
 
 Distribution ~N(10,2) truncated to lie with 0.5 standard deviations from the mean should produce a distribution with values in the range (9, 11)
 
@@ -830,7 +762,7 @@ RUN_019: test.x_normal_trunc[0] = 9.366018370198786
 Logged data matches Monte-input data
 ```
 
-### 5.1.3.2 Truncated by Difference from Mean
+#### 5.1.3.2 Truncated by Difference from Mean
 
 Distribution ~N(10,2) truncated to lie within [-0.5, +0.7] from the mean should produce a distribution with values in the range (9.5, 10.7)
 
@@ -862,7 +794,7 @@ RUN_019: test.x_normal_trunc[1] = 10.50899736993173
 Logged data matches Monte-input data
 ```
 
-### 5.1.3.3 Truncated by Specified Bounds
+#### 5.1.3.3 Truncated by Specified Bounds
 
 Distribution ~N(10,2) truncated directly to to lie within range [9.9, 11.0] 
 
@@ -1064,7 +996,7 @@ Matches Monte-input data, with True substituted by 1 and False substituted by 0
 
 This type of variable provides the ability to assign a value to a variable that is the output of a function or script
 
-### 5.1.10.1 Line of Code
+#### 5.1.10.1 Line of Code
 
 If 2 arguments are provided to MonteCarloPythonLineExec, the arguments are interpreted as:
 * 1st argument is the assignment
@@ -1086,7 +1018,7 @@ RUN_000: test.x_line_command = test.x_integer * test.x_uniform
 | product | 15.928446165 | 36.885314886 | 37.158912398 | 36.945034748 | 0 |
 | x_line_comand (logged) | 15.928446165 | 36.885314886 | 37.158912398 | 0 |
 
-### 5.1.10.2 Execution of a Function
+#### 5.1.10.2 Execution of a Function
 
 Where 1 argument is provided to MonteCarloPythonLineExec, it is interpreted as a command to be inserted into the monteinput file. In this case, we have a C++ function defined:
 
@@ -1115,7 +1047,7 @@ etc.
 test.x_sdefine_routine_called has a value of 1 for all runs
 ```
 
-### 5.1.10.3 Execution of File or Script
+#### 5.1.10.3 Execution of File or Script
 
 File Modified_data/sample.py contains the following code:
 
@@ -1358,7 +1290,7 @@ MONTE_RUN_file_skip2/monte_values_all_runs contains a summary of the assigned va
 | 3 | 5 | 22 | 38 | 5 7 8 | 0 1 1 |
 | 4 | 7 | 24 | 41 | 7 9 11 | 1 1 2 |
 
-### 5.3 Distribution Analyses
+## 5.3 Distribution Analyses
 
 For these distributions, we increased the number of data points to 10,000 to get a better visualization of the distribution.
 
@@ -1393,36 +1325,80 @@ For each case, two plots are shown:
 1. the plot on the left is that of a distribution with no truncation applied
 2. the lot on the right is that of the same distribution with the truncation applied.
 
-### 5.3.2.1 Truncated by Prescribed Range
+#### 5.3.2.1 Truncated by Prescribed Range
 
 symmetric (about 0)
+
 truncate(10, Absolute)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph1.PNG)
 
 asymmetric, truncated on both sides
+
 truncate(72.5, 85, Absolute)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph2.PNG)
 
 truncated on the left only
+
 truncate_low(90, Absolute)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph3.PNG)
 
 truncated on the right only
+
 truncate_high(135, Absolute)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph4.PNG)
 
-### 5.3.2.2 Truncated by Difference from Mean
+#### 5.3.2.2 Truncated by Difference from Mean
 
 symmetric (about the mean)
+
 truncate(10,Relative)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph1.PNG)
 
 asymmetric, truncated on both sides
+
 truncate(-2.5,10,Relative)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph2.PNG)
+
+truncated on the left only
+
+truncate_low(-10, Relative)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph3.PNG)
+
+truncated on the right only
+
+truncate_high(10, Relative)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph4.PNG)
+
+#### 5.3.2.3 Truncated by Difference from Mean
+
+symmetric (about the mean)
+
+truncate(2, StandardDeviation)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDeviationsGraph1.PNG)
+
+asymmetric, truncated on both sides
+
+truncate(-0.5, 2.0, StandardDeviation)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDeviationsGraph2.PNG)
+
+truncated on the left only
+
+truncate_low(-2, StandardDeviation)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDeviationsGraph3.PNG)
+
+truncated on the right only
+
+truncate_high(2, StandardDeviation)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDeviationsGraph4.PNG)
