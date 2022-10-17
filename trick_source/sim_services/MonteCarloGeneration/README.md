@@ -1,7 +1,8 @@
 # MonteCarloGeneration Model
 
 ## Table of Contents
-### [1. Introduction](#Introduction)
+
+* [Introduction](#Introduction)
 ### [2. Requirements](#Requirements)
 ### [3. Model Specification](#Model Specification)
 #### &nbsp; &nbsp; [3.1 Code Structure](#Code Structure)
