@@ -1328,21 +1328,25 @@ For each case, two plots are shown:
 #### 5.3.2.1 Truncated by Prescribed Range
 
 symmetric (about 0)
+
 truncate(10, Absolute)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph1.PNG)
 
 asymmetric, truncated on both sides
+
 truncate(72.5, 85, Absolute)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph2.PNG)
 
 truncated on the left only
+
 truncate_low(90, Absolute)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph3.PNG)
 
 truncated on the right only
+
 truncate_high(135, Absolute)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedRangeGraph4.PNG)
@@ -1350,11 +1354,51 @@ truncate_high(135, Absolute)
 #### 5.3.2.2 Truncated by Difference from Mean
 
 symmetric (about the mean)
+
 truncate(10,Relative)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph1.PNG)
 
 asymmetric, truncated on both sides
+
 truncate(-2.5,10,Relative)
 
 ![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph2.PNG)
+
+truncated on the left only
+
+truncate_low(-10, Relative)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph3.PNG)
+
+truncated on the right only
+
+truncate_high(10, Relative)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDifferenceGraph4.PNG)
+
+#### 5.3.2.3 Truncated by Difference from Mean
+
+symmetric (about the mean)
+
+truncate(2, StandardDeviation)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDeviationsGraph1.PNG)
+
+asymmetric, truncated on both sides
+
+truncate(-0.5, 2.0, StandardDeviation)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDeviationsGraph2.PNG)
+
+truncated on the left only
+
+truncate_low(-2, StandardDeviation)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDeviationsGraph3.PNG)
+
+truncated on the right only
+
+truncate_high(2, StandardDeviation)
+
+![logo](images/Monte_Carlo_GenerationTruncatedDeviationsGraph4.PNG)
