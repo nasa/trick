@@ -13,11 +13,8 @@ PROGRAMMERS:
 #define CML_MONTE_CARLO_VARIABLE_RANDOM_NORMAL_HH
 
 #include <random>
-//include "jeod/models/utils/message/include/message_handler.hh" // MessageHandler::*
 
 #include "mc_variable_random.hh"
-
-
 
 class MonteCarloVariableRandomNormal : public MonteCarloVariableRandom
 {

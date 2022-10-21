@@ -21,7 +21,6 @@ PROGRAMMERS:
 #include "trick/message_proto.h"
 #include "trick/message_proto.h"
 
-
 // TODO Turner 2019/11
 //       The reference to a MonteCarloVariable might be difficult to
 //       obtain because these are typically created on-the-fly and
