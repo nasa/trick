@@ -1298,7 +1298,7 @@ For these distributions, we increased the number of data points to 10,000 to get
 
 Here we test the distribution of both continuous (left) and discrete (right) variables
 
-![logo](images/Monte_Carlo_GenerationUniforimDistributionGraph.PNG)
+![UniforimDistributionGraph](images/Monte_Carlo_GenerationUnifromDistriubtionGraph.PNG)
 
 ### 5.3.2 Nomral Distibution
 
