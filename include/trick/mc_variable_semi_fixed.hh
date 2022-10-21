@@ -12,6 +12,7 @@ PURPOSE: (
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 #ifndef CML_MONTE_CARLO_VARIABLE_SEMI_FIXED_HH
 #define CML_MONTE_CARLO_VARIABLE_SEMI_FIXED_HH
@@ -19,7 +20,6 @@ PROGRAMMERS:
 #include "mc_variable_random.hh"
 #include "trick/message_proto.h"
 #include "trick/message_proto.h"
-//include "jeod/models/utils/message/include/message_handler.hh"
 
 
 // TODO Turner 2019/11
