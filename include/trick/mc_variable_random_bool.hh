@@ -6,6 +6,7 @@ PURPOSE: ( Uses the RandomString generator to generate either a "True" or
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 #ifndef CML_MONTE_CARLO_VARIABLE_RANDOM_BOOL_HH
 #define CML_MONTE_CARLO_VARIABLE_RANDOM_BOOL_HH

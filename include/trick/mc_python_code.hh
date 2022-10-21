@@ -15,6 +15,7 @@ LIMITATION: (This implementation is intended to provide a fixed operation
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 #ifndef CML_MONTE_CARLO_PYTHON_CODE_HH
 #define CML_MONTE_CARLO_PYTHON_CODE_HH

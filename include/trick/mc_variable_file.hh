@@ -6,6 +6,7 @@ LIBRARY DEPENDENCY:
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 #ifndef CML_MONTE_CARLO_VARIABLE_FILE_HH
 #define CML_MONTE_CARLO_VARIABLE_FILE_HH
@@ -13,7 +14,6 @@ PROGRAMMERS:
 #include <fstream> // ifstream
 #include <random>  // default_random_engine, uniform_int_distribution
 #include <list>
-//include "jeod/models/utils/message/include/message_handler.hh"
 
 #include "trick/mc_variable.hh"
 
