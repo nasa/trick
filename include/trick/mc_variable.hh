@@ -11,7 +11,6 @@ PROGRAMMERS:
 #define CML_MONTE_CARLO_VARIABLE_HH
 
 #include <string>
-//include "jeod/models/utils/message/include/message_handler.hh"
 
 class MonteCarloVariable
 {
