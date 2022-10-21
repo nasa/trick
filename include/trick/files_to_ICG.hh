@@ -44,15 +44,12 @@
 #include "trick/RealtimeSync.hh"
 #include "trick/ITimer.hh"
 #include "trick/VariableServer.hh"
-
-
 #include "trick/regula_falsi.h"
 #include "trick/Integrator.hh"
 #include "trick/IntegAlgorithms.hh"
 #include "trick/IntegLoopScheduler.hh"
 #include "trick/IntegLoopManager.hh"
 #include "trick/IntegLoopSimObject.hh"
-
 #include "trick/ABM_Integrator.hh"
 #include "trick/Euler_Cromer_Integrator.hh"
 #include "trick/Euler_Integrator.hh"
@@ -63,7 +60,6 @@
 #include "trick/RKF45_Integrator.hh"
 #include "trick/RKF78_Integrator.hh"
 #include "trick/RKG4_Integrator.hh"
-
 #include "trick/SimTime.hh"
 
 /* from the er7_utils directory */
