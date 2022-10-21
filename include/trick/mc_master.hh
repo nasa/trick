@@ -13,10 +13,13 @@ PROGRAMMERS:
 #include <string>
 #include <list>
 #include <utility> // std::pair
-//include "jeod/models/utils/message/include/message_handler.hh"
 
 #include "mc_variable.hh"
 #include "mc_variable_file.hh"
+#include "mc_python_code.hh"
+#include "mc_variable_random.hh"
+#include "mc_variable_fixed.hh"
+#include "mc_variable_semi_fixed.hh"
 
 /*****************************************************************************
 MonteCarloMaster
@@ -117,9 +120,4 @@ class MonteCarloMaster
   MonteCarloMaster (const MonteCarloMaster&);
   MonteCarloMaster& operator = (const MonteCarloMaster&);
 };
-
-#include "mc_python_code.hh"
-#include "mc_variable_random.hh"
-#include "mc_variable_fixed.hh"
-#include "mc_variable_semi_fixed.hh"
 #endif
