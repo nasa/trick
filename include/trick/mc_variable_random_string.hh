@@ -34,7 +34,6 @@ PROGRAMMERS:
 #include <string>
 #include <vector>
 
-
 class MonteCarloVariableRandomStringSet : public MonteCarloVariableRandomUniform
 {
  public:
