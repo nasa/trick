@@ -89,24 +89,24 @@ int STLCheckpoint::addData() {
     int_multimap.insert(std::pair<int, int>(55,5555)) ;
     int_multimap.insert(std::pair<int, int>(66,6666)) ;
 
-    string_key_multimap.insert(std::pair<std::string, int>("four", 4)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("five", 5)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("six", 6)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("four", 44)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("five",  55)) ;
-    string_key_multimap.insert(std::pair<std::string, int>("six", 66)) ;
+    string_key_multimap.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"four","cuatro"}), 4)) ;
+    string_key_multimap.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"five","cinco"}), 5)) ;
+    string_key_multimap.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"six","seis"}), 6)) ;
+    string_key_multimap.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"four","cuatro"}), 44)) ;
+    string_key_multimap.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"five","cinco"}),  55)) ;
+    string_key_multimap.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"six","seis"}), 66)) ;
 
-    string_data_multimap.insert(std::pair<int, std::string>(7, "seiben")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(8, "acht")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(9, "neun")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(7, "seven")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(8, "eight")) ;
-    string_data_multimap.insert(std::pair<int, std::string>(9, "nine")) ;
+    string_data_multimap.insert(std::pair<int, std::vector<std::string>>(7, std::vector<std::string>({"seiben", "7"}))) ;
+    string_data_multimap.insert(std::pair<int, std::vector<std::string>>(8, std::vector<std::string>({"acht", "8"}))) ;
+    string_data_multimap.insert(std::pair<int, std::vector<std::string>>(9, std::vector<std::string>({"neun", "9"}))) ;
+    string_data_multimap.insert(std::pair<int, std::vector<std::string>>(7, std::vector<std::string>({"seven", "siete"}))) ;
+    string_data_multimap.insert(std::pair<int, std::vector<std::string>>(8, std::vector<std::string>({"eight", "ocho"}))) ;
+    string_data_multimap.insert(std::pair<int, std::vector<std::string>>(9, std::vector<std::string>({"nine", "nueve"}))) ;
 
-    string_multimap.insert(std::pair<std::string, std::string>("sister","Lisa")) ;
-    string_multimap.insert(std::pair<std::string, std::string>("dog","Santa's Little Helper")) ;
-    string_multimap.insert(std::pair<std::string, std::string>("sister","Meg")) ;
-    string_multimap.insert(std::pair<std::string, std::string>("dog","Brian")) ;
+    string_multimap.insert(std::pair<std::stack<std::string> , std::vector<std::string>>(std::stack<std::string>({"sister", "show"}),std::vector<std::string>({"Lisa"}))) ;
+    string_multimap.insert(std::pair<std::stack<std::string> , std::vector<std::string>>(std::stack<std::string>({"dog", "show"}),std::vector<std::string>({"Santa's Little Helper"}))) ;
+    string_multimap.insert(std::pair<std::stack<std::string> , std::vector<std::string>>(std::stack<std::string>({"sister", "show"}),std::vector<std::string>({"Meg"}))) ;
+    string_multimap.insert(std::pair<std::stack<std::string> , std::vector<std::string>>(std::stack<std::string>({"dog", "show"}),std::vector<std::string>({"Brian"}))) ;
 
     double_vector.push_back(4.0) ;
     double_vector.push_back(5.0) ;
@@ -403,6 +403,13 @@ int STLCheckpoint::addData() {
         vec_user_defined_ptr.push_back(temp_wrapper);
     }
 
+    for (int i = 0; i < 5; i++) {
+        arrayed_class[i].a = i;
+        for (int j = i; j < i+5; j++) {
+            arrayed_class[i].vec.push_back(j);
+        }
+    }
+
     return 0;
 }
 
@@ -507,31 +514,31 @@ int STLCheckpoint::test() {
     int_multimap_copy.insert(std::pair<int, int>(66,66666)) ;
     TRICK_EXPECT_NE(int_multimap, int_multimap_copy , test_suite, "int_multimap_fail");
 
-    std::multimap<std::string, int> string_key_multimap_copy;
-    string_key_multimap_copy.insert(std::pair<std::string, int>("four", 4)) ;
-    string_key_multimap_copy.insert(std::pair<std::string, int>("five", 5)) ;
-    string_key_multimap_copy.insert(std::pair<std::string, int>("six", 6)) ;
-    string_key_multimap_copy.insert(std::pair<std::string, int>("four", 44)) ;
-    string_key_multimap_copy.insert(std::pair<std::string, int>("five",  55)) ;
-    string_key_multimap_copy.insert(std::pair<std::string, int>("six", 66)) ;
+    std::multimap< std::vector<std::string> , int > string_key_multimap_copy ;
+    std::multimap< int , std::vector<std::string> > string_data_multimap_copy ;
+    std::multimap< std::stack<std::string> , std::vector<std::string> > string_multimap_copy ;
+
+    string_key_multimap_copy.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"four","cuatro"}), 4)) ;
+    string_key_multimap_copy.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"five","cinco"}), 5)) ;
+    string_key_multimap_copy.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"six","seis"}), 6)) ;
+    string_key_multimap_copy.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"four","cuatro"}), 44)) ;
+    string_key_multimap_copy.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"five","cinco"}),  55)) ;
+    string_key_multimap_copy.insert(std::pair<std::vector<std::string>, int>(std::vector<std::string>({"six","seis"}), 66)) ;
     TRICK_EXPECT_EQ(string_key_multimap, string_key_multimap_copy , test_suite, "string_key_multimap");
 
-    std::multimap<int, std::string> string_data_multimap_copy;
-    string_data_multimap_copy.insert(std::pair<int, std::string>(7, "seiben")) ;
-    string_data_multimap_copy.insert(std::pair<int, std::string>(8, "acht")) ;
-    string_data_multimap_copy.insert(std::pair<int, std::string>(9, "neun")) ;
-    string_data_multimap_copy.insert(std::pair<int, std::string>(7, "seven")) ;
-    string_data_multimap_copy.insert(std::pair<int, std::string>(8, "eight")) ;
-    string_data_multimap_copy.insert(std::pair<int, std::string>(9, "nine")) ;
+    string_data_multimap_copy.insert(std::pair<int, std::vector<std::string>>(7, std::vector<std::string>({"seiben", "7"}))) ;
+    string_data_multimap_copy.insert(std::pair<int, std::vector<std::string>>(8, std::vector<std::string>({"acht", "8"}))) ;
+    string_data_multimap_copy.insert(std::pair<int, std::vector<std::string>>(9, std::vector<std::string>({"neun", "9"}))) ;
+    string_data_multimap_copy.insert(std::pair<int, std::vector<std::string>>(7, std::vector<std::string>({"seven", "siete"}))) ;
+    string_data_multimap_copy.insert(std::pair<int, std::vector<std::string>>(8, std::vector<std::string>({"eight", "ocho"}))) ;
+    string_data_multimap_copy.insert(std::pair<int, std::vector<std::string>>(9, std::vector<std::string>({"nine", "nueve"}))) ;
     TRICK_EXPECT_EQ(string_data_multimap, string_data_multimap_copy , test_suite, "string_data_multimap");
 
-    std::multimap<std::string, std::string> string_multimap_copy;
-    string_multimap_copy.insert(std::pair<std::string, std::string>("sister","Lisa")) ;
-    string_multimap_copy.insert(std::pair<std::string, std::string>("dog","Santa's Little Helper")) ;
-    string_multimap_copy.insert(std::pair<std::string, std::string>("sister","Meg")) ;
-    string_multimap_copy.insert(std::pair<std::string, std::string>("dog","Brian")) ;
+    string_multimap_copy.insert(std::pair<std::stack<std::string> , std::vector<std::string>>(std::stack<std::string>({"sister", "show"}),std::vector<std::string>({"Lisa"}))) ;
+    string_multimap_copy.insert(std::pair<std::stack<std::string> , std::vector<std::string>>(std::stack<std::string>({"dog", "show"}),std::vector<std::string>({"Santa's Little Helper"}))) ;
+    string_multimap_copy.insert(std::pair<std::stack<std::string> , std::vector<std::string>>(std::stack<std::string>({"sister", "show"}),std::vector<std::string>({"Meg"}))) ;
+    string_multimap_copy.insert(std::pair<std::stack<std::string> , std::vector<std::string>>(std::stack<std::string>({"dog", "show"}),std::vector<std::string>({"Brian"}))) ;
     TRICK_EXPECT_EQ(string_multimap, string_multimap_copy , test_suite, "string_multimap");
-
 
     // TODO: fix this case
     // TRICK_EXPECT_EQ(vec_user_defined.size(), 10, test_suite, "vec_user_defined");
@@ -757,6 +764,13 @@ int STLCheckpoint::test() {
 
         TRICK_EXPECT_EQ(vec_user_simple[i].c, "Here is a test string", test_suite, "vec_user_simple");
         TRICK_EXPECT_EQ(vec_user_simple[i].d->c, "Here is a test string", test_suite, "vec_user_simple");
+    }
+
+    for (int i = 0; i < 5; i++) {
+        TRICK_EXPECT_EQ(arrayed_class[i].a, i, test_suite, "arrayed_class");
+        for (int j = i, index = 0; j < i+5; j++, index++) {
+            TRICK_EXPECT_EQ(arrayed_class[i].vec[index], j, test_suite, "arrayed_class");
+        }
     }
 
     

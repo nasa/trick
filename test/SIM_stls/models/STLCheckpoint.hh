@@ -57,9 +57,9 @@ class STLCheckpoint {
         std::map< std::pair< int , int > , std::vector< int > > common_multiples ;
 
         std::multimap< int , int > int_multimap ;
-        std::multimap< std::string , int > string_key_multimap ;
-        std::multimap< int , std::string > string_data_multimap ;
-        std::multimap< std::string , std::string > string_multimap ;
+        std::multimap< std::vector<std::string> , int > string_key_multimap ;
+        std::multimap< int , std::vector<std::string> > string_data_multimap ;
+        std::multimap< std::stack<std::string> , std::vector<std::string> > string_multimap ;
 
         std::vector< double > double_vector ;
         std::vector< std::string > string_vector ;
@@ -121,6 +121,7 @@ class STLCheckpoint {
         std::vector<SimpleWrapper> vec_user_defined;
         std::vector<SimpleWrapper *> vec_user_defined_ptr;
 
+        SimpleWrapper arrayed_class[5];
 
 } ;
 

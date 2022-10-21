@@ -62,6 +62,11 @@ void Trick::MemoryManager::restore_stls_in_class( std::string name, char* addres
         return;
     }
 
+    if (address == NULL) {
+        std::cerr << "ERROR: Trick::MemoryManager::restore_stls called with name = " << name << " and address = NULL." << std::endl;
+        return;
+    }
+
     for (ii = 0; attr[ii].name[0] != '\0'; ii++) {
         if (currentCheckPointAgent->input_perm_check(&attr[ii])) {
             char *elem_addr;
@@ -94,6 +99,7 @@ void Trick::MemoryManager::restore_stls_in_arrayed_class(
                                                 int         curr_dim,
                                                 int         offset) {
     int ii;
+    std::cout << __FUNCTION__ << ": Got index[curr_dim].size = 0 for " << name << " at dimension " << curr_dim << std::endl;
 
     if (debug_level > 1) {
           std::cout << "DEBUG: Entered function:" <<  __FUNCTION__ << std::endl;
@@ -105,31 +111,10 @@ void Trick::MemoryManager::restore_stls_in_arrayed_class(
     }
 
     if (attr->index[curr_dim].size == 0) {
-
-        void* pointer = *(void**)((char*)address + offset * sizeof(void*));
-
-        if (pointer != NULL) {
-            ALLOC_INFO *alloc_info;
-            alloc_info = get_alloc_info_of( pointer);
-            if (alloc_info != NULL) {
-
-                if (debug_level) {
-                    std::cout << __FUNCTION__ << ": @" << (void*)address << "." << attr->name << "[" << offset << "] points to @" << (void*)pointer << std::endl;
-                }
-                //restore_stls(alloc_info);
-            } else {
-                if (debug_level) {
-                    std::cout << __FUNCTION__ << ": Pointer ("<< (void*)pointer <<") refers to memory that the MemoryManager doesn't know about." << std::endl;
-                    std::cout.flush();
-                }
-            }
-        } else {
-            if (debug_level) {
-                std::cout << __FUNCTION__ << ": Allocation reference is NULL." << std::endl;
-                std::cout.flush();
-            }
+        if (debug_level) {
+            std::cout << __FUNCTION__ << ": Got index[curr_dim].size = 0 for " << name << " at dimension " << curr_dim << std::endl;
+            std::cout.flush();
         }
-
     } else {
         int curr_dim_size;
         curr_dim_size = attr->index[curr_dim].size;

@@ -26,15 +26,92 @@ class MM_stl_restore : public ::testing::Test {
             } catch (std::logic_error e) {
                 memmgr = NULL;
             }
+
+            memmgr->debug_level = 1;
+
+            // Redirect stdout so it doesn't clog test results
+            _placeholder = std::cout.rdbuf(_buffer.rdbuf());
+
         }
         ~MM_stl_restore() {
             delete memmgr;
+            // Restore stdout
+            std::cout.rdbuf( _placeholder ); 
         }
         void SetUp() {}
         void TearDown() {}
+
+        std::stringstream _buffer;
+        std::streambuf * _placeholder;
 };
 
+// Hit error cases in MemoryManager_restore_stls, make sure errors are handled gracefully
 
+TEST_F(MM_stl_restore, restore_stls_null_alloc_info ) {
+    // ARRANGE        
+    // Redirect stderr
+    std::stringstream buffer;
+    std::streambuf * placeholder;
+    placeholder = std::cerr.rdbuf(buffer.rdbuf());
+
+    // ACT
+    memmgr->restore_stls((ALLOC_INFO*) NULL); 
+
+    // ASSERT
+    // Ensure something was printed to stderr.
+    EXPECT_TRUE(buffer.str().size() > 0);
+
+    // Reset stderr
+    std::cerr.rdbuf( placeholder ); 
+}
+
+
+TEST_F(MM_stl_restore, restore_stls_in_class_null_attr ) {
+    // ARRANGE        
+    // Redirect stderr
+    std::stringstream buffer;
+    std::streambuf * placeholder;
+    placeholder = std::cerr.rdbuf(buffer.rdbuf());
+
+    UserClassStl * user_class = (UserClassStl *) memmgr->declare_var("UserClassStl my_alloc");  
+
+    // ACT
+    memmgr->restore_stls_in_class("my_alloc", (char *)user_class, (ATTRIBUTES*) NULL); 
+
+    // ASSERT
+    // Ensure something was printed to stderr.
+    std::cout << "Error: " << buffer.str() << std::endl;
+    EXPECT_TRUE(buffer.str().size() > 0);
+
+    // Reset stderr
+    std::cerr.rdbuf( placeholder ); 
+}
+
+TEST_F(MM_stl_restore, restore_stls_in_class_null_address) {
+    // ARRANGE        
+    // Redirect stderr
+    std::stringstream buffer;
+    std::streambuf * placeholder;
+    placeholder = std::cerr.rdbuf(buffer.rdbuf());
+
+    UserClassStl * user_class = (UserClassStl *) memmgr->declare_var("UserClassStl my_alloc");  
+    ATTRIBUTES* attr =  memmgr->ref_attributes("my_alloc")->attr;
+
+    // ACT
+    memmgr->restore_stls_in_class("my_alloc", (char *) NULL, attr); 
+
+    // ASSERT
+    // Ensure something was printed to stderr.
+    std::cout << "Error: " << buffer.str() << std::endl;
+    EXPECT_TRUE(buffer.str().size() > 0);
+
+    // Reset stderr
+    std::cerr.rdbuf( placeholder ); 
+}
+
+
+
+// Check all those different kinds of data structures
 
 TEST_F(MM_stl_restore, i_vec ) {
     // ARRANGE

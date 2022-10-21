@@ -10,8 +10,8 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 # Replace -isystem with -I so ICG doesn't skip Trick headers
 TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 
-COVERAGE_FLAGS += -fprofile-arcs -ftest-coverage -O0
-TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
+# COVERAGE_FLAGS += -fprofile-arcs -ftest-coverage -O0
+# TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
 
 # Flags passed to the preprocessor.
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare ${COVERAGE_FLAGS} -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
@@ -103,7 +103,7 @@ clean :
 	rm -f $(TESTS)
 	rm -f *.o
 	# Remove gcov/gprof files.
-	rm -f *.gcno
+	rm -f *.gcno *.gcda
 	rm -rf io_src xml
 
 # Builds gtest.a and gtest_main.a.
