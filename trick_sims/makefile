@@ -11,11 +11,11 @@ COMPILE_DIRS = \
     Cannon/SIM_cannon_eulercromer \
     Cannon/SIM_cannon_numeric \
     Cannon/SIM_cannon_jet \
+    Cannon/SIM_amoeba \
     SIM_Ball++_L1 \
     SIM_satellite \
     SIM_sun
 
-    # Cannon/SIM_amoeba \
     #SIM_monte \
 
 # List out sims we want to run unit tests
@@ -28,10 +28,10 @@ TEST_DIRS = \
     Cannon/SIM_cannon_eulercromer \
     Cannon/SIM_cannon_numeric \
     Cannon/SIM_cannon_jet \
+    Cannon/SIM_amoeba \
     SIM_Ball++_L1 \
     SIM_sun
 
-    # Cannon/SIM_amoeba \
     #SIM_monte \
 
 EXECUTABLES = $(addsuffix /T_main_${TRICK_HOST_CPU}_test.exe, $(COMPILE_DIRS))
