@@ -308,7 +308,7 @@ pytest:
 	make -C share/trick/pymods/trick
 
 code-coverage:
-	lcov -c -i -b ${TRICK_HOME} -d trick_source/sim_services -o coverage.baseline
+	lcov -c -i -d . -o coverage.baseline
 	@ $(MAKE) -C test
 	lcov --capture -d . --output-file coverage.out
 	lcov -a coverage.baseline -a coverage.out -o coverage_large.info
