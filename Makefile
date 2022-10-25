@@ -307,10 +307,13 @@ sim_test:
 pytest:
 	make -C share/trick/pymods/trick
 
-code-coverage: test
-	lcov --capture --directory trick_source/sim_services --output-file coverage_large.info
-	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' -o coverage.info
-	rm coverage_large.info
+code-coverage:
+	lcov -c -i -b ${TRICK_HOME} -d trick_source/sim_services -o coverage.baseline
+	@ $(MAKE) -C test
+	lcov --capture -d . --output-file coverage.out
+	lcov -a coverage.baseline -a coverage.out -o coverage_large.info
+	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/trick_sims/*' '*/trick_swig/*' '*/trick_adt/*' '*/shm/*' '*/math/*' -o coverage.info
+	rm coverage_large.info coverage.baseline coverage.out
 	lcov --list coverage.info
 
 #requirements:
@@ -321,7 +324,7 @@ code-coverage: test
 ################################################################################
 
 
-clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java clean_sim_serv_xml
+clean: clean_sim_serv clean_utils clean_swig clean_dp clean_ICG clean_java clean_sim_serv_xml clean_test
 	@/bin/rm -rf $(TRICK_BIN_DIR)
 	@/bin/rm -rf $(TRICK_LIB_DIR)
 
