@@ -309,7 +309,7 @@ pytest:
 
 code-coverage:
 	lcov -c -i -d . -o coverage.baseline
-	@ $(MAKE) -C test
+	make test
 	lcov --capture -d . --output-file coverage.out
 	lcov -a coverage.baseline -a coverage.out -o coverage_large.info
 	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/trick_sims/*' '*/trick_swig/*' '*/trick_adt/*' '*/shm/*' '*/math/*' -o coverage.info
