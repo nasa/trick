@@ -40,22 +40,30 @@ class MonteCarloGeneratorSimObject : public Trick::SimObject
     if (!mc_master.active || !mc_master.generate_dispersions) return;
     const std::vector<Trick::MonteVar*> variables = mc->get_variables();
     if (!variables.empty()) {
-      std::string temp;
       for (auto it :variables) {
-        temp = "The variable " + it->name + " was added improperly. Details:\n" + it->describe_variable();
-        std::string isaacRError = std::string("isaacRError: ") + __FILE__ + " " + std::to_string(__LINE__) + "Monte Carlo Variable added using wrong method\n" + temp.c_str();
-	message_publish(MSG_ERROR, isaacRError.c_str());
+        std::string message = std::string("File: ") + __FILE__ + ", Line:  "
+        + std::to_string(__LINE__) + ", Monte Carlo Variable added using wrong "
+        "method\n" + "The variable " + it->name + " was added "           
+        "improperly. Details:\n" + it->describe_variable();
+        message_publish(MSG_ERROR, message.c_str());
       }
-	std::string isaacRError = std::string("isaacRError: ") + __FILE__ + " " + std::to_string(__LINE__) + "Monte Carlo variable(s) added using wrong method\nAt least one variable was added using Trick's built-in Monte Carlo\nmechanism. These variables would not be dispersed because the Antares\nmonte-carlo mechanism is being used instead. Replace trick.MonteVar* with\nAntares_MonteVar*  or contact a member of the Antares core team for\nsupport.\n";
-	message_publish(MSG_ERROR, isaacRError.c_str());
-	exec_terminate_with_return(1, __FILE__, __LINE__, isaacRError.c_str());
+        std::string message = std::string("File: ") + __FILE__ + ", Line: " + 
+        std::to_string(__LINE__) + "Monte Carlo variable(s) added using wrong "
+        "method\nAt least one variable was added using Trick's built-in Monte "
+        "Carlo\nmechanism. These variables would not be dispersed because the "
+        "Antares\nmonte-carlo mechanism is being used instead. Replace trick. "
+        "MonteVar* with\nAntares_MonteVar*  or contact a member of the "
+        "Antares core team for\nsupport.\n";
+        message_publish(MSG_ERROR, message.c_str());
+        exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
       }
     mc_master.execute();
   }
  private:
   // copy constructor, operator= blocked:
   MonteCarloGeneratorSimObject (const MonteCarloGeneratorSimObject&);
-  MonteCarloGeneratorSimObject & operator = ( const MonteCarloGeneratorSimObject&);
+  MonteCarloGeneratorSimObject & operator = 
+  ( const MonteCarloGeneratorSimObject&);
 };
 MonteCarloGeneratorSimObject monte_carlo("monte_carlo.master", &trick_mc.mc);
 #endif

@@ -58,13 +58,13 @@ class MonteCarloVariableSemiFixed : public MonteCarloVariable
       std::string seed_command = seed_variable.get_command();
       size_t pos_equ = seed_command.find("=");
       if (pos_equ == std::string::npos) {
-		std::string message = std::string("isaacRError: ") +
-		__FILE__ + std::to_string(__LINE__) + std::string("Invalid" 
-		"sequencing\nFor variable ") + variable_name.c_str() +
-		std::string(" the necessary pre-dispersion to obtain the\n"
-                "random value for assignment has not been completed.\nCannot "
-		"generate the assignment for this variable.\n");
-		message_publish(MSG_ERROR, message.c_str());
+        std::string message = std::string("isaacRError: ") +
+        __FILE__ + std::to_string(__LINE__) + std::string("Invalid" 
+        "sequencing\nFor variable ") + variable_name.c_str() +
+        std::string(" the necessary pre-dispersion to obtain the\n"
+        "random value for assignment has not been completed.\nCannot "
+        "generate the assignment for this variable.\n");
+        message_publish(MSG_ERROR, message.c_str());
         return;
       }
       assignment = seed_command.substr(pos_equ+1);
