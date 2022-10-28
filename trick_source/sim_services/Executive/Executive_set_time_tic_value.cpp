@@ -50,8 +50,10 @@ int Trick::Executive::set_time_tic_value(int in_tics) {
 
     /* call jobs for other objects that need to know the time_tic changed. */
     time_tic_changed_queue.reset_curr_index() ;
-    while ( (curr_job = time_tic_changed_queue.get_next_job()) != NULL ) {
-        ret = curr_job->call() ;
+    /* job pointer for each job in time_tic_changed_queue */
+    JobData* next_job;
+    while ( (next_job = time_tic_changed_queue.get_next_job()) != NULL ) {
+        ret = next_job->call() ;
         if ( ret != 0 ) {
             message_publish(MSG_ERROR, "ERROR: time_tic_changed job: %s FAILED.\n", curr_job->name.c_str()) ;
             return(ret) ;
