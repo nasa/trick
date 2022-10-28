@@ -1,5 +1,6 @@
 <p align=center>
 <picture>
+  <a href="https://nasa.github.io/trick">
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.github.com/nasa/Trick/master/TrickLogo_darkmode.png">
   <img alt="Trick logo" src="https://raw.github.com/nasa/Trick/master/TrickLogo.png" height=150px>
 </picture>

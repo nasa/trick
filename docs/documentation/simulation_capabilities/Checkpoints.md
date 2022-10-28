@@ -28,8 +28,6 @@ trick.checkpoint_safestore(<period>)
 trick.load_checkpoint(<filename>)
 # Load a checkpoint without restoring STLs
 trick.load_checkpoint(<filename>, False)
-# Force the load_checkpoint job to run immediately
-trick.load_checkpoint_job()
 
 ```
 
