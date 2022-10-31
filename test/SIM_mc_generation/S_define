@@ -1,9 +1,7 @@
 /*****************************************************************************
 PURPOSE: (TO BE COMPLETED)
 PROGRAMMERS:
-    (
-     ((Name) (Org) (Date) (Project) (purpose))
-    )
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 *****************************************************************************/
 #include "sim_objects/default_trick_sys.sm"
 #include "sim_objects/MonteCarloGenerate.sm"
@@ -37,8 +35,8 @@ class MC_TestSimObject : public Trick::SimObject
       :
       mc_var_file("test.x_file_lookup[0]", "Modified_data/datafile.txt", 3)
   {
-	("initialization") monte_carlo.generate_dispersions();	
-    	(1.0,"environment") output_strings();
+    ("initialization") monte_carlo.generate_dispersions();
+    (1.0,"environment") output_strings();
   };
 
   // standalone_function is used to test using an instance of

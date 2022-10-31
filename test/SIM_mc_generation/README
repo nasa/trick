@@ -1,13 +1,10 @@
 Verification simulation of monte_carlo.
 
 
-The following tests rely on setting the directories to be non-writable.
-Their purpose is to detect situations in which the monte-carlo model cannot
-generate certain files.
-There is no known way to revert the permissions on these directories, and
-this breaks the jenkins testing process during the cleanup phase at the end.
-These tests can be run for model verification, but cannot be run in the
-automated process.
+The following tests rely on setting the directories to be non-writable.  Their
+purpose is to detect situations in which the monte-carlo model cannot generate
+certain files. These tests by their very nature are difficult to run within an
+automated scripted testing system.
 
   IO_FAIL
   IO_RUN_ERROR1
