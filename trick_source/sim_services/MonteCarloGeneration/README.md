@@ -1300,7 +1300,7 @@ Here we test the distribution of both continuous (left) and discrete (right) var
 
 ![UniforimDistributionGraph](images/Monte_Carlo_GenerationUnifromDistriubtionGraph.PNG)
 
-### 5.3.2 Nomral Distibution
+### 5.3.2 Normal Distibution
 
 For the analysis of the normal distribution, we start with 4 unique distributions, illustrated below:
 
