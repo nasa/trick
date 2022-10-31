@@ -11,13 +11,12 @@
 #   for a regular execution of the simulation.  There will typically be many
 #   executions of the sim, one for each of the generated monte_input.py files.
 
-# Because the monte.py files are not committed, and because the unit-tests
-# typically run in parallel, it is not feasible to add both passes
-# independently to the unit-test script -- doing so will likely result in the
-# unit-test script atttempting to run a monte_input.py before it has been
-# generated. Consequently, we need a script to run the double-pass architecture
-# in series to ensure that monte_input.py has been generated before it is used.
-# This is that script.
+# This input file provides one example of how to test this two-pass process,
+# although it is admittedly a bit convoluted and hard to read.  TODO: Once
+# TrickOps is capable of operating with this monte-carlo implementation, that
+# framework can manage both the generation and local execution of generated
+# monte_input.py files, removing the need for this type of "sim that launches a
+# sim" test methodology -Jordan 10/2022
 
 # For the purpose of expedient testing, we generate and run only 2 files.
 # This is sufficient to demonstrate "multiple" without unnecessarily
