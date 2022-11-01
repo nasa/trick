@@ -10,8 +10,8 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 # Replace -isystem with -I so ICG doesn't skip Trick headers
 TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 
-#COVERAGE_FLAGS += -fprofile-arcs -ftest-coverage -O0
-#TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
+COVERAGE_FLAGS += -fprofile-arcs -ftest-coverage -O0
+TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
 
 # Flags passed to the preprocessor.
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare ${COVERAGE_FLAGS} -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}

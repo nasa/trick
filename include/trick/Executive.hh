@@ -207,7 +207,7 @@ namespace Trick {
             /** Queue to hold unfreeze jobs.\n */
             Trick::ScheduledJobQueue unfreeze_queue ;         /**< trick_io(**) */
 
-            /** Queue to hold unfreeze jobs.\n */
+            /** Queue to hold time_tic_changed jobs.\n */
             Trick::ScheduledJobQueue time_tic_changed_queue ; /**< trick_io(**) */
 
             /** Enough threads to accomodate the number of children specified in the S_define file.\n */
