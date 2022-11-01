@@ -52,7 +52,7 @@ SIMS_TO_COMPILE_AND_RUN = \
 EXECUTABLES = $(addsuffix /T_main_${TRICK_HOST_CPU}_test.exe, $(SIMS_TO_COMPILE_AND_RUN) $(SIMS_TO_COMPILE_ONLY))
 UNIT_TEST_RESULTS = $(addprefix $(TRICK_HOME)/trick_test/, $(addsuffix .xml, $(SIMS_TO_COMPILE_AND_RUN)))
 
-test: $(EXECUTABLES) $(UNIT_TEST_RESULTS) data_record_results
+test: $(EXECUTABLES) $(UNIT_TEST_RESULTS) data_record_results checkpoint_data_record
 
 clean:
 	rm -f $(UNIT_TEST_RESULTS)
@@ -84,3 +84,8 @@ ifeq (${TRICK_FORCE_32BIT}, 1)
 else
 	cmp -b $(DR_RESULTS)/log_DR_typesBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_typesBINARY.trk
 endif
+
+# Use trickops to run, record, and 
+checkpoint_data_record:
+	$(PYTHON) -m pip install -r $(TRICK_HOME)/share/trick/trickops/requirements.txt
+	$(PYTHON) trickops.py $(TRICK_HOME)

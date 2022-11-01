@@ -1,0 +1,27 @@
+SIM_checkpoint_data_recording: 
+  path: SIM_checkpoint_data_recording
+
+  runs:
+    RUN_test1/unit_test.py:
+      returns: 0
+      compare: 
+        - SIM_checkpoint_data_recording/RUN_test1/ref_log_foo.csv vs. SIM_checkpoint_data_recording/RUN_test1/log_foo.csv
+    RUN_test2/unit_test.py:
+      returns: 0
+      analyze: './SIM_checkpoint_data_recording/RUN_test2/check_log.sh'
+    RUN_test3/unit_test.py:
+      returns: 0
+      compare: 
+        - SIM_checkpoint_data_recording/RUN_test3/ref_log_foo.csv vs. SIM_checkpoint_data_recording/RUN_test3/log_foo.csv
+    RUN_test4/unit_test.py:
+      returns: 0
+      compare: 
+        - SIM_checkpoint_data_recording/RUN_test4/ref_log_foo.csv vs. SIM_checkpoint_data_recording/RUN_test4/log_foo.csv
+    RUN_test5/unit_test.py:
+      returns: 0
+      compare: 
+        - SIM_checkpoint_data_recording/RUN_test5/ref_log_foo.csv vs. SIM_checkpoint_data_recording/RUN_test5/log_foo.csv
+    RUN_test6/unit_test.py:
+      returns: 0
+      compare: 
+        - SIM_checkpoint_data_recording/RUN_test6/ref_log_foo2.csv vs. SIM_checkpoint_data_recording/RUN_test6/log_foo2.csv
