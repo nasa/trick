@@ -6,6 +6,7 @@ PURPOSE: ( Implementation of a class to randomly pick one of a set of
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 #include "trick/mc_variable_random_string.hh"
 

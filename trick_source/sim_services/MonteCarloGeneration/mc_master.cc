@@ -3,6 +3,7 @@ PURPOSE: (Provides the front-end interface to the monte-carlo model)
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 #include "trick/mc_master.hh"
 
@@ -59,11 +60,12 @@ bool
 MonteCarloMaster::prepare_input_files()
 {
   if (input_files_prepared) {
-    std::string message = std::string("File: ") + __FILE__ + ", Line: " +
-    std::to_string(__LINE__) + ", Invalid sequence\n" + "Attempted to generate"
-    " a set of input files, but this action has\nalready been completed.  " 
-    "Keeping the original set of input files.\nIgnoring the later "
-    "instruction.\n";
+    std::string message = 
+      std::string("File: ") + __FILE__ + ", Line: " +
+      std::to_string(__LINE__) + ", Invalid sequence\n" + "Attempted to "
+      "generate a set of input files, but this action has\nalready been "
+      "completed. Keeping the original set of input files.\nIgnoring "
+      "the later instruction.\n";
     message_publish(MSG_ERROR, message.c_str());
     return true;
   }
@@ -101,9 +103,9 @@ MonteCarloMaster::prepare_input_files()
     // Check for success of file creation
     if (!variable_list.is_open()) {
       std::string message = std::string("File: ") + __FILE__ + ", Line: " +
-      std::to_string(__LINE__) + ", I/O error\nUnable to open the variable "
-      "summary files for writing.\nDispersion summary will not be "
-      "generated.\n";
+        std::to_string(__LINE__) + ", I/O error\nUnable to open the " +
+        "variable summary files for writing.\nDispersion summary will not " +
+        "be generated.\n";
       message_publish(MSG_ERROR, message.c_str());
       generate_summary = false;
     }
@@ -137,11 +139,12 @@ MonteCarloMaster::prepare_input_files()
     // accommodate run_num_base, which ahs been given as many zeroes as the
     // number of characters in the largest run number.
     if (run_num_str_partial.size() > run_num_str.size()) {
-      std::string message = std::string("File: ") + __FILE__ + ", Line: " + 
-      std::to_string(__LINE__) + ", Sizing Error\nAttempted to create a "
-      "filename with a run-number that exceeds the\npre-generated size "
-      "(e.g. trying to fit the number 10000 into 4 characters.\nThis "
-      "should never happen.\n";
+      std::string message = 
+        std::string("File: ") + __FILE__ + ", Line: " + 
+        std::to_string(__LINE__) + ", Sizing Error\nAttempted to create a " +
+        "filename with a run-number that exceeds the\npre-generated size " +
+        "(e.g. trying to fit the number 10000 into 4 characters.\nThis " +
+        "should never happen.\n";
       message_publish(MSG_ERROR, message.c_str());
       exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
     }
@@ -158,9 +161,10 @@ MonteCarloMaster::prepare_input_files()
     std::ofstream input_file(filename);
     // Check for success of file-open using ofstream's failbit.
     if (input_file.fail()) {
-      std::string message = std::string("File: ") + __FILE__ + ", Line: " +
-      std::to_string(__LINE__) + ", I/O error\nUnable to open file " + 
-      filename.c_str() + " for writing.";
+      std::string message = 
+        std::string("File: ") + __FILE__ + ", Line: " +
+        std::to_string(__LINE__) + ", I/O error\nUnable to open file " + 
+        filename.c_str() + " for writing.";
       message_publish(MSG_ERROR, message.c_str());
       exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
     }
@@ -199,9 +203,10 @@ MonteCarloMaster::prepare_input_files()
       }
       // Unreachable code in current implementation.
       else {
-        std::string message = std::string("File: ") + __FILE__ + ", Line: " + 
-        std::to_string(__LINE__) + ", Output failure\nFailed to record summary"
-        " data for run " + run_num_str.c_str() + ".\n";
+        std::string message = 
+          std::string("File: ") + __FILE__ + ", Line: " + 
+          std::to_string(__LINE__) + ", Output failure\nFailed to record " +
+          "summary data for run " + run_num_str.c_str() + ".\n";
         message_publish(MSG_ERROR, message.c_str());
         generate_summary = false;
       }
@@ -237,12 +242,13 @@ MonteCarloMaster::add_variable(
     MonteCarloVariable & variable)
 {
   if (input_files_prepared) {
-    std::string message = std::string("File: ") + __FILE__ + ", Line: " + 
-    std::to_string(__LINE__) + ", Invalid sequence\nAttempted to add a new "
-    "variable " + variable.get_variable_name().c_str() + " to run " + 
-    run_name.c_str() + ", but the input files have already been generated."
-    "\nCannot modify input files to accommodate this new variable.\n"
-    "Addition of variable rejected.\n";
+    std::string message = 
+      std::string("File: ") + __FILE__ + ", Line: " + 
+      std::to_string(__LINE__) + ", Invalid sequence\nAttempted to add a " +
+      "new variable " + variable.get_variable_name().c_str() + " to run " + 
+      run_name.c_str() + ", but the input files have already been " +
+      "generated.\nCannot modify input files to accommodate this new " +
+      "variable.\nAddition of variable rejected.\n";
     message_publish(MSG_ERROR, message.c_str());
     return;
   }
@@ -250,10 +256,12 @@ MonteCarloMaster::add_variable(
   // check for uniqueness
   for (auto var_it = variables.begin(); var_it != variables.end(); ++var_it) {
     if ( (**var_it).get_variable_name() == variable.get_variable_name()) {
-      std::string message = std::string("File: ") + __FILE__ + ", Line:  "
-      + std::to_string(__LINE__) + ",  Duplicated variable.\nAttempted to add "
-      "two settings for variable " + variable.get_variable_name().c_str() + 
-      ".\nTerminating to allow resolution of which setting to use.\n";
+      std::string message = 
+        std::string("File: ") + __FILE__ + ", Line:  "
+        + std::to_string(__LINE__) + ",  Duplicated variable.\nAttempted " +
+        "to add two settings for variable " + 
+        variable.get_variable_name().c_str() + 
+        ".\nTerminating to allow resolution of which setting to use.\n";
       message_publish(MSG_ERROR, message.c_str());
       exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
     }
@@ -306,9 +314,11 @@ MonteCarloMaster::find_variable( std::string var_name)
       return it;
     }
   }
-  std::string message = std::string("File: ") + __FILE__ + ", Line: " + 
-  std::to_string(__LINE__) + " Invalid name\nCould not find MonteCarlo "
-  "variable with name " + var_name.c_str() + ".\nReturning a NULL pointer.\n";
+  std::string message = 
+    std::string("File: ") + __FILE__ + ", Line: " + 
+    std::to_string(__LINE__) + ", Invalid name\nCould not find MonteCarlo " +
+    "variable with name " + var_name.c_str() + 
+    ".\nReturning a NULL pointer.\n";
   message_publish(MSG_ERROR, message.c_str());
   return NULL;
 }
@@ -330,10 +340,11 @@ MonteCarloMaster::remove_variable( std::string var_name)
       return;
     }
   }
-  std::string message = std::string("File: ") + __FILE__ + ", Line: " + 
-  std::to_string(__LINE__) + ", Invalid name\nAttempt to remove MonteCarlo "
-  "variable with name " + var_name.c_str() + " FAILED.\nDid not find a "
-  "variable with that name.\n";
+  std::string message = 
+    std::string("File: ") + __FILE__ + ", Line: " + 
+    std::to_string(__LINE__) + ", Invalid name\nAttempt to remove " +
+    "MonteCarlo variable with name " + var_name.c_str() + " FAILED.\nDid " +
+    "not find a variable with that name.\n";
   message_publish(MSG_WARNING, message.c_str());
 }
 
@@ -347,10 +358,11 @@ MonteCarloMaster::set_num_runs(
   unsigned int num_runs_)
 {
   if (input_files_prepared) {
-    std::string message = std::string("File: ") + __FILE__ + ", Line: " + 
-    std::to_string(__LINE__) + ", Invalid sequence\nAttempted to set the "
-    "number of runs to " + std::to_string(num_runs_) + ", but the input files "
-    "have\nalready been generated.";
+    std::string message = 
+      std::string("File: ") + __FILE__ + ", Line: " + 
+      std::to_string(__LINE__) + ", Invalid sequence\nAttempted to set the " +
+      "number of runs to " + std::to_string(num_runs_) + ", but the " +
+      "input files have\nalready been generated.";
     message_publish(MSG_ERROR, message.c_str());
   }
   else {
@@ -388,11 +400,11 @@ MonteCarloMaster::execute()
   }
 
   std::string message =
-       "\nMonte-Input files generated in "+ monte_dir +
-       "\nRuns can now be launched using the generated monte-input "+
-       "files and\nmanaged with an external load-management system, "+
-       "such as SLURM.\n"+
-       "This simulation is complete.  Exiting.\n";
+    "\nMonte-Input files generated in "+ monte_dir +
+    "\nRuns can now be launched using the generated monte-input "+
+    "files and\nmanaged with an external load-management system, "+
+    "such as SLURM.\n"+
+    "This simulation is complete.  Exiting.\n";
   exec_terminate_with_return(0, __FILE__, __LINE__,message.c_str());
 }
 
@@ -412,9 +424,10 @@ MonteCarloMaster::collate_meta_data()
   std::ofstream meta_data( filename);
   // Check for success of file-open.
   if (meta_data.fail()) {
-    std::string message = std::string("File: ") + __FILE__ + ", Line: " +
-    std::to_string(__LINE__) + ", I/O error\nUnable to open file " + 
-    filename.c_str() + " for writing.\nAborting generation of meta-data.\n";
+    std::string message = 
+      std::string("File: ") + __FILE__ + ", Line: " +
+      std::to_string(__LINE__) + ", I/O error\nUnable to open file " + 
+      filename.c_str() + " for writing.\nAborting generation of meta-data.\n";
     message_publish(MSG_WARNING, message.c_str());
     return;
   }

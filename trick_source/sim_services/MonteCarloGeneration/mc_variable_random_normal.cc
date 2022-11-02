@@ -4,10 +4,9 @@ PURPOSE: ( Implementation of a class to support generation and assignment
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 #include "trick/mc_variable_random_normal.hh"
-
-//#include "../../math_utils/include/math_utils.hh" // MathUtils::*
 
 //includes for is_near_eqaul
 #include "trick/exec_proto.h"
@@ -233,7 +232,8 @@ MonteCarloVariableRandomNormal::untruncate()
 
 /*****************************************************************************
  * is_near_equal
- * Purpose: Temporary is_near_equal so math_utls does not have to be used
+ * Purpose: Utility functions providing float==float and double==double 
+ * equality checks
  * **************************************************************************/
 
 bool MonteCarloVariableRandomNormal::is_near_equal( float val1, float val2)

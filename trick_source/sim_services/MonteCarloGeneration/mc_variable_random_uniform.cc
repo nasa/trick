@@ -5,6 +5,7 @@ PURPOSE: ( Implementation of a class to support generation and assignment
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 #include "trick/mc_variable_random_uniform.hh"
 

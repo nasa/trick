@@ -3,6 +3,7 @@ PURPOSE: ( Base class for the MonteCarloVariable type)
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 
 #include "trick/mc_variable.hh"

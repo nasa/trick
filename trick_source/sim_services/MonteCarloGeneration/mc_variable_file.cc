@@ -3,6 +3,7 @@ PURPOSE: ( Implementation of a file-lookup  assignment
 
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
 
 #include <algorithm> // all_of
