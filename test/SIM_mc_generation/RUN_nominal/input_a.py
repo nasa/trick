@@ -1,10 +1,10 @@
 # Instruct sim to generate MC files for RUN_verif.
 # This could be done in a top-level MC-launch script
-test.mc_master.activate("RUN_nominal")
-test.mc_master.set_num_runs(2)
-test.mc_master.generate_meta_data = True
-test.mc_master.input_file_name = "input_a.py"
-test.mc_master.minimum_padding = 3
+monte_carlo.mc_master.activate("RUN_nominal")
+monte_carlo.mc_master.set_num_runs(2)
+monte_carlo.mc_master.generate_meta_data = True
+monte_carlo.mc_master.input_file_name = "input_a.py"
+monte_carlo.mc_master.minimum_padding = 3
 
 
 
@@ -27,11 +27,11 @@ test.mc_master.minimum_padding = 3
 #        dispersions). Without this test blocking the generation on pass#2, the
 #        dispersions would get regenerated for every actual run, which is
 #        completely unnecessary.)
-if test.mc_master.active:
+if monte_carlo.mc_master.active:
   # Logging
   exec(open("Log_data/log_nominal.py").read())
 
-  if test.mc_master.generate_dispersions:
+  if monte_carlo.mc_master.generate_dispersions:
     exec(open("Modified_data/monte_variables.py").read())
 
 trick.stop(1)

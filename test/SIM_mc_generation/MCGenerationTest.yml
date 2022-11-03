@@ -1,0 +1,4 @@
+SIM_mc_generation:
+  path: test/SIM_mc_generation
+  runs: 
+    RUN_nominal/input_a.py:
