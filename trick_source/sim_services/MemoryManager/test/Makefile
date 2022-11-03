@@ -10,13 +10,24 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 # Replace -isystem with -I so ICG doesn't skip Trick headers
 TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 
-#COVERAGE_FLAGS += -fprofile-arcs -ftest-coverage -O0
-#TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
+COVERAGE_FLAGS += -fprofile-arcs -ftest-coverage -O0
+TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
 
 # Flags passed to the preprocessor.
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra ${COVERAGE_FLAGS} -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
+TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare ${COVERAGE_FLAGS} -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
 TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
+
+# This is supposed to be a development hack so that I don't have to clean rebuild Trick every time I change the stl_checkpoint files.
+# This should be deleted before it is merged into master.
+STL_CHECKPOINT_FILES = checkpoint_pair.hh \
+					  checkpoint_sequence_stl.hh \
+					  checkpoint_map.hh \
+					  checkpoint_queue.hh \
+					  checkpoint_stack.hh
+
+STL_CHECKPOINT_DEPS = $(addprefix $(TRICK_HOME)/include/trick/, $(STL_CHECKPOINT_FILES))
+					  
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -37,7 +48,9 @@ TESTS = MM_creation_unittest \
         MM_write_checkpoint_hexfloat \
 	MM_get_enumerated\
 	MM_ref_name_from_address \
-		Bitfield_tests
+		Bitfield_tests \
+		MM_stl_checkpoint \
+		MM_stl_restore
 
 #OTHER_OBJECTS = ../../include/object_${TRICK_HOST_CPU}/io_JobData.o \
 #                ../../include/object_${TRICK_HOST_CPU}/io_SimObject.o
@@ -65,6 +78,9 @@ test: $(TESTS)
 	./MM_get_enumerated --gtest_output=xml:${TRICK_HOME}/trick_test/MM_get_enumerated.xml
 	./MM_ref_name_from_address --gtest_output=xml:${TRICK_HOME}/trick_test/MM_ref_name_from_address.xml
 	./Bitfield_tests --gtest_output=xml:${TRICK_HOME}/trick_test/Bitfield_tests.xml
+	./MM_stl_checkpoint --gtest_output=xml:${TRICK_HOME}/trick_test/MM_stl_checkpoint.xml
+	./MM_stl_restore --gtest_output=xml:${TRICK_HOME}/trick_test/MM_stl_restore.xml
+
 
 code-coverage: test
 	# Give rid of any old code-coverage HTML we may have.
@@ -111,6 +127,10 @@ io_MM_get_enumerated.o : MM_get_enumerated.hh
 io_MM_ref_name_from_address.o :	MM_ref_name_from_address.hh
 	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CPPFLAGS) $<
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c io_src/io_MM_ref_name_from_address.cpp
+
+io_MM_stl_testbed.o :	MM_stl_testbed.hh
+	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CPPFLAGS) $<
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c io_src/io_MM_stl_testbed.cpp
 
 MM_creation_unittest.o : MM_creation_unittest.cc
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
@@ -166,6 +186,12 @@ MM_write_checkpoint_hexfloat.o : MM_write_checkpoint_hexfloat.cc
 Bitfield_tests.o : Bitfield_tests.cpp
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
+MM_stl_restore.o : MM_stl_restore.cc MM_stl_testbed.hh MM_test.hh $(STL_CHECKPOINT_DEPS)
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
+
+MM_stl_checkpoint.o : MM_stl_checkpoint.cc MM_stl_testbed.hh MM_test.hh $(STL_CHECKPOINT_DEPS)
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
+
 MM_creation_unittest : MM_creation_unittest.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
@@ -218,4 +244,10 @@ MM_write_checkpoint_hexfloat : MM_write_checkpoint_hexfloat.o io_MM_write_checkp
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 Bitfield_tests : Bitfield_tests.o
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+MM_stl_restore : MM_stl_restore.o io_MM_stl_testbed.o
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+MM_stl_checkpoint : MM_stl_checkpoint.o io_MM_stl_testbed.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

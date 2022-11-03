@@ -95,4 +95,60 @@ void validate_alloc_info(Trick::MemoryManager *memmgr,
         validate_alloc_info(alloc_info, test_var, trick_type, type_name, var_name, num, num_index, extent);
 
 }
+
+
+
+// This one is for anything integral
+// char, short, int, long, long long
+template <typename T, typename std::enable_if<!std::is_floating_point<T>::value>::type* = nullptr>
+T random() {
+    return (T) (rand());
+}
+
+// This should just catch bools
+// Template specialization!
+template<>
+bool random<bool> () {
+    return (bool) (rand() & 1);
+}
+
+// This is for floats and doubles
+template <typename T, typename std::enable_if<std::is_floating_point<T>::value>::type* = nullptr>
+T random() {
+    T divisor = (T) rand();
+
+    // for this one in 2 billion chance
+    if (divisor == 0) {
+        divisor += 1;
+    }
+
+    return ((T) rand()) / divisor;
+}
+
+// This should just catch strings
+// Template specialization!
+template<>
+std::string random<std::string> () {
+    static const char characters[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz .,-=_+/?!@#$%^&*()<>\\\"\'\n\t\r";
+    static const int max_string_len = 32;
+
+    std::string random_str;;
+    int len = rand() % max_string_len;
+    for (int j = 0; j < len; j++) {
+        random_str += characters[rand() % sizeof(characters)];
+    }
+
+    return random_str;
+}
+
+// generate some random data
+template <typename T>
+std::vector<T> get_test_data(int num) {
+    std::vector<T> ret;
+    for (int i = 0; i < num; i++) {
+        ret.push_back(random<T>());
+    }
+    return ret;
+}
+
 #endif

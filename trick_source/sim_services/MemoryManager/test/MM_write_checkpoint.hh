@@ -1,6 +1,8 @@
 /*
 PURPOSE: (Testing)
 */
+#include <vector>
+#include <stdlib.h>
 
 typedef enum {
     JANUARY = 1, FEBRUARY = 2, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER, OCTOBER, NOVEMBER, DECEMBER
@@ -41,4 +43,22 @@ class UDT7 {
     public:
     double A;
     UDT3** udt3pp;
+};
+
+class VectorWrapper {
+    public:
+    int operator[] (int index) {
+        return vec[index];            
+    }
+
+    void push_back(int val) {
+        vec.push_back(val);
+    }
+
+    int size() {
+        return vec.size();
+    }
+
+    private:
+    std::vector<int> vec;
 };

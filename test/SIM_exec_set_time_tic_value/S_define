@@ -1,0 +1,21 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ()
+LIBRARY DEPENDENCIES:
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "ttvtest.h"
+
+class TTVTestSimObject : public Trick::SimObject {
+
+    public:
+        TTVTest ttvtest;
+
+        TTVTestSimObject() {
+            (0.0078125, "scheduled") trick_ret = ttvtest.scheduled();
+        }
+};
+
+TTVTestSimObject ttvtestSimObject;

@@ -2,6 +2,8 @@ name: 32-bit Oracle
 
 on:
   push:
+    branches:
+      - master
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'

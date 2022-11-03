@@ -7,7 +7,7 @@ Trick::MemoryManager * trick_MM = NULL;
 
 // CLASS VARIABLE INITIALIZATION
 int Trick::MemoryManager::instance_count = 0;
-
+bool Trick::MemoryManager::restore_stls_default = true;
 
 // CONSTRUCTOR
 Trick::MemoryManager::MemoryManager()
@@ -23,6 +23,7 @@ Trick::MemoryManager::MemoryManager()
     debug_level = 0;
     hexfloat_checkpoint = 0;
     reduced_checkpoint  = 1;
+    resetting_memory = false;
     expanded_arrays  = 0;
     // start counter at 100mil.  This (hopefully) ensures all alloc'ed ids are after external variables.
     alloc_info_map_counter = 100000000 ;

@@ -1,307 +1,25 @@
 dnl To generate a new top level configure script from this autoconf directory
 dnl 1.  aclocal
 dnl 2.  autoconf -o ../configure
-dnl If you run into "configure.ac:15: error: possibly undefined macro: AC_MSG_ERROR",
-dnl try:
-dnl     autoreconf -fi
 
 AC_INIT([Trick],[17+])
 AC_LANG(C++)
 
 AC_CONFIG_AUX_DIR([autoconf])
-
-AC_DEFUN([AX_LLVM_HOME],[
-    AC_ARG_WITH([llvm],
-                AS_HELP_STRING([--with-llvm@<:@=DIR@:>@], [LLVM root directory]),
-                [LLVM_HOME="$withval"
-                 AC_PATH_PROG(LLVM_CONFIG, llvm-config, no-llvm-config, "$LLVM_HOME/bin")
-                 AS_IF([test "$ac_cv_path_LLVM_CONFIG" = "no-llvm-config"],AC_MSG_ERROR([could not find llvm-config]),[])
-                ],
-                [
-                 AC_PATH_PROG(LLVM_CONFIG, llvm-config, no-llvm-config, "/bin:/usr/bin:/usr/local/bin:/sw/bin:/usr/local/opt/llvm/bin")
-                 AS_IF([test "$ac_cv_path_LLVM_CONFIG" = "no-llvm-config"],AC_MSG_ERROR([could not find llvm-config]),[])
-                 LLVM_HOME=`$LLVM_CONFIG --prefix`
-                ]
-               )
-])
-
-AC_DEFUN([AX_HDF5_HOME],[
-    AC_ARG_WITH([hdf5],
-                AS_HELP_STRING([--with-hdf5@<:@=DIR@:>@], [HDF5 root directory]),
-                [HDF5_HOME="$withval"
-                 AS_IF([test "$HDF5_HOME" = "yes"],
-                  AC_CHECK_HEADER(hdf5.h,[HDF5_HOME="/usr"],AC_MSG_ERROR([could not find hdf5.h])),
-                  AS_IF([test "$HDF5_HOME" = "no"],[HDF5_HOME=""],
-                   AC_CHECK_FILE([$HDF5_HOME/include/hdf5.h],
-                                 [],
-                                 AC_MSG_ERROR([could not find $HDF5_HOME/include/hdf5.h])
-                                )
-                  )
-                )],
-                 [
-                   AC_CHECK_HEADER(hdf5.h, [HDF5_HOME="/usr"], [HDF5_HOME=""])
-                 ]
-               )
-    AS_IF([test "$HDF5_HOME" != ""],
-      [
-      LDFLAGS="${LDFLAGS} -L${HDF5_HOME}/lib"
-      AC_CHECK_LIB(hdf5, main, [],AC_MSG_ERROR([could not find libhdf5]))
-      ]
-      []
-    )
-    AC_SUBST([HDF5_HOME])
-])
-
-AC_DEFUN([AX_GSL_HOME],[
-    AC_ARG_WITH([gsl],
-                AS_HELP_STRING([--with-gsl@<:@=DIR@:>@], [GSL root directory]),
-                [GSL_HOME="$withval"
-                 AS_IF([test "$GSL_HOME" = "yes"],
-                  AC_CHECK_HEADER(gsl/gsl_rng.h,[GSL_HOME="/usr"],AC_MSG_ERROR([could not find gsl/gsl_rng.h])),
-                  AS_IF([test "$GSL_HOME" = "no"],[GSL_HOME=""],
-                    AC_CHECK_FILE([$GSL_HOME/include/gsl],
-                                  [],
-                                  AC_MSG_ERROR([could not find $GSL_HOME/include/gsl])
-                                 )
-                  )
-                )],
-                [AC_CHECK_HEADER(gsl/gsl_rng.h, [GSL_HOME="/usr"], [GSL_HOME=""])]
-               )
-    AS_IF([test "$GSL_HOME" != ""],
-      [
-      LDFLAGS="${LDFLAGS} -L${GSL_HOME}/lib"
-      AC_CHECK_LIB(gsl, main, [],AC_MSG_ERROR([could not find libgsl]),[-lgslcblas])
-      ],
-      []
-    )
-    AC_SUBST([GSL_HOME])
-])
-
-AC_DEFUN([AX_GTEST_HOME],[
-    AC_ARG_WITH([gtest],
-                AS_HELP_STRING([--with-gtest@<:@=DIR@:>@], [GTEST root directory]),
-                [GTEST_HOME="$withval"
-                 AS_IF([test "$GTEST_HOME" = "yes"],
-                  AC_CHECK_HEADER(gtest/gtest.h,[GTEST_HOME="/usr"],AC_MSG_ERROR([could not find gtest/gtest.h])),
-                  AS_IF([test "$GTEST_HOME" = "no"],[GTEST_HOME=""],
-                    AC_CHECK_FILE([$GTEST_HOME/include/gtest],
-                                  [],
-                                  AC_MSG_ERROR([could not find $GTEST_HOME/include/gtest])
-                                 )
-                  )
-                )],
-                [AC_CHECK_HEADER(gtest/gtest.h, [GTEST_HOME="/usr"], [GTEST_HOME=""])]
-               )
-    AC_SUBST([GTEST_HOME])
-])
-
-AC_DEFUN([AX_CIVETWEB_HOME],[
-    AC_ARG_WITH([civetweb],
-                AS_HELP_STRING([--with-civetweb@<:@=DIR@:>@],
-                  [CIVETWEB root directory]),
-                # --with option was provided.
-                [CIVETWEB_HOME="$withval"
-                 USE_CIVETWEB="0"
-                # check whether directory arg was also provided.
-                 AS_IF([test "$CIVETWEB_HOME" = "yes"],
-                   AC_CHECK_HEADER(civetweb.h,
-                     [CIVETWEB_HOME="/usr"; USE_CIVETWEB="1"],
-                     AC_MSG_ERROR([could not find civetweb.h])),
-                   # else check whether --without-civet or --with-civet=no specified.
-                   AS_IF([test "$CIVETWEB_HOME" = "no"],
-                     [CIVETWEB_HOME=""],
-                         # else --with-civet was provided with a directory path.
-                         AC_CHECK_FILES([$CIVETWEB_HOME/include/civetweb.h $CIVETWEB_HOME/lib/libcivetweb.a],
-                           [USE_CIVETWEB="1"],
-                           AC_MSG_ERROR([Could not find all of the civetweb files.]))
-                 ))
-                ],
-                # --with option not provided.
-                [AC_CHECK_HEADER(civetweb.h,
-                   [CIVETWEB_HOME="/usr"; USE_CIVETWEB="1"],
-                   [CIVETWEB_HOME=""; USE_CIVETWEB="0"])
-                ]
-               )
-    AC_SUBST([CIVETWEB_HOME])
-    AC_SUBST([USE_CIVETWEB])
-])
-
-
-AC_DEFUN([AX_SWIG_BIN],[
-    AC_ARG_WITH([swig],
-                [AS_HELP_STRING([--with-swig@<:@=DIR@:>@], [path of directory containing the SWIG executable.])],
-                [
-                  TEMP_PATH="${PATH}"
-                  PATH="$withval:${PATH}"
-                  AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])
-                  PATH="${TEMP_PATH}"
-                ],
-                [AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])]
-               )
-])
-
-AC_DEFUN([AX_UDUNITS_HOME],[
-    AC_ARG_WITH([udunits],
-                AS_HELP_STRING([--with-udunits@<:@=DIR@:>@], [UDUnits root directory]),
-                [UDUNITS_HOME="$withval"],
-                [UDUNITS_HOME=""]
-               )
-    AC_SUBST([UDUNITS_HOME])
-])
-
-dnl SOURCE: https://stackoverflow.com/a/59191148
-
-dnl  NA_HELP_STRINGS(list1, help1[, list2, help2[, ... listN, helpN]])
-dnl  **************************************************************************
-dnl
-dnl  Similar to `AS_HELP_STRING()`, but with support for multiple strings, each
-dnl  one associated with one or more options
-dnl
-dnl  From: https://github.com/madmurphy/not-autotools
-dnl
-dnl  **************************************************************************
-m4_define([NA_HELP_STRINGS],
-    [m4_if(m4_count($1), [1],
-        [m4_if([$#], [0], [], [$#], [1],
-            [m4_text_wrap($1, [  ])],
-            [AS_HELP_STRING(m4_normalize($1), [$2])m4_if([$#], [2], [], [m4_newline()NA_HELP_STRINGS(m4_shift2($@))])])],
-        [m4_text_wrap(m4_argn(1, $1)[,], [  ])m4_newline()NA_HELP_STRINGS(m4_dquote(m4_shift($1))m4_if([$#], [1], [], [, m4_shift($@)]))])])
-
-
-
-dnl test if want to prepend /usr/local/bin to PATH
-dnl AC_ARG_WITH (package, help-string, [action-if-given], [action-if-not-given])
-AC_DEFUN(
-    [AX_PREPEND_PATH],
-    [AC_ARG_WITH(
-        [prepend-path],
-        [NA_HELP_STRINGS(
-[--without-prepend-path], [do not prepend to path (this is default)], [--with-prepend-path@<:@=DIR@:>@], [specify a directory to prepend to PATH (default is /usr/local/bin)])], 
-        [AS_IF(
-            [test "x${with_prepend_path}" = xyes],
-            [PATH="/usr/local/bin:${PATH}"],
-            [AS_IF(
-                [test "x${with_prepend_path}" != xno],
-                [PATH="${withval}:${PATH}"],
-                []
-            )]
-        )],
-        []
-    )]
-)
-
-
-dnl test if we want to use java, default to yes
-AC_DEFUN([AX_JAVA],[
-    AC_ARG_ENABLE([java],
-                  AS_HELP_STRING([--enable-java], [use java (default is yes)]),
-                  AS_IF([test "x$enable_java" = xyes], [USE_JAVA="1"], [USE_JAVA="0"]),
-                  [USE_JAVA="1"]
-                 )
-    AC_SUBST([USE_JAVA])
-    AS_IF([test "$USE_JAVA" = "1"],[
-        AC_PROG_AWK
-        AX_PROG_JAVA_CC(javac)
-        JAVA_VER=`$JAVA_CC -version 2>&1 | $ac_cv_path_PERL -ne 'print $& if /\d+(\.\d+)?/'`
-        AC_MSG_CHECKING([$JAVA_CC version >= 1.8])
-        AX_COMPARE_VERSION([$JAVA_VER],[ge],[1.8], [AC_MSG_RESULT([yes])],
-         [AC_MSG_RESULT([no])
-          AC_MSG_ERROR([Trick requires javac version >= 1.8])
-         ])
-        AS_IF([test "$TRICK_OFFLINE" = "0"], [
-          AC_PATH_PROG(MVN, mvn, nomvn)
-          AS_IF([test "$ac_cv_path_MVN" = "nomvn"],AC_MSG_ERROR([could not find maven]),[])
-        ], [])
-     ],[])
-])
-
-dnl test if we want to use er7_utils, default to yes
-AC_DEFUN([AX_ER7_UTILS],[
-    AC_ARG_ENABLE([er7utils],
-                  AS_HELP_STRING([--enable-er7utils], [use er7_utils (default is yes)]),
-                  AS_IF([test "x$enable_er7utils" = xyes], [USE_ER7_UTILS="1"], [USE_ER7_UTILS="0"]),
-                  [USE_ER7_UTILS="1"]
-                 )
-    AC_SUBST([USE_ER7_UTILS])
-])
-
-dnl if fermi-ware directory exists, test for motif.
-AC_DEFUN([AX_JSC_DIRS],[
-    AC_CHECK_FILE([trick_source/data_products/fermi-ware],
-      [
-       AC_CHECK_HEADER(Xm/Xm.h, [MOTIF_HOME="/usr"],
-        AC_CHECK_FILE(/usr/local/include/Xm/Xm.h, [MOTIF_HOME="/usr/local"],
-         AC_CHECK_FILE(/sw/include/Xm/Xm.h, [MOTIF_HOME="/sw"],AC_MSG_ERROR([could not find Xm/Xm.h]))))
-      ],
-      [
-       MOTIF_HOME=""
-      ]
-    )
-    AC_SUBST([MOTIF_HOME])
-])
-
-AC_DEFUN([AX_GCC_VERSION], [
-  GCC_VERSION=""
-  AS_IF([test "x$GCC" = "xyes"],[
-    AS_IF([test "x$ax_gcc_version_option" != "xno"],[
-      AC_CACHE_CHECK([gcc version],[ax_cv_gcc_version],[
-        ax_cv_gcc_version="`$CC -dumpfullversion -dumpversion`"
-        AS_IF([test "x$ax_cv_gcc_version" = "x"],[
-          ax_cv_gcc_version=""
-        ])
-      ])
-      GCC_VERSION=$ax_cv_gcc_version
-    ])
-  ])
-  AC_SUBST([GCC_VERSION])
-])
+AC_CONFIG_MACRO_DIRS([m4])
 
 dnl get the host and build.
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
 
-dnl AC_CANONICAL_HOST provides platform.  MacOSX is diverging... have to do special things
-ON_MAC=no
-case "${host_os}" in
-    darwin*)
-        ON_MAC=yes
-        ;;
-    *)
-        ;;
-esac
-
-
-dnl add extra paths to find xml headers and X headers on the mac.
-AS_IF([test "$ON_MAC" = "yes"],
-[
- AC_PATH_PROG(XCRUN, xcrun, noxcrun)
- AS_IF([test "$ac_cv_path_XCRUN" = "norun"],AC_MSG_ERROR([could not find xcrun - install Xcode command line tools]),[])
- XCODE_SDK_PATH=`$XCRUN --show-sdk-path`
- XTRAINCPATHS="-I/usr/X11/include -I${XCODE_SDK_PATH}/usr/include -I${XCODE_SDK_PATH}/usr/include/libxml2"
-],
-[
- XTRAINCPATHS="-I/usr/include/libxml2/"
-])
-CFLAGS="$CFLAGS $XTRAINCPATHS"
-CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
+dnl check if we are on a mac
+TR_MAC_DARWIN()
+dnl add x11 libs to environment
+TR_X11()
 
 dnl look for X windows libraries and headers we need to compile
 dnl these checks must be done before we force 32bit mode.
-AC_PATH_X
-AS_IF([test "$no_x" = "yes"],
-  [
-    USE_X_WINDOWS=0
-  ],
-  [
-    USE_X_WINDOWS=1
-    AS_IF([test "x$x_includes" = "x"],[],[X_INCLUDE_DIR=-I$x_includes])
-    AS_IF([test "x$x_libraries" = "x"],[],[X_LIB_DIR=-L$x_libraries])
-    AC_CHECK_HEADER([X11/Intrinsic.h],[],AC_MSG_ERROR([could not find libxt development headers]))
-    AX_JSC_DIRS([])
-  ]
-)
-AC_SUBST([USE_X_WINDOWS])
-AC_SUBST([X_LIB_DIR])
+TR_XWINDOWS()
 
 dnl TODO Need to check 64bit only!
 AC_CHECK_LIB(xml2, main,
@@ -377,7 +95,7 @@ AC_PROG_CC
 AC_PROG_CXX
 
 dnl do not test gcc version on mac.  clang as gcc will return version and it's not >= 4.8
-AS_IF([test "$ON_MAC" = "no"],[AX_GCC_VERSION],[])
+AS_IF([test "$ON_MAC" = "no"],[TR_GCC_VERSION],[])
 dnl if the compiler is gcc, test for gcc >= 4.8
 AS_IF([test "x$GCC_VERSION" = "x"],[],
  [AC_MSG_CHECKING([gcc version >= 4.8])
@@ -394,7 +112,7 @@ AC_PATH_PROG(TEE, tee, notee)
 AS_IF([test "$ac_cv_path_TEE" = "notee"],AC_MSG_ERROR([could not find tee]),[])
 AC_PATH_PROG(LD, ld, nold)
 AS_IF([test "$ac_cv_path_LD" = "nold"],AC_MSG_ERROR([could not find ld]),[])
-AC_PROG_LEX
+AC_PROG_LEX([noyywrap])
 AS_IF([test "x$LEX" = "x:"],AC_MSG_ERROR([could not find flex]),[])
 AC_PATH_PROG(BISON, bison, nobison)
 AS_IF([test "$ac_cv_path_BISON" = "nobison"],AC_MSG_ERROR([could not find bison]),[])
@@ -463,21 +181,22 @@ AX_COMPARE_VERSION(
 PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes | sed 's/-I/-isystem/g'`
 PYTHON_LIBS=`${PYTHON_LIBS_COMMAND} | tr '\r\n' ' '`
 
+
 AC_SUBST([PYTHON_CPPFLAGS])
 AC_SUBST([PYTHON_LIBS])
 AC_SUBST([PYTHON_EXTRA_LIBS])
-AX_PREPEND_PATH
+TR_PREPEND_PATH()
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
-AX_SWIG_BIN([2.0])
-AX_JAVA
+TR_SWIG_BIN([2.0])
+TR_JAVA
 
 AX_PTHREAD()
 AX_PROG_PERL_MODULES( Text::Balanced ,[],AC_MSG_ERROR([could not find perl modules Text::Balanced]))
 AX_PROG_PERL_MODULES( Digest::MD5,[],AC_MSG_ERROR([could not find perl module Digest::MD5]))
 
 dnl process the optional --with-llvm command line arguments
-AX_LLVM_HOME([])
+TR_LLVM_HOME([])
 LLVM_LIB_DIR=`$LLVM_CONFIG --libdir`
 LLVM_BIN_DIR=`$LLVM_CONFIG --bindir`
 LLVM_INCLUDE_DIR=`$LLVM_CONFIG --includedir`
@@ -516,17 +235,7 @@ AC_CHECK_FILE([$LLVM_LIB_DIR/libclangFrontend.a],
 
 AC_SUBST([ICG_CLANGLIBS])
 
-
-AC_DEFUN([AX_CLANG_VERSION], [
-  CLANG_VERSION=""
-  ax_cv_clang_version="`$CLANG --version | grep "version" | sed "s/.*version \([0-9]*\.[0-9]*\.[0-9]*\).*/\1/"`"
-  AS_IF([test "x$ax_cv_clang_version" = "x"],[
-    ax_cv_clang_version=""
-  ])
-  CLANG_VERSION=$ax_cv_clang_version
-  AC_SUBST([CLANG_VERSION])
-])
-AX_CLANG_VERSION
+TR_CLANG_VERSION
 dnl if llvm/clang, test for version >= 3.4.2
 AS_IF([test "x$CLANG_VERSION" = "x"],[],
  [AC_MSG_CHECKING([clang version >= 3.4.2])
@@ -539,7 +248,7 @@ AS_IF([test "x$CLANG_VERSION" = "x"],[],
 AX_CHECK_ZLIB([],AC_MSG_ERROR([could not find zlib]))
 
 dnl look for udunits in /usr/include and /usr/include/udunits2
-AX_UDUNITS_HOME([])
+TR_UDUNITS_HOME([])
 AS_IF([test "$UDUNITS_HOME" = ""],
  [
   AC_CHECK_HEADER([udunits2.h],
@@ -571,11 +280,11 @@ AC_SUBST([UDUNITS_LDFLAGS])
 AC_SUBST([UDUNITS_EXCLUDE])
 
 dnl process the other optional command line arguments
-AX_HDF5_HOME([])
-AX_GSL_HOME([])
-AX_GTEST_HOME([])
-AX_CIVETWEB_HOME([])
-AX_ER7_UTILS([])
+TR_HDF5_HOME([])
+TR_GSL_HOME([])
+TR_GTEST_HOME([])
+TR_CIVETWEB_HOME([])
+TR_ER7_UTILS([])
 
 AC_CONFIG_FILES([share/trick/makefiles/config_user.mk])
 AC_OUTPUT

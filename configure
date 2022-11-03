@@ -1439,10 +1439,10 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-x                use the X Window System
   --with-python[=DIR]     python root directory
-  --without-prepend-path  do not prepend to path (this is default)
   --with-prepend-path[=DIR]
                           specify a directory to prepend to PATH (default is
-                          /usr/local/bin)
+                          /usr/local/bin). Use --without-prepend-path for no
+                          directory.
   --with-swig[=DIR]       path of directory containing the SWIG executable.
   --with-llvm[=DIR]       LLVM root directory
   --with-zlib=DIR         root directory path of zlib installation [defaults to
@@ -2876,36 +2876,6 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   # Make sure we can run config.sub.
 $SHELL "${ac_aux_dir}config.sub" sun4 >/dev/null 2>&1 ||
   as_fn_error $? "cannot run $SHELL ${ac_aux_dir}config.sub" "$LINENO" 5
@@ -2981,20 +2951,21 @@ case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 
 
 
-ON_MAC=no
-case "${host_os}" in
-    darwin*)
-        ON_MAC=yes
-        ;;
-    *)
-        ;;
-esac
+
+        ON_MAC=no
+    case "${host_os}" in
+        darwin*)
+            ON_MAC=yes
+            ;;
+        *)
+            ;;
+    esac
 
 
-if test "$ON_MAC" = "yes"
+    if test "$ON_MAC" = "yes"
 then :
 
- # Extract the first word of "xcrun", so it can be a program name with args.
+     # Extract the first word of "xcrun", so it can be a program name with args.
 set dummy xcrun; ac_word=$2
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
 printf %s "checking for $ac_word... " >&6; }
@@ -3040,20 +3011,21 @@ printf "%s\n" "no" >&6; }
 fi
 
 
- if test "$ac_cv_path_XCRUN" = "norun"
+     if test "$ac_cv_path_XCRUN" = "norun"
 then :
   as_fn_error $? "could not find xcrun - install Xcode command line tools" "$LINENO" 5
 fi
- XCODE_SDK_PATH=`$XCRUN --show-sdk-path`
- XTRAINCPATHS="-I/usr/X11/include -I${XCODE_SDK_PATH}/usr/include -I${XCODE_SDK_PATH}/usr/include/libxml2"
+     XCODE_SDK_PATH=`$XCRUN --show-sdk-path`
+     XTRAINCPATHS="-I/usr/X11/include -I${XCODE_SDK_PATH}/usr/include -I${XCODE_SDK_PATH}/usr/include/libxml2"
 
 else $as_nop
 
- XTRAINCPATHS="-I/usr/include/libxml2/"
+     XTRAINCPATHS="-I/usr/include/libxml2/"
 
 fi
-CFLAGS="$CFLAGS $XTRAINCPATHS"
-CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
+    CFLAGS="$CFLAGS $XTRAINCPATHS"
+    CPPFLAGS="$CPPFLAGS $XTRAINCPATHS"
+
 
 
 
@@ -4555,7 +4527,37 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for X" >&5
+ac_header= ac_cache=
+for ac_item in $ac_header_cxx_list
+do
+  if test $ac_cache; then
+    ac_fn_cxx_check_header_compile "$LINENO" $ac_header ac_cv_header_$ac_cache "$ac_includes_default"
+    if eval test \"x\$ac_cv_header_$ac_cache\" = xyes; then
+      printf "%s\n" "#define $ac_item 1" >> confdefs.h
+    fi
+    ac_header= ac_cache=
+  elif test $ac_header; then
+    ac_cache=$ac_item
+  else
+    ac_header=$ac_item
+  fi
+done
+
+
+
+
+
+
+
+
+if test $ac_cv_header_stdlib_h = yes && test $ac_cv_header_string_h = yes
+then :
+
+printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
+
+fi
+
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for X" >&5
 printf %s "checking for X... " >&6; }
 
 
@@ -4784,56 +4786,27 @@ else
 printf "%s\n" "libraries $x_libraries, headers $x_includes" >&6; }
 fi
 
-ac_header= ac_cache=
-for ac_item in $ac_header_cxx_list
-do
-  if test $ac_cache; then
-    ac_fn_cxx_check_header_compile "$LINENO" $ac_header ac_cv_header_$ac_cache "$ac_includes_default"
-    if eval test \"x\$ac_cv_header_$ac_cache\" = xyes; then
-      printf "%s\n" "#define $ac_item 1" >> confdefs.h
-    fi
-    ac_header= ac_cache=
-  elif test $ac_header; then
-    ac_cache=$ac_item
-  else
-    ac_header=$ac_item
-  fi
-done
-
-
-
-
-
-
-
-
-if test $ac_cv_header_stdlib_h = yes && test $ac_cv_header_string_h = yes
+	if test "$no_x" = "yes"
 then :
 
-printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
-
-fi
-if test "$no_x" = "yes"
-then :
-
-    USE_X_WINDOWS=0
+	    USE_X_WINDOWS=0
 
 else $as_nop
 
-    USE_X_WINDOWS=1
-    if test "x$x_includes" = "x"
+	    USE_X_WINDOWS=1
+	    if test "x$x_includes" = "x"
 then :
 
 else $as_nop
   X_INCLUDE_DIR=-I$x_includes
 fi
-    if test "x$x_libraries" = "x"
+	    if test "x$x_libraries" = "x"
 then :
 
 else $as_nop
   X_LIB_DIR=-L$x_libraries
 fi
-    ac_fn_cxx_check_header_compile "$LINENO" "X11/Intrinsic.h" "ac_cv_header_X11_Intrinsic_h" "$ac_includes_default"
+	    ac_fn_cxx_check_header_compile "$LINENO" "X11/Intrinsic.h" "ac_cv_header_X11_Intrinsic_h" "$ac_includes_default"
 if test "x$ac_cv_header_X11_Intrinsic_h" = xyes
 then :
 
@@ -4926,6 +4899,7 @@ fi
 
 
 fi
+
 
 
 
@@ -6595,67 +6569,7 @@ then :
 else $as_nop
   LEXLIB=$ac_cv_lib_lex
 fi
-  ac_save_LIBS="$LIBS"
-      LIBS=
-      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for library containing yywrap" >&5
-printf %s "checking for library containing yywrap... " >&6; }
-if test ${ac_cv_search_yywrap+y}
-then :
-  printf %s "(cached) " >&6
-else $as_nop
-  ac_func_search_save_LIBS=$LIBS
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
 
-namespace conftest {
-  extern "C" int yywrap ();
-}
-int
-main (void)
-{
-return conftest::yywrap ();
-  ;
-  return 0;
-}
-_ACEOF
-for ac_lib in '' fl l
-do
-  if test -z "$ac_lib"; then
-    ac_res="none required"
-  else
-    ac_res=-l$ac_lib
-    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
-  fi
-  if ac_fn_cxx_try_link "$LINENO"
-then :
-  ac_cv_search_yywrap=$ac_res
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext
-  if test ${ac_cv_search_yywrap+y}
-then :
-  break
-fi
-done
-if test ${ac_cv_search_yywrap+y}
-then :
-
-else $as_nop
-  ac_cv_search_yywrap=no
-fi
-rm conftest.$ac_ext
-LIBS=$ac_func_search_save_LIBS
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_yywrap" >&5
-printf "%s\n" "$ac_cv_search_yywrap" >&6; }
-ac_res=$ac_cv_search_yywrap
-if test "$ac_res" != no
-then :
-  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
-  LEXLIB="$LIBS"
-fi
-
-      LIBS="$ac_save_LIBS"
 fi
 
 
@@ -7398,6 +7312,7 @@ x$ax_compare_version_B" | sed 's/^ *//' | sort -r | sed "s/x${ax_compare_version
 
 PYTHON_CPPFLAGS=`${PYTHON_CONFIG} --includes | sed 's/-I/-isystem/g'`
 PYTHON_LIBS=`${PYTHON_LIBS_COMMAND} | tr '\r\n' ' '`
+
 
 
 
@@ -9492,8 +9407,6 @@ fi
 
 
 fi
-
-
 
 
 

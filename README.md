@@ -1,26 +1,26 @@
 <p align=center>
-<a href="https://nasa.github.io/trick">
-<img src="https://raw.github.com/nasa/Trick/master/TrickLogo.png" alt="Trick Logo" height=150px>
-</a>
+<picture>
+  <a href="https://nasa.github.io/trick">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.github.com/nasa/Trick/master/TrickLogo_darkmode.png">
+  <img alt="Trick logo" src="https://raw.github.com/nasa/Trick/master/TrickLogo.png" height=150px>
+</picture>
 </p>
 
 <p align=left>
 <a href="https://github.com/nasa/trick/actions?query=workflow%3ALinux">
 <img src="https://github.com/nasa/trick/workflows/Linux/badge.svg?branch=master" alt="Linux" height=30px>
 </a>
-</p>
-
-<p align=left>
 <a href="https://github.com/nasa/trick/actions?query=workflow%3AmacOS">
 <img src="https://github.com/nasa/trick/workflows/macOS/badge.svg?branch=master" alt="macOS" height=30px>
 </a>
-</p>
-
-<p align=left>
 <a href="https://github.com/nasa/trick/actions?query=workflow%3A32-bit">
 <img src="https://github.com/nasa/trick/workflows/32-bit/badge.svg?branch=master" alt="macOS" height=30px>
 </a>
+<a href="https://coveralls.io/github/nasa/trick?branch=master">
+<img src="https://coveralls.io/repos/github/nasa/trick/badge.svg?branch=master" alt="Coverage Status" height=30px>
+</a>
 </p>
+
 
 <p align=justify>
 The Trick Simulation Environment, developed at the NASA Johnson Space Center, is a powerful simulation development framework that enables users to build applications for all phases of space vehicle development. Trick expedites the creation of simulations for early vehicle design, performance evaluation, flight software development, flight vehicle dynamic load analysis, and virtual/hardware in the loop training. Trick's purpose is to provide a common set of simulation capabilities that allow users to concentrate on their domain specific models, rather than simulation-specific functions like job ordering, input file processing, or data recording.
@@ -62,6 +62,26 @@ The Trick Simulation Environment, developed at the NASA Johnson Space Center, is
             <td>View some of the many projects that use Trick.</td>
             <td>Read some of the most frequently asked questions pertaining to Trick.</td>
             <td>See a collection of how-to guides detailing common Trick processes.</td>
+        </tr>
+    </tbody>
+</table>
+
+<table>
+    <col width="33%">
+    <col width="33%">
+    <col width="33%">
+    <thead>
+        <tr>
+            <th></th>
+            <th><a href="https://nasa.github.io/trick/developer_docs/Developer-Docs-Home"> Developer Docs </a></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr align="center">
+            <td></td>
+            <td>Read detailed documentation for various Trick internals and processes.</td>
+            <td></td>
         </tr>
     </tbody>
 </table>

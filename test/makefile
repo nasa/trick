@@ -25,6 +25,7 @@ SIMS_TO_COMPILE_ONLY = \
 SIMS_TO_COMPILE_AND_RUN = \
 	SIM_demo_sdefine \
 	SIM_events \
+	SIM_exec_set_time_tic_value \
 	SIM_python_namespace \
 	SIM_rti \
 	SIM_stls \
@@ -37,6 +38,9 @@ SIMS_TO_COMPILE_AND_RUN = \
 	SIM_test_templates \
 	SIM_threads \
 	SIM_trickified
+
+# SIM_stls will run twice. First run is RUN_test/setup.py, which is added as a dependency to test in its S_overrides.mk file
+# The second run is the normal RUN_test/unit_test.py which is run through this makefile.
 
 # Sims with problems, no purpose, or maybe shouldn't be a test
 # SIM_leaks ( should be deleted )
