@@ -1,5 +1,5 @@
-test.mc_master.activate("RUN_ERROR_invalid_sequence")
-test.mc_master.set_num_runs(1)
+monte_carlo.mc_master.activate("RUN_ERROR_invalid_sequence")
+monte_carlo.mc_master.set_num_runs(1)
 
 print('*****************************************************************************************************************************')
 print('three (3) types of messages are expected:')
@@ -8,7 +8,7 @@ print('  Attempted to set the number of runs to 10, but the input files have')
 print('  already been generated.')
 print('')
 print('  Error Invalid sequence')
-print('  Attempted to add a new variable test.x_normal to run RUN_invalid_sequence, but the input files have already been generated.')
+print('  Attempted to add a new variable monte_carlo.x_normal to run RUN_invalid_sequence, but the input files have already been generated.')
 print('  Cannot modify input files to accommodate this new variable.')
 print('  Addition of variable rejected.')
 print('')
@@ -19,19 +19,19 @@ print('  Ignoring the later instruction.')
 print('*****************************************************************************************************************************')
 
 
-mc_var = trick.MonteCarloVariableRandomUniform( "test.x_uniform", 0, 10, 20)
+mc_var = trick.MonteCarloVariableRandomUniform( "monte_carlo.x_uniform", 0, 10, 20)
 mc_var.thisown = False
-test.mc_master.add_variable(mc_var)
+monte_carlo.mc_master.add_variable(mc_var)
 
 # Trigger the "Invalid sequence" errors in MonteCarloMaster
-test.mc_master.prepare_input_files()
+monte_carlo.mc_master.prepare_input_files()
 
 # Change run-number after prepping inputs
-test.mc_master.set_num_runs(10)
+monte_carlo.mc_master.set_num_runs(10)
 
 # Add a new variable after prepping inputs
-mc_var = trick.MonteCarloVariableRandomNormal( "test.x_normal", 2, 10, 2)
+mc_var = trick.MonteCarloVariableRandomNormal( "monte_carlo.x_normal", 2, 10, 2)
 mc_var.thisown = False
-test.mc_master.add_variable(mc_var)
+monte_carlo.mc_master.add_variable(mc_var)
 
 trick.stop(1)
