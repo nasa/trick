@@ -15,7 +15,6 @@ SIMS_TO_COMPILE_ONLY = \
 	SIM_isystem \
 	SIM_measurement_units \
 	SIM_parse_s_define \
-	SIM_target_specific_variables \
 	SIM_test_abstract \
 	SIM_test_inherit \
 	SIM_test_ip2 \
@@ -46,8 +45,11 @@ SIMS_TO_COMPILE_AND_RUN = \
 # SIM_dynamic_sim_object ( not running, class won't instantiate )
 # SIM_segments  ( not a test, but a demo )
 
+
 # This test is temporarily sitting out until fixed.
 #    SIM_test_varserv
+# 	SIM_target_specific_variables \
+
 
 EXECUTABLES = $(addsuffix /T_main_${TRICK_HOST_CPU}_test.exe, $(SIMS_TO_COMPILE_AND_RUN) $(SIMS_TO_COMPILE_ONLY))
 UNIT_TEST_RESULTS = $(addprefix $(TRICK_HOME)/trick_test/, $(addsuffix .xml, $(SIMS_TO_COMPILE_AND_RUN)))
@@ -85,7 +87,6 @@ else
 	cmp -b $(DR_RESULTS)/log_DR_typesBINARY.trk $(DR_RESULTS)/Ref_Logs/log_DR_typesBINARY.trk
 endif
 
-# Use trickops to run, record, and 
+# Use trickops to run, record, and compare output logs of several different runs.
 checkpoint_data_record:
-	$(PYTHON) -m pip install -r $(TRICK_HOME)/share/trick/trickops/requirements.txt
-	$(PYTHON) trickops.py $(TRICK_HOME)
+	python3 trickops.py $(TRICK_HOME)

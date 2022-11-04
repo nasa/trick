@@ -2,6 +2,19 @@ SIM_checkpoint_data_recording:
   path: SIM_checkpoint_data_recording
 
   runs:
+    RUN_test1/dump.py:
+      returns: 0
+    RUN_test2/dump.py:
+      returns: 0
+    RUN_test3/dump.py:
+      returns: 0
+    RUN_test4/dump.py:
+      returns: 0
+    RUN_test5/dump.py:
+      returns: 0
+    RUN_test6/dump.py:
+      returns: 0
+
     RUN_test1/unit_test.py:
       returns: 0
       compare: 

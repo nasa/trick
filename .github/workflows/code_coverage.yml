@@ -61,6 +61,9 @@ jobs:
         export TRICK_SYSTEM_LDFLAGS="-fprofile-arcs -ftest-coverage -O0"
         export TRICK_SYSTEM_CFLAGS="-fprofile-arcs -ftest-coverage -O0"
         export TRICK_SYSTEM_CXXFLAGS="-fprofile-arcs -ftest-coverage -O0"
+        cd share/trick/trickops/
+        python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+        cd ../../../
         make code-coverage
     - name: Upload to Coveralls
       uses: coverallsapp/github-action@master

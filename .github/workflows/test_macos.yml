@@ -30,7 +30,13 @@ jobs:
         export MAKEFLAGS=-j4
         ./configure --with-llvm=/usr/local/opt/llvm@11
         make
-    - name: Run tests
+    - name: create virtual environment
       run: |
-        export MAKEFLAGS=-j4
-        make test
+        cd share/trick/trickops/
+        python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
+    - name: Test
+      run: |
+        cd share/trick/trickops/
+        python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
+        export MAKEFLAGS=-j`nproc`
+        cd ../../../test; make checkpoint_data_record
