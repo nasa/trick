@@ -354,3 +354,12 @@ cp prebuiltTrick/libexec/trick/java/build/*.jar trick/trick-offline
 ```
 
 4. Follow regular install instructions above. 
+
+### Python Version
+
+If you would like to use Python 2 with Trick please first make sure Python 2 and the Python 2 libs are installed. Then you will likely need to set `PYTHON_VERSION=2` in your shell environment before executing the `configure` script so that Trick will use Python 2 instead of Python 3. This can be done in bash or zsh with the following commands:
+
+```
+export PYTHON_VERSION=2
+./configure
+```
