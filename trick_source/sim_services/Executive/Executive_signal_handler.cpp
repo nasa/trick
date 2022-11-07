@@ -69,22 +69,6 @@ void Trick::Executive::signal_handler(int sig) {
                     "/proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
             system(command);
         }
-#elif __APPLE__
-        char command[2048];
-        char path[1024] ;
-        uint32_t size = sizeof(path) ;
-        if (_NSGetExecutablePath(path, &size) == 0 ) {
-            if (attach_debugger == true) {
-                write( 2 , "Attempting to attach debugger... standby.\n" , 41 ) ;
-                sprintf(command, "%s -silent %s %d", debugger_command.c_str(), path, getpid());
-                system(command);
-            } else if (stack_trace == true ) {
-                write( 2 , "Attempting to generate stack trace... standby.\n" , 47 ) ;
-                sprintf(command, "%s -batch -s ${TRICK_HOME}/share/trick/lldb_commands -p %d",
-                 debugger_command.c_str(), getpid());
-                system(command);
-            }
-        }
 #endif
     }
 
