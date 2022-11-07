@@ -3,3 +3,4 @@ SIM_mc_generation:
   runs: 
     RUN_nominal/input_a.py:
     RUN_random_normal_truncate_abs/input.py:
+    RUN_random_normal_truncate_rel/input.py:

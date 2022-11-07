@@ -48,12 +48,12 @@ mc_var.thisown = False
 monte_carlo.mc_master.add_variable(mc_var)
 
 mc_var = trick.MonteCarloPythonLineExec( "monte_carlo.x_line_command",
-                                         "monte_carlo.x_integer * test.x_uniform")
+                                         "monte_carlo.x_integer * monte_carlo.x_uniform")
 mc_var.thisown = False
 monte_carlo.mc_master.add_variable(mc_var)
 
 mc_var = trick.MonteCarloPythonLineExec(
-      "monte_carlo.standalone_function( test.x_normal)")
+      "monte_carlo.standalone_function( monte_carlo.x_normal)")
 mc_var.thisown = False
 monte_carlo.mc_master.add_variable(mc_var)
 
