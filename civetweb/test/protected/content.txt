@@ -1,5 +1,0 @@
-Protected directory.
-
-username: user
-password: pass
-
