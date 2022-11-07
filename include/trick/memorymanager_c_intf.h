@@ -50,12 +50,14 @@ void  TMM_delete_extern_var_a( void* address);
 void  TMM_delete_extern_var_n( const char* var_name );
 
 void  TMM_write_checkpoint( const char* filename) ;
+
 int   TMM_read_checkpoint( const char* filename);
 int   TMM_read_checkpoint_from_string( const char* str);
-
 int   TMM_init_from_checkpoint( const char* filename);
+
 int   TMM_add_shared_library_symbols( const char* filename);
 
+int   TMM_set_stl_restore (int on_off);
 
 REF2* ref_attributes(const char* name);
 int   ref_var(REF2* R, char* name);

@@ -7,7 +7,12 @@
 #include "trick/MemoryManager.hh"
 #include "trick/ClassicCheckPointAgent.hh"
 
-int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stls /* default is false */) {
+int Trick::MemoryManager::set_restore_stls_default (bool on_off) {
+    restore_stls_default = on_off;
+    return 0;
+}
+
+int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stl) {
 
     ALLOC_INFO_MAP::iterator pos;
     ALLOC_INFO* alloc_info;
@@ -21,8 +26,9 @@ int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stl
        emitError("Checkpoint restore failed.") ;
     }
 
+
     // Search for stls and restore them
-    if(do_restore_stls) {
+    if(do_restore_stl) {
         for ( pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
             restore_stls(pos->second) ;
         }
@@ -58,12 +64,12 @@ int Trick::MemoryManager::read_checkpoint( std::istream *is, bool do_restore_stl
     return(0);
 }
 
-int Trick::MemoryManager::read_checkpoint(const char* filename ) {
+int Trick::MemoryManager::read_checkpoint( const char* filename, bool restore_stls ) {
 
     // Create a stream from the named file.
     std::ifstream infile(filename , std::ios::in);
     if (infile.is_open()) {
-        return ( read_checkpoint( &infile, true )) ;
+        return ( read_checkpoint( &infile, restore_stls )) ;
     } else {
         std::stringstream message;
         message << "Couldn't open \"" << filename << "\"." ;
@@ -72,7 +78,7 @@ int Trick::MemoryManager::read_checkpoint(const char* filename ) {
     return 1;
 }
 
-int Trick::MemoryManager::read_checkpoint_from_string(const char* s ) {
+int Trick::MemoryManager::read_checkpoint_from_string(const char* s, bool restore_stls ) {
 
     // Create a stream from the string argument.
     std::stringstream ss;
@@ -85,34 +91,14 @@ int Trick::MemoryManager::read_checkpoint_from_string(const char* s ) {
              */
             ss << ";" ;
         }
-        return ( read_checkpoint( &ss ));
+        return ( read_checkpoint( &ss, restore_stls));
     } else {
         emitError("Checkpoint string is NULL.") ;
     }
     return 1;
 }
 
-int Trick::MemoryManager::init_from_checkpoint( std::istream *is) {
-
-    if (debug_level) {
-        std::cout << std::endl << "Initializing from checkpoint" << std::endl;
-        std::cout << std::endl << "- Resetting managed memory." << std::endl;
-        std::cout.flush();
-    }
-
-    reset_memory();
-
-    read_checkpoint( is);
-
-    if (debug_level) {
-        std::cout << std::endl << "Initialization from checkpoint finished." << std::endl;
-        std::cout.flush();
-    }
-
-    return 0 ;
-}
-
-int Trick::MemoryManager::init_from_checkpoint(const char* filename ) {
+int Trick::MemoryManager::init_from_checkpoint(const char* filename, bool restore_stls ) {
 
     if (debug_level) {
         std::cout << std::endl << "Initializing from checkpoint" << std::endl;
@@ -127,7 +113,27 @@ int Trick::MemoryManager::init_from_checkpoint(const char* filename ) {
         std::cout.flush();
     }
 
-    read_checkpoint( filename);
+    read_checkpoint( filename, restore_stls);
+
+    if (debug_level) {
+        std::cout << std::endl << "Initialization from checkpoint finished." << std::endl;
+        std::cout.flush();
+    }
+
+    return 0 ;
+}
+
+int Trick::MemoryManager::init_from_checkpoint( std::istream *is, bool restore_stls) {
+
+    if (debug_level) {
+        std::cout << std::endl << "Initializing from checkpoint" << std::endl;
+        std::cout << std::endl << "- Resetting managed memory." << std::endl;
+        std::cout.flush();
+    }
+
+    reset_memory();
+
+    read_checkpoint( is, restore_stls );
 
     if (debug_level) {
         std::cout << std::endl << "Initialization from checkpoint finished." << std::endl;

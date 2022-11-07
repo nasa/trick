@@ -296,6 +296,11 @@ void Trick::CheckPointRestart::load_checkpoint(std::string file_name) {
     load_checkpoint_file_name = file_name ;
 }
 
+void Trick::CheckPointRestart::load_checkpoint(std::string file_name, bool stls_on) {
+    trick_MM->set_restore_stls_default(stls_on);
+    load_checkpoint(file_name);
+}
+
 int Trick::CheckPointRestart::load_checkpoint_job() {
 
     JobData * curr_job ;

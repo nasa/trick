@@ -2,6 +2,8 @@ name: macOS
 
 on:
   push:
+    branches:
+        - master
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
@@ -22,11 +24,13 @@ jobs:
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew install --cask xquartz
-        brew install llvm@11 swig udunits openmotif maven
+        brew install swig udunits openmotif maven
+        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
+        tar -xvf clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        ./configure --with-llvm=/usr/local/opt/llvm@11
+        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
         make
     - name: Run tests
       run: |
