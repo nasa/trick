@@ -11,7 +11,7 @@ class ExampleWorkflow(TrickWorkflow):
     def run( self):
       build_jobs      = self.get_jobs(kind='build')
       run_jobs        = self.get_jobs(kind='run')
-
+      ret = self.compare()
       builds_status = self.execute_jobs(build_jobs, max_concurrent=3, header='Executing all sim builds.')
       runs_status   = self.execute_jobs(run_jobs,   max_concurrent=3, header='Executing all sim runs.')
       self.report()           # Print Verbose report
