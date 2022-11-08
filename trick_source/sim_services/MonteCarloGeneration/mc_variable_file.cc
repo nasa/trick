@@ -254,7 +254,7 @@ MonteCarloVariableFile::process_line()
         variable_name.c_str() + "  uses the value from position " +
         std::to_string(column_number) + 
         ", which does not exist in this line\n";
-      message_publish(MSG_ERROR, message.c_str());
+      exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
     }
     // and if we found the desired column, send its value to the variable:
     (*it)->assignment = scratch_assignment;
