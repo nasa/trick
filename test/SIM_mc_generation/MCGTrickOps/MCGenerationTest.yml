@@ -2,6 +2,9 @@ SIM_mc_generation:
   path: test/SIM_mc_generation
   runs: 
     RUN_nominal/input_a.py:
+    RUN_nominal/input.py:
+    MONTE_RUN_nominal/RUN_000/monte_input_a.py:
+    MONTE_RUN_nominal/RUN_001/monte_input_a.py:
     RUN_random_normal_truncate_abs/input.py:
     RUN_random_normal_truncate_rel/input.py:
     RUN_random_normal_truncate_sd/input.py:
@@ -10,3 +13,8 @@ SIM_mc_generation:
     RUN_random_uniform/input.py:
       compare:
         - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/RUN_000/monte_input_a.py vs. test/SIM_mc_generation/MONTE_RUN_nominal/RUN_000/monte_input_a.py
+        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/MonteCarlo_Meta_data_output vs. test/SIM_mc_generation/MONTE_RUN_nominal/MonteCarlo_Meta_data_output
+        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_nominal/monte_values_all_runs
+        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/RUN_001/monte_input_a.py vs. test/SIM_mc_generation/MONTE_RUN_nominal/RUN_001/monte_input_a.py
+        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/RUN_000/log_test_data.csv vs. test/SIM_mc_generation/MONTE_RUN_nominal/RUN_000/log_test_data.csv
+        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/RUN_001/log_test_data.csv vs. test/SIM_mc_generation/MONTE_RUN_nominal/RUN_001/log_test_data.csv
