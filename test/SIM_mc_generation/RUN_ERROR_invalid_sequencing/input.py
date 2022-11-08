@@ -11,7 +11,7 @@ print('*************************************************************************
 
 
 mc_var = trick.MonteCarloVariableSemiFixed("monte_carlo.x_semi_fixed_value",
-                                            monte_carlo.mc_var_file)
+                                            test.mc_var_file)
 mc_var.thisown = False
 monte_carlo.mc_master.add_variable(mc_var)
 

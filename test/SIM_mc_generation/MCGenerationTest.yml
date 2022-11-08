@@ -2,9 +2,32 @@ SIM_mc_generation:
   path: test/SIM_mc_generation
   runs: 
     RUN_nominal/input_a.py:
+      compare:
+        - test/SIM_mc_generation/MONTE_RUN_nominal/RUN_000/monte_input_a.py vs. test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/RUN_000/monte_input_a.py
     RUN_random_normal_truncate_abs/input.py:
     RUN_random_normal_truncate_rel/input.py:
     RUN_random_normal_truncate_sd/input.py:
     RUN_random_normal__untruncate/input.py:
     RUN_random_normal_untruncated/input.py:
     RUN_random_uniform/input.py:
+    RUN_ERROR_file_inconsistent_skip/input.py:
+    RUN_ERROR_invalid_call/input.py:
+    RUN_ERROR_invalid_name/input.py:
+    RUN_ERROR_invalid_sequence/input.py:
+    RUN_ERROR_invalid_sequencing/input.py:
+    RUN_ERROR_out_of_domain_error/input.py:
+    RUN_ERROR_random_value_truncation/input.py:
+    FAIL_config_error/input.py:
+      returns: 1
+    FAIL_duplicate_variable/input.py:
+      returns: 1
+    FAIL_illegal_config/input.py:
+      returns: 1
+    FAIL_invalid_config/input.py:
+      returns: 1
+    FAIL_invalid_data_file/input.py:
+      returns: 1
+    FAIL_IO_error/input.py:
+      returns: 1
+    FAIL_malformed_data_file/input.py:
+      returns: 1
