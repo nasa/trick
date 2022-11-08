@@ -12,7 +12,7 @@ class SimTestWorkflow(TrickWorkflow):
 
         # Base Class initialize, this creates internal management structures
         TrickWorkflow.__init__(self, project_top_level=(trick_top_level), log_dir=(trick_top_level +'/trickops_logs/'),
-            trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=3, quiet=False)
+            trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=3, quiet=True)
     def run( self ):
 
       # Change all the build commands to have the whole path
