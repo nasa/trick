@@ -301,8 +301,7 @@ $(DPX_UNIT_TEST_DIR):
 
 
 sim_test:
-	@ $(MAKE) -C test
-	@ $(MAKE) -C trick_sims test
+	python3 trickops.py ${TRICK_HOME}
 
 pytest:
 	make -C share/trick/pymods/trick

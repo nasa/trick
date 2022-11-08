@@ -24,15 +24,15 @@ jobs:
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew install --cask xquartz
-        brew install swig udunits openmotif maven
-        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
-        tar -xvf clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
+        brew install llvm@11 swig udunits openmotif maven
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
+        ./configure --with-llvm=/usr/local/opt/llvm@11
         make
-    - name: Run tests
+    - name: Test
       run: |
-        export MAKEFLAGS=-j4
-        make test
+        cd share/trick/trickops/
+        python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
+        export MAKEFLAGS=-j`nproc`
+        cd ../../../; make test
