@@ -65,7 +65,7 @@ class MonteCarloGeneratorSimObject : public Trick::SimObject
   MonteCarloGeneratorSimObject & operator = 
   ( const MonteCarloGeneratorSimObject&);
 };
-MonteCarloGeneratorSimObject monte_carlo("monte_carlo.master", &trick_mc.mc);
+MonteCarloGeneratorSimObject monte_carlo("monte_carlo.mc_master", &trick_mc.mc);
 #endif
 
 

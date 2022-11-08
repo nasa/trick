@@ -15,7 +15,7 @@ mc_var = trick.MonteCarloVariableFile( "monte_carlo.x_file_lookup[0]",
                                        "Modified_data/datafile.txt",
                                        3)
 # the next command is the source of the error!
-mc_var.register_dependent(0)
+mc_var.register_dependent(None)
 monte_carlo.mc_master.add_variable(mc_var)
 
 trick.stop(1)
