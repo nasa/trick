@@ -9,4 +9,4 @@ SIM_mc_generation:
     RUN_random_normal_untruncated/input.py:
     RUN_random_uniform/input.py:
       compare:
-        - test/SIM_mc_generation/MONTE_RUN_nominal/RUN_000/monte_input_a.py vs. test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/RUN_000/monte_input_a.py
+        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/RUN_000/monte_input_a.py vs. test/SIM_mc_generation/MONTE_RUN_nominal/RUN_000/monte_input_a.py

@@ -1,0 +1,5 @@
+[34mBuilding with the following compilation flags:[0m
+TRICK_CFLAGS   = [36m-g -Wall -Wmissing-prototypes -Wextra -Wshadow -g -Wall -Wextra -Werror [0m
+TRICK_CXXFLAGS = [36m-g -Wall -Wextra -Wshadow -g -std=c++11 -Wall -Wextra -Werror[0m
+[32mTrick Build Process Complete[00m
+make: Nothing to be done for `all'.

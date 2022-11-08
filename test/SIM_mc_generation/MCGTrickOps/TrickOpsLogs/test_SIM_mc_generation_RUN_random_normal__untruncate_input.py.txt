@@ -1,0 +1,18 @@
+|L   0|2022/11/07,17:00:18|intern-eg2-2| |T 0|0.000000| [00m
+SIMULATION TERMINATED IN
+  PROCESS: 0
+  ROUTINE: mc_master.cc:408
+  DIAGNOSTIC: 
+Monte-Input files generated in MONTE_RUN_random_normal__untruncate
+Runs can now be launched using the generated monte-input files and
+managed with an external load-management system, such as SLURM.
+This simulation is complete.  Exiting.
+
+
+       SIMULATION START TIME:        0.000
+        SIMULATION STOP TIME:        0.000
+     SIMULATION ELAPSED TIME:        0.000
+        ACTUAL CPU TIME USED:        0.048
+       SIMULATION / CPU TIME:        0.000
+     INITIALIZATION CPU TIME:        0.000
+[00m

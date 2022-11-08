@@ -7,7 +7,7 @@ from TrickWorkflow import *
 class ExampleWorkflow(TrickWorkflow):
     def __init__( self, quiet, trick_top_level=os.path.abspath("../../../")):
         # Base Class initialize, this creates internal management structures
-        TrickWorkflow.__init__(self, project_top_level=trick_top_level, log_dir='test/SIM_mc_generation/MCGTrickOps', trick_dir=trick_top_level, config_file="test/SIM_mc_generation/MCGenerationTest.yml", cpus=3, quiet=quiet)
+        TrickWorkflow.__init__(self, project_top_level=trick_top_level, log_dir='test/SIM_mc_generation/MCGTrickOps/TrickOpsLogs/', trick_dir=trick_top_level, config_file="test/SIM_mc_generation/MCGTrickOps/MCGenerationTest.yml", cpus=3, quiet=quiet)
     def run( self):
       build_jobs      = self.get_jobs(kind='build')
       run_jobs        = self.get_jobs(kind='run')
