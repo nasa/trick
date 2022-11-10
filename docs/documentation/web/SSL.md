@@ -38,4 +38,4 @@ Where server.pem is the path to the server.pem file you created when creating a 
 ## Access your webserver
 Now that ssl encryption is enabled, to access you webserver use https://localhost.ssl:8888 instead of http and wss://localhost.ssl:8888 for http and ws protocals respectively.
 
-Continue to [Adding SSL Encryption](SSL)
+Continue to [Web Server APIs](Webserver-apis)
