@@ -236,7 +236,7 @@ int Trick::VariableServerThread::var_exists(std::string in_name) {
         tc_write(&connection, (char *) buf1, 5);
     } else {
         /* send ascii "1" or "0" */
-        sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
+        snprintf(buf1, sizeof(buf1), "%d\t%d\n", VS_VAR_EXISTS, (error==false));
         if (debug >= 2) {
             message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", &connection, connection.client_tag, buf1) ;
         }
@@ -430,7 +430,7 @@ int Trick::VariableServerThread::send_list_size() {
         tc_write(&connection, (char *) buf1, 12);
     } else {
         // ascii
-        sprintf(buf1, "%d\t%d\n", VS_LIST_SIZE, var_count);
+        snprintf(buf1, sizeof(buf1), "%d\t%d\n", VS_LIST_SIZE, var_count);
         if (debug >= 2) {
             message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", &connection, connection.client_tag, buf1) ;
         }
@@ -455,7 +455,7 @@ int Trick::VariableServerThread::transmit_file(std::string sie_file) {
 
     if ((fp = fopen(sie_file.c_str() , "r")) == NULL ) {
         message_publish(MSG_ERROR,"Variable Server Error: Cannot open %s.\n", sie_file.c_str()) ;
-        sprintf(buffer, "%d\t-1\n", VS_SIE_RESOURCE) ;
+        snprintf(buffer, sizeof(buffer), "%d\t-1\n", VS_SIE_RESOURCE) ;
         tc_write(&connection , buffer , strlen(buffer)) ;
         return(-1) ;
     }
@@ -463,7 +463,7 @@ int Trick::VariableServerThread::transmit_file(std::string sie_file) {
     fseek(fp , 0L, SEEK_END) ;
     file_size = ftell(fp) ;
 
-    sprintf(buffer, "%d\t%u\n" , VS_SIE_RESOURCE, file_size) ;
+    snprintf(buffer, sizeof(buffer), "%d\t%u\n" , VS_SIE_RESOURCE, file_size) ;
     tc_write(&connection , buffer , strlen(buffer)) ;
     rewind(fp) ;
 

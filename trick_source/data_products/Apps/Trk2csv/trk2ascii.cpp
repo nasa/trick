@@ -179,14 +179,14 @@ int main(int argc, char* argv[])
             done = 0;
             while ( !done ) {
                 current_line.clear();
-                sprintf(buf, "%8s<Row>", "");
+                snprintf(buf, sizeof(buf), "%8s<Row>", "");
                 current_line.append(buf);
                 for ( idx = 0; idx < ds_list.size(); idx++ ) {
                     if ( ds_list[idx]->get( &t, &y) == 0 ) {
                         done = 1;
                         break;
                     }
-                    sprintf(buf, "<Col>%.15G</Col>", y);
+                    snprintf(buf, sizeof(buf), "<Col>%.15G</Col>", y);
                     current_line.append(buf);
                 }
                 current_line.append("</Row>");
@@ -228,14 +228,14 @@ int main(int argc, char* argv[])
                         break;
                     }
                     if ( idx != 0) {
-                        sprintf(buf, "%s", delimiter.c_str());
+                        snprintf(buf, sizeof(buf), "%s", delimiter.c_str());
                         current_line.append(buf);
                     }
                     if ( Format == FIX ) {
-                        sprintf(buf, "%20.16g", y);
+                        snprintf(buf, sizeof(buf), "%20.16g", y);
                         current_line.append(buf);
                     } else {
-                        sprintf(buf, "%.15G", y);
+                        snprintf(buf, sizeof(buf), "%.15G", y);
                         current_line.append(buf);
                     }
                 }

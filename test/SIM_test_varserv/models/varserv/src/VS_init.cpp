@@ -37,7 +37,7 @@ int VSTest::init() {
 
 	// default cycle rate
 	cycle_rate = 0.01;
-	sprintf(msg,"trick.var_cycle(%.2f)\n", cycle_rate);
+	snprintf(msg, sizeof(msg), "trick.var_cycle(%.2f)\n", cycle_rate);
 	vs_write(msg);
 
 	return (0);

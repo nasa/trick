@@ -71,15 +71,15 @@ void Trick::Executive::fpe_handler(siginfo_t * sip __attribute__((unused)) ) {
 
     /*
      Attempt to attach with debugger or print stack trace.  Not a requirement.
-     sprintf and system are not async signal safe, but we don't have anything to lose.
+     snprintf and system are not async signal safe, but we don't have anything to lose.
      */
 #if __linux
     char command[1024];
     if (attach_debugger == true) {
-        sprintf(command, "%s -silent /proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
+        snprintf(command, sizeof(command), "%s -silent /proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
         system(command);
     } else if (stack_trace == true ) {
-        sprintf(command, "%s -silent -batch -x ${TRICK_HOME}/bin/gdb_commands "
+        snprintf(command, sizeof(command), "%s -silent -batch -x ${TRICK_HOME}/bin/gdb_commands "
                 "/proc/%d/exe %d | grep -A 20 \"signal handler\"", debugger_command.c_str(), getpid(), getpid());
         system(command);
     }
@@ -90,11 +90,11 @@ void Trick::Executive::fpe_handler(siginfo_t * sip __attribute__((unused)) ) {
     if (_NSGetExecutablePath(path, &size) == 0 ) {
         if (attach_debugger == true) {
             write( 2 , "Attempting to attach debugger... standby.\n" , 41 ) ;
-            sprintf(command, "%s -silent %s %d", debugger_command.c_str(), path, getpid());
+            snprintf(command, sizeof(command), "%s -silent %s %d", debugger_command.c_str(), path, getpid());
             system(command);
         } else if (stack_trace == true ) {
             write( 2 , "Attempting to generate stack trace... standby.\n" , 47 ) ;
-            sprintf(command, "%s -batch -x ${TRICK_HOME}/bin/gdb_commands "
+            snprintf(command, sizeof(command), "%s -batch -x ${TRICK_HOME}/bin/gdb_commands "
                     "%s %d", debugger_command.c_str(), path, getpid());
             system(command);
         }

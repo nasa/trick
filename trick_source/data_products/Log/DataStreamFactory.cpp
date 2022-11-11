@@ -61,8 +61,9 @@ DataStream* DataStreamFactory::create( const char* iRunDir,
     while ((dp = readdir(dirp)) != NULL) {
         len = strlen(dp->d_name);
         if ( !strcmp( &(dp->d_name[len - 3]) , ".h5")) {
-    	    full_path = (char*) malloc (runDir.length() + strlen(dp->d_name) + 2) ;
-            sprintf(full_path, "%s/%s" , runDir.c_str() , dp->d_name);
+            size_t full_path_len = runDir.length() + strlen(dp->d_name) + 2;
+    	    full_path = (char*) malloc (full_path_len) ;
+            snprintf(full_path, full_path_len, "%s/%s" , runDir.c_str() , dp->d_name);
             if ( HDF5LocateParam((const char*)full_path , paramName.c_str()) ) {
             	closedir(dirp) ;
                 stream = new TrickHDF5(full_path , (char *)paramName.c_str() , (char *)timeName ) ;
@@ -79,8 +80,9 @@ DataStream* DataStreamFactory::create( const char* iRunDir,
     while ((dp = readdir(dirp)) != NULL) {
         len = strlen(dp->d_name);
         if ( !strcmp( &(dp->d_name[len - 4]) , ".trk")) {
-        	full_path = (char*) malloc (runDir.length() + strlen(dp->d_name) + 2) ;
-            sprintf(full_path, "%s/%s", runDir.c_str(), dp->d_name);
+            size_t full_path_len = runDir.length() + strlen(dp->d_name) + 2;
+            full_path = (char*) malloc( full_path_len) ;
+            snprintf(full_path, full_path_len, "%s/%s", runDir.c_str(), dp->d_name);
             if ( TrickBinaryLocateParam((const char*)full_path , paramName.c_str()) ) {
             	closedir(dirp) ;
                 stream = new TrickBinary(full_path , (char *)paramName.c_str()) ;
@@ -96,8 +98,9 @@ DataStream* DataStreamFactory::create( const char* iRunDir,
     while ((dp = readdir(dirp)) != NULL) {
         len = strlen(dp->d_name);
         if ( !strcmp( &(dp->d_name[len - 4]) , ".csv")) {
-    	    full_path = (char*) malloc (runDir.length() + strlen(dp->d_name) + 2) ;
-            sprintf(full_path, "%s/%s", runDir.c_str(), dp->d_name);
+            size_t full_path_len = runDir.length() + strlen(dp->d_name) + 2;
+    	    full_path = (char*) malloc( full_path_len) ;
+            snprintf(full_path, full_path_len, "%s/%s", runDir.c_str(), dp->d_name);
             if ( CsvLocateParam(full_path , (char *)paramName.c_str()) ) {
             	closedir(dirp) ;
                 stream = new Csv(full_path , (char *)paramName.c_str()) ;
@@ -113,8 +116,9 @@ DataStream* DataStreamFactory::create( const char* iRunDir,
     while ((dp = readdir(dirp)) != NULL) {
      	len = strlen(dp->d_name);
         if ( !strcmp( &(dp->d_name[len - 4]) , ".mat")) {
-      	    full_path = (char*) malloc (runDir.length() + strlen(dp->d_name) + 2) ;
-            sprintf(full_path, "%s/%s", runDir.c_str(), dp->d_name);
+            size_t full_path_len = runDir.length() + strlen(dp->d_name) + 2;
+      	    full_path = (char*) malloc ( full_path_len) ;
+            snprintf(full_path, full_path_len, "%s/%s", runDir.c_str(), dp->d_name);
             if ( MatLabLocateParam(full_path ,
         	    				   (char *)paramName.c_str(),
                 				   (char *)timeName ) ) {

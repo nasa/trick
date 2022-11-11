@@ -204,7 +204,7 @@ void PageViewNode::pdf_file_cb(Widget w, XtPointer client_data, XtPointer call_d
     page_view_node->generate_PS(tmp_file);
 
     // Convert PS tmp file to PDF
-    sprintf(cmd, "ps2pdf %s %s", tmp_file, file_name);
+    snprintf(cmd, sizeof(cmd), "ps2pdf %s %s", tmp_file, file_name);
     system(cmd);
 
     XtFree(file_name);
@@ -234,8 +234,9 @@ int PageViewNode::exists_program(const char *programName)
 
     strptr = path;
     while ((tokptr = strtok(strptr, ":")) != NULL) {
-        program = (char *) malloc(strlen(tokptr) + strlen(programName) + 2);
-        sprintf(program, "%s/%s", tokptr, programName);
+        size_t program_len = strlen(tokptr) + strlen(programName) + 2;
+        program = (char *) malloc( program_len);
+        snprintf(program, program_len, "%s/%s", tokptr, programName);
         if (access(program, F_OK | X_OK) == 0) {
             free(program);
             return (1);
@@ -492,12 +493,12 @@ void PageViewNode::print() {
 
     if (!strcmp(trick_print_cmd, "lpr")) {
         if ((trick_printer_name == NULL) || (strlen(trick_printer_name) == 0)) {
-            sprintf(system_cmd, "%s %s", trick_print_cmd, ps_file_name);
+            snprintf(system_cmd, sizeof(system_cmd), "%s %s", trick_print_cmd, ps_file_name);
         } else {
-            sprintf(system_cmd, "%s -P %s %s", trick_print_cmd, trick_printer_name, ps_file_name);
+            snprintf(system_cmd, sizeof(system_cmd), "%s -P %s %s", trick_print_cmd, trick_printer_name, ps_file_name);
         }
     } else {
-        sprintf(system_cmd, "%s %s", trick_print_cmd, ps_file_name);
+        snprintf(system_cmd, sizeof(system_cmd), "%s %s", trick_print_cmd, ps_file_name);
     }
 
     std::cout << "Printing with command: " << system_cmd << std::endl;

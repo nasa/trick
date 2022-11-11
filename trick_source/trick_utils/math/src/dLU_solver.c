@@ -40,7 +40,7 @@ int dLU_solver(double **A,      /* In: The input matrix [A] */
     if (mode == 0 || mode == 1) {
 
         if (-TINY < A[0][0] && A[0][0] < TINY) {
-            sprintf(buf, "ERROR: Diagonal Element A[0][0] = %.17g " "is too small...\nEXITING...\n", A[0][0]);
+            snprintf(buf, sizeof(buf), "ERROR: Diagonal Element A[0][0] = %.17g " "is too small...\nEXITING...\n", A[0][0]);
             return (TM_DIAG_SMALL);
         }
         L[0][0] = sqrt(A[0][0]);
@@ -49,7 +49,7 @@ int dLU_solver(double **A,      /* In: The input matrix [A] */
 
         for (j = 1; j < n; j++) {
             if (-TINY < A[j][j] && A[j][j] < TINY) {
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                         "ERROR: Diagonal Element " "A[%d][%d] = %.17g is too small...\n" "EXITING...\n", j, j, A[j][j]);
                 return (TM_DIAG_SMALL);
             }
