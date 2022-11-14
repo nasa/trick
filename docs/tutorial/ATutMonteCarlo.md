@@ -416,7 +416,7 @@ trick.stop(15)
 ```
 
 ### Simulation Definition
-The last the we need to do is modify our simulation definition file and add the two new Trick jobs. As you can see, we have added a new library dependency, a new ## inclusion, and two new constructor jobs.
+The last thing that we need to do is modify our simulation definition file and add the two new Trick jobs. As you can see, we have added a new library dependency, a new ## inclusion, and two new constructor jobs.
 ```C++
 /*
 PURPOSE: Monte tutorial simulation definition.
