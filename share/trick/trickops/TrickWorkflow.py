@@ -398,6 +398,9 @@ class TrickWorkflow(WorkflowCommon):
           # Add the CPU format string (won't fail if there is no CPU placeholder)
           self.config[s]['binary'] = self.config[s]['binary'].format(cpu=self.trick_host_cpu)
 
+          # Add the full path to the build command
+          self.config[s]['build_command'] = os.path.join(self.trick_dir, "bin", self.config[s]['build_command'])
+
           # Create internal object to be populated with runs, valgrind runs, etc
           thisSim = TrickWorkflow.Sim(name=s, sim_dir=self.config[s]['path'],
             description=self.config[s]['description'], labels=self.config[s]['labels'],
@@ -820,6 +823,7 @@ class TrickWorkflow(WorkflowCommon):
             FileSizeJob()
                 Instance of FileSizeJob() job for compiling this sim
             """
+
             if not self.build_job:
                 name = 'Build ' + self.sim_dir
                 self.build_job = FileSizeJob(name=name,

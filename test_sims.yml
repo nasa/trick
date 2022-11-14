@@ -21,8 +21,8 @@ SIM_measurement_units:
   path: test/SIM_measurement_units
 SIM_parse_s_define:
   path: test/SIM_parse_s_define
-SIM_target_specific_variables:
-  path: test/SIM_target_specific_variables
+# SIM_target_specific_variables:                            <-- This sim has to sit out on Mac until we fix the sprintf issue
+#   path: test/SIM_target_specific_variables
 SIM_test_abstract:
   path: test/SIM_test_abstract
 SIM_test_inherit:
@@ -149,13 +149,13 @@ SIM_ball_L3:
   runs:
     RUN_test/unit_test.py:
       returns: 0
-SIM_amoeba:
-  path: trick_sims/Cannon/SIM_amoeba
-  build_command: "trick-CP -t"
-  binary: "T_main_{cpu}_test.exe"
-  runs:
-    RUN_test/unit_test.py:
-      returns: 0
+# SIM_amoeba:
+#   path: trick_sims/Cannon/SIM_amoeba
+#   build_command: "trick-CP -t"
+#   binary: "T_main_{cpu}_test.exe"
+#   runs:
+#     RUN_test/unit_test.py:
+#       returns: 0
 SIM_cannon_aero:
   path: trick_sims/Cannon/SIM_cannon_aero
   build_command: "trick-CP -t"
@@ -208,6 +208,9 @@ SIM_sun:
 
 
 # Special cases
+
+# setup.py dumps a checkpoint
+# unit_test.py loads that checkpoint and verifies the data
 SIM_stls: 
   path: test/SIM_stls
   build_command: "trick-CP -t"
