@@ -77,10 +77,12 @@ SIM_rti:
     labels:
       - unit_test
 SIM_segments:
+    binary: 'T_main_*.exe'
     path: test/SIM_segments
     runs:
         RUN_test/input.py:
 SIM_stls:
+    binary: 'T_main_{cpu}.exe'
     path: test/SIM_stls
     labels:
       - unit_test
