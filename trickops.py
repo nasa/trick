@@ -2,8 +2,10 @@ import sys
 import os
 
 sys.path.append(sys.argv[1] + "/share/trick/trickops")
-# print (sys.path)
+
 from TrickWorkflow import *
+from WorkflowCommon import Job
+
 class SimTestWorkflow(TrickWorkflow):
     def __init__( self, quiet, trick_top_level ):
         # Create the trick_test directory if it doesn't already exist
@@ -12,7 +14,8 @@ class SimTestWorkflow(TrickWorkflow):
 
         # Base Class initialize, this creates internal management structures
         TrickWorkflow.__init__(self, project_top_level=(trick_top_level), log_dir=(trick_top_level +'/trickops_logs/'),
-            trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=3, quiet=True)
+            trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=3, quiet=quiet)
+
     def run( self ):
 
       build_jobs      = self.get_jobs(kind='build')
@@ -32,7 +35,18 @@ class SimTestWorkflow(TrickWorkflow):
 
       self.report()           # Print Verbose report
       self.status_summary()   # Print a Succinct summary
+
+      # Dump failing logs
+      jobs = build_jobs + run_jobs
+      for job in jobs:
+        if job.get_status() == Job.Status.FAILED:
+          print("Failing job: ", job.name)
+          print ("*"*120)
+          print(open(job.log_file, "r").read())
+          print ("*"*120, "\n")
+
       return (builds_status or runs_status or first_phase_run_status or self.config_errors or comparison_result or analysis_status)
 
 if __name__ == "__main__":
-    sys.exit(SimTestWorkflow(quiet=True, trick_top_level=sys.argv[1]).run())
+    should_be_quiet = os.getenv('CI') is not None
+    sys.exit(SimTestWorkflow(quiet=should_be_quiet, trick_top_level=sys.argv[1]).run())
