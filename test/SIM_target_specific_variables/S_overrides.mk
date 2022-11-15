@@ -7,7 +7,7 @@ TRICK_CXXFLAGS += -I$(MODELS) -Wcomment
 # We can't yet make warnings to be errors on MacOS, because
 # MACOS deprecates and warns about sprintf. But SWIG
 # still generates code containing sprintf..
-ifneq (($(TRICK_HOST_TYPE), Darwin)
+ifneq ($(TRICK_HOST_TYPE), Darwin)
 TRICK_CXXFLAGS += -Werror
 endif
 
