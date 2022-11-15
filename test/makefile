@@ -25,6 +25,7 @@ SIMS_TO_COMPILE_ONLY = \
 SIMS_TO_COMPILE_AND_RUN = \
 	SIM_demo_sdefine \
 	SIM_events \
+	SIM_exec_set_time_tic_value \
 	SIM_python_namespace \
 	SIM_rti \
 	SIM_stls \
