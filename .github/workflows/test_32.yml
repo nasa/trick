@@ -12,7 +12,7 @@ on:
 
 jobs:
   trick_32bit:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container: docker://centos:7
     steps:
     - name: Checkout repository
