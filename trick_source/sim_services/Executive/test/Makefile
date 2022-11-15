@@ -7,11 +7,14 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Makefile.common
 
+COVERAGE_FLAGS += -fprofile-arcs -ftest-coverage -O0
+
 # Flags passed to the preprocessor.
 TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
 
 TRICK_LIBS = -L ${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick 
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
+TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -27,8 +30,26 @@ all : $(TESTS)
 test: $(TESTS)
 	./Executive_test --gtest_output=xml:${TRICK_HOME}/trick_test/Executive.xml
 
+code-coverage: test
+	# Give rid of any old code-coverage HTML we may have.
+	rm -rf lcov_html
+	# Gather coverage information about the src code.
+	lcov --capture \
+	--directory ../object_${TRICK_HOST_CPU} \
+	--base-directory ../ \
+	--output-file src_coverage.info
+	# Filter out information about directories that we don't care about.
+	lcov --remove src_coverage.info '/Applications/*' '/usr/include/*' \
+	--output-file MemoryManager_code_coverage.info
+	# Generate HTML
+	genhtml MemoryManager_code_coverage.info \
+	--output-directory lcov_html
+	# Clean up
+	# rm *.info
+
 clean :
-	rm -f $(TESTS) *.o
+	rm -f $(TESTS) *.o *.gcda *.gcno *.info
+	rm -rf lcov_html
 
 Executive_test.o : Executive_test.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<

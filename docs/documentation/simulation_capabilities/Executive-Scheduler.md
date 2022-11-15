@@ -205,10 +205,26 @@ If there is a job tag specified for one of more jobs in the S_define file, you c
 
 ```
 # Python code
-trick.exec_set_sim_object_onoff(char * job_name , int on) ;
+trick.exec_set_sim_object_onoff(char * sim_object_name , int on) ;
 ```
 
-The exec_set_sim_object_onoff routine allows users to turn individual whole sim_objects on and off.
+The exec_set_sim_object_onoff routine allows users to turn individual whole sim_objects on and off. If individiual jobs were disabled before the sim object is disabled, they will retain their disabled status when the sim object is turned back on.
+
+```
+# Python code
+trick.exec_get_sim_object_onoff(char * sim_object_name) ;
+```
+
+The exec_get_sim_object_onoff routine allows users to determine if the sim_object is currently on or off.
+
+
+```
+# Python code
+trick.exec_set_sim_object_jobs_onoff(char * sim_object_name , int on) ;
+```
+ 
+The exec_set_sim_object_jobs_onoff allows users to turn all of the jobs in a sim_object on or off, but does not change the overall sim object's disabled status.
+
 
 #### Job Cycle Time
 
