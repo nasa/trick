@@ -121,13 +121,13 @@ SIM_threads:
   runs:
     RUN_test/unit_test.py:
       returns: 0
-# SIM_trickified:                               <-- TODO: This one doesn't like TrickOps, sit out for now.
-#   path: test/SIM_trickified
-#   build_command: "trick-CP -t"
-#   binary: "T_main_{cpu}_test.exe"
-#   runs:
-#     RUN_test/unit_test.py:
-#       returns: 0
+SIM_trickified:
+  path: test/SIM_trickified
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
 SIM_ball_L1:
   path: trick_sims/Ball/SIM_ball_L1
   build_command: "trick-CP -t"
