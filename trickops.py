@@ -13,8 +13,9 @@ class SimTestWorkflow(TrickWorkflow):
           os.makedirs(trick_top_level + "/trick_test")
 
         # Base Class initialize, this creates internal management structures
+        num_cpus = os.cpu_count() if os.cpu_count() is not None else 8
         TrickWorkflow.__init__(self, project_top_level=(trick_top_level), log_dir=(trick_top_level +'/trickops_logs/'),
-            trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=3, quiet=quiet)
+            trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=num_cpus, quiet=quiet)
 
     def run( self ):
 
@@ -27,11 +28,11 @@ class SimTestWorkflow(TrickWorkflow):
       first_phase_job = self.get_sim('SIM_stls').get_run(input='RUN_test/setup.py').get_run_job()
       run_jobs.remove(first_phase_job)
 
-      builds_status = self.execute_jobs(build_jobs, max_concurrent=8, header='Executing all sim builds.')
-      first_phase_run_status = self.execute_jobs([first_phase_job], max_concurrent=8, header="Executing required first phase runs.")
-      runs_status   = self.execute_jobs(run_jobs,   max_concurrent=8, header='Executing all sim runs.')
+      builds_status = self.execute_jobs(build_jobs, max_concurrent=self.cpus, header='Executing all sim builds.')
+      first_phase_run_status = self.execute_jobs([first_phase_job], max_concurrent=self.cpus, header="Executing required first phase runs.")
+      runs_status   = self.execute_jobs(run_jobs,   max_concurrent=self.cpus, header='Executing all sim runs.')
       comparison_result = self.compare()
-      analysis_status = self.execute_jobs(analysis_jobs, max_concurrent=8, header='Executing all analysis.')
+      analysis_status = self.execute_jobs(analysis_jobs, max_concurrent=self.cpus, header='Executing all analysis.')
 
       self.report()           # Print Verbose report
       self.status_summary()   # Print a Succinct summary
