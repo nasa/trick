@@ -301,7 +301,7 @@ $(DPX_UNIT_TEST_DIR):
 
 
 sim_test:
-	python3 trickops.py ${TRICK_HOME}
+	@ $(MAKE) -f test_overrides.mk sim_test
 
 pytest:
 	make -C share/trick/pymods/trick
