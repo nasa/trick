@@ -301,7 +301,7 @@ TableViewNode::TableViewNode( Widget Toplevel, DPC_table* Table, int Xpos, int Y
         } else {
             // Parse succeeded.
             char temp_s[32];
-            sprintf(temp_s,"%%+%ds",width);
+            snprintf(temp_s, sizeof(temp_s), "%%+%ds",width);
             column_heading_format[colix] = strdup(temp_s);
             column_data_format[colix] = strdup(user_format);
             column_width[colix] = width;

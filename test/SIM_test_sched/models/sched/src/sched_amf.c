@@ -21,13 +21,13 @@ int sched_amf(
 
    if ( S->amf == 2 ) {
       /* Things are in order */
-      sprintf(test, "Test %d", i);
+      snprintf(test, sizeof(test), "Test %d", i);
       add_test_result("sched_amf: Things are in order", test, "");
       i++;
       S->amf = 1 ;
    } else {
       /* Things are out of order */
-      sprintf(test, "Test %d", i);
+      snprintf(test, sizeof(test), "Test %d", i);
       add_test_result("sched_amf: Things are NOT in order", test, ". ");
       i++;
       S->amf = 3 ;

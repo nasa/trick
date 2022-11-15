@@ -14,9 +14,9 @@ swig_double::swig_double() {
 
 char * swig_double::__str__() {
     if ( ! units.empty() && units.compare("1") ) {
-        sprintf(str_output , "%g %s", value , units.c_str()) ;
+        snprintf(str_output , sizeof(str_output), "%g %s", value , units.c_str()) ;
     } else {
-        sprintf(str_output , "%g", value ) ;
+        snprintf(str_output , sizeof(str_output), "%g", value ) ;
     }
     return(str_output) ;
 }

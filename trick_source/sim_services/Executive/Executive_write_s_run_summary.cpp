@@ -31,7 +31,7 @@ int Trick::Executive::write_s_run_summary(FILE *fp) {
 
         /* Get full path to S_run_summary */
         output_dir = command_line_args_get_output_dir() ;
-        sprintf(buf, "%s/S_run_summary", output_dir.c_str());
+        snprintf(buf, sizeof(buf), "%s/S_run_summary", output_dir.c_str());
 
         /* Open the S_run_summary file.  If it fails, it's not a fatal error, return 0. */
         if ((fp = fopen(buf, "w")) == NULL) {

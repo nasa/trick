@@ -449,28 +449,28 @@ int Trick::DataRecordGroup::checkpoint() {
 void Trick::DataRecordGroup::clear_checkpoint_vars() {
     
     if ( variable_names ) {
-        for(int jj = 0; jj < num_variable_names; jj++) {
+        for(unsigned int jj = 0; jj < num_variable_names; jj++) {
             TMM_delete_var_a(variable_names[jj]);
         }
         TMM_delete_var_a(variable_names) ;
     }
 
     if ( variable_alias ) {
-        for(int jj = 0; jj < num_variable_names; jj++) {
+        for(unsigned int jj = 0; jj < num_variable_names; jj++) {
             TMM_delete_var_a(variable_alias[jj]);
         }
         TMM_delete_var_a(variable_alias) ;
     }
 
     if ( change_variable_names ) {
-        for(int jj = 0; jj < num_change_variable_names; jj++) {
+        for(unsigned int jj = 0; jj < num_change_variable_names; jj++) {
             TMM_delete_var_a(change_variable_names[jj]);
         }
         TMM_delete_var_a(change_variable_names) ;
     }
 
     if ( change_variable_alias ) {
-        for(int jj = 0; jj < num_change_variable_names; jj++) {
+        for(unsigned int jj = 0; jj < num_change_variable_names; jj++) {
             TMM_delete_var_a(change_variable_alias[jj]);
         }
         TMM_delete_var_a(change_variable_alias) ;

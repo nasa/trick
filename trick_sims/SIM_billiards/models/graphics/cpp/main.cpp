@@ -535,8 +535,9 @@ T getVar(Socket& socket, std::string varName) {
 
 // Wrapper for sprintf use case bc im tired of dealing with std::string vs char* stuff
 std::string format(const std::string& formatString, int num) {
-    char *buf = (char *)malloc(formatString.size() + 10);
-    sprintf(buf, formatString.c_str(), num);
+    size_t buf_len = formatString.size() + 10;
+    char *buf = (char *)malloc(buf_len);
+    snprintf(buf, buf_len, formatString.c_str(), num);
     
     return std::string(buf);
 }
@@ -697,7 +698,7 @@ int main(int argc, char *argv[])
     std::string templateString = "dyn.table.applyCueForce(%.3f, %.3f) \n";
 
     char buf[128];
-    sprintf(buf, templateString.c_str(), mouseX, mouseY);
+    snprintf(buf, sizeof(buf), templateString.c_str(), mouseX, mouseY);
     cueRequest += std::string(buf);
     socket << cueRequest;
     return false;
@@ -804,7 +805,7 @@ int main(int argc, char *argv[])
   char * templateString = "trick.var_add(\"dyn.table.balls[%d][0].pos._x\")\ntrick.var_add(\"dyn.table.balls[%d][0].pos._y\")\ntrick.var_add(\"dyn.table.balls[%d][0].inPlay\")\n";
   for (int i = 0; i < numBalls; i++) {
     char buf[128];
-    sprintf(buf, templateString, i, i, i);
+    snprintf(buf, sizeof(buf), templateString, i, i, i);
     positionRequest += std::string(buf);
   }
   socket << positionRequest;

@@ -456,7 +456,7 @@ namespace Trick {
             /**
              @brief Called by write_data to write given variables to socket in var_ascii format.
             */
-            int write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
+            int write_ascii_data(char * dest_buf, size_t dest_buf_size, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
 
             /**
              @brief Construct a variable reference from the string in_name and handle error checking
