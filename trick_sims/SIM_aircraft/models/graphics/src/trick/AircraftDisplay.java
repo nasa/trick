@@ -219,18 +219,15 @@ class SkyView extends JPanel {
             g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,40);
             g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
             g2d.drawString ( "-------Controls disabled-------", (width - 240),80);
-
+            g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),100);
+            g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),120);
         } else {
             g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,100);
-        g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),80);
-        g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
-        g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),40);
+            g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),80);
+            g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
+            g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),40);
         }
       
-       /*  g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,100);
-        g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),80);
-        g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
-        g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),40);*/
     }
 
     @Override
@@ -246,7 +243,7 @@ class ControlPanel extends JPanel implements ActionListener {
     private SpeedCtrlPanel speedCtrlPanel;
     private HeadingCtrlPanel headingCtrlPanel;
     private AutoPilotCtrlPanel autoPilotCtrlPanel;   
-    private JPanel zoomCtrlPanel;
+  
 
 
     public ControlPanel(SkyView skyView){
@@ -316,7 +313,6 @@ class ControlPanel extends JPanel implements ActionListener {
 class SpeedCtrlPanel extends JPanel implements ChangeListener {
     private SkyView skyView;
     private JSlider speedSlider;
-    private int d_speed;
    
     public SpeedCtrlPanel(SkyView view){
         skyView = view;
@@ -324,9 +320,6 @@ class SpeedCtrlPanel extends JPanel implements ChangeListener {
         setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
 
         speedSlider = new JSlider(JSlider.HORIZONTAL, 0, 250, 0);
-        //d_speed =  (int) skyView.getDesiredSpeed();
-        //System.out.println("D speed: " + d_speed); 
-        //speedSlider.setValue(d_speed);
         speedSlider.setMajorTickSpacing(50);
         speedSlider.setPaintTrack(true);
         speedSlider.setPaintLabels(true);
@@ -380,7 +373,6 @@ class AutoPilotCtrlPanel extends JPanel implements ItemListener {
         skyView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-       //autoPilot = skyView.getAutoPilot();
         autoPilotButton = new JToggleButton("Autopilot OFF", false);
         skyView.setAutoPilot(false);
         autoPilotButton.addItemListener(this);
@@ -418,7 +410,6 @@ public class AircraftDisplay extends JFrame {
         panelGroup1.add(skyView);
         
         controlPanel = new ControlPanel(skyView);
-       // speedCtrlPanel = new SpeedCtrlPanel(skyView);
 
         panelGroup0 = new JPanel();
         panelGroup0.setLayout(new BoxLayout(panelGroup0, BoxLayout.Y_AXIS));
@@ -516,21 +507,16 @@ public class AircraftDisplay extends JFrame {
                 velNorth = Double.parseDouble( field[3] );
                 velWest = Double.parseDouble( field[4] );
                 desired_speed = Double.parseDouble( field[5]);
-               // desired_heading = Double.parseDouble(field[6]);
+                desired_heading = Double.parseDouble(field[6]);
 
                 // Set the Aircraft position
                 skyview.setAircraftPos(posNorth, posWest);
                 skyview.setAircraftVel(velNorth, velWest);
 
-                //skyview.setDesiredSpeed(desired_speed);
-                //skyview.setInputDesiredHeading(desired_heading);
-
-
                 desired_speed = skyview.getDesiredSpeed();
                 sd.out.writeBytes(String.format("dyn.aircraft.desired_speed = %.2f ;\n", desired_speed));
 
                 desired_heading = skyview.getDesiredHeading();
-                //System.out.println("Heading: " + desired_heading);
                 sd.out.writeBytes(String.format("dyn.aircraft.desired_heading= %.2f ;\n", desired_heading));
 
                 autopilot = skyview.getAutoPilot();
