@@ -52,8 +52,6 @@ export TRICK_SYSTEM_CFLAGS="-fprofile-arcs -ftest-coverage -O0"
 export TRICK_SYSTEM_CXXFLAGS="-fprofile-arcs -ftest-coverage -O0"
 ```
 
-I don't think all of these are actually necessary, but I haven't rooted out which ones are. Some version of CXXFLAGS and LDFLAGS is probably the minimum.
-
 After Trick has been rebuild with the instrumentation, run:
 ```
 make code-coverage
