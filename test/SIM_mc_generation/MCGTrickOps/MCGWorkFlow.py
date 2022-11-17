@@ -9,7 +9,7 @@ class ExampleWorkflow(TrickWorkflow):
         # Base Class initialize, this creates internal management structures
         TrickWorkflow.__init__(self, project_top_level=trick_top_level,
           log_dir=os.path.join(trick_top_level,'test/SIM_mc_generation/MCGTrickOps'),
-          trick_dir=trick_top_level, config_file="test/SIM_mc_generation/MCGenerationTest.yml",
+          trick_dir=trick_top_level, config_file="test/SIM_mc_generation/MCGTrickOps/MCGenerationTest.yml",
           cpus=3, quiet=quiet)
     def run( self):
       build_jobs      = self.get_jobs(kind='build')
