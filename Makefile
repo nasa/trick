@@ -301,8 +301,7 @@ $(DPX_UNIT_TEST_DIR):
 
 
 sim_test:
-	@ $(MAKE) -C test
-	@ $(MAKE) -C trick_sims test
+	@ $(MAKE) -f test_overrides.mk sim_test
 
 pytest:
 	make -C share/trick/pymods/trick

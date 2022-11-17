@@ -3,9 +3,7 @@ export TRICK_HOST_CPU := $(shell $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 
-NESTED_SIM_DIRECTORIES = $(wildcard */SIM_*)
-SIM_DIRECTORIES = $(wildcard SIM_*) $(NESTED_SIM_DIRECTORIES)
-
+SIM_DIRECTORIES = $(wildcard SIM_*)
 UNIT_TEST_RESULTS = $(addprefix $(TRICK_HOME)/trick_test/, $(addsuffix .xml, $(SIM_DIRECTORIES)))
 
 
