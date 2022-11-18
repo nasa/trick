@@ -48,7 +48,7 @@ class SimTestWorkflow(TrickWorkflow):
       self.status_summary()   # Print a Succinct summary
 
       # Dump failing logs
-      jobs = build_jobs + run_jobs
+      jobs = build_jobs + first_phase_jobs + run_jobs
       for job in jobs:
         if job.get_status() == Job.Status.FAILED:
           print("Failing job: ", job.name)
