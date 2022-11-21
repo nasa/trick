@@ -114,20 +114,6 @@ jobs:
             install_gtest: |
               dnf config-manager --enable powertools
               dnf install -y gtest-devel
-#-------- Debian 10-based Only Dependencies ----------------
-          - cfg: { arch: debian, arch_ver: 10 }
-            install_gtest: |
-              apt-get install -y libgtest-dev
-              cd /usr/src/gtest
-              cmake .
-              make
-              cp libgtest* /usr/lib/
-#-------- Debian 11-based Only Dependencies ----------------              
-          - cfg: { arch: debian, arch_ver: 11 }
-            conf_pkg: |
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update
-              apt-get install -y tzdata
 #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux }
             install_gtest: |
