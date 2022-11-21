@@ -11,7 +11,7 @@ print('  Registration failed, exiting without action.')
 print('*********************************************************************')
 
 
-mc_var = trick.MonteCarloVariableFile( "monte_carlo.x_file_lookup[0]",
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[0]",
                                        "Modified_data/datafile.txt",
                                        3)
 # the next command is the source of the error!

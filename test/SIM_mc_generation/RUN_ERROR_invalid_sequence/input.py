@@ -19,7 +19,7 @@ print('  Ignoring the later instruction.')
 print('*****************************************************************************************************************************')
 
 
-mc_var = trick.MonteCarloVariableRandomUniform( "monte_carlo.x_uniform", 0, 10, 20)
+mc_var = trick.MonteCarloVariableRandomUniform( "test.x_uniform", 0, 10, 20)
 mc_var.thisown = False
 monte_carlo.mc_master.add_variable(mc_var)
 
@@ -30,7 +30,7 @@ monte_carlo.mc_master.prepare_input_files()
 monte_carlo.mc_master.set_num_runs(10)
 
 # Add a new variable after prepping inputs
-mc_var = trick.MonteCarloVariableRandomNormal( "monte_carlo.x_normal", 2, 10, 2)
+mc_var = trick.MonteCarloVariableRandomNormal( "test.x_normal", 2, 10, 2)
 mc_var.thisown = False
 monte_carlo.mc_master.add_variable(mc_var)
 
