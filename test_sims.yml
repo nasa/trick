@@ -21,8 +21,8 @@ SIM_measurement_units:
   path: test/SIM_measurement_units
 SIM_parse_s_define:
   path: test/SIM_parse_s_define
-# SIM_target_specific_variables:                            <-- This sim has to sit out on Mac until we fix the sprintf issue
-#   path: test/SIM_target_specific_variables
+SIM_target_specific_variables:                          
+  path: test/SIM_target_specific_variables
 SIM_test_abstract:
   path: test/SIM_test_abstract
 SIM_test_inherit:
@@ -233,3 +233,46 @@ SIM_test_dr:
       - test/SIM_test_dr/RUN_test/log_DR_typesASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_typesASCII_Master.csv
       - test/SIM_test_dr/RUN_test/log_DR_bitfieldsBINARY.trk vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsBINARY.trk
 
+# All the dump.py runs dump a checkpoint
+# All the unit_test.py runs load that checkpoint and then compare against expected logs
+SIM_checkpoint_data_recording: 
+  path: test/SIM_checkpoint_data_recording
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test1/dump.py:
+      returns: 0
+    RUN_test2/dump.py:
+      returns: 0
+    RUN_test3/dump.py:
+      returns: 0
+    RUN_test4/dump.py:
+      returns: 0
+    RUN_test5/dump.py:
+      returns: 0
+    # RUN_test6/dump.py:
+    #   returns: 0
+
+    RUN_test1/unit_test.py:
+      returns: 0
+      compare: 
+        - test/SIM_checkpoint_data_recording/RUN_test1/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test1/log_foo.csv
+    RUN_test2/unit_test.py:
+      returns: 0
+      analyze: './test/SIM_checkpoint_data_recording/RUN_test2/check_log.sh'
+    RUN_test3/unit_test.py:
+      returns: 0
+      compare: 
+        - test/SIM_checkpoint_data_recording/RUN_test3/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test3/log_foo.csv
+    RUN_test4/unit_test.py:
+      returns: 0
+      compare: 
+        - test/SIM_checkpoint_data_recording/RUN_test4/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test4/log_foo.csv
+    RUN_test5/unit_test.py:
+      returns: 0
+      compare: 
+        - test/SIM_checkpoint_data_recording/RUN_test5/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test5/log_foo.csv
+    # RUN_test6/unit_test.py:
+    #   returns: 0
+    #   compare: 
+    #     - test/SIM_checkpoint_data_recording/RUN_test6/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test6/log_foo2.csv

@@ -417,4 +417,16 @@ GROUP "/" {
 }
 ```
 
+
+### Interaction with Checkpoints
+
+Data recording groups are able to be checkpointed, reloaded, and restarted without any interaction by the user. When a checkpoint is loaded that includes data recording,
+the data recording groups will be initiated and begin recording at the time in the checkpoint. For example, if a checkpoint was dumped when t=5, when the checkpoint is 
+loaded into another run, it will data record starting at t=5, no matter what time in the run it was loaded or whether the run was already data recording. Loading a checkpoint
+will overwrite any data recording files that were being recorded before the load. 
+
+Loading a checkpoint with different data recording groups than the current run will overwrite the current data recording groups.
+
+Refer to test/SIM_checkpoint_data_recording to see expected behavior in action. Overall, the loading a checkpoint should completely overwrite any other data recording the sim is currently doing, and the new recording will start at the time in the checkpoint. If you come across different behavior, please open an issue.
+
 [Continue to Checkpointing](Checkpoints)
