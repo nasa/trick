@@ -1,14 +1,9 @@
 name: 32-bit
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-    - 'docs/**'
-    - '.github/workflows/**'
-    - '!.github/workflows/test_32.yml'
-  pull_request:
+  schedule:
+  - cron:  '0 0 * * 0'
+  workflow_dispatch:
 
 jobs:
   trick_32bit:
