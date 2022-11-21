@@ -7,6 +7,7 @@ LIBRARY DEPENDENCIES:
 *************************************************************/
 #include "sim_objects/default_trick_sys.sm"
 ##include "balloon/include/Balloon.hh"
+#include "sim_objects/CivetServer.sm"
 
 class BalloonSimObject : public Trick::SimObject {
     public:

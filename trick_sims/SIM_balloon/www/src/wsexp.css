@@ -1,0 +1,204 @@
+html {
+    /*font-family: Arial; */
+    overflow-x: hidden !important;
+    font-size: medium;
+    }
+
+.dropdown{
+    overflow: hidden;
+}
+.dropdown .dropbtn {
+    background-color: default;
+    width: 100px;
+}
+.show{
+    display: block;
+}
+.dropdown-content{
+    display: none;
+    position: absolute;
+    overflow: auto;
+    z-index: 1;
+    min-width: 160px;
+}
+.dropdown-content button {
+    width: 100%;
+    text-decoration: none;
+    display: block;
+    border-bottom: 1px solid black;
+}
+.dropdown-content button:hover{
+    background-color: hotpink;
+   
+    
+}
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+body {
+    margin: auto;
+    width: 100vw;
+    height: 100vh;
+}
+h1{
+    margin: 0;
+}
+h1,h2 {
+    text-align: center;
+    width: 100%;
+}
+/* -------------------GRID CONTAINERS----------------- */
+#parent {
+    display: grid;
+ /*  grid-template-columns: 1fr 1fr 1fr .5fr;
+    grid-template-rows: .15fr .5fr 1fr 1fr; */
+    grid-template-columns: 1fr 1fr;
+    column-gap: 30px;
+    width: 100vw;
+    height: 100vh;
+    /*background-color: grey; */
+}
+#headerchild {
+    grid-row: 1;
+    grid-column: 1/span 4;
+   /* background-color: yellowgreen; */
+}
+#connectionchild {
+    grid-row:  4;
+    grid-column:3/span all;
+   /*  background-color: goldenrod; */
+}
+#fontchild {
+    grid-row: 1;
+    grid-column: 4/span all;
+    display: flex;
+    flex-direction: column-reverse;
+}
+#tablechild {
+    grid-row: 3;
+    grid-column: 3/span all;
+}
+#modechild {
+    grid-row: 2;
+    grid-column: 1;
+    /*grid-row: 3;
+    grid-row: 2;
+    grid-column: 1; */
+   /*  background-color: indigo; */
+}
+#buttonchild {
+    grid-row: 3;
+    grid-column: 1;
+ /*    background-color: turquoise; */
+}
+#bottomchild {
+    grid-row: 4;
+    grid-column: 1;
+  /*   background-color: hotpink; */
+}
+#timechild {
+    grid-row: 3;
+    grid-column: 2;
+  /*   background-color: chartreuse; */
+}
+/* END OF GRID CONTAINERS */
+
+/* --------------START OF GRID CONTAINER CHILDREN----------------*/
+#trickpic {
+    float: left;
+    width: 25%;
+    height: 50%;
+}
+#line {
+    border: 2px solid orangered;
+}
+
+.navbutton {
+    float: left;
+    border: 1px solid red
+}
+.variables {
+    width: 100%;
+    border: 2px solid hotpink;
+}
+.table {
+    border: 2px solid darkblue;
+    background-color: rgb(57, 139, 253);
+    text-align: center;
+    font-size:small;
+}
+.modebar {
+    width: 100%;
+    text-align: center;
+    border: 1px solid black;
+}
+#modeheader {
+    background-color: rgb(57, 139, 253);
+    border: 1px solid black;
+}
+.buttontable {
+    width: 100%;
+    height: 100%;
+}
+#buttonheader {
+    background-color: rgb(57, 139, 253);
+    border: 1px solid black; 
+    text-align: left;
+}
+.cmdbtn {
+    background-color: rgb(218, 216, 216);
+    text-align: center;
+    border: none;
+    cursor: pointer;
+}
+#bartable {
+    width: 100%;
+}
+.bottomheader {
+    background-color: rgb(57, 139, 253);
+}
+.bottomtable {
+    width: 100%;
+}
+.output {
+    text-align: center;
+    border: 1px solid black;
+   
+}
+#timetable{
+  /*  width: 100%; */
+  height: 100%;
+    
+}
+
+#timeheader { 
+    background-color: rgb(57, 139, 253);
+    border: 1px solid black;
+    height: 18%;
+}
+.barbtn {
+    border: none;
+}
+#isconnected {
+    text-align: center;
+    align-items: center;
+}
+td {
+    border:1px solid pink; 
+}
+#headerdiv {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: flex-end;
+    gap: 5px;
+}
+option {
+    text-decoration: none;
+    border-bottom: 1px solid black;
+    background-color: blueviolet;
+}
+.font option{
+    background-color: red;
+}

@@ -1,4 +1,10 @@
 exec(open("./Modified_data/realtime.py").read())
+web.server.enable = True
+web.server.port = 8888
+web.server.document_root = "www"
+web.server.debug = True
+web.server.ssl_enable = False
+web.server.error_log_file = "civet_server_error.log"
 
 dyn.balloon.pos[0] = 0
 #dyn.balloon.pos[1] = 136.89
@@ -23,3 +29,21 @@ else :
     print('==================================================================================')
     print('BalloonDisplay needs to be built. Please \"cd\" into ../models/graphics and type \"mvn package\".')
     print('==================================================================================')
+
+# ==========================================
+# Start the Browser Client
+# ==========================================
+
+
+BrowserClient_path = "www/src/wsexp.html"
+
+if (os.path.isfile(BrowserClient_path)) :
+    BrowserClient_cmd = "firefox " \
+                 + BrowserClient_path \
+                + " "   + "&";
+    print(BrowserClient_cmd)
+    os.system(BrowserClient_cmd);
+else :
+   print('==================================================================================')
+   print('Unable to open web panel. Please update the browser client path in input file')
+   print('==================================================================================')
