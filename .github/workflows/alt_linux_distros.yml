@@ -1,14 +1,8 @@
-name: Linux
+name: More Linux
 
 on:
-  push:
-    branches:
-        - master
-    paths-ignore:
-    - 'docs/**'
-    - '.github/workflows/**'
-    - '!.github/workflows/test_linux.yml'
-  pull_request:
+  schedule:
+  - cron:  '0 0 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -18,11 +12,13 @@ jobs:
       matrix:
         cfg:
 #-------- Operating Systems ----------------
-          - { os: ubuntu,      tag: 22.04,    arch: debian, arch_ver: 12 }
-          - { os: centos,      tag: 7,        arch: rhel,   arch_ver: 7  }
-          - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
-          - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
-        python: [3]
+          - { os: ubuntu,      tag: 18.04,    arch: debian, arch_ver: 10 }
+          - { os: ubuntu,      tag: 20.04,    arch: debian, arch_ver: 11 }
+          - { os: debian,      tag: 10,       arch: debian, arch_ver: 10 }
+          - { os: debian,      tag: 11,       arch: debian, arch_ver: 11 }
+          - { os: debian,      tag: bookworm, arch: debian, arch_ver: 12 }
+          - { os: almalinux,   tag: 8,        arch: rhel,   arch_ver: 8  }
+        python: [2, 3]
 
 #-------- Defaults --------------------------
         include:
@@ -90,17 +86,6 @@ jobs:
               zlib-devel
               python2-devel
               python3-devel
-#-------- RHEL 7-based Only Dependencies ----------------
-          - cfg: { arch: rhel, arch_ver: 7 }
-            pkg_mgr: yum
-            conf_pkg: |
-              yum -y install epel-release
-              yum -y update
-            os_deps: >-
-              libX11-devel
-              libXt-devel
-              swig3
-              gtest-devel
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
@@ -114,11 +99,22 @@ jobs:
             install_gtest: |
               dnf config-manager --enable powertools
               dnf install -y gtest-devel
-#-------- OS and Version Specific Dependencies ----------------
-          - cfg: { os: oraclelinux }
+#-------- Debian 10-based Only Dependencies ----------------
+          - cfg: { arch: debian, arch_ver: 10 }
             install_gtest: |
-              dnf config-manager --enable ol8_codeready_builder
-              dnf install -y gtest-devel
+              apt-get install -y libgtest-dev
+              cd /usr/src/gtest
+              cmake .
+              make
+              cp libgtest* /usr/lib/
+#-------- Debian 11-based Only Dependencies ----------------              
+          - cfg: { arch: debian, arch_ver: 11 }
+            conf_pkg: |
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update
+              apt-get install -y tzdata
+#-------- OS and Version Specific Dependencies ----------------
+# None
 #-------- Job definition ----------------
     runs-on: ubuntu-latest
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}

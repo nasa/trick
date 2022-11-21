@@ -1,14 +1,8 @@
-name: Linux
+name: 'Linux Python 2'
 
 on:
-  push:
-    branches:
-        - master
-    paths-ignore:
-    - 'docs/**'
-    - '.github/workflows/**'
-    - '!.github/workflows/test_linux.yml'
-  pull_request:
+  schedule:
+  - cron:  '0 0 * * 0'
   workflow_dispatch:
 
 jobs:
@@ -22,7 +16,7 @@ jobs:
           - { os: centos,      tag: 7,        arch: rhel,   arch_ver: 7  }
           - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
-        python: [3]
+        python: [2]
 
 #-------- Defaults --------------------------
         include:
