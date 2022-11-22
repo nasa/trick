@@ -113,6 +113,9 @@ class TrickWorkflow(WorkflowCommon):
         self.config = self._read_config(self.config_file) # Contains resulting Dict parsed by yaml.load
         self.trick_dir = trick_dir
         self.trick_host_cpu = self.get_trick_host_cpu()
+        # If not found in the config file, these defaults are used
+        self.defaults = {'cpus': 3, 'name': None, 'description': None,
+          'build_command': os.path.join(self.trick_dir,'bin/trick-CP'), 'size': 2200000, 'env': None}
         self._validate_config()
 
     def create_test_suite(self):
@@ -420,11 +423,11 @@ class TrickWorkflow(WorkflowCommon):
                   continue
                 just_RUN = r.split()[0]
                 just_RUN_dir = os.path.dirname(just_RUN)
-                if not os.path.exists(os.path.join(self.project_top_level, c[s]['path'], just_RUN)):
-                  cprint("ERROR: %s's 'run' path %s not found. Continuing but skipping this run "
-                    "from %s." % (s, just_RUN, self.config_file), 'DARK_RED')
-                  self.config[s]['runs'].pop(r)
-                  continue
+#                if not os.path.exists(os.path.join(self.project_top_level, c[s]['path'], just_RUN)):
+#                  cprint("ERROR: %s's 'run' path %s not found. Continuing but skipping this run "
+#                    "from %s." % (s, just_RUN, self.config_file), 'DARK_RED')
+#                  self.config[s]['runs'].pop(r)
+#                  continue
                 if just_RUN_dir in all_run_paths and self.parallel_safety == 'strict':
                   cprint("ERROR: %s's run directory %s is not unique in %s. With global setting "
                          "parallel_safety: strict, you cannot have the same RUN directory listed "

@@ -21,21 +21,21 @@ print('  which has a setting for the maximum number of lines to skip of 3')
 print('*********************************************************************')
 
 
-mc_var = trick.MonteCarloVariableFile( "monte_carlo.x_file_lookup[0]",
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[0]",
                                         "Modified_data/datafile.txt",
                                         3)
 mc_var.thisown = False
 mc_var.max_skip = 3
 monte_carlo.mc_master.add_variable(mc_var)
 
-mc_var = trick.MonteCarloVariableFile( "monte_carlo.x_file_lookup[1]",
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[1]",
                                         "Modified_data/datafile.txt",
                                         2)
 mc_var.thisown = False
 mc_var.max_skip = 2
 monte_carlo.mc_master.add_variable(mc_var)
 
-mc_var = trick.MonteCarloVariableFile( "monte_carlo.x_file_lookup[2]",
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[2]",
                                         "Modified_data/datafile.txt",
                                         1)
 mc_var.thisown = False

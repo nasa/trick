@@ -1,8 +1,8 @@
-test.mc_master.active = True
-test.mc_master.generate_dispersions = False
+monte_carlo.mc_master.active = True
+monte_carlo.mc_master.generate_dispersions = False
 
 exec(open('RUN_random_normal_truncate_rel/input.py').read())
-test.mc_master.monte_run_number = 1
+monte_carlo.mc_master.monte_run_number = 1
 
 test.x_normal_trunc[0] = -3.698480505977541
 test.x_normal_trunc[1] = 73.0766330680415

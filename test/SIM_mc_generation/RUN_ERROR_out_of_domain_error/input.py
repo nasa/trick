@@ -10,7 +10,7 @@ print('  Using absolute value of limit.')
 print('***********************************************************************')
 
 
-mc_var = trick.MonteCarloVariableRandomNormal( "monte_carlo.x_normal" )
+mc_var = trick.MonteCarloVariableRandomNormal( "test.x_normal" )
 # the next command is the source of the error!
 mc_var.truncate(-1.0)
 monte_carlo.mc_master.add_variable(mc_var)

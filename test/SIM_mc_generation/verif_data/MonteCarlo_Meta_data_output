@@ -14,30 +14,30 @@ Sending meta-data to top-level directory.
   -  0 variables of undefined type
 
 ********************* LIST OF VARIABLES, TYPES****************
-test.x_boolean, Random
-test.x_file_lookup[0], Prescribed
-test.x_file_lookup[1], Prescribed
-test.x_file_lookup[2], Prescribed
-test.x_fixed_value_double, Constant
-test.x_fixed_value_int, Constant
-test.x_fixed_value_string, Constant
-test.x_integer, Random
-test.x_line_command, Calculated
-test.x_normal, Random
-test.x_normal_length, Random
-test.x_normal_trunc[0], Random
-test.x_normal_trunc[1], Random
-test.x_normal_trunc[2], Random
-test.x_normal_trunc[3], Random
-test.x_normal_trunc[4], Random
-test.x_semi_fixed_value, Constant
-test.x_string, Random
-test.x_uniform, Random
+monte_carlo.x_boolean, Random
+monte_carlo.x_file_lookup[0], Prescribed
+monte_carlo.x_file_lookup[1], Prescribed
+monte_carlo.x_file_lookup[2], Prescribed
+monte_carlo.x_fixed_value_double, Constant
+monte_carlo.x_fixed_value_int, Constant
+monte_carlo.x_fixed_value_string, Constant
+monte_carlo.x_integer, Random
+monte_carlo.x_line_command, Calculated
+monte_carlo.x_normal, Random
+monte_carlo.x_normal_length, Random
+monte_carlo.x_normal_trunc[0], Random
+monte_carlo.x_normal_trunc[1], Random
+monte_carlo.x_normal_trunc[2], Random
+monte_carlo.x_normal_trunc[3], Random
+monte_carlo.x_normal_trunc[4], Random
+monte_carlo.x_semi_fixed_value, Constant
+monte_carlo.x_string, Random
+monte_carlo.x_uniform, Random
 **************************************************************
 
 
 *********** LIST OF EXECUTABLE FILES AND FUNCTIONS ***********
-test.standalone_function( test.x_normal)
+monte_carlo.standalone_function( test.x_normal)
 ***
 Modified_data/sample.py
 ***
@@ -47,32 +47,32 @@ Modified_data/sample.py
 ***** LIST OF DATA FILES AND THE VARIABLES THEY POPULATE *****
 ******
 Modified_data/datafile.txt
-3  test.x_file_lookup[0]
-2  test.x_file_lookup[1]
-1  test.x_file_lookup[2]
+3  monte_carlo.x_file_lookup[0]
+2  monte_carlo.x_file_lookup[1]
+1  monte_carlo.x_file_lookup[2]
 **************************************************************
 
 
 *****Duplicate seeds; check for intentional correlations*****
-2     test.x_normal
-2     test.x_normal_trunc[0]
-2     test.x_normal_trunc[1]
-2     test.x_normal_trunc[2]
-2     test.x_normal_trunc[3]
-2     test.x_normal_trunc[4]
-2     test.x_normal_length
+2     monte_carlo.x_normal
+2     monte_carlo.x_normal_trunc[0]
+2     monte_carlo.x_normal_trunc[1]
+2     monte_carlo.x_normal_trunc[2]
+2     monte_carlo.x_normal_trunc[3]
+2     monte_carlo.x_normal_trunc[4]
+2     monte_carlo.x_normal_length
 **************************************************************
 
 
 ************************  ALL SEEDS *************************
-0     test.x_uniform
-1     test.x_integer
-2     test.x_normal
-2     test.x_normal_trunc[0]
-2     test.x_normal_trunc[1]
-2     test.x_normal_trunc[2]
-2     test.x_normal_trunc[3]
-2     test.x_normal_trunc[4]
-2     test.x_normal_length
-3     test.x_string
-4     test.x_boolean
+0     monte_carlo.x_uniform
+1     monte_carlo.x_integer
+2     monte_carlo.x_normal
+2     monte_carlo.x_normal_trunc[0]
+2     monte_carlo.x_normal_trunc[1]
+2     monte_carlo.x_normal_trunc[2]
+2     monte_carlo.x_normal_trunc[3]
+2     monte_carlo.x_normal_trunc[4]
+2     monte_carlo.x_normal_length
+3     monte_carlo.x_string
+4     monte_carlo.x_boolean
