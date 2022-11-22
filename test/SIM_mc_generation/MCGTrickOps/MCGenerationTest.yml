@@ -80,8 +80,6 @@ SIM_mc_generation:
     MONTE_RUN_ERROR_invalid_sequence/RUN_0/monte_input.py:
     RUN_ERROR_invalid_sequencing/input.py:
     MONTE_RUN_ERROR_invalid_sequencing/RUN_0/monte_input.py:
-    IO_RUN_ERROR2/input.py:
-    MONTE_IO_RUN_ERROR2/RUN_0/monte_input.py:
     RUN_ERROR_out_of_domain_error/input.py:
     MONTE_RUN_ERROR_out_of_domain_error/RUN_0/monte_input.py:
     RUN_ERROR_random_value_truncation/input.py:
