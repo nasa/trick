@@ -2,7 +2,7 @@ name: 'Report Linux Python 2'
 
 on:
   workflow_run:
-    workflows: ['Linux']                     # runs after CI workflow
+    workflows: ['Linux Python 2']                     # runs after CI workflow
     types:
       - completed
 jobs:
