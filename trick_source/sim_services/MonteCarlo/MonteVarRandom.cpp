@@ -178,14 +178,14 @@ std::string Trick::MonteVarRandom::get_next_value() {
         }
         if (count >= 100) {
             char string[100];
-            sprintf(string, "Trick:MonteVarRandom failed to generate a random value for variable \"%s\"\n", name.c_str());
+            snprintf(string, sizeof(string), "Trick:MonteVarRandom failed to generate a random value for variable \"%s\"\n", name.c_str());
             exec_terminate_with_return(-1, __FILE__, __LINE__, string);
         }
 
     } else {
         if (trick_gsl_rand(&randist, &return_value) != 0) {
             char string[100];
-            sprintf(string, "Trick:MonteVarRandom failed to generate a random value for variable \"%s\"\n", name.c_str());
+            snprintf(string, sizeof(string), "Trick:MonteVarRandom failed to generate a random value for variable \"%s\"\n", name.c_str());
             exec_terminate_with_return(-1, __FILE__, __LINE__, string);
         }
     }
@@ -194,16 +194,16 @@ std::string Trick::MonteVarRandom::get_next_value() {
         case TRICK_GSL_POISSON:
             // STL returns int, GSL returns unsigned int
             if (stlGenPtr) {
-                sprintf(buffer, " %d", return_value.ii);
+                snprintf(buffer, sizeof(buffer), " %d", return_value.ii);
             } else {
-                sprintf(buffer, " %u", return_value.ui);
+                snprintf(buffer, sizeof(buffer), " %u", return_value.ui);
             }
             value = buffer;
             break;
         case TRICK_GSL_GAUSS:
         case TRICK_GSL_FLAT:
         default:
-            sprintf(buffer, "%.15g", return_value.d);
+            snprintf(buffer, sizeof(buffer), "%.15g", return_value.d);
             value = buffer;
             break;
     }

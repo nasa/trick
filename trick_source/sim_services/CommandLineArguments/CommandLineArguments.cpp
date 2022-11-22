@@ -119,11 +119,10 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
     char *buf, *buf2;
     size_t found ;
-    int ii ;
 
     argc = nargs ;
     argv = (char **)TMM_declare_var_1d("char *", argc) ;
-    for ( ii = 0 ; ii < argc ; ii++ ) {
+    for (int ii = 0 ; ii < argc ; ii++ ) {
        argv[ii] = TMM_strdup(args[ii]) ;
     }
 
@@ -195,7 +194,7 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
         output_dir = run_dir ;
 
-        for (ii = 1; ii < argc; ii++) {
+        for (int ii = 1; ii < argc; ii++) {
             if (!strncmp("-OO", argv[ii], (size_t) 3) || !strncmp("-O", argv[ii], (size_t) 2)) {
                 if (ii == ( argc - 1 )) {
                     std::cerr << "\nERROR: No directory specified after -O or -OO argument" << std::endl ;
@@ -245,7 +244,7 @@ int Trick::CommandLineArguments::output_dir_timestamped_on() {
     date = time(NULL) ;
     curr_time = localtime(&date) ;
 
-    sprintf(temp_str, "DATA_%4d_%02d_%02d_%02d_%02d_%02d",
+    snprintf(temp_str, sizeof(temp_str), "DATA_%4d_%02d_%02d_%02d_%02d_%02d",
             curr_time->tm_year + 1900 , curr_time->tm_mon + 1 , curr_time->tm_mday,
             curr_time->tm_hour , curr_time->tm_min , curr_time->tm_sec );
 

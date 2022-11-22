@@ -61,9 +61,9 @@ void ProductViewNode::generate_PS(const char* file_name) {
 
     for (ii=0 ; ii<n; ii++ ) {
         if (n > 1) {
-            sprintf(indexedFileName, "%s.%d.%d.ps", file_name_str.c_str(), dpIndex, ii+1);
+            snprintf(indexedFileName, sizeof(indexedFileName), "%s.%d.%d.ps", file_name_str.c_str(), dpIndex, ii+1);
         } else {
-            sprintf(indexedFileName, "%s.%d.ps", file_name_str.c_str(), dpIndex);
+            snprintf(indexedFileName, sizeof(indexedFileName), "%s.%d.ps", file_name_str.c_str(), dpIndex);
         }
         page_node_list[ii]->generate_PS(indexedFileName);
         std::cout << "Generating " << indexedFileName << " ..." << std::endl;

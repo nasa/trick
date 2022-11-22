@@ -37,7 +37,7 @@ int Trick::Executive::write_s_job_execution(FILE *fp) {
 
         /* Get full path to S_job_execution */
         output_dir = command_line_args_get_output_dir() ;
-        sprintf(buf, "%s/S_job_execution", output_dir.c_str());
+        snprintf(buf, sizeof(buf), "%s/S_job_execution", output_dir.c_str());
 
         /* Create the output directory if it does not exist */
         if (access(output_dir.c_str(), F_OK) != 0) {

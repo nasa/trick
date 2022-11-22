@@ -56,7 +56,8 @@ int Trick::DRAscii::format_specific_init() {
     }
 
     /* Calculate a "worst case" for space used for 1 record. */
-    writer_buff = (char *)calloc(1 , record_size * rec_buffer.size()) ;
+    writer_buff_size = record_size * rec_buffer.size();
+    writer_buff = (char *)calloc(1 , writer_buff_size) ;
 
     /* This loop touches all of the memory locations in the allocation forcing the
        system to actually do the allocation */
@@ -182,28 +183,30 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
 
     address = DI->buffer + (item_num * DI->ref->attr->size) ;
 
+    size_t writer_buf_spare = writer_buff + writer_buff_size - buf;
+
     switch (DI->ref->attr->type) {
         case TRICK_CHARACTER:
-            sprintf(buf, "%c", *((char *) address));
+            snprintf(buf, writer_buf_spare, "%c", *((char *) address));
             break;
 
         case TRICK_UNSIGNED_CHARACTER:
 #if ( __linux | __sgi )
         case TRICK_BOOLEAN:
 #endif
-            sprintf(buf, "%u", *((unsigned char *) address));
+            snprintf(buf, writer_buf_spare, "%u", *((unsigned char *) address));
             break;
 
         case TRICK_STRING:
-            sprintf(buf, "%s", *((char **) address));
+            snprintf(buf, writer_buf_spare, "%s", *((char **) address));
             break;
 
         case TRICK_SHORT:
-            sprintf(buf, "%d", *((short *) address));
+            snprintf(buf, writer_buf_spare, "%d", *((short *) address));
             break;
 
         case TRICK_UNSIGNED_SHORT:
-            sprintf(buf, "%u", *((unsigned short *) address));
+            snprintf(buf, writer_buf_spare, "%u", *((unsigned short *) address));
             break;
 
         case TRICK_ENUMERATED:
@@ -211,45 +214,45 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
 #if ( __sun | __APPLE__ )
         case TRICK_BOOLEAN:
 #endif
-            sprintf(buf, "%d", *((int *) address));
+            snprintf(buf, writer_buf_spare, "%d", *((int *) address));
             break;
 
         case TRICK_UNSIGNED_INTEGER:
-            sprintf(buf, "%u", *((unsigned int *) address));
+            snprintf(buf, writer_buf_spare, "%u", *((unsigned int *) address));
             break;
 
         case TRICK_LONG:
-            sprintf(buf, "%ld", *((long *) address));
+            snprintf(buf, writer_buf_spare, "%ld", *((long *) address));
             break;
 
         case TRICK_UNSIGNED_LONG:
-            sprintf(buf, "%lu", *((unsigned long *) address));
+            snprintf(buf, writer_buf_spare, "%lu", *((unsigned long *) address));
             break;
 
         case TRICK_FLOAT:
-            sprintf(buf, ascii_float_format.c_str() , *((float *) address));
+            snprintf(buf, writer_buf_spare, ascii_float_format.c_str() , *((float *) address));
             break;
 
         case TRICK_DOUBLE:
-            sprintf(buf, ascii_double_format.c_str() , *((double *) address));
+            snprintf(buf, writer_buf_spare, ascii_double_format.c_str() , *((double *) address));
             break;
 
         case TRICK_BITFIELD:
             sbf = GET_BITFIELD(address, DI->ref->attr->size, DI->ref->attr->index[0].start, DI->ref->attr->index[0].size);
-            sprintf(buf, "%d", sbf);
+            snprintf(buf, writer_buf_spare, "%d", sbf);
             break;
 
         case TRICK_UNSIGNED_BITFIELD:
             bf = GET_UNSIGNED_BITFIELD(address, DI->ref->attr->size, DI->ref->attr->index[0].start, DI->ref->attr->index[0].size);
-            sprintf(buf, "%lu", bf);
+            snprintf(buf, writer_buf_spare, "%lu", bf);
             break;
 
         case TRICK_LONG_LONG:
-            sprintf(buf, "%lld", *((long long *) address));
+            snprintf(buf, writer_buf_spare, "%lld", *((long long *) address));
             break;
 
         case TRICK_UNSIGNED_LONG_LONG:
-            sprintf(buf, "%llu", *((unsigned long long *) address));
+            snprintf(buf, writer_buf_spare, "%llu", *((unsigned long long *) address));
             break;
         default:
             break;

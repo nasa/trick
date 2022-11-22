@@ -62,10 +62,10 @@ void Trick::Executive::signal_handler(int sig) {
 #if __linux
         char command[1024];
         if (attach_debugger == true) {
-            sprintf(command, "%s -silent /proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
+            snprintf(command, sizeof(command), "%s -silent /proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
             system(command);
         } else if (stack_trace == true ) {
-            sprintf(command, "%s -silent -batch -x ${TRICK_HOME}/share/trick/gdb_commands "
+            snprintf(command, sizeof(command), "%s -silent -batch -x ${TRICK_HOME}/share/trick/gdb_commands "
                     "/proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
             system(command);
         }

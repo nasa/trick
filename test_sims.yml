@@ -1,0 +1,278 @@
+
+
+# Compile only sims
+SIM_alloc_test:
+  path: test/SIM_alloc_test
+SIM_alloc_test:
+  path: test/SIM_alloc_test
+SIM_anon_enum:
+  path: test/SIM_anon_enum
+SIM_default_member_initializer: 
+  path: test/SIM_default_member_initializer
+SIM_delete_default_constructor: 
+  path: test/SIM_delete_default_constructor
+SIM_demo_inputfile:
+  path: test/SIM_demo_inputfile
+SIM_exclusion_mechanisms:
+  path: test/SIM_exclusion_mechanisms
+SIM_isystem:
+  path: test/SIM_isystem
+SIM_measurement_units:
+  path: test/SIM_measurement_units
+SIM_parse_s_define:
+  path: test/SIM_parse_s_define
+SIM_target_specific_variables:                          
+  path: test/SIM_target_specific_variables
+SIM_test_abstract:
+  path: test/SIM_test_abstract
+SIM_test_inherit:
+  path: test/SIM_test_inherit
+SIM_test_ip2:
+  path: test/SIM_test_ip2
+SIM_threads_simple:
+  path: test/SIM_threads_simple
+SIM_trickcomm:
+  path: test/SIM_trickcomm
+SIM_satellite:
+  path: trick_sims/SIM_satellite
+
+# Normal case compile and run sims
+SIM_demo_sdefine: 
+  path: test/SIM_demo_sdefine
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_events:
+  path: test/SIM_events
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0 
+SIM_exec_set_time_tic_value:
+  path: test/SIM_exec_set_time_tic_value
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_python_namespace:
+  path: test/SIM_python_namespace
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_rti:
+  path: test/SIM_rti
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_test_dp:
+  path: test/SIM_test_dp
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_test_icg_file_skipped:
+  path: test/SIM_test_icg_file_skipped
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_test_io:
+  path: test/SIM_test_io
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_test_ip:
+  path: test/SIM_test_ip
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_test_sched:
+  path: test/SIM_test_sched
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_test_templates:
+  path: test/SIM_test_templates
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_threads:
+  path: test/SIM_threads
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_trickified:
+  path: test/SIM_trickified
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_ball_L1:
+  path: trick_sims/Ball/SIM_ball_L1
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_ball_L2:
+  path: trick_sims/Ball/SIM_ball_L2
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_ball_L3:
+  path: trick_sims/Ball/SIM_ball_L3
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+# SIM_amoeba:
+#   path: trick_sims/Cannon/SIM_amoeba
+#   build_command: "trick-CP -t"
+#   binary: "T_main_{cpu}_test.exe"
+#   runs:
+#     RUN_test/unit_test.py:
+#       returns: 0
+SIM_cannon_aero:
+  path: trick_sims/Cannon/SIM_cannon_aero
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_cannon_analytic:
+  path: trick_sims/Cannon/SIM_cannon_analytic
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_cannon_eulercromer:
+  path: trick_sims/Cannon/SIM_cannon_eulercromer
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_cannon_numeric:
+  path: trick_sims/Cannon/SIM_cannon_numeric
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_cannon_jet:
+  path: trick_sims/Cannon/SIM_cannon_jet
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_Ball++_L1:
+  path: trick_sims/SIM_Ball++_L1
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_sun:
+  path: trick_sims/SIM_sun
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+
+
+# Special cases
+
+# setup.py dumps a checkpoint
+# unit_test.py loads that checkpoint and verifies the data
+SIM_stls: 
+  path: test/SIM_stls
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/setup.py:
+      returns: 0
+    RUN_test/unit_test.py:
+      returns: 0
+
+SIM_test_dr:
+  path: test/SIM_test_dr
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+      compare:
+      - test/SIM_test_dr/RUN_test/log_DR_bitfieldsASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsASCII_Master.csv
+      - test/SIM_test_dr/RUN_test/log_DR_typesASCII.csv vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_typesASCII_Master.csv
+      - test/SIM_test_dr/RUN_test/log_DR_bitfieldsBINARY.trk vs. test/SIM_test_dr/RUN_test/Ref_Logs/log_DR_bitfieldsBINARY.trk
+
+# All the dump.py runs dump a checkpoint
+# All the unit_test.py runs load that checkpoint and then compare against expected logs
+SIM_checkpoint_data_recording: 
+  path: test/SIM_checkpoint_data_recording
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test1/dump.py:
+      returns: 0
+    RUN_test2/dump.py:
+      returns: 0
+    RUN_test3/dump.py:
+      returns: 0
+    RUN_test4/dump.py:
+      returns: 0
+    RUN_test5/dump.py:
+      returns: 0
+    # RUN_test6/dump.py:
+    #   returns: 0
+
+    RUN_test1/unit_test.py:
+      returns: 0
+      compare: 
+        - test/SIM_checkpoint_data_recording/RUN_test1/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test1/log_foo.csv
+    RUN_test2/unit_test.py:
+      returns: 0
+      analyze: './test/SIM_checkpoint_data_recording/RUN_test2/check_log.sh'
+    RUN_test3/unit_test.py:
+      returns: 0
+      compare: 
+        - test/SIM_checkpoint_data_recording/RUN_test3/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test3/log_foo.csv
+    RUN_test4/unit_test.py:
+      returns: 0
+      compare: 
+        - test/SIM_checkpoint_data_recording/RUN_test4/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test4/log_foo.csv
+    RUN_test5/unit_test.py:
+      returns: 0
+      compare: 
+        - test/SIM_checkpoint_data_recording/RUN_test5/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test5/log_foo.csv
+    # RUN_test6/unit_test.py:
+    #   returns: 0
+    #   compare: 
+    #     - test/SIM_checkpoint_data_recording/RUN_test6/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test6/log_foo2.csv

@@ -295,7 +295,7 @@ namespace Trick {
 
 }
 
-int vs_format_ascii(Trick::VariableReference * var, char *value);
+int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_size);
 
 Trick::VariableServer * var_server_get_var_server() ;
 

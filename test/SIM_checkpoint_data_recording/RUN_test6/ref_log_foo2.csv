@@ -1,0 +1,4 @@
+sys.exec.out.time {s},testSimObject.my_foo.b {1}
+                   8,18
+                   9,20
+                  10,22

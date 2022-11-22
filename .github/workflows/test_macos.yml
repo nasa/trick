@@ -32,7 +32,9 @@ jobs:
         export MAKEFLAGS=-j4
         ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
         make
-    - name: Run tests
+    - name: Test
       run: |
+        cd share/trick/trickops/
+        python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
         export MAKEFLAGS=-j4
-        make test
+        cd ../../../; make test

@@ -127,6 +127,9 @@ namespace Trick {
             /** Buffer to hold formatted data ready for disk or other destination.\n */
             char * writer_buff ;        /**< trick_io(**) trick_units(--) */
 
+            /** Size of the writer_buff. */
+            size_t writer_buff_size;
+ 
             /**  Little_endian or big_endian indicator.\n */
             std::string byte_order;          /**< trick_io(*io) trick_units(--) */
 

@@ -578,7 +578,7 @@ int Trick::FrameLog::shutdown() {
 
     /** @li Manually create the log_timeline and log_timeline_init files from saved timeline data. */
     if (fp_time_main == NULL) {
-        sprintf(log_buff, "%s/log_timeline.csv", command_line_args_get_output_dir());
+        snprintf(log_buff, sizeof(log_buff), "%s/log_timeline.csv", command_line_args_get_output_dir());
         if ((fp_time_main = fopen(log_buff, "w")) == NULL) {
             message_publish(MSG_ERROR, "Could not open log_timeline.csv file for Job Timeline Logging\n") ;
             exit(0);
@@ -590,7 +590,7 @@ int Trick::FrameLog::shutdown() {
         }
         fprintf(fp_time_main, "\n");
 
-        sprintf(log_buff, "%s/log_timeline_init.csv", command_line_args_get_output_dir());
+        snprintf(log_buff, sizeof(log_buff), "%s/log_timeline_init.csv", command_line_args_get_output_dir());
         if ((fp_time_other = fopen(log_buff, "w")) == NULL) {
             message_publish(MSG_ERROR, "Could not open log_timeline_init.csv file for Job Timeline Logging\n") ;
             exit(0);
@@ -737,7 +737,7 @@ int Trick::FrameLog::create_DP_job_files() {
 
     std::vector<std::string>::iterator job_iterator;
     FILE *fpx;
-    int pages, plots, total_plots, vcells, dot;
+    unsigned int pages, plots, total_plots, vcells, dot;
     char *bg_color;
     double time_scale;
     std::string DP_buff;
@@ -830,7 +830,7 @@ int Trick::FrameLog::create_DP_job_files() {
         if ( ii == 0 ) {
              DP_buff = DP_dir + "/DP_rt_userjobs.xml";
         } else {
-             sprintf(numstr, "%d", ii);
+             snprintf(numstr, sizeof(numstr), "%d", ii);
              DP_buff = DP_dir + "/DP_rt_userjobs_C" + numstr + ".xml";
         }
 

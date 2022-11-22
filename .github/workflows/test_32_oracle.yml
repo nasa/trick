@@ -1,14 +1,9 @@
 name: 32-bit Oracle
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-    - 'docs/**'
-    - '.github/workflows/**'
-    - '!.github/workflows/test_32_oracle.yml'
-  pull_request:
+  schedule:
+  - cron:  '0 0 * * 0'
+  workflow_dispatch:
 
 jobs:
   trick_32bit_oracle:
@@ -71,6 +66,9 @@ jobs:
         make
     - name: Run tests
       run: |
+        cd share/trick/trickops/
+        python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+        cd ../../../
         export CFLAGS="-m32"
         export CXXFLAGS="-m32"
         export MAKEFLAGS=-j`nproc`

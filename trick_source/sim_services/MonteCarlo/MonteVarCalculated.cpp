@@ -34,36 +34,36 @@ std::string Trick::MonteVarCalculated::get_next_value() {
         switch (ref2->attr->type) {
             case TRICK_CHARACTER:
             case TRICK_UNSIGNED_CHARACTER:
-                sprintf(buffer, "%d", *(char *)ref2->address);
+                snprintf(buffer, sizeof(buffer), "%d", *(char *)ref2->address);
                 value = buffer;
                 break;
             case TRICK_SHORT:
             case TRICK_UNSIGNED_SHORT:
-                sprintf(buffer, "%d", *(short *)ref2->address);
+                snprintf(buffer, sizeof(buffer), "%d", *(short *)ref2->address);
                 value = buffer;
                 break;
             case TRICK_INTEGER:
             case TRICK_UNSIGNED_INTEGER:
             case TRICK_LONG:
             case TRICK_UNSIGNED_LONG:
-                sprintf(buffer, "%ld", *(long *)ref2->address);
+                snprintf(buffer, sizeof(buffer), "%ld", *(long *)ref2->address);
                 value = buffer;
                 break;
             case TRICK_LONG_LONG:
             case TRICK_UNSIGNED_LONG_LONG:
-                sprintf(buffer, "%lld", *(long long *)ref2->address);
+                snprintf(buffer, sizeof(buffer), "%lld", *(long long *)ref2->address);
                 value = buffer;
                 break;
             case TRICK_FLOAT:
-                sprintf(buffer, "%.15g", *(float *)ref2->address);
+                snprintf(buffer, sizeof(buffer), "%.15g", *(float *)ref2->address);
                 value = buffer;
                 break;
             case TRICK_DOUBLE:
-                sprintf(buffer, "%.15g", *(double *)ref2->address);
+                snprintf(buffer, sizeof(buffer), "%.15g", *(double *)ref2->address);
                 value = buffer;
                 break;
             default:
-                sprintf(buffer, "#Unsupported value type %d", ref2->attr->type) ;
+                snprintf(buffer, sizeof(buffer), "#Unsupported value type %d", ref2->attr->type) ;
                 break ;
         }
 

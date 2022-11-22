@@ -307,27 +307,27 @@ static void layout_page (GPViewPageNode* gp_view_page_node ) {
 
     // CALCULATE PLOT WIDTH
     cell_width  = 1.0 / n_horizontal_cells;
-    sprintf(value_text, "%5.3f", cell_width);
+    snprintf(value_text, sizeof(value_text), "%5.3f", cell_width);
     gp_view_page_node->textbuf.subst("<PLOT_WIDTH>", value_text);
 
     // CALCULATE PLOT HEIGHT
     cell_height = 1.0 / n_vertical_cells;
-    sprintf(value_text, "%5.3f", cell_height);
+    snprintf(value_text, sizeof(value_text), "%5.3f", cell_height);
     gp_view_page_node->textbuf.subst("<PLOT_HEIGHT>", value_text);
 
     for (plot_ix=0; plot_ix< number_of_plots; plot_ix++) {
         float x,y;
         char key_text[20];
 
-        sprintf(key_text, "<PLOT_ORIGIN_X_%d>", plot_ix);
+        snprintf(key_text, sizeof(key_text), "<PLOT_ORIGIN_X_%d>", plot_ix);
         x = (float)((plot_ix % n_horizontal_cells) * cell_width);
-        sprintf(value_text, "%5.3f", x);
+        snprintf(value_text, sizeof(value_text), "%5.3f", x);
         gp_view_page_node->textbuf.subst(key_text, value_text);
 
 
-        sprintf(key_text, "<PLOT_ORIGIN_Y_%d>", plot_ix);
+        snprintf(key_text, sizeof(key_text), "<PLOT_ORIGIN_Y_%d>", plot_ix);
         y = (float)(1.0 - ((plot_ix / n_horizontal_cells) * cell_height + cell_height));
-        sprintf(value_text, "%5.3f", y);
+        snprintf(value_text, sizeof(value_text), "%5.3f", y);
         gp_view_page_node->textbuf.subst(key_text, value_text);
     }
 }

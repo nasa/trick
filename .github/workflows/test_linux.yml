@@ -18,17 +18,11 @@ jobs:
       matrix:
         cfg:
 #-------- Operating Systems ----------------
-          - { os: ubuntu,      tag: 18.04,    arch: debian, arch_ver: 10 }
-          - { os: ubuntu,      tag: 20.04,    arch: debian, arch_ver: 11 }
           - { os: ubuntu,      tag: 22.04,    arch: debian, arch_ver: 12 }
-          - { os: debian,      tag: 10,       arch: debian, arch_ver: 10 }
-          - { os: debian,      tag: 11,       arch: debian, arch_ver: 11 }
-          - { os: debian,      tag: bookworm, arch: debian, arch_ver: 12 }
           - { os: centos,      tag: 7,        arch: rhel,   arch_ver: 7  }
           - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
-          - { os: almalinux,   tag: 8,        arch: rhel,   arch_ver: 8  }
-        python: [2, 3]
+        python: [3]
 
 #-------- Defaults --------------------------
         include:
@@ -67,6 +61,8 @@ jobs:
               default-jdk
               python2.7-dev
               python3-dev
+              python3-pip
+              python3-venv
             install_gtest: |
               apt-get install -y libgtest-dev
               cd /usr/src/gtest
@@ -118,20 +114,6 @@ jobs:
             install_gtest: |
               dnf config-manager --enable powertools
               dnf install -y gtest-devel
-#-------- Debian 10-based Only Dependencies ----------------
-          - cfg: { arch: debian, arch_ver: 10 }
-            install_gtest: |
-              apt-get install -y libgtest-dev
-              cd /usr/src/gtest
-              cmake .
-              make
-              cp libgtest* /usr/lib/
-#-------- Debian 11-based Only Dependencies ----------------              
-          - cfg: { arch: debian, arch_ver: 11 }
-            conf_pkg: |
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update
-              apt-get install -y tzdata
 #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux }
             install_gtest: |
@@ -166,8 +148,9 @@ jobs:
           make
       - name: Test
         run: |
-          export MAKEFLAGS=-j`nproc`
-          make test
+          cd share/trick/trickops/
+          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+          cd ../../../; make test
       - name: Upload Tests
         uses: actions/upload-artifact@v3.0.0
         if: success() || failure()    # run this step even if previous step failed

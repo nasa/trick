@@ -102,23 +102,23 @@ size_t escape_to_ascii(const char *in, char *out, size_t outSize) {
                     state = ERROR_STATE;
                 } else {                   // ASCII        
                     if (ch == '\a') {
-                        sprintf(ascii_elements, "\\a");
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\a");
                     } else if (ch == '\b') {
-                        sprintf(ascii_elements, "\\b");
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\b");
                     } else if (ch == '\f') {
-                        sprintf(ascii_elements, "\\f");
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\f");
                     } else if (ch == '\n') {
-                        sprintf(ascii_elements, "\\n");
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\n");
                     } else if (ch == '\r') {
-                        sprintf(ascii_elements, "\\r");
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\r");
                     } else if (ch == '\t') {
-                        sprintf(ascii_elements, "\\t");
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\t");
                     } else if (ch == '\v') {
-                        sprintf(ascii_elements, "\\v");
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\v");
                     } else if (isprint(ch)) {
-                        sprintf(ascii_elements, "%c",ch);
+                        snprintf(ascii_elements, sizeof(ascii_elements), "%c",ch);
                     } else {
-                        sprintf(ascii_elements, "\\x%02x",ch);
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\x%02x",ch);
                     }
                     size_t n_elements = strlen(ascii_elements);
                     if (out != NULL) {
@@ -137,9 +137,9 @@ size_t escape_to_ascii(const char *in, char *out, size_t outSize) {
                     codePoint = (codePoint << 6) | (ch & 0x3f); // Extract low 6 bits
                     state = 0;
                     if (codePoint <= 0xffff) {
-                        sprintf(ascii_elements, "\\u%04x", codePoint); 
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\u%04x", codePoint); 
                     } else {
-                        sprintf(ascii_elements, "\\U%08x", codePoint); 
+                        snprintf(ascii_elements, sizeof(ascii_elements), "\\U%08x", codePoint); 
                     }
                     size_t n_elements = strlen(ascii_elements);
                     if (out != NULL) {

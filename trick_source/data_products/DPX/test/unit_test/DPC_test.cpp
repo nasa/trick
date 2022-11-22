@@ -109,7 +109,7 @@ std::string DPCTest::parseDPCData(const char* name) {
     for ( product_ix = 0; product_ix < n_product_files; product_ix++ ) {
         DPC_product *product;
         char tmp [50];
-        sprintf(tmp, "../TEST_DATA/%s", session->product_file_list[product_ix]);
+        snprintf(tmp, sizeof(tmp), "../TEST_DATA/%s", session->product_file_list[product_ix]);
         const char *product_file_name = tmp;
 
         try {

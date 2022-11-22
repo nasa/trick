@@ -60,7 +60,7 @@ int tsm_init(TSMDevice * shm_device)
         return (TSM_FAIL);
     }
     if (shm_device->key_file[0] == '\0') {
-        sprintf(shm_device->key_file, "%s/trick_source/trick_utils/shm/src/tsm_init.c", getenv("TRICK_HOME"));
+        snprintf(shm_device->key_file, sizeof(shm_device->key_file), "%s/trick_source/trick_utils/shm/src/tsm_init.c", getenv("TRICK_HOME"));
     }
     //shm_device->key = ftok(shm_device->key_file, proj_id);
     // we will use our own key generation in my_ftok

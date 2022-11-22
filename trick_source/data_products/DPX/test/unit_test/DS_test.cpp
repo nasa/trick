@@ -345,7 +345,7 @@ TEST_F(DSTest, DataStream_Delta) {
 	const char* a = "sun_predictor.sun.solar_azimuth:../TEST_DATA/BUNCHORUNS/RUN1";
 	const char* b = "sun_predictor.sun.solar_azimuth:../TEST_DATA/BUNCHORUNS/RUN2";
 
-	sprintf(DeltaName, "delta(%s, %s)", a, b);
+	snprintf(DeltaName, sizeof(DeltaName), "delta(%s, %s)", a, b);
 
     data_stream_factory = new DataStreamFactory();
     testds = data_stream_factory->create(RUN_dir, DeltaName, "s_simtime");
