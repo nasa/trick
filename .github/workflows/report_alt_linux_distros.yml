@@ -1,0 +1,30 @@
+name: 'Report More Linux'
+
+on:
+  workflow_run:
+    workflows: ['More Linux']                     # runs after CI workflow
+    types:
+      - completed
+jobs:
+  report:
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+#-------- Operating Systems ----------------
+          - { os: ubuntu,      tag: 18.04,    arch: debian, arch_ver: 10 }
+          - { os: ubuntu,      tag: 20.04,    arch: debian, arch_ver: 11 }
+          - { os: debian,      tag: 10,       arch: debian, arch_ver: 10 }
+          - { os: debian,      tag: 11,       arch: debian, arch_ver: 11 }
+          - { os: debian,      tag: bookworm, arch: debian, arch_ver: 12 }
+          - { os: almalinux,   tag: 8,        arch: rhel,   arch_ver: 8  }
+        python: [2, 3]
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: dorny/test-reporter@v1
+      with:
+        artifact: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}} # artifact name
+        name: Results_Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}} # Name of the check run which will be created
+        path: '*.xml'                     # Path to test results (inside artifact .zip)
+        reporter: java-junit              # Format of test results
