@@ -217,8 +217,8 @@ brew install python java xquartz swig@3 maven udunits openmotif
 ```
 IMPORTANT: Make sure to follow the instructions for adding java to your path provided by brew. If you missed them, you can see them again by using `brew info java`.
 
-5. Download and un-compress the latest pre-built clang+llvm 13 from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
-and download the latest version of 13 from the release assets. 13.0.1 is the latest as of the writing of this guide, the link I used is below:
+5. Download and un-compress the latest pre-built clang+llvm from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
+and download the latest version llvm that matches your Xcode version from the release assets. For example, if your Xcode version is 14 then you will want the latest 14.x.x release of llvm. 13.0.1 is the latest as of the writing of this guide, the link I used is below:
 https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/clang+llvm-13.0.1-x86_64-apple-darwin.tar.xz
 Tip: I suggest renaming the untar'd directory to something simple like llvm13 and putting it in your home directory or development environment.
 

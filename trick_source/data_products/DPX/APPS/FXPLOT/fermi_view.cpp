@@ -32,7 +32,7 @@ fermi_view::fermi_view(Widget TopLevel) {
 
     trick_home = getenv("TRICK_HOME");
     if (trick_home != NULL) {
-         sprintf( applresdir,"%s/trick_source/data_products/DPX/APPS/FXPLOT",trick_home);
+         snprintf( applresdir,sizeof(applresdir), "%s/trick_source/data_products/DPX/APPS/FXPLOT",trick_home);
          setenv("XAPPLRESDIR", applresdir, 0);
     } else {
          std::cerr << "ERROR: $TRICK_HOME is not set." << std::endl;

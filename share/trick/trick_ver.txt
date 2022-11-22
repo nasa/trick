@@ -1,1 +1,1 @@
-current_version = "19.5.0-beta"
+current_version = "19.6.0-beta"

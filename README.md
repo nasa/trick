@@ -66,22 +66,16 @@ The Trick Simulation Environment, developed at the NASA Johnson Space Center, is
     </tbody>
 </table>
 
-<table>
-    <col width="33%">
-    <col width="33%">
-    <col width="33%">
+<table align="center">
+    <col width="100%">
     <thead>
         <tr>
-            <th></th>
             <th><a href="https://nasa.github.io/trick/developer_docs/Developer-Docs-Home"> Developer Docs </a></th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
         <tr align="center">
-            <td></td>
             <td>Read detailed documentation for various Trick internals and processes.</td>
-            <td></td>
         </tr>
     </tbody>
 </table>

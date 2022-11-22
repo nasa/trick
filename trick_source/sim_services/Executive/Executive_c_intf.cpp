@@ -667,6 +667,30 @@ extern "C" int exec_set_sim_object_onoff(const char * sim_object_name , int on) 
 
 /**
  * @relates Trick::Executive
+ * @copydoc Trick::Executive::get_sim_object_onoff
+ * C wrapper for Trick::Executive::get_sim_object_onoff
+ */
+extern "C" int exec_get_sim_object_onoff(const char * sim_object_name ) {
+    if ( the_exec != NULL ) {
+        return the_exec->get_sim_object_onoff( sim_object_name ) ;
+    }
+    return -1 ;
+}
+
+/**
+ * @relates Trick::Executive
+ * @copydoc Trick::Executive::set_sim_object_jobs_onoff
+ * C wrapper for Trick::Executive::set_sim_object_jobs_onoff
+ */
+extern "C" int exec_set_sim_object_jobs_onoff(const char * sim_object_name , int on) {
+    if ( the_exec != NULL ) {
+        return the_exec->set_sim_object_jobs_onoff( sim_object_name , on) ;
+    }
+    return -1 ;
+}
+
+/**
+ * @relates Trick::Executive
  * @copydoc Trick::Executive::set_version_date_tag
  * C wrapper for Trick::Executive::set_version_date_tag
  */
@@ -997,6 +1021,20 @@ int exec_get_sim_objects(std::vector<Trick::SimObject *>& in_sim_objects ) {
     }
     return -1 ;
 }
+
+
+/**
+ * @relates Trick::Executive
+ * @copydoc Trick::Executive::get_sim_objects
+ * Wrapper for Trick::Executive::get_sim_objects
+ */
+Trick::SimObject * exec_get_sim_object_by_name(std::string sim_object_name) {
+    if ( the_exec != NULL ) {
+        return the_exec->get_sim_object_by_name(sim_object_name) ;
+    }
+    return NULL ;
+}
+
 
 /**
  * @relates Trick::Executive

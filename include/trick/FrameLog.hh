@@ -44,7 +44,7 @@ namespace Trick {
             /** Data recording group for logging frame/overrun time.\n trick_units(--) */
             Trick::FrameDataRecordGroup * drg_frame;    /**<  trick_io(*io) trick_units(--) */
 
-            int plots_per_page;              /**< trick_io(*io) trick_units(--) number of plots per page */
+            unsigned int plots_per_page;              /**< trick_io(*io) trick_units(--) number of plots per page */
             /** Cyclic jobs timeline to log, dimensioned as [num_threads][tl_max_samples].\n */
             Trick::timeline_t **timeline;       /**<  trick_io(**) */
             /** Non-Cyclic jobs timeline to log, dimensioned as [num_threads][tl_max_samples].\n */

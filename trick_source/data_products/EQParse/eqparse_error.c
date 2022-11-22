@@ -19,7 +19,7 @@ char *eqperror(int code)
 
        errorprintout = ( char* ) malloc ( 128 ) ;
 
-	sprintf(errorprintout,"\nError %d in eqparse.c:",code) ;
+	snprintf(errorprintout, 128, "\nError %d in eqparse.c:",code) ;
 	switch (code){
 		case 1:
 			strcat(errorprintout,"\nSyntax Error: ) Expected") ;

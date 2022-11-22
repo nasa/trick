@@ -208,7 +208,7 @@ int VariableServerSession::sendErrorMessage(const char* fmt, ... ) {
     (void) vsnprintf(errText, MAX_MSG_SIZE, fmt, args);
     va_end(args);
 
-    sprintf(msgText, "{ \"msg_type\" : \"error\",\n"
+    snprintf(msgText, sizeof(msgText), "{ \"msg_type\" : \"error\",\n"
                      "  \"error\" : \"%s\"}\n", errText);
 
     mg_websocket_write(connection, MG_WEBSOCKET_OPCODE_TEXT, msgText, strlen(msgText));

@@ -35,3 +35,6 @@ include/civet/
 .vscode/
 civet_server_error.log
 server.pem
+archive/
+.venv
+trickops_logs/
