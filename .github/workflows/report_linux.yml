@@ -1,4 +1,4 @@
-name: 'Report'
+name: 'Report Linux'
 
 on:
   workflow_run:
