@@ -18,7 +18,7 @@ ExternalProgram::ExternalProgram( const char* sharedLibName,
         // Open up external plugin program
         progHandle_ = dlopen(sharedLibName, RTLD_LAZY);
         if (!progHandle_) {
-                sprintf(msg, "ERROR: Couldn't load shared program \"%s\" \n",
+                snprintf(msg, sizeof(msg), "ERROR: Couldn't load shared program \"%s\" \n",
                         sharedLibName);
                 fputs(msg, stderr);
                 exit(1);

@@ -119,7 +119,7 @@ int Trick::ITimer::start(double in_frame_time) {
             active = true ;
         } else {
             char error_message[256];
-            sprintf(error_message, "itimer frame_time is not set\n" ) ;
+            snprintf(error_message, sizeof(error_message), "itimer frame_time is not set\n" ) ;
             exec_terminate_with_return(-1, __FILE__, __LINE__ , error_message);
         }
     }

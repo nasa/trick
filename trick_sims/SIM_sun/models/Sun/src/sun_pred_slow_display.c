@@ -55,15 +55,15 @@ int sun_pred_slow_display(
 	char message[500];
 
 	message[0] = '\0';
-	sprintf(tmp_s,"%lc",POSITION_INDICATOR);
+	snprintf(tmp_s, sizeof(tmp_s), "%lc",POSITION_INDICATOR);
 	strcat(message,tmp_s);
-	sprintf(tmp_s,"  %lc %5.2f%lc",GREEK_SMALL_LETTER_PHI, S->observer_latitude, DEGREE_SIGN);
+	snprintf(tmp_s, sizeof(tmp_s), "  %lc %5.2f%lc",GREEK_SMALL_LETTER_PHI, S->observer_latitude, DEGREE_SIGN);
 	strcat(message,tmp_s);
-	sprintf(tmp_s,"  L %5.2f%lc", S->observer_longitude, DEGREE_SIGN);
+	snprintf(tmp_s, sizeof(tmp_s), "  L %5.2f%lc", S->observer_longitude, DEGREE_SIGN);
 	strcat(message,tmp_s);
-	sprintf(tmp_s,"  %lc %5.2f%lc",GREEK_SMALL_LETTER_ALPHA, S->right_ascension, DEGREE_SIGN);
+	snprintf(tmp_s, sizeof(tmp_s), "  %lc %5.2f%lc",GREEK_SMALL_LETTER_ALPHA, S->right_ascension, DEGREE_SIGN);
 	strcat(message,tmp_s);
-	sprintf(tmp_s,"  %lc %5.2f%lc",GREEK_SMALL_LETTER_DELTA, S->declination, DEGREE_SIGN);
+	snprintf(tmp_s, sizeof(tmp_s), "  %lc %5.2f%lc",GREEK_SMALL_LETTER_DELTA, S->declination, DEGREE_SIGN);
 	strcat(message,tmp_s);
 	send_hs(stdout,"%s\n",message);
 

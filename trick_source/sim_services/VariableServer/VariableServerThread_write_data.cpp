@@ -22,7 +22,6 @@ extern "C" {
 
 
 int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) {
-    int vars = 0;
     int i;
     int ret ;
     int HeaderSize, MessageSize;
@@ -178,13 +177,13 @@ int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, const
     return i;
 }
 
-int Trick::VariableServerThread::write_ascii_data(char * dest_buf, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type ) {
+int Trick::VariableServerThread::write_ascii_data(char * dest_buf, size_t dest_buf_size, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type ) {
 
-    sprintf(dest_buf, "%d\t", message_type) ;
+    snprintf(dest_buf, dest_buf_size, "%d\t", message_type) ;
 
-    for (int i = 0; i < given_vars.size(); i++) {
+    for (unsigned long i = 0; i < given_vars.size(); i++) {
         char curr_buf[MAX_MSG_LEN];
-        int ret = vs_format_ascii( given_vars[i] , curr_buf);
+        int ret = vs_format_ascii( given_vars[i] , curr_buf, sizeof(curr_buf));
 
         if (ret < 0) {
             message_publish(MSG_WARNING, "%p Variable Server string buffer[%d] too small for symbol %s, TRUNCATED IT.\n",
@@ -279,7 +278,7 @@ int Trick::VariableServerThread::write_data() {
             return 0;
 
         } else { /* ascii mode */
-            return write_ascii_data(buf1, vars, VS_VAR_LIST );
+            return write_ascii_data(buf1, sizeof(buf1), vars, VS_VAR_LIST );
         }
     }
 }
@@ -318,7 +317,7 @@ int Trick::VariableServerThread::write_data(std::vector<VariableReference *> giv
             return 0;
 
         } else { /* ascii mode */
-            return write_ascii_data(buf1, given_vars, VS_SEND_ONCE);
+            return write_ascii_data(buf1, sizeof(buf1), given_vars, VS_SEND_ONCE);
         }
     }
 }

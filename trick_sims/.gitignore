@@ -31,3 +31,4 @@ T_main_*
 **/graphics/cpp/build
 jitlib
 build
+*.class

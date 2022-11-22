@@ -130,7 +130,7 @@ void Trick::MemoryManager::get_stl_dependencies_in_arrayed_class(
         curr_dim_size = attr->index[curr_dim].size;
         for (ii = 0; ii < curr_dim_size; ii++) {
             char index[16] ;
-            sprintf(index, "[%d]", ii) ;
+            snprintf(index, sizeof(index), "[%d]", ii) ;
             if (curr_dim < attr->num_index - 1) {
                 get_stl_dependencies_in_arrayed_class( name + index, address, attr, curr_dim + 1, offset * curr_dim_size + ii);
             } else {
@@ -183,7 +183,7 @@ void Trick::MemoryManager::get_stl_dependencies_in_intrinsic( std::string name ,
             int ii;
             for (ii=0 ; ii< attr->index[curr_dim].size ; ii++) {
                 char index[16] ;
-                sprintf(index, "[%d]", ii) ;
+                snprintf(index, sizeof(index), "[%d]", ii) ;
                 //get_stl_dependencies_in_intrinsic( name + index , address, attr, curr_dim + 1, offset * attr->index[curr_dim].size + ii);
             }
         }

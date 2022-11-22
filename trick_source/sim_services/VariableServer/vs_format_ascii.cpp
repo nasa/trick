@@ -22,7 +22,7 @@ size_t escape_str(const char *in_s, char *out_s);
 
 #define MAX_VAL_STRLEN 2048
 
-int vs_format_ascii(Trick::VariableReference * var, char *value) {
+int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_size) {
 
     /* for string types, return -1 if string is too big to fit in buffer (MAX_VAL_STRLEN) */
     REF2 * ref ;
@@ -41,7 +41,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
 
         case TRICK_CHARACTER:
             if (ref->attr->num_index == ref->num_index) {
-                sprintf(value, "%s%d", value,(char)cv_convert_double(var->conversion_factor, *(char *)buf_ptr));
+                snprintf(value, value_size, "%s%d", value,(char)cv_convert_double(var->conversion_factor, *(char *)buf_ptr));
             } else {
                 /* All but last dim specified, leaves a char array */
                 escape_str((char *) buf_ptr, value);
@@ -50,7 +50,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             break;
         case TRICK_UNSIGNED_CHARACTER:
             if (ref->attr->num_index == ref->num_index) {
-                sprintf(value, "%s%u", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
+                snprintf(value, value_size, "%s%u", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
             } else {
                 /* All but last dim specified, leaves a char array */
                 escape_str((char *) buf_ptr, value);
@@ -60,7 +60,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
 
         case TRICK_WCHAR:{
                 if (ref->attr->num_index == ref->num_index) {
-                    sprintf(value, "%s%d", value,*(wchar_t *) buf_ptr);
+                    snprintf(value, value_size, "%s%d", value,*(wchar_t *) buf_ptr);
                 } else {
                     // convert wide char string char string
                     size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
@@ -98,16 +98,16 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
 
 #if ( __linux | __sgi )
         case TRICK_BOOLEAN:
-            sprintf(value, "%s%d", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
+            snprintf(value, value_size, "%s%d", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
             break;
 #endif
 
         case TRICK_SHORT:
-            sprintf(value, "%s%d", value, (short)cv_convert_double(var->conversion_factor,*(short *)buf_ptr));
+            snprintf(value, value_size, "%s%d", value, (short)cv_convert_double(var->conversion_factor,*(short *)buf_ptr));
             break;
 
         case TRICK_UNSIGNED_SHORT:
-            sprintf(value, "%s%u", value,(unsigned short)cv_convert_double(var->conversion_factor,*(unsigned short *)buf_ptr));
+            snprintf(value, value_size, "%s%u", value,(unsigned short)cv_convert_double(var->conversion_factor,*(unsigned short *)buf_ptr));
             break;
 
         case TRICK_INTEGER:
@@ -115,18 +115,18 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
 #if ( __sun | __APPLE__ )
         case TRICK_BOOLEAN:
 #endif
-            sprintf(value, "%s%d", value, (int)cv_convert_double(var->conversion_factor,*(int *)buf_ptr));
+            snprintf(value, value_size, "%s%d", value, (int)cv_convert_double(var->conversion_factor,*(int *)buf_ptr));
             break;
 
         case TRICK_BITFIELD:
-            sprintf(value, "%d", GET_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
+            snprintf(value, value_size, "%d", GET_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
             break;
 
         case TRICK_UNSIGNED_BITFIELD:
-            sprintf(value, "%u", GET_UNSIGNED_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
+            snprintf(value, value_size, "%u", GET_UNSIGNED_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
             break;
         case TRICK_UNSIGNED_INTEGER:
-            sprintf(value, "%s%u", value, (unsigned int)cv_convert_double(var->conversion_factor,*(unsigned int *)buf_ptr));
+            snprintf(value, value_size, "%s%u", value, (unsigned int)cv_convert_double(var->conversion_factor,*(unsigned int *)buf_ptr));
             break;
 
         case TRICK_LONG: {
@@ -134,7 +134,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             if (var->conversion_factor != cv_get_trivial()) {
                 l = (long)cv_convert_double(var->conversion_factor, l);
             }
-            sprintf(value, "%s%ld", value, l);
+            snprintf(value, value_size, "%s%ld", value, l);
             break;
         }
 
@@ -143,16 +143,16 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             if (var->conversion_factor != cv_get_trivial()) {
                 ul = (unsigned long)cv_convert_double(var->conversion_factor, ul);
             }
-            sprintf(value, "%s%lu", value, ul);
+            snprintf(value, value_size, "%s%lu", value, ul);
             break;
         }
 
         case TRICK_FLOAT:
-            sprintf(value, "%s%.8g", value, cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
+            snprintf(value, value_size, "%s%.8g", value, cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
             break;
 
         case TRICK_DOUBLE:
-            sprintf(value, "%s%.16g", value, cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
+            snprintf(value, value_size, "%s%.16g", value, cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
             break;
 
         case TRICK_LONG_LONG: {
@@ -160,7 +160,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             if (var->conversion_factor != cv_get_trivial()) {
                 ll = (long long)cv_convert_double(var->conversion_factor, ll);
             }
-            sprintf(value, "%s%lld", value, ll);
+            snprintf(value, value_size, "%s%lld", value, ll);
             break;
         }
 
@@ -169,12 +169,12 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
             if (var->conversion_factor != cv_get_trivial()) {
                 ull = (unsigned long long)cv_convert_double(var->conversion_factor, ull);
             }
-            sprintf(value, "%s%llu", value, ull);
+            snprintf(value, value_size, "%s%llu", value, ull);
             break;
         }
 
         case TRICK_NUMBER_OF_TYPES:
-            sprintf(value, "BAD_REF" );
+            snprintf(value, value_size, "BAD_REF" );
             break;
 
         default:{
@@ -191,9 +191,9 @@ int vs_format_ascii(Trick::VariableReference * var, char *value) {
 
     if (ref->units) {
         if ( ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
-            sprintf(value, "%s {--}", value);
+            snprintf(value, value_size, "%s {--}", value);
         } else {
-            sprintf(value, "%s {%s}", value, ref->units);
+            snprintf(value, value_size, "%s {%s}", value, ref->units);
         }
     }
 
@@ -225,21 +225,21 @@ size_t escape_str(const char *in_s, char *out_s)
             work_s[1] = '\0';
         } else {
             if (ch == '\a') {
-                sprintf(work_s, "\\a");
+                snprintf(work_s, sizeof(work_s), "\\a");
             } else if (ch == '\b') {
-                sprintf(work_s, "\\b");
+                snprintf(work_s, sizeof(work_s), "\\b");
             } else if (ch == '\f') {
-                sprintf(work_s, "\\f");
+                snprintf(work_s, sizeof(work_s), "\\f");
             } else if (ch == '\n') {
-                sprintf(work_s, "\\n");
+                snprintf(work_s, sizeof(work_s), "\\n");
             } else if (ch == '\r') {
-                sprintf(work_s, "\\n");
+                snprintf(work_s, sizeof(work_s), "\\n");
             } else if (ch == '\t') {
-                sprintf(work_s, "\\t");
+                snprintf(work_s, sizeof(work_s), "\\t");
             } else if (ch == '\v') {
-                sprintf(work_s, "\\v");
+                snprintf(work_s, sizeof(work_s), "\\v");
             } else {
-                sprintf(work_s, "\\x%02x", ch);
+                snprintf(work_s, sizeof(work_s), "\\x%02x", ch);
             }
         }
         out_len += strlen(work_s);

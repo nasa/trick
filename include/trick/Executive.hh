@@ -423,6 +423,13 @@ namespace Trick {
             int get_sim_objects(std::vector<Trick::SimObject *> & in_sim_objects) ;
 
             /**
+             Search for a sim object with the given name.
+             @param sim_object_name - name of desired SimObject
+             @return Pointer to sim object or NULL if not found
+            */
+            SimObject * get_sim_object_by_name(std::string sim_object_name);
+
+            /**
              @userdesc Command to get the real-time software frame in seconds.
              @par Python Usage:
              @code <my_double> = trick.exec_get_software_frame() @endcode
@@ -807,14 +814,33 @@ namespace Trick {
             int set_job_cycle(std::string job_name, int instance_num, double in_cycle) ;
 
             /**
-             @userdesc Command to turn on/off all jobs in the sim_object.
+             @userdesc Command to enable or disable all jobs in a sim object (without setting sim object status).
              @par Python Usage:
              @code trick.exec_set_sim_object_onoff("<sim_object_name>", <on>) @endcode
              @param sim_object_name - name of sim_object from S_define file
-             @param on - 1 to turn job on, 0 to turn job off
-             @return 0 if successful or -1 if the job cannot be found
+             @param on - 1 to turn jobs on, 0 to turn jobs off
+             @return 0 if successful or -1 if the object cannot be found
+             */
+            int set_sim_object_jobs_onoff(std::string sim_object_name, int on) ;
+
+            /**
+             @userdesc Command to turn on/off the sim_object.
+             @par Python Usage:
+             @code trick.exec_set_sim_object_onoff("<sim_object_name>", <on>) @endcode
+             @param sim_object_name - name of sim_object from S_define file
+             @param on - 1 to turn object on, 0 to turn object off
+             @return 0 if successful or -1 if the object cannot be found
              */
             int set_sim_object_onoff(std::string sim_object_name, int on) ;
+
+            /**
+             @userdesc Command to get whether the sim object is on or off.
+             @par Python Usage:
+             @code trick.exec_get_sim_object_onoff("<sim_object_name>") @endcode
+             @param sim_object_name - name of sim_object from S_define file
+             @return 1 if the object is enabled, 0 if the object is disabled, or -1 if the object cannot be found
+             */
+            int get_sim_object_onoff (std::string sim_object_name) ;
 
             /**
              @userdesc Trick Version & Date at the time executable was built.

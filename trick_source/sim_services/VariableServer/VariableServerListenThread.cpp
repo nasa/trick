@@ -182,7 +182,7 @@ void * Trick::VariableServerListenThread::thread_body() {
             vst->wait_for_accept() ;
             pthread_mutex_unlock(&restart_pause) ;
         } else if ( broadcast ) {
-            sprintf(buf1 , "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listen_dev.hostname , (unsigned short)listen_dev.port ,
+            snprintf(buf1 , sizeof(buf1), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listen_dev.hostname , (unsigned short)listen_dev.port ,
              user_name , (int)getpid() , command_line_args_get_default_dir() , command_line_args_get_cmdline_name() ,
              command_line_args_get_input_file() , version.c_str() , user_tag.c_str(), (unsigned short)listen_dev.port ) ;
 

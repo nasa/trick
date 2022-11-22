@@ -59,7 +59,7 @@ int tc_connect_(TCDevice * device, const char *file, int line)
     if (device->client_tag[0] == '\0') {
         strcpy(device->client_tag, "<empty>");
     }
-    sprintf(client_str, "(ID = %d tag = %s hostname = %s port = %d)",
+    snprintf(client_str, sizeof(client_str), "(ID = %d tag = %s hostname = %s port = %d)",
             device->client_id, device->client_tag, device->hostname, device->port);
 
 #ifdef __WIN32__

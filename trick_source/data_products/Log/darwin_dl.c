@@ -39,7 +39,7 @@ void *dlsym(void *handle, char *funcname)
         NSSymbol symbol;
         int cb = strlen(funcname) + 2;
         char *symname = (char *) alloca(cb);
-        sprintf(symname, "_%s", funcname);
+        snprintf(symname, cb, "_%s", funcname);
 
         dyn_error = NULL;
 
@@ -47,7 +47,7 @@ void *dlsym(void *handle, char *funcname)
         if (symbol) {
                 return (void *) NSAddressOfSymbol(symbol);
         } else {
-                sprintf(dyn_buf, "Symbol [%s] not found", symname);
+                snprintf(dyn_buf, sizeof(dyn_buf), "Symbol [%s] not found", symname);
                 dyn_error = dyn_buf;
                 return (void *) NULL;
         }

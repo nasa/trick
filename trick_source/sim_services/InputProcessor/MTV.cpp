@@ -100,28 +100,28 @@ int Trick::MTV::send_event_data() {
     int jj;
 
     for (ii=0; ii < mtv_count; ii++) {
-        sprintf(varname, "%s[%u][0].name", mtv_name,ii);
+        snprintf(varname, sizeof(varname), "%s[%u][0].name", mtv_name,ii);
         var_add(varname);
-        sprintf(varname, "%s[%u][0].active", mtv_name,ii);
+        snprintf(varname, sizeof(varname), "%s[%u][0].active", mtv_name,ii);
         var_add(varname);
-        sprintf(varname, "%s[%u][0].added", mtv_name,ii);
+        snprintf(varname, sizeof(varname), "%s[%u][0].added", mtv_name,ii);
         var_add(varname);
-        sprintf(varname, "%s[%u][0].condition_count", mtv_name,ii);
+        snprintf(varname, sizeof(varname), "%s[%u][0].condition_count", mtv_name,ii);
         var_add(varname);
-        sprintf(varname, "%s[%u][0].action_count", mtv_name,ii);
+        snprintf(varname, sizeof(varname), "%s[%u][0].action_count", mtv_name,ii);
         var_add(varname);
-        sprintf(varname, "%s[%u][0].before_after", mtv_name,ii);
+        snprintf(varname, sizeof(varname), "%s[%u][0].before_after", mtv_name,ii);
         var_add(varname);
         for (jj=0; jj< mtv_list[ii]->condition_count; jj++) {
-            sprintf(varname, "%s[%u][0].cond[%d].comment", mtv_name,ii,jj);
+            snprintf(varname, sizeof(varname), "%s[%u][0].cond[%d].comment", mtv_name,ii,jj);
             var_add(varname);
         }
         for (jj=0; jj< mtv_list[ii]->action_count; jj++) {
-            sprintf(varname, "%s[%u][0].act[%d].comment", mtv_name,ii,jj);
+            snprintf(varname, sizeof(varname), "%s[%u][0].act[%d].comment", mtv_name,ii,jj);
             var_add(varname);
         }
         if (mtv_list[ii]->get_before_after() > 0) {
-            sprintf(varname, "%s[%u][0].target_name", mtv_name,ii);
+            snprintf(varname, sizeof(varname), "%s[%u][0].target_name", mtv_name,ii);
             var_add(varname);
         }
     }

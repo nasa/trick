@@ -117,6 +117,29 @@ class TrickWorkflowTestCase(unittest.TestCase):
         sim = self.instance.get_sim(identifier='SIM_ball_L1')
         run = sim.get_run('RUN_test/input.py')
 
+    def test_set_binary_with_cpu_formatter (self):
+        sim = self.instance.get_sim(identifier="SIM_stls")
+        cpu = self.instance.get_trick_host_cpu()
+        run = sim.get_run('RUN_test/unit_test.py')
+        print("Binary: " , run.binary)
+        self.assertEqual(run.binary, "T_main_" + cpu + "_test.exe")
+
+    def test_set_binary_without_cpu_formatter (self):
+        sim = self.instance.get_sim(identifier="SIM_segments")
+        run = sim.get_run('RUN_test/input.py')
+        print("Binary: " , run.binary)
+        self.assertEqual(run.binary, "T_main_*.exe")
+
+    def test_absolute_path_to_custom_build_cmd (self):
+        sim = self.instance.get_sim(identifier="SIM_stls")
+        absolute_path = os.path.join(self.instance.trick_dir, "bin", "trick-CP -t")
+        self.assertEqual(sim.build_cmd, absolute_path)
+
+    def test_absolute_path_to_default_build_cmd (self):
+        sim = self.instance.get_sim(identifier="SIM_segments")
+        absolute_path = os.path.join(self.instance.trick_dir, "bin", "trick-CP")
+        self.assertEqual(sim.build_cmd, absolute_path)
+
     def test_get_unique_comparison_dirs(self):
         ucd = self.instance.get_unique_comparison_dirs()
         self.assertTrue(ucd[0] is not None)

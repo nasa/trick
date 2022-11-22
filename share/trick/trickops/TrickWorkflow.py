@@ -102,7 +102,7 @@ class TrickWorkflow(WorkflowCommon):
         super().__init__(project_top_level=project_top_level, log_dir=log_dir, quiet=quiet)
         # If not found in the config file, these defaults are used
         self.defaults = {'cpus': 3, 'name': None, 'description': None,
-          'build_command': 'trick-CP', 'size': 2200000, 'env': None}
+          'build_command': 'trick-CP', 'size': 2200000, 'env': None, 'binary': 'S_main_{cpu}.exe'}
         self.config_errors = False
         self.compare_errors = False     # True if comparison errors were found
         self.sims = []                  # list of Sim() instances, filled out from config file
@@ -269,6 +269,7 @@ class TrickWorkflow(WorkflowCommon):
               - model_x            by label within the framework, or for any other project-defined
               - verification       purpose
           build_command:       <-- optional literal cmd executed for SIM_build, defaults to trick-CP
+          binary:              <-- optional name of sim binary, defaults to S_main_{cpu}.exe
           size:                <-- optional estimated size of successful build output file in bytes
           runs:                <-- optional dict of runs to be executed for this sim, where the
             RUN_1/input.py --foo:  dict keys are the literal arguments passed to the sim binary
@@ -390,11 +391,22 @@ class TrickWorkflow(WorkflowCommon):
             sanitized_labels =( [l for l in c[s]['labels'] if type_expected(
               l, expected_type=str, extra_msg='Ignoring label "%s".' % l) ] )
             self.config[s]['labels'] = sanitized_labels
+          # Check for binary argument
+          if 'binary' not in c[s] or not c[s]['binary']:
+            self.config[s]['binary'] = self.defaults['binary']
+
+          # Add the CPU format string (won't fail if there is no CPU placeholder)
+          self.config[s]['binary'] = self.config[s]['binary'].format(cpu=self.trick_host_cpu)
+
+          # Add the full path to the build command
+          self.config[s]['build_command'] = os.path.join(self.trick_dir, "bin", self.config[s]['build_command'])
+
           # Create internal object to be populated with runs, valgrind runs, etc
           thisSim = TrickWorkflow.Sim(name=s, sim_dir=self.config[s]['path'],
             description=self.config[s]['description'], labels=self.config[s]['labels'],
             prebuild_cmd=self.env, build_cmd=self.config[s]['build_command'],
             cpus=self.cpus, size=self.config[s]['size'], log_dir=self.log_dir)
+            
           all_sim_paths.append(c[s]['path'])
           # RUN sanity checks
           if 'runs' in c[s]:         # If it's there...
@@ -442,7 +454,7 @@ class TrickWorkflow(WorkflowCommon):
                   self.config[s]['runs'][r]['returns'] = 0 # Default to zero
                 # Create internal object to be added to thisSim
                 thisRun = TrickWorkflow.Run(sim_dir=self.config[s]['path'], input=r,
-                              binary= 'S_main_' + self.trick_host_cpu + '.exe', prerun_cmd=self.env,
+                              binary= self.config[s]['binary'], prerun_cmd=self.env,
                               returns=self.config[s]['runs'][r]['returns'],
                               valgrind_flags=None, log_dir=self.log_dir)
                 # Handle 'compare' option, if given, if not, assume 0
@@ -502,7 +514,7 @@ class TrickWorkflow(WorkflowCommon):
                       else:
                         # Create internal object to be added to thisSim
                         vRun = TrickWorkflow.Run(sim_dir=self.config[s]['path'], input=r,
-                          binary= 'S_main_' + self.trick_host_cpu + '.exe',
+                          binary= self.config[s]['binary'],
                           prerun_cmd=self.env, valgrind_flags=self.config[s]['valgrind']['flags'],
                           log_dir=self.log_dir)
                         thisSim.add_run(vRun)
@@ -811,6 +823,7 @@ class TrickWorkflow(WorkflowCommon):
             FileSizeJob()
                 Instance of FileSizeJob() job for compiling this sim
             """
+
             if not self.build_job:
                 name = 'Build ' + self.sim_dir
                 self.build_job = FileSizeJob(name=name,
@@ -1019,7 +1032,7 @@ class TrickWorkflow(WorkflowCommon):
                 including command-line arguments
                 ex: RUN_test/input.py, or RUN_test/input.py --my-arg
              binary : str
-                Name of executable, usually S_min.. bu platform specific
+                Name of executable, usually S_main.. but platform specific
              prerun_cmd : str
                 Optional string to execute immediately before sim run, e.g. env sourcing
              valgrind_flags : str

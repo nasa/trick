@@ -23,7 +23,7 @@ int tc_blockio(TCDevice * device, TCCommBlocking blockflag)
     }
 
     /* Status message */
-    sprintf(client_str, "(ID = %d  tag = %s)", device->client_id, device->client_tag);
+    snprintf(client_str, sizeof(client_str), "(ID = %d  tag = %s)", device->client_id, device->client_tag);
     trick_error_report(device->error_handler, TRICK_ERROR_TRIVIAL, __FILE__,
                        __LINE__, "%s blockflag = %d\n", client_str, blockflag);
 

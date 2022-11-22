@@ -150,8 +150,9 @@ char * almostRealPath( const char * in_path ) {
     char * final_path = NULL ;
     resolved_path = realpath( dir , resolved_path) ;
     if ( resolved_path != NULL ) {
-        final_path = (char *)malloc(strlen(resolved_path) + strlen(file) + 2) ;
-        sprintf(final_path,"%s/%s", resolved_path , file ) ;
+        size_t final_path_len = strlen(resolved_path) + strlen(file) + 2; 
+        final_path = (char *)malloc(final_path_len) ;
+        snprintf(final_path, final_path_len, "%s/%s", resolved_path , file ) ;
         free(resolved_path) ;
     }
     free(file_copy_path) ;

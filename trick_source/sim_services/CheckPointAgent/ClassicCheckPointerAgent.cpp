@@ -228,12 +228,11 @@ static int getCompositeSubReference(
     char* reference_name            /* destination buffer of composite subreference */
     ) {
 
-    int   j, k, m;
+    int   j, m;
     long  offset;
     int   my_index[9];
     int   ret;
     int   size, last_size;
-    int   temp_size;
 
     char* rAddr = (char*)reference_address;
     char* sAddr = (char*)structure_address;
@@ -263,7 +262,7 @@ static int getCompositeSubReference(
         if (referenceOffset == 0) {
             reference_name[0] = '\0' ;
         } else if (referenceOffset > 0) {
-            sprintf(reference_name, " + %ld" , referenceOffset);
+            snprintf(reference_name, (size_t)256, " + %ld" , referenceOffset);
         } else {
             return 1; // ERROR
         }
@@ -273,7 +272,7 @@ static int getCompositeSubReference(
 /******************************************************************************/
     
 /* We found a member corresponding to the reference address, so print it's name. */
-    sprintf(reference_name, ".%s", Ai->name);
+    snprintf(reference_name, (size_t)256, ".%s", Ai->name);
 
 /* If the referenced member variable is an intrinsic type */
     if (Ai->type != TRICK_STRUCTURED) {
@@ -310,7 +309,9 @@ static int getCompositeSubReference(
         }
 
         for (j = 0; j < num_fixed_dims; j++) {
-            sprintf(&reference_name[strlen(reference_name)], "[%d]", my_index[j]);
+            size_t len = strlen(reference_name);
+            size_t rem = (size_t)256 - len;
+            snprintf(&reference_name[len], rem, "[%d]", my_index[j]);
         }
     return 0;
     }
@@ -325,7 +326,9 @@ static int getCompositeSubReference(
         ret = getCompositeSubReference( rAddr, left_type, sAddr + Ai->offset, (ATTRIBUTES *) Ai->attr, buf);
 
         if (ret == 0) {
-            sprintf(&reference_name[strlen(reference_name)],"%s", buf);
+            size_t len = strlen(reference_name);
+            size_t rem = (size_t)256 - len;
+            snprintf(&reference_name[len], rem, "%s", buf);
         } else {
             return 1; // ERROR.
         }
@@ -354,7 +357,9 @@ static int getCompositeSubReference(
 
 
     for (j = 0; j < Ai->num_index; j++) {
-        sprintf(&reference_name[strlen(reference_name)], "[%d]", my_index[j]);
+        size_t len = strlen(reference_name);
+        size_t rem = (size_t)256 - len;
+        snprintf(&reference_name[len], rem, "[%d]", my_index[j]);
     }
 
     /* if left_type specifies the current member, stop here */
@@ -379,7 +384,9 @@ static int getCompositeSubReference(
         ret = getCompositeSubReference( rAddr, left_type, sAddr + Ai->offset + offset, (ATTRIBUTES *) Ai->attr, buf);
 
         if (ret == 0) {
-            sprintf(&reference_name[strlen(reference_name)], "%s", buf);
+            size_t len = strlen(reference_name);
+            size_t rem = (size_t)256 - len;
+            snprintf(&reference_name[len], rem, "%s", buf);
         } else {
             return 1; // ERROR
         }

@@ -39,7 +39,7 @@ int VSTest::testUnits() {
     int result;
 
     // INVALID UNIT CHANGE
-    sprintf(msg,"trick.var_add(\"vsx.vst.c\")\ntrick.var_units(\"vsx.vst.c\",\"g\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_add(\"vsx.vst.c\")\ntrick.var_units(\"vsx.vst.c\",\"g\")\n");
     vs_write(msg);
     std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
     vs_read();
@@ -47,21 +47,21 @@ int VSTest::testUnits() {
     TRICK_EXPECT_EQ(result, 0, suite, "VariableInvalidUnits")
 
     // ADD UNITS
-    sprintf(msg,"trick.var_add(\"vsx.vst.e\",\"m\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_add(\"vsx.vst.e\",\"m\")\n");
     vs_write(msg);
     vs_read();
     result = strcmp_IgnoringWhiteSpace("0  -1234  -123456 {m}", got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableAddUnits")
 
     // CHANGE UNITS
-    sprintf(msg,"trick.var_units(\"vsx.vst.e\",\"ft\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_units(\"vsx.vst.e\",\"ft\")\n");
     vs_write(msg);
     vs_read();
     result = strcmp_IgnoringWhiteSpace("0  -1234  -405039 {ft}", got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableChangeUnits")
 
     // CLEAR VARIABLE SERVER
-    sprintf(msg,"trick.var_clear()\n");
+    snprintf(msg, sizeof(msg), "trick.var_clear()\n");
     vs_write(msg);
 }
 
@@ -71,7 +71,7 @@ int VSTest::testAddRemove() {
     int result;
 
     // NO UNITS
-    sprintf(msg,"trick.var_add(\"vsx.vst.c\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_add(\"vsx.vst.c\")\n");
     vs_write(msg);
     vs_read();
     std::cout << got_read << std::endl;
@@ -83,14 +83,14 @@ int VSTest::testAddRemove() {
     TRICK_EXPECT_EQ(result, 0, suite, "VariableAddCyclic")
 
     // REMOVE SINGLE VARIABLE
-    sprintf(msg,"trick.var_remove(\"vsx.vst.e\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_remove(\"vsx.vst.e\")\n");
     vs_write(msg);
     vs_read();
     result = strcmp_IgnoringWhiteSpace("0  -1234", got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableRemove")
 
     // CLEAR VARIABLE SERVER
-    sprintf(msg,"trick.var_clear()\n");
+    snprintf(msg, sizeof(msg), "trick.var_clear()\n");
     vs_write(msg);
     vs_read();
     TRICK_EXPECT_EQ(strcmp(got_read, ""), 0, suite, "VariableClear")
@@ -104,7 +104,7 @@ int VSTest::testSendOnce() {
     int result;
 
     // SEND ONCE
-    sprintf(msg,"trick.var_send_once(\"vsx.vst.e\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_send_once(\"vsx.vst.e\")\n");
     vs_write(msg);
     vs_read();
     result = strcmp_IgnoringWhiteSpace("5  -123456", got_read);
@@ -112,14 +112,14 @@ int VSTest::testSendOnce() {
     trick_test_add_parent( suite , "VariableSendOnce" , "");
 
     // SEND ONCE LIST
-    sprintf(msg,"trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 3)\n");
+    snprintf(msg, sizeof(msg), "trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 3)\n");
     vs_write(msg);
     vs_read();
     result = strcmp_IgnoringWhiteSpace("5   0   1   2", got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableSendOnceList")
 
     // SEND ONCE LIST - WRONG INDICES
-    sprintf(msg,"trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 4)\n");
+    snprintf(msg, sizeof(msg), "trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 4)\n");
     vs_write(msg);
     std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
     vs_read();
@@ -133,7 +133,7 @@ int VSTest::testExists() {
     int result;
 
     // VARIABLE EXISTS
-    sprintf(msg,"trick.var_exists(\"vsx.vst.e\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_exists(\"vsx.vst.e\")\n");
     vs_write(msg);
     vs_read();
     result = strcmp_IgnoringWhiteSpace("1  1",got_read);
@@ -141,14 +141,14 @@ int VSTest::testExists() {
     trick_test_add_parent( suite , "VariableExists" , "3587464751");
 
     // VARIABLE DOES NOT EXIST
-    sprintf(msg,"trick.var_exists(\"vsx.vst.z\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_exists(\"vsx.vst.z\")\n");
     vs_write(msg);
     vs_read();
     std::cout << "Check variable doesn't exist: " << got_read << std::endl;
     result = strcmp_IgnoringWhiteSpace("1  0",got_read);
     TRICK_EXPECT_EQ(result, 0, suite, "VariableNotExists")
 
-    sprintf(msg,"trick.var_clear()\n");
+    snprintf(msg, sizeof(msg), "trick.var_clear()\n");
     vs_write(msg);
 
     return(0);
@@ -159,13 +159,13 @@ int VSTest::testPause() {
     char suite[] = "VariableServerTest";
     int result;
 
-    sprintf(msg,"trick.var_add(\"vsx.vst.f\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_add(\"vsx.vst.f\")\n");
     vs_write(msg);
-    sprintf(msg,"trick.var_add(\"vsx.vst.i\")\n");
+    snprintf(msg, sizeof(msg), "trick.var_add(\"vsx.vst.i\")\n");
     vs_write(msg);
 
     // PAUSE
-    sprintf(msg,"trick.var_pause()\n");
+    snprintf(msg, sizeof(msg), "trick.var_pause()\n");
     vs_write(msg);
     vs_read();
     vs_read();
@@ -173,7 +173,7 @@ int VSTest::testPause() {
     trick_test_add_parent( suite , "VariablePause" , "964174074");
 
     // SEND
-    sprintf(msg,"trick.var_send()\n");
+    snprintf(msg, sizeof(msg), "trick.var_send()\n");
     vs_write(msg);
     vs_read();
     result = strcmp_IgnoringWhiteSpace("0  123456  1234.5677", got_read);
@@ -185,7 +185,7 @@ int VSTest::testPause() {
     trick_test_add_parent( suite , "VariableSendNoCyclic" , "67211805");
 
     // UNPAUSE
-    sprintf(msg,"trick.var_unpause()\n");
+    snprintf(msg, sizeof(msg), "trick.var_unpause()\n");
     vs_write(msg);
     vs_read();
     result = strcmp_IgnoringWhiteSpace("0  123456  1234.5677", got_read);
@@ -197,7 +197,7 @@ int VSTest::testPause() {
     TRICK_EXPECT_EQ(result, 0, suite, "VariableUnpauseCyclic")
     trick_test_add_parent( suite , "VariableUnpauseCyclic" , "964174074");
 
-    sprintf(msg,"trick.var_clear()\n");
+    snprintf(msg, sizeof(msg), "trick.var_clear()\n");
     vs_write(msg);
 
     return(0);

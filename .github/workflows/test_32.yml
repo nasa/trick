@@ -1,18 +1,13 @@
 name: 32-bit
 
 on:
-  push:
-    branches:
-      - master
-    paths-ignore:
-    - 'docs/**'
-    - '.github/workflows/**'
-    - '!.github/workflows/test_32.yml'
-  pull_request:
+  schedule:
+  - cron:  '0 0 * * 0'
+  workflow_dispatch:
 
 jobs:
   trick_32bit:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container: docker://centos:7
     steps:
     - name: Checkout repository
@@ -66,5 +61,9 @@ jobs:
         make
     - name: Run tests
       run: |
+        cd share/trick/trickops/
+        yum install -y python3-devel
+        python3 -m venv .venv && . .venv/bin/activate && pip install --upgrade pip && pip3 install -r requirements.txt        
+        cd ../../../
         echo $MAKEFLAGS $CXXFLAGS $CFLAGS 
         make test 
