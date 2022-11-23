@@ -12,7 +12,7 @@ def main():
 	#trick.add_read(1.1, """vsx.vst.vs_read()""")
 	#trick.add_read(2.1, """vsx.vst.vs_read()""")
 
-	trick.exec_set_terminate_time(3000.0)
+	trick.exec_set_terminate_time(10.0)
 
 	#print trick.var_add("vsx.vst.b")
 

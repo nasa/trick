@@ -8,6 +8,14 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
 *******************************************************************************/
 #include <iostream>
 #include "../include/VS.hh"
+
 VSTest::VSTest() {}
 VSTest::~VSTest() {}
 
+int VSTest::fail() {
+    status = 1; 
+}
+
+int VSTest::success() {
+    status = 0; 
+}
