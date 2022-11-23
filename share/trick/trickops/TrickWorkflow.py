@@ -1,7 +1,8 @@
 """
-collection of Trick-based utility classes. These classes inherit from generic
+Collection of Trick-based utility classes. These classes inherit from generic
 functionality provided by WorkflowCommon Provides a consistent framework for
 testing multiple sims/runs/analysis/comparisons
+
 Requires: python3 and requirements.txt containing:
   PyYAML         # For reading input yml files
   psutil         # For child process acquisition
@@ -40,28 +41,34 @@ class TrickWorkflow(WorkflowCommon):
     project workflow of interest.  A project using Trick should define their own
     <project>Workflow class which inherits from this base class, where all
     project-specific (but not Trick specific) content lives.
+
     Once TrickWorkflow.__init__() is called, an internal list of Sim() container
     instances are created from the content of the yml file, that can then be
     leveraged as your project sees fit. Some examples:
+
       # Get lists of jobs created from the content in the YAML file
       builds    = self.get_jobs(kind='build')
       runs      = self.get_jobs(kind='run')
       analysis  = self.get_jobs(kind='analysis')
       valgrind  = self.get_jobs(kind='valgrind')
+
       # Execute the build jobs, with a max of 3 building simultaneously
       # ret will be 0 if all jobs success, 1 if any fail
       ret = self.execute_jobs(builds, max_concurrent=3)
+
       # Job statuses are stored internally and can be queried after they've already
       # executed, for example, after execute_jobs() finishes:
       for b in builds:
         print("Build job %s completed with status %d " % (b.name, b.get_status() is job.Status.SUCCESS))
         print("and ran command %s " % (b._command))
+
       # All jobs store their status internally regardless of whether they have
       # been executed already or not. Jobs that have not yet run have a status
       # of Job.Status.NOT_STARTED. See WorkflowCommon.py for all statuses.
       # Here's an example where we print all states for all jobs:
       for j in (builds + runs + analysis + valgrind):
         print("Job with command '%s' has status %d " % (j._command, j.get_status()))
+
       # Verbose reporting of container classes is built-in, for example:
       self.report()  # Report all sims, runs, comparisons, etc. recursively
       # Get a sim's report by it's name from the YAML file
@@ -72,7 +79,9 @@ class TrickWorkflow(WorkflowCommon):
     def __init__(self, project_top_level, log_dir, trick_dir, config_file, cpus=3, quiet=False):
         """
         Initialize this instance.
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
+
         Parameters
         ----------
         project_top_level : str
@@ -109,10 +118,13 @@ class TrickWorkflow(WorkflowCommon):
     def create_test_suite(self):
         """
         Create all Job()s from the internal self.sims structure
+
         Jobs are created "on-get". This function just gets everything TrickWorkflow
         knows about with respect to Jobs but doesn't execute anything.
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> tw.create_test_suite()
+
         """
         self.get_jobs(kind='build')
         self.get_jobs(kind='run')
@@ -122,9 +134,11 @@ class TrickWorkflow(WorkflowCommon):
     def get_trick_host_cpu(self):
         """
         Get a string of the TRICK_HOST_CPU by running trick-gte
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> tw.get_trick_host_cpu() is not None
         True
+
         Returns
         -------
         str or None
@@ -144,17 +158,21 @@ class TrickWorkflow(WorkflowCommon):
         Get a Sim() instance by unique identifier. This identifier must
         be either the name (top level key) in self.config_file or the path
         parameter
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> sim = tw.get_sim('SIM_ball_L1')
+
         Parameters
         ----------
         identifier : str
             name or path to sim from top level of repo, as written in the YAML file
+
         Returns
         -------
         Sim() or None
             Instance of Sim() management class matching the path/name given or None
             if one cannot be found
+
         Raises
         ------
         TypeError
@@ -170,18 +188,22 @@ class TrickWorkflow(WorkflowCommon):
     def get_sims(self, labels=None):
         """
         Get a list of Sim() instances by label or labels listed in self.config_file
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> sims = tw.get_sims(['unit_test'])
+
         Parameters
         ----------
         labels : str or list or None
             label or labels that each sim must have to be returned by this functionr.
             If None, return all sims
+
         Returns
         -------
         list
             List of Sim() instances matching the label(s) given or [] if none can be
             found
+
         Raises
         ------
         TypeError
@@ -206,10 +228,13 @@ class TrickWorkflow(WorkflowCommon):
     def _read_config(self, config_file):
         """
         Read the yaml file into a dict and return it
+
+
         Parameters
         ----------
         config_file : str
             path to YAML config file to be read
+
         Returns
         -------
         dict or None
@@ -231,7 +256,9 @@ class TrickWorkflow(WorkflowCommon):
         exist and paths are valid locations where applicable. The self.config dict
         may be modified to add missing entries as part of this process. If errors
         in the config file are detected, self.config_errors is set to True
+
         The yaml format expected by this framework is described as follows:
+
         globals:
           env:                 <-- optional literal string executed before all tests, e.g. env setup
           parallel_safety:     <-- <loose|strict> strict won't allow multiple input files per RUN dir
@@ -262,8 +289,10 @@ class TrickWorkflow(WorkflowCommon):
                                    valgrind
         non_sim_extension_example:
           will: be ignored by TrickWorkflow parsing for derived classes to implement as they wish
+
         Any top-level key not matching the SIM naming pattern is ignored purposefully to provide
         users of this framework to extend the same YAML file for other non-trick tests
+
         Raises
         ------
         RuntimeError
@@ -504,6 +533,7 @@ class TrickWorkflow(WorkflowCommon):
         """
         Customization of config file validation. Intended to be extended in derived class.
         If changes are needed to the config file, derived classes should edit self.config, not config.
+
         Parameters
         ----------
         config : dict
@@ -562,9 +592,11 @@ class TrickWorkflow(WorkflowCommon):
     def compare(self):
         """
         Execute sim.compare() on all sims in self.sims
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> tw.compare()
         True
+
         Returns
         -------
         bool
@@ -575,6 +607,7 @@ class TrickWorkflow(WorkflowCommon):
     def get_jobs(self, kind):
         """
         Return a list of Jobs() from the self.sims structure of the kind given
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> ret = tw.get_jobs(kind='build')
         >>> len(ret)
@@ -582,10 +615,12 @@ class TrickWorkflow(WorkflowCommon):
         >>> ret = tw.get_jobs(kind='run')
         >>> ret = tw.get_jobs(kind='valgrind')
         >>> ret = tw.get_jobs(kind='analysis')
+
         Parameters
         ----------
         kind : str
             Kind of jobs to return from internal self.sims structure: 'build', 'run', 'valgrind', or 'analysis'
+
         Returns
         -------
         list
@@ -610,10 +645,12 @@ class TrickWorkflow(WorkflowCommon):
     def get_comparisons(self):
         """
         Return a list of all Comparison() instances from the self.sims structure
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> ret = tw.get_comparisons()
         >>> len(ret)
         1
+
         Returns
         -------
         list
@@ -628,10 +665,12 @@ class TrickWorkflow(WorkflowCommon):
         tools accept two run directories, not paths to individual log files.
         Note that if a directory doesn't exist, that element of the tuple is None
         see Comparison.get_dirnames()
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> ret = tw.get_unique_comparison_dirs()
         >>> len(ret)
         1
+
         Returns
         -------
         list
@@ -650,12 +689,14 @@ class TrickWorkflow(WorkflowCommon):
         """
         Given two RUN directories, generate a error/difference report koviz Job() instance
         which when executed will generate a PDF in self.log_dir
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> ret = tw.get_koviz_report_job('share/trick/trickops/tests/baselinedata/','share/trick/trickops/tests/testdata/')
         >>> type(ret[0]) is Job
         True
         >>> ret[1] is None
         True
+
         Parameters
         ----------
         test_dir : str
@@ -664,6 +705,7 @@ class TrickWorkflow(WorkflowCommon):
             path to directory with baseline logged data
         pres : str or None
             passthrough option to koviz's -pres (presentation) option
+
         Returns
         -------
         Tuple
@@ -694,6 +736,7 @@ class TrickWorkflow(WorkflowCommon):
         '''
         Loop over all runs for all sims and generate a koviz pdf report job for each unique
         run directory comparison found.
+
         >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
         >>> ret = tw.get_koviz_report_jobs()
         >>> type(ret[0]) is list
@@ -702,6 +745,7 @@ class TrickWorkflow(WorkflowCommon):
         True
         >>> len(ret[1])
         0
+
         Returns
         -------
         Tuple
@@ -730,9 +774,11 @@ class TrickWorkflow(WorkflowCommon):
                      build_cmd='trick-CP', cpus=3, size=2200000, log_dir='/tmp'):
             """
             Initialize this instance.
+
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.name
             'alloc'
+
             Parameters
             ----------
             name : str
@@ -767,9 +813,11 @@ class TrickWorkflow(WorkflowCommon):
         def get_build_job( self):
             """
             Create the FileSizeJob(Job) instance if not already created and return it for this Sim
+
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.get_build_job()  #doctest: +ELLIPSIS
             <WorkflowCommon.FileSizeJob ...
+
             Returns
             -------
             FileSizeJob()
@@ -788,13 +836,16 @@ class TrickWorkflow(WorkflowCommon):
         def get_run_jobs( self, kind='normal'):
             """
             Collect all SingleRun() instances and return them for all sims
+
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.get_run_jobs()  # A sim has no runs by default
             []
+
             Parameters
             -------
             kind : str
                 'normal' for normal runs, 'valgrind' for valgrind runs
+
             Returns
             -------
             list
@@ -808,9 +859,11 @@ class TrickWorkflow(WorkflowCommon):
         def get_analysis_jobs( self):
             """
             Collect all Job() instances for all analysis across all sim runs
+
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.get_analysis_jobs()  # A sim has no analysis jobs by default
             []
+
             Returns
             -------
             list()
@@ -822,17 +875,21 @@ class TrickWorkflow(WorkflowCommon):
             """
             Get a Run() instance by unique full input name. This is the full
             string intended to be passed to the binary.
+
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.get_run('RUN_none/input.py')  # This sim has no runs
+
             Parameters
             ----------
             input : str
                 unique full input name
+
             Returns
             -------
             Run() or None
                 Instance of Run() management class matching the input given or None
                 if one cannot be found
+
             Raises
             ------
             TypeError
@@ -849,18 +906,22 @@ class TrickWorkflow(WorkflowCommon):
         def get_runs(self):
             """
             Get all Run() instances associated with this sim
+
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.get_runs()  # This sim has no runs
             []
+
             """
             return self.runs
 
         def get_valgrind_runs(self):
             """
             Get all Run() instances associated with this sim
+
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.get_valgrind_runs()  # This sim has no runs
             []
+
             """
             return self.valgrind_runs
 
@@ -868,9 +929,11 @@ class TrickWorkflow(WorkflowCommon):
             """
             Append a new Run() instance to the internal run lists. Appends to valgrind
             list if run.valgrind_flags is not None, appends to normal run list otherwise
+
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> r = TrickWorkflow.Run(sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'), input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> s.add_run(r)
+
             Parameters
             -------
             run : Run()
@@ -884,6 +947,7 @@ class TrickWorkflow(WorkflowCommon):
         def pop_run( self, input):
             """
             Remove a run by its unique self.input value
+
             >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
             >>> s = tw.get_sim('SIM_alloc_test')
             >>> r = s.pop_run('RUN_test/input.py')
@@ -891,6 +955,7 @@ class TrickWorkflow(WorkflowCommon):
             'RUN_test/input.py'
             >>> len(s.runs)
             0
+
             Returns
             -------
             Run()
@@ -903,9 +968,11 @@ class TrickWorkflow(WorkflowCommon):
         def compare( self):
             """
             Run compare() on all runs for this sim
+
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.compare()  # This sim has no comparisons, which means all comparisons succeed
             False
+
             Returns
             -------
             bool
@@ -916,10 +983,12 @@ class TrickWorkflow(WorkflowCommon):
         def report(self, indent=''):
             """
             Report this sims information verbosely, ignoring members that are None
+
             Parameters
             -------
             indent : str
                 prepend the report with this custom string
+
             """
             if self.name:
               tprint(indent + "Name:                 " + self.name)
@@ -949,9 +1018,11 @@ class TrickWorkflow(WorkflowCommon):
                      log_dir='/tmp/'):
             """
             Initialize this instance.
+
             >>> r = TrickWorkflow.Run(sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'), input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> r.input
             'RUN_test/input.py'
+
             Parameters
             ----------
             sim_dir : str
@@ -989,8 +1060,10 @@ class TrickWorkflow(WorkflowCommon):
         def add_comparison(self, test_data, baseline_data):
             """
             Given two data directories, add a new Comparison() instance to self.comparisons list
+
             >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> r.add_comparison('share/trick/trickops/tests/baselinedata/log_a.csv','share/trick/trickops/tests/testdata/log_a.csv')
+
             Parameters
             ----------
             test_dir : str
@@ -1004,8 +1077,10 @@ class TrickWorkflow(WorkflowCommon):
         def add_analysis(self, cmd):
             """
             Given an analysis command, add it as a post-run analysis for this run
+
             >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> r.add_analysis('echo analysis goes here')
+
             Parameters
             ----------
             cmd : str
@@ -1022,9 +1097,11 @@ class TrickWorkflow(WorkflowCommon):
         def compare( self):
             """
             Execute all internal comparisons for this run
+
             >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> r.compare() # No comparisons means success a.k.a 0
             False
+
             Returns
             -------
             bool
@@ -1035,10 +1112,12 @@ class TrickWorkflow(WorkflowCommon):
         def report(self, indent=''):
             """
             Report this run's information verbosely, ignoring members that are None
+
             Parameters
             -------
             indent : str
                 prepend the report with this custom string
+
             """
             tprint(indent + "  %-20s       %s"  % (self.run_job._translate_status()
               if self.run_job else printer.colorstr('NOT RUN', 'DARK_YELLOW'),
@@ -1054,8 +1133,10 @@ class TrickWorkflow(WorkflowCommon):
         def get_run_job(self):
             """
             Create if necessary and Return the SingleRun() job instance
+
             >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> j = r.get_run_job()
+
             Returns
             -------
             SingleRun()
@@ -1092,7 +1173,9 @@ class TrickWorkflow(WorkflowCommon):
         def __init__(self, test_data, baseline_data):
             """
             Initialize this instance.
+
             >>> c = TrickWorkflow.Comparison('share/trick/trickops/tests/baselinedata/log_a.csv','share/trick/trickops/tests/testdata/log_a.csv')
+
             Parameters
             ----------
             test_data : str
@@ -1109,9 +1192,11 @@ class TrickWorkflow(WorkflowCommon):
         def compare(self):
             """
             Execute an md5sum hash comparison of self.test_data vs. self.baseline_data.
+
             >>> c = TrickWorkflow.Comparison('share/trick/trickops/tests/baselinedata/log_a.csv','share/trick/trickops/tests/testdata/log_a.csv')
             >>> c.compare() == Job.Status.FAILED
             True
+
             Returns
             -------
             Job.Status ENUM
@@ -1133,9 +1218,11 @@ class TrickWorkflow(WorkflowCommon):
         def get_status(self):
             """
             Return the status member ENUM
+
             >>> c = TrickWorkflow.Comparison('share/trick/trickops/tests/baselinedata/log_a.csv','share/trick/trickops/tests/testdata/log_a.csv')
             >>> c.get_status() == Job.Status.NOT_STARTED
             True
+
             Returns
             -------
             Job.Status ENUM
@@ -1159,10 +1246,12 @@ class TrickWorkflow(WorkflowCommon):
             Get a tuple of this comparison's test directory and baseline directory,
             not including the actual filename. If either directory does not exist,
             return None for that element of the tuple
+
             >>> os.chdir(this_trick)
             >>> c = TrickWorkflow.Comparison('share/trick/trickops/tests/baselinedata/log_a.csv','share/trick/trickops/tests/testdata/log_a.csv')
             >>> c.get_dirnames()
             ('share/trick/trickops/tests/baselinedata', 'share/trick/trickops/tests/testdata')
+
             Returns
             -------
             tuple
@@ -1179,10 +1268,12 @@ class TrickWorkflow(WorkflowCommon):
         def report (self, indent=''):
             """
             Report this comparison's information verbosely
+
             Parameters
             -------
             indent : str
                 prepend the report with this custom string
+
             """
             string = indent + "%-22s %s"  % (self._translate_status(), self.test_data)
             if self.test_data in self.missing:
@@ -1204,6 +1295,7 @@ class SimulationJob(Job):
         """
         Create and return a list of Variables to periodically sample
         via the sim's variable server.
+
         Returns
         -------
         [variable_server.Variable]
@@ -1217,6 +1309,7 @@ class SimulationJob(Job):
         Get a string displaying status information. This method will
         be only called after this instance has successfull connected
         to the sim.
+
         Returns
         -------
         str
@@ -1230,6 +1323,7 @@ class SimulationJob(Job):
         Get a progress bar representing the current progress. This
         method will be only called after this instance has successfull
         connected to the sim.
+
         Returns
         -------
         str
@@ -1359,6 +1453,7 @@ class SingleRun(SimulationJob):
     def _sim_time(self):
         """
         Get a string displaying the sim time.
+
         Returns
         -------
         str
@@ -1370,6 +1465,7 @@ class SingleRun(SimulationJob):
     def _average_speed(self):
         """
         Get a string displaying the average speedup.
+
         Returns
         -------
         str
@@ -1384,6 +1480,7 @@ class SingleRun(SimulationJob):
 class MonteCarlo(SimulationJob):
     """
     A Monte Carlo simulation.
+
     TODO: This is not currently tested or supported by the TrickWorkflow
     management layer. However, this class has been used in a project in
     the 2017-2020 timeframe and should still be functional. Reason for
