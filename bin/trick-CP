@@ -60,7 +60,7 @@ if ( -f $sdefine ) {
     system("make -f makefile " . $makefileAddArgs) ;
     exit $? >> 8;
 } else {
-    print "S_define does not exist" ;
+    print "S_define does not exist\n" ;
     exit 1 ;
 }
 
