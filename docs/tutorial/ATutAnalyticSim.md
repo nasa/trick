@@ -479,7 +479,7 @@ our Cannonball simulation is shown in Listing 7, below.
 ```c++
 /************************TRICK HEADER*************************
 PURPOSE:
-    (This S_define works with the RUN_analytic input file)
+    (S_define file for SIM_cannon_analytic)
 LIBRARY DEPENDENCIES:
     (
       (cannon/src/cannon_init.c)
@@ -506,8 +506,6 @@ class CannonSimObject : public Trick::SimObject {
 
 CannonSimObject dyn ;
 ```
-
-
 
 The `S_define` file syntax is C++ with a couple of Trick specific constructs.
 Let us dissect this S_define file to see what makes it tick.
