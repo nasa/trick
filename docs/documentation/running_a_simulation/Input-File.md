@@ -255,7 +255,7 @@ There are several ways to include files in Python.
 
 ```python
 # One way is to use the execfile command
-execfile("Modified_data/data_record.py")
+exec(open("Modified_data/data_record.py").read())
 
 # Another way is to make the included file a module and import it.
 # Import search paths may be added using the sys.path.append command.

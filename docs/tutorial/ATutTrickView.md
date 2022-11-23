@@ -109,8 +109,8 @@ Again, we need to incorporate the TV input file into our ever expanding
 simulation input file.
 
 ```python
-execfile("Modified_data/realtime.py")
-execfile("Modified_data/cannon.dr")
+exec(open("Modified_data/realtime.py").read())
+exec(open("Modified_data/cannon.dr").read())
 
 trick.trick_view_add_auto_load_file("TV_cannon.tv")
 trick.stop(5.2)
