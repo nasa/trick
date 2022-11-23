@@ -18,3 +18,5 @@ MM_strdup_unittest
 MM_write_checkpoint
 MM_write_checkpoint_hexfloat
 MM_write_var_unittest
+MM_stl_checkpoint
+MM_stl_restore

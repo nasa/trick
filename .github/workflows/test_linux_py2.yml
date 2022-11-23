@@ -1,0 +1,166 @@
+name: 'Linux Python 2'
+
+on:
+  schedule:
+  - cron:  '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        cfg:
+#-------- Operating Systems ----------------
+          - { os: ubuntu,      tag: 22.04,    arch: debian, arch_ver: 12 }
+          - { os: centos,      tag: 7,        arch: rhel,   arch_ver: 7  }
+          - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
+          - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
+        python: [2]
+
+#-------- Defaults --------------------------
+        include:
+          - cfg: {}
+            deps: >-
+              bison
+              clang
+              flex
+              git
+              llvm
+              make
+              maven
+              cmake
+              zip
+            install_gtest: echo gtest already installed
+            conf_pkg:  echo package manager already configured
+            install_cmd: install -y
+#-------- Debian-based Dependencies ----------------
+          - cfg: { arch: debian }
+            pkg_mgr: apt-get
+            conf_pkg:  apt-get update
+            arch_deps: >-
+              swig
+              curl
+              g++
+              libx11-dev
+              libxml2-dev
+              libxt-dev
+              libmotif-common
+              libmotif-dev
+              zlib1g-dev
+              llvm-dev
+              libclang-dev
+              libudunits2-dev
+              libgtest-dev
+              default-jdk
+              python2.7-dev
+              python3-dev
+              python3-pip
+              python3-venv
+            install_gtest: |
+              apt-get install -y libgtest-dev
+              cd /usr/src/gtest
+              cmake .
+              make
+              cp lib/libgtest* /usr/lib/
+#-------- RHEL Dependencies ----------------
+          - cfg: { arch: rhel }
+            arch_deps: >-
+              clang-devel
+              gcc
+              gcc-c++
+              java-11-openjdk-devel
+              libxml2-devel
+              llvm-devel
+              llvm-static
+              ncurses-devel
+              openmotif
+              openmotif-devel
+              perl
+              perl-Digest-MD5
+              udunits2
+              udunits2-devel
+              which
+              zlib-devel
+              python2-devel
+              python3-devel
+#-------- RHEL 7-based Only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 7 }
+            pkg_mgr: yum
+            conf_pkg: |
+              yum -y install epel-release
+              yum -y update
+            os_deps: >-
+              libX11-devel
+              libXt-devel
+              swig3
+              gtest-devel
+#-------- RHEL 8-based Only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 8 }
+            pkg_mgr: dnf
+            tag_deps: >-
+              swig
+              diffutils
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
+            install_gtest: |
+              dnf config-manager --enable powertools
+              dnf install -y gtest-devel
+#-------- OS and Version Specific Dependencies ----------------
+          - cfg: { os: oraclelinux }
+            install_gtest: |
+              dnf config-manager --enable ol8_codeready_builder
+              dnf install -y gtest-devel
+#-------- Job definition ----------------
+    runs-on: ubuntu-latest
+    container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
+    steps:
+      - name: Update Package Manager
+        run: ${{matrix.conf_pkg}}
+      - name: Install Dependencies
+        run: >
+          ${{matrix.pkg_mgr}} 
+          ${{matrix.install_cmd}} 
+          ${{matrix.deps}} 
+          ${{matrix.arch_deps}} 
+          ${{matrix.os_deps}} 
+          ${{matrix.tag_deps}}
+      - name: Install GTest
+        run: ${{matrix.install_gtest}}
+      - name: Checkout repository
+        uses: actions/checkout@master
+      - name: Configure Trick
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          export PYTHON_VERSION=${{matrix.python}}
+          ./configure
+      - name: Build Trick
+        run: |
+          export MAKEFLAGS=-j`nproc`
+          make
+      - name: Test
+        run: |
+          cd share/trick/trickops/
+          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+          cd ../../../; make test
+      - name: Upload Tests
+        uses: actions/upload-artifact@v3.0.0
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
+          path: trick_test/*.xml
+          retention-days: 1
+# Uncomment for build artifacts          
+#       - name: Upload Trick Build
+#         uses: actions/upload-artifact@v3.0.0
+#         with:
+#           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
+#           path: |
+#             bin
+#             include
+#             lib
+#             share
+#             libexec
+#           retention-days: 1

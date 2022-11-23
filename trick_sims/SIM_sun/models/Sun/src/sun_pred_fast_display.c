@@ -55,17 +55,15 @@ int sun_pred_fast_display(
 	char message[500];
 
 	message[0] = '\0';
-	sprintf(tmp_s,"%ls %0d:%0d:%02.f",S->label_UTC, S->utc.hour , S->utc.min , S->utc.sec );
+	snprintf(tmp_s, sizeof(tmp_s), "%ls %0d:%0d:%02.f",S->label_UTC, S->utc.hour , S->utc.min , S->utc.sec );
 	strcat(message,tmp_s);
-	// sprintf(tmp_s,"  %ls %.6f",S->label_JD, S->JD);
-	// strcat(message,tmp_s);
 	if ( S->label_Azimuth != NULL ) {
-		sprintf(tmp_s,"  %ls %.3f%d",S->label_Azimuth, S->solar_azimuth, DEGREE_SIGN);
+		snprintf(tmp_s, sizeof(tmp_s), "  %ls %.3f%d",S->label_Azimuth, S->solar_azimuth, DEGREE_SIGN);
 	} else {
-		sprintf(tmp_s,"  AZIMUTH %.3f%d", S->solar_azimuth, DEGREE_SIGN);
+		snprintf(tmp_s, sizeof(tmp_s), "  AZIMUTH %.3f%d", S->solar_azimuth, DEGREE_SIGN);
 	}
 	strcat(message,tmp_s);
-	sprintf(tmp_s,"  %ls %.3f%d",S->label_Elevation, S->solar_elevation, DEGREE_SIGN);
+	snprintf(tmp_s," sizeof(tmp_s), %ls %.3f%d",S->label_Elevation, S->solar_elevation, DEGREE_SIGN);
 	strcat(message,tmp_s);
 
 	send_hs(stdout,"%s\n",message);

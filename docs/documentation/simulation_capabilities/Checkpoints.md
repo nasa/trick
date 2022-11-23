@@ -23,6 +23,12 @@ trick.checkpoint_cpu(<cpu_num>)
 trick.checkpoint_safestore_set_enabled(True|False)
 # Set the safestore checkpoint period. default 9x10e18
 trick.checkpoint_safestore(<period>)
+
+# Load a checkpoint
+trick.load_checkpoint(<filename>)
+# Load a checkpoint without restoring STLs
+trick.load_checkpoint(<filename>, False)
+
 ```
 
 [Continue to Memory Manager](memory_manager/MemoryManager)

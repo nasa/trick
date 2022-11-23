@@ -48,7 +48,7 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Status Message System](simulation_capabilities/Status-Message-System)  
     01. [Command Line Arguments](simulation_capabilities/Command-Line-Arguments)  
     01. [Environment](simulation_capabilities/Environment)  
-    01. [Standard Template Library Checkpointing](simulation_capabilities/STL-Checkpointing) 
+    01. [Standard Template Library Checkpointing](simulation_capabilities/STL-capabilities) 
     01. [Threads](simulation_capabilities/Threads)
 
 01. [Web Server](web/Webserver)

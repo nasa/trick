@@ -1104,3 +1104,30 @@ TEST_F(MM_write_checkpoint, ptr_to_array_of_ptrs_to_objects ) {
     EXPECT_EQ( udt7_p->udt3pp[2]->b , 8);
 }
 
+TEST_F(MM_write_checkpoint, WrappedStl ) {
+    VectorWrapper * vector = (VectorWrapper *) memmgr->declare_var("VectorWrapper vec_allocation");
+    vector->push_back(10);
+    vector->push_back(20);
+    vector->push_back(30);
+    vector->push_back(40);
+
+    std::stringstream ss;
+    memmgr->write_checkpoint(ss, "vec_allocation");
+
+    std::string result= ss.str();
+    ASSERT_NE (result.size(), 0);
+
+    EXPECT_EQ( strcmp_IgnoringWhiteSpace(            
+            "// Variable Declarations."
+            "VectorWrapper vec_allocation;"
+            "int vec_allocation_vec[4];"
+            "// Clear all allocations to 0."
+            "clear_all_vars();"
+            "// Variable Assignments."
+            "// STL: vec_allocation.vec"
+            "vec_allocation_vec = "
+            "{10, 20, 30, 40};", result.c_str()), 0);
+}
+
+
+

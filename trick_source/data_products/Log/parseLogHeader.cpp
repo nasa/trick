@@ -56,7 +56,7 @@ int LogGroup::parseLogHeaders()
                 headerName = new char[len];
 
                 // Full path of log header
-                sprintf(headerName, "%s/%s", pathToBinaryData_, headers_[i]);
+                snprintf(headerName, len, "%s/%s", pathToBinaryData_, headers_[i]);
 
                 // Open log header
                 if ((fp_ = fopen(headerName, "r")) == NULL) {

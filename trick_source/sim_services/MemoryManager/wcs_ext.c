@@ -49,13 +49,13 @@ size_t wcs_to_ncs(const wchar_t * wcs, char *ncs, size_t ncs_max_len)
                it. Note that the external representation will also be printable in the current locale. */
 
             if (wcint == '\'') {
-                sprintf(work_s, "\\\'");
+                snprintf(work_s, sizeof(work_s), "\\\'");
             } else if (wcint == '\"') {
-                sprintf(work_s, "\\\"");
+                snprintf(work_s, sizeof(work_s), "\\\"");
             } else if (wcint == '\?') {
-                sprintf(work_s, "\\\?");
+                snprintf(work_s, sizeof(work_s), "\\\?");
             } else if (wcint == '\\') {
-                sprintf(work_s, "\\\\");
+                snprintf(work_s, sizeof(work_s), "\\\\");
             } else {
                 len = wcrtomb(work_s, (wchar_t) wcint, NULL);
                 work_s[len] = '\0';
@@ -66,26 +66,26 @@ size_t wcs_to_ncs(const wchar_t * wcs, char *ncs, size_t ncs_max_len)
                representation of this non-printable character. */
             if (wcint <= 0xFF) {
                 if (wcint == '\a') {
-                    sprintf(work_s, "\\a");
+                    snprintf(work_s, sizeof(work_s), "\\a");
                 } else if (wcint == '\b') {
-                    sprintf(work_s, "\\b");
+                    snprintf(work_s, sizeof(work_s), "\\b");
                 } else if (wcint == '\f') {
-                    sprintf(work_s, "\\f");
+                    snprintf(work_s, sizeof(work_s), "\\f");
                 } else if (wcint == '\n') {
-                    sprintf(work_s, "\\n");
+                    snprintf(work_s, sizeof(work_s), "\\n");
                 } else if (wcint == '\r') {
-                    sprintf(work_s, "\\n");
+                    snprintf(work_s, sizeof(work_s), "\\n");
                 } else if (wcint == '\t') {
-                    sprintf(work_s, "\\t");
+                    snprintf(work_s, sizeof(work_s), "\\t");
                 } else if (wcint == '\v') {
-                    sprintf(work_s, "\\v");
+                    snprintf(work_s, sizeof(work_s), "\\v");
                 } else {
-                    sprintf(work_s, "\\x%02x", wcint);
+                    snprintf(work_s, sizeof(work_s), "\\x%02x", wcint);
                 }
             } else if (wcint <= 0xFFFF) {
-                sprintf(work_s, "\\u%04X", wcint);
+                snprintf(work_s, sizeof(work_s), "\\u%04X", wcint);
             } else {
-                sprintf(work_s, "\\U%08X", wcint);
+                snprintf(work_s, sizeof(work_s), "\\U%08X", wcint);
             }
         }
 

@@ -151,7 +151,7 @@ void * Trick::VariableServerListenThread::thread_body() {
         } else if ( broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled
             char buf1[1024];
-            sprintf(buf1 , "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listener.getHostname(), (unsigned short)listener.getPort() ,
+            snprintf(buf1 , sizeof(buf1), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listener.getHostname(), (unsigned short)listener.getPort() ,
              user_name.c_str() , (int)getpid() , command_line_args_get_default_dir() , command_line_args_get_cmdline_name() ,
              command_line_args_get_input_file() , version.c_str() , user_tag.c_str(), (unsigned short)listener.getPort() ) ;
 

@@ -1,0 +1,16 @@
+#include "sim_objects/default_trick_sys.sm"
+##include "Foo.hh"
+
+class TestSimObject : public Trick::SimObject {
+
+    public:
+    Foo my_foo;
+
+    TestSimObject () {
+        ("initialization") my_foo.init ();
+        (1.0, "scheduled") my_foo.increment () ;
+    }
+
+};
+
+TestSimObject testSimObject;

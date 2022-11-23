@@ -64,6 +64,7 @@ SIM_abc:               <-- required unique name for sim of interest, must start 
       - model_x            by label within the framework, or for any other project-defined
       - verification       purpose
   build_command:       <-- optional literal cmd executed for SIM_build, defaults to trick-CP
+  binary:              <-- optional name of sim binary, defaults to S_main_{cpu}.exe
   size:                <-- optional estimated size of successful build output file in bytes
   runs:                <-- optional dict of runs to be executed for this sim, where the
     RUN_1/input.py --foo:  dict keys are the literal arguments passed to the sim binary

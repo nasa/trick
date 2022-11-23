@@ -8,7 +8,7 @@
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 # Flags passed to the preprocessor.
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
+TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
 
 TRICK_LIBS = ${TRICK_LIB_DIR}/libtrick.a
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lpthread
@@ -34,8 +34,8 @@ clean :
 	rm -rf io_src xml
 
 unicode_utils_test.o : unicode_utils_test.cpp
-	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
 
 unicode_utils_test : unicode_utils_test.o
-	$(TRICK_CXX) $(TRICK_CPPFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -o $@ $^ $(OTHER_OBJECTS) -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 

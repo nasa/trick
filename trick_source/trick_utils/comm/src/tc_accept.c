@@ -31,7 +31,7 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
     length = sizeof(s_in);
     the_socket = accept(listen_device->socket, (struct sockaddr *) &s_in, &length);
 
-    sprintf(client_str, "(ID = %d  tag = %s)", listen_device->client_id, listen_device->client_tag);
+    snprintf(client_str, sizeof(client_str), "(ID = %d  tag = %s)", listen_device->client_id, listen_device->client_tag);
 
     /* Check for error conditon on accept */
     if (the_socket == TRICKCOMM_INVALID_SOCKET) {
@@ -128,7 +128,7 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
         }
     }
 
-    sprintf(client_str, "(ID = %d  tag = %s)", device->client_id, device->client_tag);
+    snprintf(client_str, sizeof(client_str), "(ID = %d  tag = %s)", device->client_id, device->client_tag);
 
     trick_error_report(listen_device->error_handler, TRICK_ERROR_ADVISORY,
                        file, line, "tc_accept: %s: connected to client using port %d\n", client_str, device->port);

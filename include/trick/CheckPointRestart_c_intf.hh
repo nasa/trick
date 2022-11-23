@@ -51,6 +51,8 @@ int checkpoint_objects( const char * file_name, const char * objects ) ;
 
 /* load_checkpoint call accessible from C code */
 int load_checkpoint( const char * file_name ) ;
+int load_checkpoint_stls( const char * file_name, int with_stls ) ;
+
 int load_checkpoint_job() ;
 
 void * get_address( const char * var_name ) ;

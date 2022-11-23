@@ -92,7 +92,7 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
                *(void**)final_address = (void*)NULL;
                break;
            case TRICK_STRING :
-               final_address = (char*)base_address + offset * sizeof(void*);
+               final_address = (char*)base_address + offset * sizeof(std::string);
                *(std::string*)final_address = "";
                break;
            case TRICK_STL :
@@ -295,6 +295,11 @@ void Trick::MemoryManager::reset_memory() {
     std::vector<void*> deletion_list;
     int ii, n_addrs;
 
+    // Clear the deleted_addr_list at the start of reset memory. As delete_var() is called,
+    // and resetting_memory == true, the deleted address will be added to the deleted_addr_list.
+    resetting_memory = true;
+    deleted_addr_list.clear();
+
     pthread_mutex_lock(&mm_mutex);
     for (pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
         alloc_info = pos->second;
@@ -309,6 +314,9 @@ void Trick::MemoryManager::reset_memory() {
     for (ii = 0 ; ii < n_addrs ; ii ++) {
         delete_var( deletion_list[ii]);
     }
+
+    resetting_memory = false;
+    deleted_addr_list.clear();
 
     // reset counter to 100mil.  This (hopefully) ensures all alloc'ed ids are after external variables.
     alloc_info_map_counter = 100000000 ;

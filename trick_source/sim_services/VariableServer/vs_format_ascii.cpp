@@ -22,10 +22,7 @@ size_t escape_str(const char *in_s, char *out_s);
 
 #define MAX_VAL_STRLEN 2048
 
-// This seems to have a pretty big buffer overflow risk.
-// value is a limited size region, but there are no checks
-// on array size. Maybe it happens somewhere else?
-int vs_format_ascii(Trick::VariableReference * var, char *value) {
+int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_size) {
 
     /* for string types, return -1 if string is too big to fit in buffer (MAX_VAL_STRLEN) */
 //     REF2 * ref ;
@@ -230,21 +227,21 @@ size_t escape_str(const char *in_s, char *out_s)
             work_s[1] = '\0';
         } else {
             if (ch == '\a') {
-                sprintf(work_s, "\\a");
+                snprintf(work_s, sizeof(work_s), "\\a");
             } else if (ch == '\b') {
-                sprintf(work_s, "\\b");
+                snprintf(work_s, sizeof(work_s), "\\b");
             } else if (ch == '\f') {
-                sprintf(work_s, "\\f");
+                snprintf(work_s, sizeof(work_s), "\\f");
             } else if (ch == '\n') {
-                sprintf(work_s, "\\n");
+                snprintf(work_s, sizeof(work_s), "\\n");
             } else if (ch == '\r') {
-                sprintf(work_s, "\\n");
+                snprintf(work_s, sizeof(work_s), "\\n");
             } else if (ch == '\t') {
-                sprintf(work_s, "\\t");
+                snprintf(work_s, sizeof(work_s), "\\t");
             } else if (ch == '\v') {
-                sprintf(work_s, "\\v");
+                snprintf(work_s, sizeof(work_s), "\\v");
             } else {
-                sprintf(work_s, "\\x%02x", ch);
+                snprintf(work_s, sizeof(work_s), "\\x%02x", ch);
             }
         }
         out_len += strlen(work_s);

@@ -18,13 +18,31 @@
 #include <queue>
 #include <utility>
 
+
+class SimpleWrapper {
+    public:
+        int a;
+        std::vector<int> vec;
+};
+
+class UserClass {
+    public:
+        int a[5];
+        long long b;
+        std::string c;
+        UserClass * d;
+};
+
 class STLCheckpoint {
 
     public:
 
         STLCheckpoint() ;
-        STLCheckpoint(std::string in_name) ;
-        int speak() ;
+        int addData() ;
+        int print() ;
+        int test() ;
+
+        bool dataJobRun;
 
         std::string name ;
 
@@ -54,9 +72,19 @@ class STLCheckpoint {
 
         std::set< int > int_set ;
         std::set< std::string > string_set ;
+        std::set< std::vector<int> > vector_set;
+        std::set< std::pair<std::string, int> > pair_set;    
+        std::set<std::map<short,double>> nested_map_set;
+
+
+        std::queue< std::vector<int> > vector_queue;
+
 
         std::multiset< long > long_multiset ;
         std::multiset< std::string > string_multiset ;
+        std::multiset< std::pair< int,int > > pair_multiset ;
+        std::multiset< std::vector< int > > vec_multiset ;
+
 
         std::stack< unsigned int > uint_stack ;
         std::stack< std::string > string_stack ;
@@ -76,6 +104,10 @@ class STLCheckpoint {
         std::pair< int , std::string > string_second_pair ;
         std::pair< std::string , std::string > string_pair ;
 
+        std::pair< int, std::vector<int> > int_vec_pair;
+        std::pair< std::vector<int>, int > vec_int_pair;
+        std::pair< std::vector<int>, std::vector<int> > vec_vec_pair;
+
         std::pair< int , std::pair< int, int > > int_pair_int_int ;
         std::pair< std::pair< int, int > , int > pair_int_int_int ;
 
@@ -84,6 +116,12 @@ class STLCheckpoint {
         std::vector< std::vector< double > > vector_vector_double ;
         std::vector< std::vector< std::vector< double > > > vector_vector_vector_double ;
         //std::vector< std::list< double >  > vector_list_double ;
+
+        std::vector<UserClass> vec_user_simple;
+        std::vector<SimpleWrapper> vec_user_defined;
+        std::vector<SimpleWrapper *> vec_user_defined_ptr;
+
+
 } ;
 
 #endif
