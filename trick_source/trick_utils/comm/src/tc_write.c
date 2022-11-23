@@ -3,7 +3,7 @@
  * Write data to a device
  */
 
-#ifndef __WIN32__  // wild
+#ifndef __WIN32__
 #include <errno.h>
 #include <unistd.h>
 #endif

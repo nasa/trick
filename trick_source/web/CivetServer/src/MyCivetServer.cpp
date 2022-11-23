@@ -17,7 +17,7 @@ PURPOSE: (Represent the state and initial conditions for my server)
 #include "trick/input_processor_proto.h"
 #include "trick/exec_proto.h"
 #include "simpleJSON.hh"
-#include "VariableServerSessionWeb.hh"
+#include "VariableServerSession.hh"
 #include "trick/WebSocketSession.hh"
 
 #ifndef SWIG

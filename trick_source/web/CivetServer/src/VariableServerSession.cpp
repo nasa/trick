@@ -16,7 +16,7 @@ LIBRARY DEPENDENCIES:
 #include "trick/memorymanager_c_intf.h"
 #include "trick/input_processor_proto.h"
 #include "trick/exec_proto.h"
-#include "VariableServerSessionWeb.hh"
+#include "VariableServerSession.hh"
 #include "simpleJSON.hh"
 
 // CONSTRUCTOR
@@ -60,8 +60,8 @@ void VariableServerSession::sendMessage() {
         ss << "  \"time\" : " << std::setprecision(16) << stageTime << ",\n";
         ss << "  \"values\" : [\n";
 
-        for (it = session_variables.begin(); it != session_variables.end(); it++ ) {
-            if (it != session_variables.begin()) ss << ",\n";
+        for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+            if (it != sessionVariables.begin()) ss << ",\n";
             (*it)->writeValue(ss);
          }
          ss << "]}" << std::endl;
@@ -141,38 +141,38 @@ void VariableServerSession::setTimeInterval(unsigned int milliseconds) {
 void VariableServerSession::addVariable(char* vname){
     REF2 * new_ref ;
     new_ref = ref_attributes(vname);
-    // if ( new_ref == NULL ) {
-    //     sendErrorMessage("Variable Server could not find variable %s.\n", vname);
-    //     new_ref = make_error_ref(vname);
-    // } else if ( new_ref->attr ) {
-    //     if ( new_ref->attr->type == TRICK_STRUCTURED ) {
-    //         sendErrorMessage("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", vname);
-    //         free(new_ref);
-    //         new_ref = make_error_ref(vname);
+    if ( new_ref == NULL ) {
+        sendErrorMessage("Variable Server could not find variable %s.\n", vname);
+        new_ref = make_error_ref(vname);
+    } else if ( new_ref->attr ) {
+        if ( new_ref->attr->type == TRICK_STRUCTURED ) {
+            sendErrorMessage("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", vname);
+            free(new_ref);
+            new_ref = make_error_ref(vname);
 
-    //     } else if ( new_ref->attr->type == TRICK_STL ) {
-    //         sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", vname);
-    //         free(new_ref);
-    //         new_ref = make_error_ref(vname);
-    //     }
-    // } else {
-    //     sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
-    //     free(new_ref);
-    //     new_ref = make_error_ref(vname);
-    // }
+        } else if ( new_ref->attr->type == TRICK_STL ) {
+            sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", vname);
+            free(new_ref);
+            new_ref = make_error_ref(vname);
+        }
+    } else {
+        sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
+        free(new_ref);
+        new_ref = make_error_ref(vname);
+    }
 
     if ( new_ref != NULL ) {
         // This REF2 object will "belong" to the VariableServerSessionVariable, so it has
         // the right and responsibility to free() it in its destructor.
         VariableServerVariable *sessionVariable = new VariableServerVariable( new_ref ) ;
-        session_variables.push_back( sessionVariable ) ;
+        sessionVariables.push_back( sessionVariable ) ;
     }
 }
 
 void VariableServerSession::stageValues() {
     stageTime = (double)(exec_get_time_tics()) / exec_get_time_tic_value();
     std::vector<VariableServerVariable*>::iterator it;
-    for (it = session_variables.begin(); it != session_variables.end(); it++ ) {
+    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
         (*it)->stageValue();
     }
     dataStaged = true;
@@ -184,14 +184,16 @@ void VariableServerSession::unpause() { cyclicSendEnabled = true;  }
 
 void VariableServerSession::clear() {
         std::vector<VariableServerVariable*>::iterator it;
-        it = session_variables.begin();
-        while (it != session_variables.end()) {
+        it = sessionVariables.begin();
+        while (it != sessionVariables.end()) {
             delete *it;
-            it = session_variables.erase(it);
+            it = sessionVariables.erase(it);
         }
 }
 
 void VariableServerSession::exit() {}
+
+int VariableServerSession::bad_ref_int = 0 ;
 
 #define MAX_MSG_SIZE 4096
 int VariableServerSession::sendErrorMessage(const char* fmt, ... ) {
@@ -213,18 +215,18 @@ int VariableServerSession::sendErrorMessage(const char* fmt, ... ) {
     return (0);
 }
 
-// REF2* VariableServerSession::make_error_ref(const char* in_name) {
-//     REF2* new_ref;
-//     new_ref = (REF2*)calloc(1, sizeof(REF2));
-//     new_ref->reference = strdup(in_name) ;
-//     new_ref->units = NULL ;
-//     new_ref->address = (char *)&bad_ref_int ;
-//     new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
-//     new_ref->attr->type = TRICK_NUMBER_OF_TYPES ;
-//     new_ref->attr->units = (char *)"--" ;
-//     new_ref->attr->size = sizeof(int) ;
-//     return new_ref;
-// }
+REF2* VariableServerSession::make_error_ref(const char* in_name) {
+    REF2* new_ref;
+    new_ref = (REF2*)calloc(1, sizeof(REF2));
+    new_ref->reference = strdup(in_name) ;
+    new_ref->units = NULL ;
+    new_ref->address = (char *)&bad_ref_int ;
+    new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
+    new_ref->attr->type = TRICK_NUMBER_OF_TYPES ;
+    new_ref->attr->units = (char *)"--" ;
+    new_ref->attr->size = sizeof(int) ;
+    return new_ref;
+}
 
 // WebSocketSessionMaker function for a VariableServerSession.
 WebSocketSession* makeVariableServerSession( struct mg_connection *nc ) {
@@ -249,7 +251,7 @@ int VariableServerSession::sendUnitsMessage(const char* vname) {
     std::vector<VariableServerVariable*>::iterator it;
     std::stringstream ss;
     ss << "{ \"msg_type\": \"units\", \"var_name\": \"" << vname << "\", \"data\": \"";
-    for (it = session_variables.begin(); it != session_variables.end(); it++ ) {
+    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
         if(!strcmp((*it)->getName(), vname)) {
             ss << (
                 (
