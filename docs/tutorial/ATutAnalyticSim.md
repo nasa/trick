@@ -716,9 +716,9 @@ Now, take a look at the sim directory. Is there an `S_main*.exe` file?? (* is a 
 
 ```bash
 % ls
-Modified_data		S_overrides.mk		makefile
-RUN_test		S_sie.resource		trick.zip
-S_define		S_source.hh
+S_overrides.mk                        makefile
+S_sie.resource                        trick.zip
+S_define                              S_source.hh
 S_main_<your_platform_name_here>.exe	build
 ```
 
