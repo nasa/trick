@@ -26,7 +26,7 @@ recording editor --- aka Dr. Dre) or you may create it manually.
 * **Step 1.** In the "DR Name" entry box, enter my_cannon.
 * **Step 2.** In the "DR Cycle" entry box, change 0.1 to 0.01.
 * **Step 3.** In the "Variables" pane, double-click dyn, then double-click cannon.
-* **Step 4.** Double-click pos[2]. The result should result in  dyn.cannon.pos[0]
+* **Step 4.** Double-click pos[2] and click OK. The result should result in  dyn.cannon.pos[0]
 and dyn.cannon.pos[1] appearing in the "Selected Variables" pane.
 * **Step 5.** Choose File->Save. In the "Save" dialog, enter the file name
 cannon.dr. Save cannon.dr in the Modified_data directory.
@@ -40,7 +40,7 @@ text file.
 #### Running The Simulation And Recording Data
 
 The simulation must know about the data recording file created in the last
-section. This is accomplished by adding execfile to the simulation input file.
+section. This is accomplished by adding exec to the simulation input file.
 
 ```bash
 % cd $HOME/trick_sims/SIM_cannon_analytic/RUN_test
