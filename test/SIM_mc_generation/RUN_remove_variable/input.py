@@ -26,7 +26,7 @@ ret = os.system("diff -q MONTE_RUN_remove_variable/RUN_0/monte_variables MONTE_R
 if ret != 0:
   trick.exec_terminate_with_return(0, "input.py", 27, "variable successfully removed!")
 else:
-  trick.exec_terminate_with_return(1, "input.py", 29, "variable 'monte_carlo.x_fixed_value_int' was not removed!")
+  trick.exec_terminate_with_return(1, "input.py", 29, "variable 'test.x_fixed_value_int' was not removed!")
 
 # To be compatible with our current unit-sim framework, this file has to be a
 # simulation input file. Therefore it needs a stop time so it doesn't run forever.

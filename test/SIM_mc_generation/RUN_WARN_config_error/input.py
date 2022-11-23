@@ -8,7 +8,7 @@ print('  Zero truncation specified for variable monte_carlo.x_normal which will 
 print('***************************************************************************************')
 
 
-mc_var = trick.MonteCarloVariableRandomNormal( "monte_carlo.x_normal", 24858569, 10, 2)
+mc_var = trick.MonteCarloVariableRandomNormal( "test.x_normal", 24858569, 10, 2)
 
 # this call generates the warning!
 mc_var.truncate(0.0)

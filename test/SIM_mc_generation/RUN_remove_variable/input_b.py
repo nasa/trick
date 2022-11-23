@@ -6,6 +6,6 @@ exec(open("RUN_remove_variable/variable_list.py").read())
 
 # execute remove_variable() (success path)
 # code coverage for mc_master.cc, remove_variable(), lines 288-289
-monte_carlo.mc_master.remove_variable("monte_carlo.x_fixed_value_int")
+monte_carlo.mc_master.remove_variable("test.x_fixed_value_int")
 
 trick.stop(1)
