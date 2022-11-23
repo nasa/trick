@@ -647,14 +647,19 @@ In the files that we have created so far, the file paths in `#include` directive
 and in the `LIBRARY_DEPENDENCY` sections, are **relative** paths. These paths
 are relative to a **base-path**, that we still need to specify.
 
-For example, the `S_define` file listed above, `#includes` the relative path:
-`cannon/include/cannon.h`. We intend for this path to be relative to the
-`trick_models` directory that we created in our `$HOME` directory. The complete
+For example, the `S_define` file listed above `#includes` the relative path:
+`cannon/include/cannon_analytic.h`. We intend for this path to be relative to the
+`models` directory that we created in our `SIM_cannon_analytic` directory. The complete
 path to our cannon.h header file should be:
 
-![Trick Path Construction](images/TrickPaths.png)
+```
+${HOME}/trick_sims/SIM_cannon_analytic/models/cannon/include/cannon_analytic.h
+```
 
-So, we need to specify the base-path(s), to the compilers, and to Trick by adding
+We need to specify either the absolute path to the `models` directory, or the
+relative location of the `models` directory with respect to the top-level
+simulation directory (the location of S_define) as the base-path.
+We can specify the base-path(s) to the compilers, and to Trick, by adding
 -I*dir* options, that contain the base-paths, to `$TRICK_CFLAGS` and
 `$TRICK_CXXFLAGS`.
 
@@ -670,8 +675,8 @@ TRICK_CFLAGS += -Imodels
 TRICK_CXXFLAGS += -Imodels
 ```
 
-When Trick encounters relative paths, these base-paths will be prepended to the
-relative paths to create a complete path to the file, thus allowing it to be
+When Trick encounters relative paths in an S_define, it prepends these base-path(s)
+to the relative paths to create a complete path to the file, thus allowing it to be
 located.
 
 #### Additional Compiler Flag Recommendations
