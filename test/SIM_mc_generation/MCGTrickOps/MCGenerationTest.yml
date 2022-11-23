@@ -114,8 +114,6 @@ SIM_mc_generation:
     MONTE_RUN_file_skip2/RUN_3/monte_input.py:
     MONTE_RUN_file_skip2/RUN_4/monte_input.py:
     RUN_remove_variable/input.py:
-    MONTE_RUN_remove_variable/RUN_both_variables/monte_input.py:
-    MONTE_RUN_remove_variable/RUN_one_variable/monte_input.py:
     RUN_WARN_config_error/input.py:
     MONTE_RUN_WARN_config_error/RUN_0/monte_input.py:
     RUN_WARN_invalid_name/input.py:
@@ -236,3 +234,5 @@ SIM_mc_generation:
         - test/SIM_mc_generation/verif_data/MONTE_RUN_file_skip2/RUN_4/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_file_skip2/RUN_4/monte_input.py
         - test/SIM_mc_generation/verif_data/MONTE_RUN_remove_variable/RUN_both_variables/monte_variables vs. test/SIM_mc_generation/MONTE_RUN_remove_variable/RUN_both_variables/monte_variables
         - test/SIM_mc_generation/verif_data/MONTE_RUN_remove_variable/RUN_one_variable/monte_variables vs. test/SIM_mc_generation/MONTE_RUN_remove_variable/RUN_one_variable/monte_variables
+        - test/SIM_mc_generation/verif_data/MONTE_RUN_WARN_config_error/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_WARN_config_error/RUN_0/monte_input.py
+        - test/SIM_mc_generation/verif_data/MONTE_RUN_WARN_invalid_name/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_WARN_invalid_name/RUN_0/monte_input.py
