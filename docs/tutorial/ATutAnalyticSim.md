@@ -708,7 +708,9 @@ If you typed everything perfectly... Trick is installed properly... there are no
 bugs in the tutorial... the stars are aligned... and Trick is in a good mood...
 You should, ultimately see :
 
-![Simulation Make Complete](images/SimMakeComplete.png)
+```
+Trick Build Process Complete
+```
 
 Now, take a look at the sim directory. Is there an `S_main*.exe` file?? (* is a wildcard, instead of * you will see the name of your platform). If so, cool deal. If not, scream!, then take a look at the next section "Troubleshooting A Bad Build". If all went well, you will notice several other files now resident in the `SIM_cannon_analytic` directory.
 
