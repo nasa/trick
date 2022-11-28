@@ -17,7 +17,7 @@ print('*************************************************************************
 # directory write-protected, it can't generate the (optional) summary files.
 # NOTE - we avoid the terminal failure of not being able to generate the input
 #        files by having num_runs = 0, so none are attempted.
-mc_var = trick.MonteCarloVariableFile( "monte_carlo.x_file_lookup[0]",
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[0]",
                                        "Modified_data/datafile.txt",
                                        3)
 monte_carlo.mc_master.add_variable(mc_var)

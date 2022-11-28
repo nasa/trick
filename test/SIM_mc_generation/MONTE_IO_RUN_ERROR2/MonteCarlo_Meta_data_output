@@ -10,12 +10,12 @@
   -  0 variables of undefined type
 
 ********************* LIST OF VARIABLES, TYPES****************
-monte_carlo.x_file_lookup[0], Prescribed
+test.x_file_lookup[0], Prescribed
 **************************************************************
 
 
 ***** LIST OF DATA FILES AND THE VARIABLES THEY POPULATE *****
 ******
 Modified_data/datafile.txt
-3  monte_carlo.x_file_lookup[0]
+3  test.x_file_lookup[0]
 **************************************************************

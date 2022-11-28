@@ -19,7 +19,7 @@ print('*************************************************************************
 
 # this simulation attempts to create good data but with the target
 # directory write-protected, it can't generate the required input files.
-mc_var = trick.MonteCarloVariableFile( "monte_carlo.x_file_lookup[0]",
+mc_var = trick.MonteCarloVariableFile( "test.x_file_lookup[0]",
                                        "Modified_data/datafile.txt",
                                        3)
 monte_carlo.mc_master.add_variable(mc_var)
