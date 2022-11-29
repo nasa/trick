@@ -1,8 +1,8 @@
-name: 'Report Linux'
+name: 'Report Linux Python 2'
 
 on:
   workflow_run:
-    workflows: ['Linux']                     # runs after CI workflow
+    workflows: ['Linux Python 2']                     # runs after CI workflow
     types:
       - completed
 jobs:
@@ -16,7 +16,7 @@ jobs:
           - { os: centos,      tag: 7,        arch: rhel,   arch_ver: 7  }
           - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
-        python: [3]
+        python: [2]
 
 
     runs-on: ubuntu-latest
