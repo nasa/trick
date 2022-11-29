@@ -198,7 +198,8 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
             unit_str << " {" << ref->units << "}";
 
         }
-        strncat(value, unit_str.str().c_str(), value_size);
+        size_t max_copy_size = value_size - strlen(value) - 1;
+        strncat(value, unit_str.str().c_str(), max_copy_size);
     }
 
     return (0);
