@@ -198,7 +198,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
             unit_str << " {" << ref->units << "}";
 
         }
-        strcat(value, unit_str.str().c_str());
+        strlcat(value, unit_str.str().c_str(), value_size);
     }
 
     return (0);
