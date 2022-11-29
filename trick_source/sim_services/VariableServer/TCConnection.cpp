@@ -77,6 +77,7 @@ int Trick::TCConnection::read  (std::string& message, int max_len) {
 
 }
 
+
 std::string Trick::TCConnection::get_client_tag () {
     return std::string(_device.client_tag);
 }

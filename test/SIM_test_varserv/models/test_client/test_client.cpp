@@ -186,13 +186,13 @@ TEST_F (VariableServerTest, AddRemove) {
     socket << "trick.var_add(\"vsx.vst.e\")\n";
     socket >> reply;
     expected = std::string("0  -1234 -123456");
-    
+
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 
     socket << "trick.var_remove(\"vsx.vst.e\")\n";
     socket >> reply;
     expected = std::string("0  -1234");
-    
+
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 

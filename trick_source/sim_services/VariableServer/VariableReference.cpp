@@ -4,28 +4,31 @@
 #include <math.h> // for fpclassify
 #include <iomanip> // for setprecision
 #include <string.h>
+#include <sstream>
 
 #include "trick/VariableReference.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/wcs_ext.h"
 #include "trick/bitfield_proto.h"
+#include "trick/map_trick_units_to_udunits.hh"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
+#include "trick/UdUnits.hh"
 
 // Static variables to be addresses that are known to be the error ref address
-// Idk if this is the best way to do this, but it's what john/skraddwelkdh did in the past
-// so ¯\_(ツ)_/¯
 int Trick::VariableReference::bad_ref_int = 0 ;
 int Trick::VariableReference::do_not_resolve_bad_ref_int = 0 ;
 
-Trick::VariableReference::VariableReference(std::string var_name) {
+Trick::VariableReference::VariableReference(std::string var_name) : staged(false), write_ready(false) {
 
     // get variable attributes from memory manager
     var_info = ref_attributes(var_name.c_str());
 
     // Handle error cases
     if ( var_info == NULL ) {
-        // sendErrorMessage("Variable Server could not find variable %s.\n", var_name);
+        // TODO: ERROR LOGGER sendErrorMessage("Variable Server could not find variable %s.\n", var_name);
+        // PRINTF IS NOT AN ERROR LOGGER @me
         printf("Variable Server could not find variable %s.\n", var_name.c_str());
-
         var_info = make_error_ref(var_name);
     } else if ( var_info->attr ) {
         if ( var_info->attr->type == TRICK_STRUCTURED ) {
@@ -33,7 +36,6 @@ Trick::VariableReference::VariableReference(std::string var_name) {
             printf("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name.c_str());
 
             free(var_info);
-            var_info = NULL;
             var_info = make_error_ref(var_name);
 
         } else if ( var_info->attr->type == TRICK_STL ) {
@@ -41,7 +43,6 @@ Trick::VariableReference::VariableReference(std::string var_name) {
             printf("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
 
             free(var_info);
-            var_info = NULL;
             var_info = make_error_ref(var_name);
         }
     } else {
@@ -49,13 +50,10 @@ Trick::VariableReference::VariableReference(std::string var_name) {
         printf("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
 
         free(var_info);
-        var_info = NULL;
         var_info = make_error_ref(var_name);
     }
 
     // Set up member variables
-    // Why are we keeping separate copies of address and size?
-    // Maybe don't do that
     address = var_info->address;
     size = var_info->attr->size ;
     deref = false;
@@ -64,7 +62,7 @@ Trick::VariableReference::VariableReference(std::string var_name) {
     string_type = var_info->attr->type ;
 
     if ( var_info->num_index == var_info->attr->num_index ) {
-        // single value
+        // single value - nothing else necessary
     } else if ( var_info->attr->index[var_info->attr->num_index - 1].size != 0 ) {
         // Constrained array
         for ( int i = var_info->attr->num_index-1;  i > var_info->num_index-1 ; i-- ) {
@@ -73,6 +71,7 @@ Trick::VariableReference::VariableReference(std::string var_name) {
     } else {
         // Unconstrained array
         if ((var_info->attr->num_index - var_info->num_index) > 1 ) {
+            // TODO: ERROR LOGGER
             printf("Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", var_info->reference);
             printf("Data is not contiguous so returned values are unpredictable.\n") ;
         }
@@ -97,60 +96,115 @@ Trick::VariableReference::VariableReference(std::string var_name) {
 
     conversion_factor = cv_get_trivial();
 
-    // // std::cout << "Successfully created reference, size " << size << std::endl;
     // Done!
 }
 
 Trick::VariableReference::~VariableReference() {
-    // // std::cout << "In destructor for VariableReference" << std::endl;
     if (var_info != NULL) {
-        // // std::cout << "Nulling out var_info" << std::endl;
         free( var_info );
         var_info = NULL;
     }
     if (stage_buffer != NULL) {
-        // // std::cout << "Freeing stage_buffer" << std::endl;
         free (stage_buffer);
         stage_buffer = NULL;
     }
     if (write_buffer != NULL) {
-        // // std::cout << "Freeing write_buffer" << std::endl;
         free (write_buffer);
         write_buffer = NULL;
     }
     if (conversion_factor != NULL) {
         cv_free(conversion_factor);
     }
-
-    // // std::cout << "End of destructor" << std::endl;
 }
 
-const char* Trick::VariableReference::getName() {
+const char* Trick::VariableReference::getName() const {
     return var_info->reference;
 }
 
-const char* Trick::VariableReference::getUnits() {
+const char* Trick::VariableReference::getBaseUnits() const {
     return var_info->attr->units;
 }
 
-int Trick::VariableReference::setUnits(char * new_units) {
-    if (var_info->units != NULL)  {
-        free(var_info->units);
-        var_info->units = NULL;
+int Trick::VariableReference::setRequestedUnits(std::string units_name) {
+
+    // Some error logging lambdas - these should probably go somewhere else
+    // But I do kinda like them
+    auto publish = [](MESSAGE_TYPE type, const std::string& message) {
+        std::ostringstream oss;
+        oss << "Variable Server: " << message << std::endl;
+        message_publish(type, oss.str().c_str());
+    };
+
+    auto publishError = [&](const std::string& units) {
+        std::ostringstream oss;
+        oss << "units error for [" << getName() << "] [" << units << "]";
+        publish(MSG_ERROR, oss.str());
+    };
+
+    // If the units_name parameter is "xx", set it to the current units.
+    if (!units_name.compare("xx")) {
+        units_name = getBaseUnits();
     }
+
+    // if unitless ('--') then do not convert to udunits 
+    if(units_name.compare("--")) {
+        // Check to see if this is an old style Trick unit that needs to be converted to new udunits
+        std::string new_units = map_trick_units_to_udunits(units_name) ;
+        // Warn if a conversion has taken place
+        if ( units_name.compare(new_units) ) {
+            // TODO: MAKE BETTER SYSTEM FOR ERROR LOGGING
+            std::ostringstream oss;
+            oss << "[" << getName() << "] old-style units converted from ["
+                << units_name << "] to [" << new_units << "]";
+            publish(MSG_WARNING, oss.str());
+        }
+
+        // Interpret base unit
+        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), getBaseUnits(), UT_ASCII) ;
+        if ( !from ) {
+            publishError(getBaseUnits());
+            ut_free(from) ;
+            return -1 ;
+        }
+
+        // Interpret requested unit
+        ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), new_units.c_str(), UT_ASCII) ;
+        if ( !to ) {
+            publishError(new_units);
+            ut_free(from) ;
+            ut_free(to) ;
+            return -1 ;
+        }
+
+        // Create a converter from the base to the requested
+        conversion_factor = ut_get_converter(from, to) ;
+        ut_free(from) ;
+        ut_free(to) ;
+        if ( !conversion_factor ) {
+            std::ostringstream oss;
+            oss << "[" << getName() << "] cannot convert units from [" << getBaseUnits()
+                << "] to [" << new_units << "]";
+            publish(MSG_ERROR, oss.str());
+            return -1 ;
+        }
+
+        // Don't memory leak the old units!
+        if (var_info->units != NULL)  {
+            free(var_info->units);
+        }
     
-    var_info->units = new_units;
+        // Set the requested units. This will cause the unit string to be printed in write_value_ascii
+        var_info->units = strdup(new_units.c_str());;
+    }
+    return 0;
 }
 
-int Trick::VariableReference::setConversionFactor(cv_converter * new_conversion_factor) {
-    if (conversion_factor != NULL)
-        cv_free(conversion_factor);
-    
-    conversion_factor = new_conversion_factor;
-}
+int Trick::VariableReference::stageValue(bool validate_address) {
+    write_ready = false;
 
-void Trick::VariableReference::stageValue() {
     // Copy <size> bytes from <address> to staging_point.
+
+    // Try to recreate connection if it has been broken
     if (var_info->address == &bad_ref_int) {
         REF2 *new_ref = ref_attributes(var_info->reference);
         if (new_ref != NULL) {
@@ -162,36 +216,18 @@ void Trick::VariableReference::stageValue() {
     if ( var_info->pointer_present == 1 ) {
         address = follow_address_path(var_info) ;
         if (address == NULL) {
-            std::string save_name(var_info->reference) ;
-            free(var_info) ;
-            var_info = NULL;
-            var_info = make_error_ref(save_name) ;
-            address = var_info->address ;
-        } else if ( need_validate ) {
-            // The address is not NULL.
-            // If validate_address is on, check the memory manager if the address falls into
-            // any of the memory blocks it knows of.  Don't do this if we have a std::string or
-            // wstring type, or we already are pointing to a bad ref.
-            if ( (string_type != TRICK_STRING) and
-                    (string_type != TRICK_WSTRING) and
-                    (var_info->address != &bad_ref_int) and
-                    (get_alloc_info_of(address) == NULL) ) {
-                std::string save_name(var_info->reference) ;
-                free(var_info) ;
-                var_info = NULL;
-                var_info = make_error_ref(save_name) ;
-                address = var_info->address ;
-            }
+            tagAsInvalid();
+        } else if ( validate_address ) {
+            validate();
         } else {
             var_info->address = address ;
         }
-
     }
 
     // if this variable is a string we need to get the raw character string out of it.
     if (( string_type == TRICK_STRING ) && !deref) {
         std::string * str_ptr = (std::string *)var_info->address ;
-        // I don't think we can do this? c_str is on stack
+        // Get a pointer to the internal character array
         address = (void *)(str_ptr->c_str()) ;
     }
 
@@ -221,7 +257,27 @@ void Trick::VariableReference::stageValue() {
     }
 
     staged = true;
+    return 0;
+}
 
+bool Trick::VariableReference::validate() {
+    // The address is not NULL.
+    // Should be called by VariableServer Session if validateAddress is on.
+    // check the memory manager if the address falls into
+    // any of the memory blocks it knows of.  Don't do this if we have a std::string or
+    // wstring type, or we already are pointing to a bad ref.
+    if ( (string_type != TRICK_STRING) and
+            (string_type != TRICK_WSTRING) and
+            (var_info->address != &bad_ref_int) and
+            (get_alloc_info_of(address) == NULL) ) {
+        
+        // This variable is broken, make it into an error ref
+        tagAsInvalid();
+        return false;
+    }
+
+    // Everything is fine
+    return true;
 }
 
 static void write_escaped_string( std::ostream& os, const char* s) {
@@ -251,7 +307,7 @@ static void write_escaped_string( std::ostream& os, const char* s) {
     }
 }
 
-void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
+int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
     // This is copied and modified from vs_format_ascii
     // There's a lot here that doesn't make sense to me that I need to come back to
     // There seems to be a huge buffer overflow issue in the original.
@@ -259,35 +315,35 @@ void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
     // But using a stream instead should make that better
     // The way that arrays are handled seems weird.
 
-    // std::cout << "Starting writeValueAscii for " << getName() << std::endl;
+    if (!isWriteReady()) {
+        return -1;
+    }
+
     int bytes_written = 0;
     void * buf_ptr = write_buffer ;
 
     while (bytes_written < size) {
-        // std::cout << "bytes_written: " << bytes_written << "\tsize: " << size << std::endl;
         bytes_written += var_info->attr->size ;
 
-        // std::cout << "Type: " << var_info->attr->type << std::endl;
 
         switch (var_info->attr->type) {
 
         case TRICK_CHARACTER:
-            // What does this if statment mean? Need to understand the memory manager more probably
             if (var_info->attr->num_index == var_info->num_index) {
-                // Is this trying to convert a char to a double, and then converting it back to a char????
-                // Why????
+                // Single char
                 out << (char)cv_convert_double(conversion_factor, *(char *)buf_ptr);
             } else {
-                /* All but last dim specified, leaves a char array */
+                // All but last dim specified, leaves a char array 
                 write_escaped_string(out, (const char *) buf_ptr);
                 bytes_written = size ;
             }
             break;
         case TRICK_UNSIGNED_CHARACTER:
             if (var_info->attr->num_index == var_info->num_index) {
+                // Single char
                 out << (unsigned char)cv_convert_double(conversion_factor,*(unsigned char *)buf_ptr);
             } else {
-                /* All but last dim specified, leaves a char array */
+                // All but last dim specified, leaves a char array 
                 write_escaped_string(out, (const char *) buf_ptr);
                 bytes_written = size ;
             }
@@ -338,6 +394,7 @@ void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
             break;
 
 #if ( __linux | __sgi )
+        // TODO: test on whether this is necessary on linux, or if fixing the heap overflow on Mac fixes this as well
         case TRICK_BOOLEAN:
             // out << (unsigned char)cv_convert_double(conversion_factor,*(unsigned char *)buf_ptr);
             if (*(bool *) buf_ptr) {
@@ -358,11 +415,14 @@ void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
 
         case TRICK_INTEGER:
         case TRICK_ENUMERATED:
-#if ( __sun | __APPLE__ )
-        case TRICK_BOOLEAN:
-#endif
             out << (int)cv_convert_double(conversion_factor,*(int *)buf_ptr);
             break;
+
+#if ( __sun | __APPLE__ )
+        case TRICK_BOOLEAN:
+            out << (int)cv_convert_double(conversion_factor,*(bool *)buf_ptr);
+            break;
+#endif
 
         case TRICK_BITFIELD:
             out << (GET_BITFIELD(buf_ptr, var_info->attr->size, var_info->attr->index[0].start, var_info->attr->index[0].size));
@@ -394,11 +454,13 @@ void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
         }
 
         case TRICK_FLOAT:
+            // snprintf(value, value_size, "%s%.8g", value, cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
             out << std::setprecision(8) << cv_convert_float(conversion_factor,*(float *)buf_ptr);
             break;
 
         case TRICK_DOUBLE:
             // std::cout << "In convert trick double" << std::endl;
+            // snprintf(value, value_size, "%s%.16g", value, cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
             out << std::setprecision(16) << *(double *)buf_ptr;
             // std::cout << "Done with convert trick double" << std::endl;
             break;
@@ -445,14 +507,14 @@ void Trick::VariableReference::writeValueAscii( std::ostream& out ) {
         }
     }
 
+    return 0;
 }
 
 void Trick::VariableReference::tagAsInvalid () {
-    var_info->address = (char*)&bad_ref_int;
-    var_info->attr = new ATTRIBUTES() ;
-    var_info->attr->type = TRICK_NUMBER_OF_TYPES ;
-    var_info->attr->units = (char *)"--" ;
-    var_info->attr->size = sizeof(int) ;
+    std::string save_name(getName()) ;
+    free(var_info) ;
+    var_info = make_error_ref(save_name) ;
+    address = var_info->address ;
 }
 
 REF2* Trick::VariableReference::make_error_ref(std::string in_name) {
@@ -468,16 +530,29 @@ REF2* Trick::VariableReference::make_error_ref(std::string in_name) {
     return new_ref;
 }
 
-void Trick::VariableReference::prepareForWrite() {
+int Trick::VariableReference::prepareForWrite() {
+    if (!staged) {
+        return 1;
+    }
+
     void * temp_p = stage_buffer;
     stage_buffer = write_buffer;
     write_buffer = temp_p;
 
     staged = false;
     write_ready = true;
+    return 0;
 }
 
-void Trick::VariableReference::writeValueBinary( std::ostream& out ) {
+bool Trick::VariableReference::isStaged() const {
+    return staged;
+}
+
+bool Trick::VariableReference::isWriteReady() const {
+    return write_ready;
+}
+
+int Trick::VariableReference::writeValueBinary( std::ostream& out ) const {
 
 }
 

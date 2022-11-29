@@ -1,0 +1,4 @@
+lcov_html/*
+*.o
+VariableReference_test
+*.info

@@ -55,7 +55,7 @@ int Trick::VariableServerSession::var_send_once(std::string in_name, int num_var
         given_vars.push_back(new VariableReference(varName));
     }
     copy_sim_data(given_vars, false);
-    write_data(given_vars);
+    write_data(given_vars, VS_SEND_ONCE);
 
     return(0) ;
 }
@@ -80,69 +80,11 @@ int Trick::VariableServerSession::var_units(std::string var_name, std::string un
     VariableReference * variable = find_session_variable(var_name);
 
     if (variable == NULL) {
-        // Some error
-        return 0;
+        // TODO: ERROR LOGGER HERE
+        return -1;
     }
 
-    // If the units_name parameter is "xx", set it to the current units.
-    if (!units_name.compare("xx")) {
-        units_name = variable->getUnits();
-    }
-
-    // Why did we decide to use a lambda this one time in all of trick
-    auto publish = [](MESSAGE_TYPE type, const std::string& message) {
-        std::ostringstream oss;
-        message_publish(type, oss.str().c_str());
-    };
-
-    /* if unitless ('--') then do not convert to udunits*/
-    if(units_name.compare("--")) {
-        std::string new_units = map_trick_units_to_udunits(units_name) ;
-        // If old units and new units are not the same
-        if ( units_name.compare(new_units) ) {
-            std::ostringstream oss;
-            oss << "[" << var_name << "] old-style units converted from ["
-                << units_name << "] to [" << new_units << "]";
-            publish(MSG_WARNING, oss.str());
-        }
-
-        auto publishError = [&](const std::string& units) {
-            std::ostringstream oss;
-            oss << "units error for [" << var_name << "] [" << units << "]";
-            publish(MSG_ERROR, oss.str());
-        };
-
-        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), variable->getUnits(), UT_ASCII) ;
-        if ( !from ) {
-            publishError(variable->getUnits());
-            ut_free(from) ;
-            return -1 ;
-        }
-
-        ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), new_units.c_str(), UT_ASCII) ;
-        if ( !to ) {
-            publishError(new_units);
-            ut_free(from) ;
-            ut_free(to) ;
-            return -1 ;
-        }
-
-        cv_converter * conversion_factor = ut_get_converter(from, to) ;
-        ut_free(from) ;
-        ut_free(to) ;
-        if ( !conversion_factor ) {
-            std::ostringstream oss;
-            oss << "[" << var_name << "] cannot convert units from [" << variable->getUnits()
-                << "] to [" << new_units << "]";
-            publish(MSG_ERROR, oss.str());
-            return -1 ;
-        }
-
-        variable->setConversionFactor(conversion_factor) ;
-        variable->setUnits(strdup(new_units.c_str()));
-    }
-    
-    return(0) ;
+    return variable->setRequestedUnits(units_name);
 }
 
 int Trick::VariableServerSession::var_exists(std::string in_name) {
@@ -383,7 +325,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
     unsigned int file_size ;
     unsigned int current_size = 0 ;
     unsigned int bytes_read ;
-    char buffer[packet_size] ;
+    char buffer[packet_size+1] ;
     int ret ;
 
     if (debug >= 2) {
@@ -413,7 +355,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
 
     while ( current_size < file_size ) {
         bytes_read = fread(buffer , 1 , packet_size , fp) ;
-        std::string message(buffer);
+        message = std::string(buffer);
         message.resize(bytes_read);
         ret = connection->write(message, bytes_read);
         if (ret != (int)bytes_read) {

@@ -1609,7 +1609,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
                         String resultsStr = statusSimcom.get();
                         if (resultsStr == null) 
-                            continue;
+                            break;
 
                         results = resultsStr.split("\t");
                         ii = 1 ;

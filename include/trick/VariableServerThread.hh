@@ -66,7 +66,6 @@ namespace Trick {
 
             void preload_checkpoint() ;
 
-            // Is this restarting thread itself or session?
             void restart() ;
 
         protected:
@@ -83,8 +82,6 @@ namespace Trick {
             VariableServerSession * session;
 
             /** The listen device from the variable server\n */
-            // TODO: These should become ClientConnections or TCConnections
-            // TCDevice * listen_dev;          /**<  trick_io(**) */
             ClientListener * listener;
             TCConnection connection;
 
@@ -97,7 +94,6 @@ namespace Trick {
             ConnectionStatus connection_status ;       /**<  trick_io(**) */
             pthread_mutex_t connection_status_mutex;
             pthread_cond_t connection_status_cv;
-
 
             /** The mutex pauses all processing during checkpoint restart */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */

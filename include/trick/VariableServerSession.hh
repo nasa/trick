@@ -341,7 +341,7 @@ namespace Trick {
         /**
          @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
         */
-        int write_data(std::vector<VariableReference *>& var) ;
+        int write_data(std::vector<VariableReference *>& var, VS_MESSAGE_TYPE message_type) ;
 
         /**
          @brief Copy client variable values from Trick memory to each variable's output buffer.
@@ -377,8 +377,8 @@ namespace Trick {
         double get_update_rate();
 
         // These should be private probably
-        int write_binary_data( int Start, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
-        int write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
+        int write_binary_data(const std::vector<VariableReference *>& given_vars, std::ostream& out, VS_MESSAGE_TYPE message_type);
+        int write_ascii_data(const std::vector<VariableReference *>& given_vars, std::ostream& out, VS_MESSAGE_TYPE message_type );
         int write_stdio(int stream, std::string text);
 
         // Is this good design? ¯\_(ツ)_/¯
@@ -476,10 +476,6 @@ namespace Trick {
         bool var_data_staged;
 
         int packets_copied;
-
-        // char * incoming_msg;
-        // char * stripped_msg;
-
     };
 }
 

@@ -27,12 +27,7 @@ namespace Trick {
 
             static const unsigned int MAX_CMD_LEN = 200000 ;
 
-            // Maybe make a separate wrapper for the listener?
-            // I think this should be called only by the listener
-            // int accept (TCConnection * client);
-
             friend int accept(ClientListener* listener, TCConnection* connection);
-
 
         private:
             TCDevice _device;

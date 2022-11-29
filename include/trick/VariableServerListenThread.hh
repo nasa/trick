@@ -59,7 +59,6 @@ namespace Trick {
         protected:
             void initializeMulticast();
 
-
             /** Requested variable server source address\n */
             std::string requested_source_address ;       /**<  trick_units(--) */
 
@@ -75,11 +74,11 @@ namespace Trick {
             /** Turn on/off broadcasting of variable server port.\n */
             bool broadcast ;       /**<  trick_units(--) */
 
-            /** The listen device\n */
-            // TCDevice listen_dev;        /**<  trick_io(**) */
+            /** The listen device */
             ClientListener listener;
 
-            MulticastManager * multicast;
+            /* Multicast broadcaster */
+            MulticastManager multicast;
 
             /** The mutex to stop accepting new connections during restart\n */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */

@@ -9,7 +9,7 @@ def main():
 	trick.var_ascii()
 	trick.real_time_enable()
 	trick.exec_set_software_frame(0.01)
-	# trick.set_var_server_info_msg_on()
+	trick.set_var_server_info_msg_on()
 
 	trick.exec_set_terminate_time(5.0)
 

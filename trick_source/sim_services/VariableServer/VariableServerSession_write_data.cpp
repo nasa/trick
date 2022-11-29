@@ -22,7 +22,7 @@ extern "C" {
 #define MAX_MSG_LEN    8192
 
 
-int Trick::VariableServerSession::write_binary_data( int Start, const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) {
+int Trick::VariableServerSession::write_binary_data(const std::vector<VariableReference *>& given_vars, std::ostream& message_stream, VS_MESSAGE_TYPE message_type) {
     // int vars = 0;
     // int i;
     // int ret ;
@@ -179,12 +179,7 @@ int Trick::VariableServerSession::write_binary_data( int Start, const std::vecto
     return 0;
 }
 
-int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type ) {
-
-
-    // Load everything into a stringstream
-    std::stringstream message_stream ;
-    message_stream.clear();
+int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableReference *>& given_vars, std::ostream& message_stream, VS_MESSAGE_TYPE message_type ) {
 
     // Load message type first
     message_stream << (int)message_type;
@@ -198,108 +193,47 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
     // End with newline
     message_stream << '\n';
 
-    std::string message = message_stream.str();
-    int len = message.length() ;
-
-    // Send :)
-    if ( len > 0 && len < MAX_MSG_LEN) {
-        if (debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
-                            connection, connection->get_client_tag().c_str(), len, message.c_str()) ;
-        }
-        int ret = connection->write(message, len);
-        if ( ret != len ) {
-            std::cout << "Message byte length(" << len << ") does not match bytes sent(" << ret <<")." << std::endl;
-            return(-1) ;
-        }
-    } 
-
     return 0;
 }
 
 int Trick::VariableServerSession::write_data() {
-
-    // do not send anything when there are no variables!
-    if ( session_variables.size() == 0 ) {
-        return 0;
-    }
-
-    /* Acquire sole access to vars[ii]->buffer_in. */
-    if ( var_data_staged) {
-        int lock_ret = pthread_mutex_trylock(&copy_mutex);
-        if (lock_ret == 0 ) {
-            // // std::cout << "Got mutex to stage vars" << std::endl;
-
-            unsigned int ii;
-            void * temp_p;
-            // Swap buffer_in and buffer_out for each vars[ii].
-            for ( VariableReference * variable : session_variables ) {
-                variable->prepareForWrite();
-            }
-            var_data_staged = false;
-
-            /* Relinquish sole access to vars[ii]->buffer_in. */
-            pthread_mutex_unlock(&copy_mutex) ;
-
-            char buf1[ MAX_MSG_LEN ];
-            if (binary_data) {
-                int index = 0;
-
-                do {
-                    int ret = write_binary_data( index, session_variables, VS_VAR_LIST );
-                    if ( ret >= 0 ) {
-                        index = ret ;
-                    } else {
-                        return(-1) ;
-                    }
-                } while( index < (int)session_variables.size() );
-
-                return 0;
-
-            } else { /* ascii mode */
-                return write_ascii_data(session_variables, VS_VAR_LIST );
-            }
-        } else {
-            std::cout << "Didn't get lock, error message " << lock_ret << "\tEINVAL: " << EINVAL << "\tEBUSY: " << EBUSY << std::endl;
-        }
-    } else {
-        std::cout << "var_data_staged: " << var_data_staged << std::endl;
-    }
+    return write_data(session_variables, VS_VAR_LIST);
 }
 
-int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& given_vars) { 
-    // // std::cout << "Pthread in write_data: " << pthread_self() << std::endl;
-
+int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) { 
     // do not send anything when there are no variables!
     if ( given_vars.size() == 0) {
         return(0);
     }
 
     if ( pthread_mutex_trylock(&copy_mutex) == 0 ) {
+        // Check that all of the variables are staged
+        for (VariableReference * variable : given_vars ) {
+            if (!variable->isStaged()) {
+                return 1;
+            }
+        }
+
         // Swap buffer_in and buffer_out for each vars[ii].
         for (VariableReference * variable : given_vars ) {
             variable->prepareForWrite();
         }
+
         pthread_mutex_unlock(&copy_mutex) ;
 
-        char buf1[ MAX_MSG_LEN ];
+        std::stringstream message_stream;
 
         if (binary_data) {
-            int index = 0;
-
-            do {
-                int ret = write_binary_data( index, given_vars, VS_SEND_ONCE );
-                if ( ret >= 0 ) {
-                    index = ret ;
-                } else {
-                    return(-1) ;
-                }
-            } while( index < (int)given_vars.size() );
-
-            return 0;
-
-        } else { /* ascii mode */
-            return write_ascii_data( given_vars, VS_SEND_ONCE);
+            write_binary_data(given_vars, message_stream, message_type );
+        } else {
+            // ascii mode
+            write_ascii_data(given_vars, message_stream, message_type );
         }
+
+        // Write out the message
+        std::string message = message_stream.str();
+        return connection->write(message, message.size());
     }
+
+    return 1;
 }

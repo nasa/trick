@@ -83,7 +83,6 @@ void Trick::VariableServer::set_var_server_log_off() {
 
 const char * Trick::VariableServer::get_hostname() {
     const char * ret = (listen_thread.get_hostname()) ;
-    std::cout << "VariableServer: " << ret << std::endl;
     return ret;
 }
 
@@ -111,7 +110,6 @@ Trick::VariableServerThread * Trick::VariableServer::get_vst(pthread_t thread_id
     if ( it != var_server_threads.end() ) {
         ret = (*it).second ;
     }
-    // std::cout << "Number of vst: " << var_server_threads.size() << std::endl;
     pthread_mutex_unlock(&map_mutex) ;
     return ret ;
 }
@@ -124,8 +122,6 @@ Trick::VariableServerSession * Trick::VariableServer::get_session(pthread_t thre
     if ( it != var_server_sessions.end() ) {
         ret = (*it).second ;
     }
-    // std::cout << "Number of sessions: " << var_server_sessions.size() << std::endl;
-
     pthread_mutex_unlock(&map_mutex) ;
     return ret ;
 }

@@ -17,8 +17,7 @@ Trick::VariableServerListenThread::VariableServerListenThread() :
  requested_source_address(""),
  user_requested_address(false),
  broadcast(true),
- listener(),
- multicast(NULL)
+ listener()
 {
     pthread_mutex_init(&restart_pause, NULL);
 }
@@ -33,12 +32,11 @@ Trick::VariableServerListenThread::~VariableServerListenThread() {
 
 const char * Trick::VariableServerListenThread::get_hostname() {
     const char * ret = listener.getHostname();
-    std::cout << "Varserverlistenthread: " << ret << std::endl;
     return ret;
 }
 
 unsigned short Trick::VariableServerListenThread::get_port() {
-    return listener.getPort();
+    return requested_port;
 }
 
 void Trick::VariableServerListenThread::set_port(unsigned short in_port) {
@@ -95,6 +93,8 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
         /* The user has requested a different source address or port in the input file */
         listener.disconnect();
         ret = listener.initialize(requested_source_address, requested_port);
+        requested_port = listener.getPort();
+        requested_source_address = std::string(listener.getHostname());
         if (ret != TC_SUCCESS) {
             std::cout << "Unsuccessful initialization " << std::endl;
             message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
@@ -157,11 +157,11 @@ void * Trick::VariableServerListenThread::thread_body() {
 
             std::string message = buf1;
 
-            if (multicast == NULL) {
+            if (!multicast.is_initialized()) {
                 // In case broadcast was turned on after this loop was entered
                 initializeMulticast();
             }
-            multicast->broadcast(message);
+            multicast.broadcast(message);
         }
     }
 
@@ -191,13 +191,15 @@ int Trick::VariableServerListenThread::restart() {
         listener.checkSocket();
     }
 
+    multicast.restart();
+
     return 0 ;
 }
 
 void Trick::VariableServerListenThread::initializeMulticast() {
-    multicast = new MulticastManager();
-    multicast->addAddress("239.3.14.15", 9265);
-    multicast->addAddress("224.3.14.15", 9265);
+    multicast.initialize();
+    multicast.addAddress("239.3.14.15", 9265);
+    multicast.addAddress("224.3.14.15", 9265);
 }
 
 void Trick::VariableServerListenThread::pause_listening() {

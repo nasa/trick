@@ -7,7 +7,7 @@
 
 
 Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
-    debug = 0 ;
+    debug = 3;
     enabled = true ;
     log = false ;
     copy_mode = VS_COPY_ASYNC ;
@@ -80,7 +80,6 @@ int Trick::VariableServerSession::handleMessage() {
 
     std::string received_message;
     int len = connection->read(received_message, ClientConnection::MAX_CMD_LEN);
-
     if (len > 0) {
         ip_parse(received_message.c_str()); /* returns 0 if no parsing error */
     }
