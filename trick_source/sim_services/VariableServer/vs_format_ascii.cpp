@@ -9,6 +9,7 @@ PROGRAMMERS: (((Keith Vetter) (LinCom) (September 2001) (--)))
 #include <ctype.h>
 #include <limits>
 #include <udunits2.h>
+#include <sstream>
 
 #include "trick/parameter_types.h"
 #include "trick/attributes.h"
@@ -190,11 +191,15 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
     } //end while
 
     if (ref->units) {
+        std::stringstream unit_str;
         if ( ref->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
-            snprintf(value, value_size, "%s {--}", value);
+            unit_str << " {--}";
         } else {
-            snprintf(value, value_size, "%s {%s}", value, ref->units);
+            unit_str << " {" << ref->units << "}";
+
         }
+        size_t max_copy_size = value_size - strlen(value) - 1;
+        strncat(value, unit_str.str().c_str(), max_copy_size);
     }
 
     return (0);
