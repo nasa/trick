@@ -1,5 +1,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/select.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <unistd.h>
 #include <arpa/inet.h>
@@ -68,9 +70,20 @@ class Socket {
         return send(message);
     }
 
+    bool check_for_message_availible(long timeout_sec = 2) {
+        fd_set read_fd_set;
+        struct timeval timeout = { .tv_sec = timeout_sec, .tv_usec = 0 };
+        FD_ZERO(&read_fd_set);
+        FD_SET(_socket_fd, &read_fd_set);
+
+        select(_socket_fd+1, &read_fd_set, NULL, NULL, &timeout);
+
+        return FD_ISSET(_socket_fd, &read_fd_set);
+    }
+
     std::string receive () {
         char buffer[SOCKET_BUF_SIZE];
-        int numBytes = read(_socket_fd, buffer, SOCKET_BUF_SIZE);
+        int numBytes = recv(_socket_fd, buffer, SOCKET_BUF_SIZE, 0);
         if (numBytes < 0) {
             std::cout << "Failed to read from socket" << std::endl;
         } else if (numBytes < SOCKET_BUF_SIZE) {
@@ -139,7 +152,7 @@ class VariableServerTest : public ::testing::Test {
 
         Socket socket;
         int socket_status;
-
+        
         static int numSession;
 };
 
@@ -158,8 +171,10 @@ TEST_F (VariableServerTest, Strings) {
 
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 
+
     expected = std::string("5\tI am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
     socket << "trick.var_send_once(\"vsx.vst.p\")\n";
+
     socket >> reply;
 
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
@@ -239,6 +254,9 @@ TEST_F (VariableServerTest, SendOnce) {
 
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 
+    // Check that nothing is sent cyclically
+    EXPECT_EQ(socket.check_for_message_availible(), false);
+
     socket << "trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 3)\n";
     socket >> reply;
     expected = std::string("5   0   1   2");
@@ -247,10 +265,9 @@ TEST_F (VariableServerTest, SendOnce) {
 
     std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
     socket << "trick.var_send_once(\"vsx.vst.n[0], vsx.vst.n[1], vsx.vst.n[2],\", 4)\n";
-    //socket >> reply;
-    //expected = std::string("5");
 
-    //EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+    // Wrong number of variables, should not send a response but should see an error message from the Trick side
+    EXPECT_EQ(socket.check_for_message_availible(), false);
 }
 
 TEST_F (VariableServerTest, Exists) {
@@ -286,12 +303,8 @@ TEST_F (VariableServerTest, Pause) {
 
     socket << "trick.var_add(\"vsx.vst.f\")\ntrick.var_add(\"vsx.vst.i\")\ntrick.var_pause()\n";
 
-    // TODO: Make sure it's paused
-    // socket >> reply;
-    // expected = std::string("");
-
-    // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-
+    // Make sure it's paused
+    EXPECT_EQ(socket.check_for_message_availible(), false);
 
     socket << "trick.var_send()\n";
     socket >> reply;
@@ -299,11 +312,8 @@ TEST_F (VariableServerTest, Pause) {
 
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 
-    // TODO: Check that it doesn't send cyclically
-    // socket >> reply;
-    // expected = std::string("0  123456  1234.5677");
-
-    // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+    // Make sure it doesn't send cyclically
+    EXPECT_EQ(socket.check_for_message_availible(), false);
 
     socket << "trick.var_unpause()\n";
     socket >> reply;
