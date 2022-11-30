@@ -42,6 +42,20 @@ The Trick Simulation Environment, developed at the NASA Johnson Space Center, is
     </tbody>
 </table>
 
+<table align="center">
+    <col width="100%">
+    <thead>
+        <tr>
+            <th><a href="https://nasa.github.io/trick/developer_docs/Developer-Docs-Home"> Developer Docs </a></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr align="center">
+            <td>Read detailed documentation for various Trick internals and processes.</td>
+        </tr>
+    </tbody>
+</table>
+
 ---
 
 Trick is released under the NASA Open Source Agreement Version 1.3 [license](https://github.com/nasa/trick/blob/master/LICENSE).
