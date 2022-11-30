@@ -3,9 +3,6 @@ PURPOSE: ( S_define )
 LIBRARY DEPENDENCIES:
 (
      (varserv/src/VS.cpp)
-     (varserv/src/VS_init.cpp)
-     (varserv/src/VS_default_data.cpp)
-     (varserv/src/VS_shutdown.cpp)
 )
 *************************************************************/
 
