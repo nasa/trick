@@ -29,8 +29,8 @@ class VSTest {
 		unsigned long long	l;
 		bool                m;
 		int 				n[5];
-		std::string o;
-		char * p;
+		std::string 		o;
+		char * 				p;
 
 		int status;
 

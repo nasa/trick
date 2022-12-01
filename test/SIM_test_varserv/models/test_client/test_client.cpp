@@ -70,17 +70,6 @@ class Socket {
         return send(message);
     }
 
-    bool check_for_message_availible(long timeout_sec = 2) {
-        fd_set read_fd_set;
-        struct timeval timeout = { .tv_sec = timeout_sec, .tv_usec = 0 };
-        FD_ZERO(&read_fd_set);
-        FD_SET(_socket_fd, &read_fd_set);
-
-        select(_socket_fd+1, &read_fd_set, NULL, NULL, &timeout);
-
-        return FD_ISSET(_socket_fd, &read_fd_set);
-    }
-
     std::string receive () {
         char buffer[SOCKET_BUF_SIZE];
         int numBytes = recv(_socket_fd, buffer, SOCKET_BUF_SIZE, 0);
@@ -95,6 +84,27 @@ class Socket {
 
     void operator>> (std::string& ret) {
         ret = receive();
+    }
+
+    bool check_for_message_availible(long timeout_sec = 2) {
+        fd_set read_fd_set;
+        struct timeval timeout = { .tv_sec = timeout_sec, .tv_usec = 0 };
+        FD_ZERO(&read_fd_set);
+        FD_SET(_socket_fd, &read_fd_set);
+
+        // I have one question for the designers of the interface for this syscall: why
+        select(_socket_fd+1, &read_fd_set, NULL, NULL, &timeout);
+
+        return FD_ISSET(_socket_fd, &read_fd_set);
+    }
+
+    void clear_buffered_data() {
+        // Poll the socket
+        if (check_for_message_availible(0)) {
+            // Receive into the void if there is a message
+            receive();
+        }
+        // otherwise no worries
     }
 
     void close() {
@@ -158,7 +168,6 @@ class VariableServerTest : public ::testing::Test {
 
 int VariableServerTest::numSession = 0;
 
-
 TEST_F (VariableServerTest, Strings) {
     if (socket_status != 0) {
         FAIL();
@@ -198,13 +207,13 @@ TEST_F (VariableServerTest, AddRemove) {
 
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 
-    socket << "trick.var_add(\"vsx.vst.e\")\n";
+    socket << "trick.var_add(\"vsx.vst.m\")\n";
     socket >> reply;
-    expected = std::string("0  -1234 -123456");
+    expected = std::string("0  -1234 1");
     
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 
-    socket << "trick.var_remove(\"vsx.vst.e\")\n";
+    socket << "trick.var_remove(\"vsx.vst.m\")\n";
     socket >> reply;
     expected = std::string("0  -1234");
     
@@ -320,6 +329,98 @@ TEST_F (VariableServerTest, Pause) {
     expected = std::string("0  123456  1234.5677");
 
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+}
+
+TEST_F (VariableServerTest, CopyAndWriteModes) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    std::string expected;
+
+    // We're just checking that every combination of modes is functional
+    // We can't test that they perform their copying and writing in the correct place from here
+    // Default is 0 0
+    socket << "trick.var_add(\"vsx.vst.a\")\ntrick.var_add(\"vsx.vst.b\")\n";
+    socket >> reply;
+
+    expected = "0 97 98";
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    // Clear out anything else that's been sent
+    // I may need to write something else for this
+    socket << "trick.var_pause()\n";
+    socket.clear_buffered_data();
+
+    // Copy mode 1 (VS_COPY_SCHEDULED) write mode 0 (VS_WRITE_ASYNC)
+    socket << "trick.var_clear()\ntrick.var_set_copy_mode(1)\ntrick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.d\")\ntrick.var_unpause()\n";
+    socket >> reply;
+
+    // With copy mode VS_COPY_SCHEDULED and write mode VS_WRITE_ASYNC, the first reply will be all 0 since the main time to copy has not occurred yet.
+    // Is this what we want? Maybe we should have more strict communication on whether the data has been staged so the first message isn't incorrect
+
+    // expected = "0 -1234 1234";
+    // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);   
+    // std::cout << "\tExpected: " << expected << "\n\tActual: " << reply << std::endl;
+
+    socket >> reply;
+
+    expected = "0 -1234 1234";
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);   
+
+    // Clear out anything else that's been sent
+    socket << "trick.var_pause()\n";
+    socket.clear_buffered_data();
+
+
+    // Copy mode 1 (VS_COPY_SCHEDULED) write mode 1 (VS_WRITE_WHEN_COPIED)
+    socket << "trick.var_clear()\ntrick.var_set_write_mode(1)\ntrick.var_add(\"vsx.vst.e\")\ntrick.var_add(\"vsx.vst.f\")\ntrick.var_unpause()\n";
+
+    socket >> reply;
+    expected = "0 -123456 123456";
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);   
+
+    socket >> reply;
+    expected = "0 -123456 123456";
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);   
+
+    // Clear out anything else that's been sent
+    socket << "trick.var_pause()\n";
+    socket.clear_buffered_data();
+
+
+    // Copy mode 2 (VS_COPY_TOP_OF_FRAME) write mode 0 (VS_WRITE_ASYNC)
+    socket << "trick.var_clear()\ntrick.var_set_copy_mode(2)\ntrick.var_set_write_mode(0)\ntrick.var_add(\"vsx.vst.g\")\ntrick.var_add(\"vsx.vst.h\")\ntrick.var_unpause()\n";
+
+    // Same issue as copy mode 1 write mode 0
+    socket >> reply;
+    // expected = "0 -1234567 123456789";
+    // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);   
+    // std::cout << "\tExpected: " << expected << "\n\tActual: " << reply << std::endl;
+
+    socket >> reply;
+    expected = "0 -1234567 123456789";
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);   
+
+    // Clear out anything else that's been sent
+    socket << "trick.var_pause()\n";
+    socket.clear_buffered_data();
+
+
+    // Copy mode 2 (VS_COPY_TOP_OF_FRAME) write mode 1 (VS_WRITE_WHEN_COPIED)
+    socket << "trick.var_clear()\ntrick.var_set_copy_mode(2)\ntrick.var_set_write_mode(1)\ntrick.var_add(\"vsx.vst.i\")\ntrick.var_add(\"vsx.vst.j\")\ntrick.var_unpause()\n";
+    socket >> reply;
+    expected = "0 1234.5677 -1234.56789";
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);   
+
+    socket >> reply;
+    expected = "0 1234.5677 -1234.56789";
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);   
+
+    // Clear out anything else that's been sent
+    socket << "trick.var_pause()\n";
+    socket.clear_buffered_data();
 }
 
 int main(int argc, char **argv) {
