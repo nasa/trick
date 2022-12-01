@@ -27,7 +27,7 @@ int VSTest::default_vars() {
 	j = -1234.567890;   //double
 	k = -12345678912345;//long long
 	l = 12345678912345; //unsigned long
-	m = false;          //boolean
+	m = true;          //boolean
 	for (int i = 0; i < 5; i++) {
 		n[i] = i;
 	}

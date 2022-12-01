@@ -74,7 +74,6 @@ class Socket {
         char buffer[SOCKET_BUF_SIZE];
         int numBytes = recv(_socket_fd, buffer, SOCKET_BUF_SIZE, 0);
         if (numBytes < 0) {
-            std::cout << "Failed to read from socket" << std::endl;
         } else if (numBytes < SOCKET_BUF_SIZE) {
             buffer[numBytes] = '\0';
         }
@@ -301,6 +300,7 @@ TEST_F (VariableServerTest, Exists) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 
 }
+
 
 TEST_F (VariableServerTest, Pause) {
     if (socket_status != 0) {
