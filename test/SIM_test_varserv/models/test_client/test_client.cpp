@@ -349,20 +349,20 @@ TEST_F (VariableServerTest, Cycle) {
     std::string command = "trick.var_add(\"time\")\n";
     socket << command;
 
-    tolerance = 0.011;
+    tolerance = 0.15;
     cycle = 1.0;
     run_cycle_test();
     
     cycle = 0.5;
     run_cycle_test();
 
-    tolerance = 0.015;
+    tolerance = 0.15;
     cycle = 0.1;    
     run_cycle_test();
 
     num_cycles = 2;
     cycle = 3.0;
-    tolerance = 0.1;
+    tolerance = 0.15;
     run_cycle_test();
 }
 
