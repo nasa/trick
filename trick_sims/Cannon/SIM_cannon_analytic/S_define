@@ -1,6 +1,6 @@
 /************************TRICK HEADER*************************
 PURPOSE:
-    (This S_define works with the RUN_analytic input file)
+    (S_define file for SIM_cannon_analytic)
 LIBRARY DEPENDENCIES:
     (
       (cannon/gravity/src/cannon_init.c)

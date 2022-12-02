@@ -60,13 +60,15 @@ to 10 meters.
 1. Notice that dyn.cannon.vel[0] is 43.30... meters per second. To
 view it in feet per second:
     * Left Click on the variable dyn.cannon.vel[0] on the Variable table.
-    * Left Click on the "m/s" in the Unit column to bring up a drop-down list.
-    * Select **ft/s**. Notice that the value of dyn.cannon.vel[0] changes to
+    * Double Click on the "m/s" in the Unit column to edit the field.
+    * Type **ft/s**. Notice that the value of dyn.cannon.vel[0] changes to
     142.06... ft/s.
 
 1. Resume the simulation run by clicking the **Start** button on the
 sim control panel. Notice that the trajectory assumes its predetermined path.
-This is because we are giving the cannonball a position as a function of time.
+This is because we are analytically calculating the cannonball position as a
+function of time, rather than calculating it from the previous frame data.
+
 
 #### TV With An Input File
 If this simulation were run over and over, it would be laborious to
@@ -107,8 +109,8 @@ Again, we need to incorporate the TV input file into our ever expanding
 simulation input file.
 
 ```python
-execfile("Modified_data/realtime.py")
-execfile("Modified_data/cannon.dr")
+exec(open("Modified_data/realtime.py").read())
+exec(open("Modified_data/cannon.dr").read())
 
 trick.trick_view_add_auto_load_file("TV_cannon.tv")
 trick.stop(5.2)
@@ -121,7 +123,5 @@ trick.stop(5.2)
 ```
 
 You may now run the sim and verify that TV pops up automatically.
-
-Congratulations, you have finished the basic Trick tutorial!
 
 [Next Page](ATutNumericSim)

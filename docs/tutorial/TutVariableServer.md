@@ -124,11 +124,12 @@ To run the variable server client :
 * Execute, but don't "Start" the cannonball simulation.
 * Find the variable server port number in the bottom left hand corner of the Sim
 Control Panel, as shown below.
-* Execute the script with the port number as an argument. Example: 
-
-```$ ~/CannonDisplay_Rev1.py 50774 &```
 
 ![Cannon](images/SimControlPanel.png)
+
+* Execute the script with the port number as an argument.
+  Example: ```$ ~/CannonDisplay_Rev1.py 50774 &```
+* "Start" the cannonball simulation.
 
 The output of the script will display three columns of numbers. The left most
 number is the [variable server message type](#variable-server-message-types).
@@ -147,7 +148,6 @@ that they were specified in the script.
 0	68.84901960086293	27.34966950000001
 
 0	73.17914661978513	28.24082950000001
-
 ```
 
 <a id=how-the-client-works></a>
@@ -179,7 +179,7 @@ and "dyn.cannon.pos[1]" to the session variable list.
 ⚠️ Please notice that the quotes around the variable names must be
 escaped with the '\' (backslash) character.
 
-```
+```python
 client_socket.send( "trick.var_add(\"dyn.cannon.pos[0]\") \n" +
                     "trick.var_add(\"dyn.cannon.pos[1]\") \n"
                   )
@@ -260,7 +260,6 @@ Now, when we run the client, we get both the init_angle and the init_speed with 
 0	0	0
 ```
 
-
 Another commonly used pattern to retrieve variables only once is to use the [**var_add**](#api-var-add), 
 [**var_send**](#api-var-send), and [**var_clear**](#api-var-clear) commands. [**var_send**](#api-var-send) tells 
 the variable server to send all **session** variables immediately regardless of whether [**var_pause**](#api-var-pause) 
@@ -277,8 +276,6 @@ print line
 client_socket.send( "trick.var_clear()\n" )
 ```
 
-
-
 In this snippet of code, we add  ```dyn.cannon.init_angle``` to the session
 variable list. Then we call [**var_send**](#api-var-send) to tell the variable
 server to send us the value, and wait for the response by calling
@@ -289,7 +286,9 @@ two ways. We can 1) call [**var_clear**](#api-var-clear) to clear the the list,
 or 2) we can call [**var_remove**](#api-var-remove). Specifically we could do
 the following:
 
-```client_socket.send("trick.var_remove(\"dyn.cannon.init_angle\")\n")```
+```python
+client_socket.send( "trick.var_remove(\"dyn.cannon.init_angle\")\n" )
+```
 
 So, when we run the modified client, the first three lines of the output should
 look something like the following.
@@ -302,7 +301,7 @@ look something like the following.
 0	0	0
 ```
 
-The first line contains the message type ( which is zero), followed by the value
+The first line contains the message type (which is zero), followed by the value
 of  ```dyn.cannon.init_angle```. Subsequent lines contain the position data like
 before.
 
@@ -561,7 +560,6 @@ Add this to the bottom of RUN_test/input.py to give it a try.
 <a id=the-variable-server-api></a>
 ### The Variable Server API
 
-``
 The following functions are a subset of variable server API functions that are
 used in this tutorial:
 

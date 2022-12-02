@@ -48,7 +48,7 @@ namespace Trick {
 
     /**
       The DRHDF5 recording format is an industry conforming HDF5 formatted file.  Files written in this format are named
-      log_<group_name>.hd5.  The contents of this file type are readable by the Trick Data Products packages from
+      log_<group_name>.h5.  The contents of this file type are readable by the Trick Data Products packages from
       Trick 07 to the current version.  The contents of the file are binary and is not included here.  The HDF5 layout
       of the file follows.
 

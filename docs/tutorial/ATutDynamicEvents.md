@@ -211,7 +211,7 @@ Add the [cannon_impact](#listing_cannon_impact) function, listed above, to the b
 Add the following job specification, to run our cannon_impact job.
 
 ```
-("dynamic_event") cannon_impact( &cannon) ;
+("dynamic_event") cannon_impact( &cannon ) ;
 ```
 
 to the end of the list of jobs in the CannonSimObject.
