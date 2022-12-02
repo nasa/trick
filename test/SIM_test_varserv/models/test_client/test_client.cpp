@@ -302,6 +302,70 @@ TEST_F (VariableServerTest, Exists) {
 }
 
 
+TEST_F (VariableServerTest, Cycle) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    double cycle = 1.0;
+    double tolerance = 0.01;
+    int num_cycles = 5;
+
+    // Challenge: no loops allowed
+    // I've been reading about lamdbas and when you have a hammer........
+
+    // Test: compare the differences in the returned sim time, make sure the difference 
+    // between them are equal to what var_cycle has been set to within some tolerance
+
+    auto parse_message_for_sim_time = [](const std::string& message) {
+        // For this case the message will be
+        // 0\t<time> {s}\t
+        // We only care about <time>
+        std::stringstream message_stream(message);
+        std::string token;
+        std::getline(message_stream, token, '\t');
+        std::getline(message_stream, token, ' ');
+        return std::stod(token);
+    };
+
+    // Tail recursion, just for fun
+    std::function<void(int, double)> compare_cycle_forward = [&] (int n_cycles, double last_sim_time) {
+        if (n_cycles <= 0)
+            return;
+
+        double sim_time = parse_message_for_sim_time(socket.receive());
+        EXPECT_LE(abs((sim_time - last_sim_time) - cycle), tolerance);
+        compare_cycle_forward(n_cycles-1, sim_time);
+    };
+
+    auto run_cycle_test = [&] () {
+        std::string command = "trick.var_cycle(" + std::to_string(cycle) + ")\n";
+        socket << command;
+        double sim_time = parse_message_for_sim_time(socket.receive());
+        compare_cycle_forward(num_cycles, sim_time);
+    };
+
+    std::string command = "trick.var_add(\"time\")\n";
+    socket << command;
+
+    tolerance = 0.011;
+    cycle = 1.0;
+    run_cycle_test();
+    
+    cycle = 0.5;
+    run_cycle_test();
+
+    tolerance = 0.015;
+    cycle = 0.1;    
+    run_cycle_test();
+
+    num_cycles = 2;
+    cycle = 3.0;
+    tolerance = 0.1;
+    run_cycle_test();
+}
+
+
 TEST_F (VariableServerTest, Pause) {
     if (socket_status != 0) {
         FAIL();
