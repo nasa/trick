@@ -7,6 +7,7 @@ PURPOSE: Provides a one-stop shop for all MonteCarlo operations that Trick
            variables.
 PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2018) (Antares) (initial)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 ***********************************************************************/
 #ifndef SIM_OBJECT_MONTE_CARLO_Generation
 #define SIM_OBJECT_MONTE_CARLO_Generation
@@ -19,8 +20,12 @@ PROGRAMMERS:
 ##include "trick/mc_variable_file.hh"
 ##include "trick/mc_variable_fixed.hh"
 ##include "trick/mc_variable_semi_fixed.hh"
-
+##include "trick/message_type.h"
+##include "trick/message_proto.h"
+##include "trick/exec_proto.h"
+#include "sim_objects/default_trick_sys.sm"
 ##include "trick/MonteCarlo.hh"
+
 class MonteCarloGeneratorSimObject : public Trick::SimObject
 {
  protected:

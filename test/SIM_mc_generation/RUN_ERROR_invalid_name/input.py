@@ -4,7 +4,7 @@ monte_carlo.mc_master.set_num_runs(1)
 print('*********************************************************************')
 print('this message is expected:\n'+
       '  Error Invalid name\n' +
-      '  Could not find MonteCarlo variable with name monte_carlo.x_uniform.\n'+
+      '  Could not find MonteCarlo variable with name test.x_uniform.\n'+
       '  Returning a NULL pointer.')
 print('*********************************************************************')
 

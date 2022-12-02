@@ -37,10 +37,10 @@ print("\ncode coverage for parent's get_seed() virtual method... should return Z
 print("mc_var2.get_seed()                 returns: " + str(mc_var2.get_seed()))
 
 # Check the validity of looking up a variable by name.
-print("\nmonte_carloing 'find_variable' and 'get_variable_name' for monte_carlo.x_file_lookup[0]: "+
+print("\nmonte_carloing 'find_variable' and 'get_variable_name' for test.x_file_lookup[0]: "+
       "returns: " +
       monte_carlo.mc_master.find_variable("test.x_file_lookup[0]").get_variable_name())
-print("monte_carloing 'find_variable' and 'get_variable_name' for monte_carlo.x_file_lookup[1]: "+
+print("monte_carloing 'find_variable' and 'get_variable_name' for test.x_file_lookup[1]: "+
       "returns: " +
       monte_carlo.mc_master.find_variable("test.x_file_lookup[1]").get_variable_name() + "\n")
 

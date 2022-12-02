@@ -1,5 +1,5 @@
 /*****************************************************************************
-PURPOSE: SIM Object used to Exercise the features and failure cases of the 
+PURPOSE: SIM object used to Exercise the features and failure cases of the 
 MonteCarloGeneration model.
 PROGRAMMERS:
   (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))

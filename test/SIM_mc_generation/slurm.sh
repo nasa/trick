@@ -3,7 +3,7 @@
 #SBATCH --array=0
 
 #This is an example sbatch script showing the capability of running an array 
-#job in SLURM. SLURM is an HPC (High-Performace-Computing) scheaduling tool
+#job in SLURM. SLURM is an HPC (High-Performance-Computing) scheduling tool
 #that can manage thousands or millions of jobs. The Monte Carlo Generation 
 #Model is best well suited with an HPC scheadulign tool.
 #  

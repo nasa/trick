@@ -4,7 +4,7 @@ monte_carlo.mc_master.set_num_runs(1)
 print('***************************************************************************************')
 print('this message is expected:')
 print('  Warning Configuration error')
-print('  Zero truncation specified for variable monte_carlo.x_normal which will produce a fixed point')
+print('  Zero truncation specified for variable test.x_normal which will produce a fixed point')
 print('***************************************************************************************')
 
 
