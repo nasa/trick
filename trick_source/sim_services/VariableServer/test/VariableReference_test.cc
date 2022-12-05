@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <iomanip>
+#include <limits>
 
 #include "trick/MemoryManager.hh"
 #include "trick/VariableReference.hh"
@@ -155,16 +156,36 @@ TEST_F(VariableReference_test, writeValueAscii_double) {
     // Create a variable to make a reference for
     double test_a = 867.309;
     (void) memmgr->declare_extern_var(&test_a, "double test_a");
-    Trick::VariableReference ref("test_a");
-    std::stringstream ss;
+    Trick::VariableReference ref_a("test_a");
+    std::stringstream ss_a;
+
+    double test_b = std::numeric_limits<double>::max();
+    (void) memmgr->declare_extern_var(&test_b, "double test_b");
+    Trick::VariableReference ref_b("test_b");
+    std::stringstream ss_b;
+
+    double test_c = std::numeric_limits<double>::min();
+    (void) memmgr->declare_extern_var(&test_c, "double test_c");
+    Trick::VariableReference ref_c("test_c");
+    std::stringstream ss_c;
 
     // ACT
-    ref.stageValue();
-    ref.prepareForWrite();
-    ref.writeValueAscii(ss);
+    ref_a.stageValue();
+    ref_a.prepareForWrite();
+    ref_a.writeValueAscii(ss_a);
+
+    ref_b.stageValue();
+    ref_b.prepareForWrite();
+    ref_b.writeValueAscii(ss_b);
+
+    ref_c.stageValue();
+    ref_c.prepareForWrite();
+    ref_c.writeValueAscii(ss_c);
 
     // ASSERT
-    EXPECT_EQ(ss.str(), "867.309");
+    EXPECT_EQ(ss_a.str(), "867.309");
+    EXPECT_EQ(ss_b.str(), "1.797693134862316e+308");
+    EXPECT_EQ(ss_c.str(), "2.225073858507201e-308");
 }
 
 TEST_F(VariableReference_test, writeValueAscii_char) {

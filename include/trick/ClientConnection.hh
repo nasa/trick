@@ -22,8 +22,6 @@ namespace Trick {
             virtual int write (std::string& message, int len) = 0;
             virtual int read  (std::string& message, int len) = 0;
 
-            virtual int write (std::istream& message_stream) = 0;
-
             virtual int disconnect () = 0;
             virtual std::string get_client_tag () = 0;
             virtual int set_client_tag(std::string tag) = 0;
