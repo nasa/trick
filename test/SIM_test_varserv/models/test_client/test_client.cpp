@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <functional>
+#include <cmath>
 
 #include <gtest/gtest.h>
 
@@ -238,6 +239,8 @@ TEST_F (VariableServerTest, BadRefResponse) {
     std::string reply;
     std::string expected;
 
+    std::cerr << "The purpose of this test is to cause an error. Error messages are expected." << std::endl;
+
     socket << "trick.var_send_once(\"vsx.vst.no_such_variable\")\n";
     socket >> reply;
     expected = std::string("5   BAD_REF");
@@ -394,22 +397,23 @@ TEST_F (VariableServerTest, Cycle) {
     };
 
     auto closer_to = [] (double expected, double other, double test_val) -> bool {
-        return (abs(expected - test_val)) < (abs(other - test_val));
+        return (fabs(expected - test_val)) < (fabs(other - test_val));
     };
 
-    std::function<bool(std::vector<double>&, size_t)> compare_cycle_times = [&] (std::vector<double>& test_cycle_times, size_t index) -> bool{
+    std::function<void(std::vector<double>&, size_t)> compare_cycle_times = [&] (std::vector<double>& test_cycle_times, size_t index) {
         if (index == test_cycle_times.size())
-            return true;
+            return;
         
         double measured_cycle_time = measure_cycle(test_cycle_times[index], 5);
-        return closer_to(test_cycle_times[index], test_cycle_times[index-1], measured_cycle_time) && compare_cycle_times(test_cycle_times, index+1);
+        EXPECT_TRUE(closer_to(test_cycle_times[index], test_cycle_times[index-1], measured_cycle_time)) << "Expected time: " << test_cycle_times[index] << " Actual time: " << measured_cycle_time;
+        compare_cycle_times(test_cycle_times, index+1);
     };
 
     std::string command = "trick.var_add(\"time\")\n";
     socket << command;
     
-    std::vector<double> test_cycle_times = {0, 1.0, 0.1, 3.0, 0.5};
-    EXPECT_TRUE(compare_cycle_times(test_cycle_times, 1));
+    std::vector<double> test_cycle_times = {0, 3.0, 0.1, 1.0, 0.5};
+    compare_cycle_times(test_cycle_times, 1);
 
 }
 
