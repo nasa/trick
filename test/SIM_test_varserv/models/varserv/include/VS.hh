@@ -2,7 +2,7 @@
 PURPOSE:                     ( Variable server test )
 REFERENCES:                  ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
-PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) )
+PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) ) ( (Jackie Deans) (CACI) (11-30-2022) )
 ********************************************************************************/
 #include <wchar.h>
 #include <string.h>
@@ -29,8 +29,9 @@ class VSTest {
 		unsigned long long	l;
 		bool                m;
 		int 				n[5];
-		std::string o;
-		char * p;
+		std::string 		o;
+		char * 				p;
+		wchar_t *			q;
 
 		int status;
 
@@ -45,7 +46,7 @@ class VSTest {
 		int success();
 		int fail();
 
-		char *status_messages[3] = {
+		const char *status_messages[3] = {
 			"Variable Server Test Success",
 			"Variable Server Test Failure",
 			"Client failed to connect"
