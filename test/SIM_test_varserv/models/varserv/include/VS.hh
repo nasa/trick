@@ -31,6 +31,7 @@ class VSTest {
 		int 				n[5];
 		std::string 		o;
 		char * 				p;
+		wchar_t *			q;
 
 		int status;
 

@@ -9,6 +9,7 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) (Jackie Deans) 
 #include <iostream>
 #include "../include/VS.hh"
 #include "trick/exec_proto.h"
+#include <limits>
 
 VSTest::VSTest() {}
 VSTest::~VSTest() {}
@@ -33,6 +34,7 @@ int VSTest::default_vars() {
 	}
 	o = std::string("You will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
 	p = "I am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?";
+	q = L"This breeze, which has travelled from the regions towards which I am advancing, gives me a foretaste of those icy climes. Inspirited by this wind of promise, my daydreams become more fervent and vivid.";
 }
 
 int VSTest::init() {
