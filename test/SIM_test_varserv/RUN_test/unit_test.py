@@ -7,16 +7,18 @@ def main():
 
 	trick.var_server_set_port(40000)
 	trick.var_ascii()
+	trick.real_time_enable()
+	trick.exec_set_software_frame(0.01)
+	# trick.set_var_server_info_msg_on()
 
-	#trick.set_var_server_info_msg_on()
+	trick.exec_set_terminate_time(100.0)
 
-	trick_utest.unit_tests.enable() ;
-	trick_utest.unit_tests.set_file_name( os.getenv("TRICK_HOME") + "/trick_test/SIM_test_varserv.xml" ) 
-	trick_utest.unit_tests.set_test_name( "VariableServerTest" )
+	varServerPort = trick.var_server_get_port()
+	test_output = ( os.getenv("TRICK_HOME") + "/trick_test/SIM_test_varserv.xml" ) 
+	command = 'os.system("./models/test_client/test_client ' + str(varServerPort) + ' --gtest_output=xml:' + test_output + ' &")'
 
-	TRICK_EXPECT_EQ(trick.var_server_get_port(), 40000, "VariableServerTest", "SetPortNumber")
-
-	trick.exec_set_terminate_time(3000.0)
+	# Start the test client after everything has been initialized (hopefully)
+	trick.add_read(1.0, command)
 
 if __name__ == "__main__":
 	main()
