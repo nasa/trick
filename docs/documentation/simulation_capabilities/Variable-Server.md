@@ -137,10 +137,10 @@ The frame refers to the software frame in the Executive.  In freeze mode a diffe
 multiplier and offset are used.
 
 ```python
-trick.var_set_frame_multiplier(int mult)
+trick.var_set_frame_multiple(int mult)
 trick.var_set_frame_offset(int offset)
 
-trick.var_set_freeze_frame_multiplier(int mult)
+trick.var_set_freeze_frame_multiple(int mult)
 trick.var_set_freeze_frame_offset(int offset)
 ```
 
