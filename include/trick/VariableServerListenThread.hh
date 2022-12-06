@@ -28,6 +28,10 @@ namespace Trick {
             unsigned short get_port() ;
             void set_port(unsigned short in_port) ;
 
+            void set_socket_priority(unsigned short in_socket_priority) ;
+
+            void apply_socket_priority(TCDevice *listen_device, TCDevice *device);
+
             std::string get_user_tag() ;
             const std::string& get_user_tag_ref() ;
             void set_user_tag(std::string in_tag) ;
@@ -74,6 +78,12 @@ namespace Trick {
 
             /** The mutex to stop accepting new connections during restart\n */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */
+
+            /** Requested variable server socket priority.\n */
+            unsigned short socket_priority ;       /**<  trick_units(--) */
+
+            /** User requested specific socket priority\n */
+            bool user_socket_priority_requested ;  /**<  trick_units(--) */
 
     } ;
 

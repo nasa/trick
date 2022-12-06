@@ -21,6 +21,7 @@ set( TRICKCOMM_SRC
   src/tc_read
   src/tc_read_byteswap
   src/tc_set_blockio
+  src/tc_set_socket_priority
   src/tc_write
   src/tc_write_byteswap
   src/trick_bswap_buffer

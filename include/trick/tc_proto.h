@@ -111,6 +111,10 @@ int tc_error(TCDevice * device, int on_off);
 /* copy a device */
 int tc_dev_copy(TCDevice * dest, TCDevice * src);
 
+/* set priority of socket for a device */
+#define tc_set_socket_priority(listen_device, device, priority) tc_set_socket_priority_(listen_device, device, priority, __FILE__, __LINE__)
+int tc_set_socket_priority_(TCDevice * listen_device, TCDevice * device, int priority, const char *file, int line) ;
+
 void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom) ;
 #ifdef __cplusplus
 }

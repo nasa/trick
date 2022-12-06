@@ -45,6 +45,7 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
        buffer is filled. */
     setsockopt(the_socket, IPPROTO_TCP, TCP_NODELAY, (const void *) &on, (socklen_t) sizeof(on));
 
+    /* How can this work?  You need to check the return value of setsockopt. */
     /* Check for error conditon on set socket option */
     if (the_socket < 0) {
         if (tc_errno == TRICKCOMM_EWOULDBLOCK) {

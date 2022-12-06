@@ -12,6 +12,7 @@ const char * var_server_get_hostname(void) ;
 unsigned short var_server_get_port(void) ;
 void var_server_set_port(unsigned short port) ;
 void var_server_set_source_address(const char * address) ;
+void var_server_set_socket_priority(unsigned short port) ;
 
 const char * var_server_get_user_tag(void) ;
 void var_server_set_user_tag(const char * tag) ;

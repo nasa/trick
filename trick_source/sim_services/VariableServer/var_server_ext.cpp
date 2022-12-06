@@ -439,6 +439,15 @@ extern "C" void var_server_set_port(unsigned short port) {
 
 /**
  * @relates Trick::VariableServer
+ * @copydoc Trick::VariableServer::set_socket_priority
+ * C wrapper Trick::VariableServer::set_socket_priority
+ */
+extern "C" void var_server_set_socket_priority(unsigned short socket_priority) {
+    the_vs->get_listen_thread().set_socket_priority(socket_priority);
+}
+
+/**
+ * @relates Trick::VariableServer
  * @copydoc Trick::VariableServer::set_listen_socket
  * C wrapper Trick::VariableServer::set_listen_socket
  */

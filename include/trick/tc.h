@@ -48,6 +48,8 @@ PROGRAMMERS:
 #define TC_READWRITE_TIMEOUT            -2
 #define TC_BROKEN_PIPE                  -3
 
+#define TC_COULD_NOT_SET_SOCKET_PRIORITY 16
+
 /* Set default for blocking timeout limit high */
 #define MAX_BLOCKIO_TIMEOUT_LIMIT   1.0e20
 

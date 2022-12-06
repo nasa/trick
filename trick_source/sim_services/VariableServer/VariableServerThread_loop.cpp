@@ -38,6 +38,7 @@ void * Trick::VariableServerThread::thread_body() {
     if ( listen_dev->socket_type == SOCK_STREAM ) {
         tc_accept(listen_dev, &connection);
         tc_blockio(&connection, TC_COMM_ALL_OR_NOTHING);
+        vs->get_listen_thread().apply_socket_priority(listen_dev, &connection);
     }
     connection_accepted = true ;
 
