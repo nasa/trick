@@ -3,6 +3,8 @@
  * Set the priority of a socket.
  */
 
+#ifndef __APPLE__
+
 #ifndef __WIN32__
 #include <errno.h>
 #include <netinet/tcp.h>
@@ -30,3 +32,4 @@ int tc_set_socket_priority_(TCDevice * listen_device, TCDevice * device, int pri
 
 }
 
+#endif

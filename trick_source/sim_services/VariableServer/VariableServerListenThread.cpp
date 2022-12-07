@@ -43,10 +43,12 @@ void Trick::VariableServerListenThread::set_port(unsigned short in_port) {
     user_port_requested = true ;
 }
 
+#ifndef __APPLE__
 void Trick::VariableServerListenThread::set_socket_priority(unsigned short in_socket_priority) {
     socket_priority = in_socket_priority;
     user_socket_priority_requested = true ;
 }
+#endif
 
 std::string Trick::VariableServerListenThread::get_user_tag() {
     return user_tag ;
@@ -255,6 +257,8 @@ void Trick::VariableServerListenThread::dump( std::ostream & oss ) {
     Trick::ThreadBase::dump(oss) ;
 }
 
+#ifndef __APPLE__
 void Trick::VariableServerListenThread::apply_socket_priority(TCDevice *listen_device, TCDevice *device) {
     if (user_socket_priority_requested) tc_set_socket_priority(listen_device, device, socket_priority);
 }
+#endif
