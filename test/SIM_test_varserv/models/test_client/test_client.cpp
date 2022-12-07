@@ -526,12 +526,15 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     std::string expected;
 
     int num_tests = 5;
-    double expected_cycle = 0.1;
     double sim_time;
     int frame_count;
     std::string vars;
     std::string command;
     std::string test_vars_command = "trick.var_add(\"time\")\ntrick.var_add(\"trick_sys.sched.frame_count\")\n";
+
+    double expected_cycle = 0.5;
+    command = "trick.var_cycle(" + std::to_string(expected_cycle) + ")\n";
+    socket << command;
 
     auto parse_message = [&](const std::string& message) {
         // For this case the message will be
@@ -625,7 +628,7 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
 
     // Copy mode 2 (VS_COPY_TOP_OF_FRAME) write mode 0 (VS_WRITE_ASYNC)
     // Test frame_multiple and frame_offset as well, with stupid values
-    int frame_multiple = 13;
+    int frame_multiple = 13*5;
     int frame_offset = 7;
     command = "trick.var_clear()\n" + test_vars_command + "trick.var_set_copy_mode(2)\ntrick.var_set_write_mode(0)\ntrick.var_set_frame_multiple(" + std::to_string(frame_multiple) + ")\ntrick.var_set_frame_offset(" + std::to_string(frame_offset) + ")\ntrick.var_add(\"vsx.vst.g\")\ntrick.var_add(\"vsx.vst.h\")\ntrick.var_unpause()\n";
     socket << command;
@@ -656,7 +659,7 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
 
 
     // Copy mode 2 (VS_COPY_TOP_OF_FRAME) write mode 1 (VS_WRITE_WHEN_COPIED)
-    frame_multiple = 17;
+    frame_multiple = 17*5;
     frame_offset = 11;
     command = "trick.var_clear()\n" + test_vars_command + "trick.var_set_copy_mode(2)\ntrick.var_set_write_mode(1)\ntrick.var_set_frame_multiple(" + std::to_string(frame_multiple) + ")\ntrick.var_set_frame_offset(" + std::to_string(frame_offset) + ")\ntrick.var_add(\"vsx.vst.i\")\ntrick.var_add(\"vsx.vst.j\")\ntrick.var_unpause()\n";
     socket << command;
