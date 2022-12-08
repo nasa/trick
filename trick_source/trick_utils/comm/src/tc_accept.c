@@ -42,12 +42,8 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
     }
 
     /* Turn off data buffering. This causes data to be sent immediately rather than queing it up until the transmit
-       buffer is filled. */
-    setsockopt(the_socket, IPPROTO_TCP, TCP_NODELAY, (const void *) &on, (socklen_t) sizeof(on));
-
-    /* How can this work?  You need to check the return value of setsockopt. */
-    /* Check for error conditon on set socket option */
-    if (the_socket < 0) {
+       buffer is filled, and check for error conditon on set socket option */
+    if (setsockopt(the_socket, IPPROTO_TCP, TCP_NODELAY, (const void *) &on, (socklen_t) sizeof(on)) < 0) {
         if (tc_errno == TRICKCOMM_EWOULDBLOCK) {
             trick_error_report(listen_device->error_handler,
                                TRICK_ERROR_ALERT, file,
