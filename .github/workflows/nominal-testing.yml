@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - name: install dependencies
-        run: sudo apt-get update && sudo apt-get install qtbase5-dev qt5-default
+        run: sudo apt-get update && sudo apt-get install qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools
       - name: qmake
         run: qmake
       - name: make
