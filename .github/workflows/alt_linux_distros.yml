@@ -112,6 +112,16 @@ jobs:
               export DEBIAN_FRONTEND=noninteractive
               apt-get update
               apt-get install -y tzdata
+#-------- Python2.7 dependencies ---------------------------              
+          - cfg: { os: debian }
+            python: 2
+            python_deps: >-
+              python2.7-dev
+#-------- Exclude bookworm on python 2 ---------------------         
+        exclude:
+          - cfg: { tag: bookworm }
+            python: 2
+            
 #-------- OS and Version Specific Dependencies ----------------
 # None
 #-------- Job definition ----------------
@@ -128,6 +138,7 @@ jobs:
           ${{matrix.arch_deps}} 
           ${{matrix.os_deps}} 
           ${{matrix.tag_deps}}
+          ${{matrix.python_deps}}
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
