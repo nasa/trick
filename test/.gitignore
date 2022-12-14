@@ -6,7 +6,7 @@ send_hs
 varserver_log
 log_*
 chkpnt_*
-MONTE_RUN_*
+MONTE_*
 .S_library*
 .icg_no_found
 CP_out

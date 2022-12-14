@@ -5,19 +5,18 @@
 SIM_ball_L1:
     path: trick_sims/Ball/SIM_ball_L1
     size: 6000
+    phase: 0
     runs:
         RUN_test/input.py:
             analyze: echo hi
             compare:
                - share/trick/trickops/tests/testdata/log_a.csv vs. share/trick/trickops/tests/baselinedata/log_a.csv
-    valgrind:
-        flags: -v
-        runs:
-            - RUN_test/input.py
 SIM_alloc_test:
     path: test/SIM_alloc_test
     runs:
         RUN_test/input.py:
+            analyze: echo hi there
+            valgrind: -v
 SIM_default_member_initializer:
     path: test/SIM_default_member_initializer
 SIM_demo_inputfile:
@@ -34,7 +33,9 @@ SIM_demo_sdefine:
       - unit_test
     runs:
         RUN_test/input.py:
+            phase: 0
         RUN_test/unit_test.py:
+            phase: 1
 SIM_dynamic_sim_object:
     path: test/SIM_dynamic_sim_object
     runs:
@@ -157,21 +158,35 @@ SIM_threads:
       - unit_test
     runs:
         RUN_test/sched.py:
+            phase: 1
+            analyze: echo phase 1 analysis
         RUN_test/amf.py:
+            phase: 2
+            analyze: echo phase 2 analysis
         RUN_test/async.py:
+            phase: 3
+            analyze: echo phase 3 analysis
         RUN_test/unit_test.py:
+            phase: 4
+            analyze: echo phase 4 analysis
 SIM_threads_simple:
     path: test/SIM_threads_simple
     runs:
         RUN_test/input.py:
+            phase: 1
+            analyze: echo phase 1 analysis
         RUN_test/sched.py:
+            phase: 2
+            analyze: echo phase 2 analysis
         RUN_test/async.py:
+            phase: 3
 SIM_trickcomm:
     path: test/SIM_trickcomm
     runs:
         RUN_test/input.py:
 SIM_ball_L2:
     path: trick_sims/Ball/SIM_ball_L2
+    runs:
 SIM_ball_L3:
     path: trick_sims/Ball/SIM_ball_L3
 SIM_amoeba:
@@ -187,6 +202,7 @@ SIM_cannon_jet:
 SIM_cannon_numeric:
     path: trick_sims/Cannon/SIM_cannon_numeric
 SIM_monte:
+    phase: -1
     path: trick_sims/Cannon/SIM_monte
 SIM_ode_ball:
     path: trick_sims/ODE/SIM_ode_ball
@@ -213,10 +229,12 @@ SIM_sat2d:
 SIM_satellite:
     path: trick_sims/SIM_satellite
 SIM_sun:
+    phase: 72
     path: trick_sims/SIM_sun
 SIM_wheelbot:
     path: trick_sims/SIM_wheelbot
 SIM_ball_L1_er7_utils:
+    phase: -88
     path: trick_source/er7_utils/sims/SIM_ball_L1
 SIM_grav:
     path: trick_source/er7_utils/sims/SIM_grav

@@ -1,7 +1,8 @@
 import sys
 import os
 
-sys.path.append(sys.argv[1] + "/share/trick/trickops")
+thisdir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
+sys.path.append(os.path.join(thisdir,"share/trick/trickops"))
 
 from TrickWorkflow import *
 from WorkflowCommon import Job
@@ -9,39 +10,23 @@ from WorkflowCommon import Job
 max_retries = 5
 
 class SimTestWorkflow(TrickWorkflow):
-    def __init__( self, quiet, trick_top_level ):
+    def __init__( self, quiet, trick_top_level, cpus):
+        self.cpus = cpus
         # Create the trick_test directory if it doesn't already exist
         if not os.path.exists(trick_top_level + "/trick_test"):
           os.makedirs(trick_top_level + "/trick_test")
 
         # Base Class initialize, this creates internal management structures
-        num_cpus = os.cpu_count() if os.cpu_count() is not None else 8
         TrickWorkflow.__init__(self, project_top_level=(trick_top_level), log_dir=(trick_top_level +'/trickops_logs/'),
-            trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=num_cpus, quiet=quiet)
-         
+            trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=self.cpus, quiet=quiet)
     def run( self ):
-
       build_jobs      = self.get_jobs(kind='build')
-      run_jobs        = self.get_jobs(kind='run')
+      # Two sims have runs that require ordering via phases:
+      #  - SIM_stls dumps a checkpoint that is then read in and checked by a subsequent run
+      #  - SIM_checkpoint_data_recording dumps checkpoints that are read by subsequent runs
+      first_run_jobs     = self.get_jobs(kind='run', phase=-1)  # Get all jobs with early phase -1
+      remaining_run_jobs = self.get_jobs(kind='run', phase=0)   # Get all jobs with default phase 0
       analysis_jobs   = self.get_jobs(kind='analyze')
-
-      # This job in SIM_stls dumps a checkpoint that is then read in and checked by RUN_test/unit_test.py in the same sim
-      # This is a workaround to ensure that this run goes first.
-      first_phase_jobs = []
-      stl_sim = self.get_sim('SIM_stls')
-      if stl_sim is not None:
-        stl_dump_job = stl_sim.get_run(input='RUN_test/setup.py').get_run_job()
-        first_phase_jobs.append(stl_dump_job)
-        run_jobs.remove(stl_dump_job)
-
-      # Same with SIM_checkpoint_data_recording - half the runs dump checkpoints, the others read and verify.
-      # Make sure that the dump checkpoint runs go first.
-      if self.get_sim('SIM_checkpoint_data_recording') is not None:
-        num_dump_runs = int(len(self.get_sim('SIM_checkpoint_data_recording').get_runs())/2)
-        for i in range(num_dump_runs):
-          job = self.get_sim('SIM_checkpoint_data_recording').get_run(input=('RUN_test' + str(i+1) + '/dump.py')).get_run_job()
-          first_phase_jobs.append(job)
-          run_jobs.remove(job)
 
       # Some tests fail intermittently for reasons not related to the tests themselves, mostly network weirdness.
       # Allow retries so that we can still cover some network-adjacent code
@@ -50,10 +35,9 @@ class SimTestWorkflow(TrickWorkflow):
       for job in retry_allowed_jobs:
          run_jobs.remove(job)
 
-
       builds_status = self.execute_jobs(build_jobs, max_concurrent=self.cpus, header='Executing all sim builds.')
-      first_phase_run_status = self.execute_jobs(first_phase_jobs, max_concurrent=self.cpus, header="Executing required first phase runs.")
-      runs_status   = self.execute_jobs(run_jobs,   max_concurrent=self.cpus, header='Executing all sim runs.')
+      first_phase_run_status = self.execute_jobs(first_run_jobs, max_concurrent=self.cpus, header="Executing first phase runs.")
+      runs_status   = self.execute_jobs(remaining_run_jobs,   max_concurrent=self.cpus, header='Executing remaining runs.')
 
       # Run the retry_allowed jobs
       self.execute_jobs(retry_allowed_jobs, max_concurrent=self.cpus, header='Executing retry-allowed runs.')
@@ -67,7 +51,6 @@ class SimTestWorkflow(TrickWorkflow):
           status, final_job = self.retry_job(sim, run, max_retries)
           final_retry_jobs += [final_job]
           all_retried_status = all_retried_status or status
-
       comparison_result = self.compare()
       analysis_status = self.execute_jobs(analysis_jobs, max_concurrent=self.cpus, header='Executing all analysis.')
 
@@ -75,7 +58,7 @@ class SimTestWorkflow(TrickWorkflow):
       self.status_summary()   # Print a Succinct summary
 
       # Dump failing logs
-      jobs = build_jobs + first_phase_jobs + run_jobs + final_retry_jobs
+      jobs = build_jobs + first_run_jobs + remaining_run_jobs + final_retry_jobs
       for job in jobs:
         if job.get_status() == Job.Status.FAILED:
           print("Failing job: ", job.name)
@@ -83,7 +66,7 @@ class SimTestWorkflow(TrickWorkflow):
           print(open(job.log_file, "r").read())
           print ("*"*120, "\n")
 
-      return (builds_status or runs_status or first_phase_run_status or all_retried_status or self.config_errors or comparison_result or analysis_status)
+      return (builds_status or runs_status or first_phase_run_status or all_retried_status or len(self.config_errors) > 0 or comparison_result or analysis_status)
 
     # Retries a job up to max_retries times and adds runs to the sim
     # Returns tuple of (job_status, final retry job)
@@ -102,7 +85,13 @@ class SimTestWorkflow(TrickWorkflow):
     
       return (job_failing, retry_job)
 
-
 if __name__ == "__main__":
-    should_be_quiet = os.getenv('CI') is not None
-    sys.exit(SimTestWorkflow(quiet=should_be_quiet, trick_top_level=sys.argv[1]).run())
+    parser = argparse.ArgumentParser(description='Build, run, and compare all test sims for Trick',
+      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument( "--trick_top_level", type=str, help="Path to TRICK_HOME", default=thisdir)
+    parser.add_argument( "--quiet", action="store_true", help="Suppress progress bars.")
+    parser.add_argument( "--cpus", type=int, default=(os.cpu_count() if os.cpu_count() is not None else 8),
+      help="Number of cpus to use for testing. For builds this number is used for MAKEFLAGS *and* number of "
+        "concurrent builds (cpus^2). For sim runs this controls the maximum number of simultaneous runs.")
+    myargs = parser.parse_args()
+    sys.exit(SimTestWorkflow(quiet=myargs.quiet, trick_top_level=myargs.trick_top_level, cpus=myargs.cpus).run())

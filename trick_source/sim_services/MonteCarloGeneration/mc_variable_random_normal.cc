@@ -236,6 +236,10 @@ MonteCarloVariableRandomNormal::untruncate()
  * equality checks
  * **************************************************************************/
 
+// TODO: looks like float was used here but this needs to be the double implementation
+// since that's what is used by the model. Also need to evaluate if the FP logic
+// is needed (probably) and if so #ifdef around it for Mac, see:
+// https://github.com/nasa/trick/pull/1389/files#r1023151457
 bool MonteCarloVariableRandomNormal::is_near_equal( float val1, float val2)
 {
   float ulp = 0.5f;
