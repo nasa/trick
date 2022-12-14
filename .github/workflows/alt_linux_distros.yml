@@ -113,7 +113,7 @@ jobs:
               apt-get update
               apt-get install -y tzdata
 #-------- Python2.7 dependencies ---------------------------              
-          - cfg: { os: debian }
+          - cfg: { arch: debian }
             python: 2
             python_deps: >-
               python2.7-dev
