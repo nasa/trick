@@ -150,7 +150,6 @@ SIM_test_varserv:
     labels:
       - unit_test
     runs:
-        RUN_test/realtime.py:
         RUN_test/unit_test.py:
 SIM_threads:
     path: test/SIM_threads
