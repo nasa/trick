@@ -150,10 +150,27 @@ void Trick::Sie::sie_print_xml() {
     sie_out.close() ;
 }
 
+void copy_file (const std::string& original_filename, const std::string& copy_filename) {
+    std::ifstream original;
+    std::ofstream copy;
+
+    original.open(original_filename.c_str(), std::ios::binary);
+    copy.open(copy_filename.c_str(), std::ios::binary);
+
+    copy << original.rdbuf();
+
+    original.close();
+    copy.close();
+}
+
 void Trick::Sie::sie_append_runtime_objs() {
     std::fstream sie_out ;
-    std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource" ;
-    sie_out.open(file_name.c_str(), std::fstream::in | std::fstream::out) ;
+    std::string original_sie_filename = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource" ;
+    std::string copy_sie_filename = std::string(command_line_args_get_output_dir()) + "/" + "S_sie.resource" ;
+
+    copy_file(original_sie_filename, copy_sie_filename);
+
+    sie_out.open(copy_sie_filename.c_str(), std::fstream::in | std::fstream::out) ;
     sie_out.seekg(-1, sie_out.end);
     const char * comment = "<!--\nRuntime Allocations\nDo not edit this comment or file content past this point\n-->\n";
     const int commentLength = 86;

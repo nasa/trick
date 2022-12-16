@@ -497,7 +497,7 @@ int Trick::VariableServerThread::send_file(std::string file_name) {
 
 int Trick::VariableServerThread::send_sie_resource() {
     sie_append_runtime_objs() ;
-    return transmit_file(std::string(command_line_args_get_default_dir()) + "/S_sie.resource") ;
+    return transmit_file(std::string(command_line_args_get_output_dir()) + "/S_sie.resource") ;
 }
 
 int Trick::VariableServerThread::send_sie_class() {

@@ -84,6 +84,45 @@ std::string & Trick::CommandLineArguments::get_cmdline_name_ref() {
     return(cmdline_name) ;
 }
 
+// Helper function - create a full path with error checking along the way
+int create_path(const std::string& dirname) {
+    size_t cur_index = 0;
+
+    while (cur_index != dirname.size()) {
+        cur_index = dirname.find('/', cur_index+1);
+        if (cur_index == std::string::npos) {
+            cur_index = dirname.size();
+        }
+        std::string cur_dir = dirname.substr(0, cur_index);
+        
+        struct stat info;
+        if(stat( cur_dir.c_str(), &info ) != 0) {
+            // does not exist - make it
+            if (mkdir(cur_dir.c_str(), 0775) == -1) {
+                std::cerr << "Error creating directory " << cur_dir << std::endl;
+                return 1;
+            }
+        } else {
+            // Does exist
+            if(info.st_mode & S_IFDIR) {
+                // Is a directory
+                if (info.st_mode & S_IWUSR) {
+                    // Perfect, nothing to do here
+                } else {
+                    // Not writeable
+                    std::cerr << "Intermediate directory " << cur_dir << " is not writable, unable to create output directory." << std::endl;
+                    return 1;
+                }
+            } else {
+                // Does exist, but is a file
+                std::cerr << "Intermediate directory " << cur_dir << " is not a directory, unable to create output directory." << std::endl;
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 /**
 @details
 -# Save the number of command line arguments.
@@ -209,7 +248,7 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
         /* Create output directory if necessary. */
         if (access(output_dir.c_str(), F_OK) != 0) {
-            if (mkdir(output_dir.c_str(), 0775) == -1) {
+            if (create_path(output_dir) != 0) {
                 std::cerr << "\nERROR: While trying to create output directory \"" << output_dir << "\" : " << std::strerror(errno) << std::endl ;
                 exit(1) ;
             }
