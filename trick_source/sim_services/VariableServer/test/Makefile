@@ -53,13 +53,12 @@ clean :
 	rm -rf io_src xml
 
 # If there's a .hh file that needs to be ICG'd, do this:
-
-# io_MM_user_defined_types.o : MM_user_defined_types.hh
-# 	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CPPFLAGS) $<
-# 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c io_src/io_MM_user_defined_types.cpp
+io_TestObject.o : TestObject.hh
+	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CXXFLAGS) $<
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c io_src/io_TestObject.cpp
 
 VariableReference_test.o : VariableReference_test.cc
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
 
-VariableReference_test : VariableReference_test.o
+VariableReference_test : VariableReference_test.o io_TestObject.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

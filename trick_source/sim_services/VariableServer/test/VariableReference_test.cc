@@ -6,6 +6,7 @@
 #include "trick/MemoryManager.hh"
 #include "trick/VariableReference.hh"
 
+#include "TestObject.hh"
 
 /*
  Test Fixture.
@@ -342,4 +343,23 @@ TEST_F(VariableReference_test, writeValueAscii_short) {
 
     // ASSERT
     EXPECT_EQ(ss.str(), "255");
+}
+
+TEST_F(VariableReference_test, setUnits) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.length = 50;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.length");
+    ref.setRequestedUnits("km");
+    std::stringstream ss;
+
+    // ACT
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "5");
 }
