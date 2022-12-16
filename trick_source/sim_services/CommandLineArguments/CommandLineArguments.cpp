@@ -85,7 +85,7 @@ std::string & Trick::CommandLineArguments::get_cmdline_name_ref() {
 }
 
 // Helper function - create a full path with error checking along the way
-int create_path(const std::string& dirname) {
+int Trick::CommandLineArguments::create_path(const std::string& dirname) {
     size_t cur_index = 0;
 
     while (cur_index != dirname.size()) {
