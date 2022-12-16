@@ -93,7 +93,8 @@ void PlotCornerLayoutItem::paint(QPainter *painter,
     //
     QPen penOrig = painter->pen();
     QPen pen = painter->pen();
-    pen.setWidth(0.0);
+    int penWidth = painter->fontMetrics().xHeight()/7;  // 7 arbitrary
+    pen.setWidth(penWidth);
     painter->setPen(pen);
     painter->drawLines(hline);
     painter->drawLines(vline);
