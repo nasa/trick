@@ -11,8 +11,11 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 
 # Flags passed to the preprocessor.
-TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
+TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_SYSTEM_CXXFLAGS} 
 
+# so it seems like there's some weirdness linking in the bitfield objects since they are C
+MM_OBJECTS = $(TRICK_HOME)/trick_source/sim_services/MemoryManager/object_${TRICK_HOST_CPU}/extract_bitfield.o \
+				$(TRICK_HOME)/trick_source/sim_services/MemoryManager/object_${TRICK_HOST_CPU}/extract_unsigned_bitfield.o
 
 TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
@@ -35,5 +38,5 @@ clean :
 create_path_test.o : create_path_test.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
 
-create_path_test : create_path_test.o 
+create_path_test : create_path_test.o $(MM_OBJECTS)
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)

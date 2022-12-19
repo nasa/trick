@@ -20,6 +20,9 @@
 #include <unistd.h>
 #include <cstring>
 #include <cerrno>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #include "trick/CommandLineArguments.hh"
 #include "trick/memorymanager_c_intf.h"
@@ -88,12 +91,21 @@ std::string & Trick::CommandLineArguments::get_cmdline_name_ref() {
 int Trick::CommandLineArguments::create_path(const std::string& dirname) {
     size_t cur_index = 0;
 
-    while (cur_index != dirname.size()) {
-        cur_index = dirname.find('/', cur_index+1);
+    std::string full_dir (dirname);
+
+    // These syscalls don't seem to take care of home special character, so do it manually
+    // I think the shell should handle it before it gets here, but just in case check for it
+    if (dirname.at(0) == '~') {
+        struct passwd *pw = getpwuid(getuid());
+        full_dir = std::string(pw->pw_dir) + dirname.substr(1, dirname.size());
+    }
+
+    while (cur_index != full_dir.size()) {
+        cur_index = full_dir.find('/', cur_index+1);
         if (cur_index == std::string::npos) {
-            cur_index = dirname.size();
+            cur_index = full_dir.size();
         }
-        std::string cur_dir = dirname.substr(0, cur_index);
+        std::string cur_dir = full_dir.substr(0, cur_index);
         
         struct stat info;
         if(stat( cur_dir.c_str(), &info ) != 0) {
