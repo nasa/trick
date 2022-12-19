@@ -43,15 +43,19 @@ namespace Trick {
             void sie_print_json() ;
             void sie_append_runtime_objs() ;
             void runtime_objects_print(std::fstream & sie_out) ;
+            std::string get_runtime_sie_dir();
 
         private:
 
+            // These are called at trick-cp time
             void top_level_objects_print(std::ofstream & sie_out) ;
             void top_level_objects_json(std::ofstream & sie_out) ;
 
             // These are singleton maps holding all attributes known to the sim
             Trick::AttributesMap * class_attr_map ; /* ** -- This is be ignored by ICG */
             Trick::EnumAttributesMap * enum_attr_map ;   /* ** -- This is be ignored by ICG */
+
+            bool move_runtime_generation;
 
     } ;
 }

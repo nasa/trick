@@ -22,6 +22,8 @@ Trick::Sie::Sie() {
     class_attr_map = Trick::AttributesMap::attributes_map() ;
     enum_attr_map = Trick::EnumAttributesMap::attributes_map() ;
 
+    move_runtime_generation = false;
+
     the_sie = this ;
 }
 
@@ -43,10 +45,17 @@ int Trick::Sie::process_sim_args() {
             // Silently exit the sim without printing the termination message
             exit(0) ;
         }
+
+        // Otherwise, go through the rest of the sim args and look for --read-only-sim
+        for (int i = 1; i < argc; i++) {
+            if (strcmp("--read-only-sim", argv[i]) == 0) {
+                // Set this flag to move runtime generation of sie into the output directory 
+                move_runtime_generation = true;
+            }
+        }
     }
 
     return(0) ;
-
 }
 
 void Trick::Sie::top_level_objects_print(std::ofstream & sie_out) {
@@ -136,10 +145,9 @@ void Trick::Sie::top_level_objects_json(std::ofstream & sie_out) {
     sie_out << "  ]\n";
 }
 
-
 void Trick::Sie::sie_print_xml() {
     std::ofstream sie_out ;
-    std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource" ;
+    std::string file_name = std::string(get_runtime_sie_dir()) + "/" + "S_sie.resource" ;
     sie_out.open(file_name.c_str()) ;
     sie_out << "<?xml version=\"1.0\"?>\n\n" ;
     sie_out << "<sie>\n\n" ;
@@ -165,12 +173,16 @@ void copy_file (const std::string& original_filename, const std::string& copy_fi
 
 void Trick::Sie::sie_append_runtime_objs() {
     std::fstream sie_out ;
-    std::string original_sie_filename = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource" ;
-    std::string copy_sie_filename = std::string(command_line_args_get_output_dir()) + "/" + "S_sie.resource" ;
 
-    copy_file(original_sie_filename, copy_sie_filename);
+    if (move_runtime_generation) {
+        std::string original_sie_filename = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource" ;
+        std::string copy_sie_filename = std::string(command_line_args_get_output_dir()) + "/" + "S_sie.resource" ;
+        copy_file(original_sie_filename, copy_sie_filename);
+    }
 
-    sie_out.open(copy_sie_filename.c_str(), std::fstream::in | std::fstream::out) ;
+    std::string sie_filename = get_runtime_sie_dir() + "/" + "S_sie.resource" ;
+
+    sie_out.open(sie_filename.c_str(), std::fstream::in | std::fstream::out) ;
     sie_out.seekg(-1, sie_out.end);
     const char * comment = "<!--\nRuntime Allocations\nDo not edit this comment or file content past this point\n-->\n";
     const int commentLength = 86;
@@ -197,9 +209,17 @@ void Trick::Sie::sie_append_runtime_objs() {
     sie_out.close();
 }
 
+std::string Trick::Sie::get_runtime_sie_dir() {
+    if (move_runtime_generation) {
+        return std::string(command_line_args_get_output_dir()) ;
+    } else {
+        return std::string(command_line_args_get_default_dir()) ;
+    }
+}
+
 void Trick::Sie::sie_print_json() {
     std::ofstream sie_out ;
-    std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.json" ;
+    std::string file_name = std::string(get_runtime_sie_dir()) + "/" + "S_sie.json" ;
     sie_out.open(file_name.c_str()) ;
     sie_out << "{\n" ;
     class_attr_map->print_json(sie_out) ;
@@ -212,7 +232,7 @@ void Trick::Sie::sie_print_json() {
 
 void Trick::Sie::class_attr_map_print_xml() {
     std::ofstream sie_out ;
-    std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie_class.xml" ;
+    std::string file_name = std::string(get_runtime_sie_dir()) + "/" + "S_sie_class.xml" ;
     sie_out.open(file_name.c_str()) ;
     sie_out << "<?xml version=\"1.0\"?>\n\n" ;
     sie_out << "<sie>\n" ;
@@ -223,7 +243,7 @@ void Trick::Sie::class_attr_map_print_xml() {
 
 void Trick::Sie::enum_attr_map_print_xml() {
     std::ofstream sie_out ;
-    std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie_enum.xml" ;
+    std::string file_name = std::string(get_runtime_sie_dir()) + "/" + "S_sie_enum.xml" ;
     sie_out.open(file_name.c_str()) ;
     sie_out << "<?xml version=\"1.0\"?>\n\n" ;
     sie_out << "<sie>\n" ;
@@ -234,7 +254,7 @@ void Trick::Sie::enum_attr_map_print_xml() {
 
 void Trick::Sie::top_level_objects_print_xml() {
     std::ofstream sie_out ;
-    std::string file_name = std::string(command_line_args_get_default_dir()) + "/" + "S_sie_top_level_objects.xml" ;
+    std::string file_name = std::string(get_runtime_sie_dir()) + "/" + "S_sie_top_level_objects.xml" ;
     sie_out.open(file_name.c_str()) ;
     sie_out << "<?xml version=\"1.0\"?>\n\n" ;
     sie_out << "<sie>\n" ;
