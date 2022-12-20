@@ -12,6 +12,7 @@ S_main_${TRICK_HOST_CPU}.exe [trick_version] [sie]
        RUN_<name>/<input_file_name> [-d]
        [-O <output_file_path>]
        [-OO <output_file_path>]
+       [--read-only-sim]
        [-u <user_defined_arguments>]
 ```
 
@@ -21,6 +22,7 @@ S_main_${TRICK_HOST_CPU}.exe [trick_version] [sie]
 - The '-d' argument is optional and, if specified, starts the simulation in an input file verification mode. In this mode the entire input file is read, echoed to standard out, and then the simulation exits without calling any jobs listed in the S_define file. This mode helps debug input file syntax errors.
 - The '-O <output_file_path>' option allows the user to specify the directory to which simulation data log files will be written. If this option is omitted, the RUN_<name> directory is used.
 - The '-OO <output_file_path>' option allows the user to specify the directory to which ALL simulation output files will be written. If this option is omitted, the RUN_<name> directory is used.
+- The '--read-only-sim' flag can be used to redirect all files written at simulation runtime into the output directory.
 - The '-u' option specifies that all remaining arguments are meant to be used by user supplied jobs. All arguments after the -u can be accessed internal to the simulation jobs by calling the get_cmnd_args() function of the executive as illustrated below. In a master/slave simulation, the master's -u args will be passed to the slave.
 
 The following code example shows how a function can access the command line arguments during execution.
