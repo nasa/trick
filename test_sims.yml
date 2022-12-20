@@ -267,6 +267,19 @@ SIM_checkpoint_data_recording:
     #   compare: 
     #     - test/SIM_checkpoint_data_recording/RUN_test6/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test6/log_foo2.csv
 
+
+SIM_test_output_dir:
+  path: test/SIM_test_output_dir
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/input.py -OO output_redirected --read-only-sim:
+      returns: 0
+      compare:
+      - test/SIM_test_output_dir/S_sie.resource vs. test/SIM_test_output_dir/ref_files/ref_compiletime_S_sie.resource
+      - test/SIM_test_output_dir/output_redirected/S_sie.resource vs. test/SIM_test_output_dir/ref_files/ref_runtime_S_sie.resource
+
+
 # The variable server client and SIM_amoeba sometimes fail to connect and need to be retried
 SIM_test_varserv:
   path: test/SIM_test_varserv
