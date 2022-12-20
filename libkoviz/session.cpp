@@ -137,8 +137,8 @@ Session::Session(const QString &sessionFileName) :
                  _presentation != "error" &&
                  _presentation != "error+compare") {
                 fprintf(stderr,"koviz [error]: session file has presentation "
-                               "set to \"%s\".  For now, koviz only "
-                               "supports \"compare\", \"error\" and "
+                               "set to \"%s\".  Presentation should be"
+                               "set to \"compare\", \"error\" or "
                                "\"error+compare\"\n",
                                _presentation.toLatin1().constData());
                 exit(-1);

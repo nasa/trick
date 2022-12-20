@@ -1172,7 +1172,11 @@ void PlotMainWindow::_saveSession()
 
         // Presentation
         QString pres = _bookModel->getDataString(QModelIndex(),"Presentation");
-        out << "presentation: " << pres << "\n";
+        if ( pres.isEmpty() ) {
+            out << "presentation: compare\n";
+        } else {
+            out << "presentation: " << pres << "\n";
+        }
 
         // Shift
         QHash<QString,QVariant> shifts = _bookModel->getDataHash(QModelIndex(),
