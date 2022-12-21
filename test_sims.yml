@@ -275,9 +275,8 @@ SIM_test_output_dir:
   runs:
     RUN_test/input.py -OO output_redirected --read-only-sim:
       returns: 0
-      compare:
-      - test/SIM_test_output_dir/S_sie.resource vs. test/SIM_test_output_dir/ref_files/ref_compiletime_S_sie.resource
-      - test/SIM_test_output_dir/output_redirected/S_sie.resource vs. test/SIM_test_output_dir/ref_files/ref_runtime_S_sie.resource
+      analyze: 'python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_compiletime_S_sie.resource test/SIM_test_output_dir/S_sie.resource'
+      analyze: 'python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_runtime_S_sie.resource test/SIM_test_output_dir/sim_output/S_sie.resource'
 
 
 # The variable server client and SIM_amoeba sometimes fail to connect and need to be retried
