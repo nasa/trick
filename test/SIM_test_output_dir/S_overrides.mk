@@ -5,4 +5,4 @@ TRICK_CXXFLAGS += -I./models
 clean: output_clean
 
 output_clean:
-	rm -rf output_redirected
+	rm -rf sim_output
