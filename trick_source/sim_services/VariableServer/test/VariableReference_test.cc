@@ -5,6 +5,7 @@
 
 #include "trick/MemoryManager.hh"
 #include "trick/VariableReference.hh"
+#include "trick/UdUnits.hh"
 
 #include "TestObject.hh"
 
@@ -14,7 +15,13 @@
 class VariableReference_test : public ::testing::Test {
 	protected:
 	    Trick::MemoryManager *memmgr;
-		VariableReference_test() { memmgr = new Trick::MemoryManager; }
+        Trick::UdUnits * udunits;
+		VariableReference_test() { 
+            memmgr = new Trick::MemoryManager; 
+            udunits = new Trick::UdUnits; 
+
+            udunits->read_default_xml();
+        }
 		~VariableReference_test() { delete memmgr;   }
 		void SetUp() {}
 		void TearDown() {}
@@ -345,21 +352,70 @@ TEST_F(VariableReference_test, writeValueAscii_short) {
     EXPECT_EQ(ss.str(), "255");
 }
 
+TEST_F(VariableReference_test, printWithoutUnits) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.length = 5000;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.length");
+    std::stringstream ss;
+
+    // ACT
+    EXPECT_EQ(ref.getBaseUnits(), "m");
+
+    // ASSERT
+    // Doesn't actually print with units unless set
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "5000");
+}
+
 TEST_F(VariableReference_test, setUnits) {
     // ARRANGE
     // Create a variable to make a reference for
     TestObject obj;
-    obj.length = 50;
+    obj.length = 5000;
     (void) memmgr->declare_extern_var(&obj, "TestObject obj");
     Trick::VariableReference ref("obj.length");
-    ref.setRequestedUnits("km");
     std::stringstream ss;
 
     // ACT
+    ref.setRequestedUnits("km");
 
     // ASSERT
     ref.stageValue();
     ref.prepareForWrite();
     ref.writeValueAscii(ss);
-    EXPECT_EQ(ss.str(), "5");
+    EXPECT_EQ(ss.str(), "5 {km}");
+}
+
+TEST_F(VariableReference_test, setUnitsTwice) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.length = 5000;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.length");
+    std::stringstream ss;
+
+    // ACT
+    ref.setRequestedUnits("km");
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "5 {km}");
+    ss.str("");
+
+    // ACT
+    ref.setRequestedUnits("mm");
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "5000000 {mm}");
 }

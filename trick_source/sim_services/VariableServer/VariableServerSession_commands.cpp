@@ -113,7 +113,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         if (write_string.length() != 5) {
             std::cout << "PROBLEM WITH STRING LENGTH: VAR_EXISTS BINARY" << std::endl;
         }
-        connection->write(write_string, write_string.length());
+        connection->write(write_string);
     } else {
         /* send ascii "1" or "0" */
         sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
@@ -124,7 +124,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         if (write_string.length() != strlen(buf1)) {
             std::cout << "PROBLEM WITH STRING LENGTH: VAR_EXISTS ASCII" << std::endl;
         }
-        connection->write(write_string, write_string.length());
+        connection->write(write_string);
     }
 
     return(0) ;
@@ -301,7 +301,7 @@ int Trick::VariableServerSession::send_list_size() {
         if (write_string.length() != 12) {
             std::cout << "PROBLEM WITH STRING LENGTH: SEND_LIST_SIZE BINARY" << std::endl;
         }
-        connection->write(write_string, write_string.length());
+        connection->write(write_string);
         // tc_write(connection, (char *) buf1, 12);
     } else {
         // ascii
@@ -313,7 +313,7 @@ int Trick::VariableServerSession::send_list_size() {
         if (write_string.length() != strlen(buf1)) {
             std::cout << "PROBLEM WITH STRING LENGTH: SEND_LIST_SIZE ASCII" << std::endl;
         }
-        connection->write(write_string, write_string.length());
+        connection->write(write_string);
     }
 
     return 0 ;
@@ -336,7 +336,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
         message_publish(MSG_ERROR,"Variable Server Error: Cannot open %s.\n", sie_file.c_str()) ;
         sprintf(buffer, "%d\t-1\n", VS_SIE_RESOURCE) ;
         std::string message(buffer);
-        connection->write(message, message.length());
+        connection->write(message);
         return(-1) ;
     }
 
@@ -345,7 +345,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
 
     sprintf(buffer, "%d\t%u\n\0" , VS_SIE_RESOURCE, file_size) ;
     std::string message(buffer);
-    connection->write(message, message.length());
+    connection->write(message);
     rewind(fp) ;
 
     // Switch to blocking writes since this could be a large transfer.
@@ -357,7 +357,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
         bytes_read = fread(buffer , 1 , packet_size , fp) ;
         message = std::string(buffer);
         message.resize(bytes_read);
-        ret = connection->write(message, bytes_read);
+        ret = connection->write(message);
         if (ret != (int)bytes_read) {
             message_publish(MSG_ERROR,"Variable Server Error: Failed to send SIE file. Bytes read: %d Bytes sent: %d\n", bytes_read, ret) ;
             return(-1);

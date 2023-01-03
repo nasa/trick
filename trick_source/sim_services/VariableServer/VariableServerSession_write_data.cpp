@@ -232,7 +232,7 @@ int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& g
 
         // Write out the message
         std::string message = message_stream.str();
-        return connection->write(message, message.size());
+        return connection->write(message);
     }
 
     return 1;

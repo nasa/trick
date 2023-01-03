@@ -162,6 +162,7 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
         // Interpret base unit
         ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), getBaseUnits(), UT_ASCII) ;
         if ( !from ) {
+            std::cout << "Error in interpreting base units" << std::endl;
             publishError(getBaseUnits());
             ut_free(from) ;
             return -1 ;
@@ -170,6 +171,7 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
         // Interpret requested unit
         ut_unit * to = ut_parse(Trick::UdUnits::get_u_system(), new_units.c_str(), UT_ASCII) ;
         if ( !to ) {
+            std::cout << "Error in interpreting requested units" << std::endl;
             publishError(new_units);
             ut_free(from) ;
             ut_free(to) ;

@@ -78,9 +78,8 @@ long long Trick::VariableServerSession::get_freeze_next_tics() {
 
 int Trick::VariableServerSession::handleMessage() {
 
-    std::string received_message;
-    int len = connection->read(received_message, ClientConnection::MAX_CMD_LEN);
-    if (len > 0) {
+    std::string received_message = connection->read(ClientConnection::MAX_CMD_LEN);
+    if (received_message.size() > 0) {
         ip_parse(received_message.c_str()); /* returns 0 if no parsing error */
     }
     

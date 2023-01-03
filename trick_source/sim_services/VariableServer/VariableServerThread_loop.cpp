@@ -67,13 +67,7 @@ void * Trick::VariableServerThread::thread_body() {
     try {
         while (1) {
             // Pause here if we are in a restart condition
-            // This is not great, this should probably be a cv instead
             pthread_mutex_lock(&restart_pause) ;
-            // lock(pause_lock)
-            // while (should_pause) {
-            //   wait(pause_cv)
-            // }
-            // unlock(pause_lock)
 
             // Look for a message from the client
             // Parse and execute if one is availible

@@ -709,7 +709,7 @@ int main(int argc, char *argv[])
     std::string cueRequest = "";
     std::string templateString = "dyn.table.applyCueForce(%.3f, %.3f) \n";
 
-    char buf[128];
+    char buf[2048];
     snprintf(buf, sizeof(buf), templateString.c_str(), mouseX, mouseY);
     cueRequest += std::string(buf);
     socket << cueRequest;
@@ -819,7 +819,7 @@ int main(int argc, char *argv[])
   std::string positionRequest = "";
   char * templateString = "trick.var_add(\"dyn.table.balls[%d][0].pos._x\")\ntrick.var_add(\"dyn.table.balls[%d][0].pos._y\")\ntrick.var_add(\"dyn.table.balls[%d][0].inPlay\")\n";
   for (int i = 0; i < numBalls; i++) {
-    char buf[128];
+    char buf[2048];
     snprintf(buf, sizeof(buf), templateString, i, i, i);
     positionRequest += std::string(buf);
   }

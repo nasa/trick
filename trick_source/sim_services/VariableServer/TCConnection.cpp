@@ -25,14 +25,15 @@ int Trick::TCConnection::initialize() {
     _device.error_handler->report_level = TRICK_ERROR_CAUTION;
 }
 
-int Trick::TCConnection::write (std::string& message, int len) {
+
+int Trick::TCConnection::write (const std::string& message) {
     char send_buf[message.length()+1];
     strcpy (send_buf, message.c_str());
-    int ret = tc_write(&_device, send_buf, len);
+    int ret = tc_write(&_device, send_buf, message.length());
     return ret;
 }
 
-int Trick::TCConnection::read  (std::string& message, int max_len) {
+std::string Trick::TCConnection::read  (int max_len) {
     char incoming_msg[max_len];
     int nbytes = recvfrom( _device.socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
     if (nbytes == 0 ) {
@@ -72,9 +73,7 @@ int Trick::TCConnection::read  (std::string& message, int max_len) {
         }
     }
 
-    message = msg_stream.str();
-    return message.length();
-
+    return msg_stream.str();
 }
 
 
