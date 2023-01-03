@@ -75,16 +75,6 @@ TEST(CreatePathTest, FileInPath) {
     ASSERT_EQ(CommandLineArguments::create_path(dir), 1);
 }
 
-// Unfortunately it seems like github doesn't preserve file permissions, even though google says it should
-// Or maybe it's specifically an issue with the CI runner
-// Either way, this one has to sit out from CI, but it works locally
-// TEST(CreatePathTest, NonWriteableDir) {
-//     // the preprocessor thing doesnt work - yet
-//     #ifndef CI
-//         std::string dir = "non_writeable_output_dir";
-//         ASSERT_EQ(CommandLineArguments::create_path(dir), 1);
-//     #endif
-// }
 
 TEST(CreatePathTest, AbsolutePath) {
     char buf[1024];
@@ -103,23 +93,6 @@ TEST(CreatePathTest, dotdotinpath) {
 
     rm_dir("../a");
 }
-
-// This one also does not work in CI because of the weirdness around the root home directory in the CI runners
-// TEST(CreatePathTest, homeinpath) {
-//     std::string dir = "~/trick/a/b/c";
-
-//     struct passwd *pw = getpwuid(getuid());
-//     std::string home_dir = std::string(pw->pw_dir);
-//     if (home_dir.at(home_dir.size()-1) != '/') {
-//         home_dir = home_dir + "/";
-//     }
-
-//     std::string expected_dir = home_dir + std::string("trick/a/b/c");
-//     ASSERT_EQ(CommandLineArguments::create_path(dir), 0);
-//     ASSERT_TRUE(dir_correct(expected_dir));
-
-//     rm_dir(home_dir + "/trick/a");
-// }
 
 
 
