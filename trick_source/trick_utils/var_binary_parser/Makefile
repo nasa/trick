@@ -3,14 +3,21 @@ CC = cc
 CPP = c++
 
 CFLAGS = -g -Wall -std=c++11
-INCLUDE_DIRS = -Iinclude 
+INCLUDE_DIRS = -I${TRICK_HOME}/include
 OBJDIR = obj
 LIBDIR = lib
-LIBNAME = var_binary_parser.a
-LIBOBJS = ${OBJDIR}/var_binary_parser.o \
-	  ${OBJDIR}/var_binary_parser.o
+LIBNAME = libtrick_var_binary_parser.a
+LIBOBJS = ${OBJDIR}/var_binary_parser.o
 
-all: test examples
+# TRICK_LIB := $(TRICK_LIB_DIR)/$(LIBNAME)
+TRICK_LIB := $(TRICK_HOME)/lib/$(LIBNAME)
+
+
+trick: ${TRICK_LIB}
+
+install: ${TRICK_LIB}
+
+all: test
 
 test: ${LIBDIR}/${LIBNAME}
 	${MAKE} -C test
@@ -24,14 +31,16 @@ ${LIBDIR}/${LIBNAME}: ${LIBOBJS} | ${LIBDIR}
 ${OBJDIR}:
 	mkdir -p ${OBJDIR}
 
-${LIBDIR}:
+${LIBDIR}: 
 	mkdir -p ${LIBDIR}
+
+${TRICK_LIB}: ${LIBDIR}/${LIBNAME}
+	cp ${LIBDIR}/${LIBNAME} $(TRICK_LIB)
 
 clean:
 	${RM} *~
 	${RM} ${OBJDIR}
-	${MAKE} -C unittest clean
-	${MAKE} -C examples clean
+	${MAKE} -C test clean
 
 spotless: 
 	${RM} *~
