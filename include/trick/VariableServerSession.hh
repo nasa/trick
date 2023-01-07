@@ -377,8 +377,8 @@ namespace Trick {
         double get_update_rate();
 
         // These should be private probably
-        int write_binary_data(const std::vector<VariableReference *>& given_vars, std::ostream& out, VS_MESSAGE_TYPE message_type);
-        int write_ascii_data(const std::vector<VariableReference *>& given_vars, std::ostream& out, VS_MESSAGE_TYPE message_type );
+        int write_binary_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
+        int write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
         int write_stdio(int stream, std::string text);
 
         // Is this good design? ¯\_(ツ)_/¯

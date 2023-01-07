@@ -22,35 +22,42 @@ extern "C" {
 #define MAX_MSG_LEN    8192
 
 
-int Trick::VariableServerSession::write_binary_data(const std::vector<VariableReference *>& given_vars, std::ostream& message_stream, VS_MESSAGE_TYPE message_type) {
+int Trick::VariableServerSession::write_binary_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) {
     // int vars = 0;
     // int i;
     // int ret ;
     // int HeaderSize, MessageSize;
     // int NumVariablesProcessed;
-    // unsigned int msg_type , offset, len ;
-    // unsigned int size ;
-    // unsigned int swap_int ;
-    // char * address = 0 ;
-    // char* param_name;
+    // char buf[MAX_MSG_LEN];
+    // // unsigned int msg_type , offset, len ;
+    
+    // // unsigned int size ;
+    // // unsigned int swap_int ;
+    // // char * address = 0 ;
+    // // char* param_name;
 
-    // /* start the offset 4 bytes into the message, we'll subtract the sizeof offset at the end */
+    // // /* start the offset 4 bytes into the message, we'll subtract the sizeof offset at the end */
+    // unsigned int offset;
     // offset = sizeof(msg_type) + sizeof(offset) ;
 
+    // unsigned int msg_type;
     // if (byteswap) {
     //     /* Swap message type bytes */
     //     msg_type = trick_byteswap_int((int)message_type) ;
     // } else {
     //     msg_type = message_type;
     // }
+
+    
     // memcpy(buf1, &msg_type , sizeof(msg_type)) ;
-    // HeaderSize = sizeof(msg_type);
+    // int headerSize = sizeof(msg_type);
 
     // offset += sizeof(unsigned int) ;
-    // HeaderSize += sizeof(unsigned int);
+    // // Header size needs to leave space for the number of variables that actually gets put in here
+    // headerSize += sizeof(unsigned int);
 
     // for (i = Start; i < (int)given_vars.size() ; i++) {
-
+    //     char * address = (char *)given_vars[i]->buffer_out;
     //     // data to send was copied to buffer in copy_sim_data
     //     address = (char *)given_vars[i]->buffer_out;
     //     size = given_vars[i]->size ;
@@ -179,19 +186,35 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
     return 0;
 }
 
-int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableReference *>& given_vars, std::ostream& message_stream, VS_MESSAGE_TYPE message_type ) {
+int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type ) {
 
     // Load message type first
-    message_stream << (int)message_type;
+    std::stringstream message_stream;
+    message_stream << (int)message_type << '\t';
 
     // Load each variable
     for (int i = 0; i < given_vars.size(); i++) {
-        message_stream << '\t';
-        given_vars[i]->writeValueAscii(message_stream);
+
+        std::stringstream var_stream;
+        given_vars[i]->writeValueAscii(var_stream);
+
+        // Check that there's enough room for the next variable, tab character, and possible newline
+        if (message_stream.gcount() + var_stream.gcount() + 2 > MAX_MSG_LEN) {
+            std::cout << "Writing incomplete message - " << message_stream.str() << std::endl;
+            // Write out an incomplete message
+            connection->write(message_stream.str());
+            // Clear out the message stream
+            message_stream = std::stringstream("");
+        }
+
+        // Concatenate
+        message_stream << var_stream.rdbuf() << '\t';
     }
 
     // End with newline
     message_stream << '\n';
+    std::cout << "Writing message - " << message_stream.str() << std::endl;
+    connection->write(message_stream.str());
 
     return 0;
 }
@@ -221,18 +244,13 @@ int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& g
 
         pthread_mutex_unlock(&copy_mutex) ;
 
-        std::stringstream message_stream;
-
+        // Send out in correct format
         if (binary_data) {
-            write_binary_data(given_vars, message_stream, message_type );
+            write_binary_data(given_vars, message_type );
         } else {
             // ascii mode
-            write_ascii_data(given_vars, message_stream, message_type );
+            write_ascii_data(given_vars, message_type );
         }
-
-        // Write out the message
-        std::string message = message_stream.str();
-        return connection->write(message);
     }
 
     return 1;
