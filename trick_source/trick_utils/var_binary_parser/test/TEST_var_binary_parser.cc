@@ -145,6 +145,20 @@ TEST (BinaryParserTest, ParseFirstVariableValue) {
     EXPECT_EQ(message.variables[0].getValue<int>(), 161);
 }
 
+TEST (BinaryParserTest, HandleUnexpectedEnd) {
+    ParsedBinaryMessage message;
+    std::vector<unsigned char> bytes = {0x01, 0x00, 0x00, 0x00, 0x17, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x68, 0x69, 0x06, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00};
+
+    try {
+        message.parse(bytes);
+        FAIL() << "Expected a thrown exception";
+    } catch (const MalformedMessageException& ex) {
+        EXPECT_STREQ(ex.what(), "Message ends unexpectedly");
+    } catch (...) {
+        FAIL() << "Incorrect exception thrown";
+    }   
+}
+
 TEST (BinaryParserTest, ParseTwoVariables) {
     ParsedBinaryMessage message;
 
@@ -377,6 +391,58 @@ TEST (BinaryParserTest, CombineMessages) {
     EXPECT_EQ(message1.variables[1].getValue<std::string>(), "99 red balloons");
 }
 
+
+TEST (BinaryParserTest, CombineMessagesIncorrectType) {
+    ParsedBinaryMessage message1;
+    ParsedBinaryMessage message2;
+    std::vector<unsigned char> bytes1 = {0x01, 0x00, 0x00, 0x00};
+    std::vector<unsigned char> bytes2 = {0x05, 0x00, 0x00, 0x00};
+
+    char message_size1 = 8;
+    char message_size2 = 8;
+
+    // Messages are getting more complicated, build them programmatically
+
+    // Calculate and push message size
+    message_size1 += test_var_1.size();
+    message_size2 += test_var_2.size();
+    bytes1.push_back(message_size1);
+    bytes1.push_back(0);
+    bytes1.push_back(0);
+    bytes1.push_back(0);
+
+    bytes2.push_back(message_size2);
+    bytes2.push_back(0);
+    bytes2.push_back(0);
+    bytes2.push_back(0);
+
+    // Push number of variables
+    bytes1.push_back(1);
+    bytes1.push_back(0);
+    bytes1.push_back(0);
+    bytes1.push_back(0);
+
+    bytes2.push_back(1);
+    bytes2.push_back(0);
+    bytes2.push_back(0);
+    bytes2.push_back(0);
+
+    // Push variables
+    bytes1.insert(bytes1.end(), test_var_1.begin(), test_var_1.end());
+    bytes2.insert(bytes2.end(), test_var_2.begin(), test_var_2.end());
+
+    try {
+        message1.parse(bytes1);
+        message2.parse(bytes2);
+        message1.combine(message2);
+        FAIL() << "Expected a thrown exception";
+    } catch (const MalformedMessageException& ex) {
+        EXPECT_STREQ(ex.what(), "Trying to combine two messages with different message indicators (1 and 5)");
+    } catch (...) {
+        FAIL() << "Incorrect Exception thrown";
+    }
+}
+
 TEST (BinaryParserTest, GetVarByName) {
     ParsedBinaryMessage message;
 
@@ -566,6 +632,30 @@ TEST (BinaryParserTest, ParseCharWrongType) {
 
     try {
         variable.getValue<char>();
+        FAIL() << "Expected exception thrown";
+    }
+    catch(ParseTypeException& ex) {
+        EXPECT_STREQ(ex.what(), "Mismatched trick type and template call");
+    }
+    catch(...) {
+        FAIL() << "Incorrect exception thrown";
+    }
+}
+
+TEST (BinaryParserTest, ParseUnsignedChar) {
+    Var variable;
+    std::vector<unsigned char> bytes = {0x41};
+    variable.setValue(bytes, 1, TRICK_UNSIGNED_CHARACTER, false);
+    EXPECT_EQ(variable.getValue<unsigned char>(), 'A');
+}
+
+TEST (BinaryParserTest, ParseUnsignedCharWrongType) {
+    Var variable;
+    std::vector<unsigned char> bytes = {0x0a, 0x00, 0x00, 0x00};
+    variable.setValue(bytes, 4, TRICK_STRING, false);
+
+    try {
+        variable.getValue<unsigned char>();
         FAIL() << "Expected exception thrown";
     }
     catch(ParseTypeException& ex) {
@@ -815,7 +905,7 @@ TEST (BinaryParserTest, ParseFloatWrongType) {
     variable.setValue(bytes, 4, TRICK_STRING, false);
 
     try {
-        variable.getValue<int>();
+        variable.getValue<float>();
         FAIL() << "Expected exception thrown";
     }
     catch(ParseTypeException& ex) {
@@ -843,7 +933,7 @@ TEST (BinaryParserTest, ParseDoubleWrongType) {
     variable.setValue(bytes, 8, TRICK_STRING, false);
 
     try {
-        variable.getValue<int>();
+        variable.getValue<double>();
         FAIL() << "Expected exception thrown";
     }
     catch(ParseTypeException& ex) {
@@ -868,10 +958,10 @@ TEST (BinaryParserTest, ParseString) {
 TEST (BinaryParserTest, ParseStringWrongType) {
     Var variable;
     std::vector<unsigned char> bytes = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0xc0};
-    variable.setValue(bytes, 8, TRICK_STRING, false);
+    variable.setValue(bytes, 8, TRICK_INTEGER, false);
 
     try {
-        variable.getValue<int>();
+        variable.getValue<std::string>();
         FAIL() << "Expected exception thrown";
     }
     catch(ParseTypeException& ex) {

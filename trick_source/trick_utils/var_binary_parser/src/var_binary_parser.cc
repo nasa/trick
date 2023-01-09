@@ -28,7 +28,7 @@ class MessageIterator {
 
         std::vector<unsigned char> slice(unsigned int length) {
             unsigned int slice_end = _index + length;
-            if (slice_end > _container.size()) {
+            if (_index > _container.size() || slice_end > _container.size()) {
                 throw MalformedMessageException("Message ends unexpectedly");
             }
             
@@ -37,9 +37,6 @@ class MessageIterator {
 
         void operator+= (int n) {
             _index += n;
-            if (_index > _container.size()) {
-                throw MalformedMessageException("Message ends unexpectedly");
-            }
         } 
 
     private:
@@ -176,10 +173,6 @@ bool ParsedBinaryMessage::validateMessageType(int message_type) {
 
 
 void Var::setName(size_t name_size, const std::vector<unsigned char>& name_data) {
-    if (name_size != name_data.size()) {
-        throw MalformedMessageException("Message ends unexpectedly");
-    }
-
     _has_name = true;
     _name_length = name_size;
     std::stringstream ss;
@@ -229,7 +222,7 @@ TRICK_TYPE Var::getType() const {
 }
 
 
-// Template specialization!
+// Template specialization for each supported type
 template<>
 char Var::getValue<char> () const {
     if (_trick_type != TRICK_CHARACTER) {
@@ -237,6 +230,15 @@ char Var::getValue<char> () const {
     }
 
     return getInterpreter().char_val;
+}
+
+template<>
+unsigned char Var::getValue<unsigned char> () const {
+    if (_trick_type != TRICK_UNSIGNED_CHARACTER) {
+        throw ParseTypeException();
+    }
+
+    return getInterpreter().unsigned_char_val;
 }
 
 template<>
