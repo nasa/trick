@@ -4,11 +4,6 @@
 #include <iostream>
 #include <sstream>
 
-class NotImplemented : public std::logic_error
-{
-public:
-    NotImplemented() : std::logic_error("Function not yet implemented") {};
-};
 
 // Utility method
 uint64_t bytesToInt(const std::vector<unsigned char>& bytes, bool byteswap) {
