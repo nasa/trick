@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <vector> 
-
+#include <climits>
 #include "trick/var_binary_parser.hh"
 
 // int hi = 161

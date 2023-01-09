@@ -1,6 +1,6 @@
 #include "trick/var_binary_parser.hh"
 #include "trick/variable_server_message_types.h"
-
+#include <climits>
 #include <iostream>
 #include <sstream>
 
