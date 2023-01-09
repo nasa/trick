@@ -309,9 +309,20 @@ sim_test:
 pytest:
 	make -C share/trick/pymods/trick
 
-code-coverage: test
-	lcov --capture --directory trick_source/sim_services --output-file coverage_large.info
-	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' -o coverage.info
+COVERAGE_DIRS = trick_source/sim_services \
+				trick_source/trick_utils/var_binary_parser \
+				trick_source/trick_utils/unicode \
+				trick_source/trick_utils/units \
+				trick_source/trick_utils/interpolator \
+				trick_source/trick_utils/comm \
+				trick_source/trick_utils/SAIntegrator
+
+extra-coverage-builds:
+	@ $(MAKE) test -C trick_source/trick_utils/SAIntegrator
+
+code-coverage: test extra-coverage-builds
+	lcov --capture $(addprefix --directory , $(COVERAGE_DIRS)) --output-file coverage_large.info
+	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/unittest/*' -o coverage.info
 	rm coverage_large.info
 	lcov --list coverage.info
 
