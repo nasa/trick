@@ -13,7 +13,7 @@ EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
 #Added pthreads for Ubuntu
 EXEC_LINK_LIBS += -lpthread
 
-OTHER_OBJECTS = ../obj/*
+OTHER_OBJECTS = ../obj/*.o
 
 TESTS = TEST_var_binary_parser
 
