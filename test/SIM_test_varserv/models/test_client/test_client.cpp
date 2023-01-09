@@ -191,7 +191,7 @@ class VariableServerTest : public ::testing::Test {
 
 int VariableServerTest::numSession = 0;
 
-TEST_F (VariableServerTest, DISABLED_Strings) {
+TEST_F (VariableServerTest, Strings) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -222,7 +222,7 @@ TEST_F (VariableServerTest, DISABLED_Strings) {
     // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
-TEST_F (VariableServerTest, DISABLED_AddRemove) {
+TEST_F (VariableServerTest, AddRemove) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -253,7 +253,7 @@ TEST_F (VariableServerTest, DISABLED_AddRemove) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
-TEST_F (VariableServerTest, DISABLED_BadRefResponse) {
+TEST_F (VariableServerTest, BadRefResponse) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -271,7 +271,7 @@ TEST_F (VariableServerTest, DISABLED_BadRefResponse) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_Units) {
+TEST_F (VariableServerTest, Units) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -299,7 +299,7 @@ TEST_F (VariableServerTest, DISABLED_Units) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
-TEST_F (VariableServerTest, DISABLED_SendOnce) {
+TEST_F (VariableServerTest, SendOnce) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -329,7 +329,7 @@ TEST_F (VariableServerTest, DISABLED_SendOnce) {
     EXPECT_EQ(socket.check_for_message_availible(), false);
 }
 
-TEST_F (VariableServerTest, DISABLED_Exists) {
+TEST_F (VariableServerTest, Exists) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -353,7 +353,7 @@ TEST_F (VariableServerTest, DISABLED_Exists) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_Cycle) {
+TEST_F (VariableServerTest, Cycle) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -416,7 +416,7 @@ TEST_F (VariableServerTest, DISABLED_Cycle) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_Pause) {
+TEST_F (VariableServerTest, Pause) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -445,7 +445,7 @@ TEST_F (VariableServerTest, DISABLED_Pause) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
-TEST_F (VariableServerTest, DISABLED_Freeze) {
+TEST_F (VariableServerTest, Freeze) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -534,7 +534,7 @@ TEST_F (VariableServerTest, DISABLED_Freeze) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_CopyAndWriteModes) {
+TEST_F (VariableServerTest, CopyAndWriteModes) {
     if (socket_status != 0) {
         FAIL();
     }
