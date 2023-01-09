@@ -1,6 +1,10 @@
 RM = rm -rf
 CC = cc
 CPP = c++
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+
+
+#include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 
 CFLAGS = -g -Wall -std=c++11
 INCLUDE_DIRS = -I${TRICK_HOME}/include
@@ -9,8 +13,8 @@ LIBDIR = lib
 LIBNAME = libtrick_var_binary_parser.a
 LIBOBJS = ${OBJDIR}/var_binary_parser.o
 
-# TRICK_LIB := $(TRICK_LIB_DIR)/$(LIBNAME)
-TRICK_LIB := $(TRICK_HOME)/lib/$(LIBNAME)
+TRICK_LIB := $(TRICK_LIB_DIR)/$(LIBNAME)
+# TRICK_LIB := $(TRICK_HOME)/lib/$(LIBNAME)
 
 
 trick: ${TRICK_LIB}
