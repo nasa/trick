@@ -35,7 +35,9 @@ typedef union Number {
 
     uint8_t unsigned_char_val;
     int8_t char_val;
+    bool bool_val;
 
+    wchar_t wchar_val;
     uint16_t unsigned_short_val;
     int16_t short_val;
 
@@ -94,7 +96,7 @@ class ParsedBinaryMessage {
         unsigned int getMessageSize() const;
         unsigned int getNumVars() const;
         Var getVariable(const std::string& name);
-        Var getVariable(int index);
+        Var getVariable(unsigned int index);
 
         std::vector<Var> variables;
 

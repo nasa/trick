@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector> 
 #include <climits>
+#include <fcntl.h>
+// #include <io.h>
 #include "trick/var_binary_parser.hh"
 
 // int hi = 161
@@ -666,6 +668,30 @@ TEST (BinaryParserTest, ParseUnsignedCharWrongType) {
     }
 }
 
+TEST (BinaryParserTest, ParseBool) {
+    Var variable;
+    std::vector<unsigned char> bytes = {0x01};
+    variable.setValue(bytes, 1, TRICK_BOOLEAN, false);
+    EXPECT_EQ(variable.getValue<bool>(), true);
+}
+
+TEST (BinaryParserTest, ParseBoolWrongType) {
+    Var variable;
+    std::vector<unsigned char> bytes = {0x0a};
+    variable.setValue(bytes, 1, TRICK_STRING, false);
+
+    try {
+        variable.getValue<bool>();
+        FAIL() << "Expected exception thrown";
+    }
+    catch(ParseTypeException& ex) {
+        EXPECT_STREQ(ex.what(), "Mismatched trick type and template call");
+    }
+    catch(...) {
+        FAIL() << "Incorrect exception thrown";
+    }
+}
+
 TEST (BinaryParserTest, ParseShort) {
     Var variable;
     std::vector<unsigned char> bytes = {0x00, 0x80};
@@ -719,7 +745,6 @@ TEST (BinaryParserTest, ParseUnsignedShortWrongType) {
 
 TEST (BinaryParserTest, ParseInt) {
     Var variable;
-    int size = 4;
     std::vector<unsigned char> bytes = {0x01, 0xFF, 0xFF, 0xFF};
     variable.setValue(bytes, 4, TRICK_INTEGER, false);
 
@@ -956,6 +981,38 @@ TEST (BinaryParserTest, ParseString) {
 }
 
 TEST (BinaryParserTest, ParseStringWrongType) {
+    Var variable;
+    std::vector<unsigned char> bytes = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0xc0};
+    variable.setValue(bytes, 8, TRICK_INTEGER, false);
+
+    try {
+        variable.getValue<std::string>();
+        FAIL() << "Expected exception thrown";
+    }
+    catch(ParseTypeException& ex) {
+        EXPECT_STREQ(ex.what(), "Mismatched trick type and template call");
+    }
+    catch(...) {
+        FAIL() << "Incorrect exception thrown";
+    }
+}
+
+TEST (BinaryParserTest, ParseWChar) {
+    Var variable;
+
+    wchar_t test_wchar = L'J';
+    std::vector<unsigned char> bytes;
+    
+    for (int i = 0; i < sizeof(wchar_t); i++) {
+        bytes.push_back((unsigned char)((test_wchar >> (i*8)) & 0xFF));
+    }
+
+    variable.setValue(bytes, sizeof(wchar_t), TRICK_WCHAR, false);
+
+    EXPECT_EQ(variable.getValue<wchar_t>(), test_wchar);
+}
+
+TEST (BinaryParserTest, ParseWCharWrongType) {
     Var variable;
     std::vector<unsigned char> bytes = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0xc0};
     variable.setValue(bytes, 8, TRICK_INTEGER, false);

@@ -10,11 +10,11 @@ uint64_t bytesToInt(const std::vector<unsigned char>& bytes, bool byteswap) {
     uint64_t result = 0;
 
     if (byteswap) {
-        for (int i = 0; i < bytes.size(); i++) {
+        for (unsigned int i = 0; i < bytes.size(); i++) {
             result |= bytes[bytes.size() - 1 - i] << i*8;
         }
     } else {
-        for (int i = 0; i < bytes.size(); i++) {
+        for (unsigned int i = 0; i < bytes.size(); i++) {
             result |= bytes[i] << i*8;
         }
     }
@@ -41,7 +41,7 @@ class MessageIterator {
 
     private:
         std::vector<unsigned char> _container;
-        int _index; 
+        unsigned int _index; 
 };
 
 /**************************************************************************
@@ -85,7 +85,7 @@ int ParsedBinaryMessage::parse (const std::vector<unsigned char>& bytes){
     messageIterator += variable_num_size;
 
     // Pull out all of the variables
-    for (int i = 0; i < _num_vars; i++) {
+    for (unsigned int i = 0; i < _num_vars; i++) {
         Var variable;
 
         if (!_nonames) {
@@ -141,7 +141,7 @@ Var ParsedBinaryMessage::getVariable(const std::string& name) {
     throw IncorrectUsageException("Variable " + name + " does not exist in this message.");
 }
 
-Var ParsedBinaryMessage::getVariable(int index) {
+Var ParsedBinaryMessage::getVariable(unsigned int index) {
     if (index >= variables.size()) {
         throw IncorrectUsageException("Variable index " + std::to_string(index) + " does not exist in this message.");
     }
@@ -197,11 +197,11 @@ Number Var::getInterpreter() const {
     Number interpreted_val;
 
     if (_byteswap) {
-        for (int i = 0; i < _var_size; i++) {
+        for (unsigned int i = 0; i < _var_size; i++) {
             interpreted_val.raw_bytes[i] = value_bytes[_var_size - 1 - i];
         }
     } else {
-        for (int i = 0; i < _var_size; i++) {
+        for (unsigned int i = 0; i < _var_size; i++) {
             interpreted_val.raw_bytes[i] = value_bytes[i];
         }
     }
@@ -239,6 +239,15 @@ unsigned char Var::getValue<unsigned char> () const {
     }
 
     return getInterpreter().unsigned_char_val;
+}
+
+template<>
+bool Var::getValue<bool> () const {
+    if (_trick_type != TRICK_BOOLEAN) {
+        throw ParseTypeException();
+    }
+
+    return getInterpreter().bool_val;
 }
 
 template<>
@@ -343,4 +352,13 @@ std::string Var::getValue<std::string> () const {
     }
 
     return stream.str();
+}
+
+template <>
+wchar_t Var::getValue<wchar_t> () const {
+    if (_trick_type != TRICK_WCHAR) {
+        throw ParseTypeException();
+    }  
+
+    return getInterpreter().wchar_val;
 }

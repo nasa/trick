@@ -6,7 +6,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 #include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 
-CFLAGS = -g -Wall -std=c++11 $(TRICK_CXXFLAGS)
+CFLAGS = -g -Wall -Wextra -std=c++11 $(TRICK_CXXFLAGS)
 INCLUDE_DIRS = -I${TRICK_HOME}/include
 OBJDIR = obj
 LIBDIR = lib
@@ -42,12 +42,10 @@ ${TRICK_LIB}: ${LIBDIR}/${LIBNAME}
 	cp ${LIBDIR}/${LIBNAME} $(TRICK_LIB)
 
 clean:
-	${RM} *~
-	${RM} ${OBJDIR}
+	${RM} -r ${OBJDIR}
 	${MAKE} -C test clean
 
 spotless: 
-	${RM} *~
 	${RM} ${OBJDIR}
 	${RM} ${LIBDIR}
 	${MAKE} -C unittest spotless

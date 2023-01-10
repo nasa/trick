@@ -598,9 +598,6 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     // Is this what we want? Maybe we should have more strict communication on whether the data has been staged so the first message isn't incorrect
     spin();
 
-    // expected = "0 -1234 1234";
-    // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);   
-    // std::cout << "\tExpected: " << expected << "\n\tActual: " << reply << std::endl;
     expected = "-1234 1234";
     parse_message(socket.receive());
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(vars, expected), 0) << "Received: " << vars << " Expected: " << expected;
@@ -700,27 +697,43 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     socket.clear_buffered_data();
 }
 
+bool getCompleteBinaryMessage(ParsedBinaryMessage& message, Socket& socket) {
+    static const int max_retries = 5;
+
+    int tries = 0;
+    bool parse_success = false;
+    std::vector<unsigned char> reply;
+
+    // Try parsing until message received is correct
+    // May take a cycle or 2 to update properly
+    while (!parse_success && tries++ < max_retries) {
+        try {
+            reply = socket.receive_bytes();
+            message.parse(reply);
+            parse_success = true;
+        } catch (const MalformedMessageException& ex) { 
+            std::cout << "Attempt " << tries << " failed with exception " << ex.what() << std::endl;;
+        }
+    }
+
+    return parse_success;
+}
+
 TEST_F (VariableServerTest, Binary) {
     if (socket_status != 0) {
         FAIL();
     }
     std::vector<unsigned char> reply;
-    socket << "trick.var_binary()\ntrick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.k\")\ntrick.var_add(\"vsx.vst.o\")\n";
-    // socket << "trick.var_binary()\ntrick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.k\")\n";
+    socket << "trick.var_binary()\ntrick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.k\")\ntrick.var_add(\"vsx.vst.o\")\ntrick.var_add(\"vsx.vst.m\")\n";
 
-    socket.receive_bytes();
-    reply = socket.receive_bytes();
-    
     ParsedBinaryMessage message;
 
-    try {
-        message.parse(reply);
-    } catch (const MalformedMessageException& ex) { 
-        FAIL() << "Parser threw an exception: " << ex.what();
+    if (!getCompleteBinaryMessage(message, socket)) {
+        FAIL() << "Parser was not able to interpret the message.";
     }
 
     EXPECT_EQ(message.getMessageType(), 0);
-    ASSERT_EQ(message.getNumVars(), 3);
+    ASSERT_EQ(message.getNumVars(), 4);
 
     EXPECT_EQ(strcmp(message.variables[0].getName().c_str(), "vsx.vst.c"), 0);
     EXPECT_EQ(message.variables[0].getType(), TRICK_SHORT);
@@ -737,24 +750,21 @@ TEST_F (VariableServerTest, Binary) {
     std::string expected = "You will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.\0";
     EXPECT_EQ(actual.substr(0, actual.size()-1), expected);
 
+    Var variable = message.getVariable("vsx.vst.m");
+    EXPECT_EQ(strcmp(variable.getName().c_str(), "vsx.vst.m"), 0);
+    EXPECT_EQ(variable.getType(), TRICK_BOOLEAN);
+    EXPECT_EQ(variable.getValue<bool>(), true);
+
     // Switch to nonames
-    socket << "trick.var_byteswap(False)\ntrick.var_binary_nonames()\n";
+    socket << "trick.var_binary_nonames()\n";
 
-    // Recieve a few times to give it time to process the change
-    socket.receive_bytes();
-    socket.receive_bytes();
-
-    reply = socket.receive_bytes();
     ParsedBinaryMessage noname_message(false, true);
-
-    try {
-        noname_message.parse(reply);
-    } catch (const MalformedMessageException& ex) { 
-        FAIL() << "Parser threw an exception: " << ex.what();
+    if (!getCompleteBinaryMessage(noname_message, socket)) {
+        FAIL() << "Parser was not able to interpret the message.";
     }
 
     EXPECT_EQ(noname_message.getMessageType(), 0);
-    ASSERT_EQ(noname_message.getNumVars(), 3);
+    ASSERT_EQ(noname_message.getNumVars(), 4);
 
     EXPECT_EQ(strcmp(noname_message.variables[0].getName().c_str(), "<no name>"), 0);
     EXPECT_EQ(noname_message.variables[0].getType(), TRICK_SHORT);
@@ -769,13 +779,16 @@ TEST_F (VariableServerTest, Binary) {
     actual = noname_message.variables[2].getValue<std::string>();
     EXPECT_EQ(actual.substr(0, actual.size()-1), expected);
 
+    Var variable_noname = noname_message.getVariable(3);
+    EXPECT_EQ(strcmp(variable_noname.getName().c_str(), "<no name>"), 0);
+    EXPECT_EQ(variable_noname.getType(), TRICK_BOOLEAN);
+    EXPECT_EQ(variable_noname.getValue<bool>(), true);
 }
 
 TEST_F (VariableServerTest, DISABLED_BinaryByteswap) {
-    // TODO: VAR_BYTSWAP DOES NOT APPEAR TO WORK CORRECTLY
+    // TODO: VAR_BYTESWAP DOES NOT APPEAR TO WORK CORRECTLY
 
     std::vector<unsigned char> reply;
-    // socket << "trick.var_binary()\ntrick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.k\")\ntrick.var_add(\"vsx.vst.o\")\n";
     socket << "trick.var_binary()\ntrick.var_byteswap(False)\ntrick.var_add(\"vsx.vst.f\")\ntrick.var_add(\"vsx.vst.j\")\n";
 
     socket.receive_bytes();
@@ -788,6 +801,25 @@ TEST_F (VariableServerTest, DISABLED_BinaryByteswap) {
         std::cout << "0x" << std::setw(2) << std::setfill('0') << std::hex << (int)byte << " ";
     }
     std::cout << std::endl;
+
+    ParsedBinaryMessage message;
+
+    try {
+        message.parse(reply);
+    } catch (const MalformedMessageException& ex) { 
+        FAIL() << "Parser threw an exception: " << ex.what();
+    }
+
+    EXPECT_EQ(message.getMessageType(), 0);
+    ASSERT_EQ(message.getNumVars(), 2);
+
+    EXPECT_EQ(strcmp(message.variables[0].getName().c_str(), "vsx.vst.f"), 0);
+    EXPECT_EQ(message.variables[0].getType(), TRICK_UNSIGNED_INTEGER);
+    EXPECT_EQ(message.variables[0].getValue<unsigned int>(), 123456);
+
+    EXPECT_EQ(strcmp(message.variables[1].getName().c_str(), "vsx.vst.j"), 0);
+    EXPECT_EQ(message.variables[1].getType(), TRICK_DOUBLE);
+    EXPECT_EQ(message.variables[1].getValue<double>(), -1234.567890);
 
     socket << "trick.var_byteswap(True)\n";
 
@@ -813,7 +845,7 @@ TEST_F (VariableServerTest, DISABLED_BinaryByteswap) {
 
     EXPECT_EQ(strcmp(byteswap_message.variables[0].getName().c_str(), "vsx.vst.f"), 0);
     EXPECT_EQ(byteswap_message.variables[0].getType(), TRICK_UNSIGNED_INTEGER);
-    EXPECT_EQ(byteswap_message.variables[0].getValue<unsigned int>(), 10);
+    EXPECT_EQ(byteswap_message.variables[0].getValue<unsigned int>(), 123456);
     std::cout << "Byteswap value: " << byteswap_message.variables[0].getValue<unsigned int>() << std::endl;
 
     EXPECT_EQ(strcmp(byteswap_message.variables[1].getName().c_str(), "vsx.vst.j"), 0);
