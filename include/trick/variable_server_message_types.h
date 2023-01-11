@@ -13,7 +13,9 @@ typedef enum {
     VS_SIE_RESOURCE = 2,
     VS_LIST_SIZE = 3 ,
     VS_STDIO = 4,
-    VS_SEND_ONCE = 5
+    VS_SEND_ONCE = 5,
+    VS_MIN_CODE = VS_IP_ERROR,
+    VS_MAX_CODE = VS_SEND_ONCE
 } VS_MESSAGE_TYPE ;
 
 #endif
