@@ -53,7 +53,5 @@ class MonteCarloVariableRandomNormal : public MonteCarloVariableRandom
   MonteCarloVariableRandomNormal(const MonteCarloVariableRandomNormal&);
   MonteCarloVariableRandomNormal& operator = (
                                      const MonteCarloVariableRandomNormal&);
-  bool is_near_equal( float val1, float val2);
-  bool is_near_equal( double val1, double val2);
 };
 #endif

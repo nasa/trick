@@ -44,8 +44,7 @@ sim:
         type: str
     labels:
         type: list
-    build_command:
-        default: trick-CP
+    build_args:
         type: str
     binary:
         default: S_main_{cpu}.exe

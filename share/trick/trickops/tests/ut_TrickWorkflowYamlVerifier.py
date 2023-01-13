@@ -29,7 +29,8 @@ class TrickWorkflowYamlVerifierTestCase(unittest.TestCase):
         for sk in sim_keys:
             self.assertTrue( isinstance( twyv.config[sk]['name'           ], str))
             self.assertTrue( isinstance( twyv.config[sk]['binary'         ], str))
-            self.assertTrue( isinstance( twyv.config[sk]['build_command'  ], str))
+            self.assertTrue( isinstance( twyv.config[sk]['build_args'], str) or
+                              twyv.config[sk]['build_args'] == None )
             self.assertTrue( isinstance( twyv.config[sk]['name'           ], str))
             self.assertTrue( isinstance( twyv.config[sk]['parallel_safety'], str))
             self.assertTrue( twyv.config[sk]['description'    ] is None)

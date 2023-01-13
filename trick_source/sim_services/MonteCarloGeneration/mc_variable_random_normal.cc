@@ -8,10 +8,10 @@ PROGRAMMERS:
 **********************************************************************/
 #include "trick/mc_variable_random_normal.hh"
 
-//includes for is_near_eqaul
 #include "trick/exec_proto.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
+#include "trick/compareFloatingPoint.hh"
 #include <fenv.h>
 #include <limits>
 #include <algorithm>
@@ -56,7 +56,7 @@ MonteCarloVariableRandomNormal::generate_assignment()
         message_publish(MSG_ERROR, message.c_str());
       exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
     }
-    else if (is_near_equal( min_value, max_value)) {
+    else if (Trick::dbl_is_near( min_value, max_value, 0.0)) {
       std::string message = 
         std::string("File: ") + __FILE__ + ", Line: " +
         std::to_string(__LINE__) + ", Overconstrained configuration\nFor " + 
@@ -127,7 +127,7 @@ MonteCarloVariableRandomNormal::truncate(
     limit = -limit;
   }
 
-  if (is_near_equal(limit, 0.0))
+  if (Trick::dbl_is_near(limit, 0.0, 0.0))
   {
     std::string message = 
       std::string("File: ") + __FILE__ + ", Line " + 
@@ -230,74 +230,3 @@ MonteCarloVariableRandomNormal::untruncate()
   truncated_high = false;
 }
 
-/*****************************************************************************
- * is_near_equal
- * Purpose: Utility functions providing float==float and double==double 
- * equality checks
- * **************************************************************************/
-
-// TODO: looks like float was used here but this needs to be the double implementation
-// since that's what is used by the model. Also need to evaluate if the FP logic
-// is needed (probably) and if so #ifdef around it for Mac, see:
-// https://github.com/nasa/trick/pull/1389/files#r1023151457
-bool MonteCarloVariableRandomNormal::is_near_equal( float val1, float val2)
-{
-  float ulp = 0.5f;
-  //temporary disable fp exceptions
-  const int fe_prev = fedisableexcept(FE_ALL_EXCEPT);
-  assert(-1 != fe_prev);
-
-  const float abs_val1 = std::abs(val1);
-  const float abs_val2 = std::abs(val2);
-
-  bool res = false;
-
-  if (std::min(abs_val1, abs_val2) <= (float)(0.0)) {  //for the zero case
-    res = std::max(abs_val1, abs_val2) <= 
-      ulp*std::numeric_limits<float>::min()
-      *std::numeric_limits<float>::epsilon();
-  }
-  else {
-    const float dist = std::abs(val1-val2);
-    res = dist <  ulp*std::max(abs_val1, abs_val2)
-                     *std::numeric_limits<float>::epsilon() ||  
-                     //for the normal number
-          dist <= ulp*std::numeric_limits<float>::min()
-                     *std::numeric_limits<float>::epsilon();  
-                     //for the subnormal number
-  }
-
-  feenableexcept(fe_prev); // restore the previous settings of fp exceptions
-  return res;
-}
-
-bool MonteCarloVariableRandomNormal::is_near_equal( double val1, double val2)
-{
-  double ulp = 0.5f;
-  const int fe_prev = fedisableexcept(FE_ALL_EXCEPT);  
-  //temporary disable fp exceptions
-  assert(-1 != fe_prev);
-
-  const double abs_val1 = std::abs(val1);
-  const double abs_val2 = std::abs(val2);
-
-  bool res = false;
-
-  if (std::min(abs_val1, abs_val2) <= (double)(0.0)) {  //for the zero case
-    res = std::max(abs_val1, abs_val2) <= 
-      ulp*std::numeric_limits<double>::min()
-      *std::numeric_limits<double>::epsilon();
-  }
-  else {
-    const double dist = std::abs(val1-val2);
-    res = dist <  ulp*std::max(abs_val1, abs_val2)
-                     *std::numeric_limits<double>::epsilon() ||  
-                     //for the normal number
-          dist <= ulp*std::numeric_limits<double>::min()
-                     *std::numeric_limits<double>::epsilon();  
-                     //for the subnormal number
-  }
-
-  feenableexcept(fe_prev); // restore the previous settings of fp exceptions
-  return res;
-}

@@ -37,154 +37,154 @@ SIM_satellite:
 # Normal case compile and run sims
 SIM_demo_sdefine:
   path: test/SIM_demo_sdefine
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_exec_set_time_tic_value:
   path: test/SIM_exec_set_time_tic_value
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_python_namespace:
   path: test/SIM_python_namespace
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_rti:
   path: test/SIM_rti
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_test_dp:
   path: test/SIM_test_dp
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_test_icg_file_skipped:
   path: test/SIM_test_icg_file_skipped
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_test_io:
   path: test/SIM_test_io
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_test_ip:
   path: test/SIM_test_ip
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_test_sched:
   path: test/SIM_test_sched
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_test_templates:
   path: test/SIM_test_templates
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_threads:
   path: test/SIM_threads
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_trickified:
   path: test/SIM_trickified
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_ball_L1:
   path: trick_sims/Ball/SIM_ball_L1
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_ball_L2:
   path: trick_sims/Ball/SIM_ball_L2
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_ball_L3:
   path: trick_sims/Ball/SIM_ball_L3
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_cannon_aero:
   path: trick_sims/Cannon/SIM_cannon_aero
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_cannon_analytic:
   path: trick_sims/Cannon/SIM_cannon_analytic
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_cannon_eulercromer:
   path: trick_sims/Cannon/SIM_cannon_eulercromer
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_cannon_numeric:
   path: trick_sims/Cannon/SIM_cannon_numeric
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_cannon_jet:
   path: trick_sims/Cannon/SIM_cannon_jet
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_Ball++_L1:
   path: trick_sims/SIM_Ball++_L1
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
       returns: 0
 SIM_sun:
   path: trick_sims/SIM_sun
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
@@ -203,7 +203,7 @@ SIM_earlyterm:
 # unit_test.py loads that checkpoint and verifies the data
 SIM_stls:
   path: test/SIM_stls
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/setup.py:
@@ -214,7 +214,7 @@ SIM_stls:
 
 SIM_test_dr:
   path: test/SIM_test_dr
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
@@ -228,7 +228,7 @@ SIM_test_dr:
 # All the unit_test.py runs load that checkpoint and then compare against expected logs
 SIM_checkpoint_data_recording:
   path: test/SIM_checkpoint_data_recording
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test[1-5]/dump.py:
@@ -264,7 +264,7 @@ SIM_checkpoint_data_recording:
 
 SIM_events:
   path: test/SIM_events
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
@@ -280,7 +280,7 @@ SIM_events:
 # The variable server client and SIM_amoeba sometimes fail to connect and need to be retried
 SIM_test_varserv:
   path: test/SIM_test_varserv
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   labels:
     - retries_allowed
@@ -289,7 +289,7 @@ SIM_test_varserv:
       returns: 0
 SIM_amoeba:
   path: trick_sims/Cannon/SIM_amoeba
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   labels:
     - retries_allowed
@@ -304,140 +304,108 @@ SIM_mc_generation:
     RUN_nominal/input_a.py:
       phase: -1
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/MonteCarlo_Meta_data_output vs. test/SIM_mc_generation/MONTE_RUN_nominal/MonteCarlo_Meta_data_output
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_nominal/monte_values_all_runs
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/monte_variables vs. test/SIM_mc_generation/MONTE_RUN_nominal/monte_variables
+        - test/SIM_mc_generation/MONTE_RUN_nominal/MonteCarlo_Meta_data_output vs. test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/MonteCarlo_Meta_data_output
+        - test/SIM_mc_generation/MONTE_RUN_nominal/monte_variables vs. test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/monte_variables
     MONTE_RUN_nominal/RUN_[000-001]/monte_input_a.py:
       compare:
-        # Note that technically monte_input_a.py is an output of RUN_nominal, not these runs. The comparisons
-        # are only placed here due to limitations of TrickOps [min-max] range notation. See the comment block in
-        # TrickWorkflow.Run.multiply() for details. This workaround is also used in more runs below. -Jordan 1/2023
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/RUN_[000-001]/monte_input_a.py vs. test/SIM_mc_generation/MONTE_RUN_nominal/RUN_[000-001]/monte_input_a.py
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_nominal/RUN_[000-001]/log_test_data.csv vs. test/SIM_mc_generation/MONTE_RUN_nominal/RUN_[000-001]/log_test_data.csv
     RUN_random_normal_truncate_abs/input.py:
       phase: -1
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal_truncate_abs/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_random_normal_truncate_abs/monte_values_all_runs
     MONTE_RUN_random_normal_truncate_abs/RUN_[0-9]/monte_input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal_truncate_abs/RUN_[0-9]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_random_normal_truncate_abs/RUN_[0-9]/monte_input.py
     RUN_random_normal_truncate_rel/input.py:
       phase: -1
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal_truncate_rel/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_random_normal_truncate_rel/monte_values_all_runs
     MONTE_RUN_random_normal_truncate_rel/RUN_[0-9]/monte_input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal_truncate_rel/RUN_[0-9]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_random_normal_truncate_rel/RUN_[0-9]/monte_input.py
     RUN_random_normal_truncate_sd/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal_truncate_sd/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_random_normal_truncate_sd/monte_values_all_runs
       phase: -1
     MONTE_RUN_random_normal_truncate_sd/RUN_[0-9]/monte_input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal_truncate_sd/RUN_[0-9]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_random_normal_truncate_sd/RUN_[0-9]/monte_input.py
     RUN_random_normal__untruncate/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal__untruncate/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_random_normal__untruncate/monte_values_all_runs
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal__untruncate/monte_variables vs. test/SIM_mc_generation/MONTE_RUN_random_normal__untruncate/monte_variables
       phase: -1
     MONTE_RUN_random_normal__untruncate/RUN_[0-9]/monte_input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal__untruncate/RUN_[0-9]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_random_normal__untruncate/RUN_[0-9]/monte_input.py
     RUN_random_normal_untruncated/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal_untruncated/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_random_normal_untruncated/monte_values_all_runs
       phase: -1
     MONTE_RUN_random_normal_untruncated/RUN_[0-9]/monte_input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_normal_untruncated/RUN_[0-9]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_random_normal_untruncated/RUN_[0-9]/monte_input.py
     RUN_random_uniform/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_uniform/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_random_uniform/monte_values_all_runs
       phase: -1
     MONTE_RUN_random_uniform/RUN_[0-9]/monte_input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_random_uniform/RUN_[0-9]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_random_uniform/RUN_[0-9]/monte_input.py
     RUN_ERROR_file_inconsistent_skip/input.py:
-      compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_file_inconsistent_skip/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_ERROR_file_inconsistent_skip/RUN_0/monte_input.py
       phase: -1
     MONTE_RUN_ERROR_file_inconsistent_skip/RUN_0/monte_input.py:
     RUN_ERROR_invalid_call/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_invalid_call/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_ERROR_invalid_call/RUN_0/monte_input.py
+        - test/SIM_mc_generation/MONTE_RUN_ERROR_invalid_call/RUN_0/monte_input.py vs. test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_invalid_call/RUN_0/monte_input.py
       phase: -1
     MONTE_RUN_ERROR_invalid_call/RUN_0/monte_input.py:
     RUN_ERROR_invalid_name/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_invalid_name/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_ERROR_invalid_name/RUN_0/monte_input.py
+        - test/SIM_mc_generation/MONTE_RUN_ERROR_invalid_name/RUN_0/monte_input.py vs. test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_invalid_name/RUN_0/monte_input.py
       phase: -1
     MONTE_RUN_ERROR_invalid_name/RUN_0/monte_input.py:
     RUN_ERROR_invalid_sequence/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_invalid_sequence/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_ERROR_invalid_sequence/RUN_0/monte_input.py
+        - test/SIM_mc_generation/MONTE_RUN_ERROR_invalid_sequence/RUN_0/monte_input.py vs. test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_invalid_sequence/RUN_0/monte_input.py
       phase: -1
     MONTE_RUN_ERROR_invalid_sequence/RUN_0/monte_input.py:
     RUN_ERROR_invalid_sequencing/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_invalid_sequencing/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_ERROR_invalid_sequencing/RUN_0/monte_input.py
+        - test/SIM_mc_generation/MONTE_RUN_ERROR_invalid_sequencing/RUN_0/monte_input.py vs. test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_invalid_sequencing/RUN_0/monte_input.py
       phase: -1
     MONTE_RUN_ERROR_invalid_sequencing/RUN_0/monte_input.py:
     RUN_ERROR_out_of_domain_error/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_out_of_domain_error/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_ERROR_out_of_domain_error/RUN_0/monte_input.py
       phase: -1
     MONTE_RUN_ERROR_out_of_domain_error/RUN_0/monte_input.py:
     RUN_ERROR_random_value_truncation/input.py:
       phase: -1
     MONTE_RUN_ERROR_random_value_truncation/RUN_[0-1]/monte_input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_ERROR_random_value_truncation/RUN_[0-1]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_ERROR_random_value_truncation/RUN_[0-1]/monte_input.py
     RUN_generate_meta_data_early/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_generate_meta_data_early/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_generate_meta_data_early/monte_values_all_runs
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_generate_meta_data_early/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_generate_meta_data_early/RUN_0/monte_input.py
-        - test/SIM_mc_generation/verif_data/MonteCarlo_Meta_data_output vs. test/SIM_mc_generation/MonteCarlo_Meta_data_output
+        - test/SIM_mc_generation/MonteCarlo_Meta_data_output vs. test/SIM_mc_generation/verif_data/MonteCarlo_Meta_data_output
       phase: -1
     RUN_file_sequential/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_file_sequential/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_file_sequential/monte_values_all_runs
+        - test/SIM_mc_generation/MONTE_RUN_file_sequential/monte_values_all_runs vs. test/SIM_mc_generation/verif_data/MONTE_RUN_file_sequential/monte_values_all_runs
       phase: -1
     MONTE_RUN_file_sequential/RUN_[0-9]/monte_input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_file_sequential/RUN_[0-9]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_file_sequential/RUN_[0-9]/monte_input.py
+        # Note that technically monte_input.py is an output of RUN_file_sequential, not these runs. The comparisons
+        # are only placed here due to limitations of TrickOps [min-max] range notation. See the comment block in
+        # TrickWorkflow.Run.multiply() for details. This workaround is also used in more runs for this sim. -Jordan 1/2023
+        - test/SIM_mc_generation/MONTE_RUN_file_sequential/RUN_[0-9]/monte_input.py vs. test/SIM_mc_generation/verif_data/MONTE_RUN_file_sequential/RUN_[0-9]/monte_input.py
     RUN_file_skip/input.py:
-      compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_file_skip/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_file_skip/monte_values_all_runs
       phase: -1
     MONTE_RUN_file_skip/RUN_[0-9]/monte_input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_file_skip/RUN_[0-9]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_file_skip/RUN_[0-9]/monte_input.py
     RUN_file_skip2/input.py:
-      compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_file_skip2/monte_values_all_runs vs. test/SIM_mc_generation/MONTE_RUN_file_skip2/monte_values_all_runs
       phase: -1
     MONTE_RUN_file_skip2/RUN_[0-4]/monte_input.py:
-      compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_file_skip2/RUN_[0-4]/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_file_skip2/RUN_[0-4]/monte_input.py
     RUN_remove_variable/input_a.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_remove_variable/RUN_both_variables/monte_variables vs. test/SIM_mc_generation/MONTE_RUN_remove_variable/RUN_both_variables/monte_variables
+        - test/SIM_mc_generation/MONTE_RUN_remove_variable/RUN_both_variables/monte_variables vs. test/SIM_mc_generation/verif_data/MONTE_RUN_remove_variable/RUN_both_variables/monte_variables
     RUN_remove_variable/input_b.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_remove_variable/RUN_one_variable/monte_variables vs. test/SIM_mc_generation/MONTE_RUN_remove_variable/RUN_one_variable/monte_variables
+        - test/SIM_mc_generation/MONTE_RUN_remove_variable/RUN_one_variable/monte_variables vs. test/SIM_mc_generation/verif_data/MONTE_RUN_remove_variable/RUN_one_variable/monte_variables
     RUN_WARN_config_error/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_WARN_config_error/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_WARN_config_error/RUN_0/monte_input.py
       phase: -1
     MONTE_RUN_WARN_config_error/RUN_0/monte_input.py:
     RUN_WARN_invalid_name/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_WARN_invalid_name/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_WARN_invalid_name/RUN_0/monte_input.py
       phase: -1
     MONTE_RUN_WARN_invalid_name/RUN_0/monte_input.py:
     RUN_WARN_overconstrained_config/input.py:
       compare:
-        - test/SIM_mc_generation/verif_data/MONTE_RUN_WARN_overconstrained_config/RUN_0/monte_input.py vs. test/SIM_mc_generation/MONTE_RUN_WARN_overconstrained_config/RUN_0/monte_input.py
       phase: -1
     MONTE_RUN_WARN_overconstrained_config/RUN_0/monte_input.py:
     FAIL_config_error/input.py:

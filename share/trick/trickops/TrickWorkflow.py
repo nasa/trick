@@ -221,10 +221,12 @@ class TrickWorkflow(WorkflowCommon):
           # Add the CPU format string (won't fail if there is no CPU placeholder)
           self.config[s]['binary'] = self.config[s]['binary'].format(cpu=self.trick_host_cpu)
           # Add the full path to the build command
-          self.config[s]['build_command'] = os.path.join(self.trick_dir, "bin", self.config[s]['build_command'])
+          trick_CP=os.path.join(self.trick_dir, "bin/trick-CP")
+          if self.config[s]['build_args']:
+            trick_CP+=(' ' + self.config[s]['build_args'])
           thisSim = TrickWorkflow.Sim(name=s, sim_dir=self.config[s]['path'],
             description=self.config[s]['description'], labels=self.config[s]['labels'],
-            prebuild_cmd=self.env, build_cmd=self.config[s]['build_command'],
+            prebuild_cmd=self.env, build_cmd=trick_CP,
             cpus=self.cpus, size=self.config[s]['size'], phase=self.config[s]['phase'],
             log_dir=self.log_dir)
           all_sim_paths.append(self.config[s]['path'])
@@ -501,6 +503,11 @@ class TrickWorkflow(WorkflowCommon):
             jobs +=  sim.get_analysis_jobs(phase=phases)
         else:
             raise TypeError('get_jobs() only accepts kinds: build, run, valgrind, analysis')
+        # If these jobs are of type SingleRun and self.quiet is True, tell the jobs to
+        # skip the variable server connection logic
+        for job in jobs:
+            if self.quiet and isinstance(job, SingleRun):
+                job.set_use_var_server(False)
         return (jobs)
 
     def get_comparisons(self):
@@ -1384,60 +1391,46 @@ class TrickWorkflow(WorkflowCommon):
             if rst:
               self.test_data     = self.test_data.replace(expecting_pattern, replace_with)
 
-class SimulationJob(Job):
+
+class SingleRun(Job):
     """
-    A Job which is a Trick simulation.
+    A single trick simulation run Job. SingleRun's can optionally connect to the
+    trick variable server to get progress bar information.
     """
-
-    __metaclass__ = abc.ABCMeta
-
-    @abc.abstractmethod
-    def _create_variables(self):
+    def __init__(self, name, command, log_file, expected_exit_status=0, use_var_server=True):
         """
-        Create and return a list of Variables to periodically sample
-        via the sim's variable server.
+        Initialize this instance.
 
-        Returns
-        -------
-        [variable_server.Variable]
-            A list of variables to periodically sample.
+        Parameters
+        ----------
+        name : str
+            The name of this job.
+        command : str
+            The command to execute when start() is called.
+        log_file : str
+            The file to which to write log information.
         """
-        pass
+        self._use_var_server = use_var_server
+        self._connected = False
+        super().__init__(name=name, command=command, log_file=log_file,
+          expected_exit_status=expected_exit_status)
 
-    @abc.abstractmethod
-    def _connected_string(self):
-        """
-        Get a string displaying status information. This method will
-        be only called after this instance has successfull connected
-        to the sim.
+    def set_use_var_server(self, value):
+        if (not isinstance(value, bool)):
+            msg =("ERROR: SingleRun.set_use_var_server() Requires a True/False value")
+            raise RuntimeError(msg)
+        else:
+            self._use_var_server = value
 
-        Returns
-        -------
-        str
-            A string containing status information.
-        """
-        pass
-
-    @abc.abstractmethod
-    def _connected_bar(self):
-        """
-        Get a progress bar representing the current progress. This
-        method will be only called after this instance has successfull
-        connected to the sim.
-
-        Returns
-        -------
-        str
-            A progress bar representing the current progress.
-        """
-        pass
+    def get_use_var_server(self):
+        return (self._use_var_server)
 
     def start(self):
         """
         Start this Simulation job. Attempts a connection to the sim variable server
         in another thread after calling the base class Job() start() method
         """
-        super(SimulationJob, self).start()
+        super(SingleRun, self).start()
         self._connected = False
 
         # Finding a sim via PID can take several seconds.
@@ -1481,20 +1474,25 @@ class SimulationJob(Job):
                     return
                 except socket.timeout:
                     pass
+                # If a SingleRun job terminates before the thread can connect to the
+                # variable server, Trick's variable_server module throws an IOError
+                # with the message: The remote endpoint has closed the connection
+                except IOError as e:
+                    pass
 
-        thread = threading.Thread(target=connect,
-                                  name='Looking for ' + self.name)
-        thread.daemon = True
-        thread.start()
+        if self._use_var_server:
+            thread = threading.Thread(target=connect, name='Looking for ' + self.name)
+            thread.daemon = True
+            thread.start()
 
     def get_status_string_line_count(self):
-        return super(SimulationJob, self).get_status_string_line_count() + 1
+        return super(SingleRun, self).get_status_string_line_count() + 1
 
     def _not_started_string(self):
-        return super(SimulationJob, self)._not_started_string() + '\n'
+        return super(SingleRun, self)._not_started_string() + '\n'
 
     def _running_string(self):
-        elapsed_time = super(SimulationJob, self)._running_string()
+        elapsed_time = super(SingleRun, self)._running_string()
 
         if self._connected:
             return (elapsed_time + self._connected_string() + '\n' +
@@ -1504,13 +1502,13 @@ class SimulationJob(Job):
           create_progress_bar(0, 'Connecting'))
 
     def _success_string(self):
-        text = super(SimulationJob, self)._success_string()
+        text = super(SingleRun, self)._success_string()
         if self._connected:
             text += self._connected_string()
         return text + '\n' + self._success_progress_bar
 
     def _failed_string(self):
-        text = super(SimulationJob, self)._failed_string()
+        text = super(SingleRun, self)._failed_string()
         if self._connected:
             text += self._connected_string()
         return text + '\n' + self._failed_progress_bar
@@ -1520,18 +1518,13 @@ class SimulationJob(Job):
             self._variable_server.close()
         except:
             pass
-        super(SimulationJob, self).die()
+        super(SingleRun, self).die()
 
     def __del__(self):
         try:
             self._variable_server.close()
         except:
             pass
-
-class SingleRun(SimulationJob):
-    """
-    A regular (not Monte Carlo) sim.
-    """
 
     def _create_variables(self):
         self._tics = variable_server.Variable(
@@ -1570,7 +1563,7 @@ class SingleRun(SimulationJob):
         Returns
         -------
         str
-            A string for displaying the ratio of sime time to real time.
+            A string for displaying the ratio of sim time to real time.
         """
         elapsed_time = (
           (self._stop_time if self._stop_time else time.time())
@@ -1578,43 +1571,3 @@ class SingleRun(SimulationJob):
         return 'Average Speed: {0:4.1f} X'.format(
           self._tics.value / self._tics_per_sec.value / elapsed_time)
 
-class MonteCarlo(SimulationJob):
-    """
-    A Monte Carlo simulation.
-
-    TODO: This is not currently tested or supported by the TrickWorkflow
-    management layer. However, this class has been used in a project in
-    the 2017-2020 timeframe and should still be functional. Reason for
-    not currently supporting it is mostly because the biggest users of
-    Trick monte-carlo have already moved away from it's internal master/
-    slave architecture so there isn't much of a need.
-    """
-
-    def _create_variables(self):
-        self._total_runs = variable_server.Variable(
-          'trick_mc.mc.actual_num_runs', type_=int)
-        self._finished_runs = variable_server.Variable(
-          'trick_mc.mc.num_results', type_=int)
-        self._num_slaves = variable_server.Variable(
-          'trick_mc.mc.num_slaves', type_=int)
-        return self._total_runs, self._finished_runs, self._num_slaves
-
-    def _connected_string(self):
-        return '      {0}      {1}'.format(
-          self._slave_count(), self._run_status())
-
-    def _connected_bar(self):
-        if self._total_runs.value > 0:
-            progress = (float(self._finished_runs.value)
-                   / self._total_runs.value)
-        else:
-            progress = 0.0
-        return create_progress_bar(
-          progress, '{0:.0f}%'.format(100 * progress))
-
-    def _slave_count(self):
-        return 'Slaves: {0:5d}'.format(self._num_slaves.value)
-
-    def _run_status(self):
-        return 'Completed Runs: {0:>14}'.format('{0}/{1}'.format(
-          self._finished_runs.value, self._total_runs.value))

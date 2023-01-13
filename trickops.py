@@ -33,7 +33,9 @@ class SimTestWorkflow(TrickWorkflow):
       retry_allowed_sims = self.get_sims(labels='retries_allowed')
       retry_allowed_jobs = [run.get_run_job() for run in [item for sublist in [sim.get_runs() for sim in retry_allowed_sims] for item in sublist]]
       for job in retry_allowed_jobs:
-         run_jobs.remove(job)
+         # Note there's an assumption/dependency here that 'retries_allowed' runs
+         # are only in the remaining_run_jobs list. - Jordan 2/2023
+         remaining_run_jobs.remove(job)
 
       builds_status = self.execute_jobs(build_jobs, max_concurrent=self.cpus, header='Executing all sim builds.')
       first_phase_run_status = self.execute_jobs(first_run_jobs, max_concurrent=self.cpus, header="Executing first phase runs.")
@@ -77,7 +79,7 @@ class SimTestWorkflow(TrickWorkflow):
       retry_job = None
       while tries < max_retries and job_failing:
         tries += 1
-        retry_run = TrickWorkflow.Run(sim_dir=run.sim_dir, input=run.input, binary=run.binary, returns=run.returns,log_dir=run.log_dir)
+        retry_run = TrickWorkflow.Run(sim_dir=run.sim_dir, input_file=run.input_file, binary=run.binary, returns=run.returns,log_dir=run.log_dir)
         retry_job = retry_run.get_run_job()
         retry_job.name = retry_job.name + "_retry_" + str(tries)
         job_failing = self.execute_jobs([retry_job], max_concurrent=1, header="Retrying failed job")

@@ -25,7 +25,7 @@ class TrickWorkflowYamlVerifier():
       labels:              <-- optional list of labels for this sim, can be used to get sims
           - model_x            by label within the framework, or for any other project-defined
           - verification       purpose
-      build_command:       <-- optional literal cmd executed for SIM_build, defaults to trick-CP
+      build_args:          <-- optional literal args passed to trick-CP during sim build
       binary:              <-- optional name of sim binary, defaults to S_main_{cpu}.exe
       size:                <-- optional estimated size of successful build output file in bytes
       phase:               <-- optional phase to be used for ordering builds if needed

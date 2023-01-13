@@ -5,8 +5,32 @@ from testconfig import this_trick, tests_dir
 from TrickWorkflow import *
 
 def suite():
-    """Create test suite from TrickWorkflowTestCase unit test class and return"""
-    return unittest.TestLoader().loadTestsFromTestCase(TrickWorkflowTestCase)
+    """Create test suite from test cases here and return"""
+    suites = []
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(TrickWorkflowTestCase))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(TrickWorkflowSingleRunTestCase))
+    return (suites)
+
+class TrickWorkflowSingleRunTestCase(unittest.TestCase):
+    def setUp(self):
+        self.instance= SingleRun(name='testname', command='echo hi',
+          log_file='/tmp/WorkflowCommonTestCase_hi.txt')
+
+    def tearDown(self):
+        os.remove(self.instance.log_file)
+        del self.instance
+        self.instance = None
+
+    def test_SingleRun_Nominal(self):
+        self.assertEqual(self.instance.name, 'testname')
+        self.assertEqual(self.instance._command, 'echo hi')
+        self.assertEqual(self.instance.log_file, '/tmp/WorkflowCommonTestCase_hi.txt')
+        self.assertEqual(self.instance._log_file, None)
+        self.assertEqual(self.instance._expected_exit_status, 0)
+        self.assertEqual(self.instance.get_use_var_server(), True)
+        # Test the setter for var server interaction
+        self.instance.set_use_var_server(False)
+        self.assertEqual(self.instance.get_use_var_server(), False)
 
 class TrickWorkflowTestCase(unittest.TestCase):
 

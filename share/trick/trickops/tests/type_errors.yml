@@ -3,7 +3,7 @@
 # values for parameters with the wrong type
 SIM_type_errors1:
     path: path/to/SIM
-    build_command:   1  # Should be string not int
+    build_args:   1     # Should be string not int
     parallel_safety: 2  # Should be string not int
     description: 10     # Should be a string not int
     binary: 20          # Should be a string not int
@@ -23,13 +23,13 @@ SIM_type_errors1:
 
 SIM_type_errors2:
     path: path/to/SIM
-    build_command:
+    build_args:
       - this shouldnt
       - be a list
     binary:
       - this shouldnt
       - be a list
-    build_command:
+    build_args:
       - this shouldnt
       - be a list
     parallel_safety:

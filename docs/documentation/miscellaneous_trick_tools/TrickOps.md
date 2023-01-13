@@ -61,7 +61,7 @@ SIM_abc:               <-- required unique name for sim of interest, must start 
   labels:              <-- optional list of labels for this sim, can be used to get sims
       - model_x            by label within the framework, or for any other project-defined
       - verification       purpose
-  build_command:       <-- optional literal cmd executed for SIM_build, defaults to trick-CP
+  build_args:          <-- optional literal args passed to trick-CP during sim build
   binary:              <-- optional name of sim binary, defaults to S_main_{cpu}.exe
   size:                <-- optional estimated size of successful build output file in bytes
   phase:               <-- optional phase to be used for ordering builds if needed
@@ -103,7 +103,7 @@ cd trick/share/trick/trickops/
 ```
 When running, you should see output that looks like this:
 
-![ExampleWorkflow In Action](trickops_example.png)
+![ExampleWorkflow In Action](images/trickops_example.png)
 
 When running this example script, you'll notice that tests occur in two phases. First, sims build in parallel up to three at a time. Then when all builds complete, sims run in parallel up to three at a time. Progress bars show how far along each build and sim run is at any given time. The terminal window will accept scroll wheel and arrow input to view current builds/runs that are longer than the terminal height. Before the script finishes, it reports a summary of what was done, providing a list of which sims and runs were successful and which were not.
 
