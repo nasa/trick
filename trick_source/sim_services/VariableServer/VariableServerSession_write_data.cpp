@@ -200,7 +200,6 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
 
         // Check that there's enough room for the next variable, tab character, and possible newline
         if (message_stream.gcount() + var_stream.gcount() + 2 > MAX_MSG_LEN) {
-            std::cout << "Writing incomplete message - " << message_stream.str() << std::endl;
             // Write out an incomplete message
             connection->write(message_stream.str());
             // Clear out the message stream
@@ -213,7 +212,6 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
 
     // End with newline
     message_stream << '\n';
-    std::cout << "Writing message - " << message_stream.str() << std::endl;
     connection->write(message_stream.str());
 
     return 0;
@@ -233,6 +231,7 @@ int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& g
         // Check that all of the variables are staged
         for (VariableReference * variable : given_vars ) {
             if (!variable->isStaged()) {
+                pthread_mutex_unlock(&copy_mutex) ;
                 return 1;
             }
         }

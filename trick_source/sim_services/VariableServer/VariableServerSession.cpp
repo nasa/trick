@@ -31,6 +31,8 @@ Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
     packets_copied = 0 ;
 
     exit_cmd = false;
+    pause_cmd = false;
+
 
     // incoming_msg = (char *) calloc(MAX_CMD_LEN, 1);
     // stripped_msg = (char *) calloc(MAX_CMD_LEN, 1);

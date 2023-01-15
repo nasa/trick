@@ -19,7 +19,13 @@
 
 
 int Trick::VariableServerSession::var_add(std::string in_name) {
-    VariableReference * new_var = new VariableReference(in_name);
+    VariableReference * new_var;
+    if (in_name == "time") {
+        new_var = new VariableReference(in_name, &time);
+    } else {
+        new_var = new VariableReference(in_name);
+    }
+
     session_variables.push_back(new_var) ;
 
     return(0) ;
@@ -52,7 +58,13 @@ int Trick::VariableServerSession::var_send_once(std::string in_name, int num_var
 
     std::vector<VariableReference *> given_vars;
     for (auto& varName : var_names) {
-        given_vars.push_back(new VariableReference(varName));
+        VariableReference * new_var;
+        if (varName == "time") {
+            new_var = new VariableReference(varName, &time);
+        } else {
+            new_var = new VariableReference(varName);
+        }
+        given_vars.push_back(new_var);
     }
     copy_sim_data(given_vars, false);
     write_data(given_vars, VS_SEND_ONCE);
@@ -139,7 +151,6 @@ int Trick::VariableServerSession::var_clear() {
 
     return(0) ;
 }
-
 
 int Trick::VariableServerSession::var_send() {
     copy_sim_data();

@@ -422,8 +422,8 @@ namespace Trick {
         /** The next call time in integer tics of the job to copy client data (sync mode).\n */
         long long freeze_next_tics ;     /**<  trick_io(**) */
 
+        /** The simulation time converted to seconds\n */
         double time ;                    /**<  trick_units(s) */
-
 
          /** Toggle to set variable server copy as top_of_frame, scheduled, async \n */
         VS_COPY_MODE copy_mode ;         /**<  trick_io(**) */

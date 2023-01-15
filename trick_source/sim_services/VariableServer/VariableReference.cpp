@@ -19,10 +19,108 @@
 int Trick::VariableReference::bad_ref_int = 0 ;
 int Trick::VariableReference::do_not_resolve_bad_ref_int = 0 ;
 
+// Helper function to deal with time variable
+REF2* make_time_ref(double * time) {
+    REF2* new_ref;
+    new_ref = (REF2*)calloc(1, sizeof(REF2));
+    new_ref->reference = strdup("time") ;
+    new_ref->units = strdup("s") ;
+    new_ref->address = (char *)time ;
+    new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
+    new_ref->attr->type = TRICK_DOUBLE ;
+    new_ref->attr->units = strdup("s") ;
+    new_ref->attr->size = sizeof(double) ;
+    return new_ref;
+}
+
+Trick::VariableReference::VariableReference(std::string var_name, double* time) : staged(false), write_ready(false) {
+    if (var_name != "time") {
+        ASSERT(0);
+    }
+
+    var_info = make_time_ref(time);
+
+    // Handle error cases
+    if ( var_info == NULL ) {
+        // TODO: ERROR LOGGER sendErrorMessage("Variable Server could not find variable %s.\n", var_name);
+        // PRINTF IS NOT AN ERROR LOGGER @me
+        printf("Variable Server could not find variable %s.\n", var_name.c_str());
+        var_info = make_error_ref(var_name);
+    } else if ( var_info->attr ) {
+        if ( var_info->attr->type == TRICK_STRUCTURED ) {
+            // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name);
+            printf("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name.c_str());
+
+            free(var_info);
+            var_info = make_error_ref(var_name);
+
+        } else if ( var_info->attr->type == TRICK_STL ) {
+            // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name);
+            printf("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
+
+            free(var_info);
+            var_info = make_error_ref(var_name);
+        }
+    } else {
+        // sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
+        printf("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
+
+        free(var_info);
+        var_info = make_error_ref(var_name);
+    }
+
+    // Set up member variables
+    address = var_info->address;
+    size = var_info->attr->size ;
+    deref = false;
+
+    // Deal with weirdness around string vs wstring
+    string_type = var_info->attr->type ;
+
+    if ( var_info->num_index == var_info->attr->num_index ) {
+        // single value - nothing else necessary
+    } else if ( var_info->attr->index[var_info->attr->num_index - 1].size != 0 ) {
+        // Constrained array
+        for ( int i = var_info->attr->num_index-1;  i > var_info->num_index-1 ; i-- ) {
+            size *= var_info->attr->index[i].size ;
+        }
+    } else {
+        // Unconstrained array
+        if ((var_info->attr->num_index - var_info->num_index) > 1 ) {
+            // TODO: ERROR LOGGER
+            printf("Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", var_info->reference);
+            printf("Data is not contiguous so returned values are unpredictable.\n") ;
+        }
+        if ( var_info->attr->type == TRICK_CHARACTER ) {
+            string_type = TRICK_STRING ;
+            deref = true;
+        } else if ( var_info->attr->type == TRICK_WCHAR ) {
+            string_type = TRICK_WSTRING ;
+        } else {
+            deref = true ;
+            size *= get_size((char*)address) ;
+        }
+    }
+    // handle strings: set a max buffer size, the copy size may vary so will be set in copy_sim_data
+    if (( string_type == TRICK_STRING ) || ( string_type == TRICK_WSTRING )) {
+        size = MAX_ARRAY_LENGTH ;
+    }
+
+    // Allocate stage and write buffers
+    stage_buffer = calloc(size, 1) ;
+    write_buffer = calloc(size, 1) ;
+
+    conversion_factor = cv_get_trivial();
+}
+
 Trick::VariableReference::VariableReference(std::string var_name) : staged(false), write_ready(false) {
 
-    // get variable attributes from memory manager
-    var_info = ref_attributes(var_name.c_str());
+    if (var_name == "time") {
+        ASSERT(0);
+    } else {
+        // get variable attributes from memory manager
+        var_info = ref_attributes(var_name.c_str());
+    }
 
     // Handle error cases
     if ( var_info == NULL ) {
@@ -179,15 +277,17 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
         }
 
         // Create a converter from the base to the requested
-        conversion_factor = ut_get_converter(from, to) ;
+        auto new_conversion_factor = ut_get_converter(from, to) ;
         ut_free(from) ;
         ut_free(to) ;
-        if ( !conversion_factor ) {
+        if ( !new_conversion_factor ) {
             std::ostringstream oss;
             oss << "[" << getName() << "] cannot convert units from [" << getBaseUnits()
                 << "] to [" << new_units << "]";
             publish(MSG_ERROR, oss.str());
             return -1 ;
+        } else {
+            conversion_factor = new_conversion_factor;
         }
 
         // Don't memory leak the old units!

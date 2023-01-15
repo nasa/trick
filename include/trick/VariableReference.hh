@@ -19,6 +19,10 @@ namespace Trick {
 
     public:
         VariableReference(std::string var_name);
+
+        // Special constructor to deal with time
+        VariableReference(std::string var_name, double* time);
+
         ~VariableReference();
 
         const char* getName() const;
