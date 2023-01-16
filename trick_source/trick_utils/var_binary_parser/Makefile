@@ -6,7 +6,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 #include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 
-CFLAGS = -g -Wall -Wextra -std=c++11 $(TRICK_CXXFLAGS)
+CFLAGS = -g -Wall -Wextra -std=c++11 $(TRICK_CXXFLAGS) $(CXXFLAGS)
 INCLUDE_DIRS = -I${TRICK_HOME}/include
 OBJDIR = obj
 LIBDIR = lib
