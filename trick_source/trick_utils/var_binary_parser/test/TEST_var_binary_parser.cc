@@ -795,12 +795,28 @@ TEST (BinaryParserTest, ParseUnsignedIntWrongType) {
 }
 
 TEST (BinaryParserTest, ParseLong) {
+    // Var variable;
+
+    // // This is hard bc 
+    // std::vector<unsigned char> bytes = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x80};
+    // variable.setValue(bytes, 8, TRICK_LONG, false);
+
+    // EXPECT_EQ(variable.getValue<long>(), -9151314442816847873);
+
     Var variable;
 
-    std::vector<unsigned char> bytes = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x80};
-    variable.setValue(bytes, 8, TRICK_LONG, false);
+    // apparently this can be different by platform so we need to be careful here
+    size_t long_size = sizeof(long);
+    std::vector<unsigned char> bytes;
+    for (int i = 0; i < long_size-1; i++) {
+        bytes.push_back(0x00);
+    }
+    bytes.push_back(0x80);
 
-    EXPECT_EQ(variable.getValue<long>(), -9151314442816847873);
+    variable.setValue(bytes, long_size, TRICK_LONG, false);
+
+    EXPECT_EQ(variable.getValue<long>(), LONG_MIN);
+
 }
 
 TEST (BinaryParserTest, ParseLongWrongType) {
@@ -823,10 +839,17 @@ TEST (BinaryParserTest, ParseLongWrongType) {
 TEST (BinaryParserTest, ParseUnsignedLong) {
     Var variable;
 
-    std::vector<unsigned char> bytes = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x80};
-    variable.setValue(bytes, 8, TRICK_UNSIGNED_LONG, false);
+    // apparently this can be different by platform so we need to be careful here
+    size_t long_size = sizeof(unsigned long);
+    std::vector<unsigned char> bytes;
+    for (int i = 0; i < long_size-1; i++) {
+        bytes.push_back(0xFF);
+    }
+    bytes.push_back(0x7F);
 
-    EXPECT_EQ(variable.getValue<unsigned long>(), 9295429630892703743);
+    variable.setValue(bytes, long_size, TRICK_UNSIGNED_LONG, false);
+
+    EXPECT_EQ(variable.getValue<unsigned long>(), LONG_MAX);
 }
 
 TEST (BinaryParserTest, ParseUnsignedLongWrongType) {
