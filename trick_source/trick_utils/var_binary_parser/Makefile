@@ -6,7 +6,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 #include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 
-CFLAGS = -g -Wall -Wextra -std=c++11 $(TRICK_CXXFLAGS) $(CXXFLAGS)
+CPP_FLAGS = -g -Wall -Wextra -std=c++11 $(TRICK_CXXFLAGS) $(CXXFLAGS)
 INCLUDE_DIRS = -I${TRICK_HOME}/include
 OBJDIR = obj
 LIBDIR = lib
@@ -27,7 +27,8 @@ test: ${LIBDIR}/${LIBNAME}
 	${MAKE} -C test
 
 $(LIBOBJS): $(OBJDIR)/%.o : src/%.cc | $(OBJDIR)
-	$(CPP) $(CFLAGS) ${INCLUDE_DIRS} -c $< -o $@
+	echo $(CPP_FLAGS)
+	$(CPP) $(CPP_FLAGS) ${INCLUDE_DIRS} -c $< -o $@
 
 ${LIBDIR}/${LIBNAME}: ${LIBOBJS} | ${LIBDIR}
 	ar crs $@ ${LIBOBJS}
