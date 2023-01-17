@@ -22,7 +22,7 @@ class VariableReference_test : public ::testing::Test {
 
             udunits->read_default_xml();
         }
-		~VariableReference_test() { delete memmgr;   }
+		~VariableReference_test() { delete memmgr; }
 		void SetUp() {}
 		void TearDown() {}
 };
@@ -418,4 +418,29 @@ TEST_F(VariableReference_test, setUnitsTwice) {
     ref.prepareForWrite();
     ref.writeValueAscii(ss);
     EXPECT_EQ(ss.str(), "5000000 {mm}");
+}
+
+TEST_F(VariableReference_test, writeValueBinary_int) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    int test_a = 4095;
+    (void) memmgr->declare_extern_var(&test_a, "int test_a");
+    Trick::VariableReference ref("test_a");
+    std::stringstream ss;
+
+    // ACT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueBinary(ss);
+
+    
+    unsigned char expected_bytes[4] = {0xFF, 0x0F, 0x00, 0x00};
+    char * actual_bytes = (char *) malloc (sizeof(int));
+
+    ss.read(actual_bytes, 4);
+
+    // ASSERT
+    for (int i = 0; i < 4; i++) {
+        EXPECT_EQ(static_cast<unsigned char>(actual_bytes[i]), expected_bytes[i]);
+    }
 }

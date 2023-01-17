@@ -14,6 +14,7 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/UdUnits.hh"
+#include "trick/bitfield_proto.h"
 
 // Static variables to be addresses that are known to be the error ref address
 int Trick::VariableReference::bad_ref_int = 0 ;
@@ -77,6 +78,7 @@ Trick::VariableReference::VariableReference(std::string var_name, double* time) 
     // Deal with weirdness around string vs wstring
     string_type = var_info->attr->type ;
 
+    // Deal with array
     if ( var_info->num_index == var_info->attr->num_index ) {
         // single value - nothing else necessary
     } else if ( var_info->attr->index[var_info->attr->num_index - 1].size != 0 ) {
@@ -654,7 +656,40 @@ bool Trick::VariableReference::isWriteReady() const {
     return write_ready;
 }
 
-int Trick::VariableReference::writeValueBinary( std::ostream& out ) const {
+int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap ) const {
 
-}
+    char buf[20480];
+    int temp_i ;
+    unsigned int temp_ui ;
 
+    int offset = 0;
+
+    switch ( var_info->attr->type ) {
+        case TRICK_BITFIELD:
+            temp_i = GET_BITFIELD(address , var_info->attr->size ,
+                var_info->attr->index[0].start, var_info->attr->index[0].size) ;
+            memcpy(&buf[offset] , &temp_i , (size_t)size) ;
+        break ;
+        case TRICK_UNSIGNED_BITFIELD:
+            temp_ui = GET_UNSIGNED_BITFIELD(address , var_info->attr->size ,
+                    var_info->attr->index[0].start, var_info->attr->index[0].size) ;
+            memcpy(&buf[offset] , &temp_ui , (size_t)size) ;
+        break ;
+        case TRICK_NUMBER_OF_TYPES:
+            // TRICK_NUMBER_OF_TYPES is an error case
+            temp_i = 0 ;
+            memcpy(&buf[offset] , &temp_i , (size_t)size) ;
+        break ;
+        default:
+            memcpy(&buf[offset] , address , (size_t)size) ;
+        break ;
+    }
+    
+    std::cout << "Printing hex results with correct fill?: " << std::endl;
+    for (int i = 0; i < 4; i++) {
+        std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0')  << (0xFF & buf[i]) << " ";
+    }
+    std::cout << std::endl;
+
+    out << buf;
+}  

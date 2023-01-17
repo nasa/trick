@@ -51,7 +51,7 @@ namespace Trick {
         // Write out the value to the given outstream.
         // write_ready must be true
         int writeValueAscii( std::ostream& out ) const;
-        int writeValueBinary( std::ostream& out ) const;
+        int writeValueBinary( std::ostream& out , bool byteswap = false) const;
 
         bool validate();
         void tagAsInvalid();
