@@ -1,0 +1,28 @@
+/************************************************************
+PURPOSE:
+    ( Simulate a Aircraft. )
+LIBRARY DEPENDENCIES:
+    ((Aircraft/src/Aircraft.o)
+**************************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "Aircraft/include/Aircraft.hh"
+
+class AircraftSimObject : public Trick::SimObject {
+    public:
+    Aircraft aircraft;
+
+    AircraftSimObject() {
+        ("default_data")            aircraft.default_data() ;
+        ("initialization")          aircraft.state_init();
+        (0.1,"scheduled")               aircraft.control() ;
+        ("derivative")              aircraft.state_deriv() ;
+        ("integration") trick_ret = aircraft.state_integ() ;
+    }
+};
+
+AircraftSimObject dyn;
+IntegLoop dyn_integloop(0.1) dyn;
+
+void create_connections() {
+    dyn_integloop.getIntegrator(Runge_Kutta_4, 18);
+}
