@@ -17,8 +17,7 @@ sub extract_trick_header($$$$) {
         $trick_header = $1 ;
         $trick_header =~ s/^.*?([A-Za-z])/$1/s ;
         $trick_header =~ s/(\))[^)]*$/$1/s ;
-        $trick_header =~ s/
-//g ;
+        $trick_header =~ s///g ;
     }
 
     $header{doc_title} = $1 if $trick_header =~                   /DOC TITLE:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
@@ -32,7 +31,7 @@ sub extract_trick_header($$$$) {
     $header{icg_ignore} = $2 if $trick_header =~  /ICG[ _]IGNORE[ _]TYPE(S)?:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{swig}       = $1 if $trick_header =~                       /SWIG:[^(]*\((.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{default_data} = $1 if $trick_header =~          /DEFAULT[ _]DATA:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
-    $header{python_module} = $1 if $trick_header =~        /PYTHON[ _]MODULE:[^(]*\((.+?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
+    $header{python_module} = $1 if $trick_header =~        /PYTHON[ _]MODULE:[^(]*\((.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{programmers} = $1 if $trick_header =~               /PROGRAMMERS:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
     $header{language}  = $1 if $trick_header =~                    /LANGUAGE:[^(]*(.*?)\)([A-Z _\t\n\r]+:|[ \t\n\r]*$)/si ;
 
