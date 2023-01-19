@@ -162,7 +162,7 @@ The `ICG IGNORE TYPES` field lists the structs or classes to be ignored. Any par
 
 ###### `PYTHON_MODULE`
 
-Specifying a `python_module` name will place any class/struct and function definitions in this header file in a python module of the same name. All classes and functions are flattened into the python `trick` namespace by default. This capability allows users to avoid possible name collisions between names when they are flattened.
+Specifying a `python_module` name will place any class/struct and function definitions in this header file in a python module of the same name. All classes and functions are flattened into the python `trick` namespace by default. This capability allows users to avoid possible name collisions between names when they are flattened. An empty `python_module` statement will be ignored.
 
 ##### Compiler Directives
 

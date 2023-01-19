@@ -43,6 +43,13 @@ def main():
     yummy.yummy = trick.Foo.Doughnuts
     TRICK_EXPECT_EQ( yummy.yummy , 2, test_suite , "additional file in same namespace" )
 
+    # new class from 
+    trickfood = trick.Food()
+    trickfood.print_me()
+    TRICK_EXPECT_EQ( trickfood.fast , 2, test_suite , "blank python_module statement" )
+    trickfood.fast = trick.Pizza
+    TRICK_EXPECT_EQ( trickfood.fast , 0, test_suite , "blank python_module statement" )
+
 if __name__ == "__main__":
     main()
 
