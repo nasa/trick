@@ -43,7 +43,7 @@ def main():
     yummy.yummy = trick.Foo.Doughnuts
     TRICK_EXPECT_EQ( yummy.yummy , 2, test_suite , "additional file in same namespace" )
 
-    # new class from 
+    # new class from TrickFood
     trickfood = trick.Food()
     trickfood.print_me()
     TRICK_EXPECT_EQ( trickfood.fast , 2, test_suite , "blank python_module statement" )

@@ -2,7 +2,7 @@
 @file
 
 @verbatim
-PURPOSE: (Empty python module won't )
+PURPOSE: (Test that an empty PYTHON_MODULE won't cause errors or have any effect.)
 PYTHON_MODULE: ()
 @endverbatim
 *******************************************************************************/
@@ -28,5 +28,5 @@ class Food {
 };
 
 
-#endif /* _BALL_HH_ */
+#endif
 

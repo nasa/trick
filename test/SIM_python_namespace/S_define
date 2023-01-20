@@ -1,6 +1,6 @@
 /************************TRICK HEADER*************************
 PURPOSE:
-    (blah blah blah)
+    (Test different combinations of Python modules and C++ namespaces)
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
