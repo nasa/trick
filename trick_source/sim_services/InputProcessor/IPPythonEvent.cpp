@@ -29,6 +29,7 @@ extern Trick::MemoryManager * trick_MM ;
 Trick::IPPython * Trick::IPPythonEvent::ip ;
 Trick::MTV * Trick::IPPythonEvent::mtv ;
 bool Trick::IPPythonEvent::info_msg = false ;
+bool Trick::IPPythonEvent::terminate_sim_on_event_python_error = false;
 
 Trick::condition_t::condition_t() {
     enabled = 0 ;
@@ -167,6 +168,10 @@ void Trick::IPPythonEvent::set_event_info_msg_on() {
 // Command to turn off info messages
 void Trick::IPPythonEvent::set_event_info_msg_off() {
     info_msg = false;
+}
+
+void Trick::IPPythonEvent::terminate_on_event_parse_error(bool on_off) {
+    terminate_sim_on_event_python_error = on_off;
 }
 
 void Trick::IPPythonEvent::restart() {
@@ -515,7 +520,10 @@ int Trick::IPPythonEvent::process( long long curr_time ) {
             } else {
                 // it's a read event
                 active = false ;
-                ip->parse(action_list[0]->str) ;
+                int ret = ip->parse(action_list[0]->str) ;
+                if (ret != 0 && terminate_sim_on_event_python_error) {
+                    exec_terminate_with_return( ret , __FILE__ , __LINE__ , "Python error in event processing" ) ;
+                }
                 // keep stats so mtv will show when it ran
                 fired_count++ ;
                 fired_time = curr_time ;
@@ -572,7 +580,10 @@ bool Trick::IPPythonEvent::process_user_event( long long curr_time ) {
                 } else {
                 // otherwise use python to evaluate string
                     std::string full_in_string ;
-                    ip->parse_condition(condition_list[ii]->str, return_val) ;
+                    int python_ret = ip->parse_condition(condition_list[ii]->str, return_val) ;
+                    if (python_ret != 0 && terminate_sim_on_event_python_error) {
+                        exec_terminate_with_return( python_ret , __FILE__ , __LINE__ , "Python error in event condition processing" ) ;
+                    }
                 }
                 if (return_val) {
                 //TODO: write to log/send_hs that trigger fired
@@ -639,8 +650,11 @@ bool Trick::IPPythonEvent::process_user_event( long long curr_time ) {
                         break;
                 }
             } else {
-            // otherwise use python to evaluate string
-                ip->parse(action_list[ii]->str) ;
+                // otherwise use python to evaluate string
+                int ret = ip->parse(action_list[ii]->str) ;
+                if (ret != 0 && terminate_sim_on_event_python_error) {
+                    exec_terminate_with_return( ret , __FILE__ , __LINE__ , "Python error in event action processing" ) ;
+                }
             }
             it_ran = true ;
             action_list[ii]->ran = true ;
