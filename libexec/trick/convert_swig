@@ -330,6 +330,16 @@ sub process_file() {
                 $class_typemap_printed{$c} = 1 ;
             }
         }
+
+        ### Include user defined interface file.
+        ### Swig will only process the file if file exist.
+        ### File path needs to be added to TRICK_SWIG_FLAGS
+        ### File must have this name <header_file_name>_userdefined.i
+        my ($ud_base_file) ;
+        $ud_base_file = basename($f) ;
+        $ud_base_file =~ s/\.[^\.]+$// ;
+        print OUT "%include \"${ud_base_file}_userdefined.i\"\n\n" ;
+
         print OUT "\n$new_contents" ;
         print OUT "$contents\n" ;
         print OUT $global_template_typedefs ;
