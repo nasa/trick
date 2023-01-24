@@ -11,7 +11,7 @@ dyn.aircraft.desired_speed = 200 # meters per second
 # Start the Satellite Graphics Client
 #==========================================
 varServerPort = trick.var_server_get_port();
-AircraftDisplay_path = "models/graphics/dist/AircraftDisplay.jar"
+AircraftDisplay_path = "models/graphics/build/AircraftDisplay.jar"
 
 if (os.path.isfile(AircraftDisplay_path)) :
     AircraftDisplay_cmd = "java -jar " \
