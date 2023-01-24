@@ -23,6 +23,4 @@ void dv_norm(double norm[3],    /* Out: Norm vector */
         norm[1] = 0.0;
         norm[2] = 0.0;
     }
-
-    return;
 }

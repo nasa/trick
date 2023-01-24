@@ -30,7 +30,4 @@ void mat_permute(               /* Return: -- none */
     for (i = 0; i < num_states; i++)
         for (j = 0; j < num_states; j++)
             A_star[i][j] = A_coeff[new_dof[i]][new_dof[j]];
-
-    return;
-
 }

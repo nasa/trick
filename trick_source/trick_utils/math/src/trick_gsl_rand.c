@@ -41,7 +41,6 @@ void trick_gsl_rand_init(TRICK_GSL_RANDIST * G)
 
     G->rel_min = 1;
     G->rel_max = 1;
-    return;
 }
 
 void trick_gsl_rand_alloc(TRICK_GSL_RANDIST * G __attribute__((unused)) )
@@ -138,5 +137,4 @@ void trick_gsl_rand_shutdown(TRICK_GSL_RANDIST * G __attribute__((unused)) )
 #else
     message_publish(MSG_ERROR,"A suitable GSL library was not found\n") ;
 #endif
-    return;
 }

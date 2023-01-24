@@ -28,6 +28,4 @@ void dmtxmt(                    /* Return: -- none */
     prod[2][0] = trans1[2][0] * trans2[0][0] + trans1[2][1] * trans2[1][0] + trans1[2][2] * trans2[2][0];
     prod[2][1] = trans1[2][0] * trans2[0][1] + trans1[2][1] * trans2[1][1] + trans1[2][2] * trans2[2][1];
     prod[2][2] = trans1[2][0] * trans2[0][2] + trans1[2][1] * trans2[1][2] + trans1[2][2] * trans2[2][2];
-
-    return;
 }

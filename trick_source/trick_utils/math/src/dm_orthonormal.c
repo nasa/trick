@@ -49,6 +49,4 @@ void dm_orthonormal(            /* Return: -- none */
             *axis = 0;
             break;
     }
-
-    return;
 }

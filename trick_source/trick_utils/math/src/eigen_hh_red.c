@@ -88,6 +88,4 @@ void eigen_hh_red(double **a,   /* In: Input matrix */
             }
         }
     }
-
-    return;
 }

@@ -44,7 +44,6 @@ class EulerQuatTest : public ::testing::Test {
                                                    this->init_data.euler_angles[1],
                                                    this->init_data.euler_angles[2]);
           }
-          return;
       }
       void compare_quat(double Q[4]){
           double Q_error[4];
@@ -65,13 +64,11 @@ class EulerQuatTest : public ::testing::Test {
                                                    this->init_data.euler_angles[1],
                                                    this->init_data.euler_angles[2]);
           }
-          return;
       }
       void test_euler_to_quat(){
           double Q[4];
           euler_quat(this->init_data.euler_angles, Q, 0,  this->init_data.euler_sequence);
           compare_quat( Q );
-          return;
       }
       void test_quat_to_euler(int test){
           double eul[3];
@@ -102,7 +99,6 @@ class EulerQuatTest : public ::testing::Test {
              }
           }
           compare_euler(eul);
-          return;
       }
 };
 

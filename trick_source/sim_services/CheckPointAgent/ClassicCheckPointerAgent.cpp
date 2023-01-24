@@ -1089,8 +1089,6 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
 
         message_publish(MSG_ERROR, "Checkpoint Agent ERROR: The specified current dimension \"%d\" is greater\n"
                                    "than the number of dimensions specified in the type ATTRIBUTES.\n", curr_dim) ;
-
-        return;
     }
 }
 

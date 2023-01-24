@@ -150,8 +150,6 @@ void PageViewNode::pdf_cb(Widget w, XtPointer client_data, XtPointer call_data) 
 	XtAddCallback(dialog, XmNokCallback, pdf_file_cb, (XtPointer) client_data);
 	XtSetSensitive( XmSelectionBoxGetChild(dialog, XmDIALOG_HELP_BUTTON), False);
     XtManageChild(dialog);
-
-	return;
 }
 
 

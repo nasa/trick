@@ -23,5 +23,4 @@ void matxtrans(double **prod,   /* Out: product of the two matrices */
            prod[i][j] = temp;
        }
    }
-   return;
 }

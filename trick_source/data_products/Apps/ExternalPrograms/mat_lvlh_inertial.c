@@ -64,6 +64,4 @@ void mat_lvlh_inertial(
         lvlh_inrtl[0][2] = lvlhz[0];
         lvlh_inrtl[1][2] = lvlhz[1];
         lvlh_inrtl[2][2] = lvlhz[2];
-
-        return;
 }

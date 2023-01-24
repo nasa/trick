@@ -14,6 +14,4 @@ void dvxm(double prod[],        /* Out: Product of the vector and the matrix */
     prod[0] = vect[0] * mat[0][0] + vect[1] * mat[1][0] + vect[2] * mat[2][0];
     prod[1] = vect[0] * mat[0][1] + vect[1] * mat[1][1] + vect[2] * mat[2][1];
     prod[2] = vect[0] * mat[0][2] + vect[1] * mat[1][2] + vect[2] * mat[2][2];
-
-    return;
 }

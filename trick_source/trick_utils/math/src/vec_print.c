@@ -17,6 +17,4 @@ void vec_print(double *vec,     /* In: Matrix to be printed */
         fprintf(stderr, " %16.12f ", vec[i]);
         fprintf(stderr, "\n");
     }
-
-    return;
 }

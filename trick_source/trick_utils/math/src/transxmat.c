@@ -24,6 +24,5 @@ void transxmat(double **prod,  /* Out: Product of the two matrices */
            prod[i][j] = temp;
        }
    }
-   return;
 }
 

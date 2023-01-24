@@ -59,6 +59,4 @@ void trns_fnct_1o(int num_vars, /* In: Number of variables to send through trans
         out_0[i] = out_t[i];
         in_0[i] = in_t[i];
     }
-
-    return;
 }

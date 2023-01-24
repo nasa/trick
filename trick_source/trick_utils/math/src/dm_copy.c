@@ -22,6 +22,4 @@ void dm_copy(double copy[3][3], /* Out: copy of the matrix */
     copy[2][0] = mat[2][0];
     copy[2][1] = mat[2][1];
     copy[2][2] = mat[2][2];
-
-    return;
 }

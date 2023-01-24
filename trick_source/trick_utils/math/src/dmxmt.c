@@ -26,6 +26,4 @@ void dmxmt(double prod[3][3],   /* Out: Product of the two matrices */
     prod[2][0] = mat1[2][0] * trans[0][0] + mat1[2][1] * trans[1][0] + mat1[2][2] * trans[2][0];
     prod[2][1] = mat1[2][0] * trans[0][1] + mat1[2][1] * trans[1][1] + mat1[2][2] * trans[2][1];
     prod[2][2] = mat1[2][0] * trans[0][2] + mat1[2][1] * trans[1][2] + mat1[2][2] * trans[2][2];
-
-    return;
 }

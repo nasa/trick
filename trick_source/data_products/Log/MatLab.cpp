@@ -617,7 +617,6 @@ int MatLab::peek(double * time, double * value) {
 
 void MatLab::begin() {
     curr_row_ = 0;
-    return;
 }
 
 int MatLab::end() {

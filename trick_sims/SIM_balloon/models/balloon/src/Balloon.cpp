@@ -125,8 +125,6 @@ void Balloon::calc_drag_force(double *F_drag) {
     /* Equation 10 */
     F_drag[0] = -( 0.5 * US_STD_density(altitude) * abs(v_tas[0]) * v_tas[0] * Cd[0] * A[0] );
     F_drag[1] = -( 0.5 * US_STD_density(altitude) * abs(v_tas[1]) * v_tas[1] * Cd[1] * A[1] );
-
-    return;
 }
 
 int Balloon::control() {

@@ -25,6 +25,4 @@ void child_handler(int sig) {
         default:
             break;
     }
-
-    return;
 }

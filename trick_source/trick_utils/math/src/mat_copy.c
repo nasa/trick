@@ -20,6 +20,4 @@ void mat_copy(                  /* Return: -- none */
             copy[i][j] = mat[i][j];
         }
     }
-
-    return;
 }

@@ -52,6 +52,4 @@ void trns_fnct_2o(double *z,    /* In: damping ratio */
         outwk[i] = a3 * c - (a4 + a3 * z[i]) * a + acc;
         inwk[i] = in[i];
     }
-
-    return;
 }

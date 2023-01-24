@@ -23,5 +23,4 @@ void matxmat(double **prod,     /* Out: Product of the two matrices */
             prod[i][j] = temp;
         }
     }
-    return;
 }

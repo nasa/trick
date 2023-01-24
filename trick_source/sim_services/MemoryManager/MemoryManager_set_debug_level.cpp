@@ -4,7 +4,6 @@ void Trick::MemoryManager::set_debug_level(int level) {
     debug_level = level;
     currentCheckPointAgent->set_debug_level(level);
     defaultCheckPointAgent->set_debug_level(level);
-    return;
 }
 
 void Trick::MemoryManager::set_reduced_checkpoint(bool flag) {

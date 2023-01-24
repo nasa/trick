@@ -24,6 +24,4 @@ void dm_scale(double prod[3][3],        /* Out: Product of the two matrices */
     prod[2][0] = mat[2][0] * scalar;
     prod[2][1] = mat[2][1] * scalar;
     prod[2][2] = mat[2][2] * scalar;
-
-    return;
 }

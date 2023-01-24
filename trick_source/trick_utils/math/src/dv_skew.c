@@ -18,6 +18,4 @@ void dv_skew(double skew[3][3], /* Out: Skew symmetic matrix */
     skew[1][2] = -vect[0];
     skew[2][0] = -vect[1];
     skew[2][1] = vect[0];
-
-    return;
 }

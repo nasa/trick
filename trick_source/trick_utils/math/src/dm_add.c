@@ -23,6 +23,4 @@ void dm_add(double sum[3][3],   /* Out: Sum of the two matrices */
     sum[2][0] = mat1[2][0] + mat2[2][0];
     sum[2][1] = mat1[2][1] + mat2[2][1];
     sum[2][2] = mat1[2][2] + mat2[2][2];
-
-    return;
 }

@@ -267,7 +267,6 @@ void Trick::MonteCarlo::disable_slave(std::string name, bool disabled){
             } else {
                 slaves[i]->state = Trick::MonteSlave::MC_UNINITIALIZED;
             }
-            return;
         }
     }
 }

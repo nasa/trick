@@ -13,6 +13,4 @@ void dv_cross(double cross[],   /* Out: cross product of the two vectors */
     cross[0] = ((vect1[1] * vect2[2]) - (vect1[2] * vect2[1]));
     cross[1] = ((vect1[2] * vect2[0]) - (vect1[0] * vect2[2]));
     cross[2] = ((vect1[0] * vect2[1]) - (vect1[1] * vect2[0]));
-
-    return;
 }

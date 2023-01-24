@@ -16,6 +16,4 @@ void mat_trans(double **trans,  /* Out: Product of the two matrices */
             trans[i][j] = mat[j][i];
         }
     }
-
-    return;
 }

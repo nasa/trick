@@ -14,6 +14,4 @@ void dv_add(double sum[],       /* Out: Sum of the two vectors */
     sum[0] = vect1[0] + vect2[0];
     sum[1] = vect1[1] + vect2[1];
     sum[2] = vect1[2] + vect2[2];
-
-    return;
 }

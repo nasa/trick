@@ -15,6 +15,4 @@ void quat_to_mat(
         a[0][2] = 2. * (quat[1] * quat[3] + quat[0] * quat[2]);
         a[2][1] = 2. * (quat[2] * quat[3] + quat[0] * quat[1]);
         a[1][2] = 2. * (quat[2] * quat[3] - quat[0] * quat[1]);
-
-        return;
 }

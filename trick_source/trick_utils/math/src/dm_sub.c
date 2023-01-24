@@ -22,6 +22,4 @@ void dm_sub(double diff[3][3],  /* Out: Difference of the two matrices */
     diff[2][0] = mat1[2][0] - mat2[2][0];
     diff[2][1] = mat1[2][1] - mat2[2][1];
     diff[2][2] = mat1[2][2] - mat2[2][2];
-
-    return;
 }

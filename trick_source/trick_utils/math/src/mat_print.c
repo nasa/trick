@@ -17,6 +17,4 @@ void mat_print(double **mat,    /* In: Matrix to be printed */
         }
         fprintf(stderr, "\n");
     }
-
-    return;
 }

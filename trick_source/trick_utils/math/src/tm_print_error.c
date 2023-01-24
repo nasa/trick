@@ -30,6 +30,4 @@ static char *trick_math_errors[] = {
 void tm_print_error(int error)
 {                                      /* In: Error number */
     fprintf(stderr, "%s\n", trick_math_errors[error]);
-
-    return;
 }

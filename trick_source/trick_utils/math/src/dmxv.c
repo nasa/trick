@@ -16,5 +16,4 @@ void dmxv(double prod[],        /* Out: Product of the matrix and vector */
     prod[1] = mat[1][0] * vect[0] + mat[1][1] * vect[1] + mat[1][2] * vect[2];
     prod[2] = mat[2][0] * vect[0] + mat[2][1] * vect[1] + mat[2][2] * vect[2];
 
-    return;
 }

@@ -19,6 +19,4 @@ void transxvec(double *prod,    /* Out: Product of the two matrices */
             prod[i] += mat[k][i] * vec[k];
         }
     }
-
-    return;
 }

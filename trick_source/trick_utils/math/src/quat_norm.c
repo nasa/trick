@@ -28,6 +28,4 @@ void quat_norm(double q2[4],    /* Out: quaternion */
     q2[1] = coef * q1[1];
     q2[2] = coef * q1[2];
     q2[3] = coef * q1[3];
-
-    return;
 }

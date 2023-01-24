@@ -31,7 +31,6 @@ void dlclose(void *handle)
 {
         dyn_error = NULL;
         NSUnLinkModule(handle, FALSE);
-        return;
 }
 
 void *dlsym(void *handle, char *funcname)

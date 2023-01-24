@@ -11,12 +11,10 @@ void Trick::MemoryManager::set_CheckPointAgent(CheckPointAgent* agent) {
     } else {
         emitError("Attempt to set CheckPointAgent to NULL.\n") ;
     }
-    return;
 }
 
 void Trick::MemoryManager::reset_CheckPointAgent() {
 
     currentCheckPointAgent = defaultCheckPointAgent;
-    return;
 }
 

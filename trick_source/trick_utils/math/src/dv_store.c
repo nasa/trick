@@ -12,6 +12,4 @@ void dv_store(double vect[],    /* Out: Vector */
     vect[0] = scalar;
     vect[1] = scalar;
     vect[2] = scalar;
-
-    return;
 }

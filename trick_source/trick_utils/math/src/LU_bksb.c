@@ -47,5 +47,4 @@ void LU_bksb(                   /* Return: Zero */
         }
         b[i] = sum / a[i][i];
     }
-    return;
 }

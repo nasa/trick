@@ -80,6 +80,4 @@ void eigen_ql(double *d,        /* Inout: input diagonal elements, output eigenv
             }
         }
     }
-
-    return;
 }

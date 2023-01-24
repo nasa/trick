@@ -14,5 +14,4 @@ void dv_init(double vect[])
     vect[1] = 0.0;
     vect[2] = 0.0;
 
-    return;
 }

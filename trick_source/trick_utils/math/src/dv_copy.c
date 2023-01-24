@@ -15,5 +15,4 @@ void dv_copy(double copy[],     /* Out: copy of the vector */
     copy[1] = vect[1];
     copy[2] = vect[2];
 
-    return;
 }

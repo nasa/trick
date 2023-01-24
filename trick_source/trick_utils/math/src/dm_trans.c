@@ -19,6 +19,4 @@ void dm_trans(double trans[3][3],       /* Out: transpose of the matrix */
     trans[2][0] = mat[0][2];
     trans[2][1] = mat[1][2];
     trans[2][2] = mat[2][2];
-
-    return;
 }

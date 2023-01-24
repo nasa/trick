@@ -40,7 +40,6 @@ void Trick::MemoryManager::write_composite_var( std::ostream& out_s,
             currentCheckPointAgent->pop_elem();
         }
     }
-    return;
 }
 
 // MEMBER FUNCTION

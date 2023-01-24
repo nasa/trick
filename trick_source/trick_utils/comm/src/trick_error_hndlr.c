@@ -69,8 +69,6 @@ static void trick_error_message_print(FILE * out_stream,        /* Inout: Output
             fprintf(out_stream, "\n %s: an undescribed error was " "reported.\n", label[level]);
         }
     }
-
-    return;
 }
 
 
@@ -174,9 +172,6 @@ void trick_error_func_default(TrickErrorHndlr * error_hndlr,    /* In: Error obj
             break;
 
     }
-
-    return;
-
 }
 
 
@@ -228,9 +223,6 @@ void trick_error_init(TrickErrorHndlr * error_hndlr,    /* In: Error object.  */
     error_hndlr->use_send_hs[TRICK_ERROR_FATAL] = 1;
     error_hndlr->use_send_hs[TRICK_ERROR_ABORT] = 1;
     error_hndlr->use_send_hs[TRICK_ERROR_SILENT] = 1;
-
-    return;
-
 }
 
 void trick_error_shutdown(TrickErrorHndlr * error_hndlr)
@@ -289,9 +281,6 @@ void trick_error_shutdown(TrickErrorHndlr * error_hndlr)
     error_hndlr->report_stream[TRICK_ERROR_FATAL] = (FILE *) NULL;
     error_hndlr->report_stream[TRICK_ERROR_ABORT] = (FILE *) NULL;
     error_hndlr->report_stream[TRICK_ERROR_SILENT] = (FILE *) NULL;
-
-    return;
-
 }
 
 
@@ -310,8 +299,6 @@ void trick_error_set_func(TrickErrorHndlr * error_hndlr,        /* Inout: Error 
     } else {
         error_hndlr->error_func = (TrickErrorFuncPtr) trick_error_func_default;
     }
-
-    return;
 }
 
 
@@ -330,8 +317,6 @@ void trick_error_set_data(TrickErrorHndlr * error_hndlr,        /* Inout: Error 
     } else {
         error_hndlr->data_ptr = (TrickErrorDataPtr) NULL;
     }
-
-    return;
 }
 
 
@@ -346,8 +331,6 @@ void trick_error_set_report_level(TrickErrorHndlr * error_hndlr,        /* Inout
 
     /* Set the reporting level. */
     error_hndlr->report_level = report_level;
-
-    return;
 }
 
 
@@ -374,8 +357,6 @@ void trick_error_set_stream(TrickErrorHndlr * error_hndlr,      /* INOUT: Error 
     } else {
         error_hndlr->report_stream[level] = stream;
     }
-    return;
-
 }
 
 
@@ -405,9 +386,6 @@ void trick_error_set_all_streams(TrickErrorHndlr * error_hndlr, /* Inout: Error 
     error_hndlr->report_stream[TRICK_ERROR_FATAL] = act_stream;
     error_hndlr->report_stream[TRICK_ERROR_ABORT] = act_stream;
     error_hndlr->report_stream[TRICK_ERROR_SILENT] = act_stream;
-
-    return;
-
 }
 
 void trick_error_copy_streams(TrickErrorHndlr * dest_error_hndlr,       /* Out: Error handler data */
@@ -442,9 +420,6 @@ void trick_error_set_send_hs_flag(TrickErrorHndlr * error_hndlr,        /* Inout
     trick_error_report(error_hndlr, TRICK_ERROR_ALERT,
                        __FILE__, __LINE__,
                        "trick_error_set_send_hs_flag no longer supported.  All printouts will use fprintf\n");
-
-    return;
-
 }
 
 
@@ -466,9 +441,6 @@ void trick_error_set_all_send_hs_flags(TrickErrorHndlr * error_hndlr,   /* Inout
     error_hndlr->use_send_hs[TRICK_ERROR_FATAL] = use_send_hs;
     error_hndlr->use_send_hs[TRICK_ERROR_ABORT] = use_send_hs;
     error_hndlr->use_send_hs[TRICK_ERROR_SILENT] = use_send_hs;
-
-    return;
-
 }
 
 void trick_error_copy_send_hs_flags(TrickErrorHndlr * dest_error_hndlr, /* OUT: Error handler data */
@@ -623,7 +595,4 @@ void trick_error_report(TrickErrorHndlr * error_hndlr,  /* In: Error object */
     if (error_level >= error_hndlr->report_level) {
         (*(error_hndlr->error_func)) (error_hndlr, error_level, file, line, message);
     }
-
-    return;
-
 }

@@ -13,6 +13,4 @@ void dvxv_add(double sum[],     /* Out: Sum of cross product and sum */
     sum[0] += ((vect1[1] * vect2[2]) - (vect1[2] * vect2[1]));
     sum[1] += ((vect1[2] * vect2[0]) - (vect1[0] * vect2[2]));
     sum[2] += ((vect1[0] * vect2[1]) - (vect1[1] * vect2[0]));
-
-    return;
 }

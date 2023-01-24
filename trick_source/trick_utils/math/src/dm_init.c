@@ -19,5 +19,4 @@ void dm_init(double mat[3][3])
     mat[2][1] = 0.0;
     mat[2][2] = 0.0;
 
-    return;
 }

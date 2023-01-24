@@ -19,7 +19,4 @@ void matxvec(double *prod,      /* Out: product of the two matrices */
             prod[i] += mat[i][k] * vec[k];
         }
     }
-
-    return;
-
 }

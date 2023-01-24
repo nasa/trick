@@ -188,7 +188,6 @@ void Trick::MemoryManager::clear_class( char *address, ATTRIBUTES * A) {
 
         }
     }
-    return;
 }
 
 void Trick::MemoryManager::clear_arrayed_class( char* address, ATTRIBUTES* A, int curr_dim, int offset) {

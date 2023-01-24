@@ -276,7 +276,6 @@ extern "C" void TMM_clear_var_a(void *addr) {
         trick_MM->clear_var( addr);
     } else {
         Trick::MemoryManager::emitError("TMM_clear_var_a() called before MemoryManager instantiation.\n") ;
-        return;
     }
 }
 
@@ -289,7 +288,6 @@ extern "C" void TMM_clear_var_n( const char* name) {
         trick_MM->clear_var( name);
     } else {
         Trick::MemoryManager::emitError("TMM_clear_var_n() called before MemoryManager instantiation.\n") ;
-        return;
     }
 }
 
@@ -302,7 +300,6 @@ extern "C" void TMM_delete_var_a(void *addr) {
         trick_MM->delete_var( addr);
     } else {
         Trick::MemoryManager::emitError("TMM_delete_var_a() called before MemoryManager instantiation.\n") ;
-        return;
     }
 }
 
@@ -315,7 +312,6 @@ extern "C" void TMM_delete_var_n( const char* name) {
         trick_MM->delete_var( name);
     } else {
         Trick::MemoryManager::emitError("TMM_delete_var_n() called before MemoryManager instantiation.\n") ;
-        return;
     }
 }
 
@@ -328,7 +324,6 @@ extern "C" void TMM_delete_extern_var_a(void *addr) {
         trick_MM->delete_extern_var( addr);
     } else {
         Trick::MemoryManager::emitError("TMM_delete_extern_var_a() called before MemoryManager instantiation.\n") ;
-        return;
     }
 }
 
@@ -341,7 +336,6 @@ extern "C" void TMM_delete_extern_var_n( const char* name) {
         trick_MM->delete_extern_var( name);
     } else {
         Trick::MemoryManager::emitError("TMM_delete_extern_var_n() called before MemoryManager instantiation.\n") ;
-        return;
     }
 }
 
@@ -354,7 +348,6 @@ extern "C" void TMM_write_checkpoint(const char* filename) {
         return ( trick_MM->write_checkpoint( filename));
     } else {
         Trick::MemoryManager::emitError("TMM_write_checkpoint_fn() called before MemoryManager instantiation.\n") ;
-        return;
     }
 }
 

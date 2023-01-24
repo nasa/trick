@@ -57,6 +57,4 @@ void mat_to_quat(double quat[4],        /* Out: Left handed quaternion */
     quat[1] = T * qv[0];
     quat[2] = T * qv[1];
     quat[3] = T * qv[2];
-
-    return;
 }

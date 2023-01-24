@@ -32,23 +32,19 @@
 void sig_hand(int sig) {
     Trick::Executive * E = exec_get_exec_cpp();
     E->signal_handler(sig) ;
-    return;
 }
 
 void ctrl_c_hand(int sig __attribute__ ((unused))) {
     Trick::Executive * E = exec_get_exec_cpp();
     E->ctrl_c_handler() ;
-    return;
 }
 
 void term_hand(int sig __attribute__ ((unused))) {
     Trick::Executive * E = exec_get_exec_cpp();
     E->term_handler() ;
-    return;
 }
 
 void usr1_hand(int sig __attribute__ ((unused))) {
     Trick::Executive * E = exec_get_exec_cpp();
     E->usr1_handler() ;
-    return;
 }

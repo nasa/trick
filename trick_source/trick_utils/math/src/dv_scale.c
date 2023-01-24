@@ -13,6 +13,4 @@ void dv_scale(double prod[],    /* Out: Produce of the vector and the scalar */
     prod[0] = vect[0] * scalar;
     prod[1] = vect[1] * scalar;
     prod[2] = vect[2] * scalar;
-
-    return;
 }

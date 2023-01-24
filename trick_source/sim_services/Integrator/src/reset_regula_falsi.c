@@ -36,6 +36,4 @@ void reset_regula_falsi(
     R->x_upper = BIG_TGO;
     R->iterations = 0;
     R->last_error = 0.0;
-
-    return;
 }
