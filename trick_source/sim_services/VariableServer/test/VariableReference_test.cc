@@ -362,7 +362,7 @@ TEST_F(VariableReference_test, printWithoutUnits) {
     std::stringstream ss;
 
     // ACT
-    EXPECT_EQ(ref.getBaseUnits(), "m");
+    EXPECT_STREQ(ref.getBaseUnits(), "m");
 
     // ASSERT
     // Doesn't actually print with units unless set
