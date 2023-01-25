@@ -25,46 +25,27 @@ Trick::VariableServerThread::VariableServerThread(ClientListener * in_listen_dev
 Trick::VariableServerThread::~VariableServerThread() {}
 
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& vst) {
-    // TODO: Replicate this functionality
-
-
     // Write a JSON representation of a Trick::VariableServerThread to an ostream.
-    // struct sockaddr_in otherside;
-    // socklen_t len = (socklen_t)sizeof(otherside);
+    struct sockaddr_in otherside;
+    socklen_t len = (socklen_t)sizeof(otherside);
 
-    // s << "  \"connection\":{\n";
-    // s << "    \"client_tag\":\"" << vst.connection.client_tag << "\",\n";
+    s << "  \"connection\":{\n";
+    s << "    \"client_tag\":\"" << vst.connection.get_client_tag() << "\",\n";
 
-    // int err = getpeername(vst.connection.socket, (struct sockaddr*)&otherside, &len);
+    int err = getpeername(vst.connection.get_socket(), (struct sockaddr*)&otherside, &len);
 
-    // if (err == 0) {
-    //     s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\",\n";
-    //     s << "    \"client_port\":\"" << ntohs(otherside.sin_port) << "\",\n";
-    // } else {
-    //     s << "    \"client_IP_address\":\"unknown\",\n";
-    //     s << "    \"client_port\":\"unknown\",";
-    // }
+    if (err == 0) {
+        s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\",\n";
+        s << "    \"client_port\":\"" << ntohs(otherside.sin_port) << "\",\n";
+    } else {
+        s << "    \"client_IP_address\":\"unknown\",\n";
+        s << "    \"client_port\":\"unknown\",";
+    }
 
-    // if (vst.binary_data) {
-    //     s << "    \"format\":\"BINARY\",\n";
-    // } else {
-    //     s << "    \"format\":\"ASCII\",\n";
-    // }
-    // s << "    \"update_rate\":" << vst.update_rate << ",\n";
+    s << *(vst.session);
 
-    // s << "    \"variables\":[\n";
-
-    // int n_vars = (int)vst.vars.size();
-    // for (int i=0 ; i<n_vars ; i++) {
-    //     s << *(vst.vars[i]);
-    //     if ((n_vars-i)>1) {
-    //         s << "," ;
-    //     }
-    //     s << "\n";
-    // }
-    // s << "    ]\n";
-    // s << "  }" << std::endl;
-    // return s;
+    s << "  }" << std::endl;
+    return s;
 }
 
 void Trick::VariableServerThread::set_vs_ptr(Trick::VariableServer * in_vs) {

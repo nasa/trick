@@ -82,9 +82,12 @@ class Var {
         // There won't be a general case
         template <typename T>
         T getValue() const;
-
+        std::vector<unsigned char> getRawBytes() const;
+        
+        int getArraySize() const;
         std::string getName() const;
         TRICK_TYPE getType() const;
+
 
     private:
         std::vector<unsigned char> value_bytes;

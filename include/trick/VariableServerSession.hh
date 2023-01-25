@@ -20,6 +20,9 @@ namespace Trick {
     public:
         VariableServerSession(ClientConnection * connection);
         ~VariableServerSession();
+
+        friend std::ostream& operator<< (std::ostream& s, const Trick::VariableServerSession& session);
+
         int  handleMessage();
 
         /**
@@ -368,13 +371,13 @@ namespace Trick {
 
         void disconnect_references();
 
-        long long get_next_tics();
+        long long get_next_tics() const;
 
-        long long get_freeze_next_tics();
+        long long get_freeze_next_tics() const;
 
         int freeze_init();
 
-        double get_update_rate();
+        double get_update_rate() const;
 
         // These should be private probably
         int write_binary_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
@@ -382,10 +385,10 @@ namespace Trick {
         int write_stdio(int stream, std::string text);
 
         // Is this good design? ¯\_(ツ)_/¯
-        bool should_write_async();
-        bool should_write_sync();
-        bool should_copy_async();
-        bool should_copy_sync();
+        bool should_write_async() const;
+        bool should_write_sync() const;
+        bool should_copy_async() const;
+        bool should_copy_sync() const;
 
         pthread_mutex_t copy_mutex;
 
@@ -400,7 +403,7 @@ namespace Trick {
         ClientConnection * connection;
         /** The trickcomm device used for the connection to the client.\n */
 
-        VariableReference * find_session_variable(std::string name);
+        VariableReference * find_session_variable(std::string name) const;
 
         double stageTime;
         bool dataStaged;

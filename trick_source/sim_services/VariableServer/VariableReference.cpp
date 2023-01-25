@@ -751,7 +751,6 @@ void Trick::VariableReference::byteswap_var (char * out, char * in) const {
 
 
 
-
 int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap ) const {
 
     char buf[20480];
@@ -787,3 +786,8 @@ int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap
     out.write(buf, size);
 }  
 
+std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableReference& ref) {
+
+    s << "      \"" << ref.getName() << "\"";
+    return s;
+}

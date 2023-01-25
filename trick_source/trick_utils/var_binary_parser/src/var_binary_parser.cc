@@ -56,7 +56,7 @@ const size_t ParsedBinaryMessage::variable_name_length_size = 4;
 const size_t ParsedBinaryMessage::variable_type_size = 4;
 const size_t ParsedBinaryMessage::variable_size_size = 4;
 
-int ParsedBinaryMessage::parse (const std::vector<unsigned char>& bytes){
+int ParsedBinaryMessage::parse (const std::vector<unsigned char>& bytes) {
     if (bytes.size() < header_size) {
         throw MalformedMessageException(std::string("Not enough bytes in message to contain header: expected at least 12, got " + std::to_string(bytes.size())));
     }
@@ -219,6 +219,24 @@ std::string Var::getName() const {
 
 TRICK_TYPE Var::getType() const {
     return _trick_type;
+}
+
+std::vector<unsigned char> Var::getRawBytes() const {
+    return value_bytes;
+}
+
+int Var::getArraySize() const {
+    auto val_size_pair = type_size_map.find(_trick_type);
+    if (val_size_pair == type_size_map.end()) {
+        return -1;
+    }
+
+    int val_size = val_size_pair->second;
+    if (_var_size % val_size != 0) {
+        return -1;
+    }
+
+    return _var_size / val_size;
 }
 
 

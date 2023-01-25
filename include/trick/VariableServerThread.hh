@@ -33,7 +33,6 @@ namespace Trick {
     class VariableServerThread : public Trick::ThreadBase {
 
         public:
-            // Is this ever actually used?
             friend std::ostream& operator<< (std::ostream& s, Trick::VariableServerThread& vst);
 
             /**

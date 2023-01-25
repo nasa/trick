@@ -96,6 +96,10 @@ int Trick::TCConnection::set_client_tag(std::string tag) {
     return 0;
 }
 
+int Trick::TCConnection::get_socket() {
+    return _device.socket;
+}
+
 
 int Trick::TCConnection::disconnect () {
     return tc_disconnect(&_device);

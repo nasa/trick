@@ -18,6 +18,8 @@ namespace Trick {
     class VariableReference {
 
     public:
+        friend std::ostream& operator<< (std::ostream& s, const Trick::VariableReference& ref);
+
         VariableReference(std::string var_name);
 
         // Special constructor to deal with time

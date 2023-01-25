@@ -67,14 +67,14 @@ void Trick::VariableServerSession::disconnect_references() {
     }
 }
 
-long long Trick::VariableServerSession::get_next_tics() {
+long long Trick::VariableServerSession::get_next_tics() const {
     if ( ! enabled ) {
         return TRICK_MAX_LONG_LONG ;
     }
     return next_tics ;
 }
 
-long long Trick::VariableServerSession::get_freeze_next_tics() {
+long long Trick::VariableServerSession::get_freeze_next_tics() const {
     if ( ! enabled ) {
         return TRICK_MAX_LONG_LONG ;
     }
@@ -90,7 +90,7 @@ int Trick::VariableServerSession::handleMessage() {
     
 }
 
-Trick::VariableReference * Trick::VariableServerSession::find_session_variable(std::string name) {
+Trick::VariableReference * Trick::VariableServerSession::find_session_variable(std::string name) const {
     for (VariableReference * ref : session_variables) {
         // Look for matching name
         if (name.compare(ref->getName()) == 0) {
@@ -101,24 +101,48 @@ Trick::VariableReference * Trick::VariableServerSession::find_session_variable(s
     return NULL;
 }
 
-double Trick::VariableServerSession::get_update_rate() {
+double Trick::VariableServerSession::get_update_rate() const {
     return update_rate;
 }
 
-bool Trick::VariableServerSession::should_write_async() {
+bool Trick::VariableServerSession::should_write_async() const {
     return (write_mode == VS_WRITE_ASYNC) or
                  ((copy_mode == VS_COPY_ASYNC) and (write_mode == VS_WRITE_WHEN_COPIED)) or
                  (! is_real_time());
 }
 
-bool Trick::VariableServerSession::should_write_sync() {
+bool Trick::VariableServerSession::should_write_sync() const {
 
 }
 
-bool Trick::VariableServerSession::should_copy_async() {
+bool Trick::VariableServerSession::should_copy_async() const {
     return copy_mode == VS_COPY_ASYNC;
 }
 
-bool Trick::VariableServerSession::should_copy_sync() {
+bool Trick::VariableServerSession::should_copy_sync() const {
 
+}
+
+
+std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableServerSession& session) {
+    if (session.binary_data) {
+        s << "    \"format\":\"BINARY\",\n";
+    } else {
+        s << "    \"format\":\"ASCII\",\n";
+    }
+    s << "    \"update_rate\":" << session.get_update_rate() << ",\n";
+
+    s << "    \"variables\":[\n";
+
+    int n_vars = (int)session.session_variables.size();
+    for (int i=0 ; i<n_vars ; i++) {
+        s << *(session.session_variables[i]);
+        if ((n_vars-i)>1) {
+            s << "," ;
+        }
+        s << "\n";
+    }
+    s << "    ]\n";
+
+    return s;
 }

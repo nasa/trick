@@ -447,7 +447,7 @@ Trick::VariableServer * var_server_get_var_server() {
 }
 
 extern "C" void var_server_list_connections(void) {
-    // std::cout << *the_vs << std::endl;
+    std::cout << *the_vs << std::endl;
 }
 
 /**
