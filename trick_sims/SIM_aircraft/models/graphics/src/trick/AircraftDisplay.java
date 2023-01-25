@@ -13,6 +13,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener; 
 import java.awt.event.ActionEvent;
+import java.awt.Toolkit;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ItemEvent;
@@ -48,10 +49,12 @@ import java.awt.Color;
 
 class Waypoint {
     public double north, west;
+    public Image icon;
     
-    public Waypoint(double n, double w) {
+    public Waypoint(double n, double w, Image i) {
         north = n;
         west = w;
+        icon = i;
     }
 }
 
@@ -129,8 +132,8 @@ class SkyView extends JPanel {
     }
 */
 
-    public void addWaypoint( double n, double w) {
-        waypoints.add(new Waypoint(n,w));
+    public void addWaypoint( double n, double w, String fp) {
+        waypoints.add(new Waypoint(n,w,Toolkit.getDefaultToolkit().getImage(fp)));
     }
 
     public void setAircraftPos( double n, double w) {
@@ -198,6 +201,10 @@ class SkyView extends JPanel {
         x = x-(r/2);
         y = y-(r/2);
         g.fillOval(x,y,r,r);
+    }
+
+    public void drawWaypoint(Graphics2D g, Waypoint wp) {
+        g.drawImage(wp.icon, wp.west, wp.north, null);
     }
 
     public void drawScenePoly(Graphics2D g, ScenePoly p, double angle_r , double north, double west) {
@@ -525,7 +532,7 @@ public class AircraftDisplay extends JFrame {
             String line;
             while((line = br.readLine()) != null) {
                 String[] parsedLine = line.split(",");
-                sd.skyView.addWaypoint(Double.parseDouble(parsedLine[0]), Double.parseDouble(parsedLine[1]));
+                sd.skyView.addWaypoint(Double.parseDouble(parsedLine[0]), Double.parseDouble(parsedLine[1]), parsedLine[2]);
             }
         } catch(FileNotFoundException e) {
             System.out.printf("'%s' not found", args[ii+1]);
