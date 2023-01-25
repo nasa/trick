@@ -25,6 +25,10 @@ int Trick::TCConnection::initialize() {
     _device.error_handler->report_level = TRICK_ERROR_CAUTION;
 }
 
+int Trick::TCConnection::write (char * message, int size) {
+    int ret = tc_write(&_device, message, size);
+    return ret;
+}
 
 int Trick::TCConnection::write (const std::string& message) {
     char send_buf[message.length()+1];

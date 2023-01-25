@@ -1,25 +1,20 @@
 #include "trick/var_binary_parser.hh"
 #include "trick/variable_server_message_types.h"
-
+#include <climits>
 #include <iostream>
 #include <sstream>
 
-class NotImplemented : public std::logic_error
-{
-public:
-    NotImplemented() : std::logic_error("Function not yet implemented") {};
-};
 
 // Utility method
 uint64_t bytesToInt(const std::vector<unsigned char>& bytes, bool byteswap) {
     uint64_t result = 0;
 
     if (byteswap) {
-        for (int i = 0; i < bytes.size(); i++) {
+        for (unsigned int i = 0; i < bytes.size(); i++) {
             result |= bytes[bytes.size() - 1 - i] << i*8;
         }
     } else {
-        for (int i = 0; i < bytes.size(); i++) {
+        for (unsigned int i = 0; i < bytes.size(); i++) {
             result |= bytes[i] << i*8;
         }
     }
@@ -33,7 +28,7 @@ class MessageIterator {
 
         std::vector<unsigned char> slice(unsigned int length) {
             unsigned int slice_end = _index + length;
-            if (slice_end > _container.size()) {
+            if (_index > _container.size() || slice_end > _container.size()) {
                 throw MalformedMessageException("Message ends unexpectedly");
             }
             
@@ -42,14 +37,11 @@ class MessageIterator {
 
         void operator+= (int n) {
             _index += n;
-            if (_index > _container.size()) {
-                throw MalformedMessageException("Message ends unexpectedly");
-            }
         } 
 
     private:
         std::vector<unsigned char> _container;
-        int _index; 
+        unsigned int _index; 
 };
 
 /**************************************************************************
@@ -93,7 +85,7 @@ int ParsedBinaryMessage::parse (const std::vector<unsigned char>& bytes){
     messageIterator += variable_num_size;
 
     // Pull out all of the variables
-    for (int i = 0; i < _num_vars; i++) {
+    for (unsigned int i = 0; i < _num_vars; i++) {
         Var variable;
 
         if (!_nonames) {
@@ -149,7 +141,7 @@ Var ParsedBinaryMessage::getVariable(const std::string& name) {
     throw IncorrectUsageException("Variable " + name + " does not exist in this message.");
 }
 
-Var ParsedBinaryMessage::getVariable(int index) {
+Var ParsedBinaryMessage::getVariable(unsigned int index) {
     if (index >= variables.size()) {
         throw IncorrectUsageException("Variable index " + std::to_string(index) + " does not exist in this message.");
     }
@@ -181,10 +173,6 @@ bool ParsedBinaryMessage::validateMessageType(int message_type) {
 
 
 void Var::setName(size_t name_size, const std::vector<unsigned char>& name_data) {
-    if (name_size != name_data.size()) {
-        throw MalformedMessageException("Message ends unexpectedly");
-    }
-
     _has_name = true;
     _name_length = name_size;
     std::stringstream ss;
@@ -209,11 +197,11 @@ Number Var::getInterpreter() const {
     Number interpreted_val;
 
     if (_byteswap) {
-        for (int i = 0; i < _var_size; i++) {
+        for (unsigned int i = 0; i < _var_size; i++) {
             interpreted_val.raw_bytes[i] = value_bytes[_var_size - 1 - i];
         }
     } else {
-        for (int i = 0; i < _var_size; i++) {
+        for (unsigned int i = 0; i < _var_size; i++) {
             interpreted_val.raw_bytes[i] = value_bytes[i];
         }
     }
@@ -234,7 +222,7 @@ TRICK_TYPE Var::getType() const {
 }
 
 
-// Template specialization!
+// Template specialization for each supported type
 template<>
 char Var::getValue<char> () const {
     if (_trick_type != TRICK_CHARACTER) {
@@ -242,6 +230,42 @@ char Var::getValue<char> () const {
     }
 
     return getInterpreter().char_val;
+}
+
+template<>
+unsigned char Var::getValue<unsigned char> () const {
+    if (_trick_type != TRICK_UNSIGNED_CHARACTER) {
+        throw ParseTypeException();
+    }
+
+    return getInterpreter().unsigned_char_val;
+}
+
+template<>
+bool Var::getValue<bool> () const {
+    if (_trick_type != TRICK_BOOLEAN) {
+        throw ParseTypeException();
+    }
+
+    return getInterpreter().bool_val;
+}
+
+template<>
+short Var::getValue<short> () const {
+    if (_trick_type != TRICK_SHORT) {
+        throw ParseTypeException();
+    }
+
+    return getInterpreter().short_val;
+}
+
+template<>
+unsigned short Var::getValue<unsigned short> () const {
+    if (_trick_type != TRICK_UNSIGNED_SHORT) {
+        throw ParseTypeException();
+    }
+
+    return getInterpreter().unsigned_short_val;
 }
 
 template<>
@@ -328,4 +352,13 @@ std::string Var::getValue<std::string> () const {
     }
 
     return stream.str();
+}
+
+template <>
+wchar_t Var::getValue<wchar_t> () const {
+    if (_trick_type != TRICK_WCHAR) {
+        throw ParseTypeException();
+    }  
+
+    return getInterpreter().wchar_val;
 }

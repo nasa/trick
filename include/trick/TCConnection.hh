@@ -16,8 +16,12 @@ namespace Trick {
             TCConnection ();
 
             int initialize() override;
+
             int write (const std::string& message) override;
+            int write (char * message, int size) override;
+
             std::string read  (int max_len) override;
+
             int disconnect () override;
             std::string get_client_tag () override;
             int set_client_tag(std::string tag) override;

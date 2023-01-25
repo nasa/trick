@@ -21,13 +21,16 @@ Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
 
     next_tics = TRICK_MAX_LONG_LONG ;
     freeze_next_tics = TRICK_MAX_LONG_LONG ;
-    binary_data = false;
     // multicast = false;
     connection = conn;
     byteswap = false ;
     validate_address = false ;
     send_stdio = false ;
     var_data_staged = false;
+
+    binary_data = false;
+    byteswap = false;
+    binary_data_nonames = false;
     packets_copied = 0 ;
 
     exit_cmd = false;

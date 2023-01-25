@@ -9,12 +9,14 @@
 #include "trick/VariableReference.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/wcs_ext.h"
-#include "trick/bitfield_proto.h"
 #include "trick/map_trick_units_to_udunits.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/UdUnits.hh"
 #include "trick/bitfield_proto.h"
+#include "trick/trick_byteswap.h"
+#include "trick/tc_proto.h"
+
 
 // Static variables to be addresses that are known to be the error ref address
 int Trick::VariableReference::bad_ref_int = 0 ;
@@ -76,7 +78,7 @@ Trick::VariableReference::VariableReference(std::string var_name, double* time) 
     deref = false;
 
     // Deal with weirdness around string vs wstring
-    string_type = var_info->attr->type ;
+    trick_type = var_info->attr->type ;
 
     // Deal with array
     if ( var_info->num_index == var_info->attr->num_index ) {
@@ -94,17 +96,17 @@ Trick::VariableReference::VariableReference(std::string var_name, double* time) 
             printf("Data is not contiguous so returned values are unpredictable.\n") ;
         }
         if ( var_info->attr->type == TRICK_CHARACTER ) {
-            string_type = TRICK_STRING ;
+            trick_type = TRICK_STRING ;
             deref = true;
         } else if ( var_info->attr->type == TRICK_WCHAR ) {
-            string_type = TRICK_WSTRING ;
+            trick_type = TRICK_WSTRING ;
         } else {
             deref = true ;
             size *= get_size((char*)address) ;
         }
     }
     // handle strings: set a max buffer size, the copy size may vary so will be set in copy_sim_data
-    if (( string_type == TRICK_STRING ) || ( string_type == TRICK_WSTRING )) {
+    if (( trick_type == TRICK_STRING ) || ( trick_type == TRICK_WSTRING )) {
         size = MAX_ARRAY_LENGTH ;
     }
 
@@ -154,12 +156,13 @@ Trick::VariableReference::VariableReference(std::string var_name) : staged(false
     }
 
     // Set up member variables
+    var_info->units = NULL;
     address = var_info->address;
     size = var_info->attr->size ;
     deref = false;
 
     // Deal with weirdness around string vs wstring
-    string_type = var_info->attr->type ;
+    trick_type = var_info->attr->type ;
 
     if ( var_info->num_index == var_info->attr->num_index ) {
         // single value - nothing else necessary
@@ -176,17 +179,17 @@ Trick::VariableReference::VariableReference(std::string var_name) : staged(false
             printf("Data is not contiguous so returned values are unpredictable.\n") ;
         }
         if ( var_info->attr->type == TRICK_CHARACTER ) {
-            string_type = TRICK_STRING ;
+            trick_type = TRICK_STRING ;
             deref = true;
         } else if ( var_info->attr->type == TRICK_WCHAR ) {
-            string_type = TRICK_WSTRING ;
+            trick_type = TRICK_WSTRING ;
         } else {
             deref = true ;
             size *= get_size((char*)address) ;
         }
     }
     // handle strings: set a max buffer size, the copy size may vary so will be set in copy_sim_data
-    if (( string_type == TRICK_STRING ) || ( string_type == TRICK_WSTRING )) {
+    if (( trick_type == TRICK_STRING ) || ( trick_type == TRICK_WSTRING )) {
         size = MAX_ARRAY_LENGTH ;
     }
 
@@ -221,12 +224,19 @@ const char* Trick::VariableReference::getName() const {
     return var_info->reference;
 }
 
+int Trick::VariableReference::getSize() const {
+    return size;
+}
+
+TRICK_TYPE Trick::VariableReference::getType() const {
+    return trick_type;
+}
+
 const char* Trick::VariableReference::getBaseUnits() const {
     return var_info->attr->units;
 }
 
 int Trick::VariableReference::setRequestedUnits(std::string units_name) {
-
     // Some error logging lambdas - these should probably go somewhere else
     // But I do kinda like them
     auto publish = [](MESSAGE_TYPE type, const std::string& message) {
@@ -329,7 +339,7 @@ int Trick::VariableReference::stageValue(bool validate_address) {
     }
 
     // if this variable is a string we need to get the raw character string out of it.
-    if (( string_type == TRICK_STRING ) && !deref) {
+    if (( trick_type == TRICK_STRING ) && !deref) {
         std::string * str_ptr = (std::string *)var_info->address ;
         // Get a pointer to the internal character array
         address = (void *)(str_ptr->c_str()) ;
@@ -341,7 +351,7 @@ int Trick::VariableReference::stageValue(bool validate_address) {
     }
 
     // handle c++ string and char*
-    if ( string_type == TRICK_STRING ) {
+    if ( trick_type == TRICK_STRING ) {
         if (address == NULL) {
             size = 0 ;
         } else {
@@ -349,7 +359,7 @@ int Trick::VariableReference::stageValue(bool validate_address) {
         }
     }
     // handle c++ wstring and wchar_t*
-    if ( string_type == TRICK_WSTRING ) {
+    if ( trick_type == TRICK_WSTRING ) {
         if (address == NULL) {
             size = 0 ;
         } else {
@@ -370,8 +380,8 @@ bool Trick::VariableReference::validate() {
     // check the memory manager if the address falls into
     // any of the memory blocks it knows of.  Don't do this if we have a std::string or
     // wstring type, or we already are pointing to a bad ref.
-    if ( (string_type != TRICK_STRING) and
-            (string_type != TRICK_WSTRING) and
+    if ( (trick_type != TRICK_STRING) and
+            (trick_type != TRICK_WSTRING) and
             (var_info->address != &bad_ref_int) and
             (get_alloc_info_of(address) == NULL) ) {
         
@@ -656,40 +666,124 @@ bool Trick::VariableReference::isWriteReady() const {
     return write_ready;
 }
 
+int Trick::VariableReference::writeTypeBinary( std::ostream& out, bool byteswap ) const {
+    int local_type = trick_type;
+    if (byteswap) {
+        local_type = trick_byteswap_int(local_type);
+    }
+    out.write(const_cast<const char *>(reinterpret_cast<char *>(&local_type)), sizeof(int));
+
+    return 0;
+}
+
+int Trick::VariableReference::writeSizeBinary( std::ostream& out, bool byteswap ) const {
+    int local_size = size;
+    if (byteswap) {
+        local_size = trick_byteswap_int(local_size);
+    }
+    out.write(const_cast<const char *>(reinterpret_cast<char *>(&local_size)), sizeof(int));
+
+    return 0;
+}
+
+int Trick::VariableReference::writeNameBinary( std::ostream& out, bool byteswap ) const {
+    const char * name = getName();
+
+    int name_size = strlen(name);
+    if (byteswap) {
+        name_size = trick_byteswap_int(name_size);
+    }
+
+    out.write(const_cast<const char *>(reinterpret_cast<char *>(&name_size)), sizeof(int));
+    out.write(name, strlen(name));
+
+    return 0;
+}
+
+
+void Trick::VariableReference::byteswap_var (char * out, char * in) const {
+    ATTRIBUTES * attr = var_info->attr;
+    int array_size = 1;
+
+    // Determine how many elements are in this array if it is an array
+    for (int j = 0; j < var_info->attr->num_index; j++) {
+        array_size *= attr->index[j].size;
+    }
+
+    switch (attr->size) {
+        case 1:
+            for (int j = 0; j < array_size; j++) {
+                out[j] = in[j];
+            }
+            break;
+
+        case 2: {
+            short * short_in = reinterpret_cast<short *> (in);
+            short * short_out = reinterpret_cast<short *> (out);
+
+            for (int j = 0; j < array_size; j++) {
+                short_out[j] = trick_byteswap_short(short_in[j]);
+            }
+            break;
+        }
+
+        case 4: {
+            int * int_in = reinterpret_cast<int *> (in);
+            int * int_out = reinterpret_cast<int *> (out);
+
+            for (int j = 0; j < array_size; j++) {
+                int_out[j] = trick_byteswap_int(int_in[j]);
+            }
+            break;
+        }
+        case 8: {
+            // We don't actually care if this is double or long, just that it's the right size
+            double * double_in = reinterpret_cast<double *> (in);
+            double * double_out = reinterpret_cast<double *> (out);
+
+            for (int j = 0; j < array_size; j++) {
+                double_out[j] = trick_byteswap_double(double_in[j]);
+            }
+            break;
+        }
+    }
+}
+
+
+
+
 int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap ) const {
 
     char buf[20480];
     int temp_i ;
     unsigned int temp_ui ;
 
-    int offset = 0;
+    // int offset = 0;
 
     switch ( var_info->attr->type ) {
         case TRICK_BITFIELD:
             temp_i = GET_BITFIELD(address , var_info->attr->size ,
                 var_info->attr->index[0].start, var_info->attr->index[0].size) ;
-            memcpy(&buf[offset] , &temp_i , (size_t)size) ;
+            memcpy(buf, &temp_i , (size_t)size) ;
         break ;
         case TRICK_UNSIGNED_BITFIELD:
             temp_ui = GET_UNSIGNED_BITFIELD(address , var_info->attr->size ,
                     var_info->attr->index[0].start, var_info->attr->index[0].size) ;
-            memcpy(&buf[offset] , &temp_ui , (size_t)size) ;
+            memcpy(buf , &temp_ui , (size_t)size) ;
         break ;
         case TRICK_NUMBER_OF_TYPES:
             // TRICK_NUMBER_OF_TYPES is an error case
             temp_i = 0 ;
-            memcpy(&buf[offset] , &temp_i , (size_t)size) ;
+            memcpy(buf , &temp_i , (size_t)size) ;
         break ;
         default:
-            memcpy(&buf[offset] , address , (size_t)size) ;
+            if (byteswap)
+                byteswap_var(buf, (char *) address);
+            else
+                memcpy(buf , address , (size_t)size) ;
         break ;
     }
-    
-    std::cout << "Printing hex results with correct fill?: " << std::endl;
-    for (int i = 0; i < 4; i++) {
-        std::cout << "0x" << std::hex << std::setw(2) << std::setfill('0')  << (0xFF & buf[i]) << " ";
-    }
-    std::cout << std::endl;
 
-    out << buf;
+    out.write(buf, size);
 }  
+

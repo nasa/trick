@@ -8,7 +8,7 @@
 Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 
 Trick::VariableServerThread::VariableServerThread(ClientListener * in_listen_dev) :
- Trick::ThreadBase("VarServer") ,
+ Trick::ThreadBase("VarServer") , debug(0),
  listener(in_listen_dev), session(NULL) {
 
     connection_status = CONNECTION_PENDING ;
@@ -23,7 +23,6 @@ Trick::VariableServerThread::VariableServerThread(ClientListener * in_listen_dev
 }
 
 Trick::VariableServerThread::~VariableServerThread() {}
-
 
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& vst) {
     // TODO: Replicate this functionality

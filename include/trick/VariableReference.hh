@@ -26,12 +26,13 @@ namespace Trick {
         ~VariableReference();
 
         const char* getName() const;
+        int getSize() const;
+        TRICK_TYPE getType() const;
 
         // There are 2 different "units" variables used - REF2->units and REF2->attr->units
         // REF2->attr->units should not be changed, it is what the variable is represented in internally
         // REF2->units is the unit that has been requested by the variable server client
         // REF2->units should be null unless var_units or var_add with units is called
-        // Skraddwelkdh needs to name their variables better, this took me so long to figure out >:(
         // We'll refer to REF2->attr->units as BaseUnits and REF2->units as RequestedUnits
         // Encapsulate all of this away so that no one else has to think about ref->attr->units vs ref->units
         // ^ TODO: this is not where the above documentation should be. put it somewhere else.
@@ -52,6 +53,9 @@ namespace Trick {
         // write_ready must be true
         int writeValueAscii( std::ostream& out ) const;
         int writeValueBinary( std::ostream& out , bool byteswap = false) const;
+        int writeNameBinary( std::ostream& out, bool byteswap = false) const;
+        int writeSizeBinary( std::ostream& out, bool byteswap = false) const;
+        int writeTypeBinary( std::ostream& out, bool byteswap = false) const;
 
         bool validate();
         void tagAsInvalid();
@@ -59,8 +63,12 @@ namespace Trick {
         // TODO: Some system for error messaging
 
     private:
-        VariableReference() {}
+        VariableReference();
 
+        // Helper method for byteswapping
+        void byteswap_var (char * out, char * in) const;
+
+        // Error refs
         static REF2* make_error_ref(std::string in_name);
         static int bad_ref_int;
         static int do_not_resolve_bad_ref_int;
@@ -70,7 +78,7 @@ namespace Trick {
         int   size;                         // -- size of data copied to buffer
         bool  deref;                        // -- indicates whether variable is pointer that needs to be dereferenced
         cv_converter * conversion_factor ;  // ** udunits conversion factor
-        TRICK_TYPE string_type ;            // -- indicate if this is a string or wstring
+        TRICK_TYPE trick_type ;             // -- Trick type of this variable
 
         // TODO: use atomics for these
         bool staged;

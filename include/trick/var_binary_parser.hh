@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <vector>
 #include <string>
+#include <map>
 #include <exception>
 
 #include "trick/parameter_types.h"
@@ -35,7 +36,9 @@ typedef union Number {
 
     uint8_t unsigned_char_val;
     int8_t char_val;
+    bool bool_val;
 
+    wchar_t wchar_val;
     uint16_t unsigned_short_val;
     int16_t short_val;
 
@@ -51,6 +54,22 @@ typedef union Number {
     float float_val;
     double double_val;
 } Number;
+
+const static std::map<TRICK_TYPE, unsigned int> type_size_map = {{TRICK_CHARACTER, sizeof(char)},
+                                                                 {TRICK_UNSIGNED_CHARACTER, sizeof(unsigned char)},
+                                                                 {TRICK_SHORT, sizeof(short)},
+                                                                 {TRICK_UNSIGNED_SHORT, sizeof(unsigned short)},
+                                                                 {TRICK_INTEGER, sizeof(int)},
+                                                                 {TRICK_UNSIGNED_INTEGER, sizeof(unsigned int)},
+                                                                 {TRICK_LONG, sizeof(long)},
+                                                                 {TRICK_UNSIGNED_LONG, sizeof(unsigned long)},
+                                                                 {TRICK_LONG_LONG, sizeof(long long)},
+                                                                 {TRICK_UNSIGNED_LONG_LONG, sizeof(unsigned long)},
+                                                                 {TRICK_FLOAT, sizeof (float)},
+                                                                 {TRICK_DOUBLE, sizeof (double)},
+                                                                 {TRICK_BOOLEAN, sizeof (bool)},
+                                                                 {TRICK_WCHAR, sizeof (wchar_t)}
+                                                                };
 
     
 class Var {
@@ -79,6 +98,7 @@ class Var {
 
         TRICK_TYPE _trick_type;
         unsigned int _var_size;
+        unsigned int _arr_length;
 };
 
 class ParsedBinaryMessage {
@@ -94,7 +114,7 @@ class ParsedBinaryMessage {
         unsigned int getMessageSize() const;
         unsigned int getNumVars() const;
         Var getVariable(const std::string& name);
-        Var getVariable(int index);
+        Var getVariable(unsigned int index);
 
         std::vector<Var> variables;
 
@@ -116,80 +136,3 @@ class ParsedBinaryMessage {
         const static size_t variable_type_size;
         const static size_t variable_size_size;
 };
-
-
-// TEST_F (VariableServerTest, Binary) {
-//     if (socket_status != 0) {
-//         FAIL();
-//     }
-
-//     std::vector<unsigned char> reply;
-//     std::vector<unsigned char> expected;
-
-//     std::cout << "sizeof char: " << sizeof(unsigned char) << std::endl;
-
-//     socket << "trick.var_binary()\ntrick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.d\")\n";
-
-//     reply = socket.receive_bytes();
-//     ParsedMessage message;
-//     message.parse(reply);
-
-//     std::cout << "Size of actual: " << reply.size() << std::endl;
-//     // std::cout << "\tExpected: " << expected << "\n\tActual: ";
-
-//     for (int i = 0; i < reply.size(); i++) {
-//         std::cout << std::bitset<sizeof (unsigned char) * 8>(reply.at(i)) << " " ;
-//     }
-
-//     unsigned char message_type[4] = {reply[0], reply[1], reply[2], reply[3]};
-//     std::cout << "\nMessage type: " << bytesToInt(message_type) << std::endl;
-
-//     unsigned char message_size[4] = {reply[4], reply[5], reply[6], reply[7]};
-//     std::cout << "\nMessage size: " << bytesToInt(message_size) << std::endl;
-
-//     unsigned char message_num_vars[4] = {reply[8], reply[9], reply[10], reply[11]};
-//     std::cout << "\nMessage num vars: " << bytesToInt(message_num_vars) << std::endl;
-
-//     // std::cout << std::endl;
-
-//     // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-
-//     // socket >> reply;
-//     // std::cout << "Size of actual: " << reply.size() << std::endl;
-
-//     // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-
-//     // socket << "trick.var_add(\"vsx.vst.m\")\n";
-//     // socket >> reply;
-//     //     std::cout << "Size of actual: " << reply.size() << std::endl;
-
-//     // expected = std::string("0  -1234 1");
-//     // std::cout << "\tExpected: " << expected << "\n\tActual: " << reply << std::endl;
-
-//     // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-
-//     // socket << "trick.var_remove(\"vsx.vst.m\")\n";
-//     // socket >> reply;
-//     // std::cout << "Size of actual: " << reply.size() << std::endl;
-
-//     // expected = std::string("0  -1234");
-//     // std::cout << "\tExpected: " << expected << "\n\tActual: " << reply << std::endl;
-//     // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-// }
-
-//     std::vector<unsigned char> receive_bytes() {
-//         unsigned char buffer[SOCKET_BUF_SIZE];
-//         int numBytes = recv(_socket_fd, buffer, SOCKET_BUF_SIZE, 0);
-//         if (numBytes < 0) {
-//             std::cout << "Failed to read from socket" << std::endl;
-//         } else if (numBytes < SOCKET_BUF_SIZE) {
-//             std::cout << "Recieved num bytes: " << numBytes << std::endl;
-//         }
-
-//         std::vector<unsigned char> bytes;
-//         for (int i = 0; i < numBytes; i++) {
-//             bytes.push_back(buffer[i]);
-//         }
-
-//         return bytes;
-//     }

@@ -1,16 +1,20 @@
 RM = rm -rf
 CC = cc
 CPP = c++
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
-CFLAGS = -g -Wall -std=c++11
+
+#include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
+
+CPP_FLAGS = -g -Wall -Wextra -std=c++11 $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS)
 INCLUDE_DIRS = -I${TRICK_HOME}/include
 OBJDIR = obj
 LIBDIR = lib
 LIBNAME = libtrick_var_binary_parser.a
 LIBOBJS = ${OBJDIR}/var_binary_parser.o
 
-# TRICK_LIB := $(TRICK_LIB_DIR)/$(LIBNAME)
-TRICK_LIB := $(TRICK_HOME)/lib/$(LIBNAME)
+TRICK_LIB := $(TRICK_LIB_DIR)/$(LIBNAME)
+# TRICK_LIB := $(TRICK_HOME)/lib/$(LIBNAME)
 
 
 trick: ${TRICK_LIB}
@@ -23,7 +27,8 @@ test: ${LIBDIR}/${LIBNAME}
 	${MAKE} -C test
 
 $(LIBOBJS): $(OBJDIR)/%.o : src/%.cc | $(OBJDIR)
-	$(CPP) $(CFLAGS) ${INCLUDE_DIRS} -c $< -o $@
+	echo $(CPP_FLAGS)
+	$(CPP) $(CPP_FLAGS) ${INCLUDE_DIRS} -c $< -o $@
 
 ${LIBDIR}/${LIBNAME}: ${LIBOBJS} | ${LIBDIR}
 	ar crs $@ ${LIBOBJS}
@@ -37,13 +42,13 @@ ${LIBDIR}:
 ${TRICK_LIB}: ${LIBDIR}/${LIBNAME}
 	cp ${LIBDIR}/${LIBNAME} $(TRICK_LIB)
 
+real_clean: clean
+
 clean:
-	${RM} *~
-	${RM} ${OBJDIR}
+	${RM} -r ${OBJDIR}
 	${MAKE} -C test clean
 
 spotless: 
-	${RM} *~
 	${RM} ${OBJDIR}
 	${RM} ${LIBDIR}
 	${MAKE} -C unittest spotless

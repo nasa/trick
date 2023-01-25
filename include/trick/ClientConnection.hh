@@ -20,6 +20,8 @@ namespace Trick {
             virtual int initialize() = 0;
 
             virtual int write (const std::string& message) = 0;
+            virtual int write (char * message, int size) = 0;
+
             virtual std::string read  (int max_len = MAX_CMD_LEN) = 0;
 
             virtual int disconnect () = 0;

@@ -1,1 +1,2 @@
-obj/*.o
+*.o
+TEST_var_binary_parser
