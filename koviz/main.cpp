@@ -947,6 +947,12 @@ int main(int argc, char *argv[])
                     isShowPlotLegend = "no";
                 }
             }
+        } else {
+            // If -legend is off and -showPlotLegend is unset,
+            // turn -showPlotLegend off
+            if ( !isLegend ) {
+                isShowPlotLegend = "no";
+            }
         }
 
         // Plot legend position
