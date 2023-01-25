@@ -10,8 +10,11 @@ Waypoints are automatically read into the simulation from the included input fil
 
 #### Format
 Any input file must follow the following format,
+
 ```
 NORTH_01, WEST_01
+
 NORTH_02, WEST_02
 ```
+
 Each entry should be a number representing the desired coordinates.
