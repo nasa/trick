@@ -6,6 +6,13 @@ LIBRARY DEPENDENCIES:
 #ifndef Aircraft_HH
 #define Aircraft_HH
 
+#include <vector>
+
+class WayPoint {
+    public:
+    double pos[2];
+};
+
 class Aircraft {
     public:
     // Calculated by numeric integration of state derivatives.
@@ -13,7 +20,8 @@ class Aircraft {
   	double vel[2];
 
     // Updated by control logic;
-    int current_waypoint;
+    std::vector<WayPoint> waypointQueue;
+    std::vector<WayPoint>::iterator current_waypoint;
 
     // Static Parameters (Don't change during the simulation.)
   	double mass;
@@ -40,6 +48,7 @@ class Aircraft {
     int control();
 
     void set_desired_compass_heading( double compass_heading);
+    void add_waypoint(double n, double w);
 
     void calc_total_force( double (&F_total_body)[2]);
     void calc_drag_force( double (&F_drag_body)[2]);

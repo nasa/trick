@@ -10,11 +10,6 @@ LIBRARY DEPENDENCY:
 #include <math.h>
 #include <iostream>
 
-class WayPoint {
-    public:
-    double pos[2];
-};
-
 // Waypoints are in World Coordinates (West, North).
 #define NUMBER_OF_WAYPOINTS 6
 WayPoint waypoint[ NUMBER_OF_WAYPOINTS ] = {
@@ -31,7 +26,7 @@ int Aircraft::default_data() {
     pos[1] = 0.0;
     vel[0] = 100.0;       // m/s
     vel[1] = 0.0;
-    current_waypoint = 0;
+    //current_waypoint = 0;
     mass = 5000;              // kg
     thrust_mag_max = 45000;   // N
     K_drag = 0.72;
@@ -39,7 +34,7 @@ int Aircraft::default_data() {
     set_desired_compass_heading(45.0);
     desired_speed = 200; // m/s
     autoPilot = false;
-    current_waypoint = 0;
+    current_waypoint = waypointQueue.begin();
     return (0);
 }
 
@@ -140,21 +135,30 @@ void Aircraft::rotateBodyToWorld( double (&F_total_world)[2], double (&F_total_b
     F_total_world[1] =  sin(heading) * F_total_body[0] + cos(heading) * F_total_body[1];
 }
 
+void Aircraft::add_waypoint(double n, double w) {
+    WayPoint wp = { {n, w} };
+    waypointQueue.push_back(wp);
+}
+
 int Aircraft::control() {
     if (autoPilot) {
-        if (NUMBER_OF_WAYPOINTS > 0) {
+        if (waypointQueue.size() > 0) {
             // Calculate the difference between where we want to be, and where we are.
             double posDiff[2];
-            vector_difference(posDiff, waypoint[current_waypoint].pos, pos);
+            vector_difference(posDiff, (*current_waypoint).pos, pos);
             // Calculate bearing to waypoint.
             desired_heading = northWestToPsi(posDiff);
             // Calculate distance to waypoint.
             double distanceToWaypoint = vector_magnitude(posDiff);
             // If we've arrived, that is we're close enough, go to the next waypoint.
             if (distanceToWaypoint < 100.0) {
-              current_waypoint ++;
-              current_waypoint = current_waypoint % NUMBER_OF_WAYPOINTS;
+                ++current_waypoint;
+                if (current_waypoint == waypointQueue.end()) {
+                    current_waypoint = waypointQueue.begin();
+                }
             }
+        } else {
+            std::cout << "!!!  Waypoint List Empty  !!!" << std::endl;
         }
     }
     return 0;
