@@ -29,9 +29,13 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
     static const int sizeof_size = 4;
     static const int type_size = 4;
 
-    // Calculate total message size
+    std::vector<std::pair<int,int>> message_sizes_and_num_vars;
+
+    // Calculate how many messages and how many vars in each
     int total_size = header_size;
-    for (const VariableReference * var : given_vars) {
+    int num_vars = 0;
+    for (int i = 0; i < given_vars.size(); i++) {
+        const VariableReference * var = given_vars[i];
         int total_var_size = 0;
         if (!binary_data_nonames) {
             total_var_size += sizeof_size;
@@ -42,40 +46,56 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
         total_var_size += sizeof_size;
         total_var_size += var->getSize();
 
-        // Todo: Check that total_var_size fits in max message length
-        total_size += total_var_size;
-    }
- 
-    std::stringstream stream;
-
-    int written_message_type = message_type;
-    int written_header_size = total_size - 4;
-    int written_num_vars = given_vars.size();
-
-    if (byteswap) {
-        written_message_type = trick_byteswap_int(written_message_type);
-        written_header_size = trick_byteswap_int(written_header_size);
-        written_num_vars = trick_byteswap_int(written_num_vars);
-    }
-
-    // Write the header first
-    stream.write((char *)(&written_message_type), sizeof(int)); 
-    stream.write((char *)(&written_header_size), sizeof(int)); 
-    stream.write ((char *)(&written_num_vars), sizeof(int));
-
-    // Write variables next
-    for (VariableReference * var : given_vars) {
-        if (!binary_data_nonames) {
-            var->writeNameBinary(stream, byteswap);
+        // If this variable won't fit in the current message, truncate the message and plan to put this var in a new one
+        if (total_size + total_var_size > MAX_MSG_LEN) {
+            message_sizes_and_num_vars.push_back(std::pair<int,int>(total_size, num_vars));
+            total_size = header_size;
+            num_vars = 0;
         }
-        var->writeTypeBinary(stream, byteswap);
-        var->writeSizeBinary(stream, byteswap);
-        var->writeValueBinary(stream, byteswap);
+        total_size += total_var_size;
+        num_vars++;
     }
 
-    char write_buf[MAX_MSG_LEN];
-    stream.read(write_buf, total_size);
-    connection->write(write_buf, total_size);
+    message_sizes_and_num_vars.push_back(std::pair<int,int>(total_size, num_vars));
+ 
+    // Now write out all of these messages
+    int var_index = 0;
+    for (std::pair<int,int> message_info : message_sizes_and_num_vars) {
+        int curr_message_size = message_info.first;
+        int curr_message_num_vars = message_info.second;
+        std::stringstream stream;
+
+        int written_message_type = message_type;
+        int written_header_size = curr_message_size - 4;
+        int written_num_vars = curr_message_num_vars;
+
+        if (byteswap) {
+            written_message_type = trick_byteswap_int(written_message_type);
+            written_header_size = trick_byteswap_int(written_header_size);
+            written_num_vars = trick_byteswap_int(written_num_vars);
+        }
+
+        // Write the header first
+        stream.write((char *)(&written_message_type), sizeof(int)); 
+        stream.write((char *)(&written_header_size), sizeof(int)); 
+        stream.write ((char *)(&written_num_vars), sizeof(int));
+
+        // Write variables next
+        for (int i = var_index; i < var_index + curr_message_num_vars; i++) {
+            VariableReference * var = given_vars[i];
+            if (!binary_data_nonames) {
+                var->writeNameBinary(stream, byteswap);
+            }
+            var->writeTypeBinary(stream, byteswap);
+            var->writeSizeBinary(stream, byteswap);
+            var->writeValueBinary(stream, byteswap);
+        }
+        var_index += curr_message_num_vars;
+
+        char write_buf[MAX_MSG_LEN];
+        stream.read(write_buf, total_size);
+        connection->write(write_buf, curr_message_size);
+    }
 
     return 0;
 }
