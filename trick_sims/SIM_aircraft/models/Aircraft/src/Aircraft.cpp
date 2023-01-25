@@ -10,17 +10,6 @@ LIBRARY DEPENDENCY:
 #include <math.h>
 #include <iostream>
 
-// Waypoints are in World Coordinates (West, North).
-#define NUMBER_OF_WAYPOINTS 6
-WayPoint waypoint[ NUMBER_OF_WAYPOINTS ] = {
-    {    0.0,  25000.0},
-    { 21650.0,  12500.0},
-    { 21650.0, -12500.0},
-    {    0.0,  -25000.0},
-    {-21650.0, -12500.0},
-    {-21650.0,  12500.0}
-};
-
 int Aircraft::default_data() {
     pos[0] = 0.0;         // m
     pos[1] = 0.0;
@@ -135,9 +124,14 @@ void Aircraft::rotateBodyToWorld( double (&F_total_world)[2], double (&F_total_b
     F_total_world[1] =  sin(heading) * F_total_body[0] + cos(heading) * F_total_body[1];
 }
 
+void Aircraft::reset_trip() {
+    current_waypoint = waypointQueue.begin();
+}
+
 void Aircraft::add_waypoint(double n, double w) {
     WayPoint wp = { {n, w} };
     waypointQueue.push_back(wp);
+    // std::cout << "Waypoint (" << n << ", " << w << ") added!" << std::endl;
 }
 
 int Aircraft::control() {
@@ -145,7 +139,7 @@ int Aircraft::control() {
         if (waypointQueue.size() > 0) {
             // Calculate the difference between where we want to be, and where we are.
             double posDiff[2];
-            vector_difference(posDiff, (*current_waypoint).pos, pos);
+            vector_difference(posDiff, current_waypoint->pos, pos);
             // Calculate bearing to waypoint.
             desired_heading = northWestToPsi(posDiff);
             // Calculate distance to waypoint.

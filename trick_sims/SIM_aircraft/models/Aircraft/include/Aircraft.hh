@@ -49,6 +49,7 @@ class Aircraft {
 
     void set_desired_compass_heading( double compass_heading);
     void add_waypoint(double n, double w);
+    void reset_trip();
 
     void calc_total_force( double (&F_total_body)[2]);
     void calc_drag_force( double (&F_drag_body)[2]);
