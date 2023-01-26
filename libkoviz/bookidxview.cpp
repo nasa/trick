@@ -505,17 +505,32 @@ void BookIdxView::_paintCurvesLegend(const QRect& R,
         return;
     }
 
+    // If all labels on plot are identical, do not show plot legend
+    // (unless explicitly set via -showPlotLegend option)
+    QModelIndex plotIdx = curvesIdx.parent();
+    QStringList labels = _bookModel()->legendLabels(plotIdx);
+    if ( labels.size() > 1 ) {
+        bool isLabelsSame = true;
+        foreach ( QString label, labels ) {
+            if ( label != labels.at(0) ) {
+                isLabelsSame = false;
+                break;
+            }
+        }
+        if ( isLabelsSame && isShowPlotLegend != "yes" ) {
+            return;
+        }
+    }
+
     QString pres = _bookModel()->getDataString(curvesIdx.parent(),
                                                "PlotPresentation","Plot");
     if ( pres == "error" ) {
         return;
     }
 
-    QModelIndex plotIdx = curvesIdx.parent();
     QList<QPen*> pens = _bookModel()->legendPens(plotIdx,
                                                  painter.paintEngine()->type());
     QStringList symbols = _bookModel()->legendSymbols(plotIdx);
-    QStringList labels = _bookModel()->legendLabels(plotIdx);
 
     if ( pres == "error+compare" ) {
         QPen* magentaPen = new QPen(_bookModel()->errorLineColor());
