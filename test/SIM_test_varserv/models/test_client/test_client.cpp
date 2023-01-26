@@ -392,7 +392,7 @@ TEST_F (VariableServerTest, Exists) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_Cycle) {
+TEST_F (VariableServerTest, Cycle) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -455,7 +455,7 @@ TEST_F (VariableServerTest, DISABLED_Cycle) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_Pause) {
+TEST_F (VariableServerTest, Pause) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -484,7 +484,7 @@ TEST_F (VariableServerTest, DISABLED_Pause) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
-TEST_F (VariableServerTest, DISABLED_Freeze) {
+TEST_F (VariableServerTest, Freeze) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -572,7 +572,7 @@ TEST_F (VariableServerTest, DISABLED_Freeze) {
     ASSERT_EQ(mode, MODE_RUN);
 }
 
-TEST_F (VariableServerTest, DISABLED_CopyAndWriteModes) {
+TEST_F (VariableServerTest, CopyAndWriteModes) {
     if (socket_status != 0) {
         FAIL();
     }
