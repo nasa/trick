@@ -1,0 +1,24 @@
+
+/************************************************************
+PURPOSE:
+    ( Simulation of Robot Arm. )
+LIBRARY DEPENDENCIES:
+    ((arm/src/Arm.cpp))
+*************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "arm/include/Arm.hh"
+class ArmSimObject : public Trick::SimObject {
+    public:
+    Arm arm;
+
+    ArmSimObject() {
+        ("default_data")            arm.default_data() ;
+        ("initialization")          arm.state_init() ;
+        ("derivative")              arm.state_deriv() ;
+        ("integration") trick_ret = arm.state_integ() ;
+
+    }
+};
+
+ArmSimObject dyn;
+IntegLoop dyn_integloop(0.1) dyn;
