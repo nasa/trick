@@ -10,22 +10,58 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 # Replace -isystem with -I so ICG doesn't skip Trick headers
 TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 
-
 # Flags passed to the preprocessor.
 TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick_comm -ltrick -ltrick_mm -ltrick_units -ltrick_comm -ltrick 
+TRICK_LIBS =  -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread					  
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = VariableReference_test
+
+VARIABLE_REFERENCE_TESTS = VariableReference_test \
+		VariableReference_writeValueAscii_test \
+		VariableReference_writeValueBinary_test
+
+VARIABLE_SESSION_TESTS = VariableServerSession_test
+
+TESTS = $(VARIABLE_REFERENCE_TESTS) $(VARIABLE_SESSION_TESTS)
+
+TEST_OBJS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(TESTS)))
+
+TO_ICG = VariableReference_test \
+		TestConnection
+
+ICG_OBJS = $(addprefix $(OBJ_DIR)/io_, $(addsuffix .o, $(TO_ICG)))
+
+OBJ_DIR = obj
+
+print:
+	echo $(ICG_OBJS)
 
 # House-keeping build targets.
 
 all : test
 
 test: $(TESTS)
-	./VariableReference_test --gtest_output=xml:${TRICK_HOME}/trick_test/VariableReference.xml
+	for TEST in $(TESTS) ; do \
+		./$$TEST --gtest_output=xml:${TRICK_HOME}/trick_test/$$TEST.xml ; \
+	done
+
+$(OBJ_DIR):
+	mkdir $(OBJ_DIR)
+
+$(TEST_OBJS): $(OBJ_DIR)/%.o: %.cc $(OBJ_DIR)
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $< -o $@
+
+$(ICG_OBJS): $(OBJ_DIR)/io_%.o : %.hh $(OBJ_DIR)
+	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CXXFLAGS) $<
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c io_src/io_$*.cpp -o $@
+
+$(VARIABLE_REFERENCE_TESTS): %: $(OBJ_DIR)/%.o $(OBJ_DIR)/io_VariableReference_test.o
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+$(VARIABLE_SESSION_TESTS): %: $(OBJ_DIR)/%.o $(OBJ_DIR)/io_TestConnection.o
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 code-coverage: test
 	# Give rid of any old code-coverage HTML we may have.
@@ -47,18 +83,5 @@ code-coverage: test
 
 clean :
 	rm -f $(TESTS)
-	rm -f *.o
-	# Remove gcov/gprof files.
 	rm -f *.gcno *.gcda
-	rm -rf io_src xml
-
-# If there's a .hh file that needs to be ICG'd, do this:
-io_TestObject.o : TestObject.hh
-	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CXXFLAGS) $<
-	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c io_src/io_TestObject.cpp
-
-VariableReference_test.o : VariableReference_test.cc
-	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
-
-VariableReference_test : VariableReference_test.o io_TestObject.o
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+	rm -rf io_src xml obj

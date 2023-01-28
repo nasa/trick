@@ -72,6 +72,8 @@ namespace Trick {
 
         // Error refs
         static REF2* make_error_ref(std::string in_name);
+        static REF2* make_do_not_resolve_ref(std::string in_name);
+
         static int bad_ref_int;
         static int do_not_resolve_bad_ref_int;
 

@@ -215,7 +215,6 @@ set( SS_SRC
   VariableServer/VariableServer_shutdown
   VariableServer/exit_var_thread
   VariableServer/var_server_ext
-  VariableServer/vs_format_ascii
   Zeroconf/Zeroconf
   mains/master
 )

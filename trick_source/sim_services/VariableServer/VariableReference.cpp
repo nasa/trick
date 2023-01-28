@@ -22,6 +22,32 @@
 int Trick::VariableReference::bad_ref_int = 0 ;
 int Trick::VariableReference::do_not_resolve_bad_ref_int = 0 ;
 
+REF2* Trick::VariableReference::make_error_ref(std::string in_name) {
+    REF2* new_ref;
+    new_ref = (REF2*)calloc(1, sizeof(REF2));
+    new_ref->reference = strdup(in_name.c_str()) ;
+    new_ref->units = NULL ;
+    new_ref->address = (char *)&bad_ref_int ;
+    new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
+    new_ref->attr->type = TRICK_NUMBER_OF_TYPES ;
+    new_ref->attr->units = (char *)"--" ;
+    new_ref->attr->size = sizeof(int) ;
+    return new_ref;
+}
+
+REF2* Trick::VariableReference::make_do_not_resolve_ref(std::string in_name) {
+    REF2* new_ref;
+    new_ref = (REF2*)calloc(1, sizeof(REF2));
+    new_ref->reference = strdup(in_name.c_str()) ;
+    new_ref->units = NULL ;
+    new_ref->address = (char *)&do_not_resolve_bad_ref_int ;
+    new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
+    new_ref->attr->type = TRICK_NUMBER_OF_TYPES ;
+    new_ref->attr->units = (char *)"--" ;
+    new_ref->attr->size = sizeof(int) ;
+    return new_ref;
+}
+
 // Helper function to deal with time variable
 REF2* make_time_ref(double * time) {
     REF2* new_ref;
@@ -43,35 +69,6 @@ Trick::VariableReference::VariableReference(std::string var_name, double* time) 
 
     var_info = make_time_ref(time);
 
-    // Handle error cases
-    if ( var_info == NULL ) {
-        // TODO: ERROR LOGGER sendErrorMessage("Variable Server could not find variable %s.\n", var_name);
-        // PRINTF IS NOT AN ERROR LOGGER @me
-        printf("Variable Server could not find variable %s.\n", var_name.c_str());
-        var_info = make_error_ref(var_name);
-    } else if ( var_info->attr ) {
-        if ( var_info->attr->type == TRICK_STRUCTURED ) {
-            // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name);
-            printf("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name.c_str());
-
-            free(var_info);
-            var_info = make_error_ref(var_name);
-
-        } else if ( var_info->attr->type == TRICK_STL ) {
-            // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name);
-            printf("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
-
-            free(var_info);
-            var_info = make_error_ref(var_name);
-        }
-    } else {
-        // sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
-        printf("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
-
-        free(var_info);
-        var_info = make_error_ref(var_name);
-    }
-
     // Set up member variables
     address = var_info->address;
     size = var_info->attr->size ;
@@ -79,36 +76,6 @@ Trick::VariableReference::VariableReference(std::string var_name, double* time) 
 
     // Deal with weirdness around string vs wstring
     trick_type = var_info->attr->type ;
-
-    // Deal with array
-    if ( var_info->num_index == var_info->attr->num_index ) {
-        // single value - nothing else necessary
-    } else if ( var_info->attr->index[var_info->attr->num_index - 1].size != 0 ) {
-        // Constrained array
-        for ( int i = var_info->attr->num_index-1;  i > var_info->num_index-1 ; i-- ) {
-            size *= var_info->attr->index[i].size ;
-        }
-    } else {
-        // Unconstrained array
-        if ((var_info->attr->num_index - var_info->num_index) > 1 ) {
-            // TODO: ERROR LOGGER
-            printf("Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", var_info->reference);
-            printf("Data is not contiguous so returned values are unpredictable.\n") ;
-        }
-        if ( var_info->attr->type == TRICK_CHARACTER ) {
-            trick_type = TRICK_STRING ;
-            deref = true;
-        } else if ( var_info->attr->type == TRICK_WCHAR ) {
-            trick_type = TRICK_WSTRING ;
-        } else {
-            deref = true ;
-            size *= get_size((char*)address) ;
-        }
-    }
-    // handle strings: set a max buffer size, the copy size may vary so will be set in copy_sim_data
-    if (( trick_type == TRICK_STRING ) || ( trick_type == TRICK_WSTRING )) {
-        size = MAX_ARRAY_LENGTH ;
-    }
 
     // Allocate stage and write buffers
     stage_buffer = calloc(size, 1) ;
@@ -138,14 +105,14 @@ Trick::VariableReference::VariableReference(std::string var_name) : staged(false
             printf("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name.c_str());
 
             free(var_info);
-            var_info = make_error_ref(var_name);
+            var_info = make_do_not_resolve_ref(var_name);
 
         } else if ( var_info->attr->type == TRICK_STL ) {
             // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name);
             printf("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
 
             free(var_info);
-            var_info = make_error_ref(var_name);
+            var_info = make_do_not_resolve_ref(var_name);
         }
     } else {
         // sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
@@ -395,7 +362,6 @@ bool Trick::VariableReference::validate() {
 }
 
 static void write_escaped_string( std::ostream& os, const char* s) {
-    // std::cout << "Writing escaped string: " << s << std::endl;
     for (int ii=0 ; ii<strlen(s) ; ii++) {
         if (isprint(s[ii])) {
             os << s[ii];
@@ -435,10 +401,8 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
 
     int bytes_written = 0;
     void * buf_ptr = write_buffer ;
-
     while (bytes_written < size) {
         bytes_written += var_info->attr->size ;
-
 
         switch (var_info->attr->type) {
 
@@ -506,19 +470,6 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                 out << '\0';
             }
             break;
-
-#if ( __linux | __sgi )
-        // TODO: test on whether this is necessary on linux, or if fixing the heap overflow on Mac fixes this as well
-        case TRICK_BOOLEAN:
-            // out << (unsigned char)cv_convert_double(conversion_factor,*(unsigned char *)buf_ptr);
-            if (*(bool *) buf_ptr) {
-                out << 1;
-            } else {
-                out << 0;
-            }
-            break;
-#endif
-
         case TRICK_SHORT:
             out << (short)cv_convert_double(conversion_factor,*(short *)buf_ptr);
             break;
@@ -532,11 +483,9 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
             out << (int)cv_convert_double(conversion_factor,*(int *)buf_ptr);
             break;
 
-#if ( __sun | __APPLE__ )
         case TRICK_BOOLEAN:
             out << (int)cv_convert_double(conversion_factor,*(bool *)buf_ptr);
             break;
-#endif
 
         case TRICK_BITFIELD:
             out << (GET_BITFIELD(buf_ptr, var_info->attr->size, var_info->attr->index[0].start, var_info->attr->index[0].size));
@@ -568,15 +517,11 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         }
 
         case TRICK_FLOAT:
-            // snprintf(value, value_size, "%s%.8g", value, cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
             out << std::setprecision(8) << cv_convert_float(conversion_factor,*(float *)buf_ptr);
             break;
 
         case TRICK_DOUBLE:
-            // std::cout << "In convert trick double" << std::endl;
-            // snprintf(value, value_size, "%s%.16g", value, cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
-            out << std::setprecision(16) << *(double *)buf_ptr;
-            // std::cout << "Done with convert trick double" << std::endl;
+            out << std::setprecision(16) << cv_convert_double(conversion_factor,*(double *)buf_ptr);
             break;
 
         case TRICK_LONG_LONG: {
@@ -602,6 +547,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
             break;
 
         default:{
+
             break;
         }
         } // end switch
@@ -631,18 +577,6 @@ void Trick::VariableReference::tagAsInvalid () {
     address = var_info->address ;
 }
 
-REF2* Trick::VariableReference::make_error_ref(std::string in_name) {
-    REF2* new_ref;
-    new_ref = (REF2*)calloc(1, sizeof(REF2));
-    new_ref->reference = strdup(in_name.c_str()) ;
-    new_ref->units = NULL ;
-    new_ref->address = (char *)&bad_ref_int ;
-    new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
-    new_ref->attr->type = TRICK_NUMBER_OF_TYPES ;
-    new_ref->attr->units = (char *)"--" ;
-    new_ref->attr->size = sizeof(int) ;
-    return new_ref;
-}
 
 int Trick::VariableReference::prepareForWrite() {
     if (!staged) {

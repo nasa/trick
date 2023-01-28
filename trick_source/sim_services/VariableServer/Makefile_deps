@@ -362,26 +362,6 @@ object_${TRICK_HOST_CPU}/VariableServer.o: VariableServer.cpp \
  ${TRICK_HOME}/include/trick/VariableServerSession.hh \
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
  ${TRICK_HOME}/include/trick/tc_proto.h 
-object_${TRICK_HOST_CPU}/vs_format_ascii.o: vs_format_ascii.cpp \
- ${TRICK_HOME}/include/trick/parameter_types.h \
- ${TRICK_HOME}/include/trick/attributes.h \
- ${TRICK_HOME}/include/trick/bitfield_proto.h \
- ${TRICK_HOME}/include/trick/wcs_ext.h \
- ${TRICK_HOME}/include/trick/VariableServer.hh \
- ${TRICK_HOME}/include/trick/tc.h \
- ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
- ${TRICK_HOME}/include/trick/reference.h \
- ${TRICK_HOME}/include/trick/value.h \
- ${TRICK_HOME}/include/trick/dllist.h \
- ${TRICK_HOME}/include/trick/JobData.hh \
- ${TRICK_HOME}/include/trick/InstrumentBase.hh \
- ${TRICK_HOME}/include/trick/variable_server_sync_types.h \
- ${TRICK_HOME}/include/trick/VariableServerThread.hh \
- ${TRICK_HOME}/include/trick/ThreadBase.hh \
- ${TRICK_HOME}/include/trick/VariableReference.hh \
- ${TRICK_HOME}/include/trick/VariableServerSession.hh \
- ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
- ${TRICK_HOME}/include/trick/TrickConstant.hh 
 object_${TRICK_HOST_CPU}/VariableServerThread_restart.o: VariableServerThread_restart.cpp \
  ${TRICK_HOME}/include/trick/VariableServerThread.hh \
  ${TRICK_HOME}/include/trick/tc.h \
@@ -921,26 +901,6 @@ object_${TRICK_HOST_CPU}/VariableServer.o: VariableServer.cpp \
  ${TRICK_HOME}/include/trick/VariableServerSession.hh \
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
  ${TRICK_HOME}/include/trick/tc_proto.h 
-object_${TRICK_HOST_CPU}/vs_format_ascii.o: vs_format_ascii.cpp \
- ${TRICK_HOME}/include/trick/parameter_types.h \
- ${TRICK_HOME}/include/trick/attributes.h \
- ${TRICK_HOME}/include/trick/bitfield_proto.h \
- ${TRICK_HOME}/include/trick/wcs_ext.h \
- ${TRICK_HOME}/include/trick/VariableServer.hh \
- ${TRICK_HOME}/include/trick/tc.h \
- ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
- ${TRICK_HOME}/include/trick/reference.h \
- ${TRICK_HOME}/include/trick/value.h \
- ${TRICK_HOME}/include/trick/dllist.h \
- ${TRICK_HOME}/include/trick/JobData.hh \
- ${TRICK_HOME}/include/trick/InstrumentBase.hh \
- ${TRICK_HOME}/include/trick/variable_server_sync_types.h \
- ${TRICK_HOME}/include/trick/VariableServerThread.hh \
- ${TRICK_HOME}/include/trick/ThreadBase.hh \
- ${TRICK_HOME}/include/trick/VariableReference.hh \
- ${TRICK_HOME}/include/trick/VariableServerSession.hh \
- ${TRICK_HOME}/include/trick/VariableServerListenThread.hh \
- ${TRICK_HOME}/include/trick/TrickConstant.hh 
 object_${TRICK_HOST_CPU}/VariableServerThread_restart.o: VariableServerThread_restart.cpp \
  ${TRICK_HOME}/include/trick/VariableServerThread.hh \
  ${TRICK_HOME}/include/trick/tc.h \
