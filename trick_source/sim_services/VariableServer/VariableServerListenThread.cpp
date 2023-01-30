@@ -191,7 +191,7 @@ int Trick::VariableServerListenThread::restart() {
         listener.checkSocket();
     }
 
-    multicast.restart();
+    initializeMulticast();
 
     return 0 ;
 }

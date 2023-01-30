@@ -977,41 +977,6 @@ TEST_F (VariableServerTest, DISABLED_BinaryByteswap) {
     EXPECT_EQ(strcmp(byteswap_message.variables[1].getName().c_str(), "vsx.vst.j"), 0);
     EXPECT_EQ(byteswap_message.variables[1].getType(), TRICK_DOUBLE);
     EXPECT_EQ(byteswap_message.variables[1].getValue<double>(), -1234.567890);
-
-    // socket << "trick.var_add(\"vsx.vst.n\")\n";
-
-    // socket.receive_bytes();
-    // reply = socket.receive_bytes();
-
-    // // std::cout << "Message: ";
-    // // for (unsigned char byte : reply) {
-    // //     std::cout << "0x" << std::setw(2) << std::setfill('0') << std::hex << (int)byte << " ";
-    // // }
-    // // std::cout << std::endl;
-
-    // ParsedBinaryMessage array_message(true, false);
-
-    // try {
-    //     array_message.parse(reply);
-    // } catch (const MalformedMessageException& ex) { 
-    //     FAIL() << "Parser threw an exception: " << ex.what();
-    // }
-
-    // EXPECT_EQ(array_message.getMessageType(), 0);
-    // ASSERT_EQ(array_message.getNumVars(), 3);
-
-    // EXPECT_EQ(strcmp(array_message.variables[0].getName().c_str(), "vsx.vst.f"), 0);
-    // EXPECT_EQ(array_message.variables[0].getType(), TRICK_UNSIGNED_INTEGER);
-    // EXPECT_EQ(array_message.variables[0].getValue<unsigned int>(), 123456);
-
-    // EXPECT_EQ(strcmp(array_message.variables[1].getName().c_str(), "vsx.vst.j"), 0);
-    // EXPECT_EQ(array_message.variables[1].getType(), TRICK_DOUBLE);
-    // EXPECT_EQ(array_message.variables[1].getValue<double>(), -1234.567890);
-
-    // Var variable = array_message.getVariable("vsx.vst.n");
-    // EXPECT_EQ(strcmp(variable.getName().c_str(), "vsx.vst.n"), 0);
-    // EXPECT_EQ(variable.getType(), TRICK_INTEGER);
-    // EXPECT_EQ(variable.getValue<int>(), true);
 }
 
 

@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <queue>
+#include <string.h>
 
 class TestConnection : public Trick::ClientConnection {
     public: 
