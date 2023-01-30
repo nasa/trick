@@ -1,5 +1,6 @@
 #include "trick/MulticastManager.hh"
 #include <string.h>
+#include <vector>
 
 Trick::MulticastManager::MulticastManager() {
 }

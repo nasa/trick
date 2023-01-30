@@ -792,7 +792,6 @@ TEST_F (VariableServerTest, RestartAndSet) {
         FAIL();
     }
 
-
     std::string reply;
     std::string expected;
 
@@ -818,7 +817,7 @@ TEST_F (VariableServerTest, RestartAndSet) {
     sleep(3);
     socket.clear_buffered_data();
     socket >> reply;
-    expected = std::string("0\t-1234\n");
+    expected = std::string("0\t-1234\t-123456\n");
 
     EXPECT_EQ(reply, expected);
 }

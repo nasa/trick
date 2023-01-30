@@ -1,5 +1,5 @@
 /*************************************************************************
-PURPOSE: (Represent the state of a variable server websocket connection.)
+PURPOSE: (Represent the state of a variable server connection.)
 **************************************************************************/
 
 #ifndef WSSESSION_HH
@@ -388,7 +388,7 @@ namespace Trick {
         VS_COPY_MODE get_copy_mode () const;
 
 
-        pthread_mutex_t copy_mutex;
+        pthread_mutex_t copy_mutex;     /**<  trick_io(**) */
 
         /** Toggle to indicate var_exit commanded.\n */
         bool exit_cmd ;                  /**<  trick_io(**) */
@@ -398,7 +398,7 @@ namespace Trick {
         // int sendSieMessage(void);
         // int sendUnitsMessage(const char* vname);
 
-        ClientConnection * connection;
+        ClientConnection * connection;  /**<  trick_io(**) */
         /** The trickcomm device used for the connection to the client.\n */
 
         VariableReference * find_session_variable(std::string name) const;
@@ -406,10 +406,10 @@ namespace Trick {
         double stageTime;
         bool dataStaged;
 
-        std::vector<VariableReference *> session_variables;
-        bool cyclicSendEnabled;
-        long long nextTime;
-        long long intervalTimeTics;
+        std::vector<VariableReference *> session_variables; /**<  trick_io(**) */
+        bool cyclicSendEnabled;         /**<  trick_io(**) */
+        long long nextTime;             /**<  trick_io(**) */
+        long long intervalTimeTics;     /**<  trick_io(**) */
 
         /** Value set in var_cycle command.\n */
         double update_rate ;             /**<  trick_io(**) */
@@ -473,8 +473,6 @@ namespace Trick {
         bool send_stdio;
 
         bool validate_address;
-
-        bool var_data_staged;
 
         int packets_copied;
     };

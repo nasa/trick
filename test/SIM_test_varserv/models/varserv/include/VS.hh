@@ -31,7 +31,7 @@ class VSTest {
 		int 				n[5];
 		std::string 		o;
 		char * 				p;
-		wchar_t *			q;
+		wchar_t *			q; /**< trick_chkpnt_io(**) */
 
 		int status;
 

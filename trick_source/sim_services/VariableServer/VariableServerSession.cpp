@@ -29,7 +29,6 @@ Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
     byteswap = false ;
     validate_address = false ;
     send_stdio = false ;
-    var_data_staged = false;
 
     binary_data = false;
     byteswap = false;

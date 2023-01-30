@@ -23,6 +23,9 @@ add_library( trick_utils_objs OBJECT ${TRICK_UTILS_SRC} )
 ###############################################################
 
 add_subdirectory(comm)
+add_subdirectory(connection_handlers)
 add_subdirectory(math)
 add_subdirectory(units)
+add_subdirectory(var_binary_parser)
+
 

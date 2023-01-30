@@ -81,8 +81,8 @@ namespace Trick {
             VariableServerSession * session;
 
             /** The listen device from the variable server\n */
-            ClientListener * listener;
-            TCConnection connection;
+            ClientListener * listener;      /**<  trick_io(**) */
+            TCConnection connection;        /**<  trick_io(**) */
 
             /** Value (1,2,or 3) that causes the variable server to output increasing amounts of debug information.\n */
             int debug ;                      /**<  trick_io(**) */

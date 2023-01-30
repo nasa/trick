@@ -290,6 +290,7 @@ int Trick::VariableReference::stageValue(bool validate_address) {
         REF2 *new_ref = ref_attributes(var_info->reference);
         if (new_ref != NULL) {
             var_info = new_ref;
+            address = var_info->address;
         }
     }
 

@@ -28,13 +28,6 @@ int Trick::VariableServerSession::copy_sim_data(std::vector<VariableReference *>
             curr_var->stageValue();
         }
 
-        // // Indicate that sim data has been written and is now ready in the stageBuffer's of the vars variable list.
-        // if (cyclical) {
-        //     var_data_staged = true;
-        //     // Do we actually need this packets_copied thing?
-        //     packets_copied++ ;
-        // }
-
         pthread_mutex_unlock(&copy_mutex) ;
     }
 

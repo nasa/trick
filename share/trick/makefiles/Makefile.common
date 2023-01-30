@@ -66,7 +66,7 @@ export TRICK_PYTHON_PATH := $(TRICK_PYTHON_PATH)
 export TRICK_GTE_EXT := $(TRICK_GTE_EXT)
 export TRICK_HOST_CPU := $(shell TRICK_FORCE_32BIT=$(TRICK_FORCE_32BIT) $(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)
 export TRICK_EXEC_LINK_LIBS := ${PTHREAD_LIBS} $(PYTHON_LIB) $(UDUNITS_LDFLAGS) $(PLATFORM_LIBS) -lm -ldl
-export TRICK_LIBS := ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm
+export TRICK_LIBS := ${RPATH} -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm -ltrick_connection_handlers
 export TRICK_SYSTEM_LDFLAGS := $(TRICK_SYSTEM_LDFLAGS)
 export TRICK_SYSTEM_ICG_EXCLUDE := $(TRICK_SYSTEM_ICG_EXCLUDE)
 export TRICK_SWIG_FLAGS := $(TRICK_SWIG_FLAGS)

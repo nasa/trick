@@ -1,6 +1,10 @@
 #ifndef TC_CONNECTION_HH
 #define TC_CONNECTION_HH
 
+/*
+    PURPOSE: ( Encapsulate a connection with TrickComm. )
+*/
+
 #include "trick/ClientConnection.hh"
 #include "trick/ClientListener.hh"
 #include "tc.h"
@@ -35,7 +39,7 @@ namespace Trick {
             friend int accept(ClientListener* listener, TCConnection* connection);
 
         private:
-            TCDevice _device;
+            TCDevice _device;   /**<  trick_io(**) */
     };
 
     int accept(ClientListener* listener, TCConnection* connection);

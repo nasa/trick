@@ -1,3 +1,7 @@
+/*
+    PURPOSE: ( Encapsulate multicast functionality. )
+*/
+
 #include <string>
 #include <vector>
 #include <arpa/inet.h>
@@ -16,9 +20,9 @@ namespace Trick {
 
 
         private:
-            std::vector<struct sockaddr_in> addresses;
-            int mcast_socket;
-            int initialized;
+            std::vector<struct sockaddr_in> addresses;           /**<  trick_io(**) Addresses to multicast to. */
+            int mcast_socket;                                    /**<  trick_io(**) Socket opened in initialization. */
+            int initialized;                                     /**<  trick_io(**) Whether manager is ready */
 
     };
 }

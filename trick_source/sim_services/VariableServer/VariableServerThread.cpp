@@ -106,7 +106,6 @@ void Trick::VariableServerThread::restart() {
 
     // Restart the variable server processing.
     pthread_mutex_unlock(&restart_pause);
-
 }
 
 
