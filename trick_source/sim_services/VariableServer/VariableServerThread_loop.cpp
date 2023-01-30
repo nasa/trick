@@ -79,12 +79,16 @@ void * Trick::VariableServerThread::thread_body() {
             }
 
             // Copy data out of sim if async mode
-            if ( session->should_copy_async() ) {
+            if ( session->get_copy_mode() == VS_COPY_ASYNC ) {
                 session->copy_sim_data() ;
             }
+    
+            bool should_write_async = (session->get_write_mode() == VS_WRITE_ASYNC) || 
+                                        ( session->get_copy_mode() == VS_COPY_ASYNC && (session->get_write_mode() == VS_WRITE_WHEN_COPIED)) || 
+                                        (! is_real_time());
 
             // Write data out to connection if async mode and not paused
-            if ( session->should_write_async() && !session->get_pause()) {
+            if ( should_write_async && !session->get_pause()) {
                 int ret = session->write_data() ;
                 if ( ret < 0 ) {
                     break ;

@@ -121,11 +121,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
             // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending 1 binary byte\n", &connection, connection.client_tag);
         }
 
-        std::string write_string(buf1);
-        if (write_string.length() != 5) {
-            std::cout << "PROBLEM WITH STRING LENGTH: VAR_EXISTS BINARY" << std::endl;
-        }
-        connection->write(write_string);
+        connection->write(buf1, 5);
     } else {
         /* send ascii "1" or "0" */
         sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));

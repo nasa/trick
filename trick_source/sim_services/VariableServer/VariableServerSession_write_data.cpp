@@ -109,7 +109,10 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
     for (int i = 0; i < given_vars.size(); i++) {
 
         std::stringstream var_stream;
-        given_vars[i]->writeValueAscii(var_stream);
+        if (given_vars[i]->writeValueAscii(var_stream) == -1) {
+            // If one of the values isn't ready, we need to abort the write
+            return 0;
+        }
 
         // Check that there's enough room for the next variable, tab character, and possible newline
         if (message_stream.gcount() + var_stream.gcount() + 2 > MAX_MSG_LEN) {

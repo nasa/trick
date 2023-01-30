@@ -18,6 +18,9 @@ Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
     freeze_frame_offset = 0 ;
     update_rate = 0.1 ;
     cycle_tics = (long long)(update_rate * exec_get_time_tic_value()) ;
+    if (cycle_tics == 0) {
+        cycle_tics = 1;
+    }
 
     next_tics = TRICK_MAX_LONG_LONG ;
     freeze_next_tics = TRICK_MAX_LONG_LONG ;
@@ -105,24 +108,13 @@ double Trick::VariableServerSession::get_update_rate() const {
     return update_rate;
 }
 
-bool Trick::VariableServerSession::should_write_async() const {
-    return (write_mode == VS_WRITE_ASYNC) or
-                 ((copy_mode == VS_COPY_ASYNC) and (write_mode == VS_WRITE_WHEN_COPIED)) or
-                 (! is_real_time());
+VS_WRITE_MODE Trick::VariableServerSession::get_write_mode () const {
+    return write_mode;
 }
 
-bool Trick::VariableServerSession::should_write_sync() const {
-
+VS_COPY_MODE Trick::VariableServerSession::get_copy_mode () const {
+    return copy_mode;
 }
-
-bool Trick::VariableServerSession::should_copy_async() const {
-    return copy_mode == VS_COPY_ASYNC;
-}
-
-bool Trick::VariableServerSession::should_copy_sync() const {
-
-}
-
 
 std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableServerSession& session) {
     if (session.binary_data) {

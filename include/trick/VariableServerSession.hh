@@ -384,11 +384,9 @@ namespace Trick {
         int write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
         int write_stdio(int stream, std::string text);
 
-        // Is this good design? ¯\_(ツ)_/¯
-        bool should_write_async() const;
-        bool should_write_sync() const;
-        bool should_copy_async() const;
-        bool should_copy_sync() const;
+        VS_WRITE_MODE get_write_mode () const;
+        VS_COPY_MODE get_copy_mode () const;
+
 
         pthread_mutex_t copy_mutex;
 
