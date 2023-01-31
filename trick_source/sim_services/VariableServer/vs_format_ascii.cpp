@@ -190,7 +190,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
             strcat(temp_buf, ",") ;
             buf_ptr = (void*) ((long)buf_ptr + var->ref->attr->size) ;
         }
-        strncat(value, temp_buf, value_size - strlen(value) - 1;);
+        strncat(value, temp_buf, value_size - strlen(value) - 1);
     } //end while
 
     if (ref->units) {
