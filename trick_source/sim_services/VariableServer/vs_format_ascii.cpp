@@ -33,42 +33,44 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
     // handle returning an array
     int size = 0 ;
     value[0] = '\0' ;
+
     // data to send was copied to buffer in copy_sim_data
     void * buf_ptr = var->buffer_out ;
     while (size < var->size) {
         size += var->ref->attr->size ;
+        char temp_buf[MAX_VAL_STRLEN];
 
         switch (ref->attr->type) {
 
         case TRICK_CHARACTER:
             if (ref->attr->num_index == ref->num_index) {
-                snprintf(value, value_size, "%s%d", value,(char)cv_convert_double(var->conversion_factor, *(char *)buf_ptr));
+                snprintf(temp_buf, value_size, "%d",(char)cv_convert_double(var->conversion_factor, *(char *)buf_ptr));
             } else {
                 /* All but last dim specified, leaves a char array */
-                escape_str((char *) buf_ptr, value);
+                escape_str((char *) buf_ptr, temp_buf);
                 size = var->size ;
             }
             break;
         case TRICK_UNSIGNED_CHARACTER:
             if (ref->attr->num_index == ref->num_index) {
-                snprintf(value, value_size, "%s%u", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
+                snprintf(temp_buf, value_size, "%u",(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
             } else {
                 /* All but last dim specified, leaves a char array */
-                escape_str((char *) buf_ptr, value);
+                escape_str((char *) buf_ptr, temp_buf);
                 size = var->size ;
             }
             break;
 
         case TRICK_WCHAR:{
                 if (ref->attr->num_index == ref->num_index) {
-                    snprintf(value, value_size, "%s%d", value,*(wchar_t *) buf_ptr);
+                    snprintf(temp_buf, value_size, "%d",*(wchar_t *) buf_ptr);
                 } else {
                     // convert wide char string char string
                     size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
                     if (len > MAX_VAL_STRLEN) {
                         return (-1);
                     }
-                    wcs_to_ncs((wchar_t *) buf_ptr, value, len);
+                    wcs_to_ncs((wchar_t *) buf_ptr, temp_buf, len);
                     size = var->size ;
                 }
             }
@@ -76,10 +78,10 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
 
         case TRICK_STRING:
             if ((char *) buf_ptr != NULL) {
-                escape_str((char *) buf_ptr, value);
+                escape_str((char *) buf_ptr, temp_buf);
                 size = var->size ;
             } else {
-                value[0] = '\0';
+                temp_buf[0] = '\0';
             }
             break;
 
@@ -90,25 +92,25 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
                 if (len > MAX_VAL_STRLEN) {
                     return (-1);
                 }
-                wcs_to_ncs((wchar_t *) buf_ptr, value, len);
+                wcs_to_ncs((wchar_t *) buf_ptr, temp_buf, len);
                 size = var->size ;
             } else {
-                value[0] = '\0';
+                temp_buf[0] = '\0';
             }
             break;
 
 #if ( __linux | __sgi )
         case TRICK_BOOLEAN:
-            snprintf(value, value_size, "%s%d", value,(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
+            snprintf(temp_buf, value_size, "%d",(unsigned char)cv_convert_double(var->conversion_factor,*(unsigned char *)buf_ptr));
             break;
 #endif
 
         case TRICK_SHORT:
-            snprintf(value, value_size, "%s%d", value, (short)cv_convert_double(var->conversion_factor,*(short *)buf_ptr));
+            snprintf(temp_buf, value_size, "%d", (short)cv_convert_double(var->conversion_factor,*(short *)buf_ptr));
             break;
 
         case TRICK_UNSIGNED_SHORT:
-            snprintf(value, value_size, "%s%u", value,(unsigned short)cv_convert_double(var->conversion_factor,*(unsigned short *)buf_ptr));
+            snprintf(temp_buf, value_size, "%u",(unsigned short)cv_convert_double(var->conversion_factor,*(unsigned short *)buf_ptr));
             break;
 
         case TRICK_INTEGER:
@@ -116,18 +118,18 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
 #if ( __sun | __APPLE__ )
         case TRICK_BOOLEAN:
 #endif
-            snprintf(value, value_size, "%s%d", value, (int)cv_convert_double(var->conversion_factor,*(int *)buf_ptr));
+            snprintf(temp_buf, value_size, "%d", (int)cv_convert_double(var->conversion_factor,*(int *)buf_ptr));
             break;
 
         case TRICK_BITFIELD:
-            snprintf(value, value_size, "%d", GET_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
+            snprintf(temp_buf, value_size, "%d", GET_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
             break;
 
         case TRICK_UNSIGNED_BITFIELD:
-            snprintf(value, value_size, "%u", GET_UNSIGNED_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
+            snprintf(temp_buf, value_size, "%u", GET_UNSIGNED_BITFIELD(buf_ptr, ref->attr->size, ref->attr->index[0].start, ref->attr->index[0].size));
             break;
         case TRICK_UNSIGNED_INTEGER:
-            snprintf(value, value_size, "%s%u", value, (unsigned int)cv_convert_double(var->conversion_factor,*(unsigned int *)buf_ptr));
+            snprintf(temp_buf, value_size, "%u", (unsigned int)cv_convert_double(var->conversion_factor,*(unsigned int *)buf_ptr));
             break;
 
         case TRICK_LONG: {
@@ -135,7 +137,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
             if (var->conversion_factor != cv_get_trivial()) {
                 l = (long)cv_convert_double(var->conversion_factor, l);
             }
-            snprintf(value, value_size, "%s%ld", value, l);
+            snprintf(temp_buf, value_size, "%ld", l);
             break;
         }
 
@@ -144,16 +146,16 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
             if (var->conversion_factor != cv_get_trivial()) {
                 ul = (unsigned long)cv_convert_double(var->conversion_factor, ul);
             }
-            snprintf(value, value_size, "%s%lu", value, ul);
+            snprintf(temp_buf, value_size, "%lu", ul);
             break;
         }
 
         case TRICK_FLOAT:
-            snprintf(value, value_size, "%s%.8g", value, cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
+            snprintf(temp_buf, value_size, "%.8g", cv_convert_float(var->conversion_factor,*(float *)buf_ptr));
             break;
 
         case TRICK_DOUBLE:
-            snprintf(value, value_size, "%s%.16g", value, cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
+            snprintf(temp_buf, value_size, "%.16g", cv_convert_double(var->conversion_factor,*(double *)buf_ptr));
             break;
 
         case TRICK_LONG_LONG: {
@@ -161,7 +163,7 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
             if (var->conversion_factor != cv_get_trivial()) {
                 ll = (long long)cv_convert_double(var->conversion_factor, ll);
             }
-            snprintf(value, value_size, "%s%lld", value, ll);
+            snprintf(temp_buf, value_size, "%lld", ll);
             break;
         }
 
@@ -170,12 +172,12 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
             if (var->conversion_factor != cv_get_trivial()) {
                 ull = (unsigned long long)cv_convert_double(var->conversion_factor, ull);
             }
-            snprintf(value, value_size, "%s%llu", value, ull);
+            snprintf(temp_buf, value_size, "%llu", ull);
             break;
         }
 
         case TRICK_NUMBER_OF_TYPES:
-            snprintf(value, value_size, "BAD_REF" );
+            snprintf(temp_buf, value_size, "BAD_REF" );
             break;
 
         default:{
@@ -185,9 +187,10 @@ int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_si
 
         if (size < var->size) {
         // if returning an array, continue array as comma separated values
-            strcat(value, ",") ;
+            strcat(temp_buf, ",") ;
             buf_ptr = (void*) ((long)buf_ptr + var->ref->attr->size) ;
         }
+        strncat(value, temp_buf, value_size - strlen(value) - 1;);
     } //end while
 
     if (ref->units) {
