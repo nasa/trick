@@ -12,7 +12,7 @@ TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 
 # Flags passed to the preprocessor.
 TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
-TRICK_LIBS =  -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm -ltrick_connection_handlers -ltrick_var_binary_parser
+TRICK_LIBS =  -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick -ltrick_var_binary_parser -ltrick_connection_handlers -ltrick_comm 
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread					  
 
 # All tests produced by this Makefile.  Remember to add new tests you
@@ -51,11 +51,11 @@ $(OBJ_DIR):
 	mkdir $(OBJ_DIR)
 
 $(TEST_OBJS): $(OBJ_DIR)/%.o: %.cc $(OBJ_DIR)
-	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $< -o $@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $< -o $@ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 $(ICG_OBJS): $(OBJ_DIR)/io_%.o : %.hh $(OBJ_DIR)
 	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CXXFLAGS) $<
-	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c io_src/io_$*.cpp -o $@
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c io_src/io_$*.cpp -o $@ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 $(VARIABLE_REFERENCE_TESTS): %: $(OBJ_DIR)/%.o $(OBJ_DIR)/io_VariableReference_test.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
