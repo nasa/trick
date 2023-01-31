@@ -10,12 +10,13 @@
 #include <iostream>
 #include <functional>
 #include <cmath>
+#include <ctype.h>
 
 #include <gtest/gtest.h>
 
 #include "trick/var_binary_parser.hh"
 
-#define SOCKET_BUF_SIZE 20480
+#define SOCKET_BUF_SIZE 204800
 
 #define DOUBLE_TOL 1e-5
 
@@ -820,6 +821,70 @@ TEST_F (VariableServerTest, RestartAndSet) {
     expected = std::string("0\t-1234\t-123456\n");
 
     EXPECT_EQ(reply, expected);
+}
+
+TEST_F (VariableServerTest, LargeMessages) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    std::string expected;
+
+    for (int i = 0; i < 4000; i++) {
+        std::string var_add = "trick.var_add(\"vsx.vst.large_arr[" + std::to_string(i) + "]\")\n";
+        socket << var_add;
+    }
+
+    // Message size limit is 8192 
+    // Message size should be somewhere between the limit and limit-5 due to size of variable
+    const static int msg_size_limit = 8192;
+
+    auto get_last_number_in_string = [](const std::string& s) -> int {
+        int index = s.size() - 1;
+        while (!isdigit(s.at(index))) { index--; }
+        int num = 0;
+        int exp = 0;
+        while (isdigit(s.at(index))) {
+            num += (s.at(index) - '0') * pow(10, exp);
+            index--;
+            exp++;
+        }
+        return num;
+    };
+
+    auto get_first_number_in_string = [](const std::string& s) -> int {
+        std::stringstream message_stream(s);
+        std::string token;
+        std::getline(message_stream, token, '\t');
+        if (token.size() == 0) { std::getline(message_stream, token, '\t'); }
+        int ret = stoi(token);
+        return ret;
+    };
+
+    int new_reply_first = 0;
+    int prev_reply_last = 0;
+
+    socket.clear_buffered_data();
+    socket >> reply;
+    socket >> reply;
+
+    while ((new_reply_first = get_first_number_in_string(reply)) != 0) {
+        socket >> reply;
+    }
+    EXPECT_TRUE(reply.size() <= msg_size_limit && reply.size() >= msg_size_limit-5);
+    int i = 1;
+    prev_reply_last = get_last_number_in_string(reply);
+
+    socket >> reply;
+    while ((new_reply_first = get_first_number_in_string(reply)) != 0) {
+        EXPECT_TRUE(reply.size() <= msg_size_limit);
+        EXPECT_EQ(prev_reply_last + 1, new_reply_first);
+
+        prev_reply_last = get_last_number_in_string(reply);
+        socket >> reply;
+    }
+    EXPECT_EQ(prev_reply_last, 3999);
 }
 
 TEST_F (VariableServerTest, Binary) {

@@ -44,7 +44,7 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
 
         total_var_size += type_size;
         total_var_size += sizeof_size;
-        total_var_size += var->getSize();
+        total_var_size += var->getSizeBinary();
 
         // If this variable won't fit in the current message, truncate the message and plan to put this var in a new one
         if (total_size + total_var_size > MAX_MSG_LEN) {
@@ -57,12 +57,13 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
     }
 
     message_sizes_and_num_vars.push_back(std::pair<int,int>(total_size, num_vars));
- 
+    
     // Now write out all of these messages
     int var_index = 0;
     for (std::pair<int,int> message_info : message_sizes_and_num_vars) {
         int curr_message_size = message_info.first;
         int curr_message_num_vars = message_info.second;
+
         std::stringstream stream;
 
         int written_message_type = message_type;
@@ -93,7 +94,7 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
         var_index += curr_message_num_vars;
 
         char write_buf[MAX_MSG_LEN];
-        stream.read(write_buf, total_size);
+        stream.read(write_buf, curr_message_size);
         connection->write(write_buf, curr_message_size);
     }
 
@@ -105,8 +106,11 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
     std::stringstream message_stream;
     message_stream << (int)message_type;
 
+    int message_size = message_stream.str().size();
+
     // Load each variable
     for (int i = 0; i < given_vars.size(); i++) {
+        message_stream << "\t";
 
         std::stringstream var_stream;
         if (given_vars[i]->writeValueAscii(var_stream) == -1) {
@@ -114,23 +118,32 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
             return 0;
         }
 
+        std::string var_string = var_stream.str();
+        int var_size = var_string.size();
+
         // Check that there's enough room for the next variable, tab character, and possible newline
-        if (message_stream.gcount() + var_stream.gcount() + 2 > MAX_MSG_LEN) {
+        if (message_size + var_size + 2 > MAX_MSG_LEN) {
+            
             // Write out an incomplete message
-            int result = connection->write(message_stream.str());
-            if (result != 0)
+            std::string message = message_stream.str();
+            int result = connection->write(message);
+            if (result < 0)
                 return result;
             // Clear out the message stream
             message_stream = std::stringstream("");
+            message_size = 0;
         }
 
         // Concatenate
-        message_stream << "\t" << var_stream.rdbuf();
+        message_stream << var_string;
+        message_size += var_size + 1;
     }
+
 
     // End with newline
     message_stream << '\n';
-    int result = connection->write(message_stream.str());
+    std::string message = message_stream.str();
+    int result = connection->write(message);
     return result;
 }
 

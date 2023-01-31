@@ -191,7 +191,7 @@ const char* Trick::VariableReference::getName() const {
     return var_info->reference;
 }
 
-int Trick::VariableReference::getSize() const {
+int Trick::VariableReference::getSizeBinary() const {
     return size;
 }
 
@@ -387,6 +387,13 @@ static void write_escaped_string( std::ostream& os, const char* s) {
         }
     }
 }
+
+int Trick::VariableReference::getSizeAscii() const {
+    std::stringstream ss;
+    writeValueAscii(ss);
+    return ss.str().length();
+}
+
 
 int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
     // This is copied and modified from vs_format_ascii

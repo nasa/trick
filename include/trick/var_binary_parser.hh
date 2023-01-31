@@ -106,12 +106,13 @@ class Var {
 
 class ParsedBinaryMessage {
     public:
-        ParsedBinaryMessage() : _byteswap(false), _nonames(false) {}
-        ParsedBinaryMessage (bool byteswap, bool nonames) : _byteswap(byteswap), _nonames(nonames) {}
+        ParsedBinaryMessage() : ParsedBinaryMessage(false, false)  {}
+        ParsedBinaryMessage (bool byteswap, bool nonames) : _message_type(0), _message_size(0), _num_vars(0), _byteswap(byteswap), _nonames(nonames) {}
 
         void combine (const ParsedBinaryMessage& message);
         
         int parse (const std::vector<unsigned char>& bytes);
+        int parse (char * raw_bytes);
 
         int getMessageType() const;
         unsigned int getMessageSize() const;

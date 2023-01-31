@@ -1,8 +1,8 @@
 #ifndef TEST_CONNECTION_HH
 #define TEST_CONNECTION_HH
 
-#include <trick/ClientConnection.hh>
-
+#include "trick/ClientConnection.hh"
+#include <iostream>
 #include <vector>
 #include <queue>
 #include <string.h>
@@ -32,7 +32,7 @@ class TestConnection : public Trick::ClientConnection {
                 return -1;
 
             char * msg_copy = (char *) malloc(size+1);
-            strncpy(msg_copy, message, size+1);
+            memcpy(msg_copy, message, size+1);
             binary_messages_written.push_back(msg_copy);
 
             return 0;
@@ -69,6 +69,7 @@ class TestConnection : public Trick::ClientConnection {
         std::queue <std::string> queued_messages;
         std::vector <std::string> ascii_messages_written;
         std::vector <char *> binary_messages_written;
+        
 
         std::string client_tag;
         bool valid = true;

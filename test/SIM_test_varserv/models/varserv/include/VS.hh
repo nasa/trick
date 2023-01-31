@@ -33,6 +33,8 @@ class VSTest {
 		char * 				p;
 		wchar_t *			q; /**< trick_chkpnt_io(**) */
 
+		int large_arr[4000];
+
 		int status;
 
 		VSTest();

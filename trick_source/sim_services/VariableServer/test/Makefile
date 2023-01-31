@@ -12,7 +12,7 @@ TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 
 # Flags passed to the preprocessor.
 TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare -std=c++11 ${TRICK_SYSTEM_CXXFLAGS}
-TRICK_LIBS =  -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick
+TRICK_LIBS =  -L${TRICK_LIB_DIR} -ltrick -ltrick_pyip -ltrick_comm -ltrick_math -ltrick_units -ltrick_mm -ltrick_connection_handlers -ltrick_var_binary_parser
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread					  
 
 # All tests produced by this Makefile.  Remember to add new tests you

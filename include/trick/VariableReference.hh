@@ -28,7 +28,6 @@ namespace Trick {
         ~VariableReference();
 
         const char* getName() const;
-        int getSize() const;
         TRICK_TYPE getType() const;
 
         // There are 2 different "units" variables used - REF2->units and REF2->attr->units
@@ -53,6 +52,8 @@ namespace Trick {
 
         // Write out the value to the given outstream.
         // write_ready must be true
+        int getSizeAscii() const;
+        int getSizeBinary() const;
         int writeValueAscii( std::ostream& out ) const;
         int writeValueBinary( std::ostream& out , bool byteswap = false) const;
         int writeNameBinary( std::ostream& out, bool byteswap = false) const;
