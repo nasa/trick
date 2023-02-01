@@ -1,2 +1,2 @@
 *.o
-Interpolator_unittest
+*_unittest
