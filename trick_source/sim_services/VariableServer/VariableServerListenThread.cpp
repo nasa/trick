@@ -26,6 +26,8 @@ Trick::VariableServerListenThread::VariableServerListenThread() :
 }
 
 Trick::VariableServerListenThread::~VariableServerListenThread() {
+    cancel_thread();
+    join_thread();
         free(listen_dev.hostname) ;
         free(listen_dev.error_handler) ;
 }

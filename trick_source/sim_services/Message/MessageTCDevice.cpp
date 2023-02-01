@@ -24,8 +24,8 @@ Trick::MessageTCDeviceListenThread::MessageTCDeviceListenThread(MessageTCDevice 
 }
 
 Trick::MessageTCDeviceListenThread::~MessageTCDeviceListenThread() {
-    cancel_thread() ;
-    join_thread() ;
+    cancel_thread();
+    join_thread();
     free(listen_dev.error_handler) ;
     listen_dev.error_handler = NULL;
     if ( listen_dev.hostname ) {

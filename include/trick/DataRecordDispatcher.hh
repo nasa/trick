@@ -35,7 +35,7 @@ namespace Trick {
     class DRDWriterThread : public Trick::ThreadBase {
         public:
             DRDWriterThread(Trick::DRDMutexes & in_mutexes, std::vector <Trick::DataRecordGroup *> & in_groups) ;
-
+            ~DRDWriterThread();
             virtual void * thread_body() ;
             virtual void dump( std::ostream & oss = std::cout ) ;
         protected:

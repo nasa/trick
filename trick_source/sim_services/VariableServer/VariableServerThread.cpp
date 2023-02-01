@@ -59,6 +59,8 @@ Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
 }
 
 Trick::VariableServerThread::~VariableServerThread() {
+    cancel_thread();
+    join_thread();
     free( incoming_msg ) ;
     free( stripped_msg ) ;
 }
