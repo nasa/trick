@@ -37,11 +37,6 @@ Trick::DRDWriterThread::DRDWriterThread(DRDMutexes & in_mutexes, std::vector <Tr
  drd_mutexes(in_mutexes) ,
  groups(in_groups) {}
 
- Trick::DRDWriterThread::~DRDWriterThread() {
-    cancel_thread();
-    join_thread();
- }
-
 void * Trick::DRDWriterThread::thread_body() {
     pthread_mutex_lock(&(drd_mutexes.dr_go_mutex));
 
