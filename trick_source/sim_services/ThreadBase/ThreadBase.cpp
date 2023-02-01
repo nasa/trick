@@ -34,6 +34,8 @@ Trick::ThreadBase::ThreadBase(std::string in_name) :
 }
 
 Trick::ThreadBase::~ThreadBase() {
+    cancel_thread() ;
+    join_thread() ;
 #if __linux
 #ifdef CPU_FREE
     CPU_FREE(cpus) ;
