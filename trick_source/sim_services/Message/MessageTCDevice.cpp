@@ -24,7 +24,10 @@ Trick::MessageTCDeviceListenThread::MessageTCDeviceListenThread(MessageTCDevice 
 }
 
 Trick::MessageTCDeviceListenThread::~MessageTCDeviceListenThread() {
+    cancel_thread() ;
+    join_thread() ;
     free(listen_dev.error_handler) ;
+    listen_dev.error_handler = NULL;
     if ( listen_dev.hostname ) {
        free((char*)listen_dev.hostname) ;
     }
@@ -81,7 +84,7 @@ void * Trick::MessageTCDeviceListenThread::thread_body() {
 
             if (status == TC_SUCCESS) {
                 mtcd->add_connection(new_connection) ;
-            }
+            } 
         }
     }
 
