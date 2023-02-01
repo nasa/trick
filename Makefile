@@ -90,6 +90,7 @@ endif
 ER7_UTILS_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(ER7_UTILS_DIRS))
 
 UTILS_DIRS := \
+	${TRICK_HOME}/trick_source/trick_utils/compareFloatingPoint \
 	${TRICK_HOME}/trick_source/trick_utils/interpolator \
 	${TRICK_HOME}/trick_source/trick_utils/trick_adt \
 	${TRICK_HOME}/trick_source/trick_utils/comm \
