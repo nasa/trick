@@ -42,13 +42,6 @@ SIM_demo_sdefine:
   runs:
     RUN_test/unit_test.py:
       returns: 0
-SIM_events:
-  path: test/SIM_events
-  build_command: "trick-CP -t"
-  binary: "T_main_{cpu}_test.exe"
-  runs:
-    RUN_test/unit_test.py:
-      returns: 0 
 SIM_exec_set_time_tic_value:
   path: test/SIM_exec_set_time_tic_value
   build_command: "trick-CP -t"
@@ -266,6 +259,21 @@ SIM_checkpoint_data_recording:
     #   returns: 0
     #   compare: 
     #     - test/SIM_checkpoint_data_recording/RUN_test6/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test6/log_foo2.csv
+
+SIM_events:
+  path: test/SIM_events
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0 
+    RUN_test/unit_test_error1.py:
+      returns: 255
+    RUN_test/unit_test_error2.py:
+      returns: 255
+    RUN_test/unit_test_error3.py:
+      returns: 255
+
 
 # The variable server client and SIM_amoeba sometimes fail to connect and need to be retried
 SIM_test_varserv:

@@ -9,6 +9,7 @@ on:
     - '.github/workflows/**'
     - '!.github/workflows/code_coverage.yml'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   code-coverage:
