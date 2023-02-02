@@ -3,7 +3,7 @@
  * 2016 (c) National Aeronautics and Space Administration (NASA)
  */
 
-package trick;
+/* package trick;*/
 
 import java.awt.Graphics2D;
 import java.awt.Graphics;
