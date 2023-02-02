@@ -233,6 +233,8 @@ AC_CHECK_FILE([$LLVM_LIB_DIR/libclangFrontend.a],
   )
 )
 
+AC_CHECK_FILE([$LLVM_LIB_DIR/libclangSupport.a],[ICG_CLANGLIBS="$ICG_CLANGLIBS -lclangSupport"],[])
+
 AC_SUBST([ICG_CLANGLIBS])
 
 TR_CLANG_VERSION
