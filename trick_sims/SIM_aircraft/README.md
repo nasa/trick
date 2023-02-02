@@ -16,7 +16,7 @@ In this simulation, we can manually control the aircraft by specifying:
 or automatically.
 
 ## Building the Simulation
-In the ```SIM_aircrafte``` directory, type **```trick-CP```** to build the simulation executable. When it's complete, you should see:
+In the ```SIM_aircraft``` directory, type **```trick-CP```** to build the simulation executable. When it's complete, you should see:
 
 ```
 === Simulation make complete ===
@@ -32,28 +32,37 @@ In the SIM_aircraft directory:
 The Sim Control Panel, and a graphics client called "Aircraft Display" should appear.
 
 Click Start on the Trick Sim Control Panel.
-q
+
 ![](images/GraphicsClient.png)
 
-## Adding Waypoints
-This simulation allow for the use of waypoints to create a "flight path" for the aircraft to follow. They are added with a call to:
+### Manual Control of the Aircraft
+The two sliders on the bottom left and right are for setting the aircraft's desired speed and heading, respectively. The desired speed can range from 0 to 250 meters per second. The desired heading is measured in radians, from -$\pi$ to $\pi$.
 
-`dyn.aircraft.add_waypoint( double n, double w )`
+### Aircraft Autopilot
+The autopilot feature is toggled on and off by the ```Autopilot OFF/ON``` button at the bottom of the graphics client. 
 
-*Waypoints added in this way will not be drawn in the variable server client*
+![](images/GraphicsClientAutopilot.png)
 
-### Input File
-Waypoints are automatically read into the simulation from the included input file, [`default.waypoints`](Modified\_data/default.waypoints) within the `Modified_data` folder. 
+When active, the aircraft's heading is automatically calculated to approach a series of waypoints. These waypoints are displayed in the map as collection of red diamonds.
 
-#### Format
-Any input file must follow the following format,
+![](images/Waypoint.png)
 
-```
-NORTH_01, WEST_01
+#### Adding Waypoints with an Input File
+Waypoints can be added to the simulation using an input file. 
 
-NORTH_02, WEST_02
-```
-Each entry should be a number representing the desired coordinates.
+![](images/WaypointInputFile.png)
+
+When the simulation starts they are read into the simulation from the specified file. Currently that file is `default.waypoints`  within the `Modified_data` folder. 
+
+#### Sample Input in [`default.waypoints`](Modified\_data/default.waypoints):
+
+         0.0,  25000.0
+     21650.0,  12500.0
+     21650.0, -12500.0
+         0.0, -25000.0
+    -21650.0, -12500.0
+    -21650.0,  12500.0
+The coordinates are formatted like GPS coordinates, with the first number being the vertical distance, or 'North', and the second being the horizontal, or 'West', distance.
 
 ## Dynamics Model
 
