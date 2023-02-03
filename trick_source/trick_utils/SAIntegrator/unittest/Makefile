@@ -3,7 +3,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 RM = rm -rf
 
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_CXXFLAGS}
+TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++14 ${TRICK_CXXFLAGS}
 INCLUDE_DIRS = -I../include -I$(GTEST_HOME)/include
 
 SAI_OBJDIR = obj
