@@ -7,14 +7,14 @@
 #include <vector>
 
 #include "trick/MessageSubscriber.hh"
-#include "trick/ThreadBase.hh"
+#include "trick/SysThread.hh"
 #include "trick/tc.h"
 
 namespace Trick {
 
     class MessageTCDevice ;
 
-    class MessageTCDeviceListenThread : public Trick::ThreadBase {
+    class MessageTCDeviceListenThread : public Trick::SysThread {
 
         public:
             MessageTCDeviceListenThread(MessageTCDevice * in_mtcd) ;

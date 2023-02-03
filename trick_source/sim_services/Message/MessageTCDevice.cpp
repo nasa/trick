@@ -8,7 +8,7 @@
 #include "trick/tc_proto.h"
 
 Trick::MessageTCDeviceListenThread::MessageTCDeviceListenThread(MessageTCDevice * in_mtcd) :
- Trick::ThreadBase("MessageListen"),
+ Trick::SysThread("MessageListen"),
  mtcd(in_mtcd) ,
  listen_dev() {
     /* And a TCDevice for message server @e listen_device is configured. */
@@ -24,8 +24,6 @@ Trick::MessageTCDeviceListenThread::MessageTCDeviceListenThread(MessageTCDevice 
 }
 
 Trick::MessageTCDeviceListenThread::~MessageTCDeviceListenThread() {
-    cancel_thread() ;
-    join_thread() ;
     free(listen_dev.error_handler) ;
     listen_dev.error_handler = NULL;
     if ( listen_dev.hostname ) {

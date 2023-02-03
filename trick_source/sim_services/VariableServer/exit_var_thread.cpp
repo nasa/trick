@@ -15,6 +15,6 @@ void exit_var_thread(void *in_vst) {
     // is called from within Trick::VariableServerThread::thread_body.
     // I am claiming this is safe as this is the last thing routing is the last thing
     // that touches vst. The C++ FAQ says it's safe if you can say this. (Alex 6/9/14)
-    delete vst ;
+    // delete vst ;
 }
 
