@@ -1728,8 +1728,11 @@ QStringList PlotBookModel::abbreviateLabels(const QStringList &labels) const
         if ( !label.contains(":") ) {
             return labels;  // No abbreviation since not colon delimited
         }
-        runs << label.split(":").at(0);
-        vars << label.split(":").at(1);
+        int i = label.indexOf(':');
+        QString run = label.left(i);
+        QString var = label.mid(i+1);
+        runs << run;
+        vars << var;
     }
     QString runsPrefix = Runs::commonPrefix(runs,"/");
     QString runsSuffix = Runs::commonSuffix(runs,"/");
@@ -1739,7 +1742,10 @@ QStringList PlotBookModel::abbreviateLabels(const QStringList &labels) const
 
     foreach (QString label, labels) {
 
-        QString run = label.split(":").at(0);
+        int k = label.indexOf(':');
+        QString run = label.left(k);
+        QString var = label.mid(k+1);
+
         run = run.mid(i);
         if ( i > 0 && run.startsWith("/") ) {
             run = run.mid(1); // remove prepended '/'
@@ -1749,7 +1755,6 @@ QStringList PlotBookModel::abbreviateLabels(const QStringList &labels) const
             run.chop(1);
         }
 
-        QString var = label.split(":").at(1);
         var = var.mid(j);
         if ( j > 0 && var.startsWith(".") ) {
             var = var.mid(1); // remove prepended '.'
@@ -1765,6 +1770,18 @@ QStringList PlotBookModel::abbreviateLabels(const QStringList &labels) const
         }
 
         lbls << s;
+    }
+
+    // If any abbreviated label is empty, return original labels (no abbrev)
+    bool isEmptyLabels = false;
+    foreach ( QString lbl, lbls ) {
+        if ( lbl.isEmpty() ) {
+            isEmptyLabels = true;
+            break;
+        }
+    }
+    if ( isEmptyLabels ) {
+        lbls = labels;
     }
 
     return lbls;
@@ -2421,7 +2438,7 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
         }
 
         // Label
-        QString yLabel = _runs->runDirs().at(r) + ":" + yName;
+        QString yLabel = yName;
         QModelIndex llIdx = getIndex(QModelIndex(),"LegendLabels","");
         if ( ii < rowCount(llIdx) ) {
             QString llTag = QString("Label%1").arg(ii+1);
@@ -2946,10 +2963,6 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
     QModelIndexList curveIdxs = this->curveIdxs(curvesIdx);
     int nCurves = curveIdxs.size();
 
-    if ( nCurves <= 1 ) {
-        return els;
-    }
-
     QList<PlotBookModel::LegendElement> overrides = _legendOverrides();
     bool isOverrides = false;
     foreach ( PlotBookModel::LegendElement el, overrides ) {
@@ -2959,19 +2972,9 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
         }
     }
 
-    QStringList labels;
-    foreach (QModelIndex curveIdx, curveIdxs) {
-        QString lbl = getDataString(curveIdx,"CurveYLabel","Curve");
-        if ( lbl.isEmpty() ) {
-            lbl = getDataString(curveIdx,"CurveYName","Curve");
-        }
-        labels << lbl;
-        if ( !isOverrides && labels.size() > overrides.size() ) {
-            // Too many labels for legend, return empty!
-            return els;
-        }
+    if ( nCurves <= 1 && !isOverrides ) {
+        return els;
     }
-    labels = abbreviateLabels(labels);
 
     bool isGroups = false;
     QStringList groups;
@@ -2985,6 +2988,25 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
             isGroups = true;
         }
     }
+
+    QStringList labels;
+    foreach (QModelIndex curveIdx, curveIdxs) {
+        QString lbl = getDataString(curveIdx,"CurveYLabel","Curve");
+        if ( lbl.isEmpty() ) {
+            lbl = getDataString(curveIdx,"CurveYName","Curve");
+        }
+        if ( !isGroups ) {
+            CurveModel* curve = getCurveModel(curveIdx);
+            QString runDir = QFileInfo(curve->fileName()).absolutePath();
+            lbl = runDir + ":" + lbl;
+        }
+        labels << lbl;
+        if ( !isOverrides && labels.size() > overrides.size() ) {
+            // Too many labels for legend, return empty!
+            return els;
+        }
+    }
+    labels = abbreviateLabels(labels);
 
 #if QT_VERSION >= 0x050000
     QHash<PlotBookModel::LegendElement,int> elHash;
@@ -3042,6 +3064,17 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
                 } else {
                     break;
                 }
+            }
+        }
+    }
+
+    if ( isOverrides ) { // Replace label with override label
+        for ( int i = 0; i < els.size(); ++i ) {
+            PlotBookModel::LegendElement override = overrides.at(i);
+            if ( !override.label.isEmpty() ) {
+                PlotBookModel::LegendElement el = els.at(i);
+                el.label = override.label;
+                els.replace(i,el);
             }
         }
     }
