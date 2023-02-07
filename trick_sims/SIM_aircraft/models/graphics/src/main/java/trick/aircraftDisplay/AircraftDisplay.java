@@ -35,6 +35,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JButton;
 import javax.swing.JToggleButton;
 import javax.swing.BorderFactory; 
@@ -66,6 +68,23 @@ class ScenePoly {
     public int n;
     public double[] x;
     public double[] y;
+}
+
+class SimulationMenuBar extends JMenuBar {
+    public JMenu _file, _edit, _view, _tools, _help;
+
+    public SimulationMenuBar() {
+        _file = new JMenu("File");      // New, Open, Save, Save As, Exit
+        _edit = new JMenu("Edit");      // Undo, Redo
+        _view = new JMenu("View");      // 
+        _tools = new JMenu("Tools");
+        _help = new JMenu("Help");
+        add(_file);
+        add(_edit);
+        add(_view);
+        add(_tools);
+        add(_help);
+    }
 }
 
 class SkyView extends JPanel {
@@ -428,6 +447,7 @@ class AutoPilotCtrlPanel extends JPanel implements ItemListener {
 public class AircraftDisplay extends JFrame {
 
     private SkyView skyView;
+    private SimulationMenuBar simMenu;
     private BufferedReader in;
     private DataOutputStream out;
     private JPanel panelGroup0, panelGroup1;
@@ -435,6 +455,8 @@ public class AircraftDisplay extends JFrame {
 
     public AircraftDisplay(SkyView sky) {
         skyView = sky;
+        simMenu = new SimulationMenuBar();
+        setJMenuBar(simMenu);
         add( skyView);
         setTitle("Aircraft Display");
         setSize(800, 800);
