@@ -42,6 +42,9 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.BoxLayout;
 import java.awt.Color;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+
 /**
  *
  * @author penn
@@ -49,9 +52,9 @@ import java.awt.Color;
 
 class Waypoint {
     public double north, west;
-    public Image icon;
+    public BufferedImage icon;
     
-    public Waypoint(double n, double w, Image i) {
+    public Waypoint(double n, double w, BufferedImage i) {
         north = n;
         west = w;
         icon = i;
@@ -133,7 +136,14 @@ class SkyView extends JPanel {
 */
 
     public void addWaypoint( double n, double w, String fp) {
-        waypoints.add(new Waypoint(n,w,Toolkit.getDefaultToolkit().getImage(fp)));
+        BufferedImage img;
+        try {
+            img = ImageIO.read(new File(fp));
+            waypoints.add(new Waypoint(n,w,img));
+        } catch(Exception e) {
+            System.out.printf("Waypoint (%.1f,%.1f) not added to map.");
+        }
+
     }
 
     public void setAircraftPos( double n, double w) {
@@ -204,7 +214,10 @@ class SkyView extends JPanel {
     }
 
     public void drawWaypoint(Graphics2D g, Waypoint wp) {
-        g.drawImage(wp.icon, wp.west, wp.north, null);
+        int x = 0, y = 0;
+        x = (int)((worldOriginX - scale * wp.west) - (wp.icon.getWidth()/2));
+        y = (int)((worldOriginY - scale * wp.north) - (wp.icon.getHeight()/2));
+        g.drawImage(wp.icon, x, y, null);
     }
 
     public void drawScenePoly(Graphics2D g, ScenePoly p, double angle_r , double north, double west) {
@@ -239,7 +252,8 @@ class SkyView extends JPanel {
         //  Draw Waypoints
         for(int i = 0; i < waypoints.size(); i++) {
             Waypoint wp = waypoints.get(i);
-            drawScenePoly(g2d, wpmarker, 0.0, wp.north, wp.west);
+            // drawScenePoly(g2d, wpmarker, 0.0, wp.north, wp.west);
+            drawWaypoint(g2d, wp);
         }
 
         //  Draw Aircraft
