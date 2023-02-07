@@ -288,6 +288,7 @@ premade:
 ################################################################################
 #                                   TESTING
 ################################################################################
+
 # This target runs Trick's Unit-tests and simulation-tests.
 test: unit_test sim_test
 	@ echo "All tests completed sucessfully"
