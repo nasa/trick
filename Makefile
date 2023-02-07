@@ -290,7 +290,6 @@ premade:
 ################################################################################
 
 # This target runs Trick's Unit-tests and simulation-tests.
-# test: TRICK_SYSTEM_CXXFLAGS := $(TRICK_SYSTEM_CXXFLAGS) $(TEST_FLAGS) 
 test: unit_test sim_test
 	@ echo "All tests completed sucessfully"
 
