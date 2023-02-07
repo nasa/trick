@@ -43,9 +43,7 @@ The autopilot feature is toggled on and off by the ```Autopilot OFF/ON``` button
 
 ![](images/GraphicsClientAutopilot.png)
 
-When active, the aircraft's heading is automatically calculated to approach a series of waypoints. These waypoints are displayed in the map as collection of red diamonds.
-
-![](images/Waypoint.png)
+When active, the aircraft's heading is automatically calculated to approach a series of waypoints. These waypoints are marked on the map by the image provided in the input file.
 
 #### Adding Waypoints with an Input File
 Waypoints can be added to the simulation using an input file. 
@@ -56,13 +54,13 @@ When the simulation starts they are read into the simulation from the specified 
 
 #### Sample Input in [`default.waypoints`](Modified\_data/default.waypoints):
 
-         0.0,  25000.0
-     21650.0,  12500.0
-     21650.0, -12500.0
-         0.0, -25000.0
-    -21650.0, -12500.0
-    -21650.0,  12500.0
-The coordinates are formatted like GPS coordinates, with the first number being the vertical distance, or 'North', and the second being the horizontal, or 'West', distance.
+         0.0,  25000.0,images/wp0.png
+     21650.0,  12500.0,images/wp1.png
+     21650.0, -12500.0,images/wp2.png
+         0.0, -25000.0,images/wp3.png
+    -21650.0, -12500.0,images/wp4.png
+    -21650.0,  12500.0,images/wp5.png
+Each line should have three pieces of data, separated by commas. The first two are the coordinates. They are formatted like GPS coordinates, with the first number being the vertical distance, or 'North', and the second being the horizontal, or 'West', distance. The third part of the line is the path to the image that will be used as the waypoint marker.
 
 ## Dynamics Model
 
