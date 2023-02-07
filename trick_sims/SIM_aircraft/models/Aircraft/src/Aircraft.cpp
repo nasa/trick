@@ -15,7 +15,7 @@ int Aircraft::default_data() {
     pos[1] = 0.0;
     vel[0] = 100.0;       // m/s
     vel[1] = 0.0;
-    //current_waypoint = 0;
+    
     mass = 5000;              // kg
     thrust_mag_max = 45000;   // N
     K_drag = 0.72;
@@ -131,7 +131,6 @@ void Aircraft::reset_trip() {
 void Aircraft::add_waypoint(double n, double w) {
     WayPoint wp = { {n, w} };
     waypointQueue.push_back(wp);
-    // std::cout << "Waypoint (" << n << ", " << w << ") added!" << std::endl;
 }
 
 int Aircraft::control() {

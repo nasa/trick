@@ -118,22 +118,6 @@ class SkyView extends JPanel {
 
         waypoints = new ArrayList<Waypoint>();
     }
-/*
-    public boolean setAircraftDestination( double north, double west) {
-    	double n = north, w = west;
-    	n -= aircraftPos[0];
-		w -= aircraftPos[1];
-		if(Math.sqrt(n*n+w*w) < 1000) {
-			System.out.printf("Waypoint at (%.2f,%.2f) reached!\n", north, west);
-			return true;
-		} else {
-			double h = Math.atan2(w,n);
-			//System.out.println(h);
-			setInputDesiredHeading(h);
-			return false;
-		}
-    }
-*/
 
     public void addWaypoint( double n, double w, String fp) {
         BufferedImage img;
@@ -252,7 +236,6 @@ class SkyView extends JPanel {
         //  Draw Waypoints
         for(int i = 0; i < waypoints.size(); i++) {
             Waypoint wp = waypoints.get(i);
-            // drawScenePoly(g2d, wpmarker, 0.0, wp.north, wp.west);
             drawWaypoint(g2d, wp);
         }
 
