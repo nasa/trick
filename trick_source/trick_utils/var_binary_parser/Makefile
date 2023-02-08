@@ -42,8 +42,11 @@ ${LIBDIR}:
 ${TRICK_LIB}: ${LIBDIR}/${LIBNAME}
 	cp ${LIBDIR}/${LIBNAME} $(TRICK_LIB)
 
+real_clean: clean
+
 clean:
-	${RM} -r ${OBJDIR}
+	${RM} -rf ${OBJDIR}
+	${RM} -rf ${LIBDIR}
 	${MAKE} -C test clean
 
 spotless: 
