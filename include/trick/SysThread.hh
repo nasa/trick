@@ -16,7 +16,6 @@
 #endif
 #include <unistd.h>
 #include <sched.h>
-#include <atomic>
 #include "trick/ThreadBase.hh"
 
 
