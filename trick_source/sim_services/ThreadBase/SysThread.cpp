@@ -12,6 +12,7 @@
 
 #include "trick/SysThread.hh"
 
+bool Trick::SysThread::shutdown_finished = false;
 
 // Construct On First Use to avoid the Static Initialization Fiasco
 pthread_mutex_t& Trick::SysThread::list_mutex() {
@@ -19,79 +20,58 @@ pthread_mutex_t& Trick::SysThread::list_mutex() {
     return list_mutex;
 } 
 
+pthread_cond_t& Trick::SysThread::list_empty_cv() {
+    static pthread_cond_t list_empty_cv = PTHREAD_COND_INITIALIZER;
+    return list_empty_cv;
+} 
+
 std::vector<Trick::SysThread *>& Trick::SysThread::all_sys_threads() {
     static std::vector<SysThread *> all_sys_threads;
     return all_sys_threads;
 }
 
-Trick::SysThread::SysThread(std::string in_name) : ThreadBase(in_name) {
+Trick::SysThread::SysThread(std::string in_name, bool sd) : self_deleting(sd), ThreadBase(in_name) {
     pthread_mutex_lock(&(list_mutex()));
     all_sys_threads().push_back(this);
     pthread_mutex_unlock(&(list_mutex()));
 }
 
+
 Trick::SysThread::~SysThread() {
     pthread_mutex_lock(&(list_mutex()));
-    // TODO: would some kind of smart pointer be a better idea here?
-    all_sys_threads().erase(std::remove(all_sys_threads().begin(), all_sys_threads().end(), this), all_sys_threads().end());
+    if (!shutdown_finished) {
+        all_sys_threads().erase(std::remove(all_sys_threads().begin(), all_sys_threads().end(), this), all_sys_threads().end());
+        if (all_sys_threads().size() == 0) {
+            pthread_cond_signal(&(list_empty_cv()));
+        }
+    }
     pthread_mutex_unlock(&(list_mutex()));
 }
 
-
-
-int Trick::SysThread::safeShutdown() {
+int Trick::SysThread::ensureAllShutdown() {
     pthread_mutex_lock(&(list_mutex()));
 
     for (SysThread * thread : all_sys_threads()) {
         thread->cancel_thread();
     }
 
-    for (SysThread * thread : all_sys_threads()) {
-        thread->join_thread();
+    auto it = all_sys_threads().begin();
+    while (it != all_sys_threads().end()){
+        SysThread * thread = *it;
+        if (!(thread->self_deleting)) {
+            thread->join_thread();
+            it = all_sys_threads().erase(it);
+        } else {
+            ++it;
+        }
     }
 
+    while (all_sys_threads().size() != 0) {
+        pthread_cond_wait(&(list_empty_cv()), &(list_mutex()));
+    }
+
+    shutdown_finished = true;
     pthread_mutex_unlock(&(list_mutex()));
 
     return 0;
 }
-
-// int Trick::SysThread::create_thread() {
-
-//     pthread_attr_t attr;
-
-//     pthread_attr_init(&attr);
-//     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
-//     pthread_create(&pthread_id, &attr, Trick::ThreadBase::thread_helper , (void *)this);
-
-// #if __linux
-// #ifdef __GNUC__
-// #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
-//     if ( ! name.empty() ) {
-//        std::string short_str = name.substr(0,15) ;
-//        pthread_setname_np(pthread_id, short_str.c_str()) ;
-//     }
-// #endif
-// #endif
-// #endif
-//     return(0) ;
-// }
-
-// void * Trick::SysThread::thread_helper( void * context ) {
-
-//     sigset_t sigs;
-//     Trick::ThreadBase * tb = (Trick::ThreadBase *)context ;
-
-//     /* block out all signals on this thread */
-//     sigfillset(&sigs);
-//     pthread_sigmask(SIG_BLOCK, &sigs, NULL);
-
-//     /* Set the cancel type to deffered, the thread will be cancelled at next cancellation point */
-//     pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-
-//     tb->set_pid() ;
-
-//     /* Set thread priority and CPU affinity */
-//     tb->execute_priority() ;
-//     tb->execute_cpu_affinity() ;
-//     return tb->thread_body() ;
-// }

@@ -8,7 +8,7 @@
 Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 
 Trick::VariableServerThread::VariableServerThread(TCDevice * in_listen_dev) :
- Trick::SysThread("VarServer") ,
+ Trick::SysThread("VarServer", true) ,
  listen_dev(in_listen_dev) {
 
     debug = 0 ;

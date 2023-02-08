@@ -76,7 +76,7 @@ int Trick::Executive::shutdown() {
         except_message += std::string(" then exception Message: ") + ex.message ;
     }
 
-    Trick::SysThread::safeShutdown();
+    Trick::SysThread::ensureAllShutdown();
 
     getrusage(RUSAGE_SELF, &cpu_usage_buf);
     cpu_time = ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
