@@ -37,11 +37,15 @@ import javax.swing.JSlider;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JToggleButton;
 import javax.swing.BorderFactory; 
 import javax.swing.border.EtchedBorder;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+
 import java.awt.Color;
 
 import javax.imageio.ImageIO;
@@ -71,19 +75,96 @@ class ScenePoly {
 }
 
 class SimulationMenuBar extends JMenuBar {
-    public JMenu _file, _edit, _view, _tools, _help;
+    private JMenu _file, _edit, _view, _tools, _help;
+    private SkyView skyView;
 
-    public SimulationMenuBar() {
-        _file = new JMenu("File");      // New, Open, Save, Save As, Exit
-        _edit = new JMenu("Edit");      // Undo, Redo
-        _view = new JMenu("View");      // 
-        _tools = new JMenu("Tools");
+    public SimulationMenuBar(SkyView sv) {
+        skyView = sv;
+        // initFileMenu(); // Work in Progress
+        // initEditMenu(); // Work in Progress
+        initViewMenu();
+        // initToolsMenu(); // Work in Progress
+        // initHelpMenu(); // Work in Progress
+    }
+
+    private void initHelpMenu() {
         _help = new JMenu("Help");
-        add(_file);
-        add(_edit);
-        add(_view);
-        add(_tools);
         add(_help);
+    }
+
+    private void initToolsMenu() {
+        _tools = new JMenu("Tools");
+        add(_tools);
+    }
+
+    private void initViewMenu() {
+        _view = new JMenu("View");      // Map Information, Aircraft Status
+        SimDataCheckBox sd;
+        sd = new SimDataCheckBox("Simulation Data", skyView.viewSimulationData());
+        _view.add(sd);
+        AircraftStatusCheckBox as;
+        as = new AircraftStatusCheckBox("Aircraft Status", skyView.viewAircraftStatus());
+        _view.add(as);
+        add(_view);
+    }
+
+    private void initEditMenu() {
+        _edit = new JMenu("Edit");      // Undo, Redo, Cut, Copy, Paste
+        JMenuItem mi;
+        mi = new JMenuItem("Undo");
+        _edit.add(mi);
+        mi = new JMenuItem("Redo");
+        _edit.add(mi);
+        mi = new JMenuItem("Cut");
+        _edit.add(mi);
+        mi = new JMenuItem("Copy");
+        _edit.add(mi);
+        mi = new JMenuItem("Paste");
+        _edit.add(mi);
+        add(_edit);
+    }
+
+    private void initFileMenu() {
+        _file = new JMenu("File");      // New, Open, Save, Save As, Exit
+        JMenuItem mi;
+        mi = new JMenuItem("New");
+        _file.add(mi);
+        mi = new JMenuItem("Open");
+        _file.add(mi);
+        mi = new JMenuItem("Save");
+        _file.add(mi);
+        mi = new JMenuItem("Save As");
+        _file.add(mi);
+        mi = new JMenuItem("Exit");
+        _file.add(mi);
+        
+        add(_file);
+    }
+
+    private class SimDataCheckBox extends JCheckBoxMenuItem implements ItemListener {
+        public SimDataCheckBox(String text, boolean status) {
+            super(text, status);
+            addItemListener(this);
+        }
+
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            System.out.println("Sim Data Clicked");
+            skyView.viewSimulationData(isSelected());
+        }
+    }
+
+    private class AircraftStatusCheckBox extends JCheckBoxMenuItem implements ItemListener {
+        public AircraftStatusCheckBox(String text, boolean status) {
+            super(text, status);
+            addItemListener(this);
+        }
+
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+            System.out.println("Aircraft Status Clicked");
+            skyView.viewAircraftStatus(isSelected());
+        }
     }
 }
 
@@ -111,6 +192,9 @@ class SkyView extends JPanel {
     private int worldOriginX;
     private int worldOriginY;
 
+    private boolean viewAircraftStatus;
+    private boolean viewSimData;
+
     public SkyView( double mapScale ) {
         scale = mapScale;
         setScale(mapScale);
@@ -136,6 +220,25 @@ class SkyView extends JPanel {
         workPolyY = new int[30];
 
         waypoints = new ArrayList<Waypoint>();
+
+        viewAircraftStatus = true;
+        viewSimData = true;
+    }
+
+    public boolean viewAircraftStatus() {
+        return viewAircraftStatus;
+    }
+
+    public void viewAircraftStatus(boolean b) {
+        viewAircraftStatus = b;
+    }
+
+    public boolean viewSimulationData() {
+        return viewSimData;
+    }
+
+    public void viewSimulationData(boolean b) {
+        viewSimData = b;
     }
 
     public void addWaypoint( double n, double w, String fp) {
@@ -263,26 +366,29 @@ class SkyView extends JPanel {
 
         // Display State Data
         g2d.setPaint(Color.BLACK);
-        g2d.drawString ( String.format("Aircraft Pos: [%.2f, %.2f]", aircraftPos[0], aircraftPos[1]), 20,40);
-        g2d.drawString ( String.format("Aircraft Vel: [%.2f, %.2f]", aircraftVel[0], aircraftVel[1]), 20,60);
+        if(viewSimData) {
+            g2d.drawString ( String.format("Aircraft Pos: [%.2f, %.2f]", aircraftPos[0], aircraftPos[1]), 20,40);
+            g2d.drawString ( String.format("Aircraft Vel: [%.2f, %.2f]", aircraftVel[0], aircraftVel[1]), 20,60);
 
-        g2d.drawString ( String.format("SCALE: %f pixels/meter",scale), 20,80);
+            g2d.drawString ( String.format("SCALE: %f pixels/meter",scale), 20,80);
 
-        g2d.drawString ( String.format("Autopilot Mode: [%B]", autopilot), 20,100);
-
-        if (autopilot == true) {
-            g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,40);
-            g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
-            g2d.drawString ( "-------Controls disabled-------", (width - 240),80);
-            g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),100);
-            g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),120);
-        } else {
-            g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,100);
-            g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),80);
-            g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
-            g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),40);
+            g2d.drawString ( String.format("Autopilot Mode: [%B]", autopilot), 20,100);
         }
-      
+
+        if(viewAircraftStatus) {
+            if (autopilot == true) {
+                g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,40);
+                g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
+                g2d.drawString ( "-------Controls disabled-------", (width - 240),80);
+                g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),100);
+                g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),120);
+            } else {
+                g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,100);
+                g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),80);
+                g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
+                g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),40);
+            }
+        }
     }
 
     @Override
@@ -455,7 +561,7 @@ public class AircraftDisplay extends JFrame {
 
     public AircraftDisplay(SkyView sky) {
         skyView = sky;
-        simMenu = new SimulationMenuBar();
+        simMenu = new SimulationMenuBar(skyView);
         setJMenuBar(simMenu);
         add( skyView);
         setTitle("Aircraft Display");
