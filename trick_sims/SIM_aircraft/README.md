@@ -36,7 +36,7 @@ Click Start on the Trick Sim Control Panel.
 ![](images/GraphicsClient.png)
 
 ### Manual Control of the Aircraft
-The two sliders on the bottom left and right are for setting the aircraft's desired speed and heading, respectively. The desired speed can range from 0 to 250 meters per second. The desired heading is measured in radians, from -$\pi$ to $\pi$.
+The two sliders on the bottom left and right are for setting the aircraft's desired speed and heading, respectively. The desired speed can range from 0 to 250 meters per second. The desired heading is measured in radians, from - $\pi$ to $\pi$.
 
 ### Aircraft Autopilot
 The autopilot feature is toggled on and off by the ```Autopilot OFF/ON``` button at the bottom of the graphics client. 
