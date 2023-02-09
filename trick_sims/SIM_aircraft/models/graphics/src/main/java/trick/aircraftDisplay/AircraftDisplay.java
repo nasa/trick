@@ -80,11 +80,7 @@ class SimulationMenuBar extends JMenuBar {
 
     public SimulationMenuBar(SkyView sv) {
         skyView = sv;
-        // initFileMenu(); // Work in Progress
-        // initEditMenu(); // Work in Progress
         initViewMenu();
-        // initToolsMenu(); // Work in Progress
-        // initHelpMenu(); // Work in Progress
     }
 
     private void initHelpMenu() {
