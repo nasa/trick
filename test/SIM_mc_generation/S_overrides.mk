@@ -4,5 +4,5 @@ TRICK_CXXFLAGS += -g -std=c++11 -Wall -Wextra
 # MACOS deprecates and warns about sprintf. But SWIG
 # still generates code containing sprintf..
 ifneq ($(TRICK_HOST_TYPE), Darwin)
-TRICK_CXXFLAGS += -Werror
+TRICK_CXXFLAGS += -Werror -Wno-stringop-truncation
 endif

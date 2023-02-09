@@ -191,7 +191,7 @@ SIM_sun:
       returns: 0
 SIM_earlyterm:
   path: test/SIM_earlyterm
-  build_command: "trick-CP -t"
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/input.py:
