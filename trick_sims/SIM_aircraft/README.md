@@ -62,6 +62,22 @@ When the simulation starts they are read into the simulation from the specified 
     -21650.0,  12500.0,images/wp5.png
 Each line should have three pieces of data, separated by commas. The first two are the coordinates. They are formatted like GPS coordinates, with the first number being the vertical distance, or 'North', and the second being the horizontal, or 'West', distance. The third part of the line is the path to the image that will be used as the waypoint marker.
 
+### Graphics Client Menu
+
+#### View
+
+The `View` menu on the menu bar allows the user to choose the information displayed by the client.
+
+![](images/GraphicsClient_ViewMenu.png)
+
+The `Simulation Data` check box toggles the visibility of the aircraft's position, velocity, and control method as well as the scale of the map. This information is located in the top left corner of the client.
+
+![](images/GraphicsClient_SimData.png)
+
+The `Aircraft Status` check box toggles the visibility of both the aircraft's current speed and heading as well as it's desired speed and heading. This information is situated in the top right corner.
+
+![](images/GraphicsClient_AircraftStatus.png)
+
 ## Dynamics Model
 
 ### General Strategy for Motion

@@ -145,7 +145,6 @@ class SimulationMenuBar extends JMenuBar {
 
         @Override
         public void itemStateChanged(ItemEvent e) {
-            System.out.println("Sim Data Clicked");
             skyView.viewSimulationData(isSelected());
         }
     }
@@ -158,7 +157,6 @@ class SimulationMenuBar extends JMenuBar {
 
         @Override
         public void itemStateChanged(ItemEvent e) {
-            System.out.println("Aircraft Status Clicked");
             skyView.viewAircraftStatus(isSelected());
         }
     }
