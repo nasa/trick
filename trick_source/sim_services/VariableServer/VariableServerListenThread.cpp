@@ -11,7 +11,7 @@
 #include "trick/message_type.h"
 
 Trick::VariableServerListenThread::VariableServerListenThread() :
- Trick::ThreadBase("VarServListen"),
+ Trick::SysThread("VarServListen"),
  port(0),
  user_port_requested(false),
  broadcast(true),

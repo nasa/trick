@@ -87,6 +87,8 @@ class DRTypes {
 		unsigned long long	l;
 		bool                m;
 		NUM_DEFS			n;
+		char * 				o;	// Should not actually be added
+		std::string			p;	// Should not actually be added
 
 		UINT_BITS uintB;
 		INT_BITS intB;

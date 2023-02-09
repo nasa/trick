@@ -380,7 +380,14 @@ int Trick::DataRecordGroup::init() {
                 delete drb ;
                 continue ;
             } else {
-                drb->ref = ref2 ;
+                if (ref2->attr->type == TRICK_STRING || ref2->attr->type == TRICK_STL || ref2->attr->type == TRICK_STRUCTURED || ref2->attr->num_index != 0) {
+                    message_publish(MSG_WARNING, "Cannot Data Record unsupported type variable %s.\n", drb->name.c_str()) ;
+                    rec_buffer.erase(rec_buffer.begin() + jj--) ;
+                    delete drb ;
+                    continue ;
+                } else {
+                    drb->ref = ref2 ;
+                }
             }
         }
         if ( drb->alias.compare("") ) {

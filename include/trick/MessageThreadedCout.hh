@@ -7,7 +7,7 @@
 #define MESSAGETHREADEDCOUT_HH
 
 #include <iostream>
-#include "trick/ThreadBase.hh"
+#include "trick/SysThread.hh"
 #include "trick/MessageSubscriber.hh"
 
 namespace Trick {
@@ -16,7 +16,7 @@ namespace Trick {
 	 * This MessageThreadedCout is a class that inherits from MessageSubscriber.
 	 * It defines a type of MessageSubscriber with its received message sending to the standard output stream.
 	 */
-    class MessageThreadedCout : public MessageSubscriber , public Trick::ThreadBase {
+    class MessageThreadedCout : public MessageSubscriber , public Trick::SysThread {
 
         public:
 
