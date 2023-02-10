@@ -1,3 +1,9 @@
+//
+// Trick spring sim
+// 
+// Credit: Tim Briscoe (timothy.j.briscoe@nasa.gov)
+// 
+
 #include "sim_objects/default_trick_sys.sm"
 
 ##include <math.h>
