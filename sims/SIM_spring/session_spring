@@ -4,14 +4,19 @@ t2: (MONTE_RUN_test)
 fg: #ededed
 bg: black
 
-g1: 0,10
+g1: 00000
 c1: pink
-l1: "First Ten Runs"
+l1: "Initial Run"
+ls1: thick_line
 
-g2: 99
-c2: white
-l2: "Final Run"
-ls2: thick_line
+g2: 1,10
+c2: pink
+l2: "Runs 1-10"
+
+g3: 99
+c3: white
+l3: "Final Run"
+ls3: thick_line
 
 PRODUCT: DP_Product/DP_pretty
 
