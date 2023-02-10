@@ -13,18 +13,18 @@ class SpringSimObject : public Trick::SimObject {
 
     public:
 
-        double mass;      /* kg */
-        double stiffness; /* N/m */
-        double damping;   
-        double zeta;
-        double omega;
-        double init_pos;
-        double init_vel;
+        double mass;      // kg 
+        double stiffness; // N/m
+        double damping;   // N*s/m
+        double zeta;      // --
+        double omega;     // rad/s
+        double init_pos;  // m
+        double init_vel;  // m/s
 
-        double pos;       /* m */
-        double vel;       /* m/s */
-        double acc;       /* m/s2 */
-        double force;     /* N */
+        double pos;       // m
+        double vel;       // m/s
+        double acc;       // m/s2
+        double force;     // N
 
         SpringSimObject() : 
             mass(1.0), stiffness(39.47842), zeta(0.1),
