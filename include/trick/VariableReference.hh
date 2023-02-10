@@ -63,13 +63,14 @@ namespace Trick {
         bool validate();
         void tagAsInvalid();
 
+        // Helper method for byteswapping
+        static void byteswap_var (char * out, char * in, const VariableReference& ref);
+
         // TODO: Some system for error messaging
 
     private:
         VariableReference();
-
-        // Helper method for byteswapping
-        void byteswap_var (char * out, char * in) const;
+        void byteswap_var(char * out, char * in) const;
 
         // Error refs
         static REF2* make_error_ref(std::string in_name);

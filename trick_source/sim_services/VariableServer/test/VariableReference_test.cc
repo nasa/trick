@@ -219,3 +219,158 @@ TEST_F(VariableReference_test, setUnitsTwice) {
     ref.writeValueAscii(ss);
     EXPECT_EQ(ss.str(), "5000000 {mm}");
 }
+
+TEST_F(VariableReference_test, byteswap_chars) {
+    // ARRANGE
+    char in = 'a';
+    char out;
+
+    memmgr->declare_extern_var(&in, "char a");
+    Trick::VariableReference ref("a");
+
+    // ACT
+    Trick::VariableReference::byteswap_var(&out, &in, ref);
+
+    // ASSERT
+    EXPECT_EQ(in, 'a');
+    EXPECT_EQ(out, 'a');
+}
+
+TEST_F(VariableReference_test, byteswap_char_array) {
+    // ARRANGE
+    char in[7] = "Jackie";
+    char out[7];
+
+    memmgr->declare_extern_var(&in, "char a[7]");
+    Trick::VariableReference ref("a");
+
+    // ACT
+    Trick::VariableReference::byteswap_var(out, in, ref);
+
+    // ASSERT
+    for (int i = 0; i < 7; i++) {
+        EXPECT_EQ(out[i], in[i]);
+    }
+}
+
+// Pointers to the beginning of the variables
+bool check_that_val_is_byteswapped (char * expected, char * byteswap, int val_size) {
+    for (int i = 0; i < val_size; i++) {
+        if (expected[i] != byteswap[val_size-i-1]) return false;
+    }
+    return true;
+}
+
+TEST_F(VariableReference_test, byteswap_short) {
+    // ARRANGE
+    short in = 100; 
+    short out;      
+
+    memmgr->declare_extern_var(&in, "short a");
+    Trick::VariableReference ref("a");
+
+    // ACT
+    Trick::VariableReference::byteswap_var((char *)(&out),(char *)(&in), ref);
+
+    // ASSERT
+    EXPECT_TRUE(check_that_val_is_byteswapped((char *)(&out),(char *)(&in), sizeof(short)));
+}
+
+TEST_F(VariableReference_test, byteswap_int) {
+    // ARRANGE
+    int in = 123456;
+    int out;      
+
+    memmgr->declare_extern_var(&in, "int a");
+    Trick::VariableReference ref("a");
+
+    // ACT
+    Trick::VariableReference::byteswap_var((char *)(&out),(char *)(&in), ref);
+
+    // ASSERT
+    EXPECT_TRUE(check_that_val_is_byteswapped((char *)(&out),(char *)(&in), sizeof(int)));
+}
+
+TEST_F(VariableReference_test, byteswap_long) {
+    // ARRANGE
+    long in = 123456789; 
+    long out;
+
+    memmgr->declare_extern_var(&in, "long a");
+    Trick::VariableReference ref("a");
+
+    // ACT
+    Trick::VariableReference::byteswap_var((char *)(&out),(char *)(&in), ref);
+
+    // ASSERT
+    EXPECT_TRUE(check_that_val_is_byteswapped((char *)(&out),(char *)(&in), sizeof(long)));
+}
+
+TEST_F(VariableReference_test, byteswap_long_arr) {
+    // ARRANGE
+    long in[5] = {123456789, 123456780, __LONG_MAX__, -100000000, 0}; 
+    long out[5];
+
+    memmgr->declare_extern_var(&in, "long a[5]");
+    Trick::VariableReference ref("a");
+
+    // ACT
+    Trick::VariableReference::byteswap_var((char *)(out),(char *)(in), ref);
+
+    // ASSERT
+    for (int i = 0; i < 5; i++) {
+        EXPECT_TRUE(check_that_val_is_byteswapped((char *)(&out[i]),(char *)(&in[i]), sizeof(long)));
+    }
+}
+
+TEST_F(VariableReference_test, byteswap_int_arr) {
+    // ARRANGE
+    int in[5] = {20945, -29384293, INT32_MAX, INT32_MIN, 0}; 
+    int out[5];
+
+    memmgr->declare_extern_var(&in, "int a[5]");
+    Trick::VariableReference ref("a");
+
+    // ACT
+    Trick::VariableReference::byteswap_var((char *)(out),(char *)(in), ref);
+
+    // ASSERT
+    for (int i = 0; i < 5; i++) {
+        EXPECT_TRUE(check_that_val_is_byteswapped((char *)(&out[i]),(char *)(&in[i]), sizeof(int)));
+    }
+}
+
+TEST_F(VariableReference_test, byteswap_int_multidimensional_arr) {
+    // ARRANGE
+    int multidim_arr[5][4][3][2];
+    int out[5][4][3][2];
+
+
+    int counter = 500;
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 4; j++) {
+            for (int k = 0; k < 3; k++) {
+                for (int l = 0; l < 2; l++) {
+                    multidim_arr[i][j][k][l] = counter++;
+                }
+            }
+        }
+    }
+
+    memmgr->declare_extern_var(&multidim_arr, "int multidim_arr[5][4][3][2]");
+    Trick::VariableReference ref("multidim_arr");
+
+    // ACT
+    Trick::VariableReference::byteswap_var((char *)(out),(char *)(multidim_arr), ref);
+
+    // ASSERT
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 4; j++) {
+            for (int k = 0; k < 3; k++) {
+                for (int l = 0; l < 2; l++) {
+                    EXPECT_TRUE(check_that_val_is_byteswapped((char *)(&(out[i][j][k][l])),(char *)(&(multidim_arr[i][j][k][l])), sizeof(int)));
+                }
+            }
+        }
+    }
+}

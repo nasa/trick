@@ -642,18 +642,23 @@ int Trick::VariableReference::writeNameBinary( std::ostream& out, bool byteswap 
     return 0;
 }
 
-
 void Trick::VariableReference::byteswap_var (char * out, char * in) const {
-    ATTRIBUTES * attr = var_info->attr;
+    byteswap_var(out, in, *this);
+}
+
+
+void Trick::VariableReference::byteswap_var (char * out, char * in, const VariableReference& ref) {
+    ATTRIBUTES * attr = ref.var_info->attr;
     int array_size = 1;
 
     // Determine how many elements are in this array if it is an array
-    for (int j = 0; j < var_info->attr->num_index; j++) {
+    for (int j = 0; j < ref.var_info->attr->num_index; j++) {
         array_size *= attr->index[j].size;
     }
 
     switch (attr->size) {
         case 1:
+            // If these are just characters, no need to byteswap
             for (int j = 0; j < array_size; j++) {
                 out[j] = in[j];
             }
