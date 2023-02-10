@@ -45,7 +45,8 @@ ${TRICK_LIB}: ${LIBDIR}/${LIBNAME}
 real_clean: clean
 
 clean:
-	${RM} -r ${OBJDIR}
+	${RM} -rf ${OBJDIR}
+	${RM} -rf ${LIBDIR}
 	${MAKE} -C test clean
 
 spotless: 

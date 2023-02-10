@@ -17,6 +17,7 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/release.h"
+#include "trick/SysThread.hh"
 
 /**
 @design
@@ -74,6 +75,8 @@ int Trick::Executive::shutdown() {
         except_file += std::string(" then exception caught in ") + ex.file ;
         except_message += std::string(" then exception Message: ") + ex.message ;
     }
+
+    Trick::SysThread::ensureAllShutdown();
 
     getrusage(RUSAGE_SELF, &cpu_usage_buf);
     cpu_time = ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);

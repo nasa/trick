@@ -18,7 +18,7 @@
 #include "trick/variable_server_sync_types.h"
 #include "trick/VariableServerThread.hh"
 #include "trick/VariableServerListenThread.hh"
-#include "trick/ThreadBase.hh"
+#include "trick/SysThread.hh"
 
 namespace Trick {
 

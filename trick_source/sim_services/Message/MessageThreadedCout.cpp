@@ -10,10 +10,10 @@ Trick::MessageThreadedCout::MessageThreadedCout() :
  max_buffer_size(4000) ,
  print_immediate(false) ,
  copy_ptr(NULL),
- write_ptr(NULL) {
+ write_ptr(NULL),
+ SysThread("threadedcout") {
     /** By default, this subscriber is enabled when it is created. */
     Trick::MessageSubscriber::name = "threadedcout" ;
-    Trick::ThreadBase::name = "threadedcout" ;
     color_code.reserve(6) ;
     StringNode * temp = new StringNode(max_buffer_size) ;
     write_ptr = copy_ptr = temp ;

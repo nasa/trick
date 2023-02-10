@@ -300,6 +300,13 @@ int Trick::ThreadBase::cancel_thread() {
     return(0) ;
 }
 
+int Trick::ThreadBase::join_thread() {
+    if ( pthread_id != 0 ) {
+        pthread_join(pthread_id, NULL) ;
+    }
+    return(0) ;
+}
+
 void * Trick::ThreadBase::thread_helper( void * context ) {
 
     sigset_t sigs;

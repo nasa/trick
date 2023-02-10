@@ -1,3 +1,6 @@
+| [Home](/trick) → [Developer Docs](Developer-Docs-Home) → How to make a release |
+|------------------------------------------------------------------|
+
 # How To Make A Trick Release
 This guide describes how to make a Trick release on GitHub
 ### Close Open Issues
@@ -23,8 +26,8 @@ https://github.com/nasa/trick/releases
 #### Example
 https://github.com/nasa/trick/commit/a317c222748e706e89b7f344f6910d1f39824feb
 #### Steps
-* In share/trick/trick_ver.txt change the "current_version" string to match the new version number and remove any postfixes
-* In trick_source/java/pom.xml change the \<version\> tag to the new version and remove any postfixes
+* In share/trick/trick_ver.txt change the "current_version" string to match the new version number and remove any suffixes (like: "-beta").
+* In trick_source/java/pom.xml change the \<version\> tag to the new version and remove any suffixes.
 * In CMakeLists.txt change TRICK_MAJOR TRICK_MINOR TRICK_TINY to match the current version, and set TRICK_PRERELEASE to an empty string
 ### Create a commit, tag, and push to github.com
   * `git commit -m "update version numbers for Trick Simulation Environment X.Y.Z"`
@@ -32,7 +35,7 @@ https://github.com/nasa/trick/commit/a317c222748e706e89b7f344f6910d1f39824feb
   * `git push origin <tagname>`
 ### Change version numbers back to prerelease and push
   * Reverse the process of changing the version numbers in the files listed above; update to the next minor prerelease version (or major version if planning a major release soon). 
-  * Remember to add the -beta postfix to the version number
+  * Remember to add the -beta suffix to the version number
   * `git commit -m "update version numbers to prerelease X.Y.Z-beta"`
   * `git push origin master`
 ### Create the release through the github UI

@@ -8,7 +8,7 @@
 Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 
 Trick::VariableServerThread::VariableServerThread(ClientListener * in_listen_dev) :
- Trick::ThreadBase("VarServer") , debug(0),
+ Trick::SysThread("VarServer") , debug(0),
  listener(in_listen_dev), session(NULL) {
 
     connection_status = CONNECTION_PENDING ;

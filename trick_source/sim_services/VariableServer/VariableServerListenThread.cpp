@@ -12,7 +12,7 @@
 
 
 Trick::VariableServerListenThread::VariableServerListenThread() :
- Trick::ThreadBase("VarServListen"),
+ Trick::SysThread("VarServListen"),
  requested_port(0),
  requested_source_address(""),
  user_requested_address(false),

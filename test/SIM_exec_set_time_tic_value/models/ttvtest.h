@@ -9,4 +9,7 @@ LIBRARY DEPENDENCY:
 class TTVTest {
 public:
     int scheduled();
+    int scheduled2();
+    int scheduled3();
+    int scheduled4();
 };

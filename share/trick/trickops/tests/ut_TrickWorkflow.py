@@ -42,7 +42,7 @@ class TrickWorkflowTestCase(unittest.TestCase):
         self.assertEqual(len(build_jobs), 56)
         self.assertEqual(len(self.instance.sims), 56)
         run_jobs = self.instance.get_jobs('run')
-        self.assertEqual(len(run_jobs), 38)
+        self.assertEqual(len(run_jobs), 37 )
 
     def test_init_empty_so_raises(self):
         with self.assertRaises(RuntimeError):
@@ -195,9 +195,9 @@ class TrickWorkflowTestCase(unittest.TestCase):
         builds = self.instance.get_jobs('builds')
         self.assertEqual(len(builds), 56)
         runs = self.instance.get_jobs('run')
-        self.assertEqual(len(runs), 38)
+        self.assertEqual(len(runs), 37)
         runs = self.instance.get_jobs('runs')
-        self.assertEqual(len(runs), 38)
+        self.assertEqual(len(runs), 37)
         vg = self.instance.get_jobs('valgrind')
         self.assertEqual(len(vg), 1)
         vg = self.instance.get_jobs('valgrinds')

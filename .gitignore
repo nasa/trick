@@ -41,3 +41,4 @@ trickops_logs/
 *.gcno
 *.gcda
 *.dSYM
+coverage.info

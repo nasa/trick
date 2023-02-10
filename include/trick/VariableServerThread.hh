@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include "trick/tc.h"
 #include "trick/TCConnection.hh"
-#include "trick/ThreadBase.hh"
+#include "trick/SysThread.hh"
 #include "trick/VariableServerSession.hh"
 #include "trick/variable_server_sync_types.h"
 #include "trick/variable_server_message_types.h"
@@ -30,7 +30,7 @@ namespace Trick {
   This class provides variable server command processing on a separate thread for each client.
   @author Alex Lin
  */
-    class VariableServerThread : public Trick::ThreadBase {
+    class VariableServerThread : public Trick::SysThread {
 
         public:
             friend std::ostream& operator<< (std::ostream& s, Trick::VariableServerThread& vst);

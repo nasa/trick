@@ -27,7 +27,7 @@
 <a id=how-trick-does-numerical-integration></a>
 ## How Trick Does Numerical Integration
 The type of model that we created in the last section relied on the fact that
-the cannon ball problem has an closed-form solution from which we can
+the cannon ball problem has a closed-form solution from which we can
 immediately calculate the cannon ball state [position, velocity] at any
 arbitrary time. In real-world simulation problems, this will almost never
 be the case.
@@ -140,11 +140,8 @@ Producing simulation states by numerical integration requires that the derivativ
 and integration jobs be called at the appropriate rate and times. This requires
 a properly configured integration scheduler.
 
-First,an integration scheduler has to be instantiated in the S_define.  Then, in
-the input files
-
-1. In the S_define file, define the integration with a declaration of the
-following form:
+First, instantiate an integration scheduler in the S_define with a declaration
+of the following form:
 
 ```c++
 IntegLoop integLoopName ( integrationTimeStep ) listOfSimObjectNames ;
@@ -153,16 +150,18 @@ IntegLoop integLoopName ( integrationTimeStep ) listOfSimObjectNames ;
 * Jobs within a simObject that are tagged "derivative" or "integration" will be
 dispatched to the associated integration scheduler.
 
-In the input file, call the IntegLoop **getIntegrator()** method to specify
+Then, in the input file, call the IntegLoop **getIntegrator()** method to specify
 the integration algorithm of choice and the number of state variables to be
 integrated.
 
-*integLoopName*.getIntegrator( *algorithm*, *N* );
+```py
+integLoopName.getIntegrator( algorithm, N );
+```
 
 * *algorithm* is a enumeration value that indicates the numerical integration
 algorithm to be used, such as: `trick.Euler`, `trick.Runge_Kutta_2`,
-`trick.Runge_Kutta_4`. A complete list can be seen Integrator.hh, in
-`${TRICK_HOME}/include/trick/Integrator.hh` .
+`trick.Runge_Kutta_4`. A complete list is visible in Integrator.hh, in
+`${TRICK_HOME}/include/trick/Integrator.hh`.
 
 * N is the number of state variables to be integrated.
 
@@ -192,7 +191,7 @@ And then copy the sim directory.
 
 ### Create **cannon_numeric.h.**
 In this new simulation, we're going to create two new functions, 1)
-`cannon_deriv()` [our derivative job], 2) `cannon_integ ()` [our integration job].
+`cannon_deriv()` [our derivative job], and 2) `cannon_integ ()` [our integration job].
 We'll put prototypes for each these functions into `cannon_numeric.h`. This new
 header file which will replace `cannon_analytic.h`.
 
@@ -357,8 +356,8 @@ Replace:
 with:
 
 ```c++
-   ("derivative") cannon_deriv( &cannon) ;
-   ("integration") trick_ret= cannon_integ( & cannon);
+   ("derivative") cannon_deriv( &cannon ) ;
+   ("integration") trick_ret= cannon_integ( & cannon ) ;
 ```
 
 ### Add Integration Scheduler and Integrator
@@ -385,7 +384,7 @@ The updated S_define is:
 
 ```c++
 /****************************************************************
-PURPOSE: (S_define File for SIM_cannon_numeric.)
+PURPOSE: (S_define file for SIM_cannon_numeric)
 LIBRARY_DEPENDENCY: ((cannon/src/cannon_init.c)
                      (cannon/src/cannon_numeric.c)
                      (cannon/src/cannon_shutdown.c))
@@ -399,9 +398,9 @@ class CannonSimObject : public Trick::SimObject {
     CannonSimObject() {
         ("initialization") cannon_init( &cannon ) ;
         ("default_data") cannon_default_data( &cannon ) ;
-        ("derivative") cannon_deriv( &cannon) ;
-        ("integration") trick_ret= cannon_integ( &cannon);
-        ("shutdown") cannon_shutdown( &cannon);
+        ("derivative") cannon_deriv( &cannon ) ;
+        ("integration") trick_ret= cannon_integ( &cannon ) ;
+        ("shutdown") cannon_shutdown( &cannon ) ;
     }
 };
 
