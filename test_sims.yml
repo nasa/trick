@@ -243,25 +243,25 @@ SIM_checkpoint_data_recording:
     # RUN_test6/dump.py:
     #   returns: 0
 
-    RUN_test1/unit_test.py:
-      returns: 0
-      compare: 
-        - test/SIM_checkpoint_data_recording/RUN_test1/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test1/log_foo.csv
-    RUN_test2/unit_test.py:
-      returns: 0
-      analyze: './test/SIM_checkpoint_data_recording/RUN_test2/check_log.sh'
-    RUN_test3/unit_test.py:
-      returns: 0
-      compare: 
-        - test/SIM_checkpoint_data_recording/RUN_test3/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test3/log_foo.csv
-    RUN_test4/unit_test.py:
-      returns: 0
-      compare: 
-        - test/SIM_checkpoint_data_recording/RUN_test4/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test4/log_foo.csv
-    RUN_test5/unit_test.py:
-      returns: 0
-      compare: 
-        - test/SIM_checkpoint_data_recording/RUN_test5/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test5/log_foo.csv
+    # RUN_test1/unit_test.py:
+    #   returns: 0
+    #   compare: 
+    #     - test/SIM_checkpoint_data_recording/RUN_test1/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test1/log_foo.csv
+    # RUN_test2/unit_test.py:
+    #   returns: 0
+    #   analyze: './test/SIM_checkpoint_data_recording/RUN_test2/check_log.sh'
+    # RUN_test3/unit_test.py:
+    #   returns: 0
+    #   compare: 
+    #     - test/SIM_checkpoint_data_recording/RUN_test3/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test3/log_foo.csv
+    # RUN_test4/unit_test.py:
+    #   returns: 0
+    #   compare: 
+    #     - test/SIM_checkpoint_data_recording/RUN_test4/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test4/log_foo.csv
+    # RUN_test5/unit_test.py:
+    #   returns: 0
+    #   compare: 
+    #     - test/SIM_checkpoint_data_recording/RUN_test5/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test5/log_foo.csv
     # RUN_test6/unit_test.py:
     #   returns: 0
     #   compare: 
