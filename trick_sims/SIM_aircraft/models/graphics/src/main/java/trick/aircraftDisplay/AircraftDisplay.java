@@ -13,6 +13,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener; 
 import java.awt.event.ActionEvent;
+import java.awt.Toolkit;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ItemEvent;
@@ -24,6 +25,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.FileReader;
+import java.io.FileNotFoundException;
 import java.lang.Math;
 import java.net.Socket;
 import java.util.*;
@@ -40,10 +42,24 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.BoxLayout;
 import java.awt.Color;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+
 /**
  *
  * @author penn
  */
+
+class Waypoint {
+    public double north, west;
+    public BufferedImage icon;
+    
+    public Waypoint(double n, double w, BufferedImage i) {
+        north = n;
+        west = w;
+        icon = i;
+    }
+}
 
 class ScenePoly {
     public Color color;
@@ -69,6 +85,8 @@ class SkyView extends JPanel {
     private double desired_speed;
     private double desired_heading;
     private Boolean autopilot;
+
+    private ArrayList<Waypoint> waypoints;
 
     // Origin of world coordinates in jpanel coordinates.
     private int worldOriginX;
@@ -97,6 +115,19 @@ class SkyView extends JPanel {
 
         workPolyX = new int[30];
         workPolyY = new int[30];
+
+        waypoints = new ArrayList<Waypoint>();
+    }
+
+    public void addWaypoint( double n, double w, String fp) {
+        BufferedImage img;
+        try {
+            img = ImageIO.read(new File(fp));
+            waypoints.add(new Waypoint(n,w,img));
+        } catch(Exception e) {
+            System.out.printf("Waypoint (%.1f,%.1f) not added to map.");
+        }
+
     }
 
     public void setAircraftPos( double n, double w) {
@@ -166,6 +197,13 @@ class SkyView extends JPanel {
         g.fillOval(x,y,r,r);
     }
 
+    public void drawWaypoint(Graphics2D g, Waypoint wp) {
+        int x = 0, y = 0;
+        x = (int)((worldOriginX - scale * wp.west) - (wp.icon.getWidth()/2));
+        y = (int)((worldOriginY - scale * wp.north) - (wp.icon.getHeight()/2));
+        g.drawImage(wp.icon, x, y, null);
+    }
+
     public void drawScenePoly(Graphics2D g, ScenePoly p, double angle_r , double north, double west) {
 
         double mag = 800.0;
@@ -196,12 +234,10 @@ class SkyView extends JPanel {
         g2d.drawLine( worldOriginX, 0, worldOriginX, height);
 
         //  Draw Waypoints
-        drawScenePoly(g2d, wpmarker, 0.0,      0.0,  25000.0 );
-        drawScenePoly(g2d, wpmarker, 0.0,  21650.0,  12500.0 );
-        drawScenePoly(g2d, wpmarker, 0.0,  21650.0, -12500.0 );
-        drawScenePoly(g2d, wpmarker, 0.0,      0.0, -25000.0 );
-        drawScenePoly(g2d, wpmarker, 0.0, -21650.0, -12500.0 );
-        drawScenePoly(g2d, wpmarker, 0.0, -21650.0,  12500.0 );
+        for(int i = 0; i < waypoints.size(); i++) {
+            Waypoint wp = waypoints.get(i);
+            drawWaypoint(g2d, wp);
+        }
 
         //  Draw Aircraft
         drawScenePoly(g2d, aircraft, heading, aircraftPos[0], aircraftPos[1] );
@@ -441,7 +477,7 @@ public class AircraftDisplay extends JFrame {
 
         String host = "localHost";
         int port = 0;
-        String vehicleImageFile = null;
+        String waypointInputFile = null;
 
         int ii = 0;
         while (ii < args.length) {
@@ -450,6 +486,10 @@ public class AircraftDisplay extends JFrame {
                 case "--help" : {
                     printHelpText();
                     System.exit(0);
+                } break;
+                case "-w" :
+                case "--waypoints" : {
+                    waypointInputFile = args[++ii];
                 } break;
                 default : {
                     port = (Integer.parseInt(args[ii]));
@@ -460,6 +500,12 @@ public class AircraftDisplay extends JFrame {
 
         if (port == 0) {
             System.out.println("No variable server port specified.");
+            printHelpText();
+            System.exit(0);
+        }
+
+        if(waypointInputFile == null) {
+            System.out.println("No waypoint file specified");
             printHelpText();
             System.exit(0);
         }
@@ -477,6 +523,18 @@ public class AircraftDisplay extends JFrame {
 
         Boolean autopilot = false;
         double desired_heading = 0.0;
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(waypointInputFile));
+            String line;
+            while((line = br.readLine()) != null) {
+                String[] parsedLine = line.split(",");
+                sd.skyView.addWaypoint(Double.parseDouble(parsedLine[0]), Double.parseDouble(parsedLine[1]), parsedLine[2]);
+            }
+        } catch(FileNotFoundException e) {
+            System.out.printf("'%s' not found", args[ii+1]);
+            System.exit(0);
+        }
 
         System.out.println("Connecting to: " + host + ":" + port);
         sd.connectToServer(host, port);
