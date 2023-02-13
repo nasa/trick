@@ -4,7 +4,8 @@ REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( VS.o )
-PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) (Jackie Deans) (CACI) (11-30-2022) )
+PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) 
+								(Jackie Deans) (CACI) (11-30-2022) )
 *******************************************************************************/
 #include <iostream>
 #include "../include/VS.hh"
@@ -48,10 +49,12 @@ int VSTest::init() {
 
 int VSTest::fail() {
     status = 1; 
+	return 0;
 }
 
 int VSTest::success() {
-    status = 0; 
+    status = 0;
+	return 0; 
 }
 
 int VSTest::shutdown() {

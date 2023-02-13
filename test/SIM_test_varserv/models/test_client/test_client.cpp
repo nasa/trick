@@ -239,7 +239,7 @@ class VariableServerTest : public ::testing::Test {
 
 int VariableServerTest::numSession = 0;
 
-TEST_F (VariableServerTest, DISABLED_Strings) {
+TEST_F (VariableServerTest, Strings) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -270,7 +270,7 @@ TEST_F (VariableServerTest, DISABLED_Strings) {
     // EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
-TEST_F (VariableServerTest, DISABLED_NoExtraTab) {
+TEST_F (VariableServerTest, NoExtraTab) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -305,7 +305,7 @@ TEST_F (VariableServerTest, DISABLED_NoExtraTab) {
     EXPECT_STREQ(reply.c_str(), expected.c_str());
 }
 
-TEST_F (VariableServerTest, DISABLED_AddRemove) {
+TEST_F (VariableServerTest, AddRemove) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -341,7 +341,7 @@ TEST_F (VariableServerTest, DISABLED_AddRemove) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
-TEST_F (VariableServerTest, DISABLED_BadRefResponse) {
+TEST_F (VariableServerTest, BadRefResponse) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -359,7 +359,7 @@ TEST_F (VariableServerTest, DISABLED_BadRefResponse) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_Units) {
+TEST_F (VariableServerTest, Units) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -387,7 +387,7 @@ TEST_F (VariableServerTest, DISABLED_Units) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
-TEST_F (VariableServerTest, DISABLED_SendOnce) {
+TEST_F (VariableServerTest, SendOnce) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -417,7 +417,7 @@ TEST_F (VariableServerTest, DISABLED_SendOnce) {
     EXPECT_EQ(socket.check_for_message_availible(), false);
 }
 
-TEST_F (VariableServerTest, DISABLED_Exists) {
+TEST_F (VariableServerTest, Exists) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -458,7 +458,7 @@ TEST_F (VariableServerTest, DISABLED_Exists) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_Cycle) {
+TEST_F (VariableServerTest, Cycle) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -521,7 +521,7 @@ TEST_F (VariableServerTest, DISABLED_Cycle) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_Pause) {
+TEST_F (VariableServerTest, Pause) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -622,7 +622,7 @@ TEST_F (VariableServerTest, Multicast) {
         FAIL() << "Multicast message never received";
 }
 
-TEST_F (VariableServerTest, DISABLED_Freeze) {
+TEST_F (VariableServerTest, Freeze) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -711,7 +711,7 @@ TEST_F (VariableServerTest, DISABLED_Freeze) {
 }
 
 
-TEST_F (VariableServerTest, DISABLED_CopyAndWriteModes) {
+TEST_F (VariableServerTest, CopyAndWriteModes) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -900,21 +900,36 @@ bool getCompleteBinaryMessage(ParsedBinaryMessage& message, Socket& socket, bool
     return parse_success;
 }
 
-TEST_F (VariableServerTest, DISABLED_send_stdio) {
+TEST_F (VariableServerTest, send_stdio) {
     if (socket_status != 0) {
         FAIL();
     }
 
     socket << "trick.var_set_send_stdio(True)\n";
-    socket << "sys.stdout.write(trick.exec_get_current_version())\n";
+    socket << "sys.stdout.write(\"This message should redirect to varserver\")\n";
 
     std::string message;
     socket >> message;
 
-    std::cout << "Received from stdout: " << message << std::endl;
+    std::stringstream message_stream(message);
+    std::string token;
+    std::getline(message_stream, token, ' ');
+    int message_type = stoi(token);
+    std::getline(message_stream, token, ' ');
+    int stream_num = stoi(token);
+    std::getline(message_stream, token, '\n');
+    int text_size = stoi(token);
+    std::string text;
+    std::getline(message_stream, text);
+
+    EXPECT_EQ (message_type, 4);
+    EXPECT_EQ (stream_num, 1);
+    EXPECT_EQ (text_size, 41);
+
+    EXPECT_EQ(text, std::string("This message should redirect to varserver"));
 }
 
-TEST_F (VariableServerTest, DISABLED_RestartAndSet) {
+TEST_F (VariableServerTest, RestartAndSet) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -949,7 +964,7 @@ TEST_F (VariableServerTest, DISABLED_RestartAndSet) {
     EXPECT_EQ(reply, expected);
 }
 
-TEST_F (VariableServerTest, DISABLED_LargeMessages) {
+TEST_F (VariableServerTest, LargeMessages) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -1013,7 +1028,7 @@ TEST_F (VariableServerTest, DISABLED_LargeMessages) {
     EXPECT_EQ(prev_reply_last, 3999);
 }
 
-TEST_F (VariableServerTest, DISABLED_Binary) {
+TEST_F (VariableServerTest, Binary) {
     if (socket_status != 0) {
         FAIL();
     }
@@ -1103,7 +1118,7 @@ TEST_F (VariableServerTest, DISABLED_Binary) {
     EXPECT_EQ(variable_noname.getValue<bool>(), true);
 }
 
-TEST_F (VariableServerTest, DISABLED_BinaryByteswap) {
+TEST_F (VariableServerTest, BinaryByteswap) {
 
     std::vector<unsigned char> reply;
     socket << "trick.var_binary()\ntrick.var_byteswap(False)\ntrick.var_add(\"vsx.vst.f\")\ntrick.var_add(\"vsx.vst.j\")\n";
