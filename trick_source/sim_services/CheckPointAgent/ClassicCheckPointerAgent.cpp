@@ -1015,6 +1015,16 @@ void Trick::ClassicCheckPointAgent::write_rvalue( std::ostream& chkpnt_os, void*
                     }
                 }
 
+
+                // This is necessary due to https://github.com/nasa/trick/issues/1399
+                // If there is a string array where the memory is not initialized, the code above
+                // can incorrectly decide to write it as a quoted string when it should be an
+                // empty array, causing a segfault when the checkpoint is reloaded.
+                if (attr->index[curr_dim + 1].size == 0 && ((curr_dim + 1) != attr->num_index)) {
+                    use_quoted_string = 0;
+                } 
+
+
                 if ((attr->type == TRICK_CHARACTER) && use_quoted_string)  {
 
                     write_quoted_str(chkpnt_os, src_addr);
