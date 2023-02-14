@@ -93,5 +93,7 @@ namespace Trick {
         void *stage_buffer;
         void *write_buffer;  
     };
+
+    std::ostream& operator<< (std::ostream& s, const Trick::VariableReference& ref);
 }
 #endif

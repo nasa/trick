@@ -130,7 +130,7 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
             if (result < 0)
                 return result;
             // Clear out the message stream
-            message_stream = std::stringstream("");
+            message_stream.str("");
             message_size = 0;
         }
 
