@@ -97,7 +97,7 @@ TEST_F(VariableReference_test, writeValueAscii_char) {
 
 
     // ASSERT
-    EXPECT_EQ(ssa.str(), "j");
+    EXPECT_EQ(ssa.str(), "106");
     EXPECT_EQ(ssb.str(), "jackie");
 }
 
@@ -126,7 +126,7 @@ TEST_F(VariableReference_test, writeValueAscii_unsigned_char) {
     ref_b.writeValueAscii(ssb);
 
     // ASSERT
-    EXPECT_EQ(ssa.str(), "j");
+    EXPECT_EQ(ssa.str(), "106");
     EXPECT_EQ(ssb.str(), "jackie\\n");
 }
 
