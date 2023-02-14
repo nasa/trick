@@ -417,7 +417,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         case TRICK_CHARACTER:
             if (var_info->attr->num_index == var_info->num_index) {
                 // Single char
-                out << (char)cv_convert_double(conversion_factor, *(char *)buf_ptr);
+                out << (int)cv_convert_double(conversion_factor, *(char *)buf_ptr);
             } else {
                 // All but last dim specified, leaves a char array 
                 write_escaped_string(out, (const char *) buf_ptr);
@@ -427,7 +427,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         case TRICK_UNSIGNED_CHARACTER:
             if (var_info->attr->num_index == var_info->num_index) {
                 // Single char
-                out << (unsigned char)cv_convert_double(conversion_factor,*(unsigned char *)buf_ptr);
+                out << (unsigned int)cv_convert_double(conversion_factor,*(unsigned char *)buf_ptr);
             } else {
                 // All but last dim specified, leaves a char array 
                 write_escaped_string(out, (const char *) buf_ptr);

@@ -7,7 +7,7 @@
 
 
 Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
-    debug = 3;
+    debug = 0;
     enabled = true ;
     log = false ;
     copy_mode = VS_COPY_ASYNC ;

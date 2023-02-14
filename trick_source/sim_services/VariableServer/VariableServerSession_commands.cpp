@@ -286,41 +286,36 @@ int Trick::VariableServerSession::set_send_stdio(bool on_off) {
 }
 
 int Trick::VariableServerSession::send_list_size() {
-    char buf1[12] ;
-    unsigned int msg_type ;
-    int var_count;
+    
+    unsigned int msg_type = VS_LIST_SIZE;
+    int var_count = session_variables.size();
 
     // send number of variables
-    var_count = session_variables.size();
     if (binary_data) {
         // send in the binary message header format:
         // <message_indicator><message_size><number_of_variables>
-        msg_type = VS_LIST_SIZE;
+        char buf1[12] ;
+
+        unsigned int msg_type = VS_LIST_SIZE;
         memcpy(buf1, &msg_type , sizeof(msg_type)) ;
 
         memset(&(buf1[4]), 0, sizeof(int)); // message size = 0
         memcpy(&(buf1[8]), &var_count, sizeof(var_count));
 
         if (debug >= 2) {
-            // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d event variables\n", &connection, connection.client_tag, var_count);
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d event variables\n", connection, connection->get_client_tag(), var_count);
         }
-        std::string write_string(buf1);
-        if (write_string.length() != 12) {
-            std::cout << "PROBLEM WITH STRING LENGTH: SEND_LIST_SIZE BINARY" << std::endl;
-        }
-        connection->write(write_string);
-        // tc_write(connection, (char *) buf1, 12);
+
+        connection->write(buf1, sizeof (buf1));
     } else {
+        std::stringstream write_string;
+        write_string << VS_LIST_SIZE << "\t" << var_count << "\n";
         // ascii
-        sprintf(buf1, "%d\t%d\n\0", VS_LIST_SIZE, var_count);
         if (debug >= 2) {
-            // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", &connection, connection.client_tag, buf1) ;
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", connection, connection->get_client_tag(), write_string.str()) ;
         }
-        std::string write_string(buf1);
-        if (write_string.length() != strlen(buf1)) {
-            std::cout << "PROBLEM WITH STRING LENGTH: SEND_LIST_SIZE ASCII" << std::endl;
-        }
-        connection->write(write_string);
+
+        connection->write(write_string.str());
     }
 
     return 0 ;

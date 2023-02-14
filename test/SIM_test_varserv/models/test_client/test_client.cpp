@@ -239,6 +239,10 @@ class VariableServerTest : public ::testing::Test {
 
 int VariableServerTest::numSession = 0;
 
+void spin (Socket& socket, int wait_cycles = 5) {
+        socket.receive();
+}
+
 TEST_F (VariableServerTest, Strings) {
     if (socket_status != 0) {
         FAIL();
@@ -457,6 +461,41 @@ TEST_F (VariableServerTest, Exists) {
 
 }
 
+TEST_F (VariableServerTest, ListSize) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    std::string expected;
+
+    socket << "trick.var_add(\"vsx.vst.a\")\ntrick.var_add(\"vsx.vst.b\")\ntrick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.d\")\ntrick.var_pause()\n";
+    socket << "trick.var_send_list_size()\n";
+
+    socket >> reply;
+    expected = "3   4";
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0) << "Reply: " << reply << "\tExpected: " << expected;
+
+    // Adding a variable to the list more than once is allowed
+    socket << "trick.var_add(\"vsx.vst.a\")\n";
+    socket << "trick.var_send_list_size()\n";
+
+    socket >> reply;
+    expected = "3   5";
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0) << "Reply: " << reply << "\tExpected: " << expected;
+
+    socket << "trick.var_add(\"vsx.vst.e\")\ntrick.var_binary()\ntrick.var_send_list_size()\n";
+
+    std::vector<unsigned char> actual_bytes;
+    std::vector<unsigned char> expected_bytes;
+    actual_bytes = socket.receive_bytes();
+    expected_bytes = {0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00};
+
+    EXPECT_EQ(expected_bytes, actual_bytes);
+}
+
 
 TEST_F (VariableServerTest, Cycle) {
     if (socket_status != 0) {
@@ -560,7 +599,7 @@ TEST_F (VariableServerTest, Multicast) {
     Socket multicast_socket;
     multicast_socket.init_multicast("224.3.14.15", 9265);
 
-    int max_multicast_tries = 10;
+    int max_multicast_tries = 100;
     int tries = 0;
     bool found = false;
 
@@ -597,7 +636,8 @@ TEST_F (VariableServerTest, Multicast) {
     unsigned short actual_duplicate_port = 0;
 
     while (!found && tries++ < max_multicast_tries) {
-        std::string broadcast_data = multicast_socket.receive();    
+        std::string broadcast_data = multicast_socket.receive();
+        // std::cout << "Multicast recieved: " << broadcast_data << std::endl;
         sscanf(broadcast_data.c_str(), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , actual_hostname, &actual_port ,
              actual_username , &actual_pid , actual_sim_dir , actual_cmdline_name ,
              actual_input_file , actual_trick_version , actual_tag, &actual_duplicate_port) ;
@@ -710,7 +750,6 @@ TEST_F (VariableServerTest, Freeze) {
     ASSERT_EQ(mode, MODE_RUN);
 }
 
-
 TEST_F (VariableServerTest, CopyAndWriteModes) {
     if (socket_status != 0) {
         FAIL();
@@ -744,10 +783,6 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
         frame_count = std::stoll(token);
         std::getline(message_stream, token, '\n');
         vars = token;
-    };
-
-    auto spin = [&](int wait_cycles = 5) {
-        socket.receive();
     };
 
     // Check that every combination of modes is functional
@@ -972,6 +1007,8 @@ TEST_F (VariableServerTest, LargeMessages) {
     std::string reply;
     std::string expected;
 
+    socket << "trick.var_pause()\n";
+
     for (int i = 0; i < 4000; i++) {
         std::string var_add = "trick.var_add(\"vsx.vst.large_arr[" + std::to_string(i) + "]\")\n";
         socket << var_add;
@@ -1003,21 +1040,29 @@ TEST_F (VariableServerTest, LargeMessages) {
         return ret;
     };
 
+    socket.clear_buffered_data();
+    
+    bool ready = false;
+    while (!ready) {
+        socket << "trick.var_send_list_size()\n";
+        socket >> reply;
+        if (reply == std::string("3\t4000\n"))
+            ready = true;
+    }
+
     int new_reply_first = 0;
     int prev_reply_last = 0;
+    
+    socket << "trick.var_unpause()\n";
 
-    socket.clear_buffered_data();
     socket >> reply;
-    socket >> reply;
-
-    while ((new_reply_first = get_first_number_in_string(reply)) != 0) {
-        socket >> reply;
-    }
-    EXPECT_TRUE(reply.size() <= msg_size_limit && reply.size() >= msg_size_limit-5);
-    int i = 1;
+    new_reply_first = get_first_number_in_string(reply);
     prev_reply_last = get_last_number_in_string(reply);
+    EXPECT_EQ(new_reply_first, 0);
+    EXPECT_TRUE(reply.size() <= msg_size_limit && reply.size() >= msg_size_limit-5);
 
     socket >> reply;
+    // Go until we get to the start of the next new message
     while ((new_reply_first = get_first_number_in_string(reply)) != 0) {
         EXPECT_TRUE(reply.size() <= msg_size_limit);
         EXPECT_EQ(prev_reply_last + 1, new_reply_first);
