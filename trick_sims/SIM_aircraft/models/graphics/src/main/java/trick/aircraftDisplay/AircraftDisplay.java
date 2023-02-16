@@ -702,9 +702,13 @@ public class AircraftDisplay extends JFrame {
         System.out.println("Connecting to: " + host + ":" + port);
         sd.connectToServer(host, port);
 
-        /* Variable Server Test 
+        /* Variable Server Test */
 
-        sd.out.writeBytes("trick.var_send_once(\"dyn.aircraft.testInt\")");
+        sd.out.writeBytes("trick.var_pause() \n" + 
+                          "trick.var_ascii() \n" + 
+                          "trick.var_send_once(\"dyn.aircraft.waypointList\") \n" + 
+                          "trick.var_unpause() \n");
+        sd.out.flush();
         String temp;
         temp = sd.in.readLine();
         System.out.printf("JAVA: %s%n", temp);

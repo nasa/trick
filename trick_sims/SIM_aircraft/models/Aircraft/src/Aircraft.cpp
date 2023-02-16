@@ -25,13 +25,11 @@ int Aircraft::default_data() {
     autoPilot = false;
     current_waypoint = waypointQueue.begin();
 
-    //testInt = 5445;
-
     return (0);
 }
 
 int Aircraft::state_init() {
-
+    waypointList = getWaypointList();
     heading = northWestToPsi(vel);
     return (0);
 }
@@ -129,10 +127,22 @@ void Aircraft::rotateBodyToWorld( double (&F_total_world)[2], double (&F_total_b
 
 void Aircraft::reset_trip() {
     current_waypoint = waypointQueue.begin();
+    waypointList = getWaypointList();
 }
 
-void Aircraft::add_waypoint(double n, double w) {
-    WayPoint wp = { {n, w} };
+std::string Aircraft::getWaypointList() {
+    std::vector<WayPoint>::iterator i = waypointQueue.begin();
+    std::string str = "" + std::to_string(i->pos[0]) + "," + std::to_string(i->pos[1]) + "," + i->img;
+
+    while (++i != waypointQueue.end())
+    {
+        str += " | " + std::to_string(i->pos[0]) + "," + std::to_string(i->pos[1]) + "," + i->img;
+    }
+    return str;
+}
+
+void Aircraft::add_waypoint(double n, double w, std::string i) {
+    WayPoint wp = { {n, w}, i };
     waypointQueue.push_back(wp);
 }
 
