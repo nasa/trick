@@ -702,6 +702,15 @@ public class AircraftDisplay extends JFrame {
         System.out.println("Connecting to: " + host + ":" + port);
         sd.connectToServer(host, port);
 
+        /* Variable Server Test 
+
+        sd.out.writeBytes("trick.var_send_once(\"dyn.aircraft.testInt\")");
+        String temp;
+        temp = sd.in.readLine();
+        System.out.printf("JAVA: %s%n", temp);
+
+        /* Variable Server Test */
+
         sd.out.writeBytes("trick.var_set_client_tag(\"AircraftDisplay\") \n" +
                           "trick.var_pause() \n" +
                           "trick.var_add(\"dyn.aircraft.pos[0]\") \n" +

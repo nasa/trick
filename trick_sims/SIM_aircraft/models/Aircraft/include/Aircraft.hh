@@ -15,6 +15,9 @@ class WayPoint {
 
 class Aircraft {
     public:
+    // For testing purposes
+    int testInt;
+
     // Calculated by numeric integration of state derivatives.
   	double pos[2];
   	double vel[2];

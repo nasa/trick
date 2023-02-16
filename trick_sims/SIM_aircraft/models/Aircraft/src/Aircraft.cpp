@@ -24,6 +24,9 @@ int Aircraft::default_data() {
     desired_speed = 200; // m/s
     autoPilot = false;
     current_waypoint = waypointQueue.begin();
+
+    //testInt = 5445;
+
     return (0);
 }
 
