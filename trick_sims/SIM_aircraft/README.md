@@ -68,15 +68,24 @@ Each line should have three pieces of data, separated by commas. The first two a
 
 The `View` menu on the menu bar allows the user to choose the information displayed by the client.
 
-![](images/GraphicsClient_ViewMenu.png)
+![](images/GraphicsClient_ViewOptions.png)
 
-The `Simulation Data` check box toggles the visibility of the aircraft's position, velocity, and control method as well as the scale of the map. This information is located in the top left corner of the client.
+##### Aircraft Position
+This checkbox toggles the visibility of the `Aircraft Pos:` field in the top left corner of the map.
 
-![](images/GraphicsClient_SimData.png)
+##### Aircraft Velocity
+This checkbox toggles the visibility of the `Aircraft Vel:` field in the top left corner of the map.
 
-The `Aircraft Status` check box toggles the visibility of both the aircraft's current speed and heading as well as it's desired speed and heading. This information is situated in the top right corner.
+##### Map Scale
+This checkbox toggles the visibility of the `Scale:` field in the top left corner of the map.
 
-![](images/GraphicsClient_AircraftStatus.png)
+##### Control Mode
+This checkbox toggles the visibility of the `Control Mode:` field in the top left corner of the map.
+
+##### Disabled Controls' Data
+This checkbox is disabled unless Autopilot is engaged. When used, it toggles the visibility of the data from the disabled controls in the top right corner of the map.
+
+![](images/GraphicsClient_ControlsDisabled.png)
 
 ## Dynamics Model
 
