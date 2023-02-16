@@ -6,7 +6,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <iomanip>
-#include <regex>
 
 #ifdef __GNUC__
 #include <cxxabi.h>
@@ -345,14 +344,11 @@ bool Trick::DataRecordGroup::isSupportedType(REF2 * ref2, std::string& message) 
         message = "Cannot Data Record variable " + std::string(ref2->reference) + " of unsupported type " + std::to_string(ref2->attr->type);
         return false;
     }
-
-    const static std::regex array_element_regex(".+(?:\\[\\d+\\])+$");
-    if (ref2->attr->num_index != 0) {
-        // Check that it's an array element
-        if (!std::regex_match(ref2->reference, array_element_regex)) {
-            message = "Cannot Data Record arrayed variable " + std::string(ref2->reference);
-            return false;
-        }
+    
+    // If this is an array and not a single value, don't record it
+    if (ref2->num_index != ref2->attr->num_index) {
+        message = "Cannot Data Record arrayed variable " + std::string(ref2->reference);
+        return false;
     }
 
     return true;
