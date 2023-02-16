@@ -55,6 +55,8 @@ drg.add_variable("ball.obj.state.output.position[0]", "x_pos")
 drg.add_variable("ball.obj.state.output.position[1]", "y_pos")
 ```
 
+Only individual primitive types can be recorded. Arrays, strings/char *, structured objects, or STL types are not supported.
+
 ### Changing the Recording Rate
 
 To change the recording rate call the <tt>set_cycle()</tt> method of the recording group.
