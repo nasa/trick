@@ -303,7 +303,7 @@ int Trick::VariableServerSession::send_list_size() {
         memcpy(&(buf1[8]), &var_count, sizeof(var_count));
 
         if (debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d event variables\n", connection, connection->get_client_tag(), var_count);
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d event variables\n", connection, connection->get_client_tag().c_str(), var_count);
         }
 
         connection->write(buf1, sizeof (buf1));
@@ -312,7 +312,7 @@ int Trick::VariableServerSession::send_list_size() {
         write_string << VS_LIST_SIZE << "\t" << var_count << "\n";
         // ascii
         if (debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", connection, connection->get_client_tag(), write_string.str()) ;
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", connection, connection->get_client_tag().c_str(), write_string.str().c_str()) ;
         }
 
         connection->write(write_string.str());
