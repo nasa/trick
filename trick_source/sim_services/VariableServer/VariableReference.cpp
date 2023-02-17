@@ -150,6 +150,7 @@ Trick::VariableReference::VariableReference(std::string var_name) : staged(false
             deref = true;
         } else if ( var_info->attr->type == TRICK_WCHAR ) {
             trick_type = TRICK_WSTRING ;
+            deref = true;
         } else {
             deref = true ;
             size *= get_size((char*)address) ;
@@ -412,7 +413,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
     while (bytes_written < size) {
         bytes_written += var_info->attr->size ;
 
-        switch (var_info->attr->type) {
+        switch (trick_type) {
 
         case TRICK_CHARACTER:
             if (var_info->attr->num_index == var_info->num_index) {
@@ -441,9 +442,6 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                 } else {
                     // convert wide char string char string
                     size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
-                    // if (len > MAX_VAL_STRLEN) {
-                    //     return (-1);
-                    // }
 
                     char temp_buf[len];
                     wcs_to_ncs((wchar_t *) buf_ptr, temp_buf, len);
@@ -465,13 +463,10 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         case TRICK_WSTRING:
             if ((wchar_t *) buf_ptr != NULL) {
                 // convert wide char string char string
-                size_t len = wcs_to_ncs_len((wchar_t *)buf_ptr) + 1 ;
-                // if (len > MAX_VAL_STRLEN) {
-                //     return (-1);
-                // }
+                size_t len = wcs_to_ncs_len( (wchar_t *)buf_ptr) + 1 ;
 
                 char temp_buf[len];
-                wcs_to_ncs((wchar_t *) buf_ptr, temp_buf, len);
+                wcs_to_ncs(  (wchar_t *) buf_ptr, temp_buf, len);
                 out << temp_buf;
                 bytes_written = size ;
             } else {
@@ -502,6 +497,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         case TRICK_UNSIGNED_BITFIELD:
             out << (GET_UNSIGNED_BITFIELD(buf_ptr, var_info->attr->size, var_info->attr->index[0].start, var_info->attr->index[0].size));
             break;
+            
         case TRICK_UNSIGNED_INTEGER:
             out << (unsigned int)cv_convert_double(conversion_factor,*(unsigned int *)buf_ptr);
             break;

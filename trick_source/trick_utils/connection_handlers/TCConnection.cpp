@@ -7,6 +7,9 @@
 Trick::TCConnection::TCConnection () {}
 
 int Trick::accept(ClientListener *listener, Trick::TCConnection *connection) {
+    if (!listener->isInitialized())
+        return -1;
+        
     if ( listener->_listen_dev.socket_type == SOCK_STREAM ) {
         return tc_accept(&(listener->_listen_dev), &(connection->_device));        
     }

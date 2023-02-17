@@ -999,6 +999,79 @@ TEST_F (VariableServerTest, RestartAndSet) {
     EXPECT_EQ(reply, expected);
 }
 
+
+TEST_F (VariableServerTest, MulticastAfterRestart) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    socket << "trick.var_server_set_user_tag(\"VSTestServer\")\n";
+
+    Socket multicast_socket;
+    multicast_socket.init_multicast("224.3.14.15", 9265);
+
+    int max_multicast_tries = 100;
+    int tries = 0;
+    bool found = false;
+
+    char expected_hostname[80];
+    gethostname(expected_hostname, 80);
+    int expected_port = 4000;
+    
+    // get expected username
+    struct passwd *passp = getpwuid(getuid()) ;
+    char * expected_username;
+    if ( passp == NULL ) {
+        expected_username = strdup("unknown") ;
+    } else {
+        expected_username = strdup(passp->pw_name) ;
+    }
+    
+    // Don't care about PID, just check that it's > 0
+    char * expected_sim_dir = "trick/test/SIM_test_varserv";    // Compare against the end of the string for this one
+    // Don't care about cmdline name
+    char * expected_input_file = "RUN_test/unit_test.py";
+    // Don't care about trick_version
+    char * expected_tag = "VSTestServer";
+
+    // Variables to be populated by the multicast message
+    char actual_hostname[80];
+    unsigned short actual_port = 0;
+    char actual_username[80];
+    int actual_pid = 0;
+    char actual_sim_dir[80];
+    char actual_cmdline_name[80];
+    char actual_input_file[80];
+    char actual_trick_version[80];
+    char actual_tag[80];
+    unsigned short actual_duplicate_port = 0;
+
+    while (!found && tries++ < max_multicast_tries) {
+        std::string broadcast_data = multicast_socket.receive();
+        sscanf(broadcast_data.c_str(), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , actual_hostname, &actual_port ,
+             actual_username , &actual_pid , actual_sim_dir , actual_cmdline_name ,
+             actual_input_file , actual_trick_version , actual_tag, &actual_duplicate_port) ;
+        
+        if (strcmp(actual_hostname, expected_hostname) == 0 && strcmp(expected_tag, actual_tag) == 0) {
+            found = true;
+            EXPECT_STREQ(actual_hostname, expected_hostname);
+            EXPECT_EQ(actual_port, expected_port);
+            EXPECT_STREQ(actual_username, expected_username);
+            EXPECT_GT(actual_pid, 0);
+            std::string expected_sim_dir_str(expected_sim_dir);
+            std::string actual_sim_dir_str(actual_sim_dir);
+            std::string end_of_actual = actual_sim_dir_str.substr(actual_sim_dir_str.length() - expected_sim_dir_str.length(), actual_sim_dir_str.length());        
+            EXPECT_EQ(expected_sim_dir_str, end_of_actual);
+            EXPECT_STREQ(actual_input_file, expected_input_file);
+            EXPECT_STREQ(actual_tag, expected_tag);
+            EXPECT_EQ(actual_duplicate_port, expected_port);
+        }
+    }
+
+    if (!found)
+        FAIL() << "Multicast message never received";
+}
+
 TEST_F (VariableServerTest, LargeMessages) {
     if (socket_status != 0) {
         FAIL();
@@ -1053,7 +1126,7 @@ TEST_F (VariableServerTest, LargeMessages) {
     int new_reply_first = 0;
     int prev_reply_last = 0;
     
-    socket << "trick.var_unpause()\n";
+    socket << "trick.var_send()\n";
 
     socket >> reply;
     new_reply_first = get_first_number_in_string(reply);
@@ -1061,14 +1134,14 @@ TEST_F (VariableServerTest, LargeMessages) {
     EXPECT_EQ(new_reply_first, 0);
     EXPECT_TRUE(reply.size() <= msg_size_limit && reply.size() >= msg_size_limit-5);
 
-    socket >> reply;
-    // Go until we get to the start of the next new message
-    while ((new_reply_first = get_first_number_in_string(reply)) != 0) {
+    while (prev_reply_last != 3999) {
+        socket >> reply;
+        new_reply_first = get_first_number_in_string(reply);
+
         EXPECT_TRUE(reply.size() <= msg_size_limit);
         EXPECT_EQ(prev_reply_last + 1, new_reply_first);
 
         prev_reply_last = get_last_number_in_string(reply);
-        socket >> reply;
     }
     EXPECT_EQ(prev_reply_last, 3999);
 }

@@ -32,6 +32,8 @@ namespace Trick {
 
             bool validateSourceAddress(std::string source_address);
 
+            bool isInitialized(); 
+
             friend int accept(ClientListener* listener, TCConnection* connection);
 
         private:

@@ -25,6 +25,13 @@ class TestObject {
     TestObject() {}
 
 	int length; /*  m xy-position */
+    double a;   /*  s time */
+    long b;     /*  nautical_mile miles */
+    long long c;     /*  in inches */
+    unsigned long d;     /*  light_year miles */
+    unsigned long long e;     /*  mi miles */
+    int error_units; /* asvdsfkj fake units */
+    wchar_t * wchar_str;
     std::vector<int> vec;
 
     NestedObject obj;

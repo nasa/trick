@@ -38,11 +38,17 @@ int Trick::ClientListener::initialize() {
 
 
 int Trick::ClientListener::setBlockMode(TCCommBlocking mode) {
+    if (!initialized)
+        return -1;
+
     return tc_blockio(&_listen_dev, mode);
 }
 
 
 bool Trick::ClientListener::checkForNewConnections() {
+    if (!initialized)
+        return -1;
+
     fd_set rfds;
     struct timeval timeout_time = { 2, 0 };
     FD_ZERO(&rfds);
@@ -55,17 +61,26 @@ bool Trick::ClientListener::checkForNewConnections() {
 
 
 const char * Trick::ClientListener::getHostname () {
+    if (!initialized)
+        return "";
+
     return _listen_dev.hostname;
 }
 
 
 int Trick::ClientListener::getPort() {
+    if (!initialized)
+        return -1;
+
     return _listen_dev.port;
 }
 
 
 int Trick::ClientListener::disconnect() {
-    tc_disconnect(&_listen_dev) ;    
+    if (!initialized)
+        return -1;
+
+    return tc_disconnect(&_listen_dev) ;    
 }
 
 bool Trick::ClientListener::validateSourceAddress(std::string requested_source_address) {
@@ -84,10 +99,17 @@ bool Trick::ClientListener::validateSourceAddress(std::string requested_source_a
 }
 
 int Trick::ClientListener::checkSocket() {
-    // TODO: I'm not sure why this is here, but it seems important
+    if (!initialized)
+        return -1;
+
     struct sockaddr_in s_in;
     int s_in_size =  sizeof(s_in) ;
     getsockname( _listen_dev.socket , (struct sockaddr *)&s_in, (socklen_t *)&s_in_size) ;
     printf("restart variable server message port = %d\n" , ntohs(s_in.sin_port)) ;
     _listen_dev.port = ntohs(s_in.sin_port);
 }
+
+bool Trick::ClientListener::isInitialized() {
+    return initialized;
+}
+

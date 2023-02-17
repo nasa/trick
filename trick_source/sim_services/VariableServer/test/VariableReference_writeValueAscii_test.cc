@@ -97,7 +97,7 @@ TEST_F(VariableReference_test, writeValueAscii_char) {
 
 
     // ASSERT
-    EXPECT_EQ(ssa.str(), "j");
+    EXPECT_EQ(ssa.str(), "106");
     EXPECT_EQ(ssb.str(), "jackie");
 }
 
@@ -126,7 +126,7 @@ TEST_F(VariableReference_test, writeValueAscii_unsigned_char) {
     ref_b.writeValueAscii(ssb);
 
     // ASSERT
-    EXPECT_EQ(ssa.str(), "j");
+    EXPECT_EQ(ssa.str(), "106");
     EXPECT_EQ(ssb.str(), "jackie\\n");
 }
 
@@ -158,6 +158,29 @@ TEST_F(VariableReference_test, writeValueAscii_wide_char) {
     // Original variable server behavior prints individual wchar as its ascii value
     EXPECT_EQ(ssa.str(), "74");
     EXPECT_EQ(ssb.str(), "jackiebutwider");
+}
+
+TEST_F(VariableReference_test, writeValueAscii_wide_char_unconstrained) {
+    TestObject obj;
+    obj.wchar_str = (wchar_t *) malloc (sizeof(wchar_t) * 7);
+    for (int i = 0; i < 6; i++) {
+        obj.wchar_str[i] = L'j';
+    }
+    obj.wchar_str[6] = L'\0';
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    // (void) memmgr->declare_extern_var(&obj.wchar_str, "wchar_t * obj.wchar_str");
+
+    Trick::VariableReference ref("obj.wchar_str");
+    std::stringstream ss;
+
+    // ACT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+
+    // ASSERT
+    EXPECT_EQ(ss.str(), "jjjjjj");
+
 }
 
 TEST_F(VariableReference_test, writeValueAscii_std_string) {

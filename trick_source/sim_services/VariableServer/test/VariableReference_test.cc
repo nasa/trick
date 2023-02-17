@@ -220,6 +220,142 @@ TEST_F(VariableReference_test, setUnitsTwice) {
     EXPECT_EQ(ss.str(), "5000000 {mm}");
 }
 
+
+TEST_F(VariableReference_test, setUnitsBadFromUnits) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.error_units = 50;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.error_units");
+    std::stringstream ss;
+
+    // ACT
+    ref.setRequestedUnits("mm");
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "50");
+}
+
+TEST_F(VariableReference_test, setUnitsBadToUnits) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.a = 0.5;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.a");
+    std::stringstream ss;
+
+    // ACT
+    ref.setRequestedUnits("asldfjks");
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "0.5");
+}
+
+TEST_F(VariableReference_test, setUnitsDouble) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.a = 0.5;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.a");
+    std::stringstream ss;
+
+    // ACT
+    ref.setRequestedUnits("ms");
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "500 {ms}");
+}
+
+TEST_F(VariableReference_test, setUnitsLong) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.b = 1;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.b");
+    std::stringstream ss;
+
+    // ACT
+    ref.setRequestedUnits("m");
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "1852 {m}");
+}
+
+TEST_F(VariableReference_test, setUnitsLongLong) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.c = 10000000;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.c");
+    std::stringstream ss;
+
+    // ACT
+    ref.setRequestedUnits("m");
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "254000 {m}");
+}
+
+TEST_F(VariableReference_test, setUnitsUnsignedLong) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.d = 1;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.d");
+    std::stringstream ss;
+
+    // ACT
+    ref.setRequestedUnits("mi");
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "5878625079535 {mi}");
+}
+
+TEST_F(VariableReference_test, setUnitsUnsignedLongLong) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    TestObject obj;
+    obj.e = 1;
+    (void) memmgr->declare_extern_var(&obj, "TestObject obj");
+    Trick::VariableReference ref("obj.e");
+    std::stringstream ss;
+
+    // ACT
+    ref.setRequestedUnits("mm");
+
+    // ASSERT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeValueAscii(ss);
+    EXPECT_EQ(ss.str(), "1609344 {mm}");
+}
+
+// Byteswap tests
+
 TEST_F(VariableReference_test, byteswap_chars) {
     // ARRANGE
     char in = 'a';
