@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <vector>
 #include <string>
+#include <map>
 #include <exception>
 
 #include "trick/parameter_types.h"
@@ -54,6 +55,22 @@ typedef union Number {
     double double_val;
 } Number;
 
+const static std::map<TRICK_TYPE, unsigned int> type_size_map = {{TRICK_CHARACTER, sizeof(char)},
+                                                                 {TRICK_UNSIGNED_CHARACTER, sizeof(unsigned char)},
+                                                                 {TRICK_SHORT, sizeof(short)},
+                                                                 {TRICK_UNSIGNED_SHORT, sizeof(unsigned short)},
+                                                                 {TRICK_INTEGER, sizeof(int)},
+                                                                 {TRICK_UNSIGNED_INTEGER, sizeof(unsigned int)},
+                                                                 {TRICK_LONG, sizeof(long)},
+                                                                 {TRICK_UNSIGNED_LONG, sizeof(unsigned long)},
+                                                                 {TRICK_LONG_LONG, sizeof(long long)},
+                                                                 {TRICK_UNSIGNED_LONG_LONG, sizeof(unsigned long)},
+                                                                 {TRICK_FLOAT, sizeof (float)},
+                                                                 {TRICK_DOUBLE, sizeof (double)},
+                                                                 {TRICK_BOOLEAN, sizeof (bool)},
+                                                                 {TRICK_WCHAR, sizeof (wchar_t)}
+                                                                };
+
     
 class Var {
     public:
@@ -65,9 +82,12 @@ class Var {
         // There won't be a general case
         template <typename T>
         T getValue() const;
-
+        std::vector<unsigned char> getRawBytes() const;
+        
+        int getArraySize() const;
         std::string getName() const;
         TRICK_TYPE getType() const;
+
 
     private:
         std::vector<unsigned char> value_bytes;
@@ -81,16 +101,18 @@ class Var {
 
         TRICK_TYPE _trick_type;
         unsigned int _var_size;
+        unsigned int _arr_length;
 };
 
 class ParsedBinaryMessage {
     public:
-        ParsedBinaryMessage() : _byteswap(false), _nonames(false) {}
-        ParsedBinaryMessage (bool byteswap, bool nonames) : _byteswap(byteswap), _nonames(nonames) {}
+        ParsedBinaryMessage() : ParsedBinaryMessage(false, false)  {}
+        ParsedBinaryMessage (bool byteswap, bool nonames) : _message_type(0), _message_size(0), _num_vars(0), _byteswap(byteswap), _nonames(nonames) {}
 
         void combine (const ParsedBinaryMessage& message);
         
         int parse (const std::vector<unsigned char>& bytes);
+        int parse (char * raw_bytes);
 
         int getMessageType() const;
         unsigned int getMessageSize() const;

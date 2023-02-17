@@ -106,7 +106,10 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
 }
 
 void Trick::VariableServerListenThread::create_tcp_socket(const char * address, unsigned short in_port ) {
-    tc_init_with_connection_info(&listen_dev, AF_INET, SOCK_STREAM, address, in_port) ;
+    int result = tc_init_with_connection_info(&listen_dev, AF_INET, SOCK_STREAM, address, in_port) ;
+    if (result != 0) {
+        message_publish(MSG_ERROR, "ERROR: Could not establish additional listen port at address %s and port %d for Variable Server.\n", address, in_port);
+    }
 }
 
 void * Trick::VariableServerListenThread::thread_body() {
