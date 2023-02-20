@@ -1386,7 +1386,6 @@ class SimulationJob(Job):
                 except socket.timeout:
                     pass
         
-        print ("Is this run quiet?", self.quiet)
         if not self.quiet:
           thread = threading.Thread(target=connect,
                                     name='Looking for ' + self.name)
