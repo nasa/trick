@@ -78,13 +78,13 @@ class Socket {
         while ((_socket_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 && tries < max_retries) tries++;
 
         if (_socket_fd < 0) {
-            std::cout << "Socket connection failed" << std::endl;
+            std::cout << "init_multicast: Socket open failed" << std::endl;
             return -1;
         }
 
         int value = 1;
         if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *) &value, (socklen_t) sizeof(value)) < 0) {
-            std::cout << "Socket connection failed" << std::endl;
+            std::cout << "init_multicast: Socket option failed" << std::endl;
             return -1;
         }
 
@@ -93,7 +93,7 @@ class Socket {
         mreq.imr_multiaddr.s_addr = inet_addr(_hostname.c_str());
         mreq.imr_interface.s_addr = htonl(INADDR_ANY);
         if (setsockopt(_socket_fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *) &mreq, (socklen_t) sizeof(mreq)) < 0) {
-            std::cout << "setsockopt: ip_add_membership" << std::endl;
+            std::cout << "init_multicast: setsockopt: ip_add_membership failed" << std::endl;
             return -1;
         }
 
@@ -106,7 +106,8 @@ class Socket {
         sockin.sin_port = htons(_port);
 
         if ( bind(_socket_fd, (struct sockaddr *) &sockin, (socklen_t) sizeof(sockin)) < 0 ) {
-            std::cout << "bind" << std::endl;
+            std::cout << "init_multicast: bind failed" << std::endl;
+            return -1;
         }
 
         _initialized = true;
@@ -117,7 +118,7 @@ class Socket {
         // I have to append :: to the front of it so that the compiler knows to look in the global namespace
         int success = ::send(_socket_fd, message.c_str(), message.size(), 0);
         if (success < message.size()) {
-            std::cout << "Failed to send message" << std::endl;
+            std::cout << "init_multicast: Failed to send message" << std::endl;
         }
         return success;
     }
@@ -145,7 +146,7 @@ class Socket {
         unsigned char buffer[SOCKET_BUF_SIZE];
         int numBytes = recv(_socket_fd, buffer, SOCKET_BUF_SIZE, 0);
         if (numBytes < 0) {
-            std::cout << "Failed to read from socket" << std::endl;
+            std::cout << "init_multicast: Failed to read from socket" << std::endl;
         } 
 
         std::vector<unsigned char> bytes;
@@ -818,7 +819,9 @@ TEST_F (VariableServerTest, Multicast) {
     socket << "trick.var_server_set_user_tag(\"VSTestServer\")\n";
 
     Socket multicast_socket;
-    multicast_socket.init_multicast("224.3.14.15", 9265);
+    if (multicast_socket.init_multicast("224.3.14.15", 9265) != 0) {
+        FAIL() << "Multicast Socket failed to initialize.";
+    }
 
     int max_multicast_tries = 100;
     int tries = 0;
@@ -1235,7 +1238,9 @@ TEST_F (VariableServerTest, MulticastAfterRestart) {
     socket << "trick.var_server_set_user_tag(\"VSTestServer\")\n";
 
     Socket multicast_socket;
-    multicast_socket.init_multicast("224.3.14.15", 9265);
+    if (multicast_socket.init_multicast("224.3.14.15", 9265) != 0) {
+        FAIL() << "Multicast Socket failed to initialize.";
+    }
 
     int max_multicast_tries = 100;
     int tries = 0;
