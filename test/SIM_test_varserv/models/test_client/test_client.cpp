@@ -69,6 +69,7 @@ class Socket {
         return 0;
     }
 
+    #ifndef __APPLE__
     int init_multicast (std::string hostname, int port) {
         _multicast_socket = true;
         _hostname = hostname;
@@ -112,6 +113,8 @@ class Socket {
 
         _initialized = true;
     }
+
+    #endif
 
     int send (std::string message) {
         // weird syntax I've never used before - since the send syscall that i'm trying to use is overloaded in this class,
@@ -811,6 +814,8 @@ TEST_F (VariableServerTest, Pause) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
+#ifndef __APPLE__
+
 TEST_F (VariableServerTest, Multicast) {
     if (socket_status != 0) {
         FAIL();
@@ -885,6 +890,8 @@ TEST_F (VariableServerTest, Multicast) {
     if (!found)
         FAIL() << "Multicast message never received";
 }
+
+#endif
 
 TEST_F (VariableServerTest, Freeze) {
     if (socket_status != 0) {
@@ -1230,6 +1237,8 @@ TEST_F (VariableServerTest, RestartAndSet) {
     EXPECT_EQ(reply, expected);
 }
 
+#ifndef __APPLE__
+
 TEST_F (VariableServerTest, MulticastAfterRestart) {
     if (socket_status != 0) {
         FAIL();
@@ -1303,6 +1312,8 @@ TEST_F (VariableServerTest, MulticastAfterRestart) {
     if (!found)
         FAIL() << "Multicast message never received";
 }
+
+#endif
 
 TEST_F (VariableServerTest, LargeMessages) {
     if (socket_status != 0) {
