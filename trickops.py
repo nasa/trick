@@ -28,17 +28,20 @@ class SimTestWorkflow(TrickWorkflow):
       # This job in SIM_stls dumps a checkpoint that is then read in and checked by RUN_test/unit_test.py in the same sim
       # This is a workaround to ensure that this run goes first.
       first_phase_jobs = []
-      stl_dump_job = self.get_sim('SIM_stls').get_run(input='RUN_test/setup.py').get_run_job()
-      first_phase_jobs.append(stl_dump_job)
-      run_jobs.remove(stl_dump_job)
+      stl_sim = self.get_sim('SIM_stls')
+      if stl_sim is not None:
+        stl_dump_job = stl_sim.get_run(input='RUN_test/setup.py').get_run_job()
+        first_phase_jobs.append(stl_dump_job)
+        run_jobs.remove(stl_dump_job)
 
       # Same with SIM_checkpoint_data_recording - half the runs dump checkpoints, the others read and verify.
       # Make sure that the dump checkpoint runs go first.
-      num_dump_runs = int(len(self.get_sim('SIM_checkpoint_data_recording').get_runs())/2)
-      for i in range(num_dump_runs):
-        job = self.get_sim('SIM_checkpoint_data_recording').get_run(input=('RUN_test' + str(i+1) + '/dump.py')).get_run_job()
-        first_phase_jobs.append(job)
-        run_jobs.remove(job)
+      if self.get_sim('SIM_checkpoint_data_recording') is not None:
+        num_dump_runs = int(len(self.get_sim('SIM_checkpoint_data_recording').get_runs())/2)
+        for i in range(num_dump_runs):
+          job = self.get_sim('SIM_checkpoint_data_recording').get_run(input=('RUN_test' + str(i+1) + '/dump.py')).get_run_job()
+          first_phase_jobs.append(job)
+          run_jobs.remove(job)
 
       # Some tests fail intermittently for reasons not related to the tests themselves, mostly network weirdness.
       # Allow retries so that we can still cover some network-adjacent code
@@ -91,7 +94,7 @@ class SimTestWorkflow(TrickWorkflow):
       retry_job = None
       while tries < max_retries and job_failing:
         tries += 1
-        retry_run = TrickWorkflow.Run(sim_dir=run.sim_dir, input=run.input, binary=run.binary, returns=run.returns,log_dir=run.log_dir)
+        retry_run = TrickWorkflow.Run(sim_dir=run.sim_dir, input=run.input, binary=run.binary, returns=run.returns,log_dir=run.log_dir, quiet=run.quiet)
         retry_job = retry_run.get_run_job()
         retry_job.name = retry_job.name + "_retry_" + str(tries)
         job_failing = self.execute_jobs([retry_job], max_concurrent=1, header="Retrying failed job")
@@ -102,4 +105,4 @@ class SimTestWorkflow(TrickWorkflow):
 
 if __name__ == "__main__":
     should_be_quiet = os.getenv('CI') is not None
-    sys.exit(SimTestWorkflow(quiet=should_be_quiet, trick_top_level=sys.argv[1]).run())
+    sys.exit(SimTestWorkflow(quiet=True, trick_top_level=sys.argv[1]).run())
