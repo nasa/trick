@@ -112,6 +112,7 @@ class Socket {
         }
 
         _initialized = true;
+        return 0;
     }
 
     #endif
