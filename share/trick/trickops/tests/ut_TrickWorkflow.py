@@ -17,7 +17,6 @@ class TrickWorkflowSingleRunTestCase(unittest.TestCase):
           log_file='/tmp/WorkflowCommonTestCase_hi.txt')
 
     def tearDown(self):
-        os.remove(self.instance.log_file)
         del self.instance
         self.instance = None
 
@@ -84,7 +83,7 @@ class TrickWorkflowTestCase(unittest.TestCase):
         self.assertEqual(len(build_jobs), 56)
         self.assertEqual(len(self.instance.sims), 56)
         run_jobs = self.instance.get_jobs('run')
-        self.assertEqual(len(run_jobs), 37)
+        self.assertEqual(len(run_jobs), 36)
         val_run_jobs = self.instance.get_jobs('valgrind')
         self.assertEqual(len(val_run_jobs), 1)
 
@@ -283,9 +282,9 @@ class TrickWorkflowTestCase(unittest.TestCase):
         builds = self.instance.get_jobs('builds')
         self.assertEqual(len(builds), 56)
         runs = self.instance.get_jobs('run')
-        self.assertEqual(len(runs), 37)
+        self.assertEqual(len(runs), 36)
         runs = self.instance.get_jobs('runs')
-        self.assertEqual(len(runs), 37)
+        self.assertEqual(len(runs), 36)
         vg = self.instance.get_jobs('valgrind')
         self.assertEqual(len(vg), 1)
         vg = self.instance.get_jobs('valgrinds')
@@ -326,9 +325,9 @@ class TrickWorkflowTestCase(unittest.TestCase):
         vruns = self.instance.get_jobs('valgrind', phase=7)
         self.assertEqual(len(vruns), 0)
         runs = self.instance.get_jobs('run', phase=None)
-        self.assertEqual(len(runs), 37)
+        self.assertEqual(len(runs), 36)
         runs = self.instance.get_jobs('run', phase=TrickWorkflow.all_possible_phases)
-        self.assertEqual(len(runs), 37)
+        self.assertEqual(len(runs), 36)
         # Runs specific phases
         runs = self.instance.get_jobs('run', phase=[8, 19])
         self.assertEqual(len(runs), 0)

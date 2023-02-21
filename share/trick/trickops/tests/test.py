@@ -8,6 +8,7 @@ import unittest
 import ut_WorkflowCommon
 import ut_TrickWorkflowYamlVerifier
 import ut_TrickWorkflow
+import ut_MonteCarloGenerationHelper
 
 # Define load_tests function for dynamic loading using Nose2
 def load_tests(*args):
@@ -16,6 +17,7 @@ def load_tests(*args):
     suite.addTests(ut_TrickWorkflowYamlVerifier.suite())
     suite.addTests(ut_TrickWorkflow.suite())
     suite.addTests(ut_WorkflowCommon.suite())
+    suite.addTests(ut_MonteCarloGenerationHelper.suite())
     return suite
 
 # Local module level execution only
@@ -24,5 +26,6 @@ if __name__ == '__main__':
     suites.addTests(ut_TrickWorkflowYamlVerifier.suite())
     suites.addTests(ut_TrickWorkflow.suite())
     suites.addTests(ut_WorkflowCommon.suite())
+    suites.addTests(ut_MonteCarloGenerationHelper.suite())
 
     unittest.TextTestRunner(verbosity=2).run(suites)

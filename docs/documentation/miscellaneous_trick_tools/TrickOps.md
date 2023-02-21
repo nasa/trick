@@ -12,6 +12,7 @@
 * [Other Useful Examples](#other-useful-examples)
 * [The TrickOps Design](#regarding-the-design-why-do-i-have-to-write-my-own-script)
 * [Tips & Best Practices](#tips--best-practices)
+* [MonteCarloGenerationHelper](#montecarlogenerationhelper---trickops-helper-class-for-montecarlogeneratesm-users)
 
 # TrickOps
 
@@ -385,9 +386,45 @@ This is purposeful -- handling every project-specific constraint is impossible. 
 * If `TrickWorkflow` encounters non-fatal errors while validating the content of the given YAML config file, it will set the internal member `self.config_erros` to be `True`. If you want your script to return non-zero on any non-fatal error, add this return code to your final script `sys.exit()`.
 * Treat the YAML file like your project owns it.  You can store project-specific information and retrieve that information in your scripts by accessing the `self.config` dictionary. Anything not recognized by the internal validation of the YAML file is ignored, but that information is still provided to the user. For example, if you wanted to store a list of POCS in your YAML file so that your script could print a helpful message on error, simply add a new entry `project_pocs: email1, email2...` and then access that information via `self.config['project_pocs']` in your script.
 
+## `MonteCarloGenerationHelper` - TrickOps Helper Class for `MonteCarloGenerate.sm` users
+
+TrickOps provides the `MonteCarloGenerationHelper` python module as an interface between a sim using the `MonteCarloGenerate.sm` (MCG) sim module and a typical Trick-based workflow.  This module allows MCG users to easily generate monte-carlo runs and execute them locally or alternatively through an HPC job scheduler like SLURM. Below is an example usage of the module. This example assumes:
+1. The using script inherits from or otherwise leverages `TrickWorkflow`, giving it access to `self.execute_jobs()`
+2. `SIM_A` is already built and configured with  the `MonteCarloGenerate.sm` sim module
+3. `RUN_mc/input.py` is configured with to generate runs when executed, specifically that `monte_carlo.mc_master.generate_dispersions == monte_carlo.mc_master.active == True` in the input file.
+
+```python
+# Instantiate an MCG helper instance, providing the sim and input file for generation
+mgh = MonteCarloGenerationHelper(sim_path="path/to/SIM_A", input_path="RUN_mc/input.py")
+# Get the generation SingleRun() instance
+gj = mgh.get_generation_job()
+# Execute the generation Job to generate RUNS
+ret = self.execute_jobs([gj])
+
+if ret == 0:  # Successful generation
+  # Get a SLURM sbatch array job for all generated runs found in monte_dir
+  # SLURM is an HPC (High-Performance-Computing) scheduling tool installed on
+  # many modern super-compute clusters that manages execution of a massive
+  # number of jobs. See the official documentation for more information
+  # Slurm: https://slurm.schedmd.com/documentation.html
+  sbj = mgh.get_sbatch_job(monte_dir="path/to/MONTE_RUN_mc")
+  # Execute the sbatch job, which queues all runs in SLURM for execution
+  # Use hpc_passthrough_args ='--wait' to block until all runs complete
+  ret = self.execute_jobs([sbj])
+
+  # Instead of using SLURM, generated runs can be executed locally through
+  # TrickOps calls on the host where this script runs. First get a list of
+  # run jobs
+  run_jobs = mgh.get_generated_run_jobs(monte_dir="path/to/MONTE_RUN_mc")
+  # Then execute all generated SingleRun instances, up to 10 at once
+  ret = self.execute_jobs(run_jobs, max_concurrent=10)
+```
+
+Note that the number of runs to-be-generated is configured somewhere in the `input.py` code and this module cannot robustly know that information for any particular use-case. This is why `monte_dir` is a required input to several functions - this directory is processed by the module to understand how many runs were generated.
+
 
 ## More Information
 
-A lot of time was spent adding `python` docstrings to the `TrickWorkflow.py` and `WorkflowCommon.py` modules. This README does not cover all functionality, so please see the in-code documentation for more detailed information on the framework.
+A lot of time was spent adding `python` docstrings to the modules in the `trickops/` directory and tests under the `trickops/tests/`. This README does not cover all functionality, so please see the in-code documentation and unit tests for more detailed information on the framework capabilities.
 
 [Continue to Software Requirements](../software_requirements_specification/SRS)

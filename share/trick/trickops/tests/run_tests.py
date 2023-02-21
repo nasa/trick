@@ -33,7 +33,8 @@ def run_tests(args):
     ut_results = runner.run(overall_suite)
 
     # Run all doc tests by eating our own dogfood
-    doctest_files = ['TrickWorkflow.py', 'WorkflowCommon.py', 'TrickWorkflowYamlVerifier.py']
+    doctest_files = ['TrickWorkflow.py', 'WorkflowCommon.py', 'TrickWorkflowYamlVerifier.py',
+      'MonteCarloGenerationHelper.py']
     wc = WorkflowCommon(this_dir, quiet=True)
     jobs = []
     log_prepend = '_doctest_log.txt'
