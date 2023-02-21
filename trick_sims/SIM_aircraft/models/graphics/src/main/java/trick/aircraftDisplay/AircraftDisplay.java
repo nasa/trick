@@ -35,11 +35,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JToggleButton;
 import javax.swing.BorderFactory; 
 import javax.swing.border.EtchedBorder;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+
 import java.awt.Color;
 
 import javax.imageio.ImageIO;
@@ -68,6 +74,113 @@ class ScenePoly {
     public double[] y;
 }
 
+class SimulationMenuBar extends JMenuBar {
+    private JMenu _file;
+    private JMenu _edit;
+    private JMenu _tools;
+    private JMenu _help;
+    private ViewMenu _view;
+
+    private SkyView skyView;
+
+    public SimulationMenuBar(SkyView sv) {
+        skyView = sv;
+        _view = new ViewMenu("View");
+
+        add(_view);
+    }
+
+    public void setEnabled_DisabledViewCB(boolean s) {
+        _view.disabledView.setEnabled(s);
+    }
+    private void initHelpMenu() {
+        _help = new JMenu("Help");
+        add(_help);
+    }
+
+    private void initToolsMenu() {
+        _tools = new JMenu("Tools");
+        add(_tools);
+    }
+
+    private void initEditMenu() {
+        _edit = new JMenu("Edit");      // Undo, Redo, Cut, Copy, Paste
+        JMenuItem mi;
+        mi = new JMenuItem("Undo");
+        _edit.add(mi);
+        mi = new JMenuItem("Redo");
+        _edit.add(mi);
+        mi = new JMenuItem("Cut");
+        _edit.add(mi);
+        mi = new JMenuItem("Copy");
+        _edit.add(mi);
+        mi = new JMenuItem("Paste");
+        _edit.add(mi);
+        add(_edit);
+    }
+
+    private void initFileMenu() {
+        _file = new JMenu("File");      // New, Open, Save, Save As, Exit
+        JMenuItem mi;
+        mi = new JMenuItem("New");
+        _file.add(mi);
+        mi = new JMenuItem("Open");
+        _file.add(mi);
+        mi = new JMenuItem("Save");
+        _file.add(mi);
+        mi = new JMenuItem("Save As");
+        _file.add(mi);
+        mi = new JMenuItem("Exit");
+        _file.add(mi);
+        
+        add(_file);
+    }
+
+    private class ViewMenu extends JMenu {
+        public JCheckBoxMenuItem posView, velView, scaleView, controlView, disabledView;
+        ViewMenu(String name) {
+            super(name);
+            
+            initPosViewCB();
+            initVelViewCB();
+            initScaleViewCB();
+            initControlViewCB();
+            initDisabledViewCB();
+
+            add(posView);
+            add(velView);
+            add(scaleView);
+            add(controlView);
+            add(disabledView);
+        }
+
+        private void initPosViewCB() {
+            posView = new JCheckBoxMenuItem("Aircraft Position", skyView.getPosView());
+            posView.addItemListener(e -> skyView.setPosView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+
+        private void initVelViewCB() {
+            velView = new JCheckBoxMenuItem("Aircraft Velocity", skyView.getVelView());
+            velView.addItemListener(e -> skyView.setVelView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+
+        private void initScaleViewCB() {
+            scaleView = new JCheckBoxMenuItem("Map Scale", skyView.getScaleView());
+            scaleView.addItemListener(e -> skyView.setScaleView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+
+        private void initControlViewCB() {
+            controlView = new JCheckBoxMenuItem("Control Mode", skyView.getCtrlView());
+            controlView.addItemListener(e -> skyView.setCtrlView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+
+        private void initDisabledViewCB() {
+            disabledView = new JCheckBoxMenuItem("Disabled Controls' Data", skyView.getDisabledView());
+            disabledView.addItemListener(e -> skyView.setDisabledView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+    }
+}
+
 class SkyView extends JPanel {
 
     private double scale; // Pixels per meter
@@ -91,6 +204,9 @@ class SkyView extends JPanel {
     // Origin of world coordinates in jpanel coordinates.
     private int worldOriginX;
     private int worldOriginY;
+
+    // The data that is or isn't displayed on the map
+    private boolean posView, velView, scaleView, ctrlView, disabledView;
 
     public SkyView( double mapScale ) {
         scale = mapScale;
@@ -117,6 +233,8 @@ class SkyView extends JPanel {
         workPolyY = new int[30];
 
         waypoints = new ArrayList<Waypoint>();
+
+        setAllView(true);
     }
 
     public void addWaypoint( double n, double w, String fp) {
@@ -185,6 +303,30 @@ class SkyView extends JPanel {
         desired_heading = n;
     }
 
+    // Getters and setters for all the 'View' variables
+    public boolean getPosView()             {  return posView;  }
+    public void setPosView(boolean v)       {  posView = v;  }
+
+    public boolean getVelView()             {  return velView;  }
+    public void setVelView(boolean v)       {  velView = v;  }
+
+    public boolean getScaleView()           {  return scaleView;  }
+    public void setScaleView(boolean v)     {  scaleView = v;  }
+
+    public boolean getCtrlView()            {  return ctrlView;  }
+    public void setCtrlView(boolean v)      {  ctrlView = v;  }
+
+    public boolean getDisabledView()        {  return disabledView;  }
+    public void setDisabledView(boolean v)  {  disabledView = v;  }
+
+    public void setAllView(boolean v) {
+        setPosView(v);
+        setVelView(v);
+        setScaleView(v);
+        setCtrlView(v);
+        setDisabledView(v);
+    }
+
     public void drawCenteredOval(Graphics2D g, int x, int y, int rh, int rv) {
         x = x-(rh/2);
         y = y-(rv/2);
@@ -244,26 +386,44 @@ class SkyView extends JPanel {
 
         // Display State Data
         g2d.setPaint(Color.BLACK);
-        g2d.drawString ( String.format("Aircraft Pos: [%.2f, %.2f]", aircraftPos[0], aircraftPos[1]), 20,40);
-        g2d.drawString ( String.format("Aircraft Vel: [%.2f, %.2f]", aircraftVel[0], aircraftVel[1]), 20,60);
+        int textCursor = 40;
+        
+        if(posView) {
+            g2d.drawString ( String.format("Aircraft Pos: [%.2f, %.2f]", aircraftPos[0], aircraftPos[1]), 20,textCursor);
+            textCursor += 20;
+        }
 
-        g2d.drawString ( String.format("SCALE: %f pixels/meter",scale), 20,80);
-
-        g2d.drawString ( String.format("Autopilot Mode: [%B]", autopilot), 20,100);
-
+        if(velView) {
+            g2d.drawString ( String.format("Aircraft Vel: [%.2f, %.2f]", aircraftVel[0], aircraftVel[1]), 20,textCursor);
+            textCursor += 20;
+        }
+            
+        if(scaleView){
+            g2d.drawString ( String.format("SCALE: %f pixels/meter",scale), 20,textCursor);
+            textCursor += 20;
+        }
+        
+        if(ctrlView){
+            g2d.drawString ( String.format("Control Mode: [%s]", autopilot ? "Auto-Pilot" : "Manual"), 20,textCursor);
+            textCursor += 20;
+        }
+        
         if (autopilot == true) {
             g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,40);
             g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
-            g2d.drawString ( "-------Controls disabled-------", (width - 240),80);
-            g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),100);
-            g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),120);
+            if (disabledView) {
+                g2d.setPaint(Color.GRAY);
+                g2d.drawString ( "-------Controls disabled-------", (width - 240),80);
+                g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),100);
+                g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),120);
+                g2d.setPaint(Color.BLACK);
+            }
         } else {
             g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,100);
             g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),80);
             g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
             g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),40);
         }
-      
     }
 
     @Override
@@ -428,6 +588,7 @@ class AutoPilotCtrlPanel extends JPanel implements ItemListener {
 public class AircraftDisplay extends JFrame {
 
     private SkyView skyView;
+    private SimulationMenuBar simMenu;
     private BufferedReader in;
     private DataOutputStream out;
     private JPanel panelGroup0, panelGroup1;
@@ -435,6 +596,8 @@ public class AircraftDisplay extends JFrame {
 
     public AircraftDisplay(SkyView sky) {
         skyView = sky;
+        simMenu = new SimulationMenuBar(skyView);
+        setJMenuBar(simMenu);
         add( skyView);
         setTitle("Aircraft Display");
         setSize(800, 800);
@@ -584,6 +747,8 @@ public class AircraftDisplay extends JFrame {
                 } else {
                   sd.out.writeBytes("dyn.aircraft.autoPilot = False ;\n");
                 } 
+
+                ((SimulationMenuBar) sd.getJMenuBar()).setEnabled_DisabledViewCB(autopilot);
 
             } catch (IOException | NullPointerException e ) {
                 go = false;

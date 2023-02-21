@@ -62,6 +62,31 @@ When the simulation starts they are read into the simulation from the specified 
     -21650.0,  12500.0,images/wp5.png
 Each line should have three pieces of data, separated by commas. The first two are the coordinates. They are formatted like GPS coordinates, with the first number being the vertical distance, or 'North', and the second being the horizontal, or 'West', distance. The third part of the line is the path to the image that will be used as the waypoint marker.
 
+### Graphics Client Menu
+
+#### View
+
+The `View` menu on the menu bar allows the user to choose the information displayed by the client.
+
+![](images/GraphicsClient_ViewOptions.png)
+
+##### Aircraft Position
+This checkbox toggles the visibility of the `Aircraft Pos:` field in the top left corner of the map.
+
+##### Aircraft Velocity
+This checkbox toggles the visibility of the `Aircraft Vel:` field in the top left corner of the map.
+
+##### Map Scale
+This checkbox toggles the visibility of the `Scale:` field in the top left corner of the map.
+
+##### Control Mode
+This checkbox toggles the visibility of the `Control Mode:` field in the top left corner of the map.
+
+##### Disabled Controls' Data
+This checkbox is disabled unless Autopilot is engaged. When used, it toggles the visibility of the data from the disabled controls in the top right corner of the map.
+
+![](images/GraphicsClient_ControlsDisabled.png)
+
 ## Dynamics Model
 
 ### General Strategy for Motion
