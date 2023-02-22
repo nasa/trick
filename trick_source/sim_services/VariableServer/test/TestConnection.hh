@@ -61,7 +61,7 @@ class TestConnection : public Trick::ClientConnection {
             client_tag = tag;
         }
 
-        int setBlockMode (int mode) {
+        int set_block_mode (int mode) {
             return 0;
         }
 

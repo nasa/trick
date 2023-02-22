@@ -17,8 +17,12 @@ Trick::ThreadBase::ThreadBase(std::string in_name) :
  name(in_name) ,
  pthread_id(0) ,
  pid(0) ,
- rt_priority(0)
+ rt_priority(0),
+ created(false),
+ should_shutdown(false),
+ cancellable(true)
 {
+    pthread_mutex_init(&shutdown_mutex, NULL);
 #if __linux
     max_cpu = sysconf( _SC_NPROCESSORS_ONLN ) ;
 #ifdef CPU_ALLOC
@@ -274,11 +278,18 @@ int Trick::ThreadBase::execute_priority() {
 
 int Trick::ThreadBase::create_thread() {
 
+    if (created) {
+        message_publish(MSG_ERROR, "create_thread called on thread %s (%p) which has already been started.\n", name.c_str(), this);
+        return 0;
+    }
+
     pthread_attr_t attr;
 
     pthread_attr_init(&attr);
     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
     pthread_create(&pthread_id, &attr, Trick::ThreadBase::thread_helper , (void *)this);
+
+    created = true;
 
 #if __linux
 #ifdef __GNUC__
@@ -294,17 +305,54 @@ int Trick::ThreadBase::create_thread() {
 }
 
 int Trick::ThreadBase::cancel_thread() {
+    pthread_mutex_lock(&shutdown_mutex);
+    should_shutdown = true;
+    pthread_mutex_unlock(&shutdown_mutex);
+
     if ( pthread_id != 0 ) {
-        pthread_cancel(pthread_id) ;
+        if (cancellable)
+            pthread_cancel(pthread_id) ;
     }
     return(0) ;
 }
 
 int Trick::ThreadBase::join_thread() {
     if ( pthread_id != 0 ) {
-        pthread_join(pthread_id, NULL) ;
+        if ((errno = pthread_join(pthread_id, NULL)) != 0) {
+            std::string msg = "Thread " + name + " had an error in join";
+            perror(msg.c_str());
+        } else {
+            pthread_id = 0;
+        }
     }
     return(0) ;
+}
+
+void Trick::ThreadBase::test_shutdown() {
+    test_shutdown (NULL, NULL);
+}
+
+void Trick::ThreadBase::test_shutdown(void (*exit_handler) (void *), void * exit_arg) {
+    pthread_mutex_lock(&shutdown_mutex);
+    if (should_shutdown) {
+        pthread_mutex_unlock(&shutdown_mutex);
+
+        thread_shutdown(exit_handler, exit_arg);
+    }
+    pthread_mutex_unlock(&shutdown_mutex);
+}
+
+
+void Trick::ThreadBase::thread_shutdown() {
+    thread_shutdown (NULL, NULL);
+}
+
+void Trick::ThreadBase::thread_shutdown(void (*exit_handler) (void *), void * exit_arg) {
+    if (exit_handler != NULL) {
+        exit_handler(exit_arg);
+    }
+
+    pthread_exit(0); 
 }
 
 void * Trick::ThreadBase::thread_helper( void * context ) {

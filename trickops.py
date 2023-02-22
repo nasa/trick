@@ -28,39 +28,10 @@ class SimTestWorkflow(TrickWorkflow):
       remaining_run_jobs = self.get_jobs(kind='run', phase=0)   # Get all jobs with default phase 0
       analysis_jobs   = self.get_jobs(kind='analyze')
 
-      # Some tests fail intermittently for reasons not related to the tests themselves, mostly network weirdness.
-      # Allow retries so that we can still cover some network-adjacent code
-      retry_allowed_sims = self.get_sims(labels='retries_allowed')
-      retry_allowed_jobs = [run.get_run_job() for run in [item for sublist in [sim.get_runs() for sim in retry_allowed_sims] for item in sublist]]
-      for job in retry_allowed_jobs:
-         # Note there's an assumption/dependency here that 'retries_allowed' runs
-         # are only in the remaining_run_jobs list. - Jordan 2/2023
-         remaining_run_jobs.remove(job)
-
-      # Some tests fail intermittently for reasons not related to the tests themselves, mostly network weirdness.
-      # Allow retries so that we can still cover some network-adjacent code
-      retry_allowed_sims = self.get_sims(labels='retries_allowed')
-      retry_allowed_jobs = [run.get_run_job() for run in [item for sublist in [sim.get_runs() for sim in retry_allowed_sims] for item in sublist]]
-      for job in retry_allowed_jobs:
-         run_jobs.remove(job)
-
-
       builds_status = self.execute_jobs(build_jobs, max_concurrent=self.cpus, header='Executing all sim builds.')
-      first_phase_run_status = self.execute_jobs(first_run_jobs, max_concurrent=self.cpus, header="Executing first phase runs.")
-      runs_status   = self.execute_jobs(remaining_run_jobs,   max_concurrent=self.cpus, header='Executing remaining runs.')
+      first_phase_run_status = self.execute_jobs(first_run_jobs, max_concurrent=self.cpus, header="Executing first phase runs.", job_timeout=1000)
+      runs_status   = self.execute_jobs(remaining_run_jobs,   max_concurrent=self.cpus, header='Executing remaining runs.', job_timeout=1000)
 
-      # Run the retry_allowed jobs
-      self.execute_jobs(retry_allowed_jobs, max_concurrent=self.cpus, header='Executing retry-allowed runs.')
-      
-      # If anything failed, try it again up to max_retries times
-      all_retried_status = 0
-      final_retry_jobs = []
-      for sim in retry_allowed_sims:
-        failing_runs = [run for run in sim.get_runs() if run.get_run_job().get_status() == Job.Status.FAILED]
-        for run in failing_runs:
-          status, final_job = self.retry_job(sim, run, max_retries)
-          final_retry_jobs += [final_job]
-          all_retried_status = all_retried_status or status
       comparison_result = self.compare()
       analysis_status = self.execute_jobs(analysis_jobs, max_concurrent=self.cpus, header='Executing all analysis.')
 
@@ -68,32 +39,22 @@ class SimTestWorkflow(TrickWorkflow):
       self.status_summary()   # Print a Succinct summary
 
       # Dump failing logs
-      jobs = build_jobs + first_run_jobs + remaining_run_jobs + final_retry_jobs
+      jobs = build_jobs + first_run_jobs + remaining_run_jobs 
       for job in jobs:
-        if job.get_status() == Job.Status.FAILED:
-          print("Failing job: ", job.name)
+        if job.get_status() == Job.Status.FAILED or job.get_status() == Job.Status.TIMEOUT:
+          print ("*"*120)
+          if job.get_status() == Job.Status.FAILED:
+            header = "Failing job: " + job.name
+          else:
+            header = "Timed out job: " + job.name
+
+          numspaces = int((120 - 20 - len(header))/2 -2)
+          print("*"*10, " "*numspaces, header, " "*numspaces, "*"*10,)
           print ("*"*120)
           print(open(job.log_file, "r").read())
-          print ("*"*120, "\n")
+          print ("*"*120, "\n\n\n")
 
-      return (builds_status or runs_status or first_phase_run_status or all_retried_status or len(self.config_errors) > 0 or comparison_result or analysis_status)
-
-    # Retries a job up to max_retries times and adds runs to the sim
-    # Returns tuple of (job_status, final retry job)
-    def retry_job(self, sim, run, max_retries):
-      tries = 0
-      job_failing = 1
-      retry_run = None
-      retry_job = None
-      while tries < max_retries and job_failing:
-        tries += 1
-        retry_run = TrickWorkflow.Run(sim_dir=run.sim_dir, input_file=run.input_file, binary=run.binary, returns=run.returns,log_dir=run.log_dir)
-        retry_job = retry_run.get_run_job()
-        retry_job.name = retry_job.name + "_retry_" + str(tries)
-        job_failing = self.execute_jobs([retry_job], max_concurrent=1, header="Retrying failed job")
-        sim.add_run(retry_run)
-    
-      return (job_failing, retry_job)
+      return (builds_status or runs_status or first_phase_run_status or len(self.config_errors) > 0 or comparison_result or analysis_status)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build, run, and compare all test sims for Trick',

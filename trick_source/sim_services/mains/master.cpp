@@ -44,7 +44,6 @@ int master( int nargs, char **args) {
     if ( ret == 0 ) {
         exec->loop() ;
     }
-
     ret = exec->shutdown() ;
 
     //TODO: add call to free all memory from memory manager

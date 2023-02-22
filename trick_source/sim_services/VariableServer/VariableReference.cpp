@@ -15,7 +15,7 @@
 #include "trick/UdUnits.hh"
 #include "trick/bitfield_proto.h"
 #include "trick/trick_byteswap.h"
-#include "trick/tc_proto.h"
+// #include "trick/tc_proto.h"
 
 
 // Static variables to be addresses that are known to be the error ref address

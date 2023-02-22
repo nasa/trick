@@ -6,6 +6,7 @@
 #include "trick/message_type.h"
 #include "trick/tc_proto.h"
 #include "trick/exec_proto.h"
+#include "trick/SysThread.hh"
 
 /** @par Detailed Design: */
 void Trick::MonteCarlo::master_shutdown() {
@@ -40,6 +41,8 @@ void Trick::MonteCarlo::master_shutdown() {
     if ( !except_return and failed_runs.size() > 0 ) {
         except_return = -2 ;
     }
+
+    SysThread::ensureAllShutdown();
 
     exit(except_return);
 }

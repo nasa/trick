@@ -131,7 +131,7 @@ namespace Trick {
             virtual int cancel_thread() ;
 
             /**
-             * Cancels thread.
+             * Joins thread.
              * @return always 0
              */
             virtual int join_thread() ;
@@ -153,6 +153,12 @@ namespace Trick {
              */
             virtual void dump( std::ostream & oss = std::cout ) ;
 
+            virtual void test_shutdown();
+            virtual void test_shutdown(void (*exit_handler) (void *), void * exit_arg);
+
+            virtual void thread_shutdown();
+            virtual void thread_shutdown(void (*exit_handler) (void *), void * exit_arg);
+
         protected:
 
             /** optional name of thread */
@@ -169,6 +175,14 @@ namespace Trick {
 
             /** Set of cpus to use with thread */
             unsigned int max_cpu ;          /**< trick_io(**) */
+
+            /** Track whether the thread has been created */
+            bool created ;          /**< trick_io(**) */
+
+            /** Manage thread shutdown */
+            bool should_shutdown;   /**< trick_io(**) */
+            bool cancellable;   /**< trick_io(**) */
+            pthread_mutex_t shutdown_mutex;     /**< trick_io(**) */
 
 #if __linux
 #ifndef SWIG
