@@ -6,7 +6,7 @@ sys.path.append(sys.argv[1] + "/share/trick/trickops")
 from TrickWorkflow import *
 from WorkflowCommon import Job
 
-max_retries = 2
+max_retries = 5
 
 class SimTestWorkflow(TrickWorkflow):
     def __init__( self, quiet, trick_top_level ):
