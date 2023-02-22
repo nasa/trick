@@ -94,7 +94,7 @@ class SimTestWorkflow(TrickWorkflow):
       retry_job = None
       while tries < max_retries and job_failing:
         tries += 1
-        retry_run = TrickWorkflow.Run(sim_dir=run.sim_dir, input=run.input, binary=run.binary, returns=run.returns,log_dir=run.log_dir, quiet=run.quiet)
+        retry_run = TrickWorkflow.Run(sim_dir=run.sim_dir, input=run.input, binary=run.binary, returns=run.returns,log_dir=run.log_dir)
         retry_job = retry_run.get_run_job()
         retry_job.name = retry_job.name + "_retry_" + str(tries)
         job_failing = self.execute_jobs([retry_job], max_concurrent=1, header="Retrying failed job")
