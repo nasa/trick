@@ -676,7 +676,7 @@ class WorkflowCommon:
                 top_line = 0
                 header_height = header_pad.getmaxyx()[0]
                 status_height = status_pad.getmaxyx()[0]
-            counter = 0
+
             while any(job.get_status() in
               [job.Status.NOT_STARTED, job.Status.RUNNING]
               for job in jobs):
@@ -754,11 +754,7 @@ class WorkflowCommon:
                     except curses.error:
                         pass
                     curses.doupdate()
-                else:
-                    counter += 1
-                    if counter % 100 == 0:
-                        running_jobs = [job.name for job in jobs if job.get_status() == job.Status.RUNNING]
-                        print ("Current running jobs: ", ", ".join(running_jobs))
+
                 # take a nap
                 time.sleep(0.1)
             # When done clear everything, without this subsequent calls

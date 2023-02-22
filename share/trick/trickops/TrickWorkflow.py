@@ -405,7 +405,7 @@ class TrickWorkflow(WorkflowCommon):
           thisSim = TrickWorkflow.Sim(name=s, sim_dir=self.config[s]['path'],
             description=self.config[s]['description'], labels=self.config[s]['labels'],
             prebuild_cmd=self.env, build_cmd=self.config[s]['build_command'],
-            cpus=self.cpus, size=self.config[s]['size'], log_dir=self.log_dir, quiet=self.quiet)
+            cpus=self.cpus, size=self.config[s]['size'], log_dir=self.log_dir)
             
           all_sim_paths.append(c[s]['path'])
           # RUN sanity checks
@@ -456,7 +456,7 @@ class TrickWorkflow(WorkflowCommon):
                 thisRun = TrickWorkflow.Run(sim_dir=self.config[s]['path'], input=r,
                               binary= self.config[s]['binary'], prerun_cmd=self.env,
                               returns=self.config[s]['runs'][r]['returns'],
-                              valgrind_flags=None, log_dir=self.log_dir, quiet=self.quiet)
+                              valgrind_flags=None, log_dir=self.log_dir)
                 # Handle 'compare' option, if given, if not, assume 0
                 if 'compare' not in c[s]['runs'][r]:
                   self.config[s]['runs'][r]['compare'] = None
@@ -771,7 +771,7 @@ class TrickWorkflow(WorkflowCommon):
         stored in the TrickWorkflow.sims list.
         """
         def __init__(self, name, sim_dir, description=None, labels=[], prebuild_cmd='',
-                     build_cmd='trick-CP', cpus=3, size=2200000, log_dir='/tmp', quiet=False):
+                     build_cmd='trick-CP', cpus=3, size=2200000, log_dir='/tmp'):
             """
             Initialize this instance.
 
@@ -1015,7 +1015,7 @@ class TrickWorkflow(WorkflowCommon):
         runs: sub-dict will become a single instance of this management class
         """
         def __init__(self, sim_dir, input, binary, prerun_cmd = '', returns=0, valgrind_flags=None,
-                     log_dir='/tmp/', quiet=False):
+                     log_dir='/tmp/'):
             """
             Initialize this instance.
 
@@ -1056,7 +1056,6 @@ class TrickWorkflow(WorkflowCommon):
             self.run_job = None      # SingleRun Job instance for this run
             self.comparisons = []    # List of comparison objects associated with this run
             self.analysis = None     # Job instance of after-run-completes custom analysis
-            self.quiet = quiet
 
         def add_comparison(self, test_data, baseline_data):
             """
@@ -1161,7 +1160,7 @@ class TrickWorkflow(WorkflowCommon):
                 name += self.sim_dir + ' ' + self.input
 
                 self.run_job = SingleRun(name=name, command=(cmd),
-                    expected_exit_status=self.returns, log_file=logfile, quiet=self.quiet)
+                    expected_exit_status=self.returns, log_file=logfile)
             return (self.run_job)
 
     class Comparison(object):
@@ -1291,10 +1290,6 @@ class SimulationJob(Job):
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, name, command, log_file, expected_exit_status=0, quiet=False):
-       self.quiet = quiet
-       super(SimulationJob, self).__init__(name, command, log_file, expected_exit_status)
-
     @abc.abstractmethod
     def _create_variables(self):
         """
@@ -1385,12 +1380,11 @@ class SimulationJob(Job):
                     return
                 except socket.timeout:
                     pass
-        
-        if not self.quiet:
-          thread = threading.Thread(target=connect,
-                                    name='Looking for ' + self.name)
-          thread.daemon = True
-          thread.start()
+
+        thread = threading.Thread(target=connect,
+                                  name='Looking for ' + self.name)
+        thread.daemon = True
+        thread.start()
 
     def get_status_string_line_count(self):
         return super(SimulationJob, self).get_status_string_line_count() + 1
