@@ -219,7 +219,7 @@ int strcmp_IgnoringWhiteSpace(std::string s1_str, std::string s2_str) {
 class VariableServerTest : public ::testing::Test {
     protected:
         VariableServerTest() {
-            socket_status = socket.init("localhost", 4000);
+            socket_status = socket.init("localhost", 40000);
             if (socket_status == 0) {
                 std::stringstream request;
                 request << "trick.var_set_client_tag(\"VSTest";
@@ -933,7 +933,7 @@ TEST_F (VariableServerTest, Multicast) {
 
     char expected_hostname[80];
     gethostname(expected_hostname, 80);
-    int expected_port = 4000;
+    int expected_port = 40000;
     
     // get expected username
     struct passwd *passp = getpwuid(getuid()) ;
@@ -1317,7 +1317,7 @@ TEST_F (VariableServerTest, MulticastAfterRestart) {
 
     char expected_hostname[80];
     gethostname(expected_hostname, 80);
-    int expected_port = 4000;
+    int expected_port = 40000;
     
     // get expected username
     struct passwd *passp = getpwuid(getuid()) ;
@@ -1611,7 +1611,7 @@ int main(int argc, char **argv) {
     int result = RUN_ALL_TESTS();
 
     Socket socket;
-    socket.init("localhost", 4000);
+    socket.init("localhost", 40000);
     
     if (result == 0) {
         // Success
