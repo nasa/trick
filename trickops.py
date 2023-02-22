@@ -105,4 +105,4 @@ class SimTestWorkflow(TrickWorkflow):
 
 if __name__ == "__main__":
     should_be_quiet = os.getenv('CI') is not None
-    sys.exit(SimTestWorkflow(quiet=True, trick_top_level=sys.argv[1]).run())
+    sys.exit(SimTestWorkflow(quiet=should_be_quiet, trick_top_level=sys.argv[1]).run())
