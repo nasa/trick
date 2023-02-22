@@ -63,7 +63,7 @@ trick.var_server_get_hostname()
 trick.var_server_get_port()
 ```
 
-Additional TCP or UDP ports can be opened as well. This is not necessary to allow multiple variable server
+Additional TCP or UDP sockets can be opened as well. This is not necessary to allow multiple variable server
 clients - any number of clients can connect to the original variable server port.
 
 ```python
