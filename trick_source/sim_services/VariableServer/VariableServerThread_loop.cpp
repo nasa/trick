@@ -27,11 +27,15 @@ void * Trick::VariableServerThread::thread_body() {
     //  client gets confirmation that the connection is ready for communication.
     vs->add_vst( pthread_self() , this ) ;
 
+    std::cout << "Starting thread body" << std::endl;
     // Accept client connection
-    int accept_status = accept(listener, &connection);
+    int accept_status = connection->establish_connection();
+    std::cout << "Established connection with accept_status " << accept_status << std::endl;
+
+
     if (accept_status != 0) {
         // TODO: Use a real error handler
-        std::cout << "Accept failed, variable server session exiting" << std::endl;
+        std::cout << "Failed to establish connection, variable server thread exiting" << std::endl;
         vs->delete_vst(pthread_self());
 
         // Tell main thread that we failed to initialize
@@ -40,13 +44,12 @@ void * Trick::VariableServerThread::thread_body() {
         pthread_cond_signal(&connection_status_cv);
         pthread_mutex_unlock(&connection_status_mutex);
 
+        self_deleting = false;
         pthread_exit(NULL);
     }
 
-    connection.setBlockMode(TC_COMM_ALL_OR_NOTHING);
-
     // Create session
-    session = new VariableServerSession(&connection);
+    session = new VariableServerSession(connection);
     vs->add_session( pthread_self(), session );
 
     // Tell main that we are ready
@@ -132,7 +135,7 @@ void * Trick::VariableServerThread::thread_body() {
     }
 
     if (debug >= 3) {
-        message_publish(MSG_DEBUG, "%p tag=<%s> var_server receive loop exiting\n", &connection, connection.get_client_tag().c_str());
+        message_publish(MSG_DEBUG, "%p tag=<%s> var_server receive loop exiting\n", connection, connection->get_client_tag().c_str());
     }
 
     pthread_cleanup_pop(1);

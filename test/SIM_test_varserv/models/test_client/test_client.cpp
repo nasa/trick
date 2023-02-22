@@ -31,14 +31,14 @@ class Socket {
     int max_retries = 10;
 
     Socket() : _initialized(false) {}
-    int init(std::string hostname, int port) {
+    int init(std::string hostname, int port, int mode = SOCK_STREAM) {
         _multicast_socket = false;
 
         _hostname = hostname;
         _port = port;
         int tries = 0;
 
-        while ((_socket_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0 && tries < max_retries) tries++;
+        while ((_socket_fd = socket(AF_INET, mode, 0)) < 0 && tries < max_retries) tries++;
 
         if (_socket_fd < 0) {
             std::cout << "Socket connection failed" << std::endl;
@@ -69,6 +69,7 @@ class Socket {
         return 0;
     }
 
+    #ifndef __APPLE__
     int init_multicast (std::string hostname, int port) {
         _multicast_socket = true;
         _hostname = hostname;
@@ -78,13 +79,13 @@ class Socket {
         while ((_socket_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 && tries < max_retries) tries++;
 
         if (_socket_fd < 0) {
-            std::cout << "Socket connection failed" << std::endl;
+            std::cout << "init_multicast: Socket open failed" << std::endl;
             return -1;
         }
 
         int value = 1;
         if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *) &value, (socklen_t) sizeof(value)) < 0) {
-            std::cout << "Socket connection failed" << std::endl;
+            std::cout << "init_multicast: Socket option failed" << std::endl;
             return -1;
         }
 
@@ -93,7 +94,7 @@ class Socket {
         mreq.imr_multiaddr.s_addr = inet_addr(_hostname.c_str());
         mreq.imr_interface.s_addr = htonl(INADDR_ANY);
         if (setsockopt(_socket_fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *) &mreq, (socklen_t) sizeof(mreq)) < 0) {
-            std::cout << "setsockopt: ip_add_membership" << std::endl;
+            std::cout << "init_multicast: setsockopt: ip_add_membership failed" << std::endl;
             return -1;
         }
 
@@ -106,18 +107,22 @@ class Socket {
         sockin.sin_port = htons(_port);
 
         if ( bind(_socket_fd, (struct sockaddr *) &sockin, (socklen_t) sizeof(sockin)) < 0 ) {
-            std::cout << "bind" << std::endl;
+            std::cout << "init_multicast: bind failed" << std::endl;
+            return -1;
         }
 
         _initialized = true;
+        return 0;
     }
+
+    #endif
 
     int send (std::string message) {
         // weird syntax I've never used before - since the send syscall that i'm trying to use is overloaded in this class,
         // I have to append :: to the front of it so that the compiler knows to look in the global namespace
         int success = ::send(_socket_fd, message.c_str(), message.size(), 0);
         if (success < message.size()) {
-            std::cout << "Failed to send message" << std::endl;
+            std::cout << "init_multicast: Failed to send message" << std::endl;
         }
         return success;
     }
@@ -145,7 +150,7 @@ class Socket {
         unsigned char buffer[SOCKET_BUF_SIZE];
         int numBytes = recv(_socket_fd, buffer, SOCKET_BUF_SIZE, 0);
         if (numBytes < 0) {
-            std::cout << "Failed to read from socket" << std::endl;
+            std::cout << "init_multicast: Failed to read from socket" << std::endl;
         } 
 
         std::vector<unsigned char> bytes;
@@ -237,10 +242,242 @@ class VariableServerTest : public ::testing::Test {
         static int numSession;
 };
 
+class VariableServerUDPTest : public ::testing::Test {
+    protected:
+        VariableServerUDPTest() {
+            socket_status = socket.init("localhost", 48000, SOCK_DGRAM);
+
+            if (socket_status == 0) {
+                std::stringstream request;
+                request << "trick.var_set_client_tag(\"UDP_VSTest";
+                request << numSession++;
+                request << "\") \n";
+
+                socket << request.str();
+            }
+        }
+        ~VariableServerUDPTest() {
+            socket.close();
+        }
+
+        Socket socket;
+        int socket_status;
+        
+        static int numSession;
+};
+
+class VariableServerTestAltListener : public ::testing::Test {
+    protected:
+        VariableServerTestAltListener() {
+            socket_status = socket.init("localhost", 49000);
+
+            if (socket_status == 0) {
+                std::stringstream request;
+                request << "trick.var_set_client_tag(\"altListener_VSTest";
+                request << numSession++;
+                request << "\") \n";
+
+                socket << request.str();
+            }
+        }
+        ~VariableServerTestAltListener() {
+            socket << "trick.var_exit()\n";
+            socket.close();
+        }
+
+        Socket socket;
+        int socket_status;
+        
+        static int numSession;
+};
+
+// class VariableServerTestMulticast : public ::testing::Test {
+//     protected:
+//         VariableServerTestMulticast() {
+//             socket_status = socket.init("localhost", 47000, SOCK_DGRAM);
+//             multicast_listener.init_multicast("224.10.10.10", 47000);
+
+//             if (socket_status == 0) {
+//                 std::stringstream request;
+//                 request << "trick.var_set_client_tag(\"multicast_VSTest";
+//                 request << numSession++;
+//                 request << "\") \n";
+
+//                 socket << request.str();
+//             }
+//         }
+//         ~VariableServerTestMulticast() {
+//             socket << "trick.var_exit()\n";
+//             socket.close();
+//         }
+
+//         Socket socket;
+//         Socket multicast_listener;
+
+//         int socket_status;
+        
+//         static int numSession;
+// };
+
 int VariableServerTest::numSession = 0;
+int VariableServerUDPTest::numSession = 0;
+int VariableServerTestAltListener::numSession = 0;
+// int VariableServerTestMulticast::numSession = 0;
+
 
 void spin (Socket& socket, int wait_cycles = 5) {
         socket.receive();
+}
+
+TEST_F (VariableServerUDPTest, Strings) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    socket << "trick.var_send_once(\"vsx.vst.o\")\n";
+    socket >> reply;
+    std::string expected("5\tYou will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+
+    expected = std::string("5\tI am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
+    socket << "trick.var_send_once(\"vsx.vst.p\")\n";
+
+    socket >> reply;
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+}
+
+TEST_F (VariableServerTestAltListener, Strings) {
+ if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    socket << "trick.var_send_once(\"vsx.vst.o\")\n";
+    socket >> reply;
+    std::string expected("5\tYou will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+
+    expected = std::string("5\tI am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
+    socket << "trick.var_send_once(\"vsx.vst.p\")\n";
+
+    socket >> reply;
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+}
+
+TEST_F (VariableServerUDPTest, AddRemove) {
+     if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    std::string expected;
+
+    socket << "trick.var_add(\"vsx.vst.c\")\n";
+    socket >> reply;
+    expected = std::string("0  -1234");
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    socket >> reply;
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    socket << "trick.var_add(\"vsx.vst.m\")\n";
+    socket >> reply;
+    expected = std::string("0  -1234 1");
+    
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    socket << "trick.var_remove(\"vsx.vst.m\")\n";
+    socket >> reply;
+    expected = std::string("0  -1234");
+    
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    socket << "trick.var_add(\"vsx.vst.n\")\n";
+    socket >> reply;
+    expected = std::string("0  -1234    0,1,2,3,4");
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+}
+
+
+TEST_F (VariableServerTestAltListener, AddRemove) {
+     if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    std::string expected;
+
+    socket << "trick.var_add(\"vsx.vst.c\")\n";
+    socket >> reply;
+    expected = std::string("0  -1234");
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    socket >> reply;
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    socket << "trick.var_add(\"vsx.vst.m\")\n";
+    socket >> reply;
+    expected = std::string("0  -1234 1");
+    
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    socket << "trick.var_remove(\"vsx.vst.m\")\n";
+    socket >> reply;
+    expected = std::string("0  -1234");
+    
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    socket << "trick.var_add(\"vsx.vst.n\")\n";
+    socket >> reply;
+    expected = std::string("0  -1234    0,1,2,3,4");
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+}
+
+
+TEST_F (VariableServerTestAltListener, RestartAndSet) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    std::string expected;
+
+    socket << "trick.var_add(\"vsx.vst.c\")\n";
+    socket >> reply;
+    expected = std::string("0\t-1234\n");
+
+    EXPECT_EQ(reply, expected);
+
+    socket << "trick.checkpoint(\"reload_file.ckpnt\")\n";
+
+    socket << "trick.var_add(\"vsx.vst.e\",\"m\")\n";
+    socket >> reply;
+    expected = std::string("0\t-1234\t-123456 {m}\n");
+
+    socket << "trick.var_set(\"vsx.vst.c\", 5)\n";
+    socket >> reply;
+    expected = std::string("0\t5\t-123456 {m}\n");
+
+    EXPECT_EQ(reply, expected);
+    socket << "trick.load_checkpoint(\"RUN_test/reload_file.ckpnt\")\n";
+
+    sleep(3);
+    socket.clear_buffered_data();
+    socket >> reply;
+    expected = std::string("0\t-1234\t-123456\n");
+
+    EXPECT_EQ(reply, expected);
 }
 
 TEST_F (VariableServerTest, Strings) {
@@ -589,6 +826,8 @@ TEST_F (VariableServerTest, Pause) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
+#ifndef __APPLE__
+
 TEST_F (VariableServerTest, Multicast) {
     if (socket_status != 0) {
         FAIL();
@@ -597,7 +836,9 @@ TEST_F (VariableServerTest, Multicast) {
     socket << "trick.var_server_set_user_tag(\"VSTestServer\")\n";
 
     Socket multicast_socket;
-    multicast_socket.init_multicast("224.3.14.15", 9265);
+    if (multicast_socket.init_multicast("224.3.14.15", 9265) != 0) {
+        FAIL() << "Multicast Socket failed to initialize.";
+    }
 
     int max_multicast_tries = 100;
     int tries = 0;
@@ -661,6 +902,8 @@ TEST_F (VariableServerTest, Multicast) {
     if (!found)
         FAIL() << "Multicast message never received";
 }
+
+#endif
 
 TEST_F (VariableServerTest, Freeze) {
     if (socket_status != 0) {
@@ -948,15 +1191,22 @@ TEST_F (VariableServerTest, send_stdio) {
 
     std::stringstream message_stream(message);
     std::string token;
-    std::getline(message_stream, token, ' ');
-    int message_type = stoi(token);
-    std::getline(message_stream, token, ' ');
-    int stream_num = stoi(token);
-    std::getline(message_stream, token, '\n');
-    int text_size = stoi(token);
+
+    int message_type;
+    int stream_num;
+    int text_size;
     std::string text;
+
+    message_stream >> message_type;
+    message_stream >> stream_num;
+    std::getline(message_stream, token, '\n');
+    text_size = stoi(token);
     std::getline(message_stream, text);
 
+    if (text.size() != text_size) {
+        socket >> text;
+    }
+    
     EXPECT_EQ (message_type, 4);
     EXPECT_EQ (stream_num, 1);
     EXPECT_EQ (text_size, 41);
@@ -999,6 +1249,7 @@ TEST_F (VariableServerTest, RestartAndSet) {
     EXPECT_EQ(reply, expected);
 }
 
+#ifndef __APPLE__
 
 TEST_F (VariableServerTest, MulticastAfterRestart) {
     if (socket_status != 0) {
@@ -1008,7 +1259,9 @@ TEST_F (VariableServerTest, MulticastAfterRestart) {
     socket << "trick.var_server_set_user_tag(\"VSTestServer\")\n";
 
     Socket multicast_socket;
-    multicast_socket.init_multicast("224.3.14.15", 9265);
+    if (multicast_socket.init_multicast("224.3.14.15", 9265) != 0) {
+        FAIL() << "Multicast Socket failed to initialize.";
+    }
 
     int max_multicast_tries = 100;
     int tries = 0;
@@ -1071,6 +1324,8 @@ TEST_F (VariableServerTest, MulticastAfterRestart) {
     if (!found)
         FAIL() << "Multicast message never received";
 }
+
+#endif
 
 TEST_F (VariableServerTest, LargeMessages) {
     if (socket_status != 0) {

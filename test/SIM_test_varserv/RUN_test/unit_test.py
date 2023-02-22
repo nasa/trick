@@ -11,7 +11,11 @@ def main():
 	trick.exec_set_software_frame(0.01)
 	# trick.set_var_server_info_msg_on()
 
-	trick.exec_set_terminate_time(100.0)
+	trick.var_server_create_tcp_socket('localhost', 49000)
+	trick.var_server_create_udp_socket('', 48000)
+	# trick.var_server_create_multicast_socket('224.10.10.10','', 47000)
+
+	trick.exec_set_terminate_time(1000.0)
 
 	varServerPort = trick.var_server_get_port()
 	test_output = ( os.getenv("TRICK_HOME") + "/trick_test/SIM_test_varserv.xml" ) 

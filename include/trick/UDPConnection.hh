@@ -1,8 +1,8 @@
-#ifndef TC_CONNECTION_HH
-#define TC_CONNECTION_HH
+#ifndef UDP_CONNECTION_HH
+#define UDP_CONNECTION_HH
 
 /*
-    PURPOSE: ( Encapsulate a connection with TrickComm. )
+    PURPOSE: ( Encapsulate a UDP connection with TrickComm. )
 */
 
 #include "trick/ClientConnection.hh"
@@ -14,10 +14,10 @@ namespace Trick {
     
     class ClientListener;
 
-    class TCConnection : public ClientConnection {
+    class UDPConnection : public ClientConnection {
         public:
 
-            TCConnection ();
+            UDPConnection ();
 
             int initialize() override;
             int establish_connection() override;
@@ -36,12 +36,14 @@ namespace Trick {
 
             // Non-override functions
             int set_error_reporting (bool on);
-            void set_listener (ClientListener * listener);
+            int initialize_udp(const std::string& hostname, int port);
+
 
         private:
             TCDevice _device;   /**<  trick_io(**) */
-            ClientListener * _listener;
+            bool _connected;
     };
+
 }
 
 #endif

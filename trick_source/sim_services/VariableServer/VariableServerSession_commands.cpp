@@ -351,7 +351,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
     rewind(fp) ;
 
     // Switch to blocking writes since this could be a large transfer.
-    if (connection->setBlockMode(TC_COMM_BLOCKIO)) {
+    if (connection->set_block_mode(TC_COMM_BLOCKIO)) {
         message_publish(MSG_DEBUG,"Variable Server Error: Failed to set TCDevice to TC_COMM_BLOCKIO.\n");
     }
 
@@ -368,7 +368,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
     }
 
     // Switch back to non-blocking writes.
-    if (connection->setBlockMode(TC_COMM_NOBLOCKIO)) {
+    if (connection->set_block_mode(TC_COMM_NOBLOCKIO)) {
         message_publish(MSG_ERROR,"Variable Server Error: Failed to set TCDevice to TC_COMM_NOBLOCKIO.\n");
         return(-1);
     }

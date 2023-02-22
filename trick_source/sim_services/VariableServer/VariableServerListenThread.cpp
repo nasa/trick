@@ -108,6 +108,9 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
 
 void Trick::VariableServerListenThread::create_tcp_socket(const char * address, unsigned short in_port ) {
     listener.initialize(address, in_port);
+    requested_source_address = address;
+    requested_port = in_port;
+    user_requested_address = true;
 }
 
 void * Trick::VariableServerListenThread::thread_body() {
@@ -128,7 +131,7 @@ void * Trick::VariableServerListenThread::thread_body() {
         user_name = strdup(passp->pw_name) ;
     }
     
-    listener.setBlockMode(TC_COMM_BLOCKIO);
+    listener.set_block_mode(TC_COMM_BLOCKIO);
 
     if ( broadcast ) {
         initializeMulticast();
@@ -140,9 +143,11 @@ void * Trick::VariableServerListenThread::thread_body() {
         if (listener.checkForNewConnections()) {
             // pause here during restart
             pthread_mutex_lock(&restart_pause) ;
+            std::cout << "Got a new connection, starting thread on port " << listener.getPort() << std::endl;
 
             // Create a new thread to service this connection
-            VariableServerThread * vst = new Trick::VariableServerThread(&listener) ;
+            VariableServerThread * vst = new Trick::VariableServerThread() ;
+            vst->open_tcp_socket(&listener) ;
             vst->copy_cpus(get_cpus()) ;
             vst->create_thread() ;
             vst->wait_for_accept() ;
@@ -180,8 +185,13 @@ int Trick::VariableServerListenThread::restart() {
             requested_source_address.clear() ;
         }
 
+        printf("variable server restart user_port requested set %s:%d\n",requested_source_address.c_str(), requested_port);
+
         listener.disconnect();
         ret = listener.initialize(requested_source_address, requested_port);
+
+        printf("Successfully reinitialized\n");
+
         
         if (ret != TC_SUCCESS) {
             message_publish(MSG_ERROR, "ERROR: Could not establish listen port %d for Variable Server. Aborting.\n", requested_port);
@@ -189,6 +199,7 @@ int Trick::VariableServerListenThread::restart() {
         }
     } else {
         listener.checkSocket();
+        printf("restart variable server message port = %d\n", listener.getPort());
     }
 
     initializeMulticast();

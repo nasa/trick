@@ -37,6 +37,9 @@ namespace Trick {
             ~SysThread();
 
             static int ensureAllShutdown();
+        
+        protected:
+            bool self_deleting;
 
         private: 
             // Had to use Construct On First Use here to avoid the static initialziation fiasco
@@ -47,7 +50,6 @@ namespace Trick {
 
             static bool shutdown_finished;
 
-            bool self_deleting;
     } ;
 
 }

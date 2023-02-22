@@ -1,22 +1,13 @@
-#include "trick/TCConnection.hh"
+#include "trick/UDPConnection.hh"
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
 #include <sstream>
 #include <iostream>
 
-Trick::TCConnection::TCConnection () {}
+Trick::UDPConnection::UDPConnection () : _connected(false) {}
 
-int Trick::TCConnection::establish_connection() {
-    if (_listener == NULL || !_listener->isInitialized())
-        return -1;
-        
-    int status = tc_accept(&(_listener->_listen_dev), &(_device));
-    set_block_mode(TC_COMM_ALL_OR_NOTHING);
 
-    return status;
-}
-
-int Trick::TCConnection::initialize() {
+int Trick::UDPConnection::initialize() {
     _device.disabled = TC_COMM_FALSE ;
     _device.disable_handshaking = TC_COMM_TRUE ;
     _device.blockio_limit = 0.0 ;
@@ -27,23 +18,39 @@ int Trick::TCConnection::initialize() {
     _device.error_handler->report_level = TRICK_ERROR_CAUTION;
 }
 
-void Trick::TCConnection::set_listener (ClientListener * listener) {
-    _listener = listener;
+int Trick::UDPConnection::establish_connection() {
+    // We should have already established the socket, just return the status
+    if (_connected)
+        return 0;
+
+    return -1;
 }
 
-int Trick::TCConnection::write (char * message, int size) {
+int Trick::UDPConnection::initialize_udp(const std::string& hostname, int port) {
+    initialize();
+
+    if (tc_init_with_connection_info(&_device, AF_INET, SOCK_DGRAM, hostname.c_str(), port) != 0)
+        return -1;
+    
+    set_block_mode (TC_COMM_NOBLOCKIO);
+
+    _connected = true;
+    return 0;
+}
+
+int Trick::UDPConnection::write (char * message, int size) {
     int ret = tc_write(&_device, message, size);
     return ret;
 }
 
-int Trick::TCConnection::write (const std::string& message) {
+int Trick::UDPConnection::write (const std::string& message) {
     char send_buf[message.length()+1];
     strcpy (send_buf, message.c_str());
     int ret = tc_write(&_device, send_buf, message.length());
     return ret;
 }
 
-std::string Trick::TCConnection::read  (int max_len) {
+std::string Trick::UDPConnection::read  (int max_len) {
     char incoming_msg[max_len];
     int nbytes = recvfrom( _device.socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
     if (nbytes == 0 ) {
@@ -57,9 +64,11 @@ std::string Trick::TCConnection::read  (int max_len) {
 
         /* if there is a newline then there is a complete command on the socket */
         if ( last_newline != NULL ) {
+            socklen_t sock_size = sizeof(_device.remoteServAddr);
+            /* Save the remote host information so we know where to send replies */
             /* only remove up to (and including) the last newline on the socket */
             int size = last_newline - incoming_msg + 1;
-            nbytes = recvfrom( _device.socket, incoming_msg, size, 0 , NULL, NULL ) ;
+            nbytes = recvfrom( _device.socket, incoming_msg, size, 0 , (struct sockaddr *) &_device.remoteServAddr, &sock_size ) ;
         } else {
             nbytes = 0 ;
         }
@@ -83,11 +92,11 @@ std::string Trick::TCConnection::read  (int max_len) {
 }
 
 
-std::string Trick::TCConnection::get_client_tag () {
+std::string Trick::UDPConnection::get_client_tag () {
     return std::string(_device.client_tag);
 }
 
-int Trick::TCConnection::set_client_tag(std::string tag) {
+int Trick::UDPConnection::set_client_tag(std::string tag) {
     // Max size of device client tag is 80
     
     // TODO: Make 80 a constant somewhere, probably in TC device
@@ -98,19 +107,18 @@ int Trick::TCConnection::set_client_tag(std::string tag) {
     return 0;
 }
 
-int Trick::TCConnection::get_socket() {
+int Trick::UDPConnection::get_socket() {
     return _device.socket;
 }
 
-
-int Trick::TCConnection::disconnect () {
+int Trick::UDPConnection::disconnect () {
     return tc_disconnect(&_device);
 }
 
-int Trick::TCConnection::set_block_mode(int block_mode) {
+int Trick::UDPConnection::set_block_mode(int block_mode) {
     return tc_blockio(&_device, (TCCommBlocking)block_mode);
 }
 
-int Trick::TCConnection::set_error_reporting (bool on) {
+int Trick::UDPConnection::set_error_reporting (bool on) {
     return tc_error(&_device, (int)on);
 }

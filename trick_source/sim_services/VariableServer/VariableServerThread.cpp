@@ -4,16 +4,17 @@
 #include "trick/VariableServerThread.hh"
 #include "trick/exec_proto.h"
 #include "trick/TrickConstant.hh"
+#include "trick/UDPConnection.hh"
+#include "trick/TCConnection.hh"
+
 
 Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 
-Trick::VariableServerThread::VariableServerThread(ClientListener * in_listen_dev) :
- Trick::SysThread("VarServer") , debug(0),
- listener(in_listen_dev), session(NULL) {
+Trick::VariableServerThread::VariableServerThread() :
+ Trick::SysThread("VarServer") , debug(0), session(NULL), connection(NULL) {
 
     connection_status = CONNECTION_PENDING ;
 
-    connection.initialize();
 
     pthread_mutex_init(&connection_status_mutex, NULL);
     pthread_cond_init(&connection_status_cv, NULL);
@@ -30,9 +31,9 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
     socklen_t len = (socklen_t)sizeof(otherside);
 
     s << "  \"connection\":{\n";
-    s << "    \"client_tag\":\"" << vst.connection.get_client_tag() << "\",\n";
+    s << "    \"client_tag\":\"" << vst.connection->get_client_tag() << "\",\n";
 
-    int err = getpeername(vst.connection.get_socket(), (struct sockaddr*)&otherside, &len);
+    int err = getpeername(vst.connection->get_socket(), (struct sockaddr*)&otherside, &len);
 
     if (err == 0) {
         s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\",\n";
@@ -57,7 +58,26 @@ Trick::VariableServer * Trick::VariableServerThread::get_vs() {
 }
 
 void Trick::VariableServerThread::set_client_tag(std::string tag) {
-    connection.set_client_tag(tag);
+    connection->set_client_tag(tag);
+}
+
+int Trick::VariableServerThread::open_udp_socket(const std::string& hostname, int port) {
+    UDPConnection * udp_conn = new UDPConnection();
+    int status = udp_conn->initialize_udp(hostname, port);
+
+    connection = udp_conn;
+
+    return status;
+}
+
+int Trick::VariableServerThread::open_tcp_socket(ClientListener * listener) {
+    TCConnection * tcp_conn = new TCConnection();
+    tcp_conn->set_listener(listener);
+    tcp_conn->initialize();
+
+    connection = tcp_conn;
+
+    return 0;
 }
 
 Trick::ConnectionStatus Trick::VariableServerThread::wait_for_accept() {

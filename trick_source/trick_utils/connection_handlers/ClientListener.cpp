@@ -37,7 +37,7 @@ int Trick::ClientListener::initialize() {
 }
 
 
-int Trick::ClientListener::setBlockMode(TCCommBlocking mode) {
+int Trick::ClientListener::set_block_mode(TCCommBlocking mode) {
     if (!initialized)
         return -1;
 

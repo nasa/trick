@@ -11,6 +11,8 @@ namespace Trick {
 
     class ClientListener {
         public:
+            friend class TCConnection;
+
             ClientListener ();
             ~ClientListener ();
 
@@ -18,7 +20,7 @@ namespace Trick {
             int initialize(std::string hostname, int port);
             int initialize();
 
-            int setBlockMode(TCCommBlocking mode);
+            int set_block_mode(TCCommBlocking mode);
 
             bool checkForNewConnections();
 
@@ -33,9 +35,7 @@ namespace Trick {
             bool validateSourceAddress(std::string source_address);
 
             bool isInitialized(); 
-
-            friend int accept(ClientListener* listener, TCConnection* connection);
-
+            
         private:
             TCDevice _listen_dev;
             std::string saved_source;
