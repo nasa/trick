@@ -33,7 +33,7 @@ namespace Trick {
      **/
     class SysThread : public Trick::ThreadBase {
         public:
-            SysThread(std::string in_name, bool self_deleting = false);
+            SysThread(std::string in_name);
             ~SysThread();
 
             static int ensureAllShutdown();
@@ -47,7 +47,6 @@ namespace Trick {
 
             static bool shutdown_finished;
 
-            bool self_deleting;
     } ;
 
 }

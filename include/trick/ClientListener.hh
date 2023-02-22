@@ -1,28 +1,39 @@
 #ifndef CLIENT_LISTENER_HH
 #define CLIENT_LISTENER_HH
 
-#include "trick/tc.h"
-#include "trick/TCConnection.hh"
+/*
+    PURPOSE: ( Encapsulate a TCP server. )
+*/
+
 #include <string>
+#include "trick/SystemInterface.hh"
+#include "trick/TCPConnection.hh"
+
+#define LISTENER_ERROR -1
+
 
 namespace Trick {
     
-    class TCConnection;
+    class TCPConnection;
 
     class ClientListener {
         public:
+
             ClientListener ();
+            ClientListener (SystemInterface * system_interface);
+
             ~ClientListener ();
 
-            // We'll see if we need separate methods for these
             int initialize(std::string hostname, int port);
             int initialize();
 
-            int setBlockMode(TCCommBlocking mode);
+            int setBlockMode(bool blocking);
 
             bool checkForNewConnections();
 
-            const char * getHostname ();
+            TCPConnection * setUpNewConnection ();
+
+            std::string getHostname ();
 
             int getPort();
 
@@ -34,13 +45,18 @@ namespace Trick {
 
             bool isInitialized(); 
 
-            friend int accept(ClientListener* listener, TCConnection* connection);
-
+            int restart();
+            
         private:
-            TCDevice _listen_dev;
-            std::string saved_source;
-            int port;
-            bool initialized;
+        
+            int _listen_socket;
+            std::string _hostname;
+            int _port;
+            std::string _client_tag;
+
+            bool _initialized;
+
+            SystemInterface * _system_interface;    /* ** */
     };
 }
 

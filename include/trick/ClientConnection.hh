@@ -14,28 +14,31 @@ LIBRARY DEPENDENCIES:
 namespace Trick {
     class ClientConnection {
         public: 
-            // Should this be here? ¯\_(ツ)_/¯
+            static const unsigned int MAX_CMD_LEN = 200000 ;
+
             enum ConnectionType { TCP, UDP, MCAST, WS } ;
 
-            virtual int initialize() = 0;
+            // Pure virtual methods
+            virtual int start() = 0;
 
             virtual int write (const std::string& message) = 0;
             virtual int write (char * message, int size) = 0;
 
             virtual std::string read  (int max_len = MAX_CMD_LEN) = 0;
 
+            virtual int setBlockMode (bool blocking) = 0;
             virtual int disconnect () = 0;
-            virtual std::string get_client_tag () = 0;
-            virtual int set_client_tag(std::string tag) = 0;
-            virtual int setBlockMode (int mode) = 0;
-            
-            static const unsigned int MAX_CMD_LEN = 200000 ;
+
+            virtual bool isInitialized() = 0;
+
+            virtual std::string getClientTag ();
+            virtual int setClientTag (std::string tag);
+
+            virtual int restart() {};
 
         protected:
             ConnectionType _connection_type;
-
-            // RHEL appears to have an issue with std::atomic
-            // std::atomic_bool _is_initialized;
+            std::string _client_tag;
 
     };
 }

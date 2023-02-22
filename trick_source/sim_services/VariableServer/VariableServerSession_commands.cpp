@@ -303,7 +303,7 @@ int Trick::VariableServerSession::send_list_size() {
         memcpy(&(buf1[8]), &var_count, sizeof(var_count));
 
         if (debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d event variables\n", connection, connection->get_client_tag().c_str(), var_count);
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d event variables\n", connection, connection->getClientTag().c_str(), var_count);
         }
 
         connection->write(buf1, sizeof (buf1));
@@ -312,7 +312,7 @@ int Trick::VariableServerSession::send_list_size() {
         write_string << VS_LIST_SIZE << "\t" << var_count << "\n";
         // ascii
         if (debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", connection, connection->get_client_tag().c_str(), write_string.str().c_str()) ;
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", connection, connection->getClientTag().c_str(), write_string.str().c_str()) ;
         }
 
         connection->write(write_string.str());
@@ -331,7 +331,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
     int ret ;
 
     if (debug >= 2) {
-        message_publish(MSG_DEBUG,"%p tag=<%s> var_server opening %s.\n", connection, connection->get_client_tag().c_str(), sie_file.c_str()) ;
+        message_publish(MSG_DEBUG,"%p tag=<%s> var_server opening %s.\n", connection, connection->getClientTag().c_str(), sie_file.c_str()) ;
     }
 
     if ((fp = fopen(sie_file.c_str() , "r")) == NULL ) {
@@ -351,8 +351,8 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
     rewind(fp) ;
 
     // Switch to blocking writes since this could be a large transfer.
-    if (connection->setBlockMode(TC_COMM_BLOCKIO)) {
-        message_publish(MSG_DEBUG,"Variable Server Error: Failed to set TCDevice to TC_COMM_BLOCKIO.\n");
+    if (connection->setBlockMode(true)) {
+        message_publish(MSG_DEBUG,"Variable Server Error: Failed to set socket to blocking mode.\n");
     }
 
     while ( current_size < file_size ) {
@@ -368,8 +368,8 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
     }
 
     // Switch back to non-blocking writes.
-    if (connection->setBlockMode(TC_COMM_NOBLOCKIO)) {
-        message_publish(MSG_ERROR,"Variable Server Error: Failed to set TCDevice to TC_COMM_NOBLOCKIO.\n");
+    if (connection->setBlockMode(false)) {
+        message_publish(MSG_DEBUG,"Variable Server Error: Failed to set socket to non-blocking mode.\n");
         return(-1);
     }
 

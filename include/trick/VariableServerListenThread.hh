@@ -75,10 +75,10 @@ namespace Trick {
             bool broadcast ;       /**<  trick_units(--) */
 
             /** The listen device */
-            ClientListener listener;
+            ClientListener listener;        /**<  trick_io(**) trick_units(--)  */
 
             /* Multicast broadcaster */
-            MulticastManager multicast;
+            MulticastManager multicast;     /**<  trick_io(**) trick_units(--)  */
 
             /** The mutex to stop accepting new connections during restart\n */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */

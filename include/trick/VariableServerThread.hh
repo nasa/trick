@@ -11,11 +11,12 @@
 #include <iostream>
 #include <pthread.h>
 #include "trick/tc.h"
-#include "trick/TCConnection.hh"
 #include "trick/SysThread.hh"
 #include "trick/VariableServerSession.hh"
 #include "trick/variable_server_sync_types.h"
 #include "trick/variable_server_message_types.h"
+
+#include "trick/ClientConnection.hh"
 #include "trick/ClientListener.hh"
 
 namespace Trick {
@@ -39,7 +40,7 @@ namespace Trick {
              @brief Constructor.
              @param listen_dev - the TCDevice set up in listen()
             */
-            VariableServerThread(ClientListener * in_listen_dev ) ;
+            VariableServerThread() ;
 
             virtual ~VariableServerThread() ;
             /**
@@ -49,6 +50,16 @@ namespace Trick {
             static void set_vs_ptr(Trick::VariableServer * in_vs) ;
 
             void set_client_tag(std::string tag);
+
+            /**
+             @brief Open a UDP socket for this thread
+            */
+            int open_udp_socket(const std::string& hostname, int port);
+
+            /**
+             @brief Open a TCP connection for this thread
+            */
+            int open_tcp_connection(ClientListener * listener);
 
             /**
              @brief Block until thread has accepted connection
@@ -67,6 +78,8 @@ namespace Trick {
 
             void restart() ;
 
+            void cleanup();
+
         protected:
 
             /**
@@ -77,12 +90,11 @@ namespace Trick {
             /** The Master variable server object. */
             static VariableServer * vs ;
 
-            /** this is where a lot of this should happen now */
-            VariableServerSession * session;
+            /** Manages the variable list  */
+            VariableServerSession * session;       /**<  trick_io(**) */
 
-            /** The listen device from the variable server\n */
-            ClientListener * listener;      /**<  trick_io(**) */
-            TCConnection connection;        /**<  trick_io(**) */
+            /** Connection to the client */
+            ClientConnection * connection;        /**<  trick_io(**) */
 
             /** Value (1,2,or 3) that causes the variable server to output increasing amounts of debug information.\n */
             int debug ;                      /**<  trick_io(**) */
@@ -91,8 +103,8 @@ namespace Trick {
             bool enabled ;                   /**<  trick_io(**) */
 
             ConnectionStatus connection_status ;       /**<  trick_io(**) */
-            pthread_mutex_t connection_status_mutex;
-            pthread_cond_t connection_status_cv;
+            pthread_mutex_t connection_status_mutex;     /**<  trick_io(**) */
+            pthread_cond_t connection_status_cv;         /**<  trick_io(**) */
 
             /** The mutex pauses all processing during checkpoint restart */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */
