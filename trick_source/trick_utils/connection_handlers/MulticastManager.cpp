@@ -23,6 +23,7 @@ int Trick::MulticastManager::broadcast (std::string message) {
     for (struct sockaddr_in& address : addresses) {
         sendto(mcast_socket , message_send , strlen(message_send) , 0 , (struct sockaddr *)&address , (socklen_t)sizeof(address)) ;
     }
+    return 0;
 }
 
 int Trick::MulticastManager::addAddress (std::string addr, int port) {
@@ -33,6 +34,7 @@ int Trick::MulticastManager::addAddress (std::string addr, int port) {
     mcast_addr.sin_addr.s_addr = inet_addr(addr.c_str());
     mcast_addr.sin_port = htons((uint16_t) port);
     addresses.emplace_back(mcast_addr);
+    return 0;
 }
 
 int Trick::MulticastManager::is_initialized () {

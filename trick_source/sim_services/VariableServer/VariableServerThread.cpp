@@ -3,23 +3,29 @@
 #include <stdlib.h>
 #include "trick/VariableServerThread.hh"
 #include "trick/exec_proto.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
 #include "trick/TrickConstant.hh"
+#include "trick/UDPConnection.hh"
+#include "trick/TCPConnection.hh"
+
 
 Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 
-Trick::VariableServerThread::VariableServerThread(ClientListener * in_listen_dev) :
- Trick::SysThread("VarServer") , debug(0),
- listener(in_listen_dev), session(NULL) {
+static int instance_num = 0;
+
+Trick::VariableServerThread::VariableServerThread() :
+ Trick::SysThread(std::string("VarServer" + std::to_string(instance_num++))) , debug(0), session(NULL), connection(NULL) {
 
     connection_status = CONNECTION_PENDING ;
 
-    connection.initialize();
 
     pthread_mutex_init(&connection_status_mutex, NULL);
     pthread_cond_init(&connection_status_cv, NULL);
 
     pthread_mutex_init(&restart_pause, NULL);
 
+    cancellable = false;
 }
 
 Trick::VariableServerThread::~VariableServerThread() {}
@@ -30,19 +36,23 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
     socklen_t len = (socklen_t)sizeof(otherside);
 
     s << "  \"connection\":{\n";
-    s << "    \"client_tag\":\"" << vst.connection.get_client_tag() << "\",\n";
+    s << "    \"client_tag\":\"" << vst.connection->getClientTag() << "\",\n";
 
-    int err = getpeername(vst.connection.get_socket(), (struct sockaddr*)&otherside, &len);
+    // int err = getpeername(vst.connection->get_socket(), (struct sockaddr*)&otherside, &len);
 
-    if (err == 0) {
-        s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\",\n";
-        s << "    \"client_port\":\"" << ntohs(otherside.sin_port) << "\",\n";
-    } else {
-        s << "    \"client_IP_address\":\"unknown\",\n";
-        s << "    \"client_port\":\"unknown\",";
+    // if (err == 0) {
+    //     s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\",\n";
+    //     s << "    \"client_port\":\"" << ntohs(otherside.sin_port) << "\",\n";
+    // } else {
+    //     s << "    \"client_IP_address\":\"unknown\",\n";
+    //     s << "    \"client_port\":\"unknown\",";
+    // }
+
+    pthread_mutex_lock(&vst.connection_status_mutex);
+    if (vst.connection_status == CONNECTION_SUCCESS) {
+        s << *(vst.session);
     }
-
-    s << *(vst.session);
+    pthread_mutex_unlock(&vst.connection_status_mutex);
 
     s << "  }" << std::endl;
     return s;
@@ -57,7 +67,26 @@ Trick::VariableServer * Trick::VariableServerThread::get_vs() {
 }
 
 void Trick::VariableServerThread::set_client_tag(std::string tag) {
-    connection.set_client_tag(tag);
+    connection->setClientTag(tag);
+}
+
+int Trick::VariableServerThread::open_udp_socket(const std::string& hostname, int port) {
+    UDPConnection * udp_conn = new UDPConnection();
+    int status = udp_conn->initialize(hostname, port);
+
+    connection = udp_conn;
+
+    if (status == 0) {
+        message_publish(MSG_INFO, "Created UDP variable server %s: %d\n", udp_conn->getHostname().c_str(), udp_conn->getPort());
+    }
+
+    return status;
+}
+
+int Trick::VariableServerThread::open_tcp_connection(ClientListener * listener) {
+    connection = listener->setUpNewConnection();
+
+    return 0;
 }
 
 Trick::ConnectionStatus Trick::VariableServerThread::wait_for_accept() {
@@ -79,33 +108,52 @@ void Trick::VariableServerThread::preload_checkpoint() {
     // Stop variable server processing at the top of the processing loop.
     pthread_mutex_lock(&restart_pause);
 
-    // Let the thread complete any data copying it has to do
-    // and then suspend data copying until the checkpoint is reloaded.
-    pthread_mutex_lock(&(session->copy_mutex));
+    // Make sure that the session has been initialized
+    pthread_mutex_lock(&connection_status_mutex);
+    if (connection_status == CONNECTION_SUCCESS) {
 
-    // Save the pause state of this thread.
-    saved_pause_cmd = session->get_pause();
+        // Let the thread complete any data copying it has to do
+        // and then suspend data copying until the checkpoint is reloaded.
+        pthread_mutex_lock(&(session->copy_mutex));
+        
+        // Save the pause state of this thread.
+        saved_pause_cmd = session->get_pause();
 
-    // Disallow data writing.
-    session->set_pause(true);
+        // Disallow data writing.
+        session->set_pause(true);
 
-    // Temporarily "disconnect" the variable references from Trick Managed Memory
-    // by tagging each as a "bad reference".
-    session->disconnect_references();
+        // Temporarily "disconnect" the variable references from Trick Managed Memory
+        // by tagging each as a "bad reference".
+        session->disconnect_references();
 
 
-    // Allow data copying to continue.
-    pthread_mutex_unlock(&(session->copy_mutex));
-
+        // Allow data copying to continue.
+        pthread_mutex_unlock(&(session->copy_mutex));
+            
+    }
+    pthread_mutex_unlock(&connection_status_mutex);
 }
 
 // Gets called from the main thread as a job
 void Trick::VariableServerThread::restart() {
     // Set the pause state of this thread back to its "pre-checkpoint reload" state.
-    session->set_pause(saved_pause_cmd) ;
+    connection->restart();
+
+    pthread_mutex_lock(&connection_status_mutex);
+    if (connection_status == CONNECTION_SUCCESS) {
+        session->set_pause(saved_pause_cmd) ;
+    }
+    pthread_mutex_unlock(&connection_status_mutex);
 
     // Restart the variable server processing.
     pthread_mutex_unlock(&restart_pause);
+}
+
+void Trick::VariableServerThread::cleanup() {
+    connection->disconnect();
+
+    if (session != NULL)
+        delete session;
 }
 
 

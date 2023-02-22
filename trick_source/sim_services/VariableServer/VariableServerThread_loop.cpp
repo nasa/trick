@@ -22,16 +22,19 @@ void exit_var_thread(void *in_vst) ;
 
 void * Trick::VariableServerThread::thread_body() {
 
+    // Check for short running sims
+    test_shutdown(NULL, NULL);
+
     //  We need to make the thread to VariableServerThread map before we accept the connection.
     //  Otherwise we have a race where this thread is unknown to the variable server and the
     //  client gets confirmation that the connection is ready for communication.
     vs->add_vst( pthread_self() , this ) ;
 
     // Accept client connection
-    int accept_status = accept(listener, &connection);
-    if (accept_status != 0) {
+    int status = connection->start();
+
+    if (status != 0) {
         // TODO: Use a real error handler
-        std::cout << "Accept failed, variable server session exiting" << std::endl;
         vs->delete_vst(pthread_self());
 
         // Tell main thread that we failed to initialize
@@ -40,13 +43,12 @@ void * Trick::VariableServerThread::thread_body() {
         pthread_cond_signal(&connection_status_cv);
         pthread_mutex_unlock(&connection_status_mutex);
 
+        cleanup();
         pthread_exit(NULL);
     }
 
-    connection.setBlockMode(TC_COMM_ALL_OR_NOTHING);
-
     // Create session
-    session = new VariableServerSession(&connection);
+    session = new VariableServerSession(connection);
     vs->add_session( pthread_self(), session );
 
     // Tell main that we are ready
@@ -55,10 +57,6 @@ void * Trick::VariableServerThread::thread_body() {
     pthread_cond_signal(&connection_status_cv);
     pthread_mutex_unlock(&connection_status_mutex);
 
-
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) ;
-    pthread_cleanup_push(exit_var_thread, (void *) this) ;
-
     // if log is set on for variable server (e.g., in input file), turn log on for each client
     if (vs->get_log()) {
         session->set_log_on();
@@ -66,6 +64,9 @@ void * Trick::VariableServerThread::thread_body() {
 
     try {
         while (1) {
+            // Shutdown here if it's time
+            test_shutdown(exit_var_thread, (void *) this);
+
             // Pause here if we are in a restart condition
             pthread_mutex_lock(&restart_pause) ;
 
@@ -75,6 +76,7 @@ void * Trick::VariableServerThread::thread_body() {
 
             // Check to see if exit is necessary
             if (session->exit_cmd == true) {
+                pthread_mutex_unlock(&restart_pause) ;
                 break;
             }
 
@@ -91,6 +93,7 @@ void * Trick::VariableServerThread::thread_body() {
             if ( should_write_async && !session->get_pause()) {
                 int ret = session->write_data() ;
                 if ( ret < 0 ) {
+                    pthread_mutex_unlock(&restart_pause) ;
                     break ;
                 }
             }
@@ -132,11 +135,11 @@ void * Trick::VariableServerThread::thread_body() {
     }
 
     if (debug >= 3) {
-        message_publish(MSG_DEBUG, "%p tag=<%s> var_server receive loop exiting\n", &connection, connection.get_client_tag().c_str());
+        message_publish(MSG_DEBUG, "%p tag=<%s> var_server receive loop exiting\n", connection, connection->getClientTag().c_str());
     }
 
-    pthread_cleanup_pop(1);
-    pthread_exit(NULL) ;
+    thread_shutdown(exit_var_thread, this);
+
     return NULL ;
 
 }

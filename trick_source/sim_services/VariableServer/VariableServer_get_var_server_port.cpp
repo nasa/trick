@@ -8,20 +8,21 @@ int Trick::VariableServer::create_tcp_socket(const char * address, unsigned shor
     new_listen_thread->create_tcp_socket(address, in_port) ;
     new_listen_thread->copy_cpus(listen_thread.get_cpus()) ;
     new_listen_thread->create_thread() ;
-    // additional_listen_threads[new_listen_thread->get_pthread_id()] = new_listen_thread ;
+    additional_listen_threads[new_listen_thread->get_pthread_id()] = new_listen_thread ;
 
     return 0 ;
 }
 
 int Trick::VariableServer::create_udp_socket(const char * address, unsigned short in_port ) {
-    // int ret ;
-    // Trick::VariableServerThread * vst ;
-    // vst = new Trick::VariableServerThread(NULL) ;
-    // ret = vst->create_udp_socket(address, in_port) ;
-    // if ( ret == 0 ) {
-    //     vst->copy_cpus(listen_thread.get_cpus()) ;
-    //     vst->create_thread() ;
-    // }
+    // UDP sockets are created without a listen thread
+    int ret ;
+    Trick::VariableServerThread * vst ;
+    vst = new Trick::VariableServerThread() ;
+    ret = vst->open_udp_socket(address, in_port) ;
+    if ( ret == 0 ) {
+        vst->copy_cpus(listen_thread.get_cpus()) ;
+        vst->create_thread() ;
+    }
     //vst->var_debug(3) ;
 
     return 0 ;
