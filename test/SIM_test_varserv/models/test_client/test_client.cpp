@@ -17,9 +17,8 @@
 
 #include "trick/var_binary_parser.hh"
 
-#define SOCKET_BUF_SIZE 204800
-
 #define DOUBLE_TOL 1e-5
+#define SOCKET_BUF_SIZE 204800
 
 // Pretend that gtest was kind enough to provide an EXPECT_FEQ operator with a tolerance
 #define EXPECT_FEQ(a,b) EXPECT_LE(fabs(a - b), DOUBLE_TOL)
@@ -78,13 +77,13 @@ class Socket {
         while ((_socket_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 && tries < max_retries) tries++;
 
         if (_socket_fd < 0) {
-            std::cout << "Socket connection failed" << std::endl;
+            std::cout << "init_multicast: Socket open failed" << std::endl;
             return -1;
         }
 
         int value = 1;
         if (setsockopt(_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char *) &value, (socklen_t) sizeof(value)) < 0) {
-            std::cout << "Socket connection failed" << std::endl;
+            std::cout << "init_multicast: Socket option failed" << std::endl;
             return -1;
         }
 
@@ -93,7 +92,7 @@ class Socket {
         mreq.imr_multiaddr.s_addr = inet_addr(_hostname.c_str());
         mreq.imr_interface.s_addr = htonl(INADDR_ANY);
         if (setsockopt(_socket_fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *) &mreq, (socklen_t) sizeof(mreq)) < 0) {
-            std::cout << "setsockopt: ip_add_membership" << std::endl;
+            std::cout << "init_multicast: setsockopt: ip_add_membership failed" << std::endl;
             return -1;
         }
 
@@ -106,10 +105,12 @@ class Socket {
         sockin.sin_port = htons(_port);
 
         if ( bind(_socket_fd, (struct sockaddr *) &sockin, (socklen_t) sizeof(sockin)) < 0 ) {
-            std::cout << "bind" << std::endl;
+            std::cout << "init_multicast: bind failed" << std::endl;
+            return -1;
         }
 
         _initialized = true;
+        return 0;
     }
 
     int send (std::string message) {
@@ -117,7 +118,7 @@ class Socket {
         // I have to append :: to the front of it so that the compiler knows to look in the global namespace
         int success = ::send(_socket_fd, message.c_str(), message.size(), 0);
         if (success < message.size()) {
-            std::cout << "Failed to send message" << std::endl;
+            std::cout << "init_multicast: Failed to send message" << std::endl;
         }
         return success;
     }
@@ -145,7 +146,7 @@ class Socket {
         unsigned char buffer[SOCKET_BUF_SIZE];
         int numBytes = recv(_socket_fd, buffer, SOCKET_BUF_SIZE, 0);
         if (numBytes < 0) {
-            std::cout << "Failed to read from socket" << std::endl;
+            std::cout << "init_multicast: Failed to read from socket" << std::endl;
         } 
 
         std::vector<unsigned char> bytes;
@@ -216,7 +217,6 @@ class VariableServerTest : public ::testing::Test {
     protected:
         VariableServerTest() {
             socket_status = socket.init("localhost", 4000);
-
             if (socket_status == 0) {
                 std::stringstream request;
                 request << "trick.var_set_client_tag(\"VSTest";
@@ -320,9 +320,56 @@ int VariableServerTestAltListener::numSession = 0;
 // int VariableServerTestMulticast::numSession = 0;
 
 
+// Useful helper functions and constants
+const int MODE_RUN = 5;
+const int MODE_FREEZE = 1;
+
 void spin (Socket& socket, int wait_cycles = 5) {
+    for (int i = 0; i < wait_cycles; i++) 
         socket.receive();
 }
+
+void wait_for_mode_change (Socket& socket, int expected_mode, int max_wait_iterations = 10) {
+    int iteration = 0;
+    std::string mode_reply;
+    std::string expected_reply = "5\t" + std::to_string(expected_mode) + "\n";
+    while (iteration++ < max_wait_iterations) {
+        socket << "trick.var_send_once(\"trick_sys.sched.mode\")\n";
+        socket >> mode_reply;
+        if (mode_reply == expected_reply)
+            break;
+    }
+}
+
+void dump_checkpoint (Socket& socket, const std::string& checkpoint_name) {
+    socket << "trick.var_pause()\ntrick.exec_freeze()\n";
+    wait_for_mode_change(socket, MODE_FREEZE);
+
+    std::string checkpoint_cmd = "trick.checkpoint(\"" + checkpoint_name + "\")\n";
+    socket << checkpoint_cmd;
+
+    socket << "trick.exec_run()\n";
+    wait_for_mode_change(socket, MODE_RUN);
+    socket << "trick.var_unpause()\n";
+}
+
+void load_checkpoint (Socket& socket, const std::string& checkpoint_name) {
+    socket << "trick.var_pause()\ntrick.exec_freeze()\n";
+    wait_for_mode_change(socket, MODE_FREEZE);
+
+    std::string checkpoint_cmd = "trick.load_checkpoint(\"" + checkpoint_name + "\")\n";
+    socket << checkpoint_cmd;
+    sleep(5);
+
+    socket << "trick.exec_run()\n";
+    wait_for_mode_change(socket, MODE_RUN);
+    socket << "trick.var_unpause()\n";
+}
+
+/************************************/
+/*           UDP Tests              */
+/************************************/
+
 
 TEST_F (VariableServerUDPTest, Strings) {
  if (socket_status != 0) {
@@ -345,51 +392,6 @@ TEST_F (VariableServerUDPTest, Strings) {
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
 
-
-// TEST_F (VariableServerTestMulticast, Strings) {
-//  if (socket_status != 0) {
-//         FAIL();
-//     }
-
-//     std::string reply;
-//     socket << "trick.var_send_once(\"vsx.vst.o\")\n";
-//     multicast_listener >> reply;
-//     std::string expected("5\tYou will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
-//     std::cout << "Got from multicast: " << reply << std::endl;
-
-//     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-
-
-
-//     expected = std::string("5\tI am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
-//     socket << "trick.var_send_once(\"vsx.vst.p\")\n";
-
-//     multicast_listener >> reply;
-//     std::cout << "Got from multicast: " << reply << std::endl;
-
-//     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-// }
-
-TEST_F (VariableServerTestAltListener, Strings) {
- if (socket_status != 0) {
-        FAIL();
-    }
-
-    std::string reply;
-    socket << "trick.var_send_once(\"vsx.vst.o\")\n";
-    socket >> reply;
-    std::string expected("5\tYou will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
-
-    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-
-
-    expected = std::string("5\tI am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
-    socket << "trick.var_send_once(\"vsx.vst.p\")\n";
-
-    socket >> reply;
-
-    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-}
 
 TEST_F (VariableServerUDPTest, AddRemove) {
      if (socket_status != 0) {
@@ -425,8 +427,34 @@ TEST_F (VariableServerUDPTest, AddRemove) {
     socket >> reply;
     expected = std::string("0  -1234    0,1,2,3,4");
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+    socket << "trick.var_exit()\n";
 }
 
+/*********************************************/
+/*           Alt Listener Tests              */
+/*********************************************/
+
+TEST_F (VariableServerTestAltListener, Strings) {
+ if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    socket << "trick.var_send_once(\"vsx.vst.o\")\n";
+    socket >> reply;
+    std::string expected("5\tYou will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+
+    expected = std::string("5\tI am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
+    socket << "trick.var_send_once(\"vsx.vst.p\")\n";
+
+    socket >> reply;
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+}
 
 TEST_F (VariableServerTestAltListener, AddRemove) {
      if (socket_status != 0) {
@@ -463,6 +491,45 @@ TEST_F (VariableServerTestAltListener, AddRemove) {
     expected = std::string("0  -1234    0,1,2,3,4");
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
+
+
+TEST_F (VariableServerTestAltListener, RestartAndSet) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    std::string expected;
+
+    socket << "trick.var_add(\"vsx.vst.c\")\n";
+    socket >> reply;
+    expected = std::string("0\t-1234\n");
+
+    EXPECT_EQ(reply, expected);
+
+    dump_checkpoint(socket, "reload_file.ckpnt");
+
+    socket << "trick.var_add(\"vsx.vst.e\",\"m\")\n";
+    socket >> reply;
+    expected = std::string("0\t-1234\t-123456 {m}\n");
+
+    socket << "trick.var_set(\"vsx.vst.c\", 5)\n";
+    socket >> reply;
+    expected = std::string("0\t5\t-123456 {m}\n");
+
+    EXPECT_EQ(reply, expected);
+
+    load_checkpoint(socket, "RUN_test/reload_file.ckpnt");
+
+    socket >> reply;
+    expected = std::string("0\t-1234\t-123456\n");
+
+    EXPECT_EQ(reply, expected);
+}
+
+/*********************************************/
+/*           Normal case tests               */
+/*********************************************/
 
 TEST_F (VariableServerTest, Strings) {
     if (socket_status != 0) {
@@ -718,13 +785,46 @@ TEST_F (VariableServerTest, ListSize) {
 }
 
 
+TEST_F (VariableServerTest, RestartAndSet) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    std::string expected;
+
+    socket << "trick.var_add(\"vsx.vst.c\")\n";
+    socket >> reply;
+    expected = std::string("0\t-1234\n");
+
+    EXPECT_EQ(reply, expected);
+
+    dump_checkpoint(socket, "reload_file.ckpnt");
+
+    socket << "trick.var_add(\"vsx.vst.e\",\"m\")\n";
+    socket >> reply;
+    expected = std::string("0\t-1234\t-123456 {m}\n");
+
+    socket << "trick.var_set(\"vsx.vst.c\", 5)\n";
+    socket >> reply;
+    expected = std::string("0\t5\t-123456 {m}\n");
+
+    EXPECT_EQ(reply, expected);
+
+    load_checkpoint(socket, "RUN_test/reload_file.ckpnt");
+
+    socket >> reply;
+    expected = std::string("0\t-1234\t-123456\n");
+
+    EXPECT_EQ(reply, expected);
+}
+
 TEST_F (VariableServerTest, Cycle) {
     if (socket_status != 0) {
         FAIL();
     }
 
     double cycle = 1.0;
-    double tolerance = 1e-5;
     int num_cycles = 5;
 
     // Challenge: no loops allowed
@@ -767,7 +867,7 @@ TEST_F (VariableServerTest, Cycle) {
 
     std::string command = "trick.var_set_copy_mode(1)\ntrick.var_set_write_mode(1)\ntrick.var_add(\"time\")\n";
     socket << command;
-    
+
     cycle = 0.1;
     num_cycles = 5;
     run_cycle_test();
@@ -858,7 +958,6 @@ TEST_F (VariableServerTest, Multicast) {
 
     while (!found && tries++ < max_multicast_tries) {
         std::string broadcast_data = multicast_socket.receive();
-        // std::cout << "Multicast recieved: " << broadcast_data << std::endl;
         sscanf(broadcast_data.c_str(), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , actual_hostname, &actual_port ,
              actual_username , &actual_pid , actual_sim_dir , actual_cmdline_name ,
              actual_input_file , actual_trick_version , actual_tag, &actual_duplicate_port) ;
@@ -893,10 +992,6 @@ TEST_F (VariableServerTest, Freeze) {
     int mode;
     long long frame_count;
     long long freeze_frame_count;
-    
-    // Constants for clarity
-    const int MODE_RUN = 5;
-    const int MODE_FREEZE = 1;
 
     // lambda capture by refence is neat
     auto parse_message_for_sim_mode_and_frames = [&](const std::string& message) {
@@ -1192,40 +1287,6 @@ TEST_F (VariableServerTest, send_stdio) {
     EXPECT_EQ(text, std::string("This message should redirect to varserver"));
 }
 
-TEST_F (VariableServerTest, RestartAndSet) {
-    if (socket_status != 0) {
-        FAIL();
-    }
-
-    std::string reply;
-    std::string expected;
-
-    socket << "trick.var_add(\"vsx.vst.c\")\n";
-    socket >> reply;
-    expected = std::string("0\t-1234\n");
-
-    EXPECT_EQ(reply, expected);
-
-    socket << "trick.checkpoint(\"reload_file.ckpnt\")\n";
-
-    socket << "trick.var_add(\"vsx.vst.e\",\"m\")\n";
-    socket >> reply;
-    expected = std::string("0\t-1234\t-123456 {m}\n");
-
-    socket << "trick.var_set(\"vsx.vst.c\", 5)\n";
-    socket >> reply;
-    expected = std::string("0\t5\t-123456 {m}\n");
-
-    EXPECT_EQ(reply, expected);
-    socket << "trick.load_checkpoint(\"RUN_test/reload_file.ckpnt\")\n";
-
-    sleep(3);
-    socket.clear_buffered_data();
-    socket >> reply;
-    expected = std::string("0\t-1234\t-123456\n");
-
-    EXPECT_EQ(reply, expected);
-}
 
 TEST_F (VariableServerTest, MulticastAfterRestart) {
     if (socket_status != 0) {
