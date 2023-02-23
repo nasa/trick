@@ -54,7 +54,10 @@ bool Trick::ClientListener::checkForNewConnections() {
     FD_ZERO(&rfds);
     FD_SET(_listen_dev.socket, &rfds);
     timeout_time.tv_sec = 2 ;
-    select(_listen_dev.socket + 1, &rfds, NULL, NULL, &timeout_time);
+    int result = select(_listen_dev.socket + 1, &rfds, NULL, NULL, &timeout_time);
+
+    if (result == -1)
+        return false;
 
     return FD_ISSET(_listen_dev.socket, &rfds);
 }
