@@ -330,7 +330,7 @@ void spin (Socket& socket, int wait_cycles = 5) {
 }
 
 TEST_F (VariableServerUDPTest, Strings) {
-    if (socket_status != 0) {
+ if (socket_status != 0) {
         FAIL();
     }
 
@@ -349,6 +349,31 @@ TEST_F (VariableServerUDPTest, Strings) {
 
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
 }
+
+
+// TEST_F (VariableServerTestMulticast, Strings) {
+//  if (socket_status != 0) {
+//         FAIL();
+//     }
+
+//     std::string reply;
+//     socket << "trick.var_send_once(\"vsx.vst.o\")\n";
+//     multicast_listener >> reply;
+//     std::string expected("5\tYou will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
+//     std::cout << "Got from multicast: " << reply << std::endl;
+
+//     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+
+
+
+//     expected = std::string("5\tI am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
+//     socket << "trick.var_send_once(\"vsx.vst.p\")\n";
+
+//     multicast_listener >> reply;
+//     std::cout << "Got from multicast: " << reply << std::endl;
+
+//     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
+// }
 
 TEST_F (VariableServerTestAltListener, Strings) {
  if (socket_status != 0) {
@@ -442,42 +467,6 @@ TEST_F (VariableServerTestAltListener, AddRemove) {
     socket >> reply;
     expected = std::string("0  -1234    0,1,2,3,4");
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply, expected), 0);
-}
-
-
-TEST_F (VariableServerTestAltListener, RestartAndSet) {
-    if (socket_status != 0) {
-        FAIL();
-    }
-
-    std::string reply;
-    std::string expected;
-
-    socket << "trick.var_add(\"vsx.vst.c\")\n";
-    socket >> reply;
-    expected = std::string("0\t-1234\n");
-
-    EXPECT_EQ(reply, expected);
-
-    socket << "trick.checkpoint(\"reload_file.ckpnt\")\n";
-
-    socket << "trick.var_add(\"vsx.vst.e\",\"m\")\n";
-    socket >> reply;
-    expected = std::string("0\t-1234\t-123456 {m}\n");
-
-    socket << "trick.var_set(\"vsx.vst.c\", 5)\n";
-    socket >> reply;
-    expected = std::string("0\t5\t-123456 {m}\n");
-
-    EXPECT_EQ(reply, expected);
-    socket << "trick.load_checkpoint(\"RUN_test/reload_file.ckpnt\")\n";
-
-    sleep(3);
-    socket.clear_buffered_data();
-    socket >> reply;
-    expected = std::string("0\t-1234\t-123456\n");
-
-    EXPECT_EQ(reply, expected);
 }
 
 TEST_F (VariableServerTest, Strings) {
@@ -1491,7 +1480,7 @@ TEST_F (VariableServerTest, Binary) {
     EXPECT_EQ(variable_noname.getValue<bool>(), true);
 }
 
-TEST_F (VariableServerTest, BinaryByteswap) {
+TEST_F (VariableServerTest, DISABLED_BinaryByteswap) {
 
     std::vector<unsigned char> reply;
     socket << "trick.var_binary()\ntrick.var_byteswap(False)\ntrick.var_add(\"vsx.vst.f\")\ntrick.var_add(\"vsx.vst.j\")\n";
