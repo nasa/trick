@@ -89,10 +89,7 @@ DPTreeWidget::~DPTreeWidget()
 {
     delete _dpModel;
     delete _dir;
-
-    if ( _dpFilterModel ) {
-        delete _dpFilterModel;
-    }
+    delete _dpFilterModel;
 
     foreach ( ProgramModel* program, _programModels ) {
         delete program;
