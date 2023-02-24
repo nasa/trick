@@ -194,28 +194,6 @@ class Socket {
 
 };
 
-int strcmp_IgnoringWhiteSpace(std::string s1_str, std::string s2_str) {
-    const char * s1 = s1_str.c_str();
-    const char * s2 = s2_str.c_str();
-
-    int i1 = 0;
-    int i2 = 0;
-
-    while (1) {
-        while ( !isgraph( s1[i1] ) && s1[i1] != '\0') { i1++; }
-        while ( !isgraph( s2[i2] ) && s2[i2] != '\0') { i2++; }
-        if ( s1[i1] == '\0' && s2[i2] == '\0') { return 0; }
-        if ( s1[i1] != s2[i2]) {
-            if (s1[i1] < s2[i2]) {
-                return -1;
-            } else {
-                return 1;
-            }
-        }
-        i1++; i2++;
-    }
-}
-
 class VariableServerTest : public ::testing::Test {
     protected:
         VariableServerTest() {
@@ -289,43 +267,41 @@ class VariableServerTestAltListener : public ::testing::Test {
         static int numSession;
 };
 
-// class VariableServerTestMulticast : public ::testing::Test {
-//     protected:
-//         VariableServerTestMulticast() {
-//             socket_status = socket.init("localhost", 47000, SOCK_DGRAM);
-//             multicast_listener.init_multicast("224.10.10.10", 47000);
-
-//             if (socket_status == 0) {
-//                 std::stringstream request;
-//                 request << "trick.var_set_client_tag(\"multicast_VSTest";
-//                 request << numSession++;
-//                 request << "\") \n";
-
-//                 socket << request.str();
-//             }
-//         }
-//         ~VariableServerTestMulticast() {
-//             socket << "trick.var_exit()\n";
-//             socket.close();
-//         }
-
-//         Socket socket;
-//         Socket multicast_listener;
-
-//         int socket_status;
-        
-//         static int numSession;
-// };
-
 int VariableServerTest::numSession = 0;
 int VariableServerUDPTest::numSession = 0;
 int VariableServerTestAltListener::numSession = 0;
-// int VariableServerTestMulticast::numSession = 0;
 
 
-// Useful helper functions and constants
+
+/**********************************************************/
+/*           Helpful constants and functions              */
+/**********************************************************/
+
+
 const int MODE_RUN = 5;
 const int MODE_FREEZE = 1;
+
+int strcmp_IgnoringWhiteSpace(std::string s1_str, std::string s2_str) {
+    const char * s1 = s1_str.c_str();
+    const char * s2 = s2_str.c_str();
+
+    int i1 = 0;
+    int i2 = 0;
+
+    while (1) {
+        while ( !isgraph( s1[i1] ) && s1[i1] != '\0') { i1++; }
+        while ( !isgraph( s2[i2] ) && s2[i2] != '\0') { i2++; }
+        if ( s1[i1] == '\0' && s2[i2] == '\0') { return 0; }
+        if ( s1[i1] != s2[i2]) {
+            if (s1[i1] < s2[i2]) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
+        i1++; i2++;
+    }
+}
 
 void spin (Socket& socket, int wait_cycles = 5) {
     for (int i = 0; i < wait_cycles; i++) 
