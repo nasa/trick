@@ -22,9 +22,8 @@ CurvesView::CurvesView(QWidget *parent) :
 
 CurvesView::~CurvesView()
 {
-    if ( _pixmap ) {
-        delete _pixmap;
-    }
+    delete _pixmap;
+
     foreach ( TimeAndIndex* marker, _markers ) {
         delete marker;
     }

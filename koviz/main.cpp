@@ -1358,9 +1358,7 @@ int main(int argc, char *argv[])
         delete varsModel;
         delete monteInputsModel;
         delete runs;
-        if ( session ) {
-            delete session;
-        }
+        delete session;
         delete bookModel;
 
     } catch (std::exception &e) {

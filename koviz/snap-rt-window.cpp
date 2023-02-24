@@ -314,9 +314,7 @@ void SnapWindow::__update_job_plot(const QModelIndex &idx)
                 QCPLayoutInset* inset = _plot_jobs->axisRect()->insetLayout();
                 if ( inset->elementCount() > 0 ) {
                     QCPLayoutElement* el = inset->takeAt(0);
-                    if ( el ) {
-                        delete el;
-                    }
+                    delete el;
                 }
                 inset->addElement(title,Qt::AlignTop | Qt::AlignRight);
 
@@ -380,9 +378,7 @@ void SnapWindow::_update_thread_plot(const QModelIndex &idx)
     QCPLayoutInset* inset = _plot_jobs->axisRect()->insetLayout();
     if ( inset->elementCount() > 0 ) {
         QCPLayoutElement* el = inset->takeAt(0);
-        if ( el ) {
-            delete el;
-        }
+        delete el;
     }
     _times.clear();
     _vals.clear();

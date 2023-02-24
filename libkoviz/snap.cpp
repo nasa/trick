@@ -112,8 +112,8 @@ Snap::~Snap()
         delete table;
     }
 
-    if ( _threads ) delete _threads;
-    if ( _simobjects ) delete _simobjects;
+    delete _threads;
+    delete _simobjects;
 }
 
 

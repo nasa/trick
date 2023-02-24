@@ -33,9 +33,10 @@ CurveModel::CurveModel(DataModel *datamodel,
 
 CurveModel::~CurveModel()
 {
-    if ( _t ) delete _t;
-    if ( _x ) delete _x;
-    if ( _y ) delete _y;
+    delete _t;
+    delete _x;
+    delete _y;
+
     if ( _real ) {
         free(_real);
         _real = 0;

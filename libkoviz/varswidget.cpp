@@ -55,12 +55,8 @@ VarsWidget::VarsWidget(const QString &timeName,
 
 VarsWidget::~VarsWidget()
 {
-    if ( _varsSelectModel ) {
-        delete _varsSelectModel;
-    }
-    if ( _varsFilterModel ) {
-        delete _varsFilterModel;
-    }
+    delete _varsSelectModel;
+    delete _varsFilterModel;
 }
 
 

@@ -38,12 +38,11 @@ DPProduct::DPProduct(const QString &fileName) :
 
 DPProduct::~DPProduct()
 {
-    if ( _doc ) delete _doc;
+    delete _doc;
+
     product = 0 ;
     foreach ( DPPage* page, _pages ) {
-        if ( page ) {
-            delete page;
-        }
+        delete page;
     }
     _pages.clear();
 
@@ -54,9 +53,7 @@ DPProduct::~DPProduct()
     }
     _tables.clear();
 
-    if ( _program ) {
-        delete _program;
-    }
+    delete _program;
 }
 
 QString DPProduct::title()
@@ -282,9 +279,7 @@ DPPage::DPPage(const char *title) :
 DPPage::~DPPage()
 {
     foreach ( DPPlot* plot, _plots ) {
-        if ( plot ) {
-            delete plot;
-        }
+        delete plot;
     }
     _plots.clear();
 }
@@ -438,9 +433,7 @@ DPPlot::DPPlot(const char *title) :
 DPPlot::~DPPlot()
 {
     foreach ( DPCurve* curve, _curves ) {
-        if ( curve ) {
-            delete curve;
-        }
+        delete curve;
     }
     _curves.clear();
 }
@@ -773,14 +766,14 @@ DPCurve::~DPCurve()
 
 DPVar *DPCurve::setXVarName(const char *name)
 {
-    if ( _x ) delete _x;
+    delete _x;
     _x = new DPVar(name);
     return _x;
 }
 
 DPVar *DPCurve::setYVarName(const char *name)
 {
-    if ( _y ) delete _y;
+    delete _y;
     _y = new DPVar(name);
     return _y;
 }
@@ -992,9 +985,7 @@ DPTable::DPTable(const char *title) :
 DPTable::~DPTable()
 {
     foreach ( DPVar* var, _vars ) {
-        if ( var ) {
-            delete var;
-        }
+        delete var;
     }
     _vars.clear();
 }

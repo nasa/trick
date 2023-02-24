@@ -24,9 +24,7 @@ Thread::Thread(const QString &runDir, const QStringList &timeNames) :
 
 Thread::~Thread()
 {
-    if ( _runtimeCurve ) {
-        delete _runtimeCurve;
-    }
+    delete _runtimeCurve;
 }
 
 void Thread::addJob(Job* job)
