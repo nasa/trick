@@ -6,14 +6,10 @@ LIBRARY DEPENDENCIES:
 #ifndef Aircraft_HH
 #define Aircraft_HH
 
+#include "Aircraft/include/Waypoint.hh"
+
 #include <vector>
 #include <string>
-
-class WayPoint {
-    public:
-    double pos[2];
-    std::string img;
-};
 
 class Aircraft {
     public:
@@ -22,9 +18,8 @@ class Aircraft {
   	double vel[2];
 
     // Updated by control logic;
-    std::vector<WayPoint> waypointQueue;
-    std::vector<WayPoint>::iterator current_waypoint;
-    std::string waypointList;
+    WaypointList flightPath;
+    std::string waypointData;
 
     // Static Parameters (Don't change during the simulation.)
   	double mass;
@@ -52,15 +47,12 @@ class Aircraft {
 
     void set_desired_compass_heading( double compass_heading);
     void add_waypoint(double n, double w, std::string i);
-    void reset_trip();
 
     void calc_total_force( double (&F_total_body)[2]);
     void calc_drag_force( double (&F_drag_body)[2]);
     void calc_thrust_force(double (&F_thrust_body)[2]);
     void calc_turning_force(double (&F_turning_body)[2]);
     void rotateBodyToWorld(double (&F_total_world)[2], double (&F_total_body)[2] );
-
-    std::string getWaypointList();
 };
 
 double psiToCompass( double psi );
