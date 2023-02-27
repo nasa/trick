@@ -327,7 +327,7 @@ To instanciate a container from the image: ```docker run --name misterbill --rm 
 
 * In a host terminal (not in the container) execute: 
   
-  ```
+  ```bash
   docker port misterbill
   ```
   
@@ -354,6 +354,10 @@ java -jar SIM_cannon_docker/models/graphics/dist/CannonDisplay.jar <port> &
 
 
 ![](images/cannon_display.png)
+
+* Click **RELOAD**. This re-initializes the cannon. Then click **FIRE**. The cannon will fire.
+* Adjust the the controls on the left hand side of the graphics client.  **RELOAD** and **FIRE**.
+* Do this until you're bored.
 
 If Trick is installed on your host then you can also connect :
 
