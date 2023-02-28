@@ -30,6 +30,9 @@ import java.lang.Math;
 import java.net.Socket;
 import java.util.*;
 import java.util.Hashtable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -442,8 +445,8 @@ class ControlPanel extends JPanel implements ActionListener {
   
 
 
-    public ControlPanel(SkyView skyView){
-        skyView = skyView;
+    public ControlPanel(SkyView view){
+        skyView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
 
@@ -594,8 +597,8 @@ public class AircraftDisplay extends JFrame {
     private JPanel panelGroup0, panelGroup1;
     private ControlPanel controlPanel;
 
-    public AircraftDisplay(SkyView sky) {
-        skyView = sky;
+    public AircraftDisplay(SkyView view) {
+        skyView = view;
         simMenu = new SimulationMenuBar(skyView);
         setJMenuBar(simMenu);
         add( skyView);
@@ -634,6 +637,26 @@ public class AircraftDisplay extends JFrame {
           + "usage: java jar AircraftDisplay.jar <port-number>\n"
           + "----------------------------------------------------------------------\n"
           );
+    }
+
+    public static void updateWaypoints(AircraftDisplay sd) throws IOException{
+        sd.out.writeBytes("trick.var_pause() \n");
+        sd.out.writeBytes("trick.var_ascii() \n");
+        sd.out.writeBytes("trick.var_send_once(\"dyn.aircraft.waypointData\") \n");
+        sd.out.flush();
+
+        String line = sd.in.readLine();
+        
+        // Each waypoint is formatted as follows: |NORTH,WEST,IMG_PATH|
+        Pattern pattern = Pattern.compile("([\\d.-]*,[\\d.-]*,[\\w\\/.]*)");
+        Matcher matcher = pattern.matcher(line);
+        
+        while(matcher.find()) {
+            String[] parsed = matcher.group().split(",");
+            sd.skyView.addWaypoint(Double.parseDouble(parsed[0]), Double.parseDouble(parsed[1]), parsed[2]);
+        }
+        
+        sd.out.writeBytes("trick.var_unpause() \n");
     }
 
     public static void main(String[] args) throws IOException {
@@ -687,20 +710,10 @@ public class AircraftDisplay extends JFrame {
         Boolean autopilot = false;
         double desired_heading = 0.0;
 
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(waypointInputFile));
-            String line;
-            while((line = br.readLine()) != null) {
-                String[] parsedLine = line.split(",");
-                sd.skyView.addWaypoint(Double.parseDouble(parsedLine[0]), Double.parseDouble(parsedLine[1]), parsedLine[2]);
-            }
-        } catch(FileNotFoundException e) {
-            System.out.printf("'%s' not found", args[ii+1]);
-            System.exit(0);
-        }
-
         System.out.println("Connecting to: " + host + ":" + port);
         sd.connectToServer(host, port);
+
+        updateWaypoints(sd);
 
         sd.out.writeBytes("trick.var_set_client_tag(\"AircraftDisplay\") \n" +
                           "trick.var_pause() \n" +
