@@ -12,7 +12,11 @@ Waypoint::Waypoint(double n, double w, std::string i) {
     pos[0] = n;
     pos[1] = w;
     img = i;
-    data = std::to_string(pos[0]) + "," + std::to_string(pos[1]) + "," + img;
+}
+
+// Returns the data in the Waypoint as a String
+std::string Waypoint::dataToString() {
+    return std::to_string(pos[0]) + "," + std::to_string(pos[1]) + "," + img;
 }
 
 WaypointList::WaypointList() {
@@ -20,6 +24,7 @@ WaypointList::WaypointList() {
     current = queue.begin();
 }
 
+// Brings the iterator back to the beginning of the queue.
 void WaypointList::reset() {
     current = queue.begin();
 }
@@ -28,28 +33,26 @@ void WaypointList::add(Waypoint w) {
     queue.push_back(w);
 }
 
+// Have the 'current' iterator point to the next waypoint in the queue or loop back to the beginning
+// Returns true if there are still waypoints left before the end of the list.
 bool WaypointList::next() {
     if(current != queue.end()) {
         current++;
         return true;
     } else {
-        current = queue.begin();
+        reset();
         return false;
     }
 }
 
-std::string WaypointList::exportData() {
+// Transcribe the list of waypoints into a String that is returned
+std::string WaypointList::dataToString() {
     std::vector<Waypoint>::iterator i = queue.begin();
     std::string list = "";
     while (i != queue.end())
     {
-        list += "|" + i->data + "|";
+        list += "|" + i->dataToString() + "|";
         i++;
     }
     return list;
-}
-
-std::string WaypointList::operator[](int i)
-{
-    return queue[i].data;
 }

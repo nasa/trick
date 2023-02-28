@@ -13,9 +13,9 @@ class Waypoint {
     public:
     double pos[2];
     std::string img;
-    std::string data;
 
     Waypoint(double n, double w, std::string i);
+    std::string dataToString();
 };
 
 class WaypointList {
@@ -28,9 +28,7 @@ class WaypointList {
     void reset();
     void add(Waypoint w);
     bool next();
-    std::string exportData();
-
-    std::string operator[](int i);
+    std::string dataToString();
 };
 
 #endif

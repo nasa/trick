@@ -46,7 +46,7 @@ The autopilot feature is toggled on and off by the ```Autopilot OFF/ON``` button
 When active, the aircraft's heading is automatically calculated to approach a series of waypoints. These waypoints are marked on the map by the image provided in the input file.
 
 #### Adding Waypoints with an Input File
-Waypoints can be added to the simulation using an input file. 
+Waypoints can be added to the simulation using an input file specified in `input.py`. 
 
 ![](images/WaypointInputFile.png)
 

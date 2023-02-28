@@ -445,8 +445,8 @@ class ControlPanel extends JPanel implements ActionListener {
   
 
 
-    public ControlPanel(SkyView skyView){
-        skyView = skyView;
+    public ControlPanel(SkyView view){
+        skyView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
 
@@ -597,8 +597,8 @@ public class AircraftDisplay extends JFrame {
     private JPanel panelGroup0, panelGroup1;
     private ControlPanel controlPanel;
 
-    public AircraftDisplay(SkyView sky) {
-        skyView = sky;
+    public AircraftDisplay(SkyView view) {
+        skyView = view;
         simMenu = new SimulationMenuBar(skyView);
         setJMenuBar(simMenu);
         add( skyView);
@@ -640,15 +640,14 @@ public class AircraftDisplay extends JFrame {
     }
 
     public static void updateWaypoints(AircraftDisplay sd) throws IOException{
-        sd.out.writeBytes("dyn.aircraft.waypointData = dyn.aircraft.flightPath.exportData() ;\n");
-
         sd.out.writeBytes("trick.var_pause() \n");
         sd.out.writeBytes("trick.var_ascii() \n");
         sd.out.writeBytes("trick.var_send_once(\"dyn.aircraft.waypointData\") \n");
         sd.out.flush();
 
         String line = sd.in.readLine();
-
+        
+        // Each waypoint is formatted as follows: |NORTH,WEST,IMG_PATH|
         Pattern pattern = Pattern.compile("([\\d.-]*,[\\d.-]*,[\\w\\/.]*)");
         Matcher matcher = pattern.matcher(line);
         

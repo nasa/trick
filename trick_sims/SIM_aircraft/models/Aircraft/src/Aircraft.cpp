@@ -127,6 +127,7 @@ void Aircraft::rotateBodyToWorld( double (&F_total_world)[2], double (&F_total_b
 void Aircraft::add_waypoint(double n, double w, std::string i)
 {
     flightPath.add(Waypoint( n, w, i ));
+    waypointData = flightPath.dataToString();
 }
 
 int Aircraft::control() {
