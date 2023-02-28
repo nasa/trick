@@ -339,6 +339,21 @@ int Trick::DataRecordGroup::add_change_variable( std::string in_name ) {
 
 }
 
+bool Trick::DataRecordGroup::isSupportedType(REF2 * ref2, std::string& message) {
+    if (ref2->attr->type == TRICK_STRING || ref2->attr->type == TRICK_STL || ref2->attr->type == TRICK_STRUCTURED) {
+        message = "Cannot Data Record variable " + std::string(ref2->reference) + " of unsupported type " + std::to_string(ref2->attr->type);
+        return false;
+    }
+    
+    // If this is an array and not a single value, don't record it
+    if (ref2->num_index != ref2->attr->num_index) {
+        message = "Cannot Data Record arrayed variable " + std::string(ref2->reference);
+        return false;
+    }
+
+    return true;
+}
+
 /**
 @details
 -# The simulation output directory is retrieved from the CommandLineArguments
@@ -380,8 +395,9 @@ int Trick::DataRecordGroup::init() {
                 delete drb ;
                 continue ;
             } else {
-                if (ref2->attr->type == TRICK_STRING || ref2->attr->type == TRICK_STL || ref2->attr->type == TRICK_STRUCTURED || ref2->attr->num_index != 0) {
-                    message_publish(MSG_WARNING, "Cannot Data Record unsupported type variable %s.\n", drb->name.c_str()) ;
+                std::string message;
+                if (!isSupportedType(ref2, message)) {
+                    message_publish(MSG_WARNING, "%s\n", message.c_str()) ;
                     rec_buffer.erase(rec_buffer.begin() + jj--) ;
                     delete drb ;
                     continue ;

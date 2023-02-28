@@ -616,6 +616,35 @@ TEST (BinaryParserTest, GetVarByIndexWrong) {
     }
 }
 
+TEST (BinaryParserTest, ArrayTest) {
+    // Message: vst.vsx.n
+    std::vector<unsigned char> bytes = {0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00};
+    ParsedBinaryMessage message(false, true);
+
+    try {
+        message.parse(bytes);
+    } catch (const std::exception& ex) {
+        FAIL() << "Exception thrown: " << ex.what();
+    }
+
+    ASSERT_EQ(message.getNumVars(), 1);
+    Var arr_var = message.getVariable(0);
+    EXPECT_EQ(arr_var.getArraySize(), 5);
+    std::vector<unsigned char> raw_arr = arr_var.getRawBytes();
+    std::vector<int> values;
+    for (unsigned int i = 0; i < raw_arr.size(); i += 4) {
+        int val = 0;
+        for (unsigned int j = i; j < i+4; j++) {
+            val |= raw_arr[j] << j*8;
+        }
+        values.push_back(val);
+    }
+
+    std::vector<int> expected = {0, 1, 2, 3, 4};
+    EXPECT_EQ(values, expected);
+}
+
+
 /**************************************************************************
  * Var parsing type tests
 **************************************************************************/

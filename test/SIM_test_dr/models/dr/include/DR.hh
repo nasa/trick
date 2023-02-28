@@ -89,6 +89,8 @@ class DRTypes {
 		NUM_DEFS			n;
 		char * 				o;	// Should not actually be added
 		std::string			p;	// Should not actually be added
+		int 				q[5];
+		double 				r[2][2];
 
 		UINT_BITS uintB;
 		INT_BITS intB;

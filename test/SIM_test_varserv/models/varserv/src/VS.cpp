@@ -4,7 +4,8 @@ REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( VS.o )
-PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) (Jackie Deans) (CACI) (11-30-2022) )
+PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) 
+								(Jackie Deans) (CACI) (11-30-2022) )
 *******************************************************************************/
 #include <iostream>
 #include "../include/VS.hh"
@@ -35,6 +36,10 @@ int VSTest::default_vars() {
 	o = std::string("You will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
 	p = "I am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?";
 	q = L"This breeze, which has travelled from the regions towards which I am advancing, gives me a foretaste of those icy climes. Inspirited by this wind of promise, my daydreams become more fervent and vivid.";
+
+	for (int i = 0; i < 4000; i++) {
+		large_arr[i] = i;
+	}
 }
 
 int VSTest::init() {
@@ -44,10 +49,12 @@ int VSTest::init() {
 
 int VSTest::fail() {
     status = 1; 
+	return 0;
 }
 
 int VSTest::success() {
-    status = 0; 
+    status = 0;
+	return 0; 
 }
 
 int VSTest::shutdown() {
