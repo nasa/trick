@@ -255,10 +255,11 @@ Our containerized simulation won't start any variable server clients like the si
    
    For each, we have to go to their respective Github pages and click the "Download" button.
    
-      * Download CannonBoom.wav from [here](https://github.com/nasa/trick/blob/master/trick_sims/Cannon/models/graphics/resources/CannonBoom.wav).
-      * Download Explosion.wav  from [here](https://github.com/nasa/trick/blob/master/trick_sims/Cannon/models/graphics/resources/Explosion.wav).
+   * Download CannonBoom.wav from [here](https://github.com/nasa/trick/blob/master/trick_sims/Cannon/models/graphics/resources/CannonBoom.wav).
+     
+   * Download Explosion.wav  from [here](https://github.com/nasa/trick/blob/master/trick_sims/Cannon/models/graphics/resources/Explosion.wav).
 
-      :exclamation: When you download the wave files from Github, their names may be set to a flattened version of their full pathnames. So, we have to rename them to their real names.
+:exclamation: When you download the wave files from Github, their names may be set to a flattened version of their full pathnames. So, we have to rename them to their real names.
       
       * Rename the down-loaded wave files to **CannonBoom.wav**, and **Explosion.wav** respectively, and move them both to ```models/graphics/resources/```.
 
