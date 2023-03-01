@@ -377,7 +377,10 @@ This section of the S_define (encapsulated by "job_class_order{...};) can be use
 scheduled loop job class order.  The user may simply re-order the existing job classes that exist or
 can specify a new set of scheduled loop job classes. Job classes that are eligible for reassignment
 are listed in Table SD_1 between automatic and automatic_last inclusive. The order they are shown
-in the table is the default ordering.
+in the table is the default ordering. Note that if the user provides an ordering, classes that are 
+not included in the ordering (excluding automatic and automatic_last) will not be handled by any scheduler,
+ and therefore not executed in the sim.
+
 
 ```C++
 job_class_order {

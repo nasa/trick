@@ -196,6 +196,13 @@ SIM_earlyterm:
   runs:
     RUN_test/input.py:
       returns: 0
+SIM_job_class_order:
+  path: test/SIM_job_class_order
+  build_command: "trick-CP -t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/input.py:
+      returns: 0
 
 # Special cases
 
