@@ -63,10 +63,10 @@ int sun_pred_fast_display(
 		snprintf(tmp_s, sizeof(tmp_s), "  AZIMUTH %.3f%d", S->solar_azimuth, DEGREE_SIGN);
 	}
 	strcat(message,tmp_s);
-	snprintf(tmp_s," sizeof(tmp_s), %ls %.3f%d",S->label_Elevation, S->solar_elevation, DEGREE_SIGN);
+	snprintf(tmp_s, sizeof(tmp_s), "  %ls %.3f%d",S->label_Elevation, S->solar_elevation, DEGREE_SIGN);
 	strcat(message,tmp_s);
 
-	send_hs(stdout,"%s\n",message);
+	fprintf(stdout,"%s\n",message);
 
 	return 0;
 }
