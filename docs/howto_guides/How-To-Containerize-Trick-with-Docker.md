@@ -3,6 +3,13 @@
 This HOWTO assumes that we building our Docker images on a Linux system. If you're using
 MacOS or Windows, the translation should hopefully be fairly straight forward.
 
+**Contents**
+
+* [Containerize a Basic Trick Environment](#containerize-a-basic-trick-environment)
+* [Containerize a Trick Simulation](#containerize-a-trick-simulation)
+
+***
+
 ## Prerequisites:
 
 * Docker is installed on your machine.
@@ -21,8 +28,8 @@ variable for this directory.
 mkdir DockerPlayGround
 export DOCKER_PLAYGROUND="`pwd`/DockerPlayGround"
 ```
-
-## Docker Image That Contains a Basic Trick Environment
+<a id=containerize-a-basic-trick-environment></a>
+## Containerize a Basic Trick Environment
 
 In this example we'll build a Docker image, based on Ubuntu 18.04, with Trick 19.5.1
 installed.
@@ -115,7 +122,7 @@ CMD ["/bin/bash"]
    ```
 
 ### Running the docker image:
-To instanciate a container from the image: ```docker run --rm -it trick:19.5.1```
+To Instantiate a container from the image: ```docker run --rm -it trick:19.5.1```
 
 You should see the bash shell prompt from your container. Something like:
 
@@ -135,6 +142,7 @@ root@8615d8bf75c5:/apps/trick#
 
 This docker container contains a full Trick development environment. You can't run GUI applications on it but you can build a simulation.
 
+<a id=containerize-a-trick-simulation></a>
 ## Containerize a Trick Simulation
 
 ### Prerequisites:
@@ -221,7 +229,7 @@ Our containerized simulation won't start any variable server clients like the si
 
    Even though the simulation won't be starting the graphics clients, we will be starting and connecting the graphics clients to the containerized simulation.
 
-   * Down-load the graphics client's source and Makefile.
+   * Download the graphics client's source and Makefile.
   
    ```bash
    cd ${DOCKER_PLAYGROUND}/SIM_cannon_docker_build/SIM_cannon_docker
