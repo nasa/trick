@@ -16,11 +16,12 @@ class AircraftSimObject : public Trick::SimObject {
     Aircraft aircraft;
 
     AircraftSimObject() {
-        ("default_data")            aircraft.default_data() ;
+        ("default_data")            aircraft.default_data();
         ("initialization")          aircraft.state_init();
-        (0.1,"scheduled")               aircraft.control() ;
-        ("derivative")              aircraft.state_deriv() ;
-        ("integration") trick_ret = aircraft.state_integ() ;
+        (0.1,"scheduled")           aircraft.control();
+        (0.1,"scheduled")           aircraft.cycleWaypoints();
+        ("derivative")              aircraft.state_deriv();
+        ("integration") trick_ret = aircraft.state_integ();
     }
 };
 

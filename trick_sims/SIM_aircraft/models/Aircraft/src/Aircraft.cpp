@@ -24,7 +24,11 @@ int Aircraft::default_data() {
     set_desired_compass_heading(45.0);
     desired_speed = 200; // m/s
     autoPilot = false;
+
     flightPath = WaypointList();
+    cWP = 0;
+    wpIdx = -1;
+
     return (0);
 }
 
@@ -124,29 +128,34 @@ void Aircraft::rotateBodyToWorld( double (&F_total_world)[2], double (&F_total_b
     F_total_world[1] =  sin(heading) * F_total_body[0] + cos(heading) * F_total_body[1];
 }
 
-void Aircraft::add_waypoint(double n, double w, std::string i)
-{
-    flightPath.add(Waypoint( n, w, i ));
-    waypointData = flightPath.dataToString();
-}
-
 int Aircraft::control() {
     if (autoPilot) {
-        if (flightPath.queue.size() > 0) {
+        if (flightPath.length > 0) {
             // Calculate the difference between where we want to be, and where we are.
             double posDiff[2];
-            vector_difference(posDiff, flightPath.current->pos, pos);
+            double _wp[2] = {flightPath.north[cWP], flightPath.west[cWP]};
+            vector_difference(posDiff, _wp, pos);
             // Calculate bearing to waypoint.
             desired_heading = northWestToPsi(posDiff);
             // Calculate distance to waypoint.
             double distanceToWaypoint = vector_magnitude(posDiff);
             // If we've arrived, that is we're close enough, go to the next waypoint.
             if (distanceToWaypoint < 100.0) {
-                flightPath.next();
+                cWP = (cWP + 1) % flightPath.length;
             }
-        } else {
-            std::cout << "!!!  Waypoint List Empty  !!!" << std::endl;
-        }
+        } 
+    }
+    return 0;
+}
+
+int Aircraft::cycleWaypoints() {
+    if(flightPath.length > 0) {
+        wpIdx = (wpIdx + 1) % flightPath.length;
+        wpPos[0] = flightPath.north[wpIdx];
+        wpPos[1] = flightPath.west[wpIdx];
+        wpImg = flightPath.img[wpIdx];
+    } else {
+        wpIdx = -1;
     }
     return 0;
 }

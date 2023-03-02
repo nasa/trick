@@ -52,7 +52,7 @@ Waypoints can be added to the simulation using an input file specified in `input
 
 When the simulation starts they are read into the simulation from the specified file. Currently that file is `default.waypoints`  within the `Modified_data` folder. 
 
-#### Sample Input in [`default.waypoints`](Modified\_data/default.waypoints):
+#### Sample Input in [`default.waypoints`](Modified\_data/default.wps):
 
          0.0,  25000.0,images/wp0.png
      21650.0,  12500.0,images/wp1.png

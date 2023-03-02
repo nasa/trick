@@ -8,51 +8,82 @@ PURPOSE: ( Handles the waypoints. )
 #include <fstream>
 #include "Waypoint.hh"
 
-Waypoint::Waypoint(double n, double w, std::string i) {
-    pos[0] = n;
-    pos[1] = w;
-    img = i;
-}
-
-// Returns the data in the Waypoint as a String
-std::string Waypoint::dataToString() {
-    return std::to_string(pos[0]) + "," + std::to_string(pos[1]) + "," + img;
-}
-
 WaypointList::WaypointList() {
-    queue = std::vector<Waypoint>();
-    current = queue.begin();
+    length = 0;
 }
 
-// Brings the iterator back to the beginning of the queue.
-void WaypointList::reset() {
-    current = queue.begin();
+WaypointList::WaypointList(std::string path) {
+    length = 0;
+
+    load(path);
 }
 
-void WaypointList::add(Waypoint w) {
-    queue.push_back(w);
-}
-
-// Have the 'current' iterator point to the next waypoint in the queue or loop back to the beginning
-// Returns true if there are still waypoints left before the end of the list.
-bool WaypointList::next() {
-    if(current != queue.end()) {
-        current++;
-        return true;
-    } else {
-        reset();
-        return false;
-    }
-}
-
-// Transcribe the list of waypoints into a String that is returned
-std::string WaypointList::dataToString() {
-    std::vector<Waypoint>::iterator i = queue.begin();
-    std::string list = "";
-    while (i != queue.end())
+int WaypointList::add(double n, double w, std::string i)
+{
+    if (length < ARRAY_SIZE)
     {
-        list += "|" + i->dataToString() + "|";
-        i++;
+        north[length] = n;
+        west[length] = w;
+        img[length] = i;
+        length++;
+        return length-1;
     }
-    return list;
+    
+    return -1;
+}
+
+void WaypointList::remove(int index)
+{
+    if (index < 0 || index >= length) {
+        std::cerr << "Invalid Index" << std::endl;
+        return;
+    }
+
+    length--;
+    for(int i = index; i < length; i++) {
+        north[i] = north[i+1];
+        west[i] = west[i+1];
+        img[i] = img[i+1];
+    }
+}
+
+void WaypointList::clear() {
+    length = 0;
+}
+
+void WaypointList::load(std::string path) {
+    clear();
+    append(path);
+}
+
+void WaypointList::append(std::string path) {
+    std::ifstream in(path);
+
+    if(in.is_open()) {
+        std::string str;
+        while(getline(in,str)) {
+            int k = str.find(','), j = str.find(',',k+1);
+
+            double n = std::stod(str.substr(0,k));
+            double w = std::stod(str.substr(k+1,(j-k-1)));
+            std::string i = str.substr(j+1);
+
+            add(n,w,i);
+        }
+        in.close();
+    } else {
+        std::cerr << "FILE DID NOT OPEN" << std::endl;
+    }
+}
+
+void WaypointList::save(std::string path) {
+    std::ofstream out(path);
+
+    if(out.is_open()) {
+        for(int i = 0; i < length; i++) {
+            out << std::to_string(north[i]) + "," + std::to_string(west[i]) + "," + img[i] << std::endl;
+        }
+    }
+
+    out.close();
 }

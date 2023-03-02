@@ -11,13 +11,8 @@ dyn.aircraft.desired_speed = 200 # meters per second
 # Read the waypoints from the input file
 #==========================================
 
-waypoints_path = "Modified_data/default.waypoints"
-
-fp = open(waypoints_path, "r")
-for line in fp:
-    fields = line.split(",")
-    dyn.aircraft.add_waypoint( float(fields[0]), float(fields[1]), fields[2].rstrip("\n"))
-dyn.aircraft.flightPath.reset()
+waypoints_path = "Modified_data/default.wps"
+dyn.aircraft.flightPath.load(waypoints_path)
 
 #==========================================
 # Start the Satellite Graphics Client

@@ -19,7 +19,12 @@ class Aircraft {
 
     // Updated by control logic;
     WaypointList flightPath;
-    std::string waypointData;
+    int cWP;
+
+    // Waypoint List Information Variables
+    double wpPos[2];
+    std::string wpImg;
+    int wpIdx;
 
     // Static Parameters (Don't change during the simulation.)
   	double mass;
@@ -45,8 +50,9 @@ class Aircraft {
     int state_integ();
     int control();
 
+    int cycleWaypoints();
+
     void set_desired_compass_heading( double compass_heading);
-    void add_waypoint(double n, double w, std::string i);
 
     void calc_total_force( double (&F_total_body)[2]);
     void calc_drag_force( double (&F_drag_body)[2]);
