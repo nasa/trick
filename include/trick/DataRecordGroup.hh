@@ -405,6 +405,10 @@ namespace Trick {
             */
             virtual int add_time_variable() ;
 
+            /** Check that a variable is supported by data recording. */
+            /** Variable must be a single primitive type - no STL, array, structured, string */
+            bool isSupportedType(REF2 * ref2, std::string& message);
+
             /** Max number of digits to expect per recorded value.\n */
             static const unsigned int record_size = 25; /**< trick_io(**) trick_units(--) */
 
