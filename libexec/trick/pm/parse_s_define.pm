@@ -20,8 +20,7 @@ use Text::Balanced qw(extract_bracketed);
 use html ;
 use get_paths ;
 
-no warnings 'experimental::smartmatch';
-
+no warnings ;
 
 my ($integ_loop_def , $collect_def , $vcollect_def);
 my ($job_class_order_def ) ;
