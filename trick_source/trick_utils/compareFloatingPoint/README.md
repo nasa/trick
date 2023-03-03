@@ -20,7 +20,7 @@ The design of ```Trick::dbl_is_near``` requires that the minimum tolerance be ``
 
 Before thinking that doubles should be compared to a tolerance smaller than ```1.00208e-292```, please consider that the ratio of the Planck length to the size of the observable universe is approximately ```1.8e-62```. Also consider that our minimum tolerance is ```5.4e-231``` times smaller than that. So, we think that'll probably be good enough in most cases.
 
-## ```Trick::dbl_is_near```
+## ```Trick::flt_is_near```
 
 ```c
 bool Trick::flt_is_near( float A, float B, float tolerance);
