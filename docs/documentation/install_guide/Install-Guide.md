@@ -313,6 +313,14 @@ Now that Trick has been configured and a makefile has been generated, we can run
 ```bash
 make
 ```
+Then we can install Trick by running:
+```bash
+sudo make install
+```
+If everything goes fine, you should see the following message on your command line:
+```bash
+Trick has been installed successfully to /usr/local.
+```
 
 
 ## 4.) Optionally Update Your Environment
