@@ -48,9 +48,10 @@ TESTS = MM_creation_unittest \
         MM_write_checkpoint_hexfloat \
 	MM_get_enumerated\
 	MM_ref_name_from_address \
-		Bitfield_tests \
-		MM_stl_checkpoint \
-		MM_stl_restore
+        Bitfield_tests \
+	MM_stl_checkpoint \
+	MM_stl_restore \
+        MM_trick_type_char_string
 
 #OTHER_OBJECTS = ../../include/object_${TRICK_HOST_CPU}/io_JobData.o \
 #                ../../include/object_${TRICK_HOST_CPU}/io_SimObject.o
@@ -80,6 +81,7 @@ test: $(TESTS)
 	./Bitfield_tests --gtest_output=xml:${TRICK_HOME}/trick_test/Bitfield_tests.xml
 	./MM_stl_checkpoint --gtest_output=xml:${TRICK_HOME}/trick_test/MM_stl_checkpoint.xml
 	./MM_stl_restore --gtest_output=xml:${TRICK_HOME}/trick_test/MM_stl_restore.xml
+	./MM_trick_type_char_string --gtest_output=xml:${TRICK_HOME}/trick_test/MM_trick_type_char_string.xml
 
 
 code-coverage: test
@@ -180,6 +182,9 @@ MM_get_enumerated.o : MM_get_enumerated.cc
 MM_ref_name_from_address.o : MM_ref_name_from_address.cc
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
+MM_trick_type_char_string.o : MM_trick_type_char_string.cc
+	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
+
 MM_write_checkpoint_hexfloat.o : MM_write_checkpoint_hexfloat.cc
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
@@ -214,6 +219,9 @@ MM_resize_array_unittest : MM_resize_array_unittest.o io_MM_user_defined_types.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_strdup_unittest : MM_strdup_unittest.o
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+MM_trick_type_char_string : MM_trick_type_char_string.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 MM_write_var_unittest : MM_write_var_unittest.o io_MM_user_defined_types.o
