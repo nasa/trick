@@ -64,6 +64,11 @@ Each line should have three pieces of data, separated by commas. The first two a
 
 ### Graphics Client Menu
 
+#### File
+
+The `File` menu allows the user to open a waypoint input file, save the current waypoint list to a new file, or clear the existing waypoint list.
+![](images/GraphicsClient_FileOptions.png)
+
 #### View
 
 The `View` menu on the menu bar allows the user to choose the information displayed by the client.
