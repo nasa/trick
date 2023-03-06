@@ -250,13 +250,15 @@ class Job(object):
         """
         Start this job.
         """
-        logging.debug('Executing command: ' + self._command)
-        self._start_time = time.time()
-        self._log_file = open(self.log_file, 'w')
-        self._process = subprocess.Popen(
-          self._command, stdout=self._log_file, stderr=self._log_file,
-          stdin=open(os.devnull, 'r'), shell=True, preexec_fn=os.setsid,
-          close_fds=True)
+        # Guard against multiple starts
+        if self.get_status != self.Status.RUNNING:
+          logging.debug('Executing command: ' + self._command)
+          self._start_time = time.time()
+          self._log_file = open(self.log_file, 'w')
+          self._process = subprocess.Popen(
+            self._command, stdout=self._log_file, stderr=self._log_file,
+            stdin=open(os.devnull, 'r'), shell=True, preexec_fn=os.setsid,
+            close_fds=True)
 
     def get_status(self):
         """
@@ -592,8 +594,8 @@ class WorkflowCommon:
         """
         if not os.environ.get('TERM') and not self.quiet:
             tprint(
-              'The TERM environment variable must be set when the command\n'
-              'line option --quiet is not used. This is usually set by one\n'
+              'The TERM environment variable must be set when\n'
+              'TrickWorkflow.quiet is False. This is usually set by one\n'
               "of the shell's configuration files (.profile, .cshrc, etc).\n"
               'However, if this was executed via a non-interactive,\n'
               "non-login shell (for instance: ssh <machine> '<command>'), it\n"

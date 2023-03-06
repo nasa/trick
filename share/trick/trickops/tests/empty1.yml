@@ -1,0 +1,4 @@
+# A YAML file which doesn't specify a single valid SIM
+SIM_ball_L1:
+    path: 30
+

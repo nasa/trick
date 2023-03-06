@@ -36,6 +36,7 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Realtime Sleep Timer](simulation_capabilities/Realtime-Timer)  
     01. [Realtime Injector](simulation_capabilities/Realtime-Injector)  
     01. [Monte Carlo](simulation_capabilities/UserGuide-Monte-Carlo)
+    02. [Monte Carlo Generation](miscellaneous_trick_tools/MonteCarloGeneration)
     01. [Master Slave](simulation_capabilities/Master-Slave)  
     01. [Data Record](simulation_capabilities/Data-Record)  
     01. [Checkpoints](simulation_capabilities/Checkpoints)  

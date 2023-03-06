@@ -3,6 +3,7 @@
 
 %{
 #include <cstddef>
+#include <random>
 %}
 
 #include "trick/swig/trick_swig.i"
@@ -101,6 +102,17 @@
 #include "trick/MSSocket.hh"
 #include "trick/MSSharedMem.hh"
 #include "trick/Master.hh"
+#include "trick/mc_master.hh"
+#include "trick/mc_python_code.hh"
+#include "trick/mc_variable_file.hh"
+#include "trick/mc_variable_fixed.hh"
+#include "trick/mc_variable.hh"
+#include "trick/mc_variable_random_bool.hh"
+#include "trick/mc_variable_random.hh"
+#include "trick/mc_variable_random_normal.hh"
+#include "trick/mc_variable_random_string.hh"
+#include "trick/mc_variable_random_uniform.hh"
+#include "trick/mc_variable_semi_fixed.hh"
 #include "trick/Slave.hh"
 #include "trick/master_proto.h"
 #include "trick/MemoryManager.hh"
