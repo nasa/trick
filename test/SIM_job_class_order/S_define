@@ -37,6 +37,7 @@ StarterSimObject starterSimObject;
 
 job_class_order {
    my_class ,
+   integ_loop,
    scheduled 
 };
 

@@ -946,7 +946,7 @@ sub preparse_job_class_order($$) {
     }
 
     # Scheduled loop classes that should not be reordered
-    my @non_reorderable_classes = qw(logging data_record system_checkpoint system_advance_sim_time system_moding integ_loop);
+    my @non_reorderable_classes = qw(logging data_record system_checkpoint system_advance_sim_time system_moding);
 
     # get a list of classes
     ($class_text) = @{$job_class_order_structs}[0] =~ /{(.*?)}/sx ;
@@ -982,6 +982,10 @@ sub preparse_job_class_order($$) {
     # Push on the rest of the non-reorderable system job classes
     foreach my $c ( @non_reorderable_classes ) {
         push @{$$sim_ref{user_class_order}} , $c ;
+    }
+
+    if ( !exists $temp_hash{integ_loop} ) {
+        push @{$$sim_ref{user_class_order}} , "integ_loop" ;
     }
 }
 
