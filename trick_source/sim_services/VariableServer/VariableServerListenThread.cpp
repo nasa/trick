@@ -31,7 +31,10 @@ Trick::VariableServerListenThread::~VariableServerListenThread() {
 
 
 const char * Trick::VariableServerListenThread::get_hostname() {
-    const char * ret = listener.getHostname();
+    std::string hostname = listener.getHostname();
+    char * ret = (char *) malloc(hostname.length() + 1);
+    strncpy(ret, hostname.c_str(), hostname.length());
+    ret[hostname.length()] = '\0';
     return ret;
 }
 
@@ -94,9 +97,8 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
         listener.disconnect();
         ret = listener.initialize(requested_source_address, requested_port);
         requested_port = listener.getPort();
-        requested_source_address = std::string(listener.getHostname());
+        requested_source_address = listener.getHostname();
         if (ret != TC_SUCCESS) {
-            std::cout << "Unsuccessful initialization " << std::endl;
             message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
              requested_source_address.c_str(), requested_port);
             return -1 ;
@@ -107,6 +109,7 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
 }
 
 void Trick::VariableServerListenThread::create_tcp_socket(const char * address, unsigned short in_port ) {
+    std::cout << "Creating tcp socket with address " << address << " and port " << in_port << std::endl;
     listener.initialize(address, in_port);
     requested_source_address = address;
     requested_port = in_port;
@@ -131,7 +134,7 @@ void * Trick::VariableServerListenThread::thread_body() {
         user_name = strdup(passp->pw_name) ;
     }
     
-    listener.set_block_mode(TC_COMM_BLOCKIO);
+    listener.setBlockMode(true);
 
     if ( broadcast ) {
         initializeMulticast();
@@ -143,7 +146,6 @@ void * Trick::VariableServerListenThread::thread_body() {
         if (listener.checkForNewConnections()) {
             // pause here during restart
             pthread_mutex_lock(&restart_pause) ;
-            std::cout << "Got a new connection, starting thread on port " << listener.getPort() << std::endl;
 
             // Create a new thread to service this connection
             VariableServerThread * vst = new Trick::VariableServerThread() ;
@@ -156,7 +158,7 @@ void * Trick::VariableServerListenThread::thread_body() {
         } else if ( broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled
             char buf1[1024];
-            snprintf(buf1 , sizeof(buf1), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listener.getHostname(), (unsigned short)listener.getPort() ,
+            snprintf(buf1 , sizeof(buf1), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listener.getHostname().c_str(), (unsigned short)listener.getPort() ,
              user_name.c_str() , (int)getpid() , command_line_args_get_default_dir() , command_line_args_get_cmdline_name() ,
              command_line_args_get_input_file() , version.c_str() , user_tag.c_str(), (unsigned short)listener.getPort() ) ;
 
@@ -189,9 +191,6 @@ int Trick::VariableServerListenThread::restart() {
 
         listener.disconnect();
         ret = listener.initialize(requested_source_address, requested_port);
-
-        printf("Successfully reinitialized\n");
-
         
         if (ret != TC_SUCCESS) {
             message_publish(MSG_ERROR, "ERROR: Could not establish listen port %d for Variable Server. Aborting.\n", requested_port);
@@ -218,6 +217,7 @@ void Trick::VariableServerListenThread::pause_listening() {
 }
 
 void Trick::VariableServerListenThread::restart_listening() {
+    listener.restart();
     pthread_mutex_unlock(&restart_pause) ;
 }
 

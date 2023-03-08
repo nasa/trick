@@ -5,7 +5,7 @@
 #include "trick/exec_proto.h"
 #include "trick/TrickConstant.hh"
 #include "trick/UDPConnection.hh"
-#include "trick/TCConnection.hh"
+#include "trick/TCPConnection.hh"
 
 
 Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
@@ -31,17 +31,17 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
     socklen_t len = (socklen_t)sizeof(otherside);
 
     s << "  \"connection\":{\n";
-    s << "    \"client_tag\":\"" << vst.connection->get_client_tag() << "\",\n";
+    s << "    \"client_tag\":\"" << vst.connection->getClientTag() << "\",\n";
 
-    int err = getpeername(vst.connection->get_socket(), (struct sockaddr*)&otherside, &len);
+    // int err = getpeername(vst.connection->get_socket(), (struct sockaddr*)&otherside, &len);
 
-    if (err == 0) {
-        s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\",\n";
-        s << "    \"client_port\":\"" << ntohs(otherside.sin_port) << "\",\n";
-    } else {
-        s << "    \"client_IP_address\":\"unknown\",\n";
-        s << "    \"client_port\":\"unknown\",";
-    }
+    // if (err == 0) {
+    //     s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\",\n";
+    //     s << "    \"client_port\":\"" << ntohs(otherside.sin_port) << "\",\n";
+    // } else {
+    //     s << "    \"client_IP_address\":\"unknown\",\n";
+    //     s << "    \"client_port\":\"unknown\",";
+    // }
 
     s << *(vst.session);
 
@@ -58,12 +58,12 @@ Trick::VariableServer * Trick::VariableServerThread::get_vs() {
 }
 
 void Trick::VariableServerThread::set_client_tag(std::string tag) {
-    connection->set_client_tag(tag);
+    connection->setClientTag(tag);
 }
 
 int Trick::VariableServerThread::open_udp_socket(const std::string& hostname, int port) {
     UDPConnection * udp_conn = new UDPConnection();
-    int status = udp_conn->initialize_udp(hostname, port);
+    int status = udp_conn->initialize(hostname, port);
 
     connection = udp_conn;
 
@@ -71,11 +71,7 @@ int Trick::VariableServerThread::open_udp_socket(const std::string& hostname, in
 }
 
 int Trick::VariableServerThread::open_tcp_socket(ClientListener * listener) {
-    TCConnection * tcp_conn = new TCConnection();
-    tcp_conn->set_listener(listener);
-    tcp_conn->initialize();
-
-    connection = tcp_conn;
+    connection = listener->setUpNewConnection();
 
     return 0;
 }
@@ -122,6 +118,7 @@ void Trick::VariableServerThread::preload_checkpoint() {
 // Gets called from the main thread as a job
 void Trick::VariableServerThread::restart() {
     // Set the pause state of this thread back to its "pre-checkpoint reload" state.
+    connection->restart();
     session->set_pause(saved_pause_cmd) ;
 
     // Restart the variable server processing.

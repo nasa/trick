@@ -2,46 +2,53 @@
 #define UDP_CONNECTION_HH
 
 /*
-    PURPOSE: ( Encapsulate a UDP connection with TrickComm. )
+    PURPOSE: ( Encapsulate a UDP socket. )
 */
 
 #include "trick/ClientConnection.hh"
-#include "trick/ClientListener.hh"
-#include "tc.h"
+#include "trick/SystemInterface.hh"
 
 
 namespace Trick {
     
-    class ClientListener;
-
     class UDPConnection : public ClientConnection {
         public:
 
             UDPConnection ();
+            UDPConnection (SystemInterface * system_interface);
 
-            int initialize() override;
-            int establish_connection() override;
+            int start() override;
 
             int write (const std::string& message) override;
             int write (char * message, int size) override;
 
-            std::string read  (int max_len) override;
+            std::string read  (int max_len = MAX_CMD_LEN) override;
 
             int disconnect () override;
-            std::string get_client_tag () override;
-            int set_client_tag(std::string tag) override;
-            int get_socket();
+            bool isInitialized() override;
 
-            int set_block_mode(int block_mode) override;
+            int setBlockMode(bool block_mode) override;
+            int restart() override;
 
             // Non-override functions
-            int set_error_reporting (bool on);
-            int initialize_udp(const std::string& hostname, int port);
+            int initialize(const std::string& hostname, int port);
+
+
+            int getPort();
+            std::string getHostname();
 
 
         private:
-            TCDevice _device;   /**<  trick_io(**) */
-            bool _connected;
+            bool _initialized;
+            bool _started;
+            int _socket;
+
+            int _port;
+            std::string _hostname;
+
+            struct sockaddr_in _remote_serv_addr;
+
+            SystemInterface * _system_interface;     /* ** */
     };
 
 }

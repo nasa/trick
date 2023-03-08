@@ -1116,7 +1116,7 @@ object_${TRICK_HOST_CPU}/VariableServerSession.o: VariableServerSession.cpp \
  ${TRICK_HOME}/include/trick/TrickConstant.hh  \
  ${TRICK_HOME}/include/trick/tc_proto.h
 object_${TRICK_HOST_CPU}/ClientListener.o: ClientListener.cpp \
- ${TRICK_HOME}/include/trick/TCConnection.hh \
+ ${TRICK_HOME}/include/trick/TCPConnection.hh \
  ${TRICK_HOME}/include/trick/ClientConnection.hh \
  ${TRICK_HOME}/include/trick/ClientListener.hh \
  ${TRICK_HOME}/include/trick/tc.h \
