@@ -700,8 +700,6 @@ int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap
     int temp_i ;
     unsigned int temp_ui ;
 
-    // int offset = 0;
-
     switch ( var_info->attr->type ) {
         case TRICK_BITFIELD:
             temp_i = GET_BITFIELD(address , var_info->attr->size ,

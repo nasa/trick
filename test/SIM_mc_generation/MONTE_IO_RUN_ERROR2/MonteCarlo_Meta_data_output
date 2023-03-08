@@ -1,0 +1,21 @@
+
+
+*************************** SUMMARY **************************
+1 total assignments
+  -  0 constant values
+  -  0 calculated variables
+  -  1 prescribed (file-based) variables
+  -  0 random variables
+  -  0 files for execution
+  -  0 variables of undefined type
+
+********************* LIST OF VARIABLES, TYPES****************
+test.x_file_lookup[0], Prescribed
+**************************************************************
+
+
+***** LIST OF DATA FILES AND THE VARIABLES THEY POPULATE *****
+******
+Modified_data/datafile.txt
+3  test.x_file_lookup[0]
+**************************************************************

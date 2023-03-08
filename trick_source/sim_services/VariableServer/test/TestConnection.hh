@@ -15,7 +15,7 @@ class TestConnection : public Trick::ClientConnection {
             }
         }
     
-        int initialize() {
+        int start() {
             valid = true;
         }
 
@@ -53,25 +53,19 @@ class TestConnection : public Trick::ClientConnection {
             return 0;
         }
 
-        std::string get_client_tag () {
-            return client_tag;
-        }
 
-        int set_client_tag(std::string tag) {
-            client_tag = tag;
-        }
-
-        int set_block_mode (int mode) {
+        int setBlockMode (bool blocking) {
             return 0;
         }
 
+        bool isInitialized() {
+            return valid;
+        }
 
         std::queue <std::string> queued_messages;
         std::vector <std::string> ascii_messages_written;
         std::vector <char *> binary_messages_written;
         
-
-        std::string client_tag;
         bool valid = true;
 
 };

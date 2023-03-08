@@ -4,7 +4,6 @@
 
 #include "trick/VariableServerListenThread.hh"
 #include "trick/VariableServerThread.hh"
-#include "trick/tc_proto.h"
 #include "trick/exec_proto.h"
 #include "trick/command_line_protos.h"
 #include "trick/message_proto.h"
@@ -23,10 +22,7 @@ Trick::VariableServerListenThread::VariableServerListenThread() :
 }
 
 Trick::VariableServerListenThread::~VariableServerListenThread() {
-    // if (multicast != NULL) {
-    //     delete multicast;
-    //     multicast = NULL;
-    // }
+
 }
 
 

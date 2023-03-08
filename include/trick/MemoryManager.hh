@@ -819,19 +819,37 @@ namespace Trick {
             void io_src_delete_class(ALLOC_INFO * alloc_info);
 
             /**
-             FIXME: I NEED DOCUMENTATION!
+             Clear the specified primitive or or array of primitives, beginning at the given base_address,
+             described by attr, and whose specific array element is specified by curr_dim, and offset.
              */
             void clear_rvalue( void* base_address, ATTRIBUTES* attr, int curr_dim, int offset);
+
             /**
-             FIXME: I NEED DOCUMENTATION!
+             Clear the variable at the given address. That is, set the value(s) of the variable
+             at the given address to 0, 0.0, NULL, false or "", as appropriate for the type.
+             The difference between this function and clear_var(void* address) is that this
+             doesn't contain calls to lock and unlock mm_mutex (which protects the alloc_info_map,
+             and variable_map). This is meant to only be called from within other "critical-section"
+             code that is surrounded by mutex lock and unlock.
+             */
+            void clear_var_critical_section(void* address);
+
+            /**
+             Clear the members of the class instance at <address>, and described by <attributes>.
+             This too is only meant to be called from within other "critical-section" code that
+             is surrounded by mutex lock and unlock.
              */
             void clear_class( char *address, ATTRIBUTES * A);
+
             /**
-             FIXME: I NEED DOCUMENTATION!
+            Clear the elements of the array at <address>, described by <attributes>, and whose .
+            This too is only meant to be called from within other "critical-section" code that
+            is surrounded by mutex lock and unlock.
              */
             void clear_arrayed_class( char* address, ATTRIBUTES* A, int curr_dim, int offset);
+
             /**
-             FIXME: I NEED DOCUMENTATION!
+             Write the given alloc_info data structure in a human readable to stdout. 
              */
             void debug_write_alloc_info( ALLOC_INFO *alloc_info);
 
@@ -849,4 +867,3 @@ extern Trick::MemoryManager* trick_MM;
 #endif
 
 #endif
-

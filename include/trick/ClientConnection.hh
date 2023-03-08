@@ -31,6 +31,7 @@ namespace Trick {
 
             virtual bool isInitialized() = 0;
 
+            // Concrete methods
             virtual std::string getClientTag ();
             virtual int setClientTag (std::string tag);
 

@@ -1,0 +1,60 @@
+# This is a file containing trick sims from this repository to be used
+# for unit testing the trickops module. Specifically this file contains
+# values for parameters with the wrong type
+SIM_type_errors1:
+    path: path/to/SIM
+    build_args:   1     # Should be string not int
+    parallel_safety: 2  # Should be string not int
+    description: 10     # Should be a string not int
+    binary: 20          # Should be a string not int
+    size: 'string'      # Should be an int not string
+    phase: 'string'     # Should be an int not string
+    labels: 'hi there'  # Should be a list not string
+    runs:
+        RUN_test1/input.py:
+            returns:        256 # Should be between 0-255
+            analyze: 35  # Should be a string not int
+            compare:
+               - 40      # Should be a string not int
+        RUN_test2/input.py:
+            returns:        -1 # Should be between 0-255
+            valgrind: 79 # Should be a string not int
+
+
+SIM_type_errors2:
+    path: path/to/SIM
+    build_args:
+      - this shouldnt
+      - be a list
+    binary:
+      - this shouldnt
+      - be a list
+    build_args:
+      - this shouldnt
+      - be a list
+    parallel_safety:
+      - this shouldnt
+      - be a list
+    description:
+      - this shouldnt
+      - be a list
+    binary:
+      - this shouldnt
+      - be a list
+    size:
+      - this shouldnt
+      - be a list
+    phase:
+      - this shouldnt
+      - be a list
+
+SIM_range_errors:
+    path: path/to/SIM
+    parallel_safety: 'bad_value'
+    size: -10
+    phase: -1000
+
+# Bad path must be tested separate, since it halts processing
+# of other parameters immediately
+SIM_bad_path:
+    path: 30            # Should be a str not int

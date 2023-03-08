@@ -18,6 +18,17 @@
 #include "trick/JSONVariableServer.hh"
 #include "trick/JSONVariableServerThread.hh"
 #include "trick/Master.hh"
+#include "trick/mc_master.hh"
+#include "trick/mc_python_code.hh"
+#include "trick/mc_variable_file.hh"
+#include "trick/mc_variable_fixed.hh"
+#include "trick/mc_variable.hh"
+#include "trick/mc_variable_random_bool.hh"
+#include "trick/mc_variable_random.hh"
+#include "trick/mc_variable_random_normal.hh"
+#include "trick/mc_variable_random_string.hh"
+#include "trick/mc_variable_random_uniform.hh"
+#include "trick/mc_variable_semi_fixed.hh"
 #include "trick/Slave.hh"
 #include "trick/MSSocket.hh"
 #include "trick/MSSharedMem.hh"
@@ -33,14 +44,12 @@
 #include "trick/RealtimeSync.hh"
 #include "trick/ITimer.hh"
 #include "trick/VariableServer.hh"
-
 #include "trick/regula_falsi.h"
 #include "trick/Integrator.hh"
 #include "trick/IntegAlgorithms.hh"
 #include "trick/IntegLoopScheduler.hh"
 #include "trick/IntegLoopManager.hh"
 #include "trick/IntegLoopSimObject.hh"
-
 #include "trick/ABM_Integrator.hh"
 #include "trick/Euler_Cromer_Integrator.hh"
 #include "trick/Euler_Integrator.hh"
@@ -51,7 +60,6 @@
 #include "trick/RKF45_Integrator.hh"
 #include "trick/RKF78_Integrator.hh"
 #include "trick/RKG4_Integrator.hh"
-
 #include "trick/SimTime.hh"
 
 /* from the er7_utils directory */

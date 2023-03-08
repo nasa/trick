@@ -13,6 +13,7 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionListener; 
 import java.awt.event.ActionEvent;
+import java.awt.Toolkit;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.event.ItemEvent;
@@ -24,6 +25,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.FileReader;
+import java.io.FileNotFoundException;
 import java.lang.Math;
 import java.net.Socket;
 import java.util.*;
@@ -33,23 +35,150 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JToggleButton;
 import javax.swing.BorderFactory; 
 import javax.swing.border.EtchedBorder;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+
 import java.awt.Color;
+
+import javax.imageio.ImageIO;
+import java.io.File;
 
 /**
  *
  * @author penn
  */
 
+class Waypoint {
+    public double north, west;
+    public BufferedImage icon;
+    
+    public Waypoint(double n, double w, BufferedImage i) {
+        north = n;
+        west = w;
+        icon = i;
+    }
+}
+
 class ScenePoly {
     public Color color;
     public int n;
     public double[] x;
     public double[] y;
+}
+
+class SimulationMenuBar extends JMenuBar {
+    private JMenu _file;
+    private JMenu _edit;
+    private JMenu _tools;
+    private JMenu _help;
+    private ViewMenu _view;
+
+    private SkyView skyView;
+
+    public SimulationMenuBar(SkyView sv) {
+        skyView = sv;
+        _view = new ViewMenu("View");
+
+        add(_view);
+    }
+
+    public void setEnabled_DisabledViewCB(boolean s) {
+        _view.disabledView.setEnabled(s);
+    }
+    private void initHelpMenu() {
+        _help = new JMenu("Help");
+        add(_help);
+    }
+
+    private void initToolsMenu() {
+        _tools = new JMenu("Tools");
+        add(_tools);
+    }
+
+    private void initEditMenu() {
+        _edit = new JMenu("Edit");      // Undo, Redo, Cut, Copy, Paste
+        JMenuItem mi;
+        mi = new JMenuItem("Undo");
+        _edit.add(mi);
+        mi = new JMenuItem("Redo");
+        _edit.add(mi);
+        mi = new JMenuItem("Cut");
+        _edit.add(mi);
+        mi = new JMenuItem("Copy");
+        _edit.add(mi);
+        mi = new JMenuItem("Paste");
+        _edit.add(mi);
+        add(_edit);
+    }
+
+    private void initFileMenu() {
+        _file = new JMenu("File");      // New, Open, Save, Save As, Exit
+        JMenuItem mi;
+        mi = new JMenuItem("New");
+        _file.add(mi);
+        mi = new JMenuItem("Open");
+        _file.add(mi);
+        mi = new JMenuItem("Save");
+        _file.add(mi);
+        mi = new JMenuItem("Save As");
+        _file.add(mi);
+        mi = new JMenuItem("Exit");
+        _file.add(mi);
+        
+        add(_file);
+    }
+
+    private class ViewMenu extends JMenu {
+        public JCheckBoxMenuItem posView, velView, scaleView, controlView, disabledView;
+        ViewMenu(String name) {
+            super(name);
+            
+            initPosViewCB();
+            initVelViewCB();
+            initScaleViewCB();
+            initControlViewCB();
+            initDisabledViewCB();
+
+            add(posView);
+            add(velView);
+            add(scaleView);
+            add(controlView);
+            add(disabledView);
+        }
+
+        private void initPosViewCB() {
+            posView = new JCheckBoxMenuItem("Aircraft Position", skyView.getPosView());
+            posView.addItemListener(e -> skyView.setPosView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+
+        private void initVelViewCB() {
+            velView = new JCheckBoxMenuItem("Aircraft Velocity", skyView.getVelView());
+            velView.addItemListener(e -> skyView.setVelView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+
+        private void initScaleViewCB() {
+            scaleView = new JCheckBoxMenuItem("Map Scale", skyView.getScaleView());
+            scaleView.addItemListener(e -> skyView.setScaleView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+
+        private void initControlViewCB() {
+            controlView = new JCheckBoxMenuItem("Control Mode", skyView.getCtrlView());
+            controlView.addItemListener(e -> skyView.setCtrlView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+
+        private void initDisabledViewCB() {
+            disabledView = new JCheckBoxMenuItem("Disabled Controls' Data", skyView.getDisabledView());
+            disabledView.addItemListener(e -> skyView.setDisabledView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
+        }
+    }
 }
 
 class SkyView extends JPanel {
@@ -70,9 +199,14 @@ class SkyView extends JPanel {
     private double desired_heading;
     private Boolean autopilot;
 
+    private ArrayList<Waypoint> waypoints;
+
     // Origin of world coordinates in jpanel coordinates.
     private int worldOriginX;
     private int worldOriginY;
+
+    // The data that is or isn't displayed on the map
+    private boolean posView, velView, scaleView, ctrlView, disabledView;
 
     public SkyView( double mapScale ) {
         scale = mapScale;
@@ -97,6 +231,21 @@ class SkyView extends JPanel {
 
         workPolyX = new int[30];
         workPolyY = new int[30];
+
+        waypoints = new ArrayList<Waypoint>();
+
+        setAllView(true);
+    }
+
+    public void addWaypoint( double n, double w, String fp) {
+        BufferedImage img;
+        try {
+            img = ImageIO.read(new File(fp));
+            waypoints.add(new Waypoint(n,w,img));
+        } catch(Exception e) {
+            System.out.printf("Waypoint (%.1f,%.1f) not added to map.");
+        }
+
     }
 
     public void setAircraftPos( double n, double w) {
@@ -154,6 +303,30 @@ class SkyView extends JPanel {
         desired_heading = n;
     }
 
+    // Getters and setters for all the 'View' variables
+    public boolean getPosView()             {  return posView;  }
+    public void setPosView(boolean v)       {  posView = v;  }
+
+    public boolean getVelView()             {  return velView;  }
+    public void setVelView(boolean v)       {  velView = v;  }
+
+    public boolean getScaleView()           {  return scaleView;  }
+    public void setScaleView(boolean v)     {  scaleView = v;  }
+
+    public boolean getCtrlView()            {  return ctrlView;  }
+    public void setCtrlView(boolean v)      {  ctrlView = v;  }
+
+    public boolean getDisabledView()        {  return disabledView;  }
+    public void setDisabledView(boolean v)  {  disabledView = v;  }
+
+    public void setAllView(boolean v) {
+        setPosView(v);
+        setVelView(v);
+        setScaleView(v);
+        setCtrlView(v);
+        setDisabledView(v);
+    }
+
     public void drawCenteredOval(Graphics2D g, int x, int y, int rh, int rv) {
         x = x-(rh/2);
         y = y-(rv/2);
@@ -164,6 +337,13 @@ class SkyView extends JPanel {
         x = x-(r/2);
         y = y-(r/2);
         g.fillOval(x,y,r,r);
+    }
+
+    public void drawWaypoint(Graphics2D g, Waypoint wp) {
+        int x = 0, y = 0;
+        x = (int)((worldOriginX - scale * wp.west) - (wp.icon.getWidth()/2));
+        y = (int)((worldOriginY - scale * wp.north) - (wp.icon.getHeight()/2));
+        g.drawImage(wp.icon, x, y, null);
     }
 
     public void drawScenePoly(Graphics2D g, ScenePoly p, double angle_r , double north, double west) {
@@ -196,38 +376,54 @@ class SkyView extends JPanel {
         g2d.drawLine( worldOriginX, 0, worldOriginX, height);
 
         //  Draw Waypoints
-        drawScenePoly(g2d, wpmarker, 0.0,      0.0,  25000.0 );
-        drawScenePoly(g2d, wpmarker, 0.0,  21650.0,  12500.0 );
-        drawScenePoly(g2d, wpmarker, 0.0,  21650.0, -12500.0 );
-        drawScenePoly(g2d, wpmarker, 0.0,      0.0, -25000.0 );
-        drawScenePoly(g2d, wpmarker, 0.0, -21650.0, -12500.0 );
-        drawScenePoly(g2d, wpmarker, 0.0, -21650.0,  12500.0 );
+        for(int i = 0; i < waypoints.size(); i++) {
+            Waypoint wp = waypoints.get(i);
+            drawWaypoint(g2d, wp);
+        }
 
         //  Draw Aircraft
         drawScenePoly(g2d, aircraft, heading, aircraftPos[0], aircraftPos[1] );
 
         // Display State Data
         g2d.setPaint(Color.BLACK);
-        g2d.drawString ( String.format("Aircraft Pos: [%.2f, %.2f]", aircraftPos[0], aircraftPos[1]), 20,40);
-        g2d.drawString ( String.format("Aircraft Vel: [%.2f, %.2f]", aircraftVel[0], aircraftVel[1]), 20,60);
+        int textCursor = 40;
+        
+        if(posView) {
+            g2d.drawString ( String.format("Aircraft Pos: [%.2f, %.2f]", aircraftPos[0], aircraftPos[1]), 20,textCursor);
+            textCursor += 20;
+        }
 
-        g2d.drawString ( String.format("SCALE: %f pixels/meter",scale), 20,80);
-
-        g2d.drawString ( String.format("Autopilot Mode: [%B]", autopilot), 20,100);
-
+        if(velView) {
+            g2d.drawString ( String.format("Aircraft Vel: [%.2f, %.2f]", aircraftVel[0], aircraftVel[1]), 20,textCursor);
+            textCursor += 20;
+        }
+            
+        if(scaleView){
+            g2d.drawString ( String.format("SCALE: %f pixels/meter",scale), 20,textCursor);
+            textCursor += 20;
+        }
+        
+        if(ctrlView){
+            g2d.drawString ( String.format("Control Mode: [%s]", autopilot ? "Auto-Pilot" : "Manual"), 20,textCursor);
+            textCursor += 20;
+        }
+        
         if (autopilot == true) {
             g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,40);
             g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
-            g2d.drawString ( "-------Controls disabled-------", (width - 240),80);
-            g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),100);
-            g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),120);
+            if (disabledView) {
+                g2d.setPaint(Color.GRAY);
+                g2d.drawString ( "-------Controls disabled-------", (width - 240),80);
+                g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),100);
+                g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),120);
+                g2d.setPaint(Color.BLACK);
+            }
         } else {
             g2d.drawString ( String.format("Aircraft Actual Heading:  [%.2f]", heading),(width - 240) ,100);
             g2d.drawString ( String.format("Aircraft Desired Heading:  [%.2f]", desired_heading), (width - 240),80);
             g2d.drawString ( String.format("Aircraft Actual Speed: [%.2f m/s]", actual_speed), (width - 240),60);
             g2d.drawString ( String.format("Aircraft Desired Speed: [%.2f m/s]", desired_speed), (width - 240),40);
         }
-      
     }
 
     @Override
@@ -392,6 +588,7 @@ class AutoPilotCtrlPanel extends JPanel implements ItemListener {
 public class AircraftDisplay extends JFrame {
 
     private SkyView skyView;
+    private SimulationMenuBar simMenu;
     private BufferedReader in;
     private DataOutputStream out;
     private JPanel panelGroup0, panelGroup1;
@@ -399,6 +596,8 @@ public class AircraftDisplay extends JFrame {
 
     public AircraftDisplay(SkyView sky) {
         skyView = sky;
+        simMenu = new SimulationMenuBar(skyView);
+        setJMenuBar(simMenu);
         add( skyView);
         setTitle("Aircraft Display");
         setSize(800, 800);
@@ -441,7 +640,7 @@ public class AircraftDisplay extends JFrame {
 
         String host = "localHost";
         int port = 0;
-        String vehicleImageFile = null;
+        String waypointInputFile = null;
 
         int ii = 0;
         while (ii < args.length) {
@@ -450,6 +649,10 @@ public class AircraftDisplay extends JFrame {
                 case "--help" : {
                     printHelpText();
                     System.exit(0);
+                } break;
+                case "-w" :
+                case "--waypoints" : {
+                    waypointInputFile = args[++ii];
                 } break;
                 default : {
                     port = (Integer.parseInt(args[ii]));
@@ -460,6 +663,12 @@ public class AircraftDisplay extends JFrame {
 
         if (port == 0) {
             System.out.println("No variable server port specified.");
+            printHelpText();
+            System.exit(0);
+        }
+
+        if(waypointInputFile == null) {
+            System.out.println("No waypoint file specified");
             printHelpText();
             System.exit(0);
         }
@@ -477,6 +686,18 @@ public class AircraftDisplay extends JFrame {
 
         Boolean autopilot = false;
         double desired_heading = 0.0;
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(waypointInputFile));
+            String line;
+            while((line = br.readLine()) != null) {
+                String[] parsedLine = line.split(",");
+                sd.skyView.addWaypoint(Double.parseDouble(parsedLine[0]), Double.parseDouble(parsedLine[1]), parsedLine[2]);
+            }
+        } catch(FileNotFoundException e) {
+            System.out.printf("'%s' not found", args[ii+1]);
+            System.exit(0);
+        }
 
         System.out.println("Connecting to: " + host + ":" + port);
         sd.connectToServer(host, port);
@@ -526,6 +747,8 @@ public class AircraftDisplay extends JFrame {
                 } else {
                   sd.out.writeBytes("dyn.aircraft.autoPilot = False ;\n");
                 } 
+
+                ((SimulationMenuBar) sd.getJMenuBar()).setEnabled_DisabledViewCB(autopilot);
 
             } catch (IOException | NullPointerException e ) {
                 go = false;

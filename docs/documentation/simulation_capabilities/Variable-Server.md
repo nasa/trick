@@ -63,6 +63,16 @@ trick.var_server_get_hostname()
 trick.var_server_get_port()
 ```
 
+Additional TCP or UDP sockets can be opened as well. Additional TCP sockets operate the same way as the original variable server socket. A UDP socket will only host 1 variable server session, and the responses will be sent to the latest address that sends commands to it. 
+
+Note that this is not necessary to allow multiple variable server clients - any number of clients can connect to the original variable server port.
+
+```python
+trick.var_server_create_udp_socket( const char * source_address, unsigned short port )
+trick.var_server_create_tcp_socket( const char * source_address, unsigned short port )
+```
+
+
 ### Commands
 
 The variable server accepts commands in the form of strings. The variable server parses
@@ -509,6 +519,8 @@ number to the broadcast channel.  The channel is address 224.3.14.15 port 9265. 
 on your network sends it's information to this address and port so there may be multiple
 messages with variable server information available here.  Here is some
 C code that reads all messages on the variable server channel.
+
+Note that the multicast protocol is disabled by default in MacOS.
 
 ```c
 #include <stdio.h>
