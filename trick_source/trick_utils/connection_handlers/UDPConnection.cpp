@@ -1,8 +1,10 @@
 #include "trick/UDPConnection.hh"
-#include "trick/tc.h"
-#include "trick/tc_proto.h"
+
 #include <sstream>
 #include <iostream>
+#include <cstring>
+#include <strings.h>
+#include <arpa/inet.h>
 
 Trick::UDPConnection::UDPConnection () : UDPConnection(new SystemInterface()) {}
 Trick::UDPConnection::UDPConnection (SystemInterface * system_interface) : _started(false), _initialized(false), _port(0), _hostname(""), _system_interface(system_interface) {}

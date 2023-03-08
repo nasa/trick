@@ -2,7 +2,8 @@
 
 #include <sstream>
 #include <iostream>
-
+#include <cstring>
+#include <strings.h>
 
 Trick::TCPConnection::TCPConnection (SystemInterface * system_interface) : TCPConnection(0, system_interface) {}
 
