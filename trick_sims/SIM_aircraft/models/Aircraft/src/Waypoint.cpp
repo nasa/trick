@@ -18,7 +18,7 @@ WaypointList::WaypointList(std::string path) {
     load(path);
 }
 
-int WaypointList::add(double n, double w, std::string i)
+int WaypointList::add(double n, double w, std::string i="images/defaultIcon.png")
 {
     if (length < ARRAY_SIZE)
     {
@@ -63,12 +63,18 @@ void WaypointList::append(std::string path) {
         std::string str;
         while(getline(in,str)) {
             int k = str.find(','), j = str.find(',',k+1);
-
-            double n = std::stod(str.substr(0,k));
-            double w = std::stod(str.substr(k+1,(j-k-1)));
-            std::string i = str.substr(j+1);
-
-            add(n,w,i);
+            double n,w;
+            if (j>=0) {
+                n = std::stod(str.substr(0,k));
+                w = std::stod(str.substr(k+1,(j-k-1)));
+                std::string i = str.substr(j+1);
+                add(n,w,i);
+            } else {
+                n = std::stod(str.substr(0,k));
+                w = std::stod(str.substr(k+1));
+                add(n,w);
+            }
+            
         }
         in.close();
     } else {
