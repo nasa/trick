@@ -9,16 +9,20 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 
+#define MAX_MACHINE_NAME 80
 
 Trick::VariableServerListenThread::VariableServerListenThread() :
  Trick::SysThread("VarServListen"),
  requested_port(0),
- requested_source_address(""),
  user_requested_address(false),
  broadcast(true),
  listener()
 {
     pthread_mutex_init(&restart_pause, NULL);
+
+    char hname[MAX_MACHINE_NAME];
+    gethostname(hname, MAX_MACHINE_NAME);
+    requested_source_address = std::string(hname);
 }
 
 Trick::VariableServerListenThread::~VariableServerListenThread() {
@@ -80,14 +84,15 @@ void Trick::VariableServerListenThread::set_broadcast(bool in_broadcast) {
 int Trick::VariableServerListenThread::init_listen_device() {
     int ret = listener.initialize();
     requested_port = listener.getPort();
-    requested_source_address = std::string(listener.getHostname());
+    user_requested_address = true;
     return ret;
 }
 
 int Trick::VariableServerListenThread::check_and_move_listen_device() {
     int ret ;
 
-    if ( user_requested_address ) {
+    // if ( user_requested_address ) {
+    std::cout << "Doing check and move listen device with source address " << requested_source_address << " and port " << requested_port << std::endl;
 
         /* The user has requested a different source address or port in the input file */
         listener.disconnect();
@@ -99,8 +104,7 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
              requested_source_address.c_str(), requested_port);
             return -1 ;
         }
-    }
-
+    // }
     return 0 ;
 }
 

@@ -33,12 +33,16 @@ TEST_F( ClientListenerTest, initialized ) {
 
 TEST_F( ClientListenerTest, initialize_localhost_0 ) {
     // ARRANGE
+    // Look up the hostname
+    char name[80];
+    gethostname(name, (size_t) 80);
+
     // ACT
     listener.initialize("localhost", 0);
 
     // ASSERT
     EXPECT_EQ(listener.isInitialized(), true);
-    EXPECT_EQ(listener.getHostname(), std::string("127.0.0.1"));
+    EXPECT_EQ(listener.getHostname(), std::string(name));
 }
 
 TEST_F( ClientListenerTest, initialize_localhost_54321 ) {

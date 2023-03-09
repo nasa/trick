@@ -25,23 +25,7 @@ Trick::ClientListener::~ClientListener () {
 
 int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
 
-    struct addrinfo hints, *res;
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = 0;
-
-    if (in_hostname.size() == 0) {
-        in_hostname = "localhost";
-    }
-
-    int err;
-    if ((err = _system_interface->getaddrinfo(in_hostname.c_str(), std::to_string(in_port).c_str(), &hints, &res)) != 0) {
-        std::cerr << "Server: Unable to lookup address: " << gai_strerror(err) << std::endl;
-        return LISTENER_ERROR;
-    }
-
-    if ((_listen_socket = _system_interface->socket(res->ai_family, res->ai_socktype, 0)) < 0) {
+    if ((_listen_socket = _system_interface->socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror ("Server: Unable to open socket");
         return LISTENER_ERROR;
     }
@@ -65,16 +49,38 @@ int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
         return LISTENER_ERROR;
     }
 
-    // struct sockaddr_in my_addr;
+    struct sockaddr_in s_in;
+    memset(&s_in, 0 , sizeof(struct sockaddr_in)) ;
 
-    // my_addr.sin_family = AF_INET;
-    // my_addr.sin_port = htons(in_port);     // short, network byte order
-    // my_addr.sin_addr.s_addr = INADDR_ANY;
-    // memset(my_addr.sin_zero, '\0', sizeof my_addr.sin_zero);
+    // Look up the hostname
+    char name[80];
+    gethostname(name, (size_t) 80);
+
+    struct hostent *ip_host ;
+    socklen_t s_in_size =  sizeof(s_in) ;
+
+    s_in.sin_family = AF_INET;
+
+    if (in_hostname == "" || in_hostname == "localhost" || strcmp(in_hostname.c_str(),name) == 0) {
+        s_in.sin_addr.s_addr = INADDR_ANY;
+        _hostname = std::string(name);
+    } else if ( inet_pton(AF_INET, in_hostname.c_str(), (struct in_addr *)&s_in.sin_addr.s_addr) == 1 ) {
+        /* numeric character string address */
+        _hostname = in_hostname;
+    } else if ( (ip_host = gethostbyname(in_hostname.c_str())) != NULL ) {
+        /* some name other than the default name was given */
+        memcpy((void *) &(s_in.sin_addr.s_addr), (const void *) ip_host->h_addr, (size_t) ip_host->h_length);
+        _hostname = in_hostname;
+    } else {
+        perror("Server: Could not determine source address");
+        return -1 ;
+    }
+
+    // Set port
+    s_in.sin_port = htons((short) in_port);
 
     // Bind to socket
-    if (_system_interface->bind(_listen_socket, res->ai_addr, res->ai_addrlen) < 0) {
-    // if (_system_interface->bind(_listen_socket, (sockaddr *) (&my_addr), res->ai_addrlen) < 0) {
+    if (_system_interface->bind(_listen_socket, (struct sockaddr *)&s_in, sizeof(s_in)) < 0) {
 
         perror("Server: Could not bind to socket");
         _system_interface->close (_listen_socket);
@@ -82,8 +88,6 @@ int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
     } 
 
     // Check that correct port was bound to
-    struct sockaddr_in s_in;
-    socklen_t s_in_size =  sizeof(s_in) ;
     _system_interface->getsockname( _listen_socket , (struct sockaddr *)&s_in, &s_in_size) ;
     int bound_port = ntohs(s_in.sin_port);
 
@@ -95,9 +99,7 @@ int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
 
     // Save port number
     _port = bound_port;
-
-    // Save printable hostname
-    _hostname = inet_ntoa((struct in_addr)((struct sockaddr_in *) res->ai_addr)->sin_addr);
+    
 
     // Start listening
     if (_system_interface->listen(_listen_socket, SOMAXCONN) < 0) {
