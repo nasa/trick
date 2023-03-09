@@ -61,6 +61,7 @@ void WaypointList::append(std::string path) {
 
     if(in.is_open()) {
         std::string str;
+        // Expected input formatting: <North>,<West> OR <North>,<West>,<Image Path>
         while(getline(in,str)) {
             int k = str.find(','), j = str.find(',',k+1);
             double n,w;
