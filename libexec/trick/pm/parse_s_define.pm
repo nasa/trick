@@ -20,8 +20,6 @@ use Text::Balanced qw(extract_bracketed);
 use html ;
 use get_paths ;
 
-no warnings ;
-
 my ($integ_loop_def , $collect_def , $vcollect_def);
 my ($job_class_order_def ) ;
 my ($sim_class_def , $sim_class_job_def , $instantiation_def , $create_connections_def) ;
@@ -945,9 +943,6 @@ sub preparse_job_class_order($$) {
         return ;
     }
 
-    # Scheduled loop classes that should not be reordered
-    my @non_reorderable_classes = qw(system_checkpoint system_advance_sim_time system_moding);
-
     # get a list of classes
     ($class_text) = @{$job_class_order_structs}[0] =~ /{(.*?)}/sx ;
     $class_text =~ s/^\s+|\s+$//gs ;
@@ -960,11 +955,6 @@ sub preparse_job_class_order($$) {
             edit_and_exit("CP bad job class order" , "$s_define_file" , 1 ) ;
         }
         $temp_hash{$c}++ ;
-
-        if ($c ~~ @non_reorderable_classes) {
-            trick_print($$sim_ref{fh}, "\nCP ERROR:\n    Job class \"$c\" cannot be reordered by job_class_order.\n" , "title_red" , $$sim_ref{args}{v} ) ;
-            edit_and_exit("CP bad job class order" , "$s_define_file" , 1 ) ;
-        }
     }
 
     # save the new order
@@ -987,9 +977,16 @@ sub preparse_job_class_order($$) {
         push @{$$sim_ref{user_class_order}} , "data_record" ;
     }
 
-    # Push on the rest of the non-reorderable system job classes
-    foreach my $c ( @non_reorderable_classes ) {
-        push @{$$sim_ref{user_class_order}} , $c ;
+    if ( !exists $temp_hash{system_checkpoint} ) {
+        push @{$$sim_ref{user_class_order}} , "system_checkpoint" ;
+    }
+
+    if ( !exists $temp_hash{system_advance_sim_time} ) {
+        push @{$$sim_ref{user_class_order}} , "system_advance_sim_time" ;
+    }
+
+    if ( !exists $temp_hash{system_moding} ) {
+        push @{$$sim_ref{user_class_order}} , "system_moding" ;
     }
 
     if ( !exists $temp_hash{integ_loop} ) {
