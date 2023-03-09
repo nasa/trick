@@ -130,10 +130,11 @@ void Aircraft::rotateBodyToWorld( double (&F_total_world)[2], double (&F_total_b
 
 int Aircraft::control() {
     if (autoPilot) {
-        if (flightPath.length > 0) {
+        if (flightPath.size() > 0) {
             // Calculate the difference between where we want to be, and where we are.
             double posDiff[2];
-            double _wp[2] = {flightPath.north[cWP], flightPath.west[cWP]};
+            double _wp[2];
+            flightPath.getPosition(cWP, _wp);
             vector_difference(posDiff, _wp, pos);
             // Calculate bearing to waypoint.
             desired_heading = northWestToPsi(posDiff);
@@ -141,7 +142,7 @@ int Aircraft::control() {
             double distanceToWaypoint = vector_magnitude(posDiff);
             // If we've arrived, that is we're close enough, go to the next waypoint.
             if (distanceToWaypoint < 100.0) {
-                cWP = (cWP + 1) % flightPath.length;
+                cWP = (cWP + 1) % flightPath.size();
             }
         } 
     }
@@ -149,11 +150,10 @@ int Aircraft::control() {
 }
 
 int Aircraft::cycleWaypoints() {
-    if(flightPath.length > 0) {
-        wpIdx = (wpIdx + 1) % flightPath.length;
-        wpPos[0] = flightPath.north[wpIdx];
-        wpPos[1] = flightPath.west[wpIdx];
-        wpImg = flightPath.img[wpIdx];
+    if(flightPath.size() > 0) {
+        wpIdx = (wpIdx + 1) % flightPath.size();
+        flightPath.getPosition(wpIdx, wpPos);
+        wpImg = flightPath.getImage(wpIdx);
     } else {
         wpIdx = -1;
     }

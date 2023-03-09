@@ -93,3 +93,18 @@ void WaypointList::save(std::string path) {
 
     out.close();
 }
+
+void WaypointList::getPosition(int index, double (&pos)[2]) {
+    pos[0] = north[index];
+    pos[1] = west[index];
+}
+
+std::string WaypointList::getImage(int index)
+{
+    return img[index];
+}
+
+int WaypointList::size()
+{
+    return length;
+}
