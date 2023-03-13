@@ -88,8 +88,8 @@ namespace Trick {
             /** The Master variable server object. */
             static VariableServer * vs ;
 
-            /** this is where a lot of this should happen now */
-            VariableServerSession * session;
+            /** Manages the variable list  */
+            VariableServerSession * session;       /**<  trick_io(**) */
 
             /** Connection to the client */
             ClientConnection * connection;        /**<  trick_io(**) */
@@ -101,8 +101,8 @@ namespace Trick {
             bool enabled ;                   /**<  trick_io(**) */
 
             ConnectionStatus connection_status ;       /**<  trick_io(**) */
-            pthread_mutex_t connection_status_mutex;
-            pthread_cond_t connection_status_cv;
+            pthread_mutex_t connection_status_mutex;     /**<  trick_io(**) */
+            pthread_cond_t connection_status_cv;         /**<  trick_io(**) */
 
             /** The mutex pauses all processing during checkpoint restart */
             pthread_mutex_t restart_pause ;     /**<  trick_io(**) */

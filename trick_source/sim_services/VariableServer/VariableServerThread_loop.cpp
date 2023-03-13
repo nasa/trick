@@ -40,7 +40,7 @@ void * Trick::VariableServerThread::thread_body() {
         pthread_cond_signal(&connection_status_cv);
         pthread_mutex_unlock(&connection_status_mutex);
 
-        self_deleting = false;
+        delete (this);
         pthread_exit(NULL);
     }
 

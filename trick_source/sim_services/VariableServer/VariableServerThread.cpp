@@ -95,24 +95,30 @@ void Trick::VariableServerThread::preload_checkpoint() {
     // Stop variable server processing at the top of the processing loop.
     pthread_mutex_lock(&restart_pause);
 
-    // Let the thread complete any data copying it has to do
-    // and then suspend data copying until the checkpoint is reloaded.
-    pthread_mutex_lock(&(session->copy_mutex));
+    // Make sure that the session has been initialized
+    pthread_mutex_lock(&connection_status_mutex);
+    if (connection_status == CONNECTION_SUCCESS) {
 
-    // Save the pause state of this thread.
-    saved_pause_cmd = session->get_pause();
+        // Let the thread complete any data copying it has to do
+        // and then suspend data copying until the checkpoint is reloaded.
+        pthread_mutex_lock(&(session->copy_mutex));
+        
+        // Save the pause state of this thread.
+        saved_pause_cmd = session->get_pause();
 
-    // Disallow data writing.
-    session->set_pause(true);
+        // Disallow data writing.
+        session->set_pause(true);
 
-    // Temporarily "disconnect" the variable references from Trick Managed Memory
-    // by tagging each as a "bad reference".
-    session->disconnect_references();
+        // Temporarily "disconnect" the variable references from Trick Managed Memory
+        // by tagging each as a "bad reference".
+        session->disconnect_references();
 
 
-    // Allow data copying to continue.
-    pthread_mutex_unlock(&(session->copy_mutex));
-
+        // Allow data copying to continue.
+        pthread_mutex_unlock(&(session->copy_mutex));
+            
+    }
+    pthread_mutex_unlock(&connection_status_mutex);
 }
 
 // Gets called from the main thread as a job

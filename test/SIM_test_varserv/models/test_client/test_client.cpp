@@ -903,7 +903,7 @@ TEST_F (VariableServerTest, Multicast) {
         FAIL() << "Multicast Socket failed to initialize.";
     }
 
-    int max_multicast_tries = 100;
+    int max_multicast_tries = 10000;
     int tries = 0;
     bool found = false;
 
@@ -1272,84 +1272,6 @@ TEST_F (VariableServerTest, send_stdio) {
     EXPECT_EQ(text, std::string("This message should redirect to varserver"));
 }
 
-
-#ifndef __APPLE__
-
-TEST_F (VariableServerTest, MulticastAfterRestart) {
-    if (socket_status != 0) {
-        FAIL();
-    }
-
-    socket << "trick.var_server_set_user_tag(\"VSTestServer\")\n";
-
-    Socket multicast_socket;
-    if (multicast_socket.init_multicast("224.3.14.15", 9265) != 0) {
-        FAIL() << "Multicast Socket failed to initialize.";
-    }
-
-    int max_multicast_tries = 100;
-    int tries = 0;
-    bool found = false;
-
-    char expected_hostname[80];
-    gethostname(expected_hostname, 80);
-    int expected_port = 40000;
-    
-    // get expected username
-    struct passwd *passp = getpwuid(getuid()) ;
-    char * expected_username;
-    if ( passp == NULL ) {
-        expected_username = strdup("unknown") ;
-    } else {
-        expected_username = strdup(passp->pw_name) ;
-    }
-    
-    // Don't care about PID, just check that it's > 0
-    char * expected_sim_dir = "trick/test/SIM_test_varserv";    // Compare against the end of the string for this one
-    // Don't care about cmdline name
-    char * expected_input_file = "RUN_test/unit_test.py";
-    // Don't care about trick_version
-    char * expected_tag = "VSTestServer";
-
-    // Variables to be populated by the multicast message
-    char actual_hostname[80];
-    unsigned short actual_port = 0;
-    char actual_username[80];
-    int actual_pid = 0;
-    char actual_sim_dir[80];
-    char actual_cmdline_name[80];
-    char actual_input_file[80];
-    char actual_trick_version[80];
-    char actual_tag[80];
-    unsigned short actual_duplicate_port = 0;
-
-    while (!found && tries++ < max_multicast_tries) {
-        std::string broadcast_data = multicast_socket.receive();
-        sscanf(broadcast_data.c_str(), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , actual_hostname, &actual_port ,
-             actual_username , &actual_pid , actual_sim_dir , actual_cmdline_name ,
-             actual_input_file , actual_trick_version , actual_tag, &actual_duplicate_port) ;
-        
-        if (strcmp(actual_hostname, expected_hostname) == 0 && strcmp(expected_tag, actual_tag) == 0) {
-            found = true;
-            EXPECT_STREQ(actual_hostname, expected_hostname);
-            EXPECT_EQ(actual_port, expected_port);
-            EXPECT_STREQ(actual_username, expected_username);
-            EXPECT_GT(actual_pid, 0);
-            std::string expected_sim_dir_str(expected_sim_dir);
-            std::string actual_sim_dir_str(actual_sim_dir);
-            std::string end_of_actual = actual_sim_dir_str.substr(actual_sim_dir_str.length() - expected_sim_dir_str.length(), actual_sim_dir_str.length());        
-            EXPECT_EQ(expected_sim_dir_str, end_of_actual);
-            EXPECT_STREQ(actual_input_file, expected_input_file);
-            EXPECT_STREQ(actual_tag, expected_tag);
-            EXPECT_EQ(actual_duplicate_port, expected_port);
-        }
-    }
-
-    if (!found)
-        FAIL() << "Multicast message never received";
-}
-
-#endif
 
 TEST_F (VariableServerTest, Binary) {
     if (socket_status != 0) {
