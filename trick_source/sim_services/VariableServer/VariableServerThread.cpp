@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "trick/VariableServerThread.hh"
 #include "trick/exec_proto.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
 #include "trick/TrickConstant.hh"
 #include "trick/UDPConnection.hh"
 #include "trick/TCPConnection.hh"
@@ -11,7 +13,7 @@
 Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 
 Trick::VariableServerThread::VariableServerThread() :
- Trick::SysThread("VarServer") , debug(0), session(NULL), connection(NULL) {
+ Trick::SysThread("VarServer", true) , debug(0), session(NULL), connection(NULL) {
 
     connection_status = CONNECTION_PENDING ;
 
@@ -43,7 +45,11 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
     //     s << "    \"client_port\":\"unknown\",";
     // }
 
-    s << *(vst.session);
+    pthread_mutex_lock(&vst.connection_status_mutex);
+    if (vst.connection_status == CONNECTION_SUCCESS) {
+        s << *(vst.session);
+    }
+    pthread_mutex_unlock(&vst.connection_status_mutex);
 
     s << "  }" << std::endl;
     return s;
@@ -66,6 +72,10 @@ int Trick::VariableServerThread::open_udp_socket(const std::string& hostname, in
     int status = udp_conn->initialize(hostname, port);
 
     connection = udp_conn;
+
+    if (status == 0) {
+        message_publish(MSG_INFO, "Created UDP variable server %s: %d\n", udp_conn->getHostname().c_str(), udp_conn->getPort());
+    }
 
     return status;
 }
@@ -125,7 +135,12 @@ void Trick::VariableServerThread::preload_checkpoint() {
 void Trick::VariableServerThread::restart() {
     // Set the pause state of this thread back to its "pre-checkpoint reload" state.
     connection->restart();
-    session->set_pause(saved_pause_cmd) ;
+
+    pthread_mutex_lock(&connection_status_mutex);
+    if (connection_status == CONNECTION_SUCCESS) {
+        session->set_pause(saved_pause_cmd) ;
+    }
+    pthread_mutex_unlock(&connection_status_mutex);
 
     // Restart the variable server processing.
     pthread_mutex_unlock(&restart_pause);
