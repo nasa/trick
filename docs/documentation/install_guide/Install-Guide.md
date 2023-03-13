@@ -215,7 +215,7 @@ xcode-select --install
 brew install python java xquartz swig@3 maven udunits openmotif 
 
 ```
-IMPORTANT: Make sure to follow the instructions for adding java to your path provided by brew. If you missed them, you can see them again by using `brew info java`.
+IMPORTANT: Make sure to follow the instructions for adding java and swig to your `PATH` provided by brew. If you missed them, you can see them again by using `brew info java` and `brew info swig@3`. Remember,  you may need to restart your terminal for these `PATH` changes to take effect.
 
 5. Download and un-compress the latest pre-built clang+llvm from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
 and download the latest version llvm that matches your Xcode version from the release assets. For example, if your Xcode version is 14 then you will want the latest 14.x.x release of llvm. 13.0.1 is the latest as of the writing of this guide, the link I used is below:
@@ -243,7 +243,7 @@ e.g.
 
 OPTIONAL: Trick uses google test (gtest) version 1.8 for unit testing. To install gtest:
 ```
-brew install wget
+brew install cmake wget
 wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
 tar xzvf release-1.8.0.tar.gz
 cd googletest-release-1.8.0/googletest
