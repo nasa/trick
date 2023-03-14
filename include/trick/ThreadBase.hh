@@ -170,6 +170,9 @@ namespace Trick {
             /** Set of cpus to use with thread */
             unsigned int max_cpu ;          /**< trick_io(**) */
 
+            /** Track whether the thread has been created */
+            bool created ;          /**< trick_io(**) */
+
 #if __linux
 #ifndef SWIG
             /** Set of cpus to use with thread */

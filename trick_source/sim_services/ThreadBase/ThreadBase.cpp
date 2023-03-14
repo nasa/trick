@@ -17,7 +17,8 @@ Trick::ThreadBase::ThreadBase(std::string in_name) :
  name(in_name) ,
  pthread_id(0) ,
  pid(0) ,
- rt_priority(0)
+ rt_priority(0),
+ created(false)
 {
 #if __linux
     max_cpu = sysconf( _SC_NPROCESSORS_ONLN ) ;
@@ -274,11 +275,18 @@ int Trick::ThreadBase::execute_priority() {
 
 int Trick::ThreadBase::create_thread() {
 
+    if (created) {
+        message_publish(MSG_ERROR, "create_thread called on thread %s (%p) which has already been started.\n", name.c_str(), this);
+        return 0;
+    }
+
     pthread_attr_t attr;
 
     pthread_attr_init(&attr);
     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
     pthread_create(&pthread_id, &attr, Trick::ThreadBase::thread_helper , (void *)this);
+
+    created = true;
 
 #if __linux
 #ifdef __GNUC__

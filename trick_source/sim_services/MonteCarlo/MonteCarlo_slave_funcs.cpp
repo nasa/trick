@@ -1,5 +1,7 @@
 
 #include "trick/MonteCarlo.hh"
+#include "trick/SysThread.hh"
+
 
 /** @par Detailed Design: */
 void Trick::MonteCarlo::slave_shutdown() {
@@ -8,6 +10,8 @@ void Trick::MonteCarlo::slave_shutdown() {
     /** <li> Run the shutdown jobs and exit. */
     run_queue(&slave_shutdown_queue, "in slave_shutdown queue") ;
 
+    SysThread::ensureAllShutdown();
+
     exit(0);
 }
 
@@ -15,6 +19,9 @@ void Trick::MonteCarlo::slave_shutdown() {
 void Trick::MonteCarlo::slave_die() {
     /** <ul><li> Kill any active child process executing a run and exit immediately. */
     slave_kill_run();
+
+    SysThread::ensureAllShutdown();
+
     exit(1);
 }
 
