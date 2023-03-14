@@ -148,8 +148,10 @@ void * Trick::VariableServerListenThread::thread_body() {
             pthread_mutex_lock(&restart_pause) ;
 
             // Recheck - sometimes we get false positive if something happens during restart
-            if (!listener.checkForNewConnections()) 
+            if (!listener.checkForNewConnections()) {
+                pthread_mutex_unlock(&restart_pause) ;
                 continue;
+            }
 
             // Create a new thread to service this connection
             VariableServerThread * vst = new Trick::VariableServerThread() ;
