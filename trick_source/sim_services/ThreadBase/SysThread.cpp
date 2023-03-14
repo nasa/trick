@@ -59,7 +59,10 @@ int Trick::SysThread::ensureAllShutdown() {
     while (it != all_sys_threads().end()){
         SysThread * thread = *it;
         if (!(thread->self_deleting)) {
+            std::cout << "Waiting for thread " << thread->name << " to join." << std::endl;
             thread->join_thread();
+            std::cout << thread->name << " successfully joined." << std::endl;
+
             it = all_sys_threads().erase(it);
         } else {
             ++it;
@@ -67,8 +70,16 @@ int Trick::SysThread::ensureAllShutdown() {
     }
 
     while (all_sys_threads().size() != 0) {
+        std::cout << "Waiting for self deleting threads [";
+        for (int i = 0; i < all_sys_threads().size(); i++) {
+            std::cout << all_sys_threads()[i]->name << " ";
+        }
+        std::cout << "] to finish." << std::endl;;
+
         pthread_cond_wait(&(list_empty_cv()), &(list_mutex()));
     }
+
+    std::cout << "Thread shutdown finished!" << std::endl;
 
     shutdown_finished = true;
     pthread_mutex_unlock(&(list_mutex()));

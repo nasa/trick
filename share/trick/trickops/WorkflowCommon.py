@@ -256,7 +256,7 @@ class Job(object):
           self._start_time = time.time()
           self._log_file = open(self.log_file, 'w')
           self._process = subprocess.Popen(
-            self._command, stdout=self._log_file, stderr=self._log_file,
+            self._command, stdout=None, stderr=None,
             stdin=open(os.devnull, 'r'), shell=True, preexec_fn=os.setsid,
             close_fds=True)
 
@@ -534,8 +534,7 @@ class WorkflowCommon:
         else:
             return None
 
-        result = run_subprocess(command=list_cmd, m_shell=True,
-                                m_stdout=subprocess.PIPE, m_stderr=subprocess.PIPE)
+        result = run_subprocess(command=list_cmd, m_shell=True)
         if result.code != 0:
             if verbose:
                 tprint("ERROR: Trouble finding platform packages, error:\n" + result.stderr, 'DARK_RED')
