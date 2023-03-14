@@ -13,7 +13,7 @@ TRICK_CXXFLAGS += ${INCLUDE_DIRS} -g -Wall -Wextra ${TRICK_SYSTEM_CXXFLAGS} ${TR
 TESTS = comm_test
 
 # Objects that we depend on
-DEPENDS = ../object_*/* 
+DEPENDS = ../object_*/*.o
 
 TRICK_CXXFLAGS += -Wno-unused-parameter
 

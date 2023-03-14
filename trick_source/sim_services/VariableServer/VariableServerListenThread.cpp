@@ -99,7 +99,7 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
         ret = listener.initialize(requested_source_address, requested_port);
         requested_port = listener.getPort();
         requested_source_address = listener.getHostname();
-        if (ret != TC_SUCCESS) {
+        if (ret != 0) {
             message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
              requested_source_address.c_str(), requested_port);
             return -1 ;
