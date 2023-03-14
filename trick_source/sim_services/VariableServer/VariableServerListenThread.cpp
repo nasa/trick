@@ -153,13 +153,20 @@ void * Trick::VariableServerListenThread::thread_body() {
 
             // Create a new thread to service this connection
             VariableServerThread * vst = new Trick::VariableServerThread() ;
-            vst->open_tcp_socket(&listener) ;
+            vst->open_tcp_connection(&listener) ;
             vst->copy_cpus(get_cpus()) ;
             vst->create_thread() ;
-            vst->wait_for_accept() ;
+            ConnectionStatus status = vst->wait_for_accept() ;
+
+            if (status == CONNECTION_FAIL) {
+                // If the connection failed, the thread will exit.
+                // Make sure it joins fully before deleting the vst object
+                vst->join_thread();
+                delete vst;
+            }
 
             pthread_mutex_unlock(&restart_pause) ;
-            
+
         } else if ( broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled
             char buf1[1024];

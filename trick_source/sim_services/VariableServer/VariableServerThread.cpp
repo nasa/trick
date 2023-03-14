@@ -80,7 +80,7 @@ int Trick::VariableServerThread::open_udp_socket(const std::string& hostname, in
     return status;
 }
 
-int Trick::VariableServerThread::open_tcp_socket(ClientListener * listener) {
+int Trick::VariableServerThread::open_tcp_connection(ClientListener * listener) {
     connection = listener->setUpNewConnection();
 
     return 0;

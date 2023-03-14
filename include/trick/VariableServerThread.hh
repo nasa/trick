@@ -57,9 +57,9 @@ namespace Trick {
             int open_udp_socket(const std::string& hostname, int port);
 
             /**
-             @brief Open a UDP socket for this thread
+             @brief Open a TCP connection for this thread
             */
-            int open_tcp_socket(ClientListener * listener);
+            int open_tcp_connection(ClientListener * listener);
 
             /**
              @brief Block until thread has accepted connection
