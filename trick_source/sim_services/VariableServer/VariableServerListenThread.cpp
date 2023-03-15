@@ -91,20 +91,18 @@ int Trick::VariableServerListenThread::init_listen_device() {
 int Trick::VariableServerListenThread::check_and_move_listen_device() {
     int ret ;
 
-    // if ( user_requested_address ) {
     std::cout << "Doing check and move listen device with source address " << requested_source_address << " and port " << requested_port << std::endl;
 
-        /* The user has requested a different source address or port in the input file */
-        listener.disconnect();
-        ret = listener.initialize(requested_source_address, requested_port);
-        requested_port = listener.getPort();
-        requested_source_address = listener.getHostname();
-        if (ret != 0) {
-            message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
-             requested_source_address.c_str(), requested_port);
-            return -1 ;
-        }
-    // }
+    /* The user has requested a different source address or port in the input file */
+    listener.disconnect();
+    ret = listener.initialize(requested_source_address, requested_port);
+    requested_port = listener.getPort();
+    requested_source_address = listener.getHostname();
+    if (ret != 0) {
+        message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
+            requested_source_address.c_str(), requested_port);
+        return -1 ;
+    }
     return 0 ;
 }
 

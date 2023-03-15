@@ -50,6 +50,8 @@ namespace Trick {
 
             static bool shutdown_finished;
 
+            static int shutdown_timeout;
+            static int max_shutdown_tries;
     } ;
 
 }

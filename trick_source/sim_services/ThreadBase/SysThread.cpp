@@ -9,10 +9,14 @@
 #endif
 #include <signal.h>
 #include <algorithm>
+#include <time.h>
 
 #include "trick/SysThread.hh"
 
 bool Trick::SysThread::shutdown_finished = false;
+
+int Trick::SysThread::shutdown_timeout = 5;
+int Trick::SysThread::max_shutdown_tries = 3;
 
 // Construct On First Use to avoid the Static Initialization Fiasco
 pthread_mutex_t& Trick::SysThread::list_mutex() {
@@ -51,13 +55,18 @@ Trick::SysThread::~SysThread() {
 int Trick::SysThread::ensureAllShutdown() {
     pthread_mutex_lock(&(list_mutex()));
 
+    // Cancel all threads
     for (SysThread * thread : all_sys_threads()) {
         thread->cancel_thread();
     }
 
+    // Join all threads
     auto it = all_sys_threads().begin();
     while (it != all_sys_threads().end()){
         SysThread * thread = *it;
+
+        // If a thread is marked as self deleting, deletes it's own thread info so it has to go through the SysThread destructor to finish
+        // So we can't join here since we're holding the lock
         if (!(thread->self_deleting)) {
             thread->join_thread();
             it = all_sys_threads().erase(it);
@@ -66,10 +75,28 @@ int Trick::SysThread::ensureAllShutdown() {
         }
     }
 
-    while (all_sys_threads().size() != 0) {
-        pthread_cond_wait(&(list_empty_cv()), &(list_mutex()));
+    // Wait for the self_deleting threads to finish
+    int tries = max_shutdown_tries;
+    while (all_sys_threads().size() != 0 && tries-- > 0) {
+        struct timespec ts;
+        clock_gettime(CLOCK_REALTIME, &ts);
+        ts.tv_sec += shutdown_timeout;
+        pthread_cond_timedwait(&(list_empty_cv()), &(list_mutex()), &ts);
     }
 
+    // Check if we managed to shut everything down
+    if (all_sys_threads().size() != 0) {
+        std::cout << "Shutdown timed out - waiting on threads [ ";
+        for (SysThread * thread : all_sys_threads()) {
+            std::cout << thread->name << " ";
+        }
+        std::cout << "]" << std::endl;
+
+        // We're already in shutdown and failed to shutdown cleanly, so just shut it all down here
+        exit(-1);
+    }
+
+    // Success!
     shutdown_finished = true;
     pthread_mutex_unlock(&(list_mutex()));
 
