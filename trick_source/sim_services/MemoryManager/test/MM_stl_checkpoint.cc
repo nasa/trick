@@ -55,7 +55,7 @@ void validate_temp_sequence (Trick::MemoryManager * memmgr, std::string object_n
     EXPECT_EQ(data_ref->attr->num_index, 1);
     ASSERT_EQ(data_ref->attr->index[0].size, expected_data.size());
 
-    for (int i = 0; i < expected_data.size(); i++) {
+    for (unsigned int i = 0; i < expected_data.size(); i++) {
         EXPECT_EQ(data[i], expected_data[i]);
     }
 
@@ -71,7 +71,7 @@ void validate_links_sequences (Trick::MemoryManager * memmgr, std::string object
     std::string * data = (std::string *) data_ref->address;
     ASSERT_EQ(data_ref->attr->index[0].size, lengths.size());
 
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         std::string inner_name = temp_name + "_" + std::to_string(i);
         EXPECT_EQ(inner_name, data[i]);
         REF2 * ref = memmgr->ref_attributes(inner_name.c_str());
@@ -121,7 +121,7 @@ void validate_temp_set (Trick::MemoryManager * memmgr, std::string object_name, 
     ASSERT_EQ(data_ref->attr->index[0].size, expected_data.size());
 
     std::set<T> reconstructed;
-    for (int i = 0; i < expected_data.size(); i++) {
+    for (unsigned int i = 0; i < expected_data.size(); i++) {
         reconstructed.insert(data[i]);
     }
     
@@ -187,7 +187,7 @@ void validate_temp_map (Trick::MemoryManager * memmgr, std::string object_name, 
     // Lazy way - make a set of all the keys that were accessed in our expected
     // map, and make sure that the size is the same.
     std::set <Key> keySet;
-    for (int i = 0; i < expected_data.size(); i++) {
+    for (unsigned int i = 0; i < expected_data.size(); i++) {
         Key k = keys_data[i];
         Val v = vals_data[i];
 
@@ -216,7 +216,7 @@ TEST_F(MM_stl_checkpoint, i_vec ) {
     std::vector<int> test_data = get_test_data<int>(10);
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         testbed->i_vec.push_back(test_data[i]);
     }
 
@@ -246,7 +246,7 @@ TEST_F(MM_stl_checkpoint, i_s_vec ) {
     // Call the checkpoint function that is being tested
     (vec_attr->checkpoint_stl)((void *) &testbed->i_s_vec, "my_alloc", vec_attr->name) ;
 
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         std::string var_name = "i_s_vec_" + std::to_string(i);
         validate_temp_sequence<int>(memmgr, std::string("my_alloc"), var_name, test_data[i]);
     }
@@ -260,7 +260,7 @@ TEST_F(MM_stl_checkpoint, string_vec ) {
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     std::vector<std::string> test_data = get_test_data<std::string>(20);
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         testbed->string_vec.emplace_back(test_data[i]);
     }
 
@@ -281,7 +281,7 @@ TEST_F(MM_stl_checkpoint, s_vec ) {
     STLTestbed * testbed = (STLTestbed *) memmgr->declare_var("STLTestbed my_alloc");
 
     std::vector<int> test_data = get_test_data<int>(20);
-    for (int i = 0; i < test_data.size(); i+=2) {
+    for (unsigned int i = 0; i < test_data.size(); i+=2) {
         testbed->s_vec.emplace_back(test_data[i], test_data[i+1]);
     }
 
@@ -292,7 +292,7 @@ TEST_F(MM_stl_checkpoint, s_vec ) {
     (vec_attr->checkpoint_stl)((void *) &testbed->s_vec, "my_alloc", vec_attr->name) ;
     
     // ASSERT
-    for (int i = 0; i < test_data.size()/2; i++) {
+    for (unsigned int i = 0; i < test_data.size()/2; i++) {
         std::string var_name = "s_vec_" + std::to_string(i);
         validate_temp_pair<int, int>(memmgr, std::string("my_alloc"), var_name, std::pair<int,int>(test_data[i*2], test_data[i*2+1]));   
     }
@@ -434,7 +434,7 @@ TEST_F(MM_stl_checkpoint, i_i_map ) {
     std::vector<double> test_vals = get_test_data<double>(20);
     std::map<int, double> test_map;
 
-    for (int i = 0; i < test_keys.size(); i++) {
+    for (unsigned int i = 0; i < test_keys.size(); i++) {
         test_map[test_keys[i]] = test_vals[i];
         testbed->i_i_map[test_keys[i]] = test_vals[i];
     }
@@ -460,7 +460,7 @@ TEST_F(MM_stl_checkpoint, i_s_map ) {
 
     int start_index = 0;
     std::vector<int> lengths = {7, 1, 12};
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         for (int j = 0; j < lengths[i]; j++) {
             testbed->i_s_map[test_keys[i]].push(test_strings[start_index + j]);
             test_map[test_keys[i]].push(test_strings[start_index + j]);
@@ -508,7 +508,7 @@ TEST_F(MM_stl_checkpoint, s_i_map ) {
     std::vector<int> lengths = {7, 1, 12};
 
     int start_index = 0;
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         test_map[std::set<int>(test_keys.begin()+start_index, test_keys.begin()+start_index+lengths[i])] = test_vals[i];
         testbed->s_i_map[std::set<int>(test_keys.begin()+start_index, test_keys.begin()+start_index+lengths[i])] = test_vals[i];
         start_index += lengths[i];
@@ -591,7 +591,7 @@ TEST_F(MM_stl_checkpoint, i_queue ) {
     std::vector<int> test_data = get_test_data<int>(10);
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         testbed->i_queue.push(test_data[i]);
     }
 
@@ -614,7 +614,7 @@ TEST_F(MM_stl_checkpoint, s_queue ) {
     std::vector<double> test_second = get_test_data<double>(10);
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         testbed->s_queue.push(std::pair<int,double>(test_first[i], test_second[i]));
     }
 
@@ -625,7 +625,7 @@ TEST_F(MM_stl_checkpoint, s_queue ) {
     (vec_attr->checkpoint_stl)((void *) &testbed->s_queue, "my_alloc", vec_attr->name) ;
 
     // ASSERT
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         std::string var_name = "s_queue_" + std::to_string(i);
         validate_temp_pair(memmgr, std::string("my_alloc"), var_name, std::pair<int,double>(test_first[i], test_second[i]));
     }
@@ -643,7 +643,7 @@ TEST_F(MM_stl_checkpoint, nested_list_queue ) {
     // Prepare the STL to be tested
 
     int data_index = 0;
-    for (int i = 0; i < list_sizes.size(); i++) {
+    for (unsigned int i = 0; i < list_sizes.size(); i++) {
         testbed->nested_list_queue.push(std::list<float>(test_data.begin() + data_index, test_data.begin() + data_index + list_sizes[i]));
         data_index += list_sizes[i];
     }
@@ -656,7 +656,7 @@ TEST_F(MM_stl_checkpoint, nested_list_queue ) {
 
     // ASSERT
     data_index = 0;
-    for (int i = 0; i < list_sizes.size(); i++) {
+    for (unsigned int i = 0; i < list_sizes.size(); i++) {
         std::string var_name = "nested_list_queue_" + std::to_string(i);
         validate_temp_sequence(memmgr, std::string("my_alloc"), var_name, std::vector<float>(test_data.begin() + data_index, test_data.begin() + data_index + list_sizes[i]));
         data_index += list_sizes[i];
@@ -677,7 +677,7 @@ TEST_F(MM_stl_checkpoint, i_stack ) {
     std::vector<long long> test_data = get_test_data<long long>(10);
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         testbed->i_stack.push(test_data[i]);
     }
 
@@ -701,7 +701,7 @@ TEST_F(MM_stl_checkpoint, s_stack ) {
     std::vector<double> test_second = get_test_data<double>(10);
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         testbed->s_stack.push(std::pair<short,double>(test_first[i], test_second[i]));
     }
 
@@ -712,7 +712,7 @@ TEST_F(MM_stl_checkpoint, s_stack ) {
     (vec_attr->checkpoint_stl)((void *) &testbed->s_stack, "my_alloc", vec_attr->name) ;
 
     // ASSERT
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         std::string var_name = "s_stack_" + std::to_string(i);
         // data in reverse order
         validate_temp_pair(memmgr, std::string("my_alloc"), var_name, std::pair<short,double>(test_first[test_first.size()-1-i], test_second[test_first.size()-1-i]));
@@ -732,7 +732,7 @@ TEST_F(MM_stl_checkpoint, nested_list_stack ) {
     // Prepare the STL to be tested
 
     int data_index = 0;
-    for (int i = 0; i < list_sizes.size(); i++) {
+    for (unsigned int i = 0; i < list_sizes.size(); i++) {
         testbed->nested_list_stack.push(std::list<float>(test_data.begin() + data_index, test_data.begin() + data_index + list_sizes[i]));
         data_index += list_sizes[i];
     }
@@ -745,7 +745,7 @@ TEST_F(MM_stl_checkpoint, nested_list_stack ) {
 
     // ASSERT
     data_index = 0;
-    for (int i = 0; i < list_sizes.size(); i++) {
+    for (unsigned int i = 0; i < list_sizes.size(); i++) {
         // reverse data - just go through the lists backwards
         std::string var_name = "nested_list_stack_" + std::to_string(list_sizes.size()-1-i);
         validate_temp_sequence(memmgr, std::string("my_alloc"), var_name, std::vector<float>(test_data.begin() + data_index, test_data.begin() + data_index + list_sizes[i]));
@@ -765,7 +765,7 @@ TEST_F(MM_stl_checkpoint, i_set ) {
     std::vector<char> test_data = get_test_data<char>(1000);
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         testbed->i_set.insert(test_data[i]);
     }
 
@@ -790,7 +790,7 @@ TEST_F(MM_stl_checkpoint, vector_set ) {
     std::set<std::vector<int>> expected_data;
     // Prepare the STL to be tested
     int start_index = 0;
-    for (int i = 0; i < sizes.size(); i++) {
+    for (unsigned int i = 0; i < sizes.size(); i++) {
         std::vector<int> temp_vec;
         for (int j = 0; j < sizes[i]; j++) {
             temp_vec.push_back(test_data[start_index+j]);
@@ -831,7 +831,7 @@ TEST_F(MM_stl_checkpoint, s_set ) {
     std::set<std::pair<int,int>> expected;
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         testbed->s_set.insert(std::pair<int,int>(test_first[i], test_second[i]));
         expected.insert(std::pair<int,int>(test_first[i], test_second[i]));
     }
@@ -902,7 +902,7 @@ TEST_F(MM_stl_checkpoint, i_multiset ) {
     std::multiset<int> expected;
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         testbed->i_multiset.insert(test_data[i]);
         testbed->i_multiset.insert(test_data[i]);
         expected.insert(test_data[i]);
@@ -930,7 +930,7 @@ TEST_F(MM_stl_checkpoint, vector_multiset ) {
     std::multiset<std::vector<int>> expected_data;
     // Prepare the STL to be tested
     int start_index = 0;
-    for (int i = 0; i < sizes.size(); i++) {
+    for (unsigned int i = 0; i < sizes.size(); i++) {
         std::vector<int> temp_vec;
         for (int j = 0; j < sizes[i]; j++) {
             temp_vec.push_back(test_data[start_index+j]);
@@ -973,7 +973,7 @@ TEST_F(MM_stl_checkpoint, s_multiset ) {
     std::multiset<std::pair<int,int>> expected;
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         testbed->s_multiset.insert(std::pair<int,int>(test_first[i], test_second[i]));
         testbed->s_multiset.insert(std::pair<int,int>(test_first[i], test_second[i]));
         expected.insert(std::pair<int,int>(test_first[i], test_second[i]));
@@ -1046,7 +1046,7 @@ TEST_F(MM_stl_checkpoint, i_array ) {
     std::vector<char> test_data = get_test_data<char>(10);
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         testbed->i_array[i] = test_data[i];
     }
 
@@ -1069,7 +1069,7 @@ TEST_F(MM_stl_checkpoint, pair_array ) {
     std::vector<int> test_data = get_test_data<int>(20);
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_data.size(); i+=2) {
+    for (unsigned int i = 0; i < test_data.size(); i+=2) {
         testbed->pair_array[i/2] = std::pair<int,int>(test_data[i],test_data[i+1]);
     }
 
@@ -1080,7 +1080,7 @@ TEST_F(MM_stl_checkpoint, pair_array ) {
     (vec_attr->checkpoint_stl)((void *) &testbed->pair_array, "my_alloc", vec_attr->name) ;
 
     // ASSERT
-    for (int i = 0; i < test_data.size(); i+=2) {
+    for (unsigned int i = 0; i < test_data.size(); i+=2) {
         std::string var_name = "pair_array_" + std::to_string(i/2);
         validate_temp_pair(memmgr, std::string("my_alloc"), var_name, std::pair<int,int>(test_data[i],test_data[i+1]));
     }
@@ -1097,7 +1097,7 @@ TEST_F(MM_stl_checkpoint, string_array ) {
     std::vector<std::string> test_data = get_test_data<std::string>(10);
 
     // Prepare the STL to be tested
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         testbed->string_array[i] = test_data[i];
     }
 
@@ -1276,7 +1276,7 @@ TEST_F(MM_stl_checkpoint, recursive_nightmare ) {
         }
 
         // Make the map
-        for (int m = 0; m < keys.size(); m++) {
+        for (unsigned int m = 0; m < keys.size(); m++) {
             testbed->recursive_nightmare[i].insert(std::pair<std::pair<int, int>,std::vector<std::stack<std::string>>>(keys[m], vals[m]));
             recursive_nightmare_copy[i].insert(std::pair<std::pair<int, int>,std::vector<std::stack<std::string>>>(keys[m], vals[m]));
         }
@@ -1302,7 +1302,7 @@ TEST_F(MM_stl_checkpoint, recursive_nightmare ) {
             std::string key_var_name = "recursive_nightmare_" + std::to_string(i) + "_keys_" + std::to_string(j);
             validate_temp_pair(memmgr, std::string("my_alloc"), key_var_name, key);
 
-            for (int k = 0; k < val.size(); k++) {
+            for (unsigned int k = 0; k < val.size(); k++) {
                 std::string val_var_name = "recursive_nightmare_" + std::to_string(i) + "_data_" + std::to_string(j) + "_" + std::to_string(k);
                 std::vector<std::string> val_expected;
                 while (!val[k].empty()) {
