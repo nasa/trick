@@ -93,8 +93,6 @@ int Trick::VariableServerListenThread::init_listen_device() {
 int Trick::VariableServerListenThread::check_and_move_listen_device() {
     int ret ;
 
-    std::cout << "Doing check and move listen device with source address " << requested_source_address << " and port " << requested_port << std::endl;
-
     /* The user has requested a different source address or port in the input file */
     listener.disconnect();
     ret = listener.initialize(requested_source_address, requested_port);
@@ -109,11 +107,12 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
 }
 
 void Trick::VariableServerListenThread::create_tcp_socket(const char * address, unsigned short in_port ) {
-    std::cout << "Creating tcp socket with address " << address << " and port " << in_port << std::endl;
     listener.initialize(address, in_port);
-    requested_source_address = address;
-    requested_port = in_port;
+    requested_source_address = listener.getHostname();
+    requested_port = listener.getPort();
     user_requested_address = true;
+
+    message_publish(MSG_INFO, "Created TCP variable server %s: %d\n", requested_source_address.c_str(), in_port);
 }
 
 void * Trick::VariableServerListenThread::thread_body() {

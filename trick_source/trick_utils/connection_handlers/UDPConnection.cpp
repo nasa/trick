@@ -7,29 +7,13 @@
 #include <arpa/inet.h>
 
 Trick::UDPConnection::UDPConnection () : UDPConnection(new SystemInterface()) {}
-Trick::UDPConnection::UDPConnection (SystemInterface * system_interface) : _started(false), _initialized(false), _port(0), _hostname(""), _system_interface(system_interface) {}
+Trick::UDPConnection::UDPConnection (SystemInterface * system_interface) : _started(false), _initialized(false), _port(0), _hostname(""), _system_interface(system_interface), _socket(0) {}
 
-int Trick::UDPConnection::initialize(const std::string& hostname, int in_port) {
-    std::string in_hostname = hostname;
+int Trick::UDPConnection::initialize(const std::string& in_hostname, int in_port) {
 
-    struct addrinfo hints, *res;
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_DGRAM;
-    hints.ai_protocol = 0;
 
-    if (in_hostname.size() == 0) {
-        in_hostname = "localhost";
-    }
-
-    int err;
-    if ((err = _system_interface->getaddrinfo(in_hostname.c_str(), std::to_string(in_port).c_str(), &hints, &res)) != 0) {
-        std::cerr << "UDP socket: Unable to lookup address: " << gai_strerror(err) << std::endl;
-        return -1;
-    }
-
-    if ((_socket = _system_interface->socket(res->ai_family, res->ai_socktype, 0)) < 0) {
-        perror ("UDP socket: Unable to open socket");
+    if ((_socket = _system_interface->socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror ("Server: Unable to open socket");
         return -1;
     }
 
@@ -41,21 +25,50 @@ int Trick::UDPConnection::initialize(const std::string& hostname, int in_port) {
 
     // Allow socket's bound address to be used by others
     if (_system_interface->setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, (const char *) &option_val, (socklen_t) sizeof(option_val)) != 0) {
-        perror("UDP socket: Could not set socket to reuse addr");
+        perror("Server: Could not set socket to reuse addr");
         _system_interface->close (_socket);
         return -1;
     }
 
+    struct sockaddr_in s_in;
+    memset(&s_in, 0 , sizeof(struct sockaddr_in)) ;
+
+    // Look up the hostname
+    char name[80];
+    gethostname(name, (size_t) 80);
+
+    struct hostent *ip_host ;
+    socklen_t s_in_size =  sizeof(s_in) ;
+
+    s_in.sin_family = AF_INET;
+
+    if (in_hostname == "" || in_hostname == "localhost" || in_hostname == "127.0.0.1" || strcmp(in_hostname.c_str(),name) == 0) {
+        s_in.sin_addr.s_addr = INADDR_ANY;
+        _hostname = std::string(name);
+    } else if ( inet_pton(AF_INET, in_hostname.c_str(), (struct in_addr *)&s_in.sin_addr.s_addr) == 1 ) {
+        /* numeric character string address */
+        _hostname = in_hostname;
+    } else if ( (ip_host = gethostbyname(in_hostname.c_str())) != NULL ) {
+        /* some name other than the default name was given */
+        memcpy((void *) &(s_in.sin_addr.s_addr), (const void *) ip_host->h_addr, (size_t) ip_host->h_length);
+        _hostname = in_hostname;
+    } else {
+        perror("UDP socket: Could not determine source address");
+        return -1 ;
+    }
+
+    // Set port
+    s_in.sin_port = htons((short) in_port);
+
     // Bind to socket
-    if (_system_interface->bind(_socket, res->ai_addr, res->ai_addrlen) < 0) {
-        perror("UDP Socket: Could not bind to socket");
+    if (_system_interface->bind(_socket, (struct sockaddr *)&s_in, sizeof(s_in)) < 0) {
+
+        perror("UDP socket: Could not bind to socket");
         _system_interface->close (_socket);
         return -1;
     } 
 
     // Check that correct port was bound to
-    struct sockaddr_in s_in;
-    socklen_t s_in_size =  sizeof(s_in) ;
     _system_interface->getsockname( _socket , (struct sockaddr *)&s_in, &s_in_size) ;
     int bound_port = ntohs(s_in.sin_port);
 
@@ -67,10 +80,7 @@ int Trick::UDPConnection::initialize(const std::string& hostname, int in_port) {
 
     // Save port number
     _port = bound_port;
-
-    // Save printable hostname
-    _hostname = inet_ntoa((struct in_addr)((struct sockaddr_in *) res->ai_addr)->sin_addr);
-
+    
     setBlockMode(false);
 
     // Done!

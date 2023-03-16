@@ -30,13 +30,16 @@ class UDPConnectionTest : public testing::Test {
 
 TEST_F( UDPConnectionTest, initialize_localhost_0 ) {
     // ARRANGE
+    char name[80];
+    gethostname(name, (size_t) 80);
+
     // ACT
     connection.initialize("localhost", 0);
     connection.start();
 
     // ASSERT
     EXPECT_EQ(connection.isInitialized(), true);
-    EXPECT_EQ(connection.getHostname(), std::string("127.0.0.1"));
+    EXPECT_EQ(connection.getHostname(), std::string(name));
 }
 
 TEST_F( UDPConnectionTest, initialize_localhost_54321 ) {

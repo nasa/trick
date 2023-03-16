@@ -76,7 +76,6 @@ int Trick::Executive::shutdown() {
         except_message += std::string(" then exception Message: ") + ex.message ;
     }
 
-    std::cout << "Going into ensureAllShutdown" << std::endl;
     Trick::SysThread::ensureAllShutdown();
 
     getrusage(RUSAGE_SELF, &cpu_usage_buf);
@@ -117,7 +116,6 @@ int Trick::Executive::shutdown() {
 #endif
     }
 
-    std::cout << "End of Executive_shutdown" << std::endl;
     /* Return the exception_return value.  This defaults to 0 if no exceptions were thrown. */
     return(except_return) ;
 

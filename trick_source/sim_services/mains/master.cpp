@@ -44,12 +44,8 @@ int master( int nargs, char **args) {
     if ( ret == 0 ) {
         exec->loop() ;
     }
-    
-    std::cout << "Starting actual shutdown!" << std::endl;
-
     ret = exec->shutdown() ;
 
-    std::cout << "Actual shutdown done!" << std::endl;
     //TODO: add call to free all memory from memory manager
 
     return ret ;

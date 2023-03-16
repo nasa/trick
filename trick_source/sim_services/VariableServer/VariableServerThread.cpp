@@ -15,7 +15,7 @@ Trick::VariableServer * Trick::VariableServerThread::vs = NULL ;
 static int instance_num = 0;
 
 Trick::VariableServerThread::VariableServerThread() :
- Trick::SysThread(std::string("VarServer" + std::to_string(instance_num++)), true) , debug(0), session(NULL), connection(NULL) {
+ Trick::SysThread(std::string("VarServer" + std::to_string(instance_num++))) , debug(0), session(NULL), connection(NULL) {
 
     connection_status = CONNECTION_PENDING ;
 
@@ -147,6 +147,13 @@ void Trick::VariableServerThread::restart() {
 
     // Restart the variable server processing.
     pthread_mutex_unlock(&restart_pause);
+}
+
+void Trick::VariableServerThread::cleanup() {
+    connection->disconnect();
+
+    if (session != NULL)
+        delete session;
 }
 
 

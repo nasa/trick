@@ -78,6 +78,8 @@ namespace Trick {
 
             void restart() ;
 
+            void cleanup();
+
         protected:
 
             /**

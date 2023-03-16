@@ -33,13 +33,10 @@ namespace Trick {
      **/
     class SysThread : public Trick::ThreadBase {
         public:
-            SysThread(std::string in_name, bool self_deleting = false);
+            SysThread(std::string in_name);
             ~SysThread();
 
             static int ensureAllShutdown();
-        
-        protected:
-            bool self_deleting;
 
         private: 
             // Had to use Construct On First Use here to avoid the static initialziation fiasco
@@ -50,8 +47,6 @@ namespace Trick {
 
             static bool shutdown_finished;
 
-            static int shutdown_timeout;
-            static int max_shutdown_tries;
     } ;
 
 }

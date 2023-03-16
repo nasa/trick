@@ -307,7 +307,6 @@ int Trick::ThreadBase::create_thread() {
 int Trick::ThreadBase::cancel_thread() {
     pthread_mutex_lock(&shutdown_mutex);
     should_shutdown = true;
-    std::cout << "Set thread " << name << " to shutdown." << std::endl;
     pthread_mutex_unlock(&shutdown_mutex);
 
     if ( pthread_id != 0 ) {
@@ -323,7 +322,6 @@ int Trick::ThreadBase::join_thread() {
             std::string msg = "Thread " + name + " had an error in join";
             perror(msg.c_str());
         } else {
-            std::cout << "Joined " << name << std::endl;
             pthread_id = 0;
         }
     }
@@ -350,11 +348,8 @@ void Trick::ThreadBase::thread_shutdown() {
 }
 
 void Trick::ThreadBase::thread_shutdown(void (*exit_handler) (void *), void * exit_arg) {
-    std::cout << "Shutting down " << name << std::endl;
     if (exit_handler != NULL) {
         exit_handler(exit_arg);
-    } else {
-        std::cout << "Exit handler is null" << std::endl;
     }
 
     pthread_exit(0); 

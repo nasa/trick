@@ -29,8 +29,8 @@ class SimTestWorkflow(TrickWorkflow):
       analysis_jobs   = self.get_jobs(kind='analyze')
 
       builds_status = self.execute_jobs(build_jobs, max_concurrent=self.cpus, header='Executing all sim builds.')
-      first_phase_run_status = self.execute_jobs(first_run_jobs, max_concurrent=self.cpus, header="Executing first phase runs.", job_timeout=500)
-      runs_status   = self.execute_jobs(remaining_run_jobs,   max_concurrent=self.cpus, header='Executing remaining runs.', job_timeout=500)
+      first_phase_run_status = self.execute_jobs(first_run_jobs, max_concurrent=self.cpus, header="Executing first phase runs.", job_timeout=1000)
+      runs_status   = self.execute_jobs(remaining_run_jobs,   max_concurrent=self.cpus, header='Executing remaining runs.', job_timeout=1000)
 
       comparison_result = self.compare()
       analysis_status = self.execute_jobs(analysis_jobs, max_concurrent=self.cpus, header='Executing all analysis.')
