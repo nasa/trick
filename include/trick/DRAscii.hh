@@ -8,6 +8,9 @@ PROGRAMMERS:
 #ifndef DRASCII_HH
 #define DRASCII_HH
 
+#include <gtest/gtest.h>
+#include <gtest/gtest_prod.h>
+
 #include <string>
 
 #include "trick/DataRecordGroup.hh"
@@ -131,12 +134,38 @@ namespace Trick {
             */
             virtual int set_single_prec_only(bool in_single_prec_only) ;
 
+            /** @section Friending DRAsciiTest and Related Methods */
+            friend class DRAsciiTest;
+            FRIEND_TEST(DRAsciiTest, CharToASCII);
+            FRIEND_TEST(DRAsciiTest, UnsignedCharToASCII);
+            FRIEND_TEST(DRAsciiTest, BooleanToASCII);
+            FRIEND_TEST(DRAsciiTest, StringToASCII);
+            FRIEND_TEST(DRAsciiTest, ShortToASCII);
+            FRIEND_TEST(DRAsciiTest, UnsignedShortToASCII);
+            FRIEND_TEST(DRAsciiTest, EnumeratedToASCII);
+            FRIEND_TEST(DRAsciiTest, IntegerToASCII);
+            FRIEND_TEST(DRAsciiTest, UnsignedIntegerToASCII);
+            FRIEND_TEST(DRAsciiTest, LongToASCII);
+            FRIEND_TEST(DRAsciiTest, UnsignedLongToASCII);
+            FRIEND_TEST(DRAsciiTest, FloatToASCII);
+            FRIEND_TEST(DRAsciiTest, DoubleToASCII);
+            FRIEND_TEST(DRAsciiTest, BitfieldToASCII);
+            FRIEND_TEST(DRAsciiTest, UnsignedBitfieldToASCII);
+            FRIEND_TEST(DRAsciiTest, LongLongToASCII);
+            FRIEND_TEST(DRAsciiTest, UnsignedLongLongToASCII);
+                
         private:
 
             /**
-             @brief Copies value of variable to ascii buffer
-             @return always 0
-            */
+             * @brief Copies the data referenced in a DataRecordBuffer to an ASCII buffer.
+             * @param DI a DataRecordBuffer to be converted into ASCII
+             * @param item_num ???
+             * @param buf a C style string used to output the converted data
+             * @return Always returns 0 barring any errors
+             * 
+             * @see include/trick/DataRecordGroup.hh::DataRecordBuffer()
+             * @see include/trick/attributes.h::ATTRIBUTES
+             */
             int copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item_num, char *buf ) ;
 
             /** Output stream for the log file */
