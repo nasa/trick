@@ -73,7 +73,7 @@ namespace Trick {
         //         EXPECT_EQ("%20.16g", dr->ascii_double_format);
         // }
 
-        TEST_F(DRAsciiTest, FloatFormat_Setting) {
+        TEST_F(DRAsciiTest, Setting_FloatFormat) {
                 // BENCHMARK is the expected output or value checked against
                 const std::string BENCHMARK = "%1.2g";
 
@@ -81,12 +81,29 @@ namespace Trick {
                 EXPECT_EQ(BENCHMARK, dr->ascii_float_format);
         }
 
-        TEST_F(DRAsciiTest, DoubleFormat_Setting) {
+        TEST_F(DRAsciiTest, Setting_DoubleFormat) {
                 // BENCHMARK is the expected output or value checked against
                 const std::string BENCHMARK = "%1.2g";
 
                 dr->set_ascii_double_format(BENCHMARK);
                 EXPECT_EQ(BENCHMARK, dr->ascii_double_format);
+        }
+
+        TEST_F(DRAsciiTest, Setting_Delimiter) {
+                const std::string BENCHMARK = "|";
+                
+                dr->set_delimiter(BENCHMARK);
+                EXPECT_EQ(BENCHMARK, dr->delimiter);
+        }
+
+        TEST_F(DRAsciiTest, Setting_SinglePrecision_True) {              
+                dr->set_single_prec_only(true);
+                EXPECT_EQ("%20.8g", dr->ascii_double_format);
+        }
+
+        TEST_F(DRAsciiTest, Setting_SinglePrecision_False) {              
+                dr->set_single_prec_only(false);
+                EXPECT_EQ("%20.16g", dr->ascii_double_format);
         }
 
         TEST_F(DRAsciiTest, CharToASCII) {
@@ -565,8 +582,8 @@ namespace Trick {
         *   (N/A)  Destructor: N/A
         *   (DONE) Setting Float Format: Check that the assignment went through correctly
         *   (DONE) Double Format: Check that the assignment went through correctly
-        *   Delimiter: Check that the assignment went through correctly
-        *   Setting Precision: Check both true and false params 
+        *   (DONE) Delimiter: Check that the assignment went through correctly
+        *   (DONE) Setting Precision: Check both true and false params 
         *   (WIP)  Converting data value to ASCII
         *   Initialization
         *   Header
