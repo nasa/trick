@@ -68,9 +68,11 @@ io_objects = $(patsubst %.cpp,%.o,$(io_source))
 # ==================================================================================
 # TARGETS
 # ==================================================================================
-all : tests $(unittest_results)
+all : test
 
-tests: $(TESTS)
+test: unit_tests $(unittest_results)
+
+unit_tests: $(TESTS)
 
 clean :
 	rm -f $(TESTS)
