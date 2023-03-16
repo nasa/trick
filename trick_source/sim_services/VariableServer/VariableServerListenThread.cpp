@@ -23,6 +23,8 @@ Trick::VariableServerListenThread::VariableServerListenThread() :
     char hname[MAX_MACHINE_NAME];
     gethostname(hname, MAX_MACHINE_NAME);
     requested_source_address = std::string(hname);
+
+    cancellable = false;
 }
 
 Trick::VariableServerListenThread::~VariableServerListenThread() {
@@ -118,10 +120,11 @@ void * Trick::VariableServerListenThread::thread_body() {
     // This thread listens for incoming client connections, and when one is received, creates a new thread to handle the session
     // Also broadcasts on multicast channel
 
+    test_shutdown();
+
+
     std::string version = std::string(exec_get_current_version()) ;
     version.erase(version.find_last_not_of(" \t\f\v\n\r")+1);
-
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
     // get username to broadcast on multicast channel
     struct passwd *passp = getpwuid(getuid()) ;
@@ -139,6 +142,8 @@ void * Trick::VariableServerListenThread::thread_body() {
     }
 
     while (1) {
+        // Quit here if it's time
+        test_shutdown();
 
         // Look for a new client requesting a connection
         if (listener.checkForNewConnections()) {

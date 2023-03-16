@@ -15,7 +15,7 @@
 
 bool Trick::SysThread::shutdown_finished = false;
 
-int Trick::SysThread::shutdown_timeout = 5;
+int Trick::SysThread::shutdown_timeout = 10;
 int Trick::SysThread::max_shutdown_tries = 3;
 
 // Construct On First Use to avoid the Static Initialization Fiasco
@@ -68,7 +68,9 @@ int Trick::SysThread::ensureAllShutdown() {
         // If a thread is marked as self deleting, deletes it's own thread info so it has to go through the SysThread destructor to finish
         // So we can't join here since we're holding the lock
         if (!(thread->self_deleting)) {
+            std::cout << "Waiting for " << thread->name << " to join" << std::endl;
             thread->join_thread();
+            std::cout << "Thread " << thread->name << " successfully joined" << std::endl;
             it = all_sys_threads().erase(it);
         } else {
             ++it;
@@ -93,10 +95,12 @@ int Trick::SysThread::ensureAllShutdown() {
         std::cout << "]" << std::endl;
 
         // We're already in shutdown and failed to shutdown cleanly, so just shut it all down here
+        pthread_mutex_unlock(&(list_mutex()));
         exit(-1);
     }
 
     // Success!
+    std::cout << "Threading shutdown finished" << std::endl;
     shutdown_finished = true;
     pthread_mutex_unlock(&(list_mutex()));
 

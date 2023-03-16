@@ -3,6 +3,7 @@
 #include "trick/tc_proto.h"
 
 void exit_var_thread(void *in_vst) {
+    std::cout << "In exit_var_thread" << std::endl;
     Trick::VariableServerThread * vst = (Trick::VariableServerThread *) in_vst ;
     Trick::VariableServer * vs = vst->get_vs() ;
 

@@ -22,6 +22,9 @@ void exit_var_thread(void *in_vst) ;
 
 void * Trick::VariableServerThread::thread_body() {
 
+    // Check for short running sims
+    test_shutdown(NULL, NULL);
+
     //  We need to make the thread to VariableServerThread map before we accept the connection.
     //  Otherwise we have a race where this thread is unknown to the variable server and the
     //  client gets confirmation that the connection is ready for communication.
@@ -53,10 +56,6 @@ void * Trick::VariableServerThread::thread_body() {
     pthread_cond_signal(&connection_status_cv);
     pthread_mutex_unlock(&connection_status_mutex);
 
-
-    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL) ;
-    pthread_cleanup_push(exit_var_thread, (void *) this) ;
-
     // if log is set on for variable server (e.g., in input file), turn log on for each client
     if (vs->get_log()) {
         session->set_log_on();
@@ -64,6 +63,9 @@ void * Trick::VariableServerThread::thread_body() {
 
     try {
         while (1) {
+            // Shutdown here if it's time
+            test_shutdown(exit_var_thread, (void *) this);
+
             // Pause here if we are in a restart condition
             pthread_mutex_lock(&restart_pause) ;
 
@@ -73,6 +75,7 @@ void * Trick::VariableServerThread::thread_body() {
 
             // Check to see if exit is necessary
             if (session->exit_cmd == true) {
+                pthread_mutex_unlock(&restart_pause) ;
                 break;
             }
 
@@ -89,6 +92,7 @@ void * Trick::VariableServerThread::thread_body() {
             if ( should_write_async && !session->get_pause()) {
                 int ret = session->write_data() ;
                 if ( ret < 0 ) {
+                    pthread_mutex_unlock(&restart_pause) ;
                     break ;
                 }
             }
@@ -133,8 +137,8 @@ void * Trick::VariableServerThread::thread_body() {
         message_publish(MSG_DEBUG, "%p tag=<%s> var_server receive loop exiting\n", connection, connection->getClientTag().c_str());
     }
 
-    pthread_cleanup_pop(1);
-    pthread_exit(NULL) ;
+    thread_shutdown(exit_var_thread, this);
+
     return NULL ;
 
 }

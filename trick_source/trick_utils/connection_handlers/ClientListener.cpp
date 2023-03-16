@@ -25,7 +25,7 @@ Trick::ClientListener::~ClientListener () {
 
 int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
 
-    if ((_listen_socket = _system_interface->socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((_listen_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror ("Server: Unable to open socket");
         return LISTENER_ERROR;
     }
@@ -34,18 +34,18 @@ int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
 
     // Do not replicate the socket's handle if this process is forked
     // Removing this will cause all kinds of problems when starting a variable server client via input file
-    _system_interface->fcntl(_listen_socket, F_SETFD, FD_CLOEXEC);
+    fcntl(_listen_socket, F_SETFD, FD_CLOEXEC);
 
     // Allow socket's bound address to be used by others
-    if (_system_interface->setsockopt(_listen_socket, SOL_SOCKET, SO_REUSEADDR, (const char *) &option_val, (socklen_t) sizeof(option_val)) != 0) {
+    if (setsockopt(_listen_socket, SOL_SOCKET, SO_REUSEADDR, (const char *) &option_val, (socklen_t) sizeof(option_val)) != 0) {
         perror("Server: Could not set socket to reuse addr");
-        _system_interface->close (_listen_socket);
+        close (_listen_socket);
         return LISTENER_ERROR;
     }
     // Turn off data buffering on the send side
-    if (_system_interface->setsockopt(_listen_socket, IPPROTO_TCP, TCP_NODELAY, (const void *) &option_val, (socklen_t) sizeof(option_val)) != 0) {
+    if (setsockopt(_listen_socket, IPPROTO_TCP, TCP_NODELAY, (const void *) &option_val, (socklen_t) sizeof(option_val)) != 0) {
         perror("Server: Could not turn off data buffering");
-        _system_interface->close (_listen_socket);
+        close (_listen_socket);
         return LISTENER_ERROR;
     }
 
@@ -80,20 +80,20 @@ int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
     s_in.sin_port = htons((short) in_port);
 
     // Bind to socket
-    if (_system_interface->bind(_listen_socket, (struct sockaddr *)&s_in, sizeof(s_in)) < 0) {
+    if (bind(_listen_socket, (struct sockaddr *)&s_in, sizeof(s_in)) < 0) {
 
         perror("Server: Could not bind to socket");
-        _system_interface->close (_listen_socket);
+        close (_listen_socket);
         return LISTENER_ERROR;
     } 
 
     // Check that correct port was bound to
-    _system_interface->getsockname( _listen_socket , (struct sockaddr *)&s_in, &s_in_size) ;
+    getsockname( _listen_socket , (struct sockaddr *)&s_in, &s_in_size) ;
     int bound_port = ntohs(s_in.sin_port);
 
     if (in_port != 0 && bound_port != in_port) {
         std::cerr << "Server: Could not bind to requested port " << in_port << std::endl;
-        _system_interface->close(_listen_socket);
+        close(_listen_socket);
         return LISTENER_ERROR;
     }
 
@@ -102,10 +102,10 @@ int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
     
 
     // Start listening
-    if (_system_interface->listen(_listen_socket, SOMAXCONN) < 0) {
+    if (listen(_listen_socket, SOMAXCONN) < 0) {
         std::string error_message = "Server: Could not listen on port " + std::to_string(_port);
         perror (error_message.c_str());
-        _system_interface->close(_listen_socket);
+        close(_listen_socket);
         return LISTENER_ERROR;
     }
 
@@ -123,7 +123,7 @@ int Trick::ClientListener::setBlockMode(bool blocking) {
     if (!_initialized)
         return -1;
 
-    int flag = _system_interface->fcntl(_listen_socket, F_GETFL, 0);
+    int flag = fcntl(_listen_socket, F_GETFL, 0);
 
     if (flag == -1) {
         std::string error_message = "Unable to get flags for fd " + std::to_string(_listen_socket) + " block mode to " + std::to_string(blocking);
@@ -137,7 +137,7 @@ int Trick::ClientListener::setBlockMode(bool blocking) {
         flag |= O_NONBLOCK;
     }
 
-    if (_system_interface->fcntl(_listen_socket, F_SETFL, flag) == -1) {
+    if (fcntl(_listen_socket, F_SETFL, flag) == -1) {
         std::string error_message = "Unable to set fd " + std::to_string(_listen_socket) + " block mode to " + std::to_string(blocking);
         perror (error_message.c_str());
         return -1;
@@ -158,7 +158,7 @@ bool Trick::ClientListener::checkForNewConnections() {
     timeout_time.tv_sec = 2 ;
 
     // Listen with a timeout of 2 seconds
-    int result = _system_interface->select(_listen_socket + 1, &rfds, NULL, NULL, &timeout_time);
+    int result = select(_listen_socket + 1, &rfds, NULL, NULL, &timeout_time);
 
     // If there's some kind of error, just ignore it and return false
     if (result < 0) {
@@ -191,8 +191,8 @@ int Trick::ClientListener::disconnect() {
         return -1;
     }
 
-    _system_interface->shutdown(_listen_socket, SHUT_RDWR);
-    _system_interface->close (_listen_socket);
+    shutdown(_listen_socket, SHUT_RDWR);
+    close (_listen_socket);
     _initialized = false;
 
     return 0; 
@@ -206,7 +206,7 @@ bool Trick::ClientListener::validateSourceAddress(std::string requested_source_a
     hints.ai_protocol = 0;
 
     int err;
-    if ((err = _system_interface->getaddrinfo(requested_source_address.c_str(), 0, &hints, &res)) != 0) {
+    if ((err = getaddrinfo(requested_source_address.c_str(), 0, &hints, &res)) != 0) {
         std::cerr << "Unable to lookup address: " << gai_strerror(err) << std::endl;
         return false;
     }
@@ -220,7 +220,7 @@ int Trick::ClientListener::checkSocket() {
 
     struct sockaddr_in s_in;
     socklen_t s_in_size =  sizeof(s_in) ;
-    _system_interface->getsockname( _listen_socket , (struct sockaddr *)&s_in, &s_in_size) ;
+    getsockname( _listen_socket , (struct sockaddr *)&s_in, &s_in_size) ;
     _port = ntohs(s_in.sin_port);
 
     return 0;
