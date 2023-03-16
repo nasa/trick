@@ -59,9 +59,9 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const std::string BENCHMARK = "Testing";
 
-                delete dr;
-                dr = new DRAscii(BENCHMARK);
-                EXPECT_EQ(BENCHMARK, dr->get_group_name());
+                DRAscii *test_dr = new DRAscii(BENCHMARK);
+                EXPECT_EQ(BENCHMARK, test_dr->get_group_name());
+                delete test_dr;
         }
 
         // Not sure if these tests are necessary...
@@ -339,6 +339,15 @@ namespace Trick {
                 // Variable Definition
                 Trick::DataRecordBuffer *drb;
                 unsigned int *uIntPtr;
+
+        // Not sure if these tests are necessary...
+        // TEST_F(DRAsciiTest, FloatFormat_OnCreation) {
+        //         EXPECT_EQ("%20.8g", dr->ascii_float_format);
+        // }
+
+        // TEST_F(DRAsciiTest, DoubleFormat_OnCreation) {
+        //         EXPECT_EQ("%20.16g", dr->ascii_double_format);
+        // }
                 REF2 *ref2;
 
                 // REF2 and DataRecordBuffer Set Up
@@ -552,13 +561,13 @@ namespace Trick {
 
 
         /* TEST TARGETS
-        *   Constructor: Creation of a New Group w/ the given name
-        *   Destructor: N/A
-        *   Setting Float Format: Check that the assignment went through correctly
-        *   Double Format: Check that the assignment went through correctly
+        *   (DONE) Constructor: Creation of a New Group w/ the given name 
+        *   (N/A)  Destructor: N/A
+        *   (DONE) Setting Float Format: Check that the assignment went through correctly
+        *   (DONE) Double Format: Check that the assignment went through correctly
         *   Delimiter: Check that the assignment went through correctly
         *   Setting Precision: Check both true and false params 
-        *   Converting data value to ASCII
+        *   (WIP)  Converting data value to ASCII
         *   Initialization
         *   Header
         *   Data Writing
