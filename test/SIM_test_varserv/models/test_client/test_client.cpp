@@ -1134,6 +1134,8 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     command = "trick.var_clear()\n" + test_vars_command + "trick.var_set_write_mode(1)\ntrick.var_add(\"vsx.vst.e\")\ntrick.var_add(\"vsx.vst.f\")\ntrick.var_unpause()\n";
     socket << command;
 
+    spin(socket);
+
     parse_message(socket.receive());
     expected = "-123456 123456";
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(vars, expected), 0) << "Received: " << vars << " Expected: " << expected;
@@ -1161,7 +1163,7 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     socket << command;
 
     // Same issue as copy mode 1 write mode 0
-    // spin();
+    spin(socket);
     parse_message(socket.receive());
     expected = "-1234567 123456789";
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(vars, expected), 0) << "Received: " << vars << " Expected: " << expected;
@@ -1186,6 +1188,8 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     frame_offset = 11;
     command = "trick.var_clear()\n" + test_vars_command + "trick.var_set_copy_mode(2)\ntrick.var_set_write_mode(1)\ntrick.var_set_frame_multiple(" + std::to_string(frame_multiple) + ")\ntrick.var_set_frame_offset(" + std::to_string(frame_offset) + ")\ntrick.var_add(\"vsx.vst.i\")\ntrick.var_add(\"vsx.vst.j\")\ntrick.var_unpause()\n";
     socket << command;
+
+    spin(socket);
 
     expected = "1234.5677 -1234.56789";
     parse_message(socket.receive());
