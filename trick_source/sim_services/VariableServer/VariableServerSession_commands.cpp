@@ -7,7 +7,6 @@
 #include "trick/VariableServerSession.hh"
 #include "trick/variable_server_message_types.h"
 #include "trick/memorymanager_c_intf.h"
-// #include "trick/tc_proto.h"
 #include "trick/exec_proto.h"
 #include "trick/command_line_protos.h"
 #include "trick/message_proto.h"
@@ -21,12 +20,12 @@
 int Trick::VariableServerSession::var_add(std::string in_name) {
     VariableReference * new_var;
     if (in_name == "time") {
-        new_var = new VariableReference(in_name, &time);
+        new_var = new VariableReference(in_name, &_time);
     } else {
         new_var = new VariableReference(in_name);
     }
 
-    session_variables.push_back(new_var) ;
+    _session_variables.push_back(new_var) ;
 
     return(0) ;
 }
@@ -60,7 +59,7 @@ int Trick::VariableServerSession::var_send_once(std::string in_name, int num_var
     for (auto& varName : var_names) {
         VariableReference * new_var;
         if (varName == "time") {
-            new_var = new VariableReference(varName, &time);
+            new_var = new VariableReference(varName, &_time);
         } else {
             new_var = new VariableReference(varName);
         }
@@ -75,11 +74,11 @@ int Trick::VariableServerSession::var_send_once(std::string in_name, int num_var
 
 int Trick::VariableServerSession::var_remove(std::string in_name) {
 
-    for (unsigned int ii = 0 ; ii < session_variables.size() ; ii++ ) {
-        std::string var_name = session_variables[ii]->getName();
+    for (unsigned int ii = 0 ; ii < _session_variables.size() ; ii++ ) {
+        std::string var_name = _session_variables[ii]->getName();
         if ( ! var_name.compare(in_name) ) {
-            delete session_variables[ii];
-            session_variables.erase(session_variables.begin() + ii) ;
+            delete _session_variables[ii];
+            _session_variables.erase(_session_variables.begin() + ii) ;
             break ;
         }
     }
@@ -110,29 +109,29 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         error = true;
     }
 
-    if (binary_data) {
+    if (_binary_data) {
         /* send binary 1 or 0 */
         msg_type = VS_VAR_EXISTS ;
         memcpy(buf1, &msg_type , sizeof(msg_type)) ;
 
         buf1[4] = (error==false);
 
-        if (debug >= 2) {
-            // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending 1 binary byte\n", &connection, connection.client_tag);
+        if (_debug >= 2) {
+            // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending 1 binary byte\n", &_connection, _connection.client_tag);
         }
 
-        connection->write(buf1, 5);
+        _connection->write(buf1, 5);
     } else {
         /* send ascii "1" or "0" */
         sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
-        if (debug >= 2) {
-            // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", &connection, connection.client_tag, buf1) ;
+        if (_debug >= 2) {
+            // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", &_connection, _connection.client_tag, buf1) ;
         }
         std::string write_string(buf1);
         if (write_string.length() != strlen(buf1)) {
             std::cout << "PROBLEM WITH STRING LENGTH: VAR_EXISTS ASCII" << std::endl;
         }
-        connection->write(write_string);
+        _connection->write(write_string);
     }
 
     return(0) ;
@@ -140,9 +139,9 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
 
 int Trick::VariableServerSession::var_clear() {
 
-    while( !session_variables.empty() ) {
-        delete session_variables.back();
-        session_variables.pop_back();
+    while( !_session_variables.empty() ) {
+        delete _session_variables.back();
+        _session_variables.pop_back();
     }
 
     return(0) ;
@@ -155,67 +154,59 @@ int Trick::VariableServerSession::var_send() {
 }
 
 int Trick::VariableServerSession::var_cycle(double in_rate) {
-    update_rate = in_rate ;
-    cycle_tics = (long long)(update_rate * exec_get_time_tic_value()) ;
+    _update_rate = in_rate ;
+    _cycle_tics = (long long)(_update_rate * exec_get_time_tic_value()) ;
     return(0) ;
 }
 
-bool Trick::VariableServerSession::get_pause() {
-    return pause_cmd ;
-}
-
-void Trick::VariableServerSession::set_pause( bool on_off) {
-    pause_cmd = on_off ;
-}
-
 int Trick::VariableServerSession::var_exit() {
-    exit_cmd = true ;
+    _exit_cmd = true ;
     return(0) ;
 }
 
 int Trick::VariableServerSession::var_validate_address(bool on_off) {
-    validate_address = on_off ;
+    _validate_address = on_off ;
     return(0) ;
 }
 
 int Trick::VariableServerSession::var_debug(int level) {
-    debug = level ;
+    _debug = level ;
     return(0) ;
 }
 
 int Trick::VariableServerSession::var_ascii() {
-    binary_data = 0 ;
+    _binary_data = 0 ;
     return(0) ;
 }
 
 int Trick::VariableServerSession::var_binary() {
-    binary_data = 1 ;
+    _binary_data = 1 ;
     return(0) ;
 }
 
 int Trick::VariableServerSession::var_binary_nonames() {
-    binary_data = 1 ;
-    binary_data_nonames = 1 ;
+    _binary_data = 1 ;
+    _binary_data_nonames = 1 ;
     return(0) ;
 }
 
 int Trick::VariableServerSession::var_set_copy_mode(int mode) {
     if ( mode >= VS_COPY_ASYNC and mode <= VS_COPY_TOP_OF_FRAME ) {
-        copy_mode = (VS_COPY_MODE)mode ;
-        if ( copy_mode == VS_COPY_SCHEDULED ) {
+        _copy_mode = (VS_COPY_MODE)mode ;
+        if ( _copy_mode == VS_COPY_SCHEDULED ) {
             long long sim_time_tics ;
             sim_time_tics = exec_get_time_tics() ;
             // round the next call time to a multiple of the cycle
-            sim_time_tics -= sim_time_tics % cycle_tics ;
-            next_tics = sim_time_tics + cycle_tics ;
+            sim_time_tics -= sim_time_tics % _cycle_tics ;
+            _next_tics = sim_time_tics + _cycle_tics ;
 
             sim_time_tics = exec_get_freeze_time_tics() ;
             // round the next call time to a multiple of the cycle
-            sim_time_tics -= sim_time_tics % cycle_tics ;
-            freeze_next_tics = sim_time_tics + cycle_tics ;
+            sim_time_tics -= sim_time_tics % _cycle_tics ;
+            _freeze_next_tics = sim_time_tics + _cycle_tics ;
 
         } else {
-            next_tics = TRICK_MAX_LONG_LONG ;
+            _next_tics = TRICK_MAX_LONG_LONG ;
         }
         return 0 ;
     }
@@ -224,7 +215,7 @@ int Trick::VariableServerSession::var_set_copy_mode(int mode) {
 
 int Trick::VariableServerSession::var_set_write_mode(int mode) {
     if ( mode >= VS_WRITE_ASYNC and mode <= VS_WRITE_WHEN_COPIED ) {
-        write_mode = (VS_WRITE_MODE)mode ;
+        _write_mode = (VS_WRITE_MODE)mode ;
         return 0 ;
     }
     return -1 ;
@@ -252,46 +243,46 @@ int Trick::VariableServerSession::var_sync(int mode) {
 }
 
 int Trick::VariableServerSession::var_set_frame_multiple(unsigned int mult) {
-    frame_multiple = mult ;
+    _frame_multiple = mult ;
     return 0 ;
 }
 
 int Trick::VariableServerSession::var_set_frame_offset(unsigned int offset) {
-    frame_offset = offset ;
+    _frame_offset = offset ;
     return 0 ;
 }
 
 int Trick::VariableServerSession::var_set_freeze_frame_multiple(unsigned int mult) {
-    freeze_frame_multiple = mult ;
+    _freeze_frame_multiple = mult ;
     return 0 ;
 }
 
 int Trick::VariableServerSession::var_set_freeze_frame_offset(unsigned int offset) {
-    freeze_frame_offset = offset ;
+    _freeze_frame_offset = offset ;
     return 0 ;
 }
 
 int Trick::VariableServerSession::var_byteswap(bool on_off) {
-    byteswap = on_off ;
+    _byteswap = on_off ;
     return(0) ;
 }
 
 bool Trick::VariableServerSession::get_send_stdio() {
-    return send_stdio ;
+    return _send_stdio ;
 }
 
 int Trick::VariableServerSession::set_send_stdio(bool on_off) {
-    send_stdio = on_off ;
+    _send_stdio = on_off ;
     return(0) ;
 }
 
 int Trick::VariableServerSession::send_list_size() {
     
     unsigned int msg_type = VS_LIST_SIZE;
-    int var_count = session_variables.size();
+    int var_count = _session_variables.size();
 
     // send number of variables
-    if (binary_data) {
+    if (_binary_data) {
         // send in the binary message header format:
         // <message_indicator><message_size><number_of_variables>
         char buf1[12] ;
@@ -302,20 +293,20 @@ int Trick::VariableServerSession::send_list_size() {
         memset(&(buf1[4]), 0, sizeof(int)); // message size = 0
         memcpy(&(buf1[8]), &var_count, sizeof(var_count));
 
-        if (debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d event variables\n", connection, connection->getClientTag().c_str(), var_count);
+        if (_debug >= 2) {
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d event variables\n", _connection, _connection->getClientTag().c_str(), var_count);
         }
 
-        connection->write(buf1, sizeof (buf1));
+        _connection->write(buf1, sizeof (buf1));
     } else {
         std::stringstream write_string;
         write_string << VS_LIST_SIZE << "\t" << var_count << "\n";
         // ascii
-        if (debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", connection, connection->getClientTag().c_str(), write_string.str().c_str()) ;
+        if (_debug >= 2) {
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", _connection, _connection->getClientTag().c_str(), write_string.str().c_str()) ;
         }
 
-        connection->write(write_string.str());
+        _connection->write(write_string.str());
     }
 
     return 0 ;
@@ -330,15 +321,15 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
     char buffer[packet_size+1] ;
     int ret ;
 
-    if (debug >= 2) {
-        message_publish(MSG_DEBUG,"%p tag=<%s> var_server opening %s.\n", connection, connection->getClientTag().c_str(), sie_file.c_str()) ;
+    if (_debug >= 2) {
+        message_publish(MSG_DEBUG,"%p tag=<%s> var_server opening %s.\n", _connection, _connection->getClientTag().c_str(), sie_file.c_str()) ;
     }
 
     if ((fp = fopen(sie_file.c_str() , "r")) == NULL ) {
         message_publish(MSG_ERROR,"Variable Server Error: Cannot open %s.\n", sie_file.c_str()) ;
         sprintf(buffer, "%d\t-1\n", VS_SIE_RESOURCE) ;
         std::string message(buffer);
-        connection->write(message);
+        _connection->write(message);
         return(-1) ;
     }
 
@@ -347,11 +338,11 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
 
     sprintf(buffer, "%d\t%u\n\0" , VS_SIE_RESOURCE, file_size) ;
     std::string message(buffer);
-    connection->write(message);
+    _connection->write(message);
     rewind(fp) ;
 
     // Switch to blocking writes since this could be a large transfer.
-    if (connection->setBlockMode(true)) {
+    if (_connection->setBlockMode(true)) {
         message_publish(MSG_DEBUG,"Variable Server Error: Failed to set socket to blocking mode.\n");
     }
 
@@ -359,7 +350,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
         bytes_read = fread(buffer , 1 , packet_size , fp) ;
         message = std::string(buffer);
         message.resize(bytes_read);
-        ret = connection->write(message);
+        ret = _connection->write(message);
         if (ret != (int)bytes_read) {
             message_publish(MSG_ERROR,"Variable Server Error: Failed to send SIE file. Bytes read: %d Bytes sent: %d\n", bytes_read, ret) ;
             return(-1);
@@ -368,7 +359,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
     }
 
     // Switch back to non-blocking writes.
-    if (connection->setBlockMode(false)) {
+    if (_connection->setBlockMode(false)) {
         message_publish(MSG_DEBUG,"Variable Server Error: Failed to set socket to non-blocking mode.\n");
         return(-1);
     }

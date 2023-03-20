@@ -37,6 +37,8 @@ typedef std::function<ssize_t (int, void *, size_t, int)> recv_func_type;
 
 typedef std::function<ssize_t (int, void *, size_t, int, struct sockaddr *, socklen_t *)> recvfrom_func_type;
 
+typedef std::function<in_addr_t (const char *)> inet_addr_func_type;
+
 
 class SystemInferfaceMock : public SystemInterface {
     public:
@@ -57,6 +59,7 @@ class SystemInferfaceMock : public SystemInterface {
             real_sendto_impl();
             real_recv_impl();
             real_recvfrom_impl();
+            real_inet_addr_impl();
         }
         
         void set_all_real () {
@@ -76,6 +79,7 @@ class SystemInferfaceMock : public SystemInterface {
             real_sendto_impl();
             real_recv_impl();
             real_recvfrom_impl();
+            real_inet_addr_impl();
         }
 
         void set_all_noop() {
@@ -95,6 +99,7 @@ class SystemInferfaceMock : public SystemInterface {
             noop_sendto_impl();
             noop_recv_impl();
             noop_recvfrom_impl();
+            noop_inet_addr_impl();
         }
 
    
@@ -118,7 +123,7 @@ class SystemInferfaceMock : public SystemInterface {
    
    // bind implementation
    public:
-       virtual int  bind (int socket, struct sockaddr * address, socklen_t address_len) override { return bind_impl( socket,  address,  address_len); }
+       virtual int  bind (int socket, const struct sockaddr * address, socklen_t address_len) override { return bind_impl( socket,  address,  address_len); }
        void register_bind_impl (bind_func_type impl) { bind_impl = impl; }
        void real_bind_impl () { bind_impl = [](int socket, const struct sockaddr * address, socklen_t address_len) -> int  { return ::bind( socket,  address,  address_len); }; }
        void noop_bind_impl () { bind_impl = [](int socket, const struct sockaddr * address, socklen_t address_len) -> int  { return 0; }; }
@@ -232,6 +237,15 @@ class SystemInferfaceMock : public SystemInterface {
        void noop_recvfrom_impl () { recvfrom_impl = [](int socket, void * buffer, size_t length, int flags, struct sockaddr * address, socklen_t * address_len) -> ssize_t  { return 0; }; }
    private:
        recvfrom_func_type recvfrom_impl;
+   
+   // inet_addr implementation
+   public:
+       virtual in_addr_t  inet_addr (const char * cp) override { return inet_addr_impl( cp); }
+       void register_inet_addr_impl (inet_addr_func_type impl) { inet_addr_impl = impl; }
+       void real_inet_addr_impl () { inet_addr_impl = [](const char * cp) -> in_addr_t  { return ::inet_addr( cp); }; }
+       void noop_inet_addr_impl () { inet_addr_impl = [](const char * cp) -> in_addr_t  { return 0; }; }
+   private:
+       inet_addr_func_type inet_addr_impl;
    
 };
 

@@ -110,7 +110,7 @@ class TestVariableServer(unittest.TestCase):
 
     def test_set_period(self):
         self.variable_server.set_period(10)
-        # We would like to verify that VariableServerThread::update_rate
+        # We would like to verify that VariableServerSessionThread::update_rate
         # was modified, but variable server threads are not registered
         # with the memory manager, so we can't.
 
@@ -137,38 +137,38 @@ class TestVariableServer(unittest.TestCase):
     def test_pause(self):
         self.variable_server.pause(True)
         self.variable_server.pause(False)
-        # We would like to verify that VariableServerThread::pause_cmd
+        # We would like to verify that VariableServerSessionThread::pause_cmd
         # was modified, but variable server threads are not registered
         # with the memory manager, so we can't.
 
     def test_set_debug(self):
         self.variable_server.set_debug(3)
-        # We would like to verify that VariableServerThread::debug
+        # We would like to verify that VariableServerSessionThread::debug
         # was modified, but variable server threads are not registered
         # with the memory manager, so we can't.
 
     def test_set_tag(self):
         self.variable_server.set_tag('test')
         # We would like to verify that
-        # VariableServerThread::connection.client_tag was modified, but
+        # VariableServerSessionThread::connection.client_tag was modified, but
         # variable server threads are not registered with the memory
         # manager, so we can't.
 
     def test_set_copy_mode(self):
         self.variable_server.set_copy_mode()
-        # We would like to verify that VariableServerThread::copy_mode
+        # We would like to verify that VariableServerSessionThread::copy_mode
         # was modified, but variable server threads are not registered
         # with the memory manager, so we can't.
 
     def test_send_on_copy(self):
         self.variable_server.send_on_copy()
-        # We would like to verify that VariableServerThread::write_mode
+        # We would like to verify that VariableServerSessionThread::write_mode
         # was modified, but variable server threads are not registered
         # with the memory manager, so we can't.
 
     def test_validate_addresses(self):
         self.variable_server.validate_addresses()
-        # We would like to verify that VariableServerThread::validate_addresses
+        # We would like to verify that VariableServerSessionThread::validate_addresses
         # was modified, but variable server threads are not registered
         # with the memory manager, so we can't.
 

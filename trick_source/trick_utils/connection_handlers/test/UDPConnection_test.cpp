@@ -317,10 +317,12 @@ TEST_F( UDPConnectionTest, read_nonewline ) {
 
 
     // ACT
-    std::string result = connection.read();
+    std::string result;
+    int nbytes = connection.read(result);
 
     // ASSERT
     ASSERT_EQ(result, std::string(""));
+    ASSERT_EQ(nbytes, 0);
 }
 
 
@@ -338,12 +340,15 @@ TEST_F( UDPConnectionTest, read ) {
     connection.start();
 
     // ACT
-    std::string result = connection.read();
+    std::string result;
+    int nbytes = connection.read(result);
 
     // ASSERT
     std::string expected = "Here is a complete message from a socket\n";
     expected += '\0';
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(nbytes, expected.size());
+
 }
 
 
@@ -358,11 +363,13 @@ TEST_F( UDPConnectionTest, read_nodata ) {
     connection.start();
 
     // ACT
-    std::string result = connection.read();
+    std::string result;
+    int nbytes = connection.read(result);
 
     // ASSERT
     std::string expected = "";
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(nbytes, 0);
 }
 
 TEST_F( UDPConnectionTest, read_other_error ) {
@@ -376,19 +383,24 @@ TEST_F( UDPConnectionTest, read_other_error ) {
     connection.start();
 
     // ACT
-    std::string result = connection.read();
+    std::string result;
+    int nbytes = connection.read(result);
 
     // ASSERT
     std::string expected = "";
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(nbytes, -1);
+
 }
 
 TEST_F( UDPConnectionTest, read_uninitialized ) {
     // ARRANGE
     // ACT
-    std::string result = connection.read();
+    std::string result;
+    int nbytes = connection.read(result);
 
     // ASSERT
     std::string expected = "";
     ASSERT_EQ(result, expected);
+    ASSERT_EQ(nbytes, 0);
 }

@@ -13,13 +13,21 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) ) ( (Jackie Dea
 #ifndef VS_HH
 #define VS_HH
 
+typedef struct {
+	unsigned char var1 :3;
+ 	short var2 :8;
+    int var3 :9;
+    unsigned int var4 :12;
+} bitfield;
+
+
 class VSTest {
 	public:
 		char 				a;
 		unsigned char 		b;
 		short				c;
 		unsigned short  	d;
-		int 				e; /*  m xy-position */
+		int 				e; 	/*  m xy-position */
 		unsigned int 		f;
 		long				g;
 		unsigned long		h;
@@ -31,9 +39,14 @@ class VSTest {
 		int 				n[5];
 		std::string 		o;
 		char * 				p;
-		wchar_t *			q; /**< trick_chkpnt_io(**) */
+		wchar_t *			q; 	/**< trick_chkpnt_io(**) */
+
+		bitfield 			my_bitfield;	
 
 		int large_arr[4000];
+
+		int blocked_from_input; 	/** trick_io(*o) */
+		int blocked_from_output; 	/** trick_io(*i) */
 
 		int status;
 
@@ -47,6 +60,8 @@ class VSTest {
 
 		int success();
 		int fail();
+
+		void throw_exception();
 
 		const char *status_messages[3] = {
 			"Variable Server Test Success",

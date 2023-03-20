@@ -29,7 +29,7 @@ jobs:
     - name: Install GTest
       run: |
         dnf config-manager --enable ol8_codeready_builder
-        dnf install -y gtest-devel
+        dnf install -y gtest-devel gmock-devel
 
     - name: Checkout repository
       uses: actions/checkout@master

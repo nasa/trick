@@ -427,7 +427,7 @@ class Job(object):
         by sending them the SIGKILL signal.
         """
         try:
-            os.killpg(os.getpgid(self._process.pid), signal.SIGKILL)
+            os.killpg(os.getpgid(self._process.pid), signal.SIGABRT)
             self._process.wait()
         except:
             pass
