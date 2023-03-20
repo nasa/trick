@@ -240,6 +240,7 @@ Trick::TCPConnection * Trick::ClientListener::setUpNewConnection () {
 
 int Trick::ClientListener::restart () {
     _system_interface = new SystemInterface();
+    return 0;
 }
  
 

@@ -72,10 +72,14 @@ void * Trick::VariableServerThread::thread_body() {
 
             // Look for a message from the client
             // Parse and execute if one is availible
-            session->handleMessage();
+            int read_status = session->handleMessage();
+            if ( read_status < 0 ) {
+                pthread_mutex_unlock(&restart_pause) ;
+                break ;
+            }
 
             // Check to see if exit is necessary
-            if (session->exit_cmd == true) {
+            if (session->get_exit_cmd() == true) {
                 pthread_mutex_unlock(&restart_pause) ;
                 break;
             }

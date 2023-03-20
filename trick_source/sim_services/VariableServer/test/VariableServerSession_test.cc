@@ -3,6 +3,8 @@ PURPOSE:                     ( Tests for the VariableServerSession class )
 *******************************************************************************/
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include <iostream>
 #include <iomanip>
 #include <limits>
@@ -11,10 +13,16 @@ PURPOSE:                     ( Tests for the VariableServerSession class )
 #include "trick/MemoryManager.hh"
 #include "trick/UdUnits.hh"
 
-#include "TestConnection.hh"
 #include "trick/VariableServerSession.hh"
 #include "trick/var_binary_parser.hh"
 
+#include "MockClientConnection.hh"
+
+
+using ::testing::AtLeast;
+using ::testing::_;
+using ::testing::Truly;
+using ::testing::Args;
 
 /*
  Test Fixture.
@@ -24,7 +32,7 @@ class VariableServerSession_test : public ::testing::Test {
 	    Trick::MemoryManager *memmgr;
         Trick::UdUnits * udunits;
 
-        TestConnection connection;
+        MockClientConnection connection;
 
 		VariableServerSession_test() { 
             memmgr = new Trick::MemoryManager; 
@@ -70,7 +78,6 @@ TEST_F(VariableServerSession_test, var_sync) {
     // ARRANGE
     Trick::VariableServerSession session(&connection);
 
-
     // ACT
     session.var_sync(0);
     // ASSERT
@@ -104,44 +111,67 @@ TEST_F(VariableServerSession_test, large_message_ascii) {
         big_arr[i] = i;
     }
 
+    // Set it up with the memory manager
     (void) memmgr->declare_extern_var(&big_arr, "int big_arr[4000]");
 
+    // Add it all to the session
     for (int i = 0; i < big_arr_size; i++) {
         std::string var_name = "big_arr[" + std::to_string(i) + "]";
         session.var_add(var_name.c_str());
     } 
+
+    // Make a matcher for the Mock
+    // This will check that the messages that are passed into connection.write() are correct
+    int val_counter = 0;
+    int message_counter = 0;
+    int final_val = 0;
+    auto constructedCorrectly = [&] (std::string s) -> bool {
+        std::stringstream ss(s);
+        std::string token;
+
+        if (message_counter == 0) {
+            // First val in first message should be the message type, 0
+            std::getline(ss, token, '\t');
+            int message_type = stoi(token);
+            if (message_type != 0) return false;
+        } else {
+            // First val in all other message should be (last val in previous message)+1
+            std::getline(ss, token, '\t');
+            int first_num = stoi(token);
+            if (first_num != final_val+1) return false;
+            val_counter++;
+        }
+
+        int num = 0;
+
+        // The rest of the message should just be sequential
+        while (std::getline(ss, token, '\t')) {
+            if (token == "\n") { break; }
+            
+            num = stoi(token);
+            if (val_counter != num) return false;
+            val_counter++;
+        }
+
+        // Save the final value so that we can verify the next message starts correctly
+        final_val = num;
+        message_counter++;
+
+        return true;
+    };
+
+    // Set up the mock connection - it should make 3 calls to write
+    // The constructedCorrectly matcher will ensure that the values passed in are what we want them to be
+    EXPECT_CALL(connection, write(Truly(constructedCorrectly)))
+        .Times(3);
 
     // ACT
     session.copy_sim_data();
     session.write_data();
 
     // ASSERT
-    ASSERT_TRUE(connection.ascii_messages_written.size() > 1);
-    int counter = 0;
-
-    int message_index = 0;
-    for (int i = 0; i < connection.ascii_messages_written.size(); i++) {
-        std::string message = connection.ascii_messages_written[i];
-        std::stringstream ss(message);
-        std::string token;
-
-        // First val in first message should be the message type, 0
-        if (i == 0) {
-            std::getline(ss, token, '\t');
-            int message_type = stoi(token);
-            EXPECT_EQ(message_type, 0);
-        }
-
-        while (std::getline(ss, token, '\t')) {
-            if (token == "\n") { break; }
-
-            int num = stoi(token);
-            EXPECT_EQ(counter, num);
-            counter++;
-        }
-    }
-
-    EXPECT_EQ(counter, big_arr_size);
+    // Make sure that the entire message was written out
+    ASSERT_EQ(val_counter, big_arr_size);
 }
 
 TEST_F(VariableServerSession_test, large_message_binary) {
@@ -157,26 +187,55 @@ TEST_F(VariableServerSession_test, large_message_binary) {
         big_arr[i] = i;
     }
 
+    // Set it up with the memory manager
     (void) memmgr->declare_extern_var(&big_arr, "int big_arr[4000]");
 
+    // Add it all into the session
     for (int i = 0; i < big_arr_size; i++) {
         std::string var_name = "big_arr[" + std::to_string(i) + "]";
         session.var_add(var_name.c_str());
     } 
+
+    // Create a matcher that parses and collects the arguments into a ParsedBinaryMessage
+    ParsedBinaryMessage full_message;
+    auto binaryConstructedCorrectly = [&] (std::tuple<char *, int> msg_tuple) -> bool {
+        char * message;
+        int size;
+        std::tie(message, size) = msg_tuple;
+        ParsedBinaryMessage partial_message;
+
+        // Put the message into a vector the parser
+        std::vector<unsigned char> bytes;
+        for (int i = 0; i < size; i++) {
+            bytes.push_back(message[i]);
+        }
+
+        // Parse and add it to the full message
+        try {
+            partial_message.parse(bytes);
+            full_message.combine(partial_message);
+        } catch (const MalformedMessageException& ex) {
+            std::cout << "Parser failed with message: " << ex.what();
+            return false;
+        }
+
+        return true;
+    };
+
+    // Set up the mock connection - it should make a bunch of calls to write
+    // The constructedCorrectly matcher will ensure that the values passed in are what we want them to be
+    EXPECT_CALL(connection, write(_, _)).With(Args<0,1>(Truly(binaryConstructedCorrectly))).Times(AtLeast(3));
 
     // ACT
     session.copy_sim_data();
     session.write_data();
 
     // ASSERT
-    ParsedBinaryMessage full_message;
-    for (int i = 0; i < connection.binary_messages_written.size(); i++) {
-        ParsedBinaryMessage partial_message;
-        partial_message.parse(connection.binary_messages_written[i]);
-        full_message.combine(partial_message);
-    }
-
+    
+    // Make sure we got all of the values
     ASSERT_EQ(full_message.getNumVars(), big_arr_size);
+
+    // Make sure all of the values are correct and have names
     for (int i = 0; i < big_arr_size; i++) {
         try {
             std::string var_name = "big_arr[" + std::to_string(i) + "]";

@@ -24,7 +24,6 @@ Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
 
     next_tics = TRICK_MAX_LONG_LONG ;
     freeze_next_tics = TRICK_MAX_LONG_LONG ;
-    // multicast = false;
     connection = conn;
     byteswap = false ;
     validate_address = false ;
@@ -33,23 +32,14 @@ Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
     binary_data = false;
     byteswap = false;
     binary_data_nonames = false;
-    packets_copied = 0 ;
 
     exit_cmd = false;
     pause_cmd = false;
 
-
-    // incoming_msg = (char *) calloc(MAX_CMD_LEN, 1);
-    // stripped_msg = (char *) calloc(MAX_CMD_LEN, 1);
-
-
     pthread_mutex_init(&copy_mutex, NULL);
 }
 
-Trick::VariableServerSession::~VariableServerSession() {
-    // free (incoming_msg);
-    // free (stripped_msg);
-}
+Trick::VariableServerSession::~VariableServerSession() { }
 
 // Command to turn on log to varserver_log file
 int Trick::VariableServerSession::set_log_on() {
@@ -61,6 +51,31 @@ int Trick::VariableServerSession::set_log_on() {
 int Trick::VariableServerSession::set_log_off() {
     log = false;
     return(0) ;
+}
+
+bool Trick::VariableServerSession::get_pause() {
+    return pause_cmd ;
+}
+
+void Trick::VariableServerSession::set_pause( bool on_off) {
+    pause_cmd = on_off ;
+}
+
+
+bool Trick::VariableServerSession::get_exit_cmd() {
+    return exit_cmd ;
+}
+
+void Trick::VariableServerSession::set_exit_cmd() {
+    exit_cmd = true;
+}
+
+void Trick::VariableServerSession::pause_copy() {
+    pthread_mutex_lock(&copy_mutex);
+}
+
+void Trick::VariableServerSession::unpause_copy() {
+    pthread_mutex_unlock(&copy_mutex);
 }
 
 void Trick::VariableServerSession::disconnect_references() {
@@ -85,11 +100,13 @@ long long Trick::VariableServerSession::get_freeze_next_tics() const {
 
 int Trick::VariableServerSession::handleMessage() {
 
-    std::string received_message = connection->read(ClientConnection::MAX_CMD_LEN);
-    if (received_message.size() > 0) {
+    std::string received_message;
+    int nbytes = connection->read(received_message);
+    if (nbytes > 0) {
         ip_parse(received_message.c_str()); /* returns 0 if no parsing error */
     }
-    
+
+    return nbytes;
 }
 
 Trick::VariableReference * Trick::VariableServerSession::find_session_variable(std::string name) const {

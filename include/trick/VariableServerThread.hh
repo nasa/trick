@@ -38,7 +38,6 @@ namespace Trick {
 
             /**
              @brief Constructor.
-             @param listen_dev - the TCDevice set up in listen()
             */
             VariableServerThread() ;
 
@@ -50,6 +49,11 @@ namespace Trick {
             static void set_vs_ptr(Trick::VariableServer * in_vs) ;
 
             void set_client_tag(std::string tag);
+
+            /**
+             @brief Set the connection pointer for this thread
+            */
+            void set_connection(ClientConnection * in_connection);
 
             /**
              @brief Open a UDP socket for this thread

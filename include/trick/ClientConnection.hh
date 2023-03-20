@@ -14,6 +14,9 @@ LIBRARY DEPENDENCIES:
 namespace Trick {
     class ClientConnection {
         public: 
+
+            virtual ~ClientConnection() { }
+            
             static const unsigned int MAX_CMD_LEN = 200000 ;
 
             enum ConnectionType { TCP, UDP, MCAST, WS } ;
@@ -24,18 +27,17 @@ namespace Trick {
             virtual int write (const std::string& message) = 0;
             virtual int write (char * message, int size) = 0;
 
-            virtual std::string read  (int max_len = MAX_CMD_LEN) = 0;
+            virtual int read  (std::string& message, int max_len = MAX_CMD_LEN) = 0;
 
             virtual int setBlockMode (bool blocking) = 0;
             virtual int disconnect () = 0;
 
             virtual bool isInitialized() = 0;
 
-            // Concrete methods
-            virtual std::string getClientTag ();
-            virtual int setClientTag (std::string tag);
+            virtual std::string getClientTag () = 0;
+            virtual int setClientTag (std::string tag) = 0;
 
-            virtual int restart() {};
+            virtual int restart() = 0;
 
         protected:
             ConnectionType _connection_type;

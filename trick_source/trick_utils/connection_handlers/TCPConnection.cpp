@@ -53,10 +53,11 @@ int Trick::TCPConnection::write (const std::string& message) {
     return _system_interface->send(_socket, send_buf, message.length(), 0);
 }
 
-std::string Trick::TCPConnection::read  (int max_len) {
+int Trick::TCPConnection::read  (std::string& message, int max_len) {
     if (!_connected) {
         std::cerr << "Trying to read from a socket that is not connected" << std::endl;
-        return "";
+        message = "";
+        return 0;
     }
 
     char incoming_msg[max_len];
@@ -65,16 +66,19 @@ std::string Trick::TCPConnection::read  (int max_len) {
     int nbytes = _system_interface->recv(_socket, incoming_msg, max_receive_length, MSG_PEEK);
 
     if (nbytes == 0 ) {
-        return std::string("");
+        message = "";
+        return 0;
     }
 
     if (nbytes == -1) {
         if (errno == EAGAIN) {
-            return std::string("");
+            message = "";
+            return 0;
         } else {
             std::string error_msg = "Error while reading from socket " + std::to_string(_socket);
             perror(error_msg.c_str());
-            return std::string("");
+            message = "";
+            return -1;
         }
     }
 
@@ -105,7 +109,8 @@ std::string Trick::TCPConnection::read  (int max_len) {
         }
     }
 
-    return msg_stream.str();
+    message = msg_stream.str();
+    return message.size();
 }
 
 
@@ -126,7 +131,7 @@ int Trick::TCPConnection::setBlockMode(bool blocking) {
     int flag = _system_interface->fcntl(_socket, F_GETFL, 0);
 
     if (flag == -1) {
-        std::string error_message = "Unable to get flags for fd " + std::to_string(_socket) + " block mode to " + std::to_string(blocking);
+        std::string error_message = "Unable to get flags for fd " + std::to_string(_socket);
         perror (error_message.c_str());
         return -1;
     }
@@ -153,4 +158,14 @@ bool Trick::TCPConnection::isInitialized() {
 
 int Trick::TCPConnection::restart() {
     _system_interface = new SystemInterface();
+    return 0;
+}
+
+std::string Trick::TCPConnection::getClientTag () {
+    return _client_tag;
+}
+
+int Trick::TCPConnection::setClientTag (std::string tag) {
+    _client_tag = tag;
+    return 0;
 }

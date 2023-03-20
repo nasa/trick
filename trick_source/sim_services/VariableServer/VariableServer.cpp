@@ -16,7 +16,7 @@ Trick::VariableServer::VariableServer() :
 }
 
 Trick::VariableServer::~VariableServer() {
-
+    the_vs = NULL;
 }
 
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServer& vs) {

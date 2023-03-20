@@ -24,30 +24,29 @@ namespace Trick {
 
             ~ClientListener ();
 
-            int initialize(std::string hostname, int port);
-            int initialize();
+            virtual int initialize(std::string hostname, int port);
+            virtual int initialize();
 
-            int setBlockMode(bool blocking);
+            virtual int setBlockMode(bool blocking);
 
-            bool checkForNewConnections();
+            virtual bool checkForNewConnections();
 
-            TCPConnection * setUpNewConnection ();
+            virtual TCPConnection * setUpNewConnection ();
+
+            virtual int disconnect();
+
+            virtual int checkSocket();
+
+            virtual bool validateSourceAddress(std::string source_address);
+
+            virtual bool isInitialized(); 
+            
+            virtual int restart();
 
             std::string getHostname ();
-
             int getPort();
-
-            int disconnect();
-
-            int checkSocket();
-
-            bool validateSourceAddress(std::string source_address);
-
-            bool isInitialized(); 
-
-            int restart();
             
-        private:
+        protected:
         
             int _listen_socket;
             std::string _hostname;

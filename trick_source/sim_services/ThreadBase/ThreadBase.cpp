@@ -288,7 +288,6 @@ int Trick::ThreadBase::create_thread() {
     pthread_attr_init(&attr);
     pthread_attr_setscope(&attr, PTHREAD_SCOPE_SYSTEM);
     pthread_create(&pthread_id, &attr, Trick::ThreadBase::thread_helper , (void *)this);
-
     created = true;
 
 #if __linux

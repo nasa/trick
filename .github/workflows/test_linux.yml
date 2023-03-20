@@ -64,7 +64,7 @@ jobs:
               python3-pip
               python3-venv
             install_gtest: |
-              apt-get install -y libgtest-dev
+              apt-get install -y libgtest-dev libgmock-dev
               cd /usr/src/gtest
               cmake .
               make
@@ -101,6 +101,7 @@ jobs:
               libXt-devel
               swig3
               gtest-devel
+              gmock-devel
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
@@ -113,12 +114,12 @@ jobs:
               dnf install -y 'dnf-command(config-manager)'
             install_gtest: |
               dnf config-manager --enable powertools
-              dnf install -y gtest-devel
+              dnf install -y gtest-devel gmock-devel
 #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux }
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
-              dnf install -y gtest-devel
+              dnf install -y gtest-devel gmock-devel
 #-------- Job definition ----------------
     runs-on: ubuntu-latest
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}

@@ -15,7 +15,6 @@
 
 bool Trick::SysThread::shutdown_finished = false;
 
-
 // Construct On First Use to avoid the Static Initialization Fiasco
 pthread_mutex_t& Trick::SysThread::list_mutex() {
     static pthread_mutex_t list_mutex = PTHREAD_MUTEX_INITIALIZER;

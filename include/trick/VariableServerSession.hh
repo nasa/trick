@@ -23,7 +23,81 @@ namespace Trick {
 
         friend std::ostream& operator<< (std::ostream& s, const Trick::VariableServerSession& session);
 
-        int  handleMessage();
+        /**
+         @brief Read a message from the connection and act on it
+        */
+        virtual int  handleMessage();
+
+        /**
+         @brief Get the pause state of this thread.
+        */
+        virtual bool get_pause() ;
+
+        /**
+         @brief Set the pause state of this thread.
+        */
+        virtual void set_pause(bool on_off) ;
+
+        /**
+         @brief Get the exit command of this session.
+        */
+        virtual bool get_exit_cmd() ;
+
+        /**
+         @brief Tell this session to exit.
+        */
+        virtual void set_exit_cmd() ;
+
+        /**
+         @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
+        */
+        virtual int write_data();
+
+        /**
+         @brief gets the send_stdio flag.
+        */
+        virtual bool get_send_stdio() ;
+
+        /**
+         @brief sets the send_stdio flag.
+        */
+        virtual int set_send_stdio(bool on_off) ;
+
+        /**
+         @brief Copy client variable values from Trick memory to each variable's output buffer.
+        */
+        virtual int copy_sim_data();
+
+        // Called from different types of Trick jobs. 
+        // Determines whether this session should be copying at that time, and calls internal copy methods if so
+
+        int copy_data_freeze();
+        int copy_data_freeze_scheduled(long long curr_tics);
+        int copy_data_scheduled(long long curr_tics);
+        int copy_data_top();
+
+        virtual int write_stdio(int stream, std::string text);
+
+        void disconnect_references();
+
+        long long get_next_tics() const;
+
+        long long get_freeze_next_tics() const;
+
+        int freeze_init();
+
+        double get_update_rate() const;
+
+        void pause_copy();
+        void unpause_copy();
+
+        VS_WRITE_MODE get_write_mode () const;
+        VS_COPY_MODE get_copy_mode () const;
+
+
+        /************************************************************************************************/
+        /*                               Variable Server Interface                                      */
+        /************************************************************************************************/
 
         /**
          @brief @userdesc Command to add a variable to a list of registered variables for value retrieval.
@@ -34,7 +108,7 @@ namespace Trick {
             @param in_name - the variable name to retrieve
             @return always 0
         */
-        int var_add( std::string in_name ) ;
+        virtual int var_add( std::string in_name ) ;
 
         /**
          @brief @userdesc Command to add a variable to a list of registered variables for value retrieval,
@@ -50,7 +124,7 @@ namespace Trick {
             @param units_name - the desired units, specified within curly braces
             @return always 0
         */
-        int var_add( std::string in_name, std::string units_name ) ;
+        virtual int var_add( std::string in_name, std::string units_name ) ;
 
         /**
          @brief @userdesc Command to remove a variable (previously registered with var_add)
@@ -60,7 +134,7 @@ namespace Trick {
             @param in_name - the variable name to remove
             @return always 0
         */
-        int var_remove( std::string in_name ) ;
+        virtual int var_remove( std::string in_name ) ;
 
         /**
          @brief @userdesc Command to instruct the variable server to return the value of a variable
@@ -75,7 +149,7 @@ namespace Trick {
             @note trick.var_add("my_object.my_variable"); trick.var_units("my_object.my_variable","{m}")
             is the same as trick.var_add("my_object.my_variable","{m}")
         */
-        int var_units(std::string var_name , std::string units_name) ;
+        virtual int var_units(std::string var_name , std::string units_name) ;
 
         /**
          @brief @userdesc Command to instruct the variable server to send a Boolean value indicating
@@ -89,7 +163,7 @@ namespace Trick {
             @param in_name - the variable name to query
             @return always 0
         */
-        int var_exists( std::string in_name ) ;
+        virtual int var_exists( std::string in_name ) ;
 
         /**
          @brief @userdesc Command to immediately send the value of a comma separated list of variables
@@ -99,7 +173,7 @@ namespace Trick {
             @param num_vars - number of vars in in_name_list
             @return always 0
         */
-        int var_send_once(std::string in_name_list, int num_vars);
+        virtual int var_send_once(std::string in_name_list, int num_vars);
 
         /**
          @brief @userdesc Command to instruct the variable server to immediately send back the values of
@@ -110,7 +184,7 @@ namespace Trick {
             @code trick.var_send() @endcode
             @return always 0
         */
-        int var_send() ;
+        virtual int var_send() ;
 
         /**
          @brief @userdesc Command to remove all variables from the list of variables currently
@@ -120,7 +194,7 @@ namespace Trick {
             @code trick.var_clear() @endcode
             @return always 0
         */
-        int var_clear() ;
+        virtual int var_clear() ;
 
         /**
          @brief @userdesc Turns on validating addresses before they are referenced
@@ -128,7 +202,7 @@ namespace Trick {
             @code trick.var_validate_address() @endcode
             @return always 0
         */
-        int var_validate_address(bool on_off) ;
+        virtual int var_validate_address(bool on_off) ;
 
         /**
          @brief @userdesc Command to instruct the variable server to output debug information.
@@ -137,7 +211,7 @@ namespace Trick {
             @return always 0
             @param level - 1,2,or 3, higher number increases amount of info output
         */
-        int var_debug(int level) ;
+        virtual int var_debug(int level) ;
 
         /**
          @brief @userdesc Command to instruct the variable server to return values in ASCII format (this is the default).
@@ -145,7 +219,7 @@ namespace Trick {
             @code trick.var_ascii() @endcode
             @return always 0
         */
-        int var_ascii() ;
+        virtual int var_ascii() ;
 
         /**
          @brief @userdesc Command to instruct the variable server to return values in binary format.
@@ -153,7 +227,7 @@ namespace Trick {
             @code trick.var_binary() @endcode
             @return always 0
         */
-        int var_binary() ;
+        virtual int var_binary() ;
 
         /**
          @brief @userdesc Command to instruct the variable server to return values in binary format,
@@ -163,7 +237,7 @@ namespace Trick {
             @code trick.var_binary_nonames() @endcode
             @return always 0
         */
-        int var_binary_nonames() ;
+        virtual int var_binary_nonames() ;
 
         /**
          @brief @userdesc Command to tell the server when to copy data
@@ -175,7 +249,7 @@ namespace Trick {
             @param mode - One of the above enumerations
             @return 0 if successful, -1 if error
         */
-        int var_set_copy_mode(int on_off) ;
+        virtual int var_set_copy_mode(int on_off) ;
 
         /**
          @brief @userdesc Command to tell the server when to copy data
@@ -186,7 +260,7 @@ namespace Trick {
             @param mode - One of the above enumerations
             @return 0 if successful, -1 if error
         */
-        int var_set_write_mode(int on_off) ;
+        virtual int var_set_write_mode(int on_off) ;
 
         /**
          @brief @userdesc Command to put the current variable server/client connection in sync mode,
@@ -205,7 +279,7 @@ namespace Trick {
             2 = sync data gather, sync socket write
             @return always 0
         */
-        int var_sync(int on_off) ;
+        virtual int var_sync(int on_off) ;
 
         /**
          @brief @userdesc Set the frame multiple
@@ -214,7 +288,7 @@ namespace Trick {
             @param mult - The requested multiple
             @return 0
         */
-        int var_set_frame_multiple(unsigned int mult) ;
+        virtual int var_set_frame_multiple(unsigned int mult) ;
 
         /**
          @brief @userdesc Set the frame offset
@@ -223,7 +297,7 @@ namespace Trick {
             @param offset - The requested offset
             @return 0
         */
-        int var_set_frame_offset(unsigned int offset) ;
+        virtual int var_set_frame_offset(unsigned int offset) ;
 
         /**
          @brief @userdesc Set the frame multiple
@@ -232,7 +306,7 @@ namespace Trick {
             @param mult - The requested multiple
             @return 0
         */
-        int var_set_freeze_frame_multiple(unsigned int mult) ;
+        virtual int var_set_freeze_frame_multiple(unsigned int mult) ;
 
         /**
          @brief @userdesc Set the frame offset
@@ -241,7 +315,7 @@ namespace Trick {
             @param offset - The requested offset
             @return 0
         */
-        int var_set_freeze_frame_offset(unsigned int offset) ;
+        virtual int var_set_freeze_frame_offset(unsigned int offset) ;
 
         /**
          @brief @userdesc Command to instruct the variable server to byteswap the return values
@@ -253,7 +327,7 @@ namespace Trick {
             @param on_off - true (or 1) to byteswap the return data, false (or 0) to return data as is
             @return always 0
         */
-        int var_byteswap(bool on_off) ;
+        virtual int var_byteswap(bool on_off) ;
 
         /**
          @brief @userdesc Command to turn on variable server logged messages to a playback file.
@@ -262,7 +336,7 @@ namespace Trick {
             @code trick.set_log_on() @endcode
             @return always 0
         */
-        int set_log_on() ;
+        virtual int set_log_on() ;
 
         /**
          @brief @userdesc Command to turn off variable server logged messages to a playback file.
@@ -270,50 +344,40 @@ namespace Trick {
             @code trick.set_log_off() @endcode
             @return always 0
         */
-        int set_log_off() ;
+        virtual int set_log_off() ;
 
         /**
          @brief Command to send the number of items in the var_add list.
             The variable server sends a message indicator of "3", followed by the total number of variables being sent.
         */
-        int send_list_size();
+        virtual int send_list_size();
 
         /**
          @brief Special command to instruct the variable server to send the contents of the S_sie.resource file; used by TV.
             The variable server sends a message indicator of "2", followed by a tab, followed by the file contents
             which are then sent as sequential ASCII messages with a maximum size of 4096 bytes each.
         */
-        int send_sie_resource();
+        virtual int send_sie_resource();
 
         /**
          @brief Special command to only send the class sie class information
         */
-        int send_sie_class();
+        virtual int send_sie_class();
 
         /**
          @brief Special command to only send the enumeration sie class information
         */
-        int send_sie_enum();
+        virtual int send_sie_enum();
 
         /**
          @brief Special command to only send the top level objects sie class information
         */
-        int send_sie_top_level_objects();
+        virtual int send_sie_top_level_objects();
 
         /**
          @brief Special command to send an arbitrary file through the variable server.
         */
-        int send_file(std::string file_name);
-
-        /**
-         @brief gets the send_stdio flag.
-        */
-        bool get_send_stdio() ;
-
-        /**
-         @brief sets the send_stdio flag.
-        */
-        int set_send_stdio(bool on_off) ;
+        virtual int send_file(std::string file_name);
 
         /**
          @brief @userdesc Command to set the frequencty at which the variable server will send values
@@ -324,84 +388,41 @@ namespace Trick {
             @param in_cycle - the desired frequency in seconds
             @return always 0
         */
-        int var_cycle(double in_cycle) ;
+        virtual int var_cycle(double in_cycle) ;
 
         /**
-         @brief Get the pause state of this thread.
+         @brief @userdesc Command exit this variable server session.
+            @par Python Usage:
+            @code trick.var_exit() @endcode
+            @return always 0
         */
-        bool get_pause() ;
+        virtual int var_exit();
 
-        /**
-         @brief Set the pause state of this thread.
-        */
-        void set_pause(bool on_off) ;
+    private:
 
-        /**
-         @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
-        */
-        int write_data();
+        pthread_mutex_t copy_mutex;     /**<  trick_io(**) */
 
-        /**
-         @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
-        */
-        int write_data(std::vector<VariableReference *>& var, VS_MESSAGE_TYPE message_type) ;
+        ClientConnection * connection;  /**<  trick_io(**) */
 
-        /**
-         @brief Copy client variable values from Trick memory to each variable's output buffer.
-        */
-        int copy_sim_data();
+        // Helper method to send a file to connection
+        virtual int transmit_file(std::string sie_file);
 
         /**
          @brief Copy given variable values from Trick memory to each variable's output buffer.
             cyclical indicated whether it is a normal cyclical copy or a send_once copy
         */
-        int copy_sim_data(std::vector<VariableReference *>& given_vars, bool cyclical);
+        virtual int copy_sim_data(std::vector<VariableReference *>& given_vars, bool cyclical);
 
-        int var_exit();
+        /**
+         @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
+        */
+        virtual int write_data(std::vector<VariableReference *>& var, VS_MESSAGE_TYPE message_type) ;
 
-        int transmit_file(std::string sie_file);
+        // Helper methods to write out formatted data
+        virtual int write_binary_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
+        virtual int write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
 
-        int copy_data_freeze();
-        int copy_data_freeze_scheduled(long long curr_tics);
-        int copy_data_scheduled(long long curr_tics);
-        int copy_data_top();
-
-        // VS_COPY_MODE get_copy_mode();
-        // VS_WRITE_MODE get_write_mode();
-
-        void disconnect_references();
-
-        long long get_next_tics() const;
-
-        long long get_freeze_next_tics() const;
-
-        int freeze_init();
-
-        double get_update_rate() const;
-
-        // These should be private probably
-        int write_binary_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
-        int write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
-        int write_stdio(int stream, std::string text);
-
-        VS_WRITE_MODE get_write_mode () const;
-        VS_COPY_MODE get_copy_mode () const;
-
-
-        pthread_mutex_t copy_mutex;     /**<  trick_io(**) */
-
-        /** Toggle to indicate var_exit commanded.\n */
-        bool exit_cmd ;                  /**<  trick_io(**) */
-
-    private:
-        // int sendErrorMessage(const char* fmt, ... );
-        // int sendSieMessage(void);
-        // int sendUnitsMessage(const char* vname);
-
-        ClientConnection * connection;  /**<  trick_io(**) */
-        /** The trickcomm device used for the connection to the client.\n */
-
-        VariableReference * find_session_variable(std::string name) const;
+        virtual VariableReference * find_session_variable(std::string name) const;
 
         double stageTime;
         bool dataStaged;
@@ -474,7 +495,9 @@ namespace Trick {
 
         bool validate_address;
 
-        int packets_copied;
+        /** Toggle to indicate var_exit commanded.\n */
+        bool exit_cmd ;                  /**<  trick_io(**) */
+
     };
 }
 

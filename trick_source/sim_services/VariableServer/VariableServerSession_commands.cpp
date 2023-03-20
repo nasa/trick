@@ -160,14 +160,6 @@ int Trick::VariableServerSession::var_cycle(double in_rate) {
     return(0) ;
 }
 
-bool Trick::VariableServerSession::get_pause() {
-    return pause_cmd ;
-}
-
-void Trick::VariableServerSession::set_pause( bool on_off) {
-    pause_cmd = on_off ;
-}
-
 int Trick::VariableServerSession::var_exit() {
     exit_cmd = true ;
     return(0) ;

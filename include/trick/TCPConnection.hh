@@ -22,7 +22,7 @@ namespace Trick {
             int write (const std::string& message) override;
             int write (char * message, int size) override;
 
-            std::string read  (int max_len = MAX_CMD_LEN) override;
+            int read  (std::string& message, int max_len  = MAX_CMD_LEN) override;
 
             int disconnect () override;
             bool isInitialized() override;
@@ -30,6 +30,10 @@ namespace Trick {
             int setBlockMode(bool blocking) override;
 
             int restart() override;
+
+            virtual std::string getClientTag () override;
+            virtual int setClientTag (std::string tag) override;
+
 
         private:
             int _socket;

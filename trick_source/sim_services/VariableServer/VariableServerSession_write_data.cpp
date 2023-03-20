@@ -15,11 +15,6 @@ PROGRAMMERS: (((Alex Lin) (NASA) (8/06) (--)))
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 
-
-extern "C" {
-    void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom) ;
-}
-
 #define MAX_MSG_LEN    8192
 
 
@@ -93,6 +88,7 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
         }
         var_index += curr_message_num_vars;
 
+        // Send it out!
         char write_buf[MAX_MSG_LEN];
         stream.read(write_buf, curr_message_size);
         connection->write(write_buf, curr_message_size);
@@ -118,6 +114,7 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
             return 0;
         }
 
+        // Unfortunately, there isn't a good way to get the size of the buffer without putting it into a string
         std::string var_string = var_stream.str();
         int var_size = var_string.size();
 
@@ -129,6 +126,7 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
             int result = connection->write(message);
             if (result < 0)
                 return result;
+
             // Clear out the message stream
             message_stream.str("");
             message_size = 0;
@@ -164,7 +162,7 @@ int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& g
         for (VariableReference * variable : given_vars ) {
             if (!variable->isStaged()) {
                 pthread_mutex_unlock(&copy_mutex) ;
-                return 1;
+                return 0;
             }
         }
 
