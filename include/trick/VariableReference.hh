@@ -27,17 +27,10 @@ namespace Trick {
 
         ~VariableReference();
 
-        const char* getName() const;
+        std::string getName() const;
         TRICK_TYPE getType() const;
 
-        // There are 2 different "units" variables used - REF2->units and REF2->attr->units
-        // REF2->attr->units should not be changed, it is what the variable is represented in internally
-        // REF2->units is the unit that has been requested by the variable server client
-        // REF2->units should be null unless var_units or var_add with units is called
-        // We'll refer to REF2->attr->units as BaseUnits and REF2->units as RequestedUnits
-        // Encapsulate all of this away so that no one else has to think about ref->attr->units vs ref->units
-        // ^ TODO: this is not where the above documentation should be. put it somewhere else.
-        const char* getBaseUnits() const;
+        std::string getBaseUnits() const;
         int setRequestedUnits(std::string new_units);
 
         // These variables have 2 staging buffers that we can swap between to allow for different copy and write-out modes
@@ -66,8 +59,6 @@ namespace Trick {
         // Helper method for byteswapping
         static void byteswap_var (char * out, char * in, const VariableReference& ref);
 
-        // TODO: Some system for error messaging
-
     private:
         VariableReference();
         void byteswap_var(char * out, char * in) const;
@@ -76,22 +67,25 @@ namespace Trick {
         static REF2* make_error_ref(std::string in_name);
         static REF2* make_do_not_resolve_ref(std::string in_name);
 
-        static int bad_ref_int;
-        static int do_not_resolve_bad_ref_int;
+        static int _bad_ref_int;
+        static int _do_not_resolve_bad_ref_int;
 
-        REF2 *var_info;  
-        void *address;                      // -- address of data copied to buffer
-        int   size;                         // -- size of data copied to buffer
-        bool  deref;                        // -- indicates whether variable is pointer that needs to be dereferenced
-        cv_converter * conversion_factor ;  // ** udunits conversion factor
-        TRICK_TYPE trick_type ;             // -- Trick type of this variable
+        REF2 * _var_info;  
+        void * _address;                      // -- address of data copied to buffer
+        int    _size;                         // -- size of data copied to buffer
+        bool   _deref;                        // -- indicates whether variable is pointer that needs to be dereferenced
+        cv_converter * _conversion_factor ;  // ** udunits conversion factor
+        TRICK_TYPE _trick_type ;             // -- Trick type of this variable
 
-        // TODO: use atomics for these
-        bool staged;
-        bool write_ready;
+        bool _staged;
+        bool _write_ready;
 
-        void *stage_buffer;
-        void *write_buffer;  
+        void *_stage_buffer;
+        void *_write_buffer;  
+
+        std::string _base_units;
+        std::string _requested_units; 
+        std::string _name;
     };
 
     std::ostream& operator<< (std::ostream& s, const Trick::VariableReference& ref);

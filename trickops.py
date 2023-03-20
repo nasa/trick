@@ -21,16 +21,33 @@ class SimTestWorkflow(TrickWorkflow):
             trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=self.cpus, quiet=quiet)
     def run( self ):
       build_jobs      = self.get_jobs(kind='build')
-      # Two sims have runs that require ordering via phases:
+
+      # This is awful but I can't think of another way around it
+      # SIM_test_varserver has 2 tests that should return the code for SIG_USR1, the number is different on Mac vs Linux
+      # so it can't be hardcoded in the input yml file. Maybe this is a case having a label on a run would be cleaner?
+      import signal
+      run_names = ["Run test/SIM_test_varserv RUN_test/err1_test.py", "Run test/SIM_test_varserv RUN_test/err2_test.py"]
+      for job in [job for job in self.get_jobs(kind='run') if job.name in run_names]:
+        job._expected_exit_status = signal.SIGUSR1.value
+
+      # Several sims have runs that require ordering via phases:
       #  - SIM_stls dumps a checkpoint that is then read in and checked by a subsequent run
       #  - SIM_checkpoint_data_recording dumps checkpoints that are read by subsequent runs
-      first_run_jobs     = self.get_jobs(kind='run', phase=-1)  # Get all jobs with early phase -1
-      remaining_run_jobs = self.get_jobs(kind='run', phase=0)   # Get all jobs with default phase 0
-      analysis_jobs   = self.get_jobs(kind='analyze')
+      #  - SIM_test_varserver has 3 runs that cannot be concurrent
+      #  - SIM_mc_generation generates runs and then runs them
+      phases = [-1, 0, 1, 2, 3]
 
+      analysis_jobs   = self.get_jobs(kind='analyze')
       builds_status = self.execute_jobs(build_jobs, max_concurrent=self.cpus, header='Executing all sim builds.')
-      first_phase_run_status = self.execute_jobs(first_run_jobs, max_concurrent=self.cpus, header="Executing first phase runs.", job_timeout=1000)
-      runs_status   = self.execute_jobs(remaining_run_jobs,   max_concurrent=self.cpus, header='Executing remaining runs.', job_timeout=1000)
+
+      jobs = build_jobs
+
+      run_status = 0
+      for phase in phases:
+        run_jobs = self.get_jobs(kind='run', phase=phase)
+        this_status = self.execute_jobs(run_jobs, max_concurrent=self.cpus, header="Executing phase " + str(phase) + " runs.", job_timeout=1000)
+        run_status = run_status or this_status
+        jobs += run_jobs
 
       comparison_result = self.compare()
       analysis_status = self.execute_jobs(analysis_jobs, max_concurrent=self.cpus, header='Executing all analysis.')
@@ -39,7 +56,6 @@ class SimTestWorkflow(TrickWorkflow):
       self.status_summary()   # Print a Succinct summary
 
       # Dump failing logs
-      jobs = build_jobs + first_run_jobs + remaining_run_jobs 
       for job in jobs:
         if job.get_status() == Job.Status.FAILED or job.get_status() == Job.Status.TIMEOUT:
           print ("*"*120)
@@ -54,7 +70,7 @@ class SimTestWorkflow(TrickWorkflow):
           print(open(job.log_file, "r").read())
           print ("*"*120, "\n\n\n")
 
-      return (builds_status or runs_status or first_phase_run_status or len(self.config_errors) > 0 or comparison_result or analysis_status)
+      return (builds_status or run_status or len(self.config_errors) > 0 or comparison_result or analysis_status)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build, run, and compare all test sims for Trick',

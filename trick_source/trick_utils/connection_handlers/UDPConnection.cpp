@@ -117,9 +117,9 @@ int Trick::UDPConnection::write (const std::string& message) {
     return _system_interface->sendto(_socket, send_buf, message.length(), 0, (struct sockaddr *) &_remote_serv_addr, sock_size );
 }
 
-std::string Trick::UDPConnection::read  (int max_len) {
+int Trick::UDPConnection::read  (std::string& message, int max_len) {
     if (!_started)
-        return "";
+        return 0;
 
     char incoming_msg[max_len];
     int nbytes = _system_interface->recvfrom( _socket, incoming_msg, MAX_CMD_LEN, MSG_PEEK, NULL, NULL ) ;
@@ -127,26 +127,36 @@ std::string Trick::UDPConnection::read  (int max_len) {
         return 0;
     }
 
-    if (nbytes != -1) { // -1 means socket is nonblocking and no data to read
-        /* find the last newline that is present on the socket */
-        incoming_msg[nbytes] = '\0' ;
-        char *last_newline = rindex( incoming_msg , '\n') ;
-
-        /* if there is a newline then there is a complete command on the socket */
-        if ( last_newline != NULL ) {
-            socklen_t sock_size = sizeof(_remote_serv_addr);
-            /* Save the remote host information so we know where to send replies */
-            /* only remove up to (and including) the last newline on the socket */
-            int size = last_newline - incoming_msg + 1;
-            nbytes = _system_interface->recvfrom( _socket, incoming_msg, size, 0 , (struct sockaddr *) &_remote_serv_addr, &sock_size ) ;
-        } else {
-            nbytes = 0 ;
+    if (nbytes == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // There's nothing ready in the socket, just return an empty string
+            message = "";
+            return 0;
         }
+
+        // Otherwise, some other system error has occurred. Return an error.
+        return -1;
     }
 
+    /* find the last newline that is present on the socket */
+    incoming_msg[nbytes] = '\0' ;
+    char *last_newline = rindex( incoming_msg , '\n') ;
+
+    /* if there is a newline then there is a complete command on the socket */
+    if ( last_newline != NULL ) {
+        socklen_t sock_size = sizeof(_remote_serv_addr);
+        /* Save the remote host information so we know where to send replies */
+        /* only remove up to (and including) the last newline on the socket */
+        int size = last_newline - incoming_msg + 1;
+        nbytes = _system_interface->recvfrom( _socket, incoming_msg, size, 0 , (struct sockaddr *) &_remote_serv_addr, &sock_size ) ;
+    } else {
+        nbytes = 0 ;
+    }
+    
     std::stringstream msg_stream;
 
     if ( nbytes > 0 ) {
+        // Strip out \r characers
 
         int msg_len = nbytes ;
         incoming_msg[msg_len] = '\0' ;
@@ -158,7 +168,8 @@ std::string Trick::UDPConnection::read  (int max_len) {
         }
     }
 
-    return msg_stream.str();
+    message = msg_stream.str();
+    return message.size();
 }
 
 int Trick::UDPConnection::disconnect () {
@@ -178,7 +189,7 @@ int Trick::UDPConnection::setBlockMode(bool blocking) {
     int flag = _system_interface->fcntl(_socket, F_GETFL, 0);
 
     if (flag == -1) {
-        std::string error_message = "Unable to get flags for fd " + std::to_string(_socket) + " block mode to " + std::to_string(blocking);
+        std::string error_message = "Unable to get flags for fd " + std::to_string(_socket);
         perror (error_message.c_str());
         return -1;
     }
@@ -200,6 +211,7 @@ int Trick::UDPConnection::setBlockMode(bool blocking) {
 
 int Trick::UDPConnection::restart() {
     _system_interface = new SystemInterface();
+    return 0;
 }
 
 bool Trick::UDPConnection::isInitialized() {
@@ -212,4 +224,29 @@ int Trick::UDPConnection::getPort() {
 
 std::string Trick::UDPConnection::getHostname() {
     return _hostname;
+}
+
+std::string Trick::UDPConnection::getClientTag () {
+    return _client_tag;
+}
+
+int Trick::UDPConnection::setClientTag (std::string tag) {
+    _client_tag = tag;
+    return 0;
+}
+
+std::string Trick::UDPConnection::getClientHostname() {
+    if (!_initialized) {
+        return "";
+    }
+
+    return inet_ntoa(_remote_serv_addr.sin_addr);
+}
+
+int Trick::UDPConnection::getClientPort() {
+    if (!_initialized) {
+        return 0;
+    }
+
+    return ntohs(_remote_serv_addr.sin_port);
 }
