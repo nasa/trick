@@ -13,23 +13,30 @@ namespace Trick {
     class TCPConnection : public ClientConnection {
         public:
 
+            TCPConnection ();
             TCPConnection (int listen_socket);
             TCPConnection (SystemInterface * system_interface);
             TCPConnection (int listen_socket, SystemInterface * system_interface);
 
-            int start() override;
+            virtual int start() override;
 
-            int write (const std::string& message) override;
-            int write (char * message, int size) override;
+            virtual int write (const std::string& message) override;
+            virtual int write (char * message, int size) override;
 
-            std::string read  (int max_len = MAX_CMD_LEN) override;
+            virtual int read  (std::string& message, int max_len  = MAX_CMD_LEN) override;
 
-            int disconnect () override;
-            bool isInitialized() override;
+            virtual int disconnect () override;
+            virtual bool isInitialized() override;
 
-            int setBlockMode(bool blocking) override;
+            virtual int setBlockMode(bool blocking) override;
 
-            int restart() override;
+            virtual int restart() override;
+
+            virtual std::string getClientTag () override;
+            virtual int setClientTag (std::string tag) override;
+
+            virtual std::string getClientHostname() override;
+            virtual int getClientPort() override;
 
         private:
             int _socket;

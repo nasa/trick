@@ -1,13 +1,11 @@
 
 #include "trick/VariableServer.hh"
 
+// This should only be called from the VST itself
 void exit_var_thread(void *in_vst) {
-    Trick::VariableServerThread * vst = (Trick::VariableServerThread *) in_vst ;
-    Trick::VariableServer * vs = vst->get_vs() ;
+    Trick::VariableServerSessionThread * vst = (Trick::VariableServerSessionThread *) in_vst ;
 
-    if (vst->get_pthread_id() != pthread_self()) {
-        std::cerr << "exit_var_thread must be called from the variable server thread" << std::endl;
-    }
+    Trick::VariableServer * vs = vst->get_vs() ;
     
     vs->delete_session(vst->get_pthread_id());
 

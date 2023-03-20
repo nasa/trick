@@ -6,16 +6,11 @@
 
 int Trick::VariableServer::get_next_sync_call_time() {
 
-    std::map < pthread_t , VariableServerSession * >::iterator it ;
-    VariableServerSession * session ;
-
-    long long next_call_tics ;
-
-    next_call_tics = TRICK_MAX_LONG_LONG ;
+    long long next_call_tics = TRICK_MAX_LONG_LONG ;
 
     pthread_mutex_lock(&map_mutex) ;
-    for ( it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
-        session = (*it).second ;
+    for ( auto it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
+        VariableServerSession * session = (*it).second ;
         if ( session->get_next_tics() < next_call_tics ) {
             next_call_tics = session->get_next_tics() ;
         }

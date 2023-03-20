@@ -12,7 +12,7 @@ A trick sim is a multi-threaded process, and all of the threads that are created
 | MessageTCDeviceListenThread | `trick_message.mdevice.get_listen_thread()`     |
 | MessageThreadedCout         | `trick_message.mtcout`                          |
 | DRDWriterThread             | `trick_data_record.drd.drd_writer_thread`       |
-| VariableServerThread        | `trick_vs.vs.get_vst(pthread_t thread_id)`      |
+| VariableServerSessionThread        | `trick_vs.vs.get_vst(pthread_t thread_id)`      |
 
 
 ## ThreadBase Methods

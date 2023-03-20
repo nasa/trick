@@ -37,6 +37,7 @@ jobs:
               maven
               cmake
               zip
+              gdb
             install_gtest: echo gtest already installed
             conf_pkg:  echo package manager already configured
             install_cmd: install -y
@@ -64,7 +65,7 @@ jobs:
               python3-pip
               python3-venv
             install_gtest: |
-              apt-get install -y libgtest-dev
+              apt-get install -y libgtest-dev libgmock-dev
               cd /usr/src/gtest
               cmake .
               make
@@ -100,7 +101,9 @@ jobs:
               libX11-devel
               libXt-devel
               swig3
-              gtest-devel
+            install_gtest: |
+              yum install -y http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-6.el7.noarch.rpm
+              yum install -y gtest gtest-devel gmock gmock-devel
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
@@ -113,12 +116,12 @@ jobs:
               dnf install -y 'dnf-command(config-manager)'
             install_gtest: |
               dnf config-manager --enable powertools
-              dnf install -y gtest-devel
+              dnf install -y gtest-devel gmock-devel
 #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux }
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
-              dnf install -y gtest-devel
+              dnf install -y gtest-devel gmock-devel
 #-------- Job definition ----------------
     runs-on: ubuntu-latest
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}

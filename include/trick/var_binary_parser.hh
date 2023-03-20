@@ -112,7 +112,6 @@ class ParsedBinaryMessage {
         void combine (const ParsedBinaryMessage& message);
         
         int parse (const std::vector<unsigned char>& bytes);
-        int parse (char * raw_bytes);
 
         int getMessageType() const;
         unsigned int getMessageSize() const;

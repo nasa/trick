@@ -9,9 +9,12 @@ int Trick::VariableServer::restart() {
     if ( listen_thread.get_pthread_id() == 0 ) {
         listen_thread.create_thread() ;
     }
-    std::map < pthread_t , VariableServerListenThread * >::iterator it ;
-    for( it = additional_listen_threads.begin() ; it != additional_listen_threads.end() ; it++ ) {
-        (*it).second->restart() ;
+
+    for (const auto& listen_it : additional_listen_threads) {
+        listen_it.second->restart();
+        if ( listen_it.second->get_pthread_id() == 0 ) {
+            listen_it.second->create_thread() ;
+        }
     }
     return 0 ;
 }
@@ -23,17 +26,17 @@ int Trick::VariableServer::restart() {
 
 // Suspend variable server processing prior to reloading a checkpoint.
 int Trick::VariableServer::suspendPreCheckpointReload() {
-    std::map<pthread_t, VariableServerThread*>::iterator pos ;
 
+    // Pause listening on all listening threads
     listen_thread.pause_listening() ;
     for (const auto& listen_it : additional_listen_threads) {
         listen_it.second->pause_listening();
     }
 
+    // Suspend session threads
     pthread_mutex_lock(&map_mutex) ;
-    for ( pos = var_server_threads.begin() ; pos != var_server_threads.end() ; pos++ ) {
-        VariableServerThread* vst = (*pos).second ;
-        vst->preload_checkpoint() ;
+    for (const auto& vst_it : var_server_threads ) {    
+        vst_it.second->preload_checkpoint() ;
     }
     pthread_mutex_unlock(&map_mutex) ;
 
@@ -42,16 +45,16 @@ int Trick::VariableServer::suspendPreCheckpointReload() {
 
 // Resume variable server processing after reloading a MemoryManager (ASCII) checkpoint.
 int Trick::VariableServer::resumePostCheckpointReload() {
-    std::map<pthread_t, VariableServerThread*>::iterator pos ;
+    std::map<pthread_t, VariableServerSessionThread*>::iterator pos ;
 
+    // Resume all session threads
     pthread_mutex_lock(&map_mutex) ;
-    // For each Variable Server Thread ...
-    for ( pos = var_server_threads.begin() ; pos != var_server_threads.end() ; pos++ ) {
-        VariableServerThread* vst = (*pos).second ;
-        vst->restart() ;
+    for (const auto& vst_it : var_server_threads ) {
+        vst_it.second->restart() ;
     }
     pthread_mutex_unlock(&map_mutex) ;
 
+    // Restart listening on all listening threads
     listen_thread.restart_listening() ;
     for (const auto& listen_it : additional_listen_threads) {
         listen_it.second->restart_listening();

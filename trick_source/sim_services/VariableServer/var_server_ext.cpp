@@ -11,9 +11,7 @@
 
 extern Trick::VariableServer * the_vs ;
 
-int command_debug = 0;
-
-Trick::VariableServerThread * get_vst() {
+Trick::VariableServerSessionThread * get_vst() {
     return the_vs->get_vst(pthread_self()) ;
 }
 
@@ -22,10 +20,6 @@ Trick::VariableServerSession * get_session() {
 }
 
 int var_add(std::string in_name) {
-    if (command_debug) {
-        std::cout << "var_add: " << in_name << std::endl;
-    }
-
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -35,9 +29,6 @@ int var_add(std::string in_name) {
 }
 
 int var_add(std::string in_name, std::string in_units) {
-    if (command_debug) {
-        std::cout << "var_add: " << in_name << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -47,9 +38,6 @@ int var_add(std::string in_name, std::string in_units) {
 }
 
 int var_remove(std::string in_name) {
-    if (command_debug) {
-        std::cout << "var_remove: " << in_name << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -59,9 +47,6 @@ int var_remove(std::string in_name) {
 }
 
 int var_units(std::string var_name , std::string units_name) {
-    if (command_debug) {
-        std::cout << "var_units: " << var_name << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -71,9 +56,6 @@ int var_units(std::string var_name , std::string units_name) {
 }
 
 int var_exists(std::string in_name) {
-    if (command_debug) {
-        std::cout << "var_exists: " << in_name << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -83,9 +65,6 @@ int var_exists(std::string in_name) {
 }
 
 int var_send_once(std::string in_name) {
-    if (command_debug) {
-        std::cout << "var_send_once: " << in_name << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -95,9 +74,6 @@ int var_send_once(std::string in_name) {
 }
 
 int var_send_once(std::string in_name, int num) {
-    if (command_debug) {
-        std::cout << "var_send_once: " << in_name << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -107,10 +83,6 @@ int var_send_once(std::string in_name, int num) {
 }
 
 int var_send() {
-    if (command_debug) {
-        std::cout << "var_send: " << std::endl;
-    }
-
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -120,9 +92,6 @@ int var_send() {
 }
 
 int var_clear() {
-    if (command_debug) {
-        std::cout << "var_clear: " << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -134,10 +103,6 @@ int var_clear() {
 }
 
 int var_cycle(double in_rate) {
-    if (command_debug) {
-        std::cout << "var_cycle: " << in_rate << std::endl;
-    }
-
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -147,10 +112,6 @@ int var_cycle(double in_rate) {
 }
 
 int var_pause() {
-    if (command_debug) {
-        std::cout << "var_pause" << std::endl;
-    }
-
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -161,9 +122,6 @@ int var_pause() {
 }
 
 int var_unpause() {
-    if (command_debug) {
-        std::cout << "var_unpause" << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -174,9 +132,6 @@ int var_unpause() {
 }
 
 int var_exit() {
-     if (command_debug) {
-        std::cout << "var_exit" << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -186,9 +141,6 @@ int var_exit() {
 }
 
 int var_validate_address(int on_off) {
-    if (command_debug) {
-        std::cout << "var_validate_address" << std::endl;
-    }
     Trick::VariableServerSession * session = get_session();
     
     if (session != NULL ) {
@@ -351,10 +303,7 @@ int var_write_stdio(int stream , std::string text ) {
 }
 
 int var_set_client_tag( std::string text ) {
-    if (command_debug) {
-        std::cout << "var_set_client_tag: " << text << std::endl;
-    }
-    Trick::VariableServerThread * vst = get_vst();
+    Trick::VariableServerSessionThread * vst = get_vst();
     if (vst != NULL) {
 
         vst->set_client_tag(text);
@@ -372,9 +321,6 @@ int var_set_client_tag( std::string text ) {
 }
 
 int var_send_list_size() {
-    if (command_debug) {
-        std::cout << "var_send_list_size" << std::endl;
-    }   
 
     Trick::VariableServerSession * session = get_session();
     if (session != NULL ) {
@@ -457,7 +403,6 @@ extern "C" void var_server_list_connections(void) {
  */
 extern "C" const char * var_server_get_hostname(void) {
     const char * ret = (the_vs->get_hostname()) ;
-    printf("varserverext:  %s", ret);
     return ret;
 }
 

@@ -9,7 +9,7 @@ TEST_F(VariableReference_test, getName) {
 
     // ACT
     // ASSERT
-    EXPECT_EQ(strcmp(ref.getName(), "test_int"), 0);
+    EXPECT_EQ(ref.getName(), std::string("test_int"));
 }
 
 TEST_F(VariableReference_test, validateAddress) {
@@ -162,7 +162,7 @@ TEST_F(VariableReference_test, printWithoutUnits) {
     std::stringstream ss;
 
     // ACT
-    EXPECT_STREQ(ref.getBaseUnits(), "m");
+    EXPECT_EQ(ref.getBaseUnits(), std::string("m"));
 
     // ASSERT
     // Doesn't actually print with units unless set

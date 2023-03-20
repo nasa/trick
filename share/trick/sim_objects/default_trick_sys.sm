@@ -456,22 +456,22 @@ class VariableServerSimObject : public Trick::SimObject {
             {TRK} ("preload_checkpoint") vs.suspendPreCheckpointReload();
             {TRK} ("restart") vs.restart();
             {TRK} ("restart") vs.resumePostCheckpointReload();
-            {TRK} ("top_of_frame") vs.copy_data_top() ;
-            {TRK} ("automatic_last") vs.copy_data_scheduled() ;
+            {TRK} ("top_of_frame") vs.copy_and_write_top() ;
+            {TRK} ("automatic_last") vs.copy_and_write_scheduled() ;
 
             {TRK} ("freeze_init") vs.freeze_init() ;
-            {TRK} ("freeze_automatic") vs.copy_data_freeze_scheduled() ;
-            {TRK} ("freeze") vs.copy_data_freeze() ;
+            {TRK} ("freeze_automatic") vs.copy_and_write_freeze_scheduled() ;
+            {TRK} ("freeze") vs.copy_and_write_freeze() ;
 
 
             {TRK} ("shutdown") vs.shutdown() ;
 
-            // Set the static VariableServer pointer in the VariableServerThread class.
-            Trick::VariableServerThread::set_vs_ptr(&vs) ;
+            // Set the static VariableServer pointer in the VariableServerSessionThread class.
+            Trick::VariableServerSessionThread::set_vs_ptr(&vs) ;
 
             // get the process_event job and set it in the event processor.
-            vs.set_copy_data_job(get_job("vs.copy_data_scheduled")) ;
-            vs.set_copy_data_freeze_job(get_job("vs.copy_data_freeze_scheduled")) ;
+            vs.set_copy_data_job(get_job("vs.copy_and_write_scheduled")) ;
+            vs.set_copy_and_write_freeze_job(get_job("vs.copy_and_write_freeze_scheduled")) ;
         }
 
         private:

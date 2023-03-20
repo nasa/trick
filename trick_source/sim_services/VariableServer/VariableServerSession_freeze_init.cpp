@@ -6,10 +6,10 @@
 #include "trick/TrickConstant.hh"
 
 int Trick::VariableServerSession::freeze_init() {
-    if ( enabled && copy_mode == VS_COPY_SCHEDULED) {
-        freeze_next_tics = cycle_tics ;
+    if ( _enabled && _copy_mode == VS_COPY_SCHEDULED) {
+        _freeze_next_tics = _cycle_tics ;
     } else {
-        freeze_next_tics = TRICK_MAX_LONG_LONG ;
+        _freeze_next_tics = TRICK_MAX_LONG_LONG ;
     }
     return 0 ;
 }

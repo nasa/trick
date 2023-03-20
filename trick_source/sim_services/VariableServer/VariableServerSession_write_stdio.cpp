@@ -11,7 +11,7 @@ int Trick::VariableServerSession::write_stdio(int stream, std::string text) {
     outstream << VS_STDIO << " " << stream << " " << (int)text.length() << "\n";
     outstream << text;
 
-    connection->write(outstream.str());
+    _connection->write(outstream.str());
 
     return 0 ;
 }

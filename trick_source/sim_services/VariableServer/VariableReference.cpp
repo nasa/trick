@@ -15,19 +15,18 @@
 #include "trick/UdUnits.hh"
 #include "trick/bitfield_proto.h"
 #include "trick/trick_byteswap.h"
-// #include "trick/tc_proto.h"
 
 
 // Static variables to be addresses that are known to be the error ref address
-int Trick::VariableReference::bad_ref_int = 0 ;
-int Trick::VariableReference::do_not_resolve_bad_ref_int = 0 ;
+int Trick::VariableReference::_bad_ref_int = 0 ;
+int Trick::VariableReference::_do_not_resolve_bad_ref_int = 0 ;
 
 REF2* Trick::VariableReference::make_error_ref(std::string in_name) {
     REF2* new_ref;
     new_ref = (REF2*)calloc(1, sizeof(REF2));
     new_ref->reference = strdup(in_name.c_str()) ;
     new_ref->units = NULL ;
-    new_ref->address = (char *)&bad_ref_int ;
+    new_ref->address = (char *)&_bad_ref_int ;
     new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
     new_ref->attr->type = TRICK_NUMBER_OF_TYPES ;
     new_ref->attr->units = (char *)"--" ;
@@ -40,7 +39,7 @@ REF2* Trick::VariableReference::make_do_not_resolve_ref(std::string in_name) {
     new_ref = (REF2*)calloc(1, sizeof(REF2));
     new_ref->reference = strdup(in_name.c_str()) ;
     new_ref->units = NULL ;
-    new_ref->address = (char *)&do_not_resolve_bad_ref_int ;
+    new_ref->address = (char *)&_do_not_resolve_bad_ref_int ;
     new_ref->attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES)) ;
     new_ref->attr->type = TRICK_NUMBER_OF_TYPES ;
     new_ref->attr->units = (char *)"--" ;
@@ -62,146 +61,152 @@ REF2* make_time_ref(double * time) {
     return new_ref;
 }
 
-Trick::VariableReference::VariableReference(std::string var_name, double* time) : staged(false), write_ready(false) {
+Trick::VariableReference::VariableReference(std::string var_name, double* time) : _staged(false), _write_ready(false) {
     if (var_name != "time") {
         ASSERT(0);
     }
 
-    var_info = make_time_ref(time);
+    _var_info = make_time_ref(time);
 
     // Set up member variables
-    address = var_info->address;
-    size = var_info->attr->size ;
-    deref = false;
+    _address = _var_info->address;
+    _size = _var_info->attr->size ;
+    _deref = false;
 
     // Deal with weirdness around string vs wstring
-    trick_type = var_info->attr->type ;
+    _trick_type = _var_info->attr->type ;
 
     // Allocate stage and write buffers
-    stage_buffer = calloc(size, 1) ;
-    write_buffer = calloc(size, 1) ;
+    _stage_buffer = calloc(_size, 1) ;
+    _write_buffer = calloc(_size, 1) ;
 
-    conversion_factor = cv_get_trivial();
+    _conversion_factor = cv_get_trivial();
+    _base_units = _var_info->attr->units;
+    _requested_units = "s";
+    _name = _var_info->reference;
 }
 
-Trick::VariableReference::VariableReference(std::string var_name) : staged(false), write_ready(false) {
+Trick::VariableReference::VariableReference(std::string var_name) : _staged(false), _write_ready(false) {
 
     if (var_name == "time") {
         ASSERT(0);
     } else {
         // get variable attributes from memory manager
-        var_info = ref_attributes(var_name.c_str());
+        _var_info = ref_attributes(var_name.c_str());
     }
 
     // Handle error cases
-    if ( var_info == NULL ) {
+    if ( _var_info == NULL ) {
         // TODO: ERROR LOGGER sendErrorMessage("Variable Server could not find variable %s.\n", var_name);
         // PRINTF IS NOT AN ERROR LOGGER @me
         printf("Variable Server could not find variable %s.\n", var_name.c_str());
-        var_info = make_error_ref(var_name);
-    } else if ( var_info->attr ) {
-        if ( var_info->attr->type == TRICK_STRUCTURED ) {
+        _var_info = make_error_ref(var_name);
+    } else if ( _var_info->attr ) {
+        if ( _var_info->attr->type == TRICK_STRUCTURED ) {
             // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name);
             printf("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name.c_str());
 
-            free(var_info);
-            var_info = make_do_not_resolve_ref(var_name);
+            free(_var_info);
+            _var_info = make_do_not_resolve_ref(var_name);
 
-        } else if ( var_info->attr->type == TRICK_STL ) {
+        } else if ( _var_info->attr->type == TRICK_STL ) {
             // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name);
             printf("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
 
-            free(var_info);
-            var_info = make_do_not_resolve_ref(var_name);
+            free(_var_info);
+            _var_info = make_do_not_resolve_ref(var_name);
         }
     } else {
         // sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
         printf("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
 
-        free(var_info);
-        var_info = make_error_ref(var_name);
+        free(_var_info);
+        _var_info = make_error_ref(var_name);
     }
 
     // Set up member variables
-    var_info->units = NULL;
-    address = var_info->address;
-    size = var_info->attr->size ;
-    deref = false;
+    _var_info->units = NULL;
+    _address = _var_info->address;
+    _size = _var_info->attr->size ;
+    _deref = false;
 
     // Deal with weirdness around string vs wstring
-    trick_type = var_info->attr->type ;
+    _trick_type = _var_info->attr->type ;
 
-    if ( var_info->num_index == var_info->attr->num_index ) {
+    if ( _var_info->num_index == _var_info->attr->num_index ) {
         // single value - nothing else necessary
-    } else if ( var_info->attr->index[var_info->attr->num_index - 1].size != 0 ) {
+    } else if ( _var_info->attr->index[_var_info->attr->num_index - 1].size != 0 ) {
         // Constrained array
-        for ( int i = var_info->attr->num_index-1;  i > var_info->num_index-1 ; i-- ) {
-            size *= var_info->attr->index[i].size ;
+        for ( int i = _var_info->attr->num_index-1;  i > _var_info->num_index-1 ; i-- ) {
+            _size *= _var_info->attr->index[i].size ;
         }
     } else {
         // Unconstrained array
-        if ((var_info->attr->num_index - var_info->num_index) > 1 ) {
+        if ((_var_info->attr->num_index - _var_info->num_index) > 1 ) {
             // TODO: ERROR LOGGER
-            printf("Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", var_info->reference);
+            printf("Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", _var_info->reference);
             printf("Data is not contiguous so returned values are unpredictable.\n") ;
         }
-        if ( var_info->attr->type == TRICK_CHARACTER ) {
-            trick_type = TRICK_STRING ;
-            deref = true;
-        } else if ( var_info->attr->type == TRICK_WCHAR ) {
-            trick_type = TRICK_WSTRING ;
-            deref = true;
+        if ( _var_info->attr->type == TRICK_CHARACTER ) {
+            _trick_type = TRICK_STRING ;
+            _deref = true;
+        } else if ( _var_info->attr->type == TRICK_WCHAR ) {
+            _trick_type = TRICK_WSTRING ;
+            _deref = true;
         } else {
-            deref = true ;
-            size *= get_size((char*)address) ;
+            _deref = true ;
+            _size *= get_size((char*)_address) ;
         }
     }
     // handle strings: set a max buffer size, the copy size may vary so will be set in copy_sim_data
-    if (( trick_type == TRICK_STRING ) || ( trick_type == TRICK_WSTRING )) {
-        size = MAX_ARRAY_LENGTH ;
+    if (( _trick_type == TRICK_STRING ) || ( _trick_type == TRICK_WSTRING )) {
+        _size = MAX_ARRAY_LENGTH ;
     }
 
     // Allocate stage and write buffers
-    stage_buffer = calloc(size, 1) ;
-    write_buffer = calloc(size, 1) ;
+    _stage_buffer = calloc(_size, 1) ;
+    _write_buffer = calloc(_size, 1) ;
 
-    conversion_factor = cv_get_trivial();
+    _conversion_factor = cv_get_trivial();
+    _base_units = _var_info->attr->units;
+    _requested_units = "";
+    _name = _var_info->reference;
 
     // Done!
 }
 
 Trick::VariableReference::~VariableReference() {
-    if (var_info != NULL) {
-        free( var_info );
-        var_info = NULL;
+    if (_var_info != NULL) {
+        free( _var_info );
+        _var_info = NULL;
     }
-    if (stage_buffer != NULL) {
-        free (stage_buffer);
-        stage_buffer = NULL;
+    if (_stage_buffer != NULL) {
+        free (_stage_buffer);
+        _stage_buffer = NULL;
     }
-    if (write_buffer != NULL) {
-        free (write_buffer);
-        write_buffer = NULL;
+    if (_write_buffer != NULL) {
+        free (_write_buffer);
+        _write_buffer = NULL;
     }
-    if (conversion_factor != NULL) {
-        cv_free(conversion_factor);
+    if (_conversion_factor != NULL) {
+        cv_free(_conversion_factor);
     }
 }
 
-const char* Trick::VariableReference::getName() const {
-    return var_info->reference;
+std::string Trick::VariableReference::getName() const {
+    return _name;
 }
 
 int Trick::VariableReference::getSizeBinary() const {
-    return size;
+    return _size;
 }
 
 TRICK_TYPE Trick::VariableReference::getType() const {
-    return trick_type;
+    return _trick_type;
 }
 
-const char* Trick::VariableReference::getBaseUnits() const {
-    return var_info->attr->units;
+std::string Trick::VariableReference::getBaseUnits() const {
+    return _base_units;
 }
 
 int Trick::VariableReference::setRequestedUnits(std::string units_name) {
@@ -238,7 +243,7 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
         }
 
         // Interpret base unit
-        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), getBaseUnits(), UT_ASCII) ;
+        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), getBaseUnits().c_str(), UT_ASCII) ;
         if ( !from ) {
             std::cout << "Error in interpreting base units" << std::endl;
             publishError(getBaseUnits());
@@ -267,79 +272,75 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
             publish(MSG_ERROR, oss.str());
             return -1 ;
         } else {
-            conversion_factor = new_conversion_factor;
-        }
-
-        // Don't memory leak the old units!
-        if (var_info->units != NULL)  {
-            free(var_info->units);
+            _conversion_factor = new_conversion_factor;
         }
     
         // Set the requested units. This will cause the unit string to be printed in write_value_ascii
-        var_info->units = strdup(new_units.c_str());;
+        _requested_units = new_units;
     }
     return 0;
 }
 
 int Trick::VariableReference::stageValue(bool validate_address) {
-    write_ready = false;
+    _write_ready = false;
 
     // Copy <size> bytes from <address> to staging_point.
 
     // Try to recreate connection if it has been broken
-    if (var_info->address == &bad_ref_int) {
-        REF2 *new_ref = ref_attributes(var_info->reference);
+    if (_var_info->address == &_bad_ref_int) {
+        REF2 *new_ref = ref_attributes(_var_info->reference);
         if (new_ref != NULL) {
-            var_info = new_ref;
-            address = var_info->address;
+            _var_info = new_ref;
+            _address = _var_info->address;
+            // _requested_units = "";
         }
     }
 
     // if there's a pointer somewhere in the address path, follow it in case pointer changed
-    if ( var_info->pointer_present == 1 ) {
-        address = follow_address_path(var_info) ;
-        if (address == NULL) {
+    if ( _var_info->pointer_present == 1 ) {
+        _address = follow_address_path(_var_info) ;
+        if (_address == NULL) {
             tagAsInvalid();
         } else if ( validate_address ) {
             validate();
         } else {
-            var_info->address = address ;
+            _var_info->address = _address ;
         }
     }
 
     // if this variable is a string we need to get the raw character string out of it.
-    if (( trick_type == TRICK_STRING ) && !deref) {
-        std::string * str_ptr = (std::string *)var_info->address ;
+    if (( _trick_type == TRICK_STRING ) && !_deref) {
+        std::string * str_ptr = (std::string *)_var_info->address ;
         // Get a pointer to the internal character array
-        address = (void *)(str_ptr->c_str()) ;
+        _address = (void *)(str_ptr->c_str()) ;
     }
 
     // if this variable itself is a pointer, dereference it
-    if ( deref ) {
-        address = *(void**)var_info->address ;
+    if ( _deref ) {
+        _address = *(void**)_var_info->address ;
     }
 
     // handle c++ string and char*
-    if ( trick_type == TRICK_STRING ) {
-        if (address == NULL) {
-            size = 0 ;
+    if ( _trick_type == TRICK_STRING ) {
+        if (_address == NULL) {
+            _size = 0 ;
         } else {
-            size = strlen((char*)address) + 1 ;
+            _size = strlen((char*)_address) + 1 ;
         }
     }
     // handle c++ wstring and wchar_t*
-    if ( trick_type == TRICK_WSTRING ) {
-        if (address == NULL) {
-            size = 0 ;
+    if ( _trick_type == TRICK_WSTRING ) {
+        if (_address == NULL) {
+            _size = 0 ;
         } else {
-            size = wcslen((wchar_t *)address) * sizeof(wchar_t);
+            _size = wcslen((wchar_t *)_address) * sizeof(wchar_t);
         }
     }
-    if(address != NULL) {
-        memcpy( stage_buffer , address , size ) ;
+    if(_address != NULL) {
+        memcpy( _stage_buffer , _address , _size ) ;
     }
 
-    staged = true;
+    _staged = true;
     return 0;
 }
 
@@ -349,10 +350,10 @@ bool Trick::VariableReference::validate() {
     // check the memory manager if the address falls into
     // any of the memory blocks it knows of.  Don't do this if we have a std::string or
     // wstring type, or we already are pointing to a bad ref.
-    if ( (trick_type != TRICK_STRING) and
-            (trick_type != TRICK_WSTRING) and
-            (var_info->address != &bad_ref_int) and
-            (get_alloc_info_of(address) == NULL) ) {
+    if ( (_trick_type != TRICK_STRING) and
+            (_trick_type != TRICK_WSTRING) and
+            (_var_info->address != &_bad_ref_int) and
+            (get_alloc_info_of(_address) == NULL) ) {
         
         // This variable is broken, make it into an error ref
         tagAsInvalid();
@@ -398,46 +399,41 @@ int Trick::VariableReference::getSizeAscii() const {
 
 int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
     // This is copied and modified from vs_format_ascii
-    // There's a lot here that doesn't make sense to me that I need to come back to
-    // There seems to be a huge buffer overflow issue in the original.
-    // Only strings are checked for length, arrays aren't
-    // But using a stream instead should make that better
-    // The way that arrays are handled seems weird.
 
     if (!isWriteReady()) {
         return -1;
     }
 
     int bytes_written = 0;
-    void * buf_ptr = write_buffer ;
-    while (bytes_written < size) {
-        bytes_written += var_info->attr->size ;
+    void * buf_ptr = _write_buffer ;
+    while (bytes_written < _size) {
+        bytes_written += _var_info->attr->size ;
 
-        switch (trick_type) {
+        switch (_trick_type) {
 
         case TRICK_CHARACTER:
-            if (var_info->attr->num_index == var_info->num_index) {
+            if (_var_info->attr->num_index == _var_info->num_index) {
                 // Single char
-                out << (int)cv_convert_double(conversion_factor, *(char *)buf_ptr);
+                out << (int)cv_convert_double(_conversion_factor, *(char *)buf_ptr);
             } else {
                 // All but last dim specified, leaves a char array 
                 write_escaped_string(out, (const char *) buf_ptr);
-                bytes_written = size ;
+                bytes_written = _size ;
             }
             break;
         case TRICK_UNSIGNED_CHARACTER:
-            if (var_info->attr->num_index == var_info->num_index) {
+            if (_var_info->attr->num_index == _var_info->num_index) {
                 // Single char
-                out << (unsigned int)cv_convert_double(conversion_factor,*(unsigned char *)buf_ptr);
+                out << (unsigned int)cv_convert_double(_conversion_factor,*(unsigned char *)buf_ptr);
             } else {
                 // All but last dim specified, leaves a char array 
                 write_escaped_string(out, (const char *) buf_ptr);
-                bytes_written = size ;
+                bytes_written = _size ;
             }
             break;
 
         case TRICK_WCHAR:{
-                if (var_info->attr->num_index == var_info->num_index) {
+                if (_var_info->attr->num_index == _var_info->num_index) {
                     out << *(wchar_t *) buf_ptr;
                 } else {
                     // convert wide char string char string
@@ -446,7 +442,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                     char temp_buf[len];
                     wcs_to_ncs((wchar_t *) buf_ptr, temp_buf, len);
                     out << temp_buf;
-                    bytes_written = size ;
+                    bytes_written = _size ;
                 }
             }
             break;
@@ -454,7 +450,7 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         case TRICK_STRING:
             if ((char *) buf_ptr != NULL) {
                 write_escaped_string(out, (const char *) buf_ptr);
-                bytes_written = size ;
+                bytes_written = _size ;
             } else {
                 out << '\0';
             }
@@ -468,44 +464,44 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
                 char temp_buf[len];
                 wcs_to_ncs(  (wchar_t *) buf_ptr, temp_buf, len);
                 out << temp_buf;
-                bytes_written = size ;
+                bytes_written = _size ;
             } else {
                 out << '\0';
             }
             break;
         case TRICK_SHORT:
-            out << (short)cv_convert_double(conversion_factor,*(short *)buf_ptr);
+            out << (short)cv_convert_double(_conversion_factor,*(short *)buf_ptr);
             break;
 
         case TRICK_UNSIGNED_SHORT:
-            out << (unsigned short)cv_convert_double(conversion_factor,*(unsigned short *)buf_ptr);
+            out << (unsigned short)cv_convert_double(_conversion_factor,*(unsigned short *)buf_ptr);
             break;
 
         case TRICK_INTEGER:
         case TRICK_ENUMERATED:
-            out << (int)cv_convert_double(conversion_factor,*(int *)buf_ptr);
+            out << (int)cv_convert_double(_conversion_factor,*(int *)buf_ptr);
             break;
 
         case TRICK_BOOLEAN:
-            out << (int)cv_convert_double(conversion_factor,*(bool *)buf_ptr);
+            out << (int)cv_convert_double(_conversion_factor,*(bool *)buf_ptr);
             break;
 
         case TRICK_BITFIELD:
-            out << (GET_BITFIELD(buf_ptr, var_info->attr->size, var_info->attr->index[0].start, var_info->attr->index[0].size));
+            out << (GET_BITFIELD(buf_ptr, _var_info->attr->size, _var_info->attr->index[0].start, _var_info->attr->index[0].size));
             break;
 
         case TRICK_UNSIGNED_BITFIELD:
-            out << (GET_UNSIGNED_BITFIELD(buf_ptr, var_info->attr->size, var_info->attr->index[0].start, var_info->attr->index[0].size));
+            out << (GET_UNSIGNED_BITFIELD(buf_ptr, _var_info->attr->size, _var_info->attr->index[0].start, _var_info->attr->index[0].size));
             break;
             
         case TRICK_UNSIGNED_INTEGER:
-            out << (unsigned int)cv_convert_double(conversion_factor,*(unsigned int *)buf_ptr);
+            out << (unsigned int)cv_convert_double(_conversion_factor,*(unsigned int *)buf_ptr);
             break;
 
         case TRICK_LONG: {
             long l = *(long *)buf_ptr;
-            if (conversion_factor != cv_get_trivial()) {
-                l = (long)cv_convert_double(conversion_factor, l);
+            if (_conversion_factor != cv_get_trivial()) {
+                l = (long)cv_convert_double(_conversion_factor, l);
             }
             out << l;
             break;
@@ -513,25 +509,25 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
 
         case TRICK_UNSIGNED_LONG: {
             unsigned long ul = *(unsigned long *)buf_ptr;
-            if (conversion_factor != cv_get_trivial()) {
-                ul = (unsigned long)cv_convert_double(conversion_factor, ul);
+            if (_conversion_factor != cv_get_trivial()) {
+                ul = (unsigned long)cv_convert_double(_conversion_factor, ul);
             }
             out << ul;
             break;
         }
 
         case TRICK_FLOAT:
-            out << std::setprecision(8) << cv_convert_float(conversion_factor,*(float *)buf_ptr);
+            out << std::setprecision(8) << cv_convert_float(_conversion_factor,*(float *)buf_ptr);
             break;
 
         case TRICK_DOUBLE:
-            out << std::setprecision(16) << cv_convert_double(conversion_factor,*(double *)buf_ptr);
+            out << std::setprecision(16) << cv_convert_double(_conversion_factor,*(double *)buf_ptr);
             break;
 
         case TRICK_LONG_LONG: {
             long long ll = *(long long *)buf_ptr;
-            if (conversion_factor != cv_get_trivial()) {
-                ll = (long long)cv_convert_double(conversion_factor, ll);
+            if (_conversion_factor != cv_get_trivial()) {
+                ll = (long long)cv_convert_double(_conversion_factor, ll);
             }
             out << ll;
             break;
@@ -539,8 +535,8 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
 
         case TRICK_UNSIGNED_LONG_LONG: {
             unsigned long long ull = *(unsigned long long *)buf_ptr;
-            if (conversion_factor != cv_get_trivial()) {
-                ull = (unsigned long long)cv_convert_double(conversion_factor, ull);
+            if (_conversion_factor != cv_get_trivial()) {
+                ull = (unsigned long long)cv_convert_double(_conversion_factor, ull);
             }
             out << ull;
             break;
@@ -556,18 +552,18 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         }
         } // end switch
 
-        if (bytes_written < size) {
+        if (bytes_written < _size) {
         // if returning an array, continue array as comma separated values
             out << ",";
-            buf_ptr = (void*) ((long)buf_ptr + var_info->attr->size) ;
+            buf_ptr = (void*) ((long)buf_ptr + _var_info->attr->size) ;
         }
     } //end while
 
-    if (var_info->units) {
-        if ( var_info->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
+    if (_requested_units != "") {
+        if ( _var_info->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
             out << " {--}";
         } else {
-            out << " {" << var_info->units << "}";
+            out << " {" << _requested_units << "}";
         }
     }
 
@@ -576,36 +572,36 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
 
 void Trick::VariableReference::tagAsInvalid () {
     std::string save_name(getName()) ;
-    free(var_info) ;
-    var_info = make_error_ref(save_name) ;
-    address = var_info->address ;
+    free(_var_info) ;
+    _var_info = make_error_ref(save_name) ;
+    _address = _var_info->address ;
 }
 
 
 int Trick::VariableReference::prepareForWrite() {
-    if (!staged) {
+    if (!_staged) {
         return 1;
     }
 
-    void * temp_p = stage_buffer;
-    stage_buffer = write_buffer;
-    write_buffer = temp_p;
+    void * temp_p = _stage_buffer;
+    _stage_buffer = _write_buffer;
+    _write_buffer = temp_p;
 
-    staged = false;
-    write_ready = true;
+    _staged = false;
+    _write_ready = true;
     return 0;
 }
 
 bool Trick::VariableReference::isStaged() const {
-    return staged;
+    return _staged;
 }
 
 bool Trick::VariableReference::isWriteReady() const {
-    return write_ready;
+    return _write_ready;
 }
 
 int Trick::VariableReference::writeTypeBinary( std::ostream& out, bool byteswap ) const {
-    int local_type = trick_type;
+    int local_type = _trick_type;
     if (byteswap) {
         local_type = trick_byteswap_int(local_type);
     }
@@ -615,7 +611,7 @@ int Trick::VariableReference::writeTypeBinary( std::ostream& out, bool byteswap 
 }
 
 int Trick::VariableReference::writeSizeBinary( std::ostream& out, bool byteswap ) const {
-    int local_size = size;
+    int local_size = _size;
     if (byteswap) {
         local_size = trick_byteswap_int(local_size);
     }
@@ -625,15 +621,15 @@ int Trick::VariableReference::writeSizeBinary( std::ostream& out, bool byteswap 
 }
 
 int Trick::VariableReference::writeNameBinary( std::ostream& out, bool byteswap ) const {
-    const char * name = getName();
+    std::string name = getName();
 
-    int name_size = strlen(name);
+    int name_size = name.size();
     if (byteswap) {
         name_size = trick_byteswap_int(name_size);
     }
 
     out.write(const_cast<const char *>(reinterpret_cast<char *>(&name_size)), sizeof(int));
-    out.write(name, strlen(name));
+    out.write(name.c_str(), name.size());
 
     return 0;
 }
@@ -644,11 +640,11 @@ void Trick::VariableReference::byteswap_var (char * out, char * in) const {
 
 
 void Trick::VariableReference::byteswap_var (char * out, char * in, const VariableReference& ref) {
-    ATTRIBUTES * attr = ref.var_info->attr;
+    ATTRIBUTES * attr = ref._var_info->attr;
     int array_size = 1;
 
     // Determine how many elements are in this array if it is an array
-    for (int j = 0; j < ref.var_info->attr->num_index; j++) {
+    for (int j = 0; j < ref._var_info->attr->num_index; j++) {
         array_size *= attr->index[j].size;
     }
 
@@ -696,41 +692,42 @@ void Trick::VariableReference::byteswap_var (char * out, char * in, const Variab
 
 int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap ) const {
 
-    char buf[20480];
-    int temp_i ;
-    unsigned int temp_ui ;
-
-    // int offset = 0;
-
-    switch ( var_info->attr->type ) {
-        case TRICK_BITFIELD:
-            temp_i = GET_BITFIELD(address , var_info->attr->size ,
-                var_info->attr->index[0].start, var_info->attr->index[0].size) ;
-            memcpy(buf, &temp_i , (size_t)size) ;
-        break ;
-        case TRICK_UNSIGNED_BITFIELD:
-            temp_ui = GET_UNSIGNED_BITFIELD(address , var_info->attr->size ,
-                    var_info->attr->index[0].start, var_info->attr->index[0].size) ;
-            memcpy(buf , &temp_ui , (size_t)size) ;
-        break ;
-        case TRICK_NUMBER_OF_TYPES:
-            // TRICK_NUMBER_OF_TYPES is an error case
-            temp_i = 0 ;
-            memcpy(buf , &temp_i , (size_t)size) ;
-        break ;
-        default:
-            if (byteswap)
-                byteswap_var(buf, (char *) address);
-            else
-                memcpy(buf , address , (size_t)size) ;
-        break ;
+    if ( _trick_type == TRICK_BITFIELD ) {
+        int temp_i = GET_BITFIELD(_write_buffer , _var_info->attr->size ,
+            _var_info->attr->index[0].start, _var_info->attr->index[0].size) ;
+        out.write((char *)(&temp_i), _size);
+        return _size;
     }
 
-    out.write(buf, size);
+    if ( _trick_type == TRICK_UNSIGNED_BITFIELD ) {
+        int temp_unsigned = GET_UNSIGNED_BITFIELD(_write_buffer , _var_info->attr->size ,
+                _var_info->attr->index[0].start, _var_info->attr->index[0].size) ;
+        out.write((char *)(&temp_unsigned), _size);
+        return _size;
+    }
+
+    if (_trick_type ==  TRICK_NUMBER_OF_TYPES) {
+        // TRICK_NUMBER_OF_TYPES is an error case
+        int temp_zero = 0 ;
+        out.write((char *)(&temp_zero), _size);
+        return _size;
+    }
+
+    if (byteswap) {
+        char * byteswap_buf = (char *) calloc (_size, 1);
+        byteswap_var(byteswap_buf, (char *) _write_buffer);
+        out.write(byteswap_buf, _size);
+        free (byteswap_buf);
+    }
+    else {
+        out.write((char *) _write_buffer, _size);
+    }
+
+    return _size;
+    
 }  
 
 std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableReference& ref) {
-
     s << "      \"" << ref.getName() << "\"";
     return s;
 }
