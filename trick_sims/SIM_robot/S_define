@@ -1,24 +1,56 @@
-
-/************************************************************
+/************************TRICK HEADER*************************
 PURPOSE:
-    ( Simulation of Robot Arm. )
+    ( Simulate kinematic, planar 2 degree-of-freedom manipulator )
 LIBRARY DEPENDENCIES:
-    ((arm/src/Arm.cpp))
+    (
+        (manipulator/manipulator.cc)
+    )
 *************************************************************/
+
 #include "sim_objects/default_trick_sys.sm"
-##include "arm/include/Arm.hh"
-class ArmSimObject : public Trick::SimObject {
+##include "include/trick/exec_proto.h"
+
+##include "manipulator/manipulator.hh"
+
+class ManipulatorSimObject : public Trick::SimObject
+{
+
     public:
-    Arm arm;
+        PlanarManip robot;
 
-    ArmSimObject() {
-        ("default_data")            arm.default_data() ;
-        ("initialization")          arm.state_init() ;
-        ("derivative")              arm.state_deriv() ;
-        ("integration") trick_ret = arm.state_integ() ;
+        double t;
 
-    }
+        ManipulatorSimObject(int ndof): robot(ndof)
+        {
+            t = 0.0;
+            (0.050, "scheduled")  robot.calcKinematics();
+            (0.050, "scheduled")  autoMove(&t, false);
+            (0.050, "scheduled")  robot.control();
+            (0.050, "scheduled")  robot.updateState();
+        }
+
+        void autoMove(double *t, bool enabled)
+        {
+            int i;
+            double dt = exec_get_job_cycle("");
+
+            if (!enabled)
+                return;
+
+            *t += dt;
+            std::cout<<*t<<std::endl;
+
+            robot.mode = Manual;
+
+            if(*t<4.00)
+                robot.controller.manualCommandRate[0] = -.5;
+            else if (*t >= 4.00 && *t< 8.00)
+                robot.controller.manualCommandRate[0] =  .5;
+            else
+                *t = 0;
+        }
+
+
 };
 
-ArmSimObject dyn;
-IntegLoop dyn_integloop(0.1) dyn;
+ManipulatorSimObject Manip2D(2) ;

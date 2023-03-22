@@ -409,7 +409,7 @@ public class RobotDisplay extends JFrame {
 
         // Have the Variable Server send us the number of links once.
         robotDisplay.out.writeBytes(
-            "trick.var_add(\"dyn.arm.nlinks\")\n" +
+            "trick.var_add(\"Manip2D.robot.kinemat.ndof\")\n" +
             "trick.var_send() \n" +
             "trick.var_clear() \n");
         robotDisplay.out.flush();
@@ -431,8 +431,8 @@ public class RobotDisplay extends JFrame {
         robotDisplay.out.writeBytes( "trick.var_pause() \n");
         for ( ii = 0; ii < nlinks; ii ++) {
             robotDisplay.out.writeBytes(
-                  String.format("trick.var_add(\"dyn.arm.links[%d][0].l\")\n", ii)
-                + String.format("trick.var_add(\"dyn.arm.links[%d][0].q\")\n", ii)
+                  String.format("trick.var_add(\"Manip2D.robot.kinemat.joint_l[%d][0]\")\n", ii)
+                + String.format("trick.var_add(\"Manip2D.robot.kinemat.joint_q[%d]\")\n", ii)
             );
         }
         robotDisplay.out.writeBytes(
