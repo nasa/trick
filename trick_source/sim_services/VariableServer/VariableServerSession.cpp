@@ -6,7 +6,7 @@
 #include "trick/realtimesync_proto.h"
 
 
-Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
+Trick::VariableServerSession::VariableServerSession() {
     debug = 0;
     enabled = true ;
     log = false ;
@@ -24,7 +24,6 @@ Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
 
     next_tics = TRICK_MAX_LONG_LONG ;
     freeze_next_tics = TRICK_MAX_LONG_LONG ;
-    connection = conn;
     byteswap = false ;
     validate_address = false ;
     send_stdio = false ;
@@ -40,6 +39,12 @@ Trick::VariableServerSession::VariableServerSession(ClientConnection * conn) {
 }
 
 Trick::VariableServerSession::~VariableServerSession() { }
+
+
+void Trick::VariableServerSession::set_connection(ClientConnection * conn) {
+    connection = conn;
+}
+
 
 // Command to turn on log to varserver_log file
 int Trick::VariableServerSession::set_log_on() {
@@ -98,7 +103,7 @@ long long Trick::VariableServerSession::get_freeze_next_tics() const {
     return freeze_next_tics ;
 }
 
-int Trick::VariableServerSession::handleMessage() {
+int Trick::VariableServerSession::handle_message() {
 
     std::string received_message;
     int nbytes = connection->read(received_message);

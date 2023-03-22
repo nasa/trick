@@ -2,8 +2,8 @@
 PURPOSE: (Represent the state of a variable server connection.)
 **************************************************************************/
 
-#ifndef WSSESSION_HH
-#define WSSESSION_HH
+#ifndef VSSESSION_HH
+#define VSSESSION_HH
 
 #include <vector>
 #include <string>
@@ -18,15 +18,23 @@ PURPOSE: (Represent the state of a variable server connection.)
 namespace Trick {
     class VariableServerSession {
     public:
-        VariableServerSession(ClientConnection * connection);
-        ~VariableServerSession();
+        VariableServerSession();
+
+        virtual ~VariableServerSession();
 
         friend std::ostream& operator<< (std::ostream& s, const Trick::VariableServerSession& session);
 
         /**
+         * @brief Set the connection object
+         * 
+         * @param connection - a pointer to a ClientConnection that is initialized and ready to go
+         */
+        virtual void set_connection(ClientConnection * connection);
+
+        /**
          @brief Read a message from the connection and act on it
         */
-        virtual int  handleMessage();
+        virtual int  handle_message();
 
         /**
          @brief Get the pause state of this thread.
@@ -76,7 +84,7 @@ namespace Trick {
         int copy_data_scheduled(long long curr_tics);
         int copy_data_top();
 
-        virtual int write_stdio(int stream, std::string text);
+        int write_stdio(int stream, std::string text);
 
         void disconnect_references();
 
@@ -86,13 +94,13 @@ namespace Trick {
 
         int freeze_init();
 
-        double get_update_rate() const;
+        virtual double get_update_rate() const;
 
         void pause_copy();
         void unpause_copy();
 
-        VS_WRITE_MODE get_write_mode () const;
-        VS_COPY_MODE get_copy_mode () const;
+        virtual VS_WRITE_MODE get_write_mode () const;
+        virtual VS_COPY_MODE get_copy_mode () const;
 
 
         /************************************************************************************************/

@@ -54,7 +54,7 @@ TEST_F(VariableServerSession_test, toString) {
     (void) memmgr->declare_extern_var(&b, "double b");
     (void) memmgr->declare_extern_var(&c, "std::string c");
 
-    Trick::VariableServerSession session(&connection);
+    Trick::VariableServerSession session;
 
     session.var_add("a");
     session.var_add("b");
@@ -76,7 +76,7 @@ TEST_F(VariableServerSession_test, toString) {
 
 TEST_F(VariableServerSession_test, var_sync) {
     // ARRANGE
-    Trick::VariableServerSession session(&connection);
+    Trick::VariableServerSession session;
 
     // ACT
     session.var_sync(0);
@@ -101,7 +101,8 @@ TEST_F(VariableServerSession_test, var_sync) {
 
 TEST_F(VariableServerSession_test, large_message_ascii) {
     // ARRANGE
-    Trick::VariableServerSession session(&connection);
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
 
     const static int big_arr_size = 4000;
     // Make an array too big to fit in a single message
@@ -176,7 +177,8 @@ TEST_F(VariableServerSession_test, large_message_ascii) {
 
 TEST_F(VariableServerSession_test, large_message_binary) {
     // ARRANGE
-    Trick::VariableServerSession session(&connection);
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
     session.var_binary();
 
     const static int big_arr_size = 4000;

@@ -25,41 +25,42 @@ void * Trick::VariableServerThread::thread_body() {
     // Check for short running sims
     test_shutdown(NULL, NULL);
 
-    //  We need to make the thread to VariableServerThread map before we accept the connection.
+    //  We need to make the thread to VariableServerThread map before we accept the _connection.
     //  Otherwise we have a race where this thread is unknown to the variable server and the
-    //  client gets confirmation that the connection is ready for communication.
-    vs->add_vst( pthread_self() , this ) ;
+    //  client gets confirmation that the _connection is ready for communication.
+    _vs->add_vst( pthread_self() , this ) ;
 
-    // Accept client connection
-    int status = connection->start();
+    // Accept client _connection
+    int status = _connection->start();
 
     if (status != 0) {
         // TODO: Use a real error handler
-        vs->delete_vst(pthread_self());
+        _vs->delete_vst(pthread_self());
 
         // Tell main thread that we failed to initialize
-        pthread_mutex_lock(&connection_status_mutex);
-        connection_status = CONNECTION_FAIL;
-        pthread_cond_signal(&connection_status_cv);
-        pthread_mutex_unlock(&connection_status_mutex);
+        pthread_mutex_lock(&_connection_status_mutex);
+        _connection_status = CONNECTION_FAIL;
+        pthread_cond_signal(&_connection_status_cv);
+        pthread_mutex_unlock(&_connection_status_mutex);
 
         cleanup();
         pthread_exit(NULL);
     }
 
-    // Create session
-    session = new VariableServerSession(connection);
-    vs->add_session( pthread_self(), session );
+    // Give the initialized connection to the session
+    // Don't touch the connection anymore until we shut them both down
+    _session->set_connection(_connection);
+    _vs->add_session( pthread_self(), _session );
 
     // Tell main that we are ready
-    pthread_mutex_lock(&connection_status_mutex);
-    connection_status = CONNECTION_SUCCESS;
-    pthread_cond_signal(&connection_status_cv);
-    pthread_mutex_unlock(&connection_status_mutex);
+    pthread_mutex_lock(&_connection_status_mutex);
+    _connection_status = CONNECTION_SUCCESS;
+    pthread_cond_signal(&_connection_status_cv);
+    pthread_mutex_unlock(&_connection_status_mutex);
 
     // if log is set on for variable server (e.g., in input file), turn log on for each client
-    if (vs->get_log()) {
-        session->set_log_on();
+    if (_vs->get_log()) {
+        _session->set_log_on();
     }
 
     try {
@@ -68,42 +69,42 @@ void * Trick::VariableServerThread::thread_body() {
             test_shutdown(exit_var_thread, (void *) this);
 
             // Pause here if we are in a restart condition
-            pthread_mutex_lock(&restart_pause) ;
+            pthread_mutex_lock(&_restart_pause) ;
 
             // Look for a message from the client
             // Parse and execute if one is availible
-            int read_status = session->handleMessage();
+            int read_status = _session->handle_message();
             if ( read_status < 0 ) {
-                pthread_mutex_unlock(&restart_pause) ;
+                pthread_mutex_unlock(&_restart_pause) ;
                 break ;
             }
 
             // Check to see if exit is necessary
-            if (session->get_exit_cmd() == true) {
-                pthread_mutex_unlock(&restart_pause) ;
+            if (_session->get_exit_cmd() == true) {
+                pthread_mutex_unlock(&_restart_pause) ;
                 break;
             }
 
             // Copy data out of sim if async mode
-            if ( session->get_copy_mode() == VS_COPY_ASYNC ) {
-                session->copy_sim_data() ;
+            if ( _session->get_copy_mode() == VS_COPY_ASYNC ) {
+                _session->copy_sim_data() ;
             }
     
-            bool should_write_async = (session->get_write_mode() == VS_WRITE_ASYNC) || 
-                                        ( session->get_copy_mode() == VS_COPY_ASYNC && (session->get_write_mode() == VS_WRITE_WHEN_COPIED)) || 
+            bool should_write_async = (_session->get_write_mode() == VS_WRITE_ASYNC) || 
+                                        ( _session->get_copy_mode() == VS_COPY_ASYNC && (_session->get_write_mode() == VS_WRITE_WHEN_COPIED)) || 
                                         (! is_real_time());
 
             // Write data out to connection if async mode and not paused
-            if ( should_write_async && !session->get_pause()) {
-                int ret = session->write_data() ;
+            if ( should_write_async && !_session->get_pause()) {
+                int ret = _session->write_data() ;
                 if ( ret < 0 ) {
-                    pthread_mutex_unlock(&restart_pause) ;
+                    pthread_mutex_unlock(&_restart_pause) ;
                     break ;
                 }
             }
-            pthread_mutex_unlock(&restart_pause) ;
+            pthread_mutex_unlock(&_restart_pause) ;
 
-            usleep((unsigned int) (session->get_update_rate() * 1000000));
+            usleep((unsigned int) (_session->get_update_rate() * 1000000));
         }
     } catch (Trick::ExecutiveException & ex ) {
         message_publish(MSG_ERROR, "\nVARIABLE SERVER COMMANDED exec_terminate\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n" ,
@@ -138,8 +139,8 @@ void * Trick::VariableServerThread::thread_body() {
 #endif
     }
 
-    if (debug >= 3) {
-        message_publish(MSG_DEBUG, "%p tag=<%s> var_server receive loop exiting\n", connection, connection->getClientTag().c_str());
+    if (_debug >= 3) {
+        message_publish(MSG_DEBUG, "%p tag=<%s> var_server receive loop exiting\n", _connection, _connection->getClientTag().c_str());
     }
 
     thread_shutdown(exit_var_thread, this);

@@ -23,13 +23,18 @@ namespace Trick {
 
     class VariableServer ;
 
-    /** Flag to indicate the connection has been made\n */
+    /** Flag to indicate the connection has been made */
     enum ConnectionStatus { CONNECTION_PENDING, CONNECTION_SUCCESS, CONNECTION_FAIL };
 
 
 /**
-  This class provides variable server command processing on a separate thread for each client.
+  The purpose of this class is to run a VariableServerSession.
+    - Manages creation and cleanup of the network connection
+    - Manages thread startup and shutdown
+    - Invokes parts of the VariableServerSession that run asynchronously (reading from client, copying and writing to client if in applicable mode)
+
   @author Alex Lin
+  @author Jackie Deans (2023)
  */
     class VariableServerThread : public Trick::SysThread {
 
@@ -40,7 +45,8 @@ namespace Trick {
              @brief Constructor.
             */
             VariableServerThread() ;
-
+            VariableServerThread(VariableServerSession * session) ;
+            
             virtual ~VariableServerThread() ;
             /**
              @brief static routine called from S_define to set the VariableServer pointer for all threads.
@@ -54,16 +60,6 @@ namespace Trick {
              @brief Set the connection pointer for this thread
             */
             void set_connection(ClientConnection * in_connection);
-
-            /**
-             @brief Open a UDP socket for this thread
-            */
-            int open_udp_socket(const std::string& hostname, int port);
-
-            /**
-             @brief Open a TCP connection for this thread
-            */
-            int open_tcp_connection(ClientListener * listener);
 
             /**
              @brief Block until thread has accepted connection
@@ -86,41 +82,32 @@ namespace Trick {
 
         protected:
 
-            /**
-             @brief Called by send_sie commands to transmit files through the socket.
-            */
-            int transmit_file(std::string file_name);
+            // /**
+            //  @brief Called by send_sie commands to transmit files through the socket.
+            // */
+            // int transmit_file(std::string file_name);
 
             /** The Master variable server object. */
-            static VariableServer * vs ;
+            static VariableServer * _vs ;
 
             /** Manages the variable list  */
-            VariableServerSession * session;       /**<  trick_io(**) */
+            VariableServerSession * _session;       /**<  trick_io(**) */
 
             /** Connection to the client */
-            ClientConnection * connection;        /**<  trick_io(**) */
+            ClientConnection * _connection;        /**<  trick_io(**) */
 
             /** Value (1,2,or 3) that causes the variable server to output increasing amounts of debug information.\n */
-            int debug ;                      /**<  trick_io(**) */
+            int _debug ;                      /**<  trick_io(**) */
 
-            /** Toggle to enable/disable this variable server thread.\n */
-            bool enabled ;                   /**<  trick_io(**) */
-
-            ConnectionStatus connection_status ;       /**<  trick_io(**) */
-            pthread_mutex_t connection_status_mutex;     /**<  trick_io(**) */
-            pthread_cond_t connection_status_cv;         /**<  trick_io(**) */
+            ConnectionStatus _connection_status ;       /**<  trick_io(**) */
+            pthread_mutex_t _connection_status_mutex;     /**<  trick_io(**) */
+            pthread_cond_t _connection_status_cv;         /**<  trick_io(**) */
 
             /** The mutex pauses all processing during checkpoint restart */
-            pthread_mutex_t restart_pause ;     /**<  trick_io(**) */
+            pthread_mutex_t _restart_pause ;     /**<  trick_io(**) */
 
             // bool pause_cmd;
-            bool saved_pause_cmd;
-
-            /** The simulation time converted to seconds\n */
-            double time ;                    /**<  trick_units(s) */
-
-            /** Toggle to tell variable server to send data multicast or point to point.\n */
-            bool multicast ;                 /**<  trick_io(**) */
+            bool _saved_pause_cmd;
     } ;
 
     std::ostream& operator<< (std::ostream& s, VariableServerThread& vst);

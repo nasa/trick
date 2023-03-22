@@ -209,7 +209,7 @@ set( SS_SRC
   VariableServer/VariableServer_freeze_init
   VariableServer/VariableServer_get_next_freeze_call_time
   VariableServer/VariableServer_get_next_sync_call_time
-  VariableServer/VariableServer_get_var_server_port
+  VariableServer/VariableServer_open_additional_servers
   VariableServer/VariableServer_init
   VariableServer/VariableServer_restart
   VariableServer/VariableServer_shutdown
