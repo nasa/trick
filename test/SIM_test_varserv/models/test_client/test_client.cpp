@@ -12,6 +12,7 @@
 #include <cmath>
 #include <ctype.h>
 #include <pwd.h>
+#include <fstream>
 
 #include <gtest/gtest.h>
 
@@ -501,7 +502,7 @@ TEST_F (VariableServerTestAltListener, RestartAndSet) {
     load_checkpoint(socket, "RUN_test/reload_file.ckpnt");
 
     socket >> reply;
-    expected = std::string("0\t-1234\t-123456\n");
+    expected = std::string("0\t-1234\t-123456 {m}\n");
 
     EXPECT_EQ(reply, expected);
 }
@@ -764,6 +765,99 @@ TEST_F (VariableServerTest, ListSize) {
 }
 
 
+TEST_F (VariableServerTest, SendSieResource) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    socket << "trick.send_sie_resource()\n";
+
+    std::stringstream received_file;
+    std::string file_temp;
+
+    while (socket.check_for_message_availible()) {
+        socket >> file_temp;
+        received_file << file_temp;
+    }
+
+    std::string first_line;
+    std::getline(received_file, first_line);
+
+    // We're not gonna bother comparing the contents
+    // Just check to see that the message type is correct
+    ASSERT_EQ(first_line.at(0), '2');
+}
+
+TEST_F (VariableServerTest, SendSieClass) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    socket << "trick.send_sie_class()\n";
+
+    std::stringstream received_file;
+    std::string file_temp;
+
+    while (socket.check_for_message_availible()) {
+        socket >> file_temp;
+        received_file << file_temp;
+    }
+
+    std::string first_line;
+    std::getline(received_file, first_line);
+
+    // We're not gonna bother comparing the contents
+    // Just check to see that the message type is correct
+    ASSERT_EQ(first_line.at(0), '2');
+}
+
+TEST_F (VariableServerTest, SendSieEnum) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    socket << "trick.send_sie_enum()\n";
+
+    std::stringstream received_file;
+    std::string file_temp;
+
+    while (socket.check_for_message_availible()) {
+        socket >> file_temp;
+        received_file << file_temp;
+    }
+
+    std::string first_line;
+    std::getline(received_file, first_line);
+
+    // We're not gonna bother comparing the contents
+    // Just check to see that the message type is correct
+    ASSERT_EQ(first_line.at(0), '2');
+}
+
+
+TEST_F (VariableServerTest, SendSieClassTopLevelObjects) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    socket << "trick.send_sie_top_level_objects()\n";
+
+    std::stringstream received_file;
+    std::string file_temp;
+
+    while (socket.check_for_message_availible()) {
+        socket >> file_temp;
+        received_file << file_temp;
+    }
+
+    std::string first_line;
+    std::getline(received_file, first_line);
+
+    // We're not gonna bother comparing the contents
+    // Just check to see that the message type is correct
+    ASSERT_EQ(first_line.at(0), '2');
+}
+
 TEST_F (VariableServerTest, RestartAndSet) {
     if (socket_status != 0) {
         FAIL();
@@ -793,7 +887,7 @@ TEST_F (VariableServerTest, RestartAndSet) {
     load_checkpoint(socket, "RUN_test/reload_file.ckpnt");
 
     socket >> reply;
-    expected = std::string("0\t-1234\t-123456\n");
+    expected = std::string("0\t-1234\t-123456 {m}\n");
 
     EXPECT_EQ(reply, expected);
 }

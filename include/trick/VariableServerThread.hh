@@ -6,11 +6,9 @@
 #ifndef VARIABLESERVERTHREAD_HH
 #define VARIABLESERVERTHREAD_HH
 
-#include <vector>
 #include <string>
 #include <iostream>
 #include <pthread.h>
-#include "trick/tc.h"
 #include "trick/SysThread.hh"
 #include "trick/VariableServerSession.hh"
 #include "trick/variable_server_sync_types.h"
@@ -81,12 +79,6 @@ namespace Trick {
             void cleanup();
 
         protected:
-
-            // /**
-            //  @brief Called by send_sie commands to transmit files through the socket.
-            // */
-            // int transmit_file(std::string file_name);
-
             /** The Master variable server object. */
             static VariableServer * _vs ;
 

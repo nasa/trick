@@ -27,3 +27,4 @@ build
 S_sie.json
 *.ckpnt
 MonteCarlo_Meta_data_output
+*.xml

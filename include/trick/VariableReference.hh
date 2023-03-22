@@ -27,7 +27,7 @@ namespace Trick {
 
         ~VariableReference();
 
-        const char* getName() const;
+        std::string getName() const;
         TRICK_TYPE getType() const;
 
         // There are 2 different "units" variables used - REF2->units and REF2->attr->units
@@ -37,7 +37,7 @@ namespace Trick {
         // We'll refer to REF2->attr->units as BaseUnits and REF2->units as RequestedUnits
         // Encapsulate all of this away so that no one else has to think about ref->attr->units vs ref->units
         // ^ TODO: this is not where the above documentation should be. put it somewhere else.
-        const char* getBaseUnits() const;
+        std::string getBaseUnits() const;
         int setRequestedUnits(std::string new_units);
 
         // These variables have 2 staging buffers that we can swap between to allow for different copy and write-out modes
@@ -86,12 +86,15 @@ namespace Trick {
         cv_converter * conversion_factor ;  // ** udunits conversion factor
         TRICK_TYPE trick_type ;             // -- Trick type of this variable
 
-        // TODO: use atomics for these
         bool staged;
         bool write_ready;
 
         void *stage_buffer;
         void *write_buffer;  
+
+        std::string base_units;
+        std::string requested_units; 
+        std::string name;
     };
 
     std::ostream& operator<< (std::ostream& s, const Trick::VariableReference& ref);

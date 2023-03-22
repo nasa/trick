@@ -34,7 +34,7 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
         int total_var_size = 0;
         if (!binary_data_nonames) {
             total_var_size += sizeof_size;
-            total_var_size += strlen(var->getName());
+            total_var_size += var->getName().size();
         }
 
         total_var_size += type_size;

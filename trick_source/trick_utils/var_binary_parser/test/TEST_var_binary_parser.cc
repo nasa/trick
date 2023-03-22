@@ -3,7 +3,6 @@
 #include <vector> 
 #include <climits>
 #include <fcntl.h>
-// #include <io.h>
 #include "trick/var_binary_parser.hh"
 
 // int hi = 161
@@ -837,7 +836,7 @@ TEST (BinaryParserTest, ParseLong) {
     // apparently this can be different by platform so we need to be careful here
     size_t long_size = sizeof(long);
     std::vector<unsigned char> bytes;
-    for (int i = 0; i < long_size-1; i++) {
+    for (unsigned int i = 0; i < long_size-1; i++) {
         bytes.push_back(0x00);
     }
     bytes.push_back(0x80);
@@ -871,7 +870,7 @@ TEST (BinaryParserTest, ParseUnsignedLong) {
     // apparently this can be different by platform so we need to be careful here
     size_t long_size = sizeof(unsigned long);
     std::vector<unsigned char> bytes;
-    for (int i = 0; i < long_size-1; i++) {
+    for (unsigned int i = 0; i < long_size-1; i++) {
         bytes.push_back(0xFF);
     }
     bytes.push_back(0x7F);
@@ -904,7 +903,7 @@ TEST (BinaryParserTest, ParseLongLong) {
     // apparently this can be different by platform so we need to be careful here
     size_t long_long_size = sizeof(long long);
     std::vector<unsigned char> bytes;
-    for (int i = 0; i < long_long_size-1; i++) {
+    for (unsigned int i = 0; i < long_long_size-1; i++) {
         bytes.push_back(0x00);
     }
     bytes.push_back(0x80);
@@ -937,7 +936,7 @@ TEST (BinaryParserTest, ParseUnsignedLongLong) {
     // apparently this can be different by platform so we need to be careful here
     size_t long_long_size = sizeof(unsigned long long);
     std::vector<unsigned char> bytes;
-    for (int i = 0; i < long_long_size-1; i++) {
+    for (unsigned int i = 0; i < long_long_size-1; i++) {
         bytes.push_back(0xFF);
     }
     bytes.push_back(0x7F);
@@ -1055,7 +1054,7 @@ TEST (BinaryParserTest, ParseWChar) {
     wchar_t test_wchar = L'J';
     std::vector<unsigned char> bytes;
     
-    for (int i = 0; i < sizeof(wchar_t); i++) {
+    for (unsigned int i = 0; i < sizeof(wchar_t); i++) {
         bytes.push_back((unsigned char)((test_wchar >> (i*8)) & 0xFF));
     }
 
@@ -1066,11 +1065,17 @@ TEST (BinaryParserTest, ParseWChar) {
 
 TEST (BinaryParserTest, ParseWCharWrongType) {
     Var variable;
-    std::vector<unsigned char> bytes = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x14, 0xc0};
+    wchar_t test_wchar = L'J';
+    std::vector<unsigned char> bytes;
+    
+    for (unsigned int i = 0; i < sizeof(wchar_t); i++) {
+        bytes.push_back((unsigned char)((test_wchar >> (i*8)) & 0xFF));
+    }    
+    
     variable.setValue(bytes, 8, TRICK_INTEGER, false);
 
     try {
-        variable.getValue<std::string>();
+        variable.getValue<wchar_t>();
         FAIL() << "Expected exception thrown";
     }
     catch(ParseTypeException& ex) {

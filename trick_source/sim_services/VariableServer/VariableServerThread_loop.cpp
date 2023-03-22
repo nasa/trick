@@ -1,22 +1,17 @@
 
-#include <stdio.h>
-#include <string.h>
 #include <iostream>
 #ifdef __linux
 #include <cxxabi.h>
 #endif
-#include <netdb.h>
-
 
 #include "trick/VariableServer.hh"
 #include "trick/variable_server_sync_types.h"
 #include "trick/input_processor_proto.h"
-#include "trick/tc_proto.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/realtimesync_proto.h"
 #include "trick/ExecutiveException.hh"
-#include "trick/exec_proto.h"
+// #include "trick/exec_proto.h"
 
 void exit_var_thread(void *in_vst) ;
 
@@ -25,16 +20,15 @@ void * Trick::VariableServerThread::thread_body() {
     // Check for short running sims
     test_shutdown(NULL, NULL);
 
-    //  We need to make the thread to VariableServerThread map before we accept the _connection.
+    //  We need to make the thread to VariableServerThread map before we accept the connection.
     //  Otherwise we have a race where this thread is unknown to the variable server and the
-    //  client gets confirmation that the _connection is ready for communication.
+    //  client gets confirmation that the connection is ready for communication.
     _vs->add_vst( pthread_self() , this ) ;
 
-    // Accept client _connection
+    // Accept client connection
     int status = _connection->start();
 
     if (status != 0) {
-        // TODO: Use a real error handler
         _vs->delete_vst(pthread_self());
 
         // Tell main thread that we failed to initialize

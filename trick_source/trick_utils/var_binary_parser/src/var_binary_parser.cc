@@ -272,24 +272,6 @@ const size_t ParsedBinaryMessage::variable_name_length_size = 4;
 const size_t ParsedBinaryMessage::variable_type_size = 4;
 const size_t ParsedBinaryMessage::variable_size_size = 4;
 
-// Sometimes, we need to reconstruct the size from the message.
-// Risk of segfaulting here if the bytes are not correctly formed
-int ParsedBinaryMessage::parse (char * raw_bytes) {
-    std::vector<unsigned char> bytes;
-    unsigned int i = 0;
-    for ( ; i < message_indicator_size + message_size_size; i++) {
-        bytes.push_back(raw_bytes[i]);
-    }
-
-    unsigned int message_size = bytesToInt(std::vector<unsigned char> (bytes.begin() + message_indicator_size, bytes.begin() + message_indicator_size + message_size_size), _byteswap);
-    for ( ; i < message_size + message_indicator_size; i++) {
-        bytes.push_back(raw_bytes[i]);
-    }
-
-    return parse(bytes);
-}
-
-
 int ParsedBinaryMessage::parse (const std::vector<unsigned char>& bytes) {
     if (bytes.size() < header_size) {
         throw MalformedMessageException(std::string("Not enough bytes in message to contain header: expected at least 12, got " + std::to_string(bytes.size())));

@@ -82,6 +82,9 @@ Trick::VariableReference::VariableReference(std::string var_name, double* time) 
     write_buffer = calloc(size, 1) ;
 
     conversion_factor = cv_get_trivial();
+    base_units = var_info->attr->units;
+    requested_units = "s";
+    name = var_info->reference;
 }
 
 Trick::VariableReference::VariableReference(std::string var_name) : staged(false), write_ready(false) {
@@ -166,6 +169,9 @@ Trick::VariableReference::VariableReference(std::string var_name) : staged(false
     write_buffer = calloc(size, 1) ;
 
     conversion_factor = cv_get_trivial();
+    base_units = var_info->attr->units;
+    requested_units = "";
+    name = var_info->reference;
 
     // Done!
 }
@@ -188,8 +194,8 @@ Trick::VariableReference::~VariableReference() {
     }
 }
 
-const char* Trick::VariableReference::getName() const {
-    return var_info->reference;
+std::string Trick::VariableReference::getName() const {
+    return name;
 }
 
 int Trick::VariableReference::getSizeBinary() const {
@@ -200,8 +206,8 @@ TRICK_TYPE Trick::VariableReference::getType() const {
     return trick_type;
 }
 
-const char* Trick::VariableReference::getBaseUnits() const {
-    return var_info->attr->units;
+std::string Trick::VariableReference::getBaseUnits() const {
+    return base_units;
 }
 
 int Trick::VariableReference::setRequestedUnits(std::string units_name) {
@@ -238,7 +244,7 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
         }
 
         // Interpret base unit
-        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), getBaseUnits(), UT_ASCII) ;
+        ut_unit * from = ut_parse(Trick::UdUnits::get_u_system(), getBaseUnits().c_str(), UT_ASCII) ;
         if ( !from ) {
             std::cout << "Error in interpreting base units" << std::endl;
             publishError(getBaseUnits());
@@ -269,14 +275,9 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
         } else {
             conversion_factor = new_conversion_factor;
         }
-
-        // Don't memory leak the old units!
-        if (var_info->units != NULL)  {
-            free(var_info->units);
-        }
     
         // Set the requested units. This will cause the unit string to be printed in write_value_ascii
-        var_info->units = strdup(new_units.c_str());;
+        requested_units = new_units;
     }
     return 0;
 }
@@ -292,6 +293,7 @@ int Trick::VariableReference::stageValue(bool validate_address) {
         if (new_ref != NULL) {
             var_info = new_ref;
             address = var_info->address;
+            // requested_units = "";
         }
     }
 
@@ -563,11 +565,11 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         }
     } //end while
 
-    if (var_info->units) {
+    if (requested_units != "") {
         if ( var_info->attr->mods & TRICK_MODS_UNITSDASHDASH ) {
             out << " {--}";
         } else {
-            out << " {" << var_info->units << "}";
+            out << " {" << requested_units << "}";
         }
     }
 
@@ -625,15 +627,15 @@ int Trick::VariableReference::writeSizeBinary( std::ostream& out, bool byteswap 
 }
 
 int Trick::VariableReference::writeNameBinary( std::ostream& out, bool byteswap ) const {
-    const char * name = getName();
+    std::string name = getName();
 
-    int name_size = strlen(name);
+    int name_size = name.size();
     if (byteswap) {
         name_size = trick_byteswap_int(name_size);
     }
 
     out.write(const_cast<const char *>(reinterpret_cast<char *>(&name_size)), sizeof(int));
-    out.write(name, strlen(name));
+    out.write(name.c_str(), name.size());
 
     return 0;
 }
@@ -696,39 +698,42 @@ void Trick::VariableReference::byteswap_var (char * out, char * in, const Variab
 
 int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap ) const {
 
-    char buf[20480];
-    int temp_i ;
-    unsigned int temp_ui ;
-
-    switch ( var_info->attr->type ) {
-        case TRICK_BITFIELD:
-            temp_i = GET_BITFIELD(address , var_info->attr->size ,
-                var_info->attr->index[0].start, var_info->attr->index[0].size) ;
-            memcpy(buf, &temp_i , (size_t)size) ;
-        break ;
-        case TRICK_UNSIGNED_BITFIELD:
-            temp_ui = GET_UNSIGNED_BITFIELD(address , var_info->attr->size ,
-                    var_info->attr->index[0].start, var_info->attr->index[0].size) ;
-            memcpy(buf , &temp_ui , (size_t)size) ;
-        break ;
-        case TRICK_NUMBER_OF_TYPES:
-            // TRICK_NUMBER_OF_TYPES is an error case
-            temp_i = 0 ;
-            memcpy(buf , &temp_i , (size_t)size) ;
-        break ;
-        default:
-            if (byteswap)
-                byteswap_var(buf, (char *) address);
-            else
-                memcpy(buf , address , (size_t)size) ;
-        break ;
+    if ( trick_type == TRICK_BITFIELD ) {
+        int temp_i = GET_BITFIELD(write_buffer , var_info->attr->size ,
+            var_info->attr->index[0].start, var_info->attr->index[0].size) ;
+        out.write((char *)(&temp_i), size);
+        return size;
     }
 
-    out.write(buf, size);
+    if ( trick_type == TRICK_UNSIGNED_BITFIELD ) {
+        int temp_unsigned = GET_UNSIGNED_BITFIELD(write_buffer , var_info->attr->size ,
+                var_info->attr->index[0].start, var_info->attr->index[0].size) ;
+        out.write((char *)(&temp_unsigned), size);
+        return size;
+    }
+
+    if (trick_type ==  TRICK_NUMBER_OF_TYPES) {
+        // TRICK_NUMBER_OF_TYPES is an error case
+        int temp_zero = 0 ;
+        out.write((char *)(&temp_zero), size);
+        return size;
+    }
+
+    if (byteswap) {
+        char * byteswap_buf = (char *) calloc (size, 1);
+        byteswap_var(byteswap_buf, (char *) write_buffer);
+        out.write(byteswap_buf, size);
+        free (byteswap_buf);
+    }
+    else {
+        out.write((char *) write_buffer, size);
+    }
+
+    return size;
+    
 }  
 
 std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableReference& ref) {
-
     s << "      \"" << ref.getName() << "\"";
     return s;
 }
