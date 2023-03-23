@@ -7,6 +7,7 @@ PURPOSE: (2D Manipulator class definitions including kinematics and control)
 #include "kinematics/ManipKinemat.hh"
 #include "control/ManipControl.hh"
 #include "utils/utils.hh"
+#include "trick/integrator_c_intf.h"
 
 #include <cmath>
 #include <iostream>
@@ -35,7 +36,8 @@ class PlanarManip
 
         void calcKinematics();      /* -- call kinematics routines */
         void control();             /* -- call control routines */
-        void updateState();         /* -- update manipulator state */
+        int  stateDeriv();          /* -- update velocities for integration */
+        int  updateState();         /* -- update manipulator state */
 };
 
 

@@ -9,7 +9,6 @@ LIBRARY DEPENDENCIES:
 
 #include "sim_objects/default_trick_sys.sm"
 ##include "include/trick/exec_proto.h"
-
 ##include "manipulator/manipulator.hh"
 
 class ManipulatorSimObject : public Trick::SimObject
@@ -18,39 +17,16 @@ class ManipulatorSimObject : public Trick::SimObject
     public:
         PlanarManip robot;
 
-        double t;
-
         ManipulatorSimObject(int ndof): robot(ndof)
         {
-            t = 0.0;
             (0.050, "scheduled")  robot.calcKinematics();
-            (0.050, "scheduled")  autoMove(&t, false);
             (0.050, "scheduled")  robot.control();
-            (0.050, "scheduled")  robot.updateState();
+            ("derivative")        robot.stateDeriv();
+            ("integration")       trick_ret = robot.updateState();
         }
-
-        void autoMove(double *t, bool enabled)
-        {
-            int i;
-            double dt = exec_get_job_cycle("");
-
-            if (!enabled)
-                return;
-
-            *t += dt;
-            std::cout<<*t<<std::endl;
-
-            robot.mode = Manual;
-
-            if(*t<4.00)
-                robot.controller.manualCommandRate[0] = -.5;
-            else if (*t >= 4.00 && *t< 8.00)
-                robot.controller.manualCommandRate[0] =  .5;
-            else
-                *t = 0;
-        }
-
 
 };
 
-ManipulatorSimObject Manip2D(2) ;
+ManipulatorSimObject Manip2D(2);
+
+IntegLoop armIntegLoop(0.050) Manip2D;

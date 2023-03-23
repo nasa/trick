@@ -92,22 +92,42 @@ void PlanarManip::control()
 
 }
 
-void PlanarManip::updateState()
+int PlanarManip::stateDeriv()
+{
+    return(0);
+}
+
+
+
+int PlanarManip::updateState()
 {
 
-    int i;
-    double dt = exec_get_job_cycle("");
+    int integration_step, i;
 
     for(i=0;i<ndof;i++)
     {
         /* This is a kinematic sim with perfect control, so the commanded joint rates 
          * magically become the real joint rates */
         kinemat.joint_w[i] = controller.commandedJointRate[i];
-
-        /* Ideal commanded motion, angles update perfectly */
-        kinemat.joint_q[i] += kinemat.joint_w[i]*dt;
     }
-    return;
+
+    for(i = 0; i < ndof; i++)
+        load_indexed_state(i, kinemat.joint_q[i]);
+    for(i=0;i<ndof;i++)
+        load_indexed_deriv(i, kinemat.joint_w[i]);
+
+    integration_step = integrate();
+
+    for(i=0;i<ndof;i++)
+    {
+        kinemat.joint_q[i] = unload_indexed_state(i);
+        kinemat.joint_q[i] = fmod(kinemat.joint_q[i], 2*M_PI);
+    }
+
+
+    std::cout << "q = [ " << kinemat.joint_q[0] << kinemat.joint_q[1] << " ]" << std::endl;
+
+    return(integration_step);
 
 }
 
