@@ -8,6 +8,7 @@ PURPOSE: (Testing)
 #include "trick/DRAscii.hh"
 #include "trick/MemoryManager.hh"
 #include "DR_user_defined_types.hh"
+#include "trick/bitfield_proto.h"
 
 #include <string>
 #include <cstring>
@@ -37,7 +38,6 @@ namespace Trick {
                         /**
                          * @brief       Generates a DataRecordBuffer object from a given REF2
                          * @param ref2  A pointer to the REF2 instance that the DataRecordBuffer will be built around
-                         * @param drb   A pointer to the DataRecordBuffer that will take the output of the function
                          * 
                          * @see         include/trick/DataRecordGroup.hh::DataRecordBuffer()
                          * @see         include/trick/reference.h::REF2 
@@ -110,7 +110,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const char BENCHMARK = 'T';
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 char *cPtr;
                 REF2 *ref2;
@@ -140,7 +140,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const unsigned char BENCHMARK = 200;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 unsigned char *cPtr;
                 REF2 *ref2;
@@ -167,7 +167,7 @@ namespace Trick {
         }
 
         TEST_F(DRAsciiTest, BooleanToASCII) {
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 bool *bPtr;
                 REF2 *ref2;
@@ -202,7 +202,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const std::string BENCHMARK = "Hello World";
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 std::string *sPtr;
                 REF2 *ref2;
@@ -233,7 +233,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const short BENCHMARK = -12345;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 short *stPtr;
                 REF2 *ref2;
@@ -263,7 +263,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const unsigned short BENCHMARK = 12345;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 unsigned short *uShPtr;
                 REF2 *ref2;
@@ -293,7 +293,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const FRUIT BENCHMARK = APPLE;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 FRUIT *enumPtr;
                 REF2 *ref2;
@@ -323,7 +323,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const int BENCHMARK = -123456789;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 int *intPtr;
                 REF2 *ref2;
@@ -353,18 +353,10 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const unsigned int BENCHMARK = 123456789;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 unsigned int *uIntPtr;
 
-        // Not sure if these tests are necessary...
-        // TEST_F(DRAsciiTest, FloatFormat_OnCreation) {
-        //         EXPECT_EQ("%20.8g", dr->ascii_float_format);
-        // }
-
-        // TEST_F(DRAsciiTest, DoubleFormat_OnCreation) {
-        //         EXPECT_EQ("%20.16g", dr->ascii_double_format);
-        // }
                 REF2 *ref2;
 
                 // REF2 and DataRecordBuffer Set Up
@@ -392,7 +384,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const long BENCHMARK = -123456789;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 long *longPtr;
                 REF2 *ref2;
@@ -422,7 +414,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const unsigned long BENCHMARK = 345678901;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 unsigned long *uLngPtr;
                 REF2 *ref2;
@@ -452,7 +444,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const float BENCHMARK = 123.456f;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 float *floatPtr;
                 REF2 *ref2;
@@ -482,7 +474,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const double BENCHMARK = 123.456f;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 double *doublePtr;
                 REF2 *ref2;
@@ -508,18 +500,80 @@ namespace Trick {
         }
 
         TEST_F(DRAsciiTest, BitfieldToASCII) {
+                // BENCHMARK is the expected output or value checked against
+                const signed int BENCHMARK = 0xF;
 
+                // Variable Declaration
+                BF_FLAGS *bfPtr;
+                Trick::DataRecordBuffer *drb;
+                REF2 *ref2;
+
+                // REF2 and DataRecordBuffer Set Up
+                std::string varName = "_sBField";
+                bfPtr = (BF_FLAGS*) memmgr->declare_var(("BF_FLAGS " + varName).c_str());
+
+                // bfPtr Definition
+                bfPtr->signedBF = BENCHMARK;
+                
+                ref2 = memmgr->ref_attributes(varName.c_str()); /** Generate the REF2 Object */
+                drb = generateDataRecordBuffer(ref2);           /** Utilitize ref2 to create a DataRecordBuffer */
+
+                drb->ref->attr = &((ATTRIBUTES*)drb->ref->attr->attr)[0]; /** Set the ATTRIBUTES object referenced in the REF2 
+                                                                           *  object to point to the correct bitfield in the struct
+                                                                           */
+
+                // Asserts that the DataRecordBuffer was set up correctly
+                ASSERT_EQ(drb->name, varName);
+                ASSERT_EQ(drb->ref->attr->type, TRICK_BITFIELD);
+
+                // Output Generation
+                char *buf = (char*)malloc(10);
+                dr->copy_data_ascii_item(drb,0,buf);
+
+                EXPECT_EQ(std::stoi(buf), BENCHMARK);
+                free(buf);
         }
 
         TEST_F(DRAsciiTest, UnsignedBitfieldToASCII) {
+                // BENCHMARK is the expected output or value checked against
+                const unsigned int BENCHMARK = 0x1F;
 
+                // Variable Declaration
+                BF_FLAGS *bfPtr;
+                Trick::DataRecordBuffer *drb;
+                REF2 *ref2;
+
+                // REF2 and DataRecordBuffer Set Up
+                std::string varName = "_usBField";
+                bfPtr = (BF_FLAGS*) memmgr->declare_var(("BF_FLAGS " + varName).c_str());
+
+                // bfPtr Definition
+                bfPtr->unsignedBF = BENCHMARK;
+                
+                ref2 = memmgr->ref_attributes(varName.c_str()); /** Generate the REF2 Object */
+                drb = generateDataRecordBuffer(ref2);           /** Utilitize ref2 to create a DataRecordBuffer */
+
+                drb->ref->attr = &((ATTRIBUTES*)drb->ref->attr->attr)[1]; /** Set the ATTRIBUTES object referenced in the REF2 
+                                                                           *  object to point to the correct bitfield in the struct
+                                                                           */
+
+                // Asserts that the DataRecordBuffer was set up correctly
+                ASSERT_EQ(drb->name, varName);
+                ASSERT_EQ(drb->ref->attr->type, TRICK_UNSIGNED_BITFIELD);
+
+                // Output Generation
+                char *buf = (char*)malloc(10);
+                dr->copy_data_ascii_item(drb,0,buf);
+
+                EXPECT_EQ(std::stoi(buf), BENCHMARK);
+                free(buf);
         }
 
         TEST_F(DRAsciiTest, LongLongToASCII) {
                 // BENCHMARK is the expected output or value checked against
                 const long long BENCHMARK = -1234567890;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 long long *longPtr;
                 REF2 *ref2;
@@ -549,7 +603,7 @@ namespace Trick {
                 // BENCHMARK is the expected output or value checked against
                 const unsigned long long BENCHMARK = 1234567890;
 
-                // Variable Definition
+                // Variable Declaration
                 Trick::DataRecordBuffer *drb;
                 unsigned long long *uLngPtr;
                 REF2 *ref2;

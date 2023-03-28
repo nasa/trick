@@ -5,6 +5,14 @@ PURPOSE: (Testing)
 #include <string>
 
 typedef struct {
+      signed int signedBF   :5;
+    unsigned int unsignedBF :5;
+    int c :7;
+    int d :8;
+    int e :9;
+} BF_FLAGS;
+
+typedef struct {
   double x;
   double y;
   double z;
