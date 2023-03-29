@@ -1,24 +1,32 @@
-
-/************************************************************
+/************************TRICK HEADER*************************
 PURPOSE:
-    ( Simulation of Robot Arm. )
+    ( Simulate kinematic, planar 2 degree-of-freedom manipulator )
 LIBRARY DEPENDENCIES:
-    ((arm/src/Arm.cpp))
+    (
+        (manipulator/manipulator.cc)
+    )
 *************************************************************/
+
 #include "sim_objects/default_trick_sys.sm"
-##include "arm/include/Arm.hh"
-class ArmSimObject : public Trick::SimObject {
+##include "include/trick/exec_proto.h"
+##include "manipulator/manipulator.hh"
+
+class ManipulatorSimObject : public Trick::SimObject
+{
+
     public:
-    Arm arm;
+        PlanarManip robot;
 
-    ArmSimObject() {
-        ("default_data")            arm.default_data() ;
-        ("initialization")          arm.state_init() ;
-        ("derivative")              arm.state_deriv() ;
-        ("integration") trick_ret = arm.state_integ() ;
+        ManipulatorSimObject(int ndof): robot(ndof)
+        {
+            (0.050, "scheduled")  robot.calcKinematics();
+            (0.050, "scheduled")  robot.control();
+            ("derivative")        robot.stateDeriv();
+            ("integration")       trick_ret = robot.updateState();
+        }
 
-    }
 };
 
-ArmSimObject dyn;
-IntegLoop dyn_integloop(0.1) dyn;
+ManipulatorSimObject Manip2D(2);
+
+IntegLoop armIntegLoop(0.050) Manip2D;
