@@ -2,11 +2,9 @@
  * Trick
  * 2023 (c) National Aeronautics and Space Administration (NASA)
  */
-
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Graphics;
-import java.awt.RenderingHints;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import javax.swing.event.MouseInputAdapter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedOutputStream;
@@ -50,7 +48,6 @@ class Link {
   public Link() {
     l = 1.0;
     q = 0.0;
-
   }
 }
 
@@ -61,13 +58,62 @@ class ScenePoly {
     public double[] y;
 }
 
+class Point {
+    public double x;
+    public double y;
+}
+
+class PathTrace {
+    int capacity;
+    public Point[] path;
+    public int head;
+    public int tail;
+    public PathTrace() {
+        capacity = 200;
+        path = new Point[capacity];
+        head = 0;
+        tail = 0;
+    }
+    public void insert (double x, double y) {
+        if (path[tail] == null) {
+            path[tail] = new Point();
+        }
+        path[tail].x = x;
+        path[tail].y = y;
+        tail = (tail + 1) % capacity;
+        if (tail == head) head = (head + 1) % capacity;
+    }
+    public void clear() {
+        head = tail = 0;
+    }
+    public int count () {
+        if (head == tail) return 0;
+        if (head < tail) {
+            return (tail - head);
+        } else {
+            return (tail - head + capacity);
+        }
+    }
+    public int advance (int i ) {
+        i = (i + 1) % capacity;
+        return i;
+    }
+    public int begin () { return head; }
+    public int end () { return tail; }
+    public Point get(int i) {
+        return path[i];
+    }
+}
+
 class RangeView extends JPanel {
 
     private int scale;
     int nlinks;
-    private Color sunglowColor;
+    private Color sunGlowColor;
     private Color grey200Color;
     private Color grey150Color;
+    private Color pathTraceColor;
+
     private ScenePoly link_arm;
 
     // Origin of world coordinates in jpanel coordinates.
@@ -80,6 +126,8 @@ class RangeView extends JPanel {
 
     private int[] workPolyX, workPolyY;
 
+    public PathTrace pathTrace;
+    public boolean pathTraceEnabled;
     /**
      * Class constructor.
      */
@@ -88,9 +136,10 @@ class RangeView extends JPanel {
       setScale(mapScale);
       nlinks = numberOfLinks;
 
-      sunglowColor = new Color(255,204,51);
+      sunGlowColor = new Color(255,204,51);
       grey200Color = new Color(200,200,200);
       grey150Color = new Color(150,150,150);
+      pathTraceColor = new Color(85,20,230);
 
       links = new Link[nlinks];
       for (int ii=0 ; ii<nlinks ; ii++) {
@@ -103,9 +152,12 @@ class RangeView extends JPanel {
       link_arm.x = new double[4];
       link_arm.y = new double[4];
 
-
       workPolyX = new int[30];
       workPolyY = new int[30];
+
+      pathTrace = new PathTrace();
+      pathTraceEnabled = false;
+
     }
 
     public void drawScenePoly(Graphics2D g, ScenePoly p, double angle_r , double x, double y) {
@@ -169,8 +221,8 @@ class RangeView extends JPanel {
         double l_sum = 0.0;
         double base_x = 0.0;
         double base_y = 0.0;
-        double end_x;
-        double end_y;
+        double end_x = 0.0;
+        double end_y = 0.0;
 
         double base_width;
         double end_width;
@@ -200,11 +252,13 @@ class RangeView extends JPanel {
             end_x = base_x + links[ii].l * Math.cos(q_sum);
             end_y = base_y + links[ii].l * Math.sin(q_sum);
 
+            // SLOPING LINKS
             // link_arm.x[0] = 0.0;          link_arm.y[0] =  base_width/2.0;
             // link_arm.x[1] = links[ii].l;  link_arm.y[1] =  end_width/2.0;
             // link_arm.x[2] = links[ii].l;  link_arm.y[2] = -end_width/2.0;
             // link_arm.x[3] = 0.0;          link_arm.y[3] = -base_width/2.0;
 
+            // STRAIGHT LINKS
             link_arm.x[0] = 0.0;          link_arm.y[0] =  base_width/2.0;
             link_arm.x[1] = links[ii].l;  link_arm.y[1] =  base_width/2.0;
             link_arm.x[2] = links[ii].l;  link_arm.y[2] = -base_width/2.0;
@@ -212,7 +266,7 @@ class RangeView extends JPanel {
 
             drawScenePoly(g2d, link_arm, q_sum, base_x, base_y);
 
-            g2d.setPaint(sunglowColor);
+            g2d.setPaint(sunGlowColor);
             fillCenteredCircle(g2d,
                 (int)(worldOriginX + scale * base_x),
                 (int)(worldOriginY - scale * base_y),
@@ -226,16 +280,33 @@ class RangeView extends JPanel {
                (int)(scale * 0.5 * base_width )
             );
 
-            // Draw a circle centered around each link base, of radius l.
-            // g2d.drawOval( (int)(worldOriginX + scale*(base_x - links[ii].l)),
-            //               (int)(worldOriginY - scale*(base_y - links[ii].l)),
-            //               (int)(scale* (links[ii].l/2.0) ),
-            //               (int)(scale* (links[ii].l/2.0)));
-
             // The base position of the next link is the end position of the current link.
             base_x = end_x;
             base_y = end_y;
             base_width = end_width;
+        }
+
+        if (pathTraceEnabled) {
+            // Save <end_x, end_y> into the path tracing array (circular).
+            pathTrace.insert(end_x, end_y);
+
+            // Render the end-effector path trace.
+            if ( pathTrace.count() > 1 ) {
+                int x1, y1, x2, y2;
+                g2d.setPaint(pathTraceColor);
+                int i = pathTrace.begin();
+                Point p1 = pathTrace.get(i);
+                x1 = (int)(worldOriginX + scale * p1.x);
+                y1 = (int)(worldOriginY - scale * p1.y);
+                for (i = pathTrace.advance(i); i != pathTrace.end() ; i = pathTrace.advance(i)) {
+                    Point p2 = pathTrace.get(i);
+                    x2 = (int)(worldOriginX + scale * p2.x);
+                    y2 = (int)(worldOriginY - scale * p2.y);
+                    g2d.drawLine(x1, y1, x2, y2);
+                    x1 = x2;
+                    y1 = y2;
+                }
+            }
         }
 
         // ===============================================================================
@@ -243,8 +314,6 @@ class RangeView extends JPanel {
         // ===============================================================================
         g2d.setPaint(Color.BLACK);
         g2d.drawString ( String.format("SCALE: %d pixels/meter",scale), 20,20);
-
-
     }
 
     @Override
@@ -260,31 +329,104 @@ class TrickSimMode {
     public static final int RUN = 5;
 }
 
-class ControlPanel extends JPanel implements ActionListener {
-
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class VelocityCtrlPanel extends JPanel {
     private RangeView rangeView;
-    private JButton zoomOutButton, zoomInButton;
-    private JButton shutDownButton;
+    private JButton traceButton;
+    private int mouse_x, mouse_y;
+    private Color padColor, arrowColor;
+    private int padDiameter;
+    private int padCenterX, padCenterY;
 
-    public ControlPanel(RangeView view) {
+    public VelocityCtrlPanel(RangeView view) {
+        padDiameter = 100;
+        padCenterX = padDiameter/2;
+        padCenterY = padDiameter/2;
+        rangeView = view;
+        padColor = new Color(150,150,150);
+        arrowColor = new Color(50,30,140);
+        mouse_x = padCenterX;
+        mouse_y = padCenterY;
+        ViewListener viewListener = new ViewListener();
+        addMouseListener(viewListener);
+        addMouseMotionListener(viewListener);
+        setPreferredSize(new Dimension(padDiameter, padDiameter));
+        setMaximumSize(  new Dimension(padDiameter, padDiameter));
+    }
 
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setPaint(padColor);
+        g2d.fillOval(0, 0, padDiameter, padDiameter);
+        g2d.setPaint(arrowColor);
+        g2d.drawLine(padCenterX, padCenterY, mouse_x, mouse_y);
+    }
+
+    private class ViewListener extends MouseInputAdapter {
+        public void mouseReleased(MouseEvent e) {
+          mouse_x = e.getX();
+          mouse_y = e.getY();
+          repaint();
+        }
+    }
+} // class VelocityCtrlPanel
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class TraceCtrlPanel extends JPanel implements ActionListener {
+    private RangeView rangeView;
+    private JButton traceButton;
+    public TraceCtrlPanel(RangeView view) {
         rangeView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
-        zoomOutButton = new JButton("Zoom Out");
+        traceButton = new JButton("Trace");
+        traceButton.addActionListener(this);
+        traceButton.setActionCommand("trace");
+        traceButton.setToolTipText("Trace end-effector");
+        add(traceButton);
+
+    }
+    public void actionPerformed(ActionEvent e) {
+        String s = e.getActionCommand();
+        switch (s) {
+            case "trace":
+                rangeView.pathTraceEnabled = !rangeView.pathTraceEnabled;
+                if (rangeView.pathTraceEnabled) {
+                    rangeView.pathTrace.clear();
+                    traceButton.setForeground(Color.GREEN);
+                } else {
+                    traceButton.setForeground(Color.BLACK);
+                }
+                break;
+            default:
+                System.out.println("Unknown Action Command:" + s);
+                break;
+        }
+    }
+} // class TraceCtrlPanel
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class ZoomCtrlPanel extends JPanel implements ActionListener {
+    private RangeView rangeView;
+    private JButton zoomOutButton, zoomInButton;
+    public ZoomCtrlPanel(RangeView view) {
+        rangeView = view;
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
+        zoomOutButton = new JButton("Out");
         zoomOutButton.addActionListener(this);
         zoomOutButton.setActionCommand("zoomout");
         zoomOutButton.setToolTipText("Zoom Out");
         add(zoomOutButton);
 
-        zoomInButton = new JButton("Zoom In");
+        zoomInButton = new JButton("In");
         zoomInButton.addActionListener(this);
         zoomInButton.setActionCommand("zoomin");
         zoomInButton.setToolTipText("Zoom In");
         add(zoomInButton);
-
     }
-
     public void actionPerformed(ActionEvent e) {
         String s = e.getActionCommand();
         switch (s) {
@@ -299,22 +441,55 @@ class ControlPanel extends JPanel implements ActionListener {
                 break;
         }
     }
-} // class ControlPanel
+} // class ZoomCtrlPanel
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class ControlPanel extends JPanel {
+
+    private RangeView rangeView;
+    private ZoomCtrlPanel zoomCtrlPanel;
+    private TraceCtrlPanel traceCtrlPanel;
+    private VelocityCtrlPanel velocityCtrlPanel;
+
+    // private ManualCtrlPanel manualCtrlPanel;
+
+    public ControlPanel(RangeView view) {
+
+        rangeView = view;
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
+        JPanel labeledZoomCtrlPanel = new JPanel();
+        labeledZoomCtrlPanel.setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        labeledZoomCtrlPanel.setLayout(new BoxLayout(labeledZoomCtrlPanel, BoxLayout.Y_AXIS));
+
+        JLabel zoomControlLabel = new JLabel("Zoom");
+        zoomControlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labeledZoomCtrlPanel.add(zoomControlLabel);
+
+        zoomCtrlPanel = new ZoomCtrlPanel(rangeView);
+        labeledZoomCtrlPanel.add( zoomCtrlPanel );
+        add(labeledZoomCtrlPanel);
+
+        traceCtrlPanel = new TraceCtrlPanel(rangeView);
+        add(traceCtrlPanel);
+
+        velocityCtrlPanel = new VelocityCtrlPanel(rangeView);
+        add(velocityCtrlPanel);
+    }
+} // class ControlPanel
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 public class RobotDisplay extends JFrame {
 
     private RangeView rangeView;
     private BufferedReader in;
     private DataOutputStream out;
-    private JPanel panel0;
-    private JPanel panel1;
+    private JPanel mainPanel;
+    private JPanel viewPanel;
     private ControlPanel controlPanel;
 
     public RobotDisplay() {
-
         rangeView  = null;
         setTitle("Robot Range");
-        setSize(800, 800);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setFocusable(true);
@@ -331,19 +506,23 @@ public class RobotDisplay extends JFrame {
         setTitle("Robot Range");
         rangeView = new RangeView(mapScale, numberOfLinks);
 
-        JPanel panel1 = new JPanel();
-        panel1.setLayout(new BoxLayout(panel1, BoxLayout.X_AXIS));
-        panel1.add(rangeView);
+        JPanel viewPanel = new JPanel();
+        viewPanel.setLayout(new BoxLayout(viewPanel, BoxLayout.X_AXIS));
+        viewPanel.setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        viewPanel.add(rangeView);
 
         ControlPanel controlPanel = new ControlPanel(rangeView);
 
-        JPanel panel0 = new JPanel();
-        panel0.setLayout(new BoxLayout(panel0, BoxLayout.Y_AXIS));
-        panel0.add(panel1);
-        panel0.add(controlPanel);
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        mainPanel.add(viewPanel);
+        mainPanel.add(controlPanel);
+        viewPanel.setPreferredSize(new Dimension(800, 650));
+        controlPanel.setPreferredSize(new Dimension(800, 150));
 
-        add(panel0);
-
+        add(mainPanel);
+        pack();
         setVisible(true);
     }
 
@@ -426,6 +605,7 @@ public class RobotDisplay extends JFrame {
         System.out.println("Number of Links: " + nlinks);
 
         robotDisplay.createGUI(mapScale, nlinks);
+        //robotDisplay.setSize(800, 800);
 
         // Configure the Variable Server to cyclically send data.
         robotDisplay.out.writeBytes( "trick.var_pause() \n");
