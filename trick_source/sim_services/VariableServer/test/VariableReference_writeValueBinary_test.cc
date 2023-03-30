@@ -140,12 +140,12 @@ TEST_F(VariableReference_test, writeNameBinary) {
     ref.writeNameBinary(ss);
 
     // ASSERT
-    char * actual_bytes = (char *) malloc (sizeof(int) + strlen(ref.getName()));
+    char * actual_bytes = (char *) malloc (sizeof(int) + ref.getName().size());
     ss.read(actual_bytes, sizeof(int) +  6);
     unsigned char expected_bytes[sizeof(int) +  6] = {0x06, 0x00, 0x00, 0x00, 0x74, 0x65, 0x73, 0x74, 0x5f, 0x61};
 
     // ASSERT
-    for (int i = 0; i < sizeof(int) +  strlen(ref.getName()); i++) {
+    for (int i = 0; i < sizeof(int) + ref.getName().size(); i++) {
         EXPECT_EQ(static_cast<unsigned char>(actual_bytes[i]), expected_bytes[i]);
     }
 }

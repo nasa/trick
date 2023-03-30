@@ -98,7 +98,6 @@ namespace Trick {
             /** The mutex pauses all processing during checkpoint restart */
             pthread_mutex_t _restart_pause ;     /**<  trick_io(**) */
 
-            // bool pause_cmd;
             bool _saved_pause_cmd;
     } ;
 
