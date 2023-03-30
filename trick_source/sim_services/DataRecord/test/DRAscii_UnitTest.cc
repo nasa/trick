@@ -755,7 +755,7 @@ namespace Trick {
                 
                 // Output Generation
                 char *buf = (char*)malloc(10);
-                dr->copy_data_ascii_item(drb,SIZE,buf);
+                dr->copy_data_ascii_item(drb,SIZE+5,buf);
 
                 // Test of Output
                 // EXPECT_EQ(std::atoi(buf), BENCHMARK[i]);
