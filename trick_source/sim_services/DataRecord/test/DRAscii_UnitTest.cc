@@ -629,6 +629,140 @@ namespace Trick {
                 free(buf);
         }
 
+        TEST_F(DRAsciiTest, IntArrayToASCII) {
+                // BENCHMARK is the expected output or value checked against
+                const int SIZE = 5;
+                const int BENCHMARK[SIZE] = {1,2,3,4,5};
+
+                // Variable Declaration
+                Trick::DataRecordBuffer *drb;
+                int *intPtr;
+                REF2 *ref2;
+
+                // REF2 and DataRecordBuffer Set Up
+                std::string varName = "_intArray";
+                intPtr = (int*) memmgr->declare_var(("int " + varName + "[" + std::to_string(SIZE) + "]").c_str());
+                ref2 = memmgr->ref_attributes(varName.c_str());
+                for(int i = 0; i < SIZE; i++)   intPtr[i] = i+1;
+                drb = generateDataRecordBuffer(ref2);
+
+                // Asserts Checking that the DataRecordBuffer was set up correctly
+                ASSERT_EQ(drb->name, varName);
+                ASSERT_EQ(drb->ref->attr->type, TRICK_INTEGER);
+                // ASSERT_EQ(*((int*)drb->ref->address),BENCHMARK);
+                
+                // Output Generation
+                char *buf = (char*)malloc(10);
+                for(int i = 0; i < SIZE; i++) {
+                        dr->copy_data_ascii_item(drb,i,buf);
+
+                        // Test of Output
+                        EXPECT_EQ(std::atoi(buf), BENCHMARK[i]);
+                }
+                
+                free(buf);
+        }
+
+        TEST_F(DRAsciiTest, DoubleArrayToASCII) {
+                // BENCHMARK is the expected output or value checked against
+                const int SIZE = 5;
+                const double BENCHMARK[SIZE] = {1.5,2.5,3.5,4.5,5.5};
+
+                // Variable Declaration
+                Trick::DataRecordBuffer *drb;
+                double *dblPtr;
+                REF2 *ref2;
+
+                // REF2 and DataRecordBuffer Set Up
+                std::string varName = "_dblArray";
+                dblPtr = (double*) memmgr->declare_var(("double " + varName + "[" + std::to_string(SIZE) + "]").c_str());
+                ref2 = memmgr->ref_attributes(varName.c_str());
+                for(int i = 0; i < SIZE; i++)   dblPtr[i] = i+1.5;
+                drb = generateDataRecordBuffer(ref2);
+
+                // Asserts Checking that the DataRecordBuffer was set up correctly
+                ASSERT_EQ(drb->name, varName);
+                ASSERT_EQ(drb->ref->attr->type, TRICK_DOUBLE);
+                ASSERT_EQ(((double*)drb->ref->address)[SIZE-1],BENCHMARK[SIZE-1]);
+                
+                // Output Generation
+                char *buf = (char*)malloc(10);
+                for(int i = 0; i < SIZE; i++) {
+                        dr->copy_data_ascii_item(drb,i,buf);
+
+                        // Test of Output
+                        EXPECT_EQ(std::atof(buf), BENCHMARK[i]);
+                }
+                
+                free(buf);
+        }
+
+        TEST_F(DRAsciiTest, StringArrayToASCII) {
+                // BENCHMARK is the expected output or value checked against
+                const int SIZE = 5;
+                const std::string BENCHMARK[SIZE] = {"1","2","3","4","5"};
+
+                // Variable Declaration
+                Trick::DataRecordBuffer *drb;
+                std::string *strPtr;
+                REF2 *ref2;
+
+                // REF2 and DataRecordBuffer Set Up
+                std::string varName = "_strArray";
+                strPtr = (std::string*) memmgr->declare_var(("std::string " + varName + "[" + std::to_string(SIZE) + "]").c_str());
+                ref2 = memmgr->ref_attributes(varName.c_str());
+                for(int i = 0; i < SIZE; i++)   strPtr[i] = std::to_string(i+1);
+                drb = generateDataRecordBuffer(ref2);
+
+                // Asserts Checking that the DataRecordBuffer was set up correctly
+                ASSERT_EQ(drb->name, varName);
+                ASSERT_EQ(drb->ref->attr->type, TRICK_STRING);
+                ASSERT_EQ(((std::string*)drb->ref->address)[SIZE-1],BENCHMARK[SIZE-1]);
+                
+                // Output Generation
+                char *buf = (char*)malloc(10);
+                for(int i = 0; i < SIZE; i++) {
+                        dr->copy_data_ascii_item(drb,i,buf);
+
+                        // Test of Output
+                        EXPECT_EQ(std::strcmp(buf, BENCHMARK[i].c_str()),0);
+                }
+                
+                free(buf);
+        }
+
+        TEST_F(DRAsciiTest, ArrayToASCII_IndexOutOfBounds) {
+                // BENCHMARK is the expected output or value checked against
+                const int SIZE = 5;
+                const int BENCHMARK[SIZE] = {1,2,3,4,5};
+
+                // Variable Declaration
+                Trick::DataRecordBuffer *drb;
+                int *intPtr;
+                REF2 *ref2;
+
+                // REF2 and DataRecordBuffer Set Up
+                std::string varName = "_intArray";
+                intPtr = (int*) memmgr->declare_var(("int " + varName + "[" + std::to_string(SIZE) + "]").c_str());
+                ref2 = memmgr->ref_attributes(varName.c_str());
+                for(int i = 0; i < SIZE; i++)   intPtr[i] = i+1;
+                drb = generateDataRecordBuffer(ref2);
+
+                // Asserts Checking that the DataRecordBuffer was set up correctly
+                ASSERT_EQ(drb->name, varName);
+                ASSERT_EQ(drb->ref->attr->type, TRICK_INTEGER);
+                // ASSERT_EQ(*((int*)drb->ref->address),BENCHMARK);
+                
+                // Output Generation
+                char *buf = (char*)malloc(10);
+                dr->copy_data_ascii_item(drb,SIZE,buf);
+
+                // Test of Output
+                // EXPECT_EQ(std::atoi(buf), BENCHMARK[i]);
+                std::cout << buf << "\n";
+                free(buf);
+        }
+
 
 
         /* TEST TARGETS
@@ -639,6 +773,11 @@ namespace Trick {
         *   (DONE) Delimiter: Check that the assignment went through correctly
         *   (DONE) Setting Precision: Check both true and false params 
         *   (WIP)  Converting data value to ASCII
+        *          Failure Cases: buffer passed into the function was allocatted to little space
+        *                         item_num is arbitrarily large or small (in cases pertaining to arrays and basic data types)?
+        *                         variable declared my memorymanager is not assigned a value
+        *                         (UNDEFINED BEHAVIOR) item_num is out of bounds for the declared array
+        *                         
         *   Initialization
         *   Header
         *   Data Writing

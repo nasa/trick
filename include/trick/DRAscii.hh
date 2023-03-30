@@ -153,6 +153,10 @@ namespace Trick {
             FRIEND_TEST(DRAsciiTest, UnsignedBitfieldToASCII);
             FRIEND_TEST(DRAsciiTest, LongLongToASCII);
             FRIEND_TEST(DRAsciiTest, UnsignedLongLongToASCII);
+            FRIEND_TEST(DRAsciiTest, IntArrayToASCII);
+            FRIEND_TEST(DRAsciiTest, DoubleArrayToASCII);
+            FRIEND_TEST(DRAsciiTest, StringArrayToASCII);
+            FRIEND_TEST(DRAsciiTest, ArrayToASCII_IndexOutOfBounds);
                 
         private:
 
