@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
 
 class SystemInterface {
     public:
@@ -19,7 +20,7 @@ class SystemInterface {
         
         virtual int  setsockopt (int socket, int level, int option_name, const void * option_value, socklen_t option_len) { return ::setsockopt ( socket,  level,  option_name,  option_value,  option_len); }
         
-        virtual int  bind (int socket, struct sockaddr * address, socklen_t address_len) { return ::bind ( socket,  address,  address_len); }
+        virtual int  bind (int socket, const struct sockaddr * address, socklen_t address_len) { return ::bind ( socket,  address,  address_len); }
         
         virtual int  getsockname (int socket, struct sockaddr * address, socklen_t * address_len) { return ::getsockname ( socket,  address,  address_len); }
         
@@ -44,6 +45,8 @@ class SystemInterface {
         virtual ssize_t  recv (int socket, void * buffer, size_t length, int flags) { return ::recv ( socket,  buffer,  length,  flags); }
         
         virtual ssize_t  recvfrom (int socket, void * buffer, size_t length, int flags, struct sockaddr * address, socklen_t * address_len) { return ::recvfrom ( socket,  buffer,  length,  flags,  address,  address_len); }
+        
+        virtual in_addr_t  inet_addr (const char * cp) { return ::inet_addr ( cp); }
         
 };
 

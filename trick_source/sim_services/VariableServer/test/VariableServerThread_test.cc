@@ -125,12 +125,10 @@ void set_session_exit_after_some_loops(MockVariableServerSession * session) {
 TEST_F(VariableServerThread_test, connection_failure) {
     // ARRANGE
 
-    // Starting the connection fails, disconnect should be called
+    // Starting the connection fails
     EXPECT_CALL(connection, start())
         .Times(1)
         .WillOnce(Return(1));
-    EXPECT_CALL(connection, disconnect())
-        .Times(1);
     
     // Set up VariableServerThread
     Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
@@ -148,6 +146,8 @@ TEST_F(VariableServerThread_test, connection_failure) {
     // There should be nothing in the VariableServer's thread list
     EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
+
+    delete session;
 }
 
 

@@ -10,7 +10,7 @@
 #include <iostream>
 #include "trick/ClientListener.hh"
 #include "trick/SysThread.hh"
-#include "trick/MulticastManager.hh"
+#include "trick/MulticastGroup.hh"
 
 
 namespace Trick {
@@ -54,6 +54,8 @@ namespace Trick {
             void pause_listening() ;
             void restart_listening() ;
 
+            void set_multicast_group (MulticastGroup * group);
+
             // void create_tcp_socket(const char * address, unsigned short in_port ) ;
 
             virtual void dump( std::ostream & oss = std::cout ) ;
@@ -80,7 +82,7 @@ namespace Trick {
             ClientListener * _listener;        /**<  trick_io(**) trick_units(--)  */
 
             /* Multicast broadcaster */
-            MulticastManager * _multicast;     /**<  trick_io(**) trick_units(--)  */
+            MulticastGroup * _multicast;     /**<  trick_io(**) trick_units(--)  */
 
             /** The mutex to stop accepting new connections during restart\n */
             pthread_mutex_t _restart_pause ;     /**<  trick_io(**) */

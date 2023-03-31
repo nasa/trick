@@ -66,24 +66,21 @@ bool Trick::VariableServer::get_log() {
 void Trick::VariableServer::set_var_server_log_on() {
     log = true;
     // turn log on for all current vs clients
-    std::map < pthread_t , VariableServerSession * >::iterator it ;
-    for ( it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
-        (*it).second->set_log_on();
+    for ( auto& session_it : var_server_sessions ) {
+        session_it.second->set_log_on();
     }
 }
 
 void Trick::VariableServer::set_var_server_log_off() {
     log = false;
     // turn log off for all current vs clients
-    std::map < pthread_t , VariableServerSession * >::iterator it ;
-    for ( it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
-        (*it).second->set_log_off();
+    for ( auto& session_it : var_server_sessions ) {
+        session_it.second->set_log_off();
     }
 }
 
 const char * Trick::VariableServer::get_hostname() {
-    const char * ret = (listen_thread.get_hostname()) ;
-    return ret;
+    return listen_thread.get_hostname();
 }
 
 Trick::VariableServerListenThread & Trick::VariableServer::get_listen_thread() {

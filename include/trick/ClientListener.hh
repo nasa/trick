@@ -22,7 +22,7 @@ namespace Trick {
             ClientListener ();
             ClientListener (SystemInterface * system_interface);
 
-            ~ClientListener ();
+            virtual ~ClientListener ();
 
             virtual int initialize(std::string hostname, int port);
             virtual int initialize();
@@ -43,8 +43,8 @@ namespace Trick {
             
             virtual int restart();
 
-            std::string getHostname ();
-            int getPort();
+            virtual std::string getHostname ();
+            virtual int getPort();
             
         protected:
         

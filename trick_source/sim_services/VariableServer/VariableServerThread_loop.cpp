@@ -37,7 +37,6 @@ void * Trick::VariableServerThread::thread_body() {
         pthread_cond_signal(&_connection_status_cv);
         pthread_mutex_unlock(&_connection_status_mutex);
 
-        cleanup();
         pthread_exit(NULL);
     }
 

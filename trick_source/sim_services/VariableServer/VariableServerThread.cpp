@@ -137,8 +137,9 @@ void Trick::VariableServerThread::restart() {
 void Trick::VariableServerThread::cleanup() {
     _connection->disconnect();
 
-    if (_session != NULL)
+    if (_session != NULL) {
         delete _session;
+        _session = NULL;
+    }
 }
-
 

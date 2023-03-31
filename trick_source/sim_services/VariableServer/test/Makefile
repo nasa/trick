@@ -22,9 +22,9 @@ VARIABLE_REFERENCE_TESTS = VariableReference_test \
 		VariableReference_writeValueAscii_test \
 		VariableReference_writeValueBinary_test
 
-VARIABLE_SESSION_TESTS = VariableServerSession_test VariableServerThread_test
+VARIABLE_SESSION_TESTS = VariableServerSession_test 
 
-TESTS = $(VARIABLE_REFERENCE_TESTS) $(VARIABLE_SESSION_TESTS)
+TESTS = $(VARIABLE_REFERENCE_TESTS) $(VARIABLE_SESSION_TESTS) VariableServerThread_test VariableServerListenThread_test VariableServer_test
 
 TEST_OBJS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(TESTS)))
 
@@ -63,6 +63,12 @@ $(VARIABLE_SESSION_TESTS): %: $(OBJ_DIR)/%.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS) -o $@
 
 VariableServerThread_test: %: $(OBJ_DIR)/%.o 
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+VariableServerListenThread_test: %: $(OBJ_DIR)/%.o 
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+VariableServer_test: %: $(OBJ_DIR)/%.o 
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 

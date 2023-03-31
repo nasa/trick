@@ -5,6 +5,8 @@
 #include <cstring>
 #include <strings.h>
 
+Trick::TCPConnection::TCPConnection () : TCPConnection(0, new SystemInterface()) {}
+
 Trick::TCPConnection::TCPConnection (SystemInterface * system_interface) : TCPConnection(0, system_interface) {}
 
 Trick::TCPConnection::TCPConnection (int listen_socket) : TCPConnection(listen_socket, new SystemInterface()) {}

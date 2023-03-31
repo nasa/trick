@@ -12,19 +12,27 @@
 #define MAX_MACHINE_NAME 80
 
 
-Trick::VariableServerListenThread::VariableServerListenThread() : VariableServerListenThread (new ClientListener()) {}
+Trick::VariableServerListenThread::VariableServerListenThread() : VariableServerListenThread (NULL) {}
 
 Trick::VariableServerListenThread::VariableServerListenThread(ClientListener * listener) :
  Trick::SysThread("VarServListen"),
+ _requested_source_address(""),
  _requested_port(0),
  _user_requested_address(false),
  _broadcast(true),
  _listener(listener),
- _multicast(new MulticastManager())
+ _multicast(new MulticastGroup())
 {
-    _requested_source_address = _listener->getHostname();
-    _requested_port = _listener->getPort();
-    _user_requested_address = true;
+    if (_listener != NULL) {
+        // If we were passed a listener
+        // We assume it is already initialized
+        _requested_source_address = _listener->getHostname();
+        _requested_port = _listener->getPort();
+        _user_requested_address = true;
+    } else {
+        // Otherwise, make one
+        _listener = new ClientListener;
+    }
 
     pthread_mutex_init(&_restart_pause, NULL);
 
@@ -36,9 +44,13 @@ Trick::VariableServerListenThread::~VariableServerListenThread() {
     delete _multicast;
 }
 
+void Trick::VariableServerListenThread::set_multicast_group (MulticastGroup * group) {
+    delete _multicast;
+    _multicast = group;
+}
 
 const char * Trick::VariableServerListenThread::get_hostname() {
-    std::string hostname = _listener->getHostname();
+    std::string hostname = _requested_source_address;
     char * ret = (char *) malloc(hostname.length() + 1);
     strncpy(ret, hostname.c_str(), hostname.length());
     ret[hostname.length()] = '\0';
@@ -72,41 +84,44 @@ void Trick::VariableServerListenThread::set_source_address(const char * address)
     } else {
         _requested_source_address = std::string(address) ;
     }
-    _user_requested_address = true ;
+    _user_requested_address = true;
 }
 
 std::string Trick::VariableServerListenThread::get_source_address() {
-    return _listener->getHostname() ;
+    return _requested_source_address ;
 }
 
 bool Trick::VariableServerListenThread::get_broadcast() {
     return _broadcast;
 }
 
-// in_broadcast atomic? We'll see what tsan says. Maybe go nuts with atomics
 void Trick::VariableServerListenThread::set_broadcast(bool in_broadcast) {
     _broadcast = in_broadcast;
 }
 
+// Called from default data
 int Trick::VariableServerListenThread::init_listen_device() {
     int ret = _listener->initialize();
     _requested_port = _listener->getPort();
-    _user_requested_address = true;
+    _requested_source_address = _listener->getHostname();
     return ret;
 }
 
+// Called from init jobs
 int Trick::VariableServerListenThread::check_and_move_listen_device() {
     int ret ;
 
-    /* The user has requested a different source address or port in the input file */
-    _listener->disconnect();
-    ret = _listener->initialize(_requested_source_address, _requested_port);
-    _requested_port = _listener->getPort();
-    _requested_source_address = _listener->getHostname();
-    if (ret != 0) {
-        message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
-            _requested_source_address.c_str(), _requested_port);
-        return -1 ;
+    if (_user_requested_address) {
+        /* The user has requested a different source address or port in the input file */
+        _listener->disconnect();
+        ret = _listener->initialize(_requested_source_address, _requested_port);
+        _requested_port = _listener->getPort();
+        _requested_source_address = _listener->getHostname();
+        if (ret != 0) {
+            message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
+                _requested_source_address.c_str(), _requested_port);
+            return -1 ;
+        }
     }
     return 0 ;
 }
@@ -174,9 +189,9 @@ void * Trick::VariableServerListenThread::thread_body() {
              user_name.c_str() , (int)getpid() , command_line_args_get_default_dir() , command_line_args_get_cmdline_name() ,
              command_line_args_get_input_file() , version.c_str() , _user_tag.c_str(), (unsigned short)_listener->getPort() ) ;
 
-            std::string message = buf1;
+            std::string message(buf1);
 
-            if (!_multicast->is_initialized()) {
+            if (!_multicast->isInitialized()) {
                 // In case broadcast was turned on after this loop was entered
                 initializeMulticast();
             }
@@ -196,7 +211,7 @@ int Trick::VariableServerListenThread::restart() {
     _listener->restart();
 
     if ( _user_requested_address ) {
-
+        // If the use requested an address and/or port, make sure we reinitialize to the same one
         if (!_listener->validateSourceAddress(_requested_source_address)) {
             _requested_source_address.clear() ;
         }
@@ -211,6 +226,7 @@ int Trick::VariableServerListenThread::restart() {
             return (-1);
         }
     } else {
+        // Otherwise, just ask the listener what port it's using
         _listener->checkSocket();
         printf("restart variable server message port = %d\n", _listener->getPort());
     }
@@ -239,9 +255,9 @@ void Trick::VariableServerListenThread::dump( std::ostream & oss ) {
     oss << "Trick::VariableServerListenThread (" << name << ")" << std::endl ;
     oss << "    source_address = " << _listener->getHostname() << std::endl ;
     oss << "    port = " << _listener->getPort() << std::endl ;
-    oss << "    _user_requested_address = " << _user_requested_address << std::endl ;
-    oss << "    _user_tag = " << _user_tag << std::endl ;
-    oss << "    _broadcast = " << _broadcast << std::endl ;
+    oss << "    user_requested_address = " << _user_requested_address << std::endl ;
+    oss << "    user_tag = " << _user_tag << std::endl ;
+    oss << "    broadcast = " << _broadcast << std::endl ;
     Trick::ThreadBase::dump(oss) ;
 }
 
