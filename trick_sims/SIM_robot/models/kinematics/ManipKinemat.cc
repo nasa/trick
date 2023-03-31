@@ -248,19 +248,16 @@ void ManipKinemat::calcJacobian()
 
     jacDet = jacobian[0][0]*jacobian[1][1] - jacobian[0][1]*jacobian[1][0];
 
-    if( !isSingular() && checkSingularities)
-    {
-        jacInv[0][0] =  jacobian[1][1]/jacDet;
-        jacInv[0][1] = -jacobian[0][1]/jacDet;
-        jacInv[1][0] = -jacobian[1][0]/jacDet;
-        jacInv[1][1] =  jacobian[0][0]/jacDet;
-    }
+    jacInv[0][0] =  jacobian[1][1]/jacDet;
+    jacInv[0][1] = -jacobian[0][1]/jacDet;
+    jacInv[1][0] = -jacobian[1][0]/jacDet;
+    jacInv[1][1] =  jacobian[0][0]/jacDet;
 
 }
 
 bool ManipKinemat::isSingular()
 {
-    if( (fabs(joint_q[1]) < singularityTolerance) || ( fabs(joint_q[1] - M_PI)  < singularityTolerance ) )
+    if( (fabs(joint_q[1]) < singularityTolerance) || ( fabs( fabs(joint_q[1]) - M_PI)  < singularityTolerance ) )
         return true;
     else
         return false;

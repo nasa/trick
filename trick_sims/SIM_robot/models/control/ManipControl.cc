@@ -89,7 +89,7 @@ bool ManipControl::EEPositionAuto(double *curPos, double *curVel)
         posErr[i] = desiredPos[i] - curPos[i];
         if( fabs(posErr[i]) <= posEps )
         {
-            std::cout<<posErr[i]<<"\t"<<curPos<<std::endl;
+//            std::cout<<posErr[i]<<"\t"<<curPos<<std::endl;
             withinTol[i] = true;
         }
 

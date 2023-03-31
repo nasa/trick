@@ -55,23 +55,33 @@ void PlanarManip::control()
             break;
 
         case Manual:
-            if ( kinemat.checkSingularities )
+            if ( kinemat.checkSingularities && kinemat.isSingular() )
             {
-                if ( kinemat.isSingular() )
-                {
-                    std::cout<<"Singularity approached, EE control disabled."<<std::endl;
-                    mode = Nope;
-                    controller.clearControlCommands();
-                    return;
-                }
-
+                std::cout<<"Singularity approached, EE control disabled."<<std::endl;
+                mode = Nope;
+                controller.clearControlCommands();
+                return;
             }
             
             controller.manualControl();
             break;
 
         case EEPos:
-            positionReached = controller.EEPositionAuto( &(kinemat.P_task_ee[0]), &(kinemat.V_ee[0]) );
+            if ( kinemat.checkSingularities )
+            {
+                if ( !kinemat.isSingular() )
+                    positionReached = controller.EEPositionAuto( &(kinemat.P_task_ee[0]), &(kinemat.V_ee[0]) );
+                else
+                {
+                    std::cout<<"Singularity approached, EE control disabled."<<std::endl;
+                    mode = Nope;
+                    controller.clearControlCommands();
+                    return;
+                }
+            }
+            else
+                positionReached = controller.EEPositionAuto( &(kinemat.P_task_ee[0]), &(kinemat.V_ee[0]) );
+
             if(positionReached)
             {
                 std::cout<<"EE Position Reached!"<<std::endl;
@@ -125,7 +135,7 @@ int PlanarManip::updateState()
     }
 
 
-    std::cout << "q = [ " << kinemat.joint_q[0] << kinemat.joint_q[1] << " ]" << std::endl;
+//    std::cout << "q = [ " << kinemat.joint_q[0] << kinemat.joint_q[1] << " ]" << std::endl;
 
     return(integration_step);
 
