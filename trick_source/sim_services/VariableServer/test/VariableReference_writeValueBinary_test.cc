@@ -121,7 +121,7 @@ TEST_F(VariableReference_test, writeValueBinary_string) {
     unsigned char expected_bytes[6] = {0x61, 0x62, 0x63, 0x64, 0x65, 0x66};
 
     // ASSERT
-    for (int i = 0; i < test_a.length(); i++) {
+    for (unsigned int i = 0; i < test_a.length(); i++) {
         EXPECT_EQ(static_cast<unsigned char>(actual_bytes[i]), expected_bytes[i]);
     }
 }

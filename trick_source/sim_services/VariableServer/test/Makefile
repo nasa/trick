@@ -8,7 +8,7 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Makefile.common
 
 # Replace -isystem with -I so ICG doesn't skip Trick headers
-TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
+TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS)) -Wno-unused-command-line-argument
 
 # Flags passed to the preprocessor.
 TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare -std=c++11 ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}

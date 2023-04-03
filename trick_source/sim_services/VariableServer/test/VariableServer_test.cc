@@ -34,7 +34,8 @@ TEST_F(VariableServer_test, set_log_on) {
     EXPECT_CALL(session, set_log_on())
         .Times(1);
 
-    vs.add_session(5, &session);
+    pthread_t id = (pthread_t) 5;
+    vs.add_session(id, &session);
 
     // ACT
     vs.set_var_server_log_on();
@@ -49,7 +50,8 @@ TEST_F(VariableServer_test, set_log_off) {
     EXPECT_CALL(session, set_log_off())
         .Times(1);
 
-    vs.add_session(5, &session);
+    pthread_t id = (pthread_t) 5;
+    vs.add_session(id, &session);
 
     // ACT
     vs.set_var_server_log_off();
