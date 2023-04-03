@@ -289,7 +289,7 @@ class VariableServerTestAltListener : public ::testing::Test {
 class VariableServerTestMulticast : public ::testing::Test {
     protected:
         VariableServerTestMulticast() {
-            socket.init("", 47000, SOCK_DGRAM);
+            socket_status = socket.init("", 47000, SOCK_DGRAM);
             multicast_listener.init_multicast("224.10.10.10", 47000);
 
             if (socket_status == 0) {
