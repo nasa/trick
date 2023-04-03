@@ -8,28 +8,43 @@
 #include <vector>
 #include <arpa/inet.h>
 
+#include <trick/UDPConnection.hh>
 #include <trick/SystemInterface.hh>
 
 namespace Trick {
-    class MulticastGroup {
+    class MulticastGroup : public UDPConnection {
         public:
             MulticastGroup();
             MulticastGroup (SystemInterface * system_interface);
 
             virtual ~MulticastGroup();
             
+            // Multicast specific functions
+            int initialize_with_receiving(std::string local_addr, std::string mcast_addr, int port);
+            virtual int initialize();
+
             virtual int broadcast (std::string message);
             virtual int addAddress (std::string addr, int port);
-            virtual int restart ();
-            virtual int initialize();
-            virtual int isInitialized();
-            virtual int disconnect();
+
+            // ClientConnection interface
+
+            virtual int write (const std::string& message) override;
+            virtual int write (char * message, int size) override;
+
+            virtual int read  (std::string& message, int max_len = MAX_CMD_LEN) override;
+
+            virtual int disconnect () override;
+
+            virtual bool isInitialized() override;
+
+            virtual int restart() override;
 
 
         private:
             std::vector<struct sockaddr_in> _addresses;           /**<  trick_io(**) Addresses to multicast to. */
-            int _mcast_socket;                                    /**<  trick_io(**) Socket opened in initialization. */
-            bool _initialized;                                     /**<  trick_io(**) Whether manager is ready */
+            bool _initialized;                                    /**<  trick_io(**) Whether this object is ready */
+
+            struct sockaddr_in _self_info ;                       /**<  trick_io(**) Save self information so we don't process our own messages */
 
             SystemInterface * _system_interface;
     };

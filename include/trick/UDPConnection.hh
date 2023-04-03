@@ -40,8 +40,7 @@ namespace Trick {
             std::string getHostname();
 
 
-
-        private:
+        protected:
             bool _initialized;
             bool _started;
             int _socket;

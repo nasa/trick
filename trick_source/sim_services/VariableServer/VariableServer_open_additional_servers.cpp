@@ -59,15 +59,29 @@ int Trick::VariableServer::create_udp_socket(const char * address, unsigned shor
 }
 
 int Trick::VariableServer::create_multicast_socket(const char * mcast_address, const char * address, unsigned short in_port ) {
-    // int ret ;
-    // Trick::VariableServerThread * vst ;
-    // vst = new Trick::VariableServerThread(NULL) ;
-    // ret = vst->create_mcast_socket(mcast_address, address, in_port) ;
-    // if ( ret == 0 ) {
-    //     vst->copy_cpus(listen_thread.get_cpus()) ;
-    //     vst->create_thread() ;
-    // }
-    //vst->var_debug(3) ;
+
+    // Multicast sockets are created without a listen thread, and represent only 1 session
+    // Create a VariableServerThread to manage this session
+
+    MulticastGroup * multicast = new MulticastGroup();
+    message_publish(MSG_INFO, "Created UDP variable server %s: %d\n", address, in_port);
+
+    int status = multicast->initialize_with_receiving(address, mcast_address, in_port);
+    if ( status != 0 ) {
+        delete multicast;
+        return 0;
+    }
+
+    std::string set_address = multicast->getHostname();
+    int set_port = multicast->getPort();
+
+    Trick::VariableServerThread * vst = new Trick::VariableServerThread() ;
+
+    vst->set_connection(multicast);
+    vst->copy_cpus(listen_thread.get_cpus()) ;
+    vst->create_thread() ;
+
+    message_publish(MSG_INFO, "Multicast variable server output %s:%d\n", mcast_address, set_port) ;
 
     return 0 ;
 }

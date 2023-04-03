@@ -13,7 +13,7 @@ def main():
 
 	trick.var_server_create_tcp_socket('localhost', 49000)
 	trick.var_server_create_udp_socket('', 48000)
-	# trick.var_server_create_multicast_socket('224.10.10.10','', 47000)
+	trick.var_server_create_multicast_socket('224.10.10.10','', 47000)
 
 	# trick.exec_set_terminate_time(100000.0)
 
@@ -23,7 +23,7 @@ def main():
 
 	# Start the test client after everything has been initialized (hopefully)
 	# trick.add_read(1.0, command)
-	trick.sim_control_panel_set_enabled(True)
+	# trick.sim_control_panel_set_enabled(True)
 
 
 if __name__ == "__main__":
