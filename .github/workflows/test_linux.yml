@@ -37,6 +37,7 @@ jobs:
               maven
               cmake
               zip
+              gdb
             install_gtest: echo gtest already installed
             conf_pkg:  echo package manager already configured
             install_cmd: install -y
