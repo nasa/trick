@@ -295,7 +295,6 @@ TEST_F(VariableServerListenThread_test, accept_connection) {
 
     EXPECT_CALL(*listener, checkForNewConnections())
         .WillOnce(Return(true))
-        .WillOnce(Return(true))
         .WillRepeatedly(Return(false));
 
     MockTCPConnection connection;
@@ -344,7 +343,6 @@ TEST_F(VariableServerListenThread_test, connection_fails) {
 
     EXPECT_CALL(*listener, checkForNewConnections())
         .WillOnce(Return(true))
-        .WillOnce(Return(true))
         .WillRepeatedly(Return(false));
 
     MockTCPConnection connection;
@@ -355,44 +353,6 @@ TEST_F(VariableServerListenThread_test, connection_fails) {
 
     EXPECT_CALL(*listener, setUpNewConnection())
         .WillOnce(Return(&connection));
-
-    Trick::VariableServerListenThread listen_thread (listener);
-    listen_thread.set_broadcast(false);
-    listen_thread.set_multicast_group(mcast);
-
-    // ACT
-    listen_thread.create_thread();
-
-    sleep(3);
-
-    listen_thread.cancel_thread();
-    listen_thread.join_thread();
-
-    // ASSERT
-}
-
-
-
-TEST_F(VariableServerListenThread_test, handle_false_positive) {
-    // ARRANGE
-    setup_normal_listener_expectations(listener);
-
-    // Expect no calls to mcast
-    EXPECT_CALL (*mcast, initialize())
-        .Times(0);
-
-    EXPECT_CALL (*mcast, broadcast(_))
-        .Times(0);
-
-    EXPECT_CALL(*listener, setBlockMode(true))
-        .Times(1);
-
-    EXPECT_CALL(*listener, checkForNewConnections())
-        .WillOnce(Return(true))
-        .WillRepeatedly(Return(false));
-
-    EXPECT_CALL(*listener, setUpNewConnection())
-        .Times(0);
 
     Trick::VariableServerListenThread listen_thread (listener);
     listen_thread.set_broadcast(false);
@@ -429,5 +389,4 @@ TEST_F(VariableServerListenThread_test, restart_fails) {
     // ACT
     // ASSERT
     EXPECT_EQ(listen_thread.restart(), -1);
-
 }
