@@ -100,10 +100,15 @@ int Trick::MulticastGroup::initialize_with_receiving(std::string addr, std::stri
     getsockname( _socket , (struct sockaddr *)&_self_info, (socklen_t *)&s_in_size) ;
     if ( _self_info.sin_addr.s_addr == 0 ) {
         char hname[80];
-        struct hostent *ip_host;
+        struct hostent *ip_host = NULL;
         gethostname(hname, (size_t) 80);
         ip_host = gethostbyname(hname);
-        memcpy(&(_self_info.sin_addr.s_addr), ip_host->h_addr, (size_t) ip_host->h_length);
+        if (ip_host != NULL) { 
+            memcpy(&(_self_info.sin_addr.s_addr), ip_host->h_addr, (size_t) ip_host->h_length);
+        } else {
+            _self_info.sin_addr.s_addr = inet_addr(addr.c_str());
+            _self_info.sin_port = htons(port);
+        }
     }
 
     return 0;    
