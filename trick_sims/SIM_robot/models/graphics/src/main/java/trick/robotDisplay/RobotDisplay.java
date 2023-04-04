@@ -40,7 +40,16 @@ import java.awt.Component;
  *
  * @author penn
  */
+//------------------------------------------------------------------------------
+ class RobotCtrlMode {
+     public static final int NOPE = 0;
+     public static final int CANCEL = 1;
+     public static final int SINGLE_JOINT = 2;
+     public static final int MANUAL = 3;
+     public static final int EEPOS = 4;
+ }
 
+//------------------------------------------------------------------------------
 class Link {
   public double l; // length of the link (meters).
   public double q; // joint angle (radians).
@@ -51,6 +60,7 @@ class Link {
   }
 }
 
+//------------------------------------------------------------------------------
 class ScenePoly {
     public Color color;
     public int n;
@@ -58,18 +68,20 @@ class ScenePoly {
     public double[] y;
 }
 
+//------------------------------------------------------------------------------
 class Point {
     public double x;
     public double y;
 }
 
+//------------------------------------------------------------------------------
 class PathTrace {
     int capacity;
     public Point[] path;
     public int head;
     public int tail;
     public PathTrace() {
-        capacity = 200;
+        capacity = 1000;
         path = new Point[capacity];
         head = 0;
         tail = 0;
@@ -105,46 +117,42 @@ class PathTrace {
     }
 }
 
+//------------------------------------------------------------------------------
 class RangeView extends JPanel {
 
     private int scale;
-    int nlinks;
     private Color sunGlowColor;
     private Color grey200Color;
     private Color grey150Color;
     private Color pathTraceColor;
 
-    private ScenePoly link_arm;
-
     // Origin of world coordinates in jpanel coordinates.
     private int worldOriginX;
     private int worldOriginY;
-
-    public Link[] links;
-
-    // private ScenePoly upright;
-
     private int[] workPolyX, workPolyY;
+    private ScenePoly link_arm;
 
+    public int nlinks;
+    public Link[] links;
     public PathTrace pathTrace;
     public boolean pathTraceEnabled;
+    private int selectedJoint;
+    public Point desiredPosition;
+
     /**
      * Class constructor.
      */
     public RangeView( int mapScale, int numberOfLinks) {
 
       setScale(mapScale);
-      nlinks = numberOfLinks;
 
       sunGlowColor = new Color(255,204,51);
       grey200Color = new Color(200,200,200);
       grey150Color = new Color(150,150,150);
       pathTraceColor = new Color(85,20,230);
 
-      links = new Link[nlinks];
-      for (int ii=0 ; ii<nlinks ; ii++) {
-          links[ii] = new Link();
-      }
+      workPolyX = new int[30];
+      workPolyY = new int[30];
 
       link_arm = new ScenePoly();
       link_arm.color = grey200Color;
@@ -152,12 +160,33 @@ class RangeView extends JPanel {
       link_arm.x = new double[4];
       link_arm.y = new double[4];
 
-      workPolyX = new int[30];
-      workPolyY = new int[30];
+      nlinks = numberOfLinks;
+      links = new Link[nlinks];
+      for (int ii=0 ; ii<nlinks ; ii++) {
+          links[ii] = new Link();
+      }
 
       pathTrace = new PathTrace();
       pathTraceEnabled = false;
 
+      selectedJoint = 0;
+
+      desiredPosition = new Point();
+      desiredPosition.x = -0.5;
+      desiredPosition.y = -0.5;
+
+      ViewListener viewListener = new ViewListener();
+      addMouseListener(viewListener);
+      addMouseMotionListener(viewListener);
+
+    }
+
+    private class ViewListener extends MouseInputAdapter {
+        public void mouseReleased(MouseEvent e) {
+          desiredPosition.x =  (double)(e.getX() - worldOriginX) / (double)scale;
+          desiredPosition.y = -(double)(e.getY() - worldOriginY) / (double)scale;
+          repaint();
+        }
     }
 
     public void drawScenePoly(Graphics2D g, ScenePoly p, double angle_r , double x, double y) {
@@ -184,6 +213,11 @@ class RangeView extends JPanel {
 
     public int getScale() {
         return scale;
+    }
+
+    public void setSelectedJoint (int which) {
+        selectedJoint = which;
+        repaint();
     }
 
     public void drawCenteredCircle(Graphics2D g, int x, int y, int d) {
@@ -241,6 +275,12 @@ class RangeView extends JPanel {
             (int)(scale * 2 * extended_length )
          );
 
+         g2d.setPaint(Color.GREEN);
+         fillCenteredCircle(g2d,
+             (int)(worldOriginX + scale * desiredPosition.x),
+             (int)(worldOriginY - scale * desiredPosition.y),
+             (int)(scale * 0.2));
+
         for (int ii=0 ; ii<nlinks ; ii++) {
             q_sum += links[ii].q;
             l_sum += links[ii].l;
@@ -252,13 +292,6 @@ class RangeView extends JPanel {
             end_x = base_x + links[ii].l * Math.cos(q_sum);
             end_y = base_y + links[ii].l * Math.sin(q_sum);
 
-            // SLOPING LINKS
-            // link_arm.x[0] = 0.0;          link_arm.y[0] =  base_width/2.0;
-            // link_arm.x[1] = links[ii].l;  link_arm.y[1] =  end_width/2.0;
-            // link_arm.x[2] = links[ii].l;  link_arm.y[2] = -end_width/2.0;
-            // link_arm.x[3] = 0.0;          link_arm.y[3] = -base_width/2.0;
-
-            // STRAIGHT LINKS
             link_arm.x[0] = 0.0;          link_arm.y[0] =  base_width/2.0;
             link_arm.x[1] = links[ii].l;  link_arm.y[1] =  base_width/2.0;
             link_arm.x[2] = links[ii].l;  link_arm.y[2] = -base_width/2.0;
@@ -266,7 +299,12 @@ class RangeView extends JPanel {
 
             drawScenePoly(g2d, link_arm, q_sum, base_x, base_y);
 
-            g2d.setPaint(sunGlowColor);
+            if (ii == selectedJoint) {
+                g2d.setPaint(sunGlowColor);
+            } else {
+                g2d.setPaint(Color.GRAY);
+            }
+
             fillCenteredCircle(g2d,
                 (int)(worldOriginX + scale * base_x),
                 (int)(worldOriginY - scale * base_y),
@@ -321,62 +359,301 @@ class RangeView extends JPanel {
         super.paintComponent(g);
         doDrawing(g);
     }
-}
+} // class RangeView
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class TrickSimMode {
     public static final int INIT = 0;
     public static final int FREEZE = 1;
     public static final int RUN = 5;
-}
+} // class TrickSimMode
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class VelocityCtrlPanel extends JPanel {
     private RangeView rangeView;
-    private JButton traceButton;
     private int mouse_x, mouse_y;
-    private Color padColor, arrowColor;
     private int padDiameter;
-    private int padCenterX, padCenterY;
+    private float pMag;
+    private float nMag, vx, vy;
+    public static final int padRadius = 50;
 
     public VelocityCtrlPanel(RangeView view) {
-        padDiameter = 100;
-        padCenterX = padDiameter/2;
-        padCenterY = padDiameter/2;
         rangeView = view;
-        padColor = new Color(150,150,150);
-        arrowColor = new Color(50,30,140);
-        mouse_x = padCenterX;
-        mouse_y = padCenterY;
+        padDiameter = 2*padRadius;
+        clear();
+
         ViewListener viewListener = new ViewListener();
         addMouseListener(viewListener);
         addMouseMotionListener(viewListener);
+
         setPreferredSize(new Dimension(padDiameter, padDiameter));
         setMaximumSize(  new Dimension(padDiameter, padDiameter));
     }
-
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setPaint(padColor);
+        g2d.setPaint(Color.LIGHT_GRAY);
         g2d.fillOval(0, 0, padDiameter, padDiameter);
-        g2d.setPaint(arrowColor);
-        g2d.drawLine(padCenterX, padCenterY, mouse_x, mouse_y);
+        g2d.setPaint(Color.WHITE);
+        g2d.fillOval(padRadius - (int)pMag,
+                     padRadius - (int)pMag,
+                     (int)(pMag*2),
+                     (int)(pMag*2));
+        g2d.setPaint(Color.BLACK);
+        g2d.drawLine(padRadius, padRadius, mouse_x, mouse_y);
     }
-
     private class ViewListener extends MouseInputAdapter {
         public void mouseReleased(MouseEvent e) {
-          mouse_x = e.getX();
-          mouse_y = e.getY();
+          int x = e.getX() - padRadius;
+          int y = e.getY() - padRadius;
+
+          pMag = (float)Math.sqrt((double)(x*x+y*y));
+          vx = (float)(x)/pMag;
+          vy = (float)(y)/pMag;
+          //System.out.println("<vx, vy> = <" + vx + ", " + vy + ">.");
+          // Restrict the vector to the pad circle.
+          if (pMag > padRadius) pMag = (float)(padRadius);
+          // Normalize the vector magnitude to the range (0..1).
+          nMag = pMag/(float)padRadius;
+          //System.out.println("nMag = " + nMag + ".");
+          mouse_x = (int)(vx * pMag) + padRadius;
+          mouse_y = (int)(vy * pMag) + padRadius;
+
           repaint();
+
         }
+    }
+    public float getXvalue() { return  (nMag *  vx); }
+    public float getYvalue() { return  (nMag * -vy); }
+    public float getMagnitude() { return nMag; }
+    public void  clear() {
+        mouse_x = padRadius;
+        mouse_y = padRadius;
+        nMag = (float)0.0;
+        vx = (float)0.0;
+        vy = (float)0.0;
+        repaint();
     }
 } // class VelocityCtrlPanel
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class JointRatePanel extends JPanel implements ChangeListener {
+    private RangeView rangeView;
+    static final int DPS_MIN = -15;
+    static final int DPS_MAX =  15;
+    static final int DPS_INIT =  0;
+    private int value;
+    JSlider degreesPerSecond;
+    public JointRatePanel(RangeView view) {
+        rangeView = view;
+        value = DPS_INIT;
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setPreferredSize(new Dimension(200, 50));
+        setMaximumSize(  new Dimension(200, 50));
+        degreesPerSecond = new JSlider(JSlider.HORIZONTAL, DPS_MIN, DPS_MAX, DPS_INIT);
+        degreesPerSecond.addChangeListener(this);
+        degreesPerSecond.setMajorTickSpacing(10);
+        degreesPerSecond.setMinorTickSpacing(1);
+        degreesPerSecond.setPaintTicks(true);
+        degreesPerSecond.setPaintLabels(true);
+        degreesPerSecond.setToolTipText("Joint Rate Selector");
+        add(degreesPerSecond);
+    }
+    public void stateChanged(ChangeEvent e) {
+        JSlider source = (JSlider)e.getSource();
+        if (!source.getValueIsAdjusting()) {
+            value = (int)source.getValue();
+            System.out.println("Joint Rate : " + value);
+        }
+    }
+    public double getValue() { return ((double)(value) * (Math.PI/180.0)) ; }
+    public void setValue( int val) {
+        value = val;
+        degreesPerSecond.setValue( value);
+    }
+    public void clear() { setValue(0); }
+} // class JointRatePanel
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class JointSelectPanel extends JPanel implements ActionListener {
+    private RangeView rangeView;
+    JLabel numberLabel;
+    int count;
+    int value;
+    int desiredValue;
+    public JointSelectPanel(RangeView view) {
+        rangeView = view;
+        count = rangeView.nlinks;
+
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
+        JButton decButton = new JButton("\u25c0");
+        decButton.addActionListener(this);
+        decButton.setActionCommand("decrement");
+        decButton.setToolTipText("Decrement");
+        add(decButton);
+
+        numberLabel = new JLabel("");
+        add(numberLabel);
+
+        JButton incButton = new JButton("\u25b6");
+        incButton.addActionListener(this);
+        incButton.setActionCommand("increment");
+        incButton.setToolTipText("Increment");
+        add(incButton);
+
+        setValue(0);
+    }
+    public void actionPerformed(ActionEvent e) {
+        String s = e.getActionCommand();
+        switch (s) {
+            case "increment":
+                // setValue( value + 1 );
+                desiredValue = ( value + count + 1 ) % count;
+                break;
+            case "decrement":
+                // setValue( value - 1 );
+                desiredValue = ( value + count + 1 ) % count;
+                break;
+            default:
+                System.out.println("Unknown Action Command:" + s);
+                break;
+        }
+    }
+    public int getValue() { return desiredValue; }
+    public void setValue(int val) {
+        // NOTE: the expression below looks weird because the result
+        // of the Java mod operator isn't necessarily positive.
+        value = ( (val % count) + count) % count;
+        numberLabel.setText("" + value);
+        rangeView.setSelectedJoint(value);
+    }
+    public void clear() {
+        setValue(0);
+    }
+} // class JointSelectPanel
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class JointCtrlPanel extends JPanel {
+    private RangeView rangeView;
+    public JointRatePanel jointRatePanel;
+    public JointSelectPanel jointSelectPanel;
+
+    public JointCtrlPanel(RangeView view) {
+        rangeView = view;
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        JLabel jointRateCtrlLabel = new JLabel("Joint Rate (deg/s)");
+        jointRateCtrlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        jointRatePanel = new JointRatePanel(rangeView);
+        JLabel jointSelectLabel = new JLabel("Joint Select");
+        jointSelectLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        jointSelectPanel = new JointSelectPanel( rangeView);
+        add(jointRateCtrlLabel);
+        add(jointRatePanel);
+        add(jointSelectLabel);
+        add(jointSelectPanel);
+    }
+} // class JointCtrlPanel
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class ModeCtrlPanel extends JPanel implements ActionListener {
+    private RangeView rangeView;
+    JButton eePosButton;
+    JButton manualButton;
+    JButton singleJointButton;
+    JButton cancelButton;
+    int desired_mode;
+
+    public ModeCtrlPanel(RangeView view) {
+        rangeView = view;
+
+        int desired_mode = RobotCtrlMode.NOPE;
+
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+        JPanel modeSelectPanel = new JPanel();
+        modeSelectPanel.setLayout( new BoxLayout(modeSelectPanel, BoxLayout.Y_AXIS));
+        modeSelectPanel.setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+
+        eePosButton = new JButton("EEPos");
+        eePosButton.addActionListener(this);
+        eePosButton.setActionCommand("eepos");
+        eePosButton.setToolTipText("End-effector Position Mode");
+        modeSelectPanel.add(eePosButton);
+
+        manualButton = new JButton("Manual");
+        manualButton.addActionListener(this);
+        manualButton.setActionCommand("manual");
+        manualButton.setToolTipText("Manual Mode");
+        modeSelectPanel.add(manualButton);
+
+        singleJointButton = new JButton("SJoint");
+        singleJointButton.addActionListener(this);
+        singleJointButton.setActionCommand("sjoint");
+        singleJointButton.setToolTipText("Single Joint Mode");
+        modeSelectPanel.add(singleJointButton);
+
+        add(modeSelectPanel);
+
+        cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(this);
+        cancelButton.setActionCommand("mode_cancel");
+        cancelButton.setToolTipText("Cancel");
+
+        add(cancelButton);
+
+    }
+    public void actionPerformed(ActionEvent e) {
+        String s = e.getActionCommand();
+        switch (s) {
+            case "eepos":
+                desired_mode = RobotCtrlMode.EEPOS;
+                break;
+            case "manual":
+                desired_mode = RobotCtrlMode.MANUAL;
+                break;
+            case "sjoint":
+                desired_mode = RobotCtrlMode.SINGLE_JOINT;
+                break;
+            case "mode_cancel":
+                desired_mode = RobotCtrlMode.CANCEL;
+                break;
+            default:
+                System.out.println("Unknown Action Command:" + s);
+                break;
+        }
+    }
+    public void clear() {
+        // desired_mode = RobotCtrlMode.NOPE;
+        eePosButton.setForeground(Color.BLACK);
+        manualButton.setForeground(Color.BLACK);
+        singleJointButton.setForeground(Color.BLACK);
+    }
+    public void setMode(int mode) {
+        clear();
+        if (mode == RobotCtrlMode.SINGLE_JOINT) {
+            singleJointButton.setForeground(Color.GREEN);
+        } else if (mode == RobotCtrlMode.MANUAL) {
+            manualButton.setForeground(Color.GREEN);
+        } else if (mode == RobotCtrlMode.EEPOS) {
+            eePosButton.setForeground(Color.GREEN);
+        }
+    }
+    public int desiredMode() {
+        return desired_mode;
+    }
+    public void resetDesiredMode() {
+        desired_mode = RobotCtrlMode.NOPE;
+    }
+
+} // class ModeCtrlPanel
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class TraceCtrlPanel extends JPanel implements ActionListener {
     private RangeView rangeView;
-    private JButton traceButton;
+    JButton traceButton;
+
     public TraceCtrlPanel(RangeView view) {
         rangeView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
@@ -386,7 +663,6 @@ class TraceCtrlPanel extends JPanel implements ActionListener {
         traceButton.setActionCommand("trace");
         traceButton.setToolTipText("Trace end-effector");
         add(traceButton);
-
     }
     public void actionPerformed(ActionEvent e) {
         String s = e.getActionCommand();
@@ -410,22 +686,21 @@ class TraceCtrlPanel extends JPanel implements ActionListener {
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 class ZoomCtrlPanel extends JPanel implements ActionListener {
     private RangeView rangeView;
-    private JButton zoomOutButton, zoomInButton;
+
     public ZoomCtrlPanel(RangeView view) {
         rangeView = view;
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-
-        zoomOutButton = new JButton("Out");
-        zoomOutButton.addActionListener(this);
-        zoomOutButton.setActionCommand("zoomout");
-        zoomOutButton.setToolTipText("Zoom Out");
-        add(zoomOutButton);
-
-        zoomInButton = new JButton("In");
+        setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        JButton zoomInButton = new JButton("+");
         zoomInButton.addActionListener(this);
         zoomInButton.setActionCommand("zoomin");
         zoomInButton.setToolTipText("Zoom In");
         add(zoomInButton);
+        JButton zoomOutButton = new JButton("-");
+        zoomOutButton.addActionListener(this);
+        zoomOutButton.setActionCommand("zoomout");
+        zoomOutButton.setToolTipText("Zoom Out");
+        add(zoomOutButton);
     }
     public void actionPerformed(ActionEvent e) {
         String s = e.getActionCommand();
@@ -447,34 +722,53 @@ class ZoomCtrlPanel extends JPanel implements ActionListener {
 class ControlPanel extends JPanel {
 
     private RangeView rangeView;
-    private ZoomCtrlPanel zoomCtrlPanel;
-    private TraceCtrlPanel traceCtrlPanel;
-    private VelocityCtrlPanel velocityCtrlPanel;
 
-    // private ManualCtrlPanel manualCtrlPanel;
+    public ModeCtrlPanel modeCtrlPanel;
+    public JointCtrlPanel jointCtrlPanel;
+    public VelocityCtrlPanel velocityCtrlPanel;
 
     public ControlPanel(RangeView view) {
 
         rangeView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-
-        JPanel labeledZoomCtrlPanel = new JPanel();
-        labeledZoomCtrlPanel.setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-        labeledZoomCtrlPanel.setLayout(new BoxLayout(labeledZoomCtrlPanel, BoxLayout.Y_AXIS));
-
+        // ---------------------------------------------------------------------
         JLabel zoomControlLabel = new JLabel("Zoom");
         zoomControlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        ZoomCtrlPanel zoomCtrlPanel = new ZoomCtrlPanel(rangeView);
+        zoomCtrlPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        JPanel labeledZoomCtrlPanel = new JPanel();
+        labeledZoomCtrlPanel.setLayout( new BoxLayout(labeledZoomCtrlPanel, BoxLayout.Y_AXIS));
         labeledZoomCtrlPanel.add(zoomControlLabel);
-
-        zoomCtrlPanel = new ZoomCtrlPanel(rangeView);
         labeledZoomCtrlPanel.add( zoomCtrlPanel );
         add(labeledZoomCtrlPanel);
-
-        traceCtrlPanel = new TraceCtrlPanel(rangeView);
+        // ---------------------------------------------------------------------
+        TraceCtrlPanel traceCtrlPanel = new TraceCtrlPanel(rangeView);
         add(traceCtrlPanel);
+        // ---------------------------------------------------------------------
+        modeCtrlPanel = new ModeCtrlPanel(rangeView);
+        add(modeCtrlPanel);
+        // ---------------------------------------------------------------------
+        JLabel velCtrlLabelTop = new JLabel("EE Velocity");
+        velCtrlLabelTop.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel velCtrlLabelBottom = new JLabel("[0..1] (m/s)");
+        velCtrlLabelBottom.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         velocityCtrlPanel = new VelocityCtrlPanel(rangeView);
         add(velocityCtrlPanel);
+
+        JPanel labeledVelCtrlPanel = new JPanel();
+        labeledVelCtrlPanel.setLayout( new BoxLayout(labeledVelCtrlPanel, BoxLayout.Y_AXIS));
+
+        labeledVelCtrlPanel.add(velCtrlLabelTop);
+        labeledVelCtrlPanel.add(velocityCtrlPanel);
+        labeledVelCtrlPanel.add(velCtrlLabelBottom);
+
+        add(labeledVelCtrlPanel);
+        // ---------------------------------------------------------------------
+
+        jointCtrlPanel = new JointCtrlPanel(rangeView);
+        add(jointCtrlPanel);
     }
 } // class ControlPanel
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -511,7 +805,7 @@ public class RobotDisplay extends JFrame {
         viewPanel.setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         viewPanel.add(rangeView);
 
-        ControlPanel controlPanel = new ControlPanel(rangeView);
+        controlPanel = new ControlPanel(rangeView);
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -544,7 +838,6 @@ public class RobotDisplay extends JFrame {
 
         String host = "localHost";
         int port = 0;
-        boolean boom = false;
 
         // ==========================================================
         // Handle program arguments.
@@ -565,12 +858,12 @@ public class RobotDisplay extends JFrame {
         }
 
         boolean go = true;
-        double  dt = 0.100; // Time between updates (seconds).
+        double  dt = 0.050; // Time between updates (seconds).
 
         int nlinks = 0;
         boolean standalone = false;
 
-        int mapScale = 128 ; // pixels per meter.
+        int mapScale = 64 ; // pixels per meter.
 
         if (port == 0) {
             System.out.println("No variable server port specified.");
@@ -605,10 +898,13 @@ public class RobotDisplay extends JFrame {
         System.out.println("Number of Links: " + nlinks);
 
         robotDisplay.createGUI(mapScale, nlinks);
-        //robotDisplay.setSize(800, 800);
 
         // Configure the Variable Server to cyclically send data.
         robotDisplay.out.writeBytes( "trick.var_pause() \n");
+
+        robotDisplay.out.writeBytes( "trick.var_add(\"Manip2D.robot.mode\")\n");
+        robotDisplay.out.writeBytes( "trick.var_add(\"Manip2D.robot.controller.singleJointNum\")\n");
+
         for ( ii = 0; ii < nlinks; ii ++) {
             robotDisplay.out.writeBytes(
                   String.format("trick.var_add(\"Manip2D.robot.kinemat.joint_l[%d][0]\")\n", ii)
@@ -624,24 +920,60 @@ public class RobotDisplay extends JFrame {
         //  Update the scene.
         robotDisplay.drawRangeView();
 
+        int robotMode = RobotCtrlMode.NOPE;
+        int desiredMode;
+        int jointNumber = 0;
+        int desiredJointNumber;
+        double desiredJointRate;
         while (go) {
 
+            // -----------------------------------------------------------------
             // Recieve and parse periodic data response from the variable server.
+            // -----------------------------------------------------------------
             try {
                 String line;
                 String field[];
                 line = robotDisplay.in.readLine();
-                field   = line.split("\t");
-
-                for ( ii=0; ii < nlinks; ii++) {
-                    robotDisplay.rangeView.links[ii].l = Double.parseDouble( field[ii*2 +1]);
-                    //System.out.println("robotDisplay.rangeView.links["+ ii+ "].l: = " + robotDisplay.rangeView.links[ii].l);
-                    robotDisplay.rangeView.links[ii].q = Double.parseDouble( field[ii*2 +2]);
-                    //System.out.println("robotDisplay.rangeView.links["+ ii+ "].q: = " + robotDisplay.rangeView.links[ii].q);
+                field = line.split("\t");
+                robotMode = Integer.parseInt( field[1]);
+                robotDisplay.controlPanel.modeCtrlPanel.setMode( robotMode );
+                jointNumber = Integer.parseInt( field[2]);
+                robotDisplay.controlPanel.jointCtrlPanel.jointSelectPanel.setValue( jointNumber );
+                for ( int lix=0; lix < nlinks; lix++) {
+                    robotDisplay.rangeView.links[lix].l = Double.parseDouble( field[lix*2 + 3]);
+                    robotDisplay.rangeView.links[lix].q = Double.parseDouble( field[lix*2 + 4]);
                 }
             } catch (IOException | NullPointerException e ) {
                 go = false;
             }
+
+            // -----------------------------------------------------------------
+            // Send commands to from the variable server.
+            // -----------------------------------------------------------------
+            desiredMode = robotDisplay.controlPanel.modeCtrlPanel.desiredMode();
+            if ( desiredMode != RobotCtrlMode.NOPE ) {
+                robotDisplay.controlPanel.modeCtrlPanel.resetDesiredMode();
+                robotDisplay.out.writeBytes(String.format("Manip2D.robot.mode = " + desiredMode + ";\n" ));
+                robotDisplay.out.flush();
+            }
+
+            float Vx = robotDisplay.controlPanel.velocityCtrlPanel.getXvalue();
+            robotDisplay.out.writeBytes(String.format("Manip2D.robot.controller.manualCommandRate[0] = " + Vx + ";\n" ));
+            float Vy = robotDisplay.controlPanel.velocityCtrlPanel.getYvalue();
+            robotDisplay.out.writeBytes(String.format("Manip2D.robot.controller.manualCommandRate[1] = " + Vy + ";\n" ));
+
+            desiredJointNumber = robotDisplay.controlPanel.jointCtrlPanel.jointSelectPanel.getValue();
+            if (desiredJointNumber != jointNumber) {
+                robotDisplay.out.writeBytes(String.format("Manip2D.robot.controller.singleJointNum = " + desiredJointNumber + ";\n" ));
+            }
+            desiredJointRate = robotDisplay.controlPanel.jointCtrlPanel.jointRatePanel.getValue();
+            robotDisplay.out.writeBytes(String.format("Manip2D.robot.controller.singleJointRate = " +
+                                                      desiredJointRate + ";\n" ));
+
+            robotDisplay.out.writeBytes(String.format("Manip2D.robot.controller.desiredPos[0] = " +
+                                                      robotDisplay.rangeView.desiredPosition.x + ";\n" ));
+            robotDisplay.out.writeBytes(String.format("Manip2D.robot.controller.desiredPos[1] = " +
+                                                      robotDisplay.rangeView.desiredPosition.y + ";\n" ));
 
             //  Update the scene.
             robotDisplay.drawRangeView();
