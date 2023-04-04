@@ -84,9 +84,6 @@ namespace Trick {
             /* Multicast broadcaster */
             MulticastGroup * _multicast;     /**<  trick_io(**) trick_units(--)  */
 
-            /** The mutex to stop accepting new connections during restart\n */
-            pthread_mutex_t _restart_pause ;     /**<  trick_io(**) */
-
     } ;
 
 }

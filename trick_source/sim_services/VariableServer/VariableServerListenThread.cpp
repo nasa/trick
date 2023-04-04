@@ -34,7 +34,7 @@ Trick::VariableServerListenThread::VariableServerListenThread(ClientListener * l
         _listener = new ClientListener;
     }
 
-    pthread_mutex_init(&_restart_pause, NULL);
+    // pthread_mutex_init(&_restart_pause, NULL);
 
     cancellable = false;
 }
@@ -155,16 +155,11 @@ void * Trick::VariableServerListenThread::thread_body() {
         // Quit here if it's time
         test_shutdown();
 
+        // Pause here if we need to
+        test_pause();
+
         // Look for a new client requesting a connection
         if (_listener->checkForNewConnections()) {
-            // pause here during restart
-            pthread_mutex_lock(&_restart_pause) ;
-
-            // Recheck - sometimes we get false positive if something happens during restart
-            if (!_listener->checkForNewConnections()) {
-                pthread_mutex_unlock(&_restart_pause) ;
-                continue;
-            }
 
             // Create a new thread to service this connection
             VariableServerThread * vst = new Trick::VariableServerThread() ;
@@ -179,9 +174,6 @@ void * Trick::VariableServerListenThread::thread_body() {
                 vst->join_thread();
                 delete vst;
             }
-
-            pthread_mutex_unlock(&_restart_pause) ;
-
         } else if ( _broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled
             char buf1[1024];
@@ -243,12 +235,14 @@ void Trick::VariableServerListenThread::initializeMulticast() {
 }
 
 void Trick::VariableServerListenThread::pause_listening() {
-    pthread_mutex_lock(&_restart_pause) ;
+    // pthread_mutex_lock(&_restart_pause) ;
+    force_thread_to_pause();
 }
 
 void Trick::VariableServerListenThread::restart_listening() {
     _listener->restart();
-    pthread_mutex_unlock(&_restart_pause) ;
+    unpause_thread();
+    // pthread_mutex_unlock(&_restart_pause) ;
 }
 
 void Trick::VariableServerListenThread::dump( std::ostream & oss ) {

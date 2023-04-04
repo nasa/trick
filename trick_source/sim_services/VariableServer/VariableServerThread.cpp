@@ -25,8 +25,6 @@ Trick::VariableServerThread::VariableServerThread(VariableServerSession * sessio
     pthread_mutex_init(&_connection_status_mutex, NULL);
     pthread_cond_init(&_connection_status_cv, NULL);
 
-    pthread_mutex_init(&_restart_pause, NULL);
-
     cancellable = false;
 }
 
@@ -87,7 +85,8 @@ Trick::ConnectionStatus Trick::VariableServerThread::wait_for_accept() {
 void Trick::VariableServerThread::preload_checkpoint() {
 
     // Stop variable server processing at the top of the processing loop.
-    pthread_mutex_lock(&_restart_pause);
+    force_thread_to_pause();
+
 
     // Make sure that the _session has been initialized
     pthread_mutex_lock(&_connection_status_mutex);
@@ -125,7 +124,7 @@ void Trick::VariableServerThread::restart() {
     pthread_mutex_unlock(&_connection_status_mutex);
 
     // Restart the variable server processing.
-    pthread_mutex_unlock(&_restart_pause);
+    unpause_thread();
 }
 
 void Trick::VariableServerThread::cleanup() {

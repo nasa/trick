@@ -13,7 +13,7 @@ Trick::MulticastGroup::~MulticastGroup() {}
 int Trick::MulticastGroup::restart () {
     // Keep address list the same, but we may need to get a new socket
     _system_interface = new SystemInterface();
-    return initialize();
+    // return initialize();
     // return 0;
 }
 
@@ -110,6 +110,9 @@ int Trick::MulticastGroup::initialize_with_receiving(std::string addr, std::stri
             _self_info.sin_port = htons(port);
         }
     }
+
+    setBlockMode(false);
+
 
     return 0;    
 }

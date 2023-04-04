@@ -95,9 +95,6 @@ namespace Trick {
             pthread_mutex_t _connection_status_mutex;     /**<  trick_io(**) */
             pthread_cond_t _connection_status_cv;         /**<  trick_io(**) */
 
-            /** The mutex pauses all processing during checkpoint restart */
-            pthread_mutex_t _restart_pause ;     /**<  trick_io(**) */
-
             bool _saved_pause_cmd;
     } ;
 

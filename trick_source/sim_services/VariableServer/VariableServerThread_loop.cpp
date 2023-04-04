@@ -62,19 +62,17 @@ void * Trick::VariableServerThread::thread_body() {
             test_shutdown(exit_var_thread, (void *) this);
 
             // Pause here if we are in a restart condition
-            pthread_mutex_lock(&_restart_pause) ;
+            test_pause();
 
             // Look for a message from the client
             // Parse and execute if one is availible
             int read_status = _session->handle_message();
             if ( read_status < 0 ) {
-                pthread_mutex_unlock(&_restart_pause) ;
                 break ;
             }
 
             // Check to see if exit is necessary
             if (_session->get_exit_cmd() == true) {
-                pthread_mutex_unlock(&_restart_pause) ;
                 break;
             }
 
@@ -91,11 +89,9 @@ void * Trick::VariableServerThread::thread_body() {
             if ( should_write_async && !_session->get_pause()) {
                 int ret = _session->write_data() ;
                 if ( ret < 0 ) {
-                    pthread_mutex_unlock(&_restart_pause) ;
                     break ;
                 }
             }
-            pthread_mutex_unlock(&_restart_pause) ;
 
             usleep((unsigned int) (_session->get_update_rate() * 1000000));
         }
