@@ -19,7 +19,7 @@ class VSTest {
 		unsigned char 		b;
 		short				c;
 		unsigned short  	d;
-		int 				e; /*  m xy-position */
+		int 				e; 	/*  m xy-position */
 		unsigned int 		f;
 		long				g;
 		unsigned long		h;
@@ -31,9 +31,12 @@ class VSTest {
 		int 				n[5];
 		std::string 		o;
 		char * 				p;
-		wchar_t *			q; /**< trick_chkpnt_io(**) */
+		wchar_t *			q; 	/**< trick_chkpnt_io(**) */
 
 		int large_arr[4000];
+
+		int blocked_from_input; 	/** trick_io(*o) */
+		int blocked_from_output; 	/** trick_io(*i) */
 
 		int status;
 

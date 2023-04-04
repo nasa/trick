@@ -83,47 +83,8 @@ class VariableServerTestMulticast : public ::testing::Test {
         
         static int numSession;
 };
-<<<<<<< HEAD
 int VariableServerTestMulticast::numSession = 0;
 #endif
-=======
-
-#ifndef __APPLE__
-class VariableServerTestMulticast : public ::testing::Test {
-    protected:
-        VariableServerTestMulticast() {
-            socket_status = socket.init("", 47000, SOCK_DGRAM);
-            multicast_listener.init_multicast("224.10.10.10", 47000);
-
-            if (socket_status == 0) {
-                std::stringstream request;
-                request << "trick.var_set_client_tag(\"multicast_VSTest";
-                request << numSession++;
-                request << "\") \n";
-
-                socket << request.str();
-            }
-        }
-        ~VariableServerTestMulticast() {
-            socket.close();
-            multicast_listener.close();
-        }
-
-        Socket socket;
-        Socket multicast_listener;
-
-        int socket_status;
-        
-        static int numSession;
-};
-int VariableServerTestMulticast::numSession = 0;
-#endif
-
-int VariableServerTest::numSession = 0;
-int VariableServerUDPTest::numSession = 0;
-int VariableServerTestAltListener::numSession = 0;
-
->>>>>>> fc8eb338f1fde5822fdf0fe9ce27a00663348b8e
 
 /**********************************************************/
 /*           Helpful constants and functions              */
@@ -1173,7 +1134,7 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     socket.clear_buffered_data();
 
     // Copy mode 1 (VS_COPY_SCHEDULED) write mode 0 (VS_WRITE_ASYNC)
-    command = "trick.var_clear()\n" + test_vars_command + "trick.var_set_copy_mode(1)\ntrick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.d\")\ntrick.var_unpause()\n";
+    command = "trick.var_clear()\n" + test_vars_command + "trick.var_sync(1)\ntrick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.d\")\ntrick.var_unpause()\n";
     socket << command;
 
     // With copy mode VS_COPY_SCHEDULED and write mode VS_WRITE_ASYNC, the first reply will be all 0 since the main time to copy has not occurred yet.
@@ -1277,6 +1238,27 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     // Clear out anything else that's been sent
     socket << "trick.var_pause()\n";
     socket.clear_buffered_data();
+}
+
+TEST_F (VariableServerTest, var_set) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    std::string reply;
+    std::string expected;
+
+    socket << "trick.var_add(\"vsx.vst.c\")\ntrick.var_add(\"vsx.vst.blocked_from_output\")\ntrick.var_add(\"vsx.vst.blocked_from_input\")\n";
+
+    socket >> reply;
+    expected = std::string("0\t-1234\t0\t500\n");
+
+    EXPECT_EQ(reply, expected);
+
+    socket << "trick.var_set(\"vsx.vst.blocked_from_input\", 0)\n";
+    socket << "trick.var_set(\"vsx.vst.blocked_from_output\", 0)\n";
+
+
 }
 
 bool getCompleteBinaryMessage(ParsedBinaryMessage& message, Socket& socket, bool print = false) {

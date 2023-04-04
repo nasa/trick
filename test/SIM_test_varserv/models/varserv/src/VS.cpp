@@ -40,6 +40,10 @@ int VSTest::default_vars() {
 	for (int i = 0; i < 4000; i++) {
 		large_arr[i] = i;
 	}
+
+	blocked_from_input = 500;
+	blocked_from_output = 1000;
+
 }
 
 int VSTest::init() {
@@ -59,6 +63,12 @@ int VSTest::success() {
 
 int VSTest::shutdown() {
 	std::cout << "Shutting down with status: " << status << " Message: " << status_messages[status] << std::endl;
+
+	// Check that the blocked_from_input variable hasnt changed
+	if (blocked_from_input != 500 || blocked_from_output != 0) {
+		status = 1;
+	}
+
     exec_terminate_with_return( status , __FILE__ , __LINE__ , status_messages[status] ) ;
 	
 	return(0);
