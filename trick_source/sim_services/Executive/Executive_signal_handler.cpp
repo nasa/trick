@@ -119,25 +119,6 @@ void Trick::Executive::term_handler() {
 */
 void Trick::Executive::usr1_handler() {
     write( 2 , "\033[31mProcess terminated by call to exec_signal_terminate()\033[0m\n" , 63 ) ;
-
-            /**********************************************************************
-     * Attempt to attach with debugger or print stack trace.  Not a requirement.
-     * sprintf and system are not async signal safe, but we don't have anything to lose.
-     */
-    if ( ! debugger_command.empty() ) {
-#if __linux
-        char command[1024];
-        if (attach_debugger == true) {
-            snprintf(command, sizeof(command), "%s -silent /proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
-            system(command);
-        } else if (stack_trace == true ) {
-            snprintf(command, sizeof(command), "%s -silent -batch -x ${TRICK_HOME}/share/trick/gdb_commands "
-                    "/proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
-            system(command);
-        }
-#endif
-    }
-    
     _exit(SIGUSR1) ;
 }
 
