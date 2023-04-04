@@ -83,9 +83,47 @@ class VariableServerTestMulticast : public ::testing::Test {
         
         static int numSession;
 };
+<<<<<<< HEAD
+int VariableServerTestMulticast::numSession = 0;
+#endif
+=======
+
+#ifndef __APPLE__
+class VariableServerTestMulticast : public ::testing::Test {
+    protected:
+        VariableServerTestMulticast() {
+            socket_status = socket.init("", 47000, SOCK_DGRAM);
+            multicast_listener.init_multicast("224.10.10.10", 47000);
+
+            if (socket_status == 0) {
+                std::stringstream request;
+                request << "trick.var_set_client_tag(\"multicast_VSTest";
+                request << numSession++;
+                request << "\") \n";
+
+                socket << request.str();
+            }
+        }
+        ~VariableServerTestMulticast() {
+            socket.close();
+            multicast_listener.close();
+        }
+
+        Socket socket;
+        Socket multicast_listener;
+
+        int socket_status;
+        
+        static int numSession;
+};
 int VariableServerTestMulticast::numSession = 0;
 #endif
 
+int VariableServerTest::numSession = 0;
+int VariableServerUDPTest::numSession = 0;
+int VariableServerTestAltListener::numSession = 0;
+
+>>>>>>> fc8eb338f1fde5822fdf0fe9ce27a00663348b8e
 
 /**********************************************************/
 /*           Helpful constants and functions              */
