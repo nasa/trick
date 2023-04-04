@@ -16,6 +16,9 @@ class MockClientConnection : public Trick::ClientConnection {
         MOCK_METHOD0(restart, int());
         MOCK_METHOD0(getClientTag, std::string());
         MOCK_METHOD1(setClientTag, int(std::string tag));
+        MOCK_METHOD0(getClientHostname, std::string());
+        MOCK_METHOD0(getClientPort, int());
+
 };
 
 #endif

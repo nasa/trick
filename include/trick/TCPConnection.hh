@@ -35,6 +35,8 @@ namespace Trick {
             virtual std::string getClientTag () override;
             virtual int setClientTag (std::string tag) override;
 
+            virtual std::string getClientHostname() override;
+            virtual int getClientPort() override;
 
         private:
             int _socket;

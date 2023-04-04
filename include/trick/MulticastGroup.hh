@@ -39,7 +39,9 @@ namespace Trick {
 
             virtual int restart() override;
 
-
+            virtual std::string getClientHostname() override;
+            virtual int getClientPort() override;
+            
         private:
             std::vector<struct sockaddr_in> _addresses;           /**<  trick_io(**) Addresses to multicast to. */
             bool _initialized;                                    /**<  trick_io(**) Whether this object is ready */

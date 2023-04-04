@@ -202,3 +202,19 @@ int Trick::MulticastGroup::read  (std::string& message, int max_len) {
     message = msg_stream.str();
     return message.size();
 }
+
+std::string Trick::MulticastGroup::getClientHostname() {
+    if (!_started) {
+        return "";
+    }
+
+    return inet_ntoa(_remote_serv_addr.sin_addr);
+}
+
+int Trick::MulticastGroup::getClientPort() {
+    if (!_started) {
+        return 0;
+    }
+
+    return ntohs(_remote_serv_addr.sin_port);
+}

@@ -36,25 +36,19 @@ Trick::VariableServerThread::~VariableServerThread() {
 
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& vst) {
     // Write a JSON representation of a Trick::VariableServerThread to an ostream.
-    struct sockaddr_in otherside;
-    socklen_t len = (socklen_t)sizeof(otherside);
 
-    s << "  \"_connection\":{\n";
+
+    s << "  \"connection\":{\n";
     s << "    \"client_tag\":\"" << vst._connection->getClientTag() << "\",\n";
 
-    // int err = getpeername(vst._connection->get_socket(), (struct sockaddr*)&otherside, &len);
-
-    // if (err == 0) {
-    //     s << "    \"client_IP_address\":\"" << inet_ntoa(otherside.sin_addr) << "\",\n";
-    //     s << "    \"client_port\":\"" << ntohs(otherside.sin_port) << "\",\n";
-    // } else {
-    //     s << "    \"client_IP_address\":\"unknown\",\n";
-    //     s << "    \"client_port\":\"unknown\",";
-    // }
+    s << "    \"client_IP_address\":\"" << vst._connection->getClientHostname() << "\",\n";
+    s << "    \"client_port\":\"" << vst._connection->getClientPort() << "\",\n";
 
     pthread_mutex_lock(&vst._connection_status_mutex);
     if (vst._connection_status == CONNECTION_SUCCESS) {
         s << *(vst._session);
+    } else {
+        
     }
     pthread_mutex_unlock(&vst._connection_status_mutex);
 

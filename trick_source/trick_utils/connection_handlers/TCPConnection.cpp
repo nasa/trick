@@ -171,3 +171,31 @@ int Trick::TCPConnection::setClientTag (std::string tag) {
     _client_tag = tag;
     return 0;
 }
+
+std::string Trick::TCPConnection::getClientHostname() {
+    if (!_connected) {
+        return "";
+    }
+
+    struct sockaddr_in otherside;
+    socklen_t len = (socklen_t)sizeof(otherside);
+
+    if (getpeername(_socket, (struct sockaddr*)&otherside, &len) != 0)
+        return "";
+
+    return inet_ntoa(otherside.sin_addr);
+}
+
+int Trick::TCPConnection::getClientPort() {
+    if (!_connected) {
+        return 0;
+    }
+
+    struct sockaddr_in otherside;
+    socklen_t len = (socklen_t)sizeof(otherside);
+
+    if (getpeername(_socket, (struct sockaddr*)&otherside, &len) != 0)
+        return 0;
+
+    return ntohs(otherside.sin_port);
+}

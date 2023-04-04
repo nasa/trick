@@ -242,6 +242,43 @@ TEST_F(VariableServerListenThread_test, run_thread_no_broadcast) {
 }
 
 
+
+TEST_F(VariableServerListenThread_test, run_thread_turn_on_broadcast) {
+    // ARRANGE
+    setup_normal_listener_expectations(listener);
+    setup_normal_mcast_expectations(mcast);
+
+    EXPECT_CALL(*listener, setBlockMode(true))
+        .Times(1);
+
+    EXPECT_CALL(*listener, checkForNewConnections())
+        .WillRepeatedly(Return(false));
+
+    EXPECT_CALL(*mcast, isInitialized())
+        .WillOnce(Return(0))
+        .WillRepeatedly(Return(1));
+
+    Trick::VariableServerListenThread listen_thread (listener);
+    listen_thread.set_broadcast(false);
+    listen_thread.set_multicast_group(mcast);
+
+    // ACT
+    listen_thread.create_thread();
+
+    EXPECT_EQ(listen_thread.get_broadcast(), false);
+
+    sleep(3);
+    listen_thread.set_broadcast(true);
+    sleep(3);
+    EXPECT_EQ(listen_thread.get_broadcast(), true);
+
+
+    listen_thread.cancel_thread();
+    listen_thread.join_thread();
+
+    // ASSERT
+}
+
 TEST_F(VariableServerListenThread_test, accept_connection) {
     // ARRANGE
     setup_normal_listener_expectations(listener);
@@ -279,6 +316,8 @@ TEST_F(VariableServerListenThread_test, accept_connection) {
 
     // ACT
     listen_thread.create_thread();
+
+    listen_thread.dump(std::cout);
 
     sleep(3);
 
@@ -370,3 +409,25 @@ TEST_F(VariableServerListenThread_test, handle_false_positive) {
     // ASSERT
 }
 
+
+TEST_F(VariableServerListenThread_test, restart_fails) {
+    // ARRANGE
+
+    setup_normal_listener_expectations(listener);
+    Trick::VariableServerListenThread listen_thread (listener);
+
+    EXPECT_CALL(*listener, restart());
+    EXPECT_CALL(*listener, validateSourceAddress(_))
+        .WillOnce(Return(false));
+
+    EXPECT_CALL(*listener, initialize(_, _))
+        .WillOnce(Return(-1));
+
+    EXPECT_CALL(*listener, disconnect());
+    
+
+    // ACT
+    // ASSERT
+    EXPECT_EQ(listen_thread.restart(), -1);
+
+}

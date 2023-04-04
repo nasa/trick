@@ -372,9 +372,6 @@ int var_set_client_tag( std::string text ) {
 }
 
 int var_send_list_size() {
-    if (command_debug) {
-        std::cout << "var_send_list_size" << std::endl;
-    }   
 
     Trick::VariableServerSession * session = get_session();
     if (session != NULL ) {

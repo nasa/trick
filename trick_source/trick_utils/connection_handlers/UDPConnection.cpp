@@ -234,3 +234,19 @@ int Trick::UDPConnection::setClientTag (std::string tag) {
     _client_tag = tag;
     return 0;
 }
+
+std::string Trick::UDPConnection::getClientHostname() {
+    if (!_initialized) {
+        return "";
+    }
+
+    return inet_ntoa(_remote_serv_addr.sin_addr);
+}
+
+int Trick::UDPConnection::getClientPort() {
+    if (!_initialized) {
+        return 0;
+    }
+
+    return ntohs(_remote_serv_addr.sin_port);
+}

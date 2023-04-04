@@ -39,6 +39,9 @@ namespace Trick {
 
             virtual int restart() = 0;
 
+            virtual std::string getClientHostname() = 0;
+            virtual int getClientPort() = 0;
+
         protected:
             ConnectionType _connection_type;
             std::string _client_tag;
