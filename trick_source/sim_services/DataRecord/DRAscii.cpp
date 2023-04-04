@@ -188,14 +188,7 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
         // strcpy(buf,"");
         return(1);
     }
-    // if(DI->ref->attr->num_index == 0) {
-    //     if(item_num > 0) {
-    //         // Behavior for notifying that a nonzero item_num is only used for arrays
-    //         std::cerr << "ERROR: Invalid use of item_num. Data is not in an array." << std::endl;
-    //         // strcpy(buf,"");
-    //         return(1);
-    //     }
-    // } else 
+    
     if(DI->ref->attr->num_index > 0) {
         if(DI->ref->attr->index[0].size <= item_num) {
             // Behavior notifying about the index out of bounds
