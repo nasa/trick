@@ -61,6 +61,10 @@ int VSTest::success() {
 	return 0; 
 }
 
+void VSTest::throw_exception() {
+	throw std::logic_error("Pretend an error has occured for testing");
+}
+
 int VSTest::shutdown() {
 	std::cout << "Shutting down with status: " << status << " Message: " << status_messages[status] << std::endl;
 

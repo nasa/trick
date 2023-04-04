@@ -51,6 +51,8 @@ class VSTest {
 		int success();
 		int fail();
 
+		void throw_exception();
+
 		const char *status_messages[3] = {
 			"Variable Server Test Success",
 			"Variable Server Test Failure",

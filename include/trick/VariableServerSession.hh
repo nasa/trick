@@ -52,11 +52,6 @@ namespace Trick {
         virtual bool get_exit_cmd() ;
 
         /**
-         @brief Tell this session to exit.
-        */
-        virtual void set_exit_cmd() ;
-
-        /**
          @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
         */
         virtual int write_data();

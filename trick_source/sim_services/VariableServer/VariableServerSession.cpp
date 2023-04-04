@@ -71,10 +71,6 @@ bool Trick::VariableServerSession::get_exit_cmd() {
     return exit_cmd ;
 }
 
-void Trick::VariableServerSession::set_exit_cmd() {
-    exit_cmd = true;
-}
-
 void Trick::VariableServerSession::pause_copy() {
     pthread_mutex_lock(&copy_mutex);
 }

@@ -11,7 +11,8 @@
 #include "trick/message_type.h"
 #include "trick/realtimesync_proto.h"
 #include "trick/ExecutiveException.hh"
-// #include "trick/exec_proto.h"
+#include "trick/exec_proto.h"
+
 
 void exit_var_thread(void *in_vst) ;
 
@@ -102,11 +103,15 @@ void * Trick::VariableServerThread::thread_body() {
     } catch (Trick::ExecutiveException & ex ) {
         message_publish(MSG_ERROR, "\nVARIABLE SERVER COMMANDED exec_terminate\n  ROUTINE: %s\n  DIAGNOSTIC: %s\n" ,
          ex.file.c_str(), ex.message.c_str()) ;
-        exit(ex.ret_code) ;
+
+        exec_signal_terminate();
+
     } catch (const std::exception &ex) {
         message_publish(MSG_ERROR, "\nVARIABLE SERVER caught std::exception\n  DIAGNOSTIC: %s\n" ,
          ex.what()) ;
-        exit(-1) ;
+        
+        exec_signal_terminate();
+        
 #ifdef __linux
 #ifdef __GNUC__
 #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
@@ -137,8 +142,6 @@ void * Trick::VariableServerThread::thread_body() {
     }
 
     thread_shutdown(exit_var_thread, this);
-
-    return NULL ;
-
+    // No return from this.
 }
 
