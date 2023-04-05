@@ -17,8 +17,8 @@ const char* trickTypeCharString( TRICK_TYPE type, const char* name) {
        case TRICK_UNSIGNED_LONG:      type_spec = "unsigned long"; break;
        case TRICK_FLOAT:              type_spec = "float"; break;
        case TRICK_DOUBLE:             type_spec = "double"; break;
-       case TRICK_BITFIELD:           type_spec = "TRICK_BITFIELD";
-       case TRICK_UNSIGNED_BITFIELD:  type_spec = "TRICK_UNSIGNED_BITFIELD";
+       case TRICK_BITFIELD:           type_spec = "TRICK_BITFIELD"; break;
+       case TRICK_UNSIGNED_BITFIELD:  type_spec = "TRICK_UNSIGNED_BITFIELD"; break;
        case TRICK_LONG_LONG:          type_spec = "long long"; break;
        case TRICK_UNSIGNED_LONG_LONG: type_spec = "unsigned long long"; break;
        case TRICK_FILE_PTR:           type_spec = "FILE*"; break;
