@@ -8,9 +8,11 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013)
 								(Jackie Deans) (CACI) (11-30-2022) )
 *******************************************************************************/
 #include <iostream>
+#include <stdexcept>
+#include <limits>
+
 #include "../include/VS.hh"
 #include "trick/exec_proto.h"
-#include <limits>
 
 VSTest::VSTest() {}
 VSTest::~VSTest() {}

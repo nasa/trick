@@ -680,6 +680,34 @@ TEST_F (VariableServerTest, ListSize) {
 }
 
 
+TEST_F (VariableServerTest, transmit_file) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    socket << "trick.send_file(\"file_to_send.txt\")\n";
+
+
+    std::stringstream file_contents;
+    socket >> file_contents;
+    socket >> file_contents;
+
+    std::ifstream actual_file("file_to_send.txt");
+    std::string expected_contents;
+    getline(actual_file, expected_contents);
+
+    std::string expected_header = "2\t" + std::to_string(expected_contents.size());
+
+    std::string test_line;
+
+    std::getline(file_contents, test_line);
+    EXPECT_EQ(test_line, expected_header);
+
+    std::getline(file_contents, test_line);
+    EXPECT_EQ(test_line, expected_contents);
+}
+
+
 TEST_F (VariableServerTest, SendSieResource) {
     if (socket_status != 0) {
         FAIL();
@@ -688,11 +716,9 @@ TEST_F (VariableServerTest, SendSieResource) {
     socket << "trick.send_sie_resource()\n";
 
     std::stringstream received_file;
-    std::string file_temp;
 
     while (socket.check_for_message_availible()) {
-        socket >> file_temp;
-        received_file << file_temp;
+        socket >> received_file;
     }
 
     std::string first_line;

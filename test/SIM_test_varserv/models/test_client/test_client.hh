@@ -160,6 +160,10 @@ class Socket {
         ret = receive();
     }
 
+    void operator>> (std::ostream& stream) {
+        stream << receive();
+    }
+
     std::vector<unsigned char> receive_bytes() {
         unsigned char buffer[SOCKET_BUF_SIZE];
         int numBytes = recv(_socket_fd, buffer, SOCKET_BUF_SIZE, 0);
