@@ -35,7 +35,7 @@ Trick::SysThread::SysThread(std::string in_name) : ThreadBase(in_name) {
     pthread_mutex_init(&_restart_pause_mutex, NULL);
     pthread_cond_init(&_thread_has_paused_cv, NULL);
     pthread_cond_init(&_thread_wakeup_cv, NULL);
-    _thread_has_paused = false;
+    _thread_has_paused = true;
     _thread_should_pause = false;
 
     pthread_mutex_lock(&(list_mutex()));
@@ -106,5 +106,7 @@ void Trick::SysThread::test_pause() {
             pthread_cond_wait(&_thread_wakeup_cv, &_restart_pause_mutex);
         }
     }
+
+    _thread_has_paused = false;
     pthread_mutex_unlock(&_restart_pause_mutex) ;
 }
