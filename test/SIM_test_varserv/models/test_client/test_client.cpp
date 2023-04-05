@@ -1166,7 +1166,7 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
 
     // With copy mode VS_COPY_SCHEDULED and write mode VS_WRITE_ASYNC, the first reply will be all 0 since the main time to copy has not occurred yet.
     // Is this what we want? Maybe we should have more strict communication on whether the data has been staged so the first message isn't incorrect
-    // spin();
+    spin(socket);
 
     expected = "-1234 1234";
     parse_message(socket.receive());
