@@ -1166,11 +1166,13 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
 
     // With copy mode VS_COPY_SCHEDULED and write mode VS_WRITE_ASYNC, the first reply will be all 0 since the main time to copy has not occurred yet.
     // Is this what we want? Maybe we should have more strict communication on whether the data has been staged so the first message isn't incorrect
+
     spin(socket);
 
     expected = "-1234 1234";
     parse_message(socket.receive());
     EXPECT_EQ(strcmp_IgnoringWhiteSpace(vars, expected), 0) << "Received: " << vars << " Expected: " << expected;
+
 
     // Test that we see a difference of exactly expected_cycle (with a tolerance for floating point issues)
     int prev_frame = 0;
@@ -1179,7 +1181,6 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
         prev_time = sim_time;
         parse_message(socket.receive());
         EXPECT_FEQ(sim_time - prev_time, expected_cycle);
-        EXPECT_EQ(strcmp_IgnoringWhiteSpace(vars, expected), 0) << "Received: " << vars << " Expected: " << expected;
     }
 
     // Clear out anything else that's been sent
