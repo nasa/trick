@@ -22,6 +22,14 @@ class SimTestWorkflow(TrickWorkflow):
     def run( self ):
       build_jobs      = self.get_jobs(kind='build')
 
+      # This is awful but I can't think of another way around it
+      # SIM_test_varserver has 2 tests that should return the code for SIG_USR1, the number is different on Mac vs Linux
+      # so it can't be hardcoded in the input yml file. Maybe this is a case having a label on a run would be cleaner?
+      import signal
+      run_names = ["Run test/SIM_test_varserv RUN_test/err1_test.py", "Run test/SIM_test_varserv RUN_test/err2_test.py"]
+      for job in [job for job in self.get_jobs(kind='run') if job.name in run_names]:
+        job._expected_exit_status = signal.SIGUSR1.value
+
       # Several sims have runs that require ordering via phases:
       #  - SIM_stls dumps a checkpoint that is then read in and checked by a subsequent run
       #  - SIM_checkpoint_data_recording dumps checkpoints that are read by subsequent runs

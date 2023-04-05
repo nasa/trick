@@ -34,8 +34,6 @@ Trick::VariableServerListenThread::VariableServerListenThread(ClientListener * l
         _listener = new ClientListener;
     }
 
-    // pthread_mutex_init(&_restart_pause, NULL);
-
     cancellable = false;
 }
 

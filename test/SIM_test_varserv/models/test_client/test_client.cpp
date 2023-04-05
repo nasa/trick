@@ -687,10 +687,11 @@ TEST_F (VariableServerTest, transmit_file) {
 
     socket << "trick.send_file(\"file_to_send.txt\")\n";
 
-
     std::stringstream file_contents;
-    socket >> file_contents;
-    socket >> file_contents;
+
+    while (socket.check_for_message_availible()) {
+        socket >> file_contents;
+    }
 
     std::ifstream actual_file("file_to_send.txt");
     std::string expected_contents;
