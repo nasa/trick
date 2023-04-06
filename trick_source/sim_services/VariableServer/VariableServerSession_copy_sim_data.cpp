@@ -10,7 +10,7 @@
 // These actually do the copying
 
 int Trick::VariableServerSession::copy_sim_data() {
-    return copy_sim_data(session_variables, true);
+    return copy_sim_data(_session_variables, true);
 }
 
 int Trick::VariableServerSession::copy_sim_data(std::vector<VariableReference *>& given_vars, bool cyclical) {
@@ -19,16 +19,16 @@ int Trick::VariableServerSession::copy_sim_data(std::vector<VariableReference *>
         return 0;
     }
 
-    if ( pthread_mutex_trylock(&copy_mutex) == 0 ) {
+    if ( pthread_mutex_trylock(&_copy_mutex) == 0 ) {
         // Get the simulation time we start this copy
-        time = (double)exec_get_time_tics() / exec_get_time_tic_value() ;
+        _time = (double)exec_get_time_tics() / exec_get_time_tic_value() ;
         
 
         for (auto curr_var : given_vars ) {
             curr_var->stageValue();
         }
 
-        pthread_mutex_unlock(&copy_mutex) ;
+        pthread_mutex_unlock(&_copy_mutex) ;
     }
 
     return 0;

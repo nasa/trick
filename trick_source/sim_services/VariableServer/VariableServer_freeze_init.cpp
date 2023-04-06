@@ -9,15 +9,11 @@
 
 int Trick::VariableServer::freeze_init() {
 
-    long long next_call_tics ;
-    VariableServerSession * session ;
-    std::map < pthread_t , VariableServerSession * >::iterator it ;
-
-    next_call_tics = TRICK_MAX_LONG_LONG ;
+    long long next_call_tics = TRICK_MAX_LONG_LONG ;
 
     pthread_mutex_lock(&map_mutex) ;
-    for ( it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
-        session = (*it).second ;
+    for ( auto  it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
+        VariableServerSession * session = (*it).second ;
         session->freeze_init() ;
         if ( session->get_freeze_next_tics() < next_call_tics ) {
             next_call_tics = session->get_freeze_next_tics() ;

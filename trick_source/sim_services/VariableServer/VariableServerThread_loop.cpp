@@ -5,13 +5,13 @@
 #endif
 
 #include "trick/VariableServer.hh"
-#include "trick/variable_server_sync_types.h"
-#include "trick/input_processor_proto.h"
 #include "trick/message_proto.h"
-#include "trick/message_type.h"
 #include "trick/realtimesync_proto.h"
 #include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
+
+#include "trick/VariableServerThread.hh"
+
 
 
 void exit_var_thread(void *in_vst) ;
@@ -77,21 +77,10 @@ void * Trick::VariableServerThread::thread_body() {
                 break;
             }
 
-            // Copy data out of sim if async mode
-            if ( _session->get_copy_mode() == VS_COPY_ASYNC ) {
-                _session->copy_sim_data() ;
-            }
-    
-            bool should_write_async = (_session->get_write_mode() == VS_WRITE_ASYNC) || 
-                                        ( _session->get_copy_mode() == VS_COPY_ASYNC && (_session->get_write_mode() == VS_WRITE_WHEN_COPIED)) || 
-                                        (! is_real_time());
-
-            // Write data out to connection if async mode and not paused
-            if ( should_write_async && !_session->get_pause()) {
-                int ret = _session->write_data() ;
-                if ( ret < 0 ) {
-                    break ;
-                }
+            // Tell session it's time to copy and write if the mode is correct
+            int ret =_session->copy_data_async(); 
+            if (ret < 0) {
+                break;
             }
 
             usleep((unsigned int) (_session->get_update_rate() * 1000000));
@@ -127,7 +116,7 @@ void * Trick::VariableServerThread::thread_body() {
         throw;
 #else
         message_publish(MSG_ERROR, "\nVARIABLE SERVER caught unknown exception\n" ) ;
-        exit(-1) ;
+        exec_signal_terminate();
 #endif
 #endif
 #endif

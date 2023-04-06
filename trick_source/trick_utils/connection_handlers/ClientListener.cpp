@@ -198,16 +198,41 @@ int Trick::ClientListener::disconnect() {
     return 0; 
 }
 
-bool Trick::ClientListener::validateSourceAddress(std::string requested_source_address) {
-    struct addrinfo hints, *res;
-    memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_INET;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_protocol = 0;
+bool Trick::ClientListener::validateSourceAddress(std::string in_hostname) {
+    // struct addrinfo hints, *res;
+    // memset(&hints, 0, sizeof hints);
+    // hints.ai_family = AF_INET;
+    // hints.ai_socktype = SOCK_STREAM;
+    // hints.ai_protocol = 0;
 
-    int err;
-    if ((err = _system_interface->getaddrinfo(requested_source_address.c_str(), 0, &hints, &res)) != 0) {
-        std::cerr << "Unable to lookup address: " << gai_strerror(err) << std::endl;
+    // int err;
+    // if ((err = _system_interface->getaddrinfo(requested_source_address.c_str(), 0, &hints, &res)) != 0) {
+    //     std::cerr << "Unable to lookup address: " << gai_strerror(err) << std::endl;
+    //     return false;
+    // }
+
+        // Look up the hostname
+    char name[80];
+    gethostname(name, (size_t) 80);
+
+    struct hostent *ip_host ;
+    sockaddr_in s_in;
+    socklen_t s_in_size =  sizeof(s_in) ;
+
+    s_in.sin_family = AF_INET;
+
+    if (in_hostname == "" || in_hostname == "localhost" || strcmp(in_hostname.c_str(),name) == 0) {
+        s_in.sin_addr.s_addr = INADDR_ANY;
+        _hostname = std::string(name);
+    } else if ( inet_pton(AF_INET, in_hostname.c_str(), (struct in_addr *)&s_in.sin_addr.s_addr) == 1 ) {
+        /* numeric character string address */
+        _hostname = in_hostname;
+    } else if ( (ip_host = gethostbyname(in_hostname.c_str())) != NULL ) {
+        /* some name other than the default name was given */
+        memcpy((void *) &(s_in.sin_addr.s_addr), (const void *) ip_host->h_addr, (size_t) ip_host->h_length);
+        _hostname = in_hostname;
+    } else {
+        perror("Server: Could not determine source address");
         return false;
     }
 

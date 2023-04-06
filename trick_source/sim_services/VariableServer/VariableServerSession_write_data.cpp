@@ -32,7 +32,7 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
     for (int i = 0; i < given_vars.size(); i++) {
         const VariableReference * var = given_vars[i];
         int total_var_size = 0;
-        if (!binary_data_nonames) {
+        if (!_binary_data_nonames) {
             total_var_size += sizeof_size;
             total_var_size += var->getName().size();
         }
@@ -65,7 +65,7 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
         int written_header_size = curr_message_size - 4;
         int written_num_vars = curr_message_num_vars;
 
-        if (byteswap) {
+        if (_byteswap) {
             written_message_type = trick_byteswap_int(written_message_type);
             written_header_size = trick_byteswap_int(written_header_size);
             written_num_vars = trick_byteswap_int(written_num_vars);
@@ -79,19 +79,19 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
         // Write variables next
         for (int i = var_index; i < var_index + curr_message_num_vars; i++) {
             VariableReference * var = given_vars[i];
-            if (!binary_data_nonames) {
-                var->writeNameBinary(stream, byteswap);
+            if (!_binary_data_nonames) {
+                var->writeNameBinary(stream, _byteswap);
             }
-            var->writeTypeBinary(stream, byteswap);
-            var->writeSizeBinary(stream, byteswap);
-            var->writeValueBinary(stream, byteswap);
+            var->writeTypeBinary(stream, _byteswap);
+            var->writeSizeBinary(stream, _byteswap);
+            var->writeValueBinary(stream, _byteswap);
         }
         var_index += curr_message_num_vars;
 
         // Send it out!
         char write_buf[MAX_MSG_LEN];
         stream.read(write_buf, curr_message_size);
-        connection->write(write_buf, curr_message_size);
+        _connection->write(write_buf, curr_message_size);
     }
 
     return 0;
@@ -123,7 +123,7 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
             
             // Write out an incomplete message
             std::string message = message_stream.str();
-            int result = connection->write(message);
+            int result = _connection->write(message);
             if (result < 0)
                 return result;
 
@@ -141,12 +141,12 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
     // End with newline
     message_stream << '\n';
     std::string message = message_stream.str();
-    int result = connection->write(message);
+    int result = _connection->write(message);
     return result;
 }
 
 int Trick::VariableServerSession::write_data() {
-    return write_data(session_variables, VS_VAR_LIST);
+    return write_data(_session_variables, VS_VAR_LIST);
 }
 
 int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) { 
@@ -157,11 +157,11 @@ int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& g
 
     int result = 0;
 
-    if ( pthread_mutex_trylock(&copy_mutex) == 0 ) {
+    if ( pthread_mutex_trylock(&_copy_mutex) == 0 ) {
         // Check that all of the variables are staged
         for (VariableReference * variable : given_vars ) {
             if (!variable->isStaged()) {
-                pthread_mutex_unlock(&copy_mutex) ;
+                pthread_mutex_unlock(&_copy_mutex) ;
                 return 0;
             }
         }
@@ -171,10 +171,10 @@ int Trick::VariableServerSession::write_data(std::vector<VariableReference *>& g
             variable->prepareForWrite();
         }
 
-        pthread_mutex_unlock(&copy_mutex) ;
+        pthread_mutex_unlock(&_copy_mutex) ;
 
         // Send out in correct format
-        if (binary_data) {
+        if (_binary_data) {
             result = write_binary_data(given_vars, message_type );
         } else {
             // ascii mode

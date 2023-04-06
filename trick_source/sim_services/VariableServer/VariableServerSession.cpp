@@ -7,102 +7,102 @@
 
 
 Trick::VariableServerSession::VariableServerSession() {
-    debug = 0;
-    enabled = true ;
-    log = false ;
-    copy_mode = VS_COPY_ASYNC ;
-    write_mode = VS_WRITE_ASYNC ;
-    frame_multiple = 1 ;
-    frame_offset = 0 ;
-    freeze_frame_multiple = 1 ;
-    freeze_frame_offset = 0 ;
-    update_rate = 0.1 ;
-    cycle_tics = (long long)(update_rate * exec_get_time_tic_value()) ;
-    if (cycle_tics == 0) {
-        cycle_tics = 1;
+    _debug = 0;
+    _enabled = true ;
+    _log = false ;
+    _copy_mode = VS_COPY_ASYNC ;
+    _write_mode = VS_WRITE_ASYNC ;
+    _frame_multiple = 1 ;
+    _frame_offset = 0 ;
+    _freeze_frame_multiple = 1 ;
+    _freeze_frame_offset = 0 ;
+    _update_rate = 0.1 ;
+    _cycle_tics = (long long)(_update_rate * exec_get_time_tic_value()) ;
+    if (_cycle_tics == 0) {
+        _cycle_tics = 1;
     }
 
-    next_tics = TRICK_MAX_LONG_LONG ;
-    freeze_next_tics = TRICK_MAX_LONG_LONG ;
-    byteswap = false ;
-    validate_address = false ;
-    send_stdio = false ;
+    _next_tics = TRICK_MAX_LONG_LONG ;
+    _freeze_next_tics = TRICK_MAX_LONG_LONG ;
+    _byteswap = false ;
+    _validate_address = false ;
+    _send_stdio = false ;
 
-    binary_data = false;
-    byteswap = false;
-    binary_data_nonames = false;
+    _binary_data = false;
+    _byteswap = false;
+    _binary_data_nonames = false;
 
-    exit_cmd = false;
-    pause_cmd = false;
+    _exit_cmd = false;
+    _pause_cmd = false;
 
-    pthread_mutex_init(&copy_mutex, NULL);
+    pthread_mutex_init(&_copy_mutex, NULL);
 }
 
 Trick::VariableServerSession::~VariableServerSession() { }
 
 
 void Trick::VariableServerSession::set_connection(ClientConnection * conn) {
-    connection = conn;
+    _connection = conn;
 }
 
 
 // Command to turn on log to varserver_log file
 int Trick::VariableServerSession::set_log_on() {
-    log = true;
+    _log = true;
     return(0) ;
 }
 
 // Command to turn off log to varserver_log file
 int Trick::VariableServerSession::set_log_off() {
-    log = false;
+    _log = false;
     return(0) ;
 }
 
 bool Trick::VariableServerSession::get_pause() {
-    return pause_cmd ;
+    return _pause_cmd ;
 }
 
 void Trick::VariableServerSession::set_pause( bool on_off) {
-    pause_cmd = on_off ;
+    _pause_cmd = on_off ;
 }
 
 
 bool Trick::VariableServerSession::get_exit_cmd() {
-    return exit_cmd ;
+    return _exit_cmd ;
 }
 
 void Trick::VariableServerSession::pause_copy() {
-    pthread_mutex_lock(&copy_mutex);
+    pthread_mutex_lock(&_copy_mutex);
 }
 
 void Trick::VariableServerSession::unpause_copy() {
-    pthread_mutex_unlock(&copy_mutex);
+    pthread_mutex_unlock(&_copy_mutex);
 }
 
 void Trick::VariableServerSession::disconnect_references() {
-    for (VariableReference * variable : session_variables) {
+    for (VariableReference * variable : _session_variables) {
         variable->tagAsInvalid();
     }
 }
 
 long long Trick::VariableServerSession::get_next_tics() const {
-    if ( ! enabled ) {
+    if ( ! _enabled ) {
         return TRICK_MAX_LONG_LONG ;
     }
-    return next_tics ;
+    return _next_tics ;
 }
 
 long long Trick::VariableServerSession::get_freeze_next_tics() const {
-    if ( ! enabled ) {
+    if ( ! _enabled ) {
         return TRICK_MAX_LONG_LONG ;
     }
-    return freeze_next_tics ;
+    return _freeze_next_tics ;
 }
 
 int Trick::VariableServerSession::handle_message() {
 
     std::string received_message;
-    int nbytes = connection->read(received_message);
+    int nbytes = _connection->read(received_message);
     if (nbytes > 0) {
         ip_parse(received_message.c_str()); /* returns 0 if no parsing error */
     }
@@ -111,7 +111,7 @@ int Trick::VariableServerSession::handle_message() {
 }
 
 Trick::VariableReference * Trick::VariableServerSession::find_session_variable(std::string name) const {
-    for (VariableReference * ref : session_variables) {
+    for (VariableReference * ref : _session_variables) {
         // Look for matching name
         if (name.compare(ref->getName()) == 0) {
             return ref;
@@ -122,19 +122,19 @@ Trick::VariableReference * Trick::VariableServerSession::find_session_variable(s
 }
 
 double Trick::VariableServerSession::get_update_rate() const {
-    return update_rate;
+    return _update_rate;
 }
 
 VS_WRITE_MODE Trick::VariableServerSession::get_write_mode () const {
-    return write_mode;
+    return _write_mode;
 }
 
 VS_COPY_MODE Trick::VariableServerSession::get_copy_mode () const {
-    return copy_mode;
+    return _copy_mode;
 }
 
 std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableServerSession& session) {
-    if (session.binary_data) {
+    if (session._binary_data) {
         s << "    \"format\":\"BINARY\",\n";
     } else {
         s << "    \"format\":\"ASCII\",\n";
@@ -143,9 +143,9 @@ std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableServerSes
 
     s << "    \"variables\":[\n";
 
-    int n_vars = (int)session.session_variables.size();
+    int n_vars = (int)session._session_variables.size();
     for (int i=0 ; i<n_vars ; i++) {
-        s << *(session.session_variables[i]);
+        s << *(session._session_variables[i]);
         if ((n_vars-i)>1) {
             s << "," ;
         }

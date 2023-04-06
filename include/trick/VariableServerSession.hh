@@ -52,11 +52,6 @@ namespace Trick {
         virtual bool get_exit_cmd() ;
 
         /**
-         @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
-        */
-        virtual int write_data();
-
-        /**
          @brief gets the send_stdio flag.
         */
         virtual bool get_send_stdio() ;
@@ -66,18 +61,15 @@ namespace Trick {
         */
         virtual int set_send_stdio(bool on_off) ;
 
-        /**
-         @brief Copy client variable values from Trick memory to each variable's output buffer.
-        */
-        virtual int copy_sim_data();
-
         // Called from different types of Trick jobs. 
         // Determines whether this session should be copying at that time, and calls internal copy methods if so
-
         int copy_data_freeze();
         int copy_data_freeze_scheduled(long long curr_tics);
         int copy_data_scheduled(long long curr_tics);
         int copy_data_top();
+
+        // Called from VariableServerThread
+        int copy_data_async();
 
         int write_stdio(int stream, std::string text);
 
@@ -403,9 +395,9 @@ namespace Trick {
 
     private:
 
-        pthread_mutex_t copy_mutex;     /**<  trick_io(**) */
+        pthread_mutex_t _copy_mutex;     /**<  trick_io(**) */
 
-        ClientConnection * connection;  /**<  trick_io(**) */
+        ClientConnection * _connection;  /**<  trick_io(**) */
 
         // Helper method to send a file to connection
         virtual int transmit_file(std::string sie_file);
@@ -417,9 +409,19 @@ namespace Trick {
         virtual int copy_sim_data(std::vector<VariableReference *>& given_vars, bool cyclical);
 
         /**
+         @brief Copy cyclical variable values from Trick memory to each variable's output buffer.
+        */
+        virtual int copy_sim_data();
+
+        /**
          @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
         */
         virtual int write_data(std::vector<VariableReference *>& var, VS_MESSAGE_TYPE message_type) ;
+
+        /**
+         @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
+        */
+        virtual int write_data();
 
         // Helper methods to write out formatted data
         virtual int write_binary_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
@@ -427,79 +429,71 @@ namespace Trick {
 
         virtual VariableReference * find_session_variable(std::string name) const;
 
-        double stageTime;
-        bool dataStaged;
-
-        std::vector<VariableReference *> session_variables; /**<  trick_io(**) */
-        bool cyclicSendEnabled;         /**<  trick_io(**) */
-        long long nextTime;             /**<  trick_io(**) */
-        long long intervalTimeTics;     /**<  trick_io(**) */
+        std::vector<VariableReference *> _session_variables; /**<  trick_io(**) */
 
         /** Value set in var_cycle command.\n */
-        double update_rate ;             /**<  trick_io(**) */
+        double _update_rate ;             /**<  trick_io(**) */
 
         /** The update rate in integer tics.\n */
-        long long cycle_tics ;           /**<  trick_io(**) */
+        long long _cycle_tics ;           /**<  trick_io(**) */
 
         /** The next call time in integer tics of the job to copy client data (sync mode).\n */
-        long long next_tics ;            /**<  trick_io(**) */
+        long long _next_tics ;            /**<  trick_io(**) */
 
         /** The next call time in integer tics of the job to copy client data (sync mode).\n */
-        long long freeze_next_tics ;     /**<  trick_io(**) */
+        long long _freeze_next_tics ;     /**<  trick_io(**) */
 
         /** The simulation time converted to seconds\n */
-        double time ;                    /**<  trick_units(s) */
+        double _time ;                    /**<  trick_units(s) */
 
          /** Toggle to set variable server copy as top_of_frame, scheduled, async \n */
-        VS_COPY_MODE copy_mode ;         /**<  trick_io(**) */
+        VS_COPY_MODE _copy_mode ;         /**<  trick_io(**) */
 
         /** Toggle to set variable server writes as when copied or async.\n */
-        VS_WRITE_MODE write_mode ;       /**<  trick_io(**) */
+        VS_WRITE_MODE _write_mode ;       /**<  trick_io(**) */
 
         /** multiples of frame_count to copy data.  Only used at top_of_frame\n */
-        int frame_multiple ;             /**<  trick_io(**) */
+        int _frame_multiple ;             /**<  trick_io(**) */
 
         /** multiples of frame_count to copy data.  Only used at top_of_frame\n */
-        int frame_offset ;               /**<  trick_io(**) */
+        int _frame_offset ;               /**<  trick_io(**) */
 
         /** multiples of frame_count to copy data.  Only used at top_of_frame\n */
-        int freeze_frame_multiple ;      /**<  trick_io(**) */
+        int _freeze_frame_multiple ;      /**<  trick_io(**) */
 
         /** multiples of frame_count to copy data.  Only used at top_of_frame\n */
-        int freeze_frame_offset ;        /**<  trick_io(**) */
-
-        // The way the modes are handled is confusing. TODO: refactor >:(
+        int _freeze_frame_offset ;        /**<  trick_io(**) */
 
         /** Toggle to tell variable server to byteswap returned values.\n */
-        bool byteswap ;                  /**<  trick_io(**) */
+        bool _byteswap ;                  /**<  trick_io(**) */
 
         /** Toggle to tell variable server return data in binary format.\n */
-        bool binary_data ;               /**<  trick_io(**) */
+        bool _binary_data ;               /**<  trick_io(**) */
 
         /** Toggle to tell variable server return data in binary format without the variable names.\n */
-        bool binary_data_nonames ;       /**<  trick_io(**) */
+        bool _binary_data_nonames ;       /**<  trick_io(**) */
 
         /** Value (1,2,or 3) that causes the variable server to output increasing amounts of debug information.\n */
-        int debug ;                      /**<  trick_io(**) */
+        int _debug ;                      /**<  trick_io(**) */
 
         /** Toggle to enable/disable this variable server thread.\n */
-        bool enabled ;                   /**<  trick_io(**) */
+        bool _enabled ;                   /**<  trick_io(**) */
 
         /** Toggle to turn on/off variable server logged messages to a playback file.\n */
-        bool log ;                       /**< trick_io(**)  */
+        bool _log ;                       /**< trick_io(**)  */
 
         /** Toggle to indicate var_pause commanded.\n */
-        bool pause_cmd ;                 /**<  trick_io(**) */
+        bool _pause_cmd ;                 /**<  trick_io(**) */
 
         /** Save pause state while reloading a checkpoint.\n */
-        bool saved_pause_cmd ;           /**<  trick_io(**) */
+        bool _saved_pause_cmd ;           /**<  trick_io(**) */
 
-        bool send_stdio;
+        bool _send_stdio;
 
-        bool validate_address;
+        bool _validate_address;
 
         /** Toggle to indicate var_exit commanded.\n */
-        bool exit_cmd ;                  /**<  trick_io(**) */
+        bool _exit_cmd ;                  /**<  trick_io(**) */
 
     };
 }
