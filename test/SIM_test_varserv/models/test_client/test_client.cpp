@@ -1,5 +1,6 @@
 #include "test_client.hh"
 #include "trick/var_binary_parser.hh"
+#include <math.h>
 
 
 class VariableServerUDPTest : public ::testing::Test {
@@ -1181,6 +1182,8 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
         prev_time = sim_time;
         parse_message(socket.receive());
         EXPECT_FEQ(sim_time - prev_time, expected_cycle);
+        EXPECT_LT(fmod(sim_time - prev_time, expected_cycle), DOUBLE_TOL);
+        EXPECT_EQ(strcmp_IgnoringWhiteSpace(vars, expected), 0) << "Received: " << vars << " Expected: " << expected;
     }
 
     // Clear out anything else that's been sent
@@ -1204,7 +1207,7 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     for (int i = 0; i < num_tests; i++) {  
         prev_time = sim_time;
         parse_message(socket.receive());
-        EXPECT_FEQ(sim_time - prev_time, expected_cycle);
+        EXPECT_LT(fmod(sim_time - prev_time, expected_cycle), DOUBLE_TOL);
         EXPECT_EQ(strcmp_IgnoringWhiteSpace(vars, expected), 0) << "Received: " << vars << " Expected: " << expected;
     }
 
