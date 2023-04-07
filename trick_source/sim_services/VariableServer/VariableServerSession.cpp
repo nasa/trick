@@ -133,6 +133,44 @@ VS_COPY_MODE Trick::VariableServerSession::get_copy_mode () const {
     return _copy_mode;
 }
 
+long long Trick::VariableServerSession::get_cycle_tics() const {
+    return _cycle_tics;
+}
+
+int Trick::VariableServerSession::get_frame_multiple () const {
+    return _frame_multiple;
+}
+
+int Trick::VariableServerSession::get_frame_offset () const {
+    return _frame_offset;
+}
+
+int Trick::VariableServerSession::get_freeze_frame_multiple () const {
+    return _freeze_frame_multiple;
+}
+
+int Trick::VariableServerSession::get_freeze_frame_offset () const {
+    return _freeze_frame_offset;
+}
+
+bool Trick::VariableServerSession::get_enabled () const {
+    return _enabled;
+}
+
+void Trick::VariableServerSession::set_freeze_next_tics(long long tics) {
+    _freeze_next_tics = tics;
+}
+
+void Trick::VariableServerSession::set_next_tics(long long tics) {
+    _next_tics = tics;
+}
+
+void Trick::VariableServerSession::set_exit_cmd() {
+    _exit_cmd = true;
+}
+
+
+
 std::ostream& Trick::operator<< (std::ostream& s, const Trick::VariableServerSession& session) {
     if (session._binary_data) {
         s << "    \"format\":\"BINARY\",\n";

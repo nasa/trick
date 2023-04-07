@@ -52,6 +52,11 @@ namespace Trick {
         virtual bool get_exit_cmd() ;
 
         /**
+         @brief Command session to exit
+        */
+        virtual void set_exit_cmd() ;
+
+        /**
          @brief gets the send_stdio flag.
         */
         virtual bool get_send_stdio() ;
@@ -63,21 +68,34 @@ namespace Trick {
 
         // Called from different types of Trick jobs. 
         // Determines whether this session should be copying at that time, and calls internal copy methods if so
-        int copy_data_freeze();
+        int copy_data_freeze(long long curr_frame);
         int copy_data_freeze_scheduled(long long curr_tics);
         int copy_data_scheduled(long long curr_tics);
-        int copy_data_top();
+        int copy_data_top(long long curr_frame);
 
         // Called from VariableServerThread
-        int copy_data_async();
+        virtual int copy_data_async();
+
+        /**
+         @brief Copy given variable values from Trick memory to each variable's output buffer.
+            cyclical indicated whether it is a normal cyclical copy or a send_once copy
+        */
+        virtual int copy_sim_data(std::vector<VariableReference *>& given_vars, bool cyclical);
+        virtual int copy_sim_data();
+
+        /**
+         @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
+        */
+        virtual int write_data(std::vector<VariableReference *>& var, VS_MESSAGE_TYPE message_type) ;
+        virtual int write_data();
 
         int write_stdio(int stream, std::string text);
 
         void disconnect_references();
 
-        long long get_next_tics() const;
+        virtual long long get_next_tics() const;
 
-        long long get_freeze_next_tics() const;
+        virtual long long get_freeze_next_tics() const;
 
         int freeze_init();
 
@@ -244,7 +262,7 @@ namespace Trick {
             @param mode - One of the above enumerations
             @return 0 if successful, -1 if error
         */
-        virtual int var_set_copy_mode(int on_off) ;
+        virtual int var_set_copy_mode(int mode) ;
 
         /**
          @brief @userdesc Command to tell the server when to copy data
@@ -255,7 +273,7 @@ namespace Trick {
             @param mode - One of the above enumerations
             @return 0 if successful, -1 if error
         */
-        virtual int var_set_write_mode(int on_off) ;
+        virtual int var_set_write_mode(int mode) ;
 
         /**
          @brief @userdesc Command to put the current variable server/client connection in sync mode,
@@ -402,27 +420,6 @@ namespace Trick {
         // Helper method to send a file to connection
         virtual int transmit_file(std::string sie_file);
 
-        /**
-         @brief Copy given variable values from Trick memory to each variable's output buffer.
-            cyclical indicated whether it is a normal cyclical copy or a send_once copy
-        */
-        virtual int copy_sim_data(std::vector<VariableReference *>& given_vars, bool cyclical);
-
-        /**
-         @brief Copy cyclical variable values from Trick memory to each variable's output buffer.
-        */
-        virtual int copy_sim_data();
-
-        /**
-         @brief Write data from the given var only to the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
-        */
-        virtual int write_data(std::vector<VariableReference *>& var, VS_MESSAGE_TYPE message_type) ;
-
-        /**
-         @brief Write data in the appropriate format (var_ascii or var_binary) from variable output buffers to socket.
-        */
-        virtual int write_data();
-
         // Helper methods to write out formatted data
         virtual int write_binary_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type);
         virtual int write_ascii_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type );
@@ -430,6 +427,18 @@ namespace Trick {
         virtual VariableReference * find_session_variable(std::string name) const;
 
         std::vector<VariableReference *> _session_variables; /**<  trick_io(**) */
+
+        // Getters and setters for internal variables
+        virtual long long get_cycle_tics() const; 
+
+        virtual void set_freeze_next_tics(long long tics); 
+        virtual void set_next_tics(long long tics); 
+
+        virtual int get_frame_multiple () const;
+        virtual int get_frame_offset () const;
+        virtual int get_freeze_frame_multiple () const;
+        virtual int get_freeze_frame_offset () const;
+        virtual bool get_enabled () const;
 
         /** Value set in var_cycle command.\n */
         double _update_rate ;             /**<  trick_io(**) */

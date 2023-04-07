@@ -40,21 +40,12 @@ void setup_default_session_mocks (MockVariableServerSession * session, bool comm
     ON_CALL(*session, handle_message())
         .WillByDefault(Return(0));
 
-    ON_CALL(*session, copy_sim_data())
+    ON_CALL(*session, copy_data_async())
         .WillByDefault(Return(0));
 
     ON_CALL(*session, get_pause())
         .WillByDefault(Return(false));
-
-    ON_CALL(*session, write_data())
-        .WillByDefault(Return(0));
-
-    ON_CALL(Const(*session), get_copy_mode())
-        .WillByDefault(Return(VS_COPY_ASYNC));
-
-    ON_CALL(Const(*session), get_write_mode())
-        .WillByDefault(Return(VS_WRITE_ASYNC));
-
+        
     ON_CALL(Const(*session), get_update_rate())
         .WillByDefault(Return(0.001));
 
@@ -186,10 +177,9 @@ TEST_F(VariableServerThread_test, exit_if_write_fails) {
     setup_normal_connection_expectations(&connection);
     
     // Write out data
-    EXPECT_CALL(*session, write_data())
-        .Times(1)
+    EXPECT_CALL(*session, copy_data_async())
         .WillOnce(Return(-1));
-    
+
         
     // Set up VariableServerThread
     Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
@@ -268,208 +258,6 @@ TEST_F(VariableServerThread_test, thread_cancelled) {
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
 }
 
-TEST_F(VariableServerThread_test, no_write_if_paused) {
-    // ARRANGE
-    setup_normal_connection_expectations(&connection);
-    set_session_exit_after_some_loops(session);
-
-    // We're paused the whole time
-    EXPECT_CALL(*session, get_pause())
-        .WillRepeatedly(Return(true));
-
-    // We should never write
-    EXPECT_CALL(*session, write_data())
-        .Times(0);
-    
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
-    vst->set_connection(&connection);
-
-    // ACT
-    vst->create_thread();
-    pthread_t id = vst->get_pthread_id();
-    Trick::ConnectionStatus status = vst->wait_for_accept();
-    ASSERT_EQ(status, Trick::ConnectionStatus::CONNECTION_SUCCESS);
-
-    // Confirm that the session has been created
-    Trick::VariableServerSession * vs_session = varserver->get_session(id);
-    ASSERT_TRUE(vs_session == session);
-
-    // Thread should shut down
-    vst->join_thread();
-
-    // ASSERT
-    // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
-    EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
-}
-
-
-TEST_F(VariableServerThread_test, no_copy_if_wrong_mode) {
-    // ARRANGE
-    setup_normal_connection_expectations(&connection);
-    set_session_exit_after_some_loops(session);
-
-    // We're in copy_scheduled mode
-    EXPECT_CALL(Const(*session), get_copy_mode())
-        .WillRepeatedly(Return(VS_COPY_SCHEDULED));
-
-    // We should never copy
-    EXPECT_CALL(*session, copy_sim_data())
-        .Times(0);
-    
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
-    vst->set_connection(&connection);
-
-    // ACT
-    vst->create_thread();
-    pthread_t id = vst->get_pthread_id();
-    Trick::ConnectionStatus status = vst->wait_for_accept();
-    ASSERT_EQ(status, Trick::ConnectionStatus::CONNECTION_SUCCESS);
-
-    // Confirm that the session has been created
-    Trick::VariableServerSession * vs_session = varserver->get_session(id);
-    ASSERT_TRUE(vs_session == session);
-
-    // Thread should shut down
-    vst->join_thread();
-
-    // ASSERT
-    // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
-    EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
-}
-
-TEST_F(VariableServerThread_test, write_when_copied) {
-    // ARRANGE
-    setup_normal_connection_expectations(&connection);
-    set_session_exit_after_some_loops(session);
-
-    // Default copy is copy_async, leave that be
-    // We're in write_when_copied
-    EXPECT_CALL(Const(*session), get_write_mode())
-        .WillRepeatedly(Return(VS_WRITE_WHEN_COPIED));
-
-    // We should still be copying and writing
-    EXPECT_CALL(*session, copy_sim_data())
-        .Times(AtLeast(1));
-    
-    EXPECT_CALL(*session, write_data())
-        .Times(AtLeast(1));
-
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
-    vst->set_connection(&connection);
-
-    // ACT
-    vst->create_thread();
-    pthread_t id = vst->get_pthread_id();
-    Trick::ConnectionStatus status = vst->wait_for_accept();
-    ASSERT_EQ(status, Trick::ConnectionStatus::CONNECTION_SUCCESS);
-
-    // Confirm that the session has been created
-    Trick::VariableServerSession * vs_session = varserver->get_session(id);
-    ASSERT_TRUE(vs_session == session);
-
-    // Thread should shut down
-    vst->join_thread();
-
-    // ASSERT
-    // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
-    EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
-}
-
-TEST_F(VariableServerThread_test, no_write_when_wrong_mode) {
-    // ARRANGE
-    setup_normal_connection_expectations(&connection);
-    set_session_exit_after_some_loops(session);
-
-    // This is bad - we should mock this out, but it's beyond the scope of this project
-    // We always write when realtime is disabled, so we have to do a lot of work to pretend it's enabled
-    realtime_sync->active = true;
-
-    // Copy scheduled, so not here
-    EXPECT_CALL(Const(*session), get_copy_mode())
-        .WillRepeatedly(Return(VS_COPY_SCHEDULED));
-    // We're in write_when_copied
-    EXPECT_CALL(Const(*session), get_write_mode())
-        .WillRepeatedly(Return(VS_WRITE_WHEN_COPIED));
-
-    // No copying or writing
-    EXPECT_CALL(*session, copy_sim_data())
-        .Times(0);
-    
-    EXPECT_CALL(*session, write_data())
-        .Times(0);
-
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
-    vst->set_connection(&connection);
-
-    // ACT
-    vst->create_thread();
-    pthread_t id = vst->get_pthread_id();
-    Trick::ConnectionStatus status = vst->wait_for_accept();
-    ASSERT_EQ(status, Trick::ConnectionStatus::CONNECTION_SUCCESS);
-
-    // Confirm that the session has been created
-    Trick::VariableServerSession * vs_session = varserver->get_session(id);
-    ASSERT_TRUE(vs_session == session);
-
-    // Thread should shut down
-    vst->join_thread();
-
-    // ASSERT
-    // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
-    EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
-}
-
-
-// There's a problem here - the VariableServerSession has an unwrapped connection to the executive
-TEST_F(VariableServerThread_test, write_when_realtime_disabled) {
-    // ARRANGE
-    setup_normal_connection_expectations(&connection);
-    set_session_exit_after_some_loops(session);
-
-    // Copy scheduled, so not here
-    EXPECT_CALL(Const(*session), get_copy_mode())
-        .WillRepeatedly(Return(VS_COPY_SCHEDULED));
-    // We're in write_when_copied
-    EXPECT_CALL(Const(*session), get_write_mode())
-        .WillRepeatedly(Return(VS_WRITE_WHEN_COPIED));
-
-    // No copying
-    EXPECT_CALL(*session, copy_sim_data())
-        .Times(0);
-    // We should still write since realtime is disabled
-    EXPECT_CALL(*session, write_data())
-        .Times(AtLeast(1));
-
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
-    vst->set_connection(&connection);
-
-    // ACT
-    vst->create_thread();
-    pthread_t id = vst->get_pthread_id();
-    Trick::ConnectionStatus status = vst->wait_for_accept();
-    ASSERT_EQ(status, Trick::ConnectionStatus::CONNECTION_SUCCESS);
-
-    // Confirm that the session has been created
-    Trick::VariableServerSession * vs_session = varserver->get_session(id);
-    ASSERT_TRUE(vs_session == session);
-
-    // Thread should shut down
-    vst->join_thread();
-
-    // ASSERT
-    // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
-    EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
-}
 
 TEST_F(VariableServerThread_test, turn_session_log_on) {
     // ARRANGE
