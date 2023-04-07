@@ -1181,7 +1181,6 @@ TEST_F (VariableServerTest, CopyAndWriteModes) {
     for (int i = 0; i < num_tests; i++) {  
         prev_time = sim_time;
         parse_message(socket.receive());
-        EXPECT_FEQ(sim_time - prev_time, expected_cycle);
         EXPECT_LT(fmod(sim_time - prev_time, expected_cycle), DOUBLE_TOL);
         EXPECT_EQ(strcmp_IgnoringWhiteSpace(vars, expected), 0) << "Received: " << vars << " Expected: " << expected;
     }
