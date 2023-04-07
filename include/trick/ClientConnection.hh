@@ -9,7 +9,6 @@ LIBRARY DEPENDENCIES:
 #define CLIENT_CONNECTION_HH
 
 #include <string>
-// #include <atomic>
 
 namespace Trick {
     class ClientConnection {

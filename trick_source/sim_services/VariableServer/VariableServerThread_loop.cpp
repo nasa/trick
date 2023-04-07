@@ -38,7 +38,7 @@ void * Trick::VariableServerThread::thread_body() {
         pthread_cond_signal(&_connection_status_cv);
         pthread_mutex_unlock(&_connection_status_mutex);
 
-        pthread_exit(NULL);
+        thread_shutdown();
     }
 
     // Give the initialized connection to the session
@@ -96,7 +96,7 @@ void * Trick::VariableServerThread::thread_body() {
          ex.what()) ;
         
         exec_signal_terminate();
-        
+
 #ifdef __linux
 #ifdef __GNUC__
 #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2

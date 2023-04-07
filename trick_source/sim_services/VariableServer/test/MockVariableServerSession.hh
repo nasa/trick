@@ -27,8 +27,7 @@ class MockVariableServerSession : public Trick::VariableServerSession {
 
         MOCK_METHOD0(copy_data_async, int());
 
-    private:
-        Trick::VariableServerSession _real;
+        int copy_data_async_concrete() { return Trick::VariableServerSession::copy_data_async(); }
 };
 
 #endif

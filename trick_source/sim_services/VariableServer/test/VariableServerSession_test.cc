@@ -30,6 +30,7 @@ using ::testing::_;
 using ::testing::Truly;
 using ::testing::Args;
 using ::testing::Return;
+using ::testing::Invoke;
 
 
 /*
@@ -275,9 +276,7 @@ TEST_F(VariableServerSession_test, DISABLED_large_message_binary) {
 
 void setup_partial_session_mock(MockVariableServerSession& session) {
     EXPECT_CALL(session, copy_data_async())
-        .WillOnce([&] () {
-            return session.Trick::VariableServerSession::copy_data_async();
-        });
+        .WillOnce(Invoke(&session, &MockVariableServerSession::copy_data_async_concrete));
 }
 
 void set_session_modes(MockVariableServerSession& session, VS_COPY_MODE copy_mode, VS_WRITE_MODE write_mode, bool pause) {
