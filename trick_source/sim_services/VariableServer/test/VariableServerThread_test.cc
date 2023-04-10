@@ -4,11 +4,13 @@ PURPOSE:                     ( Tests for the VariableServerThread class )
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
+#include <stdexcept>
 
 #include "trick/VariableServer.hh"
 #include "trick/RealtimeSync.hh"
 #include "trick/GetTimeOfDayClock.hh"
 #include "trick/ITimer.hh"
+#include "trick/ExecutiveException.hh"
 
 #include "trick/VariableServerThread.hh"
 
@@ -63,7 +65,6 @@ class VariableServerThread_test : public ::testing::Test {
         Trick::RealtimeSync * realtime_sync;
         Trick::GetTimeOfDayClock clock;
         Trick::ITimer timer;
-
 
         MockClientConnection connection;
         NiceMock<MockVariableServerSession> * session;
@@ -273,6 +274,72 @@ TEST_F(VariableServerThread_test, turn_session_log_on) {
     // Set up VariableServerThread
     Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
     vst->set_connection(&connection);
+
+    // ACT
+    vst->create_thread();
+    pthread_t id = vst->get_pthread_id();
+    Trick::ConnectionStatus status = vst->wait_for_accept();
+    ASSERT_EQ(status, Trick::ConnectionStatus::CONNECTION_SUCCESS);
+
+    // Confirm that the session has been created
+    Trick::VariableServerSession * vs_session = varserver->get_session(id);
+    ASSERT_TRUE(vs_session == session);
+
+    // Thread should shut down
+    vst->join_thread();
+
+    // ASSERT
+    // There should be nothing in the VariableServer's thread list
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
+}
+
+TEST_F(VariableServerThread_test, throw_trick_executive_exception) {
+    // ARRANGE
+    setup_normal_connection_expectations(&connection);
+
+    EXPECT_CALL(*session, get_exit_cmd())
+        .WillRepeatedly(Return(false));
+
+    // Set up VariableServerThread
+    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    vst->set_connection(&connection);
+
+    EXPECT_CALL(*session, handle_message())
+        .WillOnce(Throw(Trick::ExecutiveException(-1, __FILE__, __LINE__, "Trick::ExecutiveException Error message for testing")));
+
+    // ACT
+    vst->create_thread();
+    pthread_t id = vst->get_pthread_id();
+    Trick::ConnectionStatus status = vst->wait_for_accept();
+    ASSERT_EQ(status, Trick::ConnectionStatus::CONNECTION_SUCCESS);
+
+    // Confirm that the session has been created
+    Trick::VariableServerSession * vs_session = varserver->get_session(id);
+    ASSERT_TRUE(vs_session == session);
+
+    // Thread should shut down
+    vst->join_thread();
+
+    // ASSERT
+    // There should be nothing in the VariableServer's thread list
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
+}
+
+TEST_F(VariableServerThread_test, throw_exception) {
+    // ARRANGE
+    setup_normal_connection_expectations(&connection);
+
+    EXPECT_CALL(*session, get_exit_cmd())
+        .WillRepeatedly(Return(false));
+
+    // Set up VariableServerThread
+    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    vst->set_connection(&connection);
+
+    EXPECT_CALL(*session, handle_message())
+        .WillOnce(Throw(std::logic_error("Error message for testing")));
 
     // ACT
     vst->create_thread();
