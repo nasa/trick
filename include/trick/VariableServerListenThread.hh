@@ -56,8 +56,6 @@ namespace Trick {
 
             void set_multicast_group (MulticastGroup * group);
 
-            // void create_tcp_socket(const char * address, unsigned short in_port ) ;
-
             virtual void dump( std::ostream & oss = std::cout ) ;
 
         protected:

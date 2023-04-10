@@ -291,12 +291,6 @@ namespace Trick {
             /** Pointer to freeze_automatic job that copies requested variable values to their output buffers in sync mode.\n */
             Trick::JobData * copy_data_freeze_job ; /**< trick_io(**) trick_units(--) */
 
-            /** Storage for saved thread pause state. The pause state of each thread is saved
-              to this map by suspendPreCheckpointReload(). resumePostCheckpointReload() restores
-              the pause state from this map.
-             */
-            std::map<pthread_t, bool> thread_pause_state_store; // ** ignore this
-
             /** Map thread id to the VariableServerThread object.\n */
             std::map < pthread_t , VariableServerThread * > var_server_threads ; /**<  trick_io(**) */
             std::map < pthread_t , VariableServerSession * > var_server_sessions ; /**<  trick_io(**) */

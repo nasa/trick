@@ -112,10 +112,9 @@ Trick::VariableServerThread * Trick::VariableServer::get_vst(pthread_t thread_id
 }
 
 Trick::VariableServerSession * Trick::VariableServer::get_session(pthread_t thread_id) {
-    std::map < pthread_t , Trick::VariableServerSession * >::iterator it ;
     Trick::VariableServerSession * ret = NULL ;
     pthread_mutex_lock(&map_mutex) ;
-    it = var_server_sessions.find(thread_id) ;
+    auto it = var_server_sessions.find(thread_id) ;
     if ( it != var_server_sessions.end() ) {
         ret = (*it).second ;
     }

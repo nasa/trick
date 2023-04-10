@@ -38,7 +38,11 @@ Trick::VariableServerSession::VariableServerSession() {
     pthread_mutex_init(&_copy_mutex, NULL);
 }
 
-Trick::VariableServerSession::~VariableServerSession() { }
+Trick::VariableServerSession::~VariableServerSession() {
+    for (unsigned int ii = 0 ; ii < _session_variables.size() ; ii++ ) {
+        delete _session_variables[ii];
+    }
+ }
 
 
 void Trick::VariableServerSession::set_connection(ClientConnection * conn) {

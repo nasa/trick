@@ -7,7 +7,6 @@
 #include "trick/VariableServerSession.hh"
 #include "trick/variable_server_message_types.h"
 #include "trick/memorymanager_c_intf.h"
-// #include "trick/tc_proto.h"
 #include "trick/exec_proto.h"
 #include "trick/command_line_protos.h"
 #include "trick/message_proto.h"

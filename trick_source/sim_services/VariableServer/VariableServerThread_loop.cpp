@@ -83,6 +83,7 @@ void * Trick::VariableServerThread::thread_body() {
                 break;
             }
 
+            // Sleep for the appropriate cycle time
             usleep((unsigned int) (_session->get_update_rate() * 1000000));
         }
     } catch (Trick::ExecutiveException & ex ) {

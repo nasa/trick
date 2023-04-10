@@ -34,8 +34,6 @@ Trick::VariableServerThread::~VariableServerThread() {
 
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& vst) {
     // Write a JSON representation of a Trick::VariableServerThread to an ostream.
-
-
     s << "  \"connection\":{\n";
     s << "    \"client_tag\":\"" << vst._connection->getClientTag() << "\",\n";
 
@@ -45,8 +43,6 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
     pthread_mutex_lock(&vst._connection_status_mutex);
     if (vst._connection_status == CONNECTION_SUCCESS) {
         s << *(vst._session);
-    } else {
-        
     }
     pthread_mutex_unlock(&vst._connection_status_mutex);
 
