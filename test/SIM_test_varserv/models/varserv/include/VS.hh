@@ -13,6 +13,14 @@ PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) ) ( (Jackie Dea
 #ifndef VS_HH
 #define VS_HH
 
+typedef struct {
+	unsigned char var1 :3;
+ 	short var2 :8;
+    int var3 :9;
+    unsigned int var4 :12;
+} bitfield;
+
+
 class VSTest {
 	public:
 		char 				a;
@@ -32,6 +40,8 @@ class VSTest {
 		std::string 		o;
 		char * 				p;
 		wchar_t *			q; 	/**< trick_chkpnt_io(**) */
+
+		bitfield 			my_bitfield;	
 
 		int large_arr[4000];
 

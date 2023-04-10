@@ -681,6 +681,33 @@ TEST_F (VariableServerTest, ListSize) {
 }
 
 
+TEST_F (VariableServerTest, bitfields) {
+    if (socket_status != 0) {
+        FAIL();
+    }
+
+    socket << "trick.var_send_once(\"vsx.vst.my_bitfield.var1,vsx.vst.my_bitfield.var2,vsx.vst.my_bitfield.var3,vsx.vst.my_bitfield.var4\", 4)\n";
+    std::string reply_str;
+    socket >> reply_str;
+
+    EXPECT_EQ(strcmp_IgnoringWhiteSpace(reply_str, "5 3 -128 0 2112"), 0);
+
+    socket << "trick.var_binary()\ntrick.var_send_once(\"vsx.vst.my_bitfield.var1,vsx.vst.my_bitfield.var2,vsx.vst.my_bitfield.var3,vsx.vst.my_bitfield.var4\", 4)\n";
+
+    std::vector<unsigned char> reply = socket.receive_bytes();
+
+    ParsedBinaryMessage message;
+    try {
+        message.parse(reply);
+    } catch (const MalformedMessageException& ex) { 
+        FAIL() << "Parser threw an exception: " << ex.what();
+    }
+
+    for (int i = 0; i < message.getNumVars(); i++) {
+        EXPECT_TRUE(message.variables[i].getType() == 12 || message.variables[i].getType() == 13);
+    }
+}
+
 TEST_F (VariableServerTest, transmit_file) {
     if (socket_status != 0) {
         FAIL();
