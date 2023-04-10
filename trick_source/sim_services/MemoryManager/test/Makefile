@@ -26,8 +26,8 @@ TESTS = MM_creation_unittest \
         MM_declare_extern_var_unittest \
         MM_delete_var_unittest \
         MM_ref_attributes_unittest \
-	MM_resize_array_unittest \
-	MM_strdup_unittest \
+		MM_resize_array_unittest \
+		MM_strdup_unittest \
         MM_write_var_unittest \
         MM_sizeof_type_unittest\
         MM_read_checkpoint\
@@ -35,11 +35,11 @@ TESTS = MM_creation_unittest \
         MM_alloc_deps\
         MM_write_checkpoint\
         MM_write_checkpoint_hexfloat \
-	MM_get_enumerated\
-	MM_ref_name_from_address \
+		MM_get_enumerated\
+		MM_ref_name_from_address \
         Bitfield_tests \
-	MM_stl_checkpoint \
-	MM_stl_restore \
+		MM_stl_checkpoint \
+		MM_stl_restore \
         MM_trick_type_char_string
 
 # List of XML files produced by the tests.
