@@ -185,16 +185,17 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
     if(item_num < 0) {
         // Behavior for notifying that a negative item_num shouldn't be used
         std::cerr << "ERROR: Invalid use of item_num. Parameter should be a positive integer." << std::endl;
-        // strcpy(buf,"");
-        // return(1);
+        return(1);
     }
     
     if(DI->ref->attr->num_index > 0) {
-        if(DI->ref->attr->index[0].size <= item_num) {
+        int size = DI->ref->attr->index[0].size;
+        for(int i = 1; i < DI->ref->attr->num_index; i++) size *= DI->ref->attr->index[i].size;
+        
+        if(size <= item_num) {
             // Behavior notifying about the index out of bounds
-            std::cerr << "ERROR: Index " << item_num << " is out of the bounds of the array '" << DI->ref->attr->name << "' of length " << DI->ref->attr->index[0].size << std::endl;
-            // strcpy(buf,"");
-            // return(1);
+            std::cerr << "ERROR: Index " << item_num << " is out of the bounds of the array '" << DI->ref->attr->name << "'" << std::endl;
+            return(1);
         }
     }
 
