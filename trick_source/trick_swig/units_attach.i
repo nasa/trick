@@ -38,6 +38,14 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
             PyThreadState *tstate = PyThreadState_GET();
             std::string file_name ;
             int line_no = 0 ;
+#if (PY_MAJOR_VERSION == 3) && (PY_MINOR_VERSION >= 11)
+            PyFrameObject * frame = PyEval_GetFrame();
+            PyCodeObject * code_object = PyFrame_GetCode(frame);
+            PyObject * temp = PyUnicode_AsEncodedString(code_object->co_filename, "utf-8", "Error ~");
+            file_name = PyBytes_AS_STRING(temp) ;
+            line_no = PyFrame_GetLineNumber(frame) ;
+
+#else
             if (NULL != tstate && NULL != tstate->frame) {
 #if PY_VERSION_HEX >= 0x03000000
                 PyObject * temp = PyUnicode_AsEncodedString(tstate->frame->f_code->co_filename, "utf-8", "Error ~");
@@ -51,6 +59,8 @@ PyObject * attach_units(PyObject * in_units_obj , PyObject * in_object) {
                 line_no = PyFrame_GetLineNumber(tstate->frame) ;
 #endif
             }
+#endif
+
             std::cout << "\033[33mUnits converted from [" << in_units << "] to [" << new_units << "] "
              << file_name << ":" << line_no << "\033[0m" << std::endl ;
             in_units = new_units ;
