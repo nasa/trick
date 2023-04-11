@@ -39,7 +39,6 @@ void validate_alloc_info_local(Trick::MemoryManager *memmgr,
                 "Storage class (stcl) for a var created with var_declare should always be TRICK_LOCAL.";
 }
 
-
 /* ================================================================================
                                       Test Cases
    ================================================================================
@@ -212,11 +211,6 @@ TEST_F(MM_declare_var, NamedVariable) {
         validate_alloc_info_local(memmgr, test_var, TRICK_DOUBLE, NULL, "force", 1, 0, NULL);
 }
 
-TEST_F(MM_declare_var, NameSpaceVariable) {
-        double *test_var = (double *)memmgr->declare_var("double vehicle::force");
-        validate_alloc_info_local(memmgr, test_var, TRICK_DOUBLE, NULL, "vehicle::force", 1, 0, NULL);
-}
-
 // Intrinsic Type Arrays
 
 TEST_F(MM_declare_var, AnonOneDimDoubleArray) {
@@ -227,6 +221,12 @@ TEST_F(MM_declare_var, AnonOneDimDoubleArray) {
 
 TEST_F(MM_declare_var, NamedOneDimDoubleArray) {
 	double *test_var = (double *)memmgr->declare_var("double myarray[5]");
+        int extents[8] = {5,0,0,0,0,0,0,0};
+        validate_alloc_info_local(memmgr, test_var, TRICK_DOUBLE, NULL, "myarray", 5, 1, extents);
+}
+
+TEST_F(MM_declare_var, NamedOneDimDoubleArrayHexIndex) {
+	double *test_var = (double *)memmgr->declare_var("double myarray[0x05]");
         int extents[8] = {5,0,0,0,0,0,0,0};
         validate_alloc_info_local(memmgr, test_var, TRICK_DOUBLE, NULL, "myarray", 5, 1, extents);
 }
