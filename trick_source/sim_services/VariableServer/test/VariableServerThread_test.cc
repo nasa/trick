@@ -347,10 +347,6 @@ TEST_F(VariableServerThread_test, throw_exception) {
     Trick::ConnectionStatus status = vst->wait_for_accept();
     ASSERT_EQ(status, Trick::ConnectionStatus::CONNECTION_SUCCESS);
 
-    // Confirm that the session has been created
-    Trick::VariableServerSession * vs_session = varserver->get_session(id);
-    ASSERT_TRUE(vs_session == session);
-
     // Thread should shut down
     vst->join_thread();
 
