@@ -46,7 +46,7 @@ TEST_F(MM_stl_restore, i_vec ) {
     std::vector<int> test_data = get_test_data<int>(20);
     // Register the expected temporary variables with the memory manager
     int * temp_data = (int *) memmgr->declare_var("int my_alloc_i_vec[20]");
-    for (int i = 0; i < 20; i++) {
+    for (unsigned int i = 0; i < 20; i++) {
         temp_data[i] = test_data[i];
     }
 
@@ -75,7 +75,7 @@ TEST_F(MM_stl_restore, i_s_vec ) {
     std::string my_alloc_i_s_vec[6];
     int start_index = 0;
     memmgr->declare_extern_var(&my_alloc_i_s_vec, "std::string my_alloc_i_s_vec[6]");
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         // std::string var_name = 
         my_alloc_i_s_vec[i] = "my_alloc_i_s_vec_" + std::to_string(i);
 
@@ -95,7 +95,7 @@ TEST_F(MM_stl_restore, i_s_vec ) {
     // Make sure the STL has been populated
     ASSERT_EQ(testbed->i_s_vec.size(), lengths.size());
     start_index = 0;
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         ASSERT_EQ(testbed->i_s_vec[i].size(), lengths[i]); 
         EXPECT_EQ(testbed->i_s_vec[i], std::vector<int>(test_data.begin()+start_index, test_data.begin()+start_index+lengths[i]));
         start_index += lengths[i];
@@ -103,7 +103,7 @@ TEST_F(MM_stl_restore, i_s_vec ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_i_s_vec"), 0);
-    for (int i = 0; i < test_data.size()/2; i++) {
+    for (unsigned int i = 0; i < test_data.size()/2; i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_i_s_vec_" + std::to_string(i)), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_i_s_vec_" + std::to_string(i)), 0);
     }
@@ -119,7 +119,7 @@ TEST_F(MM_stl_restore, s_vec ) {
     // Register the expected temporary variables with the memory manager
     std::string my_alloc_s_vec[20];
     memmgr->declare_extern_var(&my_alloc_s_vec, "std::string my_alloc_s_vec[20]");
-    for (int i = 0; i < test_data.size()/2; i++) {
+    for (unsigned int i = 0; i < test_data.size()/2; i++) {
         my_alloc_s_vec[i] = "my_alloc_s_vec_" + std::to_string(i);
 
         std::string first_var_name = "int my_alloc_s_vec_" + std::to_string(i) + "_first";
@@ -138,14 +138,14 @@ TEST_F(MM_stl_restore, s_vec ) {
     // ASSERT
     // Make sure the STL has been populated
     ASSERT_EQ(testbed->s_vec.size(), test_data.size()/2);
-    for (int i = 0; i < test_data.size()/2; i++) {
+    for (unsigned int i = 0; i < test_data.size()/2; i++) {
         EXPECT_EQ(testbed->s_vec[i].first, test_data[i*2]);
         EXPECT_EQ(testbed->s_vec[i].second, test_data[i*2+1]);
     }
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_s_vec"), 0);
-    for (int i = 0; i < test_data.size()/2; i++) {
+    for (unsigned int i = 0; i < test_data.size()/2; i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_vec_" + std::to_string(i) + "_first"), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_vec_" + std::to_string(i) + "_second"), 0);
     }
@@ -160,7 +160,7 @@ TEST_F(MM_stl_restore, string_vec ) {
 
     // Register the expected temporary variables with the memory manager
     std::string * temp_data = (std::string *) memmgr->declare_var("std::string my_alloc_string_vec[20]");
-    for (int i = 0; i < 20; i++) {
+    for (unsigned int i = 0; i < 20; i++) {
         temp_data[i] = std::string(test_data[i]);
     }
 
@@ -222,7 +222,7 @@ TEST_F(MM_stl_restore, i_s_pair ) {
 
     *first_data = test_first;
     *second_link = std::string("inner");
-    for (int i = 0; i < test_second.size(); i++) {
+    for (unsigned int i = 0; i < test_second.size(); i++) {
         second_data[i] = test_second[i];
     }
 
@@ -235,7 +235,7 @@ TEST_F(MM_stl_restore, i_s_pair ) {
     // Make sure the STL has been populated
     EXPECT_EQ(testbed->i_s_pair.first, test_first);
     EXPECT_EQ(testbed->i_s_pair.second.size(), test_second.size());
-    for (int i = 0; i < test_second.size(); i++) {
+    for (unsigned int i = 0; i < test_second.size(); i++) {
         EXPECT_EQ(testbed->i_s_pair.second.front(), test_second[i]);
         testbed->i_s_pair.second.pop();
     }
@@ -259,7 +259,7 @@ TEST_F(MM_stl_restore, s_i_pair ) {
     *first_link = "inner";
     double * second_data = (double *) memmgr->declare_var("double my_alloc_s_i_pair_second");
 
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         first_data[i] = test_first[i];
     }
     *second_data = test_second;
@@ -274,7 +274,7 @@ TEST_F(MM_stl_restore, s_i_pair ) {
     // Make sure the STL has been populated
     EXPECT_EQ(testbed->s_i_pair.second, test_second);
     ASSERT_EQ(testbed->s_i_pair.first.size(), test_first.size());
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         EXPECT_EQ(testbed->s_i_pair.first.front(), test_first[i]);
         testbed->s_i_pair.first.pop();
     }
@@ -303,10 +303,10 @@ TEST_F(MM_stl_restore, s_s_pair ) {
 
 
 
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         first_data[i] = test_first[i];
     }
-    for (int i = 0; i < test_second.size(); i++) {
+    for (unsigned int i = 0; i < test_second.size(); i++) {
         second_data[i] = test_second[i];
     }
 
@@ -319,7 +319,7 @@ TEST_F(MM_stl_restore, s_s_pair ) {
     // Make sure the STL has been populated
     EXPECT_EQ(testbed->s_s_pair.first.size(), test_first.size());
     EXPECT_EQ(testbed->s_s_pair.second.size(), test_second.size());
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         EXPECT_EQ(testbed->s_s_pair.first[i], test_first[i]);
         EXPECT_EQ(testbed->s_s_pair.second.top(), test_second[i]);
         testbed->s_s_pair.second.pop();
@@ -380,7 +380,7 @@ TEST_F(MM_stl_restore, i_i_map ) {
 
     int * key_data = (int *) memmgr->declare_var("int my_alloc_i_i_map_keys[20]");
     double * val_data = (double *) memmgr->declare_var("double my_alloc_i_i_map_data[20]");
-    for (int i = 0; i < test_keys.size(); i++) {
+    for (unsigned int i = 0; i < test_keys.size(); i++) {
         key_data[i] = test_keys[i];
         val_data[i] = test_data[i];
 
@@ -413,7 +413,7 @@ TEST_F(MM_stl_restore, i_s_map ) {
 
     int * key_data = (int *) memmgr->declare_var("int my_alloc_i_s_map_keys[10]");
     std::string * val_data = (std::string *) memmgr->declare_var("std::string my_alloc_i_s_map_data[10]");
-    for (int i = 0; i < test_keys.size(); i++) {
+    for (unsigned int i = 0; i < test_keys.size(); i++) {
         key_data[i] = test_keys[i];
         val_data[i] = std::string("my_alloc_i_s_map_data_" + std::to_string(i));
 
@@ -421,7 +421,7 @@ TEST_F(MM_stl_restore, i_s_map ) {
         std::string * val_temp = (std::string *) memmgr->declare_var(var_name.c_str());
 
         std::vector<std::string> test_strings_easy = {"a", "b", "c", "d", "e", "f"};
-        for (int j = 0; j < 6; j++) {
+        for (unsigned int j = 0; j < 6; j++) {
             // val_temp[j] = std::string(test_data[(i*6) + j]);
             val_temp[j] = std::string(test_strings_easy[j]);
 
@@ -444,7 +444,7 @@ TEST_F(MM_stl_restore, i_s_map ) {
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_i_s_map_keys"), 0);
     EXPECT_EQ(memmgr->var_exists("my_alloc_i_s_map_data"), 0);
-    for (int i = 0; i < testbed->i_s_map.size(); i++) {
+    for (unsigned int i = 0; i < testbed->i_s_map.size(); i++) {
         std::string var_name_test = "my_alloc_i_s_map_data_" + std::to_string(i);
         EXPECT_EQ(memmgr->var_exists(var_name_test.c_str()), 0);
     }
@@ -461,14 +461,14 @@ TEST_F(MM_stl_restore, s_i_map ) {
 
     std::string * key_data = (std::string *) memmgr->declare_var("std::string my_alloc_s_i_map_keys[10]");
     std::string * val_data = (std::string *) memmgr->declare_var("std::string my_alloc_s_i_map_data[10]");
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         key_data[i] = std::string("my_alloc_s_i_map_keys_" + std::to_string(i));
 
         std::string var_name = "int my_alloc_s_i_map_keys_" + std::to_string(i) + "[" + std::to_string(3) + "]";
         int * val_temp = (int *) memmgr->declare_var(var_name.c_str());
 
         std::set<int> temp_set;
-        for (int j = 0; j < 3; j++) {
+        for (unsigned int j = 0; j < 3; j++) {
             val_temp[j] = test_keys[(i*3) + j];
 
             // Create a map of expected data along side so that we don't have to deal with ordering stuff
@@ -493,7 +493,7 @@ TEST_F(MM_stl_restore, s_i_map ) {
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_s_i_map_keys"), 0);
     EXPECT_EQ(memmgr->var_exists("my_alloc_s_i_map_data"), 0);
-    for (int i = 0; i < testbed->i_s_map.size(); i++) {
+    for (unsigned int i = 0; i < testbed->i_s_map.size(); i++) {
         std::string var_name_test = "my_alloc_s_i_map_keys_" + std::to_string(i);
         EXPECT_EQ(memmgr->var_exists(var_name_test.c_str()), 0);
     }
@@ -534,7 +534,7 @@ TEST_F(MM_stl_restore, s_s_map ) {
         std::string data_name = "int my_alloc_s_s_map_data_" + std::to_string(i) + "[" + std::to_string(4) + "]";
         int * data_values = (int *) memmgr->declare_var(data_name.c_str());
 
-        for (int j = 0; j < 4; j++) {
+        for (unsigned int j = 0; j < 4; j++) {
             data_values[j] = test_data[(i*4) + j];
 
             // Create a map of expected data along side so that we don't have to deal with ordering stuff
@@ -578,7 +578,7 @@ TEST_F(MM_stl_restore, i_queue ) {
     std::queue<int> expected_data;
     // Register the expected temporary variables with the memory manager
     int * temp_data = (int *) memmgr->declare_var("int my_alloc_i_queue[20]");
-    for (int i = 0; i < 20; i++) {
+    for (unsigned int i = 0; i < 20; i++) {
         temp_data[i] = test_data[i];
         expected_data.push(test_data[i]);
     }
@@ -608,7 +608,7 @@ TEST_F(MM_stl_restore, s_queue ) {
 
     std::string * data_links  = (std::string *) memmgr->declare_var("std::string my_alloc_s_queue[20]");
 
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         data_links[i] = "my_alloc_s_queue_" + std::to_string(i);
 
         std::string first_var_name = "int my_alloc_s_queue_" + std::to_string(i) + "_first";
@@ -632,7 +632,7 @@ TEST_F(MM_stl_restore, s_queue ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_s_queue"), 0);
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_queue_" + std::to_string(i) + "_first"), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_queue_" + std::to_string(i) + "_second"), 0);
     }
@@ -653,13 +653,13 @@ TEST_F(MM_stl_restore, nested_list_queue ) {
     
     int start_index = 0;
     std::string * nested_list_links = (std::string *) memmgr->declare_var( "std::string my_alloc_nested_list_queue[6]");
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         nested_list_links[i] = "my_alloc_nested_list_queue_" + std::to_string(i);
 
         std::string temp_var_name = "float my_alloc_nested_list_queue_" + std::to_string(i) + "[" + std::to_string(lengths[i]) + "]";
         std::list<float> temp_expected;
         float * temp_arr = (float *)memmgr->declare_var(temp_var_name.c_str());
-        for (int j = 0; j < lengths[i]; j++) {
+        for ( int j = 0; j < lengths[i]; j++) {
             temp_arr[j] = test_data[start_index + j];
             temp_expected.push_back(test_data[start_index + j]);
         }
@@ -678,7 +678,7 @@ TEST_F(MM_stl_restore, nested_list_queue ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_nested_list_queue"), 0);
-    for (int i = 0; i < test_data.size()/2; i++) {
+    for (unsigned int i = 0; i < test_data.size()/2; i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_nested_list_queue_" + std::to_string(i)), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_nested_list_queue_" + std::to_string(i)), 0);
     }
@@ -695,7 +695,7 @@ TEST_F(MM_stl_restore, i_stack ) {
     std::stack<long long> expected_data;
     // Register the expected temporary variables with the memory manager
     long long * temp_data = (long long *) memmgr->declare_var("long long my_alloc_i_stack[20]");
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         temp_data[i] = test_data[i];
 
         // push backwards bc stack
@@ -726,7 +726,7 @@ TEST_F(MM_stl_restore, s_stack ) {
 
     std::string * data_links  = (std::string *) memmgr->declare_var("std::string my_alloc_s_stack[20]");
 
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         data_links[i] = "my_alloc_s_stack_" + std::to_string(i);
 
         std::string first_var_name = "short my_alloc_s_stack_" + std::to_string(i) + "_first";
@@ -751,7 +751,7 @@ TEST_F(MM_stl_restore, s_stack ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_s_stack"), 0);
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_stack_" + std::to_string(i) + "_first"), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_stack_" + std::to_string(i) + "_second"), 0);
     }
@@ -774,7 +774,7 @@ TEST_F(MM_stl_restore, nested_list_stack ) {
     // Register the expected temporary variables with the memory manager
     int start_index = 0;
     std::string * nested_list_links = (std::string *) memmgr->declare_var( "std::string my_alloc_nested_list_stack[6]");
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         nested_list_links[i] = "my_alloc_nested_list_stack_" + std::to_string(i);
 
         std::string temp_var_name = "float my_alloc_nested_list_stack_" + std::to_string(i) + "[" + std::to_string(lengths[i]) + "]";
@@ -805,7 +805,7 @@ TEST_F(MM_stl_restore, nested_list_stack ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_nested_list_stack"), 0);
-    for (int i = 0; i < test_data.size()/2; i++) {
+    for (unsigned int i = 0; i < test_data.size()/2; i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_nested_list_stack_" + std::to_string(i)), 0);
     }
 }
@@ -858,7 +858,7 @@ TEST_F(MM_stl_restore, s_set ) {
 
     std::string * data_links  = (std::string *) memmgr->declare_var("std::string my_alloc_s_set[20]");
 
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         data_links[i] = "my_alloc_s_set_" + std::to_string(i);
 
         std::string first_var_name = "int my_alloc_s_set_" + std::to_string(i) + "_first";
@@ -882,7 +882,7 @@ TEST_F(MM_stl_restore, s_set ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_s_set"), 0);
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_set_" + std::to_string(i) + "_first"), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_set_" + std::to_string(i) + "_second"), 0);
     }
@@ -904,7 +904,7 @@ TEST_F(MM_stl_restore, vector_set ) {
     // Register the expected temporary variables with the memory manager
     int start_index = 0;
     std::string * nested_list_links = (std::string *) memmgr->declare_var( "std::string my_alloc_vector_set[6]");
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         nested_list_links[i] = "my_alloc_vector_set_" + std::to_string(i);
 
         std::string temp_var_name = "int my_alloc_vector_set_" + std::to_string(i) + "[" + std::to_string(lengths[i]) + "]";
@@ -929,7 +929,7 @@ TEST_F(MM_stl_restore, vector_set ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_vector_set"), 0);
-    for (int i = 0; i < test_data.size()/2; i++) {
+    for (unsigned int i = 0; i < test_data.size()/2; i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_vector_set_" + std::to_string(i)), 0);
     }
 }
@@ -946,7 +946,7 @@ TEST_F(MM_stl_restore, nested_map_set ) {
     std::set<std::map<short,double>> expected;
 
     std::string * nested_map_links = (std::string *) memmgr->declare_var( "std::string my_alloc_nested_map_set[6]");
-    for (int i = 0; i < 6; i++) {
+    for (unsigned int i = 0; i < 6; i++) {
         nested_map_links[i] = "my_alloc_nested_map_set_" + std::to_string(i);
 
         std::string keys_var_name = "short my_alloc_nested_map_set_" + std::to_string(i) + "_keys[10]";
@@ -956,7 +956,7 @@ TEST_F(MM_stl_restore, nested_map_set ) {
         double * map_vals_temp = (double *) memmgr->declare_var( vals_var_name.c_str() );
 
         std::map<short,double> temp_map;
-        for (int j = 0; j < 10; j++) {
+        for (unsigned int j = 0; j < 10; j++) {
             map_keys_temp[j] = test_keys[(i*10) + j];
             map_vals_temp[j] = test_vals[(i*10) + j];
 
@@ -975,7 +975,7 @@ TEST_F(MM_stl_restore, nested_map_set ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_set"), 0);
-    for (int i = 0; i < expected.size(); i++) {
+    for (unsigned int i = 0; i < expected.size(); i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_set_" + std::to_string(i) + "_data"), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_set_" + std::to_string(i) + "_vals"), 0);
     }
@@ -1032,9 +1032,9 @@ TEST_F(MM_stl_restore, s_multiset ) {
 
     std::string * data_links  = (std::string *) memmgr->declare_var("std::string my_alloc_s_multiset[40]");
 
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         // just insert the same thing twice
-        for (int j = 0; j < 2; j++) {
+        for (unsigned int j = 0; j < 2; j++) {
             data_links[i*2+j] = "my_alloc_s_multiset_" + std::to_string(i*2+j);
 
             std::string first_var_name = "int my_alloc_s_multiset_" + std::to_string(i*2+j) + "_first";
@@ -1059,7 +1059,7 @@ TEST_F(MM_stl_restore, s_multiset ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_s_multiset"), 0);
-    for (int i = 0; i < expected.size(); i++) {
+    for (unsigned int i = 0; i < expected.size(); i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_multiset_" + std::to_string(i) + "_first"), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_s_multiset_" + std::to_string(i) + "_second"), 0);
     }
@@ -1081,8 +1081,8 @@ TEST_F(MM_stl_restore, vector_multiset ) {
     // Register the expected temporary variables with the memory manager
     int start_index = 0;
     std::string * nested_list_links = (std::string *) memmgr->declare_var( "std::string my_alloc_vector_multiset[12]");
-    for (int i = 0; i < lengths.size(); i++) {
-        for (int j = 0; j < 2; j++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
+        for (unsigned int j = 0; j < 2; j++) {
             nested_list_links[i*2+j] = "my_alloc_vector_multiset_" + std::to_string(i*2+j);
 
             std::string temp_var_name = "int my_alloc_vector_multiset_" + std::to_string(i*2+j) + "[" + std::to_string(lengths[i]) + "]";
@@ -1108,7 +1108,7 @@ TEST_F(MM_stl_restore, vector_multiset ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_vector_multiset"), 0);
-    for (int i = 0; i < expected.size(); i++) {
+    for (unsigned int i = 0; i < expected.size(); i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_vector_multiset_" + std::to_string(i)), 0);
     }
 }
@@ -1125,8 +1125,8 @@ TEST_F(MM_stl_restore, nested_map_multiset ) {
     std::multiset<std::map<short,double>> expected;
 
     std::string * nested_map_links = (std::string *) memmgr->declare_var( "std::string my_alloc_nested_map_multiset[12]");
-    for (int i = 0; i < 6; i++) {
-        for (int k = 0; k < 2; k++) {
+    for (unsigned int i = 0; i < 6; i++) {
+        for (unsigned int k = 0; k < 2; k++) {
             nested_map_links[i] = "my_alloc_nested_map_multiset_" + std::to_string(i*2+k);
 
             std::string keys_var_name = "short my_alloc_nested_map_multiset_" + std::to_string(i*2+k) + "_keys[10]";
@@ -1136,7 +1136,7 @@ TEST_F(MM_stl_restore, nested_map_multiset ) {
             double * map_vals_temp = (double *) memmgr->declare_var( vals_var_name.c_str() );
 
             std::map<short,double> temp_map;
-            for (int j = 0; j < 10; j++) {
+            for (unsigned int j = 0; j < 10; j++) {
                 map_keys_temp[j] = test_keys[(i*10) + j];
                 map_vals_temp[j] = test_vals[(i*10) + j];
 
@@ -1155,7 +1155,7 @@ TEST_F(MM_stl_restore, nested_map_multiset ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_multiset"), 0);
-    for (int i = 0; i < expected.size(); i++) {
+    for (unsigned int i = 0; i < expected.size(); i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_multiset_" + std::to_string(i) + "_data"), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_nested_map_multiset_" + std::to_string(i) + "_vals"), 0);
     }
@@ -1172,7 +1172,7 @@ TEST_F(MM_stl_restore, i_array ) {
 
     // Register the expected temporary variables with the memory manager
     char * temp_data = (char *) memmgr->declare_var("char my_alloc_i_array[10]");
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         temp_data[i] = test_data[i];
         expected[i] = test_data[i];
     }
@@ -1201,7 +1201,7 @@ TEST_F(MM_stl_restore, pair_array ) {
 
     std::string * data_links  = (std::string *) memmgr->declare_var("std::string my_alloc_pair_array[10]");
 
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         data_links[i] = "my_alloc_pair_array_" + std::to_string(i);
 
         std::string first_var_name = "int my_alloc_pair_array_" + std::to_string(i) + "_first";
@@ -1225,7 +1225,7 @@ TEST_F(MM_stl_restore, pair_array ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_pair_array"), 0);
-    for (int i = 0; i < test_first.size(); i++) {
+    for (unsigned int i = 0; i < test_first.size(); i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_pair_array_" + std::to_string(i) + "_first"), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_pair_array_" + std::to_string(i) + "_second"), 0);
     }
@@ -1242,7 +1242,7 @@ TEST_F(MM_stl_restore, string_array ) {
 
     // Register the expected temporary variables with the memory manager
     std::string * temp_data = (std::string *) memmgr->declare_var("std::string my_alloc_string_array[10]");
-    for (int i = 0; i < test_data.size(); i++) {
+    for (unsigned int i = 0; i < test_data.size(); i++) {
         temp_data[i] = std::string(test_data[i]);
         expected[i] = std::string(test_data[i]);
     }
@@ -1272,7 +1272,7 @@ TEST_F(MM_stl_restore, vec_array ) {
     std::string my_alloc_vec_array[10];
     int start_index = 0;
     memmgr->declare_extern_var(&my_alloc_vec_array, "std::string my_alloc_vec_array[10]");
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         // std::string var_name = 
         my_alloc_vec_array[i] = "my_alloc_vec_array_" + std::to_string(i);
 
@@ -1292,7 +1292,7 @@ TEST_F(MM_stl_restore, vec_array ) {
     // Make sure the STL has been populated
     ASSERT_EQ(testbed->vec_array.size(), lengths.size());
     start_index = 0;
-    for (int i = 0; i < lengths.size(); i++) {
+    for (unsigned int i = 0; i < lengths.size(); i++) {
         ASSERT_EQ(testbed->vec_array[i].size(), lengths[i]); 
         EXPECT_EQ(testbed->vec_array[i], std::vector<int>(test_data.begin()+start_index, test_data.begin()+start_index+lengths[i]));
         start_index += lengths[i];
@@ -1300,7 +1300,7 @@ TEST_F(MM_stl_restore, vec_array ) {
 
     // Check that all the temporary variables have been deleted
     EXPECT_EQ(memmgr->var_exists("my_alloc_vec_array"), 0);
-    for (int i = 0; i < test_data.size()/2; i++) {
+    for (unsigned int i = 0; i < test_data.size()/2; i++) {
         EXPECT_EQ(memmgr->var_exists("my_alloc_vec_array_" + std::to_string(i)), 0);
         EXPECT_EQ(memmgr->var_exists("my_alloc_vec_array_" + std::to_string(i)), 0);
     }
