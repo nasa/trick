@@ -1733,9 +1733,9 @@ bool writeCsv(const QString& fcsv, const QStringList& timeNames,
 
     // Format output
     out.setFieldAlignment(QTextStream::AlignRight);
-    out.setFieldWidth(12);
+    out.setFieldWidth(16);
     out.setPadChar(' ');
-    out.setRealNumberPrecision(8);
+    out.setRealNumberPrecision(15);
 
     // Csv header
     QString header;
