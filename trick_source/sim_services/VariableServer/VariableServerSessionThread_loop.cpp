@@ -10,18 +10,16 @@
 #include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
 
-#include "trick/VariableServerThread.hh"
-
-
+#include "trick/VariableServerSessionThread.hh"
 
 void exit_var_thread(void *in_vst) ;
 
-void * Trick::VariableServerThread::thread_body() {
+void * Trick::VariableServerSessionThread::thread_body() {
 
     // Check for short running sims
     test_shutdown(NULL, NULL);
 
-    //  We need to make the thread to VariableServerThread map before we accept the connection.
+    //  We need to make the thread to VariableServerSessionThread map before we accept the connection.
     //  Otherwise we have a race where this thread is unknown to the variable server and the
     //  client gets confirmation that the connection is ready for communication.
     _vs->add_vst( pthread_self() , this ) ;

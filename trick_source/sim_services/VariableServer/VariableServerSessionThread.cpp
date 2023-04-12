@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include "trick/VariableServerThread.hh"
+#include "trick/VariableServerSessionThread.hh"
 #include "trick/exec_proto.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
@@ -10,13 +10,13 @@
 #include "trick/TCPConnection.hh"
 
 
-Trick::VariableServer * Trick::VariableServerThread::_vs = NULL ;
+Trick::VariableServer * Trick::VariableServerSessionThread::_vs = NULL ;
 
 static int instance_num = 0;
 
-Trick::VariableServerThread::VariableServerThread() : VariableServerThread (new VariableServerSession()) {}
+Trick::VariableServerSessionThread::VariableServerSessionThread() : VariableServerSessionThread (new VariableServerSession()) {}
 
-Trick::VariableServerThread::VariableServerThread(VariableServerSession * session) :
+Trick::VariableServerSessionThread::VariableServerSessionThread(VariableServerSession * session) :
  Trick::SysThread(std::string("VarServer" + std::to_string(instance_num++))) , _debug(0), _session(session), _connection(NULL) {
 
     _connection_status = CONNECTION_PENDING ;
@@ -28,12 +28,12 @@ Trick::VariableServerThread::VariableServerThread(VariableServerSession * sessio
     cancellable = false;
 }
 
-Trick::VariableServerThread::~VariableServerThread() {
+Trick::VariableServerSessionThread::~VariableServerSessionThread() {
     cleanup();
 }
 
-std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& vst) {
-    // Write a JSON representation of a Trick::VariableServerThread to an ostream.
+std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerSessionThread& vst) {
+    // Write a JSON representation of a Trick::VariableServerSessionThread to an ostream.
     s << "  \"connection\":{\n";
     s << "    \"client_tag\":\"" << vst._connection->getClientTag() << "\",\n";
 
@@ -50,23 +50,23 @@ std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServerThread& v
     return s;
 }
 
-void Trick::VariableServerThread::set_vs_ptr(Trick::VariableServer * in_vs) {
+void Trick::VariableServerSessionThread::set_vs_ptr(Trick::VariableServer * in_vs) {
     _vs = in_vs ;
 }
 
-Trick::VariableServer * Trick::VariableServerThread::get_vs() {
+Trick::VariableServer * Trick::VariableServerSessionThread::get_vs() {
     return _vs ;
 }
 
-void Trick::VariableServerThread::set_client_tag(std::string tag) {
+void Trick::VariableServerSessionThread::set_client_tag(std::string tag) {
     _connection->setClientTag(tag);
 }
 
-void Trick::VariableServerThread::set_connection(Trick::ClientConnection * in_connection) {
+void Trick::VariableServerSessionThread::set_connection(Trick::ClientConnection * in_connection) {
     _connection = in_connection;
 }
 
-Trick::ConnectionStatus Trick::VariableServerThread::wait_for_accept() {
+Trick::ConnectionStatus Trick::VariableServerSessionThread::wait_for_accept() {
 
     pthread_mutex_lock(&_connection_status_mutex);
     while ( _connection_status == CONNECTION_PENDING ) {
@@ -78,7 +78,7 @@ Trick::ConnectionStatus Trick::VariableServerThread::wait_for_accept() {
 }
 
 // Gets called from the main thread as a job
-void Trick::VariableServerThread::preload_checkpoint() {
+void Trick::VariableServerSessionThread::preload_checkpoint() {
 
     // Stop variable server processing at the top of the processing loop.
     force_thread_to_pause();
@@ -109,7 +109,7 @@ void Trick::VariableServerThread::preload_checkpoint() {
 }
 
 // Gets called from the main thread as a job
-void Trick::VariableServerThread::restart() {
+void Trick::VariableServerSessionThread::restart() {
     // Set the pause state of this thread back to its "pre-checkpoint reload" state.
     _connection->restart();
 
@@ -123,7 +123,7 @@ void Trick::VariableServerThread::restart() {
     unpause_thread();
 }
 
-void Trick::VariableServerThread::cleanup() {
+void Trick::VariableServerSessionThread::cleanup() {
     _connection->disconnect();
 
     if (_session != NULL) {

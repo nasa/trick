@@ -1,10 +1,10 @@
 /*
     PURPOSE:
-        (VariableServerThread)
+        (VariableServerSessionThread)
 */
 
-#ifndef VARIABLESERVERTHREAD_HH
-#define VARIABLESERVERTHREAD_HH
+#ifndef VariableServerSessionThread_HH
+#define VariableServerSessionThread_HH
 
 #include <string>
 #include <iostream>
@@ -15,7 +15,7 @@
 #include "trick/variable_server_message_types.h"
 
 #include "trick/ClientConnection.hh"
-#include "trick/ClientListener.hh"
+#include "trick/TCPClientListener.hh"
 
 namespace Trick {
 
@@ -34,18 +34,18 @@ namespace Trick {
   @author Alex Lin
   @author Jackie Deans (2023)
  */
-    class VariableServerThread : public Trick::SysThread {
+    class VariableServerSessionThread : public Trick::SysThread {
 
         public:
-            friend std::ostream& operator<< (std::ostream& s, Trick::VariableServerThread& vst);
+            friend std::ostream& operator<< (std::ostream& s, Trick::VariableServerSessionThread& vst);
 
             /**
              @brief Constructor.
             */
-            VariableServerThread() ;
-            VariableServerThread(VariableServerSession * session) ;
+            VariableServerSessionThread() ;
+            VariableServerSessionThread(VariableServerSession * session) ;
             
-            virtual ~VariableServerThread() ;
+            virtual ~VariableServerSessionThread() ;
             /**
              @brief static routine called from S_define to set the VariableServer pointer for all threads.
              @param in_vs - the master variable server object
@@ -98,7 +98,7 @@ namespace Trick {
             bool _saved_pause_cmd;
     } ;
 
-    std::ostream& operator<< (std::ostream& s, VariableServerThread& vst);
+    std::ostream& operator<< (std::ostream& s, VariableServerSessionThread& vst);
 
 }
 

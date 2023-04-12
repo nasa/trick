@@ -20,7 +20,7 @@ Trick::VariableServer::~VariableServer() {
 }
 
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServer& vs) {
-    std::map < pthread_t , VariableServerThread * >::iterator it ;
+    std::map < pthread_t , VariableServerSessionThread * >::iterator it ;
 
     s << "{\"variable_server_connections\":[\n";
     int count = 0;
@@ -87,7 +87,7 @@ Trick::VariableServerListenThread & Trick::VariableServer::get_listen_thread() {
     return listen_thread ;
 }
 
-void Trick::VariableServer::add_vst(pthread_t in_thread_id, VariableServerThread * in_vst) {
+void Trick::VariableServer::add_vst(pthread_t in_thread_id, VariableServerSessionThread * in_vst) {
     pthread_mutex_lock(&map_mutex) ;
     var_server_threads[in_thread_id] = in_vst ;
     pthread_mutex_unlock(&map_mutex) ;
@@ -99,9 +99,9 @@ void Trick::VariableServer::add_session(pthread_t in_thread_id, VariableServerSe
     pthread_mutex_unlock(&map_mutex) ;
 }
 
-Trick::VariableServerThread * Trick::VariableServer::get_vst(pthread_t thread_id) {
-    std::map < pthread_t , Trick::VariableServerThread * >::iterator it ;
-    Trick::VariableServerThread * ret = NULL ;
+Trick::VariableServerSessionThread * Trick::VariableServer::get_vst(pthread_t thread_id) {
+    std::map < pthread_t , Trick::VariableServerSessionThread * >::iterator it ;
+    Trick::VariableServerSessionThread * ret = NULL ;
     pthread_mutex_lock(&map_mutex) ;
     it = var_server_threads.find(thread_id) ;
     if ( it != var_server_threads.end() ) {

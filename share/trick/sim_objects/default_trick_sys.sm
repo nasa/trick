@@ -465,8 +465,8 @@ class VariableServerSimObject : public Trick::SimObject {
 
             {TRK} ("shutdown") vs.shutdown() ;
 
-            // Set the static VariableServer pointer in the VariableServerThread class.
-            Trick::VariableServerThread::set_vs_ptr(&vs) ;
+            // Set the static VariableServer pointer in the VariableServerSessionThread class.
+            Trick::VariableServerSessionThread::set_vs_ptr(&vs) ;
 
             // get the process_event job and set it in the event processor.
             vs.set_copy_data_job(get_job("vs.copy_data_scheduled")) ;

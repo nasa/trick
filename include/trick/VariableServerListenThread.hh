@@ -8,7 +8,7 @@
 
 #include <string>
 #include <iostream>
-#include "trick/ClientListener.hh"
+#include "trick/TCPClientListener.hh"
 #include "trick/SysThread.hh"
 #include "trick/MulticastGroup.hh"
 
@@ -24,7 +24,7 @@ namespace Trick {
 
         public:
             VariableServerListenThread() ;
-            VariableServerListenThread(ClientListener * listener);
+            VariableServerListenThread(TCPClientListener * listener);
 
             virtual ~VariableServerListenThread() ;
 
@@ -77,7 +77,7 @@ namespace Trick {
             bool _broadcast ;       /**<  trick_units(--) */
 
             /** The listen device */
-            ClientListener * _listener;        /**<  trick_io(**) trick_units(--)  */
+            TCPClientListener * _listener;        /**<  trick_io(**) trick_units(--)  */
 
             /* Multicast broadcaster */
             MulticastGroup * _multicast;     /**<  trick_io(**) trick_units(--)  */

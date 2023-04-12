@@ -35,7 +35,7 @@ Responsibilities:
 - When a client connection comes in, set up the connection, start a thread, and wait for the thread to start the connection
     - Delete the thread if the connection fails
 
-### VariableServerThread.hh
+### VariableServerSessionThread.hh
 Runs asynchronous parts for the single VariableServerSession.
 
 Responsibilities:
@@ -68,7 +68,7 @@ Responsibilities:
 - Track what units the user has requested
 - Survive a checkpoint restart
 
-### ClientListener.hh
+### TCPClientListener.hh
 Represents a listening TCP server
 
 Responsibilities:
@@ -85,13 +85,13 @@ Abstract class representing a connection to a client. Inherited classes to handl
 
 ## Threading changes
 
-### VariableServerListenThread is required to wait for VariableServerThread to notify it when the connection has been accepted.
+### VariableServerListenThread is required to wait for VariableServerSessionThread to notify it when the connection has been accepted.
 This was present in old design, but not implemented safely.
 
 #### Old design:
 
 ```
-VariableServerThread
+VariableServerSessionThread
     + wait_for_accept()
     - bool connection_accepted = false
 ```
@@ -104,7 +104,7 @@ No error handling if connection failed, which can result in hanging listen threa
 #### New Design
 
 ```
-VariableServerThread
+VariableServerSessionThread
     + enum ConnectionStatus { CONNECTION_PENDING, CONNECTION_SUCCESS, CONNECTION_FAIL };
     + wait_for_accept()
 
@@ -113,7 +113,7 @@ VariableServerThread
     - pthread_cond_t _connection_status_cv
 
 
-VariableServerThread::thread_body
+VariableServerSessionThread::thread_body
     Try to accept connection
     if connection fails:
         with _connection_status_mutex:
@@ -129,7 +129,7 @@ VariableServerThread::thread_body
     Run loop
 
 
-VariableServerThread::wait_for_accept
+VariableServerSessionThread::wait_for_accept
     with _connection_status_mutex:
         while _connection_status == CONNECTION_PENDING:
             wait on _connection_status_cv
@@ -146,7 +146,7 @@ VariableServerListenThread::thread_body
         
 ```
 
-### VariableServerThread and VariableServerListenThread no longer use pthread_cancel
+### VariableServerSessionThread and VariableServerListenThread no longer use pthread_cancel
 New termination design: 
 ```
 Additions to Threadbase
@@ -171,17 +171,17 @@ Addition to function of Threadbase::cancel_thread():
     if cancellable == true, call pthread_cancel
 ```
 
-Threads can set cancellable to false in their constructor, which VariableServerThread and VariableServerListenThread do
+Threads can set cancellable to false in their constructor, which VariableServerSessionThread and VariableServerListenThread do
 Instead, they call test_shutdown at points that would be appropriate to shutdown in their loops
 Careful design consideration and testing was taken so that if the threads never start, or various error cases are hit, this still goes ok
 
 
-### VariableServerThread and VariableServerListenThread pause on checkpoint reload
+### VariableServerSessionThread and VariableServerListenThread pause on checkpoint reload
 
 #### Old design:
 
 ```
-VariableServerThread and VariableServerListenThread
+VariableServerSessionThread and VariableServerListenThread
     - pthread_mutex_t restart_pause
 ```
 
@@ -189,8 +189,8 @@ This mutex is acquired by the top of the loops while they do their main processi
 The main thread acquires the mutex in preload_checkpoint jobs and releases in restart jobs
 
 This created a few bugs:
-- a deadlock in VariableServerThread due to a lock inversion with the VariableServer map mutex
-- For some reason, holding the lock while blocked on the select syscall by the VariableServerListenThread could cause some really weird bugs, so the lock was acquired after the select call and only if it returned true. Because of this, select could be run while checkpoint restart was happening, which sometimes resulted in false positives, which created extra VariableServerThreads, and the connection status was never checked so they would never shut down and cause all kinds of problems.
+- a deadlock in VariableServerSessionThread due to a lock inversion with the VariableServer map mutex
+- For some reason, holding the lock while blocked on the select syscall by the VariableServerListenThread could cause some really weird bugs, so the lock was acquired after the select call and only if it returned true. Because of this, select could be run while checkpoint restart was happening, which sometimes resulted in false positives, which created extra VariableServerSessionThreads, and the connection status was never checked so they would never shut down and cause all kinds of problems.
 
 #### New design
 
@@ -273,7 +273,7 @@ VariableReference Interface
 
 ## VariableServerSession
 
-The VariableServerSession class is a new class created in this refactor. A lot of the behavior of the old VariableServerThread class is now in this class.
+The VariableServerSession class is a new class created in this refactor. A lot of the behavior of the old VariableServerSessionThread class is now in this class.
 
 A VariableServerSession represents a single client session. It tracks the list of variables that are being sent, the copy and write mode, output format mode, cycle, pause state, exit command. 
 
@@ -287,11 +287,11 @@ The VariableServerSession has methods that should be called from Trick job types
 + int copy_data_scheduled(long long curr_tics);
 + int copy_data_top(long long curr_frame);
 
-// Called from VariableServerThread
+// Called from VariableServerSessionThread
 + virtual int copy_data_async();
 ```
 
-The VariableServerSession has a method that should be called when it is time to handle a message and act on it. This is called from the VariableServerThread loop.
+The VariableServerSession has a method that should be called when it is time to handle a message and act on it. This is called from the VariableServerSessionThread loop.
 ```
 + virtual int  handle_message();
 ```
@@ -302,15 +302,15 @@ The VariableServerSession has the entirety of the documented VariableServer API 
 The VariableServerSession class is covered by unit tests.
 
 
-## VariableServerThread
+## VariableServerSessionThread
 
-The VariableServerThread class runs and manages the lifetime and synchronization of a VariableServerThread, sets up and closes the connection for the VariableServerSession, and calls any VariableServerSession methods that are designed to be asynchronous with the main thread. This includes `handle_message` and `copy_data_async`. It also creates the cycle of the session. 
+The VariableServerSessionThread class runs and manages the lifetime and synchronization of a VariableServerSessionThread, sets up and closes the connection for the VariableServerSession, and calls any VariableServerSession methods that are designed to be asynchronous with the main thread. This includes `handle_message` and `copy_data_async`. It also creates the cycle of the session. 
 
 ```
-VariableServerThread_loop.cpp
+VariableServerSessionThread_loop.cpp
     - void thread_body()
 
-VariableServerThread.cpp
+VariableServerSessionThread.cpp
     + void preload_checkpoint()
     + void restart()
 
@@ -350,10 +350,10 @@ VariableServerSimObject {
 In each job:
 - default_data: Initialize the listening socket with any port
 - initialization: If the user has requested a different port, set that up. Start the listening thead.
-- preload_checkpoint: call methods of all VariableServerListenThreads and VariableServerThreads to pause in preparation for checkpoint
-- restart: recreate listening threads if necessary, and call restart methods of all VariableServerListenThreads and VariableServerThreads
+- preload_checkpoint: call methods of all VariableServerListenThreads and VariableServerSessionThreads to pause in preparation for checkpoint
+- restart: recreate listening threads if necessary, and call restart methods of all VariableServerListenThreads and VariableServerSessionThreads
 - top_of_frame, automatic_last, freeze, freeze_automatic: Loop through all VariableServerSessions and call the appropriate copy_data_ variant
-- shutdown: cancel all VariableServerListenThreads and VariableServerThreads
+- shutdown: cancel all VariableServerListenThreads and VariableServerSessionThreads
 
 The VariableServer implements part of the dataflow for commands that come in through the input processor.
 
@@ -361,7 +361,7 @@ The VariableServer's external API is the entry point of the variable server comm
 
 ```
 Client sends `"trick.var_add("my_variable")\n"`
-`VariableServerThread::thread_body` calls `VariableServerSession::handle_mesage`
+`VariableServerSessionThread::thread_body` calls `VariableServerSession::handle_mesage`
 `VariableServerSession::handle_mesage` reads from the client connection and calls `ip_parse("trick.var_add("my_variable")\n")`
 Python interpreter runs (on the variable server thread) back through the SWIG layer to invoke global method `var_add("my_variable")` in var_server_ext.cpp
 `var_add()` calls the static global variable server object to look up the current session, mapped to the current pthread_id
@@ -409,6 +409,8 @@ int Trick::VariableServerSession::var_add(std::string in_name) {
 }
 ```
 
+![var_add Sequence Diagram](images/var_add_sequence.png)
+
 Both var_server_ext.cpp and VariableServerSession_commands.cpp have a method for each command in the user facing variable server API. 
 
 ### Special case listen threads and sessions
@@ -423,22 +425,22 @@ VariableServer {
 }
 ```
 
-Calling `create_tcp_socket` will create an additional listen thread, which will operate in the same way as the default listen thread. The VariableServer will create a ClientListener and start the listen thread, just like it does for the default listen thread.
+Calling `create_tcp_socket` will create an additional listen thread, which will operate in the same way as the default listen thread. The VariableServer will create a TCPClientListener and start the listen thread, just like it does for the default listen thread.
 
-`create_udp_socket` will open a UDP socket. Since it does not require a listener, the VariableServer creates a VariableServerThread and a UDPConnection directly, and starts the thread. The output for this session is sent to whatever host a message is received from. 
+`create_udp_socket` will open a UDP socket. Since it does not require a listener, the VariableServer creates a VariableServerSessionThread and a UDPConnection directly, and starts the thread. The output for this session is sent to whatever host a message is received from. 
 
-`create_multicast_socket` will create a UDP socket and add it to a multicast group. It will also create and start a VariableServerThread and MulticastGroup object. The output for this session is broadcast on the multicast address given.
+`create_multicast_socket` will create a UDP socket and add it to a multicast group. It will also create and start a VariableServerSessionThread and MulticastGroup object. The output for this session is broadcast on the multicast address given.
 
-## ClientConnection and ClientListener
+## ClientConnection and TCPClientListener
 
 The purpose of these classes are to abstract away all of the network code and the differences between TCP, UDP, and multicast connections for the purpose of the VariableServerSession. 
 
-The VariableServerListenThread uses a ClientListener to listen for connections on an open socket, and when one comes in, the ClientListener will create a TCPConnection to service the connection. 
+The VariableServerListenThread uses a TCPClientListener to listen for connections on an open socket, and when one comes in, the TCPClientListener will create a TCPConnection to service the connection. 
 
-In the UDP and Multicast case, the connection is created directly in the VariableServer class and passed into the VariableServerThread.
+In the UDP and Multicast case, the connection is created directly in the VariableServer class and passed into the VariableServerSessionThread.
 
 
 ## Class Diagram
 
-![Variable Server UML](images/VariableServerUML.png)
+![Variable Server UML](images/vs_uml.png)
 

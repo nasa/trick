@@ -45,7 +45,7 @@ int Trick::VariableServer::suspendPreCheckpointReload() {
 
 // Resume variable server processing after reloading a MemoryManager (ASCII) checkpoint.
 int Trick::VariableServer::resumePostCheckpointReload() {
-    std::map<pthread_t, VariableServerThread*>::iterator pos ;
+    std::map<pthread_t, VariableServerSessionThread*>::iterator pos ;
 
     // Resume all session threads
     pthread_mutex_lock(&map_mutex) ;

@@ -24,7 +24,7 @@ VARIABLE_REFERENCE_TESTS = VariableReference_test \
 
 VARIABLE_SESSION_TESTS = VariableServerSession_test 
 
-TESTS = $(VARIABLE_REFERENCE_TESTS) $(VARIABLE_SESSION_TESTS) VariableServerThread_test VariableServerListenThread_test VariableServer_test
+TESTS = $(VARIABLE_REFERENCE_TESTS) $(VARIABLE_SESSION_TESTS) VariableServerSessionThread_test VariableServerListenThread_test VariableServer_test
 
 TEST_OBJS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(TESTS)))
 
@@ -62,7 +62,7 @@ $(VARIABLE_REFERENCE_TESTS): %: $(OBJ_DIR)/%.o $(OBJ_DIR)/io_VariableReference_t
 $(VARIABLE_SESSION_TESTS): %: $(OBJ_DIR)/%.o 
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS) -o $@
 
-VariableServerThread_test: %: $(OBJ_DIR)/%.o 
+VariableServerSessionThread_test: %: $(OBJ_DIR)/%.o 
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 VariableServerListenThread_test: %: $(OBJ_DIR)/%.o 

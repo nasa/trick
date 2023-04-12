@@ -399,11 +399,6 @@ int Trick::VariableReference::getSizeAscii() const {
 
 int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
     // This is copied and modified from vs_format_ascii
-    // There's a lot here that doesn't make sense to me that I need to come back to
-    // There seems to be a huge buffer overflow issue in the original.
-    // Only strings are checked for length, arrays aren't
-    // But using a stream instead should make that better
-    // The way that arrays are handled seems weird.
 
     if (!isWriteReady()) {
         return -1;

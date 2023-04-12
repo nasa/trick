@@ -11,7 +11,7 @@
 
 extern Trick::VariableServer * the_vs ;
 
-Trick::VariableServerThread * get_vst() {
+Trick::VariableServerSessionThread * get_vst() {
     return the_vs->get_vst(pthread_self()) ;
 }
 
@@ -303,7 +303,7 @@ int var_write_stdio(int stream , std::string text ) {
 }
 
 int var_set_client_tag( std::string text ) {
-    Trick::VariableServerThread * vst = get_vst();
+    Trick::VariableServerSessionThread * vst = get_vst();
     if (vst != NULL) {
 
         vst->set_client_tag(text);

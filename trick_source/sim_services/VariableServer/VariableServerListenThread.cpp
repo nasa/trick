@@ -3,7 +3,7 @@
 #include <pwd.h>
 
 #include "trick/VariableServerListenThread.hh"
-#include "trick/VariableServerThread.hh"
+#include "trick/VariableServerSessionThread.hh"
 #include "trick/exec_proto.h"
 #include "trick/command_line_protos.h"
 #include "trick/message_proto.h"
@@ -14,7 +14,7 @@
 
 Trick::VariableServerListenThread::VariableServerListenThread() : VariableServerListenThread (NULL) {}
 
-Trick::VariableServerListenThread::VariableServerListenThread(ClientListener * listener) :
+Trick::VariableServerListenThread::VariableServerListenThread(TCPClientListener * listener) :
  Trick::SysThread("VarServListen"),
  _requested_source_address(""),
  _requested_port(0),
@@ -31,7 +31,7 @@ Trick::VariableServerListenThread::VariableServerListenThread(ClientListener * l
         _user_requested_address = true;
     } else {
         // Otherwise, make one
-        _listener = new ClientListener;
+        _listener = new TCPClientListener;
     }
 
     cancellable = false;
@@ -160,7 +160,7 @@ void * Trick::VariableServerListenThread::thread_body() {
         if (_listener->checkForNewConnections()) {
 
             // Create a new thread to service this connection
-            VariableServerThread * vst = new Trick::VariableServerThread() ;
+            VariableServerSessionThread * vst = new Trick::VariableServerSessionThread() ;
             vst->set_connection(_listener->setUpNewConnection());
             vst->copy_cpus(get_cpus()) ;
             vst->create_thread() ;

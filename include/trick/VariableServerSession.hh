@@ -73,7 +73,7 @@ namespace Trick {
         int copy_data_scheduled(long long curr_tics);
         int copy_data_top(long long curr_frame);
 
-        // Called from VariableServerThread
+        // Called from VariableServerSessionThread
         virtual int copy_data_async();
 
         /**

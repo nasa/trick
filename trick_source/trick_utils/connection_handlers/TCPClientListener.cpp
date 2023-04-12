@@ -9,12 +9,12 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#include "trick/ClientListener.hh"
+#include "trick/TCPClientListener.hh"
 
-Trick::ClientListener::ClientListener () : ClientListener (new SystemInterface()) {}
-Trick::ClientListener::ClientListener (SystemInterface * system_interface) : _listen_socket(-1), _hostname(""), _port(0), _client_tag("<empty>"), _initialized(false), _system_interface(system_interface) {}
+Trick::TCPClientListener::TCPClientListener () : TCPClientListener (new SystemInterface()) {}
+Trick::TCPClientListener::TCPClientListener (SystemInterface * system_interface) : _listen_socket(-1), _hostname(""), _port(0), _client_tag("<empty>"), _initialized(false), _system_interface(system_interface) {}
 
-Trick::ClientListener::~ClientListener () {
+Trick::TCPClientListener::~TCPClientListener () {
     // Clean up our socket if initialized
     if (_initialized) {
         close (_listen_socket);
@@ -23,7 +23,7 @@ Trick::ClientListener::~ClientListener () {
     delete _system_interface;
 }
 
-int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
+int Trick::TCPClientListener::initialize(std::string in_hostname, int in_port) {
 
     if ((_listen_socket = _system_interface->socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror ("Server: Unable to open socket");
@@ -114,12 +114,12 @@ int Trick::ClientListener::initialize(std::string in_hostname, int in_port) {
     return 0;
 }
 
-int Trick::ClientListener::initialize() {
+int Trick::TCPClientListener::initialize() {
     return initialize("", 0);
 }
 
 
-int Trick::ClientListener::setBlockMode(bool blocking) {
+int Trick::TCPClientListener::setBlockMode(bool blocking) {
     if (!_initialized)
         return -1;
 
@@ -147,7 +147,7 @@ int Trick::ClientListener::setBlockMode(bool blocking) {
 }
 
 
-bool Trick::ClientListener::checkForNewConnections() {
+bool Trick::TCPClientListener::checkForNewConnections() {
     if (!_initialized)
         return false;
 
@@ -170,7 +170,7 @@ bool Trick::ClientListener::checkForNewConnections() {
 
 
 
-std::string Trick::ClientListener::getHostname () {
+std::string Trick::TCPClientListener::getHostname () {
     if (!_initialized)
         return "";
 
@@ -178,7 +178,7 @@ std::string Trick::ClientListener::getHostname () {
 }
 
 
-int Trick::ClientListener::getPort() {
+int Trick::TCPClientListener::getPort() {
     if (!_initialized)
         return -1;
 
@@ -186,7 +186,7 @@ int Trick::ClientListener::getPort() {
 }
 
 
-int Trick::ClientListener::disconnect() {
+int Trick::TCPClientListener::disconnect() {
     if (!_initialized) {
         return -1;
     }
@@ -198,7 +198,7 @@ int Trick::ClientListener::disconnect() {
     return 0; 
 }
 
-bool Trick::ClientListener::validateSourceAddress(std::string in_hostname) {
+bool Trick::TCPClientListener::validateSourceAddress(std::string in_hostname) {
     // struct addrinfo hints, *res;
     // memset(&hints, 0, sizeof hints);
     // hints.ai_family = AF_INET;
@@ -239,7 +239,7 @@ bool Trick::ClientListener::validateSourceAddress(std::string in_hostname) {
     return true;
 }
 
-int Trick::ClientListener::checkSocket() {
+int Trick::TCPClientListener::checkSocket() {
     if (!_initialized)
         return -1;
 
@@ -251,11 +251,11 @@ int Trick::ClientListener::checkSocket() {
     return 0;
 }
 
-bool Trick::ClientListener::isInitialized() {
+bool Trick::TCPClientListener::isInitialized() {
     return _initialized;
 }
 
-Trick::TCPConnection * Trick::ClientListener::setUpNewConnection () {
+Trick::TCPConnection * Trick::TCPClientListener::setUpNewConnection () {
     if (!_initialized)
         return NULL;
 
@@ -263,7 +263,7 @@ Trick::TCPConnection * Trick::ClientListener::setUpNewConnection () {
     return connection;
 }
 
-int Trick::ClientListener::restart () {
+int Trick::TCPClientListener::restart () {
     _system_interface = new SystemInterface();
     return 0;
 }

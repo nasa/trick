@@ -1,5 +1,5 @@
 /******************************TRICK HEADER*************************************
-PURPOSE:                     ( Tests for the VariableServerThread class )
+PURPOSE:                     ( Tests for the VariableServerSessionThread class )
 *******************************************************************************/
 
 #include <gtest/gtest.h>
@@ -12,7 +12,7 @@ PURPOSE:                     ( Tests for the VariableServerThread class )
 #include "trick/ITimer.hh"
 #include "trick/ExecutiveException.hh"
 
-#include "trick/VariableServerThread.hh"
+#include "trick/VariableServerSessionThread.hh"
 
 #include "MockVariableServerSession.hh"
 #include "MockClientConnection.hh"
@@ -58,7 +58,7 @@ void setup_default_session_mocks (MockVariableServerSession * session, bool comm
 /*
  Test Fixture.
  */
-class VariableServerThread_test : public ::testing::Test {
+class VariableServerSessionThread_test : public ::testing::Test {
 	protected:
         // Static global dependencies that I would like to eventually mock out
         Trick::VariableServer * varserver;
@@ -69,10 +69,10 @@ class VariableServerThread_test : public ::testing::Test {
         MockClientConnection connection;
         NiceMock<MockVariableServerSession> * session;
 
-		VariableServerThread_test() { 
+		VariableServerSessionThread_test() { 
             // Set up dependencies that haven't been broken
             varserver = new Trick::VariableServer;
-            Trick::VariableServerThread::set_vs_ptr(varserver);
+            Trick::VariableServerSessionThread::set_vs_ptr(varserver);
             realtime_sync = new Trick::RealtimeSync(&clock, &timer);
 
             // Set up mocks
@@ -81,7 +81,7 @@ class VariableServerThread_test : public ::testing::Test {
             setup_default_session_mocks(session);
         }
 
-		~VariableServerThread_test() { 
+		~VariableServerSessionThread_test() { 
             delete varserver; 
             delete realtime_sync;
         }
@@ -114,7 +114,7 @@ void set_session_exit_after_some_loops(MockVariableServerSession * session) {
         .WillOnce(Return(true));
 }
 
-TEST_F(VariableServerThread_test, connection_failure) {
+TEST_F(VariableServerSessionThread_test, connection_failure) {
     // ARRANGE
 
     // Starting the connection fails
@@ -122,8 +122,8 @@ TEST_F(VariableServerThread_test, connection_failure) {
         .Times(1)
         .WillOnce(Return(1));
     
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    // Set up VariableServerSessionThread
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
 
     // ACT
@@ -136,14 +136,14 @@ TEST_F(VariableServerThread_test, connection_failure) {
     EXPECT_EQ(status, Trick::ConnectionStatus::CONNECTION_FAIL);
 
     // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerSessionThread *) NULL);
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
 
     delete session;
 }
 
 
-TEST_F(VariableServerThread_test, exit_if_handle_message_fails) {
+TEST_F(VariableServerSessionThread_test, exit_if_handle_message_fails) {
     // ARRANGE
     setup_normal_connection_expectations(&connection);
     
@@ -153,8 +153,8 @@ TEST_F(VariableServerThread_test, exit_if_handle_message_fails) {
         .WillOnce(Return(-1));
     
         
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    // Set up VariableServerSessionThread
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
 
     // ACT
@@ -168,12 +168,12 @@ TEST_F(VariableServerThread_test, exit_if_handle_message_fails) {
     // ASSERT
 
     // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerSessionThread *) NULL);
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
 }
 
 
-TEST_F(VariableServerThread_test, exit_if_write_fails) {
+TEST_F(VariableServerSessionThread_test, exit_if_write_fails) {
     // ARRANGE
     setup_normal_connection_expectations(&connection);
     
@@ -182,8 +182,8 @@ TEST_F(VariableServerThread_test, exit_if_write_fails) {
         .WillOnce(Return(-1));
 
         
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    // Set up VariableServerSessionThread
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
 
     // ACT
@@ -197,17 +197,17 @@ TEST_F(VariableServerThread_test, exit_if_write_fails) {
     // ASSERT
 
     // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerSessionThread *) NULL);
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
 }
 
-TEST_F(VariableServerThread_test, exit_commanded) {
+TEST_F(VariableServerSessionThread_test, exit_commanded) {
     // ARRANGE
     setup_normal_connection_expectations(&connection);
     set_session_exit_after_some_loops(session);
 
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    // Set up VariableServerSessionThread
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
 
     // ACT
@@ -227,16 +227,16 @@ TEST_F(VariableServerThread_test, exit_commanded) {
 
     // ASSERT
     // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerSessionThread *) NULL);
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
 }
 
-TEST_F(VariableServerThread_test, thread_cancelled) {
+TEST_F(VariableServerSessionThread_test, thread_cancelled) {
     // ARRANGE
     setup_normal_connection_expectations(&connection);
     
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    // Set up VariableServerSessionThread
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
     vst->create_thread();
     pthread_t id = vst->get_pthread_id();
@@ -255,12 +255,12 @@ TEST_F(VariableServerThread_test, thread_cancelled) {
 
     // ASSERT
     // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerSessionThread *) NULL);
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
 }
 
 
-TEST_F(VariableServerThread_test, turn_session_log_on) {
+TEST_F(VariableServerSessionThread_test, turn_session_log_on) {
     // ARRANGE
     setup_normal_connection_expectations(&connection);
     set_session_exit_after_some_loops(session);
@@ -271,8 +271,8 @@ TEST_F(VariableServerThread_test, turn_session_log_on) {
     EXPECT_CALL(*session, set_log_on())
         .Times(1);
 
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    // Set up VariableServerSessionThread
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
 
     // ACT
@@ -290,19 +290,19 @@ TEST_F(VariableServerThread_test, turn_session_log_on) {
 
     // ASSERT
     // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerSessionThread *) NULL);
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
 }
 
-TEST_F(VariableServerThread_test, throw_trick_executive_exception) {
+TEST_F(VariableServerSessionThread_test, throw_trick_executive_exception) {
     // ARRANGE
     setup_normal_connection_expectations(&connection);
 
     EXPECT_CALL(*session, get_exit_cmd())
         .WillRepeatedly(Return(false));
 
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    // Set up VariableServerSessionThread
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
 
     EXPECT_CALL(*session, handle_message())
@@ -323,19 +323,19 @@ TEST_F(VariableServerThread_test, throw_trick_executive_exception) {
 
     // ASSERT
     // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerSessionThread *) NULL);
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
 }
 
-TEST_F(VariableServerThread_test, throw_exception) {
+TEST_F(VariableServerSessionThread_test, throw_exception) {
     // ARRANGE
     setup_normal_connection_expectations(&connection);
 
     EXPECT_CALL(*session, get_exit_cmd())
         .WillRepeatedly(Return(false));
 
-    // Set up VariableServerThread
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread(session) ;
+    // Set up VariableServerSessionThread
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread(session) ;
     vst->set_connection(&connection);
 
     EXPECT_CALL(*session, handle_message())
@@ -352,6 +352,6 @@ TEST_F(VariableServerThread_test, throw_exception) {
 
     // ASSERT
     // There should be nothing in the VariableServer's thread list
-    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerThread *) NULL);
+    EXPECT_EQ(varserver->get_vst(id), (Trick::VariableServerSessionThread *) NULL);
     EXPECT_EQ(varserver->get_session(id), (Trick::VariableServerSession *) NULL);
 }

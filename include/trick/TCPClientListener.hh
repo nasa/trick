@@ -16,13 +16,13 @@ namespace Trick {
     
     class TCPConnection;
 
-    class ClientListener {
+    class TCPClientListener {
         public:
 
-            ClientListener ();
-            ClientListener (SystemInterface * system_interface);
+            TCPClientListener ();
+            TCPClientListener (SystemInterface * system_interface);
 
-            virtual ~ClientListener ();
+            virtual ~TCPClientListener ();
 
             virtual int initialize(std::string hostname, int port);
             virtual int initialize();

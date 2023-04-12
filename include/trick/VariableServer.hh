@@ -16,7 +16,7 @@
 #include "trick/reference.h"
 #include "trick/JobData.hh"
 #include "trick/variable_server_sync_types.h"
-#include "trick/VariableServerThread.hh"
+#include "trick/VariableServerSessionThread.hh"
 #include "trick/VariableServerListenThread.hh"
 #include "trick/SysThread.hh"
 
@@ -105,7 +105,7 @@ namespace Trick {
             /**
              @brief Adds a vst to the map.
             */
-            void add_vst(pthread_t thread_id, VariableServerThread * in_vst ) ;
+            void add_vst(pthread_t thread_id, VariableServerSessionThread * in_vst ) ;
 
             /**
              @brief Adds a vst to the map.
@@ -114,9 +114,9 @@ namespace Trick {
 
             /**
              @brief Get a vst mapped by thread id
-             @return the VariableServerThread mapped to the thread id if found, or NULL if not found.
+             @return the VariableServerSessionThread mapped to the thread id if found, or NULL if not found.
             */
-            Trick::VariableServerThread * get_vst(pthread_t thread_id) ;
+            Trick::VariableServerSessionThread * get_vst(pthread_t thread_id) ;
 
             /**
              @brief Get a session mapped by thread id
@@ -291,8 +291,8 @@ namespace Trick {
             /** Pointer to freeze_automatic job that copies requested variable values to their output buffers in sync mode.\n */
             Trick::JobData * copy_data_freeze_job ; /**< trick_io(**) trick_units(--) */
 
-            /** Map thread id to the VariableServerThread object.\n */
-            std::map < pthread_t , VariableServerThread * > var_server_threads ; /**<  trick_io(**) */
+            /** Map thread id to the VariableServerSessionThread object.\n */
+            std::map < pthread_t , VariableServerSessionThread * > var_server_threads ; /**<  trick_io(**) */
             std::map < pthread_t , VariableServerSession * > var_server_sessions ; /**<  trick_io(**) */
 
             /** Mutex to ensure only one thread manipulates the map of var_server_threads\n */

@@ -1,11 +1,11 @@
 #ifndef MOCK_CLIENT_LISTENER_HH
 #define MOCK_CLIENT_LISTENER_HH
 
-#include "trick/ClientListener.hh"
+#include "trick/TCPClientListener.hh"
 
 #include <gmock/gmock.h>
 
-class MockClientListener : public Trick::ClientListener {
+class MockTCPClientListener : public Trick::TCPClientListener {
     public:
     MOCK_METHOD2(initialize, int(std::string, int));
     MOCK_METHOD0(initialize, int()); 

@@ -11,7 +11,7 @@ PURPOSE:                     ( Tests for the VariableServerListenThread class )
 
 #include "trick/VariableServerListenThread.hh"
 
-#include "MockClientListener.hh"
+#include "MockTCPClientListener.hh"
 #include "MockTCPConnection.hh"
 #include "MockMulticastGroup.hh"
 
@@ -31,7 +31,7 @@ class VariableServerListenThread_test : public ::testing::Test {
         Trick::VariableServer * varserver;
 
         // Listener
-        MockClientListener * listener;
+        MockTCPClientListener * listener;
         MockMulticastGroup * mcast;
 
 		VariableServerListenThread_test() { 
@@ -39,10 +39,10 @@ class VariableServerListenThread_test : public ::testing::Test {
             executive = new Trick::Executive;
             cmd_args = new Trick::CommandLineArguments;
             varserver = new Trick::VariableServer;
-            Trick::VariableServerThread::set_vs_ptr(varserver);
+            Trick::VariableServerSessionThread::set_vs_ptr(varserver);
 
             // Set up mocks
-            listener = new MockClientListener;
+            listener = new MockTCPClientListener;
             mcast = new MockMulticastGroup;
         }
 
@@ -56,7 +56,7 @@ class VariableServerListenThread_test : public ::testing::Test {
 		void TearDown() {}
 };
 
-void setup_normal_listener_expectations (MockClientListener * listener) {
+void setup_normal_listener_expectations (MockTCPClientListener * listener) {
     // Starting the connection succeeds
     EXPECT_CALL(*listener, getHostname())
         .WillRepeatedly(Return("MyHostname"));

@@ -6,12 +6,12 @@
 
 #include "trick/TCPConnection.hh"
 #include "trick/UDPConnection.hh"
-#include "trick/ClientListener.hh"
+#include "trick/TCPClientListener.hh"
 
 int Trick::VariableServer::create_tcp_socket(const char * address, unsigned short in_port ) {
     // Open a VariableServerListenThread to manage this server
 
-    ClientListener * listener = new ClientListener();
+    TCPClientListener * listener = new TCPClientListener();
     int status = listener->initialize(address, in_port);
 
     if (status != 0) {
@@ -35,7 +35,7 @@ int Trick::VariableServer::create_tcp_socket(const char * address, unsigned shor
 
 int Trick::VariableServer::create_udp_socket(const char * address, unsigned short in_port ) {
     // UDP sockets are created without a listen thread, and represent only 1 session
-    // Create a VariableServerThread to manage this session
+    // Create a VariableServerSessionThread to manage this session
 
     UDPConnection * udp_conn = new UDPConnection();
     int status = udp_conn->initialize(address, in_port);
@@ -47,7 +47,7 @@ int Trick::VariableServer::create_udp_socket(const char * address, unsigned shor
     std::string set_address = udp_conn->getHostname();
     int set_port = udp_conn->getPort();
 
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread() ;
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread() ;
 
     vst->set_connection(udp_conn);
     vst->copy_cpus(listen_thread.get_cpus()) ;
@@ -61,7 +61,7 @@ int Trick::VariableServer::create_udp_socket(const char * address, unsigned shor
 int Trick::VariableServer::create_multicast_socket(const char * mcast_address, const char * address, unsigned short in_port ) {
 
     // Multicast sockets are created without a listen thread, and represent only 1 session
-    // Create a VariableServerThread to manage this session
+    // Create a VariableServerSessionThread to manage this session
 
     MulticastGroup * multicast = new MulticastGroup();
     message_publish(MSG_INFO, "Created UDP variable server %s: %d\n", address, in_port);
@@ -75,7 +75,7 @@ int Trick::VariableServer::create_multicast_socket(const char * mcast_address, c
     std::string set_address = multicast->getHostname();
     int set_port = multicast->getPort();
 
-    Trick::VariableServerThread * vst = new Trick::VariableServerThread() ;
+    Trick::VariableServerSessionThread * vst = new Trick::VariableServerSessionThread() ;
 
     vst->set_connection(multicast);
     vst->copy_cpus(listen_thread.get_cpus()) ;
