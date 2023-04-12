@@ -9,6 +9,9 @@ Manip2D.robot.kinemat.joint_q[1] = trick.attach_units("degrees",45.0)
 Manip2D.robot.kinemat.joint_w[0] = 0.0
 Manip2D.robot.kinemat.joint_w[1] = 0.0
 
+Manip2D.robot.controller.Kp = 3.0
+Manip2D.robot.controller.Kd = 3.46
+
 armIntegLoop.getIntegrator(trick.Euler, Manip2D.robot.ndof)
 
 #==========================================

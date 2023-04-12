@@ -99,7 +99,7 @@ bool ManipControl::EEPositionAuto(double *curPos, double *curVel)
 
     for(i=0;i<ndof;i++)
     {
-        std::cout<<"Within Tolerance ("<<i<<"): "<<withinTol[i]<<std::endl;
+//        std::cout<<"Within Tolerance ("<<i<<"): "<<withinTol[i]<<std::endl;
         if( !withinTol[i] )
         {
             calcResolvedJointRates();

@@ -85,8 +85,8 @@ void PlanarManip::control()
             if(positionReached)
             {
                 std::cout<<"EE Position Reached!"<<std::endl;
-                mode = Nope;
-                controller.clearControlCommands();
+//                mode = Nope;
+//                controller.clearControlCommands();
             }
             break;
 
