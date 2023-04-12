@@ -40,7 +40,8 @@ TESTS = MM_creation_unittest \
         Bitfield_tests \
 		MM_stl_checkpoint \
 		MM_stl_restore \
-        MM_trick_type_char_string
+        MM_trick_type_char_string \
+		MM_JSON_Intf
 
 # List of XML files produced by the tests.
 unittest_results = $(patsubst %,%.xml,$(TESTS))
@@ -127,6 +128,7 @@ MM_write_var_unittest :          io_MM_user_defined_types.o
 MM_sizeof_type_unittest :        io_MM_user_defined_types.o
 MM_read_checkpoint :             io_MM_user_defined_types.o
 MM_clear_var_unittest :          io_MM_user_defined_types.o
+MM_JSON_Intf :                   io_MM_user_defined_types.o
 MM_alloc_deps :                  io_MM_alloc_deps.o
 MM_write_checkpoint :            io_MM_write_checkpoint.o
 MM_ref_name_from_address :       io_MM_ref_name_from_address.o
