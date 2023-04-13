@@ -128,7 +128,7 @@ ManipKinemat::ManipKinemat(int numDof):ndof(numDof)
 
 void ManipKinemat::forwardKinPos()
 {
-    int i,j ; // loop counter
+    int i;      // loop counter
     double c,s; // sine and cosine shorthand
 
     // rescale angles to 0 < q < 2*PI
@@ -200,16 +200,14 @@ void ManipKinemat::forwardKinVel()
      * Anything more would require velocity propagation to determine the
      * velocity of the end-effector and intermediate points */
 
-    double l1, l2, s1, s2, c1, c2, s12, c12;
+    double l1, l2, s1, c1, s12, c12;
     l1  = joint_l[0][0];
     l2  = joint_l[1][0];
 
     s1  = sin(joint_q[0]);
-    s2  = sin(joint_q[1]);
     s12 = sin(joint_q[0]+joint_q[1]);
 
     c1  = cos(joint_q[0]);
-    c2  = cos(joint_q[1]);
     c12 = cos(joint_q[0]+joint_q[1]);
 
 
@@ -224,14 +222,10 @@ void ManipKinemat::forwardKinVel()
 void ManipKinemat::calcJacobian()
 {
 
-    int i=0, j=0;
-
-    double s1,s2,c1,c2,s12,c12;
+    double s1,c1,s12,c12;
     s1  = sin(joint_q[0]);
-    s2  = sin(joint_q[1]);
     s12 = sin(joint_q[0]+joint_q[1]); 
     c1  = cos(joint_q[0]);
-    c2  = cos(joint_q[1]);
     c12 = cos(joint_q[0]+joint_q[1]); 
 
     double l1, l2;

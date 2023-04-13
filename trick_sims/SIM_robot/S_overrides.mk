@@ -1,5 +1,5 @@
-TRICK_CFLAGS += -I./models -I${TRICK_HOME} -g -O0
-TRICK_CXXFLAGS += -I./models -I${TRICK_HOME} -g -O0
+TRICK_CFLAGS += -I./models -I${TRICK_HOME} -g -O0 -Wall -Wextra -Wshadow
+TRICK_CXXFLAGS += -I./models -I${TRICK_HOME} -g -O0 -Wall -Wextra -Wshadow
 
 .PHONY: clean_graphics
 

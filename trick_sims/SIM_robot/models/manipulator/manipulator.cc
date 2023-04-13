@@ -13,7 +13,7 @@ PROGRAMMERS:
 
 #include "manipulator/manipulator.hh"
 
-PlanarManip::PlanarManip(int numDof) : kinemat(numDof), controller(numDof), ndof(numDof)
+PlanarManip::PlanarManip(int numDof) : ndof(numDof), kinemat(numDof), controller(numDof)
 {
 
     int i = 0;

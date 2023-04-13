@@ -16,7 +16,6 @@ ManipControl::ManipControl(int numDof):
     ndof(numDof)
 {
 
-    int i = 0;
     manualFrame = Task;
     commandedJointRate[0] = 0.0;
     commandedJointRate[1] = 0.0;
@@ -25,10 +24,7 @@ ManipControl::ManipControl(int numDof):
     desiredPos[0] = 2;
     desiredPos[1] = 0;
 
-//    Kp = 2.0;
-//    Kd = 2.0*std::sqrt(Kp);
-
-    Kp = 0.3;
+    Kp = 2.0;
     Kd = 0.3;
 
     posEps = .01;
@@ -78,7 +74,7 @@ bool ManipControl::EEPositionAuto(double *curPos, double *curVel)
 
     /* Returns true when desired EE position has been reached, false otherwise */
 
-    double posErr[2], posCommand[2];
+    double posErr[2];
     int i;
     bool withinTol[ndof];
     bool posReached = true;
@@ -89,7 +85,6 @@ bool ManipControl::EEPositionAuto(double *curPos, double *curVel)
         posErr[i] = desiredPos[i] - curPos[i];
         if( fabs(posErr[i]) <= posEps )
         {
-//            std::cout<<posErr[i]<<"\t"<<curPos<<std::endl;
             withinTol[i] = true;
         }
 
@@ -99,7 +94,6 @@ bool ManipControl::EEPositionAuto(double *curPos, double *curVel)
 
     for(i=0;i<ndof;i++)
     {
-//        std::cout<<"Within Tolerance ("<<i<<"): "<<withinTol[i]<<std::endl;
         if( !withinTol[i] )
         {
             calcResolvedJointRates();
