@@ -8,7 +8,7 @@
 
 // These methods should be called from approprate jobs or from the VST
 
-int Trick::VariableServerSession::copy_data_freeze(long long curr_freeze_frame) {
+int Trick::VariableServerSession::copy_and_write_freeze(long long curr_freeze_frame) {
     int ret = 0 ;
 
     if (!get_enabled())
@@ -30,7 +30,7 @@ int Trick::VariableServerSession::copy_data_freeze(long long curr_freeze_frame) 
     return ret ;
 }
 
-int Trick::VariableServerSession::copy_data_freeze_scheduled(long long curr_tics) {
+int Trick::VariableServerSession::copy_and_write_freeze_scheduled(long long curr_tics) {
     int ret = 0 ;
 
     if (!get_enabled())
@@ -51,7 +51,7 @@ int Trick::VariableServerSession::copy_data_freeze_scheduled(long long curr_tics
     return ret ;
 }
 
-int Trick::VariableServerSession::copy_data_scheduled(long long curr_tics) {
+int Trick::VariableServerSession::copy_and_write_scheduled(long long curr_tics) {
     int ret = 0 ;
 
     if (!get_enabled())
@@ -72,7 +72,7 @@ int Trick::VariableServerSession::copy_data_scheduled(long long curr_tics) {
     return ret ;
 }
 
-int Trick::VariableServerSession::copy_data_top(long long curr_frame) {
+int Trick::VariableServerSession::copy_and_write_top(long long curr_frame) {
     int ret = 0 ;
 
     if (!get_enabled())
@@ -93,7 +93,7 @@ int Trick::VariableServerSession::copy_data_top(long long curr_frame) {
     return ret ;
 }
 
-int Trick::VariableServerSession::copy_data_async() {
+int Trick::VariableServerSession::copy_and_write_async() {
     int ret = 0;
 
     if (!get_enabled()) 

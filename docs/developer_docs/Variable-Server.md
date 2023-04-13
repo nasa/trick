@@ -185,8 +185,9 @@ VariableServerSessionThread and VariableServerListenThread
     - pthread_mutex_t restart_pause
 ```
 
-This mutex is acquired by the top of the loops while they do their main processing, and released at the bottom of the loop 
-The main thread acquires the mutex in preload_checkpoint jobs and releases in restart jobs
+This mutex is acquired by the top of the loops while they do their main processing, and released at the bottom of the loop.
+
+The main thread acquires the mutex in preload_checkpoint jobs and releases in restart jobs.
 
 This created a few bugs:
 - a deadlock in VariableServerSessionThread due to a lock inversion with the VariableServer map mutex
@@ -209,8 +210,7 @@ Addition to SysThread
 
 This design still ensures that thread can be paused, and that the main thread will wait until the threads are paused. It uses condvars to solve the deadlock problem and doesn't cause bugs observed in the old design. 
 
-The main thread can control the SysThread by calling `thread->force_thead_to_pause()`, which will block until the SysThread has paused, and `thread->unpause_thread()`. The SysThread loops must call `test_pause()` at points
-that would be appropriate to pause. 
+The main thread can control the SysThread by calling `thread->force_thead_to_pause()`, which will block until the SysThread has paused, and `thread->unpause_thread()`. The SysThread loops must call `test_pause()` at points that would be appropriate to pause. 
 
 SysThread uses a monitor pattern internally to implement this behavior. Pseudocode for the pause managment:
 
@@ -282,13 +282,13 @@ The VariableServerSession has methods that should be called from Trick job types
 ```
 // Called from different types of Trick jobs. 
 // Determines whether this session should be copying and/or writing, and performs those actions if so
-+ int copy_data_freeze(long long curr_frame);
-+ int copy_data_freeze_scheduled(long long curr_tics);
-+ int copy_data_scheduled(long long curr_tics);
-+ int copy_data_top(long long curr_frame);
++ int copy_and_write_freeze(long long curr_frame);
++ int copy_and_write_freeze_scheduled(long long curr_tics);
++ int copy_and_write_scheduled(long long curr_tics);
++ int copy_and_write_top(long long curr_frame);
 
 // Called from VariableServerSessionThread
-+ virtual int copy_data_async();
++ virtual int copy_and_write_async();
 ```
 
 The VariableServerSession has a method that should be called when it is time to handle a message and act on it. This is called from the VariableServerSessionThread loop.
@@ -304,7 +304,7 @@ The VariableServerSession class is covered by unit tests.
 
 ## VariableServerSessionThread
 
-The VariableServerSessionThread class runs and manages the lifetime and synchronization of a VariableServerSessionThread, sets up and closes the connection for the VariableServerSession, and calls any VariableServerSession methods that are designed to be asynchronous with the main thread. This includes `handle_message` and `copy_data_async`. It also creates the cycle of the session. 
+The VariableServerSessionThread class runs and manages the lifetime and synchronization of a VariableServerSessionThread, sets up and closes the connection for the VariableServerSession, and calls any VariableServerSession methods that are designed to be asynchronous with the main thread. This includes `handle_message` and `copy_and_write_async`. It also creates the cycle of the session. 
 
 ```
 VariableServerSessionThread_loop.cpp
@@ -336,12 +336,12 @@ VariableServerSimObject {
     {TRK} ("preload_checkpoint") vs.suspendPreCheckpointReload();
     {TRK} ("restart") vs.restart();
     {TRK} ("restart") vs.resumePostCheckpointReload();
-    {TRK} ("top_of_frame") vs.copy_data_top() ;
-    {TRK} ("automatic_last") vs.copy_data_scheduled() ;
+    {TRK} ("top_of_frame") vs.copy_and_write_top() ;
+    {TRK} ("automatic_last") vs.copy_and_write_scheduled() ;
 
     {TRK} ("freeze_init") vs.freeze_init() ;
-    {TRK} ("freeze_automatic") vs.copy_data_freeze_scheduled() ;
-    {TRK} ("freeze") vs.copy_data_freeze() ;
+    {TRK} ("freeze_automatic") vs.copy_and_write_freeze_scheduled() ;
+    {TRK} ("freeze") vs.copy_and_write_freeze() ;
 
     {TRK} ("shutdown") vs.shutdown() ;
 }

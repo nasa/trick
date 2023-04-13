@@ -76,7 +76,7 @@ void * Trick::VariableServerSessionThread::thread_body() {
             }
 
             // Tell session it's time to copy and write if the mode is correct
-            int ret =_session->copy_data_async(); 
+            int ret =_session->copy_and_write_async(); 
             if (ret < 0) {
                 break;
             }

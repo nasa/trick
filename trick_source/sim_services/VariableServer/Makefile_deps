@@ -25,8 +25,8 @@ object_${TRICK_HOST_CPU}/VariableServerSessionThread_loop.o: VariableServerSessi
  ${TRICK_HOME}/include/trick/ExecutiveException.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h 
-object_${TRICK_HOST_CPU}/VariableServer_copy_data_scheduled.o: \
- VariableServer_copy_data_scheduled.cpp \
+object_${TRICK_HOST_CPU}/VariableServer_copy_and_write_scheduled.o: \
+ VariableServer_copy_and_write_scheduled.cpp \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -61,8 +61,8 @@ object_${TRICK_HOST_CPU}/VariableServer_shutdown.o: VariableServer_shutdown.cpp 
  ${TRICK_HOME}/include/trick/VariableReference.hh \
  ${TRICK_HOME}/include/trick/VariableServerSession.hh \
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh 
-object_${TRICK_HOST_CPU}/VariableServer_copy_data_freeze_scheduled.o: \
- VariableServer_copy_data_freeze_scheduled.cpp \
+object_${TRICK_HOST_CPU}/VariableServer_copy_and_write_freeze_scheduled.o: \
+ VariableServer_copy_and_write_freeze_scheduled.cpp \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -291,7 +291,7 @@ object_${TRICK_HOST_CPU}/VariableServer_init.o: VariableServer_init.cpp \
  ${TRICK_HOME}/include/trick/Threads.hh \
  ${TRICK_HOME}/include/trick/ThreadTrigger.hh \
  ${TRICK_HOME}/include/trick/sim_mode.h 
-object_${TRICK_HOST_CPU}/VariableServer_copy_data_freeze.o: VariableServer_copy_data_freeze.cpp \
+object_${TRICK_HOST_CPU}/VariableServer_copy_and_write_freeze.o: VariableServer_copy_and_write_freeze.cpp \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -375,7 +375,7 @@ object_${TRICK_HOST_CPU}/VariableServerSessionThread_restart.o: VariableServerSe
  ${TRICK_HOME}/include/trick/value.h \
  ${TRICK_HOME}/include/trick/dllist.h \
  ${TRICK_HOME}/include/trick/variable_server_sync_types.h 
-object_${TRICK_HOST_CPU}/VariableServer_copy_data_top.o: VariableServer_copy_data_top.cpp \
+object_${TRICK_HOST_CPU}/VariableServer_copy_and_write_top.o: VariableServer_copy_and_write_top.cpp \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -548,8 +548,8 @@ object_${TRICK_HOST_CPU}/VariableServerSessionThread_loop.o: VariableServerSessi
  ${TRICK_HOME}/include/trick/ExecutiveException.hh \
  ${TRICK_HOME}/include/trick/exec_proto.h \
  ${TRICK_HOME}/include/trick/sim_mode.h 
-object_${TRICK_HOST_CPU}/VariableServer_copy_data_scheduled.o: \
- VariableServer_copy_data_scheduled.cpp \
+object_${TRICK_HOST_CPU}/VariableServer_copy_and_write_scheduled.o: \
+ VariableServer_copy_and_write_scheduled.cpp \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -584,8 +584,8 @@ object_${TRICK_HOST_CPU}/VariableServer_shutdown.o: VariableServer_shutdown.cpp 
  ${TRICK_HOME}/include/trick/VariableReference.hh \
  ${TRICK_HOME}/include/trick/VariableServerSession.hh \
  ${TRICK_HOME}/include/trick/VariableServerListenThread.hh 
-object_${TRICK_HOST_CPU}/VariableServer_copy_data_freeze_scheduled.o: \
- VariableServer_copy_data_freeze_scheduled.cpp \
+object_${TRICK_HOST_CPU}/VariableServer_copy_and_write_freeze_scheduled.o: \
+ VariableServer_copy_and_write_freeze_scheduled.cpp \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -830,7 +830,7 @@ object_${TRICK_HOST_CPU}/VariableServer_init.o: VariableServer_init.cpp \
  ${TRICK_HOME}/include/trick/Threads.hh \
  ${TRICK_HOME}/include/trick/ThreadTrigger.hh \
  ${TRICK_HOME}/include/trick/sim_mode.h 
-object_${TRICK_HOST_CPU}/VariableServer_copy_data_freeze.o: VariableServer_copy_data_freeze.cpp \
+object_${TRICK_HOST_CPU}/VariableServer_copy_and_write_freeze.o: VariableServer_copy_and_write_freeze.cpp \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \
@@ -914,7 +914,7 @@ object_${TRICK_HOST_CPU}/VariableServerSessionThread_restart.o: VariableServerSe
  ${TRICK_HOME}/include/trick/value.h \
  ${TRICK_HOME}/include/trick/dllist.h \
  ${TRICK_HOME}/include/trick/variable_server_sync_types.h 
-object_${TRICK_HOST_CPU}/VariableServer_copy_data_top.o: VariableServer_copy_data_top.cpp \
+object_${TRICK_HOST_CPU}/VariableServer_copy_and_write_top.o: VariableServer_copy_and_write_top.cpp \
  ${TRICK_HOME}/include/trick/VariableServer.hh \
  ${TRICK_HOME}/include/trick/tc.h \
  ${TRICK_HOME}/include/trick/trick_error_hndlr.h \

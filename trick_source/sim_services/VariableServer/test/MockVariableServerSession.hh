@@ -25,9 +25,9 @@ class MockVariableServerSession : public Trick::VariableServerSession {
         MOCK_CONST_METHOD0(get_freeze_next_tics, long long());
         MOCK_METHOD0(set_exit_cmd, void());
 
-        MOCK_METHOD0(copy_data_async, int());
+        MOCK_METHOD0(copy_and_write_async, int());
 
-        int copy_data_async_concrete() { return Trick::VariableServerSession::copy_data_async(); }
+        int copy_and_write_async_concrete() { return Trick::VariableServerSession::copy_and_write_async(); }
 };
 
 #endif

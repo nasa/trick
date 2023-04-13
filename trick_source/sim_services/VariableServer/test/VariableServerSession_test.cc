@@ -275,8 +275,8 @@ TEST_F(VariableServerSession_test, DISABLED_large_message_binary) {
 
 
 void setup_partial_session_mock(MockVariableServerSession& session) {
-    EXPECT_CALL(session, copy_data_async())
-        .WillOnce(Invoke(&session, &MockVariableServerSession::copy_data_async_concrete));
+    EXPECT_CALL(session, copy_and_write_async())
+        .WillOnce(Invoke(&session, &MockVariableServerSession::copy_and_write_async_concrete));
 }
 
 void set_session_modes(MockVariableServerSession& session, VS_COPY_MODE copy_mode, VS_WRITE_MODE write_mode, bool pause) {
@@ -305,7 +305,7 @@ TEST_F(VariableServerSession_test, copy_async_disabled) {
     EXPECT_CALL(session, write_data())
         .Times(0);
     
-    session.copy_data_async();
+    session.copy_and_write_async();
 }
 
 
@@ -329,7 +329,7 @@ TEST_F(VariableServerSession_test, copy_async_copy_and_write) {
         .Times(1);
     
     // ACT
-    int result = session.copy_data_async();
+    int result = session.copy_and_write_async();
 
     // ASSERT
     ASSERT_GE(result, 0);
@@ -355,7 +355,7 @@ TEST_F(VariableServerSession_test, copy_async_copy_write_when_copied) {
         .Times(1);
     
     // ACT
-    int result = session.copy_data_async();
+    int result = session.copy_and_write_async();
 
     // ASSERT
     ASSERT_GE(result, 0);
@@ -383,7 +383,7 @@ TEST_F(VariableServerSession_test, copy_async_no_copy_or_write) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_async();
+    int result = session.copy_and_write_async();
 
     // ASSERT
     ASSERT_GE(result, 0);
@@ -410,7 +410,7 @@ TEST_F(VariableServerSession_test, copy_async_non_realtime) {
         .Times(1);
     
     // ACT
-    int result = session.copy_data_async();
+    int result = session.copy_and_write_async();
 
     // ASSERT
     ASSERT_GE(result, 0);
@@ -436,7 +436,7 @@ TEST_F(VariableServerSession_test, copy_async_paused) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_async();
+    int result = session.copy_and_write_async();
 
     // ASSERT
     ASSERT_GE(result, 0);
@@ -467,14 +467,14 @@ TEST_F(VariableServerSession_test, copy_async_write_fails) {
         .Times(1);
 
     // ACT
-    int result = session.copy_data_async();
+    int result = session.copy_and_write_async();
 
     // ASSERT
     ASSERT_EQ(result, -1);
 }
 
 
-TEST_F(VariableServerSession_test, copy_data_top_disabled) {
+TEST_F(VariableServerSession_test, copy_and_write_top_disabled) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -489,10 +489,10 @@ TEST_F(VariableServerSession_test, copy_data_top_disabled) {
     EXPECT_CALL(session, write_data())
         .Times(0);
     
-    session.copy_data_top(100);
+    session.copy_and_write_top(100);
 }
 
-TEST_F(VariableServerSession_test, copy_data_top_copy_top_write_async) {
+TEST_F(VariableServerSession_test, copy_and_write_top_copy_top_write_async) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -516,13 +516,13 @@ TEST_F(VariableServerSession_test, copy_data_top_copy_top_write_async) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_top(100);
+    int result = session.copy_and_write_top(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_top_copy_top_write_when_copied) {
+TEST_F(VariableServerSession_test, copy_and_write_top_copy_top_write_when_copied) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -546,13 +546,13 @@ TEST_F(VariableServerSession_test, copy_data_top_copy_top_write_when_copied) {
         .Times(1);
     
     // ACT
-    int result = session.copy_data_top(100);
+    int result = session.copy_and_write_top(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_top_copy_top_dont_write_if_non_realtime) {
+TEST_F(VariableServerSession_test, copy_and_write_top_copy_top_dont_write_if_non_realtime) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -576,13 +576,13 @@ TEST_F(VariableServerSession_test, copy_data_top_copy_top_dont_write_if_non_real
         .Times(0);
     
     // ACT
-    int result = session.copy_data_top(100);
+    int result = session.copy_and_write_top(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_top_copy_top_write_paused) {
+TEST_F(VariableServerSession_test, copy_and_write_top_copy_top_write_paused) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -606,14 +606,14 @@ TEST_F(VariableServerSession_test, copy_data_top_copy_top_write_paused) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_top(100);
+    int result = session.copy_and_write_top(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
 
-TEST_F(VariableServerSession_test, copy_data_top_wrong_offset) {
+TEST_F(VariableServerSession_test, copy_and_write_top_wrong_offset) {
     // ARRANGE
     MockVariableServerSession session;
 
@@ -641,7 +641,7 @@ TEST_F(VariableServerSession_test, copy_data_top_wrong_offset) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_top(101);
+    int result = session.copy_and_write_top(101);
 
     // ASSERT
     EXPECT_EQ(result, 0);
@@ -649,7 +649,7 @@ TEST_F(VariableServerSession_test, copy_data_top_wrong_offset) {
 
 
 
-TEST_F(VariableServerSession_test, copy_data_freeze_disabled) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_disabled) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -664,10 +664,10 @@ TEST_F(VariableServerSession_test, copy_data_freeze_disabled) {
     EXPECT_CALL(session, write_data())
         .Times(0);
     
-    session.copy_data_freeze(100);
+    session.copy_and_write_freeze(100);
 }
 
-TEST_F(VariableServerSession_test, copy_data_freeze_copy_top_write_async) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_copy_top_write_async) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -691,13 +691,13 @@ TEST_F(VariableServerSession_test, copy_data_freeze_copy_top_write_async) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze(100);
+    int result = session.copy_and_write_freeze(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_freeze_copy_top_write_when_copied) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_copy_top_write_when_copied) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -721,13 +721,13 @@ TEST_F(VariableServerSession_test, copy_data_freeze_copy_top_write_when_copied) 
         .Times(1);
     
     // ACT
-    int result = session.copy_data_freeze(100);
+    int result = session.copy_and_write_freeze(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_freeze_copy_top_dont_write_if_non_realtime) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_copy_top_dont_write_if_non_realtime) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -751,13 +751,13 @@ TEST_F(VariableServerSession_test, copy_data_freeze_copy_top_dont_write_if_non_r
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze(100);
+    int result = session.copy_and_write_freeze(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_freeze_copy_top_write_paused) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_copy_top_write_paused) {
    // ARRANGE
     MockVariableServerSession session;
 
@@ -781,14 +781,14 @@ TEST_F(VariableServerSession_test, copy_data_freeze_copy_top_write_paused) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze(100);
+    int result = session.copy_and_write_freeze(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
 
-TEST_F(VariableServerSession_test, copy_data_freeze_wrong_offset) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_wrong_offset) {
     // ARRANGE
     MockVariableServerSession session;
 
@@ -816,13 +816,13 @@ TEST_F(VariableServerSession_test, copy_data_freeze_wrong_offset) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze(101);
+    int result = session.copy_and_write_freeze(101);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_scheduled_disabled) {
+TEST_F(VariableServerSession_test, copy_and_write_scheduled_disabled) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -838,13 +838,13 @@ TEST_F(VariableServerSession_test, copy_data_scheduled_disabled) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_scheduled(100);
+    int result = session.copy_and_write_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_scheduled_wrong_mode) {
+TEST_F(VariableServerSession_test, copy_and_write_scheduled_wrong_mode) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -862,13 +862,13 @@ TEST_F(VariableServerSession_test, copy_data_scheduled_wrong_mode) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_scheduled(100);
+    int result = session.copy_and_write_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_scheduled_wrong_tics) {
+TEST_F(VariableServerSession_test, copy_and_write_scheduled_wrong_tics) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -888,14 +888,14 @@ TEST_F(VariableServerSession_test, copy_data_scheduled_wrong_tics) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_scheduled(100);
+    int result = session.copy_and_write_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
 
-TEST_F(VariableServerSession_test, copy_data_scheduled_copy_and_write) {
+TEST_F(VariableServerSession_test, copy_and_write_scheduled_copy_and_write) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -917,13 +917,13 @@ TEST_F(VariableServerSession_test, copy_data_scheduled_copy_and_write) {
         .Times(1);
     
     // ACT
-    int result = session.copy_data_scheduled(100);
+    int result = session.copy_and_write_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_scheduled_copy_scheduled_write_async) {
+TEST_F(VariableServerSession_test, copy_and_write_scheduled_copy_scheduled_write_async) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -945,13 +945,13 @@ TEST_F(VariableServerSession_test, copy_data_scheduled_copy_scheduled_write_asyn
         .Times(0);
     
     // ACT
-    int result = session.copy_data_scheduled(100);
+    int result = session.copy_and_write_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_scheduled_paused) {
+TEST_F(VariableServerSession_test, copy_and_write_scheduled_paused) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -973,13 +973,13 @@ TEST_F(VariableServerSession_test, copy_data_scheduled_paused) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_scheduled(100);
+    int result = session.copy_and_write_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_scheduled_non_realtime) {
+TEST_F(VariableServerSession_test, copy_and_write_scheduled_non_realtime) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1001,14 +1001,14 @@ TEST_F(VariableServerSession_test, copy_data_scheduled_non_realtime) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_scheduled(100);
+    int result = session.copy_and_write_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
 
-TEST_F(VariableServerSession_test, copy_data_scheduled_write_fails) {
+TEST_F(VariableServerSession_test, copy_and_write_scheduled_write_fails) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1032,14 +1032,14 @@ TEST_F(VariableServerSession_test, copy_data_scheduled_write_fails) {
         .Times(1);
     
     // ACT
-    int result = session.copy_data_scheduled(100);
+    int result = session.copy_and_write_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, -1);
 }
 
 
-TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_disabled) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_disabled) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1055,13 +1055,13 @@ TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_disabled) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze_scheduled(100);
+    int result = session.copy_and_write_freeze_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_wrong_mode) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_wrong_mode) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1079,13 +1079,13 @@ TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_wrong_mode) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze_scheduled(100);
+    int result = session.copy_and_write_freeze_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_wrong_tics) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_wrong_tics) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1105,14 +1105,14 @@ TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_wrong_tics) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze_scheduled(100);
+    int result = session.copy_and_write_freeze_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
 
-TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_copy_and_write) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_copy_and_write) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1134,13 +1134,13 @@ TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_copy_and_write) {
         .Times(1);
     
     // ACT
-    int result = session.copy_data_freeze_scheduled(100);
+    int result = session.copy_and_write_freeze_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_copy_scheduled_write_async) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_copy_scheduled_write_async) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1162,13 +1162,13 @@ TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_copy_scheduled_wri
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze_scheduled(100);
+    int result = session.copy_and_write_freeze_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_paused) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_paused) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1190,13 +1190,13 @@ TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_paused) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze_scheduled(100);
+    int result = session.copy_and_write_freeze_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
-TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_non_realtime) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_non_realtime) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1218,14 +1218,14 @@ TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_non_realtime) {
         .Times(0);
     
     // ACT
-    int result = session.copy_data_freeze_scheduled(100);
+    int result = session.copy_and_write_freeze_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, 0);
 }
 
 
-TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_write_fails) {
+TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_write_fails) {
      // ARRANGE
     MockVariableServerSession session;
 
@@ -1249,7 +1249,7 @@ TEST_F(VariableServerSession_test, copy_data_freeze_scheduled_write_fails) {
         .Times(1);
     
     // ACT
-    int result = session.copy_data_freeze_scheduled(100);
+    int result = session.copy_and_write_freeze_scheduled(100);
 
     // ASSERT
     EXPECT_EQ(result, -1);

@@ -85,22 +85,22 @@ namespace Trick {
             /**
              @brief Copies client variable values at the top of the frame.
             */
-            int copy_data_top() ;
+            int copy_and_write_top() ;
 
             /**
              @brief The function to copy client variable values to their output buffers when in sync mode.
             */
-            int copy_data_scheduled() ;
+            int copy_and_write_scheduled() ;
 
             /**
              @brief The function to copy client variable values to their output buffers when in sync mode.
             */
-            int copy_data_freeze_scheduled() ;
+            int copy_and_write_freeze_scheduled() ;
 
             /**
              @brief Copies client variable values at the top of the frame.
             */
-            int copy_data_freeze() ;
+            int copy_and_write_freeze() ;
 
             /**
              @brief Adds a vst to the map.
@@ -266,9 +266,9 @@ namespace Trick {
             void set_copy_data_job( Trick::JobData * ) ;
 
             /**
-             @brief Called from the S_define to set the copy_data_freeze_job ptr.
+             @brief Called from the S_define to set the copy_and_write_freeze_job ptr.
             */
-            void set_copy_data_freeze_job( Trick::JobData * ) ;
+            void set_copy_and_write_freeze_job( Trick::JobData * ) ;
 
         protected:
 
@@ -289,7 +289,7 @@ namespace Trick {
             Trick::JobData * copy_data_job ; /**< trick_io(**) trick_units(--) */
 
             /** Pointer to freeze_automatic job that copies requested variable values to their output buffers in sync mode.\n */
-            Trick::JobData * copy_data_freeze_job ; /**< trick_io(**) trick_units(--) */
+            Trick::JobData * copy_and_write_freeze_job ; /**< trick_io(**) trick_units(--) */
 
             /** Map thread id to the VariableServerSessionThread object.\n */
             std::map < pthread_t , VariableServerSessionThread * > var_server_threads ; /**<  trick_io(**) */

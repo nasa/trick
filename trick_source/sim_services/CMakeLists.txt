@@ -201,10 +201,10 @@ set( SS_SRC
   VariableServer/VariableServerSessionThread_restart
   VariableServer/VariableServerSessionThread_write_data
   VariableServer/VariableServerSessionThread_write_stdio
-  VariableServer/VariableServer_copy_data_freeze
-  VariableServer/VariableServer_copy_data_freeze_scheduled
-  VariableServer/VariableServer_copy_data_scheduled
-  VariableServer/VariableServer_copy_data_top
+  VariableServer/VariableServer_copy_and_write_freeze
+  VariableServer/VariableServer_copy_and_write_freeze_scheduled
+  VariableServer/VariableServer_copy_and_write_scheduled
+  VariableServer/VariableServer_copy_and_write_top
   VariableServer/VariableServer_default_data
   VariableServer/VariableServer_freeze_init
   VariableServer/VariableServer_get_next_freeze_call_time

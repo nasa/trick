@@ -138,6 +138,6 @@ void Trick::VariableServer::set_copy_data_job( Trick::JobData * in_job ) {
     copy_data_job = in_job ;
 }
 
-void Trick::VariableServer::set_copy_data_freeze_job( Trick::JobData * in_job ) {
-    copy_data_freeze_job = in_job ;
+void Trick::VariableServer::set_copy_and_write_freeze_job( Trick::JobData * in_job ) {
+    copy_and_write_freeze_job = in_job ;
 }

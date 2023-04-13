@@ -17,7 +17,7 @@ int Trick::VariableServer::get_next_freeze_call_time() {
     }
     pthread_mutex_unlock(&map_mutex) ;
 
-    copy_data_freeze_job->next_tics = next_call_tics ;
+    copy_and_write_freeze_job->next_tics = next_call_tics ;
 
     return(0) ;
 }

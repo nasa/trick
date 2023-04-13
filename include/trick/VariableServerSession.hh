@@ -68,13 +68,13 @@ namespace Trick {
 
         // Called from different types of Trick jobs. 
         // Determines whether this session should be copying at that time, and calls internal copy methods if so
-        int copy_data_freeze(long long curr_frame);
-        int copy_data_freeze_scheduled(long long curr_tics);
-        int copy_data_scheduled(long long curr_tics);
-        int copy_data_top(long long curr_frame);
+        int copy_and_write_freeze(long long curr_frame);
+        int copy_and_write_freeze_scheduled(long long curr_tics);
+        int copy_and_write_scheduled(long long curr_tics);
+        int copy_and_write_top(long long curr_frame);
 
         // Called from VariableServerSessionThread
-        virtual int copy_data_async();
+        virtual int copy_and_write_async();
 
         /**
          @brief Copy given variable values from Trick memory to each variable's output buffer.

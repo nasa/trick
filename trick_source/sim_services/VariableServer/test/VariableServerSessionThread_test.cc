@@ -42,7 +42,7 @@ void setup_default_session_mocks (MockVariableServerSession * session, bool comm
     ON_CALL(*session, handle_message())
         .WillByDefault(Return(0));
 
-    ON_CALL(*session, copy_data_async())
+    ON_CALL(*session, copy_and_write_async())
         .WillByDefault(Return(0));
 
     ON_CALL(*session, get_pause())
@@ -178,7 +178,7 @@ TEST_F(VariableServerSessionThread_test, exit_if_write_fails) {
     setup_normal_connection_expectations(&connection);
     
     // Write out data
-    EXPECT_CALL(*session, copy_data_async())
+    EXPECT_CALL(*session, copy_and_write_async())
         .WillOnce(Return(-1));
 
         
