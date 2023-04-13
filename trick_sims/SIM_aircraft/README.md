@@ -46,13 +46,13 @@ The autopilot feature is toggled on and off by the ```Autopilot OFF/ON``` button
 When active, the aircraft's heading is automatically calculated to approach a series of waypoints. These waypoints are marked on the map by the image provided in the input file.
 
 #### Adding Waypoints with an Input File
-Waypoints can be added to the simulation using an input file. 
+Waypoints can be added to the simulation using an input file specified in `input.py`. 
 
 ![](images/WaypointInputFile.png)
 
 When the simulation starts they are read into the simulation from the specified file. Currently that file is `default.waypoints`  within the `Modified_data` folder. 
 
-#### Sample Input in [`default.waypoints`](Modified\_data/default.waypoints):
+#### Sample Input in [`default.waypoints`](Modified\_data/default.wps):
 
          0.0,  25000.0,images/wp0.png
      21650.0,  12500.0,images/wp1.png
@@ -63,6 +63,11 @@ When the simulation starts they are read into the simulation from the specified 
 Each line should have three pieces of data, separated by commas. The first two are the coordinates. They are formatted like GPS coordinates, with the first number being the vertical distance, or 'North', and the second being the horizontal, or 'West', distance. The third part of the line is the path to the image that will be used as the waypoint marker.
 
 ### Graphics Client Menu
+
+#### File
+
+The `File` menu allows the user to open a waypoint input file, save the current waypoint list to a new file, or clear the existing waypoint list.
+![](images/GraphicsClient_FileOptions.png)
 
 #### View
 

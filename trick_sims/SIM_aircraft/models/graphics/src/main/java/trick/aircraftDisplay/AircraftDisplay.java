@@ -30,6 +30,9 @@ import java.lang.Math;
 import java.net.Socket;
 import java.util.*;
 import java.util.Hashtable;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -40,6 +43,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JToggleButton;
 import javax.swing.BorderFactory; 
 import javax.swing.border.EtchedBorder;
@@ -60,10 +64,15 @@ class Waypoint {
     public double north, west;
     public BufferedImage icon;
     
-    public Waypoint(double n, double w, BufferedImage i) {
+    public Waypoint(double n, double w, String i) {
         north = n;
         west = w;
-        icon = i;
+        try {
+            icon = ImageIO.read(new File(i));
+        } catch(Exception e) {
+            icon = null;
+            System.out.printf("Waypoint (%.1f,%.1f) not added to map.");
+        }
     }
 }
 
@@ -75,7 +84,7 @@ class ScenePoly {
 }
 
 class SimulationMenuBar extends JMenuBar {
-    private JMenu _file;
+    private FileMenu _file;
     private JMenu _edit;
     private JMenu _tools;
     private JMenu _help;
@@ -85,9 +94,17 @@ class SimulationMenuBar extends JMenuBar {
 
     public SimulationMenuBar(SkyView sv) {
         skyView = sv;
+        _file = new FileMenu("File");
         _view = new ViewMenu("View");
 
+        add(_file);
         add(_view);
+    }
+
+    public void setupFileMenu(ActionListener newFileListener, ActionListener saveFileListener, ActionListener openFileListener) {
+        _file.newFile.addActionListener(newFileListener);
+        _file.saveFile.addActionListener(saveFileListener);
+        _file.openFile.addActionListener(openFileListener);
     }
 
     public void setEnabled_DisabledViewCB(boolean s) {
@@ -117,23 +134,6 @@ class SimulationMenuBar extends JMenuBar {
         mi = new JMenuItem("Paste");
         _edit.add(mi);
         add(_edit);
-    }
-
-    private void initFileMenu() {
-        _file = new JMenu("File");      // New, Open, Save, Save As, Exit
-        JMenuItem mi;
-        mi = new JMenuItem("New");
-        _file.add(mi);
-        mi = new JMenuItem("Open");
-        _file.add(mi);
-        mi = new JMenuItem("Save");
-        _file.add(mi);
-        mi = new JMenuItem("Save As");
-        _file.add(mi);
-        mi = new JMenuItem("Exit");
-        _file.add(mi);
-        
-        add(_file);
     }
 
     private class ViewMenu extends JMenu {
@@ -179,6 +179,21 @@ class SimulationMenuBar extends JMenuBar {
             disabledView.addItemListener(e -> skyView.setDisabledView(((JCheckBoxMenuItem) e.getItem()).isSelected()));
         }
     }
+
+    private class FileMenu extends JMenu {
+        public JMenuItem newFile, saveFile, openFile;
+        FileMenu(String name) {
+            super(name);
+
+            newFile = new JMenuItem("New File");
+            saveFile = new JMenuItem("Save File");
+            openFile = new JMenuItem("Open File");
+
+            add(newFile);
+            add(saveFile);
+            add(openFile);
+        }
+    }
 }
 
 class SkyView extends JPanel {
@@ -199,7 +214,7 @@ class SkyView extends JPanel {
     private double desired_heading;
     private Boolean autopilot;
 
-    private ArrayList<Waypoint> waypoints;
+    private Waypoint[] waypoints;
 
     // Origin of world coordinates in jpanel coordinates.
     private int worldOriginX;
@@ -232,20 +247,9 @@ class SkyView extends JPanel {
         workPolyX = new int[30];
         workPolyY = new int[30];
 
-        waypoints = new ArrayList<Waypoint>();
+        waypoints = new Waypoint[10];
 
         setAllView(true);
-    }
-
-    public void addWaypoint( double n, double w, String fp) {
-        BufferedImage img;
-        try {
-            img = ImageIO.read(new File(fp));
-            waypoints.add(new Waypoint(n,w,img));
-        } catch(Exception e) {
-            System.out.printf("Waypoint (%.1f,%.1f) not added to map.");
-        }
-
     }
 
     public void setAircraftPos( double n, double w) {
@@ -301,6 +305,17 @@ class SkyView extends JPanel {
     
     public void setInputDesiredHeading(double n){
         desired_heading = n;
+    }
+
+    public void resetWaypoints() {
+        for(int i = 0; i < waypoints.length; i++)   waypoints[i] = null;
+    }
+
+    public boolean setWaypoint(int i, Waypoint wp) {
+        if(i < 0 || i >= waypoints.length) return false;
+
+        waypoints[i] = wp;
+        return true;
     }
 
     // Getters and setters for all the 'View' variables
@@ -376,9 +391,9 @@ class SkyView extends JPanel {
         g2d.drawLine( worldOriginX, 0, worldOriginX, height);
 
         //  Draw Waypoints
-        for(int i = 0; i < waypoints.size(); i++) {
-            Waypoint wp = waypoints.get(i);
-            drawWaypoint(g2d, wp);
+        for(int i = 0; i < waypoints.length; i++) {
+            Waypoint wp = waypoints[i];
+            if(wp != null)  drawWaypoint(g2d, wp);
         }
 
         //  Draw Aircraft
@@ -442,8 +457,8 @@ class ControlPanel extends JPanel implements ActionListener {
   
 
 
-    public ControlPanel(SkyView skyView){
-        skyView = skyView;
+    public ControlPanel(SkyView view){
+        skyView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 
 
@@ -574,6 +589,7 @@ class AutoPilotCtrlPanel extends JPanel implements ItemListener {
         autoPilotButton.addItemListener(this);
         add(autoPilotButton);
     }
+
     public void itemStateChanged(ItemEvent e){
         if (e.getStateChange() == ItemEvent.SELECTED){
             skyView.setAutoPilot(true);
@@ -594,8 +610,8 @@ public class AircraftDisplay extends JFrame {
     private JPanel panelGroup0, panelGroup1;
     private ControlPanel controlPanel;
 
-    public AircraftDisplay(SkyView sky) {
-        skyView = sky;
+    public AircraftDisplay(SkyView view) {
+        skyView = view;
         simMenu = new SimulationMenuBar(skyView);
         setJMenuBar(simMenu);
         add( skyView);
@@ -687,20 +703,70 @@ public class AircraftDisplay extends JFrame {
         Boolean autopilot = false;
         double desired_heading = 0.0;
 
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(waypointInputFile));
-            String line;
-            while((line = br.readLine()) != null) {
-                String[] parsedLine = line.split(",");
-                sd.skyView.addWaypoint(Double.parseDouble(parsedLine[0]), Double.parseDouble(parsedLine[1]), parsedLine[2]);
-            }
-        } catch(FileNotFoundException e) {
-            System.out.printf("'%s' not found", args[ii+1]);
-            System.exit(0);
-        }
+        int wpIndex = -1;
+        double wpNorth = 0.0;
+        double wpWest = 0.0;
+        String wpImage = "";
 
         System.out.println("Connecting to: " + host + ":" + port);
         sd.connectToServer(host, port);
+        
+        JFileChooser browse = new JFileChooser("Modified_data");
+
+        ActionListener new_file = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    sd.out.writeBytes("dyn.aircraft.flightPath.clear() ;");
+                    sd.out.flush();
+                } catch (Exception ex) {
+
+                }
+            }
+        
+        };
+
+        ActionListener save_file = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int option = browse.showSaveDialog(sd);
+                if(option != JFileChooser.APPROVE_OPTION) return;
+
+                String path = browse.getSelectedFile().getPath();
+
+                try {
+                    sd.out.writeBytes(String.format("dyn.aircraft.flightPath.save(\"%s\") ;",path));
+                    sd.out.flush();
+                } catch (Exception ex) {
+
+                }
+            }
+        
+        };
+
+        ActionListener open_file = new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int option = browse.showOpenDialog(sd);
+                if(option != JFileChooser.APPROVE_OPTION) return;
+
+                String path = browse.getSelectedFile().getPath();
+                
+                try {
+                    sd.out.writeBytes(String.format("dyn.aircraft.flightPath.load(\"%s\") ;",path));
+                    sd.out.writeBytes("dyn.aircraft.wpIdx = -1 ;");
+                    sd.out.flush();
+                } catch (Exception ex) {
+
+                }
+            }
+        
+        };
+
+        sd.simMenu.setupFileMenu( new_file, save_file, open_file);
 
         sd.out.writeBytes("trick.var_set_client_tag(\"AircraftDisplay\") \n" +
                           "trick.var_pause() \n" +
@@ -710,6 +776,10 @@ public class AircraftDisplay extends JFrame {
                           "trick.var_add(\"dyn.aircraft.vel[1]\") \n" +
                           "trick.var_add(\"dyn.aircraft.desired_speed\") \n" +
                           "trick.var_add(\"dyn.aircraft.desired_heading\") \n" +
+                          "trick.var_add(\"dyn.aircraft.wpIdx\") \n" +
+                          "trick.var_add(\"dyn.aircraft.wpPos[0]\") \n" +
+                          "trick.var_add(\"dyn.aircraft.wpPos[1]\") \n" +
+                          "trick.var_add(\"dyn.aircraft.wpImg\") \n" +
                           "trick.var_ascii() \n" +
                           "trick.var_cycle(0.1) \n" +
                           "trick.var_unpause()\n" );
@@ -729,6 +799,17 @@ public class AircraftDisplay extends JFrame {
                 velWest = Double.parseDouble( field[4] );
                 desired_speed = Double.parseDouble( field[5]);
                 desired_heading = Double.parseDouble(field[6]);
+
+                wpIndex = Integer.parseInt(field[7]);
+
+                if(wpIndex < 0) {
+                    sd.skyView.resetWaypoints();
+                } else {
+                    wpNorth = Double.parseDouble(field[8]);
+                    wpWest = Double.parseDouble(field[9]);
+                    wpImage = field[10];
+                    sd.skyView.setWaypoint(wpIndex, new Waypoint(wpNorth, wpWest, wpImage));
+                }
 
                 // Set the Aircraft position
                 skyview.setAircraftPos(posNorth, posWest);
