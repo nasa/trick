@@ -449,6 +449,9 @@ For information on how Trick processes events during runtime, see [Event Process
 
 # Add the event to the input processor's list of events (it will be processed at top of frame before scheduled jobs)
 trick.add_event(<event name>)
+
+# Tell trick whether to terminate the sim if an error occurs while parsing Python code. Defaults to False
+trick.terminate_on_event_parse_error(<True|False>)
 ```
 
 #### Advanced Event (Malfunction) Usage

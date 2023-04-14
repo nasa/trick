@@ -13,7 +13,7 @@ PROGRAMMERS:
 
 #include "trick/Scheduler.hh"
 #include "trick/DataRecordGroup.hh"
-#include "trick/ThreadBase.hh"
+#include "trick/SysThread.hh"
 
 namespace Trick {
 
@@ -32,7 +32,7 @@ namespace Trick {
             bool cancelled;
     } ;
 
-    class DRDWriterThread : public Trick::ThreadBase {
+    class DRDWriterThread : public Trick::SysThread {
         public:
             DRDWriterThread(Trick::DRDMutexes & in_mutexes, std::vector <Trick::DataRecordGroup *> & in_groups) ;
 

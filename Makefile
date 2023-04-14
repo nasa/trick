@@ -42,6 +42,7 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/MemoryManager \
 	${TRICK_HOME}/trick_source/sim_services/Message \
 	${TRICK_HOME}/trick_source/sim_services/MonteCarlo \
+	${TRICK_HOME}/trick_source/sim_services/MonteCarloGeneration \
 	${TRICK_HOME}/trick_source/sim_services/RealtimeInjector \
 	${TRICK_HOME}/trick_source/sim_services/RealtimeSync \
 	${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue \
@@ -90,6 +91,7 @@ endif
 ER7_UTILS_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(ER7_UTILS_DIRS))
 
 UTILS_DIRS := \
+	${TRICK_HOME}/trick_source/trick_utils/compareFloatingPoint \
 	${TRICK_HOME}/trick_source/trick_utils/interpolator \
 	${TRICK_HOME}/trick_source/trick_utils/trick_adt \
 	${TRICK_HOME}/trick_source/trick_utils/comm \
@@ -287,6 +289,7 @@ premade:
 ################################################################################
 #                                   TESTING
 ################################################################################
+
 # This target runs Trick's Unit-tests and simulation-tests.
 test: unit_test sim_test
 	@ echo "All tests completed sucessfully"

@@ -1,6 +1,6 @@
 /************************TRICK HEADER*************************
 PURPOSE:
-    (blah blah blah)
+    (Test different combinations of Python modules and C++ namespaces)
 *************************************************************/
 
 #include "sim_objects/default_trick_sys.sm"
@@ -9,6 +9,7 @@ PURPOSE:
 ##include "FooInnerFood.hh"
 ##include "BarFood.hh"
 ##include "FooYummyFood.hh"
+##include "TrickFood.hh"
 
 class SimObj : public Trick::SimObject {
 
@@ -17,6 +18,7 @@ class SimObj : public Trick::SimObject {
         Foo::Inner::Food foo_inner_food ;
         Bar::Food bar_food ;
         Foo::YummyFood foo_yummyfood ;
+        Food trick_food;
 
         /** Constructor to add the jobs */
         SimObj() {

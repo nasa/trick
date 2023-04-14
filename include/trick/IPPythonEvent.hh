@@ -185,6 +185,15 @@ namespace Trick {
             static void set_event_info_msg_off() ;
 
             /**
+             @brief @userdesc Command to set whether the sim should check error codes from
+             Python parsing and terminate if an error is detected. Set to false by default
+             @par Python Usage:
+             @code trick.terminate_on_event_parse_error(True|False) @endcode
+             @return always 0
+            */
+            static void terminate_on_event_parse_error(bool on_off);
+
+            /**
              @brief called by the event manager when the event is loaded from a checkpoint
             */
             virtual void restart() ;
@@ -402,7 +411,7 @@ namespace Trick {
                any events instantiated yet */
             static void set_python_processor(Trick::IPPython * in_ip) ;
             static void set_mtv(Trick::MTV * in_mtv) ;
-
+  
         private:
 
             /* A static pointer to the python input processor set at the S_define level */
@@ -411,6 +420,8 @@ namespace Trick {
             /* A static pointer to the MTV set at the S_define level */
             static Trick::MTV * mtv ;
 
+            /* Defaults to false */
+            static bool terminate_sim_on_event_python_error;
     } ;
 
 }

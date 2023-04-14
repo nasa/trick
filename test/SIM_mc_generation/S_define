@@ -1,0 +1,58 @@
+/*****************************************************************************
+PURPOSE: SIM object used to Exercise the features and failure cases of the 
+MonteCarloGeneration model.
+PROGRAMMERS:
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
+*****************************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+#include "sim_objects/MonteCarloGenerate.sm"
+
+/*****************************************************************************
+MC_Test sim object
+****************************************************************************/
+
+class MC_TestSimObject : public Trick::SimObject
+{
+ public:
+  double x_uniform;
+  double x_normal;
+  double x_normal_trunc[5];
+  double x_normal_length; // (m) Dispersed in ft.
+  double x_line_command;
+  double x_file_command[3];
+  double x_file_lookup[3];
+  double x_fixed_value_double;
+  double x_semi_fixed_value;
+  int    x_fixed_value_int;
+  int    x_integer;
+  bool   x_boolean;
+  std::string x_string;
+  std::string x_fixed_value_string;
+  int    x_sdefine_routine_called;
+
+  MonteCarloVariableFile mc_var_file;
+
+  MC_TestSimObject()
+      :
+      mc_var_file("test.x_file_lookup[0]", "Modified_data/datafile.txt", 3)
+  {
+    ("initialization") monte_carlo.generate_dispersions();
+    (1.0,"environment") output_strings();
+  };
+
+  // standalone_function is used to test using an instance of
+  // MonteCarloPythonLineExec to execute a standalone function.
+  void standalone_function( double value)
+  {
+    std::cout << "\nStandalone_function received a value of " << value << "\n";
+    x_sdefine_routine_called = 1;
+  }
+ private:
+  void output_strings() {
+    std::cout << "\nstrings : " << x_string << " : " << x_fixed_value_string << "\n";
+  }
+  MC_TestSimObject( const MC_TestSimObject&);
+  MC_TestSimObject & operator= ( const MC_TestSimObject&);
+
+};
+MC_TestSimObject test;

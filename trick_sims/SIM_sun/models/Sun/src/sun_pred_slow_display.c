@@ -65,7 +65,7 @@ int sun_pred_slow_display(
 	strcat(message,tmp_s);
 	snprintf(tmp_s, sizeof(tmp_s), "  %lc %5.2f%lc",GREEK_SMALL_LETTER_DELTA, S->declination, DEGREE_SIGN);
 	strcat(message,tmp_s);
-	send_hs(stdout,"%s\n",message);
+	fprintf(stdout,"%s\n",message);
 
 	return 0 ;
 }

@@ -8,7 +8,7 @@ Requires: python3 and requirements.txt containing:
   psutil         # For child process acquisition
 """
 import os, sys, threading, socket, abc, time, re, copy, subprocess, hashlib, inspect
-import yaml  # Provided by PyYAML
+from TrickWorkflowYamlVerifier import *  # TODO revisit this import - Jordan
 
 from WorkflowCommon import *
 import pprint
@@ -59,7 +59,7 @@ class TrickWorkflow(WorkflowCommon):
       # Job statuses are stored internally and can be queried after they've already
       # executed, for example, after execute_jobs() finishes:
       for b in builds:
-        print("Build job %s completed with status %d " % (b.name, b.get_status() is job.Status.SUCCESS))
+        print("Build job %s completed with status %d " % (b.name, b.get_status()))
         print("and ran command %s " % (b._command))
 
       # All jobs store their status internally regardless of whether they have
@@ -76,6 +76,83 @@ class TrickWorkflow(WorkflowCommon):
       # Note that runs, comparisons, and analysis management classes and/or jobs also
       # support the report() method
     """
+    # These are static so Run and Sim classes can access them when needed
+    # TODO: It would be nice to consolidate and read this from .yaml_requirements.txt
+    # -Jordan 12/2022
+    allowed_phase_range = {'min': -1000, 'max': 1000}
+    all_possible_phases = range(allowed_phase_range['min'], allowed_phase_range['max']+1)
+
+    def listify_phase(phase=None):
+        """
+        Given a phase of different potential types, return a list of integers within
+        the allowed_phase_range.
+
+        >>> TrickWorkflow.listify_phase(0)
+        [0]
+        >>> TrickWorkflow.listify_phase(range(0,5))
+        [0, 1, 2, 3, 4]
+
+        Parameters
+        ----------
+        phase : int, list, range, or None
+            Phase or phases requested by user
+
+        Returns
+        -------
+        list of integers which must be equal to or a subset of all_possible_phases
+
+        Raises
+        ------
+        RuntimeError
+            If input is not an int, list of ints, range, or None, or if given values
+            are not within TrickWorkflow.all_possible_phases
+        """
+        # Handle type of phase given
+        phases = []  # To be populated with all valid phases requested by user
+        if (phase is None):
+            phases = list(TrickWorkflow.all_possible_phases)
+        elif isinstance(phase, int) and phase in TrickWorkflow.all_possible_phases:
+            phases = [phase]
+        elif ( (isinstance(phase, list) or isinstance(phase, range)) and
+          all(isinstance(p, int) for p in phase) and
+          all(p in TrickWorkflow.all_possible_phases for p in phase)):
+            phases = list(phase)  # Cast to list to cover range case
+        else:
+            msg =("ERROR: Given phase %s in listify_given_phase() must be an int,"
+                  " list of ints, or range() within the bounds [%s, %s]" % (phase,
+                  TrickWorkflow.allowed_phase_range['min'],
+                  TrickWorkflow.allowed_phase_range['max']))
+            raise RuntimeError(msg)
+        return(phases)
+
+    def _find_range_string(string):
+        """
+        Given a string, return the range in square bracket notation if found
+        This does not check for validity of the string, it only finds it.
+
+        >>> TrickWorkflow._find_range_string('SET_hi/RUN_[000-999]/input.py')
+        '[000-999]'
+
+        Returns: str or None
+           str: string of range notation found
+           None: if not found
+
+        Raises
+        ------
+        RuntimeError
+           If more than one range string found
+        """
+        pattern = "\[\d+-\d+\]"
+        if (len(re.findall(pattern, string))) > 1:
+          msg = ("ERROR: [min-max] pattern found more than once in %s. Only one instance is"
+            " supported." % (string))
+          raise RuntimeError(msg)
+        m = re.search(pattern, string)
+        if m:
+          return m.group(0)
+        else:
+          return None
+
     def __init__(self, project_top_level, log_dir, trick_dir, config_file, cpus=3, quiet=False):
         """
         Initialize this instance.
@@ -100,20 +177,114 @@ class TrickWorkflow(WorkflowCommon):
             available
         """
         super().__init__(project_top_level=project_top_level, log_dir=log_dir, quiet=quiet)
-        # If not found in the config file, these defaults are used
-        self.defaults = {'cpus': 3, 'name': None, 'description': None,
-          'build_command': 'trick-CP', 'size': 2200000, 'env': None, 'binary': 'S_main_{cpu}.exe'}
-        self.config_errors = False
+        self.config_errors =  []        # Contains errors in setup of management classes
         self.compare_errors = False     # True if comparison errors were found
         self.sims = []                  # list of Sim() instances, filled out from config file
         self.config_file = config_file  # path to yml config
         self.cpus = cpus                # Number of CPUs this workflow should use when running
-        # 'loose' or 'strict' controls if multiple input files per RUN dir are allowed in YAML config file
-        self.parallel_safety = 'loose'
-        self.config = self._read_config(self.config_file) # Contains resulting Dict parsed by yaml.load
+        self.yaml_verifier = TrickWorkflowYamlVerifier(self.config_file)
+        # If not found in the config file, these defaults are used
         self.trick_dir = trick_dir
         self.trick_host_cpu = self.get_trick_host_cpu()
-        self._validate_config()
+        self.env = ''
+        self.config = self.yaml_verifier.verify()
+        self.parsing_errors = self.yaml_verifier.parsing_errors  # All errors found during parsing
+        for e in self.parsing_errors:
+            tprint(e, 'DARK_RED')
+        self._populate_sims()
+
+    def _populate_sims(self):
+        """
+        Given a verified self.config, populate the self.sims list of Sim() instances
+        Note that all the checking of expected dict key/values has already taken place
+        during yaml verification, so we can safely access all dict keys here.
+        Furthermore, any sim or run without required key/values have already been purged
+        from self.config so we can create all management classes at the sim and run
+        levels without worry.
+        """
+        def cprint(msg, color):
+            self.config_errors.append(msg)
+            tprint(msg, color)
+        self.env = self.config['globals']['env']
+        all_sim_paths = [] # Keep a list of all paths for uniqueness check
+        for s in self.config:
+          if not str(s).startswith('SIM'):  # Ignore everything not starting with SIM
+            continue
+          if (not os.path.exists(os.path.join(self.project_top_level, self.config[s]['path'])) ):
+            cprint("ERROR: %s's 'path' %s not found. Continuing but skipping this entire entry from %s."
+                 % (s, self.config[s]['path'], self.config_file), 'DARK_RED')
+            continue
+          if self.config[s]['path'] in all_sim_paths:
+            cprint("ERROR: %s's 'path' is not unique in %s. Continuing but ignoring this sim."
+                % (s, self.config_file), 'DARK_RED')
+            continue
+          # Add the CPU format string (won't fail if there is no CPU placeholder)
+          self.config[s]['binary'] = self.config[s]['binary'].format(cpu=self.trick_host_cpu)
+          # Add the full path to the build command
+          trick_CP=os.path.join(self.trick_dir, "bin/trick-CP")
+          if self.config[s]['build_args']:
+            trick_CP+=(' ' + self.config[s]['build_args'])
+          thisSim = TrickWorkflow.Sim(name=s, sim_dir=self.config[s]['path'],
+            description=self.config[s]['description'], labels=self.config[s]['labels'],
+            prebuild_cmd=self.env, build_cmd=trick_CP,
+            cpus=self.cpus, size=self.config[s]['size'], phase=self.config[s]['phase'],
+            log_dir=self.log_dir)
+          all_sim_paths.append(self.config[s]['path'])
+
+          all_run_paths = []   # Keep a list of all paths for uniqueness check
+          for r in self.config[s]['runs']:
+            just_RUN = r.split()[0]                   # Drop arguments after RUN../...py
+            just_RUN_dir = os.path.dirname(just_RUN)  # Drop path before     RUN../..py
+            # TODO: This check will break generated runs, do we even need to check this at all? - Jordan 2022
+            #if not os.path.exists(os.path.join(self.project_top_level, self.config[s]['path'], just_RUN)):
+            #  cprint("ERROR: %s's 'run' path %s not found. Continuing but skipping this run "
+            #    "from %s." % (s, just_RUN, self.config_file), 'DARK_RED')
+            #  continue
+            if just_RUN_dir in all_run_paths and self.config[s]['parallel_safety'] == 'strict':
+              cprint("ERROR: %s's run directory %s is not unique in %s. With setting "
+                     "parallel_safety: strict, you cannot have the same RUN directory listed "
+                     "more than once per sim. Continuing but skipping this run." %
+                     (s, r, self.config_file), 'DARK_RED')
+              continue
+
+            thisRun = TrickWorkflow.Run(sim_dir=self.config[s]['path'], input_file=r,
+                          binary= self.config[s]['binary'], prerun_cmd=self.env,
+                          returns=self.config[s]['runs'][r]['returns'],
+                          valgrind_flags=self.config[s]['runs'][r]['valgrind'],
+                          phase=self.config[s]['runs'][r]['phase'], log_dir=self.log_dir)
+
+            # The check for list allows all other non-list types in the yaml file,
+            # allowing groups to define their own comparison methodology
+            if isinstance(self.config[s]['runs'][r]['compare'], list):
+              for cmp in self.config[s]['runs'][r]['compare']:
+                lhs, rhs = [ s.strip() for s in cmp.split(' vs.') ]
+                thisRun.add_comparison(test_data=lhs, baseline_data=rhs)
+
+            if self.config[s]['runs'][r]['analyze'] is not None:
+              thisRun.add_analysis(cmd=self.config[s]['runs'][r]['analyze'])
+
+            theseRuns = []
+            try:
+              theseRuns = thisRun.multiply()  # If [from-to] notation used, expand runs
+            except RuntimeError as e:
+              msg = ("ERROR: Unable to multiply run %s in sim %s. Ignoring this run. "
+                  "Check for bad [min-max] syntax in run keys in %s and try again.\n  %s"
+                  % (r, s, self.config_file, e) )
+              cprint(msg, 'DARK_RED')
+
+            for r in theseRuns:
+              thisSim.add_run(r)      # Add Run/Runs to this Sim()
+
+            all_run_paths.append(just_RUN_dir)  # Keep track of all runs to check parallel safety
+
+          self.sims.append(thisSim)   # Add Sim() to internal list
+        if len(self.sims) < 1:  # At minimum, one valid SIM structure must exist
+            msg = ("ERROR: After validating config file, there is insufficient information to continue."
+                " Check the syntax in config file %s and try again."
+                % (self.config_file) )
+            cprint(msg, 'DARK_RED')
+            self._cleanup()
+            raise RuntimeError(msg)
 
     def create_test_suite(self):
         """
@@ -214,6 +385,7 @@ class TrickWorkflow(WorkflowCommon):
             return self.sims
         sims_found = []
         ls = []
+
         if type(labels) == str:
             ls = [labels]
         elif type(labels) == list:
@@ -225,321 +397,6 @@ class TrickWorkflow(WorkflowCommon):
                 sims_found.append(sim)
         return sims_found
 
-    def _read_config(self, config_file):
-        """
-        Read the yaml file into a dict and return it
-
-
-        Parameters
-        ----------
-        config_file : str
-            path to YAML config file to be read
-
-        Returns
-        -------
-        dict or None
-            dictionary representation of YAML content as parsed by yaml.safe_load()
-            or None if parsing failed
-        """
-        try:
-            with open(config_file) as file:
-                y = yaml.safe_load(file)
-            return y
-        except Exception as e:
-            tprint("Unable to parse config file: %s\nERROR: %s" % (config_file,e), 'DARK_RED')
-            return None
-
-    def _validate_config(self):
-        """
-        Sanity check what we've read from the yml config file and create internal Sim()
-        objects which populate the self.sims [] list. Makes sure some values
-        exist and paths are valid locations where applicable. The self.config dict
-        may be modified to add missing entries as part of this process. If errors
-        in the config file are detected, self.config_errors is set to True
-
-        The yaml format expected by this framework is described as follows:
-
-        globals:
-          env:                 <-- optional literal string executed before all tests, e.g. env setup
-          parallel_safety:     <-- <loose|strict> strict won't allow multiple input files per RUN dir
-        SIM_abc:               <-- required unique name for sim of interest, must start with SIM
-          path:                <-- required SIM path relative to project top level
-          description:         <-- optional description for this sim
-          labels:              <-- optional list of labels for this sim, can be used to get sims
-              - model_x            by label within the framework, or for any other project-defined
-              - verification       purpose
-          build_command:       <-- optional literal cmd executed for SIM_build, defaults to trick-CP
-          binary:              <-- optional name of sim binary, defaults to S_main_{cpu}.exe
-          size:                <-- optional estimated size of successful build output file in bytes
-          runs:                <-- optional dict of runs to be executed for this sim, where the
-            RUN_1/input.py --foo:  dict keys are the literal arguments passed to the sim binary
-            RUN_2/input.py:        and the dict values are other run-specific optional dictionaries
-            ...                    described as follows ...
-              returns: <int>   <---- optional exit code of this run upon completion (0-255). Defaults
-                                     to 0
-              compare:         <---- optional list of <path> vs. <path> comparison strings to be
-                - a vs. b            compared after this run is complete. This is extensible in that
-                - d vs. e            all non-list values are ignored and assumed to be used to define
-                - ...                an alternate comparison method in a class extending this one
-              analyze:         <-- optional arbitrary string to execute as job in bash shell from
-                                   project top level, for project-specific post-run analysis
-          valgrind:            <-- optional dict describing how to execute runs within valgrind
-            flags:             <-- string of all flags passed to valgrind for all runs
-            runs:              <-- list of literal arguments passed to the sim binary through
-                                   valgrind
-        non_sim_extension_example:
-          will: be ignored by TrickWorkflow parsing for derived classes to implement as they wish
-
-        Any top-level key not matching the SIM naming pattern is ignored purposefully to provide
-        users of this framework to extend the same YAML file for other non-trick tests
-
-        Raises
-        ------
-        RuntimeError
-            If self.config has insufficient content
-        """
-        # All error messages in config validation will trigger self.config_errors to be True
-        def cprint(msg, color):
-            self.config_errors = True
-            tprint(msg, color)
-
-        # Utility method for ensuring a variable is the expected type. Returns True if type
-        # matches expected type, False otherwise. If fatal=True, raise RuntimeError.
-        def type_expected(var, expected_type, fatal=False, extra_msg=''):
-            if type(var) != expected_type:
-                prepend = "FATAL: " if fatal else "ERROR: "
-                msg =(prepend + "Entry resembling %s expected to be %s, but got %s instead. Please"
-                      " look for errors in %s. " %
-                      ( str(var), expected_type, type(var), self.config_file) + extra_msg)
-                cprint(msg, 'DARK_RED')
-                if fatal:
-                    raise RuntimeError(msg)
-                else:
-                    return False
-            return True
-
-        c = copy.deepcopy(self.config)  # Make a copy for extra saftey
-        if not c:  # If entire config is empty
-            msg =("ERROR: Config file %s could not be loaded. Make sure file exists and is valid YAML syntax."
-                  " Cannot continue." % (self.config_file))
-            cprint(msg, 'DARK_RED')
-            self._cleanup()
-            raise RuntimeError(msg)
-        # Check global parameters
-        if 'globals' not in c or not c['globals']:   # If globals section is missing or None
-            self.env = ''
-            self.parallel_safety = 'loose'
-        else:
-            if 'env' not in c['globals'] or not c['globals']['env']: # If section is missing or None
-                self.env = ''
-            else:
-                self.env = c['globals']['env']
-            # If env section is missing or None
-            if 'parallel_safety' not in c['globals'] or not c['globals']['parallel_safety']:
-                self.parallel_safety = 'loose'
-            elif  c['globals']['parallel_safety'] != 'loose' and c['globals']['parallel_safety'] != 'strict':
-                cprint( "ERROR: parallel_safety value of %s in config file %s is unsupported. Defaulting to"
-                  " 'loose' and continuing..." % (c['globals']['parallel_safety'], self.config_file),
-                  'DARK_RED')
-                self.parallel_safety = 'loose'
-            else:
-                self.parallel_safety = c['globals']['parallel_safety']
-        if not type_expected(c, expected_type=dict, fatal=True, extra_msg='Cannot continue.'):
-          pass  # Unreachable, type_expected will raise
-        c.pop('globals', None) # Remove to iterate on the rest of the non-global content
-        all_sim_paths = [] # Keep a list of all paths for uniqueness check
-        # Check sub-parameters of SIM entries
-        for s in c:
-          if not c[s]:  # If the structure is completely empty, skip it
-            cprint("ERROR: %s is empty!. Continuing but skipping this entire entry from %s."
-                 % (s, self.config_file), 'DARK_RED')
-            self.config.pop(s)
-            continue
-          # If the structure doesn't start with SIM, ignore it and move on
-          if not s.lower().startswith('sim'):
-            continue
-          # If what's stored under SIM_..: is not itself a dict
-          if not type_expected(c[s], expected_type=dict, extra_msg="SIM definitions must start with SIM, end"
-                   " with :, and contain the path: <path/to/SIM> key-value pair. Skipping over %s." % c[s]):
-            self.config.pop(s)
-            continue
-          # If optional entries missing, or None, set defaults
-          if 'description' not in c[s] or not c[s]['description']:
-            self.config[s]['description'] = self.defaults['description']
-          if 'build_command' not in c[s] or not c[s]['build_command']:
-            self.config[s]['build_command'] = self.defaults['build_command']
-          if 'size' not in c[s] or not c[s]['size']:
-            self.config[s]['size'] = self.defaults['size']
-          # SIM dir path check
-          if ('path' not in c[s] or not c[s]['path'] or not
-            os.path.exists(os.path.join(self.project_top_level, c[s]['path'])) ):
-            cprint("ERROR: %s's 'path' not found. Continuing but skipping this entire entry from %s."
-                 % (s, self.config_file), 'DARK_RED')
-            self.config.pop(s)
-            continue
-          # SIM dir uniquness check
-          if c[s]['path'] in all_sim_paths:
-            cprint("ERROR: %s's 'path' is not unique in %s. Continuing but skipping this sim."
-                % (s, self.config_file), 'DARK_RED')
-            self.config.pop(s)
-            continue
-          # Ensure labels is a list of strings
-          if ('labels' not in c[s] or not c[s]['labels'] or not type_expected(
-            c[s]['labels'], expected_type=list, extra_msg='Ignoring labels.')):
-            self.config[s]['labels'] = []
-          else:
-            sanitized_labels =( [l for l in c[s]['labels'] if type_expected(
-              l, expected_type=str, extra_msg='Ignoring label "%s".' % l) ] )
-            self.config[s]['labels'] = sanitized_labels
-          # Check for binary argument
-          if 'binary' not in c[s] or not c[s]['binary']:
-            self.config[s]['binary'] = self.defaults['binary']
-
-          # Add the CPU format string (won't fail if there is no CPU placeholder)
-          self.config[s]['binary'] = self.config[s]['binary'].format(cpu=self.trick_host_cpu)
-
-          # Add the full path to the build command
-          self.config[s]['build_command'] = os.path.join(self.trick_dir, "bin", self.config[s]['build_command'])
-
-          # Create internal object to be populated with runs, valgrind runs, etc
-          thisSim = TrickWorkflow.Sim(name=s, sim_dir=self.config[s]['path'],
-            description=self.config[s]['description'], labels=self.config[s]['labels'],
-            prebuild_cmd=self.env, build_cmd=self.config[s]['build_command'],
-            cpus=self.cpus, size=self.config[s]['size'], log_dir=self.log_dir)
-            
-          all_sim_paths.append(c[s]['path'])
-          # RUN sanity checks
-          if 'runs' in c[s]:         # If it's there...
-            if not type_expected(c[s]['runs'], expected_type=dict,
-              extra_msg='Skipping entire run: section in %s' % c[s]):
-              self.config[s].pop('runs')
-            else:                  # If it's there and a valid list, check paths
-              all_run_paths = []   # Keep a list of all paths for uniqueness check
-              for r in c[s]['runs']:
-                if not type_expected(r, expected_type=str, extra_msg='Skipping this run.'):
-                  continue
-                just_RUN = r.split()[0]
-                just_RUN_dir = os.path.dirname(just_RUN)
-                if not os.path.exists(os.path.join(self.project_top_level, c[s]['path'], just_RUN)):
-                  cprint("ERROR: %s's 'run' path %s not found. Continuing but skipping this run "
-                    "from %s." % (s, just_RUN, self.config_file), 'DARK_RED')
-                  self.config[s]['runs'].pop(r)
-                  continue
-                if just_RUN_dir in all_run_paths and self.parallel_safety == 'strict':
-                  cprint("ERROR: %s's run directory %s is not unique in %s. With global setting "
-                         "parallel_safety: strict, you cannot have the same RUN directory listed "
-                         "more than once per sim. Continuing but skipping this run." %
-                         (s, r, self.config_file), 'DARK_RED')
-                  self.config[s]['runs'].pop(r)
-                  continue
-                # if the value of <run>: has nothing specified under it, fill out defaults
-                if not c[s]['runs'][r]:
-                  self.config[s]['runs'][r] = {}
-                  self.config[s]['runs'][r]['returns'] = 0
-                  self.config[s]['runs'][r]['compare'] = None
-                  self.config[s]['runs'][r]['analyze'] = None
-                  # Have to update the dict we're iterating b/c we check more content a dozen lines down
-                  c[s]['runs'][r] = dict(self.config[s]['runs'][r])
-                elif 'returns' not in c[s]['runs'][r]:
-                  self.config[s]['runs'][r]['returns'] = 0
-
-                elif (not type_expected(c[s]['runs'][r]['returns'], expected_type=int,
-                  extra_msg='Continuing but ignoring %s %s "returns:" value "%s"' %
-                  (s, r, c[s]['runs'][r]['returns']))):
-                  self.config[s]['runs'][r]['returns'] = 0 # Default to zero
-                elif (c[s]['runs'][r]['returns'] < 0 or c[s]['runs'][r]['returns'] > 255):
-                  cprint("ERROR: %s's run '%s' has invalid 'returns' value (must be 0-255). "
-                    "Continuing but assuming this run is expected to return 0 in %s." % (s, r, self.config_file),
-                    'DARK_RED')
-                  self.config[s]['runs'][r]['returns'] = 0 # Default to zero
-                # Create internal object to be added to thisSim
-                thisRun = TrickWorkflow.Run(sim_dir=self.config[s]['path'], input=r,
-                              binary= self.config[s]['binary'], prerun_cmd=self.env,
-                              returns=self.config[s]['runs'][r]['returns'],
-                              valgrind_flags=None, log_dir=self.log_dir)
-                # Handle 'compare' option, if given, if not, assume 0
-                if 'compare' not in c[s]['runs'][r]:
-                  self.config[s]['runs'][r]['compare'] = None
-                elif type(c[s]['runs'][r]['compare']) != list:
-                  pass # Deliberately leave open for workflows to extend how comparisons are defined
-                else:  # If it's a list, make sure it fits the 'path vs. path' format
-                  for cmp in c[s]['runs'][r]['compare']:
-                    if not type_expected(cmp, expected_type=str,
-                      extra_msg='Continuing but ignoring comparison %s' % cmp):
-                      continue
-                    if ' vs. ' not in cmp:
-                      cprint("ERROR: %s's run %s comparison '%s' does not match expected pattern. Must be of "
-                        "form: 'path/to/log1 vs. path/to/log2'. Continuing but ignoring this comparison in %s."
-                      % (s, r, cmp, self.config_file), 'DARK_RED')
-                      self.config[s]['runs'][r]['compare'].remove(cmp)
-                      continue
-                    lhs, rhs = [ s.strip() for s in cmp.split(' vs.') ]
-                    thisRun.add_comparison(test_data=lhs, baseline_data=rhs)
-                # Handle 'analysze' option, if given, if not, assume 0
-                if 'analyze' not in c[s]['runs'][r]:
-                  self.config[s]['runs'][r]['analyze'] = None
-                elif type(c[s]['runs'][r]['analyze']) != str:
-                  pass # Deliberately leave open for workflows to extend how analyze is defined
-                else:
-                  thisRun.add_analysis(cmd=self.config[s]['runs'][r]['analyze'])
-                all_run_paths.append(just_RUN_dir)
-                thisSim.add_run(thisRun)
-          # SIM's valgrind RUN path checks
-          if 'valgrind' in c[s]:        # If it's there...
-            if not type_expected(c[s]['valgrind'], expected_type=dict,
-              extra_msg='Skipping entire valgrind: section in %s' % c[s]):
-              self.config[s].pop('valgrind')
-            else:                     # If it's there and a valid dict
-              if self.this_os == 'darwin':
-                cprint("ERROR: Valgrind entry for %s is not valid for platform: %s in "
-                     "config file %s. Continuing but skipping this valgrind: section..."
-                     % (s, self.this_os, self.config_file), 'DARK_RED')
-                self.config[s].pop('valgrind')
-              else:
-                if 'flags' not in c[s]['valgrind']:
-                  self.config[s]['valgrind']['flags'] = ''
-                if 'runs' in  c[s]['valgrind']:       # If it's there...
-                  if not type_expected(c[s]['valgrind']['runs'], expected_type=list,
-                     extra_msg='Skipping this valgrind runs: section for %s' % c[s]):
-                    self.config[s].pop('valgrind')
-                  else:
-                    for r in c[s]['valgrind']['runs']:  # If it's there and a valid list, check paths
-                      if not type_expected(r, expected_type=str, extra_msg='Skipping this valgrind run.'):
-                        continue
-                      just_RUN = r.split()[0]
-                      if not os.path.exists(os.path.join(self.project_top_level, c[s]['path'], just_RUN)):
-                        cprint("ERROR: %s's valgrind 'run' path %s not found. Continuing but skipping "
-                               "this run from %s." % (s, just_RUN, self.config_file), 'DARK_RED')
-                        self.config[s]['valgrind']['runs'].remove(r)
-                      else:
-                        # Create internal object to be added to thisSim
-                        vRun = TrickWorkflow.Run(sim_dir=self.config[s]['path'], input=r,
-                          binary= self.config[s]['binary'],
-                          prerun_cmd=self.env, valgrind_flags=self.config[s]['valgrind']['flags'],
-                          log_dir=self.log_dir)
-                        thisSim.add_run(vRun)
-          # Done building up thisSim, store it off for later
-          self.sims.append(thisSim)
-        if len(self.sims) < 1:  # At minimum, one valid SIM structure must exist
-            msg = ("ERROR: After validating config file, there is insufficient information to continue."
-                " Check the syntax in config file %s and try again."
-                % (self.config_file) )
-            cprint(msg, 'DARK_RED')
-            self._cleanup()
-            raise RuntimeError(msg)
-        self._validate_config_custom(copy.deepcopy(self.config))
-
-    def _validate_config_custom(self, config):
-        """
-        Customization of config file validation. Intended to be extended in derived class.
-        If changes are needed to the config file, derived classes should edit self.config, not config.
-
-        Parameters
-        ----------
-        config : dict
-            deep copy of self.config for reading
-        """
-        pass
 
     def report(self, indent=''):
         """
@@ -604,7 +461,7 @@ class TrickWorkflow(WorkflowCommon):
         """
         return any([sim.compare() for sim in self.sims])
 
-    def get_jobs(self, kind):
+    def get_jobs(self, kind, phase=None):
         """
         Return a list of Jobs() from the self.sims structure of the kind given
 
@@ -620,26 +477,37 @@ class TrickWorkflow(WorkflowCommon):
         ----------
         kind : str
             Kind of jobs to return from internal self.sims structure: 'build', 'run', 'valgrind', or 'analysis'
+        phase : int, list of ints, or None
+            Optional filter to return only jobs of phase or phases given. Analysis jobs
+            inherit the phase of the Run() it is associated with
 
         Returns
         -------
         list
-            List of jobs of given kind
+            List of jobs of given kind (and phase if specified)
         """
+        # Transform given phase into a list
+        phases = TrickWorkflow.listify_phase(phase)
+
         jobs = []
         if kind == 'build' or kind == 'builds':
-            jobs = [ sim.get_build_job() for sim in self.sims ]
+            jobs = [ sim.get_build_job() for sim in self.sims if sim.phase in phases ]
         elif kind == 'run' or kind == 'runs':
           for sim in self.sims:
-            jobs +=  sim.get_run_jobs(kind='normal')
+            jobs +=  sim.get_run_jobs(kind='normal', phase=phases)
         elif kind == 'valgrind' or kind == 'valgrinds':
           for sim in self.sims:
-            jobs +=  sim.get_run_jobs(kind='valgrind')
+            jobs +=  sim.get_run_jobs(kind='valgrind', phase=phases)
         elif kind == 'analysis' or kind == 'analyses' or kind == 'analyze':
           for sim in self.sims:
-            jobs +=  sim.get_analysis_jobs()
+            jobs +=  sim.get_analysis_jobs(phase=phases)
         else:
             raise TypeError('get_jobs() only accepts kinds: build, run, valgrind, analysis')
+        # If these jobs are of type SingleRun and self.quiet is True, tell the jobs to
+        # skip the variable server connection logic
+        for job in jobs:
+            if self.quiet and isinstance(job, SingleRun):
+                job.set_use_var_server(False)
         return (jobs)
 
     def get_comparisons(self):
@@ -771,7 +639,7 @@ class TrickWorkflow(WorkflowCommon):
         stored in the TrickWorkflow.sims list.
         """
         def __init__(self, name, sim_dir, description=None, labels=[], prebuild_cmd='',
-                     build_cmd='trick-CP', cpus=3, size=2200000, log_dir='/tmp'):
+                     build_cmd='trick-CP', cpus=3, size=2200000, phase=0, log_dir='/tmp'):
             """
             Initialize this instance.
 
@@ -793,6 +661,9 @@ class TrickWorkflow(WorkflowCommon):
                 Optional Number of CPUs to give via MAKEFLAGS for sim build
              size : int
                 Optional estimated size of successful build output file, for progress bars
+             phase : int
+                Optional ordering phase, typically used to order sim builds when parallel
+                execution is not robust
              log_dir: str
                 Directory in which log files will be written
             """
@@ -804,6 +675,7 @@ class TrickWorkflow(WorkflowCommon):
             self.build_cmd = build_cmd     # Build command for sim
             self.cpus = cpus               # Number of CPUs to use in build
             self.size = size               # Estimated size of successful build output in bytes
+            self.phase = phase             # Phase associated with this sim build
             self.log_dir = log_dir         # Directory for which log file should be written
             self.build_job = None          # Contains Build Job instance
             self.runs = []                 # List of normal Run instances
@@ -833,9 +705,10 @@ class TrickWorkflow(WorkflowCommon):
                     size=self.size )
             return (self.build_job)
 
-        def get_run_jobs( self, kind='normal'):
+        def get_run_jobs( self, kind='normal', phase=None):
             """
-            Collect all SingleRun() instances and return them for all sims
+            Collect all SingleRun() instances and return them for all sims subject to the filtering
+            paramters kind and phase
 
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.get_run_jobs()  # A sim has no runs by default
@@ -845,33 +718,48 @@ class TrickWorkflow(WorkflowCommon):
             -------
             kind : str
                 'normal' for normal runs, 'valgrind' for valgrind runs
+            phase : int, list of ints, or None
+                Get only jobs of the given phase integer or list of integers
+                If None (default), return all jobs
 
             Returns
             -------
             list
-                List of SingleRun() job instances
+                List of SingleRun() job instances associated with kind and phase
             """
+            # Transform given phase into a list
+            phases = TrickWorkflow.listify_phase(phase)
+            all_jobs = []
             if (kind == 'valgrind'):
-                return ([r.get_run_job() for r in self.valgrind_runs])
+                all_jobs = [r.get_run_job() for r in self.valgrind_runs if r.phase in phases]
             else:
-                return ([r.get_run_job() for r in self.runs])
+                all_jobs = [r.get_run_job() for r in self.runs if r.phase in phases]
+            return (all_jobs)
 
-        def get_analysis_jobs( self):
+        def get_analysis_jobs( self, phase=None):
             """
-            Collect all Job() instances for all analysis across all sim runs
+            Collect all Job() instances for all analysis across all sim runs and valgrind runs
 
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
             >>> s.get_analysis_jobs()  # A sim has no analysis jobs by default
             []
+
+            Parameters
+            -------
+            phase : int, list of ints, or None
+                Get only jobs of the given phase integer or list of integers
+                If None (default), return all jobs
 
             Returns
             -------
             list()
                 List of Job() instances for all analyses
             """
-            return ([r.analysis for r in self.runs if r.analysis])
+            # Transform given phase into a list
+            phases = TrickWorkflow.listify_phase(phase)
+            return ([r.analysis for r in (self.runs + self.valgrind_runs) if (r.analysis and r.phase in phases) ])
 
-        def get_run(self, input):
+        def get_run(self, input_file):
             """
             Get a Run() instance by unique full input name. This is the full
             string intended to be passed to the binary.
@@ -895,11 +783,11 @@ class TrickWorkflow(WorkflowCommon):
             TypeError
                 If input is not a str
             """
-            if type(input) != str:
+            if type(input_file) != str:
                 raise TypeError('get_run() only accepts the unique key representing the entire input to'
                   ' the sim binary. Ex: "RUN_test/input.py --flags-too"')
             for run in self.runs:
-                if run.input == input:
+                if run.input_file == input_file:
                    return run
             return None
 
@@ -925,13 +813,50 @@ class TrickWorkflow(WorkflowCommon):
             """
             return self.valgrind_runs
 
+        def get_phase(self):
+            """
+            Get integer phase member
+
+            >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
+            >>> s.get_phase()  # Default is zero
+            0
+
+            """
+            return self.phase
+
+        def set_phase( self, phase):
+            """
+            Set the phase member variable. Phase is an integer in the range(TrickWorkflow.allowed_phase_range['min'],
+            TrickWorkflow.allowed_phase_range['max']) which can be used to order sim builds when a workflow cannot
+            support sims building in parallel.
+
+            >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
+            >>> s.set_phase(1)
+            >>> s.set_phase(-1001) #doctest: +ELLIPSIS
+            Traceback (most recent call last):
+               ...
+            RuntimeError: ERROR: set_phase() for SIM alloc must be an integer between ...
+
+            Parameters
+            -------
+            phase : int
+                phase to change to
+            """
+            if (not isinstance(phase, int) or phase < TrickWorkflow.allowed_phase_range['min'] or
+                phase > TrickWorkflow.allowed_phase_range['max']):
+                msg =("ERROR: set_phase() for SIM %s must be an integer between [%s, %s]"
+                      % (self.name, TrickWorkflow.allowed_phase_range['min'], TrickWorkflow.allowed_phase_range['max']))
+                raise RuntimeError(msg)
+            else:
+                self.phase = phase
+
         def add_run( self, run):
             """
             Append a new Run() instance to the internal run lists. Appends to valgrind
             list if run.valgrind_flags is not None, appends to normal run list otherwise
 
             >>> s = TrickWorkflow.Sim(name='alloc', sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'))
-            >>> r = TrickWorkflow.Run(sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'), input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> r = TrickWorkflow.Run(sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'), input_file='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> s.add_run(r)
 
             Parameters
@@ -944,25 +869,27 @@ class TrickWorkflow(WorkflowCommon):
             else:
                 self.runs.append(run)
 
-        def pop_run( self, input):
+        def pop_run( self, input_file):
             """
-            Remove a run by its unique self.input value
+            Remove a run by its unique self.input_file value
 
             >>> tw = TrickWorkflow(project_top_level=this_trick, log_dir='/tmp/', trick_dir=this_trick, config_file=os.path.join(this_trick,"share/trick/trickops/tests/trick_sims.yml"))
-            >>> s = tw.get_sim('SIM_alloc_test')
+            >>> s = tw.get_sim('SIM_demo_inputfile')
+            >>> len(s.runs)
+            2
             >>> r = s.pop_run('RUN_test/input.py')
-            >>> r.input
+            >>> r.input_file
             'RUN_test/input.py'
             >>> len(s.runs)
-            0
+            1
 
             Returns
             -------
             Run()
-                Instance in this sim's runs list matching self.input
+                Instance in this sim's runs list matching self.input_file
             """
             for i, run in enumerate(self.runs):
-              if run.input == input:
+              if run.input_file == input_file:
                  return self.runs.pop(i)
 
         def compare( self):
@@ -1014,20 +941,20 @@ class TrickWorkflow(WorkflowCommon):
         Management class for run content read from yml config file. Each key in the
         runs: sub-dict will become a single instance of this management class
         """
-        def __init__(self, sim_dir, input, binary, prerun_cmd = '', returns=0, valgrind_flags=None,
-                     log_dir='/tmp/'):
+        def __init__(self, sim_dir, input_file, binary, prerun_cmd = '', returns=0, valgrind_flags=None,
+                     phase=0, log_dir='/tmp/'):
             """
             Initialize this instance.
 
-            >>> r = TrickWorkflow.Run(sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'), input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
-            >>> r.input
+            >>> r = TrickWorkflow.Run(sim_dir=os.path.join(this_trick, 'test/SIM_alloc_test'), input_file='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> r.input_file
             'RUN_test/input.py'
 
             Parameters
             ----------
             sim_dir : str
                 path to sim directory from top level of repository for this run
-            input : str
+            input_file : str
                 literal argument to sim binary representing how this run is initiated
                 including command-line arguments
                 ex: RUN_test/input.py, or RUN_test/input.py --my-arg
@@ -1037,16 +964,20 @@ class TrickWorkflow(WorkflowCommon):
                 Optional string to execute immediately before sim run, e.g. env sourcing
              valgrind_flags : str
                 If not None, use these flag and valgrind for this run
+             phase : int
+                Optional ordering phase, typically used to order sim runs when parallel
+                execution is not robust
              log_dir : str
                 Directory in which log files will be written
             """
             self.sim_dir = sim_dir        # Path to sim directory wrt to top level of project for this run
             self.prerun_cmd = prerun_cmd  # Optional string to execute in shell immediately before running (env)
-            self.input = input            # Full RUN.../input.py --any-flags --as-well, relative to sim_dir
+            self.input_file = input_file  # Full RUN.../input.py --any-flags --as-well, relative to sim_dir
             self.returns = returns        # Expected exit code on success for this run
             self.valgrind_flags = valgrind_flags  # If not None, this run is to be run in valgrind w/ these flags
+            self.phase = phase            # Phase associated with this run
             self.log_dir = log_dir        # Dir where all logged output will go
-            self.just_input = self.input.split(' ')[0]  # Strip flags if any
+            self.just_input = self.input_file.split(' ')[0]  # Strip flags if any
             # Derive Just the "RUN_something" part of run_dir_path
             self.just_run_dir = os.path.dirname(self.just_input)
             # Derive Path to run directory wrt to top level of project
@@ -1061,7 +992,7 @@ class TrickWorkflow(WorkflowCommon):
             """
             Given two data directories, add a new Comparison() instance to self.comparisons list
 
-            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input_file='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> r.add_comparison('share/trick/trickops/tests/baselinedata/log_a.csv','share/trick/trickops/tests/testdata/log_a.csv')
 
             Parameters
@@ -1078,7 +1009,7 @@ class TrickWorkflow(WorkflowCommon):
             """
             Given an analysis command, add it as a post-run analysis for this run
 
-            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input_file='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> r.add_analysis('echo analysis goes here')
 
             Parameters
@@ -1088,17 +1019,58 @@ class TrickWorkflow(WorkflowCommon):
             """
             if self.analysis:
                 tprint("WARNING: Overwriting analysis definition for %s's %s" % (self.sim_dir,
-                  self.input), 'DARK_YELLOW')
+                  self.input_file), 'DARK_YELLOW')
             logfile = (os.path.join(self.log_dir, unixify_string(self.sim_dir))
-                +'_'+ unixify_string(self.input) + '_analysis.txt')
+                +'_'+ unixify_string(self.input_file) + '_analysis.txt')
             self.analysis =  Job(name=textwrap.shorten(cmd, width=90), command=self.prerun_cmd + " " +cmd,
               log_file=logfile, expected_exit_status=0)
+
+        def get_phase(self):
+            """
+            Get integer phase member
+
+            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input_file='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> r.get_phase()  # Default is zero
+            0
+
+            """
+            return self.phase
+
+        def set_phase( self, phase):
+            """
+            Set the phase member variable. Phase is an integer in the range(TrickWorkflow.allowed_phase_range['min'],
+            TrickWorkflow.allowed_phase_range['max']) which can be used to order sim runs when a workflow cannot
+            support running sims in parallel.
+
+            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input_file='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> r.set_phase(1)
+            >>> r.set_phase(-1001) #doctest: +ELLIPSIS
+            Traceback (most recent call last):
+               ...
+            RuntimeError: ERROR: set_phase() for test/SIM_alloc_test/RUN_test/input.py must be an integer between ...
+
+            Parameters
+            -------
+            phase : int
+                phase to change to
+            """
+            # TODO: This is very similar to Sim.set_phase() in functionality but I didn't want to create
+            # a base class just to support this single instance of reducing code duplication
+            # -Jordan 12/2022
+            if (not isinstance(phase, int) or phase < TrickWorkflow.allowed_phase_range['min'] or
+                phase > TrickWorkflow.allowed_phase_range['max']):
+                msg =("ERROR: set_phase() for %s/%s must be an integer between [%s, %s]"
+                      % (self.sim_dir, self.input_file, TrickWorkflow.allowed_phase_range['min'],
+                        TrickWorkflow.allowed_phase_range['max']))
+                raise RuntimeError(msg)
+            else:
+                self.phase = phase
 
         def compare( self):
             """
             Execute all internal comparisons for this run
 
-            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input_file='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> r.compare() # No comparisons means success a.k.a 0
             False
 
@@ -1121,7 +1093,7 @@ class TrickWorkflow(WorkflowCommon):
             """
             tprint(indent + "  %-20s       %s"  % (self.run_job._translate_status()
               if self.run_job else printer.colorstr('NOT RUN', 'DARK_YELLOW'),
-              self.input))
+              self.input_file))
             if self.comparisons:
               tprint(indent + "    Run Comparisons:")
               for comparison in self.comparisons:
@@ -1134,7 +1106,7 @@ class TrickWorkflow(WorkflowCommon):
             """
             Create if necessary and Return the SingleRun() job instance
 
-            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input_file='RUN_test/input.py', binary='S_main_Linux_x86_64.exe')
             >>> j = r.get_run_job()
 
             Returns
@@ -1152,16 +1124,120 @@ class TrickWorkflow(WorkflowCommon):
                 if self.valgrind_flags:
                     cmd += ( "valgrind %s --log-file=%s " % (self.valgrind_flags,
                       (os.path.join(self.log_dir, sim_name) +'_valgrind_'
-                      + unixify_string(self.input) + '.valgrind') ))
+                      + unixify_string(self.input_file) + '.valgrind') ))
                     logfile += '_valgrind'
                     name += 'Valgrind '
-                logfile += "_" + unixify_string(self.input) + '.txt'
-                cmd += (" ./%s %s" % (self.binary, self.input))
-                name += self.sim_dir + ' ' + self.input
+                logfile += "_" + unixify_string(self.input_file) + '.txt'
+                cmd += (" ./%s %s" % (self.binary, self.input_file))
+                name += self.sim_dir + ' ' + self.input_file
 
                 self.run_job = SingleRun(name=name, command=(cmd),
                     expected_exit_status=self.returns, log_file=logfile)
             return (self.run_job)
+
+        def _get_range_list(self, pattern):
+            """
+            Given a string matching the following pattern:
+              [<int1>-<int2>]     - One set of enclosed in square braces
+              <int1> < <int2>     - First integer must be less than second integer
+              <int1> & <int2> > 0 - Both integers must be positive
+              [001-999]           - Leading zeros must be included and consistent
+            Return a list(range(int1, int2+1)) with leading zeros maintained in
+            string format
+
+            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input_file='RUN_[01-04]/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> rl =r._get_range_list('[0-4]')
+            >>> len(rl)
+            5
+
+            Returns
+            -------
+            list()
+                List of zero-padded integer range as strings
+            Raises
+            ------
+            RuntimeError
+               If pattern is unrecognized or contains errors
+            """
+            must_exist = ['[', ']', '-']
+            if any([char not in pattern for char in must_exist]):
+              msg = ("ERROR: Pattern %s doesn't match expected syntax of \"[min-max]\"" % (pattern))
+              raise RuntimeError(msg)
+            min, max = pattern.strip('[').strip(']').split('-')
+            if len(min) != len(max):
+              msg = ("ERROR: Pattern %s has inconsistent leading zeros." % (pattern))
+              raise RuntimeError(msg)
+            leading_zeros = int(len(min))
+            try:
+              min = int(min)
+            except ValueError as e:
+              msg = ("ERROR: Pattern %s minimum cannot be converted to integer. \n%s" % (pattern, e))
+              raise RuntimeError(msg)
+            try:
+              max = int(max)
+            except ValueError as e:
+              msg = ("ERROR: Pattern %s maximum cannot be converted to integer. \n%s" % (pattern, e))
+              raise RuntimeError(msg)
+            if min >= (max):
+              msg = ("ERROR: Pattern %s minimum must be less than maximum." % pattern)
+              raise RuntimeError(msg)
+            range_list = []
+            for num in range(min, max+1):
+              range_list.append(str(num).zfill(leading_zeros))
+            return (list(range_list))
+
+
+        def multiply(self):
+            """
+            If [from-to] notation used in input_file, return individual instances
+            of Run() for the expanded set. Otherwise, return self. The pattern
+            must meet the following criteria for input_file and optionally comparisons:
+              [<int1>-<int2>]     - One set of enclosed in square braces
+              <int1> < <int2>     - First integer must be less than second integer
+              <int1> & <int2> > 0 - Both integers must be positive
+              [001-999]           - Leading zeros must be included and consistent
+
+            >>> r = TrickWorkflow.Run(sim_dir='test/SIM_alloc_test', input_file='RUN_[01-04]/input.py', binary='S_main_Linux_x86_64.exe')
+            >>> runs = r.multiply()
+            >>> len(runs)
+            4
+
+            Returns
+            -------
+            list of Run()
+                Resultant list of Run() instances after expansion
+            Raises
+            ------
+            RuntimeError
+               If expansion of pattern is not possible
+
+            TODO: Note that this approach requires a 1:1 mapping between the [min-max] notation
+            specified in the self.input_file and notation in that same run's comparisons. This
+            approach does not support range expansion for an input_file with no range pattern
+            but which contains a compare range pattern. If this is attempted by the user in
+            yaml file, the literal [min-max] is used instead, resulting in (missing) errors.
+            This use case could be supported by changing this method and potentially
+            Comparison.pattern_replace() so that [min-max] is expanded in comparisons differently
+            if self.input file does not contain the range notation. This is left unimplemented
+            for now since not only does this add significant complexity but it also would mean
+            two separate behaviors for the user with the same notation in yaml, which feels
+            like bad mojo. -Jordan 1/2023
+            """
+            rs = TrickWorkflow._find_range_string(self.input_file)
+            if rs is None:
+              return [self]
+            else:
+              range_list = self._get_range_list(rs)
+              multiplied_runs = []
+              for i in range_list:
+                # replace the range string notation with the single run equivalent
+                acopy = copy.deepcopy(self)
+                acopy.input_file = self.input_file.replace(rs, i)
+                # Add comparisons back as multiplied set
+                for c in acopy.comparisons:
+                  c.pattern_replace(expecting_pattern=rs, replace_with=i)
+                multiplied_runs.append(acopy)
+              return multiplied_runs
 
     class Comparison(object):
         """
@@ -1283,60 +1359,78 @@ class TrickWorkflow(WorkflowCommon):
               string += printer.colorstr(" (missing)", 'DARK_RED')
             tprint(string)
 
-class SimulationJob(Job):
+        def pattern_replace(self, expecting_pattern, replace_with):
+            """
+            Replaces expecting_pattern value in self.test_data and self.baseline_data
+            with replace_with value if found. Mostly intended to be used via
+            Run.multiply()
+
+            >>> c = TrickWorkflow.Comparison('testdata/RUN_[00-03]/log_a.csv','baseline/RUN_[00-03]/log_a.csv')
+            >>> c.pattern_replace(expecting_pattern='[00-03]', replace_with='01')
+            >>> c.test_data
+            'testdata/RUN_01/log_a.csv'
+            >>> c.baseline_data
+            'baseline/RUN_01/log_a.csv'
+
+            Raises
+            ------
+            RuntimeError
+               If expected_pattern doesn't match found pattern in test_data or baseline_data
+            """
+            rsb = TrickWorkflow._find_range_string(self.baseline_data)
+            rst = TrickWorkflow._find_range_string(self.test_data)
+            if rsb is None and rst is None: # If no patterns, do nothing
+              return
+            if (rsb and rsb != expecting_pattern) or (rst and rst != expecting_pattern):
+              msg = ("ERROR: [min-max] pattern from run (%s) must match pattern in run's"
+                " comparisons test (%s) and baseline (%s) sections, if specified."
+                % (expecting_pattern, rst, rsb))
+              raise RuntimeError(msg)
+            if rsb:
+              self.baseline_data = self.baseline_data.replace(expecting_pattern, replace_with)
+            if rst:
+              self.test_data     = self.test_data.replace(expecting_pattern, replace_with)
+
+
+class SingleRun(Job):
     """
-    A Job which is a Trick simulation.
+    A single trick simulation run Job. SingleRun's can optionally connect to the
+    trick variable server to get progress bar information.
     """
-
-    __metaclass__ = abc.ABCMeta
-
-    @abc.abstractmethod
-    def _create_variables(self):
+    def __init__(self, name, command, log_file, expected_exit_status=0, use_var_server=True):
         """
-        Create and return a list of Variables to periodically sample
-        via the sim's variable server.
+        Initialize this instance.
 
-        Returns
-        -------
-        [variable_server.Variable]
-            A list of variables to periodically sample.
+        Parameters
+        ----------
+        name : str
+            The name of this job.
+        command : str
+            The command to execute when start() is called.
+        log_file : str
+            The file to which to write log information.
         """
-        pass
+        self._use_var_server = use_var_server
+        self._connected = False
+        super().__init__(name=name, command=command, log_file=log_file,
+          expected_exit_status=expected_exit_status)
 
-    @abc.abstractmethod
-    def _connected_string(self):
-        """
-        Get a string displaying status information. This method will
-        be only called after this instance has successfull connected
-        to the sim.
+    def set_use_var_server(self, value):
+        if (not isinstance(value, bool)):
+            msg =("ERROR: SingleRun.set_use_var_server() Requires a True/False value")
+            raise RuntimeError(msg)
+        else:
+            self._use_var_server = value
 
-        Returns
-        -------
-        str
-            A string containing status information.
-        """
-        pass
-
-    @abc.abstractmethod
-    def _connected_bar(self):
-        """
-        Get a progress bar representing the current progress. This
-        method will be only called after this instance has successfull
-        connected to the sim.
-
-        Returns
-        -------
-        str
-            A progress bar representing the current progress.
-        """
-        pass
+    def get_use_var_server(self):
+        return (self._use_var_server)
 
     def start(self):
         """
         Start this Simulation job. Attempts a connection to the sim variable server
         in another thread after calling the base class Job() start() method
         """
-        super(SimulationJob, self).start()
+        super(SingleRun, self).start()
         self._connected = False
 
         # Finding a sim via PID can take several seconds.
@@ -1380,20 +1474,25 @@ class SimulationJob(Job):
                     return
                 except socket.timeout:
                     pass
+                # If a SingleRun job terminates before the thread can connect to the
+                # variable server, Trick's variable_server module throws an IOError
+                # with the message: The remote endpoint has closed the connection
+                except IOError as e:
+                    pass
 
-        thread = threading.Thread(target=connect,
-                                  name='Looking for ' + self.name)
-        thread.daemon = True
-        thread.start()
+        if self._use_var_server:
+            thread = threading.Thread(target=connect, name='Looking for ' + self.name)
+            thread.daemon = True
+            thread.start()
 
     def get_status_string_line_count(self):
-        return super(SimulationJob, self).get_status_string_line_count() + 1
+        return super(SingleRun, self).get_status_string_line_count() + 1
 
     def _not_started_string(self):
-        return super(SimulationJob, self)._not_started_string() + '\n'
+        return super(SingleRun, self)._not_started_string() + '\n'
 
     def _running_string(self):
-        elapsed_time = super(SimulationJob, self)._running_string()
+        elapsed_time = super(SingleRun, self)._running_string()
 
         if self._connected:
             return (elapsed_time + self._connected_string() + '\n' +
@@ -1403,13 +1502,13 @@ class SimulationJob(Job):
           create_progress_bar(0, 'Connecting'))
 
     def _success_string(self):
-        text = super(SimulationJob, self)._success_string()
+        text = super(SingleRun, self)._success_string()
         if self._connected:
             text += self._connected_string()
         return text + '\n' + self._success_progress_bar
 
     def _failed_string(self):
-        text = super(SimulationJob, self)._failed_string()
+        text = super(SingleRun, self)._failed_string()
         if self._connected:
             text += self._connected_string()
         return text + '\n' + self._failed_progress_bar
@@ -1419,18 +1518,13 @@ class SimulationJob(Job):
             self._variable_server.close()
         except:
             pass
-        super(SimulationJob, self).die()
+        super(SingleRun, self).die()
 
     def __del__(self):
         try:
             self._variable_server.close()
         except:
             pass
-
-class SingleRun(SimulationJob):
-    """
-    A regular (not Monte Carlo) sim.
-    """
 
     def _create_variables(self):
         self._tics = variable_server.Variable(
@@ -1469,7 +1563,7 @@ class SingleRun(SimulationJob):
         Returns
         -------
         str
-            A string for displaying the ratio of sime time to real time.
+            A string for displaying the ratio of sim time to real time.
         """
         elapsed_time = (
           (self._stop_time if self._stop_time else time.time())
@@ -1477,43 +1571,3 @@ class SingleRun(SimulationJob):
         return 'Average Speed: {0:4.1f} X'.format(
           self._tics.value / self._tics_per_sec.value / elapsed_time)
 
-class MonteCarlo(SimulationJob):
-    """
-    A Monte Carlo simulation.
-
-    TODO: This is not currently tested or supported by the TrickWorkflow
-    management layer. However, this class has been used in a project in
-    the 2017-2020 timeframe and should still be functional. Reason for
-    not currently supporting it is mostly because the biggest users of
-    Trick monte-carlo have already moved away from it's internal master/
-    slave architecture so there isn't much of a need.
-    """
-
-    def _create_variables(self):
-        self._total_runs = variable_server.Variable(
-          'trick_mc.mc.actual_num_runs', type_=int)
-        self._finished_runs = variable_server.Variable(
-          'trick_mc.mc.num_results', type_=int)
-        self._num_slaves = variable_server.Variable(
-          'trick_mc.mc.num_slaves', type_=int)
-        return self._total_runs, self._finished_runs, self._num_slaves
-
-    def _connected_string(self):
-        return '      {0}      {1}'.format(
-          self._slave_count(), self._run_status())
-
-    def _connected_bar(self):
-        if self._total_runs.value > 0:
-            progress = (float(self._finished_runs.value)
-                   / self._total_runs.value)
-        else:
-            progress = 0.0
-        return create_progress_bar(
-          progress, '{0:.0f}%'.format(100 * progress))
-
-    def _slave_count(self):
-        return 'Slaves: {0:5d}'.format(self._num_slaves.value)
-
-    def _run_status(self):
-        return 'Completed Runs: {0:>14}'.format('{0}/{1}'.format(
-          self._finished_runs.value, self._total_runs.value))

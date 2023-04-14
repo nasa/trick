@@ -9,7 +9,7 @@
 #include <string>
 #include <iostream>
 #include "trick/tc.h"
-#include "trick/ThreadBase.hh"
+#include "trick/SysThread.hh"
 
 namespace Trick {
 
@@ -17,7 +17,7 @@ namespace Trick {
   This class runs the variable server listen loop.
   @author Alex Lin
  */
-    class VariableServerListenThread : public Trick::ThreadBase {
+    class VariableServerListenThread : public Trick::SysThread {
 
         public:
             VariableServerListenThread() ;

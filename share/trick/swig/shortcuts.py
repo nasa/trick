@@ -44,6 +44,7 @@ if hasattr(top.cvar, 'trick_ip'):
 
 set_event_info_msg_on = trick.IPPythonEvent.set_event_info_msg_on
 set_event_info_msg_off = trick.IPPythonEvent.set_event_info_msg_off
+terminate_on_event_parse_error = trick.IPPythonEvent.terminate_on_event_parse_error
 
 # bind pyton input_processor event routines to shortcut names.
 new_event = trick.ippython_new_event

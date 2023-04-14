@@ -8,14 +8,22 @@ dyn.aircraft.autoPilot = True;
 dyn.aircraft.desired_speed = 200 # meters per second
 
 #==========================================
+# Read the waypoints from the input file
+#==========================================
+
+waypoints_path = "Modified_data/default.wps"
+dyn.aircraft.flightPath.load(waypoints_path)
+
+#==========================================
 # Start the Satellite Graphics Client
 #==========================================
 varServerPort = trick.var_server_get_port();
-AircraftDisplay_path = "models/graphics/dist/AircraftDisplay.jar"
+AircraftDisplay_path = "models/graphics/build/AircraftDisplay.jar"
 
 if (os.path.isfile(AircraftDisplay_path)) :
     AircraftDisplay_cmd = "java -jar " \
                    + AircraftDisplay_path \
+                   + " -w " + waypoints_path \
                    + " " + str(varServerPort) + " &" ;
     print(AircraftDisplay_cmd)
     os.system( AircraftDisplay_cmd);
