@@ -45,6 +45,7 @@ For example:
 drg.add_variable("ball.obj.state.output.position[0]")
 drg.add_variable("ball.obj.state.output.position[1]")
 ```
+In this example `position` is an array of floating point numbers. **DO NOT ATTEMPT TO DATA RECORD C OR C++ STRINGS. THIS HAS BEEN OBSERVED TO CREATE MEMORY ISSUES AND TRICK DOES NOT CURRENTLY PROVIDE ERROR CHECKING FOR THIS UNSUPPORTED USE CASE**
 
 An optional alias may also be specified in the method as <tt>drg.add_variable("<string_of_variable_name>" [, "<alias>"])</tt>.  
 If an alias is present as a second argument, the alias name will be used in the data recording file instead of the actual variable name.
@@ -54,6 +55,8 @@ For example:
 drg.add_variable("ball.obj.state.output.position[0]", "x_pos")
 drg.add_variable("ball.obj.state.output.position[1]", "y_pos")
 ```
+
+Only individual primitive types can be recorded. Arrays, strings/char *, structured objects, or STL types are not supported.
 
 ### Changing the Recording Rate
 

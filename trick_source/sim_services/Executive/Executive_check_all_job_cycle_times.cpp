@@ -48,12 +48,12 @@ int Trick::Executive::check_all_job_cycle_times() {
         Trick::JobData * temp_job = all_jobs_vector[ii] ;
         double test_rem ;
 
-        /* calculate the floating point remainder when cycle is divided by 1/time_tic_value.  Normalize result to 1.0 */
-        test_rem = fmod(temp_job->cycle , 1.0 / time_tic_value ) * time_tic_value ;
+        /* Calculate the if the cycle_tics would be a whole number  */
+        test_rem = fmod(temp_job->cycle * (double)time_tic_value , 1.0 ) ;
 
         if ( test_rem > 0.001 ) {
             message_publish(MSG_WARNING,"Cycle for (%s) cannot be exactly scheduled with time tic value. "
-             "cycle = %16.12f, cycle_tics = %d , time_tic = %16.12f\n",
+             "cycle = %16.12f, cycle_tics = %lld , time_tic = %16.12f\n",
              temp_job->name.c_str() , temp_job->cycle, temp_job->cycle_tics , 1.0 / time_tic_value ) ;
             ret = -1 ;
         }

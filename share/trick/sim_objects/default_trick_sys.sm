@@ -175,7 +175,7 @@ class MonteCarloSimObject : public Trick::SimObject {
             exec_register_scheduler(&mc) ;
 
             {TRK} P0 ("default_data")   mc.process_sim_args() ;
-            {TRK} P0 ("initialization") mc.execute_monte() ;
+            {TRK} P1 ("initialization") mc.execute_monte() ;
             {TRK}    ("shutdown")       mc.shutdown() ;
         }
 }

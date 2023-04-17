@@ -42,6 +42,7 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/MemoryManager \
 	${TRICK_HOME}/trick_source/sim_services/Message \
 	${TRICK_HOME}/trick_source/sim_services/MonteCarlo \
+	${TRICK_HOME}/trick_source/sim_services/MonteCarloGeneration \
 	${TRICK_HOME}/trick_source/sim_services/RealtimeInjector \
 	${TRICK_HOME}/trick_source/sim_services/RealtimeSync \
 	${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue \
@@ -90,19 +91,23 @@ endif
 ER7_UTILS_OBJS = $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(ER7_UTILS_DIRS))
 
 UTILS_DIRS := \
+	${TRICK_HOME}/trick_source/trick_utils/compareFloatingPoint \
 	${TRICK_HOME}/trick_source/trick_utils/interpolator \
 	${TRICK_HOME}/trick_source/trick_utils/trick_adt \
 	${TRICK_HOME}/trick_source/trick_utils/comm \
 	${TRICK_HOME}/trick_source/trick_utils/shm \
 	${TRICK_HOME}/trick_source/trick_utils/math \
 	${TRICK_HOME}/trick_source/trick_utils/units \
-	${TRICK_HOME}/trick_source/trick_utils/unicode
+	${TRICK_HOME}/trick_source/trick_utils/unicode \
+	${TRICK_HOME}/trick_source/trick_utils/var_binary_parser
+
 UTILS_OBJS := $(addsuffix /object_$(TRICK_HOST_CPU)/*.o ,$(UTILS_DIRS))
 
 # filter out the directories that make their own libraries
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/comm/%, $(UTILS_OBJS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/math/%, $(UTILS_OBJS))
 UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/units/%, $(UTILS_OBJS))
+UTILS_OBJS := $(filter-out ${TRICK_HOME}/trick_source/trick_utils/var_binary_parser/%, $(UTILS_OBJS))
 
 #-------------------------------------------------------------------------------
 # Specify the contents of: libtrick_pyip.a
@@ -284,6 +289,7 @@ premade:
 ################################################################################
 #                                   TESTING
 ################################################################################
+
 # This target runs Trick's Unit-tests and simulation-tests.
 test: unit_test sim_test
 	@ echo "All tests completed sucessfully"
@@ -306,9 +312,20 @@ sim_test:
 pytest:
 	make -C share/trick/pymods/trick
 
-code-coverage: test
-	lcov --capture --directory trick_source/sim_services --output-file coverage_large.info
-	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' -o coverage.info
+COVERAGE_DIRS = trick_source/sim_services \
+				trick_source/trick_utils/var_binary_parser \
+				trick_source/trick_utils/unicode \
+				trick_source/trick_utils/units \
+				trick_source/trick_utils/interpolator \
+				trick_source/trick_utils/comm \
+				trick_source/trick_utils/SAIntegrator
+
+extra-coverage-builds:
+	@ $(MAKE) test -C trick_source/trick_utils/SAIntegrator
+
+code-coverage: test extra-coverage-builds
+	lcov --capture $(addprefix --directory , $(COVERAGE_DIRS)) --output-file coverage_large.info
+	lcov --remove coverage_large.info '/Library/*' '/usr/*' '*/io_src/*' '*/test/*' '*/unittest/*' -o coverage.info
 	rm coverage_large.info
 	lcov --list coverage.info
 

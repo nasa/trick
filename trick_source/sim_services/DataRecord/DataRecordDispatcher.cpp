@@ -33,7 +33,7 @@ Trick::DRDMutexes::DRDMutexes() {
 }
 
 Trick::DRDWriterThread::DRDWriterThread(DRDMutexes & in_mutexes, std::vector <Trick::DataRecordGroup *> & in_groups) :
- ThreadBase("DR_Writer"),
+ SysThread("DR_Writer"),
  drd_mutexes(in_mutexes) ,
  groups(in_groups) {}
 

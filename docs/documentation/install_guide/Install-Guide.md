@@ -11,7 +11,7 @@ Trick requires various free third party utilities in order to function. All the 
 |---------------:|:-------:|:-----------------------:|:---------------------------------------------------------:|:------------------------------------------------------|
 | [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                        |
 | [clang]/[llvm] | <=14    | C/C++ Compiler          | Utilized by the interface code generator.                 | Trick Versions <= 19.3 should use LLVM <= 9        |
-| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.9 as of 02/21  |
+| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.11 as of 04/23  |
 | [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                        |
 | [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                        |
 | [swig]         | 2.x-3.x | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ required for some unit tests in make test target. SWIG 4.x is compatible with Trick, but has some issues https://github.com/nasa/trick/issues/1288 |
@@ -215,7 +215,7 @@ xcode-select --install
 brew install python java xquartz swig@3 maven udunits openmotif 
 
 ```
-IMPORTANT: Make sure to follow the instructions for adding java to your path provided by brew. If you missed them, you can see them again by using `brew info java`.
+IMPORTANT: Make sure to follow the instructions for adding java and swig to your `PATH` provided by brew. If you missed them, you can see them again by using `brew info java` and `brew info swig@3`. Remember,  you may need to restart your terminal for these `PATH` changes to take effect.
 
 5. Download and un-compress the latest pre-built clang+llvm from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
 and download the latest version llvm that matches your Xcode version from the release assets. For example, if your Xcode version is 14 then you will want the latest 14.x.x release of llvm. 13.0.1 is the latest as of the writing of this guide, the link I used is below:
@@ -243,7 +243,7 @@ e.g.
 
 OPTIONAL: Trick uses google test (gtest) version 1.8 for unit testing. To install gtest:
 ```
-brew install wget
+brew install cmake wget
 wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
 tar xzvf release-1.8.0.tar.gz
 cd googletest-release-1.8.0/googletest

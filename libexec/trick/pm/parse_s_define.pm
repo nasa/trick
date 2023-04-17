@@ -960,7 +960,19 @@ sub preparse_job_class_order($$) {
     # save the new order
     @{$$sim_ref{user_class_order}} = @class_list ;
 
-    # push on the advance_sim_time class last if not specified
+    # push on classes important to trick system function if not specified
+    if ( !exists $temp_hash{automatic} ) {
+        unshift @{$$sim_ref{user_class_order}} , "automatic" ;
+    }
+
+    if ( !exists $temp_hash{automatic_last} ) {
+        push @{$$sim_ref{user_class_order}} , "automatic_last" ;
+    }
+
+    if ( !exists $temp_hash{logging} ) {
+        push @{$$sim_ref{user_class_order}} , "logging" ;
+    }
+
     if ( !exists $temp_hash{data_record} ) {
         push @{$$sim_ref{user_class_order}} , "data_record" ;
     }
@@ -975,6 +987,10 @@ sub preparse_job_class_order($$) {
 
     if ( !exists $temp_hash{system_moding} ) {
         push @{$$sim_ref{user_class_order}} , "system_moding" ;
+    }
+
+    if ( !exists $temp_hash{integ_loop} ) {
+        push @{$$sim_ref{user_class_order}} , "integ_loop" ;
     }
 }
 

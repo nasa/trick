@@ -131,6 +131,12 @@ namespace Trick {
             virtual int cancel_thread() ;
 
             /**
+             * Cancels thread.
+             * @return always 0
+             */
+            virtual int join_thread() ;
+
+            /**
              * The thread body.
              * @return always 0
              */

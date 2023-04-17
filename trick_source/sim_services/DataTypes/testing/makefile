@@ -7,7 +7,7 @@ CPP = c++
 DECL_DIR = ..
 GTEST_DIR = /Users/penn/gtest-1.7.0
 
-CFLAGS += -g -Wall -Wextra -I$(GTEST_DIR)/include -I$(DECL_DIR)/include
+CFLAGS += -g -Wall -Wextra -I$(GTEST_DIR)/include -I$(DECL_DIR)/include ${TRICK_TEST_FLAGS}
 
 LIBS = ../lib/libDecl.a
 

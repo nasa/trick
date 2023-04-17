@@ -1,0 +1,73 @@
+/*******************************TRICK HEADER******************************
+PURPOSE: Provides a one-stop shop for all MonteCarlo operations that Trick
+         cannot support, including:
+         - assignment of values to non-floats
+         - assignment of variables to other dispersed variables
+         - computation of variables as a function of one or more dispersed
+           variables.
+PROGRAMMERS:
+  (((Gary Turner) (OSR) (October 2018) (Antares) (initial creation for CML)))
+  (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
+***********************************************************************/
+#ifndef SIM_OBJECT_MONTE_CARLO_Generation
+#define SIM_OBJECT_MONTE_CARLO_Generation
+##include "trick/mc_master.hh"
+##include "trick/mc_python_code.hh"
+##include "trick/mc_variable_random_uniform.hh"
+##include "trick/mc_variable_random_normal.hh"
+##include "trick/mc_variable_random_string.hh"
+##include "trick/mc_variable_random_bool.hh"
+##include "trick/mc_variable_file.hh"
+##include "trick/mc_variable_fixed.hh"
+##include "trick/mc_variable_semi_fixed.hh"
+##include "trick/message_type.h"
+##include "trick/message_proto.h"
+##include "trick/exec_proto.h"
+#include "sim_objects/default_trick_sys.sm"
+##include "trick/MonteCarlo.hh"
+
+class MonteCarloGeneratorSimObject : public Trick::SimObject
+{
+ protected:
+  Trick::MonteCarlo * mc;
+ public:
+  MonteCarloMaster mc_master;
+  MonteCarloGeneratorSimObject(std::string location, Trick::MonteCarlo * mc_)
+  :
+    mc(mc_),
+    mc_master(location)
+  {
+    // pre-initialization assignments:
+    P0 ("initialization") generate_dispersions();
+  }
+  void generate_dispersions()
+  {
+    if (!mc_master.active || !mc_master.generate_dispersions) return;
+    const std::vector<Trick::MonteVar*> variables = mc->get_variables();
+    if (!variables.empty()) {
+      for (auto it :variables) {
+        std::string message = std::string("File: ") + __FILE__ + ", Line:  "
+        + std::to_string(__LINE__) + ", Monte Carlo Variable added using wrong "
+        "method\n" + "The variable " + it->name + " was added "
+        "improperly. Details:\n" + it->describe_variable();
+        message_publish(MSG_ERROR, message.c_str());
+      }
+        std::string message = std::string("File: ") + __FILE__ + ", Line: " +
+        std::to_string(__LINE__) + ", MonteCarloGeneratorSimObject is active but "
+        "variable(s) have been added using the older MonteCarloSimObject method. "
+        "Only one method can be used per sim. You must replace all trick_mc "
+        "based variables with monte_carlo sim object equivalents. See the trick "
+        "documentation for support.\n";
+        message_publish(MSG_ERROR, message.c_str());
+        exec_terminate_with_return(1, __FILE__, __LINE__, message.c_str());
+      }
+    mc_master.execute();
+  }
+ private:
+  // copy constructor, operator= blocked:
+  MonteCarloGeneratorSimObject (const MonteCarloGeneratorSimObject&);
+  MonteCarloGeneratorSimObject & operator =
+  ( const MonteCarloGeneratorSimObject&);
+};
+MonteCarloGeneratorSimObject monte_carlo("monte_carlo.mc_master", &trick_mc.mc);
+#endif
