@@ -20,6 +20,9 @@
 #include <unistd.h>
 #include <cstring>
 #include <cerrno>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #include "trick/CommandLineArguments.hh"
 #include "trick/memorymanager_c_intf.h"
@@ -82,6 +85,54 @@ std::string Trick::CommandLineArguments::get_cmdline_name() {
 
 std::string & Trick::CommandLineArguments::get_cmdline_name_ref() {
     return(cmdline_name) ;
+}
+
+// Helper function - create a full path with error checking along the way
+int Trick::CommandLineArguments::create_path(const std::string& dirname) {
+    size_t cur_index = 0;
+
+    std::string full_dir (dirname);
+
+    // These syscalls don't seem to take care of home special character, so do it manually
+    // I think the shell should handle it before it gets here, but just in case check for it
+    if (dirname.at(0) == '~') {
+        struct passwd *pw = getpwuid(getuid());
+        full_dir = std::string(pw->pw_dir) + dirname.substr(1, dirname.size());
+    }
+
+    while (cur_index != full_dir.size()) {
+        cur_index = full_dir.find('/', cur_index+1);
+        if (cur_index == std::string::npos) {
+            cur_index = full_dir.size();
+        }
+        std::string cur_dir = full_dir.substr(0, cur_index);
+        
+        struct stat info;
+        if(stat( cur_dir.c_str(), &info ) != 0) {
+            // does not exist - make it
+            if (mkdir(cur_dir.c_str(), 0775) == -1) {
+                std::cerr << "Error creating directory " << cur_dir << std::endl;
+                return 1;
+            }
+        } else {
+            // Does exist
+            if(info.st_mode & S_IFDIR) {
+                // Is a directory
+                if (info.st_mode & S_IWUSR) {
+                    // Perfect, nothing to do here
+                } else {
+                    // Not writeable
+                    std::cerr << "Intermediate directory " << cur_dir << " is not writable, unable to create output directory." << std::endl;
+                    return 1;
+                }
+            } else {
+                // Does exist, but is a file
+                std::cerr << "Intermediate directory " << cur_dir << " is not a directory, unable to create output directory." << std::endl;
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 /**
@@ -209,7 +260,7 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
         /* Create output directory if necessary. */
         if (access(output_dir.c_str(), F_OK) != 0) {
-            if (mkdir(output_dir.c_str(), 0775) == -1) {
+            if (create_path(output_dir) != 0) {
                 std::cerr << "\nERROR: While trying to create output directory \"" << output_dir << "\" : " << std::strerror(errno) << std::endl ;
                 exit(1) ;
             }

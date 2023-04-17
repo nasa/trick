@@ -497,20 +497,20 @@ int Trick::VariableServerThread::send_file(std::string file_name) {
 
 int Trick::VariableServerThread::send_sie_resource() {
     sie_append_runtime_objs() ;
-    return transmit_file(std::string(command_line_args_get_default_dir()) + "/S_sie.resource") ;
+    return transmit_file(std::string(sie_get_runtime_sie_dir()) + "/S_sie.resource") ;
 }
 
 int Trick::VariableServerThread::send_sie_class() {
     sie_class_attr_map_print_xml() ;
-    return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_class.xml") ;
+    return transmit_file(std::string(sie_get_runtime_sie_dir()) + "/" + "S_sie_class.xml") ;
 }
 
 int Trick::VariableServerThread::send_sie_enum() {
     sie_enum_attr_map_print_xml() ;
-    return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_enum.xml") ;
+    return transmit_file(std::string(sie_get_runtime_sie_dir()) + "/" + "S_sie_enum.xml") ;
 }
 
 int Trick::VariableServerThread::send_sie_top_level_objects() {
     sie_top_level_objects_print_xml() ;
-    return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_top_level_objects.xml") ;
+    return transmit_file(std::string(sie_get_runtime_sie_dir()) + "/" + "S_sie_top_level_objects.xml") ;
 }
