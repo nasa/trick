@@ -287,7 +287,7 @@ SIM_events:
 
 SIM_test_output_dir:
   path: test/SIM_test_output_dir
-  build_command: "trick-CP -t"
+  build_args: "-t"  
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/input.py -OO sim_output --read-only-sim:
