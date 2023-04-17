@@ -74,7 +74,7 @@ MathWorks developed a package to generate Trick friendly code from their models.
 
 cFS support for Trick is provided by the following external projects:
 
-* [TVS-IO]()https://github.com/nasa/tvsio is an open-source, Core Flight Software (cFS) application that provides for two-way communication between a **cFS** Software Bus Network (SBN) and a Trick simulation.
+* [TVS-IO](https://github.com/nasa/tvsio) is an open-source, Core Flight Software (cFS) application that provides for two-way communication between a **cFS** Software Bus Network (SBN) and a Trick simulation.
 
 * Another soon to be released capability, presumably called TrickCFS should also be available soon as open-source software. Stay-tuned.
 
