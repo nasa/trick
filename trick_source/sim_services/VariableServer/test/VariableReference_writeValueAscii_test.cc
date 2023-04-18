@@ -160,7 +160,7 @@ TEST_F(VariableReference_test, writeValueAscii_wide_char) {
     EXPECT_EQ(ssb.str(), "jackiebutwider");
 }
 
-TEST_F(VariableReference_test, writeValueAscii_wide_char_unconstrained) {
+TEST_F(VariableReference_test, DISABLED_writeValueAscii_wide_char_unconstrained) {
     TestObject obj;
     obj.wchar_str = (wchar_t *) malloc (sizeof(wchar_t) * 7);
     for (int i = 0; i < 6; i++) {

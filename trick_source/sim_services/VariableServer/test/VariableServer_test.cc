@@ -5,9 +5,9 @@ PURPOSE:                     ( Tests for the VariableServer class )
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "MockVariableServerSession.hh"
 
 #include "trick/VariableServer.hh"
+#include "trick/Mock/MockVariableServerSession.hh"
 
 
 /*

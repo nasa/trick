@@ -48,6 +48,9 @@ a replacement SimObject will create an uncompilable sim.
 ##include "trick/MessageThreadedCout.hh"
 ##include "trick/MessageLCout.hh"
 ##include "trick/MessageFile.hh"
+##include "trick/MessageHSFile.hh"
+##include "trick/MessageCustomFile.hh"
+##include "trick/MessageCustomManager.hh"
 ##include "trick/MessageTCDevice.hh"
 ##include "trick/PlaybackFile.hh"
 ##include "trick/MemoryManager.hh"
@@ -258,9 +261,10 @@ class MessageSimObject : public Trick::SimObject {
         Trick::MessagePublisher mpublisher ;
         Trick::MessageCout mcout ;
         Trick::MessageThreadedCout mtcout ;
-        Trick::MessageFile mfile ;
+        Trick::MessageHSFile mfile ;
         Trick::MessageTCDevice mdevice ;
         Trick::PlaybackFile pfile ;
+        Trick::MessageCustomManager message_file_manager ;
 
         MessageSimObject() {
 
@@ -269,6 +273,7 @@ class MessageSimObject : public Trick::SimObject {
             {TRK} ("default_data") mpublisher.subscribe(&mfile) ;
             {TRK} ("default_data") mpublisher.subscribe(&mdevice) ;
             {TRK} ("default_data") mpublisher.subscribe(&pfile) ;
+            {TRK} ("default_data") mpublisher.subscribe(&message_file_manager) ;
             {TRK} ("default_data") mdevice.default_data() ;
             {TRK} P1 ("initialization") mpublisher.init() ;
             //{TRK} P1 ("initialization") mtcout.init() ;
@@ -278,9 +283,9 @@ class MessageSimObject : public Trick::SimObject {
             {TRK} ("exec_time_tic_changed") mpublisher.init() ;
 
             {TRK} P1 ("restart") mdevice.restart() ;
+            {TRK} P1 ("restart") message_file_manager.restart() ;
             {TRK} ("shutdown") mtcout.shutdown() ;
             {TRK} ("shutdown") mdevice.shutdown() ;
-
         }
 
     private:

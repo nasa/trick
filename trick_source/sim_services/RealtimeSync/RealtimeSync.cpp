@@ -502,3 +502,6 @@ int Trick::RealtimeSync::shutdown() {
     return(0) ;
 }
 
+bool Trick::RealtimeSync::is_active() {
+    return active;
+}

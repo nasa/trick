@@ -35,7 +35,6 @@ class Socket {
 
         _hostname = hostname;
         _port = port;
-        int tries = 0;
 
         _socket_fd = socket(AF_INET, mode, 0);
         if (_socket_fd < 0) {
@@ -58,7 +57,6 @@ class Socket {
             return -1;
         } 
 
-        tries = 0;
         int connection_status;
 
         connection_status = connect(_socket_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
@@ -76,7 +74,6 @@ class Socket {
         _multicast_socket = true;
         _hostname = hostname;
         _port = port;
-        int tries = 0;
 
         _socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
         if (_socket_fd < 0) {

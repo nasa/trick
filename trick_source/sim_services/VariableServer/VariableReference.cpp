@@ -99,26 +99,26 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
     if ( _var_info == NULL ) {
         // TODO: ERROR LOGGER sendErrorMessage("Variable Server could not find variable %s.\n", var_name);
         // PRINTF IS NOT AN ERROR LOGGER @me
-        printf("Variable Server could not find variable %s.\n", var_name.c_str());
+        message_publish(MSG_ERROR, "Variable Server could not find variable %s.\n", var_name.c_str());
         _var_info = make_error_ref(var_name);
     } else if ( _var_info->attr ) {
         if ( _var_info->attr->type == TRICK_STRUCTURED ) {
             // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name);
-            printf("Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name.c_str());
+            message_publish(MSG_ERROR, "Variable Server: var_add cant add \"%s\" because its a composite variable.\n", var_name.c_str());
 
             free(_var_info);
             _var_info = make_do_not_resolve_ref(var_name);
 
         } else if ( _var_info->attr->type == TRICK_STL ) {
             // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name);
-            printf("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
+            message_publish(MSG_ERROR,"Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
 
             free(_var_info);
             _var_info = make_do_not_resolve_ref(var_name);
         }
     } else {
         // sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
-        printf("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
+        message_publish(MSG_ERROR, "Variable Server: BAD MOJO - Missing ATTRIBUTES.");
 
         free(_var_info);
         _var_info = make_error_ref(var_name);
@@ -143,9 +143,8 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
     } else {
         // Unconstrained array
         if ((_var_info->attr->num_index - _var_info->num_index) > 1 ) {
-            // TODO: ERROR LOGGER
-            printf("Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", _var_info->reference);
-            printf("Data is not contiguous so returned values are unpredictable.\n") ;
+            message_publish(MSG_ERROR, "Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", _var_info->reference);
+            message_publish(MSG_ERROR, "Data is not contiguous so returned values are unpredictable.\n") ;
         }
         if ( _var_info->attr->type == TRICK_CHARACTER ) {
             _trick_type = TRICK_STRING ;
@@ -622,17 +621,22 @@ int Trick::VariableReference::writeSizeBinary( std::ostream& out, bool byteswap 
 
 int Trick::VariableReference::writeNameBinary( std::ostream& out, bool byteswap ) const {
     std::string name = getName();
+    out.write(name.c_str(), name.size());
 
-    int name_size = name.size();
+    return 0;
+}
+
+int Trick::VariableReference::writeNameLengthBinary( std::ostream& out, bool byteswap ) const {
+    int name_size = getName().size();
     if (byteswap) {
         name_size = trick_byteswap_int(name_size);
     }
 
     out.write(const_cast<const char *>(reinterpret_cast<char *>(&name_size)), sizeof(int));
-    out.write(name.c_str(), name.size());
 
     return 0;
 }
+
 
 void Trick::VariableReference::byteswap_var (char * out, char * in) const {
     byteswap_var(out, in, *this);

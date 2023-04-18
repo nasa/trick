@@ -340,8 +340,6 @@ int var_set_freeze_frame_multiple(unsigned int mult) ;
 int var_set_freeze_frame_offset(unsigned int offset) ;
 int var_byteswap(bool on_off) ;
 
-// int var_signal() ;
-// int var_multicast(bool on_off) ;
 
 int var_send_list_size() ;
 

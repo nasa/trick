@@ -50,6 +50,7 @@ namespace Trick {
         int writeValueAscii( std::ostream& out ) const;
         int writeValueBinary( std::ostream& out , bool byteswap = false) const;
         int writeNameBinary( std::ostream& out, bool byteswap = false) const;
+        int writeNameLengthBinary( std::ostream& out, bool byteswap = false) const;
         int writeSizeBinary( std::ostream& out, bool byteswap = false) const;
         int writeTypeBinary( std::ostream& out, bool byteswap = false) const;
 
