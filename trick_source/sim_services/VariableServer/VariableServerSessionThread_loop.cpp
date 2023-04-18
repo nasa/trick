@@ -39,6 +39,15 @@ void * Trick::VariableServerSessionThread::thread_body() {
         thread_shutdown();
     }
 
+    // if log is set on for variable server (e.g., in input file), turn log on for each client
+    if (_vs->get_log()) {
+        _session->set_log_on();
+    }
+
+    if (_vs->get_info_msg()) {
+        _session->set_info_message(true);
+    }
+
     // Give the initialized connection to the session
     // Don't touch the connection anymore until we shut them both down
     _session->set_connection(_connection);
@@ -49,11 +58,6 @@ void * Trick::VariableServerSessionThread::thread_body() {
     _connection_status = CONNECTION_SUCCESS;
     pthread_cond_signal(&_connection_status_cv);
     pthread_mutex_unlock(&_connection_status_mutex);
-
-    // if log is set on for variable server (e.g., in input file), turn log on for each client
-    if (_vs->get_log()) {
-        _session->set_log_on();
-    }
 
     try {
         while (1) {

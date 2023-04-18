@@ -53,10 +53,16 @@ bool Trick::VariableServer::get_info_msg() {
 
 void Trick::VariableServer::set_var_server_info_msg_on() {
     info_msg = true;
+    for ( auto& session_it : var_server_sessions ) {
+        session_it.second->set_info_message(info_msg);
+    }
 }
 
 void Trick::VariableServer::set_var_server_info_msg_off() {
     info_msg = false;
+    for ( auto& session_it : var_server_sessions ) {
+        session_it.second->set_info_message(info_msg);
+    }
 }
 
 bool Trick::VariableServer::get_log() {

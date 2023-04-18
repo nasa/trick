@@ -904,6 +904,7 @@ TEST_F (VariableServerTest, Cycle) {
         socket << command;
         // Give it a cycle to update
         socket.receive();
+        socket.receive();
         double sim_time = parse_message_for_sim_time(socket.receive());
         compare_cycle(num_cycles, sim_time);
     };

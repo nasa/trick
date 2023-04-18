@@ -5,15 +5,20 @@ PURPOSE:                     ( Tests for the VariableServerListenThread class )
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "trick/Executive.hh"
 #include "trick/CommandLineArguments.hh"
 #include "trick/VariableServer.hh"
 
+#include "trick/message_type.h"
+
+#include "trick/Mock/MockExecutive.hh"
+#include "trick/Mock/MockMessagePublisher.hh"
+
+#include "trick/Mock/MockTCPClientListener.hh"
+#include "trick/Mock/MockTCPConnection.hh"
+#include "trick/Mock/MockMulticastGroup.hh"
+
 #include "trick/VariableServerListenThread.hh"
 
-#include "MockTCPClientListener.hh"
-#include "MockTCPConnection.hh"
-#include "MockMulticastGroup.hh"
 
 using ::testing::Return;
 using ::testing::_;
@@ -26,20 +31,19 @@ using ::testing::AtLeast;
 class VariableServerListenThread_test : public ::testing::Test {
 	protected:
         // Static global dependencies that I would like to eventually mock out
-        Trick::Executive * executive;
-        Trick::CommandLineArguments * cmd_args;
-        Trick::VariableServer * varserver;
+        Trick::CommandLineArguments cmd_args;
+        Trick::VariableServer varserver;
 
-        // Listener
+        // Static global dependencies that I have mocked out
+        MockExecutive executive;
+        MockMessagePublisher message_publisher;
+
         MockTCPClientListener * listener;
         MockMulticastGroup * mcast;
 
 		VariableServerListenThread_test() { 
             // Set up dependencies that haven't been broken
-            executive = new Trick::Executive;
-            cmd_args = new Trick::CommandLineArguments;
-            varserver = new Trick::VariableServer;
-            Trick::VariableServerSessionThread::set_vs_ptr(varserver);
+            Trick::VariableServerSessionThread::set_vs_ptr(&varserver);
 
             // Set up mocks
             listener = new MockTCPClientListener;
@@ -47,9 +51,6 @@ class VariableServerListenThread_test : public ::testing::Test {
         }
 
 		~VariableServerListenThread_test() {
-            delete executive;
-            delete cmd_args;
-            delete varserver; 
         }
 
 		void SetUp() {}
@@ -158,6 +159,8 @@ TEST_F(VariableServerListenThread_test, check_and_move_listen_device_init_fails)
     EXPECT_CALL(*listener, disconnect());
     EXPECT_CALL(*listener, initialize(_, _))
         .WillOnce(Return(1));
+
+    EXPECT_CALL(message_publisher, publish(MSG_ERROR, _));
 
     // ACT
     int status = listen_thread.check_and_move_listen_device();
@@ -316,7 +319,9 @@ TEST_F(VariableServerListenThread_test, accept_connection) {
     // ACT
     listen_thread.create_thread();
 
-    listen_thread.dump(std::cout);
+    std::stringstream stream;
+    listen_thread.dump(stream);
+    ASSERT_TRUE(stream.str().size() > 0);
 
     sleep(3);
 
@@ -385,6 +390,8 @@ TEST_F(VariableServerListenThread_test, restart_fails) {
 
     EXPECT_CALL(*listener, disconnect());
     
+    EXPECT_CALL(message_publisher, publish(MSG_ERROR, _));
+    EXPECT_CALL(message_publisher, publish(MSG_INFO, _));
 
     // ACT
     // ASSERT

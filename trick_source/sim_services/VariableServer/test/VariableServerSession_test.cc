@@ -13,15 +13,19 @@ PURPOSE:                     ( Tests for the VariableServerSession class )
 #include "trick/MemoryManager.hh"
 #include "trick/UdUnits.hh"
 
-#include "trick/RealtimeSync.hh"
-#include "trick/GetTimeOfDayClock.hh"
-#include "trick/ITimer.hh"
 
+
+#include "trick/message_type.h"
 #include "trick/VariableServerSession.hh"
 #include "trick/var_binary_parser.hh"
 
-#include "MockClientConnection.hh"
-#include "MockVariableServerSession.hh"
+#include "trick/Mock/MockExecutive.hh"
+#include "trick/Mock/MockRealtimeSync.hh"
+#include "trick/Mock/MockMessagePublisher.hh"
+#include "trick/Mock/MockMessageCustomManager.hh"
+#include "trick/Mock/MockInputProcessor.hh"
+#include "trick/Mock/MockClientConnection.hh"
+#include "trick/Mock/MockVariableServerSession.hh"
 
 
 
@@ -31,6 +35,9 @@ using ::testing::Truly;
 using ::testing::Args;
 using ::testing::Return;
 using ::testing::Invoke;
+using ::testing::DoAll;
+using ::testing::SetArgReferee;
+
 
 
 /*
@@ -38,27 +45,24 @@ using ::testing::Invoke;
  */
 class VariableServerSession_test : public ::testing::Test {
 	protected:
-	    Trick::MemoryManager *memmgr;
-        Trick::UdUnits * udunits;
-        Trick::RealtimeSync * realtime_sync;
+    	// MemoryManager isn't actually a dependency, VariableReference is
+        // But using the memory manage is much easier than mocking VariableReference all the way
+        // Which is bad design @me
+        // shame
+        Trick::MemoryManager memmgr;
 
-        Trick::GetTimeOfDayClock clock;
-        Trick::ITimer timer;
-
+        // Dependencies
+        MockRealtimeSync realtime_sync;
+        MockExecutive executive;
+        MockMessagePublisher message_publisher;
+        MockMessageCustomManager message_custom;
+        MockInputProcessor input_processor;
 
         MockClientConnection connection;
 
-		VariableServerSession_test() { 
-            memmgr = new Trick::MemoryManager; 
-            udunits = new Trick::UdUnits; 
-            realtime_sync = new Trick::RealtimeSync(&clock, &timer);
+		VariableServerSession_test() {}
 
-            udunits->read_default_xml();
-        }
-		~VariableServerSession_test() { 
-            delete memmgr; 
-            delete realtime_sync;
-        }
+		~VariableServerSession_test() {}
 
 		void SetUp() {}
 		void TearDown() {}
@@ -69,9 +73,9 @@ TEST_F(VariableServerSession_test, toString) {
     int a = 5;
     double b = 6;
     std::string c = "Hello";
-    (void) memmgr->declare_extern_var(&a, "int a");
-    (void) memmgr->declare_extern_var(&b, "double b");
-    (void) memmgr->declare_extern_var(&c, "std::string c");
+    (void) memmgr.declare_extern_var(&a, "int a");
+    (void) memmgr.declare_extern_var(&b, "double b");
+    (void) memmgr.declare_extern_var(&c, "std::string c");
 
     Trick::VariableServerSession session;
 
@@ -132,7 +136,7 @@ TEST_F(VariableServerSession_test, large_message_ascii) {
     }
 
     // Set it up with the memory manager
-    (void) memmgr->declare_extern_var(&big_arr, "int big_arr[4000]");
+    (void) memmgr.declare_extern_var(&big_arr, "int big_arr[4000]");
 
     // Create references for all of them
     std::vector <Trick::VariableReference *> vars;
@@ -196,7 +200,7 @@ TEST_F(VariableServerSession_test, large_message_ascii) {
     ASSERT_EQ(val_counter, big_arr_size);
 }
 
-TEST_F(VariableServerSession_test, DISABLED_large_message_binary) {
+TEST_F(VariableServerSession_test, large_message_binary) {
     // ARRANGE
     Trick::VariableServerSession session;
     session.set_connection(&connection);
@@ -211,7 +215,7 @@ TEST_F(VariableServerSession_test, DISABLED_large_message_binary) {
     }
 
     // Set it up with the memory manager
-    (void) memmgr->declare_extern_var(&big_arr, "int big_arr[4000]");
+    (void) memmgr.declare_extern_var(&big_arr, "int big_arr[4000]");
 
     // Create references for all of them
     std::vector <Trick::VariableReference *> vars;
@@ -273,6 +277,120 @@ TEST_F(VariableServerSession_test, DISABLED_large_message_binary) {
     }
 }
 
+TEST_F(VariableServerSession_test, log_on) {
+    // ARRANGE
+    int fake_logstream = 200;
+
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
+
+    // Expect the per-session logfile to be opened
+    EXPECT_CALL(message_custom, open_custom_message_file(_, _, _))
+        .WillOnce(Return(fake_logstream));
+
+    // Expect a write to the log via message_publish
+    EXPECT_CALL(message_publisher, publish(MSG_PLAYBACK,_));
+    EXPECT_CALL(message_publisher, publish(fake_logstream,_));
+
+    // Just get whatever from the client
+    EXPECT_CALL(connection, read(_, _))
+        .WillOnce(DoAll(SetArgReferee<0>("some_python_command"), Return(10)));
+    EXPECT_CALL(connection, getClientTag())
+        .WillRepeatedly(Return("ClientTag"));
+    EXPECT_CALL(input_processor, parse(_));
+
+    // ACT
+    session.set_log_on();
+    session.handle_message();
+
+    // ASSERT
+}
+
+TEST_F(VariableServerSession_test, no_log_by_default) {
+    // ARRANGE
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
+
+    // Should not get any write to the log
+    EXPECT_CALL(message_publisher, publish(MSG_PLAYBACK,_))
+        .Times(0);
+    // Just get whatever from the client
+    EXPECT_CALL(connection, read(_, _))
+        .WillOnce(DoAll(SetArgReferee<0>("some_python_command"), Return(10)));
+    EXPECT_CALL(input_processor, parse(_));
+
+    // ACT
+    session.handle_message();
+    // ASSERT
+}
+
+
+TEST_F(VariableServerSession_test, info_msg_on) {
+    // ARRANGE
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
+
+    // Expect a write to info message_publish
+    EXPECT_CALL(message_publisher, publish(MSG_DEBUG,_));
+    // Just get whatever from the client
+    EXPECT_CALL(connection, read(_, _))
+        .WillOnce(DoAll(SetArgReferee<0>("some_python_command"), Return(10)));
+    EXPECT_CALL(connection, getClientTag())
+        .WillOnce(Return("ClientTag"));
+    EXPECT_CALL(input_processor, parse(_));
+
+
+    // ACT
+    session.set_info_message(true);
+    session.handle_message();
+
+    // ASSERT
+}
+
+TEST_F(VariableServerSession_test, info_msg_off_by_default) {
+    // ARRANGE
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
+
+    // Expect no write to info message_publish
+    EXPECT_CALL(message_publisher, publish(MSG_DEBUG,_))
+        .Times(0);
+    // Just get whatever from the client
+    EXPECT_CALL(connection, read(_, _))
+        .WillOnce(DoAll(SetArgReferee<0>("some_python_command"), Return(10)));
+    EXPECT_CALL(input_processor, parse(_));
+
+    // ACT
+    session.handle_message();
+
+    // ASSERT
+}
+
+TEST_F(VariableServerSession_test, debug_on) {
+    // ARRANGE
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
+
+    // Expect 2 writes to info message_publish
+    EXPECT_CALL(message_publisher, publish(MSG_DEBUG,_))
+        .Times(2);
+    // Just get whatever from the client
+    EXPECT_CALL(connection, read(_, _))
+        .WillOnce(DoAll(SetArgReferee<0>("some_python_command"), Return(10)));
+    EXPECT_CALL(input_processor, parse(_));
+    EXPECT_CALL(connection, getClientTag())
+        .WillRepeatedly(Return("ClientTag"));
+
+    // ACT
+    session.var_debug(3);
+    session.handle_message();
+
+    // ASSERT
+}
+
+/**************************************************************************/
+/*                            Mode tests                                  */
+/**************************************************************************/
 
 void setup_partial_session_mock(MockVariableServerSession& session) {
     EXPECT_CALL(session, copy_and_write_async())
@@ -372,10 +490,11 @@ TEST_F(VariableServerSession_test, copy_async_no_copy_or_write) {
 
     // Copy async, write when copied, not paused
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
     
 
-    // Copy and write should be called
+    // Copy and write should not be called
     EXPECT_CALL(session, copy_sim_data())
         .Times(0);
 
@@ -400,7 +519,8 @@ TEST_F(VariableServerSession_test, copy_async_non_realtime) {
 
     // Copy async, write async, paused
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = false;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(false));
 
     // Copy and write should be called
     EXPECT_CALL(session, copy_sim_data())
@@ -501,8 +621,9 @@ TEST_F(VariableServerSession_test, copy_and_write_top_copy_top_write_async) {
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_TOP_OF_FRAME, VS_WRITE_ASYNC, false);
-    realtime_sync->active = true;
-
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));    
+    
     EXPECT_CALL(session, get_frame_multiple())
         .WillRepeatedly(Return(10));
     EXPECT_CALL(session, get_frame_offset())
@@ -531,7 +652,8 @@ TEST_F(VariableServerSession_test, copy_and_write_top_copy_top_write_when_copied
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_TOP_OF_FRAME, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
 
     EXPECT_CALL(session, get_frame_multiple())
         .WillRepeatedly(Return(10));
@@ -561,8 +683,8 @@ TEST_F(VariableServerSession_test, copy_and_write_top_copy_top_dont_write_if_non
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_TOP_OF_FRAME, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = false;
-
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(false));
     EXPECT_CALL(session, get_frame_multiple())
         .WillRepeatedly(Return(10));
     EXPECT_CALL(session, get_frame_offset())
@@ -591,7 +713,8 @@ TEST_F(VariableServerSession_test, copy_and_write_top_copy_top_write_paused) {
         .WillOnce(Return(true));
  
     set_session_modes(session, VS_COPY_TOP_OF_FRAME, VS_WRITE_WHEN_COPIED, true);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
 
     EXPECT_CALL(session, get_frame_multiple())
         .WillRepeatedly(Return(10));
@@ -626,7 +749,8 @@ TEST_F(VariableServerSession_test, copy_and_write_top_wrong_offset) {
     EXPECT_CALL(session, get_write_mode())
         .WillRepeatedly(Return(VS_WRITE_WHEN_COPIED));
 
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
 
     EXPECT_CALL(session, get_frame_multiple())
         .WillRepeatedly(Return(10));
@@ -676,7 +800,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_copy_top_write_async) {
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_TOP_OF_FRAME, VS_WRITE_ASYNC, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
 
     EXPECT_CALL(session, get_freeze_frame_multiple())
         .WillRepeatedly(Return(10));
@@ -706,7 +831,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_copy_top_write_when_cop
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_TOP_OF_FRAME, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
 
     EXPECT_CALL(session, get_freeze_frame_multiple())
         .WillRepeatedly(Return(10));
@@ -736,7 +862,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_copy_top_dont_write_if_
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_TOP_OF_FRAME, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = false;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(false));
 
     EXPECT_CALL(session, get_freeze_frame_multiple())
         .WillRepeatedly(Return(10));
@@ -766,7 +893,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_copy_top_write_paused) 
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_TOP_OF_FRAME, VS_WRITE_WHEN_COPIED, true);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
 
     EXPECT_CALL(session, get_freeze_frame_multiple())
         .WillRepeatedly(Return(10));
@@ -801,7 +929,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_wrong_offset) {
     EXPECT_CALL(session, get_write_mode())
         .WillRepeatedly(Return(VS_WRITE_WHEN_COPIED));
 
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
 
     EXPECT_CALL(session, get_freeze_frame_multiple())
         .WillRepeatedly(Return(10));
@@ -904,7 +1033,8 @@ TEST_F(VariableServerSession_test, copy_and_write_scheduled_copy_and_write) {
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
     
     EXPECT_CALL(session, get_next_tics())
         .WillRepeatedly(Return(100));
@@ -932,7 +1062,8 @@ TEST_F(VariableServerSession_test, copy_and_write_scheduled_copy_scheduled_write
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_ASYNC, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
     
     EXPECT_CALL(session, get_next_tics())
         .WillRepeatedly(Return(100));
@@ -960,7 +1091,8 @@ TEST_F(VariableServerSession_test, copy_and_write_scheduled_paused) {
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_ASYNC, true);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
     
     EXPECT_CALL(session, get_next_tics())
         .WillRepeatedly(Return(100));
@@ -988,7 +1120,8 @@ TEST_F(VariableServerSession_test, copy_and_write_scheduled_non_realtime) {
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_ASYNC, false);
-    realtime_sync->active = false;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(false));
     
     EXPECT_CALL(session, get_next_tics())
         .WillRepeatedly(Return(100));
@@ -1017,7 +1150,8 @@ TEST_F(VariableServerSession_test, copy_and_write_scheduled_write_fails) {
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
     
     EXPECT_CALL(session, get_next_tics())
         .WillRepeatedly(Return(100));
@@ -1121,7 +1255,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_copy_and_writ
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
     
     EXPECT_CALL(session, get_freeze_next_tics())
         .WillRepeatedly(Return(100));
@@ -1149,7 +1284,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_copy_schedule
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_ASYNC, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
     
     EXPECT_CALL(session, get_freeze_next_tics())
         .WillRepeatedly(Return(100));
@@ -1177,7 +1313,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_paused) {
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_ASYNC, true);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
     
     EXPECT_CALL(session, get_freeze_next_tics())
         .WillRepeatedly(Return(100));
@@ -1205,7 +1342,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_non_realtime)
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_ASYNC, false);
-    realtime_sync->active = false;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(false));
     
     EXPECT_CALL(session, get_freeze_next_tics())
         .WillRepeatedly(Return(100));
@@ -1234,7 +1372,8 @@ TEST_F(VariableServerSession_test, copy_and_write_freeze_scheduled_write_fails) 
         .WillOnce(Return(true));
 
     set_session_modes(session, VS_COPY_SCHEDULED, VS_WRITE_WHEN_COPIED, false);
-    realtime_sync->active = true;
+    EXPECT_CALL(realtime_sync, is_active())
+        .WillRepeatedly(Return(true));
     
     EXPECT_CALL(session, get_freeze_next_tics())
         .WillRepeatedly(Return(100));

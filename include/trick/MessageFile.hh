@@ -32,7 +32,7 @@ namespace Trick {
         public:
 
             /** The file name of a file which the messages goes to. \n*/
-            std::string file_name ; /**< trick_units(--) trick_io(*i) */
+            std::string file_name ; /**< trick_units(--) trick_io(io) */
 
             /**
              @brief The constructor.
@@ -47,7 +47,7 @@ namespace Trick {
             /**
              @brief Output message to the file.
              */
-            virtual void update( unsigned int level , std::string header , std::string message ) ;
+            virtual void update( unsigned int level , std::string header , std::string message );
 
             /**
              @brief Set a file name for a file which the messages received by this subscriber goes to.
@@ -60,6 +60,9 @@ namespace Trick {
              @return always 0
              */
             virtual int init() ;
+
+            virtual int restart() ;
+
 
         protected:
             /** The output file stream. \n */
