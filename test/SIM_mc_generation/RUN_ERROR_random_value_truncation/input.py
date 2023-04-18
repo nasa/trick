@@ -30,7 +30,7 @@ monte_carlo.mc_master.add_variable(mc_var)
 
 
 # give some crazy initial values to the class
-mc_var = trick.MonteCarloVariableRandomNormal( "test.x_normal_trunc[1]", 99565644453, 10, 3.5)
+mc_var = trick.MonteCarloVariableRandomNormal( "test.x_normal_trunc[1]", 995656444, 10, 3.5)
 mc_var.thisown = False
 # give very small truncate_low distrubution value
 mc_var.truncate_low(0.1)
@@ -43,7 +43,7 @@ monte_carlo.mc_master.add_variable(mc_var)
 
 
 # give some crazy initial values to the class
-mc_var = trick.MonteCarloVariableRandomNormal( "test.x_normal_trunc[2]", 99565644453, 10, 3.5)
+mc_var = trick.MonteCarloVariableRandomNormal( "test.x_normal_trunc[2]", 995656444, 10, 3.5)
 mc_var.thisown = False
 # give negative truncate_high distrubution value
 mc_var.truncate_high(-50.2)

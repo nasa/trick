@@ -139,6 +139,9 @@ namespace Trick {
             */
             void set_output_dir(std::string output_directory) ;
 
+            // Helper method to create full path
+            static int create_path(const std::string& dirname);
+
     } ;
 
 }
