@@ -41,6 +41,7 @@ namespace Trick {
              @brief The constructor.
              */
             MessagePublisher() ;
+            virtual ~MessagePublisher();
 
             /**
              @brief Initialization job.  Sets tics_per_sec and print format.
@@ -66,7 +67,7 @@ namespace Trick {
              @param message - the text of the message
              @return always 0
              */
-            int publish(int level, std::string message) ;
+            virtual int publish(int level, std::string message) ;
 
             /**
              @brief gets the subscriber from the list

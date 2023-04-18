@@ -130,6 +130,8 @@ set( SS_SRC
   MasterSlave/Slave
   Message/MessageCout
   Message/MessageFile
+  Message/MessageHSFile
+  Message/MessageCustomFile
   Message/MessageLCout
   Message/MessagePublisher
   Message/MessageSubscriber

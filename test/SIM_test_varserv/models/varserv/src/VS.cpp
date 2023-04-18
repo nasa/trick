@@ -54,6 +54,7 @@ int VSTest::default_vars() {
 	blocked_from_input = 500;
 	blocked_from_output = 1000;
 
+	return 0;
 }
 
 int VSTest::init() {

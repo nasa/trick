@@ -42,4 +42,4 @@ trickops_logs/
 *.gcno
 coverage.info
 *.dSYM
-
+*.log

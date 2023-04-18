@@ -18,19 +18,24 @@ PROGRAMMERS: (((Alex Lin) (NASA) (8/06) (--)))
 #define MAX_MSG_LEN    8192
 
 
+
 int Trick::VariableServerSession::write_binary_data(const std::vector<VariableReference *>& given_vars, VS_MESSAGE_TYPE message_type) {
+    typedef std::vector<VariableReference *> VarList;
+    typedef std::pair<int,VarList> MessageData;
+
     // Some constants to make size calculations more readable
     static const int header_size = 12;
     static const int sizeof_size = 4;
     static const int type_size = 4;
 
-    std::vector<std::pair<int,int>> message_sizes_and_num_vars;
+    std::vector<MessageData> message_sizes_and_vars;
 
-    // Calculate how many messages and how many vars in each
+    // Calculate how many messages and what vars in each
     int total_size = header_size;
-    int num_vars = 0;
+    VarList curr_message_vars;
     for (int i = 0; i < given_vars.size(); i++) {
-        const VariableReference * var = given_vars[i];
+        VariableReference * var = given_vars[i];
+
         int total_var_size = 0;
         if (!_binary_data_nonames) {
             total_var_size += sizeof_size;
@@ -41,29 +46,43 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
         total_var_size += sizeof_size;
         total_var_size += var->getSizeBinary();
 
+        // Check if this variable will fit in a message at all
+        if (header_size + total_var_size > MAX_MSG_LEN) {
+            message_publish(MSG_WARNING, "tag=<%s> Variable Server buffer[%d] too small (need %d) for symbol %s, SKIPPING IT.\n", 
+                                _connection->getClientTag().c_str(), MAX_MSG_LEN, header_size + total_var_size, var->getName().c_str());
+            
+            continue;
+        }
+
         // If this variable won't fit in the current message, truncate the message and plan to put this var in a new one
         if (total_size + total_var_size > MAX_MSG_LEN) {
-            message_sizes_and_num_vars.push_back(std::pair<int,int>(total_size, num_vars));
+            message_sizes_and_vars.emplace_back(MessageData(total_size, curr_message_vars));
+            
+            if (_debug >= 2) {
+                message_publish(MSG_DEBUG, "%p tag=<%s> var_server buffer[%d] too small (need %d), sending multiple binary packets.\n",
+                                _connection, _connection->getClientTag().c_str(), MAX_MSG_LEN, total_size + total_var_size);
+            }
+
             total_size = header_size;
-            num_vars = 0;
+            curr_message_vars.clear();
         }
         total_size += total_var_size;
-        num_vars++;
+        curr_message_vars.push_back(var);
     }
 
-    message_sizes_and_num_vars.push_back(std::pair<int,int>(total_size, num_vars));
+    message_sizes_and_vars.emplace_back(MessageData(total_size, curr_message_vars));
     
     // Now write out all of these messages
     int var_index = 0;
-    for (std::pair<int,int> message_info : message_sizes_and_num_vars) {
+    for (const auto& message_info : message_sizes_and_vars) {
         int curr_message_size = message_info.first;
-        int curr_message_num_vars = message_info.second;
+        VarList curr_message_vars = message_info.second;
 
         std::stringstream stream;
 
         int written_message_type = message_type;
         int written_header_size = curr_message_size - 4;
-        int written_num_vars = curr_message_num_vars;
+        int written_num_vars = curr_message_vars.size();
 
         if (_byteswap) {
             written_message_type = trick_byteswap_int(written_message_type);
@@ -71,22 +90,33 @@ int Trick::VariableServerSession::write_binary_data(const std::vector<VariableRe
             written_num_vars = trick_byteswap_int(written_num_vars);
         }
 
+        // Header format:
+        // <message_indicator><message_size><num_vars>
+
         // Write the header first
         stream.write((char *)(&written_message_type), sizeof(int)); 
         stream.write((char *)(&written_header_size), sizeof(int)); 
-        stream.write ((char *)(&written_num_vars), sizeof(int));
+        stream.write((char *)(&written_num_vars), sizeof(int));
 
         // Write variables next
-        for (int i = var_index; i < var_index + curr_message_num_vars; i++) {
-            VariableReference * var = given_vars[i];
+        for (VariableReference * var : curr_message_vars) {
+            // Each variable is formatted as:
+            // <namelength><name><type><size><value
+            // namelength and name are omitted if _binary_data_nonames is on
+
             if (!_binary_data_nonames) {
+                var->writeNameLengthBinary(stream, _byteswap);
                 var->writeNameBinary(stream, _byteswap);
             }
             var->writeTypeBinary(stream, _byteswap);
             var->writeSizeBinary(stream, _byteswap);
             var->writeValueBinary(stream, _byteswap);
         }
-        var_index += curr_message_num_vars;
+
+        if (_debug >= 2) {
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %u binary bytes containing %d variables.\n",
+                            _connection, _connection->getClientTag().c_str(), curr_message_size, curr_message_vars.size());
+        }
 
         // Send it out!
         char write_buf[MAX_MSG_LEN];
@@ -109,23 +139,39 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
         message_stream << "\t";
 
         std::stringstream var_stream;
-        if (given_vars[i]->writeValueAscii(var_stream) == -1) {
-            // If one of the values isn't ready, we need to abort the write
-            return 0;
-        }
+        given_vars[i]->writeValueAscii(var_stream);
 
         // Unfortunately, there isn't a good way to get the size of the buffer without putting it into a string
         std::string var_string = var_stream.str();
         int var_size = var_string.size();
 
+        // Check if this single variable is too big, truncate if so
+        if (var_size + 2 > MAX_MSG_LEN) {
+            message_publish(MSG_WARNING, "tag=<%s> Variable Server buffer[%d] too small for symbol %s, TRUNCATED IT.\n",
+                            _connection->getClientTag().c_str(), MAX_MSG_LEN, given_vars[i]->getName().c_str());
+            
+            var_string = var_string.substr(0, MAX_MSG_LEN-2);
+            var_size = var_string.size();
+        }
+
         // Check that there's enough room for the next variable, tab character, and possible newline
         if (message_size + var_size + 2 > MAX_MSG_LEN) {
-            
+    
             // Write out an incomplete message
             std::string message = message_stream.str();
+
+            if (_debug >= 2) {
+                message_publish(MSG_DEBUG, "%p tag=<%s> var_server buffer[%d] too small (need %d), sending multiple ascii packets.\n",
+                                _connection, _connection->getClientTag().c_str(), MAX_MSG_LEN, message_size + var_size + 2);
+
+                message_publish(MSG_DEBUG, "%p tag=<%s> var_server sedning %d ascii bytes:\n%s\n",
+                                _connection, _connection->getClientTag().c_str(), message_size, message.c_str());
+            }
+
             int result = _connection->write(message);
-            if (result < 0)
+            if (result < 0) {
                 return result;
+            }
 
             // Clear out the message stream
             message_stream.str("");
@@ -141,6 +187,12 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
     // End with newline
     message_stream << '\n';
     std::string message = message_stream.str();
+
+    if (_debug >= 2) {
+        message_publish(MSG_DEBUG, "%p tag=<%s> var_server sedning %d ascii bytes:\n%s\n",
+                        _connection, _connection->getClientTag().c_str(), message.size(), message.c_str());
+    }
+
     int result = _connection->write(message);
     return result;
 }

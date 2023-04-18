@@ -28,6 +28,8 @@ TESTS = $(VARIABLE_REFERENCE_TESTS) $(VARIABLE_SESSION_TESTS) VariableServerSess
 
 TEST_OBJS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(TESTS)))
 
+OUTPUT_DIR = bin
+
 TO_ICG = VariableReference_test 
 
 ICG_OBJS = $(addprefix $(OBJ_DIR)/io_, $(addsuffix .o, $(TO_ICG)))
@@ -41,13 +43,18 @@ print:
 
 all : test
 
-test: $(TESTS)
+test: $(OUTPUT_DIR) $(TESTS)
 	for TEST in $(TESTS) ; do \
-		./$$TEST --gtest_output=xml:${TRICK_HOME}/trick_test/$$TEST.xml ; \
+		$(OUTPUT_DIR)/$$TEST --gtest_output=xml:${TRICK_HOME}/trick_test/$$TEST.xml ; \
 	done
+
+
 
 $(OBJ_DIR):
 	mkdir $(OBJ_DIR)
+
+$(OUTPUT_DIR):
+	mkdir $(OUTPUT_DIR)
 
 $(TEST_OBJS): $(OBJ_DIR)/%.o: %.cc $(OBJ_DIR)
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $< -o $@ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
@@ -56,20 +63,20 @@ $(ICG_OBJS): $(OBJ_DIR)/io_%.o : %.hh $(OBJ_DIR)
 	${TRICK_HOME}/bin/trick-ICG -sim_services -o ./io_src $(TRICK_CXXFLAGS) $<
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c io_src/io_$*.cpp -o $@ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
-$(VARIABLE_REFERENCE_TESTS): %: $(OBJ_DIR)/%.o $(OBJ_DIR)/io_VariableReference_test.o
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+$(VARIABLE_REFERENCE_TESTS): %: $(OBJ_DIR)/%.o $(OBJ_DIR)/io_VariableReference_test.o $(OUTPUT_DIR)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $(OUTPUT_DIR)/$@ $< -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
-$(VARIABLE_SESSION_TESTS): %: $(OBJ_DIR)/%.o 
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS) -o $@
+$(VARIABLE_SESSION_TESTS): %: $(OBJ_DIR)/%.o $(OUTPUT_DIR)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) $< -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS) -o $(OUTPUT_DIR)/$@
 
-VariableServerSessionThread_test: %: $(OBJ_DIR)/%.o 
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+VariableServerSessionThread_test: %: $(OBJ_DIR)/%.o $(OUTPUT_DIR)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $(OUTPUT_DIR)/$@ $< -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
-VariableServerListenThread_test: %: $(OBJ_DIR)/%.o 
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+VariableServerListenThread_test: %: $(OBJ_DIR)/%.o $(OUTPUT_DIR)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $(OUTPUT_DIR)/$@ $< -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
-VariableServer_test: %: $(OBJ_DIR)/%.o 
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+VariableServer_test: %: $(OBJ_DIR)/%.o $(OUTPUT_DIR)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $(OUTPUT_DIR)/$@ $< -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 
 code-coverage: test
@@ -92,5 +99,6 @@ code-coverage: test
 
 clean :
 	rm -f $(TESTS)
+	rm -rf bin
 	rm -f *.gcno *.gcda
 	rm -rf io_src xml obj
