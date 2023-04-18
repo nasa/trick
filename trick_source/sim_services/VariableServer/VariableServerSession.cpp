@@ -108,6 +108,10 @@ int Trick::VariableServerSession::handle_message() {
     std::string received_message;
     int nbytes = _connection->read(received_message);
     if (nbytes > 0) {
+        if (_log) {
+            message_publish(MSG_PLAYBACK, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), received_message.c_str());
+        }
+
         ip_parse(received_message.c_str()); /* returns 0 if no parsing error */
     }
 
