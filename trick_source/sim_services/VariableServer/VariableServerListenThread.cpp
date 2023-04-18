@@ -206,19 +206,19 @@ int Trick::VariableServerListenThread::restart() {
             _requested_source_address.clear() ;
         }
 
-        printf("variable server restart user_port requested set %s:%d\n",_requested_source_address.c_str(), _requested_port);
+        message_publish(MSG_INFO, "variable server restart user_port requested set %s:%d\n",_requested_source_address.c_str(), _requested_port);
 
         _listener->disconnect();
         ret = _listener->initialize(_requested_source_address, _requested_port);
         
-        if (ret != TC_SUCCESS) {
+        if (ret != 0) {
             message_publish(MSG_ERROR, "ERROR: Could not establish listen port %d for Variable Server. Aborting.\n", _requested_port);
             return (-1);
         }
     } else {
         // Otherwise, just ask the listener what port it's using
         _listener->checkSocket();
-        printf("restart variable server message port = %d\n", _listener->getPort());
+        message_publish(MSG_INFO, "restart variable server message port = %d\n", _listener->getPort());
     }
 
     initializeMulticast();
@@ -233,14 +233,12 @@ void Trick::VariableServerListenThread::initializeMulticast() {
 }
 
 void Trick::VariableServerListenThread::pause_listening() {
-    // pthread_mutex_lock(&_restart_pause) ;
     force_thread_to_pause();
 }
 
 void Trick::VariableServerListenThread::restart_listening() {
     _listener->restart();
     unpause_thread();
-    // pthread_mutex_unlock(&_restart_pause) ;
 }
 
 void Trick::VariableServerListenThread::dump( std::ostream & oss ) {

@@ -15,6 +15,7 @@ int Trick::VariableServer::create_tcp_socket(const char * address, unsigned shor
     int status = listener->initialize(address, in_port);
 
     if (status != 0) {
+        message_publish(MSG_ERROR, "ERROR: Could not establish additional listen port at address %s and port %d for Variable Server.\n", address, in_port);
         delete listener;
         return 0;
     }
@@ -40,6 +41,7 @@ int Trick::VariableServer::create_udp_socket(const char * address, unsigned shor
     UDPConnection * udp_conn = new UDPConnection();
     int status = udp_conn->initialize(address, in_port);
     if ( status != 0 ) {
+        message_publish(MSG_ERROR, "ERROR: Could not establish UDP port at address %s and port %d for Variable Server.\n", address, in_port);
         delete udp_conn;
         return 0;
     }
@@ -63,11 +65,17 @@ int Trick::VariableServer::create_multicast_socket(const char * mcast_address, c
     // Multicast sockets are created without a listen thread, and represent only 1 session
     // Create a VariableServerSessionThread to manage this session
 
+    if (mcast_address == NULL || mcast_address[0] == '\0') {
+        message_publish(MSG_ERROR, "Multicast address must be defined.\n");
+        return -1;
+    }
+
     MulticastGroup * multicast = new MulticastGroup();
     message_publish(MSG_INFO, "Created UDP variable server %s: %d\n", address, in_port);
 
     int status = multicast->initialize_with_receiving(address, mcast_address, in_port);
     if ( status != 0 ) {
+        message_publish(MSG_ERROR, "ERROR: Could not establish Multicast port at address %s and port %d for Variable Server.\n", address, in_port);
         delete multicast;
         return 0;
     }
