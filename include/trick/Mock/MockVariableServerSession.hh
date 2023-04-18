@@ -27,6 +27,7 @@ class MockVariableServerSession : public Trick::VariableServerSession {
 
         MOCK_METHOD0(copy_and_write_async, int());
 
+        // Accessor for the concrete version
         int copy_and_write_async_concrete() { return Trick::VariableServerSession::copy_and_write_async(); }
 };
 

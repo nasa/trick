@@ -59,7 +59,7 @@ extern "C" int real_time_restart(long long ref_time ) {
  */
 extern "C" int is_real_time() {
     if ( the_rts != NULL ) {
-        return((int)(the_rts->active)) ;
+        return((int)(the_rts->is_active())) ;
     }
     return(0) ;
 }

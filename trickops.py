@@ -23,14 +23,14 @@ class SimTestWorkflow(TrickWorkflow):
       build_jobs      = self.get_jobs(kind='build')
 
       # This is awful but I can't think of another way around it
-      # SIM_test_varserver has 2 tests that should return the code for SIG_USR1, the number is different on Mac vs Linux
+      # SIM_test_varserver has 2 tests that should return the code for SIGUSR1, the number is different on Mac vs Linux
       # so it can't be hardcoded in the input yml file. Maybe this is a case having a label on a run would be cleaner?
       import signal
       run_names = ["Run test/SIM_test_varserv RUN_test/err1_test.py", "Run test/SIM_test_varserv RUN_test/err2_test.py"]
       for job in [job for job in self.get_jobs(kind='run') if job.name in run_names]:
         job._expected_exit_status = signal.SIGUSR1.value
 
-      # Several sims have runs that require ordering via phases:
+      # Several test sims have runs that require ordering via phases:
       #  - SIM_stls dumps a checkpoint that is then read in and checked by a subsequent run
       #  - SIM_checkpoint_data_recording dumps checkpoints that are read by subsequent runs
       #  - SIM_test_varserver has 3 runs that cannot be concurrent
@@ -76,9 +76,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Build, run, and compare all test sims for Trick',
       formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument( "--trick_top_level", type=str, help="Path to TRICK_HOME", default=thisdir)
-    parser.add_argument( "--quiet", action="store_true", help="Suppress progress bars.")
+    parser.add_argument( "--quiet", action="store_true", help="Suppress progress bars (automatically set to True if environment variable CI is present).")
     parser.add_argument( "--cpus", type=int, default=(os.cpu_count() if os.cpu_count() is not None else 8),
       help="Number of cpus to use for testing. For builds this number is used for MAKEFLAGS *and* number of "
         "concurrent builds (cpus^2). For sim runs this controls the maximum number of simultaneous runs.")
     myargs = parser.parse_args()
-    sys.exit(SimTestWorkflow(quiet=myargs.quiet, trick_top_level=myargs.trick_top_level, cpus=myargs.cpus).run())
+    should_be_quiet = myargs.quiet or os.getenv('CI') is not None
+    sys.exit(SimTestWorkflow(quiet=should_be_quiet, trick_top_level=myargs.trick_top_level, cpus=myargs.cpus).run())

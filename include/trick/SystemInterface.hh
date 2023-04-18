@@ -1,3 +1,7 @@
+/*
+    PURPOSE: (A wrapper for system calls to facilitate testing.)
+*/
+
 
 #ifndef __SYSTEM_INTERFACE__
 #define __SYSTEM_INTERFACE__

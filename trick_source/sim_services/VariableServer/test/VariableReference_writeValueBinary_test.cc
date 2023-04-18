@@ -140,12 +140,36 @@ TEST_F(VariableReference_test, writeNameBinary) {
     ref.writeNameBinary(ss);
 
     // ASSERT
-    char * actual_bytes = (char *) malloc (sizeof(int) + ref.getName().size());
-    ss.read(actual_bytes, sizeof(int) +  6);
-    unsigned char expected_bytes[sizeof(int) +  6] = {0x06, 0x00, 0x00, 0x00, 0x74, 0x65, 0x73, 0x74, 0x5f, 0x61};
+    char * actual_bytes = (char *) malloc (ref.getName().size());
+    ss.read(actual_bytes, 6);
+    unsigned char expected_bytes[6] = {0x74, 0x65, 0x73, 0x74, 0x5f, 0x61};
 
     // ASSERT
-    for (int i = 0; i < sizeof(int) + ref.getName().size(); i++) {
+    for (int i = 0; i < ref.getName().size(); i++) {
+        EXPECT_EQ(static_cast<unsigned char>(actual_bytes[i]), expected_bytes[i]);
+    }
+}
+
+TEST_F(VariableReference_test, writeNameLengthBinary) {
+    // ARRANGE
+    // Create a variable to make a reference for
+    std::string test_a = "abcdef";
+    (void) memmgr->declare_extern_var(&test_a, "std::string test_a");
+    Trick::VariableReference ref("test_a");
+    std::stringstream ss;
+
+    // ACT
+    ref.stageValue();
+    ref.prepareForWrite();
+    ref.writeNameLengthBinary(ss);
+
+    // ASSERT
+    char * actual_bytes = (char *) malloc (sizeof(int));
+    ss.read(actual_bytes, sizeof(int));
+    unsigned char expected_bytes[sizeof(int)] = {0x06, 0x00, 0x00, 0x00};
+
+    // ASSERT
+    for (int i = 0; i < sizeof(int); i++) {
         EXPECT_EQ(static_cast<unsigned char>(actual_bytes[i]), expected_bytes[i]);
     }
 }

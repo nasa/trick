@@ -6,6 +6,7 @@
 #include "trick/MessagePublisher.hh"
 #include "trick/MessageCout.hh"
 #include "trick/MessageFile.hh"
+#include "trick/MessageCustomFile.hh"
 #include "trick/MessageTCDevice.hh"
 #include "trick/message_proto.h"
 

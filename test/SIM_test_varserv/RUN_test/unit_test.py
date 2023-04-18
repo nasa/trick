@@ -9,6 +9,7 @@ def main():
 	trick.real_time_enable()
 	trick.exec_set_software_frame(0.01)
 	# trick.set_var_server_info_msg_on()
+	trick.set_var_server_log_on()
 
 	hostname = trick.var_server_get_hostname()
 

@@ -6,4 +6,4 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 unexport TRICK_PYTHON_PATH
 
 sim_test:
-	python3 trickops.py --quiet
+	python3 trickops.py

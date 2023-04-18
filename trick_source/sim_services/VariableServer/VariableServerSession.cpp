@@ -1,15 +1,19 @@
 #include "trick/VariableServerSession.hh"
 #include "trick/TrickConstant.hh"
 #include "trick/exec_proto.h"
+#include "trick/Message_proto.hh"
 #include "trick/message_proto.h"
 #include "trick/input_processor_proto.h"
 #include "trick/realtimesync_proto.h"
 
+int Trick::VariableServerSession::instance_counter = 0;
 
 Trick::VariableServerSession::VariableServerSession() {
     _debug = 0;
     _enabled = true ;
     _log = false ;
+    _log_msg_stream = -1;
+    _info_msg = false;
     _copy_mode = VS_COPY_ASYNC ;
     _write_mode = VS_WRITE_ASYNC ;
     _frame_multiple = 1 ;
@@ -35,6 +39,8 @@ Trick::VariableServerSession::VariableServerSession() {
     _exit_cmd = false;
     _pause_cmd = false;
 
+    _instance_num = instance_counter++;
+
     pthread_mutex_init(&_copy_mutex, NULL);
 }
 
@@ -47,6 +53,16 @@ Trick::VariableServerSession::~VariableServerSession() {
 
 void Trick::VariableServerSession::set_connection(ClientConnection * conn) {
     _connection = conn;
+    log_connection_opened();
+}
+
+bool Trick::VariableServerSession::is_log_open() {
+    return _log_msg_stream != -1;
+}
+
+void Trick::VariableServerSession::open_session_log() {
+    std::string name = "VSSession" + std::to_string(_instance_num);
+    _log_msg_stream = open_custom_message_file(name + ".log", name);
 }
 
 
@@ -103,11 +119,41 @@ long long Trick::VariableServerSession::get_freeze_next_tics() const {
     return _freeze_next_tics ;
 }
 
+void Trick::VariableServerSession::log_connection_opened() {
+    if (_log) {
+        if (!is_log_open()) {
+            open_session_log();
+        }
+    
+        message_publish(_log_msg_stream, "Variable Server Session started with %s:%d\n", _connection->getClientHostname().c_str(), _connection->getClientPort());
+    }
+}
+
+void Trick::VariableServerSession::log_received_message(const std::string& msg) {
+    if (_log) {
+        message_publish(MSG_PLAYBACK, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), msg.c_str());
+        
+        if (!is_log_open()) open_session_log();
+
+        message_publish(_log_msg_stream, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), msg.c_str());
+    }
+
+    if (_debug >= 3) {
+        message_publish(MSG_DEBUG, "%p tag=<%s> var_server received bytes = msg_len = %d\n", _connection, _connection->getClientTag().c_str(), msg.size());
+    }
+
+    if (_debug >= 1 || _info_msg) {
+        message_publish(MSG_DEBUG, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), msg.c_str());
+    }
+    
+}
+
 int Trick::VariableServerSession::handle_message() {
 
     std::string received_message;
     int nbytes = _connection->read(received_message);
     if (nbytes > 0) {
+        log_received_message(received_message);
         ip_parse(received_message.c_str()); /* returns 0 if no parsing error */
     }
 
@@ -123,6 +169,11 @@ Trick::VariableReference * Trick::VariableServerSession::find_session_variable(s
     }
 
     return NULL;
+}
+
+int Trick::VariableServerSession::set_info_message(bool on) {
+    _info_msg = on;
+    return 0;
 }
 
 double Trick::VariableServerSession::get_update_rate() const {

@@ -117,7 +117,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         buf1[4] = (error==false);
 
         if (_debug >= 2) {
-            // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending 1 binary byte\n", &_connection, _connection.client_tag);
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending 1 binary byte\n", _connection, _connection->getClientTag().c_str());
         }
 
         _connection->write(buf1, 5);
@@ -125,7 +125,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         /* send ascii "1" or "0" */
         sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
         if (_debug >= 2) {
-            // message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", &_connection, _connection.client_tag, buf1) ;
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", _connection, _connection->getClientTag().c_str(), buf1) ;
         }
         std::string write_string(buf1);
         if (write_string.length() != strlen(buf1)) {
@@ -312,7 +312,7 @@ int Trick::VariableServerSession::send_list_size() {
     return 0 ;
 }
 
-int Trick::VariableServerSession::transmit_file(std::string sie_file) {
+int Trick::VariableServerSession::transmit_file(std::string filename) {
     const unsigned int packet_size = 4095 ;
     FILE * fp ;
     unsigned int file_size ;
@@ -322,11 +322,11 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
     int ret ;
 
     if (_debug >= 2) {
-        message_publish(MSG_DEBUG,"%p tag=<%s> var_server opening %s.\n", _connection, _connection->getClientTag().c_str(), sie_file.c_str()) ;
+        message_publish(MSG_DEBUG,"%p tag=<%s> var_server opening %s.\n", _connection, _connection->getClientTag().c_str(), filename.c_str()) ;
     }
 
-    if ((fp = fopen(sie_file.c_str() , "r")) == NULL ) {
-        message_publish(MSG_ERROR,"Variable Server Error: Cannot open %s.\n", sie_file.c_str()) ;
+    if ((fp = fopen(filename.c_str() , "r")) == NULL ) {
+        message_publish(MSG_ERROR,"Variable Server Error: Cannot open %s.\n", filename.c_str()) ;
         sprintf(buffer, "%d\t-1\n", VS_SIE_RESOURCE) ;
         std::string message(buffer);
         _connection->write(message);
@@ -352,7 +352,7 @@ int Trick::VariableServerSession::transmit_file(std::string sie_file) {
         message.resize(bytes_read);
         ret = _connection->write(message);
         if (ret != (int)bytes_read) {
-            message_publish(MSG_ERROR,"Variable Server Error: Failed to send SIE file. Bytes read: %d Bytes sent: %d\n", bytes_read, ret) ;
+            message_publish(MSG_ERROR,"Variable Server Error: Failed to send file. Bytes read: %d Bytes sent: %d\n", bytes_read, ret) ;
             return(-1);
         }
         current_size += bytes_read ;
