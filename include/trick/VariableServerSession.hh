@@ -359,6 +359,13 @@ namespace Trick {
         */
         virtual int set_log_off() ;
 
+
+        /**
+         @brief @userdesc Command to set info messages.
+            @return always 0
+        */
+        virtual int set_info_message(bool on) ;
+
         /**
          @brief Command to send the number of items in the var_add list.
             The variable server sends a message indicator of "3", followed by the total number of variables being sent.
@@ -440,6 +447,9 @@ namespace Trick {
         virtual int get_freeze_frame_offset () const;
         virtual bool get_enabled () const;
 
+        // Check settings and log message to appropriate places
+        void log_message(const std::string& msg);
+
         /** Value set in var_cycle command.\n */
         double _update_rate ;             /**<  trick_io(**) */
 
@@ -490,6 +500,9 @@ namespace Trick {
 
         /** Toggle to turn on/off variable server logged messages to a playback file.\n */
         bool _log ;                       /**< trick_io(**)  */
+
+        /** Toggle to turn on/off debug info messages.\n */
+        bool _info_msg ;
 
         /** Toggle to indicate var_pause commanded.\n */
         bool _pause_cmd ;                 /**<  trick_io(**) */

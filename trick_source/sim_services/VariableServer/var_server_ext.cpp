@@ -271,22 +271,6 @@ Trick::VariableServerSession * session = get_session();
     return(0) ;
 }
 
-// int var_signal() {
-// Trick::VariableServerSession * session = get_session();
-//     if (session != NULL ) {
-//         session->var_signal() ;
-//     }
-//     return(0) ;
-// }
-
-// int var_multicast(bool on_off) {
-// Trick::VariableServerSession * session = get_session();
-//     if (session != NULL ) {
-//         session->var_multicast(on_off) ;
-//     }
-//     return(0) ;
-// }
-
 int var_write_stdio(int stream , std::string text ) {
     // std::cout << "Executing var_write_stdio" << std::endl;
     Trick::VariableServerSession * session = get_session();

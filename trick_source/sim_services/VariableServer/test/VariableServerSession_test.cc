@@ -19,12 +19,12 @@ PURPOSE:                     ( Tests for the VariableServerSession class )
 #include "trick/VariableServerSession.hh"
 #include "trick/var_binary_parser.hh"
 
-#include "MockExecutive.hh"
-#include "MockRealtimeSync.hh"
-#include "MockMessagePublisher.hh"
-#include "MockInputProcessor.hh"
-#include "MockClientConnection.hh"
-#include "MockVariableServerSession.hh"
+#include "trick/Mock/MockExecutive.hh"
+#include "trick/Mock/MockRealtimeSync.hh"
+#include "trick/Mock/MockMessagePublisher.hh"
+#include "trick/Mock/MockInputProcessor.hh"
+#include "trick/Mock/MockClientConnection.hh"
+#include "trick/Mock/MockVariableServerSession.hh"
 
 
 
@@ -328,12 +328,75 @@ TEST_F(VariableServerSession_test, no_log_by_default) {
 
     // ACT
     session.handle_message();
+    // ASSERT
+}
+
+
+TEST_F(VariableServerSession_test, info_msg_on) {
+    // ARRANGE
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
+
+    // Expect a write to info message_publish
+    EXPECT_CALL(*message_publisher, publish(MSG_DEBUG,_));
+    // Just get whatever from the client
+    EXPECT_CALL(connection, read(_, _))
+        .WillOnce(DoAll(SetArgReferee<0>("some_python_command"), Return(10)));
+    EXPECT_CALL(connection, getClientTag())
+        .WillOnce(Return("ClientTag"));
+    EXPECT_CALL(*input_processor, parse(_));
+
+
+    // ACT
+    session.set_info_message(true);
+    session.handle_message();
+
+    // ASSERT
+}
+
+TEST_F(VariableServerSession_test, info_msg_off_by_default) {
+    // ARRANGE
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
+
+    // Expect no write to info message_publish
+    EXPECT_CALL(*message_publisher, publish(MSG_DEBUG,_))
+        .Times(0);
+    // Just get whatever from the client
+    EXPECT_CALL(connection, read(_, _))
+        .WillOnce(DoAll(SetArgReferee<0>("some_python_command"), Return(10)));
+    EXPECT_CALL(*input_processor, parse(_));
+
+    // ACT
+    session.handle_message();
+
+    // ASSERT
+}
+
+TEST_F(VariableServerSession_test, debug_on) {
+    // ARRANGE
+    Trick::VariableServerSession session;
+    session.set_connection(&connection);
+
+    // Expect 2 writes to info message_publish
+    EXPECT_CALL(*message_publisher, publish(MSG_DEBUG,_))
+        .Times(2);
+    // Just get whatever from the client
+    EXPECT_CALL(connection, read(_, _))
+        .WillOnce(DoAll(SetArgReferee<0>("some_python_command"), Return(10)));
+    EXPECT_CALL(*input_processor, parse(_));
+    EXPECT_CALL(connection, getClientTag())
+        .WillRepeatedly(Return("ClientTag"));
+
+    // ACT
+    session.var_debug(3);
+    session.handle_message();
 
     // ASSERT
 }
 
 /**************************************************************************/
-/*                          Moding tests                                  */
+/*                            Mode tests                                  */
 /**************************************************************************/
 
 void setup_partial_session_mock(MockVariableServerSession& session) {
