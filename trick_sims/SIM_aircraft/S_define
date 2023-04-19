@@ -2,21 +2,26 @@
 PURPOSE:
     ( Simulate a Aircraft. )
 LIBRARY DEPENDENCIES:
-    ((Aircraft/src/Aircraft.o)
+    (
+        (Aircraft/src/Aircraft.cpp)
+        (Aircraft/src/Waypoint.cpp)
+    )
 **************************************************************************/
 #include "sim_objects/default_trick_sys.sm"
 ##include "Aircraft/include/Aircraft.hh"
+##include "Aircraft/include/Waypoint.hh"
 
 class AircraftSimObject : public Trick::SimObject {
     public:
     Aircraft aircraft;
 
     AircraftSimObject() {
-        ("default_data")            aircraft.default_data() ;
+        ("default_data")            aircraft.default_data();
         ("initialization")          aircraft.state_init();
-        (0.1,"scheduled")               aircraft.control() ;
-        ("derivative")              aircraft.state_deriv() ;
-        ("integration") trick_ret = aircraft.state_integ() ;
+        (0.1,"scheduled")           aircraft.control();
+        (0.1,"scheduled")           aircraft.cycleWaypoints();
+        ("derivative")              aircraft.state_deriv();
+        ("integration") trick_ret = aircraft.state_integ();
     }
 };
 

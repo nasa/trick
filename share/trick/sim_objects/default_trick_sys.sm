@@ -229,6 +229,7 @@ class SieSimObject : public Trick::SimObject {
         Trick::Sie sie ;
 
         SieSimObject() {
+            {TRK} P0 ("default_data")   sie.process_sim_args() ;
             // We now append runtime objects when sie is requested by variable server instead. 
             // {TRK} P65535 ("initialization") sie.sie_append_runtime_objs() ;
         }
