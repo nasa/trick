@@ -117,7 +117,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         buf1[4] = (error==false);
 
         if (_debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending 1 binary byte\n", _connection, _connection->getClientTag());
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending 1 binary byte\n", _connection, _connection->getClientTag().c_str());
         }
 
         _connection->write(buf1, 5);
@@ -125,7 +125,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         /* send ascii "1" or "0" */
         sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
         if (_debug >= 2) {
-            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", _connection, _connection->getClientTag(), buf1) ;
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", _connection, _connection->getClientTag().c_str(), buf1) ;
         }
         std::string write_string(buf1);
         if (write_string.length() != strlen(buf1)) {

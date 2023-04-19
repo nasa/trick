@@ -110,11 +110,11 @@ void Trick::VariableServerSession::log_message(const std::string& msg) {
     }
 
     if (_debug >= 3) {
-        message_publish(MSG_DEBUG, "%p tag=<%s> var_server received bytes = msg_len = %d\n", _connection, _connection->getClientTag(), msg.size());
+        message_publish(MSG_DEBUG, "%p tag=<%s> var_server received bytes = msg_len = %d\n", _connection, _connection->getClientTag().c_str(), msg.size());
     }
 
     if (_debug >= 1 || _info_msg) {
-        message_publish(MSG_DEBUG, "tag=<%s> time=%f %s", _connection->getClientTag(), exec_get_sim_time(), msg.c_str());
+        message_publish(MSG_DEBUG, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), msg.c_str());
     }
     
 }
