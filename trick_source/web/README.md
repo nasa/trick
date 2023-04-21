@@ -3,4 +3,4 @@ Trick has the capability to create a custom built web server for your sim.
 
 You can find documentation here:
 
-[Web Server Documentation](https://nasa.github.io/trick/documentation/simulation_capabilities/web/)
+[Web Server Documentation](/docs/documentation/web/Adding_a_Web_Server_to_Your_Sim)

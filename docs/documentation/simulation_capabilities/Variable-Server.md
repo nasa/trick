@@ -14,7 +14,7 @@ do so through the variable server. The external application need not be on the s
 machine since the connection to the variable server is via a Trick communication
 TCP/IP socket.
 
-### User accessible routines
+## User accessible routines
 
 These commands are for enabling/disabling the variable server, and for getting its status.
 The variable server is enabled by default.
@@ -45,7 +45,7 @@ int set_var_server_log_off();
 int set_var_server_log_on();
 ```
 
-#### Getting and Setting the Variable Server Port Information
+### Getting and Setting the Variable Server Port Information
 
 To set the variable server port to a fixed number in the input file use var_server_set_port()
 
@@ -61,7 +61,7 @@ trick.var_server_get_hostname()
 trick.var_server_get_port()
 ```
 
-### Commands
+## Commands
 
 The variable server accepts commands in the form of strings. The variable server parses
 these commands using the Python input processor. So in theory, any Python valid syntax
@@ -73,7 +73,7 @@ over the socket. The variable server will send back information to the requestin
 If the command contains a syntax error, Python will print an error message to the screen, 
 but nothing will be returned to the client.
 
-#### Adding a Variable
+### Adding a Variable
 
 ```python
 trick.var_add( string var_name )
@@ -95,9 +95,9 @@ Simulation time as a decimal number in "seconds" is available through a special 
 trick.var_add("time")
 ```
 
-#### Time Homogeneous or Synchronous Data
+### Time Homogeneous or Synchronous Data
 
-##### Copying Data Out of Simulation.
+#### Copying Data Out of Simulation.
 
 ```python
 trick.var_set_copy_mode(int mode)
@@ -106,14 +106,14 @@ trick.var_set_copy_mode(int mode)
 There are 3 options to when the variable server will copy data out from the simulation.
 Each option has unique capabilites.
 
-###### Asynchronous Copy (mode = trick.VS_COPY_ASYNC or 0)
+##### Asynchronous Copy (mode = trick.VS_COPY_ASYNC or 0)
 
 This is the default. Values are copied out of the sim asynchronously.  Copies are done
 approximately at the var_cycle() rate during run and freeze mode.  A separate thread
 is used to copy the data.  The data is not guaranteed to be time homogenous.  This mode
 does not affect the main thread real-time performance.
 
-###### End of Main Thread Execution Copy (mode = trick.VS_COPY_SCHEDULED or 1)
+##### End of Main Thread Execution Copy (mode = trick.VS_COPY_SCHEDULED or 1)
 
 This mode copies data at the end of execution frame.  Copies are done exactly at the
 var_cycle() rate after the main thread has finished all of it's jobs scheduled to run
@@ -122,7 +122,7 @@ main thread are guaranteed to be time homogenous.  Variables calculated in child
 threads are not guaranteed to be time homogenous.  Copying data may very slightly
 affect the main thread real-time performance.
 
-###### Top of Frame Copy (mode = trick.VS_COPY_TOP_OF_FRAME or 2)
+##### Top of Frame Copy (mode = trick.VS_COPY_TOP_OF_FRAME or 2)
 
 This mode copies data at the top of frame.  Copies are done at a multiple and offset of
 the Executive software frame.  During freeze mode copies are made at a multiple and offset
@@ -142,7 +142,7 @@ trick.var_set_freeze_frame_multiplier(int mult)
 trick.var_set_freeze_frame_offset(int offset)
 ```
 
-##### Writing Data Out of Simulation.
+#### Writing Data Out of Simulation.
 
 ```python
 trick.var_set_write_mode(int mode)
@@ -150,19 +150,19 @@ trick.var_set_write_mode(int mode)
 
 There are 2 options when the variable server writes the data.
 
-###### Asynchronous Write ( mode = trick.VS_WRITE_ASYNC or 0 )
+##### Asynchronous Write ( mode = trick.VS_WRITE_ASYNC or 0 )
 
 This is the default. Values are written onto the socket asynchronously.  Writes are done
 approximately at the var_cycle() rate during run and freeze mode.  A separate thread
 is used to copy write data.  This mode does not affect the main thread real-time performance.
 
-###### Write When Copied ( mode = trick.VS_WRITE_WHEN_COPIED or 1 )
+##### Write When Copied ( mode = trick.VS_WRITE_WHEN_COPIED or 1 )
 
 Values are written onto the socket as soon as they are copied from the simulation. The
 write rate depends on the copy. Writes are done in the main thread of execution.  This
 can greatly affect real-tim performance if a large amount of data is requested.
 
-##### Old Style var_sync() Command
+#### Old Style var_sync() Command
 
 ```python
 trick.var_sync(bool mode)
@@ -178,7 +178,7 @@ trick.var_sync(1) # end of main thread copy and asynchronous write.
 trick.var_sync(2) # end of main thread copy and write when copied.
 ```
 
-#### Sending the Return Values Immediately
+### Sending the Return Values Immediately
 
 ```python
 trick.var_send()
@@ -187,7 +187,7 @@ trick.var_send()
 The var_send command forces the variable server to return the list of values to the
 client immediately.
 
-#### Changing the Units
+### Changing the Units
 
 ```python
 trick.var_units( string var_name , string units )
@@ -197,7 +197,7 @@ The returned values can be converted to other units of measurments. The var_unit
 tells the variable server what units to use.  If the units are changed, then the units
 are included in the returned string to the client.
 
-#### Removing a Variable
+### Removing a Variable
 
 ```python
 trick.var_remove( string var_name )
@@ -205,7 +205,7 @@ trick.var_remove( string var_name )
 
 Removing a variable removes the variable from the list returned to the client.
 
-#### Clearing the List of Variables
+### Clearing the List of Variables
 
 ```python
 trick.var_clear()
@@ -213,7 +213,7 @@ trick.var_clear()
 
 To clear the whole list of variables sent to the client.
 
-#### Exiting the Variable Server
+### Exiting the Variable Server
 
 ```python
 trick.var_exit()
@@ -221,7 +221,7 @@ trick.var_exit()
 
 Disconnects the current client from the variable server.
 
-#### Checking for existence of a variable
+### Checking for existence of a variable
 
 ```python
 trick.var_exists( string var_name )
@@ -236,7 +236,7 @@ followed by a (1 byte) value of 0 or 1 to indicate the existence of the variable
 In **var_ascii** mode: the message indicator of the response will be "1" followed
 by a tab, then an ASCII "0" or "1" to indicate the existence of the variable.
 
-#### Changing the Return Value Cycle Rate
+### Changing the Return Value Cycle Rate
 
 ```python
 trick.var_cycle( double cycle_rate )
@@ -245,7 +245,7 @@ trick.var_cycle( double cycle_rate )
 Changes the rate of the return messages to the client.  This rate is estimated and may not
 perfectly match the requested rate.
 
-#### Pause the Variable Server
+### Pause the Variable Server
 
 ```python
 trick.var_pause()
@@ -254,7 +254,7 @@ trick.var_pause()
 Pauses the return values sent to the client.  Even when paused, the variable server will
 accept new commands.
 
-#### Unpause the Variable Server
+### Unpause the Variable Server
 
 ```python
 trick.var_unpause()
@@ -262,7 +262,7 @@ trick.var_unpause()
 
 Resumes sending the return values to the client.
 
-#### Setting Ascii Return Format
+### Setting Ascii Return Format
 
 ```python
 trick.var_ascii()
@@ -270,7 +270,7 @@ trick.var_ascii()
 
 Sets the return message format to ASCII. See below for the format of the message.
 
-#### Setting Binary Return Format
+### Setting Binary Return Format
 
 ```python
 trick.var_binary()
@@ -285,7 +285,7 @@ trick.var_binary_nonames()
 This variation of the binary format reduces the amount of data that is sent to the client.
 See below for the exact format.
 
-#### Sending stdout and stderr to client
+### Sending stdout and stderr to client
 
 ```python
 trick.var_set_send_stdio(bool on_off)
@@ -317,7 +317,7 @@ print "trick.exec_get_current_version()"
  <- a single newline is the second message
 ```
 
-#### Debugging Variable Server Messages
+### Debugging Variable Server Messages
 
 ```python
 trick.var_debug(int level)
@@ -326,7 +326,7 @@ trick.var_debug(int level)
 The level may range from 0-3.  The larger the number the more debugging information is printed to
 the screen (for the current client only).
 
-#### Logging Messages to file.
+### Logging Messages to file.
 
 These commands are for toggling information messages from the variable server (for this client only).
 The messages only go to a dedicated "varserver_log" file in the RUN directory.
@@ -340,7 +340,7 @@ trick.var_server_log_on()
 trick.var_server_log_off()
 ```
 
-#### Setting Variable Server Client Tag
+### Setting Variable Server Client Tag
 
 ```python
 trick.var_set_client_tag(string name)
@@ -353,13 +353,13 @@ displayed. Information messages are displayed as a result of
 @c var_debug(). For instance, Trick sets a name tag for each of its variable server clients (simulation control panel is "SimControl",
 TV is "TRICK_TV", etc.).
 
-#### Byteswapping
+### Byteswapping
 
 ```python
 trick.var_byteswap(bool on_off)
 ```
 
-### Returned Values
+## Returned Values
 
 By default the values retrieved are sent asynchronously to the client. That is, the values
 retrieved by the variable server are pulled directly from memory asynchronously and do not
@@ -368,7 +368,7 @@ command is used. Values will be returned to the client in the same order that th
 issued in the var_add command(s).  Typically the client receives the data from the variable
 server in a buffer via the tc_read command (see TrickComm for more information).
 
-### Ascii Format
+## Ascii Format
 
 The default format, or if var_ascii is commanded specifically, causes the variable server
 to return a buffer containing a tab delimited character string in the following format:
@@ -413,7 +413,7 @@ If a var_add command was issued for a non-existent variable, there will be a one
 message printed to the screen, but the resulting data sent to the client is still ok. The value
 returned for the non-existent variable is the string "BAD_REF".
 
-### Binary Format
+## Binary Format
 
 By specifying the var_binary or var_binary_nonames command, the variable server will return
 values in a binary message formatted as follows:
@@ -453,7 +453,7 @@ If a var_add command was issued for a non-existent variable, there will be a one
 message printed to the screen, but the resulting data sent to the client is still ok. The message 
 returned for the non-existent variable will have a type of 24 and it's value will be the string "BAD_REF".
 
-### Stdio Format
+## Stdio Format
 
 These messages are sent to the client if stdout and stderr are redirected. See "Sending stdout
 and stderr to client" for more details.
@@ -476,7 +476,7 @@ Calls to sys.stdout.write() only generate 1 message.
 
 Error messages printed by python to stderr may be sent in multiple messages.
 
-### Variable Server Broadcast Channel
+## Variable Server Broadcast Channel
 
 To connect to the variable server for any simulation, a client needs to know the
 hostname and port.  As of 10.5, the port number is determined by the OS.  For external

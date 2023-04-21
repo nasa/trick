@@ -8,7 +8,7 @@
 #include <string.h>
 
 #define PI 3.141592653589793
-#define RAD_PER_DEG (2.0*PI/180.0)
+#define RAD_PER_DEG (PI/180.0)
 
 typedef struct {
     double pos[2];

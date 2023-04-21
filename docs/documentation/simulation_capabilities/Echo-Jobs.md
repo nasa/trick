@@ -14,7 +14,7 @@ All jobs (user jobs and Trick jobs) of the following job class will be echoed:
 Echo Jobs uses Trick's messaging system to publish each sim time / job name message,
 which means it will be sent to any enabled message subscribers (see  @ref StatusMessageSystem "Status Message System").
 
-### User accessible routines
+## User accessible routines
 
 ```
 int echo_jobs_on() ;

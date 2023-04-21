@@ -7,7 +7,7 @@ Rather than discuss an explicit syntax definition (which would probably be more
 confusing than informative), each specific capability of the input processor, and
 its associated input file syntax, will be discussed.
 
-### Accessing Simulation Parameters
+## Accessing Simulation Parameters
 
 The parameter naming convention for ALL input parameters is the parameter's actual
 source code name. The following is a line from an input file :
@@ -82,7 +82,7 @@ print ball.daa
 # is printed
 ```
 
-### Accessing Simulation Enumerated Types
+## Accessing Simulation Enumerated Types
 
 Global Enumerations are available through the `trick` module.
 
@@ -93,7 +93,7 @@ print trick.True trick.False trick.Yes trick.No
 1 0 1 0
 ```
 
-### Accessing Simulation Functions and Object Member functions
+## Accessing Simulation Functions and Object Member functions
 
 Almost all functions and public object methods are available to call from the Python input file.
 Arguments must be filled in just as they would be in C/C++ code.  There is more information about what
@@ -143,7 +143,7 @@ foo(float(length))
 
 Structure and class variables do not carry around units, and therefore the units do not have to be removed.
 
-### Creating New Objects and Allocating Memory
+## Creating New Objects and Allocating Memory
 
 It is possible to create new objects and allocate new memory for structures directly in the Python
 input file.  There are at least two ways to allocate memory.
@@ -234,7 +234,7 @@ def foo():
 
 ```
 
-### Comments
+## Comments
 
 Comments in Python come in two forms.
 
@@ -247,7 +247,7 @@ three sets of double quotes.
 """
 ```
 
-### Nested File Inclusion
+## Nested File Inclusion
 
 There are several ways to include files in Python.
 
@@ -262,7 +262,7 @@ sys.path.append("/my/python/dir") ;
 import my_new_module
 ```
 
-### Local Python Variables
+## Local Python Variables
 
 Local variables may be used anywhere in the Python input file.  Local variables will follow normal
 Python scoping rules.  Shortcut variable names may be created to reference simulation variables.
@@ -277,7 +277,7 @@ print ball.obj.state.output_position
 # printout would read "4.5, 6.7"
 ```
 
-### Environment Variables
+## Environment Variables
 
 Environment Variables are available through the Python `os.getenv` call
 
@@ -285,7 +285,7 @@ Environment Variables are available through the Python `os.getenv` call
 print os.getenv("TRICK_CFLAGS")
 ```
 
-### Measurement Units
+## Measurement Units
 
 Every input parameter has associated measurement units specified in its corresponding data
 structure definition file declaration. It specifies the units for the internal source code to
@@ -327,7 +327,7 @@ Printing parameters in the Python script will include the attached units.
 [1.0m , 2.0m , 3.0m]
 ```
 
-### Time Based Input Processing
+## Time Based Input Processing
 
 The input processor allows pieces of the input file to be processed at a later simulation time.
 To process code at a later time call `trick.add_read(<time>, "<code_to_be_executed>")`. 
@@ -353,7 +353,7 @@ read = 5.0
 trick.add_read(read , ... ) 
 ```
 
-### Freeze the Simulation
+## Freeze the Simulation
 
 To freeze a simulation call `trick.freeze([<freeze_time>])`.  `trick.freeze()` called with no
 arguments will freeze immediately.  An optional freeze time may be provided to freeze some time
@@ -371,7 +371,7 @@ trick.freeze(trick.exec_get_sim_time() + 5.0)
 
 ```
 
-### Checkpoint the Simulation
+## Checkpoint the Simulation
 
 To checkpoint a simulation call `trick.checkpoint([<checkpoint_time>])`.  `trick.checkpoint()` called with no
 arguments will checkpoint immediately.  An optional checkpoint time may be provided to checkpoint some time
@@ -388,7 +388,7 @@ trick.checkpoint(100.0)
 trick.checkpoint(trick.exec_get_sim_time() + 5.0)
 ```
 
-### Stopping the Simulation
+## Stopping the Simulation
 
 To shutdown a simulation call trick.stop([<stop_time>]).  trick.stop() called with no
 arguments will shutdown immediately.  An optional stop time may be provided to shutdown some time
@@ -405,13 +405,13 @@ trick.stop(100.0)
 trick.stop(trick.exec_get_sim_time() + 5.0)
 ```
 
-### Events and Malfunctions
+## Events and Malfunctions
 
 Trick 10 events are a hybrid of Trick 07 events and malfunctions. A Trick 07 event has one or more conditions, one action, and is evaluated by the input processor. A Trick 07 malfunction also has one or more conditions (called triggers) that you can disable/enable, multiple actions, manual mode, and is evaluated before/after a specified job. Multiple conditions in malfunctions are ORed in 07, while multiple conditions in events can be specified by the user as being ORed or ANDed.  Here is the Python syntax showing how Trick 10 events implement all of this functionality.
 
 For information on how Trick processes events during runtime, see [Event Processing](/trick/documentation/simulation_capabilities/Event-Manager).
 
-#### Basic Event Usage
+### Basic Event Usage
 
 ```python
 # Create an event that can be viewed and manipulated in MTV, and can be checkpointed
@@ -449,7 +449,7 @@ For information on how Trick processes events during runtime, see [Event Process
 trick.add_event(<event name>)
 ```
 
-#### Advanced Event (Malfunction) Usage
+### Advanced Event (Malfunction) Usage
 
 ```python
 # Insert the event before/after a "target" job so that it is evaluated then (as opposed to top of frame)
@@ -515,12 +515,12 @@ trick.delete_event(<event_name>)
 <event name>.manual_done()
 ```
 
-#### Setting variables synchronously: Real Time Variable Injector
+### Setting variables synchronously: Real Time Variable Injector
 
 You can also use `rti_add`/`rti_fire` commands in your event action syntax (or as standalone commands in the input file or
 via the variable server) to set variables. See "Real Time Variable Injector".
 
-#### Accessing the current Event state
+### Accessing the current Event state
 
 ```python
 <event name>.condtion_fired(<index>)          # boolean:  test if a particular event condition fired this cycle
@@ -539,7 +539,7 @@ via the variable server) to set variables. See "Real Time Variable Injector".
 <event name>.manual_fired                     # boolean:  test if this event was fired manually this cycle
 ```
 
-#### Event Example
+### Event Example
 
 Hopefully this example shows the various things you can do using events without being too confusing. Even the event components themselves can be queried and changed.
 
@@ -582,13 +582,11 @@ trick.add_event_before(change_event, "ball.obj.state_integ")
 trick.add_event_after(over100_event, "data_record_group1.Ball")
 ```
 
-### Trick Specific Python Usage
+## Trick Specific Python Usage
 
 Many of Trick's functions can be called using Python commands in the input file (or via the variable server)
 to perform various operations or to customize/configure Trick.
 
-Look for a Trick flag icon like this beside each user callable function for details in the Class pages listed below.
-
-### I Just Want to Know How Do I Set this Value...
+## I Just Want to Know How Do I Set this Value...
 
 [Continue to Runtime GUIs](runtime_guis/Runtime-GUIs)

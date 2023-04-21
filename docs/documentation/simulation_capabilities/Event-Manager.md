@@ -2,7 +2,7 @@
 This page describes the methods available in the Trick::EventManager and Trick::EventProcessor class.
 See [Input_File](/trick/documentation/running_a_simulation/Input-File) for detailed information on the syntax of the input processor file.
 
-### User accessible routines
+## User accessible routines
 
 These commands are for adding and removing events from the Event Manager
 
@@ -14,7 +14,7 @@ int add_event_before( Trick::Event * in_event, std::string target_name, unsigned
 int remove_event( Trick::Event * in_event )
 ```
 
-### Event Processing Flow
+## Event Processing Flow
 
 The next set of flowcharts details how the %Trick Event Processor processes events.
 

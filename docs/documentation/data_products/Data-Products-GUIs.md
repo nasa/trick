@@ -10,7 +10,7 @@ These two applications work together and allow the user to plot and tabularize T
 
 This section gives various examples of viewing Trick logged data using Trick DP and Trick QP.
 
-### Trick DP - Data Products Application
+## Trick DP - Data Products Application
 
 The trick_dp (data products) is designed to make use of data product specification files (DP files). DP specification
 files are input files which tell data products how and what to display in plots and tables. If time is taken to create the DP
@@ -20,7 +20,7 @@ detailed information on its use. To launch the program:
 - <b>UNIX Prompt></b> trick_dp&
 
 
-### Trick DP GUI
+## Trick DP GUI
 
 ![trick_dp](images/trick_dp.jpg)
 
@@ -32,9 +32,9 @@ as shown in the above image. The interface is explained with further details in 
 - Display areas
 
 
-#### Trick DP Menu bar
+### Trick DP Menu bar
 
-##### Trick DP Session Menu
+#### Trick DP Session Menu
 
 ![trick_dp_session_menu](images/trick_dp_session_menu.jpg)
 
@@ -53,7 +53,7 @@ as shown in the above image. The interface is explained with further details in 
 - <b>Exit</b>
     - Exits the GUI. If Show Exit Confirmation Prompt is checked, Confirm Exit dialog box would be displayed. Otherwise, exits immediately.
 
-##### Trick DP Simrun Menu
+#### Trick DP Simrun Menu
 
 ![trick_dp_simrun_menu](images/trick_dp_simrun_menu.jpg)
 
@@ -84,7 +84,7 @@ as shown in the above image. The interface is explained with further details in 
         - Fermi
         - Gnuplot
 
-##### Trick DP Actions Menu
+#### Trick DP Actions Menu
 
 ![trick_dp_actions_menu](images/trick_dp_actions_menu.jpg)
 
@@ -111,7 +111,7 @@ as shown in the above image. The interface is explained with further details in 
 - <b>Create PDF Booklet...</b>
     - Allows users to view, merge, or create a PDF file for the selected postscript file(s).
 
-##### Trick DP Help Menu
+#### Trick DP Help Menu
 
 ![trick_dp_help_menu](images/trick_dp_help_menu.jpg)
 
@@ -120,7 +120,7 @@ as shown in the above image. The interface is explained with further details in 
 - <b>About...</b>
     - Shows the information about this application.
 
-#### Toolbar
+### Toolbar
 
 ![trick_dp_toolbar](images/trick_dp_toolbar.jpg)
 
@@ -128,7 +128,7 @@ These icon buttons eables easier access to those commonly used functions. The fu
 the menu item that shares the same icon. A tooltip of the button will be displayed if moving the mouse pointer over any
 of these buttons.
 
-#### Display areas
+### Display areas
 
 There are 5 display areas that are Sims/Runs Tree (upper left), DP Tree (upper right),
 Run Selections (middle left), DP Selections (middle right) and the bottom is
@@ -137,7 +137,7 @@ a message display area.
 Please note that all sim directories start with <b>SIM</b>, all run directories starts with <b>RUN</b> or <b>MONTE_RUN</b>, and
 all data product files start with <b>DP</b> and are placed in <b>DP_Product</b> directory within a <b>SIM</b> directory.
 
-##### Sims/Runs Tree
+#### Sims/Runs Tree
 
 Launching trick_dp in a directory that contains SIM directories will cause those SIM directories to be displayed
 in this area as shown below. If no SIM directories exist in the launch directory, trick_dp will display SIMs from
@@ -152,7 +152,7 @@ in grey contain no data.
 
 ![trick_dp_simrun_area](images/trick_dp_simrun_area.jpg)
 
-##### Sims/Runs Tree Popup Menus
+#### Sims/Runs Tree Popup Menus
 
 ![trick_dp_simrun_popup1](images/trick_dp_simrun_popup1.jpg)
 
@@ -165,7 +165,7 @@ in grey contain no data.
 - <b>Remove</b>
     - Removes the highlighted directory from the tree. It does not physically remove the directory from your file system.
 
-##### Sims/Runs Tree Popup Menus
+#### Sims/Runs Tree Popup Menus
 
 ![trick_dp_simrun_popup2](images/trick_dp_simrun_popup2.jpg)
 
@@ -183,7 +183,7 @@ in grey contain no data.
 - <b>Remove</b>
     - Removes the selected directory from the tree. It does not physically remove the directory from your file system.
 
-###### Sims/Runs Tree Popup Menus
+##### Sims/Runs Tree Popup Menus
 
 ![trick_dp_simrun_popup3](images/trick_dp_simrun_popup3.jpg)
 
@@ -194,7 +194,7 @@ in grey contain no data.
 - <b>Run Sim</b>
     - Runs the sim from each sim directory using the input.py from the corresponding highlighted RUN directory.
 
-###### DP Tree
+##### DP Tree
 
 DP files in DP_Product of SIM directories are displayed here in a tree structure. Double clicking a SIM node
 or single clicking the node icon on the left of a SIM node from the Sims/Runs Tree will make all DP files
@@ -205,11 +205,11 @@ from Sims/Runs Tree and selecting Read DP List from the popup menu list.
 
 ![trick_dp_dptree_area](images/trick_dp_dptree_area.jpg)
 
-###### DP Tree Popup Menus
+##### DP Tree Popup Menus
 
 Right clicking on a tree node at any level from the DP Tree as shown above causes a corresponding popup menu displayed.
 
-###### DP Tree Popup Menus
+##### DP Tree Popup Menus
 
 ![trick_dp_tree_popup1](images/trick_dp_tree_popup1.jpg)
 
@@ -220,7 +220,7 @@ Right clicking on a tree node at any level from the DP Tree as shown above cause
 - <b>Remove</b>
     - Removes the highlighted directory from the tree. It does not physically remove the directory from your file system.
 
-###### DP Tree Popup Menus
+##### DP Tree Popup Menus
 
 ![trick_dp_tree_popup2](images/trick_dp_tree_popup2.jpg)
 
@@ -231,7 +231,7 @@ Right clicking on a tree node at any level from the DP Tree as shown above cause
 - <b>Remove</b>
     - Removes the highlighted directory from the tree. It does not physically remove the directory from your file system.
 
-###### DP Tree Popup Menus
+##### DP Tree Popup Menus
 
 ![trick_dp_tree_popup3](images/trick_dp_tree_popup3.jpg)
 
@@ -240,7 +240,7 @@ Right clicking on a tree node at any level from the DP Tree as shown above cause
 - <b>Refresh</b>
     - Refreshes all highlighted directories.
 
-###### DP Tree Popup Menus
+##### DP Tree Popup Menus
 
 ![trick_dp_tree_popup4](images/trick_dp_tree_popup4.jpg)
 
@@ -249,7 +249,7 @@ Right clicking on a tree node at any level from the DP Tree as shown above cause
 - <b>Edit DP...</b>
     - Opens the selected DP file with Quickplot application for editing.
 
-###### Run Selections
+##### Run Selections
 
 All selected RUN directories for retriving data from for plotting are listed here. You can select a RUN or RUN(s) by:
 - Double clicking a RUN directory in black from Sims/Runs Tree
@@ -259,7 +259,7 @@ All selected RUN directories for retriving data from for plotting are listed her
 
 ![trick_dp_runselections_area](images/trick_dp_runselections_area.jpg)
 
-###### Run Selections Popup Menus
+##### Run Selections Popup Menus
 
 Right clicking on a RUN from the list brings up a popup menu.
 
@@ -277,13 +277,13 @@ Right clicking on a RUN from the list brings up a popup menu.
 
 ![trick_run_selections_input_timename](images/trick_run_selections_input_timename.jpg)
 
-###### DP Selections
+##### DP Selections
 
 All selected DP files that tell data products how and what to display in plots and tables are listed here.
 <b>Trick DP - DP Selections</b>
 ![trick_dp_dpselections_area](images/trick_dp_dpselections_area.jpg)
 
-###### DP Selections Popup Menus
+##### DP Selections Popup Menus
 
 Right clicking on a DP file from the list brings up a popup menu.
 
@@ -296,13 +296,13 @@ Right clicking on a DP file from the list brings up a popup menu.
 - <b>Remove All</b>
     - Removes all DP files from the list.
 
-###### Message Display
+##### Message Display
 
 This display redirects all screen printout to here to let users know what it is been doing or what has gone wrong.
 <b>Trick DP - Message Display</b>
 ![trick_dp_msg_area](images/trick_dp_msg_area.jpg)
 
-### Trick QP - Quickplot Application
+## Trick QP - Quickplot Application
 
 The trick_qp is designed for a quick peek at data in a particular RUN. It is also designed to create the DP specification
 files that the trick_dp uses. Quickplot usage can be abused. It is best to take time to make a DP specification file using
@@ -321,7 +321,7 @@ OR
 <b>UNIX Prompt></b> trick_qp RUN<name> &
 ```
 
-#### Trick QP GUI
+### Trick QP GUI
 
 ![trick_qp](images/trick_qp.jpg)
 
@@ -332,11 +332,11 @@ as shown in the above image. The interface is explained with further details in 
 - Toolbar
 - Display areas
 
-##### Menu bar
+#### Menu bar
 
 This table shows all of the menus along with their menu items and functionalities related to the Trick QP menu bar:
 
-##### Trick QP File Menu
+#### Trick QP File Menu
 
 ![trick_qp_file_menu](images/trick_qp_file_menu.jpg)
 
@@ -357,7 +357,7 @@ This table shows all of the menus along with their menu items and functionalitie
 - <b>Exit</b>
     - Exits the GUI. If Show Exit Confirmation Prompt is checked, Confirm Exit dialog box would be displayed. Otherwise, exits immediately.
 
-##### Trick QP Vars Menu
+#### Trick QP Vars Menu
 
 ![trick_qp_vars_menu](images/trick_qp_vars_menu.jpg)
 
@@ -378,7 +378,7 @@ This table shows all of the menus along with their menu items and functionalitie
 - <b>Change Units...</b>
     - Prompts for changing highlighted variables (first one if multiple variables selected) units.
 
-##### Trick QP Runs Menu
+#### Trick QP Runs Menu
 
 ![trick_qp_runs_menu](images/trick_qp_runs_menu.jpg)
 
@@ -387,7 +387,7 @@ This table shows all of the menus along with their menu items and functionalitie
 - <b>Remove Run</b>
     - Removes all highlighted RUN directories from "Runs" area.
 
-##### Trick QP Plots Menu
+#### Trick QP Plots Menu
 
 ![trick_qp_plots_menu](images/trick_qp_plots_menu.jpg)
 
@@ -402,7 +402,7 @@ This table shows all of the menus along with their menu items and functionalitie
 - <b>New Varcase</b>
     - Adds a new varcase to the currently selected curve.
 
-##### Trick QP Tables Menu
+#### Trick QP Tables Menu
 
 ![trick_qp_tables_menu](images/trick_qp_tables_menu.jpg)
 
@@ -413,7 +413,7 @@ This table shows all of the menus along with their menu items and functionalitie
 - <b>New Column</b>
     - Adds a new empty column to the currently selected table.
 
-##### Trick QP Programs Menu
+#### Trick QP Programs Menu
 
 ![trick_qp_programs_menu](images/trick_qp_programs_menu.jpg)
 
@@ -425,14 +425,14 @@ This table shows all of the menus along with their menu items and functionalitie
 - <b>New Output...</b>
     - Adds a new output for the currently selected program.
 
-##### Trick QP Programs Menu
+#### Trick QP Programs Menu
 
 ![trick_qp_settings_menu](images/trick_qp_settings_menu.jpg)
 
 - <b>Plot Utility</b>
     - Selects either Fermi or Gnuplot for plotting.
 
-##### Trick QP Programs Menu
+#### Trick QP Programs Menu
 
 ![trick_qp_actions_menu](images/trick_qp_actions_menu.jpg)
 
@@ -449,7 +449,7 @@ This table shows all of the menus along with their menu items and functionalitie
 - <b>Table Error...</b>
     - TBD.
 
-##### Trick QP Programs Menu
+#### Trick QP Programs Menu
 
 ![trick_qp_help_menu](images/trick_qp_help_menu.jpg)
 
@@ -458,7 +458,7 @@ This table shows all of the menus along with their menu items and functionalitie
 - <b>About...</b>
     - Shows the information about this application.
 
-##### Toolbar
+#### Toolbar
 
 ![trick_qp_toolbar](images/trick_qp_toolbar.jpg)
 
@@ -467,25 +467,25 @@ the menu item that shares the same icon. A tooltip of the button will be display
 of these buttons.
 
 
-##### Display areas
+#### Display areas
 
 There are 5 display areas that are Vars (upper left), DP Content (upper right),
 Runs (middle left), Property Notebook (middle right) and the bottom is
 a message display area.
 
 
-##### Vars
+#### Vars
 
 All variables that are found in Trick log data files from the selected RUN directories are listed here. If variables shown in red, means that they do not exist in every RUN directory.
 
 <b>Trick QP - Vars</b>
 ![trick_qp_vars_area](images/trick_qp_vars_area.jpg)
 
-##### Vars Popup Menus
+#### Vars Popup Menus
 
 Right clicking on a variable from the Vars as shown above causes a corresponding popup menu displayed. This menu is actually the same as Vars menu.
 
-##### Vars Popup Menus
+#### Vars Popup Menus
 
 ![trick_vars_popup1](images/trick_qp_vars_popup1.jpg)
 - <b>Add Var</b>
@@ -505,7 +505,7 @@ Right clicking on a variable from the Vars as shown above causes a corresponding
 - <b>Change Units...</b>
     - Prompts for changing highlighted variables (first one if multiple variables selected) units.
 
-###### DP Content
+##### DP Content
 
 DP Content area presents the content of a DP file graphically.
 
@@ -513,11 +513,11 @@ DP Content area presents the content of a DP file graphically.
 
 ![trick_qp_dpcontent_area](images/trick_qp_dpcontent_area.jpg)
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 Right clicking on a tree node at any level from the DP Content as shown above causes a corresponding popup menu displayed.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup1](images/trick_qp_dpcontent_popup1.jpg)
 
@@ -526,7 +526,7 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
 - <b>Remove All Pages</b>
     - Removes all pages.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup2](images/trick_qp_dpcontent_popup2.jpg)
 
@@ -535,7 +535,7 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
 - <b>Remove</b>
     - Removes this page.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup3](images/trick_qp_dpcontent_popup3.jpg)
 
@@ -544,7 +544,7 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
 - <b>Remove</b>
     - Removes this plot.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup4](images/trick_qp_dpcontent_popup4.jpg)
 
@@ -560,7 +560,7 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
     - Adds a new varcase node.
         - If there are already variables added for this curve, new varcase node can not be added.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup5](images/trick_qp_dpcontent_popup5.jpg)
 
@@ -571,7 +571,7 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
         - Y variable can be removed.
         - Y variable can not be replaced. You need to simply remove the Y variable, and then add a new variable.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup6](images/trick_qp_dpcontent_popup6.jpg)
 
@@ -588,7 +588,7 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
         - Y variable can be removed.
         - Y variable can not be replaced. You need to simply remove the Y variable, and then add a new variable.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup7](images/trick_qp_dpcontent_popup7.jpg)
 
@@ -597,7 +597,7 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
 - <b>Remove All Tables</b>
     - Removes all tables.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup8](images/trick_qp_dpcontent_popup8.jpg)
 
@@ -606,14 +606,14 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
 - <b>Remove</b>
     - Removes this table.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup9](images/trick_qp_dpcontent_popup9.jpg)
 
 - <b>Remove</b>
     - Removes this column.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup10](images/trick_qp_dpcontent_popup10.jpg)
 
@@ -621,7 +621,7 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
     - Removes the this hightlighted variable.
     - Also removes the column which it belongs to as each column has only on variable associated with it.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup11](images/trick_qp_dpcontent_popup11.jpg)
 
@@ -631,28 +631,28 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
 - <b>Remove All Programs</b>
     - Removes all programs. Currently only one program is supported.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup12](images/trick_qp_dpcontent_popup12.jpg)
 
 - <b>Remove</b>
     - Removes the program.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup13](images/trick_qp_dpcontent_popup13.jpg)
 
 - <b>Add Var</b>
     - Adds highlighted variables from Vars to Input.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup14](images/trick_qp_dpcontent_popup14.jpg)
 
 - <b>Remove</b>
     - Removes the highlighted variable.
 
-###### DP Content Popup Menus
+##### DP Content Popup Menus
 
 ![trick_qp_dpcontent_popup15](images/trick_qp_dpcontent_popup15.jpg)
 
@@ -665,11 +665,11 @@ Right clicking on a tree node at any level from the DP Content as shown above ca
 
 ![trick_qp_dpcontent_popup17](images/trick_qp_dpcontent_popup17.jpg)
 
-##### Trick QP Run Selections
+#### Trick QP Run Selections
 All selected RUN directories for retriving data from for plotting are listed here.
 
 ![trick_qp_runs_area](images/trick_qp_runs_area.jpg)
-###### Runs Popup Menus
+##### Runs Popup Menus
 
 Right clicking on a RUN from the list brings up a corresponding popup menu.
 
@@ -682,7 +682,7 @@ Right clicking on a RUN from the list brings up a corresponding popup menu.
     - By default, RUN's time name is sys.exec.out.time
 
 ![trick_qp_runs_selections_input_timename](images/trick_qp_runs_selections_input_timename.jpg)
-###### Property Notebook
+##### Property Notebook
 
 All editable data entries for the selected node from DP Content are displayed here.
 You are required to click <b>Apply Change</b> button to save all the changes made.
@@ -691,21 +691,21 @@ Otherwise, all changes will be lost if browsing a different node and come back t
 
 ![trick_qp_notebook_area](images/trick_qp_notebook_area.jpg)
 
-###### Message Display
+##### Message Display
 
 This display redirects all screen printout to here to let users know what it is been doing or what has gone wrong.
 <b>Trick QP - Message Display</b>
 
 ![trick_qp_msg_area](images/trick_qp_msg_area.jpg)
 
-### Viewing Data
+## Viewing Data
 
 In this section, <b>SIM_cannon_analytic</b> that comes with Trick distribution and is located at $TRICK_HOME/trick_sims will be used.
 Assuming you already have had corresponding data recorded by executing the related sim. The data from a single run will be viewed
 using Trick DP together with Trick QP. When plotting, single plotting is used. Please see Trick Tutorial
 for more examples that also have comparison or error plotting with multiple runs. You certainly can perform similar exercises using your own sim.
 
-#### Plotting With Trick DP & Trick QP
+### Plotting With Trick DP & Trick QP
 
 Begin by launching Trick DP.
 
@@ -714,7 +714,7 @@ Begin by launching Trick DP.
 <b>UNIX Prompt></b> trick_dp &
 ```
 
-##### Plotting Time -vs- Postion
+#### Plotting Time -vs- Postion
 
 1. Double click the pathname containing your sim directory if it is not expanded yet (or single click the symbol next to the name)
 1. Double click the SIM_cannon_analytic name in the Sims/Runs Tree. This will reveal the RUN_test directory.
@@ -742,7 +742,7 @@ Begin by launching Trick DP.
 
 ![plot1](images/plot1.jpg)
 
-##### Plotting XPosition -vs- YPosition
+#### Plotting XPosition -vs- YPosition
 
 Now, let's change the default X variable from sys.exec.out.time to a different variable.
 1. Assuming the Trick QP application is still up, click the "New" plot icon located on the far left of the toolbar.
@@ -755,7 +755,7 @@ Now, let's change the default X variable from sys.exec.out.time to a different v
 
 ![plot3](images/plot3.jpg)
 
-#### Creating DP Product File
+### Creating DP Product File
 
 The information needed for the plot created earlier can be saved off to a file using Trick QP and can be reused by both
 Trick DP and Trick QP. This example shows how to save XPosition -vs- YPosition plotting stated earlier
@@ -772,7 +772,7 @@ Choose the directory button SIM_cannon_analytic/DP_Product". Enter file name as 
     - A file called DP_cannon_xy.xml is saved as it is in XML format.
 1. Close the quick plot GUI, but keep trick_dp up and running.
 
-#### Plotting with only Trick DP using a DP file
+### Plotting with only Trick DP using a DP file
 
 Now that DP_cannon_xy has been saved, the data can be viewed with Trick DP.
 1. Assuming the Trick DP is still up and running from the previous steps, Click "Session->Refresh..."
@@ -789,7 +789,7 @@ mouse button. Notice that there is a tiny circle on each x-y point recorded.
 
 ![plot4](images/plot4.jpg)
 
-#### Plotting with only Trick QP
+### Plotting with only Trick QP
 
 1. Go to the SIM directory we have worked on earlier and launch Trick QP as:
     - <b>UNIX Prompt></b> trick_qp RUN_test &
@@ -804,7 +804,7 @@ mouse button. Notice that there is a tiny circle on each x-y point recorded.
         - The selected DP_ file is presented graphically in DP Content
 1. To see the trajectory again, click the plain white single sheet on the toolbar.
 
-#### Creating DP Session File
+### Creating DP Session File
 
 1. Launch Trick DP as:
     - <b>UNIX Prompt></b> trick_dp &
@@ -815,7 +815,7 @@ mouse button. Notice that there is a tiny circle on each x-y point recorded.
     - A file with xml extension is saved as the session file is in XML format.
 
 
-#### Plotting from the Command Line
+### Plotting from the Command Line
 Once you a DP session file created, you can view the data the way as you specified using "fxplot" or "gxplot" command.
 - Go to the SIM directory you have your session file saved.
     - <b>UNIX Prompt></b> fxplot <session_file>
@@ -824,9 +824,9 @@ Once you a DP session file created, you can view the data the way as you specifi
 - You should see plots as you specified in the file.
 
 
-#### Using Tables
+### Using Tables
 
-##### Using Tables Exercise A
+#### Using Tables Exercise A
 
 1. Go to the SIM_cannon_analytic directory and launch Trick QP as:
     - <b>UNIX Prompt></b> trick_qp RUN_test &
@@ -841,7 +841,7 @@ Once you a DP session file created, you can view the data the way as you specifi
 
 ![plot5](images/plot5.jpg)
 
-##### Using Tables Exercise B
+#### Using Tables Exercise B
 
 1. Go to the SIM_cannon_analytic directory and launch Trick QP as:
     - <b>UNIX Prompt></b> trick_qp RUN_test &
@@ -856,7 +856,7 @@ Once you a DP session file created, you can view the data the way as you specifi
 
 ![plot6](images/plot6.jpg)
 
-#### Using External Program
+### Using External Program
 
 The external program $TRICK_HOME/trick_source/data_products/Apps/ExternalPrograms/dp_substract.c that comes with Trick distribution will be used in this section. This program takes 2 double inputs and returns the subtraction of these 2 inputs. Assuming the program is alreay built and the corresponding shared object is available for use.
 
