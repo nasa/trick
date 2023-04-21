@@ -103,78 +103,76 @@ void Trick::MonteCarlo::handle_run_data(Trick::MonteSlave& slave) {
               "Monte [Master] Run %d has already been resolved. Discarding results.\n",
               slave.current_run->id) ;
         }
-        tc_disconnect(&connection_device);
-        return;
+    } else {
+        /** <li> Otherwise, check the exit status: */
+        int exit_status;
+        int size = sizeof(exit_status);
+        if (tc_read(&connection_device, (char*)&exit_status, size) != size) {
+            set_disconnected_state(slave) ;
+            return;
+        }
+        exit_status = ntohl(exit_status);
+
+        switch (exit_status) {
+
+            case MonteRun::MC_RUN_COMPLETE:
+            case MonteRun::MC_RUN_FAILED:
+                resolve_run(slave, static_cast<MonteRun::ExitStatus>(exit_status));
+                run_queue(&master_post_queue, "in master_post queue") ;
+                break;
+
+            case MonteRun::MC_PROBLEM_PARSING_INPUT:
+                if (verbosity >= MC_ERROR) {
+                    message_publish(
+                      MSG_ERROR,
+                      "Monte [Master] %s:%d reported bad input for run %d. Skipping.\n",
+                      slave.machine_name.c_str(), slave.id, slave.current_run->id) ;
+                }
+                resolve_run(slave, MonteRun::MC_PROBLEM_PARSING_INPUT);
+                break;
+
+            case MonteRun::MC_RUN_DUMPED_CORE:
+                if (verbosity >= MC_ERROR) {
+                    message_publish(
+                      MSG_ERROR,
+                      "Monte [Master] %s:%d reported core dump for run %d. Skipping.\n",
+                      slave.machine_name.c_str(), slave.id, slave.current_run->id) ;
+                }
+                resolve_run(slave, MonteRun::MC_RUN_DUMPED_CORE);
+                break;
+
+            case MonteRun::MC_CANT_CREATE_OUTPUT_DIR:
+                if (verbosity >= MC_ERROR) {
+                    message_publish(
+                      MSG_ERROR,
+                      "Monte [Master] %s:%d reported a failure to create output directories for run %d.\n",
+                      slave.machine_name.c_str(), slave.id, slave.current_run->id);
+                }
+                handle_retry(slave, MonteRun::MC_CANT_CREATE_OUTPUT_DIR);
+                break;
+
+            case MonteRun::MC_RUN_TIMED_OUT:
+                if (verbosity >= MC_ERROR) {
+                    message_publish(
+                      MSG_ERROR,
+                      "Monte [Master] %s:%d reported a timeout for run %d.\n",
+                      slave.machine_name.c_str(), slave.id, slave.current_run->id);
+                }
+                handle_retry(slave, MonteRun::MC_RUN_TIMED_OUT);
+                break;
+
+            default:
+                if (verbosity >= MC_ERROR) {
+                    message_publish(
+                      MSG_ERROR,
+                      "Monte [Master] %s:%d reported unrecognized exit status (%d) for run %d. Skipping.\n",
+                      slave.machine_name.c_str(), slave.id, exit_status, slave.current_run->id);
+                }
+                resolve_run(slave, MonteRun::MC_UNRECOGNIZED_RETURN_CODE);
+                break;
+        }
     }
-
-    /** <li> Otherwise, check the exit status: */
-    int exit_status;
-    int size = sizeof(exit_status);
-    if (tc_read(&connection_device, (char*)&exit_status, size) != size) {
-        set_disconnected_state(slave) ;
-        return;
-    }
-    exit_status = ntohl(exit_status);
-
-    switch (exit_status) {
-
-        case MonteRun::MC_RUN_COMPLETE:
-        case MonteRun::MC_RUN_FAILED:
-            resolve_run(slave, static_cast<MonteRun::ExitStatus>(exit_status));
-            run_queue(&master_post_queue, "in master_post queue") ;
-            break;
-
-        case MonteRun::MC_PROBLEM_PARSING_INPUT:
-            if (verbosity >= MC_ERROR) {
-                message_publish(
-                  MSG_ERROR,
-                  "Monte [Master] %s:%d reported bad input for run %d. Skipping.\n",
-                  slave.machine_name.c_str(), slave.id, slave.current_run->id) ;
-            }
-            resolve_run(slave, MonteRun::MC_PROBLEM_PARSING_INPUT);
-            break;
-
-        case MonteRun::MC_RUN_DUMPED_CORE:
-            if (verbosity >= MC_ERROR) {
-                message_publish(
-                  MSG_ERROR,
-                  "Monte [Master] %s:%d reported core dump for run %d. Skipping.\n",
-                  slave.machine_name.c_str(), slave.id, slave.current_run->id) ;
-            }
-            resolve_run(slave, MonteRun::MC_RUN_DUMPED_CORE);
-            break;
-
-        case MonteRun::MC_CANT_CREATE_OUTPUT_DIR:
-            if (verbosity >= MC_ERROR) {
-                message_publish(
-                  MSG_ERROR,
-                  "Monte [Master] %s:%d reported a failure to create output directories for run %d.\n",
-                  slave.machine_name.c_str(), slave.id, slave.current_run->id);
-            }
-            handle_retry(slave, MonteRun::MC_CANT_CREATE_OUTPUT_DIR);
-            break;
-
-        case MonteRun::MC_RUN_TIMED_OUT:
-            if (verbosity >= MC_ERROR) {
-                message_publish(
-                  MSG_ERROR,
-                  "Monte [Master] %s:%d reported a timeout for run %d.\n",
-                  slave.machine_name.c_str(), slave.id, slave.current_run->id);
-            }
-            handle_retry(slave, MonteRun::MC_RUN_TIMED_OUT);
-            break;
-
-        default:
-            if (verbosity >= MC_ERROR) {
-                message_publish(
-                  MSG_ERROR,
-                  "Monte [Master] %s:%d reported unrecognized exit status (%d) for run %d. Skipping.\n",
-                  slave.machine_name.c_str(), slave.id, exit_status, slave.current_run->id);
-            }
-            resolve_run(slave, MonteRun::MC_UNRECOGNIZED_RETURN_CODE);
-            break;
-    }
-
+    
     tc_disconnect(&connection_device);
 
     /** <li> Update the slave's state. */

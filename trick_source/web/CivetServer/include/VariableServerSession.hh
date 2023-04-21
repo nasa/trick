@@ -21,7 +21,7 @@ class VariableServerSession : public WebSocketSession {
         ~VariableServerSession();
         void marshallData();                             /* -- base */
         void sendMessage();                              /* -- base */
-        int  handleMessage(std::string);                 /* -- base */
+        int  handleMessage(const std::string&);          /* -- base */
 
         void setTimeInterval(unsigned int milliseconds);
         void addVariable(char* vname);

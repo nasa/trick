@@ -1,2 +1,2 @@
-PyYAML
+PyYAML # Needed by TrickWorkflowYamlVerifier.py
 psutil

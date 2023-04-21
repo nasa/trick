@@ -18,7 +18,7 @@
 #include "trick/variable_server_sync_types.h"
 #include "trick/VariableServerThread.hh"
 #include "trick/VariableServerListenThread.hh"
-#include "trick/ThreadBase.hh"
+#include "trick/SysThread.hh"
 
 namespace Trick {
 
@@ -295,7 +295,7 @@ namespace Trick {
 
 }
 
-int vs_format_ascii(Trick::VariableReference * var, char *value);
+int vs_format_ascii(Trick::VariableReference * var, char *value, size_t value_size);
 
 Trick::VariableServer * var_server_get_var_server() ;
 
@@ -305,6 +305,8 @@ int var_add(std::string in_name, std::string units_name) ;
 int var_remove(std::string in_name) ;
 int var_units(std::string var_name , std::string units_name) ;
 int var_exists(std::string in_name) ;
+int var_send_once(std::string in_name) ;
+int var_send_once(std::string in_name, int numArgs) ;
 int var_send() ;
 int var_clear() ;
 int var_cycle(double in_rate) ;

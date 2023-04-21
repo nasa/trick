@@ -364,7 +364,7 @@ extern "C" void TMM_write_checkpoint(const char* filename) {
  */
 extern "C" int TMM_read_checkpoint(const char* filename) {
     if (trick_MM != NULL) {
-        return ( trick_MM->read_checkpoint( filename));
+        return ( trick_MM->read_checkpoint( filename ));
     } else {
         Trick::MemoryManager::emitError("TMM_read_checkpoint() called before MemoryManager instantiation.\n") ;
         return(1);
@@ -377,7 +377,7 @@ extern "C" int TMM_read_checkpoint(const char* filename) {
  */
 extern "C" int TMM_read_checkpoint_from_string(const char* str) {
     if (trick_MM != NULL) {
-        return ( trick_MM->read_checkpoint_from_string( str));
+        return ( trick_MM->read_checkpoint_from_string( str ));
     } else {
         Trick::MemoryManager::emitError("TMM_read_checkpoint_from_string() called before MemoryManager instantiation.\n") ;
         return(1);
@@ -390,9 +390,18 @@ extern "C" int TMM_read_checkpoint_from_string(const char* str) {
  */
 extern "C" int TMM_init_from_checkpoint(const char* filename) {
     if (trick_MM != NULL) {
-        return ( trick_MM->init_from_checkpoint( filename));
+        return ( trick_MM->init_from_checkpoint( filename ));
     } else {
         Trick::MemoryManager::emitError("TMM_init_from_checkpoint() called before MemoryManager instantiation.\n") ;
+        return(1);
+    }
+}
+
+extern "C" int TMM_set_stl_restore (int on_off) {
+    if (trick_MM != NULL) {
+        return ( trick_MM->set_restore_stls_default( (bool) on_off ));
+    } else {
+        Trick::MemoryManager::emitError("TMM_set_stl_restore() called before MemoryManager instantiation.\n") ;
         return(1);
     }
 }

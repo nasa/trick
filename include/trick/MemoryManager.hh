@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <list>
 #include <set>
 #include <iostream>
 #include <stdexcept>
@@ -301,7 +302,7 @@ namespace Trick {
              @param address - the address of the variable.
              @return 0 = SUCCESS, 1 = FAILURE
              */
-            int delete_var(void* address, bool destroy = true);
+            int delete_var(void* address);
 
             /**
              Forget about the variable with the given name and deallocate the memory associated with it.
@@ -370,32 +371,32 @@ namespace Trick {
              Restore a checkpoint from the given stream.
              @param in_s - input stream.
              */
-            int read_checkpoint( std::istream* in_s, bool do_restore_stls=false);
+            int read_checkpoint( std::istream* in_s, bool do_restore_stls = restore_stls_default);
 
             /**
              Read a checkpoint from the file of the given name.
              @param filename - name of the checkpoint file to be read.
              */
-            int read_checkpoint( const char* filename);
+            int read_checkpoint( const char* filename, bool do_restore_stls = restore_stls_default);
 
             /**
              Read a checkpoint from the given string.
              @param s - string containing the checkpoint info.
              */
-            int read_checkpoint_from_string( const char* s );
+            int read_checkpoint_from_string( const char* s, bool do_restore_stls = restore_stls_default );
 
             /**
              Delete all TRICK_LOCAL variables and clear all TRICK_EXTERN variables. Then read
              and restore the checkpoint from the given stream.
              @param in_s - input stream.
              */
-            int init_from_checkpoint( std::istream* in_s);
+            int init_from_checkpoint( std::istream* in_s, bool do_restore_stls = restore_stls_default);
 
             /**
              Delete all TRICK_LOCAL variables and clear all TRICK_EXTERN variables. Then read
              and restore the checkpoint of the given filename.
              */
-            int init_from_checkpoint( const char* filename);
+            int init_from_checkpoint( const char* filename, bool do_restore_stls = restore_stls_default);
 
             /**
              Deallocate the memory for all TRICK_LOCAL variables and then forget about them.
@@ -661,6 +662,10 @@ namespace Trick {
             void write_JSON_alloc_info( std::ostream& s, ALLOC_INFO *alloc_info) ;
             void write_JSON_alloc_list( std::ostream& s, int start_ix, int num) ;
 
+            int set_restore_stls_default (bool on);
+            static bool restore_stls_default;  /**< -- true = restore STL variables on checkpoint restore if user does not specify option. false = don't */
+
+
         private:
 
             static int instance_count;          /**< -- Number of instances of MemoryManager. Not allowed to exceed 1.*/
@@ -683,6 +688,8 @@ namespace Trick {
 
             std::vector<ALLOC_INFO*> dependencies; /**< ** list of allocations used in a checkpoint. */
             std::vector<ALLOC_INFO*> stl_dependencies; /**< ** list of allocations known to be STL checkpoint allocations */
+	    bool resetting_memory;
+	    std::list<void*> deleted_addr_list; /**< ** list of addresses that have been deleted during reset_memory(). */
 
             void execute_checkpoint( std::ostream& out_s );
 
@@ -812,19 +819,37 @@ namespace Trick {
             void io_src_delete_class(ALLOC_INFO * alloc_info);
 
             /**
-             FIXME: I NEED DOCUMENTATION!
+             Clear the specified primitive or or array of primitives, beginning at the given base_address,
+             described by attr, and whose specific array element is specified by curr_dim, and offset.
              */
             void clear_rvalue( void* base_address, ATTRIBUTES* attr, int curr_dim, int offset);
+
             /**
-             FIXME: I NEED DOCUMENTATION!
+             Clear the variable at the given address. That is, set the value(s) of the variable
+             at the given address to 0, 0.0, NULL, false or "", as appropriate for the type.
+             The difference between this function and clear_var(void* address) is that this
+             doesn't contain calls to lock and unlock mm_mutex (which protects the alloc_info_map,
+             and variable_map). This is meant to only be called from within other "critical-section"
+             code that is surrounded by mutex lock and unlock.
+             */
+            void clear_var_critical_section(void* address);
+
+            /**
+             Clear the members of the class instance at <address>, and described by <attributes>.
+             This too is only meant to be called from within other "critical-section" code that
+             is surrounded by mutex lock and unlock.
              */
             void clear_class( char *address, ATTRIBUTES * A);
+
             /**
-             FIXME: I NEED DOCUMENTATION!
+            Clear the elements of the array at <address>, described by <attributes>, and whose .
+            This too is only meant to be called from within other "critical-section" code that
+            is surrounded by mutex lock and unlock.
              */
             void clear_arrayed_class( char* address, ATTRIBUTES* A, int curr_dim, int offset);
+
             /**
-             FIXME: I NEED DOCUMENTATION!
+             Write the given alloc_info data structure in a human readable to stdout. 
              */
             void debug_write_alloc_info( ALLOC_INFO *alloc_info);
 
@@ -842,4 +867,3 @@ extern Trick::MemoryManager* trick_MM;
 #endif
 
 #endif
-

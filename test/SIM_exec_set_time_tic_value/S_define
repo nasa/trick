@@ -1,0 +1,26 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (Test that the time tic value can be changed and that 
+    warnings about the resolution of the cycle are displayed
+    properly. Scheduled2 should produce a warning.)
+LIBRARY DEPENDENCIES:
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "ttvtest.h"
+
+class TTVTestSimObject : public Trick::SimObject {
+
+    public:
+        TTVTest ttvtest;
+
+        TTVTestSimObject() {
+            (0.0078125, "scheduled") trick_ret = ttvtest.scheduled();
+            (0.000078125, "scheduled") ttvtest.scheduled2();
+            (50, "scheduled") ttvtest.scheduled3();
+            (100, "scheduled") ttvtest.scheduled4();
+        }
+};
+
+TTVTestSimObject ttvtestSimObject;

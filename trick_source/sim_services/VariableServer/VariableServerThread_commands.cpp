@@ -46,17 +46,18 @@ REF2* Trick::VariableServerThread::make_error_ref(std::string in_name) {
     return new_ref;
 }
 
-int Trick::VariableServerThread::var_add(std::string in_name) {
-
-    VariableReference * new_var ;
+Trick::VariableReference* Trick::VariableServerThread::create_var_reference(std::string in_name) {
     REF2 * new_ref ;
 
+    // Time var is treated specially
     if ( in_name.compare("time") == 0 ) {
         new_ref = make_time_ref() ;
     } else {
+        // otherwise ref_attributes takes care of the hard part
         new_ref = ref_attributes(in_name.c_str()) ;
     }
 
+    // Check error cases
     if ( new_ref == NULL ) {
         message_publish(MSG_ERROR, "Variable Server could not find variable %s.\n", in_name.c_str());
         new_ref = make_error_ref(in_name);
@@ -81,7 +82,12 @@ int Trick::VariableServerThread::var_add(std::string in_name) {
         new_ref = make_error_ref(in_name);
     }
 
-    new_var = new VariableReference(new_ref) ;
+    // Actually constructs the variable reference in the success case
+    return new VariableReference(new_ref) ;
+}
+
+int Trick::VariableServerThread::var_add(std::string in_name) {
+    VariableReference * new_var = create_var_reference(in_name);
     vars.push_back(new_var) ;
 
     return(0) ;
@@ -92,6 +98,36 @@ int Trick::VariableServerThread::var_add(std::string var_name, std::string units
     var_units(var_name, units_name) ;
     return(0) ;
 }
+
+// Helper function for var_send_once
+std::vector<std::string> split (const std::string& str, const char delim) {
+    std::stringstream ss(str);
+    std::string s;
+    std::vector<std::string> ret;
+    while (std::getline(ss, s, delim)) {
+        ret.push_back(s);
+    }
+    return ret;
+}
+
+int Trick::VariableServerThread::var_send_once(std::string in_name, int num_vars) {
+    std::vector<std::string> var_names = split(in_name, ',');
+
+    if (var_names.size() != num_vars) {
+        message_publish(MSG_ERROR, "Number of variables sent to var_send_once (%d) does not match num_vars (%d).\n", var_names.size(), num_vars);
+        return -1;
+    }
+
+    std::vector<VariableReference *> given_vars;
+    for (auto& varName : var_names) {
+        given_vars.push_back(create_var_reference(varName));
+    }
+    copy_sim_data(given_vars, false);
+    write_data(given_vars);
+
+    return(0) ;
+}
+
 
 int Trick::VariableServerThread::var_remove(std::string in_name) {
 
@@ -200,7 +236,7 @@ int Trick::VariableServerThread::var_exists(std::string in_name) {
         tc_write(&connection, (char *) buf1, 5);
     } else {
         /* send ascii "1" or "0" */
-        sprintf(buf1, "%d\t%d\n", VS_VAR_EXISTS, (error==false));
+        snprintf(buf1, sizeof(buf1), "%d\t%d\n", VS_VAR_EXISTS, (error==false));
         if (debug >= 2) {
             message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending:\n%s\n", &connection, connection.client_tag, buf1) ;
         }
@@ -217,6 +253,7 @@ int Trick::VariableServerThread::var_clear() {
     }
     return(0) ;
 }
+
 
 int Trick::VariableServerThread::var_send() {
     copy_sim_data();
@@ -393,7 +430,7 @@ int Trick::VariableServerThread::send_list_size() {
         tc_write(&connection, (char *) buf1, 12);
     } else {
         // ascii
-        sprintf(buf1, "%d\t%d\n", VS_LIST_SIZE, var_count);
+        snprintf(buf1, sizeof(buf1), "%d\t%d\n", VS_LIST_SIZE, var_count);
         if (debug >= 2) {
             message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending number of event variables:\n%s\n", &connection, connection.client_tag, buf1) ;
         }
@@ -418,7 +455,7 @@ int Trick::VariableServerThread::transmit_file(std::string sie_file) {
 
     if ((fp = fopen(sie_file.c_str() , "r")) == NULL ) {
         message_publish(MSG_ERROR,"Variable Server Error: Cannot open %s.\n", sie_file.c_str()) ;
-        sprintf(buffer, "%d\t-1\n", VS_SIE_RESOURCE) ;
+        snprintf(buffer, sizeof(buffer), "%d\t-1\n", VS_SIE_RESOURCE) ;
         tc_write(&connection , buffer , strlen(buffer)) ;
         return(-1) ;
     }
@@ -426,7 +463,7 @@ int Trick::VariableServerThread::transmit_file(std::string sie_file) {
     fseek(fp , 0L, SEEK_END) ;
     file_size = ftell(fp) ;
 
-    sprintf(buffer, "%d\t%u\n" , VS_SIE_RESOURCE, file_size) ;
+    snprintf(buffer, sizeof(buffer), "%d\t%u\n" , VS_SIE_RESOURCE, file_size) ;
     tc_write(&connection , buffer , strlen(buffer)) ;
     rewind(fp) ;
 
@@ -460,20 +497,20 @@ int Trick::VariableServerThread::send_file(std::string file_name) {
 
 int Trick::VariableServerThread::send_sie_resource() {
     sie_append_runtime_objs() ;
-    return transmit_file(std::string(command_line_args_get_default_dir()) + "/S_sie.resource") ;
+    return transmit_file(std::string(sie_get_runtime_sie_dir()) + "/S_sie.resource") ;
 }
 
 int Trick::VariableServerThread::send_sie_class() {
     sie_class_attr_map_print_xml() ;
-    return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_class.xml") ;
+    return transmit_file(std::string(sie_get_runtime_sie_dir()) + "/" + "S_sie_class.xml") ;
 }
 
 int Trick::VariableServerThread::send_sie_enum() {
     sie_enum_attr_map_print_xml() ;
-    return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_enum.xml") ;
+    return transmit_file(std::string(sie_get_runtime_sie_dir()) + "/" + "S_sie_enum.xml") ;
 }
 
 int Trick::VariableServerThread::send_sie_top_level_objects() {
     sie_top_level_objects_print_xml() ;
-    return transmit_file(std::string(command_line_args_get_default_dir()) + "/" + "S_sie_top_level_objects.xml") ;
+    return transmit_file(std::string(sie_get_runtime_sie_dir()) + "/" + "S_sie_top_level_objects.xml") ;
 }

@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Event Manager |
+|------------------------------------------------------------------|
 
 This page describes the methods available in the Trick::EventManager and Trick::EventProcessor class.
 See [Input_File](/trick/documentation/running_a_simulation/Input-File) for detailed information on the syntax of the input processor file.

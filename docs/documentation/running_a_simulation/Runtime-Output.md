@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Running a Simulation](Running-a-Simulation) → Runtime Output|
+|------------------------------------------------------------------|
+
 Executing the simulation main executable S_main_${TRICK_HOST_CPU}.exe generates a handful of log files that document a simulation run.
 
 The log files are written to the RUN_<name> directory by default. The destination can be redirected by specifying the -O or -OO option for the runtime executive. Two of the log files are described below.

@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Variable Server |
+|------------------------------------------------------------------|
 
 When running a Trick simulation, unless specifically turned off, a server called the
 "variable server" is always up and listening in a separate thread of execution. The
@@ -60,6 +62,16 @@ var_server_get_port().
 trick.var_server_get_hostname()
 trick.var_server_get_port()
 ```
+
+Additional TCP or UDP sockets can be opened as well. Additional TCP sockets operate the same way as the original variable server socket. A UDP socket will only host 1 variable server session, and the responses will be sent to the latest address that sends commands to it. 
+
+Note that this is not necessary to allow multiple variable server clients - any number of clients can connect to the original variable server port.
+
+```python
+trick.var_server_create_udp_socket( const char * source_address, unsigned short port )
+trick.var_server_create_tcp_socket( const char * source_address, unsigned short port )
+```
+
 
 ### Commands
 
@@ -135,10 +147,10 @@ The frame refers to the software frame in the Executive.  In freeze mode a diffe
 multiplier and offset are used.
 
 ```python
-trick.var_set_frame_multiplier(int mult)
+trick.var_set_frame_multiple(int mult)
 trick.var_set_frame_offset(int offset)
 
-trick.var_set_freeze_frame_multiplier(int mult)
+trick.var_set_freeze_frame_multiple(int mult)
 trick.var_set_freeze_frame_offset(int offset)
 ```
 
@@ -186,6 +198,22 @@ trick.var_send()
 
 The var_send command forces the variable server to return the list of values to the
 client immediately.
+
+#### Sending variables only once and immediately
+
+```python
+trick.var_send_once( string var_name)
+```
+
+The var_send_once command forces the variable server to return the value of the given
+variable to the client immediately.
+
+```python
+trick.var_send_once( string var_list, int num_vars)
+```
+
+var_send_once can also accept a comma separated list of variables. The number of variables
+in this list must match num_vars, or it will not be processed.
 
 #### Changing the Units
 
@@ -384,12 +412,17 @@ unprintable character) that occurs within the character string value will appear
 escaped character, i.e. preceded by a backslash.
 
 The 1st value returned in the list will always be a message indicator. The possible
-values of the message indicator are:
-- 0 returned variable value(s) from var_add or var_send
-- 1 returned value from var_exists
-- 2 returned value from send_sie_resource (special command used by Trick View)
-- 3 returned value from send_event_data (special command used by Events/Malfunctions Trick View) or var_send_list_size
-- 4 values redirected from stdio if var_set_send_stdio is enabled
+values of the message indicator listen in the table below.
+
+| Name              | Value | Meaning |
+|-------------------|-------|---------|
+| VS\_IP\_ERROR     | -1    | Protocol Error|
+| VS\_VAR\_LIST     |  0    | A list of variable values. |
+| VS\_VAR\_EXISTS   |  1    | Response to var\_exists( variable_name )|
+| VS\_SIE\_RESOURCE |  2    | Response to send_sie_resource|
+| VS\_LIST\_SIZE    |  3    | Response to var_send_list_size or send_event_data|
+| VS\_STDIO         |  4    | Values Redirected from stdio if var_set_send_stdio is enabled| 
+| VS\_SEND\_ONCE    |  5    | Response to var\_send\_once|
 
 If the variable units are also specified along with the variable name in a var_add or
 var_units command, then that variable will also have its units specification returned following
@@ -486,6 +519,8 @@ number to the broadcast channel.  The channel is address 224.3.14.15 port 9265. 
 on your network sends it's information to this address and port so there may be multiple
 messages with variable server information available here.  Here is some
 C code that reads all messages on the variable server channel.
+
+Note that the multicast protocol is disabled by default in MacOS.
 
 ```c
 #include <stdio.h>

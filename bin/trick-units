@@ -134,7 +134,7 @@ print "-" x 50 . "\n";
 printf "%25s%s", "Kelvin: ", "K, °K, degK"; print "\n";
 printf "%25s%s", "Centigrade: ", "°C, degC"; print "\n";
 printf "%25s%s", "Fahrenheit: ", "°F, degF"; print "\n";
-printf "%25s%s", "Rankine: ", "°R, degF"; print "\n";
+printf "%25s%s", "Rankine: ", "°R, degR"; print "\n";
 
 print "\n";
 

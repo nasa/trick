@@ -14,9 +14,9 @@ swig_int::swig_int() {
 
 char * swig_int::__str__() {
     if ( ! units.empty() && units.compare("1") ) {
-        sprintf(str_output , "%lld %s", value , units.c_str()) ;
+        snprintf(str_output , sizeof(str_output), "%lld %s", value , units.c_str()) ;
     } else {
-        sprintf(str_output , "%lld", value ) ;
+        snprintf(str_output , sizeof(str_output), "%lld", value ) ;
     }
     return(str_output) ;
 }
@@ -1211,13 +1211,13 @@ PyObject * swig_int::__float__() {
 
 PyObject * swig_int::__oct__() {
     char temp[32] ;
-    sprintf(temp , "0%o" , (unsigned int)value) ;
+    snprintf(temp, sizeof(temp), "0%o" , (unsigned int)value) ;
     return PyString_FromString(temp) ;
 }
 
 PyObject * swig_int::__hex__() {
     char temp[32] ;
-    sprintf(temp , "0x%llx" , value) ;
+    snprintf(temp, sizeof(temp), "0x%llx" , value) ;
     return PyString_FromString(temp) ;
 }
 

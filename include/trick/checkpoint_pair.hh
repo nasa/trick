@@ -82,7 +82,6 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
     int status ;
 
     std::string temp_str;
-
     FIRST * first = nullptr ;
     std::string * second = nullptr ;
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
@@ -109,9 +108,10 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
         temp_str = var_declare.str();
         second = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
         if ( second ) {
+            *second = std::string("inner");
             temp_str = std::string(object_name + "_" + var_name + "_second");
             TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-            checkpoint_stl( in_pair.second , object_name + "_" + var_name , "second"  ) ;
+            checkpoint_stl( in_pair.second , object_name + "_" + var_name , "second_inner"  ) ;
         }
     }
 
@@ -136,9 +136,10 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
      << object_name << "_" << var_name << "_first[1]" ;
     temp_str = var_declare.str() ;
     first = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
+    *first = std::string("inner");
     temp_str = std::string(object_name + "_" + var_name + "_first");
     TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-    checkpoint_stl( in_pair.first , object_name + "_" + var_name , "first"  ) ;
+    checkpoint_stl( in_pair.first , object_name + "_" + var_name , "first_inner"  ) ;
 
     var_declare.str("") ;
     var_declare.clear() ;
@@ -178,9 +179,10 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
      << object_name << "_" << var_name << "_first[1]" ;
     temp_str = var_declare.str();
     first = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
+    *first = std::string("inner");
     temp_str = std::string(object_name + "_" + var_name + "_first");
     TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-    checkpoint_stl( in_pair.first , object_name + "_" + var_name , "first"  ) ;
+    checkpoint_stl( in_pair.first , object_name + "_" + var_name , "first_inner"  ) ;
 
     var_declare.str("") ;
     var_declare.clear() ;
@@ -188,9 +190,10 @@ int checkpoint_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name
      << object_name << "_" << var_name << "_second[1]" ;
     temp_str = var_declare.str();
     second = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
+    *second = std::string("inner");
     temp_str = std::string(object_name + "_" + var_name + "_second");
     TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-    checkpoint_stl( in_pair.second , object_name + "_" + var_name , "second"  ) ;
+    checkpoint_stl( in_pair.second , object_name + "_" + var_name , "second_inner"  ) ;
 
     return 0 ;
 }
@@ -256,7 +259,7 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
     REF2 * second_ref ;
 
     FIRST * first ;
-    std::string * second ;
+    std::string * second_inner ;
 
     std::string temp_str;
 
@@ -269,10 +272,10 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
 
     if ( first_ref != NULL && second_ref != NULL ) {
         first = (FIRST *)first_ref->address ;
-        second = (std::string *)second_ref->address ;
-
+        second_inner = (std::string *)second_ref->address ;
+        temp_str = object_name + "_" + var_name + "_second";
         in_pair.first = first[0] ;
-        restore_stl( in_pair.second , object_name + "_" + var_name , "second" ) ;
+        restore_stl( in_pair.second , temp_str , *second_inner ) ;
 
         delete_stl( in_pair , object_name , var_name ) ;
     }
@@ -288,7 +291,7 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
     REF2 * first_ref ;
     REF2 * second_ref ;
 
-    std::string * first ;
+    std::string * first_inner ;
     SECOND * second ;
 
     std::string temp_str; 
@@ -300,10 +303,10 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
     second_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( first_ref != NULL && second_ref != NULL ) {
-        first = (std::string *)first_ref->address ;
+        first_inner = (std::string *)first_ref->address ;
         second = (SECOND *)second_ref->address ;
 
-        restore_stl( in_pair.first , object_name + "_" + var_name , "first" ) ;
+        restore_stl( in_pair.first , object_name + "_" + var_name + "_first", *first_inner ) ;
         in_pair.second = second[0] ;
 
         delete_stl( in_pair , object_name , var_name ) ;
@@ -319,8 +322,8 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
     REF2 * first_ref ;
     REF2 * second_ref ;
 
-    std::string * first ;
-    std::string * second ;
+    std::string * first_inner ;
+    std::string * second_inner ;
 
     std::string temp_str;
 
@@ -332,11 +335,11 @@ int restore_stl(std::pair<FIRST , SECOND> & in_pair , std::string object_name , 
     second_ref = ref_attributes((char *)temp_str.c_str()) ;
 
     if ( first_ref != NULL && second_ref != NULL ) {
-        first = (std::string *)first_ref->address ;
-        second = (std::string *)second_ref->address ;
+        first_inner = (std::string *)first_ref->address ;
+        second_inner = (std::string *)second_ref->address ;
 
-        restore_stl( in_pair.first , object_name + "_" + var_name , "first" ) ;
-        restore_stl( in_pair.second , object_name + "_" + var_name , "second" ) ;
+        restore_stl( in_pair.first , object_name + "_" + var_name + "_first" , *first_inner ) ;
+        restore_stl( in_pair.second , object_name + "_" + var_name + "_second", *second_inner ) ;
 
         delete_stl( in_pair , object_name , var_name ) ;
     }

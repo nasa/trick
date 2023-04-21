@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../../Documentation-Home) → [Simulation Capabilities](../Simulation-Capabilities) → [Memory Manager](MemoryManager) → Trick Type|
+|------------------------------------------------------------------|
 
 - **TRICK_TYPE** is an enmeration type that specifies data types.
 Available types are provided in the following table.

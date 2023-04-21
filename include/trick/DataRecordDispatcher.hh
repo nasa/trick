@@ -13,7 +13,7 @@ PROGRAMMERS:
 
 #include "trick/Scheduler.hh"
 #include "trick/DataRecordGroup.hh"
-#include "trick/ThreadBase.hh"
+#include "trick/SysThread.hh"
 
 namespace Trick {
 
@@ -28,9 +28,11 @@ namespace Trick {
             pthread_cond_t init_complete_cv;        /**< trick_io(**) */
             /** Data writer initialized mutex. */
             pthread_mutex_t init_complete_mutex;    /**< trick_io(**) */
+            /** Flag to exit (instead of pthread_cancel) */
+            bool cancelled;
     } ;
 
-    class DRDWriterThread : public Trick::ThreadBase {
+    class DRDWriterThread : public Trick::SysThread {
         public:
             DRDWriterThread(Trick::DRDMutexes & in_mutexes, std::vector <Trick::DataRecordGroup *> & in_groups) ;
 

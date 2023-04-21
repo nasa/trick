@@ -27,7 +27,7 @@ Trick::MessagePublisher::MessagePublisher() {
 
 void Trick::MessagePublisher::set_print_format() {
     num_digits = (int)round(log10((double)tics_per_sec)) ;
-    sprintf(print_format, "|L %%3d|%%s|%%s|%%s|T %%d|%%lld.%%0%dlld| ", num_digits) ;
+    snprintf(print_format, sizeof(print_format), "|L %%3d|%%s|%%s|%%s|T %%d|%%lld.%%0%dlld| ", num_digits) ;
 }
 
 int Trick::MessagePublisher::init() {
@@ -52,7 +52,7 @@ int Trick::MessagePublisher::publish(int level , std::string message) {
     date = time(NULL) ;
     strftime(date_buf, (size_t) 20, "%Y/%m/%d,%H:%M:%S", localtime(&date));
     (void) gethostname(hostname, (size_t) 48);
-    sprintf(header_buf , print_format , level, date_buf, hostname,
+    snprintf(header_buf, sizeof(header_buf), print_format , level, date_buf, hostname,
             sim_name.c_str(), exec_get_process_id(), tics/tics_per_sec ,
             (long long)((double)(tics % tics_per_sec) * (double)(pow(10 , num_digits)/tics_per_sec)) ) ;
     header = header_buf ;

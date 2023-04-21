@@ -11,7 +11,7 @@
 #include "trick/message_type.h"
 
 Trick::VariableServerListenThread::VariableServerListenThread() :
- Trick::ThreadBase("VarServListen"),
+ Trick::SysThread("VarServListen"),
  port(0),
  user_port_requested(false),
  broadcast(true),
@@ -106,7 +106,10 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
 }
 
 void Trick::VariableServerListenThread::create_tcp_socket(const char * address, unsigned short in_port ) {
-    tc_init_with_connection_info(&listen_dev, AF_INET, SOCK_STREAM, address, in_port) ;
+    int result = tc_init_with_connection_info(&listen_dev, AF_INET, SOCK_STREAM, address, in_port) ;
+    if (result != 0) {
+        message_publish(MSG_ERROR, "ERROR: Could not establish additional listen port at address %s and port %d for Variable Server.\n", address, in_port);
+    }
 }
 
 void * Trick::VariableServerListenThread::thread_body() {
@@ -182,7 +185,7 @@ void * Trick::VariableServerListenThread::thread_body() {
             vst->wait_for_accept() ;
             pthread_mutex_unlock(&restart_pause) ;
         } else if ( broadcast ) {
-            sprintf(buf1 , "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listen_dev.hostname , (unsigned short)listen_dev.port ,
+            snprintf(buf1 , sizeof(buf1), "%s\t%hu\t%s\t%d\t%s\t%s\t%s\t%s\t%s\t%hu\n" , listen_dev.hostname , (unsigned short)listen_dev.port ,
              user_name , (int)getpid() , command_line_args_get_default_dir() , command_line_args_get_cmdline_name() ,
              command_line_args_get_input_file() , version.c_str() , user_tag.c_str(), (unsigned short)listen_dev.port ) ;
 

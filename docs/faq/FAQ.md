@@ -71,7 +71,12 @@ MathWorks developed a package to generate Trick friendly code from their models.
 <a name="coreflightsoftware"></a>
 
 ### Core Flight Software (CFS)
-Trick and CFS can work together, but the software interfacing Trick and CFS is neither actively maintained nor open source.
+
+cFS support for Trick is provided by the following external projects:
+
+* [TVS-IO](https://github.com/nasa/tvsio) is an open-source, Core Flight Software (cFS) application that provides for two-way communication between a **cFS** Software Bus Network (SBN) and a Trick simulation.
+
+* Another soon to be released capability, presumably called TrickCFS should also be available soon as open-source software. Stay-tuned.
 
 <a name="ifoundabugwithtrickhowdoitellsomeone"></a>
 
@@ -175,4 +180,7 @@ var = trick.var_get("my_sim_object.b.a[1].t")
 <a name="istrickgfgfongmoecfrvads"></a>
 
 ## Is Trick gluten-free, grass-fed, organic, non-GMO, environmentally conservative, free-range, vegan, and dolphin safe?
-Yes.
+
+Trick is composed entirely of information. It contains no matter, organic or otherwise. Therefore Trick contains no gluten,
+GMOs, nor is it fed by grass, vegetables, or meat. Trick could be described as environmentally conservative in that it runs on numerous POSIX (Unix-like) operating systems. Trick is of course free-range! It's Opensource!, and freely available to anyone, even dolphins with internet access.
+

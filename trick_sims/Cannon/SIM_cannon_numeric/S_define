@@ -16,7 +16,6 @@ class CannonSimObject : public Trick::SimObject {
 
     public:
         CANNON      cannon ;
-        int foo;
         CannonSimObject() {
             ("default_data") cannon_default_data( &cannon ) ;
             ("initialization") cannon_init( &cannon ) ;

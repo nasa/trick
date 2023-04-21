@@ -41,6 +41,7 @@ TEST_F(MM_delete_var_unittest, var_exists) {
 
 }
 
+#if 0
 TEST_F(MM_delete_var_unittest, byAddress_destroy) {
 
     int exists;
@@ -64,7 +65,6 @@ TEST_F(MM_delete_var_unittest, byAddress_destroy) {
     EXPECT_EQ(0, exists);
 }
 
-#if 0
 TEST_F(MM_delete_var_unittest, byAddress_nodestroy) {
 
     int exists;

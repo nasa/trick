@@ -72,6 +72,7 @@ export TRICK_SYSTEM_ICG_EXCLUDE := $(TRICK_SYSTEM_ICG_EXCLUDE)
 export TRICK_SWIG_FLAGS := $(TRICK_SWIG_FLAGS)
 export TRICK_SWIG_CFLAGS := $(TRICK_SWIG_CFLAGS)
 export TRICK_CONVERT_SWIG_FLAGS := $(TRICK_CONVERT_SWIG_FLAGS)
+export TRICK_TEST_FLAGS := $(TRICK_TEST_FLAGS)
 
 IO_SRC_DIR       := io_src/
 OBJ_DIR          := object_${TRICK_HOST_CPU}
@@ -192,6 +193,8 @@ export TRICK_SYSTEM_CFLAGS := $(TRICK_SYSTEM_CXXFLAGS) -fexceptions
 # append additional c and cxx flags defined in config_*.mk files.
 TRICK_SYSTEM_CFLAGS   += $(TRICK_ADDITIONAL_CFLAGS)
 TRICK_SYSTEM_CXXFLAGS += $(TRICK_ADDITIONAL_CXXFLAGS)
+
+TRICK_TEST_FLAGS += -Wall -Wextra $(TRICK_ADDITIONAL_TEST_FLAGS)
 
 TRICK_INCLUDE  = $(shell $(PERL) -e '@inc_paths = "${TRICK_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i and $$i ne "/usr/include")}') \
                  $(shell $(PERL) -e '@inc_paths = "${TRICK_SYSTEM_CFLAGS}" =~ /-(?:I|isystem)\s*(\S+)/g ; foreach $$i (@inc_paths) { print "-I$$i " if (-e $$i)}')

@@ -24,7 +24,7 @@ endif
 SHARED_LIB_OPT := -shared
 RPATH = -Wl,-rpath=${TRICK_LIB_DIR}
 
-TRICK_SYSTEM_LDFLAGS = -Wl,--export-dynamic
+TRICK_SYSTEM_LDFLAGS += -Wl,--export-dynamic
 PLATFORM_LIBS = -lrt
 
 LD_WHOLE_ARCHIVE := -Wl,-whole-archive
@@ -60,4 +60,6 @@ endif
 ifeq "" "c++11"
 TRICK_ADDITIONAL_CXXFLAGS += -std=c++11 -D_HAVE_STL_RANDOM
 endif
+
+TRICK_ADDITIONAL_TEST_FLAGS += -std=c++11
 

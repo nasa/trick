@@ -332,7 +332,7 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
                     (double)(frame_overrun_time/tics_per_sec), rt_max_overrun_time);
                 exec_freeze() ;
             } else {
-                sprintf(buf, "\nMaximum overrun condition exceeded:\n"
+                snprintf(buf, sizeof(buf), "\nMaximum overrun condition exceeded:\n"
                     "consecutive overruns/allowed overruns: %d/%d\n"
                     "total overrun time/allowed time: %f/%g\n",
                     frame_overrun_cnt, rt_max_overrun_cnt,

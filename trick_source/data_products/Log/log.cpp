@@ -375,18 +375,18 @@ int LogData::openCurrBinaryFile()
 
         // Construct extension
         if (currBinExtension_ < 10) {
-                sprintf(extension, "00%d", currBinExtension_);
+                snprintf(extension, sizeof(extension), "00%d", currBinExtension_);
         } else if (currBinExtension_ < 100) {
-                sprintf(extension, "0%d", currBinExtension_);
+                snprintf(extension, sizeof(extension), "0%d", currBinExtension_);
         } else {
-                sprintf(extension, "%d", currBinExtension_);
+                snprintf(extension, sizeof(extension), "%d", currBinExtension_);
         }
 
         // Construct binary filename
         len = strlen(binFilePath_) + strlen(binFileName_) +
             strlen(extension) + 3;
         file = new char[len];
-        sprintf(file, "%s/%s.%s", binFilePath_, binFileName_, extension);
+        snprintf(file, len, "%s/%s.%s", binFilePath_, binFileName_, extension);
 
         // Do sanity check on file
         if (access(file, F_OK | R_OK) == -1) {
@@ -454,11 +454,11 @@ int LogData::getNumRecords()
 
                 // Construct extension
                 if (ii < 10) {
-                        sprintf(extension, "00%d", ii);
+                        snprintf(extension, sizeof(extension), "00%d", ii);
                 } else if (ii < 100) {
-                        sprintf(extension, "0%d", ii);
+                        snprintf(extension, sizeof(extension), "0%d", ii);
                 } else {
-                        sprintf(extension, "%d", ii);
+                        snprintf(extension, sizeof(extension), "%d", ii);
                 }
 
                 // Allocate & construct file name
@@ -466,7 +466,7 @@ int LogData::getNumRecords()
                 len = strlen(binFilePath_) + strlen(binFileName_) +
                     strlen(extension) + 3;
                 file = new char[len];
-                sprintf(file, "%s/%s.%s", binFilePath_,
+                snprintf(file, len, "%s/%s.%s", binFilePath_,
                         binFileName_, extension);
 
                 fpTmp = fopen(file, "r");
@@ -1487,7 +1487,7 @@ int LogGroup::getHeaders()
                         len  = strlen(dp->d_name) +
                                strlen(pathToBinaryData_) + 2 ;
                         full_header_name = (char*) malloc ( len ) ;
-                        sprintf(full_header_name, "%s/%s",
+                        snprintf(full_header_name, len, "%s/%s",
                                 pathToBinaryData_, dp->d_name);
                         if (!strncmp(dp->d_name, "log_", 4) &&
                              is04BinaryHeader_(full_header_name)) {

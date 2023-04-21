@@ -41,7 +41,7 @@ VariableServerSession::~VariableServerSession() {
    (The specified period between messages).
 */
 void VariableServerSession::marshallData() {
-    long long simulation_time_tics = exec_get_time_tics();
+    long long simulation_time_tics = exec_get_time_tics() + exec_get_freeze_time_tics();
     if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
         stageValues();
         nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
@@ -73,7 +73,7 @@ void VariableServerSession::sendMessage() {
 }
 
 // Base class virtual function.
-int VariableServerSession::handleMessage(std::string client_msg) {
+int VariableServerSession::handleMessage(const std::string& client_msg) {
 
      int status = 0;
      std::vector<Member*> members = parseJSON(client_msg.c_str());
@@ -170,7 +170,7 @@ void VariableServerSession::addVariable(char* vname){
 }
 
 void VariableServerSession::stageValues() {
-    stageTime = (double)exec_get_time_tics() / exec_get_time_tic_value();
+    stageTime = (double)(exec_get_time_tics()) / exec_get_time_tic_value();
     std::vector<VariableServerVariable*>::iterator it;
     for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
         (*it)->stageValue();
@@ -208,7 +208,7 @@ int VariableServerSession::sendErrorMessage(const char* fmt, ... ) {
     (void) vsnprintf(errText, MAX_MSG_SIZE, fmt, args);
     va_end(args);
 
-    sprintf(msgText, "{ \"msg_type\" : \"error\",\n"
+    snprintf(msgText, sizeof(msgText), "{ \"msg_type\" : \"error\",\n"
                      "  \"error\" : \"%s\"}\n", errText);
 
     mg_websocket_write(connection, MG_WEBSOCKET_OPCODE_TEXT, msgText, strlen(msgText));

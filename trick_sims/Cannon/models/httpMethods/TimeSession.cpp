@@ -32,11 +32,11 @@ void TimeSession::sendMessage() {
     int month   = theTime->tm_mon + 1;
     int year    = theTime->tm_year + 1900;
 
-    sprintf(message, "Time: %02d:%02d:%02d Date: %02d/%02d/%d\n", hours, minutes, seconds, month, day, year);
+    snprintf(message, sizeof(message), "Time: %02d:%02d:%02d Date: %02d/%02d/%d\n", hours, minutes, seconds, month, day, year);
     mg_websocket_write(connection, MG_WEBSOCKET_OPCODE_TEXT, message, strlen(message));
 }
 
-int TimeSession::handleMessage(std::string client_msg) {
+int TimeSession::handleMessage(const std::string& client_msg) {
 
    if (client_msg.compare("GMT") == 0) {
        zone = TimeSession::GMT;
@@ -53,3 +53,4 @@ WebSocketSession* makeTimeSession( struct mg_connection *nc ) {
     std::cerr << "DEBUG: Creating new TimeSession." << std::endl;
     return new TimeSession(nc);
 }
+

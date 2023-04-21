@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Building a Simulation](Building-a-Simulation) → Simulation Definition File |
+|------------------------------------------------------------------|
+
 The Simulation Definition File or S_define is the file which lays out the architecture
 of the simulation.  Details about job frequencies, job class, job data, importing/exporting
 data to other simulations, freeze cycles, integration, etc. are all housed in this one file.
@@ -374,15 +377,18 @@ This section of the S_define (encapsulated by "job_class_order{...};) can be use
 scheduled loop job class order.  The user may simply re-order the existing job classes that exist or
 can specify a new set of scheduled loop job classes. Job classes that are eligible for reassignment
 are listed in Table SD_1 between automatic and automatic_last inclusive. The order they are shown
-in the table is the default ordering.
+in the table is the default ordering. Note that if the user provides an ordering, classes that are 
+not included in the ordering (excluding automatic and automatic_last) will not be handled by any scheduler,
+ and therefore not executed in the sim.
+
 
 ```C++
 job_class_order {
-   my_job_class_1 ;
-   my_job_class_2 ;
-   scheduled ;
-   my_job_class_3 ;
-}
+   my_job_class_1 ,
+   my_job_class_2 ,
+   scheduled ,
+   my_job_class_3
+};
 ```
 
 ### Simulation Object C++ properties

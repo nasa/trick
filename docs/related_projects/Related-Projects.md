@@ -1,4 +1,4 @@
-| [Home](Home) → Related Projects |
+| [Home](/trick) → Related Projects |
 |---------------------------------|
 
 # Open Source Projects

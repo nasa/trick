@@ -179,11 +179,11 @@ int Trick::IPPython::parse_condition(std::string in_string, int & cond_return_va
     pthread_mutex_lock(&ip_mutex);
     in_string =  std::string("trick_ip.ip.return_val = ") + in_string + "\n" ;
     // Running the simple string will set return_val.
-    PyRun_SimpleString(in_string.c_str()) ;
+    int py_ret = PyRun_SimpleString(in_string.c_str()) ;
     cond_return_val = return_val ;
     pthread_mutex_unlock(&ip_mutex);
 
-    return 0 ;
+    return py_ret ;
 
 }
 

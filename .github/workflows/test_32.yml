@@ -1,16 +1,13 @@
 name: 32-bit
 
 on:
-  push:
-    paths-ignore:
-    - 'docs/**'
-    - '.github/workflows/**'
-    - '!.github/workflows/test_32.yml'
-  pull_request:
+  schedule:
+  - cron:  '0 0 * * 0'
+  workflow_dispatch:
 
 jobs:
   trick_32bit:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container: docker://centos:7
     steps:
     - name: Checkout repository
@@ -30,7 +27,7 @@ jobs:
         glibc.i686 glibc-devel.i686 udunits2 udunits2-devel gtest-devel.i686
         java-11-openjdk java-11-openjdk-devel expat-devel.i686
         which gcc-gfortran git wget gsl-devel gtest-devel gsl-devel.i686
-        maven udunits2 udunits2-devel zip
+        maven udunits2 udunits2-devel zip libgcc*i686 libstdc++*i686 glibc*i686
     - name: Symlink python
       run: |
         cd /usr/lib
@@ -63,4 +60,10 @@ jobs:
         ./configure --without-hdf5 --enable-32bit
         make
     - name: Run tests
-      run: make test 
+      run: |
+        cd share/trick/trickops/
+        yum install -y python3-devel
+        python3 -m venv .venv && . .venv/bin/activate && pip install --upgrade pip && pip3 install -r requirements.txt        
+        cd ../../../
+        echo $MAKEFLAGS $CXXFLAGS $CFLAGS 
+        make test 

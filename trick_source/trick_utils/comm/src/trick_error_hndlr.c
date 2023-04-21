@@ -162,7 +162,7 @@ void trick_error_func_default(TrickErrorHndlr * error_hndlr,    /* In: Error obj
 
         default:
             if (msg != (char *) NULL) {
-                sprintf(unknown, "Unknown error level: %d!  Something is " "seriously wrong!\n   ", level);
+                snprintf(unknown, sizeof(unknown), "Unknown error level: %d!  Something is " "seriously wrong!\n   ", level);
                 msg_buf = (char *) malloc(strlen(msg) + strlen(unknown) + 2);
                 strcpy(msg_buf, unknown);
                 strcat(msg_buf, msg);

@@ -25,7 +25,10 @@ T_main_*
 **/SIM_*/.trick
 **/SIM_*/trick.zip
 **/graphics/dist
+**/graphics/java/dist
 **/graphics/manifest
 **/graphics/build
+**/graphics/cpp/build
 jitlib
 build
+*.class
