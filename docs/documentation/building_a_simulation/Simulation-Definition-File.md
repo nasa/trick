@@ -69,7 +69,7 @@ class <sim_object_type_name> : public Trick::SimObject {
 [void create_connections() { <glue_code> }]
 ```
 
-### Trick Header Comment
+## Trick Header Comment
 
 This optional section of the S_define file is a C style comment found anywhere in the S_define file.
 CP will parse the Trick Header comment looking for library dependencies and default data.  Library
@@ -81,7 +81,7 @@ instance name, and the relative path to the default data file.  CP will read in 
 substituting each occurrence of the structure type in the file with the instance name.  All of the default
 data files are concatenated to the S_default.dat file.
 
-#### S_define Library Dependencies
+### S_define Library Dependencies
 ```
 LIBRARY DEPENDENCY:
     ((relative_path/model_1.c)
@@ -99,42 +99,42 @@ full path to the file, in this case path/to/model.c.  Library dependendencies in
 differ from ones found in model source code as they must be the full path to the source file not the
 object file.
 
-### Include files
+## Include files
 
 There are two types of includes in the S_define file.
 
-#### Single pound "#" includes.
+### Single pound "#" includes.
 
 Include files with a single pound "#" are parsed as they are part of the S_define file.  They are
 treated just as #include files in C or C++ files.  These files usually include other sim objects or
 instantiations as part of the S_define file.
 
-#### Double pound "#" includes.
+### Double pound "#" includes.
 
 Include files with a double pound "##" are not parsed as part of the S_define file.  These files are the
 model header files.  They include the model class and structure definitions as well as C prototypes for
 functions used in the S_define file.  Double pound files are copied, minus one pound, to S_source.hh.
 
-### User Header Code Block
+## User Header Code Block
 
 This section of the S_define (encapsulated by "%header{...%}") can be used for including header files
 directly into the S_source.hh. Header files listed here will not be input processed.
 
-### User Code Block
+## User Code Block
 
 This section of the S_define (encapsulated by %{.....%}) can be used for any user specific
 global C code. CP will simply insert this section of code into the S_source.c file after
 all header files are included. Typically this feature is used as a quick method for customizing
 simulations with additions of global variables and functions.
 
-### Simulation Object Definition
+## Simulation Object Definition
 
 A simulation definition file may contain any number of simulation object definitions.
 A simulation object definition is of the form: class <sim_object_name> : public Trick::SimObject { ... }.
 All sim objects must inherit from the Trick::SimObject or a derivative.  A sim object definition
 may contain zero or more data structure declarations and zero or more module declarations.
 
-### Model Classes and Data Structures
+## Model Classes and Data Structures
 
 Model classes and data structures are declared within a sim object. Model classes and data structures
 may be public, protected, or private within the sim object.  Standard C++ privacy rules apply to
@@ -143,7 +143,7 @@ processor.
 
 Intrinsic types are allowed as sim object data members.
 
-### Job Declarations
+## Job Declarations
 
 Jobs are the hands and feet of the simulation.  They are the building blocks for the
 simulation.  Jobs are C or C++ routines with special Trick tags that determine scheduling,
@@ -158,7 +158,7 @@ Jobs only appear in the constructor of the sim object.
 Most of these fields are optional depending on how the module is classified or utilized
 within the sim. The following subsections detail the usage and purpose of each of these fields.
 
-#### Child Thread Specification
+### Child Thread Specification
 
 The first field of a module declaration is an optional child process specification in
 the form of a capital C immediately followed by an integer child ID number; i.e. C1, C2, C3,
@@ -190,7 +190,7 @@ first child thread; jobs with a C2 specification will be executed by the second 
 Child Threads have three different scheduling choices.  See Section XYZ for child thread scheduling
 details.
 
-#### Job Tagging
+### Job Tagging
 
 This optional field allows you to tag a job or set of jobs.  The tag is surrounded in curly
 braces.  In the input file, you may then operate on the tag.  All jobs with the same tag will be
@@ -208,7 +208,7 @@ tagged BLUE with the following:
 trick.add_read(10.0, """trick.exec_set_job_onoff("BLUE" , False)""")
 ```
 
-#### Job Phasing
+### Job Phasing
 
 The next field of a job declaration is an optional phase number specification in the form of a
 capital P immediately followed by an integer phase ID number from 1 to 65534, e.g., P1, P2, P3, etc.
@@ -217,7 +217,7 @@ used on all class jobs to sequence the execution of jobs in the same class.  Job
 execute first, then P2, etc.  Jobs with the same phase number are executed in the order they are
 in the S_define.
 
-#### Execution Schedule Time Specification
+### Execution Schedule Time Specification
 
 The execution schedule specification specifies the job's execution cycle time, start time, and
 stop time. The time specs must be a comma separated list of floating point numbers enclosed by
@@ -240,7 +240,7 @@ All other job classes categorized in Table SD_1 should NOT specify an execution 
 - FREEZE (purple color) are tied to the freeze frame (EXCEPT for freeze_scheduled class jobs which DO need the spec.)
 - CHECKPOINT (orange color) are tied to checkpointing and run only once.
 
-##### Job Class
+#### Job Class
 The job class determines where in the simulation a job is run.  Each job in the S_define file
 requires a job class.  
 
@@ -319,7 +319,7 @@ requires a job class.
 </table>
 </center>
 
-##### Job Return Type
+#### Job Return Type
 
 All integration class jobs must return an integer value which represents the current integration
 pass identifier. If all integration passes are complete, the job must return a zero.
@@ -333,7 +333,7 @@ integer or else the executive will assume an error occurred an immediately termi
 If the job does not return an integer, Trick will not take any action based on a return value. Note
 that initialization job return values are NOT checked by the executive.
 
-##### Job Name
+#### Job Name
 
 This field specifies the job name of the job as defined in the job’s source code.
 
@@ -361,17 +361,17 @@ class MySimObject() : public Trick::SimObject {
 ```
 
 
-#### Job Calling Arguments
+### Job Calling Arguments
 
 Job calling arguments adhere to C++ calling argument standards.
 
-### Sim Object Methods
+## Sim Object Methods
 
 Methods may be defined within a sim object.  These methods may be used as simulation jobs.
 A possible use for sim object methods would be to call non C/C++ code with minimal overhead from
 the S_define file.
 
-### Specifying Scheduled Loop Job Class Order
+## Specifying Scheduled Loop Job Class Order
 
 This section of the S_define (encapsulated by "job_class_order{...};) can be used to specify a new
 scheduled loop job class order.  The user may simply re-order the existing job classes that exist or
@@ -391,14 +391,14 @@ job_class_order {
 };
 ```
 
-### Simulation Object C++ properties
+## Simulation Object C++ properties
 
 Sim objects are C++ objects.  They possess all of the capabilities of C++ objects.  This section
 describes how to use some C++ features with sim objects.
 
-#### Simulation Object Instantiations
+### Simulation Object Instantiations
 
-##### Multiple Instantiations
+#### Multiple Instantiations
 
 Sim objects are instantiated within the S_define file. They are regular class objects, and as such
 are treated that way.  Sim objects may be multiply instantiated.  Multiply instantiated sim objects
@@ -422,7 +422,7 @@ ballSimObject ball ;
 ballSimObject ball2 ;
 ```
 
-##### Sim Object Constructor Arguments and Initializer Lists
+#### Sim Object Constructor Arguments and Initializer Lists
 
 Sim objects instantiations may take arguments.  These arguments may be used in the sim object's
 initialization list.  An initialization list constructs member variables of the class.  They
@@ -446,7 +446,7 @@ class ballSimObject : public Trick::SimObject {
 ballSimObject ball(5) ;
 ```
 
-##### Sim Object Constructor Arguments and Job Control
+#### Sim Object Constructor Arguments and Job Control
 
 Arguments to sim objects may also be used to control job execution.  Most items in the job
 specification may be set to the value of an argument.
@@ -469,7 +469,7 @@ ballSimObject ball(1 , 10.0 , ~@~\initialization~@~]) ;
 ballSimObject ball2( 2 , 5.0 , ~@~\default_data~@~] ) ;
 ```
 
-#### Multiple Constructors
+### Multiple Constructors
 
 Sim objects may define multiple constructors.  Each constructor may define different job
 parameters or even an entirely different set of jobs.  Arguments to the sim object
@@ -496,7 +496,7 @@ ballSimObject ball(1 , 10.0 , "initialization") ;
 ballSimObject ball2( "default_data" ) ;
 ```
 
-#### Sim Object Inheritance
+### Sim Object Inheritance
 
 Sim objects may inherit from other sim objects.  Jobs in the derived class will be run after those
 of the base sim object class.  Both C and C++ jobs may be inherited.
@@ -521,7 +521,7 @@ class anotherBallSimObject : public ballSimObject {
 anotherBallSimObject ball() ;
 ```
 
-#### Polymorphism in Sim Object jobs.
+### Polymorphism in Sim Object jobs.
 
 Polymorphism can be used to dynamically set objects at initialization or even change object types
 during runtime.  Given an abstract class and two derived classes:
@@ -567,7 +567,7 @@ ball.ball_ptr = trick.TMM_declare_var_s("Soccerball[1]")
 trick.add_read(20.0 , """ball.ball_ptr = trick.TMM_declare_var_s("Baseball[1]")""")
 ```
 
-### State Integration Specification
+## State Integration Specification
 
 Trick manages state integration with exceptional flexibility. The integration specification
 allows the developer to group the derivative, integration, and dynamic_event class modules
@@ -597,7 +597,7 @@ cycle time in seconds. At least one sim object name must be specified followed b
 of additional sim object names separated by commas. An S_define can have at most one integrate
 statement per sim object, and at least one integrate statement for all sim objects.
 
-### Parameter Collection Mechanism
+## Parameter Collection Mechanism
 
 The parameter collection mechanism is probably the most difficult capability of the CP to 
 understand and utilize. This capability is useful when the user wants a single job to handle
@@ -743,7 +743,7 @@ Several aspects of this example code which need mentioning are listed below.
    example, the parameters collected were single dimensioned double precision arrays with
    three elements per array.
 
-### Create Connections
+## Create Connections
 
 The create_connections section contains arbitrary code that is executed right after sim
 object instantiations.  Code in this section is performed before any job of any job class.

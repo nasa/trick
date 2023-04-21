@@ -1,12 +1,12 @@
 | [Home](/trick) → [Documentation Home](../../Documentation-Home) → [Running a Simulation](../Running-a-Simulation) → [Runtime GUIs](Runtime-GUIs) → Monte Monitor |
 |------------------------------------------------------------------|
 
-### Monte Monitor
+## Monte Monitor
 
 Monte Monitor (hereafter referred to as MM) is a graphical user interface that allows users to view and modify the states
 of slaves in a Monte Carlo simulation.
 
-#### Launching
+### Launching
 
 MM can be launched from the command line via:
 
@@ -17,19 +17,19 @@ ${TRICK_HOME}/bin/mm [options]
 Pass <code>--help</code> for a description of available options. For additional launching options, see
 "Automatically Launching Applications".
 
-#### The GUI
+### The GUI
 
 The GUI pictured below may have a different look and feel based on the architecture of the machine on which it is running,
 but the functionality will remain the same.
 
 ![Monte Monitor](images/MonteMonitor.jpg)
 
-##### Progress Bar
+#### Progress Bar
 
 The progress bar displays a visual and textual representation of how far the Monte Carlo has progressed. The format is
 <code>\<resolved runs\> / \<total runs\> (\<percent resolved\>)</code>.
 
-##### Slave Table
+#### Slave Table
 
 The slave table displays information on each of the slaves. From left to right, this information is:
 
@@ -85,18 +85,18 @@ The slave table displays information on each of the slaves. From left to right, 
   The number of runs the slave has completed.
 </ul>
 
-##### New Slave Field
+#### New Slave Field
 
 The new slave field allows the user to add a new slave by machine name while the Monte Carlo is running. Note that slaves
 that fail to spawn for any reason (a bad machine name, for instance) will nevertheless appear in the slave table with a
 status of <code>Initializing</code>.
 
-##### Connection Panel
+#### Connection Panel
 
 The connection panel displays host and port information when MM is connected to a simulation, and allows the user to
 specify these parameters when disconnected.
 
-#### Starting and Stopping
+### Starting and Stopping
 
 Slaves can be started and stopped while the Monte Carlo is running via the <code>Monte Carlo</code> and
 <code>Slaves</code> menus. Selecting a command from the <code>Monte Carlo</code> menu is equivalent to applying the same

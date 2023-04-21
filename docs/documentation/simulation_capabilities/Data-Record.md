@@ -7,7 +7,7 @@ at different frequencies to different files in different formats.
  
 All data is written to the simulation output directory.
 
-### Format of Recording Groups
+## Format of Recording Groups
 
 Trick allows recording in three different formats. Each recording group is readable by
 different external tools outside of Trick.
@@ -23,7 +23,7 @@ your executable larger, but you will not have to deal with LD_LIBRARY issues.  T
 anywhere on your system.  To tell Trick you have HDF5 run ${TRICK_HOME}/configure --with-hdf5=/path/to/hdf5.
 Re-compile Trick to enable HDF5 support.
 
-### Creating a New Recording Group
+## Creating a New Recording Group
 
 To create a new recording group, in the Python input file instantiate a new group by format name:
 <tt><variable_name> = trick.<data_record_format>() ;</tt>
@@ -36,7 +36,7 @@ drg = trick.DRBinary() ;
 
 Note: drg is just an example name.  Any name may be used. 
 
-### Adding a Variable To Be Recorded
+## Adding a Variable To Be Recorded
 
 To add variables to the recording group call the <tt>drg.add_variable("<string_of_variable_name>")</tt> method of the recording group.
 For example:
@@ -58,7 +58,7 @@ drg.add_variable("ball.obj.state.output.position[1]", "y_pos")
 
 Only individual primitive types can be recorded. Arrays, strings/char *, structured objects, or STL types are not supported.
 
-### Changing the Recording Rate
+## Changing the Recording Rate
 
 To change the recording rate call the <tt>set_cycle()</tt> method of the recording group.
 
@@ -66,7 +66,7 @@ To change the recording rate call the <tt>set_cycle()</tt> method of the recordi
 drg.set_cycle(0.01) 
 ```
 
-### Buffering Techniques
+## Buffering Techniques
 
 Data recording groups have three buffering options:
 
@@ -92,7 +92,7 @@ drg.set_buffer_type(trick.DR_Buffer)
 All buffering options (except for DR_No_Buffer) have a maximum amount of memory allocated to
 holding data.  See Trick::DataRecordGroup::set_max_buffer_size for buffer size information.
 
-### Recording Frequency: Always or Only When Data Changes
+## Recording Frequency: Always or Only When Data Changes
 
 Data recording groups have three recording frequency options:
 
@@ -119,7 +119,7 @@ then <tt>ball.obj.state.output.position[0]</tt> and <tt>ball.obj.state.output.po
 <tt>ball.obj.state.output.velocity[0]</tt> changes. Multiple parameters may be watched by adding more change variables, in which case
 data will be recorded when any of the watched variable values change.
 
-### Turn Off/On and Record Individual Recording Groups
+## Turn Off/On and Record Individual Recording Groups
 
 At any time during the simulation, model code or the input processor can turn on/off individual
 recording groups as well as record a single point of data.
@@ -140,7 +140,7 @@ trick.dr_disable_group("<group_name>") ; # same as <group_name>.disable()
 trick.dr_record_now_group("<group_name>") ;
 ```
 
-### Changing the thread Data Recording runs on.
+## Changing the thread Data Recording runs on.
 
 To change the thread that the data recording group runs on use the DataRecordGroup::set_thread
 method.  The thread number follows the same numbering as the child threads in the S_define file.
@@ -153,7 +153,7 @@ record a time homogeneous set of data.
 drg.set_thread(<thread_number>)
 ```
 
-### Changing the Job Class of a Data Record Group
+## Changing the Job Class of a Data Record Group
 
 The default job class of a data record group is "data_record".  This job class is run after all
 of the cyclic job classes have completed.  The job class of the data record group can be
@@ -165,7 +165,7 @@ drg.set_job_class(<string class_name>)
 ```
  
 
-### Changing the Max File Size of a Data Record Group (Ascii and Binary only)
+## Changing the Max File Size of a Data Record Group (Ascii and Binary only)
 
 The default size of a data record is 1 GiB. A new size can be set through the set_max_file_size method. For unlimited size, pass 0.
 
@@ -173,7 +173,7 @@ The default size of a data record is 1 GiB. A new size can be set through the se
 drg.set_max_file_size(<uint64 file_size_in_bytes>)
 ```
 
-### Example Data Recording Group
+## Example Data Recording Group
 
 This is an example of a data recording group in the input file
 
@@ -194,7 +194,7 @@ trick.add_data_record_group(drg0, trick.DR_Buffer)
 drg0.thisown = 0
 ```
 
-### User accessible routines
+## User accessible routines
 
 Create a new data recording group:
 
@@ -241,7 +241,7 @@ int Trick::DRAscii::set_delimiter
 int Trick::DataRecordGroup::set_single_prec_only
 ```
 
-### DRAscii Recording Format
+## DRAscii Recording Format
 
 The DRAscii recording format is a comma separated value file named log_<group_name>.csv.  The contents
 of this file type are readable by the Trick Data Products packages, ascii editors, and Microsoft Excel.
@@ -256,14 +256,14 @@ value1,value2,etc...
 value1,value2,etc...
 ```
 
-### DRBinary Recording Format
+## DRBinary Recording Format
 
 The DRBinary recording format is a Trick simulation specific format.  Files written in this format are named
 log_<group_name>.trk.  The contents of this file type are readable by the Trick Data Products packages from
 Trick 07 to the current version.  The format of the file follows.
 
 <a id=drbinary-file></a>
-### DRBinary-File
+## DRBinary-File
 |Value|Description|Type|#Bytes|
 |---|---|---|---|
 |Trick-\<vv>-\<e>| \<vv> is trick version (2 chars, "07" or "10"). \<e> is endianness (1 char) 'L' -> little endian, and 'B' -> big endian.|char|10|
@@ -274,7 +274,7 @@ Trick 07 to the current version.  The format of the file follows.
 
 
 <a id=variable-descriptor-list></a>
-#### Variable-Descriptor-List
+### Variable-Descriptor-List
 A Variable-Descriptor-List is a sequence of [Variable-Descriptors](#variable-descriptor).
 The number of descriptors in the list is specified by *numparms*. The list describes each of the recorded variables, starting with the simulation time variable.
 
@@ -285,7 +285,7 @@ The number of descriptors in the list is specified by *numparms*. The list descr
 || Descriptor for Variable # *numparms* |[Variable-Descriptor](#variable-descriptor)|variable|
 
 <a id=variable-descriptor></a>
-#### Variable-Descriptor
+### Variable-Descriptor
 A Variable-Descriptor describes a recorded variable. 
 
 |Value|Description|Type|Bytes|
@@ -304,7 +304,7 @@ A Variable-Descriptor describes a recorded variable.
 3. If *vv* = "10", use [Trick 10 Data Types](#trick-10-data-types).
 
 <a id=time-variable-descriptor></a>
-#### *Time-Variable-Descriptor*
+### *Time-Variable-Descriptor*
 |Value|Description|Type|Bytes|
 |---|---|---|---|
 |17| Length of Variable Name |int|4|
@@ -319,7 +319,7 @@ A Variable-Descriptor describes a recorded variable.
 1. Here, we are assuming "vv" = "10", and so, referring to [Trick 10 Data Types](#trick-10-data-types), Variable Type = 11, which corresponds to **double**.
 
 <a id=data-record-list></a>
-#### Data-Record-List
+### Data-Record-List
 A Data-Record-List contains a collection of [Data-Records](#data-record), at regular times.
 
 |Value|Description|Type|Bytes|
@@ -329,7 +329,7 @@ A Data-Record-List contains a collection of [Data-Records](#data-record), at reg
 ||Data-Record #Last|[Data-Record](#data-record)||
 
 <a id=data-record></a>
-#### Data-Record
+### Data-Record
 A Data-Record contains a collection of values for each of the variables we are recording, at a specific time.
 
 |Value|Description|Type|Bytes|
@@ -339,7 +339,7 @@ A Data-Record contains a collection of values for each of the variables we are r
 |*value*|Value of Variable #numparms |*typeof( Variable#numparms)*|*sizeof( type-of( Variable#numparms))* |
 
 <a id=trick-07-data-types></a>
-### Trick 7 Data Types
+## Trick 7 Data Types
 The following data-types were used in Trick-07 data recording files (that is for, *vv* = "07").
 
 |Type value|Data Type|
@@ -362,7 +362,7 @@ The following data-types were used in Trick-07 data recording files (that is for
 |17|Boolean (C++)|
 
 <a id=trick-10-data-types></a>
-### Trick 10 Data Types
+## Trick 10 Data Types
 The following data-types are used in Trick versions >= 10, that is for, *vv* = "10".
 
 |Type value|Data Type|
@@ -382,7 +382,7 @@ The following data-types are used in Trick versions >= 10, that is for, *vv* = "
 |14|long long|
 |15|unsigned long long|
 |17|Boolean (C++)``|
-### DRHDF5 Recording Format
+## DRHDF5 Recording Format
 
 HDF5 recording format is an industry conforming HDF5 formatted file.  Files written in this format are named
 log_<group_name>.h5.  The contents of this file type are readable by the Trick Data Products packages from

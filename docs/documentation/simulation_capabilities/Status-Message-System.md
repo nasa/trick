@@ -3,7 +3,7 @@
 
 The Message Publisher publishes executive and/or model messages. A Message Subscriber gets the messages published by the Publisher.
 
-### Message Publisher 
+## Message Publisher 
 
 Trick creates one instance of the Message Publisher (in the `S_define` file). It is responsible for keeping track of all Message Subscribers,
 and sending any message that is published to all of the Message Subscribers. A subscriber is made known to the Message Publisher by calling its
@@ -11,7 +11,7 @@ and sending any message that is published to all of the Message Subscribers. A s
 Publishing a message that you want to be output by all subscribers is done by calling `::message_publish`.
 If there are no subscribers, then publishing a message has no effect.
 
-### Message Subscriber
+## Message Subscriber
 
 There can be any number of Message Subscribers, whose job is to receive (and usually output) published messages. Trick automatically creates three Message Subscribers:
 - `Trick::MessageCout` - outputs messages to the standard output stream
@@ -33,7 +33,7 @@ trick_message.mtcout.init()
 trick.message_subscribe(trick_message.mtcout)
 ```
 
-### User accessible routines
+## User accessible routines
 
 To publish a message:
 
