@@ -419,6 +419,7 @@ namespace Trick {
         virtual int var_exit();
 
     private:
+        static int instance_counter;
 
         pthread_mutex_t _copy_mutex;     /**<  trick_io(**) */
 
@@ -447,8 +448,15 @@ namespace Trick {
         virtual int get_freeze_frame_offset () const;
         virtual bool get_enabled () const;
 
-        // Check settings and log message to appropriate places
-        void log_message(const std::string& msg);
+        // Check settings and log to appropriate places
+        void log_received_message(const std::string& msg);
+        void log_connection_opened ();
+
+        bool is_log_open();
+
+        void open_session_log();
+
+        void write_to_session_log(const std::string& msg);
 
         /** Value set in var_cycle command.\n */
         double _update_rate ;             /**<  trick_io(**) */
@@ -504,6 +512,9 @@ namespace Trick {
         /** Toggle to turn on/off debug info messages.\n */
         bool _info_msg ;
 
+        /** Message stream number for the log file */
+        int _log_msg_stream;
+
         /** Toggle to indicate var_pause commanded.\n */
         bool _pause_cmd ;                 /**<  trick_io(**) */
 
@@ -516,6 +527,8 @@ namespace Trick {
 
         /** Toggle to indicate var_exit commanded.\n */
         bool _exit_cmd ;                  /**<  trick_io(**) */
+
+        int _instance_num;
 
     };
 }
