@@ -23,35 +23,58 @@ VideoWindow::VideoWindow(QWidget *parent) :
 
     statusBar();
 
-    mpv = mpv_create();
-    if (!mpv) {
-        throw std::runtime_error("can't create mpv instance");
+    for (int i = 0; i < 6; ++i ) {
+        mpv_handle* mpv = mpv_create();
+        if (!mpv) {
+            throw std::runtime_error("can't create mpv instance");
+        }
+        QWidget* mpv_container = new QWidget(this);
+        mpv_container->setAttribute(Qt::WA_DontCreateNativeAncestors);
+        mpv_container->setAttribute(Qt::WA_NativeWindow);
+        int64_t wid = mpv_container->winId();
+        mpv_set_option(mpv, "wid", MPV_FORMAT_INT64, &wid);
+        mpv_set_option_string(mpv, "input-default-bindings", "yes");
+        mpv_set_option_string(mpv, "input-vo-keyboard", "yes");
+        mpv_set_option_string(mpv, "keep-open", "always");
+        mpv_set_option_string(mpv, "osd-level", "0");
+        mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
+        mpv_set_wakeup_callback(mpv, wakeup, this);
+        if (mpv_initialize(mpv) < 0) {
+            throw std::runtime_error("mpv failed to initialize");
+        }
+
+        mpvs.append(mpv);
+        mpv_containers.append(mpv_container);
     }
 
-    // Create a video child window. Force Qt to create a native window, and
-    // pass the window ID to the mpv wid option. Works on: X11, win32, Cocoa
-    // If you have a HWND, use: int64_t wid = (intptr_t)hwnd;
-    mpv_container = new QWidget(this);
-    setCentralWidget(mpv_container);
-    mpv_container->setAttribute(Qt::WA_DontCreateNativeAncestors);
-    mpv_container->setAttribute(Qt::WA_NativeWindow);
-    int64_t wid = mpv_container->winId();
-    mpv_set_option(mpv, "wid", MPV_FORMAT_INT64, &wid);
+    _timeOffsets.append(15.8450);
+    _timeOffsets.append(15.6080);
+    _timeOffsets.append(15.6060);
+    _timeOffsets.append(15.6150);
+    _timeOffsets.append(15.4820);
+    _timeOffsets.append(15.5170);
 
-    mpv_set_option_string(mpv, "input-default-bindings", "yes");
-    mpv_set_option_string(mpv, "input-vo-keyboard", "yes");
-    mpv_set_option_string(mpv, "keep-open", "always");
-    mpv_set_option_string(mpv, "osd-level", "0");
-    mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
+    QGridLayout* grid = new QGridLayout();
+    grid->addWidget(mpv_containers.at(0), 0, 0);
+    grid->addWidget(mpv_containers.at(1), 0, 1);
+    grid->addWidget(mpv_containers.at(2), 0, 2);
+    grid->addWidget(mpv_containers.at(3), 1, 0);
+    grid->addWidget(mpv_containers.at(4), 1, 1);
+    grid->addWidget(mpv_containers.at(5), 1, 2);
+
+    grid->setColumnStretch(0, 1);
+    grid->setColumnStretch(1, 1);
+    grid->setColumnStretch(2, 1);
+    grid->setRowStretch(0, 1);
+    grid->setRowStretch(1, 1);
+
+    QWidget* centralWidget = new QWidget(this);
+    centralWidget->setLayout(grid);
+    setCentralWidget(centralWidget);
 
     connect(this, &VideoWindow::mpv_events,
             this, &VideoWindow::on_mpv_events,
             Qt::QueuedConnection);
-    mpv_set_wakeup_callback(mpv, wakeup, this);
-
-    if (mpv_initialize(mpv) < 0) {
-        throw std::runtime_error("mpv failed to initialize");
-    }
 #endif
 }
 
@@ -75,13 +98,18 @@ void VideoWindow::closeEvent(QCloseEvent *event)
 void VideoWindow::seek_time(double time) {
 #ifdef HAS_MPV
     int isIdle;
-    int ret = mpv_get_property(mpv,"core-idle",MPV_FORMAT_FLAG,&isIdle);
-    if ( ret >= 0 ) {
-        if ( isIdle && parentWidget()->isActiveWindow() ) {
-            // Koviz is driving time
-            QString com = QString("seek %1 absolute").arg(time+_timeOffset);
-            mpv_command_string(mpv, com.toLocal8Bit().data());
+    int i = 0;
+    foreach (mpv_handle* mpv, mpvs) {
+        int ret = mpv_get_property(mpv,"core-idle",MPV_FORMAT_FLAG,&isIdle);
+        if ( ret >= 0 ) {
+            if ( isIdle && parentWidget()->isActiveWindow() ) {
+                // Koviz is driving time
+                double timeOffset = _timeOffsets.at(i);
+                QString com = QString("seek %1 absolute").arg(time+timeOffset);
+                mpv_command_string(mpv, com.toLocal8Bit().data());
+            }
         }
+        ++i;
     }
 #endif
 }
@@ -99,14 +127,16 @@ void VideoWindow::handle_mpv_event(mpv_event *event)
                 ss << "At: " << time;
                 statusBar()->showMessage(QString::fromStdString(ss.str()));
                 int isIdle;
-                int ret = mpv_get_property(mpv,"core-idle",MPV_FORMAT_FLAG,
-                                           &isIdle);
-                if ( ret >= 0 ) {
-                    if ( !isIdle || isActiveWindow() ) {
-                        // If mpv playing, update time
-                        // If mpv paused but still active, update time
-                        // If mpv paused and koviz active, do not emit signal
-                        emit timechangedByMpv(time);
+                foreach (mpv_handle* mpv, mpvs) {
+                    int ret = mpv_get_property(mpv,"core-idle",MPV_FORMAT_FLAG,
+                                               &isIdle);
+                    if ( ret >= 0 ) {
+                        if ( !isIdle || isActiveWindow() ) {
+                            // If mpv playing, update time
+                            // If mpv paused but still active, update time
+                            // If mpv paused and koviz active, don't emit signal
+                            emit timechangedByMpv(time);
+                        }
                     }
                 }
             } else if (prop->format == MPV_FORMAT_NONE) {
@@ -116,8 +146,10 @@ void VideoWindow::handle_mpv_event(mpv_event *event)
         break;
     }
     case MPV_EVENT_SHUTDOWN: {
-        mpv_terminate_destroy(mpv);
-        mpv = NULL;
+        for (int i = 0; i < mpvs.size(); ++i) {
+            mpv_terminate_destroy(mpvs[i]);
+            mpvs[i] = NULL;
+        }
         break;
     }
     default: ;
@@ -131,12 +163,14 @@ void VideoWindow::on_mpv_events()
 {
 #ifdef HAS_MPV
     // Process all events, until the event queue is empty.
-    while (mpv) {
-        mpv_event *event = mpv_wait_event(mpv, 0);
-        if (event->event_id == MPV_EVENT_NONE) {
-            break;
+    foreach (mpv_handle* mpv, mpvs) {
+        while (mpv) {
+            mpv_event *event = mpv_wait_event(mpv, 0);
+            if (event->event_id == MPV_EVENT_NONE) {
+                break;
+            }
+            handle_mpv_event(event);
         }
-        handle_mpv_event(event);
     }
 #endif
 }
@@ -147,16 +181,32 @@ void VideoWindow::on_file_open()
     set_file(filename);
 }
 
-void VideoWindow::set_file(const QString &fname)
+void VideoWindow::set_file(const QString &fnameIn)
 {
 #ifdef HAS_MPV
-    if (mpv) {
-        const QByteArray c_filename = fname.toUtf8();
-        const char *args[] = {"loadfile", c_filename.data(), NULL};
-        mpv_command_async(mpv, 0, args);
-    } else {
-        fprintf(stderr, "koviz [bad scoobs]: VideoWindow::set_file()\n");
-        exit(-1);
+    QStringList files;
+    QString dir("/home/kvetter/dev/es/video-offset/"
+                "RUN_D13C1A.20230322.02.D.H12T-H12T.4506.5p00000."
+                "ComplexComboPlusRatesMax/Video/");
+    files.append(dir + "2023-03-22T0939_R02_Cam01_REC1_3.mp4");
+    files.append(dir + "2023-03-22T0939_R02_Cam02_REC2_3.mp4");
+    files.append(dir + "2023-03-22T0939_R02_Cam03_REC3_3.mp4");
+    files.append(dir + "2023-03-22T0939_R02_CamCL_REC4_3.mp4");
+    files.append(dir + "2023-03-22T0939_R02_CamF1_REC5_3.mp4");
+    files.append(dir + "2023-03-22T0939_R02_CamF2_REC6_3.mp4");
+
+    int i = 0;
+    foreach (mpv_handle* mpv, mpvs) {
+        if (mpv) {
+            QString fname = files.at(i);
+            const QByteArray c_filename = fname.toUtf8();
+            const char *args[] = {"loadfile", c_filename.data(), NULL};
+            mpv_command_async(mpv, 0, args);
+        } else {
+            fprintf(stderr, "koviz [bad scoobs]: VideoWindow::set_file()\n");
+            exit(-1);
+        }
+        ++i;
     }
 #endif
 }
@@ -169,8 +219,11 @@ void VideoWindow::set_offset(double timeOffset)
 VideoWindow::~VideoWindow()
 {
 #ifdef HAS_MPV
-    if (mpv) {
-        mpv_terminate_destroy(mpv);
+    foreach (mpv_handle* mpv, mpvs) {
+        if (mpv) {
+            //mpv_terminate_destroy(mpv);
+            mpv_destroy(mpv);  // Maybe fix core when shutting down??? (4/21/2023)
+        }
     }
 #endif
 }

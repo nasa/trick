@@ -15,6 +15,8 @@
 #include <QApplication>
 #include <QTextEdit>
 #include <QSettings>
+#include <QList>
+#include <QStringList>
 
 #ifdef HAS_MPV
 #include <mpv/client.h>
@@ -44,12 +46,17 @@ signals:
     void timechangedByMpv(double time);
 
 private:
-    QWidget *mpv_container;
+    //QWidget *mpv_container;
+    //QWidget *mpv_container2;
+    QList<QWidget*> mpv_containers;
     double _timeOffset;
+    QList<double> _timeOffsets;
     void create_player();
 
 #ifdef HAS_MPV
-    mpv_handle *mpv;
+    //mpv_handle *mpv;
+    //mpv_handle *mpv2;
+    QList<mpv_handle*> mpvs;
     void handle_mpv_event(mpv_event *event);
 #endif
 };
