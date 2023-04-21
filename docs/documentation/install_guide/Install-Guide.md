@@ -9,16 +9,16 @@ Trick requires various free third party utilities in order to function. All the 
 
 | Utility        | Version | Description             | Usage                                                     | Notes                                                 |
 |---------------:|:-------:|:-----------------------:|:---------------------------------------------------------:|:------------------------------------------------------|
-| [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                       |
-| [clang]/[llvm] | <=13 (14 not currently supported)  | C/C++ Compiler          | Utilized by the interface code generator.   |                                                       |
-| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.9 as of 02/21    |
-| [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                       |
-| [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                       |
-| [swig]         | 2.x-3.x | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ required for some unit tests in make test target |
-| [make]         | 3.78+   | Build Automation        | Automates the building and cleaning of Trick.             |                                                       |
-| [openmotif]    | 2.2.0+  | GUI Toolkit             | Covers Trick GUIs not made with Java.                     |                                                       |
-| [udunits]      | 2.x+    | C Unit Library/Database | Provides support for units of physical quantities.        |                                                       |
-| [maven]        | x.x     | Java package manager    | Downloads Java dependencies and builds trick GUIs         |                                                       |
+| [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                        |
+| [clang]/[llvm] | <=14    | C/C++ Compiler          | Utilized by the interface code generator.                 | Trick Versions <= 19.3 should use LLVM <= 9        |
+| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.11 as of 04/23  |
+| [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                        |
+| [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                        |
+| [swig]         | 2.x-3.x | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ required for some unit tests in make test target. SWIG 4.x is compatible with Trick, but has some issues https://github.com/nasa/trick/issues/1288 |
+| [make]         | 3.78+   | Build Automation        | Automates the building and cleaning of Trick.             |                                                        |
+| [openmotif]    | 2.2.0+  | GUI Toolkit             | Covers Trick GUIs not made with Java.                     |                                                        |
+| [udunits]      | 2.x+    | C Unit Library/Database | Provides support for units of physical quantities.        |                                                        |
+| [maven]        | x.x     | Java package manager    | Downloads Java dependencies and builds trick GUIs         |                                                        |
 
 [gcc]: https://gcc.gnu.org/
 [clang]: https://clang.llvm.org/
@@ -48,27 +48,44 @@ Trick runs on GNU/Linux and macOS, though any System V/POSIX compatible UNIX wor
 | Quick Jump Menu |
 |---|
 |[RedHat Enterprise Linux (RHEL) 8](#redhat8)|
-|[CentOS 8](#redhat8)|
+|[Oracle Linux 8](#redhat8)|
+|[AlmaLinux 8](#redhat8)|
+|[Rocky Linux 8](#redhat8)|
 |[RedHat Enterprise Linux (RHEL) 7](#redhat7)|
 |[CentOS 7](#redhat7)|
 |[Fedora](#fedora)|
 |[Ubuntu](#ubuntu)|
 |[macOS](#macos)|
 |[Windows 10 (Linux Subsystem Only)](#windows10)|
+|[Troubleshooting](#trouble)|
 
 ---
+<a name="trouble"></a>
 ### Troubleshooting
+
+#### Environment Variables
+Sometimes environment variables affect the Trick build and can cause it to fail. If you find one that isn't listed here, please create an issue and we'll add it to the list.
+
+
+```
+JAVA_HOME # Trick and Maven will use JAVA_HOME to build the GUIs instead of javac in PATH if it is set.
+TRICK_HOME # This variable is optional but may cause a Trick build to fail if it is set to the wrong directory.
+CFLAGS, CXXFLAGS, LDFLAGS # If these flags are set they may affect flags passed to your compiler and linker
+```
+#### If You Think The Install Instructions Do Not Work Or Are Outdated
 If the Trick tests are passing, you can see *exactly* how we configure our test machines on Github's test integration platform, Github Actions.
 
 If logged into any github account on github.com, you can access the [Actions](https://github.com/nasa/trick/actions) tab on the Trick repo page. Go to [Trick-CI](https://github.com/nasa/trick/actions?query=workflow%3A%22Trick+CI%22), and click the latest passing run. Here you can access a log of our shell commands to configure each OS with dependencies and also the commands we use to install Trick. In fact, that is exactly where I go when I want to update the install guide! @spfennell
 
-The configuration for these tests can be found in the [trick/.github/workflow/test.yml](https://github.com/nasa/trick/blob/master/.github/workflows/test.yml) file.
+The configuration for these tests can be found in the [trick/.github/workflow/test_linux.yml](https://github.com/nasa/trick/blob/master/.github/workflows/test_linux.yml) file.
 
+#### Weird Linker Error
+It is possible you may have an old version of Trick installed, and Trick's libraries are on your LDPATH and interfering with your new build. The solution is to uninstall the old version before building the new one. Call `sudo make uninstall` from any Trick top level directory and it will remove the old libraries.
 
 ---
 <a name="redhat8"></a>
 
-### RedHat Enterprise Linux (RHEL) 8, CentOS 8
+### RedHat Enterprise Linux (RHEL) 8, Oracle Linux 8, Rocky Linux 8, AlmaLinux 8
 Trick requires the clang/llvm compiler to compile and link the Trick Interface Code Generator.  clang/llvm is available through the [Extra Packages for Enterprise Linux](https://fedoraproject.org/wiki/EPEL) repository.  Download and install the 'epel-release' package.
 
 
@@ -84,12 +101,21 @@ python3-devel diffutils
 
 
 
-Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository. In order to access gtest-devel in the epel repository you need to enable the dnf option PowerTools
+Trick makes use of several optional packages if they are present on the system.  These include using the HDF5 package for logging, the GSL packages for random number generation, and google test (gtest) for Trick's unit testing.  These are available from the EPEL repository. In order to access gtest-devel in the epel repository on RHEL 8 you need to enable the dnf repo CodeReady Linux Builder. In Rocky Linux and Alma Linux you can instead enable the Power Tools Repo. On Oracle Linux 8 you must enable OL8 CodeReady Builder. 
 
+See RedHat's documentation to enable the CodeReady Linux Builder repository:
+https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/package_manifest/codereadylinuxbuilder-repository
+
+On AlmaLinux 8, Rocky Linux 8:
 ```bash
-yum install -y 'dnf-command(config-manager)'
-yum config-manager --enable PowerTools
-yum install hdf5-devel gsl-devel gtest-devel
+dnf config-manager --enable powertools
+  dnf install -y gtest-devel
+```
+
+On Oracle Linux 8:
+```
+dnf config-manager --enable ol8_codeready_builder
+dnf install -y gtest-devel
 ```
 
 proceed to [Install Trick](#install) section of the install guide
@@ -189,10 +215,10 @@ xcode-select --install
 brew install python java xquartz swig@3 maven udunits openmotif 
 
 ```
-IMPORTANT: Make sure to follow the instructions for adding java to your path provided by brew. If you missed them, you can see them again by using `brew info java`.
+IMPORTANT: Make sure to follow the instructions for adding java and swig to your `PATH` provided by brew. If you missed them, you can see them again by using `brew info java` and `brew info swig@3`. Remember,  you may need to restart your terminal for these `PATH` changes to take effect.
 
-5. Download and un-compress the latest pre-built clang+llvm 13 from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
-and download the latest version of 13 from the release assets. 13.0.1 is the latest as of the writing of this guide, the link I used is below:
+5. Download and un-compress the latest pre-built clang+llvm from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
+and download the latest version llvm that matches your Xcode version from the release assets. For example, if your Xcode version is 14 then you will want the latest 14.x.x release of llvm. 13.0.1 is the latest as of the writing of this guide, the link I used is below:
 https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/clang+llvm-13.0.1-x86_64-apple-darwin.tar.xz
 Tip: I suggest renaming the untar'd directory to something simple like llvm13 and putting it in your home directory or development environment.
 
@@ -217,7 +243,7 @@ e.g.
 
 OPTIONAL: Trick uses google test (gtest) version 1.8 for unit testing. To install gtest:
 ```
-brew install wget
+brew install cmake wget
 wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
 tar xzvf release-1.8.0.tar.gz
 cd googletest-release-1.8.0/googletest
@@ -339,3 +365,12 @@ cp prebuiltTrick/libexec/trick/java/build/*.jar trick/trick-offline
 ```
 
 4. Follow regular install instructions above. 
+
+### Python Version
+
+If you would like to use Python 2 with Trick please first make sure Python 2 and the Python 2 libs are installed. Then you will likely need to set `PYTHON_VERSION=2` in your shell environment before executing the `configure` script so that Trick will use Python 2 instead of Python 3. This can be done in bash or zsh with the following commands:
+
+```
+export PYTHON_VERSION=2
+./configure
+```

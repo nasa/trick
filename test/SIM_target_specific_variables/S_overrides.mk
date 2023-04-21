@@ -2,7 +2,14 @@ MODELS :=$(CURDIR)/models
 
 # Warn about comment markers /* within comments and make them errors, causing
 # the build to fail.
-TRICK_CXXFLAGS += -I$(MODELS) -Wcomment -Werror
+TRICK_CXXFLAGS += -I$(MODELS) -Wcomment
+
+# We can't yet make warnings to be errors on MacOS, because
+# MACOS deprecates and warns about sprintf. But SWIG
+# still generates code containing sprintf..
+ifneq ($(TRICK_HOST_TYPE), Darwin)
+TRICK_CXXFLAGS += -Werror
+endif
 
 PATHS := $(MODELS)/many $(MODELS)/nested
 

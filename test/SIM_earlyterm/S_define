@@ -1,0 +1,31 @@
+/*****************************************************************************
+PURPOSE: Provide test of simulation early termination. Ensures threads
+ come down appropriately for unit-test-like cases
+PROGRAMMERS:
+  (((Dan Jordan) (NASA) (Jan 2023) (Deal with it)))
+*****************************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "trick/exec_proto.h"
+
+class EarlyTerminationSimObject : public Trick::SimObject
+{
+ public:
+  double x;
+
+  EarlyTerminationSimObject()
+    :
+    x(0)
+  {
+    ("initialization") early_term();
+  };
+
+  void early_term() {
+    std::string message = "Terminating with exit code 0";
+    exec_terminate_with_return(0, "S_define", 24, message.c_str());
+  }
+ private:
+  EarlyTerminationSimObject( const EarlyTerminationSimObject&);
+  EarlyTerminationSimObject & operator= ( const EarlyTerminationSimObject&);
+
+};
+EarlyTerminationSimObject test;

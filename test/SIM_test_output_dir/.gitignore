@@ -1,0 +1,9 @@
+.trick
+MONTE_RUN_*
+*log.csv
+S_main*
+*.resource
+S_source.hh
+build
+makefile
+trick.zip

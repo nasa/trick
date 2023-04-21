@@ -216,6 +216,16 @@ int Trick::Executive::get_sim_objects(std::vector<Trick::SimObject *> & in_sim_o
     return(0) ;
 }
 
+Trick::SimObject * Trick::Executive::get_sim_object_by_name(std::string sim_object_name) {
+    for ( int ii = 0 ; ii < sim_objects.size() ; ii++ ) {
+        if ( ! sim_objects[ii]->name.compare(sim_object_name) ) {
+            return sim_objects[ii];
+        }
+    }
+
+    return NULL;
+}
+
 double Trick::Executive::get_software_frame() {
     return(software_frame) ;
 }

@@ -1,0 +1,49 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ()
+LIBRARY DEPENDENCIES:
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "starter.h"
+
+class StarterSimObject : public Trick::SimObject {
+
+    public:
+        Starter starter;
+
+        StarterSimObject() {
+            ("top_of_frame")  starter.top ();
+
+            (0.5, "scheduled")  starter.sched ();
+            (0.5, "my_class")   starter.custom ();
+
+            ("derivative") starter.deriv();
+            ("integration") trick_ret = starter.integ() ;
+
+            ("automatic")   starter.automatic();
+            ("automatic_last")   starter.automatic_last();
+
+
+            ("end_of_frame")  starter.end ();
+
+            ("shutdown")  starter.test_calls ();
+
+        }
+};
+
+StarterSimObject starterSimObject;
+
+job_class_order {
+   my_class ,
+   integ_loop,
+   scheduled 
+};
+
+IntegLoop dyn_integloop(0.1) starterSimObject;
+
+void create_connections() {
+    dyn_integloop.getIntegrator(Runge_Kutta_4, 2);
+}
+

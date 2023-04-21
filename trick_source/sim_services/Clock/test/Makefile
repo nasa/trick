@@ -8,7 +8,7 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Makefile.common
 
 # Flags passed to the preprocessor.
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -DGTEST_HAS_TR1_TUPLE=0 ${TRICK_SYSTEM_CXXFLAGS}
+TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
 
 LIBS = -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
 
@@ -41,7 +41,7 @@ GetTimeOfDayClock_test.o : GetTimeOfDayClock_test.cpp
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<
 
 GetTimeOfDayClock_test : ${GETTIMEOFDAY_CLOCK_OBJECTS}
-	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ ${LIBS}
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CPPFLAGS) -o $@ $^ ${LIBS}
 
 exec_get_rt_nap_stub.o : exec_get_rt_nap_stub.cpp
 	$(TRICK_CXX) $(TRICK_CPPFLAGS) -c $<

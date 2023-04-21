@@ -348,8 +348,9 @@ units_string: NAME {
                   $$ = $1;
               }
             | NAME '.' NAME '.' {
-                  $$ = (char*)malloc( strlen($1) + strlen($3) + 3 );
-                  sprintf($$, "%s.%s.", $1,$3); 
+                  size_t m_size = strlen($1) + strlen($3) + 3;
+                  $$ = (char*)malloc(m_size);
+                  snprintf($$, m_size, "%s.%s.", $1,$3); 
                   free($1);
                   free($3);
               }
@@ -358,23 +359,24 @@ units_string: NAME {
               }
             | I_CON {
                   if ($1 == 1) {
-                      $$ = (char*)malloc(2);
-                      sprintf($$, "1");
+                      size_t m_size = 2;
+                      $$ = (char*)malloc(m_size);
+                      snprintf($$, m_size, "1");
                   } else {
                       return (MM_INVALID_UNITS);
                   }
               }
             | units_string '*' NAME {
-                  int len = strlen($1) + strlen($3);
-                  $$ = (char*)malloc((size_t)len+2) ;
-                  sprintf($$, "%s*%s",$1,$3);
+                  size_t m_size = strlen($1) + strlen($3) + 2;
+                  $$ = (char*)malloc(m_size) ;
+                  snprintf($$, m_size, "%s*%s",$1,$3);
                   free($1);
                   free($3);
               }
             | units_string '/' NAME {
-                  int len = strlen($1) + strlen($3);
-                  $$ = (char*)malloc((size_t)len+2) ;
-                  sprintf($$, "%s/%s",$1,$3);
+                  size_t m_size = strlen($1) + strlen($3) + 2;
+                  $$ = (char*)malloc(m_size) ;
+                  snprintf($$, m_size, "%s/%s",$1,$3);
                   free($1);
                   free($3);
               }
@@ -432,7 +434,7 @@ param: NAME {
                    $$.ref_type = REF_INVALID;
                }
            }
-           sprintf(temp , "%s[%d]" , $$.reference, vval_int(&$3)) ;
+           snprintf(temp , sizeof(temp), "%s[%d]" , $$.reference, vval_int(&$3)) ;
            $$.reference = (char*)realloc( $$.reference , strlen(temp) + 1);
            strcpy($$.reference , temp) ;
 
@@ -469,9 +471,9 @@ param: NAME {
                $$.num_index_left = $$.attr->num_index;
 
                if ($2 == 1) {
-                   sprintf(temp , "%s->%s" , $$.reference, $3) ;
+                   snprintf(temp ,sizeof(temp),  "%s->%s" , $$.reference, $3) ;
                } else {
-                   sprintf(temp , "%s.%s" , $$.reference, $3) ;
+                   snprintf(temp ,sizeof(temp),  "%s.%s" , $$.reference, $3) ;
                }
 
            } else {

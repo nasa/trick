@@ -92,7 +92,7 @@ void Trick::MemoryManager::clear_rvalue( void* base_address, ATTRIBUTES* attr, i
                *(void**)final_address = (void*)NULL;
                break;
            case TRICK_STRING :
-               final_address = (char*)base_address + offset * sizeof(void*);
+               final_address = (char*)base_address + offset * sizeof(std::string);
                *(std::string*)final_address = "";
                break;
            case TRICK_STL :
@@ -220,12 +220,9 @@ void Trick::MemoryManager::clear_arrayed_class( char* address, ATTRIBUTES* A, in
 }
 
 // MEMBER FUNCTION
-void Trick::MemoryManager::clear_var( void* address) {
-
+void Trick::MemoryManager::clear_var_critical_section( void* address) {
     ATTRIBUTES* reference_attr;
     ALLOC_INFO* alloc_info;
-
-    pthread_mutex_lock(&mm_mutex);
     alloc_info = get_alloc_info_at( address);
     if (alloc_info != NULL) {
         reference_attr = make_reference_attr( alloc_info);
@@ -245,6 +242,12 @@ void Trick::MemoryManager::clear_var( void* address) {
                 << "because memory manager knows nothing about it." ;
         emitError(message.str());
     }
+}
+
+// MEMBER FUNCTION
+void Trick::MemoryManager::clear_var( void* address) {
+    pthread_mutex_lock(&mm_mutex);
+    clear_var_critical_section(address);
     pthread_mutex_unlock(&mm_mutex);
 }
 
@@ -259,9 +262,7 @@ void Trick::MemoryManager::clear_var( const char* name) {
 
     if (pos != variable_map.end()) {
         alloc_info = pos->second;
-
-        pthread_mutex_unlock(&mm_mutex);
-        clear_var( alloc_info->start);
+        clear_var_critical_section( alloc_info->start);
     } else {
         std::stringstream message;
         message << "Can't clear variable \"" << name
@@ -280,9 +281,7 @@ void Trick::MemoryManager::clear_all_vars() {
     pthread_mutex_lock(&mm_mutex);
     for (pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
         alloc_info = pos->second;
-
-        pthread_mutex_unlock(&mm_mutex);
-        clear_var( alloc_info->start);
+        clear_var_critical_section( alloc_info->start);
     }
     pthread_mutex_unlock(&mm_mutex);
 }
@@ -294,6 +293,11 @@ void Trick::MemoryManager::reset_memory() {
     ALLOC_INFO* alloc_info;
     std::vector<void*> deletion_list;
     int ii, n_addrs;
+
+    // Clear the deleted_addr_list at the start of reset memory. As delete_var() is called,
+    // and resetting_memory == true, the deleted address will be added to the deleted_addr_list.
+    resetting_memory = true;
+    deleted_addr_list.clear();
 
     pthread_mutex_lock(&mm_mutex);
     for (pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
@@ -309,6 +313,9 @@ void Trick::MemoryManager::reset_memory() {
     for (ii = 0 ; ii < n_addrs ; ii ++) {
         delete_var( deletion_list[ii]);
     }
+
+    resetting_memory = false;
+    deleted_addr_list.clear();
 
     // reset counter to 100mil.  This (hopefully) ensures all alloc'ed ids are after external variables.
     alloc_info_map_counter = 100000000 ;

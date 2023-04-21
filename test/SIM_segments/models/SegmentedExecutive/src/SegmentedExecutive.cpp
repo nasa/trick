@@ -154,7 +154,7 @@ int Trick::SegmentedExecutive::write_s_job_execution(FILE *fp) {
 
     /* Get full path to S_job_execution */
     output_dir = command_line_args_get_output_dir() ;
-    sprintf(buf, "%s/S_job_execution", output_dir.c_str());
+    snprintf(buf, sizeof(buf), "%s/S_job_execution", output_dir.c_str());
 
     /* Reopen the S_job_execution file.  If it fails, it's not a fatal error, return 0. */
     if ((fp = fopen(buf, "a")) == NULL) {

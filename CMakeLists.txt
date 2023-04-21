@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.1)
 # configuration to do before CMake searches for compilers
 project(trick NONE)
 set(TRICK_MAJOR 19)
-set(TRICK_MINOR 5)
+set(TRICK_MINOR 6)
 set(TRICK_TINY 0)
 # set TRICK_PRERELEASE TO EMPTY STRING "" ON RELEASE
 set(TRICK_PRERELEASE "-beta")

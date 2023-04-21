@@ -6,7 +6,7 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 all:
 	@echo "[32mBuilding java application...[0m"
-	@${MVN} package -q -Dcmake=false
+	@${MVN} package -q -Dcmake=false -Dmaven.wagon.http.retryHandler.count=15
 
 javadoc:
 	${MVN} javadoc:javadoc

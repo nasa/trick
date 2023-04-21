@@ -35,10 +35,10 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
         /** Generate temporary names for anonymous variables. */
         if (alloc_info->name == NULL) {
             if ( alloc_info->stcl == TRICK_LOCAL) {
-                sprintf( name, "%s%d", local_anon_var_prefix, local_anon_var_number++);
+                snprintf( name, sizeof(name), "%s%d", local_anon_var_prefix, local_anon_var_number++);
                 alloc_info->name = strdup( name);
             } else if (alloc_info->stcl == TRICK_EXTERN) {
-                sprintf( name, "%s%d", extern_anon_var_prefix, extern_anon_var_number++);
+                snprintf( name, sizeof(name), "%s%d", extern_anon_var_prefix, extern_anon_var_number++);
                 alloc_info->name = strdup( name);
                 /** @b NOTE: We should not write declarations for external
                     anonymous variables, because we should not reload them.*/

@@ -1,0 +1,20 @@
+name: 'Report macOS'
+
+on:
+  workflow_run:
+    workflows: ['macOS']                     # runs after CI workflow
+    types:
+      - completed
+jobs:
+  report:
+    strategy:
+      fail-fast: false
+      
+    runs-on: ubuntu-latest
+    steps:
+    - uses: dorny/test-reporter@v1
+      with:
+        artifact: Trick_macos # artifact name
+        name: Results_Trick_macos # Name of the check run which will be created
+        path: '*.xml'                     # Path to test results (inside artifact .zip)
+        reporter: java-junit              # Format of test results

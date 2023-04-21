@@ -184,7 +184,7 @@ trick-dre &
 Create a sub-directory called *RUN_test* in your simulation directory. In this new directory create an input file named *test.py*. This input file executes the data recording file you saved above and stops the simulation after 10 seconds of simulation time.
 
 ```python
-execfile("monte_cannon.dr")
+exec(open("monte_cannon.dr").read())
 trick.stop(10)
 ```
 
@@ -253,7 +253,7 @@ Create a new directory called RUN_file and place the following python script in 
 ```python
 # -*- coding: UTF-8 -*-
 
-execfile("monte_cannon.dr")
+exec(open("monte_cannon.dr").read())
 
 # Enable Monte Carlo.
 trick.mc_set_enabled(1)
@@ -282,7 +282,7 @@ Random Input Generation provides users with the ability to statistically generat
 ### Script
 ```python
 # -*- coding: UTF-8 -*-
-execfile("data/monte_cannon.dr")
+exec(open("data/monte_cannon.dr").read())
 
 # Enable Monte Carlo.
 trick.mc_set_enabled(1)
@@ -398,7 +398,7 @@ int cannon_master_post(CANNON *C)
 ```python
 # -*- coding: UTF-8 -*-
 
-execfile("data/monte_cannon.dr")
+exec(open("data/monte_cannon.dr").read())
 
 # Enable Monte Carlo.
 trick.mc_set_enabled(1)
@@ -416,7 +416,7 @@ trick.stop(15)
 ```
 
 ### Simulation Definition
-The last the we need to do is modify our simulation definition file and add the two new Trick jobs. As you can see, we have added a new library dependency, a new ## inclusion, and two new constructor jobs.
+The last thing that we need to do is modify our simulation definition file and add the two new Trick jobs. As you can see, we have added a new library dependency, a new ## inclusion, and two new constructor jobs.
 ```C++
 /*
 PURPOSE: Monte tutorial simulation definition.

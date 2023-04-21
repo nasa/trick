@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Input Processor |
+|------------------------------------------------------------------|
 
 This page describes the methods available in the Trick::InputProcessor class.
 <b>See [Input File](../running_a_simulation/Input-File) for detailed information on the syntax of the input processor file.

@@ -184,7 +184,7 @@ void HeaderSearchDirs::AddDirsAndFiles(std::string env_var, std::vector<std::str
 void HeaderSearchDirs::ApplyHeaderSearchOptions () {
 
     clang::ApplyHeaderSearchOptions( hs , hso , pp.getLangOpts() , pp.getTargetInfo().getTriple() ) ;
-    clang::HeaderSearch::search_dir_iterator sdi ;
+    //clang::HeaderSearch::search_dir_iterator sdi ;
 /*
     for ( sdi = hs.quoted_dir_begin() ; sdi != hs.quoted_dir_end() ; sdi++ ) {
        std::cout << "quoted dir " << (*sdi).getName() << std::endl ;
@@ -225,8 +225,13 @@ void HeaderSearchDirs::addSearchDirs ( std::vector<std::string> & include_dirs,
 
 bool HeaderSearchDirs::isPathInUserDir (const std::string& in_dir ) {
 
+#if (LIBCLANG_MAJOR >= 15)
+    for ( clang::ConstSearchDirIterator sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi = std::next(sdi) )
+#else
     clang::HeaderSearch::search_dir_iterator sdi ;
-    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ ) {
+    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ )
+#endif
+    {
 #if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
        std::string curr_dir = (*sdi).getName() ;
 #else
@@ -252,8 +257,13 @@ bool HeaderSearchDirs::isPathInUserOrTrickDir (const std::string& in_dir ) {
         return true ;
     }
 
+#if (LIBCLANG_MAJOR >= 15)
+    for ( clang::ConstSearchDirIterator sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi = std::next(sdi) )
+#else
     clang::HeaderSearch::search_dir_iterator sdi ;
-    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ ) {
+    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ )
+#endif
+    {
 #if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
        std::string curr_dir = (*sdi).getName() ;
 #else

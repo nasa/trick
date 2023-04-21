@@ -37,7 +37,7 @@ int Trick::Executive::process_sim_args() {
     argv = command_line_args_get_argv() ;
 
     /* Save off a usage statement for messages */
-    sprintf(buf, "%s", "\n\n"
+    snprintf(buf, sizeof(buf), "%s", "\n\n"
             "USAGE:  S_main_<host_cpu>.exe  [option...]\n\n"
             "     RUN_<name>/<input_file>\n"
             "                         Every Trick simulation needs an input file.\n"

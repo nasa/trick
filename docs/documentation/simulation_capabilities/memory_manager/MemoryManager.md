@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../../Documentation-Home) → [Simulation Capabilities](../Simulation-Capabilities) → Memory Manager |
+|------------------------------------------------------------------|
+
 ## Trick Memory Manager
 
 The Memory Manager

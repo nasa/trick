@@ -1,0 +1,94 @@
+# This file represents the required types, ranges, and values
+# as applicable expected for keys found while parsing TrickWorkflow
+# Yaml files.  This is used by TrickWorkflowYamlVerifier to verify
+# user-supplied content. The information is used in the following
+# way:
+#  content:
+#    required: 0|1     <-- if 1, content must not be empty (None)
+#    default:          <-- if required:0 and content not given, use this value
+#    overridable: 0|1  <-- if 0, check all given keys below
+#    type:             <-- isinstance(content, type)
+#    contains:         <-- contains in content
+#    min:              <-- content > min
+#    max:              <-- content < max
+# This file should not be modified except in the case of TrickOps
+# development.
+
+# Default values of content if not specified in structures below
+# Keys with empty values end up as None. Structures below override
+# these values.
+content:
+    required: 0
+    default:
+    overridable: 0
+    type:
+    contains:
+    min:
+    max:
+
+# Expectations for everything under a top-level global key:
+globals:
+    env:
+        default: ''
+        type: str
+
+# Expectations for everything under a top-level SIM key:
+sim:
+    name:         # Comes from SIM key itself
+        required: 1
+        type: str
+    path:
+        required: 1
+        type: str
+    description:
+        type: str
+    labels:
+        type: list
+    build_args:
+        type: str
+    binary:
+        default: S_main_{cpu}.exe
+        type: str
+    size:
+        default: 2200000
+        type: int
+        min: 1
+    phase:
+        default: 0
+        type: int
+        min: -1000
+        max: 1000
+    parallel_safety:
+        default: loose
+        type: str
+        contains:
+            - strict
+            - loose
+    runs:
+        type: dict # Subsection validation articulated below
+
+# Expectations for every key under a sim's run: subsection
+run:
+    input:         # Comes from run key itself
+        required: 1
+        type: str
+    returns:
+        type: int
+        default: 0
+        min: 0
+        max: 255
+    compare:
+        overridable: 1
+        type: list
+    analyze:
+        overridable: 1
+        type: str
+    phase:
+        default: 0
+        type: int
+        min: -1000
+        max: 1000
+    valgrind:
+        type: str
+
+

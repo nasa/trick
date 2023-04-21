@@ -36,6 +36,7 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Realtime Sleep Timer](simulation_capabilities/Realtime-Timer)  
     01. [Realtime Injector](simulation_capabilities/Realtime-Injector)  
     01. [Monte Carlo](simulation_capabilities/UserGuide-Monte-Carlo)
+    02. [Monte Carlo Generation](miscellaneous_trick_tools/MonteCarloGeneration)
     01. [Master Slave](simulation_capabilities/Master-Slave)  
     01. [Data Record](simulation_capabilities/Data-Record)  
     01. [Checkpoints](simulation_capabilities/Checkpoints)  
@@ -48,17 +49,17 @@ The user guide contains information pertinent to Trick users. These pages will h
     01. [Status Message System](simulation_capabilities/Status-Message-System)  
     01. [Command Line Arguments](simulation_capabilities/Command-Line-Arguments)  
     01. [Environment](simulation_capabilities/Environment)  
-    01. [Standard Template Library Checkpointing](simulation_capabilities/STL-Checkpointing) 
+    01. [Standard Template Library Checkpointing](simulation_capabilities/STL-capabilities) 
     01. [Threads](simulation_capabilities/Threads)
 
-01. Web Server
-    01. [Adding a Web Server to Your Sim](web/Adding_a_Web_Server_to_Your_Sim)
-    01. Web Server APIs
-        01. [HTTP-API_alloc_info](web/HTTP-API_alloc_info)
-        01. [WS-API_VariableServer](web/WS-API_VariableServer)
-    01. Adding New Web Server APIs
-        01. [Extending_the_HTTP-API](web/Extending_the_HTTP-API)
-        01. [Extending_the_WS-API](web/Extending_the_WS-API)
+01. [Web Server](web/Webserver)
+    01. [Configure Trick with Civetweb](web/Configure-Civetweb)
+    01. [Add SSL encryption to your webserver](web/SSL)
+    01. [Web Server APIs](web/Webserver-apis)
+        01. [HTTP alloc API](web/http-alloc-api.md)
+        01. [WS Variable Server API](web/ws-variable-server-api.md)
+        01. [Extend the HTTP API](web/Extend-http-api.md)
+        01. [Extend the WS API](web/Extend-ws-api.md)
 
 01. [Simulation Utilities](simulation_utilities/Simulation-Utilities)  
     01. [Trickcomm](simulation_utilities/Trickcomm)  

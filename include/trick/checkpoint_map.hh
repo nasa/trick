@@ -317,17 +317,18 @@ int checkpoint_map_stl_sk_sd(STL & in_map , std::string object_name , std::strin
 
                 /* copy the contents of the map the 2 arrays */
                 for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
-                    std::ostringstream sub_elements ;
+                    std::stringstream sub_elements ;
                     sub_elements << object_name << "_" << var_name << "_keys_" << ii ;
                     keys[ii] = sub_elements.str() ;
 
-                    std::ostringstream index_string ;
+                    std::stringstream index_string ;
                     index_string << ii ;
                     checkpoint_stl( const_cast<typename STL::key_type &>(iter->first) ,
                      object_name + "_" + var_name + "_keys", index_string.str() ) ;
 
-                    sub_elements << object_name << "_" << var_name << "_data_" << ii ;
-                    items[ii] = sub_elements.str() ;
+                    std::stringstream sub_elements_data;
+                    sub_elements_data << object_name << "_" << var_name << "_data_" << ii ;
+                    items[ii] = sub_elements_data.str() ;
 
                     checkpoint_stl( iter->second ,
                      object_name + "_" + var_name + "_data", index_string.str() ) ;

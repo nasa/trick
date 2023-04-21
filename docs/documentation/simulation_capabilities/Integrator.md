@@ -1,3 +1,5 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Integrator |
+|------------------------------------------------------------------|
 
 Trick provides a state integration capability described by the inputs below.
 To use these options a developer must develop application code which interfaces the application states with

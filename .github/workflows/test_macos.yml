@@ -2,11 +2,14 @@ name: macOS
 
 on:
   push:
+    branches:
+        - master
     paths-ignore:
     - 'docs/**'
     - '.github/workflows/**'
     - '!.github/workflows/test_macos.yml'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   macOS:
@@ -17,23 +20,29 @@ jobs:
    
     - name: Install gtest
       run: |
-        wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
-        tar xzvf release-1.8.0.tar.gz
-        cd googletest-release-1.8.0/googletest
-        cmake .
-        make
-        make install
+        brew install googletest
     - name: Install dependencies
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew install --cask xquartz
-        brew install llvm@11 swig udunits openmotif maven
+        brew install swig udunits openmotif maven
+        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
+        tar -xvf clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        ./configure --with-llvm=/usr/local/opt/llvm@11
+        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
         make
-    - name: Run tests
+    - name: Test
       run: |
+        cd share/trick/trickops/
+        python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
         export MAKEFLAGS=-j4
-        make test
+        cd ../../../; make test
+    - name: Upload Tests
+      uses: actions/upload-artifact@v3.0.0
+      if: success() || failure()    # run this step even if previous step failed
+      with:
+        name: Trick_macos
+        path: trick_test/*.xml
+        retention-days: 1

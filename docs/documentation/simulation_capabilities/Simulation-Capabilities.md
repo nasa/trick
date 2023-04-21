@@ -1,4 +1,5 @@
-
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → Simulation Capabilities |
+|------------------------------------------------------------------|
 
 This section details the runtime capabilities of Trick.
 

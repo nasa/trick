@@ -1,3 +1,6 @@
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Simulation Capabilities](Simulation-Capabilities) → Command Line Arguments |
+|------------------------------------------------------------------|
+
 
 The Trick::CommandLineArguments class stores the command line arguments specified
 by the user when starting the simulation.  The class provides routines to

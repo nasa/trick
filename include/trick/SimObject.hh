@@ -11,6 +11,7 @@ PROGRAMMERS:
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "trick/JobData.hh"
 
@@ -32,11 +33,19 @@ namespace Trick {
 
         public:
 
+            SimObject () : object_disabled(false) {}
+
             /** Name of SimObject given to object */
             std::string  name ;                                /* trick_units(--) */
 
             /** SimObject id assigned by CP */
-            int  id ;                                     /* trick_units(--) */
+            int  id ;                                           /* trick_units(--) */
+
+            /** Indicates if the sim_object is enabled */
+            bool object_disabled;                              /* trick_units(--) */
+
+            /** Save the job disabled states when the entire sim object is disabled */
+            std::map <Trick::JobData *, bool> saved_job_states;    /* trick_io(**) */
 
             /** Included simobjects -- currently not used */
             std::vector <SimObject *> pre_component_objects ;  /* trick_io(**) */
@@ -97,12 +106,14 @@ namespace Trick {
             /**
              * Enables all jobs in the SimObject
              */
+            void enable_all_jobs() ;
             void enable() ;
 
             /**
              * Disables all jobs in the SimObject
              */
-            void disable() ;
+            void disable_all_jobs() ;
+            void disable();
 
             /**
              * Calls all jobs that are not "dynamic_event" class

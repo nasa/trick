@@ -1,0 +1,17 @@
+run_number
+test.x_uniform, 
+test.x_normal, 
+test.x_normal_trunc[0], 
+test.x_normal_trunc[1], 
+test.x_normal_trunc[2], 
+test.x_normal_trunc[3], 
+test.x_normal_trunc[4], 
+test.x_normal_length, ft
+test.x_integer, 
+test.x_boolean, 
+test.x_file_lookup[0], 
+test.x_file_lookup[1], 
+test.x_file_lookup[2], 
+test.x_fixed_value_int, 
+test.x_fixed_value_double, 
+test.x_semi_fixed_value, 

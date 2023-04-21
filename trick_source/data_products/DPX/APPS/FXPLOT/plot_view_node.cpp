@@ -129,18 +129,18 @@ static void print_plot_cb(Widget w, XtPointer client_data, XtPointer call_data) 
 
     if (!strcmp(trick_print_cmd, "lpr")) {
         if ((trick_printer_name == NULL) || (strlen(trick_printer_name) == 0)) {
-            sprintf(system_cmd, "%s %s", trick_print_cmd, ps_file_name);
+            snprintf(system_cmd, sizeof(system_cmd), "%s %s", trick_print_cmd, ps_file_name);
         } else {
-            sprintf(system_cmd, "%s -P %s %s", trick_print_cmd, trick_printer_name, ps_file_name);
+            snprintf(system_cmd, sizeof(system_cmd), "%s -P %s %s", trick_print_cmd, trick_printer_name, ps_file_name);
         }
     } else {
-        sprintf(system_cmd, "%s %s", trick_print_cmd, ps_file_name);
+        snprintf(system_cmd, sizeof(system_cmd), "%s %s", trick_print_cmd, ps_file_name);
     }
 
     std::cout << "Printing with command: " << system_cmd << std::endl;
     sys_ret = system( system_cmd);
     std::cout << " System call returned: " << sys_ret << std::endl;
-    sprintf(system_cmd, "rm %s", ps_file_name);
+    snprintf(system_cmd, sizeof(system_cmd), "rm %s", ps_file_name);
     system( system_cmd);
 }
 

@@ -46,7 +46,7 @@ int tc_read_(TCDevice * device, char *buffer, int size, const char *file, int li
         return (-1);
     }
 
-    sprintf(client_str, "(ID = %d  tag = %s)", device->client_id, device->client_tag);
+    snprintf(client_str, sizeof(client_str), "(ID = %d  tag = %s)", device->client_id, device->client_tag);
 
     trick_error_report(device->error_handler, TRICK_ERROR_ALL, file, line,
                        "tc_read: %s reading %d bytes\n", client_str, size);
@@ -85,7 +85,7 @@ int tc_read_(TCDevice * device, char *buffer, int size, const char *file, int li
         } else if (tmp_nbytes == -1) {
             error = tc_errno;
             if (error != TRICKCOMM_EAGAIN && error != TRICKCOMM_EWOULDBLOCK) {
-                sprintf(error_str, "tc_read: %s %s (tc_errno = %d)", client_str, strerror(error), error);
+                snprintf(error_str, sizeof(error_str), "tc_read: %s %s (tc_errno = %d)", client_str, strerror(error), error);
                 trick_error_report(device->error_handler, TRICK_ERROR_ALERT, file, line, error_str);
                 tc_disconnect(device);
                 return (nbytes);

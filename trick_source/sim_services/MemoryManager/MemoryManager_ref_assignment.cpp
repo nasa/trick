@@ -251,7 +251,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                }
                break;
            case TRICK_STRING :
-               assign_addr = (char*)base_addr + offset * sizeof(char*);
+               assign_addr = (char*)base_addr + offset * sizeof(std::string);
                if (v_tree && v_tree->v_data) {
                    *(std::string*)assign_addr = vval_string(v_tree->v_data);
                } else {

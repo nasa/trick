@@ -1,0 +1,34 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ()
+LIBRARY DEPENDENCIES:
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "starter.h"
+
+class StarterSimObject : public Trick::SimObject {
+
+    public:
+        Starter starter;
+
+        StarterSimObject() {
+            ("default_data") trick_ret = starter.default_data();
+            ("initialization") trick_ret = starter.init();
+            (5.0, "scheduled") trick_ret = starter.scheduled();
+            ("shutdown") starter.shutdown();
+            // ("derivative") trick_ret = starter.deriv();
+            // ("integration") trick_ret = starter.integ();
+        }
+};
+
+StarterSimObject starterSimObject;
+
+IntegLoop integLoop (0.01) starterSimObject;
+/*
+void create_connections() {
+    integLoop.getIntegrator(Runge_Kutta_4, <NUMBER_OF_VARIABLES>);
+}
+*/
+

@@ -339,6 +339,21 @@ int Trick::DataRecordGroup::add_change_variable( std::string in_name ) {
 
 }
 
+bool Trick::DataRecordGroup::isSupportedType(REF2 * ref2, std::string& message) {
+    if (ref2->attr->type == TRICK_STRING || ref2->attr->type == TRICK_STL || ref2->attr->type == TRICK_STRUCTURED) {
+        message = "Cannot Data Record variable " + std::string(ref2->reference) + " of unsupported type " + std::to_string(ref2->attr->type);
+        return false;
+    }
+    
+    // If this is an array and not a single value, don't record it
+    if (ref2->num_index != ref2->attr->num_index) {
+        message = "Cannot Data Record arrayed variable " + std::string(ref2->reference);
+        return false;
+    }
+
+    return true;
+}
+
 /**
 @details
 -# The simulation output directory is retrieved from the CommandLineArguments
@@ -380,7 +395,15 @@ int Trick::DataRecordGroup::init() {
                 delete drb ;
                 continue ;
             } else {
-                drb->ref = ref2 ;
+                std::string message;
+                if (!isSupportedType(ref2, message)) {
+                    message_publish(MSG_WARNING, "%s\n", message.c_str()) ;
+                    rec_buffer.erase(rec_buffer.begin() + jj--) ;
+                    delete drb ;
+                    continue ;
+                } else {
+                    drb->ref = ref2 ;
+                }
             }
         }
         if ( drb->alias.compare("") ) {
@@ -449,28 +472,28 @@ int Trick::DataRecordGroup::checkpoint() {
 void Trick::DataRecordGroup::clear_checkpoint_vars() {
     
     if ( variable_names ) {
-        for(int jj = 0; jj < num_variable_names; jj++) {
+        for(unsigned int jj = 0; jj < num_variable_names; jj++) {
             TMM_delete_var_a(variable_names[jj]);
         }
         TMM_delete_var_a(variable_names) ;
     }
 
     if ( variable_alias ) {
-        for(int jj = 0; jj < num_variable_names; jj++) {
+        for(unsigned int jj = 0; jj < num_variable_names; jj++) {
             TMM_delete_var_a(variable_alias[jj]);
         }
         TMM_delete_var_a(variable_alias) ;
     }
 
     if ( change_variable_names ) {
-        for(int jj = 0; jj < num_change_variable_names; jj++) {
+        for(unsigned int jj = 0; jj < num_change_variable_names; jj++) {
             TMM_delete_var_a(change_variable_names[jj]);
         }
         TMM_delete_var_a(change_variable_names) ;
     }
 
     if ( change_variable_alias ) {
-        for(int jj = 0; jj < num_change_variable_names; jj++) {
+        for(unsigned int jj = 0; jj < num_change_variable_names; jj++) {
             TMM_delete_var_a(change_variable_alias[jj]);
         }
         TMM_delete_var_a(change_variable_alias) ;
@@ -579,7 +602,6 @@ int Trick::DataRecordGroup::data_record(double in_time) {
     bool change_detected = false ;
 
     //TODO: does not handle bitfields correctly!
-
     if ( record == true ) {
         if ( freq != DR_Always ) {
             for (jj = 0; jj < change_buffer.size() ; jj++) {
@@ -691,6 +713,7 @@ int Trick::DataRecordGroup::write_data(bool must_write) {
         // buffer_mutex is used in this one place to prevent forced calls of write_data
         // to not overwrite data being written by the asynchronous thread.
         pthread_mutex_lock(&buffer_mutex) ;
+
         local_buffer_num = buffer_num ;
         if ( (local_buffer_num - writer_num) > max_num ) {
             num_to_write = max_num ;

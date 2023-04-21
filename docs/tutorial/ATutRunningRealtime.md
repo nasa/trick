@@ -48,15 +48,15 @@ is beating the system clock, it pauses. If it is falling behind, it registers
 waiting for the beginning of the next software frame to start the simulation
 jobs. If interval timers are not used, Trick will spin waiting for the next beat.
 
-`trick.exec_set_freeze_command()` - brings up the simulation in a frozen
-(non-running) state.
-
 `trick.exec_set_enable_freeze()` - allows the user to toggle the simulation
 from a frozen state to a running state at will.
 
+`trick.exec_set_freeze_command()` - brings up the simulation in a frozen
+(non-running) state.
+
 `trick.sim_control_panel_set_enabled(True)` or
-`simControlPanel = trick.SimControlPanel() & trick.add_external_application(simControlPanel)`
- - brings up the simulation control panel GUI.
+`simControlPanel = trick.SimControlPanel() & trick.add_external_application(simControlPanel)` -
+brings up the simulation control panel GUI.
 
 The `realtime.py` file must be included in the RUN_test/input.py file. When
 finished, the latest version of the input file should look like the following:
@@ -100,7 +100,7 @@ Some items to note about the simulation control panel for your future use:
     (does not complete all jobs during the software frame) and display them in
     the tiny box next to the simulation name. If the simulation overruns, the
     sim will run as fast as it can "to catch up" to where it should be.
-    * Using the File menu at the top, you may set a freeze point in the future.
+    * Using the Actions menu at the top, you may set a freeze point in the future.
 
 ---
 

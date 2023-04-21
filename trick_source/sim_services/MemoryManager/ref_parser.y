@@ -170,7 +170,7 @@ param: NAME {
     /* create a new reference string because previous nodes may refer to old strings */
     $$.num_index_left = $$.attr->num_index;
 
-    sprintf(temp , "%s.%s" , $$.reference, $3) ;
+    snprintf(temp, sizeof(temp), "%s.%s" , $$.reference, $3) ;
 
     $$.reference = (char*)realloc($$.reference, strlen(temp) + 1) ;
     strcpy($$.reference , temp) ;

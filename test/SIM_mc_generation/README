@@ -1,0 +1,44 @@
+Verification simulation of monte_carlo.
+
+
+The following tests rely on setting the directories to be non-writable.  Their
+purpose is to detect situations in which the monte-carlo model cannot generate
+certain files. These tests by their very nature are difficult to run within an
+automated scripted testing system.
+
+  IO_FAIL
+  IO_RUN_ERROR1
+  IO_RUN_ERROR2
+
+
+The following cases are expecting either a warning or an error but
+the simulation does not terminate. Instead, ZERO is returned.
+The purpose of these cases is to emit the error or warning, not generate
+viable datasets. Do not evaluate any of these cases for good dispersions.
+There is no telling what state the data is in after the warning / error
+message is emitted.
+
+  RUN_ERROR_file_inconsistent_skip
+  RUN_ERROR_invalid_call
+  RUN_ERROR_invalid_name
+  RUN_ERROR_invalid_sequence
+  RUN_ERROR_invalid_sequencing
+  RUN_ERROR_IO_error
+  RUN_ERROR_IO_error2
+  RUN_ERROR_out_of_domain_error
+  RUN_ERROR_random_value_truncation
+  RUN_WARN_config_error
+  RUN_WARN_invalid_name
+  RUN_WARN_overconstrained_config
+
+
+The following cases emit a fatal error and the simulation halts in its tracks:
+
+  FAIL_config_error
+  FAIL_duplicate_variable
+  FAIL_illegal_config
+  FAIL_invalid_config
+  FAIL_invalid_data_file
+  FAIL_IO_error
+  FAIL_IO_error2
+  FAIL_malformed_data_file

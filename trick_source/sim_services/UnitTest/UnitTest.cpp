@@ -56,7 +56,7 @@ void Trick::TestSuite::delete_test_results() {
 Trick::UnitTest::UnitTest() {
     the_unit_test_output = this ;
     enabled = false ;
-    exit_code_enabled = false ;
+    exit_code_enabled = true ;
     file_name = std::string("test_details.xml") ;
     name = std::string("AllTests") ;
 }
