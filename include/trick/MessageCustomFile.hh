@@ -29,8 +29,6 @@ namespace Trick {
              @brief The constructor.
              */
             MessageCustomFile() ;
-            // static int openCustomMessageFile(std::string filename, std::string subscriber_name = "");
-            // static int shutdown_all();
 
             /**
              @brief Output message to the file.
@@ -45,13 +43,6 @@ namespace Trick {
 
             virtual void set_name(std::string name);
             virtual void set_file_name(std::string file_name);
-
-
-            /**
-             @brief Register this object with the memory manager.
-             */
-            // virtual void register_with_mm();
-            // virtual void unregister_with_mm();
 
             int this_level;
 

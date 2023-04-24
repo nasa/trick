@@ -34,7 +34,6 @@ namespace Trick {
             virtual ~MessageCustomManager() ;
 
 
-            // int shutdown_all();
             virtual int open_custom_message_file(std::string file_name, std::string subscriber_name, int level = -1);
 
             /**
