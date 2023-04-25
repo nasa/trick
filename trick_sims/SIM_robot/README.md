@@ -49,7 +49,35 @@ In this sim, we will discuss both forward and inverse kinematics.  Forward kinem
 
 The position of the end-effector is highly non-linear and heavily coupled with respect to the joint angles required to produce said position.  However, the velocity of the end-effector is linearly related to the joint velocities required to produce it, which forms the basis of the controller described below.  The non-linearity of the position equations, and the linearity of the velocity equations, will be shown in the next sections.
 
+### How to Layout Points, Frames, and Joint Angles
+The position of the end-effector relative to some fixed Base frame location can be calculated by knowing the joint angles of the manipulator and the lengths of the manipulator links.  First we will assign some points of interest along the manipulator that need to be kept track of during the forward kinematics calcualtions.  We will define the point around which the first link's rotation is centered as point A, the point of the second link's rotation B, and the tip of the manipulator (our end-effector) as E.  The distance between A and B will be defined $L1$ and between B and E $L2$.
+
+![](images/POIs.png)
+
+But points of interest are of no use without frames of reference, so we need to define some frames in which we can define the relative locations of these points.  Let's define a fixed, static Base (or Origin) Frame Fa centered on point A.  This frame will give us a reference frame to keep track of the location of points A and B (point A won't move, and point B moves by changing the first joint angle).  However, point E moves if either joint moves.  We need to keep track of how the links change their orientation with respect to both the base frame and to each other.  To do this we assign frames attached to each link, that move along with it, called Fb.  The convention for this sim is to point the X-axis of each frame along the length of these straight links, so that the X-axis points from each point of interest to the next (A to B, B to E).  Finally we will attache a frame to the end-effector, Fe.`
+
+![](images/Frames.png)
+
+
+We also need to keep track of the joint angles, since they can and will change during the run (otherwise it's less a manipulator and more a sculpture).  Let's define the joint angles as $q1$ and $q2$, making 0 rotation align all three frames so that they are all oriented the same way.  This way any rotation of a link can be easily described with joint angles q1 and q2.
+
+<figure of joint angles with frames with points>
+
+
+Now everything of importance to the kinematics of the system has been identified.  The base and joint frames allow us to keep track of the relative location of the points on the manipulator with respect to each other and the fixed inertial reference frame.  The joint angles allow us to describe every possible location of each of the points in any frame.
+
+
 ### Position of the End-Effector
+The position of the tip of manipulator can be described by calculating the vectors from points A to B and from B to E and adding them together.  Vectors can be added together if they are described in the same frame.  
+
+The vector from points A to B is a function of the joint angle $q1$ and the length of the link $L1$ (described in the base frame O)
+
+<figure of joint angle q1 and length L1 with cos and sin layed out>
+
+The vector from points B to E is a function of the joint angle $q2$ and the length of the link $L2$ (described in the first link's frame D).
+
+<figure of joint angle q2 and length L2 with cos and sin layed out>
+
 
 ### Velocity of the End-Effector
 
