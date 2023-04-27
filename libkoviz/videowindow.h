@@ -4,6 +4,7 @@
 #include <clocale>
 #include <sstream>
 #include <stdexcept>
+#include <time.h>
 
 #include <QMainWindow>
 #include <QtGlobal>

@@ -1,5 +1,15 @@
 #include "videowindow.h"
 
+/* Keith's comment to remove:
+  Temporary comment to help me remember how to test on this branch
+  Completely hard coded videofiles with offsets
+  See: VideoWindow::set_file(const QString &fnameIn)
+       line 208
+  To test:
+  cd /home/kvetter/dev/es/video-offset/RUN_D13C1A.20230322.02.D.H12T-H12T.4506.5p00000.ComplexComboPlusRatesMax
+  kv DATA_Simhost -video Video/2023-03-22T0939_R02_Cam01_REC1_3.mp4
+*/
+
 static void wakeup(void *ctx)
 {
     VideoWindow *mainwindow = (VideoWindow *)ctx;
@@ -28,17 +38,24 @@ VideoWindow::VideoWindow(QWidget *parent) :
         if (!mpv) {
             throw std::runtime_error("can't create mpv instance");
         }
+
         QWidget* mpv_container = new QWidget(this);
+
         mpv_container->setAttribute(Qt::WA_DontCreateNativeAncestors);
         mpv_container->setAttribute(Qt::WA_NativeWindow);
-        int64_t wid = mpv_container->winId();
-        mpv_set_option(mpv, "wid", MPV_FORMAT_INT64, &wid);
+
         mpv_set_option_string(mpv, "input-default-bindings", "yes");
         mpv_set_option_string(mpv, "input-vo-keyboard", "yes");
         mpv_set_option_string(mpv, "keep-open", "always");
         mpv_set_option_string(mpv, "osd-level", "0");
+
         mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
+
         mpv_set_wakeup_callback(mpv, wakeup, this);
+
+        int64_t wid = mpv_container->winId();
+        mpv_set_option(mpv, "wid", MPV_FORMAT_INT64, &wid);
+
         if (mpv_initialize(mpv) < 0) {
             throw std::runtime_error("mpv failed to initialize");
         }
@@ -201,7 +218,11 @@ void VideoWindow::set_file(const QString &fnameIn)
             QString fname = files.at(i);
             const QByteArray c_filename = fname.toUtf8();
             const char *args[] = {"loadfile", c_filename.data(), NULL};
-            mpv_command_async(mpv, 0, args);
+            mpv_command(mpv, args);
+
+            // Without sleeping mpv will sometimes miss loading videos
+            struct timespec req = {0, 500000000};
+            nanosleep(&req, NULL);
         } else {
             fprintf(stderr, "koviz [bad scoobs]: VideoWindow::set_file()\n");
             exit(-1);
@@ -221,8 +242,15 @@ VideoWindow::~VideoWindow()
 #ifdef HAS_MPV
     foreach (mpv_handle* mpv, mpvs) {
         if (mpv) {
-            //mpv_terminate_destroy(mpv);
-            mpv_destroy(mpv);  // Maybe fix core when shutting down??? (4/21/2023)
+
+            mpv_event *event;
+            while ((event = mpv_wait_event(mpv, 0))) {
+                if (event->event_id == MPV_EVENT_SHUTDOWN) {
+                    break;
+                }
+            }
+
+            mpv_terminate_destroy(mpv);
         }
     }
 #endif
