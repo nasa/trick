@@ -39,17 +39,17 @@ namespace Trick {
              * @brief Get the level
              * 
              */
-            virtual int get_level();
+            virtual int get_level() const;
+            virtual void set_level(int level);
 
             virtual void set_name(std::string name);
             virtual void set_file_name(std::string file_name);
 
-            int this_level;
 
         protected:
+            int _this_level;
 
             static int level_counter;
-            // static std::vector<MessageCustomFile *>& all_instances();
 
 
     } ;

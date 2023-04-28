@@ -39,12 +39,22 @@ int set_var_server_info_msg_on();
 ```
 
 These commands are also for toggling information messages from the variable server (i.e., commands received from <i>ALL</i> clients).
-The messages only go to a dedicated "varserver_log" file in the RUN directory.
+The messages only go to a dedicated `varserver_log` file in the RUN directory.
 The variable server log capability is off by default.
 
 ```c
 int set_var_server_log_off();
 int set_var_server_log_on();
+```
+
+These commands are also for toggling individual variable server session logs.
+Each log records the IP and port number of the client that connected and every message received.
+These logs go into a subdirectory under the RUN direcory called `sesssion_logs`, and the files are named `VSSession<num>.log`
+The variable server session log capability is off by default.
+
+```c
+int set_var_server_session_log_off();
+int set_var_server_session_log_on();
 ```
 
 ### Getting and Setting the Variable Server Port Information

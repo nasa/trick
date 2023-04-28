@@ -31,7 +31,7 @@ class VariableServer_test : public ::testing::Test {
 TEST_F(VariableServer_test, set_log_on) {
     // ARRANGE
     MockVariableServerSession session;
-    EXPECT_CALL(session, set_log_on())
+    EXPECT_CALL(session, set_log(true))
         .Times(1);
 
     pthread_t id = (pthread_t) 5;
@@ -47,7 +47,7 @@ TEST_F(VariableServer_test, set_log_on) {
 TEST_F(VariableServer_test, set_log_off) {
     // ARRANGE
     MockVariableServerSession session;
-    EXPECT_CALL(session, set_log_off())
+    EXPECT_CALL(session, set_log(false))
         .Times(1);
 
     pthread_t id = (pthread_t) 5;
@@ -59,6 +59,40 @@ TEST_F(VariableServer_test, set_log_off) {
     // ASSERT
     EXPECT_EQ(vs.get_log(), false);
 }
+
+
+TEST_F(VariableServer_test, set_session_log_on) {
+    // ARRANGE
+    MockVariableServerSession session;
+    EXPECT_CALL(session, set_session_log(true))
+        .Times(1);
+
+    pthread_t id = (pthread_t) 5;
+    vs.add_session(id, &session);
+
+    // ACT
+    vs.set_var_server_session_log_on();
+
+    // ASSERT
+    EXPECT_EQ(vs.get_session_log(), true);
+}
+
+TEST_F(VariableServer_test, set_session_log_off) {
+    // ARRANGE
+    MockVariableServerSession session;
+    EXPECT_CALL(session, set_session_log(false))
+        .Times(1);
+
+    pthread_t id = (pthread_t) 5;
+    vs.add_session(id, &session);
+
+    // ACT
+    vs.set_var_server_session_log_off();
+
+    // ASSERT
+    EXPECT_EQ(vs.get_session_log(), false);
+}
+
 
 TEST_F(VariableServer_test, enabled_by_default) {
     // ARRANGE

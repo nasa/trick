@@ -7,12 +7,14 @@
 #include "trick/realtimesync_proto.h"
 
 int Trick::VariableServerSession::instance_counter = 0;
+std::string Trick::VariableServerSession::log_subdir = "session_logs";
 
 Trick::VariableServerSession::VariableServerSession() {
     _debug = 0;
     _enabled = true ;
     _log = false ;
-    _log_msg_stream = -1;
+    _session_log = false;
+    _session_log_msg_stream = -1;
     _info_msg = false;
     _copy_mode = VS_COPY_ASYNC ;
     _write_mode = VS_WRITE_ASYNC ;
@@ -56,25 +58,25 @@ void Trick::VariableServerSession::set_connection(ClientConnection * conn) {
     log_connection_opened();
 }
 
-bool Trick::VariableServerSession::is_log_open() {
-    return _log_msg_stream != -1;
+bool Trick::VariableServerSession::is_session_log_open() {
+    return _session_log_msg_stream != -1;
 }
 
 void Trick::VariableServerSession::open_session_log() {
     std::string name = "VSSession" + std::to_string(_instance_num);
-    _log_msg_stream = open_custom_message_file(name + ".log", name);
+    _session_log_msg_stream = open_custom_message_file(log_subdir + "/" + name + ".log", name);
 }
 
 
 // Command to turn on log to varserver_log file
-int Trick::VariableServerSession::set_log_on() {
-    _log = true;
+int Trick::VariableServerSession::set_log(bool on_off) {
+    _log = on_off;
     return(0) ;
 }
 
-// Command to turn off log to varserver_log file
-int Trick::VariableServerSession::set_log_off() {
-    _log = false;
+// Command to turn on individual session log file
+int Trick::VariableServerSession::set_session_log(bool on_off) {
+    _session_log = on_off;
     return(0) ;
 }
 
@@ -120,22 +122,25 @@ long long Trick::VariableServerSession::get_freeze_next_tics() const {
 }
 
 void Trick::VariableServerSession::log_connection_opened() {
-    if (_log) {
-        if (!is_log_open()) {
+    if (_session_log) {
+        if (!is_session_log_open()) {
             open_session_log();
         }
     
-        message_publish(_log_msg_stream, "Variable Server Session started with %s:%d\n", _connection->getClientHostname().c_str(), _connection->getClientPort());
+        message_publish(_session_log_msg_stream, "Variable Server Session started with %s:%d\n", _connection->getClientHostname().c_str(), _connection->getClientPort());
     }
 }
 
 void Trick::VariableServerSession::log_received_message(const std::string& msg) {
     if (_log) {
         message_publish(MSG_PLAYBACK, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), msg.c_str());
-        
-        if (!is_log_open()) open_session_log();
+    }
 
-        message_publish(_log_msg_stream, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), msg.c_str());
+    if (_session_log) {
+        if (!is_session_log_open()) 
+            open_session_log();
+
+        message_publish(_session_log_msg_stream, "tag=<%s> time=%f %s", _connection->getClientTag().c_str(), exec_get_sim_time(), msg.c_str());
     }
 
     if (_debug >= 3) {

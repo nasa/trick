@@ -358,7 +358,7 @@ Trick::VariableServerSession * session = get_session();
 int var_server_log_on() {
 Trick::VariableServerSession * session = get_session();
     if (session != NULL ) {
-        return session->set_log_on() ;
+        return session->set_log(true) ;
     }
     return 0 ;
 }
@@ -367,7 +367,25 @@ Trick::VariableServerSession * session = get_session();
 int var_server_log_off() {
 Trick::VariableServerSession * session = get_session();
     if (session != NULL ) {
-        return session->set_log_off() ;
+        return session->set_log(false) ;
+    }
+    return 0 ;
+}
+
+// Command to turn on log to playback file
+int var_server_session_log_on() {
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        return session->set_session_log(true) ;
+    }
+    return 0 ;
+}
+
+// Command to turn off log to playback file
+int var_server_session_log_off() {
+Trick::VariableServerSession * session = get_session();
+    if (session != NULL ) {
+        return session->set_session_log(false) ;
     }
     return 0 ;
 }

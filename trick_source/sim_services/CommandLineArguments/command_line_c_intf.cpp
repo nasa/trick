@@ -114,3 +114,6 @@ std::string & command_line_args_get_input_file_ref(void) {
     return(the_cmd_args->get_input_file_ref()) ;
 }
 
+void create_path(const char* directory) {
+    Trick::CommandLineArguments::create_path(directory);
+}
