@@ -9,7 +9,7 @@ EnumDataType::EnumDataType( EnumDictionary * enumDictionary,
                             std::string name,
                             size_t enumSize) {
 
-    if ((enumSize == sizeof(int)) || (enumSize == sizeof(short) || (enumSize == sizeof(char))) {
+    if ((enumSize == sizeof(int)) || (enumSize == sizeof(short)) || (enumSize == sizeof(char))) {
         this->enumSize = enumSize;
     } // FIXME: else throw?
 

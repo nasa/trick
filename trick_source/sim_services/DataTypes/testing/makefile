@@ -1,99 +1,71 @@
 
-
 RM = rm -rf
 CC = cc
 CPP = c++
 
 DECL_DIR = ..
-GTEST_DIR = /Users/penn/gtest-1.7.0
 
-CFLAGS += -g -Wall -Wextra -I$(GTEST_DIR)/include -I$(DECL_DIR)/include ${TRICK_TEST_FLAGS}
+GTEST_HOME = /usr/local
 
-LIBS = ../lib/libDecl.a
+CFLAGS += -g -Wall -Wextra -I$(GTEST_HOME)/include -I$(DECL_DIR)/include
 
-TESTS = PrimTypeSpecTest CompTypeSpecTest TypeDictionaryTest EnumTypeSpecTest ArrayTypeSpecTest LexicalAnalyzerTest ParsedDeclarationTest AllocInfoTest ClassicChkPtAgentTest
+LIBS = -L${DECL_DIR}/lib -lDecl -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 
-GTEST_HEADERS = $(GTEST_DIR)/include/gtest/*.h \
-                $(GTEST_DIR)/include/gtest/internal/*.h
+# TESTS = PrimTypeSpecTest CompTypeSpecTest TypeDictionaryTest EnumTypeSpecTest ArrayTypeSpecTest LexicalAnalyzerTest ParsedDeclarationTest AllocInfoTest ClassicChkPtAgentTest
 
-all : $(TESTS)
+# ==================================================================================
+# All tests produced by this Makefile. Add new tests you create to this list.
+# ==================================================================================
+TESTS = PrimTypeSpecTest \
+        CompTypeSpecTest \
+        TypeDictionaryTest \
+        EnumTypeSpecTest \
+        ArrayTypeSpecTest \
+        LexicalAnalyzerTest \
+        ParsedDeclarationTest \
+        AllocInfoTest \
+        ClassicChkPtAgentTest
 
-test: $(TESTS)
-	./PrimTypeSpecTest       --gtest_output=xml:XMLtestReports/PrimTypeSpecTest.xml
-	./CompTypeSpecTest       --gtest_output=xml:XMLtestReports/CompTypeSpecTest.xml
-	./TypeDictionaryTest     --gtest_output=xml:XMLtestReports/TypeDictionaryTest.xml
-	./EnumTypeSpecTest       --gtest_output=xml:XMLtestReports/EnumTypeSpecTest.xml
-	./ArrayTypeSpecTest      --gtest_output=xml:XMLtestReports/ArrayTypeSpecTest.xml
-	./LexicalAnalyzerTest    --gtest_output=xml:XMLtestReports/LexicalAnalyzerTest.xml
-	./ParsedDeclarationTest  --gtest_output=xml:XMLtestReports/ParsedDeclarationTest.xml
-	./AllocInfoTest          --gtest_output=xml:XMLtestReports/AllocInfoTest.xml
-	./ClassicChkPtAgentTest  --gtest_output=xml:XMLtestReports/ClassicChkPtAgentTest.xml
+# List of XML files produced by the tests.
+unittest_results = $(patsubst %,%.xml,$(TESTS))
+
+# List if Test-specific object files.
+unittest_objects = $(patsubst %,%.o,$(TESTS))
+
+# ==================================================================================
+# TARGETS
+# ==================================================================================
+all : test
+
+test: unit_tests $(unittest_results)
+
+unit_tests: $(TESTS)
 
 clean :
-	rm -f $(TESTS) gtest.a gtest_main.a
+	rm -f $(TESTS)
 	rm -f *.o
-	rm -rf XMLtestReports
+	rm -f *.xml
 
-gtest-all.o :
-	$(CPP) -I$(GTEST_DIR) $(CFLAGS) -c $(GTEST_DIR)/src/gtest-all.cc
+# ==================================================================================
+# Generate JUNIT (XML) Test Results
+# ==================================================================================
+$(unittest_results): %.xml: %
+	./$< --gtest_output=xml:$@
 
-gtest_main.o :
-	$(CPP) -I$(GTEST_DIR) $(CFLAGS) -c $(GTEST_DIR)/src/gtest_main.cc
+# ==================================================================================
+# Build Unit test Objects
+# ==================================================================================
+$(unittest_objects): %.o: %.cpp
+	$(CPP) $(CFLAGS) -c $<
 
 DataTypeTestSupport.o : DataTypeTestSupport.cpp
 	$(CPP) $(CFLAGS) -c $<
 
-TypeDictionaryTest.o : TypeDictionaryTest.cpp
-	$(CPP) $(CFLAGS) -c $<
+# ==================================================================================
+# Build Unit test programs
+# ==================================================================================
+$(TESTS) : %: %.o
+	$(CPP) -o $@ $^ ${LIBS}
 
-TypeDictionaryTest : TypeDictionaryTest.o gtest_main.o gtest-all.o
-	$(CPP) $(CFLAGS) -o $@ $^ $(LIBS)
-
-PrimTypeSpecTest.o : PrimTypeSpecTest.cpp
-	$(CPP) $(CFLAGS) -c $<
-
-PrimTypeSpecTest : PrimTypeSpecTest.o gtest_main.o gtest-all.o
-	$(CPP) $(CFLAGS) -o $@ $^ $(LIBS)
-
-CompTypeSpecTest.o : CompTypeSpecTest.cpp
-	$(CPP) $(CFLAGS) -c $<
-
-CompTypeSpecTest : CompTypeSpecTest.o DataTypeTestSupport.o gtest_main.o gtest-all.o
-	$(CPP) $(CFLAGS) -o $@ $^ $(LIBS)
-
-EnumTypeSpecTest.o : EnumTypeSpecTest.cpp
-	$(CPP) $(CFLAGS) -c $<
-
-EnumTypeSpecTest : EnumTypeSpecTest.o gtest_main.o gtest-all.o
-	$(CPP) $(CFLAGS) -o $@ $^ $(LIBS)
-
-ArrayTypeSpecTest.o : ArrayTypeSpecTest.cpp
-	$(CPP) $(CFLAGS) -c $<
-
-ArrayTypeSpecTest : ArrayTypeSpecTest.o gtest_main.o gtest-all.o
-	$(CPP) $(CFLAGS) -o $@ $^ $(LIBS)
-
-LexicalAnalyzerTest.o : LexicalAnalyzerTest.cpp
-	$(CPP) $(CFLAGS) -c $<
-
-LexicalAnalyzerTest : LexicalAnalyzerTest.o gtest_main.o gtest-all.o
-	$(CPP) $(CFLAGS) -o $@ $^ $(LIBS)
-
-ParsedDeclarationTest.o : ParsedDeclarationTest.cpp
-	$(CPP) $(CFLAGS) -c $<
-
-ParsedDeclarationTest : ParsedDeclarationTest.o gtest_main.o gtest-all.o
-	$(CPP) $(CFLAGS) -o $@ $^ $(LIBS)
-
-AllocInfoTest.o : AllocInfoTest.cpp
-	$(CPP) $(CFLAGS) -c $<
-
-AllocInfoTest : AllocInfoTest.o gtest_main.o gtest-all.o
-	$(CPP) $(CFLAGS) -o $@ $^ $(LIBS)
-
-ClassicChkPtAgentTest.o : ClassicChkPtAgentTest.cpp
-	$(CPP) $(CFLAGS) -c $<
-
-ClassicChkPtAgentTest : ClassicChkPtAgentTest.o DataTypeTestSupport.o gtest_main.o gtest-all.o
-	$(CPP) $(CFLAGS) -o $@ $^ $(LIBS)
-
+CompTypeSpecTest : DataTypeTestSupport.o 
+ClassicChkPtAgentTest : DataTypeTestSupport.o 
