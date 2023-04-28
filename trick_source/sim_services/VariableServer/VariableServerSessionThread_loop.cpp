@@ -41,7 +41,11 @@ void * Trick::VariableServerSessionThread::thread_body() {
 
     // if log is set on for variable server (e.g., in input file), turn log on for each client
     if (_vs->get_log()) {
-        _session->set_log_on();
+        _session->set_log(true);
+    }
+
+    if (_vs->get_session_log()) {
+        _session->set_session_log(true);
     }
 
     if (_vs->get_info_msg()) {

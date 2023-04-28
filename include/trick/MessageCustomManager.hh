@@ -44,7 +44,7 @@ namespace Trick {
             int restart();
 
         protected:
-            std::vector<MessageCustomFile *> custom_message_files;
+            std::vector<MessageCustomFile *> _custom_message_files;
     } ;
 
 }

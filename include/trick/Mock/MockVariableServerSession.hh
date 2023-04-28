@@ -13,8 +13,8 @@ class MockVariableServerSession : public Trick::VariableServerSession {
         MOCK_CONST_METHOD0(get_enabled, bool());
         MOCK_CONST_METHOD0(get_write_mode, VS_WRITE_MODE());
         MOCK_CONST_METHOD0(get_copy_mode, VS_COPY_MODE());
-        MOCK_METHOD0(set_log_on, int());
-        MOCK_METHOD0(set_log_off, int());
+        MOCK_METHOD1(set_log, int(bool on_off));
+        MOCK_METHOD1(set_session_log, int(bool on_off));
         MOCK_METHOD0(copy_sim_data, int());
         MOCK_CONST_METHOD0(get_update_rate, double());
         MOCK_CONST_METHOD0(get_frame_multiple, int());
