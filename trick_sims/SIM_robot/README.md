@@ -67,13 +67,13 @@ We also need to keep track of the joint angles, since they can and will change d
 Now everything of importance to the kinematics of the system has been identified.  The base and joint frames allow us to keep track of the relative location of the points on the manipulator with respect to each other and the base, fixed inertial reference frame.  The joint angles allow us to describe every possible location of each of the points in any frame.
 
 ### Frame Rotations
-Given that a robot will have at least as many frames as it has links, we need to be able to transform the information about the manipulator from one frame to another.  This is called frame rotation.  One can construct a <\it rotation matrix> if the relative orientation of any two frames is known with respect to each other.  In this example, we will be rotating between frames Fa, Fb, and Fe (specifically, from Fb back to Fa to express everything in Fa).  
+Given that a robot will have at least as many frames as it has links, we need to be able to transform the information about the manipulator from one frame to another.  This is called frame rotation.  One can construct a *rotation matrix* if the relative orientation of any two frames is known with respect to each other.  In this example, we will be rotating between frames Fa, Fb, and Fe (specifically, from Fb back to Fa to express everything in Fa).  
 
 In general, if you have two frames, A and B, rotated with respect to each other by an angle $q$, then you can determine how the unit vectors which make up frame B relate to frame A:
 
 ![](images/RotMat.png)
 
-Unit vectors, such as $x^hat_a$ and $y^hat_a$, are by definition length 1.  The cosine of the angle q is defined as the length of the adjacent side divided by the hypotenuse.  Since the length of the hypotenuse has to be 1, $cos(q)$ is equal to the length of the adjacent side.  For $sin(q)$, you use the opposite side instead of the adjacent.
+Unit vectors, such as $\hat{X}_a$ and $\hat{Y}_a$, are by definition length 1.  The cosine of the angle q is defined as the length of the adjacent side divided by the hypotenuse.  Since the length of the hypotenuse has to be 1, $cos(q)$ is equal to the length of the adjacent side.  For $sin(q)$, you use the opposite side instead of the adjacent.
 
 ![](images/UnitVecComps.png)
 
@@ -86,12 +86,16 @@ These equations together can be written in matrix form as
 
 ![](images/MatrixEq_RotMat.png)
 
-This matrix is called a rotation matrix, from Frame B to Frame A, commonly denoted as
+This matrix is called a rotation matrix, from Frame A to Frame B, commonly denoted as
 
-![](images/R_B_A.png)
+![](images/R_A_B.png)
 
 
-This is the rotation matrix from Frame B to Frame A.  If you take any vector described in frame B and pre-multiply it by this rotation matrix, you will get the same vector but expressed in frame A.  This is the bread and butter of kinematics, so you will definitely see this again.
+This is the rotation matrix from Frame A to Frame B.  If you take any vector described in frame A and pre-multiply it by this rotation matrix, you will get the same vector but expressed in frame B.  More often than not, you will actually be more concerned with rotation from Frame B back to Frame A.  To do this, you would need the inverse of the matrix (which reverses the frame transformation order).  Luckily, rotations matrices are *orthonormal*, and one characteristic of matrices like this is that the inverse of this matrix is equal to the transpose (which is much easier to find in general).
+
+![](images/orthonormality.png)
+
+This is the bread and butter of kinematics, so you will definitely see this again.
 
 
 ### Position of the End-Effector
