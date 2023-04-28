@@ -74,7 +74,7 @@ an external timer instead of an itimer. To do so you must provide your specific 
 timer functionality by deriving from Trick's Timer class. (Trick provides the ITimer class
 as a derivative of Timer).  See [Realtime_Timer](Realtime-Timer).
 
-### User accessible routines
+## User accessible routines
 
 ```
 int real_time_enable() ;

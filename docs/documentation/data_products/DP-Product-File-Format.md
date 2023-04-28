@@ -5,7 +5,7 @@ Since Trick 10, the DP Product Specification File Format is changed to XML. The 
 DTD is defined as following:
 
 
-### Product.dtd
+## Product.dtd
 
 ```
 <!-- Trick DP Product definition -->
@@ -110,7 +110,7 @@ text formats. The product specification file may contain any number of pages and
 page or table. <b>extfn</b> refers to an external program designed to manipulate recorded data
 into a format which is more easily displayed and its occurrence is not required.
 
-### DP Page Element Specifications
+## DP Page Element Specifications
 A DP product file may have one or more <b>page</b> elements. Each <b>page</b> element must
 have at least one <b>plot</b> elment and may have more plots sepcified. All attributes of a
 <b>page</b> element as stated earlier in @ref product_dtd "Product.dtd" are:
@@ -120,7 +120,7 @@ The <b>page</b> element will be discussed in following sections: @ref plot_eleme
 @ref specific_variable_options "6.2.1.3 DP Specific Y (or Z) Variable Options", and
 @ref curves "6.2.1.4 Curves".
 
-#### DP Plot Element Specifications
+### DP Plot Element Specifications
 
 The <b>tstart</b> and <b>tstop</b> options have the same function as in the session file. If either of these options
 is specified, they will override any values specified in the session file for this particular plot page.
@@ -128,7 +128,7 @@ Each plot page specification can include up to nine individual plot specificatio
 of the plots on a plot page is automatically sized to fit within the plot page window regardless of
 the number of plots specified for the plot page.
 
-#### General Variable Options
+### General Variable Options
 
 The general variable options are options that apply to a variable regardless when it's for X, or Y, or Z.
 They are:
@@ -146,7 +146,7 @@ specified at the plot level.
 value by a factor of the value specified by this attribute. The scale factor is applied after the
 measurement units (if specified) conversion is performed.
 
-#### DP Specific Y (or Z) Variable Options
+### DP Specific Y (or Z) Variable Options
 
 The Y (Z) variable specification has additional options which allow the user to specify distinct line, symbol,
 and color attributes. Even though <b>var</b> element XML specification doesn't limit a X variable having
@@ -168,7 +168,7 @@ The <b>line_color</b> attribute of <b>var</b> allows the user to specify a color
 the <b>gnuplot_line_sytle</b> attribute of <b>var</b> allows the user to change the line style in a Gnuplot.
 You may specify the line style by name. The default is lines.
 
-#### Curves
+### Curves
 Each curve has either specified 2 or 3 variables stated as <b>var</b> or has <b>
 varcase</b> specified. The first <b>var</b> element is for X, the second <b>var</b>
 element is for Y and the third is for Z. A <b>curve</b>  element can not have both <b>var</b>
@@ -216,7 +216,7 @@ both RUN_A and RUN_B.
 </product>
 ```
 
-### DP Table Specifications
+## DP Table Specifications
 
 Each table is comprised of one or more columns and each column is only for one variable. Each <b>column</b> element
 has an optional <b>format</b> attribute that allows the user to specify the text format for the variable's data. The
@@ -288,13 +288,13 @@ An example data of the specified table:
      -6.740139e-01     -4.309353e-01     -6.740139e+00     -4.309353e+00
 ```
 
-### DP External Programs
+## DP External Programs
 
 The <b>extfn</b> element provides a means for transforming data. Users build a program that is dynamically linked into
 Trick data products for manipulating data specified in the DP Product XML file and its document type definition file
 is stated as @ref product_dtd "Product.dtd".
 
-#### Element extfn Specifications
+### Element extfn Specifications
 The <b>extfn</b> needs to have 3 element specifications associated with it. These elements are <b>fname</b>, <b>inputs</b>, and <b>outputs</b>.
 The <b>fname</b> is a full path to a program which accepts the inputs and generates the outputs. This
 program must adhere to strict interface requirements. This program will be dynamically linked into the data products,
@@ -340,7 +340,7 @@ The product specification file (DP_* file) might look like this:
 </product>
 ```
 
-#### External Program Source Code
+### External Program Source Code
 
 To use the external program feature of the product specification file, a user must either access a previously written
 program, or write their own.
@@ -361,14 +361,14 @@ int extGetNextRecord(double *in, int numIn __attribute__ ((unused)), double *out
 }
 ```
 
-#### Building The External Program
+### Building The External Program
 
-##### Linux
+#### Linux
 
 - Step 1. cc -c <myprogram1>.c (compile all individual object this way)
 - Step 2. ld -shared -o <myprogram>.so <myfunction1>.o <myfunction2>.o ... <myfunctionN>.o <myLib>.a -lc
 
-##### MacOS X
+#### MacOS X
 
 - Step 1. cc -c <myprogram1>.c (compile all individual object this way)
 - Step 2. cc -bundle -o <myprogram>.so <myfunction1>.o <myfunction2>.o ... <myfunctionN>.o <myLib>.a -lc
@@ -381,7 +381,7 @@ Do the following to see if your newly created shared object has unresolved depen
 
 - @b UNIX @b Prompt> nm <myprogram>.so
 
-#### External Program Summary
+### External Program Summary
 
 To use an external program:
 1. Build a DP spec file with the program name, inputs and outputs.
@@ -389,7 +389,7 @@ To use an external program:
 3. Build the external program.
 4. Run the data products, and hopefully the results you expect will be there.
 
-#### External Program Proglems And Caveats
+### External Program Proglems And Caveats
 
 - Can't load shared library!!! The external program (*.so program) may have unresolved dependencies.
 Try "nm" on your external program, and look for "U"s. The objects that you have linked in might have extern definitions that aren't there.
@@ -398,7 +398,7 @@ Try "nm" on your external program, and look for "U"s. The objects that you have 
 - External programs convert everything to doubles, and only accept and output doubles.
 - External programs have no notion of unit conversion.
 
-### A general DP Product XML File Example
+## A general DP Product XML File Example
 
 ```
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>

@@ -26,7 +26,7 @@
     using namespace std;
 
     int ADEF_lex( YYSTYPE* lvalp, YYLTYPE* llocp, void* scanner );
- 
+
     void ADEF_error( YYLTYPE* locp, Trick::ADefParseContext* context, const char* err) {
        std::stringstream message;
        message << "adef_parser PARSE-ERROR " << locp->first_line << ": " << err << ".";
@@ -56,13 +56,13 @@
 
 %type  <value_list> dim_list
 %type  <ival> pointers
-%type  <sval> opt_name user_defined_type
+%type  <sval> opt_name user_type_name
 
 %%
 
 alloc_definition: TYPE pointers opt_name dim_list {
 
-                 context->type = (TRICK_TYPE)$1; 
+                 context->type = (TRICK_TYPE)$1;
                  context->user_type_name = "";
                  context->n_stars = $2;
                  if ($3 == NULL) {
@@ -72,8 +72,8 @@ alloc_definition: TYPE pointers opt_name dim_list {
                      free($3) ;
                  }
              }
-           | user_defined_type pointers opt_name dim_list {
- 
+           | user_type_name pointers opt_name dim_list {
+
                  // TRICK_OPAQUE_TYPE means that the type is a user-defined type,
                  // the details of which will be determined later.
                  context->type = TRICK_OPAQUE_TYPE;
@@ -105,32 +105,21 @@ pointers: {
         }
       ;
 
-user_defined_type: NAME {
-                       $$ = $1; 
-                   }
-                 | user_defined_type ':' ':' NAME {
-                       size_t len;
-                       len = strlen($1) + strlen($4) + (size_t)3; 
-                       $$ = (char*)malloc( (size_t)len);
-                       strcpy($$, $1);
-                       strcat($$, "::");
-                       strcat($$, $4);
-                       free($1);
-                       free($4);
-                   }
-                 ;
+user_type_name: NAME {
+                       $$ = $1;
+                     };
 
 dim_list: {
              /*
               * These two rules handle C style array indexing. This rule
               * handles no indexes, the second rule handles one or more other
-              * indexes. 
+              * indexes.
               */
               int ii ;
               context->n_cdims = 0;
               for ( ii = 0 ; ii < TRICK_MAX_INDEX ; ii++ ) {
                   context->cdims[ii] = 0;
-              } 
+              }
           }
           | dim_list '[' I_CON ']' {
                if (context->n_cdims >= TRICK_MAX_INDEX ) {
@@ -142,5 +131,3 @@ dim_list: {
          };
 
 %%
-
-

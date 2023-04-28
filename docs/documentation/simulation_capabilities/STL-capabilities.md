@@ -3,7 +3,7 @@
 
 # Standard Template Libraries (STL) in Trick
 
-STLs may be used in models. However, STL variables (currently) are not data recordable, visible in the variable server, nor directly accessible in the input file. Some STLs can be checkpointed: array, vector, list, deque, set, multiset, map, multimap, stack, queue, priority_queue, pair.
+STLs may be used in models. However, STL variables (currently) are not data recordable, visible in the variable server, nor directly accessible in the input file. Some STLs can be checkpointed: `array`, `vector`, `list`, `deque`, `set`, `multiset`, `map`, `multimap`, `stack`, `queue`, `priority_queue`, `pair`.
 
 STL classes cannot be directly registered with the memory manager, but they can be processed by the checkpoint agent when nested inside normal C++ classes (including sim objects). 
 

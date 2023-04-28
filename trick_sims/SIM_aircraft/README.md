@@ -170,7 +170,7 @@ Notice (in the figure) that $\psi_{diff}$ is in the direction that we want to tu
 
 Do you ever have to turn more than 𝜋 radians (180 degrees) to face any direction? No, you don’t.
 
-Let’s now define $\pis_{error}$ as the actual direction of turning.
+Let’s now define $\psi_{error}$ as the actual direction of turning.
 
 ![](images/Equation_9.png)
 

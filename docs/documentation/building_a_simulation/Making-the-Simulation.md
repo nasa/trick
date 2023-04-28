@@ -2,11 +2,11 @@
 |------------------------------------------------------------------|
 
 
-### Simulation Compilation Environment Variables
+## Simulation Compilation Environment Variables
 
 The -Ipaths in TRICK_CFLAGS and TRICK_CXXFLAGS tell Trick where to find model source files.  The flags also can contain compiler settings, for instance the -g flag is used for compiling in debug mode. See section Trick_Environment for more detail and information on variables for linking in external libraries, setting the compiler etc.
 
-### Making the Simulation for the First Time.
+## Making the Simulation for the First Time.
 
 Makefiles contain all of the rules for building the simulation. When a simulation is ready to be built for the very first time, the configuration processor script (CP) is executed in the simulation directory.
 
@@ -24,7 +24,7 @@ After the initial CP is run, when there are changes made to model source code or
 UNIX prompt> make
 ```
 
-### How Trick Finds Simulation Source Code
+## How Trick Finds Simulation Source Code
 
 Trick compiles all user model source code referenced in the S_define either through file inclusion or user supplied "library dependencies".  Trick begins at the S_define and recursively follows code dependencies to create the entire source tree.
 
@@ -34,7 +34,7 @@ Model source files are found through LIBRARY DEPENDENCIES specified in the Trick
 
 Once the entire source tree is created, rules to compile all of these files are written to the makefile.
 
-### Changing Simulation Compilation through Makefile Overrides
+## Changing Simulation Compilation through Makefile Overrides
 
 Sometimes a programmer may want Trick to pick up specific compiler flags or some special makefile rule for building a model or building the simulation. Trick allows the programmer to override the default Makefile rules with a facility we are calling "makefile overrides".
 
@@ -58,7 +58,7 @@ Other possibilities are: ```c_objects``` , ```f_objects``` , ```l_objects``` , `
 
 For overrides in sim directories, there is a sim specific overrides file called `S_overrides.mk`. If this file is present in the sim directory, it is included after the directory-specific overrides. The rules in this file are the last word in how things are going to compile.
 
-#### Example Of How To Add a Pre-compiled Library to the Simulation
+### Example Of How To Add a Pre-compiled Library to the Simulation
 
 Go to simulation dir.
 
@@ -71,7 +71,7 @@ Edit a file called "S_overrides.mk". Append to the TRICK_USER_LINK_LIBS variable
 ```
 TRICK_USER_LINK_LIBS = -L/path/to/library -lmy_lib
 ```
-#### Example Of How To Exclude a Directory from ICG during CP
+### Example Of How To Exclude a Directory from ICG during CP
 
 Go to simulation dir.
 
@@ -83,7 +83,7 @@ Edit a file called "S_overrides.mk". Append to the TRICK_ICG_EXCLUDE variable.
 
 TRICK_ICG_EXCLUDE += /path/to/exclude:/another/path/to/exclude
 
-#### Example Of How To Exclude a Directory from most CP processing
+### Example Of How To Exclude a Directory from most CP processing
 
 Edit a file called "S_overrides.mk". Append to the TRICK_EXCLUDE variable.
 
@@ -91,7 +91,7 @@ Edit a file called "S_overrides.mk". Append to the TRICK_EXCLUDE variable.
 TRICK_EXCLUDE += /path/to/exclude:/another/path/to/exclude
 ```
 
-### Cleaning Up
+## Cleaning Up
 
 There are several levels of clean.
 

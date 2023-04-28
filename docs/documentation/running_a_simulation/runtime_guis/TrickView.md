@@ -3,7 +3,7 @@
 
 Trick View (hereafter referred to as TV) is a graphical user interface that allows users to view and modify Trick-managed variables in a simulation while it is running. It also provides for the launching of integrated strip charts and can save and restore lists of variables and their associated strip charts.
 
-#### Launching
+### Launching
 TV can be launched via one of:
 
 - From the Simulation Control Panel, under the **Actions** menu.
@@ -16,7 +16,7 @@ TV can be launched via one of:
 
 For additional launching options, see [Automatically Launching Applications](Runtime-GUIs#automatically-launching-applications).
 
-#### Automatically Opening Files
+### Automatically Opening Files
 
 Files that are to be automatically opened when TV launches can be specified via one of:
 
@@ -28,7 +28,7 @@ Files that are to be automatically opened when TV launches can be specified via 
 
 Opening a TV file will overwrite the current cycle period or any argument to `--cycle` with the value from the file, subject to the minimum cycle period.
 
-#### Automatically Opening and Setting Files
+### Automatically Opening and Setting Files
 
 Files that are to be automatically opened and set when TV launches can be specified via one of:
 
@@ -40,7 +40,7 @@ Files that are to be automatically opened and set when TV launches can be specif
 
 Opening a TV file will overwrite the current cycle period or any argument to `--cycle` with the value from the file, subject to the minimum cycle period.
 
-#### Automatically Setting Files
+### Automatically Setting Files
 
 Files that are to be automatically set when TV launches can be specified via one of:
 
@@ -50,7 +50,7 @@ Files that are to be automatically set when TV launches can be specified via one
 - From the input file or user model code, use `Trick::TrickView::set_auto_set_file`.  
   File paths are relative to the directory containing the S_main executable.
 
-#### Strip-Chart-Only Mode
+### Strip-Chart-Only Mode
 
 Once a collection of strip charts is established and saved to a TV file, you may wish to prevent future launches from displaying the main GUI window to allow users to view the strip charts without providing them (potentially dangerous) access to the simulation's internal variables. You can cause Trick View to launch in strip-chart-only mode via one of:
 
@@ -60,13 +60,13 @@ Once a collection of strip charts is established and saved to a TV file, you may
 
 Note that you must provide a TV file to be automatically opened as described above when launching in strip-chart-only mode.
 
-#### The Trick View GUI
+### The Trick View GUI
 
 The GUI pictured below may have a different look and feel based on the architecture of the machine on which it is running, but the functionality will remain the same.
 
 ![TrickView](images/TrickView.jpg)
 
-##### File Buttons
+#### File Buttons
 
 The file buttons provide persistent storage of variable lists. From left to right, they are:
 
@@ -85,11 +85,11 @@ The file buttons provide persistent storage of variable lists. From left to righ
 - **Save**  
   Opens a dialog allowing the user to specify a file name. The variables in the variable table and their associated information, the cycle period, and any strip charts will be written to the file.
 
-##### Monitor Button
+#### Monitor Button
 
 The monitor button displays the current state of the monitor and allows the user to toggle receiving updates on the variables in the variable table. A blue screen indicates that updates are being received. A black screen indicates they are not.
 
-##### Variable Buttons
+#### Variable Buttons
 
 The variable buttons affect variables in the variable table. From left to right, they are:
 
@@ -99,15 +99,15 @@ The variable buttons affect variables in the variable table. From left to right,
 - **Delete**  
   Removes the selected variables from the variable table and all strip charts.
 
-##### Variable Hierarchy Tree
+#### Variable Hierarchy Tree
 
 This panel displays all of the simulation's Trick-managed variables in a hierarchical format. Initially, only the top-level simulation objects are displayed. A variable representing a structure or class containing variables can be expanded or collapsed by double-clicking its name or by single-clicking the expand/collapse node to the left of its name. Double-clicking a variable that does not represent a structure or class will add it to the variable table. Multiple variables can be simultaneously selected via the shift and control (command on Mac) keys. Variables can also be added by selecting them, right-clicking anywhere in the variable hierarchy tree, and selecting **Add Selection** from the pop-up menu. Adding a variable that represents a structure or class will add all of its contained variables (at all lower levels). The top layer of the variable hierarchy tree will be populated when TV has finished parsing the information from the simulation, which takes place in the background. Lower levels are loaded on-demand as the tree is expanded. Although unlikely to occur in practice, it is possible that expanding every node in a large simulation will consume all of the application's available memory, in which case it will become unresponsive.
 
-##### Search Panel
+#### Search Panel
 
 The search panel allows the user to search the variable hierarchy tree by partial name or regular expression, with an option for case sensitivity. Resulting listed variables can be added to the variable table in manners similar to those of the variable hierarchy tree. The search panel becomes available for use at the same time as the variable hierarchy tree. Search progress is indicated by a progress bar below the results list. During the initial search, only an indication of activity is given while the application counts the total number of variables. In subsequent searches, a quantitative value of progress is displayed.
 
-##### Index Specification Window
+#### Index Specification Window
 
 When adding variables to the variable table, if any variables are pointers or arrays, the index specification window will be displayed, allowing the user to specify the ranges to add.
 
@@ -115,7 +115,7 @@ When adding variables to the variable table, if any variables are pointers or ar
 
 Each array displays a combo box over its allowable range. Each pointer has a single text box that accepts values in the form `minimum-maximum`. Character pointers and arrays have a check box allowing them to be treated as strings. The position radio buttons specify where in the variable table the variables will be added, relative to the currently selected row.
 
-##### Variable Table
+#### Variable Table
 
 The variable table lists all the added variables, displaying their names, values, units, and formats. Columns can be freely rearranged by clicking and dragging their headers. Rows can be sorted by clicking the column header corresponding to the property by which they should be sorted. Rows are sorted first by the most recently clicked column header, then by the header clicked before that, and so forth. Rows can be manually reordered by clicking and dragging them. Note that manual reordering will remove any currently applied sorting. Further display customization is available via the Column Control Menu, which is accessed by clicking the miniature table icon in the upper right-hand corner of the table. Pressing the **Delete** key while the variable table has focus is equivalent to clicking the delete variable button.
 
@@ -129,11 +129,11 @@ Variable formats are displayed via a combo box containing all of the supported f
 
 Multiple, non-contiguous selections are allowed and may be used to affect mass value, unit, and format changes. When performing a mass edit, the assigned/selected value will only be applied to variables that can accept it.
 
-###### Invalid References
+##### Invalid References
 
 Variables that the Variable Server failed to resolve display values of **\<Invalid Reference\>** and are highlighted in red. Such a variable's value and units cannot be changed, but its name can still be modified for the purpose of adding new variables.
 
-##### Manual Entry Field
+#### Manual Entry Field
 
 The manual entry field provides the user a means by which to directly add a variable of any name. This is useful if a variable's information is not present in the S_sie.resource file or the file itself is not present, or if the variable is a pointer to the beginning of an array. Multiple elements of an arrayed variable can be added by specifying the range within the brackets, such as:
 
@@ -141,30 +141,30 @@ The manual entry field provides the user a means by which to directly add a vari
 
 Note that pointers cannot be dereferenced using the pointer dereference operator (*) in TV. Instead, the user should treat the pointer as a single-element array and append the variable's name with `[0]`.
 
-##### Purge Button
+#### Purge Button
 
 The purge button removes all variables from the variable table that have a value of **\<Invalid Reference\>**.
 
-##### Resolve Button
+#### Resolve Button
 
 The resolve button submits a request to the Variable Server to attempt to resolve all invalid references to legal values, which can be useful if a previously null pointer has become valid.
 
-##### Connection Status Bar
+#### Connection Status Bar
 
 The connection panel displays host and port information when TV is connected to a simulation. When disconnected, clicking on the combo box displays a list of available simulations to which to connect. Alternately, the information can be entered directly into the panel in the form of `host:port`.
 
-##### Clearing Logged Data
+#### Clearing Logged Data
 
 TV records the value of every variable in the variable table each time the Variable Server sends a report. This allows newly launched strip charts to include data going back all the way to the point at which the variable was first added. This can eventually result in a large amount of memory usage. If performance begins to degrade, you can clear the log of all values via the **Action** menu of either TV or any strip chart. Note that this will erase any data currently being displayed on any strip charts.
 
-##### Settings
+#### Settings
 
 The Settings dialog can be accessed via the **File** menu and allows the user to alter the behavior of TV.
 See [[Runtime GUIs]] for a detailed description of Application Behavior and Cycle Period options.
 
 ![](images/Settings.png)
 
-###### Variable Tree Order
+##### Variable Tree Order
 
 The order in which the variable hierarchy is displayed has three options:
 
@@ -177,31 +177,31 @@ The order in which the variable hierarchy is displayed has three options:
 - **Descending Alphabetical**  
   Variables are sorted alphabetically Z to A.
 
-###### Variable Addition
+##### Variable Addition
 
 The placement of newly added variables within the variable table is specified via the Position combo box. The available options are **Top**, **Before**, **After**, and **Bottom**. The **Before** and **After** options are relative to the currently selected row.
 
 Character pointers and arrays can be treated as strings by default by checking the **char[] as string** check box. When added as such, arrays will be collapsed into single string entries. Otherwise, they will be displayed element by element.
 
-###### Font Size
+##### Font Size
 
 This setting affects the variable hierarchy tree, search panel, and variable table text size.
 
-###### Default Units
+##### Default Units
 
 Default units for each unit type can be specified via its corresponding combo box, which lists all of its available units. Selecting **xx** results in units as specified in the model code. The **Default All** check box, when selected, is equivalent to selecting **xx** for all unit types.
 
-###### Default Formats
+##### Default Formats
 
 Default formats for each variable type can be specified via its corresponding combo box.
 
-#### The Strip Chart GUI
+### The Strip Chart GUI
 
 Strip charts allow users to plot variables in the variable table in real-time. The GUI pictured below may have a different look and feel based on the architecture of the machine on which it is running, but the functionality will remain the same.
 
 ![stripchart](images/Stripchart.jpg)
 
-##### Domain Axis Panel
+#### Domain Axis Panel
 
 The domain axis panel allows the user to affect the range of the domain axis.
 
@@ -214,7 +214,7 @@ The domain axis panel allows the user to affect the range of the domain axis.
 - **Fixed**  
   The domain axis will not automatically change.
 
-##### Display Panel
+#### Display Panel
 
 The display panel allows the user to specify whether or not the chart should display certain features.
 
@@ -227,11 +227,11 @@ The display panel allows the user to specify whether or not the chart should dis
 - **Legend**  
   When enabled, the chart's legend will be shown.
 
-##### Variables Panel
+#### Variables Panel
 
 The variables panel allows the user to add and remove dependent variables, and to change the independent variable. To add a dependent variable, select it from the adjacent combo box and click the **Add** button. To remove a dependent variable, select it from the adjacent combo box and click the **Remove** button. To change the independent variable, select it from the adjacent combo box.
 
-##### Right-Click Menu
+#### Right-Click Menu
 
 Right-clicking the plot area will display a context menu with the following options:
 
@@ -257,7 +257,7 @@ Right-clicking the plot area will display a context menu with the following opti
 - **Auto Range**  
   Automatically adjusts one or both axes.
 
-##### Chart Properties Dialog
+#### Chart Properties Dialog
 The Chart Properties dialog can be opened by selecting **Properties** from the plot's right-click menu. It allows the user to customize the appearance of the chart. These settings are part of the properties that are saved in TV files.
 
 ![ChartPropertiesTitleTab](images/ChartPropertiesTitleTab.jpg)
@@ -276,7 +276,7 @@ The **Appearance** tab within the **Plot** tab allows the user to set the plot's
 
 The **Other** tab allows the user to set the background color of the area surrounding the plot (outside of the plot's borders) and also provides for toggling of the anti-aliasing feature. Modifying series properties is not currently supported.
 
-#### TV Files
+### TV Files
 
 TV files allow the user to store the states of the variable table and any existing strip charts to persistent memory. This saves configuration time for commonly used variable lists and strip chart selections.
 

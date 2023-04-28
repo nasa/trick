@@ -25,7 +25,7 @@ This makes other services possible, such as :
   - TrickView (TV) Variable Viewer
   - Third-party simulation clients
 
-### Memory Manager Interfaces
+## Memory Manager Interfaces
 A Trick simulation contains exactly one Memory Manager. One can access it as follows:
 
 ```
@@ -37,7 +37,7 @@ From 'C' code, the Memory Manager can be accessed using a set of wrapper functio
 *memorymanager_c_intf.h*
 ```
 
-### Registering an Object
+## Registering an Object
 The Memory Manager can either register a supplied object or it can allocate an
 object as described by its declaration, and then register it. Here *object* just
 means a chunk of memory that one would get by calling malloc, new, or mmap.
@@ -96,7 +96,7 @@ Where:
 The remaining arguments are identical to those of declare_var.
 
 
-### Example Allocations using C and C++ Interfaces
+## Example Allocations using C and C++ Interfaces
 
 The following two *declare_var* calls do exactly the same thing.
 
@@ -116,7 +116,7 @@ double *D = (double*)TMM_declare_var_s("double[3]");
 double *D = (double*)TMM_declare_var_1d("double",3);
 ```
 
-### Allocation Examples
+## Allocation Examples
 
 Allocation of an anonymous double:
 ```
@@ -154,7 +154,7 @@ namespace "FOO":
 FOO::BAR (*A)[3][4] = (FOO::BAR(*)[3][4])TMM_declare_var_s("FOO::BAR my_array[3][4]");
 ```
 
-### Checkpoints
+## Checkpoints
 
 A checkpoint is a textual representation of Trick managed memory objects at
 a particular instance in time. When commanded, the MemoryManager (by way of a
@@ -181,7 +181,7 @@ require one assignment for each of its non-composite data members.
 - Checkpoint Directives - invoke a checkpoint specific command.
 
 
-### Writing Checkpoints
+## Writing Checkpoints
 
 Checkpoint every allocation that the MemoryManager knows about to a std::stream.
 ```
@@ -226,7 +226,7 @@ Checkpoint every allocation that the MemoryManager knows about to a file.
 void  TMM_write_checkpoint( const char* filename) ;
 ```
 
-### Example - Checkpointing a Named, Local Allocation
+## Example - Checkpointing a Named, Local Allocation
 In the example below we ask the Memory Manager to allocate an array of three
 doubles named *dbl_array*. **declare_var** returns a pointer to the array. Using
 the pointer, we then initialize the array. Finally we checkpoint the variable to
@@ -255,7 +255,7 @@ Declarations* section cause variables to be allocated just like the declare_var(
 call above.  The assignments in the *Variable Assignments* section restore the
 values of the variables.
 
-#### Checkpoint Content
+### Checkpoint Content
 ```
 // Variable Declarations.
 double dbl_array[3];
@@ -265,7 +265,7 @@ dbl_array =
     {1.1, 2.2, 3.3};
 ```
 
-### Example - Checkpointing an Anonymous, Local Allocation
+## Example - Checkpointing an Anonymous, Local Allocation
 In the following example, we are not giving a name to the variable that we are
 creating.
 
@@ -281,7 +281,7 @@ trick_MM->write_checkpoint( std::cout );
 In the checkpoint below, notice that the variable is given a **temporary** name
 for checkpointing.
 
-#### Checkpoint Content
+### Checkpoint Content
 ```
 // Variable Declarations.
 double trick_anon_local_0[3];
@@ -291,7 +291,7 @@ trick_anon_local_0 =
     {1.1, 2.2, 3.3};
 ```
 
-### Example - Checkpointing a Named, External Allocation
+## Example - Checkpointing a Named, External Allocation
 In this example, we are allocating the memory for the variable directly rather
 than asking the Memory Manager to do it.
 
@@ -310,7 +310,7 @@ Because this object is **extern**, the MemoryManager must be able to lookup its
 address by name. Therefore the simulation must ensure that the object exists and
 is cataloged before attempting to reload its contents from a checkpoint.
 
-#### Checkpoint Content
+### Checkpoint Content
 ```
 // Variable Declarations.
 // extern double dbl_array[3];
@@ -320,7 +320,7 @@ dbl_array =
     {1.1, 2.2, 3.3};
 ```
 
-### Example - Checkpointing an Anonymous, External Allocation
+## Example - Checkpointing an Anonymous, External Allocation
 
 In the following example, we are allocating the memory for the variable directly
 and not giving it a name. **This is typically not a good idea**.
@@ -343,7 +343,7 @@ extern object, we need to make sure that it has a name, and is cataloged.
 In the checkpoint note the temporary name indciates that the variable is
 allocated externally to the Memory Manager.
 
-#### Checkpoint Content
+### Checkpoint Content
 ```
 // Variable Declarations.
 
@@ -352,9 +352,9 @@ trick_anon_extern_0 =
     {1.1, 2.2, 3.3};
 ```
 
-### Example - Checkpointing a Constrained Array
+## Example - Checkpointing a Constrained Array
 
-#### Allocation of an two-dimensional constrained array of doubles:
+### Allocation of an two-dimensional constrained array of doubles:
 
 ```
 #include "memorymanager_c_intf.h"
@@ -376,7 +376,7 @@ double (*A)[3][4] = (double(*)[3][4]) TMM_declare_var_s("double A[3][4]");
 
 ![Figure1](images/MM_figure_1.jpg)
 
-#### Checkpoint Content
+### Checkpoint Content
 ```
 // Variable Declarations.
 double A[3][4];
@@ -391,9 +391,9 @@ A =
     };
 ```
 
-### Example - Checkpointing an Unconstrained Array
+## Example - Checkpointing an Unconstrained Array
 
-#### Allocation of an anonymous two-dimensional unconstrained array of doubles:
+### Allocation of an anonymous two-dimensional unconstrained array of doubles:
 
 ```
 #include "memorymanager_c_intf.h"
@@ -418,7 +418,7 @@ A[2][3] = 23.0;
 
 ![Figure2](images/MM_figure_2.jpg)
 
-#### Checkpoint Content
+### Checkpoint Content
 ```
 // Variable Declarations.
 double* trick_anon_local_0[3];
@@ -440,7 +440,7 @@ trick_anon_local_3 =
     {20, 21, 22, 23};
 ```
 
-### Example - Another Checkpoint of an Unconstrained Array
+## Example - Another Checkpoint of an Unconstrained Array
 
 Allocation of a two-dimensional unconstrained array of doubles with contiguous storage:
 
@@ -471,7 +471,7 @@ A[2][3] = 23.0;
 
 ![Figure3](images/MM_figure_3.jpg)
 
-#### Checkpoint Content
+### Checkpoint Content
 ```
 // Variable Declarations.
 double* A[3];
@@ -489,13 +489,13 @@ A_store =
     };
 ```
 
-### Reading and Restoring Checkpoints
+## Reading and Restoring Checkpoints
 Restoring a checkpoint consists of reading and executing the statements from a
 checkpoint file or stream. Declaration statements cause data-typed objects to be
 created and registered. Assignment statements cause values specified on the
 right hand side to the variables identified on the right.
 
-#### Checkpoint Restore Methods
+### Checkpoint Restore Methods
 
 Restore the checkpoint from the given std::stream:
 ```
@@ -517,7 +517,7 @@ int Trick::MemoryManager::read_checkpoint_from_string(const char *s);
 ```
 int Trick::MemoryManager::read_checkpoint_from_string(const char *s);
 ```
-### Example: Checkpoint Restore from C++
+## Example: Checkpoint Restore from C++
 
 ```
 #include "MemoryManager.hh"
@@ -536,16 +536,16 @@ for (int ii=0; ii < 10; ii++) {
 }
 std::cout << std::endl;
 ```
-#### Output
+### Output
 ```
 1 2 3 4 5 6 7 8 9 10
 ```
 
-### Checkpoint Tailoring Options
+## Checkpoint Tailoring Options
 Checkpoint tailoring options allow one to generate checkpoints that most suite
 their needs.
 
-#### Reduced Checkpoint
+### Reduced Checkpoint
 This (default) option allows the MemoryManager to generate smaller checkpoints.
 It does this by adding a **clear_all_vars** directive to the checkpoint
 following the variable declarations. Then assignment statements are generated
@@ -565,7 +565,7 @@ Where:  **flag** - **1** means no zeroes are assigned, otherwise zeroes are
 assigned.
 
 
-#### Hexfloat Checkpoint
+### Hexfloat Checkpoint
 This option causes floating point values in the checkpoint to be represented in
 **Hex Float** format. This format preserves precision in floating point numbers.
 The downside is that they are not very human readable. Not by normal humans
@@ -586,7 +586,7 @@ void  TMM_hexfloat_checkpoint(int flag);
 Where:
    **flag** - **1** means no zeroes are assigned, otherwise zeroes are assigned.
 
-### Unregistering/Deleting an Object
+## Unregistering/Deleting an Object
 An object can be unregistered by name or by address.
 ```
 int Trick::MemoryManager::delete_var (void *address);
