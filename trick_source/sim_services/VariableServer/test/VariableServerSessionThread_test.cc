@@ -259,7 +259,7 @@ TEST_F(VariableServerSessionThread_test, turn_session_log_on) {
     varserver->set_var_server_log_on();
 
     // We expect a the session's log to be turned on
-    EXPECT_CALL(*session, set_log_on())
+    EXPECT_CALL(*session, set_log(true))
         .Times(1);
 
     // Set up VariableServerSessionThread

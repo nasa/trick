@@ -343,22 +343,23 @@ namespace Trick {
         virtual int var_byteswap(bool on_off) ;
 
         /**
-         @brief @userdesc Command to turn on variable server logged messages to a playback file.
+         @brief @userdesc Command to toggle variable server logged messages to a playback file.
             All messages received from all clients will be saved to file named "playback" in the RUN directory.
             @par Python Usage:
-            @code trick.set_log_on() @endcode
+            @code trick.set_log(<on_off>) @endcode
             @return always 0
         */
-        virtual int set_log_on() ;
+        virtual int set_log(bool on_off) ;
 
         /**
-         @brief @userdesc Command to turn off variable server logged messages to a playback file.
+         @brief @userdesc Command to toggle variable server session log.
+            Each session will create a file containing the IP and port of client and all messages.
+            The file will be created in a session_log/ subdirectory under the RUN directory.
             @par Python Usage:
-            @code trick.set_log_off() @endcode
+            @code trick.set_session_log(<on_off>) @endcode
             @return always 0
         */
-        virtual int set_log_off() ;
-
+        virtual int set_session_log (bool on_off) ;
 
         /**
          @brief @userdesc Command to set info messages.
@@ -420,6 +421,7 @@ namespace Trick {
 
     private:
         static int instance_counter;
+        static std::string log_subdir;
 
         pthread_mutex_t _copy_mutex;     /**<  trick_io(**) */
 
@@ -452,7 +454,7 @@ namespace Trick {
         void log_received_message(const std::string& msg);
         void log_connection_opened ();
 
-        bool is_log_open();
+        bool is_session_log_open();
 
         void open_session_log();
 
@@ -509,11 +511,14 @@ namespace Trick {
         /** Toggle to turn on/off variable server logged messages to a playback file.\n */
         bool _log ;                       /**< trick_io(**)  */
 
+        /** Toggle to turn on/off individual variable server session logs.\n */
+        bool _session_log;              /**< trick_io(**)  */
+
         /** Toggle to turn on/off debug info messages.\n */
         bool _info_msg ;
 
-        /** Message stream number for the log file */
-        int _log_msg_stream;
+        /** Message stream number for the session log file */
+        int _session_log_msg_stream;
 
         /** Toggle to indicate var_pause commanded.\n */
         bool _pause_cmd ;                 /**<  trick_io(**) */

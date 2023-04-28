@@ -1,9 +1,14 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <string>
 
 #include "trick/MessageFile.hh"
 #include "trick/command_line_protos.h"
+#include "trick/message_proto.h"
+#include "trick/message_type.h"
+
+
 
 /**
 @details
@@ -48,7 +53,18 @@ void Trick::MessageFile::update( unsigned int level , std::string header, std::s
 int Trick::MessageFile::init() {
 
     unlink((std::string(command_line_args_get_output_dir()) + "/" + file_name).c_str()) ;
+
+    // Create the directory if we need to
+    int pos = file_name.find_last_of("/");
+    if (pos != std::string::npos) {
+        std::string dir = std::string(command_line_args_get_output_dir()) + "/" + file_name.substr(0, pos);
+        create_path(dir.c_str());
+    }
+
     out_stream.open((std::string(command_line_args_get_output_dir()) + "/" + file_name).c_str() , std::fstream::out | std::fstream::app ) ;
+    if (!out_stream.is_open()) {
+        message_publish(MSG_ERROR, "Failed to open message file %s\n",file_name.c_str());
+    }
     return(0) ;
 }
 

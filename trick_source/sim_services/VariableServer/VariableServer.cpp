@@ -69,11 +69,15 @@ bool Trick::VariableServer::get_log() {
     return log ;
 }
 
+bool Trick::VariableServer::get_session_log() {
+    return session_log ;
+}
+
 void Trick::VariableServer::set_var_server_log_on() {
     log = true;
     // turn log on for all current vs clients
     for ( auto& session_it : var_server_sessions ) {
-        session_it.second->set_log_on();
+        session_it.second->set_log(true);
     }
 }
 
@@ -81,7 +85,23 @@ void Trick::VariableServer::set_var_server_log_off() {
     log = false;
     // turn log off for all current vs clients
     for ( auto& session_it : var_server_sessions ) {
-        session_it.second->set_log_off();
+        session_it.second->set_log(false);
+    }
+}
+
+void Trick::VariableServer::set_var_server_session_log_on() {
+    session_log = true;
+    // turn log on for all current vs clients
+    for ( auto& session_it : var_server_sessions ) {
+        session_it.second->set_session_log(true);
+    }
+}
+
+void Trick::VariableServer::set_var_server_session_log_off() {
+    session_log = false;
+    // turn log off for all current vs clients
+    for ( auto& session_it : var_server_sessions ) {
+        session_it.second->set_session_log(false);
     }
 }
 

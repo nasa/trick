@@ -45,5 +45,8 @@ void set_output_dir(const char* output_directory);
 std::string & command_line_args_get_input_file_ref(void) ;
 #endif
 
+void create_path(const char* directory);
+
+
 #endif
 

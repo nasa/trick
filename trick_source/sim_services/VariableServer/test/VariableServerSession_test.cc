@@ -300,7 +300,9 @@ TEST_F(VariableServerSession_test, log_on) {
     EXPECT_CALL(input_processor, parse(_));
 
     // ACT
-    session.set_log_on();
+    session.set_log(true);
+    session.set_session_log(true);
+
     session.handle_message();
 
     // ASSERT

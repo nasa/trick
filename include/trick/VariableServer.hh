@@ -175,6 +175,11 @@ namespace Trick {
             bool get_log() ;
 
             /**
+             @brief @userdesc Test if the variable server logging is on.
+            */
+            bool get_session_log() ;
+
+            /**
              @brief @userdesc Command to turn on variable server info messages (e.g., get a message
               when a command is received from any client).
              Variable Server info messages will be published using the Trick status message system.
@@ -212,6 +217,24 @@ namespace Trick {
              @return always 0
             */
             void set_var_server_log_off() ;
+
+                        /**
+             @brief @userdesc Command to turn on variable server session logging for all clients.
+             Each new session will create a file under RUN_<>/session_logs/ containg the client's IP and port and all messages received.
+             @par Python Usage:
+             @code trick.set_var_server_log_on() @endcode
+             @return always 0
+            */
+            void set_var_server_session_log_on() ;
+
+            /**
+             @brief @userdesc Command to turn off variable server session logging for all clients.
+             No session log will be creeated.
+             @par Python Usage:
+             @code trick.set_var_server_log_off() @endcode
+             @return always 0
+            */
+            void set_var_server_session_log_off() ;
 
             /**
              @brief @userdesc Command to open additional variable server listen port.
@@ -281,6 +304,9 @@ namespace Trick {
             /** Toggle to turn on/off variable server logging messages, similar to info_msg except messages only go
                 to a varserver_log file in the RUN directory.\n */
             bool log ;                       /**< trick_units(--)  */
+
+            /** Toggle to turn on/off variable server individual session logs. */
+            bool session_log ;                       /**< trick_units(--)  */
 
             /** Default listen port thread object */
             VariableServerListenThread listen_thread ;
