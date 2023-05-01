@@ -1328,11 +1328,13 @@ void PlotMainWindow::_openVideoFile(const QString& fname)
         this->setFocusPolicy(Qt::StrongFocus);
         connect(vidView,SIGNAL(timechangedByMpv(double)),
                 this, SLOT(setTimeFromVideo(double)));
+        vidView->set_offset(_videoOffset);
         vidView->set_file(fname);
     } else {
         if ( vidView->isHidden() ) {
             vidView->show();
         }
+        vidView->set_offset(_videoOffset);
         vidView->set_file(fname);
         vidView->raise();
     }
