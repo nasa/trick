@@ -10,4 +10,6 @@ Link documentation for Trick internals, processes, and plans here.
 - [How to make a new Trick release on GitHub](How-To-Make-A-Release)
 - [Tooling and Sanitizers](Tooling-and-Sanitizers)
 - [Python Environment](Python-Environment-Issues)
+- [CI](CI)
+
 
