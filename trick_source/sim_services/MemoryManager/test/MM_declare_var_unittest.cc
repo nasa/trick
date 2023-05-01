@@ -130,6 +130,11 @@ TEST_F(MM_declare_var, UINT32_T) {
         validate_alloc_info_local(memmgr, test_var, TRICK_UNSIGNED_INTEGER, NULL, NULL, 1, 0, NULL);
 }
 
+#if __linux
+#  include <stdint.h>
+#  include <sys/types.h>
+#  if __WORDSIZE == 64
+// These tests should be excluded on a 32 bit architecture
 TEST_F(MM_declare_var, INT64_T) {
         long *test_var = (long *)memmgr->declare_var("int64_t");
         validate_alloc_info_local(memmgr, test_var, TRICK_INT64, NULL, NULL, 1, 0, NULL);
@@ -139,6 +144,21 @@ TEST_F(MM_declare_var, UINT64_T) {
         unsigned long *test_var = (unsigned long *)memmgr->declare_var("uint64_t");
         validate_alloc_info_local(memmgr, test_var, TRICK_UINT64, NULL, NULL, 1, 0, NULL);
 }
+#  endif
+#else 
+
+// Any OS other than linux is assumed to be 64 bit
+TEST_F(MM_declare_var, INT64_T) {
+        long *test_var = (long *)memmgr->declare_var("int64_t");
+        validate_alloc_info_local(memmgr, test_var, TRICK_INT64, NULL, NULL, 1, 0, NULL);
+}
+
+TEST_F(MM_declare_var, UINT64_T) {
+        unsigned long *test_var = (unsigned long *)memmgr->declare_var("uint64_t");
+        validate_alloc_info_local(memmgr, test_var, TRICK_UINT64, NULL, NULL, 1, 0, NULL);
+}
+#endif
+
 
 TEST_F(MM_declare_var, Long) {
         long *test_var = (long *)memmgr->declare_var("long");
