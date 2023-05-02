@@ -73,13 +73,15 @@ In general, if you have two frames, A and B, rotated with respect to each other 
 
 ![](images/RotMat.png)
 
-Unit vectors, such as $\hat{X}_a$ and $\hat{Y}_a$, are by definition length 1.  The cosine of the angle q is defined as the length of the adjacent side divided by the hypotenuse.  Since the length of the hypotenuse has to be 1, $cos(q)$ is equal to the length of the adjacent side.  For $sin(q)$, you use the opposite side instead of the adjacent.
+Unit vectors (such as $\hat{X}_A$ and $\hat{Y}_A$) are by definition length 1.  The cosine of the angle $q$ is defined as the length of the adjacent side divided by the hypotenuse.  Since the length of the hypotenuse has to be 1, $cos(q)$ is equal to the length of the adjacent side.  For $sin(q)$, you use the opposite side instead of the adjacent.
 
 ![](images/UnitVecComps.png)
 
 Given the information above, $X_B$ and $Y_B$ can be described with respect to frame A as:
 
 ![](images/XhatBEq.png)
+
+
 ![](images/YhatBEq.png)
 
 These equations together can be written in matrix form as
@@ -108,6 +110,8 @@ The vector from points A to B is a function of the joint angle $q1$ and the leng
 As can be seen in the figure above, the $x$ and $y$ components of the vector which goes from Point A to Point B is shown to be
 
 ![](images/L1cos1.png)
+
+
 ![](images/L1sin1.png)
 
 expressed in the base frame Fa.
@@ -115,9 +119,78 @@ expressed in the base frame Fa.
 The $x$ and $y$ components of the vector from B to E is shown to be
 
 ![](images/L2cos2.png)
+
+
 ![](images/L2sin2.png)
 
-expressed in the first link's frame, Fb.  However, we can't add a vector in frame Fa to one in frame Fb.  They have to be in the same frame.  
+expressed in the first link's frame, Fb.  
+
+In frame $F_B$, the vector from A to B is simply
+
+![](images/x_y_Fb.png)
+
+because the axes of frame B rotate with the first link, so the vector always points along the $x$-axis of frame B.  Similarly, the vector from B to E in frame E is
+
+![](images/x_y_Fe.png)
+
+If we add the vectors from A to B to E together, we'll get a vector from A to E.  This will tell us the location of the end-effector, which is what we're after
+
+![](images/Pae_Pab_Pbe.png)
+
+However they can't be added until they are all expressed in the same frame.  To do that, we will rotate $P_{AB}$ and $P_{BE}$ into frame A, the static base frame, and then add them together.  In order to do that, we will use rotation matrices as discussed in the previous section.
+
+First, rotate the vector $P_{AB}$ into frame A by use of the rotation matrix from frame B into frame A (remembering that $R_{AB}$ = ${R_{BA}}^T$)
+
+![](images/Pab_full_xform_Fa.png)
+
+This matches what was shown earlier, that the vector $P_{AB}$ in frame A had components that match what was just derived using rotation matrices.
+
+For the vector $P_{BE}$, two transformations are needed.  First, from frame E back to B, then from B back to A.  Rotation matrices can be prepended as long as the origin and destination frames line up logically.  In this case, a vector in frame E is being rotated to frame B, and that resultant vector is then rotated to frame A:
+
+![](images/Pbe_double_rotation.png)
+
+which leads to 
+
+![](images/Pbe_single_rotation.png)
+
+which finally gives
+
+![](images/Pbe_F_A.png).
+
+Now the vectors $P_{AB}$ and $P_{BE}$ can be added together, since they are both expressed in frame A
+
+![](images/Pae_addition.png)
+
+which boils down to (after some trigonometric wizardry)
+
+![](images/Pae_F_A.png)
+
+
+-----------
+
+
+
+However, we can't add a vector in frame Fa to one in frame Fb.  They have to be in the same frame.  This is where rotations matrices come back into the picture.  We can use a rotation matrix $R_B^A$ to rotate the vector described in Frame B back into Frame A.  Once all the vectors are expressed in the same frame, we can simply add them together.
+
+
+The linear alegraic formula for rotating a vector from one frame to another is
+
+![](images/Vec_B_to_A.png)
+
+The superscripts $B$ and $A$ indicate the frame that each vector is described in.  The matrix $R_A^B$ is the rotation from frame A to frame B, meaning that applying that rotation on a vector described in frame A gives you the same vector, but described in frame B.
+
+To apply this information to the vectors in our case, the vector going from point B to E needs to be described in frame $F_A$.  The vector from B to E (described in frame $F_B$) is 
+
+![](images/P_B_E_Fb.png)
+
+If we apply the rotation matrix to this vector, we can get the same vector but in frame A,
+
+![](images/P_B_E_Fa.png)
+
+which, if we remember that $R_A^B$ = ${R_B^A}^T$, looks like
+
+![](images/P_B_E_Fa_full.png)
+
 
 
 
