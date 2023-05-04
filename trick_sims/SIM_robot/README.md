@@ -26,12 +26,12 @@ The Sim Control Panel, and a graphics client called "Robot Range" should appear.
 
 The sim will come up in Freeze mode.  Click Start on the Trick Sim Control Panel and the simulation time should start advancing.
 
-![](images/GraphicsClient.png)
+![graphics client display](images/GraphicsClient.png)
 
 
 ## Control Modes
 
-There are three control modes available for this manipulator:  Single, Manual, and EEPos.  Each will be described below.  Furthermore, the gui provides a toggle to enable tracing the end-effector position.
+There are three control modes available for this manipulator:  Single, Manual, and EEPos.  Each will be described below.  Furthermore, the gui provides a toggle to enable tracing the end-effector (or tip) position.
 
 ### Single Joint Mode
 Single Joint Mode is the most straightfoward control mode in the simulation.  It simply commands a selected joint to move with the angular velocity commanded.  The user interface provides a button to select Single as your mode, a Joint select button to choose the desired joint, and a slider to command a desired joint velocity.
@@ -40,7 +40,7 @@ Single Joint Mode is the most straightfoward control mode in the simulation.  It
 Manual Mode enables control of the motion of the end-effector with a desired velocity.  This mode commands the end-effector to move in the desired direction at the desired rate until either the velocity command is changed or the arm reaches a singularity (described below).  The gui has an "EE Velocity" interface for interacting in this mode.  The gray circle is like a dial, where the angle and location of the selected point in the circle determine the commanded direction and rate of the end-effector.  For example, clicking directly underneath the center of the circle on the edge will command the end-effector to move straight down as fast as the mode allows.  This input can be changed while moving, allowing the user to maneuver the end-effector however they see fit in real time.
 
 ### End-Effector Position Mode
-This mode commands the end-effector to autonomously move to the selected point in the workspace.  The user clicks anywhere on the gui display and the end-effector will attempt to move to that location.  Singularities and reach limits may prevent it from reaching the point, however.  The manipulator makes no effort to avoid these.
+This mode commands the end-effector to autonomously move to the selected point in the workspace.  The user clicks anywhere on the gui display and the end-effector will attempt to move to that location.  Singularities and reach limits may prevent it from reaching the point, however.  The manipulator makes no effort to avoid these as a lesson in owning the consequences of one's actions.
 
 ## Kinematics of the System
 The kinematics of a robotic manipulator describe both the position and velocity of the manipulator at any point on the robot.  Kinematics do not include accelerations, forces, or moments in their description.
@@ -50,50 +50,50 @@ In this sim, we will discuss both forward and inverse kinematics.  Forward kinem
 The position of the end-effector is highly non-linear and heavily coupled with respect to the joint angles required to produce said position.  However, the velocity of the end-effector is linearly related to the joint velocities required to produce it, which forms the basis of the controller described below.  The non-linearity of the position equations, and the linearity of the velocity equations, will be shown in the next sections.
 
 ### How to Layout Points, Frames, and Joint Angles
-The position of the end-effector relative to some fixed Base frame location can be calculated by knowing the joint angles of the manipulator and the lengths of the manipulator links.  First we will assign some points of interest along the manipulator that need to be kept track of during the forward kinematics calcualtions.  We will define the point around which the first link's rotation is centered as point A, the point of the second link's rotation B, and the tip of the manipulator (our end-effector) as E.  The distance between A and B will be defined $L1$ and between B and E $L2$.
+The position of the end-effector relative to some fixed Base frame location can be calculated by knowing the joint angles of the manipulator and the lengths of the manipulator links.  First we will assign some points of interest along the manipulator that need to be kept track of during the forward kinematics calcualtions.  We will define the point around which the first link's rotation is centered as point $a$, the point of the second link's rotation $b$, and the tip of the manipulator (our end-effector) as $e$.  The distance between $a$ and $b$ will be defined as $L1$ and between $b$ and $e$ as $L2$.
 
-![](images/POIs.png)
+![drawing of manipulator with two joint rotation points and end-effector tip annotated as a,b,e respectively](images/POIs.png)
 
-But points of interest are of no use without frames of reference, so we need to define some frames in which we can define the relative locations of these points.  Let's define a fixed, static Base (or Origin) Frame Fa centered on point A.  This frame will give us a reference frame to keep track of the location of points A and B (point A won't move, and point B moves by changing the first joint angle).  However, point E moves if either joint moves.  We need to keep track of how the links change their orientation with respect to both the base frame and to each other.  To do this we assign frames attached to each link, that move along with it, called Fb.  The convention for this sim is to point the X-axis of each frame along the length of these straight links, so that the X-axis points from each point of interest to the next (A to B, B to E).  Finally we will attache a frame to the end-effector, Fe.`
+But points of interest are of no use without frames of reference, so we need to define some frames in which we can define the relative locations of these points.  Let's define a fixed, static Base (or Origin) frame O centered on point $a$.  This frame will give us a reference frame to keep track of the location of points $a$, $b$, and $e$.  Point $a$ is fixed, point $b$ moves when the first joint angle changes, and point $e$ moves when either joint angle changes.  We need to keep track of how the links change their orientation with respect to both the base frame O and to each other.  To do this we define reference coordinate frames to each link that move along with it.  The convention for this sim is to point the X-axis of each frame along the length of these straight links, so that the X-axis points from each point of interest to the next ($a$ to $b$, $b$ to $e$).  Frame O is fixed, allowing a constant reference frame to refer back to at any time.
 
-![](images/Frames.png)
-
-
-We also need to keep track of the joint angles, since they can and will change during the run (otherwise it's less a manipulator and more a sculpture).  Let's define the joint angles as $q1$ and $q2$, making 0 rotation align all three frames so that they are all oriented the same way.  This way any rotation of a link can be easily described with joint angles q1 and q2.
-
-![](images/Angles.png)
+![The manipulator with a base frame O centered on point "a" which doesn't move, a frame "A" attached to the first link, and a frame "B" attached to the second link](images/Frames.png)
 
 
-Now everything of importance to the kinematics of the system has been identified.  The base and joint frames allow us to keep track of the relative location of the points on the manipulator with respect to each other and the base, fixed inertial reference frame.  The joint angles allow us to describe every possible location of each of the points in any frame.
+We also need to keep track of the joint angles, since they can and will change during the run (otherwise it's less a manipulator and more a sculpture).  Let's define the joint angles as $q1$ and $q2$, making 0 rotation align all three frames so that they are all oriented the same way.  This way any rotation of a link can be easily described with joint angles $q1$ and $q2$.
+
+![Figure showing the manipulator with joint angles q1 and q2, q1 being the rotation between the first link and the fixed base from O, and q2 being the rotation between the second link and the first link.](images/Angles.png)
+
+
+Now everything of importance to the kinematics of the system has been named and labeled.  The base and joint frames allow us to keep track of the relative location of the points on the manipulator with respect to each other and the base, fixed inertial reference frame.  The joint angles allow us to describe every possible location of each of the points in any frame.
 
 ### Frame Rotations
-Given that a robot will have at least as many frames as it has links, we need to be able to transform the information about the manipulator from one frame to another.  This is called frame rotation.  One can construct a *rotation matrix* if the relative orientation of any two frames is known with respect to each other.  In this example, we will be rotating between frames Fa, Fb, and Fe (specifically, from Fb back to Fa to express everything in Fa).  
+Given that a robot will have *at least* as many frames as it has moveable links, we need to be able to transform the information about the manipulator from one frame to another.  This is called frame rotation.  One can construct a *rotation matrix* if the relative orientation of any two frames is known with respect to each other.  In this example, we will be rotating between frames O, A, and B (specifically, from A and B back to O to express everything in O).
 
 In general, if you have two frames, A and B, rotated with respect to each other by an angle $q$, then you can determine how the unit vectors which make up frame B relate to frame A:
 
-![](images/RotMat.png)
+![Two coordinate axes that are co-located at their origins but rotated with respect to each other by angle q](images/RotMat.png)
 
 Unit vectors (such as $\hat{X}_A$ and $\hat{Y}_A$) are by definition length 1.  The cosine of the angle $q$ is defined as the length of the adjacent side divided by the hypotenuse.  Since the length of the hypotenuse has to be 1, $cos(q)$ is equal to the length of the adjacent side.  For $sin(q)$, you use the opposite side instead of the adjacent.
 
-![](images/UnitVecComps.png)
+![Two coordinate axes with the unit vectors of frame B split into x- and y-components and defined in terms of frame A's axes](images/UnitVecComps.png)
 
 Given the information above, $X_B$ and $Y_B$ can be described with respect to frame A as:
 
-![](images/XhatBEq.png)
+![X axis of frame B equals cosine q in X direction plus sine q in Y direction of frame A](images/XhatBEq.png)
 
 
-![](images/YhatBEq.png)
+![Y axis of frame B equals negative sin q in X direction plus cosine q in Y direction of frame A](images/YhatBEq.png)
 
 These equations together can be written in matrix form as
 
-![](images/MatrixEq_RotMat.png)
+![Column vector of X and Y in frame B equals matrix cosine q sine q negative sine q cosine q time column vector of X and Y in frame A](images/MatrixEq_RotMat.png)
 
 This matrix is called a rotation matrix, from Frame A to Frame B, commonly denoted as
 
-![](images/R_A_B.png)
+![R subscript A superscript B equals rotation matrix from previous image](images/R_A_B.png)
 
 
-This is the rotation matrix from Frame A to Frame B.  If you take any vector described in frame A and pre-multiply it by this rotation matrix, you will get the same vector but expressed in frame B.  More often than not, you will actually be more concerned with rotation from Frame B back to Frame A.  To do this, you would need the inverse of the matrix (which reverses the frame transformation order).  Luckily, rotations matrices are *orthonormal*, and one characteristic of matrices like this is that the inverse of this matrix is equal to the transpose (which is much easier to find in general).
+This is the rotation matrix from Frame A to Frame B.  The subscript frame (here, A) is the "from" frame and the superscript frame (here, B) is the "to" frame.  If you take any vector described in frame A and pre-multiply it by this rotation matrix, you will get the same vector but expressed in frame B.  More often than not, you will actually be more concerned with rotation from Frame B back to Frame A.  To do this, you would need the inverse of the matrix (which reverses the frame transformation order).  Luckily, rotations matrices are *orthonormal*, and one characteristic of matrices like this is that the inverse of this matrix is equal to the transpose (which is much easier to find in general).
 
 ![](images/orthonormality.png)
 
@@ -139,7 +139,7 @@ If we add the vectors from A to B to E together, we'll get a vector from A to E.
 
 However they can't be added until they are all expressed in the same frame.  To do that, we will rotate $P_{AB}$ and $P_{BE}$ into frame A, the static base frame, and then add them together.  In order to do that, we will use rotation matrices as discussed in the previous section.
 
-First, rotate the vector $P_{AB}$ into frame A by use of the rotation matrix from frame B into frame A (remembering that $R_{AB}$ = ${R_{BA}}^T$)
+First, rotate the vector $P_{AB}$ into frame A by use of the rotation matrix from frame B into frame A (remembering that $R_{F_A}^{F_B}$ = ${R_{F_B}^{F_A}}^T$)
 
 ![](images/Pab_full_xform_Fa.png)
 
@@ -161,37 +161,9 @@ Now the vectors $P_{AB}$ and $P_{BE}$ can be added together, since they are both
 
 ![](images/Pae_addition.png)
 
-which boils down to (after some trigonometric wizardry)
+which, after some trigonometric wizardry, boils down to
 
 ![](images/Pae_F_A.png)
-
-
------------
-
-
-
-However, we can't add a vector in frame Fa to one in frame Fb.  They have to be in the same frame.  This is where rotations matrices come back into the picture.  We can use a rotation matrix $R_B^A$ to rotate the vector described in Frame B back into Frame A.  Once all the vectors are expressed in the same frame, we can simply add them together.
-
-
-The linear alegraic formula for rotating a vector from one frame to another is
-
-![](images/Vec_B_to_A.png)
-
-The superscripts $B$ and $A$ indicate the frame that each vector is described in.  The matrix $R_A^B$ is the rotation from frame A to frame B, meaning that applying that rotation on a vector described in frame A gives you the same vector, but described in frame B.
-
-To apply this information to the vectors in our case, the vector going from point B to E needs to be described in frame $F_A$.  The vector from B to E (described in frame $F_B$) is 
-
-![](images/P_B_E_Fb.png)
-
-If we apply the rotation matrix to this vector, we can get the same vector but in frame A,
-
-![](images/P_B_E_Fa.png)
-
-which, if we remember that $R_A^B$ = ${R_B^A}^T$, looks like
-
-![](images/P_B_E_Fa_full.png)
-
-
 
 
 ### Velocity of the End-Effector
