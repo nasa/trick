@@ -79,25 +79,9 @@ void Trick::Executive::fpe_handler(siginfo_t * sip __attribute__((unused)) ) {
         snprintf(command, sizeof(command), "%s -silent /proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
         system(command);
     } else if (stack_trace == true ) {
-        snprintf(command, sizeof(command), "%s -silent -batch -x ${TRICK_HOME}/bin/gdb_commands "
-                "/proc/%d/exe %d | grep -A 20 \"signal handler\"", debugger_command.c_str(), getpid(), getpid());
-        system(command);
-    }
-#elif __APPLE__
-    char command[2048];
-    char path[1024] ;
-    uint32_t size = sizeof(path) ;
-    if (_NSGetExecutablePath(path, &size) == 0 ) {
-        if (attach_debugger == true) {
-            write( 2 , "Attempting to attach debugger... standby.\n" , 41 ) ;
-            snprintf(command, sizeof(command), "%s -silent %s %d", debugger_command.c_str(), path, getpid());
+            snprintf(command, sizeof(command), "%s -silent -batch -x ${TRICK_HOME}/share/trick/gdb_commands "
+                    "/proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
             system(command);
-        } else if (stack_trace == true ) {
-            write( 2 , "Attempting to generate stack trace... standby.\n" , 47 ) ;
-            snprintf(command, sizeof(command), "%s -batch -x ${TRICK_HOME}/bin/gdb_commands "
-                    "%s %d", debugger_command.c_str(), path, getpid());
-            system(command);
-        }
     }
 #endif
 
