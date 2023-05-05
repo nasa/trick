@@ -151,8 +151,10 @@ void VideoWindow::set_file(const QString &fname)
 {
 #ifdef HAS_MPV
     if (mpv) {
-        QString offset = QString("%1").arg(_timeOffset);
-        mpv_set_option_string(mpv,"start", offset.toLatin1().constData());
+        if ( _timeOffset > 0 ) {
+            QString offset = QString("%1").arg(_timeOffset);
+            mpv_set_option_string(mpv,"start", offset.toLatin1().constData());
+        }
 
         const QByteArray c_filename = fname.toUtf8();
         const char *args[] = {"loadfile", c_filename.data(), NULL};
