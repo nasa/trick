@@ -11,6 +11,7 @@ Manip2D.robot.kinemat.joint_w[1] = 0.0
 
 Manip2D.robot.controller.Kp = 2.0
 Manip2D.robot.controller.Kd = 0.3
+Manip2D.robot.kinemat.checkSingularities = False
 
 armIntegLoop.getIntegrator(trick.Euler, Manip2D.robot.ndof)
 

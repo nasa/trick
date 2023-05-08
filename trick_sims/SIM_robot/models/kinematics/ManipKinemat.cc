@@ -222,6 +222,12 @@ void ManipKinemat::forwardKinVel()
 void ManipKinemat::calcJacobian()
 {
 
+    /* These are hand-calculated due to the simplicity of the manipulator 
+     * system.  The algorithmic method of determining the elements of 
+     * the jacobian, while efficient and generic, are difficult to read in
+     * code and are beyond the scope of a simple robotic tutorial
+     */
+
     double s1,c1,s12,c12;
     s1  = sin(joint_q[0]);
     s12 = sin(joint_q[0]+joint_q[1]); 
@@ -238,7 +244,7 @@ void ManipKinemat::calcJacobian()
     jacobian[1][1] = l2*c12;
 
 
-    /* Calculate the inverse jacobian as well, assuming it doesn't explode*/
+    /* Calculate the inverse jacobian as well */
 
     jacDet = jacobian[0][0]*jacobian[1][1] - jacobian[0][1]*jacobian[1][0];
 
