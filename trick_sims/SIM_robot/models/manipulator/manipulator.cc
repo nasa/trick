@@ -82,10 +82,6 @@ void PlanarManip::control()
             else
                 positionReached = controller.EEPositionAuto( &(kinemat.P_task_ee[0]), &(kinemat.V_ee[0]) );
 
-            if(positionReached)
-            {
-                std::cout<<"EE Position Reached!"<<std::endl;
-            }
             break;
 
         case Cancel:
