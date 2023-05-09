@@ -49,7 +49,7 @@ In this sim, we will discuss both forward and inverse kinematics.  Forward kinem
 
 The position of the end-effector is highly non-linear and heavily coupled with respect to the joint angles required to produce said position.  However, the velocity of the end-effector is linearly related to the joint velocities required to produce it, which forms the basis of the controller described below.  The non-linearity of the position equations, and the linearity of the velocity equations, will be shown in the next sections.
 
-For a robotic system, the number of directions the end-effector can move is determined by the number of degrees of freedom, i.e. the number of joints, and how they are layed out.  In general, each joint allows motion in another direction.  This two degree-of-freedom manipulator can move in $x$ and $y$, but not $Z$.  Adding more degrees of freedom than you need to move in all your desired directions makes a system *kinematically dedundant*, and while those are super fun and interesting, they are beyond the scope of this tutorial.
+For a robotic system, the number of directions the end-effector can move is determined by the number of degrees of freedom, i.e. the number of joints, and how they are layed out.  In general, each joint allows motion in another direction.  This two degree-of-freedom manipulator can move in $x$ and $y$, but not $Z$.  Adding more degrees of freedom than you need to move in all your desired directions makes a system *kinematically redundant*, and while those are super fun and interesting, they are beyond the scope of this tutorial.
 
 
 ### How to Layout Points, Frames, and Joint Angles
@@ -239,7 +239,7 @@ where the end-effector velocity terms are now the *desired* end-effector velocit
 
 The control interface for this mode is actually the workspace of the manipulator in the graphics client.  Select **EEPos** from the "Robot Mode" section of the gui and click anywhere in or near the workspace.  A dot will appear indicating the desired location of the end-effector, and the manipulator will move that direction.  This is another mode impacted by singularities, and forcing the manipulator to either reach outside the workspace or put the end-effector on the base origin will result in fireworks.  It's especially noticable if you turn on **Trace** before you try to break it.
 
-The methodolgy behind this is actually a combination of PD control and Manual Mode.  The difference is calculated between the desired and current end-effector position
+The methodolgy behind this is actually a combination of a PD[^1] controller and Manual Mode.  The difference is calculated between the desired and current end-effector position
 
 ![Desired position minus current position equals delta position](images/deltaX.png)
 
@@ -249,6 +249,7 @@ This is used as the proportional offset in a PD controller with some gain $K_P$.
 
 These desired velocities are then fed into the same Manual Mode controller, and the position offset is updated every cycle until it is "close enough."
 
+[^1]:  PD controllers are a subset of the broader PID controller implementation.  PID controllers are very common and are used in a wide variety of situations.  There are mountains of articles explaining what they are and how they work to be found in the wilds of the internet.  PID controllers have proportional (P), integral (I), and derivative (D) components.  Robotic manipulators often don't employ the integral component because it is ill-suited to systems whose desired control point never sits still, which is why the controller implemented here is simply a PD controller instead.
 
 ### Singularity Management
 
