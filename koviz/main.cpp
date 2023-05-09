@@ -160,6 +160,7 @@ class SnapOptions : public Options
     QString xaxislabel;
     QString yaxislabel;
     QString vars;
+    QString liveTime;
 };
 
 SnapOptions opts;
@@ -309,6 +310,9 @@ int main(int argc, char *argv[])
     opts.add("-vars",
              &opts.vars,"","List variables to plot. "
                         "Use @var to place var on same plot as prev variable.");
+    opts.add("-liveTime",
+             &opts.liveTime,"", "Select first curve and set live time arrow.  "
+                                "Videos will start paused at given time.");
 
     opts.parse(argc,argv, QString("koviz"), &ok);
 
@@ -1059,7 +1063,11 @@ int main(int argc, char *argv[])
             bookModel->addChild(citem, "Title2",titles.at(1));
             bookModel->addChild(citem, "Title3",titles.at(2));
             bookModel->addChild(citem, "Title4",titles.at(3));
-            bookModel->addChild(rootItem, "LiveCoordTime","");
+            if ( opts.liveTime.isEmpty() ) {
+                bookModel->addChild(rootItem, "LiveCoordTime","");
+            } else {
+                bookModel->addChild(rootItem, "LiveCoordTime",opts.liveTime);
+            }
             bookModel->addChild(rootItem, "LiveCoordTimeIndex",0);
             bookModel->addChild(rootItem, "StartTime",startTime);
             bookModel->addChild(rootItem, "StopTime",stopTime);
@@ -1344,6 +1352,10 @@ int main(int argc, char *argv[])
                         bookModel->setPlotMathRect(bbox,plotIdx);
                     }
                 }
+            }
+
+            if ( !opts.liveTime.isEmpty() ) {
+                w.selectFirstCurve();
             }
 
             if ( isPdf ) {

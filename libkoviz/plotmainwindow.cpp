@@ -245,51 +245,8 @@ PlotMainWindow::PlotMainWindow(
             exit(-1);
         }
         _openVideoFile(videoFileName);
-        if ( vidView ) {
-            vidView->set_offset(videoOffset);
-        }
 
-        // If there is a single curve in first plot, select it so that
-        // live coords are shown and updating with video
-        if ( _bookModel->isChildIndex(QModelIndex(),"","Pages") ) {
-            QModelIndex pagesIdx = _bookModel->getIndex(QModelIndex(),
-                                                        "Pages","");
-            if ( _bookModel->isChildIndex(pagesIdx, "Pages", "Page") ) {
-                 QModelIndexList pageIdxs = _bookModel->getIndexList(pagesIdx,
-                                                                "Page","Pages");
-                 QModelIndex pageIdx0 = pageIdxs.at(0);
-                 if ( _bookModel->isChildIndex(pageIdx0,"Page", "Plots") ) {
-                     QModelIndex plotsIdx = _bookModel->getIndex(pageIdx0,
-                                                                "Plots","Page");
-                     if ( _bookModel->isChildIndex(plotsIdx,"Plots","Plot")) {
-                         QModelIndexList plotIdxs = _bookModel->getIndexList(
-                                                                 plotsIdx,
-                                                                "Plot","Plots");
-                         QModelIndex plotIdx0 = plotIdxs.at(0);
-                         if ( _bookModel->isChildIndex(plotIdx0,
-                                                       "Plot","Curves")) {
-                             QModelIndex curvesIdx = _bookModel->getIndex(
-                                                               plotIdx0,
-                                                               "Curves","Plot");
-                             if ( _bookModel->isChildIndex(curvesIdx,
-                                                           "Curves","Curve")) {
-                                 QModelIndexList curveIdxs = _bookModel->
-                                                   getIndexList(curvesIdx,
-                                                              "Curve","Curves");
-                                 if ( curveIdxs.size() == 1 ) {
-                                     QModelIndex curveIdx0 = curveIdxs.at(0);
-                                     QModelIndex runIdx = _bookModel->getIndex(
-                                                          curveIdx0,
-                                                         "CurveRunID", "Curve");
-                                     int id = _bookModel->data(runIdx).toInt();
-                                     _bookView->setCurrentCurveRunID(id);
-                                 }
-                             }
-                         }
-                     }
-                 }
-            }
-        }
+        selectFirstCurve();
     }
 
     // Size main window
@@ -882,6 +839,47 @@ void PlotMainWindow::savePdf(const QString& fname)
     }
 }
 
+void PlotMainWindow::selectFirstCurve()
+{
+    if ( _bookModel->isChildIndex(QModelIndex(),"","Pages") ) {
+        QModelIndex pagesIdx = _bookModel->getIndex(QModelIndex(),
+                                                    "Pages","");
+        if ( _bookModel->isChildIndex(pagesIdx, "Pages", "Page") ) {
+            QModelIndexList pageIdxs = _bookModel->getIndexList(pagesIdx,
+                                                                "Page","Pages");
+            QModelIndex pageIdx0 = pageIdxs.at(0);
+            if ( _bookModel->isChildIndex(pageIdx0,"Page", "Plots") ) {
+                QModelIndex plotsIdx = _bookModel->getIndex(pageIdx0,
+                                                            "Plots","Page");
+                if ( _bookModel->isChildIndex(plotsIdx,"Plots","Plot")) {
+                    QModelIndexList plotIdxs = _bookModel->getIndexList(
+                                plotsIdx,
+                                "Plot","Plots");
+                    QModelIndex plotIdx0 = plotIdxs.at(0);
+                    if ( _bookModel->isChildIndex(plotIdx0,
+                                                  "Plot","Curves")) {
+                        QModelIndex curvesIdx = _bookModel->getIndex(
+                                    plotIdx0,
+                                    "Curves","Plot");
+                        if ( _bookModel->isChildIndex(curvesIdx,
+                                                      "Curves","Curve")) {
+                            QModelIndexList curveIdxs = _bookModel->
+                                                         getIndexList(curvesIdx,
+                                                              "Curve","Curves");
+                            QModelIndex curveIdx0 = curveIdxs.at(0);
+                            QModelIndex runIdx = _bookModel->getIndex(
+                                                         curveIdx0,
+                                                         "CurveRunID", "Curve");
+                            int id = _bookModel->data(runIdx).toInt();
+                            _bookView->setCurrentCurveRunID(id);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void PlotMainWindow::_savePdf()
 {
     QString fname = QFileDialog::getSaveFileName(this,
@@ -1322,19 +1320,39 @@ void PlotMainWindow::_openVideoFile(const QString& fname)
                         "  Please install mpv and rebuild koviz!\n");
         exit(-1);
 #endif
+    bool isLiveTime = false;
+    QModelIndex liveIdx = _bookModel->getDataIndex(QModelIndex(),
+                                                   "LiveCoordTime");
+    double liveTime;
+    if ( !_bookModel->data(liveIdx).toString().isEmpty() ) {
+        isLiveTime = true;
+        liveTime = _bookModel->data(liveIdx).toDouble();
+    }
+
     if ( !vidView ) {
         vidView = new VideoWindow(this);
         vidView->show();
         this->setFocusPolicy(Qt::StrongFocus);
         connect(vidView,SIGNAL(timechangedByMpv(double)),
                 this, SLOT(setTimeFromVideo(double)));
-        vidView->set_file(fname);
     } else {
         if ( vidView->isHidden() ) {
             vidView->show();
         }
-        vidView->set_file(fname);
-        vidView->raise();
+    }
+
+    if ( isLiveTime ) {
+        vidView->set_start(liveTime);
+        vidView->pause();
+    }
+    vidView->set_offset(_videoOffset);
+    vidView->set_file(fname);
+    vidView->raise();
+
+    if ( isLiveTime ) {
+        // Koviz needs to drive time if -liveTime used
+        this->activateWindow();
+        QCoreApplication::processEvents();
     }
 }
 

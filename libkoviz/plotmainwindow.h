@@ -68,6 +68,7 @@ public:
                              QWidget *parent = 0);
 
      void savePdf(const QString& fname);
+     void selectFirstCurve();
 
     ~PlotMainWindow();
 

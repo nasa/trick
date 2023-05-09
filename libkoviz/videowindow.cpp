@@ -18,7 +18,8 @@ static void wakeup(void *ctx)
 
 VideoWindow::VideoWindow(QWidget *parent) :
     QMainWindow(parent),
-    _timeOffset(0.0)
+    _timeOffset(0.0),
+    _startTime(0.0)
 {
 #ifdef HAS_MPV
     std::setlocale(LC_NUMERIC, "C");
@@ -215,6 +216,11 @@ void VideoWindow::set_file(const QString &fnameIn)
     int i = 0;
     foreach (mpv_handle* mpv, mpvs) {
         if (mpv) {
+            if ( _startTime + _timeOffset > 0 ) {
+                QString offset = QString("%1").arg(_startTime+_timeOffset);
+                mpv_set_option_string(mpv,"start",
+                                      offset.toLatin1().constData());
+            }
             QString fname = files.at(i);
             const QByteArray c_filename = fname.toUtf8();
             const char *args[] = {"loadfile", c_filename.data(), NULL};
@@ -237,12 +243,28 @@ void VideoWindow::set_offset(double timeOffset)
     _timeOffset = timeOffset;
 }
 
+void VideoWindow::set_start(double startTime)
+{
+    _startTime = startTime;
+}
+
+void VideoWindow::pause()
+{
+#ifdef HAS_MPV
+    foreach (mpv_handle* mpv, mpvs) {
+        if (mpv) {
+            mpv_set_option_string(mpv,"pause","yes");
+        }
+    }
+#endif
+}
+
+
 VideoWindow::~VideoWindow()
 {
 #ifdef HAS_MPV
     foreach (mpv_handle* mpv, mpvs) {
         if (mpv) {
-
             mpv_event *event;
             while ((event = mpv_wait_event(mpv, 0))) {
                 if (event->event_id == MPV_EVENT_SHUTDOWN) {

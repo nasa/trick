@@ -74,11 +74,12 @@ void VarsWidget::_varsSelectModelSelectionChanged(
 
     QModelIndexList selIdxs = _varsSelectModel->selection().indexes();
 
+    QModelIndex pageIdx;
     QModelIndex currIdx = _plotSelectModel->currentIndex();
     Qt::KeyboardModifiers keymods = QApplication::keyboardModifiers();
     if ( keymods & Qt::AltModifier && currIdx.isValid() ) {
         // Add variable to last plot on current page
-        QModelIndex pageIdx = _plotModel->getIndex(currIdx, "Page");
+        pageIdx = _plotModel->getIndex(currIdx, "Page");
         QModelIndex plotsIdx = _plotModel->getIndex(pageIdx,"Plots","Page");
         int nplots = _plotModel->rowCount(plotsIdx);
         QModelIndex plotIdx = _plotModel->index(nplots-1,0,plotsIdx);
@@ -98,9 +99,6 @@ void VarsWidget::_varsSelectModelSelectionChanged(
 
     } else {
 
-        // Add variable to a new plot
-        QModelIndex pageIdx; // for new or selected qp page
-
         if ( selIdxs.size() == 1 ) { // Single selection
 
             QString yName = _varsFilterModel->data(selIdxs.at(0)).toString();
@@ -113,7 +111,6 @@ void VarsWidget::_varsSelectModelSelectionChanged(
                 pageIdx = _plotModel->indexFromItem(pageItem);
                 _plotSelectModel->setCurrentIndex(pageIdx,
                                                   QItemSelectionModel::Current);
-                //_selectCurrentRunOnPageItem(pageItem);
             } else {
                 _plotSelectModel->setCurrentIndex(pageIdx,
                                                  QItemSelectionModel::NoUpdate);
@@ -153,7 +150,6 @@ void VarsWidget::_varsSelectModelSelectionChanged(
                 _addPlotToPage(pageItem,varIdx);
                 _plotSelectModel->setCurrentIndex(pageIdx,
                                                   QItemSelectionModel::Current);
-                //_selectCurrentRunOnPageItem(pageItem);
 #ifdef __linux
                 int secs = qRound(timer.stop()/1000000.0);
                 div_t d = div(secs,60);
@@ -163,6 +159,30 @@ void VarsWidget::_varsSelectModelSelectionChanged(
 #endif
             }
             progress.setValue(rc);
+        }
+    }
+
+    // If live time is set, select curve so live time arrow appears
+    QModelIndex liveIdx = _plotModel->getDataIndex(QModelIndex(),
+                                                   "LiveCoordTime");
+    if ( !_plotModel->data(liveIdx).toString().isEmpty() ) {
+        QModelIndex plotsIdx = _plotModel->getIndex(pageIdx,"Plots","Page");
+        if ( _plotModel->isChildIndex(plotsIdx,"Plots","Plot")) {
+            QModelIndexList plotIdxs = _plotModel->getIndexList(plotsIdx,
+                                                                "Plot","Plots");
+            QModelIndex plotIdx0 = plotIdxs.at(0);
+            if ( _plotModel->isChildIndex(plotIdx0,"Plot","Curves")) {
+                QModelIndex curvesIdx = _plotModel->getIndex(plotIdx0,
+                                                             "Curves","Plot");
+                if (_plotModel->isChildIndex(curvesIdx, "Curves","Curve")) {
+                    QModelIndexList curveIdxs = _plotModel->getIndexList(
+                                                              curvesIdx,
+                                                              "Curve","Curves");
+                    QModelIndex curveIdx0 = curveIdxs.at(0);
+                    _plotSelectModel->setCurrentIndex(curveIdx0,
+                                                 QItemSelectionModel::NoUpdate);
+                }
+            }
         }
     }
 }
