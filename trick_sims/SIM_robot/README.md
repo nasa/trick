@@ -8,7 +8,7 @@ Included is a graphics and user interface client which allows the user to view t
 
 
 ## Building the Simulation
-In order to build a Trick simulation, the Trick-specific command trick-CP must be run to begin compilation process.  trick-CP is located in the Trick **```bin```** directory.  Simply run the trick-CP command in the SIM_robot directory.  Upon successful compilation, the following message will be displayed in the terminal:
+In order to build a Trick simulation, the Trick-specific command **```trick-CP```** must be run to begin compilation process.  **```trick-CP```** is located in the Trick ```bin``` directory.  Run the **```trick-CP```** command in the SIM_robot directory.  Upon successful compilation, the following message will be displayed in the terminal:
 
 ```
 === Simulation make complete ===
@@ -29,18 +29,18 @@ The sim will come up in Freeze mode.  Click Start on the Trick Sim Control Panel
 ![graphics client display](images/GraphicsClient.png)
 
 
-## Control Modes
+## User Control Options
 
 There are three control modes available for this manipulator:  Single, Manual, and EEPos.  Each will be described below.  Furthermore, the gui provides a toggle to enable tracing the end-effector (or tip) position.
 
 ### Single Joint Mode
-Single Joint Mode is the most straightfoward control mode in the simulation.  It simply commands a selected joint to move with the angular velocity commanded.  The user interface provides a button to select Single as your mode, a Joint select button to choose the desired joint, and a slider to command a desired joint velocity.
+**Single Joint Mode** is the most straightfoward control mode in the simulation.  It simply commands a selected joint to move with the angular velocity commanded.  The user interface provides a button to select Single as your mode, a Joint select button to choose the desired joint, and a slider to command a desired joint velocity.
 
 ### Manual Mode
-Manual Mode enables control of the motion of the end-effector with a desired velocity.  This mode commands the end-effector to move in the desired direction at the desired rate until either the velocity command is changed or the arm reaches a singularity (described below).  The gui has an "EE Velocity" interface for interacting in this mode.  The gray circle is like a dial, where the angle and location of the selected point in the circle determine the commanded direction and rate of the end-effector.  For example, clicking directly underneath the center of the circle on the edge will command the end-effector to move straight down as fast as the mode allows.  This input can be changed while moving, allowing the user to maneuver the end-effector however they see fit in real time.
+**Manual Mode** enables control of the motion of the end-effector with a desired velocity.  This mode commands the end-effector to move in the desired direction at the desired rate until either the velocity command is changed or the arm reaches a singularity (described below).  The gui has an "EE Velocity" interface for interacting in this mode.  The gray circle is like a dial, where the angle and location of the selected point in the circle determine the commanded direction and rate of the end-effector.  For example, clicking directly underneath the center of the circle on the edge will command the end-effector to move straight down as fast as the mode allows.  This input can be changed while moving, allowing the user to maneuver the end-effector however they see fit in real time.
 
 ### End-Effector Position Mode
-This mode commands the end-effector to autonomously move to the selected point in the workspace.  The user clicks anywhere on the gui display and the end-effector will attempt to move to that location.  Singularities and reach limits may prevent it from reaching the point, however.  The manipulator makes no effort to avoid these as a lesson in owning the consequences of one's actions.
+**End-Effector Position Mode** commands the end-effector to autonomously move to the selected point in the workspace.  The user clicks anywhere on the gui display and the end-effector will attempt to move to that location.  Clicking elsewhere on the gui will change the selected position and the manipulator will begin moving towards the new one.  Singularities and reach limits may prevent it from reaching the point, however.  The manipulator makes no effort to avoid these as a lesson in owning the consequences of one's actions.
 
 ## Kinematics of the System
 The kinematics of a robotic manipulator describe both the position and velocity of the manipulator at any point on the robot.  Kinematics do not include accelerations, forces, or moments in their description.
@@ -49,7 +49,7 @@ In this sim, we will discuss both forward and inverse kinematics.  Forward kinem
 
 The position of the end-effector is highly non-linear and heavily coupled with respect to the joint angles required to produce said position.  However, the velocity of the end-effector is linearly related to the joint velocities required to produce it, which forms the basis of the controller described below.  The non-linearity of the position equations, and the linearity of the velocity equations, will be shown in the next sections.
 
-For a robotic system, the number of directions the end-effector can move is determined by the number of degrees of freedom, i.e. the number of joints, and how they are layed out.  In general, each joint allows motion in another direction.  This two degree-of-freedom manipulator can move in $x$ and $y$, but not $Z$.  Adding more degrees of freedom than you need to move in all your desired directions makes a system *kinematically dedundant*, and while those are super fun and interesting, they are beyond the scope of this tutorial.
+For a robotic system, the number of directions the end-effector can move is determined by the number of degrees of freedom, i.e. the number of joints, and how they are layed out.  In general, each joint allows motion in another direction.  This two degree-of-freedom manipulator can move in $x$ and $y$, but not $Z$.  Adding more degrees of freedom than you need to move in all your desired directions makes a system *kinematically redundant*, and while those are super fun and interesting, they are beyond the scope of this tutorial.
 
 
 ### How to Layout Points, Frames, and Joint Angles
@@ -239,7 +239,7 @@ where the end-effector velocity terms are now the *desired* end-effector velocit
 
 The control interface for this mode is actually the workspace of the manipulator in the graphics client.  Select **EEPos** from the "Robot Mode" section of the gui and click anywhere in or near the workspace.  A dot will appear indicating the desired location of the end-effector, and the manipulator will move that direction.  This is another mode impacted by singularities, and forcing the manipulator to either reach outside the workspace or put the end-effector on the base origin will result in fireworks.  It's especially noticable if you turn on **Trace** before you try to break it.
 
-The methodolgy behind this is actually a combination of PD control and Manual Mode.  The difference is calculated between the desired and current end-effector position
+The methodolgy behind this is actually a combination of a PD[^1] controller and Manual Mode.  The difference is calculated between the desired and current end-effector position
 
 ![Desired position minus current position equals delta position](images/deltaX.png)
 
@@ -249,6 +249,7 @@ This is used as the proportional offset in a PD controller with some gain $K_P$.
 
 These desired velocities are then fed into the same Manual Mode controller, and the position offset is updated every cycle until it is "close enough."
 
+[^1]:  PD controllers are a subset of the broader PID controller implementation.  PID controllers are very common and are used in a wide variety of situations.  There are mountains of articles explaining what they are and how they work to be found in the wilds of the internet.  PID controllers have proportional (P), integral (I), and derivative (D) components.  Robotic manipulators often don't employ the integral component because it is ill-suited to systems whose desired control point never sits still, which is why the controller implemented here is simply a PD controller instead.
 
 ### Singularity Management
 
