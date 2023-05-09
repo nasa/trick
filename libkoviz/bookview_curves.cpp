@@ -41,24 +41,53 @@ void CurvesView::setCurrentCurveRunID(int runID)
         return;
     }
 
-    QModelIndex plotIdx = rootIndex();
-    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
-    int rc = model()->rowCount(curvesIdx);
-    int nMatches = 0;
-    QModelIndex curveIdx;
-    for (int i = 0 ; i < rc; ++i ) {
-        QModelIndex idx = model()->index(i,0,curvesIdx);
-        if ( model()->data(idx).toString() == "Curve" ) {
-            int curveRunID = _bookModel()->getDataInt(idx,"CurveRunID","Curve");
-            if ( curveRunID == runID ) {
-                ++nMatches;
-                curveIdx = idx;
+    QModelIndex cidx = currentIndex();
+    if ( cidx.isValid() ) { // Choose curve based on current curve
+
+        // See if current curve's runid is runID
+        int curveRunID = _bookModel()->getDataInt(cidx,"CurveRunID","Curve");
+        if ( curveRunID == runID ) {
+            // Nothing to do since current curve runID is already runID
+            return;
+        }
+
+        // Search for curve with runID and same yName as current curve
+        QString currYName = _bookModel()->getDataString(cidx,
+                                                        "CurveYName","Curve");
+        QModelIndex plotIdx = rootIndex();
+        QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+        int rc = model()->rowCount(curvesIdx);
+        for (int i = 0 ; i < rc; ++i ) {
+            QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+            if ( model()->data(curveIdx).toString() == "Curve" ) {
+                QString yName = _bookModel()->getDataString(curveIdx,
+                                                         "CurveYName", "Curve");
+                int curveRunID = _bookModel()->getDataInt(curveIdx,
+                                                          "CurveRunID","Curve");
+                if ( curveRunID == runID && yName == currYName ) {
+                    // Found curve with runId and same curve name as current
+                    setCurrentIndex(curveIdx);
+                    return;
+                }
             }
         }
     }
-    if ( nMatches == 1 ) {
-        // If runID matches a single curve, make curve current
-        setCurrentIndex(curveIdx);
+
+    // Search for first curve that matches runID
+    QModelIndex plotIdx = rootIndex();
+    QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,"Curves","Plot");
+    int rc = model()->rowCount(curvesIdx);
+    for (int i = 0 ; i < rc; ++i ) {
+        QModelIndex curveIdx = model()->index(i,0,curvesIdx);
+        if ( model()->data(curveIdx).toString() == "Curve" ) {
+            int curveRunID = _bookModel()->getDataInt(curveIdx,
+                                                      "CurveRunID","Curve");
+            if ( curveRunID == runID ) {
+                // Found curve with same runID, make it current
+                setCurrentIndex(curveIdx);
+                return;
+            }
+        }
     }
 }
 
@@ -2288,6 +2317,13 @@ void CurvesView::currentChanged(const QModelIndex &current,
         // Clicked off of curve into whitespace
         QString msg = "";
         _bookModel()->setData(statusIdx,msg);
+
+        // Set live time to empty
+        QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                         "LiveCoordTime");
+        if ( !_bookModel()->data(liveIdx).toString().isEmpty() ) {
+            _bookModel()->setData(liveIdx, "");
+        }
     }
     viewport()->update();
 }

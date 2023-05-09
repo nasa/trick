@@ -29,6 +29,8 @@ public:
     ~VideoWindow();
     void set_file(const QString& fname);
     void set_offset(double timeOffset);
+    void set_start(double startTime);
+    void pause();
     void wrap_mpv_events();
 
 protected:
@@ -46,6 +48,7 @@ signals:
 private:
     QWidget *mpv_container;
     double _timeOffset;
+    double _startTime;
     void create_player();
 
 #ifdef HAS_MPV
