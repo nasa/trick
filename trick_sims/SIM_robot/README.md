@@ -146,7 +146,7 @@ If we add the vectors from $a$ to $b$ to $e$ together, we'll get a vector from $
 
 However they can't be added until they are all expressed in the same frame.  To do that, we will rotate $P_{ab}$ and $P_{be}$ into frame O, the static base frame, and then add them together.  In order to do that, we will use rotation matrices as discussed in the previous section.
 
-First, rotate the vector $P_{OB}$ into frame O by use of the rotation matrix from frame A into frame O (remembering that $R_A^B = R_B^A^T$)
+First, rotate the vector $P_{OB}$ into frame O by use of the rotation matrix from frame A into frame O (remembering that $R_A^B = R{_B^A}^T$)
 
 ![Full expanded vector form of vector P sub "a" "b" in frame O](images/Pab_full_xform_O.png)
 
