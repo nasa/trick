@@ -8,7 +8,7 @@ Included is a graphics and user interface client which allows the user to view t
 
 
 ## Building the Simulation
-In order to build a Trick simulation, the Trick-specific command trick-CP must be run to begin compilation process.  trick-CP is located in the Trick **```bin```** directory.  Simply run the trick-CP command in the SIM_robot directory.  Upon successful compilation, the following message will be displayed in the terminal:
+In order to build a Trick simulation, the Trick-specific command **```trick-CP```** must be run to begin compilation process.  **```trick-CP```** is located in the Trick ```bin``` directory.  Run the **```trick-CP```** command in the SIM_robot directory.  Upon successful compilation, the following message will be displayed in the terminal:
 
 ```
 === Simulation make complete ===
@@ -29,18 +29,18 @@ The sim will come up in Freeze mode.  Click Start on the Trick Sim Control Panel
 ![graphics client display](images/GraphicsClient.png)
 
 
-## Control Modes
+## User Control Options
 
 There are three control modes available for this manipulator:  Single, Manual, and EEPos.  Each will be described below.  Furthermore, the gui provides a toggle to enable tracing the end-effector (or tip) position.
 
 ### Single Joint Mode
-Single Joint Mode is the most straightfoward control mode in the simulation.  It simply commands a selected joint to move with the angular velocity commanded.  The user interface provides a button to select Single as your mode, a Joint select button to choose the desired joint, and a slider to command a desired joint velocity.
+**Single Joint Mode** is the most straightfoward control mode in the simulation.  It simply commands a selected joint to move with the angular velocity commanded.  The user interface provides a button to select Single as your mode, a Joint select button to choose the desired joint, and a slider to command a desired joint velocity.
 
 ### Manual Mode
-Manual Mode enables control of the motion of the end-effector with a desired velocity.  This mode commands the end-effector to move in the desired direction at the desired rate until either the velocity command is changed or the arm reaches a singularity (described below).  The gui has an "EE Velocity" interface for interacting in this mode.  The gray circle is like a dial, where the angle and location of the selected point in the circle determine the commanded direction and rate of the end-effector.  For example, clicking directly underneath the center of the circle on the edge will command the end-effector to move straight down as fast as the mode allows.  This input can be changed while moving, allowing the user to maneuver the end-effector however they see fit in real time.
+**Manual Mode** enables control of the motion of the end-effector with a desired velocity.  This mode commands the end-effector to move in the desired direction at the desired rate until either the velocity command is changed or the arm reaches a singularity (described below).  The gui has an "EE Velocity" interface for interacting in this mode.  The gray circle is like a dial, where the angle and location of the selected point in the circle determine the commanded direction and rate of the end-effector.  For example, clicking directly underneath the center of the circle on the edge will command the end-effector to move straight down as fast as the mode allows.  This input can be changed while moving, allowing the user to maneuver the end-effector however they see fit in real time.
 
 ### End-Effector Position Mode
-This mode commands the end-effector to autonomously move to the selected point in the workspace.  The user clicks anywhere on the gui display and the end-effector will attempt to move to that location.  Singularities and reach limits may prevent it from reaching the point, however.  The manipulator makes no effort to avoid these as a lesson in owning the consequences of one's actions.
+**End-Effector Position Mode** commands the end-effector to autonomously move to the selected point in the workspace.  The user clicks anywhere on the gui display and the end-effector will attempt to move to that location.  Clicking elsewhere on the gui will change the selected position and the manipulator will begin moving towards the new one.  Singularities and reach limits may prevent it from reaching the point, however.  The manipulator makes no effort to avoid these as a lesson in owning the consequences of one's actions.
 
 ## Kinematics of the System
 The kinematics of a robotic manipulator describe both the position and velocity of the manipulator at any point on the robot.  Kinematics do not include accelerations, forces, or moments in their description.
