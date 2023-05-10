@@ -141,6 +141,7 @@ class SnapOptions : public Options
     double trickoffset;
     QString videoFileName;
     double videoOffset;
+    QString videoList;
     QString unitOverrides;
     QString group1;
     QString group2;
@@ -283,6 +284,9 @@ int main(int argc, char *argv[])
              "mp4 video filename");
     opts.add("-videoOffset", &opts.videoOffset, 0.0,
              "video time sync offset");
+    opts.add("-videoList", &opts.videoList, "",
+             "list of videos and colon delimited offsets "
+             "e.g.: \"myvideo.mp4:123.4,myothervideo.mp4:567.8");
     opts.add("-units", &opts.unitOverrides, "",
              "comma delimited list of override units e.g. -units \"in,d\"");
     opts.add("-showUnits:{0,1}",&opts.isShowUnits,false,
@@ -441,6 +445,9 @@ int main(int argc, char *argv[])
     double videoOffset = opts.videoOffset;
     if ( videoOffset == 0.0 && session ) {
         videoOffset = session->videoOffset();
+    }
+    if ( !opts.videoList.isEmpty() ) {
+        // Keith TODO: I just got started on this on 5/10/2023
     }
 
     if ( !opts.trk2csvFile.isEmpty() ) {
