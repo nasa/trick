@@ -38,6 +38,7 @@ llvm::cl::opt<bool> units_truth_is_scary("units-truth-is-scary", llvm::cl::desc(
 llvm::cl::opt<bool> sim_services_flag("sim_services", llvm::cl::desc("Gernerate io_src for Trick core headers"));
 llvm::cl::opt<bool> force("force", llvm::cl::desc("Force all io_src files to be generated"));
 llvm::cl::opt<int> attr_version("v", llvm::cl::desc("Select version of attributes to produce.  10 and 13 are valid"), llvm::cl::init(10));
+llvm::cl::opt<std::string> standard_version("icg-std", llvm::cl::desc("Set the C++ standard to use when parsing. c++11, c++14, and c++17 are valid. Default is newest supported by your LLVM version."), llvm::cl::init(""));
 llvm::cl::opt<int> debug_level("d", llvm::cl::desc("Set debug level"), llvm::cl::init(0), llvm::cl::ZeroOrMore);
 llvm::cl::opt<bool> create_map("m", llvm::cl::desc("Create map files"), llvm::cl::init(false));
 llvm::cl::opt<std::string> output_dir("o", llvm::cl::desc("Output directory"));
@@ -74,6 +75,18 @@ const char * gcc_version = "";
     ci.getLangOpts().GNUCVersion = gccVersionToIntOrDefault(gcc_version, 40805);
     ci.getLangOpts().CPlusPlus17 = true ;
 #endif
+
+    if (standard_version != "") {
+        // Turn off according to icg-std flag
+        if (standard_version == "c++11") {
+            ci.getLangOpts().CPlusPlus14 = false ;
+            ci.getLangOpts().CPlusPlus17 = false ;
+        } else if (standard_version == "c++14") {
+            ci.getLangOpts().CPlusPlus17 = false ;
+        } else if (standard_version != "c++17" ) {
+            std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
+        }
+    }
 }
 /**
 Most of the main program is pieced together from examples on the web. We are doing the following:
