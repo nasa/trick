@@ -91,6 +91,16 @@ Edit a file called "S_overrides.mk". Append to the TRICK_EXCLUDE variable.
 TRICK_EXCLUDE += /path/to/exclude:/another/path/to/exclude
 ```
 
+### Example of how to tell ICG to parse code to a certain C++ standard
+
+Edit a file called "S_overrides.mk". Append to the TRICK_ICGFLAGS variable.
+
+```
+TRICK_ICGFLAGS += --icg-std=c++11
+```
+
+Valid options are c++11, c++14, and c++17. ICG will parse to the newest version that LLVM supports by default. 
+
 ## Cleaning Up
 
 There are several levels of clean.
