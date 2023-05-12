@@ -66,18 +66,24 @@ VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
     }
 
     QGridLayout* grid = new QGridLayout();
-    grid->addWidget(_videos.at(0)->mpv_container, 0, 0);
-    grid->addWidget(_videos.at(1)->mpv_container, 0, 1);
-    grid->addWidget(_videos.at(2)->mpv_container, 0, 2);
-    grid->addWidget(_videos.at(3)->mpv_container, 1, 0);
-    grid->addWidget(_videos.at(4)->mpv_container, 1, 1);
-    grid->addWidget(_videos.at(5)->mpv_container, 1, 2);
+    if ( _videos.size() == 1 ) {
+        grid->addWidget(_videos.at(0)->mpv_container, 0, 0);
+        grid->setColumnStretch(0, 1);
+        grid->setRowStretch(0, 1);
+    } else if ( _videos.size() == 6 ) {
+        grid->addWidget(_videos.at(0)->mpv_container, 0, 0);
+        grid->addWidget(_videos.at(1)->mpv_container, 0, 1);
+        grid->addWidget(_videos.at(2)->mpv_container, 0, 2);
+        grid->addWidget(_videos.at(3)->mpv_container, 1, 0);
+        grid->addWidget(_videos.at(4)->mpv_container, 1, 1);
+        grid->addWidget(_videos.at(5)->mpv_container, 1, 2);
 
-    grid->setColumnStretch(0, 1);
-    grid->setColumnStretch(1, 1);
-    grid->setColumnStretch(2, 1);
-    grid->setRowStretch(0, 1);
-    grid->setRowStretch(1, 1);
+        grid->setColumnStretch(0, 1);
+        grid->setColumnStretch(1, 1);
+        grid->setColumnStretch(2, 1);
+        grid->setRowStretch(0, 1);
+        grid->setRowStretch(1, 1);
+    }
 
     QWidget* centralWidget = new QWidget(this);
     centralWidget->setLayout(grid);
