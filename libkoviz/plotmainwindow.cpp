@@ -19,8 +19,7 @@ PlotMainWindow::PlotMainWindow(
         const QString& trickhost,
         uint trickport,
         double trickoffset,
-        const QString& videoFileName,
-        double videoOffset,
+        const QList<QPair<QString,double> >& videos,
         const QString& excludePattern,
         const QString& filterPattern,
         const QString& scripts,
@@ -42,8 +41,7 @@ PlotMainWindow::PlotMainWindow(
     _trickhost(trickhost),
     _trickport(trickport),
     _trickoffset(trickoffset),
-    _videoFileName(videoFileName),
-    _videoOffset(videoOffset),
+    _videos(videos),
     _excludePattern(excludePattern),
     _filterPattern(filterPattern),
     _scripts(scripts),
@@ -232,19 +230,22 @@ PlotMainWindow::PlotMainWindow(
         _blender->sendRun2Bvis(rundir);
     }
 
-    if ( !videoFileName.isEmpty() ) {
+    if ( !_videos.isEmpty() ) {
 #ifndef HAS_MPV
         fprintf(stderr, "koviz [error]: koviz built without mpv video support!"
                         "  Please install mpv and rebuild koviz!\n");
         exit(-1);
 #endif
-        QFileInfo fi(videoFileName);
-        if ( !fi.isReadable() ) {
-            fprintf(stderr, "koviz [error]: Cannot find or read video "
-                            "\"%s\"\n",videoFileName.toLatin1().constData());
-            exit(-1);
+        QPair<QString,double> video; // mp4name,timeoffset
+        foreach ( video, _videos ) {
+            QFileInfo fi(video.first);
+            if ( !fi.isReadable() ) {
+                fprintf(stderr, "koviz [error]: Cannot find or read video "
+                                "\"%s\"\n",video.first.toLatin1().constData());
+                exit(-1);
+            }
         }
-        _openVideoFile(videoFileName);
+        _openVideos(_videos);
 
         selectFirstCurve();
     }
@@ -1233,12 +1234,15 @@ void PlotMainWindow::_saveSession()
             out << "mapFile: " << _mapFile << "\n";
         }
 
-        if ( !_videoFileName.isEmpty() ) {
-            out << "video: " << _videoFileName << "\n";
-        }
+        if ( !_videos.isEmpty() ) {
+            QString videoOption;
+            QPair<QString,double> video;
+            foreach ( video, _videos ) {
+                videoOption += video.first + ":" + video.second + ",";
+            }
+            videoOption.chop(1); // take off trailing ','
 
-        if ( _videoOffset != 0.0 ) {
-            out << "videoOffset: " << _videoOffset << "\n";
+            out << "videoList: " << videoOption;
         }
 
         QString isShowPageTitle = _bookModel->getDataString(
@@ -1264,6 +1268,8 @@ void PlotMainWindow::_openVideo()
         lastVideoRect = vidView->geometry();
     }
 
+    QList<QPair<QString, double> > videos;
+
     int i = _monteInputsView->currentRun();
     if ( i >= 0 ) {
         QString rundir = _runs->runDirs().at(i);
@@ -1275,12 +1281,45 @@ void PlotMainWindow::_openVideo()
             QDir videoDir(videoDirName);
             QStringList files = videoDir.entryList(filter, QDir::Files);
             if ( files.size() > 0 ) {
-                // Pick first video (TODO: Pick from multiple videos)
-                _openVideoFile(videoDir.absoluteFilePath(files.at(0)));
                 if ( vidView ) {
-                    QString f = videoDir.absoluteFilePath("video-offset.txt");
-                    if ( QFileInfo(f).exists() ) {
-                        QFile file(f);
+                    QString f1 = videoDir.absoluteFilePath("video-offsets.txt");
+                    QString f2 = videoDir.absoluteFilePath("video-offset.txt");
+                    if ( QFileInfo(f1).exists() ) {
+                        if ( !QFileInfo(f1).isReadable() ) {
+                            fprintf(stderr, "koviz [error]: Cannot read "
+                                        "video file=\"%s\"\n",
+                                        f1.toLatin1().constData());
+                            exit(-1);
+                        }
+                        QFile file(f1);
+                        QTextStream in(&file);
+                        while (!in.atEnd()) {
+                            QString line = in.readLine();
+                            if ( ! line.contains(',') ) {
+                                fprintf(stderr, "koviz [error]: Video offsets "
+                                        "file=%s has line=%s without a comma "
+                                        "delimited file,offset\n",
+                                        f1.toLatin1().constData(),
+                                        line.toLatin1().constData());
+                                exit(-1);
+                            }
+                            QString f = line.split(',',Qt::SkipEmptyParts)[0];
+                            QString o = line.split(',',Qt::SkipEmptyParts)[1];
+                            bool ok;
+                            double offset = o.toDouble(&ok);
+                            if ( ok ) {
+                                videos.append(qMakePair(f,offset));
+                            } else {
+                                fprintf(stderr, "koviz [error]: Bad video "
+                                                "offset in file=%s\n",
+                                        f2.toLatin1().constData());
+                            }
+                        }
+                    } else if (QFileInfo(f2).exists() ) {
+                        QPair<QString,double> video;
+                        video.first = f2;
+                        video.second = 0.0;
+                        QFile file(f2);
                         if (file.open(QFile::ReadOnly)) {
                             QByteArray buf;
                             buf = file.readLine();
@@ -1290,18 +1329,30 @@ void PlotMainWindow::_openVideo()
                                 bool ok;
                                 double offset = str.toDouble(&ok);
                                 if ( ok ) {
-                                    vidView->set_offset(offset);
+                                    video.second = offset;
+                                } else {
+                                    fprintf(stderr, "koviz [error]: Bad video "
+                                            "offset in file=%s\n",
+                                            f2.toLatin1().constData());
                                 }
                             }
+                        } else {
+                            fprintf(stderr, "koviz [error]: Cannot read "
+                                    "video file=\"%s\"\n",
+                                    f2.toLatin1().constData());
+                            exit(-1);
                         }
+                        videos.append(video);
                     }
                 }
             }
         }
     } else {
         QString filename = QFileDialog::getOpenFileName(this, "Open file");
-        _openVideoFile(filename);
+        videos.append(qMakePair(filename,0.0));
     }
+
+    _openVideos(videos);
 
     if ( vidView ) {
         if ( lastVideoRect.isNull() ) {
@@ -1313,7 +1364,7 @@ void PlotMainWindow::_openVideo()
     }
 }
 
-void PlotMainWindow::_openVideoFile(const QString& fname)
+void PlotMainWindow::_openVideos(const QList<QPair<QString, double> > &videos)
 {
 #ifndef HAS_MPV
         fprintf(stderr, "koviz [error]: koviz built without mpv video support!"
@@ -1330,7 +1381,7 @@ void PlotMainWindow::_openVideoFile(const QString& fname)
     }
 
     if ( !vidView ) {
-        vidView = new VideoWindow(this);
+        vidView = new VideoWindow(videos,this);
         vidView->show();
         this->setFocusPolicy(Qt::StrongFocus);
         connect(vidView,SIGNAL(timechangedByMpv(double)),
@@ -1345,8 +1396,7 @@ void PlotMainWindow::_openVideoFile(const QString& fname)
         vidView->set_start(liveTime);
         vidView->pause();
     }
-    vidView->set_offset(_videoOffset);
-    vidView->set_file(fname);
+    vidView->set_videos(videos);
     vidView->raise();
 
     if ( isLiveTime ) {

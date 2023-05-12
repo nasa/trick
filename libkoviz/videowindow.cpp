@@ -16,9 +16,9 @@ static void wakeup(void *ctx)
     mainwindow->wrap_mpv_events();
 }
 
-VideoWindow::VideoWindow(QWidget *parent) :
+VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
+                         QWidget *parent) :
     QMainWindow(parent),
-    _timeOffset(0.0),
     _startTime(0.0)
 {
 #ifdef HAS_MPV
@@ -27,14 +27,10 @@ VideoWindow::VideoWindow(QWidget *parent) :
     setWindowTitle("Koviz MPV");
     setMinimumSize(640, 480);
 
-    QMenu *menu = menuBar()->addMenu(tr("&File"));
-    QAction *on_open = new QAction(tr("&Open"), this);
-    connect(on_open, &QAction::triggered, this, &VideoWindow::on_file_open);
-    menu->addAction(on_open);
-
     statusBar();
 
-    for (int i = 0; i < 6; ++i ) {
+    QPair<QString,double> videoIn;
+    foreach (videoIn, videos) {
         mpv_handle* mpv = mpv_create();
         if (!mpv) {
             throw std::runtime_error("can't create mpv instance");
@@ -61,24 +57,21 @@ VideoWindow::VideoWindow(QWidget *parent) :
             throw std::runtime_error("mpv failed to initialize");
         }
 
-        mpvs.append(mpv);
-        mpv_containers.append(mpv_container);
+        Video* video = new Video();
+        video->fileName = videoIn.first;
+        video->timeOffset = videoIn.second;
+        video->mpv = mpv;
+        video->mpv_container = mpv_container;
+        _videos.append(video);
     }
 
-    _timeOffsets.append(15.8450);
-    _timeOffsets.append(15.6080);
-    _timeOffsets.append(15.6060);
-    _timeOffsets.append(15.6150);
-    _timeOffsets.append(15.4820);
-    _timeOffsets.append(15.5170);
-
     QGridLayout* grid = new QGridLayout();
-    grid->addWidget(mpv_containers.at(0), 0, 0);
-    grid->addWidget(mpv_containers.at(1), 0, 1);
-    grid->addWidget(mpv_containers.at(2), 0, 2);
-    grid->addWidget(mpv_containers.at(3), 1, 0);
-    grid->addWidget(mpv_containers.at(4), 1, 1);
-    grid->addWidget(mpv_containers.at(5), 1, 2);
+    grid->addWidget(_videos.at(0)->mpv_container, 0, 0);
+    grid->addWidget(_videos.at(1)->mpv_container, 0, 1);
+    grid->addWidget(_videos.at(2)->mpv_container, 0, 2);
+    grid->addWidget(_videos.at(3)->mpv_container, 1, 0);
+    grid->addWidget(_videos.at(4)->mpv_container, 1, 1);
+    grid->addWidget(_videos.at(5)->mpv_container, 1, 2);
 
     grid->setColumnStretch(0, 1);
     grid->setColumnStretch(1, 1);
@@ -117,14 +110,15 @@ void VideoWindow::seek_time(double time) {
 #ifdef HAS_MPV
     int isIdle;
     int i = 0;
-    foreach (mpv_handle* mpv, mpvs) {
-        int ret = mpv_get_property(mpv,"core-idle",MPV_FORMAT_FLAG,&isIdle);
+    foreach (Video* video, _videos) {
+        int ret = mpv_get_property(video->mpv,"core-idle",
+                                   MPV_FORMAT_FLAG,&isIdle);
         if ( ret >= 0 ) {
             if ( isIdle && parentWidget()->isActiveWindow() ) {
                 // Koviz is driving time
-                double timeOffset = _timeOffsets.at(i);
+                double timeOffset = video->timeOffset;
                 QString com = QString("seek %1 absolute").arg(time+timeOffset);
-                mpv_command_string(mpv, com.toLocal8Bit().data());
+                mpv_command_string(video->mpv, com.toLocal8Bit().data());
             }
         }
         ++i;
@@ -133,28 +127,26 @@ void VideoWindow::seek_time(double time) {
 }
 
 #ifdef HAS_MPV
-void VideoWindow::handle_mpv_event(mpv_event *event)
+void VideoWindow::handle_mpv_event(Video* video, mpv_event *event)
 {
     switch (event->event_id) {
     case MPV_EVENT_PROPERTY_CHANGE: {
         mpv_event_property *prop = (mpv_event_property *)event->data;
         if (strcmp(prop->name, "time-pos") == 0) {
             if (prop->format == MPV_FORMAT_DOUBLE) {
-                double time = *(double *)prop->data-_timeOffset;
+                double time = *(double *)prop->data - video->timeOffset;
                 std::stringstream ss;
                 ss << "At: " << time;
                 statusBar()->showMessage(QString::fromStdString(ss.str()));
                 int isIdle;
-                foreach (mpv_handle* mpv, mpvs) {
-                    int ret = mpv_get_property(mpv,"core-idle",MPV_FORMAT_FLAG,
-                                               &isIdle);
-                    if ( ret >= 0 ) {
-                        if ( !isIdle || isActiveWindow() ) {
-                            // If mpv playing, update time
-                            // If mpv paused but still active, update time
-                            // If mpv paused and koviz active, don't emit signal
-                            emit timechangedByMpv(time);
-                        }
+                int ret = mpv_get_property(video->mpv,"core-idle",
+                                           MPV_FORMAT_FLAG, &isIdle);
+                if ( ret >= 0 ) {
+                    if ( !isIdle || isActiveWindow() ) {
+                        // If mpv playing, update time
+                        // If mpv paused but still active, update time
+                        // If mpv paused and koviz active, don't emit signal
+                        emit timechangedByMpv(time);
                     }
                 }
             } else if (prop->format == MPV_FORMAT_NONE) {
@@ -164,10 +156,8 @@ void VideoWindow::handle_mpv_event(mpv_event *event)
         break;
     }
     case MPV_EVENT_SHUTDOWN: {
-        for (int i = 0; i < mpvs.size(); ++i) {
-            mpv_terminate_destroy(mpvs[i]);
-            mpvs[i] = NULL;
-        }
+        mpv_terminate_destroy(video->mpv);
+        video->mpv = NULL;
         break;
     }
     default: ;
@@ -181,66 +171,61 @@ void VideoWindow::on_mpv_events()
 {
 #ifdef HAS_MPV
     // Process all events, until the event queue is empty.
-    foreach (mpv_handle* mpv, mpvs) {
-        while (mpv) {
-            mpv_event *event = mpv_wait_event(mpv, 0);
+    foreach (Video* video, _videos) {
+        while (video->mpv) {
+            mpv_event *event = mpv_wait_event(video->mpv, 0);
             if (event->event_id == MPV_EVENT_NONE) {
                 break;
             }
-            handle_mpv_event(event);
+            handle_mpv_event(video,event);
         }
     }
 #endif
 }
 
-void VideoWindow::on_file_open()
-{
-    QString filename = QFileDialog::getOpenFileName(this, "Open file");
-    set_file(filename);
-}
-
-void VideoWindow::set_file(const QString &fnameIn)
+// Input is a list of "filename,timeoffset" pairs
+void VideoWindow::set_videos(const QList<QPair<QString,double> >& videos)
 {
 #ifdef HAS_MPV
-    QStringList files;
-    QString dir("/home/kvetter/dev/es/video-offset/"
-                "RUN_D13C1A.20230322.02.D.H12T-H12T.4506.5p00000."
-                "ComplexComboPlusRatesMax/Video/");
-    files.append(dir + "2023-03-22T0939_R02_Cam01_REC1_3.mp4");
-    files.append(dir + "2023-03-22T0939_R02_Cam02_REC2_3.mp4");
-    files.append(dir + "2023-03-22T0939_R02_Cam03_REC3_3.mp4");
-    files.append(dir + "2023-03-22T0939_R02_CamCL_REC4_3.mp4");
-    files.append(dir + "2023-03-22T0939_R02_CamF1_REC5_3.mp4");
-    files.append(dir + "2023-03-22T0939_R02_CamF2_REC6_3.mp4");
+    // TODO: Handle case when number of videos change
+    if ( videos.size() != _videos.size() ) {
+        //_videos.clear();
+        fprintf(stderr, "koviz [todo]: Handle number of videos changing\n");
+        exit(-1);
+    }
 
-    int i = 0;
-    foreach (mpv_handle* mpv, mpvs) {
-        if (mpv) {
-            if ( _startTime + _timeOffset > 0 ) {
-                QString offset = QString("%1").arg(_startTime+_timeOffset);
-                mpv_set_option_string(mpv,"start",
+    QPair<QString,double> videoIn;
+    int i = 0 ;
+    foreach ( videoIn, videos ) {
+        Video* video = _videos.at(i);
+        video->fileName = videoIn.first;
+        video->timeOffset = videoIn.second;
+        ++i;
+    }
+
+    foreach (Video* video, _videos ) {
+        if (video->mpv) {
+            if ( _startTime + video->timeOffset > 0 ) {
+                QString offset = QString("%1").arg(_startTime +
+                                                   video->timeOffset);
+                mpv_set_option_string(video->mpv,"start",
                                       offset.toLatin1().constData());
             }
-            QString fname = files.at(i);
+            QString fname = video->fileName;
             const QByteArray c_filename = fname.toUtf8();
             const char *args[] = {"loadfile", c_filename.data(), NULL};
-            mpv_command(mpv, args);
+            mpv_command(video->mpv, args);
 
             // Without sleeping mpv will sometimes miss loading videos
             struct timespec req = {0, 500000000};
             nanosleep(&req, NULL);
         } else {
-            fprintf(stderr, "koviz [bad scoobs]: VideoWindow::set_file()\n");
+            fprintf(stderr, "koviz [bad scoobs]: VideoWindow::set_videos()\n");
             exit(-1);
         }
         ++i;
     }
 #endif
-}
-
-void VideoWindow::set_offset(double timeOffset)
-{
-    _timeOffset = timeOffset;
 }
 
 void VideoWindow::set_start(double startTime)
@@ -251,9 +236,9 @@ void VideoWindow::set_start(double startTime)
 void VideoWindow::pause()
 {
 #ifdef HAS_MPV
-    foreach (mpv_handle* mpv, mpvs) {
-        if (mpv) {
-            mpv_set_option_string(mpv,"pause","yes");
+    foreach (Video* video, _videos) {
+        if (video->mpv) {
+            mpv_set_option_string(video->mpv,"pause","yes");
         }
     }
 #endif
@@ -263,17 +248,17 @@ void VideoWindow::pause()
 VideoWindow::~VideoWindow()
 {
 #ifdef HAS_MPV
-    foreach (mpv_handle* mpv, mpvs) {
-        if (mpv) {
+    foreach (Video* video, _videos) {
+        if (video->mpv) {
             mpv_event *event;
-            while ((event = mpv_wait_event(mpv, 0))) {
+            while ((event = mpv_wait_event(video->mpv, 0))) {
                 if (event->event_id == MPV_EVENT_SHUTDOWN) {
                     break;
                 }
             }
-
-            mpv_terminate_destroy(mpv);
+            mpv_terminate_destroy(video->mpv);
         }
+        delete video;
     }
 #endif
 }

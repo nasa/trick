@@ -48,8 +48,7 @@ public:
                              const QString& trickhost,
                              uint trickport,
                              double trickoffset,
-                             const QString& videoFileName,
-                             double videoOffset,
+                             const QList<QPair<QString,double> >& videos,
                              const QString& excludePattern,
                              const QString& filterPattern,
                              const QString& scripts,
@@ -82,8 +81,7 @@ private:
     const QString& _trickhost;
     uint _trickport;
     double _trickoffset;
-    QString _videoFileName;
-    double _videoOffset;
+    QList<QPair<QString,double> > _videos;
     QString _excludePattern;
     QString _filterPattern;
     QString _scripts;
@@ -149,7 +147,7 @@ private:
     VideoWindow* vidView;
     QTcpSocket* _vsSocket ;
 
-    void _openVideoFile(const QString& fname);
+    void _openVideos(const QList<QPair<QString,double> >& videos);
 
 
 private slots:
