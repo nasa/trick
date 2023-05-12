@@ -58,12 +58,48 @@ void set_lang_opts(clang::CompilerInstance & ci) {
     ci.getLangOpts().Bool = true ;
     ci.getLangOpts().WChar = true ;
     ci.getLangOpts().CPlusPlus = true ;
-    ci.getLangOpts().CPlusPlus11 = true ;
     ci.getLangOpts().CXXOperatorNames = true ;
+
+    // Always use at least C++11
+    ci.getLangOpts().CPlusPlus11 = true ;
+
+
+#if (LIBCLANG_MAJOR < 6)
+    // Check if standard_version was specified and if it's a version that is supported by this libclang
+    if (standard_version != "") {
+        if (standard_version == "c++11") {
+            // Nothing to be done here really
+        } else if (standard_version == "c++14" || standard_version == "c++17" || standard_version == "c++20") {
+            std::cerr << "C++ standard " << standard_version << " is not supported by this version of Clang." << std::endl;
+        } else {
+            std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
+        }
+    }
+#endif
+
+    // Activate C++14 parsing
 #if (LIBCLANG_MAJOR >= 6)
     ci.getLangOpts().CPlusPlus14 = true ;
-    ci.getLangOpts().DoubleSquareBracketAttributes = true ;
+    ci.getLangOpts().DoubleSquareBracketAttributes = true ;    
 #endif
+
+#if (LIBCLANG_MAJOR >= 6 && LIBCLANG_MAJOR < 10)
+    // Check if standard_version was specified and if it's a version that is supported by this libclang
+    if (standard_version != "") {
+        if (standard_version == "c++11") {
+            // Turn off c++14, c++11 is already on
+            ci.getLangOpts().CPlusPlus14 = false ;
+        } else if (standard_version == "c++14") {
+            // Nothing to be done here
+        }else if (standard_version == "c++17" || standard_version == "c++20") {
+            std::cerr << "C++ standard " << standard_version << " is not supported by this version of Clang." << std::endl;
+        } else {
+            std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
+        }
+    }
+#endif
+
+
     // Activate C++17 parsing
 #ifdef TRICK_GCC_VERSION
 const char * gcc_version = TRICK_GCC_VERSION;
@@ -74,19 +110,25 @@ const char * gcc_version = "";
 #if (LIBCLANG_MAJOR >= 10)
     ci.getLangOpts().GNUCVersion = gccVersionToIntOrDefault(gcc_version, 40805);
     ci.getLangOpts().CPlusPlus17 = true ;
-#endif
 
+    // Check if standard_version was specified and if it's a version that is supported by this libclang
     if (standard_version != "") {
-        // Turn off according to icg-std flag
         if (standard_version == "c++11") {
             ci.getLangOpts().CPlusPlus14 = false ;
             ci.getLangOpts().CPlusPlus17 = false ;
         } else if (standard_version == "c++14") {
             ci.getLangOpts().CPlusPlus17 = false ;
-        } else if (standard_version != "c++17" ) {
+        } else if (standard_version == "c++17" ) {
+            // Nothing to do here
+        } else if (standard_version == "c++20") {
+            // It looks like Clang10 was the first to offer the "c++20" flag, but there was partial support before that.
+            // (https://clang.llvm.org/cxx_status.html)
+            ci.getLangOpts().CPlusPlus20 = true ;
+        } else {
             std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
         }
     }
+#endif
 }
 /**
 Most of the main program is pieced together from examples on the web. We are doing the following:

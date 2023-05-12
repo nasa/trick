@@ -99,7 +99,7 @@ Edit a file called "S_overrides.mk". Append to the TRICK_ICGFLAGS variable.
 TRICK_ICGFLAGS += --icg-std=c++11
 ```
 
-Valid options are c++11, c++14, and c++17. ICG will parse to the newest version that LLVM supports by default. 
+Valid options are c++11, c++14, c++17, or c++20. ICG will parse to c++17 by default, or the newest supported version if c++17 is not availible. 
 
 ## Cleaning Up
 
