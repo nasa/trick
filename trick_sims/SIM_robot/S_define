@@ -1,0 +1,32 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ( Simulate kinematic, planar 2 degree-of-freedom manipulator )
+LIBRARY DEPENDENCIES:
+    (
+        (manipulator/manipulator.cc)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+##include "include/trick/exec_proto.h"
+##include "manipulator/manipulator.hh"
+
+class ManipulatorSimObject : public Trick::SimObject
+{
+
+    public:
+        PlanarManip robot;
+
+        ManipulatorSimObject(int ndof): robot(ndof)
+        {
+            (0.050, "scheduled")  robot.calcKinematics();
+            (0.050, "scheduled")  robot.control();
+            ("derivative")        robot.stateDeriv();
+            ("integration")       trick_ret = robot.updateState();
+        }
+
+};
+
+ManipulatorSimObject Manip2D(2);
+
+IntegLoop armIntegLoop(0.050) Manip2D;
