@@ -1352,7 +1352,9 @@ void PlotMainWindow::_openVideo()
         videos.append(qMakePair(filename,0.0));
     }
 
-    _openVideos(videos);
+    if ( ! videos.isEmpty() ) {
+        _openVideos(videos);
+    }
 
     if ( vidView ) {
         if ( lastVideoRect.isNull() ) {
