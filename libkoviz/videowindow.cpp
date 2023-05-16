@@ -29,6 +29,10 @@ VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
 
     statusBar();
 
+    connect(this, &VideoWindow::mpv_events,
+            this, &VideoWindow::on_mpv_events,
+            Qt::QueuedConnection);
+
     QPair<QString,double> videoIn;
     foreach (videoIn, videos) {
         mpv_handle* mpv = mpv_create();
@@ -89,9 +93,6 @@ VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
     centralWidget->setLayout(grid);
     setCentralWidget(centralWidget);
 
-    connect(this, &VideoWindow::mpv_events,
-            this, &VideoWindow::on_mpv_events,
-            Qt::QueuedConnection);
 #endif
 }
 
