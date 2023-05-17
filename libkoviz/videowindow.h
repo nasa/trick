@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <time.h>
+#include <math.h>
 
 #include <QMainWindow>
 #include <QtGlobal>

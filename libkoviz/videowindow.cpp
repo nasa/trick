@@ -49,6 +49,11 @@ VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
         mpv_set_option_string(mpv, "input-vo-keyboard", "yes");
         mpv_set_option_string(mpv, "keep-open", "always");
         mpv_set_option_string(mpv, "osd-level", "0");
+        if ( videos.size() > 1 ) {
+            // Bring up paused if more than a single video
+            // since they cannot be perfectly synced
+            mpv_set_option_string(mpv,"pause","yes");
+        }
 
         mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
 
@@ -70,23 +75,24 @@ VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
     }
 
     QGridLayout* grid = new QGridLayout();
-    if ( _videos.size() == 1 ) {
-        grid->addWidget(_videos.at(0)->mpv_container, 0, 0);
-        grid->setColumnStretch(0, 1);
-        grid->setRowStretch(0, 1);
-    } else if ( _videos.size() == 6 ) {
-        grid->addWidget(_videos.at(0)->mpv_container, 0, 0);
-        grid->addWidget(_videos.at(1)->mpv_container, 0, 1);
-        grid->addWidget(_videos.at(2)->mpv_container, 0, 2);
-        grid->addWidget(_videos.at(3)->mpv_container, 1, 0);
-        grid->addWidget(_videos.at(4)->mpv_container, 1, 1);
-        grid->addWidget(_videos.at(5)->mpv_container, 1, 2);
-
-        grid->setColumnStretch(0, 1);
-        grid->setColumnStretch(1, 1);
-        grid->setColumnStretch(2, 1);
-        grid->setRowStretch(0, 1);
-        grid->setRowStretch(1, 1);
+    int ncols = ceil(sqrt(_videos.size()));
+    div_t q = div(_videos.size(),ncols);
+    int nrows = 0;
+    if ( q.rem == 0 ) {
+        nrows = q.quot;
+    } else {
+        nrows = q.quot+1;
+    }
+    int k = 0;
+    for ( int i = 0; i < nrows; ++i ) {
+        for ( int j = 0; j < ncols; ++j ) {
+            grid->addWidget(_videos.at(k++)->mpv_container, i, j);
+            grid->setRowStretch(i, 1);
+            grid->setColumnStretch(j, 1);
+            if ( k == _videos.size() ) {
+                break;
+            }
+        }
     }
 
     QWidget* centralWidget = new QWidget(this);
