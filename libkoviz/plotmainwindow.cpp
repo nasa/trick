@@ -1281,69 +1281,94 @@ void PlotMainWindow::_openVideo()
             QDir videoDir(videoDirName);
             QStringList files = videoDir.entryList(filter, QDir::Files);
             if ( files.size() > 0 ) {
-                if ( vidView ) {
-                    QString f1 = videoDir.absoluteFilePath("video-offsets.txt");
-                    QString f2 = videoDir.absoluteFilePath("video-offset.txt");
-                    if ( QFileInfo(f1).exists() ) {
-                        if ( !QFileInfo(f1).isReadable() ) {
-                            fprintf(stderr, "koviz [error]: Cannot read "
+                QString f1 = videoDir.absoluteFilePath("video-offsets.txt");
+                QString f2 = videoDir.absoluteFilePath("video-offset.txt");
+                if ( QFileInfo(f1).exists() ) {
+                    if ( !QFileInfo(f1).isReadable() ) {
+                        fprintf(stderr, "koviz [error]: Cannot read "
                                         "video file=\"%s\"\n",
-                                        f1.toLatin1().constData());
+                                f1.toLatin1().constData());
+                        exit(-1);
+                    }
+                    QFile file(f1);
+                    if (!file.open(QIODevice::ReadOnly)) {
+                        fprintf(stderr,"koviz: [error] could not open %s\n",
+                                file.fileName().toLatin1().constData());
+                        exit(-1);
+                    }
+                    QTextStream in(&file);
+                    while (!in.atEnd()) {
+                        QString line = in.readLine();
+                        if ( ! line.contains(',') ) {
+                            fprintf(stderr, "koviz [error]: Video offsets "
+                                          "file=%s has line=%s without a comma "
+                                          "delimited file,offset\n",
+                                    f1.toLatin1().constData(),
+                                    line.toLatin1().constData());
                             exit(-1);
                         }
-                        QFile file(f1);
-                        QTextStream in(&file);
-                        while (!in.atEnd()) {
-                            QString line = in.readLine();
-                            if ( ! line.contains(',') ) {
-                                fprintf(stderr, "koviz [error]: Video offsets "
-                                        "file=%s has line=%s without a comma "
-                                        "delimited file,offset\n",
-                                        f1.toLatin1().constData(),
-                                        line.toLatin1().constData());
-                                exit(-1);
-                            }
-                            QString f = line.split(',',Qt::SkipEmptyParts)[0];
-                            QString o = line.split(',',Qt::SkipEmptyParts)[1];
+                        QString f = line.split(',',Qt::SkipEmptyParts)[0];
+                        if ( !videoDir.exists(f) ) {
+                            fprintf(stderr, "koviz [error]: Video file=%s "
+                                            "referenced in \"%s\" DNE.\n",
+                                    f.toLatin1().constData(),
+                                    f1.toLatin1().constData());
+                            exit(-1);
+                        }
+                        f = videoDir.filePath(f);
+                        QString o = line.split(',',Qt::SkipEmptyParts)[1];
+                        bool ok;
+                        double offset = o.toDouble(&ok);
+                        if ( ok ) {
+                            videos.append(qMakePair(f,offset));
+                        } else {
+                            fprintf(stderr, "koviz [error]: Bad video "
+                                            "offset in file=%s\n",
+                                    f2.toLatin1().constData());
+                            exit(-1);
+                        }
+                    }
+                } else if (QFileInfo(f2).exists() ) {
+
+                    QPair<QString,double> video;
+
+                    // If there are multiple videos, really should use
+                    // video-offets.txt rather than video-offset
+                    if ( files.size() > 1 ) {
+                        fprintf(stderr, "koviz [warning]: Multiple videos found"
+                               " in videoDir=%s, using video=%s\n"
+                               "Use -video-offsets instead of -video-offset.\n",
+                               videoDir.dirName().toLatin1().constData(),
+                               files.at(0).toLatin1().constData());
+                    }
+
+                    video.first = videoDir.absoluteFilePath(files.at(0));
+
+                    video.second = 0.0;
+                    QFile file(f2);
+                    if (file.open(QFile::ReadOnly)) {
+                        QByteArray buf;
+                        buf = file.readLine();
+                        if ( !buf.isEmpty() ) {
+                            // the line is available in buf
+                            QString str(buf);
                             bool ok;
-                            double offset = o.toDouble(&ok);
+                            double offset = str.toDouble(&ok);
                             if ( ok ) {
-                                videos.append(qMakePair(f,offset));
+                                video.second = offset;
                             } else {
                                 fprintf(stderr, "koviz [error]: Bad video "
                                                 "offset in file=%s\n",
                                         f2.toLatin1().constData());
                             }
                         }
-                    } else if (QFileInfo(f2).exists() ) {
-                        QPair<QString,double> video;
-                        video.first = f2;
-                        video.second = 0.0;
-                        QFile file(f2);
-                        if (file.open(QFile::ReadOnly)) {
-                            QByteArray buf;
-                            buf = file.readLine();
-                            if ( !buf.isEmpty() ) {
-                                // the line is available in buf
-                                QString str(buf);
-                                bool ok;
-                                double offset = str.toDouble(&ok);
-                                if ( ok ) {
-                                    video.second = offset;
-                                } else {
-                                    fprintf(stderr, "koviz [error]: Bad video "
-                                            "offset in file=%s\n",
-                                            f2.toLatin1().constData());
-                                }
-                            }
-                        } else {
-                            fprintf(stderr, "koviz [error]: Cannot read "
-                                    "video file=\"%s\"\n",
-                                    f2.toLatin1().constData());
-                            exit(-1);
-                        }
-                        videos.append(video);
+                    } else {
+                        fprintf(stderr, "koviz [error]: Cannot read "
+                                        "video file=\"%s\"\n",
+                                f2.toLatin1().constData());
+                        exit(-1);
                     }
+                    videos.append(video);
                 }
             }
         }
