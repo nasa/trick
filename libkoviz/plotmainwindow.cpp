@@ -1333,7 +1333,7 @@ void PlotMainWindow::_openVideo()
                     QPair<QString,double> video;
 
                     // If there are multiple videos, really should use
-                    // video-offets.txt rather than video-offset
+                    // video-offets.txt rather than video-offset.txt
                     if ( files.size() > 1 ) {
                         fprintf(stderr, "koviz [warning]: Multiple videos found"
                                " in videoDir=%s, using video=%s\n"
