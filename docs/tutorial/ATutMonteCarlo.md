@@ -3,15 +3,20 @@
 
 # Monte Carlo
 
-**Contents** //Fix this later
+**Contents**
 
-* [What are Dynamic Events?](#what-are-dynamic-events)
-* [Dynamic Event Jobs](#dynamic-event-jobs)
-  - [Finding Events with *regula_falsi()*](#finding-events-with-regula-falsi)
-  - [Listing - **cannon_impact()**](listing_cannon_impact)
-* [Specifying an Event Boundary](#specifying-an-event-boundary)
-* [Calling **regula_falsi()**](#calling-regula-falsi)
-* [Updating Our Cannonball Simulation](#updating-our-cannonball-simulation)
+* [What is Monte Carlo?](#what-is-monte-carlo)
+* [Example Task](#example-task)
+* [Input Files](#input-files)
+  - [Listing - **angle_value_list**](listing-value-list)
+  - [Listing - **input.py**](listing-input_1)
+* [Random Input Generation](#random-input-generation)
+  - [Listing - **input.py**](listing-input-2)
+* [Optimization](#optimization)
+  - [Listing - **optimization.h**](listing-optimization-h)
+  - [Listing - **optimization.c**](listing-optimization-c)
+  - [Listing - **input.py**](listing-input-3)
+  - [Listing - **S_Define**](listing-s-define)
 
 ***
 
@@ -22,18 +27,23 @@ Monte Carlo is an advanced simulation capability provided by Trick that allows u
 
 **For a thorough explanation of Monte Carlo and its features, read the [Monte Carlo User Guide](/trick/documentation/simulation_capabilities/UserGuide-Monte-Carlo).**
 
-## The Task
+<a id=example-task></a>
+## Example Task
 **What would be the optimal launch angle required to ensure our cannonball travels the furthest distance?** Let us assume that we have no conception of physics or trigonometry and that we don't already know the answer.
 
 <p align="center">
 	<img src="images/OptimalLaunchAngle.png" width=550px/>
 </p>
 
+<a id=input-files></a>
 ## Input Files
 Input files allow you to specify the exact values you want on a particular simulation run. Input files are the most precise implementation, but they require more effort to setup and modify later down the road. Input files can contain multiple (tab or space) delimited columns filled with numerical information.
 
 ### Value List
 Create the following text file in your simulation directory with the name **angle\_value\_list**:
+
+<a id=listing-value-list></a>
+**Listing - angle_value_list**
 
 ```
 0.1
@@ -56,14 +66,17 @@ Create the following text file in your simulation directory with the name **angl
 This text file will be used to assign the cannon's initial angle. Remember that this angle is in radians.
 
 ### Updating our Input File
-The input file must be adjusted to run the simulation using Monte Carlo techniques.
+The simulation input file must be adjusted to run the simulation using Monte Carlo techniques.
 
 ```
 % cd $HOME/trick_sims/SIM_cannon_analytic/RUN_test
 % vi input.py
 ```
 
-The simulation must be told to enable Monte Carlo, recognize a Monte Carlo variable, and connect the variable to the cannon init angle. To accomplish this, change the input file to include the following:
+The simulation must be told to enable Monte Carlo, recognize a Monte Carlo variable, and use the angle_value_list file created above. To accomplish this, change the input file to include the following:
+
+<a id=listing-input_1></a>
+**Listing - input.py**
 
 ```python
 
@@ -95,7 +108,7 @@ After the file has been adjusted, save it and run the simulation.
 
 The terminal will display a fairly verbose Monte Carlo process detailing each run. After completion, information about each run will be put into a MONTE_RUN_test directory. 
 
-In order to complete our task, it will be necessary to plot each run to compare the distance achieved by each cannon. Open up the Trick Data Product application with the following command.
+In order to complete our task of finding the optimal launch angle, it will be necessary to plot each run to compare the distance achieved by each cannon. Open up the Trick Data Product application with the following command.
 
 ```
 trick-dp &
@@ -105,7 +118,7 @@ trick-dp &
 	<img src="images/Trick-DP.png" width=750px/>
 </p>
 
-Right click the MONTE_RUN_test directory and select **Add run(s)**. Then open quick plot by clicking the blue lightning bolt. Expand the dyn.cannon.pos[0-1] variable in the left pane and create a curve with pos[1] as the Y axis and pos[0] as the X axis. Finally, click the comparison plot button in the actions menu.
+Right click the MONTE_RUN_test directory and select **Add run(s)**. Then open quick plot by clicking the blue lightning bolt. Expand the dyn.cannon.pos[0-1] variable in the left pane and create a curve with pos[1] as the Y axis and pos[0] as the X axis. Finally, click the **comparison plot** button in the actions menu.
 
 <p align="center">
 	<img src="images/MONTE_list_plot.png" width=750px/>
@@ -113,10 +126,13 @@ Right click the MONTE_RUN_test directory and select **Add run(s)**. Then open qu
 
 The various curves show the trajectories of each cannon run. It may be necessary to hide the legend if all the run names cover up the plot.
 
+<a id=random-input-generation></a>
 ## Random Input Generation
 Random Input Generation provides users with the ability to statistically generate input values along a Gaussian or Poisson distribution. Random generation is less precise than an input file, but it is more extensible and much easier to modify. Modify the input file again to use a gaussian distribution to generate launch angles.
 
-### Script
+<a id=listing-input-2></a>
+**Listing - input.py**
+
 ```python
 exec(open("Modified_data/cannon.dr").read())
 
@@ -162,8 +178,12 @@ Run the script and plot the curves the same way as before. You will end up with 
 	<img src="images/MONTE_gauss_plot.png" width=750px/>
 </p>
 
+<a id=optimization></a>
 ## Optimization
 Optimization is the process of evaluating the previous run's data for use in the next run. In essence, you are optimizing each subsequent run and closing in on a specific value; in this instance, we are closing in on the optimal launch angle.
+
+<a id=listing-optimization-h></a>
+**Listing - optimization.h**
 
 ### optimization.h
 We need to create two new Trick jobs to house our optimization logic. Create this file in your include directory.
@@ -193,6 +213,9 @@ int cannon_master_post(CANNON *);
 
 ### optimization.c
 What we are doing in these two functions is sending the slave's cannon structure from after the run has completed back to the master. The master then analyzes the data and sends the new run information to the slave. This cycles over and over again until we hit the number of runs specified in our input script. Create this file in your src directory.
+
+<a id=listing-optimization-c></a>
+**Listing - optimization.c**
 
 ```C
 /******************************* TRICK HEADER ****************************
@@ -232,7 +255,10 @@ int cannon_master_post(CANNON *C)
 }
 ```
 
-### Script
+### Modifications to input.py
+
+<a id=listing-input-3></a>
+**Listing - input.py**
 
 ```python
 exec(open("Modified_data/cannon.dr").read())
@@ -242,7 +268,7 @@ trick.mc_set_enabled(1)
 
 # Run 25 optimizations.
 # The more runs, the more precise your variable will end up assuming you wrote your optimization logic correctly.
-trick.mc_set_num_runs(50)
+trick.mc_set_num_runs(25)
 
 # Create a calculated variable and add it to Monte Carlo.
 mcvar_launch_angle = trick.MonteVarCalculated("dyn.cannon.init_angle", "rad")
@@ -255,8 +281,11 @@ trick.stop(25)
 trick.mc_set_timeout(1)
 ```
 
-### Simulation Definition
+### Modifications to S_Define
 The last thing that we need to do is modify our simulation definition file and add the two new Trick jobs. As you can see, we have added a new library dependency, a new ## inclusion, and two new constructor jobs.
+
+<a id=listing-s-define></a>
+**Listing - S_Define**
 
 ```C++
 
@@ -287,7 +316,7 @@ class CannonSimObject : public Trick::SimObject {
             ("derivative") cannon_deriv( &cannon ) ;
             ("integration") trick_ret= cannon_integ( & cannon ) ;
             ("dynamic_event") cannon_impact( &cannon ) ;
-             ("monte_slave_post") cannon_slave_post( &cannon ) ;
+            ("monte_slave_post") cannon_slave_post( &cannon ) ;
             ("monte_master_post") cannon_master_post( &cannon ) ;
             ("shutdown") cannon_shutdown( &cannon ) ;
         }
