@@ -14,7 +14,7 @@
  * Use 0 (from) after reading data. Converts from the other endian
  */
 
-void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom)
+void *trick_bswap_single_parameter(void *out, void *in, ATTRIBUTES * attr, int tofrom)
 {
 
     int i, j;
@@ -29,7 +29,7 @@ void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom)
     i = 0;
     TRICK_GET_BYTE_ORDER(local_order);
 
-    while ((attr[i].name != NULL) && (attr[i].name[0] != '\0')) {
+    if ((attr[i].name != NULL) && (attr[i].name[0] != '\0')) {
 
         num = 1;
         for (j = 0; j < attr[i].num_index; j++) {
@@ -46,7 +46,7 @@ void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom)
 
         } else if (attr[i].type == TRICK_BITFIELD || attr[i].type == TRICK_UNSIGNED_BITFIELD) {
 
-            ti = *(int *) ((char *) in + attr[i].offset);
+            ti = *(int *) ((char *) in );
 
             /* swap this word if this is incoming data */
             if (tofrom == 0) {
@@ -79,13 +79,7 @@ void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom)
             }
 
             /* Mask in the new bits */
-            *(int *) ((char *) out + attr[i].offset) |= ti;
-
-            /* Swap bytes if done with this 32 bit set. */
-            if ((attr[i + 1].name[0] == '\0' || (attr[i].offset != attr[i + 1].offset)) && tofrom == 1) {
-                ti = *(unsigned int *) ((char *) out + attr[i].offset);
-                *(unsigned int *) ((char *) out + attr[i].offset) = trick_byteswap_int((int) ti);
-            }
+            *(int *) ((char *) out ) = ti;
 
         } else {
 
@@ -93,26 +87,25 @@ void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom)
 
                 case 1:
                     for (j = 0; j < num; j++) {
-                        *(unsigned char *) ((char *) out + attr[i].offset + j) =
-                            *(unsigned char *) ((char *) in + attr[i].offset + j);
+                        *(unsigned char *) ((char *) out + j) = *(unsigned char *) ((char *) in + j);
                     }
                     break;
                 case 2:
                     for (j = 0; j < num; j++) {
-                        ts = *(unsigned short *) ((char *) in + attr[i].offset + j * 2);
-                        *(unsigned short *) ((char *) out + attr[i].offset + j * 2) = trick_byteswap_short((short) ts);
+                        ts = *(unsigned short *) ((char *) in + j * 2);
+                        *(unsigned short *) ((char *) out + j * 2) = trick_byteswap_short((short) ts);
                     }
                     break;
                 case 4:
                     for (j = 0; j < num; j++) {
-                        ti = *(unsigned int *) ((char *) in + attr[i].offset + j * 4);
-                        *(unsigned int *) ((char *) out + attr[i].offset + j * 4) = trick_byteswap_int((int) ti);
+                        ti = *(unsigned int *) ((char *) in + j * 4);
+                        *(unsigned int *) ((char *) out + j * 4) = trick_byteswap_int((int) ti);
                     }
                     break;
                 case 8:
                     for (j = 0; j < num; j++) {
-                        td = *(double *) ((char *) in + attr[i].offset + j * 8);
-                        *(double *) ((char *) out + attr[i].offset + j * 8) = trick_byteswap_double(td);
+                        td = *(double *) ((char *) in + j * 8);
+                        *(double *) ((char *) out + j * 8) = trick_byteswap_double(td);
                     }
                     break;
             }
