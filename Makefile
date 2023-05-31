@@ -470,7 +470,12 @@ ICG: TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 ICG: $(ICG_EXE)
 	$(ICG_EXE) -f -s -m -n ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
 
-ICG_EXE: $(ICG_EXE)
+
+ICG_EXE: force-icg-build
+
+.PHONY: force-icg-build
+force-icg-build: 
+	$(MAKE) -C trick_source/codegen/Interface_Code_Gen
 
 # This builds a tricklib share library.
 trick_lib: $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)
