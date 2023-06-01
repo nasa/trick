@@ -90,8 +90,7 @@ int Trick::VariableServerThread::write_binary_data( int Start, char *buf1, const
                 memcpy(&buf1[offset] , &swap_int , sizeof(size)) ;
                 offset += sizeof(size) ;
 
-                /* TODO: There is a bug here, this call will want to swap the entire buffer, we may not have the whole buffer */
-                trick_bswap_buffer(&buf1[offset], address, given_vars[i]->ref->attr, 1);
+                trick_bswap_single_parameter(&buf1[offset], address, given_vars[i]->ref->attr, 1);
                 offset += size ;
             }
             else {
