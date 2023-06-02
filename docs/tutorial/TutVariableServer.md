@@ -80,7 +80,7 @@ position data, and prints the periodic responses to the screen.
 **Listing - CannonDisplay_Rev1.py**
 
 ```python
-#!/usr/bin/python2
+#!/usr/bin/python3
 import sys
 import socket
 
@@ -97,12 +97,12 @@ client_socket.connect( ("localhost", trick_varserver_port) )
 insock = client_socket.makefile("r")
 
 # 3.0 Request the cannon ball position.
-client_socket.send( "trick.var_pause()\n" )
-client_socket.send( "trick.var_ascii()\n" )
-client_socket.send( "trick.var_add(\"dyn.cannon.pos[0]\") \n" +
-                    "trick.var_add(\"dyn.cannon.pos[1]\") \n"
+client_socket.send( b"trick.var_pause()\n" )
+client_socket.send( b"trick.var_ascii()\n" )
+client_socket.send( b"trick.var_add(\"dyn.cannon.pos[0]\") \n" +
+                    b"trick.var_add(\"dyn.cannon.pos[1]\") \n"
                   )
-client_socket.send( "trick.var_unpause()\n" )
+client_socket.send( b"trick.var_unpause()\n" )
 
 # 4.0 Repeatedly read and process the responses from the variable server.
 while(True):
@@ -110,7 +110,7 @@ while(True):
     if line == '':
         break
 
-    print line
+    print(line)
 ```
 
 <a id=running-the-client></a>
@@ -180,8 +180,8 @@ and "dyn.cannon.pos[1]" to the session variable list.
 escaped with the '\' (backslash) character.
 
 ```python
-client_socket.send( "trick.var_add(\"dyn.cannon.pos[0]\") \n" +
-                    "trick.var_add(\"dyn.cannon.pos[1]\") \n"
+client_socket.send( b"trick.var_add(\"dyn.cannon.pos[0]\") \n" +
+                    b"trick.var_add(\"dyn.cannon.pos[1]\") \n"
                   )
 ```
 
@@ -216,7 +216,7 @@ To demonstrate how this works, let's add the following code to our script, right
 after the line where we sent the **var_ascii** command.
 
 ```python
-client_socket.send( "trick.var_send_once(\"dyn.cannon.init_angle\")\n")
+client_socket.send( b"trick.var_send_once(\"dyn.cannon.init_angle\")\n")
 line = insock.readline()
 print line
 ```
@@ -247,7 +247,7 @@ In our example, suppose we also wanted to retrieve the initial speed of the cann
 We could retrieve both variables with a single command:
 
 ```python
-client_socket.send( "trick.var_send_once(\"dyn.cannon.init_angle, dyn.cannon.init_speed\", 2)\n")
+client_socket.send( b"trick.var_send_once(\"dyn.cannon.init_angle, dyn.cannon.init_speed\", 2)\n")
 ```
 
 Now, when we run the client, we get both the init_angle and the init_speed with the first message.
@@ -269,11 +269,11 @@ To demonstrate how this works, replace the code in the previous listing with the
 after the line where we sent the **var_ascii** command.
 
 ```python
-client_socket.send( "trick.var_add(\"dyn.cannon.init_angle\")\n")
-client_socket.send( "trick.var_send()\n" )
+client_socket.send( b"trick.var_add(\"dyn.cannon.init_angle\")\n")
+client_socket.send( b"trick.var_send()\n" )
 line = insock.readline()
 print line
-client_socket.send( "trick.var_clear()\n" )
+client_socket.send( b"trick.var_clear()\n" )
 ```
 
 In this snippet of code, we add  ```dyn.cannon.init_angle``` to the session
@@ -287,7 +287,7 @@ or 2) we can call [**var_remove**](#api-var-remove). Specifically we could do
 the following:
 
 ```python
-client_socket.send( "trick.var_remove(\"dyn.cannon.init_angle\")\n" )
+client_socket.send( b"trick.var_remove(\"dyn.cannon.init_angle\")\n" )
 ```
 
 So, when we run the modified client, the first three lines of the output should
@@ -328,11 +328,11 @@ The listing below implements a GUI client using **Python** and
 **Listing - CannonDisplay_Rev2.py**
 
 ```python
-#!/usr/bin/python2
+#!/usr/bin/python3
 import sys 
 import socket
 import math
-from Tkinter import *
+from tkinter import *
 
 # ----------------------------------------------------------------------
 # 1.0 Process the command line arguments, to get the port number.
@@ -409,16 +409,16 @@ insock = client_socket.makefile("r")
 
 # ----------------------------------------------------------------------
 # 7.0 Request the cannon ball position, the sim mode, and the impact info.
-client_socket.send( "trick.var_set_client_tag(\"myvsclient\") \n")
-client_socket.send( "trick.var_debug(3)\n" )
-client_socket.send( "trick.var_pause()\n" )
-client_socket.send( "trick.var_ascii()\n" )
-client_socket.send( "trick.var_add(\"dyn.cannon.pos[0]\") \n" +
-                    "trick.var_add(\"dyn.cannon.pos[1]\") \n" +
-                    "trick.var_add(\"trick_sys.sched.mode\")\n" +
-                    "trick.var_add(\"dyn.cannon.impact\") \n" +
-                    "trick.var_add(\"dyn.cannon.impactTime\") \n" )
-client_socket.send( "trick.var_unpause()\n" )
+client_socket.send( b"trick.var_set_client_tag(\"myvsclient\") \n")
+client_socket.send( b"trick.var_debug(3)\n" )
+client_socket.send( b"trick.var_pause()\n" )
+client_socket.send( b"trick.var_ascii()\n" )
+client_socket.send( b"trick.var_add(\"dyn.cannon.pos[0]\") \n" +
+                    b"trick.var_add(\"dyn.cannon.pos[1]\") \n" +
+                    b"trick.var_add(\"trick_sys.sched.mode\")\n" +
+                    b"trick.var_add(\"dyn.cannon.impact\") \n" +
+                    b"trick.var_add(\"dyn.cannon.impactTime\") \n" )
+client_socket.send( b"trick.var_unpause()\n" )
 
 # ----------------------------------------------------------------------
 # 8.0 Repeatedly read and process the responses from the variable server.
@@ -453,7 +453,7 @@ while(True):
             canvas.itemconfigure(impactTimeText, text="Impact time = " + field[5])
             canvas.itemconfigure(impactPosText, text="Impact pos  = (" + field[1] + "," + field[2] + ")")
             # 8.5.2 Command the sim to FREEZE mode.
-            client_socket.send( "trick.exec_freeze()\n")
+            client_socket.send( b"trick.exec_freeze()\n")
 
     # 8.6 When the "Fire" button is pressed, command the sim from FREEZE mode to RUN mode.
     if simMode == MODE_FREEZE:
@@ -461,12 +461,12 @@ while(True):
             fireCommand = False
             fireButton.config(state=DISABLED)
             # 8.6.1 Command the sim to assign the slider values to init_speed, and init_angle.
-            client_socket.send( "dyn.cannon.init_speed = " + str(speedScale.get()) + " \n")
-            client_socket.send( "dyn.cannon.init_angle = " + str(angleScale.get()*(math.pi/180.0)) + " \n")
+            client_socket.send( b"dyn.cannon.init_speed = " + bytes(str(speedScale.get()), 'UTF-8') + b" \n")
+            client_socket.send( b"dyn.cannon.init_angle = " + bytes(str(angleScale.get()*(math.pi/180.0)), 'UTF-8') + b" \n")
             # 8.6.2 Command the sim to re-run the cannon_init job.
-            client_socket.send( "trick.cannon_init( dyn.cannon )\n")
+            client_socket.send( b"trick.cannon_init( dyn.cannon )\n")
             # 8.6.3 Command the sim to RUN mode.
-            client_socket.send( "trick.exec_run()\n")
+            client_socket.send( b"trick.exec_run()\n")
     
     # 8.7 Update the Tk graphics.
     tk.update()
@@ -506,8 +506,8 @@ Don't set ```trick_sys.sched.mode```.
 To set simulation values, we simply create and send Python assignment statements.
 
 ```
- client_socket.send( "dyn.cannon.init_speed = " + str(speedScale.get()) + " \n")
- client_socket.send( "dyn.cannon.init_angle = " + str(angleScale.get()*(math.pi/180.0)) 
+ client_socket.send( b"dyn.cannon.init_speed = " + str(speedScale.get()) + " \n")
+ client_socket.send( b"dyn.cannon.init_angle = " + str(angleScale.get()*(math.pi/180.0)) ) 
 ```
 
 Just because the variable server isn't available during INITIALIZATION mode,
@@ -515,7 +515,7 @@ doesn't mean we can't initialize our sim. We can just call our initialization
 jobs directly.
 
 ```
-client_socket.send( "trick.cannon_init( dyn.cannon )\n")
+client_socket.send( b"trick.cannon_init( dyn.cannon )\n")
 ```
 
 <a id=starting-a-client-from-the-input-file></a>

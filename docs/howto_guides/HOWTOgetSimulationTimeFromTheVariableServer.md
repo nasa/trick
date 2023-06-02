@@ -21,7 +21,7 @@ $ ./SimTimeExample.py <variable-server-port-number>
 ### Example (SimTimeExample.py)
 
 ```python
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 import socket
 
@@ -65,7 +65,7 @@ while(True):
     
     # Calculate sim_time 
     sim_time = float(time_tics) / tics_per_second
-    
+
     print(f'sim_time = {sim_time}')
 ```
 
