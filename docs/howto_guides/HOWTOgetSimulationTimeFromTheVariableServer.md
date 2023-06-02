@@ -65,8 +65,7 @@ while(True):
     
     # Calculate sim_time 
     sim_time = float(time_tics) / tics_per_second
-
-    #print('sim_time = {0}'.format(sim_time))
+    
     print(f'sim_time = {sim_time}')
 ```
 
