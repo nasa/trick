@@ -38,7 +38,7 @@ llvm::cl::opt<bool> units_truth_is_scary("units-truth-is-scary", llvm::cl::desc(
 llvm::cl::opt<bool> sim_services_flag("sim_services", llvm::cl::desc("Gernerate io_src for Trick core headers"));
 llvm::cl::opt<bool> force("force", llvm::cl::desc("Force all io_src files to be generated"));
 llvm::cl::opt<int> attr_version("v", llvm::cl::desc("Select version of attributes to produce.  10 and 13 are valid"), llvm::cl::init(10));
-llvm::cl::opt<std::string> standard_version("std", llvm::cl::desc("Set the C++ standard to use when parsing. c++11, c++14, c++17, and c++20 are valid. Default is c++17 or the newest supported by your LLVM version."), llvm::cl::init(""), llvm::cl::ZeroOrMore);
+llvm::cl::opt<std::string> standard_version("icg-std", llvm::cl::desc("Set the C++ standard to use when parsing. c++11, c++14, c++17, and c++20 are valid. Default is c++17 or the newest supported by your LLVM version."), llvm::cl::init(""), llvm::cl::ZeroOrMore);
 llvm::cl::opt<int> debug_level("d", llvm::cl::desc("Set debug level"), llvm::cl::init(0), llvm::cl::ZeroOrMore);
 llvm::cl::opt<bool> create_map("m", llvm::cl::desc("Create map files"), llvm::cl::init(false));
 llvm::cl::opt<std::string> output_dir("o", llvm::cl::desc("Output directory"));
