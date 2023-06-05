@@ -91,12 +91,12 @@ Edit a file called "S_overrides.mk". Append to the TRICK_EXCLUDE variable.
 TRICK_EXCLUDE += /path/to/exclude:/another/path/to/exclude
 ```
 
-### Example how to set a C++ standard for ICG and compilation
+### Example how to set a C++ standard for ICG parsing
 
-Edit a file called "S_overrides.mk". Append to the TRICK_CXXFLAGS variable.
+Edit a file called "S_overrides.mk". Append to the TRICK_ICGFLAGS variable.
 
 ```
-TRICK_CXXFLAGS += -std=c++11
+TRICK_ICGFLAGS += -icg-std=c++11
 ```
 
 Valid options are c++11, c++14, c++17, or c++20. ICG will parse to c++17 by default, or the newest supported version if c++17 is not availible. 
