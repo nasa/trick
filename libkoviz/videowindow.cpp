@@ -297,10 +297,11 @@ void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
         // Clear layout (but keep widgets)
         QLayoutItem *child;
         while ((child = _grid->takeAt(0)) != nullptr) {
+            _grid->removeWidget(child->widget());
             delete child;   // delete the layout item
         }
         for (int r = 0; r < _grid->rowCount(); ++r ) {
-            _grid->setColumnStretch(r,0);
+            _grid->setRowStretch(r,0);
         }
         for (int c = 0; c < _grid->columnCount(); ++c ) {
             _grid->setColumnStretch(c,0);
