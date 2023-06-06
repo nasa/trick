@@ -323,7 +323,8 @@ void PlotMainWindow::createMenu()
     connect(_jpgAction, SIGNAL(triggered()),this, SLOT(_saveJpg()));
     connect(_sessionAction, SIGNAL(triggered()),this, SLOT(_saveSession()));
 #ifdef HAS_MPV
-    connect(_openVideoAction, SIGNAL(triggered()),this, SLOT(_openVideo()));
+    connect(_openVideoAction, SIGNAL(triggered()),
+            this, SLOT(_openVideoByMenu()));
 #endif
     connect(_exitAction, SIGNAL(triggered()),this, SLOT(close()));
     connect(_showLiveCoordAction, SIGNAL(triggered()),
@@ -461,6 +462,12 @@ void PlotMainWindow::_bookModelDataChanged(const QModelIndex &topLeft,
         QString msg = _bookModel->data(topLeft).toString();
         _statusBar->showMessage(msg);
     }
+}
+
+void PlotMainWindow::vidViewClosed()
+{
+    vidView = 0;
+    _videos.clear();
 }
 
 void PlotMainWindow::_scriptError(QProcess::ProcessError error)
@@ -1261,20 +1268,15 @@ void PlotMainWindow::_saveSession()
     }
 }
 
-void PlotMainWindow::_openVideo()
+void PlotMainWindow::_openVideoByRun()
 {
-    QRect lastVideoRect;
-    if ( vidView ) {
-        lastVideoRect = vidView->geometry();
-    }
-
-    QList<QPair<QString, double> > videos;
-
     int i = _monteInputsView->currentRun();
-    if ( i >= 0 ) {
+    if ( i >= 0 && _videos.isEmpty() ) { // No cmdline or menu opened videos
+        // Look in RUN dir for videos
         QString rundir = _runs->runDirs().at(i);
         QString videoDirName = rundir + "/video";
         QFileInfo fi(videoDirName);
+        QList<QPair<QString, double> > videos;
         if ( fi.exists() && fi.isDir() ) {
             QStringList filter;
             filter << "*.MP4" << "*.mp4" << "*.avi";
@@ -1372,22 +1374,17 @@ void PlotMainWindow::_openVideo()
                 }
             }
         }
-    } else {
-        QString filename = QFileDialog::getOpenFileName(this, "Open file");
-        videos.append(qMakePair(filename,0.0));
-    }
-
-    if ( ! videos.isEmpty() ) {
         _openVideos(videos);
     }
+}
 
-    if ( vidView ) {
-        if ( lastVideoRect.isNull() ) {
-            _readVideoWindowSettings();
-        } else {
-            vidView->resize(lastVideoRect.size());
-            vidView->move(lastVideoRect.topLeft());
-        }
+void PlotMainWindow::_openVideoByMenu()
+{
+    QString filename = QFileDialog::getOpenFileName(this, "Open file");
+    if ( ! filename.isEmpty() ) {
+        _videos.clear();
+        _videos.append(qMakePair(filename,0.0));
+        _openVideos(_videos);
     }
 }
 
@@ -1398,6 +1395,16 @@ void PlotMainWindow::_openVideos(const QList<QPair<QString, double> > &videos)
                         "  Please install mpv and rebuild koviz!\n");
         exit(-1);
 #endif
+    QRect lastVideoRect;
+    if ( vidView ) {
+        lastVideoRect = vidView->geometry();
+    }
+
+    if ( !vidView && videos.isEmpty() ) {
+        // No video view and no videos, nothing to do
+        return;
+    }
+
     bool isLiveTime = false;
     QModelIndex liveIdx = _bookModel->getDataIndex(QModelIndex(),
                                                    "LiveCoordTime");
@@ -1409,10 +1416,12 @@ void PlotMainWindow::_openVideos(const QList<QPair<QString, double> > &videos)
 
     if ( !vidView ) {
         vidView = new VideoWindow(videos,this);
+        vidView->setAttribute(Qt::WA_DeleteOnClose);
         vidView->show();
         this->setFocusPolicy(Qt::StrongFocus);
         connect(vidView,SIGNAL(timechangedByMpv(double)),
                 this, SLOT(setTimeFromVideo(double)));
+        connect(vidView,SIGNAL(close()), this, SLOT(vidViewClosed()));
     } else {
         if ( vidView->isHidden() ) {
             vidView->show();
@@ -1430,6 +1439,15 @@ void PlotMainWindow::_openVideos(const QList<QPair<QString, double> > &videos)
         // Koviz needs to drive time if -liveTime used
         this->activateWindow();
         QCoreApplication::processEvents();
+    }
+
+    if ( vidView ) {
+        if ( lastVideoRect.isNull() ) {
+            _readVideoWindowSettings();
+        } else {
+            vidView->resize(lastVideoRect.size());
+            vidView->move(lastVideoRect.topLeft());
+        }
     }
 }
 
@@ -1872,7 +1890,7 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
             _the_visualizer->sendRun2Bvis(rundir);
             _blender->sendRun2Bvis(rundir);
         }
-        _openVideo();
+        _openVideoByRun();
     }
 }
 

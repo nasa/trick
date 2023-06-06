@@ -57,11 +57,16 @@ public slots:
 signals:
     void mpv_events();
     void timechangedByMpv(double time);
+    void close();
 
 private:
     QList<Video*> _videos;
     double _startTime;
+    QGridLayout* _grid ;
+
     void create_player();
+    void _resize_videos(const QList<QPair<QString,double> >& videos);
+    Video* _create_video();
 
 #ifdef HAS_MPV
     void handle_mpv_event(Video* video, mpv_event *event);

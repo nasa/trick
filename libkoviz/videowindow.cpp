@@ -35,46 +35,16 @@ VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
 
     QPair<QString,double> videoIn;
     foreach (videoIn, videos) {
-        mpv_handle* mpv = mpv_create();
-        if (!mpv) {
-            throw std::runtime_error("can't create mpv instance");
-        }
-
-        QWidget* mpv_container = new QWidget(this);
-
-        mpv_container->setAttribute(Qt::WA_DontCreateNativeAncestors);
-        mpv_container->setAttribute(Qt::WA_NativeWindow);
-
-        mpv_set_option_string(mpv, "input-default-bindings", "yes");
-        mpv_set_option_string(mpv, "input-vo-keyboard", "yes");
-        mpv_set_option_string(mpv, "keep-open", "always");
-        mpv_set_option_string(mpv, "osd-level", "0");
-        if ( videos.size() > 1 ) {
-            // Bring up paused if more than a single video
-            // since they cannot be perfectly synced
-            mpv_set_option_string(mpv,"pause","yes");
-        }
-
-        mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
-
-        mpv_set_wakeup_callback(mpv, wakeup, this);
-
-        int64_t wid = mpv_container->winId();
-        mpv_set_option(mpv, "wid", MPV_FORMAT_INT64, &wid);
-
-        if (mpv_initialize(mpv) < 0) {
-            throw std::runtime_error("mpv failed to initialize");
-        }
-
-        Video* video = new Video();
+        Video* video = _create_video();
         video->fileName = videoIn.first;
         video->timeOffset = videoIn.second;
-        video->mpv = mpv;
-        video->mpv_container = mpv_container;
+        if ( videos.size() > 1 ) {
+            mpv_set_option_string(video->mpv,"pause","yes");
+        }
         _videos.append(video);
     }
 
-    QGridLayout* grid = new QGridLayout();
+    _grid = new QGridLayout();
     int ncols = ceil(sqrt(_videos.size()));
     div_t q = div(_videos.size(),ncols);
     int nrows = 0;
@@ -86,9 +56,9 @@ VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
     int k = 0;
     for ( int i = 0; i < nrows; ++i ) {
         for ( int j = 0; j < ncols; ++j ) {
-            grid->addWidget(_videos.at(k++)->mpv_container, i, j);
-            grid->setRowStretch(i, 1);
-            grid->setColumnStretch(j, 1);
+            _grid->addWidget(_videos.at(k++)->mpv_container, i, j);
+            _grid->setRowStretch(i, 1);
+            _grid->setColumnStretch(j, 1);
             if ( k == _videos.size() ) {
                 break;
             }
@@ -96,7 +66,7 @@ VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
     }
 
     QWidget* centralWidget = new QWidget(this);
-    centralWidget->setLayout(grid);
+    centralWidget->setLayout(_grid);
     setCentralWidget(centralWidget);
 
 #endif
@@ -117,6 +87,9 @@ void VideoWindow::closeEvent(QCloseEvent *event)
     settings.setValue("size", size());
     settings.setValue("pos", pos());
     settings.endGroup();
+
+    emit close();
+    QMainWindow::closeEvent(event);
 }
 
 void VideoWindow::seek_time(double time) {
@@ -200,11 +173,8 @@ void VideoWindow::on_mpv_events()
 void VideoWindow::set_videos(const QList<QPair<QString,double> >& videos)
 {
 #ifdef HAS_MPV
-    // TODO: Handle case when number of videos change
     if ( videos.size() != _videos.size() ) {
-        //_videos.clear();
-        fprintf(stderr, "koviz [todo]: Handle number of videos changing\n");
-        exit(-1);
+        _resize_videos(videos);
     }
 
     QPair<QString,double> videoIn;
@@ -257,6 +227,151 @@ void VideoWindow::pause()
 #endif
 }
 
+void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
+{
+#ifdef HAS_MPV
+    if ( videos.size() > _videos.size() ) { // Add videos
+        int d = videos.size() - _videos.size();
+        for (int i = 0; i < d; ++i ) {
+            Video* video = _create_video();
+            if ( videos.size() > 1 ) {
+                // Bring up paused if more than a single video
+                // since they cannot be perfectly synced
+                mpv_set_option_string(video->mpv,"pause","yes");
+            }
+            _videos.append(video);
+        }
+
+        // Clear layout (but keep widgets)
+        QLayoutItem *child;
+        while ((child = _grid->takeAt(0)) != nullptr) {
+            delete child;   // delete the layout item
+        }
+        for (int r = 0; r < _grid->rowCount(); ++r ) {
+            _grid->setColumnStretch(r,0);
+        }
+        for (int c = 0; c < _grid->columnCount(); ++c ) {
+            _grid->setColumnStretch(c,0);
+        }
+        _grid->update();
+
+        // Redo layout with new number of videos
+        if ( _videos.size() > 0 ) {
+            int ncols = ceil(sqrt(_videos.size()));
+            div_t q = div(_videos.size(),ncols);
+            int nrows = 0;
+            if ( q.rem == 0 ) {
+                nrows = q.quot;
+            } else {
+                nrows = q.quot+1;
+            }
+            int k = 0;
+            for ( int i = 0; i < nrows; ++i ) {
+                for ( int j = 0; j < ncols; ++j ) {
+                    _grid->addWidget(_videos.at(k++)->mpv_container, i, j);
+                    _grid->setRowStretch(i, 1);
+                    _grid->setColumnStretch(j, 1);
+                    if ( k == _videos.size() ) {
+                        break;
+                    }
+                }
+            }
+        }
+    } else if ( videos.size() < _videos.size() ) {
+
+        // Remove videos
+        int n = _videos.size();
+        int d = _videos.size() - videos.size();
+        for ( int i = 0; i < d; ++i ) {
+            Video* video = _videos.takeLast();
+            if ( video->mpv ) {
+                mpv_set_option_string(video->mpv,"pause","yes");
+                mpv_set_property_string(video->mpv,"eof-reached","yes");
+                mpv_terminate_destroy(video->mpv);
+            }
+            QLayoutItem* layoutItem = _grid->takeAt(n-1-i);
+            delete layoutItem->widget();
+            delete layoutItem;
+        }
+
+        // Clear layout (but keep widgets)
+        QLayoutItem *child;
+        while ((child = _grid->takeAt(0)) != nullptr) {
+            delete child;   // delete the layout item
+        }
+        for (int r = 0; r < _grid->rowCount(); ++r ) {
+            _grid->setColumnStretch(r,0);
+        }
+        for (int c = 0; c < _grid->columnCount(); ++c ) {
+            _grid->setColumnStretch(c,0);
+        }
+        _grid->update();
+
+        // Redo layout with new number of videos
+        if ( _videos.size() > 0 ) {
+            int ncols = ceil(sqrt(_videos.size()));
+            div_t q = div(_videos.size(),ncols);
+            int nrows = 0;
+            if ( q.rem == 0 ) {
+                nrows = q.quot;
+            } else {
+                nrows = q.quot+1;
+            }
+            int k = 0;
+            for ( int i = 0; i < nrows; ++i ) {
+                for ( int j = 0; j < ncols; ++j ) {
+                    _grid->addWidget(_videos.at(k++)->mpv_container, i, j);
+                    _grid->setRowStretch(i, 1);
+                    _grid->setColumnStretch(j, 1);
+                    if ( k == _videos.size() ) {
+                        break;
+                    }
+                }
+            }
+        }
+    } else {
+        // Nothing to do
+        return;
+    }
+#endif
+}
+
+Video* VideoWindow::_create_video()
+{
+    mpv_handle* mpv = mpv_create();
+    if (!mpv) {
+        throw std::runtime_error("can't create mpv instance");
+    }
+
+    QWidget* mpv_container = new QWidget(this);
+
+    mpv_container->setAttribute(Qt::WA_DontCreateNativeAncestors);
+    mpv_container->setAttribute(Qt::WA_NativeWindow);
+
+    mpv_set_option_string(mpv, "input-default-bindings", "yes");
+    mpv_set_option_string(mpv, "input-vo-keyboard", "yes");
+    mpv_set_option_string(mpv, "keep-open", "always");
+    mpv_set_option_string(mpv, "osd-level", "0");
+
+    mpv_observe_property(mpv, 0, "time-pos", MPV_FORMAT_DOUBLE);
+
+    mpv_set_wakeup_callback(mpv, wakeup, this);
+
+    int64_t wid = mpv_container->winId();
+    mpv_set_option(mpv, "wid", MPV_FORMAT_INT64, &wid);
+
+    if (mpv_initialize(mpv) < 0) {
+        throw std::runtime_error("mpv failed to initialize");
+    }
+
+    Video* video = new Video();
+    video->fileName = "";     // This will be set in set_videos()
+    video->timeOffset = 0.0;  // Ditto
+    video->mpv = mpv;
+    video->mpv_container = mpv_container;
+
+    return video;
+}
 
 VideoWindow::~VideoWindow()
 {
@@ -273,5 +388,6 @@ VideoWindow::~VideoWindow()
         }
         delete video;
     }
+    _videos.clear();
 #endif
 }

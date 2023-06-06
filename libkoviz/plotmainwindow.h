@@ -158,7 +158,8 @@ private slots:
      void _savePdf();
      void _saveJpg();
      void _saveSession();
-     void _openVideo();
+     void _openVideoByRun();
+     void _openVideoByMenu();
      void _toggleShowLiveCoord();
      void _refreshPlots();
      void _clearPlots();
@@ -181,6 +182,7 @@ private slots:
                                 const QModelIndex &bottomRight,
                                 const QVector<int> &roles = QVector<int>());
 
+     void vidViewClosed();
      void setTimeFromVideo(double time);
      void setTimeFromBvis(double time);
      void _scriptError(QProcess::ProcessError error);
