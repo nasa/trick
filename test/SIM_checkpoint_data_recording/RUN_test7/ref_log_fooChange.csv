@@ -1,6 +1,6 @@
 sys.exec.out.time {s},testSimObject.my_foo.a {1},testSimObject.my_foo.b {1},testSimObject.my_foo.q {1}
-                   6,7,14,7
-                   7,8,16,8
-                   8,9,18,9
-                   9,10,20,10
-                  10,11,22,11
+                   8,9,18,3
+                  11,12,24,4
+                  14,15,30,5
+                  17,18,36,6
+                  20,21,42,7

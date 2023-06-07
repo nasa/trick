@@ -8,7 +8,7 @@ def main():
     
     trick.checkpoint(5.0)
 
-    trick.stop(10.0)
+    trick.stop(20.0)
 
 if __name__ == "__main__":
     main()

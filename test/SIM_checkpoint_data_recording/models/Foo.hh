@@ -14,6 +14,6 @@ class Foo {
     void increment () {
         a++;
         b+=2;
-        if(b%a == 0) q++;
+        if(a%3 == 0) q++;
     }
 };
