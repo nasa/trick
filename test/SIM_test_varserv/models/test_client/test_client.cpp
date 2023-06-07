@@ -1580,7 +1580,7 @@ TEST_F (VariableServerTest, Binary) {
     EXPECT_EQ(variable_noname.getValue<bool>(), true);
 }
 
-TEST_F (VariableServerTest, DISABLED_BinaryByteswap) {
+TEST_F (VariableServerTest, BinaryByteswap) {
 
     std::vector<unsigned char> reply;
     socket << "trick.var_binary()\ntrick.var_byteswap(False)\ntrick.var_add(\"vsx.vst.f\")\ntrick.var_add(\"vsx.vst.j\")\n";

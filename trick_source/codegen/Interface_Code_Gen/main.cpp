@@ -38,6 +38,7 @@ llvm::cl::opt<bool> units_truth_is_scary("units-truth-is-scary", llvm::cl::desc(
 llvm::cl::opt<bool> sim_services_flag("sim_services", llvm::cl::desc("Gernerate io_src for Trick core headers"));
 llvm::cl::opt<bool> force("force", llvm::cl::desc("Force all io_src files to be generated"));
 llvm::cl::opt<int> attr_version("v", llvm::cl::desc("Select version of attributes to produce.  10 and 13 are valid"), llvm::cl::init(10));
+llvm::cl::opt<std::string> standard_version("icg-std", llvm::cl::desc("Set the C++ standard to use when parsing. c++11, c++14, c++17, and c++20 are valid. Default is c++17 or the newest supported by your LLVM version."), llvm::cl::init(""), llvm::cl::ZeroOrMore);
 llvm::cl::opt<int> debug_level("d", llvm::cl::desc("Set debug level"), llvm::cl::init(0), llvm::cl::ZeroOrMore);
 llvm::cl::opt<bool> create_map("m", llvm::cl::desc("Create map files"), llvm::cl::init(false));
 llvm::cl::opt<std::string> output_dir("o", llvm::cl::desc("Output directory"));
@@ -57,12 +58,48 @@ void set_lang_opts(clang::CompilerInstance & ci) {
     ci.getLangOpts().Bool = true ;
     ci.getLangOpts().WChar = true ;
     ci.getLangOpts().CPlusPlus = true ;
-    ci.getLangOpts().CPlusPlus11 = true ;
     ci.getLangOpts().CXXOperatorNames = true ;
+
+    // Always use at least C++11
+    ci.getLangOpts().CPlusPlus11 = true ;
+
+
+#if (LIBCLANG_MAJOR < 6)
+    // Check if standard_version was specified and if it's a version that is supported by this libclang
+    if (standard_version != "") {
+        if (standard_version == "c++11") {
+            // Nothing to be done here really
+        } else if (standard_version == "c++14" || standard_version == "c++17" || standard_version == "c++20") {
+            std::cerr << "C++ standard " << standard_version << " is not supported by this version of Clang." << std::endl;
+        } else {
+            std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
+        }
+    }
+#endif
+
+    // Activate C++14 parsing
 #if (LIBCLANG_MAJOR >= 6)
     ci.getLangOpts().CPlusPlus14 = true ;
-    ci.getLangOpts().DoubleSquareBracketAttributes = true ;
+    ci.getLangOpts().DoubleSquareBracketAttributes = true ;    
 #endif
+
+#if (LIBCLANG_MAJOR >= 6 && LIBCLANG_MAJOR < 10)
+    // Check if standard_version was specified and if it's a version that is supported by this libclang
+    if (standard_version != "") {
+        if (standard_version == "c++11") {
+            // Turn off c++14, c++11 is already on
+            ci.getLangOpts().CPlusPlus14 = false ;
+        } else if (standard_version == "c++14") {
+            // Nothing to be done here
+        }else if (standard_version == "c++17" || standard_version == "c++20") {
+            std::cerr << "C++ standard " << standard_version << " is not supported by this version of Clang." << std::endl;
+        } else {
+            std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
+        }
+    }
+#endif
+
+
     // Activate C++17 parsing
 #ifdef TRICK_GCC_VERSION
 const char * gcc_version = TRICK_GCC_VERSION;
@@ -73,6 +110,24 @@ const char * gcc_version = "";
 #if (LIBCLANG_MAJOR >= 10)
     ci.getLangOpts().GNUCVersion = gccVersionToIntOrDefault(gcc_version, 40805);
     ci.getLangOpts().CPlusPlus17 = true ;
+
+    // Check if standard_version was specified and if it's a version that is supported by this libclang
+    if (standard_version != "") {
+        if (standard_version == "c++11") {
+            ci.getLangOpts().CPlusPlus14 = false ;
+            ci.getLangOpts().CPlusPlus17 = false ;
+        } else if (standard_version == "c++14") {
+            ci.getLangOpts().CPlusPlus17 = false ;
+        } else if (standard_version == "c++17" ) {
+            // Nothing to do here
+        } else if (standard_version == "c++20") {
+            // It looks like Clang10 was the first to offer the "c++20" flag, but there was partial support before that.
+            // (https://clang.llvm.org/cxx_status.html)
+            ci.getLangOpts().CPlusPlus20 = true ;
+        } else {
+            std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
+        }
+    }
 #endif
 }
 /**

@@ -29,7 +29,7 @@ void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom)
     i = 0;
     TRICK_GET_BYTE_ORDER(local_order);
 
-    while (attr[i].name[0] != '\0') {
+    while ((attr[i].name != NULL) && (attr[i].name[0] != '\0')) {
 
         num = 1;
         for (j = 0; j < attr[i].num_index; j++) {
