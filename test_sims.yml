@@ -243,7 +243,7 @@ SIM_checkpoint_data_recording:
       returns: 0
     RUN_test6/dump.py:
       returns: 0
-    RUN_test7/dump.py:
+    RUN_test[7-8]/dump.py:
       phase: -1
       returns: 0
 
@@ -275,6 +275,10 @@ SIM_checkpoint_data_recording:
       returns: 0
       compare: 
         - test/SIM_checkpoint_data_recording/RUN_test7/ref_log_fooChange.csv vs. test/SIM_checkpoint_data_recording/RUN_test7/log_fooChange.csv
+    RUN_test8/unit_test.py:
+      returns: 0
+      compare: 
+        - test/SIM_checkpoint_data_recording/RUN_test8/ref_log_fooChange2.csv vs. test/SIM_checkpoint_data_recording/RUN_test8/log_fooChange2.csv
 
 SIM_events:
   path: test/SIM_events
