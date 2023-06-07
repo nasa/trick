@@ -248,7 +248,7 @@ void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
             delete child;   // delete the layout item
         }
         for (int r = 0; r < _grid->rowCount(); ++r ) {
-            _grid->setColumnStretch(r,0);
+            _grid->setRowStretch(r,0);
         }
         for (int c = 0; c < _grid->columnCount(); ++c ) {
             _grid->setColumnStretch(c,0);
