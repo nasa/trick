@@ -1,13 +1,10 @@
 #include "videowindow.h"
 
 /* Keith's comment to remove:
-  Temporary comment to help me remember how to test on this branch
-  Completely hard coded videofiles with offsets
-  See: VideoWindow::set_file(const QString &fnameIn)
-       line 208
   To test:
-  cd /home/kvetter/dev/es/video-offset/RUN_D13C1A.20230322.02.D.H12T-H12T.4506.5p00000.ComplexComboPlusRatesMax
-  kv DATA_Simhost -video Video/2023-03-22T0939_R02_Cam01_REC1_3.mp4
+  % cd /home/kvetter/dev/es/video-multi/test3
+  % ./test.sh
+  % click curves and cycle between 0,4,6 videos
 */
 
 static void wakeup(void *ctx)
