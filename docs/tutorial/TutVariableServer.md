@@ -218,7 +218,7 @@ after the line where we sent the **var_ascii** command.
 ```python
 client_socket.send( b"trick.var_send_once(\"dyn.cannon.init_angle\")\n")
 line = insock.readline()
-print line
+print(line)
 ```
 
 In this code, we simply ask the variable server to immediately send the value of ```dyn.cannon.init_angle```,
@@ -272,7 +272,7 @@ after the line where we sent the **var_ascii** command.
 client_socket.send( b"trick.var_add(\"dyn.cannon.init_angle\")\n")
 client_socket.send( b"trick.var_send()\n" )
 line = insock.readline()
-print line
+print(line)
 client_socket.send( b"trick.var_clear()\n" )
 ```
 
