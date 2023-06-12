@@ -107,6 +107,8 @@ const char * gcc_version = TRICK_GCC_VERSION;
 const char * gcc_version = "";
 #endif
 
+
+
 #if (LIBCLANG_MAJOR >= 10)
     ci.getLangOpts().GNUCVersion = gccVersionToIntOrDefault(gcc_version, 40805);
     ci.getLangOpts().CPlusPlus17 = true ;
@@ -121,9 +123,13 @@ const char * gcc_version = "";
         } else if (standard_version == "c++17" ) {
             // Nothing to do here
         } else if (standard_version == "c++20") {
-            // It looks like Clang10 was the first to offer the "c++20" flag, but there was partial support before that.
-            // (https://clang.llvm.org/cxx_status.html)
+            #if (LIBCLANG_MAJOR == 10)
+            // https://github.com/nasa/trick/issues/1519
+            // Before LLVM 11, the flag was named CPlusPlus2a
+            ci.getLangOpts().CPlusPlus2a = true ;
+            #else 
             ci.getLangOpts().CPlusPlus20 = true ;
+            #endif
         } else {
             std::cerr << "Invalid C++ standard version specified:" << standard_version << std::endl;
         }
