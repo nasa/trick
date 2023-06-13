@@ -52,6 +52,7 @@ clean:
 	$(MAKE) -C TESTING spotless
 	$(MAKE) -C APPS spotless
 	$(MAKE) -C XML clean
+	$(MAKE) -C test clean
 	${RM} *~
 	${RM} *.o
 
