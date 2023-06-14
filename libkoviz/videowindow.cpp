@@ -53,7 +53,7 @@ VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
     int k = 0;
     for ( int i = 0; i < nrows; ++i ) {
         for ( int j = 0; j < ncols; ++j ) {
-            _grid->addWidget(_videos.at(k++)->mpv_container, i, j);
+            _grid->addWidget(_videos.at(k++)->videoWidget,i,j);
             _grid->setRowStretch(i, 1);
             _grid->setColumnStretch(j, 1);
             if ( k == _videos.size() ) {
@@ -87,6 +87,96 @@ void VideoWindow::closeEvent(QCloseEvent *event)
 
     emit close();
     QMainWindow::closeEvent(event);
+}
+
+bool VideoWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if ( event->type() == QEvent::MouseButtonRelease) {
+
+        bool isSingleView = false;
+        foreach ( Video* video, _videos ) {
+            if ( video->videoWidget->isHidden() ) {
+                isSingleView = true;
+                break;
+            }
+        }
+
+        if ( isSingleView ) {
+            // Toggle to view of all videos at once (multi view)
+
+            // Clear layout
+            QLayoutItem *child;
+            while ((child = _grid->takeAt(0)) != nullptr) {
+                _grid->removeWidget(child->widget());
+                delete child;   // delete the layout item
+            }
+            for (int r = 0; r < _grid->rowCount(); ++r ) {
+                _grid->setRowStretch(r,0);
+            }
+            for (int c = 0; c < _grid->columnCount(); ++c ) {
+                _grid->setColumnStretch(c,0);
+            }
+            _grid->update();
+
+            // Toggle to grid of videos
+            int ncols = ceil(sqrt(_videos.size()));
+            div_t q = div(_videos.size(),ncols);
+            int nrows = 0;
+            if ( q.rem == 0 ) {
+                nrows = q.quot;
+            } else {
+                nrows = q.quot+1;
+            }
+            int k = 0;
+            for ( int i = 0; i < nrows; ++i ) {
+                for ( int j = 0; j < ncols; ++j ) {
+                    _videos.at(k)->videoWidget->show();
+                    _grid->addWidget(_videos.at(k++)->videoWidget,i,j);
+                    _grid->setRowStretch(i, 1);
+                    _grid->setColumnStretch(j, 1);
+                    if ( k == _videos.size() ) {
+                        break;
+                    }
+                }
+            }
+        } else {
+            // Toggle to single expanded view of clicked video
+
+            QWidget* clickedVideo = 0;
+            foreach ( Video* video, _videos ) {
+                if ( video->videoWidget->whiteBox == obj ) {
+                    clickedVideo = video->videoWidget;
+                }
+            }
+
+            // Clear layout (and hide all non-clicked widgets)
+            QLayoutItem *child;
+            while ((child = _grid->takeAt(0)) != nullptr) {
+                if ( child->widget() != clickedVideo ) {
+                    child->widget()->hide();
+                    _grid->removeWidget(child->widget());
+                }
+                delete child;   // delete the layout item
+            }
+            for (int r = 0; r < _grid->rowCount(); ++r ) {
+                _grid->setRowStretch(r,0);
+            }
+            for (int c = 0; c < _grid->columnCount(); ++c ) {
+                _grid->setColumnStretch(c,0);
+            }
+            _grid->update();
+
+            foreach ( Video* video, _videos ) {
+                if ( obj == video->videoWidget->whiteBox ) {
+                    _grid->addWidget(video->videoWidget,0,0);
+                    _grid->setRowStretch(0, 1);
+                    _grid->setColumnStretch(0, 1);
+                }
+            }
+        }
+    }
+
+    return QMainWindow::eventFilter(obj,event);
 }
 
 void VideoWindow::seek_time(double time) {
@@ -242,6 +332,7 @@ void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
         // Clear layout (but keep widgets)
         QLayoutItem *child;
         while ((child = _grid->takeAt(0)) != nullptr) {
+            child->widget()->hide();
             delete child;   // delete the layout item
         }
         for (int r = 0; r < _grid->rowCount(); ++r ) {
@@ -265,7 +356,8 @@ void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
             int k = 0;
             for ( int i = 0; i < nrows; ++i ) {
                 for ( int j = 0; j < ncols; ++j ) {
-                    _grid->addWidget(_videos.at(k++)->mpv_container, i, j);
+                    _videos.at(k)->videoWidget->show();
+                    _grid->addWidget(_videos.at(k++)->videoWidget,i,j);
                     _grid->setRowStretch(i, 1);
                     _grid->setColumnStretch(j, 1);
                     if ( k == _videos.size() ) {
@@ -277,7 +369,6 @@ void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
     } else if ( videos.size() < _videos.size() ) {
 
         // Remove videos
-        int n = _videos.size();
         int d = _videos.size() - videos.size();
         for ( int i = 0; i < d; ++i ) {
             Video* video = _videos.takeLast();
@@ -286,14 +377,13 @@ void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
                 mpv_set_property_string(video->mpv,"eof-reached","yes");
                 mpv_terminate_destroy(video->mpv);
             }
-            QLayoutItem* layoutItem = _grid->takeAt(n-1-i);
-            delete layoutItem->widget();
-            delete layoutItem;
+            delete video->videoWidget;
         }
 
         // Clear layout (but keep widgets)
         QLayoutItem *child;
         while ((child = _grid->takeAt(0)) != nullptr) {
+            child->widget()->hide();
             _grid->removeWidget(child->widget());
             delete child;   // delete the layout item
         }
@@ -318,7 +408,8 @@ void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
             int k = 0;
             for ( int i = 0; i < nrows; ++i ) {
                 for ( int j = 0; j < ncols; ++j ) {
-                    _grid->addWidget(_videos.at(k++)->mpv_container, i, j);
+                    _videos.at(k)->videoWidget->show();
+                    _grid->addWidget(_videos.at(k++)->videoWidget,i,j);
                     _grid->setRowStretch(i, 1);
                     _grid->setColumnStretch(j, 1);
                     if ( k == _videos.size() ) {
@@ -341,7 +432,26 @@ Video* VideoWindow::_create_video()
         throw std::runtime_error("can't create mpv instance");
     }
 
-    QWidget* mpv_container = new QWidget(this);
+    VideoWidget* videoWidget = new VideoWidget(this);
+
+    videoWidget->hbox = new QHBoxLayout(videoWidget);
+    videoWidget->hbox->setContentsMargins(0,0,0,0);
+    videoWidget->hbox->setSpacing(0);
+    videoWidget->helperWidget = new QWidget(videoWidget);
+    videoWidget->helperWidget->setStyleSheet("background-color: black;");
+    videoWidget->helperWidget->setFixedWidth(20);
+    ClickFrame* whiteBox = new ClickFrame(videoWidget->helperWidget);
+    whiteBox->setFrameShape(QFrame::Box);
+    whiteBox->setStyleSheet("background-color: none;"
+                            "border: 1px solid #ededed;");
+    whiteBox->setFixedSize(12,12);
+    whiteBox->move(4,4);
+    whiteBox->installEventFilter(this);
+    videoWidget->whiteBox = whiteBox;
+
+    QWidget* mpv_container = new QWidget(videoWidget);
+    videoWidget->hbox->addWidget(videoWidget->helperWidget);
+    videoWidget->hbox->addWidget(mpv_container);
 
     mpv_container->setAttribute(Qt::WA_DontCreateNativeAncestors);
     mpv_container->setAttribute(Qt::WA_NativeWindow);
@@ -366,7 +476,8 @@ Video* VideoWindow::_create_video()
     video->fileName = "";     // This will be set in set_videos()
     video->timeOffset = 0.0;  // Ditto
     video->mpv = mpv;
-    video->mpv_container = mpv_container;
+    video->videoWidget = videoWidget;
+    video->videoWidget->mpvContainer = mpv_container;
 
     return video;
 }

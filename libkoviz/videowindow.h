@@ -14,21 +14,60 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QGridLayout>
+#include <QHBoxLayout>
 #include <QApplication>
 #include <QTextEdit>
 #include <QSettings>
 #include <QList>
 #include <QPair>
 #include <QStringList>
+#include <QFrame>
+#include <QMouseEvent>
 
 #ifdef HAS_MPV
 #include <mpv/client.h>
 #endif
 
-struct Video {
+class ClickFrame : public QFrame
+{
+  public:
+    ClickFrame(QWidget* parent = nullptr) : QFrame(parent) {}
+
+  protected:
+
+    void enterEvent(QEvent* event) override
+    {
+        Q_UNUSED(event);
+        setStyleSheet("background-color: #6666aa;"
+                      "border: 1px solid #ededed;");
+    }
+
+    void leaveEvent(QEvent* event) override
+    {
+        Q_UNUSED(event);
+        setStyleSheet("background-color: black;"
+                      "border: 1px solid #ededed;");
+    }
+};
+
+class VideoWidget : public QWidget
+{
+    Q_OBJECT
+
+  public:
+    VideoWidget(QWidget *parent = nullptr) : QWidget(parent) {}
+
+    QHBoxLayout* hbox;
+    ClickFrame*  whiteBox;
+    QWidget* helperWidget;
+    QWidget* mpvContainer;
+};
+
+struct Video
+{
     QString fileName;
     double timeOffset;
-    QWidget* mpv_container;
+    VideoWidget* videoWidget;
 #ifdef HAS_MPV
     mpv_handle* mpv;
 #endif
@@ -48,7 +87,8 @@ public:
     void wrap_mpv_events();
 
 protected:
-     virtual void closeEvent(QCloseEvent *event);
+    virtual void closeEvent(QCloseEvent *event);
+    bool eventFilter(QObject* obj, QEvent* event);
 
 public slots:
     void on_mpv_events();
@@ -62,7 +102,7 @@ signals:
 private:
     QList<Video*> _videos;
     double _startTime;
-    QGridLayout* _grid ;
+    QGridLayout* _grid;
 
     void create_player();
     void _resize_videos(const QList<QPair<QString,double> >& videos);
