@@ -420,6 +420,7 @@ void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
 
 Video* VideoWindow::_create_video()
 {
+#ifdef HAS_MPV
     mpv_handle* mpv = mpv_create();
     if (!mpv) {
         throw std::runtime_error("can't create mpv instance");
@@ -473,6 +474,9 @@ Video* VideoWindow::_create_video()
     video->videoWidget->mpvContainer = mpv_container;
 
     return video;
+#else
+    return 0; // Nothing to do with no mpv
+#endif
 }
 
 VideoWindow::~VideoWindow()
