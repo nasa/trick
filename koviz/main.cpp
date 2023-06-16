@@ -141,6 +141,7 @@ class SnapOptions : public Options
     double trickoffset;
     QString videoFileName;
     double videoOffset;
+    QString videoList;
     QString unitOverrides;
     QString group1;
     QString group2;
@@ -283,6 +284,9 @@ int main(int argc, char *argv[])
              "mp4 video filename");
     opts.add("-videoOffset", &opts.videoOffset, 0.0,
              "video time sync offset");
+    opts.add("-videoList", &opts.videoList, "",
+             "list of videos and colon delimited offsets "
+             "e.g.: \"myvideo.mp4:123.4,myothervideo.mp4:567.8");
     opts.add("-units", &opts.unitOverrides, "",
              "comma delimited list of override units e.g. -units \"in,d\"");
     opts.add("-showUnits:{0,1}",&opts.isShowUnits,false,
@@ -433,7 +437,8 @@ int main(int argc, char *argv[])
         filterPattern = session->filterPattern();
     }
 
-    // Video and VideoOffset
+    // Video(s) and VideoOffset(s)
+    QList<QPair<QString,double>> videos;  // list mp4name/video_offset pairs
     QString videoFileName = opts.videoFileName;
     if ( videoFileName.isEmpty() && session ) {
         videoFileName = session->videoFileName();
@@ -441,6 +446,36 @@ int main(int argc, char *argv[])
     double videoOffset = opts.videoOffset;
     if ( videoOffset == 0.0 && session ) {
         videoOffset = session->videoOffset();
+    }
+    if ( !videoFileName.isEmpty() ) {
+        videos.append(qMakePair(videoFileName,videoOffset));
+    }
+    if ( !opts.videoList.isEmpty() ) {
+        if ( !videoFileName.isEmpty() ) {
+            fprintf(stderr, "koviz [error]: Cannot use -video and "
+                             "-videoList options together.");
+            exit(-1);
+        }
+
+        QStringList items = opts.videoList.split(',',Qt::SkipEmptyParts);
+        foreach ( QString item, items ) {
+            if ( item.contains(':') ) {
+                QString f = item.split(':',Qt::SkipEmptyParts).at(0).trimmed();
+                QString s = item.split(':',Qt::SkipEmptyParts).at(1);
+                bool ok;
+                double o = s.toDouble(&ok);
+                if ( !ok ) {
+                    fprintf(stderr, "koviz [error]: Bad offset=%s "
+                                     "in -videoList option=%s\n",
+                            s.toLatin1().constData(),
+                            opts.videoList.toLatin1().constData());
+                    exit(-1);
+                }
+                videos.append(qMakePair(f,o));
+            } else {
+                videos.append(qMakePair(item.trimmed(),0.0));
+            }
+        }
     }
 
     if ( !opts.trk2csvFile.isEmpty() ) {
@@ -1268,8 +1303,7 @@ int main(int argc, char *argv[])
                              opts.trickhost,
                              opts.trickport,
                              opts.trickoffset,
-                             videoFileName,
-                             videoOffset,
+                             videos,
                              excludePattern,
                              filterPattern,
                              opts.scripts,
