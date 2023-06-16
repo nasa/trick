@@ -26,6 +26,7 @@
 #include <QProcess>
 #include <QTcpSocket>
 #include <QStatusBar>
+#include <QString>
 
 #include "monte.h"
 #include "dp.h"

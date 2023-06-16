@@ -457,11 +457,12 @@ int main(int argc, char *argv[])
             exit(-1);
         }
 
-        QStringList items = opts.videoList.split(',',Qt::SkipEmptyParts);
+        QStringList items = opts.videoList.split(',',QString::SkipEmptyParts);
         foreach ( QString item, items ) {
             if ( item.contains(':') ) {
-                QString f = item.split(':',Qt::SkipEmptyParts).at(0).trimmed();
-                QString s = item.split(':',Qt::SkipEmptyParts).at(1);
+                QString f = item.split(':',
+                                       QString::SkipEmptyParts).at(0).trimmed();
+                QString s = item.split(':',QString::SkipEmptyParts).at(1);
                 bool ok;
                 double o = s.toDouble(&ok);
                 if ( !ok ) {

@@ -1309,7 +1309,8 @@ void PlotMainWindow::_openVideoByRun()
                                     line.toLatin1().constData());
                             exit(-1);
                         }
-                        QString f = line.split(',',Qt::SkipEmptyParts)[0];
+                        QString f = line.split(',',QString::SkipEmptyParts)[0];
+
                         if ( !videoDir.exists(f) ) {
                             fprintf(stderr, "koviz [error]: Video file=%s "
                                             "referenced in \"%s\" DNE.\n",
@@ -1318,7 +1319,7 @@ void PlotMainWindow::_openVideoByRun()
                             exit(-1);
                         }
                         f = videoDir.filePath(f);
-                        QString o = line.split(',',Qt::SkipEmptyParts)[1];
+                        QString o = line.split(',',QString::SkipEmptyParts)[1];
                         bool ok;
                         double offset = o.toDouble(&ok);
                         if ( ok ) {
