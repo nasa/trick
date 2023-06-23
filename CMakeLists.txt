@@ -4,10 +4,10 @@ cmake_minimum_required(VERSION 3.1)
 # configuration to do before CMake searches for compilers
 project(trick NONE)
 set(TRICK_MAJOR 19)
-set(TRICK_MINOR 6)
+set(TRICK_MINOR 7)
 set(TRICK_TINY 0)
 # set TRICK_PRERELEASE TO EMPTY STRING "" ON RELEASE
-set(TRICK_PRERELEASE "")
+set(TRICK_PRERELEASE "-beta")
 
 # On macOS Mojave and Catalina, the compilers in /usr/bin 
 # are the ones that include the correct C standard library system headers
