@@ -26,12 +26,23 @@ The user may also add their own subscriber by creating a derived class from `Tri
 
 The `MessageThreadedCout` class is included with the simulation but not activated by default.  When activated messages will be written to the standard output stream like `MessageCout`, but internally we use a separate thread to do the writing.  This helps real-time performance.
 
-To activate the `MessageThreadedCout` class, add these 2 lines to the input file.
+To activate the `MessageThreadedCout` class, there are two ways:
+1. Add these 2 lines to the input file:
 
 ```python
 trick_message.mtcout.init()
 trick.message_subscribe(trick_message.mtcout)
 ```
+
+1. Or add this line to the input file:
+```python
+trick_message.separate_thread_set_enabled(True)
+```
+
+`trick_message.separate_thread_set_enabled(True)` - turns on outputting messages to the standard output stream on a separate thread while turning off outputting messages to the standard output stream on the same thread and Sim Control Panel
+`trick_message.separate_thread_set_enabled(False)` - turns off outputting messages to the standard output stream on a separate thread while turning on outputing messages to the standard output stream on the same thread and Sim Control Panel 
+
+
 
 ## User accessible routines
 
