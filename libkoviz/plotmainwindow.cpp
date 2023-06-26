@@ -1891,7 +1891,9 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
             _the_visualizer->sendRun2Bvis(rundir);
             _blender->sendRun2Bvis(rundir);
         }
+#if HAS_MPV
         _openVideoByRun();
+#endif
     }
 }
 
