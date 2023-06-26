@@ -372,10 +372,11 @@ clean_ICG :
 	$(MAKE) -C ${TRICK_HOME}/trick_source/codegen/Interface_Code_Gen  clean
 
 clean_unit_test:
-	@/bin/rm -rf ${TRICK_HOME}/trick_test/*.xml
+	@/bin/rm -rf ${TRICK_HOME}/trick_test/
 	@ for i in $(UNIT_TEST_DIRS) ; do \
 	    $(MAKE) -C $$i clean ; \
 	done
+	$(MAKE) -C $(DPX_UNIT_TEST_DIR) clean
 
 clean_doxygen:
 	@ $(MAKE) -C ${TRICK_HOME}/doxygen clean
@@ -396,8 +397,16 @@ clean_sim_serv_xml:
 clean_test: clean_unit_test
 	-@ $(MAKE) -C trick_sims clean
 	-@ $(MAKE) -C test clean
+	@/bin/rm -rf ${TRICK_HOME}/trickops_logs
 
 clean_gui: clean_java
+
+spotless: clean clean_test
+	rm -f config.log config.status share/trick/makefiles/config_user.mk
+
+apocalypse: spotless
+	@echo "[31mI love the smell of napalm in the morning[0m"
+
 
 ################################################################################
 #                                 INSTALL Targets
@@ -472,6 +481,13 @@ uninstall:
 ICG: TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 ICG: $(ICG_EXE)
 	$(ICG_EXE) -f -s -m -n ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_HOME}/include/trick/files_to_ICG.hh
+
+
+ICG_EXE: force-icg-build
+
+.PHONY: force-icg-build
+force-icg-build: 
+	$(MAKE) -C trick_source/codegen/Interface_Code_Gen
 
 # This builds a tricklib share library.
 trick_lib: $(SIM_SERV_DIRS) $(UTILS_DIRS) | $(TRICK_LIB_DIR)

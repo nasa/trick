@@ -34,6 +34,7 @@ test: $(TESTS)
 
 clean :
 	rm -f $(TESTS) *.o *.gcno *.gcda
+	rm -rf a pre_existing_output_dir/a ../a
 
 create_path_test.o : create_path_test.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<

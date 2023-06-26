@@ -112,6 +112,7 @@ int tc_error(TCDevice * device, int on_off);
 int tc_dev_copy(TCDevice * dest, TCDevice * src);
 
 void *trick_bswap_buffer(void *out, void *in, ATTRIBUTES * attr, int tofrom) ;
+void *trick_bswap_single_parameter(void *out, void *in, ATTRIBUTES * attr, int tofrom) ;
 #ifdef __cplusplus
 }
 #endif

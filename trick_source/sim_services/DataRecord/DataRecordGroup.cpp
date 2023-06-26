@@ -330,6 +330,7 @@ int Trick::DataRecordGroup::add_change_variable( std::string in_name ) {
 
     Trick::DataRecordBuffer * new_var = new Trick::DataRecordBuffer ;
     new_var->ref = ref2 ;
+    new_var->name = in_name;
     new_var->buffer = (char *)malloc(ref2->attr->size) ;
     new_var->last_value =  NULL ;
     memcpy(new_var->buffer , ref2->address , ref2->attr->size) ;
@@ -454,7 +455,7 @@ int Trick::DataRecordGroup::checkpoint() {
        the rest of the DataRecordBuffer will be reconstructed during restart
      */
     if ( change_buffer.size() > 0 ) {
-        num_change_variable_names = rec_buffer.size() ;
+        num_change_variable_names = change_buffer.size() ;
         change_variable_names = (char **)TMM_declare_var_1d("char *", (int)change_buffer.size()) ;
         change_variable_alias = (char **)TMM_declare_var_1d("char *", (int)change_buffer.size()) ;
 
@@ -530,7 +531,7 @@ int Trick::DataRecordGroup::restart() {
         add_variable( variable_names[jj] , variable_alias[jj] ) ;
     }
     for ( jj = 0 ; jj < num_change_variable_names ; jj++ ) {
-        add_variable( change_variable_names[jj] , change_variable_alias[jj] ) ;
+        add_change_variable( change_variable_names[jj] ) ;
     }
 
     clear_checkpoint_vars() ;

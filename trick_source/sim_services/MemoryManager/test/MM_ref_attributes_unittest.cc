@@ -107,6 +107,13 @@ TEST_F(MM_ref_attributes, NormalCases) {
         EXPECT_EQ( &udt3.C[5], ref->address);
         free( ref);
 
+        // Same as above but with HEX index.
+        std::cout << "Case of: \"udt3.C[0x05]\"" << std::endl;
+        ref = memmgr->ref_attributes("udt3.C[0x05]");
+        ASSERT_TRUE(ref != NULL);
+        EXPECT_EQ( &udt3.C[5], ref->address);
+        free( ref);
+
         std::cout << "Case of: \"udt3.N.A\"" << std::endl;
         ref = memmgr->ref_attributes("udt3.N.A");
         ASSERT_TRUE(ref != NULL);
@@ -141,30 +148,43 @@ TEST_F(MM_ref_attributes, NormalCases) {
 }
 
 TEST_F(MM_ref_attributes, FailureCases) {
-        REF2 *ref;
-        UDT1  udt1;
-        UDT2  udt2;
-        UDT3  udt3;
+    REF2 *ref;
+    UDT1  udt1;
+    UDT2  udt2;
+    UDT3  udt3;
 
-        udt3.udt1_p = &udt1;
-        udt3.udt2_p = &udt2;
-        udt2.udt1_p = &udt1;
+    udt3.udt1_p = &udt1;
+    udt3.udt2_p = &udt2;
+    udt2.udt1_p = &udt1;
 
-        UDT3* udt3_p = (UDT3*)memmgr->declare_extern_var(&udt3, "UDT3 udt3");
-        ASSERT_TRUE(udt3_p != NULL);
+    UDT3* udt3_p = (UDT3*)memmgr->declare_extern_var(&udt3, "UDT3 udt3");
+    ASSERT_TRUE(udt3_p != NULL);
 
-        // Failure cases.
-        ref = memmgr->ref_attributes("udt3.idontexist");
-        ASSERT_TRUE(ref == NULL);
+    // Failure cases.
+    ref = memmgr->ref_attributes("udt3.idontexist");
+    ASSERT_TRUE(ref == NULL);
 
-        std::cout << ISO_6429_White_Background
-                  << ISO_6429_Blue_Foreground
-                  << ISO_6429_Underline
-                  << "NOTE: An error message is expected in this test."
-                  << ISO_6429_Restore_Default
-                  << std::endl;
+    std::cout << ISO_6429_White_Background
+              << ISO_6429_Blue_Foreground
+              << ISO_6429_Underline
+              << "NOTE: An error message is expected in this test."
+              << ISO_6429_Restore_Default
+              << std::endl;
 
-        ref = memmgr->ref_attributes("udt3.M2[4][7]");
-        ASSERT_TRUE(ref == NULL);
+    // Failure cases.
+    ref = memmgr->ref_attributes("udt3!syntax_error");
+    ASSERT_TRUE(ref == NULL);
+
+    std::cout << ISO_6429_White_Background
+            << ISO_6429_Blue_Foreground
+            << ISO_6429_Underline
+            << "NOTE: An error message is expected in this test."
+            << ISO_6429_Restore_Default
+            << std::endl;
+
+    ref = memmgr->ref_attributes("udt3.M2[4][7]");
+    ASSERT_TRUE(ref == NULL);
+
+
 
 }

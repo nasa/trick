@@ -21,7 +21,7 @@ $ ./SimTimeExample.py <variable-server-port-number>
 ### Example (SimTimeExample.py)
 
 ```python
-#!/usr/bin/python
+#!/usr/bin/python3
 import sys
 import socket
 
@@ -37,23 +37,22 @@ client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect( ("localhost", trick_varserver_port) )
 insock = client_socket.makefile("r")
 
-client_socket.send( "trick.var_pause()\n" )
-client_socket.send( "trick.var_ascii()\n" )
+client_socket.send( b"trick.var_pause()\n" )
+client_socket.send( b"trick.var_ascii()\n" )
 
 # Get the number of tics per second (just once).
-client_socket.send( "trick.var_add(\"trick_sys.sched.time_tic_value\")\n")
-client_socket.send( "trick.var_send()\n" )
+client_socket.send( b"trick.var_add(\"trick_sys.sched.time_tic_value\")\n" )
+client_socket.send( b"trick.var_send()\n" )
 line = insock.readline()
 field = line.split("\t")
 tics_per_second = int(field[1]);
-client_socket.send( "trick.var_clear()\n" )
+client_socket.send( b"trick.var_clear()\n" )
 
 # Get the number of time_tics, and whatever else you want to recieve periodically.
-client_socket.send( "trick.var_add(\"trick_sys.sched.time_tics\") \n"
-                  )
+client_socket.send( b"trick.var_add(\"trick_sys.sched.time_tics\") \n" )
 
 # Start the flow of data from the variable server.
-client_socket.send( "trick.var_unpause()\n" )
+client_socket.send( b"trick.var_unpause()\n" )
 
 # Repeatedly read and process the responses from the variable server.
 while(True):
@@ -67,7 +66,7 @@ while(True):
     # Calculate sim_time 
     sim_time = float(time_tics) / tics_per_second
 
-    print 'sim_time = {0}'.format(sim_time)
+    print(f'sim_time = {sim_time}')
 ```
 
 If you are unfamiliar or rusty on how to use the Trick variable server, please see
