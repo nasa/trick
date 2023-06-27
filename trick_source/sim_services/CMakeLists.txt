@@ -123,13 +123,15 @@ set( SS_SRC
   JITInputFile/JITInputFile
   JITInputFile/jit_input_file_c_intf
   JSONVariableServer/JSONVariableServer
-  JSONVariableServer/JSONVariableServerThread
+  JSONVariableServer/JSONVariableServerSessionThread
   MasterSlave/MSSharedMem
   MasterSlave/MSSocket
   MasterSlave/Master
   MasterSlave/Slave
   Message/MessageCout
   Message/MessageFile
+  Message/MessageHSFile
+  Message/MessageCustomFile
   Message/MessageLCout
   Message/MessagePublisher
   Message/MessageSubscriber
@@ -190,32 +192,31 @@ set( SS_SRC
   VariableServer/VariableReference
   VariableServer/VariableServer
   VariableServer/VariableServerListenThread
-  VariableServer/VariableServerThread
-  VariableServer/VariableServerThread_commands
-  VariableServer/VariableServerThread_connect
-  VariableServer/VariableServerThread_copy_data
-  VariableServer/VariableServerThread_copy_sim_data
-  VariableServer/VariableServerThread_create_socket
-  VariableServer/VariableServerThread_freeze_init
-  VariableServer/VariableServerThread_loop
-  VariableServer/VariableServerThread_restart
-  VariableServer/VariableServerThread_write_data
-  VariableServer/VariableServerThread_write_stdio
-  VariableServer/VariableServer_copy_data_freeze
-  VariableServer/VariableServer_copy_data_freeze_scheduled
-  VariableServer/VariableServer_copy_data_scheduled
-  VariableServer/VariableServer_copy_data_top
+  VariableServer/VariableServerSessionThread
+  VariableServer/VariableServerSessionThread_commands
+  VariableServer/VariableServerSessionThread_connect
+  VariableServer/VariableServerSessionThread_copy_data
+  VariableServer/VariableServerSessionThread_copy_sim_data
+  VariableServer/VariableServerSessionThread_create_socket
+  VariableServer/VariableServerSessionThread_freeze_init
+  VariableServer/VariableServerSessionThread_loop
+  VariableServer/VariableServerSessionThread_restart
+  VariableServer/VariableServerSessionThread_write_data
+  VariableServer/VariableServerSessionThread_write_stdio
+  VariableServer/VariableServer_copy_and_write_freeze
+  VariableServer/VariableServer_copy_and_write_freeze_scheduled
+  VariableServer/VariableServer_copy_and_write_scheduled
+  VariableServer/VariableServer_copy_and_write_top
   VariableServer/VariableServer_default_data
   VariableServer/VariableServer_freeze_init
   VariableServer/VariableServer_get_next_freeze_call_time
   VariableServer/VariableServer_get_next_sync_call_time
-  VariableServer/VariableServer_get_var_server_port
+  VariableServer/VariableServer_open_additional_servers
   VariableServer/VariableServer_init
   VariableServer/VariableServer_restart
   VariableServer/VariableServer_shutdown
   VariableServer/exit_var_thread
   VariableServer/var_server_ext
-  VariableServer/vs_format_ascii
   Zeroconf/Zeroconf
   mains/master
 )

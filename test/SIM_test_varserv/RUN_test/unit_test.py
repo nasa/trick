@@ -1,5 +1,4 @@
 import trick
-import socket
 
 from trick.unit_test import *
 
@@ -10,12 +9,15 @@ def main():
 	trick.real_time_enable()
 	trick.exec_set_software_frame(0.01)
 	# trick.set_var_server_info_msg_on()
+	trick.set_var_server_log_on()
 
-	trick.var_server_create_tcp_socket('localhost', 49000)
-	trick.var_server_create_udp_socket('', 48000)
-	trick.var_server_create_multicast_socket('224.10.10.10','', 47000)
+	hostname = trick.var_server_get_hostname()
 
-	trick.exec_set_terminate_time(1000.0)
+	trick.var_server_create_tcp_socket(hostname, 49000)
+	trick.var_server_create_udp_socket(hostname, 48000)
+	trick.var_server_create_multicast_socket('224.10.10.10',hostname, 47000)
+
+	trick.exec_set_terminate_time(100.0)
 
 	varServerPort = trick.var_server_get_port()
 	test_output = ( os.getenv("TRICK_HOME") + "/trick_test/SIM_test_varserv.xml" ) 

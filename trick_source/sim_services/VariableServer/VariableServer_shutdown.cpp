@@ -2,12 +2,17 @@
 #include "trick/VariableServer.hh"
 
 int Trick::VariableServer::shutdown() {
+    
+    // Shutdown all listen threads
     listen_thread.cancel_thread() ;
-    std::map < pthread_t , VariableServerThread * >::iterator it ;
+    for (auto& listen_it : additional_listen_threads) {
+        listen_it.second->cancel_thread();
+    }
+
+    // Shutdown all session threads
     pthread_mutex_lock(&map_mutex) ;
-    for ( it = var_server_threads.begin() ; it != var_server_threads.end() ; it++ ) {
-        (*it).second->cancel_thread() ;
-        // cancelling causes each var_server_thread map element to be erased by the exit_var_thread function
+    for (auto& it : var_server_threads) {
+        it.second->cancel_thread() ;
     }
     pthread_mutex_unlock(&map_mutex) ;
 

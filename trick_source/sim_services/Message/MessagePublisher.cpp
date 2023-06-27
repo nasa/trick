@@ -25,6 +25,10 @@ Trick::MessagePublisher::MessagePublisher() {
 
 }
 
+Trick::MessagePublisher::~MessagePublisher() {
+    the_message_publisher = NULL;
+}
+
 void Trick::MessagePublisher::set_print_format() {
     num_digits = (int)round(log10((double)tics_per_sec)) ;
     snprintf(print_format, sizeof(print_format), "|L %%3d|%%s|%%s|%%s|T %%d|%%lld.%%0%dlld| ", num_digits) ;

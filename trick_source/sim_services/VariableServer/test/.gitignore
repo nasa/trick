@@ -1,0 +1,4 @@
+lcov_html/*
+*.o
+*_test
+*.info

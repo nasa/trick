@@ -31,6 +31,8 @@ object_${TRICK_HOST_CPU}/Message_c_intf.o: Message_c_intf.cpp \
  ${TRICK_HOME}/include/trick/MessageSubscriber.hh \
  ${TRICK_HOME}/include/trick/MessageCout.hh \
  ${TRICK_HOME}/include/trick/MessageFile.hh \
+ ${TRICK_HOME}/include/trick/MessageHSFile.hh \
+ ${TRICK_HOME}/include/trick/MessageCustomFile.hh \
  ${TRICK_HOME}/include/trick/MessageTCDevice.hh \
  ${TRICK_HOME}/include/trick/ThreadBase.hh \
  ${TRICK_HOME}/include/trick/tc.h \

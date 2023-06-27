@@ -295,7 +295,7 @@ public class SimControlActionController {
                 simcom.put("trick.debug_pause_off()\n" ) ;
             }
         } catch (IOException e) {
-            System.out.println("Put failed!");
+            System.out.println("Put failed! Exception: " + e.getMessage());
         }
     }
 	

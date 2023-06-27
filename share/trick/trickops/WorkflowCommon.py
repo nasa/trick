@@ -205,7 +205,7 @@ class Job(object):
     for getting status information. More specific types of Jobs should inherit from
     this base clasee.
     """
-    enums = ['NOT_STARTED', 'RUNNING', 'SUCCESS', 'FAILED']
+    enums = ['NOT_STARTED', 'RUNNING', 'SUCCESS', 'FAILED', 'TIMEOUT']
     Status = collections.namedtuple('Status', enums)(*(range(len(enums))))
 
     _success_progress_bar = create_progress_bar(1, 'Success')
@@ -220,7 +220,9 @@ class Job(object):
             Job.Status.NOT_STARTED: ('NOT RUN', 'DARK_YELLOW'),
             Job.Status.SUCCESS: ('OK', 'DARK_GREEN'),
             Job.Status.FAILED: ('FAIL:' + str(self._expected_exit_status) + '/' +
-             str(self._exit_status), 'DARK_RED') }[self.get_status()]
+             str(self._exit_status), 'DARK_RED'),
+            Job.Status.TIMEOUT: ('TIMEOUT after ' + str(self._timeout) + ' seconds', 'YELLOW') 
+            }[self.get_status()]
         return printer.colorstr(text, color)
 
     def __init__(self, name, command, log_file, expected_exit_status=0):
@@ -245,6 +247,7 @@ class Job(object):
         self._stop_time = None
         self._exit_status = None
         self._expected_exit_status = expected_exit_status
+        self._timeout = None
 
     def start(self):
         """
@@ -275,6 +278,8 @@ class Job(object):
                 This job completed with an exit status of zero.
             Status.FAILED
                 This job completed with a non-zero exit status.
+            Status.TIMEOUT
+                This job ran longer than the allotted time given by execute_job
         """
         if self._process is None:
             return self.Status.NOT_STARTED
@@ -282,6 +287,9 @@ class Job(object):
         self._exit_status = self._process.poll()
         if self._exit_status is None:
             return self.Status.RUNNING
+
+        if self._timeout is not None:
+            return self.Status.TIMEOUT
 
         if self._stop_time is None:
             self._stop_time = time.time()
@@ -368,6 +376,17 @@ class Job(object):
         """
         return self._done_string()
 
+    def _timeout_string(self):
+        """
+        Get a string to display when this Job has failed.
+
+        Returns
+        -------
+        str
+            A string to be displayed when in the FAILED state.
+        """
+        return self._done_string()
+
     def _done_string(self):
         """
         This class uses the same string for SUCCESS and FAILED, but
@@ -408,7 +427,7 @@ class Job(object):
         by sending them the SIGKILL signal.
         """
         try:
-            os.killpg(os.getpgid(self._process.pid), signal.SIGKILL)
+            os.killpg(os.getpgid(self._process.pid), signal.SIGABRT)
             self._process.wait()
         except:
             pass
@@ -573,7 +592,7 @@ class WorkflowCommon:
         else:
             return 'unknown'
 
-    def execute_jobs(self, jobs, max_concurrent=None, header=None):
+    def execute_jobs(self, jobs, max_concurrent=None, header=None, job_timeout=None):
         """
         Run jobs, blocking until all have returned.
 
@@ -694,6 +713,15 @@ class WorkflowCommon:
                     for i in range(min(len(waitingJobs), available_cpus)):
                         waitingJobs[i].start()
 
+                if job_timeout is not None:
+                    # Check if any jobs have timed out
+                    runningJobs = [job for job in jobs if job.get_status() is job.Status.RUNNING]
+                    for runningJob in runningJobs:
+                        if time.time() - runningJob._start_time > job_timeout:
+                            runningJob._timeout = job_timeout
+                            runningJob._stop_time = time.time()
+                            runningJob.die()
+
                 # display the status if enabled
                 if stdscr:
                     status_pad.erase()
@@ -802,8 +830,8 @@ class WorkflowCommon:
             text, color = {
                 job.Status.NOT_STARTED: ('was not run', 'GREY40'),
                 job.Status.SUCCESS: ('succeeded', 'DARK_GREEN'),
-                job.Status.FAILED: ('failed', 'DARK_RED')
-            }[job.get_status()]
+                job.Status.FAILED: ('failed', 'DARK_RED'),
+                job.Status.TIMEOUT: ('timed out', 'YELLOW') }[job.get_status()]
 
             text = job.name + ' ' + text
 

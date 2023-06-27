@@ -256,6 +256,12 @@ namespace Trick {
              */
             virtual int start_sleep_timer();
 
+            /**
+             @brief Return whether realtime is currently active
+             @return True if active, false otherwise
+             */
+            virtual bool is_active();
+
     } ;
 
 } ;

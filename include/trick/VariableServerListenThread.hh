@@ -8,19 +8,24 @@
 
 #include <string>
 #include <iostream>
-#include "trick/tc.h"
+#include "trick/TCPClientListener.hh"
 #include "trick/SysThread.hh"
+#include "trick/MulticastGroup.hh"
+
 
 namespace Trick {
 
 /**
   This class runs the variable server listen loop.
   @author Alex Lin
+  @author Jackie Deans (2023)
  */
     class VariableServerListenThread : public Trick::SysThread {
 
         public:
             VariableServerListenThread() ;
+            VariableServerListenThread(TCPClientListener * listener);
+
             virtual ~VariableServerListenThread() ;
 
             const char * get_hostname() ;
@@ -41,8 +46,6 @@ namespace Trick {
             virtual int init_listen_device() ;
             virtual int check_and_move_listen_device() ;
 
-            void create_tcp_socket(const char * address, unsigned short in_port ) ;
-
             virtual void * thread_body() ;
 
             int restart() ;
@@ -51,29 +54,33 @@ namespace Trick {
             void pause_listening() ;
             void restart_listening() ;
 
+            void set_multicast_group (MulticastGroup * group);
+
             virtual void dump( std::ostream & oss = std::cout ) ;
 
         protected:
+            void initializeMulticast();
+
             /** Requested variable server source address\n */
-            std::string source_address ;       /**<  trick_units(--) */
+            std::string _requested_source_address ;       /**<  trick_units(--) */
 
             /** Requested variable server port number.\n */
-            unsigned short port ;       /**<  trick_units(--) */
+            unsigned short _requested_port ;       /**<  trick_units(--) */
 
             /** User requested specific port number\n */
-            bool user_port_requested ;  /**<  trick_units(--) */
+            bool _user_requested_address ;  /**<  trick_units(--) */
 
             /** User defined unique tag to easily identify this variable server port.\n */
-            std::string user_tag;          /**<  trick_units(--) */
+            std::string _user_tag;          /**<  trick_units(--) */
 
             /** Turn on/off broadcasting of variable server port.\n */
-            bool broadcast ;       /**<  trick_units(--) */
+            bool _broadcast ;       /**<  trick_units(--) */
 
-            /** The listen device\n */
-            TCDevice listen_dev;        /**<  trick_io(**) */
+            /** The listen device */
+            TCPClientListener * _listener;        /**<  trick_io(**) trick_units(--)  */
 
-            /** The mutex to stop accepting new connections during restart\n */
-            pthread_mutex_t restart_pause ;     /**<  trick_io(**) */
+            /* Multicast broadcaster */
+            MulticastGroup * _multicast;     /**<  trick_io(**) trick_units(--)  */
 
     } ;
 
