@@ -34,7 +34,15 @@ trick_message.mtcout.init()
 trick.message_subscribe(trick_message.mtcout)
 ```
 
-## User accessible routines
+- Or add this line to the input file:
+```python
+trick_message.separate_thread_set_enabled(True)
+```
+
+`trick_message.separate_thread_set_enabled(True)`  - turns on outputting messages to the standard output stream on a separate thread while turning off outputting messages to the standard output stream on the same thread and Sim Control Panel
+`trick_message.separate_thread_set_enabled(False)` - turns off outputting messages to the standard output stream on a separate thread while turning on outputing messages to the standard output stream on the same thread and Sim Control Panel 
+
+## Publish a message
 
 To publish a message:
 
