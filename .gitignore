@@ -11,6 +11,7 @@ libkoviz/product_lexer.h
 libkoviz/product_parser.cpp
 libkoviz/product_parser.h
 .qmake.stash
+.qtc_clangd
 
 S_main_*.exe
 S_sie.resource
