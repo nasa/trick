@@ -580,9 +580,10 @@ void CurvesView::_paintMarkers(QPainter &painter)
                 //
                 // i is a best guess
                 double xb = _bookModel()->xBias(curveIdx);
+                double xs = _bookModel()->xScale(curveIdx);
                 if ( _bookModel()->isXTime(plotIdx) ) {
-                    // Take time shift into account
-                    i = curveModel->indexAtTime(marker->time()-xb);
+                    // Take time shift and scale into account
+                    i = curveModel->indexAtTime((marker->time()-xb)/xs);
                 } else {
                     i = curveModel->indexAtTime(marker->time());
                 }
