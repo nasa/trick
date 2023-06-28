@@ -140,7 +140,7 @@ private:
     void _readMainWindowSettings();
     void _readVideoWindowSettings();
 
-    QModelIndex _currCurveIdx();
+    QModelIndex _currentIdx();
 
     TimeCom* _the_visualizer;
     TimeCom* _blender;

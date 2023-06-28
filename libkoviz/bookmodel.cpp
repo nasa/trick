@@ -724,17 +724,46 @@ CurveModel *PlotBookModel::getCurveModel(const QModelIndex& curvesIdx,
     return curveModel;
 }
 
-CurveModel *PlotBookModel::getCurveModel(const QModelIndex &curveIdx) const
+// TODO: If getCurveModel is called with an idx that corresponds
+// to an error curve, a new curve model is created and sent back
+// to the client; however, if an idx that corresponds to a
+// Curve is given, a cached curve is given back.
+//
+// In the errorplot case, the client must delete the curve,
+// but not in the curve case since it is held in the CurveData idx
+// in the book model
+//
+CurveModel *PlotBookModel::getCurveModel(const QModelIndex &idx) const
 {
-    if ( !isIndex(curveIdx, "Curve") ) {
-        fprintf(stderr,"koviz [bad scoobs]:2: "
-                       "PlotBookModel::getCurveModel()\n");
-        exit(-1);
+    if ( !idx.isValid() ) {
+        return 0;
     }
 
-    QModelIndex curveDataIdx = getDataIndex(curveIdx,"CurveData");
-    QVariant v = data(curveDataIdx);
-    CurveModel* curveModel =QVariantToPtr<CurveModel>::convert(v);
+    QString tag = data(idx.sibling(idx.row(),0)).toString();
+    CurveModel* curveModel = 0;
+    if ( tag == "Curve" ) {
+        QModelIndex curveDataIdx = getDataIndex(idx,"CurveData");
+        QVariant v = data(curveDataIdx);
+        curveModel = QVariantToPtr<CurveModel>::convert(v);
+    } else if ( tag == "Plot" ) {
+        QString pres = getDataString(idx,"PlotPresentation","Plot");
+        if ( pres == "error" ) {
+            QModelIndex curvesIdx = getIndex(idx,"Curves", "Plot");
+            QPainterPath* path = _createCurvesErrorPath(curvesIdx);
+            curveModel = new CurveModelPainterPath(path,
+                                                   "sys.exec.out.time", "s",
+                                                   "errorplot","--");
+        } else {
+            fprintf(stderr, "koviz [bad scoobs]: PlotBookModel::getCurveModel()"
+                            ". Plot index given but plot presentation not "
+                            "\"error\" as expected.\n");
+            exit(-1);
+        }
+    } else {
+        fprintf(stderr, "koviz [bad scoobs]: PlotBookModel::getCurveModel bad "
+                        "index with tag=%s\n", tag.toLatin1().constData());
+        exit(-1);
+    }
 
     return curveModel;
 }
@@ -837,23 +866,20 @@ bool PlotBookModel::isChildIndex(const QModelIndex &pidx,
     return isChild;
 }
 
-double PlotBookModel::xScale(const QModelIndex& curveIdx,
+double PlotBookModel::xScale(const QModelIndex& idx,
                              CurveModel *curveModelIn) const
 {
     double xs = 1.0;
 
-    QString tag = data(curveIdx).toString();
+    QString tag = data(idx).toString();
 
     if ( tag != "Curve" ) {
-        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::xScale() : "
-                       "expected tag \"Curve\", instead tag=\"%s\".\n",
-                       tag.toLatin1().constData());
-        exit(-1);
+        return xs;
     }
 
     CurveModel* curveModel = curveModelIn;
     if ( !curveModel ) {
-        curveModel = getCurveModel(curveIdx);
+        curveModel = getCurveModel(idx);
     }
     if ( !curveModel ) {
         xs = 0.0;
@@ -861,7 +887,7 @@ double PlotBookModel::xScale(const QModelIndex& curveIdx,
     }
 
     // Unit scale
-    QModelIndex curveXUnitIdx = getDataIndex(curveIdx, "CurveXUnit","Curve");
+    QModelIndex curveXUnitIdx = getDataIndex(idx, "CurveXUnit","Curve");
     QString bookXUnit = data(curveXUnitIdx).toString();
     if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
         QString loggedXUnit = curveModel->x()->unit();
@@ -869,7 +895,7 @@ double PlotBookModel::xScale(const QModelIndex& curveIdx,
     }
 
     // Book model x scale
-    double k = getDataDouble(curveIdx,"CurveXScale","Curve");
+    double k = getDataDouble(idx,"CurveXScale","Curve");
     if ( k != 1.0 ) {
         xs *= k;
     }
@@ -878,27 +904,24 @@ double PlotBookModel::xScale(const QModelIndex& curveIdx,
 }
 
 
-double PlotBookModel::yScale(const QModelIndex& curveIdx) const
+double PlotBookModel::yScale(const QModelIndex& idx) const
 {
     double ys = 1.0;
 
-    QString tag = data(curveIdx).toString();
+    QString tag = data(idx).toString();
 
     if ( tag != "Curve" ) {
-        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::yScale() : "
-                       "expected tag \"Curve\", instead tag=\"%s\".\n",
-                       tag.toLatin1().constData());
-        exit(-1);
+        return ys;
     }
 
-    CurveModel* curveModel = getCurveModel(curveIdx);
+    CurveModel* curveModel = getCurveModel(idx);
     if ( !curveModel ) {
         ys = 0.0;
         return ys;
     }
 
     // Unit scale
-    QModelIndex curveYUnitIdx = getDataIndex(curveIdx, "CurveYUnit","Curve");
+    QModelIndex curveYUnitIdx = getDataIndex(idx, "CurveYUnit","Curve");
     QString bookYUnit = data(curveYUnitIdx).toString();
     if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
         QString loggedYUnit = curveModel->y()->unit();
@@ -906,7 +929,7 @@ double PlotBookModel::yScale(const QModelIndex& curveIdx) const
     }
 
     // Book model y scale factor
-    double k = getDataDouble(curveIdx,"CurveYScale","Curve");
+    double k = getDataDouble(idx,"CurveYScale","Curve");
     if ( k != 1.0 ) {
         ys *= k;
     }
@@ -914,23 +937,20 @@ double PlotBookModel::yScale(const QModelIndex& curveIdx) const
     return ys;
 }
 
-double PlotBookModel::xBias(const QModelIndex &curveIdx,
+double PlotBookModel::xBias(const QModelIndex &idx,
                             CurveModel *curveModelIn) const
 {
     double xb = 0.0;
 
-    QString tag = data(curveIdx).toString();
+    QString tag = data(idx).toString();
 
     if ( tag != "Curve" ) {
-        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::xBias() : "
-                       "expected tag \"Curve\", instead tag=\"%s\".\n",
-                       tag.toLatin1().constData());
-        exit(-1);
+        return xb;
     }
 
     CurveModel* curveModel = curveModelIn;
     if ( !curveModel ) {
-        curveModel = getCurveModel(curveIdx);
+        curveModel = getCurveModel(idx);
     }
     if ( !curveModel ) {
         xb = 0.0;
@@ -938,14 +958,14 @@ double PlotBookModel::xBias(const QModelIndex &curveIdx,
     }
 
     // Unit bias (for temperature)
-    QModelIndex curveXUnitIdx = getDataIndex(curveIdx, "CurveXUnit","Curve");
+    QModelIndex curveXUnitIdx = getDataIndex(idx, "CurveXUnit","Curve");
     QString bookXUnit = data(curveXUnitIdx).toString();
     if ( !bookXUnit.isEmpty() && bookXUnit != "--" ) {
         QString loggedXUnit = curveModel->x()->unit();
         xb = Unit::bias(loggedXUnit, bookXUnit);
     }
 
-    double b = getDataDouble(curveIdx,"CurveXBias","Curve");
+    double b = getDataDouble(idx,"CurveXBias","Curve");
     if ( b != 0.0 ) {
         xb += b;
     }
@@ -953,34 +973,31 @@ double PlotBookModel::xBias(const QModelIndex &curveIdx,
     return xb;
 }
 
-double PlotBookModel::yBias(const QModelIndex &curveIdx) const
+double PlotBookModel::yBias(const QModelIndex &idx) const
 {
     double yb = 0.0;
 
-    QString tag = data(curveIdx).toString();
+    QString tag = data(idx).toString();
 
     if ( tag != "Curve" ) {
-        fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::yBias() : "
-                       "expected tag \"Curve\", instead tag=\"%s\".\n",
-                       tag.toLatin1().constData());
-        exit(-1);
+        return yb;
     }
 
-    CurveModel* curveModel = getCurveModel(curveIdx);
+    CurveModel* curveModel = getCurveModel(idx);
     if ( !curveModel ) {
         yb = 0.0;
         return yb;
     }
 
     // Unit bias (for temperature)
-    QModelIndex curveYUnitIdx = getDataIndex(curveIdx, "CurveYUnit","Curve");
+    QModelIndex curveYUnitIdx = getDataIndex(idx, "CurveYUnit","Curve");
     QString bookYUnit = data(curveYUnitIdx).toString();
     if ( !bookYUnit.isEmpty() && bookYUnit != "--" ) {
         QString loggedYUnit = curveModel->y()->unit();
         yb = Unit::bias(loggedYUnit, bookYUnit);
     }
 
-    double b = getDataDouble(curveIdx,"CurveYBias","Curve");
+    double b = getDataDouble(idx,"CurveYBias","Curve");
     if ( b != 0.0 ) {
         yb += b;
     }
@@ -2552,6 +2569,178 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
         }
     }
     setData(plotMathRectIdx,bbox);
+}
+
+void PlotBookModel::liveTimeNext(const QModelIndex& idx)
+{
+    if ( !idx.isValid() ) {
+        return;
+    }
+
+    CurveModel* curveModel = getCurveModel(idx);
+
+    if ( curveModel ) {
+
+        curveModel->map();
+
+        ModelIterator* it = curveModel->begin();
+
+        // Curve x bias and x scale
+        double xs = xScale(idx);
+        double xb = xBias(idx);
+
+        // Calculate curve time index
+        int i = 0;
+        QModelIndex liveIdx = getDataIndex(QModelIndex(), "LiveCoordTime");
+        double liveTime = data(liveIdx).toDouble();
+        i = curveModel->indexAtTime((liveTime-xb)/xs);
+
+        /* Timestamps may duplicate, go to first in series */
+        double itTime = it->at(i)->t();
+        while ( i > 0 ) {
+            if ( it->at(i-1)->t() == itTime ) {
+                --i;
+            } else {
+                break;
+            }
+        }
+
+        QModelIndex lctIdx = getDataIndex(QModelIndex(),
+                                          "LiveCoordTimeIndex","");
+        int ii = getDataInt(QModelIndex(), "LiveCoordTimeIndex","");
+
+        // Calculate nextTime after liveTime
+        bool isXTime = (curveModel->x()->name() == curveModel->t()->name());
+        double nextTime = liveTime;
+        it = it->at(i+1+ii);
+        while ( !it->isDone() ) {
+            if ( isXTime ) {
+                nextTime = it->x()*xs+xb;
+            } else {
+                nextTime = it->t();
+            }
+            double dt = qAbs(nextTime-liveTime);
+            if ( dt == 0.0 ) {
+                // Multiple points for same timestamp,
+                // move to next point on this curve for this same timestamp
+                setData(lctIdx,++ii);
+                break;
+            } else {
+                if ( ii != 0 ) {
+                    setData(lctIdx,0);
+                }
+            }
+            if ( dt > 1.0e-16 ) {
+                break;
+            }
+            it->next();
+        }
+        delete it;
+
+        // nextTime should not exceed stop time
+        double stop  = getDataDouble(QModelIndex(),"StopTime");
+        nextTime = (nextTime > stop)  ? stop  : nextTime;
+
+        // Update liveTime to nextTime
+        setData(liveIdx,nextTime);
+
+        curveModel->unmap();
+
+        QString tag = data(idx.sibling(idx.row(),0)).toString();
+        if ( tag == "Plot" ) {
+            delete curveModel;
+        }
+    }
+}
+
+void PlotBookModel::liveTimePrev(const QModelIndex &idx)
+{
+    if ( !idx.isValid() ) {
+        return;
+    }
+
+    CurveModel* curveModel = getCurveModel(idx);
+
+    if ( curveModel ) {
+
+        curveModel->map();
+
+        // Curve x bias and x scale
+        double xs = xScale(idx);
+        double xb = xBias(idx);
+
+        // Calculate curve time index
+        int i = 0;
+        QModelIndex liveIdx = getDataIndex(QModelIndex(), "LiveCoordTime");
+        double liveTime = data(liveIdx).toDouble();
+        bool isXTime = (curveModel->x()->name() == curveModel->t()->name());
+        i = curveModel->indexAtTime((liveTime-xb)/xs);
+
+        double prevTime = liveTime;
+        ModelIterator* it = curveModel->begin();
+
+        /* Timestamps may be identical, set i to first duplicate */
+        double itTime = it->at(i)->t();
+        while ( i >= 1 ) {
+            if ( it->at(i-1)->t() == itTime ) {
+                --i;
+            } else {
+                break;
+            }
+        }
+
+        /* Get current index for possible duplicate timestamps (ii) */
+        QModelIndex idx = getDataIndex(QModelIndex(), "LiveCoordTimeIndex","");
+        int ii = getDataInt(QModelIndex(), "LiveCoordTimeIndex","");
+
+        while ( i+ii > 0 ) {
+            it = it->at(i+ii-1);
+            if ( isXTime ) {
+                prevTime = it->x()*xs+xb;
+            } else {
+                prevTime = it->t();
+            }
+            double dt = qAbs(liveTime-prevTime);
+            if ( dt == 0 ) {
+                // Multiple points for same timestamp,
+                // move to prev point on this curve for this same timestamp
+                setData(idx,--ii);
+                break;
+            } else {
+                int jj = 0;  // Last index of possible duplicate timestamps
+                int j = i-1;
+                double jTime = it->at(j+ii)->t();
+                while ( j+ii-1 >= 0 ) {
+                    if ( it->at(j+ii-1)->t() == jTime ) {
+                        ++jj;
+                        --j;
+                    } else {
+                        break;
+                    }
+                }
+                setData(idx,jj);
+            }
+            if ( dt > 1.0e-16 ) {
+                break;
+            }
+            --i;
+        }
+        delete it;
+
+        // prevTime should not precede start time
+        double start  = getDataDouble(QModelIndex(),"StartTime");
+        prevTime = (prevTime < start)  ? start  : prevTime;
+
+        // Update liveTime to prevTime
+        setData(liveIdx,prevTime);
+
+        curveModel->unmap();
+
+        QString tag = data(idx.sibling(idx.row(),0)).toString();
+        if ( tag == "Plot" ) {
+            delete curveModel;
+        }
+    }
 }
 
 QList<double> PlotBookModel::_majorTics(double a, double b,
