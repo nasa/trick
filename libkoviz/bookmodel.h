@@ -21,6 +21,7 @@
 #include "unit.h"
 #include "utils.h"
 #include "curvemodel.h"
+#include "curvemodel_painterpath.h"
 
 #include <QList>
 #include <QColor>
@@ -95,7 +96,7 @@ public:
     CurveModel* createCurve(int row, const QString& tName,
                             const QString& xName, const QString& yName);
     CurveModel* getCurveModel(const QModelIndex& curvesIdx, int i) const;
-    CurveModel* getCurveModel(const QModelIndex& curveIdx) const;
+    CurveModel* getCurveModel(const QModelIndex& idx) const;
 
     QPainterPath* getPainterPath(const QModelIndex& curveIdx) const;
     QPainterPath* getCurvesErrorPath(const QModelIndex& curvesIdx);
@@ -139,6 +140,8 @@ public:
                       const QStringList& unitOverrides,
                       QAbstractItemModel *monteModel,
                       QWidget* parent);
+    void liveTimeNext(const QModelIndex& idx);
+    void liveTimePrev(const QModelIndex& idx);
 
     // Utility for abbreviating a list of run:var names
     QStringList abbreviateLabels(const QStringList &labels) const;

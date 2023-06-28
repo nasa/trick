@@ -42,7 +42,9 @@ void CurvesView::setCurrentCurveRunID(int runID)
     }
 
     QModelIndex cidx = currentIndex();
-    if ( cidx.isValid() ) { // Choose curve based on current curve
+    QString tag = _bookModel()->data(cidx).toString();
+
+    if ( cidx.isValid() && tag == "Curve" ) { //Choose curve based on curr curve
 
         // See if current curve's runid is runID
         int curveRunID = _bookModel()->getDataInt(cidx,"CurveRunID","Curve");
@@ -823,118 +825,15 @@ void CurvesView::_keyPressArrow(const Qt::ArrowType& arrow)
     // If curve is selected
     QModelIndex gpidx = currentIndex().parent().parent();
     QString tag = model()->data(currentIndex()).toString();
-    if ( currentIndex().isValid() && tag == "Curve" && gpidx == rootIndex()) {
-
-        QModelIndex curveIdx = currentIndex();
-        CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
-        curveModel->map();
-
-        // Calculate liveCoord based on model liveCoordTime
-        double xs = _bookModel()->xScale(curveIdx);
-        double xb = _bookModel()->xBias(curveIdx);
-        QModelIndex liveIdx = _bookModel()->getDataIndex(QModelIndex(),
-                                                         "LiveCoordTime");
-
-        double liveTime = model()->data(liveIdx).toDouble();
-        int i = 0;
-        bool isXTime = (curveModel->x()->name() == curveModel->t()->name());
-        if ( isXTime ) {
-            i = curveModel->indexAtTime((liveTime-xb)/xs);
-        } else {
-            // e.g. ball xy curve where x is position[0]
-            i = curveModel->indexAtTime(liveTime);
-        }
-
-        double timeStamp = liveTime;
-        ModelIterator* it = curveModel->begin();
-
-        /* Timestamps may be identical, set i to first duplicate */
-        double itTime = it->at(i)->t();
-        while ( i > 0 ) {
-            if ( it->at(i-1)->t() == itTime ) {
-                --i;
-            } else {
-                break;
-            }
-        }
-
-        /* Get current index for possible duplicate timestamps (ii) */
-        QModelIndex idx = _bookModel()->getDataIndex(QModelIndex(),
-                                                     "LiveCoordTimeIndex","");
-        int ii = _bookModel()->getDataInt(QModelIndex(),
-                                          "LiveCoordTimeIndex","");
-
+    if ( currentIndex().isValid() &&
+         ((tag == "Curve" && gpidx == rootIndex()) ||
+          (tag == "Plot" && currentIndex() == rootIndex())) ) {
+        QModelIndex idx = currentIndex();
         if ( arrow == Qt::LeftArrow ) {
-            while ( i+ii > 0 ) {
-                it = it->at(i+ii-1);
-                if ( isXTime ) {
-                    timeStamp = it->x()*xs+xb;
-                } else {
-                    timeStamp = it->t();
-                }
-                double dt = qAbs(timeStamp-liveTime);
-                if ( dt == 0 ) {
-                    // Multiple points for same timestamp,
-                    // move to prev point on this curve for this same timestamp
-                    _bookModel()->setData(idx,--ii);
-                    break;
-                } else {
-                    int jj = 0;  // Last index of possible duplicate timestamps
-                    int j = i-1;
-                    double jTime = it->at(j+ii)->t();
-                    while ( j+ii-1 >= 0 ) {
-                        if ( it->at(j+ii-1)->t() == jTime ) {
-                            ++jj;
-                            --j;
-                        } else {
-                            break;
-                        }
-                    }
-                    _bookModel()->setData(idx,jj);
-                }
-                if ( dt > 1.0e-16 ) {
-                    break;
-                }
-                --i;
-            }
-
+            _bookModel()->liveTimePrev(idx);
         } else if ( arrow == Qt::RightArrow ) {
-            it = it->at(i+1+ii);
-            while ( !it->isDone() ) {
-                if ( isXTime ) {
-                    timeStamp = it->x()*xs+xb;
-                } else {
-                    timeStamp = it->t();
-                }
-                double dt = qAbs(timeStamp-liveTime);
-                if ( dt == 0 ) {
-                    // Multiple points for same timestamp,
-                    // move to next point on this curve for this same timestamp
-                    _bookModel()->setData(idx,++ii);
-                    break;
-                } else {
-                    if ( ii != 0 ) {
-                        _bookModel()->setData(idx,0);
-                    }
-                }
-                if ( qAbs(timeStamp-liveTime) > 1.0e-16  ) {
-                    break;
-                }
-                it->next();
-            }
+            _bookModel()->liveTimeNext(idx);
         }
-        delete it;
-
-        double start = _bookModel()->getDataDouble(QModelIndex(), "StartTime");
-        double stop = _bookModel()->getDataDouble(QModelIndex(), "StopTime");
-        if ( timeStamp < start ) {
-            timeStamp = start;
-        } else if ( timeStamp > stop ) {
-            timeStamp = stop;
-        }
-        _bookModel()->setData(liveIdx,timeStamp);
-
-        curveModel->unmap();
     }
 }
 
@@ -2037,6 +1936,18 @@ void CurvesView::mouseMoveEvent(QMouseEvent *event)
             } else {
                 model()->setData(liveTimeIdx,time);
             }
+
+            // Reset livecoord index for duplicate timestamps to 0
+            // TODO: When the logic from error plot is combined with
+            //       compare, use logic from compare to set livecoordidx
+            //       to a smarter value.  This just resets to zero which
+            //       is okay but not the best solution.  Then again,
+            //       setting to 0 works and is simple, so may be the longterm
+            //       way to do it.
+            QModelIndex idx = _bookModel()->getDataIndex(
+                                                       QModelIndex(),
+                                                       "LiveCoordTimeIndex","");
+            _bookModel()->setData(idx,0);
 
             viewport()->update();
         }

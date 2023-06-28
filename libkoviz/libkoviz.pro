@@ -104,7 +104,8 @@ SOURCES += bookmodel.cpp \
            filter_sgolay.cpp \
            coord_arrow.cpp \
            curvemodel_deriv.cpp \
-           curvemodel_integ.cpp
+           curvemodel_integ.cpp \
+           curvemodel_painterpath.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -184,7 +185,8 @@ HEADERS  += bookmodel.h \
             filter_sgolay.h \
             coord_arrow.h \
             curvemodel_deriv.h \
-            curvemodel_integ.h
+            curvemodel_integ.h \
+            curvemodel_painterpath.h
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y

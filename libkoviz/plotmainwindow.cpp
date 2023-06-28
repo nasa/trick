@@ -1575,20 +1575,20 @@ void PlotMainWindow::_startTimeChanged(double startTime)
 
 void PlotMainWindow::_liveTimeChanged(double liveTime)
 {
-    QModelIndex curveIdx = _currCurveIdx();
-    if ( !curveIdx.isValid() ) {
+    QModelIndex idx = _currentIdx();
+    if ( !idx.isValid() ) {
         return;
     }
 
-    CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
+    CurveModel* curveModel = _bookModel->getCurveModel(idx);
 
     if ( curveModel ) {
 
         curveModel->map();
 
         // Get curve index i of liveTime
-        double xs = _bookModel->xScale(curveIdx);
-        double xb = _bookModel->xBias(curveIdx);
+        double xs = _bookModel->xScale(idx);
+        double xb = _bookModel->xBias(idx);
         int i = 0;
         bool isXTime = (curveModel->x()->name() == curveModel->t()->name());
         if ( isXTime ) {
@@ -1615,6 +1615,12 @@ void PlotMainWindow::_liveTimeChanged(double liveTime)
                                                        "LiveCoordTime");
         _bookModel->setData(liveIdx,t);
         _timeInput->setLiveTime(t);
+
+        // TODO: See getCurveModel() comment
+        QString tag = _bookModel->data(idx.sibling(idx.row(),0)).toString();
+        if ( tag == "Plot" ) {
+            delete curveModel;
+        }
     }
 }
 
@@ -1645,172 +1651,16 @@ void PlotMainWindow::_stopTimeChanged(double stopTime)
 
 void PlotMainWindow::_liveTimeNext()
 {
-    QModelIndex curveIdx = _currCurveIdx();
-    CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
-
-    if ( curveModel ) {
-
-        curveModel->map();
-
-        ModelIterator* it = curveModel->begin();
-
-        // Calculate curve time index
-        int i = 0;
-        double xs = _bookModel->xScale(curveIdx);
-        double xb = _bookModel->xBias(curveIdx);
-        QModelIndex liveIdx = _bookModel->getDataIndex(QModelIndex(),
-                                                       "LiveCoordTime");
-        double liveTime = _bookModel->data(liveIdx).toDouble();
-        bool isXTime = (curveModel->x()->name() == curveModel->t()->name());
-        if ( isXTime ) {
-            i = curveModel->indexAtTime((liveTime-xb)/xs);
-        } else {
-            // e.g. ball xy curve where x is position[0]
-            i = curveModel->indexAtTime(liveTime);
-        }
-
-        /* Timestamps may duplicate, go to first in series */
-        double itTime = it->at(i)->t();
-        while ( i > 0 ) {
-            if ( it->at(i-1)->t() == itTime ) {
-                --i;
-            } else {
-                break;
-            }
-        }
-
-
-        QModelIndex lctIdx = _bookModel->getDataIndex(QModelIndex(),
-                                                      "LiveCoordTimeIndex","");
-        int ii = _bookModel->getDataInt(QModelIndex(),
-                                          "LiveCoordTimeIndex","");
-
-        // Calculate nextTime after liveTime
-        double nextTime = liveTime;
-        it = it->at(i+1+ii);
-        while ( !it->isDone() ) {
-            if ( isXTime ) {
-                nextTime = it->x()*xs+xb;
-            } else {
-                nextTime = it->t();
-            }
-            double dt = qAbs(nextTime-liveTime);
-            if ( dt == 0.0 ) {
-                // Multiple points for same timestamp,
-                // move to next point on this curve for this same timestamp
-                _bookModel->setData(lctIdx,++ii);
-                break;
-            } else {
-                if ( ii != 0 ) {
-                    _bookModel->setData(lctIdx,0);
-                }
-            }
-            if ( dt > 1.0e-16 ) {
-                break;
-            }
-            it->next();
-        }
-        delete it;
-
-        // nextTime should not exceed stop time
-        double stop  = _bookModel->getDataDouble(QModelIndex(),"StopTime");
-        nextTime = (nextTime > stop)  ? stop  : nextTime;
-
-        // Update liveTime to nextTime
-        _bookModel->setData(liveIdx,nextTime);
-
-        curveModel->unmap();
-    }
+    QModelIndex idx = _currentIdx();
+    _bookModel->liveTimeNext(idx);
 }
 
 void PlotMainWindow::_liveTimePrev()
 {
-    QModelIndex curveIdx = _currCurveIdx();
-    CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
-
-    if ( curveModel ) {
-
-        curveModel->map();
-
-        // Calculate curve time index
-        int i = 0;
-        double xs = _bookModel->xScale(curveIdx);
-        double xb = _bookModel->xBias(curveIdx);
-        QModelIndex liveIdx = _bookModel->getDataIndex(QModelIndex(),
-                                                       "LiveCoordTime");
-        double liveTime = _bookModel->data(liveIdx).toDouble();
-        bool isXTime = (curveModel->x()->name() == curveModel->t()->name());
-        if ( isXTime ) {
-            i = curveModel->indexAtTime((liveTime-xb)/xs);
-        } else {
-            // e.g. ball xy curve where x is position[0]
-            i = curveModel->indexAtTime(liveTime);
-        }
-
-        double prevTime = liveTime;
-        ModelIterator* it = curveModel->begin();
-
-        /* Timestamps may be identical, set i to first duplicate */
-        double itTime = it->at(i)->t();
-        while ( i >= 1 ) {
-            if ( it->at(i-1)->t() == itTime ) {
-                --i;
-            } else {
-                break;
-            }
-        }
-
-        /* Get current index for possible duplicate timestamps (ii) */
-        QModelIndex idx = _bookModel->getDataIndex(QModelIndex(),
-                                                   "LiveCoordTimeIndex","");
-        int ii = _bookModel->getDataInt(QModelIndex(),
-                                        "LiveCoordTimeIndex","");
-
-
-        while ( i+ii > 0 ) {
-            it = it->at(i+ii-1);
-            if ( isXTime ) {
-                prevTime = it->x()*xs+xb;
-            } else {
-                prevTime = it->t();
-            }
-            double dt = qAbs(liveTime-prevTime);
-            if ( dt == 0 ) {
-                // Multiple points for same timestamp,
-                // move to prev point on this curve for this same timestamp
-                _bookModel->setData(idx,--ii);
-                break;
-            } else {
-                int jj = 0;  // Last index of possible duplicate timestamps
-                int j = i-1;
-                double jTime = it->at(j+ii)->t();
-                while ( j+ii-1 >= 0 ) {
-                    if ( it->at(j+ii-1)->t() == jTime ) {
-                        ++jj;
-                        --j;
-                    } else {
-                        break;
-                    }
-                }
-                _bookModel->setData(idx,jj);
-            }
-            if ( dt > 1.0e-16 ) {
-                break;
-            }
-            --i;
-        }
-        delete it;
-
-        // prevTime should not precede start time
-        double start  = _bookModel->getDataDouble(QModelIndex(),"StartTime");
-        prevTime = (prevTime < start)  ? start  : prevTime;
-
-        // Update liveTime to prevTime
-        _bookModel->setData(liveIdx,prevTime);
-
-        curveModel->unmap();
-    }
+    QModelIndex idx = _currentIdx();
+    _bookModel->liveTimePrev(idx);
 }
+
 void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
 {
     Q_UNUSED(section);
@@ -1945,19 +1795,22 @@ void PlotMainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-QModelIndex PlotMainWindow::_currCurveIdx()
+QModelIndex PlotMainWindow::_currentIdx()
 {
-    QModelIndex curveIdx;
+    QModelIndex currentIdx;
 
-    QModelIndex currIdx = _bookView->currentIndex();
-    if ( currIdx.isValid() ) {
-        QString tag = _bookModel->data(currIdx).toString();
+    QModelIndex currentBookViewIdx = _bookView->currentIndex();
+    if ( currentBookViewIdx.isValid() ) {
+        QString tag = _bookModel->data(currentBookViewIdx).toString();
         if ( tag == "Curve" ) {
-            curveIdx = currIdx;
+            currentIdx = currentBookViewIdx;
+        } else if ( tag == "Plot" ) {
+            // Error plots have a Plot index as the "curve idx"
+            currentIdx = currentBookViewIdx;
         } else {
             QModelIndex pageIdx;
             if ( tag ==  "Page" ) {
-                pageIdx = currIdx;
+                pageIdx = currentBookViewIdx;
             } else {
                 QModelIndexList pageIdxs = _bookModel->pageIdxs();
                 if ( !pageIdxs.isEmpty() ) {
@@ -1993,7 +1846,7 @@ QModelIndex PlotMainWindow::_currCurveIdx()
                                                                    "CurveRunID",
                                                                    "Curve");
                             if ( curveRunID == runID ) {
-                                curveIdx = cIdx;
+                                currentIdx = cIdx;
                                 isFound = true;
                                 break;
                             }
@@ -2013,7 +1866,7 @@ QModelIndex PlotMainWindow::_currCurveIdx()
                         QModelIndexList curveIdxs = _bookModel->curveIdxs(
                                                                      curvesIdx);
                         if ( !curveIdxs.isEmpty() ) {
-                            curveIdx = curveIdxs.at(0);
+                            currentIdx = curveIdxs.at(0);
                         }
                     }
                 }
@@ -2021,7 +1874,7 @@ QModelIndex PlotMainWindow::_currCurveIdx()
         }
     }
 
-    return curveIdx;
+    return currentIdx;
 }
 
 void PlotMainWindow::_vsRead()
