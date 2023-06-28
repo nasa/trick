@@ -14,7 +14,7 @@ A clear and concise description of what the bug is.
 This may be tough since Trick sims can have many moving parts and you definitely shouldn't share your employer's code. Try to start over with the function or file that the issue occurs in and include it in a code block like the example below:
 ```C++
 #include <iostream>
-void function_i_need_help_with() {
+void buggy_function() {
   double a = 1.0;
   double b = 2.1;
   double c = a + b;
