@@ -288,6 +288,20 @@ class MessageSimObject : public Trick::SimObject {
             {TRK} ("shutdown") mdevice.shutdown() ;
         }
 
+        //  Toggle log messages on separate thread on/off 
+        void separate_thread_set_enabled(bool on_off) {
+            if (on_off) {
+                mpublisher.unsubscribe(&mcout);
+                mpublisher.unsubscribe(&mdevice);
+                mtcout.init();
+                mpublisher.subscribe(&mtcout);
+            } else {
+                mpublisher.unsubscribe(&mtcout);
+                mpublisher.subscribe(&mcout);
+                mpublisher.subscribe(&mdevice);
+            }
+        }
+
     private:
         // This object is not copyable
         void operator =(const MessageSimObject &) {};
