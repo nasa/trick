@@ -34,10 +34,10 @@ int Trick::MonteCarlo::slave_init() {
 
     /** <li> Connect to the master and write the port over which we are listening for new runs. */
     connection_device.port = master_port;
-    if (tc_connect(&connection_device) != TC_SUCCESS) {
+    int error = tc_connect(&connection_device);
+    if (error != TC_SUCCESS) {
         if (verbosity >= MC_ERROR) {
-            message_publish(MSG_ERROR, "Monte [%s:%d] Failed to initialize communication sockets.\nTerminating.\n",
-                            machine_name.c_str(), slave_id) ;
+            message_publish(MSG_ERROR, "Monte [%s:%d:%d] Failed to initialize communication sockets.\nTerminating.\n", machine_name.c_str(), slave_id, error) ;
         }
         exit(-1);
     }
