@@ -164,7 +164,7 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
                 message_publish(MSG_DEBUG, "%p tag=<%s> var_server buffer[%d] too small (need %d), sending multiple ascii packets.\n",
                                 _connection, _connection->getClientTag().c_str(), MAX_MSG_LEN, message_size + var_size + 2);
 
-                message_publish(MSG_DEBUG, "%p tag=<%s> var_server sedning %d ascii bytes:\n%s\n",
+                message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
                                 _connection, _connection->getClientTag().c_str(), message_size, message.c_str());
             }
 
@@ -189,7 +189,7 @@ int Trick::VariableServerSession::write_ascii_data(const std::vector<VariableRef
     std::string message = message_stream.str();
 
     if (_debug >= 2) {
-        message_publish(MSG_DEBUG, "%p tag=<%s> var_server sedning %d ascii bytes:\n%s\n",
+        message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending %d ascii bytes:\n%s\n",
                         _connection, _connection->getClientTag().c_str(), message.size(), message.c_str());
     }
 
