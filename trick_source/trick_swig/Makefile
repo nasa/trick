@@ -66,20 +66,16 @@ $(OBJ_DIR):
 $(TEST_DIR): swig_${TRICK_HOST_CPU}
 	ln -s -f $< $@
 
-$(SWIG_OBJECT_FILES): | $(OBJ_DIR)
-
-$(SWIG_SRC_FILES): | swig_${TRICK_HOST_CPU}
-
 swig_${TRICK_HOST_CPU}:
 	mkdir $@
 
-$(SWIG_OBJECT_FILES): $(OBJ_DIR)/%.o : swig_${TRICK_HOST_CPU}/%.cpp
+$(SWIG_OBJECT_FILES): $(OBJ_DIR)/%.o : swig_${TRICK_HOST_CPU}/%.cpp | $(OBJ_DIR)
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
 
-$(OBJECT_FILES): $(OBJ_DIR)/%.o : %.cpp
+$(OBJECT_FILES): $(OBJ_DIR)/%.o : %.cpp | $(OBJ_DIR)
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -c $< -o $@
 
-$(SWIG_SRC_FILES): swig_${TRICK_HOST_CPU}/%_wrap.cpp : %.i
+$(SWIG_SRC_FILES): swig_${TRICK_HOST_CPU}/%_wrap.cpp : %.i | swig_${TRICK_HOST_CPU}
 	 $(SWIG) $(SWIG_DEFS) -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include -I${TRICK_HOME} -c++ -python -includeall -ignoremissing -w201,362,389,451 -o $@ -outdir ${TRICK_HOME}/share/trick/swig $<
 
 $(TRICK_LIB) : $(SWIG_OBJECT_FILES) $(OBJECT_FILES)
