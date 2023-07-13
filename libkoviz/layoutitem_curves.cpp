@@ -593,7 +593,7 @@ void CurvesLayoutItem::_printErrorplot(const QTransform& T,
     while ( !i0->isDone() && !i1->isDone() ) {
         double t0 = i0->t();
         double t1 = i1->t();
-        if ( qAbs(t1-t0) < tolerance ) {
+        if ( qAbs(t1-t0) <= tolerance ) {
             if ( t0 >= start && t0 <= stop ) {
                 double d = ys0*i0->y() - ys1*i1->y();
                 pts << QPointF(t0,d);
