@@ -7,3 +7,6 @@ unexport TRICK_PYTHON_PATH
 
 sim_test:
 	python3 trickops.py
+
+sim_test32:
+	python3 trickops.py --config_file=test_sims32.yml

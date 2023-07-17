@@ -296,6 +296,8 @@ premade:
 test: unit_test sim_test
 	@ echo "All tests completed sucessfully"
 
+test32: sim_test32
+
 .PHONY: $(UNIT_TEST_DIRS)
 $(UNIT_TEST_DIRS):
 	@ $(MAKE) -C $@ test
@@ -310,6 +312,9 @@ $(DPX_UNIT_TEST_DIR):
 
 sim_test:
 	@ $(MAKE) -f test_overrides.mk sim_test
+
+sim_test32:
+	@ $(MAKE) -f test_overrides.mk sim_test32
 
 pytest:
 	make -C share/trick/pymods/trick

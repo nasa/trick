@@ -72,4 +72,4 @@ jobs:
         export CFLAGS="-m32"
         export CXXFLAGS="-m32"
         export MAKEFLAGS=-j`nproc`
-        make test 
+        make test32

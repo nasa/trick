@@ -10,7 +10,7 @@ from WorkflowCommon import Job
 max_retries = 5
 
 class SimTestWorkflow(TrickWorkflow):
-    def __init__( self, quiet, trick_top_level, cpus):
+    def __init__( self, quiet, trick_top_level, cpus, config_file):
         self.cpus = cpus
         # Create the trick_test directory if it doesn't already exist
         if not os.path.exists(trick_top_level + "/trick_test"):
@@ -18,7 +18,7 @@ class SimTestWorkflow(TrickWorkflow):
 
         # Base Class initialize, this creates internal management structures
         TrickWorkflow.__init__(self, project_top_level=(trick_top_level), log_dir=(trick_top_level +'/trickops_logs/'),
-            trick_dir=trick_top_level, config_file=(trick_top_level + "/test_sims.yml"), cpus=self.cpus, quiet=quiet)
+            trick_dir=trick_top_level, config_file=(trick_top_level + "/" + config_file), cpus=self.cpus, quiet=quiet)
     def run( self ):
       build_jobs      = self.get_jobs(kind='build')
 
@@ -80,6 +80,8 @@ if __name__ == "__main__":
     parser.add_argument( "--cpus", type=int, default=(os.cpu_count() if os.cpu_count() is not None else 8),
       help="Number of cpus to use for testing. For builds this number is used for MAKEFLAGS *and* number of "
         "concurrent builds (cpus^2). For sim runs this controls the maximum number of simultaneous runs.")
+    parser.add_argument( "--config_file", type=str, help="Run configuration file to use, relative to trick_top_level", default="test_sims.yml")
+
     myargs = parser.parse_args()
     should_be_quiet = myargs.quiet or os.getenv('CI') is not None
-    sys.exit(SimTestWorkflow(quiet=should_be_quiet, trick_top_level=myargs.trick_top_level, cpus=myargs.cpus).run())
+    sys.exit(SimTestWorkflow(quiet=should_be_quiet, trick_top_level=myargs.trick_top_level, cpus=myargs.cpus, config_file=myargs.config_file).run())
