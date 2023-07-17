@@ -1,0 +1,35 @@
+# Compile only sims
+SIM_alloc_test:
+  path: test/SIM_alloc_test
+SIM_alloc_test:
+  path: test/SIM_alloc_test
+SIM_anon_enum:
+  path: test/SIM_anon_enum
+SIM_default_member_initializer:
+  path: test/SIM_default_member_initializer
+SIM_delete_default_constructor:
+  path: test/SIM_delete_default_constructor
+SIM_demo_inputfile:
+  path: test/SIM_demo_inputfile
+SIM_exclusion_mechanisms:
+  path: test/SIM_exclusion_mechanisms
+SIM_isystem:
+  path: test/SIM_isystem
+SIM_measurement_units:
+  path: test/SIM_measurement_units
+SIM_parse_s_define:
+  path: test/SIM_parse_s_define
+SIM_target_specific_variables:
+  path: test/SIM_target_specific_variables
+SIM_test_abstract:
+  path: test/SIM_test_abstract
+SIM_test_inherit:
+  path: test/SIM_test_inherit
+SIM_test_ip2:
+  path: test/SIM_test_ip2
+SIM_threads_simple:
+  path: test/SIM_threads_simple
+SIM_trickcomm:
+  path: test/SIM_trickcomm
+SIM_satellite:
+  path: trick_sims/SIM_satellite

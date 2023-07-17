@@ -66,4 +66,4 @@ jobs:
         python3 -m venv .venv && . .venv/bin/activate && pip install --upgrade pip && pip3 install -r requirements.txt        
         cd ../../../
         echo $MAKEFLAGS $CXXFLAGS $CFLAGS 
-        make test 
+        make test32
