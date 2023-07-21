@@ -39,6 +39,7 @@
 #include "runs.h"
 #include "timecom.h"
 #include "videowindow.h"
+#include "trickview.h"
 
 class PlotMainWindow : public QMainWindow
 {
@@ -126,6 +127,9 @@ private:
     VarsWidget* _varsWidget;
     QFrame* _dpFrame ;
     DPTreeWidget* _dpTreeWidget;
+
+    QFrame* _tvFrame ;
+    TrickView* _trickView;
 
     QTreeView* _plotTreeView ;
     BookView* _bookView;

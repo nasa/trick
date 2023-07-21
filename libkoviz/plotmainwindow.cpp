@@ -175,6 +175,11 @@ PlotMainWindow::PlotMainWindow(
         lsplit->addWidget(_monteInputsView);
     }
 
+    // Trick view tab
+    _tvFrame = new QFrame(lsplit);
+    _nbDPVars->addTab(_tvFrame,"TV");
+    _trickView = new TrickView(_bookModel, _tvFrame);
+
     // Start/Live/Stop times input
     _timeInput = new TimeInput(this);
     _timeInput->hideLiveTime();

@@ -1,0 +1,43 @@
+#ifndef TRICKVIEW_H
+#define TRICKVIEW_H
+
+#include <QWidget>
+#include <QStandardItemModel>
+#include <QGridLayout>
+#include <QLineEdit>
+#include <QListView>
+#include <QTcpSocket>
+#include <QDomDocument>
+#include "bookmodel.h"
+
+class TrickView : public QWidget
+{
+    Q_OBJECT
+public:
+    explicit TrickView(PlotBookModel* bookModel,
+                       QWidget *parent = 0);
+    ~TrickView();
+
+signals:
+    
+public slots:
+
+private:
+    QStandardItemModel* _tvModel;
+    PlotBookModel* _bookModel;
+    QGridLayout* _gridLayout ;
+    QLineEdit* _searchBox;
+    QListView* _listView ;
+
+    QStandardItemModel* _createTVModel(const QString& host, int port);
+    void _loadSieElement(const QDomElement& element, const QString& path);
+
+private slots:
+     void _tvSearchBoxTextChanged(const QString& rx);
+     void _tvSelectModelSelectionChanged(const QItemSelection& currVarSelection,
+                                        const QItemSelection& prevVarSelection);
+
+     void _sieRead();
+};
+
+#endif // TRICKVIEW_H
