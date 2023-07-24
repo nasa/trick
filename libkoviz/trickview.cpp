@@ -102,7 +102,6 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
     if ( doc.setContent(sieXML,&errMsg) ) {
         QDomElement rootElement = doc.documentElement();
 
-#if 0
         // Cache off classes for speed
         QDomNodeList classElements = rootElement.elementsByTagName("class");
         for (int i = 0; i < classElements.size(); ++i) {
@@ -110,14 +109,15 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
             QString className = classElement.attribute("name");
             _name2element.insert(className,classElement);
         }
-#endif
 
         QDomNodeList tlos = rootElement.elementsByTagName("top_level_object");
         for (int i = 0; i < tlos.size(); ++i) {
             QDomElement tlo = tlos.at(i).toElement();
             if ( !tlo.attribute("name").startsWith("trick_") &&
                  !tlo.attribute("name").endsWith("integ_loop") ) {
-                _loadSieElement(tlo, tlo.attribute("name"));
+                QList<QDomElement> path;
+                path.append(tlo);
+                _loadSieElement(tlo, path);
             }
         }
     } else {
@@ -142,7 +142,8 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
     return tvModel;
 }
 
-void TrickView::_loadSieElement(const QDomElement &element, const QString &path)
+void TrickView::_loadSieElement(const QDomElement &element,
+                                QList<QDomElement> &path)
 {
     QString elementType = element.attribute("type");
     QDomElement root = element.ownerDocument().documentElement();
@@ -158,11 +159,23 @@ void TrickView::_loadSieElement(const QDomElement &element, const QString &path)
 
     QDomNodeList memberElements = classMatch.elementsByTagName("member");
     for (int i = 0; i < memberElements.size(); ++i ) {
+
         QDomElement memberElement = memberElements.at(i).toElement();
-        QString memberType = memberElement.attribute("type");
+
+        bool isMemberInPath = false;
+        for (int j = 0; j < path.size(); ++j) {
+            if (path.at(j).attribute("type") == memberElement.attribute("type") ) {
+                // To avoid inf recursion don't add same member type to path
+                // E.g. jeod_time.time_manager.dyn_time.time_manager.dyn_time...
+                isMemberInPath = true;
+                break;
+            }
+        }
+
         bool isPrimitive = true;
-        for (int i = 0; i < classElements.size(); ++i) {
-            QDomElement classElement = classElements.at(i).toElement();
+        QString memberType = memberElement.attribute("type");
+        for (int j = 0; j < classElements.size(); ++j) {
+            QDomElement classElement = classElements.at(j).toElement();
             QString className = classElement.attribute("name");
             if ( className == memberType ) {
                 isPrimitive = false;
@@ -170,12 +183,24 @@ void TrickView::_loadSieElement(const QDomElement &element, const QString &path)
             }
         }
 
-        QString memberPath = path + '.' + memberElement.attribute("name");
-        if ( isPrimitive ||
-             memberElement.attribute("type") == classMatch.attribute("name")){
-            fprintf(stderr, "path=%s\n", memberPath.toLatin1().constData());
+        if ( isPrimitive || isMemberInPath ) {
+            fprintf(stderr, "path=");
+            for (int j = 0; j < path.size(); ++j ) {
+                fprintf(stderr, "%s.",
+                        path.at(j).attribute("name").toLatin1().constData());
+            }
+            fprintf(stderr, "%s\n",
+                    memberElement.attribute("name").toLatin1().constData());
         } else {
-            _loadSieElement(memberElement,memberPath);
+            for (int i = 0; i < classElements.size(); ++i) {
+                QDomElement classElement = classElements.at(i).toElement();
+                if ( elementType == classElement.attribute("name") ) {
+                    classMatch = classElement;
+                    break;
+                }
+            }
+            path.append(memberElement);
+            _loadSieElement(memberElement,path);
         }
     }
 }

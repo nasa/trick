@@ -31,7 +31,8 @@ private:
     QListView* _listView ;
 
     QStandardItemModel* _createTVModel(const QString& host, int port);
-    void _loadSieElement(const QDomElement& element, const QString& path);
+    void _loadSieElement(const QDomElement& element,
+                         QList<QDomElement> &path);
     QHash<QString,QDomElement> _name2element;
 
 private slots:
