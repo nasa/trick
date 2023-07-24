@@ -8,6 +8,7 @@
 #include <QListView>
 #include <QTcpSocket>
 #include <QDomDocument>
+#include <QHash>
 #include "bookmodel.h"
 
 class TrickView : public QWidget
@@ -31,6 +32,7 @@ private:
 
     QStandardItemModel* _createTVModel(const QString& host, int port);
     void _loadSieElement(const QDomElement& element, const QString& path);
+    QHash<QString,QDomElement> _name2element;
 
 private slots:
      void _tvSearchBoxTextChanged(const QString& rx);

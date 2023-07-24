@@ -17,6 +17,7 @@ TrickView::TrickView(PlotBookModel *bookModel,
     _gridLayout->addWidget(_searchBox,0,0);
 
     _tvModel = _createTVModel("localhost", 17100);
+    //_tvModel = _createTVModel("localhost", 46707);
 
     // Vars list view
     _listView = new QListView(parent);
@@ -100,6 +101,17 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
     QString errMsg;
     if ( doc.setContent(sieXML,&errMsg) ) {
         QDomElement rootElement = doc.documentElement();
+
+#if 0
+        // Cache off classes for speed
+        QDomNodeList classElements = rootElement.elementsByTagName("class");
+        for (int i = 0; i < classElements.size(); ++i) {
+            QDomElement classElement = classElements.at(i).toElement();
+            QString className = classElement.attribute("name");
+            _name2element.insert(className,classElement);
+        }
+#endif
+
         QDomNodeList tlos = rootElement.elementsByTagName("top_level_object");
         for (int i = 0; i < tlos.size(); ++i) {
             QDomElement tlo = tlos.at(i).toElement();
@@ -146,12 +158,11 @@ void TrickView::_loadSieElement(const QDomElement &element, const QString &path)
 
     QDomNodeList memberElements = classMatch.elementsByTagName("member");
     for (int i = 0; i < memberElements.size(); ++i ) {
-        QDomElement classElement;
         QDomElement memberElement = memberElements.at(i).toElement();
         QString memberType = memberElement.attribute("type");
         bool isPrimitive = true;
         for (int i = 0; i < classElements.size(); ++i) {
-            classElement = classElements.at(i).toElement();
+            QDomElement classElement = classElements.at(i).toElement();
             QString className = classElement.attribute("name");
             if ( className == memberType ) {
                 isPrimitive = false;
@@ -161,7 +172,7 @@ void TrickView::_loadSieElement(const QDomElement &element, const QString &path)
 
         QString memberPath = path + '.' + memberElement.attribute("name");
         if ( isPrimitive ||
-             memberElement.attribute("type") == classElement.attribute("name")){
+             memberElement.attribute("type") == classMatch.attribute("name")){
             fprintf(stderr, "path=%s\n", memberPath.toLatin1().constData());
         } else {
             _loadSieElement(memberElement,memberPath);
