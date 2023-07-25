@@ -46,6 +46,7 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
     char* allocation_name;
     int n_elems;
     Language language;
+    TRICK_ALLOC_TYPE alloc_type;
     void* address;
     ATTRIBUTES* sub_attr;
     ALLOC_INFO *new_alloc;
@@ -126,6 +127,7 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
             return ((void*)NULL);
         }
         language = Language_CPP;
+        alloc_type = TRICK_ALLOC_IOSRC;
 
     } else if ((type == TRICK_STRING) && (n_stars == 0 ) ) {
 
@@ -139,6 +141,7 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
             return ((void*)NULL);
         }
         language = Language_CPP;
+        
     } else {
         if ( (address = calloc( (size_t)n_elems, (size_t)size ) ) == NULL) {
             emitError("Out of memory.") ;
@@ -156,6 +159,7 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
         new_alloc->stcl = TRICK_LOCAL;
         new_alloc->size = size;
         new_alloc->language = language;
+        new_alloc->alloc_type = alloc_type;
         new_alloc->type = type;
 
         if ((type == TRICK_STRUCTURED) || (type == TRICK_ENUMERATED)) {

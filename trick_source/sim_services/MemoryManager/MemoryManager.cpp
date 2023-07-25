@@ -85,7 +85,7 @@ Trick::MemoryManager::~MemoryManager() {
         if (ai_ptr->stcl == TRICK_LOCAL) {
             if ( ai_ptr->alloc_type == TRICK_ALLOC_MALLOC ) {
                 free((char *)ai_ptr->start - ai_ptr->sentinel_bytes) ;
-            } else if ( ai_ptr->alloc_type == TRICK_ALLOC_NEW ) {
+            } else if ( ai_ptr->alloc_type == TRICK_ALLOC_IOSRC ) {
                 io_src_delete_class( ai_ptr );
             }
         }

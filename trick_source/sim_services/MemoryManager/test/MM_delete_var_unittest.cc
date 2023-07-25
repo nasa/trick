@@ -4,6 +4,9 @@
 #include "MM_test.hh"
 #include <iostream>
 
+#include "MM_delete_var.hh"
+size_t CountMe::count = 0;
+
 /*
  Test Fixture.
  */
@@ -40,6 +43,27 @@ TEST_F(MM_delete_var_unittest, var_exists) {
     EXPECT_EQ(1, exists);
 
 }
+
+
+TEST_F(MM_delete_var_unittest, CXX_object_constructor_destructor) {
+
+    // ===========================================================================================
+    // This test determines:
+    // 1) whether a class's constructor is called when declare_var is called and,
+    // 2) whether a class's destructor is being called when delete_var is called.
+    // ===========================================================================================
+    EXPECT_EQ(0, CountMe::count);
+    CountMe* cm1_p = (CountMe*)memmgr->declare_var("CountMe cm1");
+    EXPECT_EQ(1, CountMe::count);
+    CountMe* cm2_p = (CountMe*)memmgr->declare_var("CountMe cm2");
+    EXPECT_EQ(2, CountMe::count);
+    memmgr->delete_var("cm1");
+    EXPECT_EQ(1, CountMe::count);
+    memmgr->delete_var("cm2");
+    EXPECT_EQ(0, CountMe::count);
+}
+
+
 
 #if 0
 TEST_F(MM_delete_var_unittest, byAddress_destroy) {

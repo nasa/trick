@@ -38,6 +38,9 @@ int Trick::MemoryManager::delete_var(void* address ) {
          */
         if ( alloc_info->stcl == TRICK_LOCAL ) {
             if ( alloc_info->alloc_type == TRICK_ALLOC_MALLOC ) {
+
+                // This will call a destructor ONLY if alloc_info->type is TRICK_STRUCTURED.
+                // Otherwise it does nothing.
                 io_src_destruct_class( alloc_info );
 
 		// The destructor that we just called MAY have deleted addresses
@@ -48,7 +51,7 @@ int Trick::MemoryManager::delete_var(void* address ) {
 		deleted_addr_list.push_back(address);
 
                 free( address);
-            } else if ( alloc_info->alloc_type == TRICK_ALLOC_NEW ) {
+            } else if ( alloc_info->alloc_type == TRICK_ALLOC_IOSRC ) {
                 io_src_delete_class( alloc_info );
             }
         }

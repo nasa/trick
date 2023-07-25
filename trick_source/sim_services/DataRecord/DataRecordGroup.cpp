@@ -160,7 +160,7 @@ void Trick::DataRecordGroup::register_group_with_mm(void * address , const char 
         TMM_declare_ext_var(address , TRICK_STRUCTURED, type , 0 , name.c_str() , 0 , NULL ) ;
         ALLOC_INFO * alloc_info = get_alloc_info_at(address) ;
         alloc_info->stcl = TRICK_LOCAL ;
-        alloc_info->alloc_type = TRICK_ALLOC_NEW ;
+        alloc_info->alloc_type = TRICK_ALLOC_IOSRC ;
     }
 }
 
