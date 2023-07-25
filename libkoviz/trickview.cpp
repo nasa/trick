@@ -127,14 +127,8 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
     }
 
 
-    QStringList params;
-    params.append("ball.state.out.position[0]");
-    params.append("ball.state.out.position[1]");
-    params.append("ball.state.out.velocity[0]");
-    params.append("ball.state.out.velocity[1]");
-
     QStandardItem *rootItem = tvModel->invisibleRootItem();
-    foreach (QString param, params) {
+    foreach (QString param, _params) {
         QStandardItem *varItem = new QStandardItem(param);
         rootItem->appendRow(varItem);
     }
@@ -146,16 +140,7 @@ void TrickView::_loadSieElement(const QDomElement &element,
                                 QList<QDomElement> &path)
 {
     QString elementType = element.attribute("type");
-    QDomElement root = element.ownerDocument().documentElement();
-    QDomNodeList classElements = root.elementsByTagName("class");
-    QDomElement classMatch;
-    for (int i = 0; i < classElements.size(); ++i) {
-        QDomElement classElement = classElements.at(i).toElement();
-        if ( elementType == classElement.attribute("name") ) {
-            classMatch = classElement;
-            break;
-        }
-    }
+    QDomElement classMatch = _name2element.value(elementType);
 
     QDomNodeList memberElements = classMatch.elementsByTagName("member");
     for (int i = 0; i < memberElements.size(); ++i ) {
@@ -164,7 +149,7 @@ void TrickView::_loadSieElement(const QDomElement &element,
 
         bool isMemberInPath = false;
         for (int j = 0; j < path.size(); ++j) {
-            if (path.at(j).attribute("type") == memberElement.attribute("type") ) {
+            if (path.at(j).attribute("type")==memberElement.attribute("type")){
                 // To avoid inf recursion don't add same member type to path
                 // E.g. jeod_time.time_manager.dyn_time.time_manager.dyn_time...
                 isMemberInPath = true;
@@ -174,33 +159,22 @@ void TrickView::_loadSieElement(const QDomElement &element,
 
         bool isPrimitive = true;
         QString memberType = memberElement.attribute("type");
-        for (int j = 0; j < classElements.size(); ++j) {
-            QDomElement classElement = classElements.at(j).toElement();
-            QString className = classElement.attribute("name");
-            if ( className == memberType ) {
-                isPrimitive = false;
-                break;
-            }
+        if ( _name2element.contains(memberType) ) {
+            isPrimitive = false;
         }
 
         if ( isPrimitive || isMemberInPath ) {
-            fprintf(stderr, "path=");
+            QString param;
             for (int j = 0; j < path.size(); ++j ) {
-                fprintf(stderr, "%s.",
-                        path.at(j).attribute("name").toLatin1().constData());
+                param += path.at(j).attribute("name") + ".";
             }
-            fprintf(stderr, "%s\n",
-                    memberElement.attribute("name").toLatin1().constData());
+            param += memberElement.attribute("name");
+            fprintf(stderr, "path=%s\n", param.toLatin1().constData());
+            _params.append(param);
         } else {
-            for (int i = 0; i < classElements.size(); ++i) {
-                QDomElement classElement = classElements.at(i).toElement();
-                if ( elementType == classElement.attribute("name") ) {
-                    classMatch = classElement;
-                    break;
-                }
-            }
-            path.append(memberElement);
-            _loadSieElement(memberElement,path);
+            QList<QDomElement> copypath(path);
+            copypath.append(memberElement);
+            _loadSieElement(memberElement,copypath);
         }
     }
 }

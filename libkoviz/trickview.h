@@ -34,6 +34,7 @@ private:
     void _loadSieElement(const QDomElement& element,
                          QList<QDomElement> &path);
     QHash<QString,QDomElement> _name2element;
+    QStringList _params;
 
 private slots:
      void _tvSearchBoxTextChanged(const QString& rx);
