@@ -1,6 +1,7 @@
 /*
 PURPOSE: (Testing)
 */
+#include <stddef.h>
 
 class CountMe {
 public:
