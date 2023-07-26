@@ -240,7 +240,7 @@
                 _sim_services.TMM_declare_ext_var(this, _sim_services.TRICK_STRUCTURED, "TYPE", 0, kwargs['TMMName'], 0, None)
             alloc_info = _sim_services.get_alloc_info_at(this)
             alloc_info.stcl = _sim_services.TRICK_LOCAL
-            alloc_info.alloc_type = _sim_services.TRICK_ALLOC_NEW
+            alloc_info.alloc_type = _sim_services.TRICK_ALLOC_IOSRC
 %}
 
 %feature("shadow") TYPE::TYPE() %{
@@ -258,7 +258,7 @@
                 _sim_services.TMM_declare_ext_var(this, _sim_services.TRICK_STRUCTURED, "TYPE", 0, kwargs['TMMName'], 0, None)
             alloc_info = _sim_services.get_alloc_info_at(this)
             alloc_info.stcl = _sim_services.TRICK_LOCAL
-            alloc_info.alloc_type = _sim_services.TRICK_ALLOC_NEW
+            alloc_info.alloc_type = _sim_services.TRICK_ALLOC_IOSRC
 %}
 
 %enddef
