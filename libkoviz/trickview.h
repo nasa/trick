@@ -9,6 +9,8 @@
 #include <QTcpSocket>
 #include <QDomDocument>
 #include <QHash>
+#include <QItemSelectionModel>
+#include <QSortFilterProxyModel>
 #include "bookmodel.h"
 
 class TrickView : public QWidget
@@ -36,8 +38,12 @@ private:
     QHash<QString,QDomElement> _name2element;
     QStringList _params;
 
+    QSortFilterProxyModel* _varsFilterModel;
+    QItemSelectionModel* _varsSelectModel;
+
 private slots:
      void _tvSearchBoxTextChanged(const QString& rx);
+     void _tvSearchBoxReturnPressed();
      void _tvSelectModelSelectionChanged(const QItemSelection& currVarSelection,
                                         const QItemSelection& prevVarSelection);
 

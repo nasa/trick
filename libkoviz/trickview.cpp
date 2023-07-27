@@ -12,17 +12,28 @@ TrickView::TrickView(PlotBookModel *bookModel,
     // Search box
     _gridLayout = new QGridLayout(parent);
     _searchBox = new QLineEdit(parent);
-    connect(_searchBox,SIGNAL(textChanged(QString)),
-            this,SLOT(_tvSearchBoxTextChanged(QString)));
+    //connect(_searchBox,SIGNAL(textChanged(QString)),
+    //        this,SLOT(_tvSearchBoxTextChanged(QString)));
+    connect(_searchBox,SIGNAL(returnPressed()),
+            this,SLOT(_tvSearchBoxReturnPressed()));
     _gridLayout->addWidget(_searchBox,0,0);
 
     _tvModel = _createTVModel("localhost", 17100);
-    //_tvModel = _createTVModel("localhost", 46707);
+    //_tvModel = _createTVModel("localhost", 44479);
+
+    // Setup models
+    _varsFilterModel = new QSortFilterProxyModel;
+    _varsFilterModel->setDynamicSortFilter(true);
+    _varsFilterModel->setSourceModel(_tvModel);
+    QRegExp rx(QString(".*"));
+    _varsFilterModel->setFilterRegExp(rx);
+    _varsFilterModel->setFilterKeyColumn(0);
+    _varsSelectModel = new QItemSelectionModel(_varsFilterModel);
 
     // Vars list view
     _listView = new QListView(parent);
     _listView->setDragEnabled(false);
-    _listView->setModel(_tvModel);
+    _listView->setModel(_varsFilterModel);
     _gridLayout->addWidget(_listView,1,0);
     _listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     //_listView->setSelectionModel(_tvSelectModel);
@@ -55,7 +66,13 @@ void TrickView::_sieRead()
 
 void TrickView::_tvSearchBoxTextChanged(const QString &rx)
 {
-    //_tvFilterModel->setFilterRegExp(rx);
+    _varsFilterModel->setFilterRegExp(rx);
+}
+
+void TrickView::_tvSearchBoxReturnPressed()
+{
+    QString rx = _searchBox->text();
+    _varsFilterModel->setFilterRegExp(rx);
 }
 
 QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
@@ -117,6 +134,8 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
                  !tlo.attribute("name").endsWith("integ_loop") ) {
                 QList<QDomElement> path;
                 path.append(tlo);
+                fprintf(stderr, "Load top_level_object=%s\n",
+                        tlo.attribute("name").toLatin1().constData());
                 _loadSieElement(tlo, path);
             }
         }
@@ -125,7 +144,6 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
         delete tvModel;
         return 0;
     }
-
 
     QStandardItem *rootItem = tvModel->invisibleRootItem();
     foreach (QString param, _params) {
@@ -169,7 +187,6 @@ void TrickView::_loadSieElement(const QDomElement &element,
                 param += path.at(j).attribute("name") + ".";
             }
             param += memberElement.attribute("name");
-            fprintf(stderr, "path=%s\n", param.toLatin1().constData());
             _params.append(param);
         } else {
             QList<QDomElement> copypath(path);

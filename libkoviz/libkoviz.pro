@@ -106,7 +106,7 @@ SOURCES += bookmodel.cpp \
            curvemodel_deriv.cpp \
            curvemodel_integ.cpp \
            curvemodel_painterpath.cpp \
-           trickview.cpp \
+           trickview.cpp
 
 HEADERS  += bookmodel.h \
             bookidxview.h \
@@ -123,6 +123,7 @@ HEADERS  += bookmodel.h \
             bookview_yaxislabel.h \
             bookview_tablepage.h \
             bookview_table.h \
+            datamodel_tv.h \
             dp.h \
             varswidget.h \
             dptreewidget.h \
