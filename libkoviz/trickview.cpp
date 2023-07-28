@@ -18,11 +18,10 @@ TrickView::TrickView(PlotBookModel *bookModel,
             this,SLOT(_tvSearchBoxReturnPressed()));
     _gridLayout->addWidget(_searchBox,0,0);
 
-    _tvModel = _createTVModel("localhost", 17100);
+    //_tvModel = _createTVModel("localhost", 17100);
     //_tvModel = _createTVModel("localhost", 44479);
 
     // Setup models
-    QRegExp rx(QString(".*"));
     _sieListModel = new SieListModel();
     _sieListModel->setParams(&_params);
 
@@ -42,6 +41,11 @@ TrickView::TrickView(PlotBookModel *bookModel,
          this,
          SLOT(_tvSelectModelSelectionChanged(QItemSelection,QItemSelection)));
          */
+
+    //QFuture<void> future = QtConcurrent::run(this, &TrickView::loadDatabase);
+    QString host("localhost");
+    QFuture<void> future = QtConcurrent::run(this,&TrickView::_createTVModel,
+                                             host,17100);
 }
 
 TrickView::~TrickView()
@@ -72,10 +76,9 @@ void TrickView::_tvSearchBoxReturnPressed()
     _sieListModel->setRegexp(rx);
 }
 
-QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
+void TrickView::_createTVModel(const QString& host, int port)
 {
-    QStandardItemModel* tvModel = new QStandardItemModel(0,1);
-
+    fprintf(stderr, "CREATE TV MODEL!!!!!!!!!\n");
     QTcpSocket sieSocket;
     sieSocket.connectToHost(host,port);
     if (sieSocket.waitForConnected(500)) {
@@ -84,11 +87,11 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
 
     // Read number of bytes from header (top line in msg)
     QByteArray header;
+    fprintf(stderr, "Wait for SIE!!!\n");
     bool isReady = sieSocket.waitForReadyRead(90000);
     if ( !isReady ) {
-        delete tvModel;
         fprintf(stderr, "TODO: Make me a popup!\n");
-        return 0;
+        return;
     }
     header.append(sieSocket.readLine());
     QString s(header);
@@ -103,9 +106,8 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
     while ( sieXML.size() < nbytes ) {
         isReady = sieSocket.waitForReadyRead();
         if ( !isReady ) {
-            delete tvModel;
             fprintf(stderr, "TODO: Make meeeee a popup!\n");
-            return 0;
+            return;
         }
         sieXML.append(sieSocket.readAll());
         fprintf(stderr, "read %d bytes\n", sieXML.size());
@@ -138,17 +140,8 @@ QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)
         }
     } else {
         fprintf(stderr, "TODO: popup err=%s\n", errMsg.toLatin1().constData());
-        delete tvModel;
-        return 0;
+        return;
     }
-
-    QStandardItem *rootItem = tvModel->invisibleRootItem();
-    foreach (QString param, _params) {
-        QStandardItem *varItem = new QStandardItem(param);
-        rootItem->appendRow(varItem);
-    }
-
-    return tvModel;
 }
 
 void TrickView::_loadSieElement(const QDomElement &element,

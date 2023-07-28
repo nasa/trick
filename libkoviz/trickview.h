@@ -11,6 +11,8 @@
 #include <QHash>
 #include <QItemSelectionModel>
 #include <QSortFilterProxyModel>
+#include <QFuture>
+#include <QtConcurrent/QtConcurrent>
 #include "sie_listmodel.h"
 #include "bookmodel.h"
 
@@ -33,7 +35,7 @@ private:
     QLineEdit* _searchBox;
     QListView* _listView ;
 
-    QStandardItemModel* _createTVModel(const QString& host, int port);
+    void _createTVModel(const QString& host, int port);
     void _loadSieElement(const QDomElement& element,
                          QList<QDomElement> &path);
     QHash<QString,QDomElement> _name2element;
