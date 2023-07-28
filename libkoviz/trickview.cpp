@@ -22,18 +22,16 @@ TrickView::TrickView(PlotBookModel *bookModel,
     //_tvModel = _createTVModel("localhost", 44479);
 
     // Setup models
-    _varsFilterModel = new QSortFilterProxyModel;
-    _varsFilterModel->setDynamicSortFilter(true);
-    _varsFilterModel->setSourceModel(_tvModel);
     QRegExp rx(QString(".*"));
-    _varsFilterModel->setFilterRegExp(rx);
-    _varsFilterModel->setFilterKeyColumn(0);
     _varsSelectModel = new QItemSelectionModel(_varsFilterModel);
+    _sieListModel = new SieListModel();
+    _sieListModel->setParams(&_params);
 
     // Vars list view
     _listView = new QListView(parent);
     _listView->setDragEnabled(false);
-    _listView->setModel(_varsFilterModel);
+    _listView->setModel(_sieListModel);
+
     _gridLayout->addWidget(_listView,1,0);
     _listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     //_listView->setSelectionModel(_tvSelectModel);
@@ -72,7 +70,8 @@ void TrickView::_tvSearchBoxTextChanged(const QString &rx)
 void TrickView::_tvSearchBoxReturnPressed()
 {
     QString rx = _searchBox->text();
-    _varsFilterModel->setFilterRegExp(rx);
+    //_varsFilterModel->setFilterRegExp(rx);
+    _sieListModel->setRegexp(rx);
 }
 
 QStandardItemModel* TrickView::_createTVModel(const QString& host, int port)

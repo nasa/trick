@@ -11,6 +11,7 @@
 #include <QHash>
 #include <QItemSelectionModel>
 #include <QSortFilterProxyModel>
+#include "sie_listmodel.h"
 #include "bookmodel.h"
 
 class TrickView : public QWidget
@@ -40,6 +41,7 @@ private:
 
     QSortFilterProxyModel* _varsFilterModel;
     QItemSelectionModel* _varsSelectModel;
+    SieListModel* _sieListModel;
 
 private slots:
      void _tvSearchBoxTextChanged(const QString& rx);
