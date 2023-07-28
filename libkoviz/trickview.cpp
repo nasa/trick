@@ -11,12 +11,14 @@ TrickView::TrickView(PlotBookModel *bookModel,
 {
     // Search box
     _gridLayout = new QGridLayout(parent);
+    _waitLabel = new QLabel(parent);
     _searchBox = new QLineEdit(parent);
     //connect(_searchBox,SIGNAL(textChanged(QString)),
     //        this,SLOT(_tvSearchBoxTextChanged(QString)));
     connect(_searchBox,SIGNAL(returnPressed()),
             this,SLOT(_tvSearchBoxReturnPressed()));
-    _gridLayout->addWidget(_searchBox,0,0);
+    _gridLayout->addWidget(_waitLabel,0,0);
+    _gridLayout->addWidget(_searchBox,1,0);
 
     //_tvModel = _createTVModel("localhost", 17100);
     //_tvModel = _createTVModel("localhost", 44479);
@@ -30,7 +32,7 @@ TrickView::TrickView(PlotBookModel *bookModel,
     _listView->setDragEnabled(false);
     _listView->setModel(_sieListModel);
 
-    _gridLayout->addWidget(_listView,1,0);
+    _gridLayout->addWidget(_listView,2,0);
     _listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     //_listView->setSelectionModel(_tvSelectModel);
     _listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -60,14 +62,14 @@ void TrickView::_tvSelectModelSelectionChanged(
     Q_UNUSED(prevVarSelection); // TODO: handle deselection (prevSelection)
 }
 
-void TrickView::_sieRead()
-{
-
-}
-
 void TrickView::_tvSearchBoxTextChanged(const QString &rx)
 {
     //_varsFilterModel->setFilterRegExp(rx);
+}
+
+void TrickView::_setWaitLabel(const QString &msg)
+{
+    _waitLabel->setText(msg);
 }
 
 void TrickView::_tvSearchBoxReturnPressed()
@@ -78,7 +80,6 @@ void TrickView::_tvSearchBoxReturnPressed()
 
 void TrickView::_createTVModel(const QString& host, int port)
 {
-    fprintf(stderr, "CREATE TV MODEL!!!!!!!!!\n");
     QTcpSocket sieSocket;
     sieSocket.connectToHost(host,port);
     if (sieSocket.waitForConnected(500)) {
@@ -87,30 +88,55 @@ void TrickView::_createTVModel(const QString& host, int port)
 
     // Read number of bytes from header (top line in msg)
     QByteArray header;
-    fprintf(stderr, "Wait for SIE!!!\n");
-    bool isReady = sieSocket.waitForReadyRead(90000);
-    if ( !isReady ) {
-        fprintf(stderr, "TODO: Make me a popup!\n");
-        return;
+    int nWaits = 0;
+    int maxWaits = 99;  // JJ Watt!
+    while ( 1 ) {
+        QString msg = QString("Wait on trick.send_sie_resource (%1 of %2)").
+                              arg(nWaits).arg(maxWaits);
+        QMetaObject::invokeMethod(this, "_setWaitLabel",
+                                  Qt::QueuedConnection,
+                                  Q_ARG(QString, msg));
+        bool isReady = sieSocket.waitForReadyRead(1000);
+        if ( isReady ) {
+            break;
+        } else {
+            if ( nWaits > maxWaits ) {
+                _waitLabel->setText("Gave up on Trick SIE :(");
+                return;
+            }
+            nWaits++;
+            continue;
+        }
     }
+
+    // Read header with nbytes
     header.append(sieSocket.readLine());
     QString s(header);
     QStringList fields = s.split('\t');
     s = fields.at(1);
     uint nbytes = s.toUInt();
-
-    fprintf(stderr, "nbytes=%d\n", nbytes);
+    QString msg = QString("Transferring SIE! nbytes=%1").arg(nbytes);
+    QMetaObject::invokeMethod(this, "_setWaitLabel",
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, msg));
 
     // Read sie xml from Trick variable server
     QByteArray sieXML;
     while ( sieXML.size() < nbytes ) {
-        isReady = sieSocket.waitForReadyRead();
+        bool isReady = sieSocket.waitForReadyRead();
         if ( !isReady ) {
-            fprintf(stderr, "TODO: Make meeeee a popup!\n");
+            QString msg = QString("Failed loading SIE!");
+            QMetaObject::invokeMethod(this, "_setWaitLabel",
+                                  Qt::QueuedConnection,
+                                  Q_ARG(QString, msg));
             return;
         }
         sieXML.append(sieSocket.readAll());
-        fprintf(stderr, "read %d bytes\n", sieXML.size());
+        QString msg = QString("Getting SIE! nbytes %1 of %2").
+                             arg(nbytes).arg(sieXML.size());
+        QMetaObject::invokeMethod(this, "_setWaitLabel",
+                                  Qt::QueuedConnection,
+                                  Q_ARG(QString, msg));
     }
 
     QDomDocument doc;
@@ -126,6 +152,7 @@ void TrickView::_createTVModel(const QString& host, int port)
             _name2element.insert(className,classElement);
         }
 
+        int nObjects = 0;
         QDomNodeList tlos = rootElement.elementsByTagName("top_level_object");
         for (int i = 0; i < tlos.size(); ++i) {
             QDomElement tlo = tlos.at(i).toElement();
@@ -133,13 +160,26 @@ void TrickView::_createTVModel(const QString& host, int port)
                  !tlo.attribute("name").endsWith("integ_loop") ) {
                 QList<QDomElement> path;
                 path.append(tlo);
-                fprintf(stderr, "Load top_level_object=%s\n",
-                        tlo.attribute("name").toLatin1().constData());
+                QString msg = QString("Load %1 (%2 of %3)").
+                                      arg(tlo.attribute("name")).
+                                      arg(i).arg(tlos.size());
+                QMetaObject::invokeMethod(this, "_setWaitLabel",
+                                          Qt::QueuedConnection,
+                                          Q_ARG(QString, msg));
+                ++nObjects;
                 _loadSieElement(tlo, path);
             }
         }
+        QString msg = QString("Success! Finished loading %1 params from %2 objects!").
+                              arg(_params.size()).arg(nObjects);
+        QMetaObject::invokeMethod(this, "_setWaitLabel",
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, msg));
     } else {
-        fprintf(stderr, "TODO: popup err=%s\n", errMsg.toLatin1().constData());
+        QString msg = QString("Could not load sieXML document! Error=%1").
+                              arg(errMsg);
+        QMetaObject::invokeMethod(this, "_setWaitLabel",
+                                  Qt::QueuedConnection, Q_ARG(QString, msg));
         return;
     }
 }

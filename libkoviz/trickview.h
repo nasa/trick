@@ -13,6 +13,8 @@
 #include <QSortFilterProxyModel>
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
+#include <QLabel>
+#include <QMetaObject>
 #include "sie_listmodel.h"
 #include "bookmodel.h"
 
@@ -32,6 +34,7 @@ private:
     QStandardItemModel* _tvModel;
     PlotBookModel* _bookModel;
     QGridLayout* _gridLayout ;
+    QLabel* _waitLabel;
     QLineEdit* _searchBox;
     QListView* _listView ;
 
@@ -44,13 +47,13 @@ private:
     QItemSelectionModel* _varsSelectModel;
     SieListModel* _sieListModel;
 
+
 private slots:
      void _tvSearchBoxTextChanged(const QString& rx);
      void _tvSearchBoxReturnPressed();
      void _tvSelectModelSelectionChanged(const QItemSelection& currVarSelection,
                                         const QItemSelection& prevVarSelection);
-
-     void _sieRead();
+     void _setWaitLabel(const QString& msg);
 };
 
 #endif // TRICKVIEW_H
