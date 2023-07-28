@@ -23,7 +23,6 @@ TrickView::TrickView(PlotBookModel *bookModel,
 
     // Setup models
     QRegExp rx(QString(".*"));
-    _varsSelectModel = new QItemSelectionModel(_varsFilterModel);
     _sieListModel = new SieListModel();
     _sieListModel->setParams(&_params);
 
@@ -64,13 +63,12 @@ void TrickView::_sieRead()
 
 void TrickView::_tvSearchBoxTextChanged(const QString &rx)
 {
-    _varsFilterModel->setFilterRegExp(rx);
+    //_varsFilterModel->setFilterRegExp(rx);
 }
 
 void TrickView::_tvSearchBoxReturnPressed()
 {
     QString rx = _searchBox->text();
-    //_varsFilterModel->setFilterRegExp(rx);
     _sieListModel->setRegexp(rx);
 }
 

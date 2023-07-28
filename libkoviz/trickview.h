@@ -39,7 +39,6 @@ private:
     QHash<QString,QDomElement> _name2element;
     QStringList _params;
 
-    QSortFilterProxyModel* _varsFilterModel;
     QItemSelectionModel* _varsSelectModel;
     SieListModel* _sieListModel;
 
