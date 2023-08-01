@@ -95,7 +95,7 @@ void TrickView::_createTVModel(const QString& host, int port)
         sieSocket.write("trick.send_sie_resource()\n");
     }
 
-    // Read number of bytes from header (top line in msg)
+    // Wait on Trick to send sie resource (takes ~50 seconds with GIVS!)
     QByteArray header;
     int nWaits = 0;
     int maxWaits = 99;  // JJ Watt!
@@ -118,7 +118,7 @@ void TrickView::_createTVModel(const QString& host, int port)
         }
     }
 
-    // Read header with nbytes
+    // Read header with nbytes (top line in msg)
     header.append(sieSocket.readLine());
     QString s(header);
     QStringList fields = s.split('\t');
