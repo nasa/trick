@@ -43,8 +43,10 @@ TrickView::TrickView(PlotBookModel *bookModel,
 
     //QFuture<void> future = QtConcurrent::run(this, &TrickView::loadDatabase);
     QString host("localhost");
+    int port = 17100;
+    //port = 46587;
     QFuture<void> future = QtConcurrent::run(this,&TrickView::_createTVModel,
-                                             host,17100);
+                                             host,port);
 }
 
 TrickView::~TrickView()
