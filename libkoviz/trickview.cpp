@@ -20,9 +20,6 @@ TrickView::TrickView(PlotBookModel *bookModel,
     _gridLayout->addWidget(_waitLabel,0,0);
     _gridLayout->addWidget(_searchBox,1,0);
 
-    //_tvModel = _createTVModel("localhost", 17100);
-    //_tvModel = _createTVModel("localhost", 44479);
-
     // Setup models
     _sieListModel = new SieListModel();
     _sieListModel->setParams(&_params);
