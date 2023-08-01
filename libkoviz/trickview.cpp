@@ -75,7 +75,16 @@ void TrickView::_setWaitLabel(const QString &msg)
 void TrickView::_tvSearchBoxReturnPressed()
 {
     QString rx = _searchBox->text();
-    _sieListModel->setRegexp(rx);
+    int nMatches = _sieListModel->setRegexp(rx);
+    QString msg;
+    if ( nMatches == 0 ) {
+        msg = QString("No matches");
+    } else if ( nMatches == 1 ) {
+        msg = QString("1 match!!!");
+    } else {
+        msg = QString("%1 matches!").arg(nMatches);
+    }
+    _setWaitLabel(msg);
 }
 
 void TrickView::_createTVModel(const QString& host, int port)

@@ -18,7 +18,7 @@ public:
 
 public slots:
     void setParams(const QStringList *params);
-    void setRegexp(const QString &rx);
+    int setRegexp(const QString &rx);
 
 protected:
     bool canFetchMore(const QModelIndex &parent) const override;

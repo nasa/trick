@@ -3,7 +3,7 @@
 SieListModel::SieListModel(QObject *parent)
     : QAbstractListModel{parent},
       _fetchCount(0),
-      _fetchChunkSize(1000)
+      _fetchChunkSize(10000)
 {
 }
 
@@ -43,7 +43,7 @@ void SieListModel::setParams(const QStringList* params)
     _params = params;
 }
 
-void SieListModel::setRegexp(const QString &rx)
+int SieListModel::setRegexp(const QString &rx)
 {
     beginResetModel();
     _rx = rx;
@@ -56,6 +56,8 @@ void SieListModel::setRegexp(const QString &rx)
     }
     _fetchCount = 0;
     endResetModel();
+
+    return _filteredParams.size();
 }
 
 bool SieListModel::canFetchMore(const QModelIndex &parent) const
