@@ -111,5 +111,12 @@ int TVModel::columnCount(const QModelIndex &pidx) const
 QVariant TVModel::data(const QModelIndex &idx, int role) const
 {
     QVariant val;
+
+    int nValuesMissed = _params.at(idx.column()).nValuesMissed ;
+    int nValues = _params.at(idx.column()).values.size();
+    if ( idx.row() >= nValuesMissed && idx.row() < nValuesMissed+nValues ) {
+        val = _params.at(idx.column()).values.at(idx.row()-nValuesMissed);
+    }
+
     return val;
 }
