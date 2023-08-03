@@ -28,7 +28,7 @@ TVModel::~TVModel()
 
 const Parameter* TVModel::param(int col) const
 {
-    return &_params.at(col).param;
+    return &_params.at(col);
 }
 
 int TVModel::indexAtTime(double time)

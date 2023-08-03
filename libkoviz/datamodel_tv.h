@@ -14,9 +14,9 @@
 class TVModel;
 class TVModelIterator;
 
-struct TVParam
+class TVParam : public Parameter
 {
-    Parameter param;
+  public:
     int nValuesMissed;
     QList<QVariant> values;
 };
