@@ -46,6 +46,9 @@ class TVModel : public DataModel
     virtual QVariant data(const QModelIndex& idx,
                           int role=Qt::DisplayRole) const;
 
+    virtual bool insertRows(int row, int count,
+                            const QModelIndex &parent = QModelIndex());
+
   private:
 
     QString _host;

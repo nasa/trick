@@ -139,3 +139,33 @@ QVariant TVModel::data(const QModelIndex &idx, int role) const
 
     return val;
 }
+
+// Only appending supported
+bool TVModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+    bool isInsertedRows = false;
+
+    if ( ! parent.isValid() && count > 0 ) {
+        int nRows = rowCount(parent);
+        if ( row == nRows ) {
+            // Append rows
+            beginInsertRows(parent,row,row+count-1);
+            QList<QVariant> emptyValues;
+            for ( int i = 0; i < count; ++i ) {
+                QVariant emptyValue;
+                emptyValues.append(emptyValue);
+            }
+            foreach ( TVParam param, _params ) {
+                param.values.append(emptyValues);
+            }
+            isInsertedRows = true;
+            endInsertRows();
+        } else {
+            fprintf(stderr, "koviz [bad scoobs]: TVModel::insertRows "
+                            "append not supported!\n");
+            exit(-1);
+        }
+    }
+
+    return isInsertedRows;
+}
