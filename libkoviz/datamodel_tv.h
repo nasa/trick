@@ -37,7 +37,7 @@ class TVModel : public DataModel
     virtual void map();
     virtual void unmap();
     virtual const Parameter* param(int col) const;
-    virtual int paramColumn(const QString& param) const;
+    virtual int paramColumn(const QString& paramName) const;
     virtual ModelIterator* begin(int tcol, int xcol, int ycol) const;
     virtual int indexAtTime(double time);
 

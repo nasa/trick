@@ -31,6 +31,18 @@ const Parameter* TVModel::param(int col) const
     return &_params.at(col);
 }
 
+int TVModel::paramColumn(const QString &paramName) const
+{
+    int col = 0;
+    foreach ( TVParam param, _params ) {
+        if ( param.name() == paramName ) {
+            break;
+        }
+        ++col;
+    }
+    return col;
+}
+
 int TVModel::indexAtTime(double time)
 {
     return _idxAtTimeBinarySearch(_iteratorTimeIndex,0,rowCount()-1,time);
