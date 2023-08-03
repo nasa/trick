@@ -169,3 +169,8 @@ bool TVModel::insertRows(int row, int count, const QModelIndex &parent)
 
     return isInsertedRows;
 }
+
+void TVModel::addParam(const QString &paramName)
+{
+
+}

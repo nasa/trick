@@ -49,6 +49,9 @@ class TVModel : public DataModel
     virtual bool insertRows(int row, int count,
                             const QModelIndex &parent = QModelIndex());
 
+    void addParam(const QString& paramName);
+    void appendParamValues(const QList<QVariant>& values);
+
   private:
 
     QString _host;
