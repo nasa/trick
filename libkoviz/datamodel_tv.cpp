@@ -104,11 +104,18 @@ int TVModel::_idxAtTimeBinarySearch (TVModelIterator* it,
 
 int TVModel::rowCount(const QModelIndex &pidx) const
 {
+    int nRows = 0;
+
     if ( ! pidx.isValid() ) {
-        return _params.at(0).values.size();
-    } else {
-        return 0;
+        // nRows is max param.values.size()
+        foreach ( TVParam param, _params ) {
+            if ( param.values.size() > nRows ) {
+                nRows = param.values.size();
+            }
+        }
     }
+
+    return nRows;
 }
 
 int TVModel::columnCount(const QModelIndex &pidx) const
