@@ -8,6 +8,7 @@
 #include <QAbstractTableModel>
 #include <QString>
 #include <QStringList>
+#include <QTcpSocket>
 #include "datamodel.h"
 #include "parameter.h"
 
@@ -17,6 +18,7 @@ class TVModelIterator;
 class TVParam : public Parameter
 {
   public:
+    TVParam(const QString& name, const QString& unit) : Parameter(name,unit) {}
     int nValuesMissed;
     QList<QVariant> values;
 };
@@ -49,19 +51,24 @@ class TVModel : public DataModel
     virtual bool insertRows(int row, int count,
                             const QModelIndex &parent = QModelIndex());
 
-    void addParam(const QString& paramName);
+    void addParam(const QString& paramName, const QString &unit);
     void appendParamValues(const QList<QVariant>& values);
 
   private:
 
     QString _host;
     int _port;
+    QTcpSocket _vsSocket;
     QList<TVParam> _params;
     int _timeCol;
     TVModelIterator* _iteratorTimeIndex;
 
+    void _init();
     int _idxAtTimeBinarySearch (TVModelIterator* it,
                                 int low, int high, double time);
+
+  private slots:
+    void _vsRead();
 };
 
 class TVModelIterator : public ModelIterator
@@ -81,13 +88,42 @@ class TVModelIterator : public ModelIterator
 
     virtual ~TVModelIterator() {}
 
-    virtual void start();
-    virtual void next();
-    virtual bool isDone() const;
-    virtual TVModelIterator* at(int n);
-    virtual double t() const;
-    virtual double x() const;
-    virtual double y() const;
+    virtual void start()
+    {
+        i = 0;
+        _row_count = _model->rowCount();
+    }
+
+    virtual void next()
+    {
+        ++i;
+    }
+
+    virtual bool isDone() const
+    {
+        return ( i >= _row_count ) ;
+    }
+
+    virtual TVModelIterator* at(int n)
+    {
+        i = n;
+        return this;
+    }
+
+    inline double t() const
+    {
+        return _getValueAtColumn(_tcol);
+    }
+
+    inline double x() const
+    {
+        return _getValueAtColumn(_xcol);
+    }
+
+    inline double y() const
+    {
+        return _getValueAtColumn(_ycol);
+    }
 
   private:
     qint64 i;
@@ -96,6 +132,25 @@ class TVModelIterator : public ModelIterator
     int _tcol;
     int _xcol;
     int _ycol;
+
+    inline double _getValueAtColumn(int col) const
+    {
+        double val;
+
+        int offset = _model->_params.at(col).nValuesMissed;
+        if ( i-offset >= 0 ) {
+            bool ok = false;
+            val = _model->_params.at(col).values.at(i-offset).toDouble(&ok);
+            if ( !ok ) {
+                val = std::numeric_limits<double>::quiet_NaN();
+            }
+        } else {
+            val = std::numeric_limits<double>::quiet_NaN();
+        }
+
+        return val;
+    }
+
 };
 
 #endif // TV_MODEL_H

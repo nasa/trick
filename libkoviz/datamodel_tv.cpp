@@ -7,6 +7,7 @@ TVModel::TVModel(const QString& host, int port, QObject *parent) :
 {
     _iteratorTimeIndex = new TVModelIterator(0,this,
                                               _timeCol,_timeCol,_timeCol);
+    _init();
 }
 
 void TVModel::map()
@@ -170,7 +171,36 @@ bool TVModel::insertRows(int row, int count, const QModelIndex &parent)
     return isInsertedRows;
 }
 
-void TVModel::addParam(const QString &paramName)
+void TVModel::addParam(const QString &paramName, const QString& unit)
 {
+    TVParam param(paramName,unit);
 
+    QString msg = QString("trick.var_add(\"%1\")\n").arg(paramName);
+    _vsSocket.write(msg.toUtf8());
+}
+
+void TVModel::_init()
+{
+    connect(&_vsSocket,SIGNAL(readyRead()), this,SLOT(_vsRead()));
+
+    _vsSocket.connectToHost(_host,_port);
+    if (!_vsSocket.waitForConnected(1000)) {
+        fprintf(stderr, "koviz [error]: "
+                        "Could not connect to trick var server on"
+                        "host=%s port=%d!\n",
+                _host.toLatin1().constData(),_port);
+        return;
+    }
+
+    addParam("time", "s");
+    addParam("ball.state.output.position[0]", "m");
+    addParam("ball.state.output.position[1]", "m");
+}
+
+void TVModel::_vsRead()
+{
+    QByteArray bytes = _vsSocket.readLine();
+    QString msg(bytes);
+    QStringList fields = msg.split('\t');
+    fprintf(stderr, "read=%s", msg.toLatin1().constData());
 }

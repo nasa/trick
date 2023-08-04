@@ -15,8 +15,9 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QLabel>
 #include <QMetaObject>
-#include "sie_listmodel.h"
 #include "bookmodel.h"
+#include "sie_listmodel.h"
+#include "datamodel_tv.h"
 
 class TrickView : public QWidget
 {
@@ -31,7 +32,6 @@ signals:
 public slots:
 
 private:
-    QStandardItemModel* _tvModel;
     PlotBookModel* _bookModel;
     QGridLayout* _gridLayout ;
     QLabel* _waitLabel;
@@ -46,6 +46,7 @@ private:
 
     QItemSelectionModel* _varsSelectModel;
     SieListModel* _sieListModel;
+    TVModel* _tvModel;
 
 
 private slots:

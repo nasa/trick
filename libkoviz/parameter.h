@@ -9,6 +9,7 @@ class Parameter
 public:
     Parameter();
     Parameter(const QString& str);
+    Parameter(const QString& name, const QString& unit);
     virtual ~Parameter() {}
 
     virtual void setName(const QString& name ) { _name = name; }

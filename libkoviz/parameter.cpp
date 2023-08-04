@@ -12,6 +12,12 @@ Parameter::Parameter(const QString &str)
     _unit = Parameter::unitFromString(str);
 }
 
+Parameter::Parameter(const QString &name, const QString& unit) :
+    _name(name),
+    _unit(unit)
+{
+}
+
 // String may have units
 // If str == "position {m}"
 // return "position"
