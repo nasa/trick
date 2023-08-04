@@ -148,6 +148,7 @@ jobs:
       - name: Build Trick
         run: |
           export MAKEFLAGS=-j`nproc`
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
           make
       - name: Test
         run: |
