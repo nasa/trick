@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <iomanip>
+#include <iostream>
 #include <sys/resource.h>
 
 #include "trick/Executive.hh"
@@ -40,7 +41,8 @@ int Trick::Executive::shutdown() {
     unsigned int ii;
     int process_id = 0 ;
     struct rusage cpu_usage_buf ;
-
+    double sim_mem;
+    
     SIM_MODE prev_mode = mode ;
 
     /* Set mode to ExitMode. */
@@ -80,7 +82,14 @@ int Trick::Executive::shutdown() {
 
     getrusage(RUSAGE_SELF, &cpu_usage_buf);
     cpu_time = ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
-
+    
+    /* Get memory usage in MB for the calling process. Note that ru_maxrss returns long value in bytes on Mac and kilobytes on Linux. */
+    if (__APPLE__) {
+        sim_mem = (double)cpu_usage_buf.ru_maxrss / (1024 * 1024);
+    } else {
+        sim_mem = (double)cpu_usage_buf.ru_maxrss / 1024;
+    }
+    
     /* Calculate simulation elapsed sim time and actual cpu time */
     sim_elapsed_time = get_sim_time() - sim_start;
     actual_cpu_time = cpu_time - cpu_start;
@@ -101,9 +110,11 @@ int Trick::Executive::shutdown() {
             "     SIMULATION ELAPSED TIME: %12.3f\n"
             "        ACTUAL CPU TIME USED: %12.3f\n"
             "       SIMULATION / CPU TIME: %12.3f\n"
-            "     INITIALIZATION CPU TIME: %12.3f\n" ,
+            "     INITIALIZATION CPU TIME: %12.3f\n" 
+            "        SIMULATION RAM USAGE: %12.3fM\n"
+            "  (External program RAM usage not included!)\n",
             process_id, except_file.c_str(), except_message.c_str() ,
-            sim_start , get_sim_time() , sim_elapsed_time , actual_cpu_time , sim_to_cpu , cpu_init ) ;
+            sim_start , get_sim_time() , sim_elapsed_time , actual_cpu_time , sim_to_cpu , cpu_init, sim_mem ) ;
 
     /* Kill all threads. */
     for (ii = 1; ii < threads.size() ; ii++) {
