@@ -84,12 +84,12 @@ int Trick::Executive::shutdown() {
     cpu_time = ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
     
     /* Get memory usage in MB for the calling process. Note that ru_maxrss returns long value in bytes on Mac and kilobytes on Linux. */
-    if (__APPLE__) {
+    #if __APPLE__ 
         sim_mem = (double)cpu_usage_buf.ru_maxrss / (1024 * 1024);
-    } else {
+    #else 
         sim_mem = (double)cpu_usage_buf.ru_maxrss / 1024;
-    }
-    
+    #endif
+
     /* Calculate simulation elapsed sim time and actual cpu time */
     sim_elapsed_time = get_sim_time() - sim_start;
     actual_cpu_time = cpu_time - cpu_start;
