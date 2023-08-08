@@ -1572,7 +1572,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         @Override
         protected void finished() {
             try {
-                System.out.println("Finished with health status socket channel");
                 if (healthStatusSocketChannel != null) {
                     healthStatusSocketChannel.close() ;
                 }
