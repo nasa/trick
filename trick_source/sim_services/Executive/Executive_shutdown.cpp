@@ -111,7 +111,7 @@ int Trick::Executive::shutdown() {
             "        ACTUAL CPU TIME USED: %12.3f\n"
             "       SIMULATION / CPU TIME: %12.3f\n"
             "     INITIALIZATION CPU TIME: %12.3f\n" 
-            "        SIMULATION RAM USAGE: %12.3fM\n"
+            "        SIMULATION RAM USAGE: %12.3fMB\n"
             "  (External program RAM usage not included!)\n",
             process_id, except_file.c_str(), except_message.c_str() ,
             sim_start , get_sim_time() , sim_elapsed_time , actual_cpu_time , sim_to_cpu , cpu_init, sim_mem ) ;
