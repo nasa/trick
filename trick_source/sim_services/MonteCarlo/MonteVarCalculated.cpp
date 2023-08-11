@@ -44,6 +44,9 @@ std::string Trick::MonteVarCalculated::get_next_value() {
                 break;
             case TRICK_INTEGER:
             case TRICK_UNSIGNED_INTEGER:
+                snprintf(buffer, sizeof(buffer), "%d", *(int *)ref2->address);
+                value = buffer;
+                break;
             case TRICK_LONG:
             case TRICK_UNSIGNED_LONG:
                 snprintf(buffer, sizeof(buffer), "%ld", *(long *)ref2->address);
