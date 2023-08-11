@@ -10,3 +10,4 @@
 01. [How to Dump a Core-file on MacOS](How-to-dump-core-file-on-MacOS)
 01. [How to Containerize Trick with Docker](How-To-Containerize-Trick-with-Docker)
 01. [How to Setup a Virtual Python Environment](How-To-Python-Virtual-Environment)
+01. [Checkpointing Best Practices](Checkpointing-Best-Practices)
