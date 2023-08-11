@@ -50,6 +50,7 @@ jobs:
           export TRICK_SYSTEM_LDFLAGS="-fprofile-arcs -ftest-coverage -O0"
           export TRICK_SYSTEM_CFLAGS="-fprofile-arcs -ftest-coverage -O0"
           export TRICK_SYSTEM_CXXFLAGS="-fprofile-arcs -ftest-coverage -O0"
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
           make
     - name: Generate Code Coverage
       run: |
