@@ -19,7 +19,6 @@ class TVParam : public Parameter
 {
   public:
     TVParam(const QString& name, const QString& unit) : Parameter(name,unit) {}
-    int nValuesMissed;
     QList<QVariant> values;
 };
 
@@ -59,13 +58,14 @@ class TVModel : public DataModel
     QString _host;
     int _port;
     QTcpSocket _vsSocket;
-    QList<TVParam> _params;
+    QList<TVParam*> _params;
     int _timeCol;
     TVModelIterator* _iteratorTimeIndex;
 
     void _init();
     int _idxAtTimeBinarySearch (TVModelIterator* it,
                                 int low, int high, double time);
+    QList<QVariant> _vsReadLine();
 
   private slots:
     void _vsRead();
@@ -137,10 +137,18 @@ class TVModelIterator : public ModelIterator
     {
         double val;
 
-        int offset = _model->_params.at(col).nValuesMissed;
+        int max = 0;
+        foreach (TVParam* param, _model->_params) {
+            if ( param->values.size() > max ) {
+                max = param->values.size();
+            }
+        }
+
+        int offset = max - _model->_params.at(col)->values.size();
+
         if ( i-offset >= 0 ) {
             bool ok = false;
-            val = _model->_params.at(col).values.at(i-offset).toDouble(&ok);
+            val = _model->_params.at(col)->values.at(i-offset).toDouble(&ok);
             if ( !ok ) {
                 val = std::numeric_limits<double>::quiet_NaN();
             }

@@ -25,18 +25,21 @@ ModelIterator *TVModel::begin(int tcol, int xcol, int ycol) const
 
 TVModel::~TVModel()
 {
+    foreach ( TVParam* param, _params ) {
+        delete param;
+    }
 }
 
 const Parameter* TVModel::param(int col) const
 {
-    return &_params.at(col);
+    return _params.at(col);
 }
 
 int TVModel::paramColumn(const QString &paramName) const
 {
     int col = 0;
-    foreach ( TVParam param, _params ) {
-        if ( param.name() == paramName ) {
+    foreach ( TVParam* param, _params ) {
+        if ( param->name() == paramName ) {
             break;
         }
         ++col;
@@ -109,9 +112,9 @@ int TVModel::rowCount(const QModelIndex &pidx) const
 
     if ( ! pidx.isValid() ) {
         // nRows is max param.values.size()
-        foreach ( TVParam param, _params ) {
-            if ( param.values.size() > nRows ) {
-                nRows = param.values.size();
+        foreach ( TVParam* param, _params ) {
+            if ( param->values.size() > nRows ) {
+                nRows = param->values.size();
             }
         }
     }
@@ -132,10 +135,20 @@ QVariant TVModel::data(const QModelIndex &idx, int role) const
 {
     QVariant val;
 
-    int nValuesMissed = _params.at(idx.column()).nValuesMissed ;
-    int nValues = _params.at(idx.column()).values.size();
-    if ( idx.row() >= nValuesMissed && idx.row() < nValuesMissed+nValues ) {
-        val = _params.at(idx.column()).values.at(idx.row()-nValuesMissed);
+    Q_UNUSED(role);
+
+    int max = 0;
+    foreach (TVParam* param, _params) {
+        if ( param->values.size() > max ) {
+            max = param->values.size();
+        }
+    }
+
+    int offset = max - _params.at(idx.column())->values.size();
+
+    int nValues = _params.at(idx.column())->values.size();
+    if ( idx.row() >= offset && idx.row() < offset+nValues ) {
+        val = _params.at(idx.column())->values.at(idx.row()-offset);
     }
 
     return val;
@@ -156,8 +169,8 @@ bool TVModel::insertRows(int row, int count, const QModelIndex &parent)
                 QVariant emptyValue;
                 emptyValues.append(emptyValue);
             }
-            foreach ( TVParam param, _params ) {
-                param.values.append(emptyValues);
+            foreach ( TVParam* param, _params ) {
+                param->values.append(emptyValues);
             }
             isInsertedRows = true;
             endInsertRows();
@@ -173,7 +186,9 @@ bool TVModel::insertRows(int row, int count, const QModelIndex &parent)
 
 void TVModel::addParam(const QString &paramName, const QString& unit)
 {
-    TVParam param(paramName,unit);
+    TVParam* param = new TVParam(paramName,unit);
+
+    _params.append(param);
 
     QString msg = QString("trick.var_add(\"%1\")\n").arg(paramName);
     _vsSocket.write(msg.toUtf8());
@@ -199,8 +214,67 @@ void TVModel::_init()
 
 void TVModel::_vsRead()
 {
+    while (_vsSocket.bytesAvailable() > 0) {
+
+        QList<QVariant> values = _vsReadLine();
+        if (_params.size() < values.size() ) {
+            fprintf(stderr, "koviz [bad scoobs]: TVModel::_vsRead() "
+                    "num values read greater than num params!!!\n");
+            exit(-1);
+        }
+
+        bool isChange = false;
+        int i = 0;
+        foreach (QVariant value, values) {
+            if ( _params.at(i)->values.isEmpty() ) {
+                isChange = true;
+                break;
+            }
+            if ( _params.at(i)->values.last() != value ) {
+                isChange = true;
+                break;
+            }
+            ++i;
+        }
+
+        if ( isChange ) {
+            i = 0;
+            foreach (QVariant value, values) {
+                _params.at(i++)->values.append(value);
+                fprintf(stderr, "%g ",value.toDouble());
+            }
+            fprintf(stderr, "\n");
+        }
+    }
+}
+
+QList<QVariant> TVModel::_vsReadLine()
+{
+    QList<QVariant> values;
+
     QByteArray bytes = _vsSocket.readLine();
     QString msg(bytes);
     QStringList fields = msg.split('\t');
-    fprintf(stderr, "read=%s", msg.toLatin1().constData());
+
+    int i = 0;
+    foreach ( QString field, fields ) {
+        if ( i == 0 ) { // msg type
+            if ( field != "0" ) {
+                break;
+            } else {
+                ++i;
+                continue;
+            }
+        }
+        int j = field.indexOf('{') ;
+        if ( j >= 0 ) {
+            field = field.left(j).trimmed();
+        }
+
+        QVariant v(field);
+        values.append(v);
+        ++i;
+    }
+
+    return values;
 }
