@@ -14,7 +14,7 @@ Trick requires various free third party utilities in order to function. All the 
 | [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.11 as of 04/23  |
 | [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                        |
 | [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                        |
-| [swig]         | 2.x-3.x | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ required for some unit tests in make test target. SWIG 4.x is compatible with Trick, but has some issues https://github.com/nasa/trick/issues/1288 |
+| [swig]         | 3.x-4.x | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ is now required for Trick. SWIG 4.x is compatible with Trick, but has some [issues](https://github.com/nasa/trick/issues/1288). Please open an issue if you encounter a problem related to SWIG 4. |
 | [make]         | 3.78+   | Build Automation        | Automates the building and cleaning of Trick.             |                                                        |
 | [openmotif]    | 2.2.0+  | GUI Toolkit             | Covers Trick GUIs not made with Java.                     |                                                        |
 | [udunits]      | 2.x+    | C Unit Library/Database | Provides support for units of physical quantities.        |                                                        |
@@ -212,10 +212,10 @@ xcode-select --install
 4. Install the following dependencies using brew (note, we do not currently support installing llvm through brew. Trick WILL NOT work with brew's llvm. See step 5). 
 
 ```bash
-brew install python java xquartz swig@3 maven udunits openmotif 
+brew install python java xquartz swig maven udunits openmotif 
 
 ```
-IMPORTANT: Make sure to follow the instructions for adding java and swig to your `PATH` provided by brew. If you missed them, you can see them again by using `brew info java` and `brew info swig@3`. Remember,  you may need to restart your terminal for these `PATH` changes to take effect.
+IMPORTANT: Make sure to follow the instructions for adding java and swig to your `PATH` provided by brew. If you missed them, you can see them again by using `brew info java` and `brew info swig`. Remember,  you may need to restart your terminal for these `PATH` changes to take effect. Note that `swig@3` is now deprecated on Mac.
 
 5. Download and un-compress the latest pre-built clang+llvm from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
 and download the latest version llvm that matches your Xcode version from the release assets. For example, if your Xcode version is 14 then you will want the latest 14.x.x release of llvm. 13.0.1 is the latest as of the writing of this guide, the link I used is below:
