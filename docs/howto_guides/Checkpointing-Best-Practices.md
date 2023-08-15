@@ -141,6 +141,6 @@ At a simulation frame boundary, three things happen:
 
 <a id=other-resources></a>
 ## Other Resources You Might Find Useful
-* [trick.git/trick_source/sim_services/MemoryManager/test/](trick.git/trick_source/sim_services/MemoryManager/test/)
-* [trick.git/share/doc/trick/advanced/Trick_Memory_Manager_Overview.ppt](trick.git/share/doc/trick/advanced/Trick_Memory_Manager_Overview.ppt)
+* [trick.git/trick_source/sim_services/MemoryManager/test/](https://github.com/nasa/trick/tree/master/trick_source/sim_services/MemoryManager/test)
+* [trick.git/share/doc/trick/advanced/Trick_Memory_Manager_Overview.ppt](https://github.com/nasa/trick/tree/master/share/doc/trick/advanced/Trick_Memory_Manager_Overview.ppt)
 * [https://github.com/nasa/gunns/wiki/Trick-Checkpoint-Restart](https://github.com/nasa/gunns/wiki/Trick-Checkpoint-Restart)
