@@ -38,11 +38,16 @@ const Parameter* TVModel::param(int col) const
 int TVModel::paramColumn(const QString &paramName) const
 {
     int col = 0;
+    bool isFound = false;
     foreach ( TVParam* param, _params ) {
         if ( param->name() == paramName ) {
+            isFound = true;
             break;
         }
         ++col;
+    }
+    if ( !isFound ) {
+        col = -1;
     }
     return col;
 }
@@ -208,8 +213,6 @@ void TVModel::_init()
     }
 
     addParam("time", "s");
-    addParam("ball.state.output.position[0]", "m");
-    addParam("ball.state.output.position[1]", "m");
 }
 
 void TVModel::_vsRead()
