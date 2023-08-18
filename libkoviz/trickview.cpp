@@ -4,7 +4,8 @@
 #include "timeit_linux.h"
 #endif
 
-TrickView::TrickView(PlotBookModel *bookModel,
+TrickView::TrickView(const QString &trickhost, int trickport,
+                     PlotBookModel *bookModel,
                      QItemSelectionModel*  bookSelectModel,
                      QWidget *parent) :
     QWidget(parent),
@@ -41,14 +42,15 @@ TrickView::TrickView(PlotBookModel *bookModel,
          SLOT(_tvSelectionChanged(QItemSelection,QItemSelection)));
     _gridLayout->addWidget(_listView,2,0);
 
-    //QFuture<void> future = QtConcurrent::run(this, &TrickView::loadDatabase);
     QString host("localhost");
-    int port = 17100;
-    port = 43187;
+    if ( !trickhost.isEmpty() ) {
+        host = trickhost;
+    }
     QFuture<void> future = QtConcurrent::run(this,&TrickView::_createTVModel,
-                                             host,port);
+                                             host,trickport);
+    Q_UNUSED(future);
 
-    _tvModel = new TVModel(host,port);
+    _tvModel = new TVModel(host,trickport);
 }
 
 TrickView::~TrickView()

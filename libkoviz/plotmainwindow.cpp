@@ -178,7 +178,9 @@ PlotMainWindow::PlotMainWindow(
     // Trick view tab
     _tvFrame = new QFrame(lsplit);
     _nbDPVars->addTab(_tvFrame,"TV");
-    _trickView = new TrickView(_bookModel,
+    _trickView = new TrickView(_trickhost,
+                               _trickport,
+                               _bookModel,
                                _bookView->selectionModel(),
                                _tvFrame);
 

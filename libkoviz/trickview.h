@@ -24,7 +24,9 @@ class TrickView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TrickView(PlotBookModel* bookModel,
+    explicit TrickView(const QString& trickhost,
+                       int trickport,
+                       PlotBookModel* bookModel,
                        QItemSelectionModel*  bookSelectModel,
                        QWidget *parent = 0);
     ~TrickView();
