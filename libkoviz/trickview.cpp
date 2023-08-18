@@ -51,6 +51,8 @@ TrickView::TrickView(const QString &trickhost, int trickport,
     Q_UNUSED(future);
 
     _tvModel = new TVModel(host,trickport);
+    connect(_tvModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this,SLOT(_tvModelRowInserted(QModelIndex,int,int)));
 }
 
 TrickView::~TrickView()
@@ -79,9 +81,17 @@ void TrickView::_tvSearchBoxTextChanged(const QString &rx)
     //_varsFilterModel->setFilterRegExp(rx);
 }
 
-void TrickView::_setWaitLabel(const QString &msg)
+void TrickView::_setMessageLabel(const QString &msg)
 {
     _waitLabel->setText(msg);
+}
+
+void TrickView::_tvModelRowInserted(const QModelIndex &parent, int start, int end)
+{
+    QModelIndex idx = _tvModel->index(start,0);
+    QVariant v = _tvModel->data(idx);
+    QString msg = QString("Time = %1").arg(v.toDouble());
+    _setMessageLabel(msg);
 }
 
 void TrickView::_tvSearchBoxReturnPressed()
@@ -96,7 +106,7 @@ void TrickView::_tvSearchBoxReturnPressed()
     } else {
         msg = QString("%1 matches!").arg(nMatches);
     }
-    _setWaitLabel(msg);
+    _setMessageLabel(msg);
 }
 
 void TrickView::_createTVModel(const QString& host, int port)

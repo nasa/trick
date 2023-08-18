@@ -61,7 +61,8 @@ private slots:
      void _tvSearchBoxReturnPressed();
      void _tvSelectionChanged(const QItemSelection& currVarSelection,
                               const QItemSelection& prevVarSelection);
-     void _setWaitLabel(const QString& msg);
+     void _setMessageLabel(const QString& msg);
+     void _tvModelRowInserted(const QModelIndex& parent, int start, int end);
 };
 
 #endif // TRICKVIEW_H

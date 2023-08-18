@@ -241,12 +241,14 @@ void TVModel::_vsRead()
         }
 
         if ( isChange ) {
+            int start = rowCount();
+            int end = start;
+            beginInsertRows(QModelIndex(),start,end);
             i = 0;
             foreach (QVariant value, values) {
                 _params.at(i++)->values.append(value);
-                fprintf(stderr, "%g ",value.toDouble());
             }
-            fprintf(stderr, "\n");
+            endInsertRows();
         }
     }
 }
