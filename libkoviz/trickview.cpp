@@ -86,8 +86,9 @@ void TrickView::_setMessageLabel(const QString &msg)
     _waitLabel->setText(msg);
 }
 
-void TrickView::_tvModelRowInserted(const QModelIndex &parent, int start, int end)
+void TrickView::_tvModelRowInserted(const QModelIndex &parent,int start,int end)
 {
+    Q_UNUSED(parent);
     QModelIndex idx = _tvModel->index(start,0);
     QVariant v = _tvModel->data(idx);
     QString msg = QString("Time = %1").arg(v.toDouble());
