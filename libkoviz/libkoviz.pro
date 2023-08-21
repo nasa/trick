@@ -47,6 +47,7 @@ SOURCES += bookmodel.cpp \
            bookview_table.cpp \
            dp.cpp \
            sie_listmodel.cpp \
+           trickvarsortfilterproxymodel.cpp \
            varswidget.cpp \
            dptreewidget.cpp \
            monteinputsview.cpp \
@@ -128,6 +129,7 @@ HEADERS  += bookmodel.h \
             datamodel_tv.h \
             dp.h \
             sie_listmodel.h \
+            trickvarsortfilterproxymodel.h \
             varswidget.h \
             dptreewidget.h \
             monteinputsview.h \

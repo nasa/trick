@@ -23,13 +23,14 @@ VarsWidget::VarsWidget(const QString &timeName,
     _qpId(0)
 {
     // Setup models
-    _varsFilterModel = new QSortFilterProxyModel;
+    _varsFilterModel = new TrickVarSortFilterProxyModel(this);
     _varsFilterModel->setDynamicSortFilter(true);
     _varsFilterModel->setSourceModel(_varsModel);
     QRegExp rx(QString(".*"));
     _varsFilterModel->setFilterRegExp(rx);
     _varsFilterModel->setFilterKeyColumn(0);
     _varsSelectModel = new QItemSelectionModel(_varsFilterModel);
+    _varsFilterModel->sort(0,Qt::AscendingOrder);
 
     // Search box
     _gridLayout = new QGridLayout(parent);

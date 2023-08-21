@@ -4,7 +4,6 @@
 #include <QWidget>
 #include <QStandardItemModel>
 #include <QItemSelectionModel>
-#include <QSortFilterProxyModel>
 #include <QGridLayout>
 #include <QLineEdit>
 #include <QListView>
@@ -17,6 +16,7 @@
 #include "dp.h"
 #include "bookmodel.h"
 #include "monteinputsview.h"
+#include "trickvarsortfilterproxymodel.h"
 
 class VarsWidget : public QWidget
 {
@@ -53,7 +53,7 @@ private:
     QLineEdit* _searchBox;
     QListView* _listView ;
 
-    QSortFilterProxyModel* _varsFilterModel;
+    TrickVarSortFilterProxyModel* _varsFilterModel;
     QItemSelectionModel* _varsSelectModel;
 
     int _qpId;
