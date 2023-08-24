@@ -1,7 +1,7 @@
 /*
- * Trick
- * 2016 (c) National Aeronautics and Space Administration (NASA)
- */
+* Trick
+* 2016 (c) National Aeronautics and Space Administration (NASA)
+*/
 
 package trick;
 
@@ -23,22 +23,27 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import java.awt.Color;
-
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Rectangle;
+ 
 /**
  *
  * @author penn
  */
-
+ 
 class Feature {
-
+ 
     public double north, west;
     public double heading;
     public BufferedImage bufImage;
+    public String img_file;
 
     public Feature(double N, double W, double H, String imageFile) {
         north = N;
         west = W;
         heading = H;
+        img_file = imageFile;
 
         Image img = new ImageIcon(imageFile).getImage();
         bufImage = new BufferedImage(img.getWidth(null), img.getHeight(null),
@@ -53,6 +58,17 @@ class Feature {
         west = W;
         heading = H;
     }
+
+    public boolean isReached(double N, double W){
+        // Assuming a tolerance of 0.1 for comparison
+        double tolerance = 0.1;
+
+        // Check if the distance between the given N and W values
+        // and the current north and west values of the waypoint
+        // is within the tolerance.
+        double distance = Math.sqrt(Math.pow(N-north,2) + Math.pow(W-west,2));
+        return distance <= tolerance;
+    }
 }
 
 class ArenaMap extends JPanel {
@@ -60,12 +76,26 @@ class ArenaMap extends JPanel {
     private List<Feature> featureList;
     private double metersPerPixel;
     private Color groundColor;
+    private List<Integer> reachedWaypoints = new ArrayList<>();
+    private int waypointIndex = -1;
+    private boolean lastWaypointReached = false;
+    private boolean mouse = false;
 
     public ArenaMap(List<Feature> flist, double mapScale) {
         featureList = flist;
         metersPerPixel = mapScale;
         SetScale(mapScale);
         groundColor = new Color(255,255,255);
+    }
+
+    public void updateReachedWaypoint(int waypointIndex){
+        this.waypointIndex = waypointIndex;
+        reachedWaypoints.add(waypointIndex);
+
+        // Check if the last waypoint has been reached
+        if(waypointIndex == featureList.size() - 2){
+            lastWaypointReached = true;
+        }
     }
 
     public void SetScale (double mapScale) {
@@ -95,6 +125,32 @@ class ArenaMap extends JPanel {
 
             Feature feature = featureList.get(ii);
 
+            if(reachedWaypoints.contains(ii)&&(feature.img_file.equals("images/cheese_64x64.png")||feature.img_file.equals("images/strawberry_64x64.png"))){
+                mouse = true;
+                continue; // Skip drawing reached waypoints, but keep drawing vehicle -- only applies to mouse version of sim so snacks disappear.
+            }
+ 
+            // Draw the message if the last waypoint is reached -- only for RUN_mouse for now.
+            if(lastWaypointReached && mouse){
+                Font font = new Font("Comic Sans MS", Font.BOLD, 35); //Choose desired font and size
+                g2d.setFont(font);
+                FontMetrics fontMetrics = g2d.getFontMetrics();
+                String message = "Snacks successfully eaten";
+                int messageWidth = fontMetrics.stringWidth(message);
+                int messageHeight = fontMetrics.getHeight();
+                int x = (getWidth()-messageWidth)/2;
+                int y = (getHeight() - messageHeight)/2 + fontMetrics.getAscent();
+                Rectangle messageRect = new Rectangle(x, y - fontMetrics.getAscent(), messageWidth, messageHeight);
+ 
+                //Draw a background rectangle for the message
+                g2d.setColor(Color.WHITE);
+                g2d.fill(messageRect);
+
+                //Draw the message text
+                g2d.setColor(Color.BLACK);
+                g2d.drawString(message, x,y);
+            }
+
             int featureX = (int) -(feature.west / metersPerPixel);
             int featureY = (int) -(feature.north / metersPerPixel);
 
@@ -122,7 +178,7 @@ class ArenaMap extends JPanel {
 
 public class EVDisplay extends JFrame {
 
-    private ArenaMap arenaMap;
+    private static ArenaMap arenaMap;
     private BufferedReader in;
     private DataOutputStream out;
 
@@ -251,6 +307,24 @@ public class EVDisplay extends JFrame {
                 double W = Double.parseDouble( field[2] );
                 double H = Double.parseDouble( field[3] );
                 vehicle.setState(N,W,H);
+
+                //Find the index of the reached waypoint
+                int reachedWaypointIndex =-1;
+                for(int i = 0; i < featureList.size(); i++){
+                    Feature feature = featureList.get(i);
+                    if(feature instanceof Feature){
+                        Feature waypoint = (Feature) feature;
+                        if(waypoint.isReached(N,W)){
+                            reachedWaypointIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                //After the vehicle reaches a waypoint
+                if(reachedWaypointIndex != -1){
+                    arenaMap.updateReachedWaypoint(reachedWaypointIndex);
+                }
 
             } catch (IOException | NullPointerException e ) {
                 go = false;
