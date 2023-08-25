@@ -125,7 +125,7 @@ void TrickView::_createTVModel(const QString& host, int port)
     while ( 1 ) {
         QString msg = QString("Wait on trick.send_sie_resource (%1 of %2)").
                               arg(nWaits).arg(maxWaits);
-        QMetaObject::invokeMethod(this, "_setWaitLabel",
+        QMetaObject::invokeMethod(this, "_setMessageLabel",
                                   Qt::QueuedConnection,
                                   Q_ARG(QString, msg));
         bool isReady = sieSocket.waitForReadyRead(1000);
@@ -148,7 +148,7 @@ void TrickView::_createTVModel(const QString& host, int port)
     s = fields.at(1);
     uint nbytes = s.toUInt();
     QString msg = QString("Transferring SIE! nbytes=%1").arg(nbytes);
-    QMetaObject::invokeMethod(this, "_setWaitLabel",
+    QMetaObject::invokeMethod(this, "_setMessageLabel",
                               Qt::QueuedConnection,
                               Q_ARG(QString, msg));
 
@@ -158,7 +158,7 @@ void TrickView::_createTVModel(const QString& host, int port)
         bool isReady = sieSocket.waitForReadyRead();
         if ( !isReady ) {
             QString msg = QString("Failed loading SIE!");
-            QMetaObject::invokeMethod(this, "_setWaitLabel",
+            QMetaObject::invokeMethod(this, "_setMessageLabel",
                                   Qt::QueuedConnection,
                                   Q_ARG(QString, msg));
             return;
@@ -166,7 +166,7 @@ void TrickView::_createTVModel(const QString& host, int port)
         sieXML.append(sieSocket.readAll());
         QString msg = QString("Getting SIE! nbytes %1 of %2").
                              arg(nbytes).arg(sieXML.size());
-        QMetaObject::invokeMethod(this, "_setWaitLabel",
+        QMetaObject::invokeMethod(this, "_setMessageLabel",
                                   Qt::QueuedConnection,
                                   Q_ARG(QString, msg));
     }
@@ -195,7 +195,7 @@ void TrickView::_createTVModel(const QString& host, int port)
                 QString msg = QString("Load %1 (%2 of %3)").
                                       arg(tlo.attribute("name")).
                                       arg(i).arg(tlos.size());
-                QMetaObject::invokeMethod(this, "_setWaitLabel",
+                QMetaObject::invokeMethod(this, "_setMessageLabel",
                                           Qt::QueuedConnection,
                                           Q_ARG(QString, msg));
                 ++nObjects;
@@ -204,13 +204,13 @@ void TrickView::_createTVModel(const QString& host, int port)
         }
         QString msg = QString("Success! Finished loading %1 params from %2 objects!").
                               arg(_params.size()).arg(nObjects);
-        QMetaObject::invokeMethod(this, "_setWaitLabel",
+        QMetaObject::invokeMethod(this, "_setMessageLabel",
                               Qt::QueuedConnection,
                               Q_ARG(QString, msg));
     } else {
         QString msg = QString("Could not load sieXML document! Error=%1").
                               arg(errMsg);
-        QMetaObject::invokeMethod(this, "_setWaitLabel",
+        QMetaObject::invokeMethod(this, "_setMessageLabel",
                                   Qt::QueuedConnection, Q_ARG(QString, msg));
         return;
     }
