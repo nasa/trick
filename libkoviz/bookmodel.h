@@ -163,6 +163,10 @@ public:
     // Misc
     bool isMatch(const QString& str, const QString& exp) const;
 
+    enum Role {
+        AppendData = 257  // Used to optimize painterpath data appending
+    };
+
 signals:
     
 public slots:
@@ -189,13 +193,15 @@ private:
                             const QString& yUnitIn=QString(""),
                             const QString& plotXScaleIn=QString(""),
                             const QString& plotYScaleIn=QString(""),
-                            CurveModel* curveModelIn=0);
-    QPainterPath* __createPainterPath(CurveModel *curveModel,
-                                      double startTime, double stopTime,
-                                      double xs, double xb,
-                                      double ys, double yb,
-                                      const QString& plotXScale,
-                                      const QString& plotYScale);
+                            CurveModel* curveModelIn=0,
+                            bool isAppendDataToPainterPath=false);
+    void __appendDataToPainterPath(CurveModel *curveModel,
+                                   QPainterPath *path,
+                                   double startTime, double stopTime,
+                                   double xs, double xb,
+                                   double ys, double yb,
+                                   const QString& plotXScale,
+                                   const QString& plotYScale);
     QPainterPath* _createCurvesErrorPath(const QModelIndex& curvesIdx) const;
 
     QString _commonRootName(const QStringList& names, const QString& sep) const;

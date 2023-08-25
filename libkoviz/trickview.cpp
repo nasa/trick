@@ -52,7 +52,7 @@ TrickView::TrickView(const QString &trickhost, int trickport,
 
     _tvModel = new TVModel(host,trickport);
     connect(_tvModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this,SLOT(_tvModelRowInserted(QModelIndex,int,int)));
+            this,SLOT(_tvModelRowAppended(QModelIndex,int,int)));
 }
 
 TrickView::~TrickView()
@@ -86,13 +86,29 @@ void TrickView::_setMessageLabel(const QString &msg)
     _waitLabel->setText(msg);
 }
 
-void TrickView::_tvModelRowInserted(const QModelIndex &parent,int start,int end)
+void TrickView::_tvModelRowAppended(const QModelIndex &parent,int start,int end)
 {
     Q_UNUSED(parent);
     QModelIndex idx = _tvModel->index(start,0);
     QVariant v = _tvModel->data(idx);
     QString msg = QString("Time = %1").arg(v.toDouble());
     _setMessageLabel(msg);
+
+    foreach (QModelIndex pageIdx, _bookModel->pageIdxs()) {
+        foreach (QModelIndex plotIdx, _bookModel->plotIdxs(pageIdx)) {
+            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
+                                                         "Curves","Plot");
+            foreach (QModelIndex curveIdx, _bookModel->curveIdxs(curvesIdx)) {
+                QModelIndex dataIdx = _bookModel->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+                CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
+                QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
+                _bookModel->setData(dataIdx,v,PlotBookModel::AppendData);
+            }
+            QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+            _bookModel->setPlotMathRect(bbox,plotIdx);
+        }
+    }
 }
 
 void TrickView::_tvSearchBoxReturnPressed()

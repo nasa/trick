@@ -51,10 +51,15 @@ bool PlotBookModel::setData(const QModelIndex &idx,
         if ( tag == "CurveData" ) {
             CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(value);
             QModelIndex curveIdx = idx.parent();
+            bool isAppend = false;
+            if ( role == PlotBookModel::AppendData ) {
+                isAppend = true;
+            }
             _createPainterPath(curveIdx,
                                false,0,false,0,false,0,
                                false,0,false,0,false,0,
-                               "","","","",curveModel);
+                               "","","","",curveModel,isAppend);
+            emit dataChanged(idx,idx);
         } else if ( tag == "StartTime" || tag == "StopTime") {
             double start = -DBL_MAX;
             double stop = DBL_MAX;
@@ -1123,6 +1128,15 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
     return bbox;
 }
 
+// Append new data in curveModel to given QPainterPath path.
+//
+// If the path is empty all of curveModel's points will be added to the path.
+// If the path has elements, the curveModel and path size are compared.  If
+// the curveModel size is greater than the path size, it is assumed that
+// the extra points in the curveModel are to be appended to the path.
+// This is used to optimize loading the path from a curveModel that is
+// receiving new data from a sim.
+//
 // Note 1:
 //   No scaling or bias is done for linear plot scale since it is done
 //   via the paint transform. For log scale, the path is scaled/biased.
@@ -1149,28 +1163,40 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
 //   sticky).
 //
 //   If all points in the curve model are nans, no points will be added to
-//   the path, so the returned path is empty.  The plot will show up as "Empty".
-//   This happens, for example, when a motion capture marker is never viewable,
-//   the plot of the marker position will show up as "Empty" since there are
-//   no valid points in the marker trajectory.
-QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
-                                               double startTime,double stopTime,
-                                               double xs, double xb,
-                                               double ys, double yb,
-                                               const QString &plotXScale,
-                                               const QString &plotYScale)
+//   the path - the plot will show up as "Empty". This happens, for example,
+//   when a motion capture marker is never viewable, the plot of the marker
+//   position will show up as "Empty" since there are no valid points in
+//   the marker trajectory.
+void PlotBookModel::__appendDataToPainterPath(CurveModel *curveModel,
+                                              QPainterPath* path,
+                                              double startTime,double stopTime,
+                                              double xs, double xb,
+                                              double ys, double yb,
+                                              const QString &plotXScale,
+                                              const QString &plotYScale)
 {
-    QPainterPath* path = new QPainterPath;
+    int nels = path->elementCount();
+    int nrows = curveModel->rowCount();
+    if ( nels == nrows ) {
+        // Nothing to append
+        return;
+    }
 
     curveModel->map();
 
     ModelIterator* it = curveModel->begin();
 
+    if ( nels < nrows ) {
+        it = it->at(nels);
+    } else if ( nels > nrows ) {
+        fprintf(stderr, "koviz [bad scoobs]:1 __appendDataToPainterPath!\n");
+        exit(-1);
+    }
+
     bool isXLogScale = ( plotXScale == "log" ) ? true : false;
     bool isYLogScale = ( plotYScale == "log" ) ? true : false;
 
     double f = getDataDouble(QModelIndex(),"Frequency");
-    bool isFirst = true;
     int cntNANs = 0;
     while ( !it->isDone() ) {
         double t = it->t();
@@ -1212,10 +1238,9 @@ QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
             }
         }
 
-        if ( isFirst ) {
+        if ( path->elementCount() == 0 ) {
             path->moveTo(x,y);
             if ( path->elementCount() == 1 ) {
-                isFirst = false;
                 for ( int i = 0; i < cntNANs; ++i ) {
                     // Beginning of path was nans
                     // Add first good point to beginning of path cntNANs times
@@ -1275,8 +1300,6 @@ QPainterPath* PlotBookModel::__createPainterPath(CurveModel *curveModel,
     }
     delete it;
     curveModel->unmap();
-
-    return path;
 }
 
 void PlotBookModel::_createPainterPath(const QModelIndex &curveIdx,
@@ -1290,7 +1313,8 @@ void PlotBookModel::_createPainterPath(const QModelIndex &curveIdx,
                                       const QString &yUnitIn,
                                       const QString &plotXScaleIn,
                                       const QString &plotYScaleIn,
-                                      CurveModel *curveModelIn)
+                                      CurveModel *curveModelIn,
+                                      bool isAppendDataToPainterPath)
 {
     QModelIndex plotIdx = curveIdx.parent().parent();
 
@@ -1408,17 +1432,23 @@ void PlotBookModel::_createPainterPath(const QModelIndex &curveIdx,
         }
     }
 
-    // Create path and cache it
+    // Create (or append to) path and cache it
+    QPainterPath* path = 0;
     if ( _curve2path.contains(curveModel) ) {
-        QPainterPath* currPath = _curve2path.value(curveModel);
-        delete currPath;
-        _curve2path.remove(curveModel);
+        path = _curve2path.value(curveModel);
+        if ( ! isAppendDataToPainterPath ) {
+            delete path;
+            path = new QPainterPath;
+            _curve2path.insert(curveModel,path);
+        }
+    } else {
+        path = new QPainterPath;
+        _curve2path.insert(curveModel,path);
     }
-    QPainterPath* path = __createPainterPath(curveModel,
-                                            (start-tb)/ts,(stop-tb)/ts,
-                                             xs, xb, ys, yb,
-                                            plotXScale, plotYScale);
-    _curve2path.insert(curveModel,path);
+    __appendDataToPainterPath(curveModel, path,
+                              (start-tb)/ts,(stop-tb)/ts,
+                              xs, xb, ys, yb,
+                              plotXScale, plotYScale);
 }
 
 // curveIdx0/1 are child indices of "Curves" with tagname "Curve"

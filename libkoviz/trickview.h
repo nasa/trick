@@ -62,7 +62,7 @@ private slots:
      void _tvSelectionChanged(const QItemSelection& currVarSelection,
                               const QItemSelection& prevVarSelection);
      void _setMessageLabel(const QString& msg);
-     void _tvModelRowInserted(const QModelIndex& parent, int start, int end);
+     void _tvModelRowAppended(const QModelIndex& parent, int start, int end);
 };
 
 #endif // TRICKVIEW_H
