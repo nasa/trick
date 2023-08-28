@@ -2,7 +2,7 @@ dnl To generate a new top level configure script from this autoconf directory
 dnl 1.  aclocal
 dnl 2.  autoconf -o ../configure
 
-AC_INIT([Trick],[17+])
+AC_INIT([Trick],[19.6+])
 AC_LANG(C++)
 
 AC_CONFIG_AUX_DIR([autoconf])
@@ -188,7 +188,7 @@ AC_SUBST([PYTHON_EXTRA_LIBS])
 TR_PREPEND_PATH()
 AC_PATH_PROG(GNUPLOT, gnuplot, nognuplot)
 AS_IF([test "$ac_cv_path_GNUPLOT" = "nognuplot"],AC_MSG_NOTICE([could not find gnuplot]),[])
-TR_SWIG_BIN([2.0])
+TR_SWIG_BIN([3.0])
 TR_JAVA
 
 AX_PTHREAD()
