@@ -6,9 +6,9 @@ AC_DEFUN([TR_SWIG_BIN],[
                 [
                   TEMP_PATH="${PATH}"
                   PATH="$withval:${PATH}"
-                  AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])
+                  AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 3.0])])
                   PATH="${TEMP_PATH}"
                 ],
-                [AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 2.0])])]
+                [AX_PKG_SWIG($1, [], [AC_MSG_ERROR([Trick requires SWIG version >= 3.0])])]
                )
 ])

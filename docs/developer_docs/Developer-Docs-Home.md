@@ -11,6 +11,7 @@ Link documentation for Trick internals, processes, and plans here.
 - [Tooling and Sanitizers](Tooling-and-Sanitizers)
 - [Python Environment](Python-Environment-Issues)
 - [CI](CI)
+- [Configure Script](Configure)
 
 Old design documentation - may or may not be up to date
 
