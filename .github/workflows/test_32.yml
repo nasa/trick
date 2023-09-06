@@ -10,8 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     container: docker://centos:7
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@master
     - name: Add yum repo
       run: yum -y install epel-release.noarch && yum -y update
     - name: Install dependency group
@@ -53,6 +51,8 @@ jobs:
         cmake .
         make
         make install
+    - name: Checkout repository
+      uses: actions/checkout@v3
     - name: Build Trick
       run: |
         yum -y update && yum clean all

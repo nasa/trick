@@ -54,12 +54,13 @@ jobs:
               libclang-dev
               libudunits2-dev
               libgtest-dev
+              libgmock-dev
               default-jdk
               python3-dev
               python3-pip
               python3-venv
             install_gtest: |
-              apt-get install -y libgtest-dev
+              apt-get install -y libgtest-dev libgmock-dev
               cd /usr/src/gtest
               cmake .
               make
@@ -97,11 +98,11 @@ jobs:
               dnf install -y 'dnf-command(config-manager)'
             install_gtest: |
               dnf config-manager --enable powertools
-              dnf install -y gtest-devel
+              dnf install -y gtest-devel gmock-devel
 #-------- Debian 10-based Only Dependencies ----------------
           - cfg: { arch: debian, arch_ver: 10 }
             install_gtest: |
-              apt-get install -y libgtest-dev
+              apt-get install -y libgtest-dev  libgmock-dev
               cd /usr/src/gtest
               cmake .
               make
