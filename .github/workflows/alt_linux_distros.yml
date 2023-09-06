@@ -101,7 +101,7 @@ jobs:
 #-------- Debian 10-based Only Dependencies ----------------
           - cfg: { arch: debian, arch_ver: 10 }
             install_gtest: |
-              apt-get install -y libgtest-dev
+              apt-get install -y libgtest-dev google-mock
               cd /usr/src/gtest
               cmake .
               make
