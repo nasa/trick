@@ -71,8 +71,176 @@ void TrickView::_tvSelectionChanged(
         QString param = _sieListModel->data(idx).toString();
         QModelIndex currIdx = _bookSelectModel->currentIndex();
         if ( !currIdx.isValid() ) {
-            _createPage(param);
+            foreach ( QString p, _expandParam(param) ) {
+                _createPage(p);
+            }
         }
+    }
+}
+
+// Given undimensioned param name e.g. ball.state.out.position
+// Return list of dimensioned params e.g.
+//       ball.state.out.position[0]
+//       ball.state.out.position[1]
+QStringList TrickView::_expandParam(const QString &param)
+{
+    QStringList expandedParams;
+
+    QStringList paramList = param.split('.');
+    QDomElement rootElement = _sieDoc.documentElement();
+
+    QString elType;
+    for (int i = 0; i < paramList.size(); ++i ) {
+        if ( i == 0 ) {
+            QDomNodeList tlos = rootElement.elementsByTagName(
+                                                            "top_level_object");
+            QString simObject = paramList.at(i);
+            for (int j = 0; j < tlos.size(); ++j) {
+                QDomElement tlo = tlos.at(j).toElement();
+                if ( tlo.attribute("name") == simObject ) {
+                    elType = tlo.attribute("type");
+                    expandedParams = __appendMember(expandedParams,tlo);
+                    break;
+                }
+            }
+        } else {
+            if ( _name2element.contains(elType) ) {
+                QDomElement el = _name2element.value(elType);
+                QDomNodeList members = el.elementsByTagName("member");
+                for (int j = 0; j < members.size(); ++j) {
+                    QDomElement member = members.at(j).toElement();
+                    QString memberName = member.attribute("name");
+                    if ( memberName == paramList.at(i) ) {
+                        expandedParams = __appendMember(expandedParams,member);
+                        elType = member.attribute("type");
+                        break;
+                    }
+                }
+            } else {
+                fprintf(stderr, "koviz [bad scoobs]: bad type=%s\n",
+                        elType.toLatin1().constData());
+                exit(-1);
+            }
+        }
+    }
+
+    return expandedParams;
+}
+
+// Given paramsIn list and member, e.g:
+//
+//     paramsIn:
+//         simObj.state[0][0]
+//         simObj.state[0][1]
+//         simObj.state[1][0]
+//         simObj.state[1][1]
+//     member: position  (with xy dims)
+//
+// Return list with dimensioned member appended to paramsIn elements, e.g:
+//
+//     Return:
+//         simObj.state[0][0].position[0]
+//         simObj.state[0][0].position[1]
+//         simObj.state[0][1].position[0]
+//         simObj.state[0][1].position[1]
+//         simObj.state[1][0].position[0]
+//         simObj.state[1][0].position[1]
+//         simObj.state[1][1].position[0]
+//         simObj.state[1][1].position[1]
+//
+QStringList TrickView::__appendMember(QStringList &paramsIn,
+                                      const QDomElement &member)
+{
+    QStringList params;
+
+    QString memberName = member.attribute("name");
+    QList<QList<int> > dims = _genDimensions(member);
+
+    if ( paramsIn.isEmpty() ) {
+        if ( dims.isEmpty() ) {
+            params.append(memberName);
+        } else {
+            for (int i = 0; i < dims.size(); ++i ) {
+                QString dimensionedMemberName = memberName;
+                for (int j = 0; j < dims.at(i).size(); ++j) {
+                    int d = dims.at(i).at(j);
+                    QString bracketDim = QString("[%1]").arg(d);
+                    dimensionedMemberName += bracketDim;
+                }
+                params.append(dimensionedMemberName);
+            }
+        }
+    } else {
+        foreach (QString paramIn, paramsIn ) {
+            if ( dims.isEmpty() ) {
+                params.append(paramIn + '.' + memberName);
+            } else {
+                for (int i = 0; i < dims.size(); ++i ) {
+                    QString dimensionedMemberName = memberName;
+                    for (int j = 0; j < dims.at(i).size(); ++j) {
+                        int d = dims.at(i).at(j);
+                        QString bracketDim = QString("[%1]").arg(d);
+                        dimensionedMemberName += bracketDim;
+                    }
+                    params.append(paramIn + '.' + dimensionedMemberName);
+                }
+            }
+        }
+    }
+
+    return params;
+}
+
+// Given tol/member element e.g.:
+//
+//    <member
+//         name="dmT_CmdFbFa"
+//         type="double"
+//         io_attributes="15"
+//         units="--">
+//       <dimension>2</dimension>
+//       <dimension>2</dimension>
+//     </member>
+//
+// Return list of dimensions e.g.:
+//      0 0
+//      0 1
+//      1 0
+//      1 1
+QList<QList<int> > TrickView::_genDimensions(const QDomElement& el)
+{
+    QList<QList<int> > dimensions;
+
+    QList<int> dimList;
+    QDomNodeList dims = el.elementsByTagName("dimension");
+    for (int i = 0; i < dims.size(); ++i) {
+        QDomElement dim = dims.at(i).toElement();
+        dimList.append(dim.text().toInt());
+    }
+
+    if ( dimList.size() > 0 ) {
+        QList<int> dim;
+        __genDimensions(dimList,dim,dimensions);
+    }
+
+    return dimensions;
+}
+
+//
+// Recursive helper routine for _genDimensions()
+//
+void TrickView::__genDimensions(const QList<int>& dimList,
+                                QList<int>& dim,
+                                QList<QList<int> >& dimensions)
+{
+    if ( dim.size() < dimList.size() ) {
+        for (int i = 0; i < dimList.at(dim.size()); ++i) {
+            QList<int> copyDim = dim;
+            copyDim.append(i);
+            __genDimensions(dimList,copyDim,dimensions);
+        }
+    } else {
+        dimensions.append(dim);
     }
 }
 
@@ -187,10 +355,9 @@ void TrickView::_createTVModel(const QString& host, int port)
                                   Q_ARG(QString, msg));
     }
 
-    QDomDocument doc;
     QString errMsg;
-    if ( doc.setContent(sieXML,&errMsg) ) {
-        QDomElement rootElement = doc.documentElement();
+    if ( _sieDoc.setContent(sieXML,&errMsg) ) {
+        QDomElement rootElement = _sieDoc.documentElement();
 
         // Cache off classes for speed
         QDomNodeList classElements = rootElement.elementsByTagName("class");

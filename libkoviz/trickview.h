@@ -49,11 +49,19 @@ private:
     QHash<QString,QDomElement> _name2element;
     QStringList _params;
 
+    QDomDocument _sieDoc;
     QItemSelectionModel* _varsSelectModel;
     SieListModel* _sieListModel;
     TVModel* _tvModel;
 
     void _createPage(const QString& yName);
+    QStringList _expandParam(const QString& param);
+    QStringList __appendMember(QStringList& paramsIn,
+                               const QDomElement&  member);
+    QList<QList<int> > _genDimensions(const QDomElement& el);
+    void __genDimensions(const QList<int>& dimList,
+                         QList<int> &dim,
+                         QList<QList<int> >& dimensions);
 
 
 private slots:
