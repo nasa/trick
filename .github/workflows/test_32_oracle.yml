@@ -62,6 +62,7 @@ jobs:
         export CFLAGS="-m32"
         export CXXFLAGS="-m32"
         export MAKEFLAGS=-j`nproc`
+        export JAVA_HOME=$(dirname $(dirname $(readlink -f `which java`)))
         ./configure --without-hdf5 --enable-32bit
         make
     - name: Run tests
