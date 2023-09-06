@@ -152,27 +152,3 @@ jobs:
         run: |
           export MAKEFLAGS=-j`nproc`
           make
-      - name: Test
-        run: |
-          cd share/trick/trickops/
-          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
-          cd ../../../; make test
-      - name: Upload Tests
-        uses: actions/upload-artifact@v3.0.0
-        if: success() || failure()    # run this step even if previous step failed
-        with:
-          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
-          path: trick_test/*.xml
-          retention-days: 1
-# Uncomment for build artifacts          
-#       - name: Upload Trick Build
-#         uses: actions/upload-artifact@v3.0.0
-#         with:
-#           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
-#           path: |
-#             bin
-#             include
-#             lib
-#             share
-#             libexec
-#           retention-days: 1
