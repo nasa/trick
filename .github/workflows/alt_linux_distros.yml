@@ -12,7 +12,6 @@ jobs:
       matrix:
         cfg:
 #-------- Operating Systems ----------------
-          - { os: ubuntu,      tag: 18.04,    arch: debian, arch_ver: 10 }
           - { os: ubuntu,      tag: 20.04,    arch: debian, arch_ver: 11 }
           - { os: debian,      tag: 10,       arch: debian, arch_ver: 10 }
           - { os: debian,      tag: 11,       arch: debian, arch_ver: 11 }
@@ -142,7 +141,7 @@ jobs:
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
-        uses: actions/checkout@master
+        uses: actions/checkout@v3
       - name: Configure Trick
         run: |
           export MAKEFLAGS=-j`nproc`
@@ -156,23 +155,4 @@ jobs:
         run: |
           cd share/trick/trickops/
           python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
-          cd ../../../; make test
-      - name: Upload Tests
-        uses: actions/upload-artifact@v3.0.0
-        if: success() || failure()    # run this step even if previous step failed
-        with:
-          name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
-          path: trick_test/*.xml
-          retention-days: 1
-# Uncomment for build artifacts          
-#       - name: Upload Trick Build
-#         uses: actions/upload-artifact@v3.0.0
-#         with:
-#           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}
-#           path: |
-#             bin
-#             include
-#             lib
-#             share
-#             libexec
-#           retention-days: 1
+          cd ../../../; make test32
