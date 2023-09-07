@@ -12,7 +12,6 @@ jobs:
       matrix:
         cfg:
 #-------- Operating Systems ----------------
-          - { os: ubuntu,      tag: 18.04,    arch: debian, arch_ver: 10 }
           - { os: ubuntu,      tag: 20.04,    arch: debian, arch_ver: 11 }
           - { os: debian,      tag: 10,       arch: debian, arch_ver: 10 }
           - { os: debian,      tag: 11,       arch: debian, arch_ver: 11 }
@@ -101,7 +100,7 @@ jobs:
 #-------- Debian 10-based Only Dependencies ----------------
           - cfg: { arch: debian, arch_ver: 10 }
             install_gtest: |
-              apt-get install -y libgtest-dev google-mock
+              apt-get install -y libgtest-dev libgmock-dev
               cd /usr/src/gtest
               cmake .
               make
