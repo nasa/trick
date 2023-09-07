@@ -58,7 +58,7 @@ jobs:
               python3-pip
               python3-venv
             install_gtest: |
-              apt-get install -y libgtest-dev libgmock-dev
+              apt-get install -y libgtest-dev
               cd /usr/src/gtest
               cmake .
               make
@@ -96,11 +96,11 @@ jobs:
               dnf install -y 'dnf-command(config-manager)'
             install_gtest: |
               dnf config-manager --enable powertools
-              dnf install -y gtest-devel gmock-devel
+              dnf install -y gtest-devel
 #-------- Debian 10-based Only Dependencies ----------------
           - cfg: { arch: debian, arch_ver: 10 }
             install_gtest: |
-              apt-get install -y libgtest-dev libgmock-dev
+              apt-get install -y libgtest-dev
               cd /usr/src/gtest
               cmake .
               make
@@ -151,3 +151,8 @@ jobs:
         run: |
           export MAKEFLAGS=-j`nproc`
           make
+      - name: Test
+        run: |
+          cd share/trick/trickops/
+          python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
+          cd ../../../; make test32
