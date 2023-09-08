@@ -76,6 +76,8 @@ private slots:
                               const QItemSelection& prevVarSelection);
      void _setMessageLabel(const QString& msg);
      void _tvModelRowAppended(const QModelIndex& parent, int start, int end);
+     void _bookModelRowsAboutToBeRemoved(const QModelIndex& parent,
+                                         int first, int last);
 };
 
 #endif // TRICKVIEW_H

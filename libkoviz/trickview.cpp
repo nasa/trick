@@ -53,6 +53,11 @@ TrickView::TrickView(const QString &trickhost, int trickport,
     _tvModel = new TVModel(host,trickport);
     connect(_tvModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this,SLOT(_tvModelRowAppended(QModelIndex,int,int)));
+
+    connect(_bookModel,
+            SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+            this,
+            SLOT(_bookModelRowsAboutToBeRemoved(QModelIndex,int,int)));
 }
 
 TrickView::~TrickView()
@@ -306,6 +311,12 @@ void TrickView::_tvModelRowAppended(const QModelIndex &parent,int start,int end)
             _bookModel->setPlotMathRect(bbox,plotIdx);
         }
     }
+}
+
+void TrickView::_bookModelRowsAboutToBeRemoved(const QModelIndex &parent,
+                                               int first, int last)
+{
+    _varsSelectModel->clear();
 }
 
 void TrickView::_tvSearchBoxReturnPressed()
