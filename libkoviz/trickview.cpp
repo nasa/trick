@@ -71,8 +71,15 @@ void TrickView::_tvSelectionChanged(
         QString param = _sieListModel->data(idx).toString();
         QModelIndex currIdx = _bookSelectModel->currentIndex();
         if ( !currIdx.isValid() ) {
+            int i = 0;
+            QModelIndex pageIdx;
             foreach ( QString p, _expandParam(param) ) {
-                _createPage(p);
+                if ( i == 0 ) {
+                    pageIdx = _createPage(p);
+                } else {
+                    _addPlotToPage(pageIdx,p);
+                }
+                ++i;
             }
         }
     }
@@ -441,11 +448,17 @@ void TrickView::_loadSieElement(const QDomElement &element,
     }
 }
 
-void TrickView::_createPage(const QString &yName)
+QModelIndex TrickView::_createPage(const QString &yName)
 {
     QStandardItem* pageItem = _bookModel->createPageItem();
-
     QModelIndex pageIdx = _bookModel->indexFromItem(pageItem);
+    _addPlotToPage(pageIdx,yName);
+    return pageIdx;
+}
+
+QModelIndex TrickView::_addPlotToPage(const QModelIndex &pageIdx,
+                                      const QString &yName)
+{
     QModelIndex plotsIdx = _bookModel->getIndex(pageIdx, "Plots", "Page");
     QStandardItem* plotsItem = _bookModel->itemFromIndex(plotsIdx);
     QStandardItem* plotItem = _bookModel->addChild(plotsItem, "Plot");
@@ -473,7 +486,22 @@ void TrickView::_createPage(const QString &yName)
     _bookModel->addChild(plotItem, "PlotYAxisLabel", yName);
     _bookModel->addChild(plotItem, "PlotRect", QRect(0,0,0,0));
 
-    QStandardItem *curvesItem = _bookModel->addChild(plotItem,"Curves");
+    QModelIndex plotIdx = _bookModel->indexFromItem(plotItem);
+    _addCurveToPlot(plotIdx,yName);
+}
+
+QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
+                                       const QString &yName)
+{
+    QStandardItem* curvesItem;
+    if ( _bookModel->isChildIndex(plotIdx, "Plot", "Curves") ) {
+        QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,"Curves","Plot");
+        curvesItem = _bookModel->itemFromIndex(curvesIdx);
+    }  else {
+        QStandardItem* plotItem = _bookModel->itemFromIndex(plotIdx);
+        curvesItem = _bookModel->addChild(plotItem,"Curves");
+    }
+
     QStandardItem *curveItem = _bookModel->addChild(curvesItem,"Curve");
 
     _tvModel->addParam(yName, "--");

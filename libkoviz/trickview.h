@@ -54,7 +54,11 @@ private:
     SieListModel* _sieListModel;
     TVModel* _tvModel;
 
-    void _createPage(const QString& yName);
+    QModelIndex _createPage(const QString& yName);
+    QModelIndex _addPlotToPage(const QModelIndex& pageIdx,
+                               const QString& yName);
+    QModelIndex _addCurveToPlot(const QModelIndex& plotIdx,
+                                const QString& yName);
     QStringList _expandParam(const QString& param);
     QStringList __appendMember(QStringList& paramsIn,
                                const QDomElement&  member);
