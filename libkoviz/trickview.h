@@ -15,6 +15,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QLabel>
 #include <QMetaObject>
+#include <QApplication>
 #include <float.h>
 #include "bookmodel.h"
 #include "sie_listmodel.h"
@@ -54,7 +55,7 @@ private:
     SieListModel* _sieListModel;
     TVModel* _tvModel;
 
-    QModelIndex _createPage(const QString& yName);
+    QModelIndex _createPage();
     QModelIndex _addPlotToPage(const QModelIndex& pageIdx,
                                const QString& yName);
     QModelIndex _addCurveToPlot(const QModelIndex& plotIdx,

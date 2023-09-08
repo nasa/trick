@@ -70,17 +70,39 @@ void TrickView::_tvSelectionChanged(
         QModelIndex idx = idxs.at(0);
         QString param = _sieListModel->data(idx).toString();
         QModelIndex currIdx = _bookSelectModel->currentIndex();
-        if ( !currIdx.isValid() ) {
-            int i = 0;
-            QModelIndex pageIdx;
-            foreach ( QString p, _expandParam(param) ) {
-                if ( i == 0 ) {
-                    pageIdx = _createPage(p);
+        QModelIndex pageIdx;
+        QModelIndex plotIdx;
+        if ( _bookModel->data(currIdx).toString() == "Plot" ) {
+            plotIdx = currIdx;
+            pageIdx = _bookModel->getIndex(plotIdx,"Page");
+        }
+        int i = 0;
+        foreach ( QString p, _expandParam(param) ) {
+            if ( !plotIdx.isValid() ) {
+                pageIdx = _createPage();
+                plotIdx = _addPlotToPage(pageIdx,p);
+            } else {
+                Qt::KeyboardModifiers kmods = QApplication::keyboardModifiers();
+                bool isAlt = (kmods & Qt::AltModifier);
+                bool isCtl = (kmods & Qt::ControlModifier);
+                if ( isAlt && !isCtl ) {
+                    _addCurveToPlot(plotIdx,p);
+                } else if ( !isAlt && isCtl ) {
+                    plotIdx = _addPlotToPage(pageIdx,p);
+                } else if ( isAlt && isCtl ) {
+                    if ( i == 0 ) {
+                        plotIdx = _addPlotToPage(pageIdx,p);
+                    } else {
+                        _addCurveToPlot(plotIdx,p);
+                    }
                 } else {
-                    _addPlotToPage(pageIdx,p);
+                    pageIdx = _createPage();
+                    plotIdx = _addPlotToPage(pageIdx,p);
                 }
-                ++i;
             }
+            ++i;
+            _bookSelectModel->setCurrentIndex(plotIdx,
+                                              QItemSelectionModel::Current);
         }
     }
 }
@@ -448,11 +470,10 @@ void TrickView::_loadSieElement(const QDomElement &element,
     }
 }
 
-QModelIndex TrickView::_createPage(const QString &yName)
+QModelIndex TrickView::_createPage()
 {
     QStandardItem* pageItem = _bookModel->createPageItem();
     QModelIndex pageIdx = _bookModel->indexFromItem(pageItem);
-    _addPlotToPage(pageIdx,yName);
     return pageIdx;
 }
 
@@ -487,7 +508,10 @@ QModelIndex TrickView::_addPlotToPage(const QModelIndex &pageIdx,
     _bookModel->addChild(plotItem, "PlotRect", QRect(0,0,0,0));
 
     QModelIndex plotIdx = _bookModel->indexFromItem(plotItem);
-    _addCurveToPlot(plotIdx,yName);
+    QModelIndex curveIdx = _addCurveToPlot(plotIdx,yName);
+    Q_UNUSED(curveIdx);
+
+    return plotIdx;
 }
 
 QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
@@ -511,6 +535,11 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
     int ycol = _tvModel->paramColumn(yName);
     CurveModel* curveModel = new CurveModel(_tvModel,tcol,xcol,ycol);
 
+    QModelIndex curvesIdx = _bookModel->indexFromItem(curvesItem);
+    int nCurves = _bookModel->rowCount(curvesIdx);
+    QList<QColor> colors = _bookModel->createCurveColors(nCurves);
+    QString color = colors.last().name();
+
     bool block = _bookModel->blockSignals(true);
 
     _bookModel->addChild(curveItem, "CurveRunID", -1);
@@ -530,7 +559,7 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
     _bookModel->addChild(curveItem, "CurveYMaxRange",  DBL_MAX);
     _bookModel->addChild(curveItem, "CurveSymbolSize", "");
     _bookModel->addChild(curveItem, "CurveYLabel", yName);
-    _bookModel->addChild(curveItem, "CurveColor", "black");
+    _bookModel->addChild(curveItem, "CurveColor", color);
     _bookModel->addChild(curveItem, "CurveLineStyle","Plain");
     _bookModel->addChild(curveItem, "CurveSymbolStyle", "none");
 
@@ -539,4 +568,6 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
 
     _bookModel->blockSignals(block);
 
+    QModelIndex curveIdx = _bookModel->indexFromItem(curveItem);
+    return curveIdx;
 }
