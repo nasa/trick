@@ -181,14 +181,14 @@ void Trick::Sie::sie_append_runtime_objs() {
     }
 
     std::string sie_filename = get_runtime_sie_dir() + "/" + "S_sie.resource" ;
-
     sie_out.open(sie_filename.c_str(), std::fstream::in | std::fstream::out) ;
+
     const char * comment = "<!--\nRuntime Allocations\nDo not edit this comment or file content past this point\n-->\n";
     int comment_len = strlen(comment);
 
     int curr_offset = 1;
     int mem_size = 1000000;
-    char buff[mem_size + 1];
+    char * buff = new char[mem_size + 1];
     char * find_str = NULL;
 
     // initial read use the whole buffer
@@ -206,6 +206,7 @@ void Trick::Sie::sie_append_runtime_objs() {
 
     if ( !find_str ) {
         std::cerr << "Warning: Cannot add runtime/dynamic allocations to S_sie.resource. S_sie.resource is corrupted, outdated, or missing. Please be sure that SIM_*/S_sie.resource is preserved after build time if needed at runtime for trick-tv or other variable server clients. Please also rerun trick-CP." << std::endl;
+        delete[] buff;
         return;
     }
 
@@ -217,6 +218,7 @@ void Trick::Sie::sie_append_runtime_objs() {
     runtime_objects_print(sie_out);
     sie_out << "</sie>\n";
     sie_out.close();
+    delete[] buff;
 }
 
 std::string Trick::Sie::get_runtime_sie_dir() {
