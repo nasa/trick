@@ -186,7 +186,7 @@ void Trick::Sie::sie_append_runtime_objs() {
     const char * comment = "<!--\nRuntime Allocations\nDo not edit this comment or file content past this point\n-->\n";
     int comment_len = strlen(comment);
 
-    int curr_offset = 0;
+    int curr_offset = 1;
     int mem_size = 1000000;
     char buff[mem_size + 1];
     char * find_str = NULL;
@@ -200,7 +200,7 @@ void Trick::Sie::sie_append_runtime_objs() {
     while ( !find_str && !sie_out.eof() ) {
         curr_offset += mem_size - comment_len - 1;
         strncpy(buff, &buff[mem_size-comment_len-1], comment_len);
-        sie_out.get(&buff[comment_len-1], mem_size-comment_len, '\0');
+        sie_out.get(&buff[comment_len], mem_size-comment_len, '\0');
         find_str = strstr(buff, comment);
     }
 
@@ -210,7 +210,7 @@ void Trick::Sie::sie_append_runtime_objs() {
     }
 
     // calculate the position of the marker in the file and jump to the point after the comment ends.
-    int pos = curr_offset + (find_str - buff) + strlen(comment) + 1;
+    int pos = curr_offset + (find_str - buff) + comment_len - 1;
     sie_out.clear();
     sie_out.seekp(pos);
 
