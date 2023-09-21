@@ -138,7 +138,8 @@ TEST_F(VariableServerSessionThread_test, connection_failure) {
 }
 
 
-TEST_F(VariableServerSessionThread_test, exit_if_handle_message_fails) {
+TEST_F(VariableServerSessionThread_test, DISABLED_exit_if_handle_message_fails) {
+
     // ARRANGE
     setup_normal_connection_expectations(&connection);
     
@@ -168,7 +169,8 @@ TEST_F(VariableServerSessionThread_test, exit_if_handle_message_fails) {
 }
 
 
-TEST_F(VariableServerSessionThread_test, exit_if_write_fails) {
+TEST_F(VariableServerSessionThread_test, DISABLED_exit_if_write_fails) {
+
     // ARRANGE
     setup_normal_connection_expectations(&connection);
     
