@@ -177,7 +177,7 @@ def traceit(frame, event, arg):
     if event == "line":
         lineno = frame.f_lineno
         filename = frame.f_code.co_filename
-        if ( not filename.startswith(exclude_dir) and not filename.startswith("/usr")):
+        if ( not filename.startswith(exclude_dir) and not filename.startswith("/usr") and not filename.startswith("/opt") and not filename.startswith("<") and not filename.startswith(".trick/") ):
             if (filename.endswith(".pyc") or
                 filename.endswith(".pyo")):
                 filename = filename[:-1]
