@@ -37,12 +37,9 @@ test: unit_tests $(unittest_results)
 
 unit_tests: $(TESTS)
 
-test: $(TESTS)
-	./dllist_unittest --gtest_output=xml:${TRICK_HOME}/trick_test/dllist_unittest.xml
-
 clean :
-	rm -f $(TESTS) *.o
-	rm -rf io_src xml
+	rm -f $(TESTS)
+	rm -f *.o
 
 # ==================================================================================
 # Generate JUNIT (XML) Test Results

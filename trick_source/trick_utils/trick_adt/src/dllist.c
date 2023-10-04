@@ -53,9 +53,6 @@ static int DLL_ListContainsPos( DLLPOS pos, DLLIST * list) {
     return 1;
 }
 
-/* returns number of elements in list */
-/* return: count */
-
 // JMP: This should return a status to let us know whether or not we succeeded
 void DLL_Init(DLLIST * list)
 {
