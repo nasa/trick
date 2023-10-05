@@ -7,6 +7,7 @@
 #include <QStringList>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
+#include <QMimeData>
 
 class SieListModel : public QAbstractListModel
 {
@@ -15,6 +16,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index,
                   int role = Qt::DisplayRole) const override;
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
 public slots:
     void setParams(const QStringList *params);
@@ -23,6 +25,7 @@ public slots:
 protected:
     bool canFetchMore(const QModelIndex &parent) const override;
     void fetchMore(const QModelIndex &parent) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 private:
     const QStringList* _params;

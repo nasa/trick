@@ -1555,6 +1555,7 @@ void PlotMainWindow::_plotAllVars()
 void PlotMainWindow::_toggleEnableDragDrop(bool isChecked )
 {
     _varsWidget->setDragEnabled(isChecked);
+    _trickView->setDragEnabled(isChecked);
 }
 
 void PlotMainWindow::_startTimeChanged(double startTime)

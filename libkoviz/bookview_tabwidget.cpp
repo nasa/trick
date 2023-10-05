@@ -25,18 +25,32 @@ void BookViewTabWidget::dropEvent(QDropEvent *event)
             stream >> row >> col >> valueMap;
             if ( !valueMap.isEmpty() ) {
                 QString dropString = valueMap.value(0).toString();
-                QStandardItem* pageItem = _bookModel->createPageItem();
-                QString hardCodedTime("sys.exec.out.time"); // TODO:
-                                                            // time needs to be
-                                                            // in book model
-                QStringList emptyUnitOverrides; // TODO: unitoverrides needs
-                                                //to be in book model
-                QStandardItem* plotItem = _bookModel->createPlotItem(
-                                                   pageItem,
-                                                "sys.exec.out.time",
-                                                 dropString,
-                                                 emptyUnitOverrides,this);
-                Q_UNUSED(plotItem);
+                QString kovizType(event->mimeData()->data("koviz-model-type"));
+                if ( kovizType.isEmpty() ) {
+                    kovizType = valueMap.value(Qt::UserRole).toString();
+                }
+                if ( kovizType == "VarsModel" ) {
+                    // TODO:time and unit overrides needs to be in book model
+                    QString hardCodedTime("sys.exec.out.time");
+                    QStringList emptyUnitOverrides;
+                    QStandardItem* pageItem = _bookModel->createPageItem();
+                    QStandardItem* plotItem = _bookModel->createPlotItem(
+                                                             pageItem,
+                                                             hardCodedTime,
+                                                             dropString,
+                                                             emptyUnitOverrides,
+                                                             this);
+                    Q_UNUSED(plotItem);
+                } else if ( kovizType == "SieListModel" ) {
+                    QMessageBox msgBox;
+                    QString msg = QString("TODO: Drag-n-drop of TV params!");
+                    msgBox.setText(msg);
+                    msgBox.exec();
+                    fprintf(stderr, "%s\n", msg.toLatin1().constData());
+                    fprintf(stderr, "TV dropped param=%s\n",
+                                    dropString.toLatin1().constData());
+
+                }
             }
         }
     }

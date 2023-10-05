@@ -1460,6 +1460,7 @@ QStandardItemModel* createVarsModel(Runs* runs)
     foreach (QString param, params) {
         if ( param == "sys.exec.out.time" ) continue;
         QStandardItem *varItem = new QStandardItem(param);
+        varItem->setData("VarsModel",Qt::UserRole); // For Drag-n-drop
         rootItem->appendRow(varItem);
     }
 

@@ -4,6 +4,7 @@
 #include <QTabWidget>
 #include <QDragEnterEvent>
 #include <QMimeData>
+#include <QMessageBox>
 
 #include "bookmodel.h"
 

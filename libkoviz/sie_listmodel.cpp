@@ -38,6 +38,16 @@ QVariant SieListModel::data(const QModelIndex &index, int role) const
     return variant;
 }
 
+// This is for drag-n-drop.  A widget that accepts a drop needs to know
+// what model the dropped data came from.
+QMimeData *SieListModel::mimeData(const QModelIndexList &indexes) const
+{
+    QMimeData* mimedata = QAbstractItemModel::mimeData(indexes);
+    QByteArray data("SieListModel");
+    mimedata->setData("koviz-model-type",data);
+    return mimedata;
+}
+
 void SieListModel::setParams(const QStringList* params)
 {
     _params = params;
@@ -100,4 +110,14 @@ void SieListModel::fetchMore(const QModelIndex &parent)
         _fetchCount += nItemsToFetch;
         endInsertRows();
     }
+}
+
+Qt::ItemFlags SieListModel::flags(const QModelIndex &index) const
+{
+    Qt::ItemFlags defaultFlags = QAbstractListModel::flags(index);
+
+    if (index.isValid())
+        return Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled | defaultFlags;
+    else
+        return Qt::ItemIsDropEnabled | defaultFlags;
 }

@@ -32,6 +32,8 @@ public:
                        QWidget *parent = 0);
     ~TrickView();
 
+    void setDragEnabled(bool isEnabled);
+
 signals:
     
 public slots:

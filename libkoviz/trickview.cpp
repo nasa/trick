@@ -29,6 +29,7 @@ TrickView::TrickView(const QString &trickhost, int trickport,
 
     // Vars list view
     _listView = new QListView(parent);
+    _listView->setDragDropMode(QAbstractItemView::DragOnly);
     _listView->setDragEnabled(false);
     _listView->setModel(_sieListModel);
     _listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -64,12 +65,23 @@ TrickView::~TrickView()
 {
 }
 
+void TrickView::setDragEnabled(bool isEnabled)
+{
+    _varsSelectModel->clear();
+    _listView->setDragEnabled(isEnabled);
+}
+
 
 void TrickView::_tvSelectionChanged(
                                 const QItemSelection &currVarSelection,
                                 const QItemSelection &prevVarSelection)
 {
     Q_UNUSED(prevVarSelection); // TODO: handle deselection (prevSelection)
+
+    if ( _listView->dragEnabled() ) {
+        return;
+    }
+
     QModelIndexList idxs = currVarSelection.indexes();
     if ( idxs.size() == 1 ) {
         QModelIndex idx = idxs.at(0);
