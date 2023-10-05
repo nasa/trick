@@ -16,12 +16,13 @@ import trick.common.CheckApplicationProperties;
  * Test DreApplication life cycle.
  * 
  * @author hchen
+ * @intern mrockwell2
  *
  */
 public class DreApplicationTest {
 		
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {	
+	public static void setUpBeforeClass() throws Exception {
 		WaitForDreApplication.launchAndWait(WaitForDreApplication.class);
 	}
 
@@ -30,7 +31,7 @@ public class DreApplicationTest {
 	}
 
 	@Before
-	public void setUp() throws Exception {		
+	public void setUp() throws Exception {
 	}
 
 	@After
@@ -38,7 +39,7 @@ public class DreApplicationTest {
 	}
 	
 	@Test
-	public void testReady() {		
+	public void testReady() {
 		assertTrue("DreApplicationTest is not ready yet!", application().isReady());
 	}
 	

@@ -29,7 +29,10 @@ public class WaitForDreApplication extends DreApplication {
      */
     public static void launchAndWait(Class<? extends WaitForDreApplication> applicationClass) {
     	synchronized(lock) {
-    		sieResourcePath ="resources" + java.io.File.separator + "S_sie.resource";
+			// Set path to S_sie.resource (src/test/resources/S_sie.resource)
+			final String sep = java.io.File.separator;
+			sieResourcePath = String.format("src%1$stest%1$sresources%1$sS_sie.resource", sep);
+    		
     		Application.launch(applicationClass, new String[]{});
     		while(true) {
     			try {
