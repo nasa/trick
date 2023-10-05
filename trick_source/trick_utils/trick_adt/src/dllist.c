@@ -36,7 +36,7 @@ void DLL_Delete(DLLIST * list)
 }
 
 /* Determine whether the given list contains the node at the given pos.
-   If it does, return 1, otherwise return false.
+   If it does, return 1, otherwise return 0.
 */
 static int DLL_ListContainsPos( DLLPOS pos, DLLIST * list) {
      
