@@ -9,8 +9,8 @@
 - [Using Conda](#using-conda)
   * [Creating a Conda Environment with Commands](#creating-a-conda-environment-with-commands)
   * [Creating a Conda Environment From a YAML File](#creating-a-conda-environment-from-a-yaml-file)
-  * [Installing Packages Into a Conda Environment](#installing-packages-into-a-conda-environment)
   * [Activating the Conda Environment](#activating-the-conda-environment)
+  * [Installing Packages Into a Conda Environment](#installing-packages-into-a-conda-environment)
   * [Deactivating an Active Conda Environment](#deactivating-an-active-conda-environment)
 
 - [References](#references)
@@ -92,6 +92,7 @@ Anaconda is a downloadable, free, open-source, high-performance, and optimized P
 ### [Creating a Conda Environment with Commands](#creating-a-conda-environment-with-commands)
 
 #### Create a conda virtial environment with Python by running one of following conda commands from a terminal:
+
 ```
 # A specific version of Python
 % conda create --name trick python=3.9.18
@@ -153,6 +154,7 @@ If you're NOT in your conda environment, you can install package(s) into a speci
 ### [Deactivating an Active Conda Environment](#deactivating-an-active-conda-environment)
 
 If you're in your conda environment, you can deactivate it using the following command:
+
 ```(trick) % conda deactivate```
 
 
