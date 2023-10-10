@@ -12,6 +12,7 @@
   * [Activating the Conda Environment](#activating-the-conda-environment)
   * [Installing Packages Into a Conda Environment](#installing-packages-into-a-conda-environment)
   * [Deactivating an Active Conda Environment](#deactivating-an-active-conda-environment)
+  * [Removing a Conda Environment](#removing-a-conda-environment)
 
 - [References](#references)
 
@@ -106,7 +107,7 @@ or
 % conda create -n trick python
 
 # The latest version of Python 3.9 and packages
-% conda create -n trick python=3.9 PyYAML scipy
+% conda create -n trick python=3.9 pyyaml scipy
 ```
 
 
@@ -120,10 +121,10 @@ channels:
     - conda-forge
     - defaults
 dependencies:
-    - python
-    - PyYAML
+    - python = 3.9
+    - pyyaml
 ```
-In this example, the environment is named ```trick``` and includes two packages: python and PyYAML.
+In this example, the environment is named ```trick``` and includes two packages: python and pyyaml.
 
 #### Run conda command to create the new environment: 
 
@@ -156,6 +157,23 @@ If you're NOT in your conda environment, you can install package(s) into a speci
 If you're in your conda environment, you can deactivate it using the following command:
 
 ```(trick) % conda deactivate```
+
+
+### [Removing a Conda Environment](#removing-a-conda-environment)
+
+You can remove a conda environment from your terminal using the following command:
+
+``` % conda remove -n trick --all```
+
+or 
+
+``` % conda env remove -n trick```
+
+To verify that the environment was removed, run following from your terminal:
+
+``` % conda info --envs```
+
+The removed environment should not be shown.
 
 
 
