@@ -35,6 +35,7 @@ class MonteCarloVariableRandomUniform : public MonteCarloVariableRandom
                                    double       upper_bound = 1.0);
   virtual ~MonteCarloVariableRandomUniform(){};
   virtual void generate_assignment();
+  virtual std::string summarize_variable() const;
  private: // and undefined:
   MonteCarloVariableRandomUniform( const MonteCarloVariableRandomUniform & );
   MonteCarloVariableRandomUniform& operator = (
@@ -59,6 +60,7 @@ class MonteCarloVariableRandomUniformInt : public MonteCarloVariableRandom
                                       double       upper_bound = 1);
   virtual ~MonteCarloVariableRandomUniformInt(){};
   virtual void generate_assignment();
+  virtual std::string summarize_variable() const;
  private: // and undefined:
   MonteCarloVariableRandomUniformInt(const MonteCarloVariableRandomUniformInt&);
   MonteCarloVariableRandomUniformInt& operator = (

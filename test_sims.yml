@@ -447,6 +447,9 @@ SIM_mc_generation:
     RUN_WARN_overconstrained_config/input.py:
       compare:
       phase: -1
+    RUN_WARN_no_string_values/input.py:
+      compare:
+      phase: -1
     MONTE_RUN_WARN_overconstrained_config/RUN_0/monte_input.py:
     FAIL_config_error/input.py:
       returns: 1

@@ -40,7 +40,6 @@ class MonteCarloVariableRandom : public MonteCarloVariable
   virtual ~MonteCarloVariableRandom(){};
   unsigned int get_seed() const {return seed_m;} // override but SWIG cannot process the
                                                // override keyword
-
  private: // and undefined:
   MonteCarloVariableRandom( const MonteCarloVariableRandom & );
   MonteCarloVariableRandom& operator = (const MonteCarloVariableRandom&);
