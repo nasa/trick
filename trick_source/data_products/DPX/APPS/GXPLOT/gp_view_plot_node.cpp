@@ -124,11 +124,11 @@ void GPViewPlotNode::finalize() {
      *          So, check the return value before making the assignment.
      */
     plot_title      = (plot->getTitle()) ?  plot->getTitle() : tmp_stream.str();
-    plot_x_label    = (plot->getXLabel()) ?  plot->getXLabel() : "";
+    plot_x_label    = plot->getXLabel();
     plot_x_scale    = (plot->getAttribute("x_scale")) ?  plot->getAttribute("x_scale") : "";
     plot_x_min_rng  = (plot->getAttribute("xmin")) ?  plot->getAttribute("xmin") : "";
     plot_x_max_rng  = (plot->getAttribute("xmax")) ?  plot->getAttribute("xmax") : "";
-    plot_y_label    = (plot->getYLabel()) ?  plot->getYLabel() : "";
+    plot_y_label    = plot->getYLabel();
     plot_y_format   = (plot->getAttribute("format")) ?  plot->getAttribute("format") : "";
     plot_y_scale    = (plot->getAttribute("y_scale")) ?  plot->getAttribute("y_scale") : "";
     plot_y_min_rng  = (plot->getAttribute("ymin")) ?  plot->getAttribute("ymin") : "";

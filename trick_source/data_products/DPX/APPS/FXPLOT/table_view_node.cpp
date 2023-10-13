@@ -319,7 +319,7 @@ TableViewNode::TableViewNode( Widget Toplevel, DPC_table* Table, int Xpos, int Y
     // Print out the column heading labels.
     // ----------------------------------------------------------------
     for (colix=0; colix < n_columns ; colix++) {
-        const char *column_label = table->getColumnLabel( colix);
+        const char *column_label = table->getColumnLabel( colix).c_str();
 
         if (!column_label) {
             snprintf( charbuf, sizeof(charbuf), "Column_%d", colix);

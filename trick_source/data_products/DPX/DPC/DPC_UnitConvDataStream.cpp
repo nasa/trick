@@ -11,8 +11,8 @@ DPC_UnitConvDataStream::DPC_UnitConvDataStream(DataStream* ds, const char *ToUni
 
     ut_unit * to = NULL ;
     ut_unit * from = NULL ;
-
-    const char * recorded_units = ds->getUnit().c_str();
+    
+    std::string recorded_units = ds->getUnit();
 
     source_ds = ds;
 
@@ -24,7 +24,7 @@ DPC_UnitConvDataStream::DPC_UnitConvDataStream(DataStream* ds, const char *ToUni
     // If the user has specified a units conversion and those units are valid ...
     if ( to != NULL ) {
         // If the recorded data file doesn't contain the units in which the data is recorded ...
-        if ((recorded_units == NULL) || (strcmp(recorded_units,"") == 0)) {
+        if (recorded_units.empty()) {
             // If the user didn't give us a hint as to what the units are (using var@from_units) ...
             if ((FromUnitsHint == NULL) || (strcmp(FromUnitsHint,"") == 0)) {
                 // set the from units to the same as the to units.
@@ -47,7 +47,7 @@ DPC_UnitConvDataStream::DPC_UnitConvDataStream(DataStream* ds, const char *ToUni
             }
         } else { // the recorded data file does "know" the units in which the data was recorded,
             // so those will be the units that we convert from.
-            from = ut_parse(u_system, recorded_units, UT_ASCII) ;
+            from = ut_parse(u_system, recorded_units.c_str(), UT_ASCII) ;
             if ( !from ) {
                 std::cerr << "ERROR: Unable to to perform units conversion because the"
                           << " units in the data recording file appear to be corrupt."
@@ -72,7 +72,7 @@ DPC_UnitConvDataStream::DPC_UnitConvDataStream(DataStream* ds, const char *ToUni
         }
     } else { // The user has not specified a units conversion or the units were not valid.
         // If the recorded data file doesn't contain the units in which the data is recorded ...
-        if ((recorded_units == NULL) || (strcmp(recorded_units,"") == 0)) {
+        if (recorded_units.empty()) {
             // If the user didn't give us a hint as to what the units are (using var@from_units) ...
             if ((FromUnitsHint == NULL) || (strcmp(FromUnitsHint,"") == 0)) {
                 cf = cv_get_trivial() ;

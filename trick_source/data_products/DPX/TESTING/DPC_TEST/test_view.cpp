@@ -93,7 +93,7 @@ DPV_pointer test_view::create_table_view( DPV_pointer parent_data,
   cout << "Number of Columns : " << n_columns << endl;
 
   for (colix=0; colix < n_columns ; colix++) {
-    const char *col_label = table->getColumnLabel( colix);
+    const char *col_label = table->getColumnLabel( colix).c_str();
     const char *var_name = table->getColumnVarName( colix);
     const char *col_units = table->getColumnUnits( colix);
     const char *format = table->getColumnAttribute( colix,"format");
