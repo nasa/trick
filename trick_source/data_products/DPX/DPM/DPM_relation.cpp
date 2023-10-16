@@ -166,8 +166,10 @@ std::string DPM_relation::getXAxisLabel() {
       }
       n_curves = (int)curve_list.size();
       for (i=1; i<n_curves; i++) {
-          if (( short_name = curve_list[i]->getXCommonName().c_str() ) == NULL ) {
+          if ( curve_list[i]->getXCommonName().empty() ) {
                return ("");
+          } else {
+               short_name = curve_list[i]->getXCommonName().c_str();
           }
           if (strcmp( candidate_label.c_str(), short_name) != 0 ) {
                return ("");

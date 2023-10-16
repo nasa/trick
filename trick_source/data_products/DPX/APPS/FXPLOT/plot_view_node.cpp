@@ -200,19 +200,11 @@ PlotViewNode::PlotViewNode( Widget Toplevel, Widget Parent_form, DPC_plot* Plot 
     curves = new XYCurve[n_curves];
 
     // X Axis label.
-    if ((const_temp_str = plot->getXLabel().c_str()) != NULL) {
-        snprintf( charbuf, sizeof(charbuf), "%s", const_temp_str );
-    } else {
-        charbuf[0] = '\0';
-    }
+    snprintf( charbuf, sizeof(charbuf), "%s", const_temp_str );
     X_label = XmStringCreateLocalized( charbuf);
 
     // Y Axis label.
-    if ((const_temp_str = plot->getYLabel().c_str()) != NULL) {
-        snprintf( charbuf, sizeof(charbuf), "%s", const_temp_str );
-    } else {
-        charbuf[0] = '\0';
-    }
+    snprintf( charbuf, sizeof(charbuf), "%s", const_temp_str );
     Y_label = XmStringCreateLocalized( charbuf);
 
     // ---------------------------

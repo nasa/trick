@@ -77,8 +77,8 @@ DPV_pointer Test_view::render_plot( DPV_pointer parent_data, DPC_plot* plot) {
   	}
 
   	s << "Number of Curves: " << plot->getNumCurves() << std::endl;
-  	s << "X-axis label: " << plot->getXLabel().c_str() << std::endl;
-  	s << "Y-axis label: " << plot->getYLabel().c_str() << std::endl;
+  	s << "X-axis label: " << plot->getXLabel() << std::endl;
+  	s << "Y-axis label: " << plot->getYLabel() << std::endl;
 
   	if ((temp_cstr = plot->getAttribute("xmin")) != NULL) {
     	s << "Attribute xmin: " << temp_cstr << std::endl;
@@ -138,7 +138,7 @@ DPV_pointer Test_view::render_table( DPV_pointer parent_data, DPC_table  *table)
   	s << "Number of Columns: " << n_columns << std::endl;
 
   	for (colix=0; colix < n_columns ; colix++) {
-    	if ((temp_cstr = table->getColumnLabel(colix).c_str()) != NULL) {
+    	if ((temp_cstr = table->getColumnLabel(colix).c_str())[0] != '\0') {
       		s << "Column Label [" << colix << "]: " << temp_cstr << std::endl;
     	}
     	if ((temp_cstr = table->getColumnVarName(colix)) != NULL) {
