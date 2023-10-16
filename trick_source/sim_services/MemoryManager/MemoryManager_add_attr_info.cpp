@@ -72,11 +72,13 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
     }
 
     if ( size_func == NULL)  {
+/*
         std::stringstream message;
         message << "(" << file_name << ":" << line_num
             << "): Couldn't find an io_src_sizeof_ function for type "
             << user_type_string.c_str() << "[" << size_func_name.c_str() << "()].";
         emitWarning(message.str());
+*/
     }
 
     // Attempt to find an attributes list for the named user type.
@@ -132,9 +134,11 @@ int Trick::MemoryManager::add_attr_info( const std::string & user_type_string , 
 
             // otherwise ...
             } else {
+/*
                 std::stringstream message;
                 message << "ATTRIBUTES for type \"" << user_type_name.c_str() << "\" not found.";
                 emitWarning(message.str());
+*/
                 return(1) ;
             }
         } else {
