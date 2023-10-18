@@ -198,8 +198,10 @@ std::string DPM_relation::getYAxisLabel() {
       }
       n_curves = (int)curve_list.size();
       for (i=1; i<n_curves; i++) {
-          if (( short_name = curve_list[i]->getYCommonName().c_str() ) == NULL ) {
+          if (curve_list[i]->getYCommonName().empty()) {
                return ("");
+          } else {
+               short_name = curve_list[i]->getYCommonName().c_str();
           }
           if (strcmp( candidate_label.c_str(), short_name) != 0 ) {
                return ("");
@@ -228,8 +230,10 @@ std::string DPM_relation::getZAxisLabel() {
       }
       n_curves = (int)curve_list.size();
       for (i=1; i<n_curves; i++) {
-          if (( short_name = curve_list[i]->getZCommonName().c_str() ) == NULL ) {
+          if (curve_list[i]->getZCommonName().empty()) {
                return ("");
+          } else {
+               short_name = curve_list[i]->getZCommonName().c_str();
           }
           if (strcmp( candidate_label.c_str(), short_name) != 0 ) {
                return ("");
