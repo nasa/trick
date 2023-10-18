@@ -183,6 +183,8 @@ PlotMainWindow::PlotMainWindow(
                                _bookModel,
                                _bookView->selectionModel(),
                                _tvFrame);
+    connect(_bookView, SIGNAL(signalDropEvent(QDropEvent*,QModelIndex)),
+            _trickView,SLOT(slotDropEvent(QDropEvent*,QModelIndex)));
 
     // Start/Live/Stop times input
     _timeInput = new TimeInput(this);

@@ -413,6 +413,8 @@ void BookView::rowsInserted(const QModelIndex &pidx, int start, int end)
                     SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                     this,
                     SLOT(_pageViewCurrentChanged(QModelIndex,QModelIndex)));
+            connect(pageView, SIGNAL(signalDropEvent(QDropEvent*,QModelIndex)),
+                    this, SLOT(slotDropEvent(QDropEvent*,QModelIndex)));
             int tabId = _nb->addTab(pageView,"Page");
             QString pageName = _bookModel()->getDataString(pidx,
                                                            "PageName","Page");

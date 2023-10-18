@@ -145,6 +145,8 @@ void PageView::rowsInserted(const QModelIndex &pidx, int start, int end)
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this,
             SLOT(_plotViewCurrentChanged(QModelIndex,QModelIndex)));
+    connect(plot, SIGNAL(signalDropEvent(QDropEvent*,QModelIndex)),
+            this, SLOT(slotDropEvent(QDropEvent*,QModelIndex)));
     _grid->addWidget(plot);
     plot->show();
 

@@ -160,6 +160,9 @@ PlotView::PlotView(QWidget *parent) :
     _yTicLabels = new LabeledRulerView(Qt::AlignLeft,this);
     _curvesView = new CurvesView(this);
 
+    connect(_xAxisLabel, SIGNAL(signalDropEvent(QDropEvent*,QModelIndex)),
+            this, SLOT(slotDropEvent(QDropEvent*,QModelIndex)));
+
     _titleView->setWhatsThis("titleView");
     _xAxisLabel->setWhatsThis("xAxisLabel");
     _yAxisLabel->setWhatsThis("yAxisLabel");

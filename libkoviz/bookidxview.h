@@ -7,6 +7,7 @@
 #include <QPaintEngine>
 #include <QPen>
 #include <QEasingCurve>
+#include <QDropEvent>
 #include <qmath.h>
 #include <cmath>
 #include "bookmodel.h"
@@ -101,8 +102,10 @@ protected slots:
 
 
 signals:
+    void signalDropEvent(QDropEvent* dropEvent, const QModelIndex& idx);
 
 public slots:
+    void slotDropEvent(QDropEvent* dropEvent, const QModelIndex& idx);
 
 };
 

@@ -71,6 +71,103 @@ void TrickView::setDragEnabled(bool isEnabled)
     _listView->setDragEnabled(isEnabled);
 }
 
+void TrickView::slotDropEvent(QDropEvent *event, const QModelIndex &idx)
+{
+    QString tag = _bookModel->data(idx.sibling(idx.row(),0)).toString();
+    QString mimeType("application/x-qabstractitemmodeldatalist");
+    if ( event->mimeData()->hasFormat(mimeType) ) {
+        QByteArray bytes = event->mimeData()->data(mimeType);
+        QDataStream stream(&bytes,QIODevice::ReadOnly);
+        int row,col;
+        QMap<int, QVariant> valueMap;
+        stream >> row >> col >> valueMap;
+        if ( !valueMap.isEmpty() ) {
+            QString dropString = valueMap.value(0).toString();
+            if ( tag == "PlotXAxisLabel" ) {
+                Qt::KeyboardModifiers kmods = event->keyboardModifiers();
+                bool isCtl = (kmods & Qt::ControlModifier);
+                bool isAlt = (kmods & Qt::AltModifier);
+                QStringList params = _expandParam(dropString);
+                if ( !isCtl && !isAlt && params.size() > 0 ) {
+                    _changeXOnPlot(params.at(0),idx);      // X
+                } else if ( isCtl && params.size() == 2  ) {
+                    _changeXOnPlot(params.at(1), idx);     // Y
+                } else if ( params.size() == 3 ) {
+                    if ( isCtl ) {
+                        _changeXOnPlot(params.at(1), idx); // Y
+                    } else if ( isAlt ) {
+                        _changeXOnPlot(params.at(2), idx); // Z
+                    }
+                } else {
+                    fprintf(stderr, "koviz TODO: handle x drop when sie "
+                            "param is dimensioned greater than 3.\n");
+                }
+            }
+        }
+    }
+}
+
+void TrickView::_changeXOnPlot(const QString &xName,
+                               const QModelIndex &xAxisLabelIdx)
+{
+    QModelIndex plotIdx = xAxisLabelIdx.parent();
+    _bookModel->setData(xAxisLabelIdx,xName);
+    QModelIndex curvesIdx = _bookModel->getIndex(plotIdx, "Curves","Plot");
+    QModelIndexList curveIdxs = _bookModel->getIndexList(curvesIdx,
+                                                         "Curve","Curves");
+    bool block = _bookModel->blockSignals(true);
+    foreach ( QModelIndex curveIdx, curveIdxs ) {
+        QModelIndex xNameIdx = _bookModel->getDataIndex(curveIdx,
+                                                        "CurveXName","Curve");
+        QModelIndex xUnitIdx = _bookModel->getDataIndex(curveIdx,
+                                                        "CurveXUnit","Curve");
+        QModelIndex curveDataIdx = _bookModel->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+        QString tName = _bookModel->getDataString(curveIdx,
+                                                  "CurveTimeName", "Curve");
+        QString yName = _bookModel->getDataString(curveIdx,
+                                                  "CurveYName", "Curve");
+
+        int tcol = _tvModel->paramColumn(tName);
+        int xcol = _tvModel->paramColumn(xName);
+        if ( xcol < 0 ) {
+            _tvModel->addParam(xName, "--");
+            xcol = _tvModel->paramColumn(xName);
+        }
+        int ycol = _tvModel->paramColumn(yName);
+
+        CurveModel* curveModel = new CurveModel(_tvModel,tcol,xcol,ycol);
+
+        QString xUnit = curveModel->x()->unit();
+        _bookModel->setData(xNameIdx,xName);
+        _bookModel->setData(xUnitIdx,xUnit);
+
+        QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
+        _bookModel->setData(curveDataIdx,v);
+    }
+    _bookModel->blockSignals(block);
+
+    // Reset plot math rect
+    QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+    plotIdx = curvesIdx.parent();
+    QModelIndex pageIdx = plotIdx.parent().parent();
+    QModelIndex plotMathRectIdx = _bookModel->getDataIndex(plotIdx,
+                                                           "PlotMathRect",
+                                                           "Plot");
+    QModelIndexList siblingPlotIdxs = _bookModel->plotIdxs(pageIdx);
+    foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+        bool isXTime = _bookModel->isXTime(siblingPlotIdx);
+        if ( isXTime ) {
+            QRectF sibPlotRect = _bookModel->getPlotMathRect(siblingPlotIdx);
+            if ( sibPlotRect.width() > 0 ) {
+                bbox.setLeft(sibPlotRect.left());
+                bbox.setRight(sibPlotRect.right());
+            }
+            break;
+        }
+    }
+    _bookModel->setData(plotMathRectIdx,bbox);
+}
 
 void TrickView::_tvSelectionChanged(
                                 const QItemSelection &currVarSelection,

@@ -150,6 +150,11 @@ void BookIdxView::rowsInserted(const QModelIndex &pidx, int start, int end)
     // Code
 }
 
+void BookIdxView::slotDropEvent(QDropEvent* dropEvent, const QModelIndex &idx)
+{
+    emit signalDropEvent(dropEvent,idx);
+}
+
 QModelIndex BookIdxView::indexAt(const QPoint &point) const
 {
     Q_UNUSED(point);

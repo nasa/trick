@@ -20,62 +20,75 @@ void XAxisLabelView::dropEvent(QDropEvent *event)
         stream >> row >> col >> valueMap;
         if ( !valueMap.isEmpty() ) {
             QString dropString = valueMap.value(0).toString();
+            QString kovizType(event->mimeData()->data("koviz-model-type"));
+            if ( kovizType.isEmpty() ) {
+                kovizType = valueMap.value(Qt::UserRole).toString();
+            }
             QModelIndex plotIdx = rootIndex();
             QModelIndex xAxisLabelIdx = _bookModel()->getDataIndex(plotIdx,
                                                                "PlotXAxisLabel",
-                                                               "Plot");
-            _bookModel()->setData(xAxisLabelIdx,dropString);
-            QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,
-                                                           "Curves","Plot");
-            QModelIndexList curveIdxs = _bookModel()->getIndexList(curvesIdx,
+                                                                        "Plot");
+            if ( kovizType == "VarsModel" ) {
+                _bookModel()->setData(xAxisLabelIdx,dropString);
+                QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,
+                                                               "Curves","Plot");
+                QModelIndexList curveIdxs = _bookModel()->getIndexList(
+                                                              curvesIdx,
                                                               "Curve","Curves");
-            bool block = _bookModel()->blockSignals(true);
-            foreach ( QModelIndex curveIdx, curveIdxs ) {
-                QModelIndex xNameIdx = _bookModel()->getDataIndex(curveIdx,
+                bool block = _bookModel()->blockSignals(true);
+                foreach ( QModelIndex curveIdx, curveIdxs ) {
+                    QModelIndex xNameIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveXName","Curve");
-                QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
+                    QModelIndex xUnitIdx = _bookModel()->getDataIndex(curveIdx,
                                                           "CurveXUnit","Curve");
-                QModelIndex curveDataIdx = _bookModel()->getDataIndex(curveIdx,
-                                                          "CurveData","Curve");
-                int runRow = _bookModel()->getDataInt(curveIdx,
-                                                      "CurveRunID","Curve");
-                QString tName = _bookModel()->getDataString(curveIdx,
+                    QModelIndex curveDataIdx = _bookModel()->getDataIndex(
+                                                           curveIdx,
+                                                           "CurveData","Curve");
+                    int runRow = _bookModel()->getDataInt(curveIdx,
+                                                          "CurveRunID","Curve");
+                    QString tName = _bookModel()->getDataString(curveIdx,
                                                       "CurveTimeName", "Curve");
-                QString yName = _bookModel()->getDataString(curveIdx,
+                    QString yName = _bookModel()->getDataString(curveIdx,
                                                          "CurveYName", "Curve");
-                QString xName = dropString;
-                CurveModel* curveModel = _bookModel()->createCurve(runRow,
+                    QString xName = dropString;
+                    CurveModel* curveModel = _bookModel()->createCurve(runRow,
                                                              tName,xName,yName);
-                QString xUnit = curveModel->x()->unit();
-                _bookModel()->setData(xNameIdx,xName);
-                _bookModel()->setData(xUnitIdx,xUnit);
-                 QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
-                _bookModel()->setData(curveDataIdx,v);
-            }
-            _bookModel()->blockSignals(block);
-
-            // Reset plot math rect
-            QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
-            plotIdx = curvesIdx.parent();
-            QModelIndex pageIdx = plotIdx.parent().parent();
-            QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(plotIdx,
-                                                           "PlotMathRect",
-                                                           "Plot");
-            QModelIndexList siblingPlotIdxs = _bookModel()->plotIdxs(pageIdx);
-            foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
-                bool isXTime = _bookModel()->isXTime(siblingPlotIdx);
-                if ( isXTime ) {
-                    QRectF sibPlotRect = _bookModel()->
-                                                getPlotMathRect(siblingPlotIdx);
-                    if ( sibPlotRect.width() > 0 ) {
-                        bbox.setLeft(sibPlotRect.left());
-                        bbox.setRight(sibPlotRect.right());
-                    }
-                    break;
+                    QString xUnit = curveModel->x()->unit();
+                    _bookModel()->setData(xNameIdx,xName);
+                    _bookModel()->setData(xUnitIdx,xUnit);
+                    QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
+                    _bookModel()->setData(curveDataIdx,v);
                 }
-            }
-            _bookModel()->setData(plotMathRectIdx,bbox);
+                _bookModel()->blockSignals(block);
 
+                // Reset plot math rect
+                QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+                plotIdx = curvesIdx.parent();
+                QModelIndex pageIdx = plotIdx.parent().parent();
+                QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(
+                                                                 plotIdx,
+                                                                 "PlotMathRect",
+                                                                 "Plot");
+                QModelIndexList siblingPlotIdxs = _bookModel()->plotIdxs(
+                                                                       pageIdx);
+                foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+                    bool isXTime = _bookModel()->isXTime(siblingPlotIdx);
+                    if ( isXTime ) {
+                        QRectF sibPlotRect = _bookModel()->
+                                                getPlotMathRect(siblingPlotIdx);
+                        if ( sibPlotRect.width() > 0 ) {
+                            bbox.setLeft(sibPlotRect.left());
+                            bbox.setRight(sibPlotRect.right());
+                        }
+                        break;
+                    }
+                }
+                _bookModel()->setData(plotMathRectIdx,bbox);
+
+            } else if ( kovizType == "SieListModel" ) {
+                // This signal propagates and is finally caught by trickview
+                emit signalDropEvent(event,xAxisLabelIdx);
+            }
         }
         event->accept();
     } else {

@@ -16,6 +16,7 @@
 #include <QLabel>
 #include <QMetaObject>
 #include <QApplication>
+#include <QDropEvent>
 #include <float.h>
 #include "bookmodel.h"
 #include "sie_listmodel.h"
@@ -37,6 +38,7 @@ public:
 signals:
     
 public slots:
+    void slotDropEvent(QDropEvent* event,const QModelIndex& idx);
 
 private:
     PlotBookModel* _bookModel;
@@ -62,6 +64,8 @@ private:
                                const QString& yName);
     QModelIndex _addCurveToPlot(const QModelIndex& plotIdx,
                                 const QString& yName);
+    void _changeXOnPlot(const QString& xName,
+                        const QModelIndex& xAxisLabelIdx);
     QStringList _expandParam(const QString& param);
     QStringList __appendMember(QStringList& paramsIn,
                                const QDomElement&  member);
