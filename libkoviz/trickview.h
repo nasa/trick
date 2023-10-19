@@ -61,11 +61,14 @@ private:
 
     QModelIndex _createPage();
     QModelIndex _addPlotToPage(const QModelIndex& pageIdx,
-                               const QString& yName);
+                               const QString& yName,
+                               const QString& yUnit);
     QModelIndex _addCurveToPlot(const QModelIndex& plotIdx,
-                                const QString& yName);
-    void _changeXOnPlot(const QString& xName,
+                                const QString& yName,
+                                const QString& yUnit);
+    void _changeXOnPlot(const QString& xName, const QString& xUnit,
                         const QModelIndex& xAxisLabelIdx);
+    QString _paramUnit(const QString &param);
     QStringList _expandParam(const QString& param);
     QStringList __appendMember(QStringList& paramsIn,
                                const QDomElement&  member);

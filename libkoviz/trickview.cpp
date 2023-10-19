@@ -87,16 +87,17 @@ void TrickView::slotDropEvent(QDropEvent *event, const QModelIndex &idx)
                 Qt::KeyboardModifiers kmods = event->keyboardModifiers();
                 bool isCtl = (kmods & Qt::ControlModifier);
                 bool isAlt = (kmods & Qt::AltModifier);
+                QString unit = _paramUnit(dropString);
                 QStringList params = _expandParam(dropString);
                 if ( !isCtl && !isAlt && params.size() > 0 ) {
-                    _changeXOnPlot(params.at(0),idx);      // X
+                    _changeXOnPlot(params.at(0),unit,idx);      // X
                 } else if ( isCtl && params.size() == 2  ) {
-                    _changeXOnPlot(params.at(1), idx);     // Y
+                    _changeXOnPlot(params.at(1),unit,idx);     // Y
                 } else if ( params.size() == 3 ) {
                     if ( isCtl ) {
-                        _changeXOnPlot(params.at(1), idx); // Y
+                        _changeXOnPlot(params.at(1),unit,idx); // Y
                     } else if ( isAlt ) {
-                        _changeXOnPlot(params.at(2), idx); // Z
+                        _changeXOnPlot(params.at(2),unit,idx); // Z
                     }
                 } else {
                     fprintf(stderr, "koviz TODO: handle x drop when sie "
@@ -107,7 +108,7 @@ void TrickView::slotDropEvent(QDropEvent *event, const QModelIndex &idx)
     }
 }
 
-void TrickView::_changeXOnPlot(const QString &xName,
+void TrickView::_changeXOnPlot(const QString &xName, const QString &xUnit,
                                const QModelIndex &xAxisLabelIdx)
 {
     QModelIndex plotIdx = xAxisLabelIdx.parent();
@@ -131,14 +132,13 @@ void TrickView::_changeXOnPlot(const QString &xName,
         int tcol = _tvModel->paramColumn(tName);
         int xcol = _tvModel->paramColumn(xName);
         if ( xcol < 0 ) {
-            _tvModel->addParam(xName, "--");
+            _tvModel->addParam(xName, xUnit);
             xcol = _tvModel->paramColumn(xName);
         }
         int ycol = _tvModel->paramColumn(yName);
 
         CurveModel* curveModel = new CurveModel(_tvModel,tcol,xcol,ycol);
 
-        QString xUnit = curveModel->x()->unit();
         _bookModel->setData(xNameIdx,xName);
         _bookModel->setData(xUnitIdx,xUnit);
 
@@ -191,27 +191,28 @@ void TrickView::_tvSelectionChanged(
             pageIdx = _bookModel->getIndex(plotIdx,"Page");
         }
         int i = 0;
+        QString unit = _paramUnit(param);
         foreach ( QString p, _expandParam(param) ) {
             if ( !plotIdx.isValid() ) {
                 pageIdx = _createPage();
-                plotIdx = _addPlotToPage(pageIdx,p);
+                plotIdx = _addPlotToPage(pageIdx,p,unit);
             } else {
                 Qt::KeyboardModifiers kmods = QApplication::keyboardModifiers();
                 bool isAlt = (kmods & Qt::AltModifier);
                 bool isCtl = (kmods & Qt::ControlModifier);
                 if ( isAlt && !isCtl ) {
-                    _addCurveToPlot(plotIdx,p);
+                    _addCurveToPlot(plotIdx,p,unit);
                 } else if ( !isAlt && isCtl ) {
-                    plotIdx = _addPlotToPage(pageIdx,p);
+                    plotIdx = _addPlotToPage(pageIdx,p,unit);
                 } else if ( isAlt && isCtl ) {
                     if ( i == 0 ) {
-                        plotIdx = _addPlotToPage(pageIdx,p);
+                        plotIdx = _addPlotToPage(pageIdx,p,unit);
                     } else {
-                        _addCurveToPlot(plotIdx,p);
+                        _addCurveToPlot(plotIdx,p,unit);
                     }
                 } else {
                     pageIdx = _createPage();
-                    plotIdx = _addPlotToPage(pageIdx,p);
+                    plotIdx = _addPlotToPage(pageIdx,p,unit);
                 }
             }
             ++i;
@@ -219,6 +220,50 @@ void TrickView::_tvSelectionChanged(
                                               QItemSelectionModel::Current);
         }
     }
+}
+
+QString TrickView::_paramUnit(const QString &param)
+{
+    QString unit;
+
+    QStringList paramList = param.split('.');
+    QDomElement rootElement = _sieDoc.documentElement();
+
+    QString elType;
+    for (int i = 0; i < paramList.size(); ++i ) {
+        if ( i == 0 ) {
+            QDomNodeList tlos = rootElement.elementsByTagName(
+                                                            "top_level_object");
+            QString simObject = paramList.at(i);
+            for (int j = 0; j < tlos.size(); ++j) {
+                QDomElement tlo = tlos.at(j).toElement();
+                if ( tlo.attribute("name") == simObject ) {
+                    elType = tlo.attribute("type");
+                    break;
+                }
+            }
+        } else {
+            if ( _name2element.contains(elType) ) {
+                QDomElement el = _name2element.value(elType);
+                QDomNodeList members = el.elementsByTagName("member");
+                for (int j = 0; j < members.size(); ++j) {
+                    QDomElement member = members.at(j).toElement();
+                    QString memberName = member.attribute("name");
+                    if ( memberName == paramList.at(i) ) {
+                        elType = member.attribute("type");
+                        unit = member.attribute("units");
+                        break;
+                    }
+                }
+            } else {
+                fprintf(stderr, "koviz [bad scoobs]: tv bad type=%s\n",
+                        elType.toLatin1().constData());
+                exit(-1);
+            }
+        }
+    }
+
+    return unit;
 }
 
 // Given undimensioned param name e.g. ball.state.out.position
@@ -598,7 +643,7 @@ QModelIndex TrickView::_createPage()
 }
 
 QModelIndex TrickView::_addPlotToPage(const QModelIndex &pageIdx,
-                                      const QString &yName)
+                                      const QString &yName,const QString &yUnit)
 {
     QModelIndex plotsIdx = _bookModel->getIndex(pageIdx, "Plots", "Page");
     QStandardItem* plotsItem = _bookModel->itemFromIndex(plotsIdx);
@@ -628,14 +673,15 @@ QModelIndex TrickView::_addPlotToPage(const QModelIndex &pageIdx,
     _bookModel->addChild(plotItem, "PlotRect", QRect(0,0,0,0));
 
     QModelIndex plotIdx = _bookModel->indexFromItem(plotItem);
-    QModelIndex curveIdx = _addCurveToPlot(plotIdx,yName);
+    QModelIndex curveIdx = _addCurveToPlot(plotIdx,yName,yUnit);
     Q_UNUSED(curveIdx);
 
     return plotIdx;
 }
 
 QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
-                                       const QString &yName)
+                                       const QString &yName,
+                                       const QString &yUnit)
 {
     QStandardItem* curvesItem;
     if ( _bookModel->isChildIndex(plotIdx, "Plot", "Curves") ) {
@@ -648,7 +694,7 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
 
     QStandardItem *curveItem = _bookModel->addChild(curvesItem,"Curve");
 
-    _tvModel->addParam(yName, "--");
+    _tvModel->addParam(yName, yUnit);
 
     int tcol = _tvModel->paramColumn("time");
     int xcol = tcol;
