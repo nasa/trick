@@ -32,7 +32,7 @@ int Trick::Executive::init() {
         /* Start the cpu usage meter */
         struct rusage cpu_usage_buf ;
         getrusage(RUSAGE_SELF, &cpu_usage_buf);
-        cpu_start =   ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
+        user_cpu_start =   ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
         
         /* command line args */
         process_sim_args();
@@ -55,7 +55,10 @@ int Trick::Executive::init() {
         /* Record the cpu usage for initialization */
         getrusage(RUSAGE_SELF, &cpu_usage_buf);
         cpu_time = ((double) cpu_usage_buf.ru_utime.tv_sec) + ((double) cpu_usage_buf.ru_utime.tv_usec / 1000000.0);
-        cpu_init = cpu_time - cpu_start;
+        user_cpu_init = cpu_time - user_cpu_start;
+
+        cpu_time = ((double) cpu_usage_buf.ru_stime.tv_sec) + ((double) cpu_usage_buf.ru_stime.tv_usec / 1000000.0);
+        kernal_cpu_init = cpu_time - kernal_cpu_start;
 
         initialization_complete = true ;
 
