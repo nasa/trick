@@ -103,6 +103,8 @@ void TrickView::slotDropEvent(QDropEvent *event, const QModelIndex &idx)
                     fprintf(stderr, "koviz TODO: handle x drop when sie "
                             "param is dimensioned greater than 3.\n");
                 }
+            } else if ( ! idx.isValid() ) {
+                _addParamToBook(dropString);
             }
         }
     }
@@ -183,42 +185,7 @@ void TrickView::_tvSelectionChanged(
     if ( idxs.size() == 1 ) {
         QModelIndex idx = idxs.at(0);
         QString param = _sieListModel->data(idx).toString();
-        QModelIndex currIdx = _bookSelectModel->currentIndex();
-        QModelIndex pageIdx;
-        QModelIndex plotIdx;
-        if ( _bookModel->data(currIdx).toString() == "Plot" ) {
-            plotIdx = currIdx;
-            pageIdx = _bookModel->getIndex(plotIdx,"Page");
-        }
-        int i = 0;
-        QString unit = _paramUnit(param);
-        foreach ( QString p, _expandParam(param) ) {
-            if ( !plotIdx.isValid() ) {
-                pageIdx = _createPage();
-                plotIdx = _addPlotToPage(pageIdx,p,unit);
-            } else {
-                Qt::KeyboardModifiers kmods = QApplication::keyboardModifiers();
-                bool isAlt = (kmods & Qt::AltModifier);
-                bool isCtl = (kmods & Qt::ControlModifier);
-                if ( isAlt && !isCtl ) {
-                    _addCurveToPlot(plotIdx,p,unit);
-                } else if ( !isAlt && isCtl ) {
-                    plotIdx = _addPlotToPage(pageIdx,p,unit);
-                } else if ( isAlt && isCtl ) {
-                    if ( i == 0 ) {
-                        plotIdx = _addPlotToPage(pageIdx,p,unit);
-                    } else {
-                        _addCurveToPlot(plotIdx,p,unit);
-                    }
-                } else {
-                    pageIdx = _createPage();
-                    plotIdx = _addPlotToPage(pageIdx,p,unit);
-                }
-            }
-            ++i;
-            _bookSelectModel->setCurrentIndex(plotIdx,
-                                              QItemSelectionModel::Current);
-        }
+        _addParamToBook(param);
     }
 }
 
@@ -632,6 +599,46 @@ void TrickView::_loadSieElement(const QDomElement &element,
             copypath.append(memberElement);
             _loadSieElement(memberElement,copypath);
         }
+    }
+}
+
+void TrickView::_addParamToBook(const QString &param)
+{
+    QModelIndex currIdx = _bookSelectModel->currentIndex();
+    QModelIndex pageIdx;
+    QModelIndex plotIdx;
+    if ( _bookModel->data(currIdx).toString() == "Plot" ) {
+        plotIdx = currIdx;
+        pageIdx = _bookModel->getIndex(plotIdx,"Page");
+    }
+    int i = 0;
+    QString unit = _paramUnit(param);
+    foreach ( QString p, _expandParam(param) ) {
+        if ( !plotIdx.isValid() ) {
+            pageIdx = _createPage();
+            plotIdx = _addPlotToPage(pageIdx,p,unit);
+        } else {
+            Qt::KeyboardModifiers kmods = QApplication::keyboardModifiers();
+            bool isAlt = (kmods & Qt::AltModifier);
+            bool isCtl = (kmods & Qt::ControlModifier);
+            if ( isAlt && !isCtl ) {
+                _addCurveToPlot(plotIdx,p,unit);
+            } else if ( !isAlt && isCtl ) {
+                plotIdx = _addPlotToPage(pageIdx,p,unit);
+            } else if ( isAlt && isCtl ) {
+                if ( i == 0 ) {
+                    plotIdx = _addPlotToPage(pageIdx,p,unit);
+                } else {
+                    _addCurveToPlot(plotIdx,p,unit);
+                }
+            } else {
+                pageIdx = _createPage();
+                plotIdx = _addPlotToPage(pageIdx,p,unit);
+            }
+        }
+        ++i;
+        _bookSelectModel->setCurrentIndex(plotIdx,
+                                          QItemSelectionModel::Current);
     }
 }
 

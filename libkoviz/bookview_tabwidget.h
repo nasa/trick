@@ -22,6 +22,9 @@ protected:
 private:
     PlotBookModel* _bookModel;
 
+signals:
+    void signalDropEvent(QDropEvent *event, const QModelIndex& idx);
+
 protected slots:
 
 };

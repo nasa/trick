@@ -42,14 +42,7 @@ void BookViewTabWidget::dropEvent(QDropEvent *event)
                                                              this);
                     Q_UNUSED(plotItem);
                 } else if ( kovizType == "SieListModel" ) {
-                    QMessageBox msgBox;
-                    QString msg = QString("TODO: Drag-n-drop of TV params!");
-                    msgBox.setText(msg);
-                    msgBox.exec();
-                    fprintf(stderr, "%s\n", msg.toLatin1().constData());
-                    fprintf(stderr, "TV dropped param=%s\n",
-                                    dropString.toLatin1().constData());
-
+                    emit signalDropEvent(event,QModelIndex());
                 }
             }
         }

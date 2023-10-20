@@ -14,6 +14,9 @@ BookView::BookView(QWidget *parent) :
     connect(_nb,SIGNAL(tabCloseRequested(int)),
             this,SLOT(_nbCloseRequested(int)));
 
+    connect(_nb,SIGNAL(signalDropEvent(QDropEvent*,QModelIndex)),
+            this, SLOT(slotDropEvent(QDropEvent*,QModelIndex)));
+
     _mainLayout->addWidget(_nb);
 
     setLayout(_mainLayout);

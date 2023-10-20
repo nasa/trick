@@ -59,6 +59,7 @@ private:
     SieListModel* _sieListModel;
     TVModel* _tvModel;
 
+    void _addParamToBook(const QString& param);
     QModelIndex _createPage();
     QModelIndex _addPlotToPage(const QModelIndex& pageIdx,
                                const QString& yName,
