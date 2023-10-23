@@ -150,7 +150,7 @@ int DPM_relation::NumberOfAxes() {
 // MEMBER FUNCTION
 std::string DPM_relation::getXAxisLabel() {
   std::string candidate_label;
-  const char * short_name;
+  
   int n_curves, i;
 
   if (xaxis) {
@@ -166,14 +166,9 @@ std::string DPM_relation::getXAxisLabel() {
       }
       n_curves = (int)curve_list.size();
       for (i=1; i<n_curves; i++) {
-          if ( curve_list[i]->getXCommonName().empty() ) {
+          if ( curve_list[i]->getXCommonName().empty() || candidate_label != curve_list[i]->getXCommonName()) {
                return ("");
-          } else {
-               short_name = curve_list[i]->getXCommonName().c_str();
-          }
-          if (strcmp( candidate_label.c_str(), short_name) != 0 ) {
-               return ("");
-          }
+          } 
       }
   }
   return (candidate_label);
@@ -182,7 +177,7 @@ std::string DPM_relation::getXAxisLabel() {
 // MEMBER FUNCTION
 std::string DPM_relation::getYAxisLabel() {
   std::string candidate_label;
-  const char * short_name;
+  
   int n_curves, i;
 
   if (yaxis) {
@@ -198,14 +193,9 @@ std::string DPM_relation::getYAxisLabel() {
       }
       n_curves = (int)curve_list.size();
       for (i=1; i<n_curves; i++) {
-          if (curve_list[i]->getYCommonName().empty()) {
+          if (curve_list[i]->getYCommonName().empty() || candidate_label != curve_list[i]->getYCommonName()) {
                return ("");
-          } else {
-               short_name = curve_list[i]->getYCommonName().c_str();
-          }
-          if (strcmp( candidate_label.c_str(), short_name) != 0 ) {
-               return ("");
-          }
+          } 
       }
   }
   return (candidate_label);
@@ -214,7 +204,7 @@ std::string DPM_relation::getYAxisLabel() {
 // MEMBER FUNCTION
 std::string DPM_relation::getZAxisLabel() {
   std::string candidate_label;
-  const char * short_name;
+  
   int n_curves, i;
 
   if (zaxis) {
@@ -230,14 +220,9 @@ std::string DPM_relation::getZAxisLabel() {
       }
       n_curves = (int)curve_list.size();
       for (i=1; i<n_curves; i++) {
-          if (curve_list[i]->getZCommonName().empty()) {
+          if (curve_list[i]->getZCommonName().empty() || candidate_label != curve_list[i]->getZCommonName()) {
                return ("");
-          } else {
-               short_name = curve_list[i]->getZCommonName().c_str();
-          }
-          if (strcmp( candidate_label.c_str(), short_name) != 0 ) {
-               return ("");
-          }
+          } 
       }
   }
   return (candidate_label);

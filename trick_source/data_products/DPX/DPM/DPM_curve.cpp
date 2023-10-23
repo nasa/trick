@@ -234,32 +234,30 @@ const char * DPM_curve::getZVarName(unsigned int case_index) {
 std::string DPM_curve::getXCommonName() {
 
   std::string candidate_label;
-  const char *short_name;
+  
   int n_vars, i;
 
   candidate_label = x_varcase_list[0]->getShortName();
   n_vars = (int)x_varcase_list.size();
   for (i=1; i<n_vars; i++) {
-     short_name = x_varcase_list[i]->getShortName().c_str();
-     if (strcmp( candidate_label.c_str(), short_name) != 0 ) {
+     if (candidate_label != x_varcase_list[i]->getShortName()) {
         return ("");
      }
   }
-  return ( candidate_label);
+  return (candidate_label);
 }
 
 // MEMBER FUNCTION
 std::string DPM_curve::getYCommonName() {
 
   std::string candidate_label;
-  const char *short_name;
+  
   int n_vars, i;
 
   candidate_label = y_varcase_list[0]->getShortName();
   n_vars = (int)y_varcase_list.size();
   for (i=1; i<n_vars; i++) {
-     short_name = y_varcase_list[i]->getShortName().c_str();
-     if (strcmp( candidate_label.c_str(), short_name) != 0 ) {
+     if (candidate_label != y_varcase_list[i]->getShortName()) {
         return ("");
      }
   }
@@ -270,18 +268,17 @@ std::string DPM_curve::getYCommonName() {
 std::string DPM_curve::getZCommonName() {
 
   std::string candidate_label;
-  const char *short_name;
+  
   int n_vars, i;
 
   candidate_label = z_varcase_list[0]->getShortName();
   n_vars = (int)z_varcase_list.size();
   for (i=1; i<n_vars; i++) {
-     short_name = z_varcase_list[i]->getShortName().c_str();
-     if (strcmp( candidate_label.c_str(), short_name) != 0 ) {
+     if (candidate_label != z_varcase_list[i]->getShortName()) {
         return ("");
      }
   }
-  return ( candidate_label);
+  return (candidate_label);
 }
 
 // MEMBER FUNCTION
