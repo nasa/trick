@@ -101,9 +101,19 @@ jobs:
               libX11-devel
               libXt-devel
               swig3
-            install_gtest: |
-              yum install -y http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-6.el7.noarch.rpm
-              yum install -y gtest gtest-devel gmock gmock-devel
+            install_gest: |
+              yum install wget
+              cd /tmp
+              wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+              tar xzvf release-1.8.0.tar.gz
+              cd /tmp/googletest-release-1.8.0/googletest
+              cmake .
+              make
+              make install
+              cd /tmp/googletest-release-1.8.0/googlemock
+              cmake .
+              make
+              make install
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
