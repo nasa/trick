@@ -97,12 +97,12 @@ jobs:
             conf_pkg: |
               yum -y install epel-release
               yum -y update
+              yum -y install wget
             os_deps: >-
               libX11-devel
               libXt-devel
               swig3
-            install_gest: |
-              yum install wget
+            install_gtest: |
               cd /tmp
               wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
               tar xzvf release-1.8.0.tar.gz
