@@ -140,6 +140,11 @@ int Trick::IPPython::init() {
     }
 
     if ( verify_input ) {
+       std::stringstream ss ;
+       ss << "import hashlib" << std::endl ;
+       ss << "input_file = " << "'" << input_file.c_str() << "'" << std::endl;
+       ss << "print('{0} SHA1: {1}'.format(input_file,hashlib.sha1(open(input_file, 'rb').read()).hexdigest()))" << std::endl ;
+       PyRun_SimpleString(ss.str().c_str()) ;
        exec_terminate_with_return(ret , __FILE__ , __LINE__ , "Input file verification complete\n" ) ;
     }
 

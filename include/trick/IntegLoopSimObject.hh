@@ -35,6 +35,7 @@ class IntegLoopSimObject : public Trick::SimObject {
                 integ_sched.add_sim_object( *next_sobj );
                 next_sobj = va_arg(ap, Trick::SimObject*);
             };
+            va_end(ap);
 
             add_jobs(in_cycle, child) ;
         }

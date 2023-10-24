@@ -308,29 +308,34 @@ SIM_test_output_dir:
 
 
 # The variable server client and SIM_amoeba sometimes fail to connect and need to be retried
-SIM_test_varserv:
-  path: test/SIM_test_varserv
-  build_args: "-t"
-  binary: "T_main_{cpu}_test.exe"
-  runs:
-    RUN_test/unit_test.py:
-      phase: 1
-      returns: 0
-    RUN_test/err1_test.py:
-      phase: 2
-      returns: 10
-    RUN_test/err2_test.py:
-      phase: 3
-      returns: 10
-SIM_amoeba:
-  path: trick_sims/Cannon/SIM_amoeba
-  build_args: "-t"
-  binary: "T_main_{cpu}_test.exe"
-  labels:
-    - retries_allowed
-  runs:
-    RUN_test/unit_test.py:
-      returns: 0
+
+# JMP (9/23/2023): We can't have these in our regular CI test suite if they are going to
+# periodically fail due to environmental variations over which we have no control. Commenting
+# these out.
+
+# SIM_test_varserv:
+#   path: test/SIM_test_varserv
+#   build_args: "-t"
+#   binary: "T_main_{cpu}_test.exe"
+#   runs:
+#     RUN_test/unit_test.py:
+#       phase: 1
+#       returns: 0
+#     RUN_test/err1_test.py:
+#       phase: 2
+#       returns: 10
+#     RUN_test/err2_test.py:
+#       phase: 3
+#       returns: 10
+# SIM_amoeba:
+#   path: trick_sims/Cannon/SIM_amoeba
+#   build_args: "-t"
+#   binary: "T_main_{cpu}_test.exe"
+#   labels:
+#     - retries_allowed
+#   runs:
+#     RUN_test/unit_test.py:
+#       returns: 0
 
 #TODO: all compares should be <test data> vs. <baseline data>, need to swap order!
 SIM_mc_generation:
