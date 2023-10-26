@@ -18,7 +18,8 @@ TRICK_EXEC_LINK_LIBS += -lpthread
 # ==================================================================================
 # All tests produced by this Makefile. Add new tests you create to this list.
 # ==================================================================================
-TESTS = dllist_unittest
+TESTS = dllist_unittest\
+        lqueue_unittest
 
 # List of XML files produced by the tests.
 unittest_results = $(patsubst %,%.xml,$(TESTS))
@@ -58,3 +59,7 @@ $(unittest_objects): %.o: %.cpp
 # ==================================================================================
 $(TESTS) : %: %.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+# ----------------------------------------------------------------------------------
+# The following unittest programs are also dependent on the indicated object files.
+# ----------------------------------------------------------------------------------

@@ -21,6 +21,7 @@ typedef struct _LQUEUE
 
 LQUEUE* LQ_Create(void);   /* create and initialize a LQUEUE */
 
+int LQ_Delete(LQUEUE* lqueue); /* free an lqueue object created by LQ_Create.*/
 
 void LQ_Init(LQUEUE*);     /* initialize a LQUEUE */
 
