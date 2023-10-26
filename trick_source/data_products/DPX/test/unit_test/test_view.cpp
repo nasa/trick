@@ -138,7 +138,7 @@ DPV_pointer Test_view::render_table( DPV_pointer parent_data, DPC_table  *table)
   	s << "Number of Columns: " << n_columns << std::endl;
 
   	for (colix=0; colix < n_columns ; colix++) {
-    	if ((temp_cstr = table->getColumnLabel(colix)) != NULL) {
+    	if ((temp_cstr = table->getColumnLabel(colix).c_str())[0] != '\0') {
       		s << "Column Label [" << colix << "]: " << temp_cstr << std::endl;
     	}
     	if ((temp_cstr = table->getColumnVarName(colix)) != NULL) {

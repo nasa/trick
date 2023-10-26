@@ -69,17 +69,17 @@ public:
   /**
    *
    */
-  const char * getXCommonName();
+  std::string getXCommonName();
 
   /**
    *
    */
-  const char * getYCommonName();
+  std::string getYCommonName();
 
   /**
    *
    */
-  const char * getZCommonName();
+  std::string getZCommonName();
 
   /**
    * Output an xml representation of DPM_curve.

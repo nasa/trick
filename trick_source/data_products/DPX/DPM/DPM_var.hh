@@ -43,7 +43,7 @@ class DPM_var:public DPM_component {
      * Return the part of the variable name right of the last
      * period or the name if there are no periods.
      */
-    const char     *getShortName();
+    std::string     getShortName();
 
     /**
      * Output an xml representation of DPM_var.
