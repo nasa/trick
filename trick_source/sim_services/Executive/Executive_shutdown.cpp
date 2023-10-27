@@ -93,14 +93,15 @@ int Trick::Executive::shutdown() {
     /* Calculate simulation elapsed sim time and actual cpu time */
     sim_elapsed_time = get_sim_time() - sim_start;
     user_cpu_time = cpu_time - user_cpu_start;
-    if (user_cpu_time <= 1e-6) {
-        sim_to_cpu = 1e8;
-    } else {
-        sim_to_cpu = sim_elapsed_time / user_cpu_time;
-    }
 
     cpu_time = ((double) cpu_usage_buf.ru_stime.tv_sec) + ((double) cpu_usage_buf.ru_stime.tv_usec / 1000000.0);
     kernal_cpu_time = cpu_time - kernal_cpu_start;
+
+    if ((user_cpu_time + kernal_cpu_time) <= 1e-6) {
+        sim_to_cpu = 1e8;
+    } else {
+        sim_to_cpu = sim_elapsed_time / (user_cpu_time + kernal_cpu_time);
+    }
 
     /* Print a shutdown message. */
     message_publish(MSG_NORMAL , "\n"
@@ -112,17 +113,16 @@ int Trick::Executive::shutdown() {
             "              SIMULATION STOP TIME: %12.3f\n"
             "           SIMULATION ELAPSED TIME: %12.3f\n"
             "                USER CPU TIME USED: %12.3f\n"
-            "        SIMULATION / USER CPU TIME: %12.3f\n"
-            "      INITIALIZATION USER CPU TIME: %12.3f\n"
             "              SYSTEM CPU TIME USED: %12.3f\n"
+            "             SIMULATION / CPU TIME: %12.3f\n"
+            "      INITIALIZATION USER CPU TIME: %12.3f\n"
             "    INITIALIZATION SYSTEM CPU TIME: %12.3f\n"
             "            SIMULATION RAM USAGE: %12.3fMB\n"
             "      (External program RAM usage not included!)\n",
-            process_id, except_file.c_str(), except_message.c_str() ,
-            sim_start , get_sim_time() , sim_elapsed_time , 
-            user_cpu_time , sim_to_cpu , user_cpu_init , 
-            kernal_cpu_time , kernal_cpu_init , 
-            sim_mem ) ;
+            process_id, except_file.c_str(), except_message.c_str(),
+            sim_start, get_sim_time(), sim_elapsed_time, 
+            user_cpu_time, kernal_cpu_time, sim_to_cpu, 
+            user_cpu_init, kernal_cpu_init, sim_mem) ;
 
     /* Kill all threads. */
     for (ii = 1; ii < threads.size() ; ii++) {
