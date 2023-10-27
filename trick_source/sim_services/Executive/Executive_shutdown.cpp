@@ -94,6 +94,7 @@ int Trick::Executive::shutdown() {
     sim_elapsed_time = get_sim_time() - sim_start;
     user_cpu_time = cpu_time - user_cpu_start;
 
+    /* */
     cpu_time = ((double) cpu_usage_buf.ru_stime.tv_sec) + ((double) cpu_usage_buf.ru_stime.tv_usec / 1000000.0);
     kernal_cpu_time = cpu_time - kernal_cpu_start;
 
@@ -109,14 +110,14 @@ int Trick::Executive::shutdown() {
             "  PROCESS: %d\n"
             "  ROUTINE: %s\n"
             "  DIAGNOSTIC: %s\n\n"
-            "             SIMULATION START TIME: %12.3f\n"
-            "              SIMULATION STOP TIME: %12.3f\n"
-            "           SIMULATION ELAPSED TIME: %12.3f\n"
-            "                USER CPU TIME USED: %12.3f\n"
-            "              SYSTEM CPU TIME USED: %12.3f\n"
-            "             SIMULATION / CPU TIME: %12.3f\n"
-            "      INITIALIZATION USER CPU TIME: %12.3f\n"
-            "    INITIALIZATION SYSTEM CPU TIME: %12.3f\n"
+            "           SIMULATION START TIME: %12.3f\n"
+            "            SIMULATION STOP TIME: %12.3f\n"
+            "         SIMULATION ELAPSED TIME: %12.3f\n"
+            "              USER CPU TIME USED: %12.3f\n"
+            "            SYSTEM CPU TIME USED: %12.3f\n"
+            "           SIMULATION / CPU TIME: %12.3f\n"
+            "    INITIALIZATION USER CPU TIME: %12.3f\n"
+            "  INITIALIZATION SYSTEM CPU TIME: %12.3f\n"
             "            SIMULATION RAM USAGE: %12.3fMB\n"
             "      (External program RAM usage not included!)\n",
             process_id, except_file.c_str(), except_message.c_str(),
