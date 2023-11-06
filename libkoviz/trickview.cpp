@@ -233,6 +233,60 @@ QString TrickView::_paramUnit(const QString &param)
     return unit;
 }
 
+bool TrickView::_isParamDynAlloced(const QString &param)
+{
+    bool isDynAlloced = false;
+
+    QStringList paramList = param.split('.');
+    QDomElement rootElement = _sieDoc.documentElement();
+
+    QString elType;
+    for (int i = 0; i < paramList.size(); ++i ) {
+        if ( i == 0 ) {
+            QDomNodeList tlos = rootElement.elementsByTagName(
+                                                            "top_level_object");
+            QString simObject = paramList.at(i);
+            for (int j = 0; j < tlos.size(); ++j) {
+                QDomElement tlo = tlos.at(j).toElement();
+                if ( tlo.attribute("name") == simObject ) {
+                    elType = tlo.attribute("type");
+                    break;
+                }
+            }
+        } else {
+            if ( _name2element.contains(elType) ) {
+                QDomElement el = _name2element.value(elType);
+                QDomNodeList members = el.elementsByTagName("member");
+                for (int j = 0; j < members.size(); ++j) {
+                    QDomElement member = members.at(j).toElement();
+                    QString memberName = member.attribute("name");
+                    if ( memberName == paramList.at(i) ) {
+                        elType = member.attribute("type");
+                        QDomNodeList dims = member.elementsByTagName(
+                                                                   "dimension");
+                        for (int k = 0; k < dims.size(); ++k) {
+                            QDomElement dimEl = dims.at(k).toElement();
+                            int dim = dimEl.text().toInt();
+                            if ( dim == 0 ) {
+                                isDynAlloced = true;
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            } else {
+                fprintf(stderr, "koviz [bad scoobs]: tv bad type=%s\n",
+                        elType.toLatin1().constData());
+                exit(-1);
+            }
+        }
+    }
+
+    return isDynAlloced;
+}
+
+
 // Given undimensioned param name e.g. ball.state.out.position
 // Return list of dimensioned params e.g.
 //       ball.state.out.position[0]

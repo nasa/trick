@@ -69,6 +69,7 @@ private:
                                 const QString& yUnit);
     void _changeXOnPlot(const QString& xName, const QString& xUnit,
                         const QModelIndex& xAxisLabelIdx);
+    bool _isParamDynAlloced(const QString& param);
     QString _paramUnit(const QString &param);
     QStringList _expandParam(const QString& param);
     QStringList __appendMember(QStringList& paramsIn,
