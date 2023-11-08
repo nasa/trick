@@ -51,7 +51,6 @@ class TVModel : public DataModel
                             const QModelIndex &parent = QModelIndex());
 
     void addParam(const QString& paramName, const QString &unit);
-    void appendParamValues(const QList<QVariant>& values);
 
   private:
 
