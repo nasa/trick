@@ -65,7 +65,7 @@ template<typename T > static int typemap_in_scalar( T & output , PyObject *input
     } else if ( PyInt_Check(input) ) {
         output = (T)PyInt_AsLong(input) ;
 // PyUnicode_GET_SIZE: deprecated since Python 3.3 and removed in Python 3.12
-// PyUnicode_GET_LENGTH: new in Python 3.12
+// PyUnicode_GET_LENGTH: new in Python 3.3
 #if PY_VERSION_HEX >= 0x03000000
     } else if ( PyUnicode_Check(input) ) {
         #if defined(PyUnicode_GET_LENGTH)
