@@ -64,9 +64,15 @@ template<typename T > static int typemap_in_scalar( T & output , PyObject *input
         output = (T)PyFloat_AsDouble(input) ;
     } else if ( PyInt_Check(input) ) {
         output = (T)PyInt_AsLong(input) ;
+// PyUnicode_GET_SIZE: deprecated since Python 3.3 and removed in Python 3.12
+// PyUnicode_GET_LENGTH: new in Python 3.12
 #if PY_VERSION_HEX >= 0x03000000
     } else if ( PyUnicode_Check(input) ) {
+        #if defined(PyUnicode_GET_LENGTH)
+        if ( PyUnicode_GET_LENGTH(input) == 1 ) {
+        #else
         if ( PyUnicode_GET_SIZE(input) == 1 ) {
+        #endif
             PyObject * temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
             char * temp_str = PyBytes_AS_STRING(temp) ;
             output = (T)temp_str[0] ;
@@ -142,7 +148,11 @@ template<typename T > static T * typemap_in_1d( PyObject *input , unsigned int o
         }
 #if PY_VERSION_HEX >= 0x03000000
     } else if ( PyUnicode_Check(input) ) {
+        #if defined(PyUnicode_GET_LENGTH)
+        unsigned int size = PyUnicode_GET_LENGTH(input) ;
+        #else
         unsigned int size = PyUnicode_GET_SIZE(input) ;
+        #endif
         PyObject * temp = PyUnicode_AsEncodedString(input, "utf-8", "Error ~");
         char * temp_str = PyBytes_AS_STRING(temp) ;
 #else
@@ -330,7 +340,11 @@ template<typename T, typename baseT > static void * typemap_in_2d( PyObject *inp
                 }
 #if PY_VERSION_HEX >= 0x03000000
             } else if ( PyUnicode_Check(o) ) {
+                #if defined(PyUnicode_GET_LENGTH)
+                unsigned int size = PyUnicode_GET_LENGTH(o) ;
+                #else
                 unsigned int size = PyUnicode_GET_SIZE(o) ;
+                #endif
                 PyObject * temp = PyUnicode_AsEncodedString(o, "utf-8", "Error ~");
                 char * temp_str = PyBytes_AS_STRING(temp) ;
 #else
