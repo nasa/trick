@@ -2,6 +2,9 @@ package trick.simcontrol;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.jdesktop.application.Application;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -9,7 +12,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import trick.common.CheckApplicationProperties;
+import trick.common.ActionInfo;
+import trick.common.ApplicationTest;
 
 /**
  * 
@@ -19,7 +23,7 @@ import trick.common.CheckApplicationProperties;
  * @intern mrockwell2
  *
  */
-public class SimControlApplicationTest {
+public class SimControlApplicationTest extends ApplicationTest {
 		
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {		
@@ -31,11 +35,47 @@ public class SimControlApplicationTest {
 	}
 
 	@Before
-	public void setUp() throws Exception {		
+	public void setUp() throws Exception {
+		setupExpectedActionInfo();
+
+		actionContext = application().actionMap;
+		resourceContext = application().resourceMap;
 	}
 
 	@After
 	public void tearDown() throws Exception {
+	}
+
+	@Override
+	protected void getCoreActionInfo() {
+		coreActionInfo.add(new ActionInfo("connect", "Connect", "Connect to the specified server at specified port"));
+		coreActionInfo.add(new ActionInfo("startSim", "Start", "Start the simulation"));
+		coreActionInfo.add(new ActionInfo("freezeSim", "Freeze", "Freeze/Stop the simulation"));
+		coreActionInfo.add(new ActionInfo("freezeAt", "Freeze At...", "Freeze At"));
+		coreActionInfo.add(new ActionInfo("freezeIn", "Freeze In...", "Freeze In"));
+		coreActionInfo.add(new ActionInfo("stepSim", "Step", "Step through sim initialization"));
+		coreActionInfo.add(new ActionInfo("throttle", "Throttle...", "Throttle"));
+		coreActionInfo.add(new ActionInfo("realtime", "RealTime On", "Realtime on/off"));
+		coreActionInfo.add(new ActionInfo("shutdownSim", "Shutdown", "Shutdown Simulation"));
+	}
+
+	@Override
+	protected void getSupportActionInfo() {
+		supportActionInfo.add(new ActionInfo("checkpointObjects", "Checkpoint Objects...", "Checkpoint the specified objects"));
+		supportActionInfo.add(new ActionInfo("dumpChkpntASCII", "Dump Chkpnt", "Dump ASCII Checkpoint"));
+		supportActionInfo.add(new ActionInfo("loadChkpnt", "Load Chkpnt", "Load ASCII Checkpoint"));
+		supportActionInfo.add(new ActionInfo("recordingSim", "Data Rec On", "Data Recording On/Off"));
+		supportActionInfo.add(new ActionInfo("lite", "Lite", "Lite/Full"));
+	}
+		
+	@Override
+	protected void getMiscActionInfo() {
+		miscActionInfo.add(new ActionInfo("showStatusFont", "Font...", "Show Status Pane Font"));
+		miscActionInfo.add(new ActionInfo("saveStatusMsgs", "Save Status Msgs...", "Save Status Messages"));
+		miscActionInfo.add(new ActionInfo("clearStatusMsgs", "Clear Status Msgs...", "Clear Status Messages"));
+
+		miscActionInfo.add(new ActionInfo("startTV", "Start Trick View", "Start Trick View (TV)"));
+		miscActionInfo.add(new ActionInfo("startMTV", "Start Event/Malfunction Trick View", "Start Event/Malfunction Trick View (MTV)"));
 	}
 	
 	@Test
@@ -43,35 +83,27 @@ public class SimControlApplicationTest {
 		assertTrue("SimControlApplicationTest is not ready yet!", application().isReady());
 	}
 	
-	/**
-     * Verify that all implemented actions exist as well as their text, shortDescription properties.
-     */
-    @Test
-    public void testDefinedActions() {
-        String[] actionNames = {"saveStatusMsgs", "clearStatusMsgs", "startTV", "startMTV", "freezeAt", "freezeIn",
-        		                "checkpointObjects", "throttle", "connect", "stepSim", "recordingSim", "startSim",
-        		                "realtime", "freezeSim", "dumpChkpntASCII", "shutdownSim", "loadChkpnt", "lite"};
-        String[] actionTexts = {"Save Status Msgs...", "Clear Status Msgs...", "Start Trick View", 
-        		                "Start Event/Malfunction Trick View", "Freeze At...", "Freeze In...", 
-        		                "Checkpoint Objects...", "Throttle...", "Connect", "Step", "Data Rec On",
-        		                "Start", "RealTime On", "Freeze", "Dump Chkpnt", "Shutdown", "Load Chkpnt", "Lite"};
-        String[] actionShortDescriptions = {"Save Status Messages", "Clear Status Messages", "Start Trick View (TV)",
-        		                            "Start Event/Malfunction Trick View (MTV)", "Freeze At", "Freeze In",
-        		                            "Checkpoint the specified objects", "Throttle", "Connect to the specified server at specified port",
-        		                            "Step through sim initialization", "Data Recording On/Off", "Start the simulation",
-        		                            "Realtime on/off", "Freeze/Stop the simulation", "Dump ASCII Checkpoint",
-        		                            "Shutdown Simulation", "Load ASCII Checkpoint", "Lite/Full"};
-        
-        for (int i = 0; i < actionNames.length; i++) {            
-        	CheckApplicationProperties.checkAction(application().actionMap, actionNames[i]); 
-        	CheckApplicationProperties.checkActionText(application().actionMap, actionNames[i], actionTexts[i]);
-        	CheckApplicationProperties.checkActionShortDescription(application().actionMap, actionNames[i], actionShortDescriptions[i]);            
-        }             
-    }
+	@Test
+	public void testDefinedCoreActions() {
+		Iterator<ActionInfo> iterator = coreActionInfo.iterator();
+		iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
+	}
+	
+	@Test
+	public void testDefinedSupportActions() {
+		Iterator<ActionInfo> iterator = supportActionInfo.iterator();
+		iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
+	}
+	
+	@Test
+	public void testDefinedMiscActions() {
+		Iterator<ActionInfo> iterator = miscActionInfo.iterator();
+		iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
+	}
     
     @Test
     public void testDefinedKeyText() {
-    	CheckApplicationProperties.checkKeyText(application().resourceMap, "fileMenu.text", "&File");
+		verifyResourceInfo("fileMenu.text", "&File");
     }
 	
 	@Test
@@ -79,8 +111,8 @@ public class SimControlApplicationTest {
 		application().removeExitListener(application().exitListener);
 		application().exit();
 		assertTrue(application().isEnded);
-	}
-	
+	}	
+
 	private static WaitForSimControlApplication application() {
         return Application.getInstance(WaitForSimControlApplication.class);
     }
