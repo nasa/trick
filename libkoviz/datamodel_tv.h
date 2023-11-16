@@ -9,6 +9,8 @@
 #include <QString>
 #include <QStringList>
 #include <QTcpSocket>
+#include <QEventLoop>
+#include <QTimer>
 #include "datamodel.h"
 #include "parameter.h"
 
@@ -51,12 +53,14 @@ class TVModel : public DataModel
                             const QModelIndex &parent = QModelIndex());
 
     void addParam(const QString& paramName, const QString &unit);
+    int paramSize(const QString& paramName);
 
   private:
 
     QString _host;
     int _port;
-    QTcpSocket _vsSocket;
+    QTcpSocket _vsSocketParamValues;
+    QTcpSocket _vsSocketParamSizes;
     QList<TVParam*> _params;
     int _timeCol;
     TVModelIterator* _iteratorTimeIndex;
@@ -64,10 +68,10 @@ class TVModel : public DataModel
     void _init();
     int _idxAtTimeBinarySearch (TVModelIterator* it,
                                 int low, int high, double time);
-    QList<QVariant> _vsReadLine();
+    QList<QVariant> _vsReadParamValuesLine();
 
   private slots:
-    void _vsRead();
+    void _vsReadParamValues();
 };
 
 class TVModelIterator : public ModelIterator

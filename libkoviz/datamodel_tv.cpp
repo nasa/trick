@@ -196,15 +196,64 @@ void TVModel::addParam(const QString &paramName, const QString& unit)
     _params.append(param);
 
     QString msg = QString("trick.var_add(\"%1\")\n").arg(paramName);
-    _vsSocket.write(msg.toUtf8());
+    _vsSocketParamValues.write(msg.toUtf8());
+}
+
+// Returns the alloced size (num elements) of the parameter
+int TVModel::paramSize(const QString &paramName)
+{
+    int sz = -1;
+
+    QEventLoop loop;
+
+    // Use a QTimer for a possible timeout waiting on vs server
+    QTimer timer;
+    timer.setSingleShot(true);
+    timer.start(2000);
+
+    // If the event loop times out, break out of the event loop
+    connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+    // If the socket is ready to read, break out of the event loop
+    connect(&_vsSocketParamSizes,SIGNAL(readyRead()), &loop, SLOT(quit()));
+
+    // Send the msg
+    QString msg = QString("sys.stdout.write("
+                          "str(trick.get_size(trick.get_address(\"%1\")))"
+                          ")\n").arg(paramName);
+    _vsSocketParamSizes.write(msg.toUtf8());
+
+    // Loop until socket read or timeout
+    loop.exec();
+
+    if ( timer.isActive() ) {
+        // Message received before timer timeout
+        while (_vsSocketParamSizes.bytesAvailable() > 0) {
+            QByteArray line1 = _vsSocketParamSizes.readLine();
+            Q_UNUSED(line1);
+            QByteArray line2 = _vsSocketParamSizes.readLine();
+            QString msg(line2);
+            bool ok;
+            sz = msg.toDouble(&ok);
+            if ( !ok ) {
+                sz = -1;
+            }
+        }
+    } else {
+        // Timeout occured.  No message from var server, so returning -1
+        fprintf(stderr, "koviz [error]: No msg from var server!\n");
+    }
+
+    return sz;
 }
 
 void TVModel::_init()
 {
-    connect(&_vsSocket,SIGNAL(readyRead()), this,SLOT(_vsRead()));
+    connect(&_vsSocketParamValues,SIGNAL(readyRead()),
+            this,SLOT(_vsReadParamValues()));
 
-    _vsSocket.connectToHost(_host,_port);
-    if (!_vsSocket.waitForConnected(1000)) {
+    _vsSocketParamValues.connectToHost(_host,_port);
+    if (!_vsSocketParamValues.waitForConnected(1000)) {
         fprintf(stderr, "koviz [error]: "
                         "Could not connect to trick var server on"
                         "host=%s port=%d!\n",
@@ -213,13 +262,26 @@ void TVModel::_init()
     }
 
     addParam("time", "s");
+
+    connect(&_vsSocketParamSizes,SIGNAL(readyRead()),
+            this,SLOT(_vsReadParamSizes()));
+    _vsSocketParamSizes.connectToHost(_host,_port);
+    if (!_vsSocketParamSizes.waitForConnected(1000)) {
+        fprintf(stderr, "koviz [error]: "
+                        "Could not connect to trick var server on"
+                        "host=%s port=%d!\n",
+                _host.toLatin1().constData(),_port);
+        return;
+    }
+    QString msg = QString("trick.var_set_send_stdio(True)\n");
+    _vsSocketParamSizes.write(msg.toUtf8());
 }
 
-void TVModel::_vsRead()
+void TVModel::_vsReadParamValues()
 {
-    while (_vsSocket.bytesAvailable() > 0) {
+    while (_vsSocketParamValues.bytesAvailable() > 0) {
 
-        QList<QVariant> values = _vsReadLine();
+        QList<QVariant> values = _vsReadParamValuesLine();
         if (_params.size() < values.size() ) {
             fprintf(stderr, "koviz [bad scoobs]: TVModel::_vsRead() "
                     "num values read greater than num params!!!\n");
@@ -253,11 +315,11 @@ void TVModel::_vsRead()
     }
 }
 
-QList<QVariant> TVModel::_vsReadLine()
+QList<QVariant> TVModel::_vsReadParamValuesLine()
 {
     QList<QVariant> values;
 
-    QByteArray bytes = _vsSocket.readLine();
+    QByteArray bytes = _vsSocketParamValues.readLine();
     QString msg(bytes);
     QStringList fields = msg.split('\t');
 
