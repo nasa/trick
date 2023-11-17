@@ -70,3 +70,11 @@ def TRICK_EXPECT_NEAR( a , b, tol, test_suite, test_case):
         print ("a = {}".format(a))
         print ("b = {}".format(b))
 
+def TRICK_EXPECT_PCT( a , b, tol, test_suite, test_case):
+    if math.fabs(a - b) < (b * tol):
+        trick.add_test_result( test_suite , test_case , "") ;
+    else:
+        trick.add_test_result( test_suite , test_case , "TRICK_EXPECT_PCT failed") ;
+        print ("a = {}".format(a))
+        print ("b = {}".format(b))
+
