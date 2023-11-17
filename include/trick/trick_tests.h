@@ -65,6 +65,13 @@
         add_test_result( test_suite , test_case , "floating point not within tolerance" ) ; \
     }
 
+#define TRICK_EXPECT_PCT( a , b , tol , test_suite , test_case) \
+    if ( fabs ( (a) - (b) ) < ( (b) * (tol) ) ) { \
+        add_test_result( test_suite , test_case , "" ) ; \
+    } else { \
+        add_test_result( test_suite , test_case , "floating point not within tolerance" ) ; \
+    }
+
 #else
 #define TRICK_EXPECT_TRUE( a , test_suite , test_case)
 #define TRICK_EXPECT_FALSE( a , test_suite , test_case)
@@ -75,6 +82,7 @@
 #define TRICK_EXPECT_GT( a , test_suite , test_case)
 #define TRICK_EXPECT_GE( a , test_suite , test_case)
 #define TRICK_EXPECT_NEAR( a , b , tol , test_suite , test_case)
+#define TRICK_EXPECT_PCT( a , b , tol , test_suite , test_case)
 #endif
 
 #ifdef __cplusplus
