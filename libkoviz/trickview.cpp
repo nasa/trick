@@ -233,67 +233,63 @@ QString TrickView::_paramUnit(const QString &param)
     return unit;
 }
 
-bool TrickView::_isParamDynAlloced(const QString &param)
-{
-    bool isDynAlloced = false;
-
-    QStringList paramList = param.split('.');
-    QDomElement rootElement = _sieDoc.documentElement();
-
-    QString elType;
-    for (int i = 0; i < paramList.size(); ++i ) {
-        if ( i == 0 ) {
-            QDomNodeList tlos = rootElement.elementsByTagName(
-                                                            "top_level_object");
-            QString simObject = paramList.at(i);
-            for (int j = 0; j < tlos.size(); ++j) {
-                QDomElement tlo = tlos.at(j).toElement();
-                if ( tlo.attribute("name") == simObject ) {
-                    elType = tlo.attribute("type");
-                    break;
-                }
-            }
-        } else {
-            if ( _name2element.contains(elType) ) {
-                QDomElement el = _name2element.value(elType);
-                QDomNodeList members = el.elementsByTagName("member");
-                for (int j = 0; j < members.size(); ++j) {
-                    QDomElement member = members.at(j).toElement();
-                    QString memberName = member.attribute("name");
-                    if ( memberName == paramList.at(i) ) {
-                        elType = member.attribute("type");
-                        QDomNodeList dims = member.elementsByTagName(
-                                                                   "dimension");
-                        for (int k = 0; k < dims.size(); ++k) {
-                            QDomElement dimEl = dims.at(k).toElement();
-                            int dim = dimEl.text().toInt();
-                            if ( dim == 0 ) {
-                                isDynAlloced = true;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                }
-            } else {
-                fprintf(stderr, "koviz [bad scoobs]: tv bad type=%s\n",
-                        elType.toLatin1().constData());
-                exit(-1);
-            }
-        }
-    }
-
-    return isDynAlloced;
-}
-
-
 // Given undimensioned param name e.g. ball.state.out.position
 // Return list of dimensioned params e.g.
 //       ball.state.out.position[0]
 //       ball.state.out.position[1]
 QStringList TrickView::_expandParam(const QString &param)
 {
-    QStringList expandedParams;
+    QStringList params;
+    __expandParam("",param,&params);
+    return params;
+}
+
+void TrickView::__expandParam(const QString &expandedParam,
+                              const QString &param,
+                              QStringList* params)
+{
+    if ( expandedParam.isEmpty() ) {
+        QString e = param.split('.').at(0);
+        __expandParam(e,param,params);
+    } else if ( expandedParam.endsWith('.') ) {
+        int i = expandedParam.count('.');
+        QString ep = expandedParam + param.split('.').at(i);
+        __expandParam(ep,param,params);
+    } else {
+        QString e = expandedParam.split('.').last();
+        int eDimIdx = e.count('[');
+        QString p = param.section('.',0,expandedParam.split('.').size()-1);
+        QDomElement pEl = _domElement(p);
+        QDomNodeList dims = pEl.elementsByTagName("dimension");
+        int nDims = dims.size();
+        if ( eDimIdx == nDims ) {
+            if ( expandedParam.split('.').size() == param.split('.').size() ) {
+                // Finished recursing, append fully expanded parameter
+                params->append(expandedParam);
+            } else {
+                QString ep = expandedParam + ".";
+                __expandParam(ep,param,params);
+            }
+        } else if ( eDimIdx < nDims ) {
+            QDomElement dim = dims.at(eDimIdx).toElement();
+            int sizeDim = dim.text().toInt();
+            if ( sizeDim == 0 ) {
+                // Dyn alloced
+                sizeDim = _tvModel->paramSize(expandedParam);
+            }
+            for (int i = 0; i < sizeDim; ++i) {
+                QString ep = expandedParam + QString("[%1]").arg(i);
+                __expandParam(ep,param,params);
+            }
+        } else {
+            // No way
+        }
+    }
+}
+
+QDomElement TrickView::_domElement(const QString &param)
+{
+    QDomElement element;
 
     QStringList paramList = param.split('.');
     QDomElement rootElement = _sieDoc.documentElement();
@@ -308,7 +304,7 @@ QStringList TrickView::_expandParam(const QString &param)
                 QDomElement tlo = tlos.at(j).toElement();
                 if ( tlo.attribute("name") == simObject ) {
                     elType = tlo.attribute("type");
-                    expandedParams = __appendMember(expandedParams,tlo);
+                    element = tlo;
                     break;
                 }
             }
@@ -320,8 +316,8 @@ QStringList TrickView::_expandParam(const QString &param)
                     QDomElement member = members.at(j).toElement();
                     QString memberName = member.attribute("name");
                     if ( memberName == paramList.at(i) ) {
-                        expandedParams = __appendMember(expandedParams,member);
                         elType = member.attribute("type");
+                        element = member;
                         break;
                     }
                 }
@@ -333,124 +329,7 @@ QStringList TrickView::_expandParam(const QString &param)
         }
     }
 
-    return expandedParams;
-}
-
-// Given paramsIn list and member, e.g:
-//
-//     paramsIn:
-//         simObj.state[0][0]
-//         simObj.state[0][1]
-//         simObj.state[1][0]
-//         simObj.state[1][1]
-//     member: position  (with xy dims)
-//
-// Return list with dimensioned member appended to paramsIn elements, e.g:
-//
-//     Return:
-//         simObj.state[0][0].position[0]
-//         simObj.state[0][0].position[1]
-//         simObj.state[0][1].position[0]
-//         simObj.state[0][1].position[1]
-//         simObj.state[1][0].position[0]
-//         simObj.state[1][0].position[1]
-//         simObj.state[1][1].position[0]
-//         simObj.state[1][1].position[1]
-//
-QStringList TrickView::__appendMember(QStringList &paramsIn,
-                                      const QDomElement &member)
-{
-    QStringList params;
-
-    QString memberName = member.attribute("name");
-    QList<QList<int> > dims = _genDimensions(member);
-
-    if ( paramsIn.isEmpty() ) {
-        if ( dims.isEmpty() ) {
-            params.append(memberName);
-        } else {
-            for (int i = 0; i < dims.size(); ++i ) {
-                QString dimensionedMemberName = memberName;
-                for (int j = 0; j < dims.at(i).size(); ++j) {
-                    int d = dims.at(i).at(j);
-                    QString bracketDim = QString("[%1]").arg(d);
-                    dimensionedMemberName += bracketDim;
-                }
-                params.append(dimensionedMemberName);
-            }
-        }
-    } else {
-        foreach (QString paramIn, paramsIn ) {
-            if ( dims.isEmpty() ) {
-                params.append(paramIn + '.' + memberName);
-            } else {
-                for (int i = 0; i < dims.size(); ++i ) {
-                    QString dimensionedMemberName = memberName;
-                    for (int j = 0; j < dims.at(i).size(); ++j) {
-                        int d = dims.at(i).at(j);
-                        QString bracketDim = QString("[%1]").arg(d);
-                        dimensionedMemberName += bracketDim;
-                    }
-                    params.append(paramIn + '.' + dimensionedMemberName);
-                }
-            }
-        }
-    }
-
-    return params;
-}
-
-// Given tol/member element e.g.:
-//
-//    <member
-//         name="dmT_CmdFbFa"
-//         type="double"
-//         io_attributes="15"
-//         units="--">
-//       <dimension>2</dimension>
-//       <dimension>2</dimension>
-//     </member>
-//
-// Return list of dimensions e.g.:
-//      0 0
-//      0 1
-//      1 0
-//      1 1
-QList<QList<int> > TrickView::_genDimensions(const QDomElement& el)
-{
-    QList<QList<int> > dimensions;
-
-    QList<int> dimList;
-    QDomNodeList dims = el.elementsByTagName("dimension");
-    for (int i = 0; i < dims.size(); ++i) {
-        QDomElement dim = dims.at(i).toElement();
-        dimList.append(dim.text().toInt());
-    }
-
-    if ( dimList.size() > 0 ) {
-        QList<int> dim;
-        __genDimensions(dimList,dim,dimensions);
-    }
-
-    return dimensions;
-}
-
-//
-// Recursive helper routine for _genDimensions()
-//
-void TrickView::__genDimensions(const QList<int>& dimList,
-                                QList<int>& dim,
-                                QList<QList<int> >& dimensions)
-{
-    if ( dim.size() < dimList.size() ) {
-        for (int i = 0; i < dimList.at(dim.size()); ++i) {
-            QList<int> copyDim = dim;
-            copyDim.append(i);
-            __genDimensions(dimList,copyDim,dimensions);
-        }
-    } else {
-        dimensions.append(dim);
-    }
+    return element;
 }
 
 void TrickView::_tvSearchBoxTextChanged(const QString &rx)
@@ -665,6 +544,9 @@ void TrickView::_addParamToBook(const QString &param)
         plotIdx = currIdx;
         pageIdx = _bookModel->getIndex(plotIdx,"Page");
     }
+    Qt::KeyboardModifiers kmods = QApplication::keyboardModifiers();
+    bool isAlt = (kmods & Qt::AltModifier);
+    bool isCtl = (kmods & Qt::ControlModifier);
     int i = 0;
     QString unit = _paramUnit(param);
     foreach ( QString p, _expandParam(param) ) {
@@ -672,9 +554,6 @@ void TrickView::_addParamToBook(const QString &param)
             pageIdx = _createPage();
             plotIdx = _addPlotToPage(pageIdx,p,unit);
         } else {
-            Qt::KeyboardModifiers kmods = QApplication::keyboardModifiers();
-            bool isAlt = (kmods & Qt::AltModifier);
-            bool isCtl = (kmods & Qt::ControlModifier);
             if ( isAlt && !isCtl ) {
                 _addCurveToPlot(plotIdx,p,unit);
             } else if ( !isAlt && isCtl ) {

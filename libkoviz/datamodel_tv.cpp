@@ -219,7 +219,7 @@ int TVModel::paramSize(const QString &paramName)
 
     // Send the msg
     QString msg = QString("sys.stdout.write("
-                          "str(trick.get_size(trick.get_address(\"%1\")))"
+                          "str(trick.get_size(trick.get_address(\"%1[0]\")))"
                           ")\n").arg(paramName);
     _vsSocketParamSizes.write(msg.toUtf8());
 

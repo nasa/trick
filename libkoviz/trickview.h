@@ -69,15 +69,12 @@ private:
                                 const QString& yUnit);
     void _changeXOnPlot(const QString& xName, const QString& xUnit,
                         const QModelIndex& xAxisLabelIdx);
-    bool _isParamDynAlloced(const QString& param);
     QString _paramUnit(const QString &param);
     QStringList _expandParam(const QString& param);
-    QStringList __appendMember(QStringList& paramsIn,
-                               const QDomElement&  member);
-    QList<QList<int> > _genDimensions(const QDomElement& el);
-    void __genDimensions(const QList<int>& dimList,
-                         QList<int> &dim,
-                         QList<QList<int> >& dimensions);
+    void __expandParam(const QString& expandedParam,
+                       const QString& param,
+                       QStringList* params);
+    QDomElement _domElement(const QString& param);
 
 
 private slots:
