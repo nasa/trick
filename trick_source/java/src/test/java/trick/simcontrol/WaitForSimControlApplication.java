@@ -3,6 +3,8 @@ package trick.simcontrol;
 
 import org.jdesktop.application.Application;
 
+import trick.simcontrol.SimControlApplication;
+
 
 public class WaitForSimControlApplication extends SimControlApplication {
     static Object lock = new Object(); 
@@ -29,7 +31,7 @@ public class WaitForSimControlApplication extends SimControlApplication {
      */
     public static void launchAndWait(Class<? extends WaitForSimControlApplication> applicationClass) {
     	synchronized(lock) {
-    		Application.launch(applicationClass, new String[]{});
+    		Application.launch(applicationClass, new String[]{"localhost", "7000"});
     		while(true) {
     			try {
     				lock.wait();

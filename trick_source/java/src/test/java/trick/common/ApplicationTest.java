@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 
+import org.jdesktop.application.ResourceMap;
+
 import trick.common.ActionInfo;
 
 public abstract class ApplicationTest {
@@ -30,7 +32,7 @@ public abstract class ApplicationTest {
 		String resourceText, errMsg = String.format("No ResourceMap set. Resource '%s' cannot be searched for.\n", key);
 		assumeNotNull(errMsg, resourceContext);
 
-		resourceText = resourceContext.get(key);
+		resourceText = resourceContext.getString(key);
 		assertEquals(expectedStr, resourceText);
 	}
 
