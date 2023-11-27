@@ -53,19 +53,15 @@ class TVModel : public DataModel
                             const QModelIndex &parent = QModelIndex());
 
     void addParam(const QString& paramName, const QString &unit);
-    int paramSize(const QString& paramName);
 
   private:
 
-    QString _host;
-    int _port;
     QTcpSocket _vsSocketParamValues;
-    QTcpSocket _vsSocketParamSizes;
     QList<TVParam*> _params;
     int _timeCol;
     TVModelIterator* _iteratorTimeIndex;
 
-    void _init();
+    void _init(const QString& host, int port);
     int _idxAtTimeBinarySearch (TVModelIterator* it,
                                 int low, int high, double time);
     QList<QVariant> _vsReadParamValuesLine();

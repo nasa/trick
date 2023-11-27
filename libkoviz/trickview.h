@@ -48,15 +48,8 @@ private:
     QLineEdit* _searchBox;
     QListView* _listView ;
 
-    void _createTVModel(const QString& host, int port);
-    void _loadSieElement(const QDomElement& element,
-                         QList<QDomElement> &path);
-    QHash<QString,QDomElement> _name2element;
-    QStringList _params;
-
-    QDomDocument _sieDoc;
     QItemSelectionModel* _varsSelectModel;
-    SieListModel* _sieListModel;
+    SieListModel* _sieModel;
     TVModel* _tvModel;
 
     void _addParamToBook(const QString& param);
@@ -69,13 +62,6 @@ private:
                                 const QString& yUnit);
     void _changeXOnPlot(const QString& xName, const QString& xUnit,
                         const QModelIndex& xAxisLabelIdx);
-    QString _paramUnit(const QString &param);
-    QStringList _expandParam(const QString& param);
-    void __expandParam(const QString& expandedParam,
-                       const QString& param,
-                       QStringList* params);
-    QDomElement _domElement(const QString& param);
-
 
 private slots:
      void _tvSearchBoxTextChanged(const QString& rx);
