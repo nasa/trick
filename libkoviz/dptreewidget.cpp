@@ -43,6 +43,8 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
                            PlotBookModel *bookModel,
                            QItemSelectionModel *bookSelectModel,
                            MonteInputsView *monteInputsView,
+                           SieListModel *sieModel,
+                           TVModel *tvModel,
                            bool isShowTables,
                            const QStringList &unitOverrides,
                            QWidget *parent) :
@@ -56,6 +58,8 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _bookModel(bookModel),
     _bookSelectModel(bookSelectModel),
     _monteInputsView(monteInputsView),
+    _sieModel(sieModel),
+    _tvModel(tvModel),
     _isShowTables(isShowTables),
     _unitOverrides(unitOverrides),
     _gridLayout(0),
@@ -768,7 +772,7 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                         << "\n\nin RUN:\n\n "
                         << "         "
                         << runDir ;
-            fprintf(stderr, "koviz [error]: %s\n",
+            fprintf(stderr, "%s\n",
                            _err_string.toLatin1().constData());
             exit(-1);
         }

@@ -15,6 +15,8 @@
 #include "utils.h"
 #include "monteinputsview.h"
 #include "programmodel.h"
+#include "sie_listmodel.h"
+#include "datamodel_tv.h"
 
 // This class introduced to fix Qt bug:
 // https://codereview.qt-project.org/#/c/65171/3
@@ -45,6 +47,8 @@ public:
                           PlotBookModel* bookModel,
                           QItemSelectionModel*  bookSelectModel,
                           MonteInputsView* monteInputsView,
+                          SieListModel* sieListModel,
+                          TVModel* tvModel,
                           bool isShowTables,
                           const QStringList& unitOverrides,
                           QWidget *parent = 0);
@@ -65,6 +69,8 @@ private:
     PlotBookModel* _bookModel;
     QItemSelectionModel*  _bookSelectModel;
     MonteInputsView* _monteInputsView;
+    SieListModel* _sieModel;
+    TVModel* _tvModel;
     bool _isShowTables;
     QStringList _unitOverrides;
     QGridLayout* _gridLayout ;

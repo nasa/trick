@@ -152,6 +152,10 @@ PlotMainWindow::PlotMainWindow(
     }
     _nbDPVars->addTab(varsFrame,"Vars");
 
+    // Sie and TV models!
+    _sieModel = new SieListModel(_trickhost, _trickport);
+    _tvModel = new TVModel(_trickhost,_trickport);
+
     // DP Tab
     // Due to what I think is a Qt bug, the DPTreeWidget which is placed
     // in this tab is created when the DP tab is clicked.
@@ -164,7 +168,10 @@ PlotMainWindow::PlotMainWindow(
                                           _dpFiles, _varsModel,
                                           _runs->runDirs(), _bookModel,
                                           _bookView->selectionModel(),
-                                          _monteInputsView, _isShowTables,
+                                          _monteInputsView,
+                                          _sieModel,
+                                          _tvModel,
+                                          _isShowTables,
                                           _unitOverrides,
                                           _dpFrame);
         _nbDPVars->setCurrentIndex(1);
@@ -176,10 +183,6 @@ PlotMainWindow::PlotMainWindow(
     if ( _monteInputsModel ) {
         lsplit->addWidget(_monteInputsView);
     }
-
-    // Sie and TV models!
-    _sieModel = new SieListModel(_trickhost, _trickport);
-    _tvModel = new TVModel(_trickhost,_trickport);
 
     // Trick view tab
     _tvFrame = new QFrame(lsplit);
@@ -376,7 +379,10 @@ void PlotMainWindow::_nbCurrentChanged(int i)
         _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir, _dpFiles,
                                           _varsModel, _runs->runDirs(), _bookModel,
                                           _bookView->selectionModel(),
-                                          _monteInputsView, _isShowTables,
+                                          _monteInputsView,
+                                          _sieModel,
+                                          _tvModel,
+                                          _isShowTables,
                                           _unitOverrides,
                                           _dpFrame);
     }
