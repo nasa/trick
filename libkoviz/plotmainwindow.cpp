@@ -38,6 +38,8 @@ PlotMainWindow::PlotMainWindow(
         QWidget *parent) :
     QMainWindow(parent),
     _bookModel(bookModel),
+    _sieModel(0),
+    _tvModel(0),
     _trickhost(trickhost),
     _trickport(trickport),
     _trickoffset(trickoffset),
@@ -175,11 +177,15 @@ PlotMainWindow::PlotMainWindow(
         lsplit->addWidget(_monteInputsView);
     }
 
+    // Sie and TV models!
+    _sieModel = new SieListModel(_trickhost, _trickport);
+    _tvModel = new TVModel(_trickhost,_trickport);
+
     // Trick view tab
     _tvFrame = new QFrame(lsplit);
     _nbDPVars->addTab(_tvFrame,"TV");
-    _trickView = new TrickView(_trickhost,
-                               _trickport,
+    _trickView = new TrickView(_sieModel,
+                               _tvModel,
                                _bookModel,
                                _bookView->selectionModel(),
                                _tvFrame);

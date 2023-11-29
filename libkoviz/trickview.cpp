@@ -4,11 +4,14 @@
 #include "timeit_linux.h"
 #endif
 
-TrickView::TrickView(const QString &trickhost, int trickport,
-                     PlotBookModel *bookModel,
+TrickView::TrickView(SieListModel* sieModel,
+                     TVModel* tvModel,
+                     PlotBookModel* bookModel,
                      QItemSelectionModel*  bookSelectModel,
-                     QWidget *parent) :
+                     QWidget* parent) :
     QWidget(parent),
+    _sieModel(sieModel),
+    _tvModel(tvModel),
     _bookModel(bookModel),
     _bookSelectModel(bookSelectModel)
 {
@@ -24,11 +27,6 @@ TrickView::TrickView(const QString &trickhost, int trickport,
     _gridLayout->addWidget(_searchBox,1,0);
 
     // SIE model
-    QString host("localhost");
-    if ( !trickhost.isEmpty() ) {
-        host = trickhost;
-    }
-    _sieModel = new SieListModel(host,trickport);
     connect(_sieModel, SIGNAL(sendMessage(QString)),
             this, SLOT(_setMessageLabel(QString)));
 
@@ -48,10 +46,11 @@ TrickView::TrickView(const QString &trickhost, int trickport,
          SLOT(_tvSelectionChanged(QItemSelection,QItemSelection)));
     _gridLayout->addWidget(_listView,2,0);
 
-    _tvModel = new TVModel(host,trickport);
+    // TV Model
     connect(_tvModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this,SLOT(_tvModelRowAppended(QModelIndex,int,int)));
 
+    // Book Model
     connect(_bookModel,
             SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
             this,

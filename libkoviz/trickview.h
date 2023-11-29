@@ -26,8 +26,8 @@ class TrickView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TrickView(const QString& trickhost,
-                       int trickport,
+    explicit TrickView(SieListModel* sieModel,
+                       TVModel* tvModel,
                        PlotBookModel* bookModel,
                        QItemSelectionModel*  bookSelectModel,
                        QWidget *parent = 0);
@@ -41,6 +41,8 @@ public slots:
     void slotDropEvent(QDropEvent* event,const QModelIndex& idx);
 
 private:
+    SieListModel* _sieModel;
+    TVModel* _tvModel;
     PlotBookModel* _bookModel;
     QItemSelectionModel*  _bookSelectModel;
     QGridLayout* _gridLayout ;
@@ -49,8 +51,6 @@ private:
     QListView* _listView ;
 
     QItemSelectionModel* _varsSelectModel;
-    SieListModel* _sieModel;
-    TVModel* _tvModel;
 
     void _addParamToBook(const QString& param);
     QModelIndex _createPage();

@@ -40,6 +40,8 @@
 #include "timecom.h"
 #include "videowindow.h"
 #include "trickview.h"
+#include "sie_listmodel.h"
+#include "datamodel_tv.h"
 
 class PlotMainWindow : public QMainWindow
 {
@@ -79,6 +81,8 @@ protected:
 
 private:
     PlotBookModel* _bookModel;
+    SieListModel* _sieModel;
+    TVModel* _tvModel;
 
     const QString& _trickhost;
     uint _trickport;
