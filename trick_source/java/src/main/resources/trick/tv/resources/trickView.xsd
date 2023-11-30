@@ -288,6 +288,7 @@
             <xs:simpleType>
               <xs:restriction base="xs:string">
                 <xs:enumeration value="Decimal"/>
+                <xs:enumeration value="Rounded"/>
                 <xs:enumeration value="Hexadecimal"/>
               </xs:restriction>
             </xs:simpleType>
