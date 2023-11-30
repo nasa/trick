@@ -11,10 +11,16 @@ CLANG_PATCHLEVEL := $(shell $(LLVM_HOME)/bin/llvm-config --version | cut -f3 -d.
 CLANG_MINOR_GTEQ5 := $(shell [ $(CLANG_MAJOR) -gt 3 -o \( $(CLANG_MAJOR) -eq 3 -a $(CLANG_MINOR) -ge 5 \) ] && echo 1)
 
 CLANG_MAJOR_GTEQ10 := $(shell [ $(CLANG_MAJOR) -ge 10 ] && echo 1)
+# By default, Clang 16 or later builds C++ code according to the C++17 standard.
+CLANG_MAJOR_GTEQ16 := $(shell [ $(CLANG_MAJOR) -ge 16 ] && echo 1)
+ifeq ($(CLANG_MAJOR_GTEQ16),1)
+CXXFLAGS += -std=c++17
+else 
 ifeq ($(CLANG_MAJOR_GTEQ10),1)
 CXXFLAGS += -std=c++14
 else
 CXXFLAGS += -std=c++11
+endif
 endif
 
 LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags) $(UDUNITS_LDFLAGS)
@@ -48,7 +54,11 @@ endif
 ifeq ($(TRICK_HOST_TYPE),Darwin)
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
 CLANGLIBS += $(filter-out -llibxml2.tbd,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
+ifeq ($(CLANG_MAJOR_GTEQ16),1)
+CLANGLIBS += -lc++abi -lclang-cpp
+else
 CLANGLIBS += -lc++abi
+endif
 endif
 
 all: $(ICG)
