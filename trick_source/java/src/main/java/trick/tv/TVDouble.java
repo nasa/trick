@@ -26,7 +26,14 @@ public class TVDouble extends VSDouble implements TrickViewFluent<TVDouble.Forma
                 return Double.toString(value);
             }
         },
-
+        
+        Rounded {
+            // Rounds the double value up to .2f
+            public String format(double value) {
+                return String.format("%.2f", value);
+            }
+        },
+        
         Hexadecimal {
             public String format(double value) {
                 return Double.toHexString(value);
