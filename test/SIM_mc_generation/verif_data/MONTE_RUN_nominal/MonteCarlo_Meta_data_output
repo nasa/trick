@@ -10,32 +10,32 @@
   -  0 variables of undefined type
 
 ********************* LIST OF VARIABLES, TYPES****************
-test.x_boolean, Random
-test.x_file_lookup[0], Prescribed
-test.x_file_lookup[1], Prescribed
-test.x_file_lookup[2], Prescribed
-test.x_fixed_value_double, Constant
-test.x_fixed_value_int, Constant
-test.x_fixed_value_string, Constant
-test.x_integer, Random
-test.x_line_command, Calculated
-test.x_normal, Random
-test.x_normal_length, Random
-test.x_normal_trunc[0], Random
-test.x_normal_trunc[1], Random
-test.x_normal_trunc[2], Random
-test.x_normal_trunc[3], Random
-test.x_normal_trunc[4], Random
-test.x_semi_fixed_value, Constant
-test.x_string, Random
-test.x_uniform, Random
+test.x_boolean: type=Random, dispersion=Uniform, min_value=0, max_value=1, seed=4, values=[False,True,]
+test.x_file_lookup[0]: type=Prescribed, max_skip=0, is_dependent=0, filename=Modified_data/datafile.txt, column_number=3, first_column_number=1
+test.x_file_lookup[1]: type=Prescribed, max_skip=0, is_dependent=1, filename=Modified_data/datafile.txt, column_number=2, first_column_number=1
+test.x_file_lookup[2]: type=Prescribed, max_skip=0, is_dependent=1, filename=Modified_data/datafile.txt, column_number=1, first_column_number=1
+test.x_fixed_value_double: type=Constant
+test.x_fixed_value_int: type=Constant
+test.x_fixed_value_string: type=Constant
+test.x_integer: type=Random dispersion=Uniform, min_value=0, max_value=2, seed=1
+test.x_line_command: type=Calculated
+test.x_normal: type=Random, dispersion=Normal, mean=10, stddev=2, min_value=0, max_value=0, seed=2
+test.x_normal_length: type=Random, dispersion=Normal, mean=10, stddev=2, min_value=0, max_value=0, seed=2
+test.x_normal_trunc[0]: type=Random, dispersion=Normal, mean=10, stddev=2, min_value=9, max_value=11, seed=2
+test.x_normal_trunc[1]: type=Random, dispersion=Normal, mean=10, stddev=2, min_value=9.5, max_value=10.7, seed=2
+test.x_normal_trunc[2]: type=Random, dispersion=Normal, mean=10, stddev=2, min_value=9.9, max_value=11, seed=2
+test.x_normal_trunc[3]: type=Random, dispersion=Normal, mean=10, stddev=2, min_value=9.9, max_value=0, seed=2
+test.x_normal_trunc[4]: type=Random, dispersion=Normal, mean=10, stddev=2, min_value=0, max_value=4, seed=2
+test.x_semi_fixed_value: type=Constant
+test.x_string: type=Random, dispersion=Uniform, min_value=0, max_value=1, seed=3, values=["ABC","DEF",'GHIJKL',]
+test.x_uniform: type=Random, dispersion=Uniform, min_value=10, max_value=20, seed=0
 **************************************************************
 
 
 *********** LIST OF EXECUTABLE FILES AND FUNCTIONS ***********
-test.standalone_function( test.x_normal)
+test.standalone_function( test.x_normal): type=Execute
 ***
-Modified_data/sample.py
+Modified_data/sample.py: type=Execute
 ***
 **************************************************************
 
