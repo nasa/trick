@@ -67,8 +67,14 @@ namespace Trick {
             /** How much time did the current frame take in tics.\n */
             long long frame_sched_time ;          /**< trick_units(--) */
 
+            /** How much time did the current frame take in seconds for frame logging.\n */
+            double frame_sched_time_seconds ;       /**< trick_units(s) */
+
             /** The magnitude of the current overrun in tics.\n */
             long long frame_overrun_time ;        /**< trick_units(--) */
+
+            /** The magnitude of the current overrun in seconds for frame logging.\n */
+            double frame_overrun_time_seconds ; /**< trick_units(s) */
 
             /** This is the start of the frame in wall clock time.\n */
             long long last_clock_time ;           /**< trick_units(--) */

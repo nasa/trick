@@ -36,8 +36,8 @@ Trick::FrameLog::FrameLog(Trick::Clock & in_clock) :
  fp_time_other(NULL),
  clock(in_clock) {
 
-    time_value_attr.type = TRICK_LONG_LONG ;
-    time_value_attr.size = sizeof(long long) ;
+    time_value_attr.type = TRICK_DOUBLE;
+    time_value_attr.size = sizeof(double);
     time_value_attr.units = strdup("s") ;
 
     the_fl = this ;
@@ -144,7 +144,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
             }
 
             new_ref->reference = job_name;
-            new_ref->address = &(all_jobs_vector[ii]->frame_time) ;
+            new_ref->address = &(all_jobs_vector[ii]->frame_time_seconds) ;
             new_ref->attr = &time_value_attr ;
             /** @li use TRK tag in S_define to identify trick jobs */
             // trick jobs
@@ -184,7 +184,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
         if ( ii > 0 ) {
             std::ostringstream group_name ;
             group_name << "trick_frame_userjobs_C" << ii ;
-            (*fdrg_it)->add_variable( group_name.str() + ".frame_sched_time") ;
+            (*fdrg_it)->add_variable( group_name.str() + ".frame_sched_time_seconds") ;
         }
     }
     drg_trick->set_job_class("end_of_frame") ;
@@ -205,8 +205,8 @@ void Trick::FrameLog::add_recording_vars_for_frame() {
     char * job_name = NULL ;
     int ii ;
 
-    drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_sched_time")) ;
-    drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_overrun_time")) ;
+    drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_sched_time_seconds")) ;
+    drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_overrun_time_seconds")) ;
 
     /* add the log_userjob frame time we created above to the log_frame group */
     for ( ii = 0 ; ii < num_threads ; ii++ ) {
@@ -220,7 +220,7 @@ void Trick::FrameLog::add_recording_vars_for_frame() {
         }
         trick_jobs.push_back(std::string(job_name));
         new_ref->reference = job_name;
-        new_ref->address = &(drg_users[ii]->write_job->frame_time);
+        new_ref->address = &(drg_users[ii]->write_job->frame_time_seconds);
         new_ref->attr = &time_value_attr ;
         drg_frame->add_variable(new_ref) ;
         drg_frame->add_rec_job(drg_users[ii]->write_job) ;
@@ -231,7 +231,7 @@ void Trick::FrameLog::add_recording_vars_for_frame() {
     asprintf(&job_name, "JOB_data_record_group.trickjobs.%2.2f(end_of_frame)",drg_trick->jobs[0]->frame_id);
     trick_jobs.push_back(std::string(job_name));
     new_ref->reference = job_name;
-    new_ref->address = &(drg_trick->write_job->frame_time);
+    new_ref->address = &(drg_trick->write_job->frame_time_seconds);
     new_ref->attr = &time_value_attr ;
     drg_frame->add_variable(new_ref) ;
     drg_frame->add_rec_job(drg_trick->write_job) ;
@@ -360,13 +360,16 @@ int Trick::FrameLog::frame_clock_stop(Trick::JobData * curr_job) {
 
     Trick::JobData * target_job = (Trick::JobData *)curr_job->sup_class_data ;
     int thread, mode;
-
+    double time_scale;
+    
     /** @par Detailed Design: */
     if ( target_job != NULL ) {
         if ( target_job->rt_start_time >= 0 ) {
             /** @li Set current job's stop time and frame time. */
             target_job->rt_stop_time = clock.clock_time() ;
+            time_scale = 1.0 / target_job->time_tic_value;
             target_job->frame_time += (target_job->rt_stop_time - target_job->rt_start_time);
+            target_job->frame_time_seconds = target_job->frame_time * time_scale;
             thread = target_job->thread;
 
             mode = exec_get_mode();
@@ -405,6 +408,7 @@ int Trick::FrameLog::frame_clock_stop(Trick::JobData * curr_job) {
             target_job->rt_stop_time = 0;
         } else {
             target_job->frame_time = 0 ;
+            target_job->frame_time_seconds = 0.0;
         }
     }
 
@@ -496,6 +500,8 @@ void Trick::FrameLog::default_data() {
     allocate_recording_groups() ;
     add_recording_vars_for_jobs() ;
     add_recording_vars_for_frame() ;
+    // reset clock before frame logging
+    clock.clock_reset(0);
 }
 
 /**
@@ -739,14 +745,12 @@ int Trick::FrameLog::create_DP_job_files() {
     FILE *fpx;
     unsigned int pages, plots, total_plots, vcells, dot;
     char *bg_color;
-    double time_scale;
     std::string DP_buff;
     const char *headerx = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" \
                     "<!DOCTYPE product PUBLIC \"-//Tricklab//DTD Product V1.0//EN\" \"Product.dtd\">\n\n" \
                     "<!-- Description: Plot of Y(t) vs. t, with attributes, titles, labels, units -->\n\n" \
                     "<product version=\"1.0\">\n";
 
-    time_scale = 1.0 / exec_get_time_tic_value();
     DP_buff = DP_dir + "/DP_rt_frame.xml";
     if ((fpx = fopen(DP_buff.c_str(), "w")) == NULL) {
         message_publish(MSG_WARNING, "Could not open DP_rt_frame.xml file for Frame Logging\n") ;
@@ -758,16 +762,14 @@ int Trick::FrameLog::create_DP_job_files() {
     fprintf(fpx, "            <xaxis> <label>Time</label> <units>s</units> </xaxis>\n");
     fprintf(fpx, "            <yaxis> <label>Frame Overrun/Underrun</label> </yaxis>\n");
     fprintf(fpx, "            <curve>\n                <var>sys.exec.out.time</var>\n");
-    fprintf(fpx, "                <var scale=\"%g\" line_color=\"darkgreen\" label=\"Overrun/Underrun\">%s.rt_sync.frame_overrun_time</var>\n",
-                 time_scale,rt_sim_object_name.c_str());
+    fprintf(fpx, "                <var line_color=\"darkgreen\" label=\"Overrun/Underrun\">%s.rt_sync.frame_overrun_time_seconds</var>\n", rt_sim_object_name.c_str());
     fprintf(fpx, "            </curve>\n");
     fprintf(fpx, "        </plot>\n");
     fprintf(fpx, "        <plot grid=\"yes\">\n            <title>Frame Scheduled Jobs Time</title>\n");
     fprintf(fpx, "            <xaxis> <label>Time</label> <units>s</units> </xaxis>\n");
     fprintf(fpx, "            <yaxis> <label>Frame Scheduled Jobs Time</label> </yaxis>\n");
     fprintf(fpx, "            <curve>\n                <var>sys.exec.out.time</var>\n");
-    fprintf(fpx, "                <var scale=\"%g\" line_color=\"red\" label=\"Frame Sched Time\">%s.rt_sync.frame_sched_time</var>\n",
-                 time_scale,rt_sim_object_name.c_str());
+    fprintf(fpx, "                <var line_color=\"red\" label=\"Frame Sched Time\">%s.rt_sync.frame_sched_time_seconds</var>\n", rt_sim_object_name.c_str());
     fprintf(fpx, "            </curve>\n");
     fprintf(fpx, "        </plot>\n");
     fprintf(fpx, "    </page>\n");
@@ -796,8 +798,7 @@ int Trick::FrameLog::create_DP_job_files() {
             fprintf(fpx, "                <var>sys.exec.out.time</var>\n");
             std::ostringstream group_name ;
             group_name << "trick_frame_userjobs_C" << (page_count * plots_per_page + ii + 1) ;
-            fprintf(fpx, "                <var scale=\"%g\" line_color=\"red\" label=\"Frame Sched Time\">%s.frame_sched_time</var>\n",
-                         time_scale,group_name.str().c_str());
+            fprintf(fpx, "                <var line_color=\"red\" label=\"Frame Sched Time\">%s.frame_sched_time_seconds</var>\n", group_name.str().c_str());
             fprintf(fpx, "            </curve>\n");
             fprintf(fpx, "        </plot>\n");
         }
@@ -809,12 +810,10 @@ int Trick::FrameLog::create_DP_job_files() {
     fprintf(fpx, "            <label>Sim Time</label>\n            <var>sys.exec.out.time</var>\n");
     fprintf(fpx, "        </column>\n");
     fprintf(fpx, "        <column format=\"%%13.6f\">\n");
-    fprintf(fpx, "            <label>Overrun/Underrun</label>\n            <var scale=\"%g\">%s.rt_sync.frame_overrun_time</var>\n",
-                 time_scale,rt_sim_object_name.c_str());
+    fprintf(fpx, "            <label>Overrun/Underrun</label>\n            <var>%s.rt_sync.frame_overrun_time_seconds</var>\n", rt_sim_object_name.c_str());
     fprintf(fpx, "        </column>\n");
     fprintf(fpx, "        <column format=\"%%13.6f\">\n");
-    fprintf(fpx, "            <label>Frame Sched Time</label>\n            <var scale=\"%g\">%s.rt_sync.frame_sched_time</var>\n",
-                 time_scale,rt_sim_object_name.c_str());
+    fprintf(fpx, "            <label>Frame Sched Time</label>\n            <var>%s.rt_sync.frame_sched_time_seconds</var>\n", rt_sim_object_name.c_str());
     fprintf(fpx, "        </column>\n");
     fprintf(fpx, "    </table>\n</product>");
     fclose(fpx);
@@ -861,7 +860,7 @@ int Trick::FrameLog::create_DP_job_files() {
             fprintf(fpx, "            <xaxis> <label>Time</label> <units>s</units> </xaxis>\n");
             fprintf(fpx, "            <yaxis> <label>Execution Time</label> </yaxis>\n");
             fprintf(fpx, "            <curve>\n                <var>sys.exec.out.time</var>\n");
-            fprintf(fpx, "                <var line_color=\"red\" scale=\"%g\">%s</var>\n", time_scale, (*drb_it)->name.c_str());
+            fprintf(fpx, "                <var line_color=\"red\">%s</var>\n", (*drb_it)->name.c_str());
             fprintf(fpx, "            </curve>\n");
             fprintf(fpx, "        </plot>\n");
             plots++;
@@ -919,7 +918,7 @@ int Trick::FrameLog::create_DP_job_files() {
         fprintf(fpx, "            <xaxis> <label>Time</label> <units>s</units> </xaxis>\n");
         fprintf(fpx, "            <yaxis> <label>Execution Time</label> </yaxis>\n");
         fprintf(fpx, "            <curve>\n                <var>sys.exec.out.time</var>\n");
-        fprintf(fpx, "                <var line_color=\"darkgreen\" scale=\"%g\">%s</var>\n", time_scale, (*job_iterator).c_str());
+        fprintf(fpx, "                <var line_color=\"darkgreen\">%s</var>\n", (*job_iterator).c_str());
         fprintf(fpx, "            </curve>\n");
         fprintf(fpx, "        </plot>\n");
         job_iterator++;
