@@ -66,10 +66,14 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
                     // protected and private embedded classes cannot be used outside of their class
                     // in our auto-generated code.  Keep a set of all classes of this type so we can
                     // test against them.
-                    ClassValues temp_cv ;
-                    temp_cv.getNamespacesAndClasses(crd->getDeclContext()) ;
-                    private_embedded_classes.insert(temp_cv.getFullyQualifiedName() + crd->getNameAsString()) ;
-                    //std::cout << "marking private " << temp_cv.getFullyQualifiedName() + crd->getNameAsString() << std::endl ;
+                    clang::FriendDecl * fd = static_cast<clang::FriendDecl *>(d) ;
+                    // "friend class" used to be treated as "field" but it is treated as private in llvm 16. 
+                    // Simply not to add "friend class" to the private embedded list in case llvm doesn't treat it as public. 
+                    if (fd == NULL) {
+                        ClassValues temp_cv ;
+-                       temp_cv.getNamespacesAndClasses(crd->getDeclContext()) ;
+                        private_embedded_classes.insert(temp_cv.getFullyQualifiedName() + crd->getNameAsString()) ;
+                    }
                 }
             }
         }
