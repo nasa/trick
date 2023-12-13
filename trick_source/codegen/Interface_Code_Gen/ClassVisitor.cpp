@@ -66,13 +66,22 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
                     // protected and private embedded classes cannot be used outside of their class
                     // in our auto-generated code.  Keep a set of all classes of this type so we can
                     // test against them.
-                    clang::FriendDecl * fd = static_cast<clang::FriendDecl *>(d) ;
-                    // "friend class" used to be treated as "field" but it is treated as private in llvm 16. 
-                    // Simply not to add "friend class" to the private embedded list in case llvm doesn't treat it as public. 
-                    if (fd == NULL) {
-                        ClassValues temp_cv ;
--                       temp_cv.getNamespacesAndClasses(crd->getDeclContext()) ;
-                        private_embedded_classes.insert(temp_cv.getFullyQualifiedName() + crd->getNameAsString()) ;
+                    ClassValues temp_cv ;
+                    temp_cv.getNamespacesAndClasses(crd->getDeclContext()) ;
+                    /*
+                    for (auto const &pec : private_embedded_classes) {
+                        std::cout << "===private_embedded_classes..." << pec << "===" << std::endl;
+                    }
+                    if (friend_classes.size() > 0) {
+                        for (auto const &fc : friend_classes) {
+                            std::cout << "===friend_classes..." << fc << "===" << std::endl;
+                        }
+                    }
+                    */
+                    std::string class_str = temp_cv.getFullyQualifiedName() + crd->getNameAsString();
+                    // Private embedded classes are not printed to io source unless they are friend classes.
+                    if (friend_classes.find(class_str) == friend_classes.end()) {
+                        private_embedded_classes.insert(class_str);
                     }
                 }
             }
@@ -108,6 +117,23 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
         }
         break ;
         case clang::Decl::Friend : {
+            ClassValues temp_cv ;
+            temp_cv.getNamespacesAndClasses(d->getDeclContext()) ;
+            clang::FriendDecl * fd = static_cast<clang::FriendDecl *>(d) ;
+            std::string class_str;
+
+            if (fd->getFriendDecl() != NULL) {
+                class_str = temp_cv.getFullyQualifiedName() + fd->getFriendDecl()->getNameAsString();
+            } else {
+                class_str = fd->getFriendType()->getType().getAsString();
+            }
+            size_t pos;
+            // Only save class name to the friend class list
+            if ((pos = class_str.find("class ")) != std::string::npos ) {
+                class_str.erase(pos , 6) ;
+                friend_classes.insert(class_str);
+            }
+
             TraverseFriendDecl(static_cast<clang::FriendDecl *>(d)) ;
         }
         break ;
@@ -334,6 +360,8 @@ ClassValues * CXXRecordVisitor::get_class_data() {
 }
 
 std::set<std::string> CXXRecordVisitor::private_embedded_classes ;
+
+std::set<std::string> CXXRecordVisitor::friend_classes ;
 
 void CXXRecordVisitor::addPrivateEmbeddedClass( std::string in_name ) {
     private_embedded_classes.insert(in_name) ;
