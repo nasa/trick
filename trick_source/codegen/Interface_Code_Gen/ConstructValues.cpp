@@ -219,3 +219,10 @@ std::string ConstructValues::getFullyQualifiedTypeName(const std::string& delimi
     oss << name ;
     return oss.str() ;
 }
+
+std::string ConstructValues::getNameOnlyWithNamespaces(const std::string& delimiter) {
+    std::ostringstream oss ;
+    printNamespaces(oss, delimiter) ;
+    oss << name ;
+    return oss.str() ;
+}

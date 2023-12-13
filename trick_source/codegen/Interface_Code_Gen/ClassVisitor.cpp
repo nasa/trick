@@ -122,10 +122,11 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
             clang::FriendDecl * fd = static_cast<clang::FriendDecl *>(d) ;
             std::string class_str;
 
+            // Only use namespaces for identifying class name as the class name can't be the same within the same namespace.
             if (fd->getFriendDecl() != NULL) {
-                class_str = temp_cv.getFullyQualifiedName() + fd->getFriendDecl()->getNameAsString();
+                class_str = temp_cv.getNameOnlyWithNamespaces() + fd->getFriendDecl()->getNameAsString();
             } else {
-                class_str = fd->getFriendType()->getType().getAsString();
+                class_str = temp_cv.getNameOnlyWithNamespaces() + fd->getFriendType()->getType().getAsString();
             }
             size_t pos;
             // Only save class name to the friend class list
