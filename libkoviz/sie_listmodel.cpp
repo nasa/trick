@@ -9,8 +9,6 @@ SieListModel::SieListModel(const QString &host, int port, QObject *parent)
                                           host,port);
     Q_UNUSED(ftr);
 
-    connect(&_vsSocketParamSizes,SIGNAL(readyRead()),
-            this,SLOT(_vsReadParamSizes()));
     _vsSocketParamSizes.connectToHost(host,port);
     if (!_vsSocketParamSizes.waitForConnected(1000)) {
         fprintf(stderr, "koviz [error]: "
@@ -218,6 +216,7 @@ void SieListModel::_createSIEModel(const QString& host, int port)
                               "from %2 objects!").
                               arg(_params.size()).arg(nObjects);
         emit sendMessage(msg);
+        emit modelLoaded();
     } else {
         QString msg = QString("Could not load sieXML document! Error=%1").
                               arg(errMsg);
@@ -268,9 +267,17 @@ void SieListModel::_loadSieElement(const QDomElement &element,
     }
 }
 
-QString SieListModel::paramUnit(const QString &param)
+QString SieListModel::paramUnit(const QString &paramIn)
 {
     QString unit;
+
+    if ( paramIn == "time" || paramIn == "sys.exec.out.time" ) {
+        return "s";
+    }
+
+    QString param = paramIn;
+    QRegularExpression rgx("\\[\\d+\\]");
+    param.replace(rgx,""); // remove bracketed dimensions
 
     QStringList paramList = param.split('.');
     QDomElement rootElement = _sieDoc.documentElement();
@@ -359,6 +366,23 @@ int SieListModel::paramSize(const QString &param)
 
     return sz;
 }
+
+bool SieListModel::isParamExists(const QString &paramIn)
+{
+    bool isExists = false;
+    QString param = paramIn;
+    QRegularExpression rgx("\\[\\d+\\]");
+    param.replace(rgx,"");
+    if ( paramIn == "time" ) {
+        isExists = true;
+    } else if ( _params.contains(param) ) {
+        if ( expandParam(param).contains(paramIn) ) {
+            isExists = true;
+        }
+    }
+    return isExists;
+}
+
 
 // Given undimensioned param name e.g. ball.state.out.position
 // Return list of dimensioned params e.g.

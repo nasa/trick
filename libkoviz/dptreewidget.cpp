@@ -192,6 +192,9 @@ void DPTreeWidget::_setupModel()
 
     // The dp filter models takes a list of params that are common between runs.
     // Only DP_files which have params which are in all runs will show in tree
+    //
+    // The dp filter also takes the sie model.  The sie model is used to
+    // filter for variables that the live sim publishes.
     QStringList dpParams;
     dpParams << _timeName; // always common,but may not be in dpVarsModel,so add
     for (int i = 0; i < _dpVarsModel->rowCount(); ++i ) {
@@ -199,7 +202,7 @@ void DPTreeWidget::_setupModel()
         QString param = _dpVarsModel->data(idx).toString();
         dpParams.append(param);
     }
-    _dpFilterModel = new DPFilterProxyModel(dpParams);
+    _dpFilterModel = new DPFilterProxyModel(dpParams,_sieModel);
 
     _dpFilterModel->setDynamicSortFilter(true);
     _dpFilterModel->setSourceModel(_dpModel);
@@ -717,9 +720,39 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
             xName = _timeName;
         }
 
-        curveModel = _bookModel->createCurve(runId, _timeName, xName, yName);
+        if ( _sieModel && _tvModel ) {
+            // Search TV
+            QString sieXName = xName;
+            QString sieYName = yName;
+            if ( xName == "sys.exec.out.time" ) {
+                sieXName = "time";
+            }
+            if ( yName == "sys.exec.out.time" ) {
+                sieYName = "time";
+            }
+            if ( _sieModel->isParamExists(sieXName) &&
+                 _sieModel->isParamExists(sieYName) ) {
+
+                QString xUnit = _sieModel->paramUnit(sieXName);
+                QString yUnit = _sieModel->paramUnit(sieYName);
+
+                _tvModel->addParam(sieXName, xUnit);
+                _tvModel->addParam(sieYName, yUnit);
+
+                int tcol = _tvModel->paramColumn("time");
+                int xcol = _tvModel->paramColumn(sieXName);
+                int ycol = _tvModel->paramColumn(sieYName);
+                curveModel = new CurveModel(_tvModel,tcol,xcol,ycol);
+            }
+        }
 
         if ( !curveModel ) {
+            curveModel = _bookModel->createCurve(runId,
+                                                 _timeName, xName, yName);
+        }
+
+        if ( !curveModel ) {
+            // Search external programs
 
             QString outputCurveName;
             foreach ( Parameter outputParam, dpprogram->outputParams() ) {

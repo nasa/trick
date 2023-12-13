@@ -4,7 +4,9 @@
 QHash<QString,bool> DPFilterProxyModel::_acceptedDPFileCache;
 
 DPFilterProxyModel::DPFilterProxyModel(const QStringList& params,
+                                       SieListModel* sieModel,
                                        QObject *parent) :
+    _sieModel(sieModel),
     QSortFilterProxyModel(parent)
 {
     foreach (QString param, params) {
@@ -82,12 +84,19 @@ bool DPFilterProxyModel::_isAccept(const QModelIndex &idx,
             isAccept = true;
         }
 
-        // Filter for DPs that have params in paramList constructor argument
+        // Filter for DPs that have params in recorded data or live sim
         if ( isAccept ) {
             foreach ( QString param,DPProduct::paramList(dpFilePath) ) {
                 if ( !_modelParams.contains(param) ) {
-                    isAccept = false;
-                    break;
+                    if ( _sieModel ) {
+                        if ( !_sieModel->isParamExists(param) ) {
+                            isAccept = false;
+                            break;
+                        }
+                    } else {
+                        isAccept = false;
+                        break;
+                    }
                 }
             }
         }

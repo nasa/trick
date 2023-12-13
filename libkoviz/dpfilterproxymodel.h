@@ -8,12 +8,14 @@
 #include <QHash>
 
 #include "dp.h"
+#include "sie_listmodel.h"
 
 class DPFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
     explicit DPFilterProxyModel( const QStringList& params,
+                                 SieListModel* sieModel,
                                  QObject *parent = 0);
 
 protected:
@@ -25,6 +27,7 @@ public slots:
 
 private:
     QHash<QString,int> _modelParams;
+    SieListModel* _sieModel;
     static QHash<QString,bool> _acceptedDPFileCache; // static to get around const
 
     bool _isAccept(const QModelIndex& idx,

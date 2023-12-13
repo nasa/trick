@@ -26,6 +26,7 @@ class SieListModel : public QAbstractListModel
 
     QString paramUnit(const QString &param);
     int paramSize(const QString& param);
+    bool isParamExists(const QString& param);
     QStringList expandParam(const QString& param);
 
   public slots:
@@ -33,6 +34,7 @@ class SieListModel : public QAbstractListModel
 
   signals:
     void sendMessage(const QString& msg);
+    void modelLoaded();
 
   protected:
     bool canFetchMore(const QModelIndex &parent) const override;
