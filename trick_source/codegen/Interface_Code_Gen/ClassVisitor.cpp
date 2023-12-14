@@ -125,7 +125,9 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
             // Only use namespaces for identifying class name as the class name can't be the same within the same namespace.
             if (fd->getFriendDecl() != NULL) {
                 class_str = temp_cv.getNameOnlyWithNamespaces() + fd->getFriendDecl()->getNameAsString();
-            } else {
+            } 
+            // For friend class, only need to get type here but the above getting class_str is for just in case needed.
+            if (fd->getFriendType() != NULL) {
                 class_str = temp_cv.getNameOnlyWithNamespaces() + fd->getFriendType()->getType().getAsString();
             }
             size_t pos;
