@@ -17,6 +17,7 @@
 #include <QMetaObject>
 #include <QApplication>
 #include <QDropEvent>
+#include <QMessageBox>
 #include <float.h>
 #include "bookmodel.h"
 #include "sie_listmodel.h"
@@ -52,7 +53,7 @@ private:
 
     QItemSelectionModel* _varsSelectModel;
 
-    void _addParamToBook(const QString& param);
+    int _addParamToBook(const QString& param);
     QModelIndex _createPage();
     QModelIndex _addPlotToPage(const QModelIndex& pageIdx,
                                const QString& yName,

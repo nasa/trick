@@ -367,6 +367,16 @@ int SieListModel::paramSize(const QString &param)
     return sz;
 }
 
+// This checks if paramIn is in the model SIE,
+// but does not check if it is actually allocated
+// and exists in memory.  This checks if the
+// parameter is in the SIE db.
+//
+// To check whether or not the param exists
+// and is allocated in memory, one would need
+// not only ask if the param exists, but also
+// ask if expandParam(param).size() > 0
+//
 bool SieListModel::isParamExists(const QString &paramIn)
 {
     bool isExists = false;
@@ -376,13 +386,10 @@ bool SieListModel::isParamExists(const QString &paramIn)
     if ( paramIn == "time" ) {
         isExists = true;
     } else if ( _params.contains(param) ) {
-        if ( expandParam(param).contains(paramIn) ) {
-            isExists = true;
-        }
+        isExists = true;
     }
     return isExists;
 }
-
 
 // Given undimensioned param name e.g. ball.state.out.position
 // Return list of dimensioned params e.g.

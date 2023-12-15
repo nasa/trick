@@ -26,7 +26,7 @@ class SieListModel : public QAbstractListModel
 
     QString paramUnit(const QString &param);
     int paramSize(const QString& param);
-    bool isParamExists(const QString& param);
+    bool isParamExists(const QString& paramIn);
     QStringList expandParam(const QString& param);
 
   public slots:

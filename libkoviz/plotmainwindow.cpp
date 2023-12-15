@@ -167,7 +167,9 @@ PlotMainWindow::PlotMainWindow(
         QEventLoop loop;
         QObject::connect(_sieModel, SIGNAL(modelLoaded()),
                          &loop, SLOT(quit()));
+        fprintf(stderr, "koviz [info]: Waiting for SIE model to load...\n");
         loop.exec();
+        fprintf(stderr, "koviz [info]: SIE model loaded!\n");
 
         _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir,
                                           _dpFiles, _varsModel,

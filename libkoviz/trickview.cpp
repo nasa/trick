@@ -181,7 +181,15 @@ void TrickView::_tvSelectionChanged(
     if ( idxs.size() == 1 ) {
         QModelIndex idx = idxs.at(0);
         QString param = _sieModel->data(idx).toString();
-        _addParamToBook(param);
+        int nParamsAdded = _addParamToBook(param);
+        if ( nParamsAdded == 0 ) {
+            QMessageBox msgBox;
+            QString msg = QString("Unable to plot parameter=\"%1\" "
+                                  "because it is not in Trick "
+                                  "managed memory.").arg(param);
+            msgBox.setText(msg);
+            msgBox.exec();
+        }
     }
 }
 
@@ -241,7 +249,12 @@ void TrickView::_tvSearchBoxReturnPressed()
     _setMessageLabel(msg);
 }
 
-void TrickView::_addParamToBook(const QString &param)
+// Returns the number of params added after expanding the param
+// For example, if param is ball.state.out.position
+// 2 is returned since the following params would be added:
+//     ball.state.out.position[0]
+//     ball.state.out.position[1]
+int TrickView::_addParamToBook(const QString &param)
 {
     QModelIndex currIdx = _bookSelectModel->currentIndex();
     QModelIndex pageIdx;
@@ -279,6 +292,8 @@ void TrickView::_addParamToBook(const QString &param)
         _bookSelectModel->setCurrentIndex(plotIdx,
                                           QItemSelectionModel::Current);
     }
+
+    return i;
 }
 
 QModelIndex TrickView::_createPage()
