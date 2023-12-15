@@ -84,8 +84,12 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(_dpTreeViewCurrentChanged(QModelIndex,QModelIndex)));
 
-    foreach (QString dp, _dpFiles ) {
-        _createDP(dp);
+    if ( _sieModel ) {
+        connect(_sieModel, SIGNAL(modelLoaded()),
+                this,SLOT(_loadDPFiles()),
+                Qt::QueuedConnection);
+    } else {
+        _loadDPFiles();
     }
 }
 
@@ -279,6 +283,13 @@ void DPTreeWidget::_dpTreeViewCurrentChanged(const QModelIndex &currIdx,
                                                  QItemSelectionModel::Current);
             }
         }
+    }
+}
+
+void DPTreeWidget::_loadDPFiles()
+{
+    foreach (QString dp, _dpFiles ) {
+        _createDP(dp);
     }
 }
 

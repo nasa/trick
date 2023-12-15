@@ -106,6 +106,7 @@ private slots:
     void _searchBoxTextChanged(const QString &rx);
      void _dpTreeViewCurrentChanged(const QModelIndex &currIdx,
                                     const QModelIndex &prevIdx);
+     void _loadDPFiles();
 
 };
 
