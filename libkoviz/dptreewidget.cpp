@@ -52,7 +52,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _idNum(0),
     _timeName(timeName),
     _dpDirName(dpDirName),
-    _dpFiles(),
+    _dpFiles(dpFiles),
     _dpVarsModel(dpVarsModel),
     _runDirs(runDirs),
     _bookModel(bookModel),
@@ -84,7 +84,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(_dpTreeViewCurrentChanged(QModelIndex,QModelIndex)));
 
-    foreach (QString dp, dpFiles ) {
+    foreach (QString dp, _dpFiles ) {
         _createDP(dp);
     }
 }
