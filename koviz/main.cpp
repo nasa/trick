@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
              "time match tolerance for error plots");
     opts.add("-trickhost", &opts.trickhost, "127.0.0.1",
              "trick var server host");
-    opts.add("-trickport", &opts.trickport, 7777,
+    opts.add("-trickport", &opts.trickport, 0,
              "trick var server port");
     opts.add("-trickoffset", &opts.trickoffset, 0.0,
              "trick var server time sync offset");

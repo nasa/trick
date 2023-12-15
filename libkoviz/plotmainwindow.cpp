@@ -153,8 +153,10 @@ PlotMainWindow::PlotMainWindow(
     _nbDPVars->addTab(varsFrame,"Vars");
 
     // Sie and TV models!
-    _sieModel = new SieListModel(_trickhost, _trickport);
-    _tvModel = new TVModel(_trickhost,_trickport);
+    if ( _trickport ) {
+        _sieModel = new SieListModel(_trickhost, _trickport);
+        _tvModel = new TVModel(_trickhost,_trickport);
+    }
 
     // DP Tab
     // Due to what I think is a Qt bug, the DPTreeWidget which is placed
@@ -185,15 +187,17 @@ PlotMainWindow::PlotMainWindow(
     }
 
     // Trick view tab
-    _tvFrame = new QFrame(lsplit);
-    _nbDPVars->addTab(_tvFrame,"TV");
-    _trickView = new TrickView(_sieModel,
-                               _tvModel,
-                               _bookModel,
-                               _bookView->selectionModel(),
-                               _tvFrame);
-    connect(_bookView, SIGNAL(signalDropEvent(QDropEvent*,QModelIndex)),
-            _trickView,SLOT(slotDropEvent(QDropEvent*,QModelIndex)));
+    if ( _trickport ) {
+        _tvFrame = new QFrame(lsplit);
+        _nbDPVars->addTab(_tvFrame,"TV");
+        _trickView = new TrickView(_sieModel,
+                                   _tvModel,
+                                   _bookModel,
+                                   _bookView->selectionModel(),
+                                   _tvFrame);
+        connect(_bookView, SIGNAL(signalDropEvent(QDropEvent*,QModelIndex)),
+                _trickView,SLOT(slotDropEvent(QDropEvent*,QModelIndex)));
+    }
 
     // Start/Live/Stop times input
     _timeInput = new TimeInput(this);
