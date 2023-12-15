@@ -9,6 +9,7 @@
 #include <QDir>
 #include <QHash>
 #include <QProgressDialog>
+#include <QLabel>
 #include "dp.h"
 #include "dpfilterproxymodel.h"
 #include "bookmodel.h"
@@ -74,6 +75,7 @@ private:
     bool _isShowTables;
     QStringList _unitOverrides;
     QGridLayout* _gridLayout ;
+    QLabel* _msgLabel;
     QLineEdit* _searchBox;
     DPTreeView* _dpTreeView ;
     DPFilterProxyModel* _dpFilterModel;
@@ -107,6 +109,8 @@ private slots:
      void _dpTreeViewCurrentChanged(const QModelIndex &currIdx,
                                     const QModelIndex &prevIdx);
      void _loadDPFiles();
+     void _setMsgLabel(const QString& msg);
+     void _tvModelRowAppended(const QModelIndex &parent,int start,int end);
 
 };
 

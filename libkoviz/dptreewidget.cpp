@@ -63,32 +63,42 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _isShowTables(isShowTables),
     _unitOverrides(unitOverrides),
     _gridLayout(0),
+    _msgLabel(0),
     _searchBox(0)
 {
     _setupModel();
 
     _gridLayout = new QGridLayout(parent);
 
+    _msgLabel = new QLabel(parent);
+    _gridLayout->addWidget(_msgLabel,0,0);
+
     _searchBox = new QLineEdit(parent);
     connect(_searchBox,SIGNAL(textChanged(QString)),
             this,SLOT(_searchBoxTextChanged(QString)));
-    _gridLayout->addWidget(_searchBox,0,0);
+    _gridLayout->addWidget(_searchBox,1,0);
 
     _dpTreeView = new DPTreeView(parent);
     _dpTreeView->setModel(_dpFilterModel);
     QModelIndex proxyRootIdx = _dpFilterModel->mapFromSource(_dpModelRootIdx);
     _dpTreeView->setRootIndex(proxyRootIdx);
     _dpTreeView->setFocusPolicy(Qt::ClickFocus);
-    _gridLayout->addWidget(_dpTreeView,1,0);
+    _gridLayout->addWidget(_dpTreeView,2,0);
     connect(_dpTreeView->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
             this, SLOT(_dpTreeViewCurrentChanged(QModelIndex,QModelIndex)));
 
-    if ( _sieModel ) {
+    if ( _sieModel && _tvModel ) {
         connect(_sieModel, SIGNAL(modelLoaded()),
                 this,SLOT(_loadDPFiles()),
                 Qt::QueuedConnection);
+        connect(_sieModel, SIGNAL(sendMessage(QString)),
+                this, SLOT(_setMsgLabel(QString)));
+        connect(_tvModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this,SLOT(_tvModelRowAppended(QModelIndex,int,int)));
+
     } else {
+        _msgLabel->hide();
         _loadDPFiles();
     }
 }
@@ -291,6 +301,20 @@ void DPTreeWidget::_loadDPFiles()
     foreach (QString dp, _dpFiles ) {
         _createDP(dp);
     }
+}
+
+void DPTreeWidget::_setMsgLabel(const QString &msg)
+{
+    _msgLabel->setText(msg);
+}
+
+void DPTreeWidget::_tvModelRowAppended(const QModelIndex &parent,
+                                       int start, int end)
+{
+    QModelIndex idx = _tvModel->index(start,0);
+    QVariant v = _tvModel->data(idx);
+    QString msg = QString("Time = %1").arg(v.toDouble());
+    _setMsgLabel(msg);
 }
 
 //
