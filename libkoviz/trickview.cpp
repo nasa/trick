@@ -114,6 +114,7 @@ void TrickView::_changeXOnPlot(const QString &xName, const QString &xUnit,
     QModelIndex curvesIdx = _bookModel->getIndex(plotIdx, "Curves","Plot");
     QModelIndexList curveIdxs = _bookModel->getIndexList(curvesIdx,
                                                          "Curve","Curves");
+    bool isError = false;
     bool block = _bookModel->blockSignals(true);
     foreach ( QModelIndex curveIdx, curveIdxs ) {
         QModelIndex xNameIdx = _bookModel->getDataIndex(curveIdx,
@@ -135,6 +136,18 @@ void TrickView::_changeXOnPlot(const QString &xName, const QString &xUnit,
         }
         int ycol = _tvModel->paramColumn(yName);
 
+        if ( tcol < 0 || ycol < 0 ) {
+            QMessageBox msgBox;
+            QString msg = QString("Sorry!  Unable to change x because "
+                                  "time, x and y not all in the same "
+                                  "model e.g. x is from recorded data "
+                                  "and y from the TV");
+            msgBox.setText(msg);
+            msgBox.exec();
+            isError = true;
+            break;
+        }
+
         CurveModel* curveModel = new CurveModel(_tvModel,tcol,xcol,ycol);
 
         _bookModel->setData(xNameIdx,xName);
@@ -145,26 +158,28 @@ void TrickView::_changeXOnPlot(const QString &xName, const QString &xUnit,
     }
     _bookModel->blockSignals(block);
 
-    // Reset plot math rect
-    QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
-    plotIdx = curvesIdx.parent();
-    QModelIndex pageIdx = plotIdx.parent().parent();
-    QModelIndex plotMathRectIdx = _bookModel->getDataIndex(plotIdx,
-                                                           "PlotMathRect",
-                                                           "Plot");
-    QModelIndexList siblingPlotIdxs = _bookModel->plotIdxs(pageIdx);
-    foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
-        bool isXTime = _bookModel->isXTime(siblingPlotIdx);
-        if ( isXTime ) {
-            QRectF sibPlotRect = _bookModel->getPlotMathRect(siblingPlotIdx);
-            if ( sibPlotRect.width() > 0 ) {
-                bbox.setLeft(sibPlotRect.left());
-                bbox.setRight(sibPlotRect.right());
+    if ( !isError ) {
+        // Reset plot math rect
+        QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+        plotIdx = curvesIdx.parent();
+        QModelIndex pageIdx = plotIdx.parent().parent();
+        QModelIndex plotMathRectIdx = _bookModel->getDataIndex(plotIdx,
+                                                               "PlotMathRect",
+                                                               "Plot");
+        QModelIndexList siblingPlotIdxs = _bookModel->plotIdxs(pageIdx);
+        foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+            bool isXTime = _bookModel->isXTime(siblingPlotIdx);
+            if ( isXTime ) {
+                QRectF sibPlotRect= _bookModel->getPlotMathRect(siblingPlotIdx);
+                if ( sibPlotRect.width() > 0 ) {
+                    bbox.setLeft(sibPlotRect.left());
+                    bbox.setRight(sibPlotRect.right());
+                }
+                break;
             }
-            break;
         }
+        _bookModel->setData(plotMathRectIdx,bbox);
     }
-    _bookModel->setData(plotMathRectIdx,bbox);
 }
 
 void TrickView::_tvSelectionChanged(

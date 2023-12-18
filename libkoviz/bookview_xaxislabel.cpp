@@ -10,7 +10,7 @@ XAxisLabelView::XAxisLabelView(QWidget *parent) :
 
 // See: https://www.walletfox.com/course/dragdroplistscene.php
 void XAxisLabelView::dropEvent(QDropEvent *event)
-  {
+{
     QString mimeType("application/x-qabstractitemmodeldatalist");
     if ( event->mimeData()->hasFormat(mimeType) ) {
         QByteArray bytes = event->mimeData()->data(mimeType);
@@ -29,12 +29,12 @@ void XAxisLabelView::dropEvent(QDropEvent *event)
                                                                "PlotXAxisLabel",
                                                                         "Plot");
             if ( kovizType == "VarsModel" ) {
-                _bookModel()->setData(xAxisLabelIdx,dropString);
                 QModelIndex curvesIdx = _bookModel()->getIndex(plotIdx,
                                                                "Curves","Plot");
                 QModelIndexList curveIdxs = _bookModel()->getIndexList(
                                                               curvesIdx,
                                                               "Curve","Curves");
+                bool isError = false;
                 bool block = _bookModel()->blockSignals(true);
                 foreach ( QModelIndex curveIdx, curveIdxs ) {
                     QModelIndex xNameIdx = _bookModel()->getDataIndex(curveIdx,
@@ -46,6 +46,17 @@ void XAxisLabelView::dropEvent(QDropEvent *event)
                                                            "CurveData","Curve");
                     int runRow = _bookModel()->getDataInt(curveIdx,
                                                           "CurveRunID","Curve");
+                    if ( runRow < 0 ) {
+                        QMessageBox msgBox;
+                        QString msg = QString("Sorry!  Unable to change x "
+                                     "because y parameter is not from "
+                                     "a RUN model e.g. x is from recorded data "
+                                     "and y from the TV");
+                        msgBox.setText(msg);
+                        msgBox.exec();
+                        isError = true;
+                        break;
+                    }
                     QString tName = _bookModel()->getDataString(curveIdx,
                                                       "CurveTimeName", "Curve");
                     QString yName = _bookModel()->getDataString(curveIdx,
@@ -61,29 +72,34 @@ void XAxisLabelView::dropEvent(QDropEvent *event)
                 }
                 _bookModel()->blockSignals(block);
 
-                // Reset plot math rect
-                QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
-                plotIdx = curvesIdx.parent();
-                QModelIndex pageIdx = plotIdx.parent().parent();
-                QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(
+                if ( !isError ) {
+
+                    _bookModel()->setData(xAxisLabelIdx,dropString);
+
+                    // Reset plot math rect
+                    QRectF bbox = _bookModel()->calcCurvesBBox(curvesIdx);
+                    plotIdx = curvesIdx.parent();
+                    QModelIndex pageIdx = plotIdx.parent().parent();
+                    QModelIndex plotMathRectIdx = _bookModel()->getDataIndex(
                                                                  plotIdx,
                                                                  "PlotMathRect",
                                                                  "Plot");
-                QModelIndexList siblingPlotIdxs = _bookModel()->plotIdxs(
+                    QModelIndexList siblingPlotIdxs = _bookModel()->plotIdxs(
                                                                        pageIdx);
-                foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
-                    bool isXTime = _bookModel()->isXTime(siblingPlotIdx);
-                    if ( isXTime ) {
-                        QRectF sibPlotRect = _bookModel()->
+                    foreach ( QModelIndex siblingPlotIdx, siblingPlotIdxs ) {
+                        bool isXTime = _bookModel()->isXTime(siblingPlotIdx);
+                        if ( isXTime ) {
+                            QRectF sibPlotRect = _bookModel()->
                                                 getPlotMathRect(siblingPlotIdx);
-                        if ( sibPlotRect.width() > 0 ) {
-                            bbox.setLeft(sibPlotRect.left());
-                            bbox.setRight(sibPlotRect.right());
+                            if ( sibPlotRect.width() > 0 ) {
+                                bbox.setLeft(sibPlotRect.left());
+                                bbox.setRight(sibPlotRect.right());
+                            }
+                            break;
                         }
-                        break;
                     }
+                    _bookModel()->setData(plotMathRectIdx,bbox);
                 }
-                _bookModel()->setData(plotMathRectIdx,bbox);
 
             } else if ( kovizType == "SieListModel" ) {
                 // This signal propagates and is finally caught by trickview

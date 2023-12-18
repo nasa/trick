@@ -6,6 +6,7 @@
 #include <QWheelEvent>
 #include <QList>
 #include <QMimeData>
+#include <QMessageBox>
 #include "bookidxview.h"
 #include "layoutitem_xaxislabel.h"
 
