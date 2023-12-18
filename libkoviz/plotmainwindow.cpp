@@ -60,6 +60,7 @@ PlotMainWindow::PlotMainWindow(
     _monteInputsModel(monteInputsModel),
     _monteInputsView(0),
     _dpTreeWidget(0),
+    _trickView(0),
     vidView(0)
 {
     // Window title
@@ -1573,7 +1574,9 @@ void PlotMainWindow::_plotAllVars()
 void PlotMainWindow::_toggleEnableDragDrop(bool isChecked )
 {
     _varsWidget->setDragEnabled(isChecked);
-    _trickView->setDragEnabled(isChecked);
+    if ( _trickView ) {
+        _trickView->setDragEnabled(isChecked);
+    }
 }
 
 void PlotMainWindow::_startTimeChanged(double startTime)
