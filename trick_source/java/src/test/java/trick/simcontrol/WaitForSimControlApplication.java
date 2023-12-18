@@ -22,6 +22,7 @@ public class WaitForSimControlApplication extends SimControlApplication {
     	synchronized(lock) {
     		lock.notifyAll();
     	}
+		connect();
     }
     
 
@@ -31,7 +32,8 @@ public class WaitForSimControlApplication extends SimControlApplication {
      */
     public static void launchAndWait(Class<? extends WaitForSimControlApplication> applicationClass) {
     	synchronized(lock) {
-    		Application.launch(applicationClass, new String[]{"localhost", "7000"});
+			getHostPortFromString("Frozone,41253");
+    		Application.launch(applicationClass, new String[]{});
     		while(true) {
     			try {
     				lock.wait();
@@ -42,7 +44,7 @@ public class WaitForSimControlApplication extends SimControlApplication {
     			}
     			Application app = Application.getInstance(WaitForSimControlApplication.class);
     			if (app instanceof WaitForSimControlApplication) {
-    				if (((WaitForSimControlApplication)app).isReady()) {  
+    				if (((WaitForSimControlApplication)app).isReady()) { 
     					break;
     				}
     			}

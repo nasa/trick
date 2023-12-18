@@ -657,6 +657,37 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     }
 
     /**
+     * Processes a comma delineated String to retrieve a port number and host name.
+     * @param cmdLine A comma dilineated String that should hold an integer and a string.
+     */
+    protected static void getHostPortFromString(String cmdLine) {
+        Scanner commandScanner = new Scanner(cmdLine).useDelimiter(",");
+        // now need to figure out host and port, if not specified, available host&port will be listed
+        if (commandScanner.hasNextInt()) {
+        	port = commandScanner.nextInt();
+        	if (commandScanner.hasNext()) {
+        		host = commandScanner.next();
+        	} else {
+                host = null;
+            }
+        } else if (commandScanner.hasNext()) {
+            host = commandScanner.next();
+            if (commandScanner.hasNextInt()) {
+                port = commandScanner.nextInt();
+            } else {
+                port = -1;
+            }
+        } else {
+            host = null;
+            port = -1;
+        }
+        
+        if (commandScanner != null) {
+        	commandScanner.close();
+        }
+    }
+
+    /**
      * Main method for this application.
      * @param args command line arguments
      */
@@ -686,25 +717,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             commandLine = autoExitMatcher.replaceAll("");            
         } 
         
-        Scanner commandScanner = new Scanner(commandLine).useDelimiter(",");
-        // now need to figure out host and port, if not specified, available host&port will be listed
-        if (commandScanner.hasNextInt()) {
-        	port = commandScanner.nextInt();
-        	if (commandScanner.hasNext()) {
-        		host = commandScanner.next();
-        	}
-        } else {
-        	if (commandScanner.hasNext()) {
-        		host = commandScanner.next();
-        		if (commandScanner.hasNextInt()) {
-        			port = commandScanner.nextInt();
-        		}
-        	}
-        }      
-        
-        if (commandScanner != null) {
-        	commandScanner.close();
-        }
+        getHostPortFromString(commandLine);
     }
 
     /**
