@@ -191,6 +191,7 @@ PlotMainWindow::PlotMainWindow(
     if ( _trickport ) {
         _tvFrame = new QFrame(lsplit);
         _nbDPVars->addTab(_tvFrame,"TV");
+        _nbDPVars->setCurrentWidget(_tvFrame);
         _trickView = new TrickView(_sieModel,
                                    _tvModel,
                                    _bookModel,
