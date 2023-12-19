@@ -86,7 +86,31 @@ A colon separated list of directories to skip when processing files.
 
 It is possible to instruct all CP functions to skip entire directories using the environment variable TRICK_EXCLUDE. Set this variable to a colon separated list of directories which you wish CP to bypass. All header files found in TRICK_EXCLUDE will not be processed. All source code files found in TRICK_EXCLUDE will not be compiled or linked into the simulation.
 
+This environment variable does the job of both TRICK_ICG_EXCLUDE and TRICK_SWIG_EXCLUDE simulataneously.
+
 This feature is useful to bring in packages as a library.
+
+### TRICK_ICG_EXCLUDE
+
+A colon separated list of directories to skip when processing header files.
+
+It is possible to instruct ICG to skip entire directories using the environment variable TRICK_ICG_EXCLUDE. Set this variable to a colon separated list of directories which you wish ICG to bypass. This is useful when there is code which you do not wish Trick to have any knowledge of (i.e. you don’t need any of the parameters recorded or input processable).
+
+This excludes files from ICG only, while still allowing SWIG to process them. 
+
+### TRICK_SWIG_EXCLUDE
+
+A colon separated list of files and directories to skip when generating Python interface files.
+
+It is possible to instruct SWIG to skip entire directories and files using the environment variable TRICK_SWIG_EXCLUDE. Set this variable to a colon separated list of files that should be bypassed.
+
+This excludes files from SWIG only, still allowing ICG to process them.
+
+Example ```S_overrides.mk```:
+```
+TRICK_SWIG_EXCLUDE += :models/SwigExclude.hh
+TRICK_SWIG_EXCLUDE += :models/Swig_Exclude_Dir
+```
 
 ### TRICK_FORCE_32BIT
 
@@ -94,12 +118,6 @@ To force Trick to compile in 32-bit on 64-bit systems, set the TRICK_FORCE_32BIT
 4.2.6 TRICK_HOST_CPU
 
 Trick determines a system specific suffix to append to object code directory names. By default this is determined automatically by Trick. The user may override this by setting the TRICK_HOST_CPU environment variable.
-
-### TRICK_ICG_EXCLUDE
-
-A colon separated list of directories to skip when processing header files.
-
-It is possible to instruct ICG to skip entire directories using the environment variable TRICK_ICG_EXCLUDE. Set this variable to a colon separated list of directories which you wish ICG to bypass. This is useful when there is code which you do not wish Trick to have any knowledge of (i.e. you don’t need any of the parameters recorded or input processable).
 
 ### TRICK_LDFLAGS
 
