@@ -9,6 +9,7 @@ PROGRAMMERS:
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <cmath>
 #include "trick/RealtimeSync.hh"
 #include "trick/exec_proto.h"
 #include "trick/sim_mode.h"
