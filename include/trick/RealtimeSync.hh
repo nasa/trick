@@ -104,6 +104,9 @@ namespace Trick {
             /** The clock time when the sim ended.  Used for total actual time calculation.\n */
             long long sim_end_time ;           /**< trick_units(--) */
 
+            /** The actual simulation time/wall clock time ratio\n */
+            double actual_run_ratio ;           /**< trick_units(--) */
+
             /**
              @brief This is the constructor of the RealtimeSync class.  It starts the RealtimeSync as
              disabled and sets the maximum overrun parameters to basically infinity.

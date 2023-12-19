@@ -48,6 +48,8 @@ Trick::RealtimeSync::RealtimeSync( Trick::Clock * in_clock , Trick::Timer * in_t
     sim_end_init_time = 0 ;
     sim_end_time = 0 ;
 
+    actual_run_ratio = 0.0;
+
     the_rts = this ;
 
 }
@@ -250,6 +252,33 @@ int Trick::RealtimeSync::start_realtime(double in_frame_time , long long ref_tim
     return(0) ;
 }
 
+template <size_t N>
+class Run_Ratio {
+  public:
+    Run_Ratio() : num_samples(0) {}
+    Run_Ratio& operator()(long long sample, double in_rt_ratio)
+    {
+        samples[num_samples++ % N] = sample;
+        rt_ratio = in_rt_ratio;
+        return *this;
+    }
+
+    operator double() const {
+        if ( num_samples <= 1 ) {
+            return 0.0 ;
+        } else if ( num_samples < N ) {
+            return round(exec_get_software_frame() * (num_samples-1) * exec_get_time_tic_value() * rt_ratio / (double)(samples[num_samples - 1] - samples[0])*100.0)/100.0 ;
+        } else {
+            return round(exec_get_software_frame() * (N-1) * exec_get_time_tic_value() * rt_ratio / (double)(samples[(num_samples - 1) % N] - samples[num_samples % N])*100.0)/100.0 ;
+        }
+    }
+
+  private:
+    long long samples[N];
+    size_t num_samples;
+    double rt_ratio;
+};
+
 /**
 @details
 -# If real-time is not active:
@@ -282,6 +311,7 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
 
     long long curr_clock_time ;
     char buf[512];
+    static Run_Ratio<100> run_ratio ;
 
     /* calculate the current underrun/overrun */
     curr_clock_time = rt_clock->clock_time() ;
@@ -299,6 +329,8 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
         if ( disable_flag ) {
             disable_flag = false ;
         }
+        /* calculate run ratio in non-realtime mode */
+        actual_run_ratio = run_ratio(curr_clock_time, 1.0);
         return(0) ;
     }
     if ( enable_flag ) {
@@ -363,6 +395,8 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
         /* If the timer requires to be reset at the end of each frame, reset it here. */
         sleep_timer->reset(exec_get_software_frame() / rt_clock->get_rt_clock_ratio()) ;
 
+        /* Calculate the run ratio after sleeping */
+        actual_run_ratio = run_ratio(curr_clock_time, rt_clock->get_rt_clock_ratio());
     }
 
     return(0) ;
