@@ -16,11 +16,24 @@ LQUEUE *LQ_Create(void)
     return ret;
 }
 
+int LQ_Delete(LQUEUE* lqueue) {
+
+    if (lqueue == NULL) {
+        fprintf(stderr, "Error (%s): Pointer to LQUEUE is NULL.\n", __FUNCTION__ );
+        fflush(stderr);
+        return -1;
+    }
+    DLL_Delete(&lqueue->list);
+    return 0;
+}
 
 /* initialize a queue created statically */
 void LQ_Init(LQUEUE * pQueue)
 {
-
+    if (pQueue == NULL) {
+        fprintf(stderr, "Error (%s): Pointer to LQUEUE is NULL.\n", __FUNCTION__ );
+        fflush(stderr);
+    }
     DLL_Init(&(pQueue->list));
 }
 
@@ -31,7 +44,7 @@ void LQ_EnQ(void *pData, LQUEUE * pQueue)
 {
 
     if (pQueue == NULL) {
-        fprintf(stderr, "Queue is NULL");
+        fprintf(stderr, "Error (%s): Pointer to LQUEUE is NULL.", __FUNCTION__ );
         return;
     }
 
@@ -43,8 +56,14 @@ void LQ_EnQ(void *pData, LQUEUE * pQueue)
 
 void *LQ_DeQ(LQUEUE * pQueue)
 {
-    if (LQ_GetCount(pQueue) > 0)
+    if (pQueue == NULL) {
+        fprintf(stderr, "Error (%s): Pointer to LQUEUE is NULL.", __FUNCTION__ );
+        return NULL;
+    }
+
+    if (LQ_GetCount(pQueue) > 0) {
         return DLL_RemoveAt(DLL_GetTailPosition(&(pQueue->list)), &(pQueue->list));
+    }
     return NULL;
 }
 
@@ -53,15 +72,19 @@ void *LQ_DeQ(LQUEUE * pQueue)
 
 void *LQ_Peek(LQUEUE * pQueue)
 {
-
-    if (pQueue == NULL && DLL_GetCount(&(pQueue->list)) <= 0) {
-        fprintf(stderr, "Queue is NULL and number of elements is 0");
+    if (pQueue == NULL) {
+        fprintf(stderr, "Error (%s): Pointer to LQUEUE is NULL.", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
 
-    if (pQueue != NULL)
-        return DLL_GetAt(DLL_GetTailPosition(&(pQueue->list)), &(pQueue->list));
-    return NULL;
+    if ( DLL_GetCount( &(pQueue->list)) <= 0) {
+        fprintf(stderr, "Error (%s): LQUEUE is empty.", __FUNCTION__);
+        fflush(stderr);
+        return NULL;
+    }
+
+    return DLL_GetAt(DLL_GetTailPosition(&(pQueue->list)), &(pQueue->list));
 }
 
 
@@ -71,7 +94,7 @@ int LQ_GetCount(LQUEUE * pQueue)
 {
 
     if (pQueue == NULL) {
-        fprintf(stderr, "Queue is NULL");
+        fprintf(stderr, "Error (%s): Pointer to LQUEUE is NULL.", __FUNCTION__ );
         return -1;
     }
 

@@ -68,6 +68,8 @@ class MonteCarloVariableFile : public MonteCarloVariable
   virtual ~MonteCarloVariableFile(){};
   void initialize_file();
   void generate_assignment();
+  virtual std::string summarize_variable() const;
+
   void register_dependent( MonteCarloVariableFile *);
   virtual void shutdown() {file.close();}
 

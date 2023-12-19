@@ -36,7 +36,7 @@ int Trick::Executive::shutdown() {
 
     double sim_elapsed_time;
     double cpu_time;
-    double actual_cpu_time;
+    double user_cpu_time, kernal_cpu_time;
     double sim_to_cpu;
     unsigned int ii;
     int process_id = 0 ;
@@ -92,11 +92,16 @@ int Trick::Executive::shutdown() {
 
     /* Calculate simulation elapsed sim time and actual cpu time */
     sim_elapsed_time = get_sim_time() - sim_start;
-    actual_cpu_time = cpu_time - cpu_start;
-    if (actual_cpu_time <= 1e-6) {
+    user_cpu_time = cpu_time - user_cpu_start;
+
+    /* */
+    cpu_time = ((double) cpu_usage_buf.ru_stime.tv_sec) + ((double) cpu_usage_buf.ru_stime.tv_usec / 1000000.0);
+    kernal_cpu_time = cpu_time - kernal_cpu_start;
+
+    if ((user_cpu_time + kernal_cpu_time) <= 1e-6) {
         sim_to_cpu = 1e8;
     } else {
-        sim_to_cpu = sim_elapsed_time / actual_cpu_time;
+        sim_to_cpu = sim_elapsed_time / (user_cpu_time + kernal_cpu_time);
     }
 
     /* Print a shutdown message. */
@@ -105,16 +110,20 @@ int Trick::Executive::shutdown() {
             "  PROCESS: %d\n"
             "  ROUTINE: %s\n"
             "  DIAGNOSTIC: %s\n\n"
-            "       SIMULATION START TIME: %12.3f\n"
-            "        SIMULATION STOP TIME: %12.3f\n"
-            "     SIMULATION ELAPSED TIME: %12.3f\n"
-            "        ACTUAL CPU TIME USED: %12.3f\n"
-            "       SIMULATION / CPU TIME: %12.3f\n"
-            "     INITIALIZATION CPU TIME: %12.3f\n" 
-            "        SIMULATION RAM USAGE: %12.3fMB\n"
-            "  (External program RAM usage not included!)\n",
-            process_id, except_file.c_str(), except_message.c_str() ,
-            sim_start , get_sim_time() , sim_elapsed_time , actual_cpu_time , sim_to_cpu , cpu_init, sim_mem ) ;
+            "           SIMULATION START TIME: %12.3f\n"
+            "            SIMULATION STOP TIME: %12.3f\n"
+            "         SIMULATION ELAPSED TIME: %12.3f\n"
+            "              USER CPU TIME USED: %12.3f\n"
+            "            SYSTEM CPU TIME USED: %12.3f\n"
+            "           SIMULATION / CPU TIME: %12.3f\n"
+            "    INITIALIZATION USER CPU TIME: %12.3f\n"
+            "  INITIALIZATION SYSTEM CPU TIME: %12.3f\n"
+            "            SIMULATION RAM USAGE: %12.3fMB\n"
+            "      (External program RAM usage not included!)\n",
+            process_id, except_file.c_str(), except_message.c_str(),
+            sim_start, get_sim_time(), sim_elapsed_time, 
+            user_cpu_time, kernal_cpu_time, sim_to_cpu, 
+            user_cpu_init, kernal_cpu_init, sim_mem) ;
 
     /* Kill all threads. */
     for (ii = 1; ii < threads.size() ; ii++) {

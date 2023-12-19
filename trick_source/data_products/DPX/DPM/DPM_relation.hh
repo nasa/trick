@@ -53,9 +53,9 @@ public:
   /**
    *
    */
-  const char * getXAxisLabel();
-  const char * getYAxisLabel();
-  const char * getZAxisLabel();
+  std::string getXAxisLabel();
+  std::string getYAxisLabel();
+  std::string getZAxisLabel();
 
   /**
    *

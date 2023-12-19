@@ -116,3 +116,48 @@ MonteCarloVariable::generate_command()
 {
   command = "\n" + variable_name + " = " + assignment;
 }
+
+/*****************************************************************************
+get_type_str
+Purpose:(Return the type of this variable as string. Meant to be overridden
+  by derived classes)
+*****************************************************************************/
+std::string MonteCarloVariable::get_type_str() const
+{
+  switch (get_type()) {
+  // Unreachable case in current implementation.
+  // All current variable classes have been given a "type"
+  default:
+    return(std::string("Undefined_type"));
+    break;
+  case MonteCarloVariable::Calculated:
+    return(std::string("Calculated"));
+    break;
+  case MonteCarloVariable::Constant:
+    return(std::string("Constant"));
+    break;
+  case MonteCarloVariable::Execute:
+    return(std::string("Execute"));
+    break;
+  case MonteCarloVariable::Prescribed:
+    return(std::string("Prescribed"));
+    break;
+  case MonteCarloVariable::Random:
+    return(std::string("Random"));
+    break;
+  }
+}
+
+
+/*****************************************************************************
+summarize_variable
+Purpose:(Provide a string summarizing the attributes of this MonteCarloVariable)
+*****************************************************************************/
+std::string MonteCarloVariable::summarize_variable() const
+{
+  std::ostringstream ss;
+  ss << variable_name << std::string(": type=") << get_type_str();
+  return (ss.str());
+}
+
+
