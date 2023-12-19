@@ -3,7 +3,12 @@ package trick.common;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeNotNull;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -11,6 +16,7 @@ import javax.swing.ActionMap;
 import org.jdesktop.application.ResourceMap;
 
 import trick.common.ActionInfo;
+import trick.common.SimulationInterface;
 
 public abstract class ApplicationTest {
 	protected ArrayList<ActionInfo> coreActionInfo, supportActionInfo, miscActionInfo;
@@ -34,6 +40,24 @@ public abstract class ApplicationTest {
 
 		resourceText = resourceContext.getString(key);
 		assertEquals(expectedStr, resourceText);
+	}
+
+	/**
+	 * Starts running SIM_basic
+	 * @return The socket information for the variable server. Formatted as [host],[port]
+	 */
+	public static String startTestSim() {
+		String path = System.getenv("TRICK_HOME") + "/trick_sims/SIM_basic";
+
+		SimulationInterface SIM_basic = new SimulationInterface(path);
+		try { 
+			Process basic_exe = SIM_basic.run_S_main("RUN_test/input.py", "&"); 
+		} catch(IOException e) { 
+			System.err.println(e.getMessage()); 
+		}
+		String connectionInfo = SIM_basic.get_var_server_connection();
+
+		return connectionInfo;
 	}
 
 	protected void setupExpectedActionInfo() {

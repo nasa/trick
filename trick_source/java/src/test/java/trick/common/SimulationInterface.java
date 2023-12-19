@@ -1,0 +1,74 @@
+package trick.common;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class SimulationInterface {
+	public File working_directory, S_main;
+
+	public SimulationInterface(String path) {
+		working_directory = new File(path);
+		find_S_main();
+	}
+
+	public void find_S_main() {
+		if (!working_directory.exists()) {
+			S_main = null;
+			return;
+		}
+
+		File[] exe = working_directory.listFiles(new FilenameFilter() {
+			public boolean accept(File d, String name) {
+				return name.startsWith("S_main") && name.endsWith("exe");
+			}
+		});
+
+		if (exe.length > 1) {
+			System.out.printf("WARNING: Detected %d simulation executables. Selecting '%s'...\n", exe.length,  exe[0].getName());
+		}
+
+		S_main = exe[0];
+	}
+
+	public File get_S_main() {
+		return S_main;
+	}
+
+	public Process run_S_main(String ... args) throws IOException {
+		if (!validate_S_main())	return null;
+
+		String cmd = "./" + S_main.getName();
+		for (String arg : args)	cmd += " " + arg;
+
+		working_directory = S_main.getParentFile();
+		return Runtime.getRuntime().exec(cmd, null, working_directory);
+	}
+
+	public String get_var_server_connection() {
+		// Variable declaration
+		String path = working_directory.getAbsolutePath(), info = "";
+		File socketInfo;
+		Scanner siReader;
+
+		// File Scanner Set up
+		socketInfo = new File(path + "/socket_info");
+		try {
+			siReader = new Scanner(socketInfo);
+
+			// Data Extraction and Clean-Up
+			info = siReader.nextLine();
+			siReader.close();
+		} catch (FileNotFoundException e) {
+			System.err.println(e.getMessage());
+		}
+
+		return info;
+	}
+	
+	private boolean validate_S_main() {
+		return S_main.exists() && S_main.getName().startsWith("S_main") && S_main.getName().endsWith(".exe");
+	}
+}

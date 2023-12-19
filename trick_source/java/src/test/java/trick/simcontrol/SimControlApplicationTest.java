@@ -26,8 +26,9 @@ import trick.common.ApplicationTest;
 public class SimControlApplicationTest extends ApplicationTest {
 		
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {		
-		WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class);
+	public static void setUpBeforeClass() throws Exception {
+		String connectionInfo = startTestSim();
+		WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class, connectionInfo);
 	}
 
 	@AfterClass

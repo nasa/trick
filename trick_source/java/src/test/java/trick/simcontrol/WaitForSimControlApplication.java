@@ -30,9 +30,9 @@ public class WaitForSimControlApplication extends SimControlApplication {
      * Launch the specified subclsas of SimControlApplication and block
      * (wait) until it's startup() method has run.
      */
-    public static void launchAndWait(Class<? extends WaitForSimControlApplication> applicationClass) {
+    public static void launchAndWait(Class<? extends WaitForSimControlApplication> applicationClass, String hostPortInfo) {
     	synchronized(lock) {
-			getHostPortFromString("Frozone,41253");
+			getHostPortFromString(hostPortInfo);
     		Application.launch(applicationClass, new String[]{});
     		while(true) {
     			try {
