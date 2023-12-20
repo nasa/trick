@@ -27,3 +27,5 @@ _init_log.csv
 send_hs
 varserver_log
 MONTE_RUN_test
+
+sims/SIM_spring/RUN_realtime/log_*
