@@ -271,16 +271,18 @@ void TrickView::_tvSearchBoxReturnPressed()
 //     ball.state.out.position[1]
 int TrickView::_addParamToBook(const QString &param)
 {
+    Qt::KeyboardModifiers kmods = QApplication::keyboardModifiers();
+    bool isSft = (kmods & Qt::ShiftModifier);
+    bool isAlt = (kmods & Qt::AltModifier);
+    bool isCtl = (kmods & Qt::ControlModifier);
+
     QModelIndex currIdx = _bookSelectModel->currentIndex();
     QModelIndex pageIdx;
     QModelIndex plotIdx;
-    if ( _bookModel->data(currIdx).toString() == "Plot" ) {
+    if ( !isSft && _bookModel->data(currIdx).toString() == "Plot" ) {
         plotIdx = currIdx;
         pageIdx = _bookModel->getIndex(plotIdx,"Page");
     }
-    Qt::KeyboardModifiers kmods = QApplication::keyboardModifiers();
-    bool isAlt = (kmods & Qt::AltModifier);
-    bool isCtl = (kmods & Qt::ControlModifier);
     int i = 0;
     QString unit = _sieModel->paramUnit(param);
     foreach ( QString p, _sieModel->expandParam(param) ) {
