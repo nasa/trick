@@ -33,8 +33,14 @@ void BookView::currentChanged(const QModelIndex &current,
                               const QModelIndex &previous)
 {
     Q_UNUSED(previous);
-    if ( _bookModel()->isIndex(current,"Page") ) {
-        QString pageName = _bookModel()->getDataString(current,
+    if ( _bookModel()->isIndex(current,"Page") ||
+         _bookModel()->isIndex(current,"Plot") ) {
+
+        QModelIndex pageIdx = current;
+        if ( _bookModel()->isIndex(current, "Plot") ) {
+            pageIdx = current.parent().parent();
+        }
+        QString pageName = _bookModel()->getDataString(pageIdx,
                                                        "PageName","Page");
         pageName = pageName.split(":").at(0);
         QFileInfo fi(pageName);
