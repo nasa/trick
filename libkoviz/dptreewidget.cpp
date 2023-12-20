@@ -330,6 +330,10 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
 
     DPProduct dp(dpfile);
     int rc = _runDirs.count();
+    if ( _tvModel && rc == 0 ) {
+        // If there are no runs, count the tv model as one run
+        rc = 1;
+    }
 
     // Program
     DPProgram* dpprogram = dp.program();

@@ -364,13 +364,15 @@ int main(int argc, char *argv[])
     }
 
     if ( opts.rundps.isEmpty() && opts.sessionFile.isEmpty() ) {
-        if ( opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty() ) {
+        if ( opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty() &&
+             opts.trickport == 0 ) {
             fprintf(stderr,"koviz [error] : no RUNs specified.\n");
             exit(-1);
         }
     }
     if ( runDirs.isEmpty() &&
-         opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty()) {
+         opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty() &&
+         opts.trickport == 0 ) {
         fprintf(stderr, "koviz [error]: no RUNs specified.\n"
                 "       Possible causes:\n"
                 "         1) RUNs not specified on commandline\n"
@@ -653,10 +655,13 @@ int main(int argc, char *argv[])
             monteInputsModel = monteInputModel(monteDir.absolutePath(),
                                                runsList);
         } else {
-            QStringList runsList = runsSubset(runDirs,
-                                              filterPattern,
-                                              excludePattern,
-                                              opts.beginRun,opts.endRun);
+            QStringList runsList;
+            if ( runDirs.size() > 0 ) {
+                runsList = runsSubset(runDirs,
+                                      filterPattern,
+                                      excludePattern,
+                                      opts.beginRun,opts.endRun);
+            }
             runs = new Runs(timeNames,runsList,varMap,
                             filterPattern,
                             excludePattern,
@@ -1296,7 +1301,7 @@ int main(int argc, char *argv[])
             if ( dps.size() > 0 ) {
                 listDPs = dps;
                 dpDir = ".";
-            } else {
+            } else if ( runDirs.size() > 0 ) {
                 dpDir = runDirs.at(0);
             }
 
