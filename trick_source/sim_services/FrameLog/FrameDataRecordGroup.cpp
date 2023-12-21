@@ -35,7 +35,7 @@ int Trick::FrameDataRecordGroup::frame_log_clear() {
     std::vector< Trick::JobData *>::iterator it ;
     for ( it = rec_jobs.begin() ; it != rec_jobs.end() ; it++ ) {
         (*it)->frame_time = 0 ;
-        (*it)->frame_time_seconds= 0.0;
+        (*it)->frame_time_seconds = 0.0;
     }
 
     return 0 ;
@@ -94,7 +94,7 @@ void Trick::FrameDataRecordGroup::start_timer() {
 */
 void Trick::FrameDataRecordGroup::stop_timer() {
     frame_sched_time = clock_time() - start_time ;
-    frame_sched_time_seconds = frame_sched_time * (1.0/exec_get_time_tic_value());
+    frame_time = frame_sched_time * (1.0/exec_get_time_tic_value());
 }
 
 void Trick::FrameDataRecordGroup::adjust_time() {

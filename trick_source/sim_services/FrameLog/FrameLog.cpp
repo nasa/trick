@@ -184,7 +184,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
         if ( ii > 0 ) {
             std::ostringstream group_name ;
             group_name << "trick_frame_userjobs_C" << ii ;
-            (*fdrg_it)->add_variable( group_name.str() + ".frame_sched_time_seconds") ;
+            (*fdrg_it)->add_variable( group_name.str() + ".frame_time") ;
         }
     }
     drg_trick->set_job_class("end_of_frame") ;
@@ -205,8 +205,8 @@ void Trick::FrameLog::add_recording_vars_for_frame() {
     char * job_name = NULL ;
     int ii ;
 
-    drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_sched_time_seconds")) ;
-    drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_overrun_time_seconds")) ;
+    drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_time")) ;
+    drg_frame->add_variable(rt_sim_object_name + std::string(".rt_sync.frame_overrun")) ;
 
     /* add the log_userjob frame time we created above to the log_frame group */
     for ( ii = 0 ; ii < num_threads ; ii++ ) {
@@ -762,14 +762,14 @@ int Trick::FrameLog::create_DP_job_files() {
     fprintf(fpx, "            <xaxis> <label>Time</label> <units>s</units> </xaxis>\n");
     fprintf(fpx, "            <yaxis> <label>Frame Overrun/Underrun</label> </yaxis>\n");
     fprintf(fpx, "            <curve>\n                <var>sys.exec.out.time</var>\n");
-    fprintf(fpx, "                <var line_color=\"darkgreen\" label=\"Overrun/Underrun\">%s.rt_sync.frame_overrun_time_seconds</var>\n", rt_sim_object_name.c_str());
+    fprintf(fpx, "                <var line_color=\"darkgreen\" label=\"Overrun/Underrun\">%s.rt_sync.frame_overrun</var>\n", rt_sim_object_name.c_str());
     fprintf(fpx, "            </curve>\n");
     fprintf(fpx, "        </plot>\n");
     fprintf(fpx, "        <plot grid=\"yes\">\n            <title>Frame Scheduled Jobs Time</title>\n");
     fprintf(fpx, "            <xaxis> <label>Time</label> <units>s</units> </xaxis>\n");
     fprintf(fpx, "            <yaxis> <label>Frame Scheduled Jobs Time</label> </yaxis>\n");
     fprintf(fpx, "            <curve>\n                <var>sys.exec.out.time</var>\n");
-    fprintf(fpx, "                <var line_color=\"red\" label=\"Frame Sched Time\">%s.rt_sync.frame_sched_time_seconds</var>\n", rt_sim_object_name.c_str());
+    fprintf(fpx, "                <var line_color=\"red\" label=\"Frame Sched Time\">%s.rt_sync.frame_time</var>\n", rt_sim_object_name.c_str());
     fprintf(fpx, "            </curve>\n");
     fprintf(fpx, "        </plot>\n");
     fprintf(fpx, "    </page>\n");
@@ -798,7 +798,7 @@ int Trick::FrameLog::create_DP_job_files() {
             fprintf(fpx, "                <var>sys.exec.out.time</var>\n");
             std::ostringstream group_name ;
             group_name << "trick_frame_userjobs_C" << (page_count * plots_per_page + ii + 1) ;
-            fprintf(fpx, "                <var line_color=\"red\" label=\"Frame Sched Time\">%s.frame_sched_time_seconds</var>\n", group_name.str().c_str());
+            fprintf(fpx, "                <var line_color=\"red\" label=\"Frame Sched Time\">%s.frame_time</var>\n", group_name.str().c_str());
             fprintf(fpx, "            </curve>\n");
             fprintf(fpx, "        </plot>\n");
         }
@@ -810,10 +810,10 @@ int Trick::FrameLog::create_DP_job_files() {
     fprintf(fpx, "            <label>Sim Time</label>\n            <var>sys.exec.out.time</var>\n");
     fprintf(fpx, "        </column>\n");
     fprintf(fpx, "        <column format=\"%%13.6f\">\n");
-    fprintf(fpx, "            <label>Overrun/Underrun</label>\n            <var>%s.rt_sync.frame_overrun_time_seconds</var>\n", rt_sim_object_name.c_str());
+    fprintf(fpx, "            <label>Overrun/Underrun</label>\n            <var>%s.rt_sync.frame_overrun</var>\n", rt_sim_object_name.c_str());
     fprintf(fpx, "        </column>\n");
     fprintf(fpx, "        <column format=\"%%13.6f\">\n");
-    fprintf(fpx, "            <label>Frame Sched Time</label>\n            <var>%s.rt_sync.frame_sched_time_seconds</var>\n", rt_sim_object_name.c_str());
+    fprintf(fpx, "            <label>Frame Sched Time</label>\n            <var>%s.rt_sync.frame_time</var>\n", rt_sim_object_name.c_str());
     fprintf(fpx, "        </column>\n");
     fprintf(fpx, "    </table>\n</product>");
     fclose(fpx);

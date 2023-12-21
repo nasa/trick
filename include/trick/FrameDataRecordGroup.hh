@@ -69,7 +69,7 @@ namespace Trick {
             long long frame_sched_time ;
 
             /** Thread total frame scheduled time in seconds*/
-            double frame_sched_time_seconds ;
+            double frame_time ;
 
     } ;
 
