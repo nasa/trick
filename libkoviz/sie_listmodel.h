@@ -12,6 +12,7 @@
 #include <QDomDocument>
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
+#include <QMutex>
 
 class SieListModel : public QAbstractListModel
 {
@@ -42,6 +43,7 @@ class SieListModel : public QAbstractListModel
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
   private:
+    mutable QMutex _mutex;  // protect thread loaded _params string list
     QStringList _params;
     QString _rx;
     QStringList _filteredParams;

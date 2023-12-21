@@ -41,6 +41,7 @@ QVariant SieListModel::data(const QModelIndex &index, int role) const
         return variant;
     }
 
+    _mutex.lock();
     if ( role == Qt::DisplayRole ) {
         if ( _rx.isEmpty() || _rx == ".*" ) {
             variant = _params.at(index.row());
@@ -48,6 +49,7 @@ QVariant SieListModel::data(const QModelIndex &index, int role) const
             variant = _filteredParams.at(index.row());
         }
     }
+    _mutex.unlock();
 
     return variant;
 }
@@ -64,6 +66,7 @@ QMimeData *SieListModel::mimeData(const QModelIndexList &indexes) const
 
 int SieListModel::setRegexp(const QString &rx)
 {
+    _mutex.lock();
     beginResetModel();
     _rx = rx;
     _filteredParams.clear();
@@ -75,6 +78,7 @@ int SieListModel::setRegexp(const QString &rx)
     }
     _fetchCount = 0;
     endResetModel();
+    _mutex.unlock();
 
     return _filteredParams.size();
 }
@@ -87,6 +91,7 @@ bool SieListModel::canFetchMore(const QModelIndex &parent) const
         return false;
     }
 
+    _mutex.lock();
     if ( _rx.isEmpty() || _rx == ".*" ) {
         if ( _fetchCount < _params.size() ) {
             isCanFetchMore = true;
@@ -96,6 +101,7 @@ bool SieListModel::canFetchMore(const QModelIndex &parent) const
             isCanFetchMore = true;
         }
     }
+    _mutex.unlock();
 
     return isCanFetchMore;
 }
@@ -106,6 +112,7 @@ void SieListModel::fetchMore(const QModelIndex &parent)
         return;
     }
 
+    _mutex.lock();
     int remainder;
     if ( _rx.isEmpty() || _rx == ".*" ) {
         remainder = _params.size() - _fetchCount;
@@ -119,6 +126,7 @@ void SieListModel::fetchMore(const QModelIndex &parent)
         _fetchCount += nItemsToFetch;
         endInsertRows();
     }
+    _mutex.unlock();
 }
 
 Qt::ItemFlags SieListModel::flags(const QModelIndex &index) const
@@ -258,7 +266,9 @@ void SieListModel::_loadSieElement(const QDomElement &element,
                 param += path.at(j).attribute("name") + ".";
             }
             param += memberElement.attribute("name");
+            _mutex.lock();
             _params.append(param);
+            _mutex.unlock();
         } else {
             QList<QDomElement> copypath(path);
             copypath.append(memberElement);
@@ -380,6 +390,8 @@ int SieListModel::paramSize(const QString &param)
 bool SieListModel::isParamExists(const QString &paramIn)
 {
     bool isExists = false;
+
+    _mutex.lock();
     QString param = paramIn;
     QRegularExpression rgx("\\[\\d+\\]");
     param.replace(rgx,"");
@@ -388,6 +400,8 @@ bool SieListModel::isParamExists(const QString &paramIn)
     } else if ( _params.contains(param) ) {
         isExists = true;
     }
+    _mutex.unlock();
+
     return isExists;
 }
 
