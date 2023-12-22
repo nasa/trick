@@ -23,7 +23,8 @@ protected:
     bool filterAcceptsColumn(int col, const QModelIndex &pidx) const;
 signals:
     
-public slots:
+private slots:
+    void _sieModelLoaded();
 
 private:
     QHash<QString,int> _modelParams;

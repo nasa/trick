@@ -12,6 +12,9 @@ DPFilterProxyModel::DPFilterProxyModel(const QStringList& params,
     foreach (QString param, params) {
         _modelParams.insert(param,0);
     }
+
+    connect(_sieModel, SIGNAL(modelLoaded()),
+            this, SLOT(_sieModelLoaded()));
 }
 
 bool DPFilterProxyModel::filterAcceptsRow(int row,
@@ -60,6 +63,13 @@ bool DPFilterProxyModel::filterAcceptsColumn(int col,
     }
 
     return isAccept;
+}
+
+void DPFilterProxyModel::_sieModelLoaded()
+{
+    // Refresh filter after model loaded
+    _acceptedDPFileCache.clear();
+    invalidateFilter();
 }
 
 bool DPFilterProxyModel::_isAccept(const QModelIndex &idx,
