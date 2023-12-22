@@ -537,6 +537,17 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         }
     }
 
+	protected JComboBox getRunningSimList() { return runningSimList; }
+
+	protected JTextField getSimRunDirField(int index) { 
+		if (simRunDirField.length > 0 && index < simRunDirField.length) {
+			return simRunDirField[index];
+		} else {
+			return null;
+		}
+	}
+
+	protected JTextField getSimRunDirField() { return getSimRunDirField(0); }
 
     //========================================
     //    Methods
@@ -660,7 +671,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * Processes a comma delineated String to retrieve a port number and host name.
      * @param cmdLine A comma dilineated String that should hold an integer and a string.
      */
-    protected static void getHostPortFromString(String cmdLine) {
+    protected static void updateConnectionInfo(String cmdLine) {
         Scanner commandScanner = new Scanner(cmdLine).useDelimiter(",");
         // now need to figure out host and port, if not specified, available host&port will be listed
         if (commandScanner.hasNextInt()) {
@@ -717,7 +728,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             commandLine = autoExitMatcher.replaceAll("");            
         } 
         
-        getHostPortFromString(commandLine);
+        updateConnectionInfo(commandLine);
     }
 
     /**

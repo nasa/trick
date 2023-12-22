@@ -2,6 +2,7 @@ package trick.common;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Scanner;
@@ -12,6 +13,12 @@ public class SimulationInterface {
 	public SimulationInterface(String path) {
 		working_directory = new File(path);
 		find_S_main();
+	}
+
+	public void clean() {
+		String infoPath = working_directory.getAbsolutePath() + "/socket_info";
+		File info = new File(infoPath);
+		if(info.exists())	info.delete();
 	}
 
 	public void find_S_main() {
@@ -48,6 +55,10 @@ public class SimulationInterface {
 	}
 
 	public String get_var_server_connection() {
+		return get_var_server_connection("");
+	}
+
+	public String get_var_server_connection(String delim) {
 		// Variable declaration
 		String path = working_directory.getAbsolutePath(), info = "";
 		File socketInfo;
@@ -63,6 +74,11 @@ public class SimulationInterface {
 			siReader.close();
 		} catch (FileNotFoundException e) {
 			System.err.println(e.getMessage());
+		}
+
+		String tokens[] = info.split(",");
+		if(!delim.isEmpty() && tokens.length == 2) {
+			info = tokens[0] + delim + tokens[1];
 		}
 
 		return info;

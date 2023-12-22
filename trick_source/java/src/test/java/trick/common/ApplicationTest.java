@@ -9,6 +9,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Stack;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -20,10 +21,11 @@ import trick.common.SimulationInterface;
 
 public abstract class ApplicationTest {
 	protected ArrayList<ActionInfo> coreActionInfo, supportActionInfo, miscActionInfo;
+	protected static Stack<Process> runningSims = new Stack<Process>();
 	protected ActionMap actionContext;
 	protected ResourceMap resourceContext;
 
-	public void verifyActionInfo(ActionInfo aInfo) {
+	protected void verifyActionInfo(ActionInfo aInfo) {
 		Action action = getActionFromKey(aInfo.name);
 		assumeNotNull(String.format("ActionMap.get(\"%s\") = null", aInfo.name), action);
 
@@ -34,7 +36,7 @@ public abstract class ApplicationTest {
 		assertEquals(aInfo.description, actualDesc);
 	}
 
-	public void verifyResourceInfo(String key, String expectedStr) {
+	protected void verifyResourceInfo(String key, String expectedStr) {
 		String resourceText, errMsg = String.format("No ResourceMap set. Resource '%s' cannot be searched for.\n", key);
 		assumeNotNull(errMsg, resourceContext);
 
@@ -46,17 +48,23 @@ public abstract class ApplicationTest {
 	 * Starts running SIM_basic
 	 * @return The socket information for the variable server. Formatted as [host],[port]
 	 */
-	public static String startTestSim() {
+	protected static String startBasicSim() {
 		String path = System.getenv("TRICK_HOME") + "/trick_sims/SIM_basic";
 
 		SimulationInterface SIM_basic = new SimulationInterface(path);
 		try { 
 			Process basic_exe = SIM_basic.run_S_main("RUN_test/input.py", "&"); 
+			runningSims.add(basic_exe);
+
+			// Wait for the sim to boot up and save the socket info
+			Thread.sleep(500);
 		} catch(IOException e) { 
 			System.err.println(e.getMessage()); 
+		} catch(InterruptedException e) { 
+			System.err.println(e.getMessage()); 
 		}
-		String connectionInfo = SIM_basic.get_var_server_connection();
 
+		String connectionInfo = SIM_basic.get_var_server_connection(" ");
 		return connectionInfo;
 	}
 

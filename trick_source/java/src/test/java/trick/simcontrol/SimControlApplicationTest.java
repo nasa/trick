@@ -1,7 +1,5 @@
 package trick.simcontrol;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -11,6 +9,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import trick.common.ActionInfo;
 import trick.common.ApplicationTest;
@@ -23,28 +25,45 @@ import trick.common.ApplicationTest;
  * @intern mrockwell2
  *
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SimControlApplicationTest extends ApplicationTest {
+	private static int numSims = 0;
+	private static String socketInfo;
+
+	private WaitForSimControlApplication app;
 		
 	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		String connectionInfo = startTestSim();
-		WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class, connectionInfo);
+	public static void setUpBeforeClass() {
+		socketInfo = startBasicSim();
+		numSims++;
+		WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class);
 	}
 
 	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
+	public static void tearDownAfterClass() {
+		while(numSims > 0 && runningSims.size() > 0) {
+			Process sim = runningSims.pop();
+			if (sim.isAlive()) {
+				sim.destroy();				
+			}
+			numSims--;
+		}
 	}
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
+		app = application();
 		setupExpectedActionInfo();
 
-		actionContext = application().actionMap;
-		resourceContext = application().resourceMap;
+		actionContext = app.actionMap;
+		resourceContext = app.resourceMap;
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
+		app.removeExitListener(app.exitListener);
+		app.exit();
+		assertTrue(app.isEnded);
 	}
 
 	@Override
@@ -81,7 +100,7 @@ public class SimControlApplicationTest extends ApplicationTest {
 	
 	@Test
 	public void testReady() {		
-		assertTrue("SimControlApplicationTest is not ready yet!", application().isReady());
+		assertTrue("SimControlApplicationTest is not ready yet!", app.isReady());
 	}
 	
 	@Test
@@ -106,13 +125,21 @@ public class SimControlApplicationTest extends ApplicationTest {
     public void testDefinedKeyText() {
 		verifyResourceInfo("fileMenu.text", "&File");
     }
-	
 	@Test
-	public void testExit() {
-		application().removeExitListener(application().exitListener);
-		application().exit();
-		assertTrue(application().isEnded);
-	}	
+	public void testConnectionSuccess() {
+		app.editRunningSimList(socketInfo);
+		String simDir = app.getRunningSimInfo();
+
+		String expectedDir = System.getenv("TRICK_HOME");
+		if (expectedDir.isEmpty()) {
+			System.err.println("WARNING: {TRICK_HOME} is not set. Assuming trick is installed in home directory.");
+			expectedDir = System.getenv("HOME") + "/trick";
+		}
+
+		expectedDir += "/trick_sims/SIM_basic/S_main";
+
+		assertTrue("SimControlPanel did not connect!", simDir.startsWith(expectedDir));
+	}
 
 	private static WaitForSimControlApplication application() {
         return Application.getInstance(WaitForSimControlApplication.class);
