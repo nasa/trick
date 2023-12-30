@@ -258,7 +258,7 @@ proceed to [Install Trick](#install) section of the install guide
 ---
 
 <a name="macos-silicon"></a>
-### macOS M1, M2, M3 Silicon Processors
+### macOS, Silicon M1, M2, M3 
 #### These instructions are for Silicon-based macs. For intel based installations, see [macOS (Intel)](#macos)
 1. Install the latest Xcode. I recommend installing Xcode through the App Store.
 
