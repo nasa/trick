@@ -55,7 +55,8 @@ Trick runs on GNU/Linux and macOS, though any System V/POSIX compatible UNIX wor
 |[CentOS 7](#redhat7)|
 |[Fedora](#fedora)|
 |[Ubuntu](#ubuntu)|
-|[macOS](#macos)|
+|[macOS (Intel)](#macos)|
+|[macOS (Silicon)](#macos-silicon)|
 |[Windows 10 (Linux Subsystem Only)](#windows10)|
 |[Troubleshooting](#trouble)|
 
@@ -197,7 +198,7 @@ proceed to [Install Trick](#install) section of the install guide
 ---
 <a name="macos"></a>
 ### macOS Monterey, Big Sur, Catalina
-#### These instructions are for Intel-based macs. For the latest Apple silicon (M1) instructions see this issue: https://github.com/nasa/trick/issues/1283
+#### These instructions are for Intel-based macs. For the latest Apple silicon (M1) instructions see this issue: https://github.com/nasa/trick/issues/1283 or [macOS (Silicon)](#macos-silicon)
 1. Install the latest Xcode. I recommend installing Xcode through the App Store.
 
 2. Download and install Xcode Command Line Tools for macOS. The following command in the terminal should do the job:
@@ -256,6 +257,31 @@ proceed to [Install Trick](#install) section of the install guide
 
 ---
 
+<a name="macos-silicon"></a>
+### M1, M2, M3 Silicon Processors
+#### These instructions are for Silicon-based macs. For intel based installations, see [macOS (Intel)](#macos)
+1. Install the latest Xcode. I recommend installing Xcode through the App Store.
+
+2. Download and install Xcode Command Line Tools for macOS. The following command in the terminal should do the job:
+
+```bash
+xcode-select --install
+```
+
+3. Install Homebrew, macOS's unofficial package manager. They typically have a single line that can be executed in your terminal to install brew at their homepage at https://brew.sh/
+
+
+4. Install the following dependencies using brew (note, we do not currently support installing llvm through brew. Trick WILL NOT work with brew's llvm. See step 5). 
+
+```bash
+brew install python java xquartz swig maven udunits openmotif 
+
+```
+IMPORTANT: Make sure to follow the instructions for adding java and swig to your `PATH` provided by brew. If you missed them, you can see them again by using `brew info java` and `brew info swig`. Remember,  you may need to restart your terminal for these `PATH` changes to take effect. Note that `swig@3` is now deprecated on Mac.
+
+proceed to [Install Trick](#install) section of the install guide
+
+---
 <a name="windows10"></a>
 ### Windows 10 (Linux Subsystem Only)
 
