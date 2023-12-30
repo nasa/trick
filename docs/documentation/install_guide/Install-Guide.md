@@ -258,7 +258,7 @@ proceed to [Install Trick](#install) section of the install guide
 ---
 
 <a name="macos-silicon"></a>
-### M1, M2, M3 Silicon Processors
+### macOS M1, M2, M3 Silicon Processors
 #### These instructions are for Silicon-based macs. For intel based installations, see [macOS (Intel)](#macos)
 1. Install the latest Xcode. I recommend installing Xcode through the App Store.
 
@@ -274,10 +274,67 @@ xcode-select --install
 4. Install the following dependencies using brew (note, we do not currently support installing llvm through brew. Trick WILL NOT work with brew's llvm. See step 5). 
 
 ```bash
-brew install python java xquartz swig maven udunits openmotif 
+brew install python java xquartz swig maven udunits openmotif ninja
 
 ```
-IMPORTANT: Make sure to follow the instructions for adding java and swig to your `PATH` provided by brew. If you missed them, you can see them again by using `brew info java` and `brew info swig`. Remember,  you may need to restart your terminal for these `PATH` changes to take effect. Note that `swig@3` is now deprecated on Mac.
+IMPORTANT: Update env variables. Run the following commands. The following is what worked for me to get rid of all errors, but make sure that your file paths align with your current system & versions.
+
+```bash
+echo 'export PATH="/opt/homebrew/opt/openjdk/bin:/opt/homebrew/opt/swig/bin:${HOME}/trick/bin:$PATH"' >> ~/.zshrc
+
+```
+
+```bash
+echo 'export PYTHON_VERSION=3' >> ~/.zshrc
+
+```
+
+``` bash
+echo 'export LIBRARY_PATH="${LIBRARY_PATH}:/opt/homebrew/Cellar/zstd/1.5.5/lib"' >> ~/.zshrc
+
+```
+
+```bash
+echo 'export TRICK_CFLAGS="-g -Wall -Wmissing-prototypes -Wextra -Wshadow -I/opt/homebrew/include -L/opt/homebrew/lib -Wno-unused-command-line-argument"' >> ~/.zshrc
+
+```
+
+```bash
+echo 'export TRICK_CXXFLAGS="-g -Wall -Wextra -Wshadow -I/opt/homebrew/include -L/opt/homebrew/lib -Wno-unused-command-line-argument"' >> ~/.zshrc
+
+```
+Make sure to either run `source ~/.zshrc` or restart your terminal for the variables to be updated.
+
+5. Download and un-compress the latest pre-built "clang+llvm-*VERSION#*-arm64-apple-darwin22.0.tar.xz" from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
+and download the latest version llvm that matches your Xcode version from the release assets. Tip: I suggest renaming the untar'd directory to something simple like llvmVERSION# and putting it in your home directory or development environment.
+
+6. Download and un-compress the latest source code zip from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
+and download the latest version llvm that matches your Xcode version from the release assets.
+
+7. Open a terminal and navigate to a directory where you want to perform the build (not inside the LLVM source tree). Create and move into a new build directory:
+  `mkdir mybuilddir && cd mybuilddir`
+
+8. Run cmake to configure the build. Make sure to replace VERSION# with your version and again make sure that your file paths align with your current system & versions.
+   `cmake -G Ninja -DLLVM_ENABLE_PROJECTS=clang -DLLVM_TARGETS_TO_BUILD=AArch64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${HOME}/llvmVERSION#-aarch64 ${HOME}/llvmVERSION#/llvm`
+
+9. Build LLVM.
+  `cmake --build .`
+
+11. Configure LLVM. Make sure that your file paths align with your current system & versions.
+    `./configure --with-llvm=/Users/ethanmaxey/Downloads/clang+llvm-VERSION#-arm64-apple-darwin22.0 --with-udunits=/opt/homebrew/Cellar/udunits/2.2.28`
+
+IMPORTANT: Your mac might complain during configuration or build that llvm is downloaded from the internet and can not be trusted. You may need to find a safe solution for this on your own. DO THIS AT YOUR OWN RISK: What worked for us was enabling Settings->Security & Privacy->Privacy->Developer Tools->Terminal. 
+
+OPTIONAL: Trick uses google test (gtest) version 1.8 for unit testing. To install gtest:
+```
+brew install cmake wget
+wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+tar xzvf release-1.8.0.tar.gz
+cd googletest-release-1.8.0/googletest
+cmake .
+make
+make install
+```
 
 proceed to [Install Trick](#install) section of the install guide
 
