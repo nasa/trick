@@ -274,7 +274,7 @@ xcode-select --install
 brew install python java xquartz swig maven udunits openmotif ninja
 ```
 
-IMPORTANT: Steps 5-7 are to update your env variables. The following is what I used, but make sure that your file paths align with your current system & versions.
+IMPORTANT: Steps 5-9 are to update your env variables. The following is what I used, but make sure that your file paths align with your current system & versions.
 
 5. Set your PATH variables for Java, Swig, and Trick/bin.
 ```
