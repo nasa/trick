@@ -59,3 +59,7 @@ int Trick::Scheduler::write_non_sched_queue( FILE * fp , Trick::ScheduledJobQueu
     return curr_queue->write_non_sched_queue(fp) ;
 }
 
+std::map<std::string, int > Trick::Scheduler::get_class_map() {
+    return class_map;
+}
+

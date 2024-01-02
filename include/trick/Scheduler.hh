@@ -106,6 +106,11 @@ namespace Trick {
              */
             virtual int instrument_job_remove(std::string in_job ) = 0 ;
 
+            /**
+             * Gets the job class map.
+             * @return class_map
+             */
+            std::map<std::string, int > get_class_map() ;
     } ;
 
 }
