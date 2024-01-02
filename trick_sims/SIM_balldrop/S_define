@@ -1,0 +1,28 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (S_define file for SIM_balldrop)
+LIBRARY DEPENDENCIES:
+    (
+      (ball/src/ball_init.c)
+      (ball/src/ball_analytic.c)
+      (ball/src/ball_shutdown.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+##include "ball/include/ball_analytic.h"
+
+class BallSimObject : public Trick::SimObject {
+
+    public:
+        BALL ball;
+
+        BallSimObject() {
+            ("default_data") ball_default_data( &ball ) ;
+            ("initialization") ball_init( &ball ) ;
+            (0.01, "scheduled") ball_analytic( &ball ) ;
+            ("shutdown") ball_shutdown( &ball ) ;
+        }
+} ;
+
+BallSimObject dyn ;
