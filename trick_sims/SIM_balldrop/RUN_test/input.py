@@ -1,5 +1,7 @@
 exec(open("Modified_data/realtime.py").read())
 
+trick.stop(60.0)
+
 # ==========================================
 # Start the Satellite Graphics Client
 # ==========================================

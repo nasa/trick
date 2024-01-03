@@ -9,7 +9,7 @@ PURPOSE: (Set the initial data values)
 /* default data job */
 int ball_default_data( BALL* B ) {
     
-    B->gravity = -9.81;
+    B->gravity = -0.0127;
     B->height = 22.86;
 
     B->time = 0.0 ;

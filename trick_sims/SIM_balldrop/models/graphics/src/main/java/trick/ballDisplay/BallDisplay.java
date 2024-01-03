@@ -36,6 +36,8 @@ import javax.swing.BorderFactory;
 import javax.swing.border.EtchedBorder;
 import java.awt.Component;
 
+import java.awt.BasicStroke;
+
 class ScenePoly {
     public Color color;
 }
@@ -54,11 +56,9 @@ class RangeView extends JPanel {
     private double[] ballPos;
     private double[] ballVel;
     private double gravitationalConstant;
+    private double simulationTime;
 
     private ScenePoly ball;
-
-    // Controls
-    private double deltaGravity ;
 
     /**
      * Class constructor.
@@ -67,16 +67,14 @@ class RangeView extends JPanel {
 
         setScale(mapScale);
 
-        deltaGravity = 0;
-
         skyColor    = new Color(22, 29, 54);
         groundColor = new Color(123, 124, 134);
-        ballColor = new  Color(254, 181, 36);
+        ballColor = new  Color(120, 19, 145);
 
         ballPos  = new double[] {0.0, 2.0};
         ballVel  = new double[] {0.0, 0.0};
 
-        gravitationalConstant = -9.81;
+        gravitationalConstant = -0.0127;
 
         ball = new ScenePoly();
         ball.color = ballColor;
@@ -87,11 +85,6 @@ class RangeView extends JPanel {
         g2d.setPaint(color);
         g2d.fillOval( (int)(worldOriginX+scale*(x-w/2)), (int)(worldOriginY-scale*(y+h/2)), (int)(scale*w), (int)(scale*h));
     }
-
-    public void incGravity() { deltaGravity =    1.00; } 
-    public void decGravity() { deltaGravity =   -1.00; }
-    public void resetDeltaGravity() { deltaGravity =    0; }
-    public double  getDeltaGravity()   { return deltaGravity; }
 
     public void setBallPos(double x, double y) {
         ballPos[0] = x;
@@ -106,6 +99,11 @@ class RangeView extends JPanel {
     public void setGravitationalConstant(double someGravitationalConstant) {
         gravitationalConstant = someGravitationalConstant;
     }
+
+    public void setSimulationTime(double time) {
+        this.simulationTime = time;
+    }
+
 
     public void setScale (int mapScale) {
         if (mapScale < 2) {
@@ -159,6 +157,22 @@ class RangeView extends JPanel {
         drawSceneOval(g2d, ballColor, ballPos[0], ballPos[1], 2*ballRadius, 2*ballRadius);
         
         // ===============================================================================
+        //  Draw Pole
+        // ===============================================================================
+        double ballBottomY = ballPos[1] - ballRadius;
+
+        int ballBottomCenterX = worldOriginX + (int)(scale * ballPos[0]);
+        int ballBottomCenterY = worldOriginY - (int)(scale * ballBottomY);
+
+        int groundX = ballBottomCenterX; 
+        int groundY = worldOriginY;
+
+        float poleThickness = 5.0f;
+        g2d.setStroke(new BasicStroke(poleThickness)); 
+        g2d.setColor(Color.BLACK);
+        g2d.drawLine(ballBottomCenterX, ballBottomCenterY, groundX, groundY);
+        
+        // ===============================================================================
         // Draw range markers.
         // ===============================================================================
         int tickRange = 50;
@@ -183,9 +197,10 @@ class RangeView extends JPanel {
         // ===============================================================================
         g2d.setPaint(Color.WHITE);
         g2d.drawString ( String.format("SCALE: %d pixels/meter",scale), 20,20);
-        g2d.drawString ( String.format("Gravity: %f m/s", gravitationalConstant), 20,60);
-        g2d.drawString ( String.format("Ball Pos: %.2f", ballPos[1]), 20,80);
-        g2d.drawString ( String.format("Ball Vel:  %.2f", ballVel[1]), 20,100);
+        g2d.drawString ( String.format("Time: %.2f s", simulationTime), 20,50);
+        g2d.drawString ( String.format("Gravity: %.4f m/s^2", gravitationalConstant), 20,70);
+        g2d.drawString ( String.format("Ball Pos: %.2f m", ballPos[1]), 20,90);
+        g2d.drawString ( String.format("Ball Vel:  %.2f m/s", ballVel[1]), 20,110);
 
     }
 
@@ -202,68 +217,16 @@ class TrickSimMode {
     public static final int RUN = 5;
 }
 
-class GravityCtrlPanel extends JPanel implements ActionListener {
-    private RangeView rangeView;
-    private JButton increaseGravityButton, decreaseGravityButton;
-
-    public GravityCtrlPanel(RangeView view) {
-        rangeView = view;
-        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-        setBorder( BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-
-        increaseGravityButton = new JButton("\u25b6");
-        increaseGravityButton.addActionListener(this);
-        increaseGravityButton.setActionCommand("increaseGravity");
-        increaseGravityButton.setToolTipText("Increase Gravity");
-
-        decreaseGravityButton = new JButton("\u25c0");
-        decreaseGravityButton.addActionListener(this);
-        decreaseGravityButton.setActionCommand("decreaseGravity");
-        decreaseGravityButton.setToolTipText("Decrease Gravity");
-
-        add(decreaseGravityButton);
-        add(increaseGravityButton);
-
-
-    }
-
-    public void actionPerformed(ActionEvent e) {
-        String s = e.getActionCommand();
-        switch (s) {
-            case "increaseGravity":
-                rangeView.incGravity();
-                break;
-            case "decreaseGravity":
-                rangeView.decGravity();
-                break;
-            default:
-                System.out.println("Unknown Action Command:" + s);
-                break;
-        }
-    }
-}
-
-
 class ControlPanel extends JPanel implements ActionListener {
 
     private RangeView rangeView;
     private JButton zoomOutButton, zoomInButton;
-    private JButton shutDownButton; // WARNING: The value of the field ControlPanel.shutDownButton is not used
-    private GravityCtrlPanel gravityCtrlPanel;
+    private JButton shutDownButton;
 
     public ControlPanel(RangeView view) {
 
         rangeView = view;
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-
-        JPanel labeledGravityCtrlPanel = new JPanel();
-        labeledGravityCtrlPanel.setLayout(new BoxLayout(labeledGravityCtrlPanel, BoxLayout.Y_AXIS));
-        JLabel gravityControlLabel = new JLabel("Gravity Control");
-        gravityControlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        labeledGravityCtrlPanel.add(gravityControlLabel);
-        gravityCtrlPanel = new GravityCtrlPanel(rangeView);
-        labeledGravityCtrlPanel.add( gravityCtrlPanel );
-        add(labeledGravityCtrlPanel);
 
         zoomOutButton = new JButton("Zoom Out");
         zoomOutButton.addActionListener(this);
@@ -333,7 +296,7 @@ public class BallDisplay extends JFrame {
     }
 
     public void connectToServer(String host, int port ) throws IOException {
-        Socket socket = new Socket(host,    port); // WARNING: Resource leak: 'socket' is never closed
+        Socket socket = new Socket(host,    port);
         in = new BufferedReader( new InputStreamReader( socket.getInputStream()));
         out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
     }
@@ -356,7 +319,7 @@ public class BallDisplay extends JFrame {
 
         String host = "localHost";
         int port = 0;
-        boolean boom = false; // WARNING: The value of the local variable boom is not used
+        boolean boom = false;
 
         // ==========================================================
         // Handle program arguments.
@@ -382,13 +345,11 @@ public class BallDisplay extends JFrame {
         double  posy = 0.0;
         double  velx = 0.0;
         double  vely = 0.0;
-        double  gravitationalConstant = -9.81;
+        double  gravitationalConstant = -0.0127;
+        double currentTime = 0.00;
 
-        // Outbound command variables
-        double gravity_change_command;
-
-        int simMode = 0; // WARNING: The value of the local variable simMode is not used
-        boolean standalone = false; // WARNING: The value of the local variable standalone is not used
+        int simMode = 0;
+        boolean standalone = false;
 
         int mapScale = 32 ; // pixels per meter.
 
@@ -434,6 +395,7 @@ public class BallDisplay extends JFrame {
                             "trick.var_add(\"dyn.ball.pos\")\n" +
                             "trick.var_add(\"dyn.ball.vel\")\n" +
                             "trick.var_add(\"dyn.ball.gravity\")\n" +
+                            "trick.var_add(\"dyn.ball.time\")\n" +
                             "trick.var_add(\"trick_sys.sched.mode\")\n" +
         //  2) We want the responses in ASCII:
                             "trick.var_ascii() \n" +
@@ -454,7 +416,8 @@ public class BallDisplay extends JFrame {
                 posy    = Double.parseDouble( field[1]);
                 vely    = Double.parseDouble( field[2]);
                 gravitationalConstant = Double.parseDouble( field[3]);
-                simMode = Integer.parseInt( field[4]);
+                currentTime = Double.parseDouble( field[4]);
+                simMode = Integer.parseInt( field[5]);
             } catch (IOException | NullPointerException e ) {
                 go = false;
             }
@@ -462,15 +425,8 @@ public class BallDisplay extends JFrame {
             // Update the display data.
             rangeView.setBallPos(posx, posy);
             rangeView.setBallVel(velx, vely);
-            rangeView.setGravitationalConstant(gravitationalConstant);
+            rangeView.setSimulationTime(currentTime);
 
-            gravity_change_command= rangeView.getDeltaGravity();
-            if (gravity_change_command != 0.0) {
-                System.out.println("CHANGING GRAVITY");
-                System.out.println(gravity_change_command);
-                ballDisplay.out.writeBytes( String.format("dyn.ball.gravity_change_command = %f ;\n", gravity_change_command ));
-                rangeView.resetDeltaGravity();
-            }
 
             ballDisplay.out.flush();
 
