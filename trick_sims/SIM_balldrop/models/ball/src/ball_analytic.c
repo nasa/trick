@@ -7,6 +7,11 @@ PURPOSE:    ( Analytical Ball )
 
 int ball_analytic( BALL* B ) {
 
+    if (B->gravity_change_command != 0) {
+        B->gravity += B->gravity_change_command;
+        B->gravity_change_command = 0;
+    }
+
     B->acc = B->gravity ;
     B->vel = B->acc * B->time ;
     B->pos = B->height + ( 0.5 * B->acc * B->time * B->time ) ;

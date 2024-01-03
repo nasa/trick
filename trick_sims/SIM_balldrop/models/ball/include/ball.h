@@ -18,6 +18,8 @@ typedef struct {
     int impact ;        /* -- Has impact occurred? */
     double impactTime;  /* s Time of Impact */
 
+    int gravity_change_command ;    /* m/s2 Acceleration change due to gravity */
+
 } BALL ;
 
 #ifdef __cplusplus

@@ -88,10 +88,10 @@ class RangeView extends JPanel {
         g2d.fillOval( (int)(worldOriginX+scale*(x-w/2)), (int)(worldOriginY-scale*(y+h/2)), (int)(scale*w), (int)(scale*h));
     }
 
-    public void incGravity() { deltaGravity =    1; } // TODO: This will change to be the gravitational constant
-    public void decGravity() { deltaGravity =   -1; } // TODO: This will change to be the gravitational constant
-    public void resetDeltaGravity() { deltaGravity =    -9.81; } // TODO: This will change to be the gravitational constant
-    public double  getDeltaGravity()   { return deltaGravity; } // TODO: This will change to be the gravitational constant
+    public void incGravity() { deltaGravity =    1.00; } 
+    public void decGravity() { deltaGravity =   -1.00; }
+    public void resetDeltaGravity() { deltaGravity =    0; }
+    public double  getDeltaGravity()   { return deltaGravity; }
 
     public void setBallPos(double x, double y) {
         ballPos[0] = x;
@@ -184,8 +184,8 @@ class RangeView extends JPanel {
         g2d.setPaint(Color.WHITE);
         g2d.drawString ( String.format("SCALE: %d pixels/meter",scale), 20,20);
         g2d.drawString ( String.format("Gravity: %f m/s", gravitationalConstant), 20,60);
-        g2d.drawString ( String.format("Ball Pos: [%.2f, %.2f]", ballPos[0], ballPos[1]), 20,80);
-        g2d.drawString ( String.format("Ball Vel: [%.2f, %.2f]", ballVel[0], ballVel[1]), 20,100);
+        g2d.drawString ( String.format("Ball Pos: %.2f", ballPos[1]), 20,80);
+        g2d.drawString ( String.format("Ball Vel:  %.2f", ballVel[1]), 20,100);
 
     }
 
@@ -465,7 +465,9 @@ public class BallDisplay extends JFrame {
             rangeView.setGravitationalConstant(gravitationalConstant);
 
             gravity_change_command= rangeView.getDeltaGravity();
-            if (gravity_change_command != 0) {
+            if (gravity_change_command != 0.0) {
+                System.out.println("CHANGING GRAVITY");
+                System.out.println(gravity_change_command);
                 ballDisplay.out.writeBytes( String.format("dyn.ball.gravity_change_command = %f ;\n", gravity_change_command ));
                 rangeView.resetDeltaGravity();
             }
