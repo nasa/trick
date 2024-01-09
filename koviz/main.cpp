@@ -701,12 +701,14 @@ int main(int argc, char *argv[])
                 title = session->title2();
             }
             if ( title.isEmpty() ) {
-                title = "(";
-                foreach ( QString runDir, runDirs ) {
-                    title += runDir + ",\n";
+                if ( !runDirs.isEmpty() ) {
+                    title = "(";
+                    foreach ( QString runDir, runDirs ) {
+                        title += runDir + ",\n";
+                    }
+                    title.chop(2);
+                    title += ")";
                 }
-                title.chop(2);
-                title += ")";
             }
         }
         titles << title;
