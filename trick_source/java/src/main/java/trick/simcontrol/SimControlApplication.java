@@ -656,6 +656,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
 		try {
 			doc.insertString(doc.getLength(), err + "\n", redStyle);
+			if (liteButton.isSelected() || getMainFrame().getSize().height <= 400) {
+				JOptionPane.showMessageDialog(getMainFrame(), err, "Sim Control Panel Error", JOptionPane.ERROR_MESSAGE);
+			}
 		} catch (BadLocationException ble) {
 			JOptionPane.showMessageDialog(getMainFrame(), 
 										  "Status Message Pane had an issue when printing: " + err, 
