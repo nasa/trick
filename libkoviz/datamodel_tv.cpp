@@ -217,6 +217,8 @@ void TVModel::_init(const QString& host, int port)
 
 void TVModel::_vsReadParamValues()
 {
+    QList<QList<QVariant>> value_cache;
+
     while (_vsSocketParamValues.bytesAvailable() > 0) {
 
         QList<QVariant> values = _vsReadParamValuesLine();
@@ -241,15 +243,26 @@ void TVModel::_vsReadParamValues()
         }
 
         if ( isChange ) {
-            int start = rowCount();
-            int end = start;
-            beginInsertRows(QModelIndex(),start,end);
             i = 0;
             foreach (QVariant value, values) {
-                _params.at(i++)->values.append(value);
+                if ( i >= value_cache.size() ) {
+                    value_cache.append(QList<QVariant>());
+                }
+                value_cache[i++].append(value);
             }
-            endInsertRows();
         }
+    }
+
+    if ( ! value_cache.isEmpty() ) {
+
+        int start = rowCount();
+        int end = start+value_cache.at(0).size();
+        beginInsertRows(QModelIndex(),start,end);
+        int nparams = value_cache.size();
+        for (int i = 0; i < nparams; ++i ) {
+            _params.at(i)->values.append(value_cache.at(i));
+        }
+        endInsertRows();
     }
 }
 
