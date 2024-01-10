@@ -1,0 +1,29 @@
+/************************************************************
+PURPOSE:
+    ( Simulate a submarine. )
+LIBRARY DEPENDENCIES:
+    ((submarine/src/Submarine.cpp))
+*************************************************************/
+#include "sim_objects/default_trick_sys.sm"
+##include "submarine/include/Submarine.hh"
+
+class SubmarineSimObject : public Trick::SimObject {
+    public:
+    Submarine submarine;
+
+    SubmarineSimObject() {
+        ("default_data")            submarine.default_data() ;
+        ("initialization")          submarine.state_init() ;
+        ("derivative")              submarine.state_deriv() ;
+        (0.1, "scheduled")          submarine.control() ;
+        ("integration") trick_ret = submarine.state_integ() ;
+        ("post_integration")        submarine.state_post_integ() ;
+    }
+};
+
+SubmarineSimObject dyn;
+IntegLoop dyn_integloop(0.1) dyn;
+
+void create_connections() {
+    dyn_integloop.getIntegrator(Runge_Kutta_4, 6);
+}

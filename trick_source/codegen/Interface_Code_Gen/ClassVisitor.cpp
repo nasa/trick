@@ -68,8 +68,21 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
                     // test against them.
                     ClassValues temp_cv ;
                     temp_cv.getNamespacesAndClasses(crd->getDeclContext()) ;
-                    private_embedded_classes.insert(temp_cv.getFullyQualifiedName() + crd->getNameAsString()) ;
-                    //std::cout << "marking private " << temp_cv.getFullyQualifiedName() + crd->getNameAsString() << std::endl ;
+                    /*
+                    for (auto const &pec : private_embedded_classes) {
+                        std::cout << "===private_embedded_classes..." << pec << "===" << std::endl;
+                    }
+                    if (friend_classes.size() > 0) {
+                        for (auto const &fc : friend_classes) {
+                            std::cout << "===friend_classes..." << fc << "===" << std::endl;
+                        }
+                    }
+                    */
+                    std::string class_str = temp_cv.getFullyQualifiedName() + crd->getNameAsString();
+                    // Private embedded classes are not printed to io source unless they are friend classes.
+                    if (friend_classes.find(class_str) == friend_classes.end()) {
+                        private_embedded_classes.insert(class_str);
+                    }
                 }
             }
         }
@@ -104,6 +117,26 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
         }
         break ;
         case clang::Decl::Friend : {
+            ClassValues temp_cv ;
+            temp_cv.getNamespacesAndClasses(d->getDeclContext()) ;
+            clang::FriendDecl * fd = static_cast<clang::FriendDecl *>(d) ;
+            std::string class_str;
+
+            // Only use namespaces for identifying class name as the class name can't be the same within the same namespace.
+            if (fd->getFriendDecl() != NULL) {
+                class_str = temp_cv.getNameOnlyWithNamespaces() + fd->getFriendDecl()->getNameAsString();
+            } 
+            // For friend class, only need to get type here but the above getting class_str is for just in case needed.
+            if (fd->getFriendType() != NULL) {
+                class_str = temp_cv.getNameOnlyWithNamespaces() + fd->getFriendType()->getType().getAsString();
+            }
+            size_t pos;
+            // Only save class name to the friend class list
+            if ((pos = class_str.find("class ")) != std::string::npos ) {
+                class_str.erase(pos , 6) ;
+                friend_classes.insert(class_str);
+            }
+
             TraverseFriendDecl(static_cast<clang::FriendDecl *>(d)) ;
         }
         break ;
@@ -330,6 +363,8 @@ ClassValues * CXXRecordVisitor::get_class_data() {
 }
 
 std::set<std::string> CXXRecordVisitor::private_embedded_classes ;
+
+std::set<std::string> CXXRecordVisitor::friend_classes ;
 
 void CXXRecordVisitor::addPrivateEmbeddedClass( std::string in_name ) {
     private_embedded_classes.insert(in_name) ;
