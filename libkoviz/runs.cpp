@@ -225,7 +225,11 @@ CurveModel* Runs::curveModel(int row,
                         const QString &xName,
                         const QString &yName) const
 {
-    return curveModel(_runDirs.at(row),tName,xName,yName);
+    if ( row < _runDirs.size() ) {
+        return curveModel(_runDirs.at(row),tName,xName,yName);
+    } else {
+        return 0;
+    }
 }
 
 CurveModel* Runs::curveModel(const QString& rundir,
