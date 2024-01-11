@@ -649,13 +649,14 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 	 * @param err
 	 */
 	protected void printErrorMessage(String err) {
-		Document doc = statusMsgPane.getDocument();
-		StyleContext sc = new StyleContext();               
-		Style redStyle = sc.addStyle("Red", null);
-		setColorStyleAttr(redStyle, Color.red, Color.black);
-
 		try {
+			Document doc = statusMsgPane.getDocument();
+			StyleContext sc = new StyleContext();               
+			Style redStyle = sc.addStyle("Red", null);
+
+			setColorStyleAttr(redStyle, Color.red, Color.black);
 			doc.insertString(doc.getLength(), err + "\n", redStyle);
+
 			if (liteButton.isSelected() || getMainFrame().getSize().height <= 400) {
 				JOptionPane.showMessageDialog(getMainFrame(), err, "Sim Control Panel Error", JOptionPane.ERROR_MESSAGE);
 			}
@@ -664,6 +665,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 										  "Status Message Pane had an issue when printing: " + err, 
 										  "Status Message Pane Error", 
 										  JOptionPane.ERROR_MESSAGE);
+		} catch (NullPointerException npe) {
+			System.err.println( "Sim Control Error at Initialization: \n" + err);
 		}
 	}
 
