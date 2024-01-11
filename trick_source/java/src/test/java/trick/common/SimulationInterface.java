@@ -13,6 +13,10 @@ public class SimulationInterface {
 	public SimulationInterface(String path) {
 		working_directory = new File(path);
 		find_S_main();
+		if(S_main == null) {
+			compile_sim();
+			find_S_main();
+		}
 	}
 
 	public void clean() {
@@ -21,8 +25,26 @@ public class SimulationInterface {
 		if(info.exists())	info.delete();
 	}
 
+	public void compile_sim() {
+		try {
+			if (working_directory.exists()) {
+				String cmd = "trick-CP";
+				Process p = Runtime.getRuntime().exec(cmd, null, working_directory);
+				while(p.isAlive()) {
+					continue;
+				}
+
+			} else {
+				System.err.println("Cannot find the Simulation Directory: " + working_directory.getAbsolutePath());
+			}
+		} catch(IOException e) {
+			System.err.println(e.getMessage());
+		}
+	}
+
 	public void find_S_main() {
 		if (!working_directory.exists()) {
+			System.err.println("Cannot find the Simulation Directory: " + working_directory.getAbsolutePath());
 			S_main = null;
 			return;
 		}
@@ -33,11 +55,15 @@ public class SimulationInterface {
 			}
 		});
 
-		if (exe.length > 1) {
-			System.out.printf("WARNING: Detected %d simulation executables. Selecting '%s'...\n", exe.length,  exe[0].getName());
-		}
+		if (exe.length > 0) {
+			if (exe.length > 1) {
+				System.out.printf("WARNING: Detected %d simulation executables. Selecting '%s'...\n", exe.length,  exe[0].getName());
+			}
 
-		S_main = exe[0];
+			S_main = exe[0];
+		} else {
+			S_main = null;
+		}
 	}
 
 	public File get_S_main() {
