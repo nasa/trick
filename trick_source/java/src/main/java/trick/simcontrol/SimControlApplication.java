@@ -181,6 +181,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     final private static String LOCALHOST = "localhost";
 
+	final private Dimension FULL_SIZE = new Dimension(680, 640);
+	final private Dimension LITE_SIZE = new Dimension(340, 360);
+
     //========================================
     //    Actions
     //========================================
@@ -314,9 +317,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     @Action
     public void lite() {
     	if (liteButton.isSelected()) {
-    		getMainFrame().setSize(340, 360);
+    		getMainFrame().setSize(LITE_SIZE);
     	} else {
-    		getMainFrame().setSize(680, 640);
+    		getMainFrame().setSize(FULL_SIZE);
     	}
     }
 
@@ -650,14 +653,20 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 	 */
 	protected void printErrorMessage(String err) {
 		try {
+			// Get the document attached to the Status Message Pane 
 			Document doc = statusMsgPane.getDocument();
+
+			// Set the font color to red and the background to black
 			StyleContext sc = new StyleContext();               
 			Style redStyle = sc.addStyle("Red", null);
-
 			setColorStyleAttr(redStyle, Color.red, Color.black);
+
+			// Add the error message to the bottom of the message pane
 			doc.insertString(doc.getLength(), err + "\n", redStyle);
 
-			if (liteButton.isSelected() || getMainFrame().getSize().height <= 400) {
+			// If Lite mode is engaged, or the window is small enough 
+			// to obscure the message pane, create a popup for the error as well.
+			if (liteButton.isSelected() || getMainFrame().getSize().height <= LITE_SIZE.height + 50) {
 				JOptionPane.showMessageDialog(getMainFrame(), err, "Sim Control Panel Error", JOptionPane.ERROR_MESSAGE);
 			}
 		} catch (BadLocationException ble) {
