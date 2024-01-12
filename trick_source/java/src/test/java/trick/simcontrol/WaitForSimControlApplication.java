@@ -5,7 +5,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.JComboBox;
+import javax.swing.JEditorPane;
 import javax.swing.JTextField;
+import javax.swing.text.Document;
 
 import java.awt.AWTException;
 import java.awt.Point;
@@ -15,6 +17,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
 import org.jdesktop.application.Application;
+import org.jdesktop.swingx.JXEditorPane;
 
 import trick.common.GUIController;
 import trick.simcontrol.SimControlApplication;
@@ -123,5 +126,17 @@ public class WaitForSimControlApplication extends SimControlApplication {
 			return "";
 		}
 		return runDir.getText(); 
+	}
+
+	public String getStatusMessages() {
+		JXEditorPane status = getEditorPane();
+		String msg = "";
+		try {
+			Document doc = status.getDocument();
+			msg = doc.getText(0, doc.getLength());
+		} catch (Exception e) {
+			msg = e.getMessage();
+		}
+		return msg;
 	}
 }

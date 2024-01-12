@@ -51,6 +51,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -538,6 +539,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     }
 
 	protected JComboBox getRunningSimList() { return runningSimList; }
+
+	protected JXEditorPane getEditorPane() { return statusMsgPane; }
 
 	protected JTextField getSimRunDirField(int index) { 
 		if (simRunDirField.length > 0 && index < simRunDirField.length) {
