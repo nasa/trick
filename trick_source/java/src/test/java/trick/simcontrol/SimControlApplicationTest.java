@@ -130,11 +130,7 @@ public class SimControlApplicationTest extends ApplicationTest {
 		app.editRunningSimList(socketInfo);
 		String simDir = app.getRunningSimInfo();
 
-		String expectedDir = System.getenv("TRICK_HOME");
-		if (expectedDir.isEmpty()) {
-			System.err.println("WARNING: {TRICK_HOME} is not set. Assuming trick is installed in home directory.");
-			expectedDir = System.getenv("HOME") + "/trick";
-		}
+		String expectedDir = getTrickHome();
 
 		expectedDir += "/trick_sims/SIM_basic/S_main";
 

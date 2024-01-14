@@ -14,6 +14,7 @@ public class SimulationInterface {
 		working_directory = new File(path);
 		find_S_main();
 		if(S_main == null) {
+			System.out.println("/SIM_basic/S_main*.exe not found. Compiling Simulation...");
 			compile_sim();
 			find_S_main();
 		}

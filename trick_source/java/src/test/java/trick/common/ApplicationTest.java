@@ -49,7 +49,7 @@ public abstract class ApplicationTest {
 	 * @return The socket information for the variable server. Formatted as [host],[port]
 	 */
 	protected static String startBasicSim() {
-		String path = System.getenv("TRICK_HOME") + "/trick_sims/SIM_basic";
+		String path = getTrickHome() + "/trick_sims/SIM_basic";
 
 		SimulationInterface SIM_basic = new SimulationInterface(path);
 		try { 
@@ -58,9 +58,7 @@ public abstract class ApplicationTest {
 
 			// Wait for the sim to boot up and save the socket info
 			Thread.sleep(500);
-		} catch(IOException e) { 
-			System.err.println(e.getMessage()); 
-		} catch(InterruptedException e) { 
+		} catch(Exception e) { 
 			System.err.println(e.getMessage()); 
 		}
 
@@ -76,6 +74,13 @@ public abstract class ApplicationTest {
 		getCoreActionInfo();
 		getSupportActionInfo();
 		getMiscActionInfo();
+	}
+
+	protected static String getTrickHome() {
+		String path = System.getProperty("user.dir");
+		int cutoff = path.lastIndexOf("/trick_source");
+		path = path.substring(0, cutoff);
+		return path;
 	}
 
 	protected abstract void getCoreActionInfo();
