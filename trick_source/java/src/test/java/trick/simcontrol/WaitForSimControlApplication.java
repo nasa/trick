@@ -1,9 +1,5 @@
 package trick.simcontrol;
 
-
-import java.util.Timer;
-import java.util.TimerTask;
-
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JTextField;
@@ -46,6 +42,8 @@ public class WaitForSimControlApplication extends SimControlApplication {
   
     @Override
     protected void ready() {
+		controller.delayedKeyTap(KeyEvent.VK_ENTER, 5000);
+		
 		super.ready();
     	synchronized(lock) {
     		lock.notifyAll();
@@ -114,7 +112,7 @@ public class WaitForSimControlApplication extends SimControlApplication {
 		// Click the 'Connect' button
 		focus.translate(list.getWidth() + 50, list.getHeight() * 5);
 		controller.mouseClickAt(InputEvent.BUTTON1_DOWN_MASK, focus);
-		sleep(500);
+		controller.waitForIdle();
 	}
 
 	//========================================

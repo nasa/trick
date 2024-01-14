@@ -7,6 +7,9 @@ import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class GUIController extends Robot {
 	private long depressTime;
 
@@ -50,6 +53,14 @@ public class GUIController extends Robot {
 		keyPress(keycode);
 		sleep(depressTime);
 		keyRelease(keycode);
+	}
+
+	public void delayedKeyTap(int keycode, long delay) {
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {  keyTap(keycode);  }
+		}, delay);
 	}
 
 	public void mouseClick(int buttons) {

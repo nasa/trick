@@ -125,6 +125,16 @@ public class SimControlApplicationTest extends ApplicationTest {
     public void testDefinedKeyText() {
 		verifyResourceInfo("fileMenu.text", "&File");
     }
+	
+//  Test is Ommitted due to needing a pull request that is not yet merged.
+// 	@Test
+// 	public void testConnectionFail() {
+// 		app.editRunningSimList("localhost:0");
+// 		String msg = app.getStatusMessages();
+// 		System.out.println(msg);
+// 		// assertTrue("SimControlPanel did not connect!", simDir.startsWith(expectedDir));
+// 	}
+
 	@Test
 	public void testConnectionSuccess() {
 		app.editRunningSimList(socketInfo);
