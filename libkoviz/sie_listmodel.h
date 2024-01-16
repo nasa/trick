@@ -13,6 +13,7 @@
 #include <QFuture>
 #include <QtConcurrent/QtConcurrent>
 #include <QMutex>
+#include <QProgressDialog>
 
 class SieListModel : public QAbstractListModel
 {
@@ -49,6 +50,7 @@ class SieListModel : public QAbstractListModel
     QStringList _filteredParams;
     int _fetchCount;
     int _fetchChunkSize;
+    bool _isModelResetting;
 
     QDomDocument _sieDoc;
     QHash<QString,QDomElement> _name2element;
