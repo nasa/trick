@@ -286,6 +286,8 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
     /* calculate the current underrun/overrun */
     curr_clock_time = rt_clock->clock_time() ;
     frame_sched_time = curr_clock_time - last_clock_time ;
+    frame_time = frame_sched_time * (1.0/tics_per_sec);
+
     /* Set the next frame overrun/underrun reference time to the current time */
     last_clock_time = curr_clock_time ;
 
@@ -310,6 +312,8 @@ int Trick::RealtimeSync::rt_monitor(long long sim_time_tics) {
     }
 
     frame_overrun_time = curr_clock_time - sim_time_tics ;
+
+    frame_overrun = frame_overrun_time * (1.0/tics_per_sec);
 
     /* If the wall clock time is greater than the sim time an overrun occurred. */
     if (curr_clock_time > sim_time_tics) {

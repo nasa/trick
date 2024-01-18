@@ -88,8 +88,11 @@ namespace Trick {
             /** Clock time when job stopped in frame */
             long long rt_stop_time ;        /**< trick_io(**) */
 
-            /** Cumulative time used for job in frame (stop - start) */
+            /** Cumulative time in tics used for job in frame (stop - start) */
             long long frame_time ;          /**< trick_io(**) */
+
+            /** Cumulative time in seconds used for job in frame (rt_stop_time - rt_start_time) / time_tic_value */
+            double frame_time_seconds;       /**< trick_io(s) */
 
             /** Sim_object_id.id (for job identification in timeline logging) */
             double frame_id;                /**< trick_io(**) */
