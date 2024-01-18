@@ -181,6 +181,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     final private static String LOCALHOST = "localhost";
 
+	final private Dimension FULL_SIZE = new Dimension(680, 640);
+	final private Dimension LITE_SIZE = new Dimension(340, 360);
+
     //========================================
     //    Actions
     //========================================
@@ -314,9 +317,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     @Action
     public void lite() {
     	if (liteButton.isSelected()) {
-    		getMainFrame().setSize(340, 360);
+    		getMainFrame().setSize(LITE_SIZE);
     	} else {
-    		getMainFrame().setSize(680, 640);
+    		getMainFrame().setSize(FULL_SIZE);
     	}
     }
 
@@ -341,28 +344,17 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         		elements = selectedStr.split("\\s+");
         	}
         	
-        	Document doc = statusMsgPane.getDocument();
-            StyleContext sc = new StyleContext();               
-            Style redStyle = sc.addStyle("Red", null);
-            setColorStyleAttr(redStyle, Color.red, Color.black);
-        	
-        	if (elements == null || elements.length < 2) {       		
-                try {
-                	doc.insertString(doc.getLength(), "Can't connect! Please provide valid host name and port number separated by : or whitespace!\n", redStyle);
-                } catch (BadLocationException ble) {
-                	System.out.println("Can't connect! Please provide valid host name and port number separated by : or whitespace!");
-                }
+        	if (elements == null || elements.length < 2) {       
+				String errMsg = "Can't connect! Please provide valid host name and port number separated by : or whitespace!";		
+                printErrorMessage(errMsg);
         		return;
         	}
         	host = elements[0].trim();
         	try {
         	port = Integer.parseInt(elements[1].trim());
         	} catch (NumberFormatException nfe) {
-        		try {
-                	doc.insertString(doc.getLength(), elements[1] + " is not a valid port number!\n", redStyle);
-                } catch (BadLocationException ble) {
-                	System.out.println(elements[1] + " is not a valid port number!");
-                }
+				String errMsg = elements[1] + " is not a valid port number!";
+        		printErrorMessage(errMsg);
         		return;
         	}
         }
@@ -370,9 +362,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         getInitializationPacket();
         
         if (commandSimcom == null) {
-            JOptionPane.showMessageDialog(getMainFrame(),
-                    "Sorry, can't connect. Please make sure the availability of both server and port!",
-                    "Connection error", JOptionPane.ERROR_MESSAGE);
+			String errMsg = "Sorry, can't connect. Please make sure the availability of both server and port!";
+			printErrorMessage(errMsg);
             return;
         } else {            
             Object[] keys = actionMap.allKeys();
@@ -411,6 +402,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         String simRunDir = null;
         String[] results = null;      
         try {
+			String errMsg = "Error: SimControlApplication:getInitializationPacket()";
             try {
             	if (host != null && port != -1) {
             		commandSimcom = new VariableServerConnection(host, port);
@@ -419,16 +411,16 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             	}
             } catch (UnknownHostException host_exception) {
                 /** The IP address of the host could not be determined. */
-                System.out.println("Error: SimControlApplication:getInitializationPacket()");
-                System.out.println(" Unknown host \""+host+"\"");
-                System.out.println(" Please use a valid host name (e.g. localhost)");               
+                errMsg += "\n Unknown host \""+host+"\"";
+                errMsg += "\n Please use a valid host name (e.g. localhost)";    
+				printErrorMessage(errMsg);           
             } catch (IOException ioe) {
                 /** Port number is unavailable, or there is no connection, etc. */
-                System.out.println("Error: SimControlApplication:getInitializationPacket()");
-                System.out.println(" Invalid TCP/IP port number \""+port+"\"");
-                System.out.println(" Please check the server and enter a proper port number!");
-                System.out.println(" IOException ..." + ioe);
-                System.out.println(" If there is no connection, please make sure SIM is up running properly!");                      
+                errMsg += "\n Invalid TCP/IP port number \""+port+"\"";
+                errMsg += "\n Please check the server and enter a proper port number!";
+                errMsg += "\n IOException ..." + ioe;
+                errMsg += "\n If there is no connection, please make sure SIM is up running properly!";
+				printErrorMessage(errMsg);
             } 
             
             if (commandSimcom == null) {
@@ -618,9 +610,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                     getAction(theKey).setEnabled(false);
                 }
             }
-            JOptionPane.showMessageDialog(getMainFrame(),
-                                            "No server connection. Please connect!",
-                                            "No server connection", JOptionPane.ERROR_MESSAGE);
+            String errMsg = "No server connection. Please connect!";
+			printErrorMessage(errMsg);
             return;
         }
         
@@ -655,6 +646,38 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
         show(view);
     }
+
+	/**
+	 * Prints an error message to the status message pane. In the event there is an error with it, a JOptionPane will pop up.
+	 * @param err
+	 */
+	protected void printErrorMessage(String err) {
+		try {
+			// Get the document attached to the Status Message Pane 
+			Document doc = statusMsgPane.getDocument();
+
+			// Set the font color to red and the background to black
+			StyleContext sc = new StyleContext();               
+			Style redStyle = sc.addStyle("Red", null);
+			setColorStyleAttr(redStyle, Color.red, Color.black);
+
+			// Add the error message to the bottom of the message pane
+			doc.insertString(doc.getLength(), err + "\n", redStyle);
+
+			// If Lite mode is engaged, or the window is small enough 
+			// to obscure the message pane, create a popup for the error as well.
+			if (liteButton.isSelected() || getMainFrame().getSize().height <= LITE_SIZE.height + 50) {
+				JOptionPane.showMessageDialog(getMainFrame(), err, "Sim Control Panel Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (BadLocationException ble) {
+			JOptionPane.showMessageDialog(getMainFrame(), 
+										  "Status Message Pane had an issue when printing: " + err, 
+										  "Status Message Pane Error", 
+										  JOptionPane.ERROR_MESSAGE);
+		} catch (NullPointerException npe) {
+			System.err.println( "Sim Control Error at Initialization: \n" + err);
+		}
+	}
 
     /**
      * Main method for this application.
