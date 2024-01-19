@@ -3,7 +3,8 @@
 SieListModel::SieListModel(const QString &host, int port, QObject *parent)
     : QAbstractListModel{parent},
       _fetchCount(0),
-      _fetchChunkSize(10000)
+      _fetchChunkSize(10000),
+      _isModelResetting(false)
 {
     QFuture<void> ftr = QtConcurrent::run(this, &SieListModel::_createSIEModel,
                                           host,port);
@@ -34,7 +35,7 @@ QVariant SieListModel::data(const QModelIndex &index, int role) const
 {
     QVariant variant;
 
-    if ( !index.isValid() || index.row() < 0 ) {
+    if ( !index.isValid() || index.row() < 0 || _isModelResetting ) {
         return variant;
     }
     if ( index.row() >= _fetchCount ) {
@@ -66,19 +67,57 @@ QMimeData *SieListModel::mimeData(const QModelIndexList &indexes) const
 
 int SieListModel::setRegexp(const QString &rx)
 {
-    _mutex.lock();
+    _isModelResetting = true;
     beginResetModel();
     _rx = rx;
+    _mutex.lock();
     _filteredParams.clear();
     QRegularExpression filter(rx);
+    QStringList paramMatches;
     foreach (QString param, _params) {
         if ( filter.match(param).hasMatch() ) {
-            _filteredParams.append(param);
+            paramMatches.append(param);
         }
+    }
+    _mutex.unlock();
+    const int nMemoryFilter = 256;
+    if ( paramMatches.size() <= nMemoryFilter ) {
+        // If param list is reasonably short, filter further for params in
+        // Trick managed memory
+        QProgressDialog progress("Filtering for Trick memory managed params",
+                                 "Abort", 0, paramMatches.size()-1, 0);
+        progress.setWindowModality(Qt::WindowModal);
+        progress.setMinimumDuration(500);
+        int i = 0;
+        QStringList memFilteredParamMatches;
+        foreach (QString param, paramMatches) {
+            if ( expandParam(param).size() > 0 ) {
+                memFilteredParamMatches.append(param);
+            }
+            progress.setValue(i++);
+            QString msg = QString("Found %1 Trick managed params.  "
+                                  "Searching %2 of %3")
+                                   .arg(memFilteredParamMatches.size())
+                                   .arg(i).arg(paramMatches.size());
+            progress.setLabelText(msg);
+            if (progress.wasCanceled()) {
+                break;
+            }
+        }
+        _mutex.lock();
+        _filteredParams = memFilteredParamMatches;
+        _mutex.unlock();
+        progress.setValue(paramMatches.size()-1);
+    } else {
+        // Do not filter for params in Trick managed memory
+        // since it takes a long time
+        _mutex.lock();
+        _filteredParams = paramMatches;
+        _mutex.unlock();
     }
     _fetchCount = 0;
     endResetModel();
-    _mutex.unlock();
+    _isModelResetting = false;
 
     return _filteredParams.size();
 }

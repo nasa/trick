@@ -835,15 +835,18 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
 
         if ( !curveModel ) {
 
-            QString runDir = _runDirs.at(runId);
             _err_stream << "koviz [error]: could not find parameter: \n\n"
                         << "        " << "("
                         << _timeName << " , "
                         << xName << " , "
-                        << yName << ") "
-                        << "\n\nin RUN:\n\n "
-                        << "         "
-                        << runDir ;
+                        << yName << ") ";
+            if ( runId < _runDirs.size() ) {
+                _err_stream << "\n\nin RUN:\n\n "
+                            << "         "
+                            << _runDirs.at(runId) ;
+            } else if ( runId >= _runDirs.size() && _sieModel && _tvModel ) {
+                _err_stream << "\n\nin the Trick SIE database.\n";
+            }
             fprintf(stderr, "%s\n",
                            _err_string.toLatin1().constData());
             exit(-1);

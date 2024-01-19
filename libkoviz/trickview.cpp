@@ -44,6 +44,8 @@ TrickView::TrickView(SieListModel* sieModel,
          SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
          this,
          SLOT(_tvSelectionChanged(QItemSelection,QItemSelection)));
+    connect(_sieModel, SIGNAL(modelLoaded()),
+            _listView, SLOT(reset()));
     _gridLayout->addWidget(_listView,2,0);
 
     // TV Model
