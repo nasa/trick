@@ -20,21 +20,6 @@ jobs:
       - name: koviz -h
         run: ./bin/koviz -h
 
-  build-centos7:
-    runs-on: ubuntu-latest
-    container:
-      image: centos:7
-    steps:
-      - uses: actions/checkout@master
-      - name: install dependencies
-        run: yum update -y && yum install -y qt5-qtbase-devel gcc gcc-c++ make flex bison
-      - name: qmake
-        run: qmake-qt5
-      - name: make
-        run: make -j3
-      - name: koviz -h
-        run: ./bin/koviz -h
-
   build-centos8:
     runs-on: ubuntu-latest
     container: centos:latest
