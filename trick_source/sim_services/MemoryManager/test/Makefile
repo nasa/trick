@@ -58,7 +58,8 @@ io_headers = MM_user_defined_types.hh \
              MM_write_checkpoint.hh \
              MM_get_enumerated.hh \
              MM_ref_name_from_address.hh \
-             MM_stl_testbed.hh
+             MM_stl_testbed.hh \
+             MM_delete_var.hh
 
 # List of .cpp files produced by ICG from the io_headers.
 io_source  = $(patsubst %.hh,io_%.cpp,$(io_headers))
@@ -119,6 +120,7 @@ $(TESTS) : %: %.o
 # ----------------------------------------------------------------------------------
 # The following unittest programs are also dependent on the indicated object files.
 # ----------------------------------------------------------------------------------
+MM_delete_var_unittest :         io_MM_delete_var.o
 MM_declare_var_unittest :        io_MM_user_defined_types.o
 MM_declare_var_2_unittest :      io_MM_user_defined_types.o
 MM_declare_extern_var_unittest : io_MM_user_defined_types.o
