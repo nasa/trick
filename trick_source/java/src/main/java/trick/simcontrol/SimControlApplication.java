@@ -788,7 +788,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
             status_vars = "trick.var_add(\"trick_sys.sched.time_tics\") \n" +
                           "trick.var_add(\"trick_sys.sched.mode\") \n" +
-                          "trick.var_add(\"trick_real_time.gtod_clock.rt_clock_ratio\") \n" +
+                          "trick.var_add(\"trick_real_time.rt_sync.actual_run_ratio\") \n" +
                           "trick.var_add(\"trick_real_time.rt_sync.active\") \n";
 
             if ( debug_present != 0 ) {
@@ -1673,7 +1673,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                                 ii++ ;
                             }
 
-                            // "real_time.gtod_clock.rt_clock_ratio"
+                            // "real_time.rt_sync.actual_run_ratio"
                             if (results.length > ii && results[ii] != null && results[ii] != "") {
                                 simState.setSimRealtimeRatio(Float.parseFloat(results[ii]));
                                 ii++ ;
