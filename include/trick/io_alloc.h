@@ -7,6 +7,14 @@
 #include "trick/attributes.h"
 #include "trick/parameter_types.h"
 
+/**
+* enum TRICK_STCL - indicates whether or not the MemoryManager allocated the object.
+* -------------------------------------------------------------------------------------------
+* TRICK_LOCAL  - The memory manager allocated the object, via a form of declare_var..().
+* TRICK_EXTERN - The memory manager did not allocate the object, but was given a pointer to
+*                an object via a form of declare_extern_var..().
+* -------------------------------------------------------------------------------------------
+*/
 typedef enum {
    TRICK_LOCAL  = 0,
    TRICK_EXTERN = 1,
