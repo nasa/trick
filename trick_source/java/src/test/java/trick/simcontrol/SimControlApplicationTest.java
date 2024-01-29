@@ -13,30 +13,33 @@ import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
 import trick.common.ActionInfo;
 import trick.common.ApplicationTest;
 
 /**
- * 
  * Test SimControlApplication life cycle.
  * 
  * @author hchen
  * @intern mrockwell2
  *
  */
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SimControlApplicationTest extends ApplicationTest {
 	private static int numSims = 0;
 	private static String socketInfo;
 
-	private WaitForSimControlApplication app;
+	private WaitForSimControlApplication simcontrol;
+
+	public SimControlApplicationTest() {
+		setupExpectedActionInfo();
+		simcontrol = null;
+	}
 		
 	@BeforeClass
 	public static void setUpBeforeClass() {
 		socketInfo = startBasicSim();
 		numSims++;
-		WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class);
 	}
 
 	@AfterClass
@@ -52,18 +55,12 @@ public class SimControlApplicationTest extends ApplicationTest {
 
 	@Before
 	public void setUp() {
-		app = application();
-		setupExpectedActionInfo();
-
-		actionContext = app.actionMap;
-		resourceContext = app.resourceMap;
+		if(simcontrol != null)	endApplication();
 	}
 
 	@After
 	public void tearDown() {
-		app.removeExitListener(app.exitListener);
-		app.exit();
-		assertTrue(app.isEnded);
+		endApplication();
 	}
 
 	@Override
@@ -99,55 +96,97 @@ public class SimControlApplicationTest extends ApplicationTest {
 	}
 	
 	@Test
-	public void testReady() {		
-		assertTrue("SimControlApplicationTest is not ready yet!", app.isReady());
-	}
-	
-	@Test
-	public void testDefinedCoreActions() {
-		Iterator<ActionInfo> iterator = coreActionInfo.iterator();
-		iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
-	}
-	
-	@Test
-	public void testDefinedSupportActions() {
-		Iterator<ActionInfo> iterator = supportActionInfo.iterator();
-		iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
-	}
-	
-	@Test
-	public void testDefinedMiscActions() {
-		Iterator<ActionInfo> iterator = miscActionInfo.iterator();
-		iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
+	public void testDefinedActions() {
+		// ARRANGE
+		startApplication();
+		Iterator<ActionInfo> 	core_iterator 	 = coreActionInfo.iterator(),
+							 	support_iterator = supportActionInfo.iterator(),
+								misc_iterator	 = miscActionInfo.iterator();
+
+		// ACT & ASSERT
+		core_iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
+		support_iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
+		misc_iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
 	}
     
     @Test
     public void testDefinedKeyText() {
+		startApplication();
 		verifyResourceInfo("fileMenu.text", "&File");
     }
 	
-//  Test is Ommitted due to needing a pull request that is not yet merged.
-// 	@Test
-// 	public void testConnectionFail() {
-// 		app.editRunningSimList("localhost:0");
-// 		String msg = app.getStatusMessages();
-// 		System.out.println(msg);
-// 		// assertTrue("SimControlPanel did not connect!", simDir.startsWith(expectedDir));
-// 	}
-
 	@Test
-	public void testConnectionSuccess() {
-		app.editRunningSimList(socketInfo);
-		String simDir = app.getRunningSimInfo();
+	/**
+	 * Testing that the connect() action functions when a valid host and 
+	 * port is given. 
+	 */
+	public void testConnectAction() {
+		// ARRANGE
+		String simDir, statusMsg,
+			   expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main",
+			   expStatus = "";
 
-		String expectedDir = getTrickHome();
+		startApplication();
+		simcontrol.clearStatusMsgs();
+		simcontrol.editRunningSimList(socketInfo);
+			   	   
+		// ACT
+		simcontrol.connect();
+		simDir = simcontrol.getRunningSimInfo();
+		statusMsg = simcontrol.getStatusMessages();
 
-		expectedDir += "/trick_sims/SIM_basic/S_main";
-
-		assertTrue("SimControlPanel did not connect!", simDir.startsWith(expectedDir));
+		// ASSERT
+		assertTrue("SimControlPanel did not connect!", simDir.startsWith(expDir));
+		assertTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.isEmpty());
 	}
 
-	private static WaitForSimControlApplication application() {
-        return Application.getInstance(WaitForSimControlApplication.class);
+	@Test
+
+	private void startApplication() {
+		if(simcontrol == null) {
+			// Launch Testing SimControlPanel
+			WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class);
+
+			// Set up the required variables for testing
+			simcontrol = Application.getInstance(WaitForSimControlApplication.class);
+			actionContext = simcontrol.actionMap;
+			resourceContext = simcontrol.resourceMap;
+
+			// Ensure that everything got set up correctly.
+			assumeTrue("SimControlApplicationTest is not ready yet!", simcontrol.isReady());
+		} else {
+			System.err.println("SimControlApplication is already Running...");
+		}
+    }
+
+	private void startApplication(String hostPort) {
+		if(simcontrol == null) {
+			// Launch Testing SimControlPanel
+			WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class, hostPort);
+
+			// Set up the required variables for testing
+			simcontrol = Application.getInstance(WaitForSimControlApplication.class);
+			actionContext = simcontrol.actionMap;
+			resourceContext = simcontrol.resourceMap;
+
+			// Ensure that everything got set up correctly.
+			assumeTrue("SimControlApplicationTest is not ready yet!", simcontrol.isReady());
+		} else {
+			System.err.println("SimControlApplication is already Running...");
+		}
+    }
+
+	private void endApplication() {
+		if(simcontrol != null) {
+			// Exit SimControlApplication
+			simcontrol.exit();
+			simcontrol.removeExitListener(simcontrol.exitListener);
+
+			// Verify and clean up
+			assumeTrue(simcontrol.isEnded);
+			simcontrol = null;
+		} else {
+			System.err.println("There is no instance of SimControlApplication to stop...");
+		}
     }
 }

@@ -34,6 +34,8 @@ public class GUIController extends Robot {
 			keyTap(keycode);
 			sleep(25);
 		}
+		
+		keyRelease(KeyEvent.VK_SHIFT);
 	}
 
 	public void clearTextField() {
