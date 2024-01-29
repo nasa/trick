@@ -1,0 +1,36 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (S_define file for SIM_cannon_analytic)
+LIBRARY DEPENDENCIES:
+    (
+      (waterclock/src/waterclock_init.c)
+      (waterclock/src/waterclock_numeric.c)
+      (waterclock/src/waterclock_shutdown.c)
+    )
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+##include "waterclock/include/waterclock_numeric.h"
+
+class WaterClockSimObject : public Trick::SimObject {
+
+    public:
+        WATERCLOCK waterclock;
+
+        WaterClockSimObject() {
+            ("default_data") waterclock_default_data( &waterclock ) ;
+            ("initialization") waterclock_init( &waterclock ) ;
+            ("derivative") waterclock_deriv( &waterclock ) ;
+            ("integration") trick_ret= waterclock_integ( & waterclock ) ;
+            ("shutdown") waterclock_shutdown( &waterclock ) ;
+            ("dynamic_event") waterclock_tick_change( &waterclock ) ;
+            ("dynamic_event") waterclock_overflow_timer( &waterclock ) ;
+        }
+} ;
+
+WaterClockSimObject dyn ;
+
+IntegLoop dyn_integloop (0.01) dyn ;
+void create_connections() {
+    dyn_integloop.getIntegrator(Runge_Kutta_4, 4);
+}
