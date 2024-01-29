@@ -114,7 +114,7 @@ public class SimControlApplicationTest extends ApplicationTest {
 		startApplication();
 		verifyResourceInfo("fileMenu.text", "&File");
     }
-	
+
 	@Test
 	/**
 	 * Testing that the connect() action functions when a valid host and 
@@ -141,6 +141,50 @@ public class SimControlApplicationTest extends ApplicationTest {
 	}
 
 	@Test
+	/**
+	 * Test the error handling when the connect() action is used with 
+	 * incorrectly formatted information.
+	 */
+	public void testConnectAction_FormattingError() {
+		// ARRANGE
+		String statusMsg, 
+			   expStatus = "Can't connect! Please provide valid host name and port number separated by : or whitespace!",
+			   badInfo = socketInfo.replace(' ', '/');
+
+		startApplication();
+		simcontrol.clearStatusMsgs();
+		simcontrol.editRunningSimList(badInfo);
+
+		// ACT
+		simcontrol.connect();
+		statusMsg = simcontrol.getStatusMessages();
+
+		// ASSERT
+		assertTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.indexOf(expStatus) != -1);
+	}
+
+	@Test
+	/**
+	 * Test the error handling when the connect() action is used with an 
+	 * invalid port number.
+	 */
+	public void testConnectAction_PortNumberError() {
+		// ARRANGE
+		String statusMsg, 
+			   expStatus = "is not a valid port number!",
+			   badInfo = socketInfo + "A";
+
+		startApplication();
+		simcontrol.clearStatusMsgs();
+		simcontrol.editRunningSimList(badInfo);
+
+		// ACT
+		simcontrol.connect();
+		statusMsg = simcontrol.getStatusMessages();
+
+		// ASSERT
+		assertTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.indexOf(expStatus) != -1);
+	}
 
 	private void startApplication() {
 		if(simcontrol == null) {
@@ -158,7 +202,7 @@ public class SimControlApplicationTest extends ApplicationTest {
 			System.err.println("SimControlApplication is already Running...");
 		}
     }
-
+	
 	private void startApplication(String hostPort) {
 		if(simcontrol == null) {
 			// Launch Testing SimControlPanel
@@ -188,5 +232,5 @@ public class SimControlApplicationTest extends ApplicationTest {
 		} else {
 			System.err.println("There is no instance of SimControlApplication to stop...");
 		}
-    }
+	}
 }
