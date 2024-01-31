@@ -4,10 +4,15 @@
 #include "trick/JobData.hh"
 #include "trick/SimObject.hh"
 
+#ifdef PROFILE
+#include <chrono>
+#endif
+
 long long Trick::JobData::time_tic_value = 0 ;
 
 Trick::JobData::JobData() {
 
+    
     /** @par Detailed Design */
 
     /** @li initializes the job as enabled with 0 cycle rate. */
@@ -65,14 +70,14 @@ Trick::JobData::JobData(int in_thread, int in_id, std::string in_job_class_name 
     next_tics = 0 ;
 
     frame_time = 0 ;
-}
+    }
 
 void Trick::JobData::enable() {
-    disabled = false ;
+        disabled = false ;
 }
 
 void Trick::JobData::disable() {
-    disabled = true ;
+        disabled = true ;
 }
 
 bool Trick::JobData::get_handled() {
@@ -169,46 +174,55 @@ int Trick::JobData::remove_inst( std::string job_name ) {
 }
 
 int Trick::JobData::call() {
-    int ret ;
+        int ret ;
     unsigned int ii , size ;
     InstrumentBase * curr_job ;
 
-    size = inst_before.size() ;
+        size = inst_before.size() ;
     for ( ii = 0 ; ii < size ; ii++ ) {
         curr_job = inst_before[ii] ;
         curr_job->call() ;
     }
-
+// #ifdef PROFILE
+    auto start_time = std::chrono::high_resolution_clock::now();
+// #endif
     ret = parent_object->call_function(this) ;
-
+// #ifdef PROFILE
+    auto end_time = std::chrono::high_resolution_clock::now() - start_time;    
+// #endif
+    
     size = inst_after.size() ;
     for ( ii = 0 ; ii < size ; ii++ ) {
         curr_job = inst_after[ii] ;
         curr_job->call() ;
     }
 
+// #ifdef PROFILE
+    long long run_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time).count();
+    call_times.push_back(((double) run_time)/1000000);
+// #endif
     return ret ;
 }
 
 double Trick::JobData::call_double() {
-    double ret ;
+        double ret ;
     unsigned int ii , size ;
     InstrumentBase * curr_job ;
 
-    size = inst_before.size() ;
+        size = inst_before.size() ;
     for ( ii = 0 ; ii < size ; ii++ ) {
         curr_job = inst_before[ii] ;
         curr_job->call() ;
     }
 
     ret = parent_object->call_function_double(this) ;
-
+    
     size = inst_after.size() ;
     for ( ii = 0 ; ii < size ; ii++ ) {
         curr_job = inst_after[ii] ;
         curr_job->call() ;
     }
-
+    
     return ret ;
 }
 
