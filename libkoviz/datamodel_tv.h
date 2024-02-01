@@ -56,7 +56,9 @@ class TVModel : public DataModel
 
   private:
 
-    QTcpSocket _vsSocketParamValues;
+    QString _host;
+    int _port;
+    QTcpSocket* _vsSocketParamValues;
     QList<TVParam*> _params;
     int _timeCol;
     TVModelIterator* _iteratorTimeIndex;
@@ -68,6 +70,7 @@ class TVModel : public DataModel
 
   private slots:
     void _vsReadParamValues();
+    void _socketDisconnect();
 };
 
 class TVModelIterator : public ModelIterator

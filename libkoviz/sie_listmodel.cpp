@@ -2,6 +2,8 @@
 
 SieListModel::SieListModel(const QString &host, int port, QObject *parent)
     : QAbstractListModel{parent},
+      _host(host),
+      _port(port),
       _fetchCount(0),
       _fetchChunkSize(10000),
       _isModelResetting(false)
@@ -10,16 +12,7 @@ SieListModel::SieListModel(const QString &host, int port, QObject *parent)
                                           host,port);
     Q_UNUSED(ftr);
 
-    _vsSocketParamSizes.connectToHost(host,port);
-    if (!_vsSocketParamSizes.waitForConnected(1000)) {
-        fprintf(stderr, "koviz [error]: "
-                        "Could not connect to trick var server on"
-                        "host=%s port=%d!\n",
-                host.toLatin1().constData(),port);
-        return;
-    }
-    QString msg = QString("trick.var_set_send_stdio(True)\n");
-    _vsSocketParamSizes.write(msg.toUtf8());
+    _connectToSim();
 }
 
 int SieListModel::rowCount(const QModelIndex &parent) const
@@ -181,14 +174,31 @@ Qt::ItemFlags SieListModel::flags(const QModelIndex &index) const
 void SieListModel::_createSIEModel(const QString& host, int port)
 {
     QTcpSocket sieSocket;
-    sieSocket.connectToHost(host,port);
-    if (sieSocket.waitForConnected(500)) {
-        sieSocket.write("trick.send_sie_resource()\n");
-    }
 
-    // Wait on Trick to send sie resource (takes ~50 seconds with GIVS!)
-    QByteArray header;
+    QEventLoop loop;
+    connect(&sieSocket, SIGNAL(connected()), &loop, SLOT(quit()));
+
     int nWaits = 0;
+    while ( 1 ) {
+        if ( sieSocket.state() == QAbstractSocket::ConnectedState ) {
+            break;
+        } else {
+            sieSocket.connectToHost(host,port);
+            QString msg = QString("Wait on Trick server (%1)").arg(++nWaits);
+            emit sendMessage(msg);
+            QTimer::singleShot(2000, &loop, &QEventLoop::quit);
+            loop.exec();
+        }
+    }
+    QString msg = QString("Connected to Trick server");
+    emit sendMessage(msg);
+
+    // Tell the Trick server to send the SIE database
+    sieSocket.write("trick.send_sie_resource()\n");
+
+    // Wait on Trick to send sie database (which can be large!)
+    QByteArray header;
+    nWaits = 0;
     int maxWaits = 99;  // JJ Watt!
     while ( 1 ) {
         QString msg = QString("Wait on trick.send_sie_resource (%1 of %2)").
@@ -213,7 +223,7 @@ void SieListModel::_createSIEModel(const QString& host, int port)
     QStringList fields = s.split('\t');
     s = fields.at(1);
     uint nbytes = s.toUInt();
-    QString msg = QString("Transferring SIE! nbytes=%1").arg(nbytes);
+    msg = QString("Transferring SIE! nbytes=%1").arg(nbytes);
     emit sendMessage(msg);
 
     // Read sie xml from Trick variable server
@@ -231,6 +241,7 @@ void SieListModel::_createSIEModel(const QString& host, int port)
         emit sendMessage(msg);
     }
 
+    _sieDoc = QDomDocument();
     QString errMsg;
     if ( _sieDoc.setContent(sieXML,&errMsg) ) {
         QDomElement rootElement = _sieDoc.documentElement();
@@ -270,6 +281,8 @@ void SieListModel::_createSIEModel(const QString& host, int port)
         emit sendMessage(msg);
         return;
     }
+
+    sieSocket.close();
 }
 
 void SieListModel::_loadSieElement(const QDomElement &element,
@@ -384,23 +397,23 @@ int SieListModel::paramSize(const QString &param)
     connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
     // If the socket is ready to read, break out of the event loop
-    connect(&_vsSocketParamSizes,SIGNAL(readyRead()), &loop, SLOT(quit()));
+    connect(_vsSocketParamSizes,SIGNAL(readyRead()), &loop, SLOT(quit()));
 
     // Send the msg
     QString msg = QString("sys.stdout.write("
                           "str(trick.get_size(trick.get_address(\"%1[0]\")))"
                           ")\n").arg(param);
-    _vsSocketParamSizes.write(msg.toUtf8());
+    _vsSocketParamSizes->write(msg.toUtf8());
 
     // Loop until socket read or timeout
     loop.exec();
 
     if ( timer.isActive() ) {
         // Message received before timer timeout
-        while (_vsSocketParamSizes.bytesAvailable() > 0) {
-            QByteArray line1 = _vsSocketParamSizes.readLine();
+        while (_vsSocketParamSizes->bytesAvailable() > 0) {
+            QByteArray line1 = _vsSocketParamSizes->readLine();
             Q_UNUSED(line1);
-            QByteArray line2 = _vsSocketParamSizes.readLine();
+            QByteArray line2 = _vsSocketParamSizes->readLine();
             QString msg(line2);
             bool ok;
             sz = msg.toDouble(&ok);
@@ -541,4 +554,77 @@ QDomElement SieListModel::_domElement(const QString &param)
     }
 
     return element;
+}
+
+void SieListModel::_socketDisconnect()
+{
+    _isModelResetting = true;
+    beginResetModel();
+    _mutex.lock();
+    _params.clear();
+    _filteredParams.clear();
+    _mutex.unlock();
+
+    _rx.clear();
+    _fetchCount = 0;
+    _sieDoc.clear();
+    _name2element.clear();
+    endResetModel();
+    _isModelResetting = false;
+
+    QString msg = QString("Lost sim on host=%1 port=%2\n").
+                          arg(_host).arg(_port);
+    sendMessage(msg);
+
+    QFuture<void> ftr = QtConcurrent::run(this, &SieListModel::_createSIEModel,
+                                          _host,_port);
+    Q_UNUSED(ftr);
+
+    _vsSocketParamSizes->flush();
+    _vsSocketParamSizes->abort();
+    _vsSocketParamSizes->close();
+    _vsSocketParamSizes->deleteLater();
+
+    _connectToSim();  // reconnect to sim
+}
+
+void SieListModel::_connectToSim()
+{
+    QTimer timer;
+    QEventLoop loop;
+
+    _vsSocketParamSizes = new QTcpSocket(this);
+
+    connect(_vsSocketParamSizes, SIGNAL(disconnected()),
+            this, SLOT(_socketDisconnect()));
+
+    // If the event loop times out, break out of the event loop
+    connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+    // If the socket is ready to read, break out of the event loop
+    connect(_vsSocketParamSizes,SIGNAL(connected()), &loop, SLOT(quit()));
+
+    int i = 0;
+    while (1) {
+
+        if ( _vsSocketParamSizes->state() == QAbstractSocket::ConnectedState ) {
+            QString msg = QString("Connected to sim on host=%1 port=%2").
+                           arg(_host).arg(_port);
+            sendMessage(msg);
+            break;
+        } else {
+            _vsSocketParamSizes->connectToHost(_host, _port);
+            QString msg = QString("(%1) Attempting to connect to sim on "
+                                  "host=%2 port=%3")
+                                   .arg(i++).arg(_host).arg(_port);
+            sendMessage(msg);
+
+            timer.setSingleShot(true);
+            timer.start(2000);
+            loop.exec();  // Process events in the event loop
+        }
+    }
+
+    QString msg = QString("trick.var_set_send_stdio(True)\n");
+    _vsSocketParamSizes->write(msg.toUtf8());
 }

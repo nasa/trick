@@ -2,6 +2,7 @@
 
 TVModel::TVModel(const QString& host, int port, QObject *parent) :
     DataModel(QStringList(), "", parent),
+    _host(host),_port(port),
     _timeCol(0), _iteratorTimeIndex(0)
 {
     _iteratorTimeIndex = new TVModelIterator(0,this,
@@ -195,21 +196,37 @@ void TVModel::addParam(const QString &paramName, const QString& unit)
     _params.append(param);
 
     QString msg = QString("trick.var_add(\"%1\")\n").arg(paramName);
-    _vsSocketParamValues.write(msg.toUtf8());
+    _vsSocketParamValues->write(msg.toUtf8());
 }
 
 void TVModel::_init(const QString& host, int port)
 {
-    connect(&_vsSocketParamValues,SIGNAL(readyRead()),
+    QTimer timer;
+    QEventLoop loop;
+
+    _vsSocketParamValues = new QTcpSocket(this);
+
+    connect(_vsSocketParamValues,SIGNAL(readyRead()),
             this,SLOT(_vsReadParamValues()));
 
-    _vsSocketParamValues.connectToHost(host,port);
-    if (!_vsSocketParamValues.waitForConnected(1000)) {
-        fprintf(stderr, "koviz [error]: "
-                        "Could not connect to trick var server on"
-                        "host=%s port=%d!\n",
-                host.toLatin1().constData(),port);
-        return;
+    connect(_vsSocketParamValues, SIGNAL(disconnected()),
+            this, SLOT(_socketDisconnect()));
+
+    // If the event loop times out, break out of the event loop
+    connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+
+    // If the socket is ready to read, break out of the event loop
+    connect(_vsSocketParamValues,SIGNAL(connected()), &loop, SLOT(quit()));
+
+    while (1) {
+        if ( _vsSocketParamValues->state() == QAbstractSocket::ConnectedState ) {
+            break;
+        } else {
+            _vsSocketParamValues->connectToHost(host, port);
+            timer.setSingleShot(true);
+            timer.start(2000);
+            loop.exec();  // Process events in the event loop
+        }
     }
 
     addParam("time", "s");
@@ -219,7 +236,7 @@ void TVModel::_vsReadParamValues()
 {
     QList<QList<QVariant>> value_cache;
 
-    while (_vsSocketParamValues.bytesAvailable() > 0) {
+    while (_vsSocketParamValues->bytesAvailable() > 0) {
 
         QList<QVariant> values = _vsReadParamValuesLine();
         if (_params.size() < values.size() ) {
@@ -266,11 +283,27 @@ void TVModel::_vsReadParamValues()
     }
 }
 
+void TVModel::_socketDisconnect()
+{
+    beginResetModel();
+    foreach ( TVParam* param, _params ) {
+        delete param;
+    }
+    _params.clear();
+    endResetModel();
+
+    _vsSocketParamValues->abort();
+    _vsSocketParamValues->close();
+    _vsSocketParamValues->deleteLater();
+
+    _init(_host,_port);
+}
+
 QList<QVariant> TVModel::_vsReadParamValuesLine()
 {
     QList<QVariant> values;
 
-    QByteArray bytes = _vsSocketParamValues.readLine();
+    QByteArray bytes = _vsSocketParamValues->readLine();
     QString msg(bytes);
     QStringList fields = msg.split('\t');
 

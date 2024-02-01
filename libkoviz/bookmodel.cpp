@@ -1189,8 +1189,9 @@ void PlotBookModel::__appendDataToPainterPath(CurveModel *curveModel,
     if ( nels < nrows ) {
         it = it->at(nels);
     } else if ( nels > nrows ) {
-        fprintf(stderr, "koviz [bad scoobs]:1 __appendDataToPainterPath!\n");
-        exit(-1);
+        // If the model has less rows than the path, the model (like TV)
+        // has been been reset.  In this case, simply do not append
+        return;
     }
 
     bool isXLogScale = ( plotXScale == "log" ) ? true : false;
