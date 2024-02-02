@@ -29,7 +29,7 @@ public class SimulationInterface {
 	public void compile_sim() {
 		try {
 			if (working_directory.exists()) {
-				String cmd = "trick-CP";
+				String cmd = "make clean;trick-CP";
 				Process p = Runtime.getRuntime().exec(cmd, null, working_directory);
 				while(p.isAlive()) {
 					continue;

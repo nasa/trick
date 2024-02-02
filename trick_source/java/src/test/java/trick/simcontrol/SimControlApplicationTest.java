@@ -2,6 +2,7 @@ package trick.simcontrol;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.io.File;
 
 import org.jdesktop.application.Application;
 import org.junit.After;
@@ -55,6 +56,7 @@ public class SimControlApplicationTest extends ApplicationTest {
 
 	@Before
 	public void setUp() {
+		WaitForSimControlApplication.updateConnectionInfo(null, -1);
 		if(simcontrol != null)	endApplication();
 	}
 
@@ -120,7 +122,7 @@ public class SimControlApplicationTest extends ApplicationTest {
 	 * Testing that the connect() action functions when a valid host and 
 	 * port is given. 
 	 */
-	public void testConnectAction() {
+	public void testConnection() {
 		// ARRANGE
 		String simDir, statusMsg,
 			   expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main",
@@ -145,7 +147,7 @@ public class SimControlApplicationTest extends ApplicationTest {
 	 * Test the error handling when the connect() action is used with 
 	 * incorrectly formatted information.
 	 */
-	public void testConnectAction_FormattingError() {
+	public void testConnection_FormattingError() {
 		// ARRANGE
 		String statusMsg, 
 			   expStatus = "Can't connect! Please provide valid host name and port number separated by : or whitespace!",
@@ -168,7 +170,7 @@ public class SimControlApplicationTest extends ApplicationTest {
 	 * Test the error handling when the connect() action is used with an 
 	 * invalid port number.
 	 */
-	public void testConnectAction_PortNumberError() {
+	public void testConnection_PortNumberFormatError() {
 		// ARRANGE
 		String statusMsg, 
 			   expStatus = "is not a valid port number!",
@@ -185,29 +187,98 @@ public class SimControlApplicationTest extends ApplicationTest {
 		// ASSERT
 		assertTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.indexOf(expStatus) != -1);
 	}
+	
+	@Test
+	/**
+	 * Testing that the startSim() action functions properly. 
+	 */
+	public void testStartSimulation() {
+		// ARRANGE
+		String statusMsg, expStatus = "Freeze OFF",
+			   simDir, expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main",
+			   badInfo = socketInfo + "A";
+		int counter = 0;
+
+		startApplication(true);
+
+		simDir = simcontrol.getRunningSimInfo();
+		statusMsg = simcontrol.getStatusMessages();
+		assumeTrue("SimControlPanel did not connect!", simDir.startsWith(expDir));
+		assumeTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.isEmpty());
+
+		// ACT
+		simcontrol.startSim();
+
+		do {
+			counter++;
+			simcontrol.sleep(500);
+			statusMsg = simcontrol.getStatusMessages();
+		} while(statusMsg.isEmpty() && counter < 5);
+
+		simcontrol.freezeSim();
+
+		// ASSERT
+		assertTrue("Simulation did not start!", statusMsg.indexOf(expStatus) != -1);
+		
+	}
+	
+	@Test
+	/**
+	 * Testing that the freezeSim() action functions properly. 
+	 */
+	public void testFreezeSimulation() {
+		// ARRANGE
+		String statusMsg, expStatus = "Freeze ON",
+			   simDir, expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main",
+			   badInfo = socketInfo + "A";
+		int counter = 0;
+
+		startApplication(true);
+
+		simDir = simcontrol.getRunningSimInfo();
+		statusMsg = simcontrol.getStatusMessages();
+		assumeTrue("SimControlPanel did not connect!", simDir.startsWith(expDir));
+		assumeTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.isEmpty());
+
+		// ACT
+		simcontrol.startSim();
+		simcontrol.freezeSim();
+
+		do {
+			counter++;
+			simcontrol.sleep(500);
+			statusMsg = simcontrol.getStatusMessages();
+		} while(statusMsg.isEmpty() && counter < 5);
+
+		// ASSERT
+		assertTrue("Simulation did not freeze!", statusMsg.indexOf(expStatus) != -1);
+		
+	}
 
 	private void startApplication() {
 		if(simcontrol == null) {
 			// Launch Testing SimControlPanel
 			WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class);
-
-			// Set up the required variables for testing
-			simcontrol = Application.getInstance(WaitForSimControlApplication.class);
-			actionContext = simcontrol.actionMap;
-			resourceContext = simcontrol.resourceMap;
-
-			// Ensure that everything got set up correctly.
-			assumeTrue("SimControlApplicationTest is not ready yet!", simcontrol.isReady());
+			handleAppSetup();
 		} else {
 			System.err.println("SimControlApplication is already Running...");
 		}
     }
 	
-	private void startApplication(String hostPort) {
+	private void startApplication(boolean startConnected) {
 		if(simcontrol == null) {
-			// Launch Testing SimControlPanel
-			WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class, hostPort);
+			if(startConnected)  // Launch Testing SimControlPanel with the provided connection info
+				WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class, socketInfo.replace(" ", ","));
+			else  // Launch Testing SimControlPanel
+				WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class);
 
+			handleAppSetup();
+		} else {
+			System.err.println("SimControlApplication is already Running...");
+		}
+    }
+
+	private void handleAppSetup() {
 			// Set up the required variables for testing
 			simcontrol = Application.getInstance(WaitForSimControlApplication.class);
 			actionContext = simcontrol.actionMap;
@@ -215,9 +286,6 @@ public class SimControlApplicationTest extends ApplicationTest {
 
 			// Ensure that everything got set up correctly.
 			assumeTrue("SimControlApplicationTest is not ready yet!", simcontrol.isReady());
-		} else {
-			System.err.println("SimControlApplication is already Running...");
-		}
     }
 
 	private void endApplication() {

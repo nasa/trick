@@ -1,5 +1,6 @@
 package trick.simcontrol;
 
+import javax.swing.JFrame;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JTextField;
@@ -11,6 +12,7 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.swingx.JXEditorPane;
@@ -31,7 +33,7 @@ public class WaitForSimControlApplication extends SimControlApplication {
 		// controller.setAutoDelay(250);
 	}
 	
-	private void sleep(long ms) {
+	public void sleep(long ms) {
 		try {  Thread.sleep(ms);  } catch (Exception ignored) {  }
 	}
     
@@ -87,7 +89,7 @@ public class WaitForSimControlApplication extends SimControlApplication {
     //========================================
 	public void editRunningSimList(String socketInfo) {
 		JComboBox list = getRunningSimList();
-		Point focus = list.getLocationOnScreen();
+		JTextField runDir = getSimRunDirField();
 
 		// Select the field to be edited
 		controller.mouseClickAt(InputEvent.BUTTON1_DOWN_MASK, list);
@@ -103,8 +105,7 @@ public class WaitForSimControlApplication extends SimControlApplication {
 		controller.waitForIdle();
 
 		// Change the focus to lock in the typed info
-		focus.translate(0, -list.getHeight() * 5);
-		controller.mouseClickAt(InputEvent.BUTTON1_DOWN_MASK, focus);
+		controller.mouseClickAt(InputEvent.BUTTON1_DOWN_MASK, runDir);
 		controller.waitForIdle();
 	}
 
