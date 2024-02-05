@@ -4,9 +4,8 @@
 #include "trick/JobData.hh"
 #include "trick/SimObject.hh"
 
-#ifdef PROFILE
 #include <chrono>
-#endif
+
 
 long long Trick::JobData::time_tic_value = 0 ;
 
@@ -69,8 +68,8 @@ Trick::JobData::JobData(int in_thread, int in_id, std::string in_job_class_name 
     stop_tics = 0 ;
     next_tics = 0 ;
 
-    frame_time = 0 ;
-    }
+    frame_time = 0 ;    
+}
 
 void Trick::JobData::enable() {
         disabled = false ;
@@ -173,23 +172,29 @@ int Trick::JobData::remove_inst( std::string job_name ) {
     return 0 ;
 }
 
+
+
 int Trick::JobData::call() {
         int ret ;
     unsigned int ii , size ;
     InstrumentBase * curr_job ;
+    std::chrono::_V2::system_clock::time_point start_time;
+    std::chrono::duration<int64_t, std::nano> end_time;
 
         size = inst_before.size() ;
     for ( ii = 0 ; ii < size ; ii++ ) {
         curr_job = inst_before[ii] ;
         curr_job->call() ;
     }
-// #ifdef PROFILE
-    auto start_time = std::chrono::high_resolution_clock::now();
-// #endif
+
+    if(profileEnabled())
+        start_time = std::chrono::high_resolution_clock::now();
+
     ret = parent_object->call_function(this) ;
-// #ifdef PROFILE
-    auto end_time = std::chrono::high_resolution_clock::now() - start_time;    
-// #endif
+
+    if(profileEnabled())
+        end_time = std::chrono::high_resolution_clock::now() - start_time;    
+
     
     size = inst_after.size() ;
     for ( ii = 0 ; ii < size ; ii++ ) {
@@ -197,10 +202,11 @@ int Trick::JobData::call() {
         curr_job->call() ;
     }
 
-// #ifdef PROFILE
-    long long run_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time).count();
+    if(profileEnabled()) {
+        long long run_time = std::chrono::duration_cast<std::chrono::microseconds>(end_time).count();
     call_times.push_back(((double) run_time)/1000000);
-// #endif
+    }
+    
     return ret ;
 }
 

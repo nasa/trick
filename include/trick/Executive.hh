@@ -47,7 +47,10 @@ namespace Trick {
             /** gets #except_return */
             virtual int get_except_return() const;
 
+            bool enable_profiler;
         protected:
+
+            
             /** Attempts to attach a debugger in the event a signal shuts down the simulation.\n */
             bool attach_debugger;            /**< trick_units(--) */
 

@@ -786,7 +786,6 @@ exec_prefix=NONE
 no_create=
 no_recursion=
 prefix=NONE
-profile=false
 program_prefix=NONE
 program_suffix=NONE
 program_transform_name=s,x,x,
@@ -1017,9 +1016,6 @@ do
     ac_prev=prefix ;;
   -prefix=* | --prefix=* | --prefi=* | --pref=* | --pre=* | --pr=* | --p=*)
     prefix=$ac_optarg ;;
-
-  -profile | --profile | --profil | --profi | --prof | --pro | --pro | --pr | --p )
-    profile=true ;;
 
   -program-prefix | --program-prefix | --program-prefi | --program-pref \
   | --program-pre | --program-pr | --program-p)
@@ -4804,12 +4800,7 @@ $as_echo "no" >&6; }
 fi
 CC=`which $CC`
 CXX=`which $CXX`
-if ${profile} #[[${profile} -gt 2]]
-then 
-  echo "Adding Profile Macro to $CXX";
-  export CXX="$CXX -DPROFILE"
-  echo $CXX
-fi
+
 # Extract the first word of "tee", so it can be a program name with args.
 set dummy tee; ac_word=$2
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5

@@ -15,6 +15,8 @@ PROGRAMMERS:
 
 #include "trick/InstrumentBase.hh"
 
+extern bool profileEnabled();
+
 namespace Trick {
 
     class SimObject ;
@@ -130,10 +132,12 @@ namespace Trick {
 
             /** time tic value from the executive */
             static long long time_tic_value ;      /**< trick_io(**) */
-#ifdef PROFILE
+
             /**Run time of each call to this job*/
             std::vector<double> call_times;
-#endif
+
+            int (*call_func)();
+
             /** Constructor for new blank JobData instance */
             JobData() ;
 

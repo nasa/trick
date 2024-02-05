@@ -52,7 +52,9 @@ int Trick::Executive::process_sim_args() {
             "                         RUN_<name> directory.\n\n"
             "     sie                 Generate the S_sie.resource file\n\n"
             "     trick_version       Print which version of Trick is being used\n"
-            "                         to the screen.\n" ) ;
+            "                         to the screen.\n" 
+            "     RUN_<name>/<input_file> --profile | -p\n"
+            "                         Enable the profiler to track jobspeed.\n") ;
 
     bool open_stream = true;
     if (argc > 1) {
@@ -71,6 +73,12 @@ int Trick::Executive::process_sim_args() {
             open_stream = false;
         }
     }
+
+    if(argc > 2) 
+        if(!strncmp(argv[2], "--profile",9) || !strncmp(argv[2], "-p",2) || !strncmp(argv[2], "-p",2)) 
+            enable_profiler = true;
+        
+    
 
     /* create a log if we are not generating an sie file (usually during trick-CP) */
     if(open_stream) {
