@@ -173,77 +173,10 @@ Qt::ItemFlags SieListModel::flags(const QModelIndex &index) const
 
 void SieListModel::_createSIEModel(const QString& host, int port)
 {
-    QTcpSocket sieSocket;
+    // This loads _sieDoc with the Trick SIE xml database
+    bool isSIE = _createSieDocument();
 
-    QEventLoop loop;
-    connect(&sieSocket, SIGNAL(connected()), &loop, SLOT(quit()));
-
-    int nWaits = 0;
-    while ( 1 ) {
-        if ( sieSocket.state() == QAbstractSocket::ConnectedState ) {
-            break;
-        } else {
-            sieSocket.connectToHost(host,port);
-            QString msg = QString("Wait on Trick server (%1)").arg(++nWaits);
-            emit sendMessage(msg);
-            QTimer::singleShot(2000, &loop, &QEventLoop::quit);
-            loop.exec();
-        }
-    }
-    QString msg = QString("Connected to Trick server");
-    emit sendMessage(msg);
-
-    // Tell the Trick server to send the SIE database
-    sieSocket.write("trick.send_sie_resource()\n");
-
-    // Wait on Trick to send sie database (which can be large!)
-    QByteArray header;
-    nWaits = 0;
-    int maxWaits = 99;  // JJ Watt!
-    while ( 1 ) {
-        QString msg = QString("Wait on trick.send_sie_resource (%1 of %2)").
-                              arg(nWaits).arg(maxWaits);
-        emit sendMessage(msg);
-        bool isReady = sieSocket.waitForReadyRead(1000);
-        if ( isReady ) {
-            break;
-        } else {
-            if ( nWaits > maxWaits ) {
-                emit sendMessage("Gave up on Trick SIE :(");
-                return;
-            }
-            nWaits++;
-            continue;
-        }
-    }
-
-    // Read header with nbytes (top line in msg)
-    header.append(sieSocket.readLine());
-    QString s(header);
-    QStringList fields = s.split('\t');
-    s = fields.at(1);
-    uint nbytes = s.toUInt();
-    msg = QString("Transferring SIE! nbytes=%1").arg(nbytes);
-    emit sendMessage(msg);
-
-    // Read sie xml from Trick variable server
-    QByteArray sieXML;
-    while ( sieXML.size() < nbytes ) {
-        bool isReady = sieSocket.waitForReadyRead();
-        if ( !isReady ) {
-            QString msg = QString("Failed loading SIE!");
-            emit sendMessage(msg);
-            return;
-        }
-        sieXML.append(sieSocket.readAll());
-        QString msg = QString("Getting SIE! nbytes %1 of %2").
-                             arg(nbytes).arg(sieXML.size());
-        emit sendMessage(msg);
-    }
-
-    _sieDoc = QDomDocument();
-    QString errMsg;
-    if ( _sieDoc.setContent(sieXML,&errMsg) ) {
+    if ( isSIE ) {
         QDomElement rootElement = _sieDoc.documentElement();
 
         // Cache off classes for speed
@@ -276,13 +209,141 @@ void SieListModel::_createSIEModel(const QString& host, int port)
         emit sendMessage(msg);
         emit modelLoaded();
     } else {
-        QString msg = QString("Could not load sieXML document! Error=%1").
-                              arg(errMsg);
+        QString msg = QString("Could not load sieXML document!");
         emit sendMessage(msg);
         return;
     }
+}
 
-    sieSocket.close();
+// Load _sieDoc with the Trick SIE xml database
+bool SieListModel::_createSieDocument()
+{
+    bool isSIE = false;
+
+    int ntries = 5;
+    int i = 0;
+    while (1) {
+        isSIE = __createSieDocument();
+        if ( isSIE ) {
+            // All good
+            break;
+        } else if ( ++i > ntries ) {
+            // Giving up
+            QString msg = QString("Giving up on Trick SIE :(");
+            emit sendMessage(msg);
+            break;
+        } else {
+            // Sleep before trying again
+            QThread::sleep(2);
+            QString msg = QString("Wait 5 seconds and try SIE again "
+                                  "(%1 of %2)").arg(i).arg(ntries);
+            emit sendMessage(msg);
+
+            QEventLoop loop;
+            QTimer timer;
+            timer.setInterval(5000);
+            connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+            timer.start();
+            loop.exec();
+            timer.stop();
+        }
+    }
+
+    return isSIE;
+}
+
+bool SieListModel::__createSieDocument()
+{
+    bool isSIE = false;
+
+    _sieDoc = QDomDocument();
+
+    QTcpSocket sieSocket;
+
+    QEventLoop loop;
+    connect(&sieSocket, SIGNAL(connected()), &loop, SLOT(quit()));
+
+    QTimer timer;
+    timer.setInterval(2000);
+    connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+
+    int nWaits = 0;
+    while ( 1 ) {
+        timer.start();
+        sieSocket.connectToHost(_host,_port);
+        int ret = loop.exec();
+        if ( ret < 0 ) {
+            return false;
+        }
+        timer.stop();
+        if (sieSocket.state() == QAbstractSocket::ConnectedState){
+            break;
+        } else {
+            QString msg = QString("Wait on Trick server (%1)").arg(++nWaits);
+            emit sendMessage(msg);
+        }
+    }
+    QString msg = QString("Connected to Trick server");
+    emit sendMessage(msg);
+    QThread::sleep(1);
+
+    // Tell the Trick server to send the SIE database
+    sieSocket.write("trick.send_sie_resource()\n");
+
+    // Wait on Trick to send sie database (which can be large!)
+    QByteArray header;
+    nWaits = 0;
+    int maxWaits = 10;
+    while ( 1 ) {
+        QString msg = QString("Wait on trick.send_sie_resource (%1 of %2)").
+                              arg(nWaits).arg(maxWaits);
+        emit sendMessage(msg);
+        bool isReady = sieSocket.waitForReadyRead(1000);
+        if ( isReady ) {
+            break;
+        } else {
+            if ( nWaits >= maxWaits ) {
+                emit sendMessage("Gave up on Trick SIE :(");
+                return false;
+            }
+            nWaits++;
+            continue;
+        }
+    }
+
+    // Read header with nbytes (top line in msg)
+    header.append(sieSocket.readLine());
+    QString s(header);
+    QStringList fields = s.split('\t');
+    s = fields.at(1);
+    uint nbytes = s.toUInt();
+    msg = QString("Transferring SIE! nbytes=%1").arg(nbytes);
+    emit sendMessage(msg);
+
+    // Read sie xml from Trick variable server
+    QByteArray sieXML;
+    while ( sieXML.size() < nbytes ) {
+        bool isReady = sieSocket.waitForReadyRead();
+        if ( !isReady ) {
+            QString msg = QString("Failed loading SIE!");
+            emit sendMessage(msg);
+            return false;
+        }
+        sieXML.append(sieSocket.readAll());
+        QString msg = QString("Getting SIE! nbytes %1 of %2").
+                             arg(nbytes).arg(sieXML.size());
+        emit sendMessage(msg);
+    }
+
+    QString errMsg;
+    isSIE = _sieDoc.setContent(sieXML,&errMsg) ;
+    if ( !isSIE ) {
+        QString msg = QString("Could not load sieXML document! Error=%1").
+                              arg(errMsg);
+        emit sendMessage(msg);
+    }
+
+    return isSIE;
 }
 
 void SieListModel::_loadSieElement(const QDomElement &element,
@@ -576,14 +637,17 @@ void SieListModel::_socketDisconnect()
                           arg(_host).arg(_port);
     sendMessage(msg);
 
-    QFuture<void> ftr = QtConcurrent::run(this, &SieListModel::_createSIEModel,
-                                          _host,_port);
-    Q_UNUSED(ftr);
-
     _vsSocketParamSizes->flush();
     _vsSocketParamSizes->abort();
     _vsSocketParamSizes->close();
     _vsSocketParamSizes->deleteLater();
+
+    QEventLoop loop;
+    connect(this, SIGNAL(modelLoaded()), &loop, SLOT(quit()));
+    QFuture<void> ftr = QtConcurrent::run(this, &SieListModel::_createSIEModel,
+                                          _host,_port);
+    Q_UNUSED(ftr);
+    loop.exec();
 
     _connectToSim();  // reconnect to sim
 }
@@ -591,6 +655,7 @@ void SieListModel::_socketDisconnect()
 void SieListModel::_connectToSim()
 {
     QTimer timer;
+    timer.setInterval(2000);
     QEventLoop loop;
 
     _vsSocketParamSizes = new QTcpSocket(this);
@@ -598,14 +663,20 @@ void SieListModel::_connectToSim()
     connect(_vsSocketParamSizes, SIGNAL(disconnected()),
             this, SLOT(_socketDisconnect()));
 
-    // If the event loop times out, break out of the event loop
-    connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
-
-    // If the socket is ready to read, break out of the event loop
+    // If the socket is ready to read or times out, break out of the event loop
     connect(_vsSocketParamSizes,SIGNAL(connected()), &loop, SLOT(quit()));
+    connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
 
     int i = 0;
     while (1) {
+
+        timer.start();
+        _vsSocketParamSizes->connectToHost(_host, _port);
+        int ret = loop.exec();
+        if ( ret < 0 ) {
+            return;
+        }
+        timer.stop();
 
         if ( _vsSocketParamSizes->state() == QAbstractSocket::ConnectedState ) {
             QString msg = QString("Connected to sim on host=%1 port=%2").
@@ -613,15 +684,10 @@ void SieListModel::_connectToSim()
             sendMessage(msg);
             break;
         } else {
-            _vsSocketParamSizes->connectToHost(_host, _port);
             QString msg = QString("(%1) Attempting to connect to sim on "
                                   "host=%2 port=%3")
                                    .arg(i++).arg(_host).arg(_port);
             sendMessage(msg);
-
-            timer.setSingleShot(true);
-            timer.start(2000);
-            loop.exec();  // Process events in the event loop
         }
     }
 

@@ -214,22 +214,28 @@ void TVModel::_init(const QString& host, int port)
 
     // If the event loop times out, break out of the event loop
     connect(&timer, SIGNAL(timeout()), &loop, SLOT(quit()));
+    timer.setInterval(2000);
 
     // If the socket is ready to read, break out of the event loop
     connect(_vsSocketParamValues,SIGNAL(connected()), &loop, SLOT(quit()));
 
+    int ret = 0;
     while (1) {
+        _vsSocketParamValues->connectToHost(host, port);
+        timer.start();
+        ret = loop.exec();  // Process events in the event loop
+        if ( ret < 0 ) {
+            break; // This happens when koviz exits
+        }
+        timer.stop();
         if ( _vsSocketParamValues->state() == QAbstractSocket::ConnectedState ) {
             break;
-        } else {
-            _vsSocketParamValues->connectToHost(host, port);
-            timer.setSingleShot(true);
-            timer.start(2000);
-            loop.exec();  // Process events in the event loop
         }
     }
 
-    addParam("time", "s");
+    if ( ret == 0 ) {
+        addParam("time", "s");
+    }
 }
 
 void TVModel::_vsReadParamValues()

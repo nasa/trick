@@ -14,6 +14,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QMutex>
 #include <QProgressDialog>
+#include <QThread>
 
 class SieListModel : public QAbstractListModel
 {
@@ -60,6 +61,8 @@ class SieListModel : public QAbstractListModel
     QTcpSocket* _vsSocketParamSizes;
 
     void _createSIEModel(const QString& host, int port);
+    bool _createSieDocument();
+    bool __createSieDocument();
     void _loadSieElement(const QDomElement& element, QList<QDomElement> &path);
     void _expandParam(const QString& expandedParam,
                       const QString& param,
