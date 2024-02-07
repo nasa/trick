@@ -388,13 +388,8 @@ public class VariableTable extends JXTable {
                 if (variable.getState() == Variable.State.Valid) {
                     // TODO write comments of This section
                     // TODO TVDouble ve TVFloat haricinde buraya girmesin
-                    if (variable.getValue().getPrecision() != null
-                            && variable.getValue().getFormat().toString().contains("Decimal")
-                            && !variable.getValue().getPrecision().contains("--")
-                            && (variable.getValue().getFormatClass().toString().contains("TVDouble")
-                            || variable.getValue().getFormatClass().toString().contains("TVFloat"))) {
-
-                        variable.getValue().getFormat();
+                    if (isFractional(variable)) {
+                        // Sets rounded value of variable by its precision
                         BigDecimal bd = new BigDecimal(variable.getValue().toString());
                         bd = bd.setScale(Integer.parseInt(variable.getValue().getPrecision().toString()), RoundingMode.HALF_UP);
                         variable.setValue(bd.toString());
@@ -437,6 +432,20 @@ public class VariableTable extends JXTable {
         }
     }
 
+    /**
+     * This function checks if variable has valid precision and it is decimal that type of TVDouble or TVFloat
+     * Since only double and float numbers are roundable
+     *
+     * @param variable
+     * @return
+     */
+    private boolean isFractional(Variable<? extends TrickViewFluent> variable) {
+        return variable.getValue().getPrecision() != null
+                && variable.getValue().getFormat().toString().contains("Decimal")
+                && !variable.getValue().getPrecision().contains("--")
+                && (variable.getValue().getFormatClass().toString().contains("TVDouble")
+                || variable.getValue().getFormatClass().toString().contains("TVFloat"));
+    }
 
 
     /**
