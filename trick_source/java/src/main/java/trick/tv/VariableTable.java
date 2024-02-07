@@ -388,7 +388,9 @@ public class VariableTable extends JXTable {
                 if (variable.getState() == Variable.State.Valid) {
                     // TODO write comments of This section
                     // TODO TVDouble ve TVFloat haricinde buraya girmesin
-                    if (isFractional(variable)) {
+                    if (variable.getValue().getPrecision() != null
+                            && !variable.getValue().getPrecision().contains("--")
+                            && isFractional(variable)) {
                         // Sets rounded value of variable by its precision
                         BigDecimal bd = new BigDecimal(variable.getValue().toString());
                         bd = bd.setScale(Integer.parseInt(variable.getValue().getPrecision().toString()), RoundingMode.HALF_UP);
@@ -419,9 +421,7 @@ public class VariableTable extends JXTable {
                 }});
             case 4:
                 String[] precisionArr;
-                if (variable.getValue().getFormat().toString().contains("Decimal")
-                        && (variable.getValue().getFormatClass().toString().contains("TVDouble")
-                        || variable.getValue().getFormatClass().toString().contains("TVFloat"))) {
+                if (isFractional(variable)) {
                     precisionArr = java.util.stream.IntStream.rangeClosed(1, 15).mapToObj(Integer::toString).toArray(String[]::new);
                 } else {
                     precisionArr = new String[]{"--"};
@@ -440,9 +440,7 @@ public class VariableTable extends JXTable {
      * @return
      */
     private boolean isFractional(Variable<? extends TrickViewFluent> variable) {
-        return variable.getValue().getPrecision() != null
-                && variable.getValue().getFormat().toString().contains("Decimal")
-                && !variable.getValue().getPrecision().contains("--")
+        return  variable.getValue().getFormat().toString().contains("Decimal")
                 && (variable.getValue().getFormatClass().toString().contains("TVDouble")
                 || variable.getValue().getFormatClass().toString().contains("TVFloat"));
     }
