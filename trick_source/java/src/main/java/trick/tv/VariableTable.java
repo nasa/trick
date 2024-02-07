@@ -7,6 +7,8 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -384,6 +386,19 @@ public class VariableTable extends JXTable {
             if (row < variables.size()) {
                 Variable<? extends TrickViewFluent> variable = variables.get(row);
                 if (variable.getState() == Variable.State.Valid) {
+                    // TODO write comments of This section
+                    // TODO TVDouble ve TVFloat haricinde buraya girmesin
+                    if (variable.getValue().getPrecision() != null
+                            && variable.getValue().getFormat().toString().contains("Decimal")
+                            && !variable.getValue().getPrecision().contains("--")
+                            && (variable.getValue().getFormatClass().toString().contains("TVDouble")
+                            || variable.getValue().getFormatClass().toString().contains("TVFloat"))) {
+
+                        variable.getValue().getFormat();
+                        BigDecimal bd = new BigDecimal(variable.getValue().toString());
+                        bd = bd.setScale(Integer.parseInt(variable.getValue().getPrecision().toString()), RoundingMode.HALF_UP);
+                        variable.setValue(bd.toString());
+                    }
                     return variable.getValue().getCellRenderer();
                 }
             }
@@ -406,6 +421,18 @@ public class VariableTable extends JXTable {
             case 3:
                 return new DefaultCellEditor(new JComboBox(EnumSet.allOf(value.getFormatClass()).toArray()) {{
                     setSelectedItem(value.getFormat());
+                }});
+            case 4:
+                String[] precisionArr;
+                if (variable.getValue().getFormat().toString().contains("Decimal")
+                        && (variable.getValue().getFormatClass().toString().contains("TVDouble")
+                        || variable.getValue().getFormatClass().toString().contains("TVFloat"))) {
+                    precisionArr = java.util.stream.IntStream.rangeClosed(1, 15).mapToObj(Integer::toString).toArray(String[]::new);
+                } else {
+                    precisionArr = new String[]{"--"};
+                }
+                return new DefaultCellEditor(new JComboBox(precisionArr) {{
+                    setSelectedItem(variable.getValue().getPrecision());
                 }});
         }
     }
@@ -447,7 +474,7 @@ public class VariableTable extends JXTable {
 
         @Override
         public int getColumnCount() {
-            return 4;
+            return 5;
         }
 
         @Override
@@ -459,6 +486,8 @@ public class VariableTable extends JXTable {
                     return "Value";
                 case 2:
                     return "Units";
+                case 4:
+                    return "Precision";
                 default:
                     return "Format";
             }
@@ -486,6 +515,8 @@ public class VariableTable extends JXTable {
                     }
                 case 2:
                     return variable.getUnits();
+                case 4:
+                    return variable.getValue().getPrecision();
                 default:
                     return variable.getValue().getFormat();
             }
@@ -510,11 +541,14 @@ public class VariableTable extends JXTable {
                         model.fireTableRowsUpdated(index, index);
                     }
                     break;
+                case 4:
+                    setPrecision(getSelectedVariables(), value);
+                    break;
             }
         }
 
         private void setValues(ArrayList<? extends Variable<? extends VariableServerFluent>> variables,
-          Object value) {
+                               Object value) {
             for (Variable<? extends VariableServerFluent> variable : variables) {
                 setValue(variable, value);
             }
@@ -523,9 +557,8 @@ public class VariableTable extends JXTable {
         @SuppressWarnings("unchecked")
         private <T extends VariableServerFluent> void setValue(Variable<T> variable, Object value) {
             try {
-                variable.sendValueToVariableServer((T)value, variableServerConnection);
-            }
-            catch (IOException ioException) {
+                variable.sendValueToVariableServer((T) value, variableServerConnection);
+            } catch (IOException ioException) {
                 System.err.println("Failed to set variable \"" + variable + "\" to \"" + value + "\"");
                 ioException.printStackTrace(System.err);
             }
@@ -537,10 +570,27 @@ public class VariableTable extends JXTable {
                 TrickViewFluent value = variable.getValue();
                 try {
                     value.setFormat(Enum.valueOf(value.getFormatClass(), format.toString()));
-                }
-                catch (IllegalArgumentException illegalArgumentException) {
+                } catch (IllegalArgumentException illegalArgumentException) {
                     // The format is not applicable to the current value; ignore it.
                 }
+            }
+        }
+
+        /**
+         * sets visible(shown) precision of the <code>Variable</code>'s value
+         * only on TV Table, does not affect the value in simulation.
+         *
+         * @param variables
+         * @param precision the value after dot(.) to be set
+         */
+        private void setPrecision(ArrayList<Variable<? extends TrickViewFluent>> variables, Object precision) {
+            try {
+                for (Variable<? extends TrickViewFluent> variable : variables) {
+                    variable.getValue().setPrecision(precision.toString());
+                }
+            } catch (NullPointerException nullPointerException) {
+                System.err.println("Failed to set precision value \"" + precision + "\"");
+                nullPointerException.printStackTrace(System.err);
             }
         }
 

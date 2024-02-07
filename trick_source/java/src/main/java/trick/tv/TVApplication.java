@@ -1263,9 +1263,10 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         // TV relies on time_tics being the first tracked variable, so don't let users manipulate it.
         if (!variable.name.equals("trick_sys.sched.time_tics")) {
             try {
-                if (applyDefaults || variable.getValue().getFormat() == null) {
+                if (applyDefaults || (variable.getValue().getFormat() == null || variable.getValue().getPrecision() == null)) {
                     variable.getValue().setFormat(Enum.valueOf(variable.getValue().getFormatClass(),
-                      defaultFormats.get(variable.getValue().getClass()).toString()));
+                            defaultFormats.get(variable.getValue().getClass()).toString()));
+                    variable.getValue().setPrecision("--"); // Default precision value
                 }
                 variableTable.add(variable, position);
                 if (getConnectionState()) {
