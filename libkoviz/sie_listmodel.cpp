@@ -227,6 +227,8 @@ bool SieListModel::_createSieDocument()
         if ( isSIE ) {
             // All good
             break;
+        } else if ( qApp->closingDown() ) {
+            break;
         } else if ( ++i > ntries ) {
             // Giving up
             QString msg = QString("Giving up on Trick SIE :(");
@@ -234,18 +236,10 @@ bool SieListModel::_createSieDocument()
             break;
         } else {
             // Sleep before trying again
-            QThread::sleep(2);
             QString msg = QString("Wait 5 seconds and try SIE again "
                                   "(%1 of %2)").arg(i).arg(ntries);
             emit sendMessage(msg);
-
-            QEventLoop loop;
-            QTimer timer;
-            timer.setInterval(5000);
-            connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-            timer.start();
-            loop.exec();
-            timer.stop();
+            QThread::sleep(2);
         }
     }
 
@@ -260,27 +254,18 @@ bool SieListModel::__createSieDocument()
 
     QTcpSocket sieSocket;
 
-    QEventLoop loop;
-    connect(&sieSocket, SIGNAL(connected()), &loop, SLOT(quit()));
-
-    QTimer timer;
-    timer.setInterval(2000);
-    connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-
     int nWaits = 0;
     while ( 1 ) {
-        timer.start();
         sieSocket.connectToHost(_host,_port);
-        int ret = loop.exec();
-        if ( ret < 0 ) {
-            return false;
-        }
-        timer.stop();
+        sieSocket.waitForConnected(1000);
         if (sieSocket.state() == QAbstractSocket::ConnectedState){
             break;
+        } else if ( qApp->closingDown() ) {
+            return false;
         } else {
             QString msg = QString("Wait on Trick server (%1)").arg(++nWaits);
             emit sendMessage(msg);
+            QThread::sleep(1);
         }
     }
     QString msg = QString("Connected to Trick server");
@@ -301,6 +286,8 @@ bool SieListModel::__createSieDocument()
         bool isReady = sieSocket.waitForReadyRead(1000);
         if ( isReady ) {
             break;
+        } else if ( qApp->closingDown() ) {
+            return false;
         } else {
             if ( nWaits >= maxWaits ) {
                 emit sendMessage("Gave up on Trick SIE :(");
