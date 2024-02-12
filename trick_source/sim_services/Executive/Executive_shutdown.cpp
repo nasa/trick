@@ -133,7 +133,7 @@ int Trick::Executive::shutdown() {
             user_cpu_init, kernal_cpu_init, sim_mem,
             cpu_usage_buf.ru_minflt, cpu_usage_buf.ru_majflt,
             cpu_usage_buf.ru_inblock, cpu_usage_buf.ru_oublock,
-            cpu_usage_buf.ru_nivcsw, cpu_usage_buf.ru_nivcsw) ;
+            cpu_usage_buf.ru_nvcsw, cpu_usage_buf.ru_nivcsw) ;
 
     /* Kill all threads. */
     for (ii = 1; ii < threads.size() ; ii++) {
