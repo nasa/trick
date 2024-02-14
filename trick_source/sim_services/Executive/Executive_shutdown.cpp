@@ -119,20 +119,13 @@ int Trick::Executive::shutdown() {
             "    INITIALIZATION USER CPU TIME: %12.3f\n"
             "  INITIALIZATION SYSTEM CPU TIME: %12.3f\n"
             "            SIMULATION RAM USAGE: %12.3fMB\n"
-            "      (External program RAM usage not included!)\n\n"
-            "     ADDITIONAL RESOURCE UTILIZATION INFO:\n"
-            "              SOFT PAGE RECLAIMS: %12ld\n"
-            "                HARD PAGE FAULTS: %12ld\n"
-            "          BLOCK INPUT OPERATIONS: %12ld\n"
-            "         BLOCK OUTPUT OPERATIONS: %12ld\n"
+            "      (External program RAM usage not included!)\n"
             "      VOLUNTARY CONTEXT SWITCHES: %12ld\n"
             "    INVOLUNTARY CONTEXT SWITCHES: %12ld\n\n",
             process_id, except_file.c_str(), except_message.c_str(),
             sim_start, get_sim_time(), sim_elapsed_time, 
             user_cpu_time, kernal_cpu_time, sim_to_cpu, 
             user_cpu_init, kernal_cpu_init, sim_mem,
-            cpu_usage_buf.ru_minflt, cpu_usage_buf.ru_majflt,
-            cpu_usage_buf.ru_inblock, cpu_usage_buf.ru_oublock,
             cpu_usage_buf.ru_nvcsw, cpu_usage_buf.ru_nivcsw) ;
 
     /* Kill all threads. */
