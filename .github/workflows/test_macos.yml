@@ -25,9 +25,15 @@ jobs:
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew install --cask xquartz
-        brew install swig udunits openmotif maven
+        brew install udunits openmotif maven
         wget https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
         tar -xvf clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
+        wget https://github.com/swig/swig/archive/refs/tags/v4.1.1.tar.gz
+        tar -xvzf v4.1.1.tar.gz
+        ./autogen.sh
+        ./configure
+        make
+        make install
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
