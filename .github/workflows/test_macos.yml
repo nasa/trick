@@ -30,10 +30,12 @@ jobs:
         tar -xvf clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
         wget https://github.com/swig/swig/archive/refs/tags/v4.1.1.tar.gz
         tar -xvzf v4.1.1.tar.gz
+        cd swig-4.1.1
         ./autogen.sh
         ./configure
         make
         make install
+        cd ..
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
