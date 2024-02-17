@@ -2,6 +2,9 @@ package trick.simcontrol;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.Scanner;
 import java.io.File;
 
 import org.jdesktop.application.Application;
@@ -254,6 +257,43 @@ public class SimControlApplicationTest extends ApplicationTest {
 		assertTrue("Simulation did not freeze!", statusMsg.indexOf(expStatus) != -1);
 		
 	}
+	
+	@Test
+	/**
+	 * Testing that the startSim() action functions properly after the 
+	 * freezeSim() action. 
+	 */
+	public void testRestartSimulation() {
+		// ARRANGE
+		String statusMsg, simDir, 
+			   expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main";
+		Matcher line1, line2, line3;
+		Pattern freezeOffPatt = Pattern.compile("\\|.*\\| Freeze OFF\\.\\n?"),
+				freezeOnPatt  = Pattern.compile("\\|.*\\| Freeze ON\\. Simulation time holding at \\d+\\.\\d+ seconds\\.\\n?");
+
+		int counter = 0;
+
+		startApplication(true);
+
+		simDir = simcontrol.getRunningSimInfo();
+		statusMsg = simcontrol.getStatusMessages();
+		assumeTrue("SimControlPanel did not connect!", simDir.startsWith(expDir));
+		assumeTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.isEmpty());
+
+		// ACT
+		simcontrol.startSim();
+		simcontrol.freezeSim();
+		simcontrol.startSim();
+
+		do {
+			counter++;
+			simcontrol.sleep(500);
+			statusMsg = simcontrol.getStatusMessages();
+		} while(statusMsg.isEmpty() && counter < 5);
+
+		// ASSERT
+		
+	}
 
 	private void startApplication() {
 		if(simcontrol == null) {
@@ -279,14 +319,14 @@ public class SimControlApplicationTest extends ApplicationTest {
     }
 
 	private void handleAppSetup() {
-			// Set up the required variables for testing
-			simcontrol = Application.getInstance(WaitForSimControlApplication.class);
-			actionContext = simcontrol.actionMap;
-			resourceContext = simcontrol.resourceMap;
+		// Set up the required variables for testing
+		simcontrol = Application.getInstance(WaitForSimControlApplication.class);
+		actionContext = simcontrol.actionMap;
+		resourceContext = simcontrol.resourceMap;
 
-			// Ensure that everything got set up correctly.
-			assumeTrue("SimControlApplicationTest is not ready yet!", simcontrol.isReady());
-    }
+		// Ensure that everything got set up correctly.
+		assumeTrue("SimControlApplicationTest is not ready yet!", simcontrol.isReady());
+	}
 
 	private void endApplication() {
 		if(simcontrol != null) {
