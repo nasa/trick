@@ -25,7 +25,7 @@ public class WaitForSimControlApplication extends SimControlApplication {
     static Object lock = new Object(); 
     
     boolean isEnded;
-	private GUIController controller;
+	public GUIController controller;
 
 	public WaitForSimControlApplication() throws AWTException{
 		super();

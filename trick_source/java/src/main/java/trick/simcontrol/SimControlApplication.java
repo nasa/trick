@@ -530,6 +530,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         }
     }
 
+    public double getExecTime() { return simState.getExecOutTime(); }
+
 	protected JComboBox getRunningSimList() { return runningSimList; }
 
 	protected JXEditorPane getEditorPane() { return statusMsgPane; }

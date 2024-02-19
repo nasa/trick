@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Scanner;
+import java.beans.Transient;
 import java.io.File;
 
 import org.jdesktop.application.Application;
@@ -29,13 +30,13 @@ import trick.common.ApplicationTest;
  * @intern mrockwell2
  *
  */
-public class SimControlApplicationTest extends ApplicationTest {
+public class SimControlApplicationStartupTest extends ApplicationTest {
 	private static int numSims = 0;
 	private static String socketInfo;
 
 	private WaitForSimControlApplication simcontrol;
 
-	public SimControlApplicationTest() {
+	public SimControlApplicationStartupTest() {
 		setupExpectedActionInfo();
 		simcontrol = null;
 	}
@@ -101,7 +102,7 @@ public class SimControlApplicationTest extends ApplicationTest {
 	}
 	
 	@Test
-	public void testDefinedActions() {
+	public void testDefinitions() {
 		// ARRANGE
 		startApplication();
 		Iterator<ActionInfo> 	core_iterator 	 = coreActionInfo.iterator(),
@@ -112,13 +113,9 @@ public class SimControlApplicationTest extends ApplicationTest {
 		core_iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
 		support_iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
 		misc_iterator.forEachRemaining(aInfo -> verifyActionInfo(aInfo));
-	}
-    
-    @Test
-    public void testDefinedKeyText() {
-		startApplication();
+		
 		verifyResourceInfo("fileMenu.text", "&File");
-    }
+	}
 
 	@Test
 	/**
@@ -146,18 +143,28 @@ public class SimControlApplicationTest extends ApplicationTest {
 	}
 
 	@Test
+	public void testConnectionFailures() {
+		// ARRANGE
+		startApplication();
+		cleanupPanel();
+
+		ConnectionInfo_FormattingError();
+		cleanupPanel();
+		
+		PortNumber_FormattingError();
+		cleanupPanel();
+	}
+
 	/**
 	 * Test the error handling when the connect() action is used with 
 	 * incorrectly formatted information.
 	 */
-	public void testConnection_FormattingError() {
+	public void ConnectionInfo_FormattingError() {
 		// ARRANGE
 		String statusMsg, 
 			   expStatus = "Can't connect! Please provide valid host name and port number separated by : or whitespace!",
 			   badInfo = socketInfo.replace(' ', '/');
 
-		startApplication();
-		simcontrol.clearStatusMsgs();
 		simcontrol.editRunningSimList(badInfo);
 
 		// ACT
@@ -168,19 +175,16 @@ public class SimControlApplicationTest extends ApplicationTest {
 		assertTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.indexOf(expStatus) != -1);
 	}
 
-	@Test
 	/**
 	 * Test the error handling when the connect() action is used with an 
 	 * invalid port number.
 	 */
-	public void testConnection_PortNumberFormatError() {
+	public void PortNumber_FormattingError() {
 		// ARRANGE
 		String statusMsg, 
 			   expStatus = "is not a valid port number!",
 			   badInfo = socketInfo + "A";
 
-		startApplication();
-		simcontrol.clearStatusMsgs();
 		simcontrol.editRunningSimList(badInfo);
 
 		// ACT
@@ -189,110 +193,6 @@ public class SimControlApplicationTest extends ApplicationTest {
 
 		// ASSERT
 		assertTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.indexOf(expStatus) != -1);
-	}
-	
-	@Test
-	/**
-	 * Testing that the startSim() action functions properly. 
-	 */
-	public void testStartSimulation() {
-		// ARRANGE
-		String statusMsg, expStatus = "Freeze OFF",
-			   simDir, expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main",
-			   badInfo = socketInfo + "A";
-		int counter = 0;
-
-		startApplication(true);
-
-		simDir = simcontrol.getRunningSimInfo();
-		statusMsg = simcontrol.getStatusMessages();
-		assumeTrue("SimControlPanel did not connect!", simDir.startsWith(expDir));
-		assumeTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.isEmpty());
-
-		// ACT
-		simcontrol.startSim();
-
-		do {
-			counter++;
-			simcontrol.sleep(500);
-			statusMsg = simcontrol.getStatusMessages();
-		} while(statusMsg.isEmpty() && counter < 5);
-
-		simcontrol.freezeSim();
-
-		// ASSERT
-		assertTrue("Simulation did not start!", statusMsg.indexOf(expStatus) != -1);
-		
-	}
-	
-	@Test
-	/**
-	 * Testing that the freezeSim() action functions properly. 
-	 */
-	public void testFreezeSimulation() {
-		// ARRANGE
-		String statusMsg, expStatus = "Freeze ON",
-			   simDir, expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main",
-			   badInfo = socketInfo + "A";
-		int counter = 0;
-
-		startApplication(true);
-
-		simDir = simcontrol.getRunningSimInfo();
-		statusMsg = simcontrol.getStatusMessages();
-		assumeTrue("SimControlPanel did not connect!", simDir.startsWith(expDir));
-		assumeTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.isEmpty());
-
-		// ACT
-		simcontrol.startSim();
-		simcontrol.freezeSim();
-
-		do {
-			counter++;
-			simcontrol.sleep(500);
-			statusMsg = simcontrol.getStatusMessages();
-		} while(statusMsg.isEmpty() && counter < 5);
-
-		// ASSERT
-		assertTrue("Simulation did not freeze!", statusMsg.indexOf(expStatus) != -1);
-		
-	}
-	
-	@Test
-	/**
-	 * Testing that the startSim() action functions properly after the 
-	 * freezeSim() action. 
-	 */
-	public void testRestartSimulation() {
-		// ARRANGE
-		String statusMsg, simDir, 
-			   expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main";
-		Matcher line1, line2, line3;
-		Pattern freezeOffPatt = Pattern.compile("\\|.*\\| Freeze OFF\\.\\n?"),
-				freezeOnPatt  = Pattern.compile("\\|.*\\| Freeze ON\\. Simulation time holding at \\d+\\.\\d+ seconds\\.\\n?");
-
-		int counter = 0;
-
-		startApplication(true);
-
-		simDir = simcontrol.getRunningSimInfo();
-		statusMsg = simcontrol.getStatusMessages();
-		assumeTrue("SimControlPanel did not connect!", simDir.startsWith(expDir));
-		assumeTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.isEmpty());
-
-		// ACT
-		simcontrol.startSim();
-		simcontrol.freezeSim();
-		simcontrol.startSim();
-
-		do {
-			counter++;
-			simcontrol.sleep(500);
-			statusMsg = simcontrol.getStatusMessages();
-		} while(statusMsg.isEmpty() && counter < 5);
-
-		// ASSERT
-		
 	}
 
 	private void startApplication() {
@@ -339,6 +239,13 @@ public class SimControlApplicationTest extends ApplicationTest {
 			simcontrol = null;
 		} else {
 			System.err.println("There is no instance of SimControlApplication to stop...");
+		}
+	}
+
+	private void cleanupPanel() {
+		if(simcontrol != null) {
+			simcontrol.clearStatusMsgs();
+			assumeTrue("Unexpected Status Message!", simcontrol.getStatusMessages().isEmpty());
 		}
 	}
 }
