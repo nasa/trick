@@ -125,6 +125,16 @@ int Trick::Executive::shutdown() {
             user_cpu_time, kernal_cpu_time, sim_to_cpu, 
             user_cpu_init, kernal_cpu_init, sim_mem) ;
 
+    if (rt_nap == true) {
+        message_publish(MSG_NORMAL , "\n\n"
+            "         SIMULATION RT NAP STATS\n"
+            "                   RT NAP COUNTS: %17d\n"
+            "  (RT NAP / SOFTWARE FRAME > 0.1)\n"
+            "                  LONGEST RT NAP: %12.15f\n"
+            "                 SHORTEST RT NAP: %12.15f\n",
+            rt_nap_count, longest_rt_nap, shortest_rt_nap) ;
+    }
+
     /* Kill all threads. */
     for (ii = 1; ii < threads.size() ; ii++) {
         if ( threads[ii]->running ) {
