@@ -75,8 +75,11 @@ int Trick::Executive::process_sim_args() {
     }
 
     if(argc > 2) 
-        if(!strncmp(argv[2], "--profile",9) || !strncmp(argv[2], "-p",2) || !strncmp(argv[2], "-p",2)) 
-            enable_profiler = true;
+        if(!strncmp(argv[2], "--profile",9) || !strncmp(argv[2], "-p",2) || !strncmp(argv[2], "-p",2))  {
+            profiler.enabled = true;
+            profiler.sim_objects = &sim_objects;
+        }
+            
         
     
 
