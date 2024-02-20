@@ -10,7 +10,6 @@ PROGRAMMERS:
 
 #include "trick/Clock.hh"
 #include "trick/exec_proto.h"
-#include "trick/exec_proto.hh"
 #include "trick/release.h"
 
 Trick::Clock * the_clock = NULL ;
@@ -93,7 +92,7 @@ long long Trick::Clock::clock_spin(long long req_time) {
             time_before_rt_nap = wall_clock_time() ;
             RELEASE();
             time_after_rt_nap = wall_clock_time() ;
-            exec_get_exec_cpp()->set_rt_nap_stats(time_before_rt_nap, time_after_rt_nap) ;
+            exec_set_rt_nap_stats(time_before_rt_nap, time_after_rt_nap) ;
         }
         curr_time = clock_time();
     }
