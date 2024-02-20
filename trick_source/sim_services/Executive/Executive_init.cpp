@@ -60,6 +60,10 @@ int Trick::Executive::init() {
         cpu_time = ((double) cpu_usage_buf.ru_stime.tv_sec) + ((double) cpu_usage_buf.ru_stime.tv_usec / 1000000.0);
         kernal_cpu_init = cpu_time - kernal_cpu_start;
 
+        /* Record both voluntary and involuntary context switches usage for initialization */
+        v_context_switch_init = cpu_usage_buf.ru_nvcsw;
+        iv_context_switch_init = cpu_usage_buf.ru_nivcsw;
+        
         initialization_complete = true ;
 
     /* Print as much error information avaiable for all exception and exit. */
