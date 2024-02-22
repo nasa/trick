@@ -54,6 +54,9 @@ class TVModel : public DataModel
 
     void addParam(const QString& paramName, const QString &unit);
 
+  signals:
+    void sendMessage(const QString& msg);
+
   private:
 
     QString _host;
@@ -63,12 +66,12 @@ class TVModel : public DataModel
     int _timeCol;
     TVModelIterator* _iteratorTimeIndex;
 
-    void _init(const QString& host, int port);
     int _idxAtTimeBinarySearch (TVModelIterator* it,
                                 int low, int high, double time);
     QList<QVariant> _vsReadParamValuesLine();
 
   private slots:
+    void _init();
     void _vsReadParamValues();
     void _socketDisconnect();
 };

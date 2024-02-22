@@ -51,6 +51,8 @@ TrickView::TrickView(SieListModel* sieModel,
     // TV Model
     connect(_tvModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
             this,SLOT(_tvModelRowAppended(QModelIndex,int,int)));
+    connect(_tvModel, SIGNAL(sendMessage(QString)),
+            this, SLOT(_setMessageLabel(QString)));
 
     // Book Model
     connect(_bookModel,
@@ -223,10 +225,12 @@ void TrickView::_setMessageLabel(const QString &msg)
 void TrickView::_tvModelRowAppended(const QModelIndex &parent,int start,int end)
 {
     Q_UNUSED(parent);
-    QModelIndex idx = _tvModel->index(start,0);
-    QVariant v = _tvModel->data(idx);
-    QString msg = QString("Time = %1").arg(v.toDouble());
-    _setMessageLabel(msg);
+    Q_UNUSED(start);
+    Q_UNUSED(end);
+    //QModelIndex idx = _tvModel->index(start,0);
+    //QVariant v = _tvModel->data(idx);
+    //QString msg = QString("Time = %1").arg(v.toDouble());
+    //_setMessageLabel(msg);
 
     foreach (QModelIndex pageIdx, _bookModel->pageIdxs()) {
         foreach (QModelIndex plotIdx, _bookModel->plotIdxs(pageIdx)) {

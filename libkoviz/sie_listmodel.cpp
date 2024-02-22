@@ -8,11 +8,15 @@ SieListModel::SieListModel(const QString &host, int port, QObject *parent)
       _fetchChunkSize(10000),
       _isModelResetting(false)
 {
-    QFuture<void> ftr = QtConcurrent::run(this, &SieListModel::_createSIEModel,
-                                          host,port);
-    Q_UNUSED(ftr);
+    QTimer::singleShot(2000,this,&SieListModel::_init);
+}
 
+void SieListModel::_init()
+{
     _connectToSim();
+
+    QFuture<void> ftr = QtConcurrent::run(this, &SieListModel::_createSIEModel);
+    Q_UNUSED(ftr);
 }
 
 int SieListModel::rowCount(const QModelIndex &parent) const
@@ -171,8 +175,9 @@ Qt::ItemFlags SieListModel::flags(const QModelIndex &index) const
         return Qt::ItemIsDropEnabled | defaultFlags;
 }
 
-void SieListModel::_createSIEModel(const QString& host, int port)
+void SieListModel::_createSIEModel()
 {
+    _mutexLoadSieModel.lock();
     // This loads _sieDoc with the Trick SIE xml database
     bool isSIE = _createSieDocument();
 
@@ -202,17 +207,34 @@ void SieListModel::_createSIEModel(const QString& host, int port)
                 ++nObjects;
                 _loadSieElement(tlo, path);
             }
+
+            if ( _vsSocketParamSizes->state() !=
+                 QAbstractSocket::ConnectedState) {
+                isSIE = false;
+                break;
+            } else if ( qApp->closingDown() ) {
+                isSIE = false;
+                break;
+            }
         }
-        QString msg = QString("Success! Finished loading %1 params "
-                              "from %2 objects!").
-                              arg(_params.size()).arg(nObjects);
-        emit sendMessage(msg);
-        emit modelLoaded();
+
+        if ( isSIE ) {
+            QString msg = QString("Success! Finished loading %1 params "
+                                  "from %2 objects!").
+                                  arg(_params.size()).arg(nObjects);
+            emit sendMessage(msg);
+            emit modelLoaded();
+        } else {
+            QString msg = QString("Bail on SIE model load!\n");
+            emit sendMessage(msg);
+            QThread::sleep(1);
+        }
     } else {
         QString msg = QString("Could not load sieXML document!");
         emit sendMessage(msg);
-        return;
+        QThread::sleep(1);
     }
+    _mutexLoadSieModel.unlock();
 }
 
 // Load _sieDoc with the Trick SIE xml database
@@ -229,6 +251,9 @@ bool SieListModel::_createSieDocument()
             break;
         } else if ( qApp->closingDown() ) {
             break;
+        } else if ( _vsSocketParamSizes->state() !=
+                    QAbstractSocket::ConnectedState) {
+            break;
         } else if ( ++i > ntries ) {
             // Giving up
             QString msg = QString("Giving up on Trick SIE :(");
@@ -239,7 +264,7 @@ bool SieListModel::_createSieDocument()
             QString msg = QString("Wait 5 seconds and try SIE again "
                                   "(%1 of %2)").arg(i).arg(ntries);
             emit sendMessage(msg);
-            QThread::sleep(2);
+            QThread::sleep(5);
         }
     }
 
@@ -263,9 +288,10 @@ bool SieListModel::__createSieDocument()
         } else if ( qApp->closingDown() ) {
             return false;
         } else {
-            QString msg = QString("Wait on Trick server (%1)").arg(++nWaits);
+            QString msg = QString("Cannot connect to Trick server");
             emit sendMessage(msg);
             QThread::sleep(1);
+            break;
         }
     }
     QString msg = QString("Connected to Trick server");
@@ -326,7 +352,7 @@ bool SieListModel::__createSieDocument()
     isSIE = _sieDoc.setContent(sieXML,&errMsg) ;
     if ( !isSIE ) {
         QString msg = QString("Could not load sieXML document! Error=%1").
-                              arg(errMsg);
+                             arg(errMsg);
         emit sendMessage(msg);
     }
 
@@ -606,6 +632,7 @@ QDomElement SieListModel::_domElement(const QString &param)
 
 void SieListModel::_socketDisconnect()
 {
+    _mutexLoadSieModel.lock();
     _isModelResetting = true;
     beginResetModel();
     _mutex.lock();
@@ -618,6 +645,7 @@ void SieListModel::_socketDisconnect()
     _sieDoc.clear();
     _name2element.clear();
     endResetModel();
+    emit modelLoaded();
     _isModelResetting = false;
 
     QString msg = QString("Lost sim on host=%1 port=%2\n").
@@ -628,15 +656,9 @@ void SieListModel::_socketDisconnect()
     _vsSocketParamSizes->abort();
     _vsSocketParamSizes->close();
     _vsSocketParamSizes->deleteLater();
+    _mutexLoadSieModel.unlock();
 
-    QEventLoop loop;
-    connect(this, SIGNAL(modelLoaded()), &loop, SLOT(quit()));
-    QFuture<void> ftr = QtConcurrent::run(this, &SieListModel::_createSIEModel,
-                                          _host,_port);
-    Q_UNUSED(ftr);
-    loop.exec();
-
-    _connectToSim();  // reconnect to sim
+    QTimer::singleShot(0,this,&SieListModel::_init);
 }
 
 void SieListModel::_connectToSim()
@@ -669,10 +691,10 @@ void SieListModel::_connectToSim()
             QString msg = QString("Connected to sim on host=%1 port=%2").
                            arg(_host).arg(_port);
             sendMessage(msg);
+            QThread::sleep(1);
             break;
         } else {
-            QString msg = QString("(%1) Attempting to connect to sim on "
-                                  "host=%2 port=%3")
+            QString msg = QString("(%1) Try sim connect on host=%2 port=%3")
                                    .arg(i++).arg(_host).arg(_port);
             sendMessage(msg);
         }

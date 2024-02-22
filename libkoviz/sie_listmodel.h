@@ -48,6 +48,7 @@ class SieListModel : public QAbstractListModel
     QString _host;
     int     _port;
     mutable QMutex _mutex;  // protect thread loaded _params string list
+    mutable QMutex _mutexLoadSieModel;
     QStringList _params;
     QString _rx;
     QStringList _filteredParams;
@@ -60,7 +61,8 @@ class SieListModel : public QAbstractListModel
 
     QTcpSocket* _vsSocketParamSizes;
 
-    void _createSIEModel(const QString& host, int port);
+    void _connectToSim();
+    void _createSIEModel();
     bool _createSieDocument();
     bool __createSieDocument();
     void _loadSieElement(const QDomElement& element, QList<QDomElement> &path);
@@ -68,9 +70,9 @@ class SieListModel : public QAbstractListModel
                       const QString& param,
                       QStringList* params);
     QDomElement _domElement(const QString& param);
-    void _connectToSim();
 
   private slots:
+    void _init();
     void _socketDisconnect();
 };
 

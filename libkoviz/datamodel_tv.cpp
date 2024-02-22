@@ -7,7 +7,7 @@ TVModel::TVModel(const QString& host, int port, QObject *parent) :
 {
     _iteratorTimeIndex = new TVModelIterator(0,this,
                                               _timeCol,_timeCol,_timeCol);
-    _init(host,port);
+    QTimer::singleShot(2000,this,&TVModel::_init);
 }
 
 void TVModel::map()
@@ -199,7 +199,7 @@ void TVModel::addParam(const QString &paramName, const QString& unit)
     _vsSocketParamValues->write(msg.toUtf8());
 }
 
-void TVModel::_init(const QString& host, int port)
+void TVModel::_init()
 {
     QTimer timer;
     QEventLoop loop;
@@ -219,9 +219,10 @@ void TVModel::_init(const QString& host, int port)
     // If the socket is ready to read, break out of the event loop
     connect(_vsSocketParamValues,SIGNAL(connected()), &loop, SLOT(quit()));
 
+    int i = 0;
     int ret = 0;
     while (1) {
-        _vsSocketParamValues->connectToHost(host, port);
+        _vsSocketParamValues->connectToHost(_host, _port);
         timer.start();
         ret = loop.exec();  // Process events in the event loop
         if ( ret < 0 ) {
@@ -231,6 +232,8 @@ void TVModel::_init(const QString& host, int port)
         if ( _vsSocketParamValues->state() == QAbstractSocket::ConnectedState ) {
             break;
         }
+        QString msg = QString("Wait on sim connection (%1)").arg(i++);
+        emit sendMessage(msg);
     }
 
     if ( ret == 0 ) {
@@ -302,7 +305,7 @@ void TVModel::_socketDisconnect()
     _vsSocketParamValues->close();
     _vsSocketParamValues->deleteLater();
 
-    _init(_host,_port);
+    QTimer::singleShot(0,this,&TVModel::_init);
 }
 
 QList<QVariant> TVModel::_vsReadParamValuesLine()
