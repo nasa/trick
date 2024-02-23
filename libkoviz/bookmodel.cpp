@@ -59,7 +59,6 @@ bool PlotBookModel::setData(const QModelIndex &idx,
                                false,0,false,0,false,0,
                                false,0,false,0,false,0,
                                "","","","",curveModel,isAppend);
-            emit dataChanged(idx,idx);
         } else if ( tag == "StartTime" || tag == "StopTime") {
             double start = -DBL_MAX;
             double stop = DBL_MAX;
