@@ -22,6 +22,7 @@
 #include "bookmodel.h"
 #include "sie_listmodel.h"
 #include "datamodel_tv.h"
+#include "curvemodel_copy.h"
 
 class TrickView : public QWidget
 {
@@ -64,6 +65,8 @@ private:
     void _changeXOnPlot(const QString& xName, const QString& xUnit,
                         const QModelIndex& xAxisLabelIdx);
 
+    QList<CurveModel*> _tvCurveModels;  // list for tv model reset
+
 private slots:
      void _tvSearchBoxTextChanged(const QString& rx);
      void _tvSearchBoxReturnPressed();
@@ -71,6 +74,7 @@ private slots:
                               const QItemSelection& prevVarSelection);
      void _setMessageLabel(const QString& msg);
      void _tvModelRowAppended(const QModelIndex& parent, int start, int end);
+     void _tvModelAboutToBeReset();
      void _bookModelRowsAboutToBeRemoved(const QModelIndex& parent,
                                          int first, int last);
 };

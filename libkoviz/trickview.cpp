@@ -53,6 +53,8 @@ TrickView::TrickView(SieListModel* sieModel,
             this,SLOT(_tvModelRowAppended(QModelIndex,int,int)));
     connect(_tvModel, SIGNAL(sendMessage(QString)),
             this, SLOT(_setMessageLabel(QString)));
+    connect(_tvModel, SIGNAL(modelAboutToBeReset()),
+            this, SLOT(_tvModelAboutToBeReset()));
 
     // Book Model
     connect(_bookModel,
@@ -153,6 +155,7 @@ void TrickView::_changeXOnPlot(const QString &xName, const QString &xUnit,
         }
 
         CurveModel* curveModel = new CurveModel(_tvModel,tcol,xcol,ycol);
+        _tvCurveModels.append(curveModel);
 
         _bookModel->setData(xNameIdx,xName);
         _bookModel->setData(xUnitIdx,xUnit);
@@ -227,6 +230,7 @@ void TrickView::_tvModelRowAppended(const QModelIndex &parent,int start,int end)
     Q_UNUSED(parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
+    // Show live sim time
     //QModelIndex idx = _tvModel->index(start,0);
     //QVariant v = _tvModel->data(idx);
     //QString msg = QString("Time = %1").arg(v.toDouble());
@@ -240,8 +244,36 @@ void TrickView::_tvModelRowAppended(const QModelIndex &parent,int start,int end)
                 QModelIndex dataIdx = _bookModel->getDataIndex(curveIdx,
                                                            "CurveData","Curve");
                 CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
-                QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
-                _bookModel->setData(dataIdx,v,PlotBookModel::AppendData);
+                if ( _tvCurveModels.contains(curveModel) ) {
+                    QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
+                    _bookModel->setData(dataIdx,v,PlotBookModel::AppendData);
+                }
+            }
+            QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+            _bookModel->setPlotMathRect(bbox,plotIdx);
+        }
+    }
+}
+
+void TrickView::_tvModelAboutToBeReset()
+{
+    foreach (QModelIndex pageIdx, _bookModel->pageIdxs()) {
+        foreach (QModelIndex plotIdx, _bookModel->plotIdxs(pageIdx)) {
+            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
+                                                         "Curves","Plot");
+            foreach (QModelIndex curveIdx, _bookModel->curveIdxs(curvesIdx)) {
+                QModelIndex dataIdx = _bookModel->getDataIndex(curveIdx,
+                                                           "CurveData","Curve");
+                CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
+                if ( _tvCurveModels.contains(curveModel) ) {
+                    CurveModel* curveModelCopy = new CurveModelCopy(curveModel);
+                    QVariant v = PtrToQVariant<CurveModel>::convert(
+                                                                curveModelCopy);
+                    _bookModel->setData(dataIdx,v);
+
+                    _tvCurveModels.removeAll(curveModel);
+                    delete curveModel;
+                }
             }
             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
             _bookModel->setPlotMathRect(bbox,plotIdx);
@@ -384,6 +416,7 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
     int xcol = tcol;
     int ycol = _tvModel->paramColumn(yName);
     CurveModel* curveModel = new CurveModel(_tvModel,tcol,xcol,ycol);
+    _tvCurveModels.append(curveModel);
 
     QModelIndex curvesIdx = _bookModel->indexFromItem(curvesItem);
     int nCurves = _bookModel->rowCount(curvesIdx);

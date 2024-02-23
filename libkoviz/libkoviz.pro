@@ -45,6 +45,7 @@ SOURCES += bookmodel.cpp \
            bookview_xaxislabel.cpp \
            bookview_tablepage.cpp \
            bookview_table.cpp \
+           curvemodel_copy.cpp \
            dp.cpp \
            sie_listmodel.cpp \
            trickvarsortfilterproxymodel.cpp \
@@ -126,6 +127,7 @@ HEADERS  += bookmodel.h \
             bookview_yaxislabel.h \
             bookview_tablepage.h \
             bookview_table.h \
+            curvemodel_copy.h \
             datamodel_tv.h \
             dp.h \
             sie_listmodel.h \
