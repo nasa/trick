@@ -1,5 +1,7 @@
 exec(open("Modified_data/realtime.py").read())
 
+trick_sys.sched.set_freeze_command(False)
+trick.remove_all_external_applications()
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 6)
 dyn_integloop.set_integ_cycle(0.01)
 
@@ -20,16 +22,24 @@ dyn.aircraft.flightPath.load(waypoints_path)
 varServerPort = trick.var_server_get_port();
 AircraftDisplay_path = "models/graphics/build/AircraftDisplay.jar"
 
-if (os.path.isfile(AircraftDisplay_path)) :
-    AircraftDisplay_cmd = "java -jar " \
-                   + AircraftDisplay_path \
-                   + " -w " + waypoints_path \
-                   + " " + str(varServerPort) + " &" ;
-    print(AircraftDisplay_cmd)
-    os.system( AircraftDisplay_cmd);
-else :
-    print('==================================================================================')
-    print('AircraftDisplay needs to be built. Please \"cd\" into ../models/graphics and type \"make\".')
-    print('==================================================================================')
+#if (os.path.isfile(AircraftDisplay_path)) :
+#    AircraftDisplay_cmd = "java -jar " \
+#                   + AircraftDisplay_path \
+#                   + " -w " + waypoints_path \
+#                   + " " + str(varServerPort) + " &" ;
+#    print(AircraftDisplay_cmd)
+#    os.system( AircraftDisplay_cmd);
+#else :
+#    print('==================================================================================')
+#    print('AircraftDisplay needs to be built. Please \"cd\" into ../models/graphics and type \"make\".')
+#    print('==================================================================================')
 
-trick.stop(5400);
+trick.stop(120);
+
+hostname = trick.var_server_get_hostname()
+port = trick.var_server_get_port()
+
+import subprocess
+
+command = ['python3', 'connection_looper.py', str(hostname), str(port)]
+process = subprocess.Popen(command)
