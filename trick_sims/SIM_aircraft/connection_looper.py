@@ -18,13 +18,11 @@ def create_socket_connection(hostname, port, duration=10, max_connections=100000
             sock.settimeout(10)
             sock.connect((hostname, port))
             sock.settimeout(None)
-            print(f"Connection to {hostname} on port {port} established.")
             connections.append(sock)  # Add the new connection
             if len(connections) > max_connections:
                 # Remove and close the oldest connection to maintain the limit
                 oldest_conn = connections.pop(0)
                 oldest_conn.close()
-                print(f"Closed the oldest connection to maintain the limit of {max_connections} connections.")
         except ConnectionRefusedError:
             pass
         except socket.timeout:

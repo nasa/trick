@@ -68,6 +68,8 @@ namespace Trick {
             static std::vector <SysThread *>& all_sys_threads();
 
             static bool shutdown_finished;
+            static bool shutdown_initiated;
+            bool try_lock_with_timeout(pthread_mutex_t&, int);
 
     } ;
 
