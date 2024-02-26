@@ -645,7 +645,6 @@ void SieListModel::_socketDisconnect()
     _sieDoc.clear();
     _name2element.clear();
     endResetModel();
-    emit modelLoaded();
     _isModelResetting = false;
 
     QString msg = QString("Lost sim on host=%1 port=%2\n").

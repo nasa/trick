@@ -95,7 +95,9 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
         connect(_sieModel, SIGNAL(sendMessage(QString)),
                 this, SLOT(_setMsgLabel(QString)));
         connect(_tvModel, SIGNAL(rowsInserted(QModelIndex,int,int)),
-            this,SLOT(_tvModelRowAppended(QModelIndex,int,int)));
+                this,SLOT(_tvModelRowAppended(QModelIndex,int,int)));
+        connect(_tvModel, SIGNAL(modelAboutToBeReset()),
+                this, SLOT(_tvModelAboutToBeReset()));
 
     } else {
         _msgLabel->hide();
@@ -301,6 +303,9 @@ void DPTreeWidget::_loadDPFiles()
     foreach (QString dp, _dpFiles ) {
         _createDP(dp);
     }
+
+    // Uncomment if one doesn't want to load DP with new data on sim reconnects
+    //disconnect(_sieModel, SIGNAL(modelLoaded()), this, SLOT(_loadDPFiles()));
 }
 
 void DPTreeWidget::_setMsgLabel(const QString &msg)
@@ -315,6 +320,14 @@ void DPTreeWidget::_tvModelRowAppended(const QModelIndex &parent,
     QVariant v = _tvModel->data(idx);
     QString msg = QString("Time = %1").arg(v.toDouble());
     _setMsgLabel(msg);
+
+    _bookModel->appendDataToCurves(_tvCurveModels);
+}
+
+void DPTreeWidget::_tvModelAboutToBeReset()
+{
+    _bookModel->replaceCurveModelsWithCopies(_tvCurveModels);
+    _tvCurveModels.clear();
 }
 
 //
@@ -782,6 +795,7 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                 int xcol = _tvModel->paramColumn(sieXName);
                 int ycol = _tvModel->paramColumn(sieYName);
                 curveModel = new CurveModel(_tvModel,tcol,xcol,ycol);
+                _tvCurveModels.append(curveModel);
             }
         }
 

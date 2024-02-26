@@ -236,49 +236,13 @@ void TrickView::_tvModelRowAppended(const QModelIndex &parent,int start,int end)
     //QString msg = QString("Time = %1").arg(v.toDouble());
     //_setMessageLabel(msg);
 
-    foreach (QModelIndex pageIdx, _bookModel->pageIdxs()) {
-        foreach (QModelIndex plotIdx, _bookModel->plotIdxs(pageIdx)) {
-            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
-                                                         "Curves","Plot");
-            foreach (QModelIndex curveIdx, _bookModel->curveIdxs(curvesIdx)) {
-                QModelIndex dataIdx = _bookModel->getDataIndex(curveIdx,
-                                                           "CurveData","Curve");
-                CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
-                if ( _tvCurveModels.contains(curveModel) ) {
-                    QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
-                    _bookModel->setData(dataIdx,v,PlotBookModel::AppendData);
-                }
-            }
-            QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
-            _bookModel->setPlotMathRect(bbox,plotIdx);
-        }
-    }
+    _bookModel->appendDataToCurves(_tvCurveModels);
 }
 
 void TrickView::_tvModelAboutToBeReset()
 {
-    foreach (QModelIndex pageIdx, _bookModel->pageIdxs()) {
-        foreach (QModelIndex plotIdx, _bookModel->plotIdxs(pageIdx)) {
-            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
-                                                         "Curves","Plot");
-            foreach (QModelIndex curveIdx, _bookModel->curveIdxs(curvesIdx)) {
-                QModelIndex dataIdx = _bookModel->getDataIndex(curveIdx,
-                                                           "CurveData","Curve");
-                CurveModel* curveModel = _bookModel->getCurveModel(curveIdx);
-                if ( _tvCurveModels.contains(curveModel) ) {
-                    CurveModel* curveModelCopy = new CurveModelCopy(curveModel);
-                    QVariant v = PtrToQVariant<CurveModel>::convert(
-                                                                curveModelCopy);
-                    _bookModel->setData(dataIdx,v);
-
-                    _tvCurveModels.removeAll(curveModel);
-                    delete curveModel;
-                }
-            }
-            QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
-            _bookModel->setPlotMathRect(bbox,plotIdx);
-        }
-    }
+    _bookModel->replaceCurveModelsWithCopies(_tvCurveModels);
+    _tvCurveModels.clear();
 }
 
 void TrickView::_bookModelRowsAboutToBeRemoved(const QModelIndex &parent,

@@ -82,6 +82,7 @@ private:
     QFileSystemModel* _dpModel ;
     QModelIndex _dpModelRootIdx;
     QList<ProgramModel*> _programModels;
+    QList<CurveModel*> _tvCurveModels;  // list for tv model reset
 
     void _setupModel();
     void _createDP(const QString& dpfile);
@@ -111,6 +112,7 @@ private slots:
      void _loadDPFiles();
      void _setMsgLabel(const QString& msg);
      void _tvModelRowAppended(const QModelIndex &parent,int start,int end);
+     void _tvModelAboutToBeReset();
 
 };
 

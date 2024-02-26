@@ -22,6 +22,7 @@
 #include "utils.h"
 #include "curvemodel.h"
 #include "curvemodel_painterpath.h"
+#include "curvemodel_copy.h"
 
 #include <QList>
 #include <QColor>
@@ -97,6 +98,9 @@ public:
                             const QString& xName, const QString& yName);
     CurveModel* getCurveModel(const QModelIndex& curvesIdx, int i) const;
     CurveModel* getCurveModel(const QModelIndex& idx) const;
+
+    void appendDataToCurves(const QList<CurveModel*> curveModels);
+    void replaceCurveModelsWithCopies(const QList<CurveModel*> curveModels);
 
     QPainterPath* getPainterPath(const QModelIndex& curveIdx) const;
     QPainterPath* getCurvesErrorPath(const QModelIndex& curvesIdx);

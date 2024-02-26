@@ -772,6 +772,51 @@ CurveModel *PlotBookModel::getCurveModel(const QModelIndex &idx) const
     return curveModel;
 }
 
+void PlotBookModel::appendDataToCurves(const QList<CurveModel *> curveModels)
+{
+    foreach (QModelIndex pageIdx, pageIdxs()) {
+        foreach (QModelIndex plotIdx, plotIdxs(pageIdx)) {
+            QModelIndex curvesIdx = getIndex(plotIdx, "Curves","Plot");
+            foreach (QModelIndex curveIdx, curveIdxs(curvesIdx)) {
+                QModelIndex dataIdx = getDataIndex(curveIdx,
+                                                   "CurveData","Curve");
+                CurveModel* curveModel = getCurveModel(curveIdx);
+                if ( curveModels.contains(curveModel) ) {
+                    QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
+                    setData(dataIdx,v,PlotBookModel::AppendData);
+                }
+            }
+            QRectF bbox = calcCurvesBBox(curvesIdx);
+            setPlotMathRect(bbox,plotIdx);
+        }
+    }
+}
+
+void PlotBookModel::replaceCurveModelsWithCopies(
+                                          const QList<CurveModel *> curveModels)
+{
+    foreach (QModelIndex pageIdx, pageIdxs()) {
+        foreach (QModelIndex plotIdx, plotIdxs(pageIdx)) {
+            QModelIndex curvesIdx = getIndex(plotIdx, "Curves","Plot");
+            foreach (QModelIndex curveIdx, curveIdxs(curvesIdx)) {
+                QModelIndex dataIdx = getDataIndex(curveIdx,
+                                                   "CurveData","Curve");
+                CurveModel* curveModel = getCurveModel(curveIdx);
+                if ( curveModels.contains(curveModel) ) {
+                    CurveModel* curveModelCopy = new CurveModelCopy(curveModel);
+                    QVariant v = PtrToQVariant<CurveModel>::convert(
+                                                                curveModelCopy);
+                    setData(dataIdx,v);
+                    delete curveModel;
+                }
+            }
+            QRectF bbox = calcCurvesBBox(curvesIdx);
+            setPlotMathRect(bbox,plotIdx);
+        }
+    }
+
+}
+
 QPainterPath* PlotBookModel::getPainterPath(const QModelIndex &curveIdx) const
 {
     QPainterPath* path;
