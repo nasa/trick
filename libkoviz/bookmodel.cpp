@@ -59,6 +59,22 @@ bool PlotBookModel::setData(const QModelIndex &idx,
                                false,0,false,0,false,0,
                                false,0,false,0,false,0,
                                "","","","",curveModel,isAppend);
+
+            // Instead of using QStandardItemModel::setData(idx,value,role)
+            // at the bottom of this method, set the data here and emit the
+            // dataChanged() signal.  This is necessary since calling
+            // QStandardItemModel::setData(idx,value,role);
+            // doesn't emit the dataChanged() signal since, I guess, the value
+            // is an unchanging pointer.  If the dataChanged() signal is
+            // not emitted, the views will not refresh correctly.
+            QStandardItem* item = itemFromIndex(idx);
+            if ( !item ) {
+                return false;
+            }
+            item->setData(value,role);
+            emit dataChanged(idx,idx,QVector<int>()<<role);
+            return true;
+
         } else if ( tag == "StartTime" || tag == "StopTime") {
             double start = -DBL_MAX;
             double stop = DBL_MAX;
