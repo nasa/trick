@@ -14,7 +14,7 @@ public class SimulationInterface {
 		working_directory = new File(path);
 		find_S_main();
 		if(S_main == null) {
-			System.out.println("/SIM_basic/S_main*.exe not found. Compiling Simulation...");
+			System.out.println(path + "/S_main*.exe not found. Compiling Simulation...");
 			compile_sim();
 			find_S_main();
 		}
@@ -29,7 +29,7 @@ public class SimulationInterface {
 	public void compile_sim() {
 		try {
 			if (working_directory.exists()) {
-				String cmd = "make clean;trick-CP";
+				String cmd = "trick-CP";
 				Process p = Runtime.getRuntime().exec(cmd, null, working_directory);
 				while(p.isAlive()) {
 					continue;
@@ -112,6 +112,6 @@ public class SimulationInterface {
 	}
 	
 	private boolean validate_S_main() {
-		return S_main.exists() && S_main.getName().startsWith("S_main") && S_main.getName().endsWith(".exe");
+		return S_main != null && S_main.exists() && S_main.getName().startsWith("S_main") && S_main.getName().endsWith(".exe");
 	}
 }

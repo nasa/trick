@@ -1,5 +1,6 @@
 package trick.simcontrol;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.regex.Matcher;
@@ -69,6 +70,7 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 	@Before
 	public void setUp() {
 		assumeNotNull(simcontrol);
+		simcontrol.clearStatusMsgs();
 	}
 
 	@After
@@ -76,7 +78,7 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		assumeNotNull(simcontrol);
 		simcontrol.freezeSim();
 		simcontrol.clearStatusMsgs();
-		simcontrol.sleep(1000);
+		sleep(1000);
 	}
 
 	@Override
@@ -102,15 +104,12 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 
 		do {
 			counter++;
-			simcontrol.sleep(500);
+			sleep(500);
 			statusMsg = simcontrol.getStatusMessages();
 		} while(statusMsg.isEmpty() && counter < 5);
 
-		simcontrol.freezeSim();
-
 		// ASSERT
-		assertTrue("Simulation did not start!", statusMsg.indexOf(expStatus) != -1);
-		
+		assertTrue("Simulation did not start!\n" + statusMsg, statusMsg.indexOf(expStatus) != -1);
 	}
 	
 	@Test
@@ -128,9 +127,9 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 
 		do {
 			counter++;
-			simcontrol.sleep(500);
+			sleep(500);
 			statusMsg = simcontrol.getStatusMessages();
-		} while(statusMsg.isEmpty() && counter < 5);
+		} while(statusMsg.indexOf(expStatus) < 0 && counter < 5);
 
 		// ASSERT
 		assertTrue("Simulation did not freeze!", statusMsg.indexOf(expStatus) != -1);
@@ -184,16 +183,16 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 
 		// ACT
 		simcontrol.startSim();
-		simcontrol.sleep(1000);
+		sleep(1000);
 
 		simcontrol.freezeSim();
-		simcontrol.sleep(1000);
+		sleep(1000);
 
 		simcontrol.startSim();
 
 		do {
 			counter++;
-			simcontrol.sleep(500);
+			sleep(500);
 			statusMsg = simcontrol.getStatusMessages();
 			statusLines = statusMsg.split("\n");
 		} while(statusLines.length >= 3 && counter < 6);

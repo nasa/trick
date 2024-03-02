@@ -25,12 +25,12 @@ public class GUIController extends Robot {
 	
 	public void typeString(String entry) {
 		for (char c : entry.toCharArray()) {
-			if (Character.isUpperCase(c)) {
+			if (Character.isUpperCase(c))
 				keyPress(KeyEvent.VK_SHIFT);
-			} else {
+			else
 				keyRelease(KeyEvent.VK_SHIFT);
-			}
-			int keycode = KeyEvent.getExtendedKeyCodeForChar(c);
+			
+			int keycode = (c == '\n') ? KeyEvent.VK_ENTER : KeyEvent.getExtendedKeyCodeForChar(c);
 			keyTap(keycode);
 			sleep(25);
 		}
@@ -62,6 +62,14 @@ public class GUIController extends Robot {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {  keyTap(keycode);  }
+		}, delay);
+	}
+
+	public void delayedTypeString(String entry, long delay) {
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {  typeString(entry);  }
 		}, delay);
 	}
 

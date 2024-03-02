@@ -24,6 +24,10 @@ public abstract class ApplicationTest {
 	protected static Stack<Process> runningSims = new Stack<Process>();
 	protected ActionMap actionContext;
 	protected ResourceMap resourceContext;
+	
+	public void sleep(long ms) {
+		try {  Thread.sleep(ms);  } catch (Exception ignored) {  }
+	}
 
 	protected void verifyActionInfo(ActionInfo aInfo) {
 		Action action = getActionFromKey(aInfo.name);
