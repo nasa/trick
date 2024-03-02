@@ -34,7 +34,7 @@ import trick.common.ApplicationTest;
  */
 public class SimControlApplicationUsageTest extends ApplicationTest {
 	private static int numSims = 0;
-	private static String socketInfo;
+	private static String socketInfo, basicSimDir;
 
 	private static WaitForSimControlApplication simcontrol;
 
@@ -46,6 +46,7 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		String statusMsg, simDir, 
 			   expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main";
 		socketInfo = startBasicSim();
+		basicSimDir = getTrickHome() + "/trick_sims/SIM_basic";
 		numSims++;
 		
 		startApplication(true);
@@ -177,6 +178,40 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		assertTrue("Simulation didn't freeze correctly!", line2.find());
 		assertTrue("Simulation didn't resume correctly!", line3.find());
 	}
+	
+	@Test
+	/**
+	 * Testing that the startSim() action functions properly. 
+	 */
+	public void testCheckpointSimulation() {
+		// ARRANGE
+		String expMsg = "Dumped ASCII Checkpoint ", actualMsg, errMsg, 
+			   fileName, filePath = basicSimDir + "/RUN_test/";
+		File checkpointFile;
+		int nameIndex;
+
+		// ACT
+		simcontrol.controller.delayedKeyTap(KeyEvent.VK_ENTER, 500);
+		simcontrol.controller.delayedKeyTap(KeyEvent.VK_ENTER, 750);
+		simcontrol.dumpChkpntASCII();
+		sleep(500);
+		
+		actualMsg = simcontrol.getStatusMessages();
+		nameIndex = actualMsg.indexOf(expMsg);
+		assumeTrue("Dumped Checkpoint Message Not Found", nameIndex >= 0);
+
+		nameIndex += expMsg.length();
+		fileName = actualMsg.substring(nameIndex, actualMsg.length() - 2);
+		checkpointFile = new File(filePath + fileName );
+		
+		// ASSERT
+		errMsg = String.format("'%s' Checkpoint File Not Found At '%s'\n", fileName, filePath);
+		assumeNotNull(errMsg, checkpointFile);
+		assertTrue(errMsg, checkpointFile.exists());
+		
+	}
+
+
 	
 	private static void startApplication(boolean startConnected) {
 		if(simcontrol == null) {
