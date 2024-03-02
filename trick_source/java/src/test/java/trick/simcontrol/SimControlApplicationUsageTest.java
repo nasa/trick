@@ -72,6 +72,7 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 	public void setUp() {
 		assumeNotNull(simcontrol);
 		simcontrol.clearStatusMsgs();
+		assumeTrue(simcontrol.getStatusMessages().isEmpty());
 	}
 
 	@After
@@ -101,6 +102,7 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		int counter = 0;
 
 		// ACT
+		simcontrol.clearStatusMsgs();
 		simcontrol.startSim();
 
 		do {
@@ -166,7 +168,7 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 			sleep(500);
 			statusMsg = simcontrol.getStatusMessages();
 			statusLines = statusMsg.split("\n");
-		} while(statusLines.length >= 3 && counter < 6);
+		} while(statusLines.length < 3 && counter < 6);
 
 		assumeTrue("Status Message Pane does not have the expected number of entries!", statusLines.length >= 3);
 		line1 = freezeOffPatt.matcher(statusLines[0]);
@@ -174,16 +176,16 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		line3 = freezeOffPatt.matcher(statusLines[2]);
 
 		// ASSERT
-		assertTrue("Simulation didn't start correctly!", line1.find());
-		assertTrue("Simulation didn't freeze correctly!", line2.find());
-		assertTrue("Simulation didn't resume correctly!", line3.find());
+		assertTrue( "Simulation didn't start correctly:\n" + statusLines[0], line1.find());
+		assertTrue("Simulation didn't freeze correctly:\n" + statusLines[1], line2.find());
+		assertTrue("Simulation didn't resume correctly:\n" + statusLines[2], line3.find());
 	}
 	
 	@Test
 	/**
-	 * Testing that the startSim() action functions properly. 
+	 * Testing that the dumpChkpntASCII() action functions properly. 
 	 */
-	public void testCheckpointSimulation() {
+	public void testDumpCheckpointSimulation() {
 		// ARRANGE
 		String expMsg = "Dumped ASCII Checkpoint ", actualMsg, errMsg, 
 			   fileName, filePath = basicSimDir + "/RUN_test/";
@@ -195,7 +197,7 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		simcontrol.controller.delayedKeyTap(KeyEvent.VK_ENTER, 750);
 		simcontrol.dumpChkpntASCII();
 		sleep(500);
-		
+
 		actualMsg = simcontrol.getStatusMessages();
 		nameIndex = actualMsg.indexOf(expMsg);
 		assumeTrue("Dumped Checkpoint Message Not Found", nameIndex >= 0);
@@ -210,8 +212,35 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		assertTrue(errMsg, checkpointFile.exists());
 		
 	}
+	
+	@Test
+	/**
+	 * Testing that the loadChkpnt() action functions properly. 
+	 */
+	public void testLoadCheckpointSimulation() {
+		// ARRANGE
+		String actualMsgs[], fileName = "TESTING_CHECKPOINT_LOAD",
+			   expMsgs[] = {"Load checkpoint file " + basicSimDir + "/RUN_test/TESTING_CHECKPOINT_LOAD.", 
+							"Finished loading checkpoint file.  Calling restart jobs.", 
+							"|8.700000| restart variable server message port = " + socketInfo.split(" ")[1]};
+		
+		int counter = 0;
 
+		// ACT
+		simcontrol.controller.delayedTypeString(fileName + "\n", 500);
+		simcontrol.loadChkpnt();
+		sleep(2500);
+		actualMsgs = simcontrol.getStatusMessages().split("\n");
 
+		assumeTrue("Unexpected Status Messages:\n" + Arrays.toString(actualMsgs), actualMsgs.length >= 3);
+		
+		// ASSERT
+		assertTrue("Unexpected Status Message:\n" + actualMsgs[0], actualMsgs[0].endsWith(expMsgs[0]));
+		assertTrue("Unexpected Status Message:\n" + actualMsgs[1], actualMsgs[1].endsWith(expMsgs[1]));
+		assertTrue("Unexpected Status Message:\n" + actualMsgs[2], actualMsgs[2].endsWith(expMsgs[2]));
+		
+		
+	}
 	
 	private static void startApplication(boolean startConnected) {
 		if(simcontrol == null) {
