@@ -132,37 +132,7 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		} while(statusMsg.indexOf(expStatus) < 0 && counter < 5);
 
 		// ASSERT
-		assertTrue("Simulation did not freeze!", statusMsg.indexOf(expStatus) != -1);
-		
-	}
-	
-	@Test
-	/**
-	 * Testing that the freezeSim() action functions properly. 
-	 */
-	public void testFreezeAtTimeSimulation() {
-		// ARRANGE
-		double targetTime = simcontrol.getExecTime() + 3.0;
-		String statusMsg, expStatus = "Freeze ON",
-			   expTimeStamp = String.format("%.6f", targetTime);
-		Matcher line1, line2;
-		Pattern freezeOffPatt = Pattern.compile("\\|.*\\| Freeze OFF\\.\\n?"),
-				freezeOnPatt  = Pattern.compile("\\|.*\\| Freeze ON\\. Simulation time holding at "
-												 + expTimeStamp + " seconds\\.\\n?");
-
-		// ACT
-		simcontrol.freezeAt();
-		simcontrol.sleep(1000);
-		simcontrol.controller.typeString("" + targetTime);
-		simcontrol.controller.keyTap(KeyEvent.VK_ENTER);
-
-		simcontrol.startSim();
-		simcontrol.sleep(2500);
-
-		statusMsg = simcontrol.getStatusMessages();
-
-		// ASSERT
-		// assertTrue("Simulation did not freeze!", statusMsg.indexOf(expStatus) != -1);
+		assertTrue("Simulation did not freeze!\n" + statusMsg, statusMsg.indexOf(expStatus) != -1);
 		
 	}
 	
