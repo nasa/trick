@@ -24,13 +24,19 @@ public class GUIController extends Robot {
 	}
 	
 	public void typeString(String entry) {
+		int keycode;
+		String upperCaseSpecial = "~!@#$%^&*()_+{}|:\"<>?";
 		for (char c : entry.toCharArray()) {
-			if (Character.isUpperCase(c))
+			if (Character.isUpperCase(c) || upperCaseSpecial.indexOf(c) >= 0)
 				keyPress(KeyEvent.VK_SHIFT);
 			else
 				keyRelease(KeyEvent.VK_SHIFT);
 			
-			int keycode = (c == '\n') ? KeyEvent.VK_ENTER : KeyEvent.getExtendedKeyCodeForChar(c);
+			switch(c) {
+				case '\n' : keycode = KeyEvent.VK_ENTER; break;
+
+				default: keycode = KeyEvent.getExtendedKeyCodeForChar(c); break;
+			}
 			keyTap(keycode);
 			sleep(25);
 		}
