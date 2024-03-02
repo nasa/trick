@@ -32,7 +32,7 @@ import trick.common.ApplicationTest;
  */
 public class SimControlApplicationStartupTest extends ApplicationTest {
 	private static int numSims = 0;
-	private static String socketInfo;
+	private static String socketInfo, basicSimDir;
 
 	private WaitForSimControlApplication simcontrol;
 
@@ -44,6 +44,7 @@ public class SimControlApplicationStartupTest extends ApplicationTest {
 	@BeforeClass
 	public static void setUpBeforeClass() {
 		socketInfo = startBasicSim();
+		basicSimDir = getTrickHome() + "/trick_sims/SIM_basic";
 		numSims++;
 	}
 
@@ -125,7 +126,7 @@ public class SimControlApplicationStartupTest extends ApplicationTest {
 	public void testConnection() {
 		// ARRANGE
 		String simDir, statusMsg,
-			   expDir = getTrickHome() + "/trick_sims/SIM_basic/S_main",
+			   expDir = basicSimDir + "/S_main",
 			   expStatus = "";
 
 		startApplication();
