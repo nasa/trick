@@ -123,6 +123,12 @@ namespace Trick {
             /** CPU usage time at cyclic sim process startup in kernal mode.\n */
             double kernal_cpu_start;                 /**< trick_io(**) trick_units(s) */
 
+            /** Voluntary context switche usage at executive initialization.\n */
+            long v_context_switch_init;           /**< trick_units(--) */
+
+            /** Involuntary context switche usage at executive initialization.\n */
+            long iv_context_switch_init;        /**< trick_units(--) */
+
             /** Simulation control mode.\n */
             SIM_MODE mode;                    /**< trick_io(*o) trick_units(--) */
 
