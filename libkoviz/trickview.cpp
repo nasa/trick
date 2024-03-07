@@ -409,6 +409,7 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
     _bookModel->addChild(curveItem, "CurveColor", color);
     _bookModel->addChild(curveItem, "CurveLineStyle","Plain");
     _bookModel->addChild(curveItem, "CurveSymbolStyle", "none");
+    _bookModel->addChild(curveItem, "CurveSymbolEnd", "solid_circle");
 
     QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
     _bookModel->addChild(curveItem, "CurveData", v);

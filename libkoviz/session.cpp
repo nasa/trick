@@ -31,6 +31,8 @@ Session::Session() :
                 << "" << "" << "" << "";
     _symbolstyles << "" << "" << ""
                   << "" << "" << "" << "";
+    _symbolends << "" << "" << ""
+                << "" << "" << "" << "";
     _groups << "" << "" << ""
             << "" << "" << "" << "";
 }
@@ -66,6 +68,8 @@ Session::Session(const QString &sessionFileName) :
                 << "" << "" << "" << "";
     _symbolstyles << "" << "" << ""
                   << "" << "" << "" << "";
+    _symbolends << "" << "" << ""
+                << "" << "" << "" << "";
     _groups << "" << "" << ""
             << "" << "" << "" << "";
 
@@ -220,6 +224,17 @@ Session::Session(const QString &sessionFileName) :
                 symbolstyle.chop(1);
             }
             _symbolstyles.replace(ssId-1,symbolstyle);
+        } else if ( line.contains(QRegExp("[Ss][Ee][1-7]:")) ) {
+            int i = line.indexOf(QRegExp("[Ss][Ee][1-7]:"),0);
+            int seId = QString(line.at(i+2)).toInt(); // 1-7
+            QString symbolend = line.mid(i+4).trimmed();
+            if ( symbolend.startsWith("\"") ) {
+                symbolend = symbolend.mid(1);
+            }
+            if ( symbolend.endsWith("\"") ) {
+                symbolend.chop(1);
+            }
+            _symbolends.replace(seId-1,symbolend);
         } else if ( line.contains(QRegExp("[Gg][1-7]:")) ) {
             int i = line.indexOf(QRegExp("[Gg][1-7]:"),0);
             int groupId = QString(line.at(i+1)).toInt(); // 1-7

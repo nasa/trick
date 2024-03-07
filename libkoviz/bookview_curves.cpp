@@ -407,6 +407,21 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             painter.setPen(pen);
             painter.setTransform(Tscaled);
         }
+
+        QString symbolEnd = _bookModel()->getDataString(curveIdx,
+                                                     "CurveSymbolEnd", "Curve");
+        if ( !symbolEnd.isEmpty() && symbolEnd != "none" ) {
+            int n = path->elementCount();
+            if ( n > 0 ) {
+                QTransform I;
+                painter.setTransform(I);
+                QPainterPath::Element el = path->elementAt(n-1);
+                QPointF p(el.x,el.y);
+                p = Tscaled.map(p);
+                __paintSymbol(p,symbolEnd,painter);
+            }
+        }
+
     }
     painter.setPen(origPen);
     painter.restore();

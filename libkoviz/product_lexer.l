@@ -44,6 +44,7 @@ START                         [Ss][Tt][Aa][Rr][Tt]
 STOP                          [Ss][Tt][Oo][Pp]
 SYMBOL_SIZE                   [Ss][Yy][Mm][Bb][Oo][Ll]_[Ss][Ii][Zz][Ee]
 SYMBOL_STYLE                  [Ss][Yy][Mm][Bb][Oo][Ll]_[Ss][Tt][Yy][Ll][Ee] 
+SYMBOL_END                    [Ss][Yy][Mm][Bb][Oo][Ll]_[Ee][Nn][Dd]
 TABLE                         [Tt][Aa][Bb][Ll][Ee]
 TABLES                        [Tt][Aa][Bb][Ll][Ee][Ss] 
 TIME_NAME                     [Tt][Ii][Mm][Ee]_[Nn][Aa][Mm][Ee]
@@ -111,6 +112,7 @@ W                             [ \t]+
 {STOP}                     { return(DP_STOP); }
 {SYMBOL_SIZE}              { return(DP_SYMBOL_SIZE); }
 {SYMBOL_STYLE}             { return(DP_SYMBOL_STYLE); }
+{SYMBOL_END}               { return(DP_SYMBOL_END); }
 {TABLES}                   { return(DP_TABLES); }
 {TABLE}                    { return(DP_TABLE); }
 {TIME_NAME}                { return(DP_TIME_NAME); }

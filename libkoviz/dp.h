@@ -60,6 +60,7 @@ public:
     double bias() { return _bias; }
     QString symbolStyle() { return _symbol; }
     QString symbolSize() { return _symbolSize; }
+    QString symbolEnd() { return _symbolEnd; }
     QString timeName() const { return _timeName; }
     QString format() const { return _format; }
     double  minRange() const { return _minRange; }
@@ -73,6 +74,7 @@ public:
     void setBias(double b) { _bias = b; }
     void setSymbolStyle(const char* ss) { _symbol = ss; }
     void setSymbolSize(const char* ss) { _symbolSize = ss; }
+    void setSymbolEnd(const char* se) { _symbolEnd = se; }
     void setTimeName(const char* t) { _timeName = t; }
     void setFormat(const char* f) { _format = f; }
     void setMinRange(double range) { _minRange = range; }
@@ -88,6 +90,7 @@ private:
     double _bias;
     QString _symbol;
     QString _symbolSize;
+    QString _symbolEnd;
     QString _timeName;
     QString _format;
     double  _minRange;

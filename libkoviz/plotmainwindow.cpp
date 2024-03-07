@@ -813,6 +813,13 @@ void PlotMainWindow::_saveDP()
                     out << i4 << "symbol_style: \"" << symbolStyle << "\"\n";
                 }
 
+                QString symbolEnd = _bookModel->getDataString(curveIdx,
+                                                             "CurveSymbolEnd",
+                                                             "Curve");
+                if ( !symbolEnd.isEmpty() ) {
+                    out << i4 << "symbol_end: \"" << symbolEnd << "\"\n";
+                }
+
                 QString symbolSize = _bookModel->getDataString(curveIdx,
                                                               "CurveSymbolSize",
                                                               "Curve");

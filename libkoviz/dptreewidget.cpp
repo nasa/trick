@@ -998,6 +998,27 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         symbolStyle = "none";
     }
 
+    // Symbol End
+    QString symbolEnd = y->symbolEnd();
+    QModelIndex seIdx = _bookModel->getIndex(QModelIndex(),
+                                             "Symbolends","");
+    if ( row < _bookModel->rowCount(seIdx) ) {
+        QModelIndex symbolEndIdx = _bookModel->index(row,1,seIdx);
+        QString se = _bookModel->data(symbolEndIdx).toString();
+        if ( !se.isEmpty() ) {
+            QString group;
+            if ( row < groups.size() ) {
+                group = groups.at(row);
+            }
+            if ( group.isEmpty() ) {
+                symbolEnd = se;
+            }
+        }
+    }
+    if ( symbolEnd.isEmpty() ) {
+        symbolEnd = "none";
+    }
+
     // Linestyle
     QString lineStyle = y->lineStyle() ; // DP linestyle
     QModelIndex lsIdx = _bookModel->getIndex(QModelIndex(),"Linestyles","");
@@ -1097,6 +1118,13 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                         symbolStyle = ss;
                     }
 
+                    // Symbol End
+                    idx = _bookModel->index(i,1,seIdx);
+                    QString se = _bookModel->data(idx).toString();
+                    if ( !se.isEmpty() ) {
+                        symbolEnd = se;
+                    }
+
                     // Match found and handled
                     break;
                 }
@@ -1107,8 +1135,9 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
 
     _addChild(curveItem, "CurveYLabel", yLabel);
     _addChild(curveItem, "CurveColor", color);
-    _addChild(curveItem, "CurveLineStyle",   lineStyle);
+    _addChild(curveItem, "CurveLineStyle",  lineStyle);
     _addChild(curveItem, "CurveSymbolStyle", symbolStyle);
+    _addChild(curveItem, "CurveSymbolEnd", symbolEnd);
 
     // Finally, add actual curve model data with signals turned on
     QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);

@@ -86,8 +86,9 @@ QString dpFileName() {
 %token DP_X_MIN_RANGE DP_X_MAX_RANGE DP_Y_MIN_RANGE DP_Y_MAX_RANGE
 %token DP_X_VARIABLE DP_Y_VARIABLE DP_VARIABLE DP_LABEL DP_UNITS
 %token DP_TIME_NAME DP_TIME_UNITS
-%token DP_SCALE_FACTOR DP_BIAS DP_LINE_COLOR DP_LINE_STYLE DP_SYMBOL_SIZE
-%token DP_SYMBOL_STYLE DP_MIN_RANGE DP_MAX_RANGE DP_TABLES DP_TABLE
+%token DP_SCALE_FACTOR DP_BIAS DP_LINE_COLOR DP_LINE_STYLE
+%token DP_SYMBOL_SIZE DP_SYMBOL_STYLE DP_SYMBOL_END
+%token DP_MIN_RANGE DP_MAX_RANGE DP_TABLES DP_TABLE
 %token DP_FORMAT DP_CHANGE_ONLY DP_COLUMN_WIDTH DP_DELIMITER
 %token DP_PROGRAM DP_PROGRAM_IN DP_PROGRAM_OUT DP_GNUPLOT_TEMPLATE DP_GNUPLOT_GEOM
 %token DP_GNUPLOT_PLOT_RATIO DP_GNUPLOT_FUNCTION_STYLE 
@@ -422,11 +423,11 @@ y_var: DP_Y_VARIABLE ':' DP_STR {
                     currYVar->setSymbolStyle($4);
                 }
         }
-        | y_var DP_SYMBOL_SIZE ':' DP_STR {
+        | y_var DP_SYMBOL_END ':' DP_STR {
                 if ( isXYPair ) {
-                    currXYPairYVar->setSymbolSize($4);
+                    currXYPairYVar->setSymbolEnd($4);
                 } else {
-                    currYVar->setSymbolSize($4);
+                    currYVar->setSymbolEnd($4);
                 }
         }
         | y_var DP_GNUPLOT_FUNCTION_STYLE ':' DP_STR {

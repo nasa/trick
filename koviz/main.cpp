@@ -131,6 +131,13 @@ class SnapOptions : public Options
     QString symbolstyle5;
     QString symbolstyle6;
     QString symbolstyle7;
+    QString symbolend1;
+    QString symbolend2;
+    QString symbolend3;
+    QString symbolend4;
+    QString symbolend5;
+    QString symbolend6;
+    QString symbolend7;
     bool isPlotAllVars;
     QString scripts;
     QString excludePattern;
@@ -249,6 +256,13 @@ int main(int argc, char *argv[])
     opts.add("-s5",&opts.symbolstyle5,"","Curve Symbolstyle 5");
     opts.add("-s6",&opts.symbolstyle6,"","Curve Symbolstyle 6");
     opts.add("-s7",&opts.symbolstyle7,"","Curve Symbolstyle 7");
+    opts.add("-se1",&opts.symbolend1,"","Curve Symbolend 1");
+    opts.add("-se2",&opts.symbolend2,"","Curve Symbolend 2");
+    opts.add("-se3",&opts.symbolend3,"","Curve Symbolend 3");
+    opts.add("-se4",&opts.symbolend4,"","Curve Symbolend 4");
+    opts.add("-se5",&opts.symbolend5,"","Curve Symbolend 5");
+    opts.add("-se6",&opts.symbolend6,"","Curve Symbolend 6");
+    opts.add("-se7",&opts.symbolend7,"","Curve Symbolend 7");
     opts.add("-g1",&opts.group1,"","Group rgx/range 1 e.g. -g1 \"_unstable_\"");
     opts.add("-g2",&opts.group2,"","Group rgx/range 2 e.g. -g2 \"0,50\"");
     opts.add("-g3",&opts.group3,"","Group rgx/range 3 e.g. -g3 \"a|b\"");
@@ -856,6 +870,41 @@ int main(int argc, char *argv[])
                          << opts.symbolstyle7;
         }
 
+        // Make a list of user given end symbols
+        QStringList symbolends;
+        if ( session ) {
+            symbolends << session->symbolend1() << session->symbolend2()
+                       << session->symbolend3() << session->symbolend4()
+                       << session->symbolend5() << session->symbolend6()
+                       << session->symbolend7();
+            if ( !opts.symbolend1.isEmpty() ) {
+                symbolends.replace(0,opts.symbolend1);
+            }
+            if ( !opts.symbolend2.isEmpty() ) {
+                symbolends.replace(1,opts.symbolend2);
+            }
+            if ( !opts.symbolend3.isEmpty() ) {
+                symbolends.replace(2,opts.symbolend3);
+            }
+            if ( !opts.symbolend4.isEmpty() ) {
+                symbolends.replace(3,opts.symbolend4);
+            }
+            if ( !opts.symbolend5.isEmpty() ) {
+                symbolends.replace(4,opts.symbolend5);
+            }
+            if ( !opts.symbolend6.isEmpty() ) {
+                symbolends.replace(5,opts.symbolend6);
+            }
+            if ( !opts.symbolend7.isEmpty() ) {
+                symbolends.replace(6,opts.symbolend7);
+            }
+        } else {
+            symbolends << opts.symbolend1 << opts.symbolend2
+                       << opts.symbolend3 << opts.symbolend4
+                       << opts.symbolend5 << opts.symbolend6
+                       << opts.symbolend7;
+        }
+
         // Make a list of groups
         QStringList groups;
         if ( session ) {
@@ -1172,6 +1221,18 @@ int main(int argc, char *argv[])
             bookModel->addChild(citem, "Symbolstyle5",symbolstyles.at(4));
             bookModel->addChild(citem, "Symbolstyle6",symbolstyles.at(5));
             bookModel->addChild(citem, "Symbolstyle7",symbolstyles.at(6));
+        }
+        if ( symbolends.size() == 7 ) {
+            QStandardItem *rootItem = bookModel->invisibleRootItem();
+            QStandardItem *citem;
+            citem = bookModel->addChild(rootItem, "Symbolends","");
+            bookModel->addChild(citem, "Symbolend1",symbolends.at(0));
+            bookModel->addChild(citem, "Symbolend2",symbolends.at(1));
+            bookModel->addChild(citem, "Symbolend3",symbolends.at(2));
+            bookModel->addChild(citem, "Symbolend4",symbolends.at(3));
+            bookModel->addChild(citem, "Symbolend5",symbolends.at(4));
+            bookModel->addChild(citem, "Symbolend6",symbolends.at(5));
+            bookModel->addChild(citem, "Symbolend7",symbolends.at(6));
         }
         if ( groups.size() == 7 ) {
             QStandardItem *rootItem = bookModel->invisibleRootItem();

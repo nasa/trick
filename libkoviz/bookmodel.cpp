@@ -522,26 +522,28 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(18,0);
         } else if ( searchItemText == "Symbolstyles" ) {
             idx = index(19,0);
-        } else if ( searchItemText == "Groups" ) {
+        } else if ( searchItemText == "Symbolends" ) {
             idx = index(20,0);
-        } else if ( searchItemText == "StatusBarMessage" ) {
+        } else if ( searchItemText == "Groups" ) {
             idx = index(21,0);
-        } else if ( searchItemText == "IsShowPageTitle" ) {
+        } else if ( searchItemText == "StatusBarMessage" ) {
             idx = index(22,0);
-        } else if ( searchItemText == "IsShowPlotLegend" ) {
+        } else if ( searchItemText == "IsShowPageTitle" ) {
             idx = index(23,0);
-        } else if ( searchItemText == "PlotLegendPosition" ) {
+        } else if ( searchItemText == "IsShowPlotLegend" ) {
             idx = index(24,0);
-        } else if ( searchItemText == "ButtonSelectAndPan" ) {
+        } else if ( searchItemText == "PlotLegendPosition" ) {
             idx = index(25,0);
-        } else if ( searchItemText == "ButtonZoom" ) {
+        } else if ( searchItemText == "ButtonSelectAndPan" ) {
             idx = index(26,0);
-        } else if ( searchItemText == "ButtonReset" ) {
+        } else if ( searchItemText == "ButtonZoom" ) {
             idx = index(27,0);
-        } else if ( searchItemText == "XAxisLabel" ) {
+        } else if ( searchItemText == "ButtonReset" ) {
             idx = index(28,0);
-        } else if ( searchItemText == "YAxisLabel" ) {
+        } else if ( searchItemText == "XAxisLabel" ) {
             idx = index(29,0);
+        } else if ( searchItemText == "YAxisLabel" ) {
+            idx = index(30,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
@@ -2545,6 +2547,24 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
             }
         }
 
+        // Symbol End
+        QString symbolEnd = "none";
+        QModelIndex seIdx = getIndex(QModelIndex(),"Symbolends","");
+        if ( ii < rowCount(seIdx) ) {
+            QModelIndex symbolEndIdx = index(ii,1,seIdx);
+            QString se = data(symbolEndIdx).toString();
+            if ( !se.isEmpty() ) {
+                QString group;
+                if ( ii < groups.size() ) {
+                    group = groups.at(ii);
+                }
+                if ( group.isEmpty() ) {
+                    // Use symbolEnd from commandline
+                    symbolEnd = se;
+                }
+            }
+        }
+
         // Label
         QString yLabel = yName;
         QModelIndex llIdx = getIndex(QModelIndex(),"LegendLabels","");
@@ -2599,6 +2619,13 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
                             symbolStyle = ss;
                         }
 
+                        // Symbolend
+                        idx = index(i,1,seIdx);
+                        QString se = data(idx).toString();
+                        if ( !se.isEmpty() ) {
+                            symbolEnd = se;
+                        }
+
                         // Match found and handled
                         break;
                     }
@@ -2611,6 +2638,7 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
         addChild(curveItem, "CurveColor", color);
         addChild(curveItem, "CurveLineStyle",style);
         addChild(curveItem, "CurveSymbolStyle", symbolStyle);
+        addChild(curveItem, "CurveSymbolEnd", symbolEnd);
 
         // Add actual curve model data
         if ( r == rc-1) {
