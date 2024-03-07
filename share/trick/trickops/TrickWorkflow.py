@@ -1540,7 +1540,10 @@ class SingleRun(Job):
           self._sim_time(), self._average_speed())
 
     def _connected_bar(self):
-        progress = self._tics.value / self._terminate_time.value
+        if self._terminate_time.value <= 0.0:
+          progress =  0.0
+        else:
+          progress = self._tics.value / self._terminate_time.value
         return create_progress_bar(
           progress, '{0:.1f}%'.format(100 * progress))
 
