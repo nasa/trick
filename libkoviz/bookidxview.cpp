@@ -771,6 +771,52 @@ void BookIdxView::__paintSymbol(const QPointF& p,
         painter.drawLine(a,b);
         painter.drawLine(b,c);
         painter.drawLine(c,a);
+    } else if ( symbol == "satellite" ) {
+        painter.save();
+        pen.setWidthF(1.0);
+        painter.setPen(pen);
+        painter.translate(p);
+        painter.rotate(37.0);
+        QBrush brush(painter.pen().color());
+        painter.setBrush(brush);
+
+        // Body
+        double bodyWidth = 6.0;
+        double bodyHeight = 9.0;
+        QRectF bodyRect(-bodyWidth/2.0,-bodyHeight/2.0,bodyWidth,bodyHeight);
+        painter.drawRect(bodyRect);
+
+        // Solar Panels
+        double panelBarLength = 3.0;
+        double panelWidth = 11.0;
+        double panelHeight = 5.0;
+        QRectF panelRect1(-panelBarLength-bodyWidth/2.0-panelWidth,
+                          -panelHeight/2.0,
+                          panelWidth,panelHeight);
+        QRectF panelRect2(panelBarLength+bodyWidth/2.0,
+                          -panelHeight/2.0,
+                          panelWidth,panelHeight);
+        painter.drawRect(panelRect1);
+        painter.drawRect(panelRect2);
+
+        // Panel supports
+        painter.drawLine(0,0, bodyWidth/2+panelBarLength,0);
+        painter.drawLine(0,0,-bodyWidth/2-panelBarLength,0);
+
+        // Dish support bar
+        double dishBarLength = 3.0;
+        painter.drawLine(0,bodyHeight/2+bodyWidth/2,
+                         0,bodyHeight/2+bodyWidth/2+dishBarLength);
+
+        // Dish
+        QRectF dishRect(-bodyWidth/2.0, bodyHeight/2.0+dishBarLength,
+                        bodyWidth, bodyWidth);
+        painter.drawPie(dishRect,0,180*16);
+        double focusHeight = 4.0;
+        painter.drawLine(0,bodyHeight/2+bodyWidth/2+dishBarLength,
+                         0,bodyHeight/2+bodyWidth/2+dishBarLength+focusHeight);
+
+        painter.restore();
     } else if ( symbol.startsWith("number_",Qt::CaseInsensitive) &&
                 symbol.size() == 8 ) {
 
