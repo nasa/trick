@@ -280,28 +280,46 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         Tscaled = Tscaled.translate(xb/xs,yb/ys);
         painter.setTransform(Tscaled);
 
-        // Draw "Flatline=#" label if curve is flat (constant)
         QRectF cbox = path->boundingRect();
         if ( cbox.height() == 0.0 && path->elementCount() > 0 ) {
-            double y = cbox.y()*ys+yb;
-            if (plotYScale=="log") {
-                y = pow(10,y) ;
+
+            QString label;
+            if ( path->elementCount() == 1 ) {
+                // "Point=(x,y)" label if curve has single point
+                QPainterPath::Element el = path->elementAt(0);
+                double x = el.x*xs+xb;
+                if (plotXScale=="log") {
+                    x = pow(10,x) ;
+                }
+                double y = el.y*ys+yb;
+                if (plotYScale=="log") {
+                    y = pow(10,y) ;
+                }
+                label = QString("Point=(%1,%2)").arg(x).arg(y);
+            } else {
+                // "Flatline=#" label if curve is flat (constant)
+                double y = cbox.y()*ys+yb;
+                if (plotYScale=="log") {
+                    y = pow(10,y) ;
+                }
+                label = QString("Flatline=%1").arg(y);
             }
-            QString yString = QString("Flatline=%1").arg(y);
+
             QRectF tbox = Tscaled.mapRect(cbox);
             QTransform I;
             painter.setTransform(I);
             double top = tbox.y()-fontMetrics().ascent();
             if ( top >= 0 ) {
-                // Draw flatline label over curve
-                painter.drawText(tbox.topLeft()-QPointF(0,5),yString);
+                // Draw label over curve
+                painter.drawText(tbox.topLeft()-QPointF(0,5),label);
             } else {
-                // Draw flatline label under curve since it would drawn off page
+                // Draw label under curve since it would drawn off page
                 painter.drawText(tbox.topLeft()+
                                  QPointF(0,fontMetrics().ascent())
-                                 +QPointF(0,5),yString);
+                                 +QPointF(0,5),label);
             }
             painter.setTransform(Tscaled);
+
         } else if ( path->elementCount() == 0 ) {
             // Empty plot
             QTransform I;
@@ -873,16 +891,16 @@ void CurvesView::_paintErrorplot(const QTransform &T,
     painter.setPen(ePen);
     if ( ebox.height() == 0.0 && errorPath->elementCount() > 0 ) {
         // Flatline
-        QString yval;
+        QString label;
         if ( ebox.y() == 0.0 ) {
-            yval = yval.sprintf("Flatline=0.0");
+            label = QString("Flatline=0.0");
         } else {
-            yval = yval.sprintf("Flatline=%g",ebox.y());
+            label = QString("Flatline=%1").arg(ebox.y(),0,'g');
         }
         QTransform I;
         painter.setTransform(I);
         QRectF tbox = T.mapRect(ebox);
-        painter.drawText(tbox.topLeft()-QPointF(0,5),yval);
+        painter.drawText(tbox.topLeft()-QPointF(0,5),label);
     } else if ( errorPath->elementCount() == 0 ) {
         // Empty plot
         QTransform I;

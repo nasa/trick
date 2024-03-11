@@ -278,29 +278,47 @@ void CurvesLayoutItem::_printCoplot(const QTransform& T,
             }
             delete it;
 
-            // If curve is flat (constant), label with "Flatline=#"
+            // If curve is flat (constant), label with Point=(x,y) or Flatline=y
             QRectF curveBBox = path->boundingRect();
             if ( curveBBox.height() == 0.0 ) {
+
+                // Get string value of y
                 it = curveModel->begin();
                 double y = it->y()*ys+yb;  // y is constant, so use first point
-                delete it;
-                QString s;
-                s = s.sprintf("%.9g",y);
-                QVariant v(s);
+                QString yString = QString("%1").arg(y,0,'g',9);
+                QVariant v(yString);
                 double y2 = v.toDouble();
                 double e = qAbs(y-y2);
                 if ( e > 1.0e-9 ) {
                     // If %.9g loses too much accuracy, use %lf
-                    s = s.sprintf("%.9lf",y);
+                    yString = QString("%1").arg(y,0,'f',9);
                 }
-                s = QString("Flatline=%1").arg(s);
+
+                QString label;
+                if ( path->elementCount() == 1 ) {
+                    // It's a point, not a curve
+                    double x = it->x()*xs+xb;
+                    QString xString = QString("%1").arg(y,0,'g',9);
+                    QVariant v(xString);
+                    double x2 = v.toDouble();
+                    double e = qAbs(x-x2);
+                    if ( e > 1.0e-9 ) {
+                        // If %.9g loses too much accuracy, use %lf
+                        xString = QString("%1").arg(x,0,'f',9);
+                    }
+                    label = QString("Point=(%1,%2)").arg(xString).arg(yString);
+                } else {
+                    // It's a flatline
+                    label = QString("Flatline=%1").arg(yString);
+                }
                 int h = painter->fontMetrics().height();
                 QColor color( _bookModel->getDataString(curveIdx,
                                                         "CurveColor","Curve"));
                 QPen pen = painter->pen();
                 pen.setColor(color);
                 painter->setPen(pen);
-                painter->drawText(curveBBox.topLeft()-QPointF(0,h+10),s);
+                painter->drawText(curveBBox.topLeft()-QPointF(0,h+10),label);
+                delete it;
             }
 
             curveModel->unmap();
