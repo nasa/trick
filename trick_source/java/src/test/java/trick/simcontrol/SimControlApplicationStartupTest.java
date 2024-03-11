@@ -147,6 +147,7 @@ public class SimControlApplicationStartupTest extends ApplicationTest {
 	public void testConnectionFailures() {
 		// ARRANGE
 		startApplication();
+		sleep(1500);
 		cleanupPanel();
 
 		ConnectionInfo_FormattingError();
@@ -200,19 +201,6 @@ public class SimControlApplicationStartupTest extends ApplicationTest {
 		if(simcontrol == null) {
 			// Launch Testing SimControlPanel
 			WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class);
-			handleAppSetup();
-		} else {
-			System.err.println("SimControlApplication is already Running...");
-		}
-    }
-	
-	private void startApplication(boolean startConnected) {
-		if(simcontrol == null) {
-			if(startConnected)  // Launch Testing SimControlPanel with the provided connection info
-				WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class, socketInfo.replace(" ", ","));
-			else  // Launch Testing SimControlPanel
-				WaitForSimControlApplication.launchAndWait(WaitForSimControlApplication.class);
-
 			handleAppSetup();
 		} else {
 			System.err.println("SimControlApplication is already Running...");

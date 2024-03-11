@@ -78,7 +78,6 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 	@After
 	public void tearDown() {
 		assumeNotNull(simcontrol);
-		simcontrol.freezeSim();
 		simcontrol.clearStatusMsgs();
 		sleep(1000);
 	}
@@ -111,6 +110,8 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 			statusMsg = simcontrol.getStatusMessages();
 		} while(statusMsg.isEmpty() && counter < 5);
 
+		simcontrol.freezeSim();
+
 		// ASSERT
 		assertTrue("Simulation did not start!\n" + statusMsg, statusMsg.indexOf(expStatus) != -1);
 	}
@@ -136,6 +137,72 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 
 		// ASSERT
 		assertTrue("Simulation did not freeze!\n" + statusMsg, statusMsg.indexOf(expStatus) != -1);
+		
+	}
+
+	@Test
+	/**
+	 * Testing that the freezeAtSim() action functions properly. 
+	 */
+	public void testFreezeAtTimeSimulation() {
+		// ARRANGE
+		double targetTime = simcontrol.getExecTime() + 3.0;
+		String statusMsg[], expStatus = "Freeze ON",
+			   expTimeStamp = String.format("%.6f", targetTime);
+		Matcher line1, line2;
+		Pattern freezeOffPatt = Pattern.compile("\\|.*\\| Freeze OFF\\.\\n?"),
+				freezeOnPatt  = Pattern.compile("\\|.*\\| Freeze ON\\. Simulation time holding at "
+												 + expTimeStamp + " seconds\\.\\n?");
+
+		// ACT
+		simcontrol.controller.delayedTypeString((targetTime + "\n"), 500);
+		simcontrol.freezeAt();
+
+		simcontrol.startSim();
+		simcontrol.sleep(4000);
+
+		statusMsg = simcontrol.getStatusMessages().split("\n");
+		line1 = freezeOffPatt.matcher(statusMsg[0]);
+		line2 =  freezeOnPatt.matcher(statusMsg[1]);
+
+		// ASSERT
+		assumeTrue("Unexpected number of messages", statusMsg.length == 2);
+		assumeTrue("Simulation did not start!", line1.find());
+		assertTrue("Simulation didn't freeze at " + expTimeStamp + "\n" + statusMsg[1],
+				   line2.find());
+		
+	}
+
+	@Test
+	/**
+	 * Testing that the freezeInSim() action functions properly. 
+	 */
+	public void testFreezeInTimeSimulation() {
+		// ARRANGE
+		double targetTime = simcontrol.getExecTime() + 3.0;
+		String statusMsg[], expStatus = "Freeze ON",
+			   expTimeStamp = String.format("%.6f", targetTime);
+		Matcher line1, line2;
+		Pattern freezeOffPatt = Pattern.compile("\\|.*\\| Freeze OFF\\.\\n?"),
+				freezeOnPatt  = Pattern.compile("\\|.*\\| Freeze ON\\. Simulation time holding at "
+												 + expTimeStamp + " seconds\\.\\n?");
+
+		// ACT
+		simcontrol.controller.delayedTypeString("3.0\n", 500);
+		simcontrol.freezeIn();
+
+		simcontrol.startSim();
+		simcontrol.sleep(4000);
+
+		statusMsg = simcontrol.getStatusMessages().split("\n");
+		line1 = freezeOffPatt.matcher(statusMsg[0]);
+		line2 =  freezeOnPatt.matcher(statusMsg[1]);
+
+		// ASSERT
+		assumeTrue("Unexpected number of messages", statusMsg.length == 2);
+		assumeTrue("Simulation did not start!", line1.find());
+		assertTrue("Simulation didn't freeze at " + expTimeStamp + "\n" + statusMsg[1],
+				   line2.find());
 		
 	}
 	
@@ -174,6 +241,8 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		line1 = freezeOffPatt.matcher(statusLines[0]);
 		line2 = freezeOnPatt.matcher(statusLines[1]);
 		line3 = freezeOffPatt.matcher(statusLines[2]);
+
+		simcontrol.freezeSim();
 
 		// ASSERT
 		assertTrue( "Simulation didn't start correctly:\n" + statusLines[0], line1.find());
