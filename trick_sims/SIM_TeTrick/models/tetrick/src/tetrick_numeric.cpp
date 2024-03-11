@@ -10,18 +10,18 @@
 
 int waterclock_deriv(WATERCLOCK* WC) {
 
-    //Make sure water level is up to date
+	//Make sure water level is up to date
     waterclock_update_water_level(WC);
 
-    //Clock spout area
+	//Clock spout area
     double spout_radius = WC->intake_clock_spout_diameter / 2;
     double spout_area = WC->pi * spout_radius * spout_radius;
 
-    //Overflow spout area
+	//Overflow spout area
     double overflow_radius = WC->intake_overflow_diameter / 2;
     double overflow_area = WC->pi * overflow_radius * overflow_radius;
 
-    //Calculate flow rate using Torricelli's equation ( V = sqrt(2gh) ) to find water velocity. Multiple velocity by spout area to find flow rate.
+	//Calculate flow rate using Torricelli's equation ( V = sqrt(2gh) ) to find water velocity. Multiple velocity by spout area to find flow rate.
     //Calculate input bucket spout flow rate.
     if(WC->intake_water_level > WC->intake_clock_spout_height)
         WC->intake_clock_spout_flowrate = spout_area * sqrt(2 * WC->gravity * (WC->intake_water_level - WC->intake_clock_spout_height) );
@@ -34,7 +34,7 @@ int waterclock_deriv(WATERCLOCK* WC) {
     else
         WC->intake_overflow_flowrate = 0.0;
 
-    //Need to know net flow of the source, overflow spout, and clock spout for integration
+	//Need to know net flow of the source, overflow spout, and clock spout for integration
     WC->intake_bucket_net_flow = WC->input_flow - WC->intake_clock_spout_flowrate - WC->intake_overflow_flowrate;
 
     return(0);

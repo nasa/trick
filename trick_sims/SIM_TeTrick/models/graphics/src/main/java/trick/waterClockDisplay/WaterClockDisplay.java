@@ -48,22 +48,22 @@ class RangeView extends JPanel {
     private int worldOriginX;
     private int worldOriginY;
 
-    private double  spout_rate;
-    private double  overflow_rate;
-    private double  intake_depth;
-    private double  timer_depth;
-    private double  intake_lvl;
-    private double  timer_lvl;
-    private double  intake_vol;
-    private double  timer_vol;
+	private double  spout_rate;
+	private double  overflow_rate;
+	private double  intake_depth;
+	private double  timer_depth;
+	private double  intake_lvl;
+	private double  timer_lvl;
+	private double  intake_vol;
+	private double  timer_vol;
     private double  spout_height;
-    private double  overflow_height;
-    private double  input_flow;
-    private int current_tick;
+	private double  overflow_height;
+	private double  input_flow;
+	private int current_tick;
 
     // Controls
-    private double input_flow_select;
-    public boolean new_input_flow;
+	private double input_flow_select;
+	public boolean new_input_flow;
 
     /**
      * Class constructor.
@@ -71,22 +71,22 @@ class RangeView extends JPanel {
     public RangeView( int mapScale) {
 
         setScale(mapScale);
-            
-        spout_rate = 0.0;
-        overflow_rate = 0.0;
-        intake_depth = 0.0;
-        timer_depth = 0.0;
-        intake_lvl = 0.0;
-        timer_lvl = 0.0;
-        intake_vol = 0.0;
-        timer_vol = 0.0;
+			
+		spout_rate = 0.0;
+		overflow_rate = 0.0;
+		intake_depth = 0.0;
+		timer_depth = 0.0;
+		intake_lvl = 0.0;
+		timer_lvl = 0.0;
+		intake_vol = 0.0;
+		timer_vol = 0.0;
         spout_height = 0.0;
         overflow_height = 0.0;
         input_flow = 0.0;
-        input_flow_select = 0.0;
-        current_tick = 0;
-        
-        new_input_flow = false;
+		input_flow_select = 0.0;
+		current_tick = 0;
+		
+		new_input_flow = false;
 
         bucket_color = new  Color(150,75,0);
         spout_color = new  Color(128,128,128);
@@ -165,7 +165,7 @@ class RangeView extends JPanel {
         }
         repaint();
     }
-    
+	
     private void doDrawing(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
 
@@ -181,189 +181,189 @@ class RangeView extends JPanel {
 
         worldOriginX = (width/2)  - (int)(scale * 0);
         worldOriginY = (height/2) + (int)(scale * 0);
-        
-        
+		
+		
         // Draw intake Bucket
-        double bucket_length = 2.0;
-        double bucket_width = 0.15;
-        double intake_bucket_origin_x = 4;
-        double intake_bucket_origin_y = 1.7;
-        double intake_bucket_left_wall_x = intake_bucket_origin_x - bucket_length - bucket_width;
-        double intake_bucket_bottom_x = intake_bucket_origin_x - bucket_length - bucket_width;
-        double intake_bucket_bottom_y = intake_bucket_origin_y - bucket_length;
-        double spout_width = 0.175;
-        double spout_length = 1.0;
-        double spout_pipe_x = intake_bucket_left_wall_x - spout_length + bucket_width;
-        double spout_pipe_y = intake_bucket_origin_y - bucket_length + spout_width + ((spout_height / intake_depth) * bucket_length) - spout_width/2;
-        double overflow_pipe_x = intake_bucket_origin_x;
-        double overflow_pipe_y = intake_bucket_origin_y - bucket_length + spout_width + ((overflow_height / intake_depth) * bucket_length) - spout_width/2;
-        fillSceneRect(  g2d, 
-                        bucket_color, 
-                        intake_bucket_origin_x, 
-                        intake_bucket_origin_y, 
-                        bucket_width, 
-                        bucket_length);
-        fillSceneRect(  g2d, 
-                        bucket_color, 
-                        intake_bucket_bottom_x,
-                        intake_bucket_bottom_y, 
-                        bucket_length + (2 * bucket_width), 
-                        bucket_width);
-        fillSceneRect(  g2d, 
-                        bucket_color,
-                        intake_bucket_left_wall_x, 
-                        intake_bucket_origin_y, 
-                        bucket_width, 
-                        bucket_length);
-        fillSceneRect(  g2d, 
-                        spout_color, 
-                        overflow_pipe_x, 
-                        overflow_pipe_y, 
-                        spout_length, 
-                        spout_width);
-        fillSceneRect(  g2d, 
-                        spout_color, 
-                        spout_pipe_x,
-                        spout_pipe_y, 
-                        spout_length, 
-                        spout_width);
-        
-        //Draw timer bucket
-        double timer_bucket_origin_x = 1.375;
-        double timer_bucket_origin_y = -0.5;
-        double timer_bucket_left_wall_x = timer_bucket_origin_x - bucket_length - bucket_width;
-        double timer_bucket_bottom_x = timer_bucket_origin_x - bucket_length - bucket_width;
-        double timer_bucket_bottom_y = timer_bucket_origin_y - bucket_length;
-        fillSceneRect(  g2d, 
-                        bucket_color, 
-                        timer_bucket_origin_x, 
-                        timer_bucket_origin_y, 
-                        bucket_width, 
-                        bucket_length);
-        fillSceneRect(  g2d, 
-                        bucket_color, 
-                        timer_bucket_bottom_x,
-                        timer_bucket_bottom_y, 
-                        bucket_length + (2 * bucket_width), 
-                        bucket_width);
-        fillSceneRect(  g2d, 
-                        bucket_color,
-                        timer_bucket_left_wall_x, 
-                        timer_bucket_origin_y, 
-                        bucket_width, 
-                        bucket_length);
-                        
-        
-        //Draw water flow
-        double flow_width = 0.15;
-        double spout_flow_height = intake_bucket_origin_y - timer_bucket_origin_y + (bucket_length - (intake_bucket_origin_y - spout_pipe_y)) - spout_width/2;
-        double overflow_height = 20;
-        if (spout_rate != 0.0) {
-            fillSceneRect(  g2d, 
-                            water_color, 
-                            intake_bucket_left_wall_x - spout_length + bucket_width - flow_width + 0.015,
-                            spout_pipe_y - spout_width/2,
-                            flow_width, 
-                            spout_flow_height);
-        }
-        
-        if (overflow_rate != 0.0) {
-            fillSceneRect(  g2d, 
-                            water_color, 
-                            intake_bucket_origin_x + spout_length, 
-                            overflow_pipe_y - spout_width/2,
-                            flow_width, 
-                            overflow_height);
-        }
-                        
-        
-        //Draw water level
-        double intake_capacity = intake_lvl / intake_depth;
-        double intake_offset = ((1 - intake_capacity) * bucket_length) ;
-        double timer_capacity = timer_lvl / timer_depth;
-        double timer_offset = ((1 - timer_capacity) * bucket_length) ;
-        fillSceneRect(  g2d, 
-                        water_color, 
-                        intake_bucket_origin_x - bucket_length - 0.01,
-                        intake_bucket_origin_y - intake_offset, 
-                        bucket_length + 0.03,
-                        intake_capacity * bucket_length);
-        //fill in pixel gaps due to rounding error
-        if(intake_lvl > 0.0) {
-            fillSceneRect(  g2d, 
-                            water_color, 
-                            intake_bucket_origin_x - bucket_length - 0.01,
-                            intake_bucket_origin_y - bucket_length + 0.05, 
-                            bucket_length + 0.03,
-                            0.05);
-        }
-                        
-        
-        fillSceneRect(  g2d, 
-                        water_color, 
-                        timer_bucket_origin_x - bucket_length - 0.01,
-                        timer_bucket_origin_y - timer_offset, 
-                        bucket_length + 0.03,
-                        timer_capacity * bucket_length);
-        //fill in pixel gaps due to rounding error
-        if(timer_lvl > 0.0) {
-            fillSceneRect(  g2d, 
-                            water_color, 
-                            timer_bucket_origin_x - bucket_length - 0.01,
-                            timer_bucket_origin_y - bucket_length + 0.05, 
-                            bucket_length + 0.03,
-                            0.075);
-        }
-        
-        //Draw external source pipe
-        fillSceneRect(  g2d, 
-                        spout_color, 
-                        intake_bucket_origin_x - bucket_length/4, 
-                        intake_bucket_origin_y + 0.8, 
-                        7, 
-                        spout_width);
-                        
-        if(input_flow > 0) {
-            fillSceneRect(  g2d, 
-                            water_color, 
-                            intake_bucket_origin_x - bucket_length/4 - flow_width + 0.03,
-                            intake_bucket_origin_y + 0.8 - spout_width/2,
-                            flow_width, 
-                            0.815 + bucket_length - spout_width/2);
-        }
-        
-        //Draw float
-        fillSceneRect(  g2d, 
-                        float_color, 
-                        timer_bucket_origin_x - bucket_length + bucket_length/4,
-                        timer_bucket_origin_y - timer_offset + 0.25, 
-                        bucket_length/2,
-                        0.25);
-                        
-        fillSceneRect(  g2d, 
-                        float_color, 
-                        timer_bucket_origin_x - bucket_length + bucket_length*0.45,
-                        timer_bucket_origin_y - timer_offset + 3, 
-                        bucket_length*0.1,
-                        3);
-                        
-        fillSceneRect(  g2d, 
-                        float_color, 
-                        timer_bucket_origin_x - bucket_length + bucket_length*0.1,
-                        timer_bucket_origin_y - timer_offset + 3, 
-                        bucket_length*0.8,
-                        0.05);
+		double bucket_length = 2.0;
+		double bucket_width = 0.15;
+		double intake_bucket_origin_x = 4;
+		double intake_bucket_origin_y = 1.7;
+		double intake_bucket_left_wall_x = intake_bucket_origin_x - bucket_length - bucket_width;
+		double intake_bucket_bottom_x = intake_bucket_origin_x - bucket_length - bucket_width;
+		double intake_bucket_bottom_y = intake_bucket_origin_y - bucket_length;
+		double spout_width = 0.175;
+		double spout_length = 1.0;
+		double spout_pipe_x = intake_bucket_left_wall_x - spout_length + bucket_width;
+		double spout_pipe_y = intake_bucket_origin_y - bucket_length + spout_width + ((spout_height / intake_depth) * bucket_length) - spout_width/2;
+		double overflow_pipe_x = intake_bucket_origin_x;
+		double overflow_pipe_y = intake_bucket_origin_y - bucket_length + spout_width + ((overflow_height / intake_depth) * bucket_length) - spout_width/2;
+        fillSceneRect(	g2d, 
+						bucket_color, 
+						intake_bucket_origin_x, 
+						intake_bucket_origin_y, 
+						bucket_width, 
+						bucket_length);
+        fillSceneRect(	g2d, 
+						bucket_color, 
+						intake_bucket_bottom_x,
+						intake_bucket_bottom_y, 
+						bucket_length + (2 * bucket_width), 
+						bucket_width);
+        fillSceneRect(	g2d, 
+						bucket_color,
+						intake_bucket_left_wall_x, 
+						intake_bucket_origin_y, 
+						bucket_width, 
+						bucket_length);
+        fillSceneRect(	g2d, 
+						spout_color, 
+						overflow_pipe_x, 
+						overflow_pipe_y, 
+						spout_length, 
+						spout_width);
+        fillSceneRect(	g2d, 
+						spout_color, 
+						spout_pipe_x,
+						spout_pipe_y, 
+						spout_length, 
+						spout_width);
+		
+		//Draw timer bucket
+		double timer_bucket_origin_x = 1.375;
+		double timer_bucket_origin_y = -0.5;
+		double timer_bucket_left_wall_x = timer_bucket_origin_x - bucket_length - bucket_width;
+		double timer_bucket_bottom_x = timer_bucket_origin_x - bucket_length - bucket_width;
+		double timer_bucket_bottom_y = timer_bucket_origin_y - bucket_length;
+        fillSceneRect(	g2d, 
+						bucket_color, 
+						timer_bucket_origin_x, 
+						timer_bucket_origin_y, 
+						bucket_width, 
+						bucket_length);
+        fillSceneRect(	g2d, 
+						bucket_color, 
+						timer_bucket_bottom_x,
+						timer_bucket_bottom_y, 
+						bucket_length + (2 * bucket_width), 
+						bucket_width);
+        fillSceneRect(	g2d, 
+						bucket_color,
+						timer_bucket_left_wall_x, 
+						timer_bucket_origin_y, 
+						bucket_width, 
+						bucket_length);
+						
+		
+		//Draw water flow
+		double flow_width = 0.15;
+		double spout_flow_height = intake_bucket_origin_y - timer_bucket_origin_y + (bucket_length - (intake_bucket_origin_y - spout_pipe_y)) - spout_width/2;
+		double overflow_height = 20;
+		if (spout_rate != 0.0) {
+			fillSceneRect(	g2d, 
+							water_color, 
+							intake_bucket_left_wall_x - spout_length + bucket_width - flow_width + 0.015,
+							spout_pipe_y - spout_width/2,
+							flow_width, 
+							spout_flow_height);
+		}
+		
+		if (overflow_rate != 0.0) {
+			fillSceneRect(	g2d, 
+							water_color, 
+							intake_bucket_origin_x + spout_length, 
+							overflow_pipe_y - spout_width/2,
+							flow_width, 
+							overflow_height);
+		}
+						
+		
+		//Draw water level
+		double intake_capacity = intake_lvl / intake_depth;
+		double intake_offset = ((1 - intake_capacity) * bucket_length) ;
+		double timer_capacity = timer_lvl / timer_depth;
+		double timer_offset = ((1 - timer_capacity) * bucket_length) ;
+		fillSceneRect(	g2d, 
+						water_color, 
+						intake_bucket_origin_x - bucket_length - 0.01,
+						intake_bucket_origin_y - intake_offset, 
+						bucket_length + 0.03,
+						intake_capacity * bucket_length);
+		//fill in pixel gaps due to rounding error
+		if(intake_lvl > 0.0) {
+			fillSceneRect(	g2d, 
+							water_color, 
+							intake_bucket_origin_x - bucket_length - 0.01,
+							intake_bucket_origin_y - bucket_length + 0.05, 
+							bucket_length + 0.03,
+							0.05);
+		}
+						
+		
+		fillSceneRect(	g2d, 
+						water_color, 
+						timer_bucket_origin_x - bucket_length - 0.01,
+						timer_bucket_origin_y - timer_offset, 
+						bucket_length + 0.03,
+						timer_capacity * bucket_length);
+		//fill in pixel gaps due to rounding error
+		if(timer_lvl > 0.0) {
+			fillSceneRect(	g2d, 
+							water_color, 
+							timer_bucket_origin_x - bucket_length - 0.01,
+							timer_bucket_origin_y - bucket_length + 0.05, 
+							bucket_length + 0.03,
+							0.075);
+		}
+		
+		//Draw external source pipe
+        fillSceneRect(	g2d, 
+						spout_color, 
+						intake_bucket_origin_x - bucket_length/4, 
+						intake_bucket_origin_y + 0.8, 
+						7, 
+						spout_width);
+						
+		if(input_flow > 0) {
+			fillSceneRect(	g2d, 
+							water_color, 
+							intake_bucket_origin_x - bucket_length/4 - flow_width + 0.03,
+							intake_bucket_origin_y + 0.8 - spout_width/2,
+							flow_width, 
+							0.815 + bucket_length - spout_width/2);
+		}
+		
+		//Draw float
+		fillSceneRect(	g2d, 
+						float_color, 
+						timer_bucket_origin_x - bucket_length + bucket_length/4,
+						timer_bucket_origin_y - timer_offset + 0.25, 
+						bucket_length/2,
+						0.25);
+						
+		fillSceneRect(	g2d, 
+						float_color, 
+						timer_bucket_origin_x - bucket_length + bucket_length*0.45,
+						timer_bucket_origin_y - timer_offset + 3, 
+						bucket_length*0.1,
+						3);
+						
+		fillSceneRect(	g2d, 
+						float_color, 
+						timer_bucket_origin_x - bucket_length + bucket_length*0.1,
+						timer_bucket_origin_y - timer_offset + 3, 
+						bucket_length*0.8,
+						0.05);
 
         // Draw Information
         g2d.setPaint(Color.BLACK);
-        g2d.drawString ( String.format("Input Flow Rate:   [%.4f] m^3/s",input_flow), 20,20);
-        g2d.drawString ( String.format("Intake Water Level:   [%.4f] m",intake_lvl), 20,40);
-        g2d.drawString ( String.format("Intake Water Volume:   [%.4f] m^3",intake_vol), 20,60);
-        g2d.drawString ( String.format("Intake Overflow Rate:   [%.4f] m^3/s",overflow_rate), 20,80);
-        g2d.drawString ( String.format("Intake Spout Rate:   [%.4f] m^3/s",spout_rate), 20,100);
-        g2d.drawString ( String.format("Timer Water Level:   [%.4f] m",timer_lvl), 20,120);
-        g2d.drawString ( String.format("Timer Water Volume:   [%.4f] m^3",timer_vol), 20,140);
-        g2d.drawString ( String.format("Current Time Tick:   [%d]",current_tick), 20,160);
+		g2d.drawString ( String.format("Input Flow Rate:   [%.4f] m^3/s",input_flow), 20,20);
+		g2d.drawString ( String.format("Intake Water Level:   [%.4f] m",intake_lvl), 20,40);
+		g2d.drawString ( String.format("Intake Water Volume:   [%.4f] m^3",intake_vol), 20,60);
+		g2d.drawString ( String.format("Intake Overflow Rate:   [%.4f] m^3/s",overflow_rate), 20,80);
+		g2d.drawString ( String.format("Intake Spout Rate:   [%.4f] m^3/s",spout_rate), 20,100);
+		g2d.drawString ( String.format("Timer Water Level:   [%.4f] m",timer_lvl), 20,120);
+		g2d.drawString ( String.format("Timer Water Volume:   [%.4f] m^3",timer_vol), 20,140);
+		g2d.drawString ( String.format("Current Time Tick:   [%d]",current_tick), 20,160);
     }
 
     @Override
@@ -412,7 +412,7 @@ class InputFlowCtrlPanel extends JPanel implements ChangeListener {
         JSlider source = (JSlider)e.getSource();
         if (!source.getValueIsAdjusting()) {
             rangeView.setInputFlowSelect( source.getValue() / 1000.0);
-            rangeView.new_input_flow = true;
+			rangeView.new_input_flow = true;
         }
     }
 
@@ -515,7 +515,7 @@ public class WaterClockDisplay extends JFrame {
         String host = "localHost";
         int port = 0;
         boolean boom = false;
-        
+		
         int ii = 0;
         while (ii < args.length) {
             switch (args[ii]) {
@@ -532,20 +532,20 @@ public class WaterClockDisplay extends JFrame {
         }
 
         boolean go = true;
-        double  dt                = 0.100; // Time between updates (seconds).
-        double  spout_rate        = 0.0;
-        double  overflow_rate     = 0.0;
-        double  intake_depth      = 0.0;
-        double  timer_depth       = 0.0;
-        double  intake_lvl        = 0.0;
-        double  timer_lvl         = 0.0;
-        double  intake_vol        = 0.0;
-        double  timer_vol         = 0.0;
-        double  spout_height      = 0.0;
-        double  overflow_height   = 0.0;
-        double  input_flow        = 0.0;
-        double  flow_select       = 0.0;
-        int  tick                 = 0;
+        double  dt 					= 0.100; // Time between updates (seconds).
+        double  spout_rate    		= 0.0;
+        double  overflow_rate   	= 0.0;
+        double  intake_depth   		= 0.0;
+        double  timer_depth    		= 0.0;
+        double  intake_lvl    		= 0.0;
+        double  timer_lvl   		= 0.0;
+        double  intake_vol   		= 0.0;
+        double  timer_vol 			= 0.0;
+        double  spout_height 		= 0.0;
+        double  overflow_height 	= 0.0;
+        double  input_flow 			= 0.0;
+        double  flow_select 		= 0.0;
+        int  tick					= 0;
 
         // Outbound command variables
         int simMode = 0;
@@ -606,11 +606,11 @@ public class WaterClockDisplay extends JFrame {
                                 "trick.var_add(\"dyn.waterclock.input_flow\")\n" +
                                 "trick.var_add(\"dyn.waterclock.current_tick\")\n" +
                                 "trick.var_add(\"trick_sys.sched.mode\")\n" +
-                                //  2) We want the responses in ASCII:
+								//  2) We want the responses in ASCII:
                                 "trick.var_ascii() \n" +
-                                //  3) We want values to be updated at the specified rate:
+								//  3) We want values to be updated at the specified rate:
                                 String.format("trick.var_cycle(%.3f)\n", dt) +
-                                //  4) Start sending values as specified.
+								//  4) Start sending values as specified.
                                 "trick.var_unpause() \n" );
             waterClockDisplay.out.flush();
         } // if go
@@ -621,44 +621,44 @@ public class WaterClockDisplay extends JFrame {
             try {
                 String line;
                 String field[];
-                line             = waterClockDisplay.in.readLine();
-                field           = line.split("\t");
-                spout_rate        = Double.parseDouble( field[1]);
+                line 			= waterClockDisplay.in.readLine();
+                field   		= line.split("\t");
+                spout_rate    	= Double.parseDouble( field[1]);
                 overflow_rate   = Double.parseDouble( field[2]);
                 intake_depth    = Double.parseDouble( field[3]);
-                timer_depth        = Double.parseDouble( field[4]);
-                intake_lvl        = Double.parseDouble( field[5]);
-                timer_lvl       = Double.parseDouble( field[6]);
-                intake_vol       = Double.parseDouble( field[7]);
-                timer_vol         = Double.parseDouble( field[8]);
-                spout_height     = Double.parseDouble( field[9]);
+                timer_depth    	= Double.parseDouble( field[4]);
+                intake_lvl    	= Double.parseDouble( field[5]);
+                timer_lvl   	= Double.parseDouble( field[6]);
+                intake_vol   	= Double.parseDouble( field[7]);
+                timer_vol 		= Double.parseDouble( field[8]);
+                spout_height 	= Double.parseDouble( field[9]);
                 overflow_height = Double.parseDouble( field[10]);
-                input_flow         = Double.parseDouble( field[11]);
-                tick             = Integer.parseInt( field[12]);
-                simMode            = Integer.parseInt( field[13]);
+                input_flow 		= Double.parseDouble( field[11]);
+                tick 			= Integer.parseInt( field[12]);
+                simMode    		= Integer.parseInt( field[13]);
             } catch (IOException | NullPointerException e ) {
                 go = false;
             }
 
             // Update the display data.
-            rangeView.setSpoutRate(spout_rate);
-            rangeView.setOverflowRate(overflow_rate);
-            rangeView.setIntakeDepth(intake_depth); 
-            rangeView.setTimerDepth(timer_depth); 
-            rangeView.setIntakeWarerLevel(intake_lvl);
-            rangeView.setTimerWarerLevel(timer_lvl); 
-            rangeView.setIntakeWaterVol(intake_vol);
-            rangeView.setTimerWaterLevel(timer_vol);
-            rangeView.setSpoutHeight(spout_height);
-            rangeView.setOverflowHeight(overflow_height);
-            rangeView.setInputFlow(input_flow);
-            rangeView.setCurrentTick(tick);
+			rangeView.setSpoutRate(spout_rate);
+			rangeView.setOverflowRate(overflow_rate);
+			rangeView.setIntakeDepth(intake_depth); 
+			rangeView.setTimerDepth(timer_depth); 
+			rangeView.setIntakeWarerLevel(intake_lvl);
+			rangeView.setTimerWarerLevel(timer_lvl); 
+			rangeView.setIntakeWaterVol(intake_vol);
+			rangeView.setTimerWaterLevel(timer_vol);
+			rangeView.setSpoutHeight(spout_height);
+			rangeView.setOverflowHeight(overflow_height);
+			rangeView.setInputFlow(input_flow);
+			rangeView.setCurrentTick(tick);
 
-            if(rangeView.new_input_flow) {
-                flow_select = rangeView.getInputFlowSelect();
-                waterClockDisplay.out.writeBytes( String.format("dyn.waterclock.input_flow = %f ;\n", flow_select ));
-                rangeView.new_input_flow = false;
-            }
+			if(rangeView.new_input_flow) {
+				flow_select = rangeView.getInputFlowSelect();
+				waterClockDisplay.out.writeBytes( String.format("dyn.waterclock.input_flow = %f ;\n", flow_select ));
+				rangeView.new_input_flow = false;
+			}
 
             waterClockDisplay.out.flush();
 
