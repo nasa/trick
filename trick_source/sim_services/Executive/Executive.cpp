@@ -12,8 +12,12 @@
 
 Trick::Executive * the_exec ;
 
+
+extern void initializeMessenger();
+
 Trick::Executive::Executive() {
 
+   
     /** @par Detailed Design: */
     the_exec = this ;
     profiler = Profiler();
@@ -142,6 +146,9 @@ Trick::Executive::Executive() {
 
     // Initialize all of default signal handlers
     init_signal_handlers() ;
+
+    /**Initialize the TsHsMessenger*/
+    initializeMessenger();
 }
 
 Trick::Executive::~Executive() {
