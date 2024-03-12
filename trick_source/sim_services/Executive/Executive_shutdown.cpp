@@ -12,13 +12,14 @@
 #include <iomanip>
 #include <iostream>
 #include <sys/resource.h>
-
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/release.h"
 #include "trick/SysThread.hh"
+
+
 
 /**
 @design
@@ -116,6 +117,12 @@ int Trick::Executive::shutdown() {
             process_id, except_file.c_str(), except_message.c_str() ,
             sim_start , get_sim_time() , sim_elapsed_time , actual_cpu_time , sim_to_cpu , cpu_init, sim_mem ) ;
 
+
+    
+    profiler.shutdown();
+    
+
+    
     /* Kill all threads. */
     for (ii = 1; ii < threads.size() ; ii++) {
         if ( threads[ii]->running ) {

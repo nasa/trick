@@ -43,6 +43,7 @@ SIM_SERV_DIRS = \
 	${TRICK_HOME}/trick_source/sim_services/Message \
 	${TRICK_HOME}/trick_source/sim_services/MonteCarlo \
 	${TRICK_HOME}/trick_source/sim_services/MonteCarloGeneration \
+	${TRICK_HOME}/trick_source/sim_services/Profiler \
 	${TRICK_HOME}/trick_source/sim_services/RealtimeInjector \
 	${TRICK_HOME}/trick_source/sim_services/RealtimeSync \
 	${TRICK_HOME}/trick_source/sim_services/ScheduledJobQueue \

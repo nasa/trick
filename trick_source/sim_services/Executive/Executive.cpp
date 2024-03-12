@@ -16,7 +16,8 @@ Trick::Executive::Executive() {
 
     /** @par Detailed Design: */
     the_exec = this ;
-
+    profiler = Profiler();
+    profiler.enabled = false;
     advance_sim_time_job = NULL ;
     attach_debugger = false ;
     curr_job = NULL ;
@@ -416,4 +417,8 @@ int Trick::Executive::set_current_version(std::string version) {
 
 int Trick::Executive::get_except_return() const {
     return except_return;
+}
+
+extern bool profileEnabled() {
+    return the_exec->profiler.enabled;
 }

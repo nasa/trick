@@ -21,6 +21,7 @@
 #include "SimObject.hh"
 #include "Threads.hh"
 #include "sim_mode.h"
+#include "Profiler.hh"
 
 namespace Trick {
 
@@ -47,7 +48,12 @@ namespace Trick {
             /** gets #except_return */
             virtual int get_except_return() const;
 
+            // bool enable_profiler;
+
+            Trick::Profiler profiler;
         protected:
+
+            
             /** Attempts to attach a debugger in the event a signal shuts down the simulation.\n */
             bool attach_debugger;            /**< trick_units(--) */
 
@@ -98,6 +104,9 @@ namespace Trick {
 
             /** The specified sim objs for checkpoint, if it's null, checkpoint everything */
             Trick::JobData * freeze_job ;     /* ** */
+
+
+            
 
             /** Times to enter freeze mode in tics.\n */
             std::priority_queue< long long, std::vector< long long >, std::greater< long long > > freeze_times ; /**< trick_units(--) */
