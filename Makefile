@@ -133,6 +133,10 @@ ifeq ($(USE_ER7_UTILS), 0)
   UNIT_TEST_DIRS := $(filter-out %Integrator/test,$(UNIT_TEST_DIRS))
 endif
 
+# Java GUI test directory
+GUI_TEST_DIR := \
+	${TRICK_HOME}/trick_source/java
+
 # DPX test excluded from releases because of size
 DPX_UNIT_TEST_DIR = ${TRICK_HOME}/trick_source/data_products/DPX/test/unit_test
 
@@ -315,6 +319,9 @@ sim_test:
 
 sim_test32:
 	@ $(MAKE) -f test_overrides.mk sim_test32
+
+gui_test: 
+	@ $(MAKE) -C $(GUI_TEST_DIR) test
 
 pytest:
 	make -C share/trick/pymods/trick
