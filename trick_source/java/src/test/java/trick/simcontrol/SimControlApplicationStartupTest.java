@@ -125,9 +125,10 @@ public class SimControlApplicationStartupTest extends ApplicationTest {
 	 */
 	public void testConnection() {
 		// ARRANGE
-		String simDir, statusMsg,
+		String simDir = "", statusMsg,
 			   expDir = basicSimDir + "/S_main",
 			   expStatus = "";
+		int count = 0;
 
 		startApplication();
 		simcontrol.clearStatusMsgs();
@@ -135,11 +136,16 @@ public class SimControlApplicationStartupTest extends ApplicationTest {
 			   	   
 		// ACT
 		simcontrol.connect();
-		simDir = simcontrol.getRunningSimInfo();
+		while(simDir.isEmpty() && count < 100){
+			sleep(50);
+			simDir = simcontrol.getRunningSimInfo().trim();
+			count++;
+		}
+		
 		statusMsg = simcontrol.getStatusMessages();
 
 		// ASSERT
-		assertTrue("SimControlPanel did not connect!", simDir.startsWith(expDir));
+		assertTrue("SimControlPanel did not connect:\n" + statusMsg, simDir.startsWith(expDir));
 		assertTrue("Unexpected Error Message: \n\t" + statusMsg, statusMsg.isEmpty());
 	}
 

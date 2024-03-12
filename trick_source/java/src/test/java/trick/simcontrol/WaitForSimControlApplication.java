@@ -94,9 +94,12 @@ public class WaitForSimControlApplication extends SimControlApplication {
 		JTextField runDir = getSimRunDirField();
 
 		selectAndClearField(list);
+		sleep(500);
 		controller.typeString(socketInfo);
 		controller.waitForIdle();
+		sleep(500);
 		selectComponent(runDir); // Change the focus to lock in the typed info
+		sleep(500);
 	}
 
 	public void toggleDataRecButton() {
