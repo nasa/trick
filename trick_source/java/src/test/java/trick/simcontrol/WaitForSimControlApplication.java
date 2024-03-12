@@ -4,9 +4,11 @@ import javax.swing.JFrame;
 import javax.swing.JComboBox;
 import javax.swing.JEditorPane;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.text.Document;
 
 import java.awt.AWTException;
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -91,21 +93,30 @@ public class WaitForSimControlApplication extends SimControlApplication {
 		JComboBox list = getRunningSimList();
 		JTextField runDir = getSimRunDirField();
 
-		// Select the field to be edited
-		controller.mouseClickAt(InputEvent.BUTTON1_DOWN_MASK, list);
-		sleep(200);
-		controller.waitForIdle();
-
-		// Make sure the field is empty
-		controller.clearTextField();
-		controller.waitForIdle();
-
-		// Type in the connection info
+		selectAndClearField(list);
 		controller.typeString(socketInfo);
 		controller.waitForIdle();
+		selectComponent(runDir); // Change the focus to lock in the typed info
+	}
 
-		// Change the focus to lock in the typed info
-		controller.mouseClickAt(InputEvent.BUTTON1_DOWN_MASK, runDir);
+	public void toggleDataRecButton() {
+		JToggleButton button = getDataRecButton();
+		selectComponent(button);
+	}
+
+	public void toggleRealTimeButton() {
+		JToggleButton button = getRealTimeButton();
+		selectComponent(button);
+	}
+
+	private void selectAndClearField(Component field) {
+		selectComponent(field);
+		controller.clearTextField();
+		controller.waitForIdle();
+	}
+
+	private void selectComponent(Component comp) {
+		controller.mouseClickAt(InputEvent.BUTTON1_DOWN_MASK, comp);
 		controller.waitForIdle();
 	}
 
@@ -131,4 +142,7 @@ public class WaitForSimControlApplication extends SimControlApplication {
 		}
 		return msg;
 	}
+
+	public boolean isDataRecOn() { return getDataRecButton().isSelected(); }
+	public boolean isRealTimeOn() { return getRealTimeButton().isSelected(); }
 }
