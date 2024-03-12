@@ -280,6 +280,8 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		assumeNotNull(errMsg, checkpointFile);
 		assertTrue(errMsg, checkpointFile.exists());
 		
+		// CLEANUP
+		checkpointFile.delete();
 	}
 	
 	@Test
@@ -309,6 +311,56 @@ public class SimControlApplicationUsageTest extends ApplicationTest {
 		assertTrue("Unexpected Status Message:\n" + actualMsgs[2], actualMsgs[2].endsWith(expMsgs[2]));
 		
 		
+	}
+
+	@Test
+	/**
+	 * Testing that data recording toggles off and on correctly. 
+	 */
+	public void testDataRecordingToggle() {
+		// ARRANGE
+		final boolean expectedOrder[] = {true, false, true};
+		boolean actualOrder[] = new boolean[3];
+
+		// ACT
+		for(int i = 0; i < actualOrder.length; i++) {
+			actualOrder[i] = simcontrol.isDataRecOn();
+			simcontrol.toggleDataRecButton();
+			sleep(1000);
+		}
+
+		// ASSERT
+		assertTrue("Data Recording was not ON at the start of the Sim", 
+					expectedOrder[0] == actualOrder[0]);
+		assertTrue("Data Recording didn't toggle OFF correctly", 
+					expectedOrder[1] == actualOrder[1]);
+		assertTrue("Data Recording didn't toggle back ON correctly", 
+					expectedOrder[2] == actualOrder[2]);
+	}
+
+	@Test
+	/**
+	 * Testing that data recording toggles off and on correctly. 
+	 */
+	public void testRealTimeToggle() {
+		// ARRANGE
+		final boolean expectedOrder[] = {true, false, true};
+		boolean actualOrder[] = new boolean[3];
+
+		// ACT
+		for(int i = 0; i < actualOrder.length; i++) {
+			actualOrder[i] = simcontrol.isRealTimeOn();
+			simcontrol.toggleRealTimeButton();
+			sleep(1000);
+		}
+
+		// ASSERT
+		assertTrue("Real Time was not ON at the start of the Sim", 
+					expectedOrder[0] == actualOrder[0]);
+		assertTrue("Real Time didn't toggle OFF correctly", 
+					expectedOrder[1] == actualOrder[1]);
+		assertTrue("Real Time didn't toggle back ON correctly", 
+					expectedOrder[2] == actualOrder[2]);
 	}
 	
 	private static void startApplication(boolean startConnected) {
