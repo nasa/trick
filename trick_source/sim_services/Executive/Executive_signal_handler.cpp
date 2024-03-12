@@ -21,6 +21,7 @@
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
+#include <execinfo.h>
 #endif
 
 #include "trick/Executive.hh"
@@ -69,6 +70,37 @@ void Trick::Executive::signal_handler(int sig) {
                     "/proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());
             system(command);
         }
+//=========================================================================================`
+#elif __APPLE__
+        char command[2048];
+        char path[1024] ;
+        uint32_t size = sizeof(path) ;
+        if (_NSGetExecutablePath(path, &size) == 0 ) {
+            if (attach_debugger == true) {
+                snprintf(command, sizeof(command),
+                "NOTICE!! An instance of LLDB is started and keeping your simulation\n"
+                "executable suspended. LLDB has not, and cannot attach to your simulation\n"
+                "(i.e., its parent process) without it and your sim being killed\n"
+                "by Apple's `System Integrity Protection` (SIP) (presumably for security\n"
+                "reasons). You may be able to attach LLDB to your suspended simulation\n"
+                "from a different terminal (an independent process) with: $ lldb -p %d \n\n", getpid());
+                write( 2, command, strlen(command));
+                snprintf(command, sizeof(command),
+                "Note that this may also require the apppropriate `elevated privileges` or that\n"
+                "your sim executable is code signed (using Apple's codesign utility.)\n");
+                write( 2, command, strlen(command));
+                snprintf(command, sizeof(command), "%s", debugger_command.c_str());
+                system(command);
+            } else if (stack_trace == true ) {
+                write( 2 , "=============\n" , 14 ) ;
+                write( 2 , " STACK TRACE \n" , 14 ) ;
+                write( 2 , "=============\n" , 14 ) ;
+                void* callstack[128];
+                int frames = backtrace(callstack, 128);
+                backtrace_symbols_fd(callstack, frames, 2); // 1 = stdout 2 = stderr
+            }
+        }
+//=========================================================================================
 #endif
     }
 
