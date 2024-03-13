@@ -148,90 +148,81 @@ int DPM_relation::NumberOfAxes() {
 }
 
 // MEMBER FUNCTION
-const char * DPM_relation::getXAxisLabel() {
-  const char * candidate_label;
-  const char * short_name;
+std::string DPM_relation::getXAxisLabel() {
+  std::string candidate_label;
+  
   int n_curves, i;
 
   if (xaxis) {
       candidate_label = xaxis->getLabel();
   } else {
-      candidate_label = NULL;
+      candidate_label = "";
   }
   // If an Y-Axis label wasn't supplied, see if there is a common
   // variable name that will serve as a label.
-  if (candidate_label == NULL) {
-      if (( candidate_label = curve_list[0]->getXCommonName() ) == NULL) {
-          return (NULL);
+  if (candidate_label == "") {
+      if (( candidate_label = curve_list[0]->getXCommonName() ) == "") {
+          return ("");
       }
       n_curves = (int)curve_list.size();
       for (i=1; i<n_curves; i++) {
-          if (( short_name = curve_list[i]->getXCommonName() ) == NULL ) {
-               return (NULL);
-          }
-          if (strcmp( candidate_label, short_name) != 0 ) {
-               return (NULL);
-          }
+          if ( curve_list[i]->getXCommonName().empty() || candidate_label != curve_list[i]->getXCommonName()) {
+               return ("");
+          } 
       }
   }
   return (candidate_label);
 }
 
 // MEMBER FUNCTION
-const char * DPM_relation::getYAxisLabel() {
-  const char * candidate_label;
-  const char * short_name;
+std::string DPM_relation::getYAxisLabel() {
+  std::string candidate_label;
+  
   int n_curves, i;
 
   if (yaxis) {
       candidate_label = yaxis->getLabel();
   } else {
-      candidate_label = NULL;
+      candidate_label = "";
   }
   // If an Y-Axis label wasn't supplied, see if there is a common
   // variable name that will serve as a label.
-  if (candidate_label == NULL) {
-      if (( candidate_label = curve_list[0]->getYCommonName() ) == NULL) {
-          return (NULL);
+  if (candidate_label == "") {
+      if (( candidate_label = curve_list[0]->getYCommonName() ) == "") {
+          return ("");
       }
       n_curves = (int)curve_list.size();
       for (i=1; i<n_curves; i++) {
-          if (( short_name = curve_list[i]->getYCommonName() ) == NULL ) {
-               return (NULL);
-          }
-          if (strcmp( candidate_label, short_name) != 0 ) {
-               return (NULL);
-          }
+          if (curve_list[i]->getYCommonName().empty() || candidate_label != curve_list[i]->getYCommonName()) {
+               return ("");
+          } 
       }
   }
   return (candidate_label);
 }
 
 // MEMBER FUNCTION
-const char * DPM_relation::getZAxisLabel() {
-  const char * candidate_label;
-  const char * short_name;
+std::string DPM_relation::getZAxisLabel() {
+  std::string candidate_label;
+  
   int n_curves, i;
 
   if (zaxis) {
       candidate_label = zaxis->getLabel();
   } else {
-      candidate_label = NULL;
+      candidate_label = "";
   }
   // If an Z-Axis label wasn't supplied, see if there is a common
   // variable name that will serve as a label.
-  if (candidate_label == NULL) {
-      if (( candidate_label = curve_list[0]->getZCommonName() ) == NULL) {
-          return (NULL);
+  if (candidate_label == "") {
+      if (( candidate_label = curve_list[0]->getZCommonName() ) == "") {
+          return ("");
       }
       n_curves = (int)curve_list.size();
       for (i=1; i<n_curves; i++) {
-          if (( short_name = curve_list[i]->getZCommonName() ) == NULL ) {
-               return (NULL);
-          }
-          if (strcmp( candidate_label, short_name) != 0 ) {
-               return (NULL);
-          }
+          if (curve_list[i]->getZCommonName().empty() || candidate_label != curve_list[i]->getZCommonName()) {
+               return ("");
+          } 
       }
   }
   return (candidate_label);

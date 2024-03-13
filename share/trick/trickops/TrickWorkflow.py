@@ -1284,8 +1284,8 @@ class TrickWorkflow(WorkflowCommon):
                   self.status = Job.Status.FAILED
             if self.missing:
                 return  self.status
-            if (hashlib.md5(open(self.test_data,'rb').read()).hexdigest() !=
-               hashlib.md5(open(self.baseline_data,'rb').read()).hexdigest()):
+            if (hashlib.md5(open(self.test_data,'rb').read(), usedforsecurity=False).hexdigest() !=
+               hashlib.md5(open(self.baseline_data,'rb').read(), usedforsecurity=False).hexdigest()):
                 self.status = Job.Status.FAILED
             else:
                 self.status = Job.Status.SUCCESS
@@ -1540,7 +1540,10 @@ class SingleRun(Job):
           self._sim_time(), self._average_speed())
 
     def _connected_bar(self):
-        progress = self._tics.value / self._terminate_time.value
+        if self._terminate_time.value <= 0.0:
+          progress =  0.0
+        else:
+          progress = self._tics.value / self._terminate_time.value
         return create_progress_bar(
           progress, '{0:.1f}%'.format(100 * progress))
 

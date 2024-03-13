@@ -271,3 +271,17 @@ bool MonteCarloVariableFile::sort_by_col_num(
 {
   return left->get_column_number() < right->get_column_number();
 }
+
+/*****************************************************************************
+summarize_variable
+Purpose:(Provide a string summarizing the attributes of this MonteCarloVariable)
+*****************************************************************************/
+std::string MonteCarloVariableFile::summarize_variable() const
+{
+  std::ostringstream ss;
+  ss << MonteCarloVariable::summarize_variable()
+     << ", max_skip=" << max_skip << ", is_dependent=" << is_dependent
+     << ", filename=" << filename << ", column_number=" << column_number
+     << ", first_column_number=" << first_column_number;
+  return (ss.str());
+}

@@ -80,6 +80,7 @@ class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
         bool access_spec_found ;
 
         static std::set<std::string> private_embedded_classes ;
+        static std::set<std::string> friend_classes ;
 } ;
 
 #endif

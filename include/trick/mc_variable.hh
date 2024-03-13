@@ -65,8 +65,10 @@ class MonteCarloVariable
   const std::string & get_command() const {return command;}
   const std::string & get_variable_name() const {return variable_name;}
   const std::string & get_assignment() const {return assignment;}
-  MonteCarloVariableType get_type() const {return type;}
+  virtual MonteCarloVariableType get_type() const {return type;}
+  virtual std::string  get_type_str() const;
   virtual unsigned int get_seed() const {return 0;}
+  virtual std::string summarize_variable() const;
 
  protected:
   void insert_units();

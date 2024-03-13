@@ -43,6 +43,7 @@ class MonteCarloVariableRandomStringSet : public MonteCarloVariableRandomUniform
 
   virtual ~MonteCarloVariableRandomStringSet(){};
   virtual void generate_assignment();
+  virtual std::string summarize_variable() const;
   void add_string(std::string);
  private: // and undefined:
   MonteCarloVariableRandomStringSet(const MonteCarloVariableRandomStringSet&);

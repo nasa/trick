@@ -78,16 +78,16 @@ public:
     }
 
     /**
-     * Return the X-axis label of the plot, which may be NULL.
+     * Return the X-axis label of the plot, which may be empty.
      */
-    const char *getXLabel() {
+    std::string getXLabel() {
         return( relation->getXAxisLabel());
     }
 
     /**
-     * Return the Y-axis label of the plot, which may be NULL.
+     * Return the Y-axis label of the plot, which may be empty.
      */
-    const char *getYLabel() {
+    std::string getYLabel() {
         return( relation->getYAxisLabel());
     }
 

@@ -126,6 +126,7 @@ int DPV_TextBuffer::readFile( const char* fileName ) {
     numRead = fread((char *) buf, fileSize, 1, fp);
     if (numRead != 1) {
         delete[]buf;
+        fclose(fp);
         return (-1);
     }
     buf[fileSize] = '\0';

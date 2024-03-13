@@ -40,9 +40,11 @@ void Trick::Threads::clear_scheduled_queues() {
 void Trick::Threads::dump( std::ostream & oss ) {
     oss << "Trick::Threads (" << name << ")" << std::endl ;
     oss << "    process_type = " ;
+    // Regardless of type, amf_cycle is used to store the cycle time set.
+    // If thread_id is 0 which means main thread, amf_cycle can't be set so the init value 0 will be dumped.
     switch ( process_type ) {
-        case PROCESS_TYPE_SCHEDULED: oss << "scheduled" << std::endl ; break ;
-        case PROCESS_TYPE_ASYNC_CHILD: oss << "asynchronous" << std::endl ; break ;
+        case PROCESS_TYPE_SCHEDULED: oss << "scheduled = " << amf_cycle << std::endl ; break ;
+        case PROCESS_TYPE_ASYNC_CHILD: oss << "asynchronous = " << amf_cycle << std::endl ; break ;
         case PROCESS_TYPE_AMF_CHILD: oss << "asynchronous must finish with amf_cycle = " << amf_cycle << std::endl ; break ;
     }
     trigger_container.getThreadTrigger()->dump(oss) ;

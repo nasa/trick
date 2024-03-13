@@ -61,6 +61,7 @@ class ConstructValues {
         }
 
         std::string getFullyQualifiedName(const std::string& delimiter = "::") ;
+        std::string getNameOnlyWithNamespaces(const std::string& delimiter = "::");
 
         void printOpenNamespaceBlocks(std::ostream& ostream);
         void printCloseNamespaceBlocks(std::ostream& ostream);

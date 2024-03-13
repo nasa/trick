@@ -54,6 +54,9 @@ int Trick::Executive::write_s_job_execution(FILE *fp) {
         }
     }
 
+    fprintf(fp, "Executive time tic value (tics/second) information\n");
+    fprintf(fp, "    time tic value = %d\n\n", time_tic_value);
+
     fprintf(fp, "Thread information\n");
     for ( ii = 0 ; ii < threads.size() ; ii++ ) {
         std::stringstream oss ;

@@ -556,9 +556,8 @@ int Trick::IntegLoopScheduler::process_dynamic_events ( double t_start, double t
         if (status != 0) { return status; }
         status = process_dynamic_events(t_from, t_to, depth+1);
         if (status != 0) { return status; }
-    } else {
-        return 0;
     }
+    return 0;
 }
 
 /**

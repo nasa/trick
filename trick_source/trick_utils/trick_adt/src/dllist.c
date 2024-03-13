@@ -19,12 +19,13 @@ DLLIST *DLL_Create(void)
 
 /* initializes a list */
 /* return: none */
-
+// JMP: This should  return a status to let us know whether or not we succeeded
 void DLL_Delete(DLLIST * list)
 {
 
     if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+        fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return;
     }
 
@@ -34,15 +35,31 @@ void DLL_Delete(DLLIST * list)
     }
 }
 
+/* Determine whether the given list contains the node at the given pos.
+   If it does, return 1, otherwise return 0.
+*/
+static int DLL_ListContainsPos( DLLPOS pos, DLLIST * list) {
+     
+    if ((list == NULL) || (pos == NULL)) {
+        return 0;
+    }
+    DLLPOS lpos = list->head;
+    while ((lpos != pos) && (lpos != NULL)) {
+        lpos = lpos->next;
+    }
+    if (lpos == NULL) {
+        return 0;
+    }
+    return 1;
+}
 
-/* returns number of elements in list */
-/* return: count */
-
+// JMP: This should return a status to let us know whether or not we succeeded
 void DLL_Init(DLLIST * list)
 {
 
     if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+        fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return;
     }
 
@@ -62,7 +79,8 @@ int DLL_GetCount(DLLIST * list)
 {
 
     if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+        fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return -1;
     }
 
@@ -80,9 +98,14 @@ void *DLL_Find(void *data, DLLIST * list)
 {
     DLLPOS pos;
 
-
     if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+        fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+        fflush(stderr);
+        return NULL;
+    }
+    if (list->compare == NULL) {
+        fprintf(stderr, "Error (%s): List doesn't have a compare function.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
 
@@ -105,7 +128,8 @@ DLLPOS DLL_FindPos(void *data, DLLIST * list)
 
 
     if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+        fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
 
@@ -122,6 +146,7 @@ DLLPOS DLL_FindPos(void *data, DLLIST * list)
 /* find position at given index */
 /* return: position of nth element */
 
+
 DLLPOS DLL_FindIndex(int n, DLLIST * list)
 {
     int nPos = 0;
@@ -129,13 +154,14 @@ DLLPOS DLL_FindIndex(int n, DLLIST * list)
 
 
     if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+        fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
 
-
-    if (n < 0 && n >= list->count) {
-        fprintf(stderr, "Index is either negative or exceeds the number of elements in the list");
+    if ( (n < 0) || (n >= list->count) ) {
+        fprintf(stderr, "Error (%s): Index is either negative or exceeds the number of elements in the list.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
 
@@ -154,22 +180,17 @@ DLLPOS DLL_FindIndex(int n, DLLIST * list)
 
 void *DLL_GetAt(DLLPOS pos, DLLIST * list)
 {
-
-    if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+    if ((list == NULL) || (pos == NULL)) {
+        fprintf(stderr, "Error (%s): Either pos, list, or both are NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
-
-
-    if (pos == NULL) {
-        fprintf(stderr, "Position is NULL");
+    if ( !DLL_ListContainsPos(pos, list) ) {
+        fprintf(stderr, "Error (%s): The specified list doesn't contain the specified node (pos).\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
-
-    if (list) {
-        return pos->info;
-    }
-    return (NULL);
+    return pos->info;
 }
 
 
@@ -178,21 +199,19 @@ void *DLL_GetAt(DLLPOS pos, DLLIST * list)
 
 void *DLL_SetAt(DLLPOS pos, void *info, DLLIST * list)
 {
-
-    void *ret;
-
-
-    if (pos == NULL && list == NULL) {
-        fprintf(stderr, "List and Position are NULL");
+    if ((list == NULL) || (pos == NULL)) {
+        fprintf(stderr, "Error (%s): Either pos, list, or both are NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
-
-    if (pos != NULL && list != NULL) {
-        ret = pos->info;
-        pos->info = info;
-        return ret;
+    if ( !DLL_ListContainsPos(pos, list) ) {
+        fprintf(stderr, "Error (%s): The specified list doesn't contain the specified node (pos).\n", __FUNCTION__);
+        fflush(stderr); 
+        return NULL;
     }
-    return (NULL);
+    void* prev_info = pos->info;
+    pos->info = info;
+    return prev_info;
 }
 
 
@@ -203,34 +222,37 @@ void *DLL_RemoveAt(DLLPOS pos, DLLIST * list)
 {
     void *ret;
 
-
-    if (pos == NULL && list == NULL) {
-        fprintf(stderr, "List and Position are NULL");
+    if ((pos == NULL) || (list == NULL)) {
+        fprintf(stderr, "Error (%s): List or Position is NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
 
-    if (pos != NULL && list != NULL) {
-        list->count--;
-        if (pos->prev != NULL) {
-            pos->prev->next = pos->next;
-            if (pos->next != NULL)
-                pos->next->prev = pos->prev;
-            else
-                list->tail = pos->prev;
-        } else if (pos->next != NULL) {
-            list->head = pos->next;
-            pos->next->prev = NULL;
-        } else {
-            list->head = NULL;
-            list->tail = NULL;
-        }
-        ret = pos->info;
-
-        free(pos);
-        return ret;
-
+    if ( !DLL_ListContainsPos(pos, list) ) {
+        fprintf(stderr, "Error (%s): The specified list doesn't contain the specified node (pos).\n", __FUNCTION__);
+        fflush(stderr); 
+        return NULL;
     }
-    return (NULL);
+
+    if (pos->prev != NULL) {             // check whether pos is the head
+        pos->prev->next = pos->next;     // pos is not the head
+        if (pos->next != NULL)           // check whether pos is the tail
+            pos->next->prev = pos->prev; // pos is not the tail
+        else
+            list->tail = pos->prev;      // pos is the tail
+    } else if (pos->next != NULL) {      // pos is the head, check whether it's also the tail
+        list->head = pos->next;          // pos not the tail
+        pos->next->prev = NULL;
+    } else {                             // pos is both the head and the tail
+        list->head = NULL;
+        list->tail = NULL;
+    }
+
+    list->count --;
+    ret = pos->info;
+    free(pos);
+    return ret;
+
 }
 
 
@@ -244,7 +266,8 @@ void DLL_RemoveAll(DLLIST * list)
 
 
     if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+        fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return;
     }
 
@@ -263,13 +286,6 @@ DLLPOS DLL_InsertBefore(DLLPOS pos, void *data, DLLIST * list)
 {
     if (pos != NULL && list != NULL) {
         DLLPOS newpos = (DLLPOS) malloc(sizeof(DLLNODE));
-
-
-        if (pos == NULL && list == NULL) {
-            fprintf(stderr, "List and Position are NULL");
-            return NULL;
-        }
-
         newpos->info = data;
         if (pos->prev == NULL) {
             newpos->next = list->head;
@@ -282,8 +298,11 @@ DLLPOS DLL_InsertBefore(DLLPOS pos, void *data, DLLIST * list)
             newpos->next = pos;
             pos->prev = newpos;
         }
+        list->count++;
         return newpos;
     }
+    fprintf(stderr, "Error (%s): Either List, Position, or both are NULL.\n", __FUNCTION__);
+    fflush(stderr);
     return (NULL);
 }
 
@@ -295,16 +314,9 @@ DLLPOS DLL_InsertAfter(DLLPOS pos, void *data, DLLIST * list)
 {
     if (pos != NULL && list != NULL) {
         DLLPOS newpos = (DLLPOS) malloc(sizeof(DLLNODE));
-
-
-        if (pos == NULL && list == NULL) {
-            fprintf(stderr, "List and Position are NULL");
-            return NULL;
-        }
-
         newpos->info = data;
         if (pos->next == NULL) {
-            newpos->next = list->tail;
+            newpos->prev = list->tail;
             newpos->next = NULL;
             list->tail = newpos;
             pos->next = newpos;
@@ -314,56 +326,53 @@ DLLPOS DLL_InsertAfter(DLLPOS pos, void *data, DLLIST * list)
             newpos->prev = pos;
             pos->next = newpos;
         }
+        list->count++;
         return newpos;
     }
-
+    fprintf(stderr, "Error (%s): Either List, Position, or both are NULL.\n", __FUNCTION__);
+    fflush(stderr);
     return (NULL);
 }
-
 
 /* gets the next position in the list */
 /* return: the data at the current pos */
 
-void *DLL_GetNext(DLLPOS * pos, DLLIST * list)
+void *DLL_GetNext(DLLPOS* pos_p, DLLIST * list)
 {
-    void *ret;
-
-
-    if (pos == NULL && list == NULL) {
-        fprintf(stderr, "List and Position are NULL");
+    if ((list == NULL) || (pos_p == NULL)) {
+        fprintf(stderr, "Error (%s): Either the List, the Position pointer, or both are NULL.\n", __FUNCTION__);
+        fflush(stderr);
+        return (NULL);
+    }
+    if ( !DLL_ListContainsPos(*pos_p, list) ) {
+        fprintf(stderr, "Error (%s): List doesn't contain a node at the given position.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
-
-    if (pos != NULL && list != NULL) {
-        ret = (*pos)->info;
-        *pos = (*pos)->next;
-        return ret;
-    }
-    return (NULL);
+    void* data = (*pos_p)->info;
+    *pos_p = (*pos_p)->next;
+    return data;
 }
-
 
 /* gets the previous position in the list */
 /* return: the data at the current position */
 
-void *DLL_GetPrev(DLLPOS * pos, DLLIST * list)
+void *DLL_GetPrev(DLLPOS * pos_p, DLLIST * list)
 {
-    void *ret;
-
-
-    if (pos == NULL && list == NULL) {
-        fprintf(stderr, "List and Position are NULL");
+    if ((list == NULL) || (pos_p == NULL)) {
+        fprintf(stderr, "Error (%s): Either the List, the Position pointer, or both are NULL.\n", __FUNCTION__);
+        fflush(stderr);
+        return (NULL);
+    }
+    if ( !DLL_ListContainsPos(*pos_p, list) ) {
+        fprintf(stderr, "Error (%s): List doesn't contain a node at the given position.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
-
-    if (pos != NULL && list != NULL) {
-        ret = (*pos)->info;
-        *pos = (*pos)->prev;
-        return ret;
-    }
-    return (NULL);
+    void* data = (*pos_p)->info;
+    *pos_p = (*pos_p)->prev;
+    return data;
 }
-
 
 /* adds an element to the head of the list */
 /* return: the position of the new element */
@@ -372,13 +381,6 @@ DLLPOS DLL_AddHead(void *data, DLLIST * list)
 {
     if (list != NULL) {
         DLLPOS newpos = (DLLPOS) malloc(sizeof(DLLNODE));
-
-
-        if (list == NULL) {
-            fprintf(stderr, "List is NULL");
-            return NULL;
-        }
-
         newpos->info = data;
         if (list->head == NULL) {
             list->head = newpos;
@@ -394,6 +396,8 @@ DLLPOS DLL_AddHead(void *data, DLLIST * list)
         list->count++;
         return newpos;
     }
+    fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+    fflush(stderr);
     return (NULL);
 }
 
@@ -405,13 +409,6 @@ DLLPOS DLL_AddTail(void *data, DLLIST * list)
 {
     if (list != NULL) {
         DLLPOS newpos = (DLLPOS) malloc(sizeof(DLLNODE));
-
-
-        if (list == NULL) {
-            fprintf(stderr, "List is NULL");
-            return NULL;
-        }
-
         newpos->info = data;
         if (list->tail == NULL) {
             list->head = newpos;
@@ -427,6 +424,8 @@ DLLPOS DLL_AddTail(void *data, DLLIST * list)
         list->count++;
         return newpos;
     }
+    fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+    fflush(stderr);
     return (NULL);
 }
 
@@ -438,7 +437,8 @@ DLLPOS DLL_GetHeadPosition(DLLIST * list)
 {
 
     if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+        fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
 
@@ -454,9 +454,9 @@ DLLPOS DLL_GetHeadPosition(DLLIST * list)
 
 DLLPOS DLL_GetTailPosition(DLLIST * list)
 {
-
     if (list == NULL) {
-        fprintf(stderr, "List is NULL");
+        fprintf(stderr, "Error (%s): List is NULL.\n", __FUNCTION__);
+        fflush(stderr);
         return NULL;
     }
 

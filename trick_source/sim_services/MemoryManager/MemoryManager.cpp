@@ -89,8 +89,8 @@ Trick::MemoryManager::~MemoryManager() {
                 io_src_delete_class( ai_ptr );
             }
         }
-        free(ai_ptr->name);
-        free(ai_ptr->user_type_name);
+        if (ai_ptr->name) { free(ai_ptr->name); }
+        if (ai_ptr->user_type_name) { free(ai_ptr->user_type_name); }
         free(ai_ptr) ;
     }
     alloc_info_map.clear() ;

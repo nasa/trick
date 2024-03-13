@@ -46,6 +46,7 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
     char* allocation_name;
     int n_elems;
     Language language;
+    TRICK_ALLOC_TYPE allocation_type;
     void* address;
     ATTRIBUTES* sub_attr;
     ALLOC_INFO *new_alloc;
@@ -126,6 +127,8 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
             return ((void*)NULL);
         }
         language = Language_CPP;
+        /* io_src_allocate_class allocates objects using calloc (only).  */
+        allocation_type = TRICK_ALLOC_MALLOC;
 
     } else if ((type == TRICK_STRING) && (n_stars == 0 ) ) {
 
@@ -157,6 +160,7 @@ void* Trick::MemoryManager::declare_var( TRICK_TYPE type,
         new_alloc->size = size;
         new_alloc->language = language;
         new_alloc->type = type;
+        new_alloc->alloc_type = allocation_type;
 
         if ((type == TRICK_STRUCTURED) || (type == TRICK_ENUMERATED)) {
             new_alloc->user_type_name = strdup( user_type_name.c_str());
