@@ -441,7 +441,7 @@ MonteCarloMaster::collate_meta_data()
 
   // Capture and alphabetize all variable names with their respective variable
   // type; count the number of each type.
-  std::list< std::string > variable_names;
+  std::list< std::string > variable_details;
   std::list< std::string > exec_file_names;
   std::list< std::pair < unsigned int, std::string> > random_variables;
   unsigned int count_calc = 0;
@@ -456,27 +456,27 @@ MonteCarloMaster::collate_meta_data()
     // Unreachable case in current implementation.
     // All current variable classes have been given a "type"
     default:
-      variable_names.push_back (var_it->get_variable_name() + ", Undefined_type");
+      variable_details.push_back(var_it->summarize_variable());
       count_undef++;
       break;
     case MonteCarloVariable::Calculated:
-      variable_names.push_back (var_it->get_variable_name() + ", Calculated");
+      variable_details.push_back (var_it->summarize_variable());
       count_calc++;
       break;
     case MonteCarloVariable::Constant:
-      variable_names.push_back (var_it->get_variable_name() + ", Constant");
+      variable_details.push_back (var_it->summarize_variable());
       count_const++;
       break;
     case MonteCarloVariable::Execute:
-      exec_file_names.push_back (var_it->get_variable_name());
+      exec_file_names.push_back (var_it->summarize_variable());
       count_exec++;
       break;
     case MonteCarloVariable::Prescribed:
-      variable_names.push_back (var_it->get_variable_name() + ", Prescribed");
+      variable_details.push_back (var_it->summarize_variable());
       count_presc++;
       break;
     case MonteCarloVariable::Random:
-      variable_names.push_back (var_it->get_variable_name() + ", Random");
+      variable_details.push_back (var_it->summarize_variable());
       count_rand++;
       std::pair< unsigned int, std::string> var(var_it->get_seed(),
                                                 var_it->get_variable_name());
@@ -484,7 +484,7 @@ MonteCarloMaster::collate_meta_data()
       break;
     }
   }
-  variable_names.sort();
+  variable_details.sort();
 
   meta_data <<
     "\n\n*************************** SUMMARY **************************\n" <<
@@ -497,8 +497,8 @@ MonteCarloMaster::collate_meta_data()
     count_undef << " variables of undefined type" <<
     "\n\n********************* LIST OF VARIABLES, TYPES****************\n";
 
-  std::list< std::string >::iterator var_name_it = variable_names.begin();
-  for (; var_name_it != variable_names.end(); ++var_name_it) {
+  std::list< std::string >::iterator var_name_it = variable_details.begin();
+  for (; var_name_it != variable_details.end(); ++var_name_it) {
     meta_data << (*var_name_it) << "\n";
   }
   meta_data <<

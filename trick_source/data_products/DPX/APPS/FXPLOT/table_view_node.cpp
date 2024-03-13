@@ -319,15 +319,14 @@ TableViewNode::TableViewNode( Widget Toplevel, DPC_table* Table, int Xpos, int Y
     // Print out the column heading labels.
     // ----------------------------------------------------------------
     for (colix=0; colix < n_columns ; colix++) {
-        const char *column_label = table->getColumnLabel( colix);
-
-        if (!column_label) {
+        std::string column_label = table->getColumnLabel(colix);
+        if (column_label.empty()) {
             snprintf( charbuf, sizeof(charbuf), "Column_%d", colix);
             table_text_buf = twprint( table_text_buf, &table_buf_size, &table_insertion_pos,
                                       column_heading_format[colix], charbuf);
         } else {
             table_text_buf = twprint( table_text_buf, &table_buf_size, &table_insertion_pos,
-                                      column_heading_format[colix], column_label);
+                                      column_heading_format[colix], column_label.c_str());
         }
     }
     table_text_buf = twprint( table_text_buf, &table_buf_size, &table_insertion_pos, (char *)"\n");

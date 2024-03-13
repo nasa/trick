@@ -44,6 +44,7 @@ class MonteCarloVariableRandomNormal : public MonteCarloVariableRandom
 
   virtual ~MonteCarloVariableRandomNormal(){};
   virtual void generate_assignment();
+  virtual std::string summarize_variable() const;
   void truncate(double limit, TruncationType type = StandardDeviation);
   void truncate(double min, double max, TruncationType type = StandardDeviation);
   void truncate_low(double limit, TruncationType type = StandardDeviation);

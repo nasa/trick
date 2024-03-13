@@ -16,6 +16,7 @@ PROGRAMMERS:
 #include <limits>
 #include <algorithm>
 #include <assert.h>
+#include <sstream> // ostringstream
 
 /*****************************************************************************
 Constructor
@@ -105,6 +106,19 @@ MonteCarloVariableRandomNormal::generate_assignment()
   assign_double(assignment_d);
 }
 
+/*****************************************************************************
+summarize_variable
+Purpose:(Provide a string summarizing the attributes of this MonteCarloVariable)
+*****************************************************************************/
+std::string MonteCarloVariableRandomNormal::summarize_variable() const
+{
+  std::ostringstream ss;
+  ss << MonteCarloVariable::summarize_variable() << std::string(", dispersion=Normal")
+     << ", mean=" << distribution.mean() << ", stddev=" << distribution.stddev()
+     << ", min_value=" << min_value << ", max_value=" << max_value
+     << ", seed=" << seed_m;
+  return (ss.str());
+}
 /*****************************************************************************
 truncate
 Purpose:(Truncates the normal distribution to be within +- limit.)

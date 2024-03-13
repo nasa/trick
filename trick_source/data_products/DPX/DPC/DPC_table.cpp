@@ -194,12 +194,12 @@ int DPC_table::getNumColumns() {
 }
 
 // MEMBER FUNCTION
-const char *DPC_table::getColumnLabel(unsigned int index) {
+std::string DPC_table::getColumnLabel(unsigned int index) {
     DPM_column *column = table_spec->getColumn( index );
     if ( column->getLabel() != NULL) {
         return( column->getLabel());
     } else {
-        return( column->getVar()->getShortName());
+        return( column->getVar()->getShortName() );
     }
 }
 
