@@ -1100,6 +1100,14 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
             QRectF pathBox = path->boundingRect();
             double w = pathBox.width();
             double h = pathBox.height();
+            if ( w == 0 && h == 0 && path->elementCount() > 0 ) {
+                // If single point (could be duplicated), make 1x1 box around pt
+                double x = pathBox.x()-0.5;
+                double y = pathBox.y()-0.5;
+                w = 1.0;
+                h = 1.0;
+                pathBox.setRect(x,y,w,h);
+            }
             QPointF topLeft(xs*pathBox.topLeft().x()+xb,
                            (ys*pathBox.topLeft().y()+yb));
             QRectF scaledPathBox(topLeft,QSizeF(xs*w,ys*h));
@@ -1113,6 +1121,16 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
     } else if ( presentation == "error" ) {
         QPainterPath* errorPath = _createCurvesErrorPath(curvesIdx);
         bbox = errorPath->boundingRect();
+        double w = bbox.width();
+        double h = bbox.height();
+        if ( w == 0 && h == 0 && errorPath->elementCount() > 0 ) {
+            // If single point (could be duplicated), make 1x1 box around pt
+            double x = bbox.x()-0.5;
+            double y = bbox.y()-0.5;
+            w = 1.0;
+            h = 1.0;
+            bbox.setRect(x,y,w,h);
+        }
         delete errorPath;
     } else {
         fprintf(stderr,"koviz [bad scoobs]: PlotBookModel::calcCurvesBBox()\n");
