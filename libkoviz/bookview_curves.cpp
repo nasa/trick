@@ -1057,6 +1057,12 @@ QPixmap* CurvesView::_createLivePixmap()
     if ( !isCurves ) {
         return 0;
     }
+    QString pres = _bookModel()->getDataString(rootIndex(),
+                                               "PlotPresentation","Plot");
+    if ( pres == "error" ) {
+        // Pixmaps are only used to optimize coplots
+        return 0;
+    }
 
     QPixmap* livePixmap = new QPixmap(viewport()->rect().size());
 
