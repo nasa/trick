@@ -252,6 +252,7 @@ void CurvesLayoutItem::_printCoplot(const QTransform& T,
             curveModel->map();
             ModelIterator* it = curveModel->begin();
 
+            QPointF lastPoint;
             bool isFirst = true;
             while ( !it->isDone() ) {
 
@@ -262,9 +263,24 @@ void CurvesLayoutItem::_printCoplot(const QTransform& T,
 
                 double x = it->x()*xs+xb;
                 double y = it->y()*ys+yb;
-                if ( isXLogScale ) x = log10(x);
-                if ( isYLogScale ) y = log10(y);
+                if ( isXLogScale ) {
+                    if ( x == 0.0 ) {
+                        it->next();
+                        continue; // log(0) is -inf (skip point)
+                    } else {
+                        x = log10(qAbs(x));
+                    }
+                }
+                if ( isYLogScale ) {
+                    if ( y == 0.0 ) {
+                        it->next();
+                        continue;  // log(0) is -inf (skip point)
+                    } else {
+                        y = log10(qAbs(y));
+                    }
+                }
                 QPointF p(x,y);
+                lastPoint = p;
                 p = T.map(p);
 
                 if ( isFirst ) {
@@ -282,23 +298,18 @@ void CurvesLayoutItem::_printCoplot(const QTransform& T,
             QRectF curveBBox = path->boundingRect();
             if ( curveBBox.height() == 0.0 ) {
 
-                // Get string value of y
-                it = curveModel->begin();
-                double y = it->y()*ys+yb;  // y is constant, so use first point
-                QString yString = QString("%1").arg(y,0,'g',9);
-                QVariant v(yString);
-                double y2 = v.toDouble();
-                double e = qAbs(y-y2);
-                if ( e > 1.0e-9 ) {
-                    // If %.9g loses too much accuracy, use %lf
-                    yString = QString("%1").arg(y,0,'f',9);
-                }
-
                 QString label;
-                if ( path->elementCount() == 1 ) {
-                    // It's a point, not a curve
-                    double x = it->x()*xs+xb;
-                    QString xString = QString("%1").arg(y,0,'g',9);
+                if ( path->elementCount() == 0 ) {
+                    QRectF R = painter->clipBoundingRect();
+                    QPointF p(R.x()+R.width()/2.0,R.y()+R.height()/2.0);
+                    painter->drawText(p,"Empty");
+                } else {
+                    // Get string value of x
+                    double x = lastPoint.x();
+                    if ( isXLogScale ) {
+                        x = pow(10,x);
+                    }
+                    QString xString = QString("%1").arg(x,0,'g',9);
                     QVariant v(xString);
                     double x2 = v.toDouble();
                     double e = qAbs(x-x2);
@@ -306,19 +317,38 @@ void CurvesLayoutItem::_printCoplot(const QTransform& T,
                         // If %.9g loses too much accuracy, use %lf
                         xString = QString("%1").arg(x,0,'f',9);
                     }
-                    label = QString("Point=(%1,%2)").arg(xString).arg(yString);
-                } else {
-                    // It's a flatline
-                    label = QString("Flatline=%1").arg(yString);
-                }
-                int h = painter->fontMetrics().height();
-                QColor color( _bookModel->getDataString(curveIdx,
+
+                    // Get string value of y
+                    double y = lastPoint.y();
+                    if ( isYLogScale ) {
+                        y = pow(10,y);
+                    }
+                    QString yString = QString("%1").arg(y,0,'g',9);
+                    v = yString;
+                    double y2 = v.toDouble();
+                    e = qAbs(y-y2);
+                    if ( e > 1.0e-9 ) {
+                        // If %.9g loses too much accuracy, use %lf
+                        yString = QString("%1").arg(y,0,'f',9);
+                    }
+
+                    if ( path->elementCount() == 1 ) {
+                        // It's a point, not a curve
+                        label = QString("Point=(%1,%2)").
+                                                      arg(xString).arg(yString);
+                    } else {
+                        // It's a flatline
+                        label = QString("Flatline=%1").arg(yString);
+                    }
+                    int h = painter->fontMetrics().height();
+                    QColor color( _bookModel->getDataString(curveIdx,
                                                         "CurveColor","Curve"));
-                QPen pen = painter->pen();
-                pen.setColor(color);
-                painter->setPen(pen);
-                painter->drawText(curveBBox.topLeft()-QPointF(0,h+10),label);
-                delete it;
+                    QPen pen = painter->pen();
+                    pen.setColor(color);
+                    painter->setPen(pen);
+                    painter->drawText(
+                                     curveBBox.topLeft()-QPointF(0,h+10),label);
+                }
             }
 
             curveModel->unmap();
@@ -425,6 +455,27 @@ void CurvesLayoutItem::_printCoplot(const QTransform& T,
             pen.setWidthF(w);
             painter->setPen(pen);
         }
+
+        // Draw end symbol
+        QString symbolEnd = _bookModel->getDataString(curveIdx,
+                                                   "CurveSymbolEnd", "Curve");
+        symbolEnd = symbolEnd.toLower();
+        if ( !symbolEnd.isEmpty() && symbolEnd != "none" ) {
+            QVector<qreal> pattern;
+            pen.setDashPattern(pattern); // plain lines for drawing symbols
+            double w = pen.widthF();
+            pen.setWidthF(xHeight/11.0);
+            painter->setPen(pen);
+            int nEls = path->elementCount();
+            if ( nEls > 0 ) {
+                QPointF pLast = path->elementAt(nEls-1);
+                __paintSymbol(pLast,symbolEnd,painter);
+            }
+            pen.setWidthF(w);
+            painter->setPen(pen);
+        }
+
+
         delete path;
         ++i;
     }
@@ -579,74 +630,21 @@ void CurvesLayoutItem::_printErrorplot(const QTransform& T,
 {
     QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,"Curves","Plot");
 
-    QModelIndex curveIdx0 = _bookModel->index(0,0,curvesIdx);
-    QModelIndex curveIdx1 = _bookModel->index(1,0,curvesIdx);
 
-    QVariant v0 = _bookModel->data(_bookModel->
-                                   getDataIndex(curveIdx0,"CurveData","Curve"));
-    QVariant v1 = _bookModel->data(_bookModel->
-                                   getDataIndex(curveIdx1,"CurveData","Curve"));
-    CurveModel* c0 = QVariantToPtr<CurveModel>::convert(v0);
-    CurveModel* c1 = QVariantToPtr<CurveModel>::convert(v1);
+    // mpath is "math" error path with actual values
+    QPainterPath* mpath = _bookModel->getCurvesErrorPath(curvesIdx);
 
-    if ( c0 == 0 || c1 == 0 ) {
-        fprintf(stderr,"koviz [bad scoobs]:1: BookView::_printErrorplot()\n");
-        exit(-1);
-    }
-
-    // Make list of scaled (e.g. unit) data points
-    double start = _bookModel->getDataDouble(QModelIndex(),"StartTime");
-    double stop = _bookModel->getDataDouble(QModelIndex(),"StopTime");
-    double tolerance = _bookModel->getDataDouble(QModelIndex(),
-                                                   "TimeMatchTolerance");
-    QList<QPointF> pts;
-    double k0 = _bookModel->getDataDouble(curveIdx0,"CurveYScale","Curve");
-    double k1 = _bookModel->getDataDouble(curveIdx1,"CurveYScale","Curve");
-    double ys0 = _bookModel->yScale(curveIdx0);
-    double ys1 = (k1/k0)*_bookModel->yScale(curveIdx1);
-    c0->map();
-    c1->map();
-    ModelIterator* i0 = c0->begin();
-    ModelIterator* i1 = c1->begin();
-    while ( !i0->isDone() && !i1->isDone() ) {
-        double t0 = i0->t();
-        double t1 = i1->t();
-        if ( qAbs(t1-t0) <= tolerance ) {
-            if ( t0 >= start && t0 <= stop ) {
-                double d = ys0*i0->y() - ys1*i1->y();
-                pts << QPointF(t0,d);
-            }
-            i0->next();
-            i1->next();
-        } else {
-            if ( t0 < t1 ) {
-                i0->next();
-            } else if ( t1 < t0 ) {
-                i1->next();
-            } else {
-                fprintf(stderr,"koviz [bad scoobs]:2: _printErrorplot()\n");
-                exit(-1);
-            }
-        }
-    }
-    delete i0;
-    delete i1;
-    c0->unmap();
-    c1->unmap();
-
-
-    // Create path from points
+    // Use mpath to create painter path with pdf value points
     QPainterPath path;
-    if ( !pts.isEmpty() ) {
-        bool isFirst = true;
-        foreach ( QPointF p, pts ) {
-            p = T.map(p);
-            if ( isFirst ) {
-                isFirst = false;
-                path.moveTo(p);
-            } else {
-                path.lineTo(p);
-            }
+    bool isFirst = true;
+    for (int i = 0; i < mpath->elementCount(); ++i) {
+        QPointF p(mpath->elementAt(i).x,mpath->elementAt(i).y);
+        p = T.map(p);
+        if ( isFirst ) {
+            isFirst = false;
+            path.moveTo(p);
+        } else {
+            path.lineTo(p);
         }
     }
 
@@ -658,7 +656,8 @@ void CurvesLayoutItem::_printErrorplot(const QTransform& T,
     QPen ePen(painter->pen());
     ePen.setWidthF(16.0);
     QRectF curveBBox = path.boundingRect();
-    if (curveBBox.height() == 0.0 && !pts.isEmpty() && pts.first().y() == 0.0) {
+    if (curveBBox.height() == 0.0 && path.elementCount() > 0
+            && mpath->elementAt(0).y == 0.0) {
         // Color green if error plot is flatline zero
         ePen.setColor(_bookModel->flatLineColor());
     } else {
@@ -666,22 +665,43 @@ void CurvesLayoutItem::_printErrorplot(const QTransform& T,
     }
     painter->setPen(ePen);
 
-    if ( curveBBox.height() == 0.0 && !pts.isEmpty() ) {
+    if ( curveBBox.height() == 0.0 && path.elementCount() > 0 ) {
         // If curve is flat (constant), label with "Flatline=#"
         QString yval;
-        if ( pts.at(0).y() == 0.0 ) {
-            yval = yval.sprintf("Flatline=0.0");
+        QString plotYScale = _bookModel->getDataString(plotIdx,
+                                                       "PlotYScale","Plot");
+        double error = mpath->elementAt(0).y;
+        if ( plotYScale == "log" ) {
+            error = pow(10,error) ;
+        }
+        if ( curveBBox.width() == 0 ) {
+            QString plotXScale = _bookModel->getDataString(plotIdx,
+                                                           "PlotXScale","Plot");
+            double x = mpath->elementAt(0).x;
+            if ( plotXScale == "log" ) {
+                x = pow(10,x) ;
+            }
+            yval = QString("Flatpoint=(%1,%2)").
+                    arg(x,0,'g').arg(error,0,'g');
         } else {
-            yval = yval.sprintf("Flatline=%g",pts.at(0).y());
+            yval = yval.sprintf("Flatline=%g",error);
         }
         int h = painter->fontMetrics().descent();
         painter->drawText(curveBBox.topLeft()-QPointF(0,h),yval);
     }
 
-    painter->drawPath(path);  // print!
+    if ( path.elementCount() == 0 ) {
+        QRectF R = painter->clipBoundingRect();
+        QPointF p(R.x()+R.width()/2.0,R.y()+R.height()/2.0);
+        painter->drawText(p,"Empty");
+    } else {
+        painter->drawPath(path);  // normal
+    }
 
     painter->setPen(origPen);
     painter->restore();
+
+    delete mpath;
 }
 
 void CurvesLayoutItem::_paintGrid(QPainter* painter,
