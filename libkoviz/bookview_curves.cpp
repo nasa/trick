@@ -309,15 +309,22 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             QTransform I;
             painter.setTransform(I);
             double top = tbox.y()-fontMetrics().ascent();
+            QPoint drawPt;
             if ( top >= 0 ) {
                 // Draw label over curve
-                painter.drawText(tbox.topLeft()-QPointF(0,5),label);
+                drawPt = tbox.topLeft().toPoint()-QPoint(0,5);
             } else {
                 // Draw label under curve since it would drawn off page
-                painter.drawText(tbox.topLeft()+
-                                 QPointF(0,fontMetrics().ascent())
-                                 +QPointF(0,5),label);
+                drawPt = tbox.topLeft().toPoint()+
+                                QPoint(0,fontMetrics().ascent()) + QPoint(0,5);
             }
+            QRect labelRect = painter.fontMetrics().boundingRect(label);
+            labelRect.moveTo(tbox.topLeft().toPoint());
+            if ( labelRect.right() > painter.viewport().right() ) {
+                // Shift label to left of point so it stays in viewport
+                drawPt = drawPt - QPoint(labelRect.width(),0);
+            }
+            painter.drawText(drawPt,label);
             painter.setTransform(Tscaled);
 
         } else if ( path->elementCount() == 0 ) {

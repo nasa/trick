@@ -340,14 +340,21 @@ void CurvesLayoutItem::_printCoplot(const QTransform& T,
                         // It's a flatline
                         label = QString("Flatline=%1").arg(yString);
                     }
-                    int h = painter->fontMetrics().height();
                     QColor color( _bookModel->getDataString(curveIdx,
                                                         "CurveColor","Curve"));
                     QPen pen = painter->pen();
                     pen.setColor(color);
                     painter->setPen(pen);
-                    painter->drawText(
-                                     curveBBox.topLeft()-QPointF(0,h+10),label);
+
+                    int h = painter->fontMetrics().descent();
+                    QPoint drawPt = curveBBox.topLeft().toPoint()-QPoint(0,h);
+                    QRect L = painter->fontMetrics().boundingRect(label);
+                    L.moveTo(drawPt);
+                    if ( L.right() > painter->viewport().right() ) {
+                        // Move label into viewport
+                        drawPt = drawPt - QPoint(L.width(),0);
+                    }
+                    painter->drawText(drawPt,label);
                 }
             }
 
