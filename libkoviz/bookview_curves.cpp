@@ -892,10 +892,22 @@ void CurvesView::_paintErrorplot(const QTransform &T,
     if ( ebox.height() == 0.0 && errorPath->elementCount() > 0 ) {
         // Flatline
         QString label;
-        if ( ebox.y() == 0.0 ) {
-            label = QString("Flatline=0.0");
+        QString plotYScale = _bookModel()->getDataString(plotIdx,
+                                                         "PlotYScale","Plot");
+        double error = ebox.y();
+        if ( plotYScale == "log" ) {
+            error = pow(10,error) ;
+        }
+        if ( ebox.width() == 0 ) {
+            QString plotXScale = _bookModel()->getDataString(plotIdx,
+                                                           "PlotXScale","Plot");
+            double x = ebox.x();
+            if ( plotXScale == "log" ) {
+                x = pow(10,x) ;
+            }
+            label = QString("Flatpoint=(%1,%2)").arg(x,0,'g').arg(error,0,'g');
         } else {
-            label = QString("Flatline=%1").arg(ebox.y(),0,'g');
+            label = QString("Flatline=%1").arg(error,0,'g');
         }
         QTransform I;
         painter.setTransform(I);
