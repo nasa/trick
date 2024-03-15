@@ -51,17 +51,23 @@ VersionNumber::VersionNumber(const QString &s) :
             _minor = list.at(1).toInt(&ok);
         }
         if ( ok ) {
-            // Handle "13.4.0-543" "13.4.dev-1" cases
+            // Handle "13.4.0-543","13.4.dev-1" and "19.8.0-beta" cases
             QString s3 = list.at(2);
             QStringList l3 = s3.split('-');
-            if ( l3.at(0) == "dev" ) {
+            _patch = l3.at(0).toInt(&ok);
+            if ( !ok ) {
+                // E.g. if 19.8.dev-40, then patch string is "dev"
                 _patch = -1;
-            } else {
-                _patch = l3.at(0).toInt(&ok);
+                _patchString = l3.at(0);
+                ok = true;
             }
-            if ( ok && l3.length() == 2 ) {
-                if ( !l3.at(1).isEmpty() ) {
-                    _revision = l3.at(1).toInt(&ok);
+            if ( l3.length() == 2 ) {
+                _revision = l3.at(1).toInt(&ok);
+                if ( !ok ) {
+                    // E.g. if 19.8.0-beta, then revision string is "beta"
+                    _revision = -1;
+                    _revisionString = l3.at(1);
+                    ok = true;
                 }
             }
         }
@@ -82,13 +88,17 @@ VersionNumber::VersionNumber(const QString &s) :
 QString VersionNumber::toString()
 {
 
-    QString patchStr("dev");
+    QString patchStr(_patchString);
     if ( _patch >= 0 ) {
-        patchStr = QString("%0").arg(_patch);
+        patchStr = QString("%1").arg(_patch);
+    }
+    QString revisionStr(_revisionString);
+    if ( _revision >= 0 ) {
+        revisionStr = QString("%1").arg(_revision);
     }
 
     return QString("%0.%1.%2-%3").arg(_major).arg(_minor).
-                                 arg(patchStr).arg(_revision);
+                                                 arg(patchStr).arg(revisionStr);
 }
 
 bool VersionNumber::operator== (const VersionNumber& o) const

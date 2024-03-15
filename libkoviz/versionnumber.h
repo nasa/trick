@@ -48,6 +48,8 @@ private:
     int _minor;
     int _patch;
     int _revision;
+    QString _patchString;
+    QString _revisionString;
     static QString _err_string;
     static QTextStream _err_stream;
 };
