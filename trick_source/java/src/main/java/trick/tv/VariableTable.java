@@ -402,7 +402,8 @@ public class VariableTable extends JXTable {
                 if (variable.getState() == Variable.State.Valid) {
                     if (variable.getValue().getPrecision() != null
                             && !variable.getValue().getPrecision().contains("--")
-                            && isFractional(variable)) {
+                            && isFractional(variable)
+                            && this.maxPrecisionVisible) {
                         // Sets rounded value of variable by its precision
                         BigDecimal bd = new BigDecimal(variable.getValue().toString());
                         bd = bd.setScale(Integer.parseInt(variable.getValue().getPrecision().toString()), RoundingMode.HALF_UP);
