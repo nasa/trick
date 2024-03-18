@@ -494,7 +494,7 @@ public class VariableTable extends JXTable {
 
         @Override
         public int getColumnCount() {
-            return getPrecisionColumnVisibility ? 5 : 4;
+            return getPrecisionColumnVisibility() ? 5 : 4;
         }
 
         @Override

@@ -219,6 +219,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
     final String validateAddressesKey = "validateAddresses";
     final String searchPanelVisibleKey = "searchPanelVisible";
     final String variableTreeVisibleKey = "variableTreeVisible";
+    final String maxPrecisionVisibleKey = "maxPrecisionVisible";
 
     /** new action */
     protected AbstractAction newAction = new AbstractAction("New",
@@ -403,7 +404,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             setFileFilter(new FileNameExtensionFilter("Trick View Files", "tv"));
         }};
 
-        // Initialze the variable tree.
+        // Initialize the variable tree.
         variableTree = new TVVariableTree() {{
             setEnabled(false);
 
@@ -1643,6 +1644,26 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                     }
                 });
             }});
+
+            // Max Precision Toggle
+            add(new JCheckBoxMenuItem("Max Precision") {{
+                setToolTipText("Toggle visibility of the Max Precision.");
+                setMnemonic(KeyEvent.VK_M);
+                setSelected(Boolean.parseBoolean(trickProperties.getProperty(
+                        maxPrecisionVisibleKey, Boolean.toString(false))));
+                addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent actionEvent) {
+                        // by default it is not selected. On selection, it shows Max Precision Column on Variable Table
+                        if(isSelected()) {
+                            variableTable.setMaxPrecisionVisible(true);
+                        } else {
+                            variableTable.setMaxPrecisionVisible(false);
+                        }
+                    }
+                });
+            }});
+
+
         }}, 1);
 
         return menuBar;
