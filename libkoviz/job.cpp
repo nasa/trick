@@ -185,7 +185,7 @@ void Job::_parseJobId(const QString &jobId)
          jobId.startsWith("trick_frame_userjobs_C") ||
          jobId.startsWith("frame_userjobs_C") ||
          jobId.startsWith("snap_userjobs_C")) &&
-         jobId.endsWith("frame_sched_time") ) {
+         jobId.endsWith("frame_time") ) {
         _isFrameTimerJob = true;
     }
 
@@ -196,7 +196,7 @@ void Job::_parseJobId(const QString &jobId)
     //
     if ( _isFrameTimerJob ) {
 
-        name = name.remove(".frame_sched_time");
+        name = name.remove(".frame_time");
         _job_name = name.trimmed();
 
         QString strThreadId;
