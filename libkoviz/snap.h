@@ -69,7 +69,7 @@ public:
     int num_frames() const { return _numFrames; }
     int num_overruns() const { return _num_overruns; }
     double percent_overruns() const { return 100.0*
-                                   (double)num_overruns()/(double)num_frames(); }
+                                  (double)num_overruns()/(double)num_frames(); }
     double frame_rate() const ; // for now return list of frame rates
     double frame_avg() const { return _frame_avg; }
     double frame_stddev() const { return _frame_stddev; }

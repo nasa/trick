@@ -116,7 +116,7 @@ void Thread::_do_stats()
         while ( !it->isDone() ) {
 
             // If overrun time is above 0, tally an overrun.
-            double ov = it->y()/1000000.0;
+            double ov = it->y();
             if ( ov > 0.0 ) _num_overruns++;
 
             // Get frame time, which excludes waitOnWallClock & waitOnAMFChidren
@@ -124,8 +124,8 @@ void Thread::_do_stats()
             // time waiting to sync with wall clock but includes
             // the sync with amf children
             int amfIdx  = timeToSyncWithAMFChildrenCurve->indexAtTime(it->t());
-            double timeToSyncWithAMFChildren = iamf->at(amfIdx)->y()/1000000.0;
-            double frameSchedTime = it->x()/1000000.0;
+            double timeToSyncWithAMFChildren = iamf->at(amfIdx)->y();
+            double frameSchedTime = it->x();
             double ft = frameSchedTime - timeToSyncWithAMFChildren;
 
             if ( ft < 0 ) ft = 0.0;
@@ -139,7 +139,7 @@ void Thread::_do_stats()
             ++rowCount;
             _runtimeCurve->setData(timeIdx,it->t());
             _runtimeCurve->setData(valIdx,ft);
-            sum_time += ft*1000000.0;
+            sum_time += ft;
             sum_squares += ft*ft;
 
             it->next();
@@ -200,7 +200,7 @@ void Thread::_do_stats()
                 }
             }
 
-            double ft = frame_time/1000000.0;
+            double ft = frame_time;
 
             if ( ft > _freq ) {
                 _num_overruns++;
@@ -234,8 +234,8 @@ void Thread::_do_stats()
     double s = sum_time;
     double n = (double)rowCount;
 
-    _avg_runtime = (s/n)/1000000.0;
-    _stdev       = qSqrt(ss/n - (s*s/(n*n))*(1.0e-12));
+    _avg_runtime = s/n;
+    _stdev       = qSqrt(ss/n - (s*s/(n*n)));
 
     if ( _freq > 0.0000001 ) {
         _avg_load = 100.0*_avg_runtime/_freq;

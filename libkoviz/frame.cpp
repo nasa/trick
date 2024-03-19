@@ -1,7 +1,7 @@
 #include "frame.h"
 
-QString Frame::frame_sched_time = "trick_real_time.rt_sync.frame_sched_time";
-QString Frame::frame_overrun_time= "trick_real_time.rt_sync.frame_overrun_time";
+QString Frame::frame_sched_time = "trick_real_time.rt_sync.frame_time";
+QString Frame::frame_overrun_time= "trick_real_time.rt_sync.frame_overrun";
 
 bool frameTopJobsGreaterThan(const QPair<double,Job*>& a,
                            const QPair<double,Job*>& b)
@@ -62,7 +62,7 @@ void Frame::_calc_topjobs()
         }
 
         ModelIterator* it = job->curve()->begin();
-        double rt = it->at(tidx)->x()/1000000.0;
+        double rt = it->at(tidx)->x();
         delete it;
 
         if ( rt < 0 ) {
@@ -85,7 +85,7 @@ void Frame::_calc_topjobs()
             QPair<double,Job*> ljob = _topjobs.last();
             int ltidx = threadIdToTimeIdx.value(ljob.second->thread_id());
             ModelIterator* it = ljob.second->curve()->begin();
-            double lrt = it->at(ltidx)->x()/1000000.0;
+            double lrt = it->at(ltidx)->x();
             delete it;
             if ( rt > lrt ) {
                 _topjobs.replace(len-1,qMakePair(rt,job));

@@ -657,7 +657,7 @@ QString SnapReport::report()
     rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
     rpt += str.sprintf("%20s = %.2lf%%\n", "Percentage overruns",
                             _snap.percent_overruns());
-    rpt += str.sprintf("%20s = %.6lf\n", "Frame rate", _snap.frame_rate());
+    rpt += str.sprintf("%20s = %.9lf\n", "Frame rate", _snap.frame_rate());
     rpt += str.sprintf("%20s = %.6lf\n", "Frame avg",_snap.frame_avg());
     rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
     rpt += str.sprintf("%20s = %d\n", "Num threads",_snap.num_threads());

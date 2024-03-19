@@ -31,6 +31,7 @@ using namespace std;
 #include "libkoviz/curvemodel.h"
 #include "libkoviz/trick_types.h"
 #include "libkoviz/session.h"
+#include "libkoviz/versionnumber.h"
 
 QStandardItemModel* createVarsModel(Runs* runs);
 bool writeTrk(const QString& ftrk, const QString &timeName,
@@ -535,6 +536,12 @@ int main(int argc, char *argv[])
                 if ( opts.start != -DBL_MAX || opts.stop != DBL_MAX ) {
                     fprintf(stderr, "snap [warning]: when using the -rt option "
                                     "the -start/stop options are ignored\n");
+                }
+                VersionNumber version = TrickVersion(run).versionNumber();
+                if ( version < VersionNumber("17.0.0-0") ) {
+                    fprintf(stderr, "koviz [error]: The -rt realtime option "
+                            "requires Trick version 17.0.0+.\n");
+                    exit(-1);
                 }
                 Snap snap(run,timeNames);
                 SnapReport rpt(snap);

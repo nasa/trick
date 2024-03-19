@@ -56,34 +56,32 @@ inline void Job::_do_stats()
         exit(-1);
     }
 
-    long freq;
-    QMap<long,int> map_freq;
-    long last_nonzero_timestamp = 0 ;
+    double freq = 0.0;
+    QMap<double,int> map_freq;
+    double last_nonzero_timestamp = 0.0 ;
 
-    long sum_squares = 0 ;
-    long sum_rt = 0 ;
-    long max_rt = 0 ;
+    double sum_squares = 0 ;
+    double sum_rt = 0 ;
+    double max_rt = 0 ;
     ModelIterator* it = _curve->begin();
     int cnt = 0;
     while ( !it->isDone() ) {
 
         double time = it->t();
-        long rt = (long)it->y();
+        double rt = it->y();
 
         if ( rt < 0 ) {
             rt =  0.0;
         }
 
         if ( cnt > 0 && rt > 0 ) {
-            freq = round_10((long)(time*1000000.0) - last_nonzero_timestamp);
-            long freq_cnt ;
+            freq = time - last_nonzero_timestamp;
+            int freq_cnt = 0;
             if ( map_freq.contains(freq) ) {
                 freq_cnt = map_freq.value(freq)+1;
-            } else {
-                freq_cnt = 0;
             }
             map_freq.insert(freq,freq_cnt);
-            last_nonzero_timestamp = (long)(time*1000000.0);
+            last_nonzero_timestamp = time;
         }
 
         if ( rt > max_rt ) {
@@ -99,13 +97,13 @@ inline void Job::_do_stats()
     }
     delete it;
 
-    double ss = (double)sum_squares;
-    double s = (double)sum_rt;
+    double ss = sum_squares;
+    double s = sum_rt;
     double n = (double)cnt;
 
-    _max_runtime = (max_rt)/1000000.0;
-    _avg_runtime = (s/n)/1000000.0;
-    _stddev_runtime = qSqrt(ss/n - s*s/(n*n))/1000000.0 ;
+    _max_runtime = max_rt;
+    _avg_runtime = s/n;
+    _stddev_runtime = qSqrt(ss/n - s*s/(n*n)) ;
 
     //
     // (re)Calculate job frequency
@@ -115,10 +113,10 @@ inline void Job::_do_stats()
         double savedFreq = _freq;
         _freq = 0;
         // Could be multiple frequencies - choose mode
-        foreach ( long freq, map_freq.keys() ) {
+        foreach ( double freq, map_freq.keys() ) {
             int cnt = map_freq.value(freq);
             if ( cnt > max_cnt ) {
-                _freq = freq/1000000.0;
+                _freq = freq;
                 max_cnt = cnt;
             }
         }

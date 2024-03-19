@@ -1,7 +1,7 @@
 #include "simobject.h"
 #include <QtCore/qmath.h>  // qSqrt
 #include <QVector>
-#include <limits.h> // Max/Min
+#include <float.h> // Max/Min
 
 bool simObjectAvgTimeGreaterThan(const SimObject& a, const SimObject& b)
 {
@@ -25,10 +25,10 @@ void SimObject::_do_stats()
 
     qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
-    long sum_squares = 0 ;
-    long sum_rt = 0 ;
-    long max_rt = 0 ;
-    long min_rt = LONG_MAX;
+    double sum_squares = 0 ;
+    double sum_rt = 0 ;
+    double max_rt = 0 ;
+    double min_rt = DBL_MAX;
 
     // Get begin/end timestamps
     double begTimeStamp = 0.0;
@@ -73,8 +73,7 @@ void SimObject::_do_stats()
         currentJobTimeIdx.insert(job,0);
     }
     double timeStamp = begTimeStamp;
-    long iTimeStamp = (long)(timeStamp*1000000);
-    long iFrameRate = (long)(_cycleTime*1000000);
+    long cnt = 1;
     while ( timeStamp < endTimeStamp ) {
 
         _timeStamps->append(timeStamp);
@@ -98,32 +97,31 @@ void SimObject::_do_stats()
             currentJobTimeIdx.insert(job,tidx);
         }
 
-        _runTimes->append(rt/1000000.0);
+        _runTimes->append(rt);
 
-        long irt = (long)rt;
-        if ( irt > max_rt ) {
-            max_rt = irt;
+        if ( rt > max_rt ) {
+            max_rt = rt;
             _max_timestamp = timeStamp;
         }
-        if ( irt < min_rt ) {
-            min_rt = irt;
+        if ( rt < min_rt ) {
+            min_rt = rt;
             _min_timestamp = timeStamp;
         }
-        sum_squares += irt*irt;
-        sum_rt += irt;
+        sum_squares += rt*rt;
+        sum_rt += rt;
 
-        iTimeStamp += iFrameRate;
-        timeStamp = ((double)iTimeStamp)/1000000.0;
+        timeStamp = begTimeStamp + cnt*_cycleTime;
+        ++cnt;
     }
 
     double ss = (double)sum_squares;
     double s = (double)sum_rt;
     double n = (double)(_timeStamps->size());
 
-    _min_runtime = (min_rt)/1000000.0;
-    _max_runtime = (max_rt)/1000000.0;
-    _avg_runtime = (s/n)/1000000.0;
-    _stddev_runtime = qSqrt(ss/n - s*s/(n*n))/1000000.0 ;
+    _min_runtime = min_rt;
+    _max_runtime = max_rt;
+    _avg_runtime = s/n;
+    _stddev_runtime = qSqrt(ss/n - s*s/(n*n));
 }
 
 SimObjects::SimObjects(const QList<Job *> &jobs, double frameRate)
