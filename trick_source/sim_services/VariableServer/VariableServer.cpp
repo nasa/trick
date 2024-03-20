@@ -19,6 +19,10 @@ Trick::VariableServer::~VariableServer() {
     the_vs = NULL;
 }
 
+void Trick::VariableServer::shutdownConnections() {
+    listen_thread.shutdownConnections();
+}
+
 std::ostream& Trick::operator<< (std::ostream& s, Trick::VariableServer& vs) {
     std::map < pthread_t , VariableServerSessionThread * >::iterator it ;
 

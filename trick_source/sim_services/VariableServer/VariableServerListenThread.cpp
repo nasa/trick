@@ -34,6 +34,11 @@ Trick::VariableServerListenThread::VariableServerListenThread(TCPClientListener 
         _listener = new TCPClientListener;
     }
 
+    allowConnections = true;
+    pendingConnections = 0;
+    pthread_mutex_init( &connectionMutex, NULL);
+    pthread_cond_init( &noPendingConnections_cv, NULL);
+
     cancellable = false;
 }
 
@@ -142,7 +147,7 @@ void * Trick::VariableServerListenThread::thread_body() {
     } else {
         user_name = strdup(passp->pw_name) ;
     }
-    
+
     _listener->setBlockMode(true);
 
     if ( _broadcast ) {
@@ -160,18 +165,30 @@ void * Trick::VariableServerListenThread::thread_body() {
         if (_listener->checkForNewConnections()) {
 
             // Create a new thread to service this connection
-            VariableServerSessionThread * vst = new Trick::VariableServerSessionThread() ;
-            vst->set_connection(_listener->setUpNewConnection());
-            vst->copy_cpus(get_cpus()) ;
-            vst->create_thread() ;
-            ConnectionStatus status = vst->wait_for_accept() ;
+            pthread_mutex_lock(&connectionMutex);
+            if ( allowConnections) {
+                pendingConnections ++;
 
-            if (status == CONNECTION_FAIL) {
-                // If the connection failed, the thread will exit.
-                // Make sure it joins fully before deleting the vst object
-                vst->join_thread();
-                delete vst;
+                VariableServerSessionThread * vst = new Trick::VariableServerSessionThread() ;
+                vst->set_connection(_listener->setUpNewConnection());
+                vst->copy_cpus(get_cpus()) ;
+                vst->create_thread() ;
+                ConnectionStatus status = vst->wait_for_accept() ;
+
+                if (status == CONNECTION_FAIL) {
+                    // If the connection failed, the thread will exit.
+                    // Make sure it joins fully before deleting the vst object
+                    vst->join_thread();
+                    delete vst;
+                }
+                pendingConnections --;
+                if ( pendingConnections == 0 ) {
+                    pthread_cond_signal( &noPendingConnections_cv );
+                }
             }
+
+            pthread_mutex_unlock(&connectionMutex);
+
         } else if ( _broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled
             char buf1[1024];
@@ -192,6 +209,16 @@ void * Trick::VariableServerListenThread::thread_body() {
     return NULL ;
 }
 
+void Trick::VariableServerListenThread::shutdownConnections() {
+    pthread_mutex_lock(&connectionMutex);
+        allowConnections = true;
+        //  if ANY connections are pending, then wait here until we’re notified that NO connections are pending.
+        if (pendingConnections > 0) {
+            pthread_cond_wait( &noPendingConnections_cv, &connectionMutex);
+        }
+    pthread_mutex_unlock( &connectionMutex );
+}
+
 #include <fcntl.h>
 
 int Trick::VariableServerListenThread::restart() {
@@ -210,7 +237,7 @@ int Trick::VariableServerListenThread::restart() {
 
         _listener->disconnect();
         ret = _listener->initialize(_requested_source_address, _requested_port);
-        
+
         if (ret != 0) {
             message_publish(MSG_ERROR, "ERROR: Could not establish listen port %d for Variable Server. Aborting.\n", _requested_port);
             return (-1);
@@ -250,4 +277,3 @@ void Trick::VariableServerListenThread::dump( std::ostream & oss ) {
     oss << "    broadcast = " << _broadcast << std::endl ;
     Trick::ThreadBase::dump(oss) ;
 }
-
