@@ -64,7 +64,7 @@ int Trick::Executive::shutdown() {
         }
     }
 
-    /* Stop new connections to the Variable Server.
+    /* Stop new connections to the Variable Server. */
     the_vs->shutdownConnections();
 
     try {
