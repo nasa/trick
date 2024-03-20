@@ -1070,6 +1070,10 @@ QPixmap* CurvesView::_createLivePixmap()
         // Pixmaps are only used to optimize coplots
         return 0;
     }
+    QRectF M = _mathRect();
+    if ( M.width() == 0 || M.height() == 0 ) {
+        return 0;
+    }
 
     QPixmap* livePixmap = new QPixmap(viewport()->rect().size());
 
