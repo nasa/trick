@@ -1,6 +1,13 @@
 #!/usr/bin/perl
 package sie_concat;
 
+use File::Basename ;
+use FindBin qw($RealBin);
+use lib "$RealBin/pm" ;
+use get_paths ;
+
+my @trick_python_paths = get_paths( "TRICK_PYTHON_PATH") ;
+
 open(my $S_sie_resource, ">", "./S_sie.resource")
 	or die "cannot open S_sie.resource $!";
 print $S_sie_resource "<?xml version=\"1.0\"?>\n\n<sie>\n\n";
@@ -13,6 +20,17 @@ while(my $line = <$classes_resource>) {
 }
 
 close($classes_resource);
+
+# Add trickified classes.resource if available
+foreach my $path ( @trick_python_paths ) {
+	my $trickified_dir = dirname($path);
+	open(my $classes_resource, "<", "$trickified_dir/build/classes.resource")
+		or die "cannot open $trickified_dir/build/classes.resource";
+	while(my $line = <$classes_resource>) {
+		print $S_sie_resource $line;
+	}
+	close($classes_resource);
+}
 
 open(my $top_level_objects_resource, "<", "build/top_level_objects.resource")
 	or die "cannot open build/top_level_objects.resource";
