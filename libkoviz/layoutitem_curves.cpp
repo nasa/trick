@@ -626,6 +626,62 @@ void CurvesLayoutItem::__paintSymbol(const QPointF &p,
 
         painter->setFont(origFont);
         painter->setBrush(origBrush);
+    } else if ( symbol == "satellite" ) {
+        // TODO: Really wish that pdf and x11 painting were equivalent
+        //       so wouldn't have to have two different drawings
+        //       See:  BookIdxView::__paintSymbol()
+        QFont origFont = painter->font();
+        QBrush origBrush = painter->brush();
+        QFont font = painter->font();
+        font.setPointSize(160);
+        painter->setFont(font);
+
+        painter->save();
+        painter->setPen(pen);
+        painter->translate(p);
+        painter->rotate(37.0);
+        QBrush brush(painter->pen().color());
+        painter->setBrush(brush);
+
+        // Body
+        double bodyWidth = 60.0;
+        double bodyHeight = 90.0;
+        QRectF bodyRect(-bodyWidth/2.0,-bodyHeight/2.0,bodyWidth,bodyHeight);
+        painter->drawRect(bodyRect);
+
+        // Solar Panels
+        double panelBarLength = 30.0;
+        double panelWidth = 110.0;
+        double panelHeight = 50.0;
+        QRectF panelRect1(-panelBarLength-bodyWidth/2.0-panelWidth,
+                          -panelHeight/2.0,
+                          panelWidth,panelHeight);
+        QRectF panelRect2(panelBarLength+bodyWidth/2.0,
+                          -panelHeight/2.0,
+                          panelWidth,panelHeight);
+        painter->drawRect(panelRect1);
+        painter->drawRect(panelRect2);
+
+        // Panel supports
+        painter->drawLine(0,0, bodyWidth/2+panelBarLength,0);
+        painter->drawLine(0,0,-bodyWidth/2-panelBarLength,0);
+
+        // Dish support bar
+        double dishBarLength = 20.0;
+        painter->drawLine(0,bodyHeight/2,
+                          0,bodyHeight/2+dishBarLength);
+
+        // Dish
+        QRectF dishRect(-bodyWidth/2.0, bodyHeight/2.0+dishBarLength,
+                        bodyWidth, bodyWidth);
+        painter->drawPie(dishRect,0,180*16);
+        double focusHeight = 20.0;
+        painter->drawLine(0,bodyHeight/2+bodyWidth/2+dishBarLength,
+                         0,bodyHeight/2+bodyWidth/2+dishBarLength+focusHeight);
+
+        painter->setFont(origFont);
+        painter->setBrush(origBrush);
+        painter->restore();
     }
 
     painter->setPen(origPen);
