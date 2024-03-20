@@ -13,8 +13,10 @@ DPFilterProxyModel::DPFilterProxyModel(const QStringList& params,
         _modelParams.insert(param,0);
     }
 
-    connect(_sieModel, SIGNAL(modelLoaded()),
-            this, SLOT(_sieModelLoaded()));
+    if ( _sieModel ) {
+        connect(_sieModel, SIGNAL(modelLoaded()),
+                this, SLOT(_sieModelLoaded()));
+    }
 }
 
 bool DPFilterProxyModel::filterAcceptsRow(int row,
