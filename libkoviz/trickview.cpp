@@ -382,11 +382,6 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
     CurveModel* curveModel = new CurveModel(_tvModel,tcol,xcol,ycol);
     _tvCurveModels.append(curveModel);
 
-    QModelIndex curvesIdx = _bookModel->indexFromItem(curvesItem);
-    int nCurves = _bookModel->rowCount(curvesIdx);
-    QList<QColor> colors = _bookModel->createCurveColors(nCurves);
-    QString color = colors.last().name();
-
     bool block = _bookModel->blockSignals(true);
 
     _bookModel->addChild(curveItem, "CurveRunID", -1);
@@ -405,11 +400,74 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
     _bookModel->addChild(curveItem, "CurveYMinRange", -DBL_MAX);
     _bookModel->addChild(curveItem, "CurveYMaxRange",  DBL_MAX);
     _bookModel->addChild(curveItem, "CurveSymbolSize", "");
-    _bookModel->addChild(curveItem, "CurveYLabel", yName);
+
+    QModelIndex curvesIdx = _bookModel->indexFromItem(curvesItem);
+    int nCurves = _bookModel->rowCount(curvesIdx);
+    QList<QColor> colors = _bookModel->createCurveColors(nCurves);
+    QString label = yName;
+    QString color = colors.last().name();
+    QString lineStyle("plain");
+    QString symbolStyle("none");
+    QString symbolEnd("solid_circle");  // give live curve an end symbol
+    if ( 1 <= nCurves && nCurves <= 7 ) {
+        // Commandline overrides e.g. -se1 satellite
+
+        // Label
+        QModelIndex labelsIdx = _bookModel->getIndex(QModelIndex(),
+                                                     "LegendLabels","");
+        QString labelTag = QString("Label%1").arg(nCurves);
+        QString override_label = _bookModel->getDataString(labelsIdx,
+                                                      labelTag, "LegendLabels");
+        if ( !override_label.isEmpty() ) {
+            label = override_label;
+        }
+
+        // Color
+        QModelIndex colorsIdx = _bookModel->getIndex(QModelIndex(),
+                                                     "LegendColors","");
+        QString colorTag = QString("Color%1").arg(nCurves);
+        QString override_color = _bookModel->getDataString(colorsIdx,
+                                                      colorTag, "LegendColors");
+        if ( !override_color.isEmpty() ) {
+            color = override_color;
+        }
+
+        // Line style
+        QModelIndex lineStylesIdx = _bookModel->getIndex(QModelIndex(),
+                                                         "Linestyles","");
+        QString lineStyleTag = QString("Linestyle%1").arg(nCurves);
+        QString override_ls = _bookModel->getDataString(lineStylesIdx,
+                                                    lineStyleTag, "Linestyles");
+        if ( !override_ls.isEmpty() ) {
+            lineStyle = override_ls;
+        }
+
+        // Symbol style
+        QModelIndex symbolStylesIdx = _bookModel->getIndex(QModelIndex(),
+                                                           "Symbolstyles","");
+        QString symbolStyleTag = QString("Symbolstyle%1").arg(nCurves);
+        QString override_ss = _bookModel->getDataString(symbolStylesIdx,
+                                                symbolStyleTag, "Symbolstyles");
+        if ( !override_ss.isEmpty() ) {
+            symbolStyle = override_ss;
+        }
+
+        // Symbol end
+        QModelIndex symbolEndsIdx = _bookModel->getIndex(QModelIndex(),
+                                                         "Symbolends","");
+        QString symbolEndTag = QString("Symbolend%1").arg(nCurves);
+        QString override_symbolEnd = _bookModel->getDataString(symbolEndsIdx,
+                                                    symbolEndTag, "Symbolends");
+        if ( !override_symbolEnd.isEmpty() ) {
+            symbolEnd = override_symbolEnd;
+        }
+    }
+    _bookModel->addChild(curveItem, "CurveYLabel", label);
     _bookModel->addChild(curveItem, "CurveColor", color);
-    _bookModel->addChild(curveItem, "CurveLineStyle","Plain");
-    _bookModel->addChild(curveItem, "CurveSymbolStyle", "none");
-    _bookModel->addChild(curveItem, "CurveSymbolEnd", "solid_circle");
+    _bookModel->addChild(curveItem, "CurveLineStyle", lineStyle);
+    _bookModel->addChild(curveItem, "CurveSymbolStyle", symbolStyle);
+    _bookModel->addChild(curveItem, "CurveSymbolEnd", symbolEnd);
+
 
     QVariant v = PtrToQVariant<CurveModel>::convert(curveModel);
     _bookModel->addChild(curveItem, "CurveData", v);
