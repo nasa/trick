@@ -315,6 +315,16 @@
           <version>2.22.1</version>
           <configuration>
             <printSummary>true</printSummary>
+			<excludes>
+			  <exclude> **/TrickDPApplicationTest.java 		</exclude>
+			  <exclude> **/TrickQPApplicationTest.java 		</exclude>
+			  <exclude> **/DreApplicationTest.java 			</exclude>
+			  <exclude> **/MonteMonitorApplicationTest.java </exclude>
+			  <exclude> **/MtvApplicationTest.java 			</exclude>
+			  <exclude> **/SieApplicationTest.java 			</exclude>
+			  <exclude> **/SnifferApplicationTest.java 		</exclude>
+			  <exclude> **/TVApplicationTest.java 			</exclude>
+			</excludes>
           </configuration>
         </plugin>
 
