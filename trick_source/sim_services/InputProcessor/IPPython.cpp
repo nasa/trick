@@ -33,7 +33,7 @@ Trick::IPPython::IPPython() : Trick::InputProcessor::InputProcessor() , units_co
 
 
 // Need to save the state of the main thread to allow child threads to run PyRun variants.
-static PyThreadState *_save = nullptr;
+static PyThreadState *_save = NULL;
 
 /**
 @details
