@@ -17,7 +17,6 @@
 #define IPPYTHON_HH
 
 #include <string>
-#include <pthread.h>
 #include "trick/InputProcessor.hh"
 
 namespace Trick {
@@ -35,9 +34,6 @@ namespace Trick {
 
             /** Returned value from event condition evaluation.\n */
             int return_val ;                              /**< trick_io(**) trick_units(--) */
-
-            /** Input processor mutex for protection for var server and event processing.\n */
-            pthread_mutex_t ip_mutex;                     /**< trick_io(**) trick_units(--) */
 
             /**
              @brief Constructor.

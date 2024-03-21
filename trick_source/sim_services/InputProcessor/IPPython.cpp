@@ -12,10 +12,10 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include <pthread.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "trick/IPPython.hh"
 #include "trick/MemoryManager.hh"
@@ -30,6 +30,10 @@ Trick::IPPython::IPPython() : Trick::InputProcessor::InputProcessor() , units_co
     the_pip = this ;
     return ;
 }
+
+
+// Need to save the state of the main thread to allow child threads to run PyRun variants.
+static PyThreadState *_save = nullptr;
 
 /**
 @details
@@ -62,7 +66,9 @@ void Trick::IPPython::get_TMM_named_variables() {
             ss << "trick.castAs" << user_type_name << "(int(" << alloc_info->start << "))" << std::endl ;
             ss << "except AttributeError:" << std::endl ;
             ss << "    pass" << std::endl ;
+            PyGILState_STATE gstate = PyGILState_Ensure();
             PyRun_SimpleString(ss.str().c_str()) ;
+            PyGILState_Release(gstate);
         }
     }
 }
@@ -84,12 +90,6 @@ int Trick::IPPython::init() {
     FILE *input_fp ;
     int ret ;
     std::string error_message ;
-    pthread_mutexattr_t m_attr ;
-
-    /* Initialize a mutex to protect python processing for var server and events. */
-    pthread_mutexattr_init(&m_attr) ;
-    pthread_mutexattr_settype(&m_attr, PTHREAD_MUTEX_RECURSIVE) ;
-    pthread_mutex_init(&ip_mutex , &m_attr) ;
 
     // Run Py_Initialze first for python 2.x
 #if PY_VERSION_HEX < 0x03000000
@@ -104,6 +104,7 @@ int Trick::IPPython::init() {
     Py_Initialize();
 #endif
 
+    // The following PyRun_ calls do not require the PyGILState guards because no threads are launched 
     /* Import simulation specific routines into interpreter. */
     PyRun_SimpleString(
      "import sys\n"
@@ -149,18 +150,21 @@ int Trick::IPPython::init() {
     }
 
     fclose(input_fp) ;
-    return(0) ;
 
+    // Release the GIL from the main thread.
+    Py_UNBLOCK_THREADS
+
+    return(0) ;
 }
 
 //Command to parse the given string.
 int Trick::IPPython::parse(std::string in_string) {
 
     int ret ;
-    pthread_mutex_lock(&ip_mutex);
     in_string += "\n" ;
+    PyGILState_STATE gstate = PyGILState_Ensure();
     ret = PyRun_SimpleString(in_string.c_str()) ;
-    pthread_mutex_unlock(&ip_mutex);
+    PyGILState_Release(gstate);
 
     return ret ;
 
@@ -181,12 +185,12 @@ int Trick::IPPython::parse(std::string in_string) {
 */
 int Trick::IPPython::parse_condition(std::string in_string, int & cond_return_val ) {
 
-    pthread_mutex_lock(&ip_mutex);
     in_string =  std::string("trick_ip.ip.return_val = ") + in_string + "\n" ;
     // Running the simple string will set return_val.
+    PyGILState_STATE gstate = PyGILState_Ensure();
     int py_ret = PyRun_SimpleString(in_string.c_str()) ;
+    PyGILState_Release(gstate);
     cond_return_val = return_val ;
-    pthread_mutex_unlock(&ip_mutex);
 
     return py_ret ;
 
@@ -200,7 +204,10 @@ int Trick::IPPython::restart() {
 }
 
 int Trick::IPPython::shutdown() {
+
     if ( Py_IsInitialized() ) {
+        // Obtain the GIL so that we can shut down properly
+        Py_BLOCK_THREADS
         Py_Finalize();
     }
     return(0) ;
