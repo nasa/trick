@@ -66,6 +66,7 @@ Trick::JobData::JobData(int in_thread, int in_id, std::string in_job_class_name 
     next_tics = 0 ;
 
     frame_time = 0 ;
+    frame_time_seconds = 0.0 ;
 }
 
 void Trick::JobData::enable() {
