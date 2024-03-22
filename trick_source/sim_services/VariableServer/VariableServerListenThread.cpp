@@ -165,8 +165,8 @@ void * Trick::VariableServerListenThread::thread_body() {
         if (_listener->checkForNewConnections()) {
 
             // Create a new thread to service this connection
-            pthread_mutex_lock(&connectionMutex);
             if ( allowConnections) {
+                pthread_mutex_lock(&connectionMutex);
                 pendingConnections ++;
 
                 VariableServerSessionThread * vst = new Trick::VariableServerSessionThread() ;
@@ -185,10 +185,9 @@ void * Trick::VariableServerListenThread::thread_body() {
                 if ( pendingConnections == 0 ) {
                     pthread_cond_signal( &noPendingConnections_cv );
                 }
+                pthread_mutex_unlock(&connectionMutex);
             }
-
-            pthread_mutex_unlock(&connectionMutex);
-
+            
         } else if ( _broadcast ) {
             // Otherwise, broadcast on the multicast channel if enabled
             char buf1[1024];
@@ -211,9 +210,10 @@ void * Trick::VariableServerListenThread::thread_body() {
 
 void Trick::VariableServerListenThread::shutdownConnections() {
     pthread_mutex_lock(&connectionMutex);
-        allowConnections = true;
+        allowConnections = false;
         //  if ANY connections are pending, then wait here until we’re notified that NO connections are pending.
         if (pendingConnections > 0) {
+            allowConnections = true;
             pthread_cond_wait( &noPendingConnections_cv, &connectionMutex);
         }
     pthread_mutex_unlock( &connectionMutex );
