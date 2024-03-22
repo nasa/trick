@@ -420,6 +420,7 @@ void PlotBookModel::_initModel()
 
     addChild(rootItem, "Pages","");
     addChild(rootItem, "Tables","");
+    addChild(rootItem, "Runs","");
 }
 
 //
@@ -486,64 +487,66 @@ QModelIndex PlotBookModel::getIndex(const QModelIndex &startIdx,
             idx = index(0,0);
         } else if ( searchItemText == "Tables" ) {
             idx = index(1,0);
-        } else if ( searchItemText == "DefaultPageTitles" ) {
+        } else if ( searchItemText == "Runs" ) {
             idx = index(2,0);
-        } else if ( searchItemText == "LiveCoordTime" ) {
+        } else if ( searchItemText == "DefaultPageTitles" ) {
             idx = index(3,0);
-        } else if ( searchItemText == "LiveCoordTimeIndex" ) {
+        } else if ( searchItemText == "LiveCoordTime" ) {
             idx = index(4,0);
-        } else if ( searchItemText == "StartTime" ) {
+        } else if ( searchItemText == "LiveCoordTimeIndex" ) {
             idx = index(5,0);
-        } else if ( searchItemText == "StopTime" ) {
+        } else if ( searchItemText == "StartTime" ) {
             idx = index(6,0);
-        } else if ( searchItemText == "Presentation" ) {
+        } else if ( searchItemText == "StopTime" ) {
             idx = index(7,0);
-        } else if ( searchItemText == "IsShowLiveCoord" ) {
+        } else if ( searchItemText == "Presentation" ) {
             idx = index(8,0);
-        } else if ( searchItemText == "RunToShiftHash" ) {
+        } else if ( searchItemText == "IsShowLiveCoord" ) {
             idx = index(9,0);
-        } else if ( searchItemText == "LegendLabels" ) {
+        } else if ( searchItemText == "RunToShiftHash" ) {
             idx = index(10,0);
-        } else if ( searchItemText == "Orientation" ) {
+        } else if ( searchItemText == "LegendLabels" ) {
             idx = index(11,0);
-        } else if ( searchItemText == "TimeMatchTolerance" ) {
+        } else if ( searchItemText == "Orientation" ) {
             idx = index(12,0);
-        } else if ( searchItemText == "Frequency" ) {
+        } else if ( searchItemText == "TimeMatchTolerance" ) {
             idx = index(13,0);
-        } else if ( searchItemText == "IsLegend" ) {
+        } else if ( searchItemText == "Frequency" ) {
             idx = index(14,0);
-        } else if ( searchItemText == "LegendColors" ) {
+        } else if ( searchItemText == "IsLegend" ) {
             idx = index(15,0);
-        } else if ( searchItemText == "ForegroundColor" ) {
+        } else if ( searchItemText == "LegendColors" ) {
             idx = index(16,0);
-        } else if ( searchItemText == "BackgroundColor" ) {
+        } else if ( searchItemText == "ForegroundColor" ) {
             idx = index(17,0);
-        } else if ( searchItemText == "Linestyles" ) {
+        } else if ( searchItemText == "BackgroundColor" ) {
             idx = index(18,0);
-        } else if ( searchItemText == "Symbolstyles" ) {
+        } else if ( searchItemText == "Linestyles" ) {
             idx = index(19,0);
-        } else if ( searchItemText == "Symbolends" ) {
+        } else if ( searchItemText == "Symbolstyles" ) {
             idx = index(20,0);
-        } else if ( searchItemText == "Groups" ) {
+        } else if ( searchItemText == "Symbolends" ) {
             idx = index(21,0);
-        } else if ( searchItemText == "StatusBarMessage" ) {
+        } else if ( searchItemText == "Groups" ) {
             idx = index(22,0);
-        } else if ( searchItemText == "IsShowPageTitle" ) {
+        } else if ( searchItemText == "StatusBarMessage" ) {
             idx = index(23,0);
-        } else if ( searchItemText == "IsShowPlotLegend" ) {
+        } else if ( searchItemText == "IsShowPageTitle" ) {
             idx = index(24,0);
-        } else if ( searchItemText == "PlotLegendPosition" ) {
+        } else if ( searchItemText == "IsShowPlotLegend" ) {
             idx = index(25,0);
-        } else if ( searchItemText == "ButtonSelectAndPan" ) {
+        } else if ( searchItemText == "PlotLegendPosition" ) {
             idx = index(26,0);
-        } else if ( searchItemText == "ButtonZoom" ) {
+        } else if ( searchItemText == "ButtonSelectAndPan" ) {
             idx = index(27,0);
-        } else if ( searchItemText == "ButtonReset" ) {
+        } else if ( searchItemText == "ButtonZoom" ) {
             idx = index(28,0);
-        } else if ( searchItemText == "XAxisLabel" ) {
+        } else if ( searchItemText == "ButtonReset" ) {
             idx = index(29,0);
-        } else if ( searchItemText == "YAxisLabel" ) {
+        } else if ( searchItemText == "XAxisLabel" ) {
             idx = index(30,0);
+        } else if ( searchItemText == "YAxisLabel" ) {
+            idx = index(31,0);
         } else {
             fprintf(stderr,"koviz [bad scoobs]:3: getIndex() received "
                            "root as a startIdx and had bad child "
