@@ -29,4 +29,7 @@ public class HeadlessSimControlApplication extends SimControlApplication {
 			public void actionPerformed(ActionEvent UNUSED) {}
 		}; 
 	}
+
+	@Override
+	protected void updateGUI() { /* UNUSED */ }
 }

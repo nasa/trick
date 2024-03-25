@@ -1245,7 +1245,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     /**
      * Updates the GUI as needed if SIM states are changed.
      */
-    private void updateGUI() {
+    protected void updateGUI() {
         String newStatusDesc = SimState.SIM_MODE_DESCRIPTION[simState.getMode()];
 
         recTime.setText(simState.getTwoFractionFormatted(simState.getExecOutTime()));
