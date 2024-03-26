@@ -590,18 +590,19 @@ sub process_class($$$$$) {
     my ($class_name) ;
     my $template_typedefs ;
 
-
 ## Extract the class_name from the class_string
     $class_string =~ /^(?:class|struct)\s+               # keyword class or struct
                       ([_A-Za-z]\w*)                     # class name
                       \s*[\{\:]$
                      /sx or die "Internal error" ;
     $class_name = $1 ;
-    $$new_contents_ref .= $class_string ;
+
+    my $class_content;
+    $class_content .= $class_string ;
 
     if ( $class_string !~ /\{$/ ) {
         $$contents_ref =~ s/^(.*?\s*\{)//s ;
-        $$new_contents_ref .= $1 ;
+        $class_content .= $1 ;
     }
 
     ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
@@ -614,9 +615,20 @@ sub process_class($$$$$) {
 
     #print "*** extracted = $extracted ***\n" ;
     #print "*** contents = $$contents_ref ***\n" ;
+    my $save_namespace_content;
+
+    if ( $curr_namespace ne "" ) {
+       my @split_namespaces = split "::", $curr_namespace;
+       my $sanitized_namespace = @split_namespaces[-1] ;
+       my @namespace_split = split /namespace\s*$sanitized_namespace/, $$new_contents_ref;
+       $save_namespace_content = 'namespace ' . $sanitized_namespace . @namespace_split[-1];
+       $$new_contents_ref = join('namespace ' . $sanitized_namespace, @namespace_split[0 .. $#namespace_split-1]);
+    }
 
     # SWIG doesn't like "const static".  Change it to "static const"
     $extracted =~ s/const\s+static/static const/g ;
+
+    my $isSwigExcludeBlock = 0;
 
     # templated variables need to be declared with the SWIG %template directive.
     # This loop looks for any templated variables and creates the %template lines.
@@ -626,7 +638,17 @@ sub process_class($$$$$) {
 
         if ( $non_var ne "" )  {
             #print "*** non_var = $non_var ***\n" ;
-            $$new_contents_ref .= $non_var ;
+            $class_content .= $non_var ;
+            my $ifndefSwig = $non_var;
+            if ($isSwigExcludeBlock == 0) {
+               if ($ifndefSwig =~ /(?:ifndef\s*SWIG|if\s*!\s*defined\s*\(\s*SWIG\s*\))/ ) {
+                  $isSwigExcludeBlock = 1;
+               }
+            } else {
+               if ($ifndefSwig =~ /endif/ ) {
+                  $isSwigExcludeBlock = 1;
+               }
+            }
         }
 
         if ( $template_var_def_str ne "" )  {
@@ -635,7 +657,6 @@ sub process_class($$$$$) {
                 $template_var_def_str =~ /(.*?>)\s*([_A-Za-z]\w*).*?;/s ;
                 my ($template_full_type) = $1 ;
                 my ($var_name) = $2 ;
-                $$new_contents_ref .= $template_var_def_str ;
 
                 $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
                 my ($template_type) = $1 ;
@@ -658,22 +679,28 @@ sub process_class($$$$$) {
                         my $identifier = "${sanitized_namespace}${class_name}_${var_name}" ;
                         my $trick_swig_template = "TRICK_SWIG_TEMPLATE_$identifier" ;
 
-                        $$new_contents_ref .= "\n#define $trick_swig_template\n" ;
-
-                        my $typedef = "\n#ifdef $trick_swig_template\n" ;
-                        $typedef   .= "\%template($identifier) $template_full_type;\n" ;
-                        $typedef   .= "#undef $trick_swig_template\n" ;
-                        $typedef   .= "#endif\n" ;
-
-                        if ($qualified) {
-                            $global_template_typedefs .= $typedef
-                        } else {
-                            $template_typedefs .= $typedef
+                        my $typedef;
+                        if ($isSwigExcludeBlock == 0) {
+                           $typedef = "#ifndef $trick_swig_template\n" ;
+                           $typedef   .= "#define $trick_swig_template\n";
+                           if ($qualified) {
+                              $typedef .= "\%template($identifier) $template_full_type;\n" ;
+                           } else {
+                              if ( $curr_namespace ne "" ) {
+                                 my $cppns = substr $curr_namespace, 0, -2;
+                                 $typedef .= "namespace $cppns {\n";
+                                 $typedef .= "\%template($identifier) $template_full_type;\n}\n" ;
+                              } else {
+                                 $typedef .= "\%template($identifier) $template_full_type;\n" ;
+                              }
+                           }
+                           $typedef   .= "#endif\n\n" ;
+                           $$new_contents_ref .= $typedef ;
                         }
-
                         $processed_templates{$template_type_no_sp} = 1 ;
                     }
                 }
+                $class_content .= $template_var_def_str ;
             }
         }
     }
@@ -682,16 +709,18 @@ sub process_class($$$$$) {
     push @$class_names_ref , "$curr_namespace$class_name" ;
 
     # write the class contents and semicolon to ensure any template declarations below are after the semicolon.
-    $$new_contents_ref .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
-    $$new_contents_ref .= $extracted . ";\n" ;
-    # write out the templated variable declaration lines found in this class.
-    $$new_contents_ref .= $template_typedefs ;
+    $class_content .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
+    $class_content .= $extracted . ";\n" ;
 
     my $c_ = "$curr_namespace$class_name" ;
     $c_ =~ s/\:/_/g ;
     # Add a #define line that signals that this class has been processed by swig. Classes excluded in #if 0 blocks will
     # not have this #define defined.
-    $$new_contents_ref .= "#define TRICK_SWIG_DEFINED_$c_" ;
+    $class_content .= "#define TRICK_SWIG_DEFINED_$c_" ;
+    if ( $save_namespace_content ne "" ) {
+       $$new_contents_ref .= $save_namespace_content;
+    }
+    $$new_contents_ref .= $class_content;
 }
 
 ## ================================================================================
