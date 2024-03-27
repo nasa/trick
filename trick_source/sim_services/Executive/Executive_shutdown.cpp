@@ -19,6 +19,8 @@
 #include "trick/message_type.h"
 #include "trick/release.h"
 #include "trick/SysThread.hh"
+#include "trick/VariableServer.hh"
+extern Trick::VariableServer * the_vs ;
 
 /**
 @design
@@ -61,6 +63,9 @@ int Trick::Executive::shutdown() {
             }
         }
     }
+
+    /* Stop new connections to the Variable Server. */
+    the_vs->shutdownConnections();
 
     try {
 

@@ -66,6 +66,8 @@ namespace Trick {
             */
             int freeze_init() ;
 
+            void shutdownConnections();
+
             /**
              @brief Shutdown the variable server
              @return always 0
