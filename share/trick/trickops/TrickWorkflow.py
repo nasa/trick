@@ -1284,8 +1284,11 @@ class TrickWorkflow(WorkflowCommon):
                   self.status = Job.Status.FAILED
             if self.missing:
                 return  self.status
-            if (hashlib.md5(open(self.test_data,'rb').read(), usedforsecurity=False).hexdigest() !=
-               hashlib.md5(open(self.baseline_data,'rb').read(), usedforsecurity=False).hexdigest()):
+            td = hashlib.new('md5', usedforsecurity=False)
+            bd = hashlib.new('md5', usedforsecurity=False)
+            td.update(open(self.test_data,'rb').read())
+            bd.update(open(self.baseline_data,'rb').read())
+            if (td.hexdigest() != bd.hexdigest()):
                 self.status = Job.Status.FAILED
             else:
                 self.status = Job.Status.SUCCESS
