@@ -24,12 +24,12 @@ close($classes_resource);
 # Add trickified classes.resource if available
 foreach my $path ( @trick_python_paths ) {
 	my $trickified_dir = dirname($path);
-	open(my $classes_resource, "<", "$trickified_dir/build/classes.resource")
-		or die "cannot open $trickified_dir/build/classes.resource";
-	while(my $line = <$classes_resource>) {
-		print $S_sie_resource $line;
+	if (open(my $classes_resource, "<", "$trickified_dir/build/classes.resource")) {
+		while(my $line = <$classes_resource>) {
+			print $S_sie_resource $line;
+		}
+		close($classes_resource);
 	}
-	close($classes_resource);
 }
 
 open(my $top_level_objects_resource, "<", "build/top_level_objects.resource")
