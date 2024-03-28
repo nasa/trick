@@ -146,12 +146,12 @@ SIM_test_templates:
       - unit_test
     runs:
         RUN_test/unit_test.py:
-# SIM_test_varserv:
-#     path: test/SIM_test_varserv
-#     labels:
-#       - unit_test
-#     runs:
-#         RUN_test/unit_test.py:
+SIM_test_varserv:
+    path: test/SIM_test_varserv
+    labels:
+      - unit_test
+    runs:
+        RUN_test/unit_test.py:
 SIM_threads:
     path: test/SIM_threads
     labels:
@@ -189,8 +189,8 @@ SIM_ball_L2:
     runs:
 SIM_ball_L3:
     path: trick_sims/Ball/SIM_ball_L3
-# SIM_amoeba:
-#     path: trick_sims/Cannon/SIM_amoeba
+SIM_amoeba:
+    path: trick_sims/Cannon/SIM_amoeba
 SIM_cannon_aero:
     path: trick_sims/Cannon/SIM_cannon_aero
 SIM_cannon_analytic:
