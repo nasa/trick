@@ -1,9 +1,6 @@
 name: TrickOps
 # This workflow is triggered on pushes to the repository.
-on:
-  schedule:
-  - cron:  '0 0 * * 0'
-  workflow_dispatch:
+on: [pull_request]
 
 defaults:
   run:
