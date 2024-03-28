@@ -22,6 +22,18 @@
 
 Trick::CheckPointRestart * the_cpr ;
 
+char * sim_mode_to_string(SIM_MODE mode) {
+    switch (mode)
+    {
+    case Initialization: return "INIT";
+    case Run:            return "RUN";
+    case Step:           return "STEP";
+    case Freeze:         return "FREEZE";
+    case ExitMode:       return "EXIT";
+    default:             return "INVALID";
+    }
+}
+
 Trick::CheckPointRestart::CheckPointRestart() {
 
     int num_classes = 0 ;
@@ -171,6 +183,18 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
 
     JobData * curr_job ;
     pid_t pid;
+    SIM_MODE mode;
+
+    mode = the_exec->get_mode();
+
+    if (mode != SIM_MODE::Freeze) {
+        std::string msg_format  = "Do not dump a checkpoint outside of Freeze Mode. ";
+                    msg_format += "Current Mode: %s (%d)\n";
+        message_publish(MSG_WARNING, msg_format.c_str(),
+                        sim_mode_to_string(mode), mode);
+        return(1);
+    }
+    
 
     if ( ! file_name.compare("") ) {
         std::stringstream file_name_stream ;
@@ -293,7 +317,19 @@ int Trick::CheckPointRestart::safestore_checkpoint() {
 }
 
 void Trick::CheckPointRestart::load_checkpoint(std::string file_name) {
-    load_checkpoint_file_name = file_name ;
+    SIM_MODE mode = the_exec->get_mode();
+
+    if (mode != SIM_MODE::Freeze) {
+        std::string msg_format  = "Do not load checkpoint outside of Freeze Mode. ";
+                    msg_format += "Current Mode: %s (%d)\n";
+        
+        message_publish(MSG_WARNING, msg_format.c_str(),
+                        file_name.c_str(), sim_mode_to_string(mode), mode);
+
+        load_checkpoint_file_name = "";
+    } else {
+        load_checkpoint_file_name = file_name ;
+    }
 }
 
 void Trick::CheckPointRestart::load_checkpoint(std::string file_name, bool stls_on) {
