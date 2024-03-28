@@ -319,7 +319,7 @@ int Trick::CheckPointRestart::safestore_checkpoint() {
 void Trick::CheckPointRestart::load_checkpoint(std::string file_name) {
     SIM_MODE mode = the_exec->get_mode();
 
-    if (mode != SIM_MODE::Freeze) {
+    if (mode != Freeze) {
         std::string msg_format  = "Do not load checkpoint outside of Freeze Mode. ";
                     msg_format += "Current Mode: %s (%d)\n";
         
