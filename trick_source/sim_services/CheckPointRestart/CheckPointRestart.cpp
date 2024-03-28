@@ -187,7 +187,7 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
 
     mode = the_exec->get_mode();
 
-    if (mode != SIM_MODE::Freeze) {
+    if (mode != Freeze) {
         std::string msg_format  = "Do not dump a checkpoint outside of Freeze Mode. ";
                     msg_format += "Current Mode: %s (%d)\n";
         message_publish(MSG_WARNING, msg_format.c_str(),
