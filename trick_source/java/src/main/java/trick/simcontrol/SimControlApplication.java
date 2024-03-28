@@ -346,7 +346,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     /**
      * Helper method for starting monitors for sim status as well as health status.
      */
-	private void startStatusMonitors() {
+	protected void startStatusMonitors() {
 		MonitorSimStatusTask monitorSimStatusTask = new MonitorSimStatusTask(this);
         monitorSimStatusTask.addPropertyChangeListener(this);
         getContext().getTaskService().execute(monitorSimStatusTask);

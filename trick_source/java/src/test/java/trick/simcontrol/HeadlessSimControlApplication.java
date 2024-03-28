@@ -32,4 +32,7 @@ public class HeadlessSimControlApplication extends SimControlApplication {
 
 	@Override
 	protected void updateGUI() { /* UNUSED */ }
+
+	@Override
+	protected void startStatusMonitors() { /* UNUSED */}
 }

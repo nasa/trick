@@ -293,7 +293,7 @@ premade:
 ################################################################################
 
 # This target runs Trick's Unit-tests and simulation-tests.
-test: unit_test sim_test
+test: unit_test sim_test gui_test
 	@ echo "All tests completed sucessfully"
 
 test32: sim_test32
@@ -318,6 +318,9 @@ sim_test32:
 
 pytest:
 	make -C share/trick/pymods/trick
+
+gui_test:
+	@ $(MAKE) -C trick_source/java test
 
 COVERAGE_DIRS = trick_source/sim_services \
 				trick_source/trick_utils/var_binary_parser \

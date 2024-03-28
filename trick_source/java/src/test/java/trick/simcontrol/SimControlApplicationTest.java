@@ -33,8 +33,6 @@ import trick.common.utils.VariableServerConnection;
  */
 public class SimControlApplicationTest extends ApplicationTest {
 	private final static String SIM_DIR = "/test/SIM_gui_testing";
-	private final ByteArrayOutputStream stdContent = new ByteArrayOutputStream();
-	private final PrintStream originalStd = System.out;
 	private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
 	private final PrintStream originalErr = System.err;
 
@@ -87,21 +85,6 @@ public class SimControlApplicationTest extends ApplicationTest {
 			simProc.destroy();
 	}
 
-	@Before
-	public void setUp() {		
-		// System.setOut(new PrintStream(stdContent));
-		// System.setErr(new PrintStream(errContent));
-	}
-
-	@After
-	public void tearDown() {
-		// System.setOut(originalStd);
-		// System.setErr(originalErr);
-
-		// stdContent.reset();
-		// errContent.reset();
-	}
-
 	@Test
 	public void testStartSim() throws IOException {
 		// ARRANGE
@@ -126,7 +109,6 @@ public class SimControlApplicationTest extends ApplicationTest {
 		} while (mode != 5 && count < 100000);
 		
 		// ASSERT
-		System.out.println(errContent.toString());
 		assertTrue("Sim Mode is not MODE_RUN(5)\nMODE_ID=" + mode, mode == MODE_RUN);
 
 		// CLEAN UP
@@ -161,7 +143,6 @@ public class SimControlApplicationTest extends ApplicationTest {
 		} while (mode != 1 && count < 100000);
 		
 		// ASSERT
-		System.out.println(errContent.toString());
 		assertTrue("Sim Mode is not MODE_FREEZE (1)\nMODE_ID=" + mode, mode == MODE_FREEZE);
 	}
 	
