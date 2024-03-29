@@ -41,152 +41,41 @@ Runs::~Runs()
 
 void Runs::_init()
 {
-    QStringList filter;
-    filter << "*.trk" << "*.csv" << "*.mot";
-    QStringList files;
-    QHash<QString,QStringList> runToFiles;
-    QHash<QString,QString> fileToRun;
-    QRegExp filterRgx(_filterPattern);
-    QRegExp excludeRgx(_excludePattern);
-    foreach ( QString run, _runDirs ) {
-        if ( ! QFileInfo(run).exists() ) {
-            _err_stream << "koviz [error]: couldn't find run directory: "
-                        << run << "\n";
-            throw std::invalid_argument(_err_string.toLatin1().constData());
-        }
-        QDir runDir(run);
-        QStringList lfiles = runDir.entryList(filter, QDir::Files);
-        if ( lfiles.contains("log_timeline.csv") ) {
-            lfiles.removeAll("log_timeline.csv");
-        }
-        if ( lfiles.contains("log_timeline_init.csv") ) {
-            lfiles.removeAll("log_timeline_init.csv");
-        }
-        if ( lfiles.contains("_init_log.csv") ) {
-            lfiles.removeAll("_init_log.csv");
-        }
-        if ( !excludeRgx.isEmpty() ) {
-            QStringList excludeFiles = lfiles.filter(excludeRgx);
-            foreach (QString excludeFile, excludeFiles) {
-                lfiles.removeAll(excludeFile);
-            }
-        }
-        if ( !filterRgx.isEmpty() ) {
-            QStringList filterFiles = lfiles.filter(filterRgx);
-            if ( !filterFiles.isEmpty() ) {
-                // If the filter has found a match, use filter,
-                // otherwise do not
-                lfiles = filterFiles;
-            }
-        }
-
-        if ( lfiles.empty() ) {
-            _err_stream << "koviz [error]: Either no *.trk/csv/mot files "
-                           "in run dir: " << run << "\n"
-                        << "               or log files were filtered out.\n";
-            throw std::invalid_argument(_err_string.toLatin1().constData());
-        }
-
-        QStringList fullPathFiles;
-        foreach (QString file, lfiles) {
-            QString ffile = run + '/' + file;
-            fullPathFiles.append(ffile);
-            if ( !files.contains(ffile) ) {
-                files << ffile;
-                fileToRun.insert(ffile,run);
-            }
-        }
-        runToFiles.insert(run,fullPathFiles);
-    }
-
     // Begin Progress Dialog
-    const int nFiles = files.size();
     QProgressDialog* progress = 0;
     if ( _isShowProgress ) {
-        progress =  new QProgressDialog("Initializing data models...",
-                                        "Abort", 0, nFiles, 0);
-        progress->setWindowModality(Qt::WindowModal);
-        progress->setMinimumDuration(500);
+        if ( _runDirs.size() > 1 ) {
+            // Show progress when loading more than one model
+            progress =  new QProgressDialog("Initializing data models...",
+                                            "Abort", 0, _runDirs.size(), 0);
+            progress->setWindowModality(Qt::WindowModal);
+            progress->setMinimumDuration(500);
+        }
     }
 
-    QHash<QString,QStringList> runToParams;
-    QHash<QPair<QString,QString>,DataModel*> pfnameToModel;
-    int i = 0;
-    foreach (QString fname, files ) {
-        if ( _isShowProgress ) {
-            if ( nFiles > 7 ) {
-                // Only show progress when loading many files (7 is arbitrary)
-                progress->setValue(i);
-                if (progress->wasCanceled()) {
-                    exit(0);
-                }
-            } else {
-                progress->setValue(files.size());
+    int ii = 0;
+    foreach ( QString run, _runDirs ) {
+        RunDir rundir(run,_timeNames,_varMap,
+                      _filterPattern,_excludePattern,_isShowProgress);
+        _runs.append(rundir);
+        if ( progress ) {
+            if (progress->wasCanceled()) {
+                exit(0);
             }
+            progress->setValue(++ii);
         }
-        DataModel* m = DataModel::createDataModel(_timeNames,fname);
-        m->unmap();
-        _models.append(m);
-        int ncols = m->columnCount();
-        QStringList mParams;
-        for ( int col = 0; col < ncols; ++col ) {
-            QString p = m->param(col)->name();
-            foreach (QString key, _varMap.keys() ) {
-                if ( p == key ) {
-                    break;
-                }
-                QString runDir = QFileInfo(fname).absolutePath();
-                QStringList vals = _varMap.value(key);
-                QStringList names;
-                foreach ( QString val, vals ) {
-                    MapValue mapval(val);
-                    names.append(mapval.name());
-                }
-                if ( names.contains(p) ) {
-                    p = key;
-                    break;
-                } else {
-                    bool isFound = false;
-                    foreach (QString val, vals) {
-                        if ( val.contains(':') ) {
-                            QStringList l = val.split(':');
-                            QString run = QFileInfo(l.at(0).trimmed()).
-                                                            absoluteFilePath();
-                            QString var =  l.at(1);
-                            if ( run == runDir && p == var) {
-                                p = key;
-                                isFound = true;
-                                break;
-                            }
-                        }
-                    }
-                    if ( isFound ) {
-                        break;
-                    }
-                }
-            }
-            mParams << p;
-            pfnameToModel.insert(qMakePair(p,fname),m);
-        }
-        QString run = fileToRun.value(fname);
-        QStringList params = runToParams.value(run);
-        params.append(mParams);
-        params.removeDuplicates();
-        params.sort();
-        runToParams.insert(run,params);
-        ++i;
     }
 
     // End Progress Dialog
-    if ( _isShowProgress ) {
-        progress->setValue(nFiles);
+    if ( progress ) {
+        progress->setValue(_runDirs.size());
         delete progress;
     }
 
     // Make list of params that are in each run (coplottable)
     QSet<QString> paramSet;
-    foreach ( QString run, _runDirs ) {
-        QSet<QString> runParamSet = runToParams.value(run).toSet();
+    foreach ( RunDir run, _runs ) {
+        QSet<QString> runParamSet = run.params().toSet();
         if ( paramSet.isEmpty() ) {
             paramSet = runParamSet;
         } else {
@@ -196,56 +85,47 @@ void Runs::_init()
     _params = paramSet.toList();
     _params.removeDuplicates();
     _params.sort();
-
-    foreach ( QString p, _params ) {
-        _paramToModels.insert(p,new QList<DataModel*>);
-        foreach ( QString run, _runDirs ) {
-            DataModel* m = 0;
-            foreach ( QString fname, runToFiles.value(run) ) {
-                QPair<QString,QString> pfname = qMakePair(p,fname);
-                if ( pfnameToModel.contains(pfname) ) {
-                    m = pfnameToModel.value(pfname);
-                    break;
-                }
-            }
-            _paramToModels.value(p)->append(m);
-        }
-    }
-    int row = 0;
-    foreach ( QString run, _runDirs ) {
-        QDir rundir(run);
-        QString fullrundir = rundir.absolutePath();
-        _rundir2row.insert(fullrundir,row);
-        ++row;
-    }
 }
 
-CurveModel* Runs::curveModel(int row,
-                        const QString &tName,
-                        const QString &xName,
-                        const QString &yName) const
-{
-    if ( row < _runDirs.size() ) {
-        return curveModel(_runDirs.at(row),tName,xName,yName);
-    } else {
-        return 0;
-    }
-}
-
-CurveModel* Runs::curveModel(const QString& rundir,
-                        const QString &t,
-                        const QString &x,
-                        const QString &y) const
+CurveModel *Runs::curveModel(int row,
+                             const QString &tName,
+                             const QString &xName,
+                             const QString &yName) const
 {
     CurveModel* curveModel = 0;
-
-    DataModel* model = _paramModel(y,rundir);
+    if ( row < 0 || row >= _runs.size() ) {
+        return 0;
+    }
+    RunDir rundir = _runs.at(row);
+    DataModel* model = rundir.dataModel(yName);
     if ( !model ) {
         return 0;
     }
-    int tcol = _paramColumn(model,t) ;
-    int xcol = _paramColumn(model,x) ;
-    int ycol = _paramColumn(model,y) ;
+
+    int tcol = _paramColumn(model,tName) ;
+    int xcol = _paramColumn(model,xName) ;
+    int ycol = _paramColumn(model,yName) ;
+
+    if ( tcol < 0 || xcol < 0 ) {
+        fprintf(stderr, "koviz [error]: Runs::curveModel() : koviz does not "
+                "support making a curve from parameters that reside in "
+                "separate files. Found:\n"
+                "    y=%s in file=%s\n"
+                "but could not find:\n",
+                yName.toLatin1().constData(),
+                model->fileName().toLatin1().constData());
+        if ( tcol < 0 ) {
+            fprintf(stderr, "   t=%s in file=%s\n",
+                    tName.toLatin1().constData(),
+                    model->fileName().toLatin1().constData());
+        }
+        if ( xcol < 0 ) {
+            fprintf(stderr, "   x=%s in file=%s\n",
+                    xName.toLatin1().constData(),
+                    model->fileName().toLatin1().constData());
+        }
+        exit(-1);
+    }
 
     curveModel = new CurveModel(model,tcol,xcol,ycol);
 

@@ -47,6 +47,8 @@ SOURCES += bookmodel.cpp \
            bookview_table.cpp \
            curvemodel_copy.cpp \
            dp.cpp \
+           run.cpp \
+           rundir.cpp \
            sie_listmodel.cpp \
            trickvarsortfilterproxymodel.cpp \
            varswidget.cpp \
@@ -130,6 +132,8 @@ HEADERS  += bookmodel.h \
             curvemodel_copy.h \
             datamodel_tv.h \
             dp.h \
+            run.h \
+            rundir.h \
             sie_listmodel.h \
             trickvarsortfilterproxymodel.h \
             varswidget.h \

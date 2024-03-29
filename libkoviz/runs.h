@@ -19,6 +19,7 @@
 #include "curvemodel.h"
 #include "numsortitem.h"
 #include "mapvalue.h"
+#include "rundir.h"
 
 class Runs
 {
@@ -37,11 +38,6 @@ class Runs
                       const QString& tName,
                       const QString& xName,
                       const QString& yName) const;
-    CurveModel* curveModel(const QString& rundir,
-                      const QString& tName,
-                      const QString& xName,
-                      const QString& yName) const;
-
     static QStringList abbreviateRunNames(const QStringList& runNames);
     static QString commonPrefix(const QStringList &names, const QString &sep);
     static QString __commonPrefix(const QString &a, const QString &b,
@@ -63,6 +59,8 @@ class Runs
     QHash<QString,int> _rundir2row;
 
     void _init();
+    QList<RunDir> _runs;
+
     DataModel* _paramModel(const QString& param, const QString &run) const;
     int _paramColumn(DataModel* model, const QString& param) const;
 
