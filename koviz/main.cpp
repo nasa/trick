@@ -351,15 +351,15 @@ int main(int argc, char *argv[])
     }
 
     QStringList dps;
-    QStringList runDirs;
+    QStringList runPaths;
     foreach ( QString f, opts.rundps ) {
         QFileInfo fi(f);
         if ( fi.fileName().startsWith("DP_") ) {
             dps << f;
         } else if ( fi.isDir() ) {
-            runDirs << f;
+            runPaths << f;
         } else if ( fi.isFile() ) {
-            runDirs << f;
+            runPaths << f;
         }
     }
 
@@ -369,9 +369,9 @@ int main(int argc, char *argv[])
     }
 
     if ( session ) {
-        runDirs << session->runs();
+        runPaths << session->runs();
 
-        if ( runDirs.isEmpty() ) {
+        if ( runPaths.isEmpty() ) {
             fprintf(stderr,"koviz [error]: no RUNs "
                            "specified in session_file=\"%s\"\n",
                     opts.sessionFile.toLatin1().constData());
@@ -387,10 +387,10 @@ int main(int argc, char *argv[])
             exit(-1);
         }
     }
-    if ( runDirs.isEmpty() &&
+    if ( runPaths.isEmpty() &&
          opts.trk2csvFile.isEmpty() && opts.csv2trkFile.isEmpty() &&
          opts.trickport == 0 ) {
-        fprintf(stderr, "koviz [error]: no RUNs specified.\n"
+        fprintf(stderr, "koviz [error]: no run paths specified.\n"
                 "       Possible causes:\n"
                 "         1) RUNs not specified on commandline\n"
                 "         2) Forgot to use -session option for session file\n");
@@ -534,7 +534,7 @@ int main(int argc, char *argv[])
 
     try {
         if ( opts.isReportRT ) {
-            foreach ( QString run, runDirs ) {
+            foreach ( QString run, runPaths ) {
                 if ( opts.start != -DBL_MAX || opts.stop != DBL_MAX ) {
                     fprintf(stderr, "snap [warning]: when using the -rt option "
                                     "the -start/stop options are ignored\n");
@@ -604,8 +604,8 @@ int main(int argc, char *argv[])
 
         // If outputting to pdf, you must have a DP file and RUN dir
         if ( isPdf &&
-            ((!opts.isPlotAllVars && dps.size() == 0) || runDirs.size() == 0)&&
-            ((opts.vars.isEmpty() && dps.size() == 0) || runDirs.size() == 0)){
+            ((!opts.isPlotAllVars && dps.size() == 0) || runPaths.size() == 0)&&
+            ((opts.vars.isEmpty() && dps.size() == 0) || runPaths.size() == 0)){
             fprintf(stderr,
                     "koviz [error] : when using the -pdf option you must "
                     "specify a RUN directory and DP product file "
@@ -613,16 +613,16 @@ int main(int argc, char *argv[])
             exit(-1);
         }
 
-        // If outputting to trk, you must have a DP file and RUN dir
-        if ( isTrk && (dps.size() == 0 || runDirs.size() == 0) ) {
+        // If outputting to trk, you must have a DP file and RUN
+        if ( isTrk && (dps.size() == 0 || runPaths.size() == 0) ) {
             fprintf(stderr,
                     "koviz [error] : when using the -trk option you must "
                     "specify a DP product file and RUN directory\n");
             exit(-1);
         }
 
-        // If outputting to csv, you must have a DP file and RUN dir
-        if ( isCsv && (dps.size() == 0 || runDirs.size() == 0) ) {
+        // If outputting to csv, you must have a DP file and RUN
+        if ( isCsv && (dps.size() == 0 || runPaths.size() == 0) ) {
             fprintf(stderr,
                     "koviz [error] : when using the -csv option you must "
                     "specify a DP product file and RUN directory\n");
@@ -630,8 +630,8 @@ int main(int argc, char *argv[])
         }
 
         bool isMonte = false;
-        if ( runDirs.size() == 1 ) {
-            QFileInfo fileInfo(runDirs.at(0));
+        if ( runPaths.size() == 1 ) {
+            QFileInfo fileInfo(runPaths.at(0));
             if ( fileInfo.fileName().startsWith("MONTE_") ) {
                 isMonte = true;
             }
@@ -643,11 +643,11 @@ int main(int argc, char *argv[])
         }
         if ( isMonte ) {
 
-            QDir monteDir(runDirs.at(0));
+            QDir monteDir(runPaths.at(0));
             if ( ! monteDir.exists() ) {
                 fprintf(stderr,
                         "koviz [error]: couldn't find monte directory: %s\n",
-                        runDirs.at(0).toLatin1().constData());
+                        runPaths.at(0).toLatin1().constData());
                 exit(-1);
             }
 
@@ -658,7 +658,7 @@ int main(int argc, char *argv[])
             QStringList monteRuns = monteDir.entryList(filters, QDir::Dirs);
             if ( monteRuns.empty() ) {
                 fprintf(stderr, "koviz [error]: no RUN dirs in %s \n",
-                        runDirs.at(0).toLatin1().constData());
+                        runPaths.at(0).toLatin1().constData());
                 exit(-1);
             }
 
@@ -668,7 +668,7 @@ int main(int argc, char *argv[])
                                               opts.beginRun,opts.endRun);
             QStringList monteRunsList;
             foreach ( QString run, runsList ) {
-                monteRunsList << runDirs.at(0) + "/" + run;
+                monteRunsList << runPaths.at(0) + "/" + run;
             }
 
             runs = new Runs(timeNames,monteRunsList,varMap,
@@ -679,8 +679,8 @@ int main(int argc, char *argv[])
                                                runsList);
         } else {
             QStringList runsList;
-            if ( runDirs.size() > 0 ) {
-                runsList = runsSubset(runDirs,
+            if ( runPaths.size() > 0 ) {
+                runsList = runsSubset(runPaths,
                                       filterPattern,
                                       excludePattern,
                                       opts.beginRun,opts.endRun);
@@ -703,14 +703,14 @@ int main(int argc, char *argv[])
             if ( title.isEmpty() ) {
                 title = "koviz ";
                 if ( isMonte ) {
-                    title += runDirs.at(0);
+                    title += runPaths.at(0);
                 } else {
-                    if ( runDirs.size() == 1 ) {
-                        title += runDirs.at(0);
-                    } else if ( runDirs.size() == 2 ) {
-                        title += runDirs.at(0) + " " + runDirs.at(1);
-                    } else if ( runDirs.size() > 2 ) {
-                        title += runDirs.at(0) + " " + runDirs.at(1) + "...";
+                    if ( runPaths.size() == 1 ) {
+                        title += runPaths.at(0);
+                    } else if ( runPaths.size() == 2 ) {
+                        title += runPaths.at(0) + " " + runPaths.at(1);
+                    } else if ( runPaths.size() > 2 ) {
+                        title += runPaths.at(0) + " " + runPaths.at(1) + "...";
                     }
                 }
             }
@@ -724,10 +724,10 @@ int main(int argc, char *argv[])
                 title = session->title2();
             }
             if ( title.isEmpty() ) {
-                if ( !runDirs.isEmpty() ) {
+                if ( !runPaths.isEmpty() ) {
                     title = "(";
-                    foreach ( QString runDir, runDirs ) {
-                        title += runDir + ",\n";
+                    foreach ( QString runPath, runPaths ) {
+                        title += runPath + ",\n";
                     }
                     title.chop(2);
                     title += ")";
@@ -1019,7 +1019,7 @@ int main(int argc, char *argv[])
         if ( opts.shiftString.isEmpty() && session ) {
             shiftString = session->shift();
         }
-        QHash<QString,QVariant> shifts = getShiftHash(shiftString,runDirs);
+        QHash<QString,QVariant> shifts = getShiftHash(shiftString,runPaths);
 
         bool isShowPageTitle = opts.isShowPageTitle;
         if ( isShowPageTitle == true  && session ) {
@@ -1069,7 +1069,7 @@ int main(int argc, char *argv[])
         }
 
         // Show Tables (don't show if too many runs since it is *slow*)
-        bool isShowTables = (isMonte || runDirs.size() > 7) ? false : true;
+        bool isShowTables = (isMonte || runPaths.size() > 7) ? false : true;
         if ( !opts.showTables.isEmpty() ) {  // use cmd line opt if set
             bool ok;
             isShowTables = Options::stringToBool(opts.showTables,&ok);
@@ -1276,7 +1276,7 @@ int main(int argc, char *argv[])
 
             if ( runs->runDirs().count() == 1 ) {
                 QHash<QString,QVariant> shifts = getShiftHash(shiftString,
-                                                              runDirs);
+                                                              runPaths);
                 double timeShift = 0.0;
                 if ( shifts.size() == 1 ) {
                     bool ok;
@@ -1309,7 +1309,7 @@ int main(int argc, char *argv[])
         } else if ( isCsv ) {
 
 
-            if ( runDirs.size() != 1 ) {
+            if ( runPaths.size() != 1 ) {
                 fprintf(stderr, "koviz [error]: Exactly one RUN dir must be "
                                 "specified with the -csv option.\n");
                 exit(-1);
@@ -1349,7 +1349,7 @@ int main(int argc, char *argv[])
                         ++i;
                     }
 
-                    bool r = writeCsv(fname,timeNames,dpTable,runDirs.at(0),
+                    bool r = writeCsv(fname,timeNames,dpTable,runPaths.at(0),
                                       startTime, stopTime, tolerance);
                     if ( r ) {
                         ret = 0;
@@ -1373,8 +1373,8 @@ int main(int argc, char *argv[])
             if ( dps.size() > 0 ) {
                 listDPs = dps;
                 dpDir = ".";
-            } else if ( runDirs.size() > 0 ) {
-                dpDir = runDirs.at(0);
+            } else if ( runPaths.size() > 0 ) {
+                dpDir = runPaths.at(0);
             }
 
             PlotMainWindow w(bookModel,
