@@ -947,8 +947,13 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                           x->scaleFactor()*curveModel->x()->scale());
     QHash<QString,QVariant> shifts = _bookModel->getDataHash(QModelIndex(),
                                                              "RunToShiftHash");
-    QString curveRunDir = QFileInfo(curveModel->fileName()).absolutePath();
-    if ( shifts.contains(curveRunDir) ) {
+    QFileInfo fi(curveModel->fileName());
+    QString curveRunFile = fi.absoluteFilePath();
+    QString curveRunDir  = fi.absolutePath();
+    if ( shifts.contains(curveRunFile) ) {
+        double shiftVal = shifts.value(curveRunFile).toDouble();
+        _addChild(curveItem, "CurveXBias", shiftVal);
+    } else  if ( shifts.contains(curveRunDir) ) {
         double shiftVal = shifts.value(curveRunDir).toDouble();
         _addChild(curveItem, "CurveXBias", shiftVal);
     } else {
