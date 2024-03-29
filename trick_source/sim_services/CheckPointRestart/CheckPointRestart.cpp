@@ -188,11 +188,10 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
     mode = the_exec->get_mode();
 
     if (mode != Freeze) {
-        std::string msg_format  = "Do not dump a checkpoint outside of Freeze Mode. ";
+        std::string msg_format  = "WARNING: Saving a checkpoint outside of 'Freeze Mode' causes undefined behavior. ";
                     msg_format += "Current Mode: %s (%d)\n";
         message_publish(MSG_WARNING, msg_format.c_str(),
                         sim_mode_to_string(mode), mode);
-        return(1);
     }
     
 
@@ -320,16 +319,14 @@ void Trick::CheckPointRestart::load_checkpoint(std::string file_name) {
     SIM_MODE mode = the_exec->get_mode();
 
     if (mode != Freeze) {
-        std::string msg_format  = "Do not load checkpoint outside of Freeze Mode. ";
+        std::string msg_format  = "WARNING: Loading a checkpoint outside of 'Freeze Mode' causes undefined behavior. ";
                     msg_format += "Current Mode: %s (%d)\n";
         
         message_publish(MSG_WARNING, msg_format.c_str(),
                         file_name.c_str(), sim_mode_to_string(mode), mode);
-
-        load_checkpoint_file_name = "";
-    } else {
-        load_checkpoint_file_name = file_name ;
-    }
+    } 
+        
+    load_checkpoint_file_name = file_name ;
 }
 
 void Trick::CheckPointRestart::load_checkpoint(std::string file_name, bool stls_on) {
