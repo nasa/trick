@@ -1,5 +1,5 @@
-#ifndef RUNDIR_H
-#define RUNDIR_H
+#ifndef RUNFILE_H
+#define RUNFILE_H
 
 #include "run.h"
 #include "mapvalue.h"
@@ -7,24 +7,22 @@
 #include <QDir>
 #include <QString>
 #include <QStringList>
-#include <QRegExp>
 #include <QHash>
 
-class RunDir : public Run
+class RunFile : public Run
 {
 public:
-    RunDir(const QString& run,
+    RunFile(const QString& run,
            const QStringList& timeNames,
-           const QHash<QString,QStringList> &varMap,
-           const QString& filterPattern,
-           const QString& excludePattern);
+           const QHash<QString,QStringList> &varMap);
 
     virtual QStringList params();
     virtual DataModel *dataModel(const QString& param);
 
 private:
     const QHash<QString, QStringList> _varMap;
-    QHash<QString,DataModel*> _param2model;
+    DataModel* _model;
+    QStringList _params;
 };
 
-#endif // RUNDIR_H
+#endif // RUNFILE_H

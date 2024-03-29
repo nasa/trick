@@ -4,7 +4,7 @@ QString Runs::_err_string;
 QTextStream Runs::_err_stream(&Runs::_err_string);
 
 Runs::Runs() :
-    _runDirs(QStringList()),
+    _runPaths(QStringList()),
     _varMap(QHash<QString,QStringList>()),
     _isShowProgress(true)
 {
@@ -17,7 +17,7 @@ Runs::Runs(const QStringList &timeNames,
            const QString &excludePattern,
            bool isShowProgress) :
     _timeNames(timeNames),
-    _runDirs(runDirs),
+    _runPaths(runDirs),
     _varMap(varMap),
     _filterPattern(filterPattern),
     _excludePattern(excludePattern),
@@ -37,6 +37,9 @@ Runs::~Runs()
     foreach ( QString p, _params ) {
         delete _paramToModels.value(p);
     }
+    foreach ( Run* run, _runs ) {
+        delete run;
+    }
 }
 
 void Runs::_init()
@@ -44,20 +47,26 @@ void Runs::_init()
     // Begin Progress Dialog
     QProgressDialog* progress = 0;
     if ( _isShowProgress ) {
-        if ( _runDirs.size() > 1 ) {
+        if ( _runPaths.size() > 1 ) {
             // Show progress when loading more than one model
             progress =  new QProgressDialog("Initializing data models...",
-                                            "Abort", 0, _runDirs.size(), 0);
+                                            "Abort", 0, _runPaths.size(), 0);
             progress->setWindowModality(Qt::WindowModal);
             progress->setMinimumDuration(500);
         }
     }
 
     int ii = 0;
-    foreach ( QString run, _runDirs ) {
-        RunDir rundir(run,_timeNames,_varMap,
-                      _filterPattern,_excludePattern,_isShowProgress);
-        _runs.append(rundir);
+    foreach ( QString runPath, _runPaths ) {
+        QFileInfo fi(runPath);
+        Run* run = 0;
+        if ( fi.isDir() ) {
+            run = new RunDir(runPath,_timeNames,_varMap,
+                             _filterPattern,_excludePattern);
+        } else if ( fi.isFile() ) {
+            run = new RunFile(runPath,_timeNames,_varMap);
+        }
+        _runs.append(run);
         if ( progress ) {
             if (progress->wasCanceled()) {
                 exit(0);
@@ -68,14 +77,14 @@ void Runs::_init()
 
     // End Progress Dialog
     if ( progress ) {
-        progress->setValue(_runDirs.size());
+        progress->setValue(_runPaths.size());
         delete progress;
     }
 
     // Make list of params that are in each run (coplottable)
     QSet<QString> paramSet;
-    foreach ( RunDir run, _runs ) {
-        QSet<QString> runParamSet = run.params().toSet();
+    foreach ( Run* run, _runs ) {
+        QSet<QString> runParamSet = run->params().toSet();
         if ( paramSet.isEmpty() ) {
             paramSet = runParamSet;
         } else {
@@ -96,8 +105,8 @@ CurveModel *Runs::curveModel(int row,
     if ( row < 0 || row >= _runs.size() ) {
         return 0;
     }
-    RunDir rundir = _runs.at(row);
-    DataModel* model = rundir.dataModel(yName);
+    Run* run = _runs.at(row);
+    DataModel* model = run->dataModel(yName);
     if ( !model ) {
         return 0;
     }

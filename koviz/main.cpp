@@ -358,6 +358,8 @@ int main(int argc, char *argv[])
             dps << f;
         } else if ( fi.isDir() ) {
             runDirs << f;
+        } else if ( fi.isFile() ) {
+            runDirs << f;
         }
     }
 

@@ -20,6 +20,7 @@
 #include "numsortitem.h"
 #include "mapvalue.h"
 #include "rundir.h"
+#include "runfile.h"
 
 class Runs
 {
@@ -33,7 +34,7 @@ class Runs
          bool isShowProgress);
     virtual ~Runs();
     virtual QStringList params() const { return _params; }
-    virtual QStringList runDirs() const { return _runDirs; }
+    virtual QStringList runDirs() const { return _runPaths; }
     CurveModel* curveModel(int row,
                       const QString& tName,
                       const QString& xName,
@@ -48,7 +49,7 @@ class Runs
 
   private:
     QStringList _timeNames;
-    QStringList _runDirs;
+    QStringList _runPaths;
     QHash<QString,QStringList> _varMap;
     QString _filterPattern;
     QString _excludePattern;
@@ -59,7 +60,7 @@ class Runs
     QHash<QString,int> _rundir2row;
 
     void _init();
-    QList<RunDir> _runs;
+    QList<Run*> _runs;
 
     DataModel* _paramModel(const QString& param, const QString &run) const;
     int _paramColumn(DataModel* model, const QString& param) const;

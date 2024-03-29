@@ -10,7 +10,7 @@ class Run
 public:
     Run();
     virtual QStringList params() = 0;
-    virtual const DataModel* dataModel(const QString& param) = 0;
+    virtual DataModel* dataModel(const QString& param) = 0;
 };
 
 #endif // RUN_H

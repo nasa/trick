@@ -4,8 +4,7 @@ RunDir::RunDir(const QString &run,
                const QStringList &timeNames,
                const QHash<QString, QStringList> &varMap,
                const QString &filterPattern,
-               const QString &excludePattern,
-               bool isShowProgress) :
+               const QString &excludePattern) :
     _varMap(varMap)
 {
     if ( ! QFileInfo(run).exists() ) {
