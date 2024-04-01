@@ -246,7 +246,7 @@ int main(int argc, char * argv[]) {
 
 #if (LIBCLANG_MAJOR >= 10) && (LIBCLANG_MAJOR < 18)
     clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts());
-#else
+#elif (LIBCLANG_MAJOR >= 18)
     clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts(), ci.getCodeGenOpts());
 #endif
 
@@ -316,7 +316,7 @@ int main(int argc, char * argv[]) {
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
 #endif
     free(inputFilePath);
-#if (LIBCLANG_MAJOR > 3 && LIBCLANG_MAJOR < 18) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
+#if ((LIBCLANG_MAJOR > 3 && LIBCLANG_MAJOR < 18)) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
 #elif (LIBCLANG_MAJOR >= 18)
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
