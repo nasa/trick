@@ -316,12 +316,12 @@ int main(int argc, char * argv[]) {
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
 #endif
     free(inputFilePath);
-#if (LIBCLANG_MAJOR < 3)
-    ci.getSourceManager().createMainFileID(fileEntry);
-#elif (LIBCLANG_MAJOR > 3 && LIBCLANG_MAJOR < 18) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
+#if (LIBCLANG_MAJOR > 3 && LIBCLANG_MAJOR < 18) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
-#else
+#elif (LIBCLANG_MAJOR >= 18)
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
+#else
+    ci.getSourceManager().createMainFileID(fileEntry);
 #endif
     ci.getDiagnosticClient().BeginSourceFile(ci.getLangOpts(), &ci.getPreprocessor());
     clang::ParseAST(ci.getSema());
