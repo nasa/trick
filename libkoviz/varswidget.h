@@ -44,7 +44,7 @@ public slots:
 private:
     QString _timeName;
     QStandardItemModel* _varsModel;
-    QStringList _runDirs;
+    QStringList _runPaths;
     QStringList _unitOverrides;
     PlotBookModel* _plotModel;
     QItemSelectionModel*  _plotSelectModel;

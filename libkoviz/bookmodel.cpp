@@ -420,7 +420,13 @@ void PlotBookModel::_initModel()
 
     addChild(rootItem, "Pages","");
     addChild(rootItem, "Tables","");
-    addChild(rootItem, "Runs","");
+    QStandardItem* runsItem = addChild(rootItem, "Runs","");
+
+    foreach ( QString runpath, _runs->runPaths() ) {
+        QStandardItem* runItem = addChild(runsItem,"Run", "");
+        QString fullpath = QDir(runpath).absolutePath();
+        addChild(runItem,"RunPath", fullpath);
+    }
 }
 
 //
@@ -2365,7 +2371,7 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
     // Turn off model signals when adding children for significant speedup
     bool block = blockSignals(true);
 
-    int rc = _runs->runDirs().count();
+    int rc = _runs->runPaths().count();
     QList<QColor> colors = createCurveColors(rc);
 
     QHash<int,QString> run2color;
@@ -3361,11 +3367,11 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
             els << el;
             if ( isGroups ) {
                 int runid = getDataInt(curveIdx,"CurveRunID","Curve");
-                QString runDir = _runs->runDirs().at(runid);
+                QString runPath = _runs->runPaths().at(runid);
                 int j = 0;
                 foreach ( QString group, groups ) {
                     if ( !group.isEmpty() ) {
-                        if ( isMatch(runDir,group) ) {
+                        if ( isMatch(runPath,group) ) {
                             if ( j < els.size() ) {
                                 // Move element to match group number (-g#)
                                 els.move(els.size()-1,j);

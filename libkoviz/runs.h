@@ -34,7 +34,7 @@ class Runs
          bool isShowProgress);
     virtual ~Runs();
     virtual QStringList params() const { return _params; }
-    virtual QStringList runDirs() const { return _runPaths; }
+    virtual QStringList runPaths() const { return _runPaths; }
     CurveModel* curveModel(int row,
                       const QString& tName,
                       const QString& xName,

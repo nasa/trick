@@ -44,7 +44,7 @@ public:
                           const QString& dpDirName,
                           const QStringList& dpFiles,
                           QStandardItemModel* dpVarsModel,
-                          const QStringList& runDirs,
+                          const QStringList& runPaths,
                           PlotBookModel* bookModel,
                           QItemSelectionModel*  bookSelectModel,
                           MonteInputsView* monteInputsView,
@@ -66,7 +66,7 @@ private:
     QStringList _dpFiles;
     QStandardItemModel* _dpVarsModel;
     QDir* _dir;
-    QStringList _runDirs;
+    QStringList _runPaths;
     PlotBookModel* _bookModel;
     QItemSelectionModel*  _bookSelectModel;
     MonteInputsView* _monteInputsView;

@@ -141,7 +141,7 @@ PlotMainWindow::PlotMainWindow(
     QFrame* varsFrame = new QFrame(lsplit);
     _varsWidget = new VarsWidget(_timeNames.at(0),
                                  _varsModel,
-                                 _runs->runDirs(),
+                                 _runs->runPaths(),
                                  _unitOverrides,
                                  _bookModel,
                                  _bookView->selectionModel(),
@@ -169,7 +169,7 @@ PlotMainWindow::PlotMainWindow(
         // DP files specified on commandline
         _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir,
                                           _dpFiles, _varsModel,
-                                          _runs->runDirs(), _bookModel,
+                                          _runs->runPaths(), _bookModel,
                                           _bookView->selectionModel(),
                                           _monteInputsView,
                                           _sieModel,
@@ -251,7 +251,7 @@ PlotMainWindow::PlotMainWindow(
     if ( _monteInputsModel->rowCount() == 1 ) {
         QString rundir = QString("%1/").arg(
                     QDir::current().absoluteFilePath(
-                        _runs->runDirs().at(0)));
+                        _runs->runPaths().at(0)));
         _the_visualizer->sendRun2Bvis(rundir);
         _blender->sendRun2Bvis(rundir);
     }
@@ -383,7 +383,8 @@ void PlotMainWindow::_nbCurrentChanged(int i)
         // the DPTreeWidget is created when the DP tab is clicked.
         //
         _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir, _dpFiles,
-                                          _varsModel, _runs->runDirs(), _bookModel,
+                                          _varsModel, _runs->runPaths(),
+                                          _bookModel,
                                           _bookView->selectionModel(),
                                           _monteInputsView,
                                           _sieModel,
@@ -1033,7 +1034,7 @@ void PlotMainWindow::_saveSession()
         out << "\n\n";
 
         // RUNs
-        foreach ( QString run, _runs->runDirs() ) {
+        foreach ( QString run, _runs->runPaths() ) {
             out << "RUN: " << run << "\n";
         }
 
@@ -1309,8 +1310,8 @@ void PlotMainWindow::_openVideoByRun()
     int i = _monteInputsView->currentRun();
     if ( i >= 0 && _videos.isEmpty() ) { // No cmdline or menu opened videos
         // Look in RUN dir for videos
-        QString rundir = _runs->runDirs().at(i);
-        QString videoDirName = rundir + "/video";
+        QString runpath = _runs->runPaths().at(i);
+        QString videoDirName = runpath + "/video";
         QFileInfo fi(videoDirName);
         QList<QPair<QString, double> > videos;
         if ( fi.exists() && fi.isDir() ) {
@@ -1544,25 +1545,25 @@ void PlotMainWindow::_clearTables()
 void PlotMainWindow::_launchScript(QAction* action)
 {
     int i = _monteInputsView->currentRun();
-    QString rundir;
+    QString runpath;
     if ( i >= 0 ) {
-        rundir = _runs->runDirs().at(i);
+        runpath = _runs->runPaths().at(i);
     } else {
-        if ( _runs->runDirs().size() == 1 ) {
-            rundir = _runs->runDirs().at(0);
+        if ( _runs->runPaths().size() == 1 ) {
+            runpath = _runs->runPaths().at(0);
         } else {
             QMessageBox msgBox;
             msgBox.setText("Please select a run before launching your script.");
             msgBox.exec();
         }
     }
-    if ( !rundir.isEmpty() ) {
+    if ( !runpath.isEmpty() ) {
         QStringList fields = action->text().split(' ',
                                                   QString::SkipEmptyParts);
         QString program = fields.takeAt(0);
         program = program.remove('&');
         QStringList arguments;
-        arguments << rundir;
+        arguments << runpath;
         foreach ( QString field, fields ) {
             arguments << field;
         }
@@ -1774,11 +1775,11 @@ void PlotMainWindow::_monteInputsViewCurrentChanged(const QModelIndex &currIdx,
         _bookView->setCurrentCurveRunID(runID);
         if (currIdx.row() != prevIdx.row())
         {
-            QString rundir = QString("%1/").arg(
+            QString runpath = QString("%1/").arg(
                                     QDir::current().absoluteFilePath(
-                                     _runs->runDirs().at(runID)));
-            _the_visualizer->sendRun2Bvis(rundir);
-            _blender->sendRun2Bvis(rundir);
+                                     _runs->runPaths().at(runID)));
+            _the_visualizer->sendRun2Bvis(runpath);
+            _blender->sendRun2Bvis(runpath);
         }
 #if HAS_MPV
         _openVideoByRun();

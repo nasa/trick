@@ -39,7 +39,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
                            const QString &dpDirName,
                            const QStringList &dpFiles,
                            QStandardItemModel *dpVarsModel,
-                           const QStringList& runDirs,
+                           const QStringList& runPaths,
                            PlotBookModel *bookModel,
                            QItemSelectionModel *bookSelectModel,
                            MonteInputsView *monteInputsView,
@@ -54,7 +54,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _dpDirName(dpDirName),
     _dpFiles(dpFiles),
     _dpVarsModel(dpVarsModel),
-    _runDirs(runDirs),
+    _runPaths(runPaths),
     _bookModel(bookModel),
     _bookSelectModel(bookSelectModel),
     _monteInputsView(monteInputsView),
@@ -342,7 +342,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     this->setCursor(QCursor(Qt::WaitCursor));
 
     DPProduct dp(dpfile);
-    int rc = _runDirs.count();
+    int rc = _runPaths.count();
     if ( _tvModel && rc == 0 ) {
         // If there are no runs, count the tv model as one run
         rc = 1;
@@ -511,16 +511,17 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                     if ( r == 0 ) {
                         ux0 = curveModel->x()->unit();
                         uy0 = curveModel->y()->unit();
-                        r0 = QFileInfo(curveModel->fileName()).dir().dirName();
+                        r0 = QFileInfo(curveModel->fileName()).
+                                                             absoluteFilePath();
                     } else {
                         QString ux1 = curveModel->x()->unit();
                         QString uy1 = curveModel->y()->unit();
                         QString r1 = QFileInfo(curveModel->fileName()).
-                                     dir().dirName();
+                                                             absoluteFilePath();
                         if ( !Unit::canConvert(ux0,ux1) ) {
                             fprintf(stderr,
                                  "koviz [error]: Unit mismatch for param=%s "
-                                 "between the following RUNs:\n"
+                                 "between the following paths:\n"
                                  "        %s {%s}\n"
                                  "        %s {%s}\n",
                                  curveModel->x()->name().toLatin1().constData(),
@@ -533,7 +534,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                         if ( !Unit::canConvert(uy0,uy1) ) {
                             fprintf(stderr,
                                  "koviz [error]: Unit mismatch for param=%s "
-                                 "between the following RUNs:\n"
+                                 "between the following paths:\n"
                                  "        %s {%s}\n"
                                  "        %s {%s}\n",
                                  curveModel->y()->name().toLatin1().constData(),
@@ -620,7 +621,7 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
     this->setCursor(QCursor(Qt::WaitCursor));
 
     DPProduct dp(dpfile);
-    int numRuns = _runDirs.count();
+    int numRuns = _runPaths.count();
     int tableNum = 0 ;
 
     // Tables
@@ -854,11 +855,11 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                         << _timeName << " , "
                         << xName << " , "
                         << yName << ") ";
-            if ( runId < _runDirs.size() ) {
+            if ( runId < _runPaths.size() ) {
                 _err_stream << "\n\nin RUN:\n\n "
                             << "         "
-                            << _runDirs.at(runId) ;
-            } else if ( runId >= _runDirs.size() && _sieModel && _tvModel ) {
+                            << _runPaths.at(runId) ;
+            } else if ( runId >= _runPaths.size() && _sieModel && _tvModel ) {
                 _err_stream << "\n\nin the Trick SIE database.\n";
             }
             fprintf(stderr, "%s\n",
@@ -897,10 +898,10 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         }
 
         if ( !curveModel ) {
-            QString runDir = _runDirs.at(runId);
+            QString runPath = _runPaths.at(runId);
             _err_stream << "koviz [error]: could not find matching xypair "
                            "parameter in RUN:\n\n"
-                        << "        " << runDir << "\n\n"
+                        << "        " << runPath << "\n\n"
                            "Tried the following :\n\n";
             foreach ( QString txy, txyParams ) {
                 _err_stream << "        " << txy << "\n";

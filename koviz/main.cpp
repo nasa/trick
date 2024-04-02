@@ -44,7 +44,7 @@ bool convert2csv(const QStringList& timeNames,
                  const QString& ftrk, const QString& fcsv);
 bool convert2trk(const QString& csvFileName, const QString &trkFileName);
 QHash<QString,QVariant> getShiftHash(const QString& shiftString,
-                                const QStringList &runDirs);
+                                const QStringList &runPaths);
 QHash<QString,QStringList> getVarMap(const QString& mapString);
 QHash<QString,QStringList> getVarMapFromFile(const QString& mapFileName);
 QStringList getTimeNames(const QString& timeName);
@@ -1274,7 +1274,7 @@ int main(int argc, char *argv[])
                 params = DPProduct::paramList(dps,timeName);
             }
 
-            if ( runs->runDirs().count() == 1 ) {
+            if ( runs->runPaths().count() == 1 ) {
                 QHash<QString,QVariant> shifts = getShiftHash(shiftString,
                                                               runPaths);
                 double timeShift = 0.0;
@@ -1453,7 +1453,7 @@ int main(int argc, char *argv[])
                 // Presentation
                 QModelIndex presIdx = bookModel->getDataIndex(plotIdx,
                                                     "PlotPresentation", "Plot");
-                if ( runs->runDirs().size() == 2 ) {
+                if ( runs->runPaths().size() == 2 ) {
                     QModelIndex curvesIdx = bookModel->getIndex(plotIdx,
                                                                "Curves","Plot");
                     QModelIndexList curveIdxs = bookModel->getIndexList(
@@ -1493,10 +1493,10 @@ int main(int argc, char *argv[])
     return ret;
 }
 
-void presetRunsDPs(QStringList* defRunDirs,
+void presetRunsDPs(QStringList* defRunPaths,
                    const QStringList& rundps,bool* ok)
 {
-    Q_UNUSED(defRunDirs);
+    Q_UNUSED(defRunPaths);
 
     foreach ( QString f, rundps ) {
         QFileInfo fi(f);
@@ -2128,11 +2128,11 @@ bool convert2trk(const QString& csvFileName, const QString& trkFileName)
 // shiftString has the form "[RUN_0:]val0[,RUN_1:val1,...]"
 // This function returns a hash RUN_0->val0, RUN_1->val1...
 QHash<QString,QVariant> getShiftHash(const QString& shiftString,
-                                     const QStringList& runDirs)
+                                     const QStringList& runPaths)
 {
     QHash<QString,QVariant> shifts;
 
-    if (shiftString.isEmpty() || runDirs.isEmpty() ) return shifts; // empty map
+    if (shiftString.isEmpty() || runPaths.isEmpty() ) return shifts; //empty map
 
     QStringList shiftStrings = shiftString.split(',',QString::SkipEmptyParts);
     foreach ( QString s, shiftStrings ) {
@@ -2155,10 +2155,10 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
             bool isFound = false;
             QFileInfo fi(shiftRun);
             shiftRunFullPath = fi.absoluteFilePath();
-            foreach ( QString runDir, runDirs ) {
-                QFileInfo fir(runDir);
-                QString runDirFullPath = fir.absoluteFilePath();
-                if ( runDirFullPath == shiftRunFullPath ) {
+            foreach ( QString runPath, runPaths ) {
+                QFileInfo fir(runPath);
+                QString runPathFullPath = fir.absoluteFilePath();
+                if ( runPathFullPath == shiftRunFullPath ) {
                     isFound = true;
                     break;
                 }
@@ -2170,7 +2170,7 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
                                "where <run> is one of the runs in the \n"
                                "commandline set of runs e.g. %s.\n",
                         s.toLatin1().constData(),
-                        runDirs.at(0).toLatin1().constData());
+                        runPaths.at(0).toLatin1().constData());
                 exit(-1);
             }
 
@@ -2187,7 +2187,7 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
 
         } else {
             // e.g. koviz RUN_a -shift 0.00125
-            if ( runDirs.size() != 1 ) {
+            if ( runPaths.size() != 1 ) {
                 fprintf(stderr,"koviz [error] : option -shift \"%s\" "
                                "does not specify a valid shift string.\n"
                                "Use the run:val syntax when there are "
@@ -2207,7 +2207,7 @@ QHash<QString,QVariant> getShiftHash(const QString& shiftString,
                 exit(-1);
             }
 
-            QFileInfo fi(runDirs.at(0));
+            QFileInfo fi(runPaths.at(0));
             shiftRunFullPath = fi.absoluteFilePath();
         }
 

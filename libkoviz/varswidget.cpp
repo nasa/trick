@@ -6,7 +6,7 @@
 
 VarsWidget::VarsWidget(const QString &timeName,
                        QStandardItemModel* varsModel,
-                       const QStringList& runDirs,
+                       const QStringList& runPaths,
                        const QStringList &unitOverrides,
                        PlotBookModel *plotModel,
                        QItemSelectionModel *plotSelectModel,
@@ -15,7 +15,7 @@ VarsWidget::VarsWidget(const QString &timeName,
     QWidget(parent),
     _timeName(timeName),
     _varsModel(varsModel),
-    _runDirs(runDirs),
+    _runPaths(runPaths),
     _unitOverrides(unitOverrides),
     _plotModel(plotModel),
     _plotSelectModel(plotSelectModel),
@@ -270,7 +270,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotYMaxRange",  DBL_MAX);
     _addChild(plotItem, "PlotBackgroundColor", "#FFFFFF");
     _addChild(plotItem, "PlotForegroundColor", "#000000");
-    int rc = _runDirs.count(); // a curve per run, so, rc == nCurves
+    int rc = _runPaths.count(); // a curve per run, so, rc == nCurves
     if ( rc == 2 ) {
         QString presentation = _plotModel->getDataString(QModelIndex(),
                                                          "Presentation");
