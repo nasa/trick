@@ -22,18 +22,6 @@
 
 Trick::CheckPointRestart * the_cpr ;
 
-char * sim_mode_to_string(SIM_MODE mode) {
-    switch (mode)
-    {
-    case Initialization: return "INIT";
-    case Run:            return "RUN";
-    case Step:           return "STEP";
-    case Freeze:         return "FREEZE";
-    case ExitMode:       return "EXIT";
-    default:             return "INVALID";
-    }
-}
-
 Trick::CheckPointRestart::CheckPointRestart() {
 
     int num_classes = 0 ;
