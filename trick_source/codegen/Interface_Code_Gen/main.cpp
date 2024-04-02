@@ -6,7 +6,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+// `llvm/Support/Host.h` is deprecated in favour of `llvm/TargetParser/Host.h` since clang 17
+#if LIBCLANG_MAJOR > 16
+#include "llvm/TargetParser/Host.h"
+#else
 #include "llvm/Support/Host.h"
+#endif
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 
@@ -239,8 +244,10 @@ int main(int argc, char * argv[]) {
 #endif
     clang::Preprocessor& pp = ci.getPreprocessor();
 
-#if (LIBCLANG_MAJOR >= 10)
+#if (LIBCLANG_MAJOR >= 10) && (LIBCLANG_MAJOR < 18)
     clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts());
+#elif (LIBCLANG_MAJOR >= 18)
+    clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts(), ci.getCodeGenOpts());
 #endif
 
     // Add all of the include directories to the preprocessor
@@ -301,14 +308,18 @@ int main(int argc, char * argv[]) {
         exit(-1);
     }
     // Open up the input file and parse it
-#if (LIBCLANG_MAJOR >= 10)
+#if (LIBCLANG_MAJOR >= 10 && LIBCLANG_MAJOR < 18)
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath).get();
+#elif (LIBCLANG_MAJOR >= 18)
+    clang::FileEntryRef fileEntryRef = llvm::cantFail(ci.getFileManager().getFileRef(inputFilePath));
 #else
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
 #endif
     free(inputFilePath);
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
+#if ((LIBCLANG_MAJOR > 3 && LIBCLANG_MAJOR < 18)) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
+#elif (LIBCLANG_MAJOR >= 18)
+    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #else
     ci.getSourceManager().createMainFileID(fileEntry);
 #endif
