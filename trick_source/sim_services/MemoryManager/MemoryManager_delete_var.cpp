@@ -110,7 +110,7 @@ int Trick::MemoryManager::delete_var(void* address ) {
 }
 
 // MEMBER FUNCTION
-int Trick::MemoryManager::delete_var( const char* name) {
+int Trick::MemoryManager::delete_var( std::string name) {
 
     VARIABLE_MAP::iterator pos;
     ALLOC_INFO *alloc_info;
@@ -140,7 +140,7 @@ int Trick::MemoryManager::delete_extern_var( void* address) {
 }
 
 // MEMBER FUNCTION
-int Trick::MemoryManager::delete_extern_var( const char* name) {
+int Trick::MemoryManager::delete_extern_var( std::string name) {
     // delete_var will remove the external variable from the allocation map
     return delete_var(name) ;
 }
