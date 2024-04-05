@@ -8,8 +8,9 @@ QString TrickModel::_err_string;
 QTextStream TrickModel::_err_stream(&TrickModel::_err_string);
 
 TrickModel::TrickModel(const QStringList& timeNames,
+                       const QString &runPath,
                        const QString& trkfile, QObject *parent) :
-    DataModel(timeNames, trkfile, parent),
+    DataModel(timeNames, runPath, trkfile, parent),
     _timeNames(timeNames),_trkfile(trkfile),
     _nrows(0), _row_size(0), _ncols(0), _timeCol(0),_pos_beg_data(0),
     _mem(0), _data(0), _fd(-1), _file(_trkfile),_iteratorTimeIndex(0)

@@ -71,11 +71,10 @@ class TrickModel : public DataModel
     };
 
     explicit TrickModel(const QStringList &timeNames,
+                        const QString &runPath,
                         const QString &trkfile,
                        QObject *parent = 0);
     ~TrickModel();
-
-    QString trkFile() const { return _trkfile; }
 
     virtual const Parameter* param(int col) const ;
 

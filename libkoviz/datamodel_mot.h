@@ -28,6 +28,7 @@ class MotModel : public DataModel
   public:
 
     explicit MotModel(const QStringList &timeNames,
+                      const QString &runPath,
                       const QString &motfile,
                       QObject *parent = 0);
     ~MotModel();

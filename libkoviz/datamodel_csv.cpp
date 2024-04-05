@@ -4,9 +4,10 @@ QString CsvModel::_err_string;
 QTextStream CsvModel::_err_stream(&CsvModel::_err_string);
 
 CsvModel::CsvModel(const QStringList& timeNames,
+                   const QString &runPath,
                    const QString& csvfile,
                    QObject *parent) :
-    DataModel(timeNames, csvfile, parent),
+    DataModel(timeNames, runPath, csvfile, parent),
     _timeNames(timeNames),_csvfile(csvfile),
     _nrows(0), _ncols(0),_iteratorTimeIndex(0),
     _data(0)

@@ -49,7 +49,7 @@ TrickTableModel::TrickTableModel(const QStringList& timeNames,
     int cntVars = 0;
     QString timeName;
     foreach ( QString trk, trks ) {
-        DataModel* trkModel = DataModel::createDataModel(timeNames,trk);
+        DataModel* trkModel = DataModel::createDataModel(timeNames,runPath,trk);
         trkModel->map();
         foreach ( QString paramName, paramList ) {
             int cc = trkModel->columnCount();

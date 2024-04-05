@@ -301,7 +301,7 @@ void Thread::_frameModelSet()
     }
     try {
         QString trk(fileNameLogFrame);
-        _frameModel = DataModel::createDataModel(_timeNames,trk);
+        _frameModel = DataModel::createDataModel(_timeNames,trk,trk);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";

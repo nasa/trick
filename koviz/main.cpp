@@ -1963,7 +1963,7 @@ void presetExistsFile(QString* ignoreMe, const QString& fname, bool* ok)
 bool convert2csv(const QStringList& timeNames,
                  const QString& ftrk, const QString& fcsv)
 {
-    TrickModel m(timeNames, ftrk);
+    TrickModel m(timeNames, ftrk, ftrk);
 
     QFileInfo fcsvi(fcsv);
     if ( fcsvi.exists() ) {

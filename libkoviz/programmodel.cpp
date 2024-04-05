@@ -9,7 +9,7 @@ ProgramModel::ProgramModel(const QList<CurveModel *> &inputCurves,
                            const QStringList& timeNames,
                            const QString& programfile,
                            QObject *parent) :
-    DataModel(timeNames, programfile, parent),
+    DataModel(timeNames, programfile, programfile, parent),
     _timeNames(timeNames),_programfile(programfile),
     _nrows(0), _ncols(0),_iteratorTimeIndex(0),
     _data(0), _library(0)

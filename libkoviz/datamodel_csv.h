@@ -28,6 +28,7 @@ class CsvModel : public DataModel
   public:
 
     explicit CsvModel(const QStringList &timeNames,
+                      const QString &runPath,
                       const QString &csvfile,
                       QObject *parent = 0);
     ~CsvModel();

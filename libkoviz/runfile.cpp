@@ -20,7 +20,7 @@ RunFile::RunFile(const QString &run,
     }
 
     QString ffile = fi.absoluteFilePath();
-    _model = DataModel::createDataModel(timeNames, ffile);
+    _model = DataModel::createDataModel(timeNames,run,ffile);
     _model->unmap();
     int ncols = _model->columnCount();
     for ( int col = 0; col < ncols; ++col ) {

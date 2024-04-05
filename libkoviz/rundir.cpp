@@ -56,7 +56,7 @@ RunDir::RunDir(const QString &run,
 
     foreach (QString file, files) {
         QString ffile = run + "/" + file;
-        DataModel* model = DataModel::createDataModel(timeNames, ffile);
+        DataModel* model = DataModel::createDataModel(timeNames,run,ffile);
         model->unmap();
         int ncols = model->columnCount();
         for ( int col = 0; col < ncols; ++col ) {

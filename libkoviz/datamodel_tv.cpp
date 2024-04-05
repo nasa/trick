@@ -1,7 +1,9 @@
 #include "datamodel_tv.h"
 
 TVModel::TVModel(const QString& host, int port, QObject *parent) :
-    DataModel(QStringList(), "", parent),
+    DataModel(QStringList(),
+              QString("trick://%1:%2").arg(host).arg(port),
+              "", parent),
     _host(host),_port(port),
     _timeCol(0), _iteratorTimeIndex(0)
 {

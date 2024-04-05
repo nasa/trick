@@ -4,9 +4,10 @@ QString MotModel::_err_string;
 QTextStream MotModel::_err_stream(&MotModel::_err_string);
 
 MotModel::MotModel(const QStringList& timeNames,
+                   const QString &runPath,
                    const QString& motfile,
                    QObject *parent) :
-    DataModel(timeNames, motfile, parent),
+    DataModel(timeNames, runPath, motfile, parent),
     _timeNames(timeNames),_motfile(motfile),
     _nrows(0), _ncols(0),_iteratorTimeIndex(0),
     _data(0)

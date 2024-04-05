@@ -725,17 +725,15 @@ void CurvesView::_paintMarkers(QPainter &painter)
             exit(-1);
         }
 
-        // Show runname if more than 5 runs
+        // Show run path if more than 5 runs
         if ( tag == "Curve") {
             QModelIndex curveIdx = marker->modelIdx();
             if ( model()->rowCount(curveIdx.parent()) > 5 ) {
                 CurveModel* curveModel = _bookModel()->getCurveModel(curveIdx);
                 if ( curveModel ) {
-                    QString fname = curveModel->fileName();
-                    QFileInfo finfo(fname);
-                    QString dirName = finfo.dir().dirName();
-                    QString runDir = QString("%1: ").arg(dirName);
-                    arrow.txt.prepend(runDir);
+                    QString runPath = curveModel->runPath();
+                    QString runLabel = QString("%1: ").arg(runPath);
+                    arrow.txt.prepend(runLabel);
                 }
             }
         }

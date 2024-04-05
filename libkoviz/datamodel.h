@@ -20,18 +20,22 @@ class DataModel : public QAbstractTableModel
   public:
 
     explicit DataModel(const QStringList &timeNames,
+                       const QString &runPath,
                        const QString &fileName,
                        QObject *parent = 0) :
         QAbstractTableModel(parent),
         _timeNames(timeNames),
+        _runPath(runPath),
         _fileName(fileName)
     {}
 
     ~DataModel() {}
 
     static DataModel* createDataModel(const QStringList& timeNames,
+                                      const QString& runPath,
                                       const QString& fileName);
 
+    QString runPath() const { return _runPath; }
     QString fileName() const { return _fileName; }
 
     virtual void map() = 0;
@@ -49,6 +53,7 @@ class DataModel : public QAbstractTableModel
   private:
 
     QStringList _timeNames;
+    QString _runPath;
     QString _fileName;
 };
 

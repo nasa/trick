@@ -413,7 +413,7 @@ DataModel *Snap::_createModel( const QString &trk)
     }
 
     try {
-        model = DataModel::createDataModel(_timeNames,trk);
+        model = DataModel::createDataModel(_timeNames,trk,trk);
     }
     catch (std::range_error &e) {
         _err_stream << e.what() << "\n\n";
