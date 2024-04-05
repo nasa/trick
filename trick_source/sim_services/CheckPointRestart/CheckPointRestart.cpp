@@ -19,6 +19,7 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/TrickConstant.hh"
+#include "trick/sim_mode.h"
 
 Trick::CheckPointRestart * the_cpr ;
 
