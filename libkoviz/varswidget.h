@@ -24,7 +24,7 @@ class VarsWidget : public QWidget
 public:
     explicit VarsWidget(const QString& timeName,
                         QStandardItemModel* varsModel,
-                        const QStringList& runDirs,
+                        const QStringList& runPaths,
                         const QStringList& unitOverrides,
                         PlotBookModel* plotModel,
                         QItemSelectionModel*  plotSelectModel,
