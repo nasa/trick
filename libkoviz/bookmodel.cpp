@@ -3337,7 +3337,7 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
         }
         if ( !isGroups ) {
             CurveModel* curve = getCurveModel(curveIdx);
-            QString runDir = QFileInfo(curve->fileName()).absolutePath();
+            QString runDir = QFileInfo(curve->fileName()).absoluteFilePath();
             lbl = runDir + ":" + lbl;
         }
         labels << lbl;
