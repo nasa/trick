@@ -38,7 +38,7 @@ bool writeTrk(const QString& ftrk, const QString &timeName,
               double start, double stop, double timeShift,
               QStringList& paramList, Runs* runs);
 bool writeCsv(const QString& fcsv, const QStringList& timeNames,
-              DPTable* dpTable, const QString &runDir,
+              DPTable* dpTable, const QString &runPath,
               double startTime, double stopTime, double tolerance);
 bool convert2csv(const QStringList& timeNames,
                  const QString& ftrk, const QString& fcsv);
@@ -1837,7 +1837,7 @@ bool writeTrk(const QString& ftrk, const QString& timeName,
 }
 
 bool writeCsv(const QString& fcsv, const QStringList& timeNames,
-              DPTable* dpTable, const QString& runDir,
+              DPTable* dpTable, const QString& runPath,
               double startTime, double stopTime, double tolerance)
 {
     QFileInfo fcsvi(fcsv);
@@ -1880,8 +1880,7 @@ bool writeCsv(const QString& fcsv, const QStringList& timeNames,
         params << var->name() ;
     }
 
-
-    TrickTableModel ttm(timeNames, runDir, params);
+    TrickTableModel ttm(timeNames, runPath, params);
     int rc = ttm.rowCount();
     int cc = ttm.columnCount();
     double epsilon = tolerance/2.0;

@@ -9,7 +9,7 @@ QTextStream TrickTableModel::_err_stream(&TrickTableModel::_err_string);
 // Private
 TrickTableModel::TrickTableModel(QObject *parent) :
       QAbstractTableModel(parent),
-      _runDir(QString()),
+      _runPath(QString()),
       _rowCount(0),
       _colCount(0)
 {
@@ -17,11 +17,11 @@ TrickTableModel::TrickTableModel(QObject *parent) :
 
 
 TrickTableModel::TrickTableModel(const QStringList& timeNames,
-                                 const QString& runDir,
+                                 const QString& runPath,
                                  const QStringList &paramList,
                                  QObject *parent)
     : QAbstractTableModel(parent),
-      _runDir(runDir),
+      _runPath(runPath),
       _rowCount(0),
       _colCount(0)
 {
@@ -29,8 +29,19 @@ TrickTableModel::TrickTableModel(const QStringList& timeNames,
     _params = paramList;
     _params.prepend(timeNames.at(0));
 
-    // Get list of trk files in RUN
-    QStringList trks = _trks(runDir);
+    // If runPath is a trk, use it. If runPath is a directory,
+    // get trk list from RUN directory.
+    QStringList trks;
+    QFileInfo fi(runPath);
+    if ( fi.isFile() && fi.suffix() == "trk" ) {
+        trks.append(fi.absoluteFilePath());
+    } else if ( fi.isDir() ) {
+        trks = _trks(runPath);
+    } else {
+        fprintf(stderr, "koviz [error]: runPath=%s is neither a trk file or a "
+                        "directory\n",runPath.toLatin1().constData());
+        exit(-1);
+    }
 
     // Make list of trk models in RUN that contain the table params
     // Also make hash of param->trkModel
@@ -38,8 +49,7 @@ TrickTableModel::TrickTableModel(const QStringList& timeNames,
     int cntVars = 0;
     QString timeName;
     foreach ( QString trk, trks ) {
-        QString rtrk = runDir + "/" + trk;
-        DataModel* trkModel = DataModel::createDataModel(timeNames,rtrk);
+        DataModel* trkModel = DataModel::createDataModel(timeNames,trk);
         trkModel->map();
         foreach ( QString paramName, paramList ) {
             int cc = trkModel->columnCount();
@@ -96,7 +106,9 @@ QStringList TrickTableModel::_trks(const QString &runDir)
 
     QStringList filter_trk;
     filter_trk << "*.trk";
-    trkList = dir.entryList(filter_trk, QDir::Files);
+    foreach(QString trk, dir.entryList(filter_trk, QDir::Files)) {
+        trkList.append(dir.absoluteFilePath(trk));
+    }
     if ( trkList.empty() ) {
         _err_stream << "koviz [error]: no trk logfiles found in "
                     << runDir << "\n";

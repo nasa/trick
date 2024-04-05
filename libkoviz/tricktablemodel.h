@@ -15,7 +15,7 @@ class TrickTableModel : public QAbstractTableModel
     Q_OBJECT
 public:
     explicit TrickTableModel(const QStringList &timeNames,
-                             const QString& runDir,
+                             const QString& runPath,
                              const QStringList& paramList,
                              QObject *parent = 0);
 
@@ -35,7 +35,7 @@ public slots:
 private:
     explicit TrickTableModel( QObject *parent = 0);
 
-    QString _runDir;
+    QString _runPath;
     int _rowCount;
     int _colCount;
     QList<double> _timeStamps;
