@@ -38,16 +38,6 @@ typedef enum {
 
 } SIM_MODE ;
 
-char * sim_mode_to_string(SIM_MODE mode) {
-    switch (mode)
-    {
-    case Initialization: return "Initialization";
-    case Run:            return "Run";
-    case Step:           return "Step";
-    case Freeze:         return "Freeze";
-    case ExitMode:       return "ExitMode";
-    default:             return "InvalidMode";
-    }
-}
+const char * simModeCharString(SIM_MODE mode);
 
 #endif
