@@ -2108,11 +2108,11 @@ void CurvesView::currentChanged(const QModelIndex &current,
         QString yUnit = _bookModel()->getDataString(current,
                                                     "CurveYUnit","Curve");
         CurveModel* curveModel = _bookModel()->getCurveModel(current);
-        QString fname;
+        QString run;
         if ( curveModel ) {
-            fname = curveModel->fileName();
+            run = curveModel->runPath();
         }
-        QString msg = yName + " {" + yUnit + "} " + fname ;
+        QString msg = yName + " {" + yUnit + "} " + run ;
         _bookModel()->setData(statusIdx,msg); // PlotMainWindow uses this
     } else if ( !current.isValid() && previous.isValid() ) {
         // Clicked off of curve into whitespace
