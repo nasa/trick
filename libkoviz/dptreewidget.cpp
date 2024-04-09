@@ -948,14 +948,10 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                           x->scaleFactor()*curveModel->x()->scale());
     QHash<QString,QVariant> shifts = _bookModel->getDataHash(QModelIndex(),
                                                              "RunToShiftHash");
-    QFileInfo fi(curveModel->fileName());
-    QString curveRunFile = fi.absoluteFilePath();
-    QString curveRunDir  = fi.absolutePath();
-    if ( shifts.contains(curveRunFile) ) {
-        double shiftVal = shifts.value(curveRunFile).toDouble();
-        _addChild(curveItem, "CurveXBias", shiftVal);
-    } else  if ( shifts.contains(curveRunDir) ) {
-        double shiftVal = shifts.value(curveRunDir).toDouble();
+    QFileInfo fi(curveModel->runPath());
+    QString curveRun = fi.absoluteFilePath();
+    if ( shifts.contains(curveRun) ) {
+        double shiftVal = shifts.value(curveRun).toDouble();
         _addChild(curveItem, "CurveXBias", shiftVal);
     } else {
         _addChild(curveItem, "CurveXBias", x->bias() + curveModel->x()->bias());
@@ -1092,7 +1088,7 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         int i = 0;
         foreach ( QString group, groups ) {
             if ( !group.isEmpty() ) {
-                if ( _bookModel->isMatch(curveRunDir,group) ) {
+                if ( _bookModel->isMatch(curveRun,group) ) {
                     // Color
                     QModelIndex idx = _bookModel->index(i,1,lcsIdx);
                     QString cc = _bookModel->data(idx).toString();

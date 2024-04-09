@@ -2485,14 +2485,10 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
         addChild(curveItem, "CurveXScale", curveModel->x()->scale());
         QHash<QString,QVariant> shifts = getDataHash(QModelIndex(),
                                                      "RunToShiftHash");
-        QFileInfo fi(curveModel->fileName());
-        QString curveRunFile = fi.absoluteFilePath();
-        QString curveRunDir  = fi.absolutePath();
-        if ( shifts.contains(curveRunFile) ) {
-            double shiftVal = shifts.value(curveRunFile).toDouble();
-            addChild(curveItem, "CurveXBias", shiftVal);
-        } else  if ( shifts.contains(curveRunDir) ) {
-            double shiftVal = shifts.value(curveRunDir).toDouble();
+        QFileInfo fi(curveModel->runPath());
+        QString curveRun = fi.absoluteFilePath();
+        if ( shifts.contains(curveRun) ) {
+            double shiftVal = shifts.value(curveRun).toDouble();
             addChild(curveItem, "CurveXBias", shiftVal);
         } else {
             // x bias can be set in a mapfile
@@ -2620,7 +2616,7 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
             int i = 0;
             foreach ( QString group, groups ) {
                 if ( !group.isEmpty() ) {
-                    if ( isMatch(curveRunDir,group) ) {
+                    if ( isMatch(curveRun,group) ) {
                         // Color
                         QModelIndex idx = index(i,1,lcIdx);
                         QString cc = data(idx).toString();
