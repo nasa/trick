@@ -2410,7 +2410,6 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
     int ii = nCurves; // When alt+click adding curves, this is needed
     int jj = 0;
     QString u0;
-    QString r0;
     for ( int r = 0; r < rc; ++r) {
 
         // Update progress dialog
@@ -2462,7 +2461,6 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
                 u0 = curveModel->y()->unit();
                 yunit = u0;
             }
-            r0 = QFileInfo(curveModel->fileName()).dir().dirName();
         } else {
             yunit = curveModel->y()->unit();
             QString u1 = yunit;
