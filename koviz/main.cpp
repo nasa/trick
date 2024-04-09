@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
     opts.add("-h:{0,1}",&opts.isHelp,false, "print usage");
     opts.add("[RUNs and DPs:{0,5000}]",
              &opts.rundps, QStringList(),
-             "List of RUN dirs and DP files",
+             "List of RUN dirs/files and DP files",
              presetRunsDPs, postsetRunsDPs);
     opts.add("-rt:{0,1}",&opts.isReportRT,false, "print realtime text report");
     opts.add("-start", &opts.start, -DBL_MAX, "start time", preset_start);
