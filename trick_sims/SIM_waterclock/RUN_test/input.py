@@ -8,21 +8,23 @@ trick.exec_set_enable_freeze(True)
 trick.exec_set_freeze_command(True)
 trick.sim_control_panel_set_enabled(True)
 
-dyn.waterclock.input_flow                         = 1.0
+dyn.waterclock.input_flow                         = 1000.0
 
-dyn.waterclock.intake_bucket_depth                = 5.0
-dyn.waterclock.intake_bucket_diam                 = 5.0
+dyn.waterclock.intake_bucket_depth                = 70.0
+dyn.waterclock.intake_bucket_diam                 = 40.0
 
-dyn.waterclock.intake_overflow_height             = 4.0
-dyn.waterclock.intake_overflow_diameter           = 2.5
+dyn.waterclock.intake_overflow_height             = 60.0
+dyn.waterclock.intake_overflow_diameter           = 25.0
 
-dyn.waterclock.intake_clock_spout_height          = 1.25
-dyn.waterclock.intake_clock_spout_diameter        = 0.05
+dyn.waterclock.intake_clock_spout_height          = 15.0
+dyn.waterclock.intake_clock_spout_diameter        = 20.0
 
-dyn.waterclock.timer_bucket_depth                 = 5.0
-dyn.waterclock.timer_bucket_diam                  = 0.5
+dyn.waterclock.timer_bucket_depth                 = 100.0
+dyn.waterclock.timer_bucket_diam                  = 45.0
 
 dyn.waterclock.total_ticks                        = 60
+
+trick.message_unsubscribe(trick_message.mcout)
 
 # ==========================================
 # Start the Satellite Graphics Client

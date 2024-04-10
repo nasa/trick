@@ -26,6 +26,7 @@ import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
+import java.awt.Font;
 
 import javax.swing.text.NumberFormatter;
 import java.text.NumberFormat;
@@ -36,6 +37,13 @@ import javax.swing.BorderFactory;
 import javax.swing.border.EtchedBorder;
 import java.awt.Component;
 
+class ScenePoly {
+    public Color color;
+    public int n;
+    public double[] x;
+    public double[] y;
+}
+
 class RangeView extends JPanel {
 
     private int scale;
@@ -43,6 +51,10 @@ class RangeView extends JPanel {
     private Color spout_color;
     private Color water_color;
     private Color float_color;
+    private Color clock_color;
+    private Color clock_display_color;
+    private Color tick_color;
+    private Color gear_color;
 
     // Origin of world coordinates in jpanel coordinates.
     private int worldOriginX;
@@ -60,6 +72,8 @@ class RangeView extends JPanel {
     private double  overflow_height;
     private double  input_flow;
     private int current_tick;
+
+    private double clock_float_height;
 
     // Controls
     private double input_flow_select;
@@ -92,11 +106,49 @@ class RangeView extends JPanel {
         spout_color = new  Color(128,128,128);
         water_color = new  Color(0,0,128);
         float_color = new  Color(0,0,0);
+        clock_color = new  Color(204,204,0);
+        clock_display_color = new  Color(192,192,192);
+        tick_color = new  Color(0,0,0);
+        gear_color = new  Color(128,128,128);
+
+        workPolyX = new int[150];
+        workPolyY = new int[150];
+
+        tooth = new ScenePoly();
+        tooth.color = float_color;
+
+        tooth.x = new double[] { 0, -0.15, -0.25  , -0.15 , 0    };
+        tooth.y = new double[] { 0,  0   ,  0.075 ,  0.15 , 0.15 };
+
+        tooth.n = 5;
+
+        clock_float_height = 8;
     }
+
+    private ScenePoly gear;
+    private ScenePoly tooth;
+
+    private int[] workPolyX, workPolyY;
 
     public void fillSceneRect(Graphics2D g2d, Color color, double x, double y, double w, double h) {
         g2d.setPaint(color);
         g2d.fillRect( (int)(worldOriginX+scale*(x)), (int)(worldOriginY-scale*(y)), (int)(scale*w), (int)(scale*h));
+    }
+
+    public void fillScenePoly(Graphics2D g, ScenePoly p, double angle_r , double x, double y) {
+        for (int ii = 0; ii < p.n; ii++) {
+            workPolyX[ii] = (int)(worldOriginX + scale *
+                ( Math.cos(angle_r) * p.x[ii] - Math.sin(angle_r) * p.y[ii] + x));
+            workPolyY[ii] = (int)(worldOriginY - scale *
+                ( Math.sin(angle_r) * p.x[ii] + Math.cos(angle_r) * p.y[ii] + y));
+        }
+        g.setPaint(p.color);
+        g.fillPolygon(workPolyX, workPolyY, p.n);
+    }
+
+    public void fillSceneOval(Graphics2D g2d, Color color, double x, double y, double w, double h) {
+        g2d.setPaint(color);
+        g2d.fillOval( (int)(worldOriginX+scale*(x-w/2)), (int)(worldOriginY-scale*(y+h/2)), (int)(scale*w), (int)(scale*h));
     }
 
     public void setSpoutRate(double x) {
@@ -229,7 +281,7 @@ class RangeView extends JPanel {
                         spout_width);
         
         //Draw timer bucket
-        double timer_bucket_origin_x = 1.375;
+        double timer_bucket_origin_x = 1.3;
         double timer_bucket_origin_y = -0.5;
         double timer_bucket_left_wall_x = timer_bucket_origin_x - bucket_length - bucket_width;
         double timer_bucket_bottom_x = timer_bucket_origin_x - bucket_length - bucket_width;
@@ -333,37 +385,94 @@ class RangeView extends JPanel {
         }
         
         //Draw float
+        double float_base_height = 0.25;
         fillSceneRect(  g2d, 
                         float_color, 
                         timer_bucket_origin_x - bucket_length + bucket_length/4,
-                        timer_bucket_origin_y - timer_offset + 0.25, 
+                        timer_bucket_origin_y - timer_offset + float_base_height, 
                         bucket_length/2,
                         0.25);
-                        
+        
+        double float_arm_origin_x = timer_bucket_origin_x - bucket_length + bucket_length * 0.45;   
+        double float_arm_origin_y = timer_bucket_origin_y - timer_offset + clock_float_height + float_base_height;                
         fillSceneRect(  g2d, 
                         float_color, 
-                        timer_bucket_origin_x - bucket_length + bucket_length*0.45,
-                        timer_bucket_origin_y - timer_offset + 3, 
+                        float_arm_origin_x,
+                        float_arm_origin_y, 
                         bucket_length*0.1,
-                        3);
-                        
+                        clock_float_height);
+
+       double tooth_ratio = 2.25 * tooth.y[3];
+       for(double ii = bucket_length/2.0; ii < (clock_float_height) ; ii += tooth_ratio) {
+           fillScenePoly(g2d, tooth, 0.0, float_arm_origin_x, ii + float_arm_origin_y - clock_float_height);
+       }
+
+        //Draw Gear
+        double clock_origin_x = float_arm_origin_x - 1.85;
+        double clock_origin_y = 2.0;
+        double clock_diam = 2.5;
+        double gear_x = clock_origin_x + 0.85;
+        double gear_y = clock_origin_y;
+        double gear_width = 1.5;
+        double gear_noise = 0.3; //initial gear rotational offset
+        gear = new ScenePoly();
+        gear.x = new double[] { 0, 0, 0, 0, 0};
+        gear.y = new double[] { 0, 0, 0, 0, 0};
+        gear.n = 5;
+        for(int ii = 0; ii < gear.n; ++ii) {
+            gear.x[ii] = tooth.x[ii]-(gear_width*0.5);
+            gear.y[ii] = tooth.y[ii];
+        }
+        gear.n = 5;
+        double gear_circ = (Math.PI * (gear_width - (2*tooth.x[2])));
+        int gear_count = (int)(gear_circ / tooth_ratio);
+        double gear_offset = ((timer_capacity * bucket_length) / gear_circ) * 2 * Math.PI;
+        gear_offset *= 3; //I don't know why, but this magic number makes the gear animation sync with the rack
+        gear.color = gear_color;
+        for(int ii = 0; ii < gear_count; ++ii) {
+            fillScenePoly(g2d, gear, (ii + gear_noise + gear_offset) * (360/gear_count) * (Math.PI/180), gear_x, gear_y);
+        }
+        fillSceneOval ( g2d,
+                        gear_color,
+                        gear_x,
+                        gear_y,
+                        gear_width*1.05,
+                        gear_width*1.05);
+
+        //Draw Clock
+        fillSceneOval ( g2d,
+                        clock_color,
+                        clock_origin_x,
+                        clock_origin_y,
+                        clock_diam,
+                        clock_diam);
+
+        double clock_display_length = 1.0;
+        double clock_display_origin_x = clock_origin_x - clock_display_length/2.0;
+        double clock_display_origin_y = clock_origin_y;           
         fillSceneRect(  g2d, 
-                        float_color, 
-                        timer_bucket_origin_x - bucket_length + bucket_length*0.1,
-                        timer_bucket_origin_y - timer_offset + 3, 
-                        bucket_length*0.8,
-                        0.05);
+                        clock_display_color, 
+                        clock_display_origin_x,
+                        clock_display_origin_y, 
+                        clock_display_length,
+                        clock_display_length);
+
+        g2d.setFont(new Font("", Font.PLAIN, 24)); 
+        g2d.setPaint(tick_color);
+        g2d.drawString ( String.format("%02d",current_tick), (int)(worldOriginX+scale*(clock_display_origin_x + clock_display_length*0.25)), (int)(worldOriginY-scale*(clock_display_origin_y - clock_display_length*0.6)));
 
         // Draw Information
         g2d.setPaint(Color.BLACK);
-        g2d.drawString ( String.format("Input Flow Rate:   [%.4f] m^3/s",input_flow), 20,20);
-        g2d.drawString ( String.format("Intake Water Level:   [%.4f] m",intake_lvl), 20,40);
-        g2d.drawString ( String.format("Intake Water Volume:   [%.4f] m^3",intake_vol), 20,60);
-        g2d.drawString ( String.format("Intake Overflow Rate:   [%.4f] m^3/s",overflow_rate), 20,80);
-        g2d.drawString ( String.format("Intake Spout Rate:   [%.4f] m^3/s",spout_rate), 20,100);
-        g2d.drawString ( String.format("Timer Water Level:   [%.4f] m",timer_lvl), 20,120);
-        g2d.drawString ( String.format("Timer Water Volume:   [%.4f] m^3",timer_vol), 20,140);
-        g2d.drawString ( String.format("Current Time Tick:   [%d]",current_tick), 20,160);
+        g2d.setFont(new Font("", Font.PLAIN, 12)); 
+        int string_height = 220;
+        g2d.drawString ( String.format("Input Flow Rate:   [%.4f] cm^3/s",input_flow), 20,string_height+=20);
+        g2d.drawString ( String.format("Intake Water Level:   [%.4f] cm",intake_lvl), 20,string_height+=20);
+        g2d.drawString ( String.format("Intake Water Volume:   [%.4f] cm^3",intake_vol), 20,string_height+=20);
+        g2d.drawString ( String.format("Intake Overflow Rate:   [%.4f] cm^3/s",overflow_rate), 20,string_height+=20);
+        g2d.drawString ( String.format("Intake Spout Rate:   [%.4f] cm^3/s",spout_rate), 20,string_height+=20);
+        g2d.drawString ( String.format("Timer Water Level:   [%.4f] cm",timer_lvl), 20,string_height+=20);
+        g2d.drawString ( String.format("Timer Water Volume:   [%.4f] cm^3",timer_vol), 20,string_height+=20);
+        g2d.drawString ( String.format("Current Time Tick:   [%d]",current_tick), 20,string_height+=20);
     }
 
     @Override
@@ -397,7 +506,7 @@ class InputFlowCtrlPanel extends JPanel implements ChangeListener {
 
         inputFlowSlider = new JSlider(JSlider.HORIZONTAL, FLOW_MIN, FLOW_MAX, FLOW_INIT);
         inputFlowSlider.addChangeListener(this);
-        inputFlowSlider.setToolTipText("Input Flow Rate (mm^3/s).");
+        inputFlowSlider.setToolTipText("Input Flow Rate (cm^3/s).");
         inputFlowSlider.setMajorTickSpacing(1000);
         inputFlowSlider.setMinorTickSpacing(100);
         inputFlowSlider.setPaintTicks(true);
@@ -411,7 +520,7 @@ class InputFlowCtrlPanel extends JPanel implements ChangeListener {
     public void stateChanged(ChangeEvent e) {
         JSlider source = (JSlider)e.getSource();
         if (!source.getValueIsAdjusting()) {
-            rangeView.setInputFlowSelect( source.getValue() / 1000.0);
+            rangeView.setInputFlowSelect( source.getValue());
             rangeView.new_input_flow = true;
         }
     }
@@ -435,7 +544,7 @@ class ControlPanel extends JPanel implements ActionListener {
 
         JPanel labeledInputFlowCtrlPanel = new JPanel();
         labeledInputFlowCtrlPanel.setLayout(new BoxLayout(labeledInputFlowCtrlPanel, BoxLayout.Y_AXIS));
-        JLabel inputFlowCtrlLabel = new JLabel("Input Flow Rate (mm^3/s)");
+        JLabel inputFlowCtrlLabel = new JLabel("Input Flow Rate (cm^3/s)");
         inputFlowCtrlLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         labeledInputFlowCtrlPanel.add(inputFlowCtrlLabel);
         inputFlowCtrlPanel = new InputFlowCtrlPanel(rangeView);

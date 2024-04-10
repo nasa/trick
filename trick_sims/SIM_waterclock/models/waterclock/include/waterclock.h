@@ -30,34 +30,33 @@ typedef struct {
 
     double time;                            /* s Model time */
 
-    double input_flow;                      /* m^3/s Flow rate of the external water source to the water clock */
-    double intake_clock_spout_flowrate;     /* m^3/s Intake bucket output spout pipe flow rate */
-    double intake_overflow_flowrate;        /* m^3/s Intake bucket overflow pipe flow rate */
-    double intake_bucket_net_flow;          /* m^3/s Intake bucket net flow rate */
+    double input_flow;                      /* cm^3/s Flow rate of the external water source to the water clock */
+    double intake_clock_spout_flowrate;     /* cm^3/s Intake bucket output spout pipe flow rate */
+    double intake_overflow_flowrate;        /* cm^3/s Intake bucket overflow pipe flow rate */
+    double intake_bucket_net_flow;          /* cm^3/s Intake bucket net flow rate */
 
-    double intake_bucket_depth;             /* m Intake bucket depth */
-    double intake_bucket_diam;              /* m Intake bucket diameter */
+    double intake_bucket_depth;             /* cm Intake bucket depth */
+    double intake_bucket_diam;              /* cm Intake bucket diameter */
 
-    double intake_overflow_height;          /* m Intake bucket overflow pipe height of center */
-    double intake_overflow_diameter;        /* m Intake bucket overflow pipe diameter */
+    double intake_overflow_height;          /* cm Intake bucket overflow pipe height of center */
+    double intake_overflow_diameter;        /* cm Intake bucket overflow pipe diameter */
 
-    double intake_clock_spout_height;       /* m Intake bucket output spout pipe height of center */
-    double intake_clock_spout_diameter;     /* m Intake bucket output spout pipe diameter */
+    double intake_clock_spout_height;       /* cm Intake bucket output spout pipe height of center */
+    double intake_clock_spout_diameter;     /* cm Intake bucket output spout pipe diameter */
 
-    double timer_bucket_depth;              /* m Timer bucket depth */
-    double timer_bucket_diam;               /* m Timer bucket diameter */
+    double timer_bucket_depth;              /* cm Timer bucket depth */
+    double timer_bucket_diam;               /* cm Timer bucket diameter */
 
-    double intake_bucket_vol;               /* m^3 Intake bucket water volume */
-    double intake_water_level;              /* m Intake bucket water level */
-    double timer_bucket_vol;                /* m^3 Timer bucket water volume */
-    double timer_water_level;               /* m Timer bucket water level */
+    double intake_bucket_vol;               /* cm^3 Intake bucket water volume */
+    double intake_water_level;              /* cm Intake bucket water level */
+    double timer_bucket_vol;                /* cm^3 Timer bucket water volume */
+    double timer_water_level;               /* cm Timer bucket water level */
 
-    double tick_gap;                        /* m Distance between tick marks */
+    double tick_gap;                        /* cm Distance between tick marks */
     int total_ticks;                        /* -- Total number of ticks on the timer */
     int current_tick;                       /* --  The current timer tick to have crossed the threshold*/
 
     double gravity;                         /* m/s^2 Gravity constant */
-    double pi;                              /* -- PI constant */
 
     REGULA_FALSI rf1 ;
     REGULA_FALSI rf2 ;

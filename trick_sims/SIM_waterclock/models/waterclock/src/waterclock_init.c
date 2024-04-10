@@ -11,21 +11,21 @@ int waterclock_default_data( WATERCLOCK* WC ) {
 
     WC->time                            = 0.0 ;
 
-    WC->input_flow                      = 0.5;
+    WC->input_flow                      = 1000;
     WC->intake_clock_spout_flowrate     = 0.0;
     WC->intake_overflow_flowrate        = 0.0;
 
-    WC->intake_bucket_depth             = 1.0;
-    WC->intake_bucket_diam              = 5.0;
+    WC->intake_bucket_depth             = 100.0;
+    WC->intake_bucket_diam              = 500.0;
 
-    WC->intake_overflow_height          = 0.8 * WC->intake_bucket_depth;
-    WC->intake_overflow_diameter        = 1.0;
+    WC->intake_overflow_height          = 080.0 * WC->intake_bucket_depth;
+    WC->intake_overflow_diameter        = 100.0;
 
-    WC->intake_clock_spout_height       = 0.1;
-    WC->intake_clock_spout_diameter     = 0.05;
+    WC->intake_clock_spout_height       = 010.0;
+    WC->intake_clock_spout_diameter     = 005.0;
 
-    WC->timer_bucket_depth              = 1.2;
-    WC->timer_bucket_diam               = 0.5;
+    WC->timer_bucket_depth              = 120.0;
+    WC->timer_bucket_diam               = 050.0;
 
     WC->intake_bucket_vol               = 0.0;
     WC->timer_bucket_vol                = 0.0;
@@ -34,7 +34,6 @@ int waterclock_default_data( WATERCLOCK* WC ) {
     WC->current_tick                    = 0;
 
     WC->gravity                         = 9.81;
-    WC->pi                              = 3.14;
 
     return 0 ;
 }
