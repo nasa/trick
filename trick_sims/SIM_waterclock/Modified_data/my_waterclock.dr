@@ -32,7 +32,6 @@ drg[DR_GROUP_ID].add_variable("dyn.waterclock.tick_gap")
 drg[DR_GROUP_ID].add_variable("dyn.waterclock.total_ticks")
 drg[DR_GROUP_ID].add_variable("dyn.waterclock.current_tick")
 drg[DR_GROUP_ID].add_variable("dyn.waterclock.gravity")
-drg[DR_GROUP_ID].add_variable("dyn.waterclock.pi")
 drg[DR_GROUP_ID].set_max_file_size(1 * 1073741824) # multiply converts GiB to B --Dr. Dre
 trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
 drg[DR_GROUP_ID].enable()

@@ -7,6 +7,8 @@
 #include "trick/integrator_c_intf.h"
 #include "../include/waterclock_numeric.h"
 #include "trick/exec_proto.h"
+#include "trick/message_proto.h"
+#include <math.h>
 
 int waterclock_deriv(WATERCLOCK* WC) {
 
@@ -15,11 +17,11 @@ int waterclock_deriv(WATERCLOCK* WC) {
 
     //Clock spout area
     double spout_radius = WC->intake_clock_spout_diameter / 2;
-    double spout_area = WC->pi * spout_radius * spout_radius;
+    double spout_area = M_PI * spout_radius * spout_radius;
 
     //Overflow spout area
     double overflow_radius = WC->intake_overflow_diameter / 2;
-    double overflow_area = WC->pi * overflow_radius * overflow_radius;
+    double overflow_area = M_PI * overflow_radius * overflow_radius;
 
     //Calculate flow rate using Torricelli's equation ( V = sqrt(2gh) ) to find water velocity. Multiple velocity by spout area to find flow rate.
     //Calculate input bucket spout flow rate.
@@ -70,12 +72,12 @@ void waterclock_update_water_level(WATERCLOCK* WC)
 {
     //Calculate Input bucket water level
     double intake_bucket_radius = WC->intake_bucket_diam / 2;
-    double intake_bucket_base = WC->pi * intake_bucket_radius * intake_bucket_radius;
+    double intake_bucket_base = M_PI * intake_bucket_radius * intake_bucket_radius;
     WC->intake_water_level = WC->intake_bucket_vol / intake_bucket_base;
 
     //Calculate Timer bucket water level
     double timer_bucket_radius = WC->timer_bucket_diam / 2;
-    double timer_bucket_base = WC->pi * timer_bucket_radius * timer_bucket_radius;
+    double timer_bucket_base = M_PI * timer_bucket_radius * timer_bucket_radius;
     WC->timer_water_level = WC->timer_bucket_vol / timer_bucket_base;
 
 }
@@ -94,7 +96,7 @@ double waterclock_overflow_timer( WATERCLOCK* WC ) {
         WC->timer_water_level = 0; //Instantly drains
         WC->timer_bucket_vol = 0; //Instantly drains
         WC->current_tick = 0;
-        fprintf(stderr, "WATER CLOCK RESET\n" ) ;
+        message_publish(MSG_NORMAL, "WATER CLOCK RESET\n" ) ;
     }
     return (tgo) ;
 }
@@ -113,7 +115,7 @@ double waterclock_tick_change( WATERCLOCK* WC ) {
         if( (WC->current_tick < WC->total_ticks) && (WC->current_tick >= 0) )
         {
             WC->current_tick += 1;
-            fprintf(stderr, "Tick %d, Sim Time %f, Water Level %f\n", WC->current_tick, exec_get_sim_time(), WC->timer_water_level) ;
+            message_publish(MSG_NORMAL, "Tick %d, Sim Time %f, Water Level %f\n", WC->current_tick, exec_get_sim_time(), WC->timer_water_level) ;
         }
         else
             fprintf(stderr, "ERROR, SOMETHING WENT VERY WRONG!\n" ) ;
