@@ -18,7 +18,7 @@ The water clock (or clepsydra to the ancient Greek) is a device used to measure 
 
 Water clocks remained a prominent timekeeping device until the 17th century when better methods of timekeeping were developed. Over those many centruies, different cultures innovated on the design of the early water clocks. Of particular note were the contributions of the Greek inventor Ctesibius in the 3rd century BC. Ctesibius innovated on the water clock by making it largely automatic. Prior to Ctesibius, water clocks needed to be consistently refilled/emptied by hand. Furthermore, if a water clock had indicators marking the position of the sun, they would need to be manually adjusted for different seasons. Ctesibius automated both these processes. 
 
-Ctesibius automated the draining process with a siphon akin to Pythagorean cup. This siphon would empty over a water wheel, which powered a series of gears that would turn a cylinder. The cylinder had a row of irregular rings drawn around it, meant to correlate with the position of the sun throughout the seasons. Each day, as the water clock would fill it would accurately indicate the position of the sun, drain itself at the end of the day, and adjust the cylinder to be accurate for the next day.
+Ctesibius automated the draining process with a siphon akin to a Pythagorean cup. This siphon would empty over a water wheel, which powered a series of gears that would turn a cylinder. The cylinder had a row of irregular rings drawn around it, meant to correlate with the position of the sun throughout the seasons. Each day, as the water clock would fill it would accurately indicate the position of the sun, drain itself at the end of the day, and adjust the cylinder to be accurate for the next day.
 
 ### Building the Simulation
 After building trick, in the SIM\_waterclock directory run the command **trick-CP** to build the sim. When it's complete, you should see:
@@ -36,11 +36,11 @@ In the SIM_waterclock directory:
 ```
 The Sim Control Panel, and a GUI called "Water Clock" should appear.
 
-![Water Clock graphics client at the start of a run.](images/WaterClockStart.png)
+![Water Clock graphics client at the start of a run.](WaterClockStart.png)
 
 Click the Start on the Trick Sim Control Panel. The Water Clock should begin to fill up.
 
-![Water Clock graphics client mid-run.](images/WaterClockRunning.png)
+![Water Clock graphics client mid-run.](WaterClockRunning.png)
 
 The only control on the GUI client is a slider which changes the flow rate of water into the water clock. It can be set anywhere from no flow up to 10 liters per second (10,000 cm^3^/s).
 
