@@ -658,7 +658,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         view.setStatusBar(createStatusBar());
 
         if(errOnInitConnect && (runningSimList != null) ) {
-            runningSimList.addItem("127.0.0.1 : " + port);  
+            runningSimList.addItem("localhost : " + port);  
         } 
 
         show(view);
