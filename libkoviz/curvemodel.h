@@ -25,8 +25,8 @@ class CurveModel : public QAbstractTableModel
     virtual CurveModelParameter* x() { return _x; }
     virtual CurveModelParameter* y() { return _y; }
 
-    virtual QString fileName() const { return _datamodel->fileName(); }
-    virtual QString runPath() const { return _datamodel->runPath(); }
+    virtual QString fileName() const;
+    virtual QString runPath() const;
 
     virtual void map() { _datamodel->map(); }
     virtual void unmap() { _datamodel->unmap(); }

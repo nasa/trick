@@ -75,3 +75,19 @@ QVariant CurveModel::data (const QModelIndex & index, int role ) const
     QVariant v;
     return v;
 }
+
+QString CurveModel::fileName() const
+{
+    if ( !_datamodel ) {
+        return "";
+    }
+    return _datamodel->fileName();
+}
+
+QString CurveModel::runPath() const
+{
+    if ( !_datamodel ) {
+        return "";
+    }
+    return _datamodel->runPath();
+}
