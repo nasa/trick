@@ -21,7 +21,7 @@ Trick::UnitsMap::~UnitsMap() {
 
     std::map<std::string, char * >::iterator pit ;
 
-    for ( pit = param_units.begin() ; pit != param_units.end() ; pit++ ) {
+    for ( pit = param_units.begin() ; pit != param_units.end() ; ++pit ) {
         free((*pit).second) ;
     }
     param_units.clear() ;

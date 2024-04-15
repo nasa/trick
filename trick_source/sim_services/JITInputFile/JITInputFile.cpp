@@ -264,7 +264,7 @@ int Trick::JITInputFile::add_library(std::string lib_name) {
 
 void * Trick::JITInputFile::find_symbol(std::string sym) {
     std::map< std::string , JITLibInfo >::iterator it ;
-    for ( it = file_to_libinfo_map.begin() ; it != file_to_libinfo_map.end() ; it++ ) {
+    for ( it = file_to_libinfo_map.begin() ; it != file_to_libinfo_map.end() ; ++it ) {
         void * ret = (*it).second.find_symbol(sym) ;
         if (ret != NULL) {
             return ret ;
