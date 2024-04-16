@@ -1,8 +1,9 @@
-
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "trick/ScheduledJobQueue.hh"
 #include "trick/ScheduledJobQueueInstrument.hh"
@@ -34,6 +35,30 @@ Trick::ScheduledJobQueue::~ScheduledJobQueue( ) {
     }
 }
 
+struct JobDataCompare {
+    bool operator()(const Trick::JobData *a, const Trick::JobData *b) {
+        {
+            auto ajc = a->job_class;
+            auto bjc = b->job_class;
+            if (ajc < bjc) return true;
+            if (ajc > bjc) return false;
+        }
+        {
+            auto ap = a->phase;
+            auto bp = b->phase;
+            if (ap < bp) return true;
+            if (ap > bp) return false;
+        }
+        {
+            auto asoi = a->sim_object_id;
+            auto bsoi = b->sim_object_id;
+            if (asoi < bsoi) return true;
+            if (asoi > bsoi) return false;
+        }
+        return a->id < b->id;
+    }
+};
+
 /**
 @design
 -# Allocate additional memory for the incoming job
@@ -46,71 +71,23 @@ Trick::ScheduledJobQueue::~ScheduledJobQueue( ) {
 */
 int Trick::ScheduledJobQueue::push( JobData * new_job ) {
 
-    unsigned int ii , jj ;
-
     /* Allocate additional memory for the additional job in the queue */
-    JobData ** new_list = (JobData **)calloc( list_size + 1 , sizeof(JobData *)) ;
+    JobData ** new_list = (JobData **)realloc(list, (list_size + 1) * sizeof(JobData *)) ;
+    if (!new_list) {
+        abort();
+    }
+    list = new_list;
+    JobData** list_end = list + list_size;
+    JobData** insert_pt = std::lower_bound(list, list_end, new_job, JobDataCompare());
+    if (insert_pt != list_end) {
+        memmove(insert_pt + 1, insert_pt, (list_end - insert_pt) * sizeof(JobData*));
+    }
+    *insert_pt = new_job;
 
     new_job->set_handled(true) ;
 
-    /* Find the correct insertion spot in the queue by comparing
-       the job_class, the phase, the sim_object id, and the job_id in that order. */
-    /* While searching for the correct insertion spot, copy all jobs that precede
-       the incoming job to the newly allocated queue space. */
-    for ( ii = jj = 0 ; ii < list_size ; ii++ ) {
-        if ( list[ii]->job_class == new_job->job_class ) {
-            if ( list[ii]->phase == new_job->phase ) {
-                if ( list[ii]->sim_object_id ==  new_job->sim_object_id ) {
-                    if ( list[ii]->id <= new_job->id ) {
-                        new_list[jj++] = list[ii] ;
-                    } else {
-                        new_list[jj++] = new_job ;
-                        break ;
-                    }
-                } else if ( list[ii]->sim_object_id < new_job->sim_object_id ) {
-                    new_list[jj++] = list[ii] ;
-                } else {
-                    new_list[jj++] = new_job ;
-                    break ;
-                }
-            } else if ( list[ii]->phase < new_job->phase ) {
-                new_list[jj++] = list[ii] ;
-            } else {
-                new_list[jj++] = new_job ;
-                break ;
-            }
-        } else if ( list[ii]->job_class < new_job->job_class ) {
-            new_list[jj++] = list[ii] ;
-        } else {
-            new_list[jj++] = new_job ;
-            break ;
-        }
-    }
-
-    /* Copy remaining jobs that execute after the incoming job to the new queue space. */
-    if ( ii == list_size ) {
-        /* ii == list_size means the incoming job is the last job */
-        new_list[list_size] = new_job ;
-    } else {
-        /* Inserted new job before the current job. Increment curr_index to point to the correct job */
-        if ( ii < curr_index ) {
-            curr_index++ ;
-        }
-        for ( ; ii < list_size ; ii++ ) {
-            new_list[jj++] = list[ii] ;
-        }
-    }
-
     /* Increment the size of the queue */
     list_size++ ;
-
-    /* Free the old queue space */
-    if ( list ) {
-        free(list) ;
-    }
-
-    /* Assign the queue pointer to the new space */
-    list = new_list ;
 
     return(0) ;
 
@@ -534,4 +511,3 @@ int Trick::ScheduledJobQueue::instrument_remove(std::string job_name) {
 
     return 0 ;
 }
-
