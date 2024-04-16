@@ -35,29 +35,33 @@ Trick::ScheduledJobQueue::~ScheduledJobQueue( ) {
     }
 }
 
-struct JobDataCompare {
-    bool operator()(const Trick::JobData *a, const Trick::JobData *b) {
-        {
-            auto ajc = a->job_class;
-            auto bjc = b->job_class;
-            if (ajc < bjc) return true;
-            if (ajc > bjc) return false;
-        }
-        {
-            auto ap = a->phase;
-            auto bp = b->phase;
-            if (ap < bp) return true;
-            if (ap > bp) return false;
-        }
-        {
-            auto asoi = a->sim_object_id;
-            auto bsoi = b->sim_object_id;
-            if (asoi < bsoi) return true;
-            if (asoi > bsoi) return false;
-        }
-        return a->id < b->id;
+static bool compare_job_data(const Trick::JobData *a, const Trick::JobData *b) {
+    {
+        auto ajc = a->job_class;
+        auto bjc = b->job_class;
+        if (ajc < bjc)
+            return true;
+        if (ajc > bjc)
+            return false;
     }
-};
+    {
+        auto ap = a->phase;
+        auto bp = b->phase;
+        if (ap < bp)
+            return true;
+        if (ap > bp)
+            return false;
+    }
+    {
+        auto asoi = a->sim_object_id;
+        auto bsoi = b->sim_object_id;
+        if (asoi < bsoi)
+            return true;
+        if (asoi > bsoi)
+            return false;
+    }
+    return a->id < b->id;
+}
 
 /**
 @design
@@ -78,7 +82,7 @@ int Trick::ScheduledJobQueue::push( JobData * new_job ) {
     }
     list = new_list;
     JobData** list_end = list + list_size;
-    JobData** insert_pt = std::lower_bound(list, list_end, new_job, JobDataCompare());
+    JobData** insert_pt = std::lower_bound(list, list_end, new_job, compare_job_data);
     if (insert_pt != list_end) {
         memmove(insert_pt + 1, insert_pt, (list_end - insert_pt) * sizeof(JobData*));
     }
