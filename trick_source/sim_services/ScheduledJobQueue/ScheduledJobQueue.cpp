@@ -37,24 +37,24 @@ Trick::ScheduledJobQueue::~ScheduledJobQueue( ) {
 
 static bool compare_job_data(const Trick::JobData *a, const Trick::JobData *b) {
     {
-        auto ajc = a->job_class;
-        auto bjc = b->job_class;
+        int ajc = a->job_class;
+        int bjc = b->job_class;
         if (ajc < bjc)
             return true;
         if (ajc > bjc)
             return false;
     }
     {
-        auto ap = a->phase;
-        auto bp = b->phase;
+        unsigned short ap = a->phase;
+        unsigned short bp = b->phase;
         if (ap < bp)
             return true;
         if (ap > bp)
             return false;
     }
     {
-        auto asoi = a->sim_object_id;
-        auto bsoi = b->sim_object_id;
+        int asoi = a->sim_object_id;
+        int bsoi = b->sim_object_id;
         if (asoi < bsoi)
             return true;
         if (asoi > bsoi)
