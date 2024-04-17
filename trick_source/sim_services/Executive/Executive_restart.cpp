@@ -9,6 +9,9 @@
 #include "trick/memorymanager_c_intf.h"
 #include "trick/ScheduledJobQueue.hh"
 #include "trick/Threads.hh"
+#include "trick/MonteCarlo.hh"
+
+extern Trick::MonteCarlo *the_mc;
 
 /**
 @details
@@ -42,6 +45,10 @@ int Trick::Executive::restart() {
     all_jobs.clear() ;
     all_jobs_vector.clear() ;
     all_tagged_jobs.clear() ;
+
+    if(the_mc) {
+        the_mc->clear_job_queues();
+    }
 
     /* Create a temporary all_jobs map to use to restore job data from all_jobs_for_checkpoint */
     for ( sit = sim_objects.begin() ; sit != sim_objects.end() ; sit++ ) {

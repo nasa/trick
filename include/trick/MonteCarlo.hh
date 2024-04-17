@@ -777,6 +777,13 @@ namespace Trick {
         int write(char* data, int size);
         int read(char* data, int size);
 
+
+        /** Reset job queues for checkpoint restart
+         *
+         *
+         */
+        void clear_job_queues();
+
 #if 0
         /**
             Overload default implentation of Scheduler::add_sim_object
