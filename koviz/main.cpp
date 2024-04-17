@@ -5,6 +5,8 @@
 #include <QString>
 #include <QDate>
 #include <QRegExp>
+#include <QStandardPaths>
+#include <QDir>
 
 #include <string>
 using namespace std;
@@ -743,8 +745,10 @@ int main(int argc, char *argv[])
                 title = session->title3();
             }
             if ( title.isEmpty() ) {
-                QFileInfo f(".");
-                QString userName = f.owner();
+                QString homeDir = QStandardPaths::writableLocation(
+                                                  QStandardPaths::HomeLocation);
+                QDir dir(homeDir);
+                QString userName = dir.dirName();
                 title = "User: " + userName;
             }
         }
