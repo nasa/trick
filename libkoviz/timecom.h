@@ -36,6 +36,7 @@ private:
 
     int _connect2Bvis();
     void _sendMsg2Bvis(const QString& msg);
+    QStringList _msgQueue;
 };
 
 #endif // TIMECOM_H
