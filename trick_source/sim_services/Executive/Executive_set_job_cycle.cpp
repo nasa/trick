@@ -27,7 +27,7 @@ int Trick::Executive::set_job_cycle(std::string job_name, int instance_num, doub
         range = all_tagged_jobs.equal_range(job_name) ;
         if (range.first != range.second) {
             // set cycle for all jobs with this tag
-            for ( it = range.first; it != range.second ; it++ ) {
+            for ( it = range.first; it != range.second ; ++it ) {
                 (*it).second->set_cycle(in_cycle) ;
                 (*it).second->set_next_call_time(time_tics) ;
             }

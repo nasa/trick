@@ -61,7 +61,7 @@ namespace Trick {
              */
             void print_nonzero_diffs() {
                 std::map<std::string, ClassSizeDiffInfo>::iterator it ;
-                for ( it = name_to_diff.begin() ; it != name_to_diff.end() ; it++ ) {
+                for ( it = name_to_diff.begin() ; it != name_to_diff.end() ; ++it ) {
                     int curr_diff = it->second.diff ;
                     ATTRIBUTES * attr = Trick::AttributesMap::attributes_map()->get_attr(it->first) ;
                     unsigned int ii ;

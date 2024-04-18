@@ -80,7 +80,7 @@ void FindTrickICG::If(clang::SourceLocation Loc, clang::SourceRange ConditionRan
         if ( ref.str().find("TRICK_ICG") != std::string::npos ) {
             // for each header in the stack, mark them as being exposed to TRICK_ICG
             std::vector<std::string>::iterator it ;
-            for ( it = included_files.begin() ; it != included_files.end() ; it++ ) {
+            for ( it = included_files.begin() ; it != included_files.end() ; ++it ) {
                 hsd.addTrickICGFoundFile(*it) ;
             }
             // print warning messages.
@@ -124,7 +124,7 @@ void FindTrickICG::Ifdef(clang::SourceLocation Loc, const clang::Token &MacroNam
         if ( (loc_str.find("S_source.hh") == std::string::npos) ) {
             // for each header in the stack, mark them as being exposed to TRICK_ICG
             std::vector<std::string>::iterator it ;
-            for ( it = included_files.begin() ; it != included_files.end() ; it++ ) {
+            for ( it = included_files.begin() ; it != included_files.end() ; ++it ) {
                 hsd.addTrickICGFoundFile(*it) ;
             }
             // print warning messages.
@@ -149,7 +149,7 @@ void FindTrickICG::Ifndef(clang::SourceLocation Loc, const clang::Token &MacroNa
         std::string loc_str = Loc.printToString(ci.getSourceManager()) ;
         // for each header in the stack, mark them as being exposed to TRICK_ICG
         std::vector<std::string>::iterator it ;
-        for ( it = included_files.begin() ; it != included_files.end() ; it++ ) {
+        for ( it = included_files.begin() ; it != included_files.end() ; ++it ) {
             hsd.addTrickICGFoundFile(*it) ;
         }
         // print warning messages.

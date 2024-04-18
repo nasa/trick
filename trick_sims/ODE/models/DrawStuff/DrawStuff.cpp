@@ -13,14 +13,14 @@ void DrawStuff::start() {
 
 void DrawStuff::step(int) {
     std::vector<DrawStuffObject *>::iterator it ;
-    for( it = objects.begin() ; it != objects.end() ; it++ ) {
+    for( it = objects.begin() ; it != objects.end() ; ++it ) {
         (*it)->draw() ;
     }
 }
 
 void DrawStuff::command(int cmd) {
     std::vector<DrawStuffObject *>::iterator it ;
-    for( it = objects.begin() ; it != objects.end() ; it++ ) {
+    for( it = objects.begin() ; it != objects.end() ; ++it ) {
         (*it)->command(cmd) ;
     }
 }

@@ -22,7 +22,7 @@ ClassValues::ClassValues() :
 
 ClassValues::~ClassValues() {
     std::vector<FieldDescription *>::iterator fdit ;
-    for ( fdit = field_descripts.begin() ; fdit != field_descripts.end() ; fdit++ ) {
+    for ( fdit = field_descripts.begin() ; fdit != field_descripts.end() ; ++fdit ) {
         delete (*fdit) ;
     }
 }
@@ -57,7 +57,7 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
 
     std::vector<FieldDescription *>::iterator fdit ;
     // Loop through the incoming inherited variable names
-    for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
+    for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; ++fdit ) {
 
         (*fdit)->setBaseClassOffset( class_offset ) ;
         (*fdit)->setInherited( true ) ;
@@ -72,7 +72,7 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
 #else
     {
 #endif
-        for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; fdit++ ) {
+        for ( fdit = in_fdes.begin() ; fdit != in_fdes.end() ; ++fdit ) {
 
             std::string in_name = (*fdit)->getName() ;
             // search existing names for incoming inherited variable name.
@@ -113,7 +113,7 @@ void ClassValues::addInheritedFieldDescriptions(std::vector<FieldDescription *> 
 void ClassValues::saveInheritAncestry( ClassValues * in_cv  ) {
 
     std::map< std::string , unsigned int >::iterator mit ;
-    for ( mit = in_cv->all_inherited_class_names_map.begin() ; mit != in_cv->all_inherited_class_names_map.end() ; mit++ ) {
+    for ( mit = in_cv->all_inherited_class_names_map.begin() ; mit != in_cv->all_inherited_class_names_map.end() ; ++mit ) {
         all_inherited_class_names_map[(*mit).first] +=  (*mit).second ;
     }
 
@@ -123,7 +123,7 @@ void ClassValues::saveInheritAncestry( ClassValues * in_cv  ) {
 void ClassValues::setContainerClassForFields() {
     std::vector<FieldDescription *>::iterator fdit ;
     // Loop through all fields
-    for ( fdit = field_descripts.begin() ; fdit != field_descripts.end() ; fdit++ ) {
+    for ( fdit = field_descripts.begin() ; fdit != field_descripts.end() ; ++fdit ) {
         // Prepend the field container class with the current class name.
         (*fdit)->setContainerClass( name + "::" + (*fdit)->getContainerClass() ) ;
     }
@@ -134,13 +134,13 @@ void ClassValues::clearAmbiguousVariables() {
     std::map< std::string , unsigned int >::iterator mit ;
     std::vector<FieldDescription *>::iterator fdit ;
 
-    for ( mit = all_inherited_class_names_map.begin() ; mit != all_inherited_class_names_map.end() ; mit++ ) {
+    for ( mit = all_inherited_class_names_map.begin() ; mit != all_inherited_class_names_map.end() ; ++mit ) {
         // If a class in inherited more than once we have a diamond.  We'll need to modify variables that were
         // inherited from that class.
         if ( (*mit).second > 1 ) {
             std::string str = (*mit).first + "::" ;
             // Loop through all fields testing for the diamond inherited class in the name.
-            for ( fdit = field_descripts.begin() ; fdit != field_descripts.end() ; fdit++ ) {
+            for ( fdit = field_descripts.begin() ; fdit != field_descripts.end() ; ++fdit ) {
                 std::string fdit_name = (*fdit)->getName() ;
                 size_t f = fdit_name.find(str) ;
                 // If the variable contains the diamond class string, remove the diamond class qualification.

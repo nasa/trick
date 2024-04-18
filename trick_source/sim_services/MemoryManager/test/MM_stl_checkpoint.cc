@@ -1294,7 +1294,7 @@ TEST_F(MM_stl_checkpoint, recursive_nightmare ) {
     for (int i = 0; i < 5; i++) {
 
         int j = 0;
-        for (auto it = recursive_nightmare_copy[i].begin(); it != recursive_nightmare_copy[i].end(); it++, j++) {
+        for (auto it = recursive_nightmare_copy[i].begin(); it != recursive_nightmare_copy[i].end(); ++it, j++) {
             std::pair<int,int> key = it->first;
             std::vector<std::stack<std::string>> val = it->second;
 
