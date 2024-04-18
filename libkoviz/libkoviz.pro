@@ -205,39 +205,59 @@ HEADERS  += bookmodel.h \
             trickview.h \
             datamodel_tv.h
 
+unix {
+    FLEX  = flex
+    BISON = bison
+}
+win32 {
+    FLEX  = c:/Qt/5.15.2/Src/gnuwin32/bin/flex.exe
+    BISON = c:/Qt/5.15.2/Src/gnuwin32/bin/bison.exe
+
+    !exists($$FLEX) {
+        error("Error: $$FLEX not found. Modify the FLEX path in libkoviz.pro")
+    }
+    !exists($$BISON) {
+        error("Error: $$BISON not found. Modify the BISON path in libkoviz.pro")
+    }
+}
+
+FLEX_COMMAND  = $$FLEX \
+                    --header-file=$$PWD/${QMAKE_FILE_BASE}.h \
+                    -o $$PWD/${QMAKE_FILE_BASE}.cpp ${QMAKE_FILE_IN}
+BISON_COMMAND = $$BISON \
+                    -d --defines=$$PWD/${QMAKE_FILE_BASE}.h \
+                    -o $$PWD/${QMAKE_FILE_BASE}.cpp ${QMAKE_FILE_IN}
 
 FLEXSOURCES = product_lexer.l
 BISONSOURCES = product_parser.y
 
 flexsource.input = FLEXSOURCES
-flexsource.output = ${QMAKE_FILE_BASE}.cpp
-flexsource.commands = flex --header-file=${QMAKE_FILE_BASE}.h \
-                           -o ${QMAKE_FILE_BASE}.cpp ${QMAKE_FILE_IN}
+flexsource.output = $$PWD/${QMAKE_FILE_BASE}.cpp
+flexsource.commands = $$FLEX_COMMAND
 flexsource.variable_out = SOURCES
 flexsource.name = Flex Sources ${QMAKE_FILE_IN}
 flexsource.CONFIG += target_predeps
 QMAKE_EXTRA_COMPILERS += flexsource
 
 flexheader.input = FLEXSOURCES
-flexheader.output = ${QMAKE_FILE_BASE}.h
-flexheader.commands = @true
+flexheader.output = $$PWD/${QMAKE_FILE_BASE}.h
+flexheader.commands = $$FLEX_COMMAND
 flexheader.variable_out = HEADERS
 flexheader.name = Flex Headers ${QMAKE_FILE_IN}
 flexheader.CONFIG += target_predeps no_link
 QMAKE_EXTRA_COMPILERS += flexheader
 
 bisonsource.input = BISONSOURCES
-bisonsource.output = ${QMAKE_FILE_BASE}.cpp
-bisonsource.commands = bison -d --defines=${QMAKE_FILE_BASE}.h \
-                             -o ${QMAKE_FILE_BASE}.cpp ${QMAKE_FILE_IN}
+bisonsource.output = $$PWD/${QMAKE_FILE_BASE}.cpp
+bisonsource.commands = $$BISON_COMMAND
 bisonsource.variable_out = SOURCES
 bisonsource.name = Bison Sources ${QMAKE_FILE_IN}
 bisonsource.CONFIG += target_predeps
 QMAKE_EXTRA_COMPILERS += bisonsource
 
 bisonheader.input = BISONSOURCES
-bisonheader.output = ${QMAKE_FILE_BASE}.h
-bisonheader.commands = @true
+bisonheader.output = $$PWD/${QMAKE_FILE_BASE}.h
+bisonheader.commands = $$BISON_COMMAND
 bisonheader.variable_out = HEADERS
 bisonheader.name = Bison Headers ${QMAKE_FILE_IN}
 bisonheader.CONFIG += target_predeps no_link
