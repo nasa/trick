@@ -182,7 +182,7 @@ void Trick::DataRecordDispatcher::remove_all_groups() {
 
 Trick::DataRecordGroup * Trick::DataRecordDispatcher::get_group(std::string in_name) {
     std::vector <Trick::DataRecordGroup *>::iterator it ;
-    for ( it = groups.begin() ; it != groups.end() ; it++ ) {
+    for ( it = groups.begin() ; it != groups.end() ; ++it ) {
         if ( ! (*it)->get_group_name().compare(in_name) )
             return *it ;
     }

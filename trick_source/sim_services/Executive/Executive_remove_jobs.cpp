@@ -40,7 +40,7 @@ int Trick::Executive::remove_jobs( Trick::SimObject * in_sim_object ) {
     }
 
     /* search the executive queues for the job and remove it if found */
-    for ( std::vector <Trick::JobData *>::iterator jit = in_sim_object->jobs.begin() ; jit != in_sim_object->jobs.end() ; jit++ ) {
+    for ( std::vector <Trick::JobData *>::iterator jit = in_sim_object->jobs.begin() ; jit != in_sim_object->jobs.end() ; ++jit ) {
         std::map<std::string, int>::iterator class_id_it ;
         std::map<int, Trick::ScheduledJobQueue *>::iterator queue_it ;
         Trick::ScheduledJobQueue * curr_queue ;

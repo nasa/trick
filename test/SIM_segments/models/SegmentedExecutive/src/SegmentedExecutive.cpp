@@ -19,7 +19,7 @@ int Trick::SegmentedExecutive::add_segment( Trick::Segment * ps ) {
 
     // Gets the job class to job queue map for this segment and adds the job classes to the executive.
     std::map < std::string , Trick::ScheduledJobQueue * >::iterator it ;
-    for ( it = ps->get_job_queues().begin() ; it != ps->get_job_queues().end() ; it++ ) {
+    for ( it = ps->get_job_queues().begin() ; it != ps->get_job_queues().end() ; ++it ) {
         class_map[(*it).first] = num_classes ;
         class_to_queue[num_classes++] = (*it).second ;
     }
@@ -41,7 +41,7 @@ int Trick::SegmentedExecutive::gather_segmented_jobs() {
     std::map < std::string , Trick::Segment * >::iterator mit ;
     std::set< std::string > segment_tags ;
 
-    for ( mit = segment_map.begin() ; mit != segment_map.end() ; mit++ ) {
+    for ( mit = segment_map.begin() ; mit != segment_map.end() ; ++mit ) {
         segment_tags.insert((*mit).first) ;
     }
 
@@ -129,7 +129,7 @@ int Trick::SegmentedExecutive::segment_set_jobs_onoff() {
     Trick::JobData * job ;
     std::set < Trick::JobData * >::iterator it ;
 
-    for ( it = all_segmented_jobs.begin() ; it != all_segmented_jobs.end() ; it++ ) {
+    for ( it = all_segmented_jobs.begin() ; it != all_segmented_jobs.end() ; ++it ) {
         job = *it ;
         // Test to see if the next segment is present in the job tags.
         // Set the disabled flag to the negation of the tag's presence
@@ -164,10 +164,10 @@ int Trick::SegmentedExecutive::write_s_job_execution(FILE *fp) {
     fprintf(fp, "Segment Jobs:\n") ;
 
     std::map < std::string , Trick::Segment * >::iterator pmit ;
-    for ( pmit = segment_map.begin() ; pmit != segment_map.end() ; pmit++ ) {
+    for ( pmit = segment_map.begin() ; pmit != segment_map.end() ; ++pmit ) {
         Trick::Segment * pb = (*pmit).second ;
         std::map < std::string , Trick::ScheduledJobQueue * >::iterator jqit ;
-        for ( jqit = pb->get_job_queues().begin() ; jqit != pb->get_job_queues().end() ; jqit++ ) {
+        for ( jqit = pb->get_job_queues().begin() ; jqit != pb->get_job_queues().end() ; ++jqit ) {
             (*jqit).second->write_non_sched_queue(fp) ;
         }
     }
@@ -187,10 +187,10 @@ int Trick::SegmentedExecutive::instrument_job_before( Trick::JobData * instrumen
 
         //go through all of the segmented jobs and instrument them.
         std::map < std::string , Trick::Segment * >::iterator pmit ;
-        for ( pmit = segment_map.begin() ; pmit != segment_map.end() ; pmit++ ) {
+        for ( pmit = segment_map.begin() ; pmit != segment_map.end() ; ++pmit ) {
             Trick::Segment * pb = (*pmit).second ;
             std::map < std::string , Trick::ScheduledJobQueue * >::iterator jqit ;
-            for ( jqit = pb->get_job_queues().begin() ; jqit != pb->get_job_queues().end() ; jqit++ ) {
+            for ( jqit = pb->get_job_queues().begin() ; jqit != pb->get_job_queues().end() ; ++jqit ) {
                 (*jqit).second->instrument_before(instrument_job) ;
             }
         }
@@ -209,10 +209,10 @@ int Trick::SegmentedExecutive::instrument_job_after( Trick::JobData * instrument
 
         //go through all of the segmented jobs and instrument them.
         std::map < std::string , Trick::Segment * >::iterator pmit ;
-        for ( pmit = segment_map.begin() ; pmit != segment_map.end() ; pmit++ ) {
+        for ( pmit = segment_map.begin() ; pmit != segment_map.end() ; ++pmit ) {
             Trick::Segment * pb = (*pmit).second ;
             std::map < std::string , Trick::ScheduledJobQueue * >::iterator jqit ;
-            for ( jqit = pb->get_job_queues().begin() ; jqit != pb->get_job_queues().end() ; jqit++ ) {
+            for ( jqit = pb->get_job_queues().begin() ; jqit != pb->get_job_queues().end() ; ++jqit ) {
                 (*jqit).second->instrument_after(instrument_job) ;
             }
         }
@@ -226,10 +226,10 @@ int Trick::SegmentedExecutive::instrument_job_remove(std::string in_job) {
     Trick::Executive::instrument_job_remove( in_job ) ;
 
     std::map < std::string , Trick::Segment * >::iterator pmit ;
-    for ( pmit = segment_map.begin() ; pmit != segment_map.end() ; pmit++ ) {
+    for ( pmit = segment_map.begin() ; pmit != segment_map.end() ; ++pmit ) {
         Trick::Segment * pb = (*pmit).second ;
         std::map < std::string , Trick::ScheduledJobQueue * >::iterator jqit ;
-        for ( jqit = pb->get_job_queues().begin() ; jqit != pb->get_job_queues().end() ; jqit++ ) {
+        for ( jqit = pb->get_job_queues().begin() ; jqit != pb->get_job_queues().end() ; ++jqit ) {
             (*jqit).second->instrument_remove(in_job) ;
         }
     }

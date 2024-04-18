@@ -76,7 +76,7 @@ int Trick::RtiStager::List () {
 int Trick::RtiStager::SetDebug( bool on_off ) {
     debug = on_off ;
     std::vector < RtiExec * >::iterator reit ;
-    for ( reit = executors.begin() ; reit != executors.end() ; reit++ ) {
+    for ( reit = executors.begin() ; reit != executors.end() ; ++reit ) {
         (*reit)->SetDebug(on_off) ;
     }
     return 0 ;

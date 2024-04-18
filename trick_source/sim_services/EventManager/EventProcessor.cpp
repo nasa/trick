@@ -30,7 +30,7 @@ void Trick::EventProcessor::add_event(Trick::Event * in_event) {
 */
 void Trick::EventProcessor::remove_event(Trick::Event * in_event) {
     std::multiset< Trick::Event *, CompareEventPtrs >::iterator sit = event_set.begin() ;
-    for (sit=event_set.begin(); sit!=event_set.end(); sit++) {
+    for (sit=event_set.begin(); sit!=event_set.end(); ++sit) {
         if ((*sit) == in_event) {
             event_set.erase(sit) ;
             break;
