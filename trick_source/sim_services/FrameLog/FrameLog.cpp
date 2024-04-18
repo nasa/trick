@@ -844,7 +844,7 @@ int Trick::FrameLog::create_DP_job_files() {
         total_plots = drg_users[ii]->rec_buffer.size();
         std::vector <Trick::DataRecordBuffer *>::iterator drb_it ;
         bg_color = (char *)"cornsilk2";
-        for ( drb_it = drg_users[ii]->rec_buffer.begin() + 1 ; drb_it != drg_users[ii]->rec_buffer.end() ; ++drb_it++ ) {
+        for ( drb_it = drg_users[ii]->rec_buffer.begin() + 1 ; drb_it != drg_users[ii]->rec_buffer.end() ; ++drb_it ) {
             if ( ! (*drb_it)->name.compare(0, 5, "frame") ) continue ;
             // plots_per_page job plots per page
             if ((plots == 0) || (plots > plots_per_page)) {
