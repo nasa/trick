@@ -80,10 +80,10 @@ int Trick::ScheduledJobQueue::push( JobData * new_job ) {
         abort();
     }
     list = new_list;
-    JobData** list_end = list + list_size;
-    JobData** insert_pt = std::upper_bound(list, list_end, new_job, compare_job_data);
+    JobData ** list_end = list + list_size;
+    JobData ** insert_pt = std::upper_bound(list, list_end, new_job, compare_job_data);
     if (insert_pt != list_end) {
-        memmove(insert_pt + 1, insert_pt, (list_end - insert_pt) * sizeof(JobData*));
+        memmove(insert_pt + 1, insert_pt, (list_end - insert_pt) * sizeof(JobData *));
     }
     *insert_pt = new_job;
 
