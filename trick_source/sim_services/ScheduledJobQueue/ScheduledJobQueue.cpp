@@ -68,9 +68,8 @@ static bool compare_job_data(const Trick::JobData *a, const Trick::JobData *b) {
 -# Allocate additional memory for the incoming job
 -# Find the insertion point in the queue based on the job_class, the phase,
    the sim_object id, and the job_id
--# While searching for the correct insertion spot, copy all jobs that precede
-   the incoming job to the newly allocated queue space followed by the new job.
--# Copy jobs that are ordered after the incoming job to the new queue
+-# Move the jobs after the insertion point to the right by one.
+-# Insert the new job at the insertion point.
 -# Increment the size of the queue.
 */
 int Trick::ScheduledJobQueue::push( JobData * new_job ) {
