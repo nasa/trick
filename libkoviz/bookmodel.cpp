@@ -799,6 +799,37 @@ CurveModel *PlotBookModel::getCurveModel(const QModelIndex &idx) const
     return curveModel;
 }
 
+void PlotBookModel::refreshRuns()
+{
+    _runs->refresh();
+
+    foreach (QModelIndex pageIdx, pageIdxs()) {
+        foreach (QModelIndex plotIdx, plotIdxs(pageIdx)) {
+            QModelIndex curvesIdx = getIndex(plotIdx, "Curves","Plot");
+            foreach (QModelIndex curveIdx, curveIdxs(curvesIdx)) {
+                CurveModel* curveModel = getCurveModel(curveIdx);
+                QString curveRunPath = curveModel->runPath();
+                int runID = getDataInt(curveIdx,"CurveRunID", "Curve");
+                QString refreshRunPath = _runs->runPaths().at(runID);
+                if ( curveRunPath == refreshRunPath ) {
+                    CurveModel* newCurveModel = _runs->curveModel(runID,
+                                                       curveModel->t()->name(),
+                                                       curveModel->x()->name(),
+                                                       curveModel->y()->name());
+                    QModelIndex idx = getDataIndex(curveIdx,
+                                                   "CurveData","Curve");
+                    QVariant v = PtrToQVariant<CurveModel>::
+                                                         convert(newCurveModel);
+                    setData(idx,v);
+                    delete curveModel;
+                }
+            }
+            QRectF bbox = calcCurvesBBox(curvesIdx);
+            setPlotMathRect(bbox,plotIdx);
+        }
+    }
+}
+
 void PlotBookModel::appendDataToCurves(const QList<CurveModel *> curveModels)
 {
     foreach (QModelIndex pageIdx, pageIdxs()) {

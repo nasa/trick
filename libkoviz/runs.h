@@ -35,6 +35,7 @@ class Runs
     virtual ~Runs();
     virtual QStringList params() const { return _params; }
     virtual QStringList runPaths() const { return _runPaths; }
+    void refresh() ;
     CurveModel* curveModel(int row,
                       const QString& tName,
                       const QString& xName,
@@ -60,6 +61,7 @@ class Runs
     QHash<QString,int> _rundir2row;
 
     void _init();
+    void _delete();
     QList<Run*> _runs;
 
     DataModel* _paramModel(const QString& param, const QString &run) const;

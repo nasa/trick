@@ -140,8 +140,7 @@ PlotMainWindow::PlotMainWindow(
     // Vars Tab
     QFrame* varsFrame = new QFrame(lsplit);
     _varsWidget = new VarsWidget(_timeNames.at(0),
-                                 _varsModel,
-                                 _runs->runPaths(),
+                                 _runs,
                                  _unitOverrides,
                                  _bookModel,
                                  _bookView->selectionModel(),
@@ -168,8 +167,9 @@ PlotMainWindow::PlotMainWindow(
     if ( ! _dpFiles.isEmpty() ) {
         // DP files specified on commandline
         _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir,
-                                          _dpFiles, _varsModel,
-                                          _runs->runPaths(), _bookModel,
+                                          _dpFiles,
+                                          _runs,
+                                          _bookModel,
                                           _bookView->selectionModel(),
                                           _monteInputsView,
                                           _sieModel,
@@ -383,7 +383,7 @@ void PlotMainWindow::_nbCurrentChanged(int i)
         // the DPTreeWidget is created when the DP tab is clicked.
         //
         _dpTreeWidget = new  DPTreeWidget(_timeNames.at(0), _dpDir, _dpFiles,
-                                          _varsModel, _runs->runPaths(),
+                                          _runs,
                                           _bookModel,
                                           _bookView->selectionModel(),
                                           _monteInputsView,
@@ -1505,6 +1505,8 @@ void PlotMainWindow::_toggleShowLiveCoord()
 
 void PlotMainWindow::_refreshPlots()
 {
+    _bookModel->refreshRuns();
+
     foreach (QModelIndex pageIdx, _bookModel->pageIdxs()) {
         // For now just reset curve x/y bias to undo any curve shifting
         foreach (QModelIndex plotIdx, _bookModel->plotIdxs(pageIdx)) {

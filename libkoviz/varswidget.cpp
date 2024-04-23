@@ -5,8 +5,7 @@
 #endif
 
 VarsWidget::VarsWidget(const QString &timeName,
-                       QStandardItemModel* varsModel,
-                       const QStringList& runPaths,
+                       Runs *runs,
                        const QStringList &unitOverrides,
                        PlotBookModel *plotModel,
                        QItemSelectionModel *plotSelectModel,
@@ -14,8 +13,7 @@ VarsWidget::VarsWidget(const QString &timeName,
                        QWidget *parent) :
     QWidget(parent),
     _timeName(timeName),
-    _varsModel(varsModel),
-    _runPaths(runPaths),
+    _runs(runs),
     _unitOverrides(unitOverrides),
     _plotModel(plotModel),
     _plotSelectModel(plotSelectModel),
@@ -23,6 +21,7 @@ VarsWidget::VarsWidget(const QString &timeName,
     _qpId(0)
 {
     // Setup models
+    _varsModel = _createVarsModel(_runs);
     _varsFilterModel = new TrickVarSortFilterProxyModel(this);
     _varsFilterModel->setDynamicSortFilter(true);
     _varsFilterModel->setSourceModel(_varsModel);
@@ -58,6 +57,7 @@ VarsWidget::~VarsWidget()
 {
     delete _varsSelectModel;
     delete _varsFilterModel;
+    delete _varsModel;
 }
 
 
@@ -270,7 +270,7 @@ void VarsWidget::_addPlotToPage(QStandardItem* pageItem,
     _addChild(plotItem, "PlotYMaxRange",  DBL_MAX);
     _addChild(plotItem, "PlotBackgroundColor", "#FFFFFF");
     _addChild(plotItem, "PlotForegroundColor", "#000000");
-    int rc = _runPaths.count(); // a curve per run, so, rc == nCurves
+    int rc = _runs->runPaths().size(); // a curve per run, so, rc == nCurves
     if ( rc == 2 ) {
         QString presentation = _plotModel->getDataString(QModelIndex(),
                                                          "Presentation");
@@ -365,4 +365,23 @@ void VarsWidget::_selectCurrentRunOnPageItem(QStandardItem* pageItem)
             }
         }
     }
+}
+
+QStandardItemModel* VarsWidget::_createVarsModel(Runs* runs)
+{
+    if ( runs == 0 ) return 0;
+
+    QStandardItemModel* varsModel = new QStandardItemModel(0,1);
+
+    QStringList params = runs->params();
+    params.sort();
+    QStandardItem *rootItem = varsModel->invisibleRootItem();
+    foreach (QString param, params) {
+        if ( param == "sys.exec.out.time" ) continue;
+        QStandardItem *varItem = new QStandardItem(param);
+        varItem->setData("VarsModel",Qt::UserRole); // For Drag-n-drop
+        rootItem->appendRow(varItem);
+    }
+
+    return varsModel;
 }

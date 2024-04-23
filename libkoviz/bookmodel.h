@@ -98,6 +98,7 @@ public:
                             const QString& xName, const QString& yName);
     CurveModel* getCurveModel(const QModelIndex& curvesIdx, int i) const;
     CurveModel* getCurveModel(const QModelIndex& idx) const;
+    void refreshRuns();
 
     void appendDataToCurves(const QList<CurveModel*> curveModels);
     void replaceCurveModelsWithCopies(const QList<CurveModel*> curveModels);

@@ -18,6 +18,7 @@
 #include "programmodel.h"
 #include "sie_listmodel.h"
 #include "datamodel_tv.h"
+#include "runs.h"
 
 // This class introduced to fix Qt bug:
 // https://codereview.qt-project.org/#/c/65171/3
@@ -43,8 +44,7 @@ public:
     explicit DPTreeWidget(const QString& timeName,
                           const QString& dpDirName,
                           const QStringList& dpFiles,
-                          QStandardItemModel* dpVarsModel,
-                          const QStringList& runPaths,
+                          Runs* runs,
                           PlotBookModel* bookModel,
                           QItemSelectionModel*  bookSelectModel,
                           MonteInputsView* monteInputsView,
@@ -64,7 +64,7 @@ private:
     QString _timeName;
     QString _dpDirName;
     QStringList _dpFiles;
-    QStandardItemModel* _dpVarsModel;
+    Runs* _runs;
     QDir* _dir;
     QStringList _runPaths;
     PlotBookModel* _bookModel;

@@ -17,14 +17,14 @@
 #include "bookmodel.h"
 #include "monteinputsview.h"
 #include "trickvarsortfilterproxymodel.h"
+#include "runs.h"
 
 class VarsWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit VarsWidget(const QString& timeName,
-                        QStandardItemModel* varsModel,
-                        const QStringList& runPaths,
+                        Runs* runs,
                         const QStringList& unitOverrides,
                         PlotBookModel* plotModel,
                         QItemSelectionModel*  plotSelectModel,
@@ -43,8 +43,8 @@ public slots:
 
 private:
     QString _timeName;
+    Runs* _runs;
     QStandardItemModel* _varsModel;
-    QStringList _runPaths;
     QStringList _unitOverrides;
     PlotBookModel* _plotModel;
     QItemSelectionModel*  _plotSelectModel;
@@ -65,6 +65,8 @@ private:
     void _addPlotToPage(QStandardItem* pageItem,
                                  const QModelIndex &varIdx);
     void _selectCurrentRunOnPageItem(QStandardItem* pageItem);
+
+    QStandardItemModel* _createVarsModel(Runs* runs);
 
 
 private slots:

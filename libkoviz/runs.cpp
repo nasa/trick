@@ -31,15 +31,36 @@ Runs::Runs(const QStringList &timeNames,
 
 Runs::~Runs()
 {
+    _delete();
+}
+
+void Runs::_delete()
+{
     foreach ( DataModel* m, _models ) {
         delete m;
     }
+    _models.clear();
+
     foreach ( QString p, _params ) {
         delete _paramToModels.value(p);
     }
+    _paramToModels.clear();
+
+
     foreach ( Run* run, _runs ) {
         delete run;
     }
+    _runs.clear();
+
+    _params.clear();
+}
+
+
+// Refresh runs (normally called when sim reruns and gens new data)
+void Runs::refresh()
+{
+    _delete();
+    _init();
 }
 
 void Runs::_init()

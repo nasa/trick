@@ -38,8 +38,7 @@ void DPTreeView::selectionChanged(const QItemSelection &selected,
 DPTreeWidget::DPTreeWidget(const QString& timeName,
                            const QString &dpDirName,
                            const QStringList &dpFiles,
-                           QStandardItemModel *dpVarsModel,
-                           const QStringList& runPaths,
+                           Runs* runs,
                            PlotBookModel *bookModel,
                            QItemSelectionModel *bookSelectModel,
                            MonteInputsView *monteInputsView,
@@ -53,8 +52,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _timeName(timeName),
     _dpDirName(dpDirName),
     _dpFiles(dpFiles),
-    _dpVarsModel(dpVarsModel),
-    _runPaths(runPaths),
+    _runs(runs),
     _bookModel(bookModel),
     _bookSelectModel(bookSelectModel),
     _monteInputsView(monteInputsView),
@@ -212,10 +210,8 @@ void DPTreeWidget::_setupModel()
     // The dp filter also takes the sie model.  The sie model is used to
     // filter for variables that the live sim publishes.
     QStringList dpParams;
-    dpParams << _timeName; // always common,but may not be in dpVarsModel,so add
-    for (int i = 0; i < _dpVarsModel->rowCount(); ++i ) {
-        QModelIndex idx = _dpVarsModel->index(i,0);
-        QString param = _dpVarsModel->data(idx).toString();
+    dpParams << _timeName; // always common
+    foreach (QString param, _runs->params()) {
         dpParams.append(param);
     }
     _dpFilterModel = new DPFilterProxyModel(dpParams,_sieModel);
@@ -342,7 +338,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
     this->setCursor(QCursor(Qt::WaitCursor));
 
     DPProduct dp(dpfile);
-    int rc = _runPaths.count();
+    int rc = _runs->runPaths().size();
     if ( _tvModel && rc == 0 ) {
         // If there are no runs, count the tv model as one run
         rc = 1;
@@ -621,7 +617,7 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
     this->setCursor(QCursor(Qt::WaitCursor));
 
     DPProduct dp(dpfile);
-    int numRuns = _runPaths.count();
+    int numRuns = _runs->runPaths().size();
     int tableNum = 0 ;
 
     // Tables
@@ -855,11 +851,12 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
                         << _timeName << " , "
                         << xName << " , "
                         << yName << ") ";
-            if ( runId < _runPaths.size() ) {
+            if ( runId < _runs->runPaths().size() ) {
                 _err_stream << "\n\nin RUN:\n\n "
                             << "         "
-                            << _runPaths.at(runId) ;
-            } else if ( runId >= _runPaths.size() && _sieModel && _tvModel ) {
+                            << _runs->runPaths().at(runId) ;
+            } else if ( runId >= _runs->runPaths().size()
+                        && _sieModel && _tvModel ) {
                 _err_stream << "\n\nin the Trick SIE database.\n";
             }
             fprintf(stderr, "%s\n",
@@ -898,7 +895,7 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
         }
 
         if ( !curveModel ) {
-            QString runPath = _runPaths.at(runId);
+            QString runPath = _runs->runPaths().at(runId);
             _err_stream << "koviz [error]: could not find matching xypair "
                            "parameter in RUN:\n\n"
                         << "        " << runPath << "\n\n"
