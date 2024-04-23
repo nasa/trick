@@ -622,7 +622,7 @@ sub process_class($$$$$) {
        my $sanitized_namespace = $split_namespaces[-1] ;
        my @namespace_split = split /namespace\s*$sanitized_namespace/, $$new_contents_ref;
        $save_namespace_content = 'namespace ' . $sanitized_namespace . $namespace_split[-1];
-       $$new_contents_ref = join('namespace ' . $sanitized_namespace, $namespace_split[0 .. $#namespace_split-1]);
+       $$new_contents_ref = join('namespace ' . $sanitized_namespace, @namespace_split[0 .. $#namespace_split-1]);
     }
 
     # SWIG doesn't like "const static".  Change it to "static const"
