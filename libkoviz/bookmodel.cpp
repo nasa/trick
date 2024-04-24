@@ -808,18 +808,18 @@ void PlotBookModel::refreshRuns()
             QModelIndex curvesIdx = getIndex(plotIdx, "Curves","Plot");
             foreach (QModelIndex curveIdx, curveIdxs(curvesIdx)) {
                 CurveModel* curveModel = getCurveModel(curveIdx);
-                QString curveRunPath = curveModel->runPath();
                 int runID = getDataInt(curveIdx,"CurveRunID", "Curve");
-                QString refreshRunPath = _runs->runPaths().at(runID);
-                if ( curveRunPath == refreshRunPath ) {
-                    CurveModel* newCurveModel = _runs->curveModel(runID,
+                CurveModel* newCurveModel = _runs->curveModel(runID,
                                                        curveModel->t()->name(),
                                                        curveModel->x()->name(),
                                                        curveModel->y()->name());
+                if ( newCurveModel ) {
+                    // The refreshed runs have the original curve model t,x,y
+                    // Replace original curve model with new run curve model
                     QModelIndex idx = getDataIndex(curveIdx,
                                                    "CurveData","Curve");
                     QVariant v = PtrToQVariant<CurveModel>::
-                                                         convert(newCurveModel);
+                            convert(newCurveModel);
                     setData(idx,v);
                     delete curveModel;
                 }
