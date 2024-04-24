@@ -25,13 +25,13 @@ jobs:
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew install --cask xquartz
-        brew install swig udunits openmotif maven
-        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
-        tar -xvf clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
+        brew install udunits openmotif maven
+        brew swig
+        brew install llvm
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-15.0.7-x86_64-apple-darwin21.0
+        ./configure
         make
     - name: Test
       run: |
