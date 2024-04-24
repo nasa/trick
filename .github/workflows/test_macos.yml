@@ -26,7 +26,7 @@ jobs:
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew install --cask xquartz
         brew install udunits openmotif maven
-        brew swig
+        brew install swig
         brew install llvm
     - name: Build Trick
       run: |
