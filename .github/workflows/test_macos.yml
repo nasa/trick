@@ -27,6 +27,7 @@ jobs:
         brew install --cask xquartz
         brew install udunits openmotif maven
         brew install swig
+        brew link llvm --force
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
