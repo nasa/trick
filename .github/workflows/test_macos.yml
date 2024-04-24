@@ -26,12 +26,12 @@ jobs:
         brew install --cask xquartz
         brew install udunits openmotif maven
         brew install swig
-        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/clang+llvm-17.0.6-arm64-apple-darwin22.0.tar.xz
-        tar -xvf clang+llvm-17.0.6-arm64-apple-darwin22.0.tar.xz
+        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
+        tar -xvf clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-17.0.6-arm64-apple-darwin22.0
+        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-15.0.7-x86_64-apple-darwin21.0
         make
     - name: Test
       run: |
