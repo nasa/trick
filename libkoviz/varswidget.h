@@ -74,6 +74,7 @@ private slots:
      void _varsSelectModelSelectionChanged(
                               const QItemSelection& currVarSelection,
                               const QItemSelection& prevVarSelection);
+     void _runsRefreshed();
 };
 
 #endif // VARSWIDGET_H

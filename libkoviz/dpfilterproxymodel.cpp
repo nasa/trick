@@ -3,15 +3,19 @@
 // static to get around const
 QHash<QString,bool> DPFilterProxyModel::_acceptedDPFileCache;
 
-DPFilterProxyModel::DPFilterProxyModel(const QStringList& params,
+DPFilterProxyModel::DPFilterProxyModel(const QString& timeName,
+                                       Runs* runs,
                                        SieListModel* sieModel,
                                        QObject *parent) :
+    _timeName(timeName),
+    _runs(runs),
     _sieModel(sieModel),
     QSortFilterProxyModel(parent)
 {
-    foreach (QString param, params) {
-        _modelParams.insert(param,0);
-    }
+    _runsRefreshed();
+
+    connect(_runs, SIGNAL(runsRefreshed()),
+            this, SLOT(_runsRefreshed()));
 
     if ( _sieModel ) {
         connect(_sieModel, SIGNAL(modelLoaded()),
@@ -65,6 +69,17 @@ bool DPFilterProxyModel::filterAcceptsColumn(int col,
     }
 
     return isAccept;
+}
+
+void DPFilterProxyModel::_runsRefreshed()
+{
+    _modelParams.clear();
+    _modelParams.insert(_timeName,0);
+    foreach (QString param, _runs->params()) {
+        _modelParams.insert(param,0);
+    }
+    _acceptedDPFileCache.clear();
+    invalidateFilter();
 }
 
 void DPFilterProxyModel::_sieModelLoaded()

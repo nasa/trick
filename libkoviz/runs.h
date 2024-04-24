@@ -22,8 +22,10 @@
 #include "rundir.h"
 #include "runfile.h"
 
-class Runs
+class Runs : public QObject
 {
+  Q_OBJECT
+
   public:
     Runs();
     Runs(const QStringList& timeNames,
@@ -47,6 +49,9 @@ class Runs
     static QString commonSuffix(const QStringList &names, const QString &sep);
     static QString __commonSuffix(const QString &a, const QString &b,
                                   const QString &sep);
+
+  signals:
+    void runsRefreshed();
 
   private:
     QStringList _timeNames;

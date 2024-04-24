@@ -204,18 +204,8 @@ void DPTreeWidget::_setupModel()
     _dpModel->setNameFilterDisables(false);
     _dpModel->setFilter(QDir::Dirs|QDir::Files|QDir::NoDotAndDotDot);
 
-    // The dp filter models takes a list of params that are common between runs.
-    // Only DP_files which have params which are in all runs will show in tree
-    //
-    // The dp filter also takes the sie model.  The sie model is used to
-    // filter for variables that the live sim publishes.
-    QStringList dpParams;
-    dpParams << _timeName; // always common
-    foreach (QString param, _runs->params()) {
-        dpParams.append(param);
-    }
-    _dpFilterModel = new DPFilterProxyModel(dpParams,_sieModel);
-
+    // Create param filter for DP tree
+    _dpFilterModel = new DPFilterProxyModel(_timeName,_runs,_sieModel);
     _dpFilterModel->setDynamicSortFilter(true);
     _dpFilterModel->setSourceModel(_dpModel);
     QRegExp dprx(QString(".*"));  // DP_ and SET_ are filtered by _dpModel

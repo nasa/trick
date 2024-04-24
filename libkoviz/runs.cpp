@@ -115,6 +115,8 @@ void Runs::_init()
     _params = paramSet.toList();
     _params.removeDuplicates();
     _params.sort();
+
+    emit runsRefreshed();
 }
 
 CurveModel *Runs::curveModel(int row,

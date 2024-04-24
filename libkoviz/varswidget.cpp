@@ -30,6 +30,8 @@ VarsWidget::VarsWidget(const QString &timeName,
     _varsFilterModel->setFilterKeyColumn(0);
     _varsSelectModel = new QItemSelectionModel(_varsFilterModel);
     _varsFilterModel->sort(0,Qt::AscendingOrder);
+    connect(_runs, SIGNAL(runsRefreshed()),
+            this, SLOT(_runsRefreshed()));
 
     // Search box
     _gridLayout = new QGridLayout(parent);
@@ -186,6 +188,14 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             }
         }
     }
+}
+
+void VarsWidget::_runsRefreshed()
+{
+    _varsFilterModel->setSourceModel(nullptr);
+    delete _varsModel;
+    _varsModel = _createVarsModel(_runs);
+    _varsFilterModel->setSourceModel(_varsModel);
 }
 
 void VarsWidget::_varsSearchBoxTextChanged(const QString &rx)
