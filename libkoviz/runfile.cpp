@@ -49,9 +49,27 @@ QStringList RunFile::params()
     return _params;
 }
 
+// Note: Since there is only a single data model with a file, all params
+//       have the same DataModel (unlike a RunDir)
 DataModel *RunFile::dataModel(const QString &param)
 {
-    // Since there is only a single data model with a file, all params
-    // have the same DataModel (unlike a RunDir)
-    return _model;
+    DataModel* model = 0;
+    if ( _params.contains(param) ) {
+        model = _model;
+    } else {
+        // Look in varmap for param
+        foreach (QString key, _varMap.keys()) {
+            QStringList names;
+            foreach (QString val, _varMap.value(key)) {
+                MapValue mapval(val);
+                names.append(mapval.name());
+            }
+            if ( names.contains(param) ) {
+                model = _model;
+                break;
+            }
+        }
+    }
+
+    return model;
 }
