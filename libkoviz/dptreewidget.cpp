@@ -710,6 +710,7 @@ void DPTreeWidget::_createDPTables(const QString &dpfile)
                 _addChild(varItem, "TableVarMinRange", var->minRange());
                 _addChild(varItem, "TableVarMaxRange", var->maxRange());
                 _addChild(varItem, "TableVarFormat",   var->format());
+                _addChild(varItem, "TableVarRunID",    i);
 
 
                 QVariant v=PtrToQVariant<CurveModel>::convert(curveModel);

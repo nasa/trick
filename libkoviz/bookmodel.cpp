@@ -828,6 +828,29 @@ void PlotBookModel::refreshRuns()
             setPlotMathRect(bbox,plotIdx);
         }
     }
+
+    foreach (QModelIndex tableIdx, tableIdxs()) {
+        QModelIndex tableVarsIdx = getIndex(tableIdx, "TableVars","Table");
+        QModelIndexList tableVarIdxs = getIndexList(tableVarsIdx,
+                                                          "TableVar", "Curves");
+        foreach ( QModelIndex tableVarIdx, tableVarIdxs ) {
+            int runID = getDataInt(tableVarIdx,"TableVarRunID", "TableVar");
+            QModelIndex curveDataIdx = getDataIndex(tableVarIdx,"TableVarData");
+            QVariant v = data(curveDataIdx);
+            CurveModel* curveModel = QVariantToPtr<CurveModel>::convert(v);
+            CurveModel* newCurveModel = _runs->curveModel(runID,
+                                                       curveModel->t()->name(),
+                                                       curveModel->x()->name(),
+                                                       curveModel->y()->name());
+            if ( newCurveModel ) {
+                // The refreshed runs have the original curve model t,x,y
+                // Replace original curve model with new run curve model
+                QVariant v = PtrToQVariant<CurveModel>::convert(newCurveModel);
+                setData(curveDataIdx,v);
+                delete curveModel;
+            }
+        }
+    }
 }
 
 void PlotBookModel::appendDataToCurves(const QList<CurveModel *> curveModels)
