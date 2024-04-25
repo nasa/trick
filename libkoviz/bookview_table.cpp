@@ -396,10 +396,15 @@ void BookTableView::dataChanged(const QModelIndex &topLeft,
 
     } else if ( tag == "LiveCoordTime" ) {
 
-        double liveTime = _bookModel()->getDataDouble(QModelIndex(),
-                                                      "LiveCoordTime");
-        int i = TimeStamps::idxAtTime(_timeStamps,liveTime);
-        verticalScrollBar()->setValue(i+1);
+        QModelIndex liveCoordIdx = _bookModel()->getDataIndex(QModelIndex(),
+                                                            "LiveCoordTime","");
+        if ( !_bookModel()->data(liveCoordIdx).toString().isEmpty() ) {
+
+            double liveTime = _bookModel()->getDataDouble(QModelIndex(),
+                                                          "LiveCoordTime");
+            int i = TimeStamps::idxAtTime(_timeStamps,liveTime);
+            verticalScrollBar()->setValue(i+1);
+        }
     }
 
     viewport()->update();
