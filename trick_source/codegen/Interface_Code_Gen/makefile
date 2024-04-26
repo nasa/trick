@@ -19,7 +19,7 @@ else
 ifeq ($(CLANG_MAJOR_GTEQ10),1)
 CXXFLAGS += -std=c++14
 else
-CXXFLAGS += -std=c++11
+CXXFLAGS +=
 endif
 endif
 

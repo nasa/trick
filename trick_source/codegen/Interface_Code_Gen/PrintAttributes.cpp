@@ -439,11 +439,11 @@ void PrintAttributes::printIOMakefile() {
         << "ifeq ($(IS_CC_CLANG), 0)" << std::endl
         << "    TRICK_IO_CXXFLAGS += -Wno-unused-local-typedefs -Wno-unused-but-set-variable" << std::endl
         << "    ifeq ($(shell test $(GCC_MAJOR) -lt 6; echo $$?), 0)" << std::endl
-        << "        TRICK_IO_CXXFLAGS += -std=c++11" << std::endl
+        << "        TRICK_IO_CXXFLAGS +=" << std::endl
         << "    endif" << std::endl
         << "endif" << std::endl
         << "ifeq ($(IS_CC_CLANG), 1)" << std::endl
-        << "    TRICK_IO_CXXFLAGS += -std=c++14" << std::endl
+        << "    TRICK_IO_CXXFLAGS +=" << std::endl
         << "endif" << std::endl
         << std::endl
         << "IO_OBJECTS =" ;

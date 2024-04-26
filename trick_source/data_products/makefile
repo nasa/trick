@@ -4,7 +4,7 @@
 
 TRICK_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))../..)
 
-TRICK_CXXFLAGS += -std=c++11
+TRICK_CXXFLAGS +=
 
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 

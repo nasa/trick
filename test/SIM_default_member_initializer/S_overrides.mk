@@ -1,1 +1,1 @@
-TRICK_CXXFLAGS += -Imodels -std=c++11
+TRICK_CXXFLAGS += -Imodels

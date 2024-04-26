@@ -25,7 +25,7 @@ PY_FILES = \
     ${TRICK_HOME}/share/trick/swig/swig_ref.py
 
 SWIG_SRC_FILES = $(addprefix swig_${TRICK_HOST_CPU}/, $(notdir $(subst .o,.cpp,$(SWIG_OBJECT_FILES))))
-TRICK_CXXFLAGS += $(PYTHON_INCLUDES) -Wno-redundant-decls -Wno-shadow -Wno-unused-parameter -Wno-missing-field-initializers -std=c++11
+TRICK_CXXFLAGS += $(PYTHON_INCLUDES) -Wno-redundant-decls -Wno-shadow -Wno-unused-parameter -Wno-missing-field-initializers
 
 ifeq ($(IS_CC_CLANG), 1)
 TRICK_CXXFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized

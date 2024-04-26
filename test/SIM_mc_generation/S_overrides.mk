@@ -1,5 +1,5 @@
 TRICK_CFLAGS += -g -Wall -Wextra
-TRICK_CXXFLAGS += -g -std=c++11 -Wall -Wextra
+TRICK_CXXFLAGS += -g -Wall -Wextra
 # We can't yet make warnings to be errors on MacOS, because
 # MACOS deprecates and warns about sprintf. But SWIG
 # still generates code containing sprintf..

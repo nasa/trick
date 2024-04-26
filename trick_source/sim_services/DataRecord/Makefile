@@ -2,7 +2,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../share/trick/makefiles/Makefi
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 -include Makefile_deps
 
-TRICK_CXXFLAGS += -std=c++11
+TRICK_CXXFLAGS +=
 
 ifneq ($(HDF5),)
 ifneq ($(HDF5),/usr)
