@@ -46,6 +46,7 @@ SOURCES += bookmodel.cpp \
            bookview_tablepage.cpp \
            bookview_table.cpp \
            curvemodel_copy.cpp \
+           datamodel_optitrack_csv.cpp \
            dp.cpp \
            run.cpp \
            rundir.cpp \
@@ -131,6 +132,7 @@ HEADERS  += bookmodel.h \
             bookview_tablepage.h \
             bookview_table.h \
             curvemodel_copy.h \
+            datamodel_optitrack_csv.h \
             datamodel_tv.h \
             dp.h \
             run.h \

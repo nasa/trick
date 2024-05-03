@@ -55,6 +55,8 @@ class DataModel : public QAbstractTableModel
     QStringList _timeNames;
     QString _runPath;
     QString _fileName;
+
+    static bool _isOptiTrackCsv(const QString& fileName);
 };
 
 class ModelIterator
