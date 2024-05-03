@@ -1909,7 +1909,14 @@ bool PlotBookModel::isXTime(const QModelIndex &plotIdx) const
 //         "spokane/falls/on/the/hills:vel",
 //         "space/falls/on/houston:acc"
 //
-QStringList PlotBookModel::abbreviateLabels(const QStringList &labels) const
+// If isAbbreviateVars is false, the rhs vars will not be abbreviated.  For
+// example, if it were false the above would return:
+//         "spain/falls/on/the/plain:ball.state.pos",
+//         "spokane/falls/on/the/hills:ball.state.vel",
+//         "space/falls/on/houston:ball.state.acc"
+//
+QStringList PlotBookModel::abbreviateLabels(const QStringList &labels,
+                                            bool isAbbreviateVars) const
 {
     QStringList lbls;
 
@@ -1929,7 +1936,10 @@ QStringList PlotBookModel::abbreviateLabels(const QStringList &labels) const
     QString runsSuffix = Runs::commonSuffix(runs,"/");
     QString varsPrefix = Runs::commonPrefix(vars,".");
     int i = runsPrefix.size();
-    int j = varsPrefix.size();
+    int j = 0;
+    if ( isAbbreviateVars ) {
+        j = varsPrefix.size();
+    }
 
     foreach (QString label, labels) {
 
@@ -3381,7 +3391,7 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
     foreach (QModelIndex curveIdx, curveIdxs) {
         QString lbl = getDataString(curveIdx,"CurveYLabel","Curve");
         if ( lbl.isEmpty() ) {
-            lbl = getDataString(curveIdx,"CurveYName","Curve");
+            lbl =  getDataString(curveIdx,"CurveYName","Curve");
         }
         if ( !isGroups ) {
             CurveModel* curve = getCurveModel(curveIdx);
@@ -3394,7 +3404,18 @@ QList<PlotBookModel::LegendElement> PlotBookModel::_legendElements(
             return els;
         }
     }
-    labels = abbreviateLabels(labels);
+    // If ylabel is non-empty and different than yname, do not abbreviate
+    // the var side of the run:var, instead show all user supplied ylabel
+    bool isAbbreviateVars = true;
+    foreach (QModelIndex curveIdx, curveIdxs) {
+        QString lbl = getDataString(curveIdx,"CurveYLabel","Curve");
+        QString yname = getDataString(curveIdx,"CurveYName","Curve");
+        if ( !lbl.isEmpty() && lbl != yname ) {
+            isAbbreviateVars = false;
+            break;
+        }
+    }
+    labels = abbreviateLabels(labels,isAbbreviateVars);
 
 #if QT_VERSION >= 0x050000
     QHash<PlotBookModel::LegendElement,int> elHash;

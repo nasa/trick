@@ -149,7 +149,8 @@ public:
     void liveTimePrev(const QModelIndex& idx);
 
     // Utility for abbreviating a list of run:var names
-    QStringList abbreviateLabels(const QStringList &labels) const;
+    QStringList abbreviateLabels(const QStringList &labels,
+                                 bool isAbbreviateVars) const;
 
     // Legend
     QStringList legendSymbols(const QModelIndex &plotIdx) const ;
