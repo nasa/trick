@@ -136,8 +136,6 @@ namespace Trick {
             /**Run time of each call to this job*/
             std::vector<double> call_times;
 
-            int (*call_func)();
-
             /** Constructor for new blank JobData instance */
             JobData() ;
 
