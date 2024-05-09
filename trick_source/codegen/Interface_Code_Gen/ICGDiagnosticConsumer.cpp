@@ -30,7 +30,6 @@ void ICGDiagnosticConsumer::HandleDiagnostic(clang::DiagnosticsEngine::Level Dia
 
         // Flag it if an error is from user code
         if (DiagLevel == clang::DiagnosticsEngine::Level::Fatal || DiagLevel == clang::DiagnosticsEngine::Level::Error) {
-            //std::cerr << "Error: " << Info.getSourceManager().getFilename(Info.getLocation()).str() << std::endl;
             error_in_user_code = true;
         }
     } else {
