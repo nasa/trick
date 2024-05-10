@@ -344,6 +344,13 @@ sub process_file() {
             if ( ! exists $class_typemap_printed{$c} ) {
                 my $c_ = $c ;
                 $c_ =~ s/\:/_/g ;
+                if ( $c !~ /::/ ) {
+                    print OUT "\n#if SWIG_VERSION > 0x040000\n";
+                    print OUT "%pythoncode %{\n" ; 
+                    print OUT "    $c.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n" ;
+                    print OUT "%}\n" ;
+                    print OUT "#endif\n";
+                }
                 print OUT "#ifdef TRICK_SWIG_DEFINED_$c_\n" ;
                 print OUT "\%trick_cast_as($c, $c_)\n" ;
                 print OUT "#endif\n" ;
@@ -756,7 +763,7 @@ sub process_typedef_struct($$$$) {
     my ($typedef_struct_string , $contents_ref, $new_contents_ref , $class_names_ref) = @_ ;
 
     my $extracted ;
-    my ($begin, $tail , $struct_names, @struct_names) ;
+    my ($tail , $struct_names, @struct_names) ;
 
     #print "*** typedef_struct_string = $typedef_struct_string ***\n" ;
 
@@ -765,7 +772,6 @@ sub process_typedef_struct($$$$) {
     $typedef_struct_string =~ s/((?:typedef\s+)?(struct|union)\s*   # the words typedef struct|union
          ([_A-Za-z]\w*)?\s*                                         # optional name
          {)//sx ;
-    $begin = $3 ;
 
     ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
     #print "*** extracted = $extracted ***\n" ;
@@ -780,9 +786,6 @@ sub process_typedef_struct($$$$) {
     $struct_names =~ s/\s//g ;
     @struct_names = split /,/ , $struct_names ;
 
-    if ( $begin ne "" ) {
-        push @$class_names_ref , $begin ;
-    }
     foreach my $s ( @struct_names ) {
         if ( $s !~ /\*/ ) {
             push @$class_names_ref , $s ;
