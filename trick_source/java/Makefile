@@ -8,9 +8,13 @@ all:
 	@echo "[32mBuilding java application...[0m"
 	@${MVN} package -q -Dmaven.test.skip -Dcmake=false -Dmaven.wagon.http.retryHandler.count=15
 
+test-headless:
+	@echo "[32mBuilding gui-less java tests...[0m"
+	@${MVN} test -Dcmake=false -Dmaven.wagon.http.retryHandler.count=15 -Djava.awt.headless=true
+
 test:
 	@echo "[32mBuilding java tests...[0m"
-	@${MVN} test --quiet -Dcmake=false -Dmaven.wagon.http.retryHandler.count=15 -Djava.awt.headless=true
+	@${MVN} test -Dcmake=false -Dmaven.wagon.http.retryHandler.count=15 -Djava.awt.headless=false
 
 javadoc:
 	${MVN} javadoc:javadoc

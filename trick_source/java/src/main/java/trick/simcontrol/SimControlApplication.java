@@ -541,9 +541,22 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         }
     }
 
-	public void setHostPort(String hostname, int portNum) {
+	public static void setHostPort(String hostname, int portNum) {
 		host = hostname;
 		port = portNum;
+	}
+    
+    // Getting specific values from GUI
+    public double getExecTime() { return simState.getExecOutTime(); }
+
+    // Passing components as read-only to inheriting classes
+	protected final JComboBox getRunningSimList() { return runningSimList; }
+	protected final JXEditorPane getEditorPane() { return statusMsgPane; }
+	protected final JToggleButton getDataRecButton() { return dataRecButton; }
+	protected final JToggleButton getRealTimeButton() { return realtimeButton; }
+	protected final JTextField getSimRunDirField() { return getSimRunDirField(0); }
+	protected final JTextField getSimRunDirField(int index) { 
+		return (index < simRunDirField.length) ? simRunDirField[index] : null; 
 	}
 
 
