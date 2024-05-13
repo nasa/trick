@@ -125,10 +125,8 @@ If child threads (for example: C1, C2, ...) have been specified in the sim then 
 |#  | Name | Type | Units | Description |
 |--:|:---- |:-----|:-----:|-------------|
 | 1| ```sys.exec.out.time```                  | double | seconds |Simulation Time |
-| 2| ```trick_real_time.rt_sync.frame_time``` | double | seconds | This badly named parameter expresses the amount of time that the scheduled jobs in this frame took to execute. See: [figure](#figure-Real-time-under``-run)
- |
-|3| ```trick_real_time.rt_sync.frame_overrun ``` | double | seconds | The magnitude of the current overrun. See: [figure](#figure-Real-time-over-run)
- |
+| 2| ```trick_real_time.rt_sync.frame_time``` | double | seconds | This badly named parameter expresses the amount of time that the scheduled jobs in this frame took to execute. See: [figure](#figure-Real-time-under``-run)|
+|3| ```trick_real_time.rt_sync.frame_overrun ``` | double | seconds | The magnitude of the current overrun. See: [figure](#figure-Real-time-over-run) |
 |4| ```JOB_data_record_group_frame_userjobs.data_record...``` | double | s | How long the write job for the user Jobs data recording group took. |
 |5| ```JOB_data_record_group.trickjobs...``` | double | seconds | How long did the write job for the Trick Jobs data recording group take. |
 
@@ -212,8 +210,6 @@ Trick events can provide a quick, easy, way to customize the behavior of a sim, 
 
 See [Event Manager] (https://nasa.github.io/trick/documentation/simulation_capabilities/Event-Manager).
 
---
-
 #### 1.2 Disable Trick run-time components that your sim doesn't need.
 
 ```default_trick_sys.sm```, the file included at the top of any Trick ```S_define``` file defines numerous "modules" that provide functionality to a Trick sim. Whereas some of these modules ( like the Executive, MemoryManager, CommandLineArguments) are required for any Trick Simulation to function, many are optional. If the modules are not needed, then disabling them can improve simulation perfromance.
@@ -266,13 +262,10 @@ class SubmarineSimObject : public Trick::SimObject {
     ...
 ```
 
---
-
 #### 1.3 Consider running Trick variable server clients and Sims on different machines.
 Trick variable server clients communicate with a simulation via a TCP/IP connection.
 The client process may, but isn't required to run on the same machine as your simulation process. On the same machine, both will competing for the same resources. This can degrade sim performance, especially when clients are rendering high-definition graphics.
 
---
 
 #### 1.4 Compile Trick and Trick sims with optimizations turned on
 
@@ -289,7 +282,6 @@ See:
 * [GCC Optimization Options](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html)
 * [Clang Optimization Options](https://clang.llvm.org/docs/CommandGuide/clang.html#code-generation-options)
 
---
 
 #### 1.5 Disable unused jobs in Trick sims
 
@@ -324,7 +316,6 @@ This job only transmits information. It doesn't effect the simulation, but does 
 
 ```trick.exec_get_job("dyn.submarine.diagnostics", 0).disable()```
 
---
 
 #### 1.6 Name the child threads in your Trick sim
 Do this for easier identification of time spikes.
@@ -343,7 +334,6 @@ Then in the input file, we add:
 
 to name the C1 thread "LanderControl".
 
---
 
 #### 1.7 Use ```default_data``` jobs to specify the default sim state. Customize it with the input file.
 
@@ -362,18 +352,15 @@ Doing this has several benefits.
 #### 2.1 Don't read from the disk during run-time.
 Disk access is slow. If you need to read from disk, do it in a ```default_data```, or ```initialization``` job.
 
---
 
 #### 2.2 Try to reduce variation in job cycle times.
 Realtime performance is largely about minimizing the worst case, rather than the average case.
 The most well behaved job takes the same time, every time. 
 
---
 
 #### 2.3 Minimize dynamic memory allocation during run-time
 The time to dynamically allocate memory can vary, and in the worst-case is unbounded. This is bad for real-time performance.
 
---
 
 #### 2.4 Allow the compiler to help you find problems
 
@@ -383,7 +370,6 @@ Many people are familiar with the compiler warning options like ```-Wall```, ```
 * [GCC Warning Options](https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html)
 * [CLANG Warning Options](https://clang.llvm.org/docs/DiagnosticsReference.html)
 
---
 
 #### 2.5 Fix All Compiler Warnings And Errors
 Many a time the necessary clue needed to solve an intractable problem was there all along, in the form of an unheeded warning that scrolled by unseen.
@@ -443,12 +429,10 @@ node   0   1 
 ```
 This computer has two NUMA nodes, each with 24 CPUs, and each with about 16 gigabytes of local memory, for a total of 32 Gigabytes. The "distances" matrix at the bottom tells us that memory access latency between the nodes is (21/10) = 2.1 times the latency within a node.
 
---
 
 #### 3.2 Turn Off Any Energy-Efficiency Settings
 Energy efficiency and performance are usually trade-offs. Turn off any energy-efficiency settings the computer may have enabled, usually in the BIOS.
 
---
 
 #### 3.3 Fewer, Faster Cores Are Preferable to More, Slower Cores 
 For simulation hosts, fewer but faster cores is usually preferable to more but slower cores
@@ -456,12 +440,10 @@ For simulation hosts, fewer but faster cores is usually preferable to more but s
 * **Server-class** machines are designed for throughput.
 * **Performance** machines are designed for low latency, high-speed computing.
 
---
 
 #### 3.4 Buy More Memory
 Insufficient random access memory (RAM) leads to virtual memory page swapping, which degrades real-time performance. More RAM is one of the easiest and cheapest ways of boosting machine performance.
 
---
 
 #### 3.5 Avoid Intel “Efficiency” Cores
 Intel "efficiency" cores aren’t currently recognized by most Linux OS’s and will cause a lot of problems. They are more energy efficient, but slower, the opposite of what hard real-time needs. RHEL8 is unable to determine which cores are “E” (Efficiency) and which are “P” (Performance). Buy more memory. Do it!
@@ -473,7 +455,6 @@ Intel "efficiency" cores aren’t currently recognized by most Linux OS’s and 
 #### 4.1 Have Multiple Network Interface Jacks On Sim Machines
 Isolate all sim-to-sim traffic to one network interface. Leave the other for connections to the box and OS traffic.
 
---
 
 #### 4.2 Use One Master Clock For All Machines On The Network
 All clocks will drift apart unless periodically synchronized. Synchronization means that one of the clocks must be the reference, or "master". Multiple unsynchronized clocks in a real-time system is nightmare fuel.
@@ -486,7 +467,6 @@ All clocks will drift apart unless periodically synchronized. Synchronization me
 
 Maintain a performance history of your sim as development procedes. This can be very useful evidence in solving problems. Begin frame logging the sim even before implementing real-time.
 
---
 
 #### 5.2 Take care when "tuning" operating system behavior
 Overriding the OS by isolating CPUs, assigning threads to CPUs, redirecting interrupts, changing priorities, and so forth can be powerful techniques to improve performance, but with the same power they can degrade it. Modern operating systems are pretty good at managing performance. If you decide to "help" the OS, you’ll need to know what you’re doing. Take the time to study up first.  
@@ -498,12 +478,9 @@ Some useful learning material:
 * [Optimizing RHEL 8 for Real Time for low latency operation]
 (https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux_for_real_time/8/html-single/optimizing_rhel_8_for_real_time_for_low_latency_operation/index)
 
---
-
 #### 5.3 Don’t isolate CPU 0
 Nothing good can come from this.
 
---
 
 #### 5.4 Best Performance Requires Root Privileges
 
