@@ -14,7 +14,7 @@ void Trick::EnumAttributesMap::print_xml(std::ofstream & sie_out ) {
     std::map<std::string, ENUM_ATTR *>::iterator it ;
     ENUM_ATTR * enum_attr ;
 
-    for ( it = name_to_attr_map.begin() ; it != name_to_attr_map.end() ; it++ ) {
+    for ( it = name_to_attr_map.begin() ; it != name_to_attr_map.end() ; ++it ) {
         enum_attr = (*it).second ;
 
         if ( enum_attr != NULL ) {
@@ -35,7 +35,7 @@ void Trick::EnumAttributesMap::print_json(std::ofstream & sie_out ) {
     std::map<std::string, ENUM_ATTR *>::iterator it ;
     ENUM_ATTR * enum_attr ;
     sie_out << "  \"enumerations\": [\n" ; 
-    for ( it = name_to_attr_map.begin() ; it != name_to_attr_map.end() ; it++ ) {
+    for ( it = name_to_attr_map.begin() ; it != name_to_attr_map.end() ; ++it ) {
         enum_attr = (*it).second ;
 
         if ( enum_attr != NULL ) {

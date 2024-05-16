@@ -1,4 +1,9 @@
+// `llvm/Support/Host.h` is deprecated in favour of `llvm/TargetParser/Host.h` since clang 17
+#if LIBCLANG_MAJOR > 16
+#include "llvm/TargetParser/Host.h"
+#else
 #include "llvm/Support/Host.h"
+#endif
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 

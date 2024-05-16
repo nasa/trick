@@ -60,7 +60,7 @@ void Trick::AttributesMap::print_xml(std::ofstream & sie_out ) {
     std::map<std::string, ATTRIBUTES *>::iterator it ;
     int jj ;
 
-    for ( it = name_to_attr_map.begin() ; it != name_to_attr_map.end() ; it++ ) {
+    for ( it = name_to_attr_map.begin() ; it != name_to_attr_map.end() ; ++it ) {
         ATTRIBUTES * attr = (*it).second ;
         std::string class_name = (*it).first;
         std::replace(class_name.begin(), class_name.end(), ':', '_');
@@ -102,7 +102,7 @@ void Trick::AttributesMap::print_json(std::ofstream & sie_out ) {
     std::map<std::string, ATTRIBUTES *>::iterator it ;
     int jj ;
     sie_out << "  \"classes\": [\n" ;
-    for ( it = name_to_attr_map.begin() ; it != name_to_attr_map.end() ; it++ ) {
+    for ( it = name_to_attr_map.begin() ; it != name_to_attr_map.end() ; ++it ) {
         ATTRIBUTES * attr = (*it).second ;
         std::string class_name = (*it).first;
         std::replace(class_name.begin(), class_name.end(), ':', '_');

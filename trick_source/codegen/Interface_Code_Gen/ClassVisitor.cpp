@@ -210,7 +210,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     } else {
         // Test all constructors to see if any of those are the default and public
         clang::CXXRecordDecl::ctor_iterator cit ;
-        for ( cit = rec->ctor_begin() ; cit != rec->ctor_end() ; cit++ ) {
+        for ( cit = rec->ctor_begin() ; cit != rec->ctor_end() ; ++cit ) {
             if ( ( !(*cit)->isDeleted() ) and (*cit)->isDefaultConstructor() and (*cit)->getAccess() == clang::AS_public ) {
                 cval.setHasDefaultConstructor(true) ;
             }
@@ -234,7 +234,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     //std::cout << "parsing " << cval.getName() << std::endl ;
     //std::cout << "    [34mprocessing inheritance " <<  rec->getNumBases() << " " << rec->getNumVBases() << "[00m" << std::endl ;
     clang::CXXRecordDecl::base_class_iterator bcii ;
-    for ( bcii = rec->bases_begin() ; bcii != rec->bases_end() ; bcii++ ) {
+    for ( bcii = rec->bases_begin() ; bcii != rec->bases_end() ; ++bcii ) {
         if ( !bcii->isVirtual() ) {
             const clang::Type * temp = bcii->getType().getTypePtr() ;
             //std::cout << "\n[33minherited Type = " << temp->getTypeClassName() << "[00m" << std::endl ;
@@ -282,7 +282,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     // When processing inherited classes include_virtual_base will be set to true
     // so we don't process virtual inherited classes multiple times.
     if ( include_virtual_base ) {
-        for ( bcii = rec->vbases_begin() ; bcii != rec->vbases_end() ; bcii++ ) {
+        for ( bcii = rec->vbases_begin() ; bcii != rec->vbases_end() ; ++bcii ) {
             const clang::Type * temp = bcii->getType().getTypePtr() ;
             //std::cout << "\n[33minherited Type = " << temp->getTypeClassName() << "[00m" << std::endl ;
             const clang::RecordType * rt = temp->getAs<clang::RecordType>() ;

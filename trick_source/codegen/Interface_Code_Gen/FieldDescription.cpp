@@ -304,7 +304,7 @@ void FieldDescription::parseComment(std::string comment) {
     // escape special characters, convert tabs and newlines to spaces, remove multiple spaces.
     std::ostringstream ss ;
     bool is_space = false ;
-    for (std::string::iterator it = comment.begin(); it != comment.end(); it++) {
+    for (std::string::iterator it = comment.begin(); it != comment.end(); ++it) {
         switch (*it) {
             case '\\': ss << "\\\\"; is_space = false ; break;
             case '"': ss << "\\\""; is_space = false ; break;

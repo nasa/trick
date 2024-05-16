@@ -186,13 +186,13 @@ void HeaderSearchDirs::ApplyHeaderSearchOptions () {
     clang::ApplyHeaderSearchOptions( hs , hso , pp.getLangOpts() , pp.getTargetInfo().getTriple() ) ;
     //clang::HeaderSearch::search_dir_iterator sdi ;
 /*
-    for ( sdi = hs.quoted_dir_begin() ; sdi != hs.quoted_dir_end() ; sdi++ ) {
+    for ( sdi = hs.quoted_dir_begin() ; sdi != hs.quoted_dir_end() ; ++sdi ) {
        std::cout << "quoted dir " << (*sdi).getName() << std::endl ;
     }
-    for ( sdi = hs.angled_dir_begin() ; sdi != hs.angled_dir_end() ; sdi++ ) {
+    for ( sdi = hs.angled_dir_begin() ; sdi != hs.angled_dir_end() ; ++sdi ) {
        std::cout << "angled dir " << (*sdi).getName() << std::endl ;
     }
-    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ ) {
+    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; ++sdi ) {
        std::cout << "system dir " << (*sdi).getName() << std::endl ;
     }
 */
@@ -229,7 +229,7 @@ bool HeaderSearchDirs::isPathInUserDir (const std::string& in_dir ) {
     for ( clang::ConstSearchDirIterator sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi = std::next(sdi) )
 #else
     clang::HeaderSearch::search_dir_iterator sdi ;
-    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ )
+    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; ++sdi )
 #endif
     {
 #if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
@@ -261,7 +261,7 @@ bool HeaderSearchDirs::isPathInUserOrTrickDir (const std::string& in_dir ) {
     for ( clang::ConstSearchDirIterator sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi = std::next(sdi) )
 #else
     clang::HeaderSearch::search_dir_iterator sdi ;
-    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; sdi++ )
+    for ( sdi = hs.system_dir_begin() ; sdi != hs.system_dir_end() ; ++sdi )
 #endif
     {
 #if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
@@ -279,7 +279,7 @@ bool HeaderSearchDirs::isPathInUserOrTrickDir (const std::string& in_dir ) {
 bool HeaderSearchDirs::isPathInExclude (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;
-    for ( vit = exclude_dirs.begin() ; vit != exclude_dirs.end() ; vit++ ) {
+    for ( vit = exclude_dirs.begin() ; vit != exclude_dirs.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return true ;
         }
@@ -291,7 +291,7 @@ bool HeaderSearchDirs::isPathInExclude (const std::string& in_dir ) {
 bool HeaderSearchDirs::isPathInICGExclude (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;
-    for ( vit = icg_exclude_dirs.begin() ; vit != icg_exclude_dirs.end() ; vit++ ) {
+    for ( vit = icg_exclude_dirs.begin() ; vit != icg_exclude_dirs.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return true ;
         }
@@ -303,7 +303,7 @@ bool HeaderSearchDirs::isPathInICGExclude (const std::string& in_dir ) {
 bool HeaderSearchDirs::isPathInExtLib (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;
-    for ( vit = ext_lib_dirs.begin() ; vit != ext_lib_dirs.end() ; vit++ ) {
+    for ( vit = ext_lib_dirs.begin() ; vit != ext_lib_dirs.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return true ;
         }
@@ -318,7 +318,7 @@ bool HeaderSearchDirs::isPathInICGNoComment (const std::string& in_dir ) {
     }
     else {
         std::vector<std::string>::iterator vit ;
-        for ( vit = icg_nocomment_dirs.begin() ; vit != icg_nocomment_dirs.end() ; vit++ ) {
+        for ( vit = icg_nocomment_dirs.begin() ; vit != icg_nocomment_dirs.end() ; ++vit ) {
             if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
                 icg_nocomment_files[in_dir] = true ;
                 return true;
@@ -332,7 +332,7 @@ bool HeaderSearchDirs::isPathInICGNoComment (const std::string& in_dir ) {
 bool HeaderSearchDirs::isPathInCompat15 (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;
-    for ( vit = compat15_dirs.begin() ; vit != compat15_dirs.end() ; vit++ ) {
+    for ( vit = compat15_dirs.begin() ; vit != compat15_dirs.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return true ;
         }
@@ -347,7 +347,7 @@ bool HeaderSearchDirs::isPathInCompat15 (const std::string& in_dir ) {
 std::string HeaderSearchDirs::getPathInExclude (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;
-    for ( vit = exclude_dirs.begin() ; vit != exclude_dirs.end() ; vit++ ) {
+    for ( vit = exclude_dirs.begin() ; vit != exclude_dirs.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return (*vit) ;
         }
@@ -359,7 +359,7 @@ std::string HeaderSearchDirs::getPathInExclude (const std::string& in_dir ) {
 std::string HeaderSearchDirs::getPathInICGExclude (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;
-    for ( vit = icg_exclude_dirs.begin() ; vit != icg_exclude_dirs.end() ; vit++ ) {
+    for ( vit = icg_exclude_dirs.begin() ; vit != icg_exclude_dirs.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return (*vit) ;
         }
@@ -371,7 +371,7 @@ std::string HeaderSearchDirs::getPathInICGExclude (const std::string& in_dir ) {
 std::string HeaderSearchDirs::getPathInExtLib (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;
-    for ( vit = ext_lib_dirs.begin() ; vit != ext_lib_dirs.end() ; vit++ ) {
+    for ( vit = ext_lib_dirs.begin() ; vit != ext_lib_dirs.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return (*vit) ;
         }

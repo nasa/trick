@@ -47,7 +47,7 @@ int Trick::TestSuite::add_test_requirements(std::string test_case , std::string 
 
 void Trick::TestSuite::delete_test_results() {
     std::vector <Trick::TestCase *>::iterator it ;
-    for ( it = test_results.begin() ; it != test_results.end() ; it++ ) {
+    for ( it = test_results.begin() ; it != test_results.end() ; ++it ) {
         delete (*it) ;
     }
     test_results.clear() ;
@@ -63,7 +63,7 @@ Trick::UnitTest::UnitTest() {
 
 Trick::UnitTest::~UnitTest() {
     std::map< std::string , TestSuite >::iterator it ;
-    for ( it = test_suites.begin() ; it != test_suites.end() ; it++ ) {
+    for ( it = test_suites.begin() ; it != test_suites.end() ; ++it ) {
         (it->second).delete_test_results() ;
     }
 }
@@ -121,7 +121,7 @@ int Trick::UnitTest::write_output() {
     unsigned int jj ;
 
     if ( enabled ) {
-        for ( it = test_suites.begin() ; it != test_suites.end() ; it++ ) {
+        for ( it = test_suites.begin() ; it != test_suites.end() ; ++it ) {
             curr_suite = &(it->second) ;
             num_tests += curr_suite->test_results.size() ;
             num_failures += curr_suite->num_failures ;
@@ -133,7 +133,7 @@ int Trick::UnitTest::write_output() {
         out << "<testsuites tests=\"" << num_tests << "\" failures=\"" << num_failures <<
          "\" disabled=\"0\" errors=\"0\" time=\"0.0\" name=\"" << name << "\">" << std::endl ;
 
-        for ( it = test_suites.begin() ; it != test_suites.end() ; it++ ) {
+        for ( it = test_suites.begin() ; it != test_suites.end() ; ++it ) {
             curr_suite = &(it->second) ;
             out << "  <testsuite name=\"" << it->first << "\" tests=\"" << curr_suite->test_results.size() ;
             out << "\" failures=\"" << num_failures << "\" disabled=\"0\" errors=\"0\" time=\"0.0\">" << std::endl ;

@@ -7,7 +7,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.net.SocketTimeoutException;
+
 
 /**
  * a generic variable server client that provides for sending commands and
@@ -54,8 +58,26 @@ public class VariableServerConnection implements AutoCloseable {
      * @throws IOException IOException
      * @throws SecurityException SecurityException
      */
-    public VariableServerConnection(String host, int port) throws UnknownHostException, IOException, SecurityException {
+    public VariableServerConnection(String host, int port) throws UnknownHostException, IOException, SecurityException, SocketTimeoutException {
         socket = new Socket(host, port);
+        inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+    }
+
+    /**
+     * attempts to connect to the Variable Server on the given host and port with a timeout
+     *
+     * @param host Variable Server machine name
+     * @param port Variable Server port number
+     * @param timeout Time out in milliseconds
+     * @throws UnknownHostException UnknownHostException
+     * @throws IOException IOException
+     * @throws SecurityException SecurityException
+     */
+    public VariableServerConnection(String host, int port, int timeout) throws UnknownHostException, IOException, SecurityException, SocketTimeoutException {
+        socket = new Socket();
+        SocketAddress addr = new InetSocketAddress(host, port);
+        socket.connect(addr, timeout);
         inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
     }

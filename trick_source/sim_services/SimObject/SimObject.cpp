@@ -13,7 +13,7 @@ Trick::SimObject::~SimObject() {
 
 int Trick::SimObject::add_tag( std::string job_tag ) {
     std::vector <Trick::JobData *>::iterator it ;
-    for ( it = jobs.begin() ; it != jobs.end() ; it++ ) {
+    for ( it = jobs.begin() ; it != jobs.end() ; ++it ) {
         (*it)->add_tag(job_tag) ;
     }
     return(0) ;
@@ -72,7 +72,7 @@ Trick::JobData * Trick::SimObject::get_job( std::string job_name, unsigned int j
     std::vector <Trick::JobData *>::iterator it ;
 
     // Look for the name
-    for ( it = jobs.begin() ; it != jobs.end() ; it++ ) {
+    for ( it = jobs.begin() ; it != jobs.end() ; ++it ) {
         if ( ! (*it)->name.compare(job_name) ) {
             if ( j_instance == 1 ) {
                 return *it ;
@@ -87,7 +87,7 @@ Trick::JobData * Trick::SimObject::get_job( std::string job_name, unsigned int j
         job_name = name + "." + job_name ;
     }
     // Look for the job with the sim object name prepended.
-    for ( it = jobs.begin() ; it != jobs.end() ; it++ ) {
+    for ( it = jobs.begin() ; it != jobs.end() ; ++it ) {
         if ( ! (*it)->name.compare(job_name) ) {
             if ( j_instance == 1 ) {
                 return *it ;
@@ -102,7 +102,7 @@ Trick::JobData * Trick::SimObject::get_job( std::string job_name, unsigned int j
 
 void Trick::SimObject::enable_all_jobs() {
     std::vector <Trick::JobData *>::iterator it ;
-    for ( it = jobs.begin() ; it != jobs.end() ; it++ ) {
+    for ( it = jobs.begin() ; it != jobs.end() ; ++it ) {
        (*it)->enable() ;
     }
 }
@@ -115,7 +115,7 @@ void Trick::SimObject::enable() {
 
 void Trick::SimObject::disable_all_jobs() {
     std::vector <Trick::JobData *>::iterator it ;
-    for ( it = jobs.begin() ; it != jobs.end() ; it++ ) {
+    for ( it = jobs.begin() ; it != jobs.end() ; ++it ) {
        (*it)->disable() ;
     }
 }

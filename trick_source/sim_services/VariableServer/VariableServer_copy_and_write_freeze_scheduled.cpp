@@ -10,7 +10,7 @@ int Trick::VariableServer::copy_and_write_freeze_scheduled() {
     long long next_call_tics = TRICK_MAX_LONG_LONG ;
 
     pthread_mutex_lock(&map_mutex) ;
-    for ( auto it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
+    for ( auto it = var_server_sessions.begin() ; it != var_server_sessions.end() ; ++it ) {
         VariableServerSession * session = (*it).second ;
         session->copy_and_write_freeze_scheduled(copy_and_write_freeze_job->next_tics) ;
         if ( session->get_freeze_next_tics() < next_call_tics ) {
