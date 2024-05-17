@@ -127,7 +127,7 @@ If child threads (for example: C1, C2, ...) have been specified in the sim then 
 |#  | Name | Type | Units | Description |
 |--:|:---- |:-----|:-----:|-------------|
 | 1| ```sys.exec.out.time```                  | double | seconds |Simulation Time |
-| 2| ```trick_real_time.rt_sync.frame_time``` | double | seconds | This badly named parameter expresses the amount of time that the scheduled jobs in this frame took to execute. See: [figure](#figure-realtime-under``-run)|
+| 2| ```trick_real_time.rt_sync.frame_time``` | double | seconds | This badly named parameter expresses the amount of time that the scheduled jobs in this frame took to execute. See: [figure](#figure-realtime-under-run)|
 |3| ```trick_real_time.rt_sync.frame_overrun ``` | double | seconds | The magnitude of the current overrun. See: [figure](#figure-realtime-over-run) |
 |4| ```JOB_data_record_group_frame_userjobs.data_record...``` | double | s | How long the write job for the user Jobs data recording group took. |
 |5| ```JOB_data_record_group.trickjobs...``` | double | seconds | How long did the write job for the Trick Jobs data recording group take. |
