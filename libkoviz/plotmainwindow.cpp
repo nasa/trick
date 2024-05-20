@@ -14,8 +14,7 @@
 
 #include "plotmainwindow.h"
 
-PlotMainWindow::PlotMainWindow(
-        PlotBookModel* bookModel,
+PlotMainWindow::PlotMainWindow(PlotBookModel* bookModel,
         const QString& trickhost,
         uint trickport,
         double trickoffset,
@@ -34,7 +33,6 @@ PlotMainWindow::PlotMainWindow(
         QString mapFile,
         Runs* runs,
         QStandardItemModel* varsModel,
-        QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
     _bookModel(bookModel),
@@ -57,7 +55,6 @@ PlotMainWindow::PlotMainWindow(
     _mapFile(mapFile),
     _runs(runs),
     _varsModel(varsModel),
-    _monteInputsModel(monteInputsModel),
     _monteInputsView(0),
     _dpTreeWidget(0),
     _trickView(0),
@@ -106,9 +103,9 @@ PlotMainWindow::PlotMainWindow(
     msplit->addWidget(_bookView);
 
     // Monte inputs view (widget added later)
-    if ( _monteInputsModel ) {
+    if ( runs->runsModel() ) {
         _monteInputsView = new MonteInputsView(lsplit);
-        _monteInputsView->setModel(_monteInputsModel);
+        _monteInputsView->setModel(runs->runsModel());
         connect(_monteInputsView->selectionModel(),
                 SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                 this,
@@ -179,7 +176,7 @@ PlotMainWindow::PlotMainWindow(
             this,SLOT(_nbCurrentChanged(int)));
 
     // Vars/DP needs monteInputsView, but needs to be added after Vars/DP
-    if ( _monteInputsModel ) {
+    if ( runs->runsModel() ) {
         lsplit->addWidget(_monteInputsView);
     }
 
@@ -244,7 +241,7 @@ PlotMainWindow::PlotMainWindow(
             this, SLOT(setTimeFromBvis(double)));
 
     // sending run command if there is only one run
-    if ( _monteInputsModel->rowCount() == 1 ) {
+    if ( runs->runsModel()->rowCount() == 1 ) {
         QString rundir = QString("%1/").arg(
                     QDir::current().absoluteFilePath(
                         _runs->runPaths().at(0)));
@@ -1725,13 +1722,13 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
 
     if ( !_bookModel ) return;
 
-    int rc = _monteInputsModel->rowCount();
+    int rc = _runs->runsModel()->rowCount();
     QList<QColor> colors = _bookModel->createCurveColors(rc);
 
     QHash<int,QString> run2color;
     for ( int r = 0; r < rc; ++r ) {
-        QModelIndex runIdx = _monteInputsModel->index(r,0);
-        int runId = _monteInputsModel->data(runIdx).toInt();
+        QModelIndex runIdx = _runs->runsModel()->index(r,0);
+        int runId = _runs->runsModel()->data(runIdx).toInt();
         run2color.insert(runId, colors.at(r).name());
     }
 

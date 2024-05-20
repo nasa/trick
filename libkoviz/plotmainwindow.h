@@ -67,7 +67,6 @@ public:
                              QString mapFile,
                              Runs* runs,
                              QStandardItemModel* varsModel,
-                             QStandardItemModel* monteInputsModel=0,
                              QWidget *parent = 0);
 
      void savePdf(const QString& fname);

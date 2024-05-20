@@ -1328,8 +1328,7 @@ int main(int argc, char *argv[])
                              mapString,
                              mapFile,
                              runs,
-                             varsModel,
-                             monteInputsModel);
+                             varsModel);
 
             //
             // Handle -vars commandline option
