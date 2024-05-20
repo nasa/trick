@@ -14,7 +14,7 @@ The intention of this document is to compile and share practical knowledge, base
 
 <a id=prerequisite-knowledge></a>
 ## Prerequisite Knowledge
-(Assuming you've completed the [Trick Tutorial] (https://nasa.github.io/trick/tutorial/Tutorial))
+(Assuming you've completed the [Trick Tutorial](https://nasa.github.io/trick/tutorial/Tutorial))
 
 ---
 
@@ -33,7 +33,7 @@ If we want to interact with a simulation as if it were real, we need to synchron
 	* ```clock_gettime(CLOCK_REALTIME,…)``` [Linux]
 	* ```gettimeofday()``` [Mac OS]
 
-* The Trick realtime scheduler can also be configured to synchronize to a [custom realtime clock] (https://nasa.github.io/trick/documentation/simulation_capabilities/Realtime-Clock).
+* The Trick realtime scheduler can also be configured to synchronize to a [custom realtime clock](https://nasa.github.io/trick/documentation/simulation_capabilities/Realtime-Clock).
 
 ---
 
@@ -71,7 +71,7 @@ An **under-run** occurs when the Trick executive finishes running all of its sch
 
 An **over-run** occurs if the executive does not finish running all of its scheduled jobs. This is a **bad-thing**. In this case, the executive will immediately start the next frame in an attempt to catch up.
 
-<a id=figure-Realtime-over-run></a>
+<a id=figure-realtime-over-run></a>
 ![Realtime Over Run](images/RealtimeOverRun.png)
 
 ---
@@ -252,7 +252,7 @@ Ref: [RedHat: Isolating CPUs Using tuned-profiles-realtime](https://access.redha
 
 Trick events can provide a quick and easy way to customize the behavior of a sim, based on some condition. But, because they require Python interpretation, they are slow. They are not intended for implementation of permanent sim functionality. If they are over used, they can seriously degrade simulation performance. So, take it easy with the events.
 
-See [Event Manager] (https://nasa.github.io/trick/documentation/simulation_capabilities/Event-Manager).
+See [Event Manager](https://nasa.github.io/trick/documentation/simulation_capabilities/Event-Manager).
 
 #### 1.2 Disable Trick run-time components that your sim doesn't need.
 
@@ -517,10 +517,8 @@ Overriding the OS by isolating CPUs, assigning threads to CPUs, redirecting inte
 
 Some useful learning material:
 
-* [Challenges Using Linux as a Real-Time Operating System]
-(https://ntrs.nasa.gov/api/citations/20200002390/downloads/20200002390.pdf)
-* [Optimizing RHEL 8 for Real Time for low latency operation]
-(https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux_for_real_time/8/html-single/optimizing_rhel_8_for_real_time_for_low_latency_operation/index)
+* [Challenges Using Linux as a Real-Time Operating System](https://ntrs.nasa.gov/api/citations/20200002390/downloads/20200002390.pdf)
+* [Optimizing RHEL 8 for Real Time for low latency operation](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux_for_real_time/8/html-single/optimizing_rhel_8_for_real_time_for_low_latency_operation/index)
 
 #### 5.3 Don’t isolate CPU 0
 Nothing good can come from this.
