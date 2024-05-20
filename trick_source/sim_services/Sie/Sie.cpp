@@ -27,6 +27,26 @@ Trick::Sie::Sie() {
     the_sie = this ;
 }
 
+void copy_file (const std::string& original_filename, const std::string& copy_filename) {
+    std::ifstream original;
+    std::ofstream copy;
+
+    original.open(original_filename.c_str(), std::ios::binary);
+    copy.open(copy_filename.c_str(), std::ios::binary);
+
+    copy << original.rdbuf();
+
+    original.close();
+    copy.close();
+}
+
+// Helper function for copying S_sie.resource from default dir to output dir
+void copy_sie_resource() {
+    std::string original_sie_filename = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource";
+    std::string copy_sie_filename = std::string(command_line_args_get_output_dir()) + "/" + "S_sie.resource";
+    copy_file(original_sie_filename, copy_sie_filename);
+}
+
 int Trick::Sie::process_sim_args() {
 
     int argc ;
@@ -48,8 +68,16 @@ int Trick::Sie::process_sim_args() {
 
         // Otherwise, go through the rest of the sim args and look for --read-only-sim
         for (int i = 1; i < argc; i++) {
-            if (strcmp("--read-only-sim", argv[i]) == 0) {
+            if ((strcmp("--read-only-sim", argv[i]) == 0))  {
                 // Set this flag to move runtime generation of sie into the output directory 
+                move_runtime_generation = true;
+            }
+        }
+
+        // For -OO, save S_sie.resource to the output directory with runtime jobs data
+        for (int i = 1; i < argc; i++) {
+            if (strncmp("-OO", argv[i], (size_t) 3) == 0) {
+                copy_sie_resource();
                 move_runtime_generation = true;
             }
         }
@@ -158,26 +186,11 @@ void Trick::Sie::sie_print_xml() {
     sie_out.close() ;
 }
 
-void copy_file (const std::string& original_filename, const std::string& copy_filename) {
-    std::ifstream original;
-    std::ofstream copy;
-
-    original.open(original_filename.c_str(), std::ios::binary);
-    copy.open(copy_filename.c_str(), std::ios::binary);
-
-    copy << original.rdbuf();
-
-    original.close();
-    copy.close();
-}
-
 void Trick::Sie::sie_append_runtime_objs() {
     std::fstream sie_out ;
 
     if (move_runtime_generation) {
-        std::string original_sie_filename = std::string(command_line_args_get_default_dir()) + "/" + "S_sie.resource" ;
-        std::string copy_sie_filename = std::string(command_line_args_get_output_dir()) + "/" + "S_sie.resource" ;
-        copy_file(original_sie_filename, copy_sie_filename);
+        copy_sie_resource();
     }
 
     std::string sie_filename = get_runtime_sie_dir() + "/" + "S_sie.resource" ;
@@ -223,9 +236,9 @@ void Trick::Sie::sie_append_runtime_objs() {
 
 std::string Trick::Sie::get_runtime_sie_dir() {
     if (move_runtime_generation) {
-        return std::string(command_line_args_get_output_dir()) ;
+        return std::string(command_line_args_get_output_dir());
     } else {
-        return std::string(command_line_args_get_default_dir()) ;
+        return std::string(command_line_args_get_default_dir());
     }
 }
 
