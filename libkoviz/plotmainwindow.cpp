@@ -114,10 +114,6 @@ PlotMainWindow::PlotMainWindow(
                 this,
                 SLOT(_monteInputsViewCurrentChanged(QModelIndex,QModelIndex)));
         _monteInputsHeaderView = _monteInputsView->horizontalHeader();
-        if ( _monteInputsModel->rowCount() == 1 ) {
-            // Hide if only viewing a single RUN
-            _monteInputsView->hide();
-        }
         connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
             this,SLOT(_monteInputsHeaderViewClicked(int)));
     }
@@ -327,6 +323,7 @@ void PlotMainWindow::createMenu()
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
     _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
     _plotAllVarsAction = _optsMenu->addAction(tr("PlotAllVars"));
+    _addRunFileAction = _optsMenu->addAction(tr("AddRunFile"));
     _enableDragDropAction = _optsMenu->addAction(tr("EnableDragAndDrop"));
     _enableDragDropAction->setCheckable(true);
     _showLiveCoordAction->setCheckable(true);
@@ -364,6 +361,8 @@ void PlotMainWindow::createMenu()
 
     connect(_plotAllVarsAction, SIGNAL(triggered()),
             this, SLOT(_plotAllVars()));
+    connect(_addRunFileAction, SIGNAL(triggered()),
+            this, SLOT(_addRunFile()));
     connect(_enableDragDropAction, SIGNAL(toggled(bool)),
             this, SLOT(_toggleEnableDragDrop(bool)));
     setMenuWidget(_menuBar);
@@ -1580,6 +1579,23 @@ void PlotMainWindow::_plotAllVars()
 {
     _varsWidget->selectAllVars();
     _varsWidget->clearSelection();
+}
+
+void PlotMainWindow::_addRunFile()
+{
+    QString fileFilter = "Run Files (*.trk *.csv *.mot)";
+
+    QString filePath = QFileDialog::getOpenFileName(nullptr,
+                                                    "Select Run File",
+                                                    QDir::currentPath(),
+                                                    fileFilter);
+
+    if (!filePath.isEmpty()) {
+        _runs->addRun(filePath);
+    } else {
+        fprintf(stderr, "No File selected\n");
+    }
+
 }
 
 void PlotMainWindow::_toggleEnableDragDrop(bool isChecked )

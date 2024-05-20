@@ -29,19 +29,23 @@ class Runs : public QObject
   public:
     Runs();
     Runs(const QStringList& timeNames,
-         const QStringList &runDirs,
+         const QStringList &runPaths,
          const QHash<QString,QStringList> &varMap,
          const QString& filterPattern,
          const QString& excludePattern,
          bool isShowProgress);
     virtual ~Runs();
-    virtual QStringList params() const { return _params; }
-    virtual QStringList runPaths() const { return _runPaths; }
+    QStringList params() const { return _params; }
+    QStringList runPaths() const { return _runPaths; }
     void refresh() ;
+    void addRun(const QString& runPath);
     CurveModel* curveModel(int row,
                       const QString& tName,
                       const QString& xName,
                       const QString& yName) const;
+    QStandardItemModel* runsModel();
+
+  public:
     static QStringList abbreviateRunNames(const QStringList& runNames);
     static QString commonPrefix(const QStringList &names, const QString &sep);
     static QString __commonPrefix(const QString &a, const QString &b,
@@ -56,6 +60,7 @@ class Runs : public QObject
   private:
     QStringList _timeNames;
     QStringList _runPaths;
+    QString _montePath;
     QHash<QString,QStringList> _varMap;
     QString _filterPattern;
     QString _excludePattern;
@@ -64,6 +69,7 @@ class Runs : public QObject
     QHash<QString,QList<DataModel*>* > _paramToModels;
     QList<DataModel*> _models;
     QHash<QString,int> _rundir2row;
+    QStandardItemModel* _runsModel;
 
     void _init();
     void _delete();
@@ -71,6 +77,27 @@ class Runs : public QObject
 
     DataModel* _paramModel(const QString& param, const QString &run) const;
     int _paramColumn(DataModel* model, const QString& param) const;
+
+    void _loadRunsModel(QStandardItemModel* runsModel,
+                        const QString& montePath,
+                        const QStringList& runPaths);
+    void __loadRunsModel(QStandardItemModel* model,
+                         const QStringList &runs);
+    void _loadMonteInputModel(QStandardItemModel *model,
+                              const QString &montePath,
+                              const QStringList &runPaths);
+    void _loadMonteInputModelTrick07(QStandardItemModel* model,
+                                     const QString &monteInputFile,
+                                     const QStringList &runs);
+    void _loadMonteInputModelTrick17(QStandardItemModel* model,
+                                     const QString &monteInputFile,
+                                     const QStringList &runs);
+
+    QStringList _runsSubset(const QStringList& runsList,
+                           const QString& filterPattern,
+                           const QString& excludePattern,
+                           uint beginRun, uint endRun);
+
 
     static QString _err_string;
     static QTextStream _err_stream;
