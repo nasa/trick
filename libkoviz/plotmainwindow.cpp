@@ -103,17 +103,15 @@ PlotMainWindow::PlotMainWindow(PlotBookModel* bookModel,
     msplit->addWidget(_bookView);
 
     // Monte inputs view (widget added later)
-    if ( runs->runsModel() ) {
-        _monteInputsView = new MonteInputsView(lsplit);
-        _monteInputsView->setModel(runs->runsModel());
-        connect(_monteInputsView->selectionModel(),
-                SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                this,
-                SLOT(_monteInputsViewCurrentChanged(QModelIndex,QModelIndex)));
-        _monteInputsHeaderView = _monteInputsView->horizontalHeader();
-        connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
+    _monteInputsView = new MonteInputsView(lsplit);
+    _monteInputsView->setModel(runs->runsModel());
+    connect(_monteInputsView->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(_monteInputsViewCurrentChanged(QModelIndex,QModelIndex)));
+    _monteInputsHeaderView = _monteInputsView->horizontalHeader();
+    connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
             this,SLOT(_monteInputsHeaderViewClicked(int)));
-    }
 
     if ( _isDebug ) {
         _plotTreeView = new QTreeView(lsplit);
