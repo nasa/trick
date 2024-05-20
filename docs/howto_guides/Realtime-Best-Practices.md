@@ -180,7 +180,7 @@ Each record consists of four rows in the CSV file representing the start and sto
 If **trick** job ID is non-zero, then the **user** job ID will be zero, and vice versa.
 Within any four line record the job-ID will be recorded twice.
 
-#####Example
+##### Example
 
 The following is one four-line record from a ```log_timeline.csv``` file.
 
