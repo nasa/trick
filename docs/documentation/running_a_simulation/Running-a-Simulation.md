@@ -18,11 +18,19 @@ S_main_${TRICK_HOST_CPU}.exe [trick_version] [sie]
 
 - The first argument in the command line must be the simulation input file name. The input file name can be in the form of a full path name but MUST have a RUN_<name> directory immediately above the input file name. By default, all the simulation output is directed to this RUN_<name> directory. The standard <input_file_name> is input.py; however, a simulation could be started from a checkpoint file by substituting chkpnt_<time> in for <input_file_name> for non-Master/Slave and non-Import/Export simulations. For Master/Slave and Import/Export simulations you must have the simulation running, and the simulation must be in a freeze state before reloading a checkpoint.
 - The trick_version option will tell what version of Trick built the S_main executable.
-- The sie option will generate the smart input editor (SIE) resource file (CP will by default invoke the S_main executable with the sie option to generate this file).
+- The sie option will generate the smart input editor (SIE) resource file.
 - The '-d' argument is optional and, if specified, starts the simulation in an input file verification mode. In this mode the entire input file is read, echoed to standard out, and then the simulation exits without calling any jobs listed in the S_define file. This mode helps debug input file syntax errors.
-- The '-O <output_file_path>' option allows the user to specify the directory to which simulation data log files will be written. If this option is omitted, the RUN_<name> directory is used.
+- The '-O <output_file_path>' option allows the user to specify the directory to which simulation data log files will be written. If this option is omitted, the RUN_<name> directory is used. 
+  - Data Products specification DP_xxx.xml files if generated such as for frame logging are saved in DP_Product directory.
 - The '-OO <output_file_path>' option allows the user to specify the directory to which ALL simulation output files will be written. If this option is omitted, the RUN_<name> directory is used.
+  - Two subdirectories are automatially created in the specified '<output_file_path>' that are:
+    - DP_Product
+      - Data Products sepcification DP_xxx.xml files generated are saved in this folder.
+    - RUN_<name>
+      - All simulation output files other than DP_xxx.xml files are saved in this folder. S_sie.resource file is copied over to this diretory as well.
 - The '--read-only-sim' flag can be used to redirect all files written at simulation runtime into the output directory.
+  - If along with '-O <output_file_path>' and 'trick.trick.sie_append_runtime_objs()' called in input file, S_sie.resource with runtime objects appended is saved in '<output_file_path>'.
+  - If along with '-OO <output_file_path>' and 'trick.trick.sie_append_runtime_objs()' called in input file, S_sie.resource with runtime objects appended is saved in '<output_file_path>'.
 - The '-u' option specifies that all remaining arguments are meant to be used by user supplied jobs. All arguments after the -u can be accessed internal to the simulation jobs by calling the get_cmnd_args() function of the executive as illustrated below. In a master/slave simulation, the master's -u args will be passed to the slave.
 
 The following code example shows how a function can access the command line arguments during execution.
