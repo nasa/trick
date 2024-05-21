@@ -490,7 +490,7 @@ Insufficient random access memory (RAM) leads to virtual memory page swapping, w
 
 
 #### 3.5 Avoid Intel “Efficiency” Cores
-Intel "efficiency" cores aren’t currently recognized by most Linux OS’s and will cause a lot of problems. They are more energy efficient, but slower, the opposite of what hard realtime needs. RHEL8 is unable to determine which cores are “E” (Efficiency) and which are “P” (Performance). Buy more memory. Do it!
+Intel "efficiency" cores aren’t currently recognized by most Linux OS’s and will cause a lot of problems. They are more energy efficient, but slower, the opposite of what hard realtime needs. RHEL8 is unable to determine which cores are “E” (Efficiency) and which are “P” (Performance). Did I mention you should buy more memory?
 
 ---
 ### 4. Network
