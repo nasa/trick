@@ -69,7 +69,7 @@ www/
     images/
 ```
 
-**index.html** is the file that’s displayed when you connect to http://localhost:8888/.
+**index.html** is the file that’s displayed when you connect to `http://localhost:8888/`.
 
 **style.css** is a CSS style-sheet that’s included by index.html to give it some pizzazz. 
 
