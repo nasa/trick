@@ -5,7 +5,14 @@ LIBRARY DEPENDENCIES:
     ((lander/src/Lander.cpp)
      (PIDController/src/PIDController.cpp))
 *************************************************************/
+#define TRICK_NO_MONTE_CARLO
+#define TRICK_NO_MASTERSLAVE
+#define TRICK_NO_INSTRUMENTATION
+#define TRICK_NO_REALTIMEINJECTOR
+#define TRICK_NO_ZEROCONF
+#define TRICK_NO_UNITTEST
 #include "sim_objects/default_trick_sys.sm"
+
 ##include "lander/include/Lander.hh"
 class LanderSimObject : public Trick::SimObject {
     public:

@@ -11,8 +11,14 @@ LIBRARY DEPENDENCIES:
       (msd/src/msd_shutdown.cpp)
     )
 *************************************************************/
-
+#define TRICK_NO_MONTE_CARLO
+#define TRICK_NO_MASTERSLAVE
+#define TRICK_NO_INSTRUMENTATION
+#define TRICK_NO_REALTIMEINJECTOR
+#define TRICK_NO_ZEROCONF
+#define TRICK_NO_UNITTEST
 #include "sim_objects/default_trick_sys.sm"
+
 // #include "sim_objects/WebServer.sm"
 ##include "msd/include/msd.hh"
 
@@ -33,3 +39,4 @@ class MSDSimObject : public Trick::SimObject {
 
 MSDSimObject dyn ;
 IntegLoop dyn_integloop (0.01) dyn ;
+
