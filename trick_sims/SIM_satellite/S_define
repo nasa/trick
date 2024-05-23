@@ -5,8 +5,13 @@ LIBRARY DEPENDENCIES:
 (
 )
 *************************************************************/
-
+#define TRICK_NO_MONTE_CARLO
+#define TRICK_NO_MASTERSLAVE
+#define TRICK_NO_INSTRUMENTATION
+#define TRICK_NO_REALTIMEINJECTOR
+#define TRICK_NO_ZEROCONF
 #include "sim_objects/default_trick_sys.sm"
+
 ##include "Satellite/include/Satellite.hh"
 ##include "Satellite/include/SatGraphicsComm.hh"
 
