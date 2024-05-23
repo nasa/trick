@@ -347,7 +347,8 @@ sub process_file() {
                 if ( $c !~ /::/ ) {
                     print OUT "\n#if SWIG_VERSION > 0x040000\n";
                     print OUT "%pythoncode %{\n" ; 
-                    print OUT "    $c.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n" ;
+                    print OUT "    if '$c' in globals():\n";
+                    print OUT "        $c.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n" ;
                     print OUT "%}\n" ;
                     print OUT "#endif\n";
                 }
