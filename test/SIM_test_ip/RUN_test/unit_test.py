@@ -2781,12 +2781,16 @@ def main():
     # Polymorphic assignments and access
     test_suite = "polymorphism"
 
-    test_so.a = trick.Cat()
+    #test_so.a = trick.Cat()
+    # use MM to allocate memory for a pointer declared in S_define 
+    test_so.a = trick.TMM_declare_var_s("Cat")
     TRICK_EXPECT_EQ( test_so.a.id , 1, test_suite , "single abstract ptr" )
     trick.trick_test_add_parent( test_suite , "single abstract ptr" , "1770735610")
     #test_so.a.speak()
     #test_so.a[0].speak()
-    test_so.a = trick.Dog()
+    #test_so.a = trick.Dog()
+    # use MM to allocate memory for a pointer declared in S_define 
+    test_so.a = trick.TMM_declare_var_s("Dog")
     TRICK_EXPECT_EQ( test_so.a.id , 2, test_suite , "single abstract ptr" )
 
     test_so.aarray[0] = trick.Cat()
