@@ -15,6 +15,7 @@
 #include "PrintAttributes.hh"
 #include "PrintFileContentsBase.hh"
 #include "PrintFileContents10.hh"
+#include "PrintFileContentsMin.hh"
 #include "FieldDescription.hh"
 #include "HeaderSearchDirs.hh"
 #include "CommentSaver.hh"
@@ -28,11 +29,16 @@ PrintAttributes::PrintAttributes(int in_attr_version , HeaderSearchDirs & in_hsd
    hsd(in_hsd) ,
    cs(in_cs) ,
    ci(in_ci) ,
+   attr_version(in_attr_version) ,
    force(in_force) ,
    sim_services_flag( in_sim_services_flag ) ,
    output_dir( in_output_dir )
 {
-    printer = new PrintFileContents10() ;
+    if ( in_attr_version == 0 ) {
+        printer = new PrintFileContentsMin() ;
+    } else {
+        printer = new PrintFileContents10() ;
+    }
 }
 
 void PrintAttributes::addIgnoreTypes() {
@@ -177,7 +183,10 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
 
     base_name = std::string(basename(temp_str)) ;
     found = base_name.find_last_of(".") ;
-    base_name = std::string("io_") + base_name.substr(0,found) + std::string(".cpp") ;
+    base_name = printer->createIOSrcFileName(base_name.substr(0,found));
+    if (attr_version == 0) {
+        return base_name;
+    }
 
     dir_name = std::string(dirname(temp_str)) ;
     if ( ! dir_name.compare(".") ) {

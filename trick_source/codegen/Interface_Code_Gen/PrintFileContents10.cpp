@@ -11,6 +11,10 @@ extern llvm::cl::opt< bool > global_compat15 ;
 
 PrintFileContents10::PrintFileContents10() {}
 
+std::string PrintFileContents10::createIOSrcFileName(std::string base_file_name) {
+    return std::string("io_") + base_file_name + std::string(".cpp") ;
+}
+
 /** Prints the io_src header information */
 void PrintFileContents10::printIOHeader(std::ostream & ostream , std::string header_file_name) {
 

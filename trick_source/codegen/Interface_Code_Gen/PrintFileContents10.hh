@@ -28,6 +28,9 @@ class PrintFileContents10 : public PrintFileContentsBase {
 
         PrintFileContents10() ;
 
+        /** create io_src file name */
+        virtual std::string createIOSrcFileName(std::string base_file_name) ;
+
         /** Prints the io_src header information */
         virtual void printIOHeader(std::ostream & outfile , std::string header_file_name) ;
 

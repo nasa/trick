@@ -29,6 +29,9 @@ class PrintFileContentsBase {
     public:
         PrintFileContentsBase() ;
 
+        /** create io_src file name */
+        virtual std::string createIOSrcFileName(std::string base_file_name) = 0 ;
+
         virtual void printIOHeader(std::ostream & ostream, std::string header_file_name) = 0 ;
         virtual void printClass(std::ostream & ostream, ClassValues * cv) = 0 ;
         virtual void printEnum(std::ostream & ostream, EnumValues * ev) = 0 ;

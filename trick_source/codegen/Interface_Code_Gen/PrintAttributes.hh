@@ -93,6 +93,9 @@ class PrintAttributes {
         /** Compiler instance */
         clang::CompilerInstance & ci ;
 
+        /** version of attributes requested by user */
+        int attr_version;
+
         /** Version specific attributes printer */
         PrintFileContentsBase * printer ;
 
