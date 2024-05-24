@@ -70,7 +70,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledEditorKit;
 
-import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Task;
 import org.jdesktop.application.View;
@@ -87,6 +86,7 @@ import trick.common.ui.components.FontChooser;
 import trick.common.ui.panels.AnimationPlayer;
 import trick.common.ui.panels.FindBar;
 import trick.common.utils.VariableServerConnection;
+import trick.common.utils.SwingAction;
 import trick.simcontrol.utils.SimControlActionController;
 import trick.simcontrol.utils.SimState;
 
@@ -192,15 +192,16 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     //========================================
     //    Actions
     //========================================
-    @Action
+	
+	@SwingAction
     public void showStatusFont() {
         Font font = FontChooser.showDialog(statusMsgPane, "Choose Font", statusMsgPane.getFont());
         if (font != null) {
             statusMsgPane.setFont(font);
         }
     }
-    
-    @Action
+
+	@SwingAction
     public void saveStatusMsgs() {
         String initialName = "sim_msg_";
         File file = UIUtils.chooseSaveFile(simState.getRunPath(), initialName, null, getMainFrame());
@@ -216,7 +217,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         }
     }
 
-    @Action
+	@SwingAction
     public void clearStatusMsgs() {
         if (statusMsgPane != null) {
             Document doc = statusMsgPane.getDocument();
@@ -230,67 +231,67 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         }
     }
 
-    @Action
+	@SwingAction
     public void startTV() {
         launchTrickApplication("tv",  "--host " + host + " --port " + port);
     }
 
-    @Action
+	@SwingAction
     public void startMTV() {
         launchTrickApplication("mtv",  host + " " + port);
     }
 
-    @Action
+	@SwingAction
     public void freezeAt() {
         actionController.handleFreezeAt(simState.getExecOutTime(), getMainFrame());
     }
 
-    @Action
+	@SwingAction
     public void freezeIn() {
         actionController.handleFreezeIn(simState.getExecOutTime(), getMainFrame());
     }
 
-    @Action
+	@SwingAction
     public void checkpointObjects() {
         customizedCheckpointObjects = actionController.handleCheckpointObjects(getMainFrame(), customizedCheckpointObjects);
     }
 
-    @Action
+	@SwingAction
     public void throttle() {
         actionController.handleThrottle(getMainFrame());
     }
 
-    @Action
+	@SwingAction
     public void stepSim() {
         actionController.handleStep(debug_flag);
     }
 
-    @Action
+	@SwingAction
     public void recordingSim() {
         actionController.handleRecOnOff(dataRecButton.isSelected());
     }
 
-    @Action
+	@SwingAction
     public void startSim() {
         actionController.handleStartSim();
     }
 
-    @Action
+	@SwingAction
     public void realtime() {
         actionController.handleRealtime(realtimeButton.isSelected());
     }
 
-    @Action
+	@SwingAction
     public void freezeSim() {
         actionController.handleFreeze(debug_flag);
     }
 
-    @Action
+	@SwingAction
     public void shutdownSim() {
         actionController.handleShutdown();
     }
 
-    @Action
+	@SwingAction
     public void dumpChkpntASCII() {
  
         String fileName = "chkpnt_" + simState.getTwoFractionFormatted(simState.getExecOutTime());
@@ -312,14 +313,14 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         currentSimStatusDesc = "PreCheckpoint";
     }
 
-    @Action
+	@SwingAction
     public void loadChkpnt() {
         actionController.handleLoadChkpnt(simState.getRunPath(), getMainFrame());
         runtimeStatePanel.setTitle("Loading Checkpoint");
         currentSimStatusDesc = "PreCheckpoint";
     }
 
-    @Action
+	@SwingAction
     public void lite() {
     	if (liteButton.isSelected()) {
     		getMainFrame().setSize(LITE_SIZE);
@@ -332,7 +333,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * Connects to the variable server if {@link VariableServerConnection} is able to be created successfully and
      * starts the communication server for sim health status messages.
      */
-    @Action
+
+	@SwingAction
     public void connect() {
         // get host and port for selected sim  	
         if (runningSimList != null && runningSimList.getSelectedItem() != null) {

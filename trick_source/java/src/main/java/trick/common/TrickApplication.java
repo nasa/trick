@@ -12,9 +12,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.Method;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -47,13 +49,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
-import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.View;
 import org.jdesktop.application.session.PropertySupport;
 
 import trick.common.ui.UIUtils;
+import trick.common.utils.TrickAction;
+import trick.common.utils.SwingAction;
 
 /**
  * The parent class which all other Trick Java GUI applications extend.
@@ -71,6 +74,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     //========================================
     /** User settable properties, such as default directories, etc. */
     public Properties trickProperties;
+    public Properties appProperties;
 
     /** The resource map for the application. */
     public ResourceMap resourceMap;
@@ -100,11 +104,14 @@ public abstract class TrickApplication extends SingleFrameApplication implements
 
     /** The look and feel short name list */
     protected static String[] lafShortNames;
+    
+    protected final String SOURCE_PATH;
+    protected final String RESOURCE_PATH;
 
 
     //========================================
     //    Private Data
-    //========================================
+    //========================================    
     private static int popupInvokerType;
 
     // if we want to put the properties into a different location, change here.
@@ -141,14 +148,23 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     //========================================
     //    Constructors
     //========================================
-
+	protected TrickApplication() {
+		String trick_home = System.getenv("TRICK_HOME");
+		if (trick_home.isEmpty()) {
+			trick_home = System.getProperty("user.home") + java.io.File.separator + "trick";
+		}
+		
+		SOURCE_PATH = trick_home + "/trick_source/java/src/main/java";
+		RESOURCE_PATH = trick_home + "/trick_source/java/src/main/resources";
+	}
+	
     //========================================
     //    Actions
     //========================================
     /**
      * closes the application. Called when the "Exit" menu item is clicked.
      */
-    @Action
+    @SwingAction
     public void exitConfirmation() {
         if (confirmExitSelection.isSelected()) {
             addExitListener(exitListener);
@@ -157,8 +173,8 @@ public abstract class TrickApplication extends SingleFrameApplication implements
             removeExitListener(exitListener);
         }
     }
-
-    @Action
+    
+    @SwingAction
     public void helpContents() {
 
     }
@@ -166,7 +182,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     /**
      * Show the about box dialog.
      */
-    @Action
+	@SwingAction
     public void showAboutBox() {
         if (aboutBox == null) {
             aboutBox = createAboutBox();
@@ -179,7 +195,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     /**
      * Close the about box dialog.
      */
-    @Action
+	@SwingAction
     public void closeAboutBox() {
         if (aboutBox != null) {
             aboutBox.setVisible(false);
@@ -187,7 +203,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
         }
     }
 
-    @Action
+	@SwingAction
     public void lookAndFeel() {
         if (lafMap == null) {
             JOptionPane.showMessageDialog(getMainFrame(),
@@ -306,6 +322,49 @@ public abstract class TrickApplication extends SingleFrameApplication implements
         }
         return result.toString();
     }
+    
+    protected void createActionMap() {
+    	if(actionMap == null) actionMap = new ActionMap();
+    	
+    	Class appClass = this.getClass();
+    	
+    	for (Method man : appClass.getDeclaredMethods()) {
+    		if (isSwingAction(man)) {
+    			Properties actProp = TrickAction.extractProperties(appProperties, man.getName());
+    			actionMap.put(man.getName(), new TrickAction(actProp, this, man));
+    		}
+    	} 
+    }
+    
+    private boolean isSwingAction(Method man) { 
+    	return man.getAnnotation(SwingAction.class) != null;
+    }
+    
+    public String getResourcePath() {
+    	String canon = this.getClass().getCanonicalName();
+    	canon = "/" + canon.replace(".", "/") + ".properties";
+    	
+    	int filePos = canon.lastIndexOf("/");
+    	if (filePos >= 0 && filePos < canon.length()) {
+    		String tail = canon.substring(0, filePos) + "/resources";
+    		tail += canon.substring(filePos);
+    		return RESOURCE_PATH + tail;
+    	} else {
+	    	return "";
+    	}
+    }
+    
+    private void parseResources() {
+    	try {
+	    	if (appProperties == null) appProperties = new Properties();
+	    	
+	    	String path = getResourcePath();
+	    	File prop = new File(path);
+			appProperties.load(new FileReader(prop));
+    	} catch(IOException ioe) {
+    		System.err.println(ioe.getMessage());
+    	}
+    }
 
 
     /**
@@ -323,8 +382,9 @@ public abstract class TrickApplication extends SingleFrameApplication implements
 
         // register property for JToggleButton class so that its state can be saved
         getContext().getSessionStorage().putProperty(JToggleButton.class, this);
-
-        actionMap = getContext().getActionMap();
+		
+		parseResources();
+		createActionMap();
         resourceMap = getContext().getResourceMap(getClass());
 
         // Load any saved user settable properties from properties file
@@ -449,7 +509,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
      * @return    A {@link javax.swing.Action} of the specified action name.
      */
     protected javax.swing.Action getAction(String actionName) {
-        return getContext().getActionMap().get(actionName);
+        return actionMap.get(actionName);
     }
 
     /**
