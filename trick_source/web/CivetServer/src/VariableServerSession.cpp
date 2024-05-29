@@ -18,24 +18,17 @@ LIBRARY DEPENDENCIES:
 #include "trick/exec_proto.h"
 #include "VariableServerSession.hh"
 #include "simpleJSON.hh"
-#include "trick/message_proto.h"
-#include "trick/message_type.h"
 
 // CONSTRUCTOR
 VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSocketSession(nc) {
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
     nextTime = 0;
     cyclicSendEnabled = false;
-    mode = Initialization;
 }
 
 // DESTRUCTOR
 VariableServerSession::~VariableServerSession() {
     clear();
-}
-
-void VariableServerSession::updateNextTime(long long simTimeTics) {
-        nextTime = (simTimeTics - (simTimeTics % intervalTimeTics) + intervalTimeTics);
 }
 
 /* Base class virtual function: marshallData
@@ -48,23 +41,11 @@ void VariableServerSession::updateNextTime(long long simTimeTics) {
    (The specified period between messages).
 */
 void VariableServerSession::marshallData() {
-    long long simulation_time_tics = exec_get_time_tics();
-    SIM_MODE new_mode = the_exec->get_mode();
-    
-    if(new_mode == Freeze) {
-    	simulation_time_tics += exec_get_freeze_time_tics();
-	}
-    
-    if(new_mode != mode) {
-    	mode = new_mode;
-        updateNextTime(simulation_time_tics);
-    }
-	
+    long long simulation_time_tics = exec_get_time_tics() + exec_get_freeze_time_tics();
     if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
         stageValues();
-        updateNextTime(simulation_time_tics);
+        nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
     }
-    	
 }
 
 /* Base class virtual function: sendMessage
@@ -127,7 +108,6 @@ int VariableServerSession::handleMessage(const std::string& client_msg) {
          unpause();
      } else if (cmd == "var_send") {
          // var_send responses are not guarenteed to be time-consistent.
-		message_publish(MSG_INFO, "Data is Staged via Messaging\n");
          stageValues();
          sendMessage();
      } else if (cmd == "var_clear") {
