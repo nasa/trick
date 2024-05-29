@@ -187,7 +187,7 @@ to accomodate the highest Child ID specified in the S_define file.  Jobs without
 will be executed by the parent process. Jobs with a C1 child specification will be executed by the
 first child thread; jobs with a C2 specification will be executed by the second child thread; and so on.
 
-Child Threads have three different scheduling choices.  See [Executive Scheduler](../simulation_capabilities/Executive-Scheduler.md) -> [Thread Control](../simulation_capabilities/Executive-Scheduler.md#thread-control) for child thread scheduling
+Child Threads have three different scheduling choices.  See [Executive Scheduler](https://nasa.github.io/trick/documentation/simulation_capabilities/Executive-Scheduler) -> [Thread Control](https://nasa.github.io/trick/documentation/simulation_capabilities/Executive-Scheduler#thread-control) for child thread scheduling
 details.
 
 ### Job Tagging
