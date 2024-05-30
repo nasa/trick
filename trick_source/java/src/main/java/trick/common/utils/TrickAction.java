@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 
 import trick.common.TrickApplication;
 
@@ -44,7 +45,7 @@ public class TrickAction extends AbstractAction {
     
     @Override
     public void putValue(String key, Object value) {
-        super.putValue(key, value);
+    	if(value != null)  super.putValue(key, value);
     }
     
     @Override
@@ -53,7 +54,33 @@ public class TrickAction extends AbstractAction {
     }
     
     private void applyProperties() {
-    	putValue(Action.NAME, props.getProperty("text"));
+    	String propValue;
+    	
+    	putValue(Action.NAME, props.getProperty(TEXT_PROPERTY));
+    	putValue(Action.SHORT_DESCRIPTION, 
+    			 props.getProperty(SHORT_DESCRIPTION_PROPERTY));
+    	putValue(Action.LONG_DESCRIPTION,
+    			 props.getProperty(LONG_DESCRIPTION_PROPERTY));
+    	
+    	if((propValue = props.getProperty(ICON_PROPERTY)) != null) {
+    		putValue(Action.SMALL_ICON, getIcon(propValue));
+    		putValue(Action.LARGE_ICON_KEY, getIcon(propValue));
+    	} else {
+    		if((propValue = props.getProperty(SMALL_ICON_PROPERTY)) != null) {
+				putValue(Action.SMALL_ICON, getIcon(propValue));
+			}
+			
+			if((propValue = props.getProperty(LARGE_ICON_PROPERTY)) != null) {
+				putValue(Action.LARGE_ICON_KEY, getIcon(propValue));
+			}
+    	}
+    }
+    
+    private ImageIcon getIcon(String fileName) {
+		    String iconPath = invoker.getResourcePath(invoker.getClass());
+    		int finalSlash = iconPath.lastIndexOf("/") + 1;
+    		iconPath = iconPath.substring(0, finalSlash) + fileName;
+    		return new ImageIcon(iconPath);
     }
     
     public static Properties extractProperties(Properties props, String name) {
