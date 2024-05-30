@@ -249,6 +249,10 @@ public abstract class TrickApplication extends SingleFrameApplication implements
         }
     }
 
+	@SwingAction
+	public void quit() {
+		super.exit(null);
+	}
 
     //========================================
     //    Set/Get methods
@@ -328,7 +332,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     	
     	Class appClass = this.getClass();
     	
-    	for (Method man : appClass.getDeclaredMethods()) {
+    	for (Method man : appClass.getMethods()) {
     		if (isSwingAction(man)) {
     			Properties actProp = TrickAction.extractProperties(appProperties, man.getName());
     			actionMap.put(man.getName(), new TrickAction(actProp, this, man));
@@ -340,8 +344,8 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     	return man.getAnnotation(SwingAction.class) != null;
     }
     
-    public String getResourcePath() {
-    	String canon = this.getClass().getCanonicalName();
+    public String getResourcePath(Class app) {
+    	String canon = app.getCanonicalName();
     	canon = "/" + canon.replace(".", "/") + ".properties";
     	
     	int filePos = canon.lastIndexOf("/");
@@ -354,13 +358,27 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     	}
     }
     
-    private void parseResources() {
+    private Properties parseResources(Class<? extends TrickApplication> app) throws IOException {
+		Properties prop;
+		File resource;
+		String path;
+		
+    	if(app.getSimpleName().equals("TrickApplication")) {
+    		prop = new Properties();
+    	} else {
+    		Class superApp = app.getSuperclass();
+    		prop = new Properties(parseResources(superApp));
+		}
+    		
+    	path = getResourcePath(app);
+    	resource = new File(path);
+    	prop.load(new FileReader(resource));
+    	return prop;
+    }
+    
+    protected void parseResources() {
     	try {
-	    	if (appProperties == null) appProperties = new Properties();
-	    	
-	    	String path = getResourcePath();
-	    	File prop = new File(path);
-			appProperties.load(new FileReader(prop));
+	    	appProperties = parseResources(this.getClass());
     	} catch(IOException ioe) {
     		System.err.println(ioe.getMessage());
     	}
