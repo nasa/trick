@@ -328,11 +328,11 @@ void Trick::CheckPointRestart::load_checkpoint(std::string file_name) {
         message_publish(MSG_WARNING, msg_format.c_str(),
                         file_name.c_str(), simModeCharString(mode), mode);
         
-        // return;
+        the_exec->freeze();
+        auto_freeze = true;
     } 
         
     load_checkpoint_file_name = file_name ;
-    the_exec->freeze();
 }
 
 void Trick::CheckPointRestart::load_checkpoint(std::string file_name, bool stls_on) {
@@ -377,7 +377,7 @@ int Trick::CheckPointRestart::load_checkpoint_job() {
             message_publish(MSG_INFO, "Could not find checkpoint file %s.\n", load_checkpoint_file_name.c_str()) ;
         }
         load_checkpoint_file_name.clear() ;
-        the_exec->run();
+        if(auto_freeze)  the_exec->run();
     }
 
     return(0) ;

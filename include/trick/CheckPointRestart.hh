@@ -22,6 +22,10 @@ namespace Trick {
      */
     class CheckPointRestart : public Trick::Scheduler {
 
+        private:
+            /** Flag to track if an automatic freeze has been triggered */
+            bool auto_freeze = false;                               /* ** */
+
         protected:
             /** queue to hold jobs to be called before a checkpoint is dumped. */
             Trick::ScheduledJobQueue checkpoint_queue ;              /* ** */
