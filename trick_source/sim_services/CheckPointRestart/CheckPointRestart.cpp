@@ -110,6 +110,11 @@ int Trick::CheckPointRestart::find_write_checkpoint_jobs(std::string sim_object_
     return(0) ;
 }
 
+/**
+ * @brief Schedule a checkpoint to be written at a given time.
+ * @param in_time The time the checkpoint should be dumped
+ * @see write_checkpoint() 
+ */
 int Trick::CheckPointRestart::checkpoint(double in_time) {
 
     long long curr_time = exec_get_time_tics() ;
@@ -122,6 +127,8 @@ int Trick::CheckPointRestart::checkpoint(double in_time) {
         if ( new_time < write_checkpoint_job->next_tics ) {
             write_checkpoint_job->next_tics = new_time ;
         }
+        
+        the_exec->freeze(in_time);
         //std::cout << "\033[33mSET CHECKPOINT TIME " << in_time << " " << new_time << "\033[0m" << std::endl ;
     } else {
         message_publish(MSG_ERROR, "Checkpoint time specified in the past. specified %f, current_time %f\n",
@@ -241,6 +248,10 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
     return 0 ;
 }
 
+/** 
+ * @brief Writes a scheduled checkpoint if it is the correct time. 
+ * @see checkpoint(double in_time)
+ */
 int Trick::CheckPointRestart::write_checkpoint() {
 
     long long curr_time = exec_get_time_tics() ;
@@ -266,6 +277,7 @@ int Trick::CheckPointRestart::write_checkpoint() {
 
         checkpoint( chk_name_stream.str() );
 
+		the_exec->run();
     }
 
     return(0) ;
@@ -316,7 +328,8 @@ void Trick::CheckPointRestart::load_checkpoint(std::string file_name) {
         message_publish(MSG_WARNING, msg_format.c_str(),
                         file_name.c_str(), simModeCharString(mode), mode);
         
-        return;
+        the_exec->freeze();
+        auto_freeze = true;
     } 
         
     load_checkpoint_file_name = file_name ;
@@ -332,7 +345,7 @@ int Trick::CheckPointRestart::load_checkpoint_job() {
     JobData * curr_job ;
     struct stat temp_buf ;
 
-    if ( ! load_checkpoint_file_name.empty() ) {
+    if ( ! load_checkpoint_file_name.empty() && the_exec->get_mode() != Run) {
 
         if ( stat( load_checkpoint_file_name.c_str() , &temp_buf) == 0 ) {
             preload_checkpoint_queue.reset_curr_index() ;
@@ -364,6 +377,7 @@ int Trick::CheckPointRestart::load_checkpoint_job() {
             message_publish(MSG_INFO, "Could not find checkpoint file %s.\n", load_checkpoint_file_name.c_str()) ;
         }
         load_checkpoint_file_name.clear() ;
+        if(auto_freeze)  the_exec->run();
     }
 
     return(0) ;

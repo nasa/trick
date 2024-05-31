@@ -64,7 +64,7 @@ int checkpoint_sequence_i(STL & in_stl , std::string object_name , std::string v
             //message_publish(1, "CHECKPOINT_SEQUENCE_STL with %s\n", var_declare) ;
 
             /* copy the contents of the stl */
-            for ( ii = 0 , it = in_stl.begin() , end = in_stl.end() ; it != end ; it++ , ii++ ) {
+            for ( ii = 0 , it = in_stl.begin() , end = in_stl.end() ; it != end ; ++it , ii++ ) {
                 items[ii] = *it ;
             }
         }
@@ -103,7 +103,7 @@ int checkpoint_sequence_s(STL & in_stl , std::string object_name , std::string v
             //message_publish(1, "CHECKPOINT_SEQUENCE_STL_STL with %s\n", temp_str.c_str()) ;
 
             /* create the names of the sub stl checkpoint names we're going to be using */
-            for ( ii = 0 , it = in_stl.begin() , end = in_stl.end() ; it != end ; it++ , ii++ ) {
+            for ( ii = 0 , it = in_stl.begin() , end = in_stl.end() ; it != end ; ++it , ii++ ) {
                 std::ostringstream sub_elements ;
                 sub_elements << object_name << "_" << var_name << "_" << ii ;
                 items[ii] = sub_elements.str() ;

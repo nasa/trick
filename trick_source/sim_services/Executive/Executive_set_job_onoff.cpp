@@ -21,7 +21,7 @@ int Trick::Executive::set_job_onoff(std::string job_name, int instance_num , int
         range = all_tagged_jobs.equal_range(job_name) ;
         if (range.first != range.second) {
             // set disabled flag accordingly for all jobs with this tag
-            for ( it = range.first; it != range.second ; it++ ) {
+            for ( it = range.first; it != range.second ; ++it ) {
                 it->second->disabled = !on ;
             }
         } else {

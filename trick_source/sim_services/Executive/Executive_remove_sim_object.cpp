@@ -17,7 +17,7 @@ int Trick::Executive::delete_sim_object( Trick::SimObject * in_object ) {
     std::vector <Trick::SimObject *>::iterator so_it ;
     std::vector <Trick::Scheduler *>::iterator sched_it ;
 
-    for ( so_it = in_object->pre_component_objects.begin() ; so_it != in_object->pre_component_objects.end() ; so_it++ ) {
+    for ( so_it = in_object->pre_component_objects.begin() ; so_it != in_object->pre_component_objects.end() ; ++so_it ) {
         delete_sim_object((*so_it)) ;
     }
 
@@ -31,11 +31,11 @@ int Trick::Executive::delete_sim_object( Trick::SimObject * in_object ) {
 
     remove_jobs( in_object ) ;
 
-    for ( sched_it = other_schedulers.begin() ; sched_it != other_schedulers.end() ; sched_it++ ) {
+    for ( sched_it = other_schedulers.begin() ; sched_it != other_schedulers.end() ; ++sched_it ) {
         (*sched_it)->delete_sim_object(in_object) ;
     }
 
-    for ( so_it = in_object->post_component_objects.begin() ; so_it != in_object->post_component_objects.end() ; so_it++ ) {
+    for ( so_it = in_object->post_component_objects.begin() ; so_it != in_object->post_component_objects.end() ; ++so_it ) {
         delete_sim_object((*so_it)) ;
     }
 

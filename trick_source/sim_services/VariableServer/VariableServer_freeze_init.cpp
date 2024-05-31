@@ -12,7 +12,7 @@ int Trick::VariableServer::freeze_init() {
     long long next_call_tics = TRICK_MAX_LONG_LONG ;
 
     pthread_mutex_lock(&map_mutex) ;
-    for ( auto  it = var_server_sessions.begin() ; it != var_server_sessions.end() ; it++ ) {
+    for ( auto  it = var_server_sessions.begin() ; it != var_server_sessions.end() ; ++it ) {
         VariableServerSession * session = (*it).second ;
         session->freeze_init() ;
         if ( session->get_freeze_next_tics() < next_call_tics ) {

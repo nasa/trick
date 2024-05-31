@@ -225,7 +225,7 @@ int Trick::JSONVariableServerThread::get_vars( std::stringstream & body , char *
     if ( path[0] == '\0' ) {
         Trick::ALLOC_INFO_MAP_ITER aim_it ;
         bool first_item = true ;
-        for ( aim_it = trick_MM->alloc_info_map_begin() ; aim_it != trick_MM->alloc_info_map_end() ; aim_it++ ) {
+        for ( aim_it = trick_MM->alloc_info_map_begin() ; aim_it != trick_MM->alloc_info_map_end() ; ++aim_it ) {
             ALLOC_INFO * alloc_info = (*aim_it).second ;
             if ( alloc_info->name != NULL and alloc_info->user_type_name != NULL ) {
                 if ( first_item == true ) {

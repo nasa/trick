@@ -44,8 +44,8 @@ int Trick::Executive::restart() {
     all_tagged_jobs.clear() ;
 
     /* Create a temporary all_jobs map to use to restore job data from all_jobs_for_checkpoint */
-    for ( sit = sim_objects.begin() ; sit != sim_objects.end() ; sit++ ) {
-        for ( jit = (*sit)->jobs.begin() ; jit != (*sit)->jobs.end() ; jit++ ) {
+    for ( sit = sim_objects.begin() ; sit != sim_objects.end() ; ++sit ) {
+        for ( jit = (*sit)->jobs.begin() ; jit != (*sit)->jobs.end() ; ++jit ) {
             /* Dynamically created sim_objects, like data_recording objects, require that
                some of the job class data be repopulated before we start
                copying job data back into the sim. */
@@ -67,7 +67,7 @@ int Trick::Executive::restart() {
             message_publish(MSG_ERROR, "Could not find job %s\n", all_jobs_for_checkpoint[ii].name.c_str()) ;
             exec_terminate_with_return( -1 , __FILE__ , __LINE__ , "Job in checkpoint file does not exist in current sim." ) ;
         } else {
-            for ( it = ret.first ; it != ret.second ; it++ ) {
+            for ( it = ret.first ; it != ret.second ; ++it ) {
                 // The JobData::id and JobData::sim_object_id together uniquely identify a job.
                 if (( it->second->id            == all_jobs_for_checkpoint[ii].id ) &&
                     ( it->second->sim_object_id == all_jobs_for_checkpoint[ii].sim_object_id )) {
@@ -80,7 +80,7 @@ int Trick::Executive::restart() {
 
     /* restore the executive sim_objects vector from the checkpoint and add back all of
        the jobs to the schedulers */
-    for ( sit = sim_objects.begin() ; sit != sim_objects.end() ; sit++ ) {
+    for ( sit = sim_objects.begin() ; sit != sim_objects.end() ; ++sit ) {
         add_jobs_to_queue(*sit, true) ;
         for ( ii = 0 ; ii < other_schedulers.size() ; ii++ ) {
             other_schedulers[ii]->add_sim_object(*sit) ;

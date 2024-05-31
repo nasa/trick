@@ -47,4 +47,5 @@ const char * simModeCharString(SIM_MODE mode);
 #ifdef __cplusplus
 }
 #endif
+
 #endif

@@ -102,9 +102,10 @@ By default these are all enabled. If you disable `file` at startup, the `send_hs
 That means you cannot then later try to enable and subscribe to file/device.
 
 ```cpp
-int message_cout_set_enabled(int yes_no) ;
-int message_file_set_enabled(int yes_no) ;
-int message_device_set_enabled(int yes_no) ;
+int set_enabled(bool yes_no)
+trick_message.mcout.set_enabled(bool yes_no);
+trick_message.mdevice.set_enabled(bool yes_no);
+trick_message.mfile.set_enabled(bool yes_no);
 ```
 
 To enable / disable showing colored messages in Trick's default subscribers:
@@ -112,9 +113,10 @@ To enable / disable showing colored messages in Trick's default subscribers:
 By default color is enabled for `cout` and `device`. Color is achieved by adding ANSI escape codes around the message.
 
 ```cpp
-int message_cout_set_color(int yes_no) ;
-int message_file_set_color(int yes_no) ;
-int message_device_set_color(int yes_no) ;
+int set_color(bool yes_no)
+trick_message.mcout.set_color(bool yes_no);
+trick_message.mdevice.set_color(bool yes_no);
+trick_message.mfile.set_color(bool yes_no);
 ```
 
 [Continue to Command Line Arguments](Command-Line-Arguments)

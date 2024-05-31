@@ -4,8 +4,6 @@ dyn.lander.pos[0] = 0
 dyn.lander.pos[1] = 1.8
 dyn.lander.vel[0] = 0.0
 dyn.lander.vel[1] = 0.0
-dyn.lander.angleDot = 0.0
-dyn.lander.angle = 0.0
 
 trick.TMM_set_debug_level(1)
 #==========================================
