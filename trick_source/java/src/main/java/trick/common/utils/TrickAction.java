@@ -1,6 +1,7 @@
 package trick.common.utils;
 
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
@@ -77,10 +78,31 @@ public class TrickAction extends AbstractAction {
     }
     
     private ImageIcon getIcon(String fileName) {
-		    String iconPath = invoker.getResourcePath(invoker.getClass());
-    		int finalSlash = iconPath.lastIndexOf("/") + 1;
-    		iconPath = iconPath.substring(0, finalSlash) + fileName;
+	    	String iconPath;
+	    
+    		if(fileName.indexOf("/") >= 0) {
+    			iconPath = fileName;
+			} else {
+				iconPath = invoker.getResourcePath(invoker.getClass());
+				int finalSlash = iconPath.lastIndexOf("/") + 1;
+				iconPath = iconPath.substring(0, finalSlash) + fileName;
+    		}
     		return new ImageIcon(iconPath);
+    }
+    
+    private static String resolveFilePath(String PATH, String fileName) {
+    	String paths[] = PATH.split(";");
+    	String resolvedName;
+    	File f;
+    	
+		for(String path : paths) {
+			resolvedName = path + fileName;
+			f = new File(resolvedName);
+			if(f.exists() && !f.isDirectory())
+				return resolvedName;
+		}
+		
+		return fileName;
     }
     
     public static Properties extractProperties(Properties props, String name) {
@@ -106,14 +128,17 @@ public class TrickAction extends AbstractAction {
 		if((lDescVal = props.getProperty(lDescKey)) != null) 
 			actionProp.setProperty(LONG_DESCRIPTION_PROPERTY, lDescVal);
 		
-		if((iconVal = props.getProperty(iconKey)) != null) 
+		if((iconVal = props.getProperty(iconKey)) != null) {
+			iconVal = resolveFilePath(props.getProperty("PATH"), iconVal);
+			
 			actionProp.setProperty(ICON_PROPERTY, iconVal);
-		
-		if((sIconVal = props.getProperty(sIconKey)) != null) 
-			actionProp.setProperty(SMALL_ICON_PROPERTY, sIconVal);
-		
-		if((lIconVal = props.getProperty(lIconKey)) != null) 
-			actionProp.setProperty(LARGE_ICON_PROPERTY, lIconVal);
+		} else {
+			if((sIconVal = props.getProperty(sIconKey)) != null) 
+				actionProp.setProperty(SMALL_ICON_PROPERTY, sIconVal);
+			
+			if((lIconVal = props.getProperty(lIconKey)) != null) 
+				actionProp.setProperty(LARGE_ICON_PROPERTY, lIconVal);
+		}
 		
 		return actionProp;
     }

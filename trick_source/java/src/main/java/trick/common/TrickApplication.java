@@ -334,7 +334,8 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     	
     	for (Method man : appClass.getMethods()) {
     		if (isSwingAction(man)) {
-    			Properties actProp = TrickAction.extractProperties(appProperties, man.getName());
+    			String name = man.getName();
+    			Properties actProp = TrickAction.extractProperties(appProperties, name);
     			actionMap.put(man.getName(), new TrickAction(actProp, this, man));
     		}
     	} 
@@ -373,6 +374,14 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     	path = getResourcePath(app);
     	resource = new File(path);
     	prop.load(new FileReader(resource));
+    	
+    	int filePos = path.lastIndexOf("/") + 1;
+    	path = path.substring(0, filePos);
+    	if(prop.getProperty("PATH") != null)
+	    	path += ";" + prop.getProperty("PATH");
+    	
+    	prop.setProperty("PATH", path);
+    	
     	return prop;
     }
     
