@@ -51,7 +51,6 @@ import javax.swing.text.StyledDocument;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXEditorPane;
@@ -61,6 +60,7 @@ import org.xml.sax.SAXException;
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
 import trick.common.ui.panels.FindBar;
+import trick.common.utils.SwingAction;
 import trick.sie.utils.SearchPanel;
 import trick.sie.utils.SieEnumeration;
 import trick.sie.utils.SieResourceDomParser;
@@ -142,7 +142,7 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
     //========================================
     //    Actions
     //========================================      
-    @Action
+    @SwingAction
     public void saveVariableDetails() {     
         String initialName = "sie_var_";
         File file = UIUtils.chooseSaveFile(null, initialName, null, getMainFrame());
@@ -153,7 +153,7 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
         }       
     }
     
-    @Action
+    @SwingAction
     public void showVariableDetails() {
         try {
             updateReadingPaneForSearch();

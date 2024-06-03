@@ -38,7 +38,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 
 import trick.common.ui.UIUtils;

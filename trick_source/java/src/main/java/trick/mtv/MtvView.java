@@ -49,13 +49,13 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.jdesktop.application.Action;
 import org.jdesktop.application.Application.ExitListener;
 import org.jdesktop.application.FrameView;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskMonitor;
 
 import trick.common.TrickApplication;
+import trick.common.utils.SwingAction;
 
 /**
  * The application's main frame.
@@ -142,7 +142,7 @@ public class MtvView extends FrameView {
     // ================================== General Functions =======================================
 
     // user clicked Show Exit Confirmation Prompt from file menu
-    @Action
+    @SwingAction
     public void show_exit_prompt() {
         MtvApp.confirmExit = confirmExitMenuItem.isSelected();
         if (MtvApp.confirmExit) {
@@ -154,14 +154,14 @@ public class MtvView extends FrameView {
         }
     }    
     // user clicked Exit from file menu
-    @Action
+    @SwingAction
     public void quit() {
         //System.out.println("Quit action.");
         MtvApp.getApplication().exit();
     }
 
     // user clicked Connect button, or hit return in host field or port field
-    @Action
+    @SwingAction
     public void connect() {
         if (!connect_button.isEnabled()) {
             JOptionPane.showMessageDialog(viewPanel, "Already connected.",
@@ -177,7 +177,7 @@ public class MtvView extends FrameView {
     // ================================== View Tab Functions =======================================
 
     // DANNY: NO LONGER USED user clicked Hide Unnamed Events toggle in edit menu
-    //@Action
+    //@SwingAction
     //public void hide_nonames() {
     //    MtvApp.getApplication().hide_nonames = hideNonamesMenuItem.getState();
     //    if (MtvApp.vscom != null) {
@@ -192,7 +192,7 @@ public class MtvView extends FrameView {
    // }
 
     // user clicked Customize Event Display... in edit menu
-    @Action
+    @SwingAction
     public void customize_event_display() {
 
         if (connect_button.isEnabled()) {
@@ -403,7 +403,7 @@ public class MtvView extends FrameView {
     }
 
     // user clicked a Cycle from cycle menu
-    @Action
+    @SwingAction
     public void set_cycle() {
         MtvApp.getApplication().var_cycle = Double.parseDouble(cycle_group.getSelection().getActionCommand());
         if (MtvApp.vscom != null) {
@@ -430,7 +430,7 @@ public class MtvView extends FrameView {
 
 
     // user clicked Load Event from file menu
-    @Action
+    @SwingAction
     public void load_event() {
         FileReader fr = null;
         BufferedReader br = null;
@@ -489,7 +489,7 @@ public class MtvView extends FrameView {
     }
 
     // user clicked Delete Event from edit menu
-    @Action
+    @SwingAction
     public void delete_event() {
         Object[] options = { "Yes, DELETE it!", "Cancel" };
         String results[] = null;
@@ -629,7 +629,7 @@ public class MtvView extends FrameView {
     // ================================== Edit Tab Functions =======================================
 
     // Starting up MTV, or user clicked Create New Event from edit menu
-    @Action
+    @SwingAction
     public void edit_new_event() {
 
         if (edit_not_saved) {
@@ -676,7 +676,7 @@ public class MtvView extends FrameView {
     }
 
     // user clicked Save in file menu
-    @Action
+    @SwingAction
     public void save_event() {
         FileWriter fw = null;
         BufferedWriter bw = null;
@@ -752,7 +752,7 @@ public class MtvView extends FrameView {
     }
 
     // user clicked Send To Sim button
-    @Action
+    @SwingAction
     public void send_to_sim() {
         String line, stmt, col;
         String parse_string = "";
@@ -845,7 +845,7 @@ public class MtvView extends FrameView {
     }
 
     // user clicked Add Line or Add Statement from edit menu
-    @Action
+    @SwingAction
     public void add_line(ActionEvent e) {
         String stmt, command, starting, data, ending;
         int num;
@@ -995,7 +995,7 @@ public class MtvView extends FrameView {
     }
 
     // user clicked Delete Line from edit menu
-    @Action
+    @SwingAction
     public void delete_line() {
         String stmt, starting, ending;
         int count, num, num_to_delete;

@@ -27,7 +27,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXMultiSplitPane;
@@ -51,6 +50,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
+import trick.common.utils.SwingAction;
 import trick.dataproducts.plot.utils.PlotUtils;
 import trick.dataproducts.plot.utils.TrickChart;
 import trick.dataproducts.plot.utils.TrickChartFrame;
@@ -108,7 +108,7 @@ public class JXPlotApplication extends TrickApplication {
     //========================================
     //    Actions
     //========================================
-    @Action
+    @SwingAction
     public void saveAllToPDF() {
         File file = UIUtils.chooseSaveFile(null, "plot_", "pdf", getMainFrame());
         if (file == null) {
