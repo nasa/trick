@@ -18,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -49,13 +50,13 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
-import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.View;
 import org.jdesktop.application.session.PropertySupport;
 
 import trick.common.ui.UIUtils;
 import trick.common.utils.TrickAction;
+import trick.common.utils.TrickResources;
 import trick.common.utils.SwingAction;
 
 /**
@@ -74,10 +75,11 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     //========================================
     /** User settable properties, such as default directories, etc. */
     public Properties trickProperties;
-    public Properties appProperties;
+    //public Properties appProperties;
+    //public TrickResources appProperties;
 
     /** The resource map for the application. */
-    public ResourceMap resourceMap;
+    public TrickResources resourceMap;
 
     /** The action map for the application. */
     public ActionMap actionMap;
@@ -105,14 +107,15 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     /** The look and feel short name list */
     protected static String[] lafShortNames;
     
-    protected final String SOURCE_PATH;
-    protected final String RESOURCE_PATH;
+    protected static String SOURCE_PATH;
+    protected static String RESOURCE_PATH;
 
 
     //========================================
     //    Private Data
     //========================================    
     private static int popupInvokerType;
+    private static TrickApplication the_trick_app;
 
     // if we want to put the properties into a different location, change here.
     static {
@@ -156,6 +159,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
 		
 		SOURCE_PATH = trick_home + "/trick_source/java/src/main/java";
 		RESOURCE_PATH = trick_home + "/trick_source/java/src/main/resources";
+		the_trick_app = this;
 	}
 	
     //========================================
@@ -264,6 +268,10 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     public static int getPopupInvoker() {
         return popupInvokerType;
     }
+    
+    public TrickResources getResourceMap() { return resourceMap; }
+    
+    public static TrickApplication getInstance() { return the_trick_app; }
 
     //========================================
     //    Methods
@@ -335,7 +343,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     	for (Method man : appClass.getMethods()) {
     		if (isSwingAction(man)) {
     			String name = man.getName();
-    			Properties actProp = TrickAction.extractProperties(appProperties, name);
+    			TrickResources actProp = TrickAction.extractProperties(resourceMap, name);
     			actionMap.put(man.getName(), new TrickAction(actProp, this, man));
     		}
     	} 
@@ -345,7 +353,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     	return man.getAnnotation(SwingAction.class) != null;
     }
     
-    public String getResourcePath(Class app) {
+    public static String getResourcePath(Class app) {
     	String canon = app.getCanonicalName();
     	canon = "/" + canon.replace(".", "/") + ".properties";
     	
@@ -359,21 +367,21 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     	}
     }
     
-    private Properties parseResources(Class<? extends TrickApplication> app) throws IOException {
-		Properties prop;
+    private TrickResources parseResources(Class<? extends TrickApplication> app) throws IOException, FileNotFoundException {
+		TrickResources prop;
 		File resource;
 		String path;
 		
     	if(app.getSimpleName().equals("TrickApplication")) {
-    		prop = new Properties();
+    		prop = new TrickResources();
     	} else {
     		Class superApp = app.getSuperclass();
-    		prop = new Properties(parseResources(superApp));
+    		prop = new TrickResources(parseResources(superApp));
 		}
     		
     	path = getResourcePath(app);
     	resource = new File(path);
-    	prop.load(new FileReader(resource));
+    	prop.loadProperties(resource);
     	
     	int filePos = path.lastIndexOf("/") + 1;
     	path = path.substring(0, filePos);
@@ -387,7 +395,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     
     protected void parseResources() {
     	try {
-	    	appProperties = parseResources(this.getClass());
+	    	resourceMap = parseResources(this.getClass());
     	} catch(IOException ioe) {
     		System.err.println(ioe.getMessage());
     	}
@@ -412,7 +420,6 @@ public abstract class TrickApplication extends SingleFrameApplication implements
 		
 		parseResources();
 		createActionMap();
-        resourceMap = getContext().getResourceMap(getClass());
 
         // Load any saved user settable properties from properties file
         trickProperties = new Properties();

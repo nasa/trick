@@ -51,11 +51,11 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import org.jdesktop.application.Application.ExitListener;
 import org.jdesktop.application.FrameView;
-import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskMonitor;
 
 import trick.common.TrickApplication;
 import trick.common.utils.SwingAction;
+import trick.common.utils.TrickResources;
 
 /**
  * The application's main frame.
@@ -74,13 +74,19 @@ public class MtvView extends FrameView {
                 MtvApp.getApplication().exit();
             }
         });
+        
+        try { 
+        	resourceMap = parseResources(app.resourceMap); 
+        } catch(IOException ioe) {
+	        resourceMap = new TrickResources();
+        	System.err.println(ioe.getMessage());
+        }
 
         initComponents();
         
         edit_new_event();
 
         // status bar initialization - message timeout, idle icon and busy animation, etc
-        ResourceMap resourceMap = getResourceMap();
         int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
         messageTimer = new Timer(messageTimeout, new ActionListener() {
             @Override
@@ -138,6 +144,26 @@ public class MtvView extends FrameView {
         });
 
     } // end MtvView constructor
+    
+    private TrickResources parseResources(TrickResources base) throws IOException, FileNotFoundException {
+		TrickResources prop = new TrickResources(base);
+		File resource;
+		String path;
+    		
+    	path = TrickApplication.getResourcePath(this.getClass());
+    	System.out.println("PATH: " + path);
+    	resource = new File(path);
+    	prop.loadProperties(resource);
+    	
+    	int filePos = path.lastIndexOf("/") + 1;
+    	path = path.substring(0, filePos);
+    	if(prop.getProperty("PATH") != null)
+	    	path += ";" + prop.getProperty("PATH");
+    	
+    	prop.setProperty("PATH", path);
+    	
+    	return prop;
+    }
 
     // ================================== General Functions =======================================
 
@@ -1225,7 +1251,6 @@ public class MtvView extends FrameView {
 
         menuBar.setName("menuBar"); // NOI18N
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance().getContext().getResourceMap(MtvView.class);
         fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
         fileMenu.setName("fileMenu"); // NOI18N
 
@@ -2001,7 +2026,8 @@ public class MtvView extends FrameView {
     public boolean active[];      // is this row (event/condition/action) Active/Enabled
     public Mode mode[];           // is this row (event/condition/action) mode Normal, or Manual On/Off
     public boolean canEditRow[];  // whole row is not editable when user does not specify event name
-    public boolean canEdit[][];   // if canEditRow, is this particular cell editable (Active/Enable/Hold/Mode)
+    public boolean canEdit[][];   // if canEditRow, is this particular cell editable (Active/Enable/Hold/Mode)    
+    public TrickResources resourceMap;
 
     private final Timer messageTimer;
     private final Timer busyIconTimer;

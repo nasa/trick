@@ -12,13 +12,13 @@ import javax.swing.ImageIcon;
 import trick.common.TrickApplication;
 
 public class TrickAction extends AbstractAction {
-	private Properties props;
+	private TrickResources props;
 	private TrickApplication invoker;
 	private Method man;
 	
 	
-	public TrickAction(Properties p, TrickApplication target, Method m) {
-		props = new Properties(p);
+	public TrickAction(TrickResources p, TrickApplication target, Method m) {
+		props = new TrickResources(p);
 		invoker = target;
 		man = m;
 		applyProperties();
@@ -56,23 +56,24 @@ public class TrickAction extends AbstractAction {
     
     private void applyProperties() {
     	String propValue;
+    	ImageIcon iconValue;
     	
-    	putValue(Action.NAME, props.getProperty(TEXT_PROPERTY));
+    	putValue(Action.NAME, props.getString(TEXT_PROPERTY));
     	putValue(Action.SHORT_DESCRIPTION, 
-    			 props.getProperty(SHORT_DESCRIPTION_PROPERTY));
+    			 props.getString(SHORT_DESCRIPTION_PROPERTY));
     	putValue(Action.LONG_DESCRIPTION,
-    			 props.getProperty(LONG_DESCRIPTION_PROPERTY));
+    			 props.getString(LONG_DESCRIPTION_PROPERTY));
     	
-    	if((propValue = props.getProperty(ICON_PROPERTY)) != null) {
-    		putValue(Action.SMALL_ICON, getIcon(propValue));
-    		putValue(Action.LARGE_ICON_KEY, getIcon(propValue));
+    	if((iconValue = props.getIcon(ICON_PROPERTY)) != null) {
+    		putValue(Action.SMALL_ICON    , iconValue);
+    		putValue(Action.LARGE_ICON_KEY, iconValue);
     	} else {
-    		if((propValue = props.getProperty(SMALL_ICON_PROPERTY)) != null) {
-				putValue(Action.SMALL_ICON, getIcon(propValue));
+    		if((iconValue = props.getIcon(SMALL_ICON_PROPERTY)) != null) {
+				putValue(Action.SMALL_ICON, iconValue);
 			}
 			
-			if((propValue = props.getProperty(LARGE_ICON_PROPERTY)) != null) {
-				putValue(Action.LARGE_ICON_KEY, getIcon(propValue));
+			if((iconValue = props.getIcon(LARGE_ICON_PROPERTY)) != null) {
+				putValue(Action.LARGE_ICON_KEY, iconValue);
 			}
     	}
     }
@@ -105,7 +106,7 @@ public class TrickAction extends AbstractAction {
 		return fileName;
     }
     
-    public static Properties extractProperties(Properties props, String name) {
+    public static TrickResources extractProperties(TrickResources props, String name) {
 		String head = name + ".Action.";
 		String  textKey = head + TEXT_PROPERTY,
 			    iconKey = head + ICON_PROPERTY,
@@ -117,7 +118,7 @@ public class TrickAction extends AbstractAction {
 		String textVal, sDescVal, lDescVal,
 			   iconVal, sIconVal, lIconVal;
 		
-		Properties actionProp = new Properties();
+		TrickResources actionProp = new TrickResources();
 		
 		if((textVal = props.getProperty(textKey)) != null)
 			actionProp.setProperty(TEXT_PROPERTY, textVal);
