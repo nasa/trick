@@ -552,7 +552,7 @@ void Runs::__loadRunsModel(QStandardItemModel *model,
 
     int r = 0 ;
     foreach ( QString runName, runNames ) {
-        model->setHeaderData(r,Qt::Vertical,runName);
+        model->setHeaderData(r,Qt::Vertical,fruns.at(r));
         QString runIdString ;
         runIdString = runIdString.sprintf("%d",r);
         NumSortItem *runIdItem = new NumSortItem(runIdString);

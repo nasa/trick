@@ -175,8 +175,10 @@ private slots:
      void _clearTables();
      void _launchScript(QAction *action);
      void _plotAllVars();
-     void _addRunFile();
      void _toggleEnableDragDrop(bool isChecked);
+
+     void _addRunFile();
+     void _runsRefreshed();
 
      void _startTimeChanged(double startTime);
      void _liveTimeChanged(double liveTime);

@@ -385,6 +385,7 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
     bool block = _bookModel->blockSignals(true);
 
     _bookModel->addChild(curveItem, "CurveRunID", -1);
+    _bookModel->addChild(curveItem, "CurveRunPath", "");
     _bookModel->addChild(curveItem, "CurveTimeName", curveModel->t()->name());
     _bookModel->addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
     _bookModel->addChild(curveItem, "CurveXName", curveModel->t()->name());

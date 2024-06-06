@@ -930,6 +930,7 @@ CurveModel* DPTreeWidget::_addCurve(QStandardItem *curvesItem,
     }
     _addChild(curveItem, "CurveYUnit", yUnit);
     _addChild(curveItem, "CurveRunID", runId);
+    _addChild(curveItem, "CurveRunPath", _runs->runPaths().at(runId));
     _addChild(curveItem, "CurveXMinRange", x->minRange());
     _addChild(curveItem, "CurveXMaxRange", x->maxRange());
     _addChild(curveItem, "CurveXScale",

@@ -2498,6 +2498,7 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
         QStandardItem *curveItem = addChild(curvesItem,"Curve");
 
         addChild(curveItem, "CurveRunID", r);
+        addChild(curveItem, "CurveRunPath", _runs->runPaths().at(r));
         addChild(curveItem, "CurveTimeName", timeName);
         addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
         addChild(curveItem, "CurveXName", timeName);

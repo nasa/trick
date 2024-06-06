@@ -35,14 +35,14 @@ class Runs : public QObject
          const QString& excludePattern,
          bool isShowProgress);
     virtual ~Runs();
-    QStringList params() const { return _params; }
-    QStringList runPaths() const { return _runPaths; }
+    const QStringList& params() const { return _params; }
+    const QStringList& runPaths() const { return _runPaths; }
     void refresh() ;
     void addRun(const QString& runPath);
     CurveModel* curveModel(int row,
-                      const QString& tName,
-                      const QString& xName,
-                      const QString& yName) const;
+                           const QString& tName,
+                           const QString& xName,
+                           const QString& yName) const;
     QStandardItemModel* runsModel();
 
   public:
