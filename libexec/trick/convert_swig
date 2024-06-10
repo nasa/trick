@@ -590,7 +590,6 @@ sub process_class($$$$$) {
     my ($class_name) ;
     my $template_typedefs ;
 
-
 ## Extract the class_name from the class_string
     $class_string =~ /^(?:class|struct)\s+               # keyword class or struct
                       ([_A-Za-z]\w*)                     # class name
@@ -598,12 +597,10 @@ sub process_class($$$$$) {
                      /sx or die "Internal error" ;
     $class_name = $1 ;
     my $my_class_contents = $class_string ;
-    #$$new_contents_ref .= "[[[".$class_string."]]]" ;
 
     if ( $class_string !~ /\{$/ ) {
         $$contents_ref =~ s/^(.*?\s*\{)//s ;
         $my_class_contents .= $1 ;
-        #$$new_contents_ref .= $1 ;
     }
 
     ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
@@ -629,7 +626,6 @@ sub process_class($$$$$) {
         if ( $non_var ne "" )  {
             #print "*** non_var = $non_var ***\n" ;
             $my_class_contents .= $non_var ;
-            #$$new_contents_ref .= $non_var ;
         }
 
         if ( $template_var_def_str ne "" )  {
@@ -639,7 +635,6 @@ sub process_class($$$$$) {
                 my ($template_full_type) = $1 ;
                 my ($var_name) = $2 ;
                 $my_class_contents .= $template_var_def_str ;
-                #$$new_contents_ref .= $template_var_def_str ;
 
                 $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
                 my ($template_type) = $1 ;
@@ -661,9 +656,6 @@ sub process_class($$$$$) {
                         my $sanitized_namespace = $curr_namespace =~ s/:/_/gr ;
                         my $identifier = "${sanitized_namespace}${class_name}_${var_name}" ;
                         my $trick_swig_template = "TRICK_SWIG_TEMPLATE_$identifier" ;
-
-                        #$my_class_contents .= "\n#define $trick_swig_template\n" ;
-                        #$$new_contents_ref .= "\n#define $trick_swig_template\n" ;
 
                         my $typedef = "\n#ifndef $trick_swig_template\n" ;
                         $typedef   .= "\%template($identifier) $template_full_type;\n" ;
