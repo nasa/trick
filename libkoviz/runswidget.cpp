@@ -88,8 +88,9 @@ bool RunsWidgetFilterProxyModel::_isDirContains(const QString &path,
                                                 const QRegularExpression &rx,
                                                 int depth) const
 {
+    // For speed sake, if search is too deep, accept directory
     if (depth > 10 ) {
-        return false;
+        return true;
     }
 
     QDir dir(path);
