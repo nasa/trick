@@ -65,6 +65,10 @@ bool RunsWidgetFilterProxyModel::filterAcceptsRow(
         return false;
     }
 
+    if ( filterRegularExpression().pattern().isEmpty() ) {
+        return true;
+    }
+
     QModelIndex index = sourceModel()->index(row, 0, srcIdx);
     QString filePath = sourceModel()->data(index,
                                      QFileSystemModel::FilePathRole).toString();
