@@ -42,6 +42,7 @@
 #include "trickview.h"
 #include "sie_listmodel.h"
 #include "datamodel_tv.h"
+#include "runswidget.h"
 
 class PlotMainWindow : public QMainWindow
 {
@@ -131,6 +132,8 @@ private:
     VarsWidget* _varsWidget;
     QFrame* _dpFrame ;
     DPTreeWidget* _dpTreeWidget;
+
+    RunsWidget* _runsWidget;
 
     QFrame* _tvFrame ;
     TrickView* _trickView;

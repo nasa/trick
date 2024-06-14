@@ -175,6 +175,15 @@ PlotMainWindow::PlotMainWindow(PlotBookModel* bookModel,
     connect(_nbDPVars,SIGNAL(currentChanged(int)),
             this,SLOT(_nbCurrentChanged(int)));
 
+    // Runs Tab
+    QFrame* runsFrame = new QFrame(lsplit);
+    _runsWidget = new RunsWidget(_runs,
+                                 _bookModel,
+                                 _monteInputsView,
+                                 runsFrame);
+    _nbDPVars->addTab(runsFrame,"Runs");
+
+
     // Vars/DP needs monteInputsView, but needs to be added after Vars/DP
     if ( runs->runsModel() ) {
         lsplit->addWidget(_monteInputsView);
