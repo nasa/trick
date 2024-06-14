@@ -52,6 +52,10 @@ void RunsWidget::_runsSearchBoxReturnPressed()
 {
     QString rx = _searchBox->text();
     _filterModel->setFilterRegularExpression(rx);
+
+    QModelIndex sourceIndex = _fileModel->index(QDir::currentPath());
+    QModelIndex proxyIndex = _filterModel->mapFromSource(sourceIndex);
+    _fileTreeView->setRootIndex(proxyIndex);
 }
 
 bool RunsWidgetFilterProxyModel::filterAcceptsRow(
