@@ -55,7 +55,7 @@ class B {
    public :
    //TODO: in the clang based convert_swig, we can use NS1 without the leading ::
    //Since swig 4.2.0, leading :: causes error.
-#if SWIG_VERSION >= 0x040200 || __APPLE__
+#if SWIG_VERSION >= 0x040200
    NS1::A< int > m ;
 #else
    ::NS1::A< int > m ;
