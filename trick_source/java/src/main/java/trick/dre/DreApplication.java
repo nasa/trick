@@ -9,7 +9,6 @@ package trick.dre;
 //========================================
 
 import org.jdesktop.application.Application;
-import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXButton;
 import org.jdesktop.swingx.JXPanel;
@@ -17,6 +16,8 @@ import org.jdesktop.swingx.JXTextField;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import trick.common.framework.BaseApplication;
+import trick.common.framework.View;
 import trick.common.ui.UIUtils;
 import trick.common.ui.components.NumberTextField;
 import trick.common.ui.panels.ListPanel;
@@ -311,7 +312,7 @@ public class DreApplication extends TrickApplication {
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        Application.launch(DreApplication.class, args);
+        BaseApplication.launch(DreApplication.class, args);
     }
 
     /**

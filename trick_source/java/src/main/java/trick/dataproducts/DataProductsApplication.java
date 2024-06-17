@@ -30,10 +30,10 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.SwingWorker;
 
-import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.MultiSplitLayout;
 
+import trick.common.framework.View;
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
 import trick.common.ui.components.NumberTextField;

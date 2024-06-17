@@ -71,8 +71,6 @@ import javax.swing.text.StyleContext;
 import javax.swing.text.StyledEditorKit;
 
 import org.jdesktop.application.Application;
-import org.jdesktop.application.Task;
-import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXEditorPane;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
@@ -80,6 +78,9 @@ import org.jdesktop.swingx.JXStatusBar;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.JXTitledSeparator;
 
+import trick.common.framework.BaseApplication;
+import trick.common.framework.Task;
+import trick.common.framework.View;
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
 import trick.common.ui.components.FontChooser;
@@ -703,7 +704,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        Application.launch(SimControlApplication.class, args);
+        BaseApplication.launch(SimControlApplication.class, args);
         
         // Arrays.toString(args) converts such as localhost 7000 -r to [localhost, 7000, -r],
         // so need to remove [, ] and all white spaces.
@@ -1467,7 +1468,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      * Inner class for the task of monitoring health status.
      */
     private class MonitorHealthStatusTask extends Task<Void, Void> {
-        public MonitorHealthStatusTask(Application app) {
+        public MonitorHealthStatusTask(BaseApplication app) {
             super(app);
         }
         
@@ -1633,7 +1634,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
          *
          * @param app    The specified {@link Application} that needs Sim status monitoring.
          */
-        public MonitorSimStatusTask(Application app) {
+        public MonitorSimStatusTask(BaseApplication app) {
             super(app);
         }
 

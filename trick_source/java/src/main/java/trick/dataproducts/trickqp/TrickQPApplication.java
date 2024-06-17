@@ -40,6 +40,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.jdesktop.application.Application;
 
+import trick.common.framework.BaseApplication;
 import trick.common.ui.UIUtils;
 import trick.common.ui.components.CommonTreeNode;
 import trick.common.ui.panels.DataPanel;
@@ -578,7 +579,7 @@ public class TrickQPApplication extends DataProductsApplication {
      * @throws MalformedURLException MalformedURLException
      */
     public static void main(String[] args) throws RemoteException, MalformedURLException {
-        Application.launch(TrickQPApplication.class, args);
+        BaseApplication.launch(TrickQPApplication.class, args);
 
         // save the arguments which will be used for launching the application
         if (args != null && args.length > 0) {

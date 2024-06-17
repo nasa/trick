@@ -10,6 +10,7 @@ import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Desktop.Action;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
@@ -50,10 +51,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
-import org.jdesktop.application.SingleFrameApplication;
-import org.jdesktop.application.View;
-import org.jdesktop.application.session.PropertySupport;
-
+import trick.common.framework.BaseApplication;
+import trick.common.framework.PropertySupport;
+import trick.common.framework.View;
 import trick.common.ui.UIUtils;
 import trick.common.utils.TrickAction;
 import trick.common.utils.TrickResources;
@@ -68,7 +68,7 @@ import trick.common.utils.SwingAction;
  * @author Hong Chen
  * @since Trick 10
  */
-public abstract class TrickApplication extends SingleFrameApplication implements PropertySupport {
+public abstract class TrickApplication extends BaseApplication implements PropertySupport {
 
     //========================================
     //    Public data
@@ -254,9 +254,14 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     }
 
 	@SwingAction
-	public void quit() {
-		super.exit(null);
+	public void quit(ActionEvent e) {
+		super.exit(e);
 	}
+
+	@SwingAction
+    public void quit() {
+        quit(null);
+    }
 
     //========================================
     //    Set/Get methods

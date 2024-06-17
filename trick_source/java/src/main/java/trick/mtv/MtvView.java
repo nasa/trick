@@ -49,10 +49,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.jdesktop.application.Application.ExitListener;
-import org.jdesktop.application.FrameView;
-import org.jdesktop.application.TaskMonitor;
-
+import trick.common.framework.BaseApplication.ExitListener;
+import trick.common.framework.BaseApplication;
+import trick.common.framework.TaskMonitor;
+import trick.common.framework.View;
 import trick.common.TrickApplication;
 import trick.common.utils.SwingAction;
 import trick.common.utils.TrickResources;
@@ -60,7 +60,7 @@ import trick.common.utils.TrickResources;
 /**
  * The application's main frame.
  */
-public class MtvView extends FrameView {
+public class MtvView extends View {
 
     public MtvView(TrickApplication app) {
         super(app);
@@ -1254,7 +1254,7 @@ public class MtvView extends FrameView {
         fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
         fileMenu.setName("fileMenu"); // NOI18N
 
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(MtvView.class, this);
+        javax.swing.ActionMap actionMap = BaseApplication.getInstance().getContext().getActionMap(MtvView.class, this);
         loadMenuItem.setAction(actionMap.get("load_event")); // NOI18N
         loadMenuItem.setIcon(resourceMap.getIcon("loadMenuItem.icon")); // NOI18N
         loadMenuItem.setText(resourceMap.getString("loadMenuItem.text")); // NOI18N

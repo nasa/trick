@@ -52,11 +52,12 @@ import javax.swing.tree.TreePath;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.jdesktop.application.Application;
-import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXEditorPane;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import trick.common.framework.BaseApplication;
+import trick.common.framework.View;
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
 import trick.common.ui.panels.FindBar;
@@ -297,7 +298,7 @@ public class SieApplication extends TrickApplication implements TreeSelectionLis
         if (args.length == 1) {
             printMatchVarOnScreen(args[0]);
         } else {
-            Application.launch(SieApplication.class, args);
+            BaseApplication.launch(SieApplication.class, args);
         }
     }
     

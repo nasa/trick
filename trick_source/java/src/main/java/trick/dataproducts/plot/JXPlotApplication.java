@@ -28,7 +28,6 @@ import javax.swing.tree.TreePath;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.jdesktop.application.Application;
-import org.jdesktop.application.View;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.MultiSplitLayout;
@@ -48,6 +47,8 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
+import trick.common.framework.BaseApplication;
+import trick.common.framework.View;
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;
 import trick.common.utils.SwingAction;
@@ -152,7 +153,7 @@ public class JXPlotApplication extends TrickApplication {
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        Application.launch(JXPlotApplication.class, args);
+        BaseApplication.launch(JXPlotApplication.class, args);
     }
 
     /**

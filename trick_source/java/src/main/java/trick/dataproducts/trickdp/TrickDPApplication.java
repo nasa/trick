@@ -39,6 +39,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import org.jdesktop.application.Application;
 
+import trick.common.framework.BaseApplication;
 import trick.common.TrickApplication;
 import trick.common.ui.TrickFileFilter;
 import trick.common.ui.UIUtils;
@@ -408,7 +409,7 @@ public class TrickDPApplication extends DataProductsApplication {
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        Application.launch(TrickDPApplication.class, args);
+        BaseApplication.launch(TrickDPApplication.class, args);
     }
 
     /**
