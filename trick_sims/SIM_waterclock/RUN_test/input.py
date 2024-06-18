@@ -24,8 +24,6 @@ dyn.waterclock.timer_bucket_diam                  = 45.0
 
 dyn.waterclock.total_ticks                        = 60
 
-trick.message_unsubscribe(trick_message.mcout)
-
 # ==========================================
 # Start the Satellite Graphics Client
 # ==========================================
