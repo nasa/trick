@@ -36,6 +36,10 @@ public class View {
 		return null;
 	}
 
+	public void setFrame(JFrame f) {
+		
+	}
+
 	public BaseApplication getApplication() {
 		return null;
 	}

@@ -4,6 +4,8 @@
 //========================================
 package trick.common.framework;
 
+import java.awt.Component;
+
 import javax.swing.ActionMap;
 
 import trick.common.framework.Session;
@@ -28,5 +30,9 @@ public class AppContext {
 
 	public TaskService getTaskService() {
 		return null;
+	}
+
+	public void addComponent(Component c) {
+
 	}
 }
