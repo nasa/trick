@@ -126,6 +126,17 @@ public abstract class BaseApplication {
 		T app;
 		// AppContext ctx;
 
+		// TODO: Set up System property
+		/*	if (!Beans.isDesignTime()) {
+					
+				try {
+					System.setProperty("java.net.useSystemProxies", "true");
+				} catch (SecurityException ignoreException) {
+					// Unsigned apps can't set this property. 
+				}
+			}
+		*/
+
 		// Create an instance of <T>
 		try {
 			app = createInstanceOf(appClass);
@@ -135,8 +146,47 @@ public abstract class BaseApplication {
 		}
 		
 		// ctx = app.getContext();
+
+		// TODO: Add platform info to resource map
+		/*	ResourceMap appResourceMap = ctx.getResourceMap();
+			final PlatformType platform = AppHelper.getPlatform();
+			appResourceMap.putResource(ResourceMap.KEY_PLATFORM, platform);
+
+			//Generic registration with the Mac OS X application menu
+			if (PlatformType.OS_X.equals(platform)) {
+				try {
+					OSXAdapter.setQuitHandler(application, Application.class.getDeclaredMethod("handleQuit", (Class[])null));
+				} catch (Exception e) {
+					logger.log(Level.SEVERE, "Cannot set Mac Os X specific handler for Quit event", e);
+				}
+			}
+		*/
 		
 		// TODO: Set up Look and Feel
+		/*	if (!Beans.isDesignTime()) {
+				String key = "Application.lookAndFeel";
+				String lnfResource = appResourceMap.getString(key);
+				String lnf = (lnfResource == null) ? "system" : lnfResource;
+				try {
+					if (lnf.equalsIgnoreCase("system")) {
+						String name = UIManager.getSystemLookAndFeelClassName();
+						UIManager.setLookAndFeel(name);
+					} else if (lnf.equalsIgnoreCase("nimbus")) {    
+						for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+							if ("Nimbus".equals(info.getName())) {
+								UIManager.setLookAndFeel(info.getClassName());
+								break;
+							}
+						}
+					} else if (!lnf.equalsIgnoreCase("default")) {
+						UIManager.setLookAndFeel(lnf);
+					}
+				} catch (Exception e) {
+					String s = "Couldn't set LookandFeel " + key + " = \"" + lnfResource + "\"";
+					logger.log(Level.WARNING, s, e);
+				}
+			}
+		*/
 
 		return app;
 	}
@@ -177,7 +227,9 @@ public abstract class BaseApplication {
 	}
 
 	private String getSessionFileName(Window w) {
-		return null;
+		if(w == null) return null;
+		
+		return window.getName() + ".session.xml";
 	}
 
 	private static boolean appIsLaunched() {  return application != null;  }
