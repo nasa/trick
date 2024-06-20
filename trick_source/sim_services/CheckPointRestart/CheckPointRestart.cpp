@@ -115,7 +115,7 @@ int Trick::CheckPointRestart::find_write_checkpoint_jobs(std::string sim_object_
  * @param in_time The time the checkpoint should be dumped
  * @see write_checkpoint() 
  */
-int Trick::CheckPointRestart::checkpoint(double in_time) {
+int Trick::CheckPointRestart::checkpoint(double in_time, std::string file_name) {
 
     long long curr_time = exec_get_time_tics() ;
     long long new_time ;
@@ -127,6 +127,8 @@ int Trick::CheckPointRestart::checkpoint(double in_time) {
         if ( new_time < write_checkpoint_job->next_tics ) {
             write_checkpoint_job->next_tics = new_time ;
         }
+        
+        if (!file_name.empty()) chkpnt_names[new_time] = file_name;
         
         the_exec->freeze(in_time);
         //std::cout << "\033[33mSET CHECKPOINT TIME " << in_time << " " << new_time << "\033[0m" << std::endl ;
@@ -271,11 +273,18 @@ int Trick::CheckPointRestart::write_checkpoint() {
         }
 
         double sim_time = exec_get_sim_time() ;
-        std::stringstream chk_name_stream ;
+        std::string file_name = "";
 
-        chk_name_stream << "chkpnt_" << std::fixed << std::setprecision(6) << sim_time ;
+        if (chkpnt_names.find(curr_time) == chkpnt_names.end()) {
+            std::stringstream chk_name_stream ;
+            chk_name_stream << "chkpnt_" << std::fixed << std::setprecision(6) << sim_time ;
+            file_name = chk_name_stream.str();
+        } else {
+            file_name = chkpnt_names[curr_time];
+            chkpnt_names.erase(curr_time);
+        }
 
-        checkpoint( chk_name_stream.str() );
+        checkpoint( file_name );
 
 		the_exec->run();
     }

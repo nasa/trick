@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <map>
 
 #include "trick/Scheduler.hh"
 
@@ -25,6 +26,7 @@ namespace Trick {
         private:
             /** Flag to track if an automatic freeze has been triggered */
             bool auto_freeze = false;                               /* ** */
+            std::map<long long, std::string> chkpnt_names;
 
         protected:
             /** queue to hold jobs to be called before a checkpoint is dumped. */
@@ -204,7 +206,7 @@ namespace Trick {
              @param in_time - desired checkpoint time in seconds.
              @return always 0
              */
-            virtual int checkpoint(double in_time) ;
+            virtual int checkpoint(double in_time, std::string file_name = "") ;
 
             /**
              * Executes the pre_init_checkpoint
