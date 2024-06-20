@@ -111,7 +111,7 @@ Frame logging records the following data files in your sim’s RUN_ directory:
 
 * [```log_frame.trk```](#log-frame-trk)<br>
 * [```log_frame_trickjobs.trk```](#log-frame-trickjobs-trk)
-* [```log_frame_frame_userjobs_main.trk```](#log-frame-userjobs-main-trk)
+* [```log_frame_userjobs_main.trk```](#log-frame-userjobs-main-trk)
 * [```log_timeline.csv```](#log-timeline-csv)
 * [```log_timeline_init.csv```](#log-timeline-csv)
 
