@@ -15,27 +15,6 @@ PURPOSE:
 #include <iostream>
 #include <sstream>
 
-template <class T>
-class TemplateNoNS {}; 
-
-class ClassNoNS {
-  public:
-    TemplateNoNS<int> tnns;
-};
-
-namespace a { 
-
-	template <class T>
-	class Bar {}; 
-
-	class Foo {
-	  public:
-	    Bar<int> bar;
-	};
-
-}
-
-
 namespace my_ns {
 
 class BB {

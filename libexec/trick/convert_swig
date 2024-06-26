@@ -646,9 +646,6 @@ sub process_class($$$$$) {
                     my ($template_type_no_sp) = $template_full_type ;
                     $template_type_no_sp =~ s/\s//g ;
 
-                    # If the type is qualified, assume it's fully qualified and put the
-                    # %template directive in the global namespace.
-                    # See https://github.com/nasa/trick/issues/768
                     #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
                     if ( ! exists $processed_templates{$template_type_no_sp} ) {
 
@@ -656,11 +653,16 @@ sub process_class($$$$$) {
                         my $identifier = "${sanitized_namespace}${class_name}_${var_name}" ;
                         my $trick_swig_template = "TRICK_SWIG_TEMPLATE_$identifier" ;
 
+                        # Insert template directive immediately before intsance
+                        # This is required as of SWIG 4
                         my $typedef = "\n#ifndef $trick_swig_template\n" ;
                         $typedef   .= "#define $trick_swig_template\n" ;
                         $typedef   .= "\%template($identifier) $template_full_type;\n" ;
                         $typedef   .= "#endif\n" ;
 
+                        # SWIG namespace resolution for template directives starts at the local space
+                        # Therefore, if the type is qualified, assume it's fully qualified and put the
+                        # %template directive in the global namespace by escaping the current namespace
 			if ($curr_namespace ne "") {
                             my $in_same_namespace = 1 ;
                             if ($template_full_type =~ /^\w*(::)\w+</) {
@@ -671,7 +673,7 @@ sub process_class($$$$$) {
                                 $typedef = "\n}" . $typedef . "namespace " . $1 . " {" ; 
                             }
                         }
-
+ 
                         $template_typedefs .= $typedef ;
 
                         $processed_templates{$template_type_no_sp} = 1 ;

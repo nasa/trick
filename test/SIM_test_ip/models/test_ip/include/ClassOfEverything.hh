@@ -28,6 +28,7 @@ LIBRARY DEPENDENCY:
 #include "test_ip/include/NoICG.hh"
 #include "exclude_me/include/exclude_me.hh"
 #include "test_ip/include/Namespace_tests.hh"
+#include "test_ip/include/TemplateTest.hh"
 
 /** @class Ball
     @brief ball in C++
@@ -440,6 +441,12 @@ class ClassOfEverything {
 
    std::map < std::string , int > msi ;
    std::list < std::string  > ls ;
+
+   ClassNoNS class_no_ns ;
+   NS2::ClassNS class_ns ;
+
+   a::Foo foo1;
+   b::Foo2 foo2;
 
    private:
        ClassOfEverything (const ClassOfEverything &);
