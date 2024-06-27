@@ -66,3 +66,19 @@ class swig_double {
         PyObject * __len__() ;
 } ;
 
+%pythoncode %{
+#if SWIG_VERSION > 0x040000
+def _trick_setattr_nondynamic_instance_variable(set):
+    def set_instance_attr(self, name, value):
+        if name == "thisown":
+            self.this.own(value)
+        elif name == "this":
+            set(self, name, value)
+        else:
+            msg = f'You cannot add instance attribute \'{name}\' to Trick swig_double'
+            raise AttributeError(msg)
+    return set_instance_attr
+
+swig_double.__setattr__ = _trick_setattr_nondynamic_instance_variable(object.__setattr__)
+#endif
+%}
