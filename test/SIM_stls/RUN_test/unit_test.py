@@ -3,7 +3,7 @@ from trick.unit_test import *
 
 def main():
 
-    trick.load_checkpoint("RUN_test/chkpnt_0.500000")
+    trick.load_checkpoint("RUN_test/chkpnt_in")
     trick.load_checkpoint_job()
 
     trick.exec_set_job_onoff("the_object.stlc.addData", 1, False)
