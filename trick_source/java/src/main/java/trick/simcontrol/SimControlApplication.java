@@ -9,6 +9,7 @@ package trick.simcontrol;
 //========================================
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -155,7 +156,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     /*
      *  The action controller that performs actions for such as clicking button, selection a menu item and etc.
      */
-    private SimControlActionController actionController;
+    protected SimControlActionController actionController;
 
     // The animation image player panel
     private AnimationPlayer logoImagePanel;
@@ -334,8 +335,53 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      */
     @Action
     public void connect() {
-        // get host and port for selected sim  	
-        if (runningSimList != null && runningSimList.getSelectedItem() != null) {
+        parseHostPortFromInput(); // get host and port from running sim list
+		getInitializationPacket(); // init variable server connection
+		if (commandSimcom == null) {
+			String errMsg = "Sorry, can't connect. Please make sure the availability of both server and port!";
+			printErrorMessage(errMsg);
+            return;
+        } 
+		setEnabledAllActions(true); // enable all actions
+		scheduleGetSimState(); // set up the sim status variables
+		startStatusMonitors(); // start monitors for sim and health status
+    }
+
+    
+    /**
+     * Helper method for starting monitors for sim status as well as health status.
+     */
+	protected void startStatusMonitors() {
+		MonitorSimStatusTask monitorSimStatusTask = new MonitorSimStatusTask(this);
+        monitorSimStatusTask.addPropertyChangeListener(this);
+        getContext().getTaskService().execute(monitorSimStatusTask);
+
+        // For receiving hs messages.
+        getContext().getTaskService().execute(new MonitorHealthStatusTask(this));
+	}
+
+	/**
+	 * Sets all actions as either enabled or disabled
+	 * @param isEnabled the state to set each action as
+	 */
+	private void setEnabledAllActions(boolean isEnabled) {
+		if(actionMap == null)
+			return;
+		
+		Object[] keys = actionMap.allKeys();
+		// If there is a server connection established, enable all actions.
+		for (int i = 0; i < keys.length; i++) {
+			String theKey = (String)keys[i];
+			getAction(theKey).setEnabled(isEnabled);
+		}
+	}
+	
+	/**
+	 * Parse the host and port from the runningSimList object
+	 */
+	protected void parseHostPortFromInput() {
+
+		if (runningSimList != null && runningSimList.getSelectedItem() != null) {
         	String selectedStr = runningSimList.getSelectedItem().toString();
         	// remove the run info if it is shown
         	int leftPre = selectedStr.indexOf("(");
@@ -352,51 +398,17 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         	if (elements == null || elements.length < 2) {       
 				String errMsg = "Can't connect! Please provide valid host name and port number separated by : or whitespace!";		
                 printErrorMessage(errMsg);
-        		return;
-        	}
-        	host = elements[0].trim();
-        	try {
-        	port = Integer.parseInt(elements[1].trim());
-        	} catch (NumberFormatException nfe) {
-				String errMsg = elements[1] + " is not a valid port number!";
-        		printErrorMessage(errMsg);
-        		return;
-        	}
+        	} else {
+				host = elements[0].trim();
+				try {  port = Integer.parseInt(elements[1].trim());  }
+				catch (NumberFormatException nfe) {
+					String errMsg = elements[1] + " is not a valid port number!";
+					printErrorMessage(errMsg);
+				}
+			}
         }
-        
-        getInitializationPacket();
-        
-        if (commandSimcom == null) {
-			String errMsg = "Sorry, can't connect. Please make sure the availability of both server and port!";
-			printErrorMessage(errMsg);
-            return;
-        } else {            
-            Object[] keys = actionMap.allKeys();
-            // If there is a server connection established, enable all actions.
-            for (int i = 0; i < keys.length; i++) {
-                String theKey = (String)keys[i];
-                getAction(theKey).setEnabled(true);
-            }
-        }
-
-        scheduleGetSimState();
-
-        startStatusMonitors();
-    }
-
-    
-    /**
-     * Helper method for starting monitors for sim status as well as health status.
-     */
-	private void startStatusMonitors() {
-		MonitorSimStatusTask monitorSimStatusTask = new MonitorSimStatusTask(this);
-        monitorSimStatusTask.addPropertyChangeListener(this);
-        getContext().getTaskService().execute(monitorSimStatusTask);
-
-        // For receiving hs messages.
-        getContext().getTaskService().execute(new MonitorHealthStatusTask(this));
 	}
-	
+
     //========================================
     //    Set/Get methods
     //========================================
@@ -440,7 +452,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             	(new RetrieveHostPortTask()).execute();
             	return;
             }
-                       
+            
             actionController.setVariableServerConnection(commandSimcom);
 
             simState = new SimState();
@@ -541,6 +553,24 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             npe.printStackTrace();
         }
     }
+
+	public static void setHostPort(String hostname, int portNum) {
+		host = hostname;
+		port = portNum;
+	}
+    
+    // Getting specific values from GUI
+    public double getExecTime() { return simState.getExecOutTime(); }
+
+    // Passing components as read-only to inheriting classes
+	protected final JComboBox getRunningSimList() { return runningSimList; }
+	protected final JXEditorPane getEditorPane() { return statusMsgPane; }
+	protected final JToggleButton getDataRecButton() { return dataRecButton; }
+	protected final JToggleButton getRealTimeButton() { return realtimeButton; }
+	protected final JTextField getSimRunDirField() { return getSimRunDirField(0); }
+	protected final JTextField getSimRunDirField(int index) { 
+		return (index < simRunDirField.length) ? simRunDirField[index] : null; 
+	}
 
 
     //========================================
@@ -817,9 +847,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             statusSimcom.put(status_vars) ;
 
             statusSimcom.put("trick.var_cycle(0.25)\n");
-
-            getAction("connect").setEnabled(false);         
-            runningSimList.setEnabled(false);
+            setActionsEnabled("connect", false); 
+            setGUIEnabled(runningSimList, false);
         }
         catch (NumberFormatException nfe) {
 
@@ -833,6 +862,14 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             getAction("startSim").setEnabled(false);
         }
     }
+
+	private void setGUIEnabled(Component gui, boolean flag) {
+		if(gui != null) gui.setEnabled(flag);
+	}
+
+	private void setGUIEnabled(Component[] guis, boolean flag) {
+		for(Component gui : guis)	setGUIEnabled(gui, flag);
+	}
 
     /**
      * Convenient method for setting the state of specified actions.
@@ -1238,7 +1275,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     /**
      * Updates the GUI as needed if SIM states are changed.
      */
-    private void updateGUI() {
+    protected void updateGUI() {
         String newStatusDesc = SimState.SIM_MODE_DESCRIPTION[simState.getMode()];
 
         recTime.setText(simState.getTwoFractionFormatted(simState.getExecOutTime()));
