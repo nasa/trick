@@ -100,6 +100,7 @@ QString dpFileName() {
 %token DP_MINOR_X_TICS DP_MINOR_Y_TICS
 %token DP_RECT
 %token DP_PRESENTATION
+%token DP_HLINE
 
 %token <sval> DP_STR
 %token <dval> DP_FLOAT
