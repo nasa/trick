@@ -1,13 +1,15 @@
 #include "monteinputsview.h"
 #include <QHeaderView>
 
-MonteInputsView::MonteInputsView(QWidget *parent) :
-    QTableView(parent)
+MonteInputsView::MonteInputsView(Runs *runs, QWidget *parent) :
+    QTableView(parent),
+    _runs(runs)
 {
     setSortingEnabled(true);
     sortByColumn(0,Qt::AscendingOrder);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
     setTextElideMode(Qt::ElideNone);
+    setAcceptDrops(true);
 
     QHeaderView* headerView = horizontalHeader();
     headerView->setTextElideMode(Qt::ElideLeft);
@@ -76,5 +78,35 @@ void MonteInputsView::_viewHeaderSectionClicked(int section)
     if ( selIdxs.size() > 0 ) {
         QModelIndex idx = selIdxs.at(section);
         scrollTo(idx, QAbstractItemView::PositionAtCenter);
+    }
+}
+
+void MonteInputsView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasFormat("text/uri-list")) {
+        event->acceptProposedAction();
+    }
+}
+
+void MonteInputsView::dragMoveEvent(QDragMoveEvent *event)
+{
+    if (event->mimeData()->hasFormat("text/uri-list")) {
+        event->acceptProposedAction();
+    }
+}
+
+void MonteInputsView::dropEvent(QDropEvent *event) {
+
+    if (event->mimeData()->hasFormat("text/uri-list")) {
+        QList<QUrl> urls = event->mimeData()->urls();
+        for (const QUrl &url : urls) {
+            QFileInfo fileInfo(url.toLocalFile());
+            if (fileInfo.isFile()) {
+                _runs->addRun(fileInfo.absoluteFilePath());
+            } else if ( fileInfo.isDir() ) {
+                _runs->addRun(fileInfo.absoluteFilePath());
+            }
+        }
+        event->acceptProposedAction();
     }
 }

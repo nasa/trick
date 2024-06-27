@@ -103,7 +103,7 @@ PlotMainWindow::PlotMainWindow(PlotBookModel* bookModel,
     msplit->addWidget(_bookView);
 
     // Monte inputs view (widget added later)
-    _monteInputsView = new MonteInputsView(lsplit);
+    _monteInputsView = new MonteInputsView(runs,lsplit);
     _monteInputsView->setModel(runs->runsModel());
     connect(_monteInputsView->selectionModel(),
             SIGNAL(currentChanged(QModelIndex,QModelIndex)),
