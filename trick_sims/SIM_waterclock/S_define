@@ -8,8 +8,13 @@ LIBRARY DEPENDENCIES:
       (waterclock/src/waterclock_shutdown.c)
     )
 *************************************************************/
-
+#define TRICK_NO_MONTE_CARLO
+#define TRICK_NO_MASTERSLAVE
+#define TRICK_NO_INSTRUMENTATION
+#define TRICK_NO_REALTIMEINJECTOR
+#define TRICK_NO_ZEROCONF
 #include "sim_objects/default_trick_sys.sm"
+
 ##include "waterclock/include/waterclock_numeric.h"
 
 class WaterClockSimObject : public Trick::SimObject {
