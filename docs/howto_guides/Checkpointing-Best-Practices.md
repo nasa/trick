@@ -91,7 +91,7 @@ If the Trick Memory Manager **"knows"** about all of the allocations that compri
 There are certain things that simply cannot be checkpointed like file-pointers, and network connections. Perhaps there are other things as well. For these situations, Trick provides four special job classes: ```"checkpoint"```, ```"post_checkpoint"```, ```“preload_checkpoint”```, and ```“restart”``` (described below).
 
 <a id=dumping-a-checkpoint></a>
-### What Happens When You Dump a Checkpoint
+### What Happens When You Dump a Checkpoint (Under Construction)
 
 A checkpoint of a simulation is usually initiated from the Input Processor. That is, via:
 

@@ -383,8 +383,14 @@ in the future.
 # Checkpoints immediately
 trick.checkpoint()
 
+# Checkpoints immediately, saving to 'checkpoint_save'
+trick.checkpoint("checkpoint_save")
+
 # Checkpoints at an absolute time
 trick.checkpoint(100.0)
+
+# Checkpoints at an absolute time, saving to 'late_checkpoint'
+trick.checkpoint(100.0, "late_checkpoint")
 
 # Checkpoints 5 seconds relative from the current sim_time
 trick.checkpoint(trick.exec_get_sim_time() + 5.0)
