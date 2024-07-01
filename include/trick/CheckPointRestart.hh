@@ -26,7 +26,9 @@ namespace Trick {
         private:
             /** Flag to track if an automatic freeze has been triggered */
             bool auto_freeze = false;                               /* ** */
-            std::map<long long, std::string> chkpnt_names;
+
+            /** Map to track custom named checkpoints based on the scheduled times */
+            std::map<long long, std::string> chkpnt_names;          /* ** */
 
         protected:
             /** queue to hold jobs to be called before a checkpoint is dumped. */
@@ -200,10 +202,11 @@ namespace Trick {
             /**
              @brief @userdesc Command to dump a checkpoint at in_time. (Sets checkpoint_time to the integral time tic value corresponding
              to the incoming in_time so that checkpoint occurs once at that time at the end of the execution frame.)
-             The checkpointed file name is @e chkpnt_<in_time>.
+             The checkpointed file name is @e chkpnt_<in_time> or @e <file_name>.
              @par Python Usage:
              @code trick.checkpoint(<in_time>) @endcode
              @param in_time - desired checkpoint time in seconds.
+             @param file_name - checkpoint file name. Defaults to blank in which case the checkpoint follows the expecteed convention.
              @return always 0
              */
             virtual int checkpoint(double in_time, std::string file_name = "") ;
