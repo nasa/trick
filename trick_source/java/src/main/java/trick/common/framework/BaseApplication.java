@@ -9,32 +9,48 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
+import java.awt.event.PaintEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.ActiveEvent;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Frame;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.Window;
 
 import java.beans.Beans;
-
+import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.lang.IllegalAccessException;
 import java.lang.InstantiationException;
 import java.lang.NoSuchMethodException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-
+import java.security.InvalidParameterException;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.RootPaneContainer;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.event.SwingPropertyChangeSupport;
 
 import trick.common.framework.AppContext;
+import trick.common.framework.SwingToolbox;
+import trick.common.framework.Task;
 import trick.common.framework.View;
 
 public abstract class BaseApplication {
@@ -50,22 +66,26 @@ public abstract class BaseApplication {
 	private List<ExitListener> exitListeners;
 
 	private final AppContext context;
-	private final SetUpCloseOperations MAIN_FRAME_SETUP = (Component c) -> initMainFrameClose();
-	private final SetUpCloseOperations WINDOW_SETUP = (Component c) -> initWindowClose(c);
+	private final SetUpCloseOperations MAIN_FRAME_SETUP = (Container c) -> initMainFrameClose();
+	private final SetUpCloseOperations WINDOW_SETUP = (Container c) -> initWindowClose(c);
 	
 	private static BaseApplication application = null;
 
+	private static final Logger logger = Logger.getLogger(BaseApplication.class.getName());
 	private static final String INITIALIZATION_MARKER="BaseApplication.initRootPaneContainer";
 	private static final String WINDOW_STATE_NORMAL_BOUNDS = "WindowState.normalBounds";
 
 	// -- PROTECTED --------------------------
+    protected boolean ready;
+	protected PropertyChangeSupport changeSupport;
 
 	//========================================
 	//	Constructors
 	//========================================
 	protected BaseApplication() {
 		exitListeners = new CopyOnWriteArrayList<ExitListener>();
-		context = new AppContext();
+		context = new AppContext(getClass());
+		changeSupport = new SwingPropertyChangeSupport(this, true);
 	}
 
 	//========================================
@@ -73,11 +93,8 @@ public abstract class BaseApplication {
 	//========================================
 
 	public static void launch(Class<? extends BaseApplication> c, String[] args) {
-
-	}
-
-	public void show() {
-
+		Runnable doCreateAndShowGUI = new GUIDisplayRunner(c, args);
+		SwingUtilities.invokeLater(doCreateAndShowGUI);
 	}
 
 	public void show(JDialog d) {
@@ -88,13 +105,22 @@ public abstract class BaseApplication {
 	}
 
 	public void show(View v) {
-
+		Component comp = v.getRootPane().getParent();
+		initRootPaneContainer((RootPaneContainer) comp);
+		((Window) comp).setVisible(true);
 	}
 
 	public void exit() {  exit(null);  }
 
 	public void exit(final EventObject event) {
+		Runnable exitHandler = new ExitHandler(event);
 
+		if (SwingUtilities.isEventDispatchThread()) {
+			exitHandler.run();
+		} else {
+			try { SwingUtilities.invokeAndWait(exitHandler); }
+			catch (Exception ignore) {}
+		}
 	}
 
 	public void addExitListener(ExitListener listener) {
@@ -106,6 +132,17 @@ public abstract class BaseApplication {
 	}
 
 	public void saveSession(Window win) {
+		String filename = SwingToolbox.getSessionFileName(win);
+		Session storage = context.getLocalStorage();
+		
+		if(filename == null) throw new InvalidParameterException("Null Window");
+
+		try {  
+			storage.save(win, filename);
+		} catch (IOException e) {
+			String msg = "couldnt save session to '" + filename + "'";
+			logger.log(Level.WARNING, msg, e);
+		}
 
 	}
 
@@ -114,8 +151,11 @@ public abstract class BaseApplication {
 	//========================================
 	
 	protected void configureWindow(Window root) {
-		if (root != null)
-			context.addComponent(root);
+		context.addComponent(root);
+	}
+
+	protected void end() {
+		Runtime.getRuntime().exit(0);
 	}
 
 	//========================================
@@ -123,7 +163,6 @@ public abstract class BaseApplication {
 	//========================================
 
 	private static <T extends BaseApplication> T create(Class<T> appClass) {
-		T app;
 		// AppContext ctx;
 
 		// TODO: Set up System property
@@ -138,22 +177,25 @@ public abstract class BaseApplication {
 		*/
 
 		// Create an instance of <T>
+		T app;
+
 		try {
 			app = createInstanceOf(appClass);
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			return null;
 		}
-		
-		// ctx = app.getContext();
+
+		AppContext ctx = app.getContext();
 
 		// TODO: Add platform info to resource map
 		/*	ResourceMap appResourceMap = ctx.getResourceMap();
 			final PlatformType platform = AppHelper.getPlatform();
 			appResourceMap.putResource(ResourceMap.KEY_PLATFORM, platform);
+		*/
 
-			//Generic registration with the Mac OS X application menu
-			if (PlatformType.OS_X.equals(platform)) {
+		//TODO: Generic registration with the Mac OS X application menu
+		/*	if (PlatformType.OS_X.equals(platform)) {
 				try {
 					OSXAdapter.setQuitHandler(application, Application.class.getDeclaredMethod("handleQuit", (Class[])null));
 				} catch (Exception e) {
@@ -162,31 +204,36 @@ public abstract class BaseApplication {
 			}
 		*/
 		
-		// TODO: Set up Look and Feel
-		/*	if (!Beans.isDesignTime()) {
-				String key = "Application.lookAndFeel";
-				String lnfResource = appResourceMap.getString(key);
-				String lnf = (lnfResource == null) ? "system" : lnfResource;
-				try {
-					if (lnf.equalsIgnoreCase("system")) {
-						String name = UIManager.getSystemLookAndFeelClassName();
-						UIManager.setLookAndFeel(name);
-					} else if (lnf.equalsIgnoreCase("nimbus")) {    
-						for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-							if ("Nimbus".equals(info.getName())) {
-								UIManager.setLookAndFeel(info.getClassName());
-								break;
-							}
+		// Set up Look and Feel
+		String lnfKey = "Application.lookAndFeel",
+			   lnfVal, lnfName;
+
+		if (!Beans.isDesignTime()) {
+			lnfVal = ctx.getResourceMap().getString(lnfKey);
+			lnfVal = (lnfVal == null) ? "system" : lnfVal;
+			lnfName = lnfVal;
+
+			try {
+				if (lnfVal.equalsIgnoreCase("system")) {
+					lnfName = UIManager.getSystemLookAndFeelClassName();
+				} else if (lnfVal.equalsIgnoreCase("nimbus")) {    
+					for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+						if ("Nimbus".equals(info.getName())) {
+							lnfName = info.getClassName();
+							break;
 						}
-					} else if (!lnf.equalsIgnoreCase("default")) {
-						UIManager.setLookAndFeel(lnf);
 					}
-				} catch (Exception e) {
-					String s = "Couldn't set LookandFeel " + key + " = \"" + lnfResource + "\"";
-					logger.log(Level.WARNING, s, e);
 				}
+				
+				if (!lnfVal.equalsIgnoreCase("default"))
+					UIManager.setLookAndFeel(lnfName);
+				
+			} catch (Exception e) {
+				String s = "Couldn't set LookandFeel " + lnfKey + " = \"" + lnfVal + "\"";
+				logger.log(Level.WARNING, s, e);
 			}
-		*/
+		}
+		
 
 		return app;
 	}
@@ -195,16 +242,21 @@ public abstract class BaseApplication {
 		SetUpCloseOperations closeOps = WINDOW_SETUP;
 		if(c == getMainFrame())  closeOps = MAIN_FRAME_SETUP;
 
-		Component root = c.getRootPane().getParent();
+		Container root = c.getRootPane().getParent();
+		Window window = safe_cast(root, Window.class);
 
 		try {  initializeOnce(c);  }
 		catch(IllegalArgumentException ignored) {  return;  }
 
-		configureWindow(safe_cast(root, Window.class));
 		closeOps.setupClose(root);
 		handleContainerBounds(root);
-		reloadContainerState(root);
-		centerWindow(root);
+
+		if (window != null) {
+			configureWindow(window);
+			reloadContainerState(window);
+			centerWindow(window);
+		}
+		
 		
 	}
 
@@ -224,12 +276,6 @@ public abstract class BaseApplication {
 		}
 
 		return clsCtor.newInstance();
-	}
-
-	private String getSessionFileName(Window w) {
-		if(w == null) return null;
-		
-		return window.getName() + ".session.xml";
 	}
 
 	private static boolean appIsLaunched() {  return application != null;  }
@@ -278,7 +324,7 @@ public abstract class BaseApplication {
 		});
 	}
 
-	private void handleContainerBounds(Component comp) {
+	private void handleContainerBounds(Container comp) {
 		Window wind = safe_cast(comp, Window.class);
 
 		if(safe_cast(comp, JFrame.class) != null) {
@@ -289,7 +335,7 @@ public abstract class BaseApplication {
 			boolean bounds_not_set =  !comp.isValid() 
 									|| comp.getWidth() == 0 
 									|| comp.getHeight() == 0;
-			String filename = getSessionFileName(wind);
+			String filename = SwingToolbox.getSessionFileName(wind);
 
 			if (bounds_not_set)  wind.pack();
 
@@ -303,7 +349,7 @@ public abstract class BaseApplication {
 		}
 	}
 
-	private void handleJFrameBounds(Component comp) {
+	private void handleJFrameBounds(Container comp) {
 		comp.addComponentListener(new ComponentListener() {
 			@Override
 			public void componentResized(ComponentEvent e) {
@@ -326,12 +372,44 @@ public abstract class BaseApplication {
 		});
 	}
 
-	private void reloadContainerState(Component c) {
-
+	private void reloadContainerState(Window w) {
+		String filename;
+		
+		if((filename = SwingToolbox.getSessionFileName(w)) != null) {
+			try {
+				Session session = context.getSessionStorage();
+				session.restore(w, filename);
+			} catch (Exception e) {
+				String msg = "Failed to restore session [%s]";
+				logger.log(Level.WARNING, String.format(msg, filename), e);
+			}
+		}
 	}
 
-	private void centerWindow(Component c) {
+	private void centerWindow(Window w) {
+		Point defLoc = SwingToolbox.defaultLocation(w),
+			  actLoc = w.getLocation();
 
+		if (!w.isLocationByPlatform() && actLoc.equals(defLoc)) {
+			Dimension screenDim = w.getToolkit().getScreenSize(),
+					  windowDim = w.getSize();
+			double widthRatio = screenDim.getWidth() / windowDim.getWidth(),
+				   heightRatio = screenDim.getHeight() / windowDim.getHeight();
+
+			if(widthRatio > 1.25 && heightRatio > 1.25) {
+				Component owner = w.getOwner();
+
+				if (owner == null && getMainFrame() != w) {
+					owner = getMainFrame();
+				}
+
+				w.setLocationRelativeTo(owner);
+			}
+		}
+	}
+
+	private void waitForReady() {
+		new WaitTillFree().execute();
 	}
 
 	//========================================
@@ -367,6 +445,9 @@ public abstract class BaseApplication {
 	}
 
 	public View getMainView() {
+		if (mainView == null) {
+			mainView = new View(this);
+		}
 		return mainView;
 	}
 
@@ -389,13 +470,11 @@ public abstract class BaseApplication {
 	//	Undefined Methods
 	//========================================
 
-	protected abstract void initialize(String[] args);
+	protected void initialize(String[] args) {}
+	protected void ready() {}
+	protected void shutdown() {}
 
 	protected abstract void startup();
-
-	protected void ready() {}
-
-	protected void shutdown() {}
 
 	//========================================
 	//	Inner Classes
@@ -420,6 +499,143 @@ public abstract class BaseApplication {
 	}
 
 	private interface SetUpCloseOperations {
-		public void setupClose(Component c);
+		public void setupClose(Container c);
+	}
+
+	private static class GUIDisplayRunner implements Runnable {
+		private final Class appClass;
+		private final String[] args;
+
+		public GUIDisplayRunner(Class c, String[] args) {
+			this.appClass = c;
+			this.args = args;
+		}
+
+		@Override
+		public void run() {
+			try {
+				application = create(appClass);
+				application.initialize(args);
+				application.startup();
+				application.waitForReady();
+			} catch (Exception e) {
+				String msg = appClass.getName() + " failed to launch";
+				logger.log(Level.SEVERE, msg, e);
+				throw new Error(msg, e);
+			}
+		}
+	}
+
+	private class ExitHandler implements Runnable {
+		private final EventObject event;
+
+		public ExitHandler(EventObject ev) {
+			event = ev;
+		}
+
+		@Override 
+		public void run() {
+			if(allowedToExit()) {
+				try {
+					exitAll();
+					shutdown();
+				} catch (Exception e) {
+					logger.log(Level.WARNING, "Unexpected shutdown error", e);
+				} finally {
+					end();
+				}
+			}
+		}
+
+		private boolean allowedToExit() {
+			for (ExitListener exitListener : exitListeners)
+				if (!exitListener.canExit(event))
+					return false;
+			
+			return true;
+		}
+
+		private void exitAll() {
+			for (ExitListener exitListener : exitListeners) {
+				try {
+					exitListener.willExit(event);
+				} catch (Exception e) {
+					logger.log(Level.WARNING, "ExitListener.willExit() failed", e);
+				}
+			}
+		}
+	}
+
+	private void waitForEmptyQueue(JPanel panel) {
+		EventQueue Q = Toolkit.getDefaultToolkit().getSystemEventQueue();
+		boolean emptyQ = false;
+
+		while(!emptyQ) {
+			System.out.println("Waiting...");
+			QueueEvent e = new QueueEvent(panel);
+
+			Q.postEvent(e);
+
+			synchronized(e) {
+				System.out.println("\tSynched");
+				while(!e.isDispatched()) {
+					try { e.wait(); }
+					catch (InterruptedException ignored) {}
+				}
+				System.out.println("\tDispatched");
+
+				emptyQ = e.isQueueEmpty();
+			}
+		}
+
+		System.out.println("Queue Empty!");
+	}
+
+	private class WaitTillFree extends Task<Void, Void> {
+		// private boolean emptyQ = false;
+		private final JPanel panel;
+
+		WaitTillFree() {
+			super(BaseApplication.this);
+
+			panel = new JPanel();
+		}
+
+		@Override
+        protected Void doInBackground() {
+			waitForEmptyQueue(panel);
+			return null;
+		}
+
+		@Override
+		protected void finished() {
+			ready = true;
+			ready();
+		}
+
+		
+	}
+
+	private class QueueEvent extends PaintEvent implements ActiveEvent {
+		
+		private boolean dispatched = false;
+		private boolean empty = false;
+
+		QueueEvent(Component c) {
+			super(c, PaintEvent.UPDATE, null);
+		}
+
+		@Override
+		public void dispatch() {
+			EventQueue Q = Toolkit.getDefaultToolkit().getSystemEventQueue();
+			synchronized(this) {
+				empty = Q.peekEvent() == null;
+				dispatched = true;
+				notifyAll();
+			}
+		}
+
+		synchronized boolean isDispatched() { return dispatched; }
+		synchronized boolean isQueueEmpty() { return empty; }
 	}
 }

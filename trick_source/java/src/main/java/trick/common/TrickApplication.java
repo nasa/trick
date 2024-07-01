@@ -147,13 +147,13 @@ public abstract class TrickApplication extends BaseApplication implements Proper
     }
 
     private JDialog aboutBox = null;
-
+//stop in trick.common.framework.BaseApplication$GUIDisplayRunner.run()
     //========================================
     //    Constructors
     //========================================
 	protected TrickApplication() {
 		String trick_home = System.getenv("TRICK_HOME");
-		if (trick_home.isEmpty()) {
+		if (trick_home == null || trick_home.isEmpty()) {
 			trick_home = System.getProperty("user.home") + java.io.File.separator + "trick";
 		}
 		
@@ -274,8 +274,6 @@ public abstract class TrickApplication extends BaseApplication implements Proper
         return popupInvokerType;
     }
     
-    public TrickResources getResourceMap() { return resourceMap; }
-    
     public static TrickApplication getInstance() { return the_trick_app; }
 
     //========================================
@@ -371,40 +369,6 @@ public abstract class TrickApplication extends BaseApplication implements Proper
 	    	return "";
     	}
     }
-    
-    private TrickResources parseResources(Class<? extends TrickApplication> app) throws IOException, FileNotFoundException {
-		TrickResources prop;
-		File resource;
-		String path;
-		
-    	if(app.getSimpleName().equals("TrickApplication")) {
-    		prop = new TrickResources();
-    	} else {
-    		Class superApp = app.getSuperclass();
-    		prop = new TrickResources(parseResources(superApp));
-		}
-    		
-    	path = getResourcePath(app);
-    	resource = new File(path);
-    	prop.loadProperties(resource);
-    	
-    	int filePos = path.lastIndexOf("/") + 1;
-    	path = path.substring(0, filePos);
-    	if(prop.getProperty("PATH") != null)
-	    	path += ";" + prop.getProperty("PATH");
-    	
-    	prop.setProperty("PATH", path);
-    	
-    	return prop;
-    }
-    
-    protected void parseResources() {
-    	try {
-	    	resourceMap = parseResources(this.getClass());
-    	} catch(IOException ioe) {
-    		System.err.println(ioe.getMessage());
-    	}
-    }
 
 
     /**
@@ -414,6 +378,7 @@ public abstract class TrickApplication extends BaseApplication implements Proper
      */
     @Override
     protected void initialize(String[] args) {
+        System.out.println("INITIALIZE");
         // the name of this application
         applicationName = getContext().getApplicationClass().getSimpleName();
 
@@ -423,7 +388,7 @@ public abstract class TrickApplication extends BaseApplication implements Proper
         // register property for JToggleButton class so that its state can be saved
         getContext().getSessionStorage().putProperty(JToggleButton.class, this);
 		
-		parseResources();
+        resourceMap = getContext().getResourceMap();
 		createActionMap();
 
         // Load any saved user settable properties from properties file
@@ -461,6 +426,8 @@ public abstract class TrickApplication extends BaseApplication implements Proper
      */
     @Override
     protected void startup() {
+        System.out.println("STARTUP");
+
         String defaultValue       = Boolean.toString(false);
         boolean savedExitProperty = Boolean.valueOf(trickProperties.getProperty(
                 "confirmExit", defaultValue));

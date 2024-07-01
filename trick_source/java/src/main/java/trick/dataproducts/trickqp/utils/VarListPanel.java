@@ -171,7 +171,7 @@ public class VarListPanel extends ListPanel {
                 }
                 
                 TrickApplication app = TrickApplication.getInstance();
-                TrickResources resourceMap = app.getResourceMap();
+                TrickResources resourceMap = app.getContext().getResourceMap();
                 
                 if (varObj.getDisplay()==DisplayType.HIDDEN) {
                     // Hide these using a blank filler component:

@@ -45,6 +45,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -605,6 +606,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     @Override
     protected void ready() {
     	super.ready();
+        System.out.println("!!!READY START!!!");
 
     	logoImagePanel.start();
 
@@ -635,9 +637,13 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         	printSendHS();
         }
         
+        System.out.println("!!!Get Sim State!!!");
         scheduleGetSimState();
 
+        System.out.println("!!!Status Monitors!!!");
         startStatusMonitors();
+        System.out.println("!!!READY START!!!");
+
     }
 
     /**
