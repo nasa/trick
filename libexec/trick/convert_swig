@@ -617,6 +617,8 @@ sub process_class($$$$$) {
     # SWIG doesn't like "const static".  Change it to "static const"
     $extracted =~ s/const\s+static/static const/g ;
 
+    my $isSwigExcludeBlock = 0 ;
+
     # templated variables need to be declared with the SWIG %template directive.
     # This loop looks for any templated variables and creates the %template lines.
     while ( $extracted =~ s/^(.*?)(?:($template_var_def))//sx ) {
@@ -626,6 +628,16 @@ sub process_class($$$$$) {
         if ( $non_var ne "" )  {
             #print "*** non_var = $non_var ***\n" ;
             $my_class_contents .= $non_var ;
+            my $ifndefSwig = $non_var;
+            if ($isSwigExcludeBlock == 0) {
+               if ($ifndefSwig =~ /(?:ifndef\s*SWIG|if\s*!\s*defined\s*\(\s*SWIG\s*\))/ ) {
+                  $isSwigExcludeBlock = 1;
+               }
+            } else {
+               if ($ifndefSwig =~ /endif/ ) {
+                  $isSwigExcludeBlock = 0;
+               }
+            }
         }
 
         if ( $template_var_def_str ne "" )  {
@@ -673,8 +685,10 @@ sub process_class($$$$$) {
                                 $typedef = "\n}" . $typedef . "namespace " . $1 . " {" ; 
                             }
                         }
- 
-                        $template_typedefs .= $typedef ;
+
+                        if ($isSwigExcludeBlock == 0) {
+                            $template_typedefs .= $typedef ;
+                        }
 
                         $processed_templates{$template_type_no_sp} = 1 ;
                     }
