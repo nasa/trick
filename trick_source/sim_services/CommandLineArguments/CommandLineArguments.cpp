@@ -253,8 +253,9 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
                 }
                 /* Output data directory */
                 output_dir = user_output_dir = argv[++ii];
-
-
+                if (!strncmp("-OO", argv[ii-1], (size_t) 3)) {
+                    output_dir = output_dir + "/" + run_dir;
+                } 
             }
         }
 
