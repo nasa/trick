@@ -105,9 +105,7 @@ jobs:
 #-------- CentOS Only Dependencies ----------------
           - cfg: { os: centos }
             pkg_mgr: yum
-            conf_pkg: >
-              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
-              yum -y -v install epel-release && yum -y update
+            conf_pkg: yum -y install epel-release && yum -y update
             os_deps: >-
               libX11-devel
               libXt-devel
