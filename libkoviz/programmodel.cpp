@@ -185,7 +185,7 @@ void ProgramModel::_init(const QList<CurveModel*>& inputCurves,
 
     // Generate output curves
     double* in;
-    double* out = (double*)malloc(nOutputs);
+    double* out = (double*)malloc(nOutputs*sizeof(double));
     col = 1;
     for ( int row = 0; row < _nrows; ++row ) {
         in = &input_data[row*nInputs];

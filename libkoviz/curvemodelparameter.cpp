@@ -35,7 +35,7 @@ void CurveModelParameter::setName(const QString& name )
 
 void CurveModelParameter::setUnit(const QString& unit )
 {
-    if ( _unit.isEmpty() || _unit == "--" ) {
+    if ( _unit.isEmpty() || _unit == "--" || _unit == "1" ) {
         _unit = unit;
     } else if ( unit == _unit ) {
         // Do nothing
