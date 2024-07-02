@@ -95,6 +95,10 @@ jobs:
           - cfg: { arch: rhel, arch_ver: 7 }
             pkg_mgr: yum
             conf_pkg: |
+              ls .
+              ls /etc/
+              ls /etc/yum.repos.d/
+              ls /etc/yum.repos.d/CentOS-Linux-*
               sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
               yum -y install epel-release
               yum -y update
