@@ -95,7 +95,7 @@ jobs:
           - cfg: { arch: rhel, arch_ver: 7 }
             pkg_mgr: yum
             conf_pkg: |
-              yum -y install epel-release
+              yum -v -y install epel-release
               yum -y update
               yum -y install wget
             os_deps: >-
