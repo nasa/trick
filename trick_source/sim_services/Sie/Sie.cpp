@@ -80,7 +80,7 @@ int Trick::Sie::process_sim_args() {
             }
         }
 
-        // For -OO, save S_sie.resource to the output directory with runtime jobs data
+        // Set oo_dir and o_dir flags accordingly
         for (int i = 1; i < argc; i++) {
             if (strncmp("-OO", argv[i], (size_t) 3) == 0) {
                 oo_dir = true;
@@ -90,8 +90,9 @@ int Trick::Sie::process_sim_args() {
         }
 
         // If --read-only-sim is provided without either -OO or -O, exit with error message
+        // For -OO, save S_sie.resource to the output directory with runtime jobs data
         if (read_only && !oo_dir && !o_dir) {
-            std::cerr << "\nERROR: No -O or -OO argument with --read-only-sim flag" << std::endl;
+            std::cerr << "\nERROR: Missing -O or -OO argument with --read-only-sim flag" << std::endl;
             exit(1);
         } else if (oo_dir) {
             copy_sie_resource();
