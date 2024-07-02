@@ -105,7 +105,9 @@ jobs:
 #-------- CentOS Only Dependencies ----------------
           - cfg: { os: centos }
             pkg_mgr: yum
-            conf_pkg: yum -y install epel-release && yum -y update
+            conf_pkg: >
+              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
+              yum -y install epel-release && yum -y update
             os_deps: >-
               libX11-devel
               libXt-devel
@@ -125,7 +127,6 @@ jobs:
               python3.8-dev
           - cfg: { os: centos, tag: 7 }
             tag_deps: >-
-              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
               swig3
               python-devel
           - cfg: { os: centos, tag: latest }
