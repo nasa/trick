@@ -18,9 +18,9 @@ sudo yum install qt5-qtbase-devel gcc gcc-c++ make flex bison
 sudo dnf install -y qt5-qtbase-devel bison flex make gcc gcc-c++
 ```
 
-## Ubuntu latest
+## Ubuntu 22.04
 ```sh
-sudo apt-get install qtbase5-dev qt5-default
+sudo apt-get install qtbase5-dev make flex bison g++ 
 ```
 
 # Build
@@ -32,6 +32,8 @@ qmake-qt5
 make
 ```
 ## Ubuntu
+
+This is only required if you want to run the binary directly instead of using `build-and-run-koviz.sh`.
 
 ```sh
 qmake
@@ -45,3 +47,6 @@ bin/koviz -h                  # for usage
 bin/koviz /path/to/RUN_dir    # View trick run
 bin/koviz /path/to/MONTE_dir  # View trick MONTE dir (set of runs)
 ```
+
+# Docker
+See docker directory's README.

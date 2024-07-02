@@ -1,0 +1,13 @@
+services:
+  koviz:
+    image: koviz:1.0
+    build: .
+    volumes:
+      - ../:/koviz
+      - ${KOVIZ_DATA_PATH}:/data-to-plot
+    entrypoint: ["/koviz/docker/build-and-run-koviz.sh", "/data-to-plot"]
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+
+
