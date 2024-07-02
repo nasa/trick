@@ -125,14 +125,13 @@ jobs:
               python3.8-dev
           - cfg: { os: centos, tag: 7 }
             tag_deps: >-
+              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
               swig3
               python-devel
           - cfg: { os: centos, tag: latest }
             pkg_mgr: dnf
             conf_pkg: >
-              grep -Ir mirrorlist /etc/yum.repos.d/CentOS-Linux-* &&
               sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
-              grep -Ir mirrorlist /etc/yum.repos.d/CentOS-Linux-* &&
               dnf -y install epel-release &&
               dnf -y update &&
               dnf install -y 'dnf-command(config-manager)' &&
