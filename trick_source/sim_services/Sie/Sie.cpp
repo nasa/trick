@@ -66,20 +66,36 @@ int Trick::Sie::process_sim_args() {
             exit(0) ;
         }
 
+        bool read_only = false;
+        bool oo_dir = false;
+        bool o_dir = false;
+
         // Otherwise, go through the rest of the sim args and look for --read-only-sim
         for (int i = 1; i < argc; i++) {
             if ((strcmp("--read-only-sim", argv[i]) == 0))  {
                 // Set this flag to move runtime generation of sie into the output directory 
                 move_runtime_generation = true;
+                read_only = true;
+                break;
             }
         }
 
         // For -OO, save S_sie.resource to the output directory with runtime jobs data
         for (int i = 1; i < argc; i++) {
             if (strncmp("-OO", argv[i], (size_t) 3) == 0) {
-                copy_sie_resource();
-                move_runtime_generation = true;
+                oo_dir = true;
+            } else if (strncmp("-O", argv[i], (size_t) 2) == 0) {
+                o_dir = true;
             }
+        }
+
+        // If --read-only-sim is provided without either -OO or -O, exit with error message
+        if (read_only && !oo_dir && !o_dir) {
+            std::cerr << "\nERROR: No -O or -OO argument with --read-only-sim flag" << std::endl;
+            exit(1);
+        } else if (oo_dir) {
+            copy_sie_resource();
+            move_runtime_generation = true;
         }
     }
 
