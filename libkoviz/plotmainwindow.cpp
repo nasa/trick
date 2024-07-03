@@ -328,6 +328,7 @@ void PlotMainWindow::createMenu()
     _refreshPlotsAction  = _optsMenu->addAction(tr("RefreshPlots"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
     _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
+    _clearRunsAction = _optsMenu->addAction(tr("ClearRuns"));
     _plotAllVarsAction = _optsMenu->addAction(tr("PlotAllVars"));
     _addRunFileAction = _optsMenu->addAction(tr("AddRunFile"));
     _enableDragDropAction = _optsMenu->addAction(tr("EnableDragAndDrop"));
@@ -364,6 +365,8 @@ void PlotMainWindow::createMenu()
             this, SLOT(_clearPlots()));
     connect(_clearTablesAction, SIGNAL(triggered()),
             this, SLOT(_clearTables()));
+    connect(_clearRunsAction, SIGNAL(triggered()),
+            this, SLOT(_clearRuns()));
 
     connect(_plotAllVarsAction, SIGNAL(triggered()),
             this, SLOT(_plotAllVars()));
@@ -1549,6 +1552,11 @@ void PlotMainWindow::_clearTables()
     }
 }
 
+void PlotMainWindow::_clearRuns()
+{
+    _runs->clear();
+}
+
 void PlotMainWindow::_launchScript(QAction* action)
 {
     int i = _monteInputsView->currentRun();
@@ -1635,8 +1643,19 @@ void PlotMainWindow::_runsRefreshed()
                 }
             }
 
-            if ( varHash.keys().size() == 1 ) {
-                // The same xy vars were used for all current runs
+            bool isAppend = false;
+            if ( varHash.keys().size() == 1 ) { // Same xy forall curr runs
+                QPair<QString,QString> xy = varHash.keys().at(0);
+                QString xName = xy.first;
+                QString yName = xy.second;
+                if ( _runs->params().contains(xName) &&
+                     _runs->params().contains(yName) ) {
+                    // Run to append contains current plot curve xy
+                    isAppend = true;
+                }
+            }
+
+            if ( isAppend ) {
                 QString tName = _timeNames.first();
                 QString xName = varHash.keys().at(0).first;
                 QString yName = varHash.keys().at(0).second;

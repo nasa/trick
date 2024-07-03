@@ -38,6 +38,7 @@ class Runs : public QObject
     const QStringList& params() const { return _params; }
     const QStringList& runPaths() const { return _runPaths; }
     void refresh() ;
+    void clear();
     void addRun(const QString& runPath);
     CurveModel* curveModel(int row,
                            const QString& tName,

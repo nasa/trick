@@ -64,6 +64,14 @@ void Runs::refresh()
     _init();
 }
 
+void Runs::clear()
+{
+    _delete();
+    _runsModel->clear();
+    _runPaths.clear();
+    _init();
+}
+
 void Runs::addRun(const QString &runPath)
 {
     _runPaths.append(runPath);

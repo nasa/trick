@@ -124,6 +124,7 @@ private:
     QAction *_refreshPlotsAction;
     QAction *_clearPlotsAction;
     QAction *_clearTablesAction;
+    QAction *_clearRunsAction;
     QAction *_plotAllVarsAction;
     QAction *_addRunFileAction;
     QAction *_enableDragDropAction;
@@ -176,6 +177,7 @@ private slots:
      void _refreshPlots();
      void _clearPlots();
      void _clearTables();
+     void _clearRuns();
      void _launchScript(QAction *action);
      void _plotAllVars();
      void _toggleEnableDragDrop(bool isChecked);
