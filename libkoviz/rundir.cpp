@@ -47,7 +47,7 @@ RunDir::RunDir(const QString &run,
     }
 
     if ( files.empty() ) {
-        fprintf(stderr, "koviz [error]: Either no *.trk/csv/mot files "
+        fprintf(stderr, "koviz [error]: Either no *.trk/csv/mot files \n"
                         "               in run dir: %s\n"
                         "               or log files were filtered out.\n",
                         run.toLatin1().constData());
