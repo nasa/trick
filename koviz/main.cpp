@@ -372,6 +372,12 @@ int main(int argc, char *argv[])
         dps << session->dps();
     }
 
+    // Error check
+    if ( runPaths.isEmpty() && !dps.isEmpty() ) {
+        fprintf(stderr, "koviz [error]: DP given but no RUNs specified\n");
+        exit(-1);
+    }
+
     // Var Map
     QString mapString = opts.map;
     if ( session ) {
