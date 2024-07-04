@@ -35,6 +35,9 @@ RunsWidget::RunsWidget(Runs *runs,
     _fileTreeView = new QTreeView(this);
     _fileTreeView->setModel(_filterModel);
     _fileTreeView->setDragEnabled(true);
+    _fileTreeView->hideColumn(1); // Hide "Size" column
+    _fileTreeView->hideColumn(2); // Hide "Type" column
+    _fileTreeView->hideColumn(3); // Hide "Date Modified" column
     _gridLayout->addWidget(_fileTreeView,1,0);
 
     // Set browser root path
