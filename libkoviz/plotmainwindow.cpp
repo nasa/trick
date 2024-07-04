@@ -182,6 +182,10 @@ PlotMainWindow::PlotMainWindow(PlotBookModel* bookModel,
                                  _monteInputsView,
                                  runsFrame);
     _nbDPVars->addTab(runsFrame,"Runs");
+    if (  _runs->runPaths().isEmpty() ) {
+        // If user specified no commandline runs, show RUNs panel
+        _nbDPVars->setCurrentIndex(2);
+    }
 
 
     // Vars/DP needs monteInputsView, but needs to be added after Vars/DP
