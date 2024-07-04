@@ -19,6 +19,7 @@ public:
     virtual QStringList params();
     virtual DataModel *dataModel(const QString& param);
 
+    static bool isValid(const QString& run);
 private:
     const QHash<QString, QStringList> _varMap;
     DataModel* _model;

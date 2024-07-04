@@ -14,6 +14,7 @@
 #include <QStandardItemModel>
 #include <QProgressDialog>
 #include <QRegExp>
+#include <QMessageBox>
 #include <stdexcept>
 #include "datamodel.h"
 #include "curvemodel.h"
@@ -99,6 +100,7 @@ class Runs : public QObject
                            const QString& excludePattern,
                            uint beginRun, uint endRun);
 
+    bool _isValidRunPath(const QString& runPath);
 
     static QString _err_string;
     static QTextStream _err_stream;

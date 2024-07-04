@@ -74,6 +74,16 @@ void Runs::clear()
 
 void Runs::addRun(const QString &runPath)
 {
+    if ( !_isValidRunPath(runPath) ) {
+        QMessageBox msgBox;
+        QString msg = QString("Invalid run path=%1!  "
+                              "Run is empty, not Trick, "
+                              "unrecognized format or "
+                              "filtered out all files.").arg(runPath);
+        msgBox.setText(msg);
+        msgBox.exec();
+        return;
+    }
     _runPaths.append(runPath);
     refresh();
 }
@@ -263,6 +273,17 @@ QStandardItemModel* Runs::runsModel()
     return _runsModel;
 }
 
+bool Runs::_isValidRunPath(const QString &runPath)
+{
+    if (  QFileInfo(runPath).isDir() ) {
+        return RunDir::isValid(runPath,_filterPattern,_excludePattern);
+    }
+    if ( QFileInfo(runPath).isFile() ) {
+        return RunFile::isValid(runPath);
+    }
+    return false;
+}
+
 void Runs::_loadRunsModel(QStandardItemModel *runsModel,
                           const QString &montePath,
                           const QStringList &runPaths)
@@ -273,7 +294,6 @@ void Runs::_loadRunsModel(QStandardItemModel *runsModel,
         __loadRunsModel(runsModel,runPaths);
     }
 }
-
 
 DataModel* Runs::_paramModel(const QString &param, const QString& run) const
 {

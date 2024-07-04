@@ -6,16 +6,12 @@ RunFile::RunFile(const QString &run,
     _varMap(varMap)
 {
     QFileInfo fi(run);
-    if ( ! fi.exists() ) {
-        fprintf(stderr, "koviz [error]: RunFile couldn't find run file=%s\n",
-                run.toLatin1().constData());
-        exit(-1);
-    }
 
-    QStringList suffixes = {"trk","csv","mot"};
-    if ( !suffixes.contains(fi.suffix()) ) {
-        fprintf(stderr, "koviz [error]: RunFile=%s has unsupported suffix=%s\n",
-                run.toLatin1().constData(),fi.suffix().toLatin1().constData());
+    if ( ! RunFile::isValid(run) ) {
+        fprintf(stderr, "koviz [error]: Couldn't find run file=%s\n"
+                         "or has an unsupported suffix=%s\n",
+                run.toLatin1().constData(),
+                fi.suffix().toLatin1().constData());
         exit(-1);
     }
 
@@ -72,4 +68,21 @@ DataModel *RunFile::dataModel(const QString &param)
     }
 
     return model;
+}
+
+bool RunFile::isValid(const QString &run)
+{
+    bool ret = true;
+
+    QFileInfo fi(run);
+    if ( ! fi.exists() ) {
+        ret = false;
+    }
+
+    QStringList suffixes = {"trk","csv","mot"};
+    if ( !suffixes.contains(fi.suffix()) ) {
+        ret = false;
+    }
+
+    return ret;
 }

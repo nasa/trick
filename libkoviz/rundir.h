@@ -22,9 +22,17 @@ public:
     virtual QStringList params();
     virtual DataModel *dataModel(const QString& param);
 
+    static bool isValid(const QString& run,
+                        const QString& filterPattern,
+                        const QString& excludePattern);
+
 private:
     const QHash<QString, QStringList> _varMap;
     QHash<QString,DataModel*> _param2model;
+
+    static QStringList _fileList(const QString &run,
+                                 const QString& filterPattern,
+                                 const QString& excludePattern);
 };
 
 #endif // RUNDIR_H
