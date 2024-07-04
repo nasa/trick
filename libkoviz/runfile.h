@@ -4,6 +4,7 @@
 #include "run.h"
 #include "mapvalue.h"
 #include "datamodel_csv.h"
+#include "datamodel_optitrack_csv.h"
 
 #include <QDir>
 #include <QString>

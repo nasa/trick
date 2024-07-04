@@ -83,7 +83,8 @@ bool RunFile::isValid(const QString &run, const QStringList& timeNames)
     }
 
     if ( fi.suffix() == "csv" ) {
-        if ( !CsvModel::isValid(run,timeNames) ) {
+        if ( !CsvModel::isValid(run,timeNames) &&
+             !OptiTrackCsvModel::isValid(run) ) {
             return false;
         }
     }

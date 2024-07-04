@@ -271,3 +271,22 @@ QVariant OptiTrackCsvModel::data(const QModelIndex &idx, int role) const
 
     return val;
 }
+
+bool OptiTrackCsvModel::isValid(const QString &fileName)
+{
+    bool isOptiTrack = false;
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+    QTextStream in(&file);
+    in.setCodec("UTF-8");
+    QString line0 = in.readLine();
+    QString line1 = in.readLine();
+    if ( line0.startsWith("Format Version") &&
+         line1.startsWith("Take Name") ) {
+        isOptiTrack = true;
+    }
+    file.close();
+    return isOptiTrack;
+}

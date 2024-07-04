@@ -44,6 +44,8 @@ class OptiTrackCsvModel : public DataModel
     virtual QVariant data (const QModelIndex & index,
                            int role = Qt::DisplayRole ) const;
 
+     static bool isValid(const QString &fileName);
+
   private:
 
     QStringList _timeNames;
