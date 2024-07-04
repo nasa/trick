@@ -45,6 +45,9 @@ class CsvModel : public DataModel
     virtual QVariant data (const QModelIndex & index,
                            int role = Qt::DisplayRole ) const;
 
+    static bool isValid( const QString& csvFile,
+                         const QStringList& timeNames);
+
   private:
 
     QStringList _timeNames;

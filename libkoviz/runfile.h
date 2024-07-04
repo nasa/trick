@@ -3,6 +3,7 @@
 
 #include "run.h"
 #include "mapvalue.h"
+#include "datamodel_csv.h"
 
 #include <QDir>
 #include <QString>
@@ -19,7 +20,7 @@ public:
     virtual QStringList params();
     virtual DataModel *dataModel(const QString& param);
 
-    static bool isValid(const QString& run);
+    static bool isValid(const QString& run, const QStringList &timeNames);
 private:
     const QHash<QString, QStringList> _varMap;
     DataModel* _model;

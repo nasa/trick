@@ -3,6 +3,7 @@
 
 #include "run.h"
 #include "mapvalue.h"
+#include "datamodel_csv.h"
 
 #include <QDir>
 #include <QString>
@@ -23,6 +24,7 @@ public:
     virtual DataModel *dataModel(const QString& param);
 
     static bool isValid(const QString& run,
+                        const QStringList &timeNames,
                         const QString& filterPattern,
                         const QString& excludePattern);
 
@@ -31,6 +33,7 @@ private:
     QHash<QString,DataModel*> _param2model;
 
     static QStringList _fileList(const QString &run,
+                                 const QStringList &timeNames,
                                  const QString& filterPattern,
                                  const QString& excludePattern);
 };

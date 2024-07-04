@@ -13,7 +13,8 @@ RunDir::RunDir(const QString &run,
         exit(-1);
     }
 
-    QStringList files = RunDir::_fileList(run,filterPattern,excludePattern);
+    QStringList files = RunDir::_fileList(run,timeNames,
+                                          filterPattern,excludePattern);
 
     if ( files.empty() ) {
         fprintf(stderr, "koviz [error]: Either no *.trk/csv/mot files \n"
@@ -79,10 +80,12 @@ DataModel *RunDir::dataModel(const QString &param)
 }
 
 bool RunDir::isValid(const QString &run,
+                     const QStringList& timeNames,
                      const QString &filterPattern,
                      const QString &excludePattern)
 {
-    QStringList files = RunDir::_fileList(run,filterPattern,excludePattern);
+    QStringList files = RunDir::_fileList(run,timeNames,
+                                          filterPattern,excludePattern);
     if ( files.isEmpty() ) {
         return false;
     } else {
@@ -91,6 +94,7 @@ bool RunDir::isValid(const QString &run,
 }
 
 QStringList RunDir::_fileList(const QString& run,
+                              const QStringList& timeNames,
                               const QString &filterPattern,
                               const QString &excludePattern)
 {
@@ -131,6 +135,20 @@ QStringList RunDir::_fileList(const QString& run,
             // otherwise do not
             files = filterFiles;
         }
+    }
+
+    QStringList invalidCsvFiles;
+    foreach (const QString& file, files ) {
+        QFileInfo fi(file);
+        if ( fi.suffix() == "csv" ) {
+            QString fullPath = runDir.absoluteFilePath(file);
+            if ( !CsvModel::isValid(fullPath,timeNames) ) {
+                invalidCsvFiles.append(file);
+            }
+        }
+    }
+    foreach (const QString& file, invalidCsvFiles ) {
+        files.removeAll(file);
     }
 
     return files;

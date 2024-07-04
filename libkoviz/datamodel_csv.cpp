@@ -311,3 +311,60 @@ QVariant CsvModel::data(const QModelIndex &idx, int role) const
 
     return val;
 }
+
+bool CsvModel::isValid(const QString &csvFile, const QStringList &timeNames)
+{
+    QFile file(csvFile);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+    QTextStream in(&file);
+    in.setCodec("UTF-8");
+
+    // Get list of variable names
+    QStringList names;
+    QString line0 = in.readLine();
+    QStringList items = line0.split(',',QString::KeepEmptyParts);
+    foreach ( QString item, items ) {
+        QString name;
+        if ( item.contains('{') ) {
+            // Name left of unit between curlies
+            int i = item.indexOf('{');
+            if ( i > 0 ) {
+                name = item.left(i-1).trimmed();
+            }
+        } else {
+            name = item.trimmed();
+        }
+        if ( name.isEmpty() ) {
+            file.close();
+            return false;
+        }
+        names.append(name);
+    }
+
+    // Ensure time param exists
+    bool isFoundTime = false;
+    foreach (QString timeName, timeNames) {
+        if ( names.contains(timeName) ) {
+            isFoundTime = true;
+            break;
+        }
+    }
+    if ( ! isFoundTime ) {
+        file.close();
+        return false;
+    }
+
+    // Sanity check second line to ensure num cols is same as num header cols
+    QString line1 = in.readLine();
+    items = line1.split(',',QString::KeepEmptyParts);
+    if ( items.size() != names.size() ) {
+        file.close();
+        return false;
+    }
+
+    file.close();
+    return true;
+}

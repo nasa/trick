@@ -78,8 +78,8 @@ void Runs::addRun(const QString &runPath)
         QMessageBox msgBox;
         QString msg = QString("Invalid run path=%1!  "
                               "Run is empty, not Trick, "
-                              "unrecognized format or "
-                              "filtered out all files.").arg(runPath);
+                              "unrecognized format, does not contain time or "
+                              "filter cut out all files.").arg(runPath);
         msgBox.setText(msg);
         msgBox.exec();
         return;
@@ -276,10 +276,11 @@ QStandardItemModel* Runs::runsModel()
 bool Runs::_isValidRunPath(const QString &runPath)
 {
     if (  QFileInfo(runPath).isDir() ) {
-        return RunDir::isValid(runPath,_filterPattern,_excludePattern);
+        return RunDir::isValid(runPath,_timeNames,
+                               _filterPattern,_excludePattern);
     }
     if ( QFileInfo(runPath).isFile() ) {
-        return RunFile::isValid(runPath);
+        return RunFile::isValid(runPath,_timeNames);
     }
     return false;
 }
