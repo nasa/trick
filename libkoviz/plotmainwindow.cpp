@@ -334,7 +334,6 @@ void PlotMainWindow::createMenu()
     _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
     _clearRunsAction = _optsMenu->addAction(tr("ClearRuns"));
     _plotAllVarsAction = _optsMenu->addAction(tr("PlotAllVars"));
-    _addRunFileAction = _optsMenu->addAction(tr("AddRunFile"));
     _enableDragDropAction = _optsMenu->addAction(tr("EnableDragAndDrop"));
     _enableDragDropAction->setCheckable(true);
     _showLiveCoordAction->setCheckable(true);
@@ -374,8 +373,6 @@ void PlotMainWindow::createMenu()
 
     connect(_plotAllVarsAction, SIGNAL(triggered()),
             this, SLOT(_plotAllVars()));
-    connect(_addRunFileAction, SIGNAL(triggered()),
-            this, SLOT(_addRunFile()));
     connect(_enableDragDropAction, SIGNAL(toggled(bool)),
             this, SLOT(_toggleEnableDragDrop(bool)));
     setMenuWidget(_menuBar);
@@ -1597,23 +1594,6 @@ void PlotMainWindow::_plotAllVars()
 {
     _varsWidget->selectAllVars();
     _varsWidget->clearSelection();
-}
-
-void PlotMainWindow::_addRunFile()
-{
-    QString fileFilter = "Run Files (*.trk *.csv *.mot)";
-
-    QString filePath = QFileDialog::getOpenFileName(nullptr,
-                                                    "Select Run File",
-                                                    QDir::currentPath(),
-                                                    fileFilter);
-
-    if (!filePath.isEmpty()) {
-        _runs->addRun(filePath);
-    } else {
-        fprintf(stderr, "No File selected\n");
-    }
-
 }
 
 void PlotMainWindow::_runsRefreshed()
