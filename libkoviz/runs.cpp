@@ -77,7 +77,7 @@ void Runs::addRun(const QString &runPath)
     if ( !_isValidRunPath(runPath) ) {
         QMessageBox msgBox;
         QString msg = QString("Invalid run path=%1!  "
-                              "Run is empty, not Trick, "
+                              "Empty, not Trick, bad monte_runs, "
                               "unrecognized format, does not contain time or "
                               "filter cut out all files.").arg(runPath);
         msgBox.setText(msg);
@@ -275,9 +275,34 @@ QStandardItemModel* Runs::runsModel()
 
 bool Runs::_isValidRunPath(const QString &runPath)
 {
-    if (  QFileInfo(runPath).isDir() ) {
-        return RunDir::isValid(runPath,_timeNames,
-                               _filterPattern,_excludePattern);
+    if ( QFileInfo(runPath).isDir() ) {
+        QDir dir(runPath);
+        if ( dir.dirName().startsWith("MONTE_") ) {
+            // Check for valid RUN_00000 and valid monte_runs file
+            // Assume other RUNs okay (for now)
+            QString runPath0 = dir.absoluteFilePath("RUN_00000");
+            QString monteRunsPath = dir.absoluteFilePath("monte_runs");
+            if ( QDir(runPath0).exists() && QFile(monteRunsPath).exists() ) {
+                QFile file(monteRunsPath);
+                if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                    return false;
+                }
+                QTextStream in(&file);
+                QString line = in.readLine();
+                file.close();
+                if ( !line.startsWith("NUM_RUNS:") &&
+                     !line.startsWith("#NAME:") ) {
+                    return false;
+                }
+                return RunDir::isValid(runPath0, _timeNames,
+                                       _filterPattern,_excludePattern);
+            } else {
+                return false;
+            }
+        } else {
+            return RunDir::isValid(runPath,_timeNames,
+                                   _filterPattern,_excludePattern);
+        }
     }
     if ( QFileInfo(runPath).isFile() ) {
         return RunFile::isValid(runPath,_timeNames);
