@@ -24,11 +24,16 @@ VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSo
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
     nextTime = 0;
     cyclicSendEnabled = false;
+    mode = Initialization;
 }
 
 // DESTRUCTOR
 VariableServerSession::~VariableServerSession() {
     clear();
+}
+
+void VariableServerSession::updateNextTime(long long simTimeTics) {
+        nextTime = (simTimeTics - (simTimeTics % intervalTimeTics) + intervalTimeTics);
 }
 
 /* Base class virtual function: marshallData
@@ -41,11 +46,23 @@ VariableServerSession::~VariableServerSession() {
    (The specified period between messages).
 */
 void VariableServerSession::marshallData() {
-    long long simulation_time_tics = exec_get_time_tics() + exec_get_freeze_time_tics();
+    long long simulation_time_tics = exec_get_time_tics();
+    SIM_MODE new_mode = the_exec->get_mode();
+    
+    if(new_mode == Freeze) {
+    	simulation_time_tics += exec_get_freeze_time_tics();
+	}
+    
+    if(new_mode != mode) {
+    	mode = new_mode;
+        updateNextTime(simulation_time_tics);
+    }
+	
     if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
         stageValues();
-        nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
+        updateNextTime(simulation_time_tics);
     }
+    	
 }
 
 /* Base class virtual function: sendMessage

@@ -147,7 +147,7 @@ int Trick::JITInputFile::compile(std::string file_name) {
     // rule to clean
     outfile << "clean:" << std::endl ;
     outfile << "\t rm -f " << object_fullpath_name << " " << library_fullpath_name ;
-    outfile << " " << command_line_args_get_output_dir() << "/" << dep_file_name << std::endl << std::endl ;
+    outfile << " " << dep_file_name << std::endl << std::endl ;
     // dependency file
     outfile << "-include " << dep_file_name << std::endl ;
 

@@ -13,6 +13,7 @@ PURPOSE: (Represent the state of a variable server websocket connection.)
 #endif
 
 #include "trick/WebSocketSession.hh"
+#include "trick/Executive.hh"
 #include "VariableServerVariable.hh"
 
 class VariableServerSession : public WebSocketSession {
@@ -38,6 +39,7 @@ class VariableServerSession : public WebSocketSession {
         int sendSieMessage(void);
         int sendUnitsMessage(const char* vname);
         REF2* make_error_ref(const char* in_name);
+        void updateNextTime(long long simTimeTics);
         double stageTime;
         bool dataStaged;
 
@@ -45,6 +47,7 @@ class VariableServerSession : public WebSocketSession {
         bool cyclicSendEnabled;
         long long nextTime;
         long long intervalTimeTics;
+        SIM_MODE mode;
 };
 
 WebSocketSession* makeVariableServerSession( struct mg_connection *nc );
