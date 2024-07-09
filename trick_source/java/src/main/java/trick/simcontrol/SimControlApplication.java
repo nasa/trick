@@ -606,7 +606,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     @Override
     protected void ready() {
     	super.ready();
-        System.out.println("!!!READY START!!!");
 
     	logoImagePanel.start();
 
@@ -637,12 +636,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         	printSendHS();
         }
         
-        System.out.println("!!!Get Sim State!!!");
         scheduleGetSimState();
 
-        System.out.println("!!!Status Monitors!!!");
         startStatusMonitors();
-        System.out.println("!!!READY START!!!");
 
     }
 

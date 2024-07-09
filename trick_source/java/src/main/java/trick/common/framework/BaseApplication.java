@@ -270,7 +270,7 @@ public abstract class BaseApplication {
 																InvocationTargetException {
 		Constructor<T> clsCtor = cls.getDeclaredConstructor();
 
-		if(!clsCtor.canAccess(null)) {
+		if(!clsCtor.isAccessible()) {
 			try { clsCtor.setAccessible(true); }
 			catch (SecurityException UNUSED) { }
 		}
@@ -571,24 +571,19 @@ public abstract class BaseApplication {
 		boolean emptyQ = false;
 
 		while(!emptyQ) {
-			System.out.println("Waiting...");
 			QueueEvent e = new QueueEvent(panel);
 
 			Q.postEvent(e);
 
 			synchronized(e) {
-				System.out.println("\tSynched");
 				while(!e.isDispatched()) {
 					try { e.wait(); }
 					catch (InterruptedException ignored) {}
 				}
-				System.out.println("\tDispatched");
 
 				emptyQ = e.isQueueEmpty();
 			}
 		}
-
-		System.out.println("Queue Empty!");
 	}
 
 	private class WaitTillFree extends Task<Void, Void> {

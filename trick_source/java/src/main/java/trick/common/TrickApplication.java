@@ -378,7 +378,6 @@ public abstract class TrickApplication extends BaseApplication implements Proper
      */
     @Override
     protected void initialize(String[] args) {
-        System.out.println("INITIALIZE");
         // the name of this application
         applicationName = getContext().getApplicationClass().getSimpleName();
 
@@ -426,8 +425,6 @@ public abstract class TrickApplication extends BaseApplication implements Proper
      */
     @Override
     protected void startup() {
-        System.out.println("STARTUP");
-
         String defaultValue       = Boolean.toString(false);
         boolean savedExitProperty = Boolean.valueOf(trickProperties.getProperty(
                 "confirmExit", defaultValue));
