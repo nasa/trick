@@ -497,6 +497,9 @@ sub process_template($$) {
     my ( $contents_ref , $new_contents_ref ) = @_ ;
     my $extracted ;
 
+    # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper class attribute assingment in input processor
+    # The function call is inserted after the 1st { of the class template so it is placed at the top 
+    $$contents_ref=~s/{\n/{\n\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n/m;
     if ( $$contents_ref =~ s/^(\s*;)//s ) {
         $$new_contents_ref .= $1 ;
     } else {
