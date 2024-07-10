@@ -150,9 +150,8 @@ jobs:
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
-        uses: >
-          node -v
-          actions/checkout@v3
+        uses: actions/checkout@v3
+        run: node -v
       - name: Configure Trick
         run: |
           export MAKEFLAGS=-j`nproc`
