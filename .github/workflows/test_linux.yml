@@ -91,7 +91,7 @@ jobs:
               zlib-devel
               python2-devel
               python3-devel
-#-------- RHEL 7-based Only Dependencies ----------------
+#-------- RHEL 7-based Only Dependencies? ----------------
           - cfg: { arch: rhel, arch_ver: 7 }
             pkg_mgr: yum
             conf_pkg: |
