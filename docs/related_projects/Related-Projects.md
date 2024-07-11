@@ -37,7 +37,9 @@ The Virtual Reality Laboratory is an immersive training facility that provides r
 
 ## Robotics On-Board Trainer (ROBoT)
 <p align="center">
+  
 ![ROBoT](images/ROBoT.jpg)
+
 </p>
 
 The Robotics On-Board Trainer (ROBoT) is an on-orbit version of the ground-based Dynamics Skills Trainer (DST) that astronauts use for training on a frequent basis.
