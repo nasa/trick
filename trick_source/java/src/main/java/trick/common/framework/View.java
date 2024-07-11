@@ -56,6 +56,11 @@ public class View {
 		// TODO: Fire Property Change
 	}
 
+	public JMenuBar getMenuBar() {
+		// JMenuBar old = menuBar;
+		return menuBar;
+	}
+
 	public JToolBar getToolBar() {
 		return (toolBars.size() == 0) ? null : toolBars.get(0);
 	}
@@ -140,7 +145,7 @@ public class View {
 		return app;
 	}
 
-	private void replaceComponent(JComponent oldC, JComponent newC, Object constraint) {
+	private void replaceComponent(JComponent oldC, JComponent newC, String constraint) {
 		Container contentPane = getRootPane().getContentPane();
 
 		if (oldC != null)  

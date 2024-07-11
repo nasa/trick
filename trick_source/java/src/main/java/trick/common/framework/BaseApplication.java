@@ -105,8 +105,8 @@ public abstract class BaseApplication {
 	}
 
 	public void show(View v) {
-		Component comp = v.getRootPane().getParent();
-		initRootPaneContainer((RootPaneContainer) comp);
+		RootPaneContainer comp = (RootPaneContainer) v.getRootPane().getParent();
+		initRootPaneContainer(comp);
 		((Window) comp).setVisible(true);
 	}
 
@@ -291,8 +291,8 @@ public abstract class BaseApplication {
 	}
 
 	private <T> T safe_cast(Object o, Class<T> c) {
-		try {  return c.cast(o);  }
-		catch (ClassCastException e) {  return null;  }
+		if(c.isInstance(o)) return c.cast(o);
+		else return null;
 	}
 
 	private void initMainFrameClose() {

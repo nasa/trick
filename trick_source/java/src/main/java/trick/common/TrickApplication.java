@@ -550,7 +550,8 @@ public abstract class TrickApplication extends BaseApplication implements Proper
      * @return    A {@link JMenu} with specified name and action names for its menu items.
      */
     protected JMenu createMenu(String menuName, String[] actionNames) {
-        JMenu menu = new JMenu();
+        String menuText = getContext().getResourceMap().getString(menuName + ".text");
+        JMenu menu = new JMenu(menuText);
         menu.setName(menuName);
         buildMenu(menu, actionNames);
         return menu;
