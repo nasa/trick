@@ -97,7 +97,7 @@ my $template_def   = qr/template\s*                        # keyword template
             \s+[_A-Za-z]\w*\s*                             # class name
                /sx ;
 my $template_var_def  = qr/(?:\:\:)?[_A-Za-z][:\w]*\s*     # template name
-            <[\w\s\*,:<>]*>\s*                             # template parameters
+            <[\w\s\*,:<>\[\]]*>\s*                         # template parameters
             [_A-Za-z]\w*\s*(?:[{=].*?)?;                   # var name ;
                /sx ;
 
