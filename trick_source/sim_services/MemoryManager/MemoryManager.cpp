@@ -80,7 +80,7 @@ Trick::MemoryManager::~MemoryManager() {
 
     delete defaultCheckPointAgent ;
 
-    for ( ait = alloc_info_map.begin() ; ait != alloc_info_map.end() ; ait++ ) {
+    for ( ait = alloc_info_map.begin() ; ait != alloc_info_map.end() ; ++ait ) {
         ALLOC_INFO * ai_ptr = (*ait).second ;
         if (ai_ptr->stcl == TRICK_LOCAL) {
             if ( ai_ptr->alloc_type == TRICK_ALLOC_MALLOC ) {

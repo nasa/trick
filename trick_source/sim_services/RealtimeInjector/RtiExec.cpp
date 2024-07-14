@@ -40,7 +40,7 @@ int Trick::RtiExec::Exec () {
             // use trylock so we don't block if the mutex is in use.
             if ( pthread_mutex_trylock(&list_mutex) == 0 ) {
                 std::vector < RtiList * >::iterator rlit ;
-                for ( rlit = fire_list.begin() ; rlit != fire_list.end() ; rlit++ ) {
+                for ( rlit = fire_list.begin() ; rlit != fire_list.end() ; ++rlit ) {
                     (*rlit)->execute(debug) ;
                     delete (*rlit) ;
                 }

@@ -73,7 +73,7 @@ std::string map_trick_units_to_udunits( std::string orig_units ) {
     std::vector<std::string> tokens ;
     std::vector<std::string>::iterator it ;
     tokenize_units(orig_units, tokens, "*/^()") ;
-    for( it = tokens.begin() ; it != tokens.end() ; it++ ) {
+    for( it = tokens.begin() ; it != tokens.end() ; ++it ) {
         char last_char = *((*it).rbegin()) ;
         // tokens can end in powers of 2 or 3 in the old system.
         // save the power if it is the last character

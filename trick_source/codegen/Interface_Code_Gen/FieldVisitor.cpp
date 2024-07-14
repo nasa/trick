@@ -442,7 +442,7 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
     // Test if we have some type from STL.
     if (!tst_string.compare( 0 , 5 , "std::")) {
         // If we have some type from std, figure out if it is one we support.
-        for ( std::map<std::string, bool>::iterator it = stl_classes.begin() ; it != stl_classes.end() ; it++ ) {
+        for ( std::map<std::string, bool>::iterator it = stl_classes.begin() ; it != stl_classes.end() ; ++it ) {
             /* Mark STL types that are not strings and exit */
             if (!tst_string.compare( 0 , (*it).first.size() , (*it).first)) {
 

@@ -148,7 +148,7 @@ int Trick::Executive::add_job_to_queue( Trick::JobData * job ) {
     /* Add job to convienience constructs for easy retrival */
     all_jobs.insert(std::pair<std::string, JobData *>(job->name,job)) ;
     all_jobs_vector.push_back(job) ;
-    for ( it = job->tags_begin() ; it != job->tags_end() ; it++ ) {
+    for ( it = job->tags_begin() ; it != job->tags_end() ; ++it ) {
         all_tagged_jobs.insert(std::pair<std::string, JobData *>(*it,job)) ;
     }
 

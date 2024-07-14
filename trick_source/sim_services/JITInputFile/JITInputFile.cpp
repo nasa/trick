@@ -147,7 +147,7 @@ int Trick::JITInputFile::compile(std::string file_name) {
     // rule to clean
     outfile << "clean:" << std::endl ;
     outfile << "\t rm -f " << object_fullpath_name << " " << library_fullpath_name ;
-    outfile << " " << command_line_args_get_output_dir() << "/" << dep_file_name << std::endl << std::endl ;
+    outfile << " " << dep_file_name << std::endl << std::endl ;
     // dependency file
     outfile << "-include " << dep_file_name << std::endl ;
 
@@ -264,7 +264,7 @@ int Trick::JITInputFile::add_library(std::string lib_name) {
 
 void * Trick::JITInputFile::find_symbol(std::string sym) {
     std::map< std::string , JITLibInfo >::iterator it ;
-    for ( it = file_to_libinfo_map.begin() ; it != file_to_libinfo_map.end() ; it++ ) {
+    for ( it = file_to_libinfo_map.begin() ; it != file_to_libinfo_map.end() ; ++it ) {
         void * ret = (*it).second.find_symbol(sym) ;
         if (ret != NULL) {
             return ret ;

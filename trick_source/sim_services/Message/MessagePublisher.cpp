@@ -63,7 +63,7 @@ int Trick::MessagePublisher::publish(int level , std::string message) {
 
     /** @li Go through all its subscribers and send a message update to the subscriber that is enabled. */
     if ( ! subscribers.empty() ) {
-        for ( p = subscribers.begin() ; p != subscribers.end() ; p++ ) {
+        for ( p = subscribers.begin() ; p != subscribers.end() ; ++p ) {
             if ( (*p)->enabled ) {
                 (*p)->update(level , header , message) ;
             }
@@ -81,7 +81,7 @@ int Trick::MessagePublisher::publish(int level , std::string message) {
 
 Trick::MessageSubscriber * Trick::MessagePublisher::getSubscriber( std::string sub_name ) {
     std::list<Trick::MessageSubscriber *>::iterator lit ;
-    for ( lit = subscribers.begin() ; lit != subscribers.end() ; lit++ ) {
+    for ( lit = subscribers.begin() ; lit != subscribers.end() ; ++lit ) {
         if ( ! (*lit)->name.compare(sub_name) ) {
             return *lit ;
         }

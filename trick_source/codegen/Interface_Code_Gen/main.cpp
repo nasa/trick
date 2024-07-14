@@ -6,7 +6,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+// `llvm/Support/Host.h` is deprecated in favour of `llvm/TargetParser/Host.h` since clang 17
+#if LIBCLANG_MAJOR > 16
+#include "llvm/TargetParser/Host.h"
+#else
 #include "llvm/Support/Host.h"
+#endif
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
 
@@ -20,6 +25,7 @@
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Parse/ParseAST.h"
 
+#include "ICGDiagnosticConsumer.hh"
 #include "ICGASTConsumer.hh"
 #include "HeaderSearchDirs.hh"
 #include "CommentSaver.hh"
@@ -239,8 +245,10 @@ int main(int argc, char * argv[]) {
 #endif
     clang::Preprocessor& pp = ci.getPreprocessor();
 
-#if (LIBCLANG_MAJOR >= 10)
+#if (LIBCLANG_MAJOR >= 10) && (LIBCLANG_MAJOR < 18)
     clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts());
+#elif (LIBCLANG_MAJOR >= 18)
+    clang::InitializePreprocessor(pp, ppo, ci.getPCHContainerReader(), ci.getFrontendOpts(), ci.getCodeGenOpts());
 #endif
 
     // Add all of the include directories to the preprocessor
@@ -301,17 +309,23 @@ int main(int argc, char * argv[]) {
         exit(-1);
     }
     // Open up the input file and parse it
-#if (LIBCLANG_MAJOR >= 10)
+#if (LIBCLANG_MAJOR >= 10 && LIBCLANG_MAJOR < 18)
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath).get();
+#elif (LIBCLANG_MAJOR >= 18)
+    clang::FileEntryRef fileEntryRef = llvm::cantFail(ci.getFileManager().getFileRef(inputFilePath));
 #else
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
 #endif
     free(inputFilePath);
-#if (LIBCLANG_MAJOR > 3) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
+#if ((LIBCLANG_MAJOR > 3 && LIBCLANG_MAJOR < 18)) || ((LIBCLANG_MAJOR == 3) && (LIBCLANG_MINOR >= 5))
     ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntry, clang::SourceLocation(), clang::SrcMgr::C_User));
+#elif (LIBCLANG_MAJOR >= 18)
+    ci.getSourceManager().setMainFileID(ci.getSourceManager().createFileID(fileEntryRef, clang::SourceLocation(), clang::SrcMgr::C_User));
 #else
     ci.getSourceManager().createMainFileID(fileEntry);
 #endif
+    ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
+    ci.getDiagnostics().setClient(icgDiagConsumer);
     ci.getDiagnosticClient().BeginSourceFile(ci.getLangOpts(), &ci.getPreprocessor());
     clang::ParseAST(ci.getSema());
     ci.getDiagnosticClient().EndSourceFile();
@@ -325,6 +339,11 @@ int main(int argc, char * argv[]) {
 
     // Print the list of headers that have the ICG:(No) comment
     printAttributes.printICGNoFiles();
+
+    if (icgDiagConsumer->error_in_user_code) {
+        std::cout << color(ERROR, "Trick build was terminated due to error in user code!") << std::endl;
+        exit(-1);
+    }
 
     return 0;
 }

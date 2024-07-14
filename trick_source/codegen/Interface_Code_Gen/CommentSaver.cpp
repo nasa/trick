@@ -60,7 +60,7 @@ std::string CommentSaver::getTrickHeaderComment( std::string file_name ) {
     if ( resolved_path != NULL ) {
         if ( trick_header_comments.find(resolved_path) == trick_header_comments.end() ) {
             trick_header_comments[resolved_path] = std::string() ;
-            for ( cit = comment_map[resolved_path].begin() ; cit != comment_map[resolved_path].end() ; cit++ ) {
+            for ( cit = comment_map[resolved_path].begin() ; cit != comment_map[resolved_path].end() ; ++cit ) {
                 std::string comment_str = getComment((*cit).second) ;
                 if ( comment_str.find("@trick_parse") != std::string::npos or
                      comment_str.find("\\trick_parse") != std::string::npos ) {
