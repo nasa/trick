@@ -24,7 +24,7 @@ int message_subscribe( Trick::MessageSubscriber * in_ms ) {
     the_message_publisher->subscribe(in_ms) ;
     return(0) ;
 }
-
+ 
 /**
  @relates Trick::MessagePublisher
  @copydoc Trick::MessagePublisher::unsubscribe
@@ -32,6 +32,33 @@ int message_subscribe( Trick::MessageSubscriber * in_ms ) {
 int message_unsubscribe( Trick::MessageSubscriber * in_ms ) {
     the_message_publisher->unsubscribe(in_ms) ;
     return(0) ;
+}
+
+
+/**
+ @relates Trick::MessagePublisher
+ @copydoc Trick::MessagePublisher::subscribe
+ */
+extern "C" int message_add_subscriber( void * in_ms ) {
+    the_message_publisher->subscribe((Trick::MessageSubscriber *)in_ms) ;
+    return(0) ;
+}
+ 
+/**
+ @relates Trick::MessagePublisher
+ @copydoc Trick::MessagePublisher::unsubscribe
+ */
+extern "C" int message_remove_subscriber( void * in_ms ) {
+    the_message_publisher->unsubscribe((Trick::MessageSubscriber *)in_ms) ;
+    return(0) ;
+}
+
+/**
+ @relates Trick::MessagePublisher
+ @copydoc Trick::MessagePublisher::getSubscriber
+ */
+extern "C" void * message_get_subscriber( const char * sub_name ) {
+    return (void *)the_message_publisher->getSubscriber(sub_name) ;
 }
 
 /**

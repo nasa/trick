@@ -25,6 +25,7 @@
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Parse/ParseAST.h"
 
+#include "ICGDiagnosticConsumer.hh"
 #include "ICGASTConsumer.hh"
 #include "HeaderSearchDirs.hh"
 #include "CommentSaver.hh"
@@ -323,6 +324,8 @@ int main(int argc, char * argv[]) {
 #else
     ci.getSourceManager().createMainFileID(fileEntry);
 #endif
+    ICGDiagnosticConsumer *icgDiagConsumer = new ICGDiagnosticConsumer(llvm::errs(), &ci.getDiagnosticOpts(), ci, hsd);
+    ci.getDiagnostics().setClient(icgDiagConsumer);
     ci.getDiagnosticClient().BeginSourceFile(ci.getLangOpts(), &ci.getPreprocessor());
     clang::ParseAST(ci.getSema());
     ci.getDiagnosticClient().EndSourceFile();
@@ -336,6 +339,11 @@ int main(int argc, char * argv[]) {
 
     // Print the list of headers that have the ICG:(No) comment
     printAttributes.printICGNoFiles();
+
+    if (icgDiagConsumer->error_in_user_code) {
+        std::cout << color(ERROR, "Trick build was terminated due to error in user code!") << std::endl;
+        exit(-1);
+    }
 
     return 0;
 }

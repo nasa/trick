@@ -115,7 +115,10 @@ double waterclock_tick_change( WATERCLOCK* WC ) {
         if( (WC->current_tick < WC->total_ticks) && (WC->current_tick >= 0) )
         {
             WC->current_tick += 1;
+            void * sub_ptr = message_get_subscriber("cout");
+            message_remove_subscriber(sub_ptr);
             message_publish(MSG_NORMAL, "Tick %d, Sim Time %f, Water Level %f\n", WC->current_tick, exec_get_sim_time(), WC->timer_water_level) ;
+            message_add_subscriber(sub_ptr);
         }
         else
             fprintf(stderr, "ERROR, SOMETHING WENT VERY WRONG!\n" ) ;
