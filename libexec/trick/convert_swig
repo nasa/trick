@@ -337,6 +337,24 @@ sub process_file() {
         print OUT "\n$new_contents" ;
         print OUT "$contents\n" ;
         print OUT $global_template_typedefs ;
+
+        # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper non-class attribute assingment in input processor.
+        # _swig_setattr_nondynamic_instance_variable function is added for each class in process_class subroutine.
+        foreach my $c ( @class_names ) {
+            if ( ! exists $class_typemap_printed{$c} ) {
+                my $c_ = $c ;
+                $c_ =~ s/\:/_/g ;
+                if ( $c !~ /::/ ) {
+                    print OUT "\n#if SWIG_VERSION > 0x040000\n";
+                    print OUT "%pythoncode %{\n" ; 
+                    print OUT "    if '$c' in globals():\n";
+                    print OUT "        $c.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n" ;
+                    print OUT "%}\n" ;
+                    print OUT "#endif\n";
+                }
+            }
+        }
+
         # Add a trick_cast_as macro line for each class parsed in the file.  These lines must appear at the bottom of the
         # file to ensure they are not in a namespace directive and they are after the #define statements they depend on.
         undef %class_typemap_printed ;
@@ -479,6 +497,9 @@ sub process_template($$) {
     my ( $contents_ref , $new_contents_ref ) = @_ ;
     my $extracted ;
 
+    # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper class attribute assingment in input processor
+    # The function call is inserted after the 1st { of the class template so it is placed at the top 
+    $$contents_ref=~s/{\n/{\n\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n/m;
     if ( $$contents_ref =~ s/^(\s*;)//s ) {
         $$new_contents_ref .= $1 ;
     } else {
@@ -605,6 +626,9 @@ sub process_class($$$$$) {
         $class_content .= $1 ;
     }
 
+    # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper class attribute assingment in input processor
+    $class_content .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
+
     ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
 
     # remove the trailing semicolon because we may append text to the class.
@@ -709,7 +733,6 @@ sub process_class($$$$$) {
     push @$class_names_ref , "$curr_namespace$class_name" ;
 
     # write the class contents and semicolon to ensure any template declarations below are after the semicolon.
-    $class_content .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
     $class_content .= $extracted . ";\n" ;
 
     my $c_ = "$curr_namespace$class_name" ;
@@ -756,7 +779,7 @@ sub process_typedef_struct($$$$) {
     my ($typedef_struct_string , $contents_ref, $new_contents_ref , $class_names_ref) = @_ ;
 
     my $extracted ;
-    my ($begin, $tail , $struct_names, @struct_names) ;
+    my ($tail , $struct_names, @struct_names) ;
 
     #print "*** typedef_struct_string = $typedef_struct_string ***\n" ;
 
@@ -765,7 +788,6 @@ sub process_typedef_struct($$$$) {
     $typedef_struct_string =~ s/((?:typedef\s+)?(struct|union)\s*   # the words typedef struct|union
          ([_A-Za-z]\w*)?\s*                                         # optional name
          {)//sx ;
-    $begin = $3 ;
 
     ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
     #print "*** extracted = $extracted ***\n" ;
@@ -780,9 +802,6 @@ sub process_typedef_struct($$$$) {
     $struct_names =~ s/\s//g ;
     @struct_names = split /,/ , $struct_names ;
 
-    if ( $begin ne "" ) {
-        push @$class_names_ref , $begin ;
-    }
     foreach my $s ( @struct_names ) {
         if ( $s !~ /\*/ ) {
             push @$class_names_ref , $s ;
