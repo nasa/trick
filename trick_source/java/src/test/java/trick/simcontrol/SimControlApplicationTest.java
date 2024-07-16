@@ -432,11 +432,9 @@ public class SimControlApplicationTest extends ApplicationTest {
 		WaitForSimControlApplication simcontrol = (WaitForSimControlApplication) simControl;
 
 		// ACT
-		for(int i = 0; i < actualOrder.length; i++) {
-			actualOrder[i] = simcontrol.isRealTimeOn();
-			simcontrol.toggleRealTimeButton();
-			sleep(1000);
-		}
+		actualOrder[0] = simcontrol.isRealTimeOn();  // Expected TRUE
+		actualOrder[1] = toggleRealTime(simcontrol); // Expected FALSE
+		actualOrder[2] = toggleRealTime(simcontrol); // Expected TRUE
 
 		// ASSERT
 		assertTrue("Real Time was not ON at the start of the Sim", 
@@ -448,6 +446,12 @@ public class SimControlApplicationTest extends ApplicationTest {
 	}
 
 	// Hybrid Test helper methods
+
+	private boolean toggleRealTime(WaitForSimControlApplication app) {
+		app.toggleRealTimeButton();
+		sleep(1000);
+		return app.isRealTimeOn();
+	}
 
 	private void headlessStartSim() throws IOException {
 		// ARRANGE
