@@ -58,7 +58,7 @@ static bool compare_job_data(const Trick::JobData *a, const Trick::JobData *b) {
     if (asoi > bsoi)
         return false ;
 
-    return a->id <= b->id ;
+    return a->id < b->id ;
 }
 
 /**
