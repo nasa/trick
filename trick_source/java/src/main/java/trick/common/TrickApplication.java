@@ -551,8 +551,11 @@ public abstract class TrickApplication extends BaseApplication implements Proper
      */
     protected JMenu createMenu(String menuName, String[] actionNames) {
         String menuText = getContext().getResourceMap().getString(menuName + ".text");
-        JMenu menu = new JMenu(menuText);
+        JMenu menu = new JMenu();
         menu.setName(menuName);
+
+        TrickAction.configureMnemonic(menu, menuText);
+
         buildMenu(menu, actionNames);
         return menu;
     }

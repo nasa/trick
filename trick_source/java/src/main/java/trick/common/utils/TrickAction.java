@@ -1,11 +1,13 @@
 package trick.common.utils;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Properties;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 
@@ -63,6 +65,8 @@ public class TrickAction extends AbstractAction {
     			 props.getString(SHORT_DESCRIPTION_PROPERTY));
     	putValue(Action.LONG_DESCRIPTION,
     			 props.getString(LONG_DESCRIPTION_PROPERTY));
+
+		configureMnemonic(this, props.getString(TEXT_PROPERTY));
     	
     	if((iconValue = props.getIcon(ICON_PROPERTY)) != null) {
     		putValue(Action.SMALL_ICON    , iconValue);
@@ -77,6 +81,35 @@ public class TrickAction extends AbstractAction {
 			}
     	}
     }
+
+	public static void configureMnemonic(Object target, String text) {
+		String name;
+		int mnemIndex, mnemKey;
+		
+		name = text;
+		mnemIndex = name.indexOf("&");
+		mnemIndex = mnemIndex < 0 ? name.indexOf("_") : mnemIndex;
+
+		if (mnemIndex < 0)  return;
+
+		name = name.substring(0, mnemIndex) + name.substring(mnemIndex + 1);
+
+		mnemKey = KeyEvent.getExtendedKeyCodeForChar(name.charAt(mnemIndex));
+
+		if(target instanceof Action) {
+			Action act = (Action) target;
+
+			act.putValue(Action.NAME, name);
+			act.putValue(Action.MNEMONIC_KEY, mnemKey);
+			act.putValue(Action.DISPLAYED_MNEMONIC_INDEX_KEY, mnemIndex);
+		} else if(target instanceof AbstractButton) {
+			AbstractButton but = (AbstractButton) target;
+
+			but.setText(name);
+			but.setMnemonic(mnemKey);
+			but.setDisplayedMnemonicIndex(mnemIndex);
+		}
+	}
     
     private ImageIcon getIcon(String fileName) {
 	    	String iconPath;
