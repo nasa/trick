@@ -74,7 +74,8 @@ int Trick::JITInputFile::process_sim_args() {
 -# If the compilation was unsuccessful, exec_terminate
 -# The library compile successfully.  Add library name to map
 */
-int Trick::JITInputFile::compile(std::string file_name) {
+int Trick::JITInputFile::
+compile(std::string file_name) {
 
     std::ofstream outfile ;
     std::ostringstream ss ;
@@ -135,9 +136,9 @@ int Trick::JITInputFile::compile(std::string file_name) {
     // rule to link shared library
     outfile << library_fullpath_name << ": " << object_fullpath_name << std::endl ;
 #ifdef __APPLE__
-    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " -shared -undefined dynamic_lookup -o $@ $< " << std::endl << std::endl ;
+    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " " << get_trick_env((char *)"TRICK_LDFLAGS") << " -shared -undefined dynamic_lookup -o $@ $< " << std::endl << std::endl ;
 #else
-    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " -shared -o $@ $< " << std::endl << std::endl ;
+    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " " << get_trick_env((char *)"TRICK_LDFLAGS") << " -shared -o $@ $< " << std::endl << std::endl ;
 #endif
     // rule to compile cpp file
     outfile << object_fullpath_name << ": " << file_name << std::endl ;
