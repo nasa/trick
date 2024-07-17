@@ -128,7 +128,7 @@ public class Searcher {
         if (greedySearch) {
             threads = Runtime.getRuntime().availableProcessors();
         } else {
-            threads = 2;
+            threads = 1;
         }
         propertyChangeListener.propertyChange(new PropertyChangeEvent(this, "progress", 0, 0));
         final ConcurrentLinkedQueue<SieTemplate> roots = new ConcurrentLinkedQueue<SieTemplate>(rootTemplates);
