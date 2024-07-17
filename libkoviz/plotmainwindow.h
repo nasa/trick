@@ -161,6 +161,8 @@ private:
 
     void _openVideos(const QList<QPair<QString,double> >& videos);
 
+    void _copyCurve(const QModelIndex& srcCurveIdx,
+                    const QModelIndex& tgtParentIdx);
 
 private slots:
      void _nbCurrentChanged(int i);

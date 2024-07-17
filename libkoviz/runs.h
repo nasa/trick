@@ -41,6 +41,7 @@ class Runs : public QObject
     void refresh() ;
     void clear();
     void addRun(const QString& runPath);
+    void deleteRun(const QString& runPath);
     CurveModel* curveModel(int row,
                            const QString& tName,
                            const QString& xName,

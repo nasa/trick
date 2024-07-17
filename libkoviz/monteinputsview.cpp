@@ -110,3 +110,16 @@ void MonteInputsView::dropEvent(QDropEvent *event) {
         event->acceptProposedAction();
     }
 }
+
+void MonteInputsView::keyPressEvent(QKeyEvent *event)
+{
+    if ( currentIndex().row() < 0 ) {
+        return;
+    }
+
+    if ( event->key() == Qt::Key_Delete ) {
+        QString runPath = model()->headerData(currentIndex().row(),
+                                              Qt::Vertical).toString();
+        _runs->deleteRun(runPath);
+    }
+}

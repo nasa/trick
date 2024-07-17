@@ -458,24 +458,28 @@ void BookView::rowsAboutToBeRemoved(const QModelIndex &pidx, int start, int end)
                        "TODO: support deleting multiple rows at once.\n");
         exit(-1);
     }
-    if ( start < 0 || start >= _childViews.size() ) {
-        fprintf(stderr,"koviz [bad scoobs]:2:BookView::rowsAboutToBeRemoved(): "
-                       "childViews list not in sync with model.\n");
-        exit(-1);
-    }
+    QString tag = _bookModel()->data(pidx).toString();
+    if ( tag == "Pages" || tag == "Tables" ) {
+        if ( start < 0 || start >= _childViews.size() ) {
+            fprintf(stderr,"koviz [bad scoobs]:2:BookView::"
+                           "rowsAboutToBeRemoved(): childViews list not in "
+                           "sync with model.\n");
+            exit(-1);
+        }
 
-    QModelIndex idx = model()->index(start,0,pidx);
+        QModelIndex idx = model()->index(start,0,pidx);
 
-    int tabId = _modelIdxToTabId(idx);
-    QWidget* widget = _nb->widget(tabId);
-    _nb->removeTab(tabId);
+        int tabId = _modelIdxToTabId(idx);
+        QWidget* widget = _nb->widget(tabId);
+        _nb->removeTab(tabId);
 
-    foreach ( QAbstractItemView* view, _childViews ) {
-        if ( view == widget ) {
-            disconnect(view,0,0,0);
-            _childViews.removeOne(view);
-            delete view;
-            break;
+        foreach ( QAbstractItemView* view, _childViews ) {
+            if ( view == widget ) {
+                disconnect(view,0,0,0);
+                _childViews.removeOne(view);
+                delete view;
+                break;
+            }
         }
     }
 }

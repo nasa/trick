@@ -88,6 +88,29 @@ void Runs::addRun(const QString &runPath)
     refresh();
 }
 
+void Runs::deleteRun(const QString &runPath)
+{
+    QFileInfo fi(runPath);
+    if ( fi.isDir() || fi.isFile() ) {
+        _delete();
+        _runsModel->clear();
+
+        // Remove runPath from _runPaths
+        QString fp = fi.absoluteFilePath();
+        int row = 0;
+        foreach ( QString rpath, _runPaths ) {
+            QFileInfo fi2(rpath);
+            if ( fp == fi2.absoluteFilePath() ) {
+                _runPaths.removeAt(row);
+                break;
+            }
+            ++row;
+        }
+
+        _init();
+    }
+}
+
 void Runs::_init()
 {
     _montePath.clear();
