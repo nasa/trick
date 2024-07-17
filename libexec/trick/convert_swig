@@ -625,7 +625,7 @@ sub process_class($$$$$) {
     }
 
     # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper class attribute assingment in input processor
-    $my_class_content .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
+    $my_class_contents .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
 
     ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
 
@@ -637,15 +637,6 @@ sub process_class($$$$$) {
 
     #print "*** extracted = $extracted ***\n" ;
     #print "*** contents = $$contents_ref ***\n" ;
-    my $save_namespace_content;
-
-    if ( $curr_namespace ne "" ) {
-       my @split_namespaces = split "::", $curr_namespace;
-       my $sanitized_namespace = $split_namespaces[-1] ;
-       my @namespace_split = split /namespace\s*$sanitized_namespace/, $$new_contents_ref;
-       $save_namespace_content = 'namespace ' . $sanitized_namespace . $namespace_split[-1];
-       $$new_contents_ref = join('namespace ' . $sanitized_namespace, @namespace_split[0 .. $#namespace_split-1]);
-    }
 
     # SWIG doesn't like "const static".  Change it to "static const"
     $extracted =~ s/const\s+static/static const/g ;
@@ -740,7 +731,6 @@ sub process_class($$$$$) {
                         $processed_templates{$template_type_no_sp} = 1 ;
                     }
                 }
-                $class_content .= $template_var_def_str ;
             }
         }
     }
