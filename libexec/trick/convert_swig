@@ -743,7 +743,6 @@ sub process_class($$$$$) {
 
     $$new_contents_ref .= $my_class_contents ;
     # write the class contents and semicolon to ensure any template declarations below are after the semicolon.
-    $$new_contents_ref .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
     $$new_contents_ref .= $extracted . ";\n" ;
 
     my $c_ = "$curr_namespace$class_name" ;
