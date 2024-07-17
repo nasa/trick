@@ -74,8 +74,7 @@ int Trick::JITInputFile::process_sim_args() {
 -# If the compilation was unsuccessful, exec_terminate
 -# The library compile successfully.  Add library name to map
 */
-int Trick::JITInputFile::
-compile(std::string file_name) {
+int Trick::JITInputFile::compile(std::string file_name) {
 
     std::ofstream outfile ;
     std::ostringstream ss ;
