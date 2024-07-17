@@ -89,9 +89,10 @@ public class Searcher {
      * @param targetText the text for which to search
      * @param caseSensitive enables case sensitive searching
      * @param regularExpression enables regular expression searching
+     * @param greedSearch enabled multi-threaded search
      */
     public void search(final String targetText, final boolean caseSensitive,
-      final boolean regularExpression) {
+      final boolean regularExpression, final boolean greedySearch) {
 
         final SearchFunction searchFunction = regularExpression ?
 
@@ -124,7 +125,11 @@ public class Searcher {
 
         cancelSearch();
         count = 0;
-        threads = Runtime.getRuntime().availableProcessors();
+        if (greedySearch) {
+            threads = Runtime.getRuntime().availableProcessors();
+        } else {
+            threads = 2;
+        }
         propertyChangeListener.propertyChange(new PropertyChangeEvent(this, "progress", 0, 0));
         final ConcurrentLinkedQueue<SieTemplate> roots = new ConcurrentLinkedQueue<SieTemplate>(rootTemplates);
         executorService = Executors.newFixedThreadPool(threads);
