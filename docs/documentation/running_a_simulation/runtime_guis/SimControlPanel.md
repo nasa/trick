@@ -3,8 +3,7 @@
 
 ## Simulation Control Panel
 
-The Simulation Control Panel is a graphical user interface that allows users to view and modify the states
-of slaves in a Monte Carlo simulation.
+The Simulation Control Panel is a graphical user interface that allows users to control and view the state of a simulation.
 
 ### Launching
 
@@ -12,13 +11,32 @@ of slaves in a Monte Carlo simulation.
 
 ### The GUI
 
-#### Menu Bar
+[Cover the various parts of the sim control panel]
+[Labeled screenshot of SCP main screen]
 
-##### File Menu
+#### File Menu
 
-##### Actions Menu
+[Screenshot of File Menu w/ basic overview of its purpose]
+
+##### Font
+
+##### Status Messages
+
+[Screenshot labeling the status message pane, the find, save, and clear buttons]
+
+###### Save Status Messages
+
+###### Clear Status Message Log
+
+#### Actions Menu
 
 #### Toolbar
+
+##### Start TV
+
+##### Start MTV
+
+##### Throttle
 
 #### Command Panel
 
