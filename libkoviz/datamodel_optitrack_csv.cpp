@@ -226,9 +226,7 @@ double OptiTrackCsvModel::_convert(const QString &s)
     bool ok;
     val = s.toDouble(&ok);
     if ( !ok ) {
-        fprintf(stderr, "koviz [error]: Optitrack csv file has bad value=%s\n",
-                s.toLatin1().constData());
-        exit(-1);
+        val = NAN;
     }
 
     return val;

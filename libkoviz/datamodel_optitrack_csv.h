@@ -10,6 +10,7 @@
 #include <QProgressDialog>
 #include <QFileInfo>
 #include <stdexcept>
+#include <cmath> // For NAN macro
 
 #include "datamodel.h"
 #include "parameter.h"
