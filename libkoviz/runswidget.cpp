@@ -25,7 +25,7 @@ RunsWidget::RunsWidget(Runs *runs,
     _fileModel->setRootPath(QDir::currentPath());
 
     // Filter
-    _filterModel = new RunsWidgetFilterProxyModel;
+    _filterModel = new RunsWidgetFilterProxyModel(_runs);
     _filterModel->setSourceModel(_fileModel);
     _filterModel->setFilterRole(Qt::DisplayRole);
     _filterModel->setFilterKeyColumn(0);
@@ -64,40 +64,50 @@ void RunsWidget::_runsSearchBoxReturnPressed()
 bool RunsWidgetFilterProxyModel::filterAcceptsRow(
                                         int row,const QModelIndex &srcIdx) const
 {
+    bool isAccept = false;
+
     if (!sourceModel()) {
         return false;
     }
 
-    if ( filterRegularExpression().pattern().isEmpty() ) {
-        return true;
-    }
-
     QModelIndex index = sourceModel()->index(row, 0, srcIdx);
-    QString filePath = sourceModel()->data(index,
+    QString path = sourceModel()->data(index,
                                      QFileSystemModel::FilePathRole).toString();
+    QFileInfo fi(path);
 
-    if (filePath == QDir::currentPath()) {
-        // This is needed, else the model is empty
-        return true;
+    if ( !path.contains(QDir::currentPath()) ) {
+        return false;
     }
 
-    QFileInfo fi(filePath);
-    if ( fi.isDir() && filePath.contains(QDir::currentPath()) ) {
-        if ( _isDirContains(filePath,filterRegularExpression(),0) ) {
-            return true;
+    if ( fi.isFile() ) {
+        if ( _runs->isValidRunPath(path) &&
+             path.contains(filterRegularExpression()) ) {
+            isAccept = true;
+        }
+    } else if ( fi.isDir() ) {
+        if ( _isDirAccept(path,filterRegularExpression(),0) ) {
+            isAccept = true;
         }
     }
 
-    return filePath.contains(filterRegularExpression());
+    return isAccept;
 }
 
-bool RunsWidgetFilterProxyModel::_isDirContains(const QString &path,
-                                                const QRegularExpression &rx,
-                                                int depth) const
+bool RunsWidgetFilterProxyModel::_isDirAccept(const QString &path,
+                                              const QRegularExpression &rx,
+                                              int depth) const
 {
     // For speed sake, if search is too deep, accept directory
     if (depth > 10 ) {
         return true;
+    }
+
+    if (path == QDir::currentPath()) {
+        return true; // Always accept current path
+    }
+
+    if ( path.contains(rx) && _runs->isValidRunPath(path) ) {
+        return true;  // Path is valid and matches regexp, so accept
     }
 
     QDir dir(path);
@@ -106,7 +116,8 @@ bool RunsWidgetFilterProxyModel::_isDirContains(const QString &path,
     QStringList files = dir.entryList(QDir::Files|QDir::NoDotAndDotDot,
                                       QDir::Name);
     foreach (const QString &file, files) {
-        if (file.contains(rx)) {
+        if (file.contains(rx) && _runs->isValidRunPath(file) ) {
+            // Path contains regex matched file which is also readable by koviz
             return true;
         }
     }
@@ -117,8 +128,10 @@ bool RunsWidgetFilterProxyModel::_isDirContains(const QString &path,
     foreach (const QString &subDir, dirs) {
         QString subDirPath = path + QDir::separator() + subDir;
         if (subDir.contains(rx)) {
-            return true;
-        } else if ( _isDirContains(subDirPath, rx, depth+1) ) {
+            if ( _runs->isValidRunPath(subDirPath) ) {
+                return true;
+            }
+        } else if ( _isDirAccept(subDirPath, rx, depth+1) ) {
             return true;
         }
     }

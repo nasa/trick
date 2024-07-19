@@ -74,7 +74,7 @@ void Runs::clear()
 
 void Runs::addRun(const QString &runPath)
 {
-    if ( !_isValidRunPath(runPath) ) {
+    if ( !isValidRunPath(runPath) ) {
         QMessageBox msgBox;
         QString msg = QString("Invalid run path=%1!  "
                               "Empty, not Trick, bad monte_runs, "
@@ -296,7 +296,7 @@ QStandardItemModel* Runs::runsModel()
     return _runsModel;
 }
 
-bool Runs::_isValidRunPath(const QString &runPath)
+bool Runs::isValidRunPath(const QString &runPath)
 {
     if ( QFileInfo(runPath).isDir() ) {
         QDir dir(runPath);

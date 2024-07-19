@@ -57,7 +57,8 @@ class RunsWidgetFilterProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    explicit RunsWidgetFilterProxyModel(QObject *parent = nullptr) :
+    explicit RunsWidgetFilterProxyModel(Runs* runs, QObject *parent = nullptr) :
+        _runs(runs),
         QSortFilterProxyModel(parent) {}
 
     /*
@@ -72,8 +73,9 @@ protected:
 
 private:
     QRegExp _regExp;
+    Runs* _runs;
 
-    bool _isDirContains(const QString &path,
+    bool _isDirAccept(const QString &path,
                         const QRegularExpression &rx,
                         int depth) const;
 };

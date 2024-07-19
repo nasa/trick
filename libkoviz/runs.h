@@ -47,6 +47,7 @@ class Runs : public QObject
                            const QString& xName,
                            const QString& yName) const;
     QStandardItemModel* runsModel();
+    bool isValidRunPath(const QString& runPath);
 
   public:
     static QStringList abbreviateRunNames(const QStringList& runNames);
@@ -100,8 +101,6 @@ class Runs : public QObject
                            const QString& filterPattern,
                            const QString& excludePattern,
                            uint beginRun, uint endRun);
-
-    bool _isValidRunPath(const QString& runPath);
 
     static QString _err_string;
     static QTextStream _err_stream;
