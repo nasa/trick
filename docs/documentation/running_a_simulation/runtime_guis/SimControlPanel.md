@@ -12,7 +12,7 @@ The Simulation Control Panel is a graphical user interface that allows users to 
 ### The GUI
 
 [Cover the various parts of the sim control panel]
-[Labeled screenshot of SCP main screen]
+![SimControlPanel](images/SimControlPanel.jpg)
 
 #### File Menu
 
