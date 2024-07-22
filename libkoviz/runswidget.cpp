@@ -98,7 +98,7 @@ bool RunsWidgetFilterProxyModel::_isDirAccept(const QString &path,
                                               int depth) const
 {
     // For speed sake, if search is too deep, accept directory
-    if (depth > 10 ) {
+    if (depth > 5 ) {
         return true;
     }
 
@@ -116,7 +116,8 @@ bool RunsWidgetFilterProxyModel::_isDirAccept(const QString &path,
     QStringList files = dir.entryList(QDir::Files|QDir::NoDotAndDotDot,
                                       QDir::Name);
     foreach (const QString &file, files) {
-        if (file.contains(rx) && _runs->isValidRunPath(file) ) {
+        QString ffile = path + QDir::separator() + file;
+        if (ffile.contains(rx) && _runs->isValidRunPath(ffile) ) {
             // Path contains regex matched file which is also readable by koviz
             return true;
         }
@@ -127,11 +128,7 @@ bool RunsWidgetFilterProxyModel::_isDirAccept(const QString &path,
                                      QDir::Name);
     foreach (const QString &subDir, dirs) {
         QString subDirPath = path + QDir::separator() + subDir;
-        if (subDir.contains(rx)) {
-            if ( _runs->isValidRunPath(subDirPath) ) {
-                return true;
-            }
-        } else if ( _isDirAccept(subDirPath, rx, depth+1) ) {
+        if ( _isDirAccept(subDirPath, rx, depth+1) ) {
             return true;
         }
     }
