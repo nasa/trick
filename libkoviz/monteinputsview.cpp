@@ -95,7 +95,30 @@ void MonteInputsView::dragMoveEvent(QDragMoveEvent *event)
     }
 }
 
-void MonteInputsView::dropEvent(QDropEvent *event) {
+void MonteInputsView::dropEvent(QDropEvent *event)
+{
+    // Accept drop if monte inputs is a list of paths instead of a
+    // monte carlo set of inputs i.e. can't drop a MONTE dir on a MONTE dir
+    bool isPaths = true;
+    int rc = model()->rowCount();
+    for (int row = 0; row < rc; ++row) {
+        QString runPath = model()->headerData(row, Qt::Vertical).toString();
+        QFileInfo fi(runPath);
+        if ( !fi.isFile() && !fi.isDir() ) {
+            isPaths = false;
+            break;
+        }
+    }
+    if ( !isPaths ) {
+        QMessageBox msgBox;
+        QString msg = QString("Sorry, adding to Monte Carlo Inputs "
+                              "and/or coplotting Monte Carlos is unsupported."
+                              "Try Options->ClearRuns, then add new path.");
+        msgBox.setText(msg);
+        msgBox.exec();
+        event->ignore();
+        return;
+    }
 
     if (event->mimeData()->hasFormat("text/uri-list")) {
         QList<QUrl> urls = event->mimeData()->urls();
