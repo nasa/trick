@@ -1810,6 +1810,8 @@ void PlotMainWindow::_runsRefreshed()
                             // Turn signals back on and reset bounding box
                             _bookModel->blockSignals(block);
                             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+                            QRectF E; // Empty set below to force redraw
+                            _bookModel->setPlotMathRect(E,plotIdx);
                             _bookModel->setPlotMathRect(bbox,plotIdx);
                         }
                     }
@@ -1891,8 +1893,8 @@ void PlotMainWindow::_runsRefreshed()
                                                          "PlotMathRect","Plot");
                     if ( !currPlotRect.normalized().isEmpty() ) {
                         // Reset to force redraw
-                        QRectF Z; // Empty
-                        _bookModel->setPlotMathRect(Z,plotIdx);
+                        QRectF E; // Empty
+                        _bookModel->setPlotMathRect(E,plotIdx);
                         _bookModel->setPlotMathRect(currPlotRect,plotIdx);
                     }
                 }
