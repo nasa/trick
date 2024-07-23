@@ -87,6 +87,10 @@ bool RunFile::isValid(const QString &run, const QStringList& timeNames)
              !OptiTrackCsvModel::isValid(run) ) {
             return false;
         }
+    } else if ( fi.suffix() == "mot" ) {
+        if ( !MotModel::isValid(run) ) {
+            return false;
+        }
     }
 
     return true;

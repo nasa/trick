@@ -45,6 +45,8 @@ class MotModel : public DataModel
     virtual QVariant data (const QModelIndex & index,
                            int role = Qt::DisplayRole ) const;
 
+    static bool isValid( const QString& motFile ) ;
+
   private:
 
     QStringList _timeNames;

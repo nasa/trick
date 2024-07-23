@@ -5,6 +5,7 @@
 #include "mapvalue.h"
 #include "datamodel_csv.h"
 #include "datamodel_optitrack_csv.h"
+#include "datamodel_mot.h"
 
 #include <QDir>
 #include <QString>
