@@ -3,32 +3,43 @@
 
 ## Simulation Control Panel
 
-The Simulation Control Panel is a graphical user interface that allows users to control and view the state of a simulation.
+The Simulation Control Panel, also known as the Sim Control Panel, is a graphical user interface that allows users to control and view the state of a simulation.
 
 ### Launching
 
-[Detail all the ways to launch the sim control panel]
+The Panel can be launched in a few ways:
+
+- Via the command line `trick-simcontrol [host name] [port number]`
+
+- Using the input file to launch it automatically, see [Automatically Launching Applications](Runtime-GUIs#automatically-launching-applications).
 
 ### The GUI
 
-[Cover the various parts of the sim control panel]
+The GUI pictured below may have a different look and feel based on the architecture of the machine on which it is running, but the functionality will remain the same.
+
 ![SimControlPanel](images/SimControlPanel.jpg)
 
 #### File Menu
 
-[Screenshot of File Menu w/ basic overview of its purpose]
+The File menu pictured below contains operations to manage the Sim Control Panel's status messages as well as its look and feel.
 
-##### Font
+![SimControlPanel_File](images/SCP_File.jpg)
 
-##### Status Messages
+- **Font:** Opens a dialogue to customize the font of the status message pane
 
-[Screenshot labeling the status message pane, the find, save, and clear buttons]
+- **Save Status Messages:** Opens a file chooser that allows you to save the current status messages to a specific file.
 
-###### Save Status Messages
+- **Clear Status Message Log:** Clears any messages within the status message pane
 
-###### Clear Status Message Log
+- **Look and Feel:** Changes the theme and color palette of the Sim Control Panel
+
+- **Exit:** Exits the application
 
 #### Actions Menu
+
+The following picture is of the Action menu that  
+
+![SimControlPanel_Actions](images/SCP_Actions.jpg)
 
 #### Toolbar
 
