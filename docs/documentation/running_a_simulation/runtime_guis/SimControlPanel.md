@@ -37,18 +37,72 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 
 #### Actions Menu
 
-The following picture is of the Action menu that  
-
 ![SimControlPanel_Actions](images/SCP_Actions.jpg)
+
+- **Start Trick View:** See [Start TV](#start-tv)
+
+- **Start Event/Malfunction Trick View:** See [Start MTV](#start-mtv)
+
+- **Freeze At:** Set the simulation to freeze at a specific time.
+
+- **Freeze In:** Freeze the simulation in a specified number of seconds
+
+- **Checkpoint Objects:** Specify which objects are going to be checkpointed when [Dump Chkpnt](#dump-chkpnt) is pressed
+
+- **Throttle:** See [Throttle](#throttle)
 
 #### Toolbar
 
 ##### Start TV
 
+Opens an instance of the Trick View application connected to the current simulation. See [Trick View](TrickView) for more details
+
 ##### Start MTV
+
+Opens an instance of the Events/Malfunctions Trick View application connected to the current simulation. See [Events/Malfunctions Trick View](MalfunctionsTrickView) for more details
 
 ##### Throttle
 
+![SimControlPanel_Throttle](images/SCP_Throttle.png)
+
+Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. Functionally allows simulations to run in real time at a faster speed.
+
 #### Command Panel
 
+##### Step
+Step through each executing job, pausing before proceeding to the next.
+
+##### Start
+Starts the simulation.
+
+##### Freeze
+Freezes the simulation
+
+##### Shutdown
+Shuts the simulation down
+
+##### Lite
+A toggle button that shrinks the Sim Control Panel to hide the status message pane and Trick Logo or returns it to the default size.
+
+##### Data Rec On
+A toggle button that switches data recording on or off.
+
+##### RealTime On
+A toggle button that controls whether the simulation is running in real time or not.
+
+##### Dump Chkpnt
+Opens a file chooser to save a checkpoint file. 
+
+##### Load Chkpnt
+Opens a file chooser to choose a checkpoint file to load into the simulation
+
+##### Exit
+Closes the Sim Control Panel
+
 #### Misc
+
+##### Simulation Overruns
+The Sim Control Panel shows which simulation is running and keeps count of its overruns.
+
+##### Simulation Connection
+The bottom part of the Sim Control Panel has a dropdown where you can input the host name and port number for the simulation to be connected to. In terms of formatting, you will need to separate the host and port by either a space or colon. The Connect button next to that dropdown initiates the connection attempt. 
