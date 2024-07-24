@@ -15,11 +15,11 @@ import trick.common.TrickApplication;
 
 public class TrickAction extends AbstractAction {
 	private TrickResources props;
-	private TrickApplication invoker;
+	private Object invoker;
 	private Method man;
 	
 	
-	public TrickAction(TrickResources p, TrickApplication target, Method m) {
+	public TrickAction(TrickResources p, Object target, Method m) {
 		props = new TrickResources(p);
 		invoker = target;
 		man = m;
@@ -57,16 +57,17 @@ public class TrickAction extends AbstractAction {
     }
     
     private void applyProperties() {
-    	String propValue;
+    	String name = props.getString(TEXT_PROPERTY);
     	ImageIcon iconValue;
     	
-    	putValue(Action.NAME, props.getString(TEXT_PROPERTY));
+    	putValue(Action.NAME, name);
     	putValue(Action.SHORT_DESCRIPTION, 
     			 props.getString(SHORT_DESCRIPTION_PROPERTY));
     	putValue(Action.LONG_DESCRIPTION,
     			 props.getString(LONG_DESCRIPTION_PROPERTY));
 
-		configureMnemonic(this, props.getString(TEXT_PROPERTY));
+		if(name != null && !name.isEmpty())
+			configureMnemonic(this, name);
     	
     	if((iconValue = props.getIcon(ICON_PROPERTY)) != null) {
     		putValue(Action.SMALL_ICON    , iconValue);
@@ -110,19 +111,6 @@ public class TrickAction extends AbstractAction {
 			but.setDisplayedMnemonicIndex(mnemIndex);
 		}
 	}
-    
-    private ImageIcon getIcon(String fileName) {
-	    	String iconPath;
-	    
-    		if(fileName.indexOf("/") >= 0) {
-    			iconPath = fileName;
-			} else {
-				iconPath = invoker.getResourcePath(invoker.getClass());
-				int finalSlash = iconPath.lastIndexOf("/") + 1;
-				iconPath = iconPath.substring(0, finalSlash) + fileName;
-    		}
-    		return new ImageIcon(iconPath);
-    }
     
     private static String resolveFilePath(String PATH, String fileName) {
     	String paths[] = PATH.split(";");

@@ -8,6 +8,8 @@ import java.awt.Component;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 import javax.swing.ActionMap;
 
@@ -15,17 +17,23 @@ import trick.common.TrickApplication;
 import trick.common.framework.BaseApplication;
 import trick.common.framework.Session;
 import trick.common.framework.TaskService;
+import trick.common.utils.SwingAction;
+import trick.common.utils.TrickAction;
 import trick.common.utils.TrickResources;
 
 public class AppContext {
 	
 	private final Class appClass;
+	private final HashMap<Object, ActionMap> actionMaps;
 	private TrickResources resources = null;
+	private TaskService service;
 	private Session session;
 
 	public AppContext(Class<? extends BaseApplication> appClass) {
 		this.appClass = appClass;
 		session = new Session();
+		service = new TaskService("default");
+		actionMaps = new HashMap<Object, ActionMap>();
 	}
 
 	public Class getApplicationClass() {
@@ -33,7 +41,35 @@ public class AppContext {
 	}
 
 	public ActionMap getActionMap(Class c, Object o) {
-		return null;
+		if(c == null) {
+			throw new IllegalArgumentException("Null Class");
+		}
+
+		if(o == null) {
+			throw new IllegalArgumentException("Null Object");
+		}
+
+		if(!c.isAssignableFrom(o.getClass())) {
+			throw new IllegalArgumentException("Given Object isn't an instance of the given Class");
+		}
+
+    	ActionMap actionMap = actionMaps.get(o);
+
+		if(actionMap == null) {
+			actionMap = new ActionMap();
+    	
+			for (Method man : c.getMethods()) {
+				if (isSwingAction(man)) {
+					String name = man.getName();
+					TrickResources actProp = TrickAction.extractProperties(getResourceMap(), name);
+					actionMap.put(man.getName(), new TrickAction(actProp, o, man));
+				}
+			}
+
+			actionMaps.put(o, actionMap);
+		}
+
+		return actionMap;
 	}
 
 	public TrickResources getResourceMap() {
@@ -52,9 +88,13 @@ public class AppContext {
 	}
 
 	public TaskService getTaskService() {
-		return null;
+		return service;
 	}
 
+	/**
+	 * Add the properties of the given component and any of its children to the resources
+	 */
+	// TODO: Implement this
 	public void addComponent(Component c) {
 
 	}
@@ -91,5 +131,9 @@ public class AppContext {
     	} catch(IOException ioe) {
     		System.err.println(ioe.getMessage());
     	}
+    }
+
+	private boolean isSwingAction(Method man) { 
+    	return man.getAnnotation(SwingAction.class) != null;
     }
 }

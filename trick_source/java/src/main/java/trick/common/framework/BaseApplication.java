@@ -417,7 +417,7 @@ public abstract class BaseApplication {
 	//========================================
 
 	public static BaseApplication getInstance() throws IllegalStateException {
-		return getInstance(GenericApplication.class);
+		return getInstance(BaseApplication.class);
 	}
 
 	public static <T extends BaseApplication> T getInstance(Class<T> appClass) throws IllegalStateException {
@@ -433,10 +433,7 @@ public abstract class BaseApplication {
 	}
 
 	public JFrame getMainFrame() {
-		if(mainView != null)
-			return mainView.getFrame();
-		else
-			return null;
+		return getMainView().getFrame();
 	}
 
 	public void setMainFrame(JFrame nFrame) {

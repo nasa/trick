@@ -338,24 +338,6 @@ public abstract class TrickApplication extends BaseApplication implements Proper
         return result.toString();
     }
     
-    protected void createActionMap() {
-    	if(actionMap == null) actionMap = new ActionMap();
-    	
-    	Class appClass = this.getClass();
-    	
-    	for (Method man : appClass.getMethods()) {
-    		if (isSwingAction(man)) {
-    			String name = man.getName();
-    			TrickResources actProp = TrickAction.extractProperties(resourceMap, name);
-    			actionMap.put(man.getName(), new TrickAction(actProp, this, man));
-    		}
-    	} 
-    }
-    
-    private boolean isSwingAction(Method man) { 
-    	return man.getAnnotation(SwingAction.class) != null;
-    }
-    
     public static String getResourcePath(Class app) {
     	String canon = app.getCanonicalName();
     	canon = "/" + canon.replace(".", "/") + ".properties";
@@ -388,7 +370,7 @@ public abstract class TrickApplication extends BaseApplication implements Proper
         getContext().getSessionStorage().putProperty(JToggleButton.class, this);
 		
         resourceMap = getContext().getResourceMap();
-		createActionMap();
+		actionMap = getContext().getActionMap(this.getClass(), this);
 
         // Load any saved user settable properties from properties file
         trickProperties = new Properties();
