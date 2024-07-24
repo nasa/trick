@@ -2997,6 +2997,24 @@ def main():
 
 ######################################################################################################################
 
+    test_suite = "SWIG Templates"
+
+    test_so.obj.class_no_ns.tnns.x = 1
+    test_so.obj.class_no_ns.tns.y  = 2
+    test_so.obj.class_ns.tnns.x = 3
+    test_so.obj.class_ns.tns.y  = 4
+    test_so.obj.foo1.bar.z  = 5
+    test_so.obj.foo2.bar.z  = 6
+
+    TRICK_EXPECT_EQ( test_so.obj.class_no_ns.tnns.x, 1, test_suite , "template member access" )
+    TRICK_EXPECT_EQ( test_so.obj.class_no_ns.tns.y, 2, test_suite , "template member access" )
+    TRICK_EXPECT_EQ( test_so.obj.class_ns.tnns.x, 3, test_suite , "template member access" )
+    TRICK_EXPECT_EQ( test_so.obj.class_ns.tns.y, 4, test_suite , "template member access" )
+    TRICK_EXPECT_EQ( test_so.obj.foo1.bar.z, 5, test_suite , "template member access" )
+    TRICK_EXPECT_EQ( test_so.obj.foo2.bar.z, 6, test_suite , "template member access" )
+
+######################################################################################################################
+
 if __name__ == "__main__":
     main()
 
