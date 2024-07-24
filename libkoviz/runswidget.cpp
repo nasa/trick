@@ -98,7 +98,7 @@ bool RunsWidgetFilterProxyModel::_isDirAccept(const QString &path,
                                               int depth) const
 {
     // For speed sake, if search is too deep, accept directory
-    if (depth > 5 ) {
+    if (depth > 3 ) {
         return true;
     }
 
