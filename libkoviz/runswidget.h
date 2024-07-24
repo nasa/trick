@@ -29,6 +29,9 @@ public:
                         QWidget *parent = 0);
     ~RunsWidget();
 
+    void setRunsHome(const QString& runsHomeDir);
+    QString runsHome();
+
 signals:
     
 public slots:
@@ -44,6 +47,7 @@ private:
     QTreeView* _fileTreeView;
     QFileSystemModel* _fileModel;
     QSortFilterProxyModel* _filterModel;
+    QString _runsHome;
 
     QStandardItemModel* _createVarsModel(Runs* runs);
 

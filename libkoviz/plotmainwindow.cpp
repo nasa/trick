@@ -338,6 +338,7 @@ void PlotMainWindow::createMenu()
     _enableDragDropAction->setCheckable(true);
     _showLiveCoordAction->setCheckable(true);
     _showLiveCoordAction->setChecked(true);
+    _selectRunsHomeAction = _optsMenu->addAction(tr("SelectRunsHome"));
     _menuBar->addMenu(_fileMenu);
     _menuBar->addMenu(_optsMenu);
     if ( !_scripts.isEmpty() ) {
@@ -375,6 +376,8 @@ void PlotMainWindow::createMenu()
             this, SLOT(_plotAllVars()));
     connect(_enableDragDropAction, SIGNAL(toggled(bool)),
             this, SLOT(_toggleEnableDragDrop(bool)));
+    connect(_selectRunsHomeAction, SIGNAL(triggered()),
+            this, SLOT(_selectRunsHome()));
     setMenuWidget(_menuBar);
 }
 
@@ -1922,6 +1925,18 @@ void PlotMainWindow::_toggleEnableDragDrop(bool isChecked )
     _varsWidget->setDragEnabled(isChecked);
     if ( _trickView ) {
         _trickView->setDragEnabled(isChecked);
+    }
+}
+
+void PlotMainWindow::_selectRunsHome()
+{
+    QString currRunsHome = _runsWidget->runsHome();
+    QString runsHome = QFileDialog::getExistingDirectory(this,
+                                                   "Select Runs Home Directory",
+                                                   currRunsHome,
+                                                   QFileDialog::ShowDirsOnly);
+    if ( !runsHome.isEmpty() ) {
+        _runsWidget->setRunsHome(runsHome);
     }
 }
 

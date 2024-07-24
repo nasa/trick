@@ -127,6 +127,7 @@ private:
     QAction *_clearRunsAction;
     QAction *_plotAllVarsAction;
     QAction *_enableDragDropAction;
+    QAction *_selectRunsHomeAction;
 
     QTabWidget* _nbDPVars;
     VarsWidget* _varsWidget;
@@ -182,6 +183,7 @@ private slots:
      void _launchScript(QAction *action);
      void _plotAllVars();
      void _toggleEnableDragDrop(bool isChecked);
+     void _selectRunsHome();
 
      void _runsRefreshed();
 

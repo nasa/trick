@@ -22,7 +22,8 @@ RunsWidget::RunsWidget(Runs *runs,
 
     // Dir/File model
     _fileModel = new QFileSystemModel;
-    _fileModel->setRootPath(QDir::currentPath());
+    _runsHome = QDir::currentPath();
+    _fileModel->setRootPath(_runsHome);
 
     // Filter
     _filterModel = new RunsWidgetFilterProxyModel(_runs);
@@ -51,6 +52,23 @@ RunsWidget::~RunsWidget()
     delete _fileModel;
 }
 
+void RunsWidget::setRunsHome(const QString &runsHomeDir)
+{
+    QFileInfo fi(runsHomeDir);
+    if ( !fi.isDir() ) {
+        return;
+    }
+    _runsHome = runsHomeDir;
+    QModelIndex sourceIndex = _fileModel->index(_runsHome);
+    QModelIndex proxyIndex = _filterModel->mapFromSource(sourceIndex);
+    _fileTreeView->setRootIndex(proxyIndex);
+}
+
+QString RunsWidget::runsHome()
+{
+    return _runsHome;
+}
+
 void RunsWidget::_runsSearchBoxReturnPressed()
 {
     QString rx = _searchBox->text();
@@ -75,10 +93,6 @@ bool RunsWidgetFilterProxyModel::filterAcceptsRow(
                                      QFileSystemModel::FilePathRole).toString();
     QFileInfo fi(path);
 
-    if ( !path.contains(QDir::currentPath()) ) {
-        return false;
-    }
-
     if ( fi.isFile() ) {
         if ( _runs->isValidRunPath(path) &&
              path.contains(filterRegularExpression()) ) {
@@ -100,10 +114,6 @@ bool RunsWidgetFilterProxyModel::_isDirAccept(const QString &path,
     // For speed sake, if search is too deep, accept directory
     if (depth > 3 ) {
         return true;
-    }
-
-    if (path == QDir::currentPath()) {
-        return true; // Always accept current path
     }
 
     if ( path.contains(rx) && _runs->isValidRunPath(path) ) {
