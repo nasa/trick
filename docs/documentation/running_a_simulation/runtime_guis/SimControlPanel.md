@@ -65,7 +65,7 @@ Opens an instance of the Events/Malfunctions Trick View application connected to
 
 ![SimControlPanel_Throttle](images/SCP_Throttle.png)
 
-Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. Functionally allows simulations to run in real time at a faster speed.
+Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. Functionally allows simulations to run in real time at a faster speed. The scale is between 1.0 and 10.0 by default, but you can increase the maximum to 1000.0
 
 #### Command Panel
 
