@@ -52,6 +52,21 @@ public abstract class Task <T, V> extends SwingWorker <T, V>{
         initTask();
 	}
 
+	// TODO: Implement this
+	public boolean isPending() {
+		return true;
+	}
+
+	// TODO: Implement this
+	public TaskService getTaskService() {
+		return null;
+	}
+
+	// TODO: Implement this
+	public void setTaskService(TaskService serv) {
+		
+	}
+
 	// protected abstract Void doInBackground();
 	protected abstract void finished();
 	protected void cancelled() {}

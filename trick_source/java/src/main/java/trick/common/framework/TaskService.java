@@ -20,37 +20,38 @@ public class TaskService extends ThreadPoolExecutor {
 
 	}
 
-	public void execute(Task t) {
-		/**
-		 * // Input Validation
-		 * if (task == null) {
-         *     throw new IllegalArgumentException("null task");
-         * }
-         * if (!task.isPending() || (task.getTaskService() != null)) {
-         *     throw new IllegalArgumentException("task has already been executed");
-         * }
-		 * 
-		 * // Setup for task execution
-         * task.setTaskService(this);
-         * // TBD: what if task has already been submitted?
-         * task.addPropertyChangeListener(taskPCL);
-		 * 
-		 * // Add Task to Queue
-         * List<Task<?, ?>> oldTaskList, newTaskList;
-         * synchronized (tasks) {
-         *     oldTaskList = tasks.getList();
-         *     tasks.addLast(task);
-         *     newTaskList = tasks.getList();
-         * }
-         * firePropertyChange(new TaskPropertyChangeEvent(oldTaskList, newTaskList, null, task));
-		 * 
-         * maybeBlockTask(task);
-         * executorService.execute(task);
-		 */
+	// TODO: Rewrite this
+	public void execute(Task task) {
+		// Input Validation
+		if (task == null) {
+            throw new IllegalArgumentException("null task");
+        }
+        if (!task.isPending() || (task.getTaskService() != null)) {
+            throw new IllegalArgumentException("task has already been executed");
+        }
+		
+		// Setup for task execution
+        task.setTaskService(this);
+        // TBD: what if task has already been submitted?
+        // task.addPropertyChangeListener(taskPCL);
+		
+		// TODO: Add Task to Queue
+        // List<Task<?, ?>> oldTaskList, newTaskList;
+        // synchronized (tasks) {
+        //     oldTaskList = tasks.getList();
+        //     tasks.addLast(task);
+        //     newTaskList = tasks.getList();
+        // }
+        // firePropertyChange(new TaskPropertyChangeEvent(oldTaskList, newTaskList, null, task));
+		
+        maybeBlockTask(task);
+        super.execute(task);
+		
 	}
 
 	public final String getName() {  return name;  }
 
+	// TODO: Implement this
 	private void maybeBlockTask(Task task) {
 
 	}
