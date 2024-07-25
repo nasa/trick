@@ -93,14 +93,21 @@ bool RunsWidgetFilterProxyModel::filterAcceptsRow(
                                      QFileSystemModel::FilePathRole).toString();
     QFileInfo fi(path);
 
-    if ( fi.isFile() ) {
-        if ( _runs->isValidRunPath(path) &&
-             path.contains(filterRegularExpression()) ) {
-            isAccept = true;
-        }
-    } else if ( fi.isDir() ) {
-        if ( _isDirAccept(path,filterRegularExpression(),0) ) {
-            isAccept = true;
+    // If the path is a toplevel path like /users/moo, accept
+    QStringList pathComponents = path.split(QDir::separator());
+    if ( pathComponents.size() < 3 ) {
+        return true;
+    }
+
+    if ( path.contains(filterRegularExpression()) ) {
+        if ( fi.isFile() ) {
+            if ( _runs->isValidRunPath(path) ) {
+                isAccept = true;
+            }
+        } else if ( fi.isDir() ) {
+            if ( _isDirAccept(path,filterRegularExpression(),0) ) {
+                isAccept = true;
+            }
         }
     }
 
@@ -122,7 +129,7 @@ bool RunsWidgetFilterProxyModel::_isDirAccept(const QString &path,
 
     QDir dir(path);
 
-    // Check files
+    // Check files within path directory
     QStringList files = dir.entryList(QDir::Files|QDir::NoDotAndDotDot,
                                       QDir::Name);
     foreach (const QString &file, files) {
@@ -133,7 +140,7 @@ bool RunsWidgetFilterProxyModel::_isDirAccept(const QString &path,
         }
     }
 
-    // Check directories
+    // Check path subdirectories
     QStringList dirs = dir.entryList(QDir::Dirs|QDir::NoDotAndDotDot,
                                      QDir::Name);
     foreach (const QString &subDir, dirs) {
