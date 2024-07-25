@@ -74,7 +74,7 @@ void RunsWidget::_runsSearchBoxReturnPressed()
     QString rx = _searchBox->text();
     _filterModel->setFilterRegularExpression(rx);
 
-    QModelIndex sourceIndex = _fileModel->index(QDir::currentPath());
+    QModelIndex sourceIndex = _fileModel->index(_runsHome);
     QModelIndex proxyIndex = _filterModel->mapFromSource(sourceIndex);
     _fileTreeView->setRootIndex(proxyIndex);
 }
@@ -82,8 +82,6 @@ void RunsWidget::_runsSearchBoxReturnPressed()
 bool RunsWidgetFilterProxyModel::filterAcceptsRow(
                                         int row,const QModelIndex &srcIdx) const
 {
-    bool isAccept = false;
-
     if (!sourceModel()) {
         return false;
     }
@@ -93,25 +91,26 @@ bool RunsWidgetFilterProxyModel::filterAcceptsRow(
                                      QFileSystemModel::FilePathRole).toString();
     QFileInfo fi(path);
 
-    // If the path is a toplevel path like /users/moo, accept
-    QStringList pathComponents = path.split(QDir::separator());
-    if ( pathComponents.size() < 3 ) {
+    QStringList pathComponents = path.split(QDir::separator(),
+                                            QString::SkipEmptyParts);
+
+    if ( pathComponents.size() <= 2 ) {
+        // If path is root or nearly toplevel, always accept
         return true;
     }
 
-    if ( path.contains(filterRegularExpression()) ) {
-        if ( fi.isFile() ) {
-            if ( _runs->isValidRunPath(path) ) {
-                isAccept = true;
-            }
-        } else if ( fi.isDir() ) {
-            if ( _isDirAccept(path,filterRegularExpression(),0) ) {
-                isAccept = true;
-            }
+    if ( fi.isFile() ) {
+        if ( path.contains(filterRegularExpression()) &&
+             _runs->isValidRunPath(path) ) {
+            return true;
+        }
+    } else if ( fi.isDir() ) {
+        if ( _isDirAccept(path,filterRegularExpression(),0) ) {
+            return true;
         }
     }
 
-    return isAccept;
+    return false;
 }
 
 bool RunsWidgetFilterProxyModel::_isDirAccept(const QString &path,
