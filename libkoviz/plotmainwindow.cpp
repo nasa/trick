@@ -1829,15 +1829,12 @@ void PlotMainWindow::_runsRefreshed()
                                                              "Plot");
                 _bookModel->setData(presIdx, "compare");
 
-                QModelIndex curveIdxToRemove;
+                QModelIndexList curveIdxsToRemove;
                 foreach ( QModelIndex curveIdx, curveIdxs ) {
                     QString curveRunPath = _bookModel->getDataString(curveIdx,
                                                         "CurveRunPath","Curve");
                     if ( runPathsToRemove.contains(curveRunPath) ) {
-                        // Since xy is same, there is only one curve to remove
-                        // which corresponds to run being removed
-                        curveIdxToRemove = curveIdx;
-                        break;
+                        curveIdxsToRemove.append(curveIdx);
                     }
                 }
                 if ( !_bookModel->isChildIndex(plotIdx,
@@ -1853,8 +1850,11 @@ void PlotMainWindow::_runsRefreshed()
                                                             "Plot");
                 int rc = _bookModel->rowCount(saveIdx);
                 _bookModel->removeRows(0,rc,saveIdx);
-                _copyCurve(curveIdxToRemove,saveIdx);
-                _bookModel->removeRow(curveIdxToRemove.row(),curvesIdx);
+                _copyCurve(curveIdxsToRemove.last(),saveIdx);
+                for ( int i = curveIdxsToRemove.size()-1; i >= 0; --i ) {
+                    QModelIndex curveIdx = curveIdxsToRemove.at(i);
+                    _bookModel->removeRow(curveIdx.row(),curvesIdx);
+                }
 
                 QModelIndexList curveIdxs = _bookModel->curveIdxs(curvesIdx);
                 int nc = curveIdxs.size();
