@@ -61,6 +61,8 @@ void MotModel::_init()
         QString name = item.trimmed();
         QString unit = "--";
         if ( name == "time" ) {
+            // Map "time" to "sys.exec.out.time"
+            name = "sys.exec.out.time";
             unit = "s";
         }
 
@@ -82,7 +84,7 @@ void MotModel::_init()
     }
 
     // Time param should be column 0
-    if ( _col2param.value(0)->name() == "time" ) {
+    if ( _col2param.value(0)->name() == "sys.exec.out.time" ) {
         _timeCol = 0;
     } else {
         fprintf(stderr, "koviz [error]: \"time\" param not found in "
