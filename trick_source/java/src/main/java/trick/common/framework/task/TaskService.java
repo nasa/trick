@@ -2,13 +2,16 @@
 //========================================
 //	Package
 //========================================
-package trick.common.framework;
+package trick.common.framework.task;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import trick.common.framework.Task;
+import javax.swing.SwingUtilities;
+
+import trick.common.framework.task.Task;
+import trick.common.framework.task.utils.InputBlocker;
 
 public class TaskService extends ThreadPoolExecutor {
 	private String name;
@@ -53,7 +56,22 @@ public class TaskService extends ThreadPoolExecutor {
 
 	// TODO: Implement this
 	private void maybeBlockTask(Task task) {
+		final InputBlocker blocker = task.getInputBlocker();
 
+		if(blocker == null ^ !blocker.willBlock()) {
+			return;
+		}
+
+		if(SwingUtilities.isEventDispatchThread()) {
+			blocker.block();
+		} else {
+			Runnable blockerRunnable = new Runnable() {
+				@Override
+				public void run() { blocker.block(); }
+			};
+
+			SwingUtilities.invokeLater(blockerRunnable);
+		}
 	}
 	
 }

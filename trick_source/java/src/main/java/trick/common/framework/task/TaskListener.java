@@ -2,9 +2,9 @@
 //========================================
 //	Package
 //========================================
-package trick.common.framework;
+package trick.common.framework.task;
 
-import trick.common.framework.TaskEvent;
+import trick.common.framework.task.TaskEvent;
 
 public interface TaskListener<T, V> {
 

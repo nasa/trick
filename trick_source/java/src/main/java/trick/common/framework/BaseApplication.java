@@ -50,7 +50,7 @@ import javax.swing.event.SwingPropertyChangeSupport;
 
 import trick.common.framework.AppContext;
 import trick.common.framework.SwingToolbox;
-import trick.common.framework.Task;
+import trick.common.framework.task.Task;
 import trick.common.framework.View;
 
 public abstract class BaseApplication {
@@ -480,19 +480,6 @@ public abstract class BaseApplication {
 	public abstract class ExitListener {
 		public abstract boolean canExit(EventObject e);
 		public abstract void willExit(EventObject e);
-	}
-
-	private class GenericApplication extends BaseApplication {
-		public GenericApplication() {
-			super();
-		}
-
-		@Override
-		protected void initialize(String[] args) { /* UNUSED */ }
-
-		@Override
-		protected void startup() { /* UNUSED */ }
-
 	}
 
 	private interface SetUpCloseOperations {

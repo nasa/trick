@@ -16,7 +16,7 @@ import javax.swing.ActionMap;
 import trick.common.TrickApplication;
 import trick.common.framework.BaseApplication;
 import trick.common.framework.Session;
-import trick.common.framework.TaskService;
+import trick.common.framework.task.TaskService;
 import trick.common.utils.SwingAction;
 import trick.common.utils.TrickAction;
 import trick.common.utils.TrickResources;

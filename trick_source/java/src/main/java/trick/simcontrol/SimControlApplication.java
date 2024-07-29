@@ -80,7 +80,7 @@ import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.JXTitledSeparator;
 
 import trick.common.framework.BaseApplication;
-import trick.common.framework.Task;
+import trick.common.framework.task.Task;
 import trick.common.framework.View;
 import trick.common.TrickApplication;
 import trick.common.ui.UIUtils;

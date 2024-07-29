@@ -27,7 +27,6 @@ public class View {
 
 	private BaseApplication app;
 
-	private JRootPane rootPane;
 	private JFrame frame;
 	private JComponent component, statusBar, toolBarPanel;
 	private JMenuBar menuBar;

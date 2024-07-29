@@ -2,7 +2,7 @@
 //========================================
 //	Package
 //========================================
-package trick.common.framework;
+package trick.common.framework.task;
 
 import java.util.EventObject;
 

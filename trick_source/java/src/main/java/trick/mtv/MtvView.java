@@ -51,7 +51,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import trick.common.framework.BaseApplication.ExitListener;
 import trick.common.framework.BaseApplication;
-import trick.common.framework.TaskMonitor;
+import trick.common.framework.task.TaskMonitor;
 import trick.common.framework.View;
 import trick.common.TrickApplication;
 import trick.common.utils.SwingAction;

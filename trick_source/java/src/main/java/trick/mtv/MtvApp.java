@@ -22,7 +22,7 @@ import javax.swing.event.TableModelEvent;
 import org.jdesktop.application.Application;
 
 import trick.common.framework.BaseApplication;
-import trick.common.framework.Task;
+import trick.common.framework.task.Task;
 import trick.common.TrickApplication;
 import trick.common.utils.VariableServerConnection;
 import trick.mtv.MtvView.Mode;

@@ -2,7 +2,7 @@
 //========================================
 //	Package
 //========================================
-package trick.common.framework;
+package trick.common.framework.task;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -13,12 +13,16 @@ import java.util.logging.Logger;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 
+import javax.swing.Action;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import trick.common.framework.TaskEvent;
-import trick.common.framework.TaskListener;
+import trick.common.framework.task.TaskEvent;
+import trick.common.framework.task.TaskListener;
+import trick.common.framework.task.utils.BlockingTarget;
+import trick.common.framework.task.utils.InputBlocker;
 import trick.common.framework.BaseApplication;
+import trick.common.utils.TrickAction;
 import trick.common.utils.TrickResources;
 
 public abstract class Task <T, V> extends SwingWorker <T, V>{
@@ -65,6 +69,11 @@ public abstract class Task <T, V> extends SwingWorker <T, V>{
 	// TODO: Implement this
 	public void setTaskService(TaskService serv) {
 		
+	}
+
+	// TODO: Implement this
+	public InputBlocker getInputBlocker() {
+		return null;
 	}
 
 	// protected abstract Void doInBackground();
