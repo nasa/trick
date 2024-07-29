@@ -131,12 +131,15 @@ void MonteInputsView::dropEvent(QDropEvent *event)
             }
         }
         event->acceptProposedAction();
+    } else {
+        QTableView::dropEvent(event);
     }
 }
 
 void MonteInputsView::keyPressEvent(QKeyEvent *event)
 {
     if ( currentIndex().row() < 0 ) {
+        event->ignore();
         return;
     }
 
@@ -144,5 +147,7 @@ void MonteInputsView::keyPressEvent(QKeyEvent *event)
         QString runPath = model()->headerData(currentIndex().row(),
                                               Qt::Vertical).toString();
         _runs->deleteRun(runPath);
+    } else {
+        QTableView::keyPressEvent(event);
     }
 }
