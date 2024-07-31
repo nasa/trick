@@ -135,9 +135,9 @@ int Trick::JITInputFile::compile(std::string file_name) {
     // rule to link shared library
     outfile << library_fullpath_name << ": " << object_fullpath_name << std::endl ;
 #ifdef __APPLE__
-    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " -shared -undefined dynamic_lookup -o $@ $< " << std::endl << std::endl ;
+    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " " << get_trick_env((char *)"TRICK_LDFLAGS") << " -shared -undefined dynamic_lookup -o $@ $< " << std::endl << std::endl ;
 #else
-    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " -shared -o $@ $< " << std::endl << std::endl ;
+    outfile << "\t" << get_trick_env((char *)"TRICK_CXX") << " " << get_trick_env((char *)"TRICK_LDFLAGS") << " -shared -o $@ $< " << std::endl << std::endl ;
 #endif
     // rule to compile cpp file
     outfile << object_fullpath_name << ": " << file_name << std::endl ;
@@ -147,7 +147,7 @@ int Trick::JITInputFile::compile(std::string file_name) {
     // rule to clean
     outfile << "clean:" << std::endl ;
     outfile << "\t rm -f " << object_fullpath_name << " " << library_fullpath_name ;
-    outfile << " " << command_line_args_get_output_dir() << "/" << dep_file_name << std::endl << std::endl ;
+    outfile << " " << dep_file_name << std::endl << std::endl ;
     // dependency file
     outfile << "-include " << dep_file_name << std::endl ;
 
@@ -264,7 +264,7 @@ int Trick::JITInputFile::add_library(std::string lib_name) {
 
 void * Trick::JITInputFile::find_symbol(std::string sym) {
     std::map< std::string , JITLibInfo >::iterator it ;
-    for ( it = file_to_libinfo_map.begin() ; it != file_to_libinfo_map.end() ; it++ ) {
+    for ( it = file_to_libinfo_map.begin() ; it != file_to_libinfo_map.end() ; ++it ) {
         void * ret = (*it).second.find_symbol(sym) ;
         if (ret != NULL) {
             return ret ;

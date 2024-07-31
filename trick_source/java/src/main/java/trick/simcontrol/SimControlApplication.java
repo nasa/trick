@@ -29,6 +29,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.NotYetConnectedException;
@@ -171,6 +172,10 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private static String host;
     private static int port = -1;
     private static boolean isRestartOptionOn;
+    //True if an error was encountered during the attempt to connect to Variable Server during intialize()
+    private boolean errOnInitConnect = false;
+    //Time out when attempting to establish connection with Variable Server in milliseconds
+    private int varServerTimeout = 5000;
     
     // The object of SimState that has Sim state data.
     private SimState simState;
@@ -405,22 +410,30 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 			String errMsg = "Error: SimControlApplication:getInitializationPacket()";
             try {
             	if (host != null && port != -1) {
-            		commandSimcom = new VariableServerConnection(host, port);
+            		commandSimcom = new VariableServerConnection(host, port, varServerTimeout);
             	} else {
             		commandSimcom = null;
             	}
             } catch (UnknownHostException host_exception) {
                 /** The IP address of the host could not be determined. */
                 errMsg += "\n Unknown host \""+host+"\"";
-                errMsg += "\n Please use a valid host name (e.g. localhost)";    
-				printErrorMessage(errMsg);           
+                errMsg += "\n Please use a valid host name (e.g. localhost)";
+                errOnInitConnect = true;   
+		printErrorMessage(errMsg); 
+            } catch (SocketTimeoutException ste) {
+                /** Connection attempt timed out. */
+                errMsg += "\n Connection Timeout \""+host+"\"";
+                errMsg += "\n Please try a different host name (e.g. localhost)";
+                errOnInitConnect = true;
+                printErrorMessage(errMsg);           
             } catch (IOException ioe) {
                 /** Port number is unavailable, or there is no connection, etc. */
                 errMsg += "\n Invalid TCP/IP port number \""+port+"\"";
                 errMsg += "\n Please check the server and enter a proper port number!";
                 errMsg += "\n IOException ..." + ioe;
                 errMsg += "\n If there is no connection, please make sure SIM is up running properly!";
-				printErrorMessage(errMsg);
+                errOnInitConnect = true;
+		printErrorMessage(errMsg);
             } 
             
             if (commandSimcom == null) {
@@ -643,6 +656,10 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         view.setMenuBar(createMenuBar());
         view.setToolBar(createToolBar());
         view.setStatusBar(createStatusBar());
+
+        if(errOnInitConnect && (runningSimList != null) ) {
+            runningSimList.addItem("localhost : " + port);  
+        } 
 
         show(view);
     }
@@ -1396,7 +1413,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     	        // Reset the packet length or future messages will be clipped.
     	        packet.setLength(buffer.length);
     	        // version Trick 10 or later	           	       
-    	        if (info[7] != null && info[7].startsWith("10.")) {	    	        
+    	        if (info[7] != null) {	    	        
 	    	        if (runningSimList != null) {
 	    	        	String hostPort = info[0] + " : " + info[1] + " (" + info[5] + " " + info[6] + ")";
 	    	        	if (!UIUtils.comboBoxContains((DefaultComboBoxModel)runningSimList.getModel(), hostPort)) {

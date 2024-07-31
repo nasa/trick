@@ -177,7 +177,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
 
     /* set the recoring job be and end of frame job.  Set each recording group to it's proper thread. */
     std::vector< Trick::FrameDataRecordGroup *>::iterator fdrg_it ;
-    for ( fdrg_it = drg_users.begin() , ii = 0 ; fdrg_it != drg_users.end() ; fdrg_it++ , ii++ ) {
+    for ( fdrg_it = drg_users.begin() , ii = 0 ; fdrg_it != drg_users.end() ; ++fdrg_it , ii++ ) {
         (*fdrg_it)->set_job_class("end_of_frame") ;
         (*fdrg_it)->set_phase(65533);
         (*fdrg_it)->set_thread(ii);
@@ -251,7 +251,7 @@ void Trick::FrameLog::add_recording_vars_for_frame() {
 */
 void Trick::FrameLog::add_recording_groups_to_sim() {
     std::vector< Trick::FrameDataRecordGroup *>::iterator fdrg_it ;
-    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; fdrg_it++ ) {
+    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; ++fdrg_it ) {
         add_data_record_group( *fdrg_it , Trick::DR_Ring_Buffer) ;
     }
     add_data_record_group(drg_trick, Trick::DR_Ring_Buffer) ;
@@ -267,7 +267,7 @@ void Trick::FrameLog::add_recording_groups_to_sim() {
 */
 void Trick::FrameLog::remove_recording_groups_from_sim() {
     std::vector< Trick::FrameDataRecordGroup *>::iterator fdrg_it ;
-    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; fdrg_it++ ) {
+    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; ++fdrg_it ) {
         remove_data_record_group( *fdrg_it) ;
     }
     remove_data_record_group(drg_trick) ;
@@ -283,7 +283,7 @@ void Trick::FrameLog::remove_recording_groups_from_sim() {
 */
 void Trick::FrameLog::enable_recording_groups() {
     std::vector< Trick::FrameDataRecordGroup *>::iterator fdrg_it ;
-    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; fdrg_it++ ) {
+    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; ++fdrg_it ) {
         (*fdrg_it)->enable() ;
     }
     drg_trick->enable() ;
@@ -299,7 +299,7 @@ void Trick::FrameLog::enable_recording_groups() {
 */
 void Trick::FrameLog::disable_recording_groups() {
     std::vector< Trick::FrameDataRecordGroup *>::iterator fdrg_it ;
-    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; fdrg_it++ ) {
+    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; ++fdrg_it ) {
         (*fdrg_it)->disable() ;
     }
     drg_trick->disable() ;
@@ -315,7 +315,7 @@ void Trick::FrameLog::disable_recording_groups() {
 */
 void Trick::FrameLog::init_recording_groups() {
     std::vector< Trick::FrameDataRecordGroup *>::iterator fdrg_it ;
-    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; fdrg_it++ ) {
+    for ( fdrg_it = drg_users.begin() ; fdrg_it != drg_users.end() ; ++fdrg_it ) {
         (*fdrg_it)->init() ;
     }
     drg_trick->init() ;
@@ -481,7 +481,7 @@ int Trick::FrameLog::set_max_samples(int num) {
             timeline_other[ii] = (Trick::timeline_t *)realloc( timeline_other[ii], tl_max_samples*sizeof(Trick::timeline_t));
         }
         std::vector< Trick::FrameDataRecordGroup *>::iterator it ;
-        for ( it = drg_users.begin() ; it != drg_users.end() ; it++ ) {
+        for ( it = drg_users.begin() ; it != drg_users.end() ; ++it ) {
             (*it)->set_max_buffer_size(num) ;
         }
         drg_trick->set_max_buffer_size(num) ;
@@ -527,7 +527,7 @@ int Trick::FrameLog::clear_data_record_info() {
     remove_recording_groups_from_sim() ;
 
     std::vector< Trick::FrameDataRecordGroup *>::iterator it ;
-    for ( it = drg_users.begin() ; it != drg_users.end() ; it++ ) {
+    for ( it = drg_users.begin() ; it != drg_users.end() ; ++it ) {
         (*it)->clear_checkpoint_vars() ;
     }
     drg_trick->clear_checkpoint_vars() ;
@@ -549,7 +549,7 @@ clear_data_record_info.
 int Trick::FrameLog::restart() {
 // removing the data record groups removed the restart jobs too.  call them here.
     std::vector< Trick::FrameDataRecordGroup *>::iterator it ;
-    for ( it = drg_users.begin() ; it != drg_users.end() ; it++ ) {
+    for ( it = drg_users.begin() ; it != drg_users.end() ; ++it ) {
         (*it)->restart() ;
     }
     drg_trick->restart() ;
@@ -713,6 +713,11 @@ int Trick::FrameLog::create_DP_files() {
 int Trick::FrameLog::create_DP_Product_dir() {
     int ret=0;
     DP_dir = "DP_Product";
+    if (std::string(command_line_args_get_user_output_dir()) != std::string(command_line_args_get_output_dir())) {
+        if (!std::string(command_line_args_get_user_output_dir()).empty()) {
+            DP_dir = std::string(command_line_args_get_user_output_dir()) + "/DP_Product";
+        }
+    } 
     ret = mkdir(DP_dir.c_str(), 0777);
     if (ret == -1) {
         if (errno == EEXIST) {
@@ -844,7 +849,7 @@ int Trick::FrameLog::create_DP_job_files() {
         total_plots = drg_users[ii]->rec_buffer.size();
         std::vector <Trick::DataRecordBuffer *>::iterator drb_it ;
         bg_color = (char *)"cornsilk2";
-        for ( drb_it = drg_users[ii]->rec_buffer.begin() + 1 ; drb_it != drg_users[ii]->rec_buffer.end() ; drb_it++ ) {
+        for ( drb_it = drg_users[ii]->rec_buffer.begin() + 1 ; drb_it != drg_users[ii]->rec_buffer.end() ; ++drb_it ) {
             if ( ! (*drb_it)->name.compare(0, 5, "frame") ) continue ;
             // plots_per_page job plots per page
             if ((plots == 0) || (plots > plots_per_page)) {

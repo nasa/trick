@@ -65,11 +65,11 @@ namespace Trick {
             /** Thread start time */
             long long start_time ;
 
-            /** Thread total frame scheduled time in tics*/
+            /** Thread total frame scheduled time in tics */
             long long frame_sched_time ;
 
-            /** Thread total frame scheduled time in seconds*/
-            double frame_time ;
+            /** Thread total frame scheduled time in seconds */
+            double frame_time ; // trick_units(s)
 
     } ;
 

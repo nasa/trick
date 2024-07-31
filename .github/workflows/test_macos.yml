@@ -13,34 +13,27 @@ on:
 
 jobs:
   macOS:
-    runs-on: macos-latest
+    runs-on: macos-13
     steps:
     - name: Checkout repository
-      uses: actions/checkout@master
-   
+      uses: actions/checkout@v3
     - name: Install gtest
       run: |
         brew install googletest
     - name: Install dependencies
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
+        brew update
+        brew upgrade || true
         brew install --cask xquartz
         brew install udunits openmotif maven
-        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
-        tar -xvf clang+llvm-14.0.6-x86_64-apple-darwin.tar.xz
-        brew install autoconf automake libtool
-        wget https://github.com/swig/swig/archive/refs/tags/v4.1.1.tar.gz
-        tar -xvzf v4.1.1.tar.gz
-        cd swig-4.1.1
-        ./autogen.sh
-        ./configure
-        make
-        make install
-        cd ..
+        brew install swig
+        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
+        tar -xvf clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-14.0.6-x86_64-apple-darwin
+        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-15.0.7-x86_64-apple-darwin21.0
         make
     - name: Test
       run: |

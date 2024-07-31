@@ -9,16 +9,16 @@ Trick requires various free third party utilities in order to function. All the 
 
 | Utility        | Version | Description             | Usage                                                     | Notes                                                 |
 |---------------:|:-------:|:-----------------------:|:---------------------------------------------------------:|:------------------------------------------------------|
-| [gcc] and g++  | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                        |
-| [clang]/[llvm] | <=14    | C/C++ Compiler          | Utilized by the interface code generator.                 | Trick Versions <= 19.3 should use LLVM <= 9        |
-| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.11 as of 04/23  |
+| [gcc] and `g++` | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                        |
+| [clang]/[llvm] | <=18    | C/C++ Compiler          | Utilized by the interface code generator.                 | Trick Versions <= 19.3 should use LLVM <= 9. Please open an issue if you encounter a problem related to newer versions of LLVM.        |
+| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.12 as of 05/2024.  |
 | [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                        |
 | [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                        |
 | [swig]         | 3.x-4.x | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ is now required for Trick. SWIG 4.x is compatible with Trick, but has some [issues](https://github.com/nasa/trick/issues/1288). Please open an issue if you encounter a problem related to SWIG 4. |
 | [make]         | 3.78+   | Build Automation        | Automates the building and cleaning of Trick.             |                                                        |
 | [openmotif]    | 2.2.0+  | GUI Toolkit             | Covers Trick GUIs not made with Java.                     |                                                        |
 | [udunits]      | 2.x+    | C Unit Library/Database | Provides support for units of physical quantities.        |                                                        |
-| [maven]        | x.x     | Java package manager    | Downloads Java dependencies and builds trick GUIs         |                                                        |
+| [maven]        | x.x     | Java package manager    | Downloads Java dependencies and builds Trick GUIs.         |                                                        |
 
 [gcc]: https://gcc.gnu.org/
 [clang]: https://clang.llvm.org/
@@ -34,10 +34,11 @@ Trick requires various free third party utilities in order to function. All the 
 
 ## Notes
 ### Clang/LLVM compiler and libraries
-Clang/LLVM can be installed and located manually should your package manager fail to acquire it. You can tell Trick where to find Clang/LLVM with the "--with-llvm" configuration option specified [below](TODO).
+Clang/LLVM can be installed and located manually should your package manager fail to acquire it. You can tell Trick where to find Clang/LLVM with the `"--with-llvm"` configuration option specified. If the version of Clang/LLVM installed by your package manager doesn't work, see [Build Clang and LLVM](#build-clang-and-llvm).
+
 
 ### Java
-Trick needs the javac compiler included in the Java Development Kit (JDK). Trick will work with either the Oracle JDK or OpenJDK.
+Trick needs the `javac` compiler included in the Java Development Kit (JDK). Trick will work with either the Oracle JDK or OpenJDK.
 
 
 **Installing both the Oracle JDK and OpenJDK may lead to problems and confusion.**
@@ -56,7 +57,10 @@ Trick runs on GNU/Linux and macOS, though any System V/POSIX compatible UNIX wor
 |[Fedora](#fedora)|
 |[Ubuntu](#ubuntu)|
 |[macOS](#macos)|
+|[Apple Silicon Mac](#apple_silicon_mac)|
 |[Windows 10 (Linux Subsystem Only)](#windows10)|
+|[Build Clang and LLVM](#build-clang-and-llvm)|
+|[Build SWIG](#build-swig)|
 |[Troubleshooting](#trouble)|
 
 ---
@@ -68,7 +72,7 @@ Sometimes environment variables affect the Trick build and can cause it to fail.
 
 
 ```
-JAVA_HOME # Trick and Maven will use JAVA_HOME to build the GUIs instead of javac in PATH if it is set.
+JAVA_HOME # Trick and Maven will use JAVA_HOME to build the GUIs instead of Javac in PATH if it is set.
 TRICK_HOME # This variable is optional but may cause a Trick build to fail if it is set to the wrong directory.
 CFLAGS, CXXFLAGS, LDFLAGS # If these flags are set they may affect flags passed to your compiler and linker
 ```
@@ -151,6 +155,7 @@ yum install hdf5-devel gsl-devel gtest-devel
 proceed to [Install Trick](#install) section of the install guide
 
 ---
+
 <a name="fedora"></a>
 
 ### Fedora
@@ -168,11 +173,12 @@ Trick makes use of several optional packages if they are present on the system. 
 ```bash
 dnf install hdf5-devel gsl-devel gtest-devel
 ```
-<a name="ubuntu"></a>
 
 proceed to [Install Trick](#install) section of the install guide
 
 ---
+
+<a name="ubuntu"></a>
 ### Ubuntu
 All packages required for Trick may be installed through apt-get. If your package manager cannot find these packages, try searching for alternatives, or your Ubuntu version may be too old.
 
@@ -195,10 +201,13 @@ export PYTHON_VERSION=3
 proceed to [Install Trick](#install) section of the install guide
 
 ---
+
 <a name="macos"></a>
-### macOS Monterey, Big Sur, Catalina
-#### These instructions are for Intel-based macs. For the latest Apple silicon (M1) instructions see this issue: https://github.com/nasa/trick/issues/1283
-1. Install the latest Xcode. I recommend installing Xcode through the App Store.
+### macOS Sonoma, Ventura, Monterey, Big Sur, Catalina
+#### These instructions are for both Intel-based and Apple Silicon Macs. Some are only applicable to Apple Silicon. 
+
+1. Install the latest Xcode. we recommend installing Xcode through the App Store.
+
 
 2. Download and install Xcode Command Line Tools for macOS. The following command in the terminal should do the job:
 
@@ -206,42 +215,53 @@ proceed to [Install Trick](#install) section of the install guide
 xcode-select --install
 ```
 
-3. Install Homebrew, macOS's unofficial package manager. They typically have a single line that can be executed in your terminal to install brew at their homepage at https://brew.sh/
+3. Install Homebrew, macOS's unofficial package manager. They typically have a single line that can be executed in your terminal to install brew at their homepage at https://brew.sh/. By default, it is installed into `/usr/local` on Intel-based machines and `/opt/homebrew` on Apple Silicon.
 
 
-4. Install the following dependencies using brew (note, we do not currently support installing llvm through brew. Trick WILL NOT work with brew's llvm. See step 5). 
+4. Install the following dependencies using brew (See step 5 if `brew install llvm` doesn't work for your Trick build). 
 
 ```bash
-brew install python java xquartz swig maven udunits openmotif 
+brew install python java xquartz swig maven udunits openmotif llvm
 
 ```
-IMPORTANT: Make sure to follow the instructions for adding java and swig to your `PATH` provided by brew. If you missed them, you can see them again by using `brew info java` and `brew info swig`. Remember,  you may need to restart your terminal for these `PATH` changes to take effect. Note that `swig@3` is now deprecated on Mac.
+IMPORTANT: Make sure to follow the instructions for adding Java and SWIG to your `PATH` provided by brew. If you missed them, you can see them again by using `brew info java` and `brew info swig`. Remember,  you may need to restart your terminal for these `PATH` changes to take effect. Note `brew install swig` will install the latest version. If a particular SWIG version is needed instead, see [Build SWIG](#build-swig).
 
-5. Download and un-compress the latest pre-built clang+llvm from llvm-project github. Go to https://github.com/llvm/llvm-project/releases
-and download the latest version llvm that matches your Xcode version from the release assets. For example, if your Xcode version is 14 then you will want the latest 14.x.x release of llvm. 13.0.1 is the latest as of the writing of this guide, the link I used is below:
-https://github.com/llvm/llvm-project/releases/download/llvmorg-13.0.1/clang+llvm-13.0.1-x86_64-apple-darwin.tar.xz
-Tip: I suggest renaming the untar'd directory to something simple like llvm13 and putting it in your home directory or development environment.
+
+5. Skip this step if `brew install llvm` works for your Trick build. Otherwise, download and un-compress a pre-built clang+llvm from llvm-project github. Go to https://github.com/llvm/llvm-project/releases and download the available version llvm from the release assets for your platform. 
+```
+  For example, the latest as of the writing of this guide:
+    1. Intel-based: https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz 
+    2. Apple Silicon: https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/clang+llvm-17.0.6-arm64-apple-darwin22.0.tar.xz
+```    
+Tip: We suggest renaming the untar'd directory to something simple like llvm15 and putting it in your home directory or development environment. If a pre-built clang+llvm for your platform is not available, see [Build Clang and LLVM](#build-clang-and-llvm).
 
 6. Read the following macOS optional steps/caveats and then go to the Install Trick section of this document. 
 
 IMPORTANT: Your mac might complain during configuration or build that llvm is downloaded from the internet and can not be trusted. You may need to find a safe solution for this on your own. DO THIS AT YOUR OWN RISK: What worked for us was enabling Settings->Security & Privacy->Privacy->Developer Tools->Terminal. 
 
-IMPORTANT: when doing the configure step in the install trick section, you need to point trick to llvm. It is also possible that the current iteration of our configure script will not be able to find the udunits package, so you may need to point trick to udunits as well (I believe this is only an issue on M1 macs).
+IMPORTANT: when doing the configure step in the [Install Trick](#install) section, you need to point Trick to `llvm`. It is also possible that the current iteration of our configure script will not be able to find the udunits package, so you may need to point Trick to udunits as well (This is only an issue on M1 macs).
 You can find the path of udunits by executing the following command:
 
-```
+```bash
 brew info udunits
 ```
 Then enter the path to llvm (and udunits) when you execute the configure command in place of the placeholders:
-```
-./configure --with-llvm=<enter path to llvm> --with-udunits=<path to udunits> <other configure flags (if any)>
+```bash
+./configure --with-llvm=<path to llvm> --with-udunits=<path to udunits> <other configure flags (if any)>
 ```
 e.g.
-```
-./configure --with-llvm=/Users/trickguy/llvm13 --with-udunits=/usr/local/Cellar/udunits/2.2.28
+```bash
+# For Apple Silicon Macs, you may need to configure as following if Trick configure can't find packages:
+./configure --with-llvm=/opt/homebrew/opt/llvm --with-udunits=/opt/homebrew --with-hdf5==/opt/homebrew
 ```
 
-OPTIONAL: Trick uses google test (gtest) version 1.8 for unit testing. To install gtest:
+
+OPTIONAL: To install gtest for Trick unit testing:
+
+`brew install googletest`
+
+For your reference, a particular googletest release can be installed as following:
+
 ```
 brew install cmake wget
 wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
@@ -250,6 +270,48 @@ cd googletest-release-1.8.0/googletest
 cmake .
 make
 make install
+```
+
+proceed to [Install Trick](#install) section of the install guide
+
+---
+
+<a name="apple_silicon_mac"></a>
+### Apple Silicon Mac 
+### The following is obtained from user notes for fresh Trick installation on macOS Sonoma for your reference. Thanks to Zack Crues!
+
+```bash
+1. Install Xcode
+   a. Install the Xcode development tools from the Apple App Store.
+   b. Install command line tools. (xcode-select --install)
+
+2. Install Homebrew
+   a. Install the Homebrew package manager (https://brew.sh)
+   b. brew install swig maven udunits openmotif llvm
+   c. brew install cmake
+   d. Optional: brew install gsl hdf5 googletest
+
+3. Install XQuartz.
+   a. Option 1: brew install xquartz
+   b. Option 2: Get XQuartz from www.quartz.org
+
+4. Install Java from Self Service.
+   a. Option 1: brew install java
+   b. Option 2: Get Java from the NASA Self Service app.
+
+5. Setup environment
+
+   setenv PYTHON_VERSION 3
+   setenv TRICK_CXXFLAGS "-g -I/opt/homebrew/include -L/opt/homebrew/lib -Wno-unused-command-line-argument"
+   setenv TRICK_CFLAGS "-g -I/opt/homebrew/include -L/opt/homebrew/lib -Wno-unused-command-line-argument"
+   setenv TRICK_LDFLAGS "-L/opt/homebrew/lib"
+   setenv TRICK_EXCLUDE "/opt/homebrew"
+
+6. Build Trick
+   a. Follow the direction in the Trick installation documentation for Mac.
+   b. I add in support for GSL, HDF5, and Google Test.
+
+./configure --with-llvm=/opt/homebrew/opt/llvm --with-udunits=/opt/homebrew/opt/udunits --with-gsl=/opt/homebrew --with-hdf5=/opt/homebrew --with-gtest=/opt/homebrew PYTHON_VERSION=3
 ```
 
 proceed to [Install Trick](#install) section of the install guide
@@ -280,6 +342,90 @@ sudo <edit_cmd> /etc/hosts
 ```
 
 proceed to [Install Trick](#install) section of the install guide
+
+---
+
+
+<a name="manual_build_clang_llvm"></a>
+### Build Clang and LLVM
+#### If you come to this section because Clang+LLVM installed by the package manager on your machine does not work for your environment, you need to manually build Clang and LLVM. Following instructions show steps on building a particular release of Clang and LLVM . `cmake` is required. CMake may support multiple native build systmes on certain platforms. A generator is responsible for generating a particular build system. Below lists two approaches for your reference. The 1st approach uses `Unix Makefiles` (one of Makefile generators) and the 2nd one uses `Ninja` (one of Ninja generators). For Mac Apple Silicon user, may want to go to the 2nd approach direcly. 
+
+#### Note: Remember to add `--with-llvm=<clang+llvm-17_path>` for Trick configure if using the Clang and LLVM built in this section.
+
+1. Using `Unix Makefiles` generator 
+
+```bash
+  # Go to a folder to checkout LLVM project
+  a. cd <a_folder>
+
+  # Clone a particular project version
+  b. git clone -b llvmorg-17.0.6 https://github.com/llvm/llvm-project.git 
+
+  c. cd llvm-project
+
+  e. mkdir build
+  
+  f. cmake -S llvm -B build -G "Unix Makefiles" -DLLVM_ENABLE_PROJECTS="clang" -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=<clang+llvm-17_path>
+   
+  # Be patient, this step takes a bit time ...
+  g. cmake --build build
+  
+  h. cd build
+
+  # Install
+  i. cmake -DCMAKE_INSTALL_PREFIX=<clang+llvm-17_path> -P cmake_install.cmake
+
+
+```
+
+2. Using `Ninja` generator
+
+```bash
+  a. brew install ninja 
+
+  b. cd <a_folder> 
+
+  c. git clone -b llvmorg-17.0.6 https://github.com/llvm/llvm-project.git 
+
+  d. cd llvm-project 
+
+  e. mkdir build 
+
+  # Apple Silicon 
+  g cmake -S llvm -B build -G Ninja -DLLVM_ENABLE_PROJECTS=clang -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=AArch64 -DCMAKE_INSTALL_PREFIX=<clang+llvm-17-arm64_path> 
+
+  # Intel-based 
+  g. cmake -S llvm -B build -G Ninja -DLLVM_ENABLE_PROJECTS=clang -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=X86 -DCMAKE_INSTALL_PREFIX=<clang+llvm-17-x86_path>  
+
+  # Build and install
+  h. cmake --build build --target install
+
+```
+
+---
+
+<a name="build_swig"></a>
+### Build SWIG
+
+```bash
+  a. Download the desired source code version from https://github.com/swig/swig/tags
+   
+  b. Go to the folder with uncompressed files
+
+  c. ./autogen.sh
+
+  # Default to /usr/local, swig command is in /usr/local/bin and swig installation is in /usr/local/share
+  # Use --prefix for ./configure to install to a different location
+  d. ./configure
+
+  e. make
+
+  # Uninstall previous installation using "make uninstall"
+  f. make install
+
+```
+
+---
 
 <a name="install"></a>
 # Install Trick
@@ -342,17 +488,17 @@ make install
 
 ### Offline Mode
 #### (No maven) (19.1 and up)
-Because java is virtual machine code and is portable, you can copy the java applications that have already been built on a different machine into your trick installation on the target machine. If trick is configured in this way, it no longer relies on maven or calls it (in the target environment only). If you know someone trustworthy who has built Trick already, they can provide the built java code to you (you can skip step 1 below).
+Because Java is virtual machine code and is portable, you can copy the Java applications that have already been built on a different machine into your Trick installation on the target machine. If Trick is configured in this way, it no longer relies on maven or calls it (in the target environment only). If you know someone trustworthy who has built Trick already, they can provide the built Java code to you (you can skip step 1 below).
  
-Trick jars are all-in-one and contain everything they need to run. You will still need maven on the machine where you build the trick java jars.
+Trick jars are all-in-one and contain everything they need to run. You will still need maven on the machine where you build the Trick Java jars.
  
-1. Pre-build your java code on a machine with trick dependencies, including maven and internet access.
+1. Pre-build your Java code on a machine with Trick dependencies, including maven and internet access.
 ```
-# On source machine with trick dependencies, internet, and maven
+# On source machine with Trick dependencies, internet, and maven
 cd prebuiltTrick && ./configure && make java
 ```
  
-2. Copy the java jars to the environment that you need to build trick on. They are nested in the libexec directory as specified below. The directory should be at the top level of trick, called trick/trick-offline.
+2. Copy the Java jars to the environment that you need to build Trick on. They are nested in the libexec directory as specified below. The directory should be at the top level of Trick, called trick/trick-offline.
 
 ``` 
 mkdir trick/trick-offline

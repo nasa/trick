@@ -15,7 +15,7 @@ Trick::JobData * Trick::Executive::get_job(std::string job_name, unsigned int j_
     range = all_jobs.equal_range(job_name) ;
 
     /** @li Move to the j_instance-th item in the list */
-    for ( it = range.first , ii = 1 ; (it != range.second) && (ii < j_instance) ; it++ , ii++ ) ;
+    for ( it = range.first , ii = 1 ; (it != range.second) && (ii < j_instance) ; ++it , ii++ ) ;
 
     /** @li If the j_instance-th item doesn't exist return NULL */
     if ( it == range.second ) {

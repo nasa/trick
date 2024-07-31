@@ -44,7 +44,7 @@ int Trick::Environment::print_vars( FILE * fp ) {
 
     std::map<std::string, std::string >::iterator it ;
 
-    for ( it = local_env.begin() ; it != local_env.end() ; it++ ) {
+    for ( it = local_env.begin() ; it != local_env.end() ; ++it ) {
         fprintf(fp, "%s = %s\n", it->first.c_str(), it->second.c_str());
     }
 

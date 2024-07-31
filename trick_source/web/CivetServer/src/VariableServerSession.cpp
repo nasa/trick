@@ -24,11 +24,16 @@ VariableServerSession::VariableServerSession( struct mg_connection *nc ) : WebSo
     intervalTimeTics = exec_get_time_tic_value(); // Default time interval is one second.
     nextTime = 0;
     cyclicSendEnabled = false;
+    mode = Initialization;
 }
 
 // DESTRUCTOR
 VariableServerSession::~VariableServerSession() {
     clear();
+}
+
+void VariableServerSession::updateNextTime(long long simTimeTics) {
+        nextTime = (simTimeTics - (simTimeTics % intervalTimeTics) + intervalTimeTics);
 }
 
 /* Base class virtual function: marshallData
@@ -41,11 +46,23 @@ VariableServerSession::~VariableServerSession() {
    (The specified period between messages).
 */
 void VariableServerSession::marshallData() {
-    long long simulation_time_tics = exec_get_time_tics() + exec_get_freeze_time_tics();
+    long long simulation_time_tics = exec_get_time_tics();
+    SIM_MODE new_mode = the_exec->get_mode();
+    
+    if(new_mode == Freeze) {
+    	simulation_time_tics += exec_get_freeze_time_tics();
+	}
+    
+    if(new_mode != mode) {
+    	mode = new_mode;
+        updateNextTime(simulation_time_tics);
+    }
+	
     if ( cyclicSendEnabled && ( simulation_time_tics >= nextTime )) {
         stageValues();
-        nextTime = (simulation_time_tics - (simulation_time_tics % intervalTimeTics) + intervalTimeTics);
+        updateNextTime(simulation_time_tics);
     }
+    	
 }
 
 /* Base class virtual function: sendMessage
@@ -60,7 +77,7 @@ void VariableServerSession::sendMessage() {
         ss << "  \"time\" : " << std::setprecision(16) << stageTime << ",\n";
         ss << "  \"values\" : [\n";
 
-        for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+        for (it = sessionVariables.begin(); it != sessionVariables.end(); ++it ) {
             if (it != sessionVariables.begin()) ss << ",\n";
             (*it)->writeValue(ss);
          }
@@ -83,7 +100,7 @@ int VariableServerSession::handleMessage(const std::string& client_msg) {
      std::string pycode;
      int period;
 
-     for (it = members.begin(); it != members.end(); it++ ) {
+     for (it = members.begin(); it != members.end(); ++it ) {
          if (strcmp((*it)->key, "cmd") == 0) {
              cmd = (*it)->valText;
          } else if (strcmp((*it)->key, "var_name") == 0) {
@@ -172,7 +189,7 @@ void VariableServerSession::addVariable(char* vname){
 void VariableServerSession::stageValues() {
     stageTime = (double)(exec_get_time_tics()) / exec_get_time_tic_value();
     std::vector<VariableServerVariable*>::iterator it;
-    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+    for (it = sessionVariables.begin(); it != sessionVariables.end(); ++it ) {
         (*it)->stageValue();
     }
     dataStaged = true;
@@ -251,7 +268,7 @@ int VariableServerSession::sendUnitsMessage(const char* vname) {
     std::vector<VariableServerVariable*>::iterator it;
     std::stringstream ss;
     ss << "{ \"msg_type\": \"units\", \"var_name\": \"" << vname << "\", \"data\": \"";
-    for (it = sessionVariables.begin(); it != sessionVariables.end(); it++ ) {
+    for (it = sessionVariables.begin(); it != sessionVariables.end(); ++it ) {
         if(!strcmp((*it)->getName(), vname)) {
             ss << (
                 (
