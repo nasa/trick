@@ -46,38 +46,41 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 
 - **Freeze At:** Sets the simulation to enter freeze mode at a specific simulation time
 
-- **Freeze In:** Put the simulation in freeze mode after a specified number of simulation seconds
+- **Freeze In:** Puts the simulation in freeze mode after a specified number of simulation seconds
 
-- **Checkpoint Objects:** Specify which objects are to be checkpointed when [Dump Chkpnt](#dump-chkpnt) is pressed
+- **Checkpoint Objects:** Specifies which objects are to be checkpointed when [Dump Chkpnt](#dump-chkpnt) is pressed
 
 - **Throttle:** Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. The scale is between 1.0 and 10.0 by default, but you can increase the maximum to 1000. It functionally allows simulations to run faster than real time up to their maximum capable speed
 
 #### Command Panel
 
-- **Step:** Step through each executing job, pausing before proceeding to the next.
+- **Step:** Steps through each executing job, pausing before proceeding to the next
 
-- **Start:** Starts the simulation.
+- **Start:** Starts the simulation
 
-- **Freeze:** Freezes the simulation.
+- **Freeze:** Freezes the simulation
 
-- **Shutdown:** Shuts the simulation down.
+- **Shutdown:** Shuts the simulation down
 
-- **Lite:** A toggle button that shrinks the Sim Control Panel to hide the status message pane and Trick Logo or returns it to the default size.
+- **Lite:** Shrinks the Sim Control Panel to hide the status message pane and Trick Logo or returns it to the default size via a toggle button
 
-- **Data Rec On:** A toggle button that switches data recording on or off.
+- **Data Rec On:** Toggles data recording on or off
 
-- **RealTime On:** A toggle button that controls whether the simulation is running in real time or not.
+- **RealTime On:** Toggles real time mode in a simulation
 
-- **Dump Chkpnt:** Opens a file chooser to save a checkpoint file.
+- **Dump Chkpnt:** Opens a file chooser to save a checkpoint file
 
-- **Load Chkpnt:** Opens a file chooser to choose a checkpoint file to load into the simulation.
+- **Load Chkpnt:** Opens a file chooser to choose a checkpoint file to load into the simulation
 
-- **Exit:** Closes the Sim Control Panel.
+- **Exit:** Closes the Sim Control Panel
 
 #### Misc
 
 ##### Simulation Overruns
 The Sim Control Panel shows which simulation is running and keeps count of its overruns.
+
+##### Status Message Panel
+This panel is where any error or status messaging for the simulation appears. The search bar at the bottom allows the user to find specific text within the panel.
 
 ##### Simulation Connection
 The bottom part of the Sim Control Panel has a dropdown where the user can input the host name and port number of the simulation to which the user is attempting to connect. The host name and port number must be separated by either a space or a colon. The user can also use the dropdown menu to select a simulation. The Connect button next to the dropdown initiates the connection attempt. 
