@@ -11,7 +11,7 @@ The Panel can be launched in a few ways:
 
 - Via the command line `trick-simcontrol [host name] [port number]`
 
-- Using the input file to launch it automatically, see [Automatically Launching Applications](Runtime-GUIs#automatically-launching-applications).
+- Using the input file to launch it automatically, see [Automatically Launching Applications](Runtime-GUIs#automatically-launching-applications)
 
 ### The GUI
 
@@ -27,7 +27,7 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 
 - **Font:** Opens a dialogue to customize the font of the status message pane
 
-- **Save Status Messages:** Opens a file chooser that allows you to save the current status messages to a specific file.
+- **Save Status Messages:** Opens a file chooser that allows you to save the current status messages to a specific file
 
 - **Clear Status Message Log:** Clears any messages within the status message pane
 
@@ -55,54 +55,54 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 
 ##### Start TV
 
-Opens an instance of the Trick View application connected to the current simulation. See [Trick View](TrickView) for more details
+Opens an instance of the Trick View application connected to the current simulation. See [Trick View](TrickView) for more details.
 
 ##### Start MTV
 
-Opens an instance of the Events/Malfunctions Trick View application connected to the current simulation. See [Events/Malfunctions Trick View](MalfunctionsTrickView) for more details
+Opens an instance of the Events/Malfunctions Trick View application connected to the current simulation. See [Events/Malfunctions Trick View](MalfunctionsTrickView) for more details.
 
 ##### Throttle
 
 ![SimControlPanel_Throttle](images/SCP_Throttle.png)
 
-Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. Functionally allows simulations to run in real time at a faster speed. The scale is between 1.0 and 10.0 by default, but you can increase the maximum to 1000.0
+Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. Functionally allows simulations to run in real time at a faster speed. The scale is between 1.0 and 10.0 by default, but you can increase the maximum to 1000.
 
 #### Command Panel
 
 ##### Step
-Step through each executing job, pausing before proceeding to the next
+Step through each executing job, pausing before proceeding to the next.
 
 ##### Start
-Starts the simulation
+Starts the simulation.
 
 ##### Freeze
-Freezes the simulation
+Freezes the simulation.
 
 ##### Shutdown
-Shuts the simulation down
+Shuts the simulation down.
 
 ##### Lite
-A toggle button that shrinks the Sim Control Panel to hide the status message pane and Trick Logo or returns it to the default size
+A toggle button that shrinks the Sim Control Panel to hide the status message pane and Trick Logo or returns it to the default size.
 
 ##### Data Rec On
-A toggle button that switches data recording on or off
+A toggle button that switches data recording on or off.
 
 ##### RealTime On
-A toggle button that controls whether the simulation is running in real time or not
+A toggle button that controls whether the simulation is running in real time or not.
 
 ##### Dump Chkpnt
-Opens a file chooser to save a checkpoint file
+Opens a file chooser to save a checkpoint file.
 
 ##### Load Chkpnt
-Opens a file chooser to choose a checkpoint file to load into the simulation
+Opens a file chooser to choose a checkpoint file to load into the simulation.
 
 ##### Exit
-Closes the Sim Control Panel
+Closes the Sim Control Panel.
 
 #### Misc
 
 ##### Simulation Overruns
-The Sim Control Panel shows which simulation is running and keeps count of its overruns
+The Sim Control Panel shows which simulation is running and keeps count of its overruns.
 
 ##### Simulation Connection
 The bottom part of the Sim Control Panel has a dropdown where you can input the host name and port number for the simulation to be connected to. In terms of formatting, you will need to separate the host and port by either a space or colon. The user can also use the dropdown menu to select a simulation. The Connect button next to that dropdown initiates the connection attempt. 
