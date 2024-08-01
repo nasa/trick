@@ -80,4 +80,4 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 The Sim Control Panel shows which simulation is running and keeps count of its overruns.
 
 ##### Simulation Connection
-The bottom part of the Sim Control Panel has a dropdown where you can input the host name and port number for the simulation to be connected to. In terms of formatting, you will need to separate the host and port by either a space or colon. The user can also use the dropdown menu to select a simulation. The Connect button next to that dropdown initiates the connection attempt. 
+The bottom part of the Sim Control Panel has a dropdown where the user can input the host name and port number of the simulation to which the user is attempting to connect. The host name and port number will need to be separated by either a space or a colon. The user can also use the dropdown menu to select a simulation. The Connect button next to that dropdown initiates the connection attempt. 
