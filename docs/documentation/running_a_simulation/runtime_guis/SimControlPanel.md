@@ -50,39 +50,29 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 
 - **Checkpoint Objects:** Specify which objects are to be checkpointed when [Dump Chkpnt](#dump-chkpnt) is pressed
 
-- **Throttle:** Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. Functionally allows simulations to run in real time at a faster speed. The scale is between 1.0 and 10.0 by default, but you can increase the maximum to 1000.
+- **Throttle:** Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. The scale is between 1.0 and 10.0 by default, but you can increase the maximum to 1000. It functionally allows simulations to run faster than real time up to their maximum capable speed
 
 #### Command Panel
 
-##### Step
-Step through each executing job, pausing before proceeding to the next.
+- **Step:** Step through each executing job, pausing before proceeding to the next.
 
-##### Start
-Starts the simulation.
+- **Start:** Starts the simulation.
 
-##### Freeze
-Freezes the simulation.
+- **Freeze:** Freezes the simulation.
 
-##### Shutdown
-Shuts the simulation down.
+- **Shutdown:** Shuts the simulation down.
 
-##### Lite
-A toggle button that shrinks the Sim Control Panel to hide the status message pane and Trick Logo or returns it to the default size.
+- **Lite:** A toggle button that shrinks the Sim Control Panel to hide the status message pane and Trick Logo or returns it to the default size.
 
-##### Data Rec On
-A toggle button that switches data recording on or off.
+- **Data Rec On:** A toggle button that switches data recording on or off.
 
-##### RealTime On
-A toggle button that controls whether the simulation is running in real time or not.
+- **RealTime On:** A toggle button that controls whether the simulation is running in real time or not.
 
-##### Dump Chkpnt
-Opens a file chooser to save a checkpoint file.
+- **Dump Chkpnt:** Opens a file chooser to save a checkpoint file.
 
-##### Load Chkpnt
-Opens a file chooser to choose a checkpoint file to load into the simulation.
+- **Load Chkpnt:** Opens a file chooser to choose a checkpoint file to load into the simulation.
 
-##### Exit
-Closes the Sim Control Panel.
+- **Exit:** Closes the Sim Control Panel.
 
 #### Misc
 
