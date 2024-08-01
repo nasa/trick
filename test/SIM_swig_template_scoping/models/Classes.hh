@@ -144,7 +144,7 @@ namespace prime {
         class Corn {
             ::Foo<peer::Leek>                                 fooLeek;
 
-              peer::Bar<Foo<long>>                            barFoo;
+              peer::Bar<Foo<long> >                           barFoo;
             ::peer::Bar<peer::Leek>                           barLeek;
 
               peer::Leek::Eggplant<long>                      eggplantLong;
