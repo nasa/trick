@@ -3,7 +3,7 @@
 
 Trick provides the following graphical user interfaces:
 
-## [Simulation Control Panel](SimControlPanel)
+## [Sim Control Panel](SimControlPanel)
 
 Send control commands to and view the status of a simulation.
 

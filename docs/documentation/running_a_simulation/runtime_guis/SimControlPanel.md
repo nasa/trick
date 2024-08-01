@@ -1,15 +1,16 @@
-| [Home](/trick) → [Documentation Home](../../Documentation-Home) → [Running a Simulation](../Running-a-Simulation) → [Runtime GUIs](Runtime-GUIs) → Simulation Control Panel |
+| [Home](/trick) → [Documentation Home](../../Documentation-Home) → [Running a Simulation](../Running-a-Simulation) → [Runtime GUIs](Runtime-GUIs) → Sim Control Panel |
 |------------------------------------------------------------------|
 
-## Simulation Control Panel
+## Sim Control Panel
 
-The Simulation Control Panel, also known as the Sim Control Panel, is a graphical user interface that allows users to control and view the state of a simulation.
+The Sim Control Panel is a graphical user interface that allows users to control and view the state of a simulation.
 
 ### Launching
 
-The Panel can be launched in a few ways:
+The Panel can be launched in two ways:
 
-- Via the command line `trick-simcontrol [host name] [port number]`
+- Via the command line `${TRICK_HOME}/bin/trick-simcontrol [host name] [port number]` 
+  - The host name and port number are optional
 
 - Using the input file to launch it automatically, see [Automatically Launching Applications](Runtime-GUIs#automatically-launching-applications)
 
