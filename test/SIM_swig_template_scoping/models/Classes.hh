@@ -138,6 +138,48 @@ namespace prime {
 //          prime::Onion::InnerOnion<bool>   layer2;
 //        ::prime::Onion::InnerOnion<short>  layer4;
     };
+
+    // Same tests as above, but within a nested namespace.
+    namespace nested {
+        class Corn {
+            ::Foo<peer::Leek>                                 fooLeek;
+
+              peer::Bar<Foo<long>>                            barFoo;
+            ::peer::Bar<peer::Leek>                           barLeek;
+
+              peer::Leek::Eggplant<long>                      eggplantLong;
+            ::peer::Leek::Eggplant<peer::Leek>                eggplantLeek;
+
+              peer::nested::Broccoli<long>                    broccoliLong;
+            ::peer::nested::Broccoli<peer::Leek>              broccoliLeek;
+
+              peer::nested::Carrot::Celery<long>              celeryLong;
+            ::peer::nested::Carrot::Celery<peer::Leek>        celeryLeek;
+
+              prime::Potato<long>                             potatoLong;
+            ::prime::Potato<peer::Leek>                       potatoLeek;
+
+              prime::Turnip::Radish<long>                     radishLong;
+            ::prime::Turnip::Radish<peer::Leek>               radishLeek;
+
+              prime::nested::Baz<long>                        bazLong;
+            ::prime::nested::Baz<peer::Leek>                  bazLeek;
+
+              prime::nested::Artichoke::Asparagus<long>       asparagusLong;
+            ::prime::nested::Artichoke::Asparagus<peer::Leek> asparagusLeek;
+
+            // These fail in Onion, but work here because Onion has already been processed.
+              prime::Onion::InnerOnion<long>                  onionLong;
+            ::prime::Onion::InnerOnion<peer::Leek>            onionLeek;
+
+            // These fail for the same reason as in Onion.
+//          Foo<float> fooFloat;
+//          Turnip::Radish<float>               radishFloat;
+//          nested::Baz<float>                  bazFloat;
+//          nested::Artichoke::Asparagus<float> asparagusFloat;
+//          Onion::InnerOnion<float>            innerOnionFloat;
+        };
+    }
 }
 
 #endif
