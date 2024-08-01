@@ -43,7 +43,7 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 
 - **Start Event/Malfunction Trick View:** See [Start MTV](#start-mtv)
 
-- **Freeze At:** Set the simulation to freeze at a specific time.
+- **Freeze At:** Set the simulation to freeze at a specific time
 
 - **Freeze In:** Freeze the simulation in a specified number of seconds
 
@@ -70,10 +70,10 @@ Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time R
 #### Command Panel
 
 ##### Step
-Step through each executing job, pausing before proceeding to the next.
+Step through each executing job, pausing before proceeding to the next
 
 ##### Start
-Starts the simulation.
+Starts the simulation
 
 ##### Freeze
 Freezes the simulation
@@ -82,16 +82,16 @@ Freezes the simulation
 Shuts the simulation down
 
 ##### Lite
-A toggle button that shrinks the Sim Control Panel to hide the status message pane and Trick Logo or returns it to the default size.
+A toggle button that shrinks the Sim Control Panel to hide the status message pane and Trick Logo or returns it to the default size
 
 ##### Data Rec On
-A toggle button that switches data recording on or off.
+A toggle button that switches data recording on or off
 
 ##### RealTime On
-A toggle button that controls whether the simulation is running in real time or not.
+A toggle button that controls whether the simulation is running in real time or not
 
 ##### Dump Chkpnt
-Opens a file chooser to save a checkpoint file. 
+Opens a file chooser to save a checkpoint file
 
 ##### Load Chkpnt
 Opens a file chooser to choose a checkpoint file to load into the simulation
@@ -102,7 +102,7 @@ Closes the Sim Control Panel
 #### Misc
 
 ##### Simulation Overruns
-The Sim Control Panel shows which simulation is running and keeps count of its overruns.
+The Sim Control Panel shows which simulation is running and keeps count of its overruns
 
 ##### Simulation Connection
-The bottom part of the Sim Control Panel has a dropdown where you can input the host name and port number for the simulation to be connected to. In terms of formatting, you will need to separate the host and port by either a space or colon. The Connect button next to that dropdown initiates the connection attempt. 
+The bottom part of the Sim Control Panel has a dropdown where you can input the host name and port number for the simulation to be connected to. In terms of formatting, you will need to separate the host and port by either a space or colon. The user can also use the dropdown menu to select a simulation. The Connect button next to that dropdown initiates the connection attempt. 
