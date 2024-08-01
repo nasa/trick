@@ -17,7 +17,7 @@ The Panel can be launched in two ways:
 ### The GUI
 
 The GUI pictured below may have a different look and feel based on the architecture of the machine on which it is running, but the functionality will remain the same.
-
+RET=RUn Elapsed Time
 ![SimControlPanel](images/SimControlPanel.jpg)
 
 #### File Menu
@@ -40,33 +40,17 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 
 ![SimControlPanel_Actions](images/SCP_Actions.jpg)
 
-- **Start Trick View:** See [Start TV](#start-tv)
+- **Start Trick View:** Opens an instance of the Trick View application connected to the current simulation. See [Trick View](TrickView) for more details.
 
-- **Start Event/Malfunction Trick View:** See [Start MTV](#start-mtv)
+- **Start Event/Malfunction Trick View:** Opens an instance of the Events/Malfunctions Trick View application connected to the current simulation. See [Events/Malfunctions Trick View](MalfunctionsTrickView) for more details.
 
-- **Freeze At:** Set the simulation to freeze at a specific time
+- **Freeze At:** Sets the simulation to enter freeze mode at a specific simulation time
 
-- **Freeze In:** Freeze the simulation in a specified number of seconds
+- **Freeze In:** Put the simulation in freeze mode after a specified number of simulation seconds
 
-- **Checkpoint Objects:** Specify which objects are going to be checkpointed when [Dump Chkpnt](#dump-chkpnt) is pressed
+- **Checkpoint Objects:** Specify which objects are to be checkpointed when [Dump Chkpnt](#dump-chkpnt) is pressed
 
-- **Throttle:** See [Throttle](#throttle)
-
-#### Toolbar
-
-##### Start TV
-
-Opens an instance of the Trick View application connected to the current simulation. See [Trick View](TrickView) for more details.
-
-##### Start MTV
-
-Opens an instance of the Events/Malfunctions Trick View application connected to the current simulation. See [Events/Malfunctions Trick View](MalfunctionsTrickView) for more details.
-
-##### Throttle
-
-![SimControlPanel_Throttle](images/SCP_Throttle.png)
-
-Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. Functionally allows simulations to run in real time at a faster speed. The scale is between 1.0 and 10.0 by default, but you can increase the maximum to 1000.
+- **Throttle:** Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. Functionally allows simulations to run in real time at a faster speed. The scale is between 1.0 and 10.0 by default, but you can increase the maximum to 1000.
 
 #### Command Panel
 
