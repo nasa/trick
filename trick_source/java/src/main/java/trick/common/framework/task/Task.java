@@ -6,6 +6,7 @@ package trick.common.framework.task;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.Thread.State;
 import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.logging.Level;
@@ -46,7 +47,8 @@ public abstract class Task <T, V> extends SwingWorker <T, V>{
 	private long    messageTime, taskStart, taskDone;
 	private String  title, description, message;
 	private boolean progressProperty;
-	
+	private InputBlocker blocker;
+	private TaskService service;
 
 	public Task(BaseApplication app) {
 		this.application = app;
@@ -55,25 +57,25 @@ public abstract class Task <T, V> extends SwingWorker <T, V>{
 
         initTask();
 	}
-
-	// TODO: Implement this
+	
 	public boolean isPending() {
-		return true;
+		return getState() == StateValue.PENDING;
 	}
 
-	// TODO: Implement this
 	public TaskService getTaskService() {
-		return null;
+		return service;
 	}
 
-	// TODO: Implement this
 	public void setTaskService(TaskService serv) {
-		
+		service = serv;
 	}
 
-	// TODO: Implement this
 	public InputBlocker getInputBlocker() {
-		return null;
+		return blocker;
+	}
+
+	public void setInputBlocker(InputBlocker block) {
+		blocker = block;
 	}
 
 	// protected abstract Void doInBackground();
@@ -178,6 +180,7 @@ public abstract class Task <T, V> extends SwingWorker <T, V>{
         }
     }
 
+	// TODO: Rewrite this
 	private class StatePCL implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent e) {
