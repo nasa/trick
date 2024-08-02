@@ -9,15 +9,15 @@ The Sim Control Panel is a graphical user interface that allows users to control
 
 The Panel can be launched in two ways:
 
-- Via the command line `${TRICK_HOME}/bin/trick-simcontrol [host name] [port number]` 
-  - The host name and port number are optional
+- Via the command line `${TRICK_HOME}/bin/trick-simcontrol [hostname] [port number]` 
+  - The hostname and port number are optional
 
 - Using the input file to launch it automatically, see [Automatically Launching Applications](Runtime-GUIs#automatically-launching-applications)
 
 ### The GUI
 
 The GUI pictured below may have a different look and feel based on the architecture of the machine on which it is running, but the functionality will remain the same.
-RET=RUn Elapsed Time
+
 ![SimControlPanel](images/SimControlPanel.jpg)
 
 #### File Menu
@@ -48,17 +48,17 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 
 - **Freeze In:** Puts the simulation in freeze mode after a specified number of simulation seconds
 
-- **Checkpoint Objects:** Specifies which objects are to be checkpointed when [Dump Chkpnt](#dump-chkpnt) is pressed
+- **Checkpoint Objects:** Specifies which objects are to be checkpointed when the `Dump Chkpnt` button is pressed
 
-- **Throttle:** Opens a dialogue with a slider for you to set the maximum Sim Time / Real Time Ratio. The scale is between 1.0 and 10.0 by default, but you can increase the maximum to 1000. It functionally allows simulations to run faster than real time up to their maximum capable speed
+- **Throttle:** Opens a dialogue with a slider for you to set the maximum Sim Time / Real-Time Ratio. By default, the scale is between 1.0 and 10.0 but you can increase the maximum to 1000. It functionally allows simulations to run faster than real-time up to their maximum capable speed
 
 #### Command Panel
 
 - **Step:** Steps through each executing job, pausing before proceeding to the next
 
-- **Start:** Starts the simulation
+- **Start:** Puts the simulation in run mode
 
-- **Freeze:** Freezes the simulation
+- **Freeze:** Puts the simulation in freeze mode
 
 - **Shutdown:** Shuts the simulation down
 
@@ -66,7 +66,7 @@ The File menu pictured below contains operations to manage the Sim Control Panel
 
 - **Data Rec On:** Toggles data recording on or off
 
-- **RealTime On:** Toggles real time mode in a simulation
+- **RealTime On:** Toggles real-time mode in a simulation
 
 - **Dump Chkpnt:** Opens a file chooser to save a checkpoint file
 
@@ -83,4 +83,4 @@ The Sim Control Panel shows which simulation is running and keeps count of its o
 This panel is where any error or status messaging for the simulation appears. The search bar at the bottom allows the user to find specific text within the panel.
 
 ##### Simulation Connection
-The bottom part of the Sim Control Panel has a dropdown where the user can input the host name and port number of the simulation to which the user is attempting to connect. The host name and port number must be separated by either a space or a colon. The user can also use the dropdown menu to select a simulation. The Connect button next to the dropdown initiates the connection attempt. 
+The bottom part of the Sim Control Panel has a dropdown where the user can input the hostname and port number of the simulation to which the user is attempting to connect. The hostname and port number must be separated by either a space or a colon. The user can also use the dropdown menu to select a simulation. The Connect button next to the dropdown initiates the connection attempt. 
