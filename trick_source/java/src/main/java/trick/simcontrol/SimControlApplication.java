@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.Desktop;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -30,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.NotYetConnectedException;
@@ -238,6 +240,18 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     @Action
     public void startMTV() {
         launchTrickApplication("mtv",  host + " " + port);
+    }
+
+    @Action
+    public void openWiki() {
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            try {
+                Desktop.getDesktop().browse(new URI("https://nasa.github.io/trick/index"));
+            }
+            catch(Exception e) {
+                System.out.println("Exception occurred while opening wiki: " + e.getMessage());
+            }
+        }
     }
 
     @Action
@@ -970,9 +984,14 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 "---",
                 "startMTV",             
                 "---",
-                "throttle"
+                "throttle",             
+                "---",
+                "openWiki"
             };
-        JToolBar toolBar = new JToolBar();      
+        JToolBar toolBar = new JToolBar();
+        //JButton button = new JButton("openWiki");
+        //button.setPreferredSize(new Dimension(22, 220)); // Set preferred size
+        //toolBar.add(button);   
         for (String actionName : toolbarActionNames) {
             if (actionName.equals("---")) {
                 toolBar.addSeparator();
