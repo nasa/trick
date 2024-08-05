@@ -23,6 +23,13 @@ sudo dnf install -y qt5-qtbase-devel bison flex make gcc gcc-c++
 sudo apt-get install qtbase5-dev make flex bison g++ 
 ```
 
+## Mac OS
+
+```zsh
+brew install qt@5
+brew link qt5 --force
+```
+
 # Build
 
 ## Redhat 7 & 8
@@ -36,6 +43,13 @@ make
 This is only required if you want to run the binary directly instead of using `build-and-run-koviz.sh`.
 
 ```sh
+qmake
+make
+```
+
+## Mac OS
+
+```zsh
 qmake
 make
 ```
