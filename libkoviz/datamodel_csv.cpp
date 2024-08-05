@@ -101,7 +101,12 @@ void CsvModel::_init()
              break;
         }
         if ( _nrows % 10000 == 0 ) {
-            int secs = qRound(timer.stop()/1000000.0);
+            #ifdef __linux
+                int secs = qRound(timer.stop()/1000000.0);
+            #else
+                int secs = 0;
+            #endif
+
             div_t d = div(secs,60);
             QString m = QString("%1, nrows=%2 (%3 min %4 sec)")
                                 .arg(msgCnt).arg(_nrows).arg(d.quot).arg(d.rem);
