@@ -5,6 +5,7 @@
 package trick.common.framework;
 
 import java.awt.Component;
+import java.awt.Container;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import javax.swing.ActionMap;
+import javax.swing.JMenu;
 
 import trick.common.TrickApplication;
 import trick.common.framework.BaseApplication;
@@ -95,8 +97,31 @@ public class AppContext {
 	 * Add the properties of the given component and any of its children to the resources
 	 */
 	// TODO: Implement this
-	public void addComponent(Component c) {
+	public void injectComponents(Component root) {
+		if (root == null) {
+			throw new IllegalArgumentException("null component. can't inject");
+		}
 
+		injectProperties(root);
+
+		if(root instanceof JMenu) 
+			injectComponents(((JMenu) root).getMenuComponents());
+		else if(root instanceof Container)
+			injectComponents(((Container) root).getComponents());
+	}
+
+	private void injectComponents(Component[] components) {
+		for (Component component : components) {
+			injectComponents(component);
+		}
+	}
+
+	private void injectProperties(Component component) {
+		if (component == null) {
+			throw new IllegalArgumentException("null component. can't inject properties");
+		}
+		
+		
 	}
     
     private TrickResources parseResources(Class<? extends BaseApplication> app) throws IOException, FileNotFoundException {
