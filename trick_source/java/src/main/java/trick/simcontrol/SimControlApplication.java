@@ -988,10 +988,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 "---",
                 "openWiki"
             };
-        JToolBar toolBar = new JToolBar();
-        //JButton button = new JButton("openWiki");
-        //button.setPreferredSize(new Dimension(22, 220)); // Set preferred size
-        //toolBar.add(button);   
+        JToolBar toolBar = new JToolBar(); 
         for (String actionName : toolbarActionNames) {
             if (actionName.equals("---")) {
                 toolBar.addSeparator();
