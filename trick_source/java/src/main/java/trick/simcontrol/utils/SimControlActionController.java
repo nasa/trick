@@ -237,7 +237,7 @@ public class SimControlActionController {
 			}
 		}
 	}
-	
+
 	/**
 	 * Invoked when the users presses the Step button.
          * @param debug_flag single step the sim
