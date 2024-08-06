@@ -57,7 +57,6 @@ my %sim ;
 my %out_of_date ;
 my ($version, $thread, $year) ;
 my %processed_templates ;
-my $global_template_typedefs ;
 
 my $typedef_def = qr/typedef\s+                            # the word typedef
                (?:[_A-Za-z][\s\w]*\s*)                     # resolved type
@@ -336,7 +335,6 @@ sub process_file() {
         }
         print OUT "\n$new_contents" ;
         print OUT "$contents\n" ;
-        print OUT $global_template_typedefs ;
 
         # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper non-class attribute assingment in input processor.
         # _swig_setattr_nondynamic_instance_variable function is added for each class in process_class subroutine.
@@ -692,10 +690,6 @@ sub process_class($$$$$) {
                     my ($template_type_no_sp) = $template_full_type ;
                     $template_type_no_sp =~ s/\s//g ;
 
-                    # If the type is qualified, assume it's fully qualified and put the
-                    # %template directive in the global namespace.
-                    # See https://github.com/nasa/trick/issues/768
-                    my $qualified = $template_type_no_sp =~ /^\w+(::)\w+</ ;
                     #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
                     if ( ! exists $processed_templates{$template_type_no_sp} ) {
 
@@ -715,7 +709,7 @@ sub process_class($$$$$) {
                         # %template directive in the global namespace by escaping the current namespace
 			if ($curr_namespace ne "") {
                             my $in_same_namespace = 1 ;
-                            if ($template_full_type =~ /^\w*(::)\w+</) {
+                            if ($template_full_type =~ /^\w*(::\w+)+</) {
                                 $in_same_namespace = 0 ;
                             }
                             if ($in_same_namespace eq 0) {
