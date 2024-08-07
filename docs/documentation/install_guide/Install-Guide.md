@@ -190,7 +190,7 @@ apt-get update
 apt-get install -y bison clang flex git llvm make maven swig cmake \
 curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
 python3-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
-libgtest-dev openjdk-11-jdk zip
+libgtest-dev default-jdk zip
 
 # On some versions of Ubuntu (18.04 as of 04/2021), there may be multiple installations of python.
 # Our new python3-dev will be linked to python3 and python3-config in your bin.
@@ -348,9 +348,9 @@ proceed to [Install Trick](#install) section of the install guide
 
 <a name="manual_build_clang_llvm"></a>
 ### Build Clang and LLVM
-#### If you come to this section because Clang+LLVM installed by the package manager on your machine does not work for your environment, you need to manually build Clang and LLVM. Following instructions show steps on building a particular release of Clang and LLVM . `cmake` is required. CMake may support multiple native build systmes on certain platforms. A generator is responsible for generating a particular build system. Below lists two approaches for your reference. The 1st approach uses `Unix Makefiles` (one of Makefile generators) and the 2nd one uses `Ninja` (one of Ninja generators). For Mac Apple Silicon user, may want to go to the 2nd approach direcly. 
+If you come to this section because Clang+LLVM installed by the package manager on your machine does not work for your environment, you need to manually build Clang and LLVM. Following instructions show steps on building a particular release of Clang and LLVM . `cmake` is required. CMake may support multiple native build systmes on certain platforms. A generator is responsible for generating a particular build system. Below lists two approaches for your reference. The 1st approach uses `Unix Makefiles` (one of Makefile generators) and the 2nd one uses `Ninja` (one of Ninja generators). For Mac Apple Silicon user, may want to go to the 2nd approach direcly. 
 
-#### Note: Remember to add `--with-llvm=<clang+llvm-17_path>` for Trick configure if using the Clang and LLVM built in this section.
+Note: Remember to add `--with-llvm=<clang+llvm-17_path>` for Trick configure if using the Clang and LLVM built in this section.
 
 1. Using `Unix Makefiles` generator 
 
