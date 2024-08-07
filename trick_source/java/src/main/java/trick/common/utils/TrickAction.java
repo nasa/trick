@@ -85,17 +85,16 @@ public class TrickAction extends AbstractAction {
 
 	public static void configureMnemonic(Object target, String text) {
 		String name;
-		int mnemIndex, mnemKey;
+		int mnemIndex = -1, mnemKey = KeyEvent.VK_UNDEFINED;
 		
 		name = text;
 		mnemIndex = name.indexOf("&");
 		mnemIndex = mnemIndex < 0 ? name.indexOf("_") : mnemIndex;
 
-		if (mnemIndex < 0)  return;
-
-		name = name.substring(0, mnemIndex) + name.substring(mnemIndex + 1);
-
-		mnemKey = KeyEvent.getExtendedKeyCodeForChar(name.charAt(mnemIndex));
+		if (mnemIndex >= 0) {
+			name = name.substring(0, mnemIndex) + name.substring(mnemIndex + 1);
+			mnemKey = KeyEvent.getExtendedKeyCodeForChar(name.charAt(mnemIndex));
+		}
 
 		if(target instanceof Action) {
 			Action act = (Action) target;

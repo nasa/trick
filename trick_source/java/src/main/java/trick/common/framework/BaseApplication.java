@@ -151,7 +151,7 @@ public abstract class BaseApplication {
 	//========================================
 	
 	protected void configureWindow(Window root) {
-		context.addComponent(root);
+		context.injectComponents(root);
 	}
 
 	protected void end() {
