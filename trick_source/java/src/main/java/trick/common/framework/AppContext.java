@@ -102,7 +102,6 @@ public class AppContext {
 	/**
 	 * Add the properties of the given component and any of its children to the resources
 	 */
-	// TODO: Implement this
 	public void injectComponents(Component root) {
 		if (root == null) {
 			throw new IllegalArgumentException("null component. can't inject");
