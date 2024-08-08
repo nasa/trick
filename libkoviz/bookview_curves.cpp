@@ -302,7 +302,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
                 if (plotYScale=="log") {
                     y = pow(10,y) ;
                 }
-                label = QString("Flatline=%1").arg(y);
+                label = QString("Flatline=%1").arg(y,0,'g',15);
             }
 
             QRectF tbox = Tscaled.mapRect(cbox);
@@ -942,7 +942,7 @@ void CurvesView::_paintErrorplot(const QTransform &T,
             }
             label = QString("Flatpoint=(%1,%2)").arg(x,0,'g').arg(error,0,'g');
         } else {
-            label = QString("Flatline=%1").arg(error,0,'g');
+            label = QString("Flatline=%1").arg(error,0,'g', 15);
         }
         QTransform I;
         painter.setTransform(I);
