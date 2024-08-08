@@ -343,6 +343,9 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
                                                       "CurveLineStyle","Curve");
         lineStyle = lineStyle.toLower();
 
+        // Get plot math rect
+        QRectF M = _bookModel()->getPlotMathRect(plotIdx);
+
         // Draw curve!
         if ( lineStyle == "thick_line" || lineStyle == "x_thick_line" ) {
             // The transform cannot be used when drawing thick lines
@@ -392,6 +395,25 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             pen.setWidthF(w);
             painter.setPen(pen);
             painter.setBrush(origBrush);
+            painter.setTransform(Tscaled);
+        } else if ( M.height() < 1.0e-17) {
+            // When zoomed way in, draw curve point by point, otherwise
+            // Qt (I think) has issues where the pixmap curve doesn't match
+            // the painter.drawPath(path) curve when selecting curves
+            QTransform I;
+            painter.setTransform(I);
+            painter.setPen(pen);
+            QPointF pLast;
+            for ( int i = 0; i < path->elementCount(); ++i ) {
+                QPainterPath::Element el = path->elementAt(i);
+                QPointF p(el.x,el.y);
+                p = Tscaled.map(p);
+                if  ( i > 0 ) {
+                    painter.drawLine(pLast,p);
+                }
+                pLast = p;
+            }
+            painter.setPen(pen);
             painter.setTransform(Tscaled);
         } else {
             painter.drawPath(*path);

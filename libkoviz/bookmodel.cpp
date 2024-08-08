@@ -1211,8 +1211,14 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         top = bbox.y()+1.0;
         bot = bbox.y()-1.0;
     } else {
-        // Add 2% margin
-        double mh = bbox.height()*0.02;
+        double mh;
+        if ( log10(abs(bbox.height())) > -17 ) {
+            // 2% margin (normal case)
+            mh = bbox.height()*0.02;
+        } else {
+            // Margin calc for very small values
+            mh = std::pow(10, 1+std::log10(abs(bbox.height())));
+        }
         top = bbox.top()-mh;
         bot = bbox.bottom()+mh;
     }
@@ -1399,9 +1405,20 @@ void PlotBookModel::__appendDataToPainterPath(CurveModel *curveModel,
                     }
                 }
             } else {
-                // Point not added, probably a nan
+                // Point not added, probably a nan, but could be a large number
                 // Count number nans that are at beginning of path
-                ++cntNANs;
+                if ( log10(abs(x)) > 126 || log10(abs(y)) > 126 ) {
+                    static bool isGaveWarning = false;
+                    if ( !isGaveWarning ) {
+                        fprintf(stderr, "koviz [warning]:2: Cannot paint "
+                                        "point=(%g,%g) since it is too large "
+                                "for Qt painter paths.  Only warning once."
+                                "There may be more points out of bounds.\n",
+                                x,y);
+                        isGaveWarning = true;
+                    }
+                }
+                ++cntNANs;  // If point not added, it's considered a nan
             }
         } else {
             int m = path->elementCount();
@@ -1422,8 +1439,20 @@ void PlotBookModel::__appendDataToPainterPath(CurveModel *curveModel,
                         path->setElementPositionAt(o-1,x,y);
                     } else {
                         // If that fails, more than likely x or y is nan
+                        // or too large for Qt painter paths
                         // Draw a line from the last point to itself
                         // See Note 2 at top of method for more details
+                        if ( log10(abs(x)) > 126 || log10(abs(y)) > 126 ) {
+                            static bool isGaveWarning = false;
+                            if ( !isGaveWarning ) {
+                                fprintf(stderr, "koviz [warning]:1: Cannot "
+                                    "paint point=(%g,%g).  It is too large "
+                                    "for Qt painter paths.  Only warning once. "
+                                    "There may be more points out of bounds.\n",
+                                    x,y);
+                                isGaveWarning = true;
+                            }
+                        }
                         QPainterPath::Element el = path->elementAt(o-1);
                         int i = path->elementCount();
                         path->lineTo(el.x+1,el.y+1);
