@@ -1211,8 +1211,14 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         top = bbox.y()+1.0;
         bot = bbox.y()-1.0;
     } else {
-        // Add 2% margin
-        double mh = bbox.height()*0.02;
+        double mh;
+        if ( log10(abs(bbox.height())) > -17 ) {
+            // 2% margin (normal case)
+            mh = bbox.height()*0.02;
+        } else {
+            // Margin calc for very small values
+            mh = std::pow(10, 1+std::log10(abs(bbox.height())));
+        }
         top = bbox.top()-mh;
         bot = bbox.bottom()+mh;
     }
