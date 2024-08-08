@@ -198,6 +198,8 @@ libgtest-dev default-jdk zip
 export PYTHON_VERSION=3
 ```
 
+Note: If you need to use a specific JDK version, such as `openjdk-11-jdk`, you can replace `default-jdk` with `openjdk-11-jdk` under install packages as shown above. However, you need to check where the `java` and `javac` commands are located. For instance, Ubuntu 24 typically sets up JRE (21) headless by default, so the `java` (version 21 headless) command might be located in `/usr/bin`. When you install `openjdk-11-jdk`, both `java` (version 11) and `javac` (version 11) might be placed in `/usr/lib/jvm/java-11-openjdk-amd64/bin`, with only `javac` potentially also in `/usr/bin`. Consequently, running a Java GUI with the default PATH might use JRE 21 headless instead of JRE 11, even though you’re using JDK 11 for compiling, which may not be the desired configuration. Placing `/usr/lib/jvm/java-11-openjdk-amd64/bin` before `/usr/bin` in your PATH ensures that only JDK 11 is used.
+
 proceed to [Install Trick](#install) section of the install guide
 
 ---
