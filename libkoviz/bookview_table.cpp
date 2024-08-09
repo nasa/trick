@@ -242,7 +242,7 @@ QStringList BookTableView::_format(const QList<double> &vals)
             if ( v >= 1.0e-9 && v < 1.0 ) {
                 QString s = list.at(i);
                 QString fmt = QString("%.%1lf").arg(qAbs(minExponent));
-                s = s.sprintf(fmt.toLatin1().constData(),v);
+                s = s.asprintf(fmt.toLatin1().constData(),v);
                 list.replace(i,s);
             }
         }
@@ -258,7 +258,7 @@ QStringList BookTableView::__format(const QList<double> &vals,
 
     foreach ( double v, vals ) {
         QString s;
-        s = s.sprintf(format.toLatin1().constData(),v);
+        s = s.asprintf(format.toLatin1().constData(),v);
         list << s;
     }
 

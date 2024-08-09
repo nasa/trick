@@ -185,7 +185,7 @@ QRect TicLabelsLayoutItem::_boundingRect(const QString &strVal) const
 QString TicLabelsLayoutItem::_format(double tic) const
 {
     QString s;
-    s = s.sprintf("%g", tic);
+    s = s.asprintf("%g", tic);
     return s;
 }
 

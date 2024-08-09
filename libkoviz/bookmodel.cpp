@@ -3237,7 +3237,7 @@ QList<double> PlotBookModel::_calcTicSet(double aIn, double bIn,
     while ( X.size() > 7 ) {
         double x = X.at(0);
         QString s;
-        s = s.sprintf("%g",x);
+        s = s.asprintf("%g",x);
         if ( s.contains('e') ) {
             int n = s.indexOf('e');
             s = s.left(n);

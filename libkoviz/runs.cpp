@@ -637,7 +637,7 @@ void Runs::__loadRunsModel(QStandardItemModel *model,
     foreach ( QString runName, runNames ) {
         model->setHeaderData(r,Qt::Vertical,fruns.at(r));
         QString runIdString ;
-        runIdString = runIdString.sprintf("%d",r);
+        runIdString = runIdString.asprintf("%d",r);
         NumSortItem *runIdItem = new NumSortItem(runIdString);
         QStandardItem* runNameItem = new QStandardItem(runName);
         model->setItem(r,0,runIdItem);
@@ -842,7 +842,7 @@ void Runs::_loadMonteInputModelTrick07(QStandardItemModel* model,
         }
         int c = 0;
         QString runIdString ;
-        runIdString = runIdString.sprintf("%d",runId);
+        runIdString = runIdString.asprintf("%d",runId);
         NumSortItem *runIdItem = new NumSortItem(runIdString);
         model->setItem(nDataLines,c,runIdItem);
         model->setHeaderData(c,Qt::Horizontal,"RunId");
@@ -868,7 +868,7 @@ void Runs::_loadMonteInputModelTrick07(QStandardItemModel* model,
         c = 1;
         foreach ( QString val, dataVals ) {
             double v = val.toDouble();
-            val = val.sprintf("%.4lf",v);
+            val = val.asprintf("%.4lf",v);
             NumSortItem *item = new NumSortItem(val);
             model->setItem(nDataLines,c,item);
             model->setHeaderData(c,Qt::Horizontal,vars.at(c-1));
@@ -1012,9 +1012,9 @@ void Runs::_loadMonteInputModelTrick17(QStandardItemModel* model,
             double v = val.toDouble();
             if ( c == 0 ) {
                 int ival = val.toInt();
-                val = val.sprintf("%d",ival);
+                val = val.asprintf("%d",ival);
             } else {
-                val = val.sprintf("%.4lf",v);
+                val = val.asprintf("%.4lf",v);
             }
             NumSortItem *item = new NumSortItem(val);
             model->setItem(runLine,c,item);

@@ -468,12 +468,12 @@ QString Snap::thread_listing() const
     foreach ( int tid, _threads->hash()->keys() ) {
         if ( ii != 0 && ii%16 == 0 ) {
             listing += QString("\n");
-            listing += str.sprintf("%20s   "," ");
+            listing += str.asprintf("%20s   "," ");
         }
         if ( ii > 0 && tid != ltid+1) {
             listing += QString("MISSING,");
         }
-        listing += str.sprintf("%d", tid);
+        listing += str.asprintf("%d", tid);
         if ( ii < nthreads-1 ) {
             listing += QString(",");
         }
@@ -631,7 +631,7 @@ QString SnapReport::report()
     /*
     if ( ! _snap.is_realtime() ) {
         rpt.append("Oh Snap!!! - The following sim run had realtime disabled!\n");
-        rpt += str.sprintf("          %s\n",_snap.rundir().toLatin1().constData());
+        rpt += str.asprintf("          %s\n",_snap.rundir().toLatin1().constData());
         rpt.append("Try again!\n");
         return rpt;
     }
@@ -645,24 +645,25 @@ QString SnapReport::report()
 "*                            Koviz Results                             *\n"
 "************************************************************************\n\n");
 
-    rpt += str.sprintf("%20s = %s\n", "Run directory ",
+    rpt += str.asprintf("%20s = %s\n", "Run directory ",
                                      _snap.rundir().toLatin1().constData());
     QString yesNo("Yes");
     if ( !_snap.is_realtime() ) {
         yesNo = QString("No");
     }
-    rpt += str.sprintf("%20s = %s\n", "Real-time ",yesNo.toLatin1().constData());
-    rpt += str.sprintf("%20s = %d\n", "Num jobs", _snap.num_jobs());
-    rpt += str.sprintf("%20s = %d\n", "Num frames",_snap.num_frames());
-    rpt += str.sprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
-    rpt += str.sprintf("%20s = %.2lf%%\n", "Percentage overruns",
+    rpt += str.asprintf("%20s = %s\n", "Real-time ",
+                        yesNo.toLatin1().constData());
+    rpt += str.asprintf("%20s = %d\n", "Num jobs", _snap.num_jobs());
+    rpt += str.asprintf("%20s = %d\n", "Num frames",_snap.num_frames());
+    rpt += str.asprintf("%20s = %d\n", "Num overruns",_snap.num_overruns());
+    rpt += str.asprintf("%20s = %.2lf%%\n", "Percentage overruns",
                             _snap.percent_overruns());
-    rpt += str.sprintf("%20s = %.9lf\n", "Frame rate", _snap.frame_rate());
-    rpt += str.sprintf("%20s = %.6lf\n", "Frame avg",_snap.frame_avg());
-    rpt += str.sprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
-    rpt += str.sprintf("%20s = %d\n", "Num threads",_snap.num_threads());
-    rpt += str.sprintf("%20s = %s\n","Thread list",
-                                   _snap.thread_listing().toLatin1().constData());
+    rpt += str.asprintf("%20s = %.9lf\n", "Frame rate", _snap.frame_rate());
+    rpt += str.asprintf("%20s = %.6lf\n", "Frame avg",_snap.frame_avg());
+    rpt += str.asprintf("%20s = %.6lf\n","Frame stddev",_snap.frame_stddev());
+    rpt += str.asprintf("%20s = %d\n", "Num threads",_snap.num_threads());
+    rpt += str.asprintf("%20s = %s\n","Thread list",
+                                 _snap.thread_listing().toLatin1().constData());
     rpt += endsection;
 
     //
@@ -671,14 +672,15 @@ QString SnapReport::report()
     const QList<Frame>* frames = _snap.frames();
     rpt += divider;
     rpt += QString("Top Spikes\n\n");
-    rpt += str.sprintf("    %15s %15s %15s\n", "Time", "Spike", "JobLoadIndex%");
+    rpt += str.
+             asprintf("    %15s %15s %15s\n", "Time", "Spike", "JobLoadIndex%");
     cnt = 0 ;
     foreach ( Frame frame, *frames ) {
         if ( ++cnt > max_cnt ) break;
         double tt = frame.timestamp();
         double ft = frame.frame_time();
-        rpt += str.sprintf("    %15.6lf %15.6lf %14.0lf%%\n",
-                          tt ,ft, frame.jobloadindex());
+        rpt += str.asprintf("    %15.6lf %15.6lf %14.0lf%%\n",
+                            tt ,ft, frame.jobloadindex());
 
     }
     rpt += endsection;
