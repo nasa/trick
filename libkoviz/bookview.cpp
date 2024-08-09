@@ -155,13 +155,13 @@ void BookView::savePdf(const QString &fname)
     printer.setCreator("Koviz");
     printer.setDocName(fname);
     printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setPageSize(QPrinter::Letter);
+    printer.setPageSize(QPageSize(QPageSize::Letter));
     printer.setOutputFileName(fname);
     QString orient = _bookModel()->getDataString(QModelIndex(),"Orientation");
     if ( orient == "landscape" ) {
-        printer.setOrientation(QPrinter::Landscape);
+        printer.setPageOrientation(QPageLayout::Landscape);
     } else if ( orient == "portrait" ) {
-        printer.setOrientation(QPrinter::Portrait);
+        printer.setPageOrientation(QPageLayout::Portrait);
     } else {
         fprintf(stderr, "koviz [bad scoobs]: savePdf! Aborting!\n");
         exit(-1);
