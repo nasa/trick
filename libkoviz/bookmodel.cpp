@@ -2481,10 +2481,8 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(500);
 
-#ifdef __linux
-    TimeItLinux timer;
+    QElapsedTimer timer;
     timer.start();
-#endif
 
     bool isGroups = false;
     QStringList groups;
@@ -2771,13 +2769,11 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
             blockSignals(true);
         }
 
-#ifdef __linux
-        int secs = qRound(timer.stop()/1000000.0);
+        int secs = qRound(timer.nsecsElapsed()/1.0e9);
         div_t d = div(secs,60);
         QString msg = QString("Loaded %1 of %2 curves (%3 min %4 sec)")
                              .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
         progress.setLabelText(msg);
-#endif
 
         ++ii;
         ++jj;
