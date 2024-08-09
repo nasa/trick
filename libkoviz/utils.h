@@ -30,7 +30,7 @@ template <class T> class PtrToQVariant
 public:
     static QVariant convert(T* ptr)
     {
-    return qVariantFromValue((void *) ptr);
+        return QVariant::fromValue(static_cast<void*>(ptr));
     }
 };
 #endif // UTILS_H
