@@ -1,9 +1,5 @@
 #include "trickview.h"
 
-#ifdef __linux
-#include "timeit_linux.h"
-#endif
-
 TrickView::TrickView(SieListModel* sieModel,
                      TVModel* tvModel,
                      PlotBookModel* bookModel,
