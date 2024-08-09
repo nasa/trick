@@ -73,9 +73,6 @@ SOURCES += bookmodel.cpp \
            parameter.cpp \
            runs.cpp \
            snaptable.cpp \
-           timeit.cpp \
-           timeit_linux.cpp \
-           timeit_win32.cpp \
            timestamps.cpp \
            datamodel.cpp \
            datamodel_trick.cpp \
@@ -164,9 +161,6 @@ HEADERS  += bookmodel.h \
             roundoff.h \
             runs.h \
             snaptable.h \
-            timeit.h \
-            timeit_linux.h \
-            timeit_win32.h \
             timestamps.h \
             trick_types.h \
             tricktablemodel.h \
