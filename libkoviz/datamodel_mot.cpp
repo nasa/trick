@@ -55,7 +55,7 @@ void MotModel::_init()
                 _motfile.toLatin1().constData());
         exit(-1);
     }
-    QStringList items = line.split('\t',QString::SkipEmptyParts);
+    QStringList items = line.split('\t',Qt::SkipEmptyParts);
     int col = 0;
     foreach ( QString item, items ) {
         QString name = item.trimmed();
@@ -321,7 +321,7 @@ bool MotModel::isValid(const QString &motFile)
         file.close();
         return false;
     }
-    QStringList items = line.split('\t',QString::SkipEmptyParts);
+    QStringList items = line.split('\t',Qt::SkipEmptyParts);
     if ( items.isEmpty() ) {
         file.close();
         return false;

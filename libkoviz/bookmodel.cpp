@@ -2262,7 +2262,7 @@ bool PlotBookModel::isMatch(const QString &str, const QString &exp) const
 #if QT_VERSION >= 0x050000
     bool isRange = false;
     if ( str.contains("RUN_") && exp.contains(',') ) {
-        QStringList els = exp.split(',',QString::SkipEmptyParts);
+        QStringList els = exp.split(',',Qt::SkipEmptyParts);
         if ( els.size() == 2 ) {
             QString el0 = els.at(0).trimmed();
             QString el1 = els.at(1).trimmed();

@@ -93,7 +93,7 @@ Session::Session(const QString &sessionFileName) :
                                sessionFileName.toLatin1().constData());
                 exit(-1);
             }
-            _runs << run.split(" ",QString::SkipEmptyParts).at(0);
+            _runs << run.split(" ",Qt::SkipEmptyParts).at(0);
 
         } else if ( line.contains("PRODUCT:",Qt::CaseInsensitive) ) {
             int i = line.indexOf("PRODUCT:",0,Qt::CaseInsensitive);
@@ -115,7 +115,7 @@ Session::Session(const QString &sessionFileName) :
                                sessionFileName.toLatin1().constData());
                 exit(-1);
             }
-            QStringList list = _device.split(" ",QString::SkipEmptyParts);
+            QStringList list = _device.split(" ",Qt::SkipEmptyParts);
             if ( !QString::compare(list.at(0),"FILE",Qt::CaseInsensitive) ) {
                 _device = list.at(1); // device is filename
                 if ( _device == "terminal") { // in case filename=="terminal"

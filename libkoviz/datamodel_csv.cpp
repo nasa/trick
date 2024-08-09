@@ -28,7 +28,7 @@ void CsvModel::_init()
     in.setCodec("UTF-8");
 
     QString line0 = in.readLine();
-    QStringList items = line0.split(',',QString::SkipEmptyParts);
+    QStringList items = line0.split(',',Qt::SkipEmptyParts);
     int col = 0;
     foreach ( QString item, items ) {
         QString name;

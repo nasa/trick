@@ -851,7 +851,7 @@ void Runs::_loadMonteInputModelTrick07(QStandardItemModel* model,
         // Monte carlo input data values
         //
         dataLine = dataLine.mid(0,hashIdx).trimmed();
-        QStringList dataVals = dataLine.split(' ',QString::SkipEmptyParts);
+        QStringList dataVals = dataLine.split(' ',Qt::SkipEmptyParts);
         if ( dataVals.size() != vars.size() ) {
             fprintf(stderr,
                     "koviz [error]: error parsing monte carlo input file.  "
@@ -980,7 +980,7 @@ void Runs::_loadMonteInputModelTrick17(QStandardItemModel* model,
         if ( !isParseLine ) {
             continue;
         }
-        QStringList vals = line.split(QRegExp("\\s+"),QString::SkipEmptyParts);
+        QStringList vals = line.split(QRegExp("\\s+"),Qt::SkipEmptyParts);
         if ( vals.size() != vars.size() ) {
             fprintf(stderr, "koviz [error]: error parsing %s.  There "
                             "are %d variables specified in top line, "
