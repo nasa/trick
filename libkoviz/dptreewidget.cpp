@@ -298,6 +298,8 @@ void DPTreeWidget::_setMsgLabel(const QString &msg)
 void DPTreeWidget::_tvModelRowAppended(const QModelIndex &parent,
                                        int start, int end)
 {
+    Q_UNUSED(parent);
+    Q_UNUSED(end);
     QModelIndex idx = _tvModel->index(start,0);
     QVariant v = _tvModel->data(idx);
     QString msg = QString("Time = %1").arg(v.toDouble());
