@@ -12,6 +12,7 @@ QStringList RunTV::params()
 
 DataModel *RunTV::dataModel(const QString &param)
 {
+    Q_UNUSED(param);
     DataModel* model = 0;
     return model;
 }
