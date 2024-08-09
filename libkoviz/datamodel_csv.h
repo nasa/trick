@@ -9,12 +9,12 @@
 #include <QTextStream>
 #include <QProgressDialog>
 #include <QFileInfo>
+#include <QElapsedTimer>
 #include <stdexcept>
 
 #include "datamodel.h"
 #include "parameter.h"
 #include "unit.h"
-#include "timeit_linux.h"
 
 class CsvModel;
 class CsvModelIterator;

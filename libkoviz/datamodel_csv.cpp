@@ -86,10 +86,8 @@ void CsvModel::_init()
     _iteratorTimeIndex = new CsvModelIterator(0,this,
                                               _timeCol,_timeCol,_timeCol);
 
-#ifdef __linux
-    TimeItLinux timer;
+    QElapsedTimer timer;
     timer.start();
-#endif
 
     // Get number of data rows in csv file
     QString msgCnt("Counting number rows in csv");
@@ -101,11 +99,7 @@ void CsvModel::_init()
              break;
         }
         if ( _nrows % 10000 == 0 ) {
-            #ifdef __linux
-                int secs = qRound(timer.stop()/1000000.0);
-            #else
-                int secs = 0;
-            #endif
+            int secs = qRound(timer.nsecsElapsed()/1.0e9);
 
             div_t d = div(secs,60);
             QString m = QString("%1, nrows=%2 (%3 min %4 sec)")
@@ -122,9 +116,7 @@ void CsvModel::_init()
     _data = (double*)malloc(_nrows*_ncols*sizeof(double));
 
     // Begin Loading Progress Dialog
-#ifdef __linux
     timer.start();
-#endif
     QString msg("Loading ");
     msg += QFileInfo(fileName()).fileName();
     msg += "...";
@@ -159,16 +151,14 @@ void CsvModel::_init()
             ++i;
         }
 
-#ifdef __linux
         if ( row % 10000 == 0 ) {
-            int secs = qRound(timer.stop()/1000000.0);
+            int secs = qRound(timer.nsecsElapsed()/1.0e9);
             div_t d = div(secs,60);
             QString msg = QString("Loaded %1 of %2 lines "
                                   "(%3 min %4 sec)")
                     .arg(row).arg(_nrows).arg(d.quot).arg(d.rem);
             progressLoad.setLabelText(msg);
         }
-#endif
     }
 
     // End Progress Dialog
