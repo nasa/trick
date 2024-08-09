@@ -11,6 +11,7 @@
 #include <QDir>
 #include <QProgressDialog>
 #include <QApplication>
+#include <QElapsedTimer>
 #include <float.h>
 #include <stdlib.h>
 #include "dp.h"

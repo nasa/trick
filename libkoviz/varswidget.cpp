@@ -1,9 +1,5 @@
 #include "varswidget.h"
 
-#ifdef __linux
-#include "timeit_linux.h"
-#endif
-
 VarsWidget::VarsWidget(const QString &timeName,
                        Runs *runs,
                        const QStringList &unitOverrides,
@@ -133,10 +129,10 @@ void VarsWidget::_varsSelectModelSelectionChanged(
             QProgressDialog progress("Loading curves...", "Abort", 0, rc, this);
             progress.setWindowModality(Qt::WindowModal);
             progress.setMinimumDuration(500);
-#ifdef __linux
-            TimeItLinux timer;
+
+            QElapsedTimer timer;
             timer.start();
-#endif
+
             int r = 0;
             while ( ! currVarIdxs.isEmpty() ) {
                 // Update progress dialog
@@ -153,13 +149,11 @@ void VarsWidget::_varsSelectModelSelectionChanged(
                 _addPlotToPage(pageItem,varIdx);
                 _plotSelectModel->setCurrentIndex(pageIdx,
                                                   QItemSelectionModel::Current);
-#ifdef __linux
-                int secs = qRound(timer.stop()/1000000.0);
+                int secs = qRound(timer.nsecsElapsed()/1.0e9);
                 div_t d = div(secs,60);
                 QString msg = QString("Loaded %1 of %2 curves (%3 min %4 sec)")
                              .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
                 progress.setLabelText(msg);
-#endif
             }
             progress.setValue(rc);
         }
