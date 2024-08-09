@@ -580,9 +580,9 @@ void BookTableView::wheelEvent(QWheelEvent *e)
         unit = curveModel->y()->unit();
     }
 
-    if ( e->delta() > 0 ) {
+    if ( e->angleDelta().y() > 0 ) {
         unit = Unit::next(unit);
-    } else if ( e->delta() < 0 ) {
+    } else if ( e->angleDelta().y() < 0 ) {
         unit = Unit::prev(unit);
     }
 
