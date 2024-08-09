@@ -10,6 +10,7 @@
 #include <QHash>
 #include <QProgressDialog>
 #include <QLabel>
+#include <QElapsedTimer>
 #include "dp.h"
 #include "dpfilterproxymodel.h"
 #include "bookmodel.h"

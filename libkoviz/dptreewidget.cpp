@@ -1,9 +1,5 @@
 #include "dptreewidget.h"
 
-#ifdef __linux
-#include "timeit_linux.h"
-#endif
-
 QString DPTreeWidget::_err_string;
 QTextStream DPTreeWidget::_err_stream(&DPTreeWidget::_err_string);
 
@@ -476,10 +472,8 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                 progress.setWindowModality(Qt::WindowModal);
                 progress.setMinimumDuration(500);
 
-#ifdef __linux
-                TimeItLinux timer;
+                QElapsedTimer timer;
                 timer.start();
-#endif
 
                 QString default_style = "plain";
 
@@ -532,15 +526,12 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                         }
                     }
 
-
-#ifdef __linux
-                    int secs = qRound(timer.stop()/1000000.0);
+                    int secs = qRound(timer.nsecsElapsed()/1.0e9);
                     div_t d = div(secs,60);
                     QString msg = QString("Loaded %1 of %2 curves "
                                           "(%3 min %4 sec)")
                                        .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
                     progress.setLabelText(msg);
-#endif
                     progress.setValue(r);
                     if (progress.wasCanceled()) {
                         break;
