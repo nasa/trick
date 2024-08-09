@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
     }
 
     // Error check
-    if ( runPaths.isEmpty() && !dps.isEmpty() ) {
+    if ( runPaths.isEmpty() && opts.trickport == 0 && !dps.isEmpty() ) {
         fprintf(stderr, "koviz [error]: DP given but no RUNs specified\n");
         exit(-1);
     }
