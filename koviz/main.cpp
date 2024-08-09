@@ -370,7 +370,7 @@ int main(int argc, char *argv[])
     }
 
     // Error check
-    if ( runPaths.isEmpty() && !dps.isEmpty() ) {
+    if ( runPaths.isEmpty() && opts.trickport == 0 && !dps.isEmpty() ) {
         fprintf(stderr, "koviz [error]: DP given but no RUNs specified\n");
         exit(-1);
     }
@@ -613,6 +613,12 @@ int main(int argc, char *argv[])
             if ( fileInfo.fileName().startsWith("MONTE_") ) {
                 isMonte = true;
             }
+        } else if ( runPaths.size() == 0 &&
+                    opts.trickport > 0 ) {
+            // Add var server "run path"
+            QString tvpath = QString("trick://%1:%2").
+                             arg(opts.trickhost).arg(opts.trickport);
+            runPaths.append(tvpath);
         }
 
         bool isShowProgress = true;
