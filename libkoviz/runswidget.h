@@ -17,8 +17,6 @@
 #include "monteinputsview.h"
 #include "runs.h"
 
-//class RunsWidgetFilterProxyModel;  // fwd declaration, see class below
-
 class RunsWidget : public QWidget
 {
     Q_OBJECT

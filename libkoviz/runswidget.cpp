@@ -1,9 +1,5 @@
 #include "runswidget.h"
 
-#ifdef __linux
-#include "timeit_linux.h"
-#endif
-
 RunsWidget::RunsWidget(Runs *runs,
                        PlotBookModel *bookModel,
                        MonteInputsView *monteInputsView,
