@@ -690,13 +690,13 @@ QString SnapReport::report()
     //
     rpt += divider;
     rpt += QString("Thread Time Summary\n\n");
-    rpt += str.sprintf("    %10s %10s %15s %15s %15s %15s %15s %15s\n",
+    rpt += str.asprintf("    %10s %10s %15s %15s %15s %15s %15s %15s\n",
             "Thread", "NumJobs", "Freq", "NumOverruns", "ThreadAvg", "AvgLoad%",
             "ThreadMax", "MaxLoad%");
 
     foreach ( Thread* thread, _snap.threads()->hash()->values() ) {
 
-        rpt += str.sprintf("    %10d %10d %15.6lf %15d %15.6lf "
+        rpt += str.asprintf("    %10d %10d %15.6lf %15d %15.6lf "
                           "%14.0lf%% %15.6lf %14.0lf%%\n",
                  thread->threadId(),thread->numJobs(),thread->frequency(),
                  thread->numOverruns(), thread->avgRunTime(),
@@ -709,15 +709,15 @@ QString SnapReport::report()
     //
     rpt += divider;
     rpt += QString("Top Jobs by Thread\n\n");
-    rpt += str.sprintf("    %8s %8s %15s %15s %10s%%     %-50s\n",
+    rpt += str.asprintf("    %8s %8s %15s %15s %10s%%     %-50s\n",
            "Thread", "NumJobs", "ThreadAvg", "JobAvgTime", "Percent", "JobName");
     foreach ( Thread* thread, _snap.threads()->hash()->values() ) {
 
-        rpt += str.sprintf("    %8d %8d %15.6lf ",
+        rpt += str.asprintf("    %8d %8d %15.6lf ",
                    thread->threadId(), thread->numJobs(),thread->avgRunTime());
 
         if ( thread->avgRunTime() < 0.000005 && thread->numJobs() > 1 ) {
-            rpt += str.sprintf("%15s  %10s     %-49s\n", "--","--","--");
+            rpt += str.asprintf("%15s  %10s     %-49s\n", "--","--","--");
             continue;
         }
 
@@ -733,15 +733,15 @@ QString SnapReport::report()
                 break;
             } else {
                 if ( ii > 0 ) {
-                    rpt += str.sprintf("    %8s %8s %15s ", "","","");
+                    rpt += str.asprintf("    %8s %8s %15s ", "","","");
                 }
-                rpt += str.sprintf("%15.6lf ",thread->avgJobRuntime(job));
+                rpt += str.asprintf("%15.6lf ",thread->avgJobRuntime(job));
                 if ( thread->avgRunTime() > 0.0000001 ) {
-                    rpt += str.sprintf("%10.0lf%%", load);
+                    rpt += str.asprintf("%10.0lf%%", load);
                 } else {
-                    rpt += str.sprintf(" %10s", "--");
+                    rpt += str.asprintf(" %10s", "--");
                 }
-                rpt += str.sprintf("     %-50s\n",
+                rpt += str.asprintf("     %-50s\n",
                                    job->job_name().toLatin1().constData());
             }
             if ( ii == thread->numJobs()-1 ) {
@@ -755,8 +755,8 @@ QString SnapReport::report()
     // Job Time Avgs
     //
     rpt += divider;
-    rpt += str.sprintf("Top Job Avg Times\n\n");
-    rpt += str.sprintf("    %15s %6s %15s %15s    %-40s\n",
+    rpt += str.asprintf("Top Job Avg Times\n\n");
+    rpt += str.asprintf("    %15s %6s %15s %15s    %-40s\n",
             "JobAvg", "Thread", "ThreadAvgTime", "JobFreq", "JobName");
 
     QList<Job*>* jobs = _snap.jobs(Snap::SortByJobAvgTime);
@@ -765,7 +765,7 @@ QString SnapReport::report()
 
         if ( ++cnt > max_cnt ) break;
 
-        rpt += str.sprintf("    %15.6lf %6d %15.6lf %15.6lf    %-40s\n",
+        rpt += str.asprintf("    %15.6lf %6d %15.6lf %15.6lf    %-40s\n",
                    job->avg_runtime(),
                    job->thread_id(),
                    _snap.threads()->hash()->value(job->thread_id())->avgRunTime(),
@@ -779,8 +779,8 @@ QString SnapReport::report()
     // Job Time Maxes
     //
     rpt += divider;
-    rpt += str.sprintf("Top Job Max Times\n\n");
-    rpt += str.sprintf("    %15s %15s %6s %15s %15s    %-40s\n",
+    rpt += str.asprintf("Top Job Max Times\n\n");
+    rpt += str.asprintf("    %15s %15s %6s %15s %15s    %-40s\n",
                    "JobMax", "SimTime","Thread", "ThreadTime",
                    "JobFreq","JobName");
     jobs = _snap.jobs(Snap::SortByJobMaxTime);
@@ -789,7 +789,7 @@ QString SnapReport::report()
 
         if ( ++cnt > max_cnt ) break;
 
-        rpt += str.sprintf("    %15.6lf %15.6lf %6d %15.6lf %15.6lf    %-40s\n",
+        rpt += str.asprintf("    %15.6lf %15.6lf %6d %15.6lf %15.6lf    %-40s\n",
                 job->max_runtime(),
                 job->max_timestamp(),
                 job->thread_id(),
@@ -823,13 +823,13 @@ QString SnapReport::report()
 
     rpt += divider;
     rpt += QString("Top Sim Object Avg Times\n\n");
-    format.sprintf("    %%%ds %%15s %%10s\n",maxlen);
-    rpt += str.sprintf(TXT(format),"SimObject","AvgTime", "NumJobs");
-    format.sprintf("    %%%ds %%15.6lf %%10d\n",maxlen);
+    format.asprintf("    %%%ds %%15s %%10s\n",maxlen);
+    rpt += str.asprintf(TXT(format),"SimObject","AvgTime", "NumJobs");
+    format.asprintf("    %%%ds %%15.6lf %%10d\n",maxlen);
     cnt = 0 ;
     foreach ( SimObject sobject, simobjects ) {
         if ( ++cnt > max_cnt ) break;
-        rpt += str.sprintf(TXT(format),TXT(sobject.name()),
+        rpt += str.asprintf(TXT(format),TXT(sobject.name()),
                            sobject.avg_runtime(),
                            sobject.jobs().length());
     }
@@ -849,8 +849,8 @@ QString SnapReport::report()
         double tt = frame.timestamp();
         double ft = frame.frame_time();
 
-        rpt += str.sprintf("Spike at time %.4lf of %g\n", tt ,ft);
-        rpt += str.sprintf( "    %6s %15s %15s %15s    %-50s\n",
+        rpt += str.asprintf("Spike at time %.4lf of %g\n", tt ,ft);
+        rpt += str.asprintf( "    %6s %15s %15s %15s    %-50s\n",
                         "Thread",
                         "ThreadTime",
                         "JobTime",
@@ -871,7 +871,7 @@ QString SnapReport::report()
                 continue;
             }
 
-            rpt += str.sprintf(
+            rpt += str.asprintf(
                     "    %6d %15.6lf %15.6lf %15.6lf    %-50s\n",
                     job->thread_id(),
                     _snap.threads()->hash()->
@@ -912,15 +912,15 @@ QString SnapReport::report()
         }
         qSort(topthreads.begin(),topthreads.end(),topThreadGreaterThan);
 
-        rpt += str.sprintf("Spike at time %g of %g\n",tt,ft);
-        rpt += str.sprintf("    %6s %15s %15s\n", "Thread", "ThreadFreq",
+        rpt += str.asprintf("Spike at time %g of %g\n",tt,ft);
+        rpt += str.asprintf("    %6s %15s %15s\n", "Thread", "ThreadFreq",
                                             "ThreadTime");
         for ( int ii = 0 ; ii < topthreads.length(); ++ii ) {
             QPair<double,Thread*> topthread = topthreads.at(ii);
             if ( topthread.first < 1.0e-3 ) {
                 break;
             }
-            rpt += str.sprintf("    %6d %15.6lf %15.6lf\n",
+            rpt += str.asprintf("    %6d %15.6lf %15.6lf\n",
                                topthread.second->threadId(),
                                topthread.second->frequency(),
                                topthread.first);
