@@ -17,7 +17,6 @@
 #include "parameter.h"
 #include "curvemodel.h"
 #include "unit.h"
-#include "timeit_linux.h"
 
 class ProgramModel;
 class ProgramModelIterator;

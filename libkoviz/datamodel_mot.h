@@ -14,7 +14,6 @@
 #include "datamodel.h"
 #include "parameter.h"
 #include "unit.h"
-#include "timeit_linux.h"
 
 class MotModel;
 class MotModelIterator;
