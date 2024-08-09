@@ -60,8 +60,10 @@ class RunsWidgetFilterProxyModel : public QSortFilterProxyModel
 
 public:
     explicit RunsWidgetFilterProxyModel(Runs* runs, QObject *parent = nullptr) :
-        _runs(runs),
-        QSortFilterProxyModel(parent) {}
+        QSortFilterProxyModel(parent),
+        _runs(runs)
+       {}
+
 
     /*
     void setFilterRegExp(const QRegExp &regExp) {
