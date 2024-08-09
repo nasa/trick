@@ -564,7 +564,7 @@ void BookTableView::keyPressEvent(QKeyEvent *event)
 
 void BookTableView::wheelEvent(QWheelEvent *e)
 {
-    QModelIndex tableVarIdx = indexAt(e->pos());
+    QModelIndex tableVarIdx = indexAt(e->position().toPoint());
 
     if ( !tableVarIdx.isValid() ) return;
 
