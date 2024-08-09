@@ -315,8 +315,8 @@ QString Options::usage()
     QString u;
     QTextStream s(&u);
 
-    s << endl;
-    s << "usage: " <<  _programName << endl;
+    s << Qt::endl;
+    s << "usage: " <<  _programName << Qt::endl;
 
     QStringList optNames;
     foreach ( Option* opt, _opts.values() ) {
@@ -327,15 +327,15 @@ QString Options::usage()
     foreach ( QString optName, optNames ) {
         foreach ( Option* opt, _opts.values() ) {
             if ( opt->name() == optName ) {
-                s << right << qSetFieldWidth(15) << opt->nameSpec()
-                  << left << qSetFieldWidth(0) << "      "
-                  << left << qSetFieldWidth(60) << opt->info()
-                  << qSetFieldWidth(1) << endl;
+                s << Qt::right << qSetFieldWidth(15) << opt->nameSpec()
+                  << Qt::left << qSetFieldWidth(0) << "      "
+                  << Qt::left << qSetFieldWidth(60) << opt->info()
+                  << qSetFieldWidth(1) << Qt::endl;
                 break;
             }
         }
     }
-    s << endl;
+    s << Qt::endl;
 
     return u;
 }
