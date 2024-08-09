@@ -21,9 +21,6 @@ using namespace std;
 #include "libkoviz/runs.h"
 #include "libkoviz/plotmainwindow.h"
 #include "libkoviz/roundoff.h"
-#ifdef __linux
-#include "libkoviz/timeit_linux.h"
-#endif
 #include "libkoviz/timestamps.h"
 #include "libkoviz/tricktablemodel.h"
 #include "libkoviz/dp.h"
