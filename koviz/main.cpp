@@ -613,6 +613,12 @@ int main(int argc, char *argv[])
             if ( fileInfo.fileName().startsWith("MONTE_") ) {
                 isMonte = true;
             }
+        } else if ( runPaths.size() == 0 &&
+                    opts.trickport > 0 ) {
+            // Add var server "run path"
+            QString tvpath = QString("trick://%1:%2").
+                             arg(opts.trickhost).arg(opts.trickport);
+            runPaths.append(tvpath);
         }
 
         bool isShowProgress = true;

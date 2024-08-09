@@ -180,6 +180,12 @@ void Runs::_init()
                              _filterPattern,_excludePattern);
         } else if ( fi.isFile() ) {
             run = new RunFile(runPath,_timeNames,_varMap);
+        } else if ( runPath.startsWith("trick://") ) {
+            run = new RunTV(runPath);
+        } else {
+            fprintf(stderr, "koviz [error]: Runs::_init() Bad run path=%s\n",
+                    runPath.toLatin1().constData());
+            exit(-1);
         }
         _runs.append(run);
         if ( progress ) {

@@ -22,6 +22,7 @@
 #include "mapvalue.h"
 #include "rundir.h"
 #include "runfile.h"
+#include "runtv.h"
 
 class Runs : public QObject
 {
