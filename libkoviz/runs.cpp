@@ -145,7 +145,7 @@ void Runs::_init()
         QStringList runsList = _runsSubset(monteRuns,
                                            _filterPattern,
                                            _excludePattern,
-                                           0,1e20);
+                                           0,UINT_MAX);
         _runPaths.clear();
         foreach ( QString run, runsList ) {
             _runPaths << _montePath + "/" + run;
@@ -155,7 +155,7 @@ void Runs::_init()
             _runPaths = _runsSubset(_runPaths,
                                     _filterPattern,
                                     _excludePattern,
-                                    0,1e20);
+                                    0,UINT_MAX);
         }
     }
 
