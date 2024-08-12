@@ -98,7 +98,7 @@ int TimeStamps::_idxAtTimeBinarySearch(const QList<double>& list,
 
 void TimeStamps::usort(QList<double>& list)
 {
-    qSort(list.begin(),list.end(),doubleLessThan);
+    std::sort(list.begin(),list.end(),doubleLessThan);
     int rc = list.count();
     for ( int i = rc-2; i >= 0; --i ) {
         double a = list.at(i);

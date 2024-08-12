@@ -23,7 +23,7 @@ void SimObject::_do_stats()
         return;
     }
 
-    qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
+    std::sort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
     double sum_squares = 0 ;
     double sum_rt = 0 ;
@@ -155,7 +155,7 @@ QList<SimObject> SimObjects::list() const
         list.append(*sobject);
     }
 
-    qSort(list.begin(),list.end(), simObjectAvgTimeGreaterThan);
+    std::sort(list.begin(),list.end(), simObjectAvgTimeGreaterThan);
 
     return list;
 }

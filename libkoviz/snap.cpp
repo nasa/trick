@@ -59,7 +59,7 @@ void Snap::_load()
 {
     _process_models();        // _jobs list created
 
-    qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
+    std::sort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
 
     _curr_sort_method = SortByJobAvgTime;
 
@@ -375,10 +375,10 @@ QList<Job *>* Snap::jobs(SortBy sort_method)
 {
     if ( _curr_sort_method != sort_method ) {
         if ( sort_method == SortByJobAvgTime ) {
-            qSort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
+            std::sort(_jobs.begin(), _jobs.end(), jobAvgTimeGreaterThan);
             _curr_sort_method = SortByJobAvgTime;
         } else if ( sort_method == SortByJobMaxTime ) {
-            qSort(_jobs.begin(), _jobs.end(), jobMaxTimeGreaterThan);
+            std::sort(_jobs.begin(), _jobs.end(), jobMaxTimeGreaterThan);
             _curr_sort_method = SortByJobMaxTime;
         }
     }
@@ -611,7 +611,7 @@ QList<Frame> Snap::_process_frames()
         frames.append(frame);
     }
 
-    qSort(frames.begin(), frames.end(), frameTimeGreaterThan);
+    std::sort(frames.begin(), frames.end(), frameTimeGreaterThan);
 
     return frames;
 }
@@ -910,7 +910,7 @@ QString SnapReport::report()
         foreach ( Thread* thread, _snap.threads()->hash()->values() ) {
             topthreads.append(qMakePair(thread->runtime(tt),thread));
         }
-        qSort(topthreads.begin(),topthreads.end(),topThreadGreaterThan);
+        std::sort(topthreads.begin(),topthreads.end(),topThreadGreaterThan);
 
         rpt += str.asprintf("Spike at time %g of %g\n",tt,ft);
         rpt += str.asprintf("    %6s %15s %15s\n", "Thread", "ThreadFreq",
