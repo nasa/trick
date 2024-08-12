@@ -205,14 +205,15 @@ void Runs::_init()
     // Make list of params that are in each run (coplottable)
     QSet<QString> paramSet;
     foreach ( Run* run, _runs ) {
-        QSet<QString> runParamSet = run->params().toSet();
+        QStringList list = run->params();
+        QSet<QString> runParamSet(list.begin(), list.end());
         if ( paramSet.isEmpty() ) {
             paramSet = runParamSet;
         } else {
             paramSet = paramSet.intersect(runParamSet);
         }
     }
-    _params = paramSet.toList();
+    _params = QStringList(paramSet.begin(),paramSet.end());
     _params.removeDuplicates();
     _params.sort();
 
