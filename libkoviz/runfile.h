@@ -18,6 +18,7 @@ public:
     RunFile(const QString& run,
            const QStringList& timeNames,
            const QHash<QString,QStringList> &varMap);
+    ~RunFile() {}
 
     virtual QStringList params();
     virtual DataModel *dataModel(const QString& param);

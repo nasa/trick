@@ -19,6 +19,7 @@ public:
            const QHash<QString,QStringList> &varMap,
            const QString& filterPattern,
            const QString& excludePattern);
+    ~RunDir() {}
 
     virtual QStringList params();
     virtual DataModel *dataModel(const QString& param);
