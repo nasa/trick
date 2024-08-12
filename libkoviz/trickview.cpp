@@ -213,6 +213,7 @@ void TrickView::_tvSelectionChanged(
 
 void TrickView::_tvSearchBoxTextChanged(const QString &rx)
 {
+    Q_UNUSED(rx);
     //_varsFilterModel->setFilterRegExp(rx);
 }
 
@@ -244,6 +245,10 @@ void TrickView::_tvModelAboutToBeReset()
 void TrickView::_bookModelRowsAboutToBeRemoved(const QModelIndex &parent,
                                                int first, int last)
 {
+    Q_UNUSED(parent)
+    Q_UNUSED(first)
+    Q_UNUSED(last)
+
     _varsSelectModel->clear();
 }
 
