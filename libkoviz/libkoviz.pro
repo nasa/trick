@@ -132,7 +132,6 @@ HEADERS  += bookmodel.h \
             bookview_table.h \
             curvemodel_copy.h \
             datamodel_optitrack_csv.h \
-            datamodel_tv.h \
             dp.h \
             run.h \
             rundir.h \
