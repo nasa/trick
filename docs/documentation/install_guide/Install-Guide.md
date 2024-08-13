@@ -350,7 +350,7 @@ proceed to [Install Trick](#install) section of the install guide
 
 <a name="manual_build_clang_llvm"></a>
 ### Build Clang and LLVM
-If you come to this section because Clang+LLVM installed by the package manager on your machine does not work for your environment, you need to manually build Clang and LLVM. Following instructions show steps on building a particular release of Clang and LLVM . `cmake` is required. CMake may support multiple native build systmes on certain platforms. A generator is responsible for generating a particular build system. Below lists two approaches for your reference. The 1st approach uses `Unix Makefiles` (one of Makefile generators) and the 2nd one uses `Ninja` (one of Ninja generators). For Mac Apple Silicon user, may want to go to the 2nd approach direcly. 
+If you come to this section because Clang+LLVM installed by the package manager on your machine does not work for your environment, you need to manually build Clang and LLVM. Following instructions show steps on building a particular release of Clang and LLVM . `cmake` is required. CMake may support multiple native build systmes on certain platforms. A generator is responsible for generating a particular build system. Below lists two approaches for your reference. The first approach uses `Unix Makefiles` (one of Makefile generators) and the second one uses `Ninja` (one of Ninja generators). For Mac Apple Silicon user, may want to go to the second approach directly. 
 
 Note: Remember to add `--with-llvm=<clang+llvm-17_path>` for Trick configure if using the Clang and LLVM built in this section.
 
