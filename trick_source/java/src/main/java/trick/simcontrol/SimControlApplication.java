@@ -107,6 +107,10 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     //========================================
     //    Protected data
     //========================================
+    protected static String host;
+    protected static int port = -1;
+    protected static boolean isRestartOptionOn;
+    protected static boolean isAutoExitOn; /** whether automatically exit when sim is done/killed. */
 
 
     //========================================
@@ -118,9 +122,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private int overrun_present ;
     private int message_present ;
     private int message_port ;
-    
-    /** whether automatically exit when sim is done/killed. */
-    private static boolean isAutoExitOn;
 
     // The panel that displays the current sim state description as well as progress.
     private JXTitledPanel runtimeStatePanel;
@@ -170,9 +171,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private SocketChannel healthStatusSocketChannel ;
    
     private JComboBox runningSimList;
-    private static String host;
-    private static int port = -1;
-    private static boolean isRestartOptionOn;
     //True if an error was encountered during the attempt to connect to Variable Server during intialize()
     private boolean errOnInitConnect = false;
     //Time out when attempting to establish connection with Variable Server in milliseconds
@@ -364,7 +362,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 	 * Sets all actions as either enabled or disabled
 	 * @param isEnabled the state to set each action as
 	 */
-	private void setEnabledAllActions(boolean isEnabled) {
+	protected void setEnabledAllActions(boolean isEnabled) {
 		if(actionMap == null)
 			return;
 		
