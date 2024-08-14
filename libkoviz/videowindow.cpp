@@ -1,16 +1,21 @@
 #include "videowindow.h"
 
+#ifdef HAS_MPV
 static void wakeup(void *ctx)
 {
     VideoWindow *mainwindow = (VideoWindow *)ctx;
     mainwindow->wrap_mpv_events();
 }
+#endif
 
 VideoWindow::VideoWindow(const QList<QPair<QString, double> > &videos,
                          QWidget *parent) :
     QMainWindow(parent),
     _startTime(0.0)
 {
+#ifndef HAS_MPV
+    Q_UNUSED(videos)
+#endif
 #ifdef HAS_MPV
     std::setlocale(LC_NUMERIC, "C");
     setFocusPolicy(Qt::StrongFocus);
@@ -173,6 +178,9 @@ bool VideoWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 void VideoWindow::seek_time(double time) {
+#ifndef HAS_MPV
+    Q_UNUSED(time)
+#endif
 #ifdef HAS_MPV
     int isIdle;
     int i = 0;
@@ -252,6 +260,9 @@ void VideoWindow::on_mpv_events()
 // Input is a list of "filename,timeoffset" pairs
 void VideoWindow::set_videos(const QList<QPair<QString,double> >& videos)
 {
+#ifndef HAS_MPV
+    Q_UNUSED(videos)
+#endif
 #ifdef HAS_MPV
     if ( videos.size() != _videos.size() ) {
         _resize_videos(videos);
@@ -309,6 +320,9 @@ void VideoWindow::pause()
 
 void VideoWindow::_resize_videos(const QList<QPair<QString, double> > &videos)
 {
+#ifndef HAS_MPV
+    Q_UNUSED(videos)
+#endif
 #ifdef HAS_MPV
     if ( videos.size() > _videos.size() ) { // Add videos
         int d = videos.size() - _videos.size();
