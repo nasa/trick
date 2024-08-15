@@ -121,12 +121,12 @@ void TimeInput::_slotDataChanged(const QModelIndex &topLeft,
 QString TimeInput::_format(double d)
 {
     QString s;
-    s = s.sprintf("%.9g",d);
+    s = s.asprintf("%.9g",d);
     QVariant v(s);
     double x = v.toDouble();
     double e = qAbs(x-d);
     if ( e > 1.0e-9 ) {
-        s = s.sprintf("%.9lf",d);
+        s = s.asprintf("%.9lf",d);
     }
     return s;
 }

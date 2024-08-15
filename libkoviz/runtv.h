@@ -11,6 +11,7 @@ class RunTV : public Run
 {
 public:
     RunTV(const QString& host_port_path); // e.g. trick://127.0.0.1:4545
+    ~RunTV() {}
     virtual QStringList params();
     virtual DataModel *dataModel(const QString& param);
 private:

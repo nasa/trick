@@ -28,7 +28,7 @@ void CsvModel::_init()
     in.setCodec("UTF-8");
 
     QString line0 = in.readLine();
-    QStringList items = line0.split(',',QString::SkipEmptyParts);
+    QStringList items = line0.split(',',Qt::SkipEmptyParts);
     int col = 0;
     foreach ( QString item, items ) {
         QString name;
@@ -339,7 +339,7 @@ bool CsvModel::isValid(const QString &csvFile, const QStringList &timeNames)
     // Get list of variable names
     QStringList names;
     QString line0 = in.readLine();
-    QStringList items = line0.split(',',QString::KeepEmptyParts);
+    QStringList items = line0.split(',',Qt::KeepEmptyParts);
     foreach ( QString item, items ) {
         QString name;
         if ( item.contains('{') ) {
@@ -373,7 +373,7 @@ bool CsvModel::isValid(const QString &csvFile, const QStringList &timeNames)
 
     // Sanity check second line to ensure num cols is same as num header cols
     QString line1 = in.readLine();
-    items = line1.split(',',QString::KeepEmptyParts);
+    items = line1.split(',',Qt::KeepEmptyParts);
     if ( items.size() != names.size() ) {
         file.close();
         return false;

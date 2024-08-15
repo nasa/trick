@@ -85,11 +85,11 @@ QVariant SnapTable::data(const QModelIndex &idx, int role) const
             if ( !prole->format.isEmpty() && val.type() == QVariant::Double ) {
                 QString str;
                 double d = val.toDouble();
-                val = str.sprintf(prole->format.toLatin1().constData(),d);
+                val = str.asprintf(prole->format.toLatin1().constData(),d);
                 bool r = val.convert(QVariant::Double); // for sorting by double
                 if ( r == false ) {
                     // formatted val might not be a double e.g. 48%
-                    val = str.sprintf(prole->format.toLatin1().constData(),d);
+                    val = str.asprintf(prole->format.toLatin1().constData(),d);
                 }
             }
         } else if ( role == Qt::TextAlignmentRole ) {

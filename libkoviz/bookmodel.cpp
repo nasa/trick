@@ -2262,7 +2262,7 @@ bool PlotBookModel::isMatch(const QString &str, const QString &exp) const
 #if QT_VERSION >= 0x050000
     bool isRange = false;
     if ( str.contains("RUN_") && exp.contains(',') ) {
-        QStringList els = exp.split(',',QString::SkipEmptyParts);
+        QStringList els = exp.split(',',Qt::SkipEmptyParts);
         if ( els.size() == 2 ) {
             QString el0 = els.at(0).trimmed();
             QString el1 = els.at(1).trimmed();
@@ -3237,7 +3237,7 @@ QList<double> PlotBookModel::_calcTicSet(double aIn, double bIn,
     while ( X.size() > 7 ) {
         double x = X.at(0);
         QString s;
-        s = s.sprintf("%g",x);
+        s = s.asprintf("%g",x);
         if ( s.contains('e') ) {
             int n = s.indexOf('e');
             s = s.left(n);

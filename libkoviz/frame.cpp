@@ -80,7 +80,7 @@ void Frame::_calc_topjobs()
             _topjobs.append(qMakePair(rt,job));
         } else {
             if ( len == count ) {
-                qSort(_topjobs.begin(), _topjobs.end(), frameTopJobsGreaterThan);
+                std::sort(_topjobs.begin(), _topjobs.end(), frameTopJobsGreaterThan);
             }
             QPair<double,Job*> ljob = _topjobs.last();
             int ltidx = threadIdToTimeIdx.value(ljob.second->thread_id());
@@ -89,10 +89,10 @@ void Frame::_calc_topjobs()
             delete it;
             if ( rt > lrt ) {
                 _topjobs.replace(len-1,qMakePair(rt,job));
-                qSort(_topjobs.begin(), _topjobs.end(), frameTopJobsGreaterThan);
+                std::sort(_topjobs.begin(), _topjobs.end(), frameTopJobsGreaterThan);
             }
         }
     }
     _jobloadindex = 100.0*jcnt/(double)_jobs->size();
-    qSort(_topjobs.begin(),_topjobs.end(),frameTopJobsGreaterThan);
+    std::sort(_topjobs.begin(),_topjobs.end(),frameTopJobsGreaterThan);
 }

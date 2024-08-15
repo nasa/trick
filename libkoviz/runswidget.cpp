@@ -88,7 +88,7 @@ bool RunsWidgetFilterProxyModel::filterAcceptsRow(
     QFileInfo fi(path);
 
     QStringList pathComponents = path.split(QDir::separator(),
-                                            QString::SkipEmptyParts);
+                                            Qt::SkipEmptyParts);
 
     if ( pathComponents.size() <= 2 ) {
         // If path is root or nearly toplevel, always accept

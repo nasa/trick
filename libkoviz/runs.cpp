@@ -145,7 +145,7 @@ void Runs::_init()
         QStringList runsList = _runsSubset(monteRuns,
                                            _filterPattern,
                                            _excludePattern,
-                                           0,1e20);
+                                           0,UINT_MAX);
         _runPaths.clear();
         foreach ( QString run, runsList ) {
             _runPaths << _montePath + "/" + run;
@@ -155,7 +155,7 @@ void Runs::_init()
             _runPaths = _runsSubset(_runPaths,
                                     _filterPattern,
                                     _excludePattern,
-                                    0,1e20);
+                                    0,UINT_MAX);
         }
     }
 
@@ -205,14 +205,15 @@ void Runs::_init()
     // Make list of params that are in each run (coplottable)
     QSet<QString> paramSet;
     foreach ( Run* run, _runs ) {
-        QSet<QString> runParamSet = run->params().toSet();
+        QStringList list = run->params();
+        QSet<QString> runParamSet(list.begin(), list.end());
         if ( paramSet.isEmpty() ) {
             paramSet = runParamSet;
         } else {
             paramSet = paramSet.intersect(runParamSet);
         }
     }
-    _params = paramSet.toList();
+    _params = QStringList(paramSet.begin(),paramSet.end());
     _params.removeDuplicates();
     _params.sort();
 
@@ -637,7 +638,7 @@ void Runs::__loadRunsModel(QStandardItemModel *model,
     foreach ( QString runName, runNames ) {
         model->setHeaderData(r,Qt::Vertical,fruns.at(r));
         QString runIdString ;
-        runIdString = runIdString.sprintf("%d",r);
+        runIdString = runIdString.asprintf("%d",r);
         NumSortItem *runIdItem = new NumSortItem(runIdString);
         QStandardItem* runNameItem = new QStandardItem(runName);
         model->setItem(r,0,runIdItem);
@@ -842,7 +843,7 @@ void Runs::_loadMonteInputModelTrick07(QStandardItemModel* model,
         }
         int c = 0;
         QString runIdString ;
-        runIdString = runIdString.sprintf("%d",runId);
+        runIdString = runIdString.asprintf("%d",runId);
         NumSortItem *runIdItem = new NumSortItem(runIdString);
         model->setItem(nDataLines,c,runIdItem);
         model->setHeaderData(c,Qt::Horizontal,"RunId");
@@ -851,7 +852,7 @@ void Runs::_loadMonteInputModelTrick07(QStandardItemModel* model,
         // Monte carlo input data values
         //
         dataLine = dataLine.mid(0,hashIdx).trimmed();
-        QStringList dataVals = dataLine.split(' ',QString::SkipEmptyParts);
+        QStringList dataVals = dataLine.split(' ',Qt::SkipEmptyParts);
         if ( dataVals.size() != vars.size() ) {
             fprintf(stderr,
                     "koviz [error]: error parsing monte carlo input file.  "
@@ -868,7 +869,7 @@ void Runs::_loadMonteInputModelTrick07(QStandardItemModel* model,
         c = 1;
         foreach ( QString val, dataVals ) {
             double v = val.toDouble();
-            val = val.sprintf("%.4lf",v);
+            val = val.asprintf("%.4lf",v);
             NumSortItem *item = new NumSortItem(val);
             model->setItem(nDataLines,c,item);
             model->setHeaderData(c,Qt::Horizontal,vars.at(c-1));
@@ -980,7 +981,7 @@ void Runs::_loadMonteInputModelTrick17(QStandardItemModel* model,
         if ( !isParseLine ) {
             continue;
         }
-        QStringList vals = line.split(QRegExp("\\s+"),QString::SkipEmptyParts);
+        QStringList vals = line.split(QRegExp("\\s+"),Qt::SkipEmptyParts);
         if ( vals.size() != vars.size() ) {
             fprintf(stderr, "koviz [error]: error parsing %s.  There "
                             "are %d variables specified in top line, "
@@ -1012,9 +1013,9 @@ void Runs::_loadMonteInputModelTrick17(QStandardItemModel* model,
             double v = val.toDouble();
             if ( c == 0 ) {
                 int ival = val.toInt();
-                val = val.sprintf("%d",ival);
+                val = val.asprintf("%d",ival);
             } else {
-                val = val.sprintf("%.4lf",v);
+                val = val.asprintf("%.4lf",v);
             }
             NumSortItem *item = new NumSortItem(val);
             model->setItem(runLine,c,item);

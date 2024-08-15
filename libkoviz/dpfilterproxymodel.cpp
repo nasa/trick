@@ -7,10 +7,10 @@ DPFilterProxyModel::DPFilterProxyModel(const QString& timeName,
                                        Runs* runs,
                                        SieListModel* sieModel,
                                        QObject *parent) :
+    QSortFilterProxyModel(parent),
     _timeName(timeName),
     _runs(runs),
-    _sieModel(sieModel),
-    QSortFilterProxyModel(parent)
+    _sieModel(sieModel)
 {
     _runsRefreshed();
 

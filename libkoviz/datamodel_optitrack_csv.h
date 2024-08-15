@@ -86,6 +86,7 @@ class OptiTrackCsvModelIterator : public ModelIterator
         _model(model),
         _xcol(xcol), _ycol(ycol)
     {
+        Q_UNUSED(tcol);
     }
 
     virtual ~OptiTrackCsvModelIterator() {}

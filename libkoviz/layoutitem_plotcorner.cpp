@@ -13,7 +13,7 @@ PlotCornerLayoutItem::~PlotCornerLayoutItem()
 
 Qt::Orientations PlotCornerLayoutItem::expandingDirections() const
 {
-    return 0;
+    return Qt::Orientations();
 }
 
 QRect PlotCornerLayoutItem::geometry() const

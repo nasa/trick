@@ -51,7 +51,7 @@ void Thread::_do_stats()
         return;
     }
 
-    qSort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
+    std::sort(_jobs.begin(),_jobs.end(),jobAvgTimeGreaterThan);
 
     _freq = _calcFrequency();
     if ( _freq == 0 ) {
@@ -482,7 +482,7 @@ Threads::Threads(const QString &runDir, const QList<Job*>& jobs,
         thread->addJob(job);
     }
 
-    qSort(_ids.begin(),_ids.end(),intLessThan);
+    std::sort(_ids.begin(),_ids.end(),intLessThan);
 
     bool isRealTime = false;
     foreach ( Thread* thread, _threads.values() ) {

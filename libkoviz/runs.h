@@ -16,6 +16,7 @@
 #include <QRegExp>
 #include <QMessageBox>
 #include <stdexcept>
+#include <limits.h>
 #include "datamodel.h"
 #include "curvemodel.h"
 #include "numsortitem.h"
