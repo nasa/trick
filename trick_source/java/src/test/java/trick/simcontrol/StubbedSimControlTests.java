@@ -6,12 +6,14 @@ import trick.simcontrol.StubbedSimControlApplication;
 import java.awt.Frame;
 
 import javax.swing.JButton;
+import javax.swing.JToggleButton;
 
 import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.exception.ComponentLookupException;
 import org.assertj.swing.fixture.ComponentContainerFixture;
 import org.assertj.swing.fixture.MouseInputSimulationFixture;
 import org.assertj.swing.fixture.JButtonFixture;
+import org.assertj.swing.fixture.JToggleButtonFixture;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 
@@ -38,6 +40,8 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         app = StubbedSimControlApplication.getInstance();
         mainFrame = getFrameByTitle("Sim Control");
 
+        sleep(1000);
+        updateState();
     }
 
     //--------------------
@@ -80,18 +84,22 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
 
     // @Test
     // public void testLiteButton() {
-    //     testJButton("Lite", ActionID.LITE);
+    //     testJToggleButton("Lite", ActionID.LITE);
     // }
 
-    // @Test
-    // public void testDumpChkpntButton() {
-    //     testJButton("Dump Chkpnt", ActionID.DUMP_CHKPNT);
-    // }
+    @Test
+    public void testDumpChkpntButton() {
+        testJToggleButton("Dump Chkpnt", ActionID.DUMP_CHKPNT);
+    }
 
-    // @Test
-    // public void testLoadChkpntButton() {
-    //     testJButton("Load Chkpnt", ActionID.LOAD_CHKPNT);
-    // }
+    @Test
+    public void testLoadChkpntButton() {
+        testJToggleButton("Load Chkpnt", ActionID.LOAD_CHKPNT);
+    }
+
+	public static void sleep(long ms) {
+		try {Thread.sleep(ms);} catch(Exception ignored) {}
+	}
 
     private void testJButton(String text, ActionID action) {
         JButtonFixture button = getButtonByText(text);
@@ -99,6 +107,36 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
                           .isNotNull();
 
         testConnectedAction(button, action);
+    }
+
+    private void updateState() {
+        JToggleButtonFixture liteFixture, recordFixture, realFixture;
+        
+        liteFixture = getToggleButtonByText("Lite");
+        if (liteFixture == null)
+            liteFixture = getToggleButtonByText("Full");
+        
+    }
+
+    private void testJToggleButton(String text, ActionID action) { testJToggleButton(text, action, text, action); }
+
+    private void testJToggleButton(String initText, ActionID initAction, String toggleText, ActionID toggleAction) {
+        // ARRANGE
+        JToggleButtonFixture button = getToggleButtonByText(initText);
+        String buttonText, newButtonText;
+        assumeThat(button).withFailMessage("Toggle Button with text\"%s\" not found\n", initText)
+                          .isNotNull();
+
+        // ACT
+        testConnectedAction(button, initAction); // Toggle On
+        newButtonText = button.target().getText();
+
+        testConnectedAction(button, toggleAction); // Toggle Off
+        buttonText = button.target().getText();
+
+        // ASSERT
+        assertThat(newButtonText).isEqualTo(toggleText);
+        assertThat(buttonText).isEqualTo(initText);
     }
 
     private void testConnectedAction(MouseInputSimulationFixture clickable, ActionID expected) {
@@ -110,7 +148,9 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         initialLogSize = StubbedSimControlApplication.ActionRecord.size();
         clickable.click();
 
-        assumeThat(StubbedSimControlApplication.ActionRecord.size() > 0).isTrue();
+        assumeThat(StubbedSimControlApplication.ActionRecord.size() > 0)
+                    .withFailMessage("\"%s\" Action ID Not Registered", expected.name())
+                    .isTrue();
         actual = StubbedSimControlApplication.ActionRecord.peek();
         logSize = StubbedSimControlApplication.ActionRecord.size();
 
@@ -136,6 +176,27 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
             button = container.button(new GenericTypeMatcher<JButton>(JButton.class) {
                 @Override
                 protected boolean isMatching(JButton button) {
+                    return text.equals(button.getText());
+                }
+            });
+        } catch (ComponentLookupException e) {
+            return null;
+        }
+
+        return button;
+    }
+
+    protected JToggleButtonFixture getToggleButtonByText(String text) {
+        return getToggleButtonByText(mainFrame, text);
+    }
+
+    protected JToggleButtonFixture getToggleButtonByText(ComponentContainerFixture container, String text) {
+        JToggleButtonFixture button;
+
+        try {
+            button = container.toggleButton(new GenericTypeMatcher<JToggleButton>(JToggleButton.class) {
+                @Override
+                protected boolean isMatching(JToggleButton button) {
                     return text.equals(button.getText());
                 }
             });

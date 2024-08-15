@@ -147,6 +147,7 @@ public class StubbedSimControlApplication extends SimControlApplication {
     @Override
     public void lite() {
     	ActionRecord.push(ActionID.LITE);
+        super.lite();
     }
 
     @Override
