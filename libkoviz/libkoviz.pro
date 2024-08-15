@@ -233,7 +233,7 @@ BISONSOURCES = product_parser.y
 flexsource.input = FLEXSOURCES
 flexsource.output = $$PWD/${QMAKE_FILE_BASE}.cpp
 flexsource.commands = $$FLEX_COMMAND
-flexsource.variable_out = FLEX_DUMMY_SOURCE
+flexsource.variable_out = SOURCES
 flexsource.name = Flex Sources ${QMAKE_FILE_IN}
 flexsource.CONFIG += target_predeps
 QMAKE_EXTRA_COMPILERS += flexsource
@@ -245,21 +245,6 @@ flexheader.variable_out = HEADERS
 flexheader.name = Flex Headers ${QMAKE_FILE_IN}
 flexheader.CONFIG += target_predeps no_link
 QMAKE_EXTRA_COMPILERS += flexheader
-
-# This block used to compile product_lexer.cpp with -Wno-sign-compare
-# to get around flex genning code that has gcc sign compare warning
-FLEX_CPP = product_lexer.cpp
-FLEX_OBJ = $$OBJECTS_DIR/product_lexer.o
-compileflex.input = $$FLEX_CPP
-compileflex.output = $$FLEX_OBJ
-compileflex.commands = $(CXX) -c $(CXXFLAGS) -Wno-sign-compare \
-                              $(INCPATH) -o $$FLEX_OBJ $$FLEX_CPP
-QMAKE_EXTRA_COMPILERS += compileflex
-unix {
-    QMAKE_POST_LINK += $$quote(ar cqs $$DESTDIR/lib$${TARGET}.a $$FLEX_OBJ)
-} else:win32 {
-    QMAKE_POST_LINK += $$quote(lib /OUT:$$DESTDIR/lib$${TARGET}.lib $$FLEX_OBJ)
-}
 
 bisonsource.input = BISONSOURCES
 bisonsource.output = $$PWD/${QMAKE_FILE_BASE}.cpp
