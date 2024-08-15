@@ -1684,7 +1684,7 @@ void PlotMainWindow::_runsRefreshed()
                 QString xName = varHash.keys().at(0).first;
                 QString yName = varHash.keys().at(0).second;
                 foreach ( QString runPathToAppend, runPathsToAppend ) {
-                    // Append new run using values from last curve
+                    // Try to append new run using values from last curve
                     int rc = _runs->runsModel()->rowCount();
                     QList<QColor> colors = _bookModel->createCurveColors(rc);
                     for ( int r = 0; r < rc; ++r ) {
@@ -1693,7 +1693,7 @@ void PlotMainWindow::_runsRefreshed()
                         QFileInfo fi(path);
                         if ( runPathToAppend == fi.absoluteFilePath() ) {
                             // Turn off signals (to keep from redrawing)
-                            bool block = _bookModel->blockSignals(true);
+                            _bookModel->blockSignals(true);
 
                             // Make presentation "compare"
                             QModelIndex presIdx = _bookModel->getDataIndex(
@@ -1761,6 +1761,16 @@ void PlotMainWindow::_runsRefreshed()
                                                      "CurveSymbolEnd","Curve");
                             QString symbolEnd =_bookModel->data(idx).toString();
 
+                            // Unit check
+                            bool canConvertXUnit = Unit::canConvert(xUnit,
+                                                       curveModel->x()->unit());
+                            bool canConvertYUnit = Unit::canConvert(yUnit,
+                                                       curveModel->y()->unit());
+                            if( !canConvertXUnit || !canConvertYUnit ) {
+                                _bookModel->blockSignals(false);
+                                continue; // Don't add curve if units mismatch
+                            }
+
                             // Add Curve
                             QStandardItem* curvesItem = _bookModel->
                                                        itemFromIndex(curvesIdx);
@@ -1811,7 +1821,7 @@ void PlotMainWindow::_runsRefreshed()
                             _bookModel->addChild(curveItem, "CurveData", v);
 
                             // Turn signals back on and reset bounding box
-                            _bookModel->blockSignals(block);
+                            _bookModel->blockSignals(false);
                             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
                             QRectF E; // Empty set below to force redraw
                             _bookModel->setPlotMathRect(E,plotIdx);
