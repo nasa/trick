@@ -60,7 +60,7 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
     _msgLabel(0),
     _searchBox(0)
 {
-    _setupModel();
+    _setupModel(_dpDirName);
 
     _gridLayout = new QGridLayout(parent);
 
@@ -97,12 +97,14 @@ DPTreeWidget::DPTreeWidget(const QString& timeName,
         _msgLabel->hide();
         _loadDPFiles();
     }
+
+    connect(_runs, SIGNAL(runsRefreshed()),
+            this, SLOT(_runsRefreshed()));
 }
 
 DPTreeWidget::~DPTreeWidget()
 {
     delete _dpModel;
-    delete _dir;
     delete _dpFilterModel;
 
     foreach ( ProgramModel* program, _programModels ) {
@@ -111,27 +113,24 @@ DPTreeWidget::~DPTreeWidget()
     _programModels.clear();
 }
 
-//
-// DP File/Sys Model and Filter Proxy Model
-//
-void DPTreeWidget::_setupModel()
+QString DPTreeWidget::_findDPDir(const QString &startDir)
 {
-    _dir = new QDir(_dpDirName);
+    QDir* searchDir = new QDir(startDir);
 
     // Change directory from RUN/MONTE dir to DP_Product dir (if possible)
     bool isFound = false;
     while ( 1 ) {
-        QString path1 = QDir::cleanPath(_dir->absolutePath());
+        QString path1 = QDir::cleanPath(searchDir->absolutePath());
         QStringList dpDirFilter;
         dpDirFilter << "DP_Product";
-        QStringList dpdirs = _dir->entryList(dpDirFilter);
+        QStringList dpdirs = searchDir->entryList(dpDirFilter);
         if ( !dpdirs.isEmpty() ) {
-            _dir->cd(dpdirs.at(0));
+            searchDir->cd(dpdirs.at(0));
             isFound = true;
             break;
         }
-        _dir->cdUp();
-        QString path2 = QDir::cleanPath(_dir->absolutePath());
+        searchDir->cdUp();
+        QString path2 = QDir::cleanPath(searchDir->absolutePath());
         if ( path1 == path2 ) {
             // Since cdUP returned same path, assume path1==path2=="/" (root)
             break;
@@ -139,21 +138,21 @@ void DPTreeWidget::_setupModel()
     }
 
     if ( isFound == false ) {
-        // No DP_Product dir found at or above data dir
-        // Search for DP_ files at or above data dir
-        delete _dir;
-        _dir = new QDir(_dpDirName);
+        // No DP_Product dir found at or above run dir
+        // Search for DP_ files at or above run dir
+        delete searchDir;
+        searchDir = new QDir(startDir);
         while ( 1 ) {
-            QString path1 = QDir::cleanPath(_dir->absolutePath());
+            QString path1 = QDir::cleanPath(searchDir->absolutePath());
             QStringList dpDirFilter;
             dpDirFilter << "DP_*";
-            QStringList dps = _dir->entryList(dpDirFilter);
+            QStringList dps = searchDir->entryList(dpDirFilter);
             if ( !dps.isEmpty() ) {
                 isFound = true;
                 break;
             }
-            _dir->cdUp();
-            QString path2 = QDir::cleanPath(_dir->absolutePath());
+            searchDir->cdUp();
+            QString path2 = QDir::cleanPath(searchDir->absolutePath());
             if ( path1 == path2 ) {
                 // Since cdUP returned same path, assume path1==path2=="/"(root)
                 break;
@@ -164,19 +163,19 @@ void DPTreeWidget::_setupModel()
     if ( isFound == false ) {
         // No DP_* files or Data_Product dirs found
         // Try for parent SIM_ dir
-        delete _dir;
-        _dir = new QDir(_dpDirName);
+        delete searchDir;
+        searchDir = new QDir(startDir);
         while ( 1 ) {
-            QString path1 = QDir::cleanPath(_dir->absolutePath());
+            QString path1 = QDir::cleanPath(searchDir->absolutePath());
             QStringList simDirFilter;
             simDirFilter << "SIM_*";
-            QStringList sims = _dir->entryList(simDirFilter);
+            QStringList sims = searchDir->entryList(simDirFilter);
             if ( !sims.isEmpty() ) {
                 isFound = true;
                 break;
             }
-            _dir->cdUp();
-            QString path2 = QDir::cleanPath(_dir->absolutePath());
+            searchDir->cdUp();
+            QString path2 = QDir::cleanPath(searchDir->absolutePath());
             if ( path1 == path2 ) {
                 // Since cdUP returned same path, assume path1==path2=="/"(root)
                 break;
@@ -187,13 +186,26 @@ void DPTreeWidget::_setupModel()
     if ( isFound == false ) {
         // No DP_* files, Data_Product dirs or SIM_ dirs found
         // Use directory above as last ditch try
-        delete _dir;
-        _dir = new QDir(_dpDirName);
-        _dir->cdUp();
+        delete searchDir;
+        searchDir = new QDir(startDir);
+        searchDir->cdUp();
     }
 
+    QString dpDir = searchDir->absolutePath();
+    delete searchDir;
+
+    return dpDir;
+
+}
+
+//
+// DP File/Sys Model and Filter Proxy Model
+//
+void DPTreeWidget::_setupModel(const QString& dpSearchDir)
+{
+    QString dpDir = _findDPDir(dpSearchDir);
     _dpModel = new QFileSystemModel;
-    _dpModelRootIdx = _dpModel->setRootPath(_dir->path());
+    _dpModelRootIdx = _dpModel->setRootPath(dpDir);
     QStringList filters;
     //filters  << "DP_*" << "SET_*"; // _dpFilterModel does additional filtering
     _dpModel->setNameFilters(filters);
@@ -312,6 +324,18 @@ void DPTreeWidget::_tvModelAboutToBeReset()
 {
     _bookModel->replaceCurveModelsWithCopies(_tvCurveModels);
     _tvCurveModels.clear();
+}
+
+void DPTreeWidget::_runsRefreshed()
+{
+    if ( _runs->runPaths().isEmpty() ) {
+        return;
+    }
+    QString dpDir = _findDPDir(_runs->runPaths().at(0));
+    _dpModelRootIdx = _dpModel->setRootPath(dpDir);
+    QModelIndex sourceIndex = _dpModel->index(dpDir);
+    QModelIndex proxyIndex = _dpFilterModel->mapFromSource(sourceIndex);
+    _dpTreeView->setRootIndex(proxyIndex);
 }
 
 //

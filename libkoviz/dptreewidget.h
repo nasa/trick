@@ -66,7 +66,6 @@ private:
     QString _dpDirName;
     QStringList _dpFiles;
     Runs* _runs;
-    QDir* _dir;
     QStringList _runPaths;
     PlotBookModel* _bookModel;
     QItemSelectionModel*  _bookSelectModel;
@@ -85,7 +84,8 @@ private:
     QList<ProgramModel*> _programModels;
     QList<CurveModel*> _tvCurveModels;  // list for tv model reset
 
-    void _setupModel();
+    QString _findDPDir(const QString& startDir);
+    void _setupModel(const QString &dpSearchDir);
     void _createDP(const QString& dpfile);
     void _createDPPages(const QString& dpfile);
     void _createDPTables(const QString& dpfile);
@@ -114,6 +114,7 @@ private slots:
      void _setMsgLabel(const QString& msg);
      void _tvModelRowAppended(const QModelIndex &parent,int start,int end);
      void _tvModelAboutToBeReset();
+     void _runsRefreshed();
 
 };
 
