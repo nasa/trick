@@ -3231,6 +3231,31 @@ QList<double> PlotBookModel::_calcTicSet(double aIn, double bIn,
         }
     }
 
+    // Clean up X by replacing single tic that is nearest zero with zero
+    // For example, if X={-1e-17,1e-34,1e-17}, make X={-1e-17,0,1e-17}
+    // Only replace tic if:
+    //    1. a <= 0 <= b
+    //    2. |X| > 1
+    //    3. log10(tic) is less than another tic
+    if ( a <= 0 && b >= 0 && X.size() > 1 ) {
+        int idx_nearest_zero = 0;
+        double xmin = DBL_MAX;
+        for ( int i = 0; i < X.size(); ++i ) {
+            double x = X.at(i);
+            if ( qAbs(x) < xmin ) {
+                xmin = qAbs(x);
+                idx_nearest_zero = i;
+            }
+        }
+        if ( xmin != 0 ) {
+            int i = ( idx_nearest_zero == 0 ) ? 1 : 0;
+            double other_tic = X.at(i);
+            if ( log10(qAbs(xmin)) < log10(qAbs(other_tic))-1 ) {
+                X.replace(idx_nearest_zero,0.0);
+            }
+        }
+    }
+
     // Shrink tic set until |X| <=7
     // Tics are removed in favor of keeping tics "even" in order
     // to keep them the same while panning
