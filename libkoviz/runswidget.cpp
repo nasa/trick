@@ -18,7 +18,18 @@ RunsWidget::RunsWidget(Runs *runs,
 
     // Dir/File model
     _fileModel = new QFileSystemModel;
+
+    // Set initial runs home
     _runsHome = QDir::currentPath();
+    QString exePath = _runsHome + QDir::separator() + "koviz.exe";
+    QString iconPath = _runsHome + QDir::separator() + "koviz.ico";
+    if (QFile::exists(exePath) && QFile::exists(iconPath)) {
+        // If koviz.exe and koviz.ico are in the current path,
+        // assume this is being launched from a Windows install location.
+        // In this case, set runs home to user's home directory
+        _runsHome = QStandardPaths::
+                                 writableLocation(QStandardPaths::HomeLocation);
+    }
     _fileModel->setRootPath(_runsHome);
 
     // Filter
@@ -38,7 +49,7 @@ RunsWidget::RunsWidget(Runs *runs,
     _gridLayout->addWidget(_fileTreeView,1,0);
 
     // Set browser root path
-    QModelIndex sourceIndex = _fileModel->index(QDir::currentPath());
+    QModelIndex sourceIndex = _fileModel->index(_runsHome);
     QModelIndex proxyIndex = _filterModel->mapFromSource(sourceIndex);
     _fileTreeView->setRootIndex(proxyIndex);
 }

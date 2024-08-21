@@ -12,6 +12,7 @@
 #include <QFileSystemModel>
 #include <QSortFilterProxyModel>
 #include <QRegExp>
+#include <QStandardPaths>
 
 #include "bookmodel.h"
 #include "monteinputsview.h"
