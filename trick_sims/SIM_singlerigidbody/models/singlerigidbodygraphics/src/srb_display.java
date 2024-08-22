@@ -45,16 +45,10 @@ import trick.matrixOps.MatrixOps;
 
     private double worldToVantageRotation[][];
 
-    private Color waterColor;
-    private double water_vrtx_world[][];
+    private Color bodyLineColor;
+    private Color bodyFillColor;
 
-    private int water_poly_x[];
-    private int water_poly_y[];
-
-    private Color vehicleLineColor;
-    private Color vehicleFillColor;
-
-    private double[] vehiclePos;
+    private double[] bodyPos;
 
     private double bodyToWorldRotation[][];
 
@@ -68,5 +62,25 @@ import trick.matrixOps.MatrixOps;
     private double veh_unit_normals_body[][];
     private double veh_unit_normals_world[][];
     private double veh_unit_normals_vantage[][];
-    
+
+    public SRBView() {
+
+        ViewListener viewListener = new ViewListener();
+        addMouseListener(viewListener);
+        addMouseMotionListener(viewListener);
+
+        // Direction of light.
+        illumination_vector = new double[] {-0.707, 0.0, -0.707};
+
+        // Location of the observer, looking toward the world's origin.
+        vantageAzimuth   = Math.toRadians(45.0);
+        vantageElevation = Math.toRadians(20.0);
+        vantageDistance = 12.0;
+
+        // Half field of view angle
+        beta = Math.toRadians(40.0);
+
+
+    }
+
  }
