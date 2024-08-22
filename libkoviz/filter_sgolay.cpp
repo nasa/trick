@@ -138,11 +138,11 @@ float_mat::float_mat(const size_t rows,const size_t cols,const double defval)
         (*this)[i].resize(cols, defval);
     }
     if ((rows < 1) || (cols < 1)) {
-        char buffer[1024];
-        
-        sprintf(buffer, "cannot build matrix with %lu rows and %lu columns\n",
+        char* buffer;
+        asprintf(&buffer, "cannot build matrix with %lu rows and %lu columns\n",
                 rows, cols);
         sgs_error(buffer);
+        free(buffer);
     }
 }
 

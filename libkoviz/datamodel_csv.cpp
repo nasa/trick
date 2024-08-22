@@ -28,7 +28,7 @@ void CsvModel::_init()
     in.setCodec("UTF-8");
 
     QString line0 = in.readLine();
-    QStringList items = line0.split(',',QString::SkipEmptyParts);
+    QStringList items = line0.split(',',Qt::SkipEmptyParts);
     int col = 0;
     foreach ( QString item, items ) {
         QString name;
@@ -86,26 +86,42 @@ void CsvModel::_init()
     _iteratorTimeIndex = new CsvModelIterator(0,this,
                                               _timeCol,_timeCol,_timeCol);
 
-#ifdef __linux
-    TimeItLinux timer;
+    QElapsedTimer timer;
     timer.start();
-#endif
 
     // Get number of data rows in csv file
+    QString msgCnt("Counting number rows in csv");
+    QProgressDialog progressCnt(msgCnt, QString(), 0, 0, 0);
+    progressCnt.setRange(0, 0);
+    progressCnt.setWindowModality(Qt::WindowModal);
     while ( !in.atEnd() ) {
+        if (progressCnt.wasCanceled()) {
+             break;
+        }
+        if ( _nrows % 10000 == 0 ) {
+            int secs = qRound(timer.nsecsElapsed()/1.0e9);
+
+            div_t d = div(secs,60);
+            QString m = QString("%1, nrows=%2 (%3 min %4 sec)")
+                                .arg(msgCnt).arg(_nrows).arg(d.quot).arg(d.rem);
+            progressCnt.setLabelText(m);
+            progressCnt.setValue(_nrows);
+        }
         in.readLine();
         ++_nrows;
     }
+    progressCnt.close();
 
     // Allocate to hold *all* parsed data
     _data = (double*)malloc(_nrows*_ncols*sizeof(double));
 
-    // Begin Progress Dialog
+    // Begin Loading Progress Dialog
+    timer.start();
     QString msg("Loading ");
     msg += QFileInfo(fileName()).fileName();
     msg += "...";
-    QProgressDialog progress(msg, "Abort", 0, _nrows-1, 0);
-    progress.setWindowModality(Qt::WindowModal);
+    QProgressDialog progressLoad(msg, "Abort", 0, _nrows-1, 0);
+    progressLoad.setWindowModality(Qt::WindowModal);
     int row = 0;
 
     // Read in data
@@ -113,11 +129,11 @@ void CsvModel::_init()
     in.readLine(); // csv header line
     int i = 0;
     while ( !in.atEnd() ) {
-        if (progress.wasCanceled()) {
+        if (progressLoad.wasCanceled()) {
              break;
         }
         if ( row % 10000 == 0 ) {
-            progress.setValue(row);
+            progressLoad.setValue(row);
         }
         ++row;
 
@@ -135,20 +151,18 @@ void CsvModel::_init()
             ++i;
         }
 
-#ifdef __linux
         if ( row % 10000 == 0 ) {
-            int secs = qRound(timer.stop()/1000000.0);
+            int secs = qRound(timer.nsecsElapsed()/1.0e9);
             div_t d = div(secs,60);
             QString msg = QString("Loaded %1 of %2 lines "
                                   "(%3 min %4 sec)")
                     .arg(row).arg(_nrows).arg(d.quot).arg(d.rem);
-            progress.setLabelText(msg);
+            progressLoad.setLabelText(msg);
         }
-#endif
     }
 
     // End Progress Dialog
-    progress.setValue(_nrows-1);
+    progressLoad.setValue(_nrows-1);
 
     file.close();
 }
@@ -310,4 +324,61 @@ QVariant CsvModel::data(const QModelIndex &idx, int role) const
     }
 
     return val;
+}
+
+bool CsvModel::isValid(const QString &csvFile, const QStringList &timeNames)
+{
+    QFile file(csvFile);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+    QTextStream in(&file);
+    in.setCodec("UTF-8");
+
+    // Get list of variable names
+    QStringList names;
+    QString line0 = in.readLine();
+    QStringList items = line0.split(',',Qt::KeepEmptyParts);
+    foreach ( QString item, items ) {
+        QString name;
+        if ( item.contains('{') ) {
+            // Name left of unit between curlies
+            int i = item.indexOf('{');
+            if ( i > 0 ) {
+                name = item.left(i-1).trimmed();
+            }
+        } else {
+            name = item.trimmed();
+        }
+        if ( name.isEmpty() ) {
+            file.close();
+            return false;
+        }
+        names.append(name);
+    }
+
+    // Ensure time param exists
+    bool isFoundTime = false;
+    foreach (QString timeName, timeNames) {
+        if ( names.contains(timeName) ) {
+            isFoundTime = true;
+            break;
+        }
+    }
+    if ( ! isFoundTime ) {
+        file.close();
+        return false;
+    }
+
+    // Sanity check second line to ensure num cols is same as num header cols
+    QString line1 = in.readLine();
+    items = line1.split(',',Qt::KeepEmptyParts);
+    if ( items.size() != names.size() ) {
+        file.close();
+        return false;
+    }
+
+    file.close();
+    return true;
 }

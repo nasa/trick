@@ -6,16 +6,12 @@ RunFile::RunFile(const QString &run,
     _varMap(varMap)
 {
     QFileInfo fi(run);
-    if ( ! fi.exists() ) {
-        fprintf(stderr, "koviz [error]: RunFile couldn't find run file=%s\n",
-                run.toLatin1().constData());
-        exit(-1);
-    }
 
-    QStringList suffixes = {"trk","csv","mot"};
-    if ( !suffixes.contains(fi.suffix()) ) {
-        fprintf(stderr, "koviz [error]: RunFile=%s has unsupported suffix=%s\n",
-                run.toLatin1().constData(),fi.suffix().toLatin1().constData());
+    if ( ! RunFile::isValid(run,timeNames) ) {
+        fprintf(stderr, "koviz [error]: Invalid run file=%s\n"
+                         "It does not exist, is a non-Trick formatted csv, "
+                         "is an unsupported format or could not find time.\n",
+                run.toLatin1().constData());
         exit(-1);
     }
 
@@ -72,4 +68,30 @@ DataModel *RunFile::dataModel(const QString &param)
     }
 
     return model;
+}
+
+bool RunFile::isValid(const QString &run, const QStringList& timeNames)
+{
+    QFileInfo fi(run);
+    if ( ! fi.exists() ) {
+        return false;
+    }
+
+    QStringList suffixes = {"trk","csv","mot"};
+    if ( !suffixes.contains(fi.suffix()) ) {
+        return false;
+    }
+
+    if ( fi.suffix() == "csv" ) {
+        if ( !CsvModel::isValid(run,timeNames) &&
+             !OptiTrackCsvModel::isValid(run) ) {
+            return false;
+        }
+    } else if ( fi.suffix() == "mot" ) {
+        if ( !MotModel::isValid(run) ) {
+            return false;
+        }
+    }
+
+    return true;
 }

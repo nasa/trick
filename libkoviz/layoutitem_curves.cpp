@@ -747,7 +747,7 @@ void CurvesLayoutItem::_printErrorplot(const QTransform& T,
             yval = QString("Flatpoint=(%1,%2)").
                     arg(x,0,'g').arg(error,0,'g');
         } else {
-            yval = yval.sprintf("Flatline=%g",error);
+            yval = yval.asprintf("Flatline=%.15g",error);
         }
         int h = painter->fontMetrics().descent();
         painter->drawText(curveBBox.topLeft()-QPointF(0,h),yval);

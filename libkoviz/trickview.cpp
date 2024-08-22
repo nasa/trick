@@ -1,9 +1,5 @@
 #include "trickview.h"
 
-#ifdef __linux
-#include "timeit_linux.h"
-#endif
-
 TrickView::TrickView(SieListModel* sieModel,
                      TVModel* tvModel,
                      PlotBookModel* bookModel,
@@ -217,6 +213,7 @@ void TrickView::_tvSelectionChanged(
 
 void TrickView::_tvSearchBoxTextChanged(const QString &rx)
 {
+    Q_UNUSED(rx);
     //_varsFilterModel->setFilterRegExp(rx);
 }
 
@@ -248,6 +245,10 @@ void TrickView::_tvModelAboutToBeReset()
 void TrickView::_bookModelRowsAboutToBeRemoved(const QModelIndex &parent,
                                                int first, int last)
 {
+    Q_UNUSED(parent)
+    Q_UNUSED(first)
+    Q_UNUSED(last)
+
     _varsSelectModel->clear();
 }
 
@@ -385,6 +386,7 @@ QModelIndex TrickView::_addCurveToPlot(const QModelIndex &plotIdx,
     bool block = _bookModel->blockSignals(true);
 
     _bookModel->addChild(curveItem, "CurveRunID", -1);
+    _bookModel->addChild(curveItem, "CurveRunPath", "");
     _bookModel->addChild(curveItem, "CurveTimeName", curveModel->t()->name());
     _bookModel->addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
     _bookModel->addChild(curveItem, "CurveXName", curveModel->t()->name());

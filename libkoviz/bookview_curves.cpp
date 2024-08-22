@@ -302,7 +302,7 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
                 if (plotYScale=="log") {
                     y = pow(10,y) ;
                 }
-                label = QString("Flatline=%1").arg(y);
+                label = QString("Flatline=%1").arg(y,0,'g',15);
             }
 
             QRectF tbox = Tscaled.mapRect(cbox);
@@ -342,6 +342,9 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
         QString lineStyle = _bookModel()->getDataString(curveIdx,
                                                       "CurveLineStyle","Curve");
         lineStyle = lineStyle.toLower();
+
+        // Get plot math rect
+        QRectF M = _bookModel()->getPlotMathRect(plotIdx);
 
         // Draw curve!
         if ( lineStyle == "thick_line" || lineStyle == "x_thick_line" ) {
@@ -392,6 +395,25 @@ void CurvesView::_paintCurve(const QModelIndex& curveIdx,
             pen.setWidthF(w);
             painter.setPen(pen);
             painter.setBrush(origBrush);
+            painter.setTransform(Tscaled);
+        } else if ( M.height() < 1.0e-17) {
+            // When zoomed way in, draw curve point by point, otherwise
+            // Qt (I think) has issues where the pixmap curve doesn't match
+            // the painter.drawPath(path) curve when selecting curves
+            QTransform I;
+            painter.setTransform(I);
+            painter.setPen(pen);
+            QPointF pLast;
+            for ( int i = 0; i < path->elementCount(); ++i ) {
+                QPainterPath::Element el = path->elementAt(i);
+                QPointF p(el.x,el.y);
+                p = Tscaled.map(p);
+                if  ( i > 0 ) {
+                    painter.drawLine(pLast,p);
+                }
+                pLast = p;
+            }
+            painter.setPen(pen);
             painter.setTransform(Tscaled);
         } else {
             painter.drawPath(*path);
@@ -920,7 +942,7 @@ void CurvesView::_paintErrorplot(const QTransform &T,
             }
             label = QString("Flatpoint=(%1,%2)").arg(x,0,'g').arg(error,0,'g');
         } else {
-            label = QString("Flatline=%1").arg(error,0,'g');
+            label = QString("Flatline=%1").arg(error,0,'g', 15);
         }
         QTransform I;
         painter.setTransform(I);
@@ -1106,12 +1128,12 @@ QPixmap* CurvesView::_createLivePixmap()
 QString CurvesView::_format(double d)
 {
     QString s;
-    s = s.sprintf("%.9g",d);
+    s = s.asprintf("%.9g",d);
     QVariant v(s);
     double x = v.toDouble();
     double e = qAbs(x-d);
     if ( e > 1.0e-9 ) {
-        s = s.sprintf("%.9lf",d);
+        s = s.asprintf("%.9lf",d);
     }
     return s;
 }

@@ -71,10 +71,10 @@ void BookTableView::paintEvent(QPaintEvent *event)
     QStringList labels = _columnLabels();
 
     // Calculate column width
-    int w = fm.width("0123456789");
+    int w = fm.horizontalAdvance("0123456789");
     foreach ( QString label, labels ) {
-        if ( fm.width(label) > w ) {
-            w = fm.width(label);
+        if ( fm.horizontalAdvance(label) > w ) {
+            w = fm.horizontalAdvance(label);
         }
     }
     w = _mLft + w + _mRgt;
@@ -146,7 +146,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
             QString s;
             if ( i == 0 ) {
                 s = labels.at(q+j);
-                int l = fm.width(labels.at(q+j));
+                int l = fm.horizontalAdvance(labels.at(q+j));
                 painter.drawText(w*j+(w-l),baseline,s);
             } else {
                 if ( j == 0 ) {
@@ -160,7 +160,7 @@ void BookTableView::paintEvent(QPaintEvent *event)
                         // s is an empty string since no corresponding time
                     }
                 }
-                int l = fm.width(s);
+                int l = fm.horizontalAdvance(s);
                 painter.drawText(w*j+(w-l),baseline,s);
             }
         }
@@ -242,7 +242,7 @@ QStringList BookTableView::_format(const QList<double> &vals)
             if ( v >= 1.0e-9 && v < 1.0 ) {
                 QString s = list.at(i);
                 QString fmt = QString("%.%1lf").arg(qAbs(minExponent));
-                s = s.sprintf(fmt.toLatin1().constData(),v);
+                s = s.asprintf(fmt.toLatin1().constData(),v);
                 list.replace(i,s);
             }
         }
@@ -258,7 +258,7 @@ QStringList BookTableView::__format(const QList<double> &vals,
 
     foreach ( double v, vals ) {
         QString s;
-        s = s.sprintf(format.toLatin1().constData(),v);
+        s = s.asprintf(format.toLatin1().constData(),v);
         list << s;
     }
 
@@ -440,10 +440,10 @@ QModelIndex BookTableView::indexAt(const QPoint &point) const
     // Calculate column width (TODO: this is cut-n-paste code from paintEvent)
     QFontMetrics fm = fontMetrics();
     QStringList labels = _columnLabels();
-    int w = fm.width("0123456789");
+    int w = fm.horizontalAdvance("0123456789");
     foreach ( QString label, labels ) {
-        if ( fm.width(label) > w ) {
-            w = fm.width(label);
+        if ( fm.horizontalAdvance(label) > w ) {
+            w = fm.horizontalAdvance(label);
         }
     }
     w = _mLft + w + _mRgt;
@@ -564,7 +564,7 @@ void BookTableView::keyPressEvent(QKeyEvent *event)
 
 void BookTableView::wheelEvent(QWheelEvent *e)
 {
-    QModelIndex tableVarIdx = indexAt(e->pos());
+    QModelIndex tableVarIdx = indexAt(e->position().toPoint());
 
     if ( !tableVarIdx.isValid() ) return;
 
@@ -580,9 +580,9 @@ void BookTableView::wheelEvent(QWheelEvent *e)
         unit = curveModel->y()->unit();
     }
 
-    if ( e->delta() > 0 ) {
+    if ( e->angleDelta().y() > 0 ) {
         unit = Unit::next(unit);
-    } else if ( e->delta() < 0 ) {
+    } else if ( e->angleDelta().y() < 0 ) {
         unit = Unit::prev(unit);
     }
 

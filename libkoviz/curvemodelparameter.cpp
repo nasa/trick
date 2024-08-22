@@ -43,7 +43,8 @@ void CurveModelParameter::setUnit(const QString& unit )
         fprintf(stderr,"koviz [error]: Attempting to set the unit for "
                        "var=%s, but the internal units for this variable "
                        "are %s.  One may only override the units for "
-                       "a variable when the units are unset or {--}.\n",
+                       "a variable when the units are unset or "
+                       "unitless e.g. {--}.\n",
                 _name.toLatin1().constData(),
                 _unit.toLatin1().constData());
         exit(-1);

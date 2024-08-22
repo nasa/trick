@@ -9,6 +9,7 @@ class Run
 {
 public:
     Run();
+    virtual ~Run(){};
     virtual QStringList params() = 0;
     virtual DataModel* dataModel(const QString& param) = 0;
 };

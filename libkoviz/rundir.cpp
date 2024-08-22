@@ -13,41 +13,11 @@ RunDir::RunDir(const QString &run,
         exit(-1);
     }
 
-    QStringList filter;
-    filter << "*.trk" << "*.csv" << "*.mot";
-
-    QRegExp filterRgx(filterPattern);
-    QRegExp excludeRgx(excludePattern);
-
-    QDir runDir(run);
-    QStringList files = runDir.entryList(filter, QDir::Files);
-
-    if ( files.contains("log_timeline.csv") ) {
-        files.removeAll("log_timeline.csv");
-    }
-    if ( files.contains("log_timeline_init.csv") ) {
-        files.removeAll("log_timeline_init.csv");
-    }
-    if ( files.contains("_init_log.csv") ) {
-        files.removeAll("_init_log.csv");
-    }
-    if ( !excludeRgx.isEmpty() ) {
-        QStringList excludeFiles = files.filter(excludeRgx);
-        foreach (QString excludeFile, excludeFiles) {
-            files.removeAll(excludeFile);
-        }
-    }
-    if ( !filterRgx.isEmpty() ) {
-        QStringList filterFiles = files.filter(filterRgx);
-        if ( !filterFiles.isEmpty() ) {
-            // If the filter has found a match, use filter,
-            // otherwise do not
-            files = filterFiles;
-        }
-    }
+    QStringList files = RunDir::_fileList(run,timeNames,
+                                          filterPattern,excludePattern);
 
     if ( files.empty() ) {
-        fprintf(stderr, "koviz [error]: Either no *.trk/csv/mot files "
+        fprintf(stderr, "koviz [error]: Either no *.trk/csv/mot files \n"
                         "               in run dir: %s\n"
                         "               or log files were filtered out.\n",
                         run.toLatin1().constData());
@@ -107,4 +77,79 @@ DataModel *RunDir::dataModel(const QString &param)
         }
     }
     return model;
+}
+
+bool RunDir::isValid(const QString &run,
+                     const QStringList& timeNames,
+                     const QString &filterPattern,
+                     const QString &excludePattern)
+{
+    QStringList files = RunDir::_fileList(run,timeNames,
+                                          filterPattern,excludePattern);
+    if ( files.isEmpty() ) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+QStringList RunDir::_fileList(const QString& run,
+                              const QStringList& timeNames,
+                              const QString &filterPattern,
+                              const QString &excludePattern)
+{
+    QStringList files;
+
+    if ( ! QFileInfo(run).exists() ) {
+        return files; // empty list
+    }
+
+    QStringList filter;
+    filter << "*.trk" << "*.csv" << "*.mot";
+
+    QRegExp filterRgx(filterPattern);
+    QRegExp excludeRgx(excludePattern);
+
+    QDir runDir(run);
+    files = runDir.entryList(filter, QDir::Files);
+
+    if ( files.contains("log_timeline.csv") ) {
+        files.removeAll("log_timeline.csv");
+    }
+    if ( files.contains("log_timeline_init.csv") ) {
+        files.removeAll("log_timeline_init.csv");
+    }
+    if ( files.contains("_init_log.csv") ) {
+        files.removeAll("_init_log.csv");
+    }
+    if ( !excludeRgx.isEmpty() ) {
+        QStringList excludeFiles = files.filter(excludeRgx);
+        foreach (QString excludeFile, excludeFiles) {
+            files.removeAll(excludeFile);
+        }
+    }
+    if ( !filterRgx.isEmpty() ) {
+        QStringList filterFiles = files.filter(filterRgx);
+        if ( !filterFiles.isEmpty() ) {
+            // If the filter has found a match, use filter,
+            // otherwise do not
+            files = filterFiles;
+        }
+    }
+
+    QStringList invalidCsvFiles;
+    foreach (const QString& file, files ) {
+        QFileInfo fi(file);
+        if ( fi.suffix() == "csv" ) {
+            QString fullPath = runDir.absoluteFilePath(file);
+            if ( !CsvModel::isValid(fullPath,timeNames) ) {
+                invalidCsvFiles.append(file);
+            }
+        }
+    }
+    foreach (const QString& file, invalidCsvFiles ) {
+        files.removeAll(file);
+    }
+
+    return files;
 }

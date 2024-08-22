@@ -93,9 +93,9 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
 
         QString fromUnit = _bookModel()->getCurvesYUnit(curvesIdx);
         QString toUnit;
-        if ( e->delta() > 0 ) {
+        if ( e->angleDelta().y() > 0 ) {
             toUnit = Unit::next(fromUnit);
-        } else if ( e->delta() < 0 ) {
+        } else if ( e->angleDelta().y() < 0 ) {
             toUnit = Unit::prev(fromUnit);
         }
 

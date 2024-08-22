@@ -185,10 +185,7 @@ QRect TicLabelsLayoutItem::_boundingRect(const QString &strVal) const
 QString TicLabelsLayoutItem::_format(double tic) const
 {
     QString s;
-    if ( qAbs(tic) < 1.0e-16 ) {
-        tic = 0.0;
-    }
-    s = s.sprintf("%g", tic);
+    s = s.asprintf("%g", tic);
     return s;
 }
 

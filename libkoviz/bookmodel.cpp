@@ -1211,8 +1211,14 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         top = bbox.y()+1.0;
         bot = bbox.y()-1.0;
     } else {
-        // Add 2% margin
-        double mh = bbox.height()*0.02;
+        double mh;
+        if ( log10(abs(bbox.height())) > -17 ) {
+            // 2% margin (normal case)
+            mh = bbox.height()*0.02;
+        } else {
+            // Margin calc for very small values
+            mh = std::pow(10, 1+std::log10(abs(bbox.height())));
+        }
         top = bbox.top()-mh;
         bot = bbox.bottom()+mh;
     }
@@ -1399,9 +1405,20 @@ void PlotBookModel::__appendDataToPainterPath(CurveModel *curveModel,
                     }
                 }
             } else {
-                // Point not added, probably a nan
+                // Point not added, probably a nan, but could be a large number
                 // Count number nans that are at beginning of path
-                ++cntNANs;
+                if ( log10(abs(x)) > 126 || log10(abs(y)) > 126 ) {
+                    static bool isGaveWarning = false;
+                    if ( !isGaveWarning ) {
+                        fprintf(stderr, "koviz [warning]:2: Cannot paint "
+                                        "point=(%g,%g) since it is too large "
+                                "for Qt painter paths.  Only warning once."
+                                "There may be more points out of bounds.\n",
+                                x,y);
+                        isGaveWarning = true;
+                    }
+                }
+                ++cntNANs;  // If point not added, it's considered a nan
             }
         } else {
             int m = path->elementCount();
@@ -1422,8 +1439,20 @@ void PlotBookModel::__appendDataToPainterPath(CurveModel *curveModel,
                         path->setElementPositionAt(o-1,x,y);
                     } else {
                         // If that fails, more than likely x or y is nan
+                        // or too large for Qt painter paths
                         // Draw a line from the last point to itself
                         // See Note 2 at top of method for more details
+                        if ( log10(abs(x)) > 126 || log10(abs(y)) > 126 ) {
+                            static bool isGaveWarning = false;
+                            if ( !isGaveWarning ) {
+                                fprintf(stderr, "koviz [warning]:1: Cannot "
+                                    "paint point=(%g,%g).  It is too large "
+                                    "for Qt painter paths.  Only warning once. "
+                                    "There may be more points out of bounds.\n",
+                                    x,y);
+                                isGaveWarning = true;
+                            }
+                        }
                         QPainterPath::Element el = path->elementAt(o-1);
                         int i = path->elementCount();
                         path->lineTo(el.x+1,el.y+1);
@@ -2233,7 +2262,7 @@ bool PlotBookModel::isMatch(const QString &str, const QString &exp) const
 #if QT_VERSION >= 0x050000
     bool isRange = false;
     if ( str.contains("RUN_") && exp.contains(',') ) {
-        QStringList els = exp.split(',',QString::SkipEmptyParts);
+        QStringList els = exp.split(',',Qt::SkipEmptyParts);
         if ( els.size() == 2 ) {
             QString el0 = els.at(0).trimmed();
             QString el1 = els.at(1).trimmed();
@@ -2452,10 +2481,8 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
     progress.setWindowModality(Qt::WindowModal);
     progress.setMinimumDuration(500);
 
-#ifdef __linux
-    TimeItLinux timer;
+    QElapsedTimer timer;
     timer.start();
-#endif
 
     bool isGroups = false;
     QStringList groups;
@@ -2498,6 +2525,7 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
         QStandardItem *curveItem = addChild(curvesItem,"Curve");
 
         addChild(curveItem, "CurveRunID", r);
+        addChild(curveItem, "CurveRunPath", _runs->runPaths().at(r));
         addChild(curveItem, "CurveTimeName", timeName);
         addChild(curveItem, "CurveTimeUnit", curveModel->t()->unit());
         addChild(curveItem, "CurveXName", timeName);
@@ -2741,13 +2769,11 @@ void PlotBookModel::createCurves(QModelIndex curvesIdx,
             blockSignals(true);
         }
 
-#ifdef __linux
-        int secs = qRound(timer.stop()/1000000.0);
+        int secs = qRound(timer.nsecsElapsed()/1.0e9);
         div_t d = div(secs,60);
         QString msg = QString("Loaded %1 of %2 curves (%3 min %4 sec)")
                              .arg(r+1).arg(rc).arg(d.quot).arg(d.rem);
         progress.setLabelText(msg);
-#endif
 
         ++ii;
         ++jj;
@@ -3205,13 +3231,38 @@ QList<double> PlotBookModel::_calcTicSet(double aIn, double bIn,
         }
     }
 
+    // Clean up X by replacing single tic that is nearest zero with zero
+    // For example, if X={-1e-17,1e-34,1e-17}, make X={-1e-17,0,1e-17}
+    // Only replace tic if:
+    //    1. a <= 0 <= b
+    //    2. |X| > 1
+    //    3. log10(tic) is less than another tic
+    if ( a <= 0 && b >= 0 && X.size() > 1 ) {
+        int idx_nearest_zero = 0;
+        double xmin = DBL_MAX;
+        for ( int i = 0; i < X.size(); ++i ) {
+            double x = X.at(i);
+            if ( qAbs(x) < xmin ) {
+                xmin = qAbs(x);
+                idx_nearest_zero = i;
+            }
+        }
+        if ( xmin != 0 ) {
+            int i = ( idx_nearest_zero == 0 ) ? 1 : 0;
+            double other_tic = X.at(i);
+            if ( log10(qAbs(xmin)) < log10(qAbs(other_tic))-1 ) {
+                X.replace(idx_nearest_zero,0.0);
+            }
+        }
+    }
+
     // Shrink tic set until |X| <=7
     // Tics are removed in favor of keeping tics "even" in order
     // to keep them the same while panning
     while ( X.size() > 7 ) {
         double x = X.at(0);
         QString s;
-        s = s.sprintf("%g",x);
+        s = s.asprintf("%g",x);
         if ( s.contains('e') ) {
             int n = s.indexOf('e');
             s = s.left(n);

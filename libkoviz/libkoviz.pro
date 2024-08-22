@@ -51,6 +51,8 @@ SOURCES += bookmodel.cpp \
            run.cpp \
            rundir.cpp \
            runfile.cpp \
+           runswidget.cpp \
+           runtv.cpp \
            sie_listmodel.cpp \
            trickvarsortfilterproxymodel.cpp \
            varswidget.cpp \
@@ -72,9 +74,6 @@ SOURCES += bookmodel.cpp \
            parameter.cpp \
            runs.cpp \
            snaptable.cpp \
-           timeit.cpp \
-           timeit_linux.cpp \
-           timeit_win32.cpp \
            timestamps.cpp \
            datamodel.cpp \
            datamodel_trick.cpp \
@@ -133,11 +132,12 @@ HEADERS  += bookmodel.h \
             bookview_table.h \
             curvemodel_copy.h \
             datamodel_optitrack_csv.h \
-            datamodel_tv.h \
             dp.h \
             run.h \
             rundir.h \
             runfile.h \
+            runswidget.h \
+            runtv.h \
             sie_listmodel.h \
             trickvarsortfilterproxymodel.h \
             varswidget.h \
@@ -162,9 +162,6 @@ HEADERS  += bookmodel.h \
             roundoff.h \
             runs.h \
             snaptable.h \
-            timeit.h \
-            timeit_linux.h \
-            timeit_win32.h \
             timestamps.h \
             trick_types.h \
             tricktablemodel.h \

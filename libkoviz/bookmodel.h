@@ -12,7 +12,7 @@
 #include <QStringList>
 #include <QWidget>
 #include <QProgressDialog>
-#include "timeit_linux.h"
+#include <QElapsedTimer>
 #if QT_VERSION >= 0x050000
 #include <QRegularExpressionMatch>
 #include <QHashFunctions>

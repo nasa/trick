@@ -14,8 +14,7 @@
 
 #include "plotmainwindow.h"
 
-PlotMainWindow::PlotMainWindow(
-        PlotBookModel* bookModel,
+PlotMainWindow::PlotMainWindow(PlotBookModel* bookModel,
         const QString& trickhost,
         uint trickport,
         double trickoffset,
@@ -34,7 +33,6 @@ PlotMainWindow::PlotMainWindow(
         QString mapFile,
         Runs* runs,
         QStandardItemModel* varsModel,
-        QStandardItemModel *monteInputsModel,
         QWidget *parent) :
     QMainWindow(parent),
     _bookModel(bookModel),
@@ -57,7 +55,6 @@ PlotMainWindow::PlotMainWindow(
     _mapFile(mapFile),
     _runs(runs),
     _varsModel(varsModel),
-    _monteInputsModel(monteInputsModel),
     _monteInputsView(0),
     _dpTreeWidget(0),
     _trickView(0),
@@ -106,21 +103,17 @@ PlotMainWindow::PlotMainWindow(
     msplit->addWidget(_bookView);
 
     // Monte inputs view (widget added later)
-    if ( _monteInputsModel ) {
-        _monteInputsView = new MonteInputsView(lsplit);
-        _monteInputsView->setModel(_monteInputsModel);
-        connect(_monteInputsView->selectionModel(),
-                SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                this,
-                SLOT(_monteInputsViewCurrentChanged(QModelIndex,QModelIndex)));
-        _monteInputsHeaderView = _monteInputsView->horizontalHeader();
-        if ( _monteInputsModel->rowCount() == 1 ) {
-            // Hide if only viewing a single RUN
-            _monteInputsView->hide();
-        }
-        connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
+    _monteInputsView = new MonteInputsView(runs,lsplit);
+    _monteInputsView->setModel(runs->runsModel());
+    connect(_monteInputsView->selectionModel(),
+            SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+            this,
+            SLOT(_monteInputsViewCurrentChanged(QModelIndex,QModelIndex)));
+    _monteInputsHeaderView = _monteInputsView->horizontalHeader();
+    connect(_monteInputsHeaderView,SIGNAL(sectionClicked(int)),
             this,SLOT(_monteInputsHeaderViewClicked(int)));
-    }
+    connect(runs, SIGNAL(runsRefreshed()),
+            this, SLOT(_runsRefreshed()));
 
     if ( _isDebug ) {
         _plotTreeView = new QTreeView(lsplit);
@@ -182,8 +175,21 @@ PlotMainWindow::PlotMainWindow(
     connect(_nbDPVars,SIGNAL(currentChanged(int)),
             this,SLOT(_nbCurrentChanged(int)));
 
+    // Runs Tab
+    QFrame* runsFrame = new QFrame(lsplit);
+    _runsWidget = new RunsWidget(_runs,
+                                 _bookModel,
+                                 _monteInputsView,
+                                 runsFrame);
+    _nbDPVars->addTab(runsFrame,"Runs");
+    if (  _runs->runPaths().isEmpty() ) {
+        // If user specified no commandline runs, show RUNs panel
+        _nbDPVars->setCurrentIndex(2);
+    }
+
+
     // Vars/DP needs monteInputsView, but needs to be added after Vars/DP
-    if ( _monteInputsModel ) {
+    if ( runs->runsModel() ) {
         lsplit->addWidget(_monteInputsView);
     }
 
@@ -248,7 +254,7 @@ PlotMainWindow::PlotMainWindow(
             this, SLOT(setTimeFromBvis(double)));
 
     // sending run command if there is only one run
-    if ( _monteInputsModel->rowCount() == 1 ) {
+    if ( runs->runsModel()->rowCount() == 1 ) {
         QString rundir = QString("%1/").arg(
                     QDir::current().absoluteFilePath(
                         _runs->runPaths().at(0)));
@@ -326,16 +332,18 @@ void PlotMainWindow::createMenu()
     _refreshPlotsAction  = _optsMenu->addAction(tr("RefreshPlots"));
     _clearPlotsAction  = _optsMenu->addAction(tr("ClearPlots"));
     _clearTablesAction = _optsMenu->addAction(tr("ClearTables"));
+    _clearRunsAction = _optsMenu->addAction(tr("ClearRuns"));
     _plotAllVarsAction = _optsMenu->addAction(tr("PlotAllVars"));
     _enableDragDropAction = _optsMenu->addAction(tr("EnableDragAndDrop"));
     _enableDragDropAction->setCheckable(true);
     _showLiveCoordAction->setCheckable(true);
     _showLiveCoordAction->setChecked(true);
+    _selectRunsHomeAction = _optsMenu->addAction(tr("SelectRunsHome"));
     _menuBar->addMenu(_fileMenu);
     _menuBar->addMenu(_optsMenu);
     if ( !_scripts.isEmpty() ) {
         _scriptsMenu = new QMenu(tr("&Scripts"), this);
-        QStringList scripts = _scripts.split(',',QString::SkipEmptyParts);
+        QStringList scripts = _scripts.split(',',Qt::SkipEmptyParts);
         foreach ( QString script, scripts ) {
             QAction* action = _scriptsMenu->addAction(script);
             Q_UNUSED(action);
@@ -361,11 +369,15 @@ void PlotMainWindow::createMenu()
             this, SLOT(_clearPlots()));
     connect(_clearTablesAction, SIGNAL(triggered()),
             this, SLOT(_clearTables()));
+    connect(_clearRunsAction, SIGNAL(triggered()),
+            this, SLOT(_clearRuns()));
 
     connect(_plotAllVarsAction, SIGNAL(triggered()),
             this, SLOT(_plotAllVars()));
     connect(_enableDragDropAction, SIGNAL(toggled(bool)),
             this, SLOT(_toggleEnableDragDrop(bool)));
+    connect(_selectRunsHomeAction, SIGNAL(triggered()),
+            this, SLOT(_selectRunsHome()));
     setMenuWidget(_menuBar);
 }
 
@@ -1346,7 +1358,7 @@ void PlotMainWindow::_openVideoByRun()
                                     line.toLatin1().constData());
                             exit(-1);
                         }
-                        QString f = line.split(',',QString::SkipEmptyParts)[0];
+                        QString f = line.split(',',Qt::SkipEmptyParts)[0];
 
                         if ( !videoDir.exists(f) ) {
                             fprintf(stderr, "koviz [error]: Video file=%s "
@@ -1356,7 +1368,7 @@ void PlotMainWindow::_openVideoByRun()
                             exit(-1);
                         }
                         f = videoDir.filePath(f);
-                        QString o = line.split(',',QString::SkipEmptyParts)[1];
+                        QString o = line.split(',',Qt::SkipEmptyParts)[1];
                         bool ok;
                         double offset = o.toDouble(&ok);
                         if ( ok ) {
@@ -1544,6 +1556,11 @@ void PlotMainWindow::_clearTables()
     }
 }
 
+void PlotMainWindow::_clearRuns()
+{
+    _runs->clear();
+}
+
 void PlotMainWindow::_launchScript(QAction* action)
 {
     int i = _monteInputsView->currentRun();
@@ -1561,7 +1578,7 @@ void PlotMainWindow::_launchScript(QAction* action)
     }
     if ( !runpath.isEmpty() ) {
         QStringList fields = action->text().split(' ',
-                                                  QString::SkipEmptyParts);
+                                                  Qt::SkipEmptyParts);
         QString program = fields.takeAt(0);
         program = program.remove('&');
         QStringList arguments;
@@ -1582,11 +1599,354 @@ void PlotMainWindow::_plotAllVars()
     _varsWidget->clearSelection();
 }
 
+void PlotMainWindow::_runsRefreshed()
+{
+    QModelIndexList pageIdxs = _bookModel->pageIdxs();
+    foreach ( QModelIndex pageIdx, pageIdxs ) {
+        QModelIndexList plotIdxs = _bookModel->plotIdxs(pageIdx);
+        foreach ( QModelIndex plotIdx, plotIdxs ) {
+            QModelIndex curvesIdx = _bookModel->getIndex(plotIdx,
+                                                         "Curves", "Plot");
+            QModelIndexList curveIdxs = _bookModel->curveIdxs(curvesIdx);
+            QStringList curveRunPaths;
+            QHash<QPair<QString,QString>,QModelIndex> varHash;
+            if ( curveIdxs.isEmpty() ) {
+                // Use saved curve xy if no curves
+                // Saved curve is last curve deleted
+                if ( _bookModel->isChildIndex(plotIdx,
+                                              "Plot","PlotSavedCurve") ) {
+                    QModelIndex pscIdx = _bookModel->getIndex(plotIdx,
+                                                              "PlotSavedCurve",
+                                                              "Plot");
+                    if ( _bookModel->isChildIndex(pscIdx,
+                                                  "PlotSavedCurve","Curve") ) {
+                        QModelIndex curveIdx = _bookModel->getIndex(pscIdx,
+                                                              "Curve",
+                                                              "PlotSavedCurve");
+                        QString xName = _bookModel->getDataString(curveIdx,
+                                                          "CurveXName","Curve");
+                        QString yName = _bookModel->getDataString(curveIdx,
+                                                          "CurveYName","Curve");
+                        QPair<QString,QString> xy = qMakePair(xName,yName);
+                        varHash.insert(xy,curveIdx);
+                    }
+                }
+            } else {
+                foreach ( QModelIndex curveIdx, curveIdxs ) {
+                    QString curveRunPath = _bookModel->getDataString(curveIdx,
+                                                        "CurveRunPath","Curve");
+                    curveRunPaths.append(curveRunPath);
+                    QString xName = _bookModel->getDataString(curveIdx,
+                                                          "CurveXName","Curve");
+                    QString yName = _bookModel->getDataString(curveIdx,
+                                                          "CurveYName","Curve");
+                    QPair<QString,QString> xy = qMakePair(xName,yName);
+                    varHash.insert(xy,curveIdx);
+                }
+            }
+            QStringList runPathsToAppend;
+            foreach ( QString runPath, _runs->runPaths() ) {
+                if ( !curveRunPaths.contains(runPath) ) {
+                    runPathsToAppend.append(runPath);
+                }
+            }
+            QStringList runPathsToRemove;
+            foreach ( QString curveRunPath, curveRunPaths ) {
+                if ( !_runs->runPaths().contains(curveRunPath) ) {
+                    runPathsToRemove.append(curveRunPath);
+                }
+            }
+
+            bool isAppend = false;
+            bool isRemove = false;
+            if ( varHash.keys().size() == 1 ) { // Same xy forall curr runs
+                QPair<QString,QString> xy = varHash.keys().at(0);
+                QString xName = xy.first;
+                QString yName = xy.second;
+                if ( _runs->params().contains(xName) &&
+                     _runs->params().contains(yName) ) {
+                    // Run to append/remove contains current plot curve xy
+                    if ( runPathsToAppend.size() > 0 ) {
+                        isAppend = true;
+                    }
+                    if ( runPathsToRemove.size() > 0 ) {
+                        isRemove = true;
+                    }
+                } else if ( _runs->runPaths().isEmpty() ) {
+                    if ( runPathsToRemove.size() > 0 ) {
+                        isRemove = true;
+                    }
+                }
+            }
+
+            if ( isAppend ) {
+                QString tName = _timeNames.first();
+                QString xName = varHash.keys().at(0).first;
+                QString yName = varHash.keys().at(0).second;
+                foreach ( QString runPathToAppend, runPathsToAppend ) {
+                    // Try to append new run using values from last curve
+                    int rc = _runs->runsModel()->rowCount();
+                    QList<QColor> colors = _bookModel->createCurveColors(rc);
+                    for ( int r = 0; r < rc; ++r ) {
+                        QString path = _runs->runsModel()->
+                                          headerData(r,Qt::Vertical).toString();
+                        QFileInfo fi(path);
+                        if ( runPathToAppend == fi.absoluteFilePath() ) {
+                            // Turn off signals (to keep from redrawing)
+                            _bookModel->blockSignals(true);
+
+                            // Make presentation "compare"
+                            QModelIndex presIdx = _bookModel->getDataIndex(
+                                                             plotIdx,
+                                                             "PlotPresentation",
+                                                             "Plot");
+                            _bookModel->setData(presIdx, "compare");
+
+                            // Last curve idx in plot
+                            QModelIndex cidx = varHash.values().last();
+
+                            CurveModel* curveModel = _runs->curveModel(r,
+                                                             tName,
+                                                             xName,
+                                                             yName);
+
+                            QModelIndex idx = _runs->runsModel()->index(r,0);
+                            int runId = _runs->runsModel()->data(idx).toInt();
+
+                            // Get values from last curve
+                            idx = _bookModel->getDataIndex(cidx,
+                                                          "CurveXUnit","Curve");
+                            QString xUnit = _bookModel->data(idx).toString();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                         "CurveXScale","Curve");
+                            double xScale = _bookModel->data(idx).toDouble();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                          "CurveXBias","Curve");
+                            double xBias = _bookModel->data(idx).toDouble();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                      "CurveXMinRange","Curve");
+                            double xMinRange = _bookModel->data(idx).toDouble();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                      "CurveXMaxRange","Curve");
+                            double xMaxRange = _bookModel->data(idx).toDouble();
+
+
+                            idx = _bookModel->getDataIndex(cidx,
+                                                          "CurveYUnit","Curve");
+                            QString yUnit = _bookModel->data(idx).toString();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                         "CurveYScale","Curve");
+                            double yScale = _bookModel->data(idx).toDouble();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                         "CurveYBias","Curve");
+                            double yBias = _bookModel->data(idx).toDouble();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                      "CurveYMinRange","Curve");
+                            double yMinRange = _bookModel->data(idx).toDouble();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                      "CurveYMaxRange","Curve");
+                            double yMaxRange = _bookModel->data(idx).toDouble();
+
+                            idx = _bookModel->getDataIndex(cidx,
+                                                     "CurveLineStyle","Curve");
+                            QString lineStyle =_bookModel->data(idx).toString();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                    "CurveSymbolStyle","Curve");
+                            QString symbolStyle =
+                                               _bookModel->data(idx).toString();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                     "CurveSymbolSize","Curve");
+                            QString symbolSize=_bookModel->data(idx).toString();
+                            idx = _bookModel->getDataIndex(cidx,
+                                                     "CurveSymbolEnd","Curve");
+                            QString symbolEnd =_bookModel->data(idx).toString();
+
+                            // Unit check
+                            bool canConvertXUnit = Unit::canConvert(xUnit,
+                                                       curveModel->x()->unit());
+                            bool canConvertYUnit = Unit::canConvert(yUnit,
+                                                       curveModel->y()->unit());
+                            if( !canConvertXUnit || !canConvertYUnit ) {
+                                _bookModel->blockSignals(false);
+                                continue; // Don't add curve if units mismatch
+                            }
+
+                            // Add Curve
+                            QStandardItem* curvesItem = _bookModel->
+                                                       itemFromIndex(curvesIdx);
+                            QStandardItem *curveItem = _bookModel->
+                                                   addChild(curvesItem,"Curve");
+                            _bookModel->addChild(curveItem, "CurveRunID",runId);
+                            _bookModel->addChild(curveItem, "CurveRunPath",
+                                                            runPathToAppend);
+                            _bookModel->addChild(curveItem, "CurveTimeName",
+                                                            tName);
+                            _bookModel->addChild(curveItem, "CurveTimeUnit",
+                                                       curveModel->t()->unit());
+
+                            _bookModel->addChild(curveItem, "CurveXName",xName);
+                            _bookModel->addChild(curveItem, "CurveXUnit",xUnit);
+                            _bookModel->addChild(curveItem, "CurveXScale",
+                                                                        xScale);
+                            _bookModel->addChild(curveItem, "CurveXBias",xBias);
+
+                            _bookModel->addChild(curveItem, "CurveYName",yName);
+                            _bookModel->addChild(curveItem, "CurveYUnit",yUnit);
+                            _bookModel->addChild(curveItem, "CurveYScale",
+                                                                        yScale);
+                            _bookModel->addChild(curveItem, "CurveYBias",yBias);
+
+                            _bookModel->addChild(curveItem, "CurveXMinRange",
+                                                            xMinRange);
+                            _bookModel->addChild(curveItem, "CurveXMaxRange",
+                                                            xMaxRange);
+                            _bookModel->addChild(curveItem, "CurveYMinRange",
+                                                            yMinRange);
+                            _bookModel->addChild(curveItem, "CurveYMaxRange",
+                                                            yMaxRange);
+                            _bookModel->addChild(curveItem, "CurveYLabel",
+                                                            yName);
+                            _bookModel->addChild(curveItem, "CurveColor",
+                                                            colors.at(r));
+                            _bookModel->addChild(curveItem, "CurveLineStyle",
+                                                            lineStyle);
+                            _bookModel->addChild(curveItem, "CurveSymbolStyle",
+                                                            symbolStyle);
+                            _bookModel->addChild(curveItem, "CurveSymbolSize",
+                                                            symbolSize);
+                            _bookModel->addChild(curveItem, "CurveSymbolEnd",
+                                                            symbolEnd);
+                            QVariant v = PtrToQVariant<CurveModel>::convert(
+                                                                    curveModel);
+                            _bookModel->addChild(curveItem, "CurveData", v);
+
+                            // Turn signals back on and reset bounding box
+                            _bookModel->blockSignals(false);
+                            QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);
+                            QRectF E; // Empty set below to force redraw
+                            _bookModel->setPlotMathRect(E,plotIdx);
+                            _bookModel->setPlotMathRect(bbox,plotIdx);
+                        }
+                    }
+                }
+            }
+
+            if ( isRemove ) {
+                // First, set plot presentation to compare
+                QModelIndex presIdx = _bookModel->getDataIndex(
+                                                             plotIdx,
+                                                             "PlotPresentation",
+                                                             "Plot");
+                _bookModel->setData(presIdx, "compare");
+
+                QModelIndexList curveIdxsToRemove;
+                foreach ( QModelIndex curveIdx, curveIdxs ) {
+                    QString curveRunPath = _bookModel->getDataString(curveIdx,
+                                                        "CurveRunPath","Curve");
+                    if ( runPathsToRemove.contains(curveRunPath) ) {
+                        curveIdxsToRemove.append(curveIdx);
+                    }
+                }
+                if ( !_bookModel->isChildIndex(plotIdx,
+                                              "Plot","PlotSavedCurve") ) {
+                    // Create and append PlotSavedCurve item to Plot
+                    QStandardItem* plotItem= _bookModel->itemFromIndex(plotIdx);
+                    QStandardItem* plotSavedCurveItem = new QStandardItem(
+                                                              "PlotSavedCurve");
+                    plotItem->appendRow(plotSavedCurveItem);
+                }
+                QModelIndex saveIdx = _bookModel->getIndex(plotIdx,
+                                                            "PlotSavedCurve",
+                                                            "Plot");
+                int rc = _bookModel->rowCount(saveIdx);
+                _bookModel->removeRows(0,rc,saveIdx);
+                _copyCurve(curveIdxsToRemove.last(),saveIdx);
+                for ( int i = curveIdxsToRemove.size()-1; i >= 0; --i ) {
+                    QModelIndex curveIdx = curveIdxsToRemove.at(i);
+                    _bookModel->removeRow(curveIdx.row(),curvesIdx);
+                }
+
+                QModelIndexList curveIdxs = _bookModel->curveIdxs(curvesIdx);
+                int nc = curveIdxs.size();
+                if ( nc > 0 ) {
+                    bool block = _bookModel->blockSignals(true);
+                    QList<QColor> colors = _bookModel->createCurveColors(nc);
+                    int i = 0;
+                    // Reset colors on all curves
+                    foreach ( QModelIndex curveIdx, curveIdxs ) {
+                        QModelIndex curveColorIdx = _bookModel->getDataIndex(
+                                    curveIdx,"CurveColor","Curve");
+                        QColor color = colors.at(i);
+                        _bookModel->setData(curveColorIdx,color);
+                        ++i;
+                    }
+                    _bookModel->blockSignals(block);
+
+                    QRectF currPlotRect = _bookModel->getDataRectF(plotIdx,
+                                                         "PlotMathRect","Plot");
+                    QRectF newBBox = _bookModel->calcCurvesBBox(curvesIdx);
+
+                    if ( newBBox != currPlotRect ) {
+                        if ( currPlotRect.contains(newBBox) ) {
+                            // If current plot zoom contains newBBox with
+                            // curve removed, zoom in to newBBox
+                            _bookModel->setPlotMathRect(newBBox,plotIdx);
+                        } else {
+                            // Keep current bbox so curr zoom is not lost,
+                            // but force redraw using new bbox (hacky)
+                            bool block = _bookModel->blockSignals(true);
+                            _bookModel->setPlotMathRect(newBBox,plotIdx);
+                            _bookModel->blockSignals(block);
+                            _bookModel->setPlotMathRect(currPlotRect,plotIdx);
+                        }
+                    }
+                } else {
+                    // All curves have been removed
+                    QRectF currPlotRect = _bookModel->getDataRectF(plotIdx,
+                                                         "PlotMathRect","Plot");
+                    if ( !currPlotRect.normalized().isEmpty() ) {
+                        // Reset to force redraw
+                        QRectF E; // Empty
+                        _bookModel->setPlotMathRect(E,plotIdx);
+                        _bookModel->setPlotMathRect(currPlotRect,plotIdx);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void PlotMainWindow::_copyCurve(const QModelIndex &srcCurveIdx,
+                                const QModelIndex &tgtParentIdx)
+{
+    QStandardItem* tgtParentItem = _bookModel->itemFromIndex(tgtParentIdx);
+    QStandardItem* curveItem = _bookModel->addChild(tgtParentItem, "Curve", "");
+    for (int r = 0; r < _bookModel->rowCount(srcCurveIdx); ++r ) {
+        QModelIndex srcIdx0 = _bookModel->index(r,0,srcCurveIdx);
+        QString tag = _bookModel->data(srcIdx0).toString();
+        QModelIndex srcIdx1 = _bookModel->index(r,1,srcCurveIdx);
+        QVariant value = _bookModel->data(srcIdx1);
+        _bookModel->addChild(curveItem, tag, value);
+    }
+}
+
 void PlotMainWindow::_toggleEnableDragDrop(bool isChecked )
 {
     _varsWidget->setDragEnabled(isChecked);
     if ( _trickView ) {
         _trickView->setDragEnabled(isChecked);
+    }
+}
+
+void PlotMainWindow::_selectRunsHome()
+{
+    QString currRunsHome = _runsWidget->runsHome();
+    QString runsHome = QFileDialog::getExistingDirectory(this,
+                                                   "Select Runs Home Directory",
+                                                   currRunsHome,
+                                                   QFileDialog::ShowDirsOnly);
+    if ( !runsHome.isEmpty() ) {
+        _runsWidget->setRunsHome(runsHome);
     }
 }
 
@@ -1709,13 +2069,13 @@ void PlotMainWindow::_monteInputsHeaderViewClicked(int section)
 
     if ( !_bookModel ) return;
 
-    int rc = _monteInputsModel->rowCount();
+    int rc = _runs->runsModel()->rowCount();
     QList<QColor> colors = _bookModel->createCurveColors(rc);
 
     QHash<int,QString> run2color;
     for ( int r = 0; r < rc; ++r ) {
-        QModelIndex runIdx = _monteInputsModel->index(r,0);
-        int runId = _monteInputsModel->data(runIdx).toInt();
+        QModelIndex runIdx = _runs->runsModel()->index(r,0);
+        int runId = _runs->runsModel()->data(runIdx).toInt();
         run2color.insert(runId, colors.at(r).name());
     }
 

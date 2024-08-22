@@ -10,6 +10,7 @@
 #include <QProgressDialog>
 #include <QFileInfo>
 #include <stdexcept>
+#include <cmath> // For NAN macro
 
 #include "datamodel.h"
 #include "parameter.h"
@@ -43,6 +44,8 @@ class OptiTrackCsvModel : public DataModel
     virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual QVariant data (const QModelIndex & index,
                            int role = Qt::DisplayRole ) const;
+
+     static bool isValid(const QString &fileName);
 
   private:
 
@@ -83,6 +86,7 @@ class OptiTrackCsvModelIterator : public ModelIterator
         _model(model),
         _xcol(xcol), _ycol(ycol)
     {
+        Q_UNUSED(tcol);
     }
 
     virtual ~OptiTrackCsvModelIterator() {}

@@ -55,12 +55,14 @@ void MotModel::_init()
                 _motfile.toLatin1().constData());
         exit(-1);
     }
-    QStringList items = line.split('\t',QString::SkipEmptyParts);
+    QStringList items = line.split('\t',Qt::SkipEmptyParts);
     int col = 0;
     foreach ( QString item, items ) {
         QString name = item.trimmed();
         QString unit = "--";
         if ( name == "time" ) {
+            // Map "time" to "sys.exec.out.time"
+            name = "sys.exec.out.time";
             unit = "s";
         }
 
@@ -82,7 +84,7 @@ void MotModel::_init()
     }
 
     // Time param should be column 0
-    if ( _col2param.value(0)->name() == "time" ) {
+    if ( _col2param.value(0)->name() == "sys.exec.out.time" ) {
         _timeCol = 0;
     } else {
         fprintf(stderr, "koviz [error]: \"time\" param not found in "
@@ -283,4 +285,52 @@ QVariant MotModel::data(const QModelIndex &idx, int role) const
     }
 
     return val;
+}
+
+bool MotModel::isValid(const QString &motFile)
+{
+    QFile file(motFile);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+    QTextStream in(&file);
+    in.setCodec("UTF-8");
+
+    // Header - check for "endheader" line
+    bool isEndHeader = false;
+    QString line;
+    while ( 1 ) {
+        line = in.readLine();
+        if ( line.isNull() ) {
+            break;
+        }
+        if ( line.contains("endheader") ) {
+            isEndHeader = true;
+            break;
+        }
+    }
+    if ( !isEndHeader ) {
+        file.close();
+        return false;
+    }
+
+    // Parameter list
+    line = in.readLine();
+    if ( line.isNull() ) {
+        // No param list!
+        file.close();
+        return false;
+    }
+    QStringList items = line.split('\t',Qt::SkipEmptyParts);
+    if ( items.isEmpty() ) {
+        file.close();
+        return false;
+    }
+
+    if ( items.at(0) != "time" ) {
+        file.close();
+        return false;
+    }
+
+    return true;
 }

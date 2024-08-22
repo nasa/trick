@@ -329,7 +329,7 @@ bool SieListModel::__createSieDocument()
     QString s(header);
     QStringList fields = s.split('\t');
     s = fields.at(1);
-    uint nbytes = s.toUInt();
+    int nbytes = s.toInt();
     msg = QString("Transferring SIE! nbytes=%1").arg(nbytes);
     emit sendMessage(msg);
 

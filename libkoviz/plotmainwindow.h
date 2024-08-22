@@ -42,6 +42,7 @@
 #include "trickview.h"
 #include "sie_listmodel.h"
 #include "datamodel_tv.h"
+#include "runswidget.h"
 
 class PlotMainWindow : public QMainWindow
 {
@@ -67,7 +68,6 @@ public:
                              QString mapFile,
                              Runs* runs,
                              QStandardItemModel* varsModel,
-                             QStandardItemModel* monteInputsModel=0,
                              QWidget *parent = 0);
 
      void savePdf(const QString& fname);
@@ -124,13 +124,17 @@ private:
     QAction *_refreshPlotsAction;
     QAction *_clearPlotsAction;
     QAction *_clearTablesAction;
+    QAction *_clearRunsAction;
     QAction *_plotAllVarsAction;
     QAction *_enableDragDropAction;
+    QAction *_selectRunsHomeAction;
 
     QTabWidget* _nbDPVars;
     VarsWidget* _varsWidget;
     QFrame* _dpFrame ;
     DPTreeWidget* _dpTreeWidget;
+
+    RunsWidget* _runsWidget;
 
     QFrame* _tvFrame ;
     TrickView* _trickView;
@@ -158,6 +162,8 @@ private:
 
     void _openVideos(const QList<QPair<QString,double> >& videos);
 
+    void _copyCurve(const QModelIndex& srcCurveIdx,
+                    const QModelIndex& tgtParentIdx);
 
 private slots:
      void _nbCurrentChanged(int i);
@@ -173,9 +179,13 @@ private slots:
      void _refreshPlots();
      void _clearPlots();
      void _clearTables();
+     void _clearRuns();
      void _launchScript(QAction *action);
      void _plotAllVars();
      void _toggleEnableDragDrop(bool isChecked);
+     void _selectRunsHome();
+
+     void _runsRefreshed();
 
      void _startTimeChanged(double startTime);
      void _liveTimeChanged(double liveTime);

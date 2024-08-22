@@ -9,12 +9,12 @@
 #include <QTextStream>
 #include <QProgressDialog>
 #include <QFileInfo>
+#include <QElapsedTimer>
 #include <stdexcept>
 
 #include "datamodel.h"
 #include "parameter.h"
 #include "unit.h"
-#include "timeit_linux.h"
 
 class CsvModel;
 class CsvModelIterator;
@@ -44,6 +44,9 @@ class CsvModel : public DataModel
     virtual int columnCount(const QModelIndex & pidx = QModelIndex() ) const;
     virtual QVariant data (const QModelIndex & index,
                            int role = Qt::DisplayRole ) const;
+
+    static bool isValid( const QString& csvFile,
+                         const QStringList& timeNames);
 
   private:
 
