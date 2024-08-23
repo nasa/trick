@@ -121,7 +121,7 @@ import trick.matrixOps.MatrixOps;
   private BufferedReader in;
   private DataOutputStream out;
 
-  public SRBDisplay( SingleRigidBodyView srbv) {
+  public SRBDisplay( SingleRigidBodyView srbv) { // Creates the display window.
         singleRigidBodyView = srbv;
         add( singlRigidBodyView);
         setTitle("SRB Display");
@@ -130,7 +130,7 @@ import trick.matrixOps.MatrixOps;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
   }
 
-  public void connectToServer( String host, int port ) throws IOException {
+  public void connectToServer( String host, int port ) throws IOException { // Connects to the server.
     Socket socket = new Socket(host, port);
     in = new BufferedReader( new InputStreamReader( socket.getInputStream()));
     out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
@@ -180,8 +180,81 @@ import trick.matrixOps.MatrixOps;
     SRBDisplay sd = new SRBDisplay(SRBModuleView);
     sd.setVisible(true);
 
+    double vehX = 0.0;
+    double vehY = 0.0;
+    double vehZ = 0.0;
 
+    double Rxx  = 0.0;
+    double Rxy  = 0.0;
+    double Rxz  = 0.0;
+    double Ryx  = 0.0;
+    double Ryy  = 0.0;
+    double Ryz  = 0.0;
+    double Rzx  = 0.0;
+    double Rzy  = 0.0;
+    double Rzz  = 0.0;
 
+    System.out.println("Connecting to: " + host + ":" + port);
+    sd.connectToServer(host, port);
+
+    sd.out.writeBytes("trick.var_set_client_tag(\"SRBDisplay\") \n" +
+                          "trick.var_pause() \n" +
+                          "trick.var_add(\"body.dyn.pos[0]\") \n" +
+                          "trick.var_add(\"body.dyn.pos[1]\") \n" +
+                          "trick.var_add(\"body.dyn.pos[2]\") \n" +
+                          "trick.var_add(\"body.dyn.R[0][0]\") \n" +
+                          "trick.var_add(\"body.dyn.R[0][1]\") \n" +
+                          "trick.var_add(\"body.dyn.R[0][2]\") \n" +
+                          "trick.var_add(\"body.dyn.R[1][0]\") \n" +
+                          "trick.var_add(\"body.dyn.R[1][1]\") \n" +
+                          "trick.var_add(\"body.dyn.R[1][2]\") \n" +
+                          "trick.var_add(\"body.dyn.R[2][0]\") \n" +
+                          "trick.var_add(\"body.dyn.R[2][1]\") \n" +
+                          "trick.var_add(\"body.dyn.R[2][2]\") \n" +
+                          "trick.var_ascii() \n" +
+                          "trick.var_cycle(0.1) \n" +
+                          "trick.var_unpause()\n" );
+    
+    sd.out.flush();
+
+    sd.drawSRBView();
+
+    Boolean go = true;
+
+    while (go) {
+      String field[];
+      try {
+          String line;
+          line = sd.in.readLine();
+          field = line.split("\t");
+
+          vehX = Double.parseDouble( field[1] );
+          vehY = Double.parseDouble( field[2] );
+          vehZ = Double.parseDouble( field[3] );
+
+          Rxx  = Double.parseDouble( field[4] );
+          Rxy  = Double.parseDouble( field[5] );
+          Rxz  = Double.parseDouble( field[6] );
+          Ryx  = Double.parseDouble( field[7] );
+          Ryy  = Double.parseDouble( field[8] );
+          Ryz  = Double.parseDouble( field[9] );
+          Rzx  = Double.parseDouble( field[10] );
+          Rzy  = Double.parseDouble( field[11] );
+          Rzz  = Double.parseDouble( field[12] );
+
+          // Set the Vehicle position
+          SRBView.setVehPos(vehX, vehY, vehZ);
+
+          SRBView.setBodyToWorldRotation( Rxx, Rxy, Rxz,
+                                                 Ryx, Ryy, Ryz,
+                                                 Rzx, Rzy, Rzz );
+
+      } catch (IOException | NullPointerException e ) {
+          go = false;
+      }
+      sd.drawSRBView();
+    }
+  }
 
  }
 
