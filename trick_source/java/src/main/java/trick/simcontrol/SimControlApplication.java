@@ -185,8 +185,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     final private static String LOCALHOST = "localhost";
 
-	final private Dimension FULL_SIZE = new Dimension(680, 640);
-	final private Dimension LITE_SIZE = new Dimension(340, 360);
+	final public static Dimension FULL_SIZE = new Dimension(680, 640);
+	final public static Dimension LITE_SIZE = new Dimension(340, 360);
 
     //========================================
     //    Actions

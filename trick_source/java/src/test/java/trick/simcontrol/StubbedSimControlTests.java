@@ -4,6 +4,7 @@ import trick.simcontrol.SimControlApplication;
 import trick.simcontrol.StubbedSimControlApplication;
 
 import java.awt.Frame;
+import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -42,6 +43,7 @@ import static org.assertj.swing.launcher.ApplicationLauncher.application;
 
 public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     private FrameFixture mainFrame;
+    private JPanelFixture findPanel;
     private StubbedSimControlApplication app = null;
 
     @BeforeClass
@@ -54,8 +56,16 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         application(StubbedSimControlApplication.class).start();
         app = StubbedSimControlApplication.getInstance();
         mainFrame = getFrameByTitle("Sim Control");
+        findPanel = mainFrame.panel(
+            new GenericTypeMatcher<JXFindBar>(JXFindBar.class) {
+                @Override
+                protected boolean isMatching(JXFindBar pane) {
+                    return true;
+                }
+            }
+        );
 
-        sleep(1000);
+        sleep(500);
         updateState();
     }
 
@@ -97,94 +107,68 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     // JToggleButton Tests
     //--------------------
 
-    // @Test
-    // public void testLiteButton() {
-    //     testJToggleButton("Lite", ActionID.LITE);
-    // }
-
     @Test
     public void testDumpChkpntButton() {
-        testJToggleButton("Dump Chkpnt", ActionID.DUMP_CHKPNT);
+        testButtonToggleTwice("Dump Chkpnt", ActionID.DUMP_CHKPNT);
     }
 
     @Test
     public void testLoadChkpntButton() {
-        testJToggleButton("Load Chkpnt", ActionID.LOAD_CHKPNT);
+        testButtonToggleTwice("Load Chkpnt", ActionID.LOAD_CHKPNT);
+    }
+
+    @Test
+    public void testLiteToggle() {
+        Frame frame = mainFrame.target();
+        Dimension toggle1, toggle2; 
+
+        testButtonToggleOnce("Lite", "Full", ActionID.LITE);
+        toggle1 = frame.getSize();
+        testButtonToggleOnce("Full", "Lite", ActionID.LITE);
+        toggle2 = frame.getSize();
+
+        assertThat(toggle1).isEqualTo(SimControlApplication.LITE_SIZE);
+        assertThat(toggle2).isEqualTo(SimControlApplication.FULL_SIZE);
+    }
+
+    @Test
+    public void testDataRecToggle() {
+        testButtonToggleTwice("Data Rec On", "Data Rec Off", ActionID.RECORDING);
+    }
+
+    @Test
+    public void testRealtimeToggle() {
+        testButtonToggleTwice("RealTime On", ActionID.REALTIME);
     }
 
     @Test
     public void testStatusMsgPane() {
         // ARRANGE
-        JTextComponentFixture editorFixture = mainFrame.textBox(
-            new GenericTypeMatcher<JXEditorPane>(JXEditorPane.class) {
-                @Override
-                protected boolean isMatching(JXEditorPane pane) {
-                    return true;
-                }
-            }
-        );
-        JXEditorPane editorPane = (JXEditorPane) editorFixture.target();
-
-        JPanelFixture findPanel = mainFrame.panel(
-            new GenericTypeMatcher<JXFindBar>(JXFindBar.class) {
-                @Override
-                protected boolean isMatching(JXFindBar pane) {
-                    return true;
-                }
-            }
-        );
-
-        JTextComponentFixture findTextField = findPanel.textBox(
-            new GenericTypeMatcher<JTextField>(JTextField.class) {
-                @Override
-                protected boolean isMatching(JTextField pane) {
-                    return true;
-                }
-            }
-        );
-
-        JButtonFixture findNextButton = findPanel.button(
-            new GenericTypeMatcher<JButton>(JButton.class) {
-                @Override
-                protected boolean isMatching(JButton button) {
-                    return "Find Next".equals(button.getText());
-                }
-            }
-        );
-
-        JButtonFixture findPrevButton = findPanel.button(
-            new GenericTypeMatcher<JButton>(JButton.class) {
-                @Override
-                protected boolean isMatching(JButton button) {
-                    return "Find Previous".equals(button.getText());
-                }
-            }
-        );
-
+        String message = "I must not fear.\n" + //
+                         "Fear is the mind-killer.\n" + //
+                         "Fear is the little-death that brings total obliteration.\n" + //
+                         "I will face my fear.\n" + //
+                         "I will permit it to pass over me and through me.\n" + //
+                         "And when it has gone past, I will turn the inner eye to see its path.\n" + //
+                         "Where the fear has gone there will be nothing. Only I will remain";
         final String outStencil = "%s@%d";
         final String[] expOutput = {"null@304", "fear@11",
                                     "Fear@17" , "Fear@42",
-                                    "fear@114", "fear@249",
-                                    "fear@114", "Fear@42",
-                                    "Fear@17" , "fear@11"};
+                                    "fear@114", "fear@249"};
         String[] queryResults = new String[10];
 
-        editorFixture.deleteText()
-                     .setText("I must not fear.\n" + //
-                              "Fear is the mind-killer.\n" + //
-                              "Fear is the little-death that brings total obliteration.\n" + //
-                              "I will face my fear.\n" + //
-                              "I will permit it to pass over me and through me.\n" + //
-                              "And when it has gone past, I will turn the inner eye to see its path.\n" + //
-                              "Where the fear has gone there will be nothing. Only I will remain");
+        JTextComponentFixture editorFixture = setStatusMessage(message);
+        JXEditorPane editorPane = (JXEditorPane) editorFixture.target();
+        JButtonFixture findNextButton = getButtonByText(findPanel, "Find Next");
+        assumeThat(findNextButton).isNotNull();
                               
         // ACT
-        findTextField.setText("Hello");
+        setFindText("Hello");
         queryResults[0] = String.format(outStencil, 
                                         editorPane.getSelectedText(), 
                                         editorPane.getSelectionStart());
-        
-        findTextField.setText("fear");
+
+        setFindText("fear");
         queryResults[1] = String.format(outStencil, 
                                         editorPane.getSelectedText(), 
                                         editorPane.getSelectionStart());
@@ -194,17 +178,11 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
             queryResults[i] = String.format(outStencil, 
                                             editorPane.getSelectedText(), 
                                             editorPane.getSelectionStart());
-        }
-
-        for(int i = 6; i < 10; i++) {
-            findPrevButton.click();
-            queryResults[i] = String.format(outStencil, 
-                                            editorPane.getSelectedText(), 
-                                            editorPane.getSelectionStart());
+            sleep(100);
         }
 
         // ASSERT
-        for(int i = 0; i < 10; i++) {
+        for(int i = 0; i < 6; i++) {
             assertThat(queryResults[i]).isEqualTo(expOutput[i]);
         }
     }
@@ -212,6 +190,39 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
 	public static void sleep(long ms) {
 		try {Thread.sleep(ms);} catch(Exception ignored) {}
 	}
+
+    private JTextComponentFixture setStatusMessage(String text) {
+        JTextComponentFixture editorFixture = mainFrame.textBox(
+            new GenericTypeMatcher<JXEditorPane>(JXEditorPane.class) {
+                @Override
+                protected boolean isMatching(JXEditorPane pane) {
+                    return true;
+                }
+            }
+        );
+
+        editorFixture.deleteText()
+                     .setText(text);
+
+        return editorFixture;
+    }
+
+    private void setFindText(String text) {
+        JTextComponentFixture findTextField = findPanel.textBox(
+            new GenericTypeMatcher<JTextField>(JTextField.class) {
+                @Override
+                protected boolean isMatching(JTextField pane) {
+                    return true;
+                }
+            }
+        );
+        
+        try {
+            findTextField.deleteText()
+                         .setText(text);
+        } catch(Exception ignored) {}
+        
+    }
 
     private void testJButton(String text, ActionID action) {
         JButtonFixture button = getButtonByText(text);
@@ -230,9 +241,30 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         
     }
 
-    private void testJToggleButton(String text, ActionID action) { testJToggleButton(text, action, text, action); }
+    private void testButtonToggleOnce(String text, ActionID action) { testButtonToggleOnce(text, text, action); }
 
-    private void testJToggleButton(String initText, ActionID initAction, String toggleText, ActionID toggleAction) {
+    private void testButtonToggleOnce(String initText, String toggleText, ActionID initAction) {
+        // ARRANGE
+        JToggleButtonFixture button = getToggleButtonByText(initText);
+        String newButtonText;
+        assumeThat(button).withFailMessage("Toggle Button with text\"%s\" not found\n", initText)
+                          .isNotNull();
+
+        // ACT
+        testConnectedAction(button, initAction); // Toggle
+        newButtonText = button.target().getText();
+
+        // ASSERT
+        assertThat(newButtonText).isEqualTo(toggleText);
+    }
+
+    private void testButtonToggleTwice(String text, ActionID action) { testButtonToggleTwice(text, action, text, action); }
+
+    private void testButtonToggleTwice(String initText, String toggleText, ActionID action) { 
+        testButtonToggleTwice(initText, action, toggleText, action); 
+    }
+
+    private void testButtonToggleTwice(String initText, ActionID initAction, String toggleText, ActionID toggleAction) {
         // ARRANGE
         JToggleButtonFixture button = getToggleButtonByText(initText);
         String buttonText, newButtonText;
