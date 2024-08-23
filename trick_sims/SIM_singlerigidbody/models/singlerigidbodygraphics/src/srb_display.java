@@ -80,7 +80,34 @@ import trick.matrixOps.MatrixOps;
         // Half field of view angle
         beta = Math.toRadians(40.0);
 
+        worldToVantageRotation = new double[3][3];
+        setAzElRotation(worldToVantageRotation, vantageAzimuth, vantageElevation);
+
+        bodyLineColor =  Color.GRAY;
+        bodyFillColor = new Color(255, 255, 250);
+
+        bodyPos = new double[] {0.0, 0.0, 0.0};
+
+        bodyToWorldRotation = new double[][] {{1.0, 0.0, 0.0},
+                                              {0.0, 1.0, 0.0},
+                                              {0.0, 0.0, 1.0}};
+
 
     }
+
+    public void setAzElRotation(double RotationMatrix[][], double azimuth, double elevation) { // Sets the azimuth and elevation rotation.
+        double Rotation_about_Y[][] = {
+          { Math.cos(elevation), 0.0, Math.sin(elevation)},
+          {                 0.0, 1.0,                 0.0},
+          {-Math.sin(elevation), 0.0, Math.cos(elevation)}
+        };
+  
+        double Rotation_about_Z[][] = {
+          {Math.cos(azimuth), -Math.sin(azimuth), 0.0},
+          {Math.sin(azimuth),  Math.cos(azimuth), 0.0},
+          {              0.0,                0.0, 1.0}
+        };
+        MatrixOps.MtimesM( RotationMatrix, Rotation_about_Y, Rotation_about_Z);
+      }
 
  }
