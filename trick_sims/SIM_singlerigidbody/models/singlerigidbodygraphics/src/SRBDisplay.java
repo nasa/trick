@@ -184,7 +184,7 @@ import trick.matrixOps.MatrixOps;
     double vehY = 0.0;
     double vehZ = 0.0;
 
-    double Rxx  = 0.0;
+    double Rxx  = 0.0; // Figure out what this stuff does.
     double Rxy  = 0.0;
     double Rxz  = 0.0;
     double Ryx  = 0.0;
@@ -199,18 +199,53 @@ import trick.matrixOps.MatrixOps;
 
     sd.out.writeBytes("trick.var_set_client_tag(\"SRBDisplay\") \n" +
                           "trick.var_pause() \n" +
-                          "trick.var_add(\"body.dyn.pos[0]\") \n" +
-                          "trick.var_add(\"body.dyn.pos[1]\") \n" +
-                          "trick.var_add(\"body.dyn.pos[2]\") \n" +
-                          "trick.var_add(\"body.dyn.R[0][0]\") \n" +
-                          "trick.var_add(\"body.dyn.R[0][1]\") \n" +
-                          "trick.var_add(\"body.dyn.R[0][2]\") \n" +
-                          "trick.var_add(\"body.dyn.R[1][0]\") \n" +
-                          "trick.var_add(\"body.dyn.R[1][1]\") \n" +
-                          "trick.var_add(\"body.dyn.R[1][2]\") \n" +
-                          "trick.var_add(\"body.dyn.R[2][0]\") \n" +
-                          "trick.var_add(\"body.dyn.R[2][1]\") \n" +
-                          "trick.var_add(\"body.dyn.R[2][2]\") \n" +
+
+                          "trick.var_add(\"dyn.body.FORCE_INIT[0]\") \n" + // Ask about the (1) after each number in the QP
+                          "trick.var_add(\"dyn.body.FORCE_INIT[1]\") \n" +
+                          "trick.var_add(\"dyn.body.FORCE_INIT[2]\") \n" +
+
+                          "trick.var_add(\"dyn.body.acc[0]\") \n" +
+                          "trick.var_add(\"dyn.body.acc[1]\") \n" +
+                          "trick.var_add(\"dyn.body.acc[2]\") \n" +
+
+                          "trick.var_add(\"dyn.body.angle[0]\") \n" +
+                          "trick.var_add(\"dyn.body.angle[1]\") \n" +
+                          "trick.var_add(\"dyn.body.angle[2]\") \n" +
+
+                          "trick.var_add(\"dyn.body.angle_force[0]\") \n" +
+                          "trick.var_add(\"dyn.body.angle_force[1]\") \n" +
+                          "trick.var_add(\"dyn.body.angle_force[2]\") \n" +
+
+                          "trick.var_add(\"dyn.body.force[0]\") \n" +
+                          "trick.var_add(\"dyn.body.force[1]\") \n" +
+                          "trick.var_add(\"dyn.body.force[2]\") \n" +
+
+                          "trick.var_add(\"dyn.body.omega[0]\") \n" +
+                          "trick.var_add(\"dyn.body.omega[1]\") \n" +
+                          "trick.var_add(\"dyn.body.omega[2]\") \n" +
+
+                          "trick.var_add(\"dyn.body.omegaDot[0]\") \n" +
+                          "trick.var_add(\"dyn.body.omegaDot[1]\") \n" +
+                          "trick.var_add(\"dyn.body.omegaDot[2]\") \n" +
+
+                          "trick.var_add(\"dyn.body.pos[0]\") \n" +
+                          "trick.var_add(\"dyn.body.pos[1]\") \n" +
+                          "trick.var_add(\"dyn.body.pos[2]\") \n" +
+
+                          "trick.var_add(\"dyn.body.rotate[0][0]\") \n" +
+                          "trick.var_add(\"dyn.body.rotate[0][1]\") \n" +
+                          "trick.var_add(\"dyn.body.rotate[0][2]\") \n" +
+                          "trick.var_add(\"dyn.body.rotate[1][0]\") \n" +
+                          "trick.var_add(\"dyn.body.rotate[1][1]\") \n" +
+                          "trick.var_add(\"dyn.body.rotate[1][2]\") \n" +
+                          "trick.var_add(\"dyn.body.rotate[2][0]\") \n" +
+                          "trick.var_add(\"dyn.body.rotate[2][1]\") \n" +
+                          "trick.var_add(\"dyn.body.rotate[2][2]\") \n" +
+                          
+                          "trick.var_add(\"dyn.body.vel[0]\") \n" +
+                          "trick.var_add(\"dyn.body.vel[1]\") \n" +
+                          "trick.var_add(\"dyn.body.vel[2]\") \n" +
+
                           "trick.var_ascii() \n" +
                           "trick.var_cycle(0.1) \n" +
                           "trick.var_unpause()\n" );
