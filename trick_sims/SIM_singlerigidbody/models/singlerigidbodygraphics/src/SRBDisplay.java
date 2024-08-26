@@ -180,11 +180,39 @@ import trick.matrixOps.MatrixOps;
     SRBDisplay sd = new SRBDisplay(SRBModuleView);
     sd.setVisible(true);
 
-    double vehX = 0.0;
-    double vehY = 0.0;
-    double vehZ = 0.0;
+    double f_init_x = 0.0;
+    double f_init_y = 0.0;
+    double f_init_z = 0.0;
 
-    double Rxx  = 0.0; // Figure out what this stuff does.
+    double accX = 0.0;
+    double accY = 0.0;
+    double accZ = 0.0;
+
+    double angleX = 0.0;
+    double angleY = 0.0;
+    double angleZ = 0.0;
+
+    double f_angleX = 0.0;
+    double f_angleY = 0.0;
+    double f_angleZ = 0.0;
+
+    double forceX = 0.0;
+    double forceY = 0.0;
+    double forceZ = 0.0;
+
+    double omegaX = 0.0;
+    double omegaY = 0.0;
+    double omegaZ = 0.0;
+
+    double omegaDotX = 0.0;
+    double omegaDotY = 0.0;
+    double omegaDotZ = 0.0;
+
+    double posX = 0.0;
+    double posY = 0.0;
+    double posZ = 0.0;
+
+    double Rxx  = 0.0; 
     double Rxy  = 0.0;
     double Rxz  = 0.0;
     double Ryx  = 0.0;
@@ -193,6 +221,10 @@ import trick.matrixOps.MatrixOps;
     double Rzx  = 0.0;
     double Rzy  = 0.0;
     double Rzz  = 0.0;
+
+    double velX = 0.0;
+    double velY = 0.0;
+    double velZ = 0.0;
 
     System.out.println("Connecting to: " + host + ":" + port);
     sd.connectToServer(host, port);
@@ -263,26 +295,58 @@ import trick.matrixOps.MatrixOps;
           line = sd.in.readLine();
           field = line.split("\t");
 
-          vehX = Double.parseDouble( field[1] );
-          vehY = Double.parseDouble( field[2] );
-          vehZ = Double.parseDouble( field[3] );
+          f_init_x = Double.parseDouble( field[1] );
+          f_init_y = Double.parseDouble( field[2] );
+          f_init_z = Double.parseDouble( field[3] );
 
-          Rxx  = Double.parseDouble( field[4] );
-          Rxy  = Double.parseDouble( field[5] );
-          Rxz  = Double.parseDouble( field[6] );
-          Ryx  = Double.parseDouble( field[7] );
-          Ryy  = Double.parseDouble( field[8] );
-          Ryz  = Double.parseDouble( field[9] );
-          Rzx  = Double.parseDouble( field[10] );
-          Rzy  = Double.parseDouble( field[11] );
-          Rzz  = Double.parseDouble( field[12] );
+          accX = Double.parseDouble( field[4] );
+          accY = Double.parseDouble( field[5] );
+          accZ = Double.parseDouble( field[6] );
 
-          // Set the Vehicle position
-          SRBView.setVehPos(vehX, vehY, vehZ);
+          angleX = Double.parseDouble( field[7] );
+          angleY = Double.parseDouble( field[8] );
+          angleZ = Double.parseDouble( field[9] );
+
+          f_angleX = Double.parseDouble( field[10] );
+          f_angleY = Double.parseDouble( field[11] );
+          f_angleZ = Double.parseDouble( field[12] );
+
+          forceX = Double.parseDouble( field[13] );
+          forceY = Double.parseDouble( field[14] );
+          forceZ = Double.parseDouble( field[15] );
+
+          omegaX = Double.parseDouble( field[16] );
+          omegaY = Double.parseDouble( field[17] );
+          omegaZ = Double.parseDouble( field[18] );
+
+          omegaDotX = Double.parseDouble( field[19] );
+          omegaDotY = Double.parseDouble( field[20] );
+          omegaDotZ = Double.parseDouble( field[21] );
+
+          posX = Double.parseDouble( field[21] );
+          posY = Double.parseDouble( field[22] );
+          posZ = Double.parseDouble( field[23] );
+
+          Rxx = Double.parseDouble( field[24] );
+          Rxy = Double.parseDouble( field[25] );
+          Rxz = Double.parseDouble( field[26] );
+          Ryx = Double.parseDouble( field[27] );
+          Ryy = Double.parseDouble( field[28] );
+          Ryz = Double.parseDouble( field[29] );
+          Rzx = Double.parseDouble( field[30] );
+          Rzy = Double.parseDouble( field[31] );
+          Rzz = Double.parseDouble( field[32] );
+
+          velX = Double.parseDouble( field[33] );
+          velY = Double.parseDouble( field[34] );
+          velZ = Double.parseDouble( field[35] );
+
+          // Set the body position
+          SRBView.setBodyPos(posX, posY, posZ);
 
           SRBView.setBodyToWorldRotation( Rxx, Rxy, Rxz,
-                                                 Ryx, Ryy, Ryz,
-                                                 Rzx, Rzy, Rzz );
+                                          Ryx, Ryy, Ryz,
+                                          Rzx, Rzy, Rzz );
 
       } catch (IOException | NullPointerException e ) {
           go = false;
