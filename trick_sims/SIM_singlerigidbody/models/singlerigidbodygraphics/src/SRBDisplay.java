@@ -189,202 +189,203 @@ class SRBView extends JPanel { // Main body class of how we view the SRB.
 
     }
 
-    private class ViewListener extends MouseInputAdapter {
-      private int start_x;
-      private int start_y;
-      public void mousePressed(MouseEvent e) {
-          start_x = e.getX();
-          start_y = e.getY();
-      }
-      public void mouseDragged(MouseEvent e) {
-        int dx = ( e.getX() - start_x );
-        int dy = ( start_y  - e.getY());
+  private class ViewListener extends MouseInputAdapter {
+    private int start_x;
+    private int start_y;
+    public void mousePressed(MouseEvent e) {
         start_x = e.getX();
         start_y = e.getY();
-        mouseVantage( dx, dy);
+    }
+    public void mouseDragged(MouseEvent e) {
+      int dx = ( e.getX() - start_x );
+      int dy = ( start_y  - e.getY());
+      start_x = e.getX();
+      start_y = e.getY();
+      mouseVantage( dx, dy);
+    }
+  }
+
+  public void setVantageRange(double range) {
+    vantageDistance = range;
+  }
+
+  public void setBodyToWorldRotation( double xx, double xy, double xz,
+                                      double yx, double yy, double yz,
+                                      double zx, double zy, double zz ) {
+    bodyToWorldRotation[0][0] = xx;
+    bodyToWorldRotation[0][1] = xy;
+    bodyToWorldRotation[0][2] = xz;
+    bodyToWorldRotation[1][0] = yx;
+    bodyToWorldRotation[1][1] = yy;
+    bodyToWorldRotation[1][2] = yz;
+    bodyToWorldRotation[2][0] = zx;
+    bodyToWorldRotation[2][1] = zy;
+    bodyToWorldRotation[2][2] = zz;
+  }
+
+  public void mouseVantage(int dx, int dy) {
+    vantageAzimuth   += (dx * Math.PI) / getWidth();
+    if (vantageAzimuth >  Math.PI) vantageAzimuth -= Math.PI;
+    if (vantageAzimuth < -Math.PI) vantageAzimuth += Math.PI;
+    vantageElevation -= (dy * Math.PI) / getHeight();
+    if (vantageElevation >  Math.toRadians( 89.0)) vantageElevation = Math.toRadians( 89.0);
+    if (vantageElevation <  Math.toRadians(-89.0)) vantageElevation = Math.toRadians(-89.0);
+    setAzElRotation(worldToVantageRotation, vantageAzimuth, vantageElevation);
+    repaint();
+  }
+
+  public void setAzElRotation(double RotationMatrix[][], double azimuth, double elevation) { // Sets the azimuth and elevation rotation.
+      double Rotation_about_Y[][] = {
+        { Math.cos(elevation), 0.0, Math.sin(elevation)},
+        {                 0.0, 1.0,                 0.0},
+        {-Math.sin(elevation), 0.0, Math.cos(elevation)}
+      };
+
+      double Rotation_about_Z[][] = {
+        {Math.cos(azimuth), -Math.sin(azimuth), 0.0},
+        {Math.sin(azimuth),  Math.cos(azimuth), 0.0},
+        {              0.0,                0.0, 1.0}
+      };
+      MatrixOps.MtimesM( RotationMatrix, Rotation_about_Y, Rotation_about_Z);
+  }
+
+  public void worldToScreenPoint( int result[], double V_world[]) {
+    double V_vantage[] = new double[3];
+    // Tranform vector in world coordinates to vantage coordinates.
+    MatrixOps.MtimesV(V_vantage, worldToVantageRotation, V_world);
+    // Perspective projection of point in 3D vantage coordinates to 2D screen coordinates.
+    double perspective_scale = screen_half_width/(Math.tan(beta)*(vantageDistance-V_vantage[0]));
+    result[0] = (int)(perspective_scale * V_vantage[1] + screen_half_width);
+    result[1] = (int)(screen_half_height - perspective_scale * V_vantage[2]);
+  }
+
+  public void setBodyPos( double x, double y, double z) {
+      bodyPos[0] = x;
+      bodyPos[1] = y;
+      bodyPos[2] = z;
+  }
+
+  public void drawLineSegmentInWorld(Graphics2D g, Color color, double start[], double end[]) {
+    g.setPaint(color);
+    int start_screen[] = {0, 0};
+    int end_screen[] = {0, 0};
+    worldToScreenPoint( start_screen, start);
+    worldToScreenPoint( end_screen, end);
+    g.drawLine( start_screen[0], start_screen[1], end_screen[0], end_screen[1]);
+  }
+
+  public void drawLabelInWorld(Graphics2D g, Color color, double loc_world[], String s) {
+    g.setPaint(color);
+    int loc_screen[] = {0, 0};
+    worldToScreenPoint( loc_screen, loc_world);
+    g.drawString ( s, loc_screen[0], loc_screen[1]);
+  }
+
+  private void doDrawing( Graphics g) {
+    Graphics2D g2d = (Graphics2D) g;
+
+    int width  = getWidth();
+    int height = getHeight();
+
+    screen_half_width = (width/2);
+    screen_half_height = (height/2);
+
+    g2d.setPaint(Color.WHITE);
+    g2d.fillRect(0, 0, width, height);
+
+    
+    // Draw the vehicle.
+
+    // Transform the vehicle vertices from body -> world, apply the vehicle position offset, and then to 2D screen points.
+    for (int i=0; i<veh_vrtx_body.length ; i++) {
+      MatrixOps.MtimesV(veh_vrtx_world[i], bodyToWorldRotation, veh_vrtx_body[i]);
+      MatrixOps.VplusV(veh_vrtx_world[i], veh_vrtx_world[i], vehiclePos);
+
+      worldToScreenPoint (veh_vrtx_screen[i], veh_vrtx_world[i]);
+    }
+
+    // Draw Solid Model
+
+    for (int i=0; i<veh_triangles.length ; i++) {
+      double LOS_vantage[] = {1.0, 0.0, 0.0};
+
+      // Transform the vehicle triangle normals from Body -> World -> Vantage
+      MatrixOps.MtimesV(veh_unit_normals_world[i], bodyToWorldRotation, veh_unit_normals_body[i]);
+      MatrixOps.MtimesV(veh_unit_normals_vantage[i], worldToVantageRotation, veh_unit_normals_world[i]);
+
+      // Render the triangle only if it's facing us.
+      double facing_angle = MatrixOps.VdotV(veh_unit_normals_vantage[i], LOS_vantage);
+      if ( (facing_angle > 0.0) && (facing_angle < Math.toRadians(90))) {
+
+          // Calculate the diffuse reflection intensity.
+          double neg_illumination_vector[] = {0.0, 0.0, 0.0};
+          MatrixOps.Vscale(neg_illumination_vector, illumination_vector, -1.0);
+          double diffuse_intensity = MatrixOps.VdotV(neg_illumination_vector, veh_unit_normals_world[i]);
+          if (diffuse_intensity < 0.0) diffuse_intensity = 0.0;
+
+          // Proportion of the total light due to ambient light.
+          // (1.0 - ambient) is the proportion of reflected light.
+          double ambient = 0.8; // Must be between 0.0 and 1.0.
+
+          // The color intensity is a combination of ambient light intensity,
+          // and diffuse reflection intensity.
+          double color_intensity = (ambient + (1.0 - ambient) * diffuse_intensity);
+          g2d.setPaint( new Color( (int)(vehicleFillColor.getRed()   * color_intensity),
+                                    (int)(vehicleFillColor.getGreen() * color_intensity),
+                                    (int)(vehicleFillColor.getBlue()  * color_intensity)));
+          // Draw the triangle.
+          int triangle_poly_x[] = {0, 0, 0};
+          int triangle_poly_y[] = {0, 0, 0};
+          // For each point of the triangle.
+          for (int j=0; j < 3; j++) {
+
+            triangle_poly_x[j] = veh_vrtx_screen[ veh_triangles[i][j] ][0];
+            triangle_poly_y[j] = veh_vrtx_screen[ veh_triangles[i][j] ][1];
+
+          }
+          g2d.fillPolygon(triangle_poly_x, triangle_poly_y, 3);
       }
-    }
 
-    public void setVantageRange(double range) {
-      vantageDistance = range;
-    }
+      // Draw Wireframe Model
 
-    public void setBodyToWorldRotation( double xx, double xy, double xz,
-                                        double yx, double yy, double yz,
-                                        double zx, double zy, double zz ) {
-      bodyToWorldRotation[0][0] = xx;
-      bodyToWorldRotation[0][1] = xy;
-      bodyToWorldRotation[0][2] = xz;
-      bodyToWorldRotation[1][0] = yx;
-      bodyToWorldRotation[1][1] = yy;
-      bodyToWorldRotation[1][2] = yz;
-      bodyToWorldRotation[2][0] = zx;
-      bodyToWorldRotation[2][1] = zy;
-      bodyToWorldRotation[2][2] = zz;
-    }
-
-    public void mouseVantage(int dx, int dy) {
-      vantageAzimuth   += (dx * Math.PI) / getWidth();
-      if (vantageAzimuth >  Math.PI) vantageAzimuth -= Math.PI;
-      if (vantageAzimuth < -Math.PI) vantageAzimuth += Math.PI;
-      vantageElevation -= (dy * Math.PI) / getHeight();
-      if (vantageElevation >  Math.toRadians( 89.0)) vantageElevation = Math.toRadians( 89.0);
-      if (vantageElevation <  Math.toRadians(-89.0)) vantageElevation = Math.toRadians(-89.0);
-      setAzElRotation(worldToVantageRotation, vantageAzimuth, vantageElevation);
-      repaint();
-    }
-
-    public void setAzElRotation(double RotationMatrix[][], double azimuth, double elevation) { // Sets the azimuth and elevation rotation.
-        double Rotation_about_Y[][] = {
-          { Math.cos(elevation), 0.0, Math.sin(elevation)},
-          {                 0.0, 1.0,                 0.0},
-          {-Math.sin(elevation), 0.0, Math.cos(elevation)}
-        };
-  
-        double Rotation_about_Z[][] = {
-          {Math.cos(azimuth), -Math.sin(azimuth), 0.0},
-          {Math.sin(azimuth),  Math.cos(azimuth), 0.0},
-          {              0.0,                0.0, 1.0}
-        };
-        MatrixOps.MtimesM( RotationMatrix, Rotation_about_Y, Rotation_about_Z);
-    }
-
-    public void worldToScreenPoint( int result[], double V_world[]) {
-      double V_vantage[] = new double[3];
-      // Tranform vector in world coordinates to vantage coordinates.
-      MatrixOps.MtimesV(V_vantage, worldToVantageRotation, V_world);
-      // Perspective projection of point in 3D vantage coordinates to 2D screen coordinates.
-      double perspective_scale = screen_half_width/(Math.tan(beta)*(vantageDistance-V_vantage[0]));
-      result[0] = (int)(perspective_scale * V_vantage[1] + screen_half_width);
-      result[1] = (int)(screen_half_height - perspective_scale * V_vantage[2]);
-    }
-
-    public void setBodyPos( double x, double y, double z) {
-        bodyPos[0] = x;
-        bodyPos[1] = y;
-        bodyPos[2] = z;
-    }
-
-    public void drawLineSegmentInWorld(Graphics2D g, Color color, double start[], double end[]) {
-      g.setPaint(color);
-      int start_screen[] = {0, 0};
-      int end_screen[] = {0, 0};
-      worldToScreenPoint( start_screen, start);
-      worldToScreenPoint( end_screen, end);
-      g.drawLine( start_screen[0], start_screen[1], end_screen[0], end_screen[1]);
-    }
-
-    public void drawLabelInWorld(Graphics2D g, Color color, double loc_world[], String s) {
-      g.setPaint(color);
-      int loc_screen[] = {0, 0};
-      worldToScreenPoint( loc_screen, loc_world);
-      g.drawString ( s, loc_screen[0], loc_screen[1]);
-    }
-
-    private void doDrawing( Graphics g) {
-      Graphics2D g2d = (Graphics2D) g;
-
-      int width  = getWidth();
-      int height = getHeight();
-
-      screen_half_width = (width/2);
-      screen_half_height = (height/2);
-
-      g2d.setPaint(Color.WHITE);
-      g2d.fillRect(0, 0, width, height);
-
-      
-      // Draw the vehicle.
-
-      // Transform the vehicle vertices from body -> world, apply the vehicle position offset, and then to 2D screen points.
-      for (int i=0; i<veh_vrtx_body.length ; i++) {
-        MatrixOps.MtimesV(veh_vrtx_world[i], bodyToWorldRotation, veh_vrtx_body[i]);
-        MatrixOps.VplusV(veh_vrtx_world[i], veh_vrtx_world[i], vehiclePos);
-
-        worldToScreenPoint (veh_vrtx_screen[i], veh_vrtx_world[i]);
+      g2d.setPaint( vehicleLineColor );
+      for (int i=0; i<veh_edges.length; i++) {
+        int point0[] = veh_vrtx_screen[ veh_edges[i][0] ];
+        int point1[] = veh_vrtx_screen[ veh_edges[i][1] ];
+        g2d.drawLine( point0[0], point0[1], point1[0], point1[1]);
       }
 
-      // Draw Solid Model
+      // ============================
+      // Draw Center of Gravity Point
+      int CG_screen[] = {0, 0};
+      int CG_symbol_size = 15;
+      worldToScreenPoint( CG_screen, vehiclePos);
+      g2d.setPaint( Color.WHITE);
+      g2d.fillOval(CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size);
+      g2d.setPaint( Color.BLACK);
+      g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size,   0, 90 );
+      g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size, 180, 90);
 
-      for (int i=0; i<veh_triangles.length ; i++) {
-        double LOS_vantage[] = {1.0, 0.0, 0.0};
-
-        // Transform the vehicle triangle normals from Body -> World -> Vantage
-        MatrixOps.MtimesV(veh_unit_normals_world[i], bodyToWorldRotation, veh_unit_normals_body[i]);
-        MatrixOps.MtimesV(veh_unit_normals_vantage[i], worldToVantageRotation, veh_unit_normals_world[i]);
-
-        // Render the triangle only if it's facing us.
-        double facing_angle = MatrixOps.VdotV(veh_unit_normals_vantage[i], LOS_vantage);
-        if ( (facing_angle > 0.0) && (facing_angle < Math.toRadians(90))) {
-
-            // Calculate the diffuse reflection intensity.
-            double neg_illumination_vector[] = {0.0, 0.0, 0.0};
-            MatrixOps.Vscale(neg_illumination_vector, illumination_vector, -1.0);
-            double diffuse_intensity = MatrixOps.VdotV(neg_illumination_vector, veh_unit_normals_world[i]);
-            if (diffuse_intensity < 0.0) diffuse_intensity = 0.0;
-
-            // Proportion of the total light due to ambient light.
-            // (1.0 - ambient) is the proportion of reflected light.
-            double ambient = 0.8; // Must be between 0.0 and 1.0.
-
-            // The color intensity is a combination of ambient light intensity,
-            // and diffuse reflection intensity.
-            double color_intensity = (ambient + (1.0 - ambient) * diffuse_intensity);
-            g2d.setPaint( new Color( (int)(vehicleFillColor.getRed()   * color_intensity),
-                                     (int)(vehicleFillColor.getGreen() * color_intensity),
-                                     (int)(vehicleFillColor.getBlue()  * color_intensity)));
-            // Draw the triangle.
-            int triangle_poly_x[] = {0, 0, 0};
-            int triangle_poly_y[] = {0, 0, 0};
-            // For each point of the triangle.
-            for (int j=0; j < 3; j++) {
-
-              triangle_poly_x[j] = veh_vrtx_screen[ veh_triangles[i][j] ][0];
-              triangle_poly_y[j] = veh_vrtx_screen[ veh_triangles[i][j] ][1];
-
-            }
-            g2d.fillPolygon(triangle_poly_x, triangle_poly_y, 3);
-        }
-
-        // Draw Wireframe Model
-
-        g2d.setPaint( vehicleLineColor );
-        for (int i=0; i<veh_edges.length; i++) {
-          int point0[] = veh_vrtx_screen[ veh_edges[i][0] ];
-          int point1[] = veh_vrtx_screen[ veh_edges[i][1] ];
-          g2d.drawLine( point0[0], point0[1], point1[0], point1[1]);
-        }
-
-        // ============================
-        // Draw Center of Gravity Point
-        int CG_screen[] = {0, 0};
-        int CG_symbol_size = 15;
-        worldToScreenPoint( CG_screen, vehiclePos);
-        g2d.setPaint( Color.WHITE);
-        g2d.fillOval(CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size);
-        g2d.setPaint( Color.BLACK);
-        g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size,   0, 90 );
-        g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size, 180, 90);
-
-        // ==========================
-        // Draw World Coordinate Axes
-        double origin_world[] = {0.0, 0.0, 0.0};
-        double x_axis_world[] = {5.0, 0.0, 0.0};
-        drawLineSegmentInWorld(g2d, Color.RED, origin_world, x_axis_world);
-        drawLabelInWorld(g2d, Color.RED, x_axis_world, "X");
-        double y_axis_world[] = {0.0, 5.0, 0.0};
-        drawLineSegmentInWorld(g2d, Color.GREEN, origin_world, y_axis_world);
-        drawLabelInWorld(g2d, Color.GREEN, y_axis_world, "Y");
-        double z_axis_world[] = {0.0, 0.0, 5.0};
-        drawLineSegmentInWorld(g2d, Color.BLUE, origin_world, z_axis_world);
-        drawLabelInWorld(g2d, Color.BLUE, z_axis_world, "Z");
+      // ==========================
+      // Draw World Coordinate Axes
+      double origin_world[] = {0.0, 0.0, 0.0};
+      double x_axis_world[] = {5.0, 0.0, 0.0};
+      drawLineSegmentInWorld(g2d, Color.RED, origin_world, x_axis_world);
+      drawLabelInWorld(g2d, Color.RED, x_axis_world, "X");
+      double y_axis_world[] = {0.0, 5.0, 0.0};
+      drawLineSegmentInWorld(g2d, Color.GREEN, origin_world, y_axis_world);
+      drawLabelInWorld(g2d, Color.GREEN, y_axis_world, "Y");
+      double z_axis_world[] = {0.0, 0.0, 5.0};
+      drawLineSegmentInWorld(g2d, Color.BLUE, origin_world, z_axis_world);
+      drawLabelInWorld(g2d, Color.BLUE, z_axis_world, "Z");
     }
+  }
 
-    @Override
-    public void paintComponent( Graphics g) {
-        super.paintComponent(g);
-        doDrawing(g);
-    }
+  @Override
+  public void paintComponent( Graphics g) {
+      super.paintComponent(g);
+      doDrawing(g);
+  }
 
  }
 
