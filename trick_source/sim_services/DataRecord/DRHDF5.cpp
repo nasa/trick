@@ -263,7 +263,6 @@ int Trick::DRHDF5::write_data(bool must_write) {
                // we have 1 continous segment to write per variable
                for (ii = 0; ii < parameters.size(); ii++) {
                    HDF5_INFO * hi = parameters[ii] ;
-                   printf("Ref (%p) - %p\n",&hi->drb->ref,hi->drb->ref);
                    unsigned int writer_offset = writer_num % max_num ;
                    buf = hi->drb->buffer + (writer_offset * hi->drb->ref->attr->size) ;
 
