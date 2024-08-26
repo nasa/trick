@@ -299,7 +299,7 @@ class SRBView extends JPanel { // Main body class of how we view the SRB.
     // Transform the vehicle vertices from body -> world, apply the vehicle position offset, and then to 2D screen points.
     for (int i=0; i<veh_vrtx_body.length ; i++) {
       MatrixOps.MtimesV(veh_vrtx_world[i], bodyToWorldRotation, veh_vrtx_body[i]);
-      MatrixOps.VplusV(veh_vrtx_world[i], veh_vrtx_world[i], vehiclePos);
+      MatrixOps.VplusV(veh_vrtx_world[i], veh_vrtx_world[i], bodyPos);
 
       worldToScreenPoint (veh_vrtx_screen[i], veh_vrtx_world[i]);
     }
@@ -344,12 +344,14 @@ class SRBView extends JPanel { // Main body class of how we view the SRB.
 
           }
           g2d.fillPolygon(triangle_poly_x, triangle_poly_y, 3);
+        }
       }
 
       // Draw Wireframe Model
 
       g2d.setPaint( vehicleLineColor );
-      for (int i=0; i<veh_edges.length; i++) {
+      
+      for (int i = 0; i<veh_edges.length; i++) {
         int point0[] = veh_vrtx_screen[ veh_edges[i][0] ];
         int point1[] = veh_vrtx_screen[ veh_edges[i][1] ];
         g2d.drawLine( point0[0], point0[1], point1[0], point1[1]);
@@ -359,7 +361,7 @@ class SRBView extends JPanel { // Main body class of how we view the SRB.
       // Draw Center of Gravity Point
       int CG_screen[] = {0, 0};
       int CG_symbol_size = 15;
-      worldToScreenPoint( CG_screen, vehiclePos);
+      worldToScreenPoint( CG_screen, bodyPos);
       g2d.setPaint( Color.WHITE);
       g2d.fillOval(CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size);
       g2d.setPaint( Color.BLACK);
@@ -379,7 +381,7 @@ class SRBView extends JPanel { // Main body class of how we view the SRB.
       drawLineSegmentInWorld(g2d, Color.BLUE, origin_world, z_axis_world);
       drawLabelInWorld(g2d, Color.BLUE, z_axis_world, "Z");
     }
-  }
+  
 
   @Override
   public void paintComponent( Graphics g) {
@@ -397,7 +399,7 @@ public class SRBDisplay extends JFrame {
 
   public SRBDisplay( SingleRigidBodyView srbv) { // Creates the display window.
         singleRigidBodyView = srbv;
-        add( singlRigidBodyView);
+        add(singleRigidBodyView);
         setTitle("SRB Display");
         setSize(1597, 987);
         setLocationRelativeTo(null);
@@ -414,7 +416,7 @@ public class SRBDisplay extends JFrame {
     singleRigidBodyView.repaint();
   }
 
-  private static void  printHelpText() {
+  private static void printHelpText() {
     System.out.println(
         "----------------------------------------------------------------------\n"
       + "usage: java jar SRBDisplay.jar <port-number>\n"
@@ -449,9 +451,9 @@ public class SRBDisplay extends JFrame {
       System.exit(0);
     }
 
-    SRBModuleView srbModuleView = new SRBModuleView();
+    SingleRigidBodyView singleRigidBodyView = new SingleRigidBodyView();
 
-    SRBDisplay sd = new SRBDisplay(SRBModuleView);
+    SRBDisplay sd = new SRBDisplay(singleRigidBodyView);
     sd.setVisible(true);
 
     double f_init_x = 0.0;
@@ -616,9 +618,9 @@ public class SRBDisplay extends JFrame {
           velZ = Double.parseDouble( field[35] );
 
           // Set the body position
-          SRBView.setBodyPos(posX, posY, posZ);
+          singleRigidBodyView.setBodyPos(posX, posY, posZ);
 
-          SRBView.setBodyToWorldRotation( Rxx, Rxy, Rxz,
+          singleRigidBodyView.setBodyToWorldRotation( Rxx, Rxy, Rxz,
                                           Ryx, Ryy, Ryz,
                                           Rzx, Rzy, Rzz );
 
@@ -629,44 +631,4 @@ public class SRBDisplay extends JFrame {
       }
     }
 
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- }
+}
