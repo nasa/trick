@@ -79,3 +79,23 @@ dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 12)
 # This tells the sim to stop after a few seconds
 # ============================================================================ -
 trick.stop(10.0)
+
+
+
+#==========================================
+# Start the Graphics Client
+#==========================================
+varServerPort = trick.var_server_get_port();
+SRBDisplay_path = "models/singlerigidbodygraphics/build/SRBDisplay.jar"
+
+if (os.path.isfile(SRBDisplay_path)) :
+    SRBDisplay_cmd = "java -jar " \
+                   + SRBDisplay_path \
+                   + " " + str(varServerPort) + " &" ;
+    print(SRBDisplay_cmd)
+    os.system(SRBDisplay_cmd);
+else :
+    print('===================================================================================================')
+    print('SRBDisplay needs to be built. Please \"cd\" into ../models/graphics and type \"make\".')
+    print('===================================================================================================')
+
