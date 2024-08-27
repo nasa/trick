@@ -48,8 +48,6 @@ namespace Trick {
             /** gets #except_return */
             virtual int get_except_return() const;
 
-            // bool enable_profiler;
-
             Trick::Profiler profiler;
         protected:
 
@@ -1340,6 +1338,8 @@ namespace Trick {
 
 #ifndef SWIG
 extern Trick::Executive* the_exec;
+
+extern bool recordEnabled;
 #endif
 
 #endif

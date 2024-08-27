@@ -14,6 +14,8 @@ PROGRAMMERS:
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
 
+bool recordEnabled = true;
+
 Trick::DRHDF5::DRHDF5( std::string in_name ) : Trick::DataRecordGroup(in_name) {
     register_group_with_mm(this, "Trick::DRHDF5") ;
 }
@@ -35,8 +37,10 @@ int Trick::DRHDF5::format_specific_header( std::fstream & out_stream ) {
    and restored.
 */
 int Trick::DRHDF5::format_specific_init() {
-
+    if(!recordEnabled )
+        return 0;
 #ifdef HDF5
+    
     unsigned int ii ;
     HDF5_INFO *hdf5_info ;
     hsize_t chunk_size = 1024;
@@ -217,7 +221,8 @@ int Trick::DRHDF5::format_specific_init() {
    in one or two HDF5 calls.
 */
 int Trick::DRHDF5::write_data(bool must_write) {
-
+    if(!recordEnabled )
+        return 0;
 #ifdef HDF5
     unsigned int local_buffer_num ;
     unsigned int num_to_write ;
@@ -254,6 +259,7 @@ int Trick::DRHDF5::write_data(bool must_write) {
                    H5PTappend( hi->dataset, local_buffer_num % max_num , buf );
                }
             }  else {
+                
                // we have 1 continous segment to write per variable
                for (ii = 0; ii < parameters.size(); ii++) {
                    HDF5_INFO * hi = parameters[ii] ;
@@ -284,7 +290,8 @@ int Trick::DRHDF5::write_data(bool must_write) {
    -# Append one packet to the packet table.
 */
 int Trick::DRHDF5::format_specific_write_data(unsigned int writer_offset __attribute__((unused))) {
-
+     if(!recordEnabled )
+        return 0;
 #ifdef HDF5
     unsigned int ii;
     char *buf = 0;
@@ -315,7 +322,8 @@ int Trick::DRHDF5::format_specific_write_data(unsigned int writer_offset __attri
 -# Close the HDF5 file
 */
 int Trick::DRHDF5::format_specific_shutdown() {
-
+     if(!recordEnabled )
+        return 0;
 #ifdef HDF5
     unsigned int ii ;
 

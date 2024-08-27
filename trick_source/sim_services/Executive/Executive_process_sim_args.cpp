@@ -54,7 +54,10 @@ int Trick::Executive::process_sim_args() {
             "     trick_version       Print which version of Trick is being used\n"
             "                         to the screen.\n" 
             "     RUN_<name>/<input_file> --profile | -p\n"
-            "                         Enable the profiler to track jobspeed.\n") ;
+            "                         Enable the profiler to track jobspeed.\n"
+            "     RUN_<name>/<input_file> --disable-dr | -ddr\n"
+            "                           Disable the Data Recording\n"
+            );
 
     bool open_stream = true;
     if (argc > 1) {
@@ -75,10 +78,17 @@ int Trick::Executive::process_sim_args() {
     }
 
     if(argc > 2) 
-        if(!strncmp(argv[2], "--profile",9) || !strncmp(argv[2], "-p",2) || !strncmp(argv[2], "-p",2))  {
-            profiler.enabled = true;
-            profiler.sim_objects = &sim_objects;
+        for(int i = 2; i < argc; i++) {
+            if(!strncmp(argv[2], "--profile",9) || !strncmp(argv[2], "-p",2))  {
+                profiler.enabled = true;
+                profiler.sim_objects = &sim_objects;
+            }
+
+            if(!strncmp(argv[i], "--disable-dr",12) || !strncmp(argv[i], "-ddr",4))  {
+                recordEnabled = false;
+            }
         }
+        
             
         
     
