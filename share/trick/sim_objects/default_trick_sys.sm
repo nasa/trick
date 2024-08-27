@@ -465,9 +465,9 @@ class VariableServerSimObject : public Trick::SimObject {
             // monte carlo slave sim children, and the monte carlo master.
             // monte carlo slave parents do not reach initialization.
             {TRK} P0 ("initialization") trick_ret = vs.init() ;
-            {TRK} ("monte_master_init") trick_ret = vs.init() ;
 
 #ifndef TRICK_NO_MONTE_CARLO
+            {TRK} ("monte_master_init") trick_ret = vs.init() ;
             {TRK} P1 ("initialization") monte_carlo_disable_all_apps() ;
 #endif
             {TRK} P1 ("initialization") Trick::launch_all_external_applications();
