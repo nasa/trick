@@ -95,7 +95,7 @@ if (os.path.isfile(SRBDisplay_path)) :
     print(SRBDisplay_cmd)
     os.system(SRBDisplay_cmd);
 else :
-    print('===================================================================================================')
-    print('SRBDisplay needs to be built. Please \"cd\" into ../models/graphics and type \"make\".')
-    print('===================================================================================================')
+    print('======================================================================================================')
+    print('SRBDisplay needs to be built. Please \"cd\" into ../models/singlerigidbodygraphics and type \"make\".')
+    print('======================================================================================================')
 
