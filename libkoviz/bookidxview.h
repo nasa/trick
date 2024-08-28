@@ -89,6 +89,7 @@ protected:
     virtual void __paintSymbol(const QPointF &p, const QString& symbol,
                                QPainter& painter);
     void _paintGrid(QPainter& painter, const QModelIndex &plotIdx);
+    void _paintHLines(QPainter& painter, const QModelIndex &plotIdx);
 
     QList<QAbstractItemView*> _childViews;
 

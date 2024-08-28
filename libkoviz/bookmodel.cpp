@@ -1200,6 +1200,31 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         exit(-1);
     }
 
+    // Flip if y-axis not directed "up" (this happens with bboxes)
+    if ( bbox.top() < bbox.bottom() ) {
+        bbox = QRectF(bbox.bottomLeft(),bbox.topRight());
+    }
+
+    // HLines
+    if ( isChildIndex(plotIdx, "Plot", "HLines") ) {
+        QModelIndex hlinesIdx = getIndex(plotIdx,"HLines","Plot");
+        QModelIndexList hlineIdxs = getIndexList(hlinesIdx, "HLine","HLines");
+        foreach (QModelIndex hlineIdx, hlineIdxs) {
+            double val = getDataDouble(hlineIdx,"HLineValue","HLine");
+            if ( plotYScale == "log" ) {
+                if ( val == 0.0 ) {
+                    continue;
+                }
+                val = log10(qAbs(val));
+            }
+            if ( val > bbox.top() ) {
+                bbox.setTop(val);
+            } else if ( val < bbox.bottom() ) {
+                bbox.setBottom(val);
+            }
+        }
+    }
+
     // Margin around box
     double mw = bbox.width()*0.02;
     double left = bbox.left()-mw;
@@ -1226,11 +1251,6 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
     bbox.setBottom(bot);
     bbox.setLeft(left);
     bbox.setRight(right);
-
-    // Flip if y-axis not directed "up" (this happens with bboxes)
-    if ( bbox.top() < bbox.bottom() ) {
-        bbox = QRectF(bbox.bottomLeft(),bbox.topRight());
-    }
 
     // Fit bbox within PlotXYMinMax bounds
     double plotXMinRange = getDataDouble(plotIdx,"PlotXMinRange","Plot");

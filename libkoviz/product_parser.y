@@ -53,6 +53,7 @@ DPTable* currTable = 0;
 DPVar* currTableVar = 0;
 DPPage* currPage = 0;
 DPPlot* currPlot = 0;
+DPHLine* currHLine = 0;
 DPCurve* currCurve = 0;
 DPVar* currXVar = 0;
 DPVar* currYVar = 0;
@@ -100,7 +101,7 @@ QString dpFileName() {
 %token DP_MINOR_X_TICS DP_MINOR_Y_TICS
 %token DP_RECT
 %token DP_PRESENTATION
-%token DP_HLINE
+%token DP_HLINE DP_COLOR
 
 %token <sval> DP_STR
 %token <dval> DP_FLOAT
@@ -305,6 +306,7 @@ plot: DP_PLOT DP_FLOAT ':' DP_STR {
                }
 
         | plot curve 
+        | plot hline
         ;
 
 x_var: DP_X_VARIABLE ':' DP_STR {
@@ -488,6 +490,20 @@ curve: DP_CURVE ':' {
         }
         | curve DP_GNUPLOT_LINE_STYLE ':' DP_STR {
                 msg("CURVE.GNUPLOT_LINE_STYLE not supported");
+        }
+        ;
+
+hline: DP_HLINE ':' DP_FLOAT {
+                currHLine = currPlot->addHLine($3);
+        }
+        | hline DP_COLOR ':' DP_STR {
+                currHLine->setColor($4);
+        }
+        | hline DP_LABEL ':' DP_STR {
+                currHLine->setLabel($4);
+        }
+        | hline DP_UNITS ':' DP_STR {
+                currHLine->setUnit($4);
         }
         ;
 

@@ -110,6 +110,29 @@ private:
     DPVar* _y;
 };
 
+class DPHLine
+{
+public:
+    DPHLine(double val) : _val(val) {}
+
+    double value()  { return _val; }
+    QString color() { return _color; }
+    QString label() { return _label; }
+    QString unit()  { return _unit; }
+
+    void setValue(double val);
+    void setColor(const QString& color);
+    void setLabel(const QString& label);
+    void setUnit(const QString& unit);
+
+private:
+    DPHLine() : _val(0) {}
+    double _val;
+    QString _color;
+    QString _label;
+    QString _unit;
+};
+
 class DPCurve
 {
 public:
@@ -203,6 +226,9 @@ public:
     QList<DPCurve*> curves() { return _curves; }
     DPCurve* addCurve();
 
+    QList<DPHLine*> hlines() { return _hlines; }
+    DPHLine* addHLine(double val);
+
 private:
     QString _title;
     QString _xAxisLabel;
@@ -229,6 +255,7 @@ private:
     QList<double> _minorYTics;
     QRectF _rect;
     QString _presentation;
+    QList<DPHLine*> _hlines;
 };
 
 class DPPage

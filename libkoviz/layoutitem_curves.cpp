@@ -204,9 +204,9 @@ void CurvesLayoutItem::paint(QPainter *painter,
         }
     }
 
-    // In case of pixmaps, paint grid last
+    // In case of pixmaps, paint grid and hlines last
     _paintGrid(painter,R,RG,C,M);
-
+    _paintHLines(painter,R,RG,C,M);
 
     // Restore the painter state off the painter stack
     painter->restore();
@@ -839,6 +839,110 @@ void CurvesLayoutItem::_paintGrid(QPainter* painter,
     painter->setPen(pen);
     painter->drawLines(hLines);
     painter->drawLines(vLines);
+    painter->setPen(origPen);
+    if ( isAntiAliasing ) {
+        painter->setRenderHint(QPainter::Antialiasing);
+    }
+    painter->restore();
+}
+
+void CurvesLayoutItem::_paintHLines(QPainter *painter,
+                                    const QRect &R, const QRect &RG,
+                                    const QRect &C, const QRectF &M)
+{
+    if ( M.width() == 0.0 || M.height() == 0.0 ) {
+        return;
+    }
+
+    if ( !_bookModel->isChildIndex(_plotIdx,"Plot","HLines") ) {
+        return;
+    }
+
+    bool isAntiAliasing = (QPainter::Antialiasing & painter->renderHints()) ;
+
+    bool isLogScale = false;
+    QString logScale = _bookModel->getDataString(_plotIdx,"PlotYScale","Plot");
+    if ( logScale == "log" ) {
+        isLogScale = true;
+    }
+
+    //
+    // Draw!
+    //
+    QPen origPen = painter->pen();
+    QPen pen = painter->pen();
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing,false);
+    pen.setWidthF(0.0);
+    QModelIndex hlinesIdx = _bookModel->getIndex(_plotIdx,"HLines","Plot");
+    QModelIndexList hlineIdxs = _bookModel->getIndexList(hlinesIdx,
+                                                           "HLine","HLines");
+    const QRectF RM = mathRect(RG,C,M);
+    QTransform T = coordToDotTransform(R,RM);
+    QTransform I;
+    foreach (QModelIndex hlineIdx, hlineIdxs) {
+
+        double val = _bookModel->getDataDouble(hlineIdx,"HLineValue");
+        double origVal(val);
+        if ( isLogScale ) {
+            if ( val == 0 ) {
+                continue;  // Do not draw lines of log10(0)
+            }
+            val = log10(qAbs(val));
+        }
+
+        QString color = _bookModel->getDataString(hlineIdx,"HLineColor");
+        if ( color.isEmpty() ) {
+            // Default hline color is brown
+            pen.setColor("brown");
+        } else {
+            pen.setColor(color);
+        }
+        painter->setPen(pen);
+
+        painter->setTransform(T);
+        painter->drawLine(QPointF(M.left(),val),QPointF(M.right(),val));
+
+        QPointF pt(M.left(),val);
+        QPointF drawPt;
+        if ( val > M.center().y() ) {
+            // Draw label under hline
+            int h = painter->fontMetrics().ascent();
+            drawPt = T.map(pt)+QPoint(0,h);
+        } else {
+            // Draw label above hline
+            int h = painter->fontMetrics().descent();
+            drawPt = T.map(pt)-QPoint(0,h);
+        }
+        painter->setTransform(I);
+        QString labelfmt = _bookModel->getDataString(hlineIdx,"HLineLabel");
+        QString unit = _bookModel->getDataString(hlineIdx,"HLineUnit");
+
+        if ( labelfmt.isEmpty() ) {
+            if ( unit.isEmpty() ) {
+                labelfmt = "%g";
+            } else {
+                labelfmt = "%g {%s}";  // default format for hline label
+            }
+        }
+        QRegularExpression rgxFloat
+                          (R"(%[-+0# ]?(\d+|\*)?(\.\d+|\.\*)?[lL]?[fFeEgGaA])");
+        int idxVal = labelfmt.indexOf(rgxFloat);
+        int idxUnit = labelfmt.indexOf("%s");
+        if ( idxUnit >= 0 ) {
+            labelfmt.replace(idxUnit, 2, unit);
+        }
+        QString label(labelfmt);
+        if ( idxVal >= 0 ) {
+            QRegularExpression rgxEndFloat(R"([fFeEgGaA])");
+            int idxValEnd = labelfmt.indexOf(rgxEndFloat,idxVal);
+            QString valFmt = labelfmt.mid(idxVal,idxValEnd-idxVal+1);
+            QString valStr;
+            valStr = valStr.asprintf(valFmt.toLatin1().constData(),origVal);
+            label.replace(idxVal,idxValEnd-idxVal+1,valStr);
+        }
+        painter->drawText(drawPt,label);
+    }
     painter->setPen(origPen);
     if ( isAntiAliasing ) {
         painter->setRenderHint(QPainter::Antialiasing);

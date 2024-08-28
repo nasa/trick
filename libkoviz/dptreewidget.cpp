@@ -571,6 +571,16 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
             // Turn signals back on before adding curveModel
             _bookModel->blockSignals(block);
 
+            // HLines
+            QStandardItem *hlinesItem = _addChild(plotItem,"HLines");
+            foreach (DPHLine* dpHLine, plot->hlines() ) {
+                QStandardItem *hlineItem = _addChild(hlinesItem,"HLine");
+                _addChild(hlineItem, "HLineValue", dpHLine->value());
+                _addChild(hlineItem, "HLineLabel", dpHLine->label());
+                _addChild(hlineItem, "HLineColor", dpHLine->color());
+                _addChild(hlineItem, "HLineUnit",  dpHLine->unit());
+            }
+
             // Initialize plot math rect
             QModelIndex curvesIdx = curvesItem->index();
             QRectF bbox = _bookModel->calcCurvesBBox(curvesIdx);

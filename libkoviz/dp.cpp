@@ -436,6 +436,10 @@ DPPlot::~DPPlot()
         delete curve;
     }
     _curves.clear();
+    foreach ( DPHLine* hline, _hlines ) {
+        delete hline;
+    }
+    _hlines.clear();
 }
 
 QString DPPlot::xAxisLabel()
@@ -686,6 +690,13 @@ DPCurve *DPPlot::addCurve()
     DPCurve* curve = new DPCurve();
     _curves.append(curve);
     return curve;
+}
+
+DPHLine *DPPlot::addHLine(double val)
+{
+    DPHLine* hline = new DPHLine(val);
+    _hlines.append(hline);
+    return hline;
 }
 
 
@@ -1025,4 +1036,24 @@ void DPProgram::addOutput(const QString &output)
 
     Parameter outputParam(output);
     _outputParams << outputParam;
+}
+
+void DPHLine::setValue(double val)
+{
+    _val = val;
+}
+
+void DPHLine::setColor(const QString &color)
+{
+    _color = color;
+}
+
+void DPHLine::setLabel(const QString &label)
+{
+    _label = label;
+}
+
+void DPHLine::setUnit(const QString &unit)
+{
+    _unit = unit;
 }

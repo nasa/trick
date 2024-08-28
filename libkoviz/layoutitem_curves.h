@@ -39,6 +39,9 @@ private:
     void _paintGrid(QPainter* painter,
                     const QRect &R,const QRect &RG,
                     const QRect &C, const QRectF &M);
+    void _paintHLines(QPainter* painter,
+                      const QRect &R,const QRect &RG,
+                      const QRect &C, const QRectF &M);
     void _paintCurvesLegend(const QRect& R,
                             const QModelIndex &curvesIdx,
                             QPainter* painter);

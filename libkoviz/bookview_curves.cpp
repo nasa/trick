@@ -145,6 +145,7 @@ void CurvesView::paintEvent(QPaintEvent *event)
         painter.fillRect(viewport()->rect(),bg);
 
         _paintGrid(painter,rootIndex());
+        _paintHLines(painter,rootIndex());
 
         if ( plotPresentation == "compare" ) {
             _paintCoplot(T,painter,pen);
@@ -205,8 +206,9 @@ void CurvesView::_paintCoplot(const QTransform &T,QPainter &painter,QPen &pen)
         bg.setAlpha(190);
         painter.fillRect(viewport()->rect(),bg);
 
-        // Since grid is too light with semi-transparent bg, paint it
+        // Since grid and hlines too light with semi-transparent bg, paint them
         _paintGrid(painter,rootIndex());
+        _paintHLines(painter,rootIndex());
 
         // Paint curve (possibly with linestyle, symbols etc.)
         _paintCurve(currentIndex(),T,painter,true);
@@ -1113,6 +1115,7 @@ QPixmap* CurvesView::_createLivePixmap()
     painter.fillRect(viewport()->rect(),bg);
 
     _paintGrid(painter, rootIndex());
+    _paintHLines(painter,rootIndex());
 
     QTransform T = _coordToPixelTransform();
     QModelIndex curvesIdx = _bookModel()->getIndex(rootIndex(),"Curves","Plot");
