@@ -12,7 +12,9 @@ LIBRARY DEPENDENCIES:
 #define TRICK_NO_ZEROCONF
 
 #include "sim_objects/default_trick_sys.sm"
+
 ##include "singlerigidbody/include/body.hh"
+
 class BodySimObject : public Trick::SimObject {
 	public:
 	BODY body;
