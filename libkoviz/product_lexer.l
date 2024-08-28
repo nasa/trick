@@ -69,6 +69,7 @@ RECT                          [Rr][Ee][Cc][Tt]
 PRESENTATION                  [Pp][Rr][Ee][Ss][Ee][Nn][Tt][Aa][Tt][Ii][Oo][Nn]
 HLINE                         [Hh][Ll][Ii][Nn][Ee]
 COLOR                         [Cc][Oo][Ll][Oo][Rr]
+LABEL_UNITS                   [Ll][Aa][Bb][Ee][Ll]_[Uu][Nn][Ii][Tt][Ss]
 
 QSTR                          \"[^"\n]*["\n] 
 STR                           [a-zA-Z][-_a-zA-Z0-9.\,()\[\]/$#{}]* 
@@ -139,6 +140,7 @@ W                             [ \t]+
 {PRESENTATION}             { return(DP_PRESENTATION); }
 {HLINE}                    { return(DP_HLINE); }
 {COLOR}                    { return(DP_COLOR); }
+{LABEL_UNITS}              { return(DP_LABEL_UNITS); }
 
 {QSTR}  { 
 

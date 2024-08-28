@@ -1057,3 +1057,8 @@ void DPHLine::setUnit(const QString &unit)
 {
     _unit = unit;
 }
+
+void DPHLine::setLabelUnit(const QString &labelUnit)
+{
+    _labelUnit = labelUnit;
+}

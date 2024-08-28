@@ -579,6 +579,7 @@ void DPTreeWidget::_createDPPages(const QString& dpfile)
                 _addChild(hlineItem, "HLineLabel", dpHLine->label());
                 _addChild(hlineItem, "HLineColor", dpHLine->color());
                 _addChild(hlineItem, "HLineUnit",  dpHLine->unit());
+                _addChild(hlineItem, "HLineLabelUnit", dpHLine->labelUnit());
             }
 
             // Initialize plot math rect

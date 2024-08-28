@@ -119,11 +119,13 @@ public:
     QString color() { return _color; }
     QString label() { return _label; }
     QString unit()  { return _unit; }
+    QString labelUnit() { return _labelUnit; }
 
     void setValue(double val);
     void setColor(const QString& color);
     void setLabel(const QString& label);
     void setUnit(const QString& unit);
+    void setLabelUnit(const QString& labelUnit);
 
 private:
     DPHLine() : _val(0) {}
@@ -131,6 +133,7 @@ private:
     QString _color;
     QString _label;
     QString _unit;
+    QString _labelUnit;
 };
 
 class DPCurve
