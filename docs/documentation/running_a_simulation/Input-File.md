@@ -150,7 +150,7 @@ Structure and class variables do not carry around units, and therefore the units
 It is possible to create new objects and allocate new memory for structures directly in the Python
 input file.  Three different ways are described below.
 
-### 1. Call `Trick::MemoryManager` allocation routines directly.
+### 1. Call ```Trick::MemoryManager``` Allocation Routines Directly
 
 The first method is to call the `Trick::MemoryManager` routines to allocate memory.  
 There are 3 `Trick::MemoryManager` calls with varying arguments that can be used to allocate memory
@@ -191,7 +191,7 @@ food[2] = trick.alloc_type(6, "double")
 Memory allocated using the above routines are tracked by the memory manager and is checkpointable and data recordable.
 
 ### 2. Use a Factory Function
-This benefit of this method is flexibility in how objects are initialized. For example, we might want to initialize our objects with a non-default constructor. So, the requirements for our factory function are:
+The benefit of this method is flexibility in how objects are initialized. For example, we might want to initialize our objects with a non-default constructor. So, the requirements for our factory function are:
 
 1. Allocate a memory object via the Trick Memory Manager, and
 2. Call a constructor to initialize the object (using placement-new)
@@ -245,7 +245,7 @@ Ball* make_Ball(double x, double y, double vx, double vy, double r, double m) {
 ```
 
 Because this function is bound to Python by SWIG, it can be called from the input file.
-For examaple, :
+For example :
 
 ##### From ```RUN_Newtons_cradle/input.py```
 ```Python
@@ -262,7 +262,7 @@ dyn.contact.balls[6] = trick.make_Ball(-7.00, 0.0, 0.0, 0.0, 1.0, 1000000.0)
 
 This creates and initializes seven *Ball* objects needed to configure a Newton's cradle.
 
-### 3. Call the Wrapped Class Constructor Directly.
+### 3. Call the Wrapped Class Constructor Directly
 The third method is to call the wrapped constructor of the class directly.  This is analogous to declaring local
 variables in C/C++ routines.  And like local variables in C/C++ if the python variable goes out of scope in the
 input file, then python will try and free the memory associated with the local object.  Memory allocated this
