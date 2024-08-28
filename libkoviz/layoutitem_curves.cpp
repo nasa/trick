@@ -1,12 +1,10 @@
 #include "layoutitem_curves.h"
 
 CurvesLayoutItem::CurvesLayoutItem(PlotBookModel* bookModel,
-                                   const QModelIndex& plotIdx,
-                                   QPixmap *pixmap) :
+                                   const QModelIndex& plotIdx) :
     PaintableLayoutItem(),
     _bookModel(bookModel),
-    _plotIdx(plotIdx),
-    _pixmap(pixmap)
+    _plotIdx(plotIdx)
 {
 }
 
@@ -206,7 +204,7 @@ void CurvesLayoutItem::paint(QPainter *painter,
 
     // In case of pixmaps, paint grid and hlines last
     _paintGrid(painter,R,RG,C,M);
-    _paintHLines(painter,R,RG,C,M);
+    paintHLines(painter,R,RG,C,M);
 
     // Restore the painter state off the painter stack
     painter->restore();
@@ -846,9 +844,9 @@ void CurvesLayoutItem::_paintGrid(QPainter* painter,
     painter->restore();
 }
 
-void CurvesLayoutItem::_paintHLines(QPainter *painter,
-                                    const QRect &R, const QRect &RG,
-                                    const QRect &C, const QRectF &M)
+void CurvesLayoutItem::paintHLines(QPainter *painter,
+                                   const QRect &R, const QRect &RG,
+                                   const QRect &C, const QRectF &M)
 {
     if ( M.width() == 0.0 || M.height() == 0.0 ) {
         return;

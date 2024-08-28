@@ -12,6 +12,7 @@
 #include <cmath>
 #include "bookmodel.h"
 #include "unit.h"
+#include "layoutitem_curves.h"
 
 struct LabelBox
 {
