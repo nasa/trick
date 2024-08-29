@@ -881,6 +881,16 @@ void CurvesLayoutItem::paintHLines(QPainter *painter,
     foreach (QModelIndex hlineIdx, hlineIdxs) {
 
         double val = _bookModel->getDataDouble(hlineIdx,"HLineValue");
+        QString valUnit = _bookModel->getDataString(hlineIdx,"HLineUnit");
+        QString labelUnit =_bookModel->getDataString(hlineIdx,"HLineLabelUnit");
+        QString unit = valUnit;
+        if ( Unit::canConvert(valUnit,labelUnit) ) {
+            double scale = Unit::scale(valUnit,labelUnit);
+            double bias  = Unit::bias(valUnit,labelUnit);
+            unit  = labelUnit;
+            val = scale*val + bias;
+        }
+
         double origVal(val);
         if ( isLogScale ) {
             if ( val == 0 ) {
@@ -913,9 +923,8 @@ void CurvesLayoutItem::paintHLines(QPainter *painter,
             drawPt = T.map(pt)-QPoint(0,h);
         }
         painter->setTransform(I);
-        QString labelfmt = _bookModel->getDataString(hlineIdx,"HLineLabel");
-        QString unit = _bookModel->getDataString(hlineIdx,"HLineUnit");
 
+        QString labelfmt = _bookModel->getDataString(hlineIdx,"HLineLabel");
         if ( labelfmt.isEmpty() ) {
             if ( unit.isEmpty() ) {
                 labelfmt = "%g";

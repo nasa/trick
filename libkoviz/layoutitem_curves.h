@@ -4,6 +4,7 @@
 #include <QPixmap>
 #include "layoutitem_paintable.h"
 #include "bookmodel.h"
+#include "unit.h"
 
 class CurvesLayoutItem : public PaintableLayoutItem
 {

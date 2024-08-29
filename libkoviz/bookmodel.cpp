@@ -1211,6 +1211,14 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
         QModelIndexList hlineIdxs = getIndexList(hlinesIdx, "HLine","HLines");
         foreach (QModelIndex hlineIdx, hlineIdxs) {
             double val = getDataDouble(hlineIdx,"HLineValue","HLine");
+            QString valUnit = getDataString(hlineIdx,"HLineUnit");
+            QString labelUnit = getDataString(hlineIdx,"HLineLabelUnit");
+            if ( Unit::canConvert(valUnit,labelUnit) ) {
+                double scale = Unit::scale(valUnit,labelUnit);
+                double bias  = Unit::bias(valUnit,labelUnit);
+                val = scale*val + bias;
+            }
+
             if ( plotYScale == "log" ) {
                 if ( val == 0.0 ) {
                     continue;

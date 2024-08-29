@@ -108,6 +108,22 @@ void YAxisLabelView::wheelEvent(QWheelEvent *e)
                                                          "CurveYUnit", "Curve");
             model()->setData(yUnitIdx,toUnit);
         }
+        // Set hline unit if possible
+        if ( _bookModel()->isChildIndex(rootIndex(),"Plot","HLines") ) {
+            QModelIndex hlinesIdx = _bookModel()->getIndex(rootIndex(),
+                                                         "HLines","Plot");
+            QModelIndexList hlineIdxs = _bookModel()->getIndexList(hlinesIdx,
+                                                           "HLine","HLines");
+            foreach (QModelIndex hlineIdx, hlineIdxs) {
+                QString hlineUnit = _bookModel()->getDataString(hlineIdx,
+                                                           "HLineUnit","HLine");
+                if ( Unit::canConvert(hlineUnit,toUnit) ) {
+                    QModelIndex luIdx = _bookModel()->getDataIndex(hlineIdx,
+                                                      "HLineLabelUnit","HLine");
+                    model()->setData(luIdx,toUnit);
+                }
+            }
+        }
         model()->blockSignals(block);
 
         // Get plot scale (log or linear)
