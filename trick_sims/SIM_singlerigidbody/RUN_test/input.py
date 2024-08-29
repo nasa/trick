@@ -76,7 +76,7 @@ M_PI = 3.141592653589793238460
 dyn_integloop.getIntegrator(trick.Runge_Kutta_4, 12)
 
 # ============================================================================ -
-# This tells the sim to stop after a few seconds
+# This tells the sim to stop after a few second
 # ============================================================================ -
 trick.stop(10.0)
 
@@ -86,7 +86,7 @@ trick.stop(10.0)
 # Start the Graphics Client
 #==========================================
 varServerPort = trick.var_server_get_port();
-SRBDisplay_path = "models/singlerigidbodygraphics/build/SRBDisplay.jar"
+SRBDisplay_path = "models/singlerigidbodygraphics/build/SingleRigidBodyDisplay.jar"
 
 if (os.path.isfile(SRBDisplay_path)) :
     SRBDisplay_cmd = "java -jar " \
