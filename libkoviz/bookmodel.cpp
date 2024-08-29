@@ -1220,7 +1220,7 @@ QRectF PlotBookModel::calcCurvesBBox(const QModelIndex &curvesIdx) const
             }
 
             if ( plotYScale == "log" ) {
-                if ( val == 0.0 ) {
+                if ( val <= 0.0 ) {
                     continue;
                 }
                 val = log10(qAbs(val));

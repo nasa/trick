@@ -893,8 +893,8 @@ void CurvesLayoutItem::paintHLines(QPainter *painter,
 
         double origVal(val);
         if ( isLogScale ) {
-            if ( val == 0 ) {
-                continue;  // Do not draw lines of log10(0)
+            if ( val <= 0 ) {
+                continue;  // Do not draw lines if log10(val) is <= 0
             }
             val = log10(qAbs(val));
         }
