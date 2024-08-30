@@ -103,9 +103,9 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         testJButton("Exit", ActionID.EXIT);
     }
 
-    //--------------------
+    //-----------------------
     // JToggleButton Tests
-    //--------------------
+    //-----------------------
 
     @Test
     public void testDumpChkpntButton() {
@@ -141,8 +141,36 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         testButtonToggleTwice("RealTime On", ActionID.REALTIME);
     }
 
+    //-----------------------------
+    // Status Message Pane Tests
+    //-----------------------------
+
     @Test
     public void testStatusMsgPane() {
+        // ARRANGE
+        JTextComponentFixture editorFixture = mainFrame.textBox(
+            new GenericTypeMatcher<JXEditorPane>(JXEditorPane.class) {
+                @Override
+                protected boolean isMatching(JXEditorPane pane) {
+                    return true;
+                }
+            }
+        );
+
+        final String msg = "How much wood can a woodchuck chuck if a woodchuck could chuck wood?";
+
+        assumeThat(editorFixture).isNotNull();
+
+        // ACT
+        editorFixture.deleteText()
+                     .enterText(msg);
+
+        // ASSERT
+        assertThat(editorFixture.target().getText());
+    }
+
+    @Test
+    public void testFindPanelButtons() {
         // ARRANGE
         String message = "I must not fear.\n" + //
                          "Fear is the mind-killer.\n" + //
@@ -152,15 +180,21 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
                          "And when it has gone past, I will turn the inner eye to see its path.\n" + //
                          "Where the fear has gone there will be nothing. Only I will remain";
         final String outStencil = "%s@%d";
-        final String[] expOutput = {"null@304", "fear@11",
+        final String[] expOutputNext = {"null@304", "fear@11",
                                     "Fear@17" , "Fear@42",
-                                    "fear@114", "fear@249"};
+                                        "fear@114", "fear@249"},
+                       expOutputPrev = {"fear@114", "Fear@42", 
+                                        "Fear@17" , "fear@11"};
+                                        
         String[] queryResults = new String[10];
 
         JTextComponentFixture editorFixture = setStatusMessage(message);
         JXEditorPane editorPane = (JXEditorPane) editorFixture.target();
-        JButtonFixture findNextButton = getButtonByText(findPanel, "Find Next");
+        JButtonFixture findNextButton = getButtonByText(findPanel, "Find Next"),
+                       findPrevButton = getButtonByText(findPanel, "Find Previous");
+                       
         assumeThat(findNextButton).isNotNull();
+        assumeThat(findPrevButton).isNotNull();
                               
         // ACT
         setFindText("Hello");
@@ -181,11 +215,25 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
             sleep(100);
         }
 
-        // ASSERT
-        for(int i = 0; i < 6; i++) {
-            assertThat(queryResults[i]).isEqualTo(expOutput[i]);
+        for(int i = 6; i < 10; i++) {
+            findPrevButton.click();
+            queryResults[i] = String.format(outStencil, 
+                                            editorPane.getSelectedText(), 
+                                            editorPane.getSelectionStart());
+            sleep(100);
         }
-    }
+
+        // ASSERT
+        for(int i = 0; i < 6; i++) 
+            assertThat(queryResults[i]).isEqualTo(expOutputNext[i]);
+
+        for(int i = 0; i < 4; i++) 
+            assertThat(queryResults[i + 6]).isEqualTo(expOutputPrev[i]);
+        }
+
+    //--------------------
+    // Helper Methods
+    //--------------------
 
 	public static void sleep(long ms) {
 		try {Thread.sleep(ms);} catch(Exception ignored) {}
