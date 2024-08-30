@@ -156,7 +156,7 @@ double Job::stddev_runtime()
     return _stddev_runtime;
 }
 
-void Job::_parseJobId(const QString &jobId)
+void Job::_parseJobId(const QString &jobId, const QString &fileName)
 {
     QString name(jobId);
 
@@ -178,14 +178,14 @@ void Job::_parseJobId(const QString &jobId)
     // e.g. 1828.00 from example name
     int idx4 = name.lastIndexOf(QChar('.'),idx1);
     int idx5 = name.lastIndexOf(QChar('.'),idx4-1);
+    _job_name = name.mid(0,idx5);  // _job_name may be reset below
     _job_num = name.mid(idx5+1,idx1-idx5-1);
 
     _isFrameTimerJob = false;
-    if ( (
-         jobId.startsWith("trick_frame_userjobs_C") ||
+    if ((jobId.startsWith("trick_frame_userjobs_C") ||
          jobId.startsWith("frame_userjobs_C") ||
          jobId.startsWith("snap_userjobs_C")) &&
-         jobId.endsWith("frame_time") ) {
+         jobId.endsWith("frame_time")) {
         _isFrameTimerJob = true;
     }
 
@@ -220,23 +220,22 @@ void Job::_parseJobId(const QString &jobId)
     } else {
 
         _thread_id = 0 ;
-        QString stid;
-        int idx6;
-        for ( idx6 = idx5-1 ; idx6 > 0 ; idx6-- ) {
-            if ( isdigit(name.at(idx6).toLatin1()) ) {
-                stid.prepend(name.at(idx6));
-            } else {
-                if ( name.at(idx6) == 'C' && name.at(idx6-1) == '_' ) {
-                    _thread_id = stid.toInt();
-                    idx6--;
-                } else {
-                    idx6++;
-                }
-                break;
-            }
+        QFileInfo fi(fileName);
+        QString fname = fi.fileName();
+        QRegularExpression rgx("log_trick_frame_userjobs_C(\\d+).trk");
+        QRegularExpressionMatch match = rgx.match(fname);
+        if (match.hasMatch()) {
+            QString number = match.captured(1);
+            _thread_id = number.toInt();
+        } else if ((fname == "log_frame.trk") ||
+                   (fname == "log_frame_trickjobs.trk") ||
+                   (fname == "log_frame_userjobs_main.trk")) {
+            _thread_id = 0;
+        } else {
+            fprintf(stderr, "koviz [error]: Job::_parseJobId(): cannot find "
+                    "file to determine thread id!\n");
+            exit(-1);
         }
-
-        _job_name = name.mid(0,idx6);
     }
 }
 
@@ -251,7 +250,6 @@ double Job::freq()
 // Parse long logname and set job members accordingly
 // An example logname:
 // JOB_schedbus.SimBus##read_ALDS15_ObcsRouter_C1.1828.00(read_simbus_0.100)
-
 Job::Job(CurveModel* curve) :
      _curve(curve),_npoints(0),_isFrameTimerJob(false),
      _is_stats(false)
@@ -263,15 +261,7 @@ Job::Job(CurveModel* curve) :
     _npoints = curve->rowCount();
     _log_name = curve->y()->name();
 
-    _parseJobId(_log_name);
-}
-
-Job::Job(const QString &jobId) :
-     _curve(0),_npoints(0),_isFrameTimerJob(false),
-     _log_name(jobId),
-     _is_stats(false)
-{
-    _parseJobId(_log_name);
+    _parseJobId(_log_name,curve->fileName());
 }
 
 QString Job::job_id() const

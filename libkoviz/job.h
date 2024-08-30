@@ -3,6 +3,8 @@
 
 #include <QString>
 #include <QTextStream>
+#include <QFileInfo>
+#include <QRegularExpression>
 #include <stdlib.h>
 #include <stdexcept>
 
@@ -19,7 +21,6 @@ class Job
     // job_id is logged job name
     // e.g. JOB_bus.SimBus##read_ObcsRouter_C1.1828.00(read_simbus_0.100)
     Job(CurveModel* curve);
-    Job(const QString& job_id);
 
     bool isFrameTimerJob() { return _isFrameTimerJob; }
 
@@ -42,7 +43,7 @@ class Job
 private:
     Job() {}
 
-    void _parseJobId(const QString& job_id);
+    void _parseJobId(const QString& job_id, const QString& fileName);
 
     CurveModel* _curve;
     int _npoints;
