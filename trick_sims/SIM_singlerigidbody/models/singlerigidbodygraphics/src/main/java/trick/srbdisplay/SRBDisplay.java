@@ -490,7 +490,7 @@ public class SRBDisplay extends JFrame {
     double Rxz  = 0.0;
     double Ryx  = 0.0;
     double Ryy  = 0.0;
-    double Ryz  = 0.0;
+    double Ryz  = 0.0; 
     double Rzx  = 0.0;
     double Rzy  = 0.0;
     double Rzz  = 0.0;
@@ -505,7 +505,7 @@ public class SRBDisplay extends JFrame {
     sd.out.writeBytes("trick.var_set_client_tag(\"SRBDisplay\") \n" +
                           "trick.var_pause() \n" +
 
-                          "trick.var_add(\"dyn.body.FORCE_INIT[0]\") \n" + // Ask about the (1) after each number in the QP
+                          "trick.var_add(\"dyn.body.FORCE_INIT[0]\") \n" + // 36
                           "trick.var_add(\"dyn.body.FORCE_INIT[1]\") \n" +
                           "trick.var_add(\"dyn.body.FORCE_INIT[2]\") \n" +
 
@@ -562,7 +562,9 @@ public class SRBDisplay extends JFrame {
     Boolean go = true;
 
     while (go) {
+
       String field[];
+
       try {
           String line;
           line = sd.in.readLine();
@@ -596,30 +598,30 @@ public class SRBDisplay extends JFrame {
           omegaDotY = Double.parseDouble( field[20] );
           omegaDotZ = Double.parseDouble( field[21] );
 
-          posX = Double.parseDouble( field[21] );
-          posY = Double.parseDouble( field[22] );
-          posZ = Double.parseDouble( field[23] );
+          posX = Double.parseDouble( field[22] );
+          posY = Double.parseDouble( field[23] );
+          posZ = Double.parseDouble( field[24] );
 
-          Rxx = Double.parseDouble( field[24] );
-          Rxy = Double.parseDouble( field[25] );
-          Rxz = Double.parseDouble( field[26] );
-          Ryx = Double.parseDouble( field[27] );
-          Ryy = Double.parseDouble( field[28] );
-          Ryz = Double.parseDouble( field[29] );
-          Rzx = Double.parseDouble( field[30] );
-          Rzy = Double.parseDouble( field[31] );
-          Rzz = Double.parseDouble( field[32] );
+          Rxx = Double.parseDouble( field[25] );
+          Rxy = Double.parseDouble( field[26] );
+          Rxz = Double.parseDouble( field[27] );
+          Ryx = Double.parseDouble( field[28] );
+          Ryy = Double.parseDouble( field[29] );
+          Ryz = Double.parseDouble( field[30] );
+          Rzx = Double.parseDouble( field[31] );
+          Rzy = Double.parseDouble( field[32] );
+          Rzz = Double.parseDouble( field[33] );
 
-          velX = Double.parseDouble( field[33] );
-          velY = Double.parseDouble( field[34] );
-          velZ = Double.parseDouble( field[35] );
+          velX = Double.parseDouble( field[34] );
+          velY = Double.parseDouble( field[35] );
+          velZ = Double.parseDouble( field[36] );
 
           // Set the body position
           singleRigidBodyView.setBodyPos(posX, posY, posZ);
 
           singleRigidBodyView.setBodyToWorldRotation( Rxx, Rxy, Rxz,
-                                          Ryx, Ryy, Ryz,
-                                          Rzx, Rzy, Rzz );
+                                                      Ryx, Ryy, Ryz,
+                                                      Rzx, Rzy, Rzz );
 
       } catch (IOException | NullPointerException e ) {
           go = false;
@@ -627,5 +629,4 @@ public class SRBDisplay extends JFrame {
       sd.drawSRBView();
       }
     }
-
 }
