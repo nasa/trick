@@ -8,9 +8,9 @@ defaults:
 
 jobs:
   trickops-tests-ubuntu:
-    name: Unit Tests Ubuntu:20.04
-    runs-on: ubuntu-20.04
-    container: ubuntu:20.04
+    name: Unit Tests Ubuntu:22.04
+    runs-on: ubuntu-22.04
+    container: ubuntu:22.04
     steps:
       - uses: actions/checkout@master
       - name: install dependencies
@@ -41,7 +41,7 @@ jobs:
 
   trickops-tests-rockylinux8:
     name: Unit Tests RockyLinux8
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container: rockylinux:8
     steps:
       - uses: actions/checkout@master
