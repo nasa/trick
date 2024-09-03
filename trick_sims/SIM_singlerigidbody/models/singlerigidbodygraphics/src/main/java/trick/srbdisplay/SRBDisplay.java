@@ -120,18 +120,35 @@ class SingleRigidBodyView extends JPanel { // Main body class of how we view the
         veh_vrtx_world = new double[veh_vrtx_body.length][3];
         veh_vrtx_screen = new int[veh_vrtx_body.length][2];
 
-        // Defines the edges for the dodecahedron.
         veh_edges = new int[][]
-        { {0, 2}, {0, 3}, {0, 13}, {0, 14}, {1, 4}, {1, 5}, {1, 12}, {1, 19}, 
-          {2, 6}, {2, 13}, {3, 7}, {3, 14}, {4, 10}, {4, 18}, {5, 11}, {5, 19},
-          {6, 10}, {6, 13}, {7, 11}, {7, 14}, {8, 12}, {8, 13}, {9, 12}, {9, 14},
-          {8, 16}, {8, 17}, {9, 16}, {9, 17}, {10, 15}, {11, 15}, {12, 17}, {12, 18},
-          {13, 16}, {14, 17}, {15, 6}, {15, 7}, {16, 18}, {17, 19}, {18, 4}, {19, 5}
+        { {0, 13}, {0, 14}, {0, 15}, 
+          {1, 4}, {1, 5}, {1, 12}, 
+          {2, 6}, {2, 13}, {2, 18}, 
+          {3, 7}, {3, 14}, {3, 19}, 
+          {4, 10}, {4, 18}, {4, 1}, 
+          {5, 11}, {5, 19}, {5, 1},
+          {6, 2}, {6, 15}, {6, 10}, 
+          {7, 11}, {7, 15}, {7, 3}, 
+          {8, 9}, {8, 13}, {8, 16}, 
+          {9, 14}, {9, 14}, {9, 17}, 
+          {10, 13}, {10,9}, {10, 16}, 
+          {11, 4}, {11, 11}, {11, 6}, 
+          {12, 17}, {12, 15}, {12, 17}, 
+          {13, 0}, {13, 2}, {13, 8}, 
+          {14, 3}, {14, 0}, {14, 9}, 
+          {15, 0}, {15, 7}, {15, 6}, 
+          {16, 8}, {16, 12}, {16, 17}, 
+          {17, 9}, {17, 12}, {17, 19},
+          {18, 4}, {18, 2}, {18, 16}, 
+          {19, 3}, {19, 5}, {19, 17}
         };
+        
 
         // The order of the vertices in each of the triangles is significant. The points should follow
         // a path counter clock wise about the triangle's normal vector. The position normal side of
         // the triangle is the visable side.
+
+        // CHANGE THE TRIANGLES TO MATCH NEW EDGES
 
         veh_triangles = new int[][]
         {
