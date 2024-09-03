@@ -322,13 +322,10 @@ class SingleRigidBodyView extends JPanel { // Main body class of how we view the
           // The color intensity is a combination of ambient light intensity,
           // and diffuse reflection intensity.
           double color_intensity = (ambient + (1.0 - ambient) * diffuse_intensity);
-
-
-          g2d.setPaint(new Color( 220, 220, 220)); // FOR TESTING. ================================================================================================================================
           
-          /* g2d.setPaint( new Color( (int)(bodyFillColor.getRed()   * color_intensity),
+          g2d.setPaint( new Color( (int)(bodyFillColor.getRed()   * color_intensity),
                                     (int)(bodyFillColor.getGreen() * color_intensity),
-                                    (int)(bodyFillColor.getBlue()  * color_intensity))); == CHANGE LATER */
+                                    (int)(bodyFillColor.getBlue()  * color_intensity)));
 
           // Draw the triangle.
           int triangle_poly_x[] = {0, 0, 0};
