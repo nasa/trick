@@ -148,20 +148,20 @@ class SingleRigidBodyView extends JPanel { // Main body class of how we view the
         // a path counter clock wise about the triangle's normal vector. The position normal side of
         // the triangle is the visable side.
 
-        // CHANGE THE TRIANGLES TO MATCH NEW EDGES
-
         veh_triangles = new int[][]
         {
-          {0, 6, 2}, {0, 10, 6}, {0, 15, 10}, // First pentagon using vertices 0, 2, 6, 10, 15
-          {0, 7, 15}, {0, 3, 7}, {0, 14, 3}, // Second pentagon using vertices 0, 15, 7, 3, 14
-          {0, 9, 14}, {0, 13, 9}, {0, 2, 13}, // Third pentagon using vertices 0, 14, 9, 13, 2
-          {1, 19, 5}, {1, 17, 19}, {1, 12, 17}, // Fourth pentagon using vertices 1, 5, 19, 17, 12
-          {1, 8, 12}, {1, 4, 8}, {1, 10, 4}, // Fifth pentagon using vertices 1, 12, 8, 4, 10
-          {1, 10, 18}, {1, 6, 10}, {1, 2, 6}, // Sixth pentagon using vertices 1, 18, 20, 6, 2
-          {8, 17, 12}, {8, 16, 17}, {8, 13, 16}, // Seventh pentagon using vertices 8, 12, 17, 16, 13
-          {9, 19, 17}, {9, 14, 19}, {9, 13, 14}, // Eighth pentagon using vertices 9, 17, 19, 14, 13
-          {4, 15, 10}, {4, 7, 15}, {4, 3, 7}, // Ninth pentagon using vertices 4, 10, 15, 7, 3
-          {18, 3, 4}, {18, 14, 3}, {18, 19, 14} // Tenth pentagon using vertices 18, 4, 3, 14, 19
+          {0, 8, 13}, {0, 9, 8}, {0, 14, 9}, // First pentagon using vertices 0, 8, 9, 13, 14
+          {13, 15, 0}, {13, 6, 15}, {13, 2, 6}, // Second pentagon using vertices 0, 2, 6, 13, 15
+          {2, 13, 8}, {2, 8, 16}, {2, 16, 18}, // Third pentagon using vertices 2, 8, 13, 16, 18
+          {18, 6, 2}, {18, 10 ,6}, {18, 4, 10}, // Fourth pentagon using vertices 2, 4, 6, 10, 18
+          {4, 18, 16}, {4, 16, 12}, {4, 12, 1}, // Fifth pentagon using 1, 4, 12, 16, 18
+          {1, 10, 4}, {1, 11, 10}, {1, 5, 11}, // Sixth pentagon using vertices 1, 4, 5, 10, 11
+          {5, 1, 12}, {5, 12, 17}, {5, 17, 19}, // Seventh pentagon using vertices 1, 5, 12, 17, 19
+          {19, 11, 4}, {19, 7, 11}, {19, 3, 7}, // Eight pentagon using vertices 3, 4, 7, 11, 19
+          {3, 19, 17}, {3, 17, 9}, {3, 9, 14}, // Ninth pentagon using vertices 3, 9, 14, 17, 19
+          {14, 7, 3}, {14, 15, 7}, {14, 0, 15}, // Tenth pentagon using vertices 0, 3, 7, 14, 15
+          {15, 6, 10}, {15, 10, 11}, {15, 11, 7}, // Top pentagon (perpendicular above to xy plane)
+          {12, 16, 8}, {12, 8, 9}, {12, 9, 17} // Bottom pentagon (perpendicular below to xy plane)
         };
 
         // Create the normals for the triangles
