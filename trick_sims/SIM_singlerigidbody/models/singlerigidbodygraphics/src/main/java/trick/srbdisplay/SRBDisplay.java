@@ -364,13 +364,13 @@ class SingleRigidBodyView extends JPanel { // Main body class of how we view the
       // ==========================
       // Draw World Coordinate Axes
       double origin_world[] = {0.0, 0.0, 0.0};
-      double x_axis_world[] = {5.0, 0.0, 0.0};
+      double x_axis_world[] = {9.0, 0.0, 0.0};
       drawLineSegmentInWorld(g2d, Color.RED, origin_world, x_axis_world);
       drawLabelInWorld(g2d, Color.RED, x_axis_world, "X");
-      double y_axis_world[] = {0.0, 5.0, 0.0};
+      double y_axis_world[] = {0.0, 9.0, 0.0};
       drawLineSegmentInWorld(g2d, Color.GREEN, origin_world, y_axis_world);
       drawLabelInWorld(g2d, Color.GREEN, y_axis_world, "Y");
-      double z_axis_world[] = {0.0, 0.0, 5.0};
+      double z_axis_world[] = {0.0, 0.0, 9.0};
       drawLineSegmentInWorld(g2d, Color.BLUE, origin_world, z_axis_world);
       drawLabelInWorld(g2d, Color.BLUE, z_axis_world, "Z");
     }
