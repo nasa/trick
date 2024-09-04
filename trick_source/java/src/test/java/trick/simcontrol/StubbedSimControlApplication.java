@@ -83,6 +83,7 @@ public class StubbedSimControlApplication extends SimControlApplication {
     @Override
     public void clearStatusMsgs() {
         ActionRecord.push(ActionID.CLEAR_STATUS);
+        super.clearStatusMsgs();
     }
 
     @Override

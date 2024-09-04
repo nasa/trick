@@ -289,6 +289,41 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         assertThat(actualFont).isEqualTo(expFont);
     }
 
+    @Test
+    public void testSaveStatusMessage() {
+        // ARRANGE
+        ActionID action;
+        JMenuItemFixture saveMsg = getJMenuItemByName(mainFrame, "saveStatusMsgsMenuItem");
+
+        assumeThat(saveMsg).isNotNull();
+
+        // ACT
+        saveMsg.click();
+        action = StubbedSimControlApplication.ActionRecord.peek();
+
+        // ASSERT
+        assertThat(action).isEqualTo(ActionID.SAVE_STATUS);
+    }
+
+    @Test
+    public void testClearStatusMessage() {
+        // ARRANGE
+        ActionID action;
+        JMenuItemFixture clearMsg = getJMenuItemByName(mainFrame, "clearStatusMsgsMenuItem");
+
+        editorFixture.enterText("MOOSE MOOSE MOOSE");
+
+        assumeThat(clearMsg).isNotNull();
+
+        // ACT
+        clearMsg.click();
+        action = StubbedSimControlApplication.ActionRecord.peek();
+
+        // ASSERT
+        assertThat(action).isEqualTo(ActionID.CLEAR_STATUS);
+        assertThat(editorFixture.text()).isEqualTo("");
+    }
+
     //--------------------
     // Helper Methods
     //--------------------
