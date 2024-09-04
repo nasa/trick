@@ -119,6 +119,8 @@ class SingleRigidBodyView extends JPanel { // Main body class of how we view the
         veh_vrtx_world = new double[veh_vrtx_body.length][3];
         veh_vrtx_screen = new int[veh_vrtx_body.length][2];
 
+        // The edges of the dodecahedron are defined by taking a vertex at the UM or LM of the shape, and defining an edge to the top vertex (for UM) or bottom vertex (for LM), and defining edges to
+        // each immediate adjacent vertex. The resulting pattern looks like 3 spokes coming out of the original UM or LM vertex.
         veh_edges = new int[][]
         { {0, 13}, {0, 14}, {0, 15}, 
           {1, 4}, {1, 5}, {1, 12}, 
@@ -350,7 +352,6 @@ class SingleRigidBodyView extends JPanel { // Main body class of how we view the
         g2d.drawLine( point0[0], point0[1], point1[0], point1[1]);
       }
 
-      // ============================
       // Draw Center of Gravity Point
       int CG_screen[] = {0, 0};
       int CG_symbol_size = 15;
@@ -361,7 +362,6 @@ class SingleRigidBodyView extends JPanel { // Main body class of how we view the
       g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size,   0, 90 );
       g2d.fillArc( CG_screen[0]-CG_symbol_size/2, CG_screen[1]-CG_symbol_size/2, CG_symbol_size, CG_symbol_size, 180, 90);
 
-      // ==========================
       // Draw World Coordinate Axes
       double origin_world[] = {0.0, 0.0, 0.0};
       double x_axis_world[] = {9.0, 0.0, 0.0};
