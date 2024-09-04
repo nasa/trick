@@ -44,6 +44,7 @@ import static org.assertj.swing.launcher.ApplicationLauncher.application;
 public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     private FrameFixture mainFrame;
     private JPanelFixture findPanel;
+    private JTextComponentFixture editorFixture;
     private StubbedSimControlApplication app = null;
 
     @BeforeClass
@@ -55,11 +56,22 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     protected void onSetUp() {       
         application(StubbedSimControlApplication.class).start();
         app = StubbedSimControlApplication.getInstance();
+
         mainFrame = getFrameByTitle("Sim Control");
+
         findPanel = mainFrame.panel(
             new GenericTypeMatcher<JXFindBar>(JXFindBar.class) {
                 @Override
                 protected boolean isMatching(JXFindBar pane) {
+                    return true;
+                }
+            }
+        );
+
+        editorFixture = mainFrame.textBox(
+            new GenericTypeMatcher<JXEditorPane>(JXEditorPane.class) {
+                @Override
+                protected boolean isMatching(JXEditorPane pane) {
                     return true;
                 }
             }
@@ -148,15 +160,6 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     @Test
     public void testStatusMsgPane() {
         // ARRANGE
-        JTextComponentFixture editorFixture = mainFrame.textBox(
-            new GenericTypeMatcher<JXEditorPane>(JXEditorPane.class) {
-                @Override
-                protected boolean isMatching(JXEditorPane pane) {
-                    return true;
-                }
-            }
-        );
-
         final String msg = "How much wood can a woodchuck chuck if a woodchuck could chuck wood?";
 
         assumeThat(editorFixture).isNotNull();
@@ -172,7 +175,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     @Test
     public void testFindPanelButtons() {
         // ARRANGE
-        String message = "I must not fear.\n" + //
+        final String message  = "I must not fear.\n" + //
                          "Fear is the mind-killer.\n" + //
                          "Fear is the little-death that brings total obliteration.\n" + //
                          "I will face my fear.\n" + //
@@ -188,13 +191,14 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
                                         
         String[] queryResults = new String[10];
 
-        JTextComponentFixture editorFixture = setStatusMessage(message);
         JXEditorPane editorPane = (JXEditorPane) editorFixture.target();
         JButtonFixture findNextButton = getButtonByText(findPanel, "Find Next"),
                        findPrevButton = getButtonByText(findPanel, "Find Previous");
                        
         assumeThat(findNextButton).isNotNull();
         assumeThat(findPrevButton).isNotNull();
+        
+        setStatusMessage(message);
                               
         // ACT
         setFindText("Hello");
