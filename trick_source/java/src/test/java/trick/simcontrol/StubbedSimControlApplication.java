@@ -72,6 +72,7 @@ public class StubbedSimControlApplication extends SimControlApplication {
 	@Override
     public void showStatusFont() {
         ActionRecord.push(ActionID.SET_FONT);
+        super.showStatusFont();
     }
     
     @Override

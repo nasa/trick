@@ -292,7 +292,7 @@ public class FontChooser extends JDialog implements ActionListener, ListSelectio
 		selectionPanel.add(sizePanel);
 		selectionPanel.add(stylePanel);
 
-		selectionPanel.setMinimumSize(selectionPanel.getPreferredSize());
+		// selectionPanel.setMinimumSize(selectionPanel.getPreferredSize());
 
 		return selectionPanel;
 	}
@@ -308,12 +308,15 @@ public class FontChooser extends JDialog implements ActionListener, ListSelectio
 		JPanel stylePanel = new JPanel();
 		stylePanel.setLayout(new BoxLayout(stylePanel, BoxLayout.Y_AXIS));
 
-		JLabel styleLabel = new JLabel("Style");
+		String name = "Style";
+		JLabel styleLabel = new JLabel(name);
 
 		boldBox = new JCheckBox(BOLD_OPTION);
+		boldBox.setName("BoldCheck");
 		boldBox.addActionListener(this);
 
 		italicBox = new JCheckBox(ITALIC_OPTION);
+		italicBox.setName("ItalicCheck");
 		italicBox.addActionListener(this);
 
 		stylePanel.add(styleLabel);
@@ -322,6 +325,7 @@ public class FontChooser extends JDialog implements ActionListener, ListSelectio
 		stylePanel.add(italicBox);
 		stylePanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 		stylePanel.setPreferredSize(new Dimension(stylePanel.getPreferredSize().width, height));
+		stylePanel.setName(name);
 
 		return stylePanel;
 	}
@@ -333,7 +337,9 @@ public class FontChooser extends JDialog implements ActionListener, ListSelectio
 	 */
 	private JPanel buildSamplePanel() {
 		JPanel samplePanel = new JPanel(new BorderLayout());
-		samplePanel.setBorder(new TitledBorder(new EtchedBorder(), "Preview"));
+		String title = "Preview";
+		samplePanel.setName(title);
+		samplePanel.setBorder(new TitledBorder(new EtchedBorder(), title));
 		
 		sampleLabel = new JLabel("", JLabel.CENTER);
 		sampleLabel.setBackground(Color.white);
@@ -361,6 +367,7 @@ public class FontChooser extends JDialog implements ActionListener, ListSelectio
 
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
 		buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		buttonPanel.setName("Buttons");
 
 		buttonPanel.add(Box.createHorizontalStrut(30));
 		buttonPanel.add(okButton);

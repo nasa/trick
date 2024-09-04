@@ -1,9 +1,13 @@
 package trick.simcontrol;
 
+import trick.common.fixtures.FontChooserFixture;
+import trick.common.ui.components.FontChooser;
 import trick.simcontrol.SimControlApplication;
 import trick.simcontrol.StubbedSimControlApplication;
 
+import java.awt.Font;
 import java.awt.Frame;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -14,6 +18,8 @@ import java.beans.Transient;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.text.JTextComponent;
@@ -21,8 +27,11 @@ import javax.swing.text.JTextComponent;
 import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.core.KeyPressInfo;
 import org.assertj.swing.exception.ComponentLookupException;
+import org.assertj.swing.fixture.AbstractComponentFixture;
 import org.assertj.swing.fixture.ComponentContainerFixture;
+import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.JButtonFixture;
+import org.assertj.swing.fixture.JMenuItemFixture;
 import org.assertj.swing.fixture.JPanelFixture;
 import org.assertj.swing.fixture.JTextComponentFixture;
 import org.assertj.swing.fixture.JToggleButtonFixture;
@@ -176,15 +185,15 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     public void testFindPanelButtons() {
         // ARRANGE
         final String message  = "I must not fear.\n" + //
-                         "Fear is the mind-killer.\n" + //
-                         "Fear is the little-death that brings total obliteration.\n" + //
-                         "I will face my fear.\n" + //
-                         "I will permit it to pass over me and through me.\n" + //
-                         "And when it has gone past, I will turn the inner eye to see its path.\n" + //
-                         "Where the fear has gone there will be nothing. Only I will remain";
+                                "Fear is the mind-killer.\n" + //
+                                "Fear is the little-death that brings total obliteration.\n" + //
+                                "I will face my fear.\n" + //
+                                "I will permit it to pass over me and through me.\n" + //
+                                "And when it has gone past, I will turn the inner eye to see its path.\n" + //
+                                "Where the fear has gone there will be nothing. Only I will remain";
         final String outStencil = "%s@%d";
         final String[] expOutputNext = {"null@304", "fear@11",
-                                    "Fear@17" , "Fear@42",
+                                        "Fear@17" , "Fear@42",
                                         "fear@114", "fear@249"},
                        expOutputPrev = {"fear@114", "Fear@42", 
                                         "Fear@17" , "fear@11"};
@@ -194,7 +203,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         JXEditorPane editorPane = (JXEditorPane) editorFixture.target();
         JButtonFixture findNextButton = getButtonByText(findPanel, "Find Next"),
                        findPrevButton = getButtonByText(findPanel, "Find Previous");
-                       
+        
         assumeThat(findNextButton).isNotNull();
         assumeThat(findPrevButton).isNotNull();
         
@@ -233,7 +242,52 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
 
         for(int i = 0; i < 4; i++) 
             assertThat(queryResults[i + 6]).isEqualTo(expOutputPrev[i]);
-        }
+    }
+
+    //--------------------
+    // JMenuBar Tests
+    //--------------------
+
+    @Test
+    public void testFontChange() {
+        // ARRANGE
+        FontChooserFixture fontDialogFixt;
+        JButtonFixture okButton;
+
+        JMenuItemFixture fontMenu = getJMenuItemByName(mainFrame, "showStatusFontMenuItem");
+        
+        final int fontSize = 15;
+        final String fontName = "Droid Sans",
+                     expPreviewText = fontName + ":3:" + fontSize;
+        final Font expFont = new Font(fontName, 3, fontSize);
+
+        String actualPreviewText;
+        Font actualFont, actualPreviewFont;
+        
+        fontMenu.click();
+        fontDialogFixt = getFontChooserFixture();
+        okButton = getButtonByText(fontDialogFixt, "Ok");
+
+        assumeThat(fontDialogFixt).isNotNull();
+
+        // ACT
+        fontDialogFixt.selectFont(fontName);
+        fontDialogFixt.selectSize(fontSize);
+        fontDialogFixt.setBold(true);
+        fontDialogFixt.setItalic(true);
+
+        actualPreviewText = fontDialogFixt.getPreviewText();
+        actualPreviewFont = fontDialogFixt.getPreviewFont();
+
+        okButton.click();
+
+        actualFont = editorFixture.font().target();
+
+        // ASSERT
+        assertThat(actualPreviewText).isEqualTo(expPreviewText);
+        assertThat(actualPreviewFont).isEqualTo(expFont);
+        assertThat(actualFont).isEqualTo(expFont);
+    }
 
     //--------------------
     // Helper Methods
@@ -243,20 +297,9 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
 		try {Thread.sleep(ms);} catch(Exception ignored) {}
 	}
 
-    private JTextComponentFixture setStatusMessage(String text) {
-        JTextComponentFixture editorFixture = mainFrame.textBox(
-            new GenericTypeMatcher<JXEditorPane>(JXEditorPane.class) {
-                @Override
-                protected boolean isMatching(JXEditorPane pane) {
-                    return true;
-                }
-            }
-        );
-
+    private void setStatusMessage(String text) {
         editorFixture.deleteText()
                      .setText(text);
-
-        return editorFixture;
     }
 
     private void setFindText(String text) {
@@ -355,6 +398,19 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         assertThat(logSize).isEqualTo(initialLogSize + 1);
     }
 
+    protected FontChooserFixture getFontChooserFixture() {
+        try {
+            AbstractComponentFixture abst = mainFrame.with(FontChooserFixture.getExtension());
+
+            if (abst instanceof FontChooserFixture)
+                return (FontChooserFixture) abst;
+            else
+                return null;
+        } catch(Exception e) {
+            return null;
+        }
+    }
+
     protected FrameFixture getFrameByTitle(String title) {
         FrameFixture frame = findFrame(new GenericTypeMatcher<Frame>(Frame.class) {
             protected boolean isMatching(Frame frame) {
@@ -363,6 +419,42 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         }).using(robot());
 
         return frame;
+    }
+
+    protected JMenuItemFixture getJMenuByName(ComponentContainerFixture container, String name) {
+        JMenuItemFixture menu;
+
+        try {
+            menu = container.menuItem(new GenericTypeMatcher<JMenu>(JMenu.class) {
+                @Override
+                protected boolean isMatching(JMenu jmenu) {
+                    return name.equals(jmenu.getName());
+                }
+            });
+        } catch (ComponentLookupException e) {
+            return null;
+        }
+
+        return menu;
+
+    }
+
+    protected JMenuItemFixture getJMenuItemByName(ComponentContainerFixture container, String name) {
+        JMenuItemFixture menu;
+
+        try {
+            menu = container.menuItem(new GenericTypeMatcher<JMenuItem>(JMenuItem.class) {
+                @Override
+                protected boolean isMatching(JMenuItem jmenu) {
+                    return name.equals(jmenu.getName());
+                }
+            });
+        } catch (ComponentLookupException e) {
+            return null;
+        }
+
+        return menu;
+
     }
 
     protected JButtonFixture getButtonByText(ComponentContainerFixture container, String text) {
