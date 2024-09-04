@@ -22,7 +22,6 @@ import java.util.*;
 // Swing is a GUI widget toolkit.
 import javax.swing.JFrame; // Allows you to manage a top-level window.
 import javax.swing.JPanel; // The stuff within the window (controls, buttons, etc.).
-//import javax.swing.JViewport.ViewListener;
 import javax.swing.event.MouseInputAdapter;
 
 import trick.matrixOps.MatrixOps;
