@@ -1062,3 +1062,34 @@ void DPHLine::setLabelUnit(const QString &labelUnit)
 {
     _labelUnit = labelUnit;
 }
+
+// 0 is left, 0.5 is center and 1.0 is right
+void DPHLine::setLabelPlacement(double placement)
+{
+    if ( placement < 0 ) {
+        // Clamp placement to 0
+        _labelPlacement = 0;
+    } else if ( placement > 1 ) {
+        // Clamp placement to 1
+        _labelPlacement = 1;
+    } else {
+        _labelPlacement = placement;
+    }
+}
+
+void DPHLine::setLabelOrientation(const QString &orientation)
+{
+    if ( orientation == "left" ) {
+        _labelPlacement = 0;
+    } else if ( orientation == "center" ) {
+        _labelPlacement = 0.5;
+    } else if ( orientation == "right" ) {
+        _labelPlacement = 1.0;
+    } else {
+        // If unrecognized format, issue error and set orient to left
+        fprintf(stderr, "koviz [error]: DPHLine::setLabelOrientation: "
+                "unrecognized orientation=%s. Try left,center,right.\n",
+                orientation.toLatin1().constData());
+        _labelPlacement = 0;
+    }
+}

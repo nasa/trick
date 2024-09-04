@@ -113,19 +113,22 @@ private:
 class DPHLine
 {
 public:
-    DPHLine(double val) : _val(val) {}
+    DPHLine(double val) : _val(val), _labelPlacement(0) {}
 
     double value()  { return _val; }
     QString color() { return _color; }
     QString label() { return _label; }
     QString unit()  { return _unit; }
     QString labelUnit() { return _labelUnit; }
+    double  labelPlacement() { return _labelPlacement; }
 
     void setValue(double val);
     void setColor(const QString& color);
     void setLabel(const QString& label);
     void setUnit(const QString& unit);
     void setLabelUnit(const QString& labelUnit);
+    void setLabelPlacement(double placement);  // left=0 <= placement <= 1=right
+    void setLabelOrientation(const QString& orientation);
 
 private:
     DPHLine() : _val(0) {}
@@ -134,6 +137,7 @@ private:
     QString _label;
     QString _unit;
     QString _labelUnit;
+    double _labelPlacement;
 };
 
 class DPCurve

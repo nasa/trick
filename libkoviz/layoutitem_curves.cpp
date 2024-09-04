@@ -948,6 +948,32 @@ void CurvesLayoutItem::paintHLines(QPainter *painter,
             valStr = valStr.asprintf(valFmt.toLatin1().constData(),origVal);
             label.replace(idxVal,idxValEnd-idxVal+1,valStr);
         }
+
+        double placement = _bookModel->getDataDouble(hlineIdx,
+                                                     "HLineLabelPlacement");
+        QFontMetrics fm = painter->fontMetrics();
+        QRect txtRect = fm.boundingRect(label);
+        if ( placement == 0 ) {
+            // drawPt is on left, and already set, so nothing to do
+        } else if ( placement == 1 ) {
+            QPointF p(M.right(),0);
+            p = T.map(p);
+            drawPt.setX(p.x()-txtRect.width());
+        } else {
+            QPointF p(placement*(M.right()-M.left()),0);
+            p = T.map(p);
+            drawPt.setX(p.x()-txtRect.width()/2);
+            if ( drawPt.x() < 0 ) {
+                // Label would go offscreen on left, clamp to 0
+                drawPt.setX(0);
+            } else if ( (drawPt.x()+txtRect.width()) > R.right() ) {
+                // Label would go offscreen on right, clamp to right
+                QPointF p(M.right(),0);
+                p = T.map(p);
+                drawPt.setX(p.x()-txtRect.width());
+            }
+        }
+
         painter->drawText(drawPt,label);
     }
     painter->setPen(origPen);

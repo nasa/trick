@@ -101,7 +101,7 @@ QString dpFileName() {
 %token DP_MINOR_X_TICS DP_MINOR_Y_TICS
 %token DP_RECT
 %token DP_PRESENTATION
-%token DP_HLINE DP_COLOR DP_LABEL_UNITS
+%token DP_HLINE DP_COLOR DP_LABEL_UNITS DP_LABEL_ORIENT
 
 %token <sval> DP_STR
 %token <dval> DP_FLOAT
@@ -507,6 +507,12 @@ hline: DP_HLINE ':' DP_FLOAT {
         }
         | hline DP_LABEL_UNITS ':' DP_STR {
                 currHLine->setLabelUnit($4);
+        }
+        | hline DP_LABEL_ORIENT ':' DP_STR {
+                currHLine->setLabelOrientation($4);
+        }
+        | hline DP_LABEL_ORIENT ':' DP_FLOAT {
+                currHLine->setLabelPlacement($4);
         }
         ;
 
