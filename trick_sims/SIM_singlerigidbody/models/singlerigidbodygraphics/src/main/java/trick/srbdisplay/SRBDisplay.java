@@ -75,7 +75,7 @@ class SingleRigidBodyView extends JPanel { // Main body class of how we view the
       // Location of the observer, looking toward the world's origin.
       vantageAzimuth   = Math.toRadians(45.0);
       vantageElevation = Math.toRadians(20.0);
-      vantageDistance = 12.0;
+      vantageDistance = 22.0;
 
       // Half field of view angle
       beta = Math.toRadians(40.0);
