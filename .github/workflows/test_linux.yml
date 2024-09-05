@@ -113,11 +113,11 @@ jobs:
               tar xzvf release-1.8.0.tar.gz
               cd /tmp/googletest-release-1.8.0/googletest
               cmake .
-              make
+              make -j`nproc`
               make install
               cd /tmp/googletest-release-1.8.0/googlemock
               cmake .
-              make
+              make -j`nproc`
               make install
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }

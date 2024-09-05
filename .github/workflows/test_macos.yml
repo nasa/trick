@@ -34,7 +34,7 @@ jobs:
       run: |
         export MAKEFLAGS=-j4
         ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-15.0.7-x86_64-apple-darwin21.0
-        make
+        make -j $(nproc)
     - name: Test
       run: |
         cd share/trick/trickops/
