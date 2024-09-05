@@ -208,7 +208,7 @@ When you build your Trick sim, the following data-product files are created for 
 * ```DP_rt_trickjobs.xml```
 * ```DP_rt_userjobs.xml```
 
-#### [koviz](https://github.com/nasa/koviz)
+#### [koviz](https://github.com/nasa/trick/koviz)
 **koviz** Is an open-source project for plotting Trick data-recording files. It's particularly good for Monte Carlo data plotting. It also has a nifty feature for processing frame-log files. Not only can it plot them, but ```% koviz -rt RUN_directory``` will generate a report that will list the top 10 spikes in your frame log.
 
 **TIP:**`` ```trick_real_time.rt_sync.rt_monitor``` (the Trick realtime monitor) should show the max job time. If not, you might have problems to solve.
