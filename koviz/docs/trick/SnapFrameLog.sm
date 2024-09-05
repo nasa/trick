@@ -1,0 +1,26 @@
+class SnapFrameLogSimObject : public Trick::SimObject {
+
+    public:
+
+        SnapFrameLog frame_log ;
+
+        SnapFrameLogSimObject() {
+            // Frame log Instrumentation class jobs.  Not scheduled by default
+            {TRK} P0 ("instrumentation") frame_log.frame_clock_start(curr_job) ;
+            {TRK} P65535 ("instrumentation") frame_log.frame_clock_stop(curr_job) ;
+
+            // Allocate all of the frame logging recording groups. Moved to initialization for user-specified jobs list
+            {TRK} ("initialization") frame_log.default_data() ;
+            // Turn on by default
+            {TRK} ("initialization") frame_log.framelog_on() ;
+
+            // restore frame log on restart.
+            {TRK} ("restart") frame_log.clear_data_record_info() ;
+            {TRK} P65535 ("restart") frame_log.restart() ;
+
+            // the frame_log and rt_sync shutdown jobs should be last in sim
+            {TRK} P65535 ("shutdown") frame_log.shutdown() ;
+        }
+};
+
+SnapFrameLogSimObject snap ;

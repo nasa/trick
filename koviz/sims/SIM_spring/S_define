@@ -1,0 +1,72 @@
+//
+// Trick spring sim
+// 
+// Credit: Tim Briscoe (timothy.j.briscoe@nasa.gov)
+// 
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include <math.h>
+##include "trick/integrator_c_intf.h"
+
+class SpringSimObject : public Trick::SimObject {
+
+    public:
+
+        double mass;      // kg 
+        double stiffness; // N/m
+        double damping;   // N*s/m
+        double zeta;      // --
+        double omega;     // rad/s
+        double init_pos;  // m
+        double init_vel;  // m/s
+
+        double pos;       // m
+        double vel;       // m/s
+        double acc;       // m/s2
+        double force;     // N
+
+        SpringSimObject() : 
+            mass(1.0), stiffness(39.47842), zeta(0.1),
+            init_pos(0), init_vel(0.1),
+            pos(0), vel(0), acc(0)
+        {
+            ("initialization") spring_init();
+            ("derivative") spring_deriv();
+            ("integration") trick_ret = spring_integ();
+        }
+
+        int spring_init()
+        {
+            pos = init_pos;
+            vel = init_vel;
+            omega = sqrt(stiffness/mass);
+            damping = 2*zeta*omega*mass;
+            return 0;
+        }
+
+        int spring_deriv()
+        {
+            force = -(stiffness*pos + damping*vel);
+            acc = force/mass ;
+            return 0;
+        }
+
+        int spring_integ()         
+        {
+            int ipass;
+            load_state(&pos,&vel,NULL);
+            load_deriv(&vel,&acc,NULL);
+            ipass = integrate();
+            unload_state(&pos,&vel,NULL);
+            return( ipass );
+        }
+} ;
+
+SpringSimObject spring ;
+
+integrate integ_loop (0.001) spring;
+
+void create_connections() {
+    integ_loop.getIntegrator( Runge_Kutta_4, 2);
+}
