@@ -21,15 +21,15 @@ jobs:
         run: |
           cd share/trick/trickops/
           python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
-      - name: get and build koviz
+      - name: build and smoke-check koviz
         run: |
-          cd /tmp/ && wget -q https://github.com/nasa/koviz/archive/refs/heads/master.zip && unzip master.zip
-          cd /tmp/koviz-master/ &&  qmake && make
+          cd koviz && qmake && make -j3
+          ./bin/koviz -h
       - name: run unit and doc tests
         run: |
           cd share/trick/trickops/tests/
           source ../.venv/bin/activate
-          export PATH="/tmp/koviz-master/bin:${PATH}"
+          export PATH="${GITHUB_WORKSPACE}/koviz/bin:${PATH}"
           ./run_tests.py
       - uses: actions/upload-artifact@v3.0.0
         if: ${{ always() }}
@@ -53,15 +53,15 @@ jobs:
         run: |
           cd share/trick/trickops/
           python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
-      - name: get and build koviz
+      - name: build and smoke-check koviz
         run: |
-          cd /tmp/ && wget -q https://github.com/nasa/koviz/archive/refs/heads/master.zip && unzip master.zip
-          cd /tmp/koviz-master/ &&  qmake-qt5 && make
+          cd koviz && qmake-qt5 && make -j3
+          ./bin/koviz -h
       - name: run unit and doc tests
         run: |
           cd share/trick/trickops/tests/
           source ../.venv/bin/activate
-          export PATH="/tmp/koviz-master/bin:${PATH}"
+          export PATH="${GITHUB_WORKSPACE}/koviz/bin:${PATH}"
           ./run_tests.py
       - uses: actions/upload-artifact@v3.0.0
         if: ${{ always() }}
