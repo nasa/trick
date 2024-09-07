@@ -1334,6 +1334,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                     break;
             }
 
+            // Disable the step button if instrumentation jobs are off.
+            if (debug_present == 0) {
+        		getAction("stepSim").setEnabled(false);
+            }
+
             runtimeStatePanel.setTitle(newStatusDesc);
             currentSimStatusDesc = runtimeStatePanel.getTitle();
         }
