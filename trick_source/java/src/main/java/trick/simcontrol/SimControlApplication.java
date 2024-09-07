@@ -1319,7 +1319,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                     disableAllCommands();
                     setActionsEnabled("freezeSim,lite", true);
                     if (debug_flag != 0) {
-                        setActionsEnabled("stepSim,dumpChkpntASCII", true);
+                        getAction("stepSim").setEnabled(true);
                     }
                     logoImagePanel.resume();
                     break;
