@@ -43,15 +43,17 @@ int Trick::MemoryManager::delete_var(void* address ) {
                 // Otherwise it does nothing.
                 io_src_destruct_class( alloc_info );
 
-		// The destructor that we just called MAY have deleted addresses
-		// that are already planned for deletion, say during reset_memory.
-		// So, keep a record of what we've recently deleted so we don't
-		// to warn that we can't find it, when reset_memory also tries to
-		// delete that same address.
-		deleted_addr_list.push_back(address);
+                // The destructor that we just called MAY have deleted addresses
+                // that are already planned for deletion, say during reset_memory.
+                // So, keep a record of what we've recently deleted so we don't
+                // to warn that we can't find it, when reset_memory also tries to
+                // delete that same address. Same for TRICK_ALLOC_NEW block
+                deleted_addr_list.push_back(address);
 
                 free( address);
             } else if ( alloc_info->alloc_type == TRICK_ALLOC_NEW ) {
+                deleted_addr_list.push_back(address);
+
                 io_src_delete_class( alloc_info );
             }
         }
