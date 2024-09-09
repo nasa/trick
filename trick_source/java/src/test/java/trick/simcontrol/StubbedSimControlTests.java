@@ -38,6 +38,7 @@ import org.assertj.swing.fixture.JOptionPaneFixture;
 import org.assertj.swing.fixture.JPanelFixture;
 import org.assertj.swing.fixture.JTextComponentFixture;
 import org.assertj.swing.fixture.JToggleButtonFixture;
+import org.assertj.swing.fixture.JToolBarFixture;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.MouseInputSimulationFixture;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
@@ -57,6 +58,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     private FrameFixture mainFrame;
     private JPanelFixture findPanel;
     private JTextComponentFixture editorFixture;
+    private JToolBarFixture toolBarFixture;
     private StubbedSimControlApplication app = null;
 
     @BeforeClass
@@ -88,6 +90,8 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
                 }
             }
         );
+
+        toolBarFixture = mainFrame.toolBar();
 
         sleep(500);
         updateState();
@@ -455,6 +459,34 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
 
         // ASSERT
         assertThat(loggedAction).isEqualTo(THROTTLE_ACTION);
+    }
+
+    //--------------------
+    // Toolbar Tests
+    //--------------------
+
+    @Test
+    public void testStartTrickViewButton() {
+        final JButtonFixture TV_BUTTON = toolBarFixture.button("startTVButton");
+        final ActionID TV_ACTION = ActionID.TV;
+
+        testConnectedAction(TV_BUTTON, TV_ACTION);
+    }
+
+    @Test
+    public void testStartMalfunctionTrickViewButton() {
+        final JButtonFixture MTV_BUTTON = toolBarFixture.button("startMTVButton");
+        final ActionID MTV_ACTION = ActionID.MTV;
+
+        testConnectedAction(MTV_BUTTON, MTV_ACTION);
+    }
+
+    @Test
+    public void testThrottleButton() {
+        final JButtonFixture THROTTLE_BUTTON = toolBarFixture.button("throttleButton");
+        final ActionID THROTTLE_ACTION = ActionID.THROTTLE;
+
+        testConnectedAction(THROTTLE_BUTTON, THROTTLE_ACTION);
     }
 
     //--------------------
