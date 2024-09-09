@@ -248,7 +248,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     }
 
     //--------------------
-    // JMenuBar Tests
+    // File Menu Tests
     //--------------------
 
     @Test
@@ -354,6 +354,107 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         // ASSERT
         assertThat(lafClass).isEqualTo(LAF_CLASS);
 
+    }
+
+    //--------------------
+    // Action Menu Tests
+    //--------------------
+
+    @Test
+    public void testStartTrickViewMenuItem() {
+        // ARRANGE
+        final JMenuItemFixture TV_ITEM = getJMenuItemByName(mainFrame, "startTVMenuItem");
+        final ActionID TV_ACTION = ActionID.TV;
+
+        ActionID loggedAction;
+
+        // ACT
+        TV_ITEM.click();
+        loggedAction = StubbedSimControlApplication.ActionRecord.peek();
+
+        // ASSERT
+        assertThat(loggedAction).isEqualTo(TV_ACTION);
+    }
+
+    @Test
+    public void testStartMalfunctionTrickViewMenuItem() {
+        // ARRANGE
+        final JMenuItemFixture MTV_ITEM = getJMenuItemByName(mainFrame, "startMTVMenuItem");
+        final ActionID MTV_ACTION = ActionID.MTV;
+
+        ActionID loggedAction;
+
+        // ACT
+        MTV_ITEM.click();
+        loggedAction = StubbedSimControlApplication.ActionRecord.peek();
+
+        // ASSERT
+        assertThat(loggedAction).isEqualTo(MTV_ACTION);
+    }
+
+    @Test
+    public void testFreezeAtMenuItem() {
+        // ARRANGE
+        final JMenuItemFixture FREEZE_AT_ITEM = getJMenuItemByName(mainFrame, "freezeAtMenuItem");
+        final ActionID FREEZE_AT_ACTION = ActionID.FREEZE_AT;
+
+        ActionID loggedAction;
+
+        // ACT
+        FREEZE_AT_ITEM.click();
+        loggedAction = StubbedSimControlApplication.ActionRecord.peek();
+
+        // ASSERT
+        assertThat(loggedAction).isEqualTo(FREEZE_AT_ACTION);
+    }
+
+    @Test
+    public void testFreezeInMenuItem() {
+        // ARRANGE
+        final JMenuItemFixture FREEZE_IN_ITEM = getJMenuItemByName(mainFrame, "freezeInMenuItem");
+        final ActionID FREEZE_IN_ACTION = ActionID.FREEZE_IN;
+
+        ActionID loggedAction;
+
+        // ACT
+        FREEZE_IN_ITEM.click();
+        loggedAction = StubbedSimControlApplication.ActionRecord.peek();
+
+        // ASSERT
+        assertThat(loggedAction).isEqualTo(FREEZE_IN_ACTION);
+
+    }
+
+    @Test
+    public void testCheckpointMenuItem() {
+        // ARRANGE
+        final JMenuItemFixture CHKPNT_OBJ_ITEM = getJMenuItemByName(mainFrame, "checkpointObjectsMenuItem");
+        final ActionID CHKPNT_OBJ_ACTION = ActionID.PART_CHKPNT;
+
+        ActionID loggedAction;
+
+        // ACT
+        CHKPNT_OBJ_ITEM.click();
+        loggedAction = StubbedSimControlApplication.ActionRecord.peek();
+
+        // ASSERT
+        assertThat(loggedAction).isEqualTo(CHKPNT_OBJ_ACTION);
+    }
+
+    @Test
+    public void testThrottleMenuItem() {
+        // ARRANGE
+        final JMenuItemFixture THROTTLE_ITEM = getJMenuItemByName(mainFrame, "throttleMenuItem");
+        final ActionID THROTTLE_ACTION = ActionID.THROTTLE;
+
+        ActionID loggedAction;
+
+        // ACT
+        THROTTLE_ITEM.click();
+        loggedAction = StubbedSimControlApplication.ActionRecord.peek();
+
+        // ASSERT
+        assertThat(loggedAction).isEqualTo(THROTTLE_ACTION);
     }
 
     //--------------------
