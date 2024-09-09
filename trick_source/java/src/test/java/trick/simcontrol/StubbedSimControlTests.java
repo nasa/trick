@@ -23,6 +23,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.text.JTextComponent;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.core.KeyPressInfo;
@@ -32,6 +34,7 @@ import org.assertj.swing.fixture.ComponentContainerFixture;
 import org.assertj.swing.fixture.DialogFixture;
 import org.assertj.swing.fixture.JButtonFixture;
 import org.assertj.swing.fixture.JMenuItemFixture;
+import org.assertj.swing.fixture.JOptionPaneFixture;
 import org.assertj.swing.fixture.JPanelFixture;
 import org.assertj.swing.fixture.JTextComponentFixture;
 import org.assertj.swing.fixture.JToggleButtonFixture;
@@ -322,6 +325,35 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         // ASSERT
         assertThat(action).isEqualTo(ActionID.CLEAR_STATUS);
         assertThat(editorFixture.text()).isEqualTo("");
+    }
+
+    @Test
+    /*  Not sure if I should test each of the LookAndFeel buttons  */
+    public void testLookAndFeel() {
+        // ARRANGE
+        JMenuItemFixture lafItem = getJMenuItemByName(mainFrame, "lookAndFeelMenuItem");
+        UIManager.LookAndFeelInfo looks[] = UIManager.getInstalledLookAndFeels();
+        
+        assumeThat(looks.length > 0).withFailMessage("No LookAndFeel is installed...\n").isTrue();
+
+        final UIManager.LookAndFeelInfo LAFI = looks[0];
+        final String LAF_NAME  = LAFI.getName().equals("GTK+") ? "GTK" : LAFI.getName(),
+                     LAF_CLASS = LAFI.getClassName();
+
+        String lafClass;
+
+        JOptionPaneFixture optFixt;
+
+        // ACT
+        lafItem.click();
+        optFixt = mainFrame.optionPane();
+        optFixt.buttonWithText(LAF_NAME).click();
+
+        lafClass = UIManager.getLookAndFeel().getClass().getCanonicalName();
+        
+        // ASSERT
+        assertThat(lafClass).isEqualTo(LAF_CLASS);
+
     }
 
     //--------------------
