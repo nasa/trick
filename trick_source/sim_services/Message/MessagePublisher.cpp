@@ -32,7 +32,7 @@ Trick::MessagePublisher::~MessagePublisher() {
 
 void Trick::MessagePublisher::set_print_format() {
     num_digits = (int)round(log10((double)tics_per_sec)) ;
-    snprintf(print_format, sizeof(print_format), "|L %%3d|%%s.%%lf|%%s|%%s|T %%d|%%lld.%%0%dlld| ", num_digits) ;
+    snprintf(print_format, sizeof(print_format), "|L %%3d|%%s.%%06Lu|%%s|%%s|T %%d|%%lld.%%0%dlld| ", num_digits) ;
 }
 
 int Trick::MessagePublisher::init() {
@@ -50,9 +50,10 @@ int Trick::MessagePublisher::publish(int level , std::string message) {
     char header_buf[MAX_MSG_HEADER_SIZE];
     char hostname[64];
     time_t date ;
+    // timeval contains both tv_sec and tv_usec
+    // tv_sec represents seconds since the epoch and is used for time stamp without sub-second.
+    // tv_usec are microseconds past the last second and is used for printing out sub-second.
     struct timeval time_val;
-    // microseconds (converted to seconds) past the last second 
-    double sub_second ;
     std::string header ;
     long long tics = exec_get_time_tics() ;
 
@@ -62,13 +63,9 @@ int Trick::MessagePublisher::publish(int level , std::string message) {
     // tv_sec represents seconds since the epoch
     date = time_val.tv_sec;
     
-    // tv_usec are microseconds past the last second
-    // Convert microseconds to seconds
-    sub_second = (double)time_val.tv_usec / 1000000;
-
     strftime(date_buf, (size_t) 20, "%Y/%m/%d,%H:%M:%S", localtime(&date));
     (void) gethostname(hostname, (size_t) 48);
-    snprintf(header_buf, sizeof(header_buf), print_format , level, date_buf, sub_second, hostname,
+    snprintf(header_buf, sizeof(header_buf), print_format , level, date_buf, time_val.tv_usec, hostname,
             sim_name.c_str(), exec_get_process_id(), tics/tics_per_sec ,
             (long long)((double)(tics % tics_per_sec) * (double)(pow(10 , num_digits)/tics_per_sec)) ) ;
     header = header_buf ;
