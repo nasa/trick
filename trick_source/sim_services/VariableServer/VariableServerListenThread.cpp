@@ -122,6 +122,8 @@ int Trick::VariableServerListenThread::check_and_move_listen_device() {
         if (ret != 0) {
             message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
                 _requested_source_address.c_str(), _requested_port);
+            
+            ret = -1;
         }
 
         _requested_port = _listener->getPort();
