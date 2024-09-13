@@ -1,100 +1,117 @@
 package trick.common;
 
+import trick.common.fixtures.FontChooserFixture;
+import trick.common.ui.components.FontChooser;
+import trick.simcontrol.SimControlApplication;
+import trick.simcontrol.StubbedSimControlApplication;
+
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Component;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.Dimension;
+import java.awt.event.KeyEvent;
+import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
+import java.beans.Transient;
 import java.util.ArrayList;
 
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import org.jdesktop.application.ResourceMap;
+import javax.swing.JButton;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JTextField;
+import javax.swing.JToggleButton;
+import javax.swing.text.JTextComponent;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
-import trick.common.ActionInfo;
+import org.assertj.swing.core.GenericTypeMatcher;
+import org.assertj.swing.core.KeyPressInfo;
+import org.assertj.swing.exception.ComponentLookupException;
+import org.assertj.swing.fixture.AbstractComponentFixture;
+import org.assertj.swing.fixture.ComponentContainerFixture;
+import org.assertj.swing.fixture.DialogFixture;
+import org.assertj.swing.fixture.JButtonFixture;
+import org.assertj.swing.fixture.JMenuItemFixture;
+import org.assertj.swing.fixture.JOptionPaneFixture;
+import org.assertj.swing.fixture.JPanelFixture;
+import org.assertj.swing.fixture.JTextComponentFixture;
+import org.assertj.swing.fixture.JToggleButtonFixture;
+import org.assertj.swing.fixture.JToolBarFixture;
+import org.assertj.swing.fixture.FrameFixture;
+import org.assertj.swing.fixture.MouseInputSimulationFixture;
+import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 
-public abstract class ApplicationTest {
-	protected ArrayList<ActionInfo> coreActionInfo, supportActionInfo, miscActionInfo;
-	protected ActionMap actionContext;
-	protected ResourceMap resourceContext;
-    
-    public static String getTrickHome() {
-        String path;
-        
-        // Getting TRICK_HOME environment variable
-        path = System.getenv("TRICK_HOME");
-        
-        // Getting Trick's home directory if TRICK_HOME isn't set
-        if(path != null) {
-            if(path.endsWith("/"))
-                path.substring(0, path.length() - 1);
-        } else {
-            path = System.getProperty("user.dir");
-            int cutoff = path.indexOf("/trick_source");
-            path = (cutoff > 0) ? path.substring(0, cutoff) : "";
-        }
+import org.jdesktop.swingx.JXFindBar;
+import org.jdesktop.swingx.JXEditorPane;
 
-        return path;
-    }
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-	public boolean compStringArray(String[] a, String[] b) {
-		boolean same = true;
-		for(int i = 0; i < a.length && i < b.length; i++) {
-			same = same && sameLetters(a[i], b[i]);
-			if(!same) return same;
-		}
-		return same;
-	}
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assumptions.assumeThat;
+import static org.assertj.swing.finder.WindowFinder.findFrame;
+import static org.assertj.swing.launcher.ApplicationLauncher.application;
 
-	public boolean sameLetters(String str1, String str2) {
-		String a = str1.replaceAll("\\s+", "").toLowerCase(),
-			   b = str2.replaceAll("\\s+", "").toLowerCase();
-		return a.equals(b);
-	}
+public abstract class ApplicationTest extends AssertJSwingJUnitTestCase {
+    protected FrameFixture mainFrame;
 
 	public static void sleep(long ms) {
 		try {Thread.sleep(ms);} catch(Exception ignored) {}
 	}
 
-    private String getActionText(Action action) {
-        return (String)action.getValue(Action.NAME);
+    protected FrameFixture getFrameByTitle(String title) {
+        FrameFixture frame = findFrame(new GenericTypeMatcher<Frame>(Frame.class) {
+            protected boolean isMatching(Frame frame) {
+                return title.equals(frame.getTitle()) && frame.isShowing();
+            }
+        }).using(robot());
+
+        return frame;
     }
 
-    private String getActionShortDescription(Action action) {
-        return (String)action.getValue(Action.SHORT_DESCRIPTION);
+    protected JButtonFixture getButtonByText(ComponentContainerFixture container, String text) {
+        JButtonFixture button;
+
+        try {
+            button = container.button(new GenericTypeMatcher<JButton>(JButton.class) {
+                @Override
+                protected boolean isMatching(JButton button) {
+                    return text.equals(button.getText());
+                }
+            });
+        } catch (ComponentLookupException e) {
+            return null;
+        }
+
+        return button;
+    }
+	
+    protected JButtonFixture getButtonByText(String text) {
+        return getButtonByText(mainFrame, text);
     }
 
-	private Action getActionFromKey(String actionKey) {
-		String errMsg = String.format("No ActionMap set. Action '%s' cannot be searched for.\n", actionKey);
-		// assumeNotNull(errMsg, actionContext);
-		return actionContext.get(actionKey);
-	}
+    protected JToggleButtonFixture getToggleButtonByText(ComponentContainerFixture container, String text) {
+        JToggleButtonFixture button;
 
-	protected void setupExpectedActionInfo() {
-		coreActionInfo = new ArrayList<ActionInfo>();
-		supportActionInfo = new ArrayList<ActionInfo>();
-		miscActionInfo = new ArrayList<ActionInfo>();
+        try {
+            button = container.toggleButton(new GenericTypeMatcher<JToggleButton>(JToggleButton.class) {
+                @Override
+                protected boolean isMatching(JToggleButton button) {
+                    return text.equals(button.getText());
+                }
+            });
+        } catch (ComponentLookupException e) {
+            return null;
+        }
 
-		getCoreActionInfo();
-		getSupportActionInfo();
-		getMiscActionInfo();
-	}
+        return button;
+    }
 
-	// protected void verifyActionInfo(ActionInfo aInfo) {
-	// 	Action action = getActionFromKey(aInfo.name);
-	// 	assumeNotNull(String.format("ActionMap.get(\"%s\") = null", aInfo.name), action);
+    protected JToggleButtonFixture getToggleButtonByText(String text) {
+        return getToggleButtonByText(mainFrame, text);
+    }
 
-	// 	String actualText = getActionText(action);
-	// 	String actualDesc = getActionShortDescription(action);
-
-	// 	assertEquals(aInfo.text, actualText);
-	// 	assertEquals(aInfo.description, actualDesc);
-	// }
-
-	// protected void verifyResourceInfo(String key, String expectedStr) {
-	// 	String resourceText, errMsg = String.format("No ResourceMap set. Resource '%s' cannot be searched for.\n", key);
-	// 	assumeNotNull(errMsg, resourceContext);
-
-	// 	resourceText = resourceContext.getString(key);
-	// 	assertEquals(expectedStr, resourceText);
-	// }
-
-	protected abstract void getCoreActionInfo();
-	protected abstract void getSupportActionInfo();
-	protected abstract void getMiscActionInfo();
 }

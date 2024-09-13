@@ -1,5 +1,6 @@
 package trick.simcontrol;
 
+import trick.common.ApplicationTest;
 import trick.common.fixtures.FontChooserFixture;
 import trick.common.ui.components.FontChooser;
 import trick.simcontrol.SimControlApplication;
@@ -8,12 +9,13 @@ import trick.simcontrol.StubbedSimControlApplication;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.Dimension;
 import java.awt.event.KeyEvent;
+import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
 import java.beans.Transient;
 import java.util.ArrayList;
 
@@ -54,8 +56,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.swing.finder.WindowFinder.findFrame;
 import static org.assertj.swing.launcher.ApplicationLauncher.application;
 
-public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
-    private FrameFixture mainFrame;
+public class SimControlApplicationTests extends ApplicationTest {
     private JPanelFixture findPanel;
     private JTextComponentFixture editorFixture;
     private JToolBarFixture toolBarFixture;
@@ -94,7 +95,6 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         toolBarFixture = mainFrame.toolBar();
 
         sleep(500);
-        updateState();
     }
 
     //--------------------
@@ -261,10 +261,13 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         FontChooserFixture fontDialogFixt;
         JButtonFixture okButton;
 
-        JMenuItemFixture fontMenu = getJMenuItemByName(mainFrame, "showStatusFontMenuItem");
+        JMenuItemFixture fontMenu = mainFrame.menuItem("showStatusFontMenuItem");
+        final String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+
+        assumeThat(fonts.length > 0).withFailMessage("No Available Fonts Installed...\n").isTrue();
         
         final int fontSize = 15;
-        final String fontName = "Droid Sans",
+        final String fontName = fonts[(int)(fonts.length / 2)],
                      expPreviewText = fontName + ":3:" + fontSize;
         final Font expFont = new Font(fontName, 3, fontSize);
 
@@ -300,7 +303,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     public void testSaveStatusMessage() {
         // ARRANGE
         ActionID action;
-        JMenuItemFixture saveMsg = getJMenuItemByName(mainFrame, "saveStatusMsgsMenuItem");
+        JMenuItemFixture saveMsg = mainFrame.menuItem("saveStatusMsgsMenuItem");
 
         assumeThat(saveMsg).isNotNull();
 
@@ -316,7 +319,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     public void testClearStatusMessage() {
         // ARRANGE
         ActionID action;
-        JMenuItemFixture clearMsg = getJMenuItemByName(mainFrame, "clearStatusMsgsMenuItem");
+        JMenuItemFixture clearMsg = mainFrame.menuItem("clearStatusMsgsMenuItem");
 
         editorFixture.enterText("MOOSE MOOSE MOOSE");
 
@@ -335,7 +338,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     /*  Not sure if I should test each of the LookAndFeel buttons  */
     public void testLookAndFeel() {
         // ARRANGE
-        JMenuItemFixture lafItem = getJMenuItemByName(mainFrame, "lookAndFeelMenuItem");
+        JMenuItemFixture lafItem = mainFrame.menuItem("lookAndFeelMenuItem");
         UIManager.LookAndFeelInfo looks[] = UIManager.getInstalledLookAndFeels();
         
         assumeThat(looks.length > 0).withFailMessage("No LookAndFeel is installed...\n").isTrue();
@@ -367,7 +370,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     @Test
     public void testStartTrickViewMenuItem() {
         // ARRANGE
-        final JMenuItemFixture TV_ITEM = getJMenuItemByName(mainFrame, "startTVMenuItem");
+        final JMenuItemFixture TV_ITEM = mainFrame.menuItem("startTVMenuItem");
         final ActionID TV_ACTION = ActionID.TV;
 
         ActionID loggedAction;
@@ -383,7 +386,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     @Test
     public void testStartMalfunctionTrickViewMenuItem() {
         // ARRANGE
-        final JMenuItemFixture MTV_ITEM = getJMenuItemByName(mainFrame, "startMTVMenuItem");
+        final JMenuItemFixture MTV_ITEM = mainFrame.menuItem("startMTVMenuItem");
         final ActionID MTV_ACTION = ActionID.MTV;
 
         ActionID loggedAction;
@@ -399,7 +402,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     @Test
     public void testFreezeAtMenuItem() {
         // ARRANGE
-        final JMenuItemFixture FREEZE_AT_ITEM = getJMenuItemByName(mainFrame, "freezeAtMenuItem");
+        final JMenuItemFixture FREEZE_AT_ITEM = mainFrame.menuItem("freezeAtMenuItem");
         final ActionID FREEZE_AT_ACTION = ActionID.FREEZE_AT;
 
         ActionID loggedAction;
@@ -415,7 +418,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     @Test
     public void testFreezeInMenuItem() {
         // ARRANGE
-        final JMenuItemFixture FREEZE_IN_ITEM = getJMenuItemByName(mainFrame, "freezeInMenuItem");
+        final JMenuItemFixture FREEZE_IN_ITEM = mainFrame.menuItem("freezeInMenuItem");
         final ActionID FREEZE_IN_ACTION = ActionID.FREEZE_IN;
 
         ActionID loggedAction;
@@ -432,7 +435,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     @Test
     public void testCheckpointMenuItem() {
         // ARRANGE
-        final JMenuItemFixture CHKPNT_OBJ_ITEM = getJMenuItemByName(mainFrame, "checkpointObjectsMenuItem");
+        final JMenuItemFixture CHKPNT_OBJ_ITEM = mainFrame.menuItem("checkpointObjectsMenuItem");
         final ActionID CHKPNT_OBJ_ACTION = ActionID.PART_CHKPNT;
 
         ActionID loggedAction;
@@ -448,7 +451,7 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     @Test
     public void testThrottleMenuItem() {
         // ARRANGE
-        final JMenuItemFixture THROTTLE_ITEM = getJMenuItemByName(mainFrame, "throttleMenuItem");
+        final JMenuItemFixture THROTTLE_ITEM = mainFrame.menuItem("throttleMenuItem");
         final ActionID THROTTLE_ACTION = ActionID.THROTTLE;
 
         ActionID loggedAction;
@@ -493,10 +496,6 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
     // Helper Methods
     //--------------------
 
-	public static void sleep(long ms) {
-		try {Thread.sleep(ms);} catch(Exception ignored) {}
-	}
-
     private void setStatusMessage(String text) {
         editorFixture.deleteText()
                      .setText(text);
@@ -515,8 +514,23 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         try {
             findTextField.deleteText()
                          .setText(text);
-        } catch(Exception ignored) {}
+        } catch(Exception skipTest) {
+            assumeThat(false).withFailMessage("Error with JXFindBar Implementation\n").isTrue();
+        }
         
+    }
+
+    protected FontChooserFixture getFontChooserFixture() {
+        try {
+            AbstractComponentFixture abst = mainFrame.with(FontChooserFixture.getExtension());
+
+            if (abst instanceof FontChooserFixture)
+                return (FontChooserFixture) abst;
+            else
+                return null;
+        } catch(Exception e) {
+            return null;
+        }
     }
 
     private void testJButton(String text, ActionID action) {
@@ -525,57 +539,6 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
                           .isNotNull();
 
         testConnectedAction(button, action);
-    }
-
-    private void updateState() {
-        JToggleButtonFixture liteFixture, recordFixture, realFixture;
-        
-        liteFixture = getToggleButtonByText("Lite");
-        if (liteFixture == null)
-            liteFixture = getToggleButtonByText("Full");
-        
-    }
-
-    private void testButtonToggleOnce(String text, ActionID action) { testButtonToggleOnce(text, text, action); }
-
-    private void testButtonToggleOnce(String initText, String toggleText, ActionID initAction) {
-        // ARRANGE
-        JToggleButtonFixture button = getToggleButtonByText(initText);
-        String newButtonText;
-        assumeThat(button).withFailMessage("Toggle Button with text\"%s\" not found\n", initText)
-                          .isNotNull();
-
-        // ACT
-        testConnectedAction(button, initAction); // Toggle
-        newButtonText = button.target().getText();
-
-        // ASSERT
-        assertThat(newButtonText).isEqualTo(toggleText);
-    }
-
-    private void testButtonToggleTwice(String text, ActionID action) { testButtonToggleTwice(text, action, text, action); }
-
-    private void testButtonToggleTwice(String initText, String toggleText, ActionID action) { 
-        testButtonToggleTwice(initText, action, toggleText, action); 
-    }
-
-    private void testButtonToggleTwice(String initText, ActionID initAction, String toggleText, ActionID toggleAction) {
-        // ARRANGE
-        JToggleButtonFixture button = getToggleButtonByText(initText);
-        String buttonText, newButtonText;
-        assumeThat(button).withFailMessage("Toggle Button with text\"%s\" not found\n", initText)
-                          .isNotNull();
-
-        // ACT
-        testConnectedAction(button, initAction); // Toggle On
-        newButtonText = button.target().getText();
-
-        testConnectedAction(button, toggleAction); // Toggle Off
-        buttonText = button.target().getText();
-
-        // ASSERT
-        assertThat(newButtonText).isEqualTo(toggleText);
-        assertThat(buttonText).isEqualTo(initText);
     }
 
     private void testConnectedAction(MouseInputSimulationFixture clickable, ActionID expected) {
@@ -598,104 +561,45 @@ public class StubbedSimControlTests extends AssertJSwingJUnitTestCase {
         assertThat(logSize).isEqualTo(initialLogSize + 1);
     }
 
-    protected FontChooserFixture getFontChooserFixture() {
-        try {
-            AbstractComponentFixture abst = mainFrame.with(FontChooserFixture.getExtension());
+    private void testButtonToggleOnce(String initText, String toggleText, ActionID initAction) {
+        // ARRANGE
+        JToggleButtonFixture button = getToggleButtonByText(initText);
+        String newButtonText;
+        assumeThat(button).withFailMessage("Toggle Button with text\"%s\" not found\n", initText)
+                          .isNotNull();
 
-            if (abst instanceof FontChooserFixture)
-                return (FontChooserFixture) abst;
-            else
-                return null;
-        } catch(Exception e) {
-            return null;
-        }
+        // ACT
+        testConnectedAction(button, initAction); // Toggle
+        newButtonText = button.target().getText();
+
+        // ASSERT
+        assertThat(newButtonText).isEqualTo(toggleText);
     }
 
-    protected FrameFixture getFrameByTitle(String title) {
-        FrameFixture frame = findFrame(new GenericTypeMatcher<Frame>(Frame.class) {
-            protected boolean isMatching(Frame frame) {
-                return title.equals(frame.getTitle()) && frame.isShowing();
-            }
-        }).using(robot());
+    private void testButtonToggleOnce(String text, ActionID action) { testButtonToggleOnce(text, text, action); }
 
-        return frame;
+    private void testButtonToggleTwice(String initText, ActionID initAction, String toggleText, ActionID toggleAction) {
+        // ARRANGE
+        JToggleButtonFixture button = getToggleButtonByText(initText);
+        String buttonText, newButtonText;
+        assumeThat(button).withFailMessage("Toggle Button with text\"%s\" not found\n", initText)
+                          .isNotNull();
+
+        // ACT
+        testConnectedAction(button, initAction); // Toggle On
+        newButtonText = button.target().getText();
+
+        testConnectedAction(button, toggleAction); // Toggle Off
+        buttonText = button.target().getText();
+
+        // ASSERT
+        assertThat(newButtonText).isEqualTo(toggleText);
+        assertThat(buttonText).isEqualTo(initText);
     }
 
-    protected JMenuItemFixture getJMenuByName(ComponentContainerFixture container, String name) {
-        JMenuItemFixture menu;
+    private void testButtonToggleTwice(String text, ActionID action) { testButtonToggleTwice(text, action, text, action); }
 
-        try {
-            menu = container.menuItem(new GenericTypeMatcher<JMenu>(JMenu.class) {
-                @Override
-                protected boolean isMatching(JMenu jmenu) {
-                    return name.equals(jmenu.getName());
-                }
-            });
-        } catch (ComponentLookupException e) {
-            return null;
-        }
-
-        return menu;
-
-    }
-
-    protected JMenuItemFixture getJMenuItemByName(ComponentContainerFixture container, String name) {
-        JMenuItemFixture menu;
-
-        try {
-            menu = container.menuItem(new GenericTypeMatcher<JMenuItem>(JMenuItem.class) {
-                @Override
-                protected boolean isMatching(JMenuItem jmenu) {
-                    return name.equals(jmenu.getName());
-                }
-            });
-        } catch (ComponentLookupException e) {
-            return null;
-        }
-
-        return menu;
-
-    }
-
-    protected JButtonFixture getButtonByText(ComponentContainerFixture container, String text) {
-        JButtonFixture button;
-
-        try {
-            button = container.button(new GenericTypeMatcher<JButton>(JButton.class) {
-                @Override
-                protected boolean isMatching(JButton button) {
-                    return text.equals(button.getText());
-                }
-            });
-        } catch (ComponentLookupException e) {
-            return null;
-        }
-
-        return button;
-    }
-
-    protected JToggleButtonFixture getToggleButtonByText(String text) {
-        return getToggleButtonByText(mainFrame, text);
-    }
-
-    protected JToggleButtonFixture getToggleButtonByText(ComponentContainerFixture container, String text) {
-        JToggleButtonFixture button;
-
-        try {
-            button = container.toggleButton(new GenericTypeMatcher<JToggleButton>(JToggleButton.class) {
-                @Override
-                protected boolean isMatching(JToggleButton button) {
-                    return text.equals(button.getText());
-                }
-            });
-        } catch (ComponentLookupException e) {
-            return null;
-        }
-
-        return button;
-    }
-
-    protected JButtonFixture getButtonByText(String text) {
-        return getButtonByText(mainFrame, text);
+    private void testButtonToggleTwice(String initText, String toggleText, ActionID action) { 
+        testButtonToggleTwice(initText, action, toggleText, action); 
     }
 }
