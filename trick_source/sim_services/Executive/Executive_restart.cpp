@@ -26,6 +26,7 @@ int Trick::Executive::restart() {
     std::vector <Trick::SimObject *>::iterator sit ;
     std::vector <Trick::JobData *>::iterator jit ;
     std::multimap<std::string, Trick::JobData *> all_jobs_from_checkpointed_objects ;
+    bool name_match = false;
 
     /*
        Save the current job index position of the input processor queue. This queue position is special
@@ -53,8 +54,10 @@ int Trick::Executive::restart() {
             (*jit)->parent_object = (*sit) ;
             (*jit)->frame_id = (*jit)->sim_object_id + ((double)(*jit)->id / 100.0);
             std::string so_name_and_period = (*sit)->name + "." ;
+            std::cout << "$$$$$ ExecRestart_A:" << (*jit)->name << std::endl;
             if ( strncmp( (*jit)->name.c_str() , so_name_and_period.c_str(), so_name_and_period.length())) {
                 (*jit)->name = (*sit)->name + "." + (*jit)->name ;
+                std::cout << "$$$$$ ExecRestart_B:" << (*jit)->name << std::endl;
             }
             all_jobs_from_checkpointed_objects.insert(std::pair<std::string, JobData *>((*jit)->name,(*jit))) ;
         }

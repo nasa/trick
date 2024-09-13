@@ -22,7 +22,11 @@
 
 Trick::CheckPointRestart * the_cpr ;
 
-Trick::CheckPointRestart::CheckPointRestart() {
+Trick::CheckPointRestart::CheckPointRestart() : 
+            checkpoint_queue("checkpoint_queue"), 
+            post_checkpoint_queue("post_checkpoint_queue"), 
+            preload_checkpoint_queue("preload_checkpoint_queue"), 
+            restart_queue("restart_queue") {
 
     int num_classes = 0 ;
 
@@ -332,6 +336,8 @@ int Trick::CheckPointRestart::load_checkpoint_job() {
             // the restart queue will be rebuilt by the executive.
             restart_queue.reset_curr_index() ;
             while ( (curr_job = restart_queue.get_next_job()) != NULL ) {
+		std::cout << "***** checkpoint restart job:" << curr_job->name << " ***** " << &restart_queue << std::endl;
+		std::cout << "\t" << curr_job << ", " << restart_queue.curr_index << ", " << restart_queue.list_size << std::endl;
                 curr_job->call() ;
             }
         } else {

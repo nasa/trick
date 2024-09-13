@@ -1,11 +1,14 @@
 
 #include "trick/Scheduler.hh"
+#include <iostream>
 
 Trick::Scheduler::~Scheduler() {}
 
 // Default implementation of add_sim_object adds sim_object jobs to the scheduler queues
 // if this scheduler handles that job type
 int Trick::Scheduler::add_sim_object( Trick::SimObject * in_object ) {
+
+    std::cout << "..... Scheduler::add_sim_object SIM OBJ: " << in_object->name << " ..... " << in_object << std::endl;
 
     unsigned int jj ;
     std::map<std::string, int>::iterator class_id_it ;
@@ -15,11 +18,13 @@ int Trick::Scheduler::add_sim_object( Trick::SimObject * in_object ) {
 
     for ( jj = 0 ; jj < in_object->jobs.size() ; jj++ ) {
         job = in_object->jobs[jj] ;
+        bool name_match = (job->name == "trick_data_record_group_frame_trickjobs.trick_data_record_group_frame_trickjobs.restart");
         if ( (class_id_it = class_map.find(job->job_class_name)) != class_map.end() ) {
             job->job_class = class_id_it->second ;
             if ( (queue_it = class_to_queue.find(job->job_class)) != class_to_queue.end() ) {
                  curr_queue = queue_it->second ;
-                 curr_queue->push( job ) ;
+                 std::cout << "..... Scheduler::add_sim_object JOB PUSH: " << job->name << " ..... " << job->job_class_name << ", " << &job << std::endl;
+                 curr_queue->pushy( job ) ;
             }
         }
     }

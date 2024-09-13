@@ -159,35 +159,35 @@ int Trick::Executive::add_job_to_queue( Trick::JobData * job ) {
         if ( job->thread != 0 ) {
             /* Add threaded scheduled jobs to the thread scheduled queue */
             if ( job->job_class >= scheduled_start_index ) {
-                threads[job->thread]->job_queue.push(job) ;
+                threads[job->thread]->job_queue.pushy(job) ;
                 // Add all scheduled jobs to the scheduled_queue for use in the multi-threaded loop
-                scheduled_queue.push(job) ;
+                scheduled_queue.pushy(job) ;
                 return 0 ;
             /* Threaded top_of_frame/end_of_frame jobs go to thread specific queues. */
             } else if ( ! job->job_class_name.compare("top_of_frame")) {
-                threads[job->thread]->top_of_frame_queue.push(job) ;
+                threads[job->thread]->top_of_frame_queue.pushy(job) ;
                 return 0 ;
             } else if ( ! job->job_class_name.compare("end_of_frame")) {
-                threads[job->thread]->end_of_frame_queue.push(job) ;
+                threads[job->thread]->end_of_frame_queue.pushy(job) ;
                 return 0 ;
             /* Other jobs classes are put into the main thread */
             } else if ( (queue_it = class_to_queue.find(job->job_class)) != class_to_queue.end() ) {
                 /* for non-scheduled jobs, the class_to_queue map holds the correct queue to insert the job */
                 curr_queue = queue_it->second ;
-                curr_queue->push( job ) ;
+                curr_queue->pushy( job ) ;
                 return 0 ;
             }
         } else {
             /* if the job is a "scheduled" type job, insert the job into the proper thread queue */
             if ( job->job_class >= scheduled_start_index ) {
-                threads[0]->job_queue.push(job) ;
+                threads[0]->job_queue.pushy(job) ;
                 // Add all scheduled jobs to the scheduled_queue for use in the multi-threaded loop
-                scheduled_queue.push(job) ;
+                scheduled_queue.pushy(job) ;
                 return 0 ;
             } else if ( (queue_it = class_to_queue.find(job->job_class)) != class_to_queue.end() ) {
                 /* for non-scheduled jobs, the class_to_queue map holds the correct queue to insert the job */
                 curr_queue = queue_it->second ;
-                curr_queue->push( job ) ;
+                curr_queue->pushy( job ) ;
                 return 0 ;
             }
         }

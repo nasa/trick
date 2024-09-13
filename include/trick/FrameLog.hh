@@ -34,6 +34,8 @@ namespace Trick {
 
         public:
 
+            int restart_count;
+
             /** Enable real-time frame logging.\n */
             bool frame_log_flag ;                  /**< trick_io(*io) trick_units(--) */
 

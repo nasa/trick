@@ -548,6 +548,7 @@ clear_data_record_info.
 */
 int Trick::FrameLog::restart() {
 // removing the data record groups removed the restart jobs too.  call them here.
+    //if(restart_count < 1) {
     std::vector< Trick::FrameDataRecordGroup *>::iterator it ;
     for ( it = drg_users.begin() ; it != drg_users.end() ; ++it ) {
         (*it)->restart() ;
@@ -565,6 +566,8 @@ int Trick::FrameLog::restart() {
         remove_instrument_jobs() ; // these will be added back when frame log turned on
         framelog_on() ;
     }
+    //}
+    restart_count++;
     return 0 ;
 }
 

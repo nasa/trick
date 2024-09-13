@@ -3,6 +3,7 @@
 
 #include "trick/JobData.hh"
 #include "trick/SimObject.hh"
+#include <iostream>
 
 long long Trick::JobData::time_tic_value = 0 ;
 
@@ -174,6 +175,8 @@ int Trick::JobData::call() {
     int ret ;
     unsigned int ii , size ;
     InstrumentBase * curr_job ;
+    std::string parent_name = parent_object->name;
+    bool name_match = (name == "trick_frame_log.frame_log.restart");
 
     size = inst_before.size() ;
     for ( ii = 0 ; ii < size ; ii++ ) {
@@ -181,6 +184,7 @@ int Trick::JobData::call() {
         curr_job->call() ;
     }
 
+    std::cout << "!!!!! Parent:" << parent_name << " !!!!! Job:" << name << std::endl; 
     ret = parent_object->call_function(this) ;
 
     size = inst_after.size() ;
@@ -215,6 +219,9 @@ double Trick::JobData::call_double() {
 }
 
 int Trick::JobData::copy_from_checkpoint( JobData * in_job ) {
+    std::string job_name = in_job->name;
+    bool name_match = job_name == "trick_frame_log.frame_log.restart";
+    std::cout << "##### Checkpoint copy:" << job_name << " #####" << std::endl; 
 
     /** @par Detailed Design */
 

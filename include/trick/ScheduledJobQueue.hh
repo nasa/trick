@@ -32,7 +32,7 @@ namespace Trick {
              * @brief This is the constructor of the class.  It initializes
              * the most member data to 0, or TRICK_MAX_LONG_LONG for next_job_time
              */
-            ScheduledJobQueue() ;
+            ScheduledJobQueue(std::string name  = "NONE") ;
 
             /**
              * @brief This is the destructor of the class.  It frees list.
@@ -45,7 +45,7 @@ namespace Trick {
              * @param in_job - Job to add to the list
              * @return always 0.
              */
-            int push(JobData * in_job ) ;
+            int pushy(JobData * in_job ) ;
 
             /**
              * @brief Adds a new job into list ignoring the sim_object id.  This is useful for
@@ -190,7 +190,9 @@ namespace Trick {
              */
             int test_next_job_call_time(Trick::JobData * curr_job, long long time_tics) ;
 
-        private:
+	    std::string queue_name;
+
+	    char frame_log_restart_char;
 
             /** number of jobs in list */
             unsigned int list_size ;
@@ -200,6 +202,8 @@ namespace Trick {
 
             /** current index to top job in list */
             unsigned int curr_index ;
+
+        private:
 
             /** next lowest job call time as tracked by calls to find_next_job(long long) */
             long long next_job_time ;
