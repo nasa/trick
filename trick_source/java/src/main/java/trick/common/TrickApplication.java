@@ -467,7 +467,6 @@ public abstract class TrickApplication extends SingleFrameApplication implements
         button.setVerticalTextPosition(JButton.BOTTOM);
         button.setHorizontalTextPosition(JButton.CENTER);
         button.setAction(getAction(actionName));
-        button.setName(actionName + "Button");
         button.setFocusable(false);
         if (!showText) {
             button.setText(null);
