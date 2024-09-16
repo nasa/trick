@@ -347,7 +347,52 @@ public class SimControlApplication extends TrickApplication implements PropertyC
      */
     @Action
     public void connect() {
-        // get host and port for selected sim  	
+        parseConnectionFromSimList(); // get host and port from running sim list
+		getInitializationPacket(); // init variable server connection
+		if (commandSimcom == null) {
+			String errMsg = "Sorry, can't connect. Please make sure the availability of both server and port!";
+			printErrorMessage(errMsg);
+            return;
+        } 
+		setEnabledAllActions(true); // enable all actions
+		scheduleGetSimState(); // set up the sim status variables
+		startStatusMonitors(); // start monitors for sim and health status
+    }
+
+    
+    /**
+     * Helper method for starting monitors for sim status as well as health status.
+     */
+	protected void startStatusMonitors() {
+		MonitorSimStatusTask monitorSimStatusTask = new MonitorSimStatusTask(this);
+        monitorSimStatusTask.addPropertyChangeListener(this);
+        getContext().getTaskService().execute(monitorSimStatusTask);
+
+        // For receiving hs messages.
+        getContext().getTaskService().execute(new MonitorHealthStatusTask(this));
+	}
+
+	/**
+	 * Sets all actions as either enabled or disabled
+	 * @param isEnabled the state to set each action as
+	 */
+	protected void setEnabledAllActions(boolean isEnabled) {
+		if(actionMap == null)
+			return;
+		
+		Object[] keys = actionMap.allKeys();
+		// If there is a server connection established, enable all actions.
+		for (int i = 0; i < keys.length; i++) {
+			String theKey = (String)keys[i];
+			getAction(theKey).setEnabled(isEnabled);
+		}
+	}
+	
+	/**
+	 * Parse the host and port from the runningSimList object
+	 */
+	protected void parseConnectionFromSimList() {
+
         if (runningSimList != null && runningSimList.getSelectedItem() != null) {
         	String selectedStr = runningSimList.getSelectedItem().toString();
         	// remove the run info if it is shown
@@ -365,49 +410,15 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         	if (elements == null || elements.length < 2) {       
 				String errMsg = "Can't connect! Please provide valid host name and port number separated by : or whitespace!";		
                 printErrorMessage(errMsg);
-        		return;
-        	}
+        	} else {
         	host = elements[0].trim();
-        	try {
-        	port = Integer.parseInt(elements[1].trim());
-        	} catch (NumberFormatException nfe) {
+				try {  port = Integer.parseInt(elements[1].trim());  }
+				catch (NumberFormatException nfe) {
 				String errMsg = elements[1] + " is not a valid port number!";
         		printErrorMessage(errMsg);
-        		return;
-        	}
+				}
         }
-        
-        getInitializationPacket();
-        
-        if (commandSimcom == null) {
-			String errMsg = "Sorry, can't connect. Please make sure the availability of both server and port!";
-			printErrorMessage(errMsg);
-            return;
-        } else {            
-            Object[] keys = actionMap.allKeys();
-            // If there is a server connection established, enable all actions.
-            for (int i = 0; i < keys.length; i++) {
-                String theKey = (String)keys[i];
-                getAction(theKey).setEnabled(true);
-            }
         }
-
-        scheduleGetSimState();
-
-        startStatusMonitors();
-    }
-
-    
-    /**
-     * Helper method for starting monitors for sim status as well as health status.
-     */
-	private void startStatusMonitors() {
-		MonitorSimStatusTask monitorSimStatusTask = new MonitorSimStatusTask(this);
-        monitorSimStatusTask.addPropertyChangeListener(this);
-        getContext().getTaskService().execute(monitorSimStatusTask);
-
-        // For receiving hs messages.
-        getContext().getTaskService().execute(new MonitorHealthStatusTask(this));
 	}
 	
     //========================================
