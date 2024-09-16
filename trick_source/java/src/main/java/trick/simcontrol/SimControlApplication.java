@@ -9,6 +9,7 @@ package trick.simcontrol;
 //========================================
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -393,7 +394,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 	 */
 	protected void parseConnectionFromSimList() {
 
-        if (runningSimList != null && runningSimList.getSelectedItem() != null) {
+		if (runningSimList != null && runningSimList.getSelectedItem() != null) {
         	String selectedStr = runningSimList.getSelectedItem().toString();
         	// remove the run info if it is shown
         	int leftPre = selectedStr.indexOf("(");
@@ -411,16 +412,16 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 				String errMsg = "Can't connect! Please provide valid host name and port number separated by : or whitespace!";		
                 printErrorMessage(errMsg);
         	} else {
-        	host = elements[0].trim();
+				host = elements[0].trim();
 				try {  port = Integer.parseInt(elements[1].trim());  }
 				catch (NumberFormatException nfe) {
-				String errMsg = elements[1] + " is not a valid port number!";
-        		printErrorMessage(errMsg);
+					String errMsg = elements[1] + " is not a valid port number!";
+					printErrorMessage(errMsg);
 				}
-        }
+			}
         }
 	}
-	
+
     //========================================
     //    Set/Get methods
     //========================================
@@ -465,7 +466,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             	(new RetrieveHostPortTask()).execute();
             	return;
             }
-                       
+            
             actionController.setVariableServerConnection(commandSimcom);
 
             simState = new SimState();
@@ -849,9 +850,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             statusSimcom.put(status_vars) ;
 
             statusSimcom.put("trick.var_cycle(0.25)\n");
-
-            getAction("connect").setEnabled(false);         
-            runningSimList.setEnabled(false);
+            setActionsEnabled("connect", false); 
+            setGUIEnabled(runningSimList, false);
         }
         catch (NumberFormatException nfe) {
 
@@ -865,6 +865,14 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             getAction("startSim").setEnabled(false);
         }
     }
+
+	private void setGUIEnabled(Component gui, boolean flag) {
+		if(gui != null) gui.setEnabled(flag);
+	}
+
+	private void setGUIsEnabled(Component[] guis, boolean flag) {
+		for(Component gui : guis)	setGUIEnabled(gui, flag);
+	}
 
     /**
      * Convenient method for setting the state of specified actions.
