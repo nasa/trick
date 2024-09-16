@@ -91,6 +91,11 @@ int Trick::ScheduledJobQueue::push( JobData * new_job ) {
 
     /* Increment the size of the queue */
     list_size++ ;
+	
+	int new_job_index = (insert_pt - list) / sizeof(JobData**);
+	if(new_job_index < curr_index) {
+	    curr_index++;	
+	}
 
     return(0) ;
 
