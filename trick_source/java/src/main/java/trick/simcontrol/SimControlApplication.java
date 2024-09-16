@@ -103,11 +103,24 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     //========================================
     //    Public data
     //========================================
+	final public static Dimension FULL_SIZE = new Dimension(680, 640);
+	final public static Dimension LITE_SIZE = new Dimension(340, 360);
 
 
     //========================================
     //    Protected data
     //========================================
+    protected static String host;
+    protected static int port = -1;
+
+    /** whether or not to print a send_hs file to the status message panel */
+    protected static boolean isRestartOptionOn;
+
+    /** whether automatically exit when sim is done/killed. */
+    protected static boolean isAutoExitOn; 
+
+    /** The action controller that performs actions for such as clicking button, selection a menu item and etc. */
+    protected SimControlActionController actionController;
 
 
     //========================================
@@ -119,9 +132,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private int overrun_present ;
     private int message_present ;
     private int message_port ;
-    
-    /** whether automatically exit when sim is done/killed. */
-    private static boolean isAutoExitOn;
 
     // The panel that displays the current sim state description as well as progress.
     private JXTitledPanel runtimeStatePanel;
@@ -154,11 +164,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
     private JXLabel statusLabel;
 
-    /*
-     *  The action controller that performs actions for such as clicking button, selection a menu item and etc.
-     */
-    private SimControlActionController actionController;
-
     // The animation image player panel
     private AnimationPlayer logoImagePanel;
 
@@ -171,9 +176,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private SocketChannel healthStatusSocketChannel ;
    
     private JComboBox runningSimList;
-    private static String host;
-    private static int port = -1;
-    private static boolean isRestartOptionOn;
     //True if an error was encountered during the attempt to connect to Variable Server during intialize()
     private boolean errOnInitConnect = false;
     //Time out when attempting to establish connection with Variable Server in milliseconds
@@ -187,9 +189,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     
 
     final private static String LOCALHOST = "localhost";
-
-	final private Dimension FULL_SIZE = new Dimension(680, 640);
-	final private Dimension LITE_SIZE = new Dimension(340, 360);
 
     //========================================
     //    Actions
@@ -564,7 +563,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
             npe.printStackTrace();
         }
     }
-
 
     //========================================
     //    Methods
@@ -1263,7 +1261,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     /**
      * Updates the GUI as needed if SIM states are changed.
      */
-    private void updateGUI() {
+    protected void updateGUI() {
         String newStatusDesc = SimState.SIM_MODE_DESCRIPTION[simState.getMode()];
 
         recTime.setText(simState.getTwoFractionFormatted(simState.getExecOutTime()));
