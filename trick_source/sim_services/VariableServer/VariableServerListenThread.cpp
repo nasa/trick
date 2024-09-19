@@ -254,9 +254,11 @@ int Trick::VariableServerListenThread::restart() {
 }
 
 void Trick::VariableServerListenThread::initializeMulticast() {
-    _multicast->initialize();
-    _multicast->addAddress("239.3.14.15", 9265);
-    _multicast->addAddress("224.3.14.15", 9265);
+    if (!_multicast->isInitialized()) {
+        _multicast->initialize();
+        _multicast->addAddress("239.3.14.15", 9265);
+        _multicast->addAddress("224.3.14.15", 9265);
+    }
 }
 
 void Trick::VariableServerListenThread::pause_listening() {

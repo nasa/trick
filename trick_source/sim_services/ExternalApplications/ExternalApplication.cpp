@@ -28,7 +28,10 @@ Trick::ExternalApplication::ExternalApplication() :
 
 Trick::ExternalApplication::~ExternalApplication() {
     for(std::vector<char*>::iterator it = allocations.begin(); it != allocations.end(); ++it) {
-        trick_MM->delete_var( (void*)*it );
+        ALLOC_INFO * alloc_info = trick_MM->get_alloc_info_at( (void*)*it );
+        if ( alloc_info != NULL ) {
+            trick_MM->delete_var( (void*)*it );
+        }
     }
     allocations.clear();
 }
