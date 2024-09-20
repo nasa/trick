@@ -1,0 +1,33 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    (This sim test using tmm_alloc_args template function in a
+    simulation environment)
+*************************************************************/
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "alloc_with_args.hh"
+##include "trick/tmm_alloc_args.hh"
+
+class AllocTestSimObject : public Trick::SimObject {
+
+    public:
+        AllocTestWithArguments* atwargs;
+
+        AllocTestSimObject() {
+
+            ("initialization") init_alloc();
+        }
+
+
+    void init_alloc()
+    {
+        std::cout << "Entered init_alloc()\n";
+        std::cout << TrickTypeToString<AllocTestWithArguments>::getName() << "\n";
+        atwargs = tmm_alloc_args<AllocTestWithArguments>(0, 1.0);
+        std::cout << "Called tmm_alloc_args: " << atwargs << "\n";
+    }
+};
+
+AllocTestSimObject alloc_test ;
+

@@ -340,6 +340,10 @@ int main(int argc, char * argv[]) {
     // Print the list of headers that have the ICG:(No) comment
     printAttributes.printICGNoFiles();
 
+    printAttributes.writeTemplateAllocHeader();
+
+    printAttributes.writeTrickTypeToStructHeader();
+    
     if (icgDiagConsumer->error_in_user_code) {
         std::cout << color(ERROR, "Trick build was terminated due to error in user code!") << std::endl;
         exit(-1);

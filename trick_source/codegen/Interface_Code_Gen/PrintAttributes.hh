@@ -65,7 +65,14 @@ class PrintAttributes {
         void printSieEnum( EnumValues * ev ) ;
 
         bool isHeaderExcluded(const std::string& header, bool exclude_ext_libs = true);
+
         void markHeaderAsVisited(const std::string& header);
+
+        void writeTemplateAllocHeader();
+        
+        void writeTrickTypeToStructHeader();
+
+        void addTypedefClass(std::string typedef_class);
 
     protected:
 
@@ -145,6 +152,8 @@ class PrintAttributes {
         std::map< std::string , std::set< std::string > > processed_classes ;
         /** map of processed enums sorted by file */
         std::map< std::string , std::set< std::string > > processed_enums ;
+        
+        std::set<std::string> typedef_classes;
 
 } ;
 

@@ -17,6 +17,8 @@
 #include "CommentSaver.hh"
 #include "PrintAttributes.hh"
 #include "BraceMacro.hh"
+#include "FunctionVisitor.hh"
+
 
 extern llvm::cl::opt< int > debug_level ;
 
@@ -114,6 +116,13 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
             FieldVisitor fvis(ci , hsd , cs, pa, cval.getName()) ;
             fvis.TraverseFieldDecl(static_cast<clang::FieldDecl *>(d)) ;
             cval.addFieldDescription(fvis.get_field_data()) ;
+        }
+        break;
+        case clang::Decl::CXXConstructor : {
+            FunctionVisitor fvis(ci , hsd , cs, pa, cval.getName()) ;
+            auto* ctor = static_cast<clang::CXXConstructorDecl *>(d);
+            fvis.TraverseDecl(ctor) ;
+            cval.addFunctionDescription(fvis.get_function_data()) ;
         }
         break ;
         case clang::Decl::Friend : {
