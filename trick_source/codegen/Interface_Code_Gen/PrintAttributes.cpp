@@ -653,6 +653,7 @@ void PrintAttributes::markHeaderAsVisited(const std::string& header) {
 void PrintAttributes::writeTrickTypeToStructHeader()
 {
    
+    _mkdir("build/trick");
 
     std::set<std::string> class_names_to_print;
     for(auto& pair : processed_classes)
@@ -679,7 +680,7 @@ void PrintAttributes::writeTrickTypeToStructHeader()
     }
     
     std::ofstream out_file;
-    out_file.open("build/trick/trick_type_to_string.hh");
+    out_file.open("build/trick/trick_type_to_string_ext.hh");
 
     out_file << "/********************************* TRICK HEADER *******************************\n";
     out_file << "PURPOSE: ( Map types that trick knows about to strings using tempalte specialization )\n";
@@ -690,6 +691,7 @@ void PrintAttributes::writeTrickTypeToStructHeader()
     out_file << "\n";
     out_file << "#pragma once";
     out_file << "\n\n";
+    out_file << "#include \"trick/trick_type_to_string.hh\"\n";
     out_file << "#include <string>\n";
     out_file << "//Forward declarations\n";
 
@@ -700,11 +702,6 @@ void PrintAttributes::writeTrickTypeToStructHeader()
 
     out_file << "\n\n";
     
-    
-    out_file << "template<typename T>\n";
-    out_file << "struct TrickTypeToString { static std::string getName(); };\n";
-    out_file << "\n\n";
-
     for (auto class_name : class_names_to_print)
     {
         out_file << "template<>\n";
@@ -723,73 +720,13 @@ void PrintAttributes::writeTrickTypeToStructHeader()
 
 }
 
-void PrintAttributes::writeTemplateAllocHeader()
-{   
-    std::string build_trick = "build/trick/";
-
-    _mkdir(build_trick.c_str());
-
-    std::ofstream out_file;
-
-    out_file.open("build/trick/tmm_alloc_args.hh");
-    out_file << "#ifndef SWIG\n";
-    out_file << "/********************************* TRICK HEADER *******************************\n";
-    out_file << "PURPOSE: ( Simulate balls contacting boundaries. )\n";
-    out_file << "LIBRARY DEPENDENCY:\n";
-    out_file << "((trick/tmm_alloc_args.o))\n";
-    out_file << "*******************************************************************************/\n";
-    out_file << "#ifndef __TMM_ALLOC_ARGS_HH__\n";
-    out_file << "#define __TMM_ALLOC_ARGS_HH__\n";
-    out_file << "\n\n";
-    out_file << "#include <utility>\n\n";
-    out_file << "#include \"trick/trick_type_to_string.hh\"\n";
-    out_file << "#include <type_traits>\n\n";
-
-    out_file << "//trick includes\n";
-    out_file << "#include \"trick/MemoryManager.hh\"\n\n";
-
-    out_file << "template<typename... Ts>\n";
-    out_file << "struct make_void {\n";
-    out_file << "   typedef void type;\n";
-    out_file << "};\n\n";
-
-    out_file << "template<typename... Ts>\n";
-    out_file << "using void_t = typename make_void<Ts...>::type;\n\n";
-
-    out_file << "template<typename T, typename = void_t<>>\n";
-    out_file << "struct has_getname : std::false_type {};\n";
-
-    out_file << "\n";
-    out_file << "template<typename T>\n";
-    out_file << "struct has_getname<T, void_t<decltype(std::declval<TrickTypeToString<T>>().getName())>> : std::true_type {};\n\n";
-
-    out_file << "template<typename T, typename ...Args>\n";
-    out_file << "typename std::enable_if<has_getname<T>::value, T*>::type\n";
-    out_file << "tmm_alloc_args(Args&&... args)\n";
-    out_file << "{\n";
-    out_file << "       void* new_alloc = trick_MM->declare_var(TrickTypeToString<T>::getName().c_str());\n";
-    out_file << "       return new (new_alloc) T(std::forward<Args>(args)...);\n";
-    out_file << "}\n\n";
-
-    out_file << "template<typename T, typename ...Args>\n";
-    out_file << "typename std::enable_if<!has_getname<T>::value, T*>::type\n";
-    out_file << "tmm_alloc_args(Args&&... args)\n";
-    out_file << "{\n";
-    out_file << "   static_assert(true, \"You've attempted to call tmm_alloc_args using a type(T) that does not have an implemented template specialization.\");\n";
-    out_file << "   return nullptr;\n";
-    out_file << "}\n\n";
-
-    out_file << "#endif //__TMM_ALLOC_ARGS_HH__\n";
-    out_file << "#endif // SWIG\n";
-    out_file.close();
-
-    out_file.open("build/trick/tmm_alloc_args.cc");
-    out_file << "#include \"trick/tmm_alloc_args.hh\"";
-
-    out_file.close();
-}
 
 void PrintAttributes::addTypedefClass(std::string typedef_class)
 {
     typedef_classes.insert(typedef_class);
+}
+
+void PrintAttributes::setUseTMMAllocArgs(bool use_tmm_alloc_args)
+{
+    this->use_tmm_alloc_args = use_tmm_alloc_args;
 }

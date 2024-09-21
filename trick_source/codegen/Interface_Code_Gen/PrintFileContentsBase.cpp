@@ -87,3 +87,7 @@ std::vector<FieldDescription*> PrintFileContentsBase::getPrintableFields(ClassVa
     return results;
 }
 
+void PrintFileContentsBase::setUseTMMAllocArgs(bool use_tmm_alloc_args)
+{
+    this->use_tmm_alloc_args = use_tmm_alloc_args;
+}

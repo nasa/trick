@@ -38,10 +38,15 @@ void PrintFileContents10::printIOHeader(std::ostream & ostream , std::string hea
              << "#include \"trick/parameter_types.h\"\n"
              << "#include \"trick/ClassSizeCheck.hh\"\n"
              << "#include \"trick/UnitsMap.hh\"\n"
-             << "#include \"trick/checkpoint_stl.hh\"\n"
-             << "#include \"trick/tmm_alloc_args.hh\"\n"
-             << "#include \"" << header_file_name << "\"\n"
-             << "\n" ;
+             << "#include \"trick/checkpoint_stl.hh\"\n";
+
+            if(use_tmm_alloc_args)
+            {
+                ostream  << "#include \"trick/tmm_alloc_args.hh\"\n";
+            }
+
+            ostream  << "#include \"" << header_file_name << "\"\n"
+            << "\n" ;
 }
 
 /** Prints enumeration attributes */
@@ -357,7 +362,10 @@ void PrintFileContents10::printClass( std::ostream & ostream , ClassValues * cv 
     print_io_src_delete(ostream, cv) ;
     print_close_extern_c(ostream) ;
     print_units_map(ostream, cv) ;
-    printTemplateConstructorWrapper(ostream, cv) ;
+    if(use_tmm_alloc_args)
+    {
+        printTemplateConstructorWrapper(ostream, cv) ;
+    }
 }
 
 void PrintFileContents10::printEnum( std::ostream & ostream , EnumValues * ev ) {

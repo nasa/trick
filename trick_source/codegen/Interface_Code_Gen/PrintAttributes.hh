@@ -67,13 +67,12 @@ class PrintAttributes {
         bool isHeaderExcluded(const std::string& header, bool exclude_ext_libs = true);
 
         void markHeaderAsVisited(const std::string& header);
-
-        void writeTemplateAllocHeader();
         
         void writeTrickTypeToStructHeader();
 
         void addTypedefClass(std::string typedef_class);
 
+        void setUseTMMAllocArgs(bool use_tmm_alloc_args);
     protected:
 
         const bool verboseBuild = (getenv("TRICK_VERBOSE_BUILD") || getenv("VERBOSE"));
@@ -108,6 +107,9 @@ class PrintAttributes {
 
         /** We are processing sim_services */
         bool sim_services_flag ;
+
+        /** Control if files related to tmm_alloc_args are generated */
+        bool use_tmm_alloc_args ;
 
         /** We are specifying an output directory for all files */
         std::string output_dir ;

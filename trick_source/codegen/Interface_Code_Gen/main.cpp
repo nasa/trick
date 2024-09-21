@@ -52,6 +52,7 @@ llvm::cl::list<std::string> input_file_names(llvm::cl::Positional, llvm::cl::des
 llvm::cl::list<std::string> sink(llvm::cl::Sink, llvm::cl::ZeroOrMore);
 llvm::cl::list<std::string> pre_compiled_headers("include", llvm::cl::Prefix, llvm::cl::desc("pre-compiled headers"), llvm::cl::value_desc("pre_compiled_headers"));
 
+llvm::cl::opt<bool> use_tmm_alloc_args("use_tmm_alloc_args", llvm::cl::desc("use_tmm_alloc_args"), llvm::cl::init(false), llvm::cl::ZeroOrMore) ;
 llvm::cl::opt<bool> global_compat15("c", llvm::cl::desc("Print the offsetof calculations in attributes")) ;
 llvm::cl::opt<llvm::cl::boolOrDefault> print_trick_icg("print-TRICK-ICG", llvm::cl::desc("Print warnings where TRICK_ICG may cause io_src inconsistencies")) ;
 llvm::cl::alias compat15_alias ("compat15" , llvm::cl::desc("Alias for -c") , llvm::cl::aliasopt(global_compat15)) ;
@@ -339,10 +340,20 @@ int main(int argc, char * argv[]) {
 
     // Print the list of headers that have the ICG:(No) comment
     printAttributes.printICGNoFiles();
+    
+    
 
-    printAttributes.writeTemplateAllocHeader();
-
-    printAttributes.writeTrickTypeToStructHeader();
+    if(use_tmm_alloc_args || !sim_services_flag) 
+    {
+        std::cout << "Printing tmm_alloc_arg related files.\n";
+        printAttributes.setUseTMMAllocArgs(true);
+        printAttributes.writeTrickTypeToStructHeader();
+    }
+    else 
+    {
+        std::cout << "NOT PRINTING THEM\n";
+        printAttributes.setUseTMMAllocArgs(false);
+    }
     
     if (icgDiagConsumer->error_in_user_code) {
         std::cout << color(ERROR, "Trick build was terminated due to error in user code!") << std::endl;
