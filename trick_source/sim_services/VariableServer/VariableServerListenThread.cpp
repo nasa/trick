@@ -248,17 +248,18 @@ int Trick::VariableServerListenThread::restart() {
         message_publish(MSG_INFO, "restart variable server message port = %d\n", _listener->getPort());
     }
 
-    initializeMulticast();
+    // Don't initialize the multicast group if it's already initialized
+    if (!_multicast->isInitialized()) {
+        initializeMulticast();
+    }
 
     return 0 ;
 }
 
 void Trick::VariableServerListenThread::initializeMulticast() {
-    if (!_multicast->isInitialized()) {
-        _multicast->initialize();
-        _multicast->addAddress("239.3.14.15", 9265);
-        _multicast->addAddress("224.3.14.15", 9265);
-    }
+    _multicast->initialize();
+    _multicast->addAddress("239.3.14.15", 9265);
+    _multicast->addAddress("224.3.14.15", 9265);
 }
 
 void Trick::VariableServerListenThread::pause_listening() {
