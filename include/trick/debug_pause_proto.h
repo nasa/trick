@@ -9,6 +9,7 @@ extern "C" {
 int debug_pause_on(void) ;
 int debug_pause_off(void) ;
 int debug_signal(void) ;
+int debug_pause_flag(void) ;
 
 #ifdef __cplusplus
 }

@@ -1222,6 +1222,14 @@ namespace Trick {
             virtual int run() ;
 
             /**
+             @userdesc Command to step the simulation, pausing after each job. Set exec_command to StepCmd.
+             @par Python Usage:
+             @code trick.step() @endcode
+             @return always 0
+            */
+            virtual int step() ;
+
+            /**
              @userdesc Command to freeze the simulation now. Set exec_command to FreezeCmd.
              @par Python Usage:
              @code trick.freeze() @endcode

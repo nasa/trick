@@ -77,6 +77,7 @@ extern "C" {
 
     int exec_freeze(void) ;
     int exec_run(void) ;
+    int exec_step(void) ;
 
     void exec_signal_terminate(void) ;
     int exec_terminate(const char *, const char *) ;

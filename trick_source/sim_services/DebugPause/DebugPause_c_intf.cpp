@@ -38,3 +38,10 @@ extern "C" int debug_signal(void) {
     }
     return(0) ;
 }
+
+extern "C" int debug_pause_flag(void) {
+    if (the_debug_pause != NULL) {
+        return the_debug_pause->debug_pause_flag ;
+    }
+    return(0) ;
+}

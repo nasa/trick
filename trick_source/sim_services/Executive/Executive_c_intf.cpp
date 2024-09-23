@@ -803,6 +803,18 @@ extern "C" int exec_run() {
 
 /**
  * @relates Trick::Executive
+ * @copydoc Trick::Executive::step
+ * C wrapper for Trick::Executive::step
+ */
+extern "C" int exec_step() {
+    if ( the_exec != NULL ) {
+        return the_exec->step() ;
+    }
+    return -1 ;
+}
+
+/**
+ * @relates Trick::Executive
    @userdesc C wrapper to add an instrumentation job before all initialization, integration,
     scheduled, shutdown, top_of_frame & end_of_frame jobs.
  * Calls Trick::Executive::instrument_job_before(job_name, "", NULL)
