@@ -19,28 +19,13 @@ Trick::ExternalApplication::ExternalApplication() :
     host_source = port_source = AUTO;
     cycle_period_set = minimum_cycle_period_set = disconnect_behavior_set = height_set =
       width_set = x_set = y_set = auto_reconnect_set = false;
-      
-      // c_intf uses char *, we manage the memory here in external application
-      command_c_str = (char*)trick_MM->declare_var("char", (command.size() + 1) );
-      strcpy(command_c_str, command.c_str());
-      allocations.push_back(command_c_str);
 }
 
 Trick::ExternalApplication::~ExternalApplication() {
-    for(std::vector<char*>::iterator it = allocations.begin(); it != allocations.end(); ++it) {
-        ALLOC_INFO * alloc_info = trick_MM->get_alloc_info_at( (void*)*it );
-        if ( alloc_info != NULL ) {
-            trick_MM->delete_var( (void*)*it );
-        }
-    }
-    allocations.clear();
 }
 
 void Trick::ExternalApplication::set_startup_command(std::string in_command) {
     command = in_command;
-    command_c_str = (char*)trick_MM->declare_var("char", (command.size() + 1) );
-    strcpy(command_c_str, command.c_str());
-    allocations.push_back((command_c_str));
 }
 
 std::string Trick::ExternalApplication::get_startup_command() {
@@ -48,7 +33,7 @@ std::string Trick::ExternalApplication::get_startup_command() {
 }
 
 const char * Trick::ExternalApplication::get_startup_command_c_str() {
-    return command_c_str;
+    return command.c_str();
 }
 
 void Trick::ExternalApplication::add_arguments(std::string args) {
