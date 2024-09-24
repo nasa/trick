@@ -244,11 +244,11 @@ public class SimControlActionController {
 	 */
     public void handleStep( int debug_flag ) {
         try {
-            if ( debug_flag == 0 ) {
-				simcom.put("trick.exec_step()\n") ;
-            } else {
-                simcom.put("trick.debug_signal()\n") ;
-            }
+            // if ( debug_flag == 0 ) {
+			simcom.put("trick.exec_step()\n") ;
+            // } else {
+            //     simcom.put("trick.debug_signal()\n") ;
+            // }
         } catch (IOException e) {
 
         }
