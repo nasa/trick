@@ -9,6 +9,14 @@ def test():
 
     test_case = "type_AllocTestWithArguments"
 
+    alloc_test.atwargs_input_file = trick.AllocTestWithArguments.alloc(5, 7.0)
+
+
+    trick.add_read(4.0, """TRICK_EXPECT_EQ(alloc_test.atwargs.some_int, 0, test_case, test_suite)""")
+    trick.add_read(4.0, """TRICK_EXPECT_NEAR(alloc_test.atwargs.some_double, 0, 1e-6, test_case, test_suite)""")
+
+    
+    
     trick.add_read(4.0, """TRICK_EXPECT_EQ(alloc_test.atwargs.some_int, 0, test_case, test_suite)""")
     trick.add_read(4.0, """TRICK_EXPECT_NEAR(alloc_test.atwargs.some_double, 0, 1e-6, test_case, test_suite)""")
 

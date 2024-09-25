@@ -94,7 +94,7 @@ else
     LIBEXEC = lib
 endif
 
-TRICK_INCLUDES := -isystem${TRICK_HOME}/trick_source -isystem${TRICK_HOME}/include -isystem${TRICK_HOME}/include/trick/compat
+TRICK_INCLUDES := -isystem${TRICK_HOME}/trick_source -isystem${TRICK_HOME}/include -isystem${TRICK_HOME}/include/trick/compat -I./build
 TRICK_VERSIONS := -DTRICK_VER=$(TRICK_MAJOR) -DTRICK_MINOR=$(TRICK_MINOR)
 
 export TRICK_SYSTEM_CXXFLAGS := $(TRICK_INCLUDES) $(TRICK_VERSIONS) -fpic $(UDUNITS_INCLUDES) -I${TRICK_HOME}/build

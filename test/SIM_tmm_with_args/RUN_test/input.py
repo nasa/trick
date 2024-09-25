@@ -1,21 +1,14 @@
 import math
 from trick.unit_test import *
 
-print(f"alloc_test.atwargs = {alloc_test}")
+trick.sim_control_panel_set_enabled(True)
+trick.exec_set_enable_freeze(True)
+trick.exec_set_freeze_command(True)
 
-def main():
-    trick_utest.unit_tests.enable()
-    trick_utest.unit_tests.set_file_name( os.getenv("TRICK_HOME") + "/trick_test/SIM_tmm_alloc_args.xml" ) 
-    trick_utest.unit_tests.set_test_name( "TMMAllocWithArgsTest" ) 
-
-    
-    trick.add_read(4.0, """TRICK_EXPECT_EQ(alloc_test.atwargs.some_int, 0)""")
-    trick.add_read(4.0, """TRICK_EXPECT_NEAR(alloc_test.atwargs.some_double, 0, 1e-6)""")
+#Use tmm_alloc_args from input file - thanks convert_swig!
+alloc_test.atwargs_input_file = trick.AllocTestWithArguments.alloc(5, 7.0)
 
 
 
-trick.stop(5.0)
 
 
-if __name__ == "__main__":
-    main()

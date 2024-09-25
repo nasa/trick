@@ -13,6 +13,7 @@ class AllocTestSimObject : public Trick::SimObject {
 
     public:
         AllocTestWithArguments* atwargs;
+        AllocTestWithArguments* atwargs_input_file;
 
         AllocTestSimObject() {
 
@@ -24,7 +25,7 @@ class AllocTestSimObject : public Trick::SimObject {
     {
         std::cout << "Entered init_alloc()\n";
         //std::cout << TrickTypeToString<AllocTestWithArguments>::getName() << "\n";
-        atwargs = Trick::tmm_alloc_args<AllocTestWithArguments>(0, 1.0);
+        atwargs = tmm_alloc_args<AllocTestWithArguments>(0, 1.0);
         std::cout << "Called tmm_alloc_args: " << atwargs << "\n";
     }
 };
