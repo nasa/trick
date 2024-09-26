@@ -140,7 +140,7 @@ public class SearchPanel extends JXPanel {
     /** toggles case-insensitive searching */
     JCheckBox greedySearchCheckBox = new JCheckBox("Greedy Search") {{
         setName("greedySearchCheckBox");
-        setToolTipText("Toggle multi-threaded seach (Warning: may cause overruns).");
+        setToolTipText("Toggle multi-threaded search (Warning: may cause overruns).");
     }};
 
     /** search results list model */
