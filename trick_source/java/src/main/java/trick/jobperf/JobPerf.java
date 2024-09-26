@@ -119,6 +119,7 @@ class KeyedColorMap {
 class TraceViewPanel extends JPanel {
 
     public static final int MIN_TRACE_WIDTH = 4;
+    public static final int DEFAULT_TRACE_WIDTH = 10;
     public static final int MAX_TRACE_WIDTH = 30;
     public static final int LEFT_MARGIN = 100;
     public static final int RIGHT_MARGIN = 100;
@@ -134,30 +135,21 @@ class TraceViewPanel extends JPanel {
     private Cursor crossHairCursor;
     private Cursor defaultCursor;
 
-    public TraceViewPanel( String fileName, SouthToolBar southToolBar ) {
+    public TraceViewPanel( ArrayList<JobExecutionEvent> jobExecEvtList, SouthToolBar southToolBar ) {
 
-        traceWidth = 10;
+        traceWidth = DEFAULT_TRACE_WIDTH;
         frameDuration = 1.0;
         image = null;
         sToolBar = southToolBar;
+        jobExecList = jobExecEvtList;
         crossHairCursor = new Cursor( Cursor.CROSSHAIR_CURSOR );
         defaultCursor = new Cursor( Cursor.DEFAULT_CURSOR );
-        double smallestJobTime = Double.MAX_VALUE;
-        double largestJobTime = -Double.MAX_VALUE;
+        double smallestStart = Double.MAX_VALUE;
+        double largestStop = -Double.MAX_VALUE;
 
-        // Read the Job execution file to build the jobExecList.
         try {
-           BufferedReader in = new BufferedReader( new FileReader(fileName) );
-           jobExecList = new ArrayList<JobExecutionEvent>();
            idToColorMap = new KeyedColorMap();
            idToColorMap.readFile("IdToColors.txt");
-           Random rand = new Random();
-           String line;
-           String field[];
-
-           // Strip the header off the CSV file.
-           line = in.readLine();
-           System.out.println("LINE = \"" + line + "\".\n");
 
            boolean wasTOF = false;
            double startOfFrame = 0.0;
@@ -166,35 +158,22 @@ class TraceViewPanel extends JPanel {
            int frameNumber = 0;
            int frameSizeCount = 0;
 
-           while( (line = in.readLine()) !=null) {
-                field   = line.split(",");
-                String id    = field[0];
-                boolean isTOF = false;
-                boolean isEOF = false;
-                if (Integer.parseInt(field[1]) == 1) isTOF = true;
-                if (Integer.parseInt(field[2]) == 1) isEOF = true;
-                double start = Double.parseDouble( field[3]);
-                double stop  = Double.parseDouble( field[4]);
-
-                if (start < stop) {
-                    JobExecutionEvent evt = new JobExecutionEvent(id, isTOF, isEOF, start, stop);
-                    jobExecList.add( evt);
-                    if (start < smallestJobTime) smallestJobTime = start;
-                    if (stop  > largestJobTime)  largestJobTime  = stop;
-                    // Calculate the average frame size.
-                    if (!wasTOF && isTOF) {
-                        startOfFrame = start;
-                        if (frameNumber > 0) {
-                            double frameSize = (startOfFrame - lastStartOfFrame);
-                            frameSizeSum += frameSize;
-                            frameSizeCount ++;
-                        }
-                        lastStartOfFrame = startOfFrame;
-                        frameNumber++;
+           for (JobExecutionEvent jobExec : jobExecList ) {
+                if (jobExec.start < smallestStart) smallestStart = jobExec.start;
+                if (jobExec.stop  > largestStop)    largestStop  = jobExec.stop;
+                // Calculate the average frame size.
+                if (!wasTOF && jobExec.isTOF) {
+                    startOfFrame = jobExec.start;
+                    if (frameNumber > 0) {
+                        double frameSize = (startOfFrame - lastStartOfFrame);
+                        frameSizeSum += frameSize;
+                        frameSizeCount ++;
                     }
-                    wasTOF = isTOF;
+                    lastStartOfFrame = startOfFrame;
+                    frameNumber++;
                 }
-                idToColorMap.addKey(id);
+                wasTOF = jobExec.isTOF;
+                idToColorMap.addKey(jobExec.id);
             }
 
             // Calculate the average frame size.
@@ -210,7 +189,7 @@ class TraceViewPanel extends JPanel {
            System.exit(0);
         }
 
-        int preferredHeight = traceWidth * (int)((largestJobTime - smallestJobTime) / frameDuration) + TOP_MARGIN;
+        int preferredHeight = traceWidth * (int)((largestStop - smallestStart) / frameDuration) + TOP_MARGIN;
         setPreferredSize(new Dimension(500, preferredHeight));
 
         ViewListener viewListener = new ViewListener();
@@ -484,9 +463,10 @@ class PerfMenuBar extends JMenuBar implements ActionListener {
 
 public class JobPerf extends JFrame {
 
-    private List<JobExecutionEvent> JobExecutionEventlist;
+    public JobPerf( String fileName ) {
 
-    public JobPerf( TraceViewPanel traceView, SouthToolBar southToolBar) {
+        SouthToolBar southToolBar = new SouthToolBar();
+        TraceViewPanel traceView = new TraceViewPanel( JobExecutionEventList(fileName), southToolBar);
 
         PerfMenuBar menuBar = new PerfMenuBar(traceView);
         setJMenuBar(menuBar);
@@ -528,6 +508,42 @@ public class JobPerf extends JFrame {
           );
     }
 
+    // Read the timeline file.
+    private ArrayList<JobExecutionEvent> JobExecutionEventList( String fileName ) {
+        String line;
+        String field[];
+
+        ArrayList<JobExecutionEvent> jobExecEvtList = new ArrayList<JobExecutionEvent>();
+        try {
+            BufferedReader in = new BufferedReader( new FileReader(fileName) );
+
+            // Strip the header off the CSV file.
+            line = in.readLine();
+            while( (line = in.readLine()) !=null) {
+                 field   = line.split(",");
+                 String id    = field[0];
+                 boolean isTOF = false;
+                 if (Integer.parseInt(field[1]) == 1) isTOF = true;
+                 boolean isEOF = false;
+                 if (Integer.parseInt(field[2]) == 1) isEOF = true;
+                 double start = Double.parseDouble( field[3]);
+                 double stop  = Double.parseDouble( field[4]);
+
+                 if (start < stop) {
+                     JobExecutionEvent evt = new JobExecutionEvent(id, isTOF, isEOF, start, stop);
+                     jobExecEvtList.add( evt);
+                 }
+             }
+         } catch ( java.io.FileNotFoundException e ) {
+             System.out.println("File \"" + fileName + "\" not found.\n");
+             System.exit(0);
+         } catch ( java.io.IOException e ) {
+             System.out.println("IO Exception.\n");
+             System.exit(0);
+         }
+         return jobExecEvtList;
+    }
+
     public static void main(String[] args) {
         int ii = 0;
         String fileName = "in.csv";
@@ -545,9 +561,6 @@ public class JobPerf extends JFrame {
             ++ii;
         } // while
 
-        SouthToolBar sToolBar = new SouthToolBar();
-        TraceViewPanel traceView = new TraceViewPanel( fileName, sToolBar);
-        JobPerf jobPerf = new JobPerf(traceView, sToolBar);
-
+        JobPerf jobPerf = new JobPerf(fileName);
     } // main
 } // class JobPerf
