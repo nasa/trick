@@ -450,13 +450,13 @@ class PerfMenuBar extends JMenuBar implements ActionListener {
         JMenu traceSizeMenu = new JMenu("TraceSize");
         JMenuItem traceSizeMenuIncrease = new JMenuItem("Increase Trace Width");
         traceSizeMenuIncrease.setActionCommand("increase-trace_width");
-        KeyStroke ctrlPlus  = KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke ctrlPlus  = KeyStroke.getKeyStroke('P', InputEvent.CTRL_MASK );
         traceSizeMenuIncrease.setAccelerator(ctrlPlus);
         traceSizeMenuIncrease.addActionListener(this);
         traceSizeMenu.add(traceSizeMenuIncrease);
         JMenuItem traceSizeMenuDecrease = new JMenuItem("Decrease Trace Width");
         traceSizeMenuDecrease.setActionCommand("decrease-trace_width");
-        KeyStroke ctrlMinus = KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx());
+        KeyStroke ctrlMinus = KeyStroke.getKeyStroke('-', InputEvent.CTRL_MASK);
         traceSizeMenuDecrease.setAccelerator(ctrlMinus);
         traceSizeMenuDecrease.addActionListener(this);
         traceSizeMenu.add(traceSizeMenuDecrease);
