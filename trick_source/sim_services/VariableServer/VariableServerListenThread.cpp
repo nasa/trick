@@ -248,7 +248,10 @@ int Trick::VariableServerListenThread::restart() {
         message_publish(MSG_INFO, "restart variable server message port = %d\n", _listener->getPort());
     }
 
-    initializeMulticast();
+    // Don't initialize the multicast group if it's already initialized
+    if (!_multicast->isInitialized()) {
+        initializeMulticast();
+    }
 
     return 0 ;
 }
