@@ -54,7 +54,7 @@ Trick::DataRecordBuffer::~DataRecordBuffer() {
     free(ref) ;
 }
 
-Trick::DataRecordGroup::DataRecordGroup( std::string in_name ) :
+Trick::DataRecordGroup::DataRecordGroup( std::string in_name, bool configure_jobs ) :
  record(true) ,
  inited(false) ,
  group_name(in_name) ,
@@ -96,18 +96,28 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name ) :
     // sim object name
     name = std::string("trick_data_record_group_") + in_name ;
 
-    // add_jobs_to_queue will fill in job_id later
-    // make the init job run after all other initialization jobs but before the post init checkpoint
-    // job so users can allocate memory in initialization jobs and checkpointing data rec groups will work
-    add_job(0, 1, (char *)"initialization", NULL, cycle, (char *)"init", (char *)"TRK", 65534) ;
-    add_job(0, 2, (char *)"end_of_frame", NULL, 1.0, (char *)"write_data", (char *)"TRK") ;
-    add_job(0, 3, (char *)"checkpoint", NULL, 1.0, (char *)"checkpoint", (char *)"TRK") ;
-    add_job(0, 4, (char *)"post_checkpoint", NULL, 1.0, (char *)"clear_checkpoint_vars", (char *)"TRK") ;
-    // run the restart job in phase 60001
-    add_job(0, 5, (char *)"restart", NULL, 1.0, (char *)"restart", (char *)"TRK", 60001) ;
-    add_job(0, 6, (char *)"shutdown", NULL, 1.0, (char *)"shutdown", (char *)"TRK") ;
+    /*
+        By default we want to configure our jobs. 
+        Some derived classes (looking at you FrameDataRecordGroup) want to setup their jobs differently,
+        so we provide the option to disable this step
 
-    write_job = add_job(0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
+        For context - FrameDataRecordGroup does not want to create restart jobs,
+        but rather the FrameLog object which owns those DRG's will manually retsart them from the FrameLog's restart job.
+    */
+    if(configure_jobs) {
+        // add_jobs_to_queue will fill in job_id later
+        // make the init job run after all other initialization jobs but before the post init checkpoint
+        // job so users can allocate memory in initialization jobs and checkpointing data rec groups will work
+        add_job(0, 1, (char *)"initialization", NULL, cycle, (char *)"init", (char *)"TRK", 65534) ;
+        add_job(0, 2, (char *)"end_of_frame", NULL, 1.0, (char *)"write_data", (char *)"TRK") ;
+        add_job(0, 3, (char *)"checkpoint", NULL, 1.0, (char *)"checkpoint", (char *)"TRK") ;
+        add_job(0, 4, (char *)"post_checkpoint", NULL, 1.0, (char *)"clear_checkpoint_vars", (char *)"TRK") ;
+        // run the restart job in phase 60001
+        add_job(0, 5, (char *)"restart", NULL, 1.0, (char *)"restart", (char *)"TRK", 60001) ;
+        add_job(0, 6, (char *)"shutdown", NULL, 1.0, (char *)"shutdown", (char *)"TRK") ;
+
+        write_job = add_job(0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
+    }
 
     add_time_variable() ;
 }

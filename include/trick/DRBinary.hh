@@ -93,7 +93,7 @@ namespace Trick {
              @code <my_drg> = trick.DRBinary("<in_name>") @endcode
              @copydoc Trick::DataRecordGroup::DataRecordGroup(string in_name)
              */
-            DRBinary( std::string in_name, bool register_group = true ) ;
+            DRBinary( std::string in_name, bool register_group = true, bool configure_jobs = true ) ;
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_header
