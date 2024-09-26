@@ -112,21 +112,24 @@ int Trick::VariableServerListenThread::init_listen_device() {
 
 // Called from init jobs
 int Trick::VariableServerListenThread::check_and_move_listen_device() {
-    int ret ;
+    int ret = 0;
 
     if (_user_requested_address) {
         /* The user has requested a different source address or port in the input file */
         _listener->disconnect();
         ret = _listener->initialize(_requested_source_address, _requested_port);
-        _requested_port = _listener->getPort();
-        _requested_source_address = _listener->getHostname();
+        
         if (ret != 0) {
             message_publish(MSG_ERROR, "ERROR: Could not establish variable server source_address %s: port %d. Aborting.\n",
                 _requested_source_address.c_str(), _requested_port);
-            return -1 ;
+            
+            ret = -1;
         }
+
+        _requested_port = _listener->getPort();
+        _requested_source_address = _listener->getHostname();
     }
-    return 0 ;
+    return ret ;
 }
 
 void * Trick::VariableServerListenThread::thread_body() {
