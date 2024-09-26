@@ -18,7 +18,6 @@ Trick::FrameDataRecordGroup::FrameDataRecordGroup( int in_thread_id , std::strin
     add_job(0, 3, (char *)"checkpoint", NULL, 1.0, (char *)"checkpoint", (char *)"TRK") ;
     add_job(0, 4, (char *)"post_checkpoint", NULL, 1.0, (char *)"clear_checkpoint_vars", (char *)"TRK") ;
     // run the restart job in phase 60001
-    add_job(0, 5, (char *)"restart", NULL, 1.0, (char *)"restart", (char *)"TRK", 60001) ;
     add_job(0, 6, (char *)"shutdown", NULL, 1.0, (char *)"shutdown", (char *)"TRK") ;
 
     write_job = add_job(0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
