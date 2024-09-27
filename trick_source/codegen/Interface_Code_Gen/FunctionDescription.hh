@@ -28,12 +28,33 @@ class FunctionDescription
     void setReturnType(std::string return_type_name);
     
     void setContainerClass(std::string& container_class);
+
     void setInherited(bool inherited);
+    
     void setVirtualInherited(bool virtual_inherited);
+    
+
     void setStatic(bool is_static);
+    void getIsStatic() const;
+
     void setIsConstructor(bool is_constructor);
+    void getIsConstructor() const;
+
+    void setIsCopyConstructor(bool is_copy_constructor);
+    bool getIsCopyConstructor() const;
+
+    void setIsMoveConstructor(bool is_move_constructor);
+    bool getIsMoveConstructor() const ;
     
-    
+    void setFunctionName(std::string in_function_name);
+    std::string getFunctionName() const;
+
+    void setAccess(clang::AccessSpecifier in_access);
+    clang::AccessSpecifier getAccess() const;
+
+    bool getIsDefaultConstructor() const;
+    void setIsDefaultConstructor(bool is_default);
+
     std::string getMangledName();
 
     void addFunctionArgument(FunctionArgument arg);
@@ -41,14 +62,8 @@ class FunctionDescription
     std::string getReturnType() const { return return_type_name; }
 
     inline std::vector<FunctionArgument>& getFunctionArgs();
-
-    inline void setFunctionName(std::string in_function_name);
-    inline void setAccess(clang::AccessSpecifier in_access);
-    inline void setIsDefaultConstructor(bool is_default);
-
-    inline bool getIsDefaultConstructor() const;
-    inline std::string getFunctionName() const;
-    inline std::string getContainerClass() const;
+    
+    std::string getContainerClass() const;
 
     bool getIsPublic() const;
 
@@ -64,8 +79,6 @@ class FunctionDescription
     std::string function_name;
 
     std::vector<FunctionArgument> function_args;
-
-
 
     /** public/protected/private */
     clang::AccessSpecifier access ;
@@ -83,25 +96,16 @@ class FunctionDescription
 
     bool is_default_constructor ;
 
+    bool is_copy_constructor ;
+
+    bool is_move_constructor ;
 
     private:
 
     std::string removePointerAndReference(const std::string& typeStr);
 };
 
+inline std::vector<FunctionArgument>& FunctionDescription::getFunctionArgs() { return  function_args; }
 
-inline std::string FunctionDescription::getContainerClass() const {return container_class; }
-
-inline std::vector<FunctionArgument>& FunctionDescription::getFunctionArgs() { return function_args; }
-
-inline void FunctionDescription::setFunctionName(std::string in_function_name) { function_name = in_function_name; }
-
-inline std::string FunctionDescription::getFunctionName() const { return function_name; }
-
-inline void FunctionDescription::setAccess(clang::AccessSpecifier in_access) { access = in_access;}
-
-inline bool FunctionDescription::getIsDefaultConstructor() const {return is_default_constructor;}
-
-inline void FunctionDescription::setIsDefaultConstructor(bool is_default) { is_default_constructor = is_default; }
 
 #endif // __FUNCTION_DESCRIPTION_HH__

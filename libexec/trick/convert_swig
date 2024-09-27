@@ -318,7 +318,6 @@ sub process_file() {
 \%insert(\"begin\") \%{
 #include <Python.h>
 #include <cstddef>
-#include \"trick/tmm_alloc_args.hh\"
 \%}
 
 \%{
@@ -611,8 +610,6 @@ sub process_class($$$$$) {
     my $extracted ;
     my ($class_name) ;
     my $template_typedefs ;
-    my $extend_block;
-    my $ignore_constructors;
 
 ## Extract the class_name from the class_string
     $class_string =~ /^(?:class|struct)\s+               # keyword class or struct
@@ -631,87 +628,16 @@ sub process_class($$$$$) {
     $my_class_contents .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
 
     ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
-    
+
     # remove the trailing semicolon because we may append text to the class.
     $$contents_ref =~ s/^\s*;//s ;
 
     #remove added extra opening "brace"
     $extracted =~ s/^\{// ;
 
+    #print "*** extracted = $extracted ***\n" ;
+    #print "*** contents = $$contents_ref ***\n" ;
 
-    #
-    if(!is_abstract_class($extracted)) {
-        my @constructors;
-
-        #Find constructors
-        while($extracted =~ /\b$class_name\s*\(([^)]*)\)\s*(?:const)?\s*;?/gs) {
-            my $params = $1;
-            if($params !~ /^\s*$/) {
-                push @constructors, $params;
-            }
-            
-        }
-
-        # Only proceed if there are non-default constructors
-        if (@constructors) {
-            my $qualified_class = $curr_namespace ? "$curr_namespace::$class_name" : $class_name;
-            $extend_block = "\%extend $qualified_class {\n";
-
-            foreach my $constructor (@constructors) {
-                #my $wrapper_name .= $class_name;
-
-                # Parse parameters into types and names
-                my $params_ref = parse_parameters($constructor);
-                my @param_types = @{ $params_ref->{types} };
-                my @param_names = @{ $params_ref->{names} };
-
-               
-                
-                if(is_copy_constructor($class_name, \@param_types)) {
-                    print "COPY CONSTRUCTOR in $class_name\n";
-                    next;
-                }
-
-                # Validate parameter counts
-                die "Mismatch between parameter types and names for class $class_name"
-                    unless scalar(@param_types) == scalar(@param_names);
-
-                # Combine types and names
-                #$wrapper_name .= join('_', $param_types[$_]);
-
-                my @type_name_pairs = map { "$param_types[$_] $param_names[$_]" } (0 .. $#param_types);
-                my $param_list = join(', ', @type_name_pairs);
-
-                my @clean_param_names = map {
-                    my $type = $_;
-                    $type =~ s/\s*&\s*//g;
-                    $type
-                } @param_names;
-
-                # Debugging
-                #print STDERR "Debug: Generating constructor for '$class_name' with parameters: $param_list\n";
-
-                # Construct constructor signature
-                my $signature = "static $class_name* alloc($param_list)";
-
-                #Construct tmm_alloc_args call with parameter names
-                my $tmm_call = "    return tmm_alloc_args<$qualified_class>(";
-                $tmm_call .= join(', ', @clean_param_names);
-                $tmm_call .= ");\n";
-
-                # Append constructor to %extend block
-                $extend_block .= "    $signature {\n$tmm_call";
-                $extend_block .= "    }\n";
-
-                #print STDERR "Wrapper name: $wrapper_name\n";
-            }
-
-            $extend_block .= "};\n";
-            
-            # Debugging: Print the generated %extend block
-            #print STDERR "Debug: Generated %extend block for '$class_name':\n$extend_block\n\n";
-        }
-    }
     # SWIG doesn't like "const static".  Change it to "static const"
     $extracted =~ s/const\s+static/static const/g ;
 
@@ -818,9 +744,6 @@ sub process_class($$$$$) {
     $$new_contents_ref .= $my_class_contents ;
     # write the class contents and semicolon to ensure any template declarations below are after the semicolon.
     $$new_contents_ref .= $extracted . ";\n" ;
-    
-    #$$new_contents_ref .= $ignore_constructors;
-    $$new_contents_ref .= $extend_block . "\n\n";
 
     my $c_ = "$curr_namespace$class_name" ;
     $c_ =~ s/\:/_/g ;
@@ -828,7 +751,6 @@ sub process_class($$$$$) {
     # not have this #define defined.
     $$new_contents_ref .= "#define TRICK_SWIG_DEFINED_$c_" ;
 }
-
 
 ## ================================================================================
 ## process_typedef_struct
@@ -917,91 +839,4 @@ sub process_typedef_const_struct($$$$) {
 
 }
 
-# Helper function to parse parameters
-sub parse_parameters {
-    my ($param_string) = @_;
-    my @types = ();
-    my @names = ();
-    my $arg_counter = 1;
-
-    # Return empty arrays if no parameters
-    return { types => \@types, names => \@names } if $param_string =~ /^\s*$/;
-
-    my @params = split /,/, $param_string;
-
-    foreach my $param (@params) {
-        # Trim leading and trailing whitespace
-        $param =~ s/\s*=\s*[^,]+//;
-
-        # Remove default values (e.g., '= 0')
-        $param =~ s/^\s+|\s+$//g;
-        
-        if ($param =~ /^(.*\S)\s+(\S+)\s*$/) {
-            my $type = $1 || '';
-            my $name = $2;
-
-            if($name =~ s/\*//g) {
-                #This variable is a pointer, move the pointer to the type
-                $type .= "*";
-            } elsif ($name =~ s/\&//g) {
-                #This variable is a reference, move the pointer to the type
-                $type .= "&";
-            }
-
-            # Clean up the type 
-            $type =~ s/\s*&\s*/&/g;    # Remove spaces around '&'
-            $type =~ s/\s*\*\s*/\*/g;  # Remove spaces around '*'
-            $type =~ s/\s+/ /g;        # Replace multiple spaces with a single space
-            $type =~ s/^\s+|\s+$//g;   # Trim leading/trailing whitespace
-
-            # Clean up the name
-            $name =~ s/^\s+|\s+$//g;
-
-            push @types, $type;
-            push @names, $name;
-
-        } else {
-            # Handle cases where the name might be missing
-            my $type = $param;
-            $type =~ s/^\s+|\s+$//g;
-           
-            push @types, $type;
-            push @names, "arg" . scalar(@names);
-        }
-    }
-    return { types => \@types, names => \@names };
-}
-
-sub is_copy_constructor {
-    my ($class_name, $param_types_ref) = @_;
-    my @param_types = @$param_types_ref;
-
-    #Anything that has more than 1 argument is definitely 
-    #not a copy constructor
-    return 0 unless scalar(@param_types) == 1;
-
-    my $param_type = $param_types[0];
-
-    #Remove attributes
-    my $clean_param_type = $param_type;
-    $clean_param_type =~ s/\bconst\b\s*//g;  # Remove 'const'
-    $clean_param_type =~ s/\s*&\s*//g;       # Remove '&'
-    $clean_param_type =~ s/\s*&&\s*//g;      # Remove '&&' (for move constructors)
-    $clean_param_type =~ s/^\s+|\s+$//g;     # Trim leading/trailing whitespace
-
-    # Compare the cleaned parameter type with the class name
-    return $clean_param_type eq $class_name;
-}
-
-sub is_abstract_class {
-    my ($class_body) = @_;
-
-    #Regex to check for virtual <function> = 0;
-    if($class_body =~ /virtual\s+.*?=\s*0\s*;/s) {
-        return 1; #Abstract
-    } else {
-        return 0; #Not abstract
-    }
-}
 __END__
-is_copy_constructor

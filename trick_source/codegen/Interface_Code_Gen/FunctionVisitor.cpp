@@ -51,7 +51,6 @@ bool FunctionVisitor::VisitCXXConstructorDecl(clang::CXXConstructorDecl *ctor)
         funcArg.isConst = qt.isConstQualified();
 
         fdes->addFunctionArgument(funcArg);
-        
     }
 
     fdes->setIsConstructor(true);
@@ -63,6 +62,9 @@ bool FunctionVisitor::VisitCXXConstructorDecl(clang::CXXConstructorDecl *ctor)
 
     fdes->setAccess(ctor->getAccess());
     fdes->setFunctionName(ctor->getParent()->getQualifiedNameAsString());
+    fdes->setIsCopyConstructor(ctor->isCopyConstructor());
+    fdes->setIsMoveConstructor(ctor->isMoveConstructor());
+
 
     return true;
 }

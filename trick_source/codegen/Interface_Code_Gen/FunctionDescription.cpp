@@ -81,11 +81,18 @@ void FunctionDescription::addFunctionArgument(FunctionArgument arg)
 
 bool FunctionDescription::getIsPublic() const
 {
-
     return this->access ==  clang::AccessSpecifier::AS_public;
-
 }
 
+void FunctionDescription::setAccess(clang::AccessSpecifier in_access) 
+{ 
+    access = in_access; 
+}
+
+clang::AccessSpecifier FunctionDescription::getAccess() const 
+{
+    return access;
+}
 
 std::string FunctionDescription::removePointerAndReference(const std::string& typeStr)
 {
@@ -99,5 +106,49 @@ std::string FunctionDescription::removePointerAndReference(const std::string& ty
     result.erase(std::remove(result.begin(), result.end(), ' '), result.end());
 
     return result;
+}
 
+std::string FunctionDescription::getContainerClass() const
+{
+    return container_class;
+}
+
+void FunctionDescription::setFunctionName(std::string in_function_name) 
+{ 
+    function_name = in_function_name; 
+}
+
+std::string FunctionDescription::getFunctionName() const 
+{ 
+    return function_name; 
+}
+
+bool FunctionDescription::getIsDefaultConstructor() const 
+{ 
+    return is_default_constructor; 
+}
+
+void FunctionDescription::setIsDefaultConstructor(bool is_default) 
+{ 
+    this->is_default_constructor = is_default; 
+}
+
+void FunctionDescription::setIsMoveConstructor(bool is_move_constructor)
+{
+    this->is_move_constructor = is_move_constructor;
+}
+
+bool FunctionDescription::getIsMoveConstructor() const 
+{
+    return is_move_constructor;
+}
+
+void FunctionDescription::setIsCopyConstructor(bool is_copy_constructor)
+{
+    this->is_copy_constructor = is_copy_constructor;
+}
+
+bool FunctionDescription::getIsCopyConstructor() const 
+{
+    return is_copy_constructor;
 }

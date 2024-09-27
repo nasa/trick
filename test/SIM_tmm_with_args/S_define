@@ -8,6 +8,7 @@ PURPOSE:
 
 ##include "alloc_with_args.hh"
 ##include "trick/trick_type_traits.hh"
+##include "trick/tmm_alloc_args.hh"
 
 class AllocTestSimObject : public Trick::SimObject {
 

@@ -6,6 +6,17 @@ LIBRARY DEPENDENCY:
 
 #include <iostream>
 
+namespace Test {
+    class SomeStruct
+    {
+        SomeStruct(double new_val)
+        {
+            val = new_val;
+        }
+        double val = 5.0;
+    };
+}
+
 class AllocTestWithArguments {
 
     friend class InputProcessor;

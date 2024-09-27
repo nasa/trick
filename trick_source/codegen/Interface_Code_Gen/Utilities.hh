@@ -22,6 +22,7 @@ std::string getFileName( clang::CompilerInstance & ci , clang::SourceLocation sl
 char * almostRealPath( const std::string& in_path ) ;
 char * almostRealPath( const char * in_path ) ;
 
+
 std::string color(const Color& color, const std::string& text);
 std::string bold(const std::string& text);
 std::string underline(const std::string& text);
@@ -29,5 +30,10 @@ std::string underline(const std::string& text, unsigned length);
 std::string quote(const std::string& text);
 std::string & replace_special_chars( std::string & str);
 int gccVersionToIntOrDefault(const char* verno, int def);
+
+
+
+inline const char * boolToChar(bool b) { return b ? "true" : "false";}
+const char * accessToChar(clang::AccessSpecifier spec);
 
 #endif

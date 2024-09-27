@@ -38,14 +38,8 @@ void PrintFileContents10::printIOHeader(std::ostream & ostream , std::string hea
              << "#include \"trick/parameter_types.h\"\n"
              << "#include \"trick/ClassSizeCheck.hh\"\n"
              << "#include \"trick/UnitsMap.hh\"\n"
-             << "#include \"trick/checkpoint_stl.hh\"\n";
-
-            if(use_tmm_alloc_args)
-            {
-                ostream  << "#include \"trick/tmm_alloc_args.hh\"\n";
-            }
-
-            ostream  << "#include \"" << header_file_name << "\"\n"
+             << "#include \"trick/checkpoint_stl.hh\"\n"
+             << "#include \"" << header_file_name << "\"\n"
             << "\n" ;
 }
 
@@ -362,10 +356,6 @@ void PrintFileContents10::printClass( std::ostream & ostream , ClassValues * cv 
     print_io_src_delete(ostream, cv) ;
     print_close_extern_c(ostream) ;
     print_units_map(ostream, cv) ;
-    if(use_tmm_alloc_args)
-    {
-        printTemplateConstructorWrapper(ostream, cv) ;
-    }
 }
 
 void PrintFileContents10::printEnum( std::ostream & ostream , EnumValues * ev ) {
@@ -428,9 +418,7 @@ void PrintFileContents10::printStlFunction(const std::string& name, const std::s
 void PrintFileContents10::printTemplateConstructorWrapper(std::ostream & ostream , ClassValues * cv ) {
     std::string name = cv->getFullyQualifiedMangledTypeName();
     auto& function_descripts = cv->getFunctionDescriptions();
-
-
-
+    
     for (auto& function_descript : function_descripts) {
         if(!function_descript->getIsDefaultConstructor() && function_descript->getIsPublic())
         {

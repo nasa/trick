@@ -18,9 +18,25 @@
 #include "PrintAttributes.hh"
 #include "BraceMacro.hh"
 #include "FunctionVisitor.hh"
-
+#include "ConstructorPrinter.hh"
 
 extern llvm::cl::opt< int > debug_level ;
+
+CXXRecordVisitor::CXXRecordVisitor(
+ clang::CompilerInstance & in_ci ,
+ CommentSaver & in_cs ,
+ HeaderSearchDirs & in_hsd ,
+ PrintAttributes & in_pa ,
+ PrintConstructors * in_pc,
+ bool in_include_virtual_base ) :
+  ci(in_ci) ,
+  cs(in_cs) ,
+  hsd(in_hsd) ,
+  pa(in_pa) ,
+  ctor_printer(in_pc),
+  cval() ,
+  include_virtual_base(in_include_virtual_base) {}
+
 
 CXXRecordVisitor::CXXRecordVisitor(
  clang::CompilerInstance & in_ci ,
@@ -32,6 +48,7 @@ CXXRecordVisitor::CXXRecordVisitor(
   cs(in_cs) ,
   hsd(in_hsd) ,
   pa(in_pa) ,
+  ctor_printer(nullptr),
   cval() ,
   include_virtual_base(in_include_virtual_base) {}
 
@@ -60,7 +77,7 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
             if ( rd != NULL ) {
                 if ( rd->getAccess() == clang::AS_public ) {
                     if ( isInUserCode(ci , crd->RBRACELOC(), hsd) ) {
-                        CXXRecordVisitor embedded_cvis(ci , cs, hsd , pa, true) ;
+                        CXXRecordVisitor embedded_cvis(ci , cs, hsd , pa, ctor_printer, true) ;
                         embedded_cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
                         pa.printClass(embedded_cvis.get_class_data()) ;
                     }
@@ -123,6 +140,11 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
             auto* ctor = static_cast<clang::CXXConstructorDecl *>(d);
             fvis.TraverseDecl(ctor) ;
             cval.addFunctionDescription(fvis.get_function_data()) ;
+            std::string class_name = cval.getName();
+            if(ctor_printer != nullptr)
+            {
+                ctor_printer->addFunctionDescription(class_name, fvis.get_function_data());
+            }
         }
         break ;
         case clang::Decl::Friend : {

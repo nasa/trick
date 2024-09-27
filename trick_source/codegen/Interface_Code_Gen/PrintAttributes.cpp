@@ -648,8 +648,6 @@ void PrintAttributes::markHeaderAsVisited(const std::string& header) {
     visited_files.insert(header);
 }
 
-
-
 void PrintAttributes::writeTrickTypeToStructHeader()
 {
    
@@ -668,13 +666,12 @@ void PrintAttributes::writeTrickTypeToStructHeader()
             }
             else 
             {
+                //Filtering out classes with namespace for now
                 if(element.find("::") == std::string::npos)
                 {
                     class_names_to_print.insert(element);
                 }
-            }
-
-            
+            }   
         }
 
     }
@@ -712,7 +709,6 @@ void PrintAttributes::writeTrickTypeToStructHeader()
         out_file << "       return \"" << class_name << "\";\n";
         out_file << "   }\n";
         out_file << "};\n\n";
-        //out_file << "const std::string TrickTypeToString<" << class_name << ">::name = \"" << class_name << "\";\n";
         out_file << "\n\n";
     }
 

@@ -43,7 +43,7 @@ class PrintFileContentsBase {
         virtual void printEnumMap(std::ostream & ostream, EnumValues * ev) ;
         virtual void printEnumMapFooter(std::ostream & ostream) ;
 
-        virtual void setUseTMMAllocArgs(bool use_tmm_alloc_args);
+
         /* gets a vector of fields that can be printed */
         std::vector<FieldDescription*> getPrintableFields(ClassValues& classValues, unsigned int ioMask = 0xFFFFFFF);
 
@@ -60,8 +60,6 @@ class PrintFileContentsBase {
         /* internal function determines if a particular field is printable */
         bool isPrintable(ClassValues * c , FieldDescription *fdes , unsigned int ioMask = 0xFFFFFFF) ;
 
-        /* Flag to control printing output related to tmm_alloc_args*/
-        bool use_tmm_alloc_args ;
 } ;
 
 #endif
