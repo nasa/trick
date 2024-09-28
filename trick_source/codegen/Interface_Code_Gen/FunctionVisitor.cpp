@@ -54,15 +54,17 @@ bool FunctionVisitor::VisitCXXConstructorDecl(clang::CXXConstructorDecl *ctor)
     }
 
     fdes->setIsConstructor(true);
-
-    if(ctor->isDefaultConstructor())
-    {
-        fdes->setIsDefaultConstructor(true);
-    }
+    
+    fdes->setIsDefaultConstructor(ctor->isDefaultConstructor());
 
     fdes->setAccess(ctor->getAccess());
-    fdes->setFunctionName(ctor->getParent()->getQualifiedNameAsString());
+    
+    fdes->setFunctionName(ctor->getNameAsString());
+    
+    fdes->setFullyQualifiedContainerClassName(ctor->getParent()->getQualifiedNameAsString());
+
     fdes->setIsCopyConstructor(ctor->isCopyConstructor());
+    
     fdes->setIsMoveConstructor(ctor->isMoveConstructor());
 
 

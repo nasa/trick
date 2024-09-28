@@ -137,12 +137,18 @@ bool CXXRecordVisitor::TraverseDecl(clang::Decl *d) {
         break;
         case clang::Decl::CXXConstructor : {
             FunctionVisitor fvis(ci , hsd , cs, pa, cval.getName()) ;
+
             auto* ctor = static_cast<clang::CXXConstructorDecl *>(d);
+            
             fvis.TraverseDecl(ctor) ;
+            
             cval.addFunctionDescription(fvis.get_function_data()) ;
             std::string class_name = cval.getName();
+
+            //This won't exist for every CXXRecord 
             if(ctor_printer != nullptr)
             {
+                ctor_printer->setFullyQualifiedClassName(cval.getFullyQualifiedMangledTypeName());
                 ctor_printer->addFunctionDescription(class_name, fvis.get_function_data());
             }
         }

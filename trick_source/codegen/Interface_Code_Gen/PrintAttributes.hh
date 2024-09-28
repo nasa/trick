@@ -8,6 +8,8 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <utility>
+
 #include "Utilities.hh"
 
 namespace clang {
@@ -156,6 +158,7 @@ class PrintAttributes {
         std::map< std::string , std::set< std::string > > processed_enums ;
         
         std::set<std::string> typedef_classes;
+
 
 } ;
 

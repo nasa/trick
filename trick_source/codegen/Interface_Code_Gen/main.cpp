@@ -353,12 +353,9 @@ int main(int argc, char * argv[]) {
         printAttributes.setUseTMMAllocArgs(true);
         printAttributes.writeTrickTypeToStructHeader();
         constructorPrinter.printAll();
-        std::ofstream test_file;
-        test_file.open("test.json");
-        test_file << constructorPrinter.getStream().str();
+        constructorPrinter.writeToFile("build/constructors.json");
     }
-
-       
+    
     if (icgDiagConsumer->error_in_user_code) {
         std::cout << color(ERROR, "Trick build was terminated due to error in user code!") << std::endl;
         exit(-1);

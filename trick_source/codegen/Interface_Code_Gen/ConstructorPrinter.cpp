@@ -59,8 +59,9 @@ void PrintConstructors::printAll()
         tab_count++;
         
         writeString(stream, "className", classIter->first);
-     
-        stream << getSpaces(tab_count) << "\"constructors:\": " << "[\n";
+        writeString(stream, "qualifiedClassName", (*classIter->second.begin())->getFullyQualifiedContainerClassName());
+
+        stream << getSpaces(tab_count) << "\"constructors\": " << "[\n";
         
         for(auto funcIt = classIter->second.begin(); funcIt != classIter->second.end(); ++funcIt)
         {
@@ -76,16 +77,24 @@ void PrintConstructors::printAll()
 
         stream << getSpaces(tab_count) << "]\n";
 
-        stream << "}\n";
+        tab_count--;
+        if(std::next(classIter) == classFuncDes.end())
+        {
+            stream << "}\n";
+        }
+        else 
+        {
+            stream << "},\n";
+        }
+        
     }
     
+    tab_count--;
     stream << "]\n";
 }
 
 void PrintConstructors::printSingle(std::stringstream& out_stream, FunctionDescription* functionDescription, const std::string& class_name, bool last)
 {
-
-
     out_stream << getSpaces(tab_count) << "{\n" ;
     tab_count++;
 
@@ -159,7 +168,7 @@ void PrintConstructors::printParameter(std::stringstream& out_stream, FunctionAr
 std::stringstream& PrintConstructors::writeString(std::stringstream& out_stream, std::string label, std::string in_string, bool last)
 {   
 
-    out_stream << getSpaces(tab_count) << "\"" << label << "\":" << "\"" << in_string <<  "\"";
+    out_stream << getSpaces(tab_count) << "\"" << label << "\": " << "\"" << in_string <<  "\"";
 
     if(!last)
     {
@@ -174,7 +183,7 @@ std::stringstream& PrintConstructors::writeString(std::stringstream& out_stream,
 std::stringstream& PrintConstructors::writeBool(std::stringstream& out_stream, std::string label, std::string in_bool, bool last)
 {   
     
-    out_stream << getSpaces(tab_count) << "\"" << label << "\":" << in_bool;
+    out_stream << getSpaces(tab_count) << "\"" << label << "\": " << in_bool;
 
     if(!last)
     {
@@ -197,4 +206,17 @@ std::string PrintConstructors::getSpaces(size_t count)
     }
 
     return spaces;
+}
+
+void PrintConstructors::writeToFile(std::string file_name)
+{
+    std::ofstream output_file;
+    output_file.open(file_name);
+    output_file << stream.str();
+    output_file.close();
+}
+
+void PrintConstructors::setFullyQualifiedClassName(std::string fully_qualified_name)
+{
+    fullyQualifiedClassName = fully_qualified_name;
 }

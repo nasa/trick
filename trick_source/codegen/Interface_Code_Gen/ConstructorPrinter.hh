@@ -25,13 +25,16 @@ class PrintConstructors
 
     void setOutputFileName(std::string name, std::string path);
     
+    void setFullyQualifiedClassName(std::string fully_qualified_name);
+
     void printAll();
     
-    void writeToFile();
+    void writeToFile(std::string file_name);
 
     void addFunctionDescription(std::string class_name, FunctionDescription* function_description);
 
     std::stringstream& getStream();
+
 
     public:
     
@@ -53,6 +56,8 @@ class PrintConstructors
     std::stringstream stream;
     std::size_t tab_count;
     std::size_t spacesPerTab;
+    
+    std::string fullyQualifiedClassName;
 
 };
 

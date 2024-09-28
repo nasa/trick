@@ -7,7 +7,6 @@ PURPOSE:
 #include "sim_objects/default_trick_sys.sm"
 
 ##include "alloc_with_args.hh"
-##include "trick/trick_type_traits.hh"
 ##include "trick/tmm_alloc_args.hh"
 
 class AllocTestSimObject : public Trick::SimObject {
@@ -32,4 +31,3 @@ class AllocTestSimObject : public Trick::SimObject {
 };
 
 AllocTestSimObject alloc_test ;
-

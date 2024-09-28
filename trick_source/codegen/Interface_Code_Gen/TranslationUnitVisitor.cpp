@@ -71,7 +71,7 @@ bool TranslationUnitVisitor::TraverseDecl(clang::Decl *d) {
                 //crd->dump() ; std::cout << std::endl ;
                 if ( isInUserCode(ci , crd->RBRACELOC(), hsd) ) {
                     CXXRecordVisitor cvis(ci , cs, hsd , pa, &ctor_printer, true) ;
-
+            
                     cvis.TraverseCXXRecordDecl(static_cast<clang::CXXRecordDecl *>(d)) ;
                     pa.printClass(cvis.get_class_data()) ;
 

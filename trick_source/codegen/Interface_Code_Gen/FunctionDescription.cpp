@@ -12,8 +12,6 @@ FunctionDescription::FunctionDescription() :
 
 }
 
-
-
 FunctionDescription::FunctionDescription(std::string& container_class) :
     container_class(container_class),
     is_inherited(false),
@@ -113,6 +111,16 @@ std::string FunctionDescription::getContainerClass() const
     return container_class;
 }
 
+void FunctionDescription::setFullyQualifiedContainerClassName(std::string fully_qualified_name)
+{
+    fully_qualified_container_class_name = fully_qualified_name;
+}
+
+std::string FunctionDescription::getFullyQualifiedContainerClassName()
+{
+    return fully_qualified_container_class_name;
+}
+
 void FunctionDescription::setFunctionName(std::string in_function_name) 
 { 
     function_name = in_function_name; 
@@ -120,7 +128,7 @@ void FunctionDescription::setFunctionName(std::string in_function_name)
 
 std::string FunctionDescription::getFunctionName() const 
 { 
-    return function_name; 
+    return function_name;
 }
 
 bool FunctionDescription::getIsDefaultConstructor() const 

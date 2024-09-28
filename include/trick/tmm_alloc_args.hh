@@ -6,7 +6,7 @@ LIBRARY DEPENDENCY:
     ()
     )
 **************************************************************************/
-
+#ifndef SWIG
 #ifndef __ALLOC_WITH_ARGS_HH__
 #define __ALLOC_WITH_ARGS_HH__
 
@@ -38,3 +38,4 @@ tmm_alloc_args(Args&&... args)
 }
 
 #endif 
+#endif

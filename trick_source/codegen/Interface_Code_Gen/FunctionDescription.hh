@@ -65,6 +65,9 @@ class FunctionDescription
     
     std::string getContainerClass() const;
 
+    void setFullyQualifiedContainerClassName(std::string fully_qualified_name);
+    std::string getFullyQualifiedContainerClassName();
+    
     bool getIsPublic() const;
 
     private:
@@ -73,6 +76,9 @@ class FunctionDescription
 
     /** Name of the class this field is in */
     std::string container_class ;
+
+    /* Fully qualified name of the container class*/
+    std::string fully_qualified_container_class_name;
 
     std::string return_type_name ;
 

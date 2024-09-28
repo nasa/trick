@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <stdio.h>
+
 #include <limits.h>
 
 #include "clang/Frontend/CompilerInstance.h"
@@ -666,11 +667,7 @@ void PrintAttributes::writeTrickTypeToStructHeader()
             }
             else 
             {
-                //Filtering out classes with namespace for now
-                if(element.find("::") == std::string::npos)
-                {
-                    class_names_to_print.insert(element);
-                }
+                class_names_to_print.insert(element);
             }   
         }
 
@@ -692,13 +689,79 @@ void PrintAttributes::writeTrickTypeToStructHeader()
     out_file << "#include <string>\n";
     out_file << "//Forward declarations\n";
 
+
+
+    //Forward declarations
     for (auto class_name : class_names_to_print)
     {
-        out_file << "class " << class_name << ";\n";
+        if(class_name.find("::") != std::string::npos)
+        {
+
+            //TODO: Move this into utilities if there isn't already a version if it in there
+            auto split_name = [](std::string& qualified_name) -> std::pair<std::vector<std::string>, std::string> {
+                std::vector<std::string> namespaces;
+                std::string type;
+
+                std::string delimiter = "::";
+                size_t start = 0 ;
+                //pos will point to just BEFORE the first ':' in "::"
+                size_t pos = qualified_name.find(delimiter, start);
+                
+                while(pos != std::string::npos)
+                {
+                    std::string ns = qualified_name.substr(start, pos - start);
+                    if(!ns.empty())
+                    {
+                        namespaces.emplace_back(ns);
+                    }
+
+                    //Shift start so we don't find the same :: again
+                    start = pos + 2;
+                    pos = qualified_name.find(delimiter, start);
+                }
+                
+                type = qualified_name.substr(start);
+
+                return {namespaces, type};
+
+            };
+
+            auto qualified_name_components = split_name(class_name);
+            //Lambda function to generate a string with count spaces (for indenting)
+            auto spaces = [](size_t count) -> std::string {
+                std::string some_spaces;
+                for(size_t i = 0; i < count; ++i)
+                {
+                    some_spaces.append(" ");
+                }
+
+                return some_spaces;
+            };
+
+            //Wrap these in namespace <namespace> declarations
+            size_t ns_count = 0;
+            for (auto ns : qualified_name_components.first)
+            {
+                out_file << spaces(ns_count) << "namespace " << ns << "{\n";
+                ns_count++;
+            }
+
+            out_file << spaces(ns_count) << "class " <<  qualified_name_components.second << ";\n";
+
+            for(size_t i = ns_count; i > 0; --i)
+            {
+                out_file << spaces(i - 1) << "}\n";
+            }
+        }
+        else 
+        {
+            out_file << "class " << class_name << ";\n";
+        }
+        
     }
 
     out_file << "\n\n";
-    
+    //Create specializations for all types contained in class_names_to_print
     for (auto class_name : class_names_to_print)
     {
         out_file << "template<>\n";

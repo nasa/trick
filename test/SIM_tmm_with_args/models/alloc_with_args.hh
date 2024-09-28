@@ -7,7 +7,7 @@ LIBRARY DEPENDENCY:
 #include <iostream>
 
 namespace Test {
-    class SomeStruct
+    struct SomeStruct
     {
         SomeStruct(double new_val)
         {
