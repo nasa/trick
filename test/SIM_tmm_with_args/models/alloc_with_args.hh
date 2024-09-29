@@ -5,6 +5,7 @@ LIBRARY DEPENDENCY:
 *******************************************************************************/
 
 #include <iostream>
+#include "trick/tmm_alloc_args.hh"
 
 namespace Test {
     struct SomeStruct
@@ -23,42 +24,22 @@ class AllocTestWithArguments {
     
     public:
 
-    AllocTestWithArguments()
-     :
-    some_int(0),
-    some_double(0.0)
-    {
+    AllocTestWithArguments();
 
-    }
-
-    AllocTestWithArguments(int in_int, double in_double) 
-    :
-    some_int(in_int),
-    some_double(in_double)
-    {
-        std::cout << "AllocTestWithArguments constructor with: \n";
-        std::cout << "in_int: " << in_int << "\n";
-        std::cout << "in_double: " << in_double << "\n";
-    }
+    AllocTestWithArguments(int in_int, double in_double);
 
 
-    AllocTestWithArguments(int* in_int, double *in_double, std::string &a_name) 
-    :
-    some_int(*in_int),
-    some_double(*in_double)
-    {
-        std::cout << "AllocTestWithArguments constructor with: \n";
-        std::cout << a_name << std::endl;
-        std::cout << "in_int: " << in_int << "\n";
-        std::cout << "in_double: " << in_double << "\n";
-    }
+    AllocTestWithArguments(int* in_int, double *in_double, std::string &a_name);
 
     AllocTestWithArguments(int*, double&, std::string);
+
+    AllocTestWithArguments(Test::SomeStruct in_struct);
 
     ~AllocTestWithArguments() {
         std::cout << "AllocTestWithArguments desctruct.\n";
     }
-
+    
     int some_int;
     double some_double;
+    Test::SomeStruct* my_struct;
 };
