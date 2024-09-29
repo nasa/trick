@@ -92,8 +92,17 @@ int Trick::ScheduledJobQueue::push( JobData * new_job ) {
     /* Increment the size of the queue */
     list_size++ ;
 	
-    int new_job_index = (insert_pt - list) / sizeof(JobData**);
-    if(new_job_index < curr_index) {
+    int new_job_index = (insert_pt - list);
+    std::cout << "Pushing " << new_job->name << ", new_job_index = " << new_job_index << ", curr_index = " << curr_index << std::endl;
+    std::cout << "\tinsert_pt = " << insert_pt << ", list = " << list << ", diff = " << (insert_pt - list) << std::endl;
+    //Concerns
+    //  pushing to an empty array - should not increment(curr index remains 0)
+    //  x pushing onto curr while curr index is 0 (do we want to move the curr idx around while we're not currently incrementing - leaning towards don't increment curr index, need to check with team 
+    //  pushing onto curr while not at index 0 (mid processing of array) - leaning towards do increment current index, as if we're mid processing we want curr index to stay with the job
+    //  pushing to the end of list while curr index is = list size - occurs when cycled through the job queue already. Formely, would have not updated curr index, meaning you would go onto execute the newly pushed job. I think this is correct behavior.
+    //  deleting jobs from this queue - Do we adjust curr index? Need to verify this logic is sound
+    if( ((new_job_index <= curr_index) || ((curr_index == new_job_index) && (curr_index == list_size-1))) && list_size > 1 && curr_index != 0 ) {
+        std::cout << "Incrementing curr_index" << std::endl;
         curr_index++;	
     }
 
@@ -271,6 +280,7 @@ Trick::JobData * Trick::ScheduledJobQueue::get_next_job() {
         while (curr_index < list_size ) {
             curr_job = list[curr_index++] ;
             if ( !curr_job->disabled ) {
+                std::cout << "Return job " << curr_job->name << ", at index " << curr_index-1 << std::endl;
                 return(curr_job) ;
             }
         }
