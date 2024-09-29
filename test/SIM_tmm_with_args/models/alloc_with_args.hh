@@ -31,6 +31,10 @@ class AllocTestWithArguments {
 
     AllocTestWithArguments(int* in_int, double *in_double, std::string &a_name);
 
+    AllocTestWithArguments(int* in_int, double *in_double, const char* a_name);
+
+    AllocTestWithArguments(int in_int, double in_double, const char* a_name);
+
     AllocTestWithArguments(int*, double&, std::string);
 
     AllocTestWithArguments(Test::SomeStruct in_struct);
@@ -41,5 +45,7 @@ class AllocTestWithArguments {
     
     int some_int;
     double some_double;
+    std::string some_string;
+
     Test::SomeStruct* my_struct;
 };

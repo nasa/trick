@@ -53,15 +53,13 @@ class AllocTestSimObject : public Trick::SimObject {
         
         atwargs_4 = tmm_alloc_args<AllocTestWithArguments>(&test_int, test_double, "test_string");
 
+        atwargs_5 = new AllocTestWithArguments();
+
+        atwargs_5 = tmm_alloc_args<AllocTestWithArguments>( atwargs_5, &test_int, test_double, "test_string");
+
     }
 
-
-
-
     
-
-
-    private:
 };
 
 AllocTestSimObject alloc_test ;

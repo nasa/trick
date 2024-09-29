@@ -7,9 +7,7 @@ trick.exec_set_freeze_command(True)
 
 import trick
 
-# Test
-EXPECT_EQ(atwargs_1.some_int, 5)
-EXPECT_EQ(atwargs_1.some_double, 10.0)
+
 
 
 

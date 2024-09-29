@@ -36,7 +36,7 @@ In the case that a TrickTypeToString<T> for some type T exist, then this functio
 */
 template<typename T, typename ...Args>
 typename std::enable_if<Trick::has_getname<T>::value, T*>::type
-tmm_alloc_args(Args&&... args, T* address)
+tmm_alloc_args(T* address, Args&&... args)
 {
     return new (address) T(std::forward<Args>(args)...);
 }
