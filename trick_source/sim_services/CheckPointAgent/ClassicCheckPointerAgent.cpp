@@ -952,6 +952,7 @@ std::string Trick::ClassicCheckPointAgent::
                 message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Pointer <%p> in \"%s\" is not in Trick managed memory\n"
                                            "nor is it a character pointer.\n", pointer, lname.c_str()) ;
                 reference_string = "ERROR - Pointer not in Trick managed memory";
+                exit(1);
             }
 
         } else {
@@ -959,6 +960,7 @@ std::string Trick::ClassicCheckPointAgent::
             message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Pointer <%p> in \"%s\" is not in Trick managed memory\n"
                                        "nor is it a character pointer.\n", pointer, lname.c_str()) ;
             reference_string = "ERROR - Pointer not in Trick managed memory";
+            exit(1);
         }
     }
     return( reference_string);
