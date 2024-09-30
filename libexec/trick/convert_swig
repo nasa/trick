@@ -16,7 +16,7 @@ use File::Path qw(make_path) ;
 use html ;
 use get_paths ;
 use verbose_build ;
-use JSON::MaybeXS ;
+
 
 ##
 ## ================================================================================
@@ -177,6 +177,10 @@ if ( scalar keys %out_of_date == 0 ) {
     exit ;
 }
 
+
+if($tmm) {
+    use JSON::PP ;
+}
 ## Finally, call process_file() to create SWIG interface files for each of the out_of_date headers.
 ##
 
