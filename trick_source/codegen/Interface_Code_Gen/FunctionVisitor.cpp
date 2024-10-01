@@ -31,7 +31,7 @@ bool FunctionVisitor::VisitCXXConstructorDecl(clang::CXXConstructorDecl *ctor)
     uint32_t num_params = ctor->getNumParams();
     
     //Return type for constuctors is void    
-    fdes->setReturnType(ctor->getReturnType().getAsString());
+    fdes->setReturnType(ctor->getType().getAsString());
 
     for(uint32_t i = 0; i < num_params; ++i)
     {
