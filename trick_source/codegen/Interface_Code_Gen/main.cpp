@@ -312,7 +312,7 @@ int main(int argc, char * argv[]) {
 #if (LIBCLANG_MAJOR >= 10 && LIBCLANG_MAJOR < 18)
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath).get();
 #elif (LIBCLANG_MAJOR >= 18)
-    clang::FileEntryRef fileEntryRef = llvm::cantFail(ci.getFileManager().getFileRef(inputFilePath));
+    const clang::FileEntryRef fileEntryRef = llvm::cantFail(ci.getFileManager().getFileRef(inputFilePath));
 #else
     const clang::FileEntry* fileEntry = ci.getFileManager().getFile(inputFilePath);
 #endif
