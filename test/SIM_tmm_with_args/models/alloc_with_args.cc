@@ -65,9 +65,7 @@ some_string("")
 
 
 AllocTestWithArguments::AllocTestWithArguments(Test::SomeStruct in_struct)
+: my_struct(&in_struct)
 {
 
-}:
-some_int(*in_int),
-some_double(*in_double),
-some_string(a_name)
+}
