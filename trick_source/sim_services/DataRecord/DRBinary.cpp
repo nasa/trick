@@ -22,7 +22,7 @@ PROGRAMMERS:
    Other classes inherit from DRBinary. In these cases, we don't want to register the memory as DRBinary,
    so register_group will be set to false.
 */
-Trick::DRBinary::DRBinary( std::string in_name, bool register_group, bool configure_jobs ) : Trick::DataRecordGroup(in_name) {
+Trick::DRBinary::DRBinary( std::string in_name, bool register_group, unsigned long job_config ) : Trick::DataRecordGroup(in_name, job_config) {
     if ( register_group ) {
         register_group_with_mm(this, "Trick::DRBinary") ;
     }

@@ -149,7 +149,7 @@ namespace Trick {
              @brief Constructor that creates a new data recording group with the given @c in_name.
              @param in_name - the new data recording group name
             */
-            DataRecordGroup( std::string in_name = "", bool configure_jobs = true ) ;
+            DataRecordGroup( std::string in_name = "", unsigned long job_config = 0x7F ) ;
 
             ~DataRecordGroup() ;
 
@@ -404,6 +404,12 @@ namespace Trick {
              @returns always 0
             */
             virtual int add_time_variable() ;
+
+            /**
+             @brief This function adds jobs to the DRG based on job_config bits. By default a DRG should be constructed with all jobs on.
+             @returns void
+            */
+            virtual void configure_jobs(unsigned long job_config) ;
 
             /** Check that a variable is supported by data recording. */
             /** Variable must be a single primitive type - no STL, array, structured, string */

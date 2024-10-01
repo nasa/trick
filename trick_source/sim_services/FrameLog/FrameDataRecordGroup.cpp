@@ -9,19 +9,7 @@
 -# All instances get the end_of_frame frame_log_clear job.
 */
 Trick::FrameDataRecordGroup::FrameDataRecordGroup( int in_thread_id , std::string in_name )
- : Trick::DRBinary(in_name, false, false) , thread_id(in_thread_id ) {
-    // add_jobs_to_queue will fill in job_id later
-    // make the init job run after all other initialization jobs but before the post init checkpoint
-    // job so users can allocate memory in initialization jobs and checkpointing data rec groups will work
-    add_job(0, 1, (char *)"initialization", NULL, cycle, (char *)"init", (char *)"TRK", 65534) ;
-    add_job(0, 2, (char *)"end_of_frame", NULL, 1.0, (char *)"write_data", (char *)"TRK") ;
-    add_job(0, 3, (char *)"checkpoint", NULL, 1.0, (char *)"checkpoint", (char *)"TRK") ;
-    add_job(0, 4, (char *)"post_checkpoint", NULL, 1.0, (char *)"clear_checkpoint_vars", (char *)"TRK") ;
-    // run the restart job in phase 60001
-    add_job(0, 6, (char *)"shutdown", NULL, 1.0, (char *)"shutdown", (char *)"TRK") ;
-
-    write_job = add_job(0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
-
+ : Trick::DRBinary(in_name, false, 0x6F) , thread_id(in_thread_id ) {
     if ( thread_id > 0 ) {
         add_job(thread_id, 1000, (char *)"top_of_frame", NULL, 1.0, (char *)"start_timer", (char *)"TRK", 1) ;
         // Frame logging uses phase 65533 in FrameLog.ccp. Stop the timer just before that.
