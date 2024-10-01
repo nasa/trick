@@ -116,7 +116,7 @@ class KeyedColorMap {
     }
 } // KeyedColorMap
 
-class TraceViewPanel extends JPanel {
+class TraceViewCanvas extends JPanel {
 
     public static final int MIN_TRACE_WIDTH = 4;
     public static final int DEFAULT_TRACE_WIDTH = 10;
@@ -131,21 +131,21 @@ class TraceViewPanel extends JPanel {
     private List<JobExecutionEvent> jobExecList;
     private KeyedColorMap idToColorMap;
     private BufferedImage image;
-    private SouthToolBar sToolBar;
+    private TraceViewOutputToolBar sToolBar;
     private Cursor crossHairCursor;
     private Cursor defaultCursor;
 
-    public TraceViewPanel( ArrayList<JobExecutionEvent> jobExecEvtList, SouthToolBar southToolBar ) {
+    public TraceViewCanvas( ArrayList<JobExecutionEvent> jobExecEvtList, TraceViewOutputToolBar outputToolBar ) {
 
         traceWidth = DEFAULT_TRACE_WIDTH;
         frameDuration = 1.0;
         image = null;
-        sToolBar = southToolBar;
+        sToolBar = outputToolBar;
         jobExecList = jobExecEvtList;
         crossHairCursor = new Cursor( Cursor.CROSSHAIR_CURSOR );
         defaultCursor = new Cursor( Cursor.DEFAULT_CURSOR );
-        double smallestStart = Double.MAX_VALUE;
-        double largestStop = -Double.MAX_VALUE;
+        double smallestStart =  Double.MAX_VALUE;
+        double largestStop   = -Double.MAX_VALUE;
 
         try {
            idToColorMap = new KeyedColorMap();
@@ -334,14 +334,14 @@ class TraceViewPanel extends JPanel {
         g.drawImage(image, 0, 0, this);
         g2.dispose();
     }
-} // class TraceViewPanel
+} // class TraceViewCanvas
 
-class NorthToolBar extends JToolBar implements ActionListener {
+class TraceViewInputToolBar extends JToolBar implements ActionListener {
 
-    private TraceViewPanel traceView;
+    private TraceViewCanvas traceView;
     private JTextField frameDurationField;
 
-    public NorthToolBar (TraceViewPanel tv) {
+    public TraceViewInputToolBar (TraceViewCanvas tv) {
         traceView = tv;
         add( new JLabel(" Frame Size: "));
         frameDurationField = new JTextField(15);
@@ -373,14 +373,14 @@ class NorthToolBar extends JToolBar implements ActionListener {
             break;
         }
     }
-} // class NorthToolBar
+} // class TraceViewInputToolBar
 
-class SouthToolBar extends JToolBar {
+class TraceViewOutputToolBar extends JToolBar {
     private JTextField IDField;
     private JTextField frameNumberField;
     private JTextField subFrameTimeField;
 
-    public SouthToolBar () {
+    public TraceViewOutputToolBar () {
 
         add( new JLabel(" Job ID: "));
         IDField = new JTextField(15);
@@ -409,13 +409,13 @@ class SouthToolBar extends JToolBar {
     public void setSubFrameTime(double time) {
         subFrameTimeField.setText( String.format("%8.4f", time));
     }
-} // class SouthToolBar
+} // class TraceViewOutputToolBar
 
-class PerfMenuBar extends JMenuBar implements ActionListener {
+class TraceViewMenuBar extends JMenuBar implements ActionListener {
 
-    private TraceViewPanel traceView;
+    private TraceViewCanvas traceView;
 
-    public PerfMenuBar(TraceViewPanel tv) {
+    public TraceViewMenuBar(TraceViewCanvas tv) {
         traceView = tv;
 
         JMenu fileMenu = new JMenu("File");
@@ -459,19 +459,18 @@ class PerfMenuBar extends JMenuBar implements ActionListener {
             break;
         }
     }
-} // class PerfMenuBar
+} // class TraceViewMenuBar
 
-public class JobPerf extends JFrame {
+class TraceViewWindow extends JFrame {
 
-    public JobPerf( String fileName ) {
+    public TraceViewWindow( ArrayList<JobExecutionEvent> jobExecList ) {
+        TraceViewOutputToolBar outputToolBar = new TraceViewOutputToolBar();
+        TraceViewCanvas traceView = new TraceViewCanvas( jobExecList, outputToolBar);
 
-        SouthToolBar southToolBar = new SouthToolBar();
-        TraceViewPanel traceView = new TraceViewPanel( JobExecutionEventList(fileName), southToolBar);
-
-        PerfMenuBar menuBar = new PerfMenuBar(traceView);
+        TraceViewMenuBar menuBar = new TraceViewMenuBar(traceView);
         setJMenuBar(menuBar);
 
-        NorthToolBar nToolBar = new NorthToolBar( traceView );
+        TraceViewInputToolBar nToolBar = new TraceViewInputToolBar( traceView );
         add(nToolBar, BorderLayout.NORTH);
 
         JScrollPane scrollPane = new JScrollPane( traceView );
@@ -486,7 +485,7 @@ public class JobPerf extends JFrame {
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         mainPanel.add(tracePanel);
 
-        add(southToolBar, BorderLayout.SOUTH);
+        add(outputToolBar, BorderLayout.SOUTH);
 
         setTitle("JobPerf");
         setSize(800, 500);
@@ -498,6 +497,15 @@ public class JobPerf extends JFrame {
         setVisible(true);
 
         traceView.repaint();
+    }
+} // class TraceViewWindow
+
+public class JobPerf extends JFrame {
+    ArrayList<JobExecutionEvent> jobExecEvtList;
+
+    public JobPerf( String fileName ) {
+        jobExecEvtList = JobExecutionEventList(fileName);
+        TraceViewWindow traceViewWindow = new TraceViewWindow( jobExecEvtList );
     }
 
     private static void  printHelpText() {
@@ -561,6 +569,7 @@ public class JobPerf extends JFrame {
             ++ii;
         } // while
 
-        JobPerf jobPerf = new JobPerf(fileName);
+        JobPerf jobPerf = new JobPerf( fileName );
     } // main
+
 } // class JobPerf
