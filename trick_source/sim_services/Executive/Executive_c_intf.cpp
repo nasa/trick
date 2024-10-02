@@ -1108,3 +1108,34 @@ int exec_register_scheduler( Trick::Scheduler * scheduler ) {
     return -1 ;
 }
 
+/**
+ * @relates Trick::DebugPause
+ * @copydoc Trick::DebugPause::debug_pause_on
+ * C wrapper for Trick::DebugPause::debug_pause_on
+ */
+extern "C" int debug_pause_on(void) {
+    if (the_exec != NULL) {
+        return the_exec->debug_pause_on() ;
+    }
+    return(0) ;
+}
+
+/**
+ * @relates Trick::DebugPause
+ * @copydoc Trick::DebugPause::debug_pause_off
+ * C wrapper for Trick::DebugPause::debug_pause_off
+ */
+extern "C" int debug_pause_off(void) {
+    if (the_exec != NULL) {
+        return the_exec->debug_pause_off() ;
+    }
+    return(0) ;
+}
+
+extern "C" int debug_signal(void) {
+    if (the_exec != NULL) {
+        return the_exec->debug_signal() ;
+    }
+    return(0) ;
+}
+
