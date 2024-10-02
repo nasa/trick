@@ -1,5 +1,5 @@
 #include "FunctionDescription.hh"
-
+#include <algorithm>
 
 FunctionDescription::FunctionDescription() :
     container_class(container_class),

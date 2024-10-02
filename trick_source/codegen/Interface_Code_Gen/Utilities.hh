@@ -5,6 +5,8 @@
 #include "clang/Frontend/CompilerInstance.h"
 #include "clang/Basic/FileManager.h"
 #include "clang/Basic/SourceLocation.h"
+#include "clang/Basic/Specifiers.h"
+
 #include "HeaderSearchDirs.hh"
 
 enum Color {
