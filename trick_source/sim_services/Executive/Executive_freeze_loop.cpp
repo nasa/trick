@@ -5,7 +5,6 @@
 #include "trick/Executive.hh"
 #include "trick/ExecutiveException.hh"
 #include "trick/exec_proto.h"
-#include "trick/debug_pause_proto.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 
@@ -26,7 +25,7 @@ int Trick::Executive::freeze_loop() {
     /* Set the mode to Freeze */
     mode = Freeze;
 
-    if (debug_pause_flag()) {
+    if (debug_pause_flag) {
         debug_pause_off();
     }
     

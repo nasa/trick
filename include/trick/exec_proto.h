@@ -90,6 +90,10 @@ extern "C" {
     int exec_add_scheduled_job_class(const char * in_name) ;
     int exec_add_depends_on_job( const char * target_job_string , unsigned int t_instance , const char * depend_job_string , unsigned int d_instance ) ;
 
+    int debug_pause_on(void) ;
+    int debug_pause_off(void) ;
+    int debug_signal(void) ;
+
 #ifdef __cplusplus
 }
 #endif
