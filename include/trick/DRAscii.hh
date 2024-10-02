@@ -68,7 +68,7 @@ namespace Trick {
              @code <my_drg> = trick.DRAscii("<in_name>") @endcode
              @copydoc Trick::DataRecordGroup::DataRecordGroup(string in_name)
              */
-            DRAscii( std::string in_name) ;
+            DRAscii( std::string in_name, Trick::DR_Type dr_type = DR_Type::DR_Type_Ascii ) ;
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_header
