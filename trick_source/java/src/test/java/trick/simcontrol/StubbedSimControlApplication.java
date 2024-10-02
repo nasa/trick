@@ -35,7 +35,8 @@ public class StubbedSimControlApplication extends SimControlApplication {
 	}
 
     public StubbedSimControlApplication(String hostname, int portNum) {
-		super.setHostPort(hostname, portNum);
+		host = hostname;
+        port = portNum;
 		actionController = new SimControlActionController();
 		ActionRecord = new Stack<ActionID>();
 
