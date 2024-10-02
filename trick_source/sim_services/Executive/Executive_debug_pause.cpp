@@ -24,7 +24,7 @@ int Trick::Executive::debug_pause(Trick::JobData * curr_job) {
         // Pause for all job classes that are not initialization or for init jobs greater than phase 1.
         if ( target_job->job_class_name.compare("initialization") or target_job->phase > 1 ) {
 
-            message_publish(MSG_NORMAL, "%12.6f pausing before %s\n" , exec_get_sim_time() ,
+            message_publish(MSG_NORMAL, "%12.6f pausing before %s\n" , get_sim_time() ,
              target_job->name.c_str() ) ;
 
             do {
@@ -65,7 +65,7 @@ int Trick::Executive::debug_pause_on() {
 
     debug_sem = sem_open(debug_sem_name.c_str(), O_CREAT, S_IRWXU , 0);
 
-    exec_instrument_before("trick_sys.sched.debug_pause") ;
+    instrument_job_before("trick_sys.sched.debug_pause") ;
 
     //TODO: turn off real-time clock if on.
 
@@ -80,7 +80,7 @@ int Trick::Executive::debug_pause_off() {
     }
     debug_pause_flag = false ;
 
-    exec_instrument_remove("trick_sys.sched.debug_pause") ;
+    instrument_job_remove("trick_sys.sched.debug_pause") ;
 
     debug_signal() ;
 
