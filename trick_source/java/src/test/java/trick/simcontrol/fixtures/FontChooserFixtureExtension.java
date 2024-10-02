@@ -1,11 +1,11 @@
-package trick.common.fixtures;
+package trick.simcontrol.fixtures;
 
 import java.awt.Container;
 
 import org.assertj.swing.core.Robot;
 import org.assertj.swing.fixture.ComponentFixtureExtension;
 
-import trick.common.fixtures.FontChooserFixture;
+import trick.simcontrol.fixtures.FontChooserFixture;
 import trick.common.ui.components.FontChooser;
 
 public class FontChooserFixtureExtension extends ComponentFixtureExtension {

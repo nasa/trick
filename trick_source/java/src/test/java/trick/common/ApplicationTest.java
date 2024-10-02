@@ -1,6 +1,6 @@
 package trick.common;
 
-import trick.common.fixtures.FontChooserFixture;
+import trick.simcontrol.fixtures.FontChooserFixture;
 import trick.common.ui.components.FontChooser;
 import trick.simcontrol.SimControlApplication;
 import trick.simcontrol.StubbedSimControlApplication;

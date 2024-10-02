@@ -1,4 +1,4 @@
-package trick.common.fixtures;
+package trick.simcontrol.fixtures;
 
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
@@ -10,7 +10,7 @@ import org.assertj.swing.fixture.JLabelFixture;
 import org.assertj.swing.fixture.JListFixture;
 import org.assertj.swing.fixture.JPanelFixture;
 
-import trick.common.fixtures.FontChooserFixtureExtension;
+import trick.simcontrol.fixtures.FontChooserFixtureExtension;
 import trick.common.ui.components.FontChooser;
 
 public class FontChooserFixture extends DialogFixture {
