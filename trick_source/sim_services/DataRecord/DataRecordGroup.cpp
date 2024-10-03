@@ -98,8 +98,8 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name ) :
 
     std::stringstream nameStream;
     nameStream << name;
-    Trick::ADefParseContext* context = new Trick::ADefParseContext( &nameStream );
-    if(ADEF_parse(context) != 0) {
+    Trick::ADefParseContext context( &nameStream );
+    if(ADEF_parse(&context) != 0) {
         fprintf(stderr,"Invalid Name: %s\n",in_name.c_str());
         exit(1);
     }
