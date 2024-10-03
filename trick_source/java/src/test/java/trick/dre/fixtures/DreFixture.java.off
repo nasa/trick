@@ -1,0 +1,29 @@
+package trick.simcontrol.fixtures;
+
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+
+import org.assertj.swing.core.Robot;
+import org.assertj.swing.fixture.ComponentContainerFixture;
+import org.assertj.swing.fixture.DialogFixture;
+import org.assertj.swing.fixture.FrameFixture;
+import org.assertj.swing.fixture.JCheckBoxFixture;
+import org.assertj.swing.fixture.JLabelFixture;
+import org.assertj.swing.fixture.JListFixture;
+import org.assertj.swing.fixture.JPanelFixture;
+
+import trick.dre.fixtures.DreFixtureExtension;
+import trick.dre.DreApplication;
+import trick.common.ui.components.FontChooser;
+
+public class DreFixture extends FrameFixture {
+
+    public DreFixture(Robot robot, DreApplication target) {
+        super(robot, target.getMainFrame());
+    }
+
+    public static DreFixtureExtension getExtension() {
+        return new DreFixtureExtension();
+    }
+
+}

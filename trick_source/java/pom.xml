@@ -325,7 +325,6 @@
 			<excludes>
 			  <exclude> **/TrickDPApplicationTest.java 		</exclude>
 			  <exclude> **/TrickQPApplicationTest.java 		</exclude>
-			  <exclude> **/DreApplicationTest.java 			</exclude>
 			  <exclude> **/MonteMonitorApplicationTest.java </exclude>
 			  <exclude> **/MtvApplicationTest.java 			</exclude>
 			  <exclude> **/SieApplicationTest.java 			</exclude>
