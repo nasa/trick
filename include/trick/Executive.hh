@@ -1338,8 +1338,6 @@ namespace Trick {
 
 #ifndef SWIG
 extern Trick::Executive* the_exec;
-
-extern bool recordEnabled;
 #endif
 
 #endif

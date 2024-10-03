@@ -83,10 +83,6 @@ int Trick::Executive::process_sim_args() {
                 profiler.enabled = true;
                 profiler.sim_objects = &sim_objects;
             }
-
-            if(!strncmp(argv[i], "--disable-dr",12) || !strncmp(argv[i], "-ddr",4))  {
-                recordEnabled = false;
-            }
         }
         
             
