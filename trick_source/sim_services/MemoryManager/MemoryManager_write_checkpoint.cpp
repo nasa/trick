@@ -92,6 +92,10 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
     for ( it = stl_dependencies.rbegin() ; it != stl_dependencies.rend() ; it++ ) {
         delete_var((*it)->start) ;
     }
+    if(!omniscient) {
+        fprintf(stderr,"Pointer outside of Trick Managed Memory found. Try again. (https://vault.axiomspace.com/display/SEI/AxSim+Coding+Guidelines#AxSimCodingGuidelines-MemoryManagement)\n");
+        exit(1);
+    }
 }
 
 // Local sort function used in write_checkpoint.

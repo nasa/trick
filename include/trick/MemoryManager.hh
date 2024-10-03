@@ -59,7 +59,8 @@ namespace Trick {
     class MemoryManager {
 
         public:
-
+            /**Set to false if the checkpoint agent finds memory that the manager is unfamiliar with, followed by failure*/
+            bool omniscient = true; 
             /**
              Memory Manager constructor.
              @par NOTE:
