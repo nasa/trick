@@ -13,11 +13,19 @@ PROGRAMMERS:
 #include "trick/command_line_protos.h"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
+#include <string.h>
 
-bool recordEnabled = true;
 
 Trick::DRHDF5::DRHDF5( std::string in_name ) : Trick::DataRecordGroup(in_name) {
     register_group_with_mm(this, "Trick::DRHDF5") ;
+    int argc = command_line_args_get_argc();
+    char** argv = command_line_args_get_argv();
+
+    for(int i = 2; i < argc; i++) 
+        if(!strncmp(argv[i], "--disable-dr",12) || !strncmp(argv[i], "-ddr",4))  
+            recordEnabled = false;
+            
+        
 }
 
 int Trick::DRHDF5::format_specific_header( std::fstream & out_stream ) {
