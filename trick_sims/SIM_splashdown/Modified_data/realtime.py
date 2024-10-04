@@ -8,3 +8,5 @@ trick.exec_set_freeze_command(True)
 
 simControlPanel = trick.SimControlPanel()
 trick.add_external_application(simControlPanel)
+
+trick.frame_log_on()

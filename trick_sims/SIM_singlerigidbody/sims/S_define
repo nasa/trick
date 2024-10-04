@@ -1,0 +1,30 @@
+/************************TRICK HEADER*************************
+PURPOSE:
+    ( Single body rigid dynamics simulation )
+LIBRARY DEPENDENCIES:
+    ((src/body.cpp)
+    )
+*************************************************************/
+#define TRICK_NO_MONTE_CARLO
+#define TRICK_NO_MASTERSLAVE
+#define TRICK_NO_INSTRUMENTATION
+#define TRICK_NO_REALTIMEINJECTOR
+#define TRICK_NO_ZEROCONF
+
+#include "sim_objects/default_trick_sys.sm"
+##include "include/body.hh"
+class BodySimObject : public Trick::SimObject {
+	public:
+	BODY body;
+
+	BodySimObject() {
+		("default_data")		body.default_data() ;
+		("initialization")			body.init() ;
+		("derivative")		       	body.derivative() ;
+		("integration") trick_ret = body.integ() ;
+	}
+};
+
+BodySimObject dyn;
+IntegLoop dyn_integloop(0.01) dyn;
+
