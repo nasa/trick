@@ -108,60 +108,37 @@ void BODY::init() {
 
 	MxSCALAR(m_CM_skew, CM_skew, mass);	
 	MxSCALAR(neg_m_CM_skew, m_CM_skew, -1.0);
-
-	// Inertia matrix
-	inertia = (2.0/5.0) * mass * radius * radius; 
-
-	for(int i = 0; i<1; i++)
-                for(int j = 0; j<1; j++)
-                        inertia_matrix[i][j] = inertia;
-
-        for(int i = 1; i<2; i++)
-                for(int j = 1; j<2; j++)
-                        inertia_matrix[i][j] = inertia;
-
-        for(int i = 2; i<3; i++)
-                for(int j = 2; j<3; j++)
-                        inertia_matrix[i][j] = inertia;
-
-};
-
-/******************************************************************************
-FUNCTION: BODY::mass_matrix()
-PURPOSE: (Calculates 6x6 mass matrix M for eq M*a + r = b)
-******************************************************************************/
-void BODY::mass_matrix(){
-
-	// Creates mass matrix for mat_mass()	
-	for(int i = 0; i<1; i++)
-		for(int j = 0; j<1; j++)
-			massmatrix[i][j] = mass; 
-
-	for(int i = 1; i<2; i++)
-		for(int j = 1; j<2; j++)
-			massmatrix[i][j] = mass; 
-
-	for(int i = 2; i<3; i++)
-		for(int j = 2; j<3; j++)
-			massmatrix[i][j] = mass; 
 	
+	// Creates 3x3 matrix for inerta
+	inertia = (2.0/5.0) * mass * radius * radius;
+	inertia_matrix[0][0] = inertia_matrix[1][1] = inertia_matrix[2][2] = inertia;
 
-	// Combines inertia, center of mass, and mass matrix into a 6x6 matrix 
-	for(int i = 0; i<3; i++)
-		for(int j = 0; j<3; j++)
-			mat_mass[i][j] = massmatrix[i][j];
+	// Creates 3x3 matrix for mass
+	massmatrix[0][0] = massmatrix[1][1] = massmatrix[2][2] = mass;
+	
+	// Combines inertia, center of mass, and mass matrix into a 6x6 matrix
+        for(int i = 0; i<3; i++)
+                for(int j = 0; j<3; j++)
+                        mat_mass[i][j] = massmatrix[i][j];
 
-	for(int i = 0; i<3; i++)
-		for(int j = 3; j<6; j++)
-			mat_mass[i][j] = neg_m_CM_skew[i][j-3];
+        for(int i = 0; i<3; i++)
+                for(int j = 3; j<6; j++)
+                        mat_mass[i][j] = neg_m_CM_skew[i][j-3];
 
-	for(int i = 3; i<6; i++)
-		for(int j = 0; j<3; j++)
-			mat_mass[i][j] = m_CM_skew[i-3][j];
+        for(int i = 3; i<6; i++)
+                for(int j = 0; j<3; j++)
+                        mat_mass[i][j] = m_CM_skew[i-3][j];
 
-	for(int i = 3; i<6; i++)
-		for(int j = 3; j<6; j++)
-			mat_mass[i][j] = inertia_matrix[i-3][j-3];
+        for(int i = 3; i<6; i++)
+                for(int j = 3; j<6; j++)
+                        mat_mass[i][j] = inertia_matrix[i-3][j-3];
+
+	// Temporary vector and dynamic memory for Choleski
+        for(int i = 0; i<6; i++)
+                tmp_vec[i] = 0.0;
+
+        mat_L = new double*[6];
+        mat_mass_dyn = new double*[6];
 
 };
 
@@ -262,21 +239,11 @@ void BODY::eq_solver() {
 	
 	// Solving a = b * M^-1
 	
-	// Temporary vector for Choleski 
-	double tmp_vec[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-
-	// Dynamic memory set up
-	double **mat_mass_dyn;
-	double **mat_L;
-	mat_L = new double*[6];
-	mat_mass_dyn = new double*[6];
-	
 	for(int i = 0; i<6; i++)
 	{
 		mat_mass_dyn[i] = mat_mass[i];  
 		mat_L[i] = new double[6];
 	}
-	
 		
 	dLU_Choleski(mat_mass_dyn, mat_L, tmp_vec, 6, vec_b, vec_a, 0);
 	
@@ -288,10 +255,6 @@ void BODY::eq_solver() {
 	for(int i = 0; i<3; i++)
 		omegaDot[i] = vec_a[i + 3];
 
-	// Delete dynamic memory
-	delete[] mat_mass_dyn;
-	delete[] mat_L;
-
 };
 
 /***************************************************************************
@@ -300,7 +263,6 @@ PURPOSE: (Calls all functions in desired order for calculations)
 ***************************************************************************/
 void BODY::derivative() {
 
-	mass_matrix();
 	rotation_matrix();
 	calcforce();
 	calctorque();
@@ -316,7 +278,6 @@ FUNCTION: BODY::integrate()
 PURPOSE: (Sets up trick integration)
 ***************************************************************************/
 
-#ifndef IN_MAKE
 int BODY::integ() {
 	
 	int integration_step;
@@ -328,6 +289,7 @@ int BODY::integ() {
 	&omega[0], &omega[1], &omega[2],
 
 	NULL);
+
 
 	load_deriv(
 	&vel[0], &vel[1], &vel[2],
@@ -350,4 +312,3 @@ int BODY::integ() {
 	return(integration_step);
 
 };
-#endif

@@ -3,6 +3,7 @@ PURPOSE:
     ( Single body rigid dynamics simulation )
 LIBRARY DEPENDENCIES:
     ((src/body.cpp)
+     (src/body_shutdown.cpp)
     )
 *************************************************************/
 #define TRICK_NO_MONTE_CARLO
@@ -22,6 +23,7 @@ class BodySimObject : public Trick::SimObject {
 		("initialization")			body.init() ;
 		("derivative")		       	body.derivative() ;
 		("integration") trick_ret = body.integ() ;
+		("shutdown")                    body.body_shutdown();
 	}
 };
 

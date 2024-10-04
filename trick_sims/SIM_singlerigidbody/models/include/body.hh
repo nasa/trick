@@ -55,14 +55,17 @@ public:
 	double rotate[3][3];
 	double angle_force[3];
 
+	double tmp_vec[6];
+	double **mat_mass_dyn;
+        double **mat_L;
 
 	// Methods
 	void default_data();
 	void init();
 	void derivative();
 	int integ();
+	int body_shutdown();
 
-	void mass_matrix();	
 	void rotation_matrix();
 	void calcforce();
 	void calctorque();
