@@ -18,7 +18,7 @@
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
-
+#include "trick/ADefParseContext.hh"
 /**
 @details
 -# The recording group is enabled
@@ -96,6 +96,13 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name ) :
     // sim object name
     name = std::string("trick_data_record_group_") + in_name ;
 
+    std::stringstream nameStream;
+    nameStream << name;
+    Trick::ADefParseContext context( &nameStream );
+    if(ADEF_parse(&context) != 0) {
+        fprintf(stderr,"Invalid Name: %s\n",in_name.c_str());
+        exit(1);
+    }
     // add_jobs_to_queue will fill in job_id later
     // make the init job run after all other initialization jobs but before the post init checkpoint
     // job so users can allocate memory in initialization jobs and checkpointing data rec groups will work
