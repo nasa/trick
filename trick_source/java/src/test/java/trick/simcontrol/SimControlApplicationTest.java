@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.swing.finder.WindowFinder.findFrame;
 import static org.assertj.swing.launcher.ApplicationLauncher.application;
 
-public class SimControlApplicationTests extends ApplicationTest {
+public class SimControlApplicationTest extends ApplicationTest {
     private JPanelFixture findPanel;
     private JTextComponentFixture editorFixture;
     private JToolBarFixture toolBarFixture;
