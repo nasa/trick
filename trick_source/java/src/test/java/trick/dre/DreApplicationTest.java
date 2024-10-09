@@ -14,8 +14,11 @@ import org.junit.Test;
 import trick.common.ApplicationTest;
 import trick.common.CheckApplicationProperties;
 import trick.dre.MockDreApplication;
+import trick.dre.fixtures.DreFixture;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import static trick.dre.fixtures.DreFixture.*;
 
 /**
  * 
@@ -27,6 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class DreApplicationTest extends ApplicationTest {
 
+    private DreFixture dre_fix;
+
     @BeforeClass
     public static void onSetUpBeforeClass() {
 
@@ -35,11 +40,17 @@ public class DreApplicationTest extends ApplicationTest {
     @Override
     protected void onSetUp() {       
         application(MockDreApplication.class).start();
+
+        sleep(500);
+
+        dre_fix = new DreFixture(robot(), MockDreApplication.getInstance());
     }
 
     @Test
     public void testGeneric() {
         boolean bool = true;
+        dre_fix.selectVar("drx/name");
+        dre_fix.setOptions(HDF5 | STEP | RING_BUFFER);
 		sleep(5000);
 		assertThat(bool).isTrue();
     }

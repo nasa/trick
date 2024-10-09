@@ -3,6 +3,8 @@ package trick.dre;
 
 import java.io.File;
 
+import org.assertj.swing.core.GenericTypeMatcher;
+
 import org.jdesktop.application.Application;
 
 import trick.common.ApplicationTest;
@@ -11,6 +13,14 @@ import trick.common.TestUtils;
 import static org.assertj.core.api.Assumptions.assumeThat;
 
 public class MockDreApplication extends DreApplication {
+	private static MockDreApplication the_dre;
+
+	public MockDreApplication() {
+		super();
+		the_dre = this;
+	}
+
+	public static MockDreApplication getInstance() { return the_dre; }
 	
     public static void main(String[] args) {
 		File sie;
