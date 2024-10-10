@@ -9,7 +9,7 @@
 -# All instances get the end_of_frame frame_log_clear job.
 */
 Trick::FrameDataRecordGroup::FrameDataRecordGroup( int in_thread_id , std::string in_name )
- : Trick::DRBinary(in_name, false, DR_Type::DR_Type_FrameLogDataRecord ), thread_id(in_thread_id ) { 
+ : Trick::DRBinary(in_name, false, Trick::DR_Type::DR_Type_FrameLogDataRecord ), thread_id(in_thread_id ) { 
     if ( thread_id > 0 ) {
         add_job(thread_id, 1000, (char *)"top_of_frame", NULL, 1.0, (char *)"start_timer", (char *)"TRK", 1) ;
         // Frame logging uses phase 65533 in FrameLog.ccp. Stop the timer just before that.
