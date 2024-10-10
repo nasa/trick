@@ -157,7 +157,7 @@ namespace Trick {
              @brief Constructor that creates a new data recording group with the given @c in_name.
              @param in_name - the new data recording group name
             */
-            DataRecordGroup( std::string in_name = "", Trick::DR_Type dr_type = DR_Type::DR_Type_None ) ;
+            DataRecordGroup( std::string in_name = "", Trick::DR_Type dr_type = Trick::DR_Type::DR_Type_None ) ;
 
             ~DataRecordGroup() ;
 
