@@ -41,7 +41,7 @@ public class DreApplicationTest extends ApplicationTest {
     protected void onSetUp() {       
         application(MockDreApplication.class).start();
 
-        sleep(500);
+        sleep(1000);
 
         dre_fix = new DreFixture(robot(), MockDreApplication.getInstance());
     }
@@ -51,6 +51,8 @@ public class DreApplicationTest extends ApplicationTest {
         boolean bool = true;
         dre_fix.selectVar("drx/name");
         dre_fix.setOptions(HDF5 | STEP | RING_BUFFER);
+        dre_fix.setGroupName("TestingTesting123");
+        dre_fix.saveMenuItem("TestingMenuBar");
 		sleep(5000);
 		assertThat(bool).isTrue();
     }

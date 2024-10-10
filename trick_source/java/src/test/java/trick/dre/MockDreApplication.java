@@ -13,14 +13,14 @@ import trick.common.TestUtils;
 import static org.assertj.core.api.Assumptions.assumeThat;
 
 public class MockDreApplication extends DreApplication {
-	private static MockDreApplication the_dre;
+	private static MockDreApplication the_dre = null;
 
 	public MockDreApplication() {
 		super();
 		the_dre = this;
 	}
 
-	public static MockDreApplication getInstance() { return the_dre; }
+	public static final MockDreApplication getInstance() { return the_dre; }
 	
     public static void main(String[] args) {
 		File sie;
