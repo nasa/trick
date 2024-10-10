@@ -139,7 +139,7 @@ public class DreFixture extends FrameFixture {
                   .enterText(cycle);
     }
 
-    public JOptionPaneFixture getErrorPopup() {
+    public JOptionPaneFixture getErrorPopupFixture() {
         JOptionPaneFixture opt = optionPane(timeout(1500));
         if(opt.target().getMessageType() == JOptionPane.ERROR_MESSAGE)
             return opt;
@@ -147,9 +147,51 @@ public class DreFixture extends FrameFixture {
 
     }
 
-    private void selectOption(String term) {
-        String menuItemName = "selectDR" + term + "MenuItem";
+    public int getSelectedOptions() {
+        int opts = 0b11111111111;
+
+        if (getOptionState("Binary")) 
+            opts &= BINARY;
+        else if(getOptionState("Ascii"))
+            opts &= ASCII;
+        else if (getOptionState("HDF5"))
+            opts &= HDF5;
+
+        if (getOptionState("Always")) 
+            opts &= ALWAYS;
+        else if(getOptionState("Changes"))
+            opts &= CHANGES;
+        else if (getOptionState("StepChanges"))
+            opts &= STEP;
+
+        if (getOptionState("Buffer")) 
+            opts &= BUFFER;
+        else if(getOptionState("NoBuffer"))
+            opts &= NO_BUFFER;
+        else if (getOptionState("RingBuffer"))
+            opts &= RING_BUFFER;
+
+        if(isSinglePrec())
+            opts &= SINGLE_PREC_ON;
+        else
+            opts &= SINGLE_PREC_OFF;
+
+        return opts;
+    }
+
+    private boolean getOptionState(String ID) {
+        String menuItemName = "selectDR" + ID + "MenuItem";
+        return menuItem(menuItemName).target().isSelected();
+    }
+
+    private void selectOption(String ID) {
+        String menuItemName = "selectDR" + ID + "MenuItem";
         menuItem(menuItemName).click();
+    }
+
+    private boolean isSinglePrec() {
+        String singlePrecName = "toggleSinglePrecisionCheckBoxMenuItem";
+        return menuItem(singlePrecName).target().isSelected();
     }
 
     private void setSinglePrec(boolean state) {

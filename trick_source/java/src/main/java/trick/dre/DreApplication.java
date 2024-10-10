@@ -182,31 +182,37 @@ public class DreApplication extends TrickApplication {
     @Action
     public void selectDRBinary() {
         format = "DRBinary";
+        DRBinary_item.setSelected(true);
     }
 
     @Action
     public void selectDRAscii() {
         format = "DRAscii";
+        DRAscii_item.setSelected(true);
     }
 
     @Action
     public void selectDRHDF5() {
         format = "DRHDF5";
+        DRHDF5_item.setSelected(true);
     }
 
     @Action
     public void selectDRAlways() {
         frequency = "DR_Always";
+        DRAlways_item.setSelected(true);
     }
 
     @Action
     public void selectDRChanges() {
         frequency = "DR_Changes";
+        DRChanges_item.setSelected(true);
     }
 
     @Action
     public void selectDRStepChanges() {
         frequency = "DR_Step_Changes";
+        DRStepChanges_item.setSelected(true);
     }
 
     @Action
@@ -222,16 +228,19 @@ public class DreApplication extends TrickApplication {
     @Action
     public void selectDRBuffer() {
         buffering = "DR_Buffer";
+        DRBuffer_item.setSelected(true);
     }
 
     @Action
     public void selectDRNoBuffer() {
         buffering = "DR_No_Buffer";
+        DRNoBuffer_item.setSelected(true);
     }
 
     @Action
     public void selectDRRingBuffer() {
         buffering = "DR_Ring_Buffer";
+        DRRingBuffer_item.setSelected(true);
     }
 
     @Action
@@ -400,6 +409,7 @@ public class DreApplication extends TrickApplication {
      */
     private JMenu createOptionsMenu() {
         JMenu optionsMenu = new JMenu();
+        JRadioButtonMenuItem[] rbuttons;
         String[] formats     = {"selectDRBinary", "selectDRAscii",    "selectDRHDF5"}, 
                  frequencies = {"selectDRAlways", "selectDRChanges",  "selectDRStepChanges"}, 
                  buffers     = {"selectDRBuffer", "selectDRNoBuffer", "selectDRRingBuffer"};
@@ -407,12 +417,20 @@ public class DreApplication extends TrickApplication {
         optionsMenu.setName("optionsMenu");
 
         optionsMenu.add(new JLabel("Format		"));
-        addRadioButtonMenuItems(optionsMenu, formats);
+        rbuttons = addRadioButtonMenuItems(optionsMenu, formats);
+        
+        DRBinary_item = rbuttons[0];
+        DRAscii_item  = rbuttons[1];
+        DRHDF5_item   = rbuttons[2];
         
         optionsMenu.addSeparator();
 
         optionsMenu.add(new JLabel("Freq"));
-        addRadioButtonMenuItems(optionsMenu, frequencies);
+        rbuttons = addRadioButtonMenuItems(optionsMenu, frequencies);
+
+        DRAlways_item      = rbuttons[0];
+        DRChanges_item     = rbuttons[1];
+        DRStepChanges_item = rbuttons[2];
 
         optionsMenu.addSeparator();
 
@@ -423,7 +441,11 @@ public class DreApplication extends TrickApplication {
         optionsMenu.addSeparator();
 
         optionsMenu.add(new JXLabel("Buffering"));
-        addRadioButtonMenuItems(optionsMenu, buffers);
+        rbuttons = addRadioButtonMenuItems(optionsMenu, buffers);
+
+        DRBuffer_item     = rbuttons[0];
+        DRNoBuffer_item   = rbuttons[1];
+        DRRingBuffer_item = rbuttons[2];
 
 
         selectDRBinary(); // by default, DR_Binary      
