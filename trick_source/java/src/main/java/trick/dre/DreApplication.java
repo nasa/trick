@@ -387,8 +387,8 @@ public class DreApplication extends TrickApplication {
         JMenuBar menuBar = super.createMenuBar();
         JMenu menu = menuBar.getMenu(0);
         menu.add(new JSeparator(), 0);
-        menu.add(new JMenuItem(getAction("saveDR")), 0);
-        menu.add(new JMenuItem(getAction("openDR")), 0);
+        menu.add(createMenuItem("saveDR"), 0);
+        menu.add(createMenuItem("openDR"), 0);
 
         menuBar.add(createOptionsMenu(), 1);
 
@@ -480,6 +480,7 @@ public class DreApplication extends TrickApplication {
 
     private void nameFieldInit() {
         nameField = new JTextField(15);
+        nameField.setName("groupNameField");
         nameField.setMinimumSize(nameField.getPreferredSize());
         nameField.setPreferredSize(nameField.getPreferredSize());
         nameField.setMaximumSize(nameField.getPreferredSize());
@@ -487,22 +488,26 @@ public class DreApplication extends TrickApplication {
 
     private void cycleFieldInit() {
         cycleField = new NumberTextField("0.1", 5);
+        cycleField.setName("cycleField");
         cycleField.setMinimumSize(cycleField.getPreferredSize());
     }
 
     private void maxFileSizeFieldInit() {
         maxFileSizeField = new NumberTextField("1", 10);
+        maxFileSizeField.setName("fileSizeField");
         maxFileSizeField.setMinimumSize((maxFileSizeField.getPreferredSize()));
     }
 
     private void sizeUnitsBoxInit() {
         String[] units = {"B", "KiB", "MiB", "GiB"};
         sizeUnitsBox = new JComboBox<>(units);
+        sizeUnitsBox.setName("unitsComboBox");
         sizeUnitsBox.setSelectedItem(sizeUnitsBox.getItemAt(3));
     }
 
     private void unlimitedSizeBoxInit() {
         unlimitedSizeBox = new JCheckBox("Unlimited File Size", false);
+        unlimitedSizeBox.setName("sizeLimitToggle");
         unlimitedSizeBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
