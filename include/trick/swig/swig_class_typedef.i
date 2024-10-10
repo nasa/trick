@@ -236,7 +236,6 @@
 %feature("shadow") TYPE::TYPE %{
     def __init__(self, *args, **kwargs):
         import _sim_services
-        args = []
         this = TYPE.alloc(*args)
         try: self.this.append(this)
         except: self.this = this

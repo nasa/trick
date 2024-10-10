@@ -6,6 +6,7 @@ LIBRARY DEPENDENCY:
     ()
     )
 **************************************************************************/
+
 #ifndef SWIG
 #ifndef __TMM_ALLOC_ARGS_HH__
 #define __TMM_ALLOC_ARGS_HH__
@@ -15,6 +16,14 @@ LIBRARY DEPENDENCY:
 #include "trick_types.hh"
 
 #include "trick/MemoryManager.hh"
+
+#if defined (__GNUC__)
+#define TRICK_HAVE_ABI
+#elif
+#if __has_include(<cxxabi.h>)
+#define TRICK_HAVE_ABI
+#endif
+#endif
 
 namespace Trick {
 
@@ -39,8 +48,8 @@ struct has_getname : std::false_type {};
 template<typename T>
 struct has_getname<T, void_t<decltype(std::declval<TrickTypeToString<T>>().getName())>> : std::true_type {};
 
-}
 
+}
 
 
 #endif //__TMM_ALLOC_ARGS_HH__

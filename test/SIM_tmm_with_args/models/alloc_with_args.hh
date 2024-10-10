@@ -3,9 +3,9 @@ PURPOSE: ( Test tmm_alloc_args in a sim environment )
 LIBRARY DEPENDENCY:
 ((alloc_with_args.o))
 *******************************************************************************/
-
+#pragma once
 #include <iostream>
-#include "trick/tmm_alloc_args.hh"
+#include "trick/MemoryManager.hh"
 
 namespace Test {
     struct SomeStruct
@@ -27,7 +27,6 @@ class AllocTestWithArguments {
     AllocTestWithArguments();
 
     AllocTestWithArguments(int in_int, double in_double);
-
 
     AllocTestWithArguments(int* in_int, double *in_double, std::string &a_name);
 
