@@ -42,7 +42,7 @@ namespace Trick {
         DR_Not_Specified = 3    /**< Unknown type */
     } ;
 
-    enum class DR_Type : int {
+    enum DR_Type {
         DR_Type_None,
         DR_Type_Ascii,
         DR_Type_Binary,
