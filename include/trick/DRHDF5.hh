@@ -24,6 +24,7 @@ PROGRAMMERS:
 #endif
 
 #ifdef SWIG
+%feature("compactdefaultargs","0") ;
 %feature("shadow") Trick::DRHDF5::DRHDF5(std::string in_name) %{
     def __init__(self, *args):
         this = $action(*args)

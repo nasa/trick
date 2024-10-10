@@ -13,6 +13,7 @@ PROGRAMMERS:
 #include "trick/DataRecordGroup.hh"
 
 #ifdef SWIG
+%feature("compactdefaultargs","0") ;
 %feature("shadow") Trick::DRAscii::DRAscii(std::string in_name) %{
     def __init__(self, *args):
         this = $action(*args)
