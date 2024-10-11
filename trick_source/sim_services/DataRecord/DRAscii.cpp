@@ -18,7 +18,7 @@ PROGRAMMERS:
 #include "trick/message_type.h"
 #include "trick/bitfield_proto.h"
 
-Trick::DRAscii::DRAscii( std::string in_name, Trick::DR_Type dr_type ) : Trick::DataRecordGroup( in_name, dr_type ) {
+Trick::DRAscii::DRAscii( std::string in_name, DR_Buffering drb /*Trick::DR_Type dr_type*/ ) : Trick::DataRecordGroup( in_name/*, dr_type*/ ) {
 
     ascii_float_format = "%20.8g" ;
     ascii_double_format = "%20.16g" ;
