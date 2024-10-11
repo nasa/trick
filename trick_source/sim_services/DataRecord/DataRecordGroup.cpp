@@ -419,9 +419,6 @@ int Trick::DataRecordGroup::init() {
 }
 
 void Trick::DataRecordGroup::configure_jobs(DR_Type type) {
-
-    //std::cout << "!!!!!!!!!! DataRecordGroup::configure_jobs: " << (int)type << std::endl;
-
     switch(type) {
     default:
         // run the restart job in phase 60001

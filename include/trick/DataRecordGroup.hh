@@ -414,7 +414,7 @@ namespace Trick {
             virtual int add_time_variable() ;
 
             /**
-             @brief This function adds jobs to the DRG based on job_config bits. By default a DRG should be constructed with all jobs on.
+             @brief This function adds jobs to the DRG based on the dr type.
              @returns void
             */
             void configure_jobs(DR_Type type) ;
