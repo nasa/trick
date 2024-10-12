@@ -148,33 +148,33 @@ public class DreFixture extends FrameFixture {
     }
 
     public int getSelectedOptions() {
-        int opts = 0b11111111111;
+        int opts = 0b00000000000;
 
         if (getOptionState("Binary")) 
-            opts &= BINARY;
+            opts |= BINARY;
         else if(getOptionState("Ascii"))
-            opts &= ASCII;
+            opts |= ASCII;
         else if (getOptionState("HDF5"))
-            opts &= HDF5;
+            opts |= HDF5;
 
         if (getOptionState("Always")) 
-            opts &= ALWAYS;
+            opts |= ALWAYS;
         else if(getOptionState("Changes"))
-            opts &= CHANGES;
+            opts |= CHANGES;
         else if (getOptionState("StepChanges"))
-            opts &= STEP;
+            opts |= STEP;
 
         if (getOptionState("Buffer")) 
-            opts &= BUFFER;
+            opts |= BUFFER;
         else if(getOptionState("NoBuffer"))
-            opts &= NO_BUFFER;
+            opts |= NO_BUFFER;
         else if (getOptionState("RingBuffer"))
-            opts &= RING_BUFFER;
+            opts |= RING_BUFFER;
 
         if(isSinglePrec())
-            opts &= SINGLE_PREC_ON;
+            opts |= SINGLE_PREC_ON;
         else
-            opts &= SINGLE_PREC_OFF;
+            opts |= SINGLE_PREC_OFF;
 
         return opts;
     }
