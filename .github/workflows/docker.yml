@@ -10,7 +10,7 @@ jobs:
     container: docker://nasatrick/${{matrix.container}}:latest
     strategy:
       matrix:
-        container: [trick_ubuntu1804]
+        container: [trick_centos7, trick_centos8, trick_ubuntu1804]
     steps:
       - name: run tests
         run: |
