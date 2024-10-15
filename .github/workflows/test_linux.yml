@@ -95,29 +95,29 @@ jobs:
               python2-devel
               python3-devel
 #-------- RHEL 7-based Only Dependencies ----------------
-#          - cfg: { arch: rhel, arch_ver: 7 }
-#            pkg_mgr: yum
-#            conf_pkg: |
-#              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-* &&
-#              yum -y install epel-release
-#              yum -y update
-#              yum -y install wget
-#            os_deps: >-
-#              libX11-devel
-#              libXt-devel
-#              swig3
-#            install_gtest: |
-#              cd /tmp
-#              wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
-#              tar xzvf release-1.8.0.tar.gz
-#              cd /tmp/googletest-release-1.8.0/googletest
-#              cmake .
-#              make
-#              make install
-#              cd /tmp/googletest-release-1.8.0/googlemock
-#              cmake .
-#              make
-#              make install
+          - cfg: { arch: rhel, arch_ver: 7 }
+            pkg_mgr: yum
+            conf_pkg: |
+              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-* &&
+              yum -y install epel-release
+              yum -y update
+              yum -y install wget
+            os_deps: >-
+              libX11-devel
+              libXt-devel
+              swig3
+            install_gtest: |
+              cd /tmp
+              wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
+              tar xzvf release-1.8.0.tar.gz
+              cd /tmp/googletest-release-1.8.0/googletest
+              cmake .
+              make
+              make install
+              cd /tmp/googletest-release-1.8.0/googlemock
+              cmake .
+              make
+              make install
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
