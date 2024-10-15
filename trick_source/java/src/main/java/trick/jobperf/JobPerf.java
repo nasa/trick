@@ -500,19 +500,282 @@ class TraceViewWindow extends JFrame {
     }
 } // class TraceViewWindow
 
+class Interval {
+    public double start;
+    public double stop;
+    public Interval( double begin, double end) {
+        start = begin;
+        stop  = end;
+    }
+    public double getDuration() {
+        return stop - start;
+    }
+} // Interval
+
+class ExecutionRegister {
+    ArrayList<Interval> intervalList;
+
+    public ExecutionRegister() {
+        intervalList = new ArrayList<Interval>();
+    }
+    void addSample(double start, double stop) {
+        Interval interval = new Interval(start, stop);
+        intervalList.add(interval);
+    }
+    double getMean() {
+        double mean = 0.0;
+        int N = intervalList.size();
+        if (N > 0) {
+            double sum = 0.0;
+            for (Interval interval : intervalList ) {
+                sum += interval.getDuration();
+            }
+            mean = sum / N;
+        }
+        return mean;
+    }
+    double getStdDev() {
+        double stddev = 0.0;
+        int N = intervalList.size();
+        if (N > 0) {
+            double sum = 0.0;
+            double mean = getMean();
+            for (Interval interval : intervalList ) {
+                double duration = interval.getDuration();
+                double difference = duration - mean;
+                sum += difference * difference;
+            }
+            stddev = Math.sqrt( sum / N );
+        }
+        return stddev;
+    }
+    double getMaxDuration() {
+        double maxDuration = Double.MIN_VALUE;
+        for (Interval interval : intervalList ) {
+            double duration = interval.getDuration();
+            if (duration > maxDuration) {
+                maxDuration = duration;
+            }
+        }
+        return maxDuration;
+    }
+    double getMinDuration() {
+        double minDuration = Double.MAX_VALUE;
+        for (Interval interval : intervalList ) {
+            double duration = interval.getDuration();
+            if (duration < minDuration) {
+                minDuration = duration;
+            }
+        }
+        return minDuration;
+    }
+} // ExecutionRegister
+
+class JobStatisticsRecord {
+    public String id;
+    public double mean;
+    public double stddev;
+    public double max;
+    public double min;
+    public JobStatisticsRecord( String s, double a, double b, double c, double d) {
+        id = s;
+        mean = a;
+        stddev = b;
+        max = c;
+        min = d;
+    }
+} // JobStatisticsRecord
+
+// Compare method returns -1,0,1 to say whether it's less than, equal to, or greater than the other.
+
+class CompareByID implements Comparator<JobStatisticsRecord> {
+    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
+        return a.id.compareTo(b.id);
+    }
+} // CompareByID
+
+class CompareByMeanDuration implements Comparator<JobStatisticsRecord> {
+    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
+        if ( a.mean < b.mean) return -1;
+        if ( a.mean > b.mean) return  1;
+        return 0;
+    }
+} // CompareByMeanDuration
+
+class CompareByStdDev implements Comparator<JobStatisticsRecord> {
+    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
+        if ( a.stddev < b.stddev) return -1;
+        if ( a.stddev > b.stddev) return  1;
+        return 0;
+    }
+} // CompareByStdDev
+
+class CompareByMaxDuration implements Comparator<JobStatisticsRecord> {
+    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
+        if ( a.max < b.max) return -1;
+        if ( a.max > b.max) return  1;
+        return 0;
+    }
+} // CompareByMaxDuration
+
+class CompareByMinDuration implements Comparator<JobStatisticsRecord> {
+    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
+        if ( a.min < b.min) return -1;
+        if ( a.min > b.min) return  1;
+        return 0;
+    }
+} // CompareByMinDuration
+
+class JobStatistics {
+    ArrayList<JobStatisticsRecord> jobStatisticsList;
+
+    public JobStatistics( ArrayList<JobExecutionEvent> jobExecList ) {
+
+        Map<String, ExecutionRegister> executionRegisterMap
+            = new HashMap<String, ExecutionRegister>();
+
+        for (JobExecutionEvent jobExec : jobExecList ) {
+            ExecutionRegister executionRegister = executionRegisterMap.get(jobExec.id);
+            if (executionRegister != null) {
+                executionRegister.addSample(jobExec.start, jobExec.stop);
+            } else {
+                executionRegister = new ExecutionRegister();
+                executionRegister.addSample(jobExec.start, jobExec.stop);
+                executionRegisterMap.put(jobExec.id, executionRegister);
+            }
+        }
+
+        jobStatisticsList = new ArrayList<JobStatisticsRecord>();
+
+        for (Map.Entry<String, ExecutionRegister> entry : executionRegisterMap.entrySet()) {
+            String id = entry.getKey();
+            ExecutionRegister register = entry.getValue();
+            double mean   = register.getMean();
+            double stddev = register.getStdDev();
+            double min    = register.getMinDuration();
+            double max    = register.getMaxDuration();
+
+            jobStatisticsList.add( new JobStatisticsRecord(id, mean, stddev, min, max));
+        }
+    }
+
+
+    // Sort by MeanDuration in descending order.
+    public void SortByID() {
+       Collections.sort( jobStatisticsList, new CompareByID());
+    }
+
+    // Sort by MeanDuration in descending order.
+    public void SortByMeanDuration() {
+        Collections.sort( jobStatisticsList, Collections.reverseOrder( new CompareByMeanDuration()));
+    }
+
+    // Sort by Standard Deviation of duration in descending order.
+    public void SortByStdDev() {
+        Collections.sort( jobStatisticsList, Collections.reverseOrder( new CompareByStdDev()));
+    }
+
+    // Sort by MaxDuration in descending order.
+    public void SortByMaxDuration() {
+        Collections.sort( jobStatisticsList, Collections.reverseOrder( new CompareByMaxDuration()));
+    }
+
+    // Sort by MinDuration in descending order.
+    public void SortByMinDuration() {
+        Collections.sort( jobStatisticsList, Collections.reverseOrder( new CompareByMinDuration()));
+    }
+
+    public void write() {
+        System.out.println("  Job Id   Mean Duration     Std Dev      Min Duration   Max Duration");
+        System.out.println("---------- -------------- -------------- -------------- --------------");
+           for (JobStatisticsRecord jobStatisticsRecord : jobStatisticsList ) {
+               System.out.println( String.format("%10s %14.6f %14.6f %14.6f %14.6f",
+                   jobStatisticsRecord.id,
+                   jobStatisticsRecord.mean,
+                   jobStatisticsRecord.stddev,
+                   jobStatisticsRecord.min,
+                   jobStatisticsRecord.max));
+        }
+    }
+} // JobStatistics
+
 public class JobPerf extends JFrame {
     ArrayList<JobExecutionEvent> jobExecEvtList;
+    JobStatistics jobStats;
 
-    public JobPerf( String fileName ) {
+    enum SortBy { ID, MEAN, STDDEV, MAX, MIN }
+
+    public JobPerf( String[] args ) {
+        TraceViewWindow traceViewWindow;
+        boolean interactive = true;
+        boolean printReport = false;
+        SortBy sortMethod = SortBy.MEAN;
+        String fileName = "in.csv";
+
+        int ii = 0;
+        while (ii < args.length) {
+            switch (args[ii]) {
+                case "--help" : {
+                    printHelpText();
+                    System.exit(0);
+                } break;
+                case "--nogui" : {
+                    interactive = false;
+                } break;
+                case "--report" : {
+                    printReport = true;
+                } break;
+                case "--sort=id" : {
+                    sortMethod = SortBy.ID;
+                } break;
+                case "--sort=mean" : {
+                    sortMethod = SortBy.MEAN;
+                } break;
+                case "--sort=stddev" : {
+                    sortMethod = SortBy.STDDEV;
+                } break;
+                case "--sort=max" : {
+                    sortMethod = SortBy.MAX;
+                } break;
+                case "--sort=min" : {
+                    sortMethod = SortBy.MIN;
+                } break;
+                default : {
+                    fileName = args[ii];
+                } break;
+            } //switch
+            ++ii;
+        } // while
+
         jobExecEvtList = JobExecutionEventList(fileName);
-        TraceViewWindow traceViewWindow = new TraceViewWindow( jobExecEvtList );
+        jobStats = new JobStatistics(jobExecEvtList);
+        if (printReport) {
+            if (sortMethod == SortBy.ID ) jobStats.SortByID();
+            if (sortMethod == SortBy.MEAN ) jobStats.SortByMeanDuration();
+            if (sortMethod == SortBy.STDDEV ) jobStats.SortByStdDev();
+            if (sortMethod == SortBy.MAX ) jobStats.SortByMaxDuration();
+            if (sortMethod == SortBy.MIN ) jobStats.SortByMinDuration();
+            jobStats.write();
+        }
+        if (interactive) {
+            traceViewWindow = new TraceViewWindow(jobExecEvtList);
+        }
     }
 
     private static void  printHelpText() {
         System.out.println(
             "----------------------------------------------------------------------\n"
-          + "usage: java jar JobPerf.jar <file-name>\n"
-          + "----------------------------------------------------------------------\n"
+            + "usage: trick-jperf [options] <file-name>\n"
+            + "options: \n"
+            + "--help\n"
+            + "--nogui\n"
+            + "--report\n"
+            + "--sort=id\n"
+            + "--sort=mean\n"
+            + "--sort=stddev\n"
+            + "--sort=min\n"
+            + "--sort=max\n"
+            + "----------------------------------------------------------------------\n"
           );
     }
 
@@ -553,23 +816,7 @@ public class JobPerf extends JFrame {
     }
 
     public static void main(String[] args) {
-        int ii = 0;
-        String fileName = "in.csv";
-        while (ii < args.length) {
-            switch (args[ii]) {
-                case "-help" :
-                case "--help" : {
-                    printHelpText();
-                    System.exit(0);
-                } break;
-                default : {
-                    fileName = args[ii];
-                } break;
-            }
-            ++ii;
-        } // while
-
-        JobPerf jobPerf = new JobPerf( fileName );
+        JobPerf jobPerf = new JobPerf( args );
     } // main
 
 } // class JobPerf
