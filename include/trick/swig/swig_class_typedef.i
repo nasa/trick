@@ -242,8 +242,10 @@
           self.using_alloc = True
         except:
           this = $action(*args)
-        try: self.this.append(this)
-        except: self.this = this
+        try:
+            self.this.append(this)
+        except:
+            self.this = this
         if 'TMMName' in kwargs:
             if not self.using_alloc:
                 this.own(0)
@@ -254,10 +256,10 @@
                 _sim_services.set_alloc_name_at(this, kwargs['TMMName'])
             else:
                 _sim_services.TMM_declare_ext_var(this, _sim_services.TRICK_STRUCTURED, "TYPE", 0, kwargs['TMMName'], 0, None)
-          if not self.using_alloc:
-              alloc_info = _sim_services.get_alloc_info_at(this)
-              alloc_info.stcl = _sim_services.TRICK_LOCAL
-              alloc_info.alloc_type = _sim_services.TRICK_ALLOC_NEW
+            if not self.using_alloc:
+                alloc_info = _sim_services.get_alloc_info_at(this)
+                alloc_info.stcl = _sim_services.TRICK_LOCAL
+                alloc_info.alloc_type = _sim_services.TRICK_ALLOC_NEW
 %}
 
 %feature("shadow") TYPE::TYPE() %{
