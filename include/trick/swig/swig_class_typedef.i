@@ -236,18 +236,18 @@
 %feature("shadow") TYPE::TYPE %{
     def __init__(self, *args, **kwargs):
         import _sim_services
-        self.using_alloc = False
+        using_alloc = False
         try:
           this = TYPE.alloc(*args)
-          self.using_alloc = True
+          using_alloc = True
         except:
           this = $action(*args)
         try:
-            self.this.append(this)
+            this.append(this)
         except:
             self.this = this
         if 'TMMName' in kwargs:
-            if not self.using_alloc:
+            if not using_alloc:
                 this.own(0)
                 self.this.own(0)
             #This should still be valid

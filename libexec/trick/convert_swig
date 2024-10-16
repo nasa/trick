@@ -917,73 +917,75 @@ sub process_constructor_json {
     my $constructors = $target_class->{'constructors'};
     my $constructor_counter = 0;
     foreach my $constructor (@$constructors) {
-        
-        my $func_name = "alloc";
+        if ($constructor->{'accessSpecifier'} eq "public")
+        {
+            my $func_name = "alloc";
 
-        my @params;
-        my @types;
-        my @arg_names;
+            my @params;
+            my @types;
+            my @arg_names;
 
-        if(exists $constructor->{'parameters'} && ref($constructor->{'parameters'}) eq 'ARRAY') {
-            my $param_counter = 0;
-            foreach my $param (@{$constructor->{'parameters'}}) {
-                if(exists $param->{'type'} && exists $param->{'name'}) {
-                    my $type = $param->{'type'};
-                    my $name = $param->{'name'};
-                    if (!defined $name || $name eq '')  {
-                        $name = "arg_";
-                        $name .= "$param_counter";
-                        $param_counter++;
+            if(exists $constructor->{'parameters'} && ref($constructor->{'parameters'}) eq 'ARRAY') {
+                my $param_counter = 0;
+                foreach my $param (@{$constructor->{'parameters'}}) {
+                    if(exists $param->{'type'} && exists $param->{'name'}) {
+                        my $type = $param->{'type'};
+                        my $name = $param->{'name'};
+                        if (!defined $name || $name eq '')  {
+                            $name = "arg_";
+                            $name .= "$param_counter";
+                            $param_counter++;
+                        }
+                        push @params, "$type $name";
+                        push @types, $type;
+                        push @arg_names, $name;
+                    } else {
+                        warn "Something has gone horribly wrong.";
                     }
-                    push @params, "$type $name";
-                    push @types, $type;
-                    push @arg_names, $name;
-                } else {
-                    warn "Something has gone horribly wrong.";
-                }
-            } 
+                } 
+            }
+
+            # Create parameter list for constructor
+            my $param_list = join(", ", @params);
+            my $types_list = join(", ", @types);
+            #print "$param_list\n";
+
+            
+            
+        # Create argument list for tmm_alloc_args
+            my $args = join(", ", @arg_names);
+            
+            #print "$args";
+
+            my $class_name_to_use;
+            #See if the class that we're allocating has any qualifiers
+            #if it does, use the fully qualified version - Note: Find
+            #out why this needs to be done.  
+
+            if($class_name eq $target_class->{'qualifiedClassName'}) {
+                $class_name_to_use = $class_name;
+            } else {
+                $class_name_to_use = $target_class->{'qualifiedClassName'};
+            }
+            
+            #Don't use the fully qualified version here since this ends up inside the namespace.
+            my $function_signature = "    static $class_name* $func_name($param_list)  {\n";
+            
+            #print "Function Signature: $function_signature\n";
+
+            $new_object_block .= "\n%newobject ${class_name}::alloc($types_list);\n";
+
+            $extend_block .= $function_signature;
+
+            my $function_body;
+            #If there are arguments - add them
+            $function_body = "        return tmm_alloc_args<$class_name_to_use>($args);\n";
+            $function_body .= "    }\n";
+
+            $extend_block .= $function_body;
+
+            $constructor_counter++;
         }
-
-        # Create parameter list for constructor
-        my $param_list = join(", ", @params);
-        my $types_list = join(", ", @types);
-        #print "$param_list\n";
-
-        
-        
-       # Create argument list for tmm_alloc_args
-        my $args = join(", ", @arg_names);
-        
-        #print "$args";
-
-        my $class_name_to_use;
-        #See if the class that we're allocating has any qualifiers
-        #if it does, use the fully qualified version - Note: Find
-        #out why this needs to be done.  
-
-        if($class_name eq $target_class->{'qualifiedClassName'}) {
-            $class_name_to_use = $class_name;
-        } else {
-            $class_name_to_use = $target_class->{'qualifiedClassName'};
-        }
-        
-        #Don't use the fully qualified version here since this ends up inside the namespace.
-        my $function_signature = "    static $class_name* $func_name($param_list)  {\n";
-        
-        #print "Function Signature: $function_signature\n";
-
-        $new_object_block .= "\n%newobject ${class_name}::alloc($types_list);\n";
-
-        $extend_block .= $function_signature;
-
-        my $function_body;
-        #If there are arguments - add them
-        $function_body = "        return tmm_alloc_args<$class_name_to_use>($args);\n";
-        $function_body .= "    }\n";
-
-        $extend_block .= $function_body;
-
-        $constructor_counter++;
     }
     
     $extend_block .= "}\n";
