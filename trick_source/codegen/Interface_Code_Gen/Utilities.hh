@@ -23,8 +23,7 @@ bool isInUserOrTrickCode( clang::CompilerInstance & ci , clang::SourceLocation s
 std::string getFileName( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) ;
 char * almostRealPath( const std::string& in_path ) ;
 char * almostRealPath( const char * in_path ) ;
-
-
+char * getResolvedPath(clang::CompilerInstance & ci , clang::SourceLocation sl);
 std::string color(const Color& color, const std::string& text);
 std::string bold(const std::string& text);
 std::string underline(const std::string& text);

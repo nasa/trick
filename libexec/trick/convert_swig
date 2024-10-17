@@ -358,23 +358,6 @@ sub process_file() {
         print OUT "$contents\n" ;
         print OUT $global_template_typedefs ;
 
-        # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper non-class attribute assingment in input processor.
-        # _swig_setattr_nondynamic_instance_variable function is added for each class in process_class subroutine.
-        foreach my $c ( @class_names ) {
-            if ( ! exists $class_typemap_printed{$c} ) {
-                my $c_ = $c ;
-                $c_ =~ s/\:/_/g ;
-                if ( $c !~ /::/ ) {
-                    print OUT "\n#if SWIG_VERSION > 0x040000\n";
-                    print OUT "%pythoncode %{\n" ; 
-                    print OUT "    if '$c' in globals():\n";
-                    print OUT "        $c.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n" ;
-                    print OUT "%}\n" ;
-                    print OUT "#endif\n";
-                }
-            }
-        }
-
         # Add a trick_cast_as macro line for each class parsed in the file.  These lines must appear at the bottom of the
         # file to ensure they are not in a namespace directive and they are after the #define statements they depend on.
         undef %class_typemap_printed ;
@@ -818,7 +801,7 @@ sub process_typedef_struct($$$$) {
     my ($typedef_struct_string , $contents_ref, $new_contents_ref , $class_names_ref) = @_ ;
 
     my $extracted ;
-    my ($tail , $struct_names, @struct_names) ;
+    my ($tail , $my_struct_contents, $struct_names, @struct_names) ;
 
     #print "*** typedef_struct_string = $typedef_struct_string ***\n" ;
 
@@ -844,10 +827,12 @@ sub process_typedef_struct($$$$) {
     foreach my $s ( @struct_names ) {
         if ( $s !~ /\*/ ) {
             push @$class_names_ref , $s ;
+            # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper struct attribute assingment in input processor
+            $my_struct_contents .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    if '$s' in globals():\n        $s.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
         }
     }
 
-    $$new_contents_ref .= $extracted . $tail ;
+    $$new_contents_ref .= $extracted . $tail . $my_struct_contents ;
 
 }
 

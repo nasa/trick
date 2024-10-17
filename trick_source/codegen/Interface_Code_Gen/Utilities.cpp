@@ -66,68 +66,69 @@ std::string trim(const std::string& str, const std::string& whitespace ) {
 }
 
 bool isInUserCode( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) {
-    clang::FileID fid = ci.getSourceManager().getFileID(sl) ;
     bool ret = false ;
-    if ( ! fid.isInvalid() ) {
-        const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
-        if ( fe != NULL ) {
-#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
-            char * resolved_path = almostRealPath( fe->getName() ) ;
-#else
-            char * resolved_path = almostRealPath( fe->getName().str() ) ;
-#endif
-            if ( resolved_path != NULL ) {
-                if ( hsd.isPathInUserDir(resolved_path)) {
-                    ret = true ;
-                }
-                free(resolved_path) ;
-            }
+    char* resolved_path = getResolvedPath(ci, sl);
+
+    if ( resolved_path != NULL ) {
+        if ( hsd.isPathInUserDir(resolved_path)) {
+            ret = true ;
         }
+        free(resolved_path) ;
     }
+
     return ret ;
 }
 
 bool isInUserOrTrickCode( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) {
-    clang::FileID fid = ci.getSourceManager().getFileID(sl) ;
     bool ret = false ;
-    if ( ! fid.isInvalid() ) {
-        const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
-        if ( fe != NULL ) {
-#if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
-            char * resolved_path = almostRealPath( fe->getName() ) ;
-#else
-            char * resolved_path = almostRealPath( fe->getName().str() ) ;
-#endif
-            if ( resolved_path != NULL ) {
-                if ( hsd.isPathInUserOrTrickDir(resolved_path)) {
-                    ret = true ;
-                }
-                free(resolved_path) ;
-            }
+    char* resolved_path = getResolvedPath(ci, sl);
+    
+    if ( resolved_path != NULL ) {
+        if ( hsd.isPathInUserOrTrickDir(resolved_path)) {
+            ret = true ;
         }
+        free(resolved_path) ;
     }
+    
     return ret ;
 }
 
 std::string getFileName( clang::CompilerInstance & ci , clang::SourceLocation sl , HeaderSearchDirs & hsd ) {
-    clang::FileID fid = ci.getSourceManager().getFileID(sl) ;
     std::string file_name;
-    char* resolved_path;
+    char* resolved_path = getResolvedPath(ci, sl);
+
+    if (resolved_path != NULL ) {
+        if (hsd.isPathInUserDir(resolved_path)) {
+            file_name.append(resolved_path);
+        }
+        free(resolved_path);
+    }
+    
+    return file_name;
+}
+
+char * getResolvedPath(clang::CompilerInstance & ci , clang::SourceLocation sl) {
+    clang::FileID fid = ci.getSourceManager().getFileID(sl) ;
+    char* resolved_path = NULL;
+
     if ( ! fid.isInvalid() ) {
         const clang::FileEntry * fe = ci.getSourceManager().getFileEntryForID(fid) ;
         if ( fe != NULL ) {
 #if (LIBCLANG_MAJOR < 4) // TODO delete when RHEL 7 no longer supported
-            char * resolved_path = almostRealPath( fe->getName() ) ;
+        resolved_path = almostRealPath( fe->getName() ) ;
+#elif (LIBCLANG_MAJOR >= 4 && LIBCLANG_MAJOR < 18) 
+        resolved_path = almostRealPath( fe->getName().str() ) ;
 #else
-            char * resolved_path = almostRealPath( fe->getName().str() ) ;
+        const clang::CustomizableOptional<clang::FileEntryRef> cfer = ci.getSourceManager().getFileEntryRefForID(fid) ;
+        if (cfer.has_value()) {
+            resolved_path = almostRealPath( cfer->getName().str() ) ;
+        }
+        
 #endif
-            if ( resolved_path != NULL  and hsd.isPathInUserDir(resolved_path)) {
-                file_name.append(resolved_path);
-            }
-            free(resolved_path);
         }
     }
-    return file_name;
+
+    return resolved_path;
 }
 
 #include <iostream>
