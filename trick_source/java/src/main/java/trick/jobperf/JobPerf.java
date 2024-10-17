@@ -512,17 +512,17 @@ class Interval {
     }
 } // Interval
 
-class ExecutionRegister {
+class RunRegistry {
     ArrayList<Interval> intervalList;
 
-    public ExecutionRegister() {
+    public RunRegistry() {
         intervalList = new ArrayList<Interval>();
     }
     void addSample(double start, double stop) {
         Interval interval = new Interval(start, stop);
         intervalList.add(interval);
     }
-    double getMean() {
+    double getMeanDuration() {
         double mean = 0.0;
         int N = intervalList.size();
         if (N > 0) {
@@ -539,7 +539,7 @@ class ExecutionRegister {
         int N = intervalList.size();
         if (N > 0) {
             double sum = 0.0;
-            double mean = getMean();
+            double mean = getMeanDuration();
             for (Interval interval : intervalList ) {
                 double duration = interval.getDuration();
                 double difference = duration - mean;
@@ -569,176 +569,211 @@ class ExecutionRegister {
         }
         return minDuration;
     }
-} // ExecutionRegister
+} // RunRegistry
 
-class JobStatisticsRecord {
+class StatisticsRecord {
     public String id;
-    public double mean;
+    public double meanValue;
     public double stddev;
-    public double max;
-    public double min;
-    public JobStatisticsRecord( String s, double a, double b, double c, double d) {
+    public double maxValue;
+    public double minValue;
+    public StatisticsRecord( String s, double mean, double sd, double min, double max) {
         id = s;
-        mean = a;
-        stddev = b;
-        max = c;
-        min = d;
+        meanValue = mean;
+        stddev = sd;
+        minValue = min;
+        maxValue = max;
     }
-} // JobStatisticsRecord
+} // StatisticsRecord
 
-// Compare method returns -1,0,1 to say whether it's less than, equal to, or greater than the other.
-
-class CompareByID implements Comparator<JobStatisticsRecord> {
-    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
+class CompareByID implements Comparator<StatisticsRecord> {
+    public int compare(StatisticsRecord a, StatisticsRecord b) {
         return a.id.compareTo(b.id);
     }
 } // CompareByID
 
-class CompareByMeanDuration implements Comparator<JobStatisticsRecord> {
-    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
-        if ( a.mean < b.mean) return -1;
-        if ( a.mean > b.mean) return  1;
+class CompareByMeanValue implements Comparator<StatisticsRecord> {
+    public int compare(StatisticsRecord a, StatisticsRecord b) {
+        if ( a.meanValue < b.meanValue) return -1;
+        if ( a.meanValue > b.meanValue) return  1;
         return 0;
     }
-} // CompareByMeanDuration
+} // CompareByMeanValue
 
-class CompareByStdDev implements Comparator<JobStatisticsRecord> {
-    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
+class CompareByStdDev implements Comparator<StatisticsRecord> {
+    public int compare(StatisticsRecord a, StatisticsRecord b) {
         if ( a.stddev < b.stddev) return -1;
         if ( a.stddev > b.stddev) return  1;
         return 0;
     }
 } // CompareByStdDev
 
-class CompareByMaxDuration implements Comparator<JobStatisticsRecord> {
-    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
-        if ( a.max < b.max) return -1;
-        if ( a.max > b.max) return  1;
+class CompareByMaxDuration implements Comparator<StatisticsRecord> {
+    public int compare(StatisticsRecord a, StatisticsRecord b) {
+        if ( a.maxValue < b.maxValue) return -1;
+        if ( a.maxValue > b.maxValue) return  1;
         return 0;
     }
 } // CompareByMaxDuration
 
-class CompareByMinDuration implements Comparator<JobStatisticsRecord> {
-    public int compare(JobStatisticsRecord a, JobStatisticsRecord b) {
-        if ( a.min < b.min) return -1;
-        if ( a.min > b.min) return  1;
+class CompareByMinDuration implements Comparator<StatisticsRecord> {
+    public int compare(StatisticsRecord a, StatisticsRecord b) {
+        if ( a.minValue < b.minValue) return -1;
+        if ( a.minValue > b.minValue) return  1;
         return 0;
     }
 } // CompareByMinDuration
 
-class JobStatistics {
-    ArrayList<JobStatisticsRecord> jobStatisticsList;
+class JobStats {
 
-    public JobStatistics( ArrayList<JobExecutionEvent> jobExecList ) {
+    enum SortCriterion {
+        ID {
+            @Override
+            public String toString() { return "Identifier"; }
+        },
+        MEAN {
+            @Override
+            public String toString() { return "Mean Value"; }
+        },
+        STDDEV {
+            @Override
+            public String toString() { return "Standard Deviation"; }
+        },
+        MAX {
+            @Override
+            public String toString() { return "Maximum Value"; }
+        },
+        MIN {
+            @Override
+            public String toString() { return "Minimum Value"; }
+        }
+    }
 
-        Map<String, ExecutionRegister> executionRegisterMap
-            = new HashMap<String, ExecutionRegister>();
+    SortCriterion currentSortCriterion = SortCriterion.MEAN;
+    ArrayList<StatisticsRecord> jobStatisticsList;
+
+    public JobStats( ArrayList<JobExecutionEvent> jobExecList ) {
+
+        Map<String, RunRegistry> runRegistryMap
+            = new HashMap<String, RunRegistry>();
 
         for (JobExecutionEvent jobExec : jobExecList ) {
-            ExecutionRegister executionRegister = executionRegisterMap.get(jobExec.id);
-            if (executionRegister != null) {
-                executionRegister.addSample(jobExec.start, jobExec.stop);
+            RunRegistry runRegistry = runRegistryMap.get(jobExec.id);
+            if (runRegistry != null) {
+                runRegistry.addSample(jobExec.start, jobExec.stop);
             } else {
-                executionRegister = new ExecutionRegister();
-                executionRegister.addSample(jobExec.start, jobExec.stop);
-                executionRegisterMap.put(jobExec.id, executionRegister);
+                runRegistry = new RunRegistry();
+                runRegistry.addSample(jobExec.start, jobExec.stop);
+                runRegistryMap.put(jobExec.id, runRegistry);
             }
         }
 
-        jobStatisticsList = new ArrayList<JobStatisticsRecord>();
+        jobStatisticsList = new ArrayList<StatisticsRecord>();
 
-        for (Map.Entry<String, ExecutionRegister> entry : executionRegisterMap.entrySet()) {
+        for (Map.Entry<String, RunRegistry> entry : runRegistryMap.entrySet()) {
             String id = entry.getKey();
-            ExecutionRegister register = entry.getValue();
-            double mean   = register.getMean();
+            RunRegistry register = entry.getValue();
+            double mean   = register.getMeanDuration();
             double stddev = register.getStdDev();
             double min    = register.getMinDuration();
             double max    = register.getMaxDuration();
 
-            jobStatisticsList.add( new JobStatisticsRecord(id, mean, stddev, min, max));
+            jobStatisticsList.add( new StatisticsRecord(id, mean, stddev, min, max));
         }
     }
-
 
     // Sort by MeanDuration in descending order.
     public void SortByID() {
        Collections.sort( jobStatisticsList, new CompareByID());
+       currentSortCriterion = SortCriterion.ID;
     }
 
     // Sort by MeanDuration in descending order.
-    public void SortByMeanDuration() {
-        Collections.sort( jobStatisticsList, Collections.reverseOrder( new CompareByMeanDuration()));
+    public void SortByMeanValue() {
+        Collections.sort( jobStatisticsList, Collections.reverseOrder( new CompareByMeanValue()));
+        currentSortCriterion = SortCriterion.MEAN;
     }
 
     // Sort by Standard Deviation of duration in descending order.
     public void SortByStdDev() {
         Collections.sort( jobStatisticsList, Collections.reverseOrder( new CompareByStdDev()));
+        currentSortCriterion = SortCriterion.STDDEV;
     }
 
     // Sort by MaxDuration in descending order.
-    public void SortByMaxDuration() {
+    public void SortByMaxValue() {
         Collections.sort( jobStatisticsList, Collections.reverseOrder( new CompareByMaxDuration()));
+        currentSortCriterion = SortCriterion.MAX;
     }
 
     // Sort by MinDuration in descending order.
-    public void SortByMinDuration() {
+    public void SortByMinValue() {
         Collections.sort( jobStatisticsList, Collections.reverseOrder( new CompareByMinDuration()));
+        currentSortCriterion = SortCriterion.MIN;
     }
 
     public void write() {
+        System.out.println("           [Job Duration Statistics Sorted by " + currentSortCriterion +"]");
+        System.out.println("----------------------------------------------------------------------");
         System.out.println("  Job Id   Mean Duration     Std Dev      Min Duration   Max Duration");
         System.out.println("---------- -------------- -------------- -------------- --------------");
-           for (JobStatisticsRecord jobStatisticsRecord : jobStatisticsList ) {
+           for (StatisticsRecord jobStatisticsRecord : jobStatisticsList ) {
                System.out.println( String.format("%10s %14.6f %14.6f %14.6f %14.6f",
                    jobStatisticsRecord.id,
-                   jobStatisticsRecord.mean,
+                   jobStatisticsRecord.meanValue,
                    jobStatisticsRecord.stddev,
-                   jobStatisticsRecord.min,
-                   jobStatisticsRecord.max));
+                   jobStatisticsRecord.minValue,
+                   jobStatisticsRecord.maxValue));
         }
     }
-} // JobStatistics
+} // JobStats
 
 public class JobPerf extends JFrame {
     ArrayList<JobExecutionEvent> jobExecEvtList;
-    JobStatistics jobStats;
-
-    enum SortBy { ID, MEAN, STDDEV, MAX, MIN }
+    JobStats jobStats;
 
     public JobPerf( String[] args ) {
         TraceViewWindow traceViewWindow;
         boolean interactive = true;
         boolean printReport = false;
-        SortBy sortMethod = SortBy.MEAN;
+        JobStats.SortCriterion sortOrder = JobStats.SortCriterion.MEAN;
         String fileName = "in.csv";
 
         int ii = 0;
         while (ii < args.length) {
             switch (args[ii]) {
+                case "-h" :
                 case "--help" : {
                     printHelpText();
                     System.exit(0);
                 } break;
+                case "-x" :
                 case "--nogui" : {
                     interactive = false;
                 } break;
+                case "-p" :
                 case "--report" : {
                     printReport = true;
                 } break;
+                case "-s0" :
                 case "--sort=id" : {
-                    sortMethod = SortBy.ID;
+                    sortOrder = JobStats.SortCriterion.ID;
                 } break;
+                case "-s1" :
                 case "--sort=mean" : {
-                    sortMethod = SortBy.MEAN;
+                    sortOrder = JobStats.SortCriterion.MEAN;
                 } break;
+                case "-s2" :
                 case "--sort=stddev" : {
-                    sortMethod = SortBy.STDDEV;
+                    sortOrder = JobStats.SortCriterion.STDDEV;
                 } break;
+                case "-s3" :
                 case "--sort=max" : {
-                    sortMethod = SortBy.MAX;
+                    sortOrder = JobStats.SortCriterion.MAX;
                 } break;
+                case "-s4" :
                 case "--sort=min" : {
-                    sortMethod = SortBy.MIN;
+                    sortOrder = JobStats.SortCriterion.MIN;
                 } break;
                 default : {
                     fileName = args[ii];
@@ -748,13 +783,13 @@ public class JobPerf extends JFrame {
         } // while
 
         jobExecEvtList = JobExecutionEventList(fileName);
-        jobStats = new JobStatistics(jobExecEvtList);
+        jobStats = new JobStats(jobExecEvtList);
         if (printReport) {
-            if (sortMethod == SortBy.ID ) jobStats.SortByID();
-            if (sortMethod == SortBy.MEAN ) jobStats.SortByMeanDuration();
-            if (sortMethod == SortBy.STDDEV ) jobStats.SortByStdDev();
-            if (sortMethod == SortBy.MAX ) jobStats.SortByMaxDuration();
-            if (sortMethod == SortBy.MIN ) jobStats.SortByMinDuration();
+            if (sortOrder == JobStats.SortCriterion.ID ) jobStats.SortByID();
+            if (sortOrder == JobStats.SortCriterion.MEAN ) jobStats.SortByMeanValue();
+            if (sortOrder == JobStats.SortCriterion.STDDEV ) jobStats.SortByStdDev();
+            if (sortOrder == JobStats.SortCriterion.MAX ) jobStats.SortByMaxValue();
+            if (sortOrder == JobStats.SortCriterion.MIN ) jobStats.SortByMinValue();
             jobStats.write();
         }
         if (interactive) {
@@ -767,14 +802,22 @@ public class JobPerf extends JFrame {
             "----------------------------------------------------------------------\n"
             + "usage: trick-jperf [options] <file-name>\n"
             + "options: \n"
-            + "--help\n"
-            + "--nogui\n"
-            + "--report\n"
-            + "--sort=id\n"
-            + "--sort=mean\n"
-            + "--sort=stddev\n"
-            + "--sort=min\n"
-            + "--sort=max\n"
+            + "-h, --help\n"
+            + "    Print this help text and exit."
+            + "-x, --nogui\n"
+            + "    Don't run as a GUI application. Command line only."
+            + "-p, --report\n"
+            + "    Write sorted job statics report to the terminal."
+            + "-s0, --sort=id\n"
+            + "    Sort job statistics by identifier."
+            + "-s1, --sort=mean   [default]\n"
+            + "    Sort job statistics by mean duration."
+            + "-s2, --sort=stddev\n"
+            + "    Sort job statistics by standard deviation of duration."
+            + "-s3, --sort=min\n"
+            + "    Sort job statistics by minimum duration."
+            + "-s4, --sort=max\n"
+            + "    Sort job statistics by maximum duration."
             + "----------------------------------------------------------------------\n"
           );
     }
