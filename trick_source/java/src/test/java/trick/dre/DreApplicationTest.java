@@ -10,6 +10,7 @@ import org.junit.Test;
 import trick.common.ApplicationTest;
 import trick.common.CheckApplicationProperties;
 import trick.dre.fixtures.DreFixture;
+import trick.dre.fixtures.DreFixture.Size;
 import trick.dre.MockDreApplication;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +40,7 @@ public class DreApplicationTest extends ApplicationTest {
     protected void onSetUp() {       
         application(MockDreApplication.class).start();
 
-        sleep(1000);
+        sleep(1500);
 
         dre_fix = new DreFixture(robot(), MockDreApplication.getInstance());
     }
@@ -164,5 +165,78 @@ public class DreApplicationTest extends ApplicationTest {
         // ASSERT
         assertThat(sp_off_sel).isEqualTo(SP_OFF_EXP);
         assertThat(sp_on_sel).isEqualTo(SP_ON_EXP);
+    }
+
+    @Test
+    public void testSelectVars() {
+        // ARRANGE
+        final String[] SEL_VARS = { "drx.drt.a", "drx.drt.b", "drx.drt.c", 
+                                    "drx.drt.uintB.var1"  , "drx.drt.intB.var1",
+                                    "drx.drt.ucharB.var1" , "drx.drt.charB.var1",
+                                    "drx.drt.ushortB.var1", "drx.drt.shortB.var1",
+                                    "drx.drt.mixB.var1"};
+        String[] res_vars;
+
+        // ACT
+        for(int i = 0; i < SEL_VARS.length; i++){
+            dre_fix.selectVar(SEL_VARS[i]);
+            sleep(250);
+        }
+
+        res_vars = dre_fix.getSelectedVars();
+
+        // ASSERT
+        assertThat(res_vars.length)
+            .withFailMessage("Unexpected number of selected variables.")
+            .isEqualTo(SEL_VARS.length);
+
+        for(int i = 0; i < SEL_VARS.length; i++)
+            assertThat(res_vars[i]).isEqualTo(SEL_VARS[i]);
+    }
+
+    @Test
+    public void testSearchVars() {
+        // System.out.println("BEFORE SEARCH:\n" + );
+        // dre_fix.enterQuery("var1\n");
+        // System.out.println("\nAFTER SEARCH:\n" + dre_fix.getSearchResults());
+        // sleep(10000);
+        
+        // ARRANGE
+        final String[] SEARCH_VARS = {  "drx.drt.uintB.var1"  , "drx.drt.intB.var1",
+                                        "drx.drt.ucharB.var1" , "drx.drt.charB.var1",
+                                        "drx.drt.ushortB.var1", "drx.drt.shortB.var1",
+                                        "drx.drt.mixB.var1"  };
+        String[] found_vars;
+        assumeThat(dre_fix.getSearchResults()).isNull();
+
+        // ACT
+        dre_fix.enterQuery("var1\n");
+        sleep(50);
+
+        found_vars = dre_fix.getSearchResults();
+
+        // ASSERT
+        assertThat(found_vars.length)
+            .withFailMessage("Unexpected number of selected variables.")
+            .isEqualTo(SEARCH_VARS.length);
+
+        for(int i = 0; i < SEARCH_VARS.length; i++)
+            assertThat(found_vars[i]).isEqualTo(SEARCH_VARS[i]);
+    }
+
+    @Test
+    public void testToolbar() {
+        // ARRANGE
+        final String GRP_NAME  = "TestingToolbar",
+                     GRP_CYCLE = "5.2",
+                     GRP_SIZE  = "12";
+        final Size   GRP_UNIT  = Size.MB;
+        
+        // ACT
+        dre_fix.setGroupName(GRP_NAME);
+        dre_fix.setCycle(GRP_CYCLE);
+        dre_fix.setMaxFileSize(GRP_SIZE, GRP_UNIT);
+
+        sleep(10000);
     }
 }

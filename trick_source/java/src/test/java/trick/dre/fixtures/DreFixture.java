@@ -82,6 +82,7 @@ public class DreFixture extends FrameFixture {
     //---------------------------
 
     public void selectVar(String varPath) {
+        varPath = varPath.replace(".", "/");
         varTree.doubleClickPath(varPath);
     }
 
@@ -139,6 +140,24 @@ public class DreFixture extends FrameFixture {
                   .enterText(cycle);
     }
 
+    public void setMaxFileSize(String fileSize, Size unit) {
+        fileSizeField.deleteText()
+                     .enterText(fileSize);
+        switch(unit) {
+            case B:  sizeUnitComboBox.selectItem("B");   break;
+            case KB: sizeUnitComboBox.selectItem("KiB"); break;
+            case MB: sizeUnitComboBox.selectItem("MiB"); break;
+            case GB: sizeUnitComboBox.selectItem("GiB"); break;
+            case UNLIMITED: sizeLimitCheckBox.check();   break;
+        }
+    }    
+
+    public void enterQuery(String query) {
+        varSearchPanel.textBox()
+                      .deleteText()
+                      .enterText(query);
+    }
+
     public JOptionPaneFixture getErrorPopupFixture() {
         JOptionPaneFixture opt = optionPane(timeout(1500));
         if(opt.target().getMessageType() == JOptionPane.ERROR_MESSAGE)
@@ -177,6 +196,15 @@ public class DreFixture extends FrameFixture {
             opts |= SINGLE_PREC_OFF;
 
         return opts;
+    }
+
+    public String[] getSelectedVars() {
+        return varSelectedPanel.list().contents();
+    }
+
+    public String[] getSearchResults() {
+        String[] list = varSearchPanel.list().contents();
+        return list.length > 0 ? list : null;
     }
 
     private boolean getOptionState(String ID) {
@@ -223,9 +251,14 @@ public class DreFixture extends FrameFixture {
     }
 
     //----------------------------
+    //        Enumerations        
+    //----------------------------
+
+    public enum Size { B, KB, MB, GB, UNLIMITED }
+
+    //----------------------------
     //     Constant Variables     
     //----------------------------
-    // 0x000 000 000 0
 
     public final static int BINARY          = 0b10000000000,
                             ASCII           = 0b01000000000,

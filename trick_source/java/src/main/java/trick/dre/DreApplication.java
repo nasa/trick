@@ -701,40 +701,75 @@ public class DreApplication extends TrickApplication {
         }
     }
 
+    protected void writeFileHeader(Writer writer) throws Exception {
+        String header = "global DR_GROUP_ID\n" +
+                        "global drg\n" +
+                        "try:\n" +
+                        "    if DR_GROUP_ID >= 0:\n" +
+                        "        DR_GROUP_ID += 1\n" +
+                        "except NameError:\n" +
+                        "    DR_GROUP_ID = 0\n" +
+                        "    drg = []\n\n";
+        
+        writer.write(header);
+        writer.flush();
+    }
+    
+    protected void writeGroupSettings(Writer writer) throws Exception {
+        String format_stencil = "drg.append(trick.%s(\"%s\"))\n",
+               freq_stencil   = "drg[DR_GROUP_ID].set_freq(trick.%s)\n",
+               cycle_stencil  = "drg[DR_GROUP_ID].set_cycle(%s)\n",
+               prec_stencil   = "drg[DR_GROUP_ID].set_single_prec_only(%s)\n",
+               size_stencil   = "drg[DR_GROUP_ID].set_max_file_size(%s%s",
+               settings       = String.format(format_stencil, format, nameField.getText().trim()) +
+                                String.format(freq_stencil, frequency) +
+                                String.format(cycle_stencil, cycleField.getText()) +
+                                String.format(prec_stencil, single_prec_only) +
+                                String.format(size_stencil, maxFileSizeField.getText().trim(),
+                                                            getMultiplier((String) sizeUnitsBox.getSelectedItem()));
+
+        writer.write(settings);
+        writer.flush();
+    }
+    
+    protected void writeVariables(Writer writer) throws Exception {
+        for (String variable : variables) {
+            writer.write("drg[DR_GROUP_ID].add_variable(\"" + variable + "\")\n");
+        }
+
+        writer.flush();
+    }
+    
+    protected void writeFileFooter(Writer writer) throws Exception {
+        String footer = "trick.add_data_record_group(drg[DR_GROUP_ID], trick." + buffering + ")\n" +
+                        "drg[DR_GROUP_ID].enable()\n";
+                        
+        writer.write(footer);
+        writer.flush();
+    }
+
     /**
      * routine to write the saved options for data recording to a file.
      *
      * @param file File the name of the file to save
      */
     private void saveFile(File file) {
+        BufferedWriter writer = null;
         try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            try {
-                writer.write("global DR_GROUP_ID\n");
-                writer.write("global drg\n");
-                writer.write("try:\n");
-                writer.write("    if DR_GROUP_ID >= 0:\n");
-                writer.write("        DR_GROUP_ID += 1\n");
-                writer.write("except NameError:\n");
-                writer.write("    DR_GROUP_ID = 0\n" +
-                        "    drg = []\n\n");
-                writer.write("drg.append(trick." + format + "(\"" + nameField.getText().trim() + "\"))\n");
-                writer.write("drg[DR_GROUP_ID].set_freq(trick." + frequency + ")\n");
-                writer.write("drg[DR_GROUP_ID].set_cycle(" + cycleField.getText() + ")\n");
-                writer.write("drg[DR_GROUP_ID].set_single_prec_only(" + single_prec_only + ")\n");
-
-                for (String variable : variables) {
-                    writer.write("drg[DR_GROUP_ID].add_variable(\"" + variable + "\")\n");
-                }
-                writer.write("drg[DR_GROUP_ID].set_max_file_size(" + maxFileSizeField.getText().trim() + getMultiplier((String) sizeUnitsBox.getSelectedItem()));
-                writer.write("trick.add_data_record_group(drg[DR_GROUP_ID], trick." + buffering + ")\n");
-                writer.write("drg[DR_GROUP_ID].enable()\n");
-            } finally {
-                writer.close();
-            }
+            writer = new BufferedWriter(new FileWriter(file));
+            
+            writeFileHeader(writer);
+            writeGroupSettings(writer);
+            writeVariables(writer);
+            writeFileFooter(writer);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(getMainFrame(), e.toString(),
                     "Error Saving File", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            if(writer != null) {
+                try{ writer.close(); }
+                catch(Exception IGNORED) {}
+            }
         }
     }
 
