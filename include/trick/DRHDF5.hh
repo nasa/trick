@@ -132,8 +132,6 @@ GROUP "/" {
         protected:
 
 #ifdef HDF5
-
-            bool recordEnabled = true;
             
             std::vector<HDF5_INFO *> parameters;  // trick_io(**)
 
