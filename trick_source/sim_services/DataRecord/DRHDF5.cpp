@@ -189,7 +189,6 @@ int Trick::DRHDF5::format_specific_init() {
         hdf5_info->drb = rec_buffer[ii] ;
         /* Add the new parameter element to the end of the vector.
          *  This effectively increases the vector size by one. */
-        
         parameters.push_back(hdf5_info);
 
         // As a bonus, add a header entry for each parameter.
