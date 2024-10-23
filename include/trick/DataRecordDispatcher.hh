@@ -75,8 +75,14 @@ namespace Trick {
             /** @brief Removes all data recording groups. */
             void remove_all_groups() ;
 
-            /** @brief Gets a data recording group. */
+            /** @brief Gets a data recording group by its name. */
             Trick::DataRecordGroup * get_group(std::string group_name) ;
+
+            /** @brief Gets a data recording group by its id number */
+            Trick::DataRecordGroup * get_group(int idx) ;
+
+            /** @brief Gets the size of all added data recroding groups */
+            int get_groups_size() ;
 
             /** @brief Signal the write thread to execute. */
             virtual int signal_thread() ;

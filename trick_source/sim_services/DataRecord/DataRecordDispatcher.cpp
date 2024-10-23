@@ -180,6 +180,10 @@ void Trick::DataRecordDispatcher::remove_all_groups() {
     }
 }
 
+/**
+ @details
+ -# Gets the data recording group by its name
+ */
 Trick::DataRecordGroup * Trick::DataRecordDispatcher::get_group(std::string in_name) {
     std::vector <Trick::DataRecordGroup *>::iterator it ;
     for ( it = groups.begin() ; it != groups.end() ; ++it ) {
@@ -187,6 +191,25 @@ Trick::DataRecordGroup * Trick::DataRecordDispatcher::get_group(std::string in_n
             return *it ;
     }
     return NULL ;
+}
+
+/**
+ @details
+ -# Gets the data recording group by its id number
+ */
+Trick::DataRecordGroup * Trick::DataRecordDispatcher::get_group(int in_idx) {
+    if (!groups.empty() && in_idx > -1 && in_idx < groups.size()) {
+        return groups[in_idx];
+    }
+    return NULL ;
+}
+
+/**
+ @details
+ -# Gets the size of all added data recroding groups
+ */
+int Trick::DataRecordDispatcher::get_groups_size() {
+    return groups.size();
 }
 
 /**
