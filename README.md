@@ -16,9 +16,6 @@
 <a href="https://github.com/nasa/trick/actions?query=workflow%3A32-bit">
 <img src="https://github.com/nasa/trick/workflows/32-bit/badge.svg?branch=master" alt="32-bit" height=30px>
 </a>
-<a href="https://coveralls.io/github/nasa/trick?branch=master">
-<img src="https://coveralls.io/repos/github/nasa/trick/badge.svg?branch=master" alt="Coverage Status" height=30px>
-</a>
 </p>
 
 

@@ -2,7 +2,8 @@
 PURPOSE:
     ( Single body rigid dynamics simulation )
 LIBRARY DEPENDENCIES:
-    ((singlerigidbody/src/body.cpp)
+    ((src/body.cpp)
+     (src/body_shutdown.cpp)
     )
 *************************************************************/
 #define TRICK_NO_MONTE_CARLO
@@ -12,9 +13,7 @@ LIBRARY DEPENDENCIES:
 #define TRICK_NO_ZEROCONF
 
 #include "sim_objects/default_trick_sys.sm"
-
-##include "singlerigidbody/include/body.hh"
-
+##include "include/body.hh"
 class BodySimObject : public Trick::SimObject {
 	public:
 	BODY body;
@@ -24,6 +23,7 @@ class BodySimObject : public Trick::SimObject {
 		("initialization")			body.init() ;
 		("derivative")		       	body.derivative() ;
 		("integration") trick_ret = body.integ() ;
+		("shutdown")                    body.body_shutdown();
 	}
 };
 

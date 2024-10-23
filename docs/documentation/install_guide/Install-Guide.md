@@ -190,13 +190,15 @@ apt-get update
 apt-get install -y bison clang flex git llvm make maven swig cmake \
 curl g++ libx11-dev libxml2-dev libxt-dev libmotif-common libmotif-dev \
 python3-dev zlib1g-dev llvm-dev libclang-dev libudunits2-dev \
-libgtest-dev openjdk-11-jdk zip
+libgtest-dev default-jdk zip
 
 # On some versions of Ubuntu (18.04 as of 04/2021), there may be multiple installations of python.
 # Our new python3-dev will be linked to python3 and python3-config in your bin.
 # To help trick find this instead of python2.7, we set an environment variable in our shell before calling configure:
 export PYTHON_VERSION=3
 ```
+
+Note: If you need to use a specific JDK version, such as `openjdk-11-jdk`, you can replace `default-jdk` with `openjdk-11-jdk` under install packages as shown above. However, you need to check where the `java` and `javac` commands are located. For instance, Ubuntu 24 typically sets up JRE (21) headless by default, so the `java` (version 21 headless) command might be located in `/usr/bin`. When you install `openjdk-11-jdk`, both `java` (version 11) and `javac` (version 11) might be placed in `/usr/lib/jvm/java-11-openjdk-amd64/bin`, with only `javac` potentially also in `/usr/bin`. Consequently, running a Java GUI with the default PATH might use JRE 21 headless instead of JRE 11, even though you’re using JDK 11 for compiling, which may not be the desired configuration. Placing `/usr/lib/jvm/java-11-openjdk-amd64/bin` before `/usr/bin` in your PATH ensures that only JDK 11 is used.
 
 proceed to [Install Trick](#install) section of the install guide
 
@@ -348,9 +350,9 @@ proceed to [Install Trick](#install) section of the install guide
 
 <a name="manual_build_clang_llvm"></a>
 ### Build Clang and LLVM
-#### If you come to this section because Clang+LLVM installed by the package manager on your machine does not work for your environment, you need to manually build Clang and LLVM. Following instructions show steps on building a particular release of Clang and LLVM . `cmake` is required. CMake may support multiple native build systmes on certain platforms. A generator is responsible for generating a particular build system. Below lists two approaches for your reference. The 1st approach uses `Unix Makefiles` (one of Makefile generators) and the 2nd one uses `Ninja` (one of Ninja generators). For Mac Apple Silicon user, may want to go to the 2nd approach direcly. 
+If you come to this section because Clang+LLVM installed by the package manager on your machine does not work for your environment, you need to manually build Clang and LLVM. Following instructions show steps on building a particular release of Clang and LLVM . `cmake` is required. CMake may support multiple native build systmes on certain platforms. A generator is responsible for generating a particular build system. Below lists two approaches for your reference. The first approach uses `Unix Makefiles` (one of Makefile generators) and the second one uses `Ninja` (one of Ninja generators). For Mac Apple Silicon user, may want to go to the second approach directly. 
 
-#### Note: Remember to add `--with-llvm=<clang+llvm-17_path>` for Trick configure if using the Clang and LLVM built in this section.
+Note: Remember to add `--with-llvm=<clang+llvm-17_path>` for Trick configure if using the Clang and LLVM built in this section.
 
 1. Using `Unix Makefiles` generator 
 

@@ -3,51 +3,6 @@
 
 The motion of the sphere is found by using Euler's equations of motion, and can be controlled by changing several initial input values such as force, position, angle, angular velocity, velocity, and position of the force. The recorded data of the motion can then be viewed and analyzed. 
 
-## Building the simulation
-In the ```SIM_singlerigidbody```  directory, type **trick-CP** to build the simulation executable. When it is complete, you should see: 
-
-```
-=== Simulation make complete ===
-```
-
-## Running the simulation
-In the ```SIM_singlerigidbody``` directory, type: 
-
-```
-% S_main_*.exe RUN_test/input.py
-```
-
-## Recorded data
-To review the recorded data using trick quick plot, type:
-
-```
-trick-dp &
-```
-The quick plot should appear. 
-
-To view the data: 
-* Double click the path name containing the sim directory in the **Sims/Runs Tree** pane. 
-* Double click **RUN_test** and click the blue lightning button in the tool bar to launch quick plot. 
-* In quick plot, double click any variable in the **vars** pane and then click on the single white sheet in the tools bar to view the data. 
-
-![dp_example](images\trick-dp.png)
-
-### Alternative method
-An alternative method to view the data is to use koviz. 
-
-If not already installed, download from Github and follow the instructions to install: https://github.com/nasa/koviz
-
-To run koviz, type: 
-```
-koviz RUN_test
-```
-
-Koviz should appear. 
-
-To view the data, double click on any variable under the **Vars** pane. 
-
-![Koviz_Example](images\koviz.png)
-
 ## Dynamics model
 
 ### Equations of Motion
