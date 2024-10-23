@@ -13,6 +13,7 @@ PROGRAMMERS:
 #include "trick/DataRecordGroup.hh"
 
 #ifdef SWIG
+%feature("compactdefaultargs","0") ;
 %feature("shadow") Trick::DRAscii::DRAscii(std::string in_name) %{
     def __init__(self, *args):
         this = $action(*args)
@@ -68,7 +69,7 @@ namespace Trick {
              @code <my_drg> = trick.DRAscii("<in_name>") @endcode
              @copydoc Trick::DataRecordGroup::DataRecordGroup(string in_name)
              */
-            DRAscii( std::string in_name) ;
+            DRAscii( std::string in_name, Trick::DR_Type dr_type = Trick::DR_Type::DR_Type_Ascii ) ;
 
             /**
              @copybrief Trick::DataRecordGroup::format_specific_header
