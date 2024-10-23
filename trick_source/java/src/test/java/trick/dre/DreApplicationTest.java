@@ -19,6 +19,11 @@ import static org.assertj.swing.launcher.ApplicationLauncher.application;
 import static org.junit.Assert.assertTrue;
 import static trick.dre.fixtures.DreFixture.*;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+
 /**
  * 
  * Test DreApplication life cycle.
@@ -196,11 +201,6 @@ public class DreApplicationTest extends ApplicationTest {
 
     @Test
     public void testSearchVars() {
-        // System.out.println("BEFORE SEARCH:\n" + );
-        // dre_fix.enterQuery("var1\n");
-        // System.out.println("\nAFTER SEARCH:\n" + dre_fix.getSearchResults());
-        // sleep(10000);
-        
         // ARRANGE
         final String[] SEARCH_VARS = {  "drx.drt.uintB.var1"  , "drx.drt.intB.var1",
                                         "drx.drt.ucharB.var1" , "drx.drt.charB.var1",
@@ -231,12 +231,166 @@ public class DreApplicationTest extends ApplicationTest {
                      GRP_CYCLE = "5.2",
                      GRP_SIZE  = "12";
         final Size   GRP_UNIT  = Size.MB;
-        
+        final String[] EXP_LINES = { "drg.append(trick.DRBinary(\"" + GRP_NAME + "\"))",
+                                     "drg[DR_GROUP_ID].set_cycle(" + GRP_CYCLE + ")",
+                                     "drg[DR_GROUP_ID].set_max_file_size(" + GRP_SIZE + GRP_UNIT.TAG + ")" };
+
+        MockDreApplication app = MockDreApplication.getInstance();
+        String[] output;
+        boolean setGrpName = false,
+                setCycle = false,
+                setSize = false;
+
         // ACT
         dre_fix.setGroupName(GRP_NAME);
         dre_fix.setCycle(GRP_CYCLE);
         dre_fix.setMaxFileSize(GRP_SIZE, GRP_UNIT);
 
-        sleep(10000);
+        output = app.getSettingsOutput();
+
+        // Assert
+        for(String line : output) {
+            if (line.contains("drg.append")) {
+                setGrpName = true;
+                assertThat(line).isEqualTo(EXP_LINES[0]);
+            } else if (line.contains("set_cycle")) {
+                setCycle = true;
+                assertThat(line).isEqualTo(EXP_LINES[1]);
+            } else if(line.contains("set_max_file_size")) {
+                setSize = true;
+                line = line.split(" # ")[0];
+                assertThat(line).isEqualTo(EXP_LINES[2]);
+            }
+        }
+
+        assertThat(setGrpName)
+                .withFailMessage("Group Name was not set...\n")
+                .isTrue();
+
+        assertThat(setCycle)
+                .withFailMessage("Cycle was not set...\n")
+                .isTrue();
+
+        assertThat(setSize)
+                .withFailMessage("Max File Size was not set...\n")
+                .isTrue();
+    }
+
+    @Test
+    public void testSaveDataRecordGroup() {
+        // ARRANGE
+        final File TEST_DR = new File("src/test/java/trick/dre/resources/dre_test_ascii.dr");
+        final String NAME = "DR_Test_ASCII",
+                     CYCLE = "0.2",
+                     SIZE = "3",
+                     VAR_PREFIX = "drx.drt.",
+                     VAR_POSTFIX = ".var";
+        final Size   UNIT = Size.MB;
+        final String[] VAR_TYPES = {"charB", "intB", "shortB", "ucharB", "uintB", "ushortB", "mixB"};
+        String var;
+        File result = new File("test_result.dr");
+        boolean file_as_expected = false;
+
+        dre_fix.setGroupName(NAME);
+        dre_fix.setCycle(CYCLE);
+        dre_fix.setMaxFileSize(SIZE, UNIT);
+        dre_fix.setOptions(ASCII | CHANGES | SINGLE_PREC_ON | NO_BUFFER);
+
+        for(int i = 0; i < VAR_TYPES.length; i++) {
+            for(int j = 1; j <= 4; j++) {
+                var = VAR_PREFIX + VAR_TYPES[i] + VAR_POSTFIX + j;
+                dre_fix.selectVar(var);
+                sleep(250);
+            }
+        }
+
+        if (result != null && result.exists()) {
+            result.delete();
+        }
+        result.deleteOnExit();
+        
+        assumeThat(result != null && !result.exists()).isTrue();
+        assumeThat(TEST_DR != null && TEST_DR.exists())
+                .withFailMessage("Benchmark File Not Found!")
+                .isTrue();
+        
+        //ACT
+        dre_fix.saveMenuItem("test_result");
+        file_as_expected = sameFileContent(TEST_DR, result);
+        
+        //ASSERT
+        if (!file_as_expected) {
+            try{
+                Files.copy( result.toPath(), 
+                            new File("failed_test.dr").toPath(), 
+                            StandardCopyOption.REPLACE_EXISTING );
+            } catch(Exception IGNORED) {}
+
+            assertThat(file_as_expected)
+                    .withFailMessage("Generated File doesn't match Benchmark. Failed .dr file is in java directory\n")
+                    .isTrue();
+        }
+    }
+
+    @Test
+    public void testLoadDataRecordGroup() {
+        // ARRANGE
+        final File TEST_DR = new File("src/test/java/trick/dre/resources/dre_test_ascii.dr");
+        final int EXP_OPTIONS = ASCII | CHANGES | SINGLE_PREC_ON | NO_BUFFER;
+        final String EXP_NAME = "DR_Test_ASCII",
+                     EXP_CYCLE = "0.2",
+                     EXP_SIZE = "3",
+                     VAR_PREFIX = "drx.drt.",
+                     VAR_POSTFIX = ".var";
+        final Size   EXP_UNIT = Size.MB;
+        final String[] VAR_TYPES = {"charB", "intB", "shortB", "ucharB", "uintB", "ushortB", "mixB"};
+
+        MockDreApplication app = MockDreApplication.getInstance();
+        int sel_opts;
+        String name, cycle, size;
+        String[] sel_vars, settings;
+        Size unit;
+        boolean setGrpName = false,
+                setCycle = false,
+                setSize = false;
+        
+        //ACT
+        dre_fix.openMenuItem(TEST_DR.getAbsolutePath());
+        
+        sel_opts = dre_fix.getSelectedOptions();
+        sel_vars = dre_fix.getSelectedVars();
+        settings = app.getSettingsOutput();
+        
+        //ASSERT
+        assumeThat(sel_vars.length).isEqualTo(VAR_TYPES.length * 4);
+
+        assertThat(sel_opts)
+            .withFailMessage("Expected options did not load correctly.\n")
+            .isEqualTo(EXP_OPTIONS);
+
+        for(String line : settings) {
+            if (line.contains("drg.append")) {
+                setGrpName = true;
+                assertThat(line).contains(EXP_NAME);
+            } else if (line.contains("set_cycle")) {
+                setCycle = true;
+                assertThat(line).contains(EXP_CYCLE);
+            } else if(line.contains("set_max_file_size")) {
+                setSize = true;
+                assertThat(line).contains(EXP_SIZE)
+                                .contains(EXP_UNIT.TAG);
+            }
+        }
+
+        for(int i = 0; i < VAR_TYPES.length; i++) {
+            int base = (i * 4) - 1;
+            for(int j = 1; j <= 4; j++) {
+                String varName = VAR_PREFIX + VAR_TYPES[i] + VAR_POSTFIX + j;
+                int adj_index = base + j;
+                
+                assertThat(sel_vars[adj_index])
+                    .isEqualTo(varName);
+            }
+        }
     }
 }

@@ -2,6 +2,8 @@ package trick.dre.fixtures;
 
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
+import java.io.File;
+import java.io.StringWriter;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JOptionPane;
@@ -128,6 +130,13 @@ public class DreFixture extends FrameFixture {
 
     public void openMenuItem(String path) {
         menuItem("openDRMenuItem").click();
+
+        JFileChooserFixture fc = fileChooser(timeout(1500));
+        JTextComponentFixture fileEntryTextBox = fc.fileNameTextBox();
+
+        fileEntryTextBox.deleteText()
+                        .enterText(path);
+        fc.approve();
     }
 
     public void setGroupName(String name) {
@@ -254,7 +263,13 @@ public class DreFixture extends FrameFixture {
     //        Enumerations        
     //----------------------------
 
-    public enum Size { B, KB, MB, GB, UNLIMITED }
+    public enum Size {
+        B(""), KB(" * 1024"), MB(" * 1048576"), GB(" * 1073741824"), UNLIMITED("");
+
+        public final String TAG;
+
+        Size(String val) { TAG = val; }
+    }
 
     //----------------------------
     //     Constant Variables     

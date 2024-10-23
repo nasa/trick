@@ -2,6 +2,7 @@ package trick.dre;
 
 
 import java.io.File;
+import java.io.StringWriter;
 
 import org.assertj.swing.core.GenericTypeMatcher;
 
@@ -21,6 +22,30 @@ public class MockDreApplication extends DreApplication {
 	}
 
 	public static final MockDreApplication getInstance() { return the_dre; }
+
+    public String[] getSettingsOutput() {
+        StringWriter strWrt = new StringWriter();
+        try{ writeGroupSettings(strWrt); }
+		catch(Exception IGNORED) {}
+
+        return strWrt.toString().split("\n");
+    }
+
+    public String[] getFooterOutput() {
+        StringWriter strWrt = new StringWriter();
+        try{ writeFileFooter(strWrt); }
+		catch(Exception IGNORED) {}
+
+        return strWrt.toString().split("\n");
+    }
+
+    public String[] getVariableOutput() {
+        StringWriter strWrt = new StringWriter();
+        try{ writeVariables(strWrt); }
+		catch(Exception IGNORED) {}
+
+        return strWrt.toString().split("\n");
+    }
 	
     public static void main(String[] args) {
 		File sie;

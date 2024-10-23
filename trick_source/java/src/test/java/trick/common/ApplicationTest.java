@@ -16,7 +16,10 @@ import java.awt.event.KeyEvent;
 import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.beans.Transient;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JMenu;
@@ -61,6 +64,19 @@ public abstract class ApplicationTest extends AssertJSwingJUnitTestCase {
 	public static void sleep(long ms) {
 		try {Thread.sleep(ms);} catch(Exception ignored) {}
 	}
+
+    public boolean sameFileContent(File a, File b) {
+        try {
+            byte[] a_bytes = Files.readAllBytes(a.toPath()),
+                   b_bytes = Files.readAllBytes(b.toPath());
+        
+            return Arrays.equals(a_bytes, b_bytes);
+        } catch(Exception e) {
+            System.err.println(e.getMessage());
+        }
+
+        return false;
+    }
 
     protected FrameFixture getFrameByTitle(String title) {
         FrameFixture frame = findFrame(new GenericTypeMatcher<Frame>(Frame.class) {
