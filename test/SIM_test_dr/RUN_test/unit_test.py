@@ -28,14 +28,12 @@ TRICK_EXPECT_EQ( num_drgs , 4 , test_suite , "num of dr groups" )
 # Test trick.get_data_record_group(<drg_name>) for getting the drg pointer by its name
 # Check the name of the obtained drg instead of the drg pointer
 for i in range(num_drgs):
-    drx.drt.drg = trick.get_data_record_group(dr_file_name_drg_name_tuple[i][1])
-    TRICK_EXPECT_EQ(  drx.drt.drg.get_group_name(), dr_file_name_drg_name_tuple[i][1], test_suite , "get drg by name" )
+    TRICK_EXPECT_EQ(  trick.get_data_record_group(dr_file_name_drg_name_tuple[i][1]).get_group_name(), dr_file_name_drg_name_tuple[i][1], test_suite , "get drg by name" )
 
-# Test trick.get_data_record_group(<drg_idx) for getting the drg pointer by its id number
+# Test trick.get_data_record_group_by_idx(<drg_idx) for getting the drg pointer by its id number
 # Check the name of the obtained drg instead of the drg pointer
 for i in range(num_drgs):
-    drx.drt.drg = trick.get_data_record_group_by_idx(i)
-    TRICK_EXPECT_EQ(  drx.drt.drg.get_group_name(), dr_file_name_drg_name_tuple[i][1], test_suite , "get drg by idx" )
+    TRICK_EXPECT_EQ(  trick.get_data_record_group_by_idx(i).get_group_name(), dr_file_name_drg_name_tuple[i][1], test_suite , "get drg by idx" )
 
 
 trick.stop(1.0)

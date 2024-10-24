@@ -102,8 +102,6 @@ class DRTypes {
 		MIX_BITS mixB;
 
 
-		Trick::DataRecordGroup * drg;
-
 		DRTypes();
 		~DRTypes();
 
