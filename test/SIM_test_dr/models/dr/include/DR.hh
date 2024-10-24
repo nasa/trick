@@ -6,7 +6,6 @@
 ********************************************************************************/
 #include <wchar.h>
 #include <string>
-#include "trick/DataRecordGroup.hh"
 
 
 #ifndef DR_HH

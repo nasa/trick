@@ -90,7 +90,7 @@ extern "C" int get_num_data_record_groups() {
    if ( the_drd != NULL ) {
         return the_drd->get_groups_size() ;
     }
-    return NULL ;
+    return 0 ;
 }
 
 extern "C" int set_max_size_record_group (const char * in_name, uint64_t bytes ) {
