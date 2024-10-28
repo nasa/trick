@@ -324,14 +324,14 @@
             <printSummary>true</printSummary>
 			<excludes>
 			  <exclude> **/SimControlApplicationTest.java 		</exclude>
-			  <!-- <exclude> **/DreApplicationTest.java 		</exclude> -->
+			  <exclude> **/DreApplicationTest.java 		</exclude>
 			  <exclude> **/TrickDPApplicationTest.java 		</exclude>
 			  <exclude> **/TrickQPApplicationTest.java 		</exclude>
 			  <exclude> **/MonteMonitorApplicationTest.java </exclude>
 			  <exclude> **/MtvApplicationTest.java 			</exclude>
 			  <exclude> **/SieApplicationTest.java 			</exclude>
 			  <exclude> **/SnifferApplicationTest.java 		</exclude>
-			  <exclude> **/TVApplicationTest.java 			</exclude>
+			  <!-- <exclude> **/TVApplicationTest.java 			</exclude> -->
 			</excludes>
           </configuration>
         </plugin>
