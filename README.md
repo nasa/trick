@@ -6,7 +6,7 @@
 </picture>
 </p>
 
-<p align=left>
+<p align=center>
 <a href="https://github.com/nasa/trick/actions?query=workflow%3ALinux">
 <img src="https://github.com/nasa/trick/workflows/Linux/badge.svg?branch=master" alt="Linux" height=30px>
 </a>
