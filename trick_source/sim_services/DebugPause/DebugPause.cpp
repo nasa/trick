@@ -68,7 +68,7 @@ int Trick::DebugPause::debug_pause_on() {
 
     debug_pause_flag = true ;
 
-    sem_name_stream << "itimersepmaphore_" << getpid() ;
+    sem_name_stream << "debugstepmaphore_" << getpid() ;
     sem_name = sem_name_stream.str() ;
 
     debug_sem = sem_open(sem_name.c_str(), O_CREAT, S_IRWXU , 0);
