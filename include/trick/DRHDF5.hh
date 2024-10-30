@@ -128,7 +128,6 @@ GROUP "/" {
 
         protected:
 
-
             std::vector<HDF5_INFO *> parameters;  // trick_io(**)
 
             hid_t file;  // trick_io(**)

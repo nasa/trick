@@ -55,8 +55,6 @@ int Trick::Executive::process_sim_args() {
             "                         to the screen.\n" 
             "     RUN_<name>/<input_file> --profile | -p\n"
             "                         Enable the profiler to track jobspeed.\n"
-            "     RUN_<name>/<input_file> --disable-dr | -ddr\n"
-            "                           Disable the Data Recording\n"
             );
 
     bool open_stream = true;

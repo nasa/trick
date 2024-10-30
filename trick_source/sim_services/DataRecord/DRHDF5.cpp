@@ -18,12 +18,6 @@ PROGRAMMERS:
 
 Trick::DRHDF5::DRHDF5( std::string in_name ) : Trick::DataRecordGroup(in_name) {
     register_group_with_mm(this, "Trick::DRHDF5") ;
-    int argc = command_line_args_get_argc();
-    char** argv = command_line_args_get_argv();
-
-    for(int i = 2; i < argc; i++) 
-        if(!strncmp(argv[i], "--disable-dr",12) || !strncmp(argv[i], "-ddr",4))  
-            recordEnabled = false;
             
         
 }
@@ -45,8 +39,6 @@ int Trick::DRHDF5::format_specific_header( std::fstream & out_stream ) {
    and restored.
 */
 int Trick::DRHDF5::format_specific_init() {
-    if(!recordEnabled )
-        return 0;
 #ifdef HDF5
     
     unsigned int ii ;
@@ -87,7 +79,10 @@ int Trick::DRHDF5::format_specific_init() {
     param_units_id = H5PTcreate_fl(header_group, "param_units", s256, chunk_size, 1) ;
     // Create a packet table (PT) that stores each parameter's name.
     param_names_id =  H5PTcreate_fl(header_group, "param_names", s256, chunk_size, 1) ;
-
+    
+        
+    
+    parameters.clear();
     // Create a table for each requested parameter.
     for (ii = 0; ii < rec_buffer.size(); ii++) {
 
@@ -229,8 +224,6 @@ int Trick::DRHDF5::format_specific_init() {
    in one or two HDF5 calls.
 */
 int Trick::DRHDF5::write_data(bool must_write) {
-    if(!recordEnabled )
-        return 0;
 #ifdef HDF5
     unsigned int local_buffer_num ;
     unsigned int num_to_write ;
@@ -298,8 +291,6 @@ int Trick::DRHDF5::write_data(bool must_write) {
    -# Append one packet to the packet table.
 */
 int Trick::DRHDF5::format_specific_write_data(unsigned int writer_offset __attribute__((unused))) {
-     if(!recordEnabled )
-        return 0;
 #ifdef HDF5
     unsigned int ii;
     char *buf = 0;
@@ -330,8 +321,6 @@ int Trick::DRHDF5::format_specific_write_data(unsigned int writer_offset __attri
 -# Close the HDF5 file
 */
 int Trick::DRHDF5::format_specific_shutdown() {
-     if(!recordEnabled )
-        return 0;
 #ifdef HDF5
     unsigned int ii ;
 
