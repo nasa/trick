@@ -43,8 +43,3 @@ trickops_logs/
 coverage.info
 *.dSYM
 *.log
-trick_sims/SIM_singlerigidbody/README.md.orig
-trick_sims/SIM_singlerigidbody/S_define.orig
-trick_sims/SIM_singlerigidbody/RUN_test/IdToColors.txt
-trick_sims/SIM_singlerigidbody/RUN_test/input.py.orig
-trick_sims/SIM_singlerigidbody/S_overrides.mk.orig
