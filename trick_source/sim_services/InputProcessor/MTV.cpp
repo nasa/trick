@@ -113,11 +113,11 @@ int Trick::MTV::send_event_data() {
         snprintf(varname, sizeof(varname), "%s[%u][0].before_after", mtv_name,ii);
         var_add(varname);
         for (jj=0; jj< mtv_list[ii]->condition_count; jj++) {
-            snprintf(varname, sizeof(varname), "%s[%u][0].cond[%d].comment", mtv_name,ii,jj);
+            snprintf(varname, sizeof(varname), "%s[%u][0].condition_list[%d][0].comment", mtv_name,ii,jj);
             var_add(varname);
         }
         for (jj=0; jj< mtv_list[ii]->action_count; jj++) {
-            snprintf(varname, sizeof(varname), "%s[%u][0].act[%d].comment", mtv_name,ii,jj);
+            snprintf(varname, sizeof(varname), "%s[%u][0].action_list[%d][0].comment", mtv_name,ii,jj);
             var_add(varname);
         }
         if (mtv_list[ii]->get_before_after() > 0) {

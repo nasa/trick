@@ -278,16 +278,16 @@ public class MtvApp extends TrickApplication {
                     event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].added\"); ";
                     mtv_var_count += 9;
                     for (int jj=0; jj < mtv_events.get(ii).cond_count; jj++) {
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].cond[" +jj+ "].enabled\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].cond[" +jj+ "].fired_time\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].cond[" +jj+ "].fired_count\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].cond[" +jj+ "].hold\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].condition_list[" +jj+ "][0].enabled\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].condition_list[" +jj+ "][0].fired_time\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].condition_list[" +jj+ "][0].fired_count\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].condition_list[" +jj+ "][0].hold\"); ";
                         mtv_var_count += 4;
                     }
                     for (int jj=0; jj < mtv_events.get(ii).act_count; jj++) {
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].act[" +jj+ "].enabled\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].act[" +jj+ "].ran_time\"); ";
-                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].act[" +jj+ "].ran_count\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].action_list[" +jj+ "][0].enabled\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].action_list[" +jj+ "][0].ran_time\"); ";
+                        event_vars += "trick.var_add(\"trick_ip.mtv.mtv_list[" +ii+ "][0].action_list[" +jj+ "][0].ran_count\"); ";
                         mtv_var_count += 3;
                     }
                     //System.out.println(event_vars);
