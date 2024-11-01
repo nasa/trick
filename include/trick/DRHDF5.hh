@@ -36,14 +36,11 @@ PROGRAMMERS:
 
 namespace Trick {
 
-#ifdef HDF5
-#ifndef TRICK_ICG
+typedef int64_t hid_t;
     struct HDF5_INFO {
         hid_t dataset;
         Trick::DataRecordBuffer * drb ;
     };
-#endif
-#endif
 
 
     /**
@@ -131,15 +128,10 @@ GROUP "/" {
 
         protected:
 
-#ifdef HDF5
-
-            bool recordEnabled = true;
-            
             std::vector<HDF5_INFO *> parameters;  // trick_io(**)
 
             hid_t file;  // trick_io(**)
             hid_t root_group, header_group;  // trick_io(**)
-#endif
 
     } ;
 
