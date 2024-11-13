@@ -6,7 +6,7 @@
 </picture>
 </p>
 
-<p align=left>
+<p align=center>
 <a href="https://github.com/nasa/trick/actions?query=workflow%3ALinux">
 <img src="https://github.com/nasa/trick/workflows/Linux/badge.svg?branch=master" alt="Linux" height=30px>
 </a>
@@ -24,14 +24,14 @@ The Trick Simulation Environment, developed at the NASA Johnson Space Center, is
 </p>
 
 <table>
-    <col width="33%">
-    <col width="33%">
-    <col width="33%">
+    <col>
+    <col>
+    <col>
     <thead>
-        <tr>
-            <th><a href="https://nasa.github.io/trick/documentation/install_guide/Install-Guide">Install Guide</a></th>
-            <th><a href="https://nasa.github.io/trick/tutorial/Tutorial">Tutorial</a></th>
-            <th><a href="https://nasa.github.io/trick/documentation/Documentation-Home">Documentation</a></th>
+        <tr align="center">
+            <th width="33%"><a href="https://nasa.github.io/trick/documentation/install_guide/Install-Guide">Install Guide</a></th>
+            <th width="33%"><a href="https://nasa.github.io/trick/tutorial/Tutorial">Tutorial</a></th>
+            <th width="33%"><a href="https://nasa.github.io/trick/documentation/Documentation-Home">Documentation</a></th>
         </tr>
     </thead>
     <tbody>
@@ -44,14 +44,14 @@ The Trick Simulation Environment, developed at the NASA Johnson Space Center, is
 </table>
 
 <table>
-    <col width="33%">
-    <col width="33%">
-    <col width="33%">
+    <col>
+    <col>
+    <col>
     <thead>
         <tr>
-            <th><a href="https://nasa.github.io/trick/related_projects/Related-Projects">Related Projects</a></th>
-            <th><a href="https://nasa.github.io/trick/faq/FAQ">Frequently Asked Questions</a></th>
-            <th><a href="https://nasa.github.io/trick/howto_guides/How-To-Guides">How-To Guides</a></th>
+            <th width="33%"><a href="https://nasa.github.io/trick/related_projects/Related-Projects">Related Projects</a></th>
+            <th width="33%"><a href="https://nasa.github.io/trick/faq/FAQ">Frequently Asked Questions</a></th>
+            <th width="33%"><a href="https://nasa.github.io/trick/howto_guides/How-To-Guides">How-To Guides</a></th>
         </tr>
     </thead>
     <tbody>

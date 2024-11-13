@@ -23,6 +23,8 @@ int set_max_size_record_group (const char * in_name, uint64_t bytes ) ;
 int add_data_record_group( Trick::DataRecordGroup * in_group, Trick::DR_Buffering buffering = Trick::DR_Not_Specified ) ;
 int remove_data_record_group( Trick::DataRecordGroup * in_group ) ;
 Trick::DataRecordGroup * get_data_record_group( std::string in_name ) ;
+Trick::DataRecordGroup * get_data_record_group_by_idx( int idx ) ;
+int get_num_data_record_groups() ;
 }
 #endif
 
