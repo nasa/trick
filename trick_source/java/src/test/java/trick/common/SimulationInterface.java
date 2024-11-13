@@ -28,12 +28,15 @@ public class SimulationInterface {
 	public static Process startSim(String simPath, String ... args) {
 		File sim_dir = new File(simPath);
 		if (sim_dir.exists()) {
-			String cmd = "./" + find_exe(sim_dir).getName();
-			for(String arg : args) cmd += " " + arg;
+			File exe = find_exe(sim_dir);
+			if(exe != null && exe.exists()) {
+				String cmd = "./" + find_exe(sim_dir).getName();
+				for(String arg : args) cmd += " " + arg;
 
-			return run_cmd(sim_dir, cmd);
-		} else  
-			return null;
+				return run_cmd(sim_dir, cmd, false);
+			}
+		}
+		return null;
 	}
 
 	private static Process run_cmd(File dir, String cmd, boolean block) {

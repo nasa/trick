@@ -1,7 +1,5 @@
 package trick.common;
 
-import trick.common.SimulationInterface;
-
 public class TestUtils {
     public static String getTrickHome() {
         String cwd = System.getProperty("user.dir");
@@ -15,5 +13,10 @@ public class TestUtils {
         
         SimulationInterface.cleanSim(sim_path);
         return SimulationInterface.compileSim(sim_path);
+    }
+
+    public static Process runTestSim(String sim_name, String ... args) {
+        String sim_path = getTrickHome() + "/test/" + sim_name;
+        return SimulationInterface.startSim(sim_path, args);
     }
 }
