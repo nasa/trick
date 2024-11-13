@@ -15,6 +15,8 @@ import trick.common.ApplicationTest;
 import trick.common.TestUtils;
 import trick.tv.fixtures.TVFixture;
 
+import static trick.tv.fixtures.TVFixture.*;
+
 /**
  * 
  * Test TVApplication life cycle.
@@ -63,19 +65,33 @@ public class TVApplicationTest extends ApplicationTest {
 
 		tv_app = MockTVApplication.getInstance(MockTVApplication.class);
 		tv_fix = new TVFixture(robot(), tv_app);
-		tv_fix.getErrorPopupFixture()
-			  .okButton().click();
     }
 
 	@Test
 	public void testGeneric() {
-		// tv_fix.selectVar("drx.drt.uintB.var1");
+		tv_fix.selectVar("drx.drt.uintB.var1");
+		tv_fix.setSearchOptions(CASE_SENSITIVE_ON | REG_EXPRESSION_ON | GREEDY_SEARCH_ON);
+		tv_fix.enterQuery("var1\n");
+		sleep(500);
+
+		System.out.println("SEARCH RESULTS");;
+		String[] results = tv_fix.getSearchResults();
+		for (String string : results) {
+			System.out.println(string);
+			tv_fix.selectVar(string);
+			sleep(250);
+		}
+
+		System.out.println("\nSEL VARS");
+		String[][] table = tv_fix.getSelectedVars();
+		for (String[] strings : table) {
+			for (String string : strings) {
+				System.out.print(string + "\t");
+			}
+			System.out.println();
+		}
 
 		sleep(5000);
-		
-		// tv_app.connectSimulation();
-		if(tv_app.isConnected())	System.out.println("CONNECTED");
-		else System.out.println("NOT CONNECTED");
 	}
 
 	public static int getOpenPort() {

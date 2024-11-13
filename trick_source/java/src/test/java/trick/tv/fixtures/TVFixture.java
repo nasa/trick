@@ -9,21 +9,24 @@ import org.assertj.swing.fixture.JCheckBoxFixture;
 import org.assertj.swing.fixture.JOptionPaneFixture;
 import org.assertj.swing.fixture.JPanelFixture;
 import org.assertj.swing.fixture.JScrollPaneFixture;
+import org.assertj.swing.fixture.JTableFixture;
 import org.assertj.swing.fixture.JTextComponentFixture;
 import org.assertj.swing.fixture.JTreeFixture;
 import static org.assertj.swing.timing.Timeout.timeout;
 import org.jdesktop.swingx.JXTitledPanel;
 
+import trick.sie.utils.SearchPanel;
 import trick.tv.TVApplication;
 
 public class TVFixture extends FrameFixture {
-    private JPanelFixture varSelectedPanel,
-                          varSearchPanel;
+    private JPanelFixture varSearchPanel;
+    private JTableFixture varSelectedPanel;                          
 
     private JTextComponentFixture searchBar;
 
     private JCheckBoxFixture caseSCheckBox,
-                             regexCheckBox;
+                             regexCheckBox,
+                             greedCheckBox;
 
     private JScrollPaneFixture searchResults;
     private JTreeFixture varTree;
@@ -32,21 +35,22 @@ public class TVFixture extends FrameFixture {
         super(robot, target.getMainFrame());
 
         // varTreePanel = panel(new JXTitledPanelMatcher("Variables"));
-        // varSelectedPanel = panel(new JXTitledPanelMatcher("Selected Variables"));
-        // varSearchPanel = panel(
-        //     new GenericTypeMatcher<SearchPanel>(SearchPanel.class) {
-        //         @Override
-        //         protected boolean isMatching(SearchPanel panel) {
-        //             return true;
-        //         }
-        //     });
+        varSelectedPanel = table();
+        varSearchPanel = panel(
+            new GenericTypeMatcher<SearchPanel>(SearchPanel.class) {
+                @Override
+                protected boolean isMatching(SearchPanel panel) {
+                    return true;
+                }
+            });
 
         varTree = tree();
 
         // searchBar     = varSearchPanel.textBox();
         // searchResults = varSearchPanel.scrollPane();
-        // caseSCheckBox = varSearchPanel.checkBox("caseSensitiveCheckBox");
-        // regexCheckBox = varSearchPanel.checkBox("regularExpressionCheckBox");
+        caseSCheckBox = varSearchPanel.checkBox("caseSensitiveCheckBox");
+        regexCheckBox = varSearchPanel.checkBox("regularExpressionCheckBox");
+        greedCheckBox = varSearchPanel.checkBox("greedySearchCheckBox");
     }
 
     //---------------------------
@@ -72,6 +76,16 @@ public class TVFixture extends FrameFixture {
                       .enterText(query);
     }
 
+    public void setSearchOptions(int opts) {
+        boolean senseSel = (opts & CASE_SENSITIVE_ON) == CASE_SENSITIVE_ON,
+                regexSel = (opts & REG_EXPRESSION_ON) == REG_EXPRESSION_ON,
+                greedSel = (opts & GREEDY_SEARCH_ON ) == GREEDY_SEARCH_ON ;
+
+        caseSCheckBox.check(senseSel);
+        regexCheckBox.check(regexSel);
+        greedCheckBox.check(greedSel);
+    }
+
     public JOptionPaneFixture getErrorPopupFixture() {
         JOptionPaneFixture opt = optionPane(timeout(1500));
         if(opt.target().getMessageType() == JOptionPane.ERROR_MESSAGE)
@@ -80,8 +94,8 @@ public class TVFixture extends FrameFixture {
 
     }
 
-    public String[] getSelectedVars() {
-        return varSelectedPanel.list().contents();
+    public String[][] getSelectedVars() {
+        return varSelectedPanel.contents();
     }
 
     public String[] getSearchResults() {
@@ -107,4 +121,12 @@ public class TVFixture extends FrameFixture {
             return pane.getTitle().equals(title);
         }
     }
+
+    public static final int CASE_SENSITIVE_ON = 0b100,
+                            REG_EXPRESSION_ON = 0b010,
+                            GREEDY_SEARCH_ON  = 0b001;
+
+    public static final int CASE_SENSITIVE_OFF = 0b000,
+                            REG_EXPRESSION_OFF = 0b000,
+                            GREEDY_SEARCH_OFF  = 0b000;
 }
