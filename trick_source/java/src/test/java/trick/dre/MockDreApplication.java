@@ -4,14 +4,10 @@ package trick.dre;
 import java.io.File;
 import java.io.StringWriter;
 
-import org.assertj.swing.core.GenericTypeMatcher;
-
+import static org.assertj.core.api.Assumptions.assumeThat;
 import org.jdesktop.application.Application;
 
-import trick.common.ApplicationTest;
 import trick.common.TestUtils;
-
-import static org.assertj.core.api.Assumptions.assumeThat;
 
 public class MockDreApplication extends DreApplication {
 	private static MockDreApplication the_dre = null;

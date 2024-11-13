@@ -1,28 +1,29 @@
 package trick.dre;
 
-import org.jdesktop.application.Application;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import trick.common.ApplicationTest;
-import trick.common.CheckApplicationProperties;
-import trick.dre.fixtures.DreFixture;
-import trick.dre.fixtures.DreFixture.Size;
-import trick.dre.MockDreApplication;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.swing.launcher.ApplicationLauncher.application;
-import static org.junit.Assert.assertTrue;
-import static trick.dre.fixtures.DreFixture.*;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import trick.common.ApplicationTest;
+import trick.dre.fixtures.DreFixture;
+import static trick.dre.fixtures.DreFixture.ALWAYS;
+import static trick.dre.fixtures.DreFixture.ASCII;
+import static trick.dre.fixtures.DreFixture.BINARY;
+import static trick.dre.fixtures.DreFixture.BUFFER;
+import static trick.dre.fixtures.DreFixture.CHANGES;
+import static trick.dre.fixtures.DreFixture.HDF5;
+import static trick.dre.fixtures.DreFixture.NO_BUFFER;
+import static trick.dre.fixtures.DreFixture.RING_BUFFER;
+import static trick.dre.fixtures.DreFixture.SINGLE_PREC_OFF;
+import static trick.dre.fixtures.DreFixture.SINGLE_PREC_ON;
+import static trick.dre.fixtures.DreFixture.STEP;
+import trick.dre.fixtures.DreFixture.Size;
 
 /**
  * 
@@ -49,17 +50,6 @@ public class DreApplicationTest extends ApplicationTest {
 
         dre_fix = new DreFixture(robot(), MockDreApplication.getInstance());
     }
-
-    // @Test
-    // public void testGeneric() {
-    //     boolean bool = true;
-    //     dre_fix.selectVar("drx/name");
-    //     dre_fix.setOptions(HDF5 | STEP | RING_BUFFER);
-    //     dre_fix.setGroupName("TestingTesting123");
-    //     dre_fix.saveMenuItem("TestingMenuBar");
-	// 	sleep(5000);
-	// 	assertThat(bool).isTrue();
-    // }
 
     @Test
     public void testFormatOptions() {
