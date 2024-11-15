@@ -707,9 +707,6 @@ sub handle_sim_class ($$$$) {
 
 sub handle_sim_class_job($$$) {
     my ($in_job, $job_id, $sim_ref) = @_ ;
-    
-    print "in_job=$in_job\n";
-
     my ($job_push, $is_dynamic_event) ;
     my ( $child, $phase, $cycle, $start, $stop, $ov_class ,
          $ov_class_self, $sup_class_data, $tag, $job_call, $job_ret, $job_name, $args , $class ) ;
@@ -745,8 +742,6 @@ sub handle_sim_class_job($$$) {
          )\s*;                                 # end job call
          /sx ;
 
-    print "The specified child is $child \n";
-    print "The specified cycle is $cycle \n";
 
     $child = 0 if ( $child eq "" ) ;
     $child =~ s/^C// ;
@@ -781,8 +776,6 @@ sub handle_sim_class_job($$$) {
             $job_call = "trick_ret = " . $job_call ;
         }
     }
-
-    print "The specified phase is $phase\n";
 
     if ( $phase ne "" ) {
         $phase =~ s/^P// ;
