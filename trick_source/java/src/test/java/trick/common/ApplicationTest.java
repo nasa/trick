@@ -78,6 +78,23 @@ public abstract class ApplicationTest extends AssertJSwingJUnitTestCase {
         return false;
     }
 
+    public <T> void assertThat2DArraysAreEqual(T[][] array_a, T[][] array_b) {
+        assertThat(array_a.length)
+			.withFailMessage("Unexpected number of rows.")
+			.isEqualTo(array_b.length);
+
+		for (int i = 0; i < array_a.length; i++) {
+			assertThat(array_a[i].length)
+				.withFailMessage("Unexpected number of columns.")
+				.isEqualTo(array_b[i].length);
+
+			for (int j = 0; j < array_a[i].length; j++) {
+				assertThat(array_a[i][j])
+					.isEqualTo(array_b[i][j]);
+			}
+		}
+    }
+
     protected FrameFixture getFrameByTitle(String title) {
         FrameFixture frame = findFrame(new GenericTypeMatcher<Frame>(Frame.class) {
             protected boolean isMatching(Frame frame) {

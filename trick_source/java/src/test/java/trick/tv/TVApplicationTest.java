@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
@@ -163,12 +164,53 @@ public class TVApplicationTest extends ApplicationTest {
             assertThat(found_vars[i]).isEqualTo(SEARCH_VARS[i]);
     }
 
+	@Test 
+	public void testEditTable() {
+		// ARRANGE
+		final String[][] SEL_VARS = { {	"drx.drt.a",			"88",	"1", "Decimal" },
+									  {	"drx.drt.b",			"88",	"1", "Decimal" },
+									  {	"drx.drt.c",			"88",	"1", "Decimal" },
+                                      {	"drx.drt.uintB.var1",	"28",	"1", "Decimal" },
+									  {	"drx.drt.intB.var1",	"28",	"1", "Decimal" },
+                                      {	"drx.drt.ucharB.var1",	"3",	"1", "Decimal" },
+									  {	"drx.drt.charB.var1",	"-1",	"1", "Decimal" },
+                                      {	"drx.drt.ushortB.var1",	"14",	"1", "Decimal" },
+									  {	"drx.drt.shortB.var1",	"78",	"1", "Decimal" },
+                                      {	"drx.drt.mixB.var1",	"1",	"1", "Decimal" } };
+
+		String[][] res_vars;
+		String[] inital_values = new String[SEL_VARS.length];
+
+		// ACT
+        for(int i = 0; i < SEL_VARS.length; i++){
+            tv_fix.selectVar(SEL_VARS[i][0]);
+            sleep(250);
+        }
+
+        for(int i = 0; i < SEL_VARS.length; i++){
+			inital_values[i] = tv_fix.getCellValue(i, 1);
+			tv_fix.editVariableTable(i, 1, SEL_VARS[i][1] + "\n");
+			sleep(500);
+        }
+
+		res_vars = tv_fix.getSelectedVars();
+		
+		// ASSERT
+        assertThat2DArraysAreEqual(res_vars, SEL_VARS);
+
+		// CLEANUP
+		for(int i = 0; i < inital_values.length; i++) {
+			tv_fix.editVariableTable(i, 1, inital_values[i]);
+			sleep(250);
+		}
+	}
+
     @Test
     public void testSave() {
         // ARRANGE
 		final File EXPECTED_OUTPUT = new File("src/test/java/trick/tv/resources/tv_save_test.tv"),
-				   SAVED_OUTPUT = new File("test_results.tv"),
-				   FAILED_TEST = new File("failed_test.tv");
+				   SAVED_OUTPUT    = new File("test_results.tv"),
+				   FAILED_TEST     = new File("failed_test.tv");
         final String[] SEL_VARS = { "drx.drt.a",	 "drx.drt.b",	  "drx.drt.c",
 									"drx.drt.uintB.var1",     "drx.drt.intB.var1",
 									"drx.drt.ucharB.var1",   "drx.drt.charB.var1",
@@ -212,51 +254,134 @@ public class TVApplicationTest extends ApplicationTest {
     @Test
     public void testLoadVariables() {
         // ARRANGE
-		final File SAVED_FILE = new File("src/test/java/trick/tv/resources/tv_save_test.tv");
-        final String[][] SEL_VARS = { {	"drx.drt.a",			"8",	"1", "Decimal" },
-									  {	"drx.drt.b",			"8",	"1", "Decimal" },
-									  {	"drx.drt.c",			"8",	"1", "Decimal" },
+		final File SAVED_FILE = new File("src/test/java/trick/tv/resources/tv_load_test.tv");
+        final String[][] SEL_VARS = { {	"drx.drt.a",			"97",	"1", "Decimal" },
+									  {	"drx.drt.b",			"98",	"1", "Decimal" },
+									  {	"drx.drt.c",			"-1234","1", "Decimal" },
+                                      {	"drx.drt.uintB.var1",	"128",	"1", "Decimal" },
+									  {	"drx.drt.intB.var1",	"63",	"1", "Decimal" },
+                                      {	"drx.drt.ucharB.var1",	"2",	"1", "Decimal" },
+									  {	"drx.drt.charB.var1",	"1",	"1", "Decimal" },
+                                      {	"drx.drt.ushortB.var1",	"4",	"1", "Decimal" },
+									  {	"drx.drt.shortB.var1",	"127",	"1", "Decimal" },
+                                      {	"drx.drt.mixB.var1",	"3",	"1", "Decimal" } };
+
+		String[][] res_vars;
+
+        // ACT
+		tv_fix.openMenuItem(SAVED_FILE);
+
+		sleep(500);
+
+		res_vars = tv_fix.getSelectedVars();
+
+        // ASSERT
+        assertThat2DArraysAreEqual(res_vars, SEL_VARS);
+    }
+
+    @Test
+    public void testLoadVariables_SetValues() {
+        // ARRANGE
+		final File SAVED_FILE = new File("src/test/java/trick/tv/resources/tv_load_test.tv"),
+				   ORIGINAL_VALS_FILE = new File("src/test/java/trick/tv/resources/tv_save_test.tv");
+		final String[][] SEL_VARS = { {	"drx.drt.a",			"88",	"1", "Decimal" },
+									  {	"drx.drt.b",			"88",	"1", "Decimal" },
+									  {	"drx.drt.c",			"88",	"1", "Decimal" },
                                       {	"drx.drt.uintB.var1",	"28",	"1", "Decimal" },
 									  {	"drx.drt.intB.var1",	"28",	"1", "Decimal" },
                                       {	"drx.drt.ucharB.var1",	"3",	"1", "Decimal" },
 									  {	"drx.drt.charB.var1",	"-1",	"1", "Decimal" },
                                       {	"drx.drt.ushortB.var1",	"14",	"1", "Decimal" },
 									  {	"drx.drt.shortB.var1",	"78",	"1", "Decimal" },
-                                      {	"drx.drt.mixB.var1",	"3",	"1", "Decimal" } };
+                                      {	"drx.drt.mixB.var1",	"1",	"1", "Decimal" } };
 
 		String[][] res_vars;
 
         // ACT
+		tv_fix.openSetMenuItem(SAVED_FILE);
+
+		sleep(500);
+
+		res_vars = tv_fix.getSelectedVars();
+
+        // ASSERT
+        assertThat2DArraysAreEqual(res_vars, SEL_VARS);
+
+		// CLEANUP
+		tv_fix.openSetMenuItem(ORIGINAL_VALS_FILE);
+    }
+
+    @Test
+    public void testSetValues() {
+        // ARRANGE
+		final File SAVED_FILE = new File("src/test/java/trick/tv/resources/tv_load_test.tv"),
+				   ORIGINAL_VALS_FILE = new File("src/test/java/trick/tv/resources/tv_save_test.tv");
+		final String[][] SEL_VARS = { {	"drx.drt.a",			"88",	"1", "Decimal" },
+									  {	"drx.drt.b",			"88",	"1", "Decimal" },
+									  {	"drx.drt.c",			"88",	"1", "Decimal" },
+                                      {	"drx.drt.uintB.var1",	"28",	"1", "Decimal" },
+									  {	"drx.drt.intB.var1",	"28",	"1", "Decimal" },
+                                      {	"drx.drt.ucharB.var1",	"3",	"1", "Decimal" },
+									  {	"drx.drt.charB.var1",	"-1",	"1", "Decimal" },
+                                      {	"drx.drt.ushortB.var1",	"14",	"1", "Decimal" },
+									  {	"drx.drt.shortB.var1",	"78",	"1", "Decimal" },
+                                      {	"drx.drt.mixB.var1",	"1",	"1", "Decimal" } };
+
+		String[][] res_vars1, res_vars2;
+
+        // ACT
+		tv_fix.setValMenuItem(SAVED_FILE);
+
+		sleep(500);
+
+		res_vars1 = tv_fix.getSelectedVars();
+
         for(int i = 0; i < SEL_VARS.length; i++){
             tv_fix.selectVar(SEL_VARS[i][0]);
             sleep(250);
         }
 
-        for(int i = 0; i < SEL_VARS.length; i++){
-			tv_fix.editVariableTable(i, 1, SEL_VARS[i][1] + "\n");
-			sleep(500);
-        }
-
-		tv_fix.openMenuItem(SAVED_FILE);
-
-		res_vars = tv_fix.getSelectedVars();
+		res_vars2 = tv_fix.getSelectedVars();
 
         // ASSERT
-        assumeThat(res_vars.length)
-			.withFailMessage("Unexpected number of rows.")
-			.isEqualTo(SEL_VARS.length);
+		assertThat(res_vars1.length)
+			.withFailMessage("Variable Table has unexpected Entries: %s\n", Arrays.deepToString(res_vars1))
+			.isEqualTo(0);
+			
+        assertThat2DArraysAreEqual(res_vars2, SEL_VARS);
 
-		for (int i = 0; i < res_vars.length; i++) {
-			assumeThat(res_vars[i].length)
-				.withFailMessage("Unexpected number of columns.")
-				.isEqualTo(SEL_VARS[i].length);
-
-			for (int j = 0; j < res_vars[0].length; j++) {
-				assertThat(res_vars[i][j])
-					.isEqualTo(SEL_VARS[i][j]);
-			}
-		}
+		// CLEANUP
+		tv_fix.openSetMenuItem(ORIGINAL_VALS_FILE);
     }
+
+	@Test 
+	public void testMonitorToggle() {
+		// ARRANGE 
+		final String[] EXP_VAR_MONITOR   = { "drx.drt.a", "97", "1", "Decimal" },
+					   EXP_VAR_NO_MONITOR = { "drx.drt.a", "<Unknown>", "1", "Decimal" };
+		String[] var_no_monitor, var_monitor;
+
+		// ACT 
+		tv_fix.clickMonitorToggleMenuItem();
+		tv_fix.selectVar(EXP_VAR_MONITOR[0]);
+		sleep(250);
+
+		var_no_monitor = tv_fix.getSelectedVars()[0];
+		tv_fix.clickMonitorToggleMenuItem();
+		sleep(500);
+
+		var_monitor = tv_fix.getSelectedVars()[0];
+
+		// ASSERT
+		assertThat(var_monitor.length).isEqualTo(EXP_VAR_MONITOR.length);
+		assertThat(var_no_monitor.length).isEqualTo(EXP_VAR_NO_MONITOR.length);
+
+		for(int i = 0; i < EXP_VAR_MONITOR.length; i++) {
+			assertThat(var_no_monitor[i]).isEqualTo(EXP_VAR_NO_MONITOR[i]);
+			assertThat(var_monitor[i]).isEqualTo(EXP_VAR_MONITOR[i]);
+		}
+
+	}
 
 	public static int getOpenPort() {
 		String port = "39595";

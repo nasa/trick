@@ -11,6 +11,7 @@ import org.assertj.swing.data.TableCell;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JCheckBoxFixture;
 import org.assertj.swing.fixture.JFileChooserFixture;
+import org.assertj.swing.fixture.JMenuItemFixture;
 import org.assertj.swing.fixture.JOptionPaneFixture;
 import org.assertj.swing.fixture.JPanelFixture;
 import org.assertj.swing.fixture.JScrollPaneFixture;
@@ -79,7 +80,25 @@ public class TVFixture extends FrameFixture {
             return triggerFileChooserMenuItem(file, "Open");
         else
             return  false;
-    }    
+    }
+
+    public boolean openSetMenuItem(File file) {
+        if (file != null && file.exists())
+            return triggerFileChooserMenuItem(file, "Open & Set");
+        else
+            return  false;
+    } 
+
+    public boolean setValMenuItem(File file) {
+        if (file != null && file.exists())
+            return triggerFileChooserMenuItem(file, "Set");
+        else
+            return  false;
+    }
+
+    public void clickMonitorToggleMenuItem() {
+        menuItemByText("Toggle Monitor").click();
+    }
 
     public void enterQuery(String query) {
         varSearchPanel.textBox()
@@ -111,13 +130,26 @@ public class TVFixture extends FrameFixture {
 
     public void editVariableTable(int row, int col, String entry) {
         TableCell cell = TableCell.row(row).column(col);
-        varSelectedPanel
-                        .enterValue(cell, entry);
+        varSelectedPanel.enterValue(cell, entry);
+    }
+
+    public String getCellValue(int row, int col) {
+        TableCell cell = TableCell.row(row).column(col);
+        return varSelectedPanel.valueAt(cell);
     }
 
     public String[] getSearchResults() {
         String[] list = varSearchPanel.list().contents();
         return list.length > 0 ? list : null;
+    }
+
+    private JMenuItemFixture menuItemByText(String text) {
+        return menuItem(new GenericTypeMatcher<JMenuItem>(JMenuItem.class) {
+            @Override
+            protected  boolean  isMatching(JMenuItem item) {
+                return item.getText().equals(text);
+            };
+        });
     }
 
     private boolean triggerFileChooserMenuItem(File file, String menuItemText) {
@@ -126,12 +158,7 @@ public class TVFixture extends FrameFixture {
         String path = file.getAbsolutePath();
 
         try {
-            menuItem(new GenericTypeMatcher<JMenuItem>(JMenuItem.class) {
-                @Override
-                protected  boolean  isMatching(JMenuItem item) {
-                    return item.getText().equals(menuItemText);
-                };
-            }).click();
+            menuItemByText(menuItemText).click();
 
             JFileChooserFixture fc = fileChooser(timeout(1500));
             JTextComponentFixture fileEntryTextBox = fc.fileNameTextBox();
