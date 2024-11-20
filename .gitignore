@@ -44,4 +44,4 @@ trickops_logs/
 coverage.info
 *.dSYM
 *.log
-failed_test.dr
+failed_test.*

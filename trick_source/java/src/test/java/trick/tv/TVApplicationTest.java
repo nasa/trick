@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assumptions.assumeThat;
 import static org.assertj.swing.launcher.ApplicationLauncher.application;
 import org.junit.AfterClass;
@@ -14,8 +17,9 @@ import org.junit.Test;
 import trick.common.ApplicationTest;
 import trick.common.TestUtils;
 import trick.tv.fixtures.TVFixture;
-
-import static trick.tv.fixtures.TVFixture.*;
+import static trick.tv.fixtures.TVFixture.CASE_SENSITIVE_ON;
+import static trick.tv.fixtures.TVFixture.GREEDY_SEARCH_ON;
+import static trick.tv.fixtures.TVFixture.REG_EXPRESSION_ON;
 
 /**
  * 
@@ -93,6 +97,166 @@ public class TVApplicationTest extends ApplicationTest {
 
 		sleep(5000);
 	}
+
+    @Test
+    public void testSelectVars() {
+        // ARRANGE
+        final String[][] SEL_VARS = { {	"drx.drt.a",			"97",	"1", "Decimal" },
+									  {	"drx.drt.b",			"98",	"1", "Decimal" },
+									  {	"drx.drt.c",			"-1234","1", "Decimal" },
+                                      {	"drx.drt.uintB.var1",	"128",	"1", "Decimal" },
+									  {	"drx.drt.intB.var1",	"63",	"1", "Decimal" },
+                                      {	"drx.drt.ucharB.var1",	"2",	"1", "Decimal" },
+									  {	"drx.drt.charB.var1",	"1",	"1", "Decimal" },
+                                      {	"drx.drt.ushortB.var1",	"4",	"1", "Decimal" },
+									  {	"drx.drt.shortB.var1",	"127",	"1", "Decimal" },
+                                      {	"drx.drt.mixB.var1",	"3",	"1", "Decimal" } };
+        String[][] res_vars;
+
+        // ACT
+        for(int i = 0; i < SEL_VARS.length; i++){
+            tv_fix.selectVar(SEL_VARS[i][0]);
+            sleep(250);
+        }
+
+        res_vars = tv_fix.getSelectedVars();
+
+        // ASSERT
+        assumeThat(res_vars.length)
+			.withFailMessage("Unexpected number of rows.")
+			.isEqualTo(SEL_VARS.length);
+
+		for (int i = 0; i < res_vars.length; i++) {
+			assumeThat(res_vars[i].length)
+				.withFailMessage("Unexpected number of columns.")
+				.isEqualTo(SEL_VARS[i].length);
+
+			for (int j = 0; j < res_vars[0].length; j++) {
+				assertThat(res_vars[i][j])
+					.isEqualTo(SEL_VARS[i][j]);
+			}
+		}
+    }
+
+    @Test
+    public void testSearchVars() {
+        // ARRANGE
+        final String[] SEARCH_VARS = {  "drx.drt.uintB.var1"  , "drx.drt.intB.var1",
+                                        "drx.drt.ucharB.var1" , "drx.drt.charB.var1",
+                                        "drx.drt.ushortB.var1", "drx.drt.shortB.var1",
+                                        "drx.drt.mixB.var1"  };
+        String[] found_vars;
+        assumeThat(tv_fix.getSearchResults()).isNull();
+
+        // ACT
+        tv_fix.enterQuery("var1\n");
+        sleep(50);
+
+        found_vars = tv_fix.getSearchResults();
+
+        // ASSERT
+        assertThat(found_vars.length)
+            .withFailMessage("Unexpected number of selected variables.")
+            .isEqualTo(SEARCH_VARS.length);
+
+        for(int i = 0; i < SEARCH_VARS.length; i++)
+            assertThat(found_vars[i]).isEqualTo(SEARCH_VARS[i]);
+    }
+
+    @Test
+    public void testSave() {
+        // ARRANGE
+		final File EXPECTED_OUTPUT = new File("src/test/java/trick/tv/resources/tv_save_test.tv"),
+				   SAVED_OUTPUT = new File("test_results.tv"),
+				   FAILED_TEST = new File("failed_test.tv");
+        final String[] SEL_VARS = { "drx.drt.a",	 "drx.drt.b",	  "drx.drt.c",
+									"drx.drt.uintB.var1",     "drx.drt.intB.var1",
+									"drx.drt.ucharB.var1",   "drx.drt.charB.var1",
+									"drx.drt.ushortB.var1", "drx.drt.shortB.var1",
+									"drx.drt.mixB.var1" };
+		boolean file_written, file_expected;
+
+		SAVED_OUTPUT.deleteOnExit();
+
+		assumeThat(EXPECTED_OUTPUT).isNotNull();
+		assumeThat(EXPECTED_OUTPUT.exists()).isTrue();
+
+        // ACT
+        for(int i = 0; i < SEL_VARS.length; i++){
+            tv_fix.selectVar(SEL_VARS[i]);
+            sleep(250);
+        }
+
+        file_written = tv_fix.saveMenuItem(SAVED_OUTPUT);
+
+        // ASSERT
+		file_expected = sameFileContent(SAVED_OUTPUT, EXPECTED_OUTPUT);
+
+        assertThat(file_written)
+			.withFailMessage("Save operation failed. File not written\n")
+			.isTrue();
+
+        if (!file_expected) {
+            try{
+                Files.copy( SAVED_OUTPUT.toPath(), 
+                            FAILED_TEST.toPath(), 
+                            StandardCopyOption.REPLACE_EXISTING );
+            } catch(Exception IGNORED) {}
+        }
+
+		assertThat(file_expected)
+			.withFailMessage("Generated File doesn't match Benchmark. Failed .tv file is in java directory\n")
+			.isTrue();
+    }
+
+    @Test
+    public void testLoadVariables() {
+        // ARRANGE
+		final File SAVED_FILE = new File("src/test/java/trick/tv/resources/tv_save_test.tv");
+        final String[][] SEL_VARS = { {	"drx.drt.a",			"8",	"1", "Decimal" },
+									  {	"drx.drt.b",			"8",	"1", "Decimal" },
+									  {	"drx.drt.c",			"8",	"1", "Decimal" },
+                                      {	"drx.drt.uintB.var1",	"28",	"1", "Decimal" },
+									  {	"drx.drt.intB.var1",	"28",	"1", "Decimal" },
+                                      {	"drx.drt.ucharB.var1",	"3",	"1", "Decimal" },
+									  {	"drx.drt.charB.var1",	"-1",	"1", "Decimal" },
+                                      {	"drx.drt.ushortB.var1",	"14",	"1", "Decimal" },
+									  {	"drx.drt.shortB.var1",	"78",	"1", "Decimal" },
+                                      {	"drx.drt.mixB.var1",	"3",	"1", "Decimal" } };
+
+		String[][] res_vars;
+
+        // ACT
+        for(int i = 0; i < SEL_VARS.length; i++){
+            tv_fix.selectVar(SEL_VARS[i][0]);
+            sleep(250);
+        }
+
+        for(int i = 0; i < SEL_VARS.length; i++){
+			tv_fix.editVariableTable(i, 1, SEL_VARS[i][1] + "\n");
+			sleep(500);
+        }
+
+		tv_fix.openMenuItem(SAVED_FILE);
+
+		res_vars = tv_fix.getSelectedVars();
+
+        // ASSERT
+        assumeThat(res_vars.length)
+			.withFailMessage("Unexpected number of rows.")
+			.isEqualTo(SEL_VARS.length);
+
+		for (int i = 0; i < res_vars.length; i++) {
+			assumeThat(res_vars[i].length)
+				.withFailMessage("Unexpected number of columns.")
+				.isEqualTo(SEL_VARS[i].length);
+
+			for (int j = 0; j < res_vars[0].length; j++) {
+				assertThat(res_vars[i][j])
+					.isEqualTo(SEL_VARS[i][j]);
+			}
+		}
+    }
 
 	public static int getOpenPort() {
 		String port = "39595";
