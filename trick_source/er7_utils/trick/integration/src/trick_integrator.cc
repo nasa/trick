@@ -206,9 +206,9 @@ TrickIntegrator::initialize_trick_workspace (
    void)
 {
    // This is a nasty little hack, but it saves a whole lot of copying of data.
-   deriv    = alloc::allocate_array<double*> (buf_size);
-   deriv2   = alloc::allocate_array<double*> (buf_size);
-   state_ws = alloc::allocate_array<double*> (buf_size);
+   deriv    = (double**)TMM_declare_var_1d("double*",buf_size); //alloc::allocate_array<double*> (buf_size);
+   deriv2   = (double**)TMM_declare_var_1d("double*",buf_size); //alloc::allocate_array<double*> (buf_size);
+   state_ws = (double**)TMM_declare_var_1d("double*",buf_size);
 
    for (unsigned int ii = 0; ii < buf_size; ++ii) {
       deriv[ii]    = er7_deriv;
