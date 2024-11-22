@@ -118,11 +118,17 @@ namespace Trick {
             /** Next software frame time in integer tics.\n */
             long long next_frame_check_tics ; /**< trick_units(--) */
 
-            /** Usage time at executive initialization.\n */
-            double cpu_init;                  /**< trick_io(**) trick_units(s) */
+            /** Usage time at executive initialization in user mode.\n */
+            double user_cpu_init;                  /**< trick_io(**) trick_units(s) */
 
-            /** CPU usage time at cyclic sim process startup.\n */
-            double cpu_start;                 /**< trick_io(**) trick_units(s) */
+            /** Usage time at executive initialization in kernal mode.\n */
+            double kernal_cpu_init;           /**< trick_io(**) trick_units(s) */
+
+            /** CPU usage time at cyclic sim process startup in user mode.\n */
+            double user_cpu_start;                 /**< trick_io(**) trick_units(s) */
+
+            /** CPU usage time at cyclic sim process startup in kernal mode.\n */
+            double kernal_cpu_start;                 /**< trick_io(**) trick_units(s) */
 
             /** Simulation control mode.\n */
             SIM_MODE mode;                    /**< trick_io(*o) trick_units(--) */

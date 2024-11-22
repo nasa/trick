@@ -83,6 +83,10 @@ my $typedef_struct  = qr/typedef\s+(?:struct|union)\s*     # the words typedef s
 my $namespace_def = qr/namespace\s*                        # keyword namespace
              (?:\s+[_A-Za-z]\w*)                           # class name
             /sx ;
+my $enum_class_def   = qr/enum\s+class\s*                  # keywords enum_class
+               (?:\s+[_A-Za-z]\w*)\s*                      # class name
+               (?:\{|:(?!\:))                              # { or punctuator :
+             /sx ;
 my $class_def   = qr/(?:class|struct)\s*                   # keyword class or struct
                (?:\s+[_A-Za-z]\w*)\s*                      # class name
                (?:\{|:(?!\:))                              # { or punctuator :
@@ -404,13 +408,15 @@ sub process_contents($$$$) {
                                     ($typedef_const_struct)|
                                     ($template_def)|
                                     ($namespace_def)|
+                                    ($enum_class_def)|
                                     ($class_def))//sx ) {
         my ( $non_var ) = $1 ;
         my ( $typedef_struct_string ) = $2 ;
         my ( $typedef_const_struct_string ) = $3 ;
         my ( $template_string ) = $4 ;
         my ( $namespace_string ) = $5 ;
-        my ( $class_string ) = $6 ;
+        my ( $enum_class_string ) = $6 ;
+        my ( $class_string ) = $7 ;
 
 ## Handle the case of: non_var
         if ( $non_var ne "" )  {
@@ -444,6 +450,13 @@ sub process_contents($$$$) {
             process_namespace( $namespace_string , $contents_ref , $new_contents_ref , $curr_namespace ,
                                $class_names_ref ) ;
         }
+##
+##  Handle the case of: class_def ==> enum class <enum-name> ( '{' | ':' )
+##
+        if ( $enum_class_string ne "" )  {
+            $$new_contents_ref .= $enum_class_string ;
+        }
+
 ##
 ##  Handle the case of: class_def ==> ( class | struct ) <class-name> ( '{' | ':' )
 ##
