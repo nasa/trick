@@ -106,9 +106,9 @@ DPC_std_curve::DPC_std_curve(
                                                 Time_constraints );
             if (ds[0] != NULL) {
 
-                const char* ds_units = ds[0]->getUnit().c_str();
+                std::string ds_units = ds[0]->getUnit();
 
-                y_actual_units = strdup(ds_units);
+                y_actual_units = strdup(ds_units.c_str());
 
                 // Tell our DataStream to start at the beginning.
                 ds[0]->begin();

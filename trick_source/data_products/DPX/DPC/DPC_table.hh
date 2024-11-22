@@ -53,9 +53,9 @@ public:
   int getNumColumns();
 
   /**
-   * Return the Label (which may be NULL) of the of the indicated column.
+   * Return the Label (which may be empty) of the of the indicated column.
    */
-  const char *getColumnLabel(unsigned int index);
+  std::string getColumnLabel(unsigned int index);
 
   /**
    * Return the name of the variable for the indicated column.

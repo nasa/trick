@@ -39,7 +39,7 @@ public:
     /**
      * Return the name of the X variable.
      */
-    const char *getXVarShortName() {
+    std::string getXVarShortName() {
         return( x_var->getShortName() );
     };
 
@@ -53,7 +53,7 @@ public:
     /**
      * Return the name of the Y variable.
      */
-    const char *getYVarShortName() {
+    std::string getYVarShortName() {
         return( y_var->getShortName() );
     };
 

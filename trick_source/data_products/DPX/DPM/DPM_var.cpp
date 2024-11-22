@@ -40,7 +40,7 @@ const char* DPM_var::getName() {
   return ( (const char*)name );
 }
 
-const char* DPM_var::getShortName() {
+std::string DPM_var::getShortName() {
     char *p;
 
     std::string::size_type idx ;
@@ -103,7 +103,7 @@ const char* DPM_var::getShortName() {
         } else {
             combinedName += " - " + paramName2;
         }
-        return combinedName.c_str();
+        return combinedName;
     }
 }
 
