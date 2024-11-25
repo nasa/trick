@@ -36,6 +36,7 @@ import trick.dre.fixtures.DreFixture.Size;
 public class DreApplicationTest extends ApplicationTest {
 
     private DreFixture dre_fix;
+    private MockDreApplication dre_app;
 
     @BeforeClass
     public static void onSetUpBeforeClass() {
@@ -46,9 +47,10 @@ public class DreApplicationTest extends ApplicationTest {
     protected void onSetUp() {       
         application(MockDreApplication.class).start();
 
-        sleep(1500);
+        sleep(2000);
 
-        dre_fix = new DreFixture(robot(), MockDreApplication.getInstance());
+        dre_app = MockDreApplication.getInstance(MockDreApplication.class);
+        dre_fix = new DreFixture(robot(), dre_app);
     }
 
     @Test
@@ -225,7 +227,6 @@ public class DreApplicationTest extends ApplicationTest {
                                      "drg[DR_GROUP_ID].set_cycle(" + GRP_CYCLE + ")",
                                      "drg[DR_GROUP_ID].set_max_file_size(" + GRP_SIZE + GRP_UNIT.TAG + ")" };
 
-        MockDreApplication app = MockDreApplication.getInstance();
         String[] output;
         boolean setGrpName = false,
                 setCycle = false,
@@ -236,7 +237,7 @@ public class DreApplicationTest extends ApplicationTest {
         dre_fix.setCycle(GRP_CYCLE);
         dre_fix.setMaxFileSize(GRP_SIZE, GRP_UNIT);
 
-        output = app.getSettingsOutput();
+        output = dre_app.getSettingsOutput();
 
         // Assert
         for(String line : output) {
@@ -335,7 +336,6 @@ public class DreApplicationTest extends ApplicationTest {
         final Size   EXP_UNIT = Size.MB;
         final String[] VAR_TYPES = {"charB", "intB", "shortB", "ucharB", "uintB", "ushortB", "mixB"};
 
-        MockDreApplication app = MockDreApplication.getInstance();
         int sel_opts;
         String name, cycle, size;
         String[] sel_vars, settings;
@@ -349,7 +349,7 @@ public class DreApplicationTest extends ApplicationTest {
         
         sel_opts = dre_fix.getSelectedOptions();
         sel_vars = dre_fix.getSelectedVars();
-        settings = app.getSettingsOutput();
+        settings = dre_app.getSettingsOutput();
         
         //ASSERT
         assumeThat(sel_vars.length).isEqualTo(VAR_TYPES.length * 4);

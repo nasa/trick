@@ -201,7 +201,7 @@ public class TVApplicationTest extends ApplicationTest {
 		// CLEANUP
 		for(int i = 0; i < inital_values.length; i++) {
 			tv_fix.editVariableTable(i, 1, inital_values[i]);
-			sleep(250);
+			sleep(500);
 		}
 	}
 
@@ -299,7 +299,6 @@ public class TVApplicationTest extends ApplicationTest {
 
         // ACT
 		tv_fix.openSetMenuItem(SAVED_FILE);
-
 		sleep(500);
 
 		res_vars = tv_fix.getSelectedVars();
@@ -309,6 +308,7 @@ public class TVApplicationTest extends ApplicationTest {
 
 		// CLEANUP
 		tv_fix.openSetMenuItem(ORIGINAL_VALS_FILE);
+		sleep(500);
     }
 
     @Test
@@ -331,7 +331,6 @@ public class TVApplicationTest extends ApplicationTest {
 
         // ACT
 		tv_fix.setValMenuItem(SAVED_FILE);
-
 		sleep(500);
 
 		res_vars1 = tv_fix.getSelectedVars();
@@ -351,7 +350,8 @@ public class TVApplicationTest extends ApplicationTest {
         assertThat2DArraysAreEqual(res_vars2, SEL_VARS);
 
 		// CLEANUP
-		tv_fix.openSetMenuItem(ORIGINAL_VALS_FILE);
+		tv_fix.setValMenuItem(ORIGINAL_VALS_FILE);
+		sleep(500);
     }
 
 	@Test 

@@ -10,14 +10,10 @@ import org.jdesktop.application.Application;
 import trick.common.TestUtils;
 
 public class MockDreApplication extends DreApplication {
-	private static MockDreApplication the_dre = null;
 
 	public MockDreApplication() {
 		super();
-		the_dre = this;
 	}
-
-	public static final MockDreApplication getInstance() { return the_dre; }
 
     public String[] getSettingsOutput() {
         StringWriter strWrt = new StringWriter();

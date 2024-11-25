@@ -323,8 +323,8 @@
           <configuration>
             <printSummary>true</printSummary>
 			<excludes>
-			  <exclude> **/SimControlApplicationTest.java 		</exclude>
-			  <exclude> **/DreApplicationTest.java 		</exclude>
+			  <!-- <exclude> **/SimControlApplicationTest.java 		</exclude> -->
+			  <!-- <exclude> **/DreApplicationTest.java 		</exclude> -->
 			  <exclude> **/TrickDPApplicationTest.java 		</exclude>
 			  <exclude> **/TrickQPApplicationTest.java 		</exclude>
 			  <exclude> **/MonteMonitorApplicationTest.java </exclude>
