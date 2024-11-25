@@ -1,9 +1,10 @@
 LOCAL_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+TRICK_HOME := $(abspath $(LOCAL_DIR)/../../../..)
 include $(LOCAL_DIR)/myproject_vars.mk
 
 all:
 	@echo MAKE LOCAL_DIR $(LOCAL_DIR)
-	@trick-ify -d "$(LOCAL_DIR)/../include_bar $(LOCAL_DIR)/../include_foo" -b so -n trickified_myproject -v -ma "-fPIC"
+	@$(TRICK_HOME)/bin/trick-ify -d "$(LOCAL_DIR)/../include_bar $(LOCAL_DIR)/../include_foo" -b so -n trickified_myproject -v -ma "-fPIC"
 
 clean:
 	@rm -rf build python trick $(TRICKIFY_OBJECT_NAME)
