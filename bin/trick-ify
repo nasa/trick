@@ -3,7 +3,7 @@
 $my_path = $0 ;
 $my_path =~ s/trick-ify// ;
 
-$source_dir = "" ;                                                        # Base path to build header from
+$source_dir = "" ;                                                        # Base path to build source from
 $header_dir = "" ;                                                        # Base path to find header files
 $source_make_call = "" ;                                                  # Make call to build object files
 $source_make_args = "" ;                                                  # Args to pass into default object make

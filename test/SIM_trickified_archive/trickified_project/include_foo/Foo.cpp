@@ -1,5 +1,3 @@
-// @trick_parse{everything}
-
 #include "Foo.hh"
 
 

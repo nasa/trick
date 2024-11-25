@@ -6,9 +6,9 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 SIM_DIRECTORIES = $(wildcard SIM_*)
 UNIT_TEST_RESULTS = $(addprefix $(TRICK_HOME)/trick_test/, $(addsuffix .xml, $(SIM_DIRECTORIES)))
 
-# The auto-generated makefile for each test does not know to call other makefiles the user may have included.
-# User generated clean calls must be directly called here
-# Otherwise build artifacts may not be cleaned and give misleading test results
+# The auto-generated makefile for each test does not know to call other makefiles the developer may have included.
+# Developer generated clean calls must be directly called here,
+# Otherwise build artifacts may not be cleaned and give misleading test results.
 clean_trickify:
 	for i in $(SIM_DIRECTORIES) ; do \
 		if [ -f "$$i/trickified_project/trickified/"[Mm]"akefile" ] ; then \

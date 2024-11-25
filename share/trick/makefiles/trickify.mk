@@ -50,8 +50,6 @@
 # The file into which generated Python modules are zipped. The default
 # value is python (in the current directory).
 #
-# TRICKIFY_SOURCE
-#
 # -----------------------------------------------------------------------------
 #
 # EXAMPLE:
@@ -122,7 +120,7 @@ TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
 TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 
 # Ensure we can process all headers
-TRICK_EXT_LIB_DIRS :=
+TRICK_EXT_LIB_DIRS := $(TRICKIFY_EXT_LIB_DIRS)
 
 .PHONY: all
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
