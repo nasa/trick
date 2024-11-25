@@ -4,14 +4,15 @@
 export MYPROJECT_HOME := $(abspath $(dir $(lastword $(MAKEFILE_LIST)))/..)
 
 # Specify include paths for your headers.
-MYPROJECT_INCLUDE := -I$(MYPROJECT_HOME)/include
+MYPROJECT_INCLUDE := -I$(MYPROJECT_HOME)/include_bar -I$(MYPROJECT_HOME)/include_foo
 
 # Users may set different flags for C and C++, so you should really modify both
 # to be safe.
 TRICK_CFLAGS   += $(MYPROJECT_INCLUDE) $(MYPROJECT_SOURCE)
 TRICK_CXXFLAGS += $(MYPROJECT_INCLUDE) $(MYPROJECT_SOURCE)
 
-MYPROJECT_TRICK := $(MYPROJECT_HOME)/trickified/trickified_myproject.o
+export TRICKIFY_OBJECT_NAME := trickified_myproject.o
+MYPROJECT_TRICK := $(MYPROJECT_HOME)/trickified/$(TRICKIFY_OBJECT_NAME)
 
 # Tell Trick the headers and source at this location are part of a
 # Trickified project
@@ -25,14 +26,3 @@ TRICK_SWIG_FLAGS += -I$(MYPROJECT_HOME)/trickified
 
 # Link in the Trickified object
 TRICK_LDFLAGS += $(MYPROJECT_TRICK)
-
-# Append a prerequisite to the $(SWIG_SRC) target. This will build the
-# Trickified library along with the sim if it does not already exist. Using
-# $(SWIG_SRC) ensures that all Trickified .i files are created before SWIG is
-# run on any simulation .i files, which may %import them. Note that this does
-# NOT cause the Trickified library to be rebuilt if it already exists, even if
-# the Trickified source code has changed.
-$(SWIG_SRC): $(MYPROJECT_TRICK)
-
-$(MYPROJECT_TRICK):
-	@$(MAKE) -s -C $(MYPROJECT_HOME)/trickified

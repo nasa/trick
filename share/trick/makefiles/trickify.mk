@@ -50,6 +50,8 @@
 # The file into which generated Python modules are zipped. The default
 # value is python (in the current directory).
 #
+# TRICKIFY_SOURCE
+#
 # -----------------------------------------------------------------------------
 #
 # EXAMPLE:
@@ -105,17 +107,22 @@ include $(dir $(lastword $(MAKEFILE_LIST)))Makefile.common
 BUILD_DIR := $(dir $(MAKE_OUT))
 PY_LINK_LIST := $(BUILD_DIR)trickify_py_link_list
 IO_LINK_LIST := $(BUILD_DIR)trickify_io_link_list
-LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
+OBJ_LINK_LIST := trickify_obj_list
+ifdef FULL_TRICKIFY_BUILD
+	LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
+else
+	LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
+endif
 ifneq ($(wildcard $(BUILD_DIR)),)
-    SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
-    IO_OBJECTS   := $(shell cat $(IO_LINK_LIST))
+	SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
+	IO_OBJECTS   := $(shell cat $(IO_LINK_LIST))
 endif
 
 TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
 TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 
 # Ensure we can process all headers
-TRICK_EXT_LIB_DIRS := $(TRICKIFY_EXT_LIB_DIRS)
+TRICK_EXT_LIB_DIRS :=
 
 .PHONY: all
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
