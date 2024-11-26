@@ -4,7 +4,7 @@ include $(LOCAL_DIR)/myproject_vars.mk
 
 all:
 	@echo MAKE LOCAL_DIR $(LOCAL_DIR)
-	@$(TRICK_HOME)/bin/trick-ify -d "$(LOCAL_DIR)/../include_bar $(LOCAL_DIR)/../include_foo" -b o -n trickified_myproject -v -ma "-fPIC -fvisibility=default"
+	@$(TRICK_HOME)/bin/trick-ify -d "$(LOCAL_DIR)/../include_bar $(LOCAL_DIR)/../include_foo" -b so -n trickified_myproject -v -ma "-fPIC -fvisibility=default"
 
 clean:
 	@rm -rf build python trick $(TRICKIFY_OBJECT_NAME)
