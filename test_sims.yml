@@ -114,6 +114,13 @@ SIM_threads:
   runs:
     RUN_test/unit_test.py:
       returns: 0
+SIM_trickified:
+  path: test/SIM_trickified
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
 SIM_trickified_object:
   path: test/SIM_trickified_object
   build_args: "-t"
