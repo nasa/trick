@@ -11,7 +11,7 @@ MYPROJECT_INCLUDE := -I$(MYPROJECT_HOME)/include
 TRICK_CFLAGS   += $(MYPROJECT_INCLUDE) $(MYPROJECT_SOURCE)
 TRICK_CXXFLAGS += $(MYPROJECT_INCLUDE) $(MYPROJECT_SOURCE)
 
-MYPROJECT_TRICK := $(MYPROJECT_HOME)/trickified/trickified_myproject.o
+MYPROJECT_TRICK := $(MYPROJECT_HOME)/trickified/trickified_myproject.a
 
 # Tell Trick the headers and source at this location are part of a
 # Trickified project
