@@ -13,8 +13,8 @@ import javax.swing.*;
 *         JMenuItem [fileMenuExit], Action: Call System.exit(0);
 *     JMenu [optionsMenu]
 *         JMenu [traceSizeMenu]
-*             JMenuItem [traceSizeMenuIncrease], Action: Call traceView.increaseTraceWidth().
-*             JMenuItem [traceSizeMenuDecrease], Action: Call traceView.decreaseTraceWidth()
+*             JMenuItem [traceSizeMenuIncrease], Action: Call traceView.incrementTraceWidth().
+*             JMenuItem [traceSizeMenuDecrease], Action: Call traceView.decrementTraceWidth()
 */
 public class TraceViewMenuBar extends JMenuBar implements ActionListener {
 
@@ -38,7 +38,7 @@ public class TraceViewMenuBar extends JMenuBar implements ActionListener {
         JMenu traceSizeMenu = new JMenu("TraceSize");
         JMenuItem traceSizeMenuIncrease = new JMenuItem("Increase Trace Width");
         traceSizeMenuIncrease.setActionCommand("increase-trace_width");
-        KeyStroke ctrlPlus  = KeyStroke.getKeyStroke('P', InputEvent.CTRL_MASK );
+        KeyStroke ctrlPlus  = KeyStroke.getKeyStroke('=', InputEvent.CTRL_MASK );
         traceSizeMenuIncrease.setAccelerator(ctrlPlus);
         traceSizeMenuIncrease.addActionListener(this);
         traceSizeMenu.add(traceSizeMenuIncrease);
@@ -57,10 +57,10 @@ public class TraceViewMenuBar extends JMenuBar implements ActionListener {
         String s = e.getActionCommand();
         switch (s) {
             case "increase-trace_width":
-                traceView.increaseTraceWidth();
+                traceView.incrementTraceWidth();
             break;
             case "decrease-trace_width":
-                traceView.decreaseTraceWidth();
+                traceView.decrementTraceWidth();
             break;
             case "exit":
                 System.exit(0);

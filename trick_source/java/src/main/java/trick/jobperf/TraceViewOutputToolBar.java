@@ -9,6 +9,8 @@ import javax.swing.*;
 */
 class TraceViewOutputToolBar extends JToolBar {
     private JTextField IDField;
+    private JTextField startField;
+    private JTextField stopField;
     private JTextField frameNumberField;
     private JTextField subFrameTimeField;
 
@@ -22,6 +24,18 @@ class TraceViewOutputToolBar extends JToolBar {
         IDField.setEditable(false);
         IDField.setText( "");
         add(IDField);
+
+        add( new JLabel(" Job Start: "));
+        startField = new JTextField(15);
+        startField.setEditable(false);
+        startField.setText( "");
+        add(startField);
+
+        add( new JLabel(" Job Stop: "));
+        stopField = new JTextField(15);
+        stopField.setEditable(false);
+        stopField.setText( "");
+        add(stopField);
 
         add( new JLabel(" Frame Number: "));
         frameNumberField = new JTextField(15);
@@ -40,6 +54,26 @@ class TraceViewOutputToolBar extends JToolBar {
      */
     public void setJobID(String id) {
         IDField.setText( id );
+    }
+    /**
+     * @param time to be displayed in the job start field.
+     */
+    public void setJobStartTime(Double time) {
+        startField.setText( String.format("%8.4f", time) );
+    }
+    /**
+     * @param time to be displayed in the job stop field.
+     */
+    public void setJobStopTime(Double time) {
+        stopField.setText( String.format("%8.4f", time) );
+    }
+    /**
+     * Clear the startField and stopField.
+     */
+    public void clearJobStartStopTime() {
+        startField.setText("");
+        stopField.setText("");
+        IDField.setText("");
     }
     /**
      * @param fn frame number to display.

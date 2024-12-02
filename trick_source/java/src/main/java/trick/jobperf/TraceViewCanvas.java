@@ -11,44 +11,61 @@ import javax.swing.event.*;
 
 /**
 * Class TraceViewCanvas renders the simulation timeline data stored in
-* an ArrayList of JobExecutionEvent's [jobExecEvtList]. Information regarding mouse clicks
-* are sent to the TraceViewOutputToolBar [outputToolBar.]
+* an ArrayList of JobExecutionEvent's [jobExecEvtList]. Information regarding
+* mouse clicks are sent to the TraceViewOutputToolBar [outputToolBar.]
+* @author John M. Penn
 */
 public class TraceViewCanvas extends JPanel {
 
     public static final int MIN_TRACE_WIDTH = 4;
-    public static final int DEFAULT_TRACE_WIDTH = 10;
+    public static final int DEFAULT_TRACE_WIDTH = 15;
     public static final int MAX_TRACE_WIDTH = 30;
     public static final int LEFT_MARGIN = 100;
     public static final int RIGHT_MARGIN = 100;
     public static final int TOP_MARGIN = 20;
     public static final int BOTTOM_MARGIN = 20;
+    public static final int DEFAULT_FRAMES_TO_RENDER = 100;
 
     private int traceWidth;
-    private double frameDuration;
-    private List<JobExecutionEvent> jobExecList;
+    private double frameSize;
+    private double totalDuration;
+    private FrameRecord[] frameArray;
+    private FrameRange frameRenderRange;
     private KeyedColorMap idToColorMap;
     private BufferedImage image;
     private TraceViewOutputToolBar sToolBar;
     private Cursor crossHairCursor;
     private Cursor defaultCursor;
 
+    public class FrameRange {
+        public int first;
+        public int last;
+        FrameRange (int first, int last) {
+            this.first = first;
+            this.last = last;
+        }
+        public boolean contains(int n) {
+            return ((first <= n) && (n <= last));
+        }
+        public int size() {
+            return last - first + 1;
+        }
+    }
+
     /**
      * Constructor
      * @param jobExecEvtList the job time line data.
      * @param outputToolBar the toolbar to which data is to be sent for display.
      */
-    public TraceViewCanvas( ArrayList<JobExecutionEvent> jobExecEvtList, TraceViewOutputToolBar outputToolBar ) {
+    public TraceViewCanvas( ArrayList<JobExecutionEvent> jobExecEvtList,
+                            TraceViewOutputToolBar outputToolBar ) {
 
         traceWidth = DEFAULT_TRACE_WIDTH;
-        frameDuration = 1.0;
+        frameSize = 1.0;
         image = null;
         sToolBar = outputToolBar;
-        jobExecList = jobExecEvtList;
         crossHairCursor = new Cursor( Cursor.CROSSHAIR_CURSOR );
         defaultCursor = new Cursor( Cursor.DEFAULT_CURSOR );
-        double smallestStart =  Double.MAX_VALUE;
-        double largestStop   = -Double.MAX_VALUE;
 
         try {
            idToColorMap = new KeyedColorMap();
@@ -56,34 +73,44 @@ public class TraceViewCanvas extends JPanel {
            if (colorfile.exists()) {
                 idToColorMap.readFile("IdToColors.txt");
            }
-
            boolean wasTOF = false;
-           double startOfFrame = 0.0;
-           double lastStartOfFrame = 0.0;
-           double frameSizeSum = 0.0;
-           int frameNumber = 0;
-           int frameSizeCount = 0;
 
-           for (JobExecutionEvent jobExec : jobExecList ) {
-                if (jobExec.start < smallestStart) smallestStart = jobExec.start;
-                if (jobExec.stop  > largestStop)    largestStop  = jobExec.stop;
-                // Calculate the average frame size.
-                if (!wasTOF && jobExec.isTOF) {
-                    startOfFrame = jobExec.start;
-                    if (frameNumber > 0) {
-                        double frameSize = (startOfFrame - lastStartOfFrame);
-                        frameSizeSum += frameSize;
-                        frameSizeCount ++;
-                    }
-                    lastStartOfFrame = startOfFrame;
-                    frameNumber++;
-                }
-                wasTOF = jobExec.isTOF;
-                idToColorMap.addKey(jobExec.id);
+            List<FrameRecord> frameList = new ArrayList<FrameRecord>();
+            FrameRecord frameRecord = new FrameRecord();
+            for (JobExecutionEvent jobExec : jobExecEvtList ) {
+
+                 if (!wasTOF && jobExec.isTOF) {
+                     // Wrap up the previous frame record.
+                     frameRecord.stop = jobExec.start;
+                     frameList.add(frameRecord);
+
+                     // Start a new frame record.
+                     frameRecord = new FrameRecord();
+                     frameRecord.start = jobExec.start;
+                 }
+                 frameRecord.jobEvents.add(jobExec);
+
+                 wasTOF = jobExec.isTOF;
+                 idToColorMap.addKey(jobExec.id);
+             }
+             frameArray = frameList.toArray( new FrameRecord[ frameList.size() ]);
+
+            // Estimate the total duration and the average frame size. Notice
+            // that we skip the first frame.
+            totalDuration = 0.0;
+            for (int n=1; n < frameArray.length; n++) {
+                totalDuration += frameArray[n].getDuration();
             }
+            frameSize = totalDuration/(frameArray.length-1);
 
-            // Calculate the average frame size.
-            frameDuration = frameSizeSum / frameSizeCount;
+            // Set the range of frames to be rendered.
+            int last_frame_to_render = frameArray.length-1;
+            if ( frameArray.length > DEFAULT_FRAMES_TO_RENDER) {
+                last_frame_to_render = DEFAULT_FRAMES_TO_RENDER-1;
+            }
+            frameRenderRange = new FrameRange(0, last_frame_to_render);
+
+            // Write the color file.
             idToColorMap.writeFile("IdToColors.txt");
 
            System.out.println("File loaded.\n");
@@ -95,28 +122,60 @@ public class TraceViewCanvas extends JPanel {
            System.exit(0);
         }
 
-        int preferredHeight = traceWidth * (int)((largestStop - smallestStart) / frameDuration) + TOP_MARGIN;
-        setPreferredSize(new Dimension(500, preferredHeight));
+        setPreferredSize(new Dimension(500, neededPanelHeight()));
 
         ViewListener viewListener = new ViewListener();
          addMouseListener(viewListener);
          addMouseMotionListener(viewListener);
     }
 
+    public int getFrameTotal() {
+        return frameArray.length;
+    }
+
+    public int getFirstRenderFrame() {
+        return frameRenderRange.first;
+    }
+
+    public void setFirstRenderFrame(int first) throws InvalidFrameBoundsExpection {
+        if ((first >= 0) && (first <= frameRenderRange.last)) {
+            frameRenderRange = new FrameRange(first, frameRenderRange.last);
+            setPreferredSize(new Dimension(500, neededPanelHeight()));
+            repaint();
+        } else {
+            throw new InvalidFrameBoundsExpection("");
+        }
+    }
+
+    public int getLastRenderFrame() {
+        return frameRenderRange.last;
+    }
+
+    public void setLastRenderFrame(int last) throws InvalidFrameBoundsExpection {
+        if ((last >= frameRenderRange.first) && (last < frameArray.length)) {
+            frameRenderRange = new FrameRange(frameRenderRange.first, last);
+            // Re-render this TraceViewCanvas.
+            setPreferredSize(new Dimension(500, neededPanelHeight()));
+            repaint();
+        } else {
+            throw new InvalidFrameBoundsExpection("");
+        }
+    }
+
     /**
-     * @return the current working frame size used for rendering. Initially this
-     * is estimated from the timeline data, but it can be set to the actual
-     * realtime frame size of the user's sim.
+     * @return the current working frame size (seconds) used for rendering.
+     * Initially this is estimated from the timeline data, but it can be set to
+     * the actual realtime frame size of the user's sim.
      */
-    public double getFrameDuration() {
-        return frameDuration;
+    public double getFrameSize() {
+        return frameSize;
     }
     /**
-     * Set the frame size to be used for rendering the timeline data.
+     * Set the frame size (seconds) to be used for rendering the timeline data.
      * @param duration the frame size.
      */
-    public void setFrameDuration(double duration) {
-        frameDuration = duration;
+    public void setFrameSize(double time) {
+        frameSize = time;
         repaint();
     }
 
@@ -124,7 +183,7 @@ public class TraceViewCanvas extends JPanel {
      * Increment the width to be used to render the job traces if the current
      * trace width is less than MAX_TRACE_WIDTH.
      */
-    public void increaseTraceWidth() {
+    public void incrementTraceWidth() {
         if (traceWidth < MAX_TRACE_WIDTH) {
             traceWidth ++;
             repaint();
@@ -135,7 +194,7 @@ public class TraceViewCanvas extends JPanel {
      * Decrement the width to be used to render the job traces if the current
      * trace width is greater than MIN_TRACE_WIDTH.
      */
-    public void decreaseTraceWidth() {
+    public void decrementTraceWidth() {
         if (traceWidth > MIN_TRACE_WIDTH) {
             traceWidth --;
             repaint();
@@ -150,19 +209,7 @@ public class TraceViewCanvas extends JPanel {
         int traceRectXMax = getWidth() - RIGHT_MARGIN;
         if ( x < (LEFT_MARGIN)) return false;
         if ( x > (traceRectXMax)) return false;
-        if ( y < TOP_MARGIN) return false;
-        return true;
-    }
-    /**
-     * @return true if the time rectangle contains the point <x,y>, otherwise
-     * false.
-     */
-    private boolean timeRectContains(int x, int y) {
-        int timeRectXMin = 30;
-        int timeRectXMax = LEFT_MARGIN;
-        if ( x < 30 ) return false;
-        if ( x > LEFT_MARGIN) return false;
-        if ( y < TOP_MARGIN) return false;
+        if (( y < TOP_MARGIN) || (y > (TOP_MARGIN + traceRectHeight()))) return false;
         return true;
     }
 
@@ -177,20 +224,47 @@ public class TraceViewCanvas extends JPanel {
             int y = e.getY();
             Color color = new Color ( image.getRGB(x,y) );
 
+            // Get and display the ID of the job associated with the color.
             String id = idToColorMap.getKeyOfColor( color );
             sToolBar.setJobID(id);
 
+            // Determine the frame number that we clicked on from the y-
+            // coordinate of the click position.
+            int frameNumber = 0;
             if ( y > TOP_MARGIN) {
-                int frameNumber = (y - TOP_MARGIN) / traceWidth;
+                frameNumber = (y - TOP_MARGIN) / traceWidth + frameRenderRange.first;
                 sToolBar.setFrameNumber(frameNumber);
             }
+
+            // Determine the subframe-time where we clicked from the x-coordinate
+            // of the click position.
             if ( traceRectContains(x, y)) {
-                double pixelsPerSecond = (double)calcTraceRectWidth() / frameDuration;
+                double pixelsPerSecond = (double)traceRectWidth() / frameSize;
                 double subFrameTime = (x - LEFT_MARGIN) / pixelsPerSecond;
                 sToolBar.setSubFrameTime(subFrameTime);
             }
+
+            /**
+             * If we clicked on a job trace (above), show the start and stop
+             * times of the job, otherwise clear the start and stop fields.
+             */
+            if (id != null) {
+                FrameRecord frame = frameArray[frameNumber];
+                for (JobExecutionEvent jobExec : frame.jobEvents) {
+                    if (id.equals( jobExec.id)) {
+                        sToolBar.setJobStartTime(jobExec.start);
+                        sToolBar.setJobStopTime(jobExec.stop);
+                    }
+                }
+            } else {
+                sToolBar.clearJobStartStopTime();
+            }
         }
 
+        /**
+         * Set the cursor to a crossHairCursor if it's over the frame traces,
+         * otherwise, set it to the defaultCursor.
+         */
         @Override
         public void mouseMoved(MouseEvent e) {
             int x = e.getX();
@@ -206,15 +280,23 @@ public class TraceViewCanvas extends JPanel {
     /**
      * @return the height of the trace rectangle.
      */
-    private int calcTraceRectHeight() {
-        return ( getHeight() - TOP_MARGIN - BOTTOM_MARGIN);
+    private int traceRectHeight() {
+        return traceWidth * frameRenderRange.size();
     }
 
     /**
      * @return the width of the trace rectangle.
      */
-    private int calcTraceRectWidth() {
+    private int traceRectWidth() {
         return ( getWidth() - LEFT_MARGIN - RIGHT_MARGIN);
+    }
+
+    /**
+     * Calculate the height of the TraceViewCanvas (JPanel) needed to render the
+     * selected range of frames.
+     */
+    private int neededPanelHeight() {
+        return traceWidth * frameRenderRange.size() + TOP_MARGIN + BOTTOM_MARGIN;
     }
 
     /**
@@ -230,9 +312,9 @@ public class TraceViewCanvas extends JPanel {
         rh.put(RenderingHints.KEY_RENDERING,
                RenderingHints.VALUE_RENDER_QUALITY);
 
-        int traceRectHeight = calcTraceRectHeight();
-        int traceRectWidth = calcTraceRectWidth();
-        double pixelsPerSecond = (double)traceRectWidth / frameDuration;
+        int traceRectHeight = traceRectHeight();
+        int traceRectWidth = traceRectWidth();
+        double pixelsPerSecond = (double)traceRectWidth / frameSize;
 
         // Panel Background Color Fill
         g2d.setPaint(Color.WHITE);
@@ -240,35 +322,32 @@ public class TraceViewCanvas extends JPanel {
 
         // Frame Trace Rectangle Fill
         g2d.setPaint(Color.BLACK);
-        g2d.fillRect(LEFT_MARGIN, TOP_MARGIN, traceRectWidth, traceRectHeight);
+        g2d.fillRect(LEFT_MARGIN, TOP_MARGIN, traceRectWidth, traceRectHeight());
 
-        boolean wasEOF = false;
-        boolean wasTOF = false;
-        double startOfFrame = 0.0;
-        int frameNumber = 0;
+        // Draw each frame in the selected range of frames to be rendered.
+        for (int n = frameRenderRange.first;
+                 n <= frameRenderRange.last;
+                 n++) {
 
-        for (JobExecutionEvent jobExec : jobExecList ) {
+            FrameRecord frame = frameArray[n];
 
-            if (!wasTOF && jobExec.isTOF) {
-                startOfFrame = jobExec.start;
-                frameNumber ++;
+            // Draw the frame
+            for (JobExecutionEvent jobExec : frame.jobEvents) {
+                int jobY = TOP_MARGIN + (n - frameRenderRange.first) * traceWidth;
+                int jobStartX = LEFT_MARGIN + (int)((jobExec.start - frame.start) * pixelsPerSecond);
+                int jobWidth  = (int)( (jobExec.stop - jobExec.start) * pixelsPerSecond);
+
+                g2d.setPaint(Color.BLACK);
+                g2d.drawString ( String.format("%d", n), 50, jobY + traceWidth/2);
+                g2d.setPaint( idToColorMap.getColor( jobExec.id ) );
+                g2d.fillRect(jobStartX, jobY, jobWidth, traceWidth-2);
             }
-
-            wasTOF = jobExec.isTOF;
-            wasEOF = jobExec.isEOF;
-
-            int jobY = TOP_MARGIN + frameNumber * traceWidth;
-            int jobStartX = LEFT_MARGIN + (int)((jobExec.start - startOfFrame) * pixelsPerSecond);
-            int jobWidth  = (int)( (jobExec.stop - jobExec.start) * pixelsPerSecond);
-
-            g2d.setPaint(Color.BLACK);
-            g2d.drawString ( String.format("%8.3f", startOfFrame), 30, jobY + traceWidth/2);
-            g2d.setPaint( idToColorMap.getColor( jobExec.id ) );
-            g2d.fillRect(jobStartX, jobY, jobWidth, traceWidth-2);
-
         }
     }
 
+    /**
+     * This function paints the TraceViewCanvas (i.e, JPanel) when required.
+     */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);

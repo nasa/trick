@@ -6,9 +6,15 @@ import java.util.*;
 import javax.swing.*;
 
 /**
-* Class JobPerf is an application that renders time line data from a Trick based
-  simulation and generates run-time statistics reports for the simulation jobs.
-  It can be run with or without a GUI.
+ * Capabilites That Need To Be Added
+ * - a way to filter the data to be within a user specified sub time period
+ *   within the data set.
+ */
+
+/**
+* Class JobPerf is an application that renders time-line data from a Trick based
+  simulation. It also generates run-time statistics reports for the simulation
+  jobs. It can be run with or without a GUI.
 */
 public class JobPerf extends JFrame {
     ArrayList<JobExecutionEvent> jobExecEvtList;

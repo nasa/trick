@@ -13,7 +13,7 @@ import javax.swing.*;
 * - JPanel [mainPanel]
 *     - JPanel [tracePanel]
 *         - JScrollPane [scrollPane]
-*             - TraceViewCanvas [traceView]
+*             - TraceViewCanvas [traceViewCanvas]
 * - TraceViewOutputToolBar [outputToolBar]
 */
 public class TraceViewWindow extends JFrame {
@@ -24,16 +24,17 @@ public class TraceViewWindow extends JFrame {
      */
     public TraceViewWindow( ArrayList<JobExecutionEvent> jobExecList ) {
         TraceViewOutputToolBar outputToolBar = new TraceViewOutputToolBar();
-        TraceViewCanvas traceView = new TraceViewCanvas( jobExecList, outputToolBar);
+        TraceViewCanvas traceViewCanvas = new TraceViewCanvas( jobExecList, outputToolBar);
 
-        TraceViewMenuBar menuBar = new TraceViewMenuBar(traceView);
+        TraceViewMenuBar menuBar = new TraceViewMenuBar( traceViewCanvas);
         setJMenuBar(menuBar);
 
-        TraceViewInputToolBar nToolBar = new TraceViewInputToolBar( traceView );
+        TraceViewInputToolBar nToolBar = new TraceViewInputToolBar( traceViewCanvas );
         add(nToolBar, BorderLayout.NORTH);
 
-        JScrollPane scrollPane = new JScrollPane( traceView );
+        JScrollPane scrollPane = new JScrollPane( traceViewCanvas );
         scrollPane.setPreferredSize(new Dimension(800, 400));
+        scrollPane.getVerticalScrollBar().setUnitIncrement( 20 );
 
         JPanel tracePanel = new JPanel();
         tracePanel.setPreferredSize(new Dimension(800, 400));
@@ -55,6 +56,6 @@ public class TraceViewWindow extends JFrame {
         setFocusable(true);
         setVisible(true);
 
-        traceView.repaint();
+        traceViewCanvas.repaint();
     }
 }
