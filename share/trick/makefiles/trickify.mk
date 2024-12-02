@@ -122,6 +122,15 @@ TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 # Ensure we can process all headers
 TRICK_EXT_LIB_DIRS := $(TRICKIFY_EXT_LIB_DIRS)
 
+UNAME := $(shell uname)
+ifeq ($(UNAME), Linux)
+	SHARED_OPTIONS := -shared
+else ifeq ($(UNAME), Darwin)
+	SHARED_OPTIONS := -dynamiclib
+else
+	SHARED_OPTIONS := -shared
+endif
+
 .PHONY: all
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
@@ -130,7 +139,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
 	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $(LINK_LISTS))
 else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) -shared -o $@ $(LINK_LISTS))
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(SHARED_OPTIONS) -o $@ $(LINK_LISTS))
 else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
 	$(call ECHO_AND_LOG,ar rcs $@ $(LINK_LISTS))
 endif
