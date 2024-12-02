@@ -6,7 +6,7 @@
 
   <groupId>trick-java</groupId>
   <artifactId>trick-java</artifactId>
-  <version>19.7.0-beta</version>
+  <version>19.8.0-beta</version>
 
   <name>trick-java</name>
 
@@ -43,6 +43,13 @@
     <trick_version>dev</trick_version>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>third-party</id>
+      <url>file://${basedir}/src/lib/</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -51,15 +58,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.jdesktop.bsaf</groupId>
+      <groupId>third-party</groupId>
       <artifactId>bsaf</artifactId>
       <version>1.9.2</version>
-        <exclusions>
-        <exclusion>
-          <groupId>javax.jnlp</groupId>
-          <artifactId>jnlp</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.jfree</groupId>

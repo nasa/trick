@@ -8,6 +8,10 @@ PROGRAMMERS:
   (((Gary Turner) (OSR) (October 2019) (Antares) (Initial)))
   (((Isaac Reaves) (NASA) (November 2022) (Integration into Trick Core)))
 **********************************************************************/
+#include <sstream> // ostringstream
+#include "trick/message_type.h"
+#include "trick/message_proto.h"
+#include "trick/exec_proto.h"
 #include "trick/mc_variable_random_string.hh"
 
 /*****************************************************************************
@@ -32,14 +36,47 @@ Purpose:(pick one string at random)
 void
 MonteCarloVariableRandomStringSet::generate_assignment()
 {
-  // generate a random number on the interval [0,1)
-  double pre_ix = distribution(random_generator);
-  // convert to an integer between 0 and max-index of the "values" vector.
-  size_t ix = static_cast<size_t> (pre_ix * values.size());
-  // send the string at that index to the command-generation.
-  assignment = values[ix];
-  generate_command();
+  // Protect against accessing 0th index of an empty list. In this case,
+  // generate_command() is never called
+  if (values.size() > 0) {
+    // generate a random number on the interval [0,1)
+    double pre_ix = distribution(random_generator);
+    // convert to an integer between 0 and max-index of the "values" vector.
+    size_t ix = static_cast<size_t> (pre_ix * values.size());
+    // send the string at that index to the command-generation.
+    // TODO: This fales if values.size() is zero!!!
+    assignment = values[ix];
+    generate_command();
+  } else {
+    std::string message =
+    std::string("File: ") + __FILE__ + ", Line: " +
+    std::to_string(__LINE__) + ", No values for MonteCarloVariableRandomStringSet\n"
+    "Length of values vector is zero for variable: " + variable_name + ", Did " +
+    "you forget to call add_string()?\n";
+    message_publish(MSG_WARNING, message.c_str());
+  }
 }
+/*****************************************************************************
+summarize_variable
+Purpose:(Provide a string summarizing the attributes of this MonteCarloVariable)
+*****************************************************************************/
+std::string MonteCarloVariableRandomStringSet::summarize_variable() const
+{
+  std::ostringstream ss;
+  // TODO: Here we create a string in [val1, val2, ... ] form, but this is
+  // ambigious because if there's a comma in any value, parsing the resultant
+  // string from the MonteCarlo_Meta_data_output file could fail. What delimter
+  // or approach would be better? -Jordan 10/2023
+  ss << MonteCarloVariableRandomUniform::summarize_variable() << ", values=[";
+  if (values.size() > 0) {
+    for (auto val_it : values) {
+      ss << val_it << ",";
+    }
+  }
+  ss << "]";
+  return (ss.str());
+}
+
 /*****************************************************************************
 add_string
 Purpose:(Adds an option to the set of strings)
@@ -64,3 +101,4 @@ MonteCarloVariableRandomStringSet::add_string( std::string new_string)
 {
   values.push_back(new_string);
 }
+

@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.1)
 # configuration to do before CMake searches for compilers
 project(trick NONE)
 set(TRICK_MAJOR 19)
-set(TRICK_MINOR 7)
+set(TRICK_MINOR 8)
 set(TRICK_TINY 0)
 # set TRICK_PRERELEASE TO EMPTY STRING "" ON RELEASE
 set(TRICK_PRERELEASE "-beta")
@@ -175,7 +175,7 @@ set( IO_SRC
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_JITEvent.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_JITInputFile.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_JSONVariableServer.cpp
-  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_JSONVariableServerSessionThread.cpp
+  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_JSONVariableServerThread.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_JobData.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MM4_Integrator.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MSConnect.cpp
@@ -231,7 +231,7 @@ set( IO_SRC
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_VariableServer.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_VariableServerListenThread.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_VariableServerReference.cpp
-  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_VariableServerSessionThread.cpp
+  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_VariableServerThread.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_Zeroconf.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_attributes.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_dllist.cpp
