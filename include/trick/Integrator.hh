@@ -122,6 +122,8 @@ namespace Trick {
         bool use_deriv2;                  // -- set by integration technique
 
         double dt;               // -- set by IntegLoopSimObject.cpp
+        double target_integ_time; // -- set by IntegLoopScheduler.cpp. Final integration time regardless of
+                                  //    intermediate step.
 #ifndef USE_ER7_UTILS_INTEGRATORS
         double **state_origin;
 #endif

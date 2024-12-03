@@ -9,7 +9,24 @@ LIBRARY DEPENDENCIES:
 #include "sim_objects/default_trick_sys.sm"
 
 ##include "test_ip/include/ClassOfEverything.hh"
+##include "test_ip/include/ArrayTemplate.hh"
 ##include "test_ip/include/OverloadedVariable.hh"
+
+class ArrayTemplateSimObject : public Trick::SimObject
+{
+    public:
+        ArrayTemplateSimObject(const ArrayTemplateSimObject&) = delete;
+        ArrayTemplateSimObject& operator=(const ArrayTemplateSimObject&) = delete;
+
+        double a[3];
+        ArrayTemplate<double[3]> arryTemp;
+
+        ArrayTemplateSimObject()
+          : arryTemp(a)
+        {
+        }
+};
+ArrayTemplateSimObject arry_temp_object;
 
 class testSimObject : public Trick::SimObject {
 

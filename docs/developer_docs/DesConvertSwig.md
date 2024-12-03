@@ -275,10 +275,13 @@ Add the <b>class_string</b> to the SWIG interface text.
 1. While there's class content text remaining to be processed,
 repeatedly search for data members that match : <b>template_name '<'</b> <i>template-params</i> <b>'>' name ;</b>
 For each match, create a SWIG %template directive to create an instantiation
-of the specific templated type used by the data member. Add the
-SWIG %template directive to the templated typedefs string that
-Otherwise append whatever wasn't matched in process contents to
-the SWIG interface text.
+of the specific templated type used by the data member. Due to changes in SWIG 4,
+template directives must be specified before their respective data members. As such,
+the template directives are inserted immediately prior to the class definition. 
+SWIG does not resolve namespaces in these directives the same as C++ does 
+(it will only check local scope, not global). To account for this, 
+if the directive specifies a template outside the local namespace, convert_swig will
+escape the current namespace in the format : } template_directive namespace name {
 
 ## process_typedef_struct
 

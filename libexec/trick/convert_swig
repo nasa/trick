@@ -97,7 +97,7 @@ my $template_def   = qr/template\s*                        # keyword template
             \s+[_A-Za-z]\w*\s*                             # class name
                /sx ;
 my $template_var_def  = qr/(?:\:\:)?[_A-Za-z][:\w]*\s*     # template name
-            <[\w\s\*,:<>]*>\s*                             # template parameters
+            <[\w\s\*,:<>\[\]]*>\s*                         # template parameters
             [_A-Za-z]\w*\s*(?:[{=].*?)?;                   # var name ;
                /sx ;
 
@@ -347,6 +347,24 @@ sub process_file() {
         print OUT "\n$new_contents" ;
         print OUT "$contents\n" ;
         print OUT $global_template_typedefs ;
+
+        # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper non-class attribute assingment in input processor.
+        # _swig_setattr_nondynamic_instance_variable function is added for each class in process_class subroutine.
+        foreach my $c ( @class_names ) {
+            if ( ! exists $class_typemap_printed{$c} ) {
+                my $c_ = $c ;
+                $c_ =~ s/\:/_/g ;
+                if ( $c !~ /::/ ) {
+                    print OUT "\n#if SWIG_VERSION > 0x040000\n";
+                    print OUT "%pythoncode %{\n" ; 
+                    print OUT "    if '$c' in globals():\n";
+                    print OUT "        $c.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n" ;
+                    print OUT "%}\n" ;
+                    print OUT "#endif\n";
+                }
+            }
+        }
+
         # Add a trick_cast_as macro line for each class parsed in the file.  These lines must appear at the bottom of the
         # file to ensure they are not in a namespace directive and they are after the #define statements they depend on.
         undef %class_typemap_printed ;
@@ -489,6 +507,9 @@ sub process_template($$) {
     my ( $contents_ref , $new_contents_ref ) = @_ ;
     my $extracted ;
 
+    # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper class attribute assingment in input processor
+    # The function call is inserted after the 1st { of the class template so it is placed at the top 
+    $$contents_ref=~s/{\n/{\n\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n/m;
     if ( $$contents_ref =~ s/^(\s*;)//s ) {
         $$new_contents_ref .= $1 ;
     } else {
@@ -606,14 +627,15 @@ sub process_class($$$$$) {
                       \s*[\{\:]$
                      /sx or die "Internal error" ;
     $class_name = $1 ;
-
-    my $class_content;
-    $class_content .= $class_string ;
+    my $my_class_contents = $class_string ;
 
     if ( $class_string !~ /\{$/ ) {
         $$contents_ref =~ s/^(.*?\s*\{)//s ;
-        $class_content .= $1 ;
+        $my_class_contents .= $1 ;
     }
+
+    # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper class attribute assingment in input processor
+    $my_class_contents .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
 
     ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
 
@@ -625,20 +647,11 @@ sub process_class($$$$$) {
 
     #print "*** extracted = $extracted ***\n" ;
     #print "*** contents = $$contents_ref ***\n" ;
-    my $save_namespace_content;
-
-    if ( $curr_namespace ne "" ) {
-       my @split_namespaces = split "::", $curr_namespace;
-       my $sanitized_namespace = $split_namespaces[-1] ;
-       my @namespace_split = split /namespace\s*$sanitized_namespace/, $$new_contents_ref;
-       $save_namespace_content = 'namespace ' . $sanitized_namespace . $namespace_split[-1];
-       $$new_contents_ref = join('namespace ' . $sanitized_namespace, @namespace_split[0 .. $#namespace_split-1]);
-    }
 
     # SWIG doesn't like "const static".  Change it to "static const"
     $extracted =~ s/const\s+static/static const/g ;
 
-    my $isSwigExcludeBlock = 0;
+    my $isSwigExcludeBlock = 0 ;
 
     # templated variables need to be declared with the SWIG %template directive.
     # This loop looks for any templated variables and creates the %template lines.
@@ -648,15 +661,25 @@ sub process_class($$$$$) {
 
         if ( $non_var ne "" )  {
             #print "*** non_var = $non_var ***\n" ;
-            $class_content .= $non_var ;
+            $my_class_contents .= $non_var ;
             my $ifndefSwig = $non_var;
-            if ($isSwigExcludeBlock == 0) {
-               if ($ifndefSwig =~ /(?:ifndef\s*SWIG|if\s*!\s*defined\s*\(\s*SWIG\s*\))/ ) {
-                  $isSwigExcludeBlock = 1;
+            my $moreNonVar = 1 ;
+            # search for all instances of #ifndef SWIG, #if !defined(SWIG), and #endif prior to template variable
+            # update $isSwigExcludeBlock to the last instance*
+            # exit when no match is found
+            # *  this script does not track preprocessor scope, so any #endif will set $isSwigExcludeBlock to 0
+            #    in other words we don't support SWIGing nested preprocessor if statements, use at your peril
+            while ($moreNonVar == 1) {
+               if ($ifndefSwig =~ s/(#\s*ifndef\s*SWIG)|(#\s*if\s*!\s*defined\s*\(\s*SWIG\s*\))|(#\s*endif\s*)// ) {
+                  if($1 ne "" or $2 ne "") {
+                     $isSwigExcludeBlock = 1 ;
+                  }
+                  elsif($3 ne "") {
+                     $isSwigExcludeBlock = 0 ;
+                  }
                }
-            } else {
-               if ($ifndefSwig =~ /endif/ ) {
-                  $isSwigExcludeBlock = 1;
+               else {
+                  $moreNonVar = 0 ;
                }
             }
         }
@@ -667,6 +690,7 @@ sub process_class($$$$$) {
                 $template_var_def_str =~ /(.*?>)\s*([_A-Za-z]\w*).*?;/s ;
                 my ($template_full_type) = $1 ;
                 my ($var_name) = $2 ;
+                $my_class_contents .= $template_var_def_str ;
 
                 $template_full_type =~ /([_A-Za-z][:\w]*)\s*</ ;
                 my ($template_type) = $1 ;
@@ -689,28 +713,34 @@ sub process_class($$$$$) {
                         my $identifier = "${sanitized_namespace}${class_name}_${var_name}" ;
                         my $trick_swig_template = "TRICK_SWIG_TEMPLATE_$identifier" ;
 
-                        my $typedef;
-                        if ($isSwigExcludeBlock == 0) {
-                           $typedef = "#ifndef $trick_swig_template\n" ;
-                           $typedef   .= "#define $trick_swig_template\n";
-                           if ($qualified) {
-                              $typedef .= "\%template($identifier) $template_full_type;\n" ;
-                           } else {
-                              if ( $curr_namespace ne "" ) {
-                                 my $cppns = substr $curr_namespace, 0, -2;
-                                 $typedef .= "namespace $cppns {\n";
-                                 $typedef .= "\%template($identifier) $template_full_type;\n}\n" ;
-                              } else {
-                                 $typedef .= "\%template($identifier) $template_full_type;\n" ;
-                              }
-                           }
-                           $typedef   .= "#endif\n\n" ;
-                           $$new_contents_ref .= $typedef ;
+                        # Insert template directive immediately before intsance
+                        # This is required as of SWIG 4
+                        my $typedef = "\n#ifndef $trick_swig_template\n" ;
+                        $typedef   .= "#define $trick_swig_template\n" ;
+                        $typedef   .= "\%template($identifier) $template_full_type;\n" ;
+                        $typedef   .= "#endif\n" ;
+
+                        # SWIG namespace resolution for template directives starts at the local space
+                        # Therefore, if the type is qualified, assume it's fully qualified and put the
+                        # %template directive in the global namespace by escaping the current namespace
+			if ($curr_namespace ne "") {
+                            my $in_same_namespace = 1 ;
+                            if ($template_full_type =~ /^\w*(::)\w+</) {
+                                $in_same_namespace = 0 ;
+                            }
+                            if ($in_same_namespace eq 0) {
+                                $curr_namespace =~ /(.*)::/ ;
+                                $typedef = "\n}" . $typedef . "namespace " . $1 . " {" ; 
+                            }
                         }
+
+                        if ($isSwigExcludeBlock == 0) {
+                            $template_typedefs .= $typedef ;
+                        }
+
                         $processed_templates{$template_type_no_sp} = 1 ;
                     }
                 }
-                $class_content .= $template_var_def_str ;
             }
         }
     }
@@ -718,19 +748,18 @@ sub process_class($$$$$) {
 
     push @$class_names_ref , "$curr_namespace$class_name" ;
 
+    # write out the templated variable declaration lines found in this class.
+    $$new_contents_ref .= $template_typedefs."\n" ;
+
+    $$new_contents_ref .= $my_class_contents ;
     # write the class contents and semicolon to ensure any template declarations below are after the semicolon.
-    $class_content .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    __setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
-    $class_content .= $extracted . ";\n" ;
+    $$new_contents_ref .= $extracted . ";\n" ;
 
     my $c_ = "$curr_namespace$class_name" ;
     $c_ =~ s/\:/_/g ;
     # Add a #define line that signals that this class has been processed by swig. Classes excluded in #if 0 blocks will
     # not have this #define defined.
-    $class_content .= "#define TRICK_SWIG_DEFINED_$c_" ;
-    if ( $save_namespace_content ne "" ) {
-       $$new_contents_ref .= $save_namespace_content;
-    }
-    $$new_contents_ref .= $class_content;
+    $$new_contents_ref .= "#define TRICK_SWIG_DEFINED_$c_" ;
 }
 
 ## ================================================================================
@@ -766,7 +795,7 @@ sub process_typedef_struct($$$$) {
     my ($typedef_struct_string , $contents_ref, $new_contents_ref , $class_names_ref) = @_ ;
 
     my $extracted ;
-    my ($begin, $tail , $struct_names, @struct_names) ;
+    my ($tail , $struct_names, @struct_names) ;
 
     #print "*** typedef_struct_string = $typedef_struct_string ***\n" ;
 
@@ -775,7 +804,6 @@ sub process_typedef_struct($$$$) {
     $typedef_struct_string =~ s/((?:typedef\s+)?(struct|union)\s*   # the words typedef struct|union
          ([_A-Za-z]\w*)?\s*                                         # optional name
          {)//sx ;
-    $begin = $3 ;
 
     ($extracted, $$contents_ref) = extract_bracketed( "{" . $$contents_ref , "{}") ;
     #print "*** extracted = $extracted ***\n" ;
@@ -790,9 +818,6 @@ sub process_typedef_struct($$$$) {
     $struct_names =~ s/\s//g ;
     @struct_names = split /,/ , $struct_names ;
 
-    if ( $begin ne "" ) {
-        push @$class_names_ref , $begin ;
-    }
     foreach my $s ( @struct_names ) {
         if ( $s !~ /\*/ ) {
             push @$class_names_ref , $s ;
