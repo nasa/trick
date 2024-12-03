@@ -1,0 +1,37 @@
+global DR_GROUP_ID
+global drg
+try:
+    if DR_GROUP_ID >= 0:
+        DR_GROUP_ID += 1
+except NameError:
+    DR_GROUP_ID = 0
+    drg = []
+
+drg.append(trick.DRAscii("WaterClock"))
+drg[DR_GROUP_ID].set_freq(trick.DR_Always)
+drg[DR_GROUP_ID].set_cycle(0.01)
+drg[DR_GROUP_ID].set_single_prec_only(False)
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.time")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.input_flow")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_clock_spout_flowrate")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_overflow_flowrate")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_bucket_net_flow")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_bucket_depth")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_bucket_diam")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_overflow_height")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_overflow_diameter")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_clock_spout_height")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_clock_spout_diameter")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.timer_bucket_depth")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.timer_bucket_diam")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_bucket_vol")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.intake_water_level")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.timer_bucket_vol")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.timer_water_level")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.tick_gap")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.total_ticks")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.current_tick")
+drg[DR_GROUP_ID].add_variable("dyn.waterclock.gravity")
+drg[DR_GROUP_ID].set_max_file_size(1 * 1073741824) # multiply converts GiB to B --Dr. Dre
+trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
+drg[DR_GROUP_ID].enable()

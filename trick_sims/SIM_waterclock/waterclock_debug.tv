@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<trickView>
+    <cyclePeriod>0.5</cyclePeriod>
+    <variable>
+        <name>dyn.waterclock.intake_overflow_flowrate</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.0</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m^3/s</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.intake_clock_spout_flowrate</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.0</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m^3/s</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.intake_bucket_depth</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">1.0</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.intake_overflow_height</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.8</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.intake_clock_spout_height</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.1</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.intake_water_level</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.0</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.intake_bucket_vol</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.0</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m^3</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.timer_bucket_depth</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">2.3077</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.timer_water_level</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.0</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.timer_bucket_vol</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.0</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m^3</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.rf1.error</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.0</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>--</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.rf2.error</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.0</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>--</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.tick_gap</name>
+        <tvDouble>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:double">0.03846166666666666</value>
+            <format>Decimal</format>
+        </tvDouble>
+        <state>Valid</state>
+        <units>m</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.total_ticks</name>
+        <tvInteger>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:int">60</value>
+            <unsigned>false</unsigned>
+            <format>Decimal</format>
+        </tvInteger>
+        <state>Valid</state>
+        <units>--</units>
+    </variable>
+    <variable>
+        <name>dyn.waterclock.current_tick</name>
+        <tvInteger>
+            <value xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema" xsi:type="xs:int">0</value>
+            <unsigned>false</unsigned>
+            <format>Decimal</format>
+        </tvInteger>
+        <state>Valid</state>
+        <units>--</units>
+    </variable>
+</trickView>

@@ -310,7 +310,7 @@ namespace Trick {
              @param var_name - the address of the variable.
              @return 0 = SUCCESS, 1 = FAILURE
              */
-            int delete_var(const char* var_name);
+            int delete_var(std::string var_name);
 
             /**
              Forget about the external variable at the given address. DOES NOT attempt to deallocate the
@@ -326,7 +326,7 @@ namespace Trick {
              @param var_name - the address of the external variable.
              @return 0 = SUCCESS, 1 = FAILURE
              */
-            int delete_extern_var(const char* var_name);
+            int delete_extern_var(std::string var_name);
 
             /**
              Checkpoint all allocations known to the MemoryManager to the given stream.

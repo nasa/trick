@@ -519,7 +519,7 @@ int Trick::DataRecordGroup::restart() {
     std::vector <Trick::DataRecordBuffer *>::iterator drb_it ;
 
     /* delete the current rec_buffer */
-    for ( drb_it = rec_buffer.begin() ; drb_it != rec_buffer.end() ; drb_it++ ) {
+    for ( drb_it = rec_buffer.begin() ; drb_it != rec_buffer.end() ; ++drb_it ) {
         delete *drb_it ;
     }
     rec_buffer.clear() ;
@@ -527,7 +527,7 @@ int Trick::DataRecordGroup::restart() {
     add_time_variable() ;
 
     /* delete the current change_buffer contents */
-    for ( drb_it = change_buffer.begin() ; drb_it != change_buffer.end() ; drb_it++ ) {
+    for ( drb_it = change_buffer.begin() ; drb_it != change_buffer.end() ; ++drb_it ) {
         delete *drb_it ;
     }
     change_buffer.clear() ;

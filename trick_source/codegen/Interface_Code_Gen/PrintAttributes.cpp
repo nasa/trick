@@ -449,7 +449,7 @@ void PrintAttributes::printIOMakefile() {
         << "IO_OBJECTS =" ;
 
     std::map< std::string , std::string >::iterator mit ;
-    for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
+    for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; ++mit ) {
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
         makefile_io_src << " \\\n    " << (*mit).second.substr(0,found) << ".o" ;
@@ -487,7 +487,7 @@ void PrintAttributes::printIOMakefile() {
     ICG_processed.open("build/ICG_processed") ;
 
     makefile_ICG << "build/Makefile_io_src:" ;
-    for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; mit++ ) {
+    for ( mit = all_io_files.begin() ; mit != all_io_files.end() ; ++mit ) {
         makefile_ICG << " \\\n    " << (*mit).first ;
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
@@ -518,7 +518,7 @@ void PrintAttributes::printICGNoFiles() {
     if ( ! sim_services_flag ) {
         std::vector< std::string >::iterator it ;
         std::ofstream icg_no_outfile("build/ICG_no_found") ;
-        for ( it = icg_no_files.begin() ; it != icg_no_files.end() ; it++ ) {
+        for ( it = icg_no_files.begin() ; it != icg_no_files.end() ; ++it ) {
             icg_no_outfile << (*it) << std::endl ;
         }
         icg_no_outfile.close() ;

@@ -62,7 +62,7 @@ void Trick::Sie::top_level_objects_print(std::ofstream & sie_out) {
     Trick::VARIABLE_MAP_ITER vit ;
     int jj ;
 
-    for ( vit = trick_MM->variable_map_begin() ; vit != trick_MM->variable_map_end() ; vit++ ) {
+    for ( vit = trick_MM->variable_map_begin() ; vit != trick_MM->variable_map_end() ; ++vit ) {
         ALLOC_INFO * alloc_info = (*vit).second ;
 
         if ( alloc_info != NULL ) {
@@ -88,7 +88,7 @@ void Trick::Sie::runtime_objects_print(std::fstream & sie_out) {
     Trick::VARIABLE_MAP_ITER vit ;
     int jj ;
 
-    for ( vit = trick_MM->variable_map_begin() ; vit != trick_MM->variable_map_end() ; vit++ ) {
+    for ( vit = trick_MM->variable_map_begin() ; vit != trick_MM->variable_map_end() ; ++vit ) {
         ALLOC_INFO * alloc_info = (*vit).second ;
 
         if ( alloc_info != NULL && alloc_info->alloced_in_memory_init == 0) {
@@ -114,7 +114,7 @@ void Trick::Sie::top_level_objects_json(std::ofstream & sie_out) {
     Trick::VARIABLE_MAP_ITER vit ;
     int jj ;
     sie_out << "  \"top_level_objects\": [\n";
-    for ( vit = trick_MM->variable_map_begin() ; vit != trick_MM->variable_map_end() ; vit++ ) {
+    for ( vit = trick_MM->variable_map_begin() ; vit != trick_MM->variable_map_end() ; ++vit ) {
         ALLOC_INFO * alloc_info = (*vit).second ;
 
         if ( alloc_info != NULL ) {

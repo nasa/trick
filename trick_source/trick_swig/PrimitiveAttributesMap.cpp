@@ -27,7 +27,7 @@ Trick::PrimitiveAttributesMap::PrimitiveAttributesMap() {
 
 Trick::PrimitiveAttributesMap::~PrimitiveAttributesMap() {
     std::map<std::string, ATTRIBUTES * >::iterator pit ;
-    for ( pit = param_attr.begin() ; pit != param_attr.end() ; pit++ ) {
+    for ( pit = param_attr.begin() ; pit != param_attr.end() ; ++pit ) {
         delete(pit->second) ;
     }
     param_attr.clear() ;
