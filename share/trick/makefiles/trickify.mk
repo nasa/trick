@@ -126,7 +126,7 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 	SHARED_OPTIONS := -shared
 else ifeq ($(UNAME), Darwin)
-	SHARED_OPTIONS := -dynamiclib
+	SHARED_OPTIONS := -dynamiclib -fPIC
 else
 	SHARED_OPTIONS := -shared
 endif
@@ -135,12 +135,16 @@ endif
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
+	echo "Enterting trickify.mk"
 	$(info $(call COLOR,Linking)    $@)
 ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
+	echo "Building PLO" 
 	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $(LINK_LISTS))
 else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
+	echo "Building SHARED" 
 	$(call ECHO_AND_LOG,$(TRICK_CXX) $(SHARED_OPTIONS) -o $@ $(LINK_LISTS))
 else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
+	echo "Building STATIC" 
 	$(call ECHO_AND_LOG,ar rcs $@ $(LINK_LISTS))
 endif
 
