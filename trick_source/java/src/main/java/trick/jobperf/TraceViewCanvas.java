@@ -30,6 +30,7 @@ public class TraceViewCanvas extends JPanel {
     private double frameSize;
     private double totalDuration;
     private FrameRecord[] frameArray;
+    private int selectedFrameNumber;
     private FrameRange frameRenderRange;
     private KeyedColorMap idToColorMap;
     private BufferedImage image;
@@ -63,6 +64,7 @@ public class TraceViewCanvas extends JPanel {
         traceWidth = DEFAULT_TRACE_WIDTH;
         frameSize = 1.0;
         image = null;
+        selectedFrameNumber = 0;
         sToolBar = outputToolBar;
         crossHairCursor = new Cursor( Cursor.CROSSHAIR_CURSOR );
         defaultCursor = new Cursor( Cursor.DEFAULT_CURSOR );
@@ -230,10 +232,10 @@ public class TraceViewCanvas extends JPanel {
 
             // Determine the frame number that we clicked on from the y-
             // coordinate of the click position.
-            int frameNumber = 0;
+
             if ( y > TOP_MARGIN) {
-                frameNumber = (y - TOP_MARGIN) / traceWidth + frameRenderRange.first;
-                sToolBar.setFrameNumber(frameNumber);
+                selectedFrameNumber = (y - TOP_MARGIN) / traceWidth + frameRenderRange.first;
+                sToolBar.setFrameNumber(selectedFrameNumber);
             }
 
             // Determine the subframe-time where we clicked from the x-coordinate
@@ -249,13 +251,14 @@ public class TraceViewCanvas extends JPanel {
              * times of the job, otherwise clear the start and stop fields.
              */
             if (id != null) {
-                FrameRecord frame = frameArray[frameNumber];
+                FrameRecord frame = frameArray[selectedFrameNumber];
                 for (JobExecutionEvent jobExec : frame.jobEvents) {
                     if (id.equals( jobExec.id)) {
                         sToolBar.setJobStartTime(jobExec.start);
                         sToolBar.setJobStopTime(jobExec.stop);
                     }
                 }
+                repaint();
             } else {
                 sToolBar.clearJobStartStopTime();
             }
@@ -338,6 +341,9 @@ public class TraceViewCanvas extends JPanel {
                 int jobWidth  = (int)( (jobExec.stop - jobExec.start) * pixelsPerSecond);
 
                 g2d.setPaint(Color.BLACK);
+                if (n == selectedFrameNumber) {
+                    g2d.setPaint(Color.GREEN);
+                }
                 g2d.drawString ( String.format("%d", n), 50, jobY + traceWidth/2);
                 g2d.setPaint( idToColorMap.getColor( jobExec.id ) );
                 g2d.fillRect(jobStartX, jobY, jobWidth, traceWidth-2);

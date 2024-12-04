@@ -16,7 +16,7 @@ import javax.swing.*;
   simulation. It also generates run-time statistics reports for the simulation
   jobs. It can be run with or without a GUI.
 */
-public class JobPerf extends JFrame {
+public class JobPerf {
     ArrayList<JobExecutionEvent> jobExecEvtList;
     JobStats jobStats;
 
