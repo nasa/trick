@@ -2,8 +2,8 @@
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 RM = rm -rf
-CC = gcc
-CPP = g++
+CC ?= gcc
+CPP ?= g++
 
 DPX_DIR = ${TRICK_HOME}/trick_source/data_products/DPX
 DS_DIR  = ${TRICK_HOME}/trick_source/data_products

@@ -1,7 +1,7 @@
 
 RM = rm -rf
-CC = cc
-CPP = c++
+CC ?= cc
+CPP ?= c++
 
 
 CFLAGS = -g -Wall

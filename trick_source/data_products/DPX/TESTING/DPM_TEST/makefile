@@ -3,8 +3,8 @@ include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
 SHELL = /bin/sh
 RM = rm -rf
-CC = gcc
-CPP = g++
+CC ?= gcc
+CPP ?= g++
 PWD = $(shell pwd)
 DEV_NULL = > /dev/null 2>&1
 GCC = $(shell which gcc)

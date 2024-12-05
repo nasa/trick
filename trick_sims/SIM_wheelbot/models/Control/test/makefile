@@ -1,6 +1,6 @@
 RM = rm -rf
-CC = cc
-CPP = c++
+CC ?= cc
+CPP ?= c++
 
 PROJECT_DIR = ../..
 
