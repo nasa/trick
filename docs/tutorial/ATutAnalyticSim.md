@@ -31,7 +31,7 @@
 In this and subsequent sections, we're going to build and run a Trick-based cannonball simulation.
 
 ---
- 
+
 <a id=organizing-the-simulation-code-in-directories></a>
 ### Organizing the Simulation Code in Directories
 
@@ -45,7 +45,7 @@ We'll begin by creating a directory system to hold our simulation source code:
 ```
 
 ---
- 
+
 <a id=representing-the-cannonball></a>
 ### Representing the Cannonball
 
@@ -126,7 +126,7 @@ structure member. These are specially formatted comments that are parsed by Tric
 
 The comment at the top of the file, containing the keyword `PURPOSE:` (the colon
 is part of the keyword) is called a "Trick header". The presence of a Trick
-header lets Trick know that it should scan the file to collect information about 
+header lets Trick know that it should scan the file to collect information about
 the data types it contains. The full Trick header syntax will be detailed later, for
 now, `PURPOSE:` is all that is necessary.
 
@@ -144,7 +144,7 @@ These are each described in **Figure 2** and in the sections below.
 **Figure 2 - Data Member Comments**
 
 ---
- 
+
 <a id=the-input_output-io-specification></a>
 #### The Input/Output (I/O) Specification
 
@@ -180,7 +180,7 @@ unit-composition, the ability to compose unit specifications from previously
 defined unit specifications (for example: m/s, kg.m/s^2). Unlike the previous
 unit conversion, its units database is much more substantial, it's more
 extensible, its design is more capable, and it supports Unicode characters in
-unit specifications. 
+unit specifications.
 
 Below, we are going to see how to specify commonly needed unit specifications
 for our Trick simulations. But, we are not going to describe the full capability
@@ -202,7 +202,7 @@ specification examples:
 
 Note the operators `/` (division), `.`(multiplication), `^2`(square), and
 `^3`(cube) for composing unit specs.
- 
+
 #### Scaling Units With Unit Prefixes
 
 Unit prefixes, listed in the table `Unit Prefixes`, below can also be prepended
@@ -230,7 +230,7 @@ lists Unicode characters that can be used in units specifications.
 
 <a id=unicode-characters-used-in-units-specifications></a>
 ### Unicode Characters Used in Units Specifications
-| Character | Unicode Number | Unicode Name          | 
+| Character | Unicode Number | Unicode Name          |
 |-----------|----------------| ----------------------|
 | &#xB0;    | U+00B0         | Degree Sign           |
 | &#xB2;    | U+00B2         | Superscript Two       |
@@ -252,7 +252,7 @@ In Trick, a unit specification of "--" means *unit-less*. If your variable
 doesn't have units, use "--" as the unit specification.
 
 ---
- 
+
 <a id=initializing-the-cannonball-simulation></a>
 ### Initializing the Cannonball Simulation
 
@@ -265,14 +265,14 @@ Trick based simulations perform a three-part initialization of simulation
 variables. The first part runs "**default-data**" jobs, that is, it calls one or
 more user-provided C functions, whose purpose is to set default values for the
 simulation's variables. In the second initialization step, Trick executes the
-simulation's Python "**input file**". Variable assignments can be made in the input file. 
+simulation's Python "**input file**". Variable assignments can be made in the input file.
 If a parameter value isn't set in the input file, its default value is used. In the third and final
 initialization step, Trick runs "**initialization**" jobs. These perform any
 final initialization calculations, needed prior to running the sim.
 
 The two functions in the listing below will serve as the default-data and
 initialization jobs for our cannonball simulation. These are the functions for
-which we created the prototypes in the cannon.h header file. 
+which we created the prototypes in the cannon.h header file.
 
 We'll create the python input file in a later section.
 
@@ -308,17 +308,17 @@ int cannon_default_data( CANNON* C ) {
 
 /* initialization job */
 int cannon_init( CANNON* C) {
-   
+
     C->vel0[0] = C->init_speed*cos(C->init_angle);
     C->vel0[1] = C->init_speed*sin(C->init_angle);
 
-    C->vel[0] = C->vel0[0] ; 
-    C->vel[1] = C->vel0[1] ; 
+    C->vel[0] = C->vel0[0] ;
+    C->vel[1] = C->vel0[1] ;
 
     C->impactTime = 0.0;
     C->impact = 0.0;
 
-    return 0 ; 
+    return 0 ;
 }
 ```
 
@@ -329,8 +329,8 @@ executable.
 
 * Both functions' arguments have a pointer to the CANNON data-type which was defined in `cannon.h`.
 
-* Both functions return an **int**. Returning 0 indicates success. Non-zero indicates failure. 
-The return values can optionally be used (by setting trick\_ret in the S\_define) to terminate the simulation. 
+* Both functions return an **int**. Returning 0 indicates success. Non-zero indicates failure.
+The return values can optionally be used (by setting trick\_ret in the S\_define) to terminate the simulation.
 
 ```bash
 % cd $HOME/trick_sims/SIM_cannon_analytic/models/cannon/src
@@ -342,7 +342,7 @@ Type in the contents of **Listing 3** and save.
 <a id=updating-the-cannonball-state-over-time></a>
 ### Updating The Cannonball State Over Time
 
-Trick's job scheduler provides a **"Scheduled"** job type for periodically calling functions when the sim is in RUN (cyclic) mode. 
+Trick's job scheduler provides a **"Scheduled"** job type for periodically calling functions when the sim is in RUN (cyclic) mode.
 
 In the case of our cannonball simulation, where there is an analytical solution, we can
 calculate the the cannonball state by evaluating a function at each time step.
@@ -469,7 +469,7 @@ int cannon_shutdown( CANNON* C) {
 
 To automate the build process of a Trick based simulation, Trick needs to
 know user source code locations, data types, functions, variables and scheduling
-requirements of a simulations models. This starts with the simulation
+requirements of a simulation's models. This starts with the simulation
 definition file (**S_define**), an example of which, that we will use to define
 our Cannonball simulation is shown in Listing 7, below.
 
@@ -787,7 +787,7 @@ displayed on the terminal.
 IMPACT: t = 5.096839959, pos[0] = 220.699644186
 
 ========================================
-      Cannon Ball State at Shutdown     
+      Cannon Ball State at Shutdown
 t = 5.2
 pos = [220.699644186, 0.000000000]
 vel = [0.000000000, 0.000000000]
