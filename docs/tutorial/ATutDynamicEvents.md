@@ -49,8 +49,8 @@ A dynamic-event job is called periodically, after each integration step.
 Its job is to detect when the simulation state crosses a user-defined
 event boundary, to take control of integration to find the exact event state
 and time, and finally to perform some action as a result. It does
-this using the Trick's ```regula_falsi()``` function and ```REGULA_FALSI``` 
-data-type to implement the 
+this using the Trick's ```regula_falsi()``` function and ```REGULA_FALSI```
+data-type to implement the
 [False position method](https://en.wikipedia.org/wiki/False_position_method).
 
 <a id=finding-events-with-regula-falsi></a>
@@ -61,9 +61,9 @@ It's job is to:
 
 1. monitor the simulation state produced by each integration step,
 2. detect when the state crosses a specified event boundary, and
-3. guide Trick's integration scheduler to find that event. 
+3. guide Trick's integration scheduler to find that event.
 
-Progress toward finding the event state is recorded in a ```REGULA_FALSI``` 
+Progress toward finding the event state is recorded in a ```REGULA_FALSI```
 variable.
 
 The function ```cannon_impact()```, listed below is the dynamic event job
@@ -76,13 +76,13 @@ function that we'll use for our cannonball simulation.
 double cannon_impact( CANNON* C ) {
     double tgo ; /* time-to-go */
     double now ; /* current integration time. */
-    
+
     C->rf.error = C->pos[1] ;              /* Specify the event boundary. */
     now = get_integ_time() ;               /* Get the current integration time */
-    tgo = regula_falsi( now, &(C->rf) ) ;  /* Estimate remaining integration time. */ 
+    tgo = regula_falsi( now, &(C->rf) ) ;  /* Estimate remaining integration time. */
     if (tgo == 0.0) {                      /* If we are at the event, it's action time! */
         now = get_integ_time() ;
-        reset_regula_falsi( now, &(C->rf) ) ; 
+        reset_regula_falsi( now, &(C->rf) ) ;
         C->impact = 1 ;
         C->impactTime = now ;
         C->vel[0] = 0.0 ; C->vel[1] = 0.0 ;
@@ -146,14 +146,14 @@ to ```Any```, because the cannonball doesn't start below the ground.
 
 * ```REGULA_FALSI.error_tol```
 
-To specify the how small the error should be before declaring success, set 
+To specify the how small the error should be before declaring success, set
 ```REGULA_FALSI.error_tol```. The default error tolerance is 1.0e-15.
 
 <a id=calling-regula-falsi></a>
 ### Calling regula_falsi()
 
 Given the current integration time, from ```get_integ_time()```, and a pointer
-to the ```REGULA_FALSI``` variable, ```regula_falsi()``` returns an estimate 
+to the ```REGULA_FALSI``` variable, ```regula_falsi()``` returns an estimate
 of amount of integration time necessary to reach the event.
 
 When the estimate (tgo in our example) is equal to 0.0, we've found the event.
@@ -162,9 +162,9 @@ At this point, the actions meant to result from the event should be performed.
 In the action block, the first thing you'll want to do is the get the current
 simulation time. This is the event time. Then you'll want to reset the
 ```REGULA_FALSI``` object to it's default state with ```reset_regula_falsi()```.
-After do whatever needs to happen as a result of the event. In
+After doing whatever needs to happen as a result of the event. In
 our cannon ball simulation, we want the ball to stop moving when it hits the
-ground. So, we set its state-derivatives to zero. 
+ground. So, we set its state-derivatives to zero.
 
 If we had wanted our ball to bounce instead of just stopping, we
 could instead have changed the balls velocity vector to account for the rebound,
@@ -179,7 +179,7 @@ its normal behavior of integrating from the current state to the next integer
 multiple of the integloop time step.
 
 <a id=updating-our-cannonball-simulation></a>
-## Updating Our Cannonball Simulation 
+## Updating Our Cannonball Simulation
 
 ### Step 1 - Modifications to ```cannon.h```
 
