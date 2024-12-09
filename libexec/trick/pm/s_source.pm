@@ -39,7 +39,7 @@ sub s_source($) {
     print S_SOURCE_H "
 /**
 PURPOSE:
-    (Contains sim ojbects)
+    (Contains sim objects)
 */
 
 #ifndef __S_SOURCE_HH__
