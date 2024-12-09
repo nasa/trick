@@ -159,7 +159,7 @@ elsif ( $build_type eq so )
 if ($build_s_source)
 {
     print "Building S_source.hh\n" ;
-    $make_s_source = "python3 $my_path../share/trick/makefiles/build_trickify_S_source_hh.py" ;
+    $make_s_source = "python3 $my_path../share/trick/pymods/trick/build_trickify_S_source_hh.py" ;
     print(`$make_s_source`) ;
 }
 
@@ -167,7 +167,7 @@ if ($build_s_source)
 if ($build_trickify_src_list and $full_build)
 {
     print "Building trickify_src_list\n" ;
-    $make_src_list = "python3 $my_path../share/trick/makefiles/build_trickify_src_list.py" ;
+    $make_src_list = "python3 $my_path../share/trick/pymods/trick/build_trickify_src_list.py" ;
     print(`$make_src_list`) ;
 }
 
@@ -213,7 +213,7 @@ if ($full_build)
 if($build_trickify_obj_list and $full_build)
 {
     print "Building trickify_obj_list\n" ;
-    $make_obj_list = "python3 $my_path../share/trick/makefiles/build_trickify_obj_list.py" ;
+    $make_obj_list = "python3 $my_path../share/trick/pymods/trick/build_trickify_obj_list.py" ;
     print(`$make_obj_list`) ;
 }
 
