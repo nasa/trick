@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.Desktop;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
@@ -30,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.UnknownHostException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.NotYetConnectedException;
@@ -241,6 +243,18 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     }
 
     @Action
+    public void openWiki() {
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            try {
+                Desktop.getDesktop().browse(new URI("https://nasa.github.io/trick/index"));
+            }
+            catch(Exception e) {
+                System.out.println("Exception occurred while opening wiki: " + e.getMessage());
+            }
+        }
+    }
+
+    @Action
     public void freezeAt() {
         actionController.handleFreezeAt(simState.getExecOutTime(), getMainFrame());
     }
@@ -406,6 +420,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     public void getInitializationPacket() {    	
         String simRunDir = null;
         String[] results = null;      
+        boolean masterslave_enabled;
         try {
 			String errMsg = "Error: SimControlApplication:getInitializationPacket()";
             try {
@@ -445,6 +460,10 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 
             simState = new SimState();
 
+            commandSimcom.put("trick.var_exists(\"trick_master_slave.master.num_slaves\")");
+            results = commandSimcom.get().split("\t");
+            masterslave_enabled = results[1].equals("1");
+
             commandSimcom.put("trick.var_set_client_tag(\"SimControl\")\n");
             commandSimcom.put("trick.var_add(\"trick_sys.sched.sim_start\") \n" +
             		          "trick.var_add(\"trick_sys.sched.terminate_time\") \n" +
@@ -452,9 +471,13 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                               "trick.var_add(\"trick_cmd_args.cmd_args.default_dir\") \n" +
                               "trick.var_add(\"trick_cmd_args.cmd_args.cmdline_name\") \n" +
                               "trick.var_add(\"trick_cmd_args.cmd_args.input_file\") \n" +
-                              "trick.var_add(\"trick_cmd_args.cmd_args.run_dir\") \n" +
-                              "trick.var_add(\"trick_master_slave.master.num_slaves\") \n" +
-                              "trick.var_send() \n" +
+                              "trick.var_add(\"trick_cmd_args.cmd_args.run_dir\") \n");
+            
+            if (masterslave_enabled) {
+                commandSimcom.put("trick.var_add(\"trick_master_slave.master.num_slaves\") \n");
+            }
+
+            commandSimcom.put("trick.var_send() \n" +
                               "trick.var_clear() \n");
 
             results = commandSimcom.get().split("\t");
@@ -470,7 +493,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 simStopTime = terminateTime/execTimeTicValue - simStartTime;
             }
 
-            slaveCount = Integer.parseInt(results[8]);
+            slaveCount = masterslave_enabled ? Integer.parseInt(results[8]) : 0;
 
             simRunDirField = new JTextField[slaveCount+1];
             overrunField = new JTextField[slaveCount+1];
@@ -970,9 +993,11 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 "---",
                 "startMTV",             
                 "---",
-                "throttle"
+                "throttle",             
+                "---",
+                "openWiki"
             };
-        JToolBar toolBar = new JToolBar();      
+        JToolBar toolBar = new JToolBar(); 
         for (String actionName : toolbarActionNames) {
             if (actionName.equals("---")) {
                 toolBar.addSeparator();

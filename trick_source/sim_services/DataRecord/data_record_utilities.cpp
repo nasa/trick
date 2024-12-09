@@ -79,6 +79,20 @@ extern "C" Trick::DataRecordGroup * get_data_record_group( std::string in_name )
     return NULL ;
 }
 
+extern "C" Trick::DataRecordGroup * get_data_record_group_by_idx( int in_idx ) {
+    if ( the_drd != NULL ) {
+        return the_drd->get_group(in_idx) ;
+    }
+    return NULL ;
+}
+
+extern "C" int get_num_data_record_groups() {
+   if ( the_drd != NULL ) {
+        return the_drd->get_groups_size() ;
+    }
+    return 0 ;
+}
+
 extern "C" int set_max_size_record_group (const char * in_name, uint64_t bytes ) {
     if ( the_drd != NULL ) {
     return the_drd->set_group_max_file_size(in_name, bytes ) ;

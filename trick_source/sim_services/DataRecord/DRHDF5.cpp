@@ -16,7 +16,7 @@ PROGRAMMERS:
 #include <string.h>
 
 
-Trick::DRHDF5::DRHDF5( std::string in_name ) : Trick::DataRecordGroup(in_name) {
+Trick::DRHDF5::DRHDF5( std::string in_name, Trick::DR_Type dr_type ) : Trick::DataRecordGroup(in_name, dr_type) {
     register_group_with_mm(this, "Trick::DRHDF5") ;
             
         

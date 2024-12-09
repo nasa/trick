@@ -115,7 +115,8 @@ public class SearchPanel extends JXPanel {
                 listModel.clear();
                 searcher.search(textField.getText().trim(),
                   caseSensitiveCheckBox.isSelected(),
-                  regularExpressionCheckBox.isSelected());
+                  regularExpressionCheckBox.isSelected(),
+                  greedySearchCheckBox.isSelected());
                 if (searcher.elementCount == 0) {
                     progressBar.setIndeterminate(true);
                 }
@@ -134,6 +135,12 @@ public class SearchPanel extends JXPanel {
     JCheckBox regularExpressionCheckBox = new JCheckBox("Regular Expression") {{
         setName("regularExpressionCheckBox");
         setToolTipText("Toggle regular expression searching.");
+    }};
+
+    /** toggles case-insensitive searching */
+    JCheckBox greedySearchCheckBox = new JCheckBox("Greedy Search") {{
+        setName("greedySearchCheckBox");
+        setToolTipText("Toggle multi-threaded search (Warning: may cause overruns).");
     }};
 
     /** search results list model */
@@ -227,6 +234,7 @@ public class SearchPanel extends JXPanel {
                 setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
                 add(caseSensitiveCheckBox);
                 add(regularExpressionCheckBox);
+                add(greedySearchCheckBox);
             }});
         }}, constraints);
 
@@ -306,6 +314,7 @@ public class SearchPanel extends JXPanel {
         textField.setEnabled(enabled);
         caseSensitiveCheckBox.setEnabled(enabled);
         regularExpressionCheckBox.setEnabled(enabled);
+        greedySearchCheckBox.setEnabled(enabled);
         list.setEnabled(enabled);
         list.setComponentPopupMenu(enabled ? popupMenu : null);
     }
