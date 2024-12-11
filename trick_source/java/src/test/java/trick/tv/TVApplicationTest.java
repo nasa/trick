@@ -18,9 +18,6 @@ import org.junit.Test;
 import trick.common.ApplicationTest;
 import trick.common.TestUtils;
 import trick.tv.fixtures.TVFixture;
-import static trick.tv.fixtures.TVFixture.CASE_SENSITIVE_ON;
-import static trick.tv.fixtures.TVFixture.GREEDY_SEARCH_ON;
-import static trick.tv.fixtures.TVFixture.REG_EXPRESSION_ON;
 
 /**
  * 
@@ -40,6 +37,12 @@ public class TVApplicationTest extends ApplicationTest {
 	private TVFixture tv_fix;
 	private MockTVApplication tv_app;
 
+	/**
+	 * Before Running the Test Suite, prior to the constructor being called:
+	 * Compiles and runs SIM_test_dr in the trick/test/ directory. 
+	 *   - Change String SIM_NAME to compile & run another simulation in the 
+	 * 	   trick/test/ folder
+	 */
     @BeforeClass
     public static void onSetUpBeforeClass() {
 		assumeThat(TestUtils.compileTestSim(SIM_NAME))
@@ -52,6 +55,10 @@ public class TVApplicationTest extends ApplicationTest {
 			.isNotNull();
     }
 
+	/**
+	 * After Running the Test Suite
+	 * Kill the running simulation
+	 */
 	@AfterClass
 	public static void onCleanUpAfterClass() {
 		if(sim_process != null && sim_process.isAlive()) {
@@ -59,6 +66,12 @@ public class TVApplicationTest extends ApplicationTest {
 		}
 	}
 
+	/**
+	 * Set Up Before Each Test
+	 * Start the application using the arguments to provide a host name and port number.
+	 * Save the application instance in a variable
+	 * Create a test fixture using the instance
+	 */
     @Override
     protected void onSetUp() {        
         application(MockTVApplication.class)
@@ -72,33 +85,12 @@ public class TVApplicationTest extends ApplicationTest {
 		tv_fix = new TVFixture(robot(), tv_app);
     }
 
-	@Test
-	public void testGeneric() {
-		tv_fix.selectVar("drx.drt.uintB.var1");
-		tv_fix.setSearchOptions(CASE_SENSITIVE_ON | REG_EXPRESSION_ON | GREEDY_SEARCH_ON);
-		tv_fix.enterQuery("var1\n");
-		sleep(500);
-
-		System.out.println("SEARCH RESULTS");;
-		String[] results = tv_fix.getSearchResults();
-		for (String string : results) {
-			System.out.println(string);
-			tv_fix.selectVar(string);
-			sleep(250);
-		}
-
-		System.out.println("\nSEL VARS");
-		String[][] table = tv_fix.getSelectedVars();
-		for (String[] strings : table) {
-			for (String string : strings) {
-				System.out.print(string + "\t");
-			}
-			System.out.println();
-		}
-
-		sleep(5000);
-	}
-
+	/**
+	 * Purpose: Select variables and verify that the expected values are in the table
+	 * Procedures:
+	 *   1) Select each of the mentioned variables
+	 *   2) Compare the table values to the benchmark matrix SEL_VARS
+	 */
     @Test
     public void testSelectVars() {
         // ARRANGE
@@ -139,6 +131,12 @@ public class TVApplicationTest extends ApplicationTest {
 		}
     }
 
+	/**
+	 * Purpose: Do a basic test of the search panel to verify that it is enabled
+	 * Procedure:
+	 *   1) Use the search panel to find any variables that have 'var1' in their name.
+	 *   2) Compare the search results with the benchmark SEARCH_VARS
+	 */
     @Test
     public void testSearchVars() {
         // ARRANGE
@@ -164,6 +162,14 @@ public class TVApplicationTest extends ApplicationTest {
             assertThat(found_vars[i]).isEqualTo(SEARCH_VARS[i]);
     }
 
+	/**
+	 * Purpose: Validate that variable values can be changed by editing the table
+	 * Procedures:
+	 *   1) Select each of the variables within SEL_VARS
+	 *   2) Change the values of each of the selected variables
+	 *   3) Verify that the table contains the expected values
+	 *   4) Return the variables back to their original values
+	 */
 	@Test 
 	public void testEditTable() {
 		// ARRANGE
@@ -205,6 +211,15 @@ public class TVApplicationTest extends ApplicationTest {
 		}
 	}
 
+	/**
+	 * Purpose: Test the save functionality. Specifically that tied to the menu item.
+	 * Procedures:
+	 *   1) Select the list of variables
+	 *   2) Click the Save menu item within the File menu
+	 *   3) Enter the path where the new file will be saved to (see File SAVED_OUTPUT)
+	 *   4) Compare the contents of the saved file to the benchmark file (see File EXPECTED_OUTPUT)
+	 *      - If the contents aren't the same, copy the saved file to the FAILED_TEST file for debugging
+	 */
     @Test
     public void testSave() {
         // ARRANGE
@@ -251,6 +266,13 @@ public class TVApplicationTest extends ApplicationTest {
 			.isTrue();
     }
 
+	/**
+	 * Purpose: Test the Open functionality. It should just add in the variables without overwriting the values
+	 * Procedures:
+	 *   1) Click the Open menu item
+	 *   2) Enter the path where the file will be loaded from (see File SAVED_FILE)
+	 *   3) Compare the table after loading to the expected in SEL_VARS.
+	 */
     @Test
     public void testLoadVariables() {
         // ARRANGE
@@ -279,6 +301,15 @@ public class TVApplicationTest extends ApplicationTest {
         assertThat2DArraysAreEqual(res_vars, SEL_VARS);
     }
 
+	/**
+	 * Purpose: Test the Open & Set menu item. It should update the selected variables and their values
+	 * Procedures:
+	 *   1) Click the Open & Set menu item
+	 *   2) Open the file specified by SAVED_FILE
+	 *   3) Compare the table after loading to the expected in SEL_VARS. 
+	 * 		- The variable values will be different from the default simulation values
+	 *   4) Use the Open & Set menu item to reload the orignal values using the ORIGINAL_VALS_FILE variable
+	 */
     @Test
     public void testLoadVariables_SetValues() {
         // ARRANGE
@@ -311,6 +342,16 @@ public class TVApplicationTest extends ApplicationTest {
 		sleep(500);
     }
 
+	/**
+	 * Purpose: Test the Set menu item. It should set variable values without changing the selected variables
+	 * Procedures:
+	 *   1) Click the Set menu item
+	 *   2) Use SAVED_FILE to load the values
+	 *   3) Record the state of the variable table immediately after loading the file (res_vars1)
+	 *   4) Select the variables within SEL_VARS
+	 *   5) Verify that res_vars1 is empty
+	 *   6) Verify that the variable values have changed to the expected
+	 */
     @Test
     public void testSetValues() {
         // ARRANGE
@@ -354,6 +395,16 @@ public class TVApplicationTest extends ApplicationTest {
 		sleep(500);
     }
 
+	/**
+	 * Purpose: Test the toggle for turning monitoring on and off
+	 * Procedures: 
+	 *   1) Toggle monitoring off
+	 *   2) Select variable "drx.drt.a"
+	 *   3) Save the variable entry in the array var_no_monitor
+	 *   4) Toggle monitoring back on
+	 *   5) Save the updated entry in the array var_monitor
+	 *   6) compare both arrays to their expected benchmarks
+	 */
 	@Test 
 	public void testMonitorToggle() {
 		// ARRANGE 
@@ -383,6 +434,10 @@ public class TVApplicationTest extends ApplicationTest {
 
 	}
 
+	/**
+	 * Find a free port, write the number to a file called port.info
+	 * within the RUN_gui_test directory. Return the chosen port
+	 */
 	public static int getOpenPort() {
 		String port = "39595";
 		File port_info;

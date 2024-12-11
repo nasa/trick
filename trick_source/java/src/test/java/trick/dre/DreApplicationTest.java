@@ -53,6 +53,15 @@ public class DreApplicationTest extends ApplicationTest {
         dre_fix = new DreFixture(robot(), dre_app);
     }
 
+    /**
+     * Purpose: Test changing the selected format 
+     * Procedures:
+     *   1) Select ASCII and save the selected options within ascii_sel
+     *   2) Select HDF5 and save the selected options within hdf5_sel
+     *   3) Select Binary and save the selected options within binary_sel
+     *   4) Verify that each of the saved selected options equals the 
+     *      expected benchmarks (BINARY_EXP, ASCII_EXP, HDF5_EXP)
+     */
     @Test
     public void testFormatOptions() {
         // ARRANGE
@@ -82,6 +91,15 @@ public class DreApplicationTest extends ApplicationTest {
         assertThat(hdf5_sel).isEqualTo(HDF5_EXP);
     }
 
+    /**
+     * Purpose: Test changing the selected frequency 
+     * Procedures:
+     *   1) Select Changes and save the selected options within changes_sel
+     *   2) Select Step and save the selected options within step_sel
+     *   3) Select Always and save the selected options within always_sel
+     *   4) Verify that each of the saved selected options equals the 
+     *      expected benchmarks (ALWAYS_EXP, CHANGES_EXP, STEP_EXP)
+     */
     @Test
     public void testFrequencyOptions() {
         // ARRANGE
@@ -111,6 +129,15 @@ public class DreApplicationTest extends ApplicationTest {
         assertThat(step_sel).isEqualTo(STEP_EXP);
     }
 
+    /**
+     * Purpose: Test changing the selected buffer type 
+     * Procedures:
+     *   1) Select No Buffer and save the selected options within no_buff_sel
+     *   2) Select Ring Buffer and save the selected options within ring_sel
+     *   3) Select Buffer and save the selected options within buffer_sel
+     *   4) Verify that each of the saved selected options equals the 
+     *      expected benchmarks (BUFFER_EXP, NO_BUFF_EXP, RING_EXP)
+     */
     @Test
     public void testBufferOptions() {
         // ARRANGE
@@ -140,6 +167,14 @@ public class DreApplicationTest extends ApplicationTest {
         assertThat(ring_sel).isEqualTo(RING_EXP);
     }
 
+    /**
+     * Purpose: Test toggling single precision on/off 
+     * Procedures:
+     *   1) Toggle single precision on and save the selected options within sp_on_sel
+     *   2) Toggle single precision off and save the selected options within sp_off_sel
+     *   3) Verify that each of the saved selected options equals the 
+     *      expected benchmarks (SP_OFF_EXP, SP_ON_EXP)
+     */
     @Test
     public void testSinglePrecOptions() {
         // ARRANGE
@@ -164,6 +199,13 @@ public class DreApplicationTest extends ApplicationTest {
         assertThat(sp_on_sel).isEqualTo(SP_ON_EXP);
     }
 
+	/**
+	 * Purpose: Select variables and verify that the Selected Variable
+     *          Panel shows the expected output
+	 * Procedures:
+	 *   1) Select each contents of the Selected Variables panel to the
+     *      SEL_VARS array
+	 */
     @Test
     public void testSelectVars() {
         // ARRANGE
@@ -191,6 +233,12 @@ public class DreApplicationTest extends ApplicationTest {
             assertThat(res_vars[i]).isEqualTo(SEL_VARS[i]);
     }
 
+    /**
+     * Purpose: Do a basic test of the search panel to verify that it is enabled
+	 * Procedure:
+	 *   1) Use the search panel to find any variables that have 'var1' in their name.
+	 *   2) Compare the search results with the benchmark SEARCH_VARS
+     */
     @Test
     public void testSearchVars() {
         // ARRANGE
@@ -216,6 +264,14 @@ public class DreApplicationTest extends ApplicationTest {
             assertThat(found_vars[i]).isEqualTo(SEARCH_VARS[i]);
     }
 
+    /**
+     * Purpose: Test inputing information into the toolbar
+     * Procedures:
+     *   1) Enter a group name
+     *   2) Enter a cycle
+     *   3) Set the maximum file size and the unit of measurement
+     *   4) Parse the settings output to verify the correct information was processed
+     */
     @Test
     public void testToolbar() {
         // ARRANGE
@@ -267,6 +323,23 @@ public class DreApplicationTest extends ApplicationTest {
                 .isTrue();
     }
 
+    /**
+     * Purpose: Test the save functionality
+     * Procedures:
+     *   1) Enter a group name
+     *   2) Enter a cycle
+     *   3) Set the maximum file size and the unit of measurement
+     *   4) Set the the format as ASCII, the frequency as Changes,
+     *      the buffer as No Buffer, and Single Precision on
+     *   5) Select the various different variable types (drx.drt.charB,
+     *      drx.drt.intB, drx.drt.shortB, drx.drt.ucharB, drx.drt.uintB, 
+     *      drx.drt.ushortB, drx.drt.mixB)
+     *   6) Make sure there isn't any remaining test result file from 
+     *      previous test runs
+     *   7) Click the Save menu item
+     *   8) Save the .dr file to test_result.dr
+     *   9) Compare test_result.dr to the presaved benchmark dre_test_ascii.dr
+     */
     @Test
     public void testSaveDataRecordGroup() {
         // ARRANGE
@@ -323,6 +396,20 @@ public class DreApplicationTest extends ApplicationTest {
         }
     }
 
+    /**
+     * Purpose: Test opening .dr files
+     * Procedures:
+     *   1) Click the Open menu item
+     *   2) Get the selected options and variables and store them in 
+     *      sel_opts and sel_vars, respectively
+     *   3) Get the settings output and store it in the settings array
+     *   4) Verify that the expected options are selected by comparing
+     *      sel_opts with the benchmark EXP_OPTIONS
+     *   5) Parse the settings array and ensure that name, cycle, and 
+     *      max file size are as expected.
+     *   6) Verify that the selected variables within sel_vars is equal
+     *      to the expected within SEL_VARS
+     */
     @Test
     public void testLoadDataRecordGroup() {
         // ARRANGE
@@ -337,12 +424,7 @@ public class DreApplicationTest extends ApplicationTest {
         final String[] VAR_TYPES = {"charB", "intB", "shortB", "ucharB", "uintB", "ushortB", "mixB"};
 
         int sel_opts;
-        String name, cycle, size;
         String[] sel_vars, settings;
-        Size unit;
-        boolean setGrpName = false,
-                setCycle = false,
-                setSize = false;
         
         //ACT
         dre_fix.openMenuItem(TEST_DR.getAbsolutePath());
@@ -360,13 +442,10 @@ public class DreApplicationTest extends ApplicationTest {
 
         for(String line : settings) {
             if (line.contains("drg.append")) {
-                setGrpName = true;
                 assertThat(line).contains(EXP_NAME);
             } else if (line.contains("set_cycle")) {
-                setCycle = true;
                 assertThat(line).contains(EXP_CYCLE);
             } else if(line.contains("set_max_file_size")) {
-                setSize = true;
                 assertThat(line).contains(EXP_SIZE)
                                 .contains(EXP_UNIT.TAG);
             }

@@ -101,31 +101,61 @@ public class SimControlApplicationTest extends ApplicationTest {
     // JButton Tests
     //--------------------
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testConnectButton() {
         testJButton("Connect", ActionID.CONNECT);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testStartButton() {
         testJButton("Start", ActionID.START);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testFreezeButton() {
         testJButton("Freeze", ActionID.FREEZE);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testStepButton() {
         testJButton("Step", ActionID.STEP);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testShutdownButton() {
         testJButton("Shutdown", ActionID.SHUTDOWN);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testExitButton() {
         testJButton("Exit", ActionID.EXIT);
@@ -135,16 +165,31 @@ public class SimControlApplicationTest extends ApplicationTest {
     // JToggleButton Tests
     //-----------------------
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testDumpChkpntButton() {
         testButtonToggleTwice("Dump Chkpnt", ActionID.DUMP_CHKPNT);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testLoadChkpntButton() {
         testButtonToggleTwice("Load Chkpnt", ActionID.LOAD_CHKPNT);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testLiteToggle() {
         Frame frame = mainFrame.target();
@@ -159,11 +204,21 @@ public class SimControlApplicationTest extends ApplicationTest {
         assertThat(toggle2).isEqualTo(SimControlApplication.FULL_SIZE);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testDataRecToggle() {
         testButtonToggleTwice("Data Rec On", "Data Rec Off", ActionID.RECORDING);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testRealtimeToggle() {
         testButtonToggleTwice("RealTime On", ActionID.REALTIME);
@@ -173,6 +228,11 @@ public class SimControlApplicationTest extends ApplicationTest {
     // Status Message Pane Tests
     //-----------------------------
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testStatusMsgPane() {
         // ARRANGE
@@ -188,6 +248,11 @@ public class SimControlApplicationTest extends ApplicationTest {
         assertThat(editorFixture.target().getText());
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testFindPanelButtons() {
         // ARRANGE
@@ -255,6 +320,11 @@ public class SimControlApplicationTest extends ApplicationTest {
     // File Menu Tests
     //--------------------
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testFontChange() {
         // ARRANGE
@@ -299,6 +369,11 @@ public class SimControlApplicationTest extends ApplicationTest {
         assertThat(actualFont).isEqualTo(expFont);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testSaveStatusMessage() {
         // ARRANGE
@@ -315,6 +390,11 @@ public class SimControlApplicationTest extends ApplicationTest {
         assertThat(action).isEqualTo(ActionID.SAVE_STATUS);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testClearStatusMessage() {
         // ARRANGE
@@ -334,8 +414,13 @@ public class SimControlApplicationTest extends ApplicationTest {
         assertThat(editorFixture.text()).isEqualTo("");
     }
 
-    @Test
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     /*  Not sure if I should test each of the LookAndFeel buttons  */
+    @Test
     public void testLookAndFeel() {
         // ARRANGE
         JMenuItemFixture lafItem = mainFrame.menuItem("lookAndFeelMenuItem");
@@ -367,6 +452,11 @@ public class SimControlApplicationTest extends ApplicationTest {
     // Action Menu Tests
     //--------------------
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testStartTrickViewMenuItem() {
         // ARRANGE
@@ -383,6 +473,11 @@ public class SimControlApplicationTest extends ApplicationTest {
         assertThat(loggedAction).isEqualTo(TV_ACTION);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testStartMalfunctionTrickViewMenuItem() {
         // ARRANGE
@@ -399,6 +494,11 @@ public class SimControlApplicationTest extends ApplicationTest {
         assertThat(loggedAction).isEqualTo(MTV_ACTION);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testFreezeAtMenuItem() {
         // ARRANGE
@@ -415,6 +515,11 @@ public class SimControlApplicationTest extends ApplicationTest {
         assertThat(loggedAction).isEqualTo(FREEZE_AT_ACTION);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testFreezeInMenuItem() {
         // ARRANGE
@@ -432,6 +537,11 @@ public class SimControlApplicationTest extends ApplicationTest {
 
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testCheckpointMenuItem() {
         // ARRANGE
@@ -448,6 +558,11 @@ public class SimControlApplicationTest extends ApplicationTest {
         assertThat(loggedAction).isEqualTo(CHKPNT_OBJ_ACTION);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testThrottleMenuItem() {
         // ARRANGE
@@ -468,6 +583,11 @@ public class SimControlApplicationTest extends ApplicationTest {
     // Toolbar Tests
     //--------------------
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testStartTrickViewButton() {
         final JButtonFixture TV_BUTTON = toolBarFixture.button("startTVButton");
@@ -476,6 +596,11 @@ public class SimControlApplicationTest extends ApplicationTest {
         testConnectedAction(TV_BUTTON, TV_ACTION);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testStartMalfunctionTrickViewButton() {
         final JButtonFixture MTV_BUTTON = toolBarFixture.button("startMTVButton");
@@ -484,6 +609,11 @@ public class SimControlApplicationTest extends ApplicationTest {
         testConnectedAction(MTV_BUTTON, MTV_ACTION);
     }
 
+    /**
+     * Purpose: 
+     * Procedures:
+     *   1) 
+     */
     @Test
     public void testThrottleButton() {
         final JButtonFixture THROTTLE_BUTTON = toolBarFixture.button("throttleButton");
