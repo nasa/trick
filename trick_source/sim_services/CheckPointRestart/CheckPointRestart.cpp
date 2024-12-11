@@ -336,7 +336,8 @@ void Trick::CheckPointRestart::load_checkpoint(std::string file_name) {
         
         message_publish(MSG_WARNING, msg_format.c_str(),
                         file_name.c_str(), simModeCharString(mode), mode);
-        
+        // If in RUN mode, this will freeze the simulation and notify the code to unfreeze later.
+	// To forbid loading a checkpoint in RUN mode, remove the following two lines and the second to last line in load_checkpoint_job()
         the_exec->freeze();
         auto_freeze = true;
     } 
