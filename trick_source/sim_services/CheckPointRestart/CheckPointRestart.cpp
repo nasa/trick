@@ -186,7 +186,7 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
     mode = the_exec->get_mode();
 
     if (mode == Run) {
-        std::string msg_format  = "WARNING: Saving a checkpoint outside of 'Freeze Mode' causes undefined behavior. ";
+        std::string msg_format  = "WARNING: Saving a checkpoint in 'Run Mode' may cause non-time homogeneous data. ";
                     msg_format += "Current Mode: %s (%d)\n";
         message_publish(MSG_WARNING, msg_format.c_str(),
                         simModeCharString(mode), mode);
