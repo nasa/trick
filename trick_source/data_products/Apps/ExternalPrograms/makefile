@@ -1,4 +1,4 @@
-CC            = gcc 
+CC           ?= gcc
 
 ifndef TRICK_HOST_CPU
 TRICK_HOST_CPU := $(shell trick-gte TRICK_HOST_CPU)
@@ -34,7 +34,7 @@ TRICK_CFLAGS += -Wall
 endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)
-CC = cc
+CC ?= cc
 LD_SHARED = $(CC) -bundle
 TRICK_CFLAGS += -Wall
 endif
