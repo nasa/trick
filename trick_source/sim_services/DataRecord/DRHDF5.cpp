@@ -75,7 +75,8 @@ int Trick::DRHDF5::format_specific_init() {
     param_units_id = H5PTcreate_fl(header_group, "param_units", s256, chunk_size, 1) ;
     // Create a packet table (PT) that stores each parameter's name.
     param_names_id =  H5PTcreate_fl(header_group, "param_names", s256, chunk_size, 1) ;
-
+          
+    parameters.clear();
     // Create a table for each requested parameter.
     for (ii = 0; ii < rec_buffer.size(); ii++) {
 
