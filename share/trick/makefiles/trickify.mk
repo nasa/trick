@@ -105,10 +105,15 @@ include $(dir $(lastword $(MAKEFILE_LIST)))Makefile.common
 BUILD_DIR := $(dir $(MAKE_OUT))
 PY_LINK_LIST := $(BUILD_DIR)trickify_py_link_list
 IO_LINK_LIST := $(BUILD_DIR)trickify_io_link_list
-LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
+OBJ_LINK_LIST := trickify_obj_list
+ifdef FULL_TRICKIFY_BUILD
+	LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
+else
+	LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
+endif
 ifneq ($(wildcard $(BUILD_DIR)),)
-    SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
-    IO_OBJECTS   := $(shell cat $(IO_LINK_LIST))
+	SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
+	IO_OBJECTS   := $(shell cat $(IO_LINK_LIST))
 endif
 
 TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
@@ -116,6 +121,15 @@ TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 
 # Ensure we can process all headers
 TRICK_EXT_LIB_DIRS := $(TRICKIFY_EXT_LIB_DIRS)
+
+UNAME := $(shell uname)
+ifeq ($(UNAME), Linux)
+	SHARED_OPTIONS := -shared
+else ifeq ($(UNAME), Darwin)
+	SHARED_OPTIONS := -dynamiclib -fPIC
+else
+	SHARED_OPTIONS := -shared
+endif
 
 .PHONY: all
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
@@ -125,7 +139,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
 	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $(LINK_LISTS))
 else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) -shared -o $@ $(LINK_LISTS))
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(SHARED_LIB_OPT) -o $@ $(LINK_LISTS))
 else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
 	$(call ECHO_AND_LOG,ar rcs $@ $(LINK_LISTS))
 endif
