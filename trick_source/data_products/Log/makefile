@@ -1,7 +1,7 @@
 
 include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
 
-CC       ?= c++
+CC        = c++ 
 
 ifndef TRICK_HOST_CPU
 TRICK_HOST_CPU := $(shell uname -s)

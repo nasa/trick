@@ -9,8 +9,8 @@ TRICK_HOST_TYPE := $(shell trick-gte TRICK_HOST_TYPE)
 endif
 
 
-CC  ?= gcc
-CPP ?= g++
+CC  = gcc
+CPP = g++
 
 CFLAGS = -g -Wall -I../include 
 

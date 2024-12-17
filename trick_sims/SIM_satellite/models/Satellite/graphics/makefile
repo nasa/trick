@@ -1,5 +1,5 @@
-CPP     ?= g++
-CC      ?= gcc
+CPP      = g++
+CC       = gcc
 
 ifeq ($(shell uname), Darwin)
        GL_LIBS  = -framework GLUT -framework OpenGL

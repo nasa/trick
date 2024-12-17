@@ -1,7 +1,7 @@
 
 RM = rm -rf
-CC ?= cc
-CPP ?= c++
+CC = gcc
+CPP = c++
 
 CFLAGS = -g -Wall -std=c++11 ${TRICK_CXXFLAGS}
 INCLUDE_DIRS = -Iinclude

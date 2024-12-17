@@ -1,6 +1,6 @@
 RM = rm -rf
-CC ?= cc
-CPP ?= c++
+CC = cc
+CPP = c++
 
 DECL_DIR = ..
 GTEST_DIR = ${HOME}/gtest-1.7.0
