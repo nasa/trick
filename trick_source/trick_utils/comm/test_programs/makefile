@@ -20,7 +20,7 @@ TRICK_HOST_TYPE := $(shell trick-gte TRICK_HOST_TYPE)
 endif
 
 
-CC = cc
+CC = cc 
 FLAGS =
 ifeq ($(TRICK_HOST_TYPE), Darwin)
  LIBS =
