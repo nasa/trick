@@ -106,10 +106,23 @@ BUILD_DIR := $(dir $(MAKE_OUT))
 PY_LINK_LIST := $(BUILD_DIR)trickify_py_link_list
 IO_LINK_LIST := $(BUILD_DIR)trickify_io_link_list
 OBJ_LINK_LIST := trickify_obj_list
+UNAME := $(shell uname)
 ifdef FULL_TRICKIFY_BUILD
-	LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
+	ifeq ($(UNAME), Linux)
+		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
+	else ifeq ($(UNAME), Darwin)
+		LINK_LISTS := $(IO_LINK_LIST) $(PY_LINK_LIST) $(OBJ_LINK_LIST)
+	else
+		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
+	endif
 else
-	LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
+	ifeq ($(UNAME), Linux)
+		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
+	else ifeq ($(UNAME), Darwin)
+		LINK_LISTS := $(IO_LINK_LIST) $(PY_LINK_LIST)
+	else
+		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
+	endif
 endif
 ifneq ($(wildcard $(BUILD_DIR)),)
 	SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
@@ -122,7 +135,6 @@ TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 # Ensure we can process all headers
 TRICK_EXT_LIB_DIRS := $(TRICKIFY_EXT_LIB_DIRS)
 
-UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 	SHARED_OPTIONS := -fPIC
 else ifeq ($(UNAME), Darwin)
