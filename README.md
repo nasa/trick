@@ -14,7 +14,7 @@
 <img src="https://github.com/nasa/trick/workflows/macOS/badge.svg?branch=master" alt="macOS" height=30px>
 </a>
 <a href="https://github.com/nasa/trick/actions?query=workflow%3A32-bit">
-<img src="https://github.com/nasa/trick/workflows/32-bit/badge.svg?branch=master" alt="32-bit" height=30px>
+<img src="https://github.com/nasa/trick/workflows/32-bit%20Oracle/badge.svg?branch=master" alt="32-bit" height=30px>
 </a>
 </p>
 
