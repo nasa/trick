@@ -141,6 +141,11 @@ ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
 else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
 	$(call ECHO_AND_LOG,$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) -o $@ $(LINK_LISTS))
 else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
+	@echo "-----Printing LS-----"
+	@ls
+	@echo "-----Printing LS build-----"
+	@ls build
+	@echo "-----Ending LS-----"
 	$(call ECHO_AND_LOG,ar rcs $@ $(LINK_LISTS))
 endif
 
