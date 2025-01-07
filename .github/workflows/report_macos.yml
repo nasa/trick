@@ -12,7 +12,7 @@ jobs:
       
     runs-on: ubuntu-latest
     steps:
-    - uses: dorny/test-reporter@v1
+    - uses: dorny/test-reporter@v4
       with:
         artifact: Trick_macos # artifact name
         name: Results_Trick_macos # Name of the check run which will be created
