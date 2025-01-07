@@ -111,7 +111,7 @@ ifdef FULL_TRICKIFY_BUILD
 	ifeq ($(UNAME), Linux)
 		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
 	else ifeq ($(UNAME), Darwin)
-		LINK_LISTS := $(IO_LINK_LIST) $(PY_LINK_LIST) $(OBJ_LINK_LIST)
+		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
 	else
 		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
 	endif
@@ -119,7 +119,7 @@ else
 	ifeq ($(UNAME), Linux)
 		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
 	else ifeq ($(UNAME), Darwin)
-		LINK_LISTS := $(IO_LINK_LIST) $(PY_LINK_LIST)
+		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
 	else
 		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
 	endif
