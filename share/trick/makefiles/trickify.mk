@@ -108,29 +108,9 @@ IO_LINK_LIST := $(BUILD_DIR)trickify_io_link_list
 OBJ_LINK_LIST := trickify_obj_list
 UNAME := $(shell uname)
 ifdef FULL_TRICKIFY_BUILD
-	ifeq ($(UNAME), Linux)
-		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
-	else ifeq ($(UNAME), Darwin)
-		ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
-			LINK_LISTS := $(IO_LINK_LIST) $(PY_LINK_LIST) $(OBJ_LINK_LIST)
-		else
-			LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
-		endif
-	else
-		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
-	endif
+	LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST) @$(OBJ_LINK_LIST)
 else
-	ifeq ($(UNAME), Linux)
-		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
-	else ifeq ($(UNAME), Darwin)
-		ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
-			LINK_LISTS := $(IO_LINK_LIST) $(PY_LINK_LIST)
-		else
-			LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
-		endif
-	else
-		LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
-	endif
+	LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
 endif
 ifneq ($(wildcard $(BUILD_DIR)),)
 	SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
@@ -155,19 +135,23 @@ endif
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
-	$(info $(call COLOR,Linking)    $@)
-ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
-	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $(LINK_LISTS))
-else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) -o $@ $(LINK_LISTS))
-else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
-	@echo "-----Printing LS-----"
-	@ls
-	@echo "-----Printing LS build-----"
-	@ls build
-	@echo "-----Ending LS-----"
-	$(call ECHO_AND_LOG,ar rcs $@ $(LINK_LISTS))
-endif
+	@if [ "$(TRICKIFY_BUILD_TYPE)" = "PLO" ] ; then \
+		$(LD) $(LD_PARTIAL) -o $@ $(LINK_LISTS) ; \
+	elif [ "$(TRICKIFY_BUILD_TYPE)" = "SHARED" ] ; then \
+		$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) -o $@ $(LINK_LISTS) ; \
+	elif [ "$(TRICKIFY_BUILD_TYPE)" = "STATIC" ] ; then \
+		export FILES= ; \
+		while read -r line ; do \
+			export FILES="$$FILES $$line" ; \
+		done < $(PY_LINK_LIST) ; \
+		while read -r line ; do \
+			export FILES="$$FILES $$line" ; \
+		done < $(IO_LINK_LIST) ; \
+		while read -r line ; do \
+			export FILES="$$FILES $$line" ; \
+		done < $(OBJ_LINK_LIST) ; \
+		ar rcs $@ $ $$FILES ; \
+	fi
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) .trick:
 	@mkdir -p $@
