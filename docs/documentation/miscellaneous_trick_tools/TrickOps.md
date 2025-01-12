@@ -423,6 +423,57 @@ if ret == 0:  # Successful generation
 Note that the number of runs to-be-generated is configured somewhere in the `input.py` code and this module cannot robustly know that information for any particular use-case. This is why `monte_dir` is a required input to several functions - this directory is processed by the module to understand how many runs were generated.
 
 
+## `send_hs` - TrickOps Helper Class for Parsing Simulation Diagnostics
+
+Each Trick simulation run directory contains a number of Trick-generated metadata files, one of which is the `send_hs` file which represents all output during the simulation run sent through the Trick "(h)ealth and (s)tatus" messaging system. At the end of the `send_hs` message, internal diagnostic information is printed by Trick that looks a lot like this:
+
+```
+|L   0|2024/11/21,15:54:20|myworkstation| |T 0|68.955000|
+     REALTIME SHUTDOWN STATS:
+            ACTUAL INIT TIME:       42.606
+         ACTUAL ELAPSED TIME:       55.551
+|L   0|2024/11/21,15:54:20|myworkstation| |T 0|68.955000|
+SIMULATION TERMINATED IN
+  PROCESS: 0
+  ROUTINE: Executive_loop_single_thread.cpp:98
+  DIAGNOSTIC: Reached termination time
+
+              SIMULATION START TIME:        0.000
+               SIMULATION STOP TIME:       68.955
+            SIMULATION ELAPSED TIME:       68.955
+                 USER CPU TIME USED:       55.690
+               SYSTEM CPU TIME USED:        0.935
+              SIMULATION / CPU TIME:        1.218
+       INITIALIZATION USER CPU TIME:       42.783
+     INITIALIZATION SYSTEM CPU TIME:        0.901
+               SIMULATION RAM USAGE:     1198.867MB
+      (External program RAM usage not included!)
+  VOLUNTARY CONTEXT SWITCHES (INIT):          792
+INVOLUNTARY CONTEXT SWITCHES (INIT):          187
+   VOLUNTARY CONTEXT SWITCHES (RUN):           97
+ INVOLUNTARY CONTEXT SWITCHES (RUN):           14
+```
+
+The information provided here is a summary of how long the simulation ran, in both wall-clock time, and cpu time, both for initialization and run-time, and other useful metrics like how much peak RAM was used during run-time execution. Tracking this information can be useful for Trick-using groups so TrickOps provides a utility class for parsing this data. Here's an example of how you might use the `send_hs` module:
+
+```python
+import send_hs  # Import the module
+# Instantiate a send_hs instance, reading the given send_hs file
+shs = send_hs.send_hs("path/to/SIM_A/RUN_01/send_hs")
+start_time      = shs.get('SIMULATION START TIME')  # Get the value of sim start time
+stop_time       = shs.get('SIMULATION STOP TIME')   # Get the value of sim stop time
+realtime_ratio  = shs.get('SIMULATION / CPU TIME')  # Get the realtime ratio (how fast the sim ran)
+
+# Instead of getting diagnostics individually, you can ask for the full dictionary
+diagnostics     = shs.get_diagnostics()
+# Print the RAM usage from the dictionary
+print(diagnostics['SIMULATION RAM USAGE'])
+```
+
+Plotting this data for regression scenarios can be quite useful - a lot of groups would want to know if the sim slowed down significantly and if so, when in the history this occurred.  If you are already invested in Jenkins CI, you might be interested in using the `send_hs` module in conjunction with the [Jenkins plot plugin](https://plugins.jenkins.io/plot/). Here's an example of what tracking sim realtime ratio over time looks like in a workflow with about 15 regression scenarios all shown on a single plot:
+
+![ExampleWorkflow In Action](images/sim_speed_example.png)
+
 ## More Information
 
 A lot of time was spent adding `python` docstrings to the modules in the `trickops/` directory and tests under the `trickops/tests/`. This README does not cover all functionality, so please see the in-code documentation and unit tests for more detailed information on the framework capabilities.

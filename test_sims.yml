@@ -19,6 +19,8 @@ SIM_parse_s_define:
   path: test/SIM_parse_s_define
 SIM_target_specific_variables:
   path: test/SIM_target_specific_variables
+SIM_swig_template_scoping:
+  path: test/SIM_swig_template_scoping
 SIM_test_abstract:
   path: test/SIM_test_abstract
 SIM_test_inherit:

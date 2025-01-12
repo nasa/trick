@@ -20,7 +20,7 @@ jobs:
       - name: create virtual environment
         run: |
           cd share/trick/trickops/
-          python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
+          python3 -m venv .venv && source .venv/bin/activate && pip3 install --upgrade pip && pip3 install -r requirements.txt
       - name: get and build koviz
         run: |
           cd /tmp/ && wget -q https://github.com/nasa/koviz/archive/refs/heads/master.zip && unzip master.zip
@@ -63,7 +63,7 @@ jobs:
           source ../.venv/bin/activate
           export PATH="/tmp/koviz-master/bin:${PATH}"
           ./run_tests.py
-      - uses: actions/upload-artifact@v3.0.0
+      - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
           name: doctests
