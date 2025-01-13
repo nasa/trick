@@ -126,7 +126,7 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 	SHARED_OPTIONS := -fPIC
 else ifeq ($(UNAME), Darwin)
-	SHARED_OPTIONS := -fPIC
+	SHARED_OPTIONS := -fPIC -lgcov
 else
 	SHARED_OPTIONS :=
 endif
