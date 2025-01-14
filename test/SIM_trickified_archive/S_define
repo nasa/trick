@@ -1,6 +1,6 @@
 #include "sim_objects/default_trick_sys.sm"
 ##include "Foo.hh"
-##include "Bar.hh"
+##include "Bar.h"
 ##include "Baz.hh"
 
 class Sandbox : public Trick::SimObject {
@@ -8,7 +8,6 @@ class Sandbox : public Trick::SimObject {
     public:
 
     Foo foo;
-    Bar bar;
     Baz baz;
 
     Sandbox() {

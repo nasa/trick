@@ -134,9 +134,16 @@ if ($full_build)
         foreach $src (@src_files)
         {
             $file = $src ;
-            $file =~ s/\Q.cpp\E$// ; 
-            $file =~ s/\Q.c$\E$// ; 
-            $cmd = "g++ $source_make_args -I $trick_home" . "/include -c $src -o $file.o" ;
+            if($file =~ /\S*(\Q.c\E)$/)
+            {
+                $file =~ s/\Q.c\E$// ;
+                $cmd = "gcc $source_make_args -I $trick_home" . "/include -c $src -o $file.o" ;
+            }
+            else
+            {
+                $file =~ s/\Q.cpp\E$// ; 
+                $cmd = "g++ $source_make_args -I $trick_home" . "/include -c $src -o $file.o" ;
+            }
             if($debug)
             {
                 print "Building obj file: $cmd\n" ;
