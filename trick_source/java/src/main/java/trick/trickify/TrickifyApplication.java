@@ -137,9 +137,19 @@ public class TrickifyApplication extends RunTimeTrickApplication
         JFrame frame = new JFrame();
         frame.setSize(500, 600);
         
-        JFileChooser src_dirs_chooser = new JFileChooser();
-        src_dirs_chooser.setBounds(0, 0, 400, 250);
-        frame.add(src_dirs_chooser);
+        JButton src_dirs_button = new JButton();
+        src_dirs_button.setBounds(0, 0, 50, 20);
+        src_dirs_button.setText("Choose");
+        src_dirs_button.addActionListener(new ActionListener() 
+        { 
+            public void actionPerformed(ActionEvent e) 
+            { 
+                JFileChooser src_dirs_chooser = new JFileChooser();
+                src_dirs_chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                src_dirs_chooser.showSaveDialog(null);
+            } 
+        } );
+        frame.add(src_dirs_button);
 
         int checkbox_x = 0;
         int checkbox_y = 300;
