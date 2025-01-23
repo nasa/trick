@@ -22,9 +22,13 @@ public class TraceViewWindow extends JFrame {
      * Constructor
      * @param jobExecList an ArrayList of JobExecutionEvent, i.e., the job timeline data.
      */
-    public TraceViewWindow( ArrayList<JobExecutionEvent> jobExecList ) {
+    public TraceViewWindow( ArrayList<JobExecutionEvent> jobExecList,
+                            KeyedColorMap idToColorMap,
+                            JobSpecificationMap jobSpecificationMap ) {
+
         TraceViewOutputToolBar outputToolBar = new TraceViewOutputToolBar();
-        TraceViewCanvas traceViewCanvas = new TraceViewCanvas( jobExecList, outputToolBar);
+
+        TraceViewCanvas traceViewCanvas = new TraceViewCanvas( jobExecList, outputToolBar, idToColorMap, jobSpecificationMap);
 
         TraceViewMenuBar menuBar = new TraceViewMenuBar( traceViewCanvas);
         setJMenuBar(menuBar);

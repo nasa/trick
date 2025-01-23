@@ -46,8 +46,8 @@ class CompareByMaxDuration implements Comparator<StatisticsRecord> {
 */
 class CompareByMinDuration implements Comparator<StatisticsRecord> {
     public int compare(StatisticsRecord a, StatisticsRecord b) {
-        if ( a.minValue < b.minValue) return -1;
-        if ( a.minValue > b.minValue) return  1;
+        if ( a.minValue > b.minValue) return -1;
+        if ( a.minValue < b.minValue) return  1;
         return 0;
     }
 }
@@ -87,8 +87,8 @@ public class JobStats {
         }
     }
 
-    SortCriterion currentSortCriterion = SortCriterion.MEAN;
-    ArrayList<StatisticsRecord> jobStatisticsList;
+    public SortCriterion currentSortCriterion = SortCriterion.MEAN;
+    public ArrayList<StatisticsRecord> jobStatisticsList;
 
     /**
      * Constructor
@@ -122,6 +122,7 @@ public class JobStats {
 
             jobStatisticsList.add( new StatisticsRecord(id, mean, stddev, min, max));
         }
+        SortByMeanValue();
     }
 
     /**
@@ -167,18 +168,26 @@ public class JobStats {
     /**
     Write a text report to System.out.
     */
-    public void write() {
+    public void write( JobSpecificationMap jobSpecificationMap ) {
+
         System.out.println("           [Job Duration Statistics Sorted by " + currentSortCriterion +"]");
-        System.out.println("----------------------------------------------------------------------");
-        System.out.println("  Job Id   Mean Duration     Std Dev      Min Duration   Max Duration");
-        System.out.println("---------- -------------- -------------- -------------- --------------");
-           for (StatisticsRecord jobStatisticsRecord : jobStatisticsList ) {
-               System.out.println( String.format("%10s %14.6f %14.6f %14.6f %14.6f",
-                   jobStatisticsRecord.id,
-                   jobStatisticsRecord.meanValue,
-                   jobStatisticsRecord.stddev,
-                   jobStatisticsRecord.minValue,
-                   jobStatisticsRecord.maxValue));
+        System.out.println("--------------------------------------------------------------------------------------------------");
+        System.out.println("  Job Id   Mean Duration     Std Dev      Min Duration   Max Duration  Name");
+        System.out.println("---------- -------------- -------------- -------------- -------------- ---------------------------");
+
+        for (StatisticsRecord jobStatisticsRecord : jobStatisticsList ) {
+
+           JobSpecification jobSpec = jobSpecificationMap.getJobSpecification( jobStatisticsRecord.id);
+
+           System.out.println( String.format("%10s %14.6f %14.6f %14.6f %14.6f %s",
+                                               jobStatisticsRecord.id,
+                                               jobStatisticsRecord.meanValue,
+                                               jobStatisticsRecord.stddev,
+                                               jobStatisticsRecord.minValue,
+                                               jobStatisticsRecord.maxValue,
+                                               jobSpec.name
+                                            )
+                             );
         }
     }
 }

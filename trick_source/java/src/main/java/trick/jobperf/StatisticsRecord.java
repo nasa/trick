@@ -12,17 +12,17 @@ public class StatisticsRecord {
     public double minValue;
     /**
      * Constructor
-     * @param s - the job identifier.
+     * @param id - the job identifier.
      * @param mean - the mean value of job duration.
-     * @param sd - the standard deviation of job duration.
+     * @param stddev - the standard deviation of job duration.
      * @param min - the minimum value of job duration.
      * @param max - the maximum value of job duration.
      */
-    public StatisticsRecord( String s, double mean, double sd, double min, double max) {
-        id = s;
-        meanValue = mean;
-        stddev = sd;
-        minValue = min;
-        maxValue = max;
+    public StatisticsRecord( String id, double mean, double stddev, double min, double max) {
+        this.id = id;
+        this.meanValue = mean;
+        this.stddev = stddev;
+        this.minValue = min;
+        this.maxValue = max;
     }
 }

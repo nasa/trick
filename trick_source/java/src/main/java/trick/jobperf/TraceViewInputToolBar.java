@@ -22,10 +22,11 @@ import java.net.URL;
 *     JLabel
 *     JTextField [lastRenderFrameField]
 */
-public class TraceViewInputToolBar extends JToolBar {
+public class TraceViewInputToolBar extends JToolBar implements ActionListener {
 
     private TraceViewCanvas traceView;
     private JTextField frameSizeField;
+    private JButton frameDetailsButton;
     private JTextField firstRenderFrameField;
     private JTextField lastRenderFrameField;
     /**
@@ -35,8 +36,8 @@ public class TraceViewInputToolBar extends JToolBar {
     public TraceViewInputToolBar (TraceViewCanvas tvc) {
         traceView = tvc;
 
-        add( new JLabel(" Frame Size: "));
-        frameSizeField = new JTextField(15);
+        add( new JLabel("           Frame Size (Avg): "));
+        frameSizeField = new JTextField(10);
         frameSizeField.setText( String.format("%8.4f", traceView.getFrameSize()) );
         add(frameSizeField);
         frameSizeField.addKeyListener( new KeyAdapter() {
@@ -48,11 +49,17 @@ public class TraceViewInputToolBar extends JToolBar {
             }
         });
 
-        add( new JLabel( String.format("    Total Frame Range: %d ... %d", 0, traceView.getFrameTotal()-1 )));
+        frameDetailsButton = new JButton("Frame Details");
+        frameDetailsButton.addActionListener(this);
+        frameDetailsButton.setActionCommand("display-frame-details");
+        frameDetailsButton.setToolTipText("Display the job details of the selected frame.");
+        add(frameDetailsButton);
 
-        add( new JLabel("    Selected Frame Range: "));
+        add( new JLabel( String.format("          Frames : [%d ... %d]", 0, traceView.getFrameTotal()-1 )));
 
-        firstRenderFrameField = new JTextField(15);
+        add( new JLabel("    Selected Range: "));
+
+        firstRenderFrameField = new JTextField(10);
         firstRenderFrameField.setText( String.format("%d", traceView.getFirstRenderFrame()) );
         add(firstRenderFrameField);
         firstRenderFrameField.addKeyListener( new KeyAdapter() {
@@ -65,7 +72,7 @@ public class TraceViewInputToolBar extends JToolBar {
         });
 
         add( new JLabel("..."));
-        lastRenderFrameField = new JTextField(15);
+        lastRenderFrameField = new JTextField(10);
         lastRenderFrameField.setText( String.format("%d", traceView.getLastRenderFrame()) );
         add(lastRenderFrameField);
         lastRenderFrameField.addKeyListener( new KeyAdapter() {
@@ -77,7 +84,22 @@ public class TraceViewInputToolBar extends JToolBar {
             }
         });
 
+        add( new JLabel("               "));
+
         // Add Trick LOGO here.
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String s = e.getActionCommand();
+        switch (s) {
+            case "display-frame-details":
+                traceView.displaySelectedFrame();
+            break;
+            default:
+                System.out.println("Unknown Action Command:" + s);
+            break;
+        }
     }
 
     private void setFirstRenderFrame() {

@@ -17,14 +17,18 @@ import javax.swing.event.*;
 */
 public class TraceViewCanvas extends JPanel {
 
-    public static final int MIN_TRACE_WIDTH = 4;
-    public static final int DEFAULT_TRACE_WIDTH = 15;
-    public static final int MAX_TRACE_WIDTH = 30;
+    public static final int MIN_TRACE_WIDTH = 12;
+    public static final int DEFAULT_TRACE_WIDTH = 18;
+    public static final int MAX_TRACE_WIDTH = 24;
     public static final int LEFT_MARGIN = 100;
     public static final int RIGHT_MARGIN = 100;
-    public static final int TOP_MARGIN = 20;
+    public static final int TOP_MARGIN = 50;
     public static final int BOTTOM_MARGIN = 20;
     public static final int DEFAULT_FRAMES_TO_RENDER = 100;
+
+    public KeyedColorMap idToColorMap;
+    public JobSpecificationMap jobSpecificationMap;
+    public JobStats jobStats;
 
     private int traceWidth;
     private double frameSize;
@@ -32,11 +36,12 @@ public class TraceViewCanvas extends JPanel {
     private FrameRecord[] frameArray;
     private int selectedFrameNumber;
     private FrameRange frameRenderRange;
-    private KeyedColorMap idToColorMap;
     private BufferedImage image;
-    private TraceViewOutputToolBar sToolBar;
+    private TraceViewOutputToolBar outputToolBar;
     private Cursor crossHairCursor;
     private Cursor defaultCursor;
+    private Font frameFont12;
+    private Font frameFont18;
 
     public class FrameRange {
         public int first;
@@ -59,22 +64,28 @@ public class TraceViewCanvas extends JPanel {
      * @param outputToolBar the toolbar to which data is to be sent for display.
      */
     public TraceViewCanvas( ArrayList<JobExecutionEvent> jobExecEvtList,
-                            TraceViewOutputToolBar outputToolBar ) {
+                            TraceViewOutputToolBar outputToolBar,
+                            KeyedColorMap idToColorMap,
+                            JobSpecificationMap jobSpecificationMap ) {
 
         traceWidth = DEFAULT_TRACE_WIDTH;
         frameSize = 1.0;
         image = null;
         selectedFrameNumber = 0;
-        sToolBar = outputToolBar;
+
+        this.outputToolBar = outputToolBar;
+        this.idToColorMap = idToColorMap;
+        this.jobSpecificationMap = jobSpecificationMap;
+
+        jobStats = new JobStats(jobExecEvtList);
+
         crossHairCursor = new Cursor( Cursor.CROSSHAIR_CURSOR );
         defaultCursor = new Cursor( Cursor.DEFAULT_CURSOR );
 
+        frameFont12 = new Font("Arial", Font.PLAIN, 12);
+        frameFont18 = new Font("Arial", Font.PLAIN, 18);
+
         try {
-           idToColorMap = new KeyedColorMap();
-           File colorfile = new File("IdToColors.txt");
-           if (colorfile.exists()) {
-                idToColorMap.readFile("IdToColors.txt");
-           }
            boolean wasTOF = false;
 
             List<FrameRecord> frameList = new ArrayList<FrameRecord>();
@@ -84,6 +95,7 @@ public class TraceViewCanvas extends JPanel {
                  if (!wasTOF && jobExec.isTOF) {
                      // Wrap up the previous frame record.
                      frameRecord.stop = jobExec.start;
+                     frameRecord.CalculateJobContainment();
                      frameList.add(frameRecord);
 
                      // Start a new frame record.
@@ -95,9 +107,10 @@ public class TraceViewCanvas extends JPanel {
                  wasTOF = jobExec.isTOF;
                  idToColorMap.addKey(jobExec.id);
              }
+
              frameArray = frameList.toArray( new FrameRecord[ frameList.size() ]);
 
-            // Estimate the total duration and the average frame size. Notice
+            // Determine the total duration and the average frame size. Notice
             // that we skip the first frame.
             totalDuration = 0.0;
             for (int n=1; n < frameArray.length; n++) {
@@ -112,13 +125,10 @@ public class TraceViewCanvas extends JPanel {
             }
             frameRenderRange = new FrameRange(0, last_frame_to_render);
 
-            // Write the color file.
-            idToColorMap.writeFile("IdToColors.txt");
+            // Write the color map to a file.
+            idToColorMap.writeFile();
 
-           System.out.println("File loaded.\n");
-        } catch ( java.io.FileNotFoundException e ) {
-           System.out.println("File not found.\n");
-           System.exit(0);
+           // System.out.println("File loaded.\n");
         } catch ( java.io.IOException e ) {
            System.out.println("IO Exception.\n");
            System.exit(0);
@@ -204,6 +214,20 @@ public class TraceViewCanvas extends JPanel {
     }
 
     /**
+     *
+     */
+    public void displaySelectedFrame() {
+        FrameViewWindow window = new FrameViewWindow( this, frameArray[selectedFrameNumber], selectedFrameNumber);
+    }
+
+    /**
+     *
+     */
+    public void displayJobStatsWindow() {
+        JobStatsViewWindow window = new JobStatsViewWindow( jobStats, jobSpecificationMap);
+    }
+
+    /**
      * @return true if the trace rectangle contains the point <x,y>, otherwise
      * false.
      */
@@ -228,22 +252,27 @@ public class TraceViewCanvas extends JPanel {
 
             // Get and display the ID of the job associated with the color.
             String id = idToColorMap.getKeyOfColor( color );
-            sToolBar.setJobID(id);
+            outputToolBar.setJobID(id);
+
+            // Get and display the job name associated with the ID.
+            JobSpecification jobSpec = jobSpecificationMap.getJobSpecification(id);
+            if (jobSpec != null) {
+                outputToolBar.setJobName(jobSpec.name);
+                outputToolBar.setJobClass(jobSpec.jobClass);
+            }
 
             // Determine the frame number that we clicked on from the y-
             // coordinate of the click position.
-
             if ( y > TOP_MARGIN) {
                 selectedFrameNumber = (y - TOP_MARGIN) / traceWidth + frameRenderRange.first;
-                sToolBar.setFrameNumber(selectedFrameNumber);
             }
 
             // Determine the subframe-time where we clicked from the x-coordinate
             // of the click position.
+            double subFrameClickTime = 0.0;
             if ( traceRectContains(x, y)) {
                 double pixelsPerSecond = (double)traceRectWidth() / frameSize;
-                double subFrameTime = (x - LEFT_MARGIN) / pixelsPerSecond;
-                sToolBar.setSubFrameTime(subFrameTime);
+                subFrameClickTime = (x - LEFT_MARGIN) / pixelsPerSecond;
             }
 
             /**
@@ -252,15 +281,17 @@ public class TraceViewCanvas extends JPanel {
              */
             if (id != null) {
                 FrameRecord frame = frameArray[selectedFrameNumber];
+                Double clickTime = frame.start + subFrameClickTime;
                 for (JobExecutionEvent jobExec : frame.jobEvents) {
-                    if (id.equals( jobExec.id)) {
-                        sToolBar.setJobStartTime(jobExec.start);
-                        sToolBar.setJobStopTime(jobExec.stop);
+                    if (id.equals( jobExec.id) &&
+                        clickTime >= jobExec.start &&
+                        clickTime <= jobExec.stop ) {
+                        outputToolBar.setJobTimes(jobExec.start, jobExec.stop);
                     }
                 }
                 repaint();
             } else {
-                sToolBar.clearJobStartStopTime();
+                outputToolBar.clearJobFields();
             }
         }
 
@@ -327,26 +358,61 @@ public class TraceViewCanvas extends JPanel {
         g2d.setPaint(Color.BLACK);
         g2d.fillRect(LEFT_MARGIN, TOP_MARGIN, traceRectWidth, traceRectHeight());
 
+        if (traceWidth >= DEFAULT_TRACE_WIDTH) {
+            g2d.setFont(frameFont18);
+        } else {
+            g2d.setFont(frameFont12);
+        }
+
+        FontMetrics fm = g2d.getFontMetrics();
+        int TX = 0;
+
+        String FN_text = "Frame #";
+        TX = (LEFT_MARGIN - fm.stringWidth(FN_text))/2;
+        g2d.drawString (FN_text, TX, 40);
+
+        g2d.drawString ("Top of Frame", LEFT_MARGIN, 40);
+
+        String EOF_text = "End of Frame";
+        TX = LEFT_MARGIN + traceRectWidth - fm.stringWidth(EOF_text);
+        g2d.drawString (EOF_text, TX, 40);
+
         // Draw each frame in the selected range of frames to be rendered.
         for (int n = frameRenderRange.first;
                  n <= frameRenderRange.last;
                  n++) {
 
             FrameRecord frame = frameArray[n];
+            int jobY = TOP_MARGIN + (n - frameRenderRange.first) * traceWidth;
+
+            // Draw frame number.
+            if (n == selectedFrameNumber) {
+                g2d.setPaint(Color.RED);
+                // g2d.drawString ( "\u25b6", 20, jobY + traceWidth - 2);
+                g2d.drawString ( "\u25c0", 80, jobY + traceWidth - 2);
+                // g2d.fillRect(LEFT_MARGIN-traceWidth, jobY, traceWidth, traceWidth);
+            } else {
+                g2d.setPaint(Color.BLACK);
+            }
+
+            g2d.drawString ( String.format("%d", n), 40, jobY + traceWidth - 2);
 
             // Draw the frame
-            for (JobExecutionEvent jobExec : frame.jobEvents) {
-                int jobY = TOP_MARGIN + (n - frameRenderRange.first) * traceWidth;
-                int jobStartX = LEFT_MARGIN + (int)((jobExec.start - frame.start) * pixelsPerSecond);
-                int jobWidth  = (int)( (jobExec.stop - jobExec.start) * pixelsPerSecond);
+            // NOTE that the jobEvents within the frame are expected to be sorted in duration-order,
+            // so that smaller sub-jobs are not obscurred.
 
-                g2d.setPaint(Color.BLACK);
-                if (n == selectedFrameNumber) {
-                    g2d.setPaint(Color.GREEN);
-                }
-                g2d.drawString ( String.format("%d", n), 50, jobY + traceWidth/2);
+            for (JobExecutionEvent jobExec : frame.jobEvents) {
+                int jobStartX = (int)((jobExec.start - frame.start) * pixelsPerSecond) + LEFT_MARGIN;
+                int jobWidth  = (int)((jobExec.stop - jobExec.start) * pixelsPerSecond);
                 g2d.setPaint( idToColorMap.getColor( jobExec.id ) );
-                g2d.fillRect(jobStartX, jobY, jobWidth, traceWidth-2);
+                int jobHeight = traceWidth - 2;
+                if (jobExec.contained > 1) {
+                    jobHeight = traceWidth / jobExec.contained;
+                }
+
+                // int jobStartY = jobY + (traceWidth - 2) - jobHeight;
+                g2d.fillRect(jobStartX, jobY, jobWidth, jobHeight);
+
             }
         }
     }

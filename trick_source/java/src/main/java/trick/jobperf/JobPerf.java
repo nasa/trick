@@ -5,12 +5,8 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 
-/**
- * Capabilites That Need To Be Added
- * - a way to filter the data to be within a user specified sub time period
- *   within the data set.
- */
-
+import java.nio.file.Path;
+import java.nio.file.Paths;
 /**
 * Class JobPerf is an application that renders time-line data from a Trick based
   simulation. It also generates run-time statistics reports for the simulation
@@ -29,7 +25,7 @@ public class JobPerf {
         boolean interactive = true;
         boolean printReport = false;
         JobStats.SortCriterion sortOrder = JobStats.SortCriterion.MEAN;
-        String fileName = "in.csv";
+        String timeLineFileName = "in.csv";
 
         int ii = 0;
         while (ii < args.length) {
@@ -68,24 +64,58 @@ public class JobPerf {
                     sortOrder = JobStats.SortCriterion.MIN;
                 } break;
                 default : {
-                    fileName = args[ii];
+                    timeLineFileName = args[ii];
                 } break;
             } //switch
             ++ii;
         } // while
 
-        jobExecEvtList = getJobExecutionEventList(fileName);
-        jobStats = new JobStats(jobExecEvtList);
+        // All files shall be in the same directory as the timeline file.
+        String filesDir = Paths.get(timeLineFileName).toAbsolutePath().getParent().toString();
+        System.out.println( "\n\nFilesDir = " + filesDir + "\n\n");
+
+
+        // Generate the JobSpecificationMap from information extracted from the S_job_execution
+        // file, that should be in the same directory as the time-line file.
+        File s_job_execution_file = new File( filesDir + "/S_job_execution" );
+        JobSpecificationMap jobSpecificationMap = null;
+        try {
+            jobSpecificationMap = new JobSpecificationMap( s_job_execution_file );
+        } catch ( java.io.FileNotFoundException e ) {
+            System.out.println("File \"" + s_job_execution_file.toString() + "\" not found.\n");
+            System.exit(0);
+        } catch ( java.io.IOException e ) {
+            System.out.println("IO Exception while attempting to read " + s_job_execution_file.toString() + ".\n");
+            System.exit(0);
+        }
+
+        // Read Color Map
+        KeyedColorMap idToColorMap = null;
+        File colorMapFile = null;
+        try {
+            colorMapFile = new File(filesDir + "/IdToColors.txt");
+            idToColorMap = new KeyedColorMap( colorMapFile.toString());
+            if ( colorMapFile.exists()) {
+                 idToColorMap.readFile();
+            }
+        } catch ( java.io.IOException e ) {
+            System.out.println("IO Exception while attempting to read " + colorMapFile.toString() + ".\n");
+            System.exit(0);
+        }
+
+        jobExecEvtList = getJobExecutionEventList(timeLineFileName);
+
         if (printReport) {
+            jobStats = new JobStats(jobExecEvtList);
             if (sortOrder == JobStats.SortCriterion.ID ) jobStats.SortByID();
             if (sortOrder == JobStats.SortCriterion.MEAN ) jobStats.SortByMeanValue();
             if (sortOrder == JobStats.SortCriterion.STDDEV ) jobStats.SortByStdDev();
             if (sortOrder == JobStats.SortCriterion.MAX ) jobStats.SortByMaxValue();
             if (sortOrder == JobStats.SortCriterion.MIN ) jobStats.SortByMinValue();
-            jobStats.write();
+            jobStats.write( jobSpecificationMap);
         }
         if (interactive) {
-            traceViewWindow = new TraceViewWindow(jobExecEvtList);
+            traceViewWindow = new TraceViewWindow(jobExecEvtList, idToColorMap, jobSpecificationMap);
         }
     }
 
@@ -132,7 +162,9 @@ public class JobPerf {
             line = in.readLine();
             while( (line = in.readLine()) !=null) {
                  field   = line.split(",");
-                 String id    = field[0];
+                 // Need to strip trailing 0's from the id to make the ID's in
+                 // 1) timeline file and 2) the S_job_execution file consistent.
+                 String id    = field[0].replaceAll("0*$","");
                  boolean isTOF = false;
                  if (Integer.parseInt(field[1]) == 1) isTOF = true;
                  boolean isEOF = false;

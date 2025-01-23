@@ -10,11 +10,13 @@ import java.util.*;
 public class KeyedColorMap {
     private Map<String, Color> colorMap;
     int minLuminance;
+    String fileName;
 
     /**
     * Constructor
     */
-    public KeyedColorMap() {
+    public KeyedColorMap(String fileName) {
+        this.fileName = fileName;
         colorMap = new HashMap<String, Color>();
         minLuminance = 30;
     }
@@ -82,7 +84,7 @@ public class KeyedColorMap {
     * Write the identifier, color key/value pairs of the KeyedColorMap to a file.
     * @param fileName
     */
-    public void writeFile(String fileName) throws IOException {
+    public void writeFile() throws IOException {
         BufferedWriter out = new BufferedWriter( new FileWriter(fileName) );
         for (Map.Entry<String, Color> entry : colorMap.entrySet()) {
             String id = entry.getKey();
@@ -100,7 +102,7 @@ public class KeyedColorMap {
     * Read identifier, color key-value pairs into the KeyedColorMap from a file.
     * @param fileName
     */
-    public void readFile(String fileName) throws IOException {
+    public void readFile() throws IOException {
         try {
             BufferedReader in = new BufferedReader( new FileReader(fileName) );
             String line;

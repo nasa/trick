@@ -11,7 +11,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.net.URL;
 
-
 /**
 * Class JobExecutionEvent represents one execution/run of a Trick job.
 * <id> identifies the job. <start> and <stop> specify the
@@ -25,6 +24,7 @@ class JobExecutionEvent {
     public boolean isTOF;
     public double start;
     public double stop;
+    public int contained;
 
     /**
      * @param identifier identifies the relavant Trick job.
@@ -33,13 +33,27 @@ class JobExecutionEvent {
      * @param start_time the start time (seconds) of the identified job.
      * @param stop_time the stop time (seconds) of the identified job.
      */
-    public JobExecutionEvent(String identifier, boolean isTopOfFrame, boolean isEndOfFrame, double start_time, double stop_time) {
-        id = identifier;
-        isEOF = isEndOfFrame;
-        isTOF = isTopOfFrame;
-        start = start_time;
-        stop = stop_time;
+    public JobExecutionEvent(String id, boolean isTOF, boolean isEOF, double start, double stop) {
+        this.id = id;
+        this.isEOF = isEOF;
+        this.isTOF = isTOF;
+        this.start = start;
+        this.stop = stop;
+        contained = 1;
     }
+
+    /**
+    * Determine whether a job's start time is contained
+    * within another jobs stop/stop range.
+    */
+    public boolean contains( JobExecutionEvent other ) {
+        if ((other.start >= this.start) &&
+            (other.start <= this.stop)) {
+                return true;
+            }
+        return false;
+    }
+
     /**
      * Create a String representation of an object of this class.
      */
