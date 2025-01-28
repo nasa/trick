@@ -58,16 +58,22 @@ public class FrameViewCanvas extends JPanel {
             g2d.fillRect(50, jobY, 20, 20);
             g2d.setPaint( Color.BLACK );
             jobY += 20;
-            JobSpecification jobSpec = tvc.jobSpecificationMap.getJobSpecification(jobExec.id);
             double duration = jobExec.stop - jobExec.start;
 
             g2d.setFont(dataFont);
             g2d.drawString(jobExec.id, 100, jobY);
-            g2d.drawString(jobSpec.jobClass, 180, jobY);
             g2d.drawString( String.format("%12.6f", jobExec.start), 420, jobY);
             g2d.drawString( String.format("%12.6f", jobExec.stop), 520, jobY);
             g2d.drawString( String.format("%12.6f", duration), 620, jobY);
-            g2d.drawString(jobSpec.name, 740, jobY);
+
+            JobSpecification jobSpec = tvc.jobSpecificationMap.getJobSpecification(jobExec.id);
+            if ( jobSpec == null) {
+                g2d.drawString("???", 180, jobY);
+                g2d.drawString("???", 740, jobY);
+            } else {
+                g2d.drawString(jobSpec.jobClass, 180, jobY);
+                g2d.drawString(jobSpec.name, 740, jobY);
+            }
         }
         frame.SortByJobEventDuration();
     }

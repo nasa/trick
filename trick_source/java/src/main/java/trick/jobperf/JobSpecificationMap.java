@@ -27,10 +27,10 @@ public class JobSpecificationMap {
                 if (field.length == 9) {
                     String jobclass = field[2].trim();
                     int phase = Integer.parseInt( field[3].trim());
-                    String id = field[7].trim();
+                    String id = String.format("%.2f", Double.parseDouble( field[7].trim()));
                     String name = field[8].trim();
-                    // System.out.println( "JobSpec = <" + id + "," + name + "," + jobclass + ">\n\n");
                     jobSpecMap.put(id, new JobSpecification(name, jobclass, phase));
+                    //System.out.println("JobSpec = " + id + "," + jobclass + "," + name);
                 }
             }
         }

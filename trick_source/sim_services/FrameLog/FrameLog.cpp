@@ -603,17 +603,14 @@ int Trick::FrameLog::shutdown() {
             exit(0);
         }
 
-        fprintf(fp_log,"jobID,isTopOfFrame,isEndOfFrame,startTime,stopTime\n");
+        fprintf(fp_log,"jobID,startTime,stopTime\n");
 
         time_scale = 1.0 / exec_get_time_tic_value();
         tl = timeline[thread_num];
         for ( ii = 0 ; ii < tl_count[thread_num] ; ii++ ) {
             start = tl[ii].start * time_scale;
             stop =  tl[ii].stop  * time_scale;
-            int isTrickJob = (tl[ii].trick_job) ? 1 : 0;
-            int isEndOfFrame = (tl[ii].isEndOfFrame) ? 1 : 0;
-            int isTopOfFrame = (tl[ii].isTopOfFrame) ? 1 : 0;
-            fprintf(fp_log,"%f,%d,%d,%f,%f\n", tl[ii].id, isTopOfFrame, isEndOfFrame, start, stop);
+            fprintf(fp_log,"%5.2f, %f, %f\n", tl[ii].id, start, stop);
         }
         fflush(fp_log);
         fclose(fp_log);

@@ -87,12 +87,13 @@ public class TraceViewCanvas extends JPanel {
 
         try {
            boolean wasTOF = false;
+           boolean wasEOF = false;
 
             List<FrameRecord> frameList = new ArrayList<FrameRecord>();
             FrameRecord frameRecord = new FrameRecord();
             for (JobExecutionEvent jobExec : jobExecEvtList ) {
 
-                 if (!wasTOF && jobExec.isTOF) {
+                 if ((!wasTOF && jobExec.isTOF) || ( wasEOF && !jobExec.isEOF )) {
                      // Wrap up the previous frame record.
                      frameRecord.stop = jobExec.start;
                      frameRecord.CalculateJobContainment();
@@ -105,6 +106,8 @@ public class TraceViewCanvas extends JPanel {
                  frameRecord.jobEvents.add(jobExec);
 
                  wasTOF = jobExec.isTOF;
+                 wasEOF = jobExec.isEOF;
+
                  idToColorMap.addKey(jobExec.id);
              }
 

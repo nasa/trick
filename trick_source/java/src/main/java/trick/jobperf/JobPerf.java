@@ -74,7 +74,6 @@ public class JobPerf {
         String filesDir = Paths.get(timeLineFileName).toAbsolutePath().getParent().toString();
         System.out.println( "\n\nFilesDir = " + filesDir + "\n\n");
 
-
         // Generate the JobSpecificationMap from information extracted from the S_job_execution
         // file, that should be in the same directory as the time-line file.
         File s_job_execution_file = new File( filesDir + "/S_job_execution" );
@@ -103,7 +102,7 @@ public class JobPerf {
             System.exit(0);
         }
 
-        jobExecEvtList = getJobExecutionEventList(timeLineFileName);
+        jobExecEvtList = getJobExecutionEventList(timeLineFileName, jobSpecificationMap);
 
         if (printReport) {
             jobStats = new JobStats(jobExecEvtList);
@@ -150,7 +149,8 @@ public class JobPerf {
     /**
      * Read the timeline file, resulting in a ArrayList<JobExecutionEvent>.
      */
-    private ArrayList<JobExecutionEvent> getJobExecutionEventList( String fileName ) {
+    private ArrayList<JobExecutionEvent> getJobExecutionEventList( String fileName,
+                                                                   JobSpecificationMap jobSpecificationMap ) {
         String line;
         String field[];
 
@@ -162,16 +162,18 @@ public class JobPerf {
             line = in.readLine();
             while( (line = in.readLine()) !=null) {
                  field   = line.split(",");
-                 // Need to strip trailing 0's from the id to make the ID's in
-                 // 1) timeline file and 2) the S_job_execution file consistent.
-                 String id    = field[0].replaceAll("0*$","");
-                 boolean isTOF = false;
-                 if (Integer.parseInt(field[1]) == 1) isTOF = true;
-                 boolean isEOF = false;
-                 if (Integer.parseInt(field[2]) == 1) isEOF = true;
-                 double start = Double.parseDouble( field[3]);
-                 double stop  = Double.parseDouble( field[4]);
 
+                 String id    = field[0].trim();
+                 JobSpecification jobSpec = jobSpecificationMap.getJobSpecification(id);
+                 boolean isTOF = false;
+                 boolean isEOF = false;
+                 if (jobSpec.jobClass.equals("top_of_frame")) {
+                     isTOF = true;
+                 } else if (jobSpec.jobClass.equals("end_of_frame")) {
+                     isEOF = true;
+                 }
+                 double start = Double.parseDouble( field[1]);
+                 double stop  = Double.parseDouble( field[2]);
                  if (start < stop) {
                      JobExecutionEvent evt = new JobExecutionEvent(id, isTOF, isEOF, start, stop);
                      jobExecEvtList.add( evt);

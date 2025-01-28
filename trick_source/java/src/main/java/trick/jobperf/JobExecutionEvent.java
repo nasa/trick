@@ -15,13 +15,13 @@ import java.net.URL;
 * Class JobExecutionEvent represents one execution/run of a Trick job.
 * <id> identifies the job. <start> and <stop> specify the
 * clock times at which the job started and finished.
-* <isEOF> and <isTOF> indicate whether the job was run as
-* an "end-of-frame", or a "top-of-frame" job.
+* <isTOF> indicates whether the job was run as
+* an "top-of-frame" job.
 */
 class JobExecutionEvent {
     public String id;
-    public boolean isEOF;
     public boolean isTOF;
+    public boolean isEOF;
     public double start;
     public double stop;
     public int contained;
@@ -35,8 +35,8 @@ class JobExecutionEvent {
      */
     public JobExecutionEvent(String id, boolean isTOF, boolean isEOF, double start, double stop) {
         this.id = id;
-        this.isEOF = isEOF;
         this.isTOF = isTOF;
+        this.isEOF = isEOF;
         this.start = start;
         this.stop = stop;
         contained = 1;
