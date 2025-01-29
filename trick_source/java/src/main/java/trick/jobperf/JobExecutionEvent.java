@@ -47,8 +47,8 @@ class JobExecutionEvent {
     * within another jobs stop/stop range.
     */
     public boolean contains( JobExecutionEvent other ) {
-        if ((other.start >= this.start) &&
-            (other.start <= this.stop)) {
+        if ((other.start > this.start) &&
+            (other.start < this.stop)) {
                 return true;
             }
         return false;
