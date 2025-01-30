@@ -178,14 +178,19 @@ public class JobStats {
         for (StatisticsRecord jobStatisticsRecord : jobStatisticsList ) {
 
            JobSpecification jobSpec = jobSpecificationMap.getJobSpecification( jobStatisticsRecord.id);
-
+           String jobName = null;
+           if (jobSpec != null) {
+               jobName = jobSpec.name;
+           } else {
+               jobName = "UNKNOWN";
+           }
            System.out.println( String.format("%10s %14.6f %14.6f %14.6f %14.6f %s",
                                                jobStatisticsRecord.id,
                                                jobStatisticsRecord.meanValue,
                                                jobStatisticsRecord.stddev,
                                                jobStatisticsRecord.minValue,
                                                jobStatisticsRecord.maxValue,
-                                               jobSpec.name
+                                               jobName
                                             )
                              );
         }

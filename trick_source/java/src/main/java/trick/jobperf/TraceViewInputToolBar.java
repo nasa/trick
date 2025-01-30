@@ -27,6 +27,8 @@ public class TraceViewInputToolBar extends JToolBar implements ActionListener {
     private TraceViewCanvas traceView;
     private JTextField frameSizeField;
     private JButton frameDetailsButton;
+    private JButton advanceRangeButton;
+    private JButton retreatRangeButton;
     private JTextField firstRenderFrameField;
     private JTextField lastRenderFrameField;
     /**
@@ -84,6 +86,18 @@ public class TraceViewInputToolBar extends JToolBar implements ActionListener {
             }
         });
 
+        advanceRangeButton = new JButton("Advance");
+        advanceRangeButton.addActionListener(this);
+        advanceRangeButton.setActionCommand("advance-frame-range");
+        advanceRangeButton.setToolTipText("Advance the selected range of frames to be displayed.");
+        add(advanceRangeButton);
+
+        advanceRangeButton = new JButton("Retreat");
+        advanceRangeButton.addActionListener(this);
+        advanceRangeButton.setActionCommand("retreat-frame-range");
+        advanceRangeButton.setToolTipText("Retreat the selected range of frames to be displayed.");
+        add(advanceRangeButton);
+
         add( new JLabel("               "));
 
         // Add Trick LOGO here.
@@ -95,6 +109,12 @@ public class TraceViewInputToolBar extends JToolBar implements ActionListener {
         switch (s) {
             case "display-frame-details":
                 traceView.displaySelectedFrame();
+            break;
+            case "advance-frame-range":
+                // DO ACTION
+            break;
+            case "retreat-frame-range":
+                // DO ACTION
             break;
             default:
                 System.out.println("Unknown Action Command:" + s);

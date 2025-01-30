@@ -68,8 +68,9 @@ public class FrameViewCanvas extends JPanel {
 
             JobSpecification jobSpec = tvc.jobSpecificationMap.getJobSpecification(jobExec.id);
             if ( jobSpec == null) {
-                g2d.drawString("???", 180, jobY);
-                g2d.drawString("???", 740, jobY);
+                g2d.setPaint( Color.RED );
+                g2d.drawString("UNKNOWN", 180, jobY);
+                g2d.drawString("UNKNOWN", 740, jobY);
             } else {
                 g2d.drawString(jobSpec.jobClass, 180, jobY);
                 g2d.drawString(jobSpec.name, 740, jobY);

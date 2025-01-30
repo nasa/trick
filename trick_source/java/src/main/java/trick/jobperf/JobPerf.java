@@ -158,20 +158,24 @@ public class JobPerf {
         try {
             BufferedReader in = new BufferedReader( new FileReader(fileName) );
 
-            // Strip the header off the CSV file.
+            // Strip the header line off the CSV file.
             line = in.readLine();
+
+            // Iterate through and process each of the data lines.
             while( (line = in.readLine()) !=null) {
+                 boolean isTOF = false;
+                 boolean isEOF = false;
                  field   = line.split(",");
 
                  String id    = field[0].trim();
                  JobSpecification jobSpec = jobSpecificationMap.getJobSpecification(id);
-                 boolean isTOF = false;
-                 boolean isEOF = false;
-                 if (jobSpec.jobClass.equals("top_of_frame")) {
-                     isTOF = true;
-                 } else if (jobSpec.jobClass.equals("end_of_frame")) {
-                     isEOF = true;
-                 }
+                 if (jobSpec != null) {
+                     if (jobSpec.jobClass.equals("top_of_frame")) {
+                         isTOF = true;
+                     } else if (jobSpec.jobClass.equals("end_of_frame")) {
+                         isEOF = true;
+                     }
+                 } 
                  double start = Double.parseDouble( field[1]);
                  double stop  = Double.parseDouble( field[2]);
                  if (start < stop) {

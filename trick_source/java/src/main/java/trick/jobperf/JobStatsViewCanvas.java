@@ -24,6 +24,7 @@ public class JobStatsViewCanvas extends JPanel {
     }
 
     private void doDrawing(Graphics g) {
+
         Graphics2D g2d = (Graphics2D) g;
 
         RenderingHints rh = new RenderingHints(
@@ -57,16 +58,23 @@ public class JobStatsViewCanvas extends JPanel {
         int jobY = 100;
         for (StatisticsRecord jobStatisticsRecord : jobStats.jobStatisticsList ) {
 
-            JobSpecification jobSpec = jobSpecificationMap.getJobSpecification( jobStatisticsRecord.id);
-
             g2d.setFont(dataFont);
             g2d.setPaint( Color.BLACK );
+
             g2d.drawString(jobStatisticsRecord.id, 100, jobY);
             g2d.drawString( String.format("%14.6f", jobStatisticsRecord.meanValue), 180, jobY);
             g2d.drawString( String.format("%14.6f", jobStatisticsRecord.stddev), 280, jobY);
             g2d.drawString( String.format("%14.6f", jobStatisticsRecord.minValue), 380, jobY);
             g2d.drawString( String.format("%14.6f", jobStatisticsRecord.maxValue), 480, jobY);
-            g2d.drawString(jobSpec.name, 600, jobY);
+
+            JobSpecification jobSpec = jobSpecificationMap.getJobSpecification( jobStatisticsRecord.id);
+            if (jobSpec != null) {
+                g2d.drawString(jobSpec.name, 600, jobY);
+            } else {
+                g2d.setPaint( Color.RED );
+                g2d.drawString("UNKNOWN", 600, jobY);
+            }
+
             jobY += 20;
         }
     }

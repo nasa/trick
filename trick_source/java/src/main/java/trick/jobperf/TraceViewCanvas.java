@@ -94,6 +94,7 @@ public class TraceViewCanvas extends JPanel {
             for (JobExecutionEvent jobExec : jobExecEvtList ) {
 
                  if ((!wasTOF && jobExec.isTOF) || ( wasEOF && !jobExec.isEOF )) {
+
                      // Wrap up the previous frame record.
                      frameRecord.stop = jobExec.start;
                      frameRecord.CalculateJobContainment();
@@ -152,6 +153,20 @@ public class TraceViewCanvas extends JPanel {
         return frameRenderRange.first;
     }
 
+    public int getLastRenderFrame() {
+        return frameRenderRange.last;
+    }
+
+    // public void moveRenderFrameRangeBy(int advance) {
+    //
+    //     if (   ((frameRenderRange.first + advance) > 0) &&
+    //            ((frameRenderRange.first + advance) < frameArray.length ))
+    //
+    //
+    //
+    //     }
+    // }
+
     public void setFirstRenderFrame(int first) throws InvalidFrameBoundsExpection {
         if ((first >= 0) && (first <= frameRenderRange.last)) {
             frameRenderRange = new FrameRange(first, frameRenderRange.last);
@@ -160,10 +175,6 @@ public class TraceViewCanvas extends JPanel {
         } else {
             throw new InvalidFrameBoundsExpection("");
         }
-    }
-
-    public int getLastRenderFrame() {
-        return frameRenderRange.last;
     }
 
     public void setLastRenderFrame(int last) throws InvalidFrameBoundsExpection {
