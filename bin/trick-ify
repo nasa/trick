@@ -32,7 +32,7 @@ GetOptions
     "no_clean_obj_list"         => \$no_clean_obj,                   # Don't rebuild trickify_obj_list
     "no_source"                 => \$no_source_build,                # Arg to disable building source files
     "source_make=s"             => \$source_make_call,               # Make call to build object files
-    "source_args=s"             => \$source_make_args,               # Default make call args to build object files
+    "source_make_args=s"        => \$source_make_args,               # Default make call args to build object files
     "trickify_args=s"           => \$trickify_make_args,             # Trickify make args
     "trickify_make=s"           => \$trickify_make_path,             # Set trickify make path
     "n=s"                       => \$name,                           # Set the library name
