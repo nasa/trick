@@ -1207,7 +1207,9 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         Font font = new Font("Monospaced", Font.PLAIN, curr_font_size);
         statusMsgPane.setFont(font);
 
-        JPanel statusMsgPanel = UIUtils.createSearchableTitledPanel("Status Messages", statusMsgPane, new FindBar(statusMsgPane.getSearchable()));
+        // Create a customized search bar for the status message pane.
+        FindBar findBar = new FindBar(statusMsgPane);
+        JPanel statusMsgPanel = UIUtils.createSearchableTitledPanel("Status Messages", statusMsgPane, findBar);
         return statusMsgPanel;
     }
 
