@@ -136,6 +136,7 @@ all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
 .ONESHELL:
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
+	echo TRICKIFICATION STEP A
 	@while read -r line ; do \
 		export FILES="$$FILES $$line" ; \
 	done < $(PY_LINK_LIST)
@@ -154,6 +155,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 	elif [ "$(TRICKIFY_BUILD_TYPE)" = "STATIC" ] ; then \
 		ar rcs $@ $ $$FILES ; \
 	fi
+	echo TRICKIFICATION STEP B
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) .trick:
 	@mkdir -p $@
