@@ -148,7 +148,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 	@if [ "$(FULL_TRICKIFY_BUILD)" = "1" ] ; then \
 		while read -r line ; do \
 			export FILES="$$FILES $$line" ; \
-		done < $(OBJ_LINK_LIST)
+		done < $(OBJ_LINK_LIST) ; \
 	fi
 	echo TRICKIFICATION STEP D
 	@if [ "$(TRICKIFY_BUILD_TYPE)" = "PLO" ] ; then \
