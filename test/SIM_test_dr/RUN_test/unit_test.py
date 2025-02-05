@@ -5,6 +5,10 @@ trick_utest.unit_tests.set_file_name( os.getenv("TRICK_HOME") + "/trick_test/SIM
 
 trick_utest.unit_tests.set_test_name( "DRTest" )
 
+has_dhf5 = False
+if hasattr(trick, 'DRHDF5'):
+    has_dhf5 = True
+
 ######################################################################################################################
 
 test_suite = "drg api"
@@ -16,10 +20,18 @@ num_drgs = trick.get_num_data_record_groups()
 TRICK_EXPECT_EQ( num_drgs , 0 , test_suite , "0 drgs before any created" )
 
 # The first item of each pair is the .dr file name and the second item of each pair is the drg name
-dr_file_name_drg_name_tuple = (('Modified_data/dr_typesASCII.dr', 'DR_typesASCII'), 
-                               ('Modified_data/dr_typesBINARY.dr', 'DR_typesBINARY'), 
-                               ('Modified_data/dr_bitfASCII.dr', 'DR_bitfieldsASCII'), 
-                               ('Modified_data/dr_bitfBINARY.dr', 'DR_bitfieldsBINARY'))
+if has_dhf5:
+    dr_file_name_drg_name_tuple = (('Modified_data/dr_typesASCII.dr', 'DR_typesASCII'), 
+                                   ('Modified_data/dr_typesBINARY.dr', 'DR_typesBINARY'), 
+                                   ('Modified_data/dr_typesHDF5.dr', 'DR_typesHDF5'),
+                                   ('Modified_data/dr_bitfASCII.dr', 'DR_bitfieldsASCII'), 
+                                   ('Modified_data/dr_bitfBINARY.dr', 'DR_bitfieldsBINARY'),
+                                   ('Modified_data/dr_bitfHDF5.dr', 'DR_bitfieldsHDF5'))
+else:
+    dr_file_name_drg_name_tuple = (('Modified_data/dr_typesASCII.dr', 'DR_typesASCII'), 
+                                   ('Modified_data/dr_typesBINARY.dr', 'DR_typesBINARY'), 
+                                   ('Modified_data/dr_bitfASCII.dr', 'DR_bitfieldsASCII'), 
+                                   ('Modified_data/dr_bitfBINARY.dr', 'DR_bitfieldsBINARY'))
 
 num_files = len(dr_file_name_drg_name_tuple)
 for i in range(num_files):
@@ -29,7 +41,10 @@ for i in range(num_files):
 num_drgs = trick.get_num_data_record_groups()
 
 # Check the result of trick.get_num_data_record_groups()
-TRICK_EXPECT_EQ( num_drgs , 4 , test_suite , "num of dr groups = 4" )
+if has_dhf5:
+    TRICK_EXPECT_EQ( num_drgs , 6 , test_suite , "num of dr groups = 6" )
+else:
+    TRICK_EXPECT_EQ( num_drgs , 4 , test_suite , "num of dr groups = 4" )
 
 # Test trick.get_data_record_group(<drg_name>) for getting the drg pointer by its name
 # Check the name of the obtained drg instead of the drg pointer
@@ -49,7 +64,10 @@ TRICK_EXPECT_TRUE(  is_null, test_suite , "null drg by nonexistent drg name" )
 is_null = False
 if trick.get_data_record_group_by_idx(num_drgs+1) is None :
     is_null = True
-TRICK_EXPECT_TRUE(  is_null, test_suite , "null drg by drg id 5" )
+if has_dhf5:
+    TRICK_EXPECT_TRUE(  is_null, test_suite , "null drg by drg id 7" )
+else:
+    TRICK_EXPECT_TRUE(  is_null, test_suite , "null drg by drg id 5" )
 
 is_null = False
 if trick.get_data_record_group_by_idx(-1) is None :

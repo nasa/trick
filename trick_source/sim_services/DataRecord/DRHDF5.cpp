@@ -13,6 +13,7 @@ PROGRAMMERS:
 #include "trick/command_line_protos.h"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
+#include "trick/bitfield_proto.h"
 
 Trick::DRHDF5::DRHDF5( std::string in_name, Trick::DR_Type dr_type ) : Trick::DataRecordGroup(in_name, dr_type) {
     register_group_with_mm(this, "Trick::DRHDF5") ;
@@ -140,9 +141,9 @@ int Trick::DRHDF5::format_specific_init() {
                 }
                 break;
             case TRICK_UNSIGNED_BITFIELD:
-                if (rec_buffer[ii]->ref->attr->size == sizeof(int)) {
+                if (rec_buffer[ii]->ref->attr->size == sizeof(unsigned int)) {
                     datatype = H5T_NATIVE_UINT;
-                } else if (rec_buffer[ii]->ref->attr->size == sizeof(short)) {
+                } else if (rec_buffer[ii]->ref->attr->size == sizeof(unsigned short)) {
                     datatype = H5T_NATIVE_USHORT;
                 } else {
                     datatype = H5T_NATIVE_UCHAR;
@@ -222,6 +223,105 @@ int Trick::DRHDF5::format_specific_init() {
     return(0);
 }
 
+#ifdef HDF5
+/**
+ * Helper function to append specified data records for one variable to its dataset(packet table).
+ */
+void append_var_packet_table(Trick::DataRecordBuffer *drb, char* buf, size_t records, hid_t param_ds) {
+    // Data records to be appended to the packet table
+    void* data = 0;
+    int bf;
+
+    switch (drb->ref->attr->type) {
+        case TRICK_CHARACTER:
+        case TRICK_UNSIGNED_CHARACTER:
+        case TRICK_STRING:
+        case TRICK_SHORT:
+        case TRICK_UNSIGNED_SHORT:
+        case TRICK_ENUMERATED:
+        case TRICK_INTEGER:
+        case TRICK_UNSIGNED_INTEGER:
+        case TRICK_LONG:
+        case TRICK_UNSIGNED_LONG:
+        case TRICK_FLOAT:
+        case TRICK_DOUBLE:
+            H5PTappend(param_ds, records , buf);
+            break;
+        case TRICK_BITFIELD:
+            bf = GET_BITFIELD(buf, drb->ref->attr->size, drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+            data = malloc(records * sizeof(bf));
+            
+            // Extract bitfield for each record from different segments of buf
+            for (size_t j = 0; j < records; j++) {               
+                // Calculate the correct offset in buf for each record
+                // Each record in buf has size of rec_buffer[ii]->ref->attr->size
+                size_t offset = j * drb->ref->attr->size;
+
+                if (drb->ref->attr->size == sizeof(int)) {
+                    ((int *)data)[j] = extract_bitfield_any(
+                                                    *(int *)(buf+offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+                } else if (drb->ref->attr->size == sizeof(short)) {
+                    ((short *)data)[j] = extract_bitfield_any(
+                                                    *(short *)(buf+offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+                } else if (drb->ref->attr->size == sizeof(char)) {
+                    ((char *)data)[j] = extract_bitfield_any(
+                                                    *(char *)(buf+offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+                } else {
+                    ((int*)data)[j] = extract_bitfield_any(
+                                                    *(int *)(buf+offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+                }
+            }
+            H5PTappend(param_ds, records, data);
+            break;
+        case TRICK_UNSIGNED_BITFIELD:
+            bf = GET_UNSIGNED_BITFIELD(buf, drb->ref->attr->size, drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+            data = malloc(records * sizeof(bf));
+
+            // Extract bitfield for each record from different segments of buf
+            for (size_t j = 0; j < records; j++) {               
+                // Calculate the correct offset in buf for each record
+                // Each record in buf has size of rec_buffer[ii]->ref->attr->size
+                size_t offset = j * drb->ref->attr->size;  // record_size would be the size of one record in buf
+
+                if (drb->ref->attr->size == sizeof(int)) {
+                    ((unsigned int *)data)[j] = extract_unsigned_bitfield_any(
+                                                    *(unsigned int *)(buf+offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+                } else if (drb->ref->attr->size == sizeof(short)) {
+                    ((unsigned short *)data)[j] = extract_unsigned_bitfield_any(
+                                                    *(unsigned short *)(buf+offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+                } else if (drb->ref->attr->size == sizeof(char)) {
+                    ((unsigned char *)data)[j] = extract_unsigned_bitfield_any(
+                                                    *(unsigned char *)(buf+offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+                } else {
+                    ((int *)data)[j] = extract_unsigned_bitfield_any(
+                                                    *(int *)(buf+offset), drb->ref->attr->size,
+                                                    drb->ref->attr->index[0].start, drb->ref->attr->index[0].size);
+                }
+            }
+            H5PTappend(param_ds, records, data);
+            break;
+        case TRICK_LONG_LONG:
+        case TRICK_UNSIGNED_LONG_LONG:
+        case TRICK_BOOLEAN:
+        default:
+            H5PTappend(param_ds, records , buf);
+            break;
+
+        if (data != 0) {
+            free(data);
+            data = 0;
+        }
+    }
+}
+#endif
+
 /*
    HDF5 logging is done on a per variable basis instead of per time step like the
    other recording methods.  This write_data routine overrides the default in
@@ -235,6 +335,8 @@ int Trick::DRHDF5::write_data(bool must_write) {
     unsigned int num_to_write ;
     unsigned int ii;
     char *buf = 0;
+    size_t ds_records1;
+    size_t ds_records2;
 
     if ( record and inited and (buffer_type == DR_No_Buffer or must_write)) {
 
@@ -250,29 +352,28 @@ int Trick::DRHDF5::write_data(bool must_write) {
         writer_num = local_buffer_num - num_to_write ;
 
         if ( writer_num != local_buffer_num ) {
+            unsigned int writer_offset = writer_num % max_num ;
             // Test if the writer pointer to the right of the buffer pointer in the ring
             if ( (writer_num % max_num) > (local_buffer_num % max_num) ) {
-               // we have 2 segments to write per variable
-               for (ii = 0; ii < rec_buffer.size(); ii++) {
-                   unsigned int writer_offset = writer_num % max_num ;
-                   buf = rec_buffer[ii]->buffer + (writer_offset * rec_buffer[ii]->ref->attr->size) ;
+                ds_records1 = max_num - writer_offset;
+                ds_records2 = local_buffer_num % max_num;
 
-                   /* Append all of the data on the end of the buffer to the packet table. */
-                   H5PTappend( param_dataset_ids[ii], max_num - writer_offset , buf );
+                // we have 2 segments to write per variable
+                for (ii = 0; ii < rec_buffer.size(); ii++) {
+                    //unsigned int writer_offset = writer_num % max_num ;
+                    buf = rec_buffer[ii]->buffer + (writer_offset * rec_buffer[ii]->ref->attr->size) ;
+                    append_var_packet_table(rec_buffer[ii], buf, ds_records1, param_dataset_ids[ii]);
 
-                   buf = rec_buffer[ii]->buffer ;
-                   /* Append all of the data at the beginning of the buffer to the packet table. */
-                   H5PTappend( param_dataset_ids[ii], local_buffer_num % max_num , buf );
-               }
+                    buf = rec_buffer[ii]->buffer ;
+                    append_var_packet_table(rec_buffer[ii], buf, ds_records2, param_dataset_ids[ii]);
+                }
             }  else {
-               // we have 1 continous segment to write per variable
-               for (ii = 0; ii < rec_buffer.size(); ii++) {
-                   unsigned int writer_offset = writer_num % max_num ;
-                   buf = rec_buffer[ii]->buffer + (writer_offset * rec_buffer[ii]->ref->attr->size) ;
-
-                   /* Append all of the data to the packet table. */
-                   H5PTappend( param_dataset_ids[ii], local_buffer_num - writer_num , buf );
-
+                ds_records1 = local_buffer_num - writer_num;
+                // we have 1 continous segment to write per variable
+                for (ii = 0; ii < rec_buffer.size(); ii++) {
+                    //unsigned int writer_offset = writer_num % max_num ;
+                    buf = rec_buffer[ii]->buffer + (writer_offset * rec_buffer[ii]->ref->attr->size) ;
+                    append_var_packet_table(rec_buffer[ii], buf, ds_records1, param_dataset_ids[ii]);
                }
             }
             writer_num = local_buffer_num ;
@@ -306,9 +407,7 @@ int Trick::DRHDF5::format_specific_write_data(unsigned int writer_offset __attri
          * So there is a seperate DataRecordBuffer per variable.
          * Point to the value to be recorded. */
         buf = rec_buffer[ii]->buffer + (writer_offset * rec_buffer[ii]->ref->attr->size) ;
-
-        /* Append 1 value to the packet table. */
-        H5PTappend( param_dataset_ids[ii], 1, buf );
+        append_var_packet_table(rec_buffer[ii], buf, 1, param_dataset_ids[ii]);
 
     }
 #endif
