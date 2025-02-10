@@ -1,0 +1,29 @@
+|L   3|2024/11/21,15:54:06|myworkstation| |T 0|0.000000| TrickParamCopy(UserCodeExample): Failed to resolve parameter 'fsw_out.fswOut_block.fswOut.fsw1HzOut.domain.subdomain.variable'
+|L   2|2024/11/21,15:54:06|myworkstation| |T 0|0.000000| TrickParamCopy(UserCodeExample): Mismatched data types for 'fsw_out.fswOut_block.fswOut.fsw1HzOut.domain.subdomain.variable' -> 'another_structure.myvariable'
+|L   2|2024/11/21,15:54:07|myworkstation| |T 0|0.000000| Could not find Data Record variable flex.flex_Obj.flexMode.
+|L   2|2024/11/21,15:54:07|myworkstation| |T 0|0.000000| Could not find Data Record variable flex.flex_Obj.myarray[0].
+|L   2|2024/11/21,15:54:07|myworkstation| |T 0|0.000000| Could not find Data Record variable foo.bar.yippy.skippy.axial_sep_distance.
+|L   0|2024/11/21,15:54:20|myworkstation| |T 0|68.955000| 
+     REALTIME SHUTDOWN STATS:
+            ACTUAL INIT TIME:       42.606
+         ACTUAL ELAPSED TIME:       55.551
+|L   0|2024/11/21,15:54:20|myworkstation| |T 0|68.955000| 
+SIMULATION TERMINATED IN
+  PROCESS: 0
+  ROUTINE: Executive_loop_single_thread.cpp:98
+  DIAGNOSTIC: Reached termination time
+
+              SIMULATION START TIME:        0.000
+               SIMULATION STOP TIME:       68.955
+            SIMULATION ELAPSED TIME:       68.955
+                 USER CPU TIME USED:       55.690
+               SYSTEM CPU TIME USED:        0.935
+              SIMULATION / CPU TIME:        1.218
+       INITIALIZATION USER CPU TIME:       42.783
+     INITIALIZATION SYSTEM CPU TIME:        0.901
+               SIMULATION RAM USAGE:     1198.867MB
+      (External program RAM usage not included!)
+  VOLUNTARY CONTEXT SWITCHES (INIT):          792
+INVOLUNTARY CONTEXT SWITCHES (INIT):          187
+   VOLUNTARY CONTEXT SWITCHES (RUN):           97
+ INVOLUNTARY CONTEXT SWITCHES (RUN):           14

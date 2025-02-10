@@ -57,7 +57,6 @@ my %sim ;
 my %out_of_date ;
 my ($version, $thread, $year) ;
 my %processed_templates ;
-my $global_template_typedefs ;
 
 my $typedef_def = qr/typedef\s+                            # the word typedef
                (?:[_A-Za-z][\s\w]*\s*)                     # resolved type
@@ -336,24 +335,6 @@ sub process_file() {
         }
         print OUT "\n$new_contents" ;
         print OUT "$contents\n" ;
-        print OUT $global_template_typedefs ;
-
-        # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper non-class attribute assingment in input processor.
-        # _swig_setattr_nondynamic_instance_variable function is added for each class in process_class subroutine.
-        foreach my $c ( @class_names ) {
-            if ( ! exists $class_typemap_printed{$c} ) {
-                my $c_ = $c ;
-                $c_ =~ s/\:/_/g ;
-                if ( $c !~ /::/ ) {
-                    print OUT "\n#if SWIG_VERSION > 0x040000\n";
-                    print OUT "%pythoncode %{\n" ; 
-                    print OUT "    if '$c' in globals():\n";
-                    print OUT "        $c.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n" ;
-                    print OUT "%}\n" ;
-                    print OUT "#endif\n";
-                }
-            }
-        }
 
         # Add a trick_cast_as macro line for each class parsed in the file.  These lines must appear at the bottom of the
         # file to ensure they are not in a namespace directive and they are after the #define statements they depend on.
@@ -609,7 +590,8 @@ sub process_class($$$$$) {
 
     my $extracted ;
     my ($class_name) ;
-    my $template_typedefs ;
+    my @qualified_template_typedefs ;
+    my @unqualified_template_typedefs ;
 
 ## Extract the class_name from the class_string
     $class_string =~ /^(?:class|struct)\s+               # keyword class or struct
@@ -692,10 +674,6 @@ sub process_class($$$$$) {
                     my ($template_type_no_sp) = $template_full_type ;
                     $template_type_no_sp =~ s/\s//g ;
 
-                    # If the type is qualified, assume it's fully qualified and put the
-                    # %template directive in the global namespace.
-                    # See https://github.com/nasa/trick/issues/768
-                    my $qualified = $template_type_no_sp =~ /^\w+(::)\w+</ ;
                     #print "*** template_type_no_sp = $template_type_no_sp ***\n" ;
                     if ( ! exists $processed_templates{$template_type_no_sp} ) {
 
@@ -703,29 +681,48 @@ sub process_class($$$$$) {
                         my $identifier = "${sanitized_namespace}${class_name}_${var_name}" ;
                         my $trick_swig_template = "TRICK_SWIG_TEMPLATE_$identifier" ;
 
-                        # Insert template directive immediately before intsance
+                        # Insert template directive immediately before instance
                         # This is required as of SWIG 4
                         my $typedef = "\n#ifndef $trick_swig_template\n" ;
                         $typedef   .= "#define $trick_swig_template\n" ;
                         $typedef   .= "\%template($identifier) $template_full_type;\n" ;
                         $typedef   .= "#endif\n" ;
 
-                        # SWIG namespace resolution for template directives starts at the local space
-                        # Therefore, if the type is qualified, assume it's fully qualified and put the
-                        # %template directive in the global namespace by escaping the current namespace
-			if ($curr_namespace ne "") {
-                            my $in_same_namespace = 1 ;
-                            if ($template_full_type =~ /^\w*(::)\w+</) {
-                                $in_same_namespace = 0 ;
-                            }
-                            if ($in_same_namespace eq 0) {
-                                $curr_namespace =~ /(.*)::/ ;
-                                $typedef = "\n}" . $typedef . "namespace " . $1 . " {" ; 
-                            }
-                        }
+                        # A SWIG %template directive must:
+                        # 1. Appear before each template instantiation
+                        # 2. Be in scope where the instantiation is declared
+                        # 3. Not be enclosed within a different namespace
+                        #
+                        # See https://www.swig.org/Doc4.2/SWIGPlus.html#SWIGPlus_template_scoping
+                        #
+                        # Generally, convert_swig is not smart enough to put all %template
+                        # directives in the right scope because:
+                        # 1. We do not keep track of what scope each type we encounter is
+                        #    declared in.
+                        # 2. We cannot easily add %template directives to already-processed
+                        #    scopes.
+                        #
+                        # As a compromise:
+                        # 1. For an unqualified template instantiation, the template declaration
+                        #    is necessarily in the current or a containing scope. Hope it's in the
+                        #    current namespace and put the %template directive there. This will
+                        #    create invalid SWIG input code for templates declared in a containing
+                        #    namespace and for member templates declared in this class.
+                        # 2. For a qualified template instantiation, the template declaration is
+                        #    in a (possibly nested) scope contained by the current or a containing
+                        #    scope. Assume the instantiation is fully qualified and put it in the
+                        #    global namespace. This will create invalid SWIG code for partially-
+                        #    qualified instantiations.
+                        #
+                        # See https://github.com/nasa/trick/issues/768
 
                         if ($isSwigExcludeBlock == 0) {
-                            $template_typedefs .= $typedef ;
+                            if ($template_full_type =~ /^\w*(::\w+)+</) {
+                                push @qualified_template_typedefs, $typedef ;
+                            }
+                            else {
+                                push @unqualified_template_typedefs, $typedef ;
+                            }
                         }
 
                         $processed_templates{$template_type_no_sp} = 1 ;
@@ -738,12 +735,32 @@ sub process_class($$$$$) {
 
     push @$class_names_ref , "$curr_namespace$class_name" ;
 
-    # write out the templated variable declaration lines found in this class.
-    $$new_contents_ref .= $template_typedefs."\n" ;
+    # Write out the %template directives for template instantiations found in
+    # this class. Put the directives for unqualified instantiations in the
+    # namespace containing this class, just before the class definition.
+    foreach (@unqualified_template_typedefs) {
+        $$new_contents_ref .= $_ ;
+    }
 
-    $$new_contents_ref .= $my_class_contents ;
+    # Assume qualified template instantiations are fully qualified and put
+    # their %template directives in the global namespace.
+    # 1. close all namespaces, returning to the global namespace
+    # 2. add the %template directives
+    # 3. open all namespaces, restoring the scope
+    if (@qualified_template_typedefs) {
+        my @namespaces = split(/::/, $curr_namespace) ;
+        $$new_contents_ref .= "}" x @namespaces . "\n";
+        foreach (@qualified_template_typedefs) {
+            $$new_contents_ref .= $_ ;
+        }
+        $$new_contents_ref .= "\n";
+        foreach (@namespaces) {
+            $$new_contents_ref .= "namespace " . $_ . " { " ;
+        }
+    }
+
     # write the class contents and semicolon to ensure any template declarations below are after the semicolon.
-    $$new_contents_ref .= $extracted . ";\n" ;
+    $$new_contents_ref .= "\n" . $my_class_contents . $extracted . ";\n" ;
 
     my $c_ = "$curr_namespace$class_name" ;
     $c_ =~ s/\:/_/g ;
@@ -785,7 +802,7 @@ sub process_typedef_struct($$$$) {
     my ($typedef_struct_string , $contents_ref, $new_contents_ref , $class_names_ref) = @_ ;
 
     my $extracted ;
-    my ($tail , $struct_names, @struct_names) ;
+    my ($tail , $my_struct_contents, $struct_names, @struct_names) ;
 
     #print "*** typedef_struct_string = $typedef_struct_string ***\n" ;
 
@@ -811,10 +828,12 @@ sub process_typedef_struct($$$$) {
     foreach my $s ( @struct_names ) {
         if ( $s !~ /\*/ ) {
             push @$class_names_ref , $s ;
+            # Add _swig_setattr_nondynamic_instance_variable function for raising AttributeError for improper struct attribute assingment in input processor
+            $my_struct_contents .= "\n#if SWIG_VERSION > 0x040000\n\%pythoncode \%{\n    if '$s' in globals():\n        $s.__setattr__ = _swig_setattr_nondynamic_instance_variable(object.__setattr__)\n\%}\n#endif\n" ;
         }
     }
 
-    $$new_contents_ref .= $extracted . $tail ;
+    $$new_contents_ref .= $extracted . $tail . $my_struct_contents ;
 
 }
 

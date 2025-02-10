@@ -42,6 +42,14 @@ namespace Trick {
         DR_Not_Specified = 3    /**< Unknown type */
     } ;
 
+    enum DR_Type {
+        DR_Type_None,
+        DR_Type_Ascii,
+        DR_Type_Binary,
+        DR_Type_HDF5,
+        DR_Type_FrameLogDataRecord
+    } ;
+
     class DataRecordBuffer {
         public:
             char *buffer;       /* ** generic holding buffer for data */
@@ -149,7 +157,7 @@ namespace Trick {
              @brief Constructor that creates a new data recording group with the given @c in_name.
              @param in_name - the new data recording group name
             */
-            DataRecordGroup( std::string in_name = "" ) ;
+            DataRecordGroup( std::string in_name = "", Trick::DR_Type dr_type = Trick::DR_Type::DR_Type_None ) ;
 
             ~DataRecordGroup() ;
 
@@ -404,6 +412,12 @@ namespace Trick {
              @returns always 0
             */
             virtual int add_time_variable() ;
+
+            /**
+             @brief This function adds jobs to the DRG based on the dr type.
+             @returns void
+            */
+            void configure_jobs(DR_Type type) ;
 
             /** Check that a variable is supported by data recording. */
             /** Variable must be a single primitive type - no STL, array, structured, string */
