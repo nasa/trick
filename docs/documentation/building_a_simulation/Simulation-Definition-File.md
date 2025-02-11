@@ -327,11 +327,13 @@ pass identifier. If all integration passes are complete, the job must return a z
 All dynamic_event class jobs must return a double precision value representing the estimated time
 to go to the defined event, in seconds.
 
-All other jobs managed by the Trick executive, not integration or dynamic_event, may return any
-type. If a function is declared with an integer return value, the job must return a non-negative
-integer or else the executive will assume an error occurred an immediately terminate the simulation.
-If the job does not return an integer, Trick will not take any action based on a return value. Note
-that initialization job return values are NOT checked by the executive.
+All other jobs managed by the Trick executive, which are neither integration nor dynamic_event, may return any
+type. In order to have Trick check the return code from a job, the job declaration needs to set its return to 
+the variable `trick_ret` as below:
+```C++
+(0.100, "scheduled) trick_ret = foo.job();
+```
+Any return value that evalutes to non-zero for any other job class will terminate the simulation if defined in this way.  This value is then returned as the return code of the Trick process.
 
 #### Job Name
 
