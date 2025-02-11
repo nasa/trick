@@ -34,6 +34,16 @@ public class JobSpecificationMap {
                 }
             }
         }
+// TODO:
+// Sometimes job specifications, and therefore their IDs are not recorded in the S_job_execution file.
+// So, when we attempt to find one of these unrecorded Job specs by ID, we get null.
+//       
+// Job IDs are of the form XX.YY (e.g., 12.03). The XX part is associated with
+// a particular component sim object. The YY part identifies a specific job from that
+// sim object.
+// If an unknown ID shares the XX part of the ID, then perhaps we could at least report which
+// simobject the job came from.
+
         in.close();
     }
 

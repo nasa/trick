@@ -2,7 +2,10 @@ package trick.jobperf;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.net.URL;
 
@@ -86,13 +89,13 @@ public class TraceViewInputToolBar extends JToolBar implements ActionListener {
             }
         });
 
-        advanceRangeButton = new JButton("Advance");
+        advanceRangeButton = new JButton("\u25bc");
         advanceRangeButton.addActionListener(this);
         advanceRangeButton.setActionCommand("advance-frame-range");
         advanceRangeButton.setToolTipText("Advance the selected range of frames to be displayed.");
         add(advanceRangeButton);
 
-        advanceRangeButton = new JButton("Retreat");
+        advanceRangeButton = new JButton("\u25b2");
         advanceRangeButton.addActionListener(this);
         advanceRangeButton.setActionCommand("retreat-frame-range");
         advanceRangeButton.setToolTipText("Retreat the selected range of frames to be displayed.");
@@ -100,7 +103,14 @@ public class TraceViewInputToolBar extends JToolBar implements ActionListener {
 
         add( new JLabel("               "));
 
-        // Add Trick LOGO here.
+        // Add Trick LOGO.
+        try { 
+            BufferedImage image = ImageIO.read(getClass().getResource("/trick/common/resources/trick_small.gif"));
+            add( new JLabel( new ImageIcon(image)));
+        } catch (IOException e) {
+            System.out.println("Failed to load image.");
+        }
+        
     }
 
     @Override
