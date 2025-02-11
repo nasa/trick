@@ -112,6 +112,7 @@ void Trick::FrameLog::add_recording_vars_for_jobs() {
              (! all_jobs_vector[ii]->job_class_name.compare("integration")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("derivative")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("dynamic_event")) ||
+             (! all_jobs_vector[ii]->job_class_name.compare("pre_integration")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("post_integration")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("system_thread_sync")) ||
              (! all_jobs_vector[ii]->job_class_name.compare("top_of_frame")) ||
