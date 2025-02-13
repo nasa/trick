@@ -95,11 +95,11 @@ public class TraceViewInputToolBar extends JToolBar implements ActionListener {
         advanceRangeButton.setToolTipText("Advance the selected range of frames to be displayed.");
         add(advanceRangeButton);
 
-        advanceRangeButton = new JButton("\u25b2");
-        advanceRangeButton.addActionListener(this);
-        advanceRangeButton.setActionCommand("retreat-frame-range");
-        advanceRangeButton.setToolTipText("Retreat the selected range of frames to be displayed.");
-        add(advanceRangeButton);
+        retreatRangeButton = new JButton("\u25b2");
+        retreatRangeButton.addActionListener(this);
+        retreatRangeButton.setActionCommand("retreat-frame-range");
+        retreatRangeButton.setToolTipText("Retreat the selected range of frames to be displayed.");
+        add(retreatRangeButton);
 
         add( new JLabel("               "));
 
@@ -121,15 +121,21 @@ public class TraceViewInputToolBar extends JToolBar implements ActionListener {
                 traceView.displaySelectedFrame();
             break;
             case "advance-frame-range":
-                // DO ACTION
+                moveRenderFrameRangeBy(50);
             break;
             case "retreat-frame-range":
-                // DO ACTION
+                moveRenderFrameRangeBy(-50);
             break;
             default:
                 System.out.println("Unknown Action Command:" + s);
             break;
         }
+    }
+
+    private void moveRenderFrameRangeBy(int advance) {
+        traceView.moveRenderFrameRangeBy(advance);
+        firstRenderFrameField.setText( String.format("%d", traceView.getFirstRenderFrame()));
+        lastRenderFrameField.setText( String.format("%d", traceView.getLastRenderFrame()));
     }
 
     private void setFirstRenderFrame() {

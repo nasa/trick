@@ -93,9 +93,9 @@ public class TraceViewCanvas extends JPanel {
             FrameRecord frameRecord = new FrameRecord();
             for (JobExecutionEvent jobExec : jobExecEvtList ) {
 
-                 if ((!wasTOF && jobExec.isTOF) || ( wasEOF && !jobExec.isEOF )) {
+                if ((!wasTOF && jobExec.isTOF) || ( wasEOF && !jobExec.isEOF )) {
 
-                     // Wrap up the previous frame record.
+                    // Wrap up the previous frame record.
                      frameRecord.stop = jobExec.start;
                      frameRecord.CalculateJobContainment();
                      frameList.add(frameRecord);
@@ -110,7 +110,7 @@ public class TraceViewCanvas extends JPanel {
                  wasEOF = jobExec.isEOF;
 
                  idToColorMap.addKey(jobExec.id);
-             }
+            }
 
              frameArray = frameList.toArray( new FrameRecord[ frameList.size() ]);
 
@@ -157,18 +157,28 @@ public class TraceViewCanvas extends JPanel {
         return frameRenderRange.last;
     }
 
-    // public void moveRenderFrameRangeBy(int advance) {
-    //
-    //     if (   ((frameRenderRange.first + advance) > 0) &&
-    //            ((frameRenderRange.first + advance) < frameArray.length ))
-    //
-    //
-    //
-    //     }
-    // }
+    public void moveRenderFrameRangeBy(int advance) {
+        if ( frameArray.length > 50 ) {
+
+            int maxIndex = frameArray.length - 1;
+            int tFirst = frameRenderRange.first + advance;
+            int tLast = frameRenderRange.last + advance;
+
+            if (tLast > maxIndex) {
+                tLast = maxIndex;
+                tFirst = maxIndex - 50;
+            } else if (tFirst < minIndex) {
+                tFirst = 0;
+                tLast = 50;
+            }
+            frameRenderRange = new FrameRange(tFirst, tLast);
+            setPreferredSize(new Dimension(500, neededPanelHeight()));
+            repaint();
+        }
+    }
 
     public void setFirstRenderFrame(int first) throws InvalidFrameBoundsExpection {
-        if ((first >= 0) && (first <= frameRenderRange.last)) {
+        if ( (first >= 0) && (first <= frameRenderRange.last)) {
             frameRenderRange = new FrameRange(first, frameRenderRange.last);
             setPreferredSize(new Dimension(500, neededPanelHeight()));
             repaint();
