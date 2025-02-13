@@ -21,6 +21,7 @@ $no_source_build = 0 ;                                                    # Arg 
 $no_clean_obj = 0 ;                                                       # Don't rebuild trickify_obj_list
 $no_clean_src = 0 ;                                                       # Don't rebuild trickify_src_list
 $no_clean_s_source = 0 ;                                                  # Don't rebuild S_source.hh
+$s_overrides = "" ;                                                       # Directory containing S_override make files
 
 GetOptions
 (
@@ -38,7 +39,8 @@ GetOptions
     "n=s"                       => \$name,                           # Set the library name
     "b=s"                       => \$build_type,                     # Set library build type
     "v"                         => \$debug,                          # Verbose, print debug info
-    "trick_home=s"              => \$trick_home                      # Set trick home directory
+    "trick_home=s"              => \$trick_home,                     # Set trick home directory
+    "s_overrides=s"             => \$s_overrides                     # Directory containing S_override make files
 ) ;
 
 $full_build = !$no_source_build ;
@@ -83,6 +85,7 @@ $ENV{'TRICKIFY_CXX_FLAGS'} = "$source_dir_args -I $trick_home" . "/include" ;
 $ENV{'TRICKIFY_OBJECT_NAME'} = "$name.$build_type" ;
 $ENV{'TRICKIFY_SOURCE'} = "$source_dir" ;
 $ENV{'TRICKIFY_HEADER'} = "$header_dir" ;
+$ENV{'TRICKIFY_S_OVERRIDES'} = "$s_overrides" ;
 if ( $build_type eq o )
 {
     $ENV{'TRICKIFY_BUILD_TYPE'}  = PLO ;
@@ -134,15 +137,15 @@ if ($full_build)
         foreach $src (@src_files)
         {
             $file = $src ;
-            if($file =~ /\S*(\Q.c\E)$/)
+            if($file =~ /\S\w*(\Q.c\E)$/)
             {
                 $file =~ s/\Q.c\E$// ;
-                $cmd = "gcc $source_make_args -I $trick_home" . "/include -c $src -o $file.o" ;
+                $cmd = "gcc $source_make_args -I $trick_home -I $trick_home" . "/include -I $header_dir -c $src -o $file.o" ;
             }
             else
             {
-                $file =~ s/\Q.cpp\E$// ; 
-                $cmd = "g++ $source_make_args -I $trick_home" . "/include -c $src -o $file.o" ;
+                $file =~ s/\Q.\E\w*$// ; 
+                $cmd = "g++ $source_make_args -I $trick_home -I $trick_home" . "/include -I $header_dir -c $src -o $file.o" ;
             }
             if($debug)
             {

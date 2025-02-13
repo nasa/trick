@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class TrickifyFrame 
 {
-    private String defaultDirectory;
+    private String trick_home;
 
     private JFrame mainFrame;
     private int mainFrameWidth = 1000;
@@ -22,6 +22,7 @@ public class TrickifyFrame
     private DirSelect trickify_path_dirs;
     private DirSelect source_make_dirs;
     private DirSelect log_dirs;
+    private DirSelect s_overrides_dirs;
     private LabeledTextField name_field;
     private LabeledTextField trickify_args_field;
     private LabeledTextField source_make_args_field;
@@ -43,16 +44,23 @@ public class TrickifyFrame
     private JButton runButton;
     private JButton exportButton;
 
-    public ArrayList<String> getTrickifyCmd()
+    public ArrayList<String> getTrickifyCmd(boolean useQuotes)
     {   
         ArrayList<String> cmdLine = new ArrayList<String>();
-        cmdLine.add("trick-ify");
+        cmdLine.add(trick_home + "/bin/trick-ify");
 
         String src_dirs_txt = src_dirs.getDirs().trim();
         if(!src_dirs_txt.equals(""))
         {
             cmdLine.add("-d");
-            cmdLine.add(src_dirs_txt);
+            if(useQuotes)
+            {
+                cmdLine.add("\"" + src_dirs_txt + "\"");
+            }
+            else
+            {
+                cmdLine.add(src_dirs_txt);
+            }
         }
 
         String trick_home_dirs_txt = trick_home_dirs.getDirs().trim();
@@ -95,6 +103,13 @@ public class TrickifyFrame
         if(!build_path_dirs_txt.equals(""))
         {
             lib_name = build_path_dirs_txt;
+        }
+ 
+        String s_overrides_dirs_txt = s_overrides_dirs.getDirs().trim();
+        if(!s_overrides_dirs_txt.equals(""))
+        {
+            cmdLine.add("--s_overrides");
+            cmdLine.add(s_overrides_dirs_txt);
         }
 
         String name_field_txt = name_field.getText().trim();
@@ -167,7 +182,7 @@ public class TrickifyFrame
 
     void trickify()
     {
-        ArrayList<String> cmd = getTrickifyCmd();
+        ArrayList<String> cmd = getTrickifyCmd(false);
         String[] cmdLine = new String[cmd.size()];
         cmdLine = cmd.toArray(cmdLine);
         System.out.println("Executing: " + String.join(" ", cmd));
@@ -186,7 +201,8 @@ public class TrickifyFrame
             PrintWriter logfile = new PrintWriter(log_dirs_path + System.getProperty("file.separator") + "trickify.log", "UTF-8");
             logfile.println(output);
             logfile.close();
-            
+
+            System.out.println("Your technological distinctiveness has been trickified."); 
         }
         catch (IOException e) 
         {
@@ -197,6 +213,7 @@ public class TrickifyFrame
     TrickifyFrame()
     {
         String s = System.getProperty("file.separator");
+        trick_home = new File(TrickifyFrame.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getAbsolutePath();
 
         mainFrame = new JFrame();
 
@@ -220,7 +237,7 @@ public class TrickifyFrame
 
         trick_home_dirs = new DirSelect();
         trick_home_dirs.setLabel("Trick Home Directory");
-        trick_home_dirs.setDirs(System.getenv("TRICK_HOME")); 
+        trick_home_dirs.setDirs(trick_home); 
         trick_home_dirs.setButtonText("Choose");
         trick_home_dirs.setPosition(fields_x, fields_relative_offset);
         fields_relative_offset += fields_offset;
@@ -230,7 +247,7 @@ public class TrickifyFrame
 
         trickify_path_dirs = new DirSelect();
         trickify_path_dirs.setLabel("Trickify Makefile");
-        trickify_path_dirs.setDirs(System.getenv("TRICK_HOME") + s + "share" + s + "trick" + s + "makefiles" + s + "trickify.mk"); 
+        trickify_path_dirs.setDirs(trick_home + s + "share" + s + "trick" + s + "makefiles" + s + "trickify.mk"); 
         trickify_path_dirs.setButtonText("Choose");
         trickify_path_dirs.setPosition(fields_x, fields_relative_offset);
         fields_relative_offset += fields_offset;
@@ -263,6 +280,16 @@ public class TrickifyFrame
         source_make_args_field.setToolTipText("Arguments to provide to the above make file.");
         source_make_args_field.addToPanel(mainPanel);
 
+        s_overrides_dirs = new DirSelect();
+        s_overrides_dirs.setLabel("S_overrides");
+        s_overrides_dirs.setButtonText("Choose");
+        s_overrides_dirs.setPosition(fields_x, fields_relative_offset);
+        fields_relative_offset += fields_offset;
+        s_overrides_dirs.allowMultiple(false);
+        s_overrides_dirs.selectFile(true);
+        s_overrides_dirs.setToolTipText("S_overrides to incorporate");
+        s_overrides_dirs.addToPanel(mainPanel);
+
         build_path_dirs = new DirSelect();
         build_path_dirs.setLabel("Build Path");
         build_path_dirs.setDirs(System.getProperty("user.dir")); 
@@ -288,7 +315,7 @@ public class TrickifyFrame
         log_dirs.setPosition(fields_x, fields_relative_offset);
         fields_relative_offset += fields_offset;
         log_dirs.allowMultiple(false);
-        trickify_path_dirs.selectFile(false);
+        log_dirs.selectFile(false);
         log_dirs.setToolTipText("Where to drop the log file.");
         log_dirs.addToPanel(mainPanel);
 
@@ -402,12 +429,12 @@ public class TrickifyFrame
 
         exportButton = new JButton();
         exportButton.setBounds(600, mainFrameHeight-30, 150, 20);
-        exportButton.setText("Export");
+        exportButton.setText("Print");
         exportButton.addActionListener(new ActionListener() 
         { 
             public void actionPerformed(ActionEvent e) 
             { 
-                System.out.println(String.join(" ", getTrickifyCmd()));
+                System.out.println(String.join(" ", getTrickifyCmd(true)));
             } 
         } );
         mainPanel.add(exportButton);

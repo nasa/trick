@@ -1,13 +1,17 @@
 from pathlib import Path
 import os
 
-def_header_ext = ["h", "hh", "hpp", "H", "hxx", "h++"]
+def_header_ext = [".h", "hh", "hpp", "H", "hxx", "h++"]
 def_src_ext = ["cpp", "c"]
 
 def find_files_by_extension(loc, ext):
-    path = Path(loc)
-    files = list(path.rglob(f'*.{ext}'))
-    return files
+    file_list = []
+    for root, dirs, files in os.walk(loc):
+        for f in files:
+            if f.endswith(ext):
+                file_list.append(os.path.join(root, f))
+    print(file_list)
+    return file_list
 
 def build_S_source():
     loc = ""

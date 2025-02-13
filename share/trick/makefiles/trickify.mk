@@ -88,6 +88,10 @@
 # For more information, see:
 # https://nasa.github.io/trick/documentation/building_a_simulation/Trickified-Project-Libraries
 
+MY_HOME := $(dir $(lastword $(MAKEFILE_LIST)))
+
+include $(TRICKIFY_S_OVERRIDES)
+
 ifndef TRICKIFY_CXX_FLAGS
     $(error TRICKIFY_CXX_FLAGS must be set)
 endif
@@ -100,7 +104,7 @@ TRICKIFY_OBJECT_NAME ?= trickified.o
 TRICKIFY_PYTHON_DIR ?= python
 TRICKIFY_PYTHON_DIR := $(abspath $(TRICKIFY_PYTHON_DIR))
 
-include $(dir $(lastword $(MAKEFILE_LIST)))Makefile.common
+include $(MY_HOME)Makefile.common
 
 BUILD_DIR := $(dir $(MAKE_OUT))
 PY_LINK_LIST := $(BUILD_DIR)trickify_py_link_list
