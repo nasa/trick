@@ -166,10 +166,10 @@ public class TraceViewCanvas extends JPanel {
 
             if (tLast > maxIndex) {
                 tLast = maxIndex;
-                tFirst = maxIndex - 50;
-            } else if (tFirst < minIndex) {
+                tFirst = maxIndex - 49;
+            } else if (tFirst < 0) {
                 tFirst = 0;
-                tLast = 50;
+                tLast = 49;
             }
             frameRenderRange = new FrameRange(tFirst, tLast);
             setPreferredSize(new Dimension(500, neededPanelHeight()));
