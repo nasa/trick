@@ -130,7 +130,8 @@ UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)
 	SHARED_OPTIONS := -fPIC
 else ifeq ($(UNAME), Darwin)
-	SHARED_OPTIONS := -fPIC -lgcov
+	SHARED_OPTIONS := -fPIC
+	LD_OPTIONS := -Wl,-install_name,$(abspath $(TRICKIFY_OBJECT_NAME))
 else
 	SHARED_OPTIONS :=
 endif
@@ -138,31 +139,29 @@ endif
 .PHONY: all
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
-.ONESHELL:
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
-	echo TRICKIFICATION STEP A
-	@while read -r line ; do \
-		export FILES="$$FILES $$line" ; \
-	done < $(PY_LINK_LIST)
-	echo TRICKIFICATION STEP B
-	@while read -r line ; do \
-		export FILES="$$FILES $$line" ; \
-	done < $(IO_LINK_LIST)
-	echo TRICKIFICATION STEP C
-	@if [ "$(FULL_TRICKIFY_BUILD)" = "1" ] ; then \
-		while read -r line ; do \
-			export FILES="$$FILES $$line" ; \
-		done < $(OBJ_LINK_LIST) ; \
-	fi
-	echo TRICKIFICATION STEP D
-	@if [ "$(TRICKIFY_BUILD_TYPE)" = "PLO" ] ; then \
-		$(LD) $(LD_PARTIAL) -o $@ $$FILES ; \
-	elif [ "$(TRICKIFY_BUILD_TYPE)" = "SHARED" ] ; then \
-		$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) -o $@ $$FILES ; \
-	elif [ "$(TRICKIFY_BUILD_TYPE)" = "STATIC" ] ; then \
-		ar rcs $@ $ $$FILES ; \
-	fi
-	echo TRICKIFICATION STEP E
+	@echo TRICKIFICATION
+	@sh -c '\
+		FILES=""; \
+		while IFS= read -r line; do \
+			FILES="$$FILES $$line"; \
+		done < $(PY_LINK_LIST); \
+		while IFS= read -r line; do \
+			FILES="$$FILES $$line"; \
+		done < $(IO_LINK_LIST); \
+		if [ "$(FULL_TRICKIFY_BUILD)" = "1" ]; then \
+			while IFS= read -r line; do \
+				FILES="$$FILES $$line"; \
+			done < $(OBJ_LINK_LIST); \
+		fi; \
+		if [ "$(TRICKIFY_BUILD_TYPE)" = "PLO" ]; then \
+			$(LD) $(LD_PARTIAL) -o $@ $$FILES; \
+		elif [ "$(TRICKIFY_BUILD_TYPE)" = "SHARED" ]; then \
+			$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) $(LD_OPTIONS) -o $@ $$FILES; \
+		elif [ "$(TRICKIFY_BUILD_TYPE)" = "STATIC" ]; then \
+			ar rcs $@ $$FILES; \
+		fi; \
+	'
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) .trick:
 	@mkdir -p $@

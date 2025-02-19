@@ -11,7 +11,14 @@ MYPROJECT_INCLUDE := -I$(MYPROJECT_HOME)/include_bar -I$(MYPROJECT_HOME)/include
 TRICK_CFLAGS   += $(MYPROJECT_INCLUDE) $(MYPROJECT_SOURCE)
 TRICK_CXXFLAGS += $(MYPROJECT_INCLUDE) $(MYPROJECT_SOURCE)
 
-export TRICKIFY_OBJECT_NAME := trickified_myproject.so
+BUILD_TYPE := so
+UNAME := $(shell uname)
+ifeq ($(UNAME),Darwin)
+	BUILD_TYPE := dylib
+endif
+
+export TRICKIFY_OBJECT_NAME := trickified_myproject.$(BUILD_TYPE)
+
 MYPROJECT_TRICK := $(MYPROJECT_HOME)/trickified/$(TRICKIFY_OBJECT_NAME)
 
 # Tell Trick the headers and source at this location are part of a
@@ -25,4 +32,4 @@ TRICK_PYTHON_PATH += :$(MYPROJECT_HOME)/trickified/python
 TRICK_SWIG_FLAGS += -I$(MYPROJECT_HOME)/trickified
 
 # Link in the Trickified object
-TRICK_LDFLAGS += $(MYPROJECT_TRICK)
+TRICK_LDFLAGS += $(MYPROJECT_TRICK) -Wl,-rpath,$(MYPROJECT_HOME)/trickified

@@ -46,7 +46,7 @@ GetOptions
 $full_build = !$no_source_build ;
 
 $val = $ARGV[$argnum + 1] ;
-if( !(($build_type eq "o") or ($build_type eq "a") or ($build_type eq "so")) )
+if( !(($build_type eq "o") or ($build_type eq "a") or ($build_type eq "so") or ($build_type eq "dylib")) )
 {
     print "Invalid build type {$build_type}, valid build types are {o, a, so}\n" ;
     exit 1 ;
@@ -94,7 +94,7 @@ elsif ( $build_type eq a )
 {
     $ENV{'TRICKIFY_BUILD_TYPE'}  = STATIC ;
 }
-elsif ( $build_type eq so )
+elsif ( $build_type eq so || $build_type eq dylib )
 {
     $ENV{'TRICKIFY_BUILD_TYPE'}  = SHARED ;
 }
