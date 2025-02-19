@@ -1,0 +1,25 @@
+#include "sim_objects/default_trick_sys.sm"
+
+##include "STLIPTest.hh"
+
+%inline {
+    using ArrayCharType = std::array<char,3>;
+    #ifdef SWIG
+    %template (ArrayCharType) std::array<char,3>;
+    %trick_cast_as (ArrayCharType, ArrayCharType);
+    #endif
+%}
+
+class STLSimObject : public Trick::SimObject
+{
+    public:
+    STLIPTest stl_ip_test;
+    
+    STLSimObject()
+    {
+
+    }
+};
+
+
+STLSimObject stl_so;
