@@ -157,7 +157,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 		if [ "$(TRICKIFY_BUILD_TYPE)" = "PLO" ]; then \
 			$(LD) $(LD_PARTIAL) -o $@ $$FILES; \
 		elif [ "$(TRICKIFY_BUILD_TYPE)" = "SHARED" ]; then \
-			$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) $(LD_OPTIONS) -o $@ $$FILES; \
+			$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) $(LD_OPTIONS) $(USER_ADDITIONAL_OPTIONS) -o $@ $$FILES; \
 		elif [ "$(TRICKIFY_BUILD_TYPE)" = "STATIC" ]; then \
 			ar rcs $@ $$FILES; \
 		fi; \

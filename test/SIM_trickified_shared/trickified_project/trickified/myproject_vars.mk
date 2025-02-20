@@ -33,3 +33,6 @@ TRICK_SWIG_FLAGS += -I$(MYPROJECT_HOME)/trickified
 
 # Link in the Trickified object
 TRICK_LDFLAGS += $(MYPROJECT_TRICK)
+
+# Link in code coverage libraries for Trick code coverage CI
+export USER_ADDITIONAL_OPTIONS := -fprofile-arcs -ftest-coverage -O0
