@@ -32,4 +32,4 @@ TRICK_PYTHON_PATH += :$(MYPROJECT_HOME)/trickified/python
 TRICK_SWIG_FLAGS += -I$(MYPROJECT_HOME)/trickified
 
 # Link in the Trickified object
-TRICK_LDFLAGS += $(MYPROJECT_TRICK) -Wl,-rpath,$(MYPROJECT_HOME)/trickified
+TRICK_LDFLAGS += $(MYPROJECT_TRICK)
