@@ -67,4 +67,4 @@ public:
 %trick_cast_as(MultiDtIntegLoopSimObject, MultiDtIntegLoopSimObject)
 #endif
 
-#endif
+#endif /* MULTIDT_INTEG_LOOP_SIMOBJECT_HH */

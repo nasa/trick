@@ -33,12 +33,12 @@ namespace Trick {
  * a 0.01 integration rate and a 0.015 integration rate, the scheduler will integrate
  * using a dt for each step and reschedules itself so that each rate is satisfied
  * i.e. it will integrate at:
- *  - 0->0.01
- *  - 0.01->0.015
- *  - 0.015->0.02
- *  - 0.02->0.03
- *  - 0.03->0.04
- *  - 0.04->0.055
+ *  - 0.000->0.010
+ *  - 0.010->0.015
+ *  - 0.015->0.020
+ *  - 0.020->0.030
+ *  - 0.030->0.040
+ *  - 0.040->0.045
  *
  * Because it acts as a self-scheduler that updates its job
  * rate with the Trick::Executive, this class complies with the standard Trick job
@@ -125,4 +125,4 @@ protected:
 
 }
 
-#endif /* JEOD_MODELS_UTILS_INTEGRATION_INCLUDE_MULTIDTINTEGLOOPSCHEDULER_HH_ */
+#endif /* MULTIDTINTEGLOOPSCHEDULER_HH */
