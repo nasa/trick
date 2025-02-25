@@ -9,6 +9,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <unistd.h>
+#include <algorithm>
 
 #include <signal.h>
 #if __linux
