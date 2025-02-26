@@ -4,7 +4,7 @@ import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 
-public class DirSelect
+public class DirSelect extends JPanel
 {
     private int pos_x = 0;
     private int pos_y = 0;
@@ -31,34 +31,6 @@ public class DirSelect
 
     private boolean multiDir = false;
 
-    private void updatePosition()
-    {
-        label_pos_x = pos_x;
-        label_pos_y = pos_y;
-
-        textfield_pos_x = pos_x;
-        textfield_pos_y = pos_y + label_height;
-
-        button_pos_x = textfield_pos_x + textfield_width;
-        button_pos_y = textfield_pos_y;
-    }
-
-    private void redraw()
-    {
-        label.setBounds(label_pos_x, label_pos_y, label_width, label_height);
-        textfield.setBounds(textfield_pos_x, textfield_pos_y, textfield_width, textfield_height);
-        button.setBounds(button_pos_x, button_pos_y, button_width, button_height);
-    }
-
-    public void setPosition(int x, int y)
-    {
-        pos_x = x;
-        pos_y = y;
-
-        updatePosition();
-        redraw();
-    }
-
     public void setLabel(String text)
     {
         label.setText(text);
@@ -72,20 +44,6 @@ public class DirSelect
     public void setButtonText(String text)
     {
         button.setText(text);
-    }
-
-    public void addToPanel(JPanel panel)
-    {
-        panel.add(label);
-        panel.add(textfield);
-        panel.add(button);
-    }
-
-    public void addToFrame(JFrame frame)
-    {
-        frame.add(label);
-        frame.add(textfield);
-        frame.add(button);
     }
 
     public void allowMultiple(boolean b)
@@ -106,12 +64,12 @@ public class DirSelect
         }
     }
 
-    public String getDirs()
+    public String getText()
     {
         return textfield.getText();
     }
 
-    void setDirs(String txt)
+    void setText(String txt)
     {
         textfield.setText(txt);
     }
@@ -133,8 +91,6 @@ public class DirSelect
         browser = new JFileChooser();
         browser.setCurrentDirectory(new File(System.getProperty("user.dir")));
         browser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-
-        setPosition(pos_x, pos_y);
 
         button.addActionListener(new ActionListener() 
         { 
@@ -163,6 +119,11 @@ public class DirSelect
                 } 
             } 
         } );
+
+        
+        add(label);
+        add(textfield);
+        add(button);
     }
 
 }

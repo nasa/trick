@@ -10,7 +10,6 @@ def find_files_by_extension(loc, ext):
         for f in files:
             if f.endswith(ext):
                 file_list.append(os.path.join(root, f))
-    print(file_list)
     return file_list
 
 def build_S_source():
