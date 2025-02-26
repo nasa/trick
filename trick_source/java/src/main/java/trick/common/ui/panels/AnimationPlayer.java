@@ -71,7 +71,7 @@ public class AnimationPlayer extends JPanel {
 	}
 
 	/**
-	 *	Constructor with paramterized time step.
+	 *	Constructor with paramaterized time step.
          * @param fileName name of file
          * @param timeStep animation time step
 	 */
