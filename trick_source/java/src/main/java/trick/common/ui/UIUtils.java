@@ -96,6 +96,7 @@ public class UIUtils {
 	private final static int TRICK_VER          = 3;
 	private final static int TRICK_HOST_CPU  	= 4;
 	private final static int TRICK_LOGO			= 5;
+	private final static int TRICK_LOGO_STEP	= 6;
 	
 	
 	//========================================
@@ -185,6 +186,15 @@ public class UIUtils {
 		return getTrickEnv(TRICK_LOGO);
 	}
 	
+	/**
+	 * Gets the value of TRICK_LOGO_STEP environment variable.
+	 * 
+	 * @return The value of TRICK_LOGO_STEP.
+	 */
+	public static String getTrickLogoStep() {
+		return getTrickEnv(TRICK_LOGO_STEP);
+	}
+	
 	//========================================
 	//	Methods
 	//========================================
@@ -215,6 +225,9 @@ public class UIUtils {
 				break;
 			case TRICK_LOGO:
 				value = System.getenv("TRICK_LOGO");
+				break;
+			case TRICK_LOGO_STEP:
+				value = System.getenv("TRICK_LOGO_STEP");
 				break;
 			default:
 				break;

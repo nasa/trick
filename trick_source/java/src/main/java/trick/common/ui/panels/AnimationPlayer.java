@@ -47,6 +47,7 @@ public class AnimationPlayer extends JPanel {
 	 private boolean paused;
 	 private boolean finished; 
 	 private String animationFile;
+     private int animationTimeStep;
 	 private JLabel animationLabel;   
 	 private PlayAnimationTask animationTask;
 	 
@@ -62,6 +63,21 @@ public class AnimationPlayer extends JPanel {
 	 */
 	public AnimationPlayer(String fileName) {
 		animationFile = fileName;
+        animationTimeStep = 150;
+		buildGUI();
+		if (animationTask == null) {
+			animationTask = new PlayAnimationTask();
+		}
+	}
+
+	/**
+	 *	Constructor with paramterized time step.
+         * @param fileName name of file
+         * @param timeStep animation time step
+	 */
+	public AnimationPlayer(String fileName, int timeStep) {
+		animationFile = fileName;
+        animationTimeStep = timeStep;
 		buildGUI();
 		if (animationTask == null) {
 			animationTask = new PlayAnimationTask();
@@ -155,7 +171,7 @@ public class AnimationPlayer extends JPanel {
 	                animationLabel.setIcon(new ImageIcon(img));
 	                do {
 	                    try {            
-	                        Thread.sleep(150);
+	                        Thread.sleep(animationTimeStep);
 	                    } catch (InterruptedException ie) {
 	                    }        
 	                }  while (paused);
@@ -165,7 +181,7 @@ public class AnimationPlayer extends JPanel {
 	                } else {
 	                	// rewind
 	                	if (i == n-1) {
-	                		i = 0;                
+	                		i = -1;                
 	                	}                         
 	                }
 	            }

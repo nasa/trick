@@ -919,6 +919,8 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         JPanel timePanel = createTimePanel();
         litePanel.add(timePanel, gridBagConstraints);
 
+        System.out.println("HERE A");
+
         // default trick logo
         String trickLogoName = resourceMap.getString("trick.logo");
 
@@ -927,7 +929,22 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         	trickLogoName = UIUtils.getTrickLogo();
         }
 
-        logoImagePanel = new AnimationPlayer(trickLogoName);
+        if (UIUtils.getTrickLogoStep() != null) {
+            try {
+                int timeStep = Integer.parseInt(UIUtils.getTrickLogoStep());
+                logoImagePanel = new AnimationPlayer(trickLogoName, timeStep);
+            }
+            catch (NumberFormatException e) {
+                logoImagePanel = new AnimationPlayer(trickLogoName);
+            }
+        }
+        else {
+            logoImagePanel = new AnimationPlayer(trickLogoName);
+        }
+
+
+        System.out.println("HERE B");
+        
         logoImagePanel.setToolTipText("Trick Version " + UIUtils.getTrickVersion());
 
         JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, litePanel, logoImagePanel);
