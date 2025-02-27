@@ -195,6 +195,8 @@ set( IO_SRC
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MonteCarlo.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MonteMonitor.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MonteVar.cpp
+  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MultiDtIntegLoopScheduler.cpp
+  ${CMAKE_BINARY_DIR}/temp_src/io_src/io_MultiDtIntegLoopSimObject.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_NL2_Integrator.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_PlaybackFile.cpp
   ${CMAKE_BINARY_DIR}/temp_src/io_src/io_RK2_Integrator.cpp

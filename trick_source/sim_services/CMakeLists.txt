@@ -114,6 +114,8 @@ set( SS_SRC
   Integrator/src/IntegLoopManager
   Integrator/src/IntegLoopScheduler
   Integrator/src/IntegLoopSimObject
+  Integrator/src/MultiDtIntegLoopScheduler
+  Integrator/src/MultiDtIntegLoopSimObject
   Integrator/src/Integrator
   Integrator/src/Integrator_C_Intf
   Integrator/src/getIntegrator
