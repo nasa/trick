@@ -390,9 +390,9 @@ Doing this has several benefits.
 2. If you can test and confirm that your base, default, "empty input file" sim is initialized to a valid state, then it will be easier to identify errors when the sim is customized for different scenarios, via an input file. It saves time and reduces pain.
 
 
-#### 1.8 Realtime Software Frame should be based on the real-time requirements of external interfaces.
+#### 1.8 Realtime Software Frame should be based on the realtime requirements of external interfaces.
 
-A Trick simulation should not synchronize simulation-time to realtime more frequently than is required by external interfaces. The [realtime software frame](#realtime-software-frame) should be chosen to service a simulations highest frequency external interface.
+A Trick simulation should not synchronize simulation-time to realtime more frequently than is required by external interfaces. The [realtime software frame](#realtime-software-frame) should be chosen to service a simulation's highest frequency external interface.
 
 **Example:**
 
@@ -404,15 +404,15 @@ Consider a Trick simulation consisting of :
 * A 25 Hz scheduled job that services a 25 Hz hardware avionics device.
 
 
-The external interfaces are the avionics device, and the graphics client. These have **real-time** requirements. The 100, and 200 Hz simulation jobs do not. 
+The external interfaces are the avionics device and the graphics client. These have **realtime** requirements. The 100 and 200 Hz simulation jobs do not. 
 
 The highest frequency of these external interfaces is 50 Hz. So, the software frame should be set to 0.02 seconds (ie., 50 Hz).
 
 **“What about the 200 Hz and 100 Hz jobs?”**
 
-Since they are not required to service external interfaces at those rates, simulation-time, and thus these jobs can run as fast as possible. Simulation time and realtime are not the same thing, until simulation-time is (slowed down, and) synchronized to realtime. Remember that the [realtime software frame](#realtime-software-frame) specifies how often to synchronize simulation-time to realtime.
+Since they are not required to service external interfaces, these jobs can run as fast as possible in realtime. Simulation time and realtime are not the same thing, until simulation-time is (slowed down, and) synchronized to realtime. Remember that the [realtime software frame](#realtime-software-frame) specifies how often to synchronize simulation-time to realtime.
 
-**“What if I  set the real-time software frame to 0.005 seconds (i.e., 200 Hz) anyway? Is that a problem?"**
+**“What if I  set the realtime software frame to 0.005 seconds (i.e., 200 Hz) anyway? Is that a problem?"**
 
 Yes, it could be. The issue is that this wastes computing resources, and unnecessarily increases the probability of realtime over-runs. This is especially true if there is variability in the execution times of these jobs.
 
