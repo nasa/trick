@@ -927,7 +927,19 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         	trickLogoName = UIUtils.getTrickLogo();
         }
 
-        logoImagePanel = new AnimationPlayer(trickLogoName);
+        if (UIUtils.getTrickLogoStep() != null) {
+            try {
+                int timeStep = Integer.parseInt(UIUtils.getTrickLogoStep());
+                logoImagePanel = new AnimationPlayer(trickLogoName, timeStep);
+            }
+            catch (NumberFormatException e) {
+                logoImagePanel = new AnimationPlayer(trickLogoName);
+            }
+        }
+        else {
+            logoImagePanel = new AnimationPlayer(trickLogoName);
+        }
+        
         logoImagePanel.setToolTipText("Trick Version " + UIUtils.getTrickVersion());
 
         JSplitPane topPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, litePanel, logoImagePanel);
