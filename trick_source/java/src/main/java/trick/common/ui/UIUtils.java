@@ -88,19 +88,6 @@ public class UIUtils
     
     
     //========================================
-    //    Private Data
-    //========================================
-    // for env variables
-    private final static int HOME                = 0;
-    private final static int TRICK_HOME          = 1;
-    private final static int TRICK_USER_HOME     = 2;
-    private final static int TRICK_VER           = 3;
-    private final static int TRICK_HOST_CPU      = 4;
-    private final static int TRICK_LOGO          = 5;
-    private final static int TRICK_LOGO_STEP     = 6;
-    
-    
-    //========================================
     //    Constructors
     //========================================
     

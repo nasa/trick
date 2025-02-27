@@ -185,8 +185,7 @@ public class AnimationPlayer extends JPanel
                 int i = 0;
                 while(i < n)
                 {
-                    BufferedImage image = reader.read(i);
-                    Image img = image;            
+                    Image img  = reader.read(i);           
                     animationLabel.setIcon(new ImageIcon(img));
                     do 
                     {
