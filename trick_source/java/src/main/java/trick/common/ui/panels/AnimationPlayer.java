@@ -30,176 +30,215 @@ import trick.common.ui.UIUtils;
  *
  * @since Trick 10
  */
-public class AnimationPlayer extends JPanel {
-	
-	//========================================
-	//	Public data
-	//========================================
-	
-	
-	//========================================
-	//	Protected data
-	//========================================
-	
-	//========================================
-	//	Private Data
-	//========================================
-	 private boolean paused;
-	 private boolean finished; 
-	 private String animationFile;
+public class AnimationPlayer extends JPanel 
+{
+    
+    //========================================
+    //    Public data
+    //========================================
+    
+    
+    //========================================
+    //    Protected data
+    //========================================
+    
+    //========================================
+    //    Private Data
+    //========================================
+     private boolean paused;
+     private boolean finished; 
+     private String animationFile;
      private int animationTimeStep;
-	 private JLabel animationLabel;   
-	 private PlayAnimationTask animationTask;
-	 
-	 
-	 private static final long serialVersionUID = 3705588596523798631L;
-	 
-	//========================================
-	//	Constructors
-	//========================================
-	/**
-	 *	Default constructor.
+     private JLabel animationLabel;   
+     private PlayAnimationTask animationTask;
+     
+     
+     private static final long serialVersionUID = 3705588596523798631L;
+     
+    //========================================
+    //    Constructors
+    //========================================
+    /**
+     *    Default constructor.
          * @param fileName name of file
-	 */
-	public AnimationPlayer(String fileName) {
-		animationFile = fileName;
+     */
+    public AnimationPlayer(String fileName) 
+    {
+        animationFile = fileName;
         animationTimeStep = 150;
-		buildGUI();
-		if (animationTask == null) {
-			animationTask = new PlayAnimationTask();
-		}
-	}
+        buildGUI();
+        if (animationTask == null) 
+        {
+            animationTask = new PlayAnimationTask();
+        }
+    }
 
-	/**
-	 *	Constructor with paramaterized time step.
+    /**
+     *    Constructor with paramaterized time step.
          * @param fileName name of file
          * @param timeStep animation time step
-	 */
-	public AnimationPlayer(String fileName, int timeStep) {
-		animationFile = fileName;
+     */
+    public AnimationPlayer(String fileName, int timeStep) 
+    {
+        animationFile = fileName;
         animationTimeStep = timeStep;
-		buildGUI();
-		if (animationTask == null) {
-			animationTask = new PlayAnimationTask();
-		}
-	}
-	
-	//========================================
-	//	Set/Get methods
-	//========================================
-	
-	
-	//========================================
-	//	Methods
-	//========================================	
-	/**
-	 * Starts the animation task. This method has to be called
-	 * in order for the animation to be played.
-	 */
-	public void start() {
-		if (animationTask == null) {
-			animationTask = new PlayAnimationTask();
-		}	
-		animationTask.execute();
-	}
-	
-	/**
-	 * Pauses the animation play.
-	 */
-	public void pause() {
-		paused = true;
-	}
-	
-	/**
-	 * Resumes the animation play.
-	 */
-	public void resume() {
-		paused = false;
-	}
-	
-	/**
-	 * Stops the animation play.
-	 */
-	public void stop() {
-		finished = true;
-	}
-	
-	/**
-	 * Builds the player GUI.
-	 */
-	private void buildGUI() {
+        buildGUI();
+        if (animationTask == null) 
+        {
+            animationTask = new PlayAnimationTask();
+        }
+    }
+    
+    //========================================
+    //    Set/Get methods
+    //========================================
+    
+    
+    //========================================
+    //    Methods
+    //========================================    
+    /**
+     * Starts the animation task. This method has to be called
+     * in order for the animation to be played.
+     */
+    public void start() 
+    {
+        if (animationTask == null) 
+        {
+            animationTask = new PlayAnimationTask();
+        }    
+        animationTask.execute();
+    }
+    
+    /**
+     * Pauses the animation play.
+     */
+    public void pause() 
+    {
+        paused = true;
+    }
+    
+    /**
+     * Resumes the animation play.
+     */
+    public void resume() 
+    {
+        paused = false;
+    }
+    
+    /**
+     * Stops the animation play.
+     */
+    public void stop() 
+    {
+        finished = true;
+    }
+    
+    /**
+     * Builds the player GUI.
+     */
+    private void buildGUI() 
+    {
         setLayout(new BorderLayout());
         animationLabel = new JLabel();
         ImageIcon icon = UIUtils.createImageIcon(animationFile);
         // set proper initial size for the label
-        if (icon != null) {
-        	animationLabel.setPreferredSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
+        if (icon != null) 
+        {
+            animationLabel.setPreferredSize(new Dimension(icon.getIconWidth(), icon.getIconHeight()));
         }
         add(animationLabel, BorderLayout.CENTER);    
     }
-	
-	//========================================
-	//	Inner Class
-	//========================================	
-	/**
+    
+    //========================================
+    //    Inner Class
+    //========================================    
+    /**
      * Inner class for playing an animation image.
      */
-    private class PlayAnimationTask extends SwingWorker<Void, Void> {
-    	ImageInputStream stream;
-    	
-    	@Override
-    	public Void doInBackground() {   	
-    		
-    		if (animationFile == null) {
-    			return null;
-    		}
-    		
-            try {	         
-	            InputStream input = UIUtils.getInputStreamForFile(animationFile);
-	            stream = ImageIO.createImageInputStream(input);
-	            Iterator readers = ImageIO.getImageReaders(stream);
-	            if (!readers.hasNext()) {
-					throw new RuntimeException("no image reader found");
-				}
-	            ImageReader reader = (ImageReader) readers.next();
-	            reader.setInput(stream); // don't omit this line!
-	            int n = reader.getNumImages(true); // don't use false!
-	            
-	            for (int i = 0; i < n; i++) {
-	                BufferedImage image = reader.read(i);
-	                Image img = image;            
-	                animationLabel.setIcon(new ImageIcon(img));
-	                do {
-	                    try {            
-	                        Thread.sleep(animationTimeStep);
-	                    } catch (InterruptedException ie) {
-	                    }        
-	                }  while (paused);
-	                     
-	                if (finished) {
-	                	break;
-	                } else {
-	                	// rewind
-	                	if (i == n-1) {
-	                		i = -1;                
-	                	}                         
-	                }
-	            }
-	            
-            } catch (IOException ioe) {   
-            	         
+    private class PlayAnimationTask extends SwingWorker<Void, Void> 
+    {
+        ImageInputStream stream;
+        
+        @Override
+        public Void doInBackground() 
+        {       
+            
+            if (animationFile == null) 
+            {
+                return null;
             }
             
-    		return null;
-    	}
+            try 
+            {             
+                InputStream input = UIUtils.getInputStreamForFile(animationFile);
+                stream = ImageIO.createImageInputStream(input);
+                Iterator readers = ImageIO.getImageReaders(stream);
+                if (!readers.hasNext()) 
+                {
+                    throw new RuntimeException("no image reader found");
+                }
+                ImageReader reader = (ImageReader) readers.next();
+                reader.setInput(stream); // don't omit this line!
+                int n = reader.getNumImages(true); // don't use false!
+                
+                int i = 0;
+                while(i < n)
+                {
+                    BufferedImage image = reader.read(i);
+                    Image img = image;            
+                    animationLabel.setIcon(new ImageIcon(img));
+                    do 
+                    {
+                        try 
+                        {            
+                            Thread.sleep(animationTimeStep);
+                        } 
+                        catch (InterruptedException ie) 
+                        {
+                        }        
+                    }  while (paused);
+                         
+                    if (finished) 
+                    {
+                        break;
+                    } 
+                    else 
+                    {
+                        // rewind
+                        if (i >= n-1) 
+                        {
+                            i = 0;                
+                        }
+                        else
+                        {
+                            ++i;
+                        }                         
+                    }
+                }
+                
+            } 
+            catch (IOException ioe) 
+            {   
+                         
+            }
             
-    	@Override
-		public void done() {
-    		if (stream != null) {
-                try {
+            return null;
+        }
+            
+        @Override
+        public void done() 
+        {
+            if (stream != null) 
+            {
+                try 
+                {
                     stream.close();
-                } catch (IOException ioe) { }
+                } 
+                catch (IOException ioe) 
+                { 
+                }
             }
-    	}
+        }
     }
 }
