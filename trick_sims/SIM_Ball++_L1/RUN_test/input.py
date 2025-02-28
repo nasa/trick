@@ -15,6 +15,7 @@ def main():
     trick.add_data_record_group(drg0, trick.DR_Buffer)
 
     my_integ_loop.getIntegrator( trick.Runge_Kutta_2, 4 );
+    my_integ_loop.add_rate(0.005)
 
     #print trick.ref_attributes("ball.obj.state.output.velocity").attr.units
 

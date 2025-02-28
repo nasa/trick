@@ -43,6 +43,12 @@ class IntegLoopSimObject : public Trick::SimObject {
         // Adds common set of jobs for all constructors.
         void add_jobs(double in_cycle, unsigned int child) ;
 
+        /**
+         * Add an integration rate to this loop scheduler
+         * @param integRateIn  New integration rate in seconds
+         */
+        void add_rate(const double integRateIn);
+
         virtual int call_function( Trick::JobData * curr_job ) ;
         virtual double call_function_double( Trick::JobData * curr_job ) ;
 

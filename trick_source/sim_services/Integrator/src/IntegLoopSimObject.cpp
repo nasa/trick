@@ -71,3 +71,12 @@ double IntegLoopSimObject::call_function_double ( Trick::JobData * curr_job ) {
     return(trick_ret) ;
 }
 
+/**
+ * Add an integration rate to this loop scheduler
+ * @param integRateIn  New integration rate in seconds
+ */
+void IntegLoopSimObject::add_rate(const double integRateIn)
+{
+    integ_sched.add_rate(integRateIn);
+}
+
