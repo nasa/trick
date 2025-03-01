@@ -330,6 +330,42 @@ void Trick::IntegLoopScheduler::call_deriv_jobs ()
     call_jobs (deriv_jobs);
 }
 
+void Trick::IntegLoopScheduler::initialize_rates()
+{
+    long long curr_tics = exec_get_time_tics();
+
+    // Check for the overall integration cycle from S_define
+    bool isNominalCycleAdded = false;
+    for(size_t ii = 0; ii < integ_rates.size(); ++ii)
+    {
+        double integ_rate = integ_rates[ii];
+        if(fabs(nominal_cycle - integ_rate) < 1.0e-10)
+        {
+            isNominalCycleAdded = true;
+        }
+    }
+    if(!isNominalCycleAdded)
+    {
+        integ_rates.insert(integ_rates.cbegin(), nominal_cycle);
+    }
+
+    integ_cycle_tics.resize(integ_rates.size());
+    integ_next_tics.resize(integ_rates.size());
+    for(size_t ii = 0; ii < integ_rates.size(); ++ii)
+    {
+        double integ_rate = integ_rates[ii];
+        long long cycle_tics = (long long)round(integ_rate * Trick::JobData::time_tic_value);
+        integ_cycle_tics[ii] = cycle_tics;
+        integ_next_tics[ii] = curr_tics + cycle_tics;
+    }
+
+    next_tic = calculate_next_integ_tic();
+    double next_time = (double)next_tic / (double)Trick::JobData::time_tic_value;
+    double nominal_cycle_stored = nominal_cycle;
+    set_integ_cycle(next_time);
+    nominal_cycle = nominal_cycle_stored;
+}
+
 /**
  Integrate objects to the current simulation time.
  Note that sim_time is advanced before integration, so integration has to
@@ -429,9 +465,10 @@ int Trick::IntegLoopScheduler::integrate()
     // Call all of the jobs in the post-integration job queue.
     call_jobs(post_integ_jobs);
 
-    for(size_t indexToProcess = 0; indexToProcess < indices_to_process.size(); ++indexToProcess)
+    for(size_t indProcIdx = 0; indProcIdx < indices_to_process.size(); ++indProcIdx)
     {
-        integ_next_tics[indexToProcess] += integ_cycle_tics[indexToProcess];
+        size_t index_to_process = indices_to_process[indProcIdx];
+        integ_next_tics[index_to_process] += integ_cycle_tics[index_to_process];
     }
 
     t_start = t_end;
@@ -695,9 +732,31 @@ int Trick::IntegLoopScheduler::set_integ_cycle (
         long long curr_tics = exec_get_time_tics();
         found_job->set_cycle (in_cycle);
         found_job->set_next_call_time (curr_tics);
+
+        bool isNominalCycleAdded = false;
+        for(size_t ii = 0; ii < integ_rates.size(); ++ii)
+        {
+            double integ_rate = integ_rates[ii];
+            if(fabs(nominal_cycle - integ_rate) < 1.0e-10)
+            {
+                isNominalCycleAdded = true;
+            }
+        }
+        if(!isNominalCycleAdded)
+        {
+            integ_rates.insert(integ_rates.cbegin(), nominal_cycle);
+        }
+
         nominal_cycle = in_cycle;
         next_cycle = double((found_job->next_tics - prev_tics)) /
                      double(found_job->time_tic_value);
+
+        // Recalulate nominal_rate which is stored in integ_rates[0]
+        double integ_rate = integ_rates[0];
+        long long cycle_tics = (long long)round(integ_rate * Trick::JobData::time_tic_value);
+        integ_cycle_tics[0] = cycle_tics;
+        integ_next_tics[0] = curr_tics + cycle_tics;
+
         return 0;
     }
 }

@@ -8,6 +8,8 @@ void IntegLoopSimObject::add_jobs(double in_cycle, unsigned int child) {
     exec_register_scheduler(&integ_sched) ;
     job = add_job(0, 0, "default_data", NULL, 1, "integ_sched.rebuild_jobs", "", 65534) ;
     job->add_tag("TRK") ;
+    job = add_job(0, 7, "initialization", NULL, 1, "integ_sched.get_first_step_deriv_from_integrator", "", 65535) ;
+    job->add_tag("TRK") ;
     job = add_job(0, 1, "initialization", NULL, 1, "integ_sched.get_first_step_deriv_from_integrator", "", 65535) ;
     job->add_tag("TRK") ;
     job = add_job(0, 2, "initialization", NULL, 1, "integ_sched.call_deriv_jobs", "", 65535) ;
@@ -48,6 +50,9 @@ int IntegLoopSimObject::call_function ( Trick::JobData * curr_job ) {
             break ;
         case 6:
             integ_sched.get_first_step_deriv_from_integrator() ;
+            break ;
+        case 7:
+            integ_sched.initialize_rates() ;
             break ;
         default:
             trick_ret = -1 ;
