@@ -2,14 +2,6 @@
 
 ##include "STLIPTest.hh"
 
-%inline {
-    using ArrayCharType = std::array<char,3>;
-    #ifdef SWIG
-    %template (ArrayCharType) std::array<char,3>;
-    %trick_cast_as (ArrayCharType, ArrayCharType);
-    #endif
-%}
-
 class STLSimObject : public Trick::SimObject
 {
     public:

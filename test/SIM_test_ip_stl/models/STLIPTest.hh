@@ -31,14 +31,14 @@
 #include <cstddef>
 
 #include "utils.hh"
+#include "test_classes/include/container_types.hh"
 
-// Define the macro that does the declaration.
-#define DECLARE_ARRAY(Type, Suffix) std::array<Type, 3> array_##Suffix##_3;
-#define DECLARE_VECTOR(Type, Suffix) std::vector<Type> vector_##Suffix##_n;
-#define DECLARE_QUEUE(Type, Suffix) std::queue<Type> queue_##Suffix##_n;
-#define DECLARE_DEQUEUE(Type, Suffix) std::deque<Type> deque_##Suffix##_n;
-#define DECLARE_SET(Type, Suffix) std::set<Type> set_##Suffix##_n;
+struct TestStructure
+{
+  int a;
+  double b;
 
+};
 
 class STLIPTest 
 {
@@ -50,11 +50,27 @@ class STLIPTest
 
     //STLs
     //Char Types
-    FOREACH_TYPE(DECLARE_ARRAY);
-    FOREACH_TYPE(DECLARE_VECTOR);
-    FOREACH_TYPE(DECLARE_QUEUE);
-    FOREACH_TYPE(DECLARE_DEQUEUE);
-    FOREACH_TYPE(DECLARE_SET);
+
+    inline char16_t to_char16_t(char c) {return static_cast<char16_t>(c);}  
+
+    STLContainerTypes<char> char_types;
+    STLContainerTypes<signed char> signed_char_types;
+    STLContainerTypes<unsigned char> unsigned_char_types;
+    STLContainerTypes<char16_t> char16_t_types;
+    STLContainerTypes<char32_t> char32_t_types;
+    STLContainerTypes<short int> short_int_types;
+    STLContainerTypes<unsigned short int> unsigned_short_int_types;
+    STLContainerTypes<int> int_types;
+    STLContainerTypes<unsigned int> unsigned_int_types;
+    STLContainerTypes<long int> long_int_types;
+    STLContainerTypes<unsigned long int> unsigned_long_int_types;
+    STLContainerTypes<long long int> long_long_int_types;
+    STLContainerTypes<unsigned long long int> unsigned_long_long_int_types;
+    STLContainerTypes<float> float_types;
+    STLContainerTypes<double> double_types;
+    STLContainerTypes<long double> long_double_types;
+
+
 };  
 
 #endif

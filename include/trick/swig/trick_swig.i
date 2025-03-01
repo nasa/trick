@@ -18,6 +18,7 @@
 %include "std_iostream.i"
 %include "std_list.i"
 %include "std_map.i"
+%include "std_stl.i"
 %include "std_multimap.i"
 %include "std_multiset.i"
 %include "std_queue.i"
@@ -58,7 +59,7 @@
 
 %{
 #include <sstream>
-
+#include <queue>
 #include "trick/UnitsMap.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/reference.h"
