@@ -1,13 +1,13 @@
 
 RM = rm -rf
 CC = cc
-CPP = c++
+CPP = /usr/bin/g++
 
 DECL_DIR = ..
 
-GTEST_HOME = /usr/local
+GTEST_HOME = /opt/homebrew
 
-CFLAGS += -g -Wall -Wextra -I$(GTEST_HOME)/include -I$(DECL_DIR)/include
+CFLAGS += -std=c++14 -g -Wall -Wextra -I$(GTEST_HOME)/include -I$(DECL_DIR)/include
 
 LIBS = -L${DECL_DIR}/lib -lDecl -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 
