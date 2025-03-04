@@ -5,7 +5,12 @@ CPP = /usr/bin/g++
 
 DECL_DIR = ..
 
-GTEST_HOME = /opt/homebrew
+UNAME_S = $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+    GTEST_HOME=/opt/homebrew
+else
+    GTEST_HOME=/usr/local
+endif
 
 CFLAGS += -std=c++14 -g -Wall -Wextra -I$(GTEST_HOME)/include -I$(DECL_DIR)/include
 
