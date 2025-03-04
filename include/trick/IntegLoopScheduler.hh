@@ -26,6 +26,7 @@ PROGRAMMERS:
 #include <string>
 #include <map>
 #include <cstdarg>
+#include <cstddef>
 
 #ifdef SWIG
 // We want SWIG to ignore add_sim_object(Trick::SimObject *)
@@ -64,6 +65,22 @@ namespace Trick {
      * specified at construction time, but can be also changed during runtime.
      * Sim objects can be added to or removed from an IntegLoopScheduler, and
      * can be moved from one IntegLoopScheduler to another.
+     *
+     * Additionally, this class may have multiple integration rates specified for
+     * executing the integration loop up to each point in time. For instance, if
+     * the user specifies a 0.01 integration rate and a 0.015 integration rate,
+     * the scheduler will integrate using a dt for each step and reschedules
+     * itself so that each rate is satisfied. i.e. it will integrate at:
+     *  - 0.000->0.010
+     *  - 0.010->0.015
+     *  - 0.015->0.020
+     *  - 0.020->0.030
+     *  - 0.030->0.040
+     *  - 0.040->0.045
+     *
+     * Because it acts as a self-scheduler that updates its job
+     * rate with the Trick::Executive, this class complies with the standard Trick job
+     * scheduling scheme.
      */
     class IntegLoopScheduler : public Scheduler {
 
@@ -153,8 +170,16 @@ namespace Trick {
             void call_deriv_jobs ();
 
             /**
+             * Compute the cycle tics and next tics values for each user-specified rate
+             */
+            void initialize_rates();
+
+            /**
              * Integrate state to the current simulation time.
              * Simulation time is advanced prior to calling this function.
+             * Calculate the next cycle tic from the required rates and
+             * tell the Executive scheduler so that the next current simulation time
+             * is the next integ rate.
              */
             int integrate ();
 
@@ -184,6 +209,12 @@ namespace Trick {
              * @return Zero = success, non-zero = failure (object not removed).
              */
             virtual int remove_sim_object (Trick::SimObject &sim_obj);
+
+            /**
+             * Add an integration rate to this loop scheduler
+             * @param integRateIn  New integration rate in seconds
+             */
+            void add_rate(const double integRateIn);
 
             /**
              * Rebuild the integration loop's job queues.
@@ -311,6 +342,8 @@ namespace Trick {
              * Vector of sim object pointers.
              */
             typedef std::vector<Trick::Integrator*> IntegratorVector;
+            typedef std::vector<long long>::iterator TicVecIter;
+            typedef std::vector<double>::iterator DblVecIter;
 
 
             // Static member data
@@ -336,6 +369,45 @@ namespace Trick {
              * the next time around, in simulation engine seconds.
              */
             double next_cycle; //!< trick_units(s)
+
+            /**
+             * Time in tics of the next required integration time.
+             */
+            long long next_tic;
+
+            /**
+             * Vector of integration rates in seconds.
+             */
+            std::vector<double> integ_rates;
+
+            /**
+             * Loop through the required integration rates and calculate the
+             * next integration time in tics.
+             * @return Next integration time in tics,
+             */
+            long long calculate_next_integ_tic();
+
+            /**
+             * Loop through the required integration rates and calculate the
+             * next integration time in seconds.
+             * @return Next integration time in seconds,
+             */
+            double calculate_next_integ_time();
+
+            /**
+             * Vector of next integration time in tics for each rate in the integRates vector
+             */
+            std::vector<long long> integ_next_tics;
+
+            /**
+             * Vector of integration rate in tics for each rate in the integRates vector
+             */
+            std::vector<long long> integ_cycle_tics;
+
+            /**
+             * Run-time vector of integration rate indices that will be processed this integration frame
+             */
+            std::vector<size_t> indices_to_process;
 
             /**
              * The sim object that contains this IntegLoopScheduler.
@@ -367,6 +439,7 @@ namespace Trick {
              * Post-integration jobs managed by this loop.
              */
             Trick::ScheduledJobQueue post_integ_jobs; //!< trick_units(--)
+
 
 
             // Member functions
