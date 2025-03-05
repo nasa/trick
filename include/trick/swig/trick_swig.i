@@ -1,9 +1,9 @@
 /* include support for STLs */
-%include "std_common.i"
-%include "cstdint.i"
-%include "std_basic_string.i"
-%include "std_complex.i"
 %include "std_string.i"
+%include "cstdint.i"
+
+%include "std_common.i"
+%include "std_complex.i"
 %include "std_pair.i"
 %include "std_vector.i"
 %include "std_array.i"
@@ -18,14 +18,11 @@
 %include "std_iostream.i"
 %include "std_list.i"
 %include "std_map.i"
-%include "std_stl.i"
 %include "std_multimap.i"
 %include "std_multiset.i"
 %include "std_queue.i"
 %include "std_set.i"
-%include "std_sstream.i"
 %include "std_stack.i"
-%include "std_streambuf.i"
 %include "std_unordered_map.i"
 %include "std_unordered_multimap.i"
 %include "std_unordered_multiset.i"
@@ -33,10 +30,7 @@
 %include "std_vectora.i"
 
 #if SWIG_VERSION > 0x040100
-%include "std_wios.i"
 %include "std_wiostream.i"
-%include "std_wsstream.i"
-%include "std_wstreambuf.i"
 %include "std_wstring.i"
 #endif
 %include "factory.i"
@@ -60,6 +54,7 @@
 %{
 #include <sstream>
 #include <queue>
+#include <string>
 #include "trick/UnitsMap.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/reference.h"
