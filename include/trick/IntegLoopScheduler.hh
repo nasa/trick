@@ -213,8 +213,30 @@ namespace Trick {
             /**
              * Add an integration rate to this loop scheduler
              * @param integRateIn  New integration rate in seconds
+             * @return vector index of the added rate
              */
-            void add_rate(const double integRateIn);
+            size_t add_rate(const double integRateIn);
+
+            /**
+             * Get the total number of rates for this IntegLoop instance
+             * @return total number of rates
+             */
+            size_t get_num_rates();
+
+            /**
+             * Get the integration rate according to rate index
+             * @return cycle in seconds or -1.0 if error
+             */
+            double get_rate(const size_t rateIdx = 0);
+
+            /**
+             * Updates an integration rate by index and cycle. Calling with 0
+             * index is equivalent to set_integ_cycle
+             * @param rateIdx  New integration rate in seconds
+             * @param integRateIn index of the added rate
+             * @return Zero = success, non-zero = failure (rateIdx is invalid).
+             */
+            virtual int set_integ_rate(const size_t rateIdx, const double integRateIn);
 
             /**
              * Rebuild the integration loop's job queues.
@@ -298,6 +320,7 @@ namespace Trick {
             /**
              * Change the interval between calls to the integ_loop job.
              * @param cycle  New integration cycle time, in Trick seconds.
+             * @return Zero = success, non-zero = failure (integ_loop job error).
              */
             virtual int set_integ_cycle (double cycle);
 
@@ -335,16 +358,6 @@ namespace Trick {
 
 
         protected:
-
-            // Types
-
-            /**
-             * Vector of sim object pointers.
-             */
-            typedef std::vector<Trick::Integrator*> IntegratorVector;
-            typedef std::vector<long long>::iterator TicVecIter;
-            typedef std::vector<double>::iterator DblVecIter;
-
 
             // Static member data
 
@@ -464,6 +477,12 @@ namespace Trick {
             SimObjectVector::iterator find_sim_object (
                 Trick::SimObject & sim_obj);
 
+            /**
+             * Find the associated integ_loop job from this object's
+             * parnet_sim object
+             * @return Pointer to integ_loop kob
+             */
+            JobData * find_integ_loop_job();
 
             /**
              * Integrate sim objects over the specified time span.

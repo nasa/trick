@@ -142,6 +142,34 @@ Trick::IntegLoopScheduler::find_sim_object(Trick::SimObject & sim_obj)
     return std::find (sim_objects.begin(), sim_objects.end(), &sim_obj);
 }
 
+Trick::JobData * Trick::IntegLoopScheduler::find_integ_loop_job()
+{
+	Trick::JobData * found_job = NULL;
+	size_t loops_found = 0;
+    for (std::vector<Trick::JobData *>::iterator vit =
+             parent_sim_object->jobs.begin();
+         vit != parent_sim_object->jobs.end();
+         ++vit) {
+        JobData * vit_job = *vit;
+        if (! vit_job->job_class_name.compare("integ_loop")) {
+            ++loops_found;
+            found_job = vit_job;
+        }
+    }
+
+    // Not finding exactly one integ_loop job is an error.
+    if (loops_found != 1) {
+        message_publish (
+            MSG_ERROR,
+            "Integ Scheduler ERROR: %s\n",
+            (loops_found == 0) ? "integ_loop job not found." :
+                                 "multiple integ_loop jobs found.");
+        return NULL;
+    }
+
+    return found_job;
+}
+
 /**
  Add jobs from specified object.
  @param in_obj Pointer to the sim object from which the integration jobs
@@ -333,21 +361,6 @@ void Trick::IntegLoopScheduler::call_deriv_jobs ()
 void Trick::IntegLoopScheduler::initialize_rates()
 {
     long long curr_tics = exec_get_time_tics();
-
-    // Check for the overall integration cycle from S_define
-    bool isNominalCycleAdded = false;
-    for(size_t ii = 0; ii < integ_rates.size(); ++ii)
-    {
-        double integ_rate = integ_rates[ii];
-        if(fabs(nominal_cycle - integ_rate) < 1.0e-10)
-        {
-            isNominalCycleAdded = true;
-        }
-    }
-    if(!isNominalCycleAdded)
-    {
-        integ_rates.insert(integ_rates.cbegin(), nominal_cycle);
-    }
 
     integ_cycle_tics.resize(integ_rates.size());
     integ_next_tics.resize(integ_rates.size());
@@ -692,73 +705,74 @@ Trick::Integrator * Trick::IntegLoopScheduler::getIntegrator (
 }
 
 /**
- Set the interval at which this job is called.
- @param in_cycle The frequency for the integration cycle.
+ * Updates an integration rate by index and cycle. Calling with 0
+ * index is equivalent to set_integ_cycle
+ * @param rateIdx  New integration rate in seconds
+ * @param integRateIn index of the added rate
+ * @return Zero = success, non-zero = failure (rateIdx is invalid).
  */
-int Trick::IntegLoopScheduler::set_integ_cycle (
-    double in_cycle)
+int Trick::IntegLoopScheduler::set_integ_rate(const size_t rate_idx, const double integRateIn)
 {
-    JobData * found_job = NULL;
-    int loops_found = 0;
-
-    // Search through the parent sim object looking for integ_loop jobs.
-    // There should be exactly one such job.
-    for (std::vector<Trick::JobData *>::iterator vit =
-             parent_sim_object->jobs.begin();
-         vit != parent_sim_object->jobs.end();
-         ++vit) {
-        JobData * vit_job = *vit;
-        if (! vit_job->job_class_name.compare("integ_loop")) {
-            ++loops_found;
-            found_job = vit_job;
-        }
-    }
-
-    // Not finding exactly one integ_loop job is an error.
-    if (loops_found != 1) {
+    if(rate_idx >= integ_rates.size()) {
         message_publish (
             MSG_ERROR,
-            "Integ Scheduler ERROR: %s\n",
-            (loops_found == 0) ? "integ_loop job not found." :
-                                 "multiple integ_loop jobs found.");
-        return 1;
+            "Integ Scheduler ERROR: set_integ_cycle: invalid rate idx %lu\n", rate_idx);
+    	return 1;
     }
+
+    JobData * found_job = find_integ_loop_job();
 
     // Found exactly one integ_loop job.
     // Set the cycle rate for that one job and for this object.
     // Note: This assumes that the one found job pertains to this scheduler.
-    else {
-        long long prev_tics = found_job->next_tics - found_job->cycle_tics;
-        long long curr_tics = exec_get_time_tics();
-        found_job->set_cycle (in_cycle);
-        found_job->set_next_call_time (curr_tics);
+    if(found_job != NULL)
+    {
+    	// Get previous rate and cycle
+        double prev_integ_rate = integ_rates[rate_idx];
+        long long prev_cycle_tics = (long long)round(prev_integ_rate * Trick::JobData::time_tic_value);
 
-        bool isNominalCycleAdded = false;
-        for(size_t ii = 0; ii < integ_rates.size(); ++ii)
-        {
-            double integ_rate = integ_rates[ii];
-            if(fabs(nominal_cycle - integ_rate) < 1.0e-10)
-            {
-                isNominalCycleAdded = true;
-            }
+    	long long curr_tics = exec_get_time_tics();
+
+    	// Instead of found_job->set_cycle (in_cycle);
+        long long cycle_tics = (long long)round(integRateIn * Trick::JobData::time_tic_value);
+
+        // Instead of found_job->set_next_call_time (curr_tics);
+        long long next_tics = found_job->next_tics;
+        if ( next_tics > curr_tics  ) {
+        	next_tics = curr_tics - ( curr_tics % cycle_tics ) + cycle_tics ;
+        } else {
+        	next_tics = curr_tics ;
         }
-        if(!isNominalCycleAdded)
-        {
-            integ_rates.insert(integ_rates.cbegin(), nominal_cycle);
+
+        integ_rates[rate_idx] = integRateIn;
+        integ_cycle_tics.resize(integ_rates.size());
+        integ_next_tics.resize(integ_rates.size());
+        integ_cycle_tics[rate_idx] = cycle_tics;
+        integ_next_tics[rate_idx] = next_tics;
+
+        next_tic = calculate_next_integ_tic();
+        double next_time = (double)next_tic / (double)Trick::JobData::time_tic_value;
+        found_job->next_tics = next_tic;
+        next_cycle = next_time - exec_get_sim_time();
+        if(rate_idx == 0) {
+        	nominal_cycle = integRateIn;
         }
-
-        nominal_cycle = in_cycle;
-        next_cycle = double((found_job->next_tics - prev_tics)) /
-                     double(found_job->time_tic_value);
-
-        // Recalulate nominal_rate which is stored in integ_rates[0]
-        double integ_rate = integ_rates[0];
-        long long cycle_tics = (long long)round(integ_rate * Trick::JobData::time_tic_value);
-        integ_cycle_tics[0] = cycle_tics;
-        integ_next_tics[0] = curr_tics + cycle_tics;
 
         return 0;
     }
+
+    return 1;
+}
+
+/**
+ * Change the interval between calls to the integ_loop job.
+ * @param cycle  New integration cycle time, in Trick seconds.
+ * @return Zero = success, non-zero = failure (integ_loop job error).
+ */
+int Trick::IntegLoopScheduler::set_integ_cycle (
+    double in_cycle)
+{
+	return set_integ_rate(0, in_cycle);
 }
 
 /**
@@ -841,10 +855,33 @@ int Trick::IntegLoopScheduler::instrument_job_remove(std::string in_job)
 /**
  * Add an integration rate to this loop scheduler
  * @param integRateIn  New integration rate in seconds
+ * @return vector index of the added rate
  */
-void Trick::IntegLoopScheduler::add_rate(const double integRateIn)
+size_t Trick::IntegLoopScheduler::add_rate(const double integRateIn)
 {
     integ_rates.push_back(integRateIn);
+    return integ_rates.size()-1;
+}
+
+/**
+ * Get the total number of rates for this IntegLoop instance
+ * @return total number of rates
+ */
+size_t Trick::IntegLoopScheduler::get_num_rates()
+{
+	return integ_rates.size();
+}
+
+/**
+ * Get the integration rate according to rate index
+ * @return cycle in seconds
+ */
+double Trick::IntegLoopScheduler::get_rate(const size_t rateIdx)
+{
+	if(rateIdx < integ_rates.size()) {
+		return integ_rates[rateIdx];
+	}
+	return -1.0;
 }
 
 /**

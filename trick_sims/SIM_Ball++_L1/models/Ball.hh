@@ -66,7 +66,9 @@ class Ball {
 
    int state_print() ;
 
-   int shutdown() ;
+   int shutdown_10hz() ;
+   int shutdown_20hz() ;
+   int shutdown_20_10_20hz() ;
 
    // Trick requires all logged data to be public.
    BallState state; /**< -- Ball state object. */

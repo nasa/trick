@@ -182,7 +182,11 @@ SIM_Ball++_L1:
   build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
-    RUN_test/unit_test.py:
+    RUN_test/unit_test_10hz.py:
+      returns: 0
+    RUN_test/unit_test_20hz.py:
+      returns: 0
+    RUN_test/unit_test_multi.py:
       returns: 0
 SIM_sun:
   path: trick_sims/SIM_sun
