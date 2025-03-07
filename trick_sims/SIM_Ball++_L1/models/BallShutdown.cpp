@@ -28,10 +28,33 @@ PROGRAMMERS:
 #include "Ball.hh"
 
      /* ENTRY POINT */
-int Ball::shutdown() {
+int Ball::shutdown_10hz() {
 
-   TRICK_EXPECT_NEAR( state.output.position[0] , -7.627512 , 0.000001 , "BallSim" , "FinalXPositionCheck" )
-   TRICK_EXPECT_NEAR( state.output.position[1] , 3.131932 , 0.000001 , "BallSim" , "FinalYPositionCheck" )
+   TRICK_EXPECT_NEAR( state.output.position[0] , -7.627512 , 0.000001 , "BallSim" , "10Hz_FinalXPositionCheck" )
+   TRICK_EXPECT_NEAR( state.output.position[1] , 3.131932 , 0.000001 , "BallSim" , "10Hz_FinalYPositionCheck" )
+
+
+   /* RETURN */
+   return( 0 );
+
+}
+
+     /* ENTRY POINT */
+int Ball::shutdown_20hz() {
+
+   TRICK_EXPECT_NEAR( state.output.position[0] , -7.627174 , 0.000001 , "BallSim" , "20Hz_FinalXPositionCheck" )
+   TRICK_EXPECT_NEAR( state.output.position[1] , 3.131812 , 0.000001 , "BallSim" , "20Hz_FinalYPositionCheck" )
+
+
+   /* RETURN */
+   return( 0 );
+
+}
+
+int Ball::shutdown_20_10_20hz() {
+
+   TRICK_EXPECT_NEAR( state.output.position[0] , -7.627189 ,  0.000001 , "BallSim" , "20_10_20Hz_FinalXPositionCheck" )
+   TRICK_EXPECT_NEAR( state.output.position[1] , 3.131818 , 0.000001 , "BallSim" , "20_10_20Hz_FinalYPositionCheck" )
 
 
    /* RETURN */

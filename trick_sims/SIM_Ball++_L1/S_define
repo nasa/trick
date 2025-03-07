@@ -34,7 +34,9 @@ class ballSimObject : public Trick::SimObject {
             {BLUE} (10.0, "scheduled") trick_ret = obj.state_print() ;
             {BLUE} (10.0, "freeze_scheduled") trick_ret = obj.state_print() ;
 
-            ("shutdown") obj.shutdown() ;
+            {SINGLE} ("shutdown") obj.shutdown_10hz() ;
+            {DOUBLE} ("shutdown") obj.shutdown_20hz() ;
+            {MULTI} ("shutdown") obj.shutdown_20_10_20hz() ;
         }
 } ;
 
@@ -58,5 +60,9 @@ void create_connections() {
     my_integ_loop.getIntegrator(Runge_Kutta_2, 4);
 
     ball.obj.state.add_external_force( ball.obj.force.output.force ) ;
+
+    // Disable the 20hz shutdown job by default
+    exec_set_job_onoff("DOUBLE", 1, false);
+    exec_set_job_onoff("MULTI", 1, false);
 }
 
