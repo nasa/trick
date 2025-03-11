@@ -5,6 +5,7 @@ PROGRAMMERS:
      ((Warwick Woodard) (NASA) (February 2010) (--) (Initial version))
 */
 
+#include <cstring>
 #include <iostream>
 #include <stdlib.h>
 
