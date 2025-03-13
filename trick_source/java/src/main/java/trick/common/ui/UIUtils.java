@@ -145,7 +145,7 @@ public class UIUtils
      */
     public static String getTrickBin() 
     {
-        String ret = System.getenv("TRICK_BIN");
+        String ret = System.getenv("TRICK_HOME");
         if (ret == null) 
         {
             ret = getUserHome();
