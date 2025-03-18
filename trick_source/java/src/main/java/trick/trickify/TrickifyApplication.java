@@ -18,7 +18,7 @@ public class TrickifyApplication extends TrickApplication
     {
         if(panel == null)
         {
-            panel = new TrickifyPanel();
+            panel = new TrickifyPanel(this);
         }
         return panel;
     }
@@ -36,7 +36,7 @@ public class TrickifyApplication extends TrickApplication
         super.startup();
         createMainPanel();
 
-        panel.load_properties(trickProperties);
+        panel.load_properties();
 
         // Build the GUI.
         View view = getMainView();
@@ -50,7 +50,7 @@ public class TrickifyApplication extends TrickApplication
     @Override
     protected void shutdown() 
     {
-        panel.save_properties(trickProperties);   
+        panel.save_properties();   
 
         super.shutdown();
     }

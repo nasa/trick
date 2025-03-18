@@ -1,27 +1,29 @@
 #!/usr/bin/perl
 
 use Getopt::Long;
+use strict ;
 
-$my_path = $0 ;
+my $my_path = $0 ;
 $my_path =~ s/trick-ify// ;
 
-$dirs = "" ;                                                              # If set, use for both source and header files
-$source_dir = "" ;                                                        # Base path to build source from
-$header_dir = "" ;                                                        # Base path to find header files
-$source_make_call = "" ;                                                  # Make call to build object files
-$source_make_args = "" ;                                                  # Args to pass into default object make
-$trickify_make_args = "" ;                                                # Arguments to pass into the trickify make
-$trickify_make_path = "$my_path../share/trick/makefiles/trickify.mk" ;    # Path of the trickify make file
-$full_build = 1 ;                                                         # Whether to build only ICG/Swig artifacts or entire source
-$name = "trickified" ;                                                    # Name of the library
-$build_type = "o" ;                                                       # Type of library to be built (o, a , so)
-$debug = 0 ;                                                              # Debug info flag
-$trick_home = $my_path . ".." ;                                           # Trick directory to use for building
-$no_source_build = 0 ;                                                    # Arg to disable building source files
-$no_clean_obj = 0 ;                                                       # Don't rebuild trickify_obj_list
-$no_clean_src = 0 ;                                                       # Don't rebuild trickify_src_list
-$no_clean_s_source = 0 ;                                                  # Don't rebuild S_source.hh
-$s_overrides = "" ;                                                       # Directory containing S_override make files
+my $dirs = "" ;                                                              # If set, use for both source and header files
+my $source_dir = "" ;                                                        # Base path to build source from
+my $header_dir = "" ;                                                        # Base path to find header files
+my $source_make_call = "" ;                                                  # Make call to build object files
+my $source_make_args = "" ;                                                  # Args to pass into default object make
+my $trickify_make_args = "" ;                                                # Arguments to pass into the trickify make
+my $trickify_make_path = "$my_path../share/trick/makefiles/trickify.mk" ;    # Path of the trickify make file
+my $full_build = 1 ;                                                         # Whether to build only ICG/Swig artifacts or entire source
+my $name = "trickified" ;                                                    # Name of the library
+my $build_type = "o" ;                                                       # Type of library to be built (o, a , so)
+my $debug = 0 ;                                                              # Debug info flag
+my $trick_home = $my_path . ".." ;                                           # Trick directory to use for building
+my $no_source_build = 0 ;                                                    # Arg to disable building source files
+my $no_clean_obj = 0 ;                                                       # Don't rebuild trickify_obj_list
+my $no_clean_src = 0 ;                                                       # Don't rebuild trickify_src_list
+my $no_clean_s_source = 0 ;                                                  # Don't rebuild S_source.hh
+my $s_overrides = "" ;                                                       # Directory containing S_override make files
+my $include = "" ;                                                           # Directories to include when building source/ICG/SWIG files
 
 GetOptions
 (
@@ -40,12 +42,12 @@ GetOptions
     "b=s"                       => \$build_type,                     # Set library build type
     "v"                         => \$debug,                          # Verbose, print debug info
     "trick_home=s"              => \$trick_home,                     # Set trick home directory
-    "s_overrides=s"             => \$s_overrides                     # Directory containing S_override make files
+    "s_overrides=s"             => \$s_overrides,                    # Directory containing S_override make files
+    "include=s"                 => \$include                         # Directory containing S_override make files
 ) ;
 
 $full_build = !$no_source_build ;
 
-$val = $ARGV[$argnum + 1] ;
 if( !(($build_type eq "o") or ($build_type eq "a") or ($build_type eq "so") or ($build_type eq "dylib")) )
 {
     print "Invalid build type {$build_type}, valid build types are {o, a, so}\n" ;
@@ -70,40 +72,55 @@ if($source_dir eq "" and $full_build)
     exit 1 ;
 }
 
+#Build list of includes for compilation. Includes:
+#   trick_home
+#   trick_home/include
+#   Header directory
+#   Additional user provided directories
+#$include_arg = "-I $trick_home -I $trick_home" . "/include -I $header_dir ";
+my $include_arg = "";
+my @incl_dirs = split ' ', $include ;
+foreach my $dir (@incl_dirs)
+{
+    $include_arg .= "-I" . $dir . " " ;
+}
+
 #Set Environment Variables
 if ($full_build)
 {
     $ENV{'FULL_TRICKIFY_BUILD'} = "1" ;
 }
 my @src_dirs = split ' ', $source_dir ;
-$source_dir_arg = "" ;
-foreach $dir (@src_dirs)
+my $source_dir_args = "" ;
+foreach my $dir (@src_dirs)
 {
-    $source_dir_arg .= "-I " . $dir . " ";
+    $source_dir_args .= "-I" . $dir . " " ;
 }
-$ENV{'TRICKIFY_CXX_FLAGS'} = "$source_dir_args -I $trick_home" . "/include" ;
+$ENV{'TRICKIFY_CXX_FLAGS'} = "$source_dir_args -I$trick_home -I$trick_home" . "/include $include_arg" ;
 $ENV{'TRICKIFY_OBJECT_NAME'} = "$name.$build_type" ;
 $ENV{'TRICKIFY_SOURCE'} = "$source_dir" ;
 $ENV{'TRICKIFY_HEADER'} = "$header_dir" ;
 $ENV{'TRICKIFY_S_OVERRIDES'} = "$s_overrides" ;
-if ( $build_type eq o )
+$ENV{'TRICKIFY_INCLUDES'} = "$include_arg" ;
+#$ENV{'TRICKIFY_INCLUDES'} = "$include" ;
+if ( $build_type eq "o" )
 {
-    $ENV{'TRICKIFY_BUILD_TYPE'}  = PLO ;
+    $ENV{'TRICKIFY_BUILD_TYPE'}  = "PLO" ;
 }
-elsif ( $build_type eq a )
+elsif ( $build_type eq "a" )
 {
-    $ENV{'TRICKIFY_BUILD_TYPE'}  = STATIC ;
+    $ENV{'TRICKIFY_BUILD_TYPE'}  = "STATIC" ;
 }
-elsif ( $build_type eq so || $build_type eq dylib )
+elsif ( $build_type eq "so" || $build_type eq "dylib" )
 {
-    $ENV{'TRICKIFY_BUILD_TYPE'}  = SHARED ;
+    $ENV{'TRICKIFY_BUILD_TYPE'}  = "SHARED" ;
 }
 
 #Build the S_source.hh
 if (!$no_clean_s_source)
 {
     print "Building S_source.hh\n" ;
-    $make_s_source = "python3 $my_path../share/trick/pymods/trick/build_trickify_S_source_hh.py" ;
+    my $make_s_source = "python3 $my_path../share/trick/pymods/trick/build_trickify_S_source_hh.py" ;
     print(`$make_s_source`) ;
 }
 
@@ -111,15 +128,15 @@ if (!$no_clean_s_source)
 if (!$no_clean_src and $full_build)
 {
     print "Building trickify_src_list\n" ;
-    $make_src_list = "python3 $my_path../share/trick/pymods/trick/build_trickify_src_list.py" ;
+    my $make_src_list = "python3 $my_path../share/trick/pymods/trick/build_trickify_src_list.py" ;
     print(`$make_src_list`) ;
 }
 
 #Build array of source files
+my @src_files ;
 if ($full_build)
 {
-    open ($fh, "trickify_src_list") or die "Could not open trickify_src_list: $!" ;
-    @src_files ;
+    open (my $fh, "trickify_src_list") or die "Could not open trickify_src_list: $!" ;
     while (my $line = <$fh>) 
     {
         chomp $line ;
@@ -134,18 +151,19 @@ if ($full_build)
     print "Building object files\n" ;
     if($source_make_call eq "")
     {
-        foreach $src (@src_files)
+        foreach my $src (@src_files)
         {
-            $file = $src ;
+            my $cmd = "" ;
+            my $file = $src ;
             if($file =~ /\S\w*(\Q.c\E)$/)
             {
                 $file =~ s/\Q.c\E$// ;
-                $cmd = "gcc $source_make_args -I $trick_home -I $trick_home" . "/include -I $header_dir -c $src -o $file.o" ;
+                $cmd = "gcc $source_make_args $ENV{'TRICKIFY_CXX_FLAGS'} -c $src -o $file.o" ;
             }
             else
             {
                 $file =~ s/\Q.\E\w*$// ; 
-                $cmd = "g++ $source_make_args -I $trick_home -I $trick_home" . "/include -I $header_dir -c $src -o $file.o" ;
+                $cmd = "g++ $source_make_args $ENV{'TRICKIFY_CXX_FLAGS'} -c $src -o $file.o" ;
             }
             if($debug)
             {
@@ -164,26 +182,27 @@ if ($full_build)
 if(!$no_clean_obj and $full_build)
 {
     print "Building trickify_obj_list\n" ;
-    $make_obj_list = "python3 $my_path../share/trick/pymods/trick/build_trickify_obj_list.py" ;
+    my $make_obj_list = "python3 $my_path../share/trick/pymods/trick/build_trickify_obj_list.py" ;
     print(`$make_obj_list`) ;
 }
 
 #Build trickify call
 print "Begin Trickification...\n" ;
-$trickify_make_call = "make $trickify_make_args -f $trickify_make_path" ;
+my $trickify_make_call = "make $trickify_make_args -f $trickify_make_path" ;
 print(`$trickify_make_call`) ;
 
 if($debug) {
     print 
    "TRICKIFY BUILD INFO:
     header_dir = $header_dir
-    source_dir = $source_dir_arg
+    source_dir = $source_dir_args
     source_make_call = $source_make_call
     trickify_make_args = $trickify_make_args
     trickify_make_path = $trickify_make_path
-    build_s_source = $build_s_source
+    build_s_source = $no_clean_s_source
     full_build = $full_build
     name = $name
     build_type = $build_type
-    trick_home = $trick_home\n" ;
+    trick_home = $trick_home
+    TRICKIFY_CXX_FLAGS = $ENV{'TRICKIFY_CXX_FLAGS'}\n" ;
 }

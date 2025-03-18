@@ -10,10 +10,14 @@ import java.io.FileWriter;
 import java.io.FileReader;
 import java.util.Properties;
 
+import trick.common.TrickApplication;
 import org.jdesktop.application.Action;
 
 public class TrickifyPanel extends JPanel
 {
+    private TrickApplication myApp;
+    private Properties trickProp;
+
     private JPanel fieldPanel;
     private JPanel boxPanel;
     private JPanel buttonPanel;
@@ -22,20 +26,22 @@ public class TrickifyPanel extends JPanel
     private JMenu fileMenu = new JMenu();
     private JMenuItem saveMenuItem = new JMenuItem();
     private JMenuItem loadMenuItem = new JMenuItem();
+    private JMenuItem loadDefaultMenuItem = new JMenuItem();
     
     private JMenu viewMenu = new JMenu();
     private JMenuItem defaultViewMenuItem = new JMenuItem(); 
 
     private String trick_home;
 
-    private int mainFrameWidth = 1000;
-    private int mainFrameHeight = 600;
+    private int mainFrameWidth = DirSelect.textfield_width + DirSelect.button_width;
+    private int mainFrameHeight = 800;
 
     private JPanel mainPanel;
     private DirSelect src_dirs;
     private DirSelect trick_home_dirs;
     private DirSelect build_path_dirs;
     private DirSelect trickify_path_dirs;
+    private DirSelect trickify_include_dirs;
     private DirSelect source_make_dirs;
     private DirSelect log_dirs;
     private DirSelect s_overrides_dirs;
@@ -46,15 +52,13 @@ public class TrickifyPanel extends JPanel
     private String trick_home_config = "TRICK_HOME";
     private String build_path_config = "BUILD_PATH";
     private String trickify_path_config = "TRICKIFY_PATH";
+    private String trickify_include_config = "TRICKIFY_INCLUDE";
     private String source_make_config = "SOURCE_MAKE";
     private String log_config = "LOG";
     private String s_overrides_config = "S_OVERRIDES";
     private String name_config = "NAME";
     private String trickify_args_config = "TRICKIFY_ARGS";
     private String source_make_args_config = "SOURCE_MAKE_ARGS";
-    private int fields_x = 50;
-    private int fields_y = 0;
-    private int fields_offset = 50;
 
     private JCheckBox full_build_box;
     private JCheckBox no_clean_obj_box;
@@ -68,10 +72,6 @@ public class TrickifyPanel extends JPanel
     private String no_clean_s_source_config = "NO_CLEAN_S_SOURCE";
     private String debug_config = "DEBUG";
     private String build_type_config = "BUILD_TYPE";
-    private int checkbox_x = 200;
-    private int checkbox_y = 0;
-    private int checkbox_width = 250;
-    private int checkbox_offset = 20;
 
     private JButton runButton;
     private JButton exportButton;
@@ -112,6 +112,20 @@ public class TrickifyPanel extends JPanel
         {
             cmdLine.add("--trickify_make");
             cmdLine.add(trickify_path_dirs_txt);
+        }
+
+        String trickify_include_dirs_txt = trickify_include_dirs.getText().trim();
+        if(!trickify_include_dirs_txt.equals(""))
+        {
+            cmdLine.add("--include");
+            if(useQuotes)
+            {
+               cmdLine.add("\"" + trickify_include_dirs_txt + "\"");
+            }
+            else
+            {
+                cmdLine.add(trickify_include_dirs_txt);
+            }
         }
 
         String trickify_args_field_txt = trickify_args_field.getText().trim();
@@ -238,86 +252,104 @@ public class TrickifyPanel extends JPanel
         }
     }
 
-    public void save_properties(Properties p)
+    
+    public void save_properties()
     {
-        p.setProperty(src_dirs_config, src_dirs.getText().trim());
-        p.setProperty(trick_home_config, trick_home_dirs.getText().trim());
-        p.setProperty(trickify_path_config, trickify_path_dirs.getText().trim());
-        p.setProperty(trickify_args_config, trickify_args_field.getText().trim());
-        p.setProperty(source_make_config, source_make_dirs.getText().trim());
-        p.setProperty(source_make_args_config, source_make_args_field.getText().trim());
-        p.setProperty(build_path_config, build_path_dirs.getText().trim());
-        p.setProperty(s_overrides_config, s_overrides_dirs.getText().trim());
-        p.setProperty(name_config, name_field.getText().trim());
-        p.setProperty(full_build_config, Boolean.toString(full_build_box.isSelected()));
-        p.setProperty(no_clean_obj_config, Boolean.toString(no_clean_obj_box.isSelected()));
-        p.setProperty(no_clean_src_config, Boolean.toString(no_clean_src_box.isSelected()));
-        p.setProperty(no_clean_s_source_config, Boolean.toString(no_clean_s_source_box.isSelected()));
-        p.setProperty(debug_config, Boolean.toString(debug_box.isSelected()));
-        p.setProperty(build_type_config, build_type_box.getSelectedItem().toString());
+        save_properties(trickProp);
     }
 
-    public void load_properties(Properties p)
+    public void save_properties(Properties prop)
     {
-        String prop = null;
+        prop.setProperty(src_dirs_config, src_dirs.getText().trim());
+        prop.setProperty(trick_home_config, trick_home_dirs.getText().trim());
+        prop.setProperty(trickify_path_config, trickify_path_dirs.getText().trim());
+        prop.setProperty(trickify_include_config, trickify_include_dirs.getText().trim());
+        prop.setProperty(trickify_args_config, trickify_args_field.getText().trim());
+        prop.setProperty(source_make_config, source_make_dirs.getText().trim());
+        prop.setProperty(source_make_args_config, source_make_args_field.getText().trim());
+        prop.setProperty(build_path_config, build_path_dirs.getText().trim());
+        prop.setProperty(s_overrides_config, s_overrides_dirs.getText().trim());
+        prop.setProperty(name_config, name_field.getText().trim());
+        prop.setProperty(full_build_config, Boolean.toString(full_build_box.isSelected()));
+        prop.setProperty(no_clean_obj_config, Boolean.toString(no_clean_obj_box.isSelected()));
+        prop.setProperty(no_clean_src_config, Boolean.toString(no_clean_src_box.isSelected()));
+        prop.setProperty(no_clean_s_source_config, Boolean.toString(no_clean_s_source_box.isSelected()));
+        prop.setProperty(debug_config, Boolean.toString(debug_box.isSelected()));
+        prop.setProperty(build_type_config, build_type_box.getSelectedItem().toString());
+    }
 
-        if((prop = p.getProperty(src_dirs_config)) != null)
+    public void load_properties()
+    {
+        load_properties(trickProp);
+    }
+
+    public void load_properties(Properties prop)
+    {
+        String propText = null;
+
+        if((propText = prop.getProperty(src_dirs_config)) != null)
         {
-            src_dirs.setText(prop);
+            src_dirs.setText(propText);
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(trick_home_config)) != null)
+        if((propText = prop.getProperty(trick_home_config)) != null)
         {
-            trick_home_dirs.setText(prop);
+            trick_home_dirs.setText(propText);
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(trickify_path_config)) != null)
+        if((propText = prop.getProperty(trickify_path_config)) != null)
         {
-            trickify_path_dirs.setText(prop);
+            trickify_path_dirs.setText(propText);
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(trickify_args_config)) != null)
+        if((propText = prop.getProperty(trickify_include_config)) != null)
         {
-            trickify_args_field.setText(prop);
+            trickify_include_dirs.setText(propText);
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(source_make_config)) != null)
+        if((propText = prop.getProperty(trickify_args_config)) != null)
         {
-            source_make_dirs.setText(prop);
+            trickify_args_field.setText(propText);
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(source_make_args_config)) != null)
+        if((propText = prop.getProperty(source_make_config)) != null)
         {
-            source_make_args_field.setText(prop);
+            source_make_dirs.setText(propText);
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(build_path_config)) != null)
+        if((propText = prop.getProperty(source_make_args_config)) != null)
         {
-            build_path_dirs.setText(prop);
+            source_make_args_field.setText(propText);
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(s_overrides_config)) != null)
+        if((propText = prop.getProperty(build_path_config)) != null)
         {
-            s_overrides_dirs.setText(prop);
+            build_path_dirs.setText(propText);
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(name_config)) != null)
+        if((propText = prop.getProperty(s_overrides_config)) != null)
         {
-            name_field.setText(prop);
+            s_overrides_dirs.setText(propText);
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(full_build_config)) != null)
+        if((propText = prop.getProperty(name_config)) != null)
         {
-            if(prop.equals("true"))
+            name_field.setText(propText);
+        }
+        propText = null;
+
+        if((propText = prop.getProperty(full_build_config)) != null)
+        {
+            if(propText.equals("true"))
             {
                 full_build_box.setSelected(true);
             }
@@ -326,11 +358,11 @@ public class TrickifyPanel extends JPanel
                 full_build_box.setSelected(false);
             }
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(no_clean_obj_config)) != null)
+        if((propText = prop.getProperty(no_clean_obj_config)) != null)
         {
-            if(prop.equals("true"))
+            if(propText.equals("true"))
             {
                 no_clean_obj_box.setSelected(true);
             }
@@ -339,11 +371,11 @@ public class TrickifyPanel extends JPanel
                 no_clean_obj_box.setSelected(false);
             }
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(no_clean_src_config)) != null)
+        if((propText = prop.getProperty(no_clean_src_config)) != null)
         {
-            if(prop.equals("true"))
+            if(propText.equals("true"))
             {
                 no_clean_src_box.setSelected(true);
             }
@@ -352,11 +384,11 @@ public class TrickifyPanel extends JPanel
                 no_clean_src_box.setSelected(false);
             }
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(no_clean_s_source_config)) != null)
+        if((propText = prop.getProperty(no_clean_s_source_config)) != null)
         {
-            if(prop.equals("true"))
+            if(propText.equals("true"))
             {
                 no_clean_s_source_box.setSelected(true);
             }
@@ -365,11 +397,11 @@ public class TrickifyPanel extends JPanel
                 no_clean_s_source_box.setSelected(false);
             }
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(debug_config)) != null)
+        if((propText = prop.getProperty(debug_config)) != null)
         {
-            if(prop.equals("true"))
+            if(propText.equals("true"))
             {
                 debug_box.setSelected(true);
             }
@@ -378,12 +410,18 @@ public class TrickifyPanel extends JPanel
                 debug_box.setSelected(false);
             }
         }
-        prop = null;
+        propText = null;
 
-        if((prop = p.getProperty(build_type_config)) != null)
+        if((propText = prop.getProperty(build_type_config)) != null)
         {
-            build_type_box.setSelectedItem(prop);
+            build_type_box.setSelectedItem(propText);
         }
+    }
+
+    @Action
+    public void loadDefaultPropertiesAction(ActionEvent e)
+    {
+        set_default();
     }
 
     private void set_default()
@@ -393,6 +431,7 @@ public class TrickifyPanel extends JPanel
         src_dirs.setText("");
         trick_home_dirs.setText(trick_home); 
         trickify_path_dirs.setText(trick_home + s + "share" + s + "trick" + s + "makefiles" + s + "trickify.mk"); 
+        trickify_include_dirs.setText(""); 
         trickify_args_field.setText("");
         source_make_dirs.setText("");
         source_make_args_field.setText("");
@@ -400,7 +439,7 @@ public class TrickifyPanel extends JPanel
         build_path_dirs.setText(System.getProperty("user.dir")); 
         name_field.setText("TrickifiedLibrary");
         log_dirs.setText(System.getProperty("user.dir")); 
-        full_build_box.setSelected(false);
+        full_build_box.setSelected(true);
         no_clean_obj_box.setSelected(false);
         no_clean_src_box.setSelected(false);
         no_clean_s_source_box.setSelected(false);
@@ -411,25 +450,77 @@ public class TrickifyPanel extends JPanel
     @Action
     public void restoreDefaultView(ActionEvent e)
     {
-        setSize(mainFrameWidth, mainFrameHeight);
+        myApp.getMainFrame().setSize(mainFrameWidth, mainFrameHeight);
     }
 
-    TrickifyPanel()
+    @Action
+    public void savePropertiesAction(ActionEvent e)
     {
+        JFileChooser fc = new JFileChooser();
+        fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+        int result = fc.showOpenDialog(null);
+        if(result == JFileChooser.CANCEL_OPTION)
+        {
+            return;
+        }
+        String filename = "";
+        File file = fc.getSelectedFile();
+        filename = file.getAbsolutePath();
+        
+        Properties p = new Properties();
+        save_properties(p);
+        try
+        {
+            p.store(new FileWriter(filename), "Trickify Properties"); 
+        }    
+        catch (IOException exp) 
+        {
+            exp.printStackTrace();
+        }     
+    }
+
+    @Action
+    public void loadPropertiesAction(ActionEvent e)
+    {
+        JFileChooser fc = new JFileChooser();
+        fc.setCurrentDirectory(new File(System.getProperty("user.dir")));
+        int result = fc.showOpenDialog(null);
+        if(result == JFileChooser.CANCEL_OPTION)
+        {
+            return;
+        }
+        String filename = "";
+        File file = fc.getSelectedFile();
+        filename = file.getAbsolutePath();
+        
+        Properties p = new Properties();
+        try
+        {
+            p.load(new FileReader(filename)); 
+        }    
+        catch (IOException exp) 
+        {
+            exp.printStackTrace();
+        }    
+        load_properties(p);   
+    }
+
+    TrickifyPanel(TrickApplication app)
+    {
+        myApp = app;
+        trickProp = myApp.trickProperties;
 
         String s = System.getProperty("file.separator");
         trick_home = new File(TrickifyPanel.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getAbsolutePath();
 
-        setBounds(0, 0, mainFrameWidth, mainFrameHeight);
-        setPreferredSize(new Dimension(mainFrameWidth, mainFrameHeight));
-        setBackground(Color.lightGray);
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1;
 
         fieldPanel = new JPanel();
-        fieldPanel.setPreferredSize(new Dimension(mainFrameWidth, 400));
-        fieldPanel.setLayout(new GridLayout(10, 1));
+        fieldPanel.setLayout(new GridLayout(11, 1));
         add(fieldPanel, gbc);
 
         boxPanel = new JPanel();
@@ -439,26 +530,31 @@ public class TrickifyPanel extends JPanel
         buttonPanel = new JPanel();
         add(buttonPanel, gbc);
 
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(TrickifyPanel.class, this);
+
         //Build File Menu
         fileMenu.setName("trickify.fileMenu");
         saveMenuItem.setName("trickify.saveMenuItem");
+        saveMenuItem.setAction(actionMap.get("savePropertiesAction"));
         fileMenu.add(saveMenuItem);
         loadMenuItem.setName("trickify.loadMenuItem");
+        loadMenuItem.setAction(actionMap.get("loadPropertiesAction"));
         fileMenu.add(loadMenuItem);
+        loadDefaultMenuItem.setName("trickify.loadDefaultMenuItem");
+        loadDefaultMenuItem.setAction(actionMap.get("loadDefaultPropertiesAction"));
+        fileMenu.add(loadDefaultMenuItem);
         menu.add(fileMenu);
 
         //Build View Menu
         viewMenu.setName("trickify.viewMenu");
         defaultViewMenuItem.setName("trickify.defaultViewMenuItem");
+        defaultViewMenuItem.setAction(actionMap.get("restoreDefaultView"));
         viewMenu.add(defaultViewMenuItem);
         menu.add(viewMenu);
-
-        int fields_relative_offset = fields_y;
 
         src_dirs = new DirSelect();
         src_dirs.setLabel("Source Directories");
         src_dirs.setButtonText("Choose");
-        fields_relative_offset += fields_offset;
         src_dirs.allowMultiple(true);
         src_dirs.setToolTipText("Directories to build trickified library from.");
         fieldPanel.add(src_dirs);
@@ -466,7 +562,6 @@ public class TrickifyPanel extends JPanel
         trick_home_dirs = new DirSelect();
         trick_home_dirs.setLabel("Trick Home Directory");
         trick_home_dirs.setButtonText("Choose");
-        fields_relative_offset += fields_offset;
         trick_home_dirs.allowMultiple(false);
         trick_home_dirs.setToolTipText("Trick directory to use.");
         fieldPanel.add(trick_home_dirs);
@@ -474,22 +569,27 @@ public class TrickifyPanel extends JPanel
         trickify_path_dirs = new DirSelect();
         trickify_path_dirs.setLabel("Trickify Makefile");
         trickify_path_dirs.setButtonText("Choose");
-        fields_relative_offset += fields_offset;
         trickify_path_dirs.allowMultiple(false);
         trickify_path_dirs.selectFile(true);
         trickify_path_dirs.setToolTipText("trickify.mk to use. Defaults to your $TRICK_HOME/share/trick/makefiles/trickify.mk");
         fieldPanel.add(trickify_path_dirs);
 
+        trickify_include_dirs = new DirSelect();
+        trickify_include_dirs.setLabel("Includes");
+        trickify_include_dirs.setButtonText("Choose");
+        trickify_include_dirs.allowMultiple(true);
+        trickify_include_dirs.selectFile(false);
+        trickify_include_dirs.setToolTipText("Paths to include during compilation.");
+        fieldPanel.add(trickify_include_dirs);
+
         trickify_args_field = new LabeledTextField();
         trickify_args_field.setLabel("Trickify Args");
-        fields_relative_offset += fields_offset;
         trickify_args_field.setToolTipText("Arguments to provide to trickify.mk make call");
         fieldPanel.add(trickify_args_field);
 
         source_make_dirs = new DirSelect();
         source_make_dirs.setLabel("Source Make");
         source_make_dirs.setButtonText("Choose");
-        fields_relative_offset += fields_offset;
         source_make_dirs.allowMultiple(false);
         source_make_dirs.selectFile(true);
         source_make_dirs.setToolTipText("Make file to use for building source files. If none provdided just uses generic g++/gcc calls.");
@@ -497,14 +597,12 @@ public class TrickifyPanel extends JPanel
 
         source_make_args_field = new LabeledTextField();
         source_make_args_field.setLabel("Source Args");
-        fields_relative_offset += fields_offset;
         source_make_args_field.setToolTipText("Arguments to provide to the above make file.");
         fieldPanel.add(source_make_args_field);
 
         s_overrides_dirs = new DirSelect();
         s_overrides_dirs.setLabel("S_overrides");
         s_overrides_dirs.setButtonText("Choose");
-        fields_relative_offset += fields_offset;
         s_overrides_dirs.allowMultiple(false);
         s_overrides_dirs.selectFile(true);
         s_overrides_dirs.setToolTipText("S_overrides to incorporate");
@@ -513,67 +611,50 @@ public class TrickifyPanel extends JPanel
         build_path_dirs = new DirSelect();
         build_path_dirs.setLabel("Build Path");
         build_path_dirs.setButtonText("Choose");
-        fields_relative_offset += fields_offset;
         build_path_dirs.allowMultiple(false);
         build_path_dirs.setToolTipText("Where to drop the library.");
         fieldPanel.add(build_path_dirs);
 
         name_field = new LabeledTextField();
         name_field.setLabel("Library Name");
-        fields_relative_offset += fields_offset;
         name_field.setToolTipText("Library name (doesn't need extension).");
         fieldPanel.add(name_field);
 
         log_dirs = new DirSelect();
         log_dirs.setLabel("Trickify Log");
         log_dirs.setButtonText("Choose");
-        fields_relative_offset += fields_offset;
         log_dirs.allowMultiple(false);
         log_dirs.selectFile(false);
         log_dirs.setToolTipText("Where to drop the log file.");
         fieldPanel.add(log_dirs);
 
-        int checkbox_relative_offset = 0;
-        checkbox_y = fields_relative_offset;
-
         full_build_box = new JCheckBox(" Full library build");
-        full_build_box.setBounds(checkbox_x, checkbox_y + checkbox_relative_offset, checkbox_width, checkbox_offset);
-        full_build_box.setBackground(getBackground());
         full_build_box.setToolTipText("Full build includes swig files, icg files, and source files. Disabling excludes source files.");
         boxPanel.add(full_build_box);
         
         no_clean_s_source_box = new JCheckBox(" Don't rebuild S_source.hh");
-        no_clean_s_source_box.setBounds(checkbox_x, checkbox_y + checkbox_relative_offset, checkbox_width, checkbox_offset);
-        no_clean_s_source_box.setBackground(getBackground());
         no_clean_s_source_box.setToolTipText("Trickify automatically generates an S_source.hh for the build process. Can disable rebuilding if you wish to use a manually created file.");
         boxPanel.add(no_clean_s_source_box);
 
         debug_box = new JCheckBox(" Debug info");
-        debug_box.setBounds(checkbox_x, checkbox_y + checkbox_relative_offset, checkbox_width, checkbox_offset);
-        debug_box.setBackground(getBackground());
         boxPanel.add(debug_box);
         
         no_clean_src_box = new JCheckBox(" Don't rebuild source file list");
-        no_clean_src_box.setBounds(checkbox_x, checkbox_y + checkbox_relative_offset, checkbox_width, checkbox_offset);
-        no_clean_src_box.setBackground(getBackground());
         no_clean_src_box.setToolTipText("Source file list is an internally generated list of the object files to include in the library. Can disable rebuilding if you wish to use a manually created file.");
         boxPanel.add(no_clean_src_box);
 
         String options[] = { "Object", "Shared", "Static" };
         build_type_box = new JComboBox(options);
-        build_type_box.setBounds(checkbox_x, checkbox_y + checkbox_relative_offset, 200, 20);
         boxPanel.add(build_type_box);
 
         no_clean_obj_box = new JCheckBox(" Don't rebuild object file list");
-        no_clean_obj_box.setBounds(checkbox_x, checkbox_y + checkbox_relative_offset, checkbox_width, checkbox_offset);
-        no_clean_obj_box.setBackground(getBackground());
         no_clean_obj_box.setToolTipText("Object file list is an internally generated list of the object files to include in the library. Can disable rebuilding if you wish to use a manually created file.");
         boxPanel.add(no_clean_obj_box);
 
         set_default();
 
         runButton = new JButton();
-        runButton.setBounds(250, mainFrameHeight-30, 150, 20);
+        runButton.setPreferredSize(new Dimension(150, 20));
         runButton.setText("Trickify");
         runButton.addActionListener(new ActionListener() 
         {
@@ -637,7 +718,7 @@ public class TrickifyPanel extends JPanel
         buttonPanel.add(runButton);
 
         exportButton = new JButton();
-        exportButton.setBounds(600, mainFrameHeight-30, 150, 20);
+        exportButton.setPreferredSize(new Dimension(150, 20));
         exportButton.setText("Print");
         exportButton.addActionListener(new ActionListener() 
         { 

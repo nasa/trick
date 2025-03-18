@@ -495,7 +495,11 @@ void PrintAttributes::printIOMakefile() {
         size_t found ;
         found = (*mit).second.find_last_of(".") ;
         io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
-        trickify_io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
+        std::string ssrc = (*mit).second.substr(0,found) ;
+        if(ssrc.substr( ssrc.length()-11, ssrc.length()) != "io_S_source" )
+        {
+            trickify_io_link_list << (*mit).second.substr(0,found) << ".o" << std::endl ;
+        }
         ICG_processed << (*mit).first << std::endl ;
     }
     makefile_ICG.close() ;

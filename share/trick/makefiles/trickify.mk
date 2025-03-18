@@ -140,7 +140,6 @@ endif
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
-	@echo TRICKIFICATION
 	@sh -c '\
 		FILES=""; \
 		while IFS= read -r line; do \
