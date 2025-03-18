@@ -10,6 +10,7 @@ import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -44,6 +45,7 @@ import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
@@ -274,7 +276,13 @@ public abstract class TrickApplication extends SingleFrameApplication implements
                 public void run() {
                     try {
                         UIManager.setLookAndFeel(finalLafClassName);
-                        SwingUtilities.updateComponentTreeUI(getMainFrame());
+                        // update the UI for all windows with the new look and feel
+                        // this is needed for all the windows that are not
+                        // children of the main frame as well as the children
+                        // of the main frame
+                        for (Window window : Window.getWindows()) {
+                            SwingUtilities.updateComponentTreeUI(window);
+                        }
                     } catch (Exception exception) {
                         JOptionPane.showMessageDialog(getMainFrame(),
                                                       "Can't change look and feel",
