@@ -52,3 +52,10 @@ def build_src_list():
             files = find_files_by_extension(path, ext)
             for i in range(len(files)):
                 src_list.write(str(files[i]) + '\n')
+
+def build_S_overrides_trickify(ldflags, ext_lib_dirs, python_path):
+    s_overrides = open("S_overrides_trickify.mk", 'w')
+
+    s_overrides.write("TRICK_LDFLAGS += " + ldflags + '\n')
+    s_overrides.write("TRICK_EXT_LIB_DIRS += " + ext_lib_dirs + '\n')
+    s_overrides.write("TRICK_PYTHON_PATH += " + python_path + '\n')

@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 
-use Getopt::Long;
+use Getopt::Long ;
+use Cwd ;
 use strict ;
 
 my $my_path = $0 ;
@@ -116,6 +117,15 @@ elsif ( $build_type eq "so" || $build_type eq "dylib" )
     {
         $source_make_args .= " -fPIC" ;
     }
+}
+
+#Build the S_overrides_trickify.mk
+if (!$no_clean_s_source)
+{
+    print "Building S_overrides_trickify.mk\n" ;  
+    my $my_cwd = getcwd ;                      
+    my $make_s_overrides = "python3 $my_path../share/trick/pymods/trick/build_S_overrides_trickify.py $ENV{'TRICKIFY_OBJECT_NAME'} $ENV{'TRICKIFY_HEADER'} $my_cwd/python" ;
+    print(`$make_s_overrides`) ;
 }
 
 #Build the S_source.hh
