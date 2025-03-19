@@ -77,7 +77,6 @@ if($source_dir eq "" and $full_build)
 #   trick_home/include
 #   Header directory
 #   Additional user provided directories
-#$include_arg = "-I $trick_home -I $trick_home" . "/include -I $header_dir ";
 my $include_arg = "";
 my @incl_dirs = split ' ', $include ;
 foreach my $dir (@incl_dirs)
@@ -102,7 +101,6 @@ $ENV{'TRICKIFY_SOURCE'} = "$source_dir" ;
 $ENV{'TRICKIFY_HEADER'} = "$header_dir" ;
 $ENV{'TRICKIFY_S_OVERRIDES'} = "$s_overrides" ;
 $ENV{'TRICKIFY_INCLUDES'} = "$include_arg" ;
-#$ENV{'TRICKIFY_INCLUDES'} = "$include" ;
 if ( $build_type eq "o" )
 {
     $ENV{'TRICKIFY_BUILD_TYPE'}  = "PLO" ;
@@ -114,6 +112,10 @@ elsif ( $build_type eq "a" )
 elsif ( $build_type eq "so" || $build_type eq "dylib" )
 {
     $ENV{'TRICKIFY_BUILD_TYPE'}  = "SHARED" ;
+    if ($^O == "linux")
+    {
+        $source_make_args .= " -fPIC" ;
+    }
 }
 
 #Build the S_source.hh
