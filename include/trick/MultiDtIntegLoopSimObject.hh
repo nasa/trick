@@ -6,9 +6,9 @@
 #ifndef MULTIDT_INTEG_LOOP_SIMOBJECT_HH
 #define MULTIDT_INTEG_LOOP_SIMOBJECT_HH
 
-#include "trick/MultiDtIntegLoopScheduler.hh"
 #include "trick/Integrator.hh"
 #include "trick/JobData.hh"
+#include "trick/MultiDtIntegLoopScheduler.hh"
 #include "trick/SimObject.hh"
 
 #ifdef SWIG
@@ -47,6 +47,16 @@ public:
 
     // Adds common set of jobs for all constructors.
     void add_jobs(double in_cycle, unsigned int child);
+
+    /**
+     * Add an integration rate to this loop scheduler
+     * @param integRateIn  New integration rate in seconds
+     * @return vector index of the added rate
+     */
+    size_t add_rate(const double integRateIn)
+    {
+        return integ_sched.add_rate(integRateIn);
+    }
 
     virtual int call_function(Trick::JobData * curr_job);
     virtual double call_function_double(Trick::JobData * curr_job);

@@ -20,7 +20,8 @@ PROGRAMMERS:
 %ignore Trick::MultiDtIntegLoopScheduler::add_sim_object(Trick::SimObject *) ;
 #endif
 
-namespace Trick {
+namespace Trick
+{
 
 /**
  * This class is a Scheduler that provides the ability to integrate a
@@ -85,19 +86,47 @@ public:
     /**
      * Add an integration rate to this loop scheduler
      * @param integRateIn  New integration rate in seconds
+     * @return vector index of the added rate
      */
-    void addRate(const double integRateIn);
+    size_t add_rate(const double integRateIn);
 
     /**
-     * Vector of integration rates in seconds.
+     * Get the total number of rates for this IntegLoop instance
+     * @return total number of rates
      */
-    std::vector<double> integRates;
+    size_t get_num_rates();
+
+    /**
+     * Get the integration rate according to rate index
+     * @return cycle in seconds or -1.0 if error
+     */
+    double get_rate(const size_t rateIdx = 0);
+
+    /**
+     * Change the interval between calls to the integ_loop job.
+     * @param cycle  New integration cycle time, in Trick seconds.
+     */
+    virtual int set_integ_cycle (double cycle);
+
+    /**
+     * Updates an integration rate by index and cycle. Calling with 0
+     * index is equivalent to set_integ_cycle
+     * @param rateIdx  New integration rate in seconds
+     * @param integRateIn index of the added rate
+     * @return Zero = success, non-zero = failure (rateIdx is invalid).
+     */
+    virtual int set_integ_rate(const size_t rateIdx, const double integRateIn);
 
 protected:
     /**
      * Time in tics of the next required integration time.
      */
     long long next_tic;
+
+    /**
+     * Vector of integration rates in seconds.
+     */
+    std::vector<double> integ_rates;
 
     /**
      * Loop through the required integration rates and calculate the
@@ -116,6 +145,28 @@ protected:
     /**
      * Vector of next integration time in tics for each rate in the integRates vector
      */
+    std::vector<long long> integ_next_tics;
+
+    /**
+     * Vector of integration rate in tics for each rate in the integRates vector
+     */
+    std::vector<long long> integ_cycle_tics;
+
+    /**
+     * Run-time vector of integration rate indices that will be processed this integration frame
+     */
+    std::vector<size_t> indices_to_process;
+
+    /**
+     * Find the associated integ_loop job from this object's
+     * parnet_sim object
+     * @return Pointer to integ_loop kob
+     */
+    JobData * find_integ_loop_job();
+
+    /**
+     * Vector of next integration time in tics for each rate in the integRates vector
+     */
     std::vector<long long> integNextTics;
     /**
      * Vector of integration rate in tics for each rate in the integRates vector
@@ -123,6 +174,6 @@ protected:
     std::vector<long long> integCycleTics;
 };
 
-}
+} // namespace Trick
 
 #endif /* MULTIDTINTEGLOOPSCHEDULER_HH */

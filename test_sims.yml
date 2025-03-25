@@ -93,6 +93,13 @@ SIM_test_ip:
   runs:
     RUN_test/unit_test.py:
       returns: 0
+SIM_test_multidt:
+  path: test/SIM_test_multidt
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
 SIM_test_sched:
   path: test/SIM_test_sched
   build_args: "-t"
