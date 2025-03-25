@@ -405,7 +405,12 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
         // Initialze the variable tree.
         variableTree = new TVVariableTree() {{
-            setEnabled(false);
+            // don't disable it here due to a known issue with the Apple Aqua Look and Feel 
+            // when using custom Look and Feel components on Mac. The NullPointerException 
+            // occurs in the AquaMenuPainter class when it tries to paint a border but 
+            // gets a null value from com.apple.laf.AquaMenuPainter$RecyclableBorder.get() 
+            // returns null
+            // setEnabled(false);
 
             try {
                 setSorting(Enum.valueOf(Sorting.class, trickProperties.getProperty(
@@ -440,7 +445,14 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         searchPanel = new SearchPanel() {{
             setVisible(Boolean.parseBoolean(trickProperties.getProperty(
               searchPanelVisibleKey, Boolean.toString(true))));
-            setEnabled(false);
+
+            // don't disable it here due to a known issue with the Apple Aqua Look and Feel 
+            // when using custom Look and Feel components on Mac. The NullPointerException 
+            // occurs in the AquaMenuPainter class when it tries to paint a border but 
+            // gets a null value from com.apple.laf.AquaMenuPainter$RecyclableBorder.get() 
+            // returns null
+            // setEnabled(false);
+
             setFontSize(Float.parseFloat(trickProperties.getProperty(
               fontSizeKey, Integer.toString(getFont().getSize()))));
             setAction(new AbstractAction("Add") {
@@ -1931,12 +1943,6 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             }
         }
         return Sorting.None;
-    }
-
-    @Override
-    protected void changeLookAndFeel(String lookAndFeelName) {
-        // Some of TV's elements don't respond well to look and feel changes,
-        // so I'm not supporting it for now.
     }
 
     @Override
