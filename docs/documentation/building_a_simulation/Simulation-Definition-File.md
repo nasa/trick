@@ -62,7 +62,7 @@ class <sim_object_type_name> : public Trick::SimObject {
 
 [<sim_object_type_name> <sim_object_instantiation>[(args)] ;]
 
-[integrate/multiintegrate <integrator_name> (<integration_dt>) <sim_object_name> [,<sim_object_name] ;]
+[integrate <integrator_name> (<integration_dt>) <sim_object_name> [,<sim_object_name] ;]
 
 [collect <reference> = {[<reference> [,<reference>]]};]
 
@@ -604,6 +604,7 @@ For example, an effector may have a frequency of 40hz but a sensor has a 64Hz fr
 solutions for dealing with rates that do not line up nicely:
 01. Interpolate data to satisfy the 64hz sensor, but this introduces error
 01. Integrate at 640Hz, but this slows the sim down by 10x or more from 64hz.
+
 However, a third option is possible, if the integration architecture can support it, to simply integrate in such a way
 that both rates are satisfied. Enter MultiDtIntegLoopScheduler!
 
