@@ -82,6 +82,8 @@
 #include "trick/IntegLoopScheduler.hh"
 #include "trick/IntegLoopManager.hh"
 #include "trick/IntegLoopSimObject.hh"
+#include "trick/MultiDtIntegLoopScheduler.hh"
+#include "trick/MultiDtIntegLoopSimObject.hh"
 #include "trick/Integrator.hh"
 #include "trick/regula_falsi.h"
 
