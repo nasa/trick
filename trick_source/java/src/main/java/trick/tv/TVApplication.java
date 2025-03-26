@@ -368,7 +368,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         }
     };
 
-    /** reset the table to its default chronological order */
+    /** reset the variable table to its default order */
     protected AbstractAction resetSortingAction = new AbstractAction("Reset Table Sorting",
       new ImageIcon(TVApplication.class.getResource("resources/resetsorting.png"))) {
         {
