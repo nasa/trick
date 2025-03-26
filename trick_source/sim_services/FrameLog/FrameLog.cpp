@@ -759,6 +759,11 @@ int Trick::FrameLog::create_DP_files() {
 int Trick::FrameLog::create_DP_Product_dir() {
     int ret=0;
     DP_dir = "DP_Product";
+    if (std::string(command_line_args_get_user_output_dir()) != std::string(command_line_args_get_output_dir())) {
+        if (!std::string(command_line_args_get_user_output_dir()).empty()) {
+            DP_dir = std::string(command_line_args_get_user_output_dir()) + "/DP_Product";
+        }
+    } 
     ret = mkdir(DP_dir.c_str(), 0777);
     if (ret == -1) {
         if (errno == EEXIST) {
