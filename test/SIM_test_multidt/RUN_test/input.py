@@ -9,23 +9,26 @@ for param in [ 'position' , 'velocity' , 'acceleration' , 'external_force' ] :
 drg0.freq = trick.DR_Always
 trick_data_record.drd.add_group(drg0, trick.DR_No_Buffer)
 
-my_integ_loop.add_rate(0.005)
+my_integ_loop.set_integ_cycle(1.0/40)
+my_integ_loop.add_rate(1.0/64)
 
 my_integ_loop.integ_sched.verbosity = True
 
-trick.add_read(0.015, '''
+trick.add_read(0.025, '''
 my_integ_loop.set_integ_cycle(0.02)
 trick.message_publish(1, 'Called my_integ_loop.set_integ_cycle(0.02)\\n')
 ''')
 
-trick.add_read(0.055, '''
+trick.add_read(0.075, '''
 my_integ_loop.integ_sched.set_integ_rate(1, 0.01)
 trick.message_publish(1, 'Called my_integ_loop.integ_sched.set_integ_rate(1, 0.01)\\n')
 ''')
 
 trick.add_read(1.0, '''
-my_integ_loop.integ_sched.set_integ_rate(1, 0.005)
-trick.message_publish(1, 'Called my_integ_loop.integ_sched.set_integ_rate(1, 0.005)\\n')
+my_integ_loop.integ_sched.set_integ_rate(0, 0.025)
+my_integ_loop.integ_sched.set_integ_rate(1, 0.015625)
+trick.message_publish(1, 'Called my_integ_loop.integ_sched.set_integ_rate(0, 0.025)\\n')
+trick.message_publish(1, 'Called my_integ_loop.integ_sched.set_integ_rate(1, 0.015625)\\n')
 trick.message_publish(1, f'Total num rates = {my_integ_loop.integ_sched.get_num_rates()}\\n')
 trick.message_publish(1, f'Rate 0 = {my_integ_loop.integ_sched.get_rate(0)}\\n')
 trick.message_publish(1, f'Rate 1 = {my_integ_loop.integ_sched.get_rate(1)}\\n')

@@ -153,9 +153,21 @@ class ballSimObject : public Trick::SimObject {
             ("derivative") state_deriv() ;
             ("integration") trick_ret = state_integ() ;
 
+            (0.015625, "scheduled") example_64Hz() ;
+            (0.025, "scheduled") example_40Hz() ;
             (10.0, "scheduled") trick_ret = state_print() ;
 
             ("freeze") state_print() ;
+        }
+
+        void example_64Hz()
+        {
+           state_print();
+        }
+
+        void example_40Hz()
+        {
+           state_print();
         }
 
 } ;

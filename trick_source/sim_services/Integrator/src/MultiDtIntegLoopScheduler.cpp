@@ -112,6 +112,23 @@ int MultiDtIntegLoopScheduler::integrate()
         }
     }
 
+    if(verbosity)
+    {
+        std::stringstream ss;
+        Trick::JobData * curr_job = exec_get_curr_job();
+        ss << "Job: " << curr_job->name << ", Processing integration rate(s):";
+        for(size_t indProcIdx = 0; indProcIdx < indices_to_process.size(); ++indProcIdx)
+        {
+            ss << " " << (size_t)(1.0 / (integ_rates[indices_to_process[indProcIdx]])) << "Hz";
+            if(indProcIdx < (indices_to_process.size() - 1))
+            {
+                ss << ",";
+            }
+        }
+        ss << std::endl;
+        message_publish(MSG_DEBUG, ss.str().c_str());
+    }
+
     double var_next_cycle = t_end - t_start;
     // Call all of the jobs in the pre-integration job queue.
     if(trick_curr_integ == nullptr)
@@ -214,10 +231,10 @@ void MultiDtIntegLoopScheduler::initialize_rates()
     }
 
     next_tic = calculate_next_integ_tic();
+    Trick::JobData * found_job = find_integ_loop_job();
     double next_time = (double)next_tic / (double)Trick::JobData::time_tic_value;
-    double nominal_cycle_stored = nominal_cycle;
-    set_integ_cycle(next_time);
-    nominal_cycle = nominal_cycle_stored;
+    found_job->next_tics = next_tic;
+    next_cycle = next_time - exec_get_sim_time();
 }
 
 /**
