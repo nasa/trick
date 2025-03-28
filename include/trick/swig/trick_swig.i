@@ -1,9 +1,54 @@
-
 /* include support for STLs */
+
+
+%include "std_alloc.i"
+%include "std_basic_string.i"
+%include "std_char_traits.i"
+
+
+%include "std_complex.i"
+%include "std_deque.i"
+%include "std_except.i"
+
+%include "std_ios.i"
+%include "std_iostream.i"
+
+
+
+
+  
 %include "std_list.i"
 %include "std_map.i"
+%include "std_multimap.i"
+%include "std_multiset.i"
+
+%include "std_pair.i"
+%include "std_set.i"
+
+%include "std_sstream.i"
+%include "std_streambuf.i"
 %include "std_string.i"
+
 %include "std_vector.i"
+
+%include "std_array.i"
+%include "std_shared_ptr.i"
+%include "std_unique_ptr.i"
+
+%include "std_container.i"
+%include "std_deque.i"
+%include "std_except.i"
+
+%include "std_stack.i"
+%include "std_unordered_map.i"
+%include "std_unordered_multimap.i"
+%include "std_unordered_multiset.i"
+%include "std_unordered_set.i"
+%include "std_vectora.i"
+
+#if SWIG_VERSION > 0x040100
+%include "std_wstring.i"
+#endif
 %include "factory.i"
 
 %include "trick/swig/swig_extend_str.i"
@@ -11,6 +56,15 @@
 %include "trick/swig/cast_as.i"
 %include "trick/swig/swig_int_typemap.i"
 
+// Define an output typemap for pointers to std::string.
+%typemap(out) std::basic_string<char,std::char_traits<char>,std::allocator<char> >* {
+    if (!$1) {
+      Py_RETURN_NONE;
+    }
+    // Dereference the pointer and convert to a Python Unicode string.
+    $result = PyUnicode_FromString(($1)->c_str());
+  }
+  
 /*
    compactdefaultargs fixes a bug with enumeration default arguments not being
    recogized in function calls starting in swig 3.0.x
@@ -22,9 +76,7 @@
 #define __attribute__(x)
 #endif
 
-%{
-#include <sstream>
-
+%{\
 #include "trick/UnitsMap.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/reference.h"
