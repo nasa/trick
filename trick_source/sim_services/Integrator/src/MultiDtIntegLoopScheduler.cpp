@@ -216,15 +216,31 @@ int MultiDtIntegLoopScheduler::integrate()
     return 0;
 }
 
-void MultiDtIntegLoopScheduler::initialize_rates()
+/**
+ * Compute the cycle tics and next tics values for each user-specified rate
+ * @return Zero = success, non-zero = failure.
+ */
+int MultiDtIntegLoopScheduler::initialize_rates()
 {
     long long curr_tics = exec_get_time_tics();
+    int tic_value = exec_get_time_tic_value();
+    int ret = 0;
 
     integ_cycle_tics.resize(integ_rates.size());
     integ_next_tics.resize(integ_rates.size());
     for(size_t ii = 0; ii < integ_rates.size(); ++ii)
     {
         double integ_rate = integ_rates[ii];
+        if(integ_rate < (1.0 / tic_value))
+        {
+            message_publish(MSG_ERROR,
+                            "Integ Scheduler ERROR: Cycle for %lu integ rate idx is less than time tic value. cycle = "
+                            "%16.12f, time_tic = %16.12f\n",
+                            ii,
+                            integ_rate,
+                            tic_value);
+            ret = -1;
+        }
         long long cycle_tics = (long long)round(integ_rate * Trick::JobData::time_tic_value);
         integ_cycle_tics[ii] = cycle_tics;
         integ_next_tics[ii] = curr_tics + cycle_tics;
@@ -235,6 +251,7 @@ void MultiDtIntegLoopScheduler::initialize_rates()
     double next_time = (double)next_tic / (double)Trick::JobData::time_tic_value;
     found_job->next_tics = next_tic;
     next_cycle = next_time - exec_get_sim_time();
+    return ret;
 }
 
 /**
@@ -259,6 +276,17 @@ int MultiDtIntegLoopScheduler::set_integ_rate(const size_t rate_idx, const doubl
     // Note: This assumes that the one found job pertains to this scheduler.
     if(found_job != NULL)
     {
+        if(integRateIn < (1.0 /exec_get_time_tic_value()))
+        {
+            message_publish(MSG_ERROR,
+                            "Integ Scheduler ERROR: Cycle for %lu integ rate idx is less than time tic value. cycle = "
+                            "%16.12f, time_tic = %16.12f\n",
+							rate_idx,
+							integRateIn,
+							exec_get_time_tic_value());
+            return 1;
+        }
+
         // Get previous rate and cycle
         double prev_integ_rate = integ_rates[rate_idx];
         long long prev_cycle_tics = (long long)round(prev_integ_rate * Trick::JobData::time_tic_value);

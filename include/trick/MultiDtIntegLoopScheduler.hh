@@ -71,8 +71,9 @@ public:
 
     /**
      * Compute the cycle tics and next tics values for each user-specified rate
+     * @return Zero = success, non-zero = failure.
      */
-    void initialize_rates();
+    int initialize_rates();
 
     /**
      * Integrate state to the current simulation time.
