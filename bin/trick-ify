@@ -120,13 +120,29 @@ elsif ( $build_type eq "so" || $build_type eq "dylib" )
 }
 
 #Build the S_overrides_trickify.mk
-if (!$no_clean_s_source)
+print "Building S_overrides_trickify.mk\n" ;  
+my $abs_headers_str = "" ;
+my @abs_headers = split ' ', $ENV{'TRICKIFY_HEADER'} ;
+my $tmp_count = 0 ;
+foreach my $hdr (@abs_headers)
 {
-    print "Building S_overrides_trickify.mk\n" ;  
-    my $my_cwd = getcwd ;                      
-    my $make_s_overrides = "python3 $my_path../share/trick/pymods/trick/build_S_overrides_trickify.py $ENV{'TRICKIFY_OBJECT_NAME'} $ENV{'TRICKIFY_HEADER'} $my_cwd/python" ;
-    print(`$make_s_overrides`) ;
+    my $tmpstr = Cwd::abs_path($hdr) ;
+    if($tmp_count == 0)
+    {
+        $abs_headers_str = "$tmpstr" ;
+        $tmp_count = 1 ;
+    }
+    else
+    {
+        $abs_headers_str = "$abs_headers_str:$tmpstr" ;
+    }
 }
+$abs_headers_str = "\"$abs_headers_str\"" ;
+
+my $my_cwd = getcwd ;
+#TODO: Might want to add an option to make this a relative path.                     
+my $make_s_overrides = "python3 $my_path../share/trick/pymods/trick/build_S_overrides_trickify.py " . Cwd::abs_path($ENV{'TRICKIFY_OBJECT_NAME'}) . " " . $abs_headers_str . " $my_cwd/python " . "$my_cwd" ;
+print(`$make_s_overrides`) ;
 
 #Build the S_source.hh
 if (!$no_clean_s_source)
