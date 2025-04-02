@@ -464,11 +464,6 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
         JMenuBar menuBar = super.createMenuBar();
         JMenu menu = menuBar.getMenu(0);
 
-        // Remove look and feel menu item.
-        for (int i = 0; i < 2; ++i) {
-            menu.remove(0);
-        }
-
         menu.add(new JSeparator(), 0);
 
         menu.add(new JMenuItem(new AbstractAction("Settings") {
