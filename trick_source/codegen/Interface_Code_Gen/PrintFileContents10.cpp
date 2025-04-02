@@ -342,6 +342,7 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
 }
 
 void PrintFileContents10::printClass( std::ostream & ostream , ClassValues * cv ) {
+    print_template_argument_header_deps(ostream, cv) ;
     print_class_attr(ostream, cv) ;
     print_stl_helper(ostream, cv) ;
     print_init_attr_func(ostream, cv) ;
@@ -410,4 +411,12 @@ void PrintFileContents10::printStlFunction(const std::string& name, const std::s
             << "    " << typeName << "* stl = reinterpret_cast<" << typeName << "*>(start_address);" << std::endl
             << "    " << call << ";" << std::endl
             << "}" << std::endl ;
+}
+
+void PrintFileContents10::print_template_argument_header_deps(std::ostream & outfile , ClassValues * cv ) {
+    for (const auto& header_dependency : cv->getTemplateArgumentHeaderDependencies()) {
+        if (header_dependency != cv->getFileName()) {
+            outfile << "#include \"" << header_dependency << "\"\n";
+        }
+    }
 }

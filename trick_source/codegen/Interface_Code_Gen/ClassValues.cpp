@@ -275,6 +275,16 @@ bool ClassValues::isInStandardNamespace() {
     return namespaces.size() && !namespaces[0].compare("std");
 }
 
+void ClassValues::addTemplateArgumentHeaderDependency(const std::string& header_file) {
+    if (!header_file.empty()) {
+        template_argument_header_deps.insert(header_file);
+    }
+}
+
+const std::set< std::string >& ClassValues::getTemplateArgumentHeaderDependencies() const {
+    return template_argument_header_deps;
+}
+
 std::ostream & operator << (std::ostream & ostream, ClassValues & cv) {
     ostream << "  name = " << cv.name << std::endl ;
     ostream << "  mangled_name = " << cv.mangled_type_name << std::endl ;

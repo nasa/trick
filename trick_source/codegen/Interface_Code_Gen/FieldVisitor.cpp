@@ -290,9 +290,8 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
         template_spec_cvis.get_class_data()->setMangledTypeName(processed_templates[in_name]) ;
         template_spec_cvis.TraverseCXXRecordDecl(crd) ;
 
-        // Set the actual type name and file name. Print the attributes for this template type
+        // Set the actual type name. Print the attributes for this template type
         template_spec_cvis.get_class_data()->setName(in_name) ;
-        template_spec_cvis.get_class_data()->setFileName(fdes->getFileName()) ;
         pa.printClass(template_spec_cvis.get_class_data()) ;
 
         if ( debug_level >= 4 ) {
