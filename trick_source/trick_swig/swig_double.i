@@ -75,7 +75,10 @@ def _trick_setattr_nondynamic_instance_variable(set):
         elif name == "this":
             set(self, name, value)
         else:
-            msg = f'You cannot add instance attribute \'{name}\' to Trick swig_double'
+            # f-strings are available in Python 3.6 and later
+            #msg = f'You cannot add instance attribute \'{name}\' to Trick swig_double'
+            # for compatibility, use format method
+            msg = "You cannot add instance attribute '{}' to Trick swig_double".format(name)
             raise AttributeError(msg)
     return set_instance_attr
 
