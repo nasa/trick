@@ -32,7 +32,8 @@ Trick::MessagePublisher::~MessagePublisher() {
 
 void Trick::MessagePublisher::set_print_format() {
     num_digits = (int)round(log10((double)tics_per_sec)) ;
-    snprintf(print_format, sizeof(print_format), "|L %%3d|%%s.%%06Lu|%%s|%%s|T %%d|%%lld.%%0%dlld| ", num_digits) ;
+    // use %06lu for tv_usec 
+    snprintf(print_format, sizeof(print_format), "|L %%3d|%%s.%%06lu|%%s|%%s|T %%d|%%lld.%%0%dlld| ", num_digits) ;
 }
 
 int Trick::MessagePublisher::init() {
@@ -65,7 +66,8 @@ int Trick::MessagePublisher::publish(int level , std::string message) {
     
     strftime(date_buf, (size_t) 20, "%Y/%m/%d,%H:%M:%S", localtime(&date));
     (void) gethostname(hostname, (size_t) 48);
-    snprintf(header_buf, sizeof(header_buf), print_format , level, date_buf, time_val.tv_usec, hostname,
+    // print_format has %lu for tv_usec, cast to unsigned long to avoid potential warning
+    snprintf(header_buf, sizeof(header_buf), print_format , level, date_buf, (unsigned long)time_val.tv_usec, hostname,
             sim_name.c_str(), exec_get_process_id(), tics/tics_per_sec ,
             (long long)((double)(tics % tics_per_sec) * (double)(pow(10 , num_digits)/tics_per_sec)) ) ;
     header = header_buf ;
