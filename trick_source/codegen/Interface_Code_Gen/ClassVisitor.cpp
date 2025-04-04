@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <stack>
+#include <string>
 
 #include "llvm/Support/CommandLine.h"
 #include "clang/Basic/SourceManager.h"
@@ -229,7 +230,7 @@ bool CXXRecordVisitor::VisitCXXRecordDecl( clang::CXXRecordDecl *rec ) {
     cval.setPOD(rec->isPOD()) ;
 
     cval.setSize(rec->getASTContext().getASTRecordLayout(rec).getSize().getQuantity()) ;
-
+    addTemplateArgumentDependencies(rec);
 
     //std::cout << "parsing " << cval.getName() << std::endl ;
     //std::cout << "    [34mprocessing inheritance " <<  rec->getNumBases() << " " << rec->getNumVBases() << "[00m" << std::endl ;
@@ -418,4 +419,47 @@ bool CXXRecordVisitor::isPrivateEmbeddedClass( std::string in_name ) {
         return true ;
     }
     return false ;
+}
+
+void CXXRecordVisitor::addTemplateArgumentDependencies(const clang::CXXRecordDecl *rec) {
+    if (cval.getFileName() == "S_source.hh" ||
+        !clang::ClassTemplateSpecializationDecl::classof(rec)) {
+        return;
+    }
+    const auto * ctd = clang::cast<clang::ClassTemplateSpecializationDecl>(rec);
+
+    // Iterate over all template arguments. If any of these arguments come from an
+    // external header file, make sure to #include it when generating this class's
+    // io_src file.
+    for (const auto & arg : ctd->getTemplateArgs().asArray()) {
+        if (arg.getKind() != clang::TemplateArgument::ArgKind::Type ||
+            !arg.getAsType().getTypePtrOrNull()) {
+            continue;
+        }
+        const auto * type_ptr = arg.getAsType().getTypePtr();
+
+        clang::CXXRecordDecl * arg_decl = nullptr;
+        switch (type_ptr->getTypeClass()) {
+            case clang::Type::Record:
+                arg_decl = type_ptr->getAsCXXRecordDecl();
+                break;
+            case clang::Type::ConstantArray:
+                // Will remain nullptr if this is a builtin type.
+                arg_decl = type_ptr->getPointeeOrArrayElementType()->getAsCXXRecordDecl();
+                break;
+            default:
+                break;
+        }
+        if (!arg_decl) {
+            continue;
+        }
+
+        std::string arg_header_file = getFileName(ci, arg_decl->getBraceRange().getEnd(), hsd);
+        cval.addTemplateArgumentHeaderDependency(arg_header_file);
+
+        if (debug_level >= 2) {
+            std::cout << "\n\033[34mCXXRecordVisitor addTemplateArgumentDependencies "
+                << arg_header_file << "\033[0m" << std::endl ;
+        }
+    }
 }
