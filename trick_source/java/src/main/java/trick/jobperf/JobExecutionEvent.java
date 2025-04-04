@@ -59,6 +59,6 @@ class JobExecutionEvent {
      */
      @Override
     public String toString() {
-        return ( "JobExecutionEvent: " + id + "," + start + "," + stop );
+        return ( "JobExecutionEvent: " + id + ",isTOF=" + isTOF + ",isEOF=" +isEOF + "," + start + "," + stop );
     }
 }
