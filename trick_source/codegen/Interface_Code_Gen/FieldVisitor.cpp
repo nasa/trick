@@ -218,7 +218,12 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
 
     if ( field->isBitField()) {
         fdes->setBitField(true) ;
+#if (LIBCLANG_MAJOR >= 20)
+        // llvm 20+ gets the bit width directly from the FieldDecl without needing the ASTContext argument
+        fdes->setBitFieldWidth(field->getBitWidthValue()) ;
+#else
         fdes->setBitFieldWidth(field->getBitWidthValue(field->getASTContext())) ;
+#endif
         unsigned int field_offset_bits = field->getASTContext().getFieldOffset(field) + fdes->getBaseClassOffset() * 8 ;
         fdes->setBitFieldStart( 32 - (field_offset_bits % 32) - fdes->getBitFieldWidth()) ;
         fdes->setBitFieldByteOffset((field_offset_bits / 32) * 4 ) ;
