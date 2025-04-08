@@ -292,6 +292,7 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
 
         // Set the actual type name. Print the attributes for this template type
         template_spec_cvis.get_class_data()->setName(in_name) ;
+        //template_spec_cvis.get_class_data()->setFileName(fdes->getFileName()) ;
         pa.printClass(template_spec_cvis.get_class_data()) ;
 
         if ( debug_level >= 4 ) {

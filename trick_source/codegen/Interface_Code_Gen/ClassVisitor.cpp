@@ -17,6 +17,7 @@
 #include "Utilities.hh"
 #include "CommentSaver.hh"
 #include "PrintAttributes.hh"
+#include "PrintFileContents10.hh"
 #include "BraceMacro.hh"
 
 extern llvm::cl::opt< int > debug_level ;
@@ -455,7 +456,9 @@ void CXXRecordVisitor::addTemplateArgumentDependencies(const clang::CXXRecordDec
         }
 
         std::string arg_header_file = getFileName(ci, arg_decl->getBraceRange().getEnd(), hsd);
-        cval.addTemplateArgumentHeaderDependency(arg_header_file);
+        //cval.addTemplateArgumentHeaderDependency(arg_header_file);
+
+        pa.printer->addTemplateArgumentHeaderDependency(cval.getFileName(), arg_header_file);
 
         if (debug_level >= 2) {
             std::cout << "\n\033[34mCXXRecordVisitor addTemplateArgumentDependencies "

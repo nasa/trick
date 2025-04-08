@@ -1,17 +1,22 @@
 #include "sim_objects/default_trick_sys.sm"
 
+##include "trick/SimObject.hh"
 ##include "TemplateTest.hh"
+##include "Potato.hh"
+##include "Onion.hh"
+
 
 class templateSimObject : public Trick::SimObject {
 
     public:
         TemplateTest tobj ;
+        potato::Potato<onion::Onion> potato;
 
         templateSimObject() {
-            (1.0, "scheduled") trick_ret = print() ;
+            (1.0, "scheduled") trick_ret = printMe() ;
         }
 
-        int print() { std::cout << "In print()" << std::endl ; return 0 ; } ;
+        int printMe() { std::cout << "In printMe()" << std::endl ; return 0 ; } ;
 
 } ;
 

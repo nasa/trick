@@ -81,8 +81,8 @@ class ClassValues : public ConstructValues {
         void setCompat15(bool in_val) ;
         bool isCompat15() ;
         bool isInStandardNamespace();
-        void addTemplateArgumentHeaderDependency(const std::string& header_file) ;
-        const std::set< std::string >& getTemplateArgumentHeaderDependencies() const ;
+        //void addTemplateArgumentHeaderDependency(const std::string& header_file) ;
+        //const std::set< std::string >& getTemplateArgumentHeaderDependencies() const ;
 
         friend std::ostream & operator << (std::ostream & os , ClassValues & cv ) ;
 
@@ -123,7 +123,7 @@ class ClassValues : public ConstructValues {
         bool compat15 ;
 
         /** Header files defining template argument types */
-        std::set< std::string > template_argument_header_deps;
+        //std::set< std::string > template_argument_header_deps;
 } ;
 
 #endif
