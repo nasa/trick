@@ -3,7 +3,7 @@ package parse_s_define ;
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(parse_s_define handle_sim_object handle_integ_loop handle_collects
-              handle_user_code handle_user_header handle_user_inline) ;
+              handle_user_code handle_user_header handle_user_inline index_comments) ;
 
 use Cwd ;
 use File::Basename ;
@@ -172,11 +172,46 @@ sub index_comments (@) {
     my $inside_cpp_comment = 0;
     my $inside_c_comment = 0;
     my $running_idx = 0;
+    my $preprocessor_cmd = 0;
+
     foreach my $each_item (@preprocess_output) {
         my $item_length = length($each_item);
 
+        #check for certain preprocessor directives
+        #list all as comments except #include ""
+        #we do this because
+        #   -in the s define, c preprocessor is run before comments are evaluated
+        #   -in convert_swig, directives other than #include "" are copied as is
+        #       swig ignores directives not behind a % anyway
+        #       everything after is ignored by c preprocessor, so treat rest of line as comment
+        if ( ($inside_string == 0) and ($inside_c_comment == 0) ) {
+            if ( $each_item =~ /^\s*\#\s*/ ) {
+                if ( $each_item =~ /^\s*\#\#\s*/ ) {
+                    # S_define include
+                    $preprocessor_cmd = 0;
+                }
+                elsif ( $each_item =~ /^\s*\#\s*include\s+([^\n]+)/ ) {
+                    if ( $1 =~ /\"/ ) {
+                        # #include ""
+                        $preprocessor_cmd = 0;
+                    }
+                    else { 
+                        # #include <>
+                        $preprocessor_cmd = 1;
+                    }
+                }
+                else {
+                    # some other directive
+                    $preprocessor_cmd = 1;
+                }
+            }
+        }
+        if( $preprocessor_cmd == 1) {
+            push(@comment_sections, $running_idx);
+        }
+
         for ( my $i = 0; $i < $item_length; ++$i ) {
-            if($inside_cpp_comment == 0) {
+            if($inside_cpp_comment == 0 and $preprocessor_cmd == 0) {
                 #string found
                 if ( (substr $each_item, $i, 1) eq "\"" and ($inside_c_comment == 0) ) {
                     #make sure the " is not a char
@@ -211,6 +246,12 @@ sub index_comments (@) {
 
             $running_idx++;
         }
+
+        if($preprocessor_cmd == 1) {
+            #-2 because we're not including the newline
+            push(@comment_sections, $running_idx-2);
+        }
+        $preprocessor_cmd = 0;
 
         if($inside_cpp_comment == 1) {
             #-2 because we're not including the newline
