@@ -213,7 +213,10 @@ sub process_file() {
 
         # remove all comments, they can cause all kinds of trouble
         # leave the line continuation character if present
-        my @file_contents = `gcc -fpreprocessed -dD -E -P $f`;
+        my $CC = gte("TRICK_CC");
+        $CC =~ s/\n//;
+        my $cmd = "$CC -fpreprocessed -dD -E -P $f";
+        my @file_contents = `$cmd`;
         $raw_contents = join("", @file_contents);
 
 ##      The init_attr functions cause problems when we try and wrap them with SWIG.
