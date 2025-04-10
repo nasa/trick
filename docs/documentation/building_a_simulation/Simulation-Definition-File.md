@@ -602,8 +602,8 @@ statement per sim object, and at least one integrate statement for all sim objec
 Trick has a new capability to be able to integrate a single integration loop according to multiple target rates.
 For example, an effector may have a frequency of 40hz but a sensor has a 64Hz frequency. Typically, there are two
 solutions for dealing with rates that do not line up nicely:
+01. Integrate at 320Hz, but this slows the sim down by 5x (or more) from 64hz.
 01. Interpolate data to satisfy the 64hz sensor, but this introduces error
-01. Integrate at 640Hz, but this slows the sim down by 10x or more from 64hz.
 
 However, a third option is possible, if the integration architecture can support it, to simply integrate in such a way
 that both rates are satisfied. Enter MultiDtIntegLoopScheduler!
