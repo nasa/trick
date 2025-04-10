@@ -10,6 +10,12 @@ PURPOSE:
 #ifndef FOO_HH
 #define FOO_HH
 
+class MyEnumClass {
+    public:
+    enum class Enum {};
+    class Inner {};
+};
+
 template <class T>
 class Foo {
     public:

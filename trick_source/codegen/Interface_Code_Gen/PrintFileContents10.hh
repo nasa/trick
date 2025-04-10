@@ -106,9 +106,6 @@ class PrintFileContents10 : public PrintFileContentsBase {
 
         void printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues);
 
-        /** Prints #include statements required by template arguments */
-        //void print_template_argument_header_deps(std::ostream & outfile , ClassValues * cv ) ;
-
         /** Prints #include statements requried by tempalte arguments for the specified header */
         void print_template_argument_header_dependencies(std::ostream & outfile, std::string header_file_name) ;
 

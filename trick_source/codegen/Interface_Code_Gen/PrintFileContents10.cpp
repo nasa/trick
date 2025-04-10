@@ -416,7 +416,6 @@ void PrintFileContents10::printStlFunction(const std::string& name, const std::s
 
 void PrintFileContents10::addTemplateArgumentHeaderDependency(const std::string& header, const std::string& dependency) {
     if (!dependency.empty()) {
-        //template_argument_header_dependencies[header].dependencies.insert(dependency);
         HeaderInfo header_dependency(dependency);
         template_argument_header_dependencies[header].insert(header_dependency);
     }
@@ -433,11 +432,3 @@ void PrintFileContents10::print_template_argument_header_dependencies(std::ostre
         }
     }
 }
-
-/*void PrintFileContents10::print_template_argument_header_deps(std::ostream & outfile , ClassValues * cv ) {
-    for (const auto& header_dependency : cv->getTemplateArgumentHeaderDependencies()) {
-        if (header_dependency != cv->getFileName()) {
-            outfile << "#include \"" << header_dependency << "\"\n";
-        }
-    }
-}*/

@@ -439,11 +439,19 @@ void CXXRecordVisitor::addTemplateArgumentDependencies(const clang::CXXRecordDec
         }
         const auto * type_ptr = arg.getAsType().getTypePtr();
 
-        clang::CXXRecordDecl * arg_decl = nullptr;
+        clang::TagDecl * arg_decl = nullptr;
         switch (type_ptr->getTypeClass()) {
             case clang::Type::Record:
                 arg_decl = type_ptr->getAsCXXRecordDecl();
                 break;
+            case clang::Type::Enum: {
+                // Handle enum or enum class
+                const clang::EnumType *et = type_ptr->getAs<clang::EnumType>();
+                if (et) {
+                    arg_decl = et->getDecl();
+                }
+                break;
+            }
             case clang::Type::ConstantArray:
                 // Will remain nullptr if this is a builtin type.
                 arg_decl = type_ptr->getPointeeOrArrayElementType()->getAsCXXRecordDecl();
@@ -456,7 +464,6 @@ void CXXRecordVisitor::addTemplateArgumentDependencies(const clang::CXXRecordDec
         }
 
         std::string arg_header_file = getFileName(ci, arg_decl->getBraceRange().getEnd(), hsd);
-        //cval.addTemplateArgumentHeaderDependency(arg_header_file);
 
         pa.printer->addTemplateArgumentHeaderDependency(cval.getFileName(), arg_header_file);
 
