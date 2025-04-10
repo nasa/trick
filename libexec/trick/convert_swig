@@ -215,7 +215,12 @@ sub process_file() {
         # leave the line continuation character if present
         my $CC = gte("TRICK_CC");
         $CC =~ s/\n//;
-        my $cmd = "$CC -fpreprocessed -dD -E -P $f";
+        if ($^O eq "darwin") {
+            my $cmd = "$CC -dD -E -P $f";
+        }
+        else {
+            my $cmd = "$CC -fpreprocessed -dD -E -P $f";
+        }
         my @file_contents = `$cmd`;
         $raw_contents = join("", @file_contents);
 
