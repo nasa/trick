@@ -57,6 +57,6 @@ def build_S_overrides_trickify(ldflags, ext_lib_dirs, python_path, swig_flags):
     s_overrides = open("S_overrides_trickify.mk", 'w')
 
     s_overrides.write("TRICK_LDFLAGS += " + ldflags + '\n')
-    s_overrides.write("TRICK_EXT_LIB_DIRS += " + ext_lib_dirs + '\n')
-    s_overrides.write("TRICK_PYTHON_PATH += " + python_path + '\n')
+    s_overrides.write("TRICK_EXT_LIB_DIRS += :" + ext_lib_dirs + '\n')
+    s_overrides.write("TRICK_PYTHON_PATH += :" + python_path + '\n')
     s_overrides.write("TRICK_SWIG_FLAGS += -I" + swig_flags + '\n')
