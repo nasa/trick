@@ -32,9 +32,11 @@ extern "C" int message_publish_standalone(int level, const char * format_msg, ..
     
     strftime(date_buf, (size_t) 20, "%Y/%m/%d,%H:%M:%S", localtime(&date));
     (void) gethostname(hostname, (size_t) 48);
-    fprintf(stdout, "|L %d|%s.%06Lu|  |%s|T %d|%.2f| %s" , level,
+    // use %lu for tv_usec
+    fprintf(stdout, "|L %d|%s.%06lu|  |%s|T %d|%.2f| %s" , level,
             // so that we don't call any exec routines, use process id 0 and sim time 0.0
-            date_buf, time_val.tv_usec, hostname , 0, 0.0, msg_buf) ;
+            // cast tv_usec to unsigned long to avoid potential warning
+            date_buf, (unsigned long)time_val.tv_usec, hostname , 0, 0.0, msg_buf) ;
     fflush(stdout) ;
 
     return (0);
