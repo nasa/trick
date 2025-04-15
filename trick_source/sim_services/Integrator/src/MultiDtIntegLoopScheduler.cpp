@@ -91,6 +91,7 @@ int MultiDtIntegLoopScheduler::integrate()
 {
     double t_end = exec_get_sim_time();
     double t_start = t_end - next_cycle; // This is the time of the current state vector.
+    long long t_start_tics = (long long)round(t_start * Trick::JobData::time_tic_value);
     long long t_end_tics = exec_get_time_tics();
     int status;
 
@@ -129,7 +130,7 @@ int MultiDtIntegLoopScheduler::integrate()
         message_publish(MSG_DEBUG, ss.str().c_str());
     }
 
-    double var_next_cycle = t_end - t_start;
+    double var_next_cycle = (double)(t_end_tics - t_start_tics)/ (double)Trick::JobData::time_tic_value;
     // Call all of the jobs in the pre-integration job queue.
     if(trick_curr_integ == nullptr)
     {
@@ -208,9 +209,8 @@ int MultiDtIntegLoopScheduler::integrate()
 
     next_tic = calculate_next_integ_tic();
     Trick::JobData * found_job = exec_get_curr_job();
-    double next_time = (double)next_tic / (double)Trick::JobData::time_tic_value;
     found_job->next_tics = next_tic;
-    next_cycle = next_time - t_end;
+    next_cycle = (double)(next_tic - t_end_tics) / (double)Trick::JobData::time_tic_value;
     trick_curr_integ = nullptr;
 
     return 0;
