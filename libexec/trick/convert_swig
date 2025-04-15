@@ -213,16 +213,18 @@ sub process_file() {
 
         # remove all comments, they can cause all kinds of trouble
         # leave the line continuation character if present
-        my $CC = gte("TRICK_CC");
-        $CC =~ s/\n//;
-        if ($^O eq "darwin") {
-            my $cmd = "$CC -dD -E -P $f";
+        my @file_contents = split ("\n", $raw_contents);
+        foreach my $line (@file_contents) {
+           $line = "$line\n";
         }
-        else {
-            my $cmd = "$CC -fpreprocessed -dD -E -P $f";
+
+        my @comment_sections = index_comments( @file_contents );
+        for(my $idx = @comment_sections-2 ; $idx >= 0 ; $idx-=2) {
+            #TODO: Check for uneven indexing. Run on c comment?
+            my $comment_length = @comment_sections[$idx+1] - @comment_sections[$idx] + 1;
+            my $tmp = substr $raw_contents, @comment_sections[$idx], $comment_length;
+            substr $raw_contents, @comment_sections[$idx], $comment_length, "";
         }
-        my @file_contents = `$cmd`;
-        $raw_contents = join("", @file_contents);
 
 ##      The init_attr functions cause problems when we try and wrap them with SWIG.
 ##      We can safely remove them from the header files.
@@ -237,7 +239,7 @@ sub process_file() {
 ##      create a corresponding %import directive.
         outer:
         foreach (split /^/, $raw_contents) {
-
+            #TODO: Rebuild multi line pp directives?
             if ( /^\s*\#\s*include\s+([^\n]+)/ ) {
                 my $file_name = $1 ;
 

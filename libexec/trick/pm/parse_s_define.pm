@@ -172,13 +172,28 @@ sub index_comments (@) {
     my $inside_cpp_comment = 0;
     my $inside_c_comment = 0;
     my $running_idx = 0;
-    my $preprocessor_cmd = 0;
+    my $pp_include = 0;
+    my $pp_error = 0;
+    my $inside_angle = 0;
 
     foreach my $each_item (@preprocess_output) {
         my $item_length = length($each_item);
 
+        #Check for specific pp directives that change comment parsing
+        $pp_include = 0;
+        $pp_error = 0;
+        if ( $each_item =~ /^\s*\#\s*include/ ) {
+            $pp_include = 1;
+        }
+        if ( $each_item =~ /^\s*\#\s*error/ ) {
+            $pp_error = 1;
+        }
+        if ( $each_item =~ /^\s*\#\s*warning/ ) {
+            $pp_error = 1;
+        }
+
         for ( my $i = 0; $i < $item_length; ++$i ) {
-            if($inside_cpp_comment == 0 and $preprocessor_cmd == 0) {
+            if($inside_cpp_comment == 0 and $pp_error == 0) {
                 #string found
                 if ( (substr $each_item, $i, 1) eq "\"" and ($inside_c_comment == 0) ) {
                     #make sure the " is not a char
@@ -195,19 +210,28 @@ sub index_comments (@) {
                     }
                 }
                 #c++ comment found
-                if ( (substr $each_item, $i, 2) eq "//" and ($inside_string == 0) and ($inside_c_comment == 0) ) {
+                if ( (substr $each_item, $i, 2) eq "//" and ($inside_string == 0) and ($inside_c_comment == 0) and ($inside_angle == 0) ) {
                     $inside_cpp_comment = 1;
                     push(@comment_sections, $running_idx);
                 }
                 #c style comment start found
-                if ( (substr $each_item, $i, 2) eq "/*" and ($inside_string == 0) and ($inside_c_comment == 0) ) {
+                if ( (substr $each_item, $i, 2) eq "/*" and ($inside_string == 0) and ($inside_c_comment == 0) and ($inside_angle == 0) ) {
                     $inside_c_comment = 1;
                     push(@comment_sections, $running_idx);
                 }
                 #c style comment end found
-                if ( (substr $each_item, $i, 2) eq "*/" and ($inside_string == 0)  and ($inside_c_comment == 1) ) {
+                if ( (substr $each_item, $i, 2) eq "*/" and ($inside_string == 0)  and ($inside_c_comment == 1) and ($inside_angle == 0) ) {
                     $inside_c_comment = 0;
                     push(@comment_sections, $running_idx+1);
+                }
+                # #include <> handling
+                if ( ($pp_include == 1) and ($inside_string == 0) and ($inside_c_comment == 0) ) {
+                    if ( (substr $each_item, $i, 1) eq "<" and ($inside_angle == 0) ) {
+                        $inside_angle = 1;
+                    }
+                    if ( (substr $each_item, $i, 1) eq ">" and ($inside_angle == 1) ) {
+                        $inside_angle = 0;
+                    }
                 }
             }
 
