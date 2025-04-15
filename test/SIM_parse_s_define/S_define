@@ -1,4 +1,4 @@
-#include "sim_objects/default_trick_sys.sm"
+#include "sim_objects//default_trick_sys.sm"
 ##include "Classes.hh"
 
 // not sim objects, no namespace
@@ -203,5 +203,26 @@ class DerivedFromCrazy1 : public Crazy1 {
     public:
     DerivedFromCrazy1() {
         ("initialization") foo();
+    }
+};
+
+//Comment parsing
+class PT1 {
+    ParseTest pt1;
+    ParseTest pt2;
+    ParseTest pt3;
+
+    PT1(): 
+    pt1("TEST COM//MENT PARSING"), 
+    pt2("TEST /*COMMENT PARSING"), 
+    pt3("TEST COMMENT*/ PARSING")
+    {
+        char c = '"';
+        std::string s = "//";
+        c = '"';
+
+        s = "\"";
+        s = "//";
+        s = "\"";
     }
 };
