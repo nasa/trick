@@ -3,7 +3,7 @@ package parse_s_define ;
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(parse_s_define handle_sim_object handle_integ_loop handle_collects
-              handle_user_code handle_user_header handle_user_inline) ;
+              handle_user_code handle_user_header handle_user_inline index_comments) ;
 
 use Cwd ;
 use File::Basename ;
@@ -164,6 +164,109 @@ $other_tag_def = qr/\#(?:ident|pragma)?.*?\n/s ;
 $comment_def = qr/ZZZYYYXXX\d+ZZZYYYXXX/s ;
 $line_tag_def = qr/\#(?:line)?\s+\d+.*?(?:\n|$)/s ;
 
+sub index_comments (@) {
+    my (@text) = @_;
+    my @comment_sections;
+
+    my $inside_string = 0;
+    my $inside_cpp_comment = 0;
+    my $inside_c_comment = 0;
+    my $pp_include = 0;
+    my $pp_error = 0;
+    my $inside_angle = 0;
+    my $running_idx = 0;
+
+    #Check for line continuation 
+    my $line_idx = 0;
+    my $each_item;
+    my $item_length ;
+    while ($line_idx < @text) {
+        $each_item = @text[$line_idx];
+        $item_length = length($each_item);
+        while ( (substr $each_item, $item_length-2, 2) eq "\\\n") {
+            if ( ($line_idx + 1) < @text ) {
+                substr $each_item, $item_length-2, 2, "  ";
+                $each_item .= @text[$line_idx + 1];
+                splice @text, $line_idx+1, 1;       
+            }
+            $item_length = length($each_item);
+        }
+        @text[$line_idx] = $each_item;
+        ++$line_idx;
+    }
+
+    for($line_idx = 0; $line_idx < @text; ++$line_idx) {
+        $each_item = @text[$line_idx];
+        $item_length = length($each_item);
+
+        #Check for specific pp directives that change comment parsing
+        $pp_include = 0;
+        $pp_error = 0;
+        if ( $each_item =~ /^\s*\#\s*include/ ) {
+            $pp_include = 1;
+        }
+        if ( $each_item =~ /^\s*\#\s*error/ ) {
+            $pp_error = 1;
+        }
+        if ( $each_item =~ /^\s*\#\s*warning/ ) {
+            $pp_error = 1;
+        }
+
+        for ( my $i = 0; $i < $item_length; ++$i ) {
+            if($inside_cpp_comment == 0 and $pp_error == 0) {
+                #string found
+                if ( (substr $each_item, $i, 1) eq "\"" and ($inside_c_comment == 0) ) {
+                    #make sure the " is not a char
+                    if( (substr $each_item, $i-1, 3) ne "\'\"\'" and (substr $each_item, $i-1, 2) ne "\\\"") {
+                        #found the start of a string
+                        if($inside_string == 0) {
+                            $inside_string = 1;
+                        }
+                        #found the end of a string
+                        elsif($inside_string == 1) {
+                            $inside_string = 0;
+                        }
+                    }
+                }
+                #c++ comment found
+                if ( (substr $each_item, $i, 2) eq "//" and ($inside_string == 0) and ($inside_c_comment == 0) and ($inside_angle == 0) ) {
+                    $inside_cpp_comment = 1;
+                    push(@comment_sections, $running_idx);
+                }
+                #c style comment start found
+                if ( (substr $each_item, $i, 2) eq "/*" and ($inside_string == 0) and ($inside_c_comment == 0) and ($inside_angle == 0) ) {
+                    $inside_c_comment = 1;
+                    push(@comment_sections, $running_idx);
+                }
+                #c style comment end found
+                if ( (substr $each_item, $i, 2) eq "*/" and ($inside_string == 0)  and ($inside_c_comment == 1) and ($inside_angle == 0) ) {
+                    $inside_c_comment = 0;
+                    push(@comment_sections, $running_idx+1);
+                }
+                # #include <> handling
+                if ( ($pp_include == 1) and ($inside_string == 0) and ($inside_c_comment == 0) ) {
+                    if ( (substr $each_item, $i, 1) eq "<" and ($inside_angle == 0) ) {
+                        $inside_angle = 1;
+                    }
+                    if ( (substr $each_item, $i, 1) eq ">" and ($inside_angle == 1) ) {
+                        $inside_angle = 0;
+                    }
+                }
+            }
+
+            $running_idx++;
+        }
+
+        if($inside_cpp_comment == 1) {
+            #-2 because we're not including the newline
+            push(@comment_sections, $running_idx-2);
+        }
+        $inside_cpp_comment = 0;
+    }
+
+    return @comment_sections;
+}
+
 sub parse_s_define ($) {
 
     my ($sim_ref) = @_ ;
@@ -232,11 +335,15 @@ sub parse_s_define ($) {
         die "Couldn't find file: $s_define_file\n";
     }
 
+    my @comment_sections = index_comments(@preprocess_output);
     foreach my $each_item (@preprocess_output) {
         $contents .= $each_item;
     }
 
-    @comments = $contents =~ m/((?:\/\*(?:.*?)\*\/)|(?:\/\/(?:.*?)\n))/sg ;
+    for(my $idx = 0 ; $idx < @comment_sections ; $idx+=2) {
+        my $comment_length = @comment_sections[$idx+1] - @comment_sections[$idx] + 1;
+        push(@comments, (substr $contents, @comment_sections[$idx], $comment_length) );
+    }
 
     foreach my $i (@comments) {
         my %header ;
@@ -268,8 +375,11 @@ sub parse_s_define ($) {
             }
         }
     }
-    my $i = 0 ;
-    $contents =~ s/\/\*(.*?)\*\/|\/\/(.*?)(\n)/"ZZZYYYXXX" . $i++ . "ZZZYYYXXX" . ((defined $3) ? $3 : "")/esg ;
+    my $i = (@comment_sections / 2) - 1 ;
+    for(my $idx = @comment_sections-2 ; $idx >= 0 ; $idx-=2) {
+        my $comment_length = @comment_sections[$idx+1] - @comment_sections[$idx] + 1;
+        substr $contents, @comment_sections[$idx], $comment_length, ("ZZZYYYXXX" . $i-- . "ZZZYYYXXX");
+    }
 
     # substitue in environment variables in the S_define file.
     # Do that with 1 line in C!  This comment is longer than the code it took!
