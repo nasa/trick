@@ -59,6 +59,12 @@ class JobExecutionEvent {
      */
      @Override
     public String toString() {
-        return ( "JobExecutionEvent: " + id + ",isTOF=" + isTOF + ",isEOF=" +isEOF + "," + start + "," + stop );
+        String tag = "";
+        if (isTOF) {
+            tag = "TOF";
+        } else if (isEOF) {
+            tag = "EOF";
+        }
+       return ( String.format ("%6s %3s %10.6f %10.6f %d", id, tag, start, stop, contained ));
     }
 }
