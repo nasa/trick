@@ -165,19 +165,39 @@ $comment_def = qr/ZZZYYYXXX\d+ZZZYYYXXX/s ;
 $line_tag_def = qr/\#(?:line)?\s+\d+.*?(?:\n|$)/s ;
 
 sub index_comments (@) {
-    my (@preprocess_output) = @_;
+    my (@text) = @_;
     my @comment_sections;
 
     my $inside_string = 0;
     my $inside_cpp_comment = 0;
     my $inside_c_comment = 0;
-    my $running_idx = 0;
     my $pp_include = 0;
     my $pp_error = 0;
     my $inside_angle = 0;
+    my $running_idx = 0;
 
-    foreach my $each_item (@preprocess_output) {
-        my $item_length = length($each_item);
+    #Check for line continuation 
+    my $line_idx = 0;
+    my $each_item;
+    my $item_length ;
+    while ($line_idx < @text) {
+        $each_item = @text[$line_idx];
+        $item_length = length($each_item);
+        while ( (substr $each_item, $item_length-2, 2) eq "\\\n") {
+            if ( ($line_idx + 1) < @text ) {
+                substr $each_item, $item_length-2, 2, "  ";
+                $each_item .= @text[$line_idx + 1];
+                splice @text, $line_idx+1, 1;       
+            }
+            $item_length = length($each_item);
+        }
+        @text[$line_idx] = $each_item;
+        ++$line_idx;
+    }
+
+    for($line_idx = 0; $line_idx < @text; ++$line_idx) {
+        $each_item = @text[$line_idx];
+        $item_length = length($each_item);
 
         #Check for specific pp directives that change comment parsing
         $pp_include = 0;
@@ -197,7 +217,6 @@ sub index_comments (@) {
                 #string found
                 if ( (substr $each_item, $i, 1) eq "\"" and ($inside_c_comment == 0) ) {
                     #make sure the " is not a char
-                    #TODO: What happens here if " is at start of line?
                     if( (substr $each_item, $i-1, 3) ne "\'\"\'" and (substr $each_item, $i-1, 2) ne "\\\"") {
                         #found the start of a string
                         if($inside_string == 0) {
@@ -322,7 +341,6 @@ sub parse_s_define ($) {
     }
 
     for(my $idx = 0 ; $idx < @comment_sections ; $idx+=2) {
-        #TODO: Check for uneven indexing. Run on c comment?
         my $comment_length = @comment_sections[$idx+1] - @comment_sections[$idx] + 1;
         push(@comments, (substr $contents, @comment_sections[$idx], $comment_length) );
     }
@@ -359,7 +377,6 @@ sub parse_s_define ($) {
     }
     my $i = (@comment_sections / 2) - 1 ;
     for(my $idx = @comment_sections-2 ; $idx >= 0 ; $idx-=2) {
-        #TODO: Check for uneven indexing. Run on c comment?
         my $comment_length = @comment_sections[$idx+1] - @comment_sections[$idx] + 1;
         substr $contents, @comment_sections[$idx], $comment_length, ("ZZZYYYXXX" . $i-- . "ZZZYYYXXX");
     }

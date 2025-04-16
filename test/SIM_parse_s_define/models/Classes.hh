@@ -4,7 +4,7 @@
 #define CLASSES_HH
 
 //Weird comments are to verify comment removal doesn't break code
-#include "trick///SimObject.hh" //
+#include "trick///SimObject.hh" //some comment
 #include <.//string> /*
 a
 b
@@ -12,6 +12,8 @@ c
 d"
 */
 
+//Line continuation test \
+More comment /*
 void foo();
 
 class Normal {};
@@ -37,6 +39,8 @@ class ParseTest {
         str = "COMMENT PARSE //TEST";
         str = "COMMENT PARSE /*TEST";
         str = "COMMENT PARSE */TEST";
+        str = 
+"COMMENT PARSE TEST";
     }
 };
 

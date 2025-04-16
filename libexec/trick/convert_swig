@@ -220,9 +220,7 @@ sub process_file() {
 
         my @comment_sections = index_comments( @file_contents );
         for(my $idx = @comment_sections-2 ; $idx >= 0 ; $idx-=2) {
-            #TODO: Check for uneven indexing. Run on c comment?
             my $comment_length = @comment_sections[$idx+1] - @comment_sections[$idx] + 1;
-            my $tmp = substr $raw_contents, @comment_sections[$idx], $comment_length;
             substr $raw_contents, @comment_sections[$idx], $comment_length, "";
         }
 
