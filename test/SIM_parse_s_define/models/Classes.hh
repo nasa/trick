@@ -13,7 +13,10 @@ d"
 */
 
 //Line continuation test \
-More comment /*
+More comment /* \
+a\
+abcd \
+efg
 void foo();
 
 class Normal {};
@@ -36,7 +39,8 @@ class ParseTest {
     }
     
     ParseTest() {
-        str = "COMMENT PARSE //TEST";
+        str = "COMMENT PARSE //TEST"; // \
+
         str = "COMMENT PARSE /*TEST";
         str = "COMMENT PARSE */TEST";
         str = 
