@@ -81,9 +81,9 @@ class SortButtonsToolBar extends JToolBar implements ActionListener {
 
 public class JobStatsViewWindow extends JFrame {
 
-    public JobStatsViewWindow( JobStats jobStats, JobSpecificationMap jobSpecificationMap ) {
+    public JobStatsViewWindow( JobStats jobStats ) {
 
-        JobStatsViewCanvas statsViewCanvas = new JobStatsViewCanvas( jobStats, jobSpecificationMap);
+        JobStatsViewCanvas statsViewCanvas = new JobStatsViewCanvas( jobStats);
 
         JScrollPane scrollPane = new JScrollPane( statsViewCanvas );
         scrollPane.setPreferredSize(new Dimension(800, 400));

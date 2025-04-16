@@ -3,17 +3,32 @@ package trick.jobperf;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+/**
+* Class CompareStartTime compares two JobExecutionEvent's by start time.
+*/
+// class CompareByStart implements Comparator<JobExecutionEvent> {
+//     public int compare(JobExecutionEvent a, JobExecutionEvent b) {
+//         if ( a.start < b.start) return -1;
+//         if ( a.start > b.start) return  1;
+//         return 0;
+//     }
+// }
+
 /**
 * Class JobPerf is an application that renders time-line data from a Trick based
   simulation. It also generates run-time statistics reports for the simulation
   jobs. It can be run with or without a GUI.
 */
 public class JobPerf {
-    ArrayList<JobExecutionEvent> jobExecEvtList;
+    private ArrayList<JobExecutionEvent> jobExecEvtList;
+    private FrameRecord[] frameArray;
     JobStats jobStats;
 
     /**
@@ -74,8 +89,10 @@ public class JobPerf {
         // All files shall be in the same directory as the timeline file.
         String filesDir = Paths.get(timeLineFileName).toAbsolutePath().getParent().toString();
 
-        // Generate the JobSpecificationMap from information extracted from the S_job_execution
+        // ----------------------------------------------------------------------------------
+        // Create the JobSpecificationMap from information extracted from the S_job_execution
         // file, that should be in the same directory as the time-line file.
+        // ----------------------------------------------------------------------------------
         File s_job_execution_file = new File( filesDir + "/S_job_execution" );
         JobSpecificationMap jobSpecificationMap = null;
         try {
@@ -88,33 +105,121 @@ public class JobPerf {
             System.exit(0);
         }
 
-        // Read Color Map
-        KeyedColorMap idToColorMap = null;
-        File colorMapFile = null;
-        try {
-            colorMapFile = new File(filesDir + "/IdToColors.txt");
-            idToColorMap = new KeyedColorMap( colorMapFile.toString());
-            if ( colorMapFile.exists()) {
-                 idToColorMap.readFile();
-            }
-        } catch ( java.io.IOException e ) {
-            System.out.println("IO Exception while attempting to read " + colorMapFile.toString() + ".\n");
-            System.exit(0);
-        }
-
+        // -----------------------------------------------------------------------------------
+        // Create JobExecutionEvent list from the time-line file, and the jobSpecificationMap
+        // -----------------------------------------------------------------------------------
         jobExecEvtList = getJobExecutionEventList(timeLineFileName, jobSpecificationMap);
 
+        // ---------------------------------------------------------------------------
+        // Create JobStats from the JobExecutionEvent list and the jobSpecificationMap.
+        // ---------------------------------------------------------------------------
+        jobStats = new JobStats(jobExecEvtList, jobSpecificationMap);
+
+        // --------------------------------------------------
+        // Create Frame Array from the JobExecutionEvent list.
+        // --------------------------------------------------
+        boolean wasTOF = false;
+        boolean wasEOF = false;
+
+        List<FrameRecord> frameList = new ArrayList<FrameRecord>();
+        FrameRecord frameRecord = new FrameRecord();
+        int debugFrameNumber = 0; // DEBUG
+
+        for (JobExecutionEvent jobExec : jobExecEvtList ) {
+
+            if ((!wasTOF && jobExec.isTOF) || ( wasEOF && !jobExec.isEOF )) {
+                
+                debugFrameNumber++; // DEBUG
+                System.out.println("============ FRAME " + debugFrameNumber + " ===========");
+
+                // Wrap up the previous frame record.
+                    frameRecord.stop = jobExec.start;
+                    frameRecord.CalculateJobContainment();
+                    // frameRecord.SortByStartTime();
+                    frameList.add(frameRecord);
+
+                    // Start a new frame record.
+                    frameRecord = new FrameRecord();
+                    frameRecord.start = jobExec.start;
+            }
+            frameRecord.jobEvents.add(jobExec);
+            System.out.println("JOB: " + jobExec); // DEBUG
+
+            wasTOF = jobExec.isTOF;
+            wasEOF = jobExec.isEOF;
+        }
+
+        frameArray = frameList.toArray( new FrameRecord[ frameList.size() ]);
+
+        // CALC AVERAGE FRAME SIZE
+        double sum = 0.0;
+        for (int n=1; n < frameArray.length; n++) {
+            sum += frameArray[n].getDuration();
+        }
+        double frameSizeAverage = sum/(frameArray.length-1);
+
+        // ===================
+        // DO DATA TESTS HERE:
+        // ===================
+        System.out.println(" --- PERFORMING TESTS ---"); // DEBUG
+        // TEST: Absence of TOF and EOF jobs indicates a problem. Was realtime enabled
+        // when your timeline data was collected?
+        if (frameArray.length <= 1) {
+            System.out.println(
+            "WARNING: Fewer than two frames were found.\n"+
+            "Are you sure real-time was enabled when your timeline data was collected?");
+        }
+
+        for (int frameNumber=0 ; frameNumber < frameArray.length ; frameNumber++ ) {
+            FrameRecord frame = frameArray[frameNumber];
+
+            System.out.println("========== FRAME: " + frameNumber); // DEBUG
+            for (JobExecutionEvent jobExec : frame.jobEvents) {
+
+                // TEST: Job start times equal to zero, beyond the first frame, indicate a problem.
+                if ( frameNumber>0 && jobExec.start==0 ) {
+                    System.out.println("WARNING: Job " + jobExec.id + " in frame " + frameNumber + " has a start time of zero.");
+                }
+                
+                // TEST: Job start times greater than the stop time indicates a problem.
+                if ( jobExec.start >  jobExec.stop) {
+                    System.out.println("ERROR: Job " + jobExec.id + " in frame " + frameNumber + " has a start time greater than stop time.");
+                }
+
+                // TODO: TEST: Check that each of the IDs in the timeline are found in the
+                //   S_job_execution file. The greater the number of missing IDs,
+                //   the greater is the problem. Report the number of missing IDs.
+
+                System.out.println("JOBT: " + jobExec); // DEBUG
+
+            }
+ 
+            double frameSizeRatio = frame.getDuration() / frameSizeAverage;
+            int percentage = (int)(frameSizeRatio * 100);
+
+            // TEST: A frame duration significantly above the average could be a problem.
+            if (percentage > 110) {
+                System.out.println("WARNING: Size of frame " + frameNumber + " is > "+ percentage +"% of the average frame size.");
+                System.out.println("Could be a frame over-run, or perhaps the time-line was collected with itimers enabled." );
+            }
+            // TEST: A frame duration significantly below the average could be a problem.
+            if ((frameNumber !=0) && (percentage < 90)) {
+                System.out.println("WARNING: Size of frame " + frameNumber + " is < "+ percentage +"% of the average frame size.");
+                System.out.println("Perhaps the sim user-code is calling a \"start-of-frame\" or \"end-of-frame\" job directly?" );
+            }
+
+        }
+
         if (printReport) {
-            jobStats = new JobStats(jobExecEvtList);
             if (sortOrder == JobStats.SortCriterion.ID ) jobStats.SortByID();
             if (sortOrder == JobStats.SortCriterion.MEAN ) jobStats.SortByMeanValue();
             if (sortOrder == JobStats.SortCriterion.STDDEV ) jobStats.SortByStdDev();
             if (sortOrder == JobStats.SortCriterion.MAX ) jobStats.SortByMaxValue();
             if (sortOrder == JobStats.SortCriterion.MIN ) jobStats.SortByMinValue();
-            jobStats.write( jobSpecificationMap);
+            jobStats.write();
         }
         if (interactive) {
-            traceViewWindow = new TraceViewWindow(jobExecEvtList, idToColorMap, jobSpecificationMap);
+            traceViewWindow = new TraceViewWindow(filesDir, frameArray, jobStats, jobSpecificationMap);
         }
     }
 
