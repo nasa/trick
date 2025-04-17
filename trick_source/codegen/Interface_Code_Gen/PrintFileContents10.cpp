@@ -149,7 +149,12 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
             ostream << prefix << "size = sizeof(unsigned int) ;\n" ;
         }
         else if ( fdes->isVirtualInherited() ) {
-            ostream << prefix << "offset = " << fdes->getBaseClassOffset() << " + offsetof(" << fdes->getContainerClass() << ", " << fieldName << ") ;\n" ;
+            // For virtual inherited fields, we need to use the base class offset.
+            // Only print offset for public inherited fields.
+            // Protected and private inherited fields are not accessible.
+            if (fdes->getAccess() == clang::AS_public) {
+                ostream << prefix << "offset = " << fdes->getBaseClassOffset() << " + offsetof(" << fdes->getContainerClass() << ", " << fieldName << ") ;\n" ;
+            }
         }
         else if ( mangledClassName != className ) {
             ostream << prefix << "offset = " << "offsetof(" << mangledClassName << ", " << fieldName << ") ;\n" ;
