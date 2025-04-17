@@ -488,7 +488,7 @@ int Trick::IntegLoopScheduler::integrate_dt ( double t_start, double dt) {
             }
 
             if (verbosity || trick_curr_integ->verbosity) {
-                message_publish (MSG_DEBUG, "Job: %s, target_integ_time: %f, integ_time: %f, dt: %f, ipass = %d\n",
+                message_publish (MSG_DEBUG, "Job: %s, target_integ_time: %20.16f, integ_time: %20.16f, dt: %20.16f, ipass = %d\n",
                                  curr_job->name.c_str(), target_time, t_start, dt, ipass);
             }
 
