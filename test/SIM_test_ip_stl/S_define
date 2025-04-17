@@ -1,0 +1,17 @@
+#include "sim_objects/default_trick_sys.sm"
+
+##include "STLIPTest.hh"
+
+class STLSimObject : public Trick::SimObject
+{
+    public:
+    STLIPTest stl_ip_test;
+    
+    STLSimObject()
+    {
+
+    }
+};
+
+
+STLSimObject stl_so;
