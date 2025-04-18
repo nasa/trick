@@ -47,6 +47,9 @@ class PrintFileContents10 : public PrintFileContentsBase {
         virtual void printEnumMap(std::ostream & out, EnumValues * ev) ;
         virtual void printEnumMapFooter(std::ostream & out) ;
 
+        /** stores template argument header dependencies to be printed */
+        virtual void addTemplateArgumentHeaderDependency(const std::string& header, const std::string& dependency);
+
     private:
 
         /** Prints enumeration attributes */
@@ -102,6 +105,22 @@ class PrintFileContents10 : public PrintFileContentsBase {
         void print_clear_stl(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
 
         void printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues);
+
+        /** Prints #include statements requried by tempalte arguments for the specified header */
+        void print_template_argument_header_dependencies(std::ostream & outfile, std::string header_file_name) ;
+
+        /** Struct contains the header path and whether it's printed already */
+        struct HeaderInfo {
+            std::string header_path;
+            bool printed;
+            HeaderInfo(const std::string& path) : header_path(path), printed(false) {}
+            // comparison operator for std::set
+            bool operator<(const HeaderInfo& other) const {
+                return header_path < other.header_path;
+            }
+        };
+        /** The key is the header that have template argument header dependencies */
+        std::map<std::string, std::set<HeaderInfo>> template_argument_header_dependencies;
 } ;
 
 #endif
