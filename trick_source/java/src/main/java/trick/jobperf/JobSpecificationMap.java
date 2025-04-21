@@ -16,7 +16,6 @@ public class JobSpecificationMap {
     */
     public JobSpecificationMap( File file ) throws IOException, FileNotFoundException {
         jobSpecMap = new HashMap<String, JobSpecification>();
-        System.out.println( "INSTANCIATING JobSpecificationMap("+ file.toString() +").");
         BufferedReader in = new BufferedReader( new FileReader( file.toString()) );
         String line;
         String field[];

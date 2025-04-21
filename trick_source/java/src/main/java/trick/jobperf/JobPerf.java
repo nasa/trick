@@ -38,6 +38,7 @@ public class JobPerf {
                 case "-x" :
                 case "--nogui" : {
                     interactive = false;
+                    printReport = true;
                 } break;
                 case "-p" :
                 case "--report" : {
@@ -72,7 +73,6 @@ public class JobPerf {
 
         // All files shall be in the same directory as the timeline file.
         String filesDir = Paths.get(timeLineFileName).toAbsolutePath().getParent().toString();
-        System.out.println( "\n\nFilesDir = " + filesDir + "\n\n");
 
         // Generate the JobSpecificationMap from information extracted from the S_job_execution
         // file, that should be in the same directory as the time-line file.
