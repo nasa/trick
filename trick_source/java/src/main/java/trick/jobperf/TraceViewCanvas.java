@@ -11,8 +11,8 @@ import javax.swing.event.*;
 
 /**
 * Class TraceViewCanvas renders the simulation timeline data stored in
-* frameArray. Information regarding
-* mouse clicks are sent to the TraceViewOutputToolBar [outputToolBar.]
+* frameArray. Information regarding mouse clicks are sent to the
+* TraceViewOutputToolBar [outputToolBar.]
 * @author John M. Penn
 */
 public class TraceViewCanvas extends JPanel {
@@ -120,9 +120,6 @@ public class TraceViewCanvas extends JPanel {
         // Create the Fonts
         frameFont12 = new Font("Arial", Font.PLAIN, 12);
         frameFont18 = new Font("Arial", Font.PLAIN, 18);
-
-        // Determine the total duration and the average frame size.
-        // Notice that we skip the first frame.
 
         // CALC AVERAGE FRAME SIZE
         totalDuration = 0.0;
@@ -384,14 +381,10 @@ public class TraceViewCanvas extends JPanel {
             g2d.setFont(frameFont12);
         }
 
-        // TEMPORARY?
-        // g2d.setFont(frameFont12);
-
         FontMetrics fm = g2d.getFontMetrics();
         int TX = 0;
         int TY = TOP_MARGIN - 10;
         String FN_text = "Frame# (JobCnt)";
-        // TX = (LEFT_MARGIN - fm.stringWidth(FN_text))/2;
         TX = 10;
         g2d.drawString (FN_text, TX, TY);
 
@@ -429,30 +422,23 @@ public class TraceViewCanvas extends JPanel {
                 g2d.setPaint(Color.BLACK);
             }
 
-            // FIXME: Also the number of jobs in the frame.
             int jobCount = frame.jobEvents.size();
             g2d.drawString ( String.format("%d  (%d)", n, jobCount), 20, jobY + traceWidth - 2);
 
-             
-
             // Draw the frame
-            // NOTE that the jobEvents within the frame are expected to be sorted in duration-order,
-            // so that smaller sub-jobs are not obscurred.
+            for (int containment = 0; containment <= frame.maxContainment ; containment++) {
+                for (JobExecutionEvent jobExec : frame.jobEvents) {
+                    int jobStartX = (int)((jobExec.start - frame.start) * pixelsPerSecond) + LEFT_MARGIN;
+                    int jobWidth  = (int)((jobExec.stop - jobExec.start) * pixelsPerSecond);
 
-            for (JobExecutionEvent jobExec : frame.jobEvents) {
-                int jobStartX = (int)((jobExec.start - frame.start) * pixelsPerSecond) + LEFT_MARGIN;
-                int jobWidth  = (int)((jobExec.stop - jobExec.start) * pixelsPerSecond);
+                    g2d.setPaint( idToColorMap.getColor( jobExec.id ) );
 
-                g2d.setPaint( idToColorMap.getColor( jobExec.id ) );
-
-                int jobHeight = traceWidth - 2;
-                if (jobExec.contained > 1) {
-                    jobHeight = traceWidth / jobExec.contained;
+                    int jobHeight = traceWidth - 2;
+                    if (jobExec.contained == containment) {
+                        jobHeight = (traceWidth - 2) / (containment + 1);
+                        g2d.fillRect(jobStartX, jobY, jobWidth, jobHeight);
+                    }
                 }
-
-                // int jobStartY = jobY + (traceWidth - 2) - jobHeight;
-                g2d.fillRect(jobStartX, jobY, jobWidth, jobHeight);
-
             }
         }
     }

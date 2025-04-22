@@ -39,7 +39,7 @@ class JobExecutionEvent {
         this.isEOF = isEOF;
         this.start = start;
         this.stop = stop;
-        contained = 1;
+        contained = 0;
     }
 
     /**
@@ -47,8 +47,10 @@ class JobExecutionEvent {
     * within another jobs stop/stop range.
     */
     public boolean contains( JobExecutionEvent other ) {
-        if ((other.start > this.start) &&
-            (other.start < this.stop)) {
+        if (
+            ((other.start > this.start) && (other.start < this.stop)) 
+            // && ((other.stop  > this.start) && (other.stop  < this.stop))
+            ) {
                 return true;
             }
         return false;

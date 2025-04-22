@@ -11,17 +11,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
-* Class CompareStartTime compares two JobExecutionEvent's by start time.
-*/
-// class CompareByStart implements Comparator<JobExecutionEvent> {
-//     public int compare(JobExecutionEvent a, JobExecutionEvent b) {
-//         if ( a.start < b.start) return -1;
-//         if ( a.start > b.start) return  1;
-//         return 0;
-//     }
-// }
-
-/**
 * Class JobPerf is an application that renders time-line data from a Trick based
   simulation. It also generates run-time statistics reports for the simulation
   jobs. It can be run with or without a GUI.
@@ -123,14 +112,10 @@ public class JobPerf {
 
         List<FrameRecord> frameList = new ArrayList<FrameRecord>();
         FrameRecord frameRecord = new FrameRecord();
-        int debugFrameNumber = 0; // DEBUG
 
         for (JobExecutionEvent jobExec : jobExecEvtList ) {
 
             if ((!wasTOF && jobExec.isTOF) || ( wasEOF && !jobExec.isEOF )) {
-                
-                debugFrameNumber++; // DEBUG
-                System.out.println("============ FRAME " + debugFrameNumber + " ===========");
 
                 // Wrap up the previous frame record.
                     frameRecord.stop = jobExec.start;
@@ -143,7 +128,6 @@ public class JobPerf {
                     frameRecord.start = jobExec.start;
             }
             frameRecord.jobEvents.add(jobExec);
-            System.out.println("JOB: " + jobExec); // DEBUG
 
             wasTOF = jobExec.isTOF;
             wasEOF = jobExec.isEOF;
@@ -161,7 +145,6 @@ public class JobPerf {
         // ===================
         // DO DATA TESTS HERE:
         // ===================
-        System.out.println(" --- PERFORMING TESTS ---"); // DEBUG
         // TEST: Absence of TOF and EOF jobs indicates a problem. Was realtime enabled
         // when your timeline data was collected?
         if (frameArray.length <= 1) {
@@ -173,7 +156,6 @@ public class JobPerf {
         for (int frameNumber=0 ; frameNumber < frameArray.length ; frameNumber++ ) {
             FrameRecord frame = frameArray[frameNumber];
 
-            System.out.println("========== FRAME: " + frameNumber); // DEBUG
             for (JobExecutionEvent jobExec : frame.jobEvents) {
 
                 // TEST: Job start times equal to zero, beyond the first frame, indicate a problem.
@@ -189,9 +171,6 @@ public class JobPerf {
                 // TODO: TEST: Check that each of the IDs in the timeline are found in the
                 //   S_job_execution file. The greater the number of missing IDs,
                 //   the greater is the problem. Report the number of missing IDs.
-
-                System.out.println("JOBT: " + jobExec); // DEBUG
-
             }
  
             double frameSizeRatio = frame.getDuration() / frameSizeAverage;
@@ -207,7 +186,6 @@ public class JobPerf {
                 System.out.println("WARNING: Size of frame " + frameNumber + " is < "+ percentage +"% of the average frame size.");
                 System.out.println("Perhaps the sim user-code is calling a \"start-of-frame\" or \"end-of-frame\" job directly?" );
             }
-
         }
 
         if (printReport) {
