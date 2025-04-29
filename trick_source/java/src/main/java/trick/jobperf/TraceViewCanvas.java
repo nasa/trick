@@ -373,7 +373,7 @@ public class TraceViewCanvas extends JPanel {
 
         // Frame Trace Rectangle Fill
         g2d.setPaint(Color.BLACK);
-        g2d.fillRect(LEFT_MARGIN, TOP_MARGIN, traceRectWidth, traceRectHeight());
+        g2d.fillRect(LEFT_MARGIN, TOP_MARGIN, traceRectWidth, traceRectHeight);
 
         if (traceWidth >= DEFAULT_TRACE_WIDTH) {
             g2d.setFont(frameFont18);

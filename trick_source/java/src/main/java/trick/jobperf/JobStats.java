@@ -169,10 +169,10 @@ public class JobStats {
     }
 
     /**
-     *
+     * Display the JobStatsViewWindow.
      */
     public void displayJobStatsWindow() {
-        JobStatsViewWindow window = new JobStatsViewWindow( this);
+        new JobStatsViewWindow( this);
     }
 
     /**

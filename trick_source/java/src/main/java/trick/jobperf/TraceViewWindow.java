@@ -16,6 +16,23 @@ import javax.swing.*;
 *             - TraceViewCanvas [traceViewCanvas]
 * - TraceViewOutputToolBar [outputToolBar]
 */
+
+/**
+ TraceViewWindow
+  ├── extends JFrame
+  ├── uses TraceViewMenuBar
+  ├── uses TraceViewInputToolBar
+  ├── uses TraceViewOutputToolBar
+  ├── uses TraceViewCanvas
+  ├── contains JScrollPane
+  ├── contains JPanel (tracePanel)
+  ├── contains JPanel (mainPanel)
+  └── interacts with:
+      ├── FrameRecord[] (frameArray)
+      ├── JobStats
+      └── JobSpecificationMap
+ */
+
 public class TraceViewWindow extends JFrame {
 
     /**

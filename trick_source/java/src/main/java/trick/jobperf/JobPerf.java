@@ -11,6 +11,42 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
+ JobPerf
+  ├── uses JobExecutionEvent
+  ├── uses FrameRecord
+  ├── uses JobStats
+  ├── uses JobSpecificationMap
+  ├── uses TraceViewWindow
+  └── uses JobSpecification (indirectly via JobSpecificationMap)
+
+FrameRecord
+  └── contains JobExecutionEvent
+
+JobStats
+  └── processes JobExecutionEvent
+        RunRegistry
+        ├── Attributes:
+        │   └── ArrayList<TimeSpan> timeSpanList
+        │
+        ├── Methods:
+        │   ├── void addTimeSpan(double start, double stop)
+        │   ├── void addTimeSpan(TimeSpan timeSpan)
+        │   ├── double getMeanDuration()
+        │   ├── double getStdDev()
+        │   ├── double getMaxDuration()
+        │   └── double getMinDuration()
+        │
+        └── Used By:
+            └── JobStats
+                ├── Adds TimeSpans to RunRegistry
+                ├── Retrieves statistical data (mean, stddev, min, max)
+                └── Processes job execution events
+
+JobSpecificationMap
+  └── contains JobSpecification
+ */
+
+/**
 * Class JobPerf is an application that renders time-line data from a Trick based
   simulation. It also generates run-time statistics reports for the simulation
   jobs. It can be run with or without a GUI.
