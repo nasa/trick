@@ -49,11 +49,9 @@ public class FrameViewCanvas extends JPanel {
         g2d.drawString("Duration", 620, 80);
         g2d.drawString("Job-Name", 740, 80);
 
-        frame.SortByStartTime();
-
-        // For each job in the frame.
         int jobY = 100;
         for (JobExecutionEvent jobExec : frame.jobEvents) {
+
             g2d.setPaint( tvc.idToColorMap.getColor( jobExec.id ) );
             g2d.fillRect(50, jobY, 20, 20);
             g2d.setPaint( Color.BLACK );
@@ -76,7 +74,6 @@ public class FrameViewCanvas extends JPanel {
                 g2d.drawString(jobSpec.name, 740, jobY);
             }
         }
-        frame.SortByJobEventDuration();
     }
 
     /**

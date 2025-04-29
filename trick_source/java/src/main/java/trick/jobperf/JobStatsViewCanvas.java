@@ -12,10 +12,8 @@ public class JobStatsViewCanvas extends JPanel {
     JobStats jobStats;
     JobSpecificationMap jobSpecificationMap;
 
-    public JobStatsViewCanvas( JobStats jobStats,
-                               JobSpecificationMap jobSpecificationMap ) {
+    public JobStatsViewCanvas( JobStats jobStats ) {
         this.jobStats = jobStats;
-        this.jobSpecificationMap = jobSpecificationMap;
 
         dataFont      = new Font("Arial", Font.PLAIN, 18);
         headingsFont  = new Font("Arial", Font.BOLD, 18);
@@ -67,8 +65,9 @@ public class JobStatsViewCanvas extends JPanel {
             g2d.drawString( String.format("%14.6f", jobStatisticsRecord.minValue), 380, jobY);
             g2d.drawString( String.format("%14.6f", jobStatisticsRecord.maxValue), 480, jobY);
 
-            JobSpecification jobSpec = jobSpecificationMap.getJobSpecification( jobStatisticsRecord.id);
+            JobSpecification jobSpec = jobStats.jobSpecificationMap.getJobSpecification( jobStatisticsRecord.id);
             if (jobSpec != null) {
+
                 g2d.drawString(jobSpec.name, 600, jobY);
             } else {
                 g2d.setPaint( Color.RED );

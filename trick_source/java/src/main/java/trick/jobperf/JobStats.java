@@ -89,12 +89,15 @@ public class JobStats {
 
     public SortCriterion currentSortCriterion = SortCriterion.MEAN;
     public ArrayList<StatisticsRecord> jobStatisticsList;
+    public JobSpecificationMap jobSpecificationMap;
 
     /**
      * Constructor
      * @param jobExecList - the timeline data.
      */
-    public JobStats( ArrayList<JobExecutionEvent> jobExecList ) {
+    public JobStats( ArrayList<JobExecutionEvent> jobExecList, JobSpecificationMap jobSpecificationMap ) {
+
+        this.jobSpecificationMap = jobSpecificationMap;
 
         Map<String, RunRegistry> runRegistryMap
             = new HashMap<String, RunRegistry>();
@@ -166,9 +169,16 @@ public class JobStats {
     }
 
     /**
-    Write a text report to System.out.
-    */
-    public void write( JobSpecificationMap jobSpecificationMap ) {
+     * Display the JobStatsViewWindow.
+     */
+    public void displayJobStatsWindow() {
+        new JobStatsViewWindow( this);
+    }
+
+    /**
+     * Write a text report to System.out.
+     */
+    public void write() {
 
         System.out.println("           [Job Duration Statistics Sorted by " + currentSortCriterion +"]");
         System.out.println("--------------------------------------------------------------------------------------------------");
