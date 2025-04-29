@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 /**
-* Class JobSpecification represents ...
+* Class JobSpecification represents job as specified in an S_define file.
 */
 class JobSpecification {
     public String name;
