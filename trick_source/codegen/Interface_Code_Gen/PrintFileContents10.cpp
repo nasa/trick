@@ -347,6 +347,8 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
 }
 
 void PrintFileContents10::printClass( std::ostream & ostream , ClassValues * cv ) {
+    //print_template_argument_header_deps(ostream, cv) ;
+    print_template_argument_header_dependencies(ostream, cv->getFileName()) ;
     print_class_attr(ostream, cv) ;
     print_stl_helper(ostream, cv) ;
     print_init_attr_func(ostream, cv) ;
@@ -415,4 +417,23 @@ void PrintFileContents10::printStlFunction(const std::string& name, const std::s
             << "    " << typeName << "* stl = reinterpret_cast<" << typeName << "*>(start_address);" << std::endl
             << "    " << call << ";" << std::endl
             << "}" << std::endl ;
+}
+
+void PrintFileContents10::addTemplateArgumentHeaderDependency(const std::string& header, const std::string& dependency) {
+    if (!dependency.empty()) {
+        HeaderInfo header_dependency(dependency);
+        template_argument_header_dependencies[header].insert(header_dependency);
+    }
+}
+
+void PrintFileContents10::print_template_argument_header_dependencies(std::ostream & outfile, std::string header_file_name) {
+    auto it = template_argument_header_dependencies.find(header_file_name);
+    if (it != template_argument_header_dependencies.end()) {
+        for (const auto& headerInfo : it->second) {
+            if (!headerInfo.printed && headerInfo.header_path != header_file_name) {
+                outfile << "#include \"" << headerInfo.header_path << "\"\n";
+                const_cast<HeaderInfo&>(headerInfo).printed = true;
+            }
+        }
+    }
 }

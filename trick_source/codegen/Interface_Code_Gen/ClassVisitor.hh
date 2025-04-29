@@ -58,6 +58,9 @@ class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
         static void addPrivateEmbeddedClass(std::string in_name) ;
         static bool isPrivateEmbeddedClass(std::string in_name) ;
     private:
+        /* Save any additional #includes required by template arguments */
+        void addTemplateArgumentDependencies(const clang::CXXRecordDecl *rec) ;
+
         /** The compiler instance. */
         clang::CompilerInstance & ci ;
 
