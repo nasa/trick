@@ -199,6 +199,9 @@ To match the job ID's with the job names, see the ```S_job_execution``` file.
 ### Analyzing the Frame Log Files
 There are several ways we can examine/ analyze the data logged in these files.
 
+#### [trick-jperf](https://nasa.github.io/trick/howto_guides/How-to-Use-trick-jperf)
+**trick-jperf** is a post-analysis tool for visualizing and analyzing the job execution time-line data of a real-time Trick simulation. The timeline is displayed as numbered job-frames, each containing (color-coded) jobs within those frames. One can display job statistics for the entire timeline or query the details of individually selected jobs or frames.
+
 #### [trick-DP](https://nasa.github.io/trick/tutorial/ATutPlottingData)
 When you build your Trick sim, the following data-product files are created for you to plot your sim's frame log data.
 
