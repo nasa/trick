@@ -547,6 +547,11 @@ int var_set_base( const char  * var , T value , const char * units ) {
                 free(ref->units) ;
                 ref->units = NULL;
             }
+            // free the reference attribute in case it was allocated somewhere else
+            if (ref->reference != NULL) {
+                free(ref->reference) ;
+                ref->reference = NULL;
+            }
             free(ref) ;
             ref = NULL;
         } else {
