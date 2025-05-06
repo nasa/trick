@@ -20,7 +20,7 @@ jobs:
     - name: Install gtest
       run: |
         brew install googletest
-    - name: Pin googletest
+    - name: Pin gtest
       run: |
         brew pin googletest
     - name: Install dependencies
