@@ -76,7 +76,6 @@ public class SieTreeModel implements TreeModel {
             }   
             break;
         }
-
         return treePath;
     }
 
