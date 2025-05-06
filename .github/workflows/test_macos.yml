@@ -20,6 +20,9 @@ jobs:
     - name: Install gtest
       run: |
         brew install googletest
+    - name: Pin googletest
+      run: |
+        brew pin googletest
     - name: Install dependencies
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
