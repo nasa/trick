@@ -549,6 +549,7 @@ int var_set_base( const char  * var , T value , const char * units ) {
 
             // Free the REF2 structure itself
             free(ref) ;
+            ref = NULL;
         } else {
             message_publish(MSG_WARNING,"Cannot assign to %s because io_spec does not allow input\n", var) ;
             return 1;
