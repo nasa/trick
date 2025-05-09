@@ -9,7 +9,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 
 # Flags passed to the preprocessor.
 TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra  ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_pyip -ltrick_connection_handlers -ltrick_comm -ltrick
+TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_pyip -ltrick_connection_handlers -ltrick_comm -ltrick -ltrick_mm
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
 
 # All tests produced by this Makefile.  Remember to add new tests you
