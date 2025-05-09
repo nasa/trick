@@ -543,17 +543,12 @@ int var_set_base( const char  * var , T value , const char * units ) {
                 ref->units = NULL ;
             }
             ref_assignment(ref , &v_tree) ;
-            if(ref->units != NULL) {
-                free(ref->units) ;
-                ref->units = NULL;
-            }
-            // free the reference attribute in case it was allocated somewhere else
-            if (ref->reference != NULL) {
-                free(ref->reference) ;
-                ref->reference = NULL;
-            }
+
+            // Free allocated memory within a REF2 structure. Does not free the REF2 itself
+            ref_free(ref) ;
+
+            // Free the REF2 structure itself
             free(ref) ;
-            ref = NULL;
         } else {
             message_publish(MSG_WARNING,"Cannot assign to %s because io_spec does not allow input\n", var) ;
             return 1;
