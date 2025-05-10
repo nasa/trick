@@ -25,6 +25,19 @@ extern "C" void ref_free(REF2 * ref) {
         // The reference string was allocated with strdup.
         if ( ref->reference ) {
             free(ref->reference) ;
+            ref->reference = NULL;
+        }
+
+        // Free units string
+        if (ref->units) {
+            free(ref->units);
+            ref->units = NULL;
+        }
+
+        // Free ref_attr, however, not freeing the shared attr
+        if (ref->ref_attr) {
+            free(ref->ref_attr);
+            ref->ref_attr = NULL;
         }
     }
     return ;
