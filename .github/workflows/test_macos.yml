@@ -17,12 +17,16 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    - name: Install gtest
+    # Install googletest 1.16.0 due to the later version 1.17.0
+    # causing issues with unit tests
+    - name: Install gtest 1.16.0
       run: |
-        brew install googletest
-    - name: Pin gtest
-      run: |
-        brew pin googletest
+        wget https://github.com/google/googletest/archive/refs/tags/v1.16.0.tar.gz
+        tar -xvf v1.16.0.tar.gz
+        cd googletest-1.16.0
+        cmake -S . -B build
+        cmake --build build
+        sudo cmake --install build
     - name: Install dependencies
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
