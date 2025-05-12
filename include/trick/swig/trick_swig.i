@@ -1,22 +1,15 @@
 /* include support for STLs */
 
-
 %include "std_alloc.i"
-%include "std_basic_string.i"
+//%include "std_basic_string.i"
 %include "std_char_traits.i"
-
 
 %include "std_complex.i"
 %include "std_deque.i"
 %include "std_except.i"
 
-%include "std_ios.i"
-%include "std_iostream.i"
+//%include "std_ios.i"
 
-
-
-
-  
 %include "std_list.i"
 %include "std_map.i"
 %include "std_multimap.i"
@@ -25,9 +18,10 @@
 %include "std_pair.i"
 %include "std_set.i"
 
-%include "std_sstream.i"
-%include "std_streambuf.i"
+//%include "std_sstream.i"
+//%include "std_streambuf.i"
 %include "std_string.i"
+%include "std_iostream.i"
 
 %include "std_vector.i"
 
@@ -63,8 +57,8 @@
     }
     // Dereference the pointer and convert to a Python Unicode string.
     $result = PyUnicode_FromString(($1)->c_str());
-  }
-  
+}
+
 /*
    compactdefaultargs fixes a bug with enumeration default arguments not being
    recogized in function calls starting in swig 3.0.x
@@ -76,7 +70,8 @@
 #define __attribute__(x)
 #endif
 
-%{\
+%{
+#include <sstream>
 #include "trick/UnitsMap.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/reference.h"

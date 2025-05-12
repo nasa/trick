@@ -33,7 +33,7 @@
 %template(ALIAS##Deque) std::deque<TYPE>;
 %template(ALIAS##Set) std::set<TYPE>;
 %template(ALIAS##Map) std::map<TYPE, TYPE>;
-%template(ALIAS##UnorderedMap) std::unordered_map<TYPE, TYPE>;
+//%template(ALIAS##UnorderedMap) std::unordered_map<TYPE, TYPE>;
 //%template(ALIAS##Stack) std::stack<TYPE>;
 %enddef
 
