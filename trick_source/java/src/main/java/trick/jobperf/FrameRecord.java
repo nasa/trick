@@ -15,17 +15,6 @@ class CompareByDuration implements Comparator<JobExecutionEvent> {
 }
 
 /**
-* Class CompareByDuration compares two JobExecutionEvent's by their start time.
-*/
-class CompareByStartTime implements Comparator<JobExecutionEvent> {
-    public int compare(JobExecutionEvent a, JobExecutionEvent b) {
-        if ( a.start < b.start) return -1;
-        if ( a.start > a.start) return  1;
-        return 0;
-    }
-}
-
-/**
 * Class FrameRecord represents the set of jobs that have been executed during a
 * frame.
 */
@@ -33,12 +22,14 @@ public class FrameRecord {
     public ArrayList<JobExecutionEvent> jobEvents;
     public double start;
     public double stop;
+    public int maxContainment;
     /**
      * Constructor
      */
     public FrameRecord() {
         start = 0.0;
         stop  = 0.0;
+        maxContainment = 0;
         jobEvents = new ArrayList<JobExecutionEvent>();
     }
 
@@ -49,26 +40,26 @@ public class FrameRecord {
         return stop - start;
     }
 
-    public void SortByJobEventDuration() {
-        Collections.sort( jobEvents, new CompareByDuration());
-    }
-
-    public void SortByStartTime() {
-        Collections.sort( jobEvents, new CompareByStartTime());
-    }
-
     /**
      * For each jobEvent in the frame, record the number of times
      * its start time is contained within
      * another jobs stop/stop range.
      */
     public void CalculateJobContainment() {
-        SortByJobEventDuration();
         int N = jobEvents.size();
+        ArrayList<JobExecutionEvent> tjobs = new ArrayList<JobExecutionEvent>(jobEvents);
+        Collections.sort( tjobs, new CompareByDuration());
         for (int i = 0 ; i < (N-1); i++) {
-            for (int j = i+1 ; j < N; j++) {
-                if ( jobEvents.get(i).contains( jobEvents.get(j) )) {
-                    jobEvents.get(j).contained ++ ;
+            for (int j = 0 ; j < (N-1); j++) {
+                if (i!=j) {
+                    JobExecutionEvent ithjob = tjobs.get(i);
+                    JobExecutionEvent jthjob = tjobs.get(j);
+                    if ( ithjob.contains( jthjob )) {
+                        jthjob.contained = ithjob.contained + 1;
+                        if (jthjob.contained > maxContainment) {
+                            maxContainment = jthjob.contained;
+                        }
+                    }
                 }
             }
         }

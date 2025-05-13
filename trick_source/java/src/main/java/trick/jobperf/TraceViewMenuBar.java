@@ -86,7 +86,7 @@ public class TraceViewMenuBar extends JMenuBar implements ActionListener {
             break;
             case "show-job-stats":
                 traceView.jobStats.SortByID();
-                traceView.displayJobStatsWindow();
+                traceView.jobStats.displayJobStatsWindow();
             break;
             case "exit":
                 System.exit(0);
