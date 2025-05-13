@@ -164,104 +164,199 @@ $other_tag_def = qr/\#(?:ident|pragma)?.*?\n/s ;
 $comment_def = qr/ZZZYYYXXX\d+ZZZYYYXXX/s ;
 $line_tag_def = qr/\#(?:line)?\s+\d+.*?(?:\n|$)/s ;
 
+#checks if the line is a preprocessor include statement, and updates context
+sub is_pp_include (\$\%) {
+    my ($text, $context) = @_;
+
+    if ( $$text =~ /^\s*\#\s*include/ ) {
+        $context->{"pp_include"} = 1;
+    }
+}
+
+#checks if the line is either a preprocessor warning or error statement, and updates context
+sub is_pp_error (\$\%) {
+    my ($text, $context) = @_;
+
+    if ( $$text =~ /^\s*\#\s*error/ ) {
+        $context->{"pp_error"} = 1;
+    }
+    if ( $$text =~ /^\s*\#\s*warning/ ) {
+        $context->{"pp_error"} = 1;
+    }
+}
+
+#checks if the file is inside a string based on context
+# If we are:
+#   Not inside a c comment
+#   Come across a "
+#   And the " is not a char
+# Then we are entering/exiting a string
+sub is_string (\$\$\%) {
+    my ($line, $idx, $context) = @_;
+    my $i = $$idx;
+
+    if ( (substr $$line, $i, 1) eq "\"" and ($context->{"c_comment"} == 0) ) {
+        #make sure the " is not just a char
+        if( (substr $$line, $i-1, 3) ne "\'\"\'" and (substr $$line, $i-1, 2) ne "\\\"") {
+            #found the start of a string
+            if($context->{"string"} == 0) {
+                $context->{"string"} = 1;
+            }
+            #found the end of a string
+            elsif($context->{"string"} == 1) {
+                $context->{"string"} = 0;
+            }
+        }
+    }
+}
+
+#checks if the file is inside a c++ comment based on context
+# If we are:
+#   Not inside a #include<> statement
+#   Not inside a string
+#   Not inside a c comment
+#   And come across //
+# Then we are entering a c++ comment
+#NOTE: We do not need to track if we are in a c++ comment, because once we see one start
+#      we can skip the rest of the line.
+sub is_cpp_comment (\$\%\@) {
+    my ($text, $context, $comments) = @_;
+
+    if ( $$text eq "//" and ($context->{"string"} == 0) and ($context->{"c_comment"} == 0) and ($context->{"angle"} == 0) ) {
+        $context->{"cpp_comment"} = 1;
+        push(@$comments, $context->{"idx"});
+    }
+}
+
+#checks if the file is inside a c comment based on context
+# If we are:
+#   Not inside a #include<> statement
+#   Not inside a string
+#   And come across either a /* or */
+# Then we are either entering/exiting a c comment
+sub is_c_comment (\$\%\@) {
+    my ($text, $context, $comments) = @_;
+
+    if ( $$text eq "/*" and ($context->{"string"} == 0) and ($context->{"c_comment"} == 0) and ($context->{"angle"} == 0) ) {
+        $context->{"c_comment"} = 1;
+        push(@$comments, $context->{"idx"});
+    }
+    elsif ( $$text eq "*/" and ($context->{"string"} == 0) and ($context->{"c_comment"} == 1) and ($context->{"angle"} == 0) ) {
+        $context->{"c_comment"} = 0;
+        push(@$comments, $context->{"idx"}+1);
+    }
+}
+
+#checks if the file is inside the brackets of a #include<> statement based on context
+# If we are:
+#   In a #include statement
+#   Not inside a string
+#   Not inside a c comment
+#   And the char matches either <>
+# Then we are either entering/exiting the brackets of a #include<> statement
+sub is_angle_bracket (\$\%) {
+    my ($text, $context) = @_;
+
+    if ( ($context->{"pp_include"} == 1) and ($context->{"string"} == 0) and ($context->{"c_comment"} == 0) ) {
+        if ( $$text eq "<" and ($context->{"angle"} == 0) ) {
+            $context->{"angle"} = 1;
+        }
+        if ( $$text eq ">" and ($context->{"angle"} == 1) ) {
+            $context->{"angle"} = 0;
+        }
+    }
+}
+
+# Preprocess lines to handle line continuations so that each line that ends with 
+# a continuation marker will be concatenated with the next line.
+# e.g.: "this is a line with continuation \"
+#       "this is the next line"
+#       The result line would be: "this is a line with continuation  this is the next line"
+sub preprocess_lines {
+    my @text = @_;
+    my @result = ();
+    my $current_line = "";
+    
+    foreach my $line (@text) {
+        # If we have a partial line, append this line to it
+        if ($current_line) {
+            $current_line .= $line;
+        } else {
+            $current_line = $line;
+        }
+        
+        # Check if this line ends with a continuation marker
+        if ($current_line =~ s/\\\n$//){
+            # Line continues - add two spaces and continue to next line
+            $current_line .= "  ";
+        } else {
+            # Line is complete - add to result and reset current_line
+            push @result, $current_line;
+            $current_line = "";
+        }
+    }
+    
+    # Handle any remaining partial line
+    push @result, $current_line if $current_line;
+    
+    return @result;
+}
+
+# Returns an array of indicies indicating the start/end of comments in the provided file.
+# Input is an array where each element is a single line of the source file (each line should still include a newline at the end).
 sub index_comments (@) {
     my (@text) = @_;
     my @comment_sections;
 
-    my $inside_string = 0;
-    my $inside_cpp_comment = 0;
-    my $inside_c_comment = 0;
-    my $pp_include = 0;
-    my $pp_error = 0;
-    my $inside_angle = 0;
-    my $running_idx = 0;
+    # Preprocess line continuations
+    @text = preprocess_lines(@text);
 
-    #Check for line continuation 
-    my $line_idx = 0;
+    my $line_idx;
     my $each_item;
-    my $item_length ;
-    while ($line_idx < @text) {
-        $each_item = @text[$line_idx];
-        $item_length = length($each_item);
-        while ( (substr $each_item, $item_length-2, 2) eq "\\\n") {
-            if ( ($line_idx + 1) < @text ) {
-                substr $each_item, $item_length-2, 2, "  ";
-                $each_item .= @text[$line_idx + 1];
-                splice @text, $line_idx+1, 1;       
-            }
-            $item_length = length($each_item);
-        }
-        @text[$line_idx] = $each_item;
-        ++$line_idx;
-    }
+    my $item_length;
+    my %context = ( "string", 0, 
+                    "cpp_comment", 0, 
+                    "c_comment", 0, 
+                    "angle", 0,
+                    "pp_include", 0, 
+                    "pp_error", 0, 
+                    "idx", 0 );
 
     for($line_idx = 0; $line_idx < @text; ++$line_idx) {
         $each_item = @text[$line_idx];
         $item_length = length($each_item);
 
         #Check for specific pp directives that change comment parsing
-        $pp_include = 0;
-        $pp_error = 0;
-        if ( $each_item =~ /^\s*\#\s*include/ ) {
-            $pp_include = 1;
-        }
-        if ( $each_item =~ /^\s*\#\s*error/ ) {
-            $pp_error = 1;
-        }
-        if ( $each_item =~ /^\s*\#\s*warning/ ) {
-            $pp_error = 1;
-        }
+        is_pp_include( $each_item, %context );
+        is_pp_error( $each_item, %context );
 
+        #iterate over each char
         for ( my $i = 0; $i < $item_length; ++$i ) {
-            if($inside_cpp_comment == 0 and $pp_error == 0) {
-                #string found
-                if ( (substr $each_item, $i, 1) eq "\"" and ($inside_c_comment == 0) ) {
-                    #make sure the " is not a char
-                    if( (substr $each_item, $i-1, 3) ne "\'\"\'" and (substr $each_item, $i-1, 2) ne "\\\"") {
-                        #found the start of a string
-                        if($inside_string == 0) {
-                            $inside_string = 1;
-                        }
-                        #found the end of a string
-                        elsif($inside_string == 1) {
-                            $inside_string = 0;
-                        }
-                    }
-                }
-                #c++ comment found
-                if ( (substr $each_item, $i, 2) eq "//" and ($inside_string == 0) and ($inside_c_comment == 0) and ($inside_angle == 0) ) {
-                    $inside_cpp_comment = 1;
-                    push(@comment_sections, $running_idx);
-                }
-                #c style comment start found
-                if ( (substr $each_item, $i, 2) eq "/*" and ($inside_string == 0) and ($inside_c_comment == 0) and ($inside_angle == 0) ) {
-                    $inside_c_comment = 1;
-                    push(@comment_sections, $running_idx);
-                }
-                #c style comment end found
-                if ( (substr $each_item, $i, 2) eq "*/" and ($inside_string == 0)  and ($inside_c_comment == 1) and ($inside_angle == 0) ) {
-                    $inside_c_comment = 0;
-                    push(@comment_sections, $running_idx+1);
-                }
+            # For either a c++ comment or a preprocessor error command we can skip processing the rest of the line
+            if($context{"cpp_comment"} == 0 and $context{"pp_error"} == 0) {
+                #checks for strings
+                is_string($each_item, $i, %context);
+
+                #checks for c++ style comments
+                is_cpp_comment((substr $each_item, $i, 2), %context, @comment_sections);
+
+                #checks for c-style comment open or close
+                is_c_comment((substr $each_item, $i, 2), %context, @comment_sections);
+
                 # #include <> handling
-                if ( ($pp_include == 1) and ($inside_string == 0) and ($inside_c_comment == 0) ) {
-                    if ( (substr $each_item, $i, 1) eq "<" and ($inside_angle == 0) ) {
-                        $inside_angle = 1;
-                    }
-                    if ( (substr $each_item, $i, 1) eq ">" and ($inside_angle == 1) ) {
-                        $inside_angle = 0;
-                    }
-                }
+                is_angle_bracket((substr $each_item, $i, 1), %context);
+
             }
 
-            $running_idx++;
+            $context{"idx"}++;
         }
 
-        if($inside_cpp_comment == 1) {
+        # Newline. If we were in a c++ comment, we no longer are.
+        if($context{"cpp_comment"} == 1) {
             #-2 because we're not including the newline
-            push(@comment_sections, $running_idx-2);
+            push(@comment_sections, $context{"idx"}-2);
         }
-        $inside_cpp_comment = 0;
+        $context{"cpp_comment"} = 0;
     }
 
     return @comment_sections;
