@@ -11,10 +11,15 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
 
    char* assign_addr;
    int remaining_dimensions = attr->num_index - curr_dim;
+   // local_type is set to the type of the attribute, but if it's a STL type, we need to use the element type.
+   TRICK_TYPE local_type = attr->type;
+   if (local_type == TRICK_STL) {
+      local_type = attr->stl_elem_type;
+   }
 
    if ( remaining_dimensions == 0 ) {
 
-      switch (attr->type) {
+      switch (local_type) {
 
            case TRICK_CHARACTER :
            case TRICK_UNSIGNED_CHARACTER :
@@ -265,7 +270,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                break;
            default:
                std::stringstream message;
-               message << "Unhandled Type (" << attr->type << ") in assignment.";
+               message << "Unhandled Type (" << local_type << ") in assignment.";
                emitError(message.str());
                return (1);
                break;
@@ -299,7 +304,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
 
        } else { // next dimension is fixed.
 
-           if ((attr->type == TRICK_CHARACTER) &&
+           if ((local_type == TRICK_CHARACTER) &&
                (remaining_dimensions == 1) &&
                (v_tree) &&
                (v_tree->v_data)
@@ -321,7 +326,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    *(char*)assign_addr = '\0';
                }
 
-           } else if ( (attr->type == TRICK_WCHAR) &&
+           } else if ( (local_type == TRICK_WCHAR) &&
                        (remaining_dimensions == 1)) {
 
                assign_addr = (char*)base_addr + offset * size_of_curr_dim * sizeof(wchar_t);

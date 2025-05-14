@@ -73,7 +73,14 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
         ostream << ", 0" ;
     } else {
         // print size of the underlying type
-        ostream << ", sizeof(" << fdes.getTypeName() << ")" ;
+        if ( fdes.isSTL() && 
+             fdes.getSTLTypeEnumString() == "TRICK_STL_VECTOR" && 
+             fdes.getSTLElementTypeEnumString() != "TRICK_NUMBER_OF_TYPES " && 
+             fdes.getSTLElementTypeName() != "") { // if STL, print size of the element type
+            ostream << ", sizeof(" << fdes.getSTLElementTypeName() << ")" ;
+        } else { // else print size of the type
+            ostream << ", sizeof(" << fdes.getTypeName() << ")" ;
+        }
     }
     ostream << ", 0, 0, Language_CPP" ; // range_min, range_max, language
     // mods (see attributes.h for descriptions)
@@ -86,8 +93,11 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
         ostream << "  " << (fdes.getFieldOffset() / 8) ; // offset
     }
     ostream << ", NULL" ; // attr
-    ostream << ", " << fdes.getNumDims() ;                // num_index
-
+    if (fdes.isSTL() && fdes.getSTLTypeEnumString() == "TRICK_STL_VECTOR") {
+        ostream << ", 1" ; // stl_type
+    } else {
+        ostream << ", " << fdes.getNumDims() ;                // num_index
+    }
     ostream << ", {" ;
     if ( fdes.isBitField() ) {
         ostream << "{" << fdes.getBitFieldWidth() ; // size of bitfield
@@ -104,6 +114,16 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
         ostream << ", {" << array_dim << ", 0}" ; // indexes 1 through 7
     }
     ostream << "}," << std::endl ;
+
+    // Add support for STL fields
+    if (fdes.isSTL()) {
+        ostream << "  " << fdes.getSTLTypeEnumString() << ","; // stl_type
+        ostream << " " << fdes.getSTLElementTypeEnumString() << ","; // stl_elem_type
+        ostream << " " << 0 << ","; // stl_size
+    } else {
+        ostream << "  TRICK_STL_UNKNOWN, TRICK_NUMBER_OF_TYPES, 0,"; // Default values for non-STL fields
+    }
+
     ostream << "  NULL, NULL, NULL, NULL" ;
     ostream << "}" ;
 }

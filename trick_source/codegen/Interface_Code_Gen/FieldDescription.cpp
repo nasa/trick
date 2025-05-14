@@ -9,11 +9,14 @@
 #include <regex.h>
 #include <string.h>
 
+#include <regex>
+
 #include "FieldDescription.hh"
 #include "Utilities.hh"
 
 // Provides units check capability.
 #include "trick/map_trick_units_to_udunits.hh"
+
 
 extern llvm::cl::opt< bool > units_truth_is_scary ;
 extern llvm::cl::opt< int > debug_level ;
@@ -370,6 +373,17 @@ std::string FieldDescription::getTypeName() {
     return type_name ;
 }
 
+/**
+ * This function returns the string representation of the STL element type.
+ * STL element types are expected to be in the format like `int`, `double`, etc.
+ * 
+ * @return The string representation of the STL element type.
+ * @see TRICK_TYPE for the enumeration values.
+ */
+std::string FieldDescription::getSTLElementTypeName() {
+    return stl_element_type_name ;
+}
+
 void FieldDescription::setLineNo( unsigned int in_val ) {
     line_no = in_val ;
 }
@@ -526,6 +540,118 @@ void FieldDescription::setSTL(bool yes_no) {
 
 bool FieldDescription::isSTL() {
     return is_stl ;
+}
+
+/**
+ * This function returns the string representation of the STL type enumeration.
+ * STL type names are expected to be in the format like `std::vector<int>`, `std::map<std::string, int>`, etc.
+ * 
+ * @return The string representation of the STL type enumeration.
+ * @see TRICK_STL_TYPE for the enumeration values.
+ */
+std::string FieldDescription::getSTLTypeEnumString() {
+    // Check if the field is an STL container
+    if (!isSTL()) {
+        return "TRICK_STL_UNKNOWN"; // Not an STL container
+    }
+
+    // Check for specific STL container types
+    // TODO: 
+    if (type_name.find("std::vector") != std::string::npos) {
+        return "TRICK_STL_VECTOR";
+    } else if (type_name.find("std::array") != std::string::npos) {
+        return "TRICK_STL_ARRAY";
+    } else if (type_name.find("std::map") != std::string::npos) {
+        return "TRICK_STL_MAP";
+    } else if (type_name.find("std::list") != std::string::npos) {
+        return "TRICK_STL_LIST";
+    } else if (type_name.find("std::set") != std::string::npos) {
+        return "TRICK_STL_SET";
+    } else if (type_name.find("std::deque") != std::string::npos) {
+        return "TRICK_STL_DEQUE";
+    }
+
+    // If no known STL type is found, return unknown
+    return "TRICK_STL_UNKNOWN";
+}
+
+/**
+ * This function returns the string representation of the STL element type enumeration.
+ * It is used to determine the type of elements contained within STL containers.
+ * For STL containers, this function extracts the element type from the type name.
+ * STL type name is expected to be in the format like `std::vector<int>`, `std::map<std::string, int>`, etc.
+ * 
+ * @return The string representation of the STL element type enumeration.
+ * @see TRICK_TYPE for the enumeration values.
+ */
+std::string FieldDescription::getSTLElementTypeEnumString() {
+    // Regular expression to extract the type(s) inside angle brackets
+    std::regex element_type_regex("<(.*)>");
+    std::smatch match;
+
+    if (std::regex_search(type_name, match, element_type_regex)) {
+        std::string element_type = match[1].str(); // Extract the matched type(s)
+
+        // Handle specific cases for STL containers
+        if (element_type.find(",") != std::string::npos) {
+            // For containers like std::map, std::unordered_map, etc.
+            size_t comma_pos = element_type.find(",");
+            element_type = element_type.substr(comma_pos + 1); // Extract the second type (value type)
+        }
+
+        // Trim whitespace
+        element_type.erase(0, element_type.find_first_not_of(" \t"));
+        element_type.erase(element_type.find_last_not_of(" \t") + 1);
+
+        // Set the STL element type name
+        stl_element_type_name = element_type;
+
+        std::cout << "STL element type (before return): " << stl_element_type_name << std::endl;
+        // TODO: Fix the mapping to more complicated cases like std::vector< std::vector< double > >
+        // Map the extracted type to TRICK_TYPE
+        if (element_type == "char") {
+            return "TRICK_CHARACTER";
+        } else if (element_type == "unsigned char") {
+            return "TRICK_UNSIGNED_CHARACTER";
+        } else if (element_type == "short") {
+            return "TRICK_SHORT";
+        } else if (element_type == "unsigned short") {
+            return "TRICK_UNSIGNED_SHORT";
+        } else if (element_type == "long") {
+            return "TRICK_LONG";
+        } else if (element_type == "unsigned long") {
+            return "TRICK_UNSIGNED_LONG";
+        } else if (element_type == "long long") {
+            return "TRICK_LONG_LONG";
+        } else if (element_type == "unsigned long long") {
+            return "TRICK_UNSIGNED_LONG_LONG";
+        } else if (element_type == "int") {
+            return "TRICK_INTEGER";
+        } else if (element_type == "unsigned int") {
+            return "TRICK_UNSIGNED_INTEGER";
+        } else if (element_type == "float") {
+            return "TRICK_FLOAT";
+        } else if (element_type == "double") {
+            return "TRICK_DOUBLE";
+        } else if (element_type == "std::string" || element_type == "string") {
+            return "TRICK_STRING";
+        } else if (element_type == "bool") {
+            return "TRICK_BOOLEAN";
+        } else if (element_type == "void*") {
+            return "TRICK_VOID_PTR";
+        } else if (element_type == "FILE*") {
+            return "TRICK_FILE_PTR";
+        } else if (element_type == "wchar_t") {
+            return "TRICK_WCHAR";
+        } else if (element_type == "wchar_t*") {
+            return "TRICK_WSTRING";
+        } else {
+            stl_element_type_name = "TRICK_NUMBER_OF_TYPES"; // Default case
+            return "TRICK_NUMBER_OF_TYPES"; // Add more mappings as needed
+        }
+    }
+
+    return "TRICK_NUMBER_OF_TYPES"; // If no match is found
 }
 
 void FieldDescription::setSTLClear(bool yes_no) {

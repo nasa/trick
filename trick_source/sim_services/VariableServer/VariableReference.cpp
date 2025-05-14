@@ -108,13 +108,6 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
 
             free(_var_info);
             _var_info = make_do_not_resolve_ref(var_name);
-
-        } else if ( _var_info->attr->type == TRICK_STL ) {
-            // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name);
-            message_publish(MSG_ERROR,"Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
-
-            free(_var_info);
-            _var_info = make_do_not_resolve_ref(var_name);
         }
     } else {
         // sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
@@ -403,12 +396,20 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         return -1;
     }
 
+    // local_type is set to the type of the attribute, but if it's a STL type, we need to use the element type.
+    TRICK_TYPE local_type = _trick_type;
+
+    if (_trick_type == TRICK_STL) {
+        // If the variable is an STL type, use the STL element type for writting value
+        local_type = _var_info->attr->stl_elem_type;
+    }
+
     int bytes_written = 0;
     void * buf_ptr = _write_buffer ;
     while (bytes_written < _size) {
         bytes_written += _var_info->attr->size ;
 
-        switch (_trick_type) {
+        switch (local_type) {
 
         case TRICK_CHARACTER:
             if (_var_info->attr->num_index == _var_info->num_index) {
@@ -695,22 +696,28 @@ void Trick::VariableReference::byteswap_var (char * out, char * in, const Variab
 
 
 int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap ) const {
+    // local_type is set to the type of the attribute, but if it's a STL type, we need to use the element type.
+    TRICK_TYPE local_type = _trick_type;
+    if (local_type == TRICK_STL) {
+        // If the variable is an STL type, use the STL element type for writing value
+        local_type = _var_info->attr->stl_elem_type;
+    }
 
-    if ( _trick_type == TRICK_BITFIELD ) {
+    if ( local_type == TRICK_BITFIELD ) {
         int temp_i = GET_BITFIELD(_write_buffer , _var_info->attr->size ,
             _var_info->attr->index[0].start, _var_info->attr->index[0].size) ;
         out.write((char *)(&temp_i), _size);
         return _size;
     }
 
-    if ( _trick_type == TRICK_UNSIGNED_BITFIELD ) {
+    if ( local_type == TRICK_UNSIGNED_BITFIELD ) {
         int temp_unsigned = GET_UNSIGNED_BITFIELD(_write_buffer , _var_info->attr->size ,
                 _var_info->attr->index[0].start, _var_info->attr->index[0].size) ;
         out.write((char *)(&temp_unsigned), _size);
         return _size;
     }
 
-    if (_trick_type ==  TRICK_NUMBER_OF_TYPES) {
+    if (local_type ==  TRICK_NUMBER_OF_TYPES) {
         // TRICK_NUMBER_OF_TYPES is an error case
         int temp_zero = 0 ;
         out.write((char *)(&temp_zero), _size);

@@ -129,6 +129,10 @@ typedef struct ATTRIBUTES_tag {
     INDEX index[TRICK_MAX_INDEX]; /**< -- An array of array-index information or bit-field information.
                                     Is only meaningful if num_index > 0 or if type is a bit field type. */
 
+    TRICK_STL_TYPE stl_type; /**< -- STL type if this is an STL container */
+    TRICK_TYPE stl_elem_type; /**< -- Element type of STL container */
+    size_t stl_size; /**< -- Size of the STL container */
+
     void (*checkpoint_stl)(void * start_address, const char * obj_name , const char * var_name) ;
     void (*post_checkpoint_stl)(void * start_address, const char * obj_name , const char * var_name) ;
     void (*restore_stl)(void * start_address, const char * obj_name , const char * var_name) ;

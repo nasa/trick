@@ -8,6 +8,7 @@
 
 #include <udunits2.h>
 
+
 #include "ConstructValues.hh"
 #include "clang/Basic/Specifiers.h"
 
@@ -83,6 +84,12 @@ class FieldDescription : public ConstructValues {
         bool isRecord() ;
         void setSTL( bool yes_no ) ;
         bool isSTL() ;
+        /** Returns the string representation of the STL type enumeration */
+        std::string getSTLTypeEnumString() ;
+        /** Returns the string representation of the STL element type enumeration */
+        std::string getSTLElementTypeEnumString() ;
+        /** Returns the string representation of the STL element type. */
+        std::string getSTLElementTypeName() ;
         void setSTLClear( bool yes_no ) ;
         bool hasSTLClear() ;
         void setStatic( bool yes_no ) ;
@@ -125,6 +132,9 @@ class FieldDescription : public ConstructValues {
 
         /** Name of the type, will be canonical, resolving all typedefs and adding default template args */
         std::string type_name ;
+
+        /** Name of the STL contianer element type */
+        std::string stl_element_type_name ;
 
         /** Name of the type */
         std::string mangled_type_name ;

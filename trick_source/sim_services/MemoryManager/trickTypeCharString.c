@@ -34,3 +34,17 @@ const char* trickTypeCharString( TRICK_TYPE type, const char* name) {
     }
     return (type_spec);
 }
+
+const char* trickSTLTypeCharString( TRICK_STL_TYPE type) {
+    const char *type_spec;
+    switch (type) {
+       case TRICK_STL_VECTOR:         type_spec = "std::vector"; break;
+       case TRICK_STL_ARRAY:          type_spec = "std::array"; break;
+       case TRICK_STL_LIST:           type_spec = "std::list"; break;
+       case TRICK_STL_SET:            type_spec = "std::set"; break;
+       case TRICK_STL_MAP:            type_spec = "std::map"; break;
+       case TRICK_STL_DEQUE:          type_spec = "std::deque"; break;
+       default:                       type_spec = "UNKNOWN_TYPE"; break;
+    }
+    return (type_spec);
+}
