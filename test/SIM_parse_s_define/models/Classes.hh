@@ -3,6 +3,12 @@
 #ifndef CLASSES_HH
 #define CLASSES_HH
 
+#ifdef UNDEFINED
+#error ERROR MESSAGE
+#endif
+#ifdef UNDEFINED
+#warning WARNING MESSAGE
+#endif
 //Weird comments are to verify comment removal doesn't break code
 #include "trick///SimObject.hh" //some comment
 #include <.//string> /*
@@ -40,7 +46,7 @@ class ParseTest {
     
     ParseTest() {
         str = "COMMENT PARSE //TEST"; // \
-
+test comment
         str = "COMMENT PARSE /*TEST";
         str = "COMMENT PARSE */TEST";
         str = 

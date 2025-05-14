@@ -225,4 +225,10 @@ class PT1 {
         s = "//";
         s = "\"";
     }
+
+    bool angle_bracket_function() {
+        bool tmp = true;
+        tmp = 1 < 2; // > /*
+        return 1 < 2;
+    }
 };

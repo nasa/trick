@@ -165,8 +165,10 @@ $comment_def = qr/ZZZYYYXXX\d+ZZZYYYXXX/s ;
 $line_tag_def = qr/\#(?:line)?\s+\d+.*?(?:\n|$)/s ;
 
 #checks if the line is a preprocessor include statement, and updates context
-sub is_pp_include (\$\%) {
+sub check_for_pp_include (\$\%) {
     my ($text, $context) = @_;
+
+    $context->{"pp_include"} = 0;
 
     if ( $$text =~ /^\s*\#\s*include/ ) {
         $context->{"pp_include"} = 1;
@@ -174,8 +176,10 @@ sub is_pp_include (\$\%) {
 }
 
 #checks if the line is either a preprocessor warning or error statement, and updates context
-sub is_pp_error (\$\%) {
+sub check_for_pp_error (\$\%) {
     my ($text, $context) = @_;
+
+    $context->{"pp_error"} = 0;
 
     if ( $$text =~ /^\s*\#\s*error/ ) {
         $context->{"pp_error"} = 1;
@@ -191,7 +195,7 @@ sub is_pp_error (\$\%) {
 #   Come across a "
 #   And the " is not a char
 # Then we are entering/exiting a string
-sub is_string (\$\$\%) {
+sub check_for_string (\$\$\%) {
     my ($line, $idx, $context) = @_;
     my $i = $$idx;
 
@@ -219,7 +223,7 @@ sub is_string (\$\$\%) {
 # Then we are entering a c++ comment
 #NOTE: We do not need to track if we are in a c++ comment, because once we see one start
 #      we can skip the rest of the line.
-sub is_cpp_comment (\$\%\@) {
+sub check_for_cpp_comment (\$\%\@) {
     my ($text, $context, $comments) = @_;
 
     if ( $$text eq "//" and ($context->{"string"} == 0) and ($context->{"c_comment"} == 0) and ($context->{"angle"} == 0) ) {
@@ -234,7 +238,7 @@ sub is_cpp_comment (\$\%\@) {
 #   Not inside a string
 #   And come across either a /* or */
 # Then we are either entering/exiting a c comment
-sub is_c_comment (\$\%\@) {
+sub check_for_c_comment (\$\%\@) {
     my ($text, $context, $comments) = @_;
 
     if ( $$text eq "/*" and ($context->{"string"} == 0) and ($context->{"c_comment"} == 0) and ($context->{"angle"} == 0) ) {
@@ -254,7 +258,7 @@ sub is_c_comment (\$\%\@) {
 #   Not inside a c comment
 #   And the char matches either <>
 # Then we are either entering/exiting the brackets of a #include<> statement
-sub is_angle_bracket (\$\%) {
+sub check_for_angle_bracket (\$\%) {
     my ($text, $context) = @_;
 
     if ( ($context->{"pp_include"} == 1) and ($context->{"string"} == 0) and ($context->{"c_comment"} == 0) ) {
@@ -327,24 +331,24 @@ sub index_comments (@) {
         $item_length = length($each_item);
 
         #Check for specific pp directives that change comment parsing
-        is_pp_include( $each_item, %context );
-        is_pp_error( $each_item, %context );
+        check_for_pp_include( $each_item, %context );
+        check_for_pp_error( $each_item, %context );
 
         #iterate over each char
         for ( my $i = 0; $i < $item_length; ++$i ) {
             # For either a c++ comment or a preprocessor error command we can skip processing the rest of the line
             if($context{"cpp_comment"} == 0 and $context{"pp_error"} == 0) {
                 #checks for strings
-                is_string($each_item, $i, %context);
+                check_for_string($each_item, $i, %context);
 
                 #checks for c++ style comments
-                is_cpp_comment((substr $each_item, $i, 2), %context, @comment_sections);
+                check_for_cpp_comment((substr $each_item, $i, 2), %context, @comment_sections);
 
                 #checks for c-style comment open or close
-                is_c_comment((substr $each_item, $i, 2), %context, @comment_sections);
+                check_for_c_comment((substr $each_item, $i, 2), %context, @comment_sections);
 
                 # #include <> handling
-                is_angle_bracket((substr $each_item, $i, 1), %context);
+                check_for_angle_bracket((substr $each_item, $i, 1), %context);
 
             }
 
