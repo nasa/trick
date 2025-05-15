@@ -7,6 +7,7 @@
 
 
 #include <iostream>
+#include <string>
 #include <cstdint>
 #include <cuchar>
 
@@ -33,7 +34,9 @@
 %template(ALIAS##Deque) std::deque<TYPE>;
 %template(ALIAS##Set) std::set<TYPE>;
 %template(ALIAS##Map) std::map<TYPE, TYPE>;
-//%template(ALIAS##UnorderedMap) std::unordered_map<TYPE, TYPE>;
+#if SWIG_VERSION >= 0x040000
+%template(ALIAS##UnorderedMap) std::unordered_map<TYPE, TYPE>;
+#endif
 //%template(ALIAS##Stack) std::stack<TYPE>;
 %enddef
 

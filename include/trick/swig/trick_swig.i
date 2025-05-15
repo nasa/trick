@@ -1,14 +1,11 @@
 /* include support for STLs */
 
 %include "std_alloc.i"
-//%include "std_basic_string.i"
 %include "std_char_traits.i"
 
 %include "std_complex.i"
 %include "std_deque.i"
 %include "std_except.i"
-
-//%include "std_ios.i"
 
 %include "std_list.i"
 %include "std_map.i"
@@ -18,8 +15,6 @@
 %include "std_pair.i"
 %include "std_set.i"
 
-//%include "std_sstream.i"
-//%include "std_streambuf.i"
 %include "std_string.i"
 %include "std_iostream.i"
 
@@ -30,17 +25,24 @@
 %include "std_unique_ptr.i"
 
 %include "std_container.i"
-%include "std_deque.i"
-%include "std_except.i"
 
-%include "std_stack.i"
-%include "std_unordered_map.i"
+// Both std_queue.i and std_stack.i coming with swig are wrappers for Ruby.
+// We need to come up with our own wrappers for these if needed for Python.
+//%include "std_queue.i"
+//%include "std_stack.i"
+
 %include "std_unordered_multimap.i"
 %include "std_unordered_multiset.i"
 %include "std_unordered_set.i"
 %include "std_vectora.i"
 
-#if SWIG_VERSION > 0x040100
+#if SWIG_VERSION > 0x040000
+// std_unordered_map.i was work in progress in swig 3.0.x and is fully supported in swig 4.x
+%include "std_unordered_map.i"
+// std_sstream.i is not fully supported and reliable in swig 3.0.x and is fully supported in swig 4.x
+%include "std_sstream.i"
+// std_wstring.i was introduced in swig 3.0.8 but its support for Python was incomplete
+// std_wstring.i works properly in swig 4.x
 %include "std_wstring.i"
 #endif
 %include "factory.i"
@@ -49,15 +51,6 @@
 %include "trick/swig/swig_class_typedef.i"
 %include "trick/swig/cast_as.i"
 %include "trick/swig/swig_int_typemap.i"
-
-// Define an output typemap for pointers to std::string.
-%typemap(out) std::basic_string<char,std::char_traits<char>,std::allocator<char> >* {
-    if (!$1) {
-      Py_RETURN_NONE;
-    }
-    // Dereference the pointer and convert to a Python Unicode string.
-    $result = PyUnicode_FromString(($1)->c_str());
-}
 
 /*
    compactdefaultargs fixes a bug with enumeration default arguments not being
