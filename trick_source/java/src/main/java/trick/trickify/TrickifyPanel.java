@@ -185,12 +185,12 @@ public class TrickifyPanel extends JPanel
 
         if(noCleanObjBox.isSelected())
         {
-            cmdLine.add("--no_cleanObj_list");
+            cmdLine.add("--no_clean_obj_list");
         }
 
         if(noCleanSrcBox.isSelected())
         {
-            cmdLine.add("--no_cleanSrc_list");
+            cmdLine.add("--no_clean_src_list");
         }
 
         if(noCleanSSourceBox.isSelected())
