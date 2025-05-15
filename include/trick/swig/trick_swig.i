@@ -15,6 +15,10 @@
 %include "std_pair.i"
 %include "std_set.i"
 
+#if SWIG_VERSION >= 0x040000
+// std_sstream.i is not fully supported and reliable in swig 3.0.x and is fully supported in swig 4.x
+%include "std_sstream.i"
+#endif
 %include "std_string.i"
 %include "std_iostream.i"
 
@@ -36,11 +40,9 @@
 %include "std_unordered_set.i"
 %include "std_vectora.i"
 
-#if SWIG_VERSION > 0x040000
+#if SWIG_VERSION >= 0x040000
 // std_unordered_map.i was work in progress in swig 3.0.x and is fully supported in swig 4.x
 %include "std_unordered_map.i"
-// std_sstream.i is not fully supported and reliable in swig 3.0.x and is fully supported in swig 4.x
-%include "std_sstream.i"
 // std_wstring.i was introduced in swig 3.0.8 but its support for Python was incomplete
 // std_wstring.i works properly in swig 4.x
 %include "std_wstring.i"
