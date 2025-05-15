@@ -1,5 +1,6 @@
 /*
-    PURPOSE: (Illustrate how to checkpoint STLs)
+    PURPOSE: (Provides a convenient way to instantiate and use a variety of STL containers \
+              for C++ types/language bindings with SWIG)
     LIBRARY_DEPENDENCIES: (
       ()
     )

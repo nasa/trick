@@ -1,7 +1,8 @@
 /*
-    PURPOSE: (Illustrate how to checkpoint STLs)
+    PURPOSE: (Defines the STLIPTest class, which serves as a testbed for various STL \
+              container types instantiated with C++ types such as int, double, char, etc.)
     LIBRARY_DEPENDENCIES: (
-      (STLIPTest.o)
+      ()
     )
 */
 
@@ -30,7 +31,6 @@
 #include <string>
 #include <cstddef>
 
-#include "utils.hh"
 #include "test_classes/include/container_types.hh"
 
 struct TestStructure
