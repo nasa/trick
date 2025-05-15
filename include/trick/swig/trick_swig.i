@@ -35,14 +35,16 @@
 //%include "std_queue.i"
 //%include "std_stack.i"
 
+#if SWIG_VERSION >= 0x040000
+// All following std_unordered_.i files were work in progress in swig 3.0.x and are fully supported in swig 4.x
+%include "std_unordered_map.i"
 %include "std_unordered_multimap.i"
 %include "std_unordered_multiset.i"
 %include "std_unordered_set.i"
+#endif
 %include "std_vectora.i"
 
 #if SWIG_VERSION >= 0x040000
-// std_unordered_map.i was work in progress in swig 3.0.x and is fully supported in swig 4.x
-%include "std_unordered_map.i"
 // std_wstring.i was introduced in swig 3.0.8 but its support for Python was incomplete
 // std_wstring.i works properly in swig 4.x
 %include "std_wstring.i"
