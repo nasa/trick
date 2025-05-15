@@ -8,8 +8,8 @@ import javax.swing.*;
 public class DirSelect extends LabeledTextField
 {
     private JButton button;
-    public final static int button_width = 100;
-    public final static int button_height = 20;
+    public final static int buttonWidth = 100;
+    public final static int buttonHeight = 20;
 
     private JFileChooser browser;
 
@@ -57,21 +57,21 @@ public class DirSelect extends LabeledTextField
                 {
                     return;
                 }
-                String filename = "";
+                String fileName = "";
                 if(multiDir)
                 {
                     File[] files = browser.getSelectedFiles();
                     for(int i = 0; i < files.length; ++i)
                     {
-                        filename += files[i].getAbsolutePath() + " ";
+                        fileName += files[i].getAbsolutePath() + " ";
                     }
-                    textfield.setText(textfield.getText().trim() + " " + filename.trim());
+                    textField.setText(textField.getText().trim() + " " + fileName.trim());
                 }
                 else
                 {
                     File file = browser.getSelectedFile();
-                    filename = file.getAbsolutePath();
-                    textfield.setText(filename);
+                    fileName = file.getAbsolutePath();
+                    textField.setText(fileName);
                 } 
             } 
         } );

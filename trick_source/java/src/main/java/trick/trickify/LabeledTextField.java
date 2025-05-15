@@ -8,12 +8,12 @@ import javax.swing.*;
 public class LabeledTextField extends JPanel
 {
     protected JLabel label;
-    public final static int label_width = 200;
-    public final static int label_height = 20;
+    public final static int labelWidth = 200;
+    public final static int labelHeight = 20;
 
-    protected JTextField textfield;
-    public final static int textfield_width = 1000;
-    public final static int textfield_height = 20;
+    protected JTextField textField;
+    public final static int textFieldWidth = 1000;
+    public final static int textFieldHeight = 20;
 
     public void setLabel(String text)
     {
@@ -22,17 +22,17 @@ public class LabeledTextField extends JPanel
 
     public void setToolTipText(String tip)
     {
-        textfield.setToolTipText(tip);       
+        textField.setToolTipText(tip);       
     }
 
     public String getText()
     {
-        return textfield.getText();
+        return textField.getText();
     }
 
     void setText(String txt)
     {
-        textfield.setText(txt);
+        textField.setText(txt);
     }
 
     public LabeledTextField()
@@ -40,13 +40,13 @@ public class LabeledTextField extends JPanel
         setLayout(new BorderLayout());
 
         label = new JLabel();
-        label.setPreferredSize(new Dimension(label_width, label_height));
+        label.setPreferredSize(new Dimension(labelWidth, labelHeight));
 
-        textfield = new JTextField();
-        textfield.setPreferredSize(new Dimension(textfield_width, textfield_height));
+        textField = new JTextField();
+        textField.setPreferredSize(new Dimension(textFieldWidth, textFieldHeight));
 
         add(label, BorderLayout.NORTH);
-        add(textfield, BorderLayout.CENTER);
+        add(textField, BorderLayout.CENTER);
     }
 
 }

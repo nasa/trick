@@ -31,47 +31,47 @@ public class TrickifyPanel extends JPanel
     private JMenu viewMenu = new JMenu();
     private JMenuItem defaultViewMenuItem = new JMenuItem(); 
 
-    private String trick_home;
+    private String trickHome;
 
-    private int mainFrameWidth = DirSelect.textfield_width + DirSelect.button_width;
+    private int mainFrameWidth = DirSelect.textFieldWidth + DirSelect.buttonWidth;
     private int mainFrameHeight = 800;
 
     private JPanel mainPanel;
-    private DirSelect src_dirs;
-    private DirSelect trick_home_dirs;
-    private DirSelect build_path_dirs;
-    private DirSelect trickify_path_dirs;
-    private DirSelect trickify_include_dirs;
-    private DirSelect source_make_dirs;
-    private DirSelect log_dirs;
-    private DirSelect s_overrides_dirs;
-    private LabeledTextField name_field;
-    private LabeledTextField trickify_args_field;
-    private LabeledTextField source_make_args_field;
-    private String src_dirs_config = "SOURCE_DIRS";
-    private String trick_home_config = "TRICK_HOME";
-    private String build_path_config = "BUILD_PATH";
-    private String trickify_path_config = "TRICKIFY_PATH";
-    private String trickify_include_config = "TRICKIFY_INCLUDE";
-    private String source_make_config = "SOURCE_MAKE";
-    private String log_config = "LOG";
-    private String s_overrides_config = "S_OVERRIDES";
-    private String name_config = "NAME";
-    private String trickify_args_config = "TRICKIFY_ARGS";
-    private String source_make_args_config = "SOURCE_MAKE_ARGS";
+    private DirSelect srcDirs;
+    private DirSelect trickHomeDirs;
+    private DirSelect buildPathDirs;
+    private DirSelect trickifyPathDirs;
+    private DirSelect trickifyIncludeDirs;
+    private DirSelect sourceMakeDirs;
+    private DirSelect logDirs;
+    private DirSelect sOverridesDirs;
+    private LabeledTextField nameField;
+    private LabeledTextField trickifyArgsField;
+    private LabeledTextField sourceMakeArgsField;
+    private String srcDirsConfig = "SOURCE_DIRS";
+    private String trickHomeConfig = "TRICK_HOME";
+    private String buildPathConfig = "BUILD_PATH";
+    private String trickifyPathConfig = "TRICKIFY_PATH";
+    private String trickifyIncludeConfig = "TRICKIFY_INCLUDE";
+    private String sourceMakeConfig = "SOURCE_MAKE";
+    private String logConfig = "LOG";
+    private String sOverridesConfig = "S_OVERRIDES";
+    private String nameConfig = "NAME";
+    private String trickifyArgsConfig = "TRICKIFY_ARGS";
+    private String sourceMakeArgsConfig = "SOURCE_MAKE_ARGS";
 
-    private JCheckBox full_build_box;
-    private JCheckBox no_clean_obj_box;
-    private JCheckBox no_clean_src_box;
-    private JCheckBox no_clean_s_source_box;
-    private JCheckBox debug_box;
-    private JComboBox build_type_box;
-    private String full_build_config = "FULL_BUILD";
-    private String no_clean_obj_config = "NO_CLEAN_OBJ";
-    private String no_clean_src_config = "NO_CLEAN_SRC";
-    private String no_clean_s_source_config = "NO_CLEAN_S_SOURCE";
-    private String debug_config = "DEBUG";
-    private String build_type_config = "BUILD_TYPE";
+    private JCheckBox fullBuildBox;
+    private JCheckBox noCleanObjBox;
+    private JCheckBox noCleanSrcBox;
+    private JCheckBox noCleanSSourceBox;
+    private JCheckBox debugBox;
+    private JComboBox buildTypeBox;
+    private String fullBuildConfig = "FULL_BUILD";
+    private String noCleanObjConfig = "NO_CLEAN_OBJ";
+    private String noCleanSrcConfig = "NO_CLEAN_SRC";
+    private String noCleanSSourceConfig = "NO_CLEAN_S_SOURCE";
+    private String debugConfig = "DEBUG";
+    private String buildTypeConfig = "BUILD_TYPE";
 
     private JButton runButton;
     private JButton exportButton;
@@ -84,136 +84,136 @@ public class TrickifyPanel extends JPanel
     public ArrayList<String> getTrickifyCmd(boolean useQuotes)
     {   
         ArrayList<String> cmdLine = new ArrayList<String>();
-        cmdLine.add(trick_home + "/bin/trick-ify");
+        cmdLine.add(trickHome + "/bin/trick-ify");
 
-        String src_dirs_txt = src_dirs.getText().trim();
-        if(!src_dirs_txt.equals(""))
+        String srcDirsTxt = srcDirs.getText().trim();
+        if(!srcDirsTxt.equals(""))
         {
             cmdLine.add("-d");
             if(useQuotes)
             {
-                cmdLine.add("\"" + src_dirs_txt + "\"");
+                cmdLine.add("\"" + srcDirsTxt + "\"");
             }
             else
             {
-                cmdLine.add(src_dirs_txt);
+                cmdLine.add(srcDirsTxt);
             }
         }
 
-        String trick_home_dirs_txt = trick_home_dirs.getText().trim();
-        if(!trick_home_dirs_txt.equals(""))
+        String trickHomeDirsTxt = trickHomeDirs.getText().trim();
+        if(!trickHomeDirsTxt.equals(""))
         {
             cmdLine.add("--trick_home");
-            cmdLine.add(trick_home_dirs_txt);
+            cmdLine.add(trickHomeDirsTxt);
         }
 
-        String trickify_path_dirs_txt = trickify_path_dirs.getText().trim();
-        if(!trickify_path_dirs_txt.equals(""))
+        String trickifyPathDirsTxt = trickifyPathDirs.getText().trim();
+        if(!trickifyPathDirsTxt.equals(""))
         {
             cmdLine.add("--trickify_make");
-            cmdLine.add(trickify_path_dirs_txt);
+            cmdLine.add(trickifyPathDirsTxt);
         }
 
-        String trickify_include_dirs_txt = trickify_include_dirs.getText().trim();
-        if(!trickify_include_dirs_txt.equals(""))
+        String trickifyIncludeDirsTxt = trickifyIncludeDirs.getText().trim();
+        if(!trickifyIncludeDirsTxt.equals(""))
         {
             cmdLine.add("--include");
             if(useQuotes)
             {
-               cmdLine.add("\"" + trickify_include_dirs_txt + "\"");
+               cmdLine.add("\"" + trickifyIncludeDirsTxt + "\"");
             }
             else
             {
-                cmdLine.add(trickify_include_dirs_txt);
+                cmdLine.add(trickifyIncludeDirsTxt);
             }
         }
 
-        String trickify_args_field_txt = trickify_args_field.getText().trim();
-        if(!trickify_args_field_txt.equals(""))
+        String trickifyArgsFieldTxt = trickifyArgsField.getText().trim();
+        if(!trickifyArgsFieldTxt.equals(""))
         {
             cmdLine.add("--trickify_args");
-            cmdLine.add(trickify_args_field_txt);
+            cmdLine.add(trickifyArgsFieldTxt);
         }
 
-        String source_make_dirs_txt = source_make_dirs.getText().trim();
-        if(!source_make_dirs_txt.equals(""))
+        String sourceMakeDirsTxt = sourceMakeDirs.getText().trim();
+        if(!sourceMakeDirsTxt.equals(""))
         {
             cmdLine.add("--source_make");
-            cmdLine.add(source_make_dirs_txt);
+            cmdLine.add(sourceMakeDirsTxt);
         }
 
-        String source_make_args_field_txt = source_make_args_field.getText().trim();
-        if(!source_make_args_field_txt.equals(""))
+        String sourceMakeArgsFieldTxt = sourceMakeArgsField.getText().trim();
+        if(!sourceMakeArgsFieldTxt.equals(""))
         {
             cmdLine.add("--source_make_args");
-            cmdLine.add(source_make_args_field_txt);
+            cmdLine.add(sourceMakeArgsFieldTxt);
         }
 
-        String lib_name = "";
-        String build_path_dirs_txt = build_path_dirs.getText().trim();
-        if(!build_path_dirs_txt.equals(""))
+        String libName = "";
+        String buildPathDirsTxt = buildPathDirs.getText().trim();
+        if(!buildPathDirsTxt.equals(""))
         {
-            lib_name = build_path_dirs_txt;
+            libName = buildPathDirsTxt;
         }
  
-        String s_overrides_dirs_txt = s_overrides_dirs.getText().trim();
-        if(!s_overrides_dirs_txt.equals(""))
+        String sOverridesDirsTxt = sOverridesDirs.getText().trim();
+        if(!sOverridesDirsTxt.equals(""))
         {
             cmdLine.add("--s_overrides");
-            cmdLine.add(s_overrides_dirs_txt);
+            cmdLine.add(sOverridesDirsTxt);
         }
 
-        String name_field_txt = name_field.getText().trim();
-        if(!name_field_txt.equals(""))
+        String nameFieldTxt = nameField.getText().trim();
+        if(!nameFieldTxt.equals(""))
         {
-            if(!lib_name.equals(""))
+            if(!libName.equals(""))
             {
-                lib_name += System.getProperty("file.separator") + name_field_txt;
+                libName += System.getProperty("file.separator") + nameFieldTxt;
             }
             else
             {
-                lib_name = name_field_txt;
+                libName = nameFieldTxt;
             }
             cmdLine.add("-n");
-            cmdLine.add(lib_name);
+            cmdLine.add(libName);
         }
 
-        if(!(full_build_box.isSelected()))
+        if(!(fullBuildBox.isSelected()))
         {
             cmdLine.add("--no_source");
         }
 
-        if(no_clean_obj_box.isSelected())
+        if(noCleanObjBox.isSelected())
         {
-            cmdLine.add("--no_clean_obj_list");
+            cmdLine.add("--no_cleanObj_list");
         }
 
-        if(no_clean_src_box.isSelected())
+        if(noCleanSrcBox.isSelected())
         {
-            cmdLine.add("--no_clean_src_list");
+            cmdLine.add("--no_cleanSrc_list");
         }
 
-        if(no_clean_s_source_box.isSelected())
+        if(noCleanSSourceBox.isSelected())
         {
             cmdLine.add("--no_clean_s_srouce");
         }
 
-        if(debug_box.isSelected())
+        if(debugBox.isSelected())
         {
             cmdLine.add("-v");
         }
 
-        if(build_type_box.getSelectedItem().equals("Object"))
+        if(buildTypeBox.getSelectedItem().equals("Object"))
         {
             cmdLine.add("-b");
             cmdLine.add("o");
         }
-        else if(build_type_box.getSelectedItem().equals("Shared"))
+        else if(buildTypeBox.getSelectedItem().equals("Shared"))
         {
             cmdLine.add("-b");
             cmdLine.add("so");
         }
-        else if(build_type_box.getSelectedItem().equals("Static"))
+        else if(buildTypeBox.getSelectedItem().equals("Static"))
         {
             cmdLine.add("-b");
             cmdLine.add("a");
@@ -239,8 +239,8 @@ public class TrickifyPanel extends JPanel
                 output.append(line + "\n");
             }
 
-            String log_dirs_path = log_dirs.getText().trim();
-            PrintWriter logfile = new PrintWriter(log_dirs_path + System.getProperty("file.separator") + "trickify.log", "UTF-8");
+            String logDirsPath = logDirs.getText().trim();
+            PrintWriter logfile = new PrintWriter(logDirsPath + System.getProperty("file.separator") + "trickify.log", "UTF-8");
             logfile.println(output);
             logfile.close();
 
@@ -253,198 +253,198 @@ public class TrickifyPanel extends JPanel
     }
 
     
-    public void save_properties()
+    public void saveProperties()
     {
-        save_properties(trickProp);
+        saveProperties(trickProp);
     }
 
-    public void save_properties(Properties prop)
+    public void saveProperties(Properties prop)
     {
-        prop.setProperty(src_dirs_config, src_dirs.getText().trim());
-        prop.setProperty(trick_home_config, trick_home_dirs.getText().trim());
-        prop.setProperty(trickify_path_config, trickify_path_dirs.getText().trim());
-        prop.setProperty(trickify_include_config, trickify_include_dirs.getText().trim());
-        prop.setProperty(trickify_args_config, trickify_args_field.getText().trim());
-        prop.setProperty(source_make_config, source_make_dirs.getText().trim());
-        prop.setProperty(source_make_args_config, source_make_args_field.getText().trim());
-        prop.setProperty(build_path_config, build_path_dirs.getText().trim());
-        prop.setProperty(s_overrides_config, s_overrides_dirs.getText().trim());
-        prop.setProperty(name_config, name_field.getText().trim());
-        prop.setProperty(full_build_config, Boolean.toString(full_build_box.isSelected()));
-        prop.setProperty(no_clean_obj_config, Boolean.toString(no_clean_obj_box.isSelected()));
-        prop.setProperty(no_clean_src_config, Boolean.toString(no_clean_src_box.isSelected()));
-        prop.setProperty(no_clean_s_source_config, Boolean.toString(no_clean_s_source_box.isSelected()));
-        prop.setProperty(debug_config, Boolean.toString(debug_box.isSelected()));
-        prop.setProperty(build_type_config, build_type_box.getSelectedItem().toString());
+        prop.setProperty(srcDirsConfig, srcDirs.getText().trim());
+        prop.setProperty(trickHomeConfig, trickHomeDirs.getText().trim());
+        prop.setProperty(trickifyPathConfig, trickifyPathDirs.getText().trim());
+        prop.setProperty(trickifyIncludeConfig, trickifyIncludeDirs.getText().trim());
+        prop.setProperty(trickifyArgsConfig, trickifyArgsField.getText().trim());
+        prop.setProperty(sourceMakeConfig, sourceMakeDirs.getText().trim());
+        prop.setProperty(sourceMakeArgsConfig, sourceMakeArgsField.getText().trim());
+        prop.setProperty(buildPathConfig, buildPathDirs.getText().trim());
+        prop.setProperty(sOverridesConfig, sOverridesDirs.getText().trim());
+        prop.setProperty(nameConfig, nameField.getText().trim());
+        prop.setProperty(fullBuildConfig, Boolean.toString(fullBuildBox.isSelected()));
+        prop.setProperty(noCleanObjConfig, Boolean.toString(noCleanObjBox.isSelected()));
+        prop.setProperty(noCleanSrcConfig, Boolean.toString(noCleanSrcBox.isSelected()));
+        prop.setProperty(noCleanSSourceConfig, Boolean.toString(noCleanSSourceBox.isSelected()));
+        prop.setProperty(debugConfig, Boolean.toString(debugBox.isSelected()));
+        prop.setProperty(buildTypeConfig, buildTypeBox.getSelectedItem().toString());
     }
 
-    public void load_properties()
+    public void loadProperties()
     {
-        load_properties(trickProp);
+        loadProperties(trickProp);
     }
 
-    public void load_properties(Properties prop)
+    public void loadProperties(Properties prop)
     {
         String propText = null;
 
-        if((propText = prop.getProperty(src_dirs_config)) != null)
+        if((propText = prop.getProperty(srcDirsConfig)) != null)
         {
-            src_dirs.setText(propText);
+            srcDirs.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(trick_home_config)) != null)
+        if((propText = prop.getProperty(trickHomeConfig)) != null)
         {
-            trick_home_dirs.setText(propText);
+            trickHomeDirs.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(trickify_path_config)) != null)
+        if((propText = prop.getProperty(trickifyPathConfig)) != null)
         {
-            trickify_path_dirs.setText(propText);
+            trickifyPathDirs.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(trickify_include_config)) != null)
+        if((propText = prop.getProperty(trickifyIncludeConfig)) != null)
         {
-            trickify_include_dirs.setText(propText);
+            trickifyIncludeDirs.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(trickify_args_config)) != null)
+        if((propText = prop.getProperty(trickifyArgsConfig)) != null)
         {
-            trickify_args_field.setText(propText);
+            trickifyArgsField.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(source_make_config)) != null)
+        if((propText = prop.getProperty(sourceMakeConfig)) != null)
         {
-            source_make_dirs.setText(propText);
+            sourceMakeDirs.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(source_make_args_config)) != null)
+        if((propText = prop.getProperty(sourceMakeArgsConfig)) != null)
         {
-            source_make_args_field.setText(propText);
+            sourceMakeArgsField.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(build_path_config)) != null)
+        if((propText = prop.getProperty(buildPathConfig)) != null)
         {
-            build_path_dirs.setText(propText);
+            buildPathDirs.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(s_overrides_config)) != null)
+        if((propText = prop.getProperty(sOverridesConfig)) != null)
         {
-            s_overrides_dirs.setText(propText);
+            sOverridesDirs.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(name_config)) != null)
+        if((propText = prop.getProperty(nameConfig)) != null)
         {
-            name_field.setText(propText);
+            nameField.setText(propText);
         }
         propText = null;
 
-        if((propText = prop.getProperty(full_build_config)) != null)
+        if((propText = prop.getProperty(fullBuildConfig)) != null)
         {
             if(propText.equals("true"))
             {
-                full_build_box.setSelected(true);
+                fullBuildBox.setSelected(true);
             }
             else
             {
-                full_build_box.setSelected(false);
+                fullBuildBox.setSelected(false);
             }
         }
         propText = null;
 
-        if((propText = prop.getProperty(no_clean_obj_config)) != null)
+        if((propText = prop.getProperty(noCleanObjConfig)) != null)
         {
             if(propText.equals("true"))
             {
-                no_clean_obj_box.setSelected(true);
+                noCleanObjBox.setSelected(true);
             }
             else
             {
-                no_clean_obj_box.setSelected(false);
+                noCleanObjBox.setSelected(false);
             }
         }
         propText = null;
 
-        if((propText = prop.getProperty(no_clean_src_config)) != null)
+        if((propText = prop.getProperty(noCleanSrcConfig)) != null)
         {
             if(propText.equals("true"))
             {
-                no_clean_src_box.setSelected(true);
+                noCleanSrcBox.setSelected(true);
             }
             else
             {
-                no_clean_src_box.setSelected(false);
+                noCleanSrcBox.setSelected(false);
             }
         }
         propText = null;
 
-        if((propText = prop.getProperty(no_clean_s_source_config)) != null)
+        if((propText = prop.getProperty(noCleanSSourceConfig)) != null)
         {
             if(propText.equals("true"))
             {
-                no_clean_s_source_box.setSelected(true);
+                noCleanSSourceBox.setSelected(true);
             }
             else
             {
-                no_clean_s_source_box.setSelected(false);
+                noCleanSSourceBox.setSelected(false);
             }
         }
         propText = null;
 
-        if((propText = prop.getProperty(debug_config)) != null)
+        if((propText = prop.getProperty(debugConfig)) != null)
         {
             if(propText.equals("true"))
             {
-                debug_box.setSelected(true);
+                debugBox.setSelected(true);
             }
             else
             {
-                debug_box.setSelected(false);
+                debugBox.setSelected(false);
             }
         }
         propText = null;
 
-        if((propText = prop.getProperty(build_type_config)) != null)
+        if((propText = prop.getProperty(buildTypeConfig)) != null)
         {
-            build_type_box.setSelectedItem(propText);
+            buildTypeBox.setSelectedItem(propText);
         }
     }
 
     @Action
     public void loadDefaultPropertiesAction(ActionEvent e)
     {
-        set_default();
+        setDefault();
     }
 
-    private void set_default()
+    private void setDefault()
     {
         String s = System.getProperty("file.separator");
 
-        src_dirs.setText("");
-        trick_home_dirs.setText(trick_home); 
-        trickify_path_dirs.setText(trick_home + s + "share" + s + "trick" + s + "makefiles" + s + "trickify.mk"); 
-        trickify_include_dirs.setText(""); 
-        trickify_args_field.setText("");
-        source_make_dirs.setText("");
-        source_make_args_field.setText("");
-        s_overrides_dirs.setText("");
-        build_path_dirs.setText(System.getProperty("user.dir")); 
-        name_field.setText("TrickifiedLibrary");
-        log_dirs.setText(System.getProperty("user.dir")); 
-        full_build_box.setSelected(true);
-        no_clean_obj_box.setSelected(false);
-        no_clean_src_box.setSelected(false);
-        no_clean_s_source_box.setSelected(false);
-        debug_box.setSelected(false);
-        build_type_box.setSelectedItem("PLO");
+        srcDirs.setText("");
+        trickHomeDirs.setText(trickHome); 
+        trickifyPathDirs.setText(trickHome + s + "share" + s + "trick" + s + "makefiles" + s + "trickify.mk"); 
+        trickifyIncludeDirs.setText(""); 
+        trickifyArgsField.setText("");
+        sourceMakeDirs.setText("");
+        sourceMakeArgsField.setText("");
+        sOverridesDirs.setText("");
+        buildPathDirs.setText(System.getProperty("user.dir")); 
+        nameField.setText("TrickifiedLibrary");
+        logDirs.setText(System.getProperty("user.dir")); 
+        fullBuildBox.setSelected(true);
+        noCleanObjBox.setSelected(false);
+        noCleanSrcBox.setSelected(false);
+        noCleanSSourceBox.setSelected(false);
+        debugBox.setSelected(false);
+        buildTypeBox.setSelectedItem("PLO");
     }
 
     @Action
@@ -468,7 +468,7 @@ public class TrickifyPanel extends JPanel
         filename = file.getAbsolutePath();
         
         Properties p = new Properties();
-        save_properties(p);
+        saveProperties(p);
         try
         {
             p.store(new FileWriter(filename), "Trickify Properties"); 
@@ -502,7 +502,7 @@ public class TrickifyPanel extends JPanel
         {
             exp.printStackTrace();
         }    
-        load_properties(p);   
+        loadProperties(p);   
     }
 
     TrickifyPanel(TrickApplication app)
@@ -511,7 +511,7 @@ public class TrickifyPanel extends JPanel
         trickProp = myApp.trickProperties;
 
         String s = System.getProperty("file.separator");
-        trick_home = new File(TrickifyPanel.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getAbsolutePath();
+        trickHome = new File(TrickifyPanel.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getAbsolutePath();
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -552,106 +552,106 @@ public class TrickifyPanel extends JPanel
         viewMenu.add(defaultViewMenuItem);
         menu.add(viewMenu);
 
-        src_dirs = new DirSelect();
-        src_dirs.setLabel("Source Directories");
-        src_dirs.setButtonText("Choose");
-        src_dirs.allowMultiple(true);
-        src_dirs.setToolTipText("Directories to build trickified library from.");
-        fieldPanel.add(src_dirs);
+        srcDirs = new DirSelect();
+        srcDirs.setLabel("Source Directories");
+        srcDirs.setButtonText("Choose");
+        srcDirs.allowMultiple(true);
+        srcDirs.setToolTipText("Directories to build trickified library from.");
+        fieldPanel.add(srcDirs);
 
-        trick_home_dirs = new DirSelect();
-        trick_home_dirs.setLabel("Trick Home Directory");
-        trick_home_dirs.setButtonText("Choose");
-        trick_home_dirs.allowMultiple(false);
-        trick_home_dirs.setToolTipText("Trick directory to use.");
-        fieldPanel.add(trick_home_dirs);
+        trickHomeDirs = new DirSelect();
+        trickHomeDirs.setLabel("Trick Home Directory");
+        trickHomeDirs.setButtonText("Choose");
+        trickHomeDirs.allowMultiple(false);
+        trickHomeDirs.setToolTipText("Trick directory to use.");
+        fieldPanel.add(trickHomeDirs);
 
-        trickify_path_dirs = new DirSelect();
-        trickify_path_dirs.setLabel("Trickify Makefile");
-        trickify_path_dirs.setButtonText("Choose");
-        trickify_path_dirs.allowMultiple(false);
-        trickify_path_dirs.selectFile(true);
-        trickify_path_dirs.setToolTipText("trickify.mk to use. Defaults to your $TRICK_HOME/share/trick/makefiles/trickify.mk");
-        fieldPanel.add(trickify_path_dirs);
+        trickifyPathDirs = new DirSelect();
+        trickifyPathDirs.setLabel("Trickify Makefile");
+        trickifyPathDirs.setButtonText("Choose");
+        trickifyPathDirs.allowMultiple(false);
+        trickifyPathDirs.selectFile(true);
+        trickifyPathDirs.setToolTipText("trickify.mk to use. Defaults to your $TRICK_HOME/share/trick/makefiles/trickify.mk");
+        fieldPanel.add(trickifyPathDirs);
 
-        trickify_include_dirs = new DirSelect();
-        trickify_include_dirs.setLabel("Includes");
-        trickify_include_dirs.setButtonText("Choose");
-        trickify_include_dirs.allowMultiple(true);
-        trickify_include_dirs.selectFile(false);
-        trickify_include_dirs.setToolTipText("Paths to include during compilation.");
-        fieldPanel.add(trickify_include_dirs);
+        trickifyIncludeDirs = new DirSelect();
+        trickifyIncludeDirs.setLabel("Includes");
+        trickifyIncludeDirs.setButtonText("Choose");
+        trickifyIncludeDirs.allowMultiple(true);
+        trickifyIncludeDirs.selectFile(false);
+        trickifyIncludeDirs.setToolTipText("Paths to include during compilation.");
+        fieldPanel.add(trickifyIncludeDirs);
 
-        trickify_args_field = new LabeledTextField();
-        trickify_args_field.setLabel("Trickify Args");
-        trickify_args_field.setToolTipText("Arguments to provide to trickify.mk make call");
-        fieldPanel.add(trickify_args_field);
+        trickifyArgsField = new LabeledTextField();
+        trickifyArgsField.setLabel("Trickify Args");
+        trickifyArgsField.setToolTipText("Arguments to provide to trickify.mk make call");
+        fieldPanel.add(trickifyArgsField);
 
-        source_make_dirs = new DirSelect();
-        source_make_dirs.setLabel("Source Make");
-        source_make_dirs.setButtonText("Choose");
-        source_make_dirs.allowMultiple(false);
-        source_make_dirs.selectFile(true);
-        source_make_dirs.setToolTipText("Make file to use for building source files. If none provdided just uses generic g++/gcc calls.");
-        fieldPanel.add(source_make_dirs);
+        sourceMakeDirs = new DirSelect();
+        sourceMakeDirs.setLabel("Source Make");
+        sourceMakeDirs.setButtonText("Choose");
+        sourceMakeDirs.allowMultiple(false);
+        sourceMakeDirs.selectFile(true);
+        sourceMakeDirs.setToolTipText("Make file to use for building source files. If none provdided just uses generic g++/gcc calls.");
+        fieldPanel.add(sourceMakeDirs);
 
-        source_make_args_field = new LabeledTextField();
-        source_make_args_field.setLabel("Source Args");
-        source_make_args_field.setToolTipText("Arguments to provide to the above make file.");
-        fieldPanel.add(source_make_args_field);
+        sourceMakeArgsField = new LabeledTextField();
+        sourceMakeArgsField.setLabel("Source Args");
+        sourceMakeArgsField.setToolTipText("Arguments to provide to the above make file.");
+        fieldPanel.add(sourceMakeArgsField);
 
-        s_overrides_dirs = new DirSelect();
-        s_overrides_dirs.setLabel("S_overrides");
-        s_overrides_dirs.setButtonText("Choose");
-        s_overrides_dirs.allowMultiple(false);
-        s_overrides_dirs.selectFile(true);
-        s_overrides_dirs.setToolTipText("S_overrides to incorporate");
-        fieldPanel.add(s_overrides_dirs);
+        sOverridesDirs = new DirSelect();
+        sOverridesDirs.setLabel("S_overrides");
+        sOverridesDirs.setButtonText("Choose");
+        sOverridesDirs.allowMultiple(false);
+        sOverridesDirs.selectFile(true);
+        sOverridesDirs.setToolTipText("S_overrides to incorporate");
+        fieldPanel.add(sOverridesDirs);
 
-        build_path_dirs = new DirSelect();
-        build_path_dirs.setLabel("Build Path");
-        build_path_dirs.setButtonText("Choose");
-        build_path_dirs.allowMultiple(false);
-        build_path_dirs.setToolTipText("Where to drop the library.");
-        fieldPanel.add(build_path_dirs);
+        buildPathDirs = new DirSelect();
+        buildPathDirs.setLabel("Build Path");
+        buildPathDirs.setButtonText("Choose");
+        buildPathDirs.allowMultiple(false);
+        buildPathDirs.setToolTipText("Where to drop the library.");
+        fieldPanel.add(buildPathDirs);
 
-        name_field = new LabeledTextField();
-        name_field.setLabel("Library Name");
-        name_field.setToolTipText("Library name (doesn't need extension).");
-        fieldPanel.add(name_field);
+        nameField = new LabeledTextField();
+        nameField.setLabel("Library Name");
+        nameField.setToolTipText("Library name (doesn't need extension).");
+        fieldPanel.add(nameField);
 
-        log_dirs = new DirSelect();
-        log_dirs.setLabel("Trickify Log");
-        log_dirs.setButtonText("Choose");
-        log_dirs.allowMultiple(false);
-        log_dirs.selectFile(false);
-        log_dirs.setToolTipText("Where to drop the log file.");
-        fieldPanel.add(log_dirs);
+        logDirs = new DirSelect();
+        logDirs.setLabel("Trickify Log");
+        logDirs.setButtonText("Choose");
+        logDirs.allowMultiple(false);
+        logDirs.selectFile(false);
+        logDirs.setToolTipText("Where to drop the log file.");
+        fieldPanel.add(logDirs);
 
-        full_build_box = new JCheckBox(" Full library build");
-        full_build_box.setToolTipText("Full build includes swig files, icg files, and source files. Disabling excludes source files.");
-        boxPanel.add(full_build_box);
+        fullBuildBox = new JCheckBox(" Full library build");
+        fullBuildBox.setToolTipText("Full build includes swig files, icg files, and source files. Disabling excludes source files.");
+        boxPanel.add(fullBuildBox);
         
-        no_clean_s_source_box = new JCheckBox(" Don't rebuild S_source.hh");
-        no_clean_s_source_box.setToolTipText("Trickify automatically generates an S_source.hh for the build process. Can disable rebuilding if you wish to use a manually created file.");
-        boxPanel.add(no_clean_s_source_box);
+        noCleanSSourceBox = new JCheckBox(" Don't rebuild SSource.hh");
+        noCleanSSourceBox.setToolTipText("Trickify automatically generates an SSource.hh for the build process. Can disable rebuilding if you wish to use a manually created file.");
+        boxPanel.add(noCleanSSourceBox);
 
-        debug_box = new JCheckBox(" Debug info");
-        boxPanel.add(debug_box);
+        debugBox = new JCheckBox(" Debug info");
+        boxPanel.add(debugBox);
         
-        no_clean_src_box = new JCheckBox(" Don't rebuild source file list");
-        no_clean_src_box.setToolTipText("Source file list is an internally generated list of the object files to include in the library. Can disable rebuilding if you wish to use a manually created file.");
-        boxPanel.add(no_clean_src_box);
+        noCleanSrcBox = new JCheckBox(" Don't rebuild source file list");
+        noCleanSrcBox.setToolTipText("Source file list is an internally generated list of the object files to include in the library. Can disable rebuilding if you wish to use a manually created file.");
+        boxPanel.add(noCleanSrcBox);
 
         String options[] = { "Object", "Shared", "Static" };
-        build_type_box = new JComboBox(options);
-        boxPanel.add(build_type_box);
+        buildTypeBox = new JComboBox(options);
+        boxPanel.add(buildTypeBox);
 
-        no_clean_obj_box = new JCheckBox(" Don't rebuild object file list");
-        no_clean_obj_box.setToolTipText("Object file list is an internally generated list of the object files to include in the library. Can disable rebuilding if you wish to use a manually created file.");
-        boxPanel.add(no_clean_obj_box);
+        noCleanObjBox = new JCheckBox(" Don't rebuild object file list");
+        noCleanObjBox.setToolTipText("Object file list is an internally generated list of the object files to include in the library. Can disable rebuilding if you wish to use a manually created file.");
+        boxPanel.add(noCleanObjBox);
 
-        set_default();
+        setDefault();
 
         runButton = new JButton();
         runButton.setPreferredSize(new Dimension(150, 20));

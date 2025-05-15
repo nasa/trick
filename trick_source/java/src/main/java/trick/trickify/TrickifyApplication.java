@@ -36,7 +36,7 @@ public class TrickifyApplication extends TrickApplication
         super.startup();
         createMainPanel();
 
-        panel.load_properties();
+        panel.loadProperties();
 
         // Build the GUI.
         View view = getMainView();
@@ -50,7 +50,7 @@ public class TrickifyApplication extends TrickApplication
     @Override
     protected void shutdown() 
     {
-        panel.save_properties();   
+        panel.saveProperties();   
 
         super.shutdown();
     }
