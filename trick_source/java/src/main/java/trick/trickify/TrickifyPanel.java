@@ -517,6 +517,7 @@ public class TrickifyPanel extends JPanel
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(0, 20, 0, 20);
         gbc.weightx = 1;
 
         fieldPanel = new JPanel();
