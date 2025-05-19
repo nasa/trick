@@ -1,13 +1,20 @@
 
 RM = rm -rf
 CC = cc
-CPP = c++
+CPP = /usr/bin/g++
 
 DECL_DIR = ..
 
-GTEST_HOME = /usr/local
+GTEST_HOME=/usr/local
+UNAME_S = $(shell uname -s)
+UNAME_M = $(shell uname -m)
+ifeq ($(UNAME_S),Darwin)
+    ifeq ($(UNAME_M),arm64)
+        GTEST_HOME=/opt/homebrew
+    endif
+endif
 
-CFLAGS += -g -Wall -Wextra -I$(GTEST_HOME)/include -I$(DECL_DIR)/include
+CFLAGS += -std=c++14 -g -Wall -Wextra -I$(GTEST_HOME)/include -I$(DECL_DIR)/include
 
 LIBS = -L${DECL_DIR}/lib -lDecl -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 

@@ -12,3 +12,4 @@
 01. [How to Setup a Virtual Python Environment](How-To-Python-Virtual-Environment)
 01. [Checkpointing Best Practices](Checkpointing-Best-Practices)
 01. [Realtime Best Practices](Realtime-Best-Practices)
+01. [How to Use trick-jperf to visualize a sim's job execution timeline](How-to-Use-trick-jperf)
