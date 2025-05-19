@@ -139,8 +139,6 @@ namespace Trick {
             // Checks the data logging configuration in Trick against certain error or warning conditions.
             // Current conditions for errors are:
             // -  A variable logged in two different DataRecordGroup instances at a different rate
-            // Current conditions for warnings are:
-            // -  The total number of bytes of a group and its logged frequency must not exceed a user-set value.
             void processMultipleVarLoggedCheck();
             void checkMultiVarSingleLogGroup(bool & isLoggedMultipleTimes);
             void checkMultiVarMultiLogGroups(bool & isLoggedMultipleTimes);
