@@ -52,20 +52,23 @@ def vector_tests(stl_so, test_suite):
         print(f"Expected exception due to passing TestStruct into push_back for std::vector<unsigned char> : {e}")
         TRICK_EXPECT_GT(len(e.__str__()), 0,  test_suite, test_name)
     
-    #TODO: Fix test for char16_t
-    '''
+
     test_name = "char16_t Vectors"
+    '''
+    # Calling push_back on char16_t vector directly here causes issues due to char16_t not supported in python
     stl_so.stl_ip_test.char16_t_types.vector.push_back(stl_so.stl_ip_test.to_char16_t('a'))
     stl_so.stl_ip_test.char16_t_types.vector.push_back(stl_so.stl_ip_test.to_char16_t('b'))
     stl_so.stl_ip_test.char16_t_types.vector.push_back(stl_so.stl_ip_test.to_char16_t('c'))
+    '''
+    stl_so.stl_ip_test.addCharToVector(stl_so.stl_ip_test.char16_t_types.vector, ord('a'))
+    stl_so.stl_ip_test.addCharToVector(stl_so.stl_ip_test.char16_t_types.vector, ord('b'))
+    stl_so.stl_ip_test.addCharToVector(stl_so.stl_ip_test.char16_t_types.vector, ord('c'))
+
     TRICK_EXPECT_EQ(stl_so.stl_ip_test.char16_t_types.vector.size(), 3, test_suite, test_name)
 
-    try:
-        TRICK_EXPECT_EQ(stl_so.stl_ip_test.char16_t_types.vector[0], stl_so.stl_ip_test.to_char16_t('a'), test_suite, test_name)
-        TRICK_EXPECT_EQ(stl_so.stl_ip_test.char16_t_types.vector[1], stl_so.stl_ip_test.to_char16_t('b'), test_suite, test_name)
-        TRICK_EXPECT_EQ(stl_so.stl_ip_test.char16_t_types.vector[2], stl_so.stl_ip_test.to_char16_t('c'), test_suite, test_name)
-    except Exception as e:
-        print(f"Exception {e}")
+    TRICK_EXPECT_EQ(stl_so.stl_ip_test.getCharFromVector(stl_so.stl_ip_test.char16_t_types.vector, 0), ord('a'), test_suite, test_name)
+    TRICK_EXPECT_EQ(stl_so.stl_ip_test.getCharFromVector(stl_so.stl_ip_test.char16_t_types.vector, 1), ord('b'), test_suite, test_name)
+    TRICK_EXPECT_EQ(stl_so.stl_ip_test.getCharFromVector(stl_so.stl_ip_test.char16_t_types.vector, 2), ord('c'), test_suite, test_name)
 
     try:
         test_name = "char16_t Vectors"
@@ -76,15 +79,20 @@ def vector_tests(stl_so, test_suite):
         TRICK_EXPECT_GT(len(e.__str__()), 0,  test_suite, test_name)
     
 
-
     test_name = "char32_t Vectors"
-    stl_so.stl_ip_test.char32_t_types.vector.push_back('a')
-    stl_so.stl_ip_test.char32_t_types.vector.push_back('b')
-    stl_so.stl_ip_test.char32_t_types.vector.push_back('c')
+    '''
+    # Calling push_back on char32_t vector directly here causes issues due to char32_t not supported in python
+    stl_so.stl_ip_test.char32_t_types.vector.push_back(stl_so.stl_ip_test.to_char32_t(ord('a')))
+    stl_so.stl_ip_test.char32_t_types.vector.push_back(stl_so.stl_ip_test.to_char32_t(ord('b')))
+    stl_so.stl_ip_test.char32_t_types.vector.push_back(stl_so.stl_ip_test.to_char32_t(ord('c')))
+    '''
+    stl_so.stl_ip_test.addCharToVector(stl_so.stl_ip_test.char32_t_types.vector, ord('a'))
+    stl_so.stl_ip_test.addCharToVector(stl_so.stl_ip_test.char32_t_types.vector, ord('b'))
+    stl_so.stl_ip_test.addCharToVector(stl_so.stl_ip_test.char32_t_types.vector, ord('c'))
     TRICK_EXPECT_EQ(stl_so.stl_ip_test.char32_t_types.vector.size(), 3, test_suite, test_name)
-    TRICK_EXPECT_EQ(stl_so.stl_ip_test.char32_t_types.vector[0], 'a', test_suite, test_name)
-    TRICK_EXPECT_EQ(stl_so.stl_ip_test.char32_t_types.vector[1], 'b', test_suite, test_name)
-    TRICK_EXPECT_EQ(stl_so.stl_ip_test.char32_t_types.vector[2], 'c', test_suite, test_name)
+    TRICK_EXPECT_EQ(stl_so.stl_ip_test.getCharFromVector(stl_so.stl_ip_test.char32_t_types.vector, 0), ord('a'), test_suite, test_name)
+    TRICK_EXPECT_EQ(stl_so.stl_ip_test.getCharFromVector(stl_so.stl_ip_test.char32_t_types.vector, 1), ord('b'), test_suite, test_name)
+    TRICK_EXPECT_EQ(stl_so.stl_ip_test.getCharFromVector(stl_so.stl_ip_test.char32_t_types.vector, 2), ord('c'), test_suite, test_name)
     try:
         test_name = "char32_t Vectors"
         stl_so.stl_ip_test.char32_t_types.vector.push_back(trick.TestStructure())
@@ -92,7 +100,6 @@ def vector_tests(stl_so, test_suite):
     except Exception as e:
         print(f"Expected exception due to passing TestStruct into push_back for std::vector<char32_t> : {e}")
         TRICK_EXPECT_GT(len(e.__str__()), 0,  test_suite, test_name)
-    '''
 
     test_name = "short int Vectors"
     stl_so.stl_ip_test.short_int_types.vector.push_back(1)

@@ -1,5 +1,5 @@
 /*
-    PURPOSE: (Defines the STLIPTest class, which serves as a testbed for various STL \
+    PURPOSE: (Defines the STLIPTest class, which serves as a testbed for various STL 
               container types instantiated with C++ types such as int, double, char, etc.)
     LIBRARY_DEPENDENCIES: (
       ()
@@ -51,7 +51,37 @@ class STLIPTest
     //STLs
     //Char Types
 
-    inline char16_t to_char16_t(char c) {return static_cast<char16_t>(c);}  
+    //inline char16_t to_char16_t(char c) {return static_cast<char16_t>(c);}
+
+    // Python doesn't have a char16_t type, so we use int for compatibility
+    // Add a character to the vector (accepts int for Python compatibility)
+    void addCharToVector(std::vector<char16_t>& vec, int value) {
+        vec.push_back(static_cast<char16_t>(value));
+    }
+    // Get a character from the vector (returns as int for Python compatibility)
+    int getCharFromVector(std::vector<char16_t>& vec, size_t index) {
+        if (index >= vec.size()) {
+            // Handle out of bounds access
+            throw std::out_of_range("Index out of bounds");
+        }
+        // Convert char16_t to int when returning to Python
+        return static_cast<int>(vec[index]);
+    }
+
+    // Python doesn't have a char32_t type, so we use int for compatibility
+    // Add a character to the vector (accepts int for Python compatibility)
+    void addCharToVector(std::vector<char32_t>& vec, int value) {
+        vec.push_back(static_cast<char32_t>(value));
+    }
+    // Get a character from the vector (returns as int for Python compatibility)
+    int getCharFromVector(std::vector<char32_t>& vec, size_t index) {
+        if (index >= vec.size()) {
+            // Handle out of bounds access
+            throw std::out_of_range("Index out of bounds");
+        }
+        // Convert char16_t to int when returning to Python
+        return static_cast<int>(vec[index]);
+    }
 
     STLContainerTypes<char> char_types;
     STLContainerTypes<signed char> signed_char_types;
@@ -69,8 +99,6 @@ class STLIPTest
     STLContainerTypes<float> float_types;
     STLContainerTypes<double> double_types;
     STLContainerTypes<long double> long_double_types;
-
-
-};  
+};
 
 #endif

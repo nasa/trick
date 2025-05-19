@@ -1,5 +1,5 @@
 /*
-    PURPOSE: (Provides a convenient way to instantiate and use a variety of STL containers \
+    PURPOSE: (Provides a convenient way to instantiate and use a variety of STL containers 
               for C++ types/language bindings with SWIG)
     LIBRARY_DEPENDENCIES: (
       ()
@@ -31,14 +31,16 @@
 %define DECLARE_SWIG_CONTAINER_TYPES(ALIAS, TYPE)
 %template(ALIAS##Array) std::array<TYPE, 3>;
 %template(ALIAS##Vector) std::vector<TYPE>;
+// Both std_queue.i and std_stack.i coming with swig are wrappers for Ruby.
+// We need to come up with our own wrappers for these if needed for Python.
 //%template(ALIAS##Queue) std::queue<TYPE>;
+//%template(ALIAS##Stack) std::stack<TYPE>;
 %template(ALIAS##Deque) std::deque<TYPE>;
 %template(ALIAS##Set) std::set<TYPE>;
 %template(ALIAS##Map) std::map<TYPE, TYPE>;
 #if SWIG_VERSION >= 0x040000
 %template(ALIAS##UnorderedMap) std::unordered_map<TYPE, TYPE>;
 #endif
-//%template(ALIAS##Stack) std::stack<TYPE>;
 %enddef
 
 DECLARE_SWIG_CONTAINER_TYPES(Char, char)
