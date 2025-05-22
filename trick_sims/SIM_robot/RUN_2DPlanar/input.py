@@ -15,6 +15,8 @@ Manip2D.robot.kinemat.checkSingularities = False
 
 armIntegLoop.getIntegrator(trick.Euler, Manip2D.robot.ndof)
 
+trick.var_server_set_port(33565)
+
 #==========================================
 # Start the Graphics Client
 #==========================================
@@ -26,8 +28,10 @@ if (os.path.isfile(RobotDisplay_path)) :
                    + RobotDisplay_path \
                    + " " + str(varServerPort) + " &" ;
     print(RobotDisplay_cmd)
-    os.system( RobotDisplay_cmd);
+#    os.system( RobotDisplay_cmd);
 else :
     print('==================================================================================')
     print('RobotDisplay needs to be built. Please \"cd\" into ../models/graphics and type \"make\".')
     print('==================================================================================')
+
+trick.stop(2);

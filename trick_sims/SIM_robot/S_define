@@ -16,6 +16,8 @@ LIBRARY DEPENDENCIES:
 ##include "include/trick/exec_proto.h"
 ##include "manipulator/manipulator.hh"
 
+##include "jammy/jammy.hh"
+
 class ManipulatorSimObject : public Trick::SimObject
 {
 
@@ -32,6 +34,23 @@ class ManipulatorSimObject : public Trick::SimObject
 
 };
 
+class garbageString : public Trick::SimObject
+{
+    public:
+        JarOfJam    *jamJar;
+        JarOfJam     jammyJarry[3];
+
+        garbageString()
+        {
+            jamJar = (JarOfJam *)TMM_declare_var_1d("JarOfJam", 3);
+            jamJar[0].blackberry = "Yes";
+            jamJar[1].blackberry = "Love it";
+            jamJar[2].blackberry = "Great for pies.";
+
+        }
+}
+
 ManipulatorSimObject Manip2D(2);
+garbageString        letsFindSomeTrash;
 
 IntegLoop armIntegLoop(0.050) Manip2D;
