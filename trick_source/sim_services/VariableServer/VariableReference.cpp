@@ -5,6 +5,8 @@
 #include <iomanip> // for setprecision
 #include <string.h>
 #include <sstream>
+#include <exception>
+#include <csignal>
 
 #include "trick/VariableReference.hh"
 #include "trick/memorymanager_c_intf.h"
@@ -15,6 +17,7 @@
 #include "trick/UdUnits.hh"
 #include "trick/bitfield_proto.h"
 #include "trick/trick_byteswap.h"
+
 
 
 // Static variables to be addresses that are known to be the error ref address
@@ -84,6 +87,7 @@ Trick::VariableReference::VariableReference(std::string var_name, double* time) 
     _base_units = _var_info->attr->units;
     _requested_units = "s";
     _name = _var_info->reference;
+
 }
 
 Trick::VariableReference::VariableReference(std::string var_name) : _staged(false), _write_ready(false) {
@@ -282,6 +286,7 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
 
 int Trick::VariableReference::stageValue(bool validate_address) {
     _write_ready = false;
+    std::string *str_ptr = NULL;
 
     // Copy <size> bytes from <address> to staging_point.
 
@@ -309,7 +314,7 @@ int Trick::VariableReference::stageValue(bool validate_address) {
 
     // if this variable is a string we need to get the raw character string out of it.
     if (( _trick_type == TRICK_STRING ) && !_deref) {
-        std::string * str_ptr = (std::string *)_var_info->address ;
+        str_ptr = (std::string *)_var_info->address ;
         // Get a pointer to the internal character array
         _address = (void *)(str_ptr->c_str()) ;
     }
@@ -320,11 +325,16 @@ int Trick::VariableReference::stageValue(bool validate_address) {
     }
 
     // handle c++ string and char*
-    if ( _trick_type == TRICK_STRING ) {
+    if ( _trick_type == TRICK_STRING ){
+        
         if (_address == NULL) {
             _size = 0 ;
-        } else {
-            _size = strlen((char*)_address) + 1 ;
+        } else { 
+            //_size = strlen((char*)_address) + 1 ;
+            _size = (int )str_ptr->size();
+            if (_size <= 0 || _size > 4096) {
+                _size = 0;
+            }
         }
     }
     // handle c++ wstring and wchar_t*
@@ -336,7 +346,11 @@ int Trick::VariableReference::stageValue(bool validate_address) {
         }
     }
     if(_address != NULL) {
-        memcpy( _stage_buffer , _address , _size ) ;
+        if (_trick_type == TRICK_STRING ) {
+            str_ptr->copy((char*)_stage_buffer,_size,0);
+        } else {
+            memcpy( _stage_buffer , _address , _size ) ;
+        }
     }
 
     _staged = true;

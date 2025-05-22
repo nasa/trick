@@ -23,6 +23,8 @@ int Trick::VariableServerSession::var_add(std::string in_name) {
         new_var = new VariableReference(in_name, &_time);
     } else {
         new_var = new VariableReference(in_name);
+        ALLOC_INFO * allocOf = get_alloc_info_of(new_var._address);
+        ALLOC_INFO * allocAt = get_alloc_info_at(new_var._address);
     }
 
     _session_variables.push_back(new_var) ;
