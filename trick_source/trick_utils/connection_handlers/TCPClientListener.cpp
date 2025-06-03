@@ -63,7 +63,7 @@ int Trick::TCPClientListener::initialize(std::string in_hostname, int in_port) {
 
     if (in_hostname == "" || in_hostname == "localhost" || strcmp(in_hostname.c_str(),name) == 0) {
         s_in.sin_addr.s_addr = INADDR_ANY;
-        _hostname = std::string(name);
+        _hostname = std::string("localhost");
     } else if ( inet_pton(AF_INET, in_hostname.c_str(), (struct in_addr *)&s_in.sin_addr.s_addr) == 1 ) {
         /* numeric character string address */
         _hostname = in_hostname;
