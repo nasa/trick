@@ -13,7 +13,7 @@ on:
 
 jobs:
   macOS:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -29,18 +29,18 @@ jobs:
         sudo cmake --install build
     - name: Install dependencies
       run: |
-        # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew update
         brew upgrade || true
         brew install --cask xquartz
         brew install udunits openmotif maven
-        brew install swig
-        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
-        tar -xvf clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
+        brew install swig llvm
+        # wget https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
+        # tar -xvf clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-15.0.7-x86_64-apple-darwin21.0
+        # ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-15.0.7-x86_64-apple-darwin21.0
+        ./configure
         make
     - name: Test
       run: |
