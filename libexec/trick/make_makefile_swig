@@ -146,7 +146,7 @@ sub write_makefile_swig() {
     print MAKEFILE "TRICK_SYSTEM_SWIG_CFLAGS := -I../include \${PYTHON_INCLUDES} -Wno-shadow -Wno-missing-field-initializers
 
 ifeq (\$(IS_CC_CLANG), 1)
-    TRICK_SYSTEM_SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register
+    TRICK_SYSTEM_SWIG_CFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized -Wno-deprecated-register -Wno-unused-variable -Wno-unused-but-set-variable
 else
     TRICK_SYSTEM_SWIG_CFLAGS += -Wno-unused-but-set-variable -Wno-maybe-uninitialized
     ifeq (\$(shell test \$(GCC_MAJOR) -ge 8; echo \$\$?), 0)
