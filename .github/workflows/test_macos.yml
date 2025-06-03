@@ -24,7 +24,7 @@ jobs:
         wget https://github.com/google/googletest/archive/refs/tags/v1.16.0.tar.gz
         tar -xvf v1.16.0.tar.gz
         cd googletest-1.16.0
-        cmake -S . -B build
+        cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/homebrew
         cmake --build build
         sudo cmake --install build
     - name: Install dependencies
