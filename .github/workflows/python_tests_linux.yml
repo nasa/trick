@@ -24,8 +24,6 @@ jobs:
           - { os: ubuntu, tag: 18.04,   arch: debian }         # EOL April 2023
           - { os: ubuntu, tag: 20.04,   arch: debian }         # EOL April 2025
           - { os: debian, tag: 10,      arch: debian }               # EOL 2024
-          - { os: centos, tag: 7,       arch: rhel   }          # EOL June 2024
-          - { os: centos, tag: latest,  arch: rhel   }     # 8 as of April 2020
         # - { os: fedora, tag: latest,  arch: rhel   }    # 31 as of April 2020
         # - { os: fedora, tag: 33,      arch: rhel   } # feeling confident?
         # - { os: fedora, tag: rawhide, arch: rhel   } # for thrill-seekers only
@@ -102,13 +100,6 @@ jobs:
           - cfg: { os: debian }
             os_deps: >-
               openjdk-11-jdk
-#-------- CentOS Only Dependencies ----------------
-          - cfg: { os: centos }
-            pkg_mgr: yum
-            conf_pkg: yum -y install epel-release && yum -y update
-            os_deps: >-
-              libX11-devel
-              libXt-devel
 #-------- Fedora Only Dependencies ----------------
 #           - cfg: { os: fedora }
 #             pkg_mgr: dnf
@@ -123,21 +114,6 @@ jobs:
             install_gtest: cd /usr/src/gtest && cmake . && make && cp lib/libgtest* /usr/lib/
             tag_deps: >-
               python3.8-dev
-          - cfg: { os: centos, tag: 7 }
-            tag_deps: >-
-              swig3
-              python-devel
-          - cfg: { os: centos, tag: latest }
-            pkg_mgr: dnf
-            conf_pkg: >
-              sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-* &&
-              dnf -y install epel-release &&
-              dnf -y update &&
-              dnf install -y 'dnf-command(config-manager)' &&
-              dnf config-manager --enable powertools
-            tag_deps: >-
-              swig
-              python3-devel diffutils
 #-------- Job definition ----------------
     runs-on: ubuntu-18.04
     container: docker://${{matrix.cfg.os}}:${{matrix.cfg.tag}}
@@ -164,7 +140,7 @@ jobs:
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
       - name: Info after checkout
         run: |
           pwd

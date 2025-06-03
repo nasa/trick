@@ -127,6 +127,14 @@ int Trick::SlaveInfo::start() {
         startup_command << " 'cd " << sim_path << " ; " ;
     }
 
+    /** @li Set up remote shell environment if needed for the remote startup command */
+    if ( !remote_shell_config_file.empty() ) {
+        startup_command << " source " << remote_shell_config_file << " ; " ;
+        // cd to sim_path directory again if in case the config file changed pwd 
+        // to a different directory other than the sim_path
+        startup_command << " cd " << sim_path << " ; " ;
+    }
+
     if (strstr(passp->pw_shell, "csh")) {
         startup_command << " setenv TRICK_HOST_CPU `trick-gte TRICK_HOST_CPU` ; " ;
     } else {

@@ -16,13 +16,22 @@ jobs:
     runs-on: macos-13
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Install gtest
+      uses: actions/checkout@v4
+    # Install googletest 1.16.0 due to the later version 1.17.0
+    # causing issues with unit tests
+    - name: Install gtest 1.16.0
       run: |
-        brew install googletest
+        wget https://github.com/google/googletest/archive/refs/tags/v1.16.0.tar.gz
+        tar -xvf v1.16.0.tar.gz
+        cd googletest-1.16.0
+        cmake -S . -B build
+        cmake --build build
+        sudo cmake --install build
     - name: Install dependencies
       run: |
         # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
+        brew update
+        brew upgrade || true
         brew install --cask xquartz
         brew install udunits openmotif maven
         brew install swig
@@ -40,7 +49,7 @@ jobs:
         export MAKEFLAGS=-j4
         cd ../../../; make test
     - name: Upload Tests
-      uses: actions/upload-artifact@v3.0.0
+      uses: actions/upload-artifact@v4
       if: success() || failure()    # run this step even if previous step failed
       with:
         name: Trick_macos

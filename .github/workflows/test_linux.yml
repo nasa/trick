@@ -11,6 +11,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  ACTIONS_RUNNER_FORCE_ACTIONS_NODE_VERSION: node16
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
 jobs:
   build:
     strategy:
@@ -19,7 +23,6 @@ jobs:
         cfg:
 #-------- Operating Systems ----------------
           - { os: ubuntu,      tag: 22.04,    arch: debian, arch_ver: 12 }
-          - { os: centos,      tag: 7,        arch: rhel,   arch_ver: 7  }
           - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
         python: [3]
@@ -91,29 +94,6 @@ jobs:
               zlib-devel
               python2-devel
               python3-devel
-#-------- RHEL 7-based Only Dependencies ----------------
-          - cfg: { arch: rhel, arch_ver: 7 }
-            pkg_mgr: yum
-            conf_pkg: |
-              yum -y install epel-release
-              yum -y update
-              yum -y install wget
-            os_deps: >-
-              libX11-devel
-              libXt-devel
-              swig3
-            install_gtest: |
-              cd /tmp
-              wget https://github.com/google/googletest/archive/release-1.8.0.tar.gz
-              tar xzvf release-1.8.0.tar.gz
-              cd /tmp/googletest-release-1.8.0/googletest
-              cmake .
-              make
-              make install
-              cd /tmp/googletest-release-1.8.0/googlemock
-              cmake .
-              make
-              make install
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
@@ -149,7 +129,7 @@ jobs:
       - name: Install GTest
         run: ${{matrix.install_gtest}}
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Configure Trick
         run: |
           export MAKEFLAGS=-j`nproc`
@@ -166,7 +146,7 @@ jobs:
           python3 -m venv .venv && . .venv/bin/activate && pip3 install -r requirements.txt
           cd ../../../; make test
       - name: Upload Tests
-        uses: actions/upload-artifact@v3.0.0
+        uses: actions/upload-artifact@v4
         if: success() || failure()    # run this step even if previous step failed
         with:
           name: Trick_${{matrix.cfg.os}}${{matrix.cfg.tag}}_py${{matrix.python}}

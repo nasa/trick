@@ -89,3 +89,22 @@ class swig_int {
         PyObject * __bool__() ;
 } ;
 
+%pythoncode %{
+#if SWIG_VERSION > 0x040000
+def _trick_setattr_nondynamic_instance_variable(set):
+    def set_instance_attr(self, name, value):
+        if name == "thisown":
+            self.this.own(value)
+        elif name == "this":
+            set(self, name, value)
+        else:
+            # f-strings are available in Python 3.6 and later
+            #msg = f'You cannot add instance attribute \'{name}\' to Trick swig_int'
+            # For compatibility, use format method
+            msg = "You cannot add instance attribute '{}' to Trick swig_double".format(name)
+            raise AttributeError(msg)
+    return set_instance_attr
+
+swig_int.__setattr__ = _trick_setattr_nondynamic_instance_variable(object.__setattr__)
+#endif
+%}

@@ -368,6 +368,18 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         }
     };
 
+    /** reset the variable table to its default order */
+    protected AbstractAction resetSortingAction = new AbstractAction("Reset Table Sorting",
+      new ImageIcon(TVApplication.class.getResource("resources/resetsorting.png"))) {
+        {
+        putValue(SHORT_DESCRIPTION, "Reset the variable table to its default order.");
+        putValue(MNEMONIC_KEY, KeyEvent.VK_B);
+        }
+        public void actionPerformed(ActionEvent actionEvent) {
+            variableTable.getRowSorter().setSortKeys(null);
+        }
+    };
+
     /** clear logs action */
     protected AbstractAction clearLogsAction = new AbstractAction("Clear All Logged Values") {
         {
@@ -405,7 +417,12 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
         // Initialze the variable tree.
         variableTree = new TVVariableTree() {{
-            setEnabled(false);
+            // don't disable it here due to a known issue with the Apple Aqua Look and Feel 
+            // when using custom Look and Feel components on Mac. The NullPointerException 
+            // occurs in the AquaMenuPainter class when it tries to paint a border but 
+            // gets a null value from com.apple.laf.AquaMenuPainter$RecyclableBorder.get() 
+            // returns null
+            // setEnabled(false);
 
             try {
                 setSorting(Enum.valueOf(Sorting.class, trickProperties.getProperty(
@@ -440,7 +457,14 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
         searchPanel = new SearchPanel() {{
             setVisible(Boolean.parseBoolean(trickProperties.getProperty(
               searchPanelVisibleKey, Boolean.toString(true))));
-            setEnabled(false);
+
+            // don't disable it here due to a known issue with the Apple Aqua Look and Feel 
+            // when using custom Look and Feel components on Mac. The NullPointerException 
+            // occurs in the AquaMenuPainter class when it tries to paint a border but 
+            // gets a null value from com.apple.laf.AquaMenuPainter$RecyclableBorder.get() 
+            // returns null
+            // setEnabled(false);
+
             setFontSize(Float.parseFloat(trickProperties.getProperty(
               fontSizeKey, Integer.toString(getFont().getSize()))));
             setAction(new AbstractAction("Add") {
@@ -1609,6 +1633,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             add(new JMenuItem(monitorAction));
             add(new JMenuItem(stripChartAction));
             add(new JMenuItem(removeAction));
+            add(new JMenuItem(resetSortingAction));
             add(new JMenuItem(clearLogsAction));
         }}, 1);
 
@@ -1667,6 +1692,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             add(Box.createHorizontalGlue());
             add(stripChartAction);
             add(removeAction);
+            add(resetSortingAction);
         }};
     }
 
@@ -1931,12 +1957,6 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
             }
         }
         return Sorting.None;
-    }
-
-    @Override
-    protected void changeLookAndFeel(String lookAndFeelName) {
-        // Some of TV's elements don't respond well to look and feel changes,
-        // so I'm not supporting it for now.
     }
 
     @Override

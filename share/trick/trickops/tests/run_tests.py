@@ -34,7 +34,7 @@ def run_tests(args):
 
     # Run all doc tests by eating our own dogfood
     doctest_files = ['TrickWorkflow.py', 'WorkflowCommon.py', 'TrickWorkflowYamlVerifier.py',
-      'MonteCarloGenerationHelper.py']
+      'MonteCarloGenerationHelper.py', 'send_hs.py']
     wc = WorkflowCommon(this_dir, quiet=True)
     jobs = []
     log_prepend = '_doctest_log.txt'

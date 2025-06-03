@@ -408,24 +408,51 @@ Trick may use model code with any type of inheritance. Some limitations are pres
 
 ### Namespaces
 
-Currently one level of namespace is supported. Additional levels of namespaces are ignored. Similarly classes and enumerations embedded in other classes are ignored.
+ICG supports namespaces and nested scopes. Data recording and variable access via Trick View should work regardless of how many levels there are.
 
-```C++
-namespace my_ns {
-  // BB is processed
-  class BB {
-   public:
-    std::string str;
-    // Class CC is ignored.
-    class CC {
-      ...
+Namespaces and nested scopes are similarly supported in Python contexts, such as the input file and variable server, with some caveats regarding templates.
+1. A template instantiation may be unqualified (have no use of the scope resolution operator `::`) only if its corresponding template is declared in the immediately-enclosing namespace.
+2. Otherwise, a template instantiation must be fully qualified, starting from the global namespace.
+3. Finally, instantiations of templates declared within the same class must be excluded from SWIG.
+
+In the following examples, all template instantiations occur in `example::prime::Soup`. The immediately-enclosing namespace is `prime`, so only instantiations of templates declared directly in `prime` (only `Celery`) may be unqualified. All other template instantiations must be fully qualified, starting from the global namespace, even if the C++ name lookup process would find them with partial qualification.
+
+```c++
+template <class T> class Potato {};
+
+namespace example {
+
+  template <class T> class Onion {};
+
+  namespace peer {
+    template <class T> class Raddish {};
+  }
+
+  namespace prime {
+
+    namespace inner {
+        template <class T> class Carrot {};
     }
-  };
-  // Everything enclosed in inner_ns is ignored.
-  namespace inner_ns {
-    ...
-  };
-};
+
+    template <class T> class Celery {};
+
+    class Soup {
+
+      public:
+        template <class T> class Broth {};
+
+        ::Potato<int> potato;                      // Rule 2
+        example::Onion<int> onion;                 // Rule 2
+        example::peer::Raddish<int> raddish;       // Rule 2
+        example::prime::inner::Carrot<int> carrot; // Rule 2
+        Celery<int> celery;                        // Rule 1
+#ifndef SWIG
+        Broth<int> broth;                          // Rule 3
+#endif
+    };
+  }
+
+}
 ```
 
 ### Function Overloading

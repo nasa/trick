@@ -444,6 +444,8 @@ int Trick::IntegLoopScheduler::integrate_dt ( double t_start, double dt) {
     int ex_pass = 0;
     bool need_derivs = get_first_step_deriv_from_integrator();
 
+    double target_time = t_start + dt;
+
     do {
         ex_pass ++;
         // Call all of the jobs in the derivative job queue if needed.
@@ -482,11 +484,12 @@ int Trick::IntegLoopScheduler::integrate_dt ( double t_start, double dt) {
             if (ex_pass == 1) {
                 trick_curr_integ->time = t_start;
                 trick_curr_integ->dt   = dt;
+                trick_curr_integ->target_integ_time = target_time;
             }
 
             if (verbosity || trick_curr_integ->verbosity) {
-                message_publish (MSG_DEBUG, "Job: %s, time: %f, dt: %f\n",
-                                 curr_job->name.c_str(), t_start, dt);
+                message_publish (MSG_DEBUG, "Job: %s, target_integ_time: %20.16f, integ_time: %20.16f, dt: %20.16f, ipass = %d\n",
+                                 curr_job->name.c_str(), target_time, t_start, dt, ipass);
             }
 
             ipass = curr_job->call();

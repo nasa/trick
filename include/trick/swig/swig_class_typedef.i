@@ -51,7 +51,15 @@
     // TYPE *
     void * temp_ptr ;
 
-    if ( SWIG_IsOK(SWIG_ConvertPtr($input, &temp_ptr,$1_descriptor, SWIG_POINTER_DISOWN)) ) {
+    SwigPyObject *sobj = SWIG_Python_GetSwigThis($input) ;
+    // isDisown is set to SWIG_POINTER_DISOWN by default
+    int isDisown = SWIG_POINTER_DISOWN ;
+    if (sobj) {
+        // isDisown is re-set based on whether the Python processor owns the input object 
+        isDisown = !sobj->own ;
+    }
+    
+    if ( SWIG_IsOK(SWIG_ConvertPtr($input, &temp_ptr,$1_descriptor, isDisown)) ) {
         $1 = reinterpret_cast< $1_ltype >(temp_ptr) ;
     } else if ( SWIG_IsOK(SWIG_ConvertPtr($input, &temp_ptr,SWIG_TypeQuery("_p_swig_ref"), 0)) ) {
         // Array to pointer assignment

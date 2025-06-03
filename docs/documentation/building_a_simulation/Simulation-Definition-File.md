@@ -187,7 +187,7 @@ to accomodate the highest Child ID specified in the S_define file.  Jobs without
 will be executed by the parent process. Jobs with a C1 child specification will be executed by the
 first child thread; jobs with a C2 specification will be executed by the second child thread; and so on.
 
-Child Threads have three different scheduling choices.  See Section XYZ for child thread scheduling
+Child Threads have three different scheduling choices.  See [Executive Scheduler](https://nasa.github.io/trick/documentation/simulation_capabilities/Executive-Scheduler) -> [Thread Control](https://nasa.github.io/trick/documentation/simulation_capabilities/Executive-Scheduler#thread-control) for child thread scheduling
 details.
 
 ### Job Tagging
@@ -596,6 +596,83 @@ The integrate tag is a reserved word for the CP. The <integration_dt> is a state
 cycle time in seconds. At least one sim object name must be specified followed by any number
 of additional sim object names separated by commas. An S_define can have at most one integrate
 statement per sim object, and at least one integrate statement for all sim objects.
+
+### Multi-Dt State Integration
+
+Trick has a new capability to be able to integrate a single integration loop according to multiple target rates.
+For example, an effector may have a frequency of 40hz but a sensor has a 64Hz frequency. Typically, there are two
+solutions for dealing with rates that do not line up nicely:
+01. Integrate at 320Hz, but this slows the sim down by 5x (or more) from 64hz.
+01. Interpolate data to satisfy the 64hz sensor, but this introduces error
+
+However, a third option is possible, if the integration architecture can support it, to simply integrate in such a way
+that both rates are satisfied. Enter MultiDtIntegLoopScheduler!
+
+Here is the integration timeline for the 40hz/64hz example as a demonstration of
+what points in time the MultiDt integrator is integrating to:
+| Start Time | Delta Time | End Time | Rate Satisfied |
+| --- | --- | --- | --- |
+| 0.0 | 0.015625 | 0.015625 | 64Hz |
+| 0.015625 | 0.009375 | 0.025000 | 40Hz |
+| 0.025000 | 0.006250 | 0.031250 | 64Hz |
+| 0.031250 | 0.015625 | 0.046875 | 64Hz |
+| 0.046875 | 0.003125 | 0.050000 | 40Hz |
+| 0.050000 | 0.012500 | 0.062500 | 64Hz |
+| 0.062500 | 0.012500 | 0.075000 | 40Hz |
+| 0.075000 | 0.003125 | 0.078125 | 64Hz |
+| 0.078125 | 0.015625 | 0.093750 | 64Hz |
+| 0.093750 | 0.006250 | 0.100000 | 40Hz |
+| 0.100000 | 0.009375 | 0.109375 | 64Hz |
+| 0.109375 | 0.015625 | 0.125000 | 40Hz,64Hz |
+
+Trick provides a new class that can integrate using multiple target rates, MultiDtIntegLoopScheduler. It derives from IntegLoopScheduler
+and behaves in a very similar manner. The integration specification is of the following form:
+
+```C++
+MultiDtIntegLoopSimObject <integrator_name> (<integration_dt>, <sim_object_name> [,<sim_object_name_n>], NULL ) ;
+```
+
+Similar to IntegloopScheduler, this form must have NULL as the final argument to the instantiation. The result of this instantiation is a MultiDtIntegLoopSimObject
+object with the same functionality of the standard IntegLoopSimObject as it has only one rate defined so far. To add more rates, simply make a method call to `add_rate`
+in create_connections, in another sim object or class, or in the input file. i.e.
+```Python
+<integrator_name>.add_rate(1.0/64.0) # Adds a 64hz rate
+```
+
+The MultiDtIntegLoopSimObject schedules itself according to every rate but also ensures that it doesn't duplicate an integration if two rates line up. It works with the standard
+Trick scheduler so that it is treated as a standard job that tells Trick its next exec time every integration call. This means that all the other class of jobs, i.e. 64Hz or 40Hz scheduled jobs,
+will run the same way as if there were two IntegLoopSimObjects of two rates. 
+
+Again for the 40Hz/64Hz example with a 40hz and 64Hz scheduled job, the job timeline is of the following form:
+```
+0.015625| (integ_loop) my_integ_loop.integ_sched.integrate
+0.015625| (scheduled) ball.example_64Hz
+0.025000| (integ_loop) my_integ_loop.integ_sched.integrate
+0.025000| (scheduled) ball.example_40Hz
+0.031250| (integ_loop) my_integ_loop.integ_sched.integrate
+0.031250| (integration) ball.state_integ
+0.031250| (scheduled) ball.example_64Hz
+0.046875| (integ_loop) my_integ_loop.integ_sched.integrate
+0.046875| (integration) ball.state_integ
+0.046875| (scheduled) ball.example_64Hz
+0.050000| (integ_loop) my_integ_loop.integ_sched.integrate
+0.050000| (scheduled) ball.example_40Hz
+0.062500| (integ_loop) my_integ_loop.integ_sched.integrate
+0.062500| (scheduled) ball.example_64Hz
+0.075000| (integ_loop) my_integ_loop.integ_sched.integrate
+0.075000| (scheduled) ball.example_40Hz
+0.078125| (integ_loop) my_integ_loop.integ_sched.integrate
+0.078125| (scheduled) ball.example_64Hz
+0.093750| (integ_loop) my_integ_loop.integ_sched.integrate
+0.093750| (scheduled) ball.example_64Hz
+0.100000| (integ_loop) my_integ_loop.integ_sched.integrate
+0.100000| (scheduled) ball.example_40Hz
+0.109375| (integ_loop) my_integ_loop.integ_sched.integrate
+0.109375| (scheduled) ball.example_64Hz
+0.125000| (integ_loop) my_integ_loop.integ_sched.integrate
+0.125000| (scheduled) ball.example_64Hz
+0.125000| (scheduled) ball.example_40Hz
+```
 
 ## Parameter Collection Mechanism
 
