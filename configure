@@ -9962,6 +9962,27 @@ if test ${with_udunits+y}
 then :
   withval=$with_udunits; UDUNITS_HOME="$withval"
 else case e in #(
+  e) UDUNITS_HOME=""
+                ;;
+esac
+fi
+
+
+
+if test "$UDUNITS_HOME" = ""
+then :
+
+  ac_fn_cxx_check_header_compile "$LINENO" "udunits2.h" "ac_cv_header_udunits2_h" "$ac_includes_default"
+if test "x$ac_cv_header_udunits2_h" = xyes
+then :
+  UDUNITS_INCLUDES=
+else case e in #(
+  e) ac_fn_cxx_check_header_compile "$LINENO" "udunits2/udunits2.h" "ac_cv_header_udunits2_udunits2_h" "$ac_includes_default"
+if test "x$ac_cv_header_udunits2_udunits2_h" = xyes
+then :
+  UDUNITS_INCLUDES=-I/usr/include/udunits2
+      UDUNITS_LDFLAGS=-ludunits2
+else case e in #(
   e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/udunits2.h" >&5
 printf %s "checking for /opt/homebrew/include/udunits2.h... " >&6; }
 if test ${ac_cv_file__opt_homebrew_include_udunits2_h+y}
@@ -9982,31 +10003,18 @@ printf "%s\n" "$ac_cv_file__opt_homebrew_include_udunits2_h" >&6; }
 if test "x$ac_cv_file__opt_homebrew_include_udunits2_h" = xyes
 then :
   UDUNITS_HOME="/opt/homebrew"
+       UDUNITS_INCLUDES=-I$UDUNITS_HOME/include
+       UDUNITS_LDFLAGS="-L$UDUNITS_HOME/lib -ludunits2"
+       UDUNITS_EXCLUDE=$UDUNITS_HOME
+       LDFLAGS="${LDFLAGS} ${UDUNITS_LDFLAGS}"
+
 else case e in #(
-  e) as_fn_error $? "could not find udunits2.h" "$LINENO" 5 ;;
+  e) as_fn_error $? "could not find udunits2.h" "$LINENO" 5
+      ;;
 esac
 fi
 
-                 ;;
-esac
-fi
-
-
-
-if test "$UDUNITS_HOME" = ""
-then :
-
-  ac_fn_cxx_check_header_compile "$LINENO" "udunits2.h" "ac_cv_header_udunits2_h" "$ac_includes_default"
-if test "x$ac_cv_header_udunits2_h" = xyes
-then :
-  UDUNITS_INCLUDES=
-else case e in #(
-  e) ac_fn_cxx_check_header_compile "$LINENO" "udunits2/udunits2.h" "ac_cv_header_udunits2_udunits2_h" "$ac_includes_default"
-if test "x$ac_cv_header_udunits2_udunits2_h" = xyes
-then :
-  UDUNITS_INCLUDES=-I/usr/include/udunits2
-else case e in #(
-  e) as_fn_error $? "could not find udunits development headers" "$LINENO" 5 ;;
+    ;;
 esac
 fi
 
@@ -10014,7 +10022,6 @@ fi
 esac
 fi
 
-  UDUNITS_LDFLAGS=-ludunits2
 
 else case e in #(
   e)
@@ -10198,7 +10205,31 @@ if test "x$ac_cv_header_hdf5_h" = xyes
 then :
   HDF5_HOME="/usr"
 else case e in #(
+  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/hdf5.h" >&5
+printf %s "checking for /opt/homebrew/include/hdf5.h... " >&6; }
+if test ${ac_cv_file__opt_homebrew_include_hdf5_h+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "/opt/homebrew/include/hdf5.h"; then
+  ac_cv_file__opt_homebrew_include_hdf5_h=yes
+else
+  ac_cv_file__opt_homebrew_include_hdf5_h=no
+fi ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_homebrew_include_hdf5_h" >&5
+printf "%s\n" "$ac_cv_file__opt_homebrew_include_hdf5_h" >&6; }
+if test "x$ac_cv_file__opt_homebrew_include_hdf5_h" = xyes
+then :
+  HDF5_HOME="/opt/homebrew"
+else case e in #(
   e) HDF5_HOME="" ;;
+esac
+fi
+ ;;
 esac
 fi
 
@@ -10326,7 +10357,31 @@ if test "x$ac_cv_header_gsl_gsl_rng_h" = xyes
 then :
   GSL_HOME="/usr"
 else case e in #(
+  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/gsl/gsl_rng.h" >&5
+printf %s "checking for /opt/homebrew/include/gsl/gsl_rng.h... " >&6; }
+if test ${ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "/opt/homebrew/include/gsl/gsl_rng.h"; then
+  ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h=yes
+else
+  ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h=no
+fi ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h" >&5
+printf "%s\n" "$ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h" >&6; }
+if test "x$ac_cv_file__opt_homebrew_include_gsl_gsl_rng_h" = xyes
+then :
+  GSL_HOME="/opt/homebrew"
+else case e in #(
   e) GSL_HOME="" ;;
+esac
+fi
+ ;;
 esac
 fi
 
@@ -10451,7 +10506,31 @@ if test "x$ac_cv_header_gtest_gtest_h" = xyes
 then :
   GTEST_HOME="/usr"
 else case e in #(
+  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for /opt/homebrew/include/gtest/gtest.h" >&5
+printf %s "checking for /opt/homebrew/include/gtest/gtest.h... " >&6; }
+if test ${ac_cv_file__opt_homebrew_include_gtest_gtest_h+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "/opt/homebrew/include/gtest/gtest.h"; then
+  ac_cv_file__opt_homebrew_include_gtest_gtest_h=yes
+else
+  ac_cv_file__opt_homebrew_include_gtest_gtest_h=no
+fi ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file__opt_homebrew_include_gtest_gtest_h" >&5
+printf "%s\n" "$ac_cv_file__opt_homebrew_include_gtest_gtest_h" >&6; }
+if test "x$ac_cv_file__opt_homebrew_include_gtest_gtest_h" = xyes
+then :
+  GTEST_HOME="/opt/homebrew"
+else case e in #(
   e) GTEST_HOME="" ;;
+esac
+fi
+ ;;
 esac
 fi
 
