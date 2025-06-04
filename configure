@@ -9976,6 +9976,7 @@ then :
 if test "x$ac_cv_header_udunits2_h" = xyes
 then :
   UDUNITS_INCLUDES=
+    UDUNITS_LDFLAGS=-ludunits2
 else case e in #(
   e) ac_fn_cxx_check_header_compile "$LINENO" "udunits2/udunits2.h" "ac_cv_header_udunits2_udunits2_h" "$ac_includes_default"
 if test "x$ac_cv_header_udunits2_udunits2_h" = xyes

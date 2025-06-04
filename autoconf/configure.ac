@@ -260,7 +260,8 @@ TR_UDUNITS_HOME([])
 AS_IF([test "$UDUNITS_HOME" = ""],
  [
   AC_CHECK_HEADER([udunits2.h],
-   [UDUNITS_INCLUDES=],
+   [UDUNITS_INCLUDES=
+    UDUNITS_LDFLAGS=-ludunits2],
    [AC_CHECK_HEADER([udunits2/udunits2.h],
      [UDUNITS_INCLUDES=-I/usr/include/udunits2
       UDUNITS_LDFLAGS=-ludunits2],
