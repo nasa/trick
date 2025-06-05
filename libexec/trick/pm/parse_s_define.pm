@@ -925,8 +925,8 @@ sub handle_sim_class_job($$$) {
       $ov_class , $ov_class_self , $sup_class_data, $tag, $job_call, $job_ret, $job_name, $args) = $in_job =~ /
          (?:
            \s*(?:
-             ([Cc][\w\.\-\>]+)?\s*                       # child spec
-             ([Pp][\w\.\-\>]+)?\s*                       # phase spec
+             ([Cc][\w\.\-\>]+)?\s* |                      # child spec
+             ([Pp][\w\.\-\>]+)?\s* |                      # phase spec
              (?:
               \(
                 (?:
