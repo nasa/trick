@@ -29,6 +29,7 @@ REF2 *Trick::MemoryManager::ref_attributes(const char* name) {
                name as requested as "name" */
             if ( context->result->reference ) {
                 free(context->result->reference) ;
+                context->result->reference = NULL;
             }
             context->result->reference = strdup(name);
             result = context->result;
