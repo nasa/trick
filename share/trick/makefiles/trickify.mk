@@ -88,6 +88,10 @@
 # For more information, see:
 # https://nasa.github.io/trick/documentation/building_a_simulation/Trickified-Project-Libraries
 
+MY_HOME := $(dir $(lastword $(MAKEFILE_LIST)))
+
+include $(TRICKIFY_S_OVERRIDES)
+
 ifndef TRICKIFY_CXX_FLAGS
     $(error TRICKIFY_CXX_FLAGS must be set)
 endif
@@ -100,15 +104,20 @@ TRICKIFY_OBJECT_NAME ?= trickified.o
 TRICKIFY_PYTHON_DIR ?= python
 TRICKIFY_PYTHON_DIR := $(abspath $(TRICKIFY_PYTHON_DIR))
 
-include $(dir $(lastword $(MAKEFILE_LIST)))Makefile.common
+include $(MY_HOME)Makefile.common
 
 BUILD_DIR := $(dir $(MAKE_OUT))
 PY_LINK_LIST := $(BUILD_DIR)trickify_py_link_list
 IO_LINK_LIST := $(BUILD_DIR)trickify_io_link_list
-LINK_LISTS := @$(IO_LINK_LIST) @$(PY_LINK_LIST)
+OBJ_LINK_LIST := trickify_obj_list
+ifdef FULL_TRICKIFY_BUILD
+        FULL_TRICKIFY_BUILD = "1"
+else
+        FULL_TRICKIFY_BUILD = "0"
+endif
 ifneq ($(wildcard $(BUILD_DIR)),)
-    SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
-    IO_OBJECTS   := $(shell cat $(IO_LINK_LIST))
+	SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
+	IO_OBJECTS   := $(shell cat $(IO_LINK_LIST))
 endif
 
 TRICK_CFLAGS   += $(TRICKIFY_CXX_FLAGS)
@@ -117,18 +126,41 @@ TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 # Ensure we can process all headers
 TRICK_EXT_LIB_DIRS := $(TRICKIFY_EXT_LIB_DIRS)
 
+UNAME := $(shell uname)
+ifeq ($(UNAME), Linux)
+	SHARED_OPTIONS := -fPIC
+else ifeq ($(UNAME), Darwin)
+	SHARED_OPTIONS := -fPIC
+	LD_OPTIONS := -Wl,-install_name,$(abspath $(TRICKIFY_OBJECT_NAME))
+else
+	SHARED_OPTIONS :=
+endif
+
 .PHONY: all
 all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
-	$(info $(call COLOR,Linking)    $@)
-ifeq ($(TRICKIFY_BUILD_TYPE),PLO)
-	$(call ECHO_AND_LOG,$(LD) $(LD_PARTIAL) -o $@ $(LINK_LISTS))
-else ifeq ($(TRICKIFY_BUILD_TYPE),SHARED)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) -shared -o $@ $(LINK_LISTS))
-else ifeq ($(TRICKIFY_BUILD_TYPE),STATIC)
-	$(call ECHO_AND_LOG,ar rcs $@ $(LINK_LISTS))
-endif
+	@sh -c '\
+		FILES=""; \
+		while IFS= read -r line; do \
+			FILES="$$FILES $$line"; \
+		done < $(PY_LINK_LIST); \
+		while IFS= read -r line; do \
+			FILES="$$FILES $$line"; \
+		done < $(IO_LINK_LIST); \
+		if [ "$(FULL_TRICKIFY_BUILD)" = "1" ]; then \
+			while IFS= read -r line; do \
+				FILES="$$FILES $$line"; \
+			done < $(OBJ_LINK_LIST); \
+		fi; \
+		if [ "$(TRICKIFY_BUILD_TYPE)" = "PLO" ]; then \
+			$(LD) $(LD_PARTIAL) -o $@ $$FILES; \
+		elif [ "$(TRICKIFY_BUILD_TYPE)" = "SHARED" ]; then \
+			$(TRICK_CXX) $(SHARED_LIB_OPT) $(SHARED_OPTIONS) $(LD_OPTIONS) $(USER_ADDITIONAL_OPTIONS) -o $@ $$FILES; \
+		elif [ "$(TRICKIFY_BUILD_TYPE)" = "STATIC" ]; then \
+			ar rcs $@ $$FILES; \
+		fi; \
+	'
 
 $(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) .trick:
 	@mkdir -p $@
