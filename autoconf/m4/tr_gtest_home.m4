@@ -13,7 +13,7 @@ AC_DEFUN([TR_GTEST_HOME],[
                                  )
                   )
                 )],
-                [AC_CHECK_HEADER(gtest/gtest.h, [GTEST_HOME="/usr"], [GTEST_HOME=""])]
+                [AC_CHECK_HEADER(gtest/gtest.h, [GTEST_HOME="/usr"], [AC_CHECK_FILE([/opt/homebrew/include/gtest/gtest.h], [GTEST_HOME="/opt/homebrew"],[GTEST_HOME=""])])]
                )
     AC_SUBST([GTEST_HOME])
 ])
