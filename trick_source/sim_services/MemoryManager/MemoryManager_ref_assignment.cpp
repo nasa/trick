@@ -44,8 +44,10 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    *(wchar_t*)assign_addr = 0;
                }
                if (debug_level) {
+                   char buff[16] = {0};
+                   wctomb(buff,*(wchar_t*)assign_addr);
                    std::cout << std::endl << "Assignment: *(wchar_t*)" << (void*)assign_addr
-                             << " = " << *(wchar_t*)assign_addr << ";" << std::endl;
+                             << " = " << buff << ";" << std::endl;
                    std::cout.flush();
                }
                break;
