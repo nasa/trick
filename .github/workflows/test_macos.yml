@@ -17,13 +17,16 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    # Install googletest 1.16.0 due to the later version 1.17.0
-    # causing issues with unit tests
-    - name: Install gtest 1.16.0
+    # Install googletest version 1.17.0 — the latest stable release as of 6/6/25
+    # Note: Need to periodically update googletest version to ensure tests can run
+    # against the latest.
+    # Specifying the version to ensure CI builds are stable and not unexpectedly
+    # broken by upstream changes.
+    - name: Install gtest 1.17.0
       run: |
-        wget https://github.com/google/googletest/archive/refs/tags/v1.16.0.tar.gz
-        tar -xvf v1.16.0.tar.gz
-        cd googletest-1.16.0
+        wget https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz
+        tar -xvf v1.17.0.tar.gz
+        cd googletest-1.17.0
         cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/homebrew
         cmake --build build
         sudo cmake --install build
@@ -34,14 +37,13 @@ jobs:
         brew install --cask xquartz
         brew install udunits openmotif maven
         brew install swig llvm
-        # wget https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
-        # tar -xvf clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        # ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-15.0.7-x86_64-apple-darwin21.0
-        # macos-14 is on arm64 while marcos-13 is on intel, so we need to use the homebrew llvm for macos-14
-        ./configure --with-llvm=/opt/homebrew/opt/llvm --with-udunits=/opt/homebrew --with-gtest=/opt/homebrew 
+        # Image YAML labels macos-14 and macos-15 use arm64, while macos-13 is intel-based.
+        # The configure script has been updated to find /opt/homebrew automatically for arm64 as of 6/6/25
+        # Please note that if using the intel one, --with-xxx options are needed to specify the path
+        ./configure
         make
     - name: Test
       run: |
