@@ -36,8 +36,7 @@
 
 void Trick::Executive::fpe_handler(siginfo_t * sip __attribute__((unused)) ) {
 
-    write( 2 , "\033[31mProcess terminated by signal FPE" , 36 ) ;
-#if __linux__
+    write( 2 , "\033[31mProcess terminated by signal FPE" , 37 ) ;
     /* Determine what floating point error occurred */
     if (sip != (siginfo_t *) NULL) {
         switch (sip->si_code) {
@@ -66,7 +65,6 @@ void Trick::Executive::fpe_handler(siginfo_t * sip __attribute__((unused)) ) {
                 break;
         }
     }
-#endif
     write( 2 , "\033[0m\n" , 5 ) ;
 
     /*
