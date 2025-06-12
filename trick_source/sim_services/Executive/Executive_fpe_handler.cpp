@@ -9,17 +9,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#ifdef __APPLE__
-#include <mach-o/dyld.h>
-#endif
-
-/*
- * FPE specific headers
- */
-#ifdef __linux__
-#include <fenv.h>
-#endif
-
 #include "trick/Executive.hh"
 #include "trick/exec_proto.h"
 #include "trick/message_proto.h"

@@ -8,13 +8,6 @@
 #include <stdio.h>
 #include <signal.h>
 
-/*
- * FPE specific headers
- */
-#ifdef __linux__
-#include <fenv.h>
-#endif
-
 #include "trick/Executive.hh"
 #include "trick/exec_proto.hh"
 

@@ -61,7 +61,7 @@ int Trick::Executive::set_trap_sigfpe(bool on_off) {
         fenv_t env;
         fegetenv(&env);
 
-        env.__fpcr = env.__fpcr | __fpcr_trap_invalid;
+        env.__fpcr = env.__fpcr | __fpcr_trap_invalid | __fpcr_trap_divbyzero | __fpcr_trap_overflow | __fpcr_trap_underflow;
         fesetenv(&env);
 #endif
         sigact.sa_flags = SA_SIGINFO;
@@ -74,7 +74,7 @@ int Trick::Executive::set_trap_sigfpe(bool on_off) {
         fenv_t env;
         fegetenv(&env);
 
-        env.__fpcr = env.__fpcr & ~__fpcr_trap_invalid;
+        env.__fpcr = env.__fpcr & ~__fpcr_trap_invalid & ~__fpcr_trap_divbyzero & ~__fpcr_trap_overflow & ~__fpcr_trap_underflow;
         fesetenv(&env);
 #endif
         sigact.sa_handler = SIG_DFL;
