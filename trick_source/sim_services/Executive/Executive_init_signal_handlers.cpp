@@ -3,9 +3,7 @@
 #include <errno.h>
 
 /* Headers for floating point exceptions */
-#ifdef __linux__
 #include <fenv.h>
-#endif
 
 #include "trick/Executive.hh"
 
@@ -15,11 +13,7 @@ void term_hand(int sig) ;
 void usr1_hand(int sig) ;
 void child_handler(int sig) ;
 
-#if (__APPLE__ | __CYGWIN__ | __INTERIX )
-void fpe_sig_handler(int sig) ;
-#else
 void fpe_sig_handler(int sig, siginfo_t * sip, void *uap) ;
-#endif
 
 /**
 @details
@@ -63,19 +57,35 @@ int Trick::Executive::set_trap_sigfpe(bool on_off) {
 #ifdef __linux__
         feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 #endif
-#if (__APPLE__ | __CYGWIN__ | __INTERIX )
-        sigact.sa_handler = (void (*)(int)) fpe_sig_handler;
-#else
+#if (__APPLE__ && __arm64__)
+        fenv_t env;
+        fegetenv(&env);
+
+        env.__fpcr = env.__fpcr | __fpcr_trap_invalid | __fpcr_trap_divbyzero | __fpcr_trap_overflow | __fpcr_trap_underflow;
+        fesetenv(&env);
+#endif
         sigact.sa_flags = SA_SIGINFO;
         sigact.sa_sigaction = (void (*)(int, siginfo_t *, void *)) fpe_sig_handler;
-#endif
     } else {
 #ifdef __linux__
         fedisableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 #endif
+#if (__APPLE__ && __arm64__)
+        fenv_t env;
+        fegetenv(&env);
+
+        env.__fpcr = env.__fpcr & ~__fpcr_trap_invalid & ~__fpcr_trap_divbyzero & ~__fpcr_trap_overflow & ~__fpcr_trap_underflow;
+        fesetenv(&env);
+#endif
         sigact.sa_handler = SIG_DFL;
     }
 
+#if (__APPLE__ )
+    // Some floating point exceptions appear as illegal instructions on Macs
+    if (sigaction(SIGILL, &sigact, NULL) < 0) {
+        perror("sigaction() failed for SIGFPE");
+    }
+#endif
     if (sigaction(SIGFPE, &sigact, NULL) < 0) {
         perror("sigaction() failed for SIGFPE");
     } else {

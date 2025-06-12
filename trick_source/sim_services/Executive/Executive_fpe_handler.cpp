@@ -9,17 +9,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#ifdef __APPLE__
-#include <mach-o/dyld.h>
-#endif
-
-/*
- * FPE specific headers
- */
-#ifdef __linux__
-#include <fenv.h>
-#endif
-
 #include "trick/Executive.hh"
 #include "trick/exec_proto.h"
 #include "trick/message_proto.h"
@@ -36,8 +25,7 @@
 
 void Trick::Executive::fpe_handler(siginfo_t * sip __attribute__((unused)) ) {
 
-    write( 2 , "\033[31mProcess terminated by signal FPE" , 36 ) ;
-#if __linux__
+    write( 2 , "\033[31mProcess terminated by signal FPE" , 37 ) ;
     /* Determine what floating point error occurred */
     if (sip != (siginfo_t *) NULL) {
         switch (sip->si_code) {
@@ -66,7 +54,6 @@ void Trick::Executive::fpe_handler(siginfo_t * sip __attribute__((unused)) ) {
                 break;
         }
     }
-#endif
     write( 2 , "\033[0m\n" , 5 ) ;
 
     /*
