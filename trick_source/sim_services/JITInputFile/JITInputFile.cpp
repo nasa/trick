@@ -168,9 +168,7 @@ int Trick::JITInputFile::compile(std::string file_name) {
     }
 
     // The library compile successfully.  Add library name to map
-    JITLibInfo li ;
-    li.library_name = library_fullpath_name ;
-    file_to_libinfo_map[file_name] = li ;
+    add_library(library_fullpath_name);
 
     return 0 ;
 
