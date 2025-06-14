@@ -134,6 +134,7 @@ int Trick::VariableServerSession::var_exists(std::string in_name) {
         _connection->write(write_string);
     }
 
+    ref_free(var_ref) ;
     return(0) ;
 }
 

@@ -6,6 +6,9 @@
 #include <string.h>
 #include <sstream>
 
+#include <regex>
+#include <vector>
+
 #include "trick/VariableReference.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/wcs_ext.h"
@@ -86,6 +89,99 @@ Trick::VariableReference::VariableReference(std::string var_name, double* time) 
     _name = _var_info->reference;
 }
 
+// Helper structure to hold each node of a variable path and its indices
+// e.g. for "veh.vehicle.myNavigators[2].location.x" it would hold:
+// - name: "veh"
+// - indices: []
+// - name: "vehicle"
+// - indices: []
+// - name: "myNavigators"
+// - indices: [2]
+// - name: "location"
+// - indices: []
+// - name: "x"
+// - indices: []
+struct VAR_NODE {
+    std::string name;
+    std::vector<int> indices;
+};
+
+// Split a variable path like "veh.vehicle.myNavigators[2].location.x" into nodes by '.' as:
+//  - "veh"
+//  - "vehicle"
+//  - "myNavigators[2]"
+//  - "location"
+//  - "x"
+std::vector<std::string> split_var_path(const std::string& var_path) {
+    std::vector<std::string> nodes;
+    size_t start = 0, end;
+    while ((end = var_path.find('.', start)) != std::string::npos) {
+        nodes.push_back(var_path.substr(start, end - start));
+        start = end + 1;
+    }
+    nodes.push_back(var_path.substr(start));
+    return nodes;
+}
+
+// Parse a var node like "vehicle[0][2]" into name and indices
+// e.g. for "vehicle[0][2]" it would return:
+// - name: "vehicle"
+// - indices: [0, 2]
+VAR_NODE parse_var_node(const std::string& var_node) {
+    VAR_NODE result;
+    std::regex re(R"((\w+)|\[(\d+)\])");
+    auto begin = std::sregex_iterator(var_node.begin(), var_node.end(), re);
+    auto end = std::sregex_iterator();
+    for (auto it = begin; it != end; ++it) {
+        if ((*it)[1].matched) {
+            result.name = (*it)[1];
+        } else if ((*it)[2].matched) {
+            result.indices.push_back(std::stoi((*it)[2]));
+        }
+    }
+
+    return result;
+}
+
+// Check if indices in the variable path are within bounds
+// If any index of any node is out of bounds, it prints an error message and returns false.
+bool check_indices_in_bounds(const std::string& var_path) {
+    auto nodes = split_var_path(var_path);
+    if (nodes.empty()) {
+        std::cout << "Variable path is empty.\n";
+        return false;
+    }
+
+    std::string current_path;
+    for (size_t i = 0; i < nodes.size(); ++i) {
+        VAR_NODE v_node = parse_var_node(nodes[i]);
+        if (!current_path.empty()) current_path += ".";
+        current_path += v_node.name;
+
+        // For each index in this node, check if it is within bounds
+        for (size_t dim = 0; dim < v_node.indices.size(); ++dim) {
+            std::string array_path = current_path;
+            for (size_t d = 0; d <= dim; ++d) {
+                array_path += "[" + std::to_string(v_node.indices[d]) + "]";
+            }
+            // Get the array size at this level
+            REF2* ref = ref_attributes(current_path.c_str());
+            // Getting the size of the array using its base address
+            int arr_size = get_size(*(void**)(ref->address));
+            if (v_node.indices[dim] >= arr_size) {
+                std::cout << "Index " << v_node.indices[dim] << " out of bounds for " << current_path << " (size=" << arr_size << ")\n";
+                free(ref);
+                return false;
+            }
+            free(ref);
+            // Update current_path to include this index for next level
+            current_path += "[" + std::to_string(v_node.indices[dim]) + "]";
+        }
+    }
+    return true;
+}
+
+
 Trick::VariableReference::VariableReference(std::string var_name) : _staged(false), _write_ready(false) {
 
     if (var_name == "time") {
@@ -93,6 +189,16 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
     } else {
         // get variable attributes from memory manager
         _var_info = ref_attributes(var_name.c_str());
+    }
+
+    if ( _var_info != NULL ) {
+        if ( _var_info->pointer_present ) {
+            // Check if the variable has indices and if they are in bounds
+            if (!check_indices_in_bounds(var_name)) {
+                std::cout << "Variable path " << var_name << " has indices out of bounds.\n";
+                _var_info = NULL;
+            }
+        }
     }
 
     // Handle error cases
