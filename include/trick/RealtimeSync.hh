@@ -79,6 +79,9 @@ namespace Trick {
             /** This is the start of the frame in wall clock time.\n */
             long long last_clock_time ;           /**< trick_units(--) */
 
+            /** This is the end of the last rt_monitor frame in wall clock time.\n */
+            long long last_end_of_rtm_clock_time ;           /**< trick_units(--) */
+
             /** tics per second copied from executive\n */
             int tics_per_sec;                     /**< trick_units(--) */
 
