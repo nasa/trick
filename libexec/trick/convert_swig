@@ -83,7 +83,7 @@ my $typedef_struct  = qr/typedef\s+(?:struct|union)\s*     # the words typedef s
 my $namespace_def = qr/namespace\s*                        # keyword namespace
              (?:\s+[_A-Za-z]\w*)                           # class name
             /sx ;
-my $enum_class_def   = qr/enum\s+class|struct\s*           # keywords enum_class or struct (alias to enum class)
+my $enum_class_def   = qr/enum\s+(?:class|struct)\s*       # keywords enum_class or struct (alias to enum class)
                (?:\s+[_A-Za-z]\w*)\s*                      # class or struct name
                (?:\{|:(?!\:))                              # { or punctuator :
              /sx ;
