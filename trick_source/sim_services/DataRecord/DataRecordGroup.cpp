@@ -687,21 +687,32 @@ int Trick::DataRecordGroup::data_record(double in_time) {
                 } else {
                    drb->curr_buffer += param_size ;
                 }
+                /**
+                 * While the typical idiom is something like:
+                 * 1. previous_value = current_value
+                 * 2. current_value = new_value
+                 * That is incorrect here, as curr_buffer is a pointer that has already been
+                 * incremented to the next value's location. We therefore set *curr_buffer and
+                 * *last_value to the same value, which results in the DR_Changes_Step loop above
+                 * correctly using this value as the first point of the step change on the next
+                 * call to this function.
+                 */
                 switch ( param_size ) {
                     case 8:
-                        *(int64_t *)drb->curr_buffer = *(int64_t *)ref->address ;
+                        *(int64_t *)drb->last_value = *(int64_t *)drb->curr_buffer = *(int64_t *)ref->address ;
                         break ;
                     case 4:
-                        *(int32_t *)drb->curr_buffer = *(int32_t *)ref->address ;
+                        *(int32_t *)drb->last_value = *(int32_t *)drb->curr_buffer = *(int32_t *)ref->address ;
                         break ;
                     case 2:
-                        *(int16_t *)drb->curr_buffer = *(int16_t *)ref->address ;
+                        *(int16_t *)drb->last_value = *(int16_t *)drb->curr_buffer = *(int16_t *)ref->address ;
                         break ;
                     case 1:
-                        *(int8_t *)drb->curr_buffer = *(int8_t *)ref->address ;
+                        *(int8_t *)drb->last_value = *(int8_t *)drb->curr_buffer = *(int8_t *)ref->address ;
                         break ;
                     default:
                         memcpy( drb->curr_buffer , ref->address , param_size ) ;
+                        memcpy( drb->last_value , drb->curr_buffer , param_size ) ;
                         break ;
                 }
             }
