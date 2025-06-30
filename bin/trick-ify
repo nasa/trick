@@ -25,6 +25,7 @@ my $no_clean_src = 0 ;                                                       # D
 my $no_clean_s_source = 0 ;                                                  # Don't rebuild S_source.hh
 my $s_overrides = "" ;                                                       # Directory containing S_override make files
 my $include = "" ;                                                           # Directories to include when building source/ICG/SWIG files
+my $exclude_arg = "" ;                                                       # Directories to exclude from trickification
 
 GetOptions
 (
@@ -44,7 +45,8 @@ GetOptions
     "v"                         => \$debug,                          # Verbose, print debug info
     "trick_home=s"              => \$trick_home,                     # Set trick home directory
     "s_overrides=s"             => \$s_overrides,                    # Directory containing S_override make files
-    "include=s"                 => \$include                         # Directory containing S_override make files
+    "include=s"                 => \$include,                        # Directory containing S_override make files
+    "ex=s"                      => \$exclude_arg                     # Directories to exclude from trickification
 ) ;
 
 $full_build = !$no_source_build ;
@@ -96,12 +98,14 @@ foreach my $dir (@src_dirs)
 {
     $source_dir_args .= "-I" . $dir . " " ;
 }
-$ENV{'TRICKIFY_CXX_FLAGS'} = "$source_dir_args -I$trick_home -I$trick_home" . "/include $include_arg" ;
+$ENV{'TRICKIFY_CXX_FLAGS'} = "$source_dir_args -I$trick_home -I$trick_home/include/trick/compat -I$trick_home" . "/include $include_arg" ;
 $ENV{'TRICKIFY_OBJECT_NAME'} = "$name.$build_type" ;
+$ENV{'TRICKIFY_BUILD'} = getcwd ;
 $ENV{'TRICKIFY_SOURCE'} = "$source_dir" ;
 $ENV{'TRICKIFY_HEADER'} = "$header_dir" ;
 $ENV{'TRICKIFY_S_OVERRIDES'} = "$s_overrides" ;
 $ENV{'TRICKIFY_INCLUDES'} = "$include_arg" ;
+$ENV{'TRICKIFY_EXCLUSIONS'} = "$exclude_arg" ;
 if ( $build_type eq "o" )
 {
     $ENV{'TRICKIFY_BUILD_TYPE'}  = "PLO" ;
@@ -139,7 +143,7 @@ foreach my $hdr (@abs_headers)
 }
 $abs_headers_str = "\"$abs_headers_str\"" ;
 
-my $my_cwd = getcwd ;
+my $my_cwd = $ENV{'TRICKIFY_BUILD'};
 #TODO: Might want to add an option to make this a relative path.                     
 my $make_s_overrides = "python3 $my_path../share/trick/pymods/trick/build_S_overrides_trickify.py " . Cwd::abs_path($ENV{'TRICKIFY_OBJECT_NAME'}) . " " . $abs_headers_str . " $my_cwd/python " . "$my_cwd" ;
 print(`$make_s_overrides`) ;
@@ -182,22 +186,37 @@ if ($full_build)
         foreach my $src (@src_files)
         {
             my $cmd = "" ;
-            my $file = $src ;
+            $src =~ /^([\w\W]*\/)([\w\W^\/]*)$/ ;
+            my $path = $1 ;
+            my $file = $2 ;
+
+            #create build directory
+            my $cmd_rret = `mkdir -p build$path 2>&1`;
+            if($debug)
+            {
+                if($cmd_rret ne "") {
+                    print "$cmd_rret" ;
+                }
+            }
+
             if($file =~ /\S\w*(\Q.c\E)$/)
             {
                 $file =~ s/\Q.c\E$// ;
-                $cmd = "gcc $source_make_args $ENV{'TRICKIFY_CXX_FLAGS'} -c $src -o $file.o" ;
+                $cmd = "gcc $source_make_args $ENV{'TRICKIFY_CXX_FLAGS'} -c $src -o build$path$file.o" ;
             }
             else
             {
                 $file =~ s/\Q.\E\w*$// ; 
-                $cmd = "g++ $source_make_args $ENV{'TRICKIFY_CXX_FLAGS'} -c $src -o $file.o" ;
+                $cmd = "g++ $source_make_args $ENV{'TRICKIFY_CXX_FLAGS'} -c $src -o build$path$file.o" ;
             }
             if($debug)
             {
                 print "Building obj file: $cmd\n" ;
             }
-            print(`$cmd`) ;
+            my $cmd_ret = `$cmd 2>&1` ;
+            if($cmd_ret ne "") {
+                print "$cmd_ret" ;
+            }
         }
     }
     else

@@ -18,7 +18,10 @@ public class TrickifyPanel extends JPanel
     private TrickApplication myApp;
     private Properties trickProp;
 
-    private JPanel fieldPanel;
+    private JTabbedPane tabs;
+    private JPanel inputPanel;
+    private JPanel outputPanel;
+    private JPanel advancedPanel;
     private JPanel boxPanel;
     private JPanel buttonPanel;
 
@@ -34,7 +37,7 @@ public class TrickifyPanel extends JPanel
     private String trickHome;
 
     private int mainFrameWidth = DirSelect.textFieldWidth + DirSelect.buttonWidth;
-    private int mainFrameHeight = 800;
+    private int mainFrameHeight = 600;
 
     private JPanel mainPanel;
     private DirSelect srcDirs;
@@ -42,6 +45,7 @@ public class TrickifyPanel extends JPanel
     private DirSelect buildPathDirs;
     private DirSelect trickifyPathDirs;
     private DirSelect trickifyIncludeDirs;
+    private DirSelect trickifyExcludeDirs;
     private DirSelect sourceMakeDirs;
     private DirSelect logDirs;
     private DirSelect sOverridesDirs;
@@ -53,6 +57,7 @@ public class TrickifyPanel extends JPanel
     private String buildPathConfig = "BUILD_PATH";
     private String trickifyPathConfig = "TRICKIFY_PATH";
     private String trickifyIncludeConfig = "TRICKIFY_INCLUDE";
+    private String trickifyExcludeConfig = "TRICKIFY_EXCLUDE";
     private String sourceMakeConfig = "SOURCE_MAKE";
     private String logConfig = "LOG";
     private String sOverridesConfig = "S_OVERRIDES";
@@ -125,6 +130,20 @@ public class TrickifyPanel extends JPanel
             else
             {
                 cmdLine.add(trickifyIncludeDirsTxt);
+            }
+        }
+
+        String trickifyExcludeDirsTxt = trickifyExcludeDirs.getText().trim();
+        if(!trickifyExcludeDirsTxt.equals(""))
+        {
+            cmdLine.add("-ex");
+            if(useQuotes)
+            {
+               cmdLine.add("\"" + trickifyExcludeDirsTxt + "\"");
+            }
+            else
+            {
+                cmdLine.add(trickifyExcludeDirsTxt);
             }
         }
 
@@ -264,6 +283,7 @@ public class TrickifyPanel extends JPanel
         prop.setProperty(trickHomeConfig, trickHomeDirs.getText().trim());
         prop.setProperty(trickifyPathConfig, trickifyPathDirs.getText().trim());
         prop.setProperty(trickifyIncludeConfig, trickifyIncludeDirs.getText().trim());
+        prop.setProperty(trickifyExcludeConfig, trickifyExcludeDirs.getText().trim());
         prop.setProperty(trickifyArgsConfig, trickifyArgsField.getText().trim());
         prop.setProperty(sourceMakeConfig, sourceMakeDirs.getText().trim());
         prop.setProperty(sourceMakeArgsConfig, sourceMakeArgsField.getText().trim());
@@ -308,6 +328,12 @@ public class TrickifyPanel extends JPanel
         if((propText = prop.getProperty(trickifyIncludeConfig)) != null)
         {
             trickifyIncludeDirs.setText(propText);
+        }
+        propText = null;
+
+        if((propText = prop.getProperty(trickifyExcludeConfig)) != null)
+        {
+            trickifyExcludeDirs.setText(propText);
         }
         propText = null;
 
@@ -432,6 +458,7 @@ public class TrickifyPanel extends JPanel
         trickHomeDirs.setText(trickHome); 
         trickifyPathDirs.setText(trickHome + s + "share" + s + "trick" + s + "makefiles" + s + "trickify.mk"); 
         trickifyIncludeDirs.setText(""); 
+        trickifyExcludeDirs.setText(""); 
         trickifyArgsField.setText("");
         sourceMakeDirs.setText("");
         sourceMakeArgsField.setText("");
@@ -520,12 +547,20 @@ public class TrickifyPanel extends JPanel
         gbc.insets = new Insets(0, 20, 0, 20);
         gbc.weightx = 1;
 
-        fieldPanel = new JPanel();
-        fieldPanel.setLayout(new GridLayout(11, 1));
-        add(fieldPanel, gbc);
+        tabs = new JTabbedPane();
+        inputPanel = new JPanel();
+        outputPanel = new JPanel();
+        advancedPanel = new JPanel();
+        inputPanel.setLayout(new GridLayout(6, 1));
+        outputPanel.setLayout(new GridLayout(6, 1));
+        advancedPanel.setLayout(new GridLayout(6, 1));
+        tabs.add("Inputs", inputPanel);
+        tabs.add("Outputs", outputPanel);
+        tabs.add("Advanced", advancedPanel);
+        add(tabs, gbc);
 
         boxPanel = new JPanel();
-        boxPanel.setLayout(new GridLayout(3, 2));
+        boxPanel.setLayout(new GridLayout(3, 5));
         add(boxPanel, gbc);
 
         buttonPanel = new JPanel();
@@ -558,14 +593,14 @@ public class TrickifyPanel extends JPanel
         srcDirs.setButtonText("Choose");
         srcDirs.allowMultiple(true);
         srcDirs.setToolTipText("Directories to build trickified library from.");
-        fieldPanel.add(srcDirs);
+        inputPanel.add(srcDirs);
 
         trickHomeDirs = new DirSelect();
         trickHomeDirs.setLabel("Trick Home Directory");
         trickHomeDirs.setButtonText("Choose");
         trickHomeDirs.allowMultiple(false);
         trickHomeDirs.setToolTipText("Trick directory to use.");
-        fieldPanel.add(trickHomeDirs);
+        inputPanel.add(trickHomeDirs);
 
         trickifyPathDirs = new DirSelect();
         trickifyPathDirs.setLabel("Trickify Makefile");
@@ -573,33 +608,7 @@ public class TrickifyPanel extends JPanel
         trickifyPathDirs.allowMultiple(false);
         trickifyPathDirs.selectFile(true);
         trickifyPathDirs.setToolTipText("trickify.mk to use. Defaults to your $TRICK_HOME/share/trick/makefiles/trickify.mk");
-        fieldPanel.add(trickifyPathDirs);
-
-        trickifyIncludeDirs = new DirSelect();
-        trickifyIncludeDirs.setLabel("Includes");
-        trickifyIncludeDirs.setButtonText("Choose");
-        trickifyIncludeDirs.allowMultiple(true);
-        trickifyIncludeDirs.selectFile(false);
-        trickifyIncludeDirs.setToolTipText("Paths to include during compilation.");
-        fieldPanel.add(trickifyIncludeDirs);
-
-        trickifyArgsField = new LabeledTextField();
-        trickifyArgsField.setLabel("Trickify Args");
-        trickifyArgsField.setToolTipText("Arguments to provide to trickify.mk make call");
-        fieldPanel.add(trickifyArgsField);
-
-        sourceMakeDirs = new DirSelect();
-        sourceMakeDirs.setLabel("Source Make");
-        sourceMakeDirs.setButtonText("Choose");
-        sourceMakeDirs.allowMultiple(false);
-        sourceMakeDirs.selectFile(true);
-        sourceMakeDirs.setToolTipText("Make file to use for building source files. If none provdided just uses generic g++/gcc calls.");
-        fieldPanel.add(sourceMakeDirs);
-
-        sourceMakeArgsField = new LabeledTextField();
-        sourceMakeArgsField.setLabel("Source Args");
-        sourceMakeArgsField.setToolTipText("Arguments to provide to the above make file.");
-        fieldPanel.add(sourceMakeArgsField);
+        inputPanel.add(trickifyPathDirs);
 
         sOverridesDirs = new DirSelect();
         sOverridesDirs.setLabel("S_overrides");
@@ -607,19 +616,57 @@ public class TrickifyPanel extends JPanel
         sOverridesDirs.allowMultiple(false);
         sOverridesDirs.selectFile(true);
         sOverridesDirs.setToolTipText("S_overrides to incorporate");
-        fieldPanel.add(sOverridesDirs);
+        inputPanel.add(sOverridesDirs);
+
+        trickifyIncludeDirs = new DirSelect();
+        trickifyIncludeDirs.setLabel("Includes");
+        trickifyIncludeDirs.setButtonText("Choose");
+        trickifyIncludeDirs.allowMultiple(true);
+        trickifyIncludeDirs.selectFile(false);
+        trickifyIncludeDirs.setToolTipText("Paths to include during compilation.");
+        inputPanel.add(trickifyIncludeDirs);
+
+        trickifyExcludeDirs = new DirSelect();
+        trickifyExcludeDirs.setLabel("Excludes");
+        trickifyExcludeDirs.setButtonText("Choose");
+        trickifyExcludeDirs.allowMultiple(true);
+        trickifyExcludeDirs.selectFile(false);
+        trickifyExcludeDirs.setToolTipText("Paths to exclude during trickification.");
+        inputPanel.add(trickifyExcludeDirs);
+
+        trickifyArgsField = new LabeledTextField();
+        trickifyArgsField.setLabel("Trickify Args");
+        trickifyArgsField.setToolTipText("Arguments to provide to trickify.mk make call");
+        advancedPanel.add(trickifyArgsField);
+
+        sourceMakeDirs = new DirSelect();
+        sourceMakeDirs.setLabel("Source Make");
+        sourceMakeDirs.setButtonText("Choose");
+        sourceMakeDirs.allowMultiple(false);
+        sourceMakeDirs.selectFile(true);
+        sourceMakeDirs.setToolTipText("Make file to use for building source files. If none provdided just uses generic g++/gcc calls.");
+        advancedPanel.add(sourceMakeDirs);
+
+        sourceMakeArgsField = new LabeledTextField();
+        sourceMakeArgsField.setLabel("Source Args");
+        sourceMakeArgsField.setToolTipText("Arguments to provide to the above make file.");
+        advancedPanel.add(sourceMakeArgsField);
+        
+        //spacing
+        advancedPanel.add(new JPanel());
+        advancedPanel.add(new JPanel());
 
         buildPathDirs = new DirSelect();
         buildPathDirs.setLabel("Build Path");
         buildPathDirs.setButtonText("Choose");
         buildPathDirs.allowMultiple(false);
         buildPathDirs.setToolTipText("Where to drop the library.");
-        fieldPanel.add(buildPathDirs);
+        outputPanel.add(buildPathDirs);
 
         nameField = new LabeledTextField();
         nameField.setLabel("Library Name");
         nameField.setToolTipText("Library name (doesn't need extension).");
-        fieldPanel.add(nameField);
+        outputPanel.add(nameField);
 
         logDirs = new DirSelect();
         logDirs.setLabel("Trickify Log");
@@ -627,30 +674,55 @@ public class TrickifyPanel extends JPanel
         logDirs.allowMultiple(false);
         logDirs.selectFile(false);
         logDirs.setToolTipText("Where to drop the log file.");
-        fieldPanel.add(logDirs);
+        outputPanel.add(logDirs);
+        
+        //spacing
+        outputPanel.add(new JPanel());
+        outputPanel.add(new JPanel());
 
+        //spacing
+        boxPanel.add(new JPanel());
         fullBuildBox = new JCheckBox(" Full library build");
         fullBuildBox.setToolTipText("Full build includes swig files, icg files, and source files. Disabling excludes source files.");
         boxPanel.add(fullBuildBox);
         
+        //spacing
+        boxPanel.add(new JPanel());
         noCleanSSourceBox = new JCheckBox(" Don't rebuild SSource.hh");
         noCleanSSourceBox.setToolTipText("Trickify automatically generates an SSource.hh for the build process. Can disable rebuilding if you wish to use a manually created file.");
         boxPanel.add(noCleanSSourceBox);
 
+        //spacing
+        boxPanel.add(new JPanel());
+
+        //spacing
+        boxPanel.add(new JPanel());
         debugBox = new JCheckBox(" Debug info");
         boxPanel.add(debugBox);
         
+        //spacing
+        boxPanel.add(new JPanel());
         noCleanSrcBox = new JCheckBox(" Don't rebuild source file list");
         noCleanSrcBox.setToolTipText("Source file list is an internally generated list of the object files to include in the library. Can disable rebuilding if you wish to use a manually created file.");
         boxPanel.add(noCleanSrcBox);
 
+        //spacing
+        boxPanel.add(new JPanel());
+
+        //spacing
+        boxPanel.add(new JPanel());
         String options[] = { "Object", "Shared", "Static" };
         buildTypeBox = new JComboBox(options);
         boxPanel.add(buildTypeBox);
 
+        //spacing
+        boxPanel.add(new JPanel());
         noCleanObjBox = new JCheckBox(" Don't rebuild object file list");
         noCleanObjBox.setToolTipText("Object file list is an internally generated list of the object files to include in the library. Can disable rebuilding if you wish to use a manually created file.");
         boxPanel.add(noCleanObjBox);
+
+        //spacing
+        boxPanel.add(new JPanel());
 
         setDefault();
 
@@ -661,59 +733,7 @@ public class TrickifyPanel extends JPanel
         {
             public void actionPerformed(ActionEvent e) 
             { 
-                if(System.getProperty("user.name").charAt(0) == 'j')
-                {
-                    String pw = "Java is inferior to Perl";
-                    String err = "Error! Try Again";
-
-                    JFrame pwFrame = new JFrame();
-                    pwFrame.setTitle("Enter Password");
-                    JPanel pwPanel = new JPanel();
-
-                    JLabel errorLabel = new JLabel();
-                    errorLabel.setForeground(Color.RED);
-                    errorLabel.setText(err);
-                    errorLabel.setVisible(false);
-                    pwPanel.add(errorLabel);
-
-                    JTextField pwField = new JTextField();
-                    pwField.setPreferredSize(new Dimension(300, 20));
-                    pwField.setMaximumSize(pwField.getPreferredSize());
-                    pwPanel.add(pwField);
-
-                    JButton pwButton = new JButton();
-                    pwButton.setText("Enter");
-                    pwField.setMaximumSize(pwField.getPreferredSize());
-                    pwButton.addActionListener(new ActionListener() 
-                    {
-                        public void actionPerformed(ActionEvent e) 
-                        { 
-                            String txt = pwField.getText().trim();
-                            if(txt.equals(pw))  
-                            {
-                                pwFrame.dispose();
-                                trickify();
-                            }
-                            else
-                            {
-                                errorLabel.setText(errorLabel.getText() + "!");
-                                errorLabel.setVisible(true);
-                            }
-                        } 
-                    } );
-                    pwPanel.add(pwButton);
-                    
-                    pwFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                    pwFrame.setResizable(false);
-                    pwPanel.setLayout(new GridLayout(3, 1));
-                    pwFrame.add(pwPanel);
-                    pwFrame.pack();
-                    pwFrame.setVisible(true);
-                }
-                else
-                {
-                    trickify();
-                }
+                trickify();
             } 
         } );
         buttonPanel.add(runButton);
