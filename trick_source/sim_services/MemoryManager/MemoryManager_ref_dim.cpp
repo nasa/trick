@@ -46,19 +46,24 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
 
         /* for constrained dimensions, we can check the validity of the index value */
         if (index_value >= R->attr->index[R->num_index].size || index_value < 0) {
-            emitError("Memory Manager ERROR: Array index out of bounds.") ;
+            /* print out of bounds error message if MM debug_level is greater than 1 */
+            if (debug_level > 1) {
+                emitError("Memory Manager ERROR: Array index out of bounds.") ;
+            }
             return (TRICK_PARAMETER_ARRAY_SIZE);
         }
 
     } else {
 
-        /* for unconstrained dimensions, we can only check that the index value is non-negative
+        /* for unconstrained dimensions, we can check that the index value is non-negative
            and that it is less than the size of the array */
         if (index_value >= (get_size(*(void**)(R->address))) || index_value < 0) {
-            //emitError("Memory Manager ERROR: Array index out of bounds on unconstrained array.") ;
-            std::stringstream message;
-            message << index_value << " is out of bounds for " << R->reference << " (size=" << get_size(*(void**)(R->address)) << ").";
-            emitError(message.str());
+            /* print out of bounds error message if MM debug_level is greater than 1 */
+            if (debug_level > 1) {
+                std::stringstream message;
+                message << index_value << " is out of bounds for " << R->reference << " (size=" << get_size(*(void**)(R->address)) << ").";
+                emitError(message.str());
+            }
             return (TRICK_PARAMETER_ARRAY_SIZE);
         }
 

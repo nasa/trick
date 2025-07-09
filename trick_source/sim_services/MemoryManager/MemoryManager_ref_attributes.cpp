@@ -34,9 +34,12 @@ REF2 *Trick::MemoryManager::ref_attributes(const char* name) {
             context->result->reference = strdup(name);
             result = context->result;
         } else if ( parse_ret == TRICK_PARAMETER_ARRAY_SIZE) {
-            std::stringstream message;
-            message << name << " contains out of bounds array index.";
-            emitError(message.str());
+            /* print out of bounds error message if MM debug_level is greater than 1 */
+            if (debug_level > 1) {
+                std::stringstream message;
+                message << name << " contains out of bounds array index.";
+                emitError(message.str());
+            }
         }
         /** @li Delete the parse context. */
         delete( context);
