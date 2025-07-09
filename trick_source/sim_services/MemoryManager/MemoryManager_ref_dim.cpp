@@ -16,6 +16,7 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
 
     int jj;
     int item_size;
+    int index_value = vval_int(V);
 
     if (R->ref_type != REF_ADDRESS) {
         emitError("Attempt to index into a non-address reference is bogus in ref_dim.") ;
@@ -44,12 +45,22 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
     if (R->attr->index[R->num_index].size != 0) {
 
         /* for constrained dimensions, we can check the validity of the index value */
-        if (vval_int(V) >= R->attr->index[R->num_index].size || vval_int(V) < 0) {
+        if (index_value >= R->attr->index[R->num_index].size || index_value < 0) {
             emitError("Memory Manager ERROR: Array index out of bounds.") ;
             return (TRICK_PARAMETER_ARRAY_SIZE);
         }
 
     } else {
+
+        /* for unconstrained dimensions, we can only check that the index value is non-negative
+           and that it is less than the size of the array */
+        if (index_value >= (get_size(*(void**)(R->address))) || index_value < 0) {
+            //emitError("Memory Manager ERROR: Array index out of bounds on unconstrained array.") ;
+            std::stringstream message;
+            message << index_value << " is out of bounds for " << R->reference << " (size=" << get_size(*(void**)(R->address)) << ").";
+            emitError(message.str());
+            return (TRICK_PARAMETER_ARRAY_SIZE);
+        }
 
         R->pointer_present = 1 ;
         if ( R->create_add_path ) {
@@ -75,26 +86,26 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
 
         ADDRESS_NODE * address_node ;
 
-        if ( vval_int(V) > 0 ) {
+        if ( index_value > 0 ) {
             address_node = (ADDRESS_NODE *)DLL_GetAt(DLL_GetTailPosition(R->address_path), R->address_path) ;
             switch ( address_node->operator_ ) {
                 case AO_ADDRESS:
-                    address_node->operand.address = (void *)((char *)address_node->operand.address +  vval_int(V) * item_size) ;
+                    address_node->operand.address = (void *)((char *)address_node->operand.address +  index_value * item_size) ;
                     break ;
                 case AO_DEREFERENCE:
                     address_node = new ADDRESS_NODE ;
                     address_node->operator_ = AO_OFFSET ;
-                    address_node->operand.offset = vval_int(V) * item_size ;
+                    address_node->operand.offset = index_value * item_size ;
                     DLL_AddTail(address_node , R->address_path) ;
                     break ;
                 case AO_OFFSET:
-                    address_node->operand.offset += vval_int(V) * item_size ;
+                    address_node->operand.offset += index_value * item_size ;
                     break ;
             }
         }
     }
 
-    R->address =  (void*)((char*)R->address + vval_int(V) * item_size);
+    R->address =  (void*)((char*)R->address + index_value * item_size);
     R->num_index++;
 
     return (TRICK_NO_ERROR);

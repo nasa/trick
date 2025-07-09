@@ -24,7 +24,8 @@ REF2 *Trick::MemoryManager::ref_attributes(const char* name) {
 
     /** @li Call REF_parse to parse the variable reference. */
     if (context != NULL) {
-        if ( REF_parse( context) == 0) {
+        int parse_ret = REF_parse(context);
+        if ( parse_ret == 0) {
             /* throw away the reference returned by the ref_parser, it isn't the same
                name as requested as "name" */
             if ( context->result->reference ) {
@@ -32,6 +33,10 @@ REF2 *Trick::MemoryManager::ref_attributes(const char* name) {
             }
             context->result->reference = strdup(name);
             result = context->result;
+        } else if ( parse_ret == TRICK_PARAMETER_ARRAY_SIZE) {
+            std::stringstream message;
+            message << name << " contains out of bounds array index.";
+            emitError(message.str());
         }
         /** @li Delete the parse context. */
         delete( context);
