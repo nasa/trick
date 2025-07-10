@@ -7,6 +7,7 @@ use strict ;
 my $my_path = $0 ;
 $my_path =~ s/trick-ify// ;
 
+my $build_dir = getcwd ;                                                     # Where to build trickify artifacts
 my $dirs = "" ;                                                              # If set, use for both source and header files
 my $source_dir = "" ;                                                        # Base path to build source from
 my $header_dir = "" ;                                                        # Base path to find header files
@@ -46,8 +47,11 @@ GetOptions
     "trick_home=s"              => \$trick_home,                     # Set trick home directory
     "s_overrides=s"             => \$s_overrides,                    # Directory containing S_override make files
     "include=s"                 => \$include,                        # Directory containing S_override make files
-    "ex=s"                      => \$exclude_arg                     # Directories to exclude from trickification
+    "ex=s"                      => \$exclude_arg,                    # Directories to exclude from trickification
+    "build=s"                   => \$build_dir                       # Where to build trickify artifacts
 ) ;
+
+chdir Cwd::abs_path($build_dir) or die "Error changing to build directory: $build_dir\n" ;
 
 $full_build = !$no_source_build ;
 

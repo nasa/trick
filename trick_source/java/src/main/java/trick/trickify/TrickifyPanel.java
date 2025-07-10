@@ -47,7 +47,6 @@ public class TrickifyPanel extends JPanel
     private DirSelect trickifyIncludeDirs;
     private DirSelect trickifyExcludeDirs;
     private DirSelect sourceMakeDirs;
-    private DirSelect logDirs;
     private DirSelect sOverridesDirs;
     private LabeledTextField nameField;
     private LabeledTextField trickifyArgsField;
@@ -59,7 +58,6 @@ public class TrickifyPanel extends JPanel
     private String trickifyIncludeConfig = "TRICKIFY_INCLUDE";
     private String trickifyExcludeConfig = "TRICKIFY_EXCLUDE";
     private String sourceMakeConfig = "SOURCE_MAKE";
-    private String logConfig = "LOG";
     private String sOverridesConfig = "S_OVERRIDES";
     private String nameConfig = "NAME";
     private String trickifyArgsConfig = "TRICKIFY_ARGS";
@@ -91,110 +89,81 @@ public class TrickifyPanel extends JPanel
         ArrayList<String> cmdLine = new ArrayList<String>();
         cmdLine.add(trickHome + "/bin/trick-ify");
 
-        String srcDirsTxt = srcDirs.getText().trim();
+        String srcDirsTxt = srcDirs.getText(useQuotes);
         if(!srcDirsTxt.equals(""))
         {
             cmdLine.add("-d");
-            if(useQuotes)
-            {
-                cmdLine.add("\"" + srcDirsTxt + "\"");
-            }
-            else
-            {
-                cmdLine.add(srcDirsTxt);
-            }
+            cmdLine.add(srcDirsTxt);
         }
 
-        String trickHomeDirsTxt = trickHomeDirs.getText().trim();
+        String trickHomeDirsTxt = trickHomeDirs.getText(useQuotes);
         if(!trickHomeDirsTxt.equals(""))
         {
             cmdLine.add("--trick_home");
             cmdLine.add(trickHomeDirsTxt);
         }
 
-        String trickifyPathDirsTxt = trickifyPathDirs.getText().trim();
+        String trickifyPathDirsTxt = trickifyPathDirs.getText(useQuotes);
         if(!trickifyPathDirsTxt.equals(""))
         {
             cmdLine.add("--trickify_make");
             cmdLine.add(trickifyPathDirsTxt);
         }
 
-        String trickifyIncludeDirsTxt = trickifyIncludeDirs.getText().trim();
+        String trickifyIncludeDirsTxt = trickifyIncludeDirs.getText(useQuotes);
         if(!trickifyIncludeDirsTxt.equals(""))
         {
             cmdLine.add("--include");
-            if(useQuotes)
-            {
-               cmdLine.add("\"" + trickifyIncludeDirsTxt + "\"");
-            }
-            else
-            {
-                cmdLine.add(trickifyIncludeDirsTxt);
-            }
+            cmdLine.add(trickifyIncludeDirsTxt);
         }
 
-        String trickifyExcludeDirsTxt = trickifyExcludeDirs.getText().trim();
+        String trickifyExcludeDirsTxt = trickifyExcludeDirs.getText(useQuotes);
         if(!trickifyExcludeDirsTxt.equals(""))
         {
             cmdLine.add("-ex");
-            if(useQuotes)
-            {
-               cmdLine.add("\"" + trickifyExcludeDirsTxt + "\"");
-            }
-            else
-            {
-                cmdLine.add(trickifyExcludeDirsTxt);
-            }
+            cmdLine.add(trickifyExcludeDirsTxt);
         }
 
-        String trickifyArgsFieldTxt = trickifyArgsField.getText().trim();
+        String trickifyArgsFieldTxt = trickifyArgsField.getText(useQuotes);
         if(!trickifyArgsFieldTxt.equals(""))
         {
             cmdLine.add("--trickify_args");
             cmdLine.add(trickifyArgsFieldTxt);
         }
 
-        String sourceMakeDirsTxt = sourceMakeDirs.getText().trim();
+        String sourceMakeDirsTxt = sourceMakeDirs.getText(useQuotes);
         if(!sourceMakeDirsTxt.equals(""))
         {
             cmdLine.add("--source_make");
             cmdLine.add(sourceMakeDirsTxt);
         }
 
-        String sourceMakeArgsFieldTxt = sourceMakeArgsField.getText().trim();
+        String sourceMakeArgsFieldTxt = sourceMakeArgsField.getText(useQuotes);
         if(!sourceMakeArgsFieldTxt.equals(""))
         {
             cmdLine.add("--source_make_args");
             cmdLine.add(sourceMakeArgsFieldTxt);
         }
 
-        String libName = "";
-        String buildPathDirsTxt = buildPathDirs.getText().trim();
+        String buildPathDirsTxt = buildPathDirs.getText();
         if(!buildPathDirsTxt.equals(""))
         {
-            libName = buildPathDirsTxt;
+            cmdLine.add("--build");
+            cmdLine.add(buildPathDirsTxt);
         }
  
-        String sOverridesDirsTxt = sOverridesDirs.getText().trim();
+        String sOverridesDirsTxt = sOverridesDirs.getText(useQuotes);
         if(!sOverridesDirsTxt.equals(""))
         {
             cmdLine.add("--s_overrides");
             cmdLine.add(sOverridesDirsTxt);
         }
 
-        String nameFieldTxt = nameField.getText().trim();
+        String nameFieldTxt = nameField.getText();
         if(!nameFieldTxt.equals(""))
         {
-            if(!libName.equals(""))
-            {
-                libName += System.getProperty("file.separator") + nameFieldTxt;
-            }
-            else
-            {
-                libName = nameFieldTxt;
-            }
             cmdLine.add("-n");
-            cmdLine.add(libName);
+            cmdLine.add(nameFieldTxt);
         }
 
         if(!(fullBuildBox.isSelected()))
@@ -258,7 +227,7 @@ public class TrickifyPanel extends JPanel
                 output.append(line + "\n");
             }
 
-            String logDirsPath = logDirs.getText().trim();
+            String logDirsPath = buildPathDirs.getText();
             PrintWriter logfile = new PrintWriter(logDirsPath + System.getProperty("file.separator") + "trickify.log", "UTF-8");
             logfile.println(output);
             logfile.close();
@@ -279,17 +248,17 @@ public class TrickifyPanel extends JPanel
 
     public void saveProperties(Properties prop)
     {
-        prop.setProperty(srcDirsConfig, srcDirs.getText().trim());
-        prop.setProperty(trickHomeConfig, trickHomeDirs.getText().trim());
-        prop.setProperty(trickifyPathConfig, trickifyPathDirs.getText().trim());
-        prop.setProperty(trickifyIncludeConfig, trickifyIncludeDirs.getText().trim());
-        prop.setProperty(trickifyExcludeConfig, trickifyExcludeDirs.getText().trim());
-        prop.setProperty(trickifyArgsConfig, trickifyArgsField.getText().trim());
-        prop.setProperty(sourceMakeConfig, sourceMakeDirs.getText().trim());
-        prop.setProperty(sourceMakeArgsConfig, sourceMakeArgsField.getText().trim());
-        prop.setProperty(buildPathConfig, buildPathDirs.getText().trim());
-        prop.setProperty(sOverridesConfig, sOverridesDirs.getText().trim());
-        prop.setProperty(nameConfig, nameField.getText().trim());
+        prop.setProperty(srcDirsConfig, srcDirs.getText());
+        prop.setProperty(trickHomeConfig, trickHomeDirs.getText());
+        prop.setProperty(trickifyPathConfig, trickifyPathDirs.getText());
+        prop.setProperty(trickifyIncludeConfig, trickifyIncludeDirs.getText());
+        prop.setProperty(trickifyExcludeConfig, trickifyExcludeDirs.getText());
+        prop.setProperty(trickifyArgsConfig, trickifyArgsField.getText());
+        prop.setProperty(sourceMakeConfig, sourceMakeDirs.getText());
+        prop.setProperty(sourceMakeArgsConfig, sourceMakeArgsField.getText());
+        prop.setProperty(buildPathConfig, buildPathDirs.getText());
+        prop.setProperty(sOverridesConfig, sOverridesDirs.getText());
+        prop.setProperty(nameConfig, nameField.getText());
         prop.setProperty(fullBuildConfig, Boolean.toString(fullBuildBox.isSelected()));
         prop.setProperty(noCleanObjConfig, Boolean.toString(noCleanObjBox.isSelected()));
         prop.setProperty(noCleanSrcConfig, Boolean.toString(noCleanSrcBox.isSelected()));
@@ -463,9 +432,8 @@ public class TrickifyPanel extends JPanel
         sourceMakeDirs.setText("");
         sourceMakeArgsField.setText("");
         sOverridesDirs.setText("");
-        buildPathDirs.setText(System.getProperty("user.dir")); 
+        buildPathDirs.setText(""); 
         nameField.setText("TrickifiedLibrary");
-        logDirs.setText(System.getProperty("user.dir")); 
         fullBuildBox.setSelected(true);
         noCleanObjBox.setSelected(false);
         noCleanSrcBox.setSelected(false);
@@ -613,7 +581,7 @@ public class TrickifyPanel extends JPanel
         sOverridesDirs = new DirSelect();
         sOverridesDirs.setLabel("S_overrides");
         sOverridesDirs.setButtonText("Choose");
-        sOverridesDirs.allowMultiple(false);
+        sOverridesDirs.allowMultiple(true);
         sOverridesDirs.selectFile(true);
         sOverridesDirs.setToolTipText("S_overrides to incorporate");
         inputPanel.add(sOverridesDirs);
@@ -667,14 +635,6 @@ public class TrickifyPanel extends JPanel
         nameField.setLabel("Library Name");
         nameField.setToolTipText("Library name (doesn't need extension).");
         outputPanel.add(nameField);
-
-        logDirs = new DirSelect();
-        logDirs.setLabel("Trickify Log");
-        logDirs.setButtonText("Choose");
-        logDirs.allowMultiple(false);
-        logDirs.selectFile(false);
-        logDirs.setToolTipText("Where to drop the log file.");
-        outputPanel.add(logDirs);
         
         //spacing
         outputPanel.add(new JPanel());

@@ -27,8 +27,23 @@ public class LabeledTextField extends JPanel
 
     public String getText()
     {
-        return textField.getText();
+        return textField.getText().trim();
     }
+
+    public String getText(boolean useQuotes)
+    {
+        String txt = textField.getText().trim();
+
+        if(useQuotes && !txt.equals(""))
+        {
+            return "\"" + txt + "\"";
+        }
+        else
+        {
+            return txt;
+        }
+    }
+
 
     void setText(String txt)
     {
