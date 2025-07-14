@@ -10,9 +10,11 @@ class testSimObject : public Trick::SimObject {
             return 0  ;
         } ;
 
-        testSimObject() {
+        testSimObject(int threadIdx = 1) {
+            extern ChildThreadMapSimObject trick_cthreadmap;
             (10.0, "scheduled") print_time(0) ;
-            C1 (1.0, "scheduled") print_time(1) ;
+            int thread_id = trick_cthreadmap.getThreadId("C1_THREAD");
+            Cthread_id (1.0, "scheduled") print_time(1) ;
         }
 
 } ;
@@ -26,9 +28,12 @@ public:
 
     OverrunSimObject() : thread_25ms(24000) , thread_50ms(48000) , thread_100ms(96000)
     {
+        extern ChildThreadMapSimObject trick_cthreadmap;
         (0.025, "scheduled") trick_ret = thread_25ms.Step();
-        C1 (0.05, "scheduled") trick_ret = thread_50ms.Step();
-        C2 (0.1, "scheduled") trick_ret = thread_100ms.Step();
+        int thread_id = trick_cthreadmap.getThreadId("C1_THREAD");
+        Cthread_id (0.05, "scheduled") trick_ret = thread_50ms.Step();
+        thread_id = trick_cthreadmap.getThreadId("C2_THREAD");
+        Cthread_id (0.1, "scheduled") trick_ret = thread_100ms.Step();
     }
 } ;
 

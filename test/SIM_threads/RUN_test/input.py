@@ -12,11 +12,11 @@ trick.itimer_enable()
 
 trick.exec_set_software_frame(0.025)
 
-trick.exec_set_thread_process_type(1, trick.PROCESS_TYPE_AMF_CHILD)
-trick.exec_set_thread_amf_cycle_time(1, 0.05)
+trick.exec_set_thread_process_type(trick_cthreadmap.getThreadId("C1_THREAD"), trick.PROCESS_TYPE_AMF_CHILD)
+trick.exec_set_thread_amf_cycle_time(trick_cthreadmap.getThreadId("C1_THREAD"), 0.05)
 
-trick.exec_set_thread_process_type(2, trick.PROCESS_TYPE_AMF_CHILD)
-trick.exec_set_thread_amf_cycle_time(2, 0.1)
+trick.exec_set_thread_process_type(trick_cthreadmap.getThreadId("C2_THREAD"), trick.PROCESS_TYPE_AMF_CHILD)
+trick.exec_set_thread_amf_cycle_time(trick_cthreadmap.getThreadId("C2_THREAD"), 0.1)
 
 trickView = trick.TrickView()
 trickView.set_auto_open_file("overrun.tv")
