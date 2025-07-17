@@ -921,35 +921,59 @@ sub handle_sim_class_job($$$) {
          $ov_class_self, $sup_class_data, $tag, $job_call, $job_ret, $job_name, $args , $class ) ;
     my (@tags) ;
 
-    ($child, $phase, $cycle, $start, $stop,
-      $ov_class , $ov_class_self , $sup_class_data, $tag, $job_call, $job_ret, $job_name, $args) = $in_job =~ /
-         (?:
-           \s*(?:
-             ([Cc][\w\.\-\>]+)?\s* |                      # child spec
-             ([Pp][\w\.\-\>]+)?\s* |                      # phase spec
-             (?:
-              \(
-                (?:
-                   (?:
-                      \s*([\w.]+)\s*           # cycle time
-                      (?:,\s*([\w.]+)\s*)?     # start time
-                      (?:,\s*([\w.]+)\s*)?     # stop time
-                      (?:,\s*("?\w+"?)\s*)     # class
-                   )|
-                   \s*("?\w+"?)\s*             # class (by itself)
-                   (?:,\s*(&?[\w\.\-\>]+)\s*)? # integration object
-                )
-              \)
-             ) |                               # timing spec
-             \{([\w_.,\s]+)\}                  # job tag
-           )
-         )+\s+
-         (                                     # job call
+    # Split to 3 sections: first part (child, phase, tag), second part (timing spec), remaining part (job call)
+    my ($first_part, $second_part, $remaining_part) = ('', '', '');
+
+    if ($in_job =~ /^([^(]*)?\s*(\([^)]+\))\s*(.+)$/) {
+        $first_part = $1;
+        $second_part = $2;
+        $remaining_part = $3;
+    }
+
+    # Extract child, phase, and tag specs from first part if they exist (can appear in any order, possibly both)
+    if ($first_part =~ /([Cc][\w.\-\>]+)/) {
+        $child = $1;
+    }
+    if ($first_part =~ /([Pp][\w.\-\>]+)/) {
+        $phase = $1;
+    }
+    if ($first_part =~ /\{([\w_.,\s]+)\}/) {
+        $tag = $1;
+    }
+
+    # Extract timing spec from second part if it exists
+    if ($second_part =~ /^\(\s*
+        (?:
+            ([\w.]+)                           # $1: $cycle
+            (?:\s*,\s*([\w.]+))?               # $2: $start
+            (?:\s*,\s*([\w.]+))?               # $3: $stop
+            (?:\s*,\s*("?[\w.]+"?))?           # $4: $ov_class (job class)
+            (?:\s*,\s*(&[\w.\-\>]+))?          # $5: $sub_class_data (integration object, starts with &)
+        |
+            ("?[\w.]+"?)                       # $6: $ov_class_self (job class by itself)
+            (?:\s*,\s*(&[\w.\-\>]+))?          # $7: $sub_class_data (integration object, starts with &)
+        )
+        \s*\)/x) {
+            $cycle = $1 // '';
+            $start = $2 // '';
+            $stop = $3 // '';
+            $ov_class = $4 // '';
+            $ov_class_self= $6 // '';
+            $sup_class_data = $5 // $7 // '';
+    }
+
+    if ($remaining_part =~ /\s*
+        (                                      # job call
           ([A-Za-z_][\w\.\-\>]*\s*=)?\s*       # optional return assignment variable
           ([A-Za-z_][\w\.\:\-\>\[\]]*)\s*      # job name
           \((.*?)\s*\)                         # arg list
-         )\s*;                                 # end job call
-         /sx ;
+        )\s*;                                  # end job call
+        /x ) {
+            $job_call = $1;
+            $job_ret = $2 // '';
+            $job_name = $3;
+            $args = $4;
+    }
 
 
     $child = 0 if ( $child eq "" ) ;
