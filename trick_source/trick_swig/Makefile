@@ -29,6 +29,8 @@ TRICK_CXXFLAGS += $(PYTHON_INCLUDES) -Wno-redundant-decls -Wno-shadow -Wno-unuse
 
 ifeq ($(IS_CC_CLANG), 1)
 TRICK_CXXFLAGS += -Wno-self-assign -Wno-sometimes-uninitialized
+else
+TRICK_CXXFLAGS += -Wno-cast-function-type -Wno-ignored-qualifiers -Wno-delete-non-virtual-dtor
 endif
 
 TEST_DIR = swig_${TRICK_HOST_CPU}_test
