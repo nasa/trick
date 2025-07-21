@@ -27,7 +27,11 @@ public:
     OverrunSimObject() : thread_25ms(24000) , thread_50ms(48000) , thread_100ms(96000)
     {
         (0.025, "scheduled") trick_ret = thread_25ms.Step();
-        C1 (0.05, "scheduled") trick_ret = thread_50ms.Step();
+        // Testing multiline format
+        C1 P1 {GREEN}
+           (0.05, "scheduled")  \
+		trick_ret = 
+                           thread_50ms.Step();
         C2 (0.1, "scheduled") trick_ret = thread_100ms.Step();
     }
 } ;

@@ -924,7 +924,7 @@ sub handle_sim_class_job($$$) {
     # Split to 3 sections: first part (child, phase, tag), second part (timing spec), remaining part (job call)
     my ($first_part, $second_part, $remaining_part) = ('', '', '');
 
-    if ($in_job =~ /^([^(]*)?\s*(\([^)]+\))\s*(.+)$/) {
+    if ($in_job =~ /^((?:[^(]|\n)*)?\s*(\((?:[^)]|\n)+\))\s*(.+)$/s) {
         $first_part = $1;
         $second_part = $2;
         $remaining_part = $3;
@@ -953,7 +953,7 @@ sub handle_sim_class_job($$$) {
             ("?[\w.]+"?)                       # $6: $ov_class_self (job class by itself)
             (?:\s*,\s*(&[\w.\-\>]+))?          # $7: $sub_class_data (integration object, starts with &)
         )
-        \s*\)/x) {
+        \s*\)/xs) {
             $cycle = $1 // '';
             $start = $2 // '';
             $stop = $3 // '';
@@ -968,7 +968,7 @@ sub handle_sim_class_job($$$) {
           ([A-Za-z_][\w\.\:\-\>\[\]]*)\s*      # job name
           \((.*?)\s*\)                         # arg list
         )\s*;                                  # end job call
-        /x ) {
+        /xs ) {
             $job_call = $1;
             $job_ret = $2 // '';
             $job_name = $3;
