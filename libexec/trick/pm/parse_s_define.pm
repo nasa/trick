@@ -942,12 +942,13 @@ sub handle_sim_class_job($$$) {
     }
 
     # Extract timing spec from second part if it exists
+    # Format: ([<cycle_time>, [<start_time>, [<stop_time>,]]] <job_class>)
     if ($second_part =~ /^\(\s*
         (?:
             ([\w.]+)                           # $1: $cycle
-            (?:\s*,\s*([\w.]+))?               # $2: $start
-            (?:\s*,\s*([\w.]+))?               # $3: $stop
-            (?:\s*,\s*("?[\w.]+"?))?           # $4: $ov_class (job class)
+            (?:\s*,\s*([\w.]+))?               # $2: $start_time OR job_class (if only 2 params)
+            (?:\s*,\s*([\w.]+))?               # $3: $stop_time OR job_class (if 3 params)
+            (?:\s*,\s*("?[\w.]+"?))?           # $4: $job_class (if 4+ params)
             (?:\s*,\s*(&[\w.\-\>]+))?          # $5: $sub_class_data (integration object, starts with &)
         |
             ("?[\w.]+"?)                       # $6: $ov_class_self (job class by itself)
@@ -955,11 +956,29 @@ sub handle_sim_class_job($$$) {
         )
         \s*\)/xs) {
             $cycle = $1 // '';
-            $start = $2 // '';
-            $stop = $3 // '';
+            my $second_param = $2 // '';
+            my $third_param = $3 // '';
             $ov_class = $4 // '';
-            $ov_class_self= $6 // '';
+            $ov_class_self = $6 // '';
             $sup_class_data = $5 // $7 // '';
+    
+            # Determine parameter assignment based on count
+            if ($second_param ne '' && $third_param eq '' && $ov_class eq '' && $ov_class_self eq '') {
+                # Two parameters: (cycle, job_class)
+                $start = '';
+                $stop = '';
+                $ov_class = $second_param;
+            } elsif ($second_param ne '' && $third_param ne '' && $ov_class eq '' && $ov_class_self eq '') {
+                # Three parameters: (cycle, start_time, job_class)
+                $start = $second_param;
+                $stop = '';
+                $ov_class = $third_param;
+            } else {
+                # Four or more parameters: (cycle, start_time, stop_time, job_class, ...)
+                $start = $second_param;
+                $stop = $third_param;
+                # $ov_class already set from $4
+            }
     }
 
     if ($remaining_part =~ /\s*
