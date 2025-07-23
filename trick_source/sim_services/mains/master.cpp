@@ -29,12 +29,12 @@ int master( int nargs, char **args) {
         return 1;
     }
 
-    /* adds sim objects including the executive defined at CP time */
-    memory_init() ;
-
     /* process generic command line arguments */
     //Trick::CommandLineArguments * cmd_args = exec_get_cmd_args() ;
     command_line_args_process_sim_args(nargs, args) ;
+
+    /* adds sim objects including the executive defined at CP time */
+    memory_init() ;
 
     /* get the exec pointer */
     Trick::Executive * exec = exec_get_exec_cpp() ;
