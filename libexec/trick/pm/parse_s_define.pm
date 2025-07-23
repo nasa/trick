@@ -982,16 +982,23 @@ sub handle_sim_class_job($$$) {
     }
 
     if ($remaining_part =~ /\s*
+        (?:\{([\w_.,\s]+)\}\s*)?               # optional tag spec
         (                                      # job call
           ([A-Za-z_][\w\.\-\>]*\s*=)?\s*       # optional return assignment variable
           ([A-Za-z_][\w\.\:\-\>\[\]]*)\s*      # job name
           \((.*?)\s*\)                         # arg list
         )\s*;                                  # end job call
         /xs ) {
-            $job_call = $1;
-            $job_ret = $2 // '';
-            $job_name = $3;
-            $args = $4;
+            my $temp_tag = $1 // '';
+            $job_call = $2;
+            $job_ret = $3 // '';
+            $job_name = $4;
+            $args = $5;
+
+            # If tag found in remaining_part and not already set from first_part, use it
+            if ($temp_tag ne '' && $tag eq '') {
+                $tag = $temp_tag;
+            }
     }
 
 
