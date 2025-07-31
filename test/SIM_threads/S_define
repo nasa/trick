@@ -29,7 +29,7 @@ public:
     {
         (0.025, "scheduled") trick_ret = thread_25ms.Step();
         // Testing multiline format
-        C1 PjobPhase {GREEN}
+        C1 {SPRING} PjobPhase
             (jobCycleIn,
                 jobType)  \
 		    trick_ret =

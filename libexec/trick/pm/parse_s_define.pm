@@ -930,15 +930,21 @@ sub handle_sim_class_job($$$) {
         $remaining_part = $3;
     }
 
-    # Extract child, phase, and tag specs from first part if they exist (can appear in any order, possibly both)
-    if ($first_part =~ /([Cc][\w.\-\>]+)/) {
-        $child = $1;
-    }
-    if ($first_part =~ /([Pp][\w.\-\>]+)/) {
-        $phase = $1;
-    }
+    # Extract child, phase, and tag specs from first part if they exist (can appear in any order)
+    # First extract job tag to avoid conflicts with child/phase parsing
     if ($first_part =~ /\{([\w_.,\s]+)\}/) {
         $tag = $1;
+    }
+    # Remove tags from first_part before parsing child/phase to avoid conflicts
+    my $first_part_no_tag = $first_part;
+    $first_part_no_tag =~ s/\{[\w_.,\s]+\}//g;
+    # Extract child
+    if ($first_part_no_tag =~ /([Cc][\w.\-\>]+)/) {
+        $child = $1;
+    }
+    # Extract phase
+    if ($first_part_no_tag =~ /([Pp][\w.\-\>]+)/) {
+        $phase = $1;
     }
 
     # Extract timing spec from second part if it exists
