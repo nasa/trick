@@ -59,9 +59,9 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
            and that it is less than the size of the array */
         if (index_value >= (get_size(*(void**)(R->address))) || index_value < 0) {
 
-            if (index_value == 0 && (get_size(*(void**)(R->address))) == 0) {
+            if (index_value >= 0 && get_size(*(void**)(R->address)) == 0) {
                 // Special case (do nothing here):
-                //   For using index [0] on regular pointers as an equivalent to ->
+                //   For regular pointers as an equivalent to ->
                 //   For array pointers that are not yet allocated
                 // If a pointer is not allocated regardless of regular pointer or array pointer, an error message will be emitted below
                 //   However, if the pointer is already assigned to a valid address, the error message will NOT be emitted below
@@ -94,7 +94,56 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
             emitError(message.str());
             return(TRICK_PARAMETER_ADDRESS_NULL) ;
         }
-    }
+
+        // Get allocation information for the address
+        ALLOC_INFO *alloc_info = get_alloc_info_of(R->address);
+
+        // Skip if allocation name is NULL
+        if (alloc_info->name != NULL) {
+            // Get the reference name from the address that R points if exists and contains & at front
+            // Otherwise, the pointer is not assigned to anything else rather itself is allocated
+            std::string ref_name = ref_name_from_address(R->address);
+            if (!ref_name.empty() && ref_name.front() == '&') {
+                ref_name = ref_name.substr(1);
+
+                // Get the reference attributes for what the pointer points to
+                REF2 *ref2 = ref_attributes((char*)ref_name.c_str());
+
+                // Check if the reference that the pointer points to is valid. Return error if not.
+                if (ref2 == NULL) {
+                    std::stringstream message;
+                    message << "Reference (" << R->reference << ") is not allocated in ref_dim.";
+                    emitError(message.str());
+                    return(TRICK_PARAMETER_ADDRESS_NULL);
+                }
+
+                // Check if the pointer points to a static array or a dynamic array and if array index is out of bounds
+                if (ref2->attr && ref2->attr->index[ref2->attr->num_index-1].size != 0) { // Static array case
+                    // Check if the index is out of bounds if the pointer points to a static array
+                    if (index_value >= ref2->attr->index[ref2->attr->num_index-1].size || index_value < 0) {
+                        /* print out of bounds error message if MM debug_level is greater than 1 */
+                        if (debug_level > 1) {
+                            emitError("Memory Manager ERROR: Array index out of bounds.") ;
+                        }
+                        free(ref2);
+                        return (TRICK_PARAMETER_ARRAY_SIZE);
+                    }
+                } else { // Dynamic array case
+                    // Check if the index is out of bounds if the pointer points to a dynamic array
+                    if (index_value >= (get_size(*(void**)(R->address)))) {
+                        /* print out of bounds error message if MM debug_level is greater than 1 */
+                        if (debug_level > 1) {
+                            std::stringstream message;
+                            message << index_value << " is out of bounds for " << R->reference << " (size=" << get_size(*(void**)(R->address)) << ").";
+                            emitError(message.str());
+                        }
+                        free(ref2);
+                        return (TRICK_PARAMETER_ARRAY_SIZE);
+                    }
+                }
+            } // if (!ref_name.empty() && ref_name.front() == '&') {
+        } // if (alloc_info->name != NULL) {
+    } // if (R->attr->index[R->num_index].size != 0) {
 
     if ( R->create_add_path ) {
 
