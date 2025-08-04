@@ -218,7 +218,12 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
 
     if ( field->isBitField()) {
         fdes->setBitField(true) ;
+#if (LIBCLANG_MAJOR >= 20)
+        // llvm 20+ gets the bit width directly from the FieldDecl without needing the ASTContext argument
+        fdes->setBitFieldWidth(field->getBitWidthValue()) ;
+#else
         fdes->setBitFieldWidth(field->getBitWidthValue(field->getASTContext())) ;
+#endif
         unsigned int field_offset_bits = field->getASTContext().getFieldOffset(field) + fdes->getBaseClassOffset() * 8 ;
         fdes->setBitFieldStart( 32 - (field_offset_bits % 32) - fdes->getBitFieldWidth()) ;
         fdes->setBitFieldByteOffset((field_offset_bits / 32) * 4 ) ;
@@ -285,9 +290,9 @@ bool FieldVisitor::ProcessTemplate(std::string in_name , clang::CXXRecordDecl * 
         template_spec_cvis.get_class_data()->setMangledTypeName(processed_templates[in_name]) ;
         template_spec_cvis.TraverseCXXRecordDecl(crd) ;
 
-        // Set the actual type name and file name. Print the attributes for this template type
+        // Set the actual type name. Print the attributes for this template type
         template_spec_cvis.get_class_data()->setName(in_name) ;
-        template_spec_cvis.get_class_data()->setFileName(fdes->getFileName()) ;
+        //template_spec_cvis.get_class_data()->setFileName(fdes->getFileName()) ;
         pa.printClass(template_spec_cvis.get_class_data()) ;
 
         if ( debug_level >= 4 ) {

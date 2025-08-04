@@ -16,6 +16,7 @@ use File::Path qw(make_path) ;
 use html ;
 use get_paths ;
 use verbose_build ;
+use parse_s_define 'index_comments' ;
 
 ##
 ## ================================================================================
@@ -82,8 +83,8 @@ my $typedef_struct  = qr/typedef\s+(?:struct|union)\s*     # the words typedef s
 my $namespace_def = qr/namespace\s*                        # keyword namespace
              (?:\s+[_A-Za-z]\w*)                           # class name
             /sx ;
-my $enum_class_def   = qr/enum\s+class\s*                  # keywords enum_class
-               (?:\s+[_A-Za-z]\w*)\s*                      # class name
+my $enum_class_def   = qr/enum\s+(?:class|struct)\s*       # keywords enum_class or struct (alias to enum class)
+               (?:\s+[_A-Za-z]\w*)\s*                      # class or struct name
                (?:\{|:(?!\:))                              # { or punctuator :
              /sx ;
 my $class_def   = qr/(?:class|struct)\s*                   # keyword class or struct
@@ -212,8 +213,16 @@ sub process_file() {
 
         # remove all comments, they can cause all kinds of trouble
         # leave the line continuation character if present
-        $raw_contents =~ s/\/\*(?:.*?)\*\/|\/\/(?:.*?)(\\)?(\n)/$1\n/sg ;
+        my @file_contents = split ("\n", $raw_contents);
+        foreach my $line (@file_contents) {
+           $line = "$line\n";
+        }
 
+        my @comment_sections = index_comments( @file_contents );
+        for(my $idx = @comment_sections-2 ; $idx >= 0 ; $idx-=2) {
+            my $comment_length = @comment_sections[$idx+1] - @comment_sections[$idx] + 1;
+            substr $raw_contents, @comment_sections[$idx], $comment_length, "";
+        }
 
 ##      The init_attr functions cause problems when we try and wrap them with SWIG.
 ##      We can safely remove them from the header files.
@@ -228,7 +237,7 @@ sub process_file() {
 ##      create a corresponding %import directive.
         outer:
         foreach (split /^/, $raw_contents) {
-
+            #TODO: Rebuild multi line pp directives?
             if ( /^\s*\#\s*include\s+([^\n]+)/ ) {
                 my $file_name = $1 ;
 

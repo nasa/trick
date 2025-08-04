@@ -643,9 +643,12 @@ void Trick::ClassicCheckPointAgent::write_singleton( std::ostream& chkpnt_os, vo
                   chkpnt_os << "'\\x" << std::hex << ch << "'" ;
             }
         break;
-        case TRICK_WCHAR:
+        case TRICK_WCHAR: {
             src_addr = (char*)address + offset * sizeof(wchar_t);
-            chkpnt_os << std::dec << *(wchar_t*)src_addr;
+            char buff[16] = {0};
+            wctomb(buff,*(wchar_t*)src_addr);
+            chkpnt_os << std::dec << buff;
+            }
             break;
         case TRICK_SHORT:
             src_addr = (char*)address + offset * sizeof(short);

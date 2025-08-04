@@ -93,6 +93,20 @@ SIM_test_ip:
   runs:
     RUN_test/unit_test.py:
       returns: 0
+SIM_test_ip_stl:
+  path: test/SIM_test_ip_stl
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_test_multidt:
+  path: test/SIM_test_multidt
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
 SIM_test_sched:
   path: test/SIM_test_sched
   build_args: "-t"
@@ -183,6 +197,22 @@ SIM_Ball++_L1:
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
+      returns: 0
+SIM_sat2d:
+  path: trick_sims/SIM_sat2d
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+SIM_sat2d_multidt:
+  path: trick_sims/SIM_sat2d_multidt
+  build_args: "-t"
+  binary: "T_main_{cpu}_test.exe"
+  runs:
+    RUN_test/unit_test.py:
+      returns: 0
+    RUN_singlerate/unit_test.py:
       returns: 0
 SIM_sun:
   path: trick_sims/SIM_sun

@@ -13,7 +13,7 @@ AC_DEFUN([TR_GSL_HOME],[
                                  )
                   )
                 )],
-                [AC_CHECK_HEADER(gsl/gsl_rng.h, [GSL_HOME="/usr"], [GSL_HOME=""])]
+                [AC_CHECK_HEADER(gsl/gsl_rng.h, [GSL_HOME="/usr"], [AC_CHECK_FILE([/opt/homebrew/include/gsl/gsl_rng.h], [GSL_HOME="/opt/homebrew"],[GSL_HOME=""])])]
                )
     AS_IF([test "$GSL_HOME" != ""],
       [

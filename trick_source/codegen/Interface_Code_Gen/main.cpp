@@ -14,6 +14,10 @@
 #endif
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/raw_ostream.h"
+// Ensure to include VFS header for libclang versions >= 20 for createDiagnostics call
+#if (LIBCLANG_MAJOR >= 20)
+#include "llvm/Support/VirtualFileSystem.h"
+#endif
 
 #include "clang/Basic/Builtins.h"
 #include "clang/Frontend/CompilerInstance.h"
@@ -187,7 +191,20 @@ int main(int argc, char * argv[]) {
     clang::CompilerInvocation::setLangDefaults(ci.getLangOpts() , clang::IK_CXX) ;
 #endif
 
+#if (LIBCLANG_MAJOR >= 20)
+    // Create a virtual file system
+    // This is required for llvm 20+ to create diagnostics properly
+    // llvm::IntrusiveRefCntPtr is LLVM's reference counting smart pointer
+    // The smart pointer is used to manage objects that require reference counting such as VFS
+    llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> vfs = llvm::vfs::getRealFileSystem();
+    // createDiagnostics(llvm::vfs::FileSystem &VFS, 
+    //                   DiagnosticConsumer * 	Client = nullptr, 
+    //                   bool 	ShouldOwnClient = true)
+    // DiagnosticConsumer is set later in the code to our ICGDiagnosticConsumer and here is nullptr
+    ci.createDiagnostics(*vfs); // Create diagnostics for clang 20+
+#else
     ci.createDiagnostics();
+#endif
     ci.getDiagnosticOpts().ShowColors = 1 ;
     ci.getDiagnostics().setIgnoreAllWarnings(true) ;
     set_lang_opts(ci);
