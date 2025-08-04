@@ -139,24 +139,26 @@ public class SieResourceDomParser {
     }
     
     private static SieTemplate createTemplate(final Element element) {
-        return new SieTemplate() {{
-            parameter = element.getAttribute("name");
-            typeName =  element.getAttribute("type");
-            ioType =  element.getAttribute("io_attributes");
-            units = element.getAttribute("units");
-            description = element.getAttribute("description");
-            NodeList dims = element.getElementsByTagName("dimension");
-            dimensions = new int[dims.getLength()];
-            for (int i = 0; i < dimensions.length; ++i) {
-                dimensions[i] = Integer.parseInt(dims.item(i).getTextContent());
-            }
-            
-            // Only top level instances have this field.
-            try {
-                dynamicAllocation = Integer.parseInt(element.getAttribute("alloc_memory_init")) == 0;
-            }
-            catch (Exception ignored) {}
-        }};
+        NodeList dims = element.getElementsByTagName("dimension");
+        int[] dimensions = new int[dims.getLength()];
+        for (int i = 0; i < dimensions.length; ++i) {
+            dimensions[i] = Integer.parseInt(dims.item(i).getTextContent());
+        }
+
+        // Only top level instances have this field.
+        boolean dynamicAllocation = false;
+        try {
+            dynamicAllocation = Integer.parseInt(element.getAttribute("alloc_memory_init")) == 0;
+        }
+        catch (Exception ignored) {}
+
+        return new SieTemplate( element.getAttribute("name"), 
+                                element.getAttribute("type"), 
+                                dimensions,
+                                element.getAttribute("io_attributes"),
+                                element.getAttribute("units"),
+                                element.getAttribute("description"),
+                                dynamicAllocation);
     }
 
 }
