@@ -44,9 +44,8 @@
 #endif
 %include "std_vectora.i"
 
-#if SWIG_VERSION >= 0x040000
-// std_wstring.i was introduced in swig 3.0.8 but its support for Python was incomplete
-// std_wstring.i works properly in swig 4.x
+#if SWIG_VERSION >= 0x030008
+// std_wstring.i was introduced in swig 3.0.8
 %include "std_wstring.i"
 #endif
 %include "factory.i"

@@ -221,8 +221,13 @@ int Trick::VariableReference::setRequestedUnits(std::string units_name) {
         units_name = getBaseUnits();
     }
 
+    // Don't try to convert units for a bad ref
+    if (_var_info->address == &_bad_ref_int) {
+        return -1 ;
+    }
+
     // if unitless ('--') then do not convert to udunits 
-    if(units_name.compare("--")) {
+    if (units_name.compare("--")) {
         // Check to see if this is an old style Trick unit that needs to be converted to new udunits
         std::string new_units = map_trick_units_to_udunits(units_name) ;
         // Warn if a conversion has taken place
