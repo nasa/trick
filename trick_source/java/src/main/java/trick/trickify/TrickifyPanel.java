@@ -36,8 +36,8 @@ public class TrickifyPanel extends JPanel
 
     private String trickHome;
 
-    private int mainFrameWidth = DirSelect.textFieldWidth + DirSelect.buttonWidth;
-    private int mainFrameHeight = 600;
+    private int mainFrameWidth = DirSelect.textFieldWidth + DirSelect.buttonWidth + 50;
+    private int mainFrameHeight = 700;
 
     private JPanel mainPanel;
     private DirSelect srcDirs;
@@ -51,6 +51,8 @@ public class TrickifyPanel extends JPanel
     private LabeledTextField nameField;
     private LabeledTextField trickifyArgsField;
     private LabeledTextField sourceMakeArgsField;
+    private DirSelect sDefineDirs;
+    private DirSelect sDefineFilter;
     private String srcDirsConfig = "SOURCE_DIRS";
     private String trickHomeConfig = "TRICK_HOME";
     private String buildPathConfig = "BUILD_PATH";
@@ -62,6 +64,9 @@ public class TrickifyPanel extends JPanel
     private String nameConfig = "NAME";
     private String trickifyArgsConfig = "TRICKIFY_ARGS";
     private String sourceMakeArgsConfig = "SOURCE_MAKE_ARGS";
+    private String sDefineConfig = "S_DEFINE";
+    private String sDefineFilterConfig = "S_DEFINE_FILTER";
+
 
     private JCheckBox fullBuildBox;
     private JCheckBox noCleanObjBox;
@@ -143,6 +148,20 @@ public class TrickifyPanel extends JPanel
         {
             cmdLine.add("--source_make_args");
             cmdLine.add(sourceMakeArgsFieldTxt);
+        }
+
+        String sDefineDirsTxt = sDefineDirs.getText(useQuotes);
+        if(!sDefineDirsTxt.equals(""))
+        {
+            cmdLine.add("--s_define");
+            cmdLine.add(sDefineDirsTxt);
+        }
+
+        String sDefineFilterTxt = sDefineFilter.getText(useQuotes);
+        if(!sDefineFilterTxt.equals(""))
+        {
+            cmdLine.add("--s_define_filter");
+            cmdLine.add(sDefineFilterTxt);
         }
 
         String buildPathDirsTxt = buildPathDirs.getText();
@@ -232,7 +251,10 @@ public class TrickifyPanel extends JPanel
             logfile.println(output);
             logfile.close();
 
-            System.out.println("Your technological distinctiveness has been trickified."); 
+            if( process.exitValue() == 0 )
+                System.out.println("\u001B[32mYour technological distinctiveness has been trickified.\u001B[0m");
+            else
+                System.out.println("\u001B[31mBad things happened. Check your trickify log.\u001B[0m");
         }
         catch (IOException e) 
         {
@@ -256,6 +278,8 @@ public class TrickifyPanel extends JPanel
         prop.setProperty(trickifyArgsConfig, trickifyArgsField.getText());
         prop.setProperty(sourceMakeConfig, sourceMakeDirs.getText());
         prop.setProperty(sourceMakeArgsConfig, sourceMakeArgsField.getText());
+        prop.setProperty(sDefineConfig, sDefineDirs.getText());
+        prop.setProperty(sDefineFilterConfig, sDefineFilter.getText());
         prop.setProperty(buildPathConfig, buildPathDirs.getText());
         prop.setProperty(sOverridesConfig, sOverridesDirs.getText());
         prop.setProperty(nameConfig, nameField.getText());
@@ -321,6 +345,18 @@ public class TrickifyPanel extends JPanel
         if((propText = prop.getProperty(sourceMakeArgsConfig)) != null)
         {
             sourceMakeArgsField.setText(propText);
+        }
+        propText = null;
+
+        if((propText = prop.getProperty(sDefineConfig)) != null)
+        {
+            sDefineDirs.setText(propText);
+        }
+        propText = null;
+
+        if((propText = prop.getProperty(sDefineFilterConfig)) != null)
+        {
+            sDefineFilter.setText(propText);
         }
         propText = null;
 
@@ -425,12 +461,14 @@ public class TrickifyPanel extends JPanel
 
         srcDirs.setText("");
         trickHomeDirs.setText(trickHome); 
-        trickifyPathDirs.setText(trickHome + s + "share" + s + "trick" + s + "makefiles" + s + "trickify.mk"); 
+        trickifyPathDirs.setText(trickHome + s + "share" + s + "trick" + s + "makefiles" + s); 
         trickifyIncludeDirs.setText(""); 
         trickifyExcludeDirs.setText(""); 
         trickifyArgsField.setText("");
         sourceMakeDirs.setText("");
         sourceMakeArgsField.setText("");
+        sDefineDirs.setText("");
+        sDefineFilter.setText("");
         sOverridesDirs.setText("");
         buildPathDirs.setText(""); 
         nameField.setText("TrickifiedLibrary");
@@ -511,27 +549,51 @@ public class TrickifyPanel extends JPanel
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(0, 20, 0, 20);
-        gbc.weightx = 1;
 
         tabs = new JTabbedPane();
         inputPanel = new JPanel();
         outputPanel = new JPanel();
         advancedPanel = new JPanel();
-        inputPanel.setLayout(new GridLayout(6, 1));
-        outputPanel.setLayout(new GridLayout(6, 1));
-        advancedPanel.setLayout(new GridLayout(6, 1));
-        tabs.add("Inputs", inputPanel);
-        tabs.add("Outputs", outputPanel);
-        tabs.add("Advanced", advancedPanel);
+        inputPanel.setLayout(new GridLayout(8, 1));
+        outputPanel.setLayout(new GridLayout(8, 1));
+        advancedPanel.setLayout(new GridLayout(8, 1));
+        JScrollPane[] scrollPanes = {new JScrollPane(inputPanel), new JScrollPane(outputPanel), new JScrollPane(advancedPanel)};
+        for(int i = 0; i < 3; ++i)
+        {
+            scrollPanes[i].setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            scrollPanes[i].setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            scrollPanes[i].getVerticalScrollBar().setUnitIncrement(16);
+        }
+        tabs.add("Inputs", scrollPanes[0]);
+        tabs.add("Outputs", scrollPanes[1]);
+        tabs.add("Advanced", scrollPanes[2]);
         add(tabs, gbc);
 
         boxPanel = new JPanel();
         boxPanel.setLayout(new GridLayout(3, 5));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
         add(boxPanel, gbc);
 
         buttonPanel = new JPanel();
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
         add(buttonPanel, gbc);
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance().getContext().getActionMap(TrickifyPanel.class, this);
@@ -571,17 +633,17 @@ public class TrickifyPanel extends JPanel
         inputPanel.add(trickHomeDirs);
 
         trickifyPathDirs = new DirSelect();
-        trickifyPathDirs.setLabel("Trickify Makefile");
+        trickifyPathDirs.setLabel("trickify.mk Directory");
         trickifyPathDirs.setButtonText("Choose");
         trickifyPathDirs.allowMultiple(false);
-        trickifyPathDirs.selectFile(true);
+        trickifyPathDirs.selectFile(false);
         trickifyPathDirs.setToolTipText("trickify.mk to use. Defaults to your $TRICK_HOME/share/trick/makefiles/trickify.mk");
         inputPanel.add(trickifyPathDirs);
 
         sOverridesDirs = new DirSelect();
-        sOverridesDirs.setLabel("S_overrides");
+        sOverridesDirs.setLabel("S_overrides.mk");
         sOverridesDirs.setButtonText("Choose");
-        sOverridesDirs.allowMultiple(true);
+        sOverridesDirs.allowMultiple(false);
         sOverridesDirs.selectFile(true);
         sOverridesDirs.setToolTipText("S_overrides to incorporate");
         inputPanel.add(sOverridesDirs);
@@ -601,6 +663,22 @@ public class TrickifyPanel extends JPanel
         trickifyExcludeDirs.selectFile(false);
         trickifyExcludeDirs.setToolTipText("Paths to exclude during trickification.");
         inputPanel.add(trickifyExcludeDirs);
+
+        sDefineDirs = new DirSelect();
+        sDefineDirs.setLabel("S_define");
+        sDefineDirs.setButtonText("Choose");
+        sDefineDirs.allowMultiple(false);
+        sDefineDirs.selectFile(true);
+        sDefineDirs.setToolTipText("Search S_define for files to build into library.");
+        inputPanel.add(sDefineDirs);
+
+        sDefineFilter = new DirSelect();
+        sDefineFilter.setLabel("S_define Filter");
+        sDefineFilter.setButtonText("Choose");
+        sDefineFilter.allowMultiple(true);
+        sDefineFilter.selectFile(false);
+        sDefineFilter.setToolTipText("Only use files from the S_define that are under these dirs.");
+        inputPanel.add(sDefineFilter);
 
         trickifyArgsField = new LabeledTextField();
         trickifyArgsField.setLabel("Trickify Args");
@@ -623,6 +701,9 @@ public class TrickifyPanel extends JPanel
         //spacing
         advancedPanel.add(new JPanel());
         advancedPanel.add(new JPanel());
+        advancedPanel.add(new JPanel());
+        advancedPanel.add(new JPanel());
+        advancedPanel.add(new JPanel());
 
         buildPathDirs = new DirSelect();
         buildPathDirs.setLabel("Build Path");
@@ -639,6 +720,10 @@ public class TrickifyPanel extends JPanel
         //spacing
         outputPanel.add(new JPanel());
         outputPanel.add(new JPanel());
+        outputPanel.add(new JPanel());
+        outputPanel.add(new JPanel());
+        outputPanel.add(new JPanel());
+        outputPanel.add(new JPanel());
 
         //spacing
         boxPanel.add(new JPanel());
@@ -648,8 +733,8 @@ public class TrickifyPanel extends JPanel
         
         //spacing
         boxPanel.add(new JPanel());
-        noCleanSSourceBox = new JCheckBox(" Don't rebuild SSource.hh");
-        noCleanSSourceBox.setToolTipText("Trickify automatically generates an SSource.hh for the build process. Can disable rebuilding if you wish to use a manually created file.");
+        noCleanSSourceBox = new JCheckBox(" Don't rebuild S_source.hh");
+        noCleanSSourceBox.setToolTipText("Trickify automatically generates an S_source.hh for the build process. Can disable rebuilding if you wish to use a manually created file.");
         boxPanel.add(noCleanSSourceBox);
 
         //spacing
@@ -705,7 +790,7 @@ public class TrickifyPanel extends JPanel
         { 
             public void actionPerformed(ActionEvent e) 
             { 
-                System.out.println(String.join(" ", getTrickifyCmd(true)));
+                System.out.println("\n" + String.join(" ", getTrickifyCmd(true)));
             } 
         } );
         buttonPanel.add(exportButton);
