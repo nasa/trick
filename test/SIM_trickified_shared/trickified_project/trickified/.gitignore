@@ -1,0 +1,5 @@
+build
+python
+trick
+*.o
+S_overrides_trickify.mk
