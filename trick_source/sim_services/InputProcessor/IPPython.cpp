@@ -156,7 +156,8 @@ int Trick::IPPython::init() {
     }
 
     if ( save_input ) {
-       PyRun_SimpleString("trick.close_input_file_log()") ;
+        PyRun_SimpleString("trick.close_input_file_log()") ;
+        PyRun_SimpleString("sys.settrace(None)") ;
     }
 
     fclose(input_fp) ;
