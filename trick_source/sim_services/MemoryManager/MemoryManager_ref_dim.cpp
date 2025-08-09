@@ -99,7 +99,7 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         ALLOC_INFO *alloc_info = get_alloc_info_of(R->address);
 
         // Skip if allocation name is NULL
-        if (alloc_info->name != NULL) {
+        if (alloc_info != NULL && alloc_info->name != NULL) {
             // Get the reference name from the address that R points if exists and contains & at front
             // Otherwise, the pointer is not assigned to anything else rather itself is allocated
             std::string ref_name = ref_name_from_address(R->address);
@@ -117,28 +117,31 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
                     return(TRICK_PARAMETER_ADDRESS_NULL);
                 }
 
-                // Check if the pointer points to a static array or a dynamic array and if array index is out of bounds
-                if (ref2->attr && ref2->attr->index[ref2->attr->num_index-1].size != 0) { // Static array case
-                    // Check if the index is out of bounds if the pointer points to a static array
-                    if (index_value >= ref2->attr->index[ref2->attr->num_index-1].size || index_value < 0) {
-                        /* print out of bounds error message if MM debug_level is greater than 1 */
-                        if (debug_level > 1) {
-                            emitError("Memory Manager ERROR: Array index out of bounds.") ;
+                // Only check bounds if ref2 is array-ed
+                if (ref2->num_index > 0) {
+                    // Check if the pointer points to a static array or a dynamic array and if array index is out of bounds
+                    if (ref2->attr && ref2->attr->index[ref2->attr->num_index-1].size != 0) { // Static array case
+                        // Check if the index is out of bounds if the pointer points to a static array
+                        if (index_value >= ref2->attr->index[ref2->attr->num_index-1].size || index_value < 0) {
+                            /* print out of bounds error message if MM debug_level is greater than 1 */
+                            if (debug_level > 1) {
+                                emitError("Memory Manager ERROR: Array index out of bounds.") ;
+                            }
+                            free(ref2);
+                            return (TRICK_PARAMETER_ARRAY_SIZE);
                         }
-                        free(ref2);
-                        return (TRICK_PARAMETER_ARRAY_SIZE);
-                    }
-                } else { // Dynamic array case
-                    // Check if the index is out of bounds if the pointer points to a dynamic array
-                    if (index_value >= (get_size(*(void**)(R->address)))) {
-                        /* print out of bounds error message if MM debug_level is greater than 1 */
-                        if (debug_level > 1) {
-                            std::stringstream message;
-                            message << index_value << " is out of bounds for " << R->reference << " (size=" << get_size(*(void**)(R->address)) << ").";
-                            emitError(message.str());
+                    } else { // Dynamic array case
+                        // Check if the index is out of bounds if the pointer points to a dynamic array
+                        if (index_value >= (get_size(*(void**)(R->address)))) {
+                            /* print out of bounds error message if MM debug_level is greater than 1 */
+                            if (debug_level > 1) {
+                                std::stringstream message;
+                                message << index_value << " is out of bounds for " << R->reference << " (size=" << get_size(*(void**)(R->address)) << ").";
+                                emitError(message.str());
+                            }
+                            free(ref2);
+                            return (TRICK_PARAMETER_ARRAY_SIZE);
                         }
-                        free(ref2);
-                        return (TRICK_PARAMETER_ARRAY_SIZE);
                     }
                 }
             } // if (!ref_name.empty() && ref_name.front() == '&') {
