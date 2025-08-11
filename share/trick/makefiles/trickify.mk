@@ -125,6 +125,7 @@ TRICK_CXXFLAGS += $(TRICKIFY_CXX_FLAGS)
 
 # Ensure we can process all headers
 TRICK_EXT_LIB_DIRS := $(TRICKIFY_EXT_LIB_DIRS)
+TRICK_EXT_LIB_DIRS_OVERRIDES := $(TRICKIFY_EXT_LIB_DIRS_OVERRIDES)
 
 UNAME := $(shell uname)
 ifeq ($(UNAME), Linux)

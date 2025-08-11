@@ -17,6 +17,7 @@ use strict ;
 my @exclude_paths ;
 my @swig_exclude_paths ;
 my @ext_lib_paths ;
+my @ext_lib_paths_overrides ;
 my @files_to_process ;
 my @ext_lib_files ;
 my %md5s ;
@@ -86,9 +87,11 @@ sub read_files_to_process() {
             # separate paths in TRICK_EXT_LIB_DIRS
             foreach my $path ( @ext_lib_paths ) {
                 if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
-                    print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
-                    $ext_libs{$word} = 1 ;
-                    next outer ;
+                    if ( get_containing_path( $word, @ext_lib_paths_overrides eq 0) ) {
+                        print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
+                        $ext_libs{$word} = 1 ;
+                        next outer ;
+                    }
                 }
             }
             $files{$word} = 1 ;
@@ -377,6 +380,7 @@ all: $swig_sim_zip
 @exclude_paths = get_paths( "TRICK_EXCLUDE" ) ;
 @swig_exclude_paths = get_paths( "TRICK_SWIG_EXCLUDE" ) ;
 @ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
+@ext_lib_paths_overrides = get_paths( "TRICK_EXT_LIB_DIRS_OVERRIDES" ) ;
 read_files_to_process() ;
 write_makefile_swig_deps() ;
 

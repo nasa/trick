@@ -36,7 +36,7 @@ public class TrickifyPanel extends JPanel
 
     private String trickHome;
 
-    private int mainFrameWidth = DirSelect.textFieldWidth + DirSelect.buttonWidth + 50;
+    private int mainFrameWidth = DirSelect.textFieldWidth + DirSelect.buttonWidth + 150;
     private int mainFrameHeight = 700;
 
     private JPanel mainPanel;

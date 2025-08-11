@@ -97,6 +97,7 @@ sub gte (@) {
     $def{"TRICK_ICG_IGNORE_TYPES"} = "" ;
     $def{"TRICK_SWIG_EXCLUDE"} = "" ;
     $def{"TRICK_EXT_LIB_DIRS"} = "" ;
+    $def{"TRICK_EXT_LIB_DIRS_OVERRIDES"} = "" ;
     $def{"TRICK_PYTHON_PATH"} = "" ;
     $def{"TRICK_LDFLAGS"} = "" ;
     $def{"TRICK_MAKE"} = "" ;
