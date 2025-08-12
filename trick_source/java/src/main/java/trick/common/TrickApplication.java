@@ -103,7 +103,7 @@ public abstract class TrickApplication extends SingleFrameApplication implements
     protected static String[] lafShortNames;
 
     /** Timeout in milliseconds for attempting to connect to the Variable Server */
-    protected int varServerTimeout = 5000;
+    protected int varServerTimeout = 2000;
 
     //========================================
     //    Private Data
