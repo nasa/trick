@@ -176,8 +176,6 @@ public class SimControlApplication extends TrickApplication implements PropertyC
     private static boolean isRestartOptionOn;
     //True if an error was encountered during the attempt to connect to Variable Server during intialize()
     private boolean errOnInitConnect = false;
-    //Time out when attempting to establish connection with Variable Server in milliseconds
-    private int varServerTimeout = 5000;
     
     // The object of SimState that has Sim state data.
     private SimState simState;
@@ -425,7 +423,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
 			String errMsg = "Error: SimControlApplication:getInitializationPacket()";
             try {
             	if (host != null && port != -1) {
-            		commandSimcom = new VariableServerConnection(host, port, varServerTimeout);
+                    commandSimcom = new VariableServerConnection(host, port, varServerTimeout);
             	} else {
             		commandSimcom = null;
             	}
@@ -434,7 +432,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 errMsg += "\n Unknown host \""+host+"\"";
                 errMsg += "\n Please use a valid host name (e.g. localhost)";
                 errOnInitConnect = true;   
-		printErrorMessage(errMsg); 
+                printErrorMessage(errMsg);
             } catch (SocketTimeoutException ste) {
                 /** Connection attempt timed out. */
                 errMsg += "\n Connection Timeout \""+host+"\"";
@@ -448,7 +446,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 errMsg += "\n IOException ..." + ioe;
                 errMsg += "\n If there is no connection, please make sure SIM is up running properly!";
                 errOnInitConnect = true;
-		printErrorMessage(errMsg);
+                printErrorMessage(errMsg);
             } 
             
             if (commandSimcom == null) {
