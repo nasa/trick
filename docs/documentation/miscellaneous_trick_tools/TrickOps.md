@@ -15,7 +15,7 @@
 * [The TrickOps Design](#regarding-the-design-why-do-i-have-to-write-my-own-script)
 * [Tips and Best Practices](#tips-and-best-practices)
 * [MonteCarloGenerationHelper](#montecarlogenerationhelper---trickops-helper-class-for-montecarlogeneratesm-users)
-* [TrickOps Helper Class](#send_hs---trickops-helper-class-for-parsing-simulation-diagnostics)
+* [TrickOps Helper Class](#sendhs---trickops-helper-class-for-parsing-simulation-diagnostics)
 * [More Information](#more-information)
 
 # TrickOps
