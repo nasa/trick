@@ -1076,8 +1076,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
     @Override
     protected void connect() throws IOException {
-        super.connect();
-        variableServerConnection.setTimeout(varServerTimeout);
+        super.connect(varServerTimeout);
 
         //variableServerConnection.setDebugLevel(3);
         variableServerConnection.setClientTag("TRICK_TV_DATA_CHANNEL");

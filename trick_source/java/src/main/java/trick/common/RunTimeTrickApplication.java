@@ -106,6 +106,20 @@ public abstract class RunTimeTrickApplication extends TrickApplication {
         }
     }
 
+    /** attempts to connect to the simulation specified by the current host name, port, and timeout
+     * @throws IOException IOException
+     */
+    protected void connect(int timeout) throws IOException {
+        if (!connected) {
+            variableServerConnection = new VariableServerConnection(
+              getHostName(), getPort(), timeout);
+            setConnectionState(true);
+        }
+        else {
+            throw new IOException("Already connected.");
+        }
+    }
+
     /** attempts to disconnect from the simulation
      * @throws IOException IOException
      */

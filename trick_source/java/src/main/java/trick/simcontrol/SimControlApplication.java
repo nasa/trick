@@ -432,7 +432,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 errMsg += "\n Unknown host \""+host+"\"";
                 errMsg += "\n Please use a valid host name (e.g. localhost)";
                 errOnInitConnect = true;   
-		printErrorMessage(errMsg); 
+                printErrorMessage(errMsg);
             } catch (SocketTimeoutException ste) {
                 /** Connection attempt timed out. */
                 errMsg += "\n Connection Timeout \""+host+"\"";
@@ -446,7 +446,7 @@ public class SimControlApplication extends TrickApplication implements PropertyC
                 errMsg += "\n IOException ..." + ioe;
                 errMsg += "\n If there is no connection, please make sure SIM is up running properly!";
                 errOnInitConnect = true;
-		printErrorMessage(errMsg);
+                printErrorMessage(errMsg);
             } 
             
             if (commandSimcom == null) {

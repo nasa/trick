@@ -83,16 +83,6 @@ public class VariableServerConnection implements AutoCloseable {
     }
 
     /**
-     * sets timeout in milliseconds.
-     * 
-     * @param timeout
-     * @throws IOException
-     */
-    public void setTimeout(int timeout) throws IOException {
-        socket.setSoTimeout(timeout);
-    }
-
-    /**
      * sends the given command and any commands in the output stream's buffer
      * to the Variable Server. The command is written to the output stream,
      * and the buffer is flushed. A newline is automatically appended to the
