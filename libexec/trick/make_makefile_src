@@ -50,7 +50,7 @@ sub read_lib_deps($@) {
                chomp @all_lines ;
                read_lib_deps($indent + 1 , @all_lines) ;
             } else {
-                print "[34mDepTracing1[0m " , " " x $indent, "$l\n" ;
+                print "[34mDepTracing[0m " , " " x $indent, "$l\n" ;
                 if ( -e $l ) {
                     my $deps_changed ;
                     my @resolved_files ;
@@ -76,7 +76,7 @@ if ( scalar @ARGV ) {
         next if ( $f eq "build/Makefile_src_deps" or $f eq "build/Makefile_io_src" or $f eq "S_source.hh") ;
         my $deps_changed ;
         my @resolved_files ;
-        print "[34mDepTracing2[0m " , "$f\n" ;
+        print "[34mDepTracing[0m " , "$f\n" ;
         ($deps_changed , @resolved_files ) = write_lib_deps($f) ;
         $any_deps_changed |= $deps_changed ;
     }

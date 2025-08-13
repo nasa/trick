@@ -14,7 +14,7 @@ use strict ;
 
 my $verbose_build = verbose_build() ;
 my @ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
-my @ext_lib_paths_dirs = get_paths( "TRICK_EXT_LIB_DIRS_OVERRIDES" ) ;
+my @ext_lib_paths_overrides = get_paths( "TRICK_EXT_LIB_DIRS_OVERRIDES" ) ;
 
 sub get_lib_deps ($$) {
     my ($contents, $source_file_name) = @_ ;
@@ -162,10 +162,10 @@ sub get_lib_deps ($$) {
     my @included_ordered_resolved_files;
     foreach (@ordered_resolved_files) {
         if ( my $exclude_path = get_containing_path( $_, @ext_lib_paths ) ) {
-            if ( get_containing_path( $_, @ext_lib_paths_overrides eq 0) ) {
+            if ( get_containing_path( $_, @ext_lib_paths_overrides ) eq 0 ) {
                 print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$exclude_path[24m" . substr($_, length $exclude_path) . "\n" if $verbose_build ;
+                next ;
             }
-            next ;
         }
         push @included_ordered_resolved_files, $_ ;
     }

@@ -87,7 +87,7 @@ sub read_files_to_process() {
             # separate paths in TRICK_EXT_LIB_DIRS
             foreach my $path ( @ext_lib_paths ) {
                 if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
-                    if ( get_containing_path( $word, @ext_lib_paths_overrides eq 0) ) {
+                    if ( get_containing_path( $word, @ext_lib_paths_overrides) eq 0 ) {
                         print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
                         $ext_libs{$word} = 1 ;
                         next outer ;

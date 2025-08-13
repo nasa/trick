@@ -97,7 +97,7 @@ foreach my $file ( @{$sim{mis_entry_files}} ) {
     if ( $file ne "" ) {
         $file = abs_path(dirname($file)) . "/" . basename($file) ;
         if ( my $path = get_containing_path( $file, @ext_lib_paths ) ) {
-            if ( get_containing_path( $file, @ext_lib_paths_overrides eq 0) ) {
+            if ( get_containing_path( $file, @ext_lib_paths_overrides ) eq 0 ) {
                 print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$path[24m" . substr($file, length $path) . "\n" if $verbose_build ;
                 next ;
             }

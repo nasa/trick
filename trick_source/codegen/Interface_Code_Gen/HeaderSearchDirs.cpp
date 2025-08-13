@@ -306,9 +306,9 @@ bool HeaderSearchDirs::isPathInExtLib (const std::string& in_dir ) {
     std::vector<std::string>::iterator vit ;
     for ( vit = ext_lib_dirs.begin() ; vit != ext_lib_dirs.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
-            //if ( ! isPathInExtLibOverrides(in_dir) ) {
+            if ( ! isPathInExtLibOverrides(in_dir) ) {
                 return true ;
-            //}
+            }
         }
     }
 
@@ -318,7 +318,7 @@ bool HeaderSearchDirs::isPathInExtLib (const std::string& in_dir ) {
 bool HeaderSearchDirs::isPathInExtLibOverrides (const std::string& in_dir ) {
 
     std::vector<std::string>::iterator vit ;
-    for ( vit = ext_lib_dirs_overrides.begin() ; vit != ext_lib_dirs.end() ; ++vit ) {
+    for ( vit = ext_lib_dirs_overrides.begin() ; vit != ext_lib_dirs_overrides.end() ; ++vit ) {
         if ( ! in_dir.compare(0, (*vit).size(), (*vit))) {
             return true ;
         }

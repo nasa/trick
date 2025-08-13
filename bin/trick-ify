@@ -1,12 +1,24 @@
 #!/usr/bin/perl
 #TODO:
 #   trick-CP Makefile_Src loop
+#       occurs when tricify, then direct into trick-CP with no clean
 #   Fix S_define including S_source.hh as dep
 #   perl errors not logged from gui
 #   remove redundant env variables
 #   what happens if no s_overrides? Check other fields for good measure.
 #   verify building with dirs+exclusion / s_Define+filter works
 #   consider applying this logic: if ( $path =~ /^\Q$exclude_path\E(.*)/ or abs_path($path) =~ /^\Q$exclude_path\E(.*)/ )
+#   add S_defined libs to TRICK_EXT_LIB_DIRS
+#       Just do filter and make it mandatory? Is there ever a scenario where the filter isn't necessary?
+#   find_file_by_ext alreayd handles full file paths, make sure the whole system does and allow the source/header dirs to be files
+#   utilize remove_redundant_paths?
+#   refine compilation options, make sure equivalent to a normal trick build
+#   split s_define/dirs build methods in GUI into separate panels
+#   Consider removing the separate src/header dirs and consolidating into dir
+#   If a trickified lib exists, and is referenced via the S_overrides, subsequent sim builds (and trickify) rebuilds can generate a botched trickify_deps
+#       include a if AM_I_TRICKIFYING guard in the trickify s_overrides
+#   Make build printing more useful. Color code, more info behind verbose
+#   getting a strange issue in when building with a clean trick-cp/trickify in fish, getting cat fails on io and py link lists
 
 use File::Basename ;
 use File::Find ;
@@ -73,6 +85,25 @@ sub filter_paths($$)
     @$file_refs = @pruned_list ;
 }
 
+sub remove_redundant_paths($)
+{
+    my ($paths) = @_ ;
+
+    my %pruned_list ;
+    @pruned_list{@$paths} = 1 ;
+    foreach my $path (@$paths)
+    {
+        foreach my $p (@$paths)
+        {
+            if(($p =~ /^\Q$path\E/) and ($p ne $path))
+            {
+                delete $pruned_list{$p} ;
+            }
+        }
+    }
+    @$paths = keys %pruned_list ;
+}
+
 my $my_path = $0 ;
 $my_path =~ s/trick-ify// ;
 our @header_ext = (".h", ".hh", ".hpp", ".H", ".hxx", ".h++") ;
@@ -126,6 +157,7 @@ GetOptions
     "s_define_filter=s"         => \$s_define_filter                 # Only use files from the S_define under these dirs
 ) ;
 
+# If we are trickifying, tells trick-CP to stop after trickify_deps is built
 $ENV{'AM_I_TRICKIFYING'} = 1 ;
 
 # If user provided an S_define, run a partial trick-CP and retrieve the lib dependencies
@@ -255,31 +287,29 @@ elsif ( $build_type eq "so" || $build_type eq "dylib" )
 
 #Build the S_overrides_trickify.mk
 print "Building S_overrides_trickify.mk\n" ;  
-my $abs_headers_str = "" ;
-my @abs_headers = split ' ', $ENV{'TRICKIFY_HEADER'} ;
-foreach my $hdr (@abs_headers)
-{
-    my $tmpstr = Cwd::abs_path($hdr) ;
-    $abs_headers_str = "$abs_headers_str:$tmpstr" ;
-}
-#$abs_headers_str = "\"$abs_headers_str\"" ;
+my $ext_lib_dir ;
+$ext_lib_dir     = join '', (map {":$_"} (split ' ', $header_dir)) ;
+$ext_lib_dir    .= join '', (map {":$_"} (split ' ', $source_dir)) ;
+$ext_lib_dir    .= join '', (map {":$_"} @filters) ;
 
 my $my_cwd = $ENV{'TRICKIFY_BUILD'};
 #TODO: Might want to add an option to make this a relative path.        
 open (my $fh, ">", "S_overrides_trickify.mk") or die "Could not open S_overrides_trickify.mk\n" ;
+print $fh "ifndef AM_I_TRICKIFYING\n" ;  # Only want these parameters if we are doing normal sim builds, otherwise the ext libs will butcher the trickify_deps
 print $fh "LOCAL_DIR := \$(abspath \$(dir \$(lastword \$(MAKEFILE_LIST))))\n\n" ;
 print $fh "TRICK_LDFLAGS += " . Cwd::abs_path($ENV{'TRICKIFY_OBJECT_NAME'}) . "\n" ;
-print $fh "TRICK_EXT_LIB_DIRS += $abs_headers_str\n" ;
-print $fh "TRICK_EXT_LIB_DIRS_OVERRIDES += $exclude_arg \n" ;
+print $fh "TRICK_EXT_LIB_DIRS += $ext_lib_dir\n" ;
+print $fh "TRICK_EXT_LIB_DIRS_OVERRIDES += ", join '', (map {":$_"} @exclude_list) ,"\n" ;
 print $fh "TRICK_PYTHON_PATH += :" . $my_cwd . "/python\n" ;
 print $fh "TRICK_SWIG_FLAGS += -I" . $my_cwd . "\n" ;
 print $fh "\nclean_trickify:\n" ;
 print $fh "\t-make -C \$(LOCAL_DIR) clean_trickify\n" ;
 print $fh "\nnuke_trickify:\n" ;
 print $fh "\t-make -C \$(LOCAL_DIR) nuke_trickify\n" ;
+print $fh "endif\n" ;
 close ($fh) ;
 
-open (my $fh, ">", "makefile") or die "Could not create makefile\n" ;
+open ($fh, ">", "makefile") or die "Could not create makefile\n" ;
 print $fh "LOCAL_DIR := \$(abspath \$(dir \$(lastword \$(MAKEFILE_LIST))))\n" ;
 print $fh "\nclean_trickify:\n" ;
 print $fh "\t-rm -rf build .trick\n" ;
