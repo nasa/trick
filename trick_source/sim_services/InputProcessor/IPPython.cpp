@@ -136,6 +136,12 @@ int Trick::IPPython::init() {
         PyRun_SimpleString("sys.settrace(trick.traceit)") ;
     }
 
+    /* Read and parse the input file. */
+    if ( save_input ) {
+        PyRun_SimpleString("trick.open_input_file_log()") ;
+        PyRun_SimpleString("sys.settrace(trick.traceittofile)") ;
+    }
+
     if ( (ret = PyRun_SimpleFile(input_fp, input_file.c_str())) !=  0 ) {
         exec_terminate_with_return(ret , __FILE__ , __LINE__ , "Input Processor error\n" ) ;
     }
@@ -147,6 +153,11 @@ int Trick::IPPython::init() {
        ss << "print('{0} SHA1: {1}'.format(input_file,hashlib.sha1(open(input_file, 'rb').read()).hexdigest()))" << std::endl ;
        PyRun_SimpleString(ss.str().c_str()) ;
        exec_terminate_with_return(ret , __FILE__ , __LINE__ , "Input file verification complete\n" ) ;
+    }
+
+    if ( save_input ) {
+        PyRun_SimpleString("trick.close_input_file_log()") ;
+        PyRun_SimpleString("sys.settrace(None)") ;
     }
 
     fclose(input_fp) ;
