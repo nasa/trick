@@ -326,11 +326,25 @@ sub process_file() {
 \%insert(\"begin\") \%{
 #include <Python.h>
 #include <cstddef>
-\%}
+\%}\n" ;
 
+        if ($f =~ /.hh/) { #Check if CPP file
+        print OUT "
 \%{
 #include \"$f\"
 \%}\n" ;
+        } else {
+        print OUT "
+\%{
+#ifdef __cplusplus
+extern \"C\" {
+#endif
+#include \"$f\"
+#ifdef __cplusplus
+}
+#endif
+\%}\n" ;
+        }
 
         print OUT "\n" ;
         my %class_typemap_printed ;
