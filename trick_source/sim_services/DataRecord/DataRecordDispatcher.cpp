@@ -9,6 +9,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <unistd.h>
+#include <algorithm>
 
 #include <signal.h>
 #if __linux__
@@ -69,8 +70,12 @@ void Trick::DRDWriterThread::dump( std::ostream & oss ) {
     Trick::ThreadBase::dump(oss) ;
 }
 
-Trick::DataRecordDispatcher::DataRecordDispatcher() : drd_writer_thread(drd_mutexes, groups) {
-    the_drd = this ;
+Trick::DataRecordDispatcher::DataRecordDispatcher()
+    : drd_writer_thread(drd_mutexes, groups),
+      verify_log_vars(true),
+      warning_level(1)
+{
+    the_drd = this;
 }
 
 Trick::DataRecordDispatcher::~DataRecordDispatcher() {
@@ -112,6 +117,18 @@ int Trick::DataRecordDispatcher::add_sim_object(Trick::SimObject * in_object ) {
         groups.push_back(drg) ;
     }
     return 0 ;
+}
+
+/** @brief set verification check on/off */
+void Trick::DataRecordDispatcher::set_verif_onoff(bool state)
+{
+    verify_log_vars = state;
+}
+
+/** @brief set verification warning level */
+void Trick::DataRecordDispatcher::set_warning_level(int level)
+{
+    warning_level = level;
 }
 
 /**
@@ -333,6 +350,125 @@ int Trick::DataRecordDispatcher::init_groups() {
     for ( ii = 0 ; ii < groups.size() ; ii++ ) {
         groups[ii]->init() ;
     }
+
+    if(verify_log_vars)
+    {
+        processMultipleVarLoggedCheck();
+    }
+
     return 0 ;
 }
 
+/**
+@details
+ * Checks the data logging configuration in Trick against certain error or warning conditions.
+ * Current conditions for errors are:
+ * -  A variable logged in two different DataRecordGroup instances at a different rate
+ */
+void Trick::DataRecordDispatcher::processMultipleVarLoggedCheck()
+{
+    bool isLoggedMultipleTimes = false;
+
+    // Check that a variable isn't logged multiple times in a log file.
+    checkMultiVarSingleLogGroup(isLoggedMultipleTimes);
+
+    // Check that a variable isn't logged in multiple log files.
+    checkMultiVarMultiLogGroups(isLoggedMultipleTimes);
+
+    if(isLoggedMultipleTimes && warning_level > 0)
+    {
+        std::stringstream ss;
+        ss << "Invalid or unsafe logging configuration. Exiting..." << std::endl;
+        if (warning_level >= 2)
+            exec_terminate_with_return(-1, __FILE__, __LINE__, ss.str().c_str());
+    }
+}
+
+void Trick::DataRecordDispatcher::checkMultiVarSingleLogGroup(bool & isLoggedMultipleTimes)
+{
+    // Check that a variable isn't logged multiple times in a log file.
+    for(size_t grpIdx = 0; grpIdx < groups.size(); ++grpIdx)
+    {
+        Trick::DataRecordGroup * drGroup = groups[grpIdx];
+        // Start at index 1 to skip exec time.
+        for(size_t varOneIdx = 1; varOneIdx < drGroup->rec_buffer.size(); ++varOneIdx)
+        {
+            for(size_t varTwoIdx = varOneIdx + 1; varTwoIdx < drGroup->rec_buffer.size(); ++varTwoIdx)
+            {
+                Trick::DataRecordBuffer * var1 = drGroup->rec_buffer[varOneIdx];
+                Trick::DataRecordBuffer * var2 = drGroup->rec_buffer[varTwoIdx];
+                const std::string & var1CmpStr = var1->alias.empty() ? var1->name : var1->alias;
+                const std::string & var2CmpStr = var2->alias.empty() ? var2->name : var2->alias;
+                if(var1CmpStr.compare(var2CmpStr) == 0)
+                {
+                    isLoggedMultipleTimes = true;
+                    if (warning_level >= 1)
+                    {
+                        std::stringstream ss;
+                        ss << "The variable \"";
+                        if(var1->alias.empty())
+                        {
+                            ss << var1->name << "\"";
+                        }
+                        else
+                        {
+                            ss << var1->name << "\" (logged as alias \"" << var1->alias << "\")";
+                        }
+                        ss << " is being logged twice in the data recording group \"" << drGroup->group_name << "\" ."
+                            << std::endl;
+                        message_publish(MSG_ERROR, ss.str().c_str());
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Trick::DataRecordDispatcher::checkMultiVarMultiLogGroups(bool & isLoggedMultipleTimes)
+{
+    for(size_t grpOneIdx = 0; grpOneIdx < groups.size(); ++grpOneIdx)
+    {
+        Trick::DataRecordGroup * drGroupOne = groups[grpOneIdx];
+        for(auto & var1 : drGroupOne->rec_buffer)
+        {
+            if(var1->name.compare("sys.exec.out.time") == 0)
+            {
+                continue;
+            }
+            for(size_t grpTwoIdx = grpOneIdx + 1; grpTwoIdx < groups.size(); ++grpTwoIdx)
+            {
+                Trick::DataRecordGroup * drGroupTwo = groups[grpTwoIdx];
+
+                auto nameCompare = [var1](Trick::DataRecordBuffer * var2)
+                {
+                    const std::string & var1CmpStr = var1->alias.empty() ? var1->name : var1->alias;
+                    const std::string & var2CmpStr = var2->alias.empty() ? var2->name : var2->alias;
+                    return (var1CmpStr.compare(var2CmpStr) == 0);
+                };
+
+                auto result = std::find_if(drGroupTwo->rec_buffer.begin(), drGroupTwo->rec_buffer.end(), nameCompare);
+                while(result != drGroupTwo->rec_buffer.end())
+                {
+                    isLoggedMultipleTimes = true;
+                    if (warning_level >= 1)
+                    {
+                        std::stringstream ss;
+                        ss << "The variable \"";
+                        if(var1->alias.empty())
+                        {
+                            ss << var1->name << "\"";
+                        }
+                        else
+                        {
+                            ss << var1->name << "\" (logged as alias \"" << var1->alias << "\")";
+                        }
+                        ss << " is being logged in both \"" << drGroupOne->group_name << "\" and \""
+                            << drGroupTwo->group_name << "\" data recording groups." << std::endl;
+                        message_publish(MSG_ERROR, ss.str().c_str());
+                    }
+                    result = std::find_if(++result, drGroupTwo->rec_buffer.end(), nameCompare);
+                }
+            }
+        }
+    }
+}
