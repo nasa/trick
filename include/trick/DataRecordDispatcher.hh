@@ -114,6 +114,12 @@ namespace Trick {
             // override the default Schduler::add_sim_object
             virtual int add_sim_object( Trick::SimObject * in_object ) ;
 
+            /** @brief set verification check on/off */
+            void set_verif_onoff(bool state);
+
+            /** @brief set verification warning level */
+            void set_warning_level(int level);
+
             // routines inherited from scheduler... this class does not need to do anything with these.
             virtual int write_s_job_execution( FILE * fp __attribute__((unused))) { return 0 ; } ;
             virtual int instrument_job_before(Trick::JobData * instrument_job __attribute__((unused))) { return 0 ; } ;
@@ -123,6 +129,8 @@ namespace Trick {
             /** Writer thread */
             DRDWriterThread drd_writer_thread ;
 
+            int warning_level ; // Level 0: disabled  Level 1: printed warning  Level 2+: exec_terminate
+
         protected:
 
             /** All groups using this buffering technique */
@@ -131,6 +139,14 @@ namespace Trick {
             /** mutexes shared with writer thread */
             DRDMutexes drd_mutexes ;  // trick_io(**)
 
+            bool verify_log_vars; // trick_io(**)
+
+            // Checks the data logging configuration in Trick against certain error or warning conditions.
+            // Current conditions for errors are:
+            // -  A variable logged in two different DataRecordGroup instances at a different rate
+            void processMultipleVarLoggedCheck();
+            void checkMultiVarSingleLogGroup(bool & isLoggedMultipleTimes);
+            void checkMultiVarMultiLogGroups(bool & isLoggedMultipleTimes);
 
         private:
             void operator =(const Trick::DataRecordDispatcher &) ;
