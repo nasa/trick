@@ -1,0 +1,30 @@
+/**************************TRICK HEADER***********************
+PURPOSE: ( S_define )
+LIBRARY DEPENDENCIES:
+(
+     (dr/src/DR.cpp)
+     (dr/src/DR_default_data.cpp)
+)
+*************************************************************/
+#define TRICK_NO_MONTE_CARLO
+#define TRICK_NO_MASTERSLAVE
+#define TRICK_NO_REALTIMEINJECTOR
+#define TRICK_NO_ZEROCONF
+
+#include "sim_objects/default_trick_sys.sm"
+
+##include "dr/include/DR.hh"
+
+class testSimObject : public Trick::SimObject {
+	public:
+		DRTypes drt;
+
+		testSimObject() {
+			("default_data") drt.init();
+		}
+};
+
+// Instantiations
+testSimObject drx;
+
+
