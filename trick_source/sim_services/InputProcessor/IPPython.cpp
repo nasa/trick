@@ -111,6 +111,8 @@ int Trick::IPPython::init() {
      "import os\n"
      "import struct\n"
      "import binascii\n"
+     "if 'VIRTUAL_ENV' in os.environ:\n"
+     "    sys.path.append(os.path.join(os.environ['VIRTUAL_ENV'], \"lib\", f\"python{sys.version_info.major}.{sys.version_info.minor}\", \"site-packages\"))\n"
      "sys.path.append(os.getcwd() + '/trick.zip')\n"
      "sys.path.append(os.path.join(os.environ['TRICK_HOME'], 'share/trick/pymods'))\n"
      "sys.path += map(str.strip, os.environ['TRICK_PYTHON_PATH'].split(':'))\n"
