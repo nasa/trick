@@ -938,13 +938,15 @@ sub handle_sim_class_job($$$) {
     # Remove tags from first_part before parsing child/phase to avoid conflicts
     my $first_part_no_tag = $first_part;
     $first_part_no_tag =~ s/\{[\w_.,\s]+\}//g;
-    # Extract child
-    if ($first_part_no_tag =~ /([Cc][\w.\-\>]+)/) {
-        $child = $1;
-    }
-    # Extract phase
-    if ($first_part_no_tag =~ /([Pp][\w.\-\>]+)/) {
+    # Extract phase first (must be at word boundary or start of string)
+    if ($first_part_no_tag =~ /(?:^|\s)([Pp][\w.\-\>]+)(?:\s|$)/) {
         $phase = $1;
+        # Remove the phase from the string to avoid child extraction conflicts
+        $first_part_no_tag =~ s/(?:^|\s)[Pp][\w.\-\>]+(?:\s|$)//;
+    }
+    # Extract child (must be at word boundary or start of string)  
+    if ($first_part_no_tag =~ /(?:^|\s)([Cc][\w.\-\>]+)(?:\s|$)/) {
+        $child = $1;
     }
 
     # Extract timing spec from second part if it exists
