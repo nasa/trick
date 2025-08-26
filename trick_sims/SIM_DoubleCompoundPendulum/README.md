@@ -1,7 +1,7 @@
 # Double Compound Pendulum 
 
 
-![Double Compound Pendulum Sketch](images\Picture1_ Double Compound Pendulum Sketch.png) 
+![Double Compound Pendulum Sketch](images/Picture1_ Double Compound Pendulum Sketch.png) 
 
 
 A double compound pendulum is a mechanical system consisting of two bodies, one which is attached to a fixed base on one end and the other which is attached to the loose end of the first. “Compound” refers to the fact that the mass of the system is not concentrated completely at one point. These pendulums are both free to rotate about their attachment point, provided they maintain the above constraints. 
