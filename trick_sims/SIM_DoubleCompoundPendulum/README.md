@@ -52,17 +52,17 @@ To run, type in the terminal while in the SIM_DoubleCompoundPendulum directory:
 To  the motion of this pendulum, we start by getting the kinematic equations associated with it. The following equations present the position in the x and y directions of the center of mass of each mass on the pendulum. 
 
 
-![Positions in X and Y of mass 1](images\Picture2_First Set of Position Equations.png) 
+![](images/Picture2_FirstSetofPositionEquations.png) 
 
-![Positions in X and Y of mass 2](images\Picture3_Second Set of Position Equations.png) 
+![](images/Picture3_SecondSetofPositionEquations.png) 
 
 
 Once you have these values, you can differentiate them in order to derive the velocity of each pendulum: 
 
 
-![Velocities in X and Y of mass 1](\images\Picture4_First set of Velocity Equations.png) 
+![](images/Picture4_FirstsetofVelocityEquations.png) 
 
-![Velocities in X and Y of mass 1](\images\Picture5_Second set of Velocity Equations.png) 
+![](images/Picture5_SecondsetofVelocityEquations.png) 
 
 
 Finally, you can use these values to derive the potential and kinetic energy of the system. 
@@ -74,13 +74,13 @@ Finally, you can use these values to derive the potential and kinetic energy of 
 The general equation for potential energy: 
 
 
-![Potential Energy General Equation](images\Picture6_General Potential Energy Equation.png) 
+![](images/Picture6_GeneralPotentialEnergyEquation.png) 
 
 
 Can be applied to our simulation by just plugging in the values we have for the y components of position. 
 
 
-![Potential Energy Equation with Variables Plugged in](images\Picture7_Potential Energy with variables plugged in.png) 
+![](images/Picture7_PotentialEnergywithvariablespluggedin.png) 
 
 
 For the purpose of simplicity in coding, we included 2 variables to make the potential energy equation less hairy. 
@@ -88,9 +88,9 @@ For the purpose of simplicity in coding, we included 2 variables to make the pot
 
 Hence: 
 
-![Mu1 and Mu2](images\Picture8_ Mu1 and Mu2.png) 
+![](images/Picture8_Mu1andMu2.png) 
 
-![Final Potential Energy Equation](images\Picture9_Final potential energy Equation) 
+![](images/Picture9_FinalpotentialenergyEquation) 
 
 
 #### Kinetic Energy 
@@ -98,30 +98,30 @@ Hence:
 When deriving kinetic energy there is both translational and rotational energy, and the equation must account for both. Hence the general equation for kinetic energy is as follows. 
 
 
-![Kinetic Energy General Equation](\images for Double Compound Pendulum README\Picture10_General Kinetic Energy Equation.png) 
+![](images/Picture10_GeneralKineticEnergyEquation.png) 
 
 
 If we plug in the position, velocity, and inertia for a slim rod where they belong in this equation, we arrive at an equation for kinetic energy as follows. 
 
 
-![Kinetic Energy Equation with Variables Plugged in](\images\Picture11_Kinetic Energy with variables plugged in.png) 
+![](images/Picture11_KineticEnergywithvariablespluggedin.png) 
 
 
 Using the following trigonometric identities as well as variables to simplify the equation 
 
 
-![Trigonometric Identities](\images\Picture12_Trigonometric Identities.png) 
+![](images/Picture12_TrigonometricIdentities.png) 
 
-![J1, J2, J3 for kinetic energy](\imagesPicture13_J1 and J2 and J3.png) 
+![](images/Picture13_J1andJ2andJ3.png) 
 
 We arrive at the equation used in the simulation. 
 
-![Final Kinetic Energy Equation](\images\Picture14_Final kinetic Energy Equation.png) 
+![](images/Picture14_FinalkineticEnergyEquation.png) 
 
 ## Angular Momentum 
 Angular Momentum is equal to inertia times the angular velocity of an object. As such, our equation for inertia comes out to:
-![Angular Momentum Equation](\images\Picture15_AngularMomentumFormula.png)
+![](images/Picture15_AngularMomentumFormula.png)
 
 ## Results with Default Parameterization
-![Graphs of Double Pendulum with Default Values](\images\Picture16_Graphs)
+![](images/Picture16_Graphs)
 
