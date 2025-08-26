@@ -123,5 +123,5 @@ Angular Momentum is equal to inertia times the angular velocity of an object. As
 ![](images/Picture15_AngularMomentumFormula.png)
 
 ## Results with Default Parameterization
-![](images/Picture16_Graphs)
+![](images/Picture16_Graphs.png)
 
