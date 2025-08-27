@@ -53,6 +53,7 @@ def run_subprocess(command, m_shell=False, m_cwd=None, m_stdout=subprocess.PIPE,
 
 def run_tests(args):
 
+    os.environ["VIRGO_BATCH_TESTS_OVERRIDE"] = "1"  # Force all visualization off
     loader = unittest.TestLoader()
 
     suites = loader.discover(start_dir=this_dir, pattern='test.py', top_level_dir=this_dir)

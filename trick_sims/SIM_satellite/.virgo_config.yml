@@ -7,18 +7,19 @@
    earth: 
      mesh: PREFAB:earth
      scale: 1.0             # Size multiplier
-     pos:   [0.0, 0.0, 0.0] # initial position in scene
-     pyr:   [0.0, 0.0, 0.0] # initial pitch-yaw-roll rotation in scene
+     pos:   [0.0, 0.0, 0.0] # initial position offset in scene
+     pyr:   [0.0, 0.0, 0.0] # pitch-yaw-roll rotation offset, applied after pos:
      pickable: 0
      driven_by: 0 # Not driven by any logged variable
    satellite:
      mesh: PREFAB:cube         # Size multiplier
      scale: 100.0
-     pos: [0.0, 0.0, 0.0]       # initial position in scene
-     pyr: [0.0, 0.0, 90.0]      # initial pitch-yaw-roll rotation in scene
+     pos: [0.0, 0.0, 0.0]
+     pyr: [0.0, 0.0, 90.0]
      color: [0.6, 0.6, 0.6]
      pickable: 1
      driven_by:  # <group> <variable>
+       time: sys.exec.out.time  # Name given to time (first) column
        pos: Satellite dyn.satellite.pos  # <dr group> <dr variable array of size 3>
        rot: Satellite dyn.satellite.R    # <dr group> <dr variable array of size 3x3>
 

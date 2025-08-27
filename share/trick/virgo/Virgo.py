@@ -16,7 +16,8 @@ MAX_CLIPPING_RANGE=1e9
 # Example of custom interactor style to override the default 'e' key behavior
 class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     """
-    To be filled out
+    Virgo Interactor Style which adds some capabilities on top of the VTK
+    provided vtkInteractorStyleTrackballCamera
     """
     def __init__(self):
         super().__init__()
@@ -82,8 +83,8 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
     def assert_sorted(lst):
         if not all(lst[i] <= lst[i + 1] for i in range(len(lst) - 1)):
             raise ValueError("List is not sorted in ascending order.")
-    def __init__(self, mesh, init_pyr=None, times=None, positions=None, rotations=None,
-                 name='No Name', fontsize=12):
+    def __init__(self, mesh, offset_pos=None, offset_pyr=None, times=None,
+                 positions=None, rotations=None, name='No Name', fontsize=12):
         """
         Initialize this instance.
 
@@ -97,10 +98,14 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
             3D representation of the actor in the scene, which is either 
              a path to an object file to load like .obj, .stl, or a supported
              PREFAB (TODO more info needed here)
-        init_pyr : list of 3 doubles
+        offset_pos : list of 3 doubles
+             X-Y-Z position to apply to the model on
+             init. Used to adjust position of a model relative to the origin of
+             of the model as provided by the CAD or PREFAB itself
+        offset_pyr : list of 3 doubles
              X-Y-Z (Pitch-Yaw-Roll) rotation in degrees to apply to the model on
              init. Used to rotate a model into another frame immediately upon
-             model creation.
+             model creation. This rotation is performed after offset_pos is applied.
         times : sorted list of ascending doubles
             List representing all time steps for all data associated with this
             actor
@@ -124,31 +129,53 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
 
         self.mesh  = mesh
         self._map_mesh(mesh)
-        self.init_pyr  = init_pyr            # Initialization pitch/yaw/roll to apply to to actor
+        self.offset_pos  = offset_pos     # Initialization position offset to apply to to actor
+        self.offset_pyr  = offset_pyr     # Initialization pitch/yaw/roll to apply to to actor
         self.axes_label_render_threshold = 50    # min distance axes labels can be seen
         
         self.name = name            # Name of this actor
         self.fs = fontsize          # Font size for text associated with this actor
         self._axes = None           # Cartesian axes for this actor
-        # Additional properties
-        self._times = times         # List of doubles of all times provided by TrickPy, or None if not driven
-        self._positions = positions # List of tuples (x, y, z) of all positions provided by TrickPy, or None if not driven
-        self._rotations = rotations # List of doubles of all rotations (3x3 matrix) provided by TrickPy, or None if not driven
+        # Lists of state data
+        self._times = times
+        self._positions = positions 
+        self._rotations = rotations 
         #import pdb; pdb.set_trace()
         self._last_time    = 0.0      # Last time associated with this actor
         self._last_time_idx = 0       # Index in self._times associated with self._last_time
         self._current_time = 0.0      # Time associated with this actor's data right now, must equal a value in self._times
         self._current_time_idx = 0    # Index in self._times associated with self._current_time
-        self.verify()
-        if self.init_pyr:
+        self.static = False       # If true, this actor never moves
+        self.initialized = False  # True only if this actor has all needed data to be used
+        if self.offset_pos:
           # Apply the initial position/rotation to this object
-          self.RotateX(self.init_pyr[0])
-          self.RotateY(self.init_pyr[1])
-          self.RotateZ(self.init_pyr[2])
+          self.AddPosition(offset_pos)
+        # TODO: PYR may not be sufficient for end users, we may need to consider
+        # different rotation schemes
+        if self.offset_pyr:
+          # Apply the initial position/rotation to this object
+          self.RotateX(self.offset_pyr[0])
+          self.RotateY(self.offset_pyr[1])
+          self.RotateZ(self.offset_pyr[2])
+
+    def set_static(self, value=True):
+        self.static = value
+
+    def initialize(self):
+        self.verify()
+
+    def set_times(self, times):
+        self._times = times
+
+    def set_positions(self, positions):
+        self._positions = positions
+
+    def set_rotations(self, rotations):
+        self._rotations = rotations
 
     def _map_mesh(self, mesh):
         """
-        Given a string mesh (a path to a model file or a PREFAB),  set up the vtk
+        Given a string mesh (a path to a model file or a PREFAB), set up the vtk
         mapper with the configuration of geometry given
         """
         # TODO: this is quick and dirty, need a PREFAB management class that VirgoDataPlaybackActor uses
@@ -184,15 +211,22 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
             cube_source.SetZLength(1.0)
             # Create a mapper to map the cube's geometry to graphics primitives
             mapper.SetInputConnection(cube_source.GetOutputPort())
-        else:
+        elif '.obj' in str(mesh):
             # Read in the geometry
             reader = vtk.vtkOBJReader()
             reader.SetFileName(mesh)
             reader.Update()
             # Create a mapper and set the reader's output
             mapper.SetInputConnection(reader.GetOutputPort())
-            # Set the mapper to the actor
+        elif '.stl' in str(mesh):
+            # Read in the geometry
+            reader = vtk.vtkSTLReader()
+            reader.SetFileName(mesh)
+            reader.Update()
+            # Create a mapper and set the reader's output
+            mapper.SetInputConnection(reader.GetOutputPort())
 
+        # Set the mapper to the actor
         self.SetMapper(mapper)
         if texture:
             self.SetTexture(texture)
@@ -211,13 +245,30 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
     def verify(self):
         """
         Checks for required assumptions of the model and raises if any issues found
+        Assigns self.initialized = True when all conditions are met
         TODO: Add other checks if we add other paramters
         """
-        if self._times and self._positions and len(self._times) != len(self._positions):
-            raise ValueError(f"Given lists times and positions are not the same length")
-            self.assert_sorted(self._times)
-        if self._rotations and (len(self._times) != len(self._rotations)):
-            raise ValueError(f"Given lists times and rotations are not the same length")
+        if not self.static:
+          # Ensure self._times is a list
+          if not isinstance(self._times, list):
+            raise ValueError(f"Expected {self.name}'s self._times to be a list of doubles "
+                             f"but got {type(self._times)} instead")
+          # Ensure self._times list contains only doubles
+          for i, t in enumerate(self._times):
+            if not isinstance(t, float):
+              raise ValueError(f"Expected {self.name}'s self._times[{i}] to be a double "
+                               f"but got {type(self._times[i])} instead")
+          # Ensure self._times list of doubles is sorted, lowest to highest
+          self.assert_sorted(self._times)
+  
+          # Ensure lists are the same length
+          if self._positions and len(self._times) != len(self._positions):
+            raise ValueError(f"{self.name}'s self._times and self._positions are not the same length")
+          if self._rotations and (len(self._times) != len(self._rotations)):
+            raise ValueError(f"{self.name}'s self._times and self._rotations lists are not the same length")
+
+        # If we made it this far, the actor is fully initialized
+        self.initialized = True
 
     def get_current_time(self):
         """
@@ -251,7 +302,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         """
         Increase the self._current_time_idx and update self.current_time accordingly
         """
-        if not self._times:
+        if not self.initialized or self.static:
             return None
         self._current_time_idx += 1
         self._current_time = self._times[self._current_time_idx]
@@ -260,7 +311,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         """
         Decrease the self._current_time_idx and update self.current_time accordingly
         """
-        if not self._times:
+        if not self.initialized or self.static:
             return None
         self._current_time_idx -= 1
         self._current_time = self._times[self._current_time_idx]
@@ -269,7 +320,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         """
         Return the time from self._times after given world_time
         """
-        if not self._times:
+        if not self.initialized or self.static:
             return None
         if  self._current_time_idx + 1 >= len(self._times):
             return self._times[0]  # loop back to beginning
@@ -282,7 +333,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         """
         Return the time from self._times before given world_time
         """
-        if not self._times:
+        if not self.initialized or self.static:
             return None
         if self._times[self._current_time_idx] < world_time: 
             return self._times[self._current_time_idx]
@@ -309,7 +360,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
           data recording groups at different rates. Maybe there's a better way that doesn't
           end up bisecting a list every time (see _find_index).
         """
-        if not self._times:
+        if not self.initialized or self.static:
             return None
 
         self._current_time_idx = self._find_index(mylist=self._times, input_value=time, mode=strategy)
@@ -374,20 +425,30 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
             return None
 
     def update(self, world_time):
-        if not self._times:
+        """
+        Update this actor's position and rotation to the values associated
+        with data closest to world_time (see set_current_time) by applying
+        a matrix transform to self.
+        """
+        if not self.initialized or self.static:
             return # Nothing to do
         self.set_current_time(world_time)
         pos = self.get_current_position()
         rot = self.get_current_rotation()
+        if pos == None and rot == None:
+            return  # Nothing to update
+
         # Convert rotation matrix to VTK transform
         transform = vtk.vtkTransform()
         matrix = vtk.vtkMatrix4x4()
-        for i in range(3):
-            for j in range(3):
-                matrix.SetElement(i, j, rot[i][j])
-        matrix.SetElement(0, 3, pos[0])
-        matrix.SetElement(1, 3, pos[1])
-        matrix.SetElement(2, 3, pos[2])
+        if rot is not None:
+            for i in range(3):
+                for j in range(3):
+                    matrix.SetElement(i, j, rot[i][j])
+        if pos is not None:
+            matrix.SetElement(0, 3, pos[0])
+            matrix.SetElement(1, 3, pos[1])
+            matrix.SetElement(2, 3, pos[2])
         transform.SetMatrix(matrix)
         self.SetUserTransform(transform)
 
@@ -436,7 +497,13 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         self._axes.SetAxisLabels(distance < self.axes_label_render_threshold)
 
 class VirgoDataPlaybackControlCenter:
+    """
+    The control center class for Virgo Data playback
+    """
     def __init__(self, renderer, interactor, scene, data_record_groups, world_time=0.0):
+        """
+        Constructor
+        """
         # Current scene world time (not necessarily aligned with sim data time)
         self.world_time = self.world_time_start = world_time 
         self.wallclock_time = time.time()  # Actual wall clock time in real life
@@ -453,16 +520,9 @@ class VirgoDataPlaybackControlCenter:
         self.data_record_groups = data_record_groups
         self.skybox = self.create_skybox()
         self.actors = {}
-        self.init_actors()
         self.text_actors={}
-        self.text_actors['mode'] = self.create_text_actor()
-        self.text_actors['picked'] = self.create_text_actor(pos=[10,10])
-        self.text_actors['time'] = self.create_text_actor()
-        self.text_actors['help'] = self.create_text_actor()
-        self.text_actors['camera'] = self.create_text_actor()
-        self.text_actors['warning'] = self.create_text_actor()
 
-        self.help = False
+        self.help = False  # Display help message when true
         self.picker = vtk.vtkPropPicker()
         self.picked_actor      = None # Currently picked actor or None if not
         self.last_picked_actor = None
@@ -473,16 +533,44 @@ class VirgoDataPlaybackControlCenter:
         # self.dt: Increment time by this amount every timer update (sec)
         self.default_dt = self.dt = self.frame_rate / 1000.0
         self.playback_speed = 1.0  # Speed of playback
+        # TODO make this configurable in the YAML file
         self.available_speeds = [1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
         self.huge = 1.0e30   # A huge floating point number used for finding smallest values
+        self._initialized = False
+        self.verbosity = 1
+
+    def initialize(self):
+        """
+        Set up the scene with actors
+        """
+        self.init_actors()
+        self.text_actors['mode'] = self.create_text_actor()
+        self.text_actors['picked'] = self.create_text_actor(pos=[10,10])
+        self.text_actors['time'] = self.create_text_actor()
+        self.text_actors['help'] = self.create_text_actor()
+        self.text_actors['camera'] = self.create_text_actor()
+        self.text_actors['warning'] = self.create_text_actor()
 
         # Add actors in scene
         for a in self.actors:
-            renderer.AddActor(self.actors[a])
+            self.renderer.AddActor(self.actors[a])
         for t in self.text_actors:
-            renderer.AddActor(self.text_actors[t])
+            self.renderer.AddActor(self.text_actors[t])
 
         self.init_camera()
+        self._initialized = True
+
+    def is_initialized(self):
+        return self._initialized
+
+    def get_verbosity(self):
+        return self.verbosity
+
+    def set_verbosity(self, value):
+        if not isinstance(value, int):
+            print("ERROR: verbosity must be an integer")
+        else:
+            self.verbosity = value
 
     def add_axes_to_actors(self):
         """
@@ -591,6 +679,8 @@ class VirgoDataPlaybackControlCenter:
                 tidx += 1
             return rotations_list
         for a in self.scene['actors']:
+            if self.verbosity > 0:
+                print(f"Initializing {a} ...")
             # Figure out the details of whether the actor is driven or not to prepare
             # inputs for initializing the actor
             positions = None
@@ -598,9 +688,10 @@ class VirgoDataPlaybackControlCenter:
             times = None
             driven_by= self.scene['actors'][a]['driven_by']
             if driven_by != 0:
+                time = driven_by['time']
                 group = driven_by['pos'].split(' ')[0]
                 var   = driven_by['pos'].split(' ')[1]
-                times = self.data_record_groups[group]['sys.exec.out.time'].tolist()
+                times = self.data_record_groups[group][time].tolist()
                 # Store off the highest simulation time across all actors
                 if times[-1] > self.max_sim_time:
                     self.max_sim_time = times[-1]
@@ -616,13 +707,17 @@ class VirgoDataPlaybackControlCenter:
             # Create the Actor
             self.actors[a] = VirgoDataPlaybackActor(
                 mesh=self.scene['actors'][a]['mesh'],
-                init_pyr=self.scene['actors'][a]['pyr'],
+                offset_pos=self.scene['actors'][a]['pos'],
+                offset_pyr=self.scene['actors'][a]['pyr'],
                 times=times,
                 positions=positions,
                 rotations=rotations,
                 name=a,
                 fontsize=self.fs
                 )
+            if driven_by == 0: # If nothing drives this, set static flag to True
+                self.actors[a].set_static(True)
+            self.actors[a].initialize()
             self.actors[a].SetScale(self.scene['actors'][a]['scale'])
             if 'color' in self.scene['actors'][a]:
                 self.actors[a].GetProperty().SetColor(self.scene['actors'][a]['color'])
@@ -1091,16 +1186,29 @@ class VirgoDataPlayback:
     between the data recording groups/variables and the actors in the scene
     is controlled by the "driven_by:" clause of the YAML file
     """
-    def __init__(self, run_dir, scene):
+    def __init__(self, run_dir, scene, verbosity=1):
+        self.verbosity = verbosity
         self.scene = scene # Dict of scene info from YAML file
         self._verify_scene()
         self.run_dir = run_dir
         import trickpy.data_record as dr
         # All logged data from run_dir in the dict TrickPy gives us
+        # TODO: we can save on RAM by loading on the variables we care
+        # about which we can get from self.scene, see the variables arg to dr.load_run() here:
+        # https://web-fsl.jsc.nasa.gov/trickpy/latest/docs/trickpy.data_record.load_run.html#trickpy.data_record.load_run
+
+        if self.verbosity > 0:
+            print(f"Loading data from {self.run_dir}...")
         self.data_record_groups = dr.load_run(self.run_dir)
 
+    def _load_variables_for_scene(self):
+        pass
+
     def _verify_scene(self):
-        """TODO: Call a dict verifier here, similar to TrickWorkflowYamlVerifier"""
+        """
+        TODO: Call a dict verifier here, similar to TrickWorkflowYamlVerifier
+        TODO: make sure we verify that the variables read from TrickPy actually exist
+        """
         pass
 
     def run(self):
@@ -1124,9 +1232,16 @@ class VirgoDataPlayback:
     
         # Create controller
         controller = VirgoDataPlaybackControlCenter(renderer, interactor, self.scene, self.data_record_groups)
-    
+        controller.set_verbosity(self.verbosity)
         controller.register_callbacks()
+        controller.initialize()
+
+        if not controller.is_initialized():
+            print("ERROR: Scene is not properly initialized. Exiting.")
+            return(1)
     
+        if self.verbosity > 0:
+            print("Entering render window and interactor loop...")
         render_window.Render()
         interactor.Start()
         return 0
