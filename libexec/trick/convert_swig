@@ -328,7 +328,7 @@ sub process_file() {
 #include <cstddef>
 \%}\n" ;
 
-        if ($f =~ /.hh/) { #Check if CPP file
+        if ($f =~ /.hh/ || $f =~ /.hpp/) { #Check if CPP file
         print OUT "
 \%{
 #include \"$f\"
