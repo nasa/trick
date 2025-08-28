@@ -74,9 +74,9 @@ is_null = False
 if trick.get_data_record_group_by_idx(num_drgs+1) is None :
     is_null = True
 if has_dhf5:
-    TRICK_EXPECT_TRUE(  is_null, test_suite , "null drg by drg id 7" )
+    TRICK_EXPECT_TRUE(  is_null, test_suite , "null drg by drg id 10" )
 else:
-    TRICK_EXPECT_TRUE(  is_null, test_suite , "null drg by drg id 5" )
+    TRICK_EXPECT_TRUE(  is_null, test_suite , "null drg by drg id 7" )
 
 is_null = False
 if trick.get_data_record_group_by_idx(-1) is None :
