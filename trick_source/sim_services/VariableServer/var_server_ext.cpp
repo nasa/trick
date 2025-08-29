@@ -543,10 +543,11 @@ int var_set_base( const char  * var , T value , const char * units ) {
                 ref->units = NULL ;
             }
             ref_assignment(ref , &v_tree) ;
-            if(ref->units != NULL) {
-                free(ref->units) ;
-                ref->units = NULL;
-            }
+
+            // Free allocated memory within a REF2 structure. Does not free the REF2 itself
+            ref_free(ref) ;
+
+            // Free the REF2 structure itself
             free(ref) ;
             ref = NULL;
         } else {
