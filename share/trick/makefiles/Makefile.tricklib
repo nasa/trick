@@ -35,7 +35,7 @@ Y_C_PREMADE = $(subst .y,.tab.c_premade,$(Y_SRC))
 Y_H    = $(subst .y,.tab.hpp,$(Y_SRC))
 Y_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .y,.tab.o,$(Y_SRC))))
 
-C_SRC = $(filter-out $(Y_C) $(L_C), $(wildcard $(SRC_DIR)*.c))
+C_SRC = $(wildcard $(SRC_DIR)*.c)
 
 CYL_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .c,.o,$(C_SRC))))
 CL_OBJS = $(filter-out $(Y_OBJS), $(CYL_OBJS))
@@ -81,7 +81,7 @@ objects: $(OBJECT_FILES)
 	@ echo "[32m$(CURDIR) object files up to date[00m"
 
 $(TRICK_LIB) : $(OBJECT_FILES) | $(TRICK_LIB_DIR)
-	ar crs $@ $(OBJECT_FILES)
+	ar crs $@ $^
 
 $(OBJ_DIR):
 	mkdir -p $@
