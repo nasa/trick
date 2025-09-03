@@ -18,6 +18,9 @@ def suite():
     suites.append(unittest.TestLoader().loadTestsFromTestCase(VirgoDataPlaybackActorTestCase))
     return (suites)
 
+    import time
+
+
 class VirgoDataPlaybackActorStaticMethodsTestCase(unittest.TestCase):
     def test__find_index(self):
         """
@@ -45,6 +48,43 @@ class VirgoDataPlaybackActorStaticMethodsTestCase(unittest.TestCase):
         # Before the beginning of the list should return 0 (first index)
         idx = VirgoDataPlaybackActor._find_index(times, -10.0)
         self.assertEqual(idx, 0)
+
+    def test__find_index_timing(self):
+        """
+        Test the _find_index static method with respect to wall clock time.
+
+        This function is called every update frame so it's efficiency is critical
+        TODO: This might not be a good idea as wall-clock execution time changes
+              machine to machine, we may wish to disable this test and just leave it
+              around for manual use. -Jordan 9/2025
+        """
+        def get_time_taken(times_list, chosen_time):
+            start_time = time.perf_counter()
+            idx = VirgoDataPlaybackActor._find_index(times_list, chosen_time, mode='down')
+            end_time = time.perf_counter()
+            time_taken = end_time - start_time
+            print(f"DEBUG: _find_index() took {time_taken} sec operating on list of size {len(times_list)}")
+            return time_taken
+
+        # 10 entries
+        time_taken = get_time_taken(sorted([x for x in range(10)]), 3.3)
+        self.assertLess(time_taken, 1e-5)
+        # 100 entries
+        time_taken = get_time_taken(sorted([x for x in range(100)]), 33.3)
+        self.assertLess(time_taken, 1e-5)
+        # 1000 entries
+        time_taken = get_time_taken(sorted([x for x in range(1000)]), 333.3)
+        self.assertLess(time_taken, 1e-5)
+        # 10000 entries
+        time_taken = get_time_taken(sorted([x for x in range(10000)]), 3333.3)
+        self.assertLess(time_taken, 1e-4)
+        # 100000 entries
+        time_taken = get_time_taken(sorted([x for x in range(100000)]), 33333.3)
+        self.assertLess(time_taken, 1e-4)
+        # 1000000 entries
+        time_taken = get_time_taken(sorted([x for x in range(1000000)]), 333333.3)
+        self.assertLess(time_taken, 1e-4)
+
 
 class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
 
@@ -119,3 +159,25 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         #self.visualize = True
         #self.show_grid = True
         #self.show_origin = True
+
+    def test_init_prefab_moon(self):
+        """
+        Test the PREFAB:moon option
+        """
+        self.instance = VirgoDataPlaybackActor(mesh="PREFAB:moon")
+        self.origin_axes.SetTotalLength(3e6, 3e6, 3e6)  # Size of axes (x, y, z lengths)
+        # TODO assertions go here!
+        self.visualize = True
+        self.show_origin = True
+        #self.show_grid = True
+
+    def test_init_prefab_earth(self):
+        """
+        Test the PREFAB:earth option
+        """
+        self.instance = VirgoDataPlaybackActor(mesh="PREFAB:earth")
+        self.origin_axes.SetTotalLength(1e7, 1e7, 1e7)  # Size of axes (x, y, z lengths)
+        # TODO assertions go here!
+        #self.visualize = True
+        #self.show_origin = True
+        #self.show_grid = True
