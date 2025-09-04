@@ -119,10 +119,6 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
             Name given to this actor
         fontsize : int
             Default fontsize for text associated with this actor
-
-        TODO: Probably need init_pos offset, and to consider how this class would
-          operate if the times, positions, rotations list is too big to fit into
-          memory
         """
         # Call the parent class constructor to ensure proper initialization
         super().__init__()
@@ -147,9 +143,25 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         self._current_time_idx = 0    # Index in self._times associated with self._current_time
         self.static = False       # If true, this actor never moves
         self.initialized = False  # True only if this actor has all needed data to be used
+        self.axes_default_scale = 0.5  # Default scaling of axes to be applied
+        # Trail related members
+        self._trail_points = None
+        self._trail_lines = None
+        self._trail_polydata = None
+        self._trail_mapper = None
+        self._trail_actor = None
+        self._trail_polyline = None
+
+    def set_static(self, value=True):
+        self.static = value
+
+    def initialize(self):
+        """
+        Perform pre-rendering setup/initialization
+        """
         if self.offset_pos:
           # Apply the initial position/rotation to this object
-          self.AddPosition(offset_pos)
+          self.AddPosition(self.offset_pos)
         # TODO: PYR may not be sufficient for end users, we may need to consider
         # different rotation schemes
         if self.offset_pyr:
@@ -157,11 +169,6 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
           self.RotateX(self.offset_pyr[0])
           self.RotateY(self.offset_pyr[1])
           self.RotateZ(self.offset_pyr[2])
-
-    def set_static(self, value=True):
-        self.static = value
-
-    def initialize(self):
         self.verify()
 
     def set_times(self, times):
@@ -172,6 +179,132 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
 
     def set_rotations(self, rotations):
         self._rotations = rotations
+
+    def get_bounding_box(self):
+        '''
+        Return a list of actor bounding box [x_size, y_size, z_size]
+        '''
+
+        # Get size of actor to automatically scale size of axes
+        bounds = self.GetBounds()
+        # Bounds are returned as (xmin, xmax, ymin, ymax, zmin, zmax)
+        center = [(bounds[0] + bounds[1]) / 2.0,  # x-center
+                  (bounds[2] + bounds[3]) / 2.0,  # y-center
+                  (bounds[4] + bounds[5]) / 2.0]  # z-center
+        # Calculate the size of the bounding box
+        size = [bounds[1] - bounds[0],  # x-size
+                bounds[3] - bounds[2],  # y-size
+                bounds[5] - bounds[4]]  # z-size
+
+        return size
+
+    def create_trail(self, color=[0.0, 0.0, 0.0], thickness=2):
+        self._trail_points = vtk.vtkPoints()
+        self._trail_lines = vtk.vtkCellArray()
+        self._trail_polydata = vtk.vtkPolyData()
+        self._trail_polydata.SetPoints(self._trail_points)
+        self._trail_polydata.SetLines(self._trail_lines)
+        
+        self._trail_mapper = vtk.vtkPolyDataMapper()
+        self._trail_mapper.SetInputData(self._trail_polydata)
+        
+        self._trail_actor = vtk.vtkActor()
+        self._trail_actor.SetMapper(self._trail_mapper)
+        self._trail_actor.GetProperty().SetColor(color[0], color[1], color[2])  # yellow trail
+        self._trail_actor.GetProperty().SetLineWidth(thickness)
+        
+        # Maintain a polyline of visited positions
+        self._trail_polyline = vtk.vtkPolyLine()
+        self._trail_polyline.GetPointIds().SetNumberOfIds(0)  # start empty
+
+        return self._trail_actor
+        
+    def update_trail(self):
+        """
+        Add point and connecting line to the trail using the current actor
+        position
+        """
+        if not self._trail_points:
+            return
+        # TODO: it might be better to get the position of the actor here
+        # instead of the truth data from the data record file even though
+        # they should always be identical
+        pos = self.get_current_position()
+        pid = self._trail_points.InsertNextPoint(pos[0], pos[1], pos[2])
+        self._trail_polyline.GetPointIds().InsertNextId(pid)
+    
+        # Update line structure
+        self._trail_lines.Reset()
+        self._trail_lines.InsertNextCell(self._trail_polyline)
+    
+        self._trail_points.Modified()
+        self._trail_lines.Modified()
+        self._trail_polydata.Modified()
+
+    def reset_trail(self):
+        """
+        Remove all lines/points from this actor's trail actor
+        """
+        if not self._trail_points:
+            return
+        self._trail_polyline.GetPointIds().Reset()
+        self._trail_points.Reset()
+        self._trail_lines.Reset()
+        self._trail_points.Modified()
+        self._trail_lines.Modified()
+        self._trail_polydata.Modified()
+
+    def add_axes(self, position=[0,0,0]):
+        """
+        Create a vtkAxesActor positioned at the given position relative to this
+        actor's origin, store it internally in self._axes, and also return it
+        to the calling function.
+        """
+        # Skip non-pickable actors. TODO: we need more axes options, this is a quick fix
+        #if not actor.GetPickable():
+        #    continue
+        # Create axes actor
+        axes = vtk.vtkAxesActor()
+        
+        bb = self.get_bounding_box()
+        # Calculate arrow length as avg of largest and smallest bounding box dimension
+        length = (max(bb) + min(bb))/2.0
+        # TODO make this arrow scale a value changeable in the YAML file
+        #scale = 0.5
+        # Set axes properties
+        axes.SetTotalLength(self.axes_default_scale*length, self.axes_default_scale*length,
+                            self.axes_default_scale*length)
+        axes.SetShaftTypeToCylinder()  # Cylindrical shafts for visibility
+        axes.SetAxisLabels(True)  # Show x, y, z labels
+        axes.SetConeRadius(0.5)  # Size of arrowheads
+        
+        # Customize colors for clarity
+        axes.GetXAxisCaptionActor2D().GetProperty().SetColor(1, 0, 0)  # Red X
+        axes.GetYAxisCaptionActor2D().GetProperty().SetColor(0, 1, 0)  # Green Y
+        axes.GetZAxisCaptionActor2D().GetProperty().SetColor(0, 0, 1)  # Blue Z
+
+        # Set font size for axis labels
+        axes.GetXAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontSize(int(self.fs*2))
+        axes.GetXAxisCaptionActor2D().GetTextActor().SetTextScaleModeToNone()
+        axes.GetYAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontSize(int(self.fs*2))
+        axes.GetYAxisCaptionActor2D().GetTextActor().SetTextScaleModeToNone()
+        axes.GetZAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontSize(int(self.fs*2))
+        axes.GetZAxisCaptionActor2D().GetTextActor().SetTextScaleModeToNone()
+        
+        # Optionally set font family (e.g., to match your text actor's Courier)
+        axes.GetXAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontFamilyToCourier()
+        axes.GetYAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontFamilyToCourier()
+        axes.GetZAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontFamilyToCourier()
+        
+        # Set the position of the axes to the actor's origin
+        axes.SetPosition(position[0], position[1], position[2])
+        axes.SetVisibility(False) # Default to not visible
+        # TODO: This should probably be set inside the actor based on stored actor bounds
+        # when the actor is init'd. Not sure if I even like this feature so maybe remove it
+        self.axes_label_render_threshold = length*20
+
+        self._axes = axes
+        return axes
 
     def _map_mesh(self, mesh):
         """
@@ -468,6 +601,8 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
 
         # Move the axes to where the parent actor is
         self._axes.SetUserTransform(transform)
+        # If there's a trail, update it
+        self.update_trail()
 
     def are_axes_visible(self):
         if not self._axes:
@@ -534,6 +669,7 @@ class VirgoDataPlaybackControlCenter:
         self.data_record_groups = data_record_groups
         self.skybox = self.create_skybox()
         self.actors = {}
+        self.trail_actors = {}
         self.text_actors={}
 
         self.help = False  # Display help message when true
@@ -565,9 +701,20 @@ class VirgoDataPlaybackControlCenter:
         self.text_actors['camera'] = self.create_text_actor()
         self.text_actors['warning'] = self.create_text_actor()
 
+        # TODO these options also need to go in the verifier
+        if 'starfield' in self.scene:
+            self.skybox.SetVisibility(bool(self.scene['starfield']))
+        if 'playback_speeds' in self.scene:
+            self.available_speeds = self.scene['playback_speeds']
+        if 'playback_speed' in self.scene:
+            # TODO verify self.playback_speed is in self.available_speeds
+            self.playback_speed = self.scene['playback_speed']
+
         # Add actors in scene
         for a in self.actors:
             self.renderer.AddActor(self.actors[a])
+        for a in self.trail_actors:
+            self.renderer.AddActor(self.trail_actors[a])
         for t in self.text_actors:
             self.renderer.AddActor(self.text_actors[t])
 
@@ -589,71 +736,12 @@ class VirgoDataPlaybackControlCenter:
     def add_axes_to_actors(self):
         """
         Add a vtkAxesActor to each actor in self.actors, positioned at the actor's origin.
-
-        TODO: this should probably be moved to inside the VirgoDataPlaybackActor class
         """
-        for name, actor in self.actors.items():
-            # Skip non-pickable actors. TODO: we need more axes options, this is a quick fix
-            if not actor.GetPickable():
-                continue
-            # Create axes actor
-            axes = vtk.vtkAxesActor()
-            
-            # Get size of actor to automatically scale size of axes
-            bounds = actor.GetBounds()
-            # Bounds are returned as (xmin, xmax, ymin, ymax, zmin, zmax)
-            center = [(bounds[0] + bounds[1]) / 2.0,  # x-center
-                      (bounds[2] + bounds[3]) / 2.0,  # y-center
-                      (bounds[4] + bounds[5]) / 2.0]  # z-center
-            # Calculate the size of the bounding box
-            size = [bounds[1] - bounds[0],  # x-size
-                    bounds[3] - bounds[2],  # y-size
-                    bounds[5] - bounds[4]]  # z-size
-            # Calculate arrow length as avg of largest and smallest bounding box dimension
-            length = (max(size) + min(size))/2.0
-            # TODO make this arrow scale a value changeable in the YAML file
-            scale = 0.5
-            # Set axes properties
-            axes.SetTotalLength(scale*length, scale*length, scale*length)  # Size of axes (x, y, z lengths)
-            axes.SetShaftTypeToCylinder()  # Cylindrical shafts for visibility
-            axes.SetAxisLabels(True)  # Show x, y, z labels
-            axes.SetConeRadius(0.5)  # Size of arrowheads
-            
-            # Customize colors for clarity
-            axes.GetXAxisCaptionActor2D().GetProperty().SetColor(1, 0, 0)  # Red X
-            axes.GetYAxisCaptionActor2D().GetProperty().SetColor(0, 1, 0)  # Green Y
-            axes.GetZAxisCaptionActor2D().GetProperty().SetColor(0, 0, 1)  # Blue Z
-
-            # Set font size for axis labels
-            axes.GetXAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontSize(int(self.fs*2))
-            axes.GetXAxisCaptionActor2D().GetTextActor().SetTextScaleModeToNone()
-            axes.GetYAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontSize(int(self.fs*2))
-            axes.GetYAxisCaptionActor2D().GetTextActor().SetTextScaleModeToNone()
-            axes.GetZAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontSize(int(self.fs*2))
-            axes.GetZAxisCaptionActor2D().GetTextActor().SetTextScaleModeToNone()
-            
-            # Optionally set font family (e.g., to match your text actor's Courier)
-            axes.GetXAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontFamilyToCourier()
-            axes.GetYAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontFamilyToCourier()
-            axes.GetZAxisCaptionActor2D().GetTextActor().GetTextProperty().SetFontFamilyToCourier()
-            
-            # Fallback to center if no origin
-            origin = actor.GetOrigin() or actor.GetCenter()
-            if origin is None:  # Fallback if GetCenter() fails
-                origin = [0, 0, 0]
-            
-            # Set the position of the axes to the actor's origin
-            axes.SetPosition(origin[0], origin[1], origin[2])
-            axes.SetVisibility(False) # Default to not visible
-            
+        for actor in self.actors:
+            a = self.actors[actor].add_axes()  # origin axes
             # Add axes to renderer
-            self.renderer.AddActor(axes)
+            self.renderer.AddActor(a)
             
-            # Store axes actor for potential updates
-            actor.set_axes(axes)
-            # TODO: This should probably be set inside the actor based on stored actor bounds
-            # when the actor is init'd
-            actor.axes_label_render_threshold = length*20
 
     def init_actors(self):
         '''
@@ -714,10 +802,12 @@ class VirgoDataPlaybackControlCenter:
                     self.data_record_groups[group][var+'[0]'].tolist(),
                     self.data_record_groups[group][var+'[1]'].tolist(),
                     self.data_record_groups[group][var+'[2]'].tolist()))
-                group = driven_by['rot'].split(' ')[0]
-                var   = driven_by['rot'].split(' ')[1]
-                # ASSUMPTION: rot as specified in the YAML file is a 3X3 sized array
-                rotations = convert_tmat_to_numpy_arrays(self.data_record_groups[group], var, times)
+                rotations = None
+                if 'rot' in driven_by:
+                    group = driven_by['rot'].split(' ')[0]
+                    var   = driven_by['rot'].split(' ')[1]
+                    # ASSUMPTION: rot as specified in the YAML file is a 3X3 sized array
+                    rotations = convert_tmat_to_numpy_arrays(self.data_record_groups[group], var, times)
             # Create the Actor
             self.actors[a] = VirgoDataPlaybackActor(
                 mesh=self.scene['actors'][a]['mesh'],
@@ -731,6 +821,8 @@ class VirgoDataPlaybackControlCenter:
                 )
             if driven_by == 0: # If nothing drives this, set static flag to True
                 self.actors[a].set_static(True)
+            if 'trail' in self.scene['actors'][a] and self.scene['actors'][a]['trail'] != None:
+                self.trail_actors[f"{a}-trail"] = self.actors[a].create_trail(color=self.scene['actors'][a]['trail'])
             self.actors[a].initialize()
             self.actors[a].SetScale(self.scene['actors'][a]['scale'])
             if 'color' in self.scene['actors'][a]:
@@ -756,6 +848,13 @@ class VirgoDataPlaybackControlCenter:
         for actor in self.actors:
             self.actors[actor].update(self.world_time)
 
+    def reset_trails(self):
+        '''
+        Reset all actor trails to no points, no lines
+        '''
+        for actor in self.actors:
+            self.actors[actor].reset_trail()
+
     def update_scene(self):
 
         if self.mode == 'PLAYING':
@@ -766,6 +865,7 @@ class VirgoDataPlaybackControlCenter:
                 self.camera_follow(self.camera_follows)
           else:
              self.world_time = self.world_time_start
+             self.reset_trails()
 
         self.configure_hud()
         # Toggle axes labels based on distance
@@ -774,10 +874,6 @@ class VirgoDataPlaybackControlCenter:
         # I DONT KNOW WHY BUT THIS ONE LINE FIXES THE STARS IN THE BACKGROUND
         self.renderer.ResetCameraClippingRange() # This will auto-adjust clipping based on visible actors
 
-        # THIS VALUE IS CRITICAL, SMALLER NUMBERS (0.00001) MAKE THE BACKGROUND
-        # SKYBOX STARS WIGGLE BUT LARGER NUMBERS (0.0001) MAKE SMALLER ACTORS NOT
-        # VISIBLE DUE TO CLIPPING. TODO this probably shouldn't be set every frame 
-        self.renderer.SetNearClippingPlaneTolerance(0.00005)
         self.renderer.GetRenderWindow().Render()
 
 
@@ -1133,6 +1229,15 @@ class VirgoDataPlaybackControlCenter:
                     self.camera_follows = self.actors[actor]
                     self.interactor.GetInteractorStyle().set_actor(self.camera_follows)
                     self.interactor.GetInteractorStyle().set_renderer(self.renderer)
+
+        # THIS VALUE IS CRITICAL, SMALLER NUMBERS (0.00001) MAKE THE BACKGROUND
+        # SKYBOX STARS WIGGLE BUT LARGER NUMBERS (0.0001) MAKE SMALLER ACTORS NOT
+        # VISIBLE DUE TO CLIPPING. TODO this probably shouldn't be set every frame 
+        # TODO this needs checking in the verifier as well
+        if 'camera' in self.scene and 'near_clipping_plane_tolerance' in self.scene['camera']:
+            self.renderer.SetNearClippingPlaneTolerance(self.scene['camera']['near_clipping_plane_tolerance'])
+        else:
+            self.renderer.SetNearClippingPlaneTolerance(0.00005)
 
     def camera_report(self):
         """

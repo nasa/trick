@@ -2,7 +2,9 @@
  description: SIM_satellite visualization
  background_color: [0.0, 0.0, 0.05]
  highlight_color: [0.9, 0.9, 0.9]
- playback_speed: 1.0
+ playback_speeds: [1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
+ playback_speed: 10.0
+ starfield: 0
  actors:
    earth: 
      mesh: PREFAB:earth
@@ -18,6 +20,7 @@
      pyr: [0.0, 0.0, 90.0]
      color: [0.6, 0.6, 0.6]
      pickable: 1
+     trail: [0.0, 1.0, 0.0] #  # Color of trail
      driven_by:  # <group> <variable>
        time: sys.exec.out.time  # Name given to time (first) column
        pos: Satellite dyn.satellite.pos  # <dr group> <dr variable array of size 3>
@@ -25,3 +28,4 @@
 
  camera:
      follow: satellite
+     near_clipping_plane_tolerance: 0.00001
