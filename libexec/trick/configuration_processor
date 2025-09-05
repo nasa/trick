@@ -23,6 +23,7 @@ my %sim ;
 my $cwd = cwd();
 my $verbose_build = verbose_build() ;
 my @ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
+my @ext_lib_paths_overrides = get_paths( "TRICK_EXT_LIB_DIRS_OVERRIDES" ) ;
 
 # override the print format for help message
 *Pod::Text::seq_i = sub { return "[04m" . $_[1] . "[00m" } ;
@@ -96,8 +97,10 @@ foreach my $file ( @{$sim{mis_entry_files}} ) {
     if ( $file ne "" ) {
         $file = abs_path(dirname($file)) . "/" . basename($file) ;
         if ( my $path = get_containing_path( $file, @ext_lib_paths ) ) {
-            print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$path[24m" . substr($file, length $path) . "\n" if $verbose_build ;
-            next ;
+            if ( get_containing_path( $file, @ext_lib_paths_overrides ) eq 0 ) {
+                print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$path[24m" . substr($file, length $path) . "\n" if $verbose_build ;
+                next ;
+            }
         }
         print LIBDEP "$file\n" ;
     }
