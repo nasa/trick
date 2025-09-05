@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #TODO:
-#   trick-CP Makefile_Src loop
-#       occurs when tricify, then direct into trick-CP with no clean
+#   X trick-CP Makefile_Src loop
+#       occurs when trickify, then direct into trick-CP with no clean
 #   Fix S_define including S_source.hh as dep
 #   perl errors not logged from gui
 #   remove redundant env variables
@@ -16,17 +16,33 @@
 #   split s_define/dirs build methods in GUI into separate panels
 #   Consider removing the separate src/header dirs and consolidating into dir
 #   If a trickified lib exists, and is referenced via the S_overrides, subsequent sim builds (and trickify) rebuilds can generate a botched trickify_deps
-#       include a if AM_I_TRICKIFYING guard in the trickify s_overrides
+#       x include a if AM_I_TRICKIFYING guard in the trickify s_overrides
+#       x !!! NEw plan for handling the trick_deps/build problem: Move build dir, run partial trickCP, delete tmp build, move old build back
+#           Need to handle cleanup on failure
+#           x Need to clean more gracefully. Remove all artifacts w/o make clean
 #   Make build printing more useful. Color code, more info behind verbose
-#   getting a strange issue in when building with a clean trick-cp/trickify in fish, getting cat fails on io and py link lists
+#   x getting a strange issue in when building with a clean trick-cp/trickify in fish, getting cat fails on io and py link lists
+#   progress bar
+#   Add filter excludes to gui
+#   Documenation note: Make sure your build dir is not under the exclude
+#   Mr Penn mascot
+
+use warnings ;
+use strict ;
+
+our $my_path;
+BEGIN
+{
+    $my_path = $0 ;
+    $my_path =~ s/trick-ify// ;
+}
 
 use File::Basename ;
 use File::Find ;
 use Getopt::Long ;
 use Cwd ;
-
-use warnings ;
-use strict ;
+use lib "$my_path../libexec/trick/pm" ;
+use get_makefile_vars ;
 
 sub find_file_by_ext($$)
 {
@@ -104,10 +120,10 @@ sub remove_redundant_paths($)
     @$paths = keys %pruned_list ;
 }
 
-my $my_path = $0 ;
-$my_path =~ s/trick-ify// ;
 our @header_ext = (".h", ".hh", ".hpp", ".H", ".hxx", ".h++") ;
 our @source_ext = (".cpp", ".c", ".cc") ;
+our @trick_build_files = ("build/", "buildmodels/", "DP_Product/", "makefile", "python", "S_main_Linux_8.5_x86_64.exe", "S_sie.resource", "S_source.hh", "trick.zip") ;
+our $tmp_trick_build = "trickifying_tmp" ;
 
 my $build_dir = getcwd ;                                                     # Where to build trickify artifacts
 my $dirs = "" ;                                                              # If set, use for both source and header files
@@ -131,6 +147,13 @@ my $include = "" ;                                                           # D
 my $exclude_arg = "" ;                                                       # Directories to exclude from trickification
 my $s_define = "" ;                                                          # S_define to pull files from
 my $s_define_filter = "" ;                                                   # Only use files from the S_define under these dirs
+
+our $stage = 1;
+sub logStage()
+{
+    open my $fh, '>>', "$build_dir/trickify_stage_$stage" ;
+    $stage++ ;
+}
 
 GetOptions
 (
@@ -159,6 +182,7 @@ GetOptions
 
 # If we are trickifying, tells trick-CP to stop after trickify_deps is built
 $ENV{'AM_I_TRICKIFYING'} = 1 ;
+logStage(); #Stage 1
 
 # If user provided an S_define, run a partial trick-CP and retrieve the lib dependencies
 my $s_define_dir = "" ;
@@ -169,23 +193,28 @@ if($s_define ne "")
     $s_define_dir = dirname($s_define) ;
     chdir Cwd::abs_path($s_define_dir) or die "Error changing to the s_define directory: $s_define_dir\n" ;
     
-    # If the user has already built the sim, we can just grab the lib deps
-    if(-e "build/")
+    # If the user has already built the sim, push it somewhere else
+    map 
     {
-        -e "build/trickify_deps" or die "No trickify_deps in build dir. Clean your sim and try again.\n" ;
+        if(-e $_)
+        {
+            system("mv $_ $tmp_trick_build$_") == 0 or die "Could not move $_\n" ;
+        }
     }
-    # If the sim is not built, run a partial build to generate lib deps
-    else
-    {
-        my $cmd_ret = `$my_path/trick-CP 2>&1` ;
-        -e "build/trickify_deps" or die "Failed to create trickify_deps from S_define.\n" ;
-    }
+    @trick_build_files;    
+
+    my $cmd_ret = `$my_path/trick-CP 2>&1` ;
+    -e "build/trickify_deps" or die "Failed to create trickify_deps from S_define.\n" ;
 
     open (my $fh, "build/trickify_deps") or die "Could not open trickify_deps" ;
     while (my $line = <$fh>) 
     {
         chomp $line ;
-        if($line =~ /(.c$)|(.cc$)|(.cpp$)/)
+        if($line =~ /\QS_source.hh\E$/)
+        {
+            next ;
+        }
+        if(scalar grep {$line =~ /\Q$_\E$/} @source_ext)
         {
             push @lib_deps_source, $line ;
         }
@@ -195,6 +224,18 @@ if($s_define ne "")
         }
     }
     close ($fh) ;
+
+    # Clear up the partial build dir we just made
+    system("make clean") == 0 or die "Could not clean up tmp build dir\n" ;
+
+    map 
+    {
+        if(-e "$tmp_trick_build$_")
+        {
+            system("mv $tmp_trick_build$_ $_") == 0 or die "Could not move $_\n" ;
+        }
+    }
+    @trick_build_files; 
 }
 my @filters = split ' ', $s_define_filter ;
 filter_paths(\@lib_deps_source, \@filters) ;
@@ -259,8 +300,9 @@ foreach my $dir (@src_dirs)
     $source_dir_args .= "-I" . $dir . " " ;
 }
 $ENV{'TRICKIFY_CXX_FLAGS'} = "$source_dir_args -I$trick_home -I$trick_home/include/trick/compat -I$trick_home" . "/include $include_arg " . $ENV{"TRICK_CFLAGS"} . " " . $ENV{"TRICK_CXXFLAGS"} ;#. " " . $ENV{"TRICK_LDFLAGS"} ;
-$ENV{'TRICKIFY_OBJECT_NAME'} = "$name.$build_type" ;
-$ENV{'TRICKIFY_BUILD'} = getcwd ;
+$ENV{'TRICKIFY_OBJECT_NAME'} = "$build_dir/$name.$build_type" ;
+$ENV{'TRICKIFY_BUILD'} = "$build_dir/" ;
+$ENV{'TRICKIFY_PYTHON_DIR'} = "$build_dir/python" ;
 $ENV{'TRICKIFY_SOURCE'} = "$source_dir" ;
 #TODO: Clean this up. Doesn't include S_define headers. Also clean up env in general
 $ENV{'TRICKIFY_HEADER'} = "$header_dir" ;
@@ -292,7 +334,7 @@ $ext_lib_dir     = join '', (map {":$_"} (split ' ', $header_dir)) ;
 $ext_lib_dir    .= join '', (map {":$_"} (split ' ', $source_dir)) ;
 $ext_lib_dir    .= join '', (map {":$_"} @filters) ;
 
-my $my_cwd = $ENV{'TRICKIFY_BUILD'};
+my $my_cwd = getcwd;
 #TODO: Might want to add an option to make this a relative path.        
 open (my $fh, ">", "S_overrides_trickify.mk") or die "Could not open S_overrides_trickify.mk\n" ;
 print $fh "ifndef AM_I_TRICKIFYING\n" ;  # Only want these parameters if we are doing normal sim builds, otherwise the ext libs will butcher the trickify_deps
@@ -316,6 +358,10 @@ print $fh "\t-rm -rf build .trick\n" ;
 print $fh "\t-rm S_source.hh\n" ;
 print $fh "\t-rm trickify_obj_list\n" ;
 print $fh "\t-rm trickify_src_list\n" ;
+print $fh "\t-rm trickify_stage_*\n" ;
+print $fh "\t-rm trickify.log\n" ;
+print $fh "\t-rm get_vars.mk\n" ;
+print $fh "\t-rm var_dump.mk\n" ;
 print $fh "\nnuke_trickify: clean_trickify\n" ;
 print $fh "\t-rm python\n" ;
 print $fh "\t-rm S_overrides_trickify.mk\n" ;
@@ -391,6 +437,7 @@ if ($full_build)
     }
     close ($fh) ;
 }
+logStage(); #Stage 2
 
 #Build object files from source file list
 if ($full_build)
@@ -488,16 +535,22 @@ if(!$no_clean_obj and $full_build)
         }
     } 
 }
+logStage(); #Stage 3
 
 #Build trickify call
 print "Begin Trickification...\n" ;
-my $trickify_make_call = "make $trickify_make_args -f $trickify_make_path/trickify.mk" ;
+chdir Cwd::abs_path($s_overrides_dir) or die "Error changing to s_overrides directory: $s_overrides_dir\n" ;
+dump_makefile_vars($s_overrides, $build_dir, ("TRICKIFY_BUILD_TYPE", "TRICKIFY_OBJECT_NAME", "TRICKIFY_PYTHON_DIR", "TRICK_CFLAGS", "TRICK_CXXFLAGS")) ; 
+chdir Cwd::abs_path($build_dir) or die "Error changing to build directory: $build_dir\n" ;
+$ENV{"TRICKIFY_MAKE_DUMP"} = Cwd::abs_path("var_dump.mk") ;
+my $trickify_make_call = "make $trickify_make_args -f $trickify_make_path/trickify.mk trickify" ;
 my $cmd_ret = `$trickify_make_call 2>&1` ;
 my $cmd_exit_code = $? ;
 if($cmd_ret ne "") 
 {
     print "$cmd_ret" ;
 }
+logStage(); #Stage 4
 
 if($debug) {
     print 

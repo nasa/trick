@@ -90,7 +90,7 @@
 
 MY_HOME := $(dir $(lastword $(MAKEFILE_LIST)))
 
-include $(TRICKIFY_S_OVERRIDES)
+include $(TRICKIFY_MAKE_DUMP)
 
 ifndef TRICKIFY_CXX_FLAGS
     $(error TRICKIFY_CXX_FLAGS must be set)
@@ -138,7 +138,7 @@ else
 endif
 
 .PHONY: all
-all: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
+trickify: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
 	@sh -c '\
@@ -230,9 +230,10 @@ $(TRICKIFY_PYTHON_DIR): $(SWIG_OBJECTS:.o=.cpp) | $(dir $(TRICKIFY_PYTHON_DIR))
 # dependency list. The method is laid out in more detail here:
 # http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
 
+
 $(BUILD_DIR)S_source.d: | $(BUILD_DIR)
 	$(call ECHO_AND_LOG,$(TRICK_HOME)/bin/trick-ICG $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(TRICK_ICGFLAGS) S_source.hh)
 	$(call ECHO_AND_LOG,$(TRICK_HOME)/$(LIBEXEC)/trick/make_makefile_swig)
-	$(call ECHO_AND_LOG,$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICKIFY_CXX_FLAGS) S_source.hh)
+	$(call ECHO_AND_LOG,$(TRICK_CC) -MM -MP -MT $@ -MF $@ $(TRICK_CXXFLAGS) S_source.hh)
 
 -include $(BUILD_DIR)S_source.d

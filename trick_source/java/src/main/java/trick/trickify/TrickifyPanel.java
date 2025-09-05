@@ -231,6 +231,8 @@ public class TrickifyPanel extends JPanel
 
     private void trickify()
     {
+        trickifyDone = false;
+
         ArrayList<String> cmd = getTrickifyCmd(false);
         String[] cmdLine = new String[cmd.size()];
         cmdLine = cmd.toArray(cmdLine);
@@ -260,6 +262,8 @@ public class TrickifyPanel extends JPanel
         {
             e.printStackTrace();
         }
+
+        trickifyDone = true;
     }
 
     
@@ -540,6 +544,8 @@ public class TrickifyPanel extends JPanel
 
     TrickifyPanel(TrickApplication app)
     {
+        currentPanel = this;
+
         myApp = app;
         trickProp = myApp.trickProperties;
 
@@ -778,7 +784,21 @@ public class TrickifyPanel extends JPanel
         {
             public void actionPerformed(ActionEvent e) 
             { 
-                trickify();
+                setEnabled(false);
+                SwingWorker<Integer, Integer> worker = new SwingWorker<Integer, Integer>() 
+                {
+                    @Override
+                    protected Integer doInBackground()
+                    {
+                        trickifyDone=false;
+                        trickify();
+                        return 0;
+                    }
+                };
+                worker.execute();
+                TrickifyLoadingBar loadbar = new TrickifyLoadingBar(currentPanel);
+                            
+                setEnabled(false);
             } 
         } );
         buttonPanel.add(runButton);
@@ -796,5 +816,18 @@ public class TrickifyPanel extends JPanel
         buttonPanel.add(exportButton);
 
         setVisible(true);
+    }
+
+    public static TrickifyPanel currentPanel;
+    private static volatile boolean trickifyDone = true;
+
+    public static boolean isTrickifyDone()
+    {
+        return trickifyDone;
+    }
+
+    public String getBuildDir()
+    {
+        return buildPathDirs.getText();
     }
 }
