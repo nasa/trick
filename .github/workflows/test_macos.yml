@@ -13,27 +13,37 @@ on:
 
 jobs:
   macOS:
-    runs-on: macos-13
+    runs-on: macos-14
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    - name: Install gtest
+    # Install googletest version 1.17.0 — the latest stable release as of 6/6/25
+    # Note: Need to periodically update googletest version to ensure tests can run
+    # against the latest.
+    # Specifying the version to ensure CI builds are stable and not unexpectedly
+    # broken by upstream changes.
+    - name: Install gtest 1.17.0
       run: |
-        brew install googletest
+        wget https://github.com/google/googletest/archive/refs/tags/v1.17.0.tar.gz
+        tar -xvf v1.17.0.tar.gz
+        cd googletest-1.17.0
+        cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/homebrew
+        cmake --build build
+        sudo cmake --install build
     - name: Install dependencies
       run: |
-        # sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /
         brew update
         brew upgrade || true
         brew install --cask xquartz
         brew install udunits openmotif maven
-        brew install swig
-        wget https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.7/clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
-        tar -xvf clang+llvm-15.0.7-x86_64-apple-darwin21.0.tar.xz
+        brew install swig llvm
     - name: Build Trick
       run: |
         export MAKEFLAGS=-j4
-        ./configure --with-llvm=${GITHUB_WORKSPACE}/clang+llvm-15.0.7-x86_64-apple-darwin21.0
+        # Image YAML labels macos-14 and macos-15 use arm64, while macos-13 is intel-based.
+        # The configure script has been updated to find /opt/homebrew automatically for arm64 as of 6/6/25
+        # Please note that if using the intel one, --with-xxx options are needed to specify the path
+        ./configure
         make
     - name: Test
       run: |

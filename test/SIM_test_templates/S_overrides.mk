@@ -1,4 +1,4 @@
 
-TRICK_CFLAGS += -I.
-TRICK_CXXFLAGS += -I.
+TRICK_CFLAGS += -I./models
+TRICK_CXXFLAGS += -I./models
 

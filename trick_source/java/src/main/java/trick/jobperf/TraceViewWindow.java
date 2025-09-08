@@ -16,19 +16,37 @@ import javax.swing.*;
 *             - TraceViewCanvas [traceViewCanvas]
 * - TraceViewOutputToolBar [outputToolBar]
 */
+
+/**
+ TraceViewWindow
+  ├── extends JFrame
+  ├── uses TraceViewMenuBar
+  ├── uses TraceViewInputToolBar
+  ├── uses TraceViewOutputToolBar
+  ├── uses TraceViewCanvas
+  ├── contains JScrollPane
+  ├── contains JPanel (tracePanel)
+  ├── contains JPanel (mainPanel)
+  └── interacts with:
+      ├── FrameRecord[] (frameArray)
+      ├── JobStats
+      └── JobSpecificationMap
+ */
+
 public class TraceViewWindow extends JFrame {
 
     /**
      * Constructor
      * @param jobExecList an ArrayList of JobExecutionEvent, i.e., the job timeline data.
      */
-    public TraceViewWindow( ArrayList<JobExecutionEvent> jobExecList,
-                            KeyedColorMap idToColorMap,
+    public TraceViewWindow( String filesDir,
+                            FrameRecord[] frameArray,
+                            JobStats jobStats,
                             JobSpecificationMap jobSpecificationMap ) {
 
         TraceViewOutputToolBar outputToolBar = new TraceViewOutputToolBar();
 
-        TraceViewCanvas traceViewCanvas = new TraceViewCanvas( jobExecList, outputToolBar, idToColorMap, jobSpecificationMap);
+        TraceViewCanvas traceViewCanvas = new TraceViewCanvas( filesDir, frameArray, jobStats, outputToolBar, jobSpecificationMap);
 
         TraceViewMenuBar menuBar = new TraceViewMenuBar( traceViewCanvas);
         setJMenuBar(menuBar);

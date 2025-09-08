@@ -11,7 +11,7 @@ Trick requires various free third party utilities in order to function. All the 
 |---------------:|:-------:|:-----------------------:|:---------------------------------------------------------:|:------------------------------------------------------|
 | [gcc] and `g++` | 4.8+    | C/C++ Compiler          | Compiles Trick and Trick simulations.                     |                                                        |
 | [clang]/[llvm] | <=18    | C/C++ Compiler          | Utilized by the interface code generator.                 | Trick Versions <= 19.3 should use LLVM <= 9. Please open an issue if you encounter a problem related to newer versions of LLVM.        |
-| [python]       | 2.7+    | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.12 as of 05/2024.  |
+| [python]       | 3.x     | Programming Language    | Lets the user interact with a simulation.                 | Trick has been tested up to python 3.13.2 as of 04/2025.  |
 | [perl]         | 5.6+    | Programming Language    | Allows executable scripts in the bin directory to run.    |                                                        |
 | [java]         | 11+     | Programming Language    | Necessary for Trick GUIs.                                 |                                                        |
 | [swig]         | 3.x-4.x | Language Interfacing    | Connects the python input processor with Trick's C code.  | 3.0+ is now required for Trick. SWIG 4.x is compatible with Trick, but has some [issues](https://github.com/nasa/trick/issues/1288). Please open an issue if you encounter a problem related to SWIG 4. |

@@ -9,12 +9,14 @@ MM_declare_var_2_unittest
 MM_declare_var_unittest
 MM_delete_var_unittest
 MM_get_enumerated
+MM_JSON_Intf
 MM_read_checkpoint
 MM_ref_attributes_unittest
 MM_ref_name_from_address
 MM_resize_array_unittest
 MM_sizeof_type_unittest
 MM_strdup_unittest
+MM_trick_type_char_string
 MM_write_checkpoint
 MM_write_checkpoint_hexfloat
 MM_write_var_unittest
