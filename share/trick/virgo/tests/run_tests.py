@@ -72,7 +72,7 @@ def run_tests(args):
     ut_results = runner.run(overall_suite)
 
     # Run all doc tests by eating our own dogfood
-    doctest_files = ['Virgo.py',]
+    doctest_files = ['Virgo.py', 'VirgoActor.py']
     doctest_results = []
     for file in doctest_files:
         print(f"Running doctest on {file}...")

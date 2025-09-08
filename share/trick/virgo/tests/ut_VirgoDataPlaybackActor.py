@@ -172,7 +172,7 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         self.instance = VirgoDataPlaybackActor(mesh="PREFAB:moon")
         self.origin_axes.SetTotalLength(3e6, 3e6, 3e6)  # Size of axes (x, y, z lengths)
         # TODO assertions go here!
-        self.visualize = True
+        #self.visualize = True
         #self.show_origin = True
         #self.show_grid = True
 

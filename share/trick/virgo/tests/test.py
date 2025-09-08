@@ -6,12 +6,14 @@ import os, sys, pdb
 import unittest, argparse
 
 import ut_VirgoDataPlaybackActor
+import ut_VirgoDataPlayback
 
 # Define load_tests function for dynamic loading using Nose2
 def load_tests(*args):
     passed_args = locals()
     suite = unittest.TestSuite()
     suite.addTests(ut_VirgoDataPlaybackActor.suite())
+    suite.addTests(ut_VirgoDataPlayback.suite())
     return suite
 
 # Local module level execution only
@@ -43,6 +45,7 @@ if __name__ == '__main__':
     # Create the suite
     suites = unittest.TestSuite()
     suites.addTests(ut_VirgoDataPlaybackActor.suite())
+    suites.addTests(ut_VirgoDataPlayback.suite())
 
     # Execute all tests
     unittest.TextTestRunner(verbosity=2).run(suites)

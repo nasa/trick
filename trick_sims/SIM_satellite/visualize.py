@@ -22,7 +22,7 @@ class VisualizeWithVirgo:
     def __init__(self):
         with open(args.scene_config) as file:
             scene = yaml.safe_load(file) 
-        self.v = Virgo.VirgoDataPlayback(run_dir=args.run, scene=scene)
+        self.v = Virgo.VirgoDataPlayback(run_dir=args.run, scene=scene, verbosity=5)
     def execute(self):
         # Start the Virgo 3D scene
         return(self.v.run())
