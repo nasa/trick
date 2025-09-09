@@ -4,7 +4,7 @@
  background_color: [0.0, 0.0, 0.05]
  highlight_color: [0.9, 0.9, 0.9]
  playback_speeds: [1.0, 5.0, 10.0, 20.0, 50.0, 100.0]
- playback_speed: 5.0
+ playback_speed: 1.0
  starfield: 0
  recorded_data:  # Logged data to read into virgo during init
   time: 
@@ -20,6 +20,9 @@
   sat_rot: 
     group: Satellite                # Data recording group
     var: dyn.satellite.R[0-2][0-2]  # Data recording variable
+  sat_force: 
+    group: Satellite                # Data recording group
+    var: dyn.satellite.force[0-2]   # Data recording variable
  actors:
    earth: 
      mesh: PREFAB:earth
@@ -27,7 +30,6 @@
      pos:   [0.0, 0.0, 0.0] # initial position offset in scene
      pyr:   [0.0, 0.0, 0.0] # pitch-yaw-roll rotation offset, applied after pos:
      pickable: 0
-     driven_by: 0 # Not driven by any logged variable
    satellite:
      mesh: PREFAB:cube         # Size multiplier
      scale: 100.0
@@ -35,18 +37,30 @@
      pyr: [0.0, 0.0, 90.0]
      color: [0.6, 0.6, 0.6]
      pickable:   # If given, this actor is pickable with the mouse
-       focus: 1  # On pick, focus camera on actor
-       hud:      # 
-         World position: sat_pos
-         Initial vel: sat_vel
+       focus: 1  # TO BE IMPLEMENTED: On pick, focus camera on actor
+       hud:      # TO BE IMPLEMENTED: While picked, display these values
+         position: 1
+         rotation: 1
+         custom: TBD  # Custom Actor callback to display anything
      trail: [0.0, 1.0, 0.0] #  # Color of trail
      driven_by:  # Actor position/rotation driven by these data aliases
-       # TODO make these reference recorded_data: sections next
-       #pos: sat_pos  # data alias associated with position
-       #rot: sat_rot  # data alias associated with rotation
        time: time
        pos: sat_pos
        rot: sat_rot
+   arrow:
+     mesh: PREFAB:arrow         # Size multiplier
+     scale: 100.0
+     pos: [00.0, 0.0, 0.0]
+     pyr: [0.0, 0.0, 0.0]
+     color: [0.3, 0.3, 1.0]
+     driven_by:  # Actor position/rotation driven by these data aliases
+       time: time
+       pos: sat_pos
+       rot: sat_rot
+       #scale: sat_vel[0]  # Example of driving size of arrow from sim data
+       #   For showing an arrow as a force vector we need more ability here,
+       #   like to execute a function
+       # Could we do color: here to show things like temperature?
 
  camera:
      follow: satellite

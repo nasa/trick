@@ -14,7 +14,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         if not all(lst[i] <= lst[i + 1] for i in range(len(lst) - 1)):
             raise ValueError("List is not sorted in ascending order.")
     def __init__(self, mesh, offset_pos=None, offset_pyr=None, times=None,
-                 positions=None, rotations=None, name='No Name', fontsize=12):
+                 positions=None, rotations=None, scales=None, name='No Name', fontsize=12):
         """
         Initialize this instance.
 
@@ -66,6 +66,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         self._times = times
         self._positions = positions 
         self._rotations = rotations 
+        self._scales = scales
         #import pdb; pdb.set_trace()
         self._last_time    = 0.0      # Last time associated with this actor
         self._last_time_idx = 0       # Index in self._times associated with self._last_time
@@ -81,9 +82,13 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         self._trail_mapper = None
         self._trail_actor = None
         self._trail_polyline = None
+        self.myscale = 1.0
 
     def set_static(self, value=True):
         self.static = value
+
+    def is_static(self):
+        return self.static
 
     def initialize(self):
         """
@@ -290,6 +295,13 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
             cube_source.SetZLength(1.0)
             # Create a mapper to map the cube's geometry to graphics primitives
             mapper.SetInputConnection(cube_source.GetOutputPort())
+        elif 'PREFAB:arrow' in str(mesh):
+            arrow_source = vtk.vtkArrowSource()
+            arrow_source.SetTipLength(0.35)   # Fraction of total length
+            arrow_source.SetTipRadius(0.2)    # Radius of the cone
+            arrow_source.SetShaftRadius(0.03) # Radius of the cylinder
+            arrow_source.Update()
+            mapper.SetInputConnection(arrow_source.GetOutputPort())
         elif '.obj' in str(mesh):
             # Read in the geometry
             reader = vtk.vtkOBJReader()
@@ -320,6 +332,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         print(f"{self.name}:")
         print(f"  position: {self.get_current_position()}")
         print(f"  rotation: {self.get_current_rotation()}")
+        print(f"     scale: {self.get_current_scale()}")
 
     def verify(self):
         """
@@ -503,6 +516,12 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         else:
             return None
 
+    def get_current_scale(self):
+        if self._scales:
+            return(self._scales[self.get_current_time_idx()])
+        else:
+            return None
+
     def update(self, world_time):
         """
         Update this actor's position and rotation to the values associated
@@ -515,6 +534,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         self.set_current_time(world_time)
         pos = self.get_current_position()
         rot = self.get_current_rotation()
+        scale = self.get_current_scale()
         if pos == None and rot == None:
             return  # Nothing to update
 
@@ -530,6 +550,8 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
             matrix.SetElement(1, 3, pos[1])
             matrix.SetElement(2, 3, pos[2])
         transform_actor.SetMatrix(matrix)
+        if scale is not None:
+            transform_actor.Scale(scale, scale, scale)
         self.SetUserTransform(transform_actor)
 
         # Move the axes to where the parent actor is using a different transform
@@ -545,6 +567,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         # I've asked every AI and searched every VTK issue and I cannot resolve this even
         # after trying every suggestion I can find. At this point I'm thinking this might
         # just be a bug in our version of vtk - why doesn't the bounding box update? -Jordan
+        # See: https://discourse.vtk.org/t/vtkaxesactor-fails-to-render-at-some-angles/4864/2
         #matrix = self._axes.GetMatrix()
         #axes_pos =[ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)]
         #print(f'DEBUG: self._axes.GetVisibility is {self._axes.GetVisibility()} with axes_pos {axes_pos}')

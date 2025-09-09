@@ -121,11 +121,15 @@ class VirgoDataPlaybackControlCenter:
     def initialize(self):
         """
         Set up the scene by:
-          * Initializing all actors
           * Adding all actors to the renderer
           * Initializing the camera
         """
-        self.init_actors()
+        if not self.actors:
+          msg = (f"ERROR: No actors found in {__class__} initialize() function. ")
+          raise RuntimeError (msg)
+
+        self._determine_max_sim_time()
+        self.update_actors()
         self.text_actors['mode'] = self.create_text_actor()
         self.text_actors['picked'] = self.create_text_actor(pos=[10,10])
         self.text_actors['time'] = self.create_text_actor()
@@ -159,6 +163,19 @@ class VirgoDataPlaybackControlCenter:
         self.init_camera()
         self._initialized = True
 
+    def _determine_max_sim_time(self):
+        """
+        Store off the highest simulation time known across all non-static
+        actors.
+        """
+        for a in self.actors:
+            # Skip any static actors as they dont have self._times
+            if self.actors[a].is_static():
+                continue
+            last_time_for_actor = self.actors[a]._times[-1] 
+            if last_time_for_actor > self.max_sim_time:
+                self.max_sim_time = last_time_for_actor
+
     def is_initialized(self):
         return self._initialized
 
@@ -171,70 +188,11 @@ class VirgoDataPlaybackControlCenter:
         else:
             self.verbosity = value
 
+    def set_actors(self, actors_dict):
+        self.actors = actors_dict
 
-    def init_actors(self):
-        '''
-        Create the VTK actors from the scene dictionary and initialize
-        their configurable parameters
-
-        Populates self.actors dict from self.scene dict
-        self.actors takes the form:
-          key: Name of actor
-          value: VirgoDataPlaybackActor object as loaded from self.scene data
-
-        TODO all this checking for dict/YAML validity needs to be safer, i.e.
-        checked in a YAML verifier before getting here similar to what
-        TrickOps does with TrickWorkflowYamlVerifier. See VirgoDataPlayback.
-        _verify_scene()
-
-        ASSUMPTION: self.scene['actors'][a]['mesh'] is path defined
-        relative to current os.getcwd()
-        '''
-        for a in self.scene['actors']:
-            # Figure out the details of whether the actor is driven or not to prepare
-            # inputs for initializing the actor
-            positions = None
-            rotations = None
-            times = None
-            driven_by= self.scene['actors'][a]['driven_by']
-            if driven_by != 0:
-                times = self.vdl.get_recorded_data(alias=driven_by['time'])
-                # Store off the highest simulation time across all actors
-                if times[-1] > self.max_sim_time:
-                    self.max_sim_time = times[-1]
-                if 'pos' in driven_by:
-                    positions= self.vdl.get_recorded_datas(alias=driven_by['pos'])
-                if 'rot' in driven_by:
-                    rotations = self.vdl.get_recorded_datas(alias=driven_by['rot'])
-            # Create the Actor
-            if self.verbosity > 1:
-                print(f"Constructing {a} ...")
-            self.actors[a] = VirgoDataPlaybackActor(
-                mesh=self.scene['actors'][a]['mesh'],
-                offset_pos=self.scene['actors'][a]['pos'],
-                offset_pyr=self.scene['actors'][a]['pyr'],
-                times=times,
-                positions=positions,
-                rotations=rotations,
-                name=a,
-                fontsize=self.fs
-                )
-            if driven_by == 0: # If nothing drives this, set static flag to True
-                self.actors[a].set_static(True)
-            if 'trail' in self.scene['actors'][a] and self.scene['actors'][a]['trail'] != None:
-                self.trail_actors[f"{a}-trail"] = self.actors[a].create_trail(color=self.scene['actors'][a]['trail'])
-            if self.verbosity > 0:
-                print(f"Initializing {a} ...")
-            self.actors[a].initialize()
-            self.actors[a].SetScale(self.scene['actors'][a]['scale'])
-            if 'color' in self.scene['actors'][a]:
-                self.actors[a].GetProperty().SetColor(self.scene['actors'][a]['color'])
-            if 'pickable' in self.scene['actors'][a] and self.scene['actors'][a]['pickable'] == 0:
-                self.actors[a].PickableOff()
-            self.actors[a].add_axes()  # origin axes
-            self.actors[a].get_axes().PickableOff()
-
-        self.update_actors()
+    def set_trail_actors(self, trail_actors_dict):
+        self.trail_actors = trail_actors_dict
 
     def create_text_actor(self, pos=[0, 0]):
         text = vtk.vtkTextActor()
@@ -967,20 +925,30 @@ class VirgoDataPlayback:
     """
     def __init__(self, run_dir, scene, verbosity=1):
         self.verbosity = verbosity
+        self.fs = 14      # font size
+        self.max_sim_time = 0.0
         self.scene = scene # Dict of scene info from YAML file
         self._verify_scene()
         self.run_dir = run_dir
-        # All logged data from run_dir in the dict TrickPy gives us
-        # TODO: we can save on RAM by loading on the variables we care
-        # about which we can get from self.scene, see the variables arg to dr.load_run() here:
-        # https://web-fsl.jsc.nasa.gov/trickpy/latest/docs/trickpy.data_record.load_run.html#trickpy.data_record.load_run
 
+        self.background_color = [0.0, 0.0, 0.05]
+        self.description = "Untitled"
+        # TODO: this checking can be removed once the dict verifier is in place
+        if 'background_color' in self.scene:
+            self.background_color = self.scene['background_color']
+        if 'description' in self.scene:
+            self.description = self.scene['description']
+
+        self.renderer = vtk.vtkRenderer()
+        self.render_window = vtk.vtkRenderWindow()
+        self.interactor = vtk.vtkRenderWindowInteractor()
+    
+        # Set better camera interaction
+        self.interactor_style = VirgoInteractorStyle()
         self.vdl = VirgoDataLoader(run_dir=self.run_dir, 
             scene_recorded_data=self.scene['recorded_data'], verbosity=self.verbosity)
-        # TODO: change load_variables approach to returning objects we
-        # control not the trickpy format, then link those to being used when VirgoActors
-        # are created
-        self.data_record_groups = self.vdl.load_variables()
+        self.controller = VirgoDataPlaybackControlCenter(self.renderer, self.interactor, self.scene, self.vdl)
+        self.initialized = False
 
     def _verify_scene(self):
         """
@@ -988,37 +956,133 @@ class VirgoDataPlayback:
         """
         pass
 
+    def create_actor(self, actor_name, actor_scene_dict=None):
+        """
+        Given a single scene's actors: sub-entry, return a
+        VirgoDataPlaybackActor instance built from that information
+
+        TODO all this checking for dict/YAML validity needs to be safer, i.e.
+        checked in a YAML verifier before getting here similar to what
+        TrickOps does with TrickWorkflowYamlVerifier. See VirgoDataPlayback.
+        _verify_scene()
+
+        ASSUMPTION: self.scene['actors'][a]['mesh'] is path defined
+        relative to current os.getcwd()
+        """
+        # Figure out the details of whether the actor is driven or not to prepare
+        # inputs for initializing the actor
+        positions = None
+        rotations = None
+        scales = None
+        times = None
+        driven_by = None
+        if 'driven_by' in actor_scene_dict:
+            driven_by= actor_scene_dict['driven_by']
+            if 'time' in driven_by:
+                times = self.vdl.get_recorded_datas(alias=driven_by['time'])
+            if 'pos' in driven_by:
+                positions= self.vdl.get_recorded_datas(alias=driven_by['pos'])
+            if 'rot' in driven_by:
+                rotations = self.vdl.get_recorded_datas(alias=driven_by['rot'])
+            if 'scale' in driven_by:
+                scales = self.vdl.get_recorded_data(alias=driven_by['scale'])
+        # TODO: This if pos / if pyr / if scale logic can be removed once
+        #  a dict verifier is in place
+        offset_pos=[0.0, 0.0, 0.0]
+        offset_pyr=[0.0, 0.0, 0.0]
+        scale = 1.0
+        if 'pos' in actor_scene_dict:
+            offset_pos=actor_scene_dict['pos']
+        if 'pyr' in actor_scene_dict:
+            offset_pyr=actor_scene_dict['pyr']
+        if 'scale' in actor_scene_dict:
+            scale=actor_scene_dict['scale']
+        # Create the Actor
+        if self.verbosity > 1:
+            print(f"Constructing VirgotDataPlaybackActor {actor_name} ...")
+        actor = VirgoDataPlaybackActor(
+            mesh=actor_scene_dict['mesh'],
+            offset_pos=offset_pos,
+            offset_pyr=offset_pyr,
+            times=times,
+            positions=positions,
+            rotations=rotations,
+            scales=scales,
+            name=actor_name,
+            fontsize=self.fs
+            )
+        if driven_by == None: # If nothing drives this, set static flag to True
+            actor.set_static(True)
+        if self.verbosity > 0:
+            print(f"Initializing {actor_name} ...")
+        actor.SetScale(scale)
+        if 'color' in actor_scene_dict:
+            actor.GetProperty().SetColor(actor_scene_dict['color'])
+        if 'pickable' in actor_scene_dict and actor_scene_dict['pickable'] == 0:
+            actor.PickableOff()
+        actor.add_axes()  # origin axes
+        actor.get_axes().PickableOff()  # No axes are pickable
+
+        return actor
+
+    def initialize(self):
+        '''
+        Initialize this instance by:
+        1. Loading all variables found in the scene
+        2. Initializing all actors found in the scene
+        2. Configuring the controller, renderer, and interactor
+        '''
+        self.vdl.load_variables()  # Load all variables from VirgoDataLoader
+        self.initialize_actors()   # Load all actors from the self.scene info
+
+        self.renderer.SetBackground(self.background_color)
+        self.render_window.AddRenderer(self.renderer)
+        self.render_window.SetSize(1920, 1080)
+        self.render_window.SetWindowName(self.description)
+        self.interactor.SetRenderWindow(self.render_window)
+    
+        # Set custom interactor style
+        self.interactor.SetInteractorStyle(self.interactor_style)
+    
+        # Create controller
+        self.controller.set_verbosity(self.verbosity)
+
+        self.controller.register_callbacks()
+        self.controller.initialize()
+        self.initialized = True
+
+    def initialize_actors(self):
+        """
+        Create the VTK actors from the scene dictionary and initialize
+        their configurable parameters.
+
+        The actors initialized in this function are passed into self.controller
+        so that they can be used at runtime.
+        """
+        actors = {}
+        trail_actors = {}
+        for a in self.scene['actors']:
+            actors[a] = self.create_actor(actor_name=a, actor_scene_dict=self.scene['actors'][a])
+            actors[a].initialize()
+            if 'trail' in self.scene['actors'][a] and self.scene['actors'][a]['trail'] != None:
+                trail_actors[f"{a}-trail"] = actors[a].create_trail(color=self.scene['actors'][a]['trail'])
+
+        # Pass the actors into the controller for runtime use
+        self.controller.set_actors(actors)
+        self.controller.set_trail_actors(trail_actors)
+
+
     def run(self):
         """
         The entrypoint for starting up a rendered window
         """
-        renderer = vtk.vtkRenderer()
-        renderer.SetBackground(self.scene['background_color'])
-    
-        render_window = vtk.vtkRenderWindow()
-        render_window.AddRenderer(renderer)
-        render_window.SetSize(1920, 1080)
-        render_window.SetWindowName(self.scene['description'])
-    
-        interactor = vtk.vtkRenderWindowInteractor()
-        interactor.SetRenderWindow(render_window)
-    
-        # Set better camera interaction
-        interactor_style = VirgoInteractorStyle()
-        interactor.SetInteractorStyle(interactor_style)
-    
-        # Create controller
-        controller = VirgoDataPlaybackControlCenter(renderer, interactor, self.scene, self.vdl)
-        controller.set_verbosity(self.verbosity)
-        controller.register_callbacks()
-        controller.initialize()
 
-        if not controller.is_initialized():
+        if not self.controller.is_initialized():
             print("ERROR: Scene is not properly initialized. Exiting.")
             return(1)
     
         if self.verbosity > 0:
             print("Entering render window and interactor loop...")
-        render_window.Render()
-        interactor.Start()
+        self.render_window.Render()
+        self.interactor.Start()
         return 0
