@@ -1,4 +1,6 @@
-include $(TRICKIFY_S_OVERRIDES)
+ifneq ($(TRICKIFY_S_OVERRIDES),)
+	include $(TRICKIFY_S_OVERRIDES)
+endif
 
 .PHONY: C
 C: 

@@ -5,6 +5,8 @@ import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 import javax.swing.border.*; 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.io.FileWriter;
 import java.io.FileReader;
@@ -20,6 +22,7 @@ public class TrickifyPanel extends JPanel
 
     private JTabbedPane tabs;
     private JPanel inputPanel;
+    private JPanel sdefinePanel;
     private JPanel outputPanel;
     private JPanel advancedPanel;
     private JPanel boxPanel;
@@ -37,7 +40,7 @@ public class TrickifyPanel extends JPanel
     private String trickHome;
 
     private int mainFrameWidth = DirSelect.textFieldWidth + DirSelect.buttonWidth + 150;
-    private int mainFrameHeight = 700;
+    private int mainFrameHeight = 550;
 
     private JPanel mainPanel;
     private DirSelect srcDirs;
@@ -566,21 +569,25 @@ public class TrickifyPanel extends JPanel
 
         tabs = new JTabbedPane();
         inputPanel = new JPanel();
+        sdefinePanel = new JPanel();
         outputPanel = new JPanel();
         advancedPanel = new JPanel();
-        inputPanel.setLayout(new GridLayout(8, 1));
-        outputPanel.setLayout(new GridLayout(8, 1));
-        advancedPanel.setLayout(new GridLayout(8, 1));
-        JScrollPane[] scrollPanes = {new JScrollPane(inputPanel), new JScrollPane(outputPanel), new JScrollPane(advancedPanel)};
-        for(int i = 0; i < 3; ++i)
+        int rows = 5;
+        inputPanel.setLayout(new GridLayout(rows, 1));
+        sdefinePanel.setLayout(new GridLayout(rows, 1));
+        outputPanel.setLayout(new GridLayout(rows, 1));
+        advancedPanel.setLayout(new GridLayout(rows, 1));
+        JScrollPane[] scrollPanes = {new JScrollPane(inputPanel), new JScrollPane(sdefinePanel), new JScrollPane(outputPanel), new JScrollPane(advancedPanel)};
+        for(int i = 0; i < 4; ++i)
         {
             scrollPanes[i].setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             scrollPanes[i].setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             scrollPanes[i].getVerticalScrollBar().setUnitIncrement(16);
         }
         tabs.add("Inputs", scrollPanes[0]);
-        tabs.add("Outputs", scrollPanes[1]);
-        tabs.add("Advanced", scrollPanes[2]);
+        tabs.add("S_define", scrollPanes[1]);
+        tabs.add("Outputs", scrollPanes[2]);
+        tabs.add("Advanced", scrollPanes[3]);
         add(tabs, gbc);
 
         boxPanel = new JPanel();
@@ -628,6 +635,7 @@ public class TrickifyPanel extends JPanel
         srcDirs.setLabel("Source Directories");
         srcDirs.setButtonText("Choose");
         srcDirs.allowMultiple(true);
+        srcDirs.selectFile(0);
         srcDirs.setToolTipText("Directories to build trickified library from.");
         inputPanel.add(srcDirs);
 
@@ -635,6 +643,7 @@ public class TrickifyPanel extends JPanel
         trickHomeDirs.setLabel("Trick Home Directory");
         trickHomeDirs.setButtonText("Choose");
         trickHomeDirs.allowMultiple(false);
+        trickHomeDirs.selectFile(0);
         trickHomeDirs.setToolTipText("Trick directory to use.");
         inputPanel.add(trickHomeDirs);
 
@@ -642,23 +651,15 @@ public class TrickifyPanel extends JPanel
         trickifyPathDirs.setLabel("trickify.mk Directory");
         trickifyPathDirs.setButtonText("Choose");
         trickifyPathDirs.allowMultiple(false);
-        trickifyPathDirs.selectFile(false);
+        trickifyPathDirs.selectFile(0);
         trickifyPathDirs.setToolTipText("trickify.mk to use. Defaults to your $TRICK_HOME/share/trick/makefiles/trickify.mk");
         inputPanel.add(trickifyPathDirs);
-
-        sOverridesDirs = new DirSelect();
-        sOverridesDirs.setLabel("S_overrides.mk");
-        sOverridesDirs.setButtonText("Choose");
-        sOverridesDirs.allowMultiple(false);
-        sOverridesDirs.selectFile(true);
-        sOverridesDirs.setToolTipText("S_overrides to incorporate");
-        inputPanel.add(sOverridesDirs);
 
         trickifyIncludeDirs = new DirSelect();
         trickifyIncludeDirs.setLabel("Includes");
         trickifyIncludeDirs.setButtonText("Choose");
         trickifyIncludeDirs.allowMultiple(true);
-        trickifyIncludeDirs.selectFile(false);
+        trickifyIncludeDirs.selectFile(0);
         trickifyIncludeDirs.setToolTipText("Paths to include during compilation.");
         inputPanel.add(trickifyIncludeDirs);
 
@@ -666,7 +667,7 @@ public class TrickifyPanel extends JPanel
         trickifyExcludeDirs.setLabel("Excludes");
         trickifyExcludeDirs.setButtonText("Choose");
         trickifyExcludeDirs.allowMultiple(true);
-        trickifyExcludeDirs.selectFile(false);
+        trickifyExcludeDirs.selectFile(0);
         trickifyExcludeDirs.setToolTipText("Paths to exclude during trickification.");
         inputPanel.add(trickifyExcludeDirs);
 
@@ -674,17 +675,29 @@ public class TrickifyPanel extends JPanel
         sDefineDirs.setLabel("S_define");
         sDefineDirs.setButtonText("Choose");
         sDefineDirs.allowMultiple(false);
-        sDefineDirs.selectFile(true);
+        sDefineDirs.selectFile(1);
         sDefineDirs.setToolTipText("Search S_define for files to build into library.");
-        inputPanel.add(sDefineDirs);
+        sdefinePanel.add(sDefineDirs);
 
         sDefineFilter = new DirSelect();
         sDefineFilter.setLabel("S_define Filter");
         sDefineFilter.setButtonText("Choose");
         sDefineFilter.allowMultiple(true);
-        sDefineFilter.selectFile(false);
+        sDefineFilter.selectFile(0);
         sDefineFilter.setToolTipText("Only use files from the S_define that are under these dirs.");
-        inputPanel.add(sDefineFilter);
+        sdefinePanel.add(sDefineFilter);
+
+        sOverridesDirs = new DirSelect();
+        sOverridesDirs.setLabel("S_overrides.mk");
+        sOverridesDirs.setButtonText("Choose");
+        sOverridesDirs.allowMultiple(false);
+        sOverridesDirs.selectFile(1);
+        sOverridesDirs.setToolTipText("S_overrides to incorporate");
+        sdefinePanel.add(sOverridesDirs);
+        
+        //spacing
+        sdefinePanel.add(new JPanel());
+        sdefinePanel.add(new JPanel());
 
         trickifyArgsField = new LabeledTextField();
         trickifyArgsField.setLabel("Trickify Args");
@@ -695,7 +708,7 @@ public class TrickifyPanel extends JPanel
         sourceMakeDirs.setLabel("Source Make");
         sourceMakeDirs.setButtonText("Choose");
         sourceMakeDirs.allowMultiple(false);
-        sourceMakeDirs.selectFile(true);
+        sourceMakeDirs.selectFile(1);
         sourceMakeDirs.setToolTipText("Make file to use for building source files. If none provdided just uses generic g++/gcc calls.");
         advancedPanel.add(sourceMakeDirs);
 
@@ -705,9 +718,6 @@ public class TrickifyPanel extends JPanel
         advancedPanel.add(sourceMakeArgsField);
         
         //spacing
-        advancedPanel.add(new JPanel());
-        advancedPanel.add(new JPanel());
-        advancedPanel.add(new JPanel());
         advancedPanel.add(new JPanel());
         advancedPanel.add(new JPanel());
 
@@ -724,9 +734,6 @@ public class TrickifyPanel extends JPanel
         outputPanel.add(nameField);
         
         //spacing
-        outputPanel.add(new JPanel());
-        outputPanel.add(new JPanel());
-        outputPanel.add(new JPanel());
         outputPanel.add(new JPanel());
         outputPanel.add(new JPanel());
         outputPanel.add(new JPanel());

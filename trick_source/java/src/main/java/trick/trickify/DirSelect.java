@@ -26,15 +26,19 @@ public class DirSelect extends LabeledTextField
         multiDir = b;
     }
 
-    public void selectFile(boolean b)
+    public void selectFile(int b)
     {
-        if(b)
+        switch (b)
         {
-            browser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        }
-        else
-        {
-            browser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            case 0:
+                browser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                break;
+            case 1:
+                browser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+                break;
+            case 2:
+                browser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                break;
         }
     }
 
