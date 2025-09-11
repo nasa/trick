@@ -245,7 +245,10 @@ Simulation make options:\n\
     make print-<variable>        - Prints a makefile or environment variable"
 
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
-ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
+ifdef AM_I_TRICKIFYING
+include build/Makefile_S_define
+include build/Makefile_src
+else ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
 include build/Makefile_S_define
 include build/Makefile_src
 include build/Makefile_src_deps
