@@ -3,7 +3,6 @@ import os, sys, inspect, bisect, math
 thisFileDir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0)))
 
 import vtk
-
 class VirgoDataPlaybackActor(vtk.vtkActor):
     """
     Wrapper around VTK actor to facilitate the Trick Logged data
@@ -274,7 +273,21 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
             texture.InterpolateOn()
             # Create a mapper to map the sphere's geometry to graphics primitives
             mapper.SetInputConnection(earth_source.GetOutputPort())
-        elif 'PREFAB:moon' in str(mesh):
+        elif 'PREFAB:moon8k' in str(mesh) :
+            # Create a sphere source
+            earth_source = vtk.vtkTexturedSphereSource()
+            earth_source.SetRadius(1740000.0)     # Set radius of moon
+            earth_source.SetThetaResolution(300)  # Number of divisions in theta (longitude)
+            earth_source.SetPhiResolution(300)  # Number of divisions in phi (latitude)
+            # Read Moon texture image
+            reader = vtk.vtkJPEGReader()
+            reader.SetFileName(os.path.join(thisFileDir, 'images/moon/lroc_color_poles_8k.jpg'))
+            texture = vtk.vtkTexture()
+            texture.SetInputConnection(reader.GetOutputPort())
+            texture.InterpolateOn()
+            # Create a mapper to map the sphere's geometry to graphics primitives
+            mapper.SetInputConnection(earth_source.GetOutputPort())
+        elif 'PREFAB:moon' in str(mesh) or 'PREFAB:moon4k' in str(mesh) :
             # Create a sphere source
             earth_source = vtk.vtkTexturedSphereSource()
             earth_source.SetRadius(1740000.0)     # Set radius of moon
@@ -340,6 +353,9 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         Assigns self.initialized = True when all conditions are met
         TODO: Add other checks if we add other paramters
         """
+        if self._times == None:  # This is a loose check
+            self.set_static(True)
+
         if not self.static:
           # Ensure self._times is a list
           if not isinstance(self._times, list):

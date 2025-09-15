@@ -88,11 +88,15 @@ class VirgoDataPlaybackActorStaticMethodsTestCase(unittest.TestCase):
 
 class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
 
-    def setUp(self):
-        VisualizableTestCase().setUp()
+#    def setUp(self):
+#        VisualizableTestCase().setUp()
 
     def tearDown(self):
         self.vis()
+        super().tearDown()
+        self.instance = None
+        del self.instance
+
 
     def test_incomplete_init(self):
         """
@@ -104,10 +108,6 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
 
         self.assertIsNone(self.instance.get_current_position())
         self.assertEqual(self.instance.are_axes_visible(), False)
-        # Actor doesn't have everything it needs, so we expect a raise
-        # when attempting to initialize()
-        with self.assertRaises(ValueError):
-            self.instance.initialize()
         #self.assertAlmostEqual(self.instance.get_current_position(), [0.0, 0.0, 0.0])
 
     def test_init_with_pyr_offset(self):
@@ -140,7 +140,7 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         for i, (a, b) in enumerate(zip(self.instance.GetPosition(), [1.0, 0.0, 0.0])):
             self.assertAlmostEqual(a, b)
         #self.visualize = True
-        #self.show_grid = False
+        #self.show_grid = True
         #self.show_origin = True
 
     def test_init_with_pos_and_pyr_offset(self):
@@ -169,7 +169,7 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         """
         Test the PREFAB:moon option
         """
-        self.instance = VirgoDataPlaybackActor(mesh="PREFAB:moon")
+        self.instance = VirgoDataPlaybackActor(mesh="PREFAB:moon8k")
         self.origin_axes.SetTotalLength(3e6, 3e6, 3e6)  # Size of axes (x, y, z lengths)
         # TODO assertions go here!
         #self.visualize = True

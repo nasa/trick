@@ -53,6 +53,7 @@
      pos: [00.0, 0.0, 0.0]
      pyr: [0.0, 0.0, 0.0]
      color: [0.3, 0.3, 1.0]
+     parent: satellite
      driven_by:  # Actor position/rotation driven by these data aliases
        time: time
        pos: sat_pos

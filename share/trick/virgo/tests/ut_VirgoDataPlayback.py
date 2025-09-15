@@ -37,10 +37,10 @@ class VirgoDataLoaderTestCase(unittest.TestCase):
         """
         Test the expand_arrays static method
         """
-        t = VirgoDataLoader.expand_arrays(varname='foo.bar[0-2]')
+        t = VirgoDataFileLoader.expand_arrays(varname='foo.bar[0-2]')
         for i in range(3):
           self.assertEqual(t[i], f'foo.bar[{i}]')
-        t = VirgoDataLoader.expand_arrays(varname='foo.bar[0-2][0-2]')
+        t = VirgoDataFileLoader.expand_arrays(varname='foo.bar[0-2][0-2]')
         self.assertEqual(t[0], f'foo.bar[0][0]')
         self.assertEqual(t[1], f'foo.bar[0][1]')
         self.assertEqual(t[2], f'foo.bar[0][2]')
@@ -51,10 +51,10 @@ class VirgoDataLoaderTestCase(unittest.TestCase):
         self.assertEqual(t[7], f'foo.bar[2][1]')
         self.assertEqual(t[8], f'foo.bar[2][2]')
 
-        t = VirgoDataLoader.expand_arrays(varname='foo[1-2].bar[0-2]')
+        t = VirgoDataFileLoader.expand_arrays(varname='foo[1-2].bar[0-2]')
 
     def test_get_recorded_data(self):
-        self.instance = VirgoDataLoader(
+        self.instance = VirgoDataFileLoader(
             run_dir=os.path.join(tests_dir, 'recorded_data/RUN_0'),
             scene_recorded_data=self.recorded_data,
             verbosity=1)
@@ -84,7 +84,7 @@ class VirgoDataLoaderTestCase(unittest.TestCase):
         # Add variables to scene that won't be found
         self.recorded_data['noexist']  = {}
         self.recorded_data['noexist']['var']  = "noexist[0-2]"
-        self.instance = VirgoDataLoader(
+        self.instance = VirgoDataFileLoader(
             run_dir=os.path.join(tests_dir, 'recorded_data/RUN_0'),
             scene_recorded_data=self.recorded_data)
         # Try to load the scene, knowing it will fail
@@ -92,7 +92,7 @@ class VirgoDataLoaderTestCase(unittest.TestCase):
             self.instance.load_variables()
 
     def test_get_recorded_datas(self):
-        self.instance = VirgoDataLoader(
+        self.instance = VirgoDataFileLoader(
             run_dir=os.path.join(tests_dir, 'recorded_data/RUN_0'),
             scene_recorded_data=self.recorded_data,
             verbosity=1)
@@ -123,14 +123,13 @@ class VirgoDataPlaybackTestCase(unittest.TestCase):
         self.scene['recorded_data']['time']['var']  = "sys.exec.out.time"
         self.scene['recorded_data']['pos']['var']  = "position[0-2]"
 
+    def tearDown(self):
+        self.instance.tear_down()
+        self.instance = None
+
     def test_init_RUN_0(self):
         self.instance = VirgoDataPlayback(
             run_dir=os.path.join(tests_dir, 'recorded_data/RUN_0'),
             scene=self.scene)
 
         self.instance.initialize()
-        # TODO NEXT: this isn't working yet, it's passed into trickpy as
-        # position[0-2] because I haven't used the expand_arrays method
-        # during the __init__ yet. Still need to understand the details
-        # on variables=[list of vars] given to trickpy wrt how [] arrays
-        # are expected or not

@@ -7,6 +7,7 @@ import unittest, argparse
 
 import ut_VirgoDataPlaybackActor
 import ut_VirgoDataPlayback
+import ut_VirgoSceneNode
 
 # Define load_tests function for dynamic loading using Nose2
 def load_tests(*args):
@@ -44,8 +45,16 @@ if __name__ == '__main__':
 
     # Create the suite
     suites = unittest.TestSuite()
-    suites.addTests(ut_VirgoDataPlaybackActor.suite())
-    suites.addTests(ut_VirgoDataPlayback.suite())
 
+    suites.addTests(ut_VirgoDataPlaybackActor.suite())
+    suites.addTests(ut_VirgoSceneNode.suite())
+    # NOTE: this suite is last purposefully as putting it earlier appears to
+    # result in random "bus error" and/or "segfault" messages when
+    # self.visualize = True which results in rendered windows of unit tests.
+    # Before VirgotDataPlayback.tear_down() existed as a function this suite
+    # would somehow find an interactor/controller/renderer from previous tests
+    # even though VirgoDataPlaybackTestCase never calls a function to start a
+    # rendered window. Strange and needs more investigation - Jordan 9/2025
+    suites.addTests(ut_VirgoDataPlayback.suite())
     # Execute all tests
     unittest.TextTestRunner(verbosity=2).run(suites)

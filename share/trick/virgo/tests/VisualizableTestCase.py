@@ -22,7 +22,10 @@ class VisualizableTestCase(unittest.TestCase):
     """
     def __init__(self, methodName='runTest', *args, **kwargs):
         super().__init__(methodName, *args, **kwargs)
+        self.instance = None
         self.renderer = vtk.vtkRenderer()
+        self.render_window = vtk.vtkRenderWindow()
+        self.interactor = vtk.vtkRenderWindowInteractor()
         self.save_images = os.environ.get('VIRGO_WRITE_TEST_IMAGES', '0') == '1'
         self.visualize = os.environ.get('VIRGO_VISUALIZE_TESTS', '0') == '1'
         self.batch_override = os.environ.get('VIRGO_BATCH_TESTS_OVERRIDE', '0') == '1'
@@ -31,10 +34,48 @@ class VisualizableTestCase(unittest.TestCase):
         self.grid_axes = self.get_grid_axes()
         self.origin_axes = self.get_origin_axes()
 
+    def tearDown(self):
+        # Remove any observers
+#        if hasattr(self, 'observer_tags'):
+#            for obj, tag in self.observer_tags:
+#                obj.RemoveObserver(tag)
+#        self.renderer.RemoveAllObservers()
+#        self.interactor.RemoveAllObservers()
+#        # Clean up VTK objects
+#        del self.interactor
+#        del self.render_window
+#        del self.renderer
+
+        if hasattr(self, 'interactor'):
+            self.interactor.TerminateApp()  # Stop any interactor event loops
+            self.interactor.DestroyTimer()  # Destroy any timers
+        if hasattr(self, 'observer_tags'):
+            for obj, tag in self.observer_tags:
+                obj.RemoveObserver(tag)
+        if hasattr(self, 'renderer'):
+            self.renderer.RemoveAllObservers()
+        if hasattr(self, 'render_window'):
+            self.render_window.Finalize()  # Release OpenGL resources
+        # Explicitly delete objects
+        if hasattr(self, 'interactor'):
+            del self.interactor
+        if hasattr(self, 'render_window'):
+            del self.render_window
+        if hasattr(self, 'renderer'):
+            del self.renderer
+        import gc
+        gc.collect()  # Force garbage collection
+
+
     def get_grid_axes(self):
         # Create a vtkCubeAxesActor for tick marks
         cube_axes = vtk.vtkCubeAxesActor()
-        cube_axes.SetBounds(-5, 5, -5, 5, -5, 5)  # Set bounds for the axes (10x10x10 cube)
+        # TODO: make SetBounds based on the bounding box of self.instance
+        if self.instance:
+            bounds = self.instance.GetBounds()
+            cube_axes.SetBounds(bounds)  # Set bounds for the axes (10x10x10 cube)
+        else:
+            cube_axes.SetBounds(-5, 5, -5, 5, -5, 5)  # Set bounds for the axes (10x10x10 cube)
         cube_axes.SetXLabelFormat("%.0f")  # Integer labels
         cube_axes.SetYLabelFormat("%.0f")
         cube_axes.SetZLabelFormat("%.0f")
@@ -51,6 +92,16 @@ class VisualizableTestCase(unittest.TestCase):
         cube_axes.SetDrawZGridlines(True)
         cube_axes.SetCamera(self.renderer.GetActiveCamera())  # Required for proper rendering
         return(cube_axes)
+
+    def set_grid_bounds_automatic(self):
+        if self.instance and self.grid_axes:
+            bounds = self.instance.GetBounds()
+            self.grid_axes.SetBounds(bounds)  # Set bounds for the axes (10x10x10 cube)
+
+    # Do we even need this with automatic grid bounds?
+    #def set_grid_bounds(self, xmin, xmax, ymin, ymax, zmin, zmax):
+    #    if self.grid_axes:
+    #        self.grid_axes.SetBounds(xmin, xmax, ymin, ymax, zmin, zmax)
 
     def get_origin_axes(self):
       origin_axes = vtk.vtkAxesActor()
@@ -70,10 +121,16 @@ class VisualizableTestCase(unittest.TestCase):
         Set the environment variable VIRGO_VISUALIZE_TESTS=1 to enable
         visualization during test runs for debugging.  When visualization is
         enabled, a render window will pop up and block until closed.
+
+        TODO: for some reason when running multiple tests we see these errors
+        non-deterministcally:
+          Bus error: 10 
+          Segmentation fault: 11
+        We clearly are doing something dangerous wrt memory
         """
         if not self.visualize or self.batch_override:
             return
-
+        self.set_grid_bounds_automatic()
         print(f"Visualizing. Exit window to continue.")
         
         if not isinstance(actors, list):
@@ -92,23 +149,21 @@ class VisualizableTestCase(unittest.TestCase):
             self.renderer.AddActor(actor)
         self.renderer.AddActor(test_name)
         if self.show_origin:
-            self.renderer.AddActor2D(self.origin_axes)
+            self.renderer.AddViewProp(self.origin_axes)
         if self.show_grid:
             self.renderer.AddActor(self.grid_axes)
         
         # Create render window and interactor
-        render_window = vtk.vtkRenderWindow()
-        render_window.AddRenderer(self.renderer)
-        render_window.SetSize(800, 600)  # Optional: Set window size
+        self.render_window.AddRenderer(self.renderer)
+        self.render_window.SetSize(800, 600)  # Optional: Set window size
         
-        interactor = vtk.vtkRenderWindowInteractor()
-        interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
-        interactor.SetRenderWindow(render_window)
+        self.interactor.SetInteractorStyle(vtk.vtkInteractorStyleTrackballCamera())
+        self.interactor.SetRenderWindow(self.render_window)
         
         # Render and start interaction (blocks until window is closed)
         self.renderer.ResetCamera()
-        render_window.Render()
-        interactor.Start()
+        self.render_window.Render()
+        self.interactor.Start()
 
     def save_scene_to_image(self, actors, filename="scene.png"):
         """
@@ -155,5 +210,8 @@ class VisualizableTestCase(unittest.TestCase):
         interactive window depending on what the user has requested. Does nothing
         if neither of those features is enabled by the user
         """
-        self.save_scene_to_image(self.instance, filename=f".{self.__class__.__name__}_{self._testMethodName}.png")
-        self.visualize_scene(self.instance)
+        # TODO some unit tests don't have a self.instance, it needs to be clear how
+        # to set it or come up with a more intuitive approach
+        if self.instance:
+          self.save_scene_to_image(self.instance, filename=f".{self.__class__.__name__}_{self._testMethodName}.png")
+          self.visualize_scene(self.instance)
