@@ -259,7 +259,7 @@ class Run_Ratio {
     Run_Ratio() : num_samples(0) {}
     Run_Ratio& operator()(long long sample, double in_rt_ratio)
     {
-        if(sample == samples[num_samples % N]) {
+        if(sample == samples[(num_samples-1) % N]) {
             return *this;
         } else {
             samples[num_samples++ % N] = sample;
