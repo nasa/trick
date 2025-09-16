@@ -4,6 +4,8 @@ import numpy as np
 class VirgoDataFileLoader:
     """
     Class that manages loading data from the scene recorded_data: section
+    of a dict in Virgo-expected format
+
     Uses trickpy to load the data, then puts it into a format best suited
     for consumption in the Virgo framework
     """

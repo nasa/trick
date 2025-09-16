@@ -32,7 +32,7 @@
      pickable: 0
    satellite:
      mesh: PREFAB:cube         # Size multiplier
-     scale: 100.0
+     scale: 10.0
      pos: [0.0, 0.0, 0.0]
      pyr: [0.0, 0.0, 90.0]
      color: [0.6, 0.6, 0.6]
@@ -49,20 +49,22 @@
        rot: sat_rot
    arrow:
      mesh: PREFAB:arrow         # Size multiplier
-     scale: 100.0
+     scale: 10.0
      pos: [00.0, 0.0, 0.0]
      pyr: [0.0, 0.0, 0.0]
      color: [0.3, 0.3, 1.0]
      parent: satellite
-     driven_by:  # Actor position/rotation driven by these data aliases
-       time: time
-       pos: sat_pos
-       rot: sat_rot
-       #scale: sat_vel[0]  # Example of driving size of arrow from sim data
-       #   For showing an arrow as a force vector we need more ability here,
-       #   like to execute a function
-       # Could we do color: here to show things like temperature?
+#     driven_by:  # Actor position/rotation driven by these data aliases
+#       time: time
+#       pos: sat_pos
+#       rot: sat_rot
+#       #scale: sat_vel[0]  # Example of driving size of arrow from sim data
+#       #   For showing an arrow as a force vector we need more ability here,
+#       #   like to execute a function
+#       # Could we do color: here to show things like temperature?
 
+ picker:
+     tolerance: 5e-7
  camera:
      follow: satellite
-     near_clipping_plane_tolerance: 0.00001
+     near_clipping_plane_tolerance: 0.000001

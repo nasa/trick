@@ -6,6 +6,8 @@ leveraging python-VTK
 """
 from VirgoActor import VirgoDataPlaybackActor
 from VirgoDataFileLoader import VirgoDataFileLoader
+from VirgoNode import VirgoSceneNode
+from VirgoDataSource import VirgoDataFileSource
 import os, sys, inspect, time
 thisFileDir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0)))
 
@@ -23,15 +25,15 @@ class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     """
     def __init__(self):
         super().__init__()
-        self.actor = None
+        self.node = None
         self.renderer = None
         self.AddObserver("CharEvent", self.onChar)
         self.AddObserver(vtk.vtkCommand.EndInteractionEvent, self.StoreRelativeCameraInfo)
         self.relative_offset = None  # Positional offset between camera and followed actor
         self.view_up = None    # Camera GetViewUp() direction when self.realtive_offset was stored
 
-    def set_actor(self, actor):
-        self.actor = actor
+    def set_node(self, node):
+        self.node = node
     def set_renderer(self, renderer):
         self.renderer = renderer
 
@@ -43,24 +45,24 @@ class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
     def StoreRelativeCameraInfo(self, caller, event):
         '''
-        Store off the relative offset between the followed actor and the camera
+        Store off the relative offset between the followed node and the camera
         in self.relative_offset. This is called as a callback tied to
         vtk.vtkCommand.EndInteractionEvent which lets us store the camera information
-        relative to self.actor when the interaction with the mouse completes
+        relative to self.node when the interaction with the mouse completes
 
         TODO: I'm not convinced this callback needs to live in the interactor,
             it might be better placed in the bigger Controller class especially
             since we aren't really overriding any methods of
             vtkInteractorStyleTrackballCamera in this approach
         '''
-        if not self.actor or not self.renderer:
+        if not self.node or not self.renderer:
             return
         # Update relative offset after user interaction
         camera = self.renderer.GetActiveCamera()
-        matrix = self.actor.GetMatrix()
-        actor_pos =[ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)]
+        node_pos = self.node.data_source.get_current_position()
         # Store off the relative offset of camera
-        self.relative_offset = np.array([camera.GetPosition()[i] - actor_pos[i] for i in range(3)])
+        self.relative_offset = np.array([camera.GetPosition()[i] - node_pos[i] for i in range(3)])
+        #print(f"DEBUG: Camera relative offset: {self.relative_offset}")
         self.view_up = camera.GetViewUp()
 
     def GetRelativeCameraInfo(self, info):
@@ -103,7 +105,10 @@ class VirgoDataPlaybackControlCenter:
         self.text_actors={}
 
         self.help = False  # Display help message when true
-        self.picker = vtk.vtkPropPicker()
+        #self.picker = vtk.vtkPropPicker()
+        self.picker = vtk.vtkCellPicker()
+        self.picker.SetTolerance(5e-7) # Picker tolerance
+        self.interactor.SetPicker(self.picker)
         self.picked_actor      = None # Currently picked actor or None if not
         self.last_picked_actor = None
         self.original_colors = {}  # Store original colors for actors
@@ -130,7 +135,7 @@ class VirgoDataPlaybackControlCenter:
           raise RuntimeError (msg)
 
         self._determine_max_sim_time()
-        self.update_actors()
+        self.update_nodes()
         self.text_actors['mode'] = self.create_text_actor()
         self.text_actors['picked'] = self.create_text_actor(pos=[10,10])
         self.text_actors['time'] = self.create_text_actor()
@@ -151,29 +156,36 @@ class VirgoDataPlaybackControlCenter:
             self.dt = self.dt * self.playback_speed
 
         # Add actors in scene
-        for a in self.actors:
-            # Add the actor
-            self.renderer.AddActor(self.actors[a])
-            # Add it's axes
-            self.renderer.AddActor(self.actors[a].get_axes())
+        for n in self.nodes:
+            # Only add root nodes to the renderer, all children come along
+            # automatically
+            if self.nodes[n].parent == None:
+                #import pdb; pdb.set_trace()
+                self.renderer.AddActor(self.nodes[n].assembly)
+#        for a in self.actors:
+#            # Add the actor
+#            self.renderer.AddActor(self.actors[a])
+#            # Add it's axes
+#            self.renderer.AddActor(self.actors[a].get_axes())
         for a in self.trail_actors:
             self.renderer.AddActor(self.trail_actors[a])
         for t in self.text_actors:
             self.renderer.AddActor(self.text_actors[t])
 
         self.init_camera()
+        self.init_picker()
         self._initialized = True
 
     def _determine_max_sim_time(self):
         """
         Store off the highest simulation time known across all non-static
-        actors.
+        nodes/actors.
         """
-        for a in self.actors:
+        for n in self.nodes:
             # Skip any static actors as they dont have self._times
-            if self.actors[a].is_static():
+            if self.nodes[n].is_static() or self.nodes[n].data_source == None:
                 continue
-            last_time_for_actor = self.actors[a]._times[-1] 
+            last_time_for_actor = self.nodes[n].data_source.get_last_time()
             if last_time_for_actor > self.max_sim_time:
                 self.max_sim_time = last_time_for_actor
 
@@ -188,9 +200,11 @@ class VirgoDataPlaybackControlCenter:
             print("ERROR: verbosity must be an integer")
         else:
             self.verbosity = value
-
     def set_actors(self, actors_dict):
         self.actors = actors_dict
+
+    def set_nodes(self, nodes_dict):
+        self.nodes = nodes_dict
 
     def set_trail_actors(self, trail_actors_dict):
         self.trail_actors = trail_actors_dict
@@ -203,26 +217,26 @@ class VirgoDataPlaybackControlCenter:
         text.SetDisplayPosition(pos[0], pos[1])
         return text
 
-    def update_actors(self):
+    def update_nodes(self):
         '''
         Move actors into position based on world time compared to data
         '''
-        for actor in self.actors:
-            self.actors[actor].update(self.world_time)
+        for n in self.nodes:
+            self.nodes[n].update(self.world_time)
 
     def reset_trails(self):
         '''
         Reset all actor trails to no points, no lines
         '''
-        for actor in self.actors:
-            self.actors[actor].reset_trail()
+        for n in self.nodes:
+            self.nodes[n].reset_trail()
 
     def update_scene(self):
 
         if self.mode == 'PLAYING':
           if self.world_time <= self.max_sim_time:
             self.world_time += self.dt
-            self.update_actors()
+            self.update_nodes()
             if self.camera_follows:
                 self.camera_follow(self.camera_follows)
           else:
@@ -231,9 +245,12 @@ class VirgoDataPlaybackControlCenter:
 
         self.configure_hud()
         # Toggle axes labels based on distance
-        for actor in self.actors:
-            self.actors[actor].hide_or_unhide_axes_labels(self.camera)
-            self.actors[actor]._axes.Modified()
+        #TODO modify this to work on nodes not actors
+        for n in self.nodes:
+            #self.nodes[n]
+            pass
+            #self.actors[actor].hide_or_unhide_axes_labels(self.camera)
+            #self.actors[actor].axes.Modified()
         # I DONT KNOW WHY BUT THIS ONE LINE FIXES THE STARS IN THE BACKGROUND
         self.renderer.ResetCameraClippingRange() # This will auto-adjust clipping based on visible actors
 
@@ -262,12 +279,17 @@ class VirgoDataPlaybackControlCenter:
         ############################################################################
         actor = self.picked_actor if self.picked_actor else self.last_picked_actor
         if actor:
-            matrix = actor.GetMatrix()
-            # Extract translation (elements 3, 7, 11 in 4x4 matrix)
-            pos =[ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)]
+            #matrix = actor.GetMatrix()
+            ## Extract translation (elements 3, 7, 11 in 4x4 matrix)
+            #pos =[ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)]
+            label="Position"
+            pos = self.nodes[actor.name].get_current_position()
+            if not pos:
+                label="Scene position"
+                pos = self.nodes[actor.name].get_world_position()
             name = self.get_actor_name(actor)
             self.text_actors['picked'].SetInput(
-                f"{name}\n World position: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} meters"
+                f"{name}\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units"
                 )
         else:
             self.text_actors['picked'].SetInput("")
@@ -311,10 +333,10 @@ class VirgoDataPlaybackControlCenter:
                 f"\n S: Cycle playback speeds"
                 f"\n R: Fit camera to scene"
                 f"\n <- -> : Step back/forward in time"
-                f"\n  -  + : Embiggen/Ensmallen text"
+                f"\n  -  + : Adjust text size"
                 f"\n A: Toggle Axes Visibility"
                 f"\n H: Toggle this help message"
-                f"\n BackSpace: Toggle stars"
+                f"\n BackSpace: Toggle starfield"
                 f"\n Q: Quit"
                 )
             self.text_actors['help'].GetBoundingBox(self.renderer, bounds)
@@ -370,17 +392,16 @@ class VirgoDataPlaybackControlCenter:
         pos =[ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)]
         self.camera.SetFocalPoint(pos[0], pos[1], pos[2])
 
-    def camera_follow(self, actor):
+    def camera_follow(self, node):
         """
-        Move the camera to follow the given actor
-        Assumes actor is positioned with matrix data, not position data
+        Move the camera to follow the given node
         """
         # Ask the interactor for the latest camera position
         self.camera_follow_offset = self.interactor.GetInteractorStyle().GetRelativeCameraInfo('position')
         # If it's not set, compute the initial offset from the bounding box of the actor
         if self.camera_follow_offset is None:
             # Get the bounding box of the actor
-            bounds = actor.GetBounds()
+            bounds = node.actor.GetBounds()
             # Bounds are returned as (xmin, xmax, ymin, ymax, zmin, zmax)
             center = [(bounds[0] + bounds[1]) / 2.0,  # x-center
                       (bounds[2] + bounds[3]) / 2.0,  # y-center
@@ -395,8 +416,8 @@ class VirgoDataPlaybackControlCenter:
             offset_distance = max_dimension * 20.0
             self.camera_follow_offset = np.array([offset_distance, offset_distance/2.0, 0.0])
 
-        matrix = actor.GetMatrix()
-        pos =np.array([ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)])
+        # TODO: what if data_source is NONE???
+        pos =np.array(node.data_source.get_current_position())
         camera_pos = pos + self.camera_follow_offset
         # Set camera position
         self.camera.SetPosition(camera_pos[0], camera_pos[1], camera_pos[2])
@@ -417,11 +438,15 @@ class VirgoDataPlaybackControlCenter:
         """
         click_pos = self.interactor.GetEventPosition()
         self.picker.Pick(click_pos[0], click_pos[1], 0, self.renderer)
+        self.picked_actor = self.get_actor_from_picker()
 
-        self.picked_actor = self.picker.GetActor()
+        #import pdb; pdb.set_trace()
         if self.picked_actor and self.picked_actor in self.actors.values():
+            print(f"DEBUG: self.picked_actor is {self.picked_actor.name}")
             self.configure_hud()
-            self.focus_camera_on(self.picked_actor)
+            # TODO this functionality is broken and I'm not sure we even want it
+            # as the user experience is weird
+            #self.focus_camera_on(self.picked_actor)
         if self.last_picked_actor:
             self.last_picked_actor.GetProperty().SetColor(self.original_colors[self.last_picked_actor])
 
@@ -446,16 +471,57 @@ class VirgoDataPlaybackControlCenter:
             
         self.renderer.Render()
 
+    def get_actor_from_picker(self):
+        """Return the picked vtkActor if any, using vtkAssemblyPath inspection."""
+        actor = self.picker.GetActor()
+        if actor:
+            return actor
+    
+        path = self.picker.GetPath()
+        if path:
+            last = path.GetLastNode()
+            if last:
+                vp = last.GetViewProp()
+                if vp and vp.IsA("vtkActor"):
+                    return vp
+        return None
+#        # 1) Direct actor (works if actor was picked at top-level)
+#        actor = self.picker.GetActor()
+#        if actor:
+#            print(f"DEBUG: Path 1 taken for {actor.name}")
+#            return actor
+#    
+#        # 2) Try Prop3D / ViewProp helpers (some pickers set these)
+#        prop3d = self.picker.GetProp3D()
+#        if prop3d and prop3d.IsA("vtkActor"):
+#            return prop3d
+#        view_prop = self.picker.GetViewProp()
+#        if view_prop and view_prop.IsA("vtkActor"):
+#            print(f"DEBUG: Path 2 taken for {view_prop.name}")
+#            return view_prop
+#    
+#        # 3) Fallback: examine the assembly path (this fully describes the pick)
+#        path = self.picker.GetPath()
+#        if path:
+#            last_node = path.GetLastNode()
+#            if last_node:
+#                picked = last_node.GetViewProp()  # this is usually the actual actor
+#                if picked and picked.IsA("vtkActor"):
+#                    print(f"DEBUG: Path 3 taken for {picked.name}")
+#                    return picked
+#    
+#        return None
+
     def toggle_axes(self):
-        for a in self.actors:
-            if self.actors[a].are_axes_visible():
-                self.actors[a].hide_axes()
+        for n in self.nodes:
+            if self.nodes[n].are_axes_visible():
+                self.nodes[n].hide_axes()
                 if self.verbosity > 1:
-                    print(f'Hiding axes for {a}')
+                    print(f'Hiding axes for {n}')
             else:
-                self.actors[a].show_axes()
+                self.nodes[n].show_axes()
                 if self.verbosity > 1:
-                    print(f'Showing axes for {a}')
+                    print(f'Showing axes for {n}')
 
     def fontsize(self, direction='up'):
         """
@@ -502,11 +568,11 @@ class VirgoDataPlaybackControlCenter:
         if key == "Left" or key =='comma':
             self.mode = 'PAUSED'
             self.decrement_time()
-            self.update_actors()
+            self.update_nodes()
         if key == "Right" or key == 'period':
             self.mode = 'PAUSED'
             self.increment_time()
-            self.update_actors()
+            self.update_nodes()
         self.update_scene()
 
     def cycle_playback_speed(self):
@@ -531,8 +597,10 @@ class VirgoDataPlaybackControlCenter:
         specific rates.
         """
         largest_time = - self.huge # Negative Huge
-        for a in self.actors:
-            pt = self.actors[a].get_previous_time(self.world_time)
+        for n in self.nodes:
+            if self.nodes[n].data_source == None:
+                continue
+            pt = self.nodes[n].data_source.get_previous_time(self.world_time)
             if pt is None:
                 continue
             if pt > largest_time:
@@ -541,8 +609,10 @@ class VirgoDataPlaybackControlCenter:
         if largest_time > - self.huge:
             #print(f"Setting (decrement) world_time to {largest_time}")
             self.world_time = largest_time
-            for a in self.actors:
-                self.actors[a].set_current_time(self.world_time, strategy='closest')
+            for n in self.nodes:
+                if self.nodes[n].data_source == None:
+                    return
+                self.actors[a].data_source.set_current_time(self.world_time, strategy='closest')
                 
     def increment_time(self):
         """
@@ -552,8 +622,10 @@ class VirgoDataPlaybackControlCenter:
         specific rates.
         """
         smallest_time = self.huge # Huge
-        for a in self.actors:
-            nt = self.actors[a].get_next_time(self.world_time)
+        for n in self.nodes:
+            if self.nodes[n].data_source == None:
+                continue
+            nt = self.nodes[n].data_source.get_next_time(self.world_time)
             if nt is None:
                 continue
             if nt < smallest_time:
@@ -562,8 +634,10 @@ class VirgoDataPlaybackControlCenter:
         if smallest_time < self.huge:
             #print(f"Setting (increment) world_time to {smallest_time}")
             self.world_time = smallest_time
-            for a in self.actors:
-                self.actors[a].set_current_time(self.world_time, strategy='closest')
+            for n in self.nodes:
+                if self.nodes[n].data_source == None:
+                    continue
+                self.nodes[n].data_source.set_current_time(self.world_time, strategy='closest')
 
     # Put the camera in a nice position to see docking
     def init_camera(self):
@@ -585,14 +659,14 @@ class VirgoDataPlaybackControlCenter:
         self.camera.SetFocalPoint(0, 0, 0)
         self.camera.SetViewUp(-0.10, -0.09, -0.98)
 
-        # If the camera is setup to follow an actor, save that actor in
-        # self.camera_follows and pass that actor into the Interactor so
+        # If the camera is setup to follow a node/actor, save that node in
+        # self.camera_follows and pass that node into the Interactor so
         # it can track camera information relative to an actor
         if 'camera' in self.scene and 'follow' in self.scene['camera']:
-            for actor in self.actors:
-                if self.actors[actor].name == self.scene['camera']['follow']:
-                    self.camera_follows = self.actors[actor]
-                    self.interactor.GetInteractorStyle().set_actor(self.camera_follows)
+            for node in self.nodes:
+                if self.nodes[node].name == self.scene['camera']['follow']:
+                    self.camera_follows = self.nodes[node]
+                    self.interactor.GetInteractorStyle().set_node(self.camera_follows)
                     self.interactor.GetInteractorStyle().set_renderer(self.renderer)
                     self.camera_follow(self.camera_follows)
 
@@ -604,6 +678,17 @@ class VirgoDataPlaybackControlCenter:
             self.renderer.SetNearClippingPlaneTolerance(self.scene['camera']['near_clipping_plane_tolerance'])
         else:
             self.renderer.SetNearClippingPlaneTolerance(0.00005)
+
+    def init_picker(self):
+        """
+        Set configurable parameters for the picker
+        """
+        # If the camera is setup to follow a node/actor, save that node in
+        # self.camera_follows and pass that node into the Interactor so
+        # it can track camera information relative to an actor
+        if 'picker' in self.scene and 'tolerance' in self.scene['picker']:
+            self.picker.SetTolerance(float(self.scene['picker']['tolerance']))
+
 
     def camera_report(self):
         """
@@ -679,6 +764,7 @@ class VirgoDataPlayback:
         self.scene = scene # Dict of scene info from YAML file
         self._verify_scene()
         self.run_dir = run_dir
+        self.nodes = {}
 
         self.background_color = [0.0, 0.0, 0.05]
         self.description = "Untitled"
@@ -699,6 +785,18 @@ class VirgoDataPlayback:
         self.controller = VirgoDataPlaybackControlCenter(self.renderer, self.interactor, self.scene, self.vdl)
         self.initialized = False
 
+    def add_node(self, node, parent_name=None):
+        # TODO: This function requires us to add nodes root to leaf. We need
+        # a more robust strategy to not require ordering of the actors by
+        # the user, we can probably jsut process nodes in "no parent" first order
+        self.nodes[node.name] = node
+        if parent_name is not None:
+            parent = self.nodes[parent_name]
+            parent.add_child(node)
+
+    def get_node(self, name):
+        return self.nodes.get(name)
+
     def _verify_scene(self):
         """
         TODO: Call a dict verifier here, similar to TrickWorkflowYamlVerifier
@@ -717,24 +815,9 @@ class VirgoDataPlayback:
 
         ASSUMPTION: self.scene['actors'][a]['mesh'] is path defined
         relative to current os.getcwd()
+
+        Returns: VirgoDataPlaybackActor 
         """
-        # Figure out the details of whether the actor is driven or not to prepare
-        # inputs for initializing the actor
-        positions = None
-        rotations = None
-        scales = None
-        times = None
-        driven_by = None
-        if 'driven_by' in actor_scene_dict:
-            driven_by= actor_scene_dict['driven_by']
-            if 'time' in driven_by:
-                times = self.vdl.get_recorded_datas(alias=driven_by['time'])
-            if 'pos' in driven_by:
-                positions= self.vdl.get_recorded_datas(alias=driven_by['pos'])
-            if 'rot' in driven_by:
-                rotations = self.vdl.get_recorded_datas(alias=driven_by['rot'])
-            if 'scale' in driven_by:
-                scales = self.vdl.get_recorded_data(alias=driven_by['scale'])
         # TODO: This if pos / if pyr / if scale logic can be removed once
         #  a dict verifier is in place
         offset_pos=[0.0, 0.0, 0.0]
@@ -753,26 +836,78 @@ class VirgoDataPlayback:
             mesh=actor_scene_dict['mesh'],
             offset_pos=offset_pos,
             offset_pyr=offset_pyr,
-            times=times,
-            positions=positions,
-            rotations=rotations,
-            scales=scales,
             name=actor_name,
             fontsize=self.fs
             )
-        if driven_by == None: # If nothing drives this, set static flag to True
-            actor.set_static(True)
+        # TODO: create SceneNode here and add actor to it!
         if self.verbosity > 0:
             print(f"Initializing {actor_name} ...")
+
+        #import pdb; pdb.set_trace()
         actor.SetScale(scale)
         if 'color' in actor_scene_dict:
             actor.GetProperty().SetColor(actor_scene_dict['color'])
         if 'pickable' in actor_scene_dict and actor_scene_dict['pickable'] == 0:
             actor.PickableOff()
-        actor.add_axes()  # origin axes
-        actor.get_axes().PickableOff()  # No axes are pickable
 
         return actor
+
+    def create_node(self, actor, actor_scene_dict=None):
+        """
+        Creates a VirgoSceneNode associated with actor from the information
+        in actor_scene_dict. This function also maps the data in the
+        driven_by: section of the actor_scene_dict to a data_source in
+        the created node. The result is a VirgoSceneNode ready to be
+        included in the larger VirgoDataPlayback framework via
+        self.add_node()
+
+        Returns: Tuple of (VirgoSceneNode, parent_name [str])
+        """
+        node = VirgoSceneNode(name=f"{actor.name}", actor=actor)
+        # I've got to do some connecting around here
+        # from self.vdl function calls create a
+        # vds = VirgoDataSource()
+        # Then use set_data_source to pass in vds
+        # to each node
+        node.get_axes().PickableOff()
+        parent_name=None
+        if 'parent' in actor_scene_dict and actor_scene_dict['parent'] != None:
+            parent_name=actor_scene_dict['parent']
+
+        # Figure out the details of whether the actor/node is driven or not
+        # and produce a VirgoDataSource with the data from the driven_by:
+        # specification and assign that data source to node.data_source
+        positions = None
+        rotations = None
+        scales = None
+        times = None
+        driven_by = None
+        if 'driven_by' in actor_scene_dict:
+            driven_by= actor_scene_dict['driven_by']
+            if 'time' in driven_by:
+                times = self.vdl.get_recorded_datas(alias=driven_by['time'])
+            if 'pos' in driven_by:
+                positions= self.vdl.get_recorded_datas(alias=driven_by['pos'])
+            if 'rot' in driven_by:
+                rotations = self.vdl.get_recorded_datas(alias=driven_by['rot'])
+            if 'scale' in driven_by:
+                scales = self.vdl.get_recorded_data(alias=driven_by['scale'])
+            # Create the data source
+            vds = VirgoDataFileSource(times=times, rotations=rotations,
+                                      positions=positions, scales=scales)
+            vds.initialize()
+            node.set_data_source(vds)
+        else:
+            node.set_static(True)
+
+        return node, parent_name
+
+    def create_trail(self, node, actor_scene_dict=None):
+        trail_actor = None
+        if 'trail' in actor_scene_dict and actor_scene_dict['trail'] != None:
+            trail_actor = node.create_trail(color=actor_scene_dict['trail'])
+            trail_actor.SetPickable(False)
+        return trail_actor
 
     def initialize(self):
         '''
@@ -782,7 +917,7 @@ class VirgoDataPlayback:
         2. Configuring the controller, renderer, and interactor
         '''
         self.vdl.load_variables()  # Load all variables from VirgoDataFileLoader
-        self.initialize_actors()   # Load all actors from the self.scene info
+        self.initialize_nodes()   # Load all actors from the self.scene info
 
         self.renderer.SetBackground(self.background_color)
         self.render_window.AddRenderer(self.renderer)
@@ -800,12 +935,13 @@ class VirgoDataPlayback:
         self.controller.initialize()
         self.initialized = True
 
-    def initialize_actors(self):
+    def initialize_nodes(self):
         """
-        Create the VTK actors from the scene dictionary and initialize
-        their configurable parameters.
+        Create the VirgoDataPlaybackActors and VirgoSceneNodes associated with
+        actors from the scene dictionary and initialize their configurable
+        parameters.
 
-        The actors initialized in this function are passed into self.controller
+        The nodes initialized in this function are passed into self.controller
         so that they can be used at runtime.
         """
         actors = {}
@@ -813,11 +949,16 @@ class VirgoDataPlayback:
         for a in self.scene['actors']:
             actors[a] = self.create_actor(actor_name=a, actor_scene_dict=self.scene['actors'][a])
             actors[a].initialize()
-            if 'trail' in self.scene['actors'][a] and self.scene['actors'][a]['trail'] != None:
-                trail_actors[f"{a}-trail"] = actors[a].create_trail(color=self.scene['actors'][a]['trail'])
+
+            node, parent_name = self.create_node(actor=actors[a], actor_scene_dict=self.scene['actors'][a])
+            self.add_node(node, parent_name=parent_name)
+            trail_actor = self.create_trail(node, actor_scene_dict=self.scene['actors'][a])
+            if trail_actor:
+                trail_actors[a] = trail_actor
 
         # Pass the actors into the controller for runtime use
         self.controller.set_actors(actors)
+        self.controller.set_nodes(self.nodes)
         self.controller.set_trail_actors(trail_actors)
 
 

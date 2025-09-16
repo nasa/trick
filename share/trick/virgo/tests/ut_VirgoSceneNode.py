@@ -99,7 +99,7 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         #print(f"{node2_world_pos_after}")
         self.instance = self.node1.assembly
         self.show_grid = True
-        #self.visualize = True
+        self.visualize = True
 
 
     def test_add_grandchild(self):
@@ -132,4 +132,4 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
 
         self.instance = self.node1.assembly
         self.show_grid = True
-        #self.visualize = True
+        self.visualize = True
