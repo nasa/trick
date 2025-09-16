@@ -259,29 +259,41 @@ class Run_Ratio {
     Run_Ratio() : num_samples(0) {}
     Run_Ratio& operator()(long long sample, double in_rt_ratio)
     {
-        if(sample == samples[(num_samples-1) % N]) {
-            return *this;
-        } else {
-            samples[num_samples++ % N] = sample;
-            rt_ratio = in_rt_ratio;
-            return *this;
-        }
+        samples[num_samples++ % N] = sample;
+        rt_ratio = in_rt_ratio;
+        return *this;
     }
 
     operator double() const {
         if ( num_samples <= 1 ) {
             return 0.0 ;
         } else if ( num_samples < N ) {
-            return round(exec_get_software_frame() * (num_samples-1) * exec_get_time_tic_value() * rt_ratio / (double)(samples[num_samples - 1] - samples[0])*100.0)/100.0 ;
+            const long long currSampleVal = samples[num_samples - 1];
+            const long long firstSampleVal = samples[0];
+            const long long deltaVal = currSampleVal -firstSampleVal;
+            if(deltaVal == 0)
+            {
+                return 1.0;
+            } else {
+                return round(exec_get_software_frame() * (num_samples-1) * exec_get_time_tic_value() * rt_ratio / (double)(deltaVal)*100.0)/100.0 ;
+            }
         } else {
-            return round(exec_get_software_frame() * (N-1) * exec_get_time_tic_value() * rt_ratio / (double)(samples[(num_samples - 1) % N] - samples[num_samples % N])*100.0)/100.0 ;
+            const long long prevSampleVal = samples[(num_samples - 1) % N];
+            const long long currSampleVal = samples[num_samples % N];
+            const long long deltaVal = prevSampleVal -currSampleVal;
+            if(deltaVal == 0)
+            {
+                return 1.0;
+            } else {
+                return round(exec_get_software_frame() * (N-1) * exec_get_time_tic_value() * rt_ratio / (double)(deltaVal)*100.0)/100.0 ;
+            }
         }
     }
 
   private:
-    long long samples[N];
-    size_t num_samples;
-    double rt_ratio;
+    long long samples[N]{};
+    size_t num_samples{};
+    double rt_ratio{};
 };
 
 /**
