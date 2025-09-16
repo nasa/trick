@@ -31,6 +31,10 @@
 use warnings ;
 use strict ;
 
+#store the base env from the shell
+#need to restore the env later to run S_overrides.mk in a clean environment
+our %SHELL_ENV = %ENV;
+
 our $my_path;
 BEGIN
 {
@@ -182,6 +186,10 @@ if($s_define ne "")
     @trick_build_files;    
 
     my $cmd_ret = `$my_path/trick-CP 2>&1` ;
+    if($cmd_ret ne "") 
+    {
+        print "$cmd_ret" ;
+    }
     -e "build/trickify_deps" or die "Failed to create trickify_deps from S_define.\n" ;
 
     open (my $fh, "build/trickify_deps") or die "Could not open trickify_deps" ;
@@ -264,7 +272,7 @@ foreach my $dir (@src_dirs)
 {
     $source_dir_args .= "-I" . $dir . " " ;
 }
-$ENV{'TRICKIFY_CXX_FLAGS'} = "$source_dir_args -I$trick_home -I$trick_home/include/trick/compat -I$trick_home" . "/include $include_arg " . $ENV{"TRICK_CFLAGS"} . " " . $ENV{"TRICK_CXXFLAGS"} ;
+$ENV{'TRICKIFY_CXX_FLAGS'} = "$source_dir_args -I$trick_home -I$trick_home/include/trick/compat -I${trick_home}/include -I$trick_home/trick_source -I$trick_home/trick_source/er7_utils -I$trick_home/trick_source/er7_utils $include_arg " . $ENV{"TRICK_CFLAGS"} . " " . $ENV{"TRICK_CXXFLAGS"} ;
 $ENV{'TRICKIFY_OBJECT_NAME'} = "$build_dir/$name.$build_type" ;
 $ENV{'TRICKIFY_BUILD'} = "$build_dir/" ;
 $ENV{'TRICKIFY_PYTHON_DIR'} = "$build_dir/python" ;
@@ -511,7 +519,7 @@ print "Begin Trickification...\n" ;
 if($s_overrides_dir ne "")
 {
     chdir Cwd::abs_path($s_overrides_dir) or die "Error changing to s_overrides directory: $s_overrides_dir\n" ;
-    dump_makefile_vars($s_overrides, $build_dir, ("TRICKIFY_BUILD_TYPE", "TRICKIFY_OBJECT_NAME", "TRICKIFY_PYTHON_DIR", "TRICK_CFLAGS", "TRICK_CXXFLAGS")) ; 
+    dump_makefile_vars($s_overrides, $build_dir, \%SHELL_ENV, ("TRICKIFY_BUILD_TYPE", "TRICKIFY_OBJECT_NAME", "TRICKIFY_PYTHON_DIR", "TRICK_CFLAGS", "TRICK_CXXFLAGS")) ; 
     chdir Cwd::abs_path($build_dir) or die "Error changing to build directory: $build_dir\n" ;
     $ENV{"TRICKIFY_MAKE_DUMP"} = Cwd::abs_path("var_dump.mk") ;
 }

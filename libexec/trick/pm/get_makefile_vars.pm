@@ -8,9 +8,9 @@ use strict;
 use warnings;
 
 #Utility to dump specified variables from a makefile
-sub dump_makefile_vars($$@)
+sub dump_makefile_vars($$$@)
 {
-    my ($file, $build_dir, @vars) = @_;
+    my ($file, $build_dir, $env_ref, @vars) = @_;
 
     open my $fh, ">", "${build_dir}/get_vars.mk" or die "Could not open ${build_dir}/get_vars.mk\n";
 
@@ -24,7 +24,7 @@ sub dump_makefile_vars($$@)
     close $fh;
     
     {
-        local %ENV = ();
+        local %ENV = %$env_ref;
         system("make -f ${build_dir}/get_vars.mk print_vars");
     }
 

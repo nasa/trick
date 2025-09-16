@@ -577,15 +577,15 @@ public class TrickifyPanel extends JPanel
         sdefinePanel.setLayout(new GridLayout(rows, 1));
         outputPanel.setLayout(new GridLayout(rows, 1));
         advancedPanel.setLayout(new GridLayout(rows, 1));
-        JScrollPane[] scrollPanes = {new JScrollPane(inputPanel), new JScrollPane(sdefinePanel), new JScrollPane(outputPanel), new JScrollPane(advancedPanel)};
+        JScrollPane[] scrollPanes = {new JScrollPane(sdefinePanel), new JScrollPane(inputPanel), new JScrollPane(outputPanel), new JScrollPane(advancedPanel)};
         for(int i = 0; i < 4; ++i)
         {
             scrollPanes[i].setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             scrollPanes[i].setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             scrollPanes[i].getVerticalScrollBar().setUnitIncrement(16);
         }
-        tabs.add("Inputs", scrollPanes[0]);
-        tabs.add("S_define", scrollPanes[1]);
+        tabs.add("S_define", scrollPanes[0]);
+        tabs.add("Inputs", scrollPanes[1]);
         tabs.add("Outputs", scrollPanes[2]);
         tabs.add("Advanced", scrollPanes[3]);
         add(tabs, gbc);
@@ -680,7 +680,7 @@ public class TrickifyPanel extends JPanel
         sdefinePanel.add(sDefineDirs);
 
         sDefineFilter = new DirSelect();
-        sDefineFilter.setLabel("S_define Filter");
+        sDefineFilter.setLabel("S_define Includes");
         sDefineFilter.setButtonText("Choose");
         sDefineFilter.allowMultiple(true);
         sDefineFilter.selectFile(0);
