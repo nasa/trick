@@ -14,17 +14,17 @@ from VisualizableTestCase import VisualizableTestCase
 def suite():
     """Create test suite from test cases here and return"""
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(VirgoDataPlaybackActorTestCase))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(VirgoActorTestCase))
     return (suites)
 
     import time
 
 
 
-class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
+class VirgoActorTestCase(VisualizableTestCase):
 
-#    def setUp(self):
-#        VisualizableTestCase().setUp()
+    def setUp(self):
+        VisualizableTestCase().setUp()
 
     def tearDown(self):
         self.vis()
@@ -37,7 +37,7 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         """
         Test a incomplete construction with optional args left out
         """
-        self.instance = VirgoDataPlaybackActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
+        self.instance = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
         self.assertEqual(self.instance.name, 'No Name')
         self.assertEqual(self.instance.offset_pyr, None)
 
@@ -47,7 +47,7 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         """
         Test a incomplete construction with a 45-degree pitch offset given
         """
-        self.instance = VirgoDataPlaybackActor(mesh=os.path.join(meshes_dir, 'teapot.obj'),
+        self.instance = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'),
                                                offset_pyr=[45, 0, 0])
         self.instance.initialize()
         #import pdb; pdb.set_trace()
@@ -61,7 +61,7 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         """
         Test a incomplete construction with a [1, 0, 0] unit position offset given
         """
-        self.instance = VirgoDataPlaybackActor(mesh=os.path.join(meshes_dir, 'teapot.obj'),
+        self.instance = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'),
                                                offset_pos=[1, 0, 0])
         self.instance.initialize()
         #import pdb; pdb.set_trace()
@@ -79,7 +79,7 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         Test a incomplete construction with a [0, 1, 0] unit position offset
         and [-45, 0, 0] pyr offset given
         """
-        self.instance = VirgoDataPlaybackActor(mesh=os.path.join(meshes_dir, 'teapot.obj'),
+        self.instance = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'),
                                                offset_pos=[0, 1, 0],
                                                offset_pyr=[-45, 0, 0])
         self.instance.initialize()
@@ -99,10 +99,10 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         """
         Test the PREFAB:moon option
         """
-        self.instance = VirgoDataPlaybackActor(mesh="PREFAB:moon8k")
-        self.origin_axes.SetTotalLength(3e6, 3e6, 3e6)  # Size of axes (x, y, z lengths)
+        self.instance = VirgoActor(mesh="PREFAB:moon8k")
+        self.set_origin_axes_length(3e6, 3e6, 3e6)  # Size of axes (x, y, z lengths)
         # TODO assertions go here!
-        self.visualize = True
+        #self.visualize = True
         #self.show_origin = True
         #self.show_grid = True
 
@@ -110,8 +110,8 @@ class VirgoDataPlaybackActorTestCase(VisualizableTestCase):
         """
         Test the PREFAB:earth option
         """
-        self.instance = VirgoDataPlaybackActor(mesh="PREFAB:earth")
-        self.origin_axes.SetTotalLength(1e7, 1e7, 1e7)  # Size of axes (x, y, z lengths)
+        self.instance = VirgoActor(mesh="PREFAB:earth")
+        self.set_origin_axes_length(1e7, 1e7, 1e7)  # Size of axes (x, y, z lengths)
         # TODO assertions go here!
         #self.visualize = True
         #self.show_origin = True

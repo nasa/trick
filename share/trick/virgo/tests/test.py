@@ -5,8 +5,9 @@
 import os, sys, pdb
 import unittest, argparse
 
+import ut_VirgoDataFileLoader
 import ut_VirgoDataFileSource
-import ut_VirgoDataPlaybackActor
+import ut_VirgoActor
 import ut_VirgoDataPlayback
 import ut_VirgoSceneNode
 
@@ -14,7 +15,7 @@ import ut_VirgoSceneNode
 def load_tests(*args):
     passed_args = locals()
     suite = unittest.TestSuite()
-    suite.addTests(ut_VirgoDataPlaybackActor.suite())
+    suite.addTests(ut_VirgoActor.suite())
     suite.addTests(ut_VirgoDataPlayback.suite())
     return suite
 
@@ -47,8 +48,9 @@ if __name__ == '__main__':
     # Create the suite
     suites = unittest.TestSuite()
 
+    suites.addTests(ut_VirgoDataFileLoader.suite())
     suites.addTests(ut_VirgoDataFileSource.suite())
-    suites.addTests(ut_VirgoDataPlaybackActor.suite())
+    suites.addTests(ut_VirgoActor.suite())
     suites.addTests(ut_VirgoSceneNode.suite())
     # NOTE: this suite is last purposefully as putting it earlier appears to
     # result in random "bus error" and/or "segfault" messages when

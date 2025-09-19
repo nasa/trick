@@ -3,7 +3,7 @@ import os, sys, inspect, math
 thisFileDir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0)))
 
 import vtk
-class VirgoDataPlaybackActor(vtk.vtkActor):
+class VirgoActor(vtk.vtkActor):
     """
     Wrapper around VTK actor to facilitate the Trick Logged data
     and other capabilities
@@ -12,7 +12,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         """
         Initialize this instance.
 
-        >>> va = VirgoDataPlaybackActor(mesh=os.path.join(thisFileDir,"meshes/teapot.obj"), name='tea')
+        >>> va = VirgoActor(mesh=os.path.join(thisFileDir,"meshes/teapot.obj"), name='tea')
         >>> va.name
         'tea'
 
@@ -101,7 +101,7 @@ class VirgoDataPlaybackActor(vtk.vtkActor):
         Given a string mesh (a path to a model file or a PREFAB), set up the vtk
         mapper with the configuration of geometry given
         """
-        # TODO: this is quick and dirty, need a PREFAB management class that VirgoDataPlaybackActor uses
+        # TODO: this is quick and dirty, need a PREFAB management class that VirgoActor uses
         mapper = vtk.vtkPolyDataMapper()
         texture = None
         if 'PREFAB:sphere' in str(mesh):

@@ -22,39 +22,36 @@ class VisualizableTestCase(unittest.TestCase):
     """
     def __init__(self, methodName='runTest', *args, **kwargs):
         super().__init__(methodName, *args, **kwargs)
-        self.instance = None
-        self.renderer = vtk.vtkRenderer()
-        self.render_window = vtk.vtkRenderWindow()
-        self.interactor = vtk.vtkRenderWindowInteractor()
         self.save_images = os.environ.get('VIRGO_WRITE_TEST_IMAGES', '0') == '1'
         self.visualize = os.environ.get('VIRGO_VISUALIZE_TESTS', '0') == '1'
         self.batch_override = os.environ.get('VIRGO_BATCH_TESTS_OVERRIDE', '0') == '1'
+        self.instance = None
+        self.renderer = None
+        self.render_window = None
+        self.interactor = None
+        self.grid_axes = None
+        self.origin_axes = None
         self.show_grid = False
         self.show_origin = True
-        self.grid_axes = self.get_grid_axes()
-        self.origin_axes = self.get_origin_axes()
+        if not self.batch_override:
+            self.renderer = vtk.vtkRenderer()
+            self.render_window = vtk.vtkRenderWindow()
+            self.interactor = vtk.vtkRenderWindowInteractor()
+            self.grid_axes = self.get_grid_axes()
+            self.origin_axes = self.get_origin_axes()
 
     def tearDown(self):
-        # Remove any observers
-#        if hasattr(self, 'observer_tags'):
-#            for obj, tag in self.observer_tags:
-#                obj.RemoveObserver(tag)
-#        self.renderer.RemoveAllObservers()
-#        self.interactor.RemoveAllObservers()
-#        # Clean up VTK objects
-#        del self.interactor
-#        del self.render_window
-#        del self.renderer
-
-        if hasattr(self, 'interactor'):
+        # These were suggeseted by AI to help with bus/ssegfault errors
+        # althought it doesn't appear to be sufficient.
+        if hasattr(self, 'interactor') and self.interactor:
             self.interactor.TerminateApp()  # Stop any interactor event loops
             self.interactor.DestroyTimer()  # Destroy any timers
-        if hasattr(self, 'observer_tags'):
+        if hasattr(self, 'observer_tags') and self.observer_tags:
             for obj, tag in self.observer_tags:
                 obj.RemoveObserver(tag)
-        if hasattr(self, 'renderer'):
+        if hasattr(self, 'renderer') and self.renderer:
             self.renderer.RemoveAllObservers()
-        if hasattr(self, 'render_window'):
+        if hasattr(self, 'render_window') and self.render_window:
             self.render_window.Finalize()  # Release OpenGL resources
         # Explicitly delete objects
         if hasattr(self, 'interactor'):
@@ -66,6 +63,9 @@ class VisualizableTestCase(unittest.TestCase):
         import gc
         gc.collect()  # Force garbage collection
 
+    def set_origin_axes_length(self, x, y, z):
+        if self.origin_axes:
+            self.origin_axes.SetTotalLength(x, y, z)  # Size of axes (x, y, z lengths)
 
     def get_grid_axes(self):
         # Create a vtkCubeAxesActor for tick marks
@@ -93,10 +93,22 @@ class VisualizableTestCase(unittest.TestCase):
         cube_axes.SetCamera(self.renderer.GetActiveCamera())  # Required for proper rendering
         return(cube_axes)
 
-    def set_grid_bounds_automatic(self):
-        if self.instance and self.grid_axes:
-            bounds = self.instance.GetBounds()
-            self.grid_axes.SetBounds(bounds)  # Set bounds for the axes (10x10x10 cube)
+    def set_grid_bounds_automatic(self, actors):
+        if actors and self.grid_axes:
+            # Initialize with the first actor's bounds
+            current_bounds = list(actors[0].GetBounds())
+            
+            # Expand to include all other actors
+            for actor in actors:
+                actor_bounds = actor.GetBounds()
+                # Update mins and maxs
+                current_bounds[0] = min(current_bounds[0], actor_bounds[0])  # xmin
+                current_bounds[1] = max(current_bounds[1], actor_bounds[1])  # xmax
+                current_bounds[2] = min(current_bounds[2], actor_bounds[2])  # ymin
+                current_bounds[3] = max(current_bounds[3], actor_bounds[3])  # ymax
+                current_bounds[4] = min(current_bounds[4], actor_bounds[4])  # zmin
+                current_bounds[5] = max(current_bounds[5], actor_bounds[5])  # zmax
+            self.grid_axes.SetBounds(current_bounds)  # Set bounds for the axes (10x10x10 cube)
 
     # Do we even need this with automatic grid bounds?
     #def set_grid_bounds(self, xmin, xmax, ymin, ymax, zmin, zmax):
@@ -130,11 +142,11 @@ class VisualizableTestCase(unittest.TestCase):
         """
         if not self.visualize or self.batch_override:
             return
-        self.set_grid_bounds_automatic()
         print(f"Visualizing. Exit window to continue.")
         
         if not isinstance(actors, list):
             actors = [actors]
+        self.set_grid_bounds_automatic(actors)
 
         # Create a text actor for the test name itself, lower left corner
         test_name = vtk.vtkTextActor()
@@ -204,14 +216,16 @@ class VisualizableTestCase(unittest.TestCase):
         writer.SetInputConnection(window_to_image.GetOutputPort())
         writer.Write()
 
-    def vis(self):
+    def vis(self, actors=None):
         """
         Easy-to-call function that will save scenes to image or show them in an
         interactive window depending on what the user has requested. Does nothing
         if neither of those features is enabled by the user
         """
+        if not actors:
+          actors=self.instance
         # TODO some unit tests don't have a self.instance, it needs to be clear how
         # to set it or come up with a more intuitive approach
         if self.instance:
-          self.save_scene_to_image(self.instance, filename=f".{self.__class__.__name__}_{self._testMethodName}.png")
-          self.visualize_scene(self.instance)
+          self.save_scene_to_image(actors=actors, filename=f".{self.__class__.__name__}_{self._testMethodName}.png")
+          self.visualize_scene(actors=actors)

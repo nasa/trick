@@ -93,7 +93,11 @@ class VirgoDataFileLoader:
         # some were not found)
         expected_vars = list(load_these_variables)
         for group in self.drg:
+          if len(expected_vars) == 0:
+             break
           for var in self.drg[group]:
+            if len(expected_vars) == 0:
+               break
             if var in load_these_variables:
               expected_vars.remove(var)
               continue

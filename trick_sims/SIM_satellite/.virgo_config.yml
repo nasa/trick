@@ -50,21 +50,26 @@
    arrow:
      mesh: PREFAB:arrow         # Size multiplier
      scale: 10.0
-     pos: [00.0, 0.0, 0.0]
+     pos: [0.0, 0.0, 0.0]
      pyr: [0.0, 0.0, 0.0]
      color: [0.3, 0.3, 1.0]
      parent: satellite
-#     driven_by:  # Actor position/rotation driven by these data aliases
-#       time: time
-#       pos: sat_pos
-#       rot: sat_rot
-#       #scale: sat_vel[0]  # Example of driving size of arrow from sim data
-#       #   For showing an arrow as a force vector we need more ability here,
-#       #   like to execute a function
-#       # Could we do color: here to show things like temperature?
+ # A vector is an arrow actor driven by x-y-z coordinates which
+ # gets added to the vtkAssembly associated with parent: (if specified)
+ vectors:
+   test_vec:
+     pos: [0.0, 0.0, 0.0]  # Offset from local frame
+     color: [0.8, 0.0, 0.8]
+     scale: 10.0
+     parent: satellite
+     driven_by:  # Actor position/rotation driven by these data aliases
+       time: time
+       # sat_vel is in the wrong frame in this sim to be useful but
+       # we use it as a test of the capability
+       pos: sat_vel  # Vectors only have position
 
  picker:
-     tolerance: 5e-7
+     tolerance: 1e-7
  camera:
      follow: satellite
      near_clipping_plane_tolerance: 0.000001

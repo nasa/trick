@@ -8,7 +8,7 @@ import pdb
 thisFileDir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0)))
 virgo_dir=os.path.abspath(os.path.join(thisFileDir, '../'))
 sys.path.append(virgo_dir)
-from VirgoActor import VirgoDataPlaybackActor
+from VirgoActor import VirgoActor
 from VirgoNode import VirgoSceneNode
 meshes_dir=os.path.join(virgo_dir, 'meshes')
 tests_dir=os.path.join(virgo_dir, 'tests')
@@ -25,9 +25,9 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
     def setUp(self):
         VisualizableTestCase().setUp()
         # Actors to be used in node construction
-        self.teapot1 = VirgoDataPlaybackActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
-        self.teapot2 = VirgoDataPlaybackActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
-        self.teapot3 = VirgoDataPlaybackActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
+        self.teapot1 = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
+        self.teapot2 = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
+        self.teapot3 = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
         # Nodes to test with
         self.node1 = VirgoSceneNode(name='parent_teapot', actor=self.teapot1)
         self.node2 = VirgoSceneNode(name='child_teapot', actor=self.teapot2)

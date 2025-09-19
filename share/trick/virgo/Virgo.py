@@ -4,9 +4,9 @@ VIRGO: Versatile Imaging and Rendering for Galactic Operations
 A Practical, Analytical, and Hardworking 3D Visualization tool
 leveraging python-VTK
 """
-from VirgoActor import VirgoDataPlaybackActor
+from VirgoActor import VirgoActor
 from VirgoDataFileLoader import VirgoDataFileLoader
-from VirgoNode import VirgoSceneNode
+from VirgoNode import VirgoSceneNode, VirgoSceneNodeVector
 from VirgoDataSource import VirgoDataFileSource
 import os, sys, inspect, time
 thisFileDir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0)))
@@ -101,15 +101,17 @@ class VirgoDataPlaybackControlCenter:
         self.vdl = vdl
         self.skybox = self.create_skybox()
         self.actors = {}
+        self.vectors={}
         self.trail_actors = {}
         self.text_actors={}
 
         self.help = False  # Display help message when true
         #self.picker = vtk.vtkPropPicker()
         self.picker = vtk.vtkCellPicker()
-        self.picker.SetTolerance(5e-7) # Picker tolerance
         self.interactor.SetPicker(self.picker)
         self.picked_actor      = None # Currently picked actor or None if not
+        self.near_clipping_plane_tolerance = 0.00005
+        self.picker_tolerance = 5e-7
         self.last_picked_actor = None
         self.original_colors = {}  # Store original colors for actors
 
@@ -206,6 +208,9 @@ class VirgoDataPlaybackControlCenter:
     def set_nodes(self, nodes_dict):
         self.nodes = nodes_dict
 
+    def set_vectors(self, vectors_dict):
+        self.vectors = vectors_dict
+
     def set_trail_actors(self, trail_actors_dict):
         self.trail_actors = trail_actors_dict
 
@@ -279,15 +284,17 @@ class VirgoDataPlaybackControlCenter:
         ############################################################################
         actor = self.picked_actor if self.picked_actor else self.last_picked_actor
         if actor:
-            #matrix = actor.GetMatrix()
-            ## Extract translation (elements 3, 7, 11 in 4x4 matrix)
-            #pos =[ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)]
+            # TODO: not sure if the distinction between current_position and
+            # world_position is clear enough here.
             label="Position"
-            pos = self.nodes[actor.name].get_current_position()
+            node = self.nodes[actor.name]
+            pos = node.get_current_position()
             if not pos:
                 label="Scene position"
                 pos = self.nodes[actor.name].get_world_position()
-            name = self.get_actor_name(actor)
+            if isinstance(node, VirgoSceneNodeVector):
+                label="vector"
+            name = actor.name
             self.text_actors['picked'].SetInput(
                 f"{name}\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units"
                 )
@@ -297,7 +304,10 @@ class VirgoDataPlaybackControlCenter:
         ############################################################################
         # Mode displayed in top right
         ############################################################################
-        self.text_actors['mode'].SetInput(f"{self.mode} {self.playback_speed}X")
+        top_right=f"{self.mode} {self.playback_speed}X"
+        top_right+=f"\nNCPT:{self.near_clipping_plane_tolerance:.2e}"
+        top_right+=f"\nPT:  {self.picker_tolerance:.2e}"
+        self.text_actors['mode'].SetInput(top_right)
         bounds = [0] * 4 # Get the text bounding box in display coordinates  [xmin, xmax, ymin, ymax]
         self.text_actors['mode'].GetBoundingBox(self.renderer, bounds)
         text_width = bounds[1] - bounds[0] + 1  # Width in pixels
@@ -310,10 +320,14 @@ class VirgoDataPlaybackControlCenter:
         ############################################################################
         # Time in top left
         ############################################################################
+        bounds = [0] * 4 # Get the text bounding box in display coordinates  [xmin, xmax, ymin, ymax]
+        self.text_actors['time'].GetBoundingBox(self.renderer, bounds)
+        text_height = bounds[3] - bounds[2] + 1  # Height in pixels
+        y_pos = window_height - text_height - hud_padding
         self.text_actors['time'].SetPosition(hud_padding, y_pos)
         percent_complete = self.world_time / self.max_sim_time * 100
         self.text_actors['time'].SetInput(
-            f"\nWorld time: {self.world_time:<10.5f} / {self.max_sim_time} sec [{percent_complete:<4.2f} %]"
+            f"World time: {self.world_time:<10.5f} / {self.max_sim_time} sec [{percent_complete:<4.2f} %]"
             )
         ############################################################################
         # Help message in bottom right (if active)
@@ -325,18 +339,20 @@ class VirgoDataPlaybackControlCenter:
                 f"\n L-click drag: Rotate"
                 f"\n Shift+L-click: Pan"
                 f"\n Ctrl+L-click: Roll"
-                f"\n Scroll wheel: Zoom"
+                f"\n Scroll wheel: Dolly In/Out"
                 f"\n L-click: Pick Actor"
                 f"\n"
                 f"\nKEYBOARD"
                 f"\n SPACE: Pause/Play"
-                f"\n S: Cycle playback speeds"
-                f"\n R: Fit camera to scene"
+                f"\n s: Cycle playback speeds"
+                f"\n r: Fit camera to scene"
                 f"\n <- -> : Step back/forward in time"
                 f"\n  -  + : Adjust text size"
-                f"\n A: Toggle Axes Visibility"
-                f"\n H: Toggle this help message"
+                f"\n a: Toggle Axes Visibility"
+                f"\n h: Toggle this help message"
                 f"\n BackSpace: Toggle starfield"
+                f"\n j k: Near Plane Clipping Tolerance"
+                f"\n J K: Picker Tolerance"
                 f"\n Q: Quit"
                 )
             self.text_actors['help'].GetBoundingBox(self.renderer, bounds)
@@ -558,8 +574,16 @@ class VirgoDataPlaybackControlCenter:
             self.skybox.SetVisibility(False) if self.skybox.GetVisibility() else self.skybox.SetVisibility(True)
         if key == "v":
             # Verbosely print state of all non-text actors
-            for actor in self.actors:
-                self.actors[actor].report()
+            for n in self.node:
+                self.nodes[n].report()
+        if key == "j":
+            self.decrease_near_clipping_plane_tolerance()
+        if key == "k":
+            self.increase_near_clipping_plane_tolerance()
+        if key == "J":
+            self.decrease_picker_tolerance()
+        if key == "K":
+            self.increase_picker_tolerance()
         if key == "c":
             self.camera_report()
         if key == "space":
@@ -612,7 +636,7 @@ class VirgoDataPlaybackControlCenter:
             for n in self.nodes:
                 if self.nodes[n].data_source == None:
                     return
-                self.actors[a].data_source.set_current_time(self.world_time, strategy='closest')
+                self.actors[n].data_source.set_current_time(self.world_time, strategy='closest')
                 
     def increment_time(self):
         """
@@ -675,9 +699,25 @@ class VirgoDataPlaybackControlCenter:
         # VISIBLE DUE TO CLIPPING. TODO this probably shouldn't be set every frame 
         # TODO this needs checking in the verifier as well
         if 'camera' in self.scene and 'near_clipping_plane_tolerance' in self.scene['camera']:
+            self.near_clipping_plane_tolerance = self.scene['camera']['near_clipping_plane_tolerance']
             self.renderer.SetNearClippingPlaneTolerance(self.scene['camera']['near_clipping_plane_tolerance'])
-        else:
-            self.renderer.SetNearClippingPlaneTolerance(0.00005)
+        self.renderer.SetNearClippingPlaneTolerance(self.near_clipping_plane_tolerance)
+
+    def increase_near_clipping_plane_tolerance(self, multiplier=2.0):
+        self.near_clipping_plane_tolerance *= multiplier
+        self.renderer.SetNearClippingPlaneTolerance(self.near_clipping_plane_tolerance)
+
+    def decrease_near_clipping_plane_tolerance(self, multiplier=2.0):
+        self.near_clipping_plane_tolerance /= multiplier
+        self.renderer.SetNearClippingPlaneTolerance(self.near_clipping_plane_tolerance)
+
+    def increase_picker_tolerance(self, multiplier=2.0):
+        self.picker_tolerance *= multiplier
+        self.renderer.SetNearClippingPlaneTolerance(self.picker_tolerance)
+
+    def decrease_picker_tolerance(self, multiplier=2.0):
+        self.picker_tolerance /= multiplier
+        self.renderer.SetNearClippingPlaneTolerance(self.picker_tolerance)
 
     def init_picker(self):
         """
@@ -687,8 +727,8 @@ class VirgoDataPlaybackControlCenter:
         # self.camera_follows and pass that node into the Interactor so
         # it can track camera information relative to an actor
         if 'picker' in self.scene and 'tolerance' in self.scene['picker']:
-            self.picker.SetTolerance(float(self.scene['picker']['tolerance']))
-
+            self.picker_tolerance = float(self.scene['picker']['tolerance'])
+        self.picker.SetTolerance(self.picker_tolerance)
 
     def camera_report(self):
         """
@@ -803,10 +843,10 @@ class VirgoDataPlayback:
         """
         pass
 
-    def create_actor(self, actor_name, actor_scene_dict=None):
+    def create_actor(self, actor_name, actor_scene_dict=None,):
         """
         Given a single scene's actors: sub-entry, return a
-        VirgoDataPlaybackActor instance built from that information
+        VirgoActor instance built from that information
 
         TODO all this checking for dict/YAML validity needs to be safer, i.e.
         checked in a YAML verifier before getting here similar to what
@@ -816,7 +856,7 @@ class VirgoDataPlayback:
         ASSUMPTION: self.scene['actors'][a]['mesh'] is path defined
         relative to current os.getcwd()
 
-        Returns: VirgoDataPlaybackActor 
+        Returns: VirgoActor 
         """
         # TODO: This if pos / if pyr / if scale logic can be removed once
         #  a dict verifier is in place
@@ -832,7 +872,7 @@ class VirgoDataPlayback:
         # Create the Actor
         if self.verbosity > 1:
             print(f"Constructing VirgotDataPlaybackActor {actor_name} ...")
-        actor = VirgoDataPlaybackActor(
+        actor = VirgoActor(
             mesh=actor_scene_dict['mesh'],
             offset_pos=offset_pos,
             offset_pyr=offset_pyr,
@@ -852,7 +892,18 @@ class VirgoDataPlayback:
 
         return actor
 
-    def create_node(self, actor, actor_scene_dict=None):
+    def create_vector(self, vector_name, vector_scene_dict=None):
+        """
+        Creates a VirgoActor with a PREFAB:arrow mesh
+        from the information in the vector_scene_dict
+        """
+        # The vector fields are similar to actor, but without a mesh
+        # Force the arrow mesh then create the vector actor
+        vector_scene_dict['mesh'] = 'PREFAB:arrow'
+        vector = self.create_actor(actor_name=vector_name, actor_scene_dict=vector_scene_dict)
+        return vector
+
+    def create_node(self, actor, actor_scene_dict=None, _class=VirgoSceneNode):
         """
         Creates a VirgoSceneNode associated with actor from the information
         in actor_scene_dict. This function also maps the data in the
@@ -861,9 +912,13 @@ class VirgoDataPlayback:
         included in the larger VirgoDataPlayback framework via
         self.add_node()
 
+        params:
+          _class: Class to instantiate, must be or derive from VirgoActor
+
+
         Returns: Tuple of (VirgoSceneNode, parent_name [str])
         """
-        node = VirgoSceneNode(name=f"{actor.name}", actor=actor)
+        node = _class(name=f"{actor.name}", actor=actor)
         # I've got to do some connecting around here
         # from self.vdl function calls create a
         # vds = VirgoDataSource()
@@ -937,7 +992,7 @@ class VirgoDataPlayback:
 
     def initialize_nodes(self):
         """
-        Create the VirgoDataPlaybackActors and VirgoSceneNodes associated with
+        Create the VirgoActors and VirgoSceneNodes associated with
         actors from the scene dictionary and initialize their configurable
         parameters.
 
@@ -946,18 +1001,33 @@ class VirgoDataPlayback:
         """
         actors = {}
         trail_actors = {}
-        for a in self.scene['actors']:
-            actors[a] = self.create_actor(actor_name=a, actor_scene_dict=self.scene['actors'][a])
-            actors[a].initialize()
+        if 'actors' in self.scene:
+            for a in self.scene['actors']:
+                actors[a] = self.create_actor(actor_name=a, actor_scene_dict=self.scene['actors'][a])
+                actors[a].initialize()
+    
+                node, parent_name = self.create_node(actor=actors[a], actor_scene_dict=self.scene['actors'][a])
+                self.add_node(node, parent_name=parent_name)
+                trail_actor = self.create_trail(node, actor_scene_dict=self.scene['actors'][a])
+                if trail_actor:
+                    trail_actors[a] = trail_actor
 
-            node, parent_name = self.create_node(actor=actors[a], actor_scene_dict=self.scene['actors'][a])
-            self.add_node(node, parent_name=parent_name)
-            trail_actor = self.create_trail(node, actor_scene_dict=self.scene['actors'][a])
-            if trail_actor:
-                trail_actors[a] = trail_actor
+        vectors = {}
+        if 'vectors' in self.scene:
+            for v in self.scene['vectors']:
+                vectors[v] = self.create_vector(vector_name=v, vector_scene_dict=self.scene['vectors'][v],)
+                vectors[v].initialize()
+                node, parent_name = self.create_node(actor=vectors[v], actor_scene_dict=self.scene['vectors'][v],
+                                                     _class=VirgoSceneNodeVector)
+                # A vector is a special PREFAB:arrow actor that cannot specify rotations
+                if node.data_source._rotations is not None:
+                    msg = (f"ERROR: vector {v} should not specify rotations as they are computed automatically")
+                    raise RuntimeError (msg)
+                self.add_node(node, parent_name=parent_name)
 
         # Pass the actors into the controller for runtime use
         self.controller.set_actors(actors)
+        self.controller.set_vectors(vectors)
         self.controller.set_nodes(self.nodes)
         self.controller.set_trail_actors(trail_actors)
 

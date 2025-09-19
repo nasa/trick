@@ -1,7 +1,8 @@
 import vtk
 import math
+import numpy as np
 
-from VirgoActor import VirgoDataPlaybackActor
+from VirgoActor import VirgoActor
 
 class VirgoSceneNode():
     """
@@ -256,6 +257,7 @@ class VirgoSceneNode():
         #print(f"DEBUG: turning visibility of {self.name} axes on.")
         self.axes.SetVisibility(True)
         self.axes.Modified()
+        print(f"DEBUG: in show_axes and self.name is {self.name}")
         self.actor.GetProperty().SetOpacity(0.7)
 
     def create_trail(self, color=[0.0, 0.0, 0.0], thickness=2):
@@ -342,3 +344,54 @@ class VirgoSceneNode():
 #            (camera_pos[2] - axes_pos[2])**2
 #        )
 #        self.axes.SetAxisLabels(distance < self.axes_label_render_threshold)
+
+
+class VirgoSceneNodeVector(VirgoSceneNode):
+    """
+    Derived class which defined specific methods for a vector application
+    of a VirgoSceneNode
+    """
+    def __init__(self, name, actor=None):
+        super().__init__(name=name, actor=actor)
+
+    def update(self, world_time):
+        if not self.data_source:
+            return
+
+        # Query self.data_souce for the data we need to drive the node
+        self.data_source.set_current_time(world_time)
+        pos  = self.data_source.get_current_position()
+        self.set_vector_pose(vec=pos)
+        if self.verbosity > 3:
+            print(f"In VirgoSceneNodeVector.update() with world_time: {world_time} and")
+            print(f"  data_source pos:   {pos}")
+            if self.verbosity > 4:
+                self.report()
+
+    def set_vector_pose(self, vec):
+        """
+        Pose (orient) self.local_transform according to the x,y,z values
+        in vector vec. This is the only way in VTK to take an arrow mesh
+        and orient it along a vector's direction
+        """
+        # Normalize vector to get direction
+        v = np.array(vec, dtype=float)
+        length = np.linalg.norm(v)
+        if length == 0:
+            raise ValueError(f"Zero-length vector for {self.name} cannot be displayed.")
+        direction = v / length
+    
+        # Compute rotation between X-axis and target direction
+        x_axis = np.array([1,0,0])
+        axis = np.cross(x_axis, direction)
+        angle = np.degrees(np.arccos(np.clip(np.dot(x_axis, direction), -1, 1)))
+    
+        self.local_transform.Identity()
+        self.local_transform.PostMultiply()
+        #transform.Translate(0,0,0)   # (optional, could add vector origin offset here)
+        if np.linalg.norm(axis) > 1e-6:
+            self.local_transform.RotateWXYZ(angle, *axis)
+        scale = self.data_source.get_current_scale()
+        if scale is not None:
+            self.local_transform.Scale(*scale)
+    
