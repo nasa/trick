@@ -43,6 +43,12 @@ class VirgoDataSource():
         """
         return None
 
+    def get_current_opacity(self) -> float:
+        """
+        Return current visiblity associated with this data
+        """
+        return None
+
 
 import bisect, math
 class VirgoDataFileSource(VirgoDataSource):
@@ -52,7 +58,7 @@ class VirgoDataFileSource(VirgoDataSource):
     interface. 
     """
     def __init__(self, name="Unnamed Source", times=None, rotations=None,
-                 positions=None, scales=None):
+                 positions=None, scales=None, opacities=None):
         """
         Parameters
         ----------
@@ -68,6 +74,9 @@ class VirgoDataFileSource(VirgoDataSource):
         scales : List of 3-size tuples of doubles
             List represents (x, y, z) scales of this actor one per entry in
             times list. Length of positions must == length of times
+        opacities : List of scalar values between 0.0 and 1.0 of this actor
+            one per entry in the times list. Length of opacities  must ==
+            length of times.
         name : str
             Name given to this actor
         fontsize : int
@@ -78,6 +87,7 @@ class VirgoDataFileSource(VirgoDataSource):
         self._positions = positions
         self._rotations = rotations
         self._scales = scales
+        self._opacities = opacities 
         self._current_time = 0.0
         self._current_time_idx = 0
         self.initialized = False
@@ -90,6 +100,9 @@ class VirgoDataFileSource(VirgoDataSource):
 
     def set_rotations(self, rotations):
         self._rotations = rotations
+
+    def set_opacities(self, opacities):
+        self._opacities = opacities
 
     def get_current_time_idx(self):
         """
@@ -141,6 +154,12 @@ class VirgoDataFileSource(VirgoDataSource):
         else:
             return None
 
+    def get_current_opacity(self):
+        if self._opacities:
+            return(self._opacities[self.get_current_time_idx()])
+        else:
+            return None
+
     def initialize(self):
         self.verify()
 
@@ -167,7 +186,12 @@ class VirgoDataFileSource(VirgoDataSource):
           raise ValueError(f"{self.name}'s self._times and self._positions are not the same length")
         if self._rotations and (len(self._times) != len(self._rotations)):
           raise ValueError(f"{self.name}'s self._times and self._rotations lists are not the same length")
-
+        if self._scales and (len(self._times) != len(self._scales)):
+          raise ValueError(f"{self.name}'s self._times and self._scales lists are not the same length")
+        if self._opacities and (len(self._times) != len(self._opacities)):
+          raise ValueError(f"{self.name}'s self._times and self._opacities lists are not the same length")
+        # TODO need a check that self._opacities values are all between 0-1 when
+        # cast to a float (bools rae OK)
         # If we made it this far, the actor is fully initialized
         self.initialized = True
 

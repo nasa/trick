@@ -286,18 +286,24 @@ class VirgoDataPlaybackControlCenter:
         if actor:
             # TODO: not sure if the distinction between current_position and
             # world_position is clear enough here.
-            label="Position"
+            label="Node driven position"
             node = self.nodes[actor.name]
             pos = node.get_current_position()
             if not pos:
-                label="Scene position"
+                label="Node scene position"
                 pos = self.nodes[actor.name].get_world_position()
             if isinstance(node, VirgoSceneNodeVector):
                 label="vector"
             name = actor.name
-            self.text_actors['picked'].SetInput(
-                f"{name}\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units"
-                )
+            text=f"{name}\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units"
+            if node.parent:
+                label = "Node local position"
+                pos = self.nodes[actor.name].get_local_position()
+                text+=f"\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units"
+                label = "Actor local position"
+                pos = actor.GetPosition()
+                text+=f"\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units"
+            self.text_actors['picked'].SetInput(text)
         else:
             self.text_actors['picked'].SetInput("")
 
@@ -693,6 +699,10 @@ class VirgoDataPlaybackControlCenter:
                     self.interactor.GetInteractorStyle().set_node(self.camera_follows)
                     self.interactor.GetInteractorStyle().set_renderer(self.renderer)
                     self.camera_follow(self.camera_follows)
+            if self.camera_follows == None:
+                msg = (f"ERROR: Camera cannot follow {self.scene['camera']['follow']}, actor/node not found!")
+                raise RuntimeError (msg)
+
 
         # THIS VALUE IS CRITICAL, SMALLER NUMBERS (0.00001) MAKE THE BACKGROUND
         # SKYBOX STARS WIGGLE BUT LARGER NUMBERS (0.0001) MAKE SMALLER ACTORS NOT
@@ -863,12 +873,15 @@ class VirgoDataPlayback:
         offset_pos=[0.0, 0.0, 0.0]
         offset_pyr=[0.0, 0.0, 0.0]
         scale = 1.0
+        opacity = 1.0
         if 'pos' in actor_scene_dict:
             offset_pos=actor_scene_dict['pos']
         if 'pyr' in actor_scene_dict:
             offset_pyr=actor_scene_dict['pyr']
         if 'scale' in actor_scene_dict:
             scale=actor_scene_dict['scale']
+        if 'opacity' in actor_scene_dict:
+            opacity=actor_scene_dict['opacity']
         # Create the Actor
         if self.verbosity > 1:
             print(f"Constructing VirgotDataPlaybackActor {actor_name} ...")
@@ -883,8 +896,8 @@ class VirgoDataPlayback:
         if self.verbosity > 0:
             print(f"Initializing {actor_name} ...")
 
-        #import pdb; pdb.set_trace()
         actor.SetScale(scale)
+        actor.GetProperty().SetOpacity(opacity)
         if 'color' in actor_scene_dict:
             actor.GetProperty().SetColor(actor_scene_dict['color'])
         if 'pickable' in actor_scene_dict and actor_scene_dict['pickable'] == 0:
@@ -935,6 +948,7 @@ class VirgoDataPlayback:
         positions = None
         rotations = None
         scales = None
+        opacities = None
         times = None
         driven_by = None
         if 'driven_by' in actor_scene_dict:
@@ -947,9 +961,12 @@ class VirgoDataPlayback:
                 rotations = self.vdl.get_recorded_datas(alias=driven_by['rot'])
             if 'scale' in driven_by:
                 scales = self.vdl.get_recorded_data(alias=driven_by['scale'])
+            if 'opacity' in driven_by:
+                opacities = self.vdl.get_recorded_data(alias=driven_by['opacity'])
             # Create the data source
             vds = VirgoDataFileSource(times=times, rotations=rotations,
-                                      positions=positions, scales=scales)
+                                      positions=positions, scales=scales,
+                                      opacities=opacities )
             vds.initialize()
             node.set_data_source(vds)
         else:

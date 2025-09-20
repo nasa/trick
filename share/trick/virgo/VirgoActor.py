@@ -162,6 +162,24 @@ class VirgoActor(vtk.vtkActor):
             cube_source.SetZLength(1.0)
             # Create a mapper to map the cube's geometry to graphics primitives
             mapper.SetInputConnection(cube_source.GetOutputPort())
+        elif 'PREFAB:cylinder' in str(mesh):
+            cylinder_source = vtk.vtkCylinderSource()
+            cylinder_source.SetHeight(1.0)         # Set height to 3 units
+            cylinder_source.SetRadius(0.5)         # Set radius to 1 unit
+            cylinder_source.SetCenter(0.0, 0.0, 0.0) # 
+            cylinder_source.SetResolution(50)      # Use 50 facets for a smooth cylinder
+            cylinder_source.SetCapping(True)       # Ensure the bases are capped
+            # Create a mapper to map the cube's geometry to graphics primitives
+            mapper.SetInputConnection(cylinder_source.GetOutputPort())
+        elif 'PREFAB:cone' in str(mesh):
+            cone_source = vtk.vtkConeSource()
+            height = 1.0
+            cone_source.SetHeight(height)
+            cone_source.SetRadius(0.5)
+            cone_source.SetResolution(32)
+            cone_source.SetDirection(-1, 0, 0)  # tip pointed along -X
+            cone_source.SetCenter(height/2, 0.0, 0.0)  # tip at (0,0,0)
+            mapper.SetInputConnection(cone_source.GetOutputPort())
         elif 'PREFAB:arrow' in str(mesh):
             arrow_source = vtk.vtkArrowSource()
             arrow_source.SetTipLength(0.35)   # Fraction of total length

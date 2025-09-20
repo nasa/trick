@@ -175,7 +175,6 @@ Satellite::Satellite(Planet* planet_p) {
 
 void Satellite::compute_auxiliary_vars() {
 
-    double Rtrans[3][3];
     double tempM[3][3];
     int axis = 0;
 

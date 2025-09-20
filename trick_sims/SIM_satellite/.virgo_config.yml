@@ -19,10 +19,58 @@
     var: dyn.satellite.vel[0-2] # Data recording variable
   sat_rot: 
     group: Satellite                # Data recording group
-    var: dyn.satellite.R[0-2][0-2]  # Data recording variable
+    var: dyn.satellite.Rtrans[0-2][0-2]  # Data recording variable
   sat_force: 
     group: Satellite                # Data recording group
     var: dyn.satellite.force[0-2]   # Data recording variable
+  B1_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_B1.on
+  B2_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_B2.on
+  B3_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_B3.on
+  B4_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_B4.on
+  L1_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_L1.on
+  L2_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_L2.on
+  L3_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_L3.on
+  L4_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_L4.on
+  R1_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_R1.on
+  R2_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_R2.on
+  R3_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_R3.on
+  R4_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_R4.on
+  T1_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_T1.on
+  T2_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_T2.on
+  T3_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_T3.on
+  T4_on: 
+    group: Satellite
+    var: dyn.satellite.thruster_T4.on
  actors:
    earth: 
      mesh: PREFAB:earth
@@ -32,9 +80,9 @@
      pickable: 0
    satellite:
      mesh: PREFAB:cube         # Size multiplier
-     scale: 10.0
+     scale: 3.0
      pos: [0.0, 0.0, 0.0]
-     pyr: [0.0, 0.0, 90.0]
+     pyr: [0.0, 0.0, 0.0]
      color: [0.6, 0.6, 0.6]
      pickable:   # If given, this actor is pickable with the mouse
        focus: 1  # TO BE IMPLEMENTED: On pick, focus camera on actor
@@ -47,29 +95,185 @@
        time: time
        pos: sat_pos
        rot: sat_rot
-   arrow:
-     mesh: PREFAB:arrow         # Size multiplier
-     scale: 10.0
-     pos: [0.0, 0.0, 0.0]
-     pyr: [0.0, 0.0, 0.0]
-     color: [0.3, 0.3, 1.0]
+#   arrow:
+#     mesh: PREFAB:arrow
+#     scale: 10.0
+#     pos: [0.0, 0.0, 0.0]
+#     pyr: [0.0, 0.0, 0.0]
+#     color: [0.3, 0.3, 1.0]
+#     parent: satellite
+# RCS Jet positions and force directions in the body frame taken from
+# Satellite::initialize()
+#          position             force
+#          x    y     z       x     y     z
+#   T1  ( 0.0, 0.0, 1.956,  10.0,  0.0,  0.0);
+#   T2  ( 0.0, 0.0, 1.956,  0.0,  10.0,  0.0);
+#   T3  ( 0.0, 0.0, 1.956, -10.0,  0.0,  0.0);
+#   T4  ( 0.0, 0.0, 1.956,  0.0, -10.0,  0.0);
+#   R1  ( 0.0, 1.956, 0.0,  10.0,  0.0,  0.0);
+#   R2  ( 0.0, 1.956, 0.0,  0.0,  0.0, -10.0);
+#   R3  ( 0.0, 1.956, 0.0, -10.0,  0.0,  0.0);
+#   R4  ( 0.0, 1.956, 0.0,  0.0,  0.0,  1.0);
+#   B1  ( 0.0, 0.0, -1.956,  10.0,  0.0,  0.0);
+#   B2  ( 0.0, 0.0, -1.956,  0.0,  10.0,  0.0);
+#   B3  ( 0.0, 0.0, -1.956, -10.0,  0.0,  0.0);
+#   B4  ( 0.0, 0.0, -1.956,  0.0, -10.0,  0.0);
+#   L1  ( 0.0, -1.956, 0.0,  10.0,  0.0,  0.0);
+#   L2  ( 0.0, -1.956, 0.0,  0.0,  0.0,  10.0);
+#   L3  ( 0.0, -1.956, 0.0, -10.0,  0.0,  0.0);
+#   L4  ( 0.0, -1.956, 0.0,  0.0,  0.0, -10.0);
+   RCS_T1:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 0.0, 1.956]
+     pyr: [0.0, 0.0, 0.0]  # Thrust in +X
+     color: [1.0, 0.0, 0.0]
      parent: satellite
+   RCS_T2:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 0.0, 1.956]
+     pyr: [0.0, 0.0, 90.0]  # Thrust in +Y
+     color: [0.0, 1.0, 0.0]
+     parent: satellite
+   RCS_T3:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 0.0, 1.956]
+     pyr: [0.0, 0.0, 180.0]  # Thrust in -X
+     color: [1.0, 0.0, 0.0]
+     parent: satellite
+   RCS_T4:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 0.0, 1.956]
+     pyr: [0.0, 0.0, -90.0]  # Thrust in -Y
+     color: [0.0, 1.0, 0.0]
+     parent: satellite
+   RCS_R1:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 1.956, 0.0]
+     pyr: [0.0, 0.0, 0.0]  # Thrust in +X
+     color: [1.0, 0.0, 0.0]
+     parent: satellite
+   RCS_R2:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 1.956, 0.0]
+     pyr: [0.0, 90.0, 0.0]  # Thrust in -Z
+     color: [0.0, 0.0, 1.0]
+     parent: satellite
+   RCS_R3:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 1.956, 0.0]
+     pyr: [0.0, 180.0, 0.0]  # Thrust in -X
+     color: [1.0, 0.0, 0.0]
+     parent: satellite
+   RCS_R4:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 1.956, 0.0]
+     pyr: [0.0, -90.0, 0.0]  # Thrust in +Z
+     color: [0.0, 0.0, 1.0]
+     parent: satellite
+   RCS_B1:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 0.0, -1.956]
+     pyr: [0.0, 0.0, 0.0]  # Thrust in +X
+     color: [1.0, 0.0, 0.0]
+     parent: satellite
+   RCS_B2:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 0.0, -1.956]
+     pyr: [0.0, 0.0, 90.0]  # Thrust in +Y
+     color: [0.0, 1.0, 0.0]
+     parent: satellite
+   RCS_B3:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 0.0, -1.956]
+     pyr: [0.0, 0.0, 180.0]  # Thrust in -X
+     color: [1.0, 0.0, 0.0]
+     parent: satellite
+   RCS_B4:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, 0.0, -1.956]
+     pyr: [0.0, 0.0, -90.0]  # Thrust in -Y
+     color: [0.0, 1.0, 0.0]
+     parent: satellite
+   RCS_L1:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, -1.956, 0.0]
+     pyr: [0.0, 0.0, 0.0]  # Thrust in +X
+     color: [1.0, 0.0, 0.0]
+     parent: satellite
+   RCS_L2:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, -1.956, 0.0]
+     pyr: [0.0, -90.0, 0.0]  # Thrust in +Z
+     color: [0.0, 0.0, 1.0]
+     parent: satellite
+   RCS_L3:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, -1.956, 0.0]
+     pyr: [0.0, 180.0, 0.0]  # Thrust in -X
+     color: [1.0, 0.0, 0.0]
+     parent: satellite
+   RCS_L4:
+     mesh: PREFAB:cone
+     scale: 1.0
+     pos: [0.0, -1.956, 0.0]
+     pyr: [0.0, 90.0, 0.0]  # Thrust in -Z
+     color: [0.0, 0.0, 1.0]
+     parent: satellite
+   # In SIM_satellite only T1 and T3 actually fire. TODO: define
+   # the rest of the plumes in case a RUN ever fired others
+   RCS_T1_PLUME:
+     mesh: PREFAB:cylinder
+     scale: 1.0
+     pos: [1.5, 0.0, 1.956] # Offset in X to edge of RCS cone
+     pyr: [0.0, 0.0, 90.0]  # Thrust in +X
+     color: [0.9, 0.9, 0.0]
+     opacity: 0.0
+     parent: satellite
+     driven_by:
+       time: time
+       opacity: T1_on
+   RCS_T3_PLUME:
+     mesh: PREFAB:cylinder
+     scale: 1.0
+     pos: [-1.5, 0.0, 1.956] # Offset in X to edge of RCS cone
+     pyr: [0.0, 0.0, 90.0]  # Thrust in +X
+     color: [0.9, 0.9, 0.0]
+     opacity: 0.0
+     parent: satellite
+     driven_by:
+       time: time
+       opacity: T3_on
  # A vector is an arrow actor driven by x-y-z coordinates which
  # gets added to the vtkAssembly associated with parent: (if specified)
- vectors:
-   test_vec:
-     pos: [0.0, 0.0, 0.0]  # Offset from local frame
-     color: [0.8, 0.0, 0.8]
-     scale: 10.0
-     parent: satellite
-     driven_by:  # Actor position/rotation driven by these data aliases
-       time: time
-       # sat_vel is in the wrong frame in this sim to be useful but
-       # we use it as a test of the capability
-       pos: sat_vel  # Vectors only have position
+# vectors:
+#   test_vec:
+#     pos: [0.0, 0.0, 0.0]  # Offset from local frame
+#     color: [0.8, 0.0, 0.8]
+#     scale: 10.0
+#     parent: satellite
+#     driven_by:  # Actor position/rotation driven by these data aliases
+#       time: time
+#       # sat_vel is in the wrong frame in this sim to be useful but
+#       # we use it as a test of the capability
+#       pos: sat_vel  # Vectors only have position
 
  picker:
      tolerance: 1e-7
  camera:
      follow: satellite
-     near_clipping_plane_tolerance: 0.000001
+     near_clipping_plane_tolerance: 0.0000005

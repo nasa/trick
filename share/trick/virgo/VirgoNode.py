@@ -24,6 +24,7 @@ class VirgoSceneNode():
         self.assembly = vtk.vtkAssembly()     # The assembly associated with this node
         self.axes_scale = 0.5  # Default scale factor for axes
         self.axes = self.create_axes()
+        self._last_opacity = 1.0  # For remembering opacity when turning visiblity off
         if self.actor:
             self.assembly.AddPart(self.actor)
         if self.axes:
@@ -90,6 +91,7 @@ class VirgoSceneNode():
         pos   = self.data_source.get_current_position()
         rot   = self.data_source.get_current_rotation()
         scale = self.data_source.get_current_scale()
+        opacity = self.data_source.get_current_opacity()
         #import pdb; pdb.set_trace()
         if self.verbosity > 3:
             print(f"In VirgoSceneNode.update() with world_time: {world_time} and")
@@ -101,6 +103,11 @@ class VirgoSceneNode():
 
         # Pose the node with this data
         self.set_pose(pos=pos, dcm=rot, scale=scale)
+
+        # if specified, adjust the opacity of the actor
+        if opacity != None:
+            self.actor.GetProperty().SetOpacity(float(opacity))
+
         self.update_trail()
 
     def dump_assembly(self, asm, indent=0):
@@ -182,6 +189,12 @@ class VirgoSceneNode():
             p = node.local_transform.TransformPoint(p)
             node = node.parent
         return p
+    
+    def get_local_position(self):
+        """
+        Return this node's local position (translation relative to its parent).
+        """
+        return self.local_transform.GetPosition()
 
     def create_axes(self, position=[0,0,0]):
         """
@@ -248,7 +261,7 @@ class VirgoSceneNode():
         # Make the entire axes not visible
         self.axes.SetVisibility(False)
         self.axes.Modified()
-        self.actor.GetProperty().SetOpacity(1.0)
+        self.actor.GetProperty().SetOpacity(self._last_opacity)
 
     def show_axes(self):
         if not self.axes:
@@ -258,6 +271,7 @@ class VirgoSceneNode():
         self.axes.SetVisibility(True)
         self.axes.Modified()
         print(f"DEBUG: in show_axes and self.name is {self.name}")
+        self._last_opacity = self.actor.GetProperty().GetOpacity()
         self.actor.GetProperty().SetOpacity(0.7)
 
     def create_trail(self, color=[0.0, 0.0, 0.0], thickness=2):

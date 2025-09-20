@@ -36,6 +36,7 @@ class Satellite {
     // State Variables
     double pos[3];           /* (m)        Vehicle position in world frame. */
     double R[3][3];          /* (--)       Vehicle body to World rotation matrix. */
+    double Rtrans[3][3];     /* (--)       World to Vehicle body rotation matrix. */
     double P[3];             /* (kg*m/s)   Linear Momentum */
     double L[3];             /* (kg*m2/s)  Angular Momentum */
 

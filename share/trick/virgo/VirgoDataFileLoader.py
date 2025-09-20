@@ -105,7 +105,6 @@ class VirgoDataFileLoader:
           msg = (f"ERROR: The following variables from recorded_data: section of scene "
                 f"were not found in data loading of {self.run_dir}\n{expected_vars}")
           raise RuntimeError (msg)
-
         return (self.drg)
 
     def get_recorded_data(self, alias):
