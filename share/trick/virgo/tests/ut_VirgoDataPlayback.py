@@ -76,15 +76,15 @@ class VirgoDataPlaybackFunctionsTestCase(VisualizableTestCase):
         actor_dict = self.scene['actors']['test_actor']
         actor = self.instance.create_actor('test_actor', actor_dict)
         self.assertEqual(actor.name, 'test_actor')
-        self.visualize=True
-        self.vis(actor)
+        #self.visualize=True
+        #self.vis(actor)
 
     def test_create_vector(self):
         vector_dict = self.scene['vectors']['test_vector']
         vector = self.instance.create_vector('test_vector', vector_dict)
         self.assertEqual(vector.name, 'test_vector')
         self.assertEqual(vector.mesh, 'PREFAB:arrow')
-        self.visualize=True
-        self.vis(vector)
+        #self.visualize=True
+        #self.vis(vector)
 
     

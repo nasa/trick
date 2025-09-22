@@ -1,8 +1,7 @@
 import vtk
-import math
 import numpy as np
 
-from VirgoActor import VirgoActor
+from VirgoLabel import VirgoLabel
 
 class VirgoSceneNode():
     """
@@ -16,15 +15,23 @@ class VirgoSceneNode():
     This class also provides an intermediate layer between the actors in the scene
     and the rendering provided by higher level Virgo classes
     """
-    def __init__(self, name, actor=None):
+    def __init__(self, name=None, actor=None, axes=True):
         self.verbosity=1  # TODO make adjustable
         self.fs = 14      # font size
-        self.name = name
         self.actor = actor
         self.assembly = vtk.vtkAssembly()     # The assembly associated with this node
         self.axes_scale = 0.5  # Default scale factor for axes
-        self.axes = self.create_axes()
+        self.axes = None
+        if axes:
+            self.axes = self.create_axes()
+
+        self.label_text_scale = 0.3
+        self.labels = {}
+
+        self.set_name(name)
+
         self._last_opacity = 1.0  # For remembering opacity when turning visiblity off
+
         if self.actor:
             self.assembly.AddPart(self.actor)
         if self.axes:
@@ -39,6 +46,14 @@ class VirgoSceneNode():
         self.local_transform = vtk.vtkTransform()
         self.local_transform.Identity()
         self.assembly.SetUserTransform(self.local_transform)
+
+#        # self.fixed_parent_offset_transform represents the fixed transformation
+#        # of this Node, relative to its parent if parent == None. This provides
+#        # the ability to specify an arbitrary position/rotation offset from a parent
+#        # node to the child which will be "added to" any additional
+#        # position/rotation associated with data coming from self.data_source
+#        self.fixed_parent_offset_transform = vtk.vtkTransform()
+#        self.fixed_parent_offset_transform.Identity()
 
         # If not None, self.parent is another VirgoSceneNode instance that this node
         # is parented to.
@@ -57,6 +72,32 @@ class VirgoSceneNode():
         self._trail_polyline = None
         self.myscale = 1.0
 
+    def set_name(self, name):
+        if name == None:
+            name = "Unnamed Node"
+        self.name = str(name)
+
+    def add_label(self, name, text, position=[0.0, 0.0, 0.0], ypr=[0.0, 0.0, 0.0], scale=0.3):
+        """
+        Add a label to this node's self.labels dict
+
+        Args:
+          text (str): String representing the label's content
+        """
+        self.labels[name] = VirgoLabel(name=name, text=text, scale=scale)
+        # TODO: if text is found in self.vds.additional_data, call other functions
+        # so that self.labels[name].update() grabs the value automatically
+        self.labels[name].set_position(position)
+        self.labels[name].set_yaw_pitch_roll(ypr)
+        #import pdb; pdb.set_trace()
+        self.assembly.AddPart(self.labels[name].get_follower())
+
+    def get_label(self, name):
+        """Get a label by name"""
+        if name not in self.labels:
+            msg = (f"ERROR: Label {name} in node {self.name} not found in self.labels!")
+            raise RuntimeError (msg)
+        return self.labels[name]
 
     def set_static(self, value=True):
         self.static = value
@@ -64,18 +105,23 @@ class VirgoSceneNode():
     def is_static(self):
         return self.static
 
-    def set_data_source(self, source):
-        # Check that data_source has the functions required by by the
-        # base class and if not raise an exception
-        self.data_source = source
+    def set_data_source(self, data_source):
+        """
+        Set the data source of this node
+
+        TODO: Check that data_source has the functions required by by the
+        base class and if not raise an exception
+        """
+        self.data_source = data_source
 
     def add_child(self, child):
         """
-        Add child (another instance of VirgoSceneNode) to this Node
-        scale adjustments to this Node's self.assembly
+        Add child (another instance of VirgoSceneNode) to this Node,
+        adding it as both a child and the child's assembly as a part
+        of this assembly
         """
         if self == child:
-            msg = (f"ERROR: Cannot add child {child} to {self} becasue "
+            msg = (f"ERROR: Cannot add child {child} to {self} because "
                   f"self-referential loops are not supported.")
             raise RuntimeError (msg)
         child.parent = self
@@ -83,7 +129,14 @@ class VirgoSceneNode():
         self.children.append(child)
 
     def update(self, world_time):
-        if not self.data_source:
+        """
+        Update this node with data from self.data_source based on world_time
+        """
+        # Update any labels associated with this node
+        for label in self.labels:
+            self.labels[label].update(world_time)
+
+        if not self.data_source or self.is_static():
             return
 
         # Query self.data_souce for the data we need to drive the node
@@ -111,42 +164,59 @@ class VirgoSceneNode():
         self.update_trail()
 
     def dump_assembly(self, asm, indent=0):
+        """
+        Recursive dump of debug information about this Node's assembly and
+        it's nested assemblies
+
+        TODO: I think this would be better refactored into a recursive node
+        dump rather than an assembly dump. The node dump could contain info
+        about the assembly but this currently is missing a lot of info about
+        the node itself.
+        """
         parts = asm.GetParts()
         parts.InitTraversal()
         for i in range(parts.GetNumberOfItems()):
             prop = parts.GetNextProp()
-            prefix = "  " * indent + "- "
-            print(f"{prefix}{prop.GetClassName()}")
+            prefix = "  " * indent
+            print(f"{prefix}- {prop.GetClassName()}")
+            if hasattr(prop, 'name'):
+                print(f"{prefix}Name: {prop.name}")
+            matrix = prop.GetMatrix()
+            print(f"{prefix}Matrix:")
+            for i in range(4):
+                print(f"{prefix}{[matrix.GetElement(i, j) for j in range(4)]}")
             # If this part is another assembly, recurse into it
             if isinstance(prop, vtk.vtkAssembly):
+#                print(f"{prefix}Recursing into {prop}...")
                 self.dump_assembly(prop, indent + 1)
             elif isinstance(prop, vtk.vtkActor):
                 # Optional: print some extra info about actors
                 bounds = prop.GetBounds()
-                print(f"{'  ' * (indent+1)}Bounds: {bounds}")
-                print(f"{'  ' * (indent+1)}Visibility: {prop.GetVisibility()}")
-                print(f"{'  ' * (indent+1)}Pickable: {prop.GetPickable()}")
+                print(f"{prefix}Bounds: {bounds}")
+                print(f"{prefix}Visibility: {prop.GetVisibility()}")
+                print(f"{prefix}Pickable: {prop.GetPickable()}")
 
 
     def report(self):
-        print(f"=============VirgoSceneNode Report {self.name}================")
+        print(f"==== BEGIN  VirgoSceneNode Report for Node {self.name} ===================")
         matrix = self.assembly.GetMatrix()
-        print("Assembly transform matrix:")
+        print("Top level assembly transform matrix:")
         for i in range(4):
             print([matrix.GetElement(i, j) for j in range(4)])
-        print("Bounds:", self.assembly.GetBounds())
-        print("Visibility:", self.assembly.GetVisibility())
-        print("Pickable:", self.assembly.GetPickable())
+        print("Top level Bounds:", self.assembly.GetBounds())
+        print("Top level Visibility:", self.assembly.GetVisibility())
+        print("Top level Pickable:", self.assembly.GetPickable())
+        print(f"==== BEGIN  Recursive Assembly Dump for Node {self.name} =================")
         self.dump_assembly(self.assembly)
-        print(f"======== End VirgoSceneNode Report {self.name}================")
+        print(f"==== END    VirgoSceneNode Report for Node {self.name} ===================")
 
         
-    def set_pose(self, pos=None, rot=None, dcm=None, scale=None):
+    def set_pose(self, pos=None, ypr=None, dcm=None, scale=None):
         """
         Manipulate self.local_transform to provide position, rotation, and
         scale adjustments to this Node's self.assembly
         """
-        if rot is not None and dcm is not None:
+        if ypr is not None and dcm is not None:
             raise ValueError("Cannot specify both rot and dcm.")
 
         self.local_transform.Identity()
@@ -168,8 +238,8 @@ class VirgoSceneNode():
         elif pos is not None:
             self.local_transform.Translate(*pos)
 
-        if rot is not None:
-            rx, ry, rz = rot
+        if ypr is not None:
+            rz, ry, rx = ypr
             self.local_transform.RotateZ(rz)
             self.local_transform.RotateY(ry)
             self.local_transform.RotateX(rx)
@@ -204,6 +274,7 @@ class VirgoSceneNode():
         # Create axes actor
         axes = vtk.vtkAxesActor()
         
+        #import pdb; pdb.set_trace()
         if self.actor:
             bb = self.actor.get_bounding_box()
         else:
@@ -244,8 +315,22 @@ class VirgoSceneNode():
         # TODO: This should probably be set inside the actor based on stored actor bounds
         # when the actor is init'd. Not sure if I even like this feature so maybe remove it
         #self.axes_label_render_threshold = length*20
+        self.set_axes_pickable_off()
 
         return axes
+
+    def set_axes_pickable_on(self):
+        if self.axes:
+            self.axes.PickableOn()
+
+    def set_axes_pickable_off(self):
+        if self.axes:
+            self.axes.PickableOff()
+
+    def set_axes_length(self, xlen, ylen, zlen):
+        self.axes.SetTotalLength(xlen, ylen, zlen)
+        # Re-position the name text since it uses axes properties
+        #self.position_label()
 
     def get_axes(self):
         return self.axes
@@ -255,13 +340,30 @@ class VirgoSceneNode():
             return False
         return(self.axes.GetVisibility())
 
+
+    def hide_labels(self):
+        for label in self.labels:
+            self.labels[label].disable()
+
+    def show_labels(self):
+        for label in self.labels:
+            self.labels[label].enable()
+
+    def are_labels_visible(self):
+        # TODO: Loose check, if one is visible they all are
+        for label in self.labels:
+            if self.labels[label].is_enabled():
+                return True
+        return False
+
     def hide_axes(self):
         if not self.axes:
             return
         # Make the entire axes not visible
         self.axes.SetVisibility(False)
         self.axes.Modified()
-        self.actor.GetProperty().SetOpacity(self._last_opacity)
+        if self.actor:
+            self.actor.GetProperty().SetOpacity(self._last_opacity)
 
     def show_axes(self):
         if not self.axes:
@@ -270,9 +372,10 @@ class VirgoSceneNode():
         #print(f"DEBUG: turning visibility of {self.name} axes on.")
         self.axes.SetVisibility(True)
         self.axes.Modified()
-        print(f"DEBUG: in show_axes and self.name is {self.name}")
-        self._last_opacity = self.actor.GetProperty().GetOpacity()
-        self.actor.GetProperty().SetOpacity(0.7)
+        #print(f"DEBUG: in show_axes and self.name is {self.name}")
+        if self.actor:
+            self._last_opacity = self.actor.GetProperty().GetOpacity()
+            self.actor.GetProperty().SetOpacity(0.7)
 
     def create_trail(self, color=[0.0, 0.0, 0.0], thickness=2):
         self._trail_points = vtk.vtkPoints()
@@ -288,6 +391,7 @@ class VirgoSceneNode():
         self._trail_actor.SetMapper(self._trail_mapper)
         self._trail_actor.GetProperty().SetColor(color[0], color[1], color[2])
         self._trail_actor.GetProperty().SetLineWidth(thickness)
+        self._trail_actor.PickableOff()
         
         # Maintain a polyline of visited positions
         self._trail_polyline = vtk.vtkPolyLine()
@@ -299,14 +403,18 @@ class VirgoSceneNode():
         """
         Add point and connecting line to the trail using the current actor
         position
+
+        TODO: It might be better to get the position of the actor here
+        instead of the truth data from the data record file even though
+        they should always be identical
+
+        TODO: I wonder if drawing the point in "reverse direction" will
+        make the wiggling of the newly drawn segment (assumed to be due
+        to single floating point precision issues) less visible
         """
         if not self._trail_points:
             return
-        # TODO: it might be better to get the position of the actor here
-        # instead of the truth data from the data record file even though
-        # they should always be identical
 
-        #import pdb; pdb.set_trace()
         pos = self.data_source.get_current_position()
         pid = self._trail_points.InsertNextPoint(pos[0], pos[1], pos[2])
         self._trail_polyline.GetPointIds().InsertNextId(pid)
@@ -362,13 +470,19 @@ class VirgoSceneNode():
 
 class VirgoSceneNodeVector(VirgoSceneNode):
     """
-    Derived class which defined specific methods for a vector application
+    Derived class which defines specific methods for a vector application
     of a VirgoSceneNode
     """
     def __init__(self, name, actor=None):
         super().__init__(name=name, actor=actor)
 
     def update(self, world_time):
+        """
+        Update this vector node with data from self.data_source based on
+        world_time
+
+        Overrides base class update() method
+        """
         if not self.data_source:
             return
 
@@ -402,7 +516,6 @@ class VirgoSceneNodeVector(VirgoSceneNode):
     
         self.local_transform.Identity()
         self.local_transform.PostMultiply()
-        #transform.Translate(0,0,0)   # (optional, could add vector origin offset here)
         if np.linalg.norm(axis) > 1e-6:
             self.local_transform.RotateWXYZ(angle, *axis)
         scale = self.data_source.get_current_scale()

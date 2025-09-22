@@ -39,20 +39,20 @@ class VirgoActorTestCase(VisualizableTestCase):
         """
         self.instance = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
         self.assertEqual(self.instance.name, 'No Name')
-        self.assertEqual(self.instance.offset_pyr, None)
+        self.assertEqual(self.instance.offset_ypr, None)
 
         #self.assertEqual(self.instance.are_axes_visible(), False)
 
-    def test_init_with_pyr_offset(self):
+    def test_init_with_ypr_offset(self):
         """
         Test a incomplete construction with a 45-degree pitch offset given
         """
         self.instance = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'),
-                                               offset_pyr=[45, 0, 0])
+                                               offset_ypr=[45, 0, 0])
         self.instance.initialize()
         #import pdb; pdb.set_trace()
         self.assertEqual(self.instance.name, 'No Name')
-        self.assertEqual(self.instance.offset_pyr, [45, 0, 0])
+        self.assertEqual(self.instance.offset_ypr, [45, 0, 0])
         for i, (a, b) in enumerate(zip(self.instance.GetOrientation(), [45.0, 0.0, 0.0])):
             self.assertAlmostEqual(a, b)
         #self.visualize = True
@@ -74,14 +74,14 @@ class VirgoActorTestCase(VisualizableTestCase):
         #self.show_grid = True
         #self.show_origin = True
 
-    def test_init_with_pos_and_pyr_offset(self):
+    def test_init_with_pos_and_ypr_offset(self):
         """
         Test a incomplete construction with a [0, 1, 0] unit position offset
-        and [-45, 0, 0] pyr offset given
+        and [-45, 0, 0] yaw-pitch-roll offset given
         """
         self.instance = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'),
                                                offset_pos=[0, 1, 0],
-                                               offset_pyr=[-45, 0, 0])
+                                               offset_ypr=[-45, 0, 0])
         self.instance.initialize()
         #import pdb; pdb.set_trace()
         self.assertEqual(self.instance.name, 'No Name')

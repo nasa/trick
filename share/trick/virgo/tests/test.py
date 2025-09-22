@@ -10,6 +10,7 @@ import ut_VirgoDataFileSource
 import ut_VirgoActor
 import ut_VirgoDataPlayback
 import ut_VirgoSceneNode
+import ut_VirgoLabel
 
 # Define load_tests function for dynamic loading using Nose2
 def load_tests(*args):
@@ -52,6 +53,7 @@ if __name__ == '__main__':
     suites.addTests(ut_VirgoDataFileSource.suite())
     suites.addTests(ut_VirgoActor.suite())
     suites.addTests(ut_VirgoSceneNode.suite())
+    suites.addTests(ut_VirgoLabel.suite())
     # NOTE: this suite is last purposefully as putting it earlier appears to
     # result in random "bus error" and/or "segfault" messages when
     # self.visualize = True which results in rendered windows of unit tests.

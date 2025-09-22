@@ -29,6 +29,7 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         self.teapot2 = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
         self.teapot3 = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
         # Nodes to test with
+        self.node0 = VirgoSceneNode(name='no_actor')
         self.node1 = VirgoSceneNode(name='parent_teapot', actor=self.teapot1)
         self.node2 = VirgoSceneNode(name='child_teapot', actor=self.teapot2)
         self.node3 = VirgoSceneNode(name='grandchild_teapot', actor=self.teapot3)
@@ -39,15 +40,18 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         self.instance = None
         self.teapot1 = None
         self.teapot2 = None
+        self.teapot3 = None
+        self.node0 = None
         self.node1 = None
         self.node2 = None
+        self.node4 = None
 
     def test_construction(self):
         """
         Simple construction assertions
         """
         # Two nodes not at all linked together
-        nodes = [self.node1, self.node2, self.node3]
+        nodes = [self.node0, self.node1, self.node2, self.node3]
         # The matrix we expect inside local_transform after construction
         default_matrix = np.array([
           [1.0, 0.0, 0.0,  0.0],
@@ -56,10 +60,11 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
           [0.0, 0.0, 0.0,  1.0],
         ])
         for node in nodes:
-            self.assertIn('teapot', node.name)
+            if node.name != 'no_actor':
+                self.assertIn('teapot', node.name)
+                self.assertIsNot(node.actor, None)
             self.assertEqual(node.children, [])
             self.assertIsNone(node.parent)
-            self.assertIsNot(node.actor, None)
             for i in range(4):
               for j in range(4):
                 self.assertEqual(default_matrix[i, j], node.local_transform.GetMatrix().GetElement(i, j))
@@ -85,7 +90,7 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         node2_world_pos_before = self.node2.get_world_position()
 
         # Apply a rotation about y in parent node1
-        self.node1.set_pose(rot=(0.0, 45.0, 0.0))
+        self.node1.set_pose(ypr=(0.0, 45.0, 0.0))
 
         node2_local_pos_after = self.node2.local_transform.GetPosition()
         node2_world_pos_after = self.node2.get_world_position()
@@ -99,7 +104,7 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         #print(f"{node2_world_pos_after}")
         self.instance = self.node1.assembly
         self.show_grid = True
-        self.visualize = True
+        #self.visualize = True
 
 
     def test_add_grandchild(self):
@@ -119,7 +124,7 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         node3_world_pos_before = self.node2.get_world_position()
 
         # Apply a rotation about y in parent node1
-        self.node1.set_pose(rot=(0.0, 45.0, 0.0))
+        self.node1.set_pose(ypr=(0.0, 45.0, 0.0))
 
         node3_local_pos_after = self.node3.local_transform.GetPosition()
         node3_world_pos_after = self.node3.get_world_position()
@@ -132,4 +137,19 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
 
         self.instance = self.node1.assembly
         self.show_grid = True
-        self.visualize = True
+        #self.visualize = True
+
+    def test_add_child_with_empty_offset(self):
+        """
+        Make an empty offset node and parent a teapot to it
+        """
+        self.node0.set_pose(pos=[1.0, 0.0, 0.0])  # Empty node, offset 1.0 in x-dir
+        self.node0.set_static = True
+        self.node0.add_child(self.node1)
+        self.node1.set_pose(pos=(1.0, 0.0, 0.0))  # Child node, another 1.0 in x-dir
+
+        self.node0.show_axes()
+        self.node1.show_axes()
+        self.instance = self.node0.assembly
+        self.show_grid = True
+        #self.visualize = True

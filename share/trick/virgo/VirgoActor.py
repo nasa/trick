@@ -8,7 +8,7 @@ class VirgoActor(vtk.vtkActor):
     Wrapper around VTK actor to facilitate the Trick Logged data
     and other capabilities
     """
-    def __init__(self, mesh, offset_pos=None, offset_pyr=None, name='No Name', fontsize=12):
+    def __init__(self, mesh, offset_pos=None, offset_ypr=None, name='No Name', fontsize=12):
         """
         Initialize this instance.
 
@@ -26,10 +26,11 @@ class VirgoActor(vtk.vtkActor):
              X-Y-Z position to apply to the model on
              init. Used to adjust position of a model relative to the origin of
              of the model as provided by the CAD or PREFAB itself
-        offset_pyr : list of 3 doubles
-             X-Y-Z (Pitch-Yaw-Roll) rotation in degrees to apply to the model on
-             init. Used to rotate a model into another frame immediately upon
-             model creation. This rotation is performed after offset_pos is applied.
+        offset_ypr : list of 3 doubles
+             Z-Y-X (Yaw-Pitch-Roll) Tait-Bryan rotation in degrees to apply to
+             the model on init. Used to rotate a model into another frame
+             immediately upon model creation. This rotation is performed after
+             offset_pos is applied.
         name : str
             Name given to this actor
         fontsize : int
@@ -41,7 +42,7 @@ class VirgoActor(vtk.vtkActor):
         self.mesh  = mesh
         self._map_mesh(mesh)
         self.offset_pos  = offset_pos     # Initialization position offset to apply to to actor
-        self.offset_pyr  = offset_pyr     # Initialization pitch/yaw/roll to apply to to actor
+        self.offset_ypr  = offset_ypr     # Initialization pitch/yaw/roll to apply to to actor
         self.axes_label_render_threshold = 50    # min distance axes labels can be seen
         
         self.name = name            # Name of this actor
@@ -67,11 +68,11 @@ class VirgoActor(vtk.vtkActor):
           self.AddPosition(self.offset_pos)
         # TODO: PYR may not be sufficient for end users, we may need to consider
         # different rotation schemes
-        if self.offset_pyr:
-          # Apply the initial position/rotation to this object
-          self.RotateX(self.offset_pyr[0])
-          self.RotateY(self.offset_pyr[1])
-          self.RotateZ(self.offset_pyr[2])
+        if self.offset_ypr:
+          # Apply the initial position/rotation to this object in Z-Y-X order
+          self.RotateZ(self.offset_ypr[2])
+          self.RotateY(self.offset_ypr[1])
+          self.RotateX(self.offset_ypr[0])
         self.verify()
 
     def verify(self):
@@ -171,12 +172,21 @@ class VirgoActor(vtk.vtkActor):
             cylinder_source.SetCapping(True)       # Ensure the bases are capped
             # Create a mapper to map the cube's geometry to graphics primitives
             mapper.SetInputConnection(cylinder_source.GetOutputPort())
-        elif 'PREFAB:cone' in str(mesh):
+        elif'PREFAB:cone-32' in str(mesh):
             cone_source = vtk.vtkConeSource()
             height = 1.0
             cone_source.SetHeight(height)
             cone_source.SetRadius(0.5)
             cone_source.SetResolution(32)
+            cone_source.SetDirection(-1, 0, 0)  # tip pointed along -X
+            cone_source.SetCenter(height/2, 0.0, 0.0)  # tip at (0,0,0)
+            mapper.SetInputConnection(cone_source.GetOutputPort())
+        elif 'PREFAB:cone' in str(mesh) or  'PREFAB:cone-16' in str(mesh):
+            cone_source = vtk.vtkConeSource()
+            height = 1.0
+            cone_source.SetHeight(height)
+            cone_source.SetRadius(0.5)
+            cone_source.SetResolution(16)
             cone_source.SetDirection(-1, 0, 0)  # tip pointed along -X
             cone_source.SetCenter(height/2, 0.0, 0.0)  # tip at (0,0,0)
             mapper.SetInputConnection(cone_source.GetOutputPort())

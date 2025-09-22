@@ -3,6 +3,8 @@ class VirgoDataSource():
     Base class for Virgo Data Sources. Derive from this class and
     define the functions listed below in order to provide a custom
     data source for your application
+
+    TODO: Should some of these methods be abstract?
     """
     def __init__(self, name="Unnamed Source"):
         self.name=name
@@ -49,6 +51,12 @@ class VirgoDataSource():
         """
         return None
 
+    def get_additional_data(self, variable) -> float:
+        return None
+
+    def is_there_additional_data(self) -> bool:
+        return False
+
 
 import bisect, math
 class VirgoDataFileSource(VirgoDataSource):
@@ -58,29 +66,28 @@ class VirgoDataFileSource(VirgoDataSource):
     interface. 
     """
     def __init__(self, name="Unnamed Source", times=None, rotations=None,
-                 positions=None, scales=None, opacities=None):
+                 positions=None, scales=None, opacities=None, **kwargs):
         """
-        Parameters
-        ----------
-        times : sorted list of ascending doubles
-            List representing all time steps for all data associated with this
-            actor
-        positions : List of 3-size tuples of doubles
-            List represents (x, y, z) positions of this actor one per entry in
-            times list. Length of positions must == length of times
-        rotations : List of 3X3 numpy array of doubles
-            List represents 3X3 (rotation matrix) of this actor, one per entry
-            in times list.  Length of rotations must == length of times
-        scales : List of 3-size tuples of doubles
-            List represents (x, y, z) scales of this actor one per entry in
-            times list. Length of positions must == length of times
-        opacities : List of scalar values between 0.0 and 1.0 of this actor
-            one per entry in the times list. Length of opacities  must ==
-            length of times.
-        name : str
-            Name given to this actor
-        fontsize : int
-            Default fontsize for text associated with this actor
+        Args:
+          times (list): sorted list of ascending doubles
+              List representing all time steps for all data associated with this
+              actor
+          positions (list): List of 3-size tuples of doubles
+              List represents (x, y, z) positions of this actor one per entry in
+              times list. Length of positions must == length of times
+          rotations (list): List of 3X3 numpy array of doubles
+              List represents 3X3 (rotation matrix) of this actor, one per entry
+              in times list.  Length of rotations must == length of times
+          scales (list): List of 3-size tuples of doubles
+              List represents (x, y, z) scales of this actor one per entry in
+              times list. Length of positions must == length of times
+          opacities (list): List of scalar values between 0.0 and 1.0 of this actor
+              one per entry in the times list. Length of opacities  must ==
+              length of times.
+          name (str): Name given to this actor
+          **kwargs : Additional keyword arguments
+              Specify other lists of datas to be served by this instance. Array
+              lengths must == length of times
         # Lists of state data
         """
         self._times = times
@@ -91,6 +98,10 @@ class VirgoDataFileSource(VirgoDataSource):
         self._current_time = 0.0
         self._current_time_idx = 0
         self.initialized = False
+        self.additional_data = dict(kwargs)
+
+    def is_initialized(self):
+        return(self.initialized)
 
     def set_times(self, times):
         self._times = times
@@ -160,6 +171,18 @@ class VirgoDataFileSource(VirgoDataSource):
         else:
             return None
 
+    def get_additional_data(self, variable) -> float:
+        #import pdb; pdb.set_trace()
+        if variable not in self.additional_data:
+            msg = (f"ERROR: Additional data {variable} not found in {self}!")
+            raise RuntimeError (msg)
+        return self.additional_data[variable][self.get_current_time_idx()]
+
+    def is_there_additional_data(self) -> bool:
+        if self.additional_data:
+            return True
+        return False
+
     def initialize(self):
         self.verify()
 
@@ -191,7 +214,12 @@ class VirgoDataFileSource(VirgoDataSource):
         if self._opacities and (len(self._times) != len(self._opacities)):
           raise ValueError(f"{self.name}'s self._times and self._opacities lists are not the same length")
         # TODO need a check that self._opacities values are all between 0-1 when
-        # cast to a float (bools rae OK)
+        if self.additional_data:
+          for ad in self.additional_data:
+            if (len(self.additional_data[ad]) != len(self._times)):
+              raise ValueError(f"{self.name}'s self._times and self.additional_data[{ad}] "
+                               "lists are not the same length")
+
         # If we made it this far, the actor is fully initialized
         self.initialized = True
 

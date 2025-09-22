@@ -107,6 +107,49 @@ class VirgoDataFileLoader:
           raise RuntimeError (msg)
         return (self.drg)
 
+    def does_alias_exist(self, alias):
+      """
+      TODO: can this handle if [] are in the alias? I don't think so
+      """
+      (alias, indices) = self.split_alias_and_indices(alias_in=alias)
+      if alias in self.scene_recorded_data:
+        variable = self.scene_recorded_data[alias]['var']
+        return(self.does_variable_exist(variable))
+      else:
+        return False
+
+    @staticmethod
+    def split_alias_and_indices(alias_in):
+        """
+        Search for the [] specified_indices in the alias given, and split it
+        into alias=(alias with no specified_indices),
+        specified_indices=(specified_indices) where specified_indices is None
+        if not given
+        """
+        alias=str(alias_in)
+        specified_indices = ''
+        indices_pattern = r"\[.*\]"
+        match = re.search(indices_pattern, alias)
+        if match:
+            specified_indices = match.group(0)
+            alias = alias.split(specified_indices)[0]
+        return (alias, specified_indices)
+
+    def does_variable_exist(self, variable):
+        """
+        Query self.drg for the existence of variable
+        """
+        exists = False
+        for grp in self.drg:
+          expanded_variables = self.expand_arrays(variable)
+          #import pdb; pdb.set_trace()
+          for var in expanded_variables:
+              # TODO this is a loose check, it doesn't check for all array indices
+              if var in self.drg[grp]:
+                exists = True
+                break
+        return exists
+
     def get_recorded_data(self, alias):
         """
         Get the recorded data associated with a single variable alias defined in
@@ -138,16 +181,8 @@ class VirgoDataFileLoader:
         if not self.drg:
           msg = (f"ERROR: Cannot get_recorded_data as self.drg is not populated.")
           raise RuntimeError (msg)
-        indices_pattern = r"\[.*\]"
-        specified_indices = ''
-        # Search for the [] specified_indices in the alias given, and split it into
-        # alias=(alias with no specified_indices), specified_indices=(specified_indices) where specified_indices is
-        # None if not given
-        match = re.search(indices_pattern, alias)
-        if match:
-            specified_indices = match.group(0)
-            alias = alias.split(specified_indices)[0]
 
+        alias, specified_indices = self.split_alias_and_indices(alias)
         if alias not in self.scene_recorded_data:
           msg = (f"ERROR: {alias} not found in recorded_data section of scene. Make sure to use"
                  " the alias name, not the var: name.")
@@ -157,6 +192,7 @@ class VirgoDataFileLoader:
         # Search for the [] var_indices in the var associated with the alias
         # given, and split it into variable=(variable with no var_indices),
         # var_indices=(var_indices) where var_indices is None if not given
+        indices_pattern = r"\[.*\]"
         match = re.search(indices_pattern, variable)
         var_indices = ''
         if match:
