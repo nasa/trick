@@ -9,6 +9,11 @@ void * wrap_ptr ( void * in_ptr ) {
     return(temp_ptr) ;
 }
 
+void * castAsVoidPtr( void * in_ptr)
+{
+    return in_ptr;
+}
+
 double unhex_double ( long long in_value ) {
 
     union LL2D {
