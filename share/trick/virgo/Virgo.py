@@ -9,18 +9,18 @@ from VirgoLabel import VirgoLabel
 from VirgoDataFileLoader import VirgoDataFileLoader
 from VirgoNode import VirgoSceneNode, VirgoSceneNodeVector
 from VirgoDataSource import VirgoDataFileSource
+from VirgoSplash import VirgoSplash
+
 import os, sys, inspect, time
+import re
+import vtk
+import numpy as np
+
 thisFileDir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0)))
 
 # For TrickPy, the python module that can load trick data record produced files
 sys.path.append(os.path.abspath(os.path.join(thisFileDir, '../')))
 
-# Logo for Virgo Splash
-virgo_logo=f"{thisFileDir}/logo.png"
-
-import re
-import vtk
-import numpy as np
 # Example of custom interactor style to override the default 'e' key behavior
 class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     """
@@ -1167,46 +1167,6 @@ class VirgoDataPlayback:
                     f"{[n.name for n, _ in pending]}"
                 )
 
-    def fade_splash(self, render_window, interactor, actor, duration=2.0, interval=50):
-
-        start_time = time.time()
-    
-        interactor.AddObserver("TimerEvent", lambda obj,event: (
-            actor.GetProperty().SetOpacity(0.0) if (time.time() - start_time) >= duration else
-            actor.GetProperty().SetOpacity(1.0 - (time.time() - start_time)/duration),
-            render_window.Render(),
-            obj.DestroyTimer() if (time.time() - start_time) >= duration else None))
-
-        interactor.CreateRepeatingTimer(interval)
-
-
-    def show_splash(self):
-
-        # Load splash image
-        reader = vtk.vtkPNGReader()
-        reader.SetFileName(virgo_logo)
-        reader.Update()
-        
-        # Image actor for splash
-        image_actor = vtk.vtkImageActor()
-        image_actor.GetMapper().SetInputConnection(reader.GetOutputPort())
-        image_actor.GetProperty().SetOpacity(1.0)
-        
-        # Overlay renderer
-        self.overlay_renderer = vtk.vtkRenderer()
-        self.overlay_renderer.SetLayer(1)
-        self.overlay_renderer.InteractiveOff()
-        self.overlay_renderer.AddActor(image_actor)
-        self.overlay_renderer.SetViewport(0, 0, 1, 1)
-       
-        # Create new layer for splash 
-        self.render_window.SetNumberOfLayers(2)
-        self.render_window.AddRenderer(self.overlay_renderer)
- 
-        # Decrease opacity over 2 second duration
-        self.fade_splash(self.render_window, self.interactor, image_actor, duration=2.0)
-       
-
     def run(self):
         """
         The entrypoint for starting up a rendered window
@@ -1219,7 +1179,9 @@ class VirgoDataPlayback:
         if self.verbosity > 0:
             print("Entering render window and interactor loop...")
 
-        self.show_splash()
+        splash = VirgoSplash(self.render_window, self.interactor)
+        splash.show_splash()
+
         self.render_window.Render()
         self.interactor.Start()
         self.tear_down()
