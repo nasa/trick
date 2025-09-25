@@ -63,35 +63,28 @@ static ATTRIBUTES *findMember(ATTRIBUTES *A, long referenceOffset)
 
 static int getCompositeSubReference(
     void *reference_address, /* Address we are looking for */
-    ATTRIBUTES &left_type,   /* Attributes of type we are looking for */
+    ATTRIBUTES &attrOut,   /* Attributes of type we are looking for */
     void *structure_address, /* Address of struct we are in */
     ATTRIBUTES *A)
 {
-    // int j, m;
-    // long offset;
-    int my_index[9] = {};
-    // int ret;
-    int size, last_size;
+    // int my_index[9] = {};
+    // int size, last_size;
 
     char *rAddr = (char *)reference_address;
     char *sAddr = (char *)structure_address;
 
     long referenceOffset = (long)rAddr - (long)sAddr;
 
-    // selected ATTRIBUTES stucture from A (singular)
-    ATTRIBUTES *Ai;
-
     if (referenceOffset < 0)
     {
-        // message_publish(MSG_ERROR, "Checkpoint Agent ERROR: Address to find is less than struct address.\n");
         return 1;
     }
 
     // Find the structure member that corresponds to the reference address.
     // If name is empty, we have failed.
-    Ai = findMember(A, referenceOffset);
+    ATTRIBUTES *Ai = findMember(A, referenceOffset);
 
-    /******If failed to find member, set reference_name to offset only and return ****/
+    /******If failed to find member, set attributes to generic pointer ****/
     if (Ai->name[0] == '\0')
     {
         /* If we fail to find a member corresponding to the reference address,
@@ -101,9 +94,12 @@ static int getCompositeSubReference(
          */
         if (referenceOffset >= 0)
         {
-            left_type = ATTRIBUTES();
-            left_type.num_index = 1;
-            left_type.index[0].size = 0;
+            attrOut = ATTRIBUTES();
+            attrOut.type = TRICK_VOID_PTR;
+            attrOut.size = sizeof(void *);
+            attrOut.offset = referenceOffset;
+            attrOut.num_index = 1;
+            attrOut.index[0].size = 0;
         }
         else
         {
@@ -117,24 +113,21 @@ static int getCompositeSubReference(
     if (Ai->type != TRICK_STRUCTURED)
     {
 
-        /* If the reference address is non-array or a pointer, return reference_name as is */
+        /* If the reference address is non-array or a pointer, return type but unconstrained pointer */
         if ((Ai->num_index == 0) || (Ai->index[0].size == 0))
         {
-            left_type = ATTRIBUTES();
-            left_type.num_index = 1;
-            left_type.index[0].size = 0;
+            attrOut = *Ai;
+            attrOut.num_index = 1;
+            attrOut.index[0].size = 0;
             return 0;
         }
 
         /* else, rAddr is pointing to an array, determine its dimensions and determine
            the element pointed to by rAddr. Then print the index and return */
-
         long offset = (long)rAddr - ((long)sAddr + Ai->offset);
         long max_offset = Ai->size;
-        // size = last_size = Ai->size;
 
-        /* Calculate the number of fixed dimensions. */
-        // int num_fixed_dims = 0;
+        /* Calculate the maximum offset of this attribute. */
         for (int j = 0; j < Ai->num_index; j++)
         {
             if (Ai->index[j].size > 0)
@@ -143,9 +136,9 @@ static int getCompositeSubReference(
             }
         }
 
-        left_type = ATTRIBUTES();
-        left_type.num_index = 1;
-        left_type.index[0].size = (max_offset - offset) / Ai->size;
+        attrOut = *Ai;
+        attrOut.num_index = 1;
+        attrOut.index[0].size = (max_offset - offset) / Ai->size;
 
         return 0;
     }
@@ -158,7 +151,7 @@ static int getCompositeSubReference(
     /*if member is an unarrayed struct, continue to call getCompositeSubReference.*/
     if (Ai->num_index == 0)
     {
-        int ret = getCompositeSubReference(rAddr, left_type, sAddr + Ai->offset, (ATTRIBUTES *)Ai->attr);
+        int ret = getCompositeSubReference(rAddr, attrOut, sAddr + Ai->offset, (ATTRIBUTES *)Ai->attr);
 
         if (ret != 0)
         {
@@ -190,20 +183,6 @@ static int getCompositeSubReference(
         last_size = size;
     }
 
-    // for (int j = 0; j < Ai->num_index; j++)
-    // {
-    //     size_t len = strlen(reference_name);
-    //     size_t rem = (size_t)256 - len;
-    //     snprintf(&reference_name[len], rem, "[%d]", my_index[j]);
-    // }
-
-    /* if left_type specifies the current member, stop here */
-    // if ((left_type != NULL) && (*left_type != NULL) && (Ai->attr == (*left_type)->attr))
-    // {
-    //     return 0;
-    // }
-
-    /**** Go find the subreference for the arrayed struct member and append *********/
 
     /* get the offset into the array that rAddr points to */
     offset = 0;
@@ -218,7 +197,7 @@ static int getCompositeSubReference(
     }
 
     {
-        int ret = getCompositeSubReference(rAddr, left_type, sAddr + Ai->offset + offset, (ATTRIBUTES *)Ai->attr);
+        int ret = getCompositeSubReference(rAddr, attrOut, sAddr + Ai->offset + offset, (ATTRIBUTES *)Ai->attr);
 
         if (ret != 0)
         {
@@ -232,7 +211,6 @@ static int getCompositeSubReference(
 /**
  @par Detailed Description:
  */
-
 void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES &attrOut)
 {
     /** Find the allocation that contains the pointer-address. */
@@ -240,6 +218,7 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
 
     if (alloc_info != NULL)
     {
+        // Found the allocation. Look for the attribute that pertains to it.
         size_t alloc_elem_size;
         size_t alloc_elem_index;
         size_t misalignment;
@@ -250,6 +229,8 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
 
         if (alloc_info->type == TRICK_STRUCTURED)
         {
+            // The allocation is not a primitive type, traverse the structure unil the attribute is found or an 
+            // anonymous pointer is returned
             getCompositeSubReference(address,
                                      attrOut,
                                      (char *)alloc_info->start + (alloc_elem_index * alloc_info->size),
@@ -257,16 +238,20 @@ void Trick::MemoryManager::get_attributes_for_address(void *address, ATTRIBUTES 
         }
         else
         {
+            // Primitive allocation is found, compute the remaining number of elements from the current address
             size_t max_alloc_index = ((size_t)alloc_info->end - (size_t)alloc_info->start) / alloc_elem_size;
-            attrOut = *(alloc_info->attr);
+            if(alloc_info->attr) {
+               // If there's an attribute for this allocation for some reason, populate the returned structure.
+               attrOut = *(alloc_info->attr);
+            }
             attrOut.num_index = 1;
             attrOut.index[0].size = max_alloc_index - alloc_elem_index;
         }
     }
     else
     {
+        // No allocation found, num_index = 0 should indicate that it's not found. On the swig, side, the calling
+        // function will set num_index to 1 anyway and it becomes a generic pointer according to swig/python.
         attrOut = ATTRIBUTES();
-        attrOut.num_index = 1;
-        attrOut.index[0].size = 0;
     }
 }
