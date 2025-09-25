@@ -217,27 +217,9 @@
 
     t->ref.attr->type_name  = strdup("$1_basetype") ;
     t->ref.attr->num_index  = 1 ;
-    ALLOC_INFO * alloc_info = get_alloc_info_of((char *)t->ref.address);
-    if(alloc_info != NULL)
-    {
-       ATTRIBUTES * container_attr = (ATTRIBUTES *)alloc_info->attr;
-       ATTRIBUTES * found_attr = NULL;
-       for (int ii = 0; container_attr[ii].name[0] != '\0'; ii++) {
-          ATTRIBUTES * candidate_attr = &container_attr[ii];
-          if(((long)alloc_info->start + candidate_attr->offset) == (long)result)
-          { 
-             found_attr = candidate_attr;
-          }
-       }
-       if(found_attr != NULL) {
-          t->ref.attr->index[0].size  = found_attr->index[0].size ;
-       } else {
-          t->ref.attr->index[0].size  = ((int) alloc_info->num - (((long) result - (long) alloc_info->start) / alloc_info->size));
-       }
-    } else {
-       t->ref.attr->index[0].size  = 0 ;
-    }
-    t->ref.attr->index[0].start  = 0 ;
+    ATTRIBUTES attr = {};
+    trick_MM->get_attributes_for_address((void *)$1, attr);
+    memcpy(t->ref.attr->index, attr.index, sizeof(attr.index));
 
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
