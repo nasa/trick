@@ -13,6 +13,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
+#include <iterator>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -1140,8 +1142,45 @@ void Trick::ClassicCheckPointAgent::assign_rvalue(std::ostream& chkpnt_os, void*
         chkpnt_os << "// STL: " << lname ;
     } else {
         chkpnt_os << lname << " = ";
+
+        // Check if we need to add decimal comments for hexfloat values
+        bool should_add_decimal_comment = hexfloat_decimal_comment_checkpoint && hexfloat_checkpoint && (attr->type == TRICK_FLOAT || attr->type == TRICK_DOUBLE);
+
         write_rvalue( chkpnt_os, (void*)address, attr, curr_dim, offset);
         chkpnt_os << ";";
+
+        // Add decimal comment for hexfloat values
+        if (should_add_decimal_comment) {
+            // Temporarily disable hexfloat to get decimal representation
+            bool saved_hexfloat = hexfloat_checkpoint;
+            hexfloat_checkpoint = false;
+
+            // Capture decimal output to string stream
+            std::stringstream decimal_ss;
+            write_rvalue( decimal_ss, (void*)address, attr, curr_dim, offset);
+
+            // Restore hexfloat setting
+            hexfloat_checkpoint = saved_hexfloat;
+
+            // Convert to single line comment by replacing newlines with spaces
+            std::string decimal_str = decimal_ss.str();
+            std::replace(decimal_str.begin(), decimal_str.end(), '\n', ' ');
+
+            // Remove extra whitespace
+            std::istringstream iss(decimal_str);
+            std::string result;
+
+            // Use istream_iterator to read all words and join all words
+            std::istream_iterator<std::string> begin(iss);
+            std::istream_iterator<std::string> end;
+
+            for (auto it = begin; it != end; ++it) {
+                if (!result.empty()) result += " ";
+                result += *it;
+            }
+
+            chkpnt_os << std::endl << "// " << lname << " = " << result;
+        }
     }
     if (!input_perm_check(attr)) {
         chkpnt_os << "*/";

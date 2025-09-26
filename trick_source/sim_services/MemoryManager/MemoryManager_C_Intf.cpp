@@ -264,8 +264,17 @@ extern "C" void TMM_hexfloat_checkpoint(int yesno) {
     }
 }
 
-
-
+/**
+ @relates Trick::MemoryManager
+ This is the C Language version of Trick::MemoryManager::set_hexfloat_decimal_comment_checkpoint( yesno).
+ */
+extern "C" void TMM_hexfloat_decimal_comment_checkpoint(int yesno) {
+    if (trick_MM != NULL) {
+        trick_MM->set_hexfloat_decimal_comment_checkpoint( yesno!=0 );
+    } else {
+        Trick::MemoryManager::emitError("TMM_hexfloat_decimal_comment_checkpoint() called before MemoryManager instantiation.\n") ;
+    }
+}
 
 /**
  @relates Trick::MemoryManager
