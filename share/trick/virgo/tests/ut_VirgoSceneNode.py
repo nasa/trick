@@ -153,3 +153,100 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         self.instance = self.node0.assembly
         self.show_grid = True
         #self.visualize = True
+
+    def test_ypr_90_90_90(self):
+        """
+        Do a more complicated yaw-pitch-roll maneuver Rotate a teapot (90,90,90)
+        in yaw-pitch-roll which is an Z-Y-X Tait Bryan Euler rotation. The
+        teapot should end up upside down with it's center of base at the origin,
+        lid pointing negative Y, handle pointing negative Z, and spout pointing
+        positive Z
+        """
+        # Make node2 a child of node1
+        self.node1.set_pose(ypr=(90.0, 90.0, 90.0))
+        self.instance = self.node1.assembly
+
+        # The matrix we expect inside local_transform after this ypr rotation
+        expected_matrix = np.array([
+          [0.0, 0.0, 1.0,  0.0],
+          [0.0, -1.0, 0.0,  0.0],
+          [1.0, 0.0, 0.0,  0.0],
+          [0.0, 0.0, 0.0,  1.0],
+        ])
+        for i in range(4):
+          for j in range(4):
+            self.assertAlmostEqual(expected_matrix[i, j], self.node1.local_transform.GetMatrix().GetElement(i, j))
+
+        self.show_grid = True
+        #self.visualize = True
+
+    def test_ypr_90_neg90_0(self):
+        """
+        Do a more complicated yaw-pitch-roll maneuver Rotate a teapot (90,-90,0)
+        in yaw-pitch-roll which is an Z-Y-X Tait Bryan Euler rotation. The
+        teapot should end up with it's base at the origin with base facing
+        positive X, handle facing negative Y, spout facing positive Y and
+        X completing the right-handed set
+        """
+        # Make node2 a child of node1
+        self.node1.set_pose(ypr=(90.0, -90.0, 0.0))
+        self.node1.show_axes()
+        self.instance = self.node1.assembly
+
+        # The matrix we expect inside local_transform after this ypr rotation
+        expected_matrix = np.array([
+          [0.0, 0.0, -1.0, 0.0],
+          [1.0, 0.0, 0.0,  0.0],
+          [0.0, -1.0, 0.0, 0.0],
+          [0.0, 0.0, 0.0,  1.0],
+        ])
+        for i in range(4):
+          for j in range(4):
+            self.assertAlmostEqual(expected_matrix[i, j], self.node1.local_transform.GetMatrix().GetElement(i, j))
+        self.show_grid = True
+        #self.visualize = True
+
+    def test_ypr_neg90_neg180_neg90(self):
+        """
+        Do a more complicated yaw-pitch-roll maneuver Rotate a teapot 
+        (-90,-180,-90) in yaw-pitch-roll which is an Z-Y-X Tait Bryan Euler
+        rotation. The teapot should end up with the base at the origin,
+        lid pointing at negative X, spout pointing at positive Z,
+        and Y completing the right-handed set
+        """
+        # Make node2 a child of node1
+        self.node1.set_pose(ypr=(-90.0, -180.0, -90.0))
+        self.node1.show_axes()
+        self.instance = self.node1.assembly
+
+        # The matrix we expect inside local_transform after this ypr rotation
+        expected_matrix = np.array([
+          [0.0, -1.0, 0.0, 0.0],
+          [0.0, 0.0, -1.0, 0.0],
+          [1.0, 0.0, 0.0,  0.0],
+          [0.0, 0.0, 0.0,  1.0],
+        ])
+        for i in range(4):
+          for j in range(4):
+            self.assertAlmostEqual(expected_matrix[i, j], self.node1.local_transform.GetMatrix().GetElement(i, j))
+        self.show_grid = True
+        #self.visualize = True
+
+    def test_ypr_180_90_90(self):
+        self.node1.set_pose(ypr=(180.0, 90.0, 90.0))
+        self.node1.show_axes()
+        self.instance = self.node1.assembly
+        mat = self.node1.local_transform.GetMatrix()
+
+        # The matrix we expect inside local_transform after this ypr rotation
+        expected_matrix = np.array([
+          [0.0,  0.0, 1.0, 0.0],
+          [-1.0, 0.0, 0.0, 0.0],
+          [0.0, -1.0, 0.0, 0.0],
+          [0.0,  0.0, 0.0, 1.0],
+        ])
+        for i in range(4):
+          for j in range(4):
+            self.assertAlmostEqual(expected_matrix[i, j], self.node1.local_transform.GetMatrix().GetElement(i, j))
+        self.show_grid = True
+        #self.visualize = True

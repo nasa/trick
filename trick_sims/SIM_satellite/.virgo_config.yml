@@ -126,6 +126,7 @@
        rot: sat_rot
      labels:
        name:
+         color: [1.0, 1.0, 1.0]
          text: "Satellite: 1000 kg"
          pos: [2.0, 0.0, 0.0]
          ypr: [0.0, 0.0, 0.0]

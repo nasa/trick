@@ -77,7 +77,8 @@ class VirgoSceneNode():
             name = "Unnamed Node"
         self.name = str(name)
 
-    def add_label(self, name, text, position=[0.0, 0.0, 0.0], ypr=[0.0, 0.0, 0.0], scale=0.3):
+    def add_label(self, name, text, position=[0.0, 0.0, 0.0], ypr=[0.0, 0.0, 0.0],
+                  scale=0.3, color=[1.0, 1.0, 1.0]):
         """
         Add a label to this node's self.labels dict
 
@@ -89,6 +90,7 @@ class VirgoSceneNode():
         # so that self.labels[name].update() grabs the value automatically
         self.labels[name].set_position(position)
         self.labels[name].set_yaw_pitch_roll(ypr)
+        self.labels[name].set_color(color)
         #import pdb; pdb.set_trace()
         self.assembly.AddPart(self.labels[name].get_follower())
 
@@ -483,6 +485,10 @@ class VirgoSceneNodeVector(VirgoSceneNode):
 
         Overrides base class update() method
         """
+        # Update any labels associated with this node
+        for label in self.labels:
+            self.labels[label].update(world_time)
+
         if not self.data_source:
             return
 

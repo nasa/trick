@@ -91,6 +91,8 @@ class VirgoDataFileLoader:
 
         # Make sure dr.load_run found all the vars we requested (trickpy doesn't error if
         # some were not found)
+        # TODO: need more error checking here, if recorded_data: section has bad variables
+        # we can error on the expected_vars.remove() line
         expected_vars = list(load_these_variables)
         for group in self.drg:
           if len(expected_vars) == 0:

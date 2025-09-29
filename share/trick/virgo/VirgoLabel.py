@@ -72,6 +72,12 @@ class VirgoLabel():
         self.label_follower.RotateY(ry)
         self.label_follower.RotateX(rx)
 
+    def set_color(self, color):
+        """
+        Set the color of the label text
+        """
+        self.label_follower.GetProperty().SetColor(color)
+
     def set_data_source(self, data_source):
         """Set the data source of the label
 

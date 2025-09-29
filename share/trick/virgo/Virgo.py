@@ -360,7 +360,7 @@ class VirgoDataPlaybackControlCenter:
                 f"\n s: Cycle playback speeds"
                 f"\n r: Fit camera to scene"
                 f"\n <- -> : Step back/forward in time"
-                f"\n  -  + : Adjust text size"
+                f"\n  -  + : Adjust HUD text size"
                 f"\n a: Toggle Axes Visibility"
                 f"\n l: Toggle Node Label Visibility"
                 f"\n h: Toggle this help message"
@@ -402,7 +402,7 @@ class VirgoDataPlaybackControlCenter:
         text_height = bounds[3] - bounds[2] + 1  # Height in pixels
         self.text_actors['version'].GetTextProperty().SetColor(0.7, 0.7, 0.7)
         self.text_actors['version'].SetPosition(hud_padding, text_height + hud_padding)
-        self.text_actors['version'].SetInput(f"VIRGO version 0.1")
+        self.text_actors['version'].SetInput(f"VIRGO alpha version")
 
     def focus_camera_on(self, actor):
         """
@@ -841,8 +841,12 @@ class VirgoDataPlayback:
     
         # Set better camera interaction
         self.interactor_style = VirgoInteractorStyle()
-        self.vdl = VirgoDataFileLoader(run_dir=self.run_dir, 
-            scene_recorded_data=self.scene['recorded_data'], verbosity=self.verbosity)
+        self.vdl = None
+        # TODO: this check on 'recorded_data' existence might be better done elsewhere
+        # but leaving it here for now
+        if 'recorded_data' in self.scene:
+            self.vdl = VirgoDataFileLoader(run_dir=self.run_dir, 
+                scene_recorded_data=self.scene['recorded_data'], verbosity=self.verbosity)
         self.controller = VirgoDataPlaybackControlCenter(self.renderer, self.interactor, self.scene, self.vdl)
         self.initialized = False
 
@@ -992,19 +996,24 @@ class VirgoDataPlayback:
         if 'labels' in actor_scene_dict:
             labels = actor_scene_dict['labels']
             for label in labels:
-                text = labels[label]['text']
-                position = labels[label]['pos']
-                scale = 0.3
+                position = [0.0, 0.0, 0.0]
                 ypr = [0.0, 0.0, 0.0]
+                scale = 0.3
+                color = [1.0, 1.0, 1.0]
+                if 'text' in labels[label]:
+                  text = labels[label]['text']
+                if 'pos' in labels[label]:
+                  position = labels[label]['pos']
                 if 'scale' in labels[label]:
                     scale = labels[label]['scale']
                 if 'ypr' in labels[label]:
                     ypr = labels[label]['ypr']
+                if 'color' in labels[label]:
+                    color = labels[label]['color']
                 # Add the label to the node
-                node.add_label(name=label, text=text, position=position, ypr=ypr, scale=scale)
+                node.add_label(name=label, text=text, position=position, ypr=ypr, scale=scale, color=color)
                 # Tell the label to follow the camera so it always faces it,
-                # THIS ISNT WORKING RIGHT NOW I THINK BECAUSE OF THE ASSEMBLY
-                # SYSTEM
+                # THIS ISNT WORKING RIGHT NOW I THINK BECAUSE OF THE ASSEMBLY SYSTEM
                 #node.get_label(label).get_follower().SetCamera(self.renderer.GetActiveCamera())
                 times = self.vdl.get_recorded_datas(alias='time')
                 # Create a data source from the aliases found in the label text
