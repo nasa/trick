@@ -13,8 +13,6 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <algorithm>
-#include <iterator>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
@@ -1143,11 +1141,11 @@ void Trick::ClassicCheckPointAgent::assign_rvalue(std::ostream& chkpnt_os, void*
     } else {
         chkpnt_os << lname << " = ";
 
-        // Check if we need to add decimal comments for hexfloat values
-        bool should_add_decimal_comment = hexfloat_decimal_comment_checkpoint && hexfloat_checkpoint && (attr->type == TRICK_FLOAT || attr->type == TRICK_DOUBLE);
-
         write_rvalue( chkpnt_os, (void*)address, attr, curr_dim, offset);
         chkpnt_os << ";";
+
+        // Check if we need to add decimal comments for hexfloat values
+        bool should_add_decimal_comment = hexfloat_decimal_comment_checkpoint && hexfloat_checkpoint && (attr->type == TRICK_FLOAT || attr->type == TRICK_DOUBLE);
 
         // Add decimal comment for hexfloat values
         if (should_add_decimal_comment) {
@@ -1162,24 +1160,20 @@ void Trick::ClassicCheckPointAgent::assign_rvalue(std::ostream& chkpnt_os, void*
             // Restore hexfloat setting
             hexfloat_checkpoint = saved_hexfloat;
 
-            // Convert to single line comment by replacing newlines with spaces
+            // Add // to each line of the decimal output
             std::string decimal_str = decimal_ss.str();
-            std::replace(decimal_str.begin(), decimal_str.end(), '\n', ' ');
-
-            // Remove extra whitespace
             std::istringstream iss(decimal_str);
-            std::string result;
-
-            // Use istream_iterator to read all words and join all words
-            std::istream_iterator<std::string> begin(iss);
-            std::istream_iterator<std::string> end;
-
-            for (auto it = begin; it != end; ++it) {
-                if (!result.empty()) result += " ";
-                result += *it;
+            std::string line;
+            bool first_line = true;
+            
+            while (std::getline(iss, line)) {
+                if (first_line) {
+                    chkpnt_os << std::endl << "// " << lname << " = " << line;
+                    first_line = false;
+                } else {
+                    chkpnt_os << std::endl << "//" << line;
+                }
             }
-
-            chkpnt_os << std::endl << "// " << lname << " = " << result;
         }
     }
     if (!input_perm_check(attr)) {
