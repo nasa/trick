@@ -57,9 +57,9 @@ sub gte (@) {
                 }
             } else {
                 # remove possible ccache from TRICK_CC
-                my ($temp) = $ENV{TRICK_CC} ;
-                $temp =~ s/.*?ccache\s+// ;
-                $ret = `$temp -dumpfullversion dumpversion` ;
+                my ($temp) = $ENV{TRICK_CC};
+                $temp =~ s/.*?ccache\s+//;
+                $ret = `$temp -dumpfullversion -dumpversion`;
             }
         }
         else {
