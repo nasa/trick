@@ -167,7 +167,7 @@ void Trick::PythonPrint::write_singleton( std::ostream& chkpnt_os, void* address
             break;
         case TRICK_DOUBLE:
             src_addr = (char*)address + offset * sizeof(double);
-            if (fpclassify( *(float*)src_addr) != FP_NAN) {
+            if (fpclassify(*(double*)src_addr) != FP_NAN) {
                 chkpnt_os << std::setprecision(16) << *(double*)src_addr;
             } else {
                 chkpnt_os << "nan";
