@@ -93,12 +93,14 @@ namespace Trick {
          */
         void set_reduced_checkpoint(bool flag);
         void set_hexfloat_checkpoint(bool flag);
+        void set_hexfloat_decimal_comment_checkpoint(bool flag);
         void set_debug_level(int level);
 
-        bool reduced_checkpoint;  /**< ** Reduced Checkpoint flag. */
-        bool hexfloat_checkpoint; /**< ** HexFloat Checkpoint flag. */
-        int  debug_level;         /**< ** Debug Level. */
-        std::vector < VarNameElement > leftside_stack; /**< ** Left-side name stack. */
+        bool reduced_checkpoint;                        /**< ** Reduced Checkpoint flag. */
+        bool hexfloat_checkpoint;                       /**< ** HexFloat Checkpoint flag. */
+        bool hexfloat_decimal_comment_checkpoint;       /**< ** HexFloat Decimal Comment flag. */
+        int  debug_level;                               /**< ** Debug Level. */
+        std::vector < VarNameElement > leftside_stack;  /**< ** Left-side name stack. */
 
 
     };

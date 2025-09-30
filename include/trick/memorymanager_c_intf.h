@@ -39,6 +39,7 @@ int   TMM_is_alloced(char *addr) ;
 void  TMM_set_debug_level(int level);
 void  TMM_reduced_checkpoint(int flag);
 void  TMM_hexfloat_checkpoint(int flag);
+void  TMM_hexfloat_decimal_comment_checkpoint(int flag);
 
 void  TMM_clear_var_a( void* address);
 void  TMM_clear_var_n( const char* var_name );
