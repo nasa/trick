@@ -14,12 +14,13 @@ from VisualizableTestCase import VisualizableTestCase
 def suite():
     """Create test suite from test cases here and return"""
     suites = []
-    suites.append(unittest.TestLoader().loadTestsFromTestCase(VirgoDataLoaderTestCase))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(VirgoDataLoaderSimpleTestCase))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(VirgoDataLoaderOverlappingDataTestCase))
     return (suites)
 
     import time
 
-class VirgoDataLoaderTestCase(unittest.TestCase):
+class VirgoDataLoaderSimpleTestCase(unittest.TestCase):
     def setUp(self):
         self.recorded_data  = {}
         self.recorded_data['time']  = {}
@@ -107,3 +108,38 @@ class VirgoDataLoaderTestCase(unittest.TestCase):
                                    ] )
         np.testing.assert_array_equal(rotations[0], expected_rot_0)
         pass
+
+class VirgoDataLoaderOverlappingDataTestCase(unittest.TestCase):
+    """
+    In this test case we load variables that are defined in multiple
+    data record groups (two log*.csv in the same dir)
+    """
+    def setUp(self):
+        self.recorded_data  = {}
+        self.recorded_data['time']  = {}
+        self.recorded_data['pos1']  = {}
+        self.recorded_data['rot1']  = {}
+        self.recorded_data['time']['group'] = "one_body_static"
+        self.recorded_data['time']['var']   = "sys.exec.out.time"
+        self.recorded_data['pos1']['group']  = "one_body_static"
+        self.recorded_data['pos1']['var']    = "position[0-2]"
+        self.recorded_data['rot1']['group']  = "one_body_static"
+        self.recorded_data['rot1']['var']    = "R[0-2][0-2]"
+        self.recorded_data['pos2']  = {}
+        self.recorded_data['rot2']  = {}
+        self.recorded_data['pos2']['group']  = "one_body_moving"
+        self.recorded_data['pos2']['var']    = "position[0-2]"
+        self.recorded_data['rot2']['group']  = "one_body_moving"
+        self.recorded_data['rot2']['var']    = "R[0-2][0-2]"
+
+    def test_load_variables(self):
+        self.instance = VirgoDataFileLoader(
+            run_dir=os.path.join(tests_dir, 'recorded_data/RUN_1'),
+            scene_recorded_data=self.recorded_data,
+            verbosity=1)
+        self.instance.load_variables()
+        times = self.instance.get_recorded_data(alias='time')
+        self.assertEqual(times, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
+        pos1xs = self.instance.get_recorded_data(alias='pos1[0]')
+        pos1ys = self.instance.get_recorded_data(alias='pos1[1]')
+        pos1zs = self.instance.get_recorded_data(alias='pos1[2]')

@@ -59,17 +59,34 @@ class VirgoDataFileLoader:
     def load_variables(self):
         """
         Use trickpy to load the variables defined in the 'recorded_data:' section
-        of the scene
+        of the scene. The way trickpy's load_run function currently works is like
+        this:
+
+          self.drg = dr.load_run(self.run_dir, variables=load_these_variables)
+
+        Where variables is a list of all variables to load regardless of group. Meaning
+        if two groups both specify variable pos[0-2], self.drg will have both of them
+        listed separated by groups (key in the dict). Furthermore, duplicate entries
+        in the variables list argument are not harmful, nor is there any error produced
+        by TrickPy if a listed variable is not found.
 
         Populates: self.drg
         Returns:   self.drg
         Raises: RuntimeError if a 'var' in 'recorded_data:' is not found when loading
-        the self.run data
+        the self.run data, or if other errors occur
 
-        TODO: Need uniqueness check, no var: can be repeated twice in the recorded_data: area
+        TODO: Need uniqueness check, no group/var combo should be repeated twice
+              in the recorded_data: area
+        TODO: need more error checking here, if recorded_data: section has bad variables
+              we can error on the expected_vars.remove() line
         """
         import trickpy.data_record as dr
         load_these_variables = []
+        expected_groups = []
+        for alias in self.scene_recorded_data:
+          if 'group' in self.scene_recorded_data[alias]:
+            expected_groups.append(self.scene_recorded_data[alias]['group'])
+        expected_groups = list(set(expected_groups))
         # Find every var: given in the scene dict and pass them to dr.load_run
         # as the subset of variables to load.
         for v in self.scene_recorded_data:
@@ -79,6 +96,8 @@ class VirgoDataFileLoader:
           msg = (f"ERROR: There are no variables in the recorded_data: section of scene. "
                 f"Nothing to load! ")
           raise RuntimeError (msg)
+        # Remove any duplicate entries
+        load_these_variables = list(set(load_these_variables))
 
         if self.verbosity > 0:
             print(f"Loading data from {self.run_dir}...")
@@ -89,12 +108,12 @@ class VirgoDataFileLoader:
         if self.verbosity > 0:
             print(f"Done.")
 
-        # Make sure dr.load_run found all the vars we requested (trickpy doesn't error if
-        # some were not found)
-        # TODO: need more error checking here, if recorded_data: section has bad variables
-        # we can error on the expected_vars.remove() line
+        # Make sure dr.load_run found all the vars we requested since 
+        # trickpy doesn't error if some were not found
         expected_vars = list(load_these_variables)
         for group in self.drg:
+          if group not in expected_groups:
+            continue
           if len(expected_vars) == 0:
              break
           for var in self.drg[group]:
