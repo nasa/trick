@@ -11,4 +11,4 @@ $(Y_OBJS) : TRICK_CXXFLAGS += -Wno-parentheses-equality
 endif
 
 # suppress warnings files with shadowing.
-$(CPP_OBJS) : TRICK_CXXFLAGS += -std=c++11 -Wno-shadow
+$(CPP_OBJS) : TRICK_CXXFLAGS += -Wno-shadow
