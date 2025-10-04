@@ -2615,7 +2615,7 @@ def main():
     TRICK_EXPECT_EQ( str(test_so.obj.dp) , "[45 kg]", test_suite , "Get address mid-array" )
 
     test_so.obj.dp = trick.get_address("test_so.obj.daa[1][1]")
-    TRICK_EXPECT_EQ( str(test_so.obj.dp) , "[60 kg]", test_suite , "Get address multi-dimensional mid-array" )
+    TRICK_EXPECT_EQ( str(test_so.obj.dp), "[60 kg, 52.3 kg]" , test_suite , "Get address multi-dimensional mid-array" )
 
     temp_array = test_so.obj.daa[1]
     TRICK_EXPECT_EQ( str(temp_array) , "[50.1 kg, 60 kg, 52.3 kg]", test_suite , "Local variable reference to array" )
