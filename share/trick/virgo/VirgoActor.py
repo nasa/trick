@@ -128,10 +128,16 @@ class VirgoActor(vtk.vtkActor):
             texture.InterpolateOn()
             # Create a mapper to map the sphere's geometry to graphics primitives
             mapper.SetInputConnection(earth_source.GetOutputPort())
+            # Scale the sphere to make it an oblate spheroid
+            # Earth radii: equatorial ~6378 km, polar ~6357 km
+            equatorial = 6378137
+            polar = 6356752
+            scale_z = polar / equatorial
+            self.SetScale(1.0, 1.0, scale_z)  # squash along Z
         elif 'PREFAB:moon8k' in str(mesh) :
             # Create a sphere source
             earth_source = vtk.vtkTexturedSphereSource()
-            earth_source.SetRadius(1740000.0)     # Set radius of moon
+            earth_source.SetRadius(1738100.0)     # Set radius of moon
             earth_source.SetThetaResolution(300)  # Number of divisions in theta (longitude)
             earth_source.SetPhiResolution(300)  # Number of divisions in phi (latitude)
             # Read Moon texture image
@@ -142,10 +148,15 @@ class VirgoActor(vtk.vtkActor):
             texture.InterpolateOn()
             # Create a mapper to map the sphere's geometry to graphics primitives
             mapper.SetInputConnection(earth_source.GetOutputPort())
+            # Scale the sphere to make it an oblate spheroid
+            equatorial = 1738100.0
+            polar = 1736000.0
+            scale_z = polar / equatorial   # ~0.99879
+            self.SetScale(1.0, 1.0, scale_z)
         elif 'PREFAB:moon' in str(mesh) or 'PREFAB:moon4k' in str(mesh) :
             # Create a sphere source
             earth_source = vtk.vtkTexturedSphereSource()
-            earth_source.SetRadius(1740000.0)     # Set radius of moon
+            earth_source.SetRadius(1738100.0)     # Set radius of moon
             earth_source.SetThetaResolution(300)  # Number of divisions in theta (longitude)
             earth_source.SetPhiResolution(300)  # Number of divisions in phi (latitude)
             # Read Moon texture image
@@ -156,6 +167,11 @@ class VirgoActor(vtk.vtkActor):
             texture.InterpolateOn()
             # Create a mapper to map the sphere's geometry to graphics primitives
             mapper.SetInputConnection(earth_source.GetOutputPort())
+            # Scale the sphere to make it an oblate spheroid
+            equatorial = 1738100.0
+            polar = 1736000.0
+            scale_z = polar / equatorial   # ~0.99879
+            self.SetScale(1.0, 1.0, scale_z)
         elif 'PREFAB:cube' in str(mesh):
             cube_source = vtk.vtkCubeSource()
             cube_source.SetXLength(1.0)
@@ -228,59 +244,4 @@ class VirgoActor(vtk.vtkActor):
 #        print(f"  position: {self.get_current_position()}")
 #        print(f"  rotation: {self.get_current_rotation()}")
 #        print(f"     scale: {self.get_current_scale()}")
-
-
-#    def update(self, world_time):
-#        """
-#        Update this actor's position and rotation to the values associated
-#        with data closest to world_time (see set_current_time) by applying
-#        a matrix transform to self.
-#        """
-#        if not self.initialized or self.static:
-#            return # Nothing to do
-#
-#        self.set_current_time(world_time)
-#        pos = self.get_current_position()
-#        rot = self.get_current_rotation()
-#        scale = self.get_current_scale()
-#        if pos == None and rot == None:
-#            return  # Nothing to update
-#
-#        # Convert rotation matrix to VTK transform
-#        transform_actor = vtk.vtkTransform()
-#        matrix = vtk.vtkMatrix4x4()
-#        if rot is not None:
-#            for i in range(3):
-#                for j in range(3):
-#                    matrix.SetElement(i, j, rot[i][j])
-#        if pos is not None:
-#            matrix.SetElement(0, 3, pos[0])
-#            matrix.SetElement(1, 3, pos[1])
-#            matrix.SetElement(2, 3, pos[2])
-#        transform_actor.SetMatrix(matrix)
-#        if scale is not None:
-#            transform_actor.Scale(scale, scale, scale)
-#        self.SetUserTransform(transform_actor)
-#
-#        # Move the axes to where the parent actor is using a different transform
-#        # since transforms should not be shared across actors
-#        transform_axes = vtk.vtkTransform()
-#        transform_axes.SetMatrix(matrix)
-#        self._axes.SetUserTransform(transform_axes)
-#        self._axes.Modified()
-#        ##################################################################################
-#        # DEBUG prints used trying to figure out why self._axes will not appear until the
-#        # camera is rotated. The best evidence is self._axes.GetBounds() which shows the
-#        # bounding box for the axes does not snap to the new position described by axes_pos
-#        # I've asked every AI and searched every VTK issue and I cannot resolve this even
-#        # after trying every suggestion I can find. At this point I'm thinking this might
-#        # just be a bug in our version of vtk - why doesn't the bounding box update? -Jordan
-#        # See: https://discourse.vtk.org/t/vtkaxesactor-fails-to-render-at-some-angles/4864/2
-#        #matrix = self._axes.GetMatrix()
-#        #axes_pos =[ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)]
-#        #print(f'DEBUG: self._axes.GetVisibility is {self._axes.GetVisibility()} with axes_pos {axes_pos}')
-#        #print(f"BOTTOM OF UPDATE Axes bounds: {self._axes.GetBounds()} with GetUseBounds() {self._axes.GetUseBounds()}")
-#        ##################################################################################
-#        # If there's a trail, update it
-#        self.update_trail()
 

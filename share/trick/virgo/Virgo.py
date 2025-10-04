@@ -5,10 +5,7 @@ A Practical, Analytical, and Hardworking 3D Visualization tool
 leveraging python-VTK
 """
 from VirgoActor import VirgoActor
-from VirgoLabel import VirgoLabel
-from VirgoDataFileLoader import VirgoDataFileLoader
 from VirgoNode import VirgoSceneNode, VirgoSceneNodeVector
-from VirgoDataSource import VirgoDataFileSource
 from VirgoSplash import VirgoSplash
 
 import os, sys, inspect, time
@@ -25,7 +22,8 @@ sys.path.append(os.path.abspath(os.path.join(thisFileDir, '../')))
 class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     """
     Virgo Interactor Style which adds some capabilities on top of the VTK
-    provided vtkInteractorStyleTrackballCamera
+    provided vtkInteractorStyleTrackballCamera, mostly to support keeping the
+    camera at a relative position to a followed node as that node moves
     """
     def __init__(self):
         super().__init__()
@@ -81,11 +79,18 @@ class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         else:
             return None
 
-class VirgoDataPlaybackControlCenter:
+class VirgoControlCenter:
     """
-    The control center class for Virgo Data playback
+    The main control center class for Virgo Data playback which provides:
+      World time: Authoritative scene time
+      Navigation: Play/Pause and stepping forward/backward through time and
+        playback speed
+      Camera: Configuration and node-following capability
+      HUD: Heads-up display text bordering the scene
+      Picking: The ability to click on objects in the scene to get more info
+        about them
     """
-    def __init__(self, renderer, interactor, scene, vdl, world_time=0.0):
+    def __init__(self, renderer, interactor, scene, world_time=0.0):
         """
         Constructor
         """
@@ -102,7 +107,6 @@ class VirgoDataPlaybackControlCenter:
         self.camera_follow_offset = None
         self.interactor = interactor
         self.scene = scene
-        self.vdl = vdl
         self.skybox = self.create_skybox()
         self.actors = {}
         self.vectors={}
@@ -168,11 +172,6 @@ class VirgoDataPlaybackControlCenter:
             if self.nodes[n].parent == None:
                 #import pdb; pdb.set_trace()
                 self.renderer.AddActor(self.nodes[n].assembly)
-#        for a in self.actors:
-#            # Add the actor
-#            self.renderer.AddActor(self.actors[a])
-#            # Add it's axes
-#            self.renderer.AddActor(self.actors[a].get_axes())
         for a in self.trail_actors:
             self.renderer.AddActor(self.trail_actors[a])
         for t in self.text_actors:
@@ -256,20 +255,15 @@ class VirgoDataPlaybackControlCenter:
              self.reset_trails()
 
         self.configure_hud()
-        # Toggle axes labels based on distance
-        #TODO modify this to work on nodes not actors
-        for n in self.nodes:
-            #self.nodes[n]
-            pass
-            #self.actors[actor].hide_or_unhide_axes_labels(self.camera)
-            #self.actors[actor].axes.Modified()
-        # I DONT KNOW WHY BUT THIS ONE LINE FIXES THE STARS IN THE BACKGROUND
-        self.renderer.ResetCameraClippingRange() # This will auto-adjust clipping based on visible actors
-
+        # This auto-adjusts clipping based on visible actors
+        self.renderer.ResetCameraClippingRange()
+        # The end of the main update loop, render the image
         self.renderer.GetRenderWindow().Render()
 
-
     def on_timer(self, caller, event):
+        """
+        Main callback for executing the scene update loop
+        """
         self.wallclock_time = time.time()  # Actual wall clock time in real life
         self.update_scene()
 
@@ -279,10 +273,10 @@ class VirgoDataPlaybackControlCenter:
                   f"larger than self.dt ({self.dt}). Playback rate may not be accurate")
 
     def configure_hud(self):
-        '''
+        """
         Configure the heads-up-display in preparation for rendering.
         Does not render.
-        '''
+        """
         hud_padding = 20 # pixels
         window_width, window_height  = self.interactor.GetRenderWindow().GetSize()
         
@@ -358,6 +352,7 @@ class VirgoDataPlaybackControlCenter:
                 f"\nKEYBOARD"
                 f"\n SPACE: Pause/Play"
                 f"\n s: Cycle playback speeds"
+                f"\n t: Toggle trails"
                 f"\n r: Fit camera to scene"
                 f"\n <- -> : Step back/forward in time"
                 f"\n  -  + : Adjust HUD text size"
@@ -365,8 +360,8 @@ class VirgoDataPlaybackControlCenter:
                 f"\n l: Toggle Node Label Visibility"
                 f"\n h: Toggle this help message"
                 f"\n BackSpace: Toggle starfield"
-                f"\n j k: Near Plane Clipping Tolerance"
-                f"\n J K: Picker Tolerance"
+                f"\n j/k: Near Plane Clipping Tolerance"
+                f"\n J/K: Picker Tolerance"
                 f"\n Q: Quit"
                 )
             self.text_actors['help'].GetBoundingBox(self.renderer, bounds)
@@ -520,6 +515,13 @@ class VirgoDataPlaybackControlCenter:
             else:
                 self.nodes[n].show_labels()
 
+    def toggle_trails(self):
+        for n in self.nodes:
+            if self.nodes[n].is_trail_visible():
+                self.nodes[n].hide_trail()
+            else:
+                self.nodes[n].show_trail()
+
     def toggle_axes(self):
         for n in self.nodes:
             if self.nodes[n].are_axes_visible():
@@ -579,6 +581,8 @@ class VirgoDataPlaybackControlCenter:
         if key == 'l':
             # Turn actor axes on/off
             self.toggle_node_labels()
+        if key == "t":
+            self.toggle_trails()
         if key == "s":
             # Cycle through the available playback speeds
             self.cycle_playback_speed()
@@ -718,8 +722,7 @@ class VirgoDataPlaybackControlCenter:
         # THE BACKGROUND SKYBOX STARS WIGGLE BUT LARGER NUMBERS (0.0001) MAKE
         # SMALLER ACTORS NOT VISIBLE DUE TO CLIPPING.
         if 'camera' in self.scene and 'near_clipping_plane_tolerance' in self.scene['camera']:
-            self.near_clipping_plane_tolerance = self.scene['camera']['near_clipping_plane_tolerance']
-            self.renderer.SetNearClippingPlaneTolerance(self.scene['camera']['near_clipping_plane_tolerance'])
+            self.near_clipping_plane_tolerance = float(self.scene['camera']['near_clipping_plane_tolerance'])
         self.renderer.SetNearClippingPlaneTolerance(self.near_clipping_plane_tolerance)
 
     def increase_near_clipping_plane_tolerance(self, multiplier=2.0):
@@ -809,22 +812,19 @@ class VirgoDataPlaybackControlCenter:
         return skybox
 
 
-class VirgoDataPlayback:
+class VirgoScene:
     """
-    Class used as entrypoint for those wanting VIRGO data playback capability.
+    Class used as entrypoint for all VIRGO rendered scenes
 
-    Expects to consume a dict describing the scene and a Trick RUN directory
-    containing logged data this scene will be driven by. The linkage between the
-    data recording groups/variables and the actors in the scene is controlled by
-    the  recorded_data: and driven_by: clauses of the scene dict
+    Expects to consume a dict describing the scene dict and populates internal
+    members with nodes
     """
-    def __init__(self, run_dir, scene, verbosity=1):
+    def __init__(self, scene, verbosity=1):
         self.verbosity = verbosity
         self.fs = 14      # font size
         self.max_sim_time = 0.0
         self.scene = scene # Dict of scene info from YAML file
         self._verify_scene()
-        self.run_dir = run_dir
         self.nodes = {}
 
         self.background_color = [0.0, 0.0, 0.05]
@@ -841,19 +841,37 @@ class VirgoDataPlayback:
     
         # Set better camera interaction
         self.interactor_style = VirgoInteractorStyle()
-        self.vdl = None
-        # TODO: this check on 'recorded_data' existence might be better done elsewhere
-        # but leaving it here for now
-        if 'recorded_data' in self.scene:
-            self.vdl = VirgoDataFileLoader(run_dir=self.run_dir, 
-                scene_recorded_data=self.scene['recorded_data'], verbosity=self.verbosity)
-        self.controller = VirgoDataPlaybackControlCenter(self.renderer, self.interactor, self.scene, self.vdl)
+        self.controller = VirgoControlCenter(self.renderer, self.interactor, self.scene)
         self.initialized = False
 
+    def initialize(self):
+        """
+        Initialize this instance by:
+        1. Initializing all actors found in the scene
+        2. Configuring the controller, renderer, and interactor
+        """
+        self.initialize_nodes()   # Load all actors from the self.scene info
+
+        self.renderer.SetBackground(self.background_color)
+        self.render_window.AddRenderer(self.renderer)
+        self.render_window.SetSize(1920, 1080)
+        self.render_window.SetWindowName(self.description)
+        self.interactor.SetRenderWindow(self.render_window)
+    
+        # Set custom interactor style
+        self.interactor.SetInteractorStyle(self.interactor_style)
+    
+        # Create controller
+        self.controller.set_verbosity(self.verbosity)
+
+        self.controller.register_callbacks()
+        self.controller.initialize()
+        self.initialized = True
+
     def add_node(self, node, parent_name=None):
-        # TODO: This function requires us to add nodes root to leaf. We need
-        # a more robust strategy to not require ordering of the actors by
-        # the user, we can probably jsut process nodes in "no parent" first order
+        """
+        Add a node to the scene graph represented by self.nodes dict
+        """
         self.nodes[node.name] = node
         if parent_name is not None:
             parent = self.nodes[parent_name]
@@ -944,14 +962,10 @@ class VirgoDataPlayback:
     def create_node(self, actor, actor_scene_dict=None, _class=VirgoSceneNode):
         """
         Creates a VirgoSceneNode associated with actor from the information
-        in actor_scene_dict. This function also maps the data in the
-        driven_by: section of the actor_scene_dict to a data_source in
-        the created node. The result is a VirgoSceneNode ready to be
-        included in the larger VirgoDataPlayback framework via
-        self.add_node()
+        in actor_scene_dict. 
 
         Args:
-          _class (cls): Class to instantiate, must be or derive from VirgoActor
+          _class (cls): Class to instantiate, must be or derive from VirgoSceneNode
 
         Returns: Tuple of (VirgoSceneNode, parent_name [str])
         """
@@ -963,35 +977,6 @@ class VirgoDataPlayback:
         if 'parent' in actor_scene_dict and actor_scene_dict['parent'] != None:
             parent_name=actor_scene_dict['parent']
 
-        # Figure out the details of whether the actor/node is driven or not
-        # and produce a VirgoDataSource with the data from the driven_by:
-        # specification and assign that data source to node.data_source
-        positions = None
-        rotations = None
-        scales = None
-        opacities = None
-        times = None
-        driven_by = None
-        if 'driven_by' in actor_scene_dict:
-            driven_by= actor_scene_dict['driven_by']
-            if 'time' in driven_by:
-                times = self.vdl.get_recorded_datas(alias=driven_by['time'])
-            if 'pos' in driven_by:
-                positions= self.vdl.get_recorded_datas(alias=driven_by['pos'])
-            if 'rot' in driven_by:
-                rotations = self.vdl.get_recorded_datas(alias=driven_by['rot'])
-            if 'scale' in driven_by:
-                scales = self.vdl.get_recorded_data(alias=driven_by['scale'])
-            if 'opacity' in driven_by:
-                opacities = self.vdl.get_recorded_data(alias=driven_by['opacity'])
-            # Create the data source
-            vds = VirgoDataFileSource(times=times, rotations=rotations,
-                                      positions=positions, scales=scales,
-                                      opacities=opacities )
-            vds.initialize()
-            node.set_data_source(vds)
-        else:
-            node.set_static(True)
         # If labels: are provided for the node/actor, 
         if 'labels' in actor_scene_dict:
             labels = actor_scene_dict['labels']
@@ -1005,57 +990,18 @@ class VirgoDataPlayback:
                 if 'pos' in labels[label]:
                   position = labels[label]['pos']
                 if 'scale' in labels[label]:
-                    scale = labels[label]['scale']
+                  scale = labels[label]['scale']
                 if 'ypr' in labels[label]:
-                    ypr = labels[label]['ypr']
+                  ypr = labels[label]['ypr']
                 if 'color' in labels[label]:
-                    color = labels[label]['color']
+                  color = labels[label]['color']
                 # Add the label to the node
                 node.add_label(name=label, text=text, position=position, ypr=ypr, scale=scale, color=color)
                 # Tell the label to follow the camera so it always faces it,
                 # THIS ISNT WORKING RIGHT NOW I THINK BECAUSE OF THE ASSEMBLY SYSTEM
                 #node.get_label(label).get_follower().SetCamera(self.renderer.GetActiveCamera())
-                times = self.vdl.get_recorded_datas(alias='time')
-                # Create a data source from the aliases found in the label text
-                # and pass that data source in to the label instance for use at
-                # runtime
-                vds_for_labels = self.get_data_source_from_label_text(label_text=text)
-                node.get_label(label).set_data_source(data_source=vds_for_labels)
 
         return node, parent_name
-
-    def get_data_source_from_label_text(self, label_text):
-        """
-        Given a single text: field, parse it for variables in self.vdl using the
-        special notation {<alias>}. For example:
-          labels:
-            velocity:
-              text: "velocity: {sat_vel}"
-              pos: [5.0, 5.0, 5.0]
-        In this example text: contains a regular string and a section to be filled in from
-        the sat_vel alias defined in the recorded_data: section of the scene dict 
-
-        returns a VirgoDataSource containing the variables/aliases found in label_text
-        None is returned if no variables/aliases are found
-        """
-        vds_for_variables = None
-        additional_datas = {}
-        split_fstrings_list = VirgoLabel.find_clauses(label_text)
-        for cs in split_fstrings_list:
-            #import pdb; pdb.set_trace()
-            if not self.vdl.does_alias_exist(alias=cs.var):
-                msg = (f"ERROR: alias {cs.var} cannot be found in self.vdl!")
-                raise RuntimeError (msg)
-            # TODO: this is a loose check that could break, consider adding brace
-            # dimension to ClauseSplit which could be queried here robustly
-            if '[' in cs.var:
-                additional_datas[cs.var] = self.vdl.get_recorded_data(alias=cs.var)
-            else:
-                additional_datas[cs.var] = self.vdl.get_recorded_datas(alias=cs.var)
-
-            times = self.vdl.get_recorded_datas(alias='time')
-            vds_for_variables = VirgoDataFileSource(times=times, **additional_datas)
-        return  vds_for_variables
 
     def create_trail(self, node, actor_scene_dict=None):
         """Create a trail for node and assign it
@@ -1064,34 +1010,18 @@ class VirgoDataPlayback:
         """
         trail_actor = None
         if 'trail' in actor_scene_dict and actor_scene_dict['trail'] != None:
-            trail_actor = node.create_trail(color=actor_scene_dict['trail'])
+          if 'enabled' in actor_scene_dict['trail'] and actor_scene_dict['trail']['enabled']:
+            color = [1.0, 1.0, 1.0]
+            thickness = 2
+            opacity = 1.0
+            if 'color' in actor_scene_dict['trail']:
+              color=actor_scene_dict['trail']['color']
+            if 'thickness' in actor_scene_dict['trail']:
+              thickness=actor_scene_dict['trail']['thickness']
+            if 'opacity' in actor_scene_dict['trail']:
+              opacity=actor_scene_dict['trail']['opacity']
+            trail_actor = node.create_trail(color=color, thickness=thickness, opacity=opacity)
         return trail_actor
-
-    def initialize(self):
-        """
-        Initialize this instance by:
-        1. Loading all variables found in the scene
-        2. Initializing all actors found in the scene
-        2. Configuring the controller, renderer, and interactor
-        """
-        self.vdl.load_variables()  # Load all variables from VirgoDataFileLoader
-        self.initialize_nodes()   # Load all actors from the self.scene info
-
-        self.renderer.SetBackground(self.background_color)
-        self.render_window.AddRenderer(self.renderer)
-        self.render_window.SetSize(1920, 1080)
-        self.render_window.SetWindowName(self.description)
-        self.interactor.SetRenderWindow(self.render_window)
-    
-        # Set custom interactor style
-        self.interactor.SetInteractorStyle(self.interactor_style)
-    
-        # Create controller
-        self.controller.set_verbosity(self.verbosity)
-
-        self.controller.register_callbacks()
-        self.controller.initialize()
-        self.initialized = True
 
     def initialize_nodes(self):
         """

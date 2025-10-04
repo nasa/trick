@@ -6,7 +6,7 @@ import pdb
 thisFileDir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0)))
 virgo_dir=os.path.abspath(os.path.join(thisFileDir, '../'))
 sys.path.append(virgo_dir)
-from Virgo import *
+from VirgoDataPlayback import *
 meshes_dir=os.path.join(virgo_dir, 'meshes')
 tests_dir=os.path.join(virgo_dir, 'tests')
 from VisualizableTestCase import VisualizableTestCase
@@ -25,13 +25,14 @@ class VirgoDataPlaybackInitTestCase(unittest.TestCase):
         self.scene = {}
         self.scene['actors']  = {}
         self.scene['actors']['test_actor'] = {'mesh': 'PREFAB:cube'}
-        self.scene['recorded_data']  = {}
-        self.scene['recorded_data']['time']  = {}
-        self.scene['recorded_data']['pos']  = {}
-        self.scene['recorded_data']['time']['group']  = "one_body_static"
-        self.scene['recorded_data']['pos']['group']  = "one_body_static"
-        self.scene['recorded_data']['time']['var']  = "sys.exec.out.time"
-        self.scene['recorded_data']['pos']['var']  = "position[0-2]"
+        self.scene['data_source']  = {}
+        self.scene['data_source']['trickpy']  = {}
+        self.scene['data_source']['trickpy']['time']  = {}
+        self.scene['data_source']['trickpy']['pos']  = {}
+        self.scene['data_source']['trickpy']['time']['group']  = "one_body_static"
+        self.scene['data_source']['trickpy']['pos']['group']  = "one_body_static"
+        self.scene['data_source']['trickpy']['time']['var']  = "sys.exec.out.time"
+        self.scene['data_source']['trickpy']['pos']['var']  = "position[0-2]"
 
     def tearDown(self):
         self.instance.tear_down()
@@ -39,7 +40,7 @@ class VirgoDataPlaybackInitTestCase(unittest.TestCase):
 
     def test_init_RUN_0(self):
         self.instance = VirgoDataPlayback(
-            run_dir=os.path.join(tests_dir, 'recorded_data/RUN_0'),
+            run_dir=os.path.join(tests_dir, 'trickpy_data_source/RUN_0'),
             scene=self.scene)
 
         self.instance.initialize()
@@ -52,15 +53,19 @@ class VirgoDataPlaybackFunctionsTestCase(VisualizableTestCase):
         self.scene['actors']['test_actor'] = {'mesh': 'PREFAB:cube'}
         self.scene['vectors']  = {}
         self.scene['vectors']['test_vector'] = {'parent': 'test_actor'}
-        self.scene['recorded_data']  = {}
-        self.scene['recorded_data']['time']  = {}
-        self.scene['recorded_data']['pos']  = {}
-        self.scene['recorded_data']['time']['group']  = "one_body_static"
-        self.scene['recorded_data']['pos']['group']  = "one_body_static"
-        self.scene['recorded_data']['time']['var']  = "sys.exec.out.time"
-        self.scene['recorded_data']['pos']['var']  = "position[0-2]"
+        self.scene['data_source']  = {}
+        self.scene['data_source']['trickpy']  = {}
+        self.scene['data_source']['trickpy']  = {}
+        self.scene['data_source']['trickpy']['time']  = {}
+        self.scene['data_source']['trickpy']['pos']  = {}
+        self.scene['data_source']['trickpy']['time']['group']  = "one_body_static"
+        self.scene['data_source']['trickpy']['pos']['group']  = "one_body_static"
+        self.scene['data_source']['trickpy']['time']['var']  = "sys.exec.out.time"
+        self.scene['data_source']['trickpy']['pos']['var']  = "position[0-2]"
+        
+
         self.instance = VirgoDataPlayback(
-            run_dir=os.path.join(tests_dir, 'recorded_data/RUN_0'),
+            run_dir=os.path.join(tests_dir, 'trickpy_data_source/RUN_0'),
             scene=self.scene)
 
     def tearDown(self):

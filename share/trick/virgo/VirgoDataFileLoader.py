@@ -3,15 +3,15 @@ import numpy as np
 
 class VirgoDataFileLoader:
     """
-    Class that manages loading data from the scene recorded_data: section
+    Class that manages loading data from the scene data_source: trickpy: section
     of a dict in Virgo-expected format
 
     Uses trickpy to load the data, then puts it into a format best suited
     for consumption in the Virgo framework
     """
-    def __init__(self, run_dir, scene_recorded_data, verbosity=1):
+    def __init__(self, run_dir, trickpy_dict, verbosity=1):
         self.run_dir=run_dir
-        self.scene_recorded_data=dict(scene_recorded_data)
+        self.trickpy_dict=dict(trickpy_dict)
         self.verbosity=verbosity
         self.drg = None
 
@@ -58,7 +58,7 @@ class VirgoDataFileLoader:
 
     def load_variables(self):
         """
-        Use trickpy to load the variables defined in the 'recorded_data:' section
+        Use trickpy to load the variables defined in the 'trickpy::' section
         of the scene. The way trickpy's load_run function currently works is like
         this:
 
@@ -72,28 +72,28 @@ class VirgoDataFileLoader:
 
         Populates: self.drg
         Returns:   self.drg
-        Raises: RuntimeError if a 'var' in 'recorded_data:' is not found when loading
+        Raises: RuntimeError if a 'var' in 'trickpy::' is not found when loading
         the self.run data, or if other errors occur
 
         TODO: Need uniqueness check, no group/var combo should be repeated twice
-              in the recorded_data: area
-        TODO: need more error checking here, if recorded_data: section has bad variables
+              in the trickpy:: area
+        TODO: need more error checking here, if trickpy:: section has bad variables
               we can error on the expected_vars.remove() line
         """
         import trickpy.data_record as dr
         load_these_variables = []
         expected_groups = []
-        for alias in self.scene_recorded_data:
-          if 'group' in self.scene_recorded_data[alias]:
-            expected_groups.append(self.scene_recorded_data[alias]['group'])
+        for alias in self.trickpy_dict:
+          if 'group' in self.trickpy_dict[alias]:
+            expected_groups.append(self.trickpy_dict[alias]['group'])
         expected_groups = list(set(expected_groups))
         # Find every var: given in the scene dict and pass them to dr.load_run
         # as the subset of variables to load.
-        for v in self.scene_recorded_data:
-          expanded_vars = self.expand_arrays(self.scene_recorded_data[v]['var'])
+        for v in self.trickpy_dict:
+          expanded_vars = self.expand_arrays(self.trickpy_dict[v]['var'])
           load_these_variables += expanded_vars
         if len(load_these_variables) == 0:
-          msg = (f"ERROR: There are no variables in the recorded_data: section of scene. "
+          msg = (f"ERROR: There are no variables in the trickpy:: section of scene. "
                 f"Nothing to load! ")
           raise RuntimeError (msg)
         # Remove any duplicate entries
@@ -123,7 +123,7 @@ class VirgoDataFileLoader:
               expected_vars.remove(var)
               continue
         if len(expected_vars) > 0:
-          msg = (f"ERROR: The following variables from recorded_data: section of scene "
+          msg = (f"ERROR: The following variables from trickpy:: section of scene "
                 f"were not found in data loading of {self.run_dir}\n{expected_vars}")
           raise RuntimeError (msg)
         return (self.drg)
@@ -133,8 +133,8 @@ class VirgoDataFileLoader:
       TODO: can this handle if [] are in the alias? I don't think so
       """
       (alias, indices) = self.split_alias_and_indices(alias_in=alias)
-      if alias in self.scene_recorded_data:
-        variable = self.scene_recorded_data[alias]['var']
+      if alias in self.trickpy_dict:
+        variable = self.trickpy_dict[alias]['var']
         return(self.does_variable_exist(variable))
       else:
         return False
@@ -171,12 +171,12 @@ class VirgoDataFileLoader:
                 break
         return exists
 
-    def get_recorded_data(self, alias):
+    def get_trickpy_data(self, alias):
         """
         Get the recorded data associated with a single variable alias defined in
-        recorded_data: dict. For example, for this YAML equivalent of a dict:
+        trickpy:: dict. For example, for this YAML equivalent of a dict:
 
-        recorded_data:
+        trickpy::
           time:                          # Variable Alias
             group: Satellite             # DR Group  
             var: sys.exec.out.time       # DR variable name
@@ -190,7 +190,7 @@ class VirgoDataFileLoader:
         For variables with index ranges ([0-2] or [0-2][0-2] for example) the
         indices must be specified such that a single variable is requested.
 
-        For example get_recorded_data(alias='sat_pos[0]') will return a list of 
+        For example get_trickpy_data(alias='sat_pos[0]') will return a list of 
         dyn.satellite.pos[0] values associated with group Satellite.
 
         Returns: A list of data values associated with alias
@@ -200,16 +200,16 @@ class VirgoDataFileLoader:
         """
         import re
         if not self.drg:
-          msg = (f"ERROR: Cannot get_recorded_data as self.drg is not populated.")
+          msg = (f"ERROR: Cannot get_trickpy_data as self.drg is not populated.")
           raise RuntimeError (msg)
 
         alias, specified_indices = self.split_alias_and_indices(alias)
-        if alias not in self.scene_recorded_data:
-          msg = (f"ERROR: {alias} not found in recorded_data section of scene. Make sure to use"
+        if alias not in self.trickpy_dict:
+          msg = (f"ERROR: {alias} not found in trickpy: section of scene. Make sure to use"
                  " the alias name, not the var: name.")
           raise RuntimeError (msg)
 
-        variable = self.scene_recorded_data[alias]['var']
+        variable = self.trickpy_dict[alias]['var']
         # Search for the [] var_indices in the var associated with the alias
         # given, and split it into variable=(variable with no var_indices),
         # var_indices=(var_indices) where var_indices is None if not given
@@ -225,16 +225,16 @@ class VirgoDataFileLoader:
           msg = (f"ERROR: {alias} is multidimensional. Specify indices to request a single " 
                  "variable instead, ex: pos[0] instead of pos, rot[1][2] instead of rot")
           raise RuntimeError (msg)
-        grp = self.scene_recorded_data[alias]['group']
+        grp = self.trickpy_dict[alias]['group']
         return self.drg[grp][variable+specified_indices].tolist()
         
-    def get_recorded_datas(self, alias):
+    def get_trickpy_datas(self, alias):
         """
         Get recorded datas (more than one value at a time) associated with an
-        alias defined in recorded_data: dict. For example, for this YAML
+        alias defined in trickpy:: dict. For example, for this YAML
         equivalent of a dict:
 
-        recorded_data:
+        trickpy::
           time:                          # Variable Alias
             group: Satellite             # DR Group  
             var: sys.exec.out.time       # DR variable name
@@ -275,11 +275,11 @@ class VirgoDataFileLoader:
         match = re.search(indices_pattern, alias)
         if match:
             msg = (f"ERROR: Indices found in {alias}. Do not include indices [] when calling "
-                   "get_recorded_datas()")
+                   "get_trickpy_datas()")
             raise RuntimeError (msg)
         # Get the array indices defintion from the variable in the scene
-        grp = self.scene_recorded_data[alias]['group']
-        variable = self.scene_recorded_data[alias]['var']
+        grp = self.trickpy_dict[alias]['group']
+        variable = self.trickpy_dict[alias]['var']
 
         # Expand the variables to see how many array indices there are
         expanded_variables = self.expand_arrays(variable)

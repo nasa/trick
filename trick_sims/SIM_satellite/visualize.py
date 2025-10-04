@@ -4,7 +4,7 @@ import sys, os, argparse, yaml, inspect
 # Location of Virgo code for 3D rendering, and dependency trickpy for loading sim data
 thisFileDir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0)))
 sys.path.append(os.path.abspath(os.path.join(thisFileDir, '../../share/trick/virgo/')))
-import Virgo
+from VirgoDataPlayback import VirgoDataPlayback
 
 parser = argparse.ArgumentParser(description=
         'Visualize the SIM_satellite data after the simulation has finished. '
@@ -22,7 +22,7 @@ class VisualizeWithVirgo:
     def __init__(self):
         with open(args.scene_config) as file:
             scene = yaml.safe_load(file) 
-        self.v = Virgo.VirgoDataPlayback(run_dir=args.run, scene=scene, verbosity=5)
+        self.v = VirgoDataPlayback(run_dir=args.run, scene=scene, verbosity=5)
         self.v.initialize()
     def execute(self):
         # Start the Virgo 3D scene

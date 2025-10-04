@@ -358,6 +358,18 @@ class VirgoSceneNode():
                 return True
         return False
 
+    def is_trail_visible(self):
+        if self._trail_actor:
+            return self._trail_actor.GetVisibility()
+
+    def hide_trail(self):
+        if self._trail_actor:
+            return self._trail_actor.SetVisibility(0)
+
+    def show_trail(self):
+        if self._trail_actor:
+            return self._trail_actor.SetVisibility(1)
+
     def hide_axes(self):
         if not self.axes:
             return
@@ -379,7 +391,7 @@ class VirgoSceneNode():
             self._last_opacity = self.actor.GetProperty().GetOpacity()
             self.actor.GetProperty().SetOpacity(0.7)
 
-    def create_trail(self, color=[0.0, 0.0, 0.0], thickness=2):
+    def create_trail(self, color=[1.0, 1.0, 1.0], thickness=2, opacity=1.0):
         self._trail_points = vtk.vtkPoints()
         self._trail_lines = vtk.vtkCellArray()
         self._trail_polydata = vtk.vtkPolyData()
@@ -393,6 +405,7 @@ class VirgoSceneNode():
         self._trail_actor.SetMapper(self._trail_mapper)
         self._trail_actor.GetProperty().SetColor(color[0], color[1], color[2])
         self._trail_actor.GetProperty().SetLineWidth(thickness)
+        self._trail_actor.GetProperty().SetOpacity(opacity)
         self._trail_actor.PickableOff()
         
         # Maintain a polyline of visited positions
