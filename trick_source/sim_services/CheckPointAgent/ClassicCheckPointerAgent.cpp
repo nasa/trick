@@ -825,10 +825,10 @@ std::string Trick::ClassicCheckPointAgent::
         if (alloc_info != NULL) {
             // Special handling for character strings: prefer string literal format over allocation reference
             // The following info for "char *" is for reference purpose:
-            // curr_dim == 0
-            // attr.type == TRICK_CHARACTER (base type)
-            // attr.num_index == 1 (1D array)
-            // attr.index[0].size == 0 (not static array)
+            // curr_dim = 0
+            // attr.type = TRICK_CHARACTER (base type)
+            // attr.num_index = 1 (1D array)
+            // attr.index[0].size = 0 (not static array)
             // attr.size = sizeof(char)
             // This prevents anonymous allocations from appearing in subsequent checkpoints
             if ((attr != NULL) && (attr->type == TRICK_CHARACTER || attr->type == TRICK_UNSIGNED_CHARACTER) && ((curr_dim + 1) == attr->num_index)) {
