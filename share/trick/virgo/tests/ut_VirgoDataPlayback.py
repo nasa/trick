@@ -24,7 +24,7 @@ class VirgoDataPlaybackInitTestCase(unittest.TestCase):
     def setUp(self):
         self.scene = {}
         self.scene['actors']  = {}
-        self.scene['actors']['test_actor'] = {'mesh': 'PREFAB:cube'}
+        self.scene['actors']['test_actor'] = {'mesh': 'VIRGO_PREFAB:cube'}
         self.scene['data_source']  = {}
         self.scene['data_source']['trickpy']  = {}
         self.scene['data_source']['trickpy']['time']  = {}
@@ -50,7 +50,7 @@ class VirgoDataPlaybackFunctionsTestCase(VisualizableTestCase):
         VisualizableTestCase().setUp()
         self.scene = {}
         self.scene['actors']  = {}
-        self.scene['actors']['test_actor'] = {'mesh': 'PREFAB:cube'}
+        self.scene['actors']['test_actor'] = {'mesh': 'VIRGO_PREFAB:cube'}
         self.scene['vectors']  = {}
         self.scene['vectors']['test_vector'] = {'parent': 'test_actor'}
         self.scene['data_source']  = {}
@@ -88,7 +88,7 @@ class VirgoDataPlaybackFunctionsTestCase(VisualizableTestCase):
         vector_dict = self.scene['vectors']['test_vector']
         vector = self.instance.create_vector('test_vector', vector_dict)
         self.assertEqual(vector.name, 'test_vector')
-        self.assertEqual(vector.mesh, 'PREFAB:arrow')
+        self.assertEqual(vector.mesh, 'VIRGO_PREFAB:arrow')
         #self.visualize=True
         #self.vis(vector)
 

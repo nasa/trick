@@ -1,7 +1,8 @@
 import re
 import numpy as np
+from VirgoDataLoader import VirgoDataLoader
 
-class VirgoDataFileLoader:
+class VirgoTrickpyFileLoader(VirgoDataLoader):
     """
     Class that manages loading data from the scene data_source: trickpy: section
     of a dict in Virgo-expected format
@@ -10,6 +11,7 @@ class VirgoDataFileLoader:
     for consumption in the Virgo framework
     """
     def __init__(self, run_dir, trickpy_dict, verbosity=1):
+        super().__init__()
         self.run_dir=run_dir
         self.trickpy_dict=dict(trickpy_dict)
         self.verbosity=verbosity
@@ -171,9 +173,9 @@ class VirgoDataFileLoader:
                 break
         return exists
 
-    def get_trickpy_data(self, alias):
+    def get_alias_data(self, alias):
         """
-        Get the recorded data associated with a single variable alias defined in
+        Get the values associated with a single variable alias defined in
         trickpy:: dict. For example, for this YAML equivalent of a dict:
 
         trickpy::
@@ -190,7 +192,7 @@ class VirgoDataFileLoader:
         For variables with index ranges ([0-2] or [0-2][0-2] for example) the
         indices must be specified such that a single variable is requested.
 
-        For example get_trickpy_data(alias='sat_pos[0]') will return a list of 
+        For example get_alias_data(alias='sat_pos[0]') will return a list of 
         dyn.satellite.pos[0] values associated with group Satellite.
 
         Returns: A list of data values associated with alias
@@ -200,7 +202,7 @@ class VirgoDataFileLoader:
         """
         import re
         if not self.drg:
-          msg = (f"ERROR: Cannot get_trickpy_data as self.drg is not populated.")
+          msg = (f"ERROR: Cannot get_alias_data as self.drg is not populated.")
           raise RuntimeError (msg)
 
         alias, specified_indices = self.split_alias_and_indices(alias)
@@ -228,10 +230,10 @@ class VirgoDataFileLoader:
         grp = self.trickpy_dict[alias]['group']
         return self.drg[grp][variable+specified_indices].tolist()
         
-    def get_trickpy_datas(self, alias):
+    def get_alias_datas(self, alias):
         """
-        Get recorded datas (more than one value at a time) associated with an
-        alias defined in trickpy:: dict. For example, for this YAML
+        Get datas (more than one value at a time) associated with an
+        alias defined in trickpy: dict. For example, for this YAML
         equivalent of a dict:
 
         trickpy::
@@ -264,7 +266,8 @@ class VirgoDataFileLoader:
 
                                        ]
 
-        Returns: A list of data values associated with alias
+        Returns: A list of lists of data values associated with alias, as acquired
+         from the trickpy module
 
         Raises: RuntimeError if unable to find data associated with alias or there's
           an issue with the indices specified.
@@ -275,7 +278,7 @@ class VirgoDataFileLoader:
         match = re.search(indices_pattern, alias)
         if match:
             msg = (f"ERROR: Indices found in {alias}. Do not include indices [] when calling "
-                   "get_trickpy_datas()")
+                   "get_alias_datas()")
             raise RuntimeError (msg)
         # Get the array indices defintion from the variable in the scene
         grp = self.trickpy_dict[alias]['group']

@@ -97,9 +97,9 @@ class VirgoActorTestCase(VisualizableTestCase):
 
     def test_init_prefab_moon(self):
         """
-        Test the PREFAB:moon option
+        Test the VIRGO_PREFAB:moon option
         """
-        self.instance = VirgoActor(mesh="PREFAB:moon8k")
+        self.instance = VirgoActor(mesh="VIRGO_PREFAB:moon8k")
         self.set_origin_axes_length(3e6, 3e6, 3e6)  # Size of axes (x, y, z lengths)
         # TODO assertions go here!
         #self.visualize = True
@@ -108,9 +108,9 @@ class VirgoActorTestCase(VisualizableTestCase):
 
     def test_init_prefab_earth(self):
         """
-        Test the PREFAB:earth option
+        Test the VIRGO_PREFAB:earth option
         """
-        self.instance = VirgoActor(mesh="PREFAB:earth")
+        self.instance = VirgoActor(mesh="VIRGO_PREFAB:earth")
         self.set_origin_axes_length(1e7, 1e7, 1e7)  # Size of axes (x, y, z lengths)
         # TODO assertions go here!
         #self.visualize = True

@@ -97,7 +97,7 @@ frames:
     parent: satellite
 actors:
   earth: 
-    mesh: PREFAB:earth
+    mesh: VIRGO_PREFAB:earth
     scale: 1.0             # Size multiplier
     pos:   [0.0, 0.0, 0.0] # initial position offset in scene
     ypr:   [0.0, 0.0, 0.0] # pitch-yaw-roll rotation offset, applied after pos:
@@ -109,7 +109,7 @@ actors:
         ypr: [0.0, 0.0, 90.0]
         scale: 300000
   satellite:
-    mesh: PREFAB:cube         # Size multiplier
+    mesh: VIRGO_PREFAB:cube         # Size multiplier
     scale: 3.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 0.0, 0.0]
@@ -145,112 +145,112 @@ actors:
   # RCS Jet positions and force directions in the body frame taken from
   # Satellite::initialize()
   RCS_T1:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0]
     ypr: [0.0, 0.0, 0.0]  # Thrust in +X
     color: [1.0, 0.0, 0.0]
     parent: RCS_T
   RCS_T2:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0]
     ypr: [0.0, 0.0, 90.0]  # Thrust in +Y
     color: [0.0, 1.0, 0.0]
     parent: RCS_T
   RCS_T3:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0]
     ypr: [0.0, 0.0, 180.0]  # Thrust in -X
     color: [1.0, 0.0, 0.0]
     parent: RCS_T
   RCS_T4:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0]
     ypr: [0.0, 0.0, -90.0]  # Thrust in -Y
     color: [0.0, 1.0, 0.0]
     parent: RCS_T
   RCS_R1:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 0.0, 0.0]  # Thrust in +X
     color: [1.0, 0.0, 0.0]
     parent: RCS_R
   RCS_R2:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 90.0, 0.0]  # Thrust in -Z
     color: [0.0, 0.0, 1.0]
     parent: RCS_R
   RCS_R3:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 180.0, 0.0]  # Thrust in -X
     color: [1.0, 0.0, 0.0]
     parent: RCS_R
   RCS_R4:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, -90.0, 0.0]  # Thrust in +Z
     color: [0.0, 0.0, 1.0]
     parent: RCS_R
   RCS_B1:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 0.0, 0.0]  # Thrust in +X
     color: [1.0, 0.0, 0.0]
     parent: RCS_B
   RCS_B2:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 0.0, 90.0]  # Thrust in +Y
     color: [0.0, 1.0, 0.0]
     parent: RCS_B
   RCS_B3:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 0.0, 180.0]  # Thrust in -X
     color: [1.0, 0.0, 0.0]
     parent: RCS_B
   RCS_B4:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 0.0, -90.0]  # Thrust in -Y
     color: [0.0, 1.0, 0.0]
     parent: RCS_B
   RCS_L1:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 0.0, 0.0]  # Thrust in +X
     color: [1.0, 0.0, 0.0]
     parent: RCS_L
   RCS_L2:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, -90.0, 0.0]  # Thrust in +Z
     color: [0.0, 0.0, 1.0]
     parent: RCS_L
   RCS_L3:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 180.0, 0.0]  # Thrust in -X
     color: [1.0, 0.0, 0.0]
     parent: RCS_L
   RCS_L4:
-    mesh: PREFAB:cone
+    mesh: VIRGO_PREFAB:cone
     scale: 1.0
     pos: [0.0, 0.0, 0.0]
     ypr: [0.0, 90.0, 0.0]  # Thrust in -Z
@@ -259,7 +259,7 @@ actors:
   # In SIM_satellite only T1 and T3 actually fire. TODO: define
   # the rest of the plumes in case a RUN ever fired others
   RCS_T1_PLUME:
-    mesh: PREFAB:cylinder
+    mesh: VIRGO_PREFAB:cylinder
     scale: 1.0
     pos: [1.5, 0.0, 0.0] # Offset in X to edge of RCS cone
     ypr: [0.0, 0.0, 90.0]  # Thrust in +X
@@ -270,7 +270,7 @@ actors:
       time: time
       opacity: T1_on
   RCS_T3_PLUME:
-    mesh: PREFAB:cylinder
+    mesh: VIRGO_PREFAB:cylinder
     scale: 1.0
     pos: [-1.5, 0.0, 0.0] # Offset in X to edge of RCS cone
     ypr: [0.0, 0.0, 90.0]  # Thrust in +X

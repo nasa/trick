@@ -6,7 +6,7 @@ import pdb
 thisFileDir = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0)))
 virgo_dir=os.path.abspath(os.path.join(thisFileDir, '../'))
 sys.path.append(virgo_dir)
-from VirgoDataFileLoader import *
+from VirgoTrickpyFileLoader import *
 meshes_dir=os.path.join(virgo_dir, 'meshes')
 tests_dir=os.path.join(virgo_dir, 'tests')
 from VisualizableTestCase import VisualizableTestCase
@@ -37,10 +37,10 @@ class VirgoDataLoaderSimpleTestCase(unittest.TestCase):
         """
         Test the expand_arrays static method
         """
-        t = VirgoDataFileLoader.expand_arrays(varname='foo.bar[0-2]')
+        t = VirgoTrickpyFileLoader.expand_arrays(varname='foo.bar[0-2]')
         for i in range(3):
           self.assertEqual(t[i], f'foo.bar[{i}]')
-        t = VirgoDataFileLoader.expand_arrays(varname='foo.bar[0-2][0-2]')
+        t = VirgoTrickpyFileLoader.expand_arrays(varname='foo.bar[0-2][0-2]')
         self.assertEqual(t[0], f'foo.bar[0][0]')
         self.assertEqual(t[1], f'foo.bar[0][1]')
         self.assertEqual(t[2], f'foo.bar[0][2]')
@@ -51,31 +51,31 @@ class VirgoDataLoaderSimpleTestCase(unittest.TestCase):
         self.assertEqual(t[7], f'foo.bar[2][1]')
         self.assertEqual(t[8], f'foo.bar[2][2]')
 
-        t = VirgoDataFileLoader.expand_arrays(varname='foo[1-2].bar[0-2]')
+        t = VirgoTrickpyFileLoader.expand_arrays(varname='foo[1-2].bar[0-2]')
 
-    def test_get_trickpy_data(self):
-        self.instance = VirgoDataFileLoader(
+    def test_get_alias_data(self):
+        self.instance = VirgoTrickpyFileLoader(
             run_dir=os.path.join(tests_dir, 'trickpy_data_source/RUN_0'),
             trickpy_dict=self.trickpy_dict,
             verbosity=1)
         self.instance.load_variables()
-        times = self.instance.get_trickpy_data(alias='time')
+        times = self.instance.get_alias_data(alias='time')
         self.assertEqual(times, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
-        posxs = self.instance.get_trickpy_data(alias='pos[0]')
-        posys = self.instance.get_trickpy_data(alias='pos[1]')
-        poszs = self.instance.get_trickpy_data(alias='pos[2]')
+        posxs = self.instance.get_alias_data(alias='pos[0]')
+        posys = self.instance.get_alias_data(alias='pos[1]')
+        poszs = self.instance.get_alias_data(alias='pos[2]')
         # TODO need more assertions here
         self.assertEqual(posxs[0], 0.0)
         self.assertEqual(posys[0], 0.0)
         self.assertEqual(poszs[0], 0.0)
 
-        Rxxs = self.instance.get_trickpy_data(alias='rot[0][0]')
+        Rxxs = self.instance.get_alias_data(alias='rot[0][0]')
         # TODO need more assertions here
         self.assertEqual(Rxxs[0], 1.0)
 
         with self.assertRaises(RuntimeError):
             # Indices not specified when they need to be
-            posxs = self.instance.get_trickpy_data(alias='pos')
+            posxs = self.instance.get_alias_data(alias='pos')
 
     def test_init_missing_recorded_data_variables(self):
         """
@@ -84,24 +84,24 @@ class VirgoDataLoaderSimpleTestCase(unittest.TestCase):
         # Add variables to scene that won't be found
         self.trickpy_dict['noexist']  = {}
         self.trickpy_dict['noexist']['var']  = "noexist[0-2]"
-        self.instance = VirgoDataFileLoader(
+        self.instance = VirgoTrickpyFileLoader(
             run_dir=os.path.join(tests_dir, 'trickpy_data_source/RUN_0'),
             trickpy_dict=self.trickpy_dict)
         # Try to load the scene, knowing it will fail
         with self.assertRaises(RuntimeError):
             self.instance.load_variables()
 
-    def test_get_trickpy_datas(self):
-        self.instance = VirgoDataFileLoader(
+    def test_get_alias_datas(self):
+        self.instance = VirgoTrickpyFileLoader(
             run_dir=os.path.join(tests_dir, 'trickpy_data_source/RUN_0'),
             trickpy_dict=self.trickpy_dict,
             verbosity=1)
         self.instance.load_variables()
-        times = self.instance.get_trickpy_datas(alias='time')
+        times = self.instance.get_alias_datas(alias='time')
         self.assertEqual(times, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
-        positions = self.instance.get_trickpy_datas(alias='pos')
+        positions = self.instance.get_alias_datas(alias='pos')
         self.assertEqual(positions[0], (0.0, 0.0, 0.0))
-        rotations = self.instance.get_trickpy_datas(alias='rot')
+        rotations = self.instance.get_alias_datas(alias='rot')
         expected_rot_0 = np.array( [ [1.0, 0.0, 0.0 ],
                                      [0.0, 1.0, 0.0 ],
                                      [0.0, 0.0, 1.0 ],
@@ -133,13 +133,13 @@ class VirgoDataLoaderOverlappingDataTestCase(unittest.TestCase):
         self.trickpy_dict['rot2']['var']    = "R[0-2][0-2]"
 
     def test_load_variables(self):
-        self.instance = VirgoDataFileLoader(
+        self.instance = VirgoTrickpyFileLoader(
             run_dir=os.path.join(tests_dir, 'trickpy_data_source/RUN_1'),
             trickpy_dict=self.trickpy_dict,
             verbosity=1)
         self.instance.load_variables()
-        times = self.instance.get_trickpy_data(alias='time')
+        times = self.instance.get_alias_data(alias='time')
         self.assertEqual(times, [0.0, 1.0, 2.0, 3.0, 4.0, 5.0])
-        pos1xs = self.instance.get_trickpy_data(alias='pos1[0]')
-        pos1ys = self.instance.get_trickpy_data(alias='pos1[1]')
-        pos1zs = self.instance.get_trickpy_data(alias='pos1[2]')
+        pos1xs = self.instance.get_alias_data(alias='pos1[0]')
+        pos1ys = self.instance.get_alias_data(alias='pos1[1]')
+        pos1zs = self.instance.get_alias_data(alias='pos1[2]')

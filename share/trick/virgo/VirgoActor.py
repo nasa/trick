@@ -21,11 +21,11 @@ class VirgoActor(vtk.vtkActor):
         mesh : str
             3D representation of the actor in the scene, which is either 
              a path to an object file to load like .obj, .stl, or a supported
-             PREFAB (TODO more info needed here)
+             VIRGO_PREFAB (TODO more info needed here)
         offset_pos : list of 3 doubles
              X-Y-Z position to apply to the model on
              init. Used to adjust position of a model relative to the origin of
-             of the model as provided by the CAD or PREFAB itself
+             of the model as provided by the CAD or VIRGO_PREFAB itself
         offset_ypr : list of 3 doubles
              Z-Y-X (Yaw-Pitch-Roll) Tait-Bryan rotation in degrees to apply to
              the model on init. Used to rotate a model into another frame
@@ -99,13 +99,13 @@ class VirgoActor(vtk.vtkActor):
 
     def _map_mesh(self, mesh):
         """
-        Given a string mesh (a path to a model file or a PREFAB), set up the vtk
+        Given a string mesh (a path to a model file or a VIRGO_PREFAB), set up the vtk
         mapper with the configuration of geometry given
         """
-        # TODO: this is quick and dirty, need a PREFAB management class that VirgoActor uses
+        # TODO: this is quick and dirty, need a VIRGO_PREFAB management class that VirgoActor uses
         mapper = vtk.vtkPolyDataMapper()
         texture = None
-        if 'PREFAB:sphere' in str(mesh):
+        if 'VIRGO_PREFAB:sphere' in str(mesh):
             # Create a sphere source
             sphere_source = vtk.vtkSphereSource()
             sphere_source.SetRadius(1.0)  # Set radius of the sphere
@@ -114,7 +114,7 @@ class VirgoActor(vtk.vtkActor):
             
             # Create a mapper to map the sphere's geometry to graphics primitives
             mapper.SetInputConnection(sphere_source.GetOutputPort())
-        elif 'PREFAB:earth' in str(mesh):
+        elif 'VIRGO_PREFAB:earth' in str(mesh):
             # Create a sphere source
             earth_source = vtk.vtkTexturedSphereSource()
             earth_source.SetRadius(6371000.0)     # Set radius of earth
@@ -134,7 +134,7 @@ class VirgoActor(vtk.vtkActor):
             polar = 6356752
             scale_z = polar / equatorial
             self.SetScale(1.0, 1.0, scale_z)  # squash along Z
-        elif 'PREFAB:moon8k' in str(mesh) :
+        elif 'VIRGO_PREFAB:moon8k' in str(mesh) :
             # Create a sphere source
             earth_source = vtk.vtkTexturedSphereSource()
             earth_source.SetRadius(1738100.0)     # Set radius of moon
@@ -153,7 +153,7 @@ class VirgoActor(vtk.vtkActor):
             polar = 1736000.0
             scale_z = polar / equatorial   # ~0.99879
             self.SetScale(1.0, 1.0, scale_z)
-        elif 'PREFAB:moon' in str(mesh) or 'PREFAB:moon4k' in str(mesh) :
+        elif 'VIRGO_PREFAB:moon' in str(mesh) or 'VIRGO_PREFAB:moon4k' in str(mesh) :
             # Create a sphere source
             earth_source = vtk.vtkTexturedSphereSource()
             earth_source.SetRadius(1738100.0)     # Set radius of moon
@@ -172,14 +172,14 @@ class VirgoActor(vtk.vtkActor):
             polar = 1736000.0
             scale_z = polar / equatorial   # ~0.99879
             self.SetScale(1.0, 1.0, scale_z)
-        elif 'PREFAB:cube' in str(mesh):
+        elif 'VIRGO_PREFAB:cube' in str(mesh):
             cube_source = vtk.vtkCubeSource()
             cube_source.SetXLength(1.0)
             cube_source.SetYLength(1.0)
             cube_source.SetZLength(1.0)
             # Create a mapper to map the cube's geometry to graphics primitives
             mapper.SetInputConnection(cube_source.GetOutputPort())
-        elif 'PREFAB:cylinder' in str(mesh):
+        elif 'VIRGO_PREFAB:cylinder' in str(mesh):
             cylinder_source = vtk.vtkCylinderSource()
             cylinder_source.SetHeight(1.0)         # Set height to 3 units
             cylinder_source.SetRadius(0.5)         # Set radius to 1 unit
@@ -188,7 +188,7 @@ class VirgoActor(vtk.vtkActor):
             cylinder_source.SetCapping(True)       # Ensure the bases are capped
             # Create a mapper to map the cube's geometry to graphics primitives
             mapper.SetInputConnection(cylinder_source.GetOutputPort())
-        elif'PREFAB:cone-32' in str(mesh):
+        elif'VIRGO_PREFAB:cone-32' in str(mesh):
             cone_source = vtk.vtkConeSource()
             height = 1.0
             cone_source.SetHeight(height)
@@ -197,7 +197,7 @@ class VirgoActor(vtk.vtkActor):
             cone_source.SetDirection(-1, 0, 0)  # tip pointed along -X
             cone_source.SetCenter(height/2, 0.0, 0.0)  # tip at (0,0,0)
             mapper.SetInputConnection(cone_source.GetOutputPort())
-        elif 'PREFAB:cone' in str(mesh) or  'PREFAB:cone-16' in str(mesh):
+        elif 'VIRGO_PREFAB:cone' in str(mesh) or  'VIRGO_PREFAB:cone-16' in str(mesh):
             cone_source = vtk.vtkConeSource()
             height = 1.0
             cone_source.SetHeight(height)
@@ -206,7 +206,7 @@ class VirgoActor(vtk.vtkActor):
             cone_source.SetDirection(-1, 0, 0)  # tip pointed along -X
             cone_source.SetCenter(height/2, 0.0, 0.0)  # tip at (0,0,0)
             mapper.SetInputConnection(cone_source.GetOutputPort())
-        elif 'PREFAB:arrow' in str(mesh):
+        elif 'VIRGO_PREFAB:arrow' in str(mesh):
             arrow_source = vtk.vtkArrowSource()
             arrow_source.SetTipLength(0.35)   # Fraction of total length
             arrow_source.SetTipRadius(0.2)    # Radius of the cone

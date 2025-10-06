@@ -1,5 +1,5 @@
 from Virgo import VirgoScene
-from VirgoDataFileLoader import VirgoDataFileLoader
+from VirgoTrickpyFileLoader import VirgoTrickpyFileLoader
 from VirgoDataSource import VirgoDataFileSource
 from VirgoNode import VirgoSceneNode
 from VirgoLabel import VirgoLabel
@@ -15,12 +15,11 @@ class VirgoDataPlayback(VirgoScene):
     def __init__(self, run_dir, scene, verbosity=1):
         super().__init__(scene=scene, verbosity=verbosity)
         self.run_dir = run_dir
-        self.vdl = None  # VDL: Virgo Data Loader
         # TODO: this check on 'data_source':'trickpy' existence might be
         # better done elsewhere but leaving it here for now
         #import pdb; pdb.set_trace()
         if 'data_source' in self.scene and 'trickpy' in self.scene['data_source']:
-            self.vdl = VirgoDataFileLoader(run_dir=self.run_dir, 
+            self.vdl = VirgoTrickpyFileLoader(run_dir=self.run_dir, 
                 trickpy_dict=self.scene['data_source']['trickpy'], verbosity=self.verbosity)
 
     def initialize(self):
@@ -29,7 +28,8 @@ class VirgoDataPlayback(VirgoScene):
         1. Loading all variables found in the scene
         2. Calling base class initialize()
         """
-        self.vdl.load_variables()  # Load all variables from VirgoDataFileLoader
+        if self.vdl:
+          self.vdl.load_variables()  # Load all variables from VirgoTrickpyFileLoader
         super().initialize()
 
     def create_node(self, actor, actor_scene_dict=None, _class=VirgoSceneNode):
@@ -60,15 +60,15 @@ class VirgoDataPlayback(VirgoScene):
         if 'driven_by' in actor_scene_dict:
             driven_by= actor_scene_dict['driven_by']
             if 'time' in driven_by:
-                times = self.vdl.get_trickpy_datas(alias=driven_by['time'])
+                times = self.vdl.get_alias_datas(alias=driven_by['time'])
             if 'pos' in driven_by:
-                positions= self.vdl.get_trickpy_datas(alias=driven_by['pos'])
+                positions= self.vdl.get_alias_datas(alias=driven_by['pos'])
             if 'rot' in driven_by:
-                rotations = self.vdl.get_trickpy_datas(alias=driven_by['rot'])
+                rotations = self.vdl.get_alias_datas(alias=driven_by['rot'])
             if 'scale' in driven_by:
-                scales = self.vdl.get_trickpy_data(alias=driven_by['scale'])
+                scales = self.vdl.get_alias_data(alias=driven_by['scale'])
             if 'opacity' in driven_by:
-                opacities = self.vdl.get_trickpy_data(alias=driven_by['opacity'])
+                opacities = self.vdl.get_alias_data(alias=driven_by['opacity'])
             # Create the data source
             vds = VirgoDataFileSource(times=times, rotations=rotations,
                                       positions=positions, scales=scales,
@@ -114,10 +114,10 @@ class VirgoDataPlayback(VirgoScene):
             # TODO: this is a loose check that could break, consider adding brace
             # dimension to ClauseSplit which could be queried here robustly
             if '[' in cs.var:
-                additional_datas[cs.var] = self.vdl.get_trickpy_data(alias=cs.var)
+                additional_datas[cs.var] = self.vdl.get_alias_data(alias=cs.var)
             else:
-                additional_datas[cs.var] = self.vdl.get_trickpy_datas(alias=cs.var)
+                additional_datas[cs.var] = self.vdl.get_alias_datas(alias=cs.var)
 
-            times = self.vdl.get_trickpy_datas(alias='time')
+            times = self.vdl.get_alias_datas(alias='time')
             vds_for_variables = VirgoDataFileSource(times=times, **additional_datas)
         return  vds_for_variables

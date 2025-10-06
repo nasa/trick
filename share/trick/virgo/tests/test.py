@@ -5,7 +5,7 @@
 import os, sys, pdb
 import unittest, argparse
 
-import ut_VirgoDataFileLoader
+import ut_VirgoTrickpyFileLoader
 import ut_VirgoDataFileSource
 import ut_VirgoActor
 import ut_VirgoDataPlayback
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     # Create the suite
     suites = unittest.TestSuite()
 
-    suites.addTests(ut_VirgoDataFileLoader.suite())
+    suites.addTests(ut_VirgoTrickpyFileLoader.suite())
     suites.addTests(ut_VirgoDataFileSource.suite())
     suites.addTests(ut_VirgoActor.suite())
     suites.addTests(ut_VirgoSceneNode.suite())

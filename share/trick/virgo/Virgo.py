@@ -816,19 +816,20 @@ class VirgoScene:
     """
     Class used as entrypoint for all VIRGO rendered scenes
 
-    Expects to consume a dict describing the scene dict and populates internal
-    members with nodes
+    Expects to consume a dict describing the scene dict and populates
+    self.nodes (the main scene graph) and other internal members
     """
     def __init__(self, scene, verbosity=1):
         self.verbosity = verbosity
         self.fs = 14      # font size
         self.max_sim_time = 0.0
         self.scene = scene # Dict of scene info from YAML file
+        self.vdl = None    # VDL: Virgo Data Loader
         self._verify_scene()
-        self.nodes = {}
+        self.nodes = {}    # Scene graph dict of VirgoSceneNode instances
 
         self.background_color = [0.0, 0.0, 0.05]
-        self.description = "Untitled"
+        self.description = "Untitled VIRGO Window"
         # TODO: this checking can be removed once the dict verifier is in place
         if 'background_color' in self.scene:
             self.background_color = self.scene['background_color']
@@ -935,13 +936,13 @@ class VirgoScene:
 
     def create_vector(self, vector_name, vector_scene_dict=None):
         """
-        Creates a VirgoActor with a PREFAB:arrow mesh
+        Creates a VirgoActor with a VIRGO_PREFAB:arrow mesh
         from the information in the vector_scene_dict
         TODO: need checking for YAML field correctness!
         """
         # The vector fields are similar to actor, but mesh isn't repected
         # Force the arrow mesh then create the vector actor
-        vector_scene_dict['mesh'] = 'PREFAB:arrow'
+        vector_scene_dict['mesh'] = 'VIRGO_PREFAB:arrow'
         vector = self.create_actor(actor_name=vector_name, actor_scene_dict=vector_scene_dict)
         return vector
 
@@ -1025,7 +1026,7 @@ class VirgoScene:
 
     def initialize_nodes(self):
         """
-        Create the VirgoActors and VirgoSceneNodes associated with entries in
+        Create the actors and VirgoSceneNodes associated with entries in
         the scene dictionary and initialize their configurable parameters. Then
         add them all to self.nodes and pass them into self.controller so that
         they can be accessed at runtime.
@@ -1066,7 +1067,7 @@ class VirgoScene:
                 vectors[v].initialize()
                 node, parent_name = self.create_node(actor=vectors[v], actor_scene_dict=self.scene['vectors'][v],
                                                      _class=VirgoSceneNodeVector)
-                # A vector is a special PREFAB:arrow actor that cannot specify rotations
+                # A vector is a special VIRGO_PREFAB:arrow actor that cannot specify rotations
                 if node.data_source._rotations is not None:
                     msg = (f"ERROR: vector {v} should not specify rotations as they are computed automatically")
                     raise RuntimeError (msg)
@@ -1082,7 +1083,8 @@ class VirgoScene:
         self.controller.set_trail_actors(trail_actors)
 
     def populate_nodes(self, nodes_to_add):
-        """ Add nodes to self.nodes in root to leaf order
+        """
+        Add nodes to self.nodes in root to leaf order
 
         nodes_to_add is a list of  [ (node, parent_name of that node), ... ]
 
@@ -1126,7 +1128,6 @@ class VirgoScene:
         self.tear_down()
 
         return 0
-
 
     def tear_down(self):
         self.renderer.RemoveAllObservers()
