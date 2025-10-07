@@ -430,7 +430,7 @@ class VirgoSceneNode():
         if not self._trail_points:
             return
 
-        pos = self.data_source.get_current_position()
+        pos = self.get_world_position()
         pid = self._trail_points.InsertNextPoint(pos[0], pos[1], pos[2])
         self._trail_polyline.GetPointIds().InsertNextId(pid)
     

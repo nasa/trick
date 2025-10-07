@@ -1,0 +1,128 @@
+description: VIRGO Pendulums Example
+background_color: [0.0, 0.0, 0.05]   # Background color of the scene
+highlight_color: [1.0, 1.0, 0.0]     # Highlight color when objects are picked
+start_mode: PAUSED                   # Start the scene paused
+playback_speed: 1.0                  # Default playback speed 1.0X realtime
+playback_speeds: [1.0, 2.0, 5.0]     # Available playback speeds
+# This section defines the data VIRGO consumes to drive actors in the scene
+data_source:
+  trickpy:  # The log_pendulum.csv data file is in TrickPy-compatible format
+    # The time alias definition for the pendulum logging group. This maps
+    # the 1st column of log_pendulum.csv to a VIRGO data alias named 'ball_time'
+    ball_time:
+      group: pendulum # Data recording group e.g. 'pendulum' in log_pendulum.csv
+      var: time       # Name given to time first column which must represent time
+    # The time alias definition for the pendulum_small logging group. This maps
+    # the 1st column of log_pendulum.csv to a VIRGO data alias named 'ball_time_small'
+    ball_time_small:
+      group: pendulum_small # Data recording group e.g. 'pendulum' in log_pendulum.csv
+      var: time       # Name given to time first column which must represent time
+    ball_pos:  # User-defined VIRGO alias for position of the pendulum ball
+      group: pendulum # Data recording group e.g. 'pendulum' in log_pendulum.csv
+      # Data recording variables (columns) in CSV file. x-position is pos[0]
+      # y-position is pos[1], and z-position is pos[2]
+      var: pos[0-2]
+    small_ball_pos:  # User-defined VIRGO alias for position of the pendulum ball
+      group: pendulum_small # Data recording group e.g. 'pendulum' in log_pendulum.csv
+      # Data recording variables (columns) in CSV file. x-position is pos[0]
+      # y-position is pos[1], and z-position is pos[2]
+      var: pos[0-2]
+
+frames:
+  attachment1: # A frame defined for where green_ball attaches
+    scale: 0.1
+    pos:   [0.0, 0.0, 0.0]  # position in scene, no offset
+    ypr:   [0.0, 0.0, 0.0]  # pitch-yaw-roll rotation in scene
+    labels:
+      name:
+        text: "attachment 1"
+        pos: [-0.25, 0.0, 0.1]
+        ypr: [0.0, 0.0, 90.0]
+        scale: 0.05
+  attachment2: # A frame defined where green_ball attaches
+    scale: 0.1
+    pos:   [0.0, 0.2, 0.0]  # position in scene, 0.2 unit offset in Y-dir
+    ypr:   [0.0, 0.0, 0.0]  # pitch-yaw-roll rotation in scene
+    labels:
+      name:
+        text: "attachment 2"
+        pos: [-0.25, 0.0, 0.1]
+        ypr: [0.0, 0.0, 90.0]
+        scale: 0.05
+
+actors:
+  pin1: # A simple static cone that represents a rope attach point
+    mesh: VIRGO_PREFAB:cone
+    color: [0.0, 1.0, 0.0]
+    scale: 0.05
+    pos:   [0.0, 0.0, 0.0]   # initial position in scene
+    ypr:   [0.0, -90.0, 0.0] # yaw 90 degress so cone points down
+    parent: attachment1
+  pin2: # A simple static cone that represents a rope attach point
+    mesh: VIRGO_PREFAB:cone
+    color: [0.0, 0.0, 1.0]
+    scale: 0.05
+    pos:   [0.0, 0.0, 0.0]   # initial position in scene
+    ypr:   [0.0, -90.0, 0.0] # yaw 90 degress so cone points down
+    parent: attachment2
+  green_ball:
+    mesh: VIRGO_PREFAB:sphere
+    color: [0.0, 1.0, 0.0]
+    scale: 0.1             # Size of pendulum ball
+    pos:   [0.0, 0.0, 0.0] # initial position in scene
+    ypr:   [0.0, 0.0, 0.0] # initial pitch-yaw-roll rotation in scene
+    parent: attachment1
+    trail:
+      enabled: 1
+      color: [0.0, 1.0, 0.0]  # Color of trail (green)
+      thickness: 3            # Thickness of the trail
+      opacity: 0.3            # Opacity of the trail
+    driven_by:  # Defines how this actor is driven in the scene
+      time: ball_time # Use the ball_time alias for time
+      pos: ball_pos   # Use the ball_pos alias for position
+  blue_ball:
+    mesh: VIRGO_PREFAB:sphere
+    color: [0.0, 0.0, 1.0]
+    scale: 0.08            # Size of pendulum ball
+    pos:   [0.0, 0.0, 0.0] # initial position in scene
+    ypr:   [0.0, 0.0, 0.0] # initial pitch-yaw-roll rotation in scene
+    parent: attachment2
+    trail:
+      enabled: 1
+      color: [0.0, 0.0, 1.0]  # Color of trail (green)
+      thickness: 3            # Thickness of the trail
+      opacity: 0.3            # Opacity of the trail
+    driven_by:  # Defines how this actor is driven in the scene
+      time: ball_time_small  # Use the ball_time_small alias for time
+      pos: small_ball_pos    # Use the ball_pos alias for position  
+vectors:
+  rope1:
+    color: [0.5, 0.5, 0.5] # Color in RGB values
+    scale: 1.0             # Total length of vector
+    tip_length: 0.5        # Percentage of total vector length occupied by tip
+    tip_radius: 0.01       # Radius of cone base relative to total vector length
+    # Radius of cylinder forming vector shaft relative to total vector length
+    shaft_radius: 0.01
+    parent: attachment1 # This vector tip position is driven relative to attachment1
+    driven_by:
+      time: ball_time
+      pos: ball_pos  # Tip of vector will point in this direction
+  rope2:
+    color: [0.5, 0.5, 0.5] # Color in RGB values
+    scale: 0.5             # Total length of vector
+    tip_length: 0.5        # Percentage of total vector length occupied by tip
+    tip_radius: 0.01       # Radius of cone base relative to total vector length
+    # Radius of cylinder forming vector shaft relative to total vector length
+    shaft_radius: 0.01
+    parent: attachment2 # This vector tip position is driven relative to attachment2
+    driven_by:
+      time: ball_time_small
+      pos: small_ball_pos  # Tip of vector will point in this direction
+
+camera:
+  # Initial position of camera in scene, since follow: is defined this is
+  # relative to the attachment1 actor
+  position:    [0.0, -5.0, 3.0]
+  focal_point: [0.0, 0.0, 0.0]  # Where the camera looks initially
+  view_up: [0.0, 0.0, 1.0]      # Direction of up for the camera: +Z
+  follow: attachment1            # Optional, follow the attachment1 actor

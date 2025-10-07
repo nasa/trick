@@ -116,3 +116,12 @@ class VirgoActorTestCase(VisualizableTestCase):
         #self.visualize = True
         #self.show_origin = True
         #self.show_grid = True
+
+    def test_init_prefab_arrow(self):
+        """
+        Test the VIRGO_PREFAB:earth option
+        """
+        self.instance = VirgoActor(mesh="VIRGO_PREFAB:arrow")
+        # TODO assertions go here!
+        #self.visualize = True
+        #self.show_origin = True

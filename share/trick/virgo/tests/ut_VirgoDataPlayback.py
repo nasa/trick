@@ -81,6 +81,8 @@ class VirgoDataPlaybackFunctionsTestCase(VisualizableTestCase):
         actor_dict = self.scene['actors']['test_actor']
         actor = self.instance.create_actor('test_actor', actor_dict)
         self.assertEqual(actor.name, 'test_actor')
+        # TODO: There is still an issue with "Bus error" and "segmentation fault"
+        # When multiple tests call self.vis() in a single TestCase
         #self.visualize=True
         #self.vis(actor)
 
@@ -89,7 +91,26 @@ class VirgoDataPlaybackFunctionsTestCase(VisualizableTestCase):
         vector = self.instance.create_vector('test_vector', vector_dict)
         self.assertEqual(vector.name, 'test_vector')
         self.assertEqual(vector.mesh, 'VIRGO_PREFAB:arrow')
+        # TODO: There is still an issue with "Bus error" and "segmentation fault"
+        # When multiple tests call self.vis() in a single TestCase
         #self.visualize=True
         #self.vis(vector)
 
-    
+    def test_create_custom_vector(self):
+        """
+        Test customization of a vector by changing it's configurable parameters
+        """
+        self.scene['vectors']['test_vector']['scale'] = 10.0
+        self.scene['vectors']['test_vector']['tip_length'] = 0.7
+        self.scene['vectors']['test_vector']['tip_radius'] = 0.1
+        self.scene['vectors']['test_vector']['tip_resolution'] = 5
+        self.scene['vectors']['test_vector']['shaft_radius'] = 0.03
+        self.scene['vectors']['test_vector']['shaft_resolution'] = 5
+        vector_dict = self.scene['vectors']['test_vector']
+        custom_vector = self.instance.create_vector('test_vector', vector_dict)
+        self.assertEqual(custom_vector.name, 'test_vector')
+        self.assertEqual(custom_vector.mesh, 'VIRGO_PREFAB:arrow')
+        # TODO: There is still an issue with "Bus error" and "segmentation fault"
+        # When multiple tests call self.vis() in a single TestCase
+        #self.visualize=True
+        #self.vis(custom_vector)

@@ -258,6 +258,7 @@ class VirgoDataFileSource(VirgoDataSource):
         """
         Return the time from self._times after given world_time
         """
+        #import pdb; pdb.set_trace()
         if not self.initialized:
             return None
         if  self._current_time_idx + 1 >= len(self._times):

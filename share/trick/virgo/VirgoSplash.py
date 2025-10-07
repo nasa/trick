@@ -51,6 +51,9 @@ class VirgoSplash():
         """
         Render splash in an overlay
         """
+        if not os.path.isfile(self.logo):
+            print(f"WARNING: {self.logo} does not exist, skipping splash screen.")
+            return
 
         # Load logo png 
         self.reader.SetFileName(self.logo)

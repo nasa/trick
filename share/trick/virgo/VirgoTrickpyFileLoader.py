@@ -60,7 +60,7 @@ class VirgoTrickpyFileLoader(VirgoDataLoader):
 
     def load_variables(self):
         """
-        Use trickpy to load the variables defined in the 'trickpy::' section
+        Use trickpy to load the variables defined in the 'trickpy:' section
         of the scene. The way trickpy's load_run function currently works is like
         this:
 
@@ -74,11 +74,11 @@ class VirgoTrickpyFileLoader(VirgoDataLoader):
 
         Populates: self.drg
         Returns:   self.drg
-        Raises: RuntimeError if a 'var' in 'trickpy::' is not found when loading
+        Raises: RuntimeError if a 'var' in 'trickpy:' is not found when loading
         the self.run data, or if other errors occur
 
         TODO: Need uniqueness check, no group/var combo should be repeated twice
-              in the trickpy:: area
+              in the trickpy: area
         TODO: need more error checking here, if trickpy:: section has bad variables
               we can error on the expected_vars.remove() line
         """
@@ -125,7 +125,7 @@ class VirgoTrickpyFileLoader(VirgoDataLoader):
               expected_vars.remove(var)
               continue
         if len(expected_vars) > 0:
-          msg = (f"ERROR: The following variables from trickpy:: section of scene "
+          msg = (f"ERROR: The following variables from trickpy: section of scene "
                 f"were not found in data loading of {self.run_dir}\n{expected_vars}")
           raise RuntimeError (msg)
         return (self.drg)

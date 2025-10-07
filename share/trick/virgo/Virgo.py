@@ -36,6 +36,10 @@ class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
 
     def set_node(self, node):
         self.node = node
+
+    def get_renderer(self):
+        return(self.renderer)
+
     def set_renderer(self, renderer):
         self.renderer = renderer
 
@@ -61,16 +65,18 @@ class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             return
         # Update relative offset after user interaction
         camera = self.renderer.GetActiveCamera()
-        node_pos = self.node.data_source.get_current_position()
+
+        node_pos =np.array(self.node.get_world_position())
+
         # Store off the relative offset of camera
         self.relative_offset = np.array([camera.GetPosition()[i] - node_pos[i] for i in range(3)])
-        #print(f"DEBUG: Camera relative offset: {self.relative_offset}")
+        #print(f"DEBUG: STORING camera relative offset: {self.relative_offset}")
         self.view_up = camera.GetViewUp()
 
     def GetRelativeCameraInfo(self, info):
-        '''
+        """
         Get the relative offset between the followed actor and the camera
-        '''
+        """
         #print(f"DEBUG: Getting relative_offset: {self.relative_offset}")
         if   info == 'position':
             return self.relative_offset
@@ -78,6 +84,13 @@ class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             return self.view_up
         else:
             return None
+
+    def ClearRelativeCameraInfo(self):
+        """
+        Clear relative camera info
+        """
+        self.relative_offset = None
+        self.view_up = None
 
 class VirgoControlCenter:
     """
@@ -283,27 +296,34 @@ class VirgoControlCenter:
         ############################################################################
         # Picked Actor (or last picked if nothing picked) information in bottom left
         ############################################################################
-        actor = self.picked_actor if self.picked_actor else self.last_picked_actor
+        actor = self.picked_actor
         if actor:
+            text=""
+            parent=""
+            node_curr_time=""
+            label="Node driven position"
             # TODO: not sure if the distinction between current_position and
             # world_position is clear enough here.
-            label="Node driven position"
             node = self.nodes[actor.name]
+            if not node.is_static():
+                node_curr_time=f" @ t={node.data_source.get_current_time()}"
+            if node.parent:
+                parent = f" (parent: {node.parent.name})"
             pos = node.get_current_position()
             if not pos:
-                label="Node scene position"
+                label="Node scene position "
                 pos = self.nodes[actor.name].get_world_position()
             if isinstance(node, VirgoSceneNodeVector):
-                label="vector"
+                label="vector tip position "
             name = actor.name
-            text=f"{name}\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units"
+            text+=f"{name}{parent}\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units {node_curr_time}"
             if node.parent:
                 label = "Node  local position"
                 pos = self.nodes[actor.name].get_local_position()
-                text+=f"\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units"
+                text+=f"\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units {node_curr_time}"
                 label = "Actor local position"
                 pos = actor.GetPosition()
-                text+=f"\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units"
+                text+=f"\n {label}: {pos[0]:<10.5f}, {pos[1]:<10.5f}, {pos[2]:<10.5f} units {node_curr_time}"
             self.text_actors['picked'].SetInput(text)
         else:
             self.text_actors['picked'].SetInput("")
@@ -357,6 +377,7 @@ class VirgoControlCenter:
                 f"\n <- -> : Step back/forward in time"
                 f"\n  -  + : Adjust HUD text size"
                 f"\n a: Toggle Axes Visibility"
+                f"\n c: Toggle camera free/follow-picked"
                 f"\n l: Toggle Node Label Visibility"
                 f"\n h: Toggle this help message"
                 f"\n BackSpace: Toggle starfield"
@@ -408,33 +429,73 @@ class VirgoControlCenter:
         pos =[ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)]
         self.camera.SetFocalPoint(pos[0], pos[1], pos[2])
 
-    def camera_follow(self, node):
+    def automatic_camera_offset(self, node, distance_factor=20.0):
+        """
+        If no initial offset given, compute it from the bounding box of the actor
+        """
+        # Get the bounding box of the actor
+        bounds = node.actor.GetBounds()
+        # Bounds are returned as (xmin, xmax, ymin, ymax, zmin, zmax)
+        center = [(bounds[0] + bounds[1]) / 2.0,  # x-center
+                  (bounds[2] + bounds[3]) / 2.0,  # y-center
+                  (bounds[4] + bounds[5]) / 2.0]  # z-center
+        # Calculate the size of the bounding box
+        size = [bounds[1] - bounds[0],  # x-size
+                bounds[3] - bounds[2],  # y-size
+                bounds[5] - bounds[4]]  # z-size
+        # Determine an offset distance based on the bounding box size
+        # For example, place the camera at a distance of 5 times the maximum dimension
+        max_dimension = max(size)
+        offset_distance = max_dimension * distance_factor
+        self.camera_follow_offset = np.array([offset_distance, offset_distance/2.0, 0.0])
+        #print(f"DEBUG: AUTOMATIC self.camera_follow_offset is {self.camera_follow_offset}")
+
+    def camera_follow(self, node, initial_offset=None):
         """
         Move the camera to follow the given node
+
+        Params:
+          initial_offset (list or None): Initial Position vector offset for
+            camera following node. If not specified, one is calculated
+            automatically
         """
+        #import pdb; pdb.set_trace()
+        # Store off the node the camera follows
+        self.camera_follows=node
+        # Tell the interactor style which node to follow
+        intstyle = self.interactor.GetInteractorStyle()
+        intstyle.set_node(self.camera_follows)
+        # If the camera has never followed before, set the renderer as well
+        if not intstyle.get_renderer():
+            intstyle.set_renderer(self.renderer)
+
         # Ask the interactor for the latest camera position
         self.camera_follow_offset = self.interactor.GetInteractorStyle().GetRelativeCameraInfo('position')
-        # If it's not set, compute the initial offset from the bounding box of the actor
-        if self.camera_follow_offset is None:
-            # Get the bounding box of the actor
-            bounds = node.actor.GetBounds()
-            # Bounds are returned as (xmin, xmax, ymin, ymax, zmin, zmax)
-            center = [(bounds[0] + bounds[1]) / 2.0,  # x-center
-                      (bounds[2] + bounds[3]) / 2.0,  # y-center
-                      (bounds[4] + bounds[5]) / 2.0]  # z-center
-            # Calculate the size of the bounding box
-            size = [bounds[1] - bounds[0],  # x-size
-                    bounds[3] - bounds[2],  # y-size
-                    bounds[5] - bounds[4]]  # z-size
-            # Determine an offset distance based on the bounding box size
-            # For example, place the camera at a distance of 5 times the maximum dimension
-            max_dimension = max(size)
-            offset_distance = max_dimension * 20.0
-            self.camera_follow_offset = np.array([offset_distance, offset_distance/2.0, 0.0])
 
-        # TODO: what if data_source is NONE???
-        pos =np.array(node.data_source.get_current_position())
+        # If this is None, the interactor hasn't run yet so we need to define
+        # the camera offset for the followed node and move the camera to it
+        # TODO: this is really a "first camera follow init" thing, maybe it
+        # belongs in it's own function
+        if self.camera_follow_offset is None:
+            if initial_offset:
+                self.camera_follow_offset = np.array(initial_offset)
+            else:
+                self.automatic_camera_offset(node)
+            pos =np.array(node.get_world_position())
+            camera_pos = pos + self.camera_follow_offset
+            #print(f"DEBUG: INIT moving self.camera to {camera_pos}")
+            #print(f"DEBUG: INIT setting self.camera focal to {pos}")
+            self.camera.SetPosition(camera_pos[0], camera_pos[1], camera_pos[2])
+            self.camera.SetFocalPoint(pos[0], pos[1], pos[2])
+            # Store this initial offset in the VirgoInteractorStyle by calling the
+            # callback which stores the relative camera offset
+            self.interactor.GetInteractorStyle().StoreRelativeCameraInfo(None, None)
+
+        pos = np.array(node.get_world_position())
+        #print(f"DEBUG: self.camera_follow_offset is {self.camera_follow_offset}")
         camera_pos = pos + self.camera_follow_offset
+        #print(f"DEBUG: moving self.camera to {camera_pos}")
+        #print(f"DEBUG: setting self.camera focal to {pos}")
         # Set camera position
         self.camera.SetPosition(camera_pos[0], camera_pos[1], camera_pos[2])
         # Set focal point to spacecraft's center
@@ -458,7 +519,7 @@ class VirgoControlCenter:
 
         #import pdb; pdb.set_trace()
         if self.picked_actor and self.picked_actor in self.actors.values():
-            print(f"DEBUG: self.picked_actor is {self.picked_actor.name}")
+            #print(f"DEBUG: self.picked_actor is {self.picked_actor.name}")
             self.configure_hud()
             # TODO this functionality is broken and I'm not sure we even want it
             # as the user experience is weird
@@ -533,6 +594,17 @@ class VirgoControlCenter:
                 if self.verbosity > 1:
                     print(f'Showing axes for {n}')
 
+    def toggle_camera_modes(self):
+        # If we're already following a node, free the camera
+        if self.camera_follows:
+            if self.picked_actor:
+                self.camera_follow( self.nodes[self.picked_actor.name] )
+            else:
+                self.camera_follows = None
+        # Otherwise change the node we follow to the picked node
+        elif self.last_picked_actor:
+            self.camera_follow( self.nodes[self.last_picked_actor.name] )
+
     def fontsize(self, direction='up'):
         """
         Increment/decrement fontsize of all text actors given the direction
@@ -606,7 +678,9 @@ class VirgoControlCenter:
         if key == "K":
             self.increase_picker_tolerance()
         if key == "c":
-            self.camera_report()
+            self.toggle_camera_modes()
+            if self.verbosity > 1:
+                self.camera_report()
         if key == "space":
             self.mode = 'PLAYING' if self.mode == 'PAUSED' else 'PAUSED'
             self.text_actors['mode'].SetInput(self.mode)
@@ -638,6 +712,10 @@ class VirgoControlCenter:
         """
         Decrement world time by the minimum resolution across all actors logged data
 
+        Across all nodes with a data source, find the time before (to the left of)
+        self.world_time that is closest to self.world_time and set self.world_time
+        to that value
+
         TODO: This has not been tested with multiple data record groups logging at
         specific rates.
         """
@@ -663,10 +741,15 @@ class VirgoControlCenter:
         """
         Increment world time by the minimum resolution across all actors logged data
 
+        Across all nodes with a data source, find the time after (to the right of)
+        self.world_time that is closest to self.world_time and set self.world_time
+        to that value
+
         TODO: This has not been tested with multiple data record groups logging at
         specific rates.
         """
         smallest_time = self.huge # Huge
+        #import pdb; pdb.set_trace()
         for n in self.nodes:
             if self.nodes[n].data_source == None:
                 continue
@@ -700,23 +783,33 @@ class VirgoControlCenter:
         runtime. We could consider using self.picked_actor to drive the camera
         follow mechanism.
         """
-        self.camera.SetPosition(487.9, 52.2, -11.35)
+        # Default camera if the scene has given us no information on it
+        self.camera.SetPosition(-10.0, 0.0, 0.0)
         self.camera.SetFocalPoint(0, 0, 0)
-        self.camera.SetViewUp(-0.10, -0.09, -0.98)
+        self.camera.SetViewUp(0.0, 0.0, 1.0)  # Z is up
 
         # If the camera is setup to follow a node/actor, save that node in
         # self.camera_follows and pass that node into the Interactor so
         # it can track camera information relative to an actor
-        if 'camera' in self.scene and 'follow' in self.scene['camera']:
+        if 'camera' in self.scene:
+          initial_camera_pos = None
+          if 'position' in self.scene['camera']:
+            initial_camera_pos = self.scene['camera']['position']
+            self.camera.SetPosition(initial_camera_pos )
+          if 'focal_point' in self.scene['camera']:
+            self.camera.SetFocalPoint(self.scene['camera']['focal_point'])
+          if 'view_up' in self.scene['camera']:
+            self.camera.SetViewUp(self.scene['camera']['view_up'])
+          if 'follow' in self.scene['camera']:
             for node in self.nodes:
-                if self.nodes[node].name == self.scene['camera']['follow']:
-                    self.camera_follows = self.nodes[node]
-                    self.interactor.GetInteractorStyle().set_node(self.camera_follows)
-                    self.interactor.GetInteractorStyle().set_renderer(self.renderer)
-                    self.camera_follow(self.camera_follows)
+              if self.nodes[node].name == self.scene['camera']['follow']:
+                self.camera_follows = self.nodes[node]
+                self.camera_follow(self.camera_follows, initial_offset=initial_camera_pos)
+                # Follow node found, stop searching for it
+                break
             if self.camera_follows == None:
-                msg = (f"ERROR: Camera cannot follow {self.scene['camera']['follow']}, actor/node not found!")
-                raise RuntimeError (msg)
+              msg = (f"ERROR: Camera cannot follow {self.scene['camera']['follow']}, actor/node not found!")
+              raise RuntimeError (msg)
 
         # NearClippingPlaneTolerance IS CRITICAL, SMALLER NUMBERS (0.00001) MAKE
         # THE BACKGROUND SKYBOX STARS WIGGLE BUT LARGER NUMBERS (0.0001) MAKE
@@ -806,7 +899,9 @@ class VirgoControlCenter:
         # Create the skybox
         skybox = vtk.vtkSkybox()
         skybox.SetTexture(texture)
-        skybox.SetVisibility(True) # On by default
+        # Off by default as this doesn't yet work well in scenes with large and
+        # small objects
+        skybox.SetVisibility(False)
 
         self.renderer.AddActor(skybox)
         return skybox
@@ -944,6 +1039,17 @@ class VirgoScene:
         # Force the arrow mesh then create the vector actor
         vector_scene_dict['mesh'] = 'VIRGO_PREFAB:arrow'
         vector = self.create_actor(actor_name=vector_name, actor_scene_dict=vector_scene_dict)
+        if 'tip_length' in vector_scene_dict:
+            vector.source.SetTipLength(vector_scene_dict['tip_length'])
+        if 'tip_radius' in vector_scene_dict:
+            vector.source.SetTipRadius(vector_scene_dict['tip_radius'])
+        if 'tip_resolution' in vector_scene_dict:
+            vector.source.SetTipResolution(vector_scene_dict['tip_resolution'])
+        if 'shaft_radius' in vector_scene_dict:
+            vector.source.SetShaftRadius(vector_scene_dict['shaft_radius'])
+        if 'shaft_resolution' in vector_scene_dict:
+            vector.source.SetShaftResolution(vector_scene_dict['shaft_resolution'])
+
         return vector
 
     def create_frame(self, frame_name, frame_scene_dict=None):
@@ -1041,7 +1147,9 @@ class VirgoScene:
                 # TODO I'm not convinced using 'scale' to represent axes size is
                 # the best idea as it may cause confusion to the user - after
                 # all frames dont have meshes...
-                axes_scale = self.scene['frames'][f]['scale']
+                axes_scale = 1.0
+                if 'scale' in self.scene['frames'][f]:
+                    axes_scale = self.scene['frames'][f]['scale']
                 node.set_axes_length(axes_scale,axes_scale,axes_scale)
                 node.set_axes_pickable_on()
                 node.set_pose(pos=self.scene['frames'][f]['pos'], ypr=self.scene['frames'][f]['ypr'])
