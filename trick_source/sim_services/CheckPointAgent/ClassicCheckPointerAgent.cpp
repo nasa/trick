@@ -108,6 +108,11 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
 
     const char *type_spec;
 
+    // Safety check for NULL info pointer or NULL name
+    if (info == NULL || info->name == NULL) {
+        return;
+    }
+
     type_spec = trickTypeCharString(info->type, info->user_type_name);
 
     if (info->stcl == TRICK_EXTERN) {
@@ -823,20 +828,33 @@ std::string Trick::ClassicCheckPointAgent::
         alloc_info = mem_mgr->get_alloc_info_of( pointer);
 
         if (alloc_info != NULL) {
-            int alloc_elem_size;
-            int alloc_elem_index;
-            int misalignment;
+            // Special handling for character strings: prefer string literal format over allocation reference
+            // The following info for "char *" is for reference purpose:
+            // curr_dim = 0
+            // attr.type = TRICK_CHARACTER (base type)
+            // attr.num_index = 1 (1D array)
+            // attr.index[0].size = 0 (not static array)
+            // attr.size = sizeof(char)
+            // This prevents anonymous allocations from appearing in subsequent checkpoints
+            if ((attr != NULL) && (attr->type == TRICK_CHARACTER || attr->type == TRICK_UNSIGNED_CHARACTER) && ((curr_dim + 1) == attr->num_index)) {
+                std::stringstream ss;
+                write_quoted_str( ss, (const char*)pointer);
+                reference_string = ss.str();
+            } else {
+                int alloc_elem_size;
+                int alloc_elem_index;
+                int misalignment;
 
-            alloc_elem_size = alloc_info->size;
-            alloc_elem_index = (int) (((long) pointer - (long) alloc_info->start) / alloc_elem_size);
-            misalignment = (int) (((long) pointer - (long) alloc_info->start) % alloc_elem_size);
+                alloc_elem_size = alloc_info->size;
+                alloc_elem_index = (int) (((long) pointer - (long) alloc_info->start) / alloc_elem_size);
+                misalignment = (int) (((long) pointer - (long) alloc_info->start) % alloc_elem_size);
 
-            // If type-checking AND the type specifiers match AND  the type we're looking for
-            // is either not structured or if it is, the attr-list that describes the contents
-            // of the structure is the same.
+                // If type-checking AND the type specifiers match AND  the type we're looking for
+                // is either not structured or if it is, the attr-list that describes the contents
+                // of the structure is the same.
 
-            if ( (attr != NULL) && (attr->type == alloc_info->type) &&
-                 ( (attr->type != TRICK_STRUCTURED) || (attr->attr == alloc_info->attr))) {
+                if ( (attr != NULL) && (attr->type == alloc_info->type) &&
+                     ( (attr->type != TRICK_STRUCTURED) || (attr->attr == alloc_info->attr))) {
 
                 int ii;
                 int n_l_ptrs, n_r_ptrs;
@@ -940,6 +958,7 @@ std::string Trick::ClassicCheckPointAgent::
                     }
                 }
 
+                }
             }
         } else if ((attr != NULL) && ((curr_dim + 1) == attr->num_index)) {
 
