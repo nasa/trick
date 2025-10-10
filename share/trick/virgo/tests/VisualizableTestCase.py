@@ -27,6 +27,7 @@ class VisualizableTestCase(unittest.TestCase):
         self.batch_override = os.environ.get('VIRGO_BATCH_TESTS_OVERRIDE', '0') == '1'
         self.instance = None
         self.renderer = None
+        self.camear = None
         self.render_window = None
         self.interactor = None
         self.grid_axes = None
@@ -35,6 +36,7 @@ class VisualizableTestCase(unittest.TestCase):
         self.show_origin = True
         if not self.batch_override:
             self.renderer = vtk.vtkRenderer()
+            self.camera = self.renderer.GetActiveCamera()
             self.render_window = vtk.vtkRenderWindow()
             self.interactor = vtk.vtkRenderWindowInteractor()
             self.grid_axes = self.get_grid_axes()

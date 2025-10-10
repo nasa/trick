@@ -11,8 +11,14 @@ parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--scene", help="Scene YAML config file to load",
                     default=os.path.join(thisFileDir,'scene.yml'))
-parser.add_argument("--data-dir", help="Directory containing the CSV data",
+parser.add_argument("--data-dir", help="Directory to write the CSV data to",
                     default=thisFileDir)
+parser.add_argument("--headless", action="store_true",
+                    help="Render to video instead of providing an"
+                    " interactive window")
+parser.add_argument("--video-filename",
+                    help="Filename for headless video when --headless given",
+                    default=os.path.join(thisFileDir, 'pendulums.mp4'))
 args = parser.parse_args()
 
 class PendulumExample:
@@ -23,7 +29,9 @@ class PendulumExample:
             scene = yaml.safe_load(file) 
         # VirgoDataPlayback is the VirgoScene we want because it's built
         # to consume TrickPy-compatible data, which log_pendulum.csv meets
-        self.v = VirgoDataPlayback(run_dir=args.data_dir, scene=scene)
+        self.v = VirgoDataPlayback(run_dir=args.data_dir, scene=scene,
+                                    headless=args.headless,
+                                    video_filename=args.video_filename)
         # Initialize the scene but do not render yet
         self.v.initialize()
 

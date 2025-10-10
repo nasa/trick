@@ -42,6 +42,7 @@ class VirgoActor(vtk.vtkActor):
         self.source = None  # If using a vtk*Source, it's stored here for reference
         self.mesh  = mesh
         self._map_mesh(mesh)
+        self.num_vertices = None
         self.offset_pos  = offset_pos     # Initialization position offset to apply to to actor
         self.offset_ypr  = offset_ypr     # Initialization pitch/yaw/roll to apply to to actor
         self.axes_label_render_threshold = 50    # min distance axes labels can be seen
@@ -64,6 +65,14 @@ class VirgoActor(vtk.vtkActor):
         """
         Perform pre-rendering setup/initialization
         """
+        # Determine the number of vertices in this actor
+        mapper = self.GetMapper()
+        mapper.Update()
+        if mapper:
+            polydata = mapper.GetInput()
+            if polydata:
+                self.num_vertices = polydata.GetNumberOfPoints() 
+                #print(f'DEBUG: number of vertices in {self.name}: {self.num_vertices}')
         if self.offset_pos:
           # Apply the initial position/rotation to this object
           self.AddPosition(self.offset_pos)
@@ -106,13 +115,20 @@ class VirgoActor(vtk.vtkActor):
         # TODO: this is quick and dirty, need a VIRGO_PREFAB management class that VirgoActor uses
         mapper = vtk.vtkPolyDataMapper()
         texture = None
-        if 'VIRGO_PREFAB:sphere' in str(mesh):
+        if 'VIRGO_PREFAB:sphere300' in str(mesh):
             # Create a sphere source
             self.source = vtk.vtkSphereSource()
             self.source.SetRadius(1.0)  # Set radius of the sphere
             self.source.SetThetaResolution(300)  # Number of divisions in theta (longitude)
             self.source.SetPhiResolution(300)  # Number of divisions in phi (latitude)
-            
+            # Create a mapper to map the sphere's geometry to graphics primitives
+            mapper.SetInputConnection(self.source.GetOutputPort())
+        elif 'VIRGO_PREFAB:sphere' in str(mesh) or 'VIRGO_PREFAB:sphere100' in str(mesh):
+            # Create a sphere source
+            self.source = vtk.vtkSphereSource()
+            self.source.SetRadius(1.0)  # Set radius of the sphere
+            self.source.SetThetaResolution(100)  # Number of divisions in theta (longitude)
+            self.source.SetPhiResolution(100)  # Number of divisions in phi (latitude)
             # Create a mapper to map the sphere's geometry to graphics primitives
             mapper.SetInputConnection(self.source.GetOutputPort())
         elif 'VIRGO_PREFAB:earth' in str(mesh):
@@ -236,6 +252,8 @@ class VirgoActor(vtk.vtkActor):
 
     def set_axes(self, axes):
         self._axes = axes
+    def get_num_vertices(self):
+        return self.num_vertices
 
 #    def report(self):
 #        """

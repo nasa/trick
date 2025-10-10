@@ -12,8 +12,10 @@ class VirgoDataPlayback(VirgoScene):
     data recording groups/variables and the actors in the scene is controlled by
     the  trickpy: and driven_by: clauses of the scene dict
     """
-    def __init__(self, run_dir, scene, verbosity=1):
-        super().__init__(scene=scene, verbosity=verbosity)
+    def __init__(self, run_dir, scene, verbosity=1, headless=False,
+                 images_dir="/tmp/", video_filename="/tmp/virgo.mp4"):
+        super().__init__(scene=scene, verbosity=verbosity, headless=headless,
+                         images_dir=images_dir, video_filename=video_filename)
         self.run_dir = run_dir
         # TODO: this check on 'data_source':'trickpy' existence might be
         # better done elsewhere but leaving it here for now

@@ -28,11 +28,14 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         self.teapot1 = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
         self.teapot2 = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
         self.teapot3 = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'))
+        self.teapot4 = VirgoActor(mesh=os.path.join(meshes_dir, 'teapot.obj'),
+             offset_pos=(0.0, 0.0, 0.0), offset_ypr=(0.0, 0.0, 90.0))
         # Nodes to test with
         self.node0 = VirgoSceneNode(name='no_actor')
         self.node1 = VirgoSceneNode(name='parent_teapot', actor=self.teapot1)
         self.node2 = VirgoSceneNode(name='child_teapot', actor=self.teapot2)
         self.node3 = VirgoSceneNode(name='grandchild_teapot', actor=self.teapot3)
+        self.node4 = VirgoSceneNode(name='actor_offset_teapot', actor=self.teapot4)
 
     def tearDown(self):
         self.vis()
@@ -44,7 +47,7 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         self.node0 = None
         self.node1 = None
         self.node2 = None
-        self.node4 = None
+        self.node3 = None
 
     def test_construction(self):
         """
@@ -248,5 +251,7 @@ class VirgoSceneNodeTestCase(VisualizableTestCase):
         for i in range(4):
           for j in range(4):
             self.assertAlmostEqual(expected_matrix[i, j], self.node1.local_transform.GetMatrix().GetElement(i, j))
-        self.show_grid = True
+        #self.show_grid = True
         #self.visualize = True
+        #self.node1.silhouette_polydata.SetCamera(self.camera)
+

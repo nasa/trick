@@ -16,7 +16,7 @@ class VirgoSceneNode():
     and the rendering provided by higher level Virgo classes
     """
     def __init__(self, name=None, actor=None, axes=True):
-        self.verbosity=1  # TODO make adjustable
+        self.verbosity=3  # TODO make adjustable
         self.fs = 14      # font size
         self.actor = actor
         self.assembly = vtk.vtkAssembly()     # The assembly associated with this node
@@ -47,13 +47,13 @@ class VirgoSceneNode():
         self.local_transform.Identity()
         self.assembly.SetUserTransform(self.local_transform)
 
-#        # self.fixed_parent_offset_transform represents the fixed transformation
-#        # of this Node, relative to its parent if parent == None. This provides
-#        # the ability to specify an arbitrary position/rotation offset from a parent
-#        # node to the child which will be "added to" any additional
-#        # position/rotation associated with data coming from self.data_source
-#        self.fixed_parent_offset_transform = vtk.vtkTransform()
-#        self.fixed_parent_offset_transform.Identity()
+        # Stores "last color" if needed
+        self.last_color = None
+        self.silhouette_actor = None
+        self.silhouette_polydata = None
+        # Number of vertices self.actor must stay under for a silhoutte to be created
+        self.silhouette_vert_limit = int(1.0e5)
+        self.create_silhouette()
 
         # If not None, self.parent is another VirgoSceneNode instance that this node
         # is parented to.
@@ -71,6 +71,96 @@ class VirgoSceneNode():
         self._trail_actor = None
         self._trail_polyline = None
         self.myscale = 1.0
+
+    def create_silhouette(self):
+        """
+        Create the silhouette actor which is used to highlight self.actor
+
+        Note this is skipped if:
+         1. There is no actor for this node
+         2. There is an actor but it's not pickable
+         3. The number of vertices in self.actor is too high as we've found
+            it significantly impacts performance for complex meshes
+        """
+        if not self.actor:
+            return
+        if not self.actor.GetPickable():
+            return
+        num_vertices = self.actor.get_num_vertices()
+        if (num_vertices == None or num_vertices > self.silhouette_vert_limit):
+            if self.verbosity > 1:
+                print(f"Skipping highlight silhouette for {self.actor.name} as "
+                      f"it has more vertices than the practical limit "
+                      f"({num_vertices}/{self.silhouette_vert_limit}). "
+                      f"Picking will result in color change of mesh only."
+                      )
+            return
+        mapper = self.actor.GetMapper()
+        mapper.update()
+        input_connection = mapper.GetInputConnection(0, 0)
+        self.silhouette_polydata = vtk.vtkPolyDataSilhouette()
+        self.silhouette_polydata.SetEnableFeatureAngle(True)
+        # TODO this SetFeatureAngle could be adjustable in the scene dict if we
+        # wanted, it affects how sharp edges are highlighted
+        self.silhouette_polydata.SetFeatureAngle(20.0)
+        self.silhouette_polydata.SetInputConnection(input_connection)
+
+        sil_mapper = vtk.vtkPolyDataMapper()
+        sil_mapper.SetInputConnection(self.silhouette_polydata.GetOutputPort())
+
+        self.silhouette_actor = vtk.vtkActor()
+        self.silhouette_actor.SetMapper(sil_mapper)
+        self.silhouette_actor.GetProperty().SetColor(1.0, 1.0, 0.0)
+        self.silhouette_actor.GetProperty().SetLineWidth(5)
+        self.silhouette_actor.GetProperty().SetDiffuse(0.0)
+        self.silhouette_actor.GetProperty().SetAmbient(1.0)
+        self.silhouette_actor.SetVisibility(False)
+
+        # Apply any transformations that self.actor has to the sillhouette
+        self.silhouette_actor.SetPosition(self.actor.GetPosition())
+        self.silhouette_actor.SetOrientation(self.actor.GetOrientation())
+        self.silhouette_actor.SetScale(self.actor.GetScale())
+        self.assembly.AddPart(self.silhouette_actor)
+
+    def set_highlight_color(self, color):
+        """
+        Set the color of the highlight for this node. If self.silhoutte_actor exists,
+        change it's color as well.
+        """
+        self.highlight_color = color
+        if self.silhouette_actor:
+            self.silhouette_actor.GetProperty().SetColor(
+                self.highlight_color[0], self.highlight_color[1], self.highlight_color[2])
+
+    def set_highlight_thickness(self, thickness):
+        """
+        Set the thickness of the line produced by self.silhouette_actor
+        """
+        if self.silhouette_actor:
+            self.silhouette_actor.GetProperty().SetLineWidth(thickness)
+
+    def highlight_on(self):
+        """
+        Turn highlighting on for this node. If a silhouette actor exists, make it
+        visible, otherwise turn the object itself the color of self.highlight_color
+        """
+        if self.silhouette_actor:
+            self.silhouette_actor.SetVisibility(True)
+        else:
+            self.last_color = self.actor.GetProperty().GetColor()
+            self.actor.GetProperty().SetColor(
+                self.highlight_color[0], self.highlight_color[1], self.highlight_color[2])
+
+    def highlight_off(self):
+        """
+        Turn highlighting off for this node. If a silhouette actor exists, make it
+        not visible, otherwise turn the object itself the color of self.last_color
+        """
+        if self.silhouette_actor:
+            self.silhouette_actor.SetVisibility(False)
+        else:
+            self.actor.GetProperty().SetColor(
+                self.last_color[0], self.last_color[1], self.last_color[2])
 
     def set_name(self, name):
         if name == None:
@@ -100,6 +190,7 @@ class VirgoSceneNode():
             msg = (f"ERROR: Label {name} in node {self.name} not found in self.labels!")
             raise RuntimeError (msg)
         return self.labels[name]
+
 
     def set_static(self, value=True):
         self.static = value

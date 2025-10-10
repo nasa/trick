@@ -1,9 +1,12 @@
+name: pendulums
 description: VIRGO Pendulums Example
+resolution: 1280x720
 background_color: [0.0, 0.0, 0.05]   # Background color of the scene
-highlight_color: [1.0, 1.0, 0.0]     # Highlight color when objects are picked
+highlight_color: [1.0, 1.0, 0.0]     # RGB Highlight color when objects are picked
 start_mode: PAUSED                   # Start the scene paused
 playback_speed: 1.0                  # Default playback speed 1.0X realtime
 playback_speeds: [1.0, 2.0, 5.0]     # Available playback speeds
+pick: green_ball
 # This section defines the data VIRGO consumes to drive actors in the scene
 data_source:
   trickpy:  # The log_pendulum.csv data file is in TrickPy-compatible format
