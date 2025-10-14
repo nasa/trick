@@ -73,7 +73,7 @@ void Trick::DRDWriterThread::dump( std::ostream & oss ) {
 Trick::DataRecordDispatcher::DataRecordDispatcher()
     : drd_writer_thread(drd_mutexes, groups),
       verify_log_vars(true),
-      warning_level(1)
+      warning_level(0)
 {
     the_drd = this;
 }
@@ -101,6 +101,11 @@ int Trick::DataRecordDispatcher::init() {
     drd_writer_thread.create_thread() ;
     pthread_cond_wait(&drd_mutexes.init_complete_cv, &drd_mutexes.init_complete_mutex);
     pthread_mutex_unlock(&drd_mutexes.init_complete_mutex);
+
+    if(verify_log_vars)
+    {
+        processMultipleVarLoggedCheck();
+    }
 
     return(0) ;
 }
@@ -349,11 +354,6 @@ int Trick::DataRecordDispatcher::init_groups() {
     unsigned int ii ;
     for ( ii = 0 ; ii < groups.size() ; ii++ ) {
         groups[ii]->init() ;
-    }
-
-    if(verify_log_vars)
-    {
-        processMultipleVarLoggedCheck();
     }
 
     return 0 ;

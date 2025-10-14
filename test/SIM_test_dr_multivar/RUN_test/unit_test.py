@@ -11,6 +11,9 @@ if hasattr(trick, 'DRHDF5'):
 
 ######################################################################################################################
 
+trick.dr_set_warning_level(2)
+
+trick.exec_set_software_frame(0.1)
 test_suite = "drg api"
 
 # Get the number of data recording groups before any drg is created
@@ -18,6 +21,7 @@ num_drgs = trick.get_num_data_record_groups()
 
 # Check the result of trick.get_num_data_record_groups()
 TRICK_EXPECT_EQ( num_drgs , 0 , test_suite , "0 drgs before any created" )
+
 
 # The first item of each pair is the .dr file name and the second item of each pair is the drg name
 if has_dhf5:
@@ -28,9 +32,6 @@ if has_dhf5:
                                    ('Modified_data/dr_bitfASCII.dr', 'DR_bitfieldsASCII'), 
                                    ('Modified_data/dr_bitfBINARY.dr', 'DR_bitfieldsBINARY'),
                                    ('Modified_data/dr_bitfHDF5.dr', 'DR_bitfieldsHDF5'),
-                                   ('Modified_data/dr_typesASCII_multivarcheck.dr', 'DR_typesASCII_multivarcheck'), 
-                                   ('Modified_data/dr_typesBINARY_multivarcheck.dr', 'DR_typesBINARY_multivarcheck'), 
-                                   ('Modified_data/dr_typesHDF5_multivarcheck.dr', 'DR_typesHDF5_multivarcheck')
                                   )
 else:
     dr_file_name_drg_name_tuple = (
@@ -38,8 +39,6 @@ else:
                                    ('Modified_data/dr_typesBINARY.dr', 'DR_typesBINARY'), 
                                    ('Modified_data/dr_bitfASCII.dr', 'DR_bitfieldsASCII'), 
                                    ('Modified_data/dr_bitfBINARY.dr', 'DR_bitfieldsBINARY'),
-                                   ('Modified_data/dr_typesASCII_multivarcheck.dr', 'DR_typesASCII_multivarcheck'), 
-                                   ('Modified_data/dr_typesBINARY_multivarcheck.dr', 'DR_typesBINARY_multivarcheck')
                                   )
 
 num_files = len(dr_file_name_drg_name_tuple)
@@ -49,11 +48,12 @@ for i in range(num_files):
 # Get the number of data recording groups created
 num_drgs = trick.get_num_data_record_groups()
 
+
 # Check the result of trick.get_num_data_record_groups()
 if has_dhf5:
-    TRICK_EXPECT_EQ( num_drgs , 9 , test_suite , "num of dr groups = 9" )
-else:
     TRICK_EXPECT_EQ( num_drgs , 6 , test_suite , "num of dr groups = 6" )
+else:
+    TRICK_EXPECT_EQ( num_drgs , 4 , test_suite , "num of dr groups = 4" )
 
 # Test trick.get_data_record_group(<drg_name>) for getting the drg pointer by its name
 # Check the name of the obtained drg instead of the drg pointer

@@ -129,7 +129,7 @@ namespace Trick {
             /** Writer thread */
             DRDWriterThread drd_writer_thread ;
 
-            int warning_level ; // Level 0: disabled  Level 1: printed warning  Level 2+: exec_terminate
+            int warning_level ; /* -- Level 0: disabled  Level 1: printed warning  Level 2+: exec_terminate */
 
         protected:
 

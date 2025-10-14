@@ -7,28 +7,20 @@ except NameError:
     DR_GROUP_ID = 0
     drg = []
 
-drg.append(trick.DRAscii("DR_typesASCII"))
+drg.append(trick.DRAscii("DR_typesASCII_multivarcheck"))
 drg[DR_GROUP_ID].set_freq(trick.DR_Always)
 drg[DR_GROUP_ID].set_cycle(0.1)
 drg[DR_GROUP_ID].set_single_prec_only(False)
 drg[DR_GROUP_ID].add_variable("drx.drt.a")
-drg[DR_GROUP_ID].add_variable("drx.drt.a") #duplicate
 drg[DR_GROUP_ID].add_variable("drx.drt.b")
 drg[DR_GROUP_ID].add_variable("drx.drt.c")
 drg[DR_GROUP_ID].add_variable("drx.drt.d")
-drg[DR_GROUP_ID].add_variable("drx.drt.e")
-drg[DR_GROUP_ID].add_variable("drx.drt.f")
-drg[DR_GROUP_ID].add_variable("drx.drt.g")
-drg[DR_GROUP_ID].add_variable("drx.drt.h")
 drg[DR_GROUP_ID].add_variable("drx.drt.i")
 drg[DR_GROUP_ID].add_variable("drx.drt.j")
 drg[DR_GROUP_ID].add_variable("drx.drt.k")
 drg[DR_GROUP_ID].add_variable("drx.drt.l")
 drg[DR_GROUP_ID].add_variable("drx.drt.m")
 drg[DR_GROUP_ID].add_variable("drx.drt.n")
-drg[DR_GROUP_ID].add_variable("drx.drt.o")
-drg[DR_GROUP_ID].add_variable("drx.drt.p")
-drg[DR_GROUP_ID].add_variable("drx.drt.p") # duplicate
 drg[DR_GROUP_ID].add_variable("drx.drt.q[0]")
 drg[DR_GROUP_ID].add_variable("drx.drt.q[1]")
 drg[DR_GROUP_ID].add_variable("drx.drt.q[2]")

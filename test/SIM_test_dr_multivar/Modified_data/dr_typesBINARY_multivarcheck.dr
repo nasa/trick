@@ -7,7 +7,7 @@ except NameError:
     DR_GROUP_ID = 0
     drg = []
 
-drg.append(trick.DRBinary("DR_typesBINARY"))
+drg.append(trick.DRBinary("DR_typesBINARY_multivarcheck"))
 drg[DR_GROUP_ID].set_freq(trick.DR_Always)
 drg[DR_GROUP_ID].set_cycle(0.1)
 drg[DR_GROUP_ID].set_single_prec_only(False)
