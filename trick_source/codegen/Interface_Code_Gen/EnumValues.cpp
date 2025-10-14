@@ -3,7 +3,7 @@
 
 #include "EnumValues.hh"
 
-EnumValues::EnumValues() : has_definition(true) {}
+EnumValues::EnumValues() : has_definition(true), is_unsigned(false) {}
 
 void EnumValues::addEnum( std::string in_name , long long in_val ) {
     std::pair< std::string , long long > new_enum(in_name, in_val) ;
@@ -22,6 +22,14 @@ void EnumValues::setHasDefinition( bool in ) {
 
 bool EnumValues::getHasDefinition() {
     return has_definition ;
+}
+
+void EnumValues::setIsUnsigned( bool in ) {
+    is_unsigned = in ;
+}
+
+bool EnumValues::getIsUnsigned() {
+    return is_unsigned ;
 }
 
 std::ostream & operator << (std::ostream & ostream , EnumValues & ev ) {
