@@ -226,7 +226,11 @@ int main(int argc, char * argv[]) {
         to.Triple = llvm::sys::getDefaultTargetTriple();
     }
     std::shared_ptr<clang::TargetOptions> shared_to  = std::make_shared<clang::TargetOptions>(to) ;
+#if (LIBCLANG_MAJOR >= 21)
+    clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), *shared_to);
+#else
     clang::TargetInfo *pti = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(), shared_to);
+#endif
     ci.setTarget(pti);
     ci.createPreprocessor(clang::TU_Complete);
 #else

@@ -37,13 +37,11 @@ Y_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .y,.tab.o,$(Y_SRC))))
 
 C_SRC = $(filter-out $(Y_C) $(L_C), $(wildcard $(SRC_DIR)*.c))
 
-CYL_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .c,.o,$(C_SRC))))
-CL_OBJS = $(filter-out $(Y_OBJS), $(CYL_OBJS))
-C_OBJS = $(filter-out $(L_OBJS), $(CL_OBJS))
+C_OBJS = $(addprefix $(OBJ_DIR)/,$(notdir $(subst .c,.o,$(C_SRC))))
 
 CPP_C_SRC = $(wildcard $(SRC_DIR)*.C)
 CPP_CC_SRC = $(wildcard $(SRC_DIR)*.cc)
-CPP_CPP_SRC = $(wildcard $(SRC_DIR)*.cpp)
+CPP_CPP_SRC = $(filter-out $(Y_C) $(L_C), $(wildcard $(SRC_DIR)*.cpp))
 CPP_CXX_SRC = $(wildcard $(SRC_DIR)*.cxx)
 CPP_CPLUS_SRC = $(wildcard $(SRC_DIR)*.c++)
 CPP_SRC = $(CPP_C_SRC) $(CPP_CC_SRC) $(CPP_CPP_SRC) $(CPP_CXX_SRC) $(CPP_CPLUS_SRC)
@@ -81,7 +79,7 @@ objects: $(OBJECT_FILES)
 	@ echo "[32m$(CURDIR) object files up to date[00m"
 
 $(TRICK_LIB) : $(OBJECT_FILES) | $(TRICK_LIB_DIR)
-	ar crs $@ $(OBJECT_FILES)
+	ar crs $@ $^
 
 $(OBJ_DIR):
 	mkdir -p $@

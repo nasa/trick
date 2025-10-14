@@ -921,35 +921,93 @@ sub handle_sim_class_job($$$) {
          $ov_class_self, $sup_class_data, $tag, $job_call, $job_ret, $job_name, $args , $class ) ;
     my (@tags) ;
 
-    ($child, $phase, $cycle, $start, $stop,
-      $ov_class , $ov_class_self , $sup_class_data, $tag, $job_call, $job_ret, $job_name, $args) = $in_job =~ /
-         (?:
-           \s*(?:
-             ([Cc][\w\.\-\>]+)?\s*                       # child spec
-             ([Pp][\w\.\-\>]+)?\s*                       # phase spec
-             (?:
-              \(
-                (?:
-                   (?:
-                      \s*([\w.]+)\s*           # cycle time
-                      (?:,\s*([\w.]+)\s*)?     # start time
-                      (?:,\s*([\w.]+)\s*)?     # stop time
-                      (?:,\s*("?\w+"?)\s*)     # class
-                   )|
-                   \s*("?\w+"?)\s*             # class (by itself)
-                   (?:,\s*(&?[\w\.\-\>]+)\s*)? # integration object
-                )
-              \)
-             ) |                               # timing spec
-             \{([\w_.,\s]+)\}                  # job tag
-           )
-         )+\s+
-         (                                     # job call
+    # Split to 3 sections: first part (child, phase, tag), second part (timing spec), remaining part (job call)
+    my ($first_part, $second_part, $remaining_part) = ('', '', '');
+
+    if ($in_job =~ /^((?:[^(]|\n)*)?\s*(\((?:[^)]|\n)+\))\s*(.+)$/s) {
+        $first_part = $1;
+        $second_part = $2;
+        $remaining_part = $3;
+    }
+
+    # Extract child, phase, and tag specs from first part if they exist (can appear in any order)
+    # First extract job tag to avoid conflicts with child/phase parsing
+    if ($first_part =~ /\{([\w_.,\s]+)\}/) {
+        $tag = $1;
+    }
+    # Remove tags from first_part before parsing child/phase to avoid conflicts
+    my $first_part_no_tag = $first_part;
+    $first_part_no_tag =~ s/\{[\w_.,\s]+\}//g;
+    # Extract phase first (must be at word boundary or start of string)
+    if ($first_part_no_tag =~ /(?:^|\s)([Pp][\w.\-\>]+)(?:\s|$)/) {
+        $phase = $1;
+        # Remove the phase from the string to avoid child extraction conflicts
+        $first_part_no_tag =~ s/(?:^|\s)[Pp][\w.\-\>]+(?:\s|$)//;
+    }
+    # Extract child (must be at word boundary or start of string)  
+    if ($first_part_no_tag =~ /(?:^|\s)([Cc][\w.\-\>]+)(?:\s|$)/) {
+        $child = $1;
+    }
+
+    # Extract timing spec from second part if it exists
+    # Format: ([<cycle_time>, [<start_time>, [<stop_time>,]]] <job_class>)
+    if ($second_part =~ /^\(\s*
+        (?:
+            ([\w.]+)                           # $1: $cycle
+            (?:\s*,\s*([\w.]+))?               # $2: $start_time OR job_class (if only 2 params)
+            (?:\s*,\s*([\w.]+))?               # $3: $stop_time OR job_class (if 3 params)
+            (?:\s*,\s*("?[\w.]+"?))?           # $4: $job_class (if 4+ params)
+            (?:\s*,\s*(&[\w.\-\>]+))?          # $5: $sub_class_data (integration object, starts with &)
+        |
+            ("?[\w.]+"?)                       # $6: $ov_class_self (job class by itself)
+            (?:\s*,\s*(&[\w.\-\>]+))?          # $7: $sub_class_data (integration object, starts with &)
+        )
+        \s*\)/xs) {
+            $cycle = $1 // '';
+            my $second_param = $2 // '';
+            my $third_param = $3 // '';
+            $ov_class = $4 // '';
+            $ov_class_self = $6 // '';
+            $sup_class_data = $5 // $7 // '';
+    
+            # Determine parameter assignment based on count
+            if ($second_param ne '' && $third_param eq '' && $ov_class eq '' && $ov_class_self eq '') {
+                # Two parameters: (cycle, job_class)
+                $start = '';
+                $stop = '';
+                $ov_class = $second_param;
+            } elsif ($second_param ne '' && $third_param ne '' && $ov_class eq '' && $ov_class_self eq '') {
+                # Three parameters: (cycle, start_time, job_class)
+                $start = $second_param;
+                $stop = '';
+                $ov_class = $third_param;
+            } else {
+                # Four or more parameters: (cycle, start_time, stop_time, job_class, ...)
+                $start = $second_param;
+                $stop = $third_param;
+                # $ov_class already set from $4
+            }
+    }
+
+    if ($remaining_part =~ /\s*
+        (?:\{([\w_.,\s]+)\}\s*)?               # optional tag spec
+        (                                      # job call
           ([A-Za-z_][\w\.\-\>]*\s*=)?\s*       # optional return assignment variable
           ([A-Za-z_][\w\.\:\-\>\[\]]*)\s*      # job name
           \((.*?)\s*\)                         # arg list
-         )\s*;                                 # end job call
-         /sx ;
+        )\s*;                                  # end job call
+        /xs ) {
+            my $temp_tag = $1 // '';
+            $job_call = $2;
+            $job_ret = $3 // '';
+            $job_name = $4;
+            $args = $5;
+
+            # If tag found in remaining_part and not already set from first_part, use it
+            if ($temp_tag ne '' && $tag eq '') {
+                $tag = $temp_tag;
+            }
+    }
 
 
     $child = 0 if ( $child eq "" ) ;
