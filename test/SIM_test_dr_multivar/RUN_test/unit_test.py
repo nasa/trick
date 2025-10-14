@@ -11,7 +11,7 @@ if hasattr(trick, 'DRHDF5'):
 
 ######################################################################################################################
 
-trick.dr_set_warning_level(2)
+trick.dr_set_warning_level(1)
 
 trick.exec_set_software_frame(0.1)
 test_suite = "drg api"
