@@ -80,6 +80,15 @@ extern "C" void* TMM_declare_operatornew_var( const char * class_name, unsigned 
     }
 }
 
+extern "C" void* TMM_declare_operatornew_var_with_name( const char * class_name, unsigned int alloc_size , unsigned int element_size, const char * alloc_name ) {
+    if (trick_MM != NULL) {
+        return trick_MM->declare_operatornew_var( std::string(class_name), alloc_size, element_size, std::string(alloc_name) ) ;
+    } else {
+        Trick::MemoryManager::emitError("TMM_declare_var() called before MemoryManager instantiation. Returning NULL.\n") ;
+        return (void*)NULL ;
+    }
+}
+
 /**
  @relates Trick::MemoryManager
  This is the C Language version of the 7 argument version of Trick::MemoryManager::declare_ext_var.

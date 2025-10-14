@@ -19,6 +19,7 @@ void* TMM_declare_var_s( const char* declaration ) ;
 void* alloc_type( int e_elems, const char* enh_type_spec) ;
 
 void* TMM_declare_operatornew_var( const char * class_name, unsigned int alloc_size, unsigned int element_size );
+void* TMM_declare_operatornew_var_with_name( const char * class_name, unsigned int alloc_size, unsigned int element_size, const char * alloc_name );
 
 void* TMM_declare_ext_var( void* addr, TRICK_TYPE type, const char*class_name, int n_stars, const char* var_name, int n_cdims, int *cdims);
 void* TMM_declare_ext_var_1d( void* addr, const char* elem_decl, int e_elems) ;
