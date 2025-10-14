@@ -18,6 +18,9 @@
 #include <queue>
 #include <utility>
 
+//C++17 compliance check
+#include <string_view>
+
 
 class SimpleWrapper {
     public:
@@ -39,7 +42,7 @@ class STLCheckpoint {
 
         STLCheckpoint() ;
         int addData() ;
-        int print() ;
+        int STLprint() ;
         int test() ;
 
         bool dataJobRun;
@@ -123,6 +126,15 @@ class STLCheckpoint {
 
 
 } ;
+
+class StringViewCheck
+{
+    public:
+        std::string_view    stringViewSample;
+
+        void string_view_print();
+
+};
 
 #endif
 
