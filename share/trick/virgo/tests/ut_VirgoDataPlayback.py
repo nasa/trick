@@ -1,5 +1,7 @@
 import os, sys, shutil, inspect
 import unittest
+import io
+from unittest.mock import patch
 import pdb
 
 # Add path to virgo module
@@ -16,6 +18,7 @@ def suite():
     suites = []
     suites.append(unittest.TestLoader().loadTestsFromTestCase(VirgoDataPlaybackInitTestCase))
     suites.append(unittest.TestLoader().loadTestsFromTestCase(VirgoDataPlaybackFunctionsTestCase))
+    suites.append(unittest.TestLoader().loadTestsFromTestCase(VirgoDataPlaybackHeadlessTestCase))
     return (suites)
 
     import time
@@ -114,3 +117,57 @@ class VirgoDataPlaybackFunctionsTestCase(VisualizableTestCase):
         # When multiple tests call self.vis() in a single TestCase
         #self.visualize=True
         #self.vis(custom_vector)
+
+class VirgoDataPlaybackHeadlessTestCase(unittest.TestCase):
+    def setUp(self):
+        self.test_name =f"{self.__class__.__name__}_{self._testMethodName}"
+        self.test_video = os.path.join(thisFileDir, '.'+self.test_name+'.mp4')
+        self.scene = {}
+        self.scene['resolution']  = "640x320"
+        self.scene['actors']  = {}
+        self.scene['actors']['test_actor'] = {'mesh': 'VIRGO_PREFAB:cube'}
+        self.scene['data_source']  = {}
+        self.scene['data_source']['trickpy']  = {}
+        self.scene['data_source']['trickpy']['time']  = {}
+        self.scene['data_source']['trickpy']['pos']  = {}
+        self.scene['data_source']['trickpy']['time']['group']  = "one_body_static"
+        self.scene['data_source']['trickpy']['pos']['group']  = "one_body_static"
+        self.scene['data_source']['trickpy']['time']['var']  = "sys.exec.out.time"
+        self.scene['data_source']['trickpy']['pos']['var']  = "position[0-2]"
+
+    def tearDown(self):
+        self.instance.tear_down()
+        self.instance = None
+
+    def test_headless_RUN_0_no_driven_by(self):
+        """
+        This test case runs headless mode on RUN_0 which has no driven nodes, so
+        nothing should be rendered
+        """
+        self.instance = VirgoDataPlayback(
+            run_dir=os.path.join(tests_dir, 'trickpy_data_source/RUN_0'),
+            scene=self.scene, headless=True, video_filename=self.test_video)
+
+        self.instance.initialize()
+        with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
+            self.instance.run()
+            printed_output = mock_stdout.getvalue().strip()
+            # 3. Assert the expected return value (optional but good practice)
+            self.assertIn("Nothing to render", printed_output)
+
+    def test_headless_RUN_0_driven_by(self):
+        """
+        This test case runs headless mode on RUN_0 which has a driven_by
+        section so a video is rendered even though there's no motion in
+        the data file
+        """
+        self.scene['actors']['test_actor']['driven_by'] = {}
+        self.scene['actors']['test_actor']['driven_by']['time'] = 'time'
+        self.scene['actors']['test_actor']['driven_by']['pos'] =  'pos'
+
+        self.instance = VirgoDataPlayback(
+            run_dir=os.path.join(tests_dir, 'trickpy_data_source/RUN_0'),
+            scene=self.scene, headless=True, video_filename=self.test_video)
+
+        self.instance.initialize()
+        self.instance.run()

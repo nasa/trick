@@ -1,2 +1,3 @@
 tests/*_doctest_*.txt
 tests/*.png
+tests/*.mp4

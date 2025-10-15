@@ -1,5 +1,7 @@
+# imageio* are only needed for pictures and video rendering
+imageio
+imageio-ffmpeg
 numpy
 pandas
 pyYAML
 vtk
-imageio-ffmpeg

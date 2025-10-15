@@ -122,6 +122,9 @@ vectors:
       time: ball_time_small
       pos: small_ball_pos  # Tip of vector will point in this direction
 
+sun:
+  direction:   [0.0, -1.0, 0.0]  # World vector pointing towards sun
+  #driven_by: rope1  # A node whose world position drives where the sun is
 camera:
   # Initial position of camera in scene, since follow: is defined this is
   # relative to the attachment1 actor

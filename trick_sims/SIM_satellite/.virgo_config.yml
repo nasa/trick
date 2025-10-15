@@ -298,3 +298,10 @@ picker:
 camera:
   follow: satellite
   near_clipping_plane_tolerance: 5e-7
+sun:
+  direction: [1.0, 0.0, 0.0]  # World vector pointing towards sun
+
+lighting:
+  start_mode: realistic
+  dark_ambient: 0.1
+  bright_ambient: 0.7

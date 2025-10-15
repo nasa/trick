@@ -8,7 +8,7 @@ from VirgoActor import VirgoActor
 from VirgoNode import VirgoSceneNode, VirgoSceneNodeVector
 from VirgoSplash import VirgoSplash
 
-import os, sys, inspect, time
+import os, sys, inspect, time, tempfile
 import math, shutil
 import vtk
 import numpy as np
@@ -25,24 +25,25 @@ class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
     provided vtkInteractorStyleTrackballCamera, mostly to support keeping the
     camera at a relative position to a followed node as that node moves
     """
-    def __init__(self, renderer=None):
+    def __init__(self, renderers=None):
         super().__init__()
-        self.node = None
-        self.renderer = renderer
+        self.node = None  # Node this camera follows (if defined)
+        self.sun = None   # Sun sphere actor to update
+        self.renderers = renderers
         self.AddObserver("CharEvent", self.onChar)
-        self.AddObserver(vtk.vtkCommand.EndInteractionEvent, self.StoreRelativeCameraInfo)
+        self.AddObserver(vtk.vtkCommand.EndInteractionEvent, self.StoreRelativeCameraInfo, 0.0)
         self.relative_offset = None  # Positional offset between camera and followed actor
         self.view_up = None    # Camera GetViewUp() direction when self.realtive_offset was stored
 
     def set_node(self, node):
         self.node = node
 
-    def get_renderer(self):
-        return(self.renderer)
 
-    def set_renderer(self, renderer):
-        self.renderer = renderer
+    def get_renderers(self):
+        return(self.renderers)
 
+    def set_renderers(self, renderers):
+        self.renderers = renderers
 
     # Override base class onChar to ignore the 'e' key
     def onChar(self, obj, event):
@@ -62,10 +63,11 @@ class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
             since we aren't really overriding any methods of
             vtkInteractorStyleTrackballCamera in this approach
         '''
-        if not self.node or not self.renderer:
+        #print(f"DEBUG: Entered StoreRelativeCameraInfo with event {event}")
+        if not self.node or not self.renderers:
             return
         # Update relative offset after user interaction
-        camera = self.renderer.GetActiveCamera()
+        camera = self.renderers['foreground'].GetActiveCamera()
 
         node_pos =np.array(self.node.get_world_position())
 
@@ -73,6 +75,7 @@ class VirgoInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
         self.relative_offset = np.array([camera.GetPosition()[i] - node_pos[i] for i in range(3)])
         #print(f"DEBUG: STORING camera relative offset: {self.relative_offset}")
         self.view_up = camera.GetViewUp()
+        #print(f"DEBUG: Finished StoreRelativeCameraInfo with event {event}")
 
     def GetRelativeCameraInfo(self, info):
         """
@@ -104,7 +107,7 @@ class VirgoControlCenter:
       Picking: The ability to click on objects in the scene to get more info
         about them
     """
-    def __init__(self, renderer, render_window, interactor, scene,
+    def __init__(self, renderers, render_window, interactor, scene,
                  world_time=0.0, images_dir=None):
         """
         Constructor
@@ -118,9 +121,12 @@ class VirgoControlCenter:
             self.images_dir = os.path.expanduser("~/Desktop")
         self.mode = 'PLAYING'              # 'PAUSED' or 'PLAYING'
         self.fs = 14      # font size
-        self.renderer = renderer
+        self.renderers = renderers
         self.render_window = render_window
-        self.camera = renderer.GetActiveCamera()
+        self.cameras = {}
+        # One camera per renderer
+        for r in self.renderers:
+            self.cameras[r] = renderers[r].GetActiveCamera()
         self.camera_follows = None  # if the camera should follow an actor, this is the one
         # TODO this hardcoded value assummes the actor is HUGE
         self.camera_follow_offset = None
@@ -152,6 +158,15 @@ class VirgoControlCenter:
         self.available_speeds = [1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
         self.huge = 1.0e30   # A huge floating point number used for finding smallest values
         self._initialized = False
+        self.sun_light = None   # vtkLight source of the sun
+        self.sun_actor = None   # Sphere used to represent sun in the distance
+        self.sun_direction = [1.0, 0.0, 0.0]  # Default world vector pointing towards sun
+        self.sun_distance = None   # Actual distance to place sun away from camera
+        self.sun_driven_by = None  # Node sun vector is driven by
+        self.lighting_mode = 'headlight'  # Default lighting mode of the scene
+        self.bright_ambient = 0.7  # Default ambient light on all nodes in 'ultrabright'
+        self.dark_ambient = 0.1    # Default ambient light on all nodes in 'realistic'
+        self.camera_pass = None    # Used for rendering in 'realistic' lighting mode
         self.verbosity = 1
 
     def initialize(self):
@@ -159,6 +174,7 @@ class VirgoControlCenter:
         Set up the scene by:
           * Adding all actors to the renderer
           * Initializing the camera
+          * Setting up lights
         """
         if not os.path.exists(self.images_dir):
           try:
@@ -171,6 +187,9 @@ class VirgoControlCenter:
           msg = (f"ERROR: No actors found in {__class__} initialize() function. ")
           raise RuntimeError (msg)
 
+        for r in self.renderers:
+          self.render_window.AddRenderer(self.renderers[r])
+
         self._determine_max_sim_time()
         self.update_nodes()
         self.text_actors['mode'] = self.create_text_actor()
@@ -178,6 +197,7 @@ class VirgoControlCenter:
         self.text_actors['time'] = self.create_text_actor()
         self.text_actors['help'] = self.create_text_actor()
         self.text_actors['camera'] = self.create_text_actor()
+        self.text_actors['lighting'] = self.create_text_actor()
         self.text_actors['version'] = self.create_text_actor()
 
         # TODO these options also need to go in the verifier
@@ -196,26 +216,29 @@ class VirgoControlCenter:
             self.nodes[self.picked_actor.name].highlight_on()
             self.last_picked_actor = self.picked_actor
 
-        # Assign the silhoutte_polydata to a cameara
+        # Assign the silhoutte_polydata to a camera
         # for all actors with highlightable sillhoutte
         for n in self.nodes:
             sp = self.nodes[n].silhouette_polydata 
             if sp != None:
-                sp.SetCamera(self.camera)
+                sp.SetCamera(self.cameras['foreground'])
         # Add actors in scene
         for n in self.nodes:
             # Only add root nodes to the renderer, all children come along
             # automatically
             if self.nodes[n].parent == None:
                 #import pdb; pdb.set_trace()
-                self.renderer.AddActor(self.nodes[n].assembly)
+                self.renderers['foreground'].AddActor(self.nodes[n].assembly)
         for a in self.trail_actors:
-            self.renderer.AddActor(self.trail_actors[a])
+            self.renderers['foreground'].AddActor(self.trail_actors[a])
         for t in self.text_actors:
-            self.renderer.AddActor(self.text_actors[t])
+            self.renderers['foreground'].AddActor(self.text_actors[t])
 
         self.init_camera()
         self.init_picker()
+        self.init_lighting()
+        if self.sun_actor:
+            self.renderers['background'].AddActor(self.sun_actor)
         self._initialized = True
 
     def _determine_max_sim_time(self):
@@ -291,11 +314,13 @@ class VirgoControlCenter:
              self.world_time = self.world_time_start
              self.reset_trails()
 
+        self.position_sun_light()
+        self.position_sun_actor(None, None)
         self.configure_hud()
         # This auto-adjusts clipping based on visible actors
-        self.renderer.ResetCameraClippingRange()
+        self.renderers['foreground'].ResetCameraClippingRange()
         # The end of the main update loop, render the image
-        self.renderer.GetRenderWindow().Render()
+        self.render_window.Render()
 
     def on_timer(self, caller, event):
         """
@@ -316,7 +341,6 @@ class VirgoControlCenter:
         """
         hud_padding = 20 # pixels
         window_width, window_height  = self.render_window.GetSize()
-        
         ############################################################################
         # Picked Actor (or last picked if nothing picked) information in bottom left
         ############################################################################
@@ -360,7 +384,7 @@ class VirgoControlCenter:
         top_right+=f"\nPT:  {self.picker_tolerance:.2e}"
         self.text_actors['mode'].SetInput(top_right)
         bounds = [0] * 4 # Get the text bounding box in display coordinates  [xmin, xmax, ymin, ymax]
-        self.text_actors['mode'].GetBoundingBox(self.renderer, bounds)
+        self.text_actors['mode'].GetBoundingBox(self.renderers['foreground'], bounds)
         text_width = bounds[1] - bounds[0] + 1  # Width in pixels
         text_height = bounds[3] - bounds[2] + 1  # Height in pixels
         # Calculate position for bottom-right corner with padding
@@ -372,7 +396,7 @@ class VirgoControlCenter:
         # Time in top left
         ############################################################################
         bounds = [0] * 4 # Get the text bounding box in display coordinates  [xmin, xmax, ymin, ymax]
-        self.text_actors['time'].GetBoundingBox(self.renderer, bounds)
+        self.text_actors['time'].GetBoundingBox(self.renderers['foreground'], bounds)
         text_height = bounds[3] - bounds[2] + 1  # Height in pixels
         y_pos = window_height - text_height - hud_padding
         self.text_actors['time'].SetPosition(hud_padding, y_pos)
@@ -398,20 +422,20 @@ class VirgoControlCenter:
                 f"\n p: Take Picture"
                 f"\n s: Cycle playback speeds"
                 f"\n t: Toggle trails"
-                f"\n r: Fit camera to scene"
                 f"\n <- -> : Step back/forward in time"
                 f"\n  -  + : Adjust HUD text size"
                 f"\n a: Toggle Axes Visibility"
                 f"\n c: Toggle camera free/follow-picked"
-                f"\n l: Toggle Node Label Visibility"
+                f"\n l: Toggle Lighting Mode"
+                f"\n L: Toggle Node Label Visibility"
                 f"\n v: Print picked node info in terminal"
+                f"\n BackSpace: Toggle starfield (experimental)"
                 f"\n h: Toggle this help message"
-                f"\n BackSpace: Toggle starfield"
                 f"\n j/k: Near Plane Clipping Tolerance"
                 f"\n J/K: Picker Tolerance"
                 f"\n Q: Quit"
                 )
-            self.text_actors['help'].GetBoundingBox(self.renderer, bounds)
+            self.text_actors['help'].GetBoundingBox(self.renderers['foreground'], bounds)
             text_width = bounds[1] - bounds[0] + 1  # Width in pixels
             text_height = bounds[3] - bounds[2] + 1  # Height in pixels
             # Calculate position for bottom-right corner with 20-pixel padding
@@ -423,12 +447,12 @@ class VirgoControlCenter:
             self.text_actors['help'].SetInput("")
 
         ############################################################################
-        # Camera info displayed in top center-right-ish
+        # Camera and lighting info displayed in top center-right-ish
         ############################################################################
         camera_info = f"Camera: Follow {self.camera_follows.name}" if self.camera_follows else "Camera: Free" 
         self.text_actors['camera'].SetInput(f"{camera_info}")
         bounds = [0] * 4 # Get the text bounding box in display coordinates  [xmin, xmax, ymin, ymax]
-        self.text_actors['camera'].GetBoundingBox(self.renderer, bounds)
+        self.text_actors['camera'].GetBoundingBox(self.renderers['foreground'], bounds)
         text_width = bounds[1] - bounds[0] + 1  # Width in pixels
         text_height = bounds[3] - bounds[2] + 1  # Height in pixels
         # Calculate position for bottom-right corner with padding
@@ -436,11 +460,15 @@ class VirgoControlCenter:
         y_pos = window_height - text_height - hud_padding  # Top edge (20 pixels from bottom)
         self.text_actors['camera'].SetPosition(x_pos, y_pos)
 
+        lighting_info = f"Lighting: {self.lighting_mode}" 
+        self.text_actors['lighting'].SetInput(f"{lighting_info}")
+        self.text_actors['lighting'].SetPosition(x_pos, y_pos-text_height)
+
         ############################################################################
         # Version
         ############################################################################
         bounds = [0] * 4 # Get the text bounding box in display coordinates  [xmin, xmax, ymin, ymax]
-        self.text_actors['picked'].GetBoundingBox(self.renderer, bounds)
+        self.text_actors['picked'].GetBoundingBox(self.renderers['foreground'], bounds)
         text_height = bounds[3] - bounds[2] + 1  # Height in pixels
         self.text_actors['version'].GetTextProperty().SetColor(0.7, 0.7, 0.7)
         self.text_actors['version'].SetPosition(hud_padding, text_height + hud_padding)
@@ -453,7 +481,7 @@ class VirgoControlCenter:
         """
         matrix = actor.GetMatrix()
         pos =[ matrix.GetElement(0, 3),  matrix.GetElement(1, 3), matrix.GetElement(2, 3)]
-        self.camera.SetFocalPoint(pos[0], pos[1], pos[2])
+        self.cameras['foreground'].SetFocalPoint(pos[0], pos[1], pos[2])
 
     def automatic_camera_offset(self, node, distance_factor=20.0):
         """
@@ -492,8 +520,8 @@ class VirgoControlCenter:
         intstyle = self.interactor.GetInteractorStyle()
         intstyle.set_node(self.camera_follows)
         # If the camera has never followed before, set the renderer as well
-        if not intstyle.get_renderer():
-            intstyle.set_renderer(self.renderer)
+        if not intstyle.get_renderers():
+            intstyle.set_renderers(self.renderers['foreground'])
 
         # Ask the interactor for the latest camera position
         self.camera_follow_offset = self.interactor.GetInteractorStyle().GetRelativeCameraInfo('position')
@@ -509,10 +537,10 @@ class VirgoControlCenter:
                 self.automatic_camera_offset(node)
             pos =np.array(node.get_world_position())
             camera_pos = pos + self.camera_follow_offset
-            #print(f"DEBUG: INIT moving self.camera to {camera_pos}")
-            #print(f"DEBUG: INIT setting self.camera focal to {pos}")
-            self.camera.SetPosition(camera_pos[0], camera_pos[1], camera_pos[2])
-            self.camera.SetFocalPoint(pos[0], pos[1], pos[2])
+            #print(f"DEBUG: INIT moving self.cameras['foreground'] to {camera_pos}")
+            #print(f"DEBUG: INIT setting self.cameras['foreground'] focal to {pos}")
+            self.cameras['foreground'].SetPosition(camera_pos[0], camera_pos[1], camera_pos[2])
+            self.cameras['foreground'].SetFocalPoint(pos[0], pos[1], pos[2])
             # Store this initial offset in the VirgoInteractorStyle by calling the
             # callback which stores the relative camera offset
             self.interactor.GetInteractorStyle().StoreRelativeCameraInfo(None, None)
@@ -520,18 +548,18 @@ class VirgoControlCenter:
         pos = np.array(node.get_world_position())
         #print(f"DEBUG: self.camera_follow_offset is {self.camera_follow_offset}")
         camera_pos = pos + self.camera_follow_offset
-        #print(f"DEBUG: moving self.camera to {camera_pos}")
-        #print(f"DEBUG: setting self.camera focal to {pos}")
+        #print(f"DEBUG: moving self.cameras['foreground'] to {camera_pos}")
+        #print(f"DEBUG: setting self.cameras['foreground'] focal to {pos}")
         # Set camera position
-        self.camera.SetPosition(camera_pos[0], camera_pos[1], camera_pos[2])
+        self.cameras['foreground'].SetPosition(camera_pos[0], camera_pos[1], camera_pos[2])
         # Set focal point to spacecraft's center
-        self.camera.SetFocalPoint(pos[0], pos[1], pos[2])
+        self.cameras['foreground'].SetFocalPoint(pos[0], pos[1], pos[2])
         # Ask the interactor for the stored off view_up direction from end of interaction
         view_up = self.interactor.GetInteractorStyle().GetRelativeCameraInfo('view_up')
         # If view_up isn't defined, default it to "positive Z is up"
         if not view_up:
             view_up = (0.0, 0.0, 1.0)
-        self.camera.SetViewUp(view_up)
+        self.cameras['foreground'].SetViewUp(view_up)
 
     def on_right_click(self, obj, event):
         """
@@ -541,7 +569,7 @@ class VirgoControlCenter:
         information about it in the HUD
         """
         click_pos = self.interactor.GetEventPosition()
-        self.picker.Pick(click_pos[0], click_pos[1], 0, self.renderer)
+        self.picker.Pick(click_pos[0], click_pos[1], 0, self.renderers['foreground'])
         self.picked_actor = self.get_actor_from_picker()
 
         if self.picked_actor and self.picked_actor in self.actors.values():
@@ -561,7 +589,7 @@ class VirgoControlCenter:
             # Update last picked actor
             self.last_picked_actor = self.picked_actor
             
-        self.renderer.Render()
+        self.render_window.Render()
 
     def get_actor_from_picker(self):
         """
@@ -590,6 +618,54 @@ class VirgoControlCenter:
                 self.nodes[n].hide_labels()
             else:
                 self.nodes[n].show_labels()
+
+    def toggle_lighting_modes(self):
+        # TODO: this should iterate over a dict of self.lighting_modes
+        # then check for that mode being in self.scene in init_lighting
+        if self.lighting_mode == 'realistic':
+            self.lighting_mode = 'headlight'
+        elif self.lighting_mode == 'headlight':
+            self.lighting_mode = 'ultrabright'
+        else:
+            self.lighting_mode = 'realistic'
+        self.set_lighting_mode(self.lighting_mode)
+        #print(f"DEBUG: self.renderers['foreground'].GetPass() is {self.renderers['foreground'].GetPass()}")
+
+    def set_lighting_mode(self, mode):
+        all_lights = self.renderers['foreground'].GetLights()
+        num_lights = all_lights.GetNumberOfItems()
+        if mode == 'realistic':
+            print("(Somewhat) realistic lighting on")
+            self.renderers['foreground'].RemoveAllLights()
+            if self.sun_light and self.sun_light not in all_lights:
+                self.renderers['foreground'].AddLight(self.sun_light)
+            self.renderers['foreground'].SetPass(self.camera_pass)
+            #self.renderer.ReleaseGraphicsResources(self.render_window)
+            self.set_ambient_all_nodes(self.dark_ambient)
+        elif mode == 'headlight':
+            print("Headlight lighting on")
+            #self.renderer.RemoveAllLights()
+            if self.sun_light and self.sun_light in all_lights:
+                self.renderers['foreground'].RemoveLight(self.sun_light)
+            headlight = vtk.vtkLight()
+            headlight.SetLightTypeToHeadlight()
+            headlight.SetIntensity(1.0)
+            self.renderers['foreground'].AddLight(headlight)
+            self.renderers['foreground'].SetPass(None)
+        elif mode == 'ultrabright':
+            print("Ultrabright lighting on")
+            #self.renderers['foreground'].RemoveAllLights()
+            if self.sun_light in all_lights:
+                self.renderers['foreground'].RemoveLight(self.sun_light)
+            self.renderers['foreground'].SetPass(None)
+            #self.renderers['foreground'].ReleaseGraphicsResources(self.render_window)
+            self.set_ambient_all_nodes(self.bright_ambient)
+        #print(f"DEBUG: Number of lights in scene: {num_lights}")
+
+    def set_ambient_all_nodes(self, value):
+        for n in self.nodes:
+            if self.nodes[n].actor:
+                self.nodes[n].actor.GetProperty().SetAmbient(value)
 
     def toggle_trails(self):
         for n in self.nodes:
@@ -690,9 +766,12 @@ class VirgoControlCenter:
         if key == 'a':
             # Turn actor axes on/off
             self.toggle_axes()
-        if key == 'l':
+        if key == 'L':
             # Turn actor axes on/off
             self.toggle_node_labels()
+        if key == 'l':
+            # Turn actor axes on/off
+            self.toggle_lighting_modes()
         if key == "p":
             self.take_picture()
         if key == "t":
@@ -830,9 +909,12 @@ class VirgoControlCenter:
         follow mechanism.
         """
         # Default camera if the scene has given us no information on it
-        self.camera.SetPosition(-10.0, 0.0, 0.0)
-        self.camera.SetFocalPoint(0, 0, 0)
-        self.camera.SetViewUp(0.0, 0.0, 1.0)  # Z is up
+        self.cameras['foreground'].SetPosition(-10.0, 0.0, 0.0)
+        self.cameras['foreground'].SetFocalPoint(0, 0, 0)
+        self.cameras['foreground'].SetViewUp(0.0, 0.0, 1.0)  # Z is up
+        # TODO not sure this goes best here, also do we want a user to be able
+        # to change this in the yaml file?
+        self.cameras['background'].SetClippingRange(1e10, 1e17)
 
         # If the camera is setup to follow a node/actor, save that node in
         # self.camera_follows and pass that node into the Interactor so
@@ -841,11 +923,11 @@ class VirgoControlCenter:
           initial_camera_pos = None
           if 'position' in self.scene['camera']:
             initial_camera_pos = self.scene['camera']['position']
-            self.camera.SetPosition(initial_camera_pos )
+            self.cameras['foreground'].SetPosition(initial_camera_pos )
           if 'focal_point' in self.scene['camera']:
-            self.camera.SetFocalPoint(self.scene['camera']['focal_point'])
+            self.cameras['foreground'].SetFocalPoint(self.scene['camera']['focal_point'])
           if 'view_up' in self.scene['camera']:
-            self.camera.SetViewUp(self.scene['camera']['view_up'])
+            self.cameras['foreground'].SetViewUp(self.scene['camera']['view_up'])
           if 'follow' in self.scene['camera']:
             for node in self.nodes:
               if self.nodes[node].name == self.scene['camera']['follow']:
@@ -862,11 +944,11 @@ class VirgoControlCenter:
         # SMALLER ACTORS NOT VISIBLE DUE TO CLIPPING.
         if 'camera' in self.scene and 'near_clipping_plane_tolerance' in self.scene['camera']:
             self.near_clipping_plane_tolerance = float(self.scene['camera']['near_clipping_plane_tolerance'])
-        self.renderer.SetNearClippingPlaneTolerance(self.near_clipping_plane_tolerance)
+        self.renderers['foreground'].SetNearClippingPlaneTolerance(self.near_clipping_plane_tolerance)
 
     def increase_near_clipping_plane_tolerance(self, multiplier=2.0):
         self.near_clipping_plane_tolerance *= multiplier
-        self.renderer.SetNearClippingPlaneTolerance(self.near_clipping_plane_tolerance)
+        self.renderers['foreground'].SetNearClippingPlaneTolerance(self.near_clipping_plane_tolerance)
 
     def decrease_near_clipping_plane_tolerance(self, multiplier=2.0):
         self.near_clipping_plane_tolerance /= multiplier
@@ -892,23 +974,108 @@ class VirgoControlCenter:
         """
         Debug function for seeing where the camera is
         """
-        print("Camera Position:", self.camera.GetPosition())
-        print("  Focal Point:", self.camera.GetFocalPoint())
-        print("  View Up:", self.camera.GetViewUp())
-        print(f"  Clipping range: {self.camera.GetClippingRange()} ")
-        print("Renderer info:")
-        print(f"  NearClippingPlanTolerance: {self.renderer.GetNearClippingPlaneTolerance()} ")
+        for c in self.cameras:
+          print(f"Camera: {c}")
+          print("  Position:", self.cameras[c].GetPosition())
+          print("  Focal Point:", self.cameras[c].GetFocalPoint())
+          print("  View Up:", self.cameras[c].GetViewUp())
+          print(f"  Clipping range: {self.cameras[c].GetClippingRange()}")
+          print("Renderer info:")
+        for r in self.renderers:
+          print(f"  {r} NearClippingPlanTolerance: {self.renderers[r].GetNearClippingPlaneTolerance()} ")
 
     def register_callbacks(self):
         """
         Register all callbacks with the interactor
         """
+        self.cameras['foreground'].AddObserver("ModifiedEvent", self.sync_cameras)
         self.interactor.AddObserver("RightButtonPressEvent", self.on_right_click)
         self.interactor.AddObserver("TimerEvent", self.on_timer)
         self.interactor.AddObserver("KeyPressEvent", self.on_key_press)
+
         # Not operational, see comment in orient_labels_to_camera() 
         #self.interactor.AddObserver("StartEvent", self.orient_labels_to_camera)
         self.timer_id = self.interactor.CreateRepeatingTimer(self.callback_rate)
+
+    def sync_cameras(self, obj, event):
+        """
+        Sync the position of all cameras to that of the foreground camera
+        This is required so that we can use multiple renderers for different
+        sized actors in the scene. The cameras have to be in the same place
+        for each renderer layer in order to for it to look correct as the
+        scenes are composited together.
+        """
+        #print(f"DEBUG: syncing cameras")
+        main_camera = self.cameras['foreground'] # Sync all to this one
+        for cam in self.cameras:
+            if cam == 'foreground':
+                continue
+            self.cameras[cam].SetViewUp(main_camera.GetViewUp())
+            self.cameras[cam].SetFocalPoint(main_camera.GetFocalPoint())
+            self.cameras[cam].SetPosition(main_camera.GetPosition())
+            self.cameras[cam].SetViewAngle(main_camera.GetViewAngle())
+
+    def position_sun_actor(self, obj, event):
+        """
+        Position the sun relative to camera each frame.
+        This fakes out the sun being very far away when it's really
+        just positioned relative to the camera to make it look that way
+
+        TODO: This entire function isn't used right now as there are many issues
+        with this approach of putting a sun sphere near the camera each render
+        event frame. The biggest problem is that having a sphere near the camera
+        means when we zoom out the single precision depth buffer problems are
+        more consistently seen. This could maybe be overcome by removing
+        self.sun_actor when zoomed way out, but then we can't see where the sun
+        is. Another issue is that dollying out with scroll wheel has the sun
+        flicker in its update, breaking realism. Furthermore the farther out
+        you go the more erratic the movement of the sun is. On top of all of that
+        we still render the sun when it should be occulded by large objects like
+        the earth because it's actually close to the camera. There's a standalone
+        example in my pyvista testing repoa (sun_billboard2.py) that provides an
+        example on how to turn the sun visibility off if's occluded, which could
+        help with this particular problem. In order to fulfill a sun in the scene
+        correctly I think we need to dive deep into renderer layers and shaders
+        which is too much to tackle right now for this one feature - Jordan 10/2025
+        """
+
+        if not self.sun_actor:
+            return
+
+        cam = self.renderers['foreground'].GetActiveCamera()
+        cam_pos = cam.GetPosition()
+    
+        # Position the billboard along the sun direction, at fixed distance
+        sun_pos = [
+            cam_pos[0] + self.sun_direction[0] * self.sun_distance,
+            cam_pos[1] + self.sun_direction[1] * self.sun_distance,
+            cam_pos[2] + self.sun_direction[2] * self.sun_distance
+        ]
+        #import pdb; pdb.set_trace()
+        #print(f"DEBUG: setting sun actor position to {sun_pos}")
+        self.sun_actor.SetPosition(sun_pos)
+        self.sun_actor.SetOrientation(cam.GetOrientation())
+
+    def position_sun_light(self):
+        if self.sun_driven_by:
+            # In the case of vector sub-class, assign the sun direction to
+            # the vector in world coordinates
+            if isinstance(self.sun_driven_by, VirgoSceneNodeVector):
+                self.sun_direction = self.sun_driven_by.get_world_vector()
+            # In the case of a regular SceneNode, assign the sun direction to
+            # the position of that node in world coordinates
+            else:
+                self.sun_direction = self.sun_driven_by.get_world_position()
+        #print(f"DEBUG: self.sun_direction: {self.sun_direction}")
+        # Normalize the sun direction
+        sun_magnitude = math.sqrt(sum(c**2 for c in self.sun_direction))
+        sun_dir_norm = [c / sun_magnitude for c in self.sun_direction]
+        # Place the light in the direction of the vector 
+        # Note that for this directional (SetPositional(False)) light it's
+        # distance away from objects doesn't matter
+        self.sun_light.SetPosition(sun_dir_norm)
+        # Set direction of light to origin
+        self.sun_light.SetFocalPoint(0, 0, 0)
 
     def create_skybox(self):
         """
@@ -949,9 +1116,101 @@ class VirgoControlCenter:
         # small objects
         skybox.SetVisibility(False)
 
-        self.renderer.AddActor(skybox)
+        # TODO: I would think 'background' would be better here but there's some
+        # issues with rotating the scene with the skybox in the background layer.
+        # With it in the foreground it behaves better in scenes with actors with
+        # reasonable scales/positions (relative state) but glitches with large
+        # scenes and inertial coordinates. Also it covers the sun in the foreground
+        # which isn't ideal
+        self.renderers['foreground'].AddActor(skybox)
         return skybox
 
+    def init_lighting(self):
+        # TODO more verifier needed here
+        if 'lighting' in self.scene and self.scene['lighting']:
+            if 'start_mode' in self.scene['lighting']:
+                self.lighting_mode = self.scene['lighting']['start_mode']
+            if 'dark_ambient' in self.scene['lighting']:
+                self.dark_ambient = self.scene['lighting']['dark_ambient']
+            if 'bright_ambient' in self.scene['lighting']:
+                self.bright_ambient = self.scene['lighting']['bright_ambient']
+        # Initialize the sun light source
+        self.init_sun()
+
+        # Configure the 'realisitc' lighting mode with shadow pass
+        # by building up self.camera_pass which the renderer will use
+        shadows = vtk.vtkShadowMapPass()
+        seq = vtk.vtkSequencePass()
+        passes = vtk.vtkRenderPassCollection()
+        # Baker pass provides inter-actor shadows but there's a major
+        # bug that prevents us from using it. See details here:
+        #bp = shadows.GetShadowMapBakerPass()
+        #bp.SetResolution(4096)
+        # https://discourse.vtk.org/t/invalid-shadow-shape-affected-by-the-aspect-ratio-of-the-window/12000/2
+        #passes.AddItem(bp)
+        passes.AddItem(shadows)
+        # Add overlay and translucent passes, this is needed for text_actors
+        # and actors with less than 1.0 opacity to render when more realisitic
+        # lighting is on
+        passes.AddItem(vtk.vtkTranslucentPass())
+        passes.AddItem(vtk.vtkOverlayPass())
+        seq.SetPasses(passes)
+        self.camera_pass = vtk.vtkCameraPass()
+        self.camera_pass.SetDelegatePass(seq)
+
+        self.set_lighting_mode(self.lighting_mode)
+
+    def get_node(self, name):
+        if name not in self.nodes:
+            return None
+        return self.nodes.get(name)
+
+    def init_sun(self):
+        sun_scale=1.0
+        if 'sun' in self.scene and self.scene['sun'] != None:
+          if 'direction' in self.scene['sun']:
+            self.sun_direction = self.scene['sun']['direction']
+          if 'scale' in self.scene['sun']:
+            sun_scale = self.scene['sun']['scale']
+          if 'driven_by' in self.scene['sun']:
+            n = self.scene['sun']['driven_by']
+            self.sun_driven_by = self.get_node(n)
+            if not self.sun_driven_by:
+                msg = (f"ERROR: sun: driven_by: {n} is not a "
+                       "valid node in the scene")
+                raise RuntimeError (msg)
+
+        # Create the light coming from the sun 
+        self.sun_light = vtk.vtkLight()
+        self.sun_light.SetLightTypeToSceneLight()
+        self.sun_light.SetPositional(False)
+        self.sun_light.SetDirectionAngle(0, 0)  # placeholder, we’ll set manually below
+        self.sun_light.SetColor(1.0, 0.95, 0.8)
+        self.sun_light.SetIntensity(0.8)
+        
+        self.position_sun_light()
+
+        # Create the sun actor - this sphere is not a normal actor
+        # but will be placed at a fixed distance relative to the camera
+        # to make it appear to be very far away
+        sun_sphere = vtk.vtkSphereSource()
+        sun_size = 6.957e8  # Radius in meters
+        sun_sphere.SetRadius(sun_size)
+        sun_sphere.SetThetaResolution(32)
+        sun_sphere.SetPhiResolution(32)
+    
+        sun_mapper = vtk.vtkPolyDataMapper()
+        sun_mapper.SetInputConnection(sun_sphere.GetOutputPort())
+    
+        self.sun_actor = vtk.vtkActor()
+        self.sun_actor.SetMapper(sun_mapper)
+        self.sun_actor.GetProperty().SetColor(1.0, 1.0, 0.0) # Yellow
+        self.sun_actor.GetProperty().SetLighting(False)  # always bright (emissive)
+        self.sun_actor.SetPickable(False)
+        self.sun_actor.SetScale(sun_scale, sun_scale, sun_scale)
+        self.sun_distance = 1.4959e11
+
+        self.position_sun_actor(None, None)
 
 class VirgoScene:
     """
@@ -993,16 +1252,25 @@ class VirgoScene:
         if 'resolution' in self.scene:
             self.window_width, self.window_height = map(int, self.scene['resolution'].split('x'))
 
-        # TODO this probably needs a tempfile approach
-        self.headless_output_dir = os.path.join(self.images_dir, self.name)
-
-        self.renderer = vtk.vtkRenderer()
         self.render_window = vtk.vtkRenderWindow()
+        self.renderers = {}
+        # We have multiple renderers to help overcome single precision depth buffer issues.
+        # Each renderer operates in it's own layer composited on top of the last,
+        # background first ending with foreground
+        self.renderers['background'] = vtk.vtkRenderer()  # For actors 1e-10 -> 1e17
+        self.renderers['background'].SetLayer(0)
+        self.renderers['background'].InteractiveOff()
+        self.renderers['background'].SetBackground(self.background_color)
+        # TODO: probably want a 'midground' renderer      # For actors 1e-4 -> 1e11
+        self.renderers['foreground'] = vtk.vtkRenderer()  # For actors 1e-2 -> 1e5
+        self.renderers['foreground'].SetLayer(1)
+        self.renderers['foreground'].SetBackground(self.background_color)
+        self.render_window.SetNumberOfLayers(len(self.renderers.keys()))
         self.interactor = vtk.vtkRenderWindowInteractor()
     
         # Set better camera interaction
-        self.interactor_style = VirgoInteractorStyle(renderer=self.renderer)
-        self.controller = VirgoControlCenter(self.renderer, self.render_window,
+        self.interactor_style = VirgoInteractorStyle(renderers=self.renderers)
+        self.controller = VirgoControlCenter(self.renderers, self.render_window,
                                              self.interactor, self.scene)
         self.initialized = False
 
@@ -1014,16 +1282,12 @@ class VirgoScene:
         """
         self.initialize_nodes()   # Load all actors from the self.scene info
 
-        self.renderer.SetBackground(self.background_color)
-        self.render_window.AddRenderer(self.renderer)
         self.render_window.SetSize(self.window_width, self.window_height)
         self.render_window.SetWindowName(self.description)
 
         if self.headless:
             print("Running in headless (non-interactive) mode.")
             self.render_window.OffScreenRenderingOn()
-            # Make sure the destination dir exists
-            os.makedirs(self.headless_output_dir, exist_ok=True)
         else:
             print("Running in interactive mode.")
             self.interactor.SetRenderWindow(self.render_window)
@@ -1047,8 +1311,6 @@ class VirgoScene:
             parent = self.nodes[parent_name]
             parent.add_child(node)
 
-    def get_node(self, name):
-        return self.nodes.get(name)
 
     def _verify_scene(self):
         """
@@ -1320,12 +1582,19 @@ class VirgoScene:
     def run_headless(self, stop_time=None):
         if not stop_time:
             stop_time = self.controller.max_sim_time 
+        if self.controller.world_time >= stop_time:
+            print(f"Nothing to render in headless mode. Starting world time "
+                  f"{self.controller.world_time} >= stop time {stop_time}. "
+                  f"This is often caused by all actors/nodes being static "
+                  f"(no driven_by: section) in the scene dict.")
+            return
         self.controller.mode = 'PLAYING' # Force playing
         finished = False
         frame_num = 0
         percent_complete = 0.0
         # Dump frames for the scene
         sys.stdout.write(f'Generating frames:')
+        tmp_dir = tempfile.mkdtemp()
         while not finished:
           percent_complete = self.controller.world_time / stop_time * 100.0
           #import pdb; pdb.set_trace()
@@ -1333,8 +1602,8 @@ class VirgoScene:
           sys.stdout.flush()  # Ensure it updates immediately
           self.controller.update_scene()
           self.render_window.Render()
-          filename = os.path.join(self.headless_output_dir,
-                                f"frame_{frame_num:06d}.png")
+          filename = os.path.join(tmp_dir,
+                                f"frame_{frame_num:07d}.png")
           self.controller.save_frame(filename=filename)
           frame_num += 1
           if math.isclose(self.controller.world_time, stop_time):
@@ -1348,24 +1617,18 @@ class VirgoScene:
           import imageio
         except Exception as e:
           msg = (f"ERROR: imageio not found in virtual environment, cannot render"
-                 f" images in {self.headless_output_dir} to video file"
-                 f" {self.video_filename}.")
+                 f" images in {tmp_dir} to video file {self.video_filename}.")
           print(msg)
           self.tear_down()
           raise(e)
         print(f"Rendering {self.video_filename} ...")
-        frames = [imageio.imread(f"{self.headless_output_dir}/frame_{i:06d}.png")
+        frames = [imageio.imread(f"{tmp_dir}/frame_{i:07d}.png")
                    for i in range(frame_num)]
         imageio.mimsave(self.video_filename, frames, fps=self.controller.frame_rate)
         print(f"Done.")
 
 
     def tear_down(self):
-        self.renderer.RemoveAllObservers()
+        for renderer in self.renderers:
+            self.renderers[renderer].RemoveAllObservers()
         self.interactor.RemoveAllObservers()
-        if os.path.isdir(self.headless_output_dir):
-          try:
-            shutil.rmtree(self.headless_output_dir)
-            print(f"Directory '{self.headless_output_dir}' removed successfully")
-          except OSError as e:
-            print(f"Error: {e}")

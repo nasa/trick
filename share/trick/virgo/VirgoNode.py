@@ -631,4 +631,25 @@ class VirgoSceneNodeVector(VirgoSceneNode):
         scale = self.data_source.get_current_scale()
         if scale is not None:
             self.local_transform.Scale(*scale)
+
+    def get_world_vector(self):
+        """
+        Get this vector expressed in world space coordinates
+        """
+        if not self.data_source:
+            return
+        pos  = self.data_source.get_current_position()
+        # Get the location of the base and tip expressed in world coordinates,
+        # then subtract them and normalize to produce the vector in world
+        # coordinates
+        vec_world_pos_base = self.get_world_position(local_point=(0.0, 0.0, 0.0))
+        # We use pos = (1.0, 0.0, 0.0) because all vectors are rotated
+        # from +x direction
+        vec_world_pos_tip = self.get_world_position(local_point=(1.0, 0.0, 0.0))
+        vec_world_pos = np.array(vec_world_pos_tip) - np.array(vec_world_pos_base)
+        length = np.linalg.norm(vec_world_pos)
+        if length == 0:
+            raise ValueError(f"Zero-length vector for {self.name} cannot be displayed.")
+        vec_world_pos = list(vec_world_pos / length)
+        return(vec_world_pos)
     
