@@ -1,0 +1,47 @@
+global DR_GROUP_ID
+global drg
+try:
+    if DR_GROUP_ID >= 0:
+        DR_GROUP_ID += 1
+except NameError:
+    DR_GROUP_ID = 0
+    drg = []
+
+drg.append(trick.DRBinary("StateData"))
+drg[DR_GROUP_ID].set_freq(trick.DR_Always)
+drg[DR_GROUP_ID].set_cycle(0.001)
+drg[DR_GROUP_ID].set_single_prec_only(False)
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.pos1[0]")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.pos1[1]")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.pos2[0]")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.pos2[1]")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.vel1[0]")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.vel1[1]")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.vel2[0]")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.vel2[1]")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.gravity")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.omega1")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.omega2")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.omegaDot1")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.omegaDot2")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.force_remain")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.torque_remain")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.angle1")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.angle2")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.mass1")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.mass2")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.radius1")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.radius2")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.inertia1")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.inertia2")
+
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.total_energy")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.potential_energy")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.kinetic_energy")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.angular_momentum1")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.angular_momentum2")
+drg[DR_GROUP_ID].add_variable("dyn.pendulum.total_angular_momentum")
+
+
+trick.add_data_record_group(drg[DR_GROUP_ID], trick.DR_Buffer)
+drg[DR_GROUP_ID].enable()
