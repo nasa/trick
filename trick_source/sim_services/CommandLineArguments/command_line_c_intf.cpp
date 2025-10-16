@@ -12,6 +12,7 @@
    PROGRAMMERS: ( Keith Vetter LinCom 6/2003 ) */
 
 #include "trick/CommandLineArguments.hh"
+
 #include <string>
 #include <vector>
 

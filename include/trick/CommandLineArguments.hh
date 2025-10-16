@@ -26,7 +26,7 @@ namespace Trick {
         public:
 
             int argc ;                       /* ** argc */
-            std::vector<std::string> argv ;                   /* ** argv */
+            std::vector<std::string> argv;   /* ** argv */
 
             bool output_dir_timestamped ;    /* -- record data into a separate timestamped directory */
 

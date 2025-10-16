@@ -30,20 +30,20 @@
 
 Trick::CommandLineArguments * the_cmd_args ;
 
-Trick::CommandLineArguments::CommandLineArguments() : argc(0) {
+Trick::CommandLineArguments::CommandLineArguments()
+    : argc(0)
+{
     the_cmd_args = this ;
 
-    output_dir = std::string(".") ;
-    default_dir = std::string(".") ;
+    output_dir = std::string(".");
+    default_dir = std::string(".");
 }
 
 int Trick::CommandLineArguments::get_argc() {
     return(argc) ;
 }
 
-std::vector<std::string>& Trick::CommandLineArguments::get_argv() {
-    return(argv) ;
-}
+std::vector<std::string>& Trick::CommandLineArguments::get_argv() { return (argv); }
 
 std::string Trick::CommandLineArguments::get_output_dir() {
     return(output_dir) ;
@@ -172,14 +172,15 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
     // c/cpp argument vector is null-terminated, but for trick, the stored arguments array never was
     argv.reserve(argc);
     for (int ii = 0; ii < argc; ii++) {
-       argv.emplace_back(args[ii]);
+        argv.emplace_back(args[ii]);
     }
 
     default_dir = argv[0] ;
 
-    char *buf = (char *)malloc(4096);
-    char *buf2 = (char *)malloc(4096);
-    size_t found = default_dir.find_last_of('/') ;
+    char* buf  = (char*)malloc(4096);
+    char* buf2 = (char*)malloc(4096);
+
+    size_t found = default_dir.find_last_of('/');
 
     if ( found == std::string::npos ) {
         cmdline_name = default_dir ;
@@ -207,30 +208,30 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
     if ( argc > 1 ) {
 
-    /* First occurrence of "RUN_*" is the input file name: '<Run_dir>/<file_name>'.
-       If not found, defaults to first argument */
+        /* First occurrence of "RUN_*" is the input file name: '<Run_dir>/<file_name>'.
+           If not found, defaults to first argument */
 
         input_file = argv[1];
         run_dir = argv[1];
 
         for (auto& arg : argv) {
             if (arg.find("RUN_") != std::string::npos) {
-              input_file = arg;
-              run_dir = arg;
-              break;
+                input_file = arg;
+                run_dir    = arg;
+                break;
             }
         }
 
         if (access(input_file.c_str(), F_OK) != 0) {
           input_file = "";
-            if (argv[1] != "trick_version" && argv[1] != "sie" && argv[1] != "-help"  && argv[1] != "--help" &&
-                argv[1] != "-h" && argv[1] != "help") {
-                std::cerr << "\nERROR: Invalid input file or command line argument." << std::endl;
-                exit(1);
-            }
+          if (argv[1] != "trick_version" && argv[1] != "sie" && argv[1] != "-help" && argv[1] != "--help"
+              && argv[1] != "-h" && argv[1] != "help") {
+              std::cerr << "\nERROR: Invalid input file or command line argument." << std::endl;
+              exit(1);
+          }
         }
 
-        found = run_dir.find_last_of('/') ;
+        found = run_dir.find_last_of('/');
         if ( found != std::string::npos ) {
             run_dir.erase(found) ;
         } else {
@@ -251,7 +252,7 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
                     exit(1) ;
                 }
                 /* Output data directory */
-                output_dir = user_output_dir = argv[ii+1];
+                output_dir = user_output_dir = argv[ii + 1];
                 if (argv[ii].compare(0, 3, "-OO") == 0) {
                     output_dir = output_dir + "/" + run_dir;
                 }
