@@ -58,7 +58,7 @@ namespace Trick {
 
             /**
              @brief Command to get the command line arguments
-             @return char ** pointing to the argument list
+             @return std::vector<std::string>& referencing to the argument vector
             */
             std::vector<std::string>& get_argv();
 
