@@ -11,8 +11,9 @@
 
    PROGRAMMERS: ( Keith Vetter LinCom 6/2003 ) */
 
-#include <iostream>
 #include "trick/CommandLineArguments.hh"
+#include <string>
+#include <vector>
 
 extern Trick::CommandLineArguments * the_cmd_args ;
 
@@ -36,8 +37,19 @@ extern "C" int command_line_args_get_argc(void) {
  @relates Trick::CommandLineArguments
  @copydoc Trick::CommandLineArguments::get_argv()
  */
-extern "C" char ** command_line_args_get_argv(void) {
-    return(the_cmd_args->get_argv()) ;
+extern "C" const char ** command_line_args_get_argv(void) {
+    static std::vector<const char*> c_argv;
+
+    std::vector<std::string>& argv = the_cmd_args->get_argv();
+
+    c_argv.clear();
+    c_argv.reserve(argv.size());
+
+    for (auto& str : argv) {
+        c_argv.push_back(str.c_str());
+    }
+
+    return c_argv.data();
 }
 
 const char * empty_string = "" ;

@@ -12,38 +12,36 @@
    PROGRAMMERS: ( Keith Vetter LinCom 6/2003 ) */
 
 
-#include <iostream>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <cstring>
 #include <cerrno>
-#include <unistd.h>
-#include <sys/types.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <iostream>
 #include <pwd.h>
+#include <string>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <vector>
 
 #include "trick/CommandLineArguments.hh"
 #include "trick/memorymanager_c_intf.h"
 
 Trick::CommandLineArguments * the_cmd_args ;
 
-Trick::CommandLineArguments::CommandLineArguments() {
+Trick::CommandLineArguments::CommandLineArguments() : argc(0) {
     the_cmd_args = this ;
 
     output_dir = std::string(".") ;
     default_dir = std::string(".") ;
-
-    argc = 0;
-    argv = NULL;
 }
 
 int Trick::CommandLineArguments::get_argc() {
     return(argc) ;
 }
 
-char ** Trick::CommandLineArguments::get_argv() {
+std::vector<std::string>& Trick::CommandLineArguments::get_argv() {
     return(argv) ;
 }
 
@@ -106,7 +104,7 @@ int Trick::CommandLineArguments::create_path(const std::string& dirname) {
             cur_index = full_dir.size();
         }
         std::string cur_dir = full_dir.substr(0, cur_index);
-        
+
         struct stat info;
         if(stat( cur_dir.c_str(), &info ) != 0) {
             // does not exist - make it
@@ -168,20 +166,21 @@ int Trick::CommandLineArguments::create_path(const std::string& dirname) {
 */
 int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
-    char *buf, *buf2;
-    size_t found ;
+    argc = nargs;
+    argv.clear();
 
-    argc = nargs ;
-    argv = (char **)TMM_declare_var_1d("char *", argc) ;
-    for (int ii = 0 ; ii < argc ; ii++ ) {
-       argv[ii] = TMM_strdup(args[ii]) ;
+    // c/cpp argument vector is null-terminated, but for trick, the stored arguments array never was
+    argv.reserve(argc);
+    for (int ii = 0; ii < argc; ii++) {
+       argv.emplace_back(args[ii]);
     }
 
-    buf = (char *)malloc(4096) ;
-    buf2 = (char *)malloc(4096) ;
-
     default_dir = argv[0] ;
-    found = default_dir.find_last_of("/") ;
+
+    char *buf = (char *)malloc(4096);
+    char *buf2 = (char *)malloc(4096);
+    size_t found = default_dir.find_last_of('/') ;
+
     if ( found == std::string::npos ) {
         cmdline_name = default_dir ;
         getcwd(buf, (size_t) 256);
@@ -208,30 +207,30 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
     if ( argc > 1 ) {
 
-    /* First occurnance of "RUN_*" is the input file name: '<Run_dir>/<file_name>'. 
+    /* First occurrence of "RUN_*" is the input file name: '<Run_dir>/<file_name>'.
        If not found, defaults to first argument */
-        
+
         input_file = argv[1];
         run_dir = argv[1];
 
-        for(int ii = 1; ii < argc; ii++) {
-            if(std::string(argv[ii]).find("RUN_") != std::string::npos) {
-              input_file = argv[ii];
-              run_dir = argv[ii];
+        for (auto& arg : argv) {
+            if (arg.find("RUN_") != std::string::npos) {
+              input_file = arg;
+              run_dir = arg;
               break;
             }
         }
 
         if (access(input_file.c_str(), F_OK) != 0) {
           input_file = "";
-            if(strcmp(argv[1], "trick_version") && strcmp(argv[1], "sie") && strcmp(argv[1], "-help")  && strcmp(argv[1], "--help") &&
-                strcmp(argv[1], "-h") && strcmp(argv[1], "help")) {
+            if (argv[1] != "trick_version" && argv[1] != "sie" && argv[1] != "-help"  && argv[1] != "--help" &&
+                argv[1] != "-h" && argv[1] != "help") {
                 std::cerr << "\nERROR: Invalid input file or command line argument." << std::endl;
                 exit(1);
             }
         }
 
-        found = run_dir.find_last_of("/") ;
+        found = run_dir.find_last_of('/') ;
         if ( found != std::string::npos ) {
             run_dir.erase(found) ;
         } else {
@@ -246,16 +245,16 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
         output_dir = run_dir ;
 
         for (int ii = 1; ii < argc; ii++) {
-            if (!strncmp("-OO", argv[ii], (size_t) 3) || !strncmp("-O", argv[ii], (size_t) 2)) {
+            if (argv[ii].compare(0, 3, "-OO") == 0 || argv[ii].compare(0, 2, "-O") == 0) {
                 if (ii == ( argc - 1 )) {
                     std::cerr << "\nERROR: No directory specified after -O or -OO argument" << std::endl ;
                     exit(1) ;
                 }
                 /* Output data directory */
-                output_dir = user_output_dir = argv[++ii];
-                if (!strncmp("-OO", argv[ii-1], (size_t) 3)) {
+                output_dir = user_output_dir = argv[ii+1];
+                if (argv[ii].compare(0, 3, "-OO") == 0) {
                     output_dir = output_dir + "/" + run_dir;
-                } 
+                }
             }
         }
 
