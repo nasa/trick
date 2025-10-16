@@ -168,8 +168,6 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
     argc = nargs;
     argv.clear();
-
-    // c/cpp argument vector is null-terminated, but for trick, the stored arguments array never was
     argv.reserve(argc);
     for (int ii = 0; ii < argc; ii++) {
         argv.emplace_back(args[ii]);
@@ -214,7 +212,7 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
         input_file = argv[1];
         run_dir = argv[1];
 
-        for (auto& arg : argv) {
+        for (const auto& arg : argv) {
             if (arg.find("RUN_") != std::string::npos) {
                 input_file = arg;
                 run_dir    = arg;
@@ -245,15 +243,18 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
         output_dir = run_dir ;
 
+        const std::string flag_output_dir      = "-O";
+        const std::string flag_output_dir_more = "-OO";
+
         for (int ii = 1; ii < argc; ii++) {
-            if (argv[ii].compare(0, 3, "-OO") == 0 || argv[ii].compare(0, 2, "-O") == 0) {
+            if (argv[ii] == flag_output_dir || argv[ii] == flag_output_dir_more) {
                 if (ii == ( argc - 1 )) {
                     std::cerr << "\nERROR: No directory specified after -O or -OO argument" << std::endl ;
                     exit(1) ;
                 }
                 /* Output data directory */
                 output_dir = user_output_dir = argv[ii + 1];
-                if (argv[ii].compare(0, 3, "-OO") == 0) {
+                if (argv[ii] == flag_output_dir_more) {
                     output_dir = output_dir + "/" + run_dir;
                 }
             }

@@ -38,15 +38,14 @@ extern "C" int command_line_args_get_argc(void) {
  @relates Trick::CommandLineArguments
  @copydoc Trick::CommandLineArguments::get_argv()
  */
-extern "C" const char ** command_line_args_get_argv(void) {
+extern "C" const char* const* command_line_args_get_argv(void) {
     static std::vector<const char*> c_argv;
 
     std::vector<std::string>& argv = the_cmd_args->get_argv();
 
     c_argv.clear();
     c_argv.reserve(argv.size());
-
-    for (auto& str : argv) {
+    for (const auto& str : argv) {
         c_argv.push_back(str.c_str());
     }
 
