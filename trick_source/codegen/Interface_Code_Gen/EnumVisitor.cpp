@@ -28,6 +28,30 @@ bool EnumVisitor::VisitType(clang::Type *t) {
 
 bool EnumVisitor::VisitEnumDecl(clang::EnumDecl *ed) {
     eval.setFileName(getFileName(ci , ed->RBRACELOC(), hsd)) ;
+
+    // Get the underlying type of the enum regardless of whether it's fixed or not
+    clang::QualType underlying_type = ed->getIntegerType();
+    if (underlying_type.isNull()) {
+        // Fallback to the default int type (non-null QualType) if underlying type is null
+        underlying_type = ci.getASTContext().IntTy;
+    }
+    // Check if the explicit or implicit underlying type is unsigned
+    bool is_unsigned = underlying_type->isUnsignedIntegerType();
+    eval.setIsUnsigned(is_unsigned);
+
+    if (debug_level >= 3) {
+        // Print explicit if isFixed(), implicit if not
+        const std::string ex_im = ed->isFixed()? "explicit" : "implicit";
+
+        std::cout << "EnumDecl debug: name=\"" << ed->getName().str()
+                  << "\" qname=\"" << ed->getQualifiedNameAsString() << "\""
+                  << " scoped=" << (ed->isScoped()? "true":"false")
+                  << " fixed=" << (ed->isFixed()? "true":"false")
+                  << " " << ex_im << "_underlying=\"" << underlying_type.getAsString() << "\""
+                  << " unsigned=" << (is_unsigned? "true":"false")
+                  << std::endl;
+    }
+
     return true;
 }
 
