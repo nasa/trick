@@ -25,6 +25,7 @@ sub dump_makefile_vars($$$@)
     
     {
         local %ENV = %$env_ref;
+        $ENV{'AM_I_TRICKIFYING'} = 1;
         system("make -f ${build_dir}/get_vars.mk print_vars");
     }
 

@@ -154,6 +154,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 				FILES="$$FILES $$line"; \
 			done < $(OBJ_LINK_LIST); \
 		fi; \
+		echo $$FILES > full_file_list ; \
 		if [ "$(TRICKIFY_BUILD_TYPE)" = "PLO" ]; then \
 			$(LD) $(LD_PARTIAL) -o $@ $$FILES; \
 		elif [ "$(TRICKIFY_BUILD_TYPE)" = "SHARED" ]; then \

@@ -10,6 +10,7 @@ import javax.swing.event.ChangeListener;
 import java.util.ArrayList;
 import java.io.FileWriter;
 import java.io.FileReader;
+import java.nio.file.*;
 import java.util.Properties;
 
 import trick.common.TrickApplication;
@@ -252,6 +253,14 @@ public class TrickifyPanel extends JPanel
             }
 
             String logDirsPath = buildPathDirs.getText();
+            Path filePath = Paths.get(logDirsPath + System.getProperty("file.separator") + "trickify.log");
+            //Ensure the log filepath exists
+            Files.createDirectories(filePath.getParent());
+            if (Files.notExists(filePath)) 
+            {
+                Files.createFile(filePath);
+            }
+
             PrintWriter logfile = new PrintWriter(logDirsPath + System.getProperty("file.separator") + "trickify.log", "UTF-8");
             logfile.println(output);
             logfile.close();
