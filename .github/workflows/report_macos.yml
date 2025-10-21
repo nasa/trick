@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Download artifact from latest attempt
-      uses: dawidd6/action-download-artifact@v3     # This action downloads + extracts
+      uses: dawidd6/action-download-artifact@v6     # This action downloads + extracts
       with:
         workflow: macOS                   # The workflow that creates the artifact
         name: Trick_macos                 # Name of the artifact
