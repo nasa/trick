@@ -29,49 +29,27 @@ bool EnumVisitor::VisitType(clang::Type *t) {
 bool EnumVisitor::VisitEnumDecl(clang::EnumDecl *ed) {
     eval.setFileName(getFileName(ci , ed->RBRACELOC(), hsd)) ;
 
-    // Check if enum has an explicit underlying type (e.g., enum MY_ENUM : uint8_t)
-    if (ed->isFixed()) {
-        clang::QualType underlying_type = ed->getIntegerType();
-        // Check if the underlying type is unsigned
-        bool is_unsigned = underlying_type->isUnsignedIntegerType();
-        eval.setIsUnsigned(is_unsigned);
+    // Get the underlying type of the enum regardless of whether it's fixed or not
+    clang::QualType underlying_type = ed->getIntegerType();
+    if (underlying_type.isNull()) {
+        // Fallback to the default int type (non-null QualType) if underlying type is null
+        underlying_type = ci.getASTContext().IntTy;
+    }
+    // Check if the explicit or implicit underlying type is unsigned
+    bool is_unsigned = underlying_type->isUnsignedIntegerType();
+    eval.setIsUnsigned(is_unsigned);
 
-        if ( debug_level >= 3 ) {
-            std::string type_str = underlying_type.getAsString();
-            std::cout << "EnumVisitor: Found enum with fixed underlying type: " 
-                      << type_str << " (unsigned: " << is_unsigned << ")";
+    if (debug_level >= 3) {
+        // Print explicit if isFixed(), implicit if not
+        const std::string ex_im = ed->isFixed()? "explicit" : "implicit";
 
-            // Show specific type detection
-            if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::UChar)) {
-                std::cout << " [unsigned char/uint8_t]";
-            } else if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::UShort)) {
-                std::cout << " [unsigned short/uint16_t]";
-            } else if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::UInt)) {
-                std::cout << " [unsigned int/uint32_t]";
-            } else if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::ULong)) {
-                std::cout << " [unsigned long]";
-            } else if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::ULongLong)) {
-                std::cout << " [unsigned long long/uint64_t]";
-            } else if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::SChar)) {
-                std::cout << " [signed char/int8_t]";
-            } else if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::Short)) {
-                std::cout << " [short/int16_t]";
-            } else if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::Int)) {
-                std::cout << " [int/int32_t]";
-            } else if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::Long)) {
-                std::cout << " [long]";
-            } else if (underlying_type->isSpecificBuiltinType(clang::BuiltinType::LongLong)) {
-                std::cout << " [long long/int64_t]";
-            }
-            std::cout << std::endl;
-        }
-    } else {
-        // No explicit underlying type, default to signed (traditional C enum behavior)
-        eval.setIsUnsigned(false);
-
-        if ( debug_level >= 3 ) {
-            std::cout << "EnumVisitor: Found enum without fixed underlying type, defaulting to signed" << std::endl;
-        }
+        std::cout << "EnumDecl debug: name=\"" << ed->getName().str()
+                  << "\" qname=\"" << ed->getQualifiedNameAsString() << "\""
+                  << " scoped=" << (ed->isScoped()? "true":"false")
+                  << " fixed=" << (ed->isFixed()? "true":"false")
+                  << " " << ex_im << "_underlying=\"" << underlying_type.getAsString() << "\""
+                  << " unsigned=" << (is_unsigned? "true":"false")
+                  << std::endl;
     }
 
     return true;
