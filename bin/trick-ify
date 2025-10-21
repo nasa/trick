@@ -510,13 +510,11 @@ if ($full_build)
 
             if( grep { /^\Q$ext\E$/ } @source_ext_cpp )
             {
-                #print $fh "\${TRICKIFY_OBJECTS} : build/%.o : /%.cc | build/%.d \$\$(dir \$\$@)\n" ;
                 print $fh "\n\${TRICKIFY_OBJECTS$ext} : $build_dir/build/%.o : /%$ext | \$\$(dir \$\$@)\n" ;
                 print $fh "\t\$(TRICK_CXX) \$(TRICKIFY_SRC_MAKE_ARGS) \$(TRICKIFY_CXX_FLAGS) \$(TRICK_CFLAGS) \$(TRICK_SFLAGS) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -c -o \$@ \$<\n" ;
             }
             else
             {
-                #print $fh "\${TRICKIFY_OBJECTS} : build/%.o : /%.cc | build/%.d \$\$(dir \$\$@)\n" ;
                 print $fh "\n\${TRICKIFY_OBJECTS$ext} : $build_dir/build/%.o : /%.cc | \$\$(dir \$\$@)\n" ;
                 print $fh "\t\$(TRICK_CC) \$(TRICKIFY_SRC_MAKE_ARGS) \$(TRICKIFY_CXX_FLAGS) \$(TRICK_CFLAGS) \$(TRICK_SFLAGS) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -c -o \$@ \$<\n" ;
             }
