@@ -12,9 +12,15 @@ jobs:
       
     runs-on: ubuntu-latest
     steps:
-    - uses: dorny/test-reporter@v1
+    - name: Download artifact from latest attempt
+      uses: dawidd6/action-download-artifact@v3     # This action downloads + extracts
       with:
-        artifact: Trick_macos # artifact name
-        name: Results_Trick_macos # Name of the check run which will be created
+        workflow: macOS                   # The workflow that creates the artifact
+        name: Trick_macos                 # Name of the artifact
+
+    - name: Publish Test Report
+      uses: dorny/test-reporter@v1
+      with:
+        name: Results_Trick_macos         # Name of the check run which will be created
         path: '*.xml'                     # Path to test results (inside artifact .zip)
         reporter: java-junit              # Format of test results
