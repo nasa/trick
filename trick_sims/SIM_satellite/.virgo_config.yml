@@ -5,6 +5,7 @@ background_color: [0.0, 0.0, 0.05]
 highlight_color: [1.0, 1.0, 0.0]
 playback_speeds: [1.0, 5.0, 10.0, 20.0, 50.0, 100.0]
 playback_speed: 1.0
+splash: True
 starfield: 0
 data_source:
   trickpy:  # Logged data to read into virgo during init
@@ -300,7 +301,6 @@ camera:
   near_clipping_plane_tolerance: 5e-7
 sun:
   direction: [1.0, 0.0, 0.0]  # World vector pointing towards sun
-
 lighting:
   start_mode: realistic
   dark_ambient: 0.1

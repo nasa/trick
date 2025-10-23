@@ -16,6 +16,8 @@ parser.add_argument("--data-dir", help="Directory to write the CSV data to",
 parser.add_argument("--headless", action="store_true",
                     help="Render to video instead of providing an"
                     " interactive window")
+parser.add_argument("--splash", help="Display VIRGO splash screen",
+                    default=True)
 parser.add_argument("--video-filename",
                     help="Filename for headless video when --headless given",
                     default=os.path.join(thisFileDir, 'pendulums.mp4'))
@@ -31,7 +33,7 @@ class PendulumExample:
         # to consume TrickPy-compatible data, which log_pendulum.csv meets
         self.v = VirgoDataPlayback(run_dir=args.data_dir, scene=scene,
                                     headless=args.headless,
-                                    video_filename=args.video_filename)
+                                    video_filename=args.video_filename, splash=args.splash)
         # Initialize the scene but do not render yet
         self.v.initialize()
 
