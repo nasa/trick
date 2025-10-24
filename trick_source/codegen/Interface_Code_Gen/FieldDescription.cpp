@@ -291,8 +291,17 @@ void FieldDescription::parseComment(std::string comment) {
 
     // The rest of the comment is the description of the variable.
 
-    // remove the c comment end marker.
-    comment = get_regex_field(comment , "(.*)\\*/" , 1) ;
+    // remove the c comment end marker if present.
+    // don't overwrite the comment with an empty string
+    // when there is no "*/" (e.g. // (var_unit) var description)
+    // to preserve the description of the variable.
+    // get_regex_field returns an empty string on no match.
+    {
+        std::string tmp = get_regex_field(comment , "(.*)\\*/" , 1) ;
+        if ( ! tmp.empty() ) {
+            comment = tmp ;
+        }
+    }
 
     // posix c regular expressions are terrible. the regexes above will leave "@" signs because
     // the regular expressions are so greedy.
