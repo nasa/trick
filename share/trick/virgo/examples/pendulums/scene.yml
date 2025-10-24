@@ -1,5 +1,11 @@
-name: pendulums
-description: VIRGO Pendulums Example
+name: VIRGO Pendulums Example
+description: |
+    This scene visualizes multiple pendulums' motion and provides an
+    example of how VIRGO can consume data logged at different rates
+    and display that data in a consistent way. Step through the data
+    using the arrow keys and pick objects to observe their position
+    values over time. Notice the data @ <time> in the HUD vs. the
+    world time displayed, they will not always perfectly align.
 resolution: 1280x720
 background_color: [0.0, 0.0, 0.05]   # Background color of the scene
 highlight_color: [1.0, 1.0, 0.0]     # RGB Highlight color when objects are picked

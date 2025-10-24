@@ -1,0 +1,302 @@
+# Configuration file for VIRGO to consume related to this simulation configuration
+name: VIRGO satellite example
+description: |
+     This scene visualizes a cube satellite in an equatorial orbit which does
+     two maneuvers to rotate the satellite about it's Y-axis. The cube sat has
+     16 Reaction Control System (RCS) jets which allow it to impart a force or
+     torque on the vehicle. During the simulation, two periods of RCS jet
+     firings occur which change the orientation of the vehicle. When RCS jets
+     fire, yellow cylinders are set to visible which indicate a force is being
+     applied
+start_mode: PAUSED
+background_color: [0.0, 0.0, 0.05]
+highlight_color: [1.0, 1.0, 0.0]
+playback_speeds: [1.0, 5.0, 10.0, 20.0, 50.0, 100.0]
+playback_speed: 1.0
+starfield: 0
+data_source:
+  trickpy:  # Logged data to read into virgo during init
+    time: 
+      group: satellite            # Data recording group
+      var: sys.exec.out.time   # Name given to time (first) column
+    # Everything else is a data alias for logged data variables
+    sat_pos: 
+      group: satellite            # Data recording group
+      var: dyn.satellite.pos[0-2] # Data recording variable
+    sat_vel: 
+      group: satellite            # Data recording group
+      var: dyn.satellite.vel[0-2] # Data recording variable
+    sat_rot: 
+      group: satellite                # Data recording group
+      var: dyn.satellite.Rtrans[0-2][0-2]  # Data recording variable
+    sat_force: 
+      group: satellite                # Data recording group
+      var: dyn.satellite.force[0-2]   # Data recording variable
+    B1_on: 
+      group: satellite
+      var: dyn.satellite.thruster_B1.on
+    B2_on: 
+      group: satellite
+      var: dyn.satellite.thruster_B2.on
+    B3_on: 
+      group: satellite
+      var: dyn.satellite.thruster_B3.on
+    B4_on: 
+      group: satellite
+      var: dyn.satellite.thruster_B4.on
+    L1_on: 
+      group: satellite
+      var: dyn.satellite.thruster_L1.on
+    L2_on: 
+      group: satellite
+      var: dyn.satellite.thruster_L2.on
+    L3_on: 
+      group: satellite
+      var: dyn.satellite.thruster_L3.on
+    L4_on: 
+      group: satellite
+      var: dyn.satellite.thruster_L4.on
+    R1_on: 
+      group: satellite
+      var: dyn.satellite.thruster_R1.on
+    R2_on: 
+      group: satellite
+      var: dyn.satellite.thruster_R2.on
+    R3_on: 
+      group: satellite
+      var: dyn.satellite.thruster_R3.on
+    R4_on: 
+      group: satellite
+      var: dyn.satellite.thruster_R4.on
+    T1_on: 
+      group: satellite
+      var: dyn.satellite.thruster_T1.on
+    T2_on: 
+      group: satellite
+      var: dyn.satellite.thruster_T2.on
+    T3_on: 
+      group: satellite
+      var: dyn.satellite.thruster_T3.on
+    T4_on: 
+      group: satellite
+      var: dyn.satellite.thruster_T4.on
+# A frame is an empty actor/node whose position/orientation must be static
+# with respect to it's parent (or world if no parent specified)
+frames:
+  RCS_T:  # Location of the T-set of RCS jets
+    pos: [0.0, 0.0, 1.956]
+    ypr: [0.0, 0.0, 0.0]
+    scale: 1.0
+    parent: satellite
+  RCS_R:  # Location of the R-set of RCS jets
+    pos: [0.0, 1.956, 0.0]
+    ypr: [0.0, 0.0, 0.0]
+    scale: 1.0
+    parent: satellite
+  RCS_B:  # Location of the B-set of RCS jets
+    pos: [0.0, 0.0, -1.956]
+    ypr: [0.0, 0.0, 0.0]
+    scale: 1.0
+    parent: satellite
+  RCS_L:  # Location of the L-set of RCS jets
+    pos: [0.0, -1.956, 0.0]
+    ypr: [0.0, 0.0, 0.0]
+    scale: 1.0
+    parent: satellite
+actors:
+  earth: 
+    mesh: VIRGO_PREFAB:earth
+    scale: 1.0             # Size multiplier
+    pos:   [0.0, 0.0, 0.0] # initial position offset in scene
+    ypr:   [0.0, 0.0, 0.0] # pitch-yaw-roll rotation offset, applied after pos:
+    pickable: 0
+    labels:
+      name:
+        text: "Earth"
+        pos: [0.0, 0.0, 6500000.0]
+        ypr: [0.0, 0.0, 90.0]
+        scale: 300000
+  satellite:
+    mesh: VIRGO_PREFAB:cube         # Size multiplier
+    scale: 3.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 0.0, 0.0]
+    color: [0.6, 0.6, 0.6]
+    pickable:   # If given, this actor is pickable with the mouse
+      focus: 1  # TO BE IMPLEMENTED: On pick, focus camera on actor
+      hud:      # TO BE IMPLEMENTED: While picked, display these values
+        position: 1
+        rotation: 1
+        custom: TBD  # Custom Actor callback to display anything
+    trail:
+      enabled: 1
+      color: [0.0, 1.0, 0.0] #  # Color of trail
+      thickness: 5
+      opacity: 1.0
+    driven_by:  # Actor position/rotation driven by these data aliases
+      time: time
+      pos: sat_pos
+      rot: sat_rot
+    labels:
+      name:
+        color: [1.0, 1.0, 1.0]
+        text: "Satellite: 1000 kg"
+        pos: [2.0, 0.0, 0.0]
+        ypr: [0.0, 0.0, 0.0]
+      velocity:
+        text: |
+          Inertial velocity (m/s):
+            x: {sat_vel[0]:<10.5f}
+            y: {sat_vel[1]:<10.5f}
+            z: {sat_vel[2]:<10.5f}
+        pos: [2.0, -0.5, 0.0]
+  # RCS Jet positions and force directions in the body frame taken from
+  # Satellite::initialize()
+  RCS_T1:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0]
+    ypr: [0.0, 0.0, 0.0]  # Thrust in +X
+    color: [1.0, 0.0, 0.0]
+    parent: RCS_T
+  RCS_T2:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0]
+    ypr: [0.0, 0.0, 90.0]  # Thrust in +Y
+    color: [0.0, 1.0, 0.0]
+    parent: RCS_T
+  RCS_T3:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0]
+    ypr: [0.0, 0.0, 180.0]  # Thrust in -X
+    color: [1.0, 0.0, 0.0]
+    parent: RCS_T
+  RCS_T4:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0]
+    ypr: [0.0, 0.0, -90.0]  # Thrust in -Y
+    color: [0.0, 1.0, 0.0]
+    parent: RCS_T
+  RCS_R1:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 0.0, 0.0]  # Thrust in +X
+    color: [1.0, 0.0, 0.0]
+    parent: RCS_R
+  RCS_R2:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 90.0, 0.0]  # Thrust in -Z
+    color: [0.0, 0.0, 1.0]
+    parent: RCS_R
+  RCS_R3:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 180.0, 0.0]  # Thrust in -X
+    color: [1.0, 0.0, 0.0]
+    parent: RCS_R
+  RCS_R4:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, -90.0, 0.0]  # Thrust in +Z
+    color: [0.0, 0.0, 1.0]
+    parent: RCS_R
+  RCS_B1:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 0.0, 0.0]  # Thrust in +X
+    color: [1.0, 0.0, 0.0]
+    parent: RCS_B
+  RCS_B2:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 0.0, 90.0]  # Thrust in +Y
+    color: [0.0, 1.0, 0.0]
+    parent: RCS_B
+  RCS_B3:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 0.0, 180.0]  # Thrust in -X
+    color: [1.0, 0.0, 0.0]
+    parent: RCS_B
+  RCS_B4:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 0.0, -90.0]  # Thrust in -Y
+    color: [0.0, 1.0, 0.0]
+    parent: RCS_B
+  RCS_L1:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 0.0, 0.0]  # Thrust in +X
+    color: [1.0, 0.0, 0.0]
+    parent: RCS_L
+  RCS_L2:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, -90.0, 0.0]  # Thrust in +Z
+    color: [0.0, 0.0, 1.0]
+    parent: RCS_L
+  RCS_L3:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 180.0, 0.0]  # Thrust in -X
+    color: [1.0, 0.0, 0.0]
+    parent: RCS_L
+  RCS_L4:
+    mesh: VIRGO_PREFAB:cone
+    scale: 1.0
+    pos: [0.0, 0.0, 0.0]
+    ypr: [0.0, 90.0, 0.0]  # Thrust in -Z
+    color: [0.0, 0.0, 1.0]
+    parent: RCS_L
+  # In SIM_satellite only T1 and T3 actually fire so we skip
+  # defining the plume cylinders for the other jets
+  RCS_T1_PLUME:
+    mesh: VIRGO_PREFAB:cylinder
+    scale: 1.0
+    pos: [1.5, 0.0, 0.0] # Offset in X to edge of RCS cone
+    ypr: [0.0, 0.0, 90.0]  # Thrust in +X
+    color: [0.9, 0.9, 0.0]
+    opacity: 0.0
+    parent: RCS_T
+    driven_by:
+      time: time
+      opacity: T1_on
+  RCS_T3_PLUME:
+    mesh: VIRGO_PREFAB:cylinder
+    scale: 1.0
+    pos: [-1.5, 0.0, 0.0] # Offset in X to edge of RCS cone
+    ypr: [0.0, 0.0, 90.0]  # Thrust in +X
+    color: [0.9, 0.9, 0.0]
+    opacity: 0.0
+    parent: RCS_T
+    driven_by:
+      time: time
+      opacity: T3_on
+picker:
+  tolerance: 2e-10
+camera:
+  follow: satellite
+  near_clipping_plane_tolerance: 5e-7
+sun:
+  direction: [1.0, 0.0, 0.0]  # World vector pointing towards sun
+
+lighting:
+  start_mode: realistic
+  dark_ambient: 0.2
+  bright_ambient: 0.7

@@ -4,4 +4,6 @@ imageio-ffmpeg
 numpy
 pandas
 pyYAML
+# psutil only needed for RAM diagnostic info
+psutil
 vtk

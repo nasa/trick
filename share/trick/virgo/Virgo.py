@@ -7,9 +7,10 @@ leveraging python-VTK
 from VirgoActor import VirgoActor
 from VirgoNode import VirgoSceneNode, VirgoSceneNodeVector
 from VirgoSplash import VirgoSplash
+from VirgoUtils import cprint
 
 import os, sys, inspect, time, tempfile
-import math, shutil
+import math, textwrap
 import vtk
 import numpy as np
 
@@ -1248,7 +1249,7 @@ class VirgoScene:
         if 'description' in self.scene:
             self.description = self.scene['description']
         if 'name' in self.scene:
-            self.description = self.scene['name']
+            self.name = self.scene['name']
         if 'resolution' in self.scene:
             self.window_width, self.window_height = map(int, self.scene['resolution'].split('x'))
 
@@ -1562,6 +1563,8 @@ class VirgoScene:
         if not self.controller.is_initialized():
             print("ERROR: Scene is not properly initialized. Exiting.")
             return(1)
+        if self.verbosity > 0:
+            self.report()
     
         if self.headless:
             self.run_headless(stop_time=self.stop_time)
@@ -1574,6 +1577,19 @@ class VirgoScene:
 
         self.tear_down()
         return 0
+
+    def report(self):
+        # Get some diagnostics about how much RAM we are using
+        cprint(f"Scene: {self.name}", bold=True)
+        cprint(f"Description:", bold=True)
+        cprint(textwrap.indent(f"{self.description}", "  "), bold=True)
+        try:
+            import psutil
+            process = psutil.Process(os.getpid())
+            memory_mb = process.memory_info().rss / 1024 ** 2  # RSS = Resident Set Size
+            cprint(f"Current RAM usage: {memory_mb:.2f} MB")
+        except Exception as e:
+            pass
 
     def _run_interactive(self):
         self.render_window.Render()
