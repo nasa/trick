@@ -64,7 +64,8 @@ class VirgoSplash():
         self.image_actor.GetProperty().SetOpacity(1.0)
 
         # Overlay renderer for splash
-        self.overlay_renderer.SetLayer(1)
+        num_layers = self.render_window.GetNumberOfLayers()
+        self.overlay_renderer.SetLayer(num_layers)
         self.overlay_renderer.AddActor(self.image_actor)
 
         # Disable user interaction on splash
@@ -74,7 +75,7 @@ class VirgoSplash():
         self.overlay_renderer.SetViewport(0, 0, 1, 1)
         
         # Create new layer on Main VTK window for splash 
-        self.render_window.SetNumberOfLayers(2)
+        self.render_window.SetNumberOfLayers(num_layers+1)
         self.render_window.AddRenderer(self.overlay_renderer)
         
         # Decrease opacity over 2 second duration

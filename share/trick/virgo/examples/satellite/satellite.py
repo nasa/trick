@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(thisFileDir, '../../')))
 from VirgoDataPlayback import VirgoDataPlayback
 
 parser = argparse.ArgumentParser(description=
-        'Visualize the satellite data in log_Satellite.csv) using VIRGO. ',
+        'Visualize the satellite data in log_Satellite.csv using VIRGO.',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
         )
 parser.add_argument("--scene-config", help="YAML config file to load",

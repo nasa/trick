@@ -13,7 +13,7 @@ background_color: [0.0, 0.0, 0.05]
 highlight_color: [1.0, 1.0, 0.0]
 playback_speeds: [1.0, 5.0, 10.0, 20.0, 50.0, 100.0]
 playback_speed: 1.0
-starfield: 0
+starfield: 1
 data_source:
   trickpy:  # Logged data to read into virgo during init
     time: 
