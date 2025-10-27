@@ -7,6 +7,7 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 #include "trick/tc_proto.h"
+#include "trick/ExecutiveException.hh"
 
 /** @par Detailed Design: */
 int Trick::MonteCarlo::slave_init() {
@@ -24,7 +25,19 @@ int Trick::MonteCarlo::slave_init() {
     }
 
     /** <li> Run the slave initialization jobs. */
-    run_queue(&slave_init_queue, "in slave_init queue") ;
+    try {
+        run_queue(&slave_init_queue, "in slave_init queue") ;
+    } catch (Trick::ExecutiveException & e) {
+        /* Ensure any partially-initialized communication devices are cleaned up
+         * so that resources are not leaked when exec_terminate() is called from
+         * an init job. Rethrow after cleanup so the top level executive loop
+         * can perform global termination handling. */
+        tc_disconnect(&connection_device);
+        tc_disconnect(&listen_device);
+        tc_error(&listen_device, 0);
+        tc_error(&connection_device, 0);
+        exit(-1);
+    }
 
     /** <li> Initialize the sockets. */
     tc_error(&listen_device, 0);

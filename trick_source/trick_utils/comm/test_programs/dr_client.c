@@ -17,7 +17,8 @@
  *
  */
 
-#include "../include/tc_proto.h"
+//#include "../include/tc_proto.h"
+#include "trick/tc_proto.h"
 
 #define MAX_FILES 128
 typedef struct {
