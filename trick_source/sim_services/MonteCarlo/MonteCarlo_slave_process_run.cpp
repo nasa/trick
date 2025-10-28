@@ -3,10 +3,6 @@
 #include <sys/wait.h>
 #include <stdio.h>
 #include <sstream>
-#include <fcntl.h>
-#include <unistd.h>
-#include <limits.h>
-#include <string.h>
 
 #include "trick/MonteCarlo.hh"
 #include "trick/command_line_protos.h"
@@ -37,102 +33,10 @@ int Trick::MonteCarlo::slave_process_run() {
     }
     tc_disconnect(&connection_device);
 
-    // Prepare data and filesystem artifacts in the parent BEFORE fork to avoid
-    // doing non-async-signal-safe work in the child process.
-    input[size] = '\0';
-
-    // Determine the output directory for each run from the input
-    // that includes trick.set_output_dir(".../RUN_xxxxx").
-    // See Trick::MonteCarlo::dispatch_run_to_slave for how trick.set_output_dir is used.
-    std::string output_dir = command_line_args_get_output_dir();
-    std::string run_output_dir = output_dir;  // Default to shared MONTE_* directory
-    {
-        std::string input_str(input);
-        const std::string marker = "trick.set_output_dir(\"";
-        size_t start_pos = input_str.find(marker);
-        if (start_pos != std::string::npos) {
-            start_pos += marker.length();
-            size_t end_pos = input_str.find('"', start_pos);
-            if (end_pos != std::string::npos) {
-                run_output_dir = input_str.substr(start_pos, end_pos - start_pos);
-            }
-        }
-    }
-
-    // Ensure the target run directory exists (create it if does not exist).
-    if (access(run_output_dir.c_str(), F_OK) != 0) {
-        if (mkdir(run_output_dir.c_str(), 0775) == -1) {
-            if (verbosity >= MC_ERROR) {
-                message_publish(MSG_ERROR, "Monte [%s:%d] Unable to create run dir %s.\nShutting down.\n",
-                                machine_name.c_str(), slave_id, run_output_dir.c_str());
-            }
-            slave_shutdown();
-        }
-    }
-
-    // Write a monte_input file into the run directory for each run.
-    std::stringstream ss_monte_input;
-    ss_monte_input << run_output_dir << "/monte_input";
-    // Check the path length before creating the file. If too long, aborts.
-    if (run_output_dir.size() + 1 + strlen("monte_input") >= PATH_MAX) {
-        if (verbosity >= MC_ERROR) {
-            message_publish(MSG_ERROR, "Monte [%s:%d] Target path too long for monte_input: %s/monte_input.\nShutting down.\n",
-                            machine_name.c_str(), slave_id, run_output_dir.c_str());
-        }
-        slave_shutdown();
-    }
-    {
-        FILE *fp = fopen(ss_monte_input.str().c_str(), "w");
-        if (fp == nullptr) {
-            if (verbosity >= MC_ERROR) {
-                message_publish(MSG_ERROR, "Monte [%s:%d] Unable to open monte_input for write.\nShutting down.\n",
-                                machine_name.c_str(), slave_id);
-            }
-            slave_shutdown();
-        }
-
-        fprintf(fp,
-          "# This run can be executed in stand alone (non-Monte Carlo) mode by running\n"
-          "# the S_main executable with this file specified as the input file.\n\n");
-        fprintf(fp, "if (sys.version_info > (3, 0)):\n");
-        fprintf(fp, "    exec(open(\"%s\").read())\n", command_line_args_get_input_file());
-        fprintf(fp, "else:\n");
-        fprintf(fp, "    execfile(\"%s\")\n\n", command_line_args_get_input_file());
-        fprintf(fp, "trick.mc_set_enabled(0)\n");
-        fprintf(fp, "%s" , input);
-        fclose(fp);
-    }
-
-    // Precompute stdout/stderr paths in fixed buffers for child to use with open/dup2 (for each run directory).
-    char stdout_path[PATH_MAX];
-    char stderr_path[PATH_MAX];
-    int nout = snprintf(stdout_path, sizeof(stdout_path), "%s/%s", run_output_dir.c_str(), "stdout");
-    if (nout < 0 || nout >= sizeof(stdout_path)) {
-        if (verbosity >= MC_ERROR) {
-            message_publish(MSG_ERROR, "Monte [%s:%d] Target path too long for stdout: %s/%s.\nShutting down.\n",
-                            machine_name.c_str(), slave_id, run_output_dir.c_str(), "stdout");
-        }
-        slave_shutdown();
-    }
-    int nerr = snprintf(stderr_path, sizeof(stderr_path), "%s/%s", run_output_dir.c_str(), "stderr");
-    if (nerr < 0 || nerr >= sizeof(stderr_path)) {
-        if (verbosity >= MC_ERROR) {
-            message_publish(MSG_ERROR, "Monte [%s:%d] Target path too long for stderr: %s/%s.\nShutting down.\n",
-                            machine_name.c_str(), slave_id, run_output_dir.c_str(), "stderr");
-        }
-        slave_shutdown();
-    }
-
     /**
      * <li> fork() a child process to execute the simulation.
      * This allows the slave to monitor the child and continue running
      * if it crashes or times out.
-     * NOTE: fork is being called from a multi-threaded process as a trick sim
-     * is a multi-threaded program. Per POSIX spec, fork in a multi-threaded process, 
-     * only call async-signal-safe functions until exec a new program.
-     * Most heavy work and file creation have been moved to the parent pre-fork.
-     * In the child below only use open/dup2, sigaction, and alarm that are deemed 
-     * as async-signal-safe before entering the run.
      */
     pid_t pid = fork();
     if (pid == -1) {
@@ -193,24 +97,42 @@ int Trick::MonteCarlo::slave_process_run() {
         return 0;
     /** <li> Child process: */
     } else {
-        // Child: redirect stdout/stderr first using async-signal-safe syscalls
-        // so that any output from subsequent steps is captured to files.
-        int fd_out = open(stdout_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd_out >= 0) {
-            dup2(fd_out, STDOUT_FILENO);
-            close(fd_out);
-        }
-        int fd_err = open(stderr_path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (fd_err >= 0) {
-            dup2(fd_err, STDERR_FILENO);
-            close(fd_err);
-        }
-
-        // input already null-terminated above (pre-fork)
+        input[size] = '\0';
         if ( ip_parse(input) != 0 ) {
             exit(MonteRun::MC_PROBLEM_PARSING_INPUT);
         }
+
+        /** <ul><li> Create the run directory. */
+        std::string output_dir = command_line_args_get_output_dir();
+        if (access(output_dir.c_str(), F_OK) != 0) {
+            if (mkdir(output_dir.c_str(), 0775) == -1) {
+                exit(MonteRun::MC_CANT_CREATE_OUTPUT_DIR);
+            }
+        }
+
+        std::stringstream ss_monte_input;
+        ss_monte_input << output_dir << "/monte_input";
+        FILE *fp = fopen(ss_monte_input.str().c_str(), "w");
+
+        fprintf(fp,
+          "# This run can be executed in stand alone (non-Monte Carlo) mode by running\n"
+          "# the S_main executable with this file specified as the input file.\n\n");
+        fprintf(fp, "if (sys.version_info > (3, 0)):\n");
+        fprintf(fp, "    exec(open(\"%s\").read())\n", command_line_args_get_input_file());
+        fprintf(fp, "else:\n");
+        fprintf(fp, "    execfile(\"%s\")\n\n", command_line_args_get_input_file());
+        fprintf(fp, "trick.mc_set_enabled(0)\n");
+        fprintf(fp, "%s" , input);
+        fclose(fp);
         delete [] input;
+
+        /** <li> redirect stdout and stderr to files in the run directory */
+        std::stringstream ss_stdout;
+        ss_stdout << output_dir << "/stdout";
+        freopen(ss_stdout.str().c_str(), "w", stdout);
+        std::stringstream ss_stderr;
+        ss_stderr << output_dir << "/stderr";
+        freopen(ss_stderr.str().c_str(), "w", stderr);
 
         /** <li> Run the pre run jobs. */
         run_queue(&slave_pre_queue, "in slave_pre queue") ;

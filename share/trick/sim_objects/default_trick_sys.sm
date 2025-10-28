@@ -466,7 +466,9 @@ class VariableServerSimObject : public Trick::SimObject {
             // Call variable server initialization for normal sims,
             // monte carlo slave sim children, and the monte carlo master.
             // monte carlo slave parents do not reach initialization.
-            {TRK} P0 ("initialization") trick_ret = vs.init() ;
+            // Note: schedule this after MonteCarlo::execute_monte (which is P1)
+            // so Monte Carlo slave parents do not reach initialization.
+            {TRK} P2 ("initialization") trick_ret = vs.init() ;
 
 #ifndef TRICK_NO_MONTE_CARLO
             {TRK} ("monte_master_init") trick_ret = vs.init() ;
