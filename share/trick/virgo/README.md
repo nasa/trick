@@ -5,7 +5,11 @@ VIRGO: **V**ersatile **I**maging and **R**endering for **G**alactic **O**peratio
 ![virgo1](images/doc/virgo_example1.png)
 ![virgo2](images/doc/virgo_example2.png)
 
-VIRGO is an extensible, well-tested, and robustly documented python module which can consume simulation data in different ways. The simplest data source supported is a typical `*.csv`  (comma-separated-value) text file containing a time history of object positions in 3D space. For example, imagine you had a file `log_state.csv` that describes the motion of a satellite in space and looks like this:
+VIRGO intends to be an extensible, well-tested, and robustly documented python module which can consume simulation data in different ways. However, **VIRGO is currently in *alpha* status which means it has not yet been verified or validated in any way. Use caution when using VIRGO visualizations to draw conclusions about your engineering application. It is highly recommended that you cross-reference what you are seeing with other plotting or visualization tools before using a VIRGO scene to make an engineering decision.**
+
+## A simple VIRGO example
+
+The simplest data source supported is a typical `*.csv`  (comma-separated-value) text file containing a time history of object positions in 3D space. For example, imagine you had a file `log_state.csv` that describes the motion of a satellite in space and looks like this:
 
 ```csv
 time (s),  position[0] (m),  position[1] (m),  position[2] (m),
@@ -24,7 +28,7 @@ The **scene** defines what **actors** (the rendered objects) look like and links
 # In this example there is only one actor named satellite
 actors:
   satellite:           # User-defined name for this actor
-    mesh: PREFAB:cube  # 3D representation of the object, a cube
+    mesh: VIRGO_PREFAB:cube  # 3D representation of the object, a cube
     scale: 1.0         # The cube is 1 unit wide/tall/deep
     # This subsection defines what data source alias drives the actor
     driven_by:
@@ -41,8 +45,16 @@ data_source:
       group: state       # 'state' comes from log_state.csv
       var: position[0-2] # Variables comprising sat_pos alias
 ```
+This tiny example gives you a sense of what VIRGO can do. Any integer or floating point data can be consumed and used in VIRGO in various ways. Here are a few things you can do with VIRGO:
+1. Drive positions and orientations of **VIRGO actors** with respect to inertial space and/or relative to another actor. There is no limit to the number of actors in the scene beyond what your hardware can handle.
+2. Use prefabricated meshes (cube, sphere, cylinder, etc.) to represent actors or provide your own mesh with `*.stl` or `*.obj` files
+3. Visualize vectors that change over time in 3D space using **VIRGO vectors**
+4. Display simulation data as text in the 3D scene using **labels**
+5. Show where a **VIRGO actor** has been by enabling trails
+6. Play, pause, and adjust playback speed
+7. Step forward and backward through data while paused
+8. Choose from multiple lighting modes including light from a sun positioned by simulation data
 
-**TODO: add image or video of this cube moving through space.**
 
 ## Module Dependencies
 
@@ -60,30 +72,43 @@ source .venv/bin/activate
 ```
 ## Terminology
 
-* **A VIRGO Scene** is a python dictionary (often expressed as a YAML file) that fully articulates the details of the 3D scene that will be rendered and displayed to the user. This is the main method of configuration provided to the users of VIRGO and includes a list of `actors:`, `vectors:`, `frames:` as well as settings within the scene like lighting, data sources, labels, and others.
-* **VIRGO Actors** are 3D objects rendered in the scene and are defined by the `actors:` section of the scene dictionary.
-* **VIRGO Vectors** are **Virgo Actors** that must be represented as an arrow in 3D space. Vectors are defined in the `vectors:` section of the scene dictionary. 
-* **VIRGO Frames** are **VIRGO Actors** that have no mesh geometry. You can think of them as a reference frame positioned and oriented relative to some other reference frame or the world origin if the frame has no parent.
-* **VIRGO Nodes** define the scene graph tree by managing **VIRGO Actors, Frames, and Vectors** as well as their position and orientation with respect to their parent or world coordinates if no parent is defined. Every actor, frame, and vector is automatically assigned and parented to a unique node of the same name. When objects move in a VIRGO scene it's because their underlying **VIRGO Node** is moving.
-* **Parents** allow actors, frames, and vectors, to be defined relative to another actor, frame, or vector, by defining a `parent:` relationship.
+* **A VIRGO Scene** is a python dictionary (often expressed as a YAML file) that fully articulates the details of the 3D scene that will be rendered and displayed to the user. This is the main method of configuration provided to the users of VIRGO and includes a list of `actors:`, `vectors:`, `frames:` as well as settings within the scene like lighting, data sources, labels, etc.
+* **VIRGO Actors** are 3D objects rendered in the scene and are defined by the `actors:` section of the scene dictionary. They can be positioned and oriented statically in the scene or driven by simulation data.
+  * **VIRGO Vectors** are **VIRGO Actors** that must be represented as an arrow in 3D space. Vectors are defined in the `vectors:` section of the scene dictionary and accept a position value which defines the tip of the vector to be drawn. 
+  * **VIRGO Frames** are **VIRGO Actors** that have no mesh geometry. You can think of them as a reference frame positioned and oriented relative to some other reference frame or the world origin if the frame has no parent.
+* **VIRGO Nodes** define the scene graph tree by managing **VIRGO Actors, Frames, and Vectors** as well as their position and orientation with respect to their parent or world coordinates if no parent is defined. Every actor, frame, and vector is automatically assigned and parented to a unique node of the same name. When objects move in a VIRGO scene it's because their underlying **VIRGO Node** is moving.  
+* **Parents** allow nodes containing actors, frames, and vectors, to be defined relative to another actor, frame, or vector, by defining a `parent:` relationship. If a node has a parent that means all transformations on that node will be performed relative to that parent. Nodes and their parental relationships fully define one or more [directed acyclic graph trees](https://en.wikipedia.org/wiki/Tree_(graph_theory)) which contain all the information needed to determine world position/orientation of any actor in the scene.
+* **Root nodes** are nodes have no parents and therefore are positioned and oriented with respect to world coordinates (often considered inertial space)
 * **Data Sources** provide engineering data associated with actors, frames, and vectors. Typically this amounts to variable values at specific simulation times, for example the position of a cube over a 10 second period.
 * **Labels** allow the user to display text positionally within the 3D scene. Each **VIRGO Actor, Vector, and Frame** may optionally define `labels:` to render static text or information from a **data source** as the user sees fit.
 
-## Actors
+### Actors
 
 Details TBD
 
-## Frames
+### Frames
 
 Details TBD
 
-## Vectors
+### Vectors
 
 Details TBD
 
 ## Lighting
 
 Details TBD
+
+## Examples
+
+Standalone examples can be found under the `examples/` directory. 
+
+Details TBD.
+
+## Configure Scenes with a YAML file
+
+[YAML](https://yaml.org/) provides a handy way to define python dictionaries and track them as code in a human-readable form. Note that YAML is not required to use VIRGO but you will need to provide VIRGO with a **scene dictionary** which fully defines the scene that will be rendered.
+
+**TODO verbose explanation of the YAML file format goes here**
 
 ## Contributing
 
