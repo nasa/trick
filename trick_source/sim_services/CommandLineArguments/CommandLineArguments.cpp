@@ -245,14 +245,20 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
 
         const std::string flag_output_dir      = "-O";
         const std::string flag_output_dir_more = "-OO";
+        bool output_dir_is_set                 = false;
 
-        for (int ii = 1; ii < argc; ii++) {
+        for (size_t ii = 0; ii < argv.size() - 1; ii++) {
             if (argv[ii] == flag_output_dir || argv[ii] == flag_output_dir_more) {
-                if (ii == ( argc - 1 )) {
-                    std::cerr << "\nERROR: No directory specified after -O or -OO argument" << std::endl ;
-                    exit(1) ;
+                if (output_dir_is_set) {
+                    std::cerr << "\nERROR: Multiple -O or -OO flags found" << "\n";
+                    exit(1);
+                }
+                if (ii == argv.size() - 1) {
+                    std::cerr << "\nERROR: No directory specified after -O or -OO argument" << "\n";
+                    exit(1);
                 }
                 /* Output data directory */
+                output_dir_is_set = true;
                 output_dir = user_output_dir = argv[ii + 1];
                 if (argv[ii] == flag_output_dir_more) {
                     output_dir = output_dir + "/" + run_dir;
