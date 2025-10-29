@@ -516,7 +516,10 @@ class JSONVariableServerSimObject : public Trick::SimObject {
         JSONVariableServerSimObject() {
 
             {TRK} ("default_data") vs.init_listen_device() ;
-            {TRK} P0 ("initialization") trick_ret = vs.init() ;
+            // Schedule JSON VS initialization after MonteCarlo::execute_monte (P1)
+            // to be consistent with VariableServerSimObject so that Monte Carlo
+            // slave parents do not reach initialization if Monte Carlo is enabled.
+            {TRK} P2 ("initialization") trick_ret = vs.init() ;
             {TRK} ("restart") vs.restart();
             {TRK} ("shutdown") vs.cancel_thread() ;
 
