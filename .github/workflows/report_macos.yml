@@ -7,20 +7,30 @@ on:
       - completed
 jobs:
   report:
-    strategy:
-      fail-fast: false
-      
     runs-on: ubuntu-latest
+    permissions:
+      actions: read                      # Allow reading actions
+      checks: write                      # Allow creating check runs
     steps:
-    - name: Download artifact from latest attempt
-      uses: dawidd6/action-download-artifact@v6     # This action downloads + extracts
+    - name: Download artifact from triggering run (latest attempt)
+      uses: dawidd6/action-download-artifact@v11
       with:
-        workflow: macOS                   # The workflow that creates the artifact
-        name: Trick_macos                 # Name of the artifact
+        # Get latest artifact from the triggering run
+        run_id: ${{ github.event.workflow_run.id }}
+        name: Trick_macos
+        path: test-results
+        allow_forks: false                # Do not download artifacts from forks
+        if_no_artifact_found: warn        # Warn if no artifact is found
 
     - name: Publish Test Report
       uses: dorny/test-reporter@v1
+      if: hashFiles('test-results/**/*.xml') != ''
       with:
         name: Results_Trick_macos         # Name of the check run which will be created
-        path: '*.xml'                     # Path to test results (inside artifact .zip)
+        path: 'test-results/**/*.xml'     # Path to extracted test results
         reporter: java-junit              # Format of test results
+
+    # If no results found, skip report and keeps the job green
+    - name: No test results found
+      if: hashFiles('test-results/**/*.xml') == ''
+      run: echo "No test results XMLs were extracted; skipping report."
