@@ -109,11 +109,14 @@ include $(MY_HOME)Makefile.common
 BUILD_DIR := $(dir $(MAKE_OUT))
 PY_LINK_LIST := $(BUILD_DIR)trickify_py_link_list
 IO_LINK_LIST := $(BUILD_DIR)trickify_io_link_list
-OBJ_LINK_LIST := trickify_obj_list
 ifdef FULL_TRICKIFY_BUILD
-        FULL_TRICKIFY_BUILD = "1"
+	FULL_TRICKIFY_BUILD = "1"
+	OBJ_LINK_LIST := trickify_obj_list
+	SRC_OBJECTS   := $(shell cat trickify_dep_list)
 else
-        FULL_TRICKIFY_BUILD = "0"
+	FULL_TRICKIFY_BUILD = "0"
+	OBJ_LINK_LIST :=
+	SRC_OBJECTS   := 
 endif
 ifneq ($(wildcard $(BUILD_DIR)),)
 	SWIG_OBJECTS := $(shell cat $(PY_LINK_LIST))
@@ -140,7 +143,7 @@ endif
 .PHONY: all
 trickify: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
-$(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT_NAME))
+$(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) $(SRC_OBJECTS)| $(dir $(TRICKIFY_OBJECT_NAME))
 	@sh -c '\
 		FILES=""; \
 		while IFS= read -r line; do \
@@ -154,7 +157,7 @@ $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) | $(dir $(TRICKIFY_OBJECT
 				FILES="$$FILES $$line"; \
 			done < $(OBJ_LINK_LIST); \
 		fi; \
-		echo $$FILES > full_file_list ; \
+		echo $$FILES > full_file ; \
 		if [ "$(TRICKIFY_BUILD_TYPE)" = "PLO" ]; then \
 			$(LD) $(LD_PARTIAL) -o $@ $$FILES; \
 		elif [ "$(TRICKIFY_BUILD_TYPE)" = "SHARED" ]; then \

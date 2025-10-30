@@ -28,9 +28,9 @@
 #   make sure dirs are used correctly if user does not provide a trailing /
 #   x make one exclude on the gui shared between both tabs
 #   If S_overrides contains relative paths, var dump can potentially break. Do not see any easy workaround to this, needs build redirecting to resolve
-#   trickify.mk will generate swig/icg files for any #include dependencies. This can result in unexpected swig/icg files being included in the build. Notes:
-#       Appears that the trickified lib swig/icg takes precedence, potentially causes mismatches with the actual .h class definition
-#       Currently generate a list of these files, what to do about it?
+#   x trickify.mk will generate swig/icg files for any #include dependencies. This can result in unexpected swig/icg files being included in the build. Notes:
+#       x Appears that the trickified lib swig/icg takes precedence, potentially causes mismatches with the actual .h class definition
+#       x Currently generate a list of these files, what to do about it?
 #   When rebuilding ontop of an existing trickified lib, full file list doesnt seem to fully populate
 #   NOTES FOR REBUILDING:
 #       must consider possibility of scope change
@@ -45,8 +45,11 @@
 #               perhaps add a distinct make call in the trick-CP itself before the main makefile, keep trickify separated. This would be more akin to a manual trickify build, where it is a separate process done beforehand
 #       need a way to control autorebuilding, evn or something
 #   In documentation, make notes about lib name being used for makefile rule generation, and the potential conflicts of using the same name multiple times
-#   verify autorebuild is not polluted bu env vars
-
+#   verify autorebuild is not polluted by env vars
+#   What happens if multiple trickified libs rebuild with j > 1? Might need to wait till parameterized build to move
+#   make trickfied makefile paths paramterized, make it easier to move things
+#   add a finish message for this script
+#    make apocalypse
 
 use warnings ;
 use strict ;
@@ -69,6 +72,15 @@ use Getopt::Long ;
 use Cwd ;
 use lib "$my_path../libexec/trick/pm" ;
 use get_makefile_vars ;
+use Term::ANSIColor;
+
+sub printc($$)
+{
+    my ($color, $text) = @_ ;
+    print color($color) ;
+    print $text ;
+    print color('reset') ;
+}
 
 sub find_file_by_ext($$)
 {
@@ -359,7 +371,7 @@ my $my_cwd = getcwd;
 open (my $fh, ">", "S_overrides_trickify.mk") or die "Could not open S_overrides_trickify.mk\n" ;
 print $fh "ifndef AM_I_TRICKIFYING\n" ;  # Only want these parameters if we are doing normal sim builds, otherwise the ext libs will butcher the trickify_deps
 print $fh "LOCAL_DIR := \$(abspath \$(dir \$(lastword \$(MAKEFILE_LIST))))\n\n" ;
-print $fh "include $build_dir/trickify_dep_list\n\n" ;
+print $fh "include $build_dir/trickify_dep.mk\n\n" ;
 print $fh "TRICK_LDFLAGS += " . Cwd::abs_path($ENV{'TRICKIFY_OBJECT_NAME'}) . "\n" ;
 print $fh "TRICK_EXT_LIB_DIRS += $ext_lib_dir\n" ;
 print $fh "TRICK_EXT_LIB_DIRS_OVERRIDES += ",$ext_lib_dir_overrides ,"\n" ;
@@ -371,7 +383,8 @@ print $fh "\nclean_trickify: clean_trickify_$name\n" ;
 print $fh "\nnuke_trickify_$name:\n" ;
 print $fh "\t-make -C \$(LOCAL_DIR) nuke_trickify\n" ;
 print $fh "\nnuke_trickify: nuke_trickify_$name\n" ;
-print $fh "\nrebuild_trickify:: $build_dir/$name.$build_type\n" ;
+print $fh "\nrebuild_trickify: $build_dir/$name.$build_type\n" ;
+print $fh "\nTRICKIFIED_LIBS += $build_dir/$name.$build_type\n" ;
 print $fh "\nendif\n" ;
 close ($fh) ;
 
@@ -601,34 +614,45 @@ if($cmd_ret ne "")
     print "$cmd_ret" ;
 }
 
+if($cmd_exit_code != 0)
+{
+    die $cmd_exit_code ;
+}
+
 logStage(); #Stage 4
 
+
 #The full file list is dumped as one line. We need to clean it up (don't want to do that in bash lol)
-open ($fh, '<', "full_file_list") or die "Could not open full_file_list: $!" ;
-my $line = <$fh> ;
-chomp $line ;
-my @full_file_list = split ' ', $line ;
-close ($fh) ;
-
-#py and io link lists use relative paths (start with build/)
-#obj file list uses full file paths
-#need to make them similar
-@full_file_list = map 
+my @full_file_list ;
+if (-e "full_file")
 {
-    my $ret = $_ ;
-    if( $_ !~ /^\Qbuild\/\E/ )
+    open ($fh, '<', "full_file") or die "Could not open full_file: $!" ;
+    my $line = <$fh> ;
+    chomp $line ;
+    @full_file_list = split ' ', $line ;
+    close ($fh) ;
+    print `rm full_file` ;
+
+
+    #py and io link lists use relative paths (start with build/)
+    #obj file list uses full file paths
+    #need to make them similar
+    @full_file_list = map 
     {
-        /^(.*)(\Qbuild\/\E.*)$/ ;
-       $ret =  $2 ;
-    }
-    $ret ;
-} 
-(@full_file_list) ;
+        my $ret = $_ ;
+        if( $_ !~ /^\Qbuild\/\E/ )
+        {
+            /^(.*)(\Qbuild\/\E.*)$/ ;
+           $ret =  $2 ;
+        }
+        $ret ;
+    } 
+    (@full_file_list) ;
 
-open ($fh, '>', "full_file_list") or die "Could not open full_file_list: $!" ;
-map { print $fh "$_\n" } @full_file_list ;
-close ($fh) ;
-
+    open ($fh, '>', "full_file_list") or die "Could not open full_file_list: $!" ;
+    map { print $fh "$_\n" } @full_file_list ;
+    close ($fh) ;
+}
 
 #Generate dependency list
 #We need to generate a dependency list for the trickified lib
@@ -650,11 +674,21 @@ foreach my $list (@dep_lists)
     close ($fh) ;
 }
 
-open ($fh, '>', "trickify_dep_list") or die "Could not open trickify_dep_list: $!" ;
+open ($fh, '>', "trickify_dep.mk") or die "Could not open trickify_dep.mk: $!" ;
 print $fh "LOCAL_DIR := \$(abspath \$(dir \$(lastword \$(MAKEFILE_LIST))))\n\n" ;
-print $fh "$build_dir/$name.$build_type: \\\n" ;
-map { print $fh "\t$_\\\n" } (sort keys %trickify_dep_list) ;
-print $fh "\n\t-make -C \$(LOCAL_DIR) rebuild_trickify\n" ;
+my $dep_rule = "$build_dir/$name.$build_type:\\\n" ;
+$dep_rule .= (join "\n", map { "\t$_\\" } (sort keys %trickify_dep_list)) . "\n" ;
+print $fh "ifeq (\$(TRICKIFY_AUTO_REBUILD), 0)\n" ;
+print $fh $dep_rule ;
+print $fh "\n\t\@echo Trickify rebuild disabled.\n" ;
+print $fh "else\n" ;
+print $fh "\$(eval \\\n$dep_rule;\\" ;
+print $fh "\n\tmake -C \$(LOCAL_DIR) rebuild_trickify\\\n)\n" ;
+print $fh "endif\n" ;
+close ($fh) ;
+
+open ($fh, '>', "trickify_dep_list") or die "Could not open trickify_dep_list: $!" ;
+print $fh (join "\n", (sort keys %trickify_dep_list)) ;
 close ($fh) ;
 
 #look for files outside the selected dirs/s_define filter
@@ -681,9 +715,15 @@ my @extra_file_list = grep
 } 
 (sort keys %trickify_dep_list) ;
 
-open ($fh, '>', "extra_file_list") or die "Could not open full_file_list: $!" ;
+open ($fh, '>', "extra_file_list") or die "Could not open extra_file_list: $!" ;
 map { print $fh "$_\n" } @extra_file_list ;
 close ($fh) ;
+
+#Print warnings and additional info
+if ( @extra_file_list )
+{
+    printc("yellow", "WARNING: Extra files were processed to build trickified library. Check extra_file_list in the build directory.\n") ;
+}
 
 if($debug) {
     print 
@@ -700,7 +740,4 @@ if($debug) {
     TRICKIFY_CXX_FLAGS = $ENV{'TRICKIFY_CXX_FLAGS'}\n" ;
 }
 
-if($cmd_exit_code != 0)
-{
-    die $cmd_exit_code ;
-}
+system("rm trickify_stage*") ;
