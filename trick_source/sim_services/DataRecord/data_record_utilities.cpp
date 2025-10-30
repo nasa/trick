@@ -68,8 +68,12 @@ extern "C" int remove_data_record_group( Trick::DataRecordGroup * in_group ) {
     return -1 ;
 }
 
-extern "C" void remove_all_data_record_groups(void) {
-    the_drd->remove_all_groups() ;
+extern "C" void remove_all_data_record_groups(void)
+{
+    if(the_drd != NULL)
+    {
+        the_drd->remove_all_groups();
+    }
 }
 
 extern "C" Trick::DataRecordGroup * get_data_record_group( std::string in_name ) {
@@ -99,6 +103,23 @@ extern "C" int set_max_size_record_group (const char * in_name, uint64_t bytes )
     }
     return -1 ;
 }
+
+extern "C" void dr_set_verif_onoff(int on)
+{
+    if(the_drd != NULL)
+    {
+        the_drd->set_verif_onoff(on);
+    }
+}
+
+extern "C" void dr_set_warning_level(int level)
+{
+    if( the_drd != NULL )
+    {
+        the_drd->set_warning_level(level);
+    }
+}
+        
 
 extern "C" int dr_set_max_file_size ( uint64_t bytes ) {
     if ( the_drd != NULL ) {

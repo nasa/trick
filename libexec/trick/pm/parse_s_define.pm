@@ -3,7 +3,7 @@ package parse_s_define ;
 use Exporter ();
 @ISA = qw(Exporter);
 @EXPORT = qw(parse_s_define handle_sim_object handle_integ_loop handle_collects
-              handle_user_code handle_user_header handle_user_inline) ;
+              handle_user_code handle_user_header handle_user_inline index_comments) ;
 
 use Cwd ;
 use File::Basename ;
@@ -164,6 +164,208 @@ $other_tag_def = qr/\#(?:ident|pragma)?.*?\n/s ;
 $comment_def = qr/ZZZYYYXXX\d+ZZZYYYXXX/s ;
 $line_tag_def = qr/\#(?:line)?\s+\d+.*?(?:\n|$)/s ;
 
+#checks if the line is a preprocessor include statement, and updates context
+sub check_for_pp_include (\$\%) {
+    my ($text, $context) = @_;
+
+    $context->{"pp_include"} = 0;
+
+    if ( $$text =~ /^\s*\#\s*include/ ) {
+        $context->{"pp_include"} = 1;
+    }
+}
+
+#checks if the line is either a preprocessor warning or error statement, and updates context
+sub check_for_pp_error (\$\%) {
+    my ($text, $context) = @_;
+
+    $context->{"pp_error"} = 0;
+
+    if ( $$text =~ /^\s*\#\s*error/ ) {
+        $context->{"pp_error"} = 1;
+    }
+    if ( $$text =~ /^\s*\#\s*warning/ ) {
+        $context->{"pp_error"} = 1;
+    }
+}
+
+#checks if the file is inside a string based on context
+# If we are:
+#   Not inside a c comment
+#   Come across a "
+#   And the " is not a char
+# Then we are entering/exiting a string
+sub check_for_string (\$\$\%) {
+    my ($line, $idx, $context) = @_;
+    my $i = $$idx;
+
+    if ( (substr $$line, $i, 1) eq "\"" and ($context->{"c_comment"} == 0) ) {
+        #make sure the " is not just a char
+        if( (substr $$line, $i-1, 3) ne "\'\"\'" and (substr $$line, $i-1, 2) ne "\\\"") {
+            #found the start of a string
+            if($context->{"string"} == 0) {
+                $context->{"string"} = 1;
+            }
+            #found the end of a string
+            elsif($context->{"string"} == 1) {
+                $context->{"string"} = 0;
+            }
+        }
+    }
+}
+
+#checks if the file is inside a c++ comment based on context
+# If we are:
+#   Not inside a #include<> statement
+#   Not inside a string
+#   Not inside a c comment
+#   And come across //
+# Then we are entering a c++ comment
+#NOTE: We do not need to track if we are in a c++ comment, because once we see one start
+#      we can skip the rest of the line.
+sub check_for_cpp_comment (\$\%\@) {
+    my ($text, $context, $comments) = @_;
+
+    if ( $$text eq "//" and ($context->{"string"} == 0) and ($context->{"c_comment"} == 0) and ($context->{"angle"} == 0) ) {
+        $context->{"cpp_comment"} = 1;
+        push(@$comments, $context->{"idx"});
+    }
+}
+
+#checks if the file is inside a c comment based on context
+# If we are:
+#   Not inside a #include<> statement
+#   Not inside a string
+#   And come across either a /* or */
+# Then we are either entering/exiting a c comment
+sub check_for_c_comment (\$\%\@) {
+    my ($text, $context, $comments) = @_;
+
+    if ( $$text eq "/*" and ($context->{"string"} == 0) and ($context->{"c_comment"} == 0) and ($context->{"angle"} == 0) ) {
+        $context->{"c_comment"} = 1;
+        push(@$comments, $context->{"idx"});
+    }
+    elsif ( $$text eq "*/" and ($context->{"string"} == 0) and ($context->{"c_comment"} == 1) and ($context->{"angle"} == 0) ) {
+        $context->{"c_comment"} = 0;
+        push(@$comments, $context->{"idx"}+1);
+    }
+}
+
+#checks if the file is inside the brackets of a #include<> statement based on context
+# If we are:
+#   In a #include statement
+#   Not inside a string
+#   Not inside a c comment
+#   And the char matches either <>
+# Then we are either entering/exiting the brackets of a #include<> statement
+sub check_for_angle_bracket (\$\%) {
+    my ($text, $context) = @_;
+
+    if ( ($context->{"pp_include"} == 1) and ($context->{"string"} == 0) and ($context->{"c_comment"} == 0) ) {
+        if ( $$text eq "<" and ($context->{"angle"} == 0) ) {
+            $context->{"angle"} = 1;
+        }
+        if ( $$text eq ">" and ($context->{"angle"} == 1) ) {
+            $context->{"angle"} = 0;
+        }
+    }
+}
+
+# Preprocess lines to handle line continuations so that each line that ends with 
+# a continuation marker will be concatenated with the next line.
+# e.g.: "this is a line with continuation \"
+#       "this is the next line"
+#       The result line would be: "this is a line with continuation  this is the next line"
+sub preprocess_lines {
+    my @text = @_;
+    my @result = ();
+    my $current_line = "";
+    
+    foreach my $line (@text) {
+        # If we have a partial line, append this line to it
+        if ($current_line) {
+            $current_line .= $line;
+        } else {
+            $current_line = $line;
+        }
+        
+        # Check if this line ends with a continuation marker
+        if ($current_line =~ s/\\\n$//){
+            # Line continues - add two spaces and continue to next line
+            $current_line .= "  ";
+        } else {
+            # Line is complete - add to result and reset current_line
+            push @result, $current_line;
+            $current_line = "";
+        }
+    }
+    
+    # Handle any remaining partial line
+    push @result, $current_line if $current_line;
+    
+    return @result;
+}
+
+# Returns an array of indicies indicating the start/end of comments in the provided file.
+# Input is an array where each element is a single line of the source file (each line should still include a newline at the end).
+sub index_comments (@) {
+    my (@text) = @_;
+    my @comment_sections;
+
+    # Preprocess line continuations
+    @text = preprocess_lines(@text);
+
+    my $line_idx;
+    my $each_item;
+    my $item_length;
+    my %context = ( "string", 0, 
+                    "cpp_comment", 0, 
+                    "c_comment", 0, 
+                    "angle", 0,
+                    "pp_include", 0, 
+                    "pp_error", 0, 
+                    "idx", 0 );
+
+    for($line_idx = 0; $line_idx < @text; ++$line_idx) {
+        $each_item = @text[$line_idx];
+        $item_length = length($each_item);
+
+        #Check for specific pp directives that change comment parsing
+        check_for_pp_include( $each_item, %context );
+        check_for_pp_error( $each_item, %context );
+
+        #iterate over each char
+        for ( my $i = 0; $i < $item_length; ++$i ) {
+            # For either a c++ comment or a preprocessor error command we can skip processing the rest of the line
+            if($context{"cpp_comment"} == 0 and $context{"pp_error"} == 0) {
+                #checks for strings
+                check_for_string($each_item, $i, %context);
+
+                #checks for c++ style comments
+                check_for_cpp_comment((substr $each_item, $i, 2), %context, @comment_sections);
+
+                #checks for c-style comment open or close
+                check_for_c_comment((substr $each_item, $i, 2), %context, @comment_sections);
+
+                # #include <> handling
+                check_for_angle_bracket((substr $each_item, $i, 1), %context);
+
+            }
+
+            $context{"idx"}++;
+        }
+
+        # Newline. If we were in a c++ comment, we no longer are.
+        if($context{"cpp_comment"} == 1) {
+            #-2 because we're not including the newline
+            push(@comment_sections, $context{"idx"}-2);
+        }
+        $context{"cpp_comment"} = 0;
+    }
+
+    return @comment_sections;
+}
+
 sub parse_s_define ($) {
 
     my ($sim_ref) = @_ ;
@@ -232,11 +434,15 @@ sub parse_s_define ($) {
         die "Couldn't find file: $s_define_file\n";
     }
 
+    my @comment_sections = index_comments(@preprocess_output);
     foreach my $each_item (@preprocess_output) {
         $contents .= $each_item;
     }
 
-    @comments = $contents =~ m/((?:\/\*(?:.*?)\*\/)|(?:\/\/(?:.*?)\n))/sg ;
+    for(my $idx = 0 ; $idx < @comment_sections ; $idx+=2) {
+        my $comment_length = @comment_sections[$idx+1] - @comment_sections[$idx] + 1;
+        push(@comments, (substr $contents, @comment_sections[$idx], $comment_length) );
+    }
 
     foreach my $i (@comments) {
         my %header ;
@@ -268,8 +474,11 @@ sub parse_s_define ($) {
             }
         }
     }
-    my $i = 0 ;
-    $contents =~ s/\/\*(.*?)\*\/|\/\/(.*?)(\n)/"ZZZYYYXXX" . $i++ . "ZZZYYYXXX" . ((defined $3) ? $3 : "")/esg ;
+    my $i = (@comment_sections / 2) - 1 ;
+    for(my $idx = @comment_sections-2 ; $idx >= 0 ; $idx-=2) {
+        my $comment_length = @comment_sections[$idx+1] - @comment_sections[$idx] + 1;
+        substr $contents, @comment_sections[$idx], $comment_length, ("ZZZYYYXXX" . $i-- . "ZZZYYYXXX");
+    }
 
     # substitue in environment variables in the S_define file.
     # Do that with 1 line in C!  This comment is longer than the code it took!
@@ -712,35 +921,93 @@ sub handle_sim_class_job($$$) {
          $ov_class_self, $sup_class_data, $tag, $job_call, $job_ret, $job_name, $args , $class ) ;
     my (@tags) ;
 
-    ($child, $phase, $cycle, $start, $stop,
-      $ov_class , $ov_class_self , $sup_class_data, $tag, $job_call, $job_ret, $job_name, $args) = $in_job =~ /
-         (?:
-           \s*(?:
-             ([Cc][\w\.\-\>]+)?\s*                       # child spec
-             ([Pp][\w\.\-\>]+)?\s*                       # phase spec
-             (?:
-              \(
-                (?:
-                   (?:
-                      \s*([\w.]+)\s*           # cycle time
-                      (?:,\s*([\w.]+)\s*)?     # start time
-                      (?:,\s*([\w.]+)\s*)?     # stop time
-                      (?:,\s*("?\w+"?)\s*)     # class
-                   )|
-                   \s*("?\w+"?)\s*             # class (by itself)
-                   (?:,\s*(&?[\w\.\-\>]+)\s*)? # integration object
-                )
-              \)
-             ) |                               # timing spec
-             \{([\w_.,\s]+)\}                  # job tag
-           )
-         )+\s+
-         (                                     # job call
+    # Split to 3 sections: first part (child, phase, tag), second part (timing spec), remaining part (job call)
+    my ($first_part, $second_part, $remaining_part) = ('', '', '');
+
+    if ($in_job =~ /^((?:[^(]|\n)*)?\s*(\((?:[^)]|\n)+\))\s*(.+)$/s) {
+        $first_part = $1;
+        $second_part = $2;
+        $remaining_part = $3;
+    }
+
+    # Extract child, phase, and tag specs from first part if they exist (can appear in any order)
+    # First extract job tag to avoid conflicts with child/phase parsing
+    if ($first_part =~ /\{([\w_.,\s]+)\}/) {
+        $tag = $1;
+    }
+    # Remove tags from first_part before parsing child/phase to avoid conflicts
+    my $first_part_no_tag = $first_part;
+    $first_part_no_tag =~ s/\{[\w_.,\s]+\}//g;
+    # Extract phase first (must be at word boundary or start of string)
+    if ($first_part_no_tag =~ /(?:^|\s)([Pp][\w.\-\>]+)(?:\s|$)/) {
+        $phase = $1;
+        # Remove the phase from the string to avoid child extraction conflicts
+        $first_part_no_tag =~ s/(?:^|\s)[Pp][\w.\-\>]+(?:\s|$)//;
+    }
+    # Extract child (must be at word boundary or start of string)  
+    if ($first_part_no_tag =~ /(?:^|\s)([Cc][\w.\-\>]+)(?:\s|$)/) {
+        $child = $1;
+    }
+
+    # Extract timing spec from second part if it exists
+    # Format: ([<cycle_time>, [<start_time>, [<stop_time>,]]] <job_class>)
+    if ($second_part =~ /^\(\s*
+        (?:
+            ([\w.]+)                           # $1: $cycle
+            (?:\s*,\s*([\w.]+))?               # $2: $start_time OR job_class (if only 2 params)
+            (?:\s*,\s*([\w.]+))?               # $3: $stop_time OR job_class (if 3 params)
+            (?:\s*,\s*("?[\w.]+"?))?           # $4: $job_class (if 4+ params)
+            (?:\s*,\s*(&[\w.\-\>]+))?          # $5: $sub_class_data (integration object, starts with &)
+        |
+            ("?[\w.]+"?)                       # $6: $ov_class_self (job class by itself)
+            (?:\s*,\s*(&[\w.\-\>]+))?          # $7: $sub_class_data (integration object, starts with &)
+        )
+        \s*\)/xs) {
+            $cycle = $1 // '';
+            my $second_param = $2 // '';
+            my $third_param = $3 // '';
+            $ov_class = $4 // '';
+            $ov_class_self = $6 // '';
+            $sup_class_data = $5 // $7 // '';
+    
+            # Determine parameter assignment based on count
+            if ($second_param ne '' && $third_param eq '' && $ov_class eq '' && $ov_class_self eq '') {
+                # Two parameters: (cycle, job_class)
+                $start = '';
+                $stop = '';
+                $ov_class = $second_param;
+            } elsif ($second_param ne '' && $third_param ne '' && $ov_class eq '' && $ov_class_self eq '') {
+                # Three parameters: (cycle, start_time, job_class)
+                $start = $second_param;
+                $stop = '';
+                $ov_class = $third_param;
+            } else {
+                # Four or more parameters: (cycle, start_time, stop_time, job_class, ...)
+                $start = $second_param;
+                $stop = $third_param;
+                # $ov_class already set from $4
+            }
+    }
+
+    if ($remaining_part =~ /\s*
+        (?:\{([\w_.,\s]+)\}\s*)?               # optional tag spec
+        (                                      # job call
           ([A-Za-z_][\w\.\-\>]*\s*=)?\s*       # optional return assignment variable
           ([A-Za-z_][\w\.\:\-\>\[\]]*)\s*      # job name
           \((.*?)\s*\)                         # arg list
-         )\s*;                                 # end job call
-         /sx ;
+        )\s*;                                  # end job call
+        /xs ) {
+            my $temp_tag = $1 // '';
+            $job_call = $2;
+            $job_ret = $3 // '';
+            $job_name = $4;
+            $args = $5;
+
+            # If tag found in remaining_part and not already set from first_part, use it
+            if ($temp_tag ne '' && $tag eq '') {
+                $tag = $temp_tag;
+            }
+    }
 
 
     $child = 0 if ( $child eq "" ) ;

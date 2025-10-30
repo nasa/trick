@@ -19,6 +19,12 @@ void Trick::MemoryManager::set_hexfloat_checkpoint(bool flag) {
     defaultCheckPointAgent->set_hexfloat_checkpoint(flag);
 }
 
+void Trick::MemoryManager::set_hexfloat_decimal_comment_checkpoint(bool flag) {
+    hexfloat_decimal_comment_checkpoint = flag;
+    currentCheckPointAgent->set_hexfloat_decimal_comment_checkpoint(flag);
+    defaultCheckPointAgent->set_hexfloat_decimal_comment_checkpoint(flag);
+}
+
 void Trick::MemoryManager::set_expanded_arrays(bool flag) {
     expanded_arrays = flag;
 }

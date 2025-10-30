@@ -191,10 +191,11 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
             break;
 
         case TRICK_UNSIGNED_CHARACTER:
-#if ( __linux | __sgi )
-        case TRICK_BOOLEAN:
-#endif
             snprintf(buf, writer_buf_spare, "%u", *((unsigned char *) address));
+            break;
+
+        case TRICK_BOOLEAN:
+            snprintf(buf, writer_buf_spare, "%u", *((bool *) address));
             break;
 
         case TRICK_STRING:
@@ -211,9 +212,6 @@ int Trick::DRAscii::copy_data_ascii_item( Trick::DataRecordBuffer * DI, int item
 
         case TRICK_ENUMERATED:
         case TRICK_INTEGER:
-#if ( __sun | __APPLE__ )
-        case TRICK_BOOLEAN:
-#endif
             snprintf(buf, writer_buf_spare, "%d", *((int *) address));
             break;
 

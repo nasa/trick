@@ -2972,11 +2972,11 @@ def main():
     test_so.obj.msi['key1'] = 50
     test_so.obj.msi['key2'] = 60
     test_so.obj.msi['key3'] = 70
-
+    
     TRICK_EXPECT_EQ( test_so.obj.msi.empty(), 0, test_suite , "STL map empty false" )
     TRICK_EXPECT_EQ( test_so.obj.msi['key1'], 50, test_suite , "STL map key/data insertion/access" )
-    TRICK_EXPECT_EQ( str(test_so.obj.msi.keys()), "['key1', 'key2', 'key3']", test_suite , "STL map keys command" )
-    TRICK_EXPECT_EQ( str(test_so.obj.msi.values()), "[50, 60, 70]", test_suite , "STL map values command" )
+    TRICK_EXPECT_EQ( list(str(k) for k in test_so.obj.msi.keys()), ['key1', 'key2', 'key3'], test_suite , "STL map keys command" )
+    TRICK_EXPECT_EQ( test_so.obj.msi.values(), [50, 60, 70], test_suite , "STL map values command" )
     TRICK_EXPECT_EQ( test_so.obj.msi.has_key('key1'), 1, test_suite , "STL map has_key true" )
     TRICK_EXPECT_EQ( test_so.obj.msi.has_key('key4'), 0, test_suite , "STL map has_key false" )
     TRICK_EXPECT_EQ( test_so.obj.msi.size(), 3, test_suite , "STL map size command" )

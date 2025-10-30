@@ -9,17 +9,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#ifdef __APPLE__
-#include <mach-o/dyld.h>
-#endif
-
-/*
- * FPE specific headers
- */
-#ifdef __linux
-#include <fenv.h>
-#endif
-
 #include "trick/Executive.hh"
 #include "trick/exec_proto.h"
 #include "trick/message_proto.h"
@@ -36,8 +25,7 @@
 
 void Trick::Executive::fpe_handler(siginfo_t * sip __attribute__((unused)) ) {
 
-    write( 2 , "\033[31mProcess terminated by signal FPE" , 36 ) ;
-#if __linux
+    write( 2 , "\033[31mProcess terminated by signal FPE" , 37 ) ;
     /* Determine what floating point error occurred */
     if (sip != (siginfo_t *) NULL) {
         switch (sip->si_code) {
@@ -66,14 +54,13 @@ void Trick::Executive::fpe_handler(siginfo_t * sip __attribute__((unused)) ) {
                 break;
         }
     }
-#endif
     write( 2 , "\033[0m\n" , 5 ) ;
 
     /*
      Attempt to attach with debugger or print stack trace.  Not a requirement.
      snprintf and system are not async signal safe, but we don't have anything to lose.
      */
-#if __linux
+#if __linux__
     char command[1024];
     if (attach_debugger == true) {
         snprintf(command, sizeof(command), "%s -silent /proc/%d/exe %d", debugger_command.c_str(), getpid(), getpid());

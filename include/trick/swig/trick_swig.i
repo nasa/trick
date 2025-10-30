@@ -1,9 +1,53 @@
-
 /* include support for STLs */
+
+%include "std_alloc.i"
+%include "std_char_traits.i"
+
+%include "std_complex.i"
+%include "std_deque.i"
+%include "std_except.i"
+
 %include "std_list.i"
 %include "std_map.i"
+%include "std_multimap.i"
+%include "std_multiset.i"
+
+%include "std_pair.i"
+%include "std_set.i"
+
+#if SWIG_VERSION >= 0x040000
+// std_sstream.i is not fully supported and reliable in swig 3.0.x and is fully supported in swig 4.x
+%include "std_sstream.i"
+#endif
 %include "std_string.i"
+%include "std_iostream.i"
+
 %include "std_vector.i"
+
+%include "std_array.i"
+%include "std_shared_ptr.i"
+%include "std_unique_ptr.i"
+
+%include "std_container.i"
+
+// Both std_queue.i and std_stack.i coming with swig are wrappers for Ruby.
+// We need to come up with our own wrappers for these if needed for Python.
+//%include "std_queue.i"
+//%include "std_stack.i"
+
+#if SWIG_VERSION >= 0x040000
+// All following std_unordered_.i files were work in progress in swig 3.0.x and are fully supported in swig 4.x
+%include "std_unordered_map.i"
+%include "std_unordered_multimap.i"
+%include "std_unordered_multiset.i"
+%include "std_unordered_set.i"
+#endif
+%include "std_vectora.i"
+
+#if SWIG_VERSION >= 0x030008
+// std_wstring.i was introduced in swig 3.0.8
+%include "std_wstring.i"
+#endif
 %include "factory.i"
 
 %include "trick/swig/swig_extend_str.i"
@@ -24,7 +68,6 @@
 
 %{
 #include <sstream>
-
 #include "trick/UnitsMap.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/reference.h"

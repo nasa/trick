@@ -6,7 +6,7 @@ AC_DEFUN([TR_JSC_DIRS],[
       [
        AC_CHECK_HEADER(Xm/Xm.h, [MOTIF_HOME="/usr"],
         AC_CHECK_FILE(/usr/local/include/Xm/Xm.h, [MOTIF_HOME="/usr/local"],
-         AC_CHECK_FILE(/sw/include/Xm/Xm.h, [MOTIF_HOME="/sw"],AC_MSG_ERROR([could not find Xm/Xm.h]))))
+         AC_CHECK_FILE(/opt/homebrew/include/Xm/Xm.h, [MOTIF_HOME="/opt/homebrew"],AC_MSG_ERROR([could not find Xm/Xm.h]))))
       ],
       [
        MOTIF_HOME=""

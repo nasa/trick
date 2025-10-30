@@ -94,9 +94,12 @@ void Trick::PythonPrint::write_singleton( std::ostream& chkpnt_os, void* address
                 chkpnt_os << ch ;
             }
         break;
-        case TRICK_WCHAR:
+        case TRICK_WCHAR: {
             src_addr = (char*)address + offset * sizeof(wchar_t);
-            chkpnt_os << std::dec << *(wchar_t*)src_addr;
+            char buff[16] = {0};
+            wctomb(buff,*(wchar_t*)src_addr);
+            chkpnt_os << std::dec << buff;
+            }
             break;
         case TRICK_SHORT:
             src_addr = (char*)address + offset * sizeof(short);
@@ -164,7 +167,7 @@ void Trick::PythonPrint::write_singleton( std::ostream& chkpnt_os, void* address
             break;
         case TRICK_DOUBLE:
             src_addr = (char*)address + offset * sizeof(double);
-            if (fpclassify( *(float*)src_addr) != FP_NAN) {
+            if (fpclassify(*(double*)src_addr) != FP_NAN) {
                 chkpnt_os << std::setprecision(16) << *(double*)src_addr;
             } else {
                 chkpnt_os << "nan";

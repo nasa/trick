@@ -49,3 +49,7 @@ void Trick::CheckPointAgent::set_hexfloat_checkpoint(bool flag) {
     hexfloat_checkpoint = flag;
 }
 
+void Trick::CheckPointAgent::set_hexfloat_decimal_comment_checkpoint(bool flag) {
+    hexfloat_decimal_comment_checkpoint = flag;
+}
+

@@ -30,7 +30,7 @@ else
 endif
 
 ifeq ($(TRICK_HOST_TYPE), Darwin)
-    CFLAGS += -std=c++14
+    CFLAGS += -std=c++17
     MOTIF_INCDIR = -I/sw/include
     XLIBS = -L/sw/lib -lXm -L/usr/X11R6/lib -L/usr/X11/lib
     SDK_DIR = $(shell xcrun --show-sdk-path)

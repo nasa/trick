@@ -14,6 +14,7 @@
 #define TRICK_CHKPNT_OUTPUT 0x04
 #define TRICK_CHKPNT_INPUT 0x08
 #define TRICK_MODS_UNITSDASHDASH 0x04
+#define TRICK_ENUM_UNSIGNED 0x40000000
 
 #define TRICK_MAX_INDEX 8
 
@@ -33,7 +34,8 @@ typedef struct {
 
     const char *label;    /**< --  Enumeration label */
     int value;      /**< --  Enumeration value */
-    int mods;       /**< --  bit 32 = deprecated var */
+    int mods;       /**< --  bit 31 = deprecated var
+                             bit 30 = unsigned enum underlying type (0x40000000) */
 
 } ENUM_ATTR;
 
