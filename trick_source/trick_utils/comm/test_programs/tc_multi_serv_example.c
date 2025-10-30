@@ -5,10 +5,12 @@
  *  connects to a server and writes and reads 10 messages.
  */
 
+#include "trick/bitfield_proto.h"
+#include "trick/tc_proto.h"
 
-#include "../include/attributes.h"
-#include "../include/tc_proto.h"
-#include <string.h>
+#include <pthread.h>
+#include <signal.h>
+#include <unistd.h>
 
 
 void sigint_hndlr( int sig );
@@ -45,63 +47,78 @@ typedef struct {
 ATTRIBUTES attrBUFFER[] = {
 { "i1", "int", "--", "",
   "Not Specified",
+  "",
   3,5,sizeof(int),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "s1", "short", "--", "",
   "Not Specified",
+  "",
   3,3,sizeof(short),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "s2", "short", "--", "",
   "Not Specified",
+  "",
   3,3,sizeof(short),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "c1", "char", "--", "",
   "Not Specified",
+  "",
   3,0,sizeof(char),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "c2", "char", "--", "",
   "Not Specified",
+  "",
   3,0,sizeof(char),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "c3", "char", "--", "",
   "Not Specified",
+  "",
   3,0,sizeof(char),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "c4", "char", "--", "",
   "Not Specified",
+  "",
   3,0,sizeof(char),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "f1", "float", "--", "",
   "Not Specified",
+  "",
   3,9,sizeof(float),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "b1", "int", "--", "",
   "Not Specified",
-  3,11,0,0,0,Language_C,0,
+   "",
+   3,11,0,0,0,Language_C,0,
   0,(char*)0, 0,{{5,27}} } ,
 { "b2", "int", "--", "",
   "Not Specified",
-  3,11,0,0,0,Language_C,0,
+   "",
+   3,11,0,0,0,Language_C,0,
   0,(char*)0, 0,{{4,23}} } ,
 { "b3", "int", "--", "",
   "Not Specified",
-  3,11,0,0,0,Language_C,0,
+   "",
+   3,11,0,0,0,Language_C,0,
   0,(char*)0, 0,{{7,16}} } ,
 { "b4", "int", "--", "",
   "Not Specified",
-  3,11,0,0,0,Language_C,0,
+   "",
+   3,11,0,0,0,Language_C,0,
   0,(char*)0, 0,{{13,3}} } ,
 { "b5", "int", "--", "",
   "Not Specified",
-  3,11,0,0,0,Language_C,0,
+   "",
+   3,11,0,0,0,Language_C,0,
   0,(char*)0, 0,{{3,0}} } ,
 { "i2", "int", "--", "",
   "Not Specified",
-  3,5,sizeof(int),0,0,Language_C,0,
+   "",
+   3,5,sizeof(int),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "d1", "double", "--", "",
   "Not Specified",
-  3,10,sizeof(double),0,0,Language_C,0,
+   "",
+   3,10,sizeof(double),0,0,Language_C,0,
   0,(char*)0, 0 } ,
 { "" }
 } ;
@@ -140,7 +157,7 @@ void *continuous_connect(void *in) {
    TCDevice* temp_device ;
    int status ;
 
-fprintf(stderr,"Starting continuous_connect %d\n", pthread_self());
+fprintf(stderr,"Starting continuous_connect %lu\n", (unsigned long)pthread_self());
    /* continuously look for and connect to new clients */
    while (1) {
       temp_device = malloc(sizeof(TCDevice));

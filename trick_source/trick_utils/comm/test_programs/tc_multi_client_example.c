@@ -4,9 +4,10 @@
  *  This program uses trickcomm "tc" routines to create a client that
  *  connects to a server and writes and reads 10 messages.
  */
+#include "trick/tc_proto.h"
 
-#include "../include/tc_proto.h"
-#include <string.h>
+#include <signal.h>
+#include <unistd.h>
 
 void sigint_hndlr( int sig );
 void stupid( int sig );
