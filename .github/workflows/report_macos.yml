@@ -22,9 +22,18 @@ jobs:
         allow_forks: false                # Do not download artifacts from forks
         if_no_artifact_found: warn        # Warn if no artifact is found
 
+    - name: Check for test results
+      id: check
+      run: |
+            if [ -n "$(find test-results -name '*.xml' 2>/dev/null)" ]; then
+                echo "found=true" >> $GITHUB_OUTPUT
+            else
+                echo "found=false" >> $GITHUB_OUTPUT
+            fi
+
     - name: Publish Test Report
       uses: dorny/test-reporter@v1
-      if: hashFiles('test-results/**/*.xml') != ''
+      if: steps.check.outputs.found == 'true'
       with:
         name: Results_Trick_macos         # Name of the check run which will be created
         path: 'test-results/**/*.xml'     # Path to extracted test results
@@ -32,5 +41,5 @@ jobs:
 
     # If no results found, skip report and keeps the job green
     - name: No test results found
-      if: hashFiles('test-results/**/*.xml') == ''
+      if: steps.check.outputs.found == 'false'
       run: echo "No test results XMLs were extracted; skipping report."
