@@ -6,3 +6,9 @@ dyn_integloop.add_rate(1.0/200)
 dyn_integloop.add_rate(1.0/400)
 dyn_integloop.add_rate(1.0/500)
 
+
+# Add data logging rates to match the integ rates
+drg[DR_GROUP_ID].add_cycle(1.0/100)
+drg[DR_GROUP_ID].add_cycle(1.0/200)
+drg[DR_GROUP_ID].add_cycle(1.0/400)
+drg[DR_GROUP_ID].add_cycle(1.0/500)

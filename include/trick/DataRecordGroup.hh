@@ -190,6 +190,15 @@ namespace Trick {
             int set_cycle(double in_cycle) ;
 
             /**
+             @brief @userdesc Command to add a rate at which the group's data is recordedx).
+             @par Python Usage:
+             @code <dr_group>.add_cycle(<in_cycle>) @endcode
+             @param in_cycle - the recording rate in seconds
+             @return always 0
+            */
+            int add_cycle(double in_cycle) ;
+
+            /**
              @brief @userdesc Command to set the phase where the group's data is record (default is 60000).
              @par Python Usage:
              @code <dr_group>.set_phase(<in_phase) @endcode
@@ -431,6 +440,28 @@ namespace Trick {
 
             /** Current time saved in Trick::DataRecordGroup::data_record.\n */
             double curr_time ;          /**< trick_io(*i) trick_units(--) */
+
+            /**
+             * Vector of integration rates in seconds.
+             */
+            std::vector<double> logging_rates;
+
+            /**
+             * Loop through the required integration rates and calculate the
+             * next integration time in tics.
+             * @return Next integration time in tics,
+             */
+            long long calculate_next_logging_tic();
+
+            /**
+             * Vector of next integration time in tics for each rate in the integRates vector
+             */
+            std::vector<long long> logging_next_tics;
+
+            /**
+             * Vector of integration rate in tics for each rate in the integRates vector
+             */
+            std::vector<long long> logging_cycle_tics;
 
     } ;
 
