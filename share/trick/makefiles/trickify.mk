@@ -109,13 +109,12 @@ include $(MY_HOME)Makefile.common
 BUILD_DIR := $(dir $(MAKE_OUT))
 PY_LINK_LIST := $(BUILD_DIR)trickify_py_link_list
 IO_LINK_LIST := $(BUILD_DIR)trickify_io_link_list
+OBJ_LINK_LIST := trickify_obj_list
 ifdef FULL_TRICKIFY_BUILD
 	FULL_TRICKIFY_BUILD = "1"
-	OBJ_LINK_LIST := trickify_obj_list
 	SRC_OBJECTS   := $(shell cat trickify_dep_list)
 else
 	FULL_TRICKIFY_BUILD = "0"
-	OBJ_LINK_LIST :=
 	SRC_OBJECTS   := 
 endif
 ifneq ($(wildcard $(BUILD_DIR)),)
