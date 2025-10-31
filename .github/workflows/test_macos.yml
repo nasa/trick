@@ -55,6 +55,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: success() || failure()    # run this step even if previous step failed
       with:
-        name: Trick_macos
+        # Include run attempt in artifact name so report workflow can fetch the latest attempt
+        name: Trick_macos_attempt_${{ github.run_attempt }}
         path: trick_test/*.xml
         retention-days: 1
