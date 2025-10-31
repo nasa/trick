@@ -765,10 +765,11 @@ int Trick::DataRecordGroup::data_record(double in_time) {
         }
     }
 
+    long long curr_tics = (long long)round(in_time * Trick::JobData::time_tic_value);
     for(size_t cycleIndex = 0; cycleIndex < logging_next_tics.size(); ++cycleIndex)
     {
         long long logNextTic = logging_next_tics[cycleIndex];
-        if(logNextTic == write_job->next_tics)
+        if(logNextTic == curr_tics)
         {
             logging_next_tics[cycleIndex] += logging_cycle_tics[cycleIndex];
         }
