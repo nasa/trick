@@ -99,6 +99,8 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name, Trick::DR_Type dr_
     configure_jobs(dr_type) ;
 
     add_time_variable() ;
+
+    logging_rates.push_back(cycle);
 }
 
 Trick::DataRecordGroup::~DataRecordGroup() {
@@ -158,8 +160,14 @@ const std::string & Trick::DataRecordGroup::get_group_name() {
 }
 
 int Trick::DataRecordGroup::set_cycle( double in_cycle ) {
+    logging_rates[0] = in_cycle;
     write_job->set_cycle(in_cycle) ;
     return(0) ;
+}
+
+int Trick::DataRecordGroup::add_cycle(double in_cycle)
+{
+    logging_rates.push_back(in_cycle);
 }
 
 int Trick::DataRecordGroup::set_phase( unsigned short in_phase ) {
@@ -408,6 +416,41 @@ int Trick::DataRecordGroup::init() {
 
     // call format specific initialization to open destination and write header
     ret = format_specific_init() ;
+
+    long long curr_tics = exec_get_time_tics();
+    int tic_value = exec_get_time_tic_value();
+
+    logging_cycle_tics.resize(logging_rates.size());
+    logging_next_tics.resize(logging_rates.size());
+    for(size_t ii = 0; ii < logging_rates.size(); ++ii)
+    {
+        double logging_rate = logging_rates[ii];
+        if(logging_rate < (1.0 / tic_value))
+        {
+            message_publish(MSG_ERROR,
+                            "DataRecordGroup ERROR: Cycle for %lu logging rate idx is less than time tic value. cycle = "
+                            "%16.12f, time_tic = %16.12f\n",
+                            ii,
+                            logging_rate,
+                            tic_value);
+            ret = -1;
+        }
+        long long cycle_tics = (long long)round(logging_rate * Trick::JobData::time_tic_value);
+        logging_cycle_tics[ii] = cycle_tics;
+        logging_next_tics[ii] = curr_tics;
+
+        /* Calculate the if the cycle_tics would be a whole number  */
+        double test_rem = fmod(logging_rate * (double)tic_value , 1.0 ) ;
+
+        if ( test_rem > 0.001 ) {
+            message_publish(MSG_WARNING,"DataRecordGroup ERROR: Cycle for %lu integ rate idx cannot be exactly scheduled with time tic value. "
+             "cycle = %16.12f, cycle_tics = %lld , time_tic = %16.12f\n",
+             ii , logging_rate, cycle_tics , 1.0 / tic_value ) ;
+            ret = -1 ;
+        }
+    }
+
+    write_job->next_tics = curr_tics;
 
     // set the inited flag to true when all initialization is done
     if ( ret == 0 ) {
@@ -720,8 +763,39 @@ int Trick::DataRecordGroup::data_record(double in_time) {
         }
     }
 
-    return(0) ;
+    for(size_t cycleIndex = 0; cycleIndex < logging_next_tics.size(); ++cycleIndex)
+    {
+        long long logNextTic = logging_next_tics[cycleIndex];
+        if(logNextTic == write_job->next_tics)
+        {
+            logging_next_tics[cycleIndex] += logging_cycle_tics[cycleIndex];
+        }
+    }
 
+    write_job->next_tics = calculate_next_logging_tic();
+
+    return(0) ;
+}
+
+/**
+ * Loop through the required integration rates and calculate the
+ * next integration time in tics.
+ * @return Next integration time in tics,
+ */
+long long Trick::DataRecordGroup::calculate_next_logging_tic()
+{
+    long long ticOfCycleToProcess = std::numeric_limits<long long>::max();
+
+    for(size_t cycleIndex = 0; cycleIndex < logging_next_tics.size(); ++cycleIndex)
+    {
+        long long logNextTic = logging_next_tics[cycleIndex];
+
+        if(logNextTic < ticOfCycleToProcess)
+        {
+            ticOfCycleToProcess = logNextTic;
+        }
+    }
+    return ticOfCycleToProcess;
 }
 
 int Trick::DataRecordGroup::write_data(bool must_write) {
