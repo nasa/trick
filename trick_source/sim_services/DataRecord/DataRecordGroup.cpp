@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <math.h>
+#include <limits>
 
 #ifdef __GNUC__
 #include <cxxabi.h>
