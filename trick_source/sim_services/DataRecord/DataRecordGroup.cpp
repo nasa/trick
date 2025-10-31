@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <iomanip>
+#include <math.h>
 
 #ifdef __GNUC__
 #include <cxxabi.h>
@@ -168,6 +169,7 @@ int Trick::DataRecordGroup::set_cycle( double in_cycle ) {
 int Trick::DataRecordGroup::add_cycle(double in_cycle)
 {
     logging_rates.push_back(in_cycle);
+    return(0);
 }
 
 int Trick::DataRecordGroup::set_phase( unsigned short in_phase ) {
