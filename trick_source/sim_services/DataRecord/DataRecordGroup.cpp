@@ -601,6 +601,19 @@ int Trick::DataRecordGroup::restart() {
     /* call init to open the recording file and look up variable name addresses */
     init() ;
 
+    // Account for the fact that the current time tics is actually already passed for a checkpoint.
+    long long curr_tics = exec_get_time_tics();
+    for(size_t cycleIndex = 0; cycleIndex < logging_next_tics.size(); ++cycleIndex)
+    {
+        long long logNextTic = logging_next_tics[cycleIndex];
+        if(logNextTic == curr_tics)
+        {
+            logging_next_tics[cycleIndex] += logging_cycle_tics[cycleIndex];
+        }
+    }
+
+    write_job->next_tics = calculate_next_logging_tic();
+
     return 0 ;
 }
 
