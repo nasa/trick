@@ -43,3 +43,4 @@ trickops_logs/
 coverage.info
 *.dSYM
 *.log
+.cache/
