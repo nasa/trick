@@ -247,7 +247,7 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
         const std::string flag_output_dir_more = "-OO";
         bool output_dir_is_set                 = false;
 
-        for (size_t ii = 0; ii < argv.size() - 1; ii++) {
+        for (size_t ii = 0; ii < argv.size(); ii++) {
             if (argv[ii] == flag_output_dir || argv[ii] == flag_output_dir_more) {
                 if (output_dir_is_set) {
                     std::cerr << "\nERROR: Multiple -O or -OO flags found" << "\n";
@@ -257,9 +257,11 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
                     std::cerr << "\nERROR: No directory specified after -O or -OO argument" << "\n";
                     exit(1);
                 }
+
                 /* Output data directory */
                 output_dir_is_set = true;
-                output_dir = user_output_dir = argv[ii + 1];
+                user_output_dir   = argv[ii + 1];
+                output_dir        = user_output_dir;
                 if (argv[ii] == flag_output_dir_more) {
                     output_dir = output_dir + "/" + run_dir;
                 }
