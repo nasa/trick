@@ -1,5 +1,4 @@
-
-#include "../include/tc_proto.h"
+#include "trick/tc_proto.h"
 
 int main( int narg, char** args ) {
 

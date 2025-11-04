@@ -9,7 +9,8 @@
 #    Date:   6/19/00 
 #####################################################################
 
--include ${TRICK_HOME}/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.common
+include ${TRICK_HOME}/share/trick/makefiles/Makefile.tricklib
 
 ifndef TRICK_HOST_CPU
 TRICK_HOST_CPU := $(shell trick-gte TRICK_HOST_CPU)
@@ -21,7 +22,8 @@ endif
 
 
 CC = cc 
-FLAGS =
+# Default include paths for test builds (can be overridden by environment)
+FLAGS ?= -I${TRICK_HOME}/trick_source -I${TRICK_HOME}/include
 ifeq ($(TRICK_HOST_TYPE), Darwin)
  LIBS =
 else
@@ -36,10 +38,8 @@ endif
 ##                       UTILITY DEFINITIONS                       ##
 #####################################################################
 
-LIB_DIR = ../object_$(shell uname -s)
-COMM_LIB = ${LIB_DIR}/libtrick_comm.a
-STUBS_LIB = ${LIB_DIR}/libtrick_stubs.a
-LIBTC_LIB = $(COMM_LIB) $(STUBS_LIB) -lpthread ${LIBS}
+COMM_LIB = ${TRICK_LIB_DIR}/libtrick_comm.a
+LIBTC_LIB = $(COMM_LIB) -lpthread ${LIBS}
    
 
 #####################################################################
@@ -62,9 +62,9 @@ TEST_PRGMS = \
 default:
 	@ if [ "${TRICK_HOME}" != "" ] ; then \
 	     if [ "`uname -s`" = "SunOS" ] ; then \
-	        make -e test "FLAGS=-I${TRICK_HOME}/trick_source -I../include" "LIBS=-lsocket -lnsl" ; \
+		make -e test "FLAGS=$(FLAGS)" "LIBS=-lsocket -lnsl" ; \
 	     else \
-	        make -e test "FLAGS=-I${TRICK_HOME}/trick_source -I../include" "LIBS=${LIBS}" ; \
+		make -e test "FLAGS=$(FLAGS)" "LIBS=${LIBS}" ; \
 	     fi \
 	  else \
 	     if [ "`uname -s`" = "SunOS" ] ; then \
@@ -105,19 +105,11 @@ $(OBJ_DIR)/dr_client: dr_client.c
 	$(CC) $(FLAGS) -o $@ ${@F}.c $(LIBTC_LIB)
 
 $(COMM_LIB):
-	@ cd .. ; make STAND_ALONE=1 trick_comm
-
-$(STUBS_LIB):
-	@ cd .. ; make STAND_ALONE=1 trick_stubs_lib
-
+	@echo "Building parent comm library: invoking parent 'trick' target..."
+	@cd .. && $(MAKE) trick
 
 $(OBJ_DIR)/dr_client: $(COMM_LIB)
-$(OBJ_DIR)/dr_client: $(STUBS_LIB)
 $(OBJ_DIR)/tc_server: $(COMM_LIB)
-$(OBJ_DIR)/tc_server: $(STUBS_LIB)
 $(OBJ_DIR)/tc_client: $(COMM_LIB)
-$(OBJ_DIR)/tc_client: $(STUBS_LIB)
 $(OBJ_DIR)/tc_multi_serv_example: $(COMM_LIB)
 $(OBJ_DIR)/tc_multi_client_example: $(COMM_LIB)
-$(OBJ_DIR)/tc_multi_serv_example: $(STUBS_LIB)
-$(OBJ_DIR)/tc_multi_client_example: $(STUBS_LIB)
