@@ -67,6 +67,7 @@ namespace Trick {
     {
         public:
         LoggingCycle(double rate_in);
+        LoggingCycle() = default;
         void set_rate(double rate_in);
         double rate_in_seconds{}; /* (s) Logging rate in seconds */
         long long rate_in_tics{}; /* (--) Logging rate in sim tics */
