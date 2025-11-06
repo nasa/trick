@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <iomanip>
 #include <math.h>
-#include <limits>
 
 #ifdef __GNUC__
 #include <cxxabi.h>
@@ -469,6 +468,10 @@ int Trick::DataRecordGroup::init() {
 
     write_job->next_tics = curr_tics;
 
+    long long next_next_tics = calculate_next_logging_tic(write_job->next_tics);
+    write_job->cycle_tics = next_next_tics - curr_tics;
+    write_job->cycle = (double)write_job->cycle_tics / Trick::JobData::time_tic_value;
+
     // set the inited flag to true when all initialization is done
     if ( ret == 0 ) {
         inited = true ;
@@ -497,6 +500,7 @@ void Trick::DataRecordGroup::configure_jobs(DR_Type type) {
         write_job = add_job(0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
         break ;
     }
+    write_job->set_system_job_class(true);
 }
 
 int Trick::DataRecordGroup::checkpoint() {
@@ -619,7 +623,9 @@ int Trick::DataRecordGroup::restart() {
     long long curr_tics = exec_get_time_tics();
     advance_log_tics_given_curr_tic(curr_tics);
 
-    write_job->next_tics = calculate_next_logging_tic();
+    write_job->next_tics = calculate_next_logging_tic(curr_tics);
+    write_job->cycle_tics = write_job->next_tics - curr_tics;
+    write_job->cycle = (double)write_job->cycle_tics / Trick::JobData::time_tic_value;
 
     return 0 ;
 }
@@ -789,7 +795,9 @@ int Trick::DataRecordGroup::data_record(double in_time) {
     long long curr_tics = (long long)round(in_time * Trick::JobData::time_tic_value);
     advance_log_tics_given_curr_tic(curr_tics);
 
-    write_job->next_tics = calculate_next_logging_tic();
+    write_job->next_tics = calculate_next_logging_tic(curr_tics);
+    write_job->cycle_tics = write_job->next_tics - curr_tics;
+    write_job->cycle = (double)write_job->cycle_tics / Trick::JobData::time_tic_value;
 
     return(0) ;
 }
@@ -799,13 +807,18 @@ int Trick::DataRecordGroup::data_record(double in_time) {
  * next integration time in tics.
  * @return Next integration time in tics,
  */
-long long Trick::DataRecordGroup::calculate_next_logging_tic()
+long long Trick::DataRecordGroup::calculate_next_logging_tic(long long min_tic)
 {
     long long ticOfCycleToProcess = std::numeric_limits<long long>::max();
 
     for(size_t cycleIndex = 0; cycleIndex < logging_rates.size(); ++cycleIndex)
     {
         long long logNextTic = logging_rates[cycleIndex].next_cycle_in_tics;
+
+        if(logNextTic == min_tic)
+        {
+            logNextTic += logging_rates[cycleIndex].rate_in_tics;
+        }
 
         if(logNextTic < ticOfCycleToProcess)
         {

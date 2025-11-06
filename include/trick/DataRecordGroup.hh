@@ -12,6 +12,7 @@ PROGRAMMERS:
 #include <string>
 #include <fstream>
 #include <pthread.h>
+#include <limits>
 
 #include "trick/SimObject.hh"
 #include "trick/reference.h"
@@ -462,7 +463,7 @@ namespace Trick {
              * next logging time in tics.
              * @return Next logging time in tics,
              */
-            long long calculate_next_logging_tic();
+            long long calculate_next_logging_tic(long long min_tic);
 
             /**
              * Loop through the required logging rates and advance the next cycle tics of matching rates
