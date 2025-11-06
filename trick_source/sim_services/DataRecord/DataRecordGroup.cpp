@@ -56,6 +56,20 @@ Trick::DataRecordBuffer::~DataRecordBuffer() {
     free(ref) ;
 }
 
+
+Trick::LoggingCycle::LoggingCycle(double rate_in)
+{
+    set_rate(rate_in);
+}
+
+void Trick::LoggingCycle::set_rate(double rate_in)
+{
+    rate_in_seconds = rate_in;
+    long long cycle_tics = (long long)round(rate_in * Trick::JobData::time_tic_value);
+    rate_in_tics = cycle_tics;
+    next_cycle_in_tics= exec_get_time_tics();
+}
+
 Trick::DataRecordGroup::DataRecordGroup( std::string in_name, Trick::DR_Type dr_type ) :
  record(true) ,
  inited(false) ,
@@ -102,7 +116,7 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name, Trick::DR_Type dr_
 
     add_time_variable() ;
 
-    logging_rates.push_back(cycle);
+    logging_rates.emplace_back(cycle);
 }
 
 Trick::DataRecordGroup::~DataRecordGroup() {
@@ -162,14 +176,14 @@ const std::string & Trick::DataRecordGroup::get_group_name() {
 }
 
 int Trick::DataRecordGroup::set_cycle( double in_cycle ) {
-    logging_rates[0] = in_cycle;
+    logging_rates[0].set_rate(in_cycle);
     write_job->set_cycle(in_cycle) ;
     return(0) ;
 }
 
 int Trick::DataRecordGroup::add_cycle(double in_cycle)
 {
-    logging_rates.push_back(in_cycle);
+    logging_rates.emplace_back(in_cycle);
     return(0);
 }
 
@@ -423,11 +437,9 @@ int Trick::DataRecordGroup::init() {
     long long curr_tics = exec_get_time_tics();
     int tic_value = exec_get_time_tic_value();
 
-    logging_cycle_tics.resize(logging_rates.size());
-    logging_next_tics.resize(logging_rates.size());
     for(size_t ii = 0; ii < logging_rates.size(); ++ii)
     {
-        double logging_rate = logging_rates[ii];
+        double logging_rate = logging_rates[ii].rate_in_seconds;
         if(logging_rate < (1.0 / tic_value))
         {
             message_publish(MSG_ERROR,
@@ -439,8 +451,6 @@ int Trick::DataRecordGroup::init() {
             ret = -1;
         }
         long long cycle_tics = (long long)round(logging_rate * Trick::JobData::time_tic_value);
-        logging_cycle_tics[ii] = cycle_tics;
-        logging_next_tics[ii] = curr_tics;
 
         /* Calculate the if the cycle_tics would be a whole number  */
         double test_rem = fmod(logging_rate * (double)tic_value , 1.0 ) ;
@@ -451,6 +461,10 @@ int Trick::DataRecordGroup::init() {
              ii , logging_rate, cycle_tics , 1.0 / tic_value ) ;
             ret = -1 ;
         }
+
+        // We've checked that the rate is achievable. Call set_rate again to make sure the latest time_tic_value
+        // was utilized for calculated next tics
+        logging_rates[ii].set_rate(logging_rate);
     }
 
     write_job->next_tics = curr_tics;
@@ -603,14 +617,7 @@ int Trick::DataRecordGroup::restart() {
 
     // Account for the fact that the current time tics is actually already passed for a checkpoint.
     long long curr_tics = exec_get_time_tics();
-    for(size_t cycleIndex = 0; cycleIndex < logging_next_tics.size(); ++cycleIndex)
-    {
-        long long logNextTic = logging_next_tics[cycleIndex];
-        if(logNextTic == curr_tics)
-        {
-            logging_next_tics[cycleIndex] += logging_cycle_tics[cycleIndex];
-        }
-    }
+    advance_log_tics_given_curr_tic(curr_tics);
 
     write_job->next_tics = calculate_next_logging_tic();
 
@@ -780,14 +787,7 @@ int Trick::DataRecordGroup::data_record(double in_time) {
     }
 
     long long curr_tics = (long long)round(in_time * Trick::JobData::time_tic_value);
-    for(size_t cycleIndex = 0; cycleIndex < logging_next_tics.size(); ++cycleIndex)
-    {
-        long long logNextTic = logging_next_tics[cycleIndex];
-        if(logNextTic == curr_tics)
-        {
-            logging_next_tics[cycleIndex] += logging_cycle_tics[cycleIndex];
-        }
-    }
+    advance_log_tics_given_curr_tic(curr_tics);
 
     write_job->next_tics = calculate_next_logging_tic();
 
@@ -803,16 +803,29 @@ long long Trick::DataRecordGroup::calculate_next_logging_tic()
 {
     long long ticOfCycleToProcess = std::numeric_limits<long long>::max();
 
-    for(size_t cycleIndex = 0; cycleIndex < logging_next_tics.size(); ++cycleIndex)
+    for(size_t cycleIndex = 0; cycleIndex < logging_rates.size(); ++cycleIndex)
     {
-        long long logNextTic = logging_next_tics[cycleIndex];
+        long long logNextTic = logging_rates[cycleIndex].next_cycle_in_tics;
 
         if(logNextTic < ticOfCycleToProcess)
         {
             ticOfCycleToProcess = logNextTic;
         }
     }
+
     return ticOfCycleToProcess;
+}
+
+void Trick::DataRecordGroup::advance_log_tics_given_curr_tic(long long curr_tic_in)
+{
+    for(size_t cycleIndex = 0; cycleIndex < logging_rates.size(); ++cycleIndex)
+    {
+        long long logNextTic = logging_rates[cycleIndex].next_cycle_in_tics;
+        if(logNextTic == curr_tic_in)
+        {
+            logging_rates[cycleIndex].next_cycle_in_tics += logging_rates[cycleIndex].rate_in_tics;
+        }
+    }
 }
 
 int Trick::DataRecordGroup::write_data(bool must_write) {

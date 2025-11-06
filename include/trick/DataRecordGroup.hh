@@ -63,6 +63,16 @@ namespace Trick {
             ~DataRecordBuffer() ;
     } ;
 
+    class LoggingCycle
+    {
+        public:
+        LoggingCycle(double rate_in);
+        void set_rate(double rate_in);
+        double rate_in_seconds{}; /* (s) Logging rate in seconds */
+        long long rate_in_tics{}; /* (--) Logging rate in sim tics */
+        long long next_cycle_in_tics{}; /* (--) Next cycle in tics for logging */
+    };
+
     class DataRecordGroup : public Trick::SimObject {
 
         public:
@@ -442,9 +452,9 @@ namespace Trick {
             double curr_time ;          /**< trick_io(*i) trick_units(--) */
 
             /**
-             * Vector of integration rates in seconds.
+             * Vector of logging rate objects.
              */
-            std::vector<double> logging_rates;
+            std::vector<LoggingCycle> logging_rates;
 
             /**
              * Loop through the required logging rates and calculate the
@@ -454,15 +464,10 @@ namespace Trick {
             long long calculate_next_logging_tic();
 
             /**
-             * Vector of next logging time in tics for each rate in the logging_rates vector
-             */
-            std::vector<long long> logging_next_tics;
-
-            /**
-             * Vector of logging rate in tics for each rate in the logging_rates vector
-             */
-            std::vector<long long> logging_cycle_tics;
-
+             * Loop through the required logging rates and advance the next cycle tics of matching rates
+             * @param curr_tic_in - time in tics to match and advance the next cycle tic
+             */ 
+            void advance_log_tics_given_curr_tic(long long curr_tic_in);
     } ;
 
 } ;
