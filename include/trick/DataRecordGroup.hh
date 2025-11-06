@@ -190,7 +190,7 @@ namespace Trick {
             int set_cycle(double in_cycle) ;
 
             /**
-             @brief @userdesc Command to add a rate at which the group's data is recordedx).
+             @brief @userdesc Command to add a rate at which the group's data is recorded.
              @par Python Usage:
              @code <dr_group>.add_cycle(<in_cycle>) @endcode
              @param in_cycle - the recording rate in seconds
@@ -447,19 +447,19 @@ namespace Trick {
             std::vector<double> logging_rates;
 
             /**
-             * Loop through the required integration rates and calculate the
-             * next integration time in tics.
-             * @return Next integration time in tics,
+             * Loop through the required logging rates and calculate the
+             * next logging time in tics.
+             * @return Next logging time in tics,
              */
             long long calculate_next_logging_tic();
 
             /**
-             * Vector of next integration time in tics for each rate in the integRates vector
+             * Vector of next logging time in tics for each rate in the logging_rates vector
              */
             std::vector<long long> logging_next_tics;
 
             /**
-             * Vector of integration rate in tics for each rate in the integRates vector
+             * Vector of logging rate in tics for each rate in the logging_rates vector
              */
             std::vector<long long> logging_cycle_tics;
 
