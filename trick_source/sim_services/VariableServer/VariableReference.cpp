@@ -126,7 +126,16 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
     // Deal with weirdness around string vs wstring
     _trick_type = _var_info->attr->type ;
 
-    if ( _var_info->num_index == _var_info->attr->num_index ) {
+    // Special handling for indexed STL containers (e.g., vec[0])
+    // When num_index > attr->num_index and type is TRICK_STL, we've indexed into the container
+    // In this case, treat it as a single value of the element type
+    if ( _var_info->num_index > _var_info->attr->num_index && _var_info->attr->type == TRICK_STL ) {
+        // Use the element type from stl_elem_type
+        _trick_type = _var_info->attr->stl_elem_type;
+        // size is already set to sizeof(element_type) from attr->size
+        // address already points to the element from ref_dim
+        // Treat as single value - nothing else necessary
+    } else if ( _var_info->num_index == _var_info->attr->num_index ) {
         // single value - nothing else necessary
     } else if ( _var_info->attr->index[_var_info->attr->num_index - 1].size != 0 ) {
         // Constrained array

@@ -456,6 +456,58 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
                     clang::ClassTemplateSpecializationDecl * ctsd ;
                     ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(rd) ;
 
+                    // Extract STL template name such as "vector", "map", etc.
+                    std::string template_name = ctsd->getSpecializedTemplate()->getNameAsString();
+                    fdes->setSTLTemplateName(template_name);
+
+                    // Extract STL element type such as "int", "std::string", etc.
+                    const clang::TemplateArgumentList& args = ctsd->getTemplateArgs();
+                    if (args.size() > 0) {
+                        const clang::TemplateArgument& first_arg = args[0];
+                        if (first_arg.getKind() == clang::TemplateArgument::Type) {
+                            clang::QualType element_type = first_arg.getAsType();
+                            std::string element_type_name = element_type.getAsString();
+
+                            // For map-like containers, use the value type (second template argument)
+                            if ((template_name == "map" || template_name == "multimap" ||
+                                 template_name == "unordered_map" || template_name == "unordered_multimap")
+                                && args.size() > 1) {
+                                const clang::TemplateArgument& second_arg = args[1];
+                                if (second_arg.getKind() == clang::TemplateArgument::Type) {
+                                    element_type = second_arg.getAsType();
+                                    element_type_name = element_type.getAsString();
+                                }
+                            }
+
+                            // Clean up the type name (remove "class " prefix if present)
+                            size_t pos;
+                            if ((pos = element_type_name.find("class ")) != std::string::npos) {
+                                element_type_name.erase(pos, 6);
+                            }
+                            if ((pos = element_type_name.find("struct ")) != std::string::npos) {
+                                element_type_name.erase(pos, 7);
+                            }
+
+                            // Check if the element type is an enumeration using Clang AST
+                            bool is_elem_enum = false;
+                            const clang::Type* elem_type_ptr = element_type.getTypePtrOrNull();
+                            if (elem_type_ptr && elem_type_ptr->isEnumeralType()) {
+                                is_elem_enum = true;
+                                if (debug_level >= 3) {
+                                    std::cout << "    STL element type is an enumeration!" << std::endl;
+                                }
+                            }
+
+                            fdes->setSTLElementTypeName(element_type_name);
+                            fdes->setSTLElementEnum(is_elem_enum);
+
+                            if (debug_level >= 3) {
+                                std::cout << "    STL template: " << template_name
+                                          << ", element type: " << element_type_name << std::endl;
+                            }
+                        }
+                    }
+
                     // If a private embedded class is in an STL the resulting io_src code will not compile.
                     // Search the template arguments for private embedded classes, if found remove io capabilites.
                     if ( checkForPrivateTemplateArgs( ctsd )) {

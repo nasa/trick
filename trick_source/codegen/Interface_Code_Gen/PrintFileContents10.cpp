@@ -54,7 +54,7 @@ void PrintFileContents10::print_enum_attr(std::ostream & ostream , EnumValues * 
 }
 
 /** Prints attributes for a field */
-void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescription & fdes ) {
+void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescription & fdes , ClassValues * cv) {
     int array_dim ;
 
     ostream << "{\"" << fdes.getName() << "\""                               // name
@@ -93,11 +93,7 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
         ostream << "  " << (fdes.getFieldOffset() / 8) ; // offset
     }
     ostream << ", NULL" ; // attr
-    if (fdes.isSTL() && fdes.getSTLTypeEnumString() == "TRICK_STL_VECTOR") {
-        ostream << ", 1" ; // stl_type
-    } else {
-        ostream << ", " << fdes.getNumDims() ;                // num_index
-    }
+    ostream << ", " << fdes.getNumDims() ;                // num_index
     ostream << ", {" ;
     if ( fdes.isBitField() ) {
         ostream << "{" << fdes.getBitFieldWidth() ; // size of bitfield
@@ -119,28 +115,50 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
     if (fdes.isSTL()) {
         ostream << "  " << fdes.getSTLTypeEnumString() << ","; // stl_type
         ostream << " " << fdes.getSTLElementTypeEnumString() << ","; // stl_elem_type
-        ostream << " " << 0 << ","; // stl_size
     } else {
-        ostream << "  TRICK_STL_UNKNOWN, TRICK_NUMBER_OF_TYPES, 0,"; // Default values for non-STL fields
+        ostream << "  TRICK_STL_UNKNOWN, TRICK_NUMBER_OF_TYPES,"; // Default values for non-STL fields
     }
 
-    ostream << "  NULL, NULL, NULL, NULL" ;
+    // Output function pointers for STL operations
+    ostream << "  NULL, NULL, NULL, NULL"; // checkpoint_stl, post_checkpoint_stl, restore_stl, clear_stl
+
+    // Output function pointers for STL accessor functions
+    ostream << ", NULL, NULL"; // get_stl_size, get_stl_element
+
     ostream << "}" ;
+}
+
+/** Prints forward declarations for STL accessor functions */
+void PrintFileContents10::print_stl_declarations(std::ostream & ostream , ClassValues * c ) {
+    std::vector<FieldDescription*> fieldDescriptions = getPrintableFields(*c);
+
+    for (FieldDescription* field : fieldDescriptions) {
+        if (field->isSTL() && field->getSTLTypeEnumString() == "TRICK_STL_VECTOR") {
+            std::string className = c->getFullyQualifiedMangledTypeName("__");
+            std::string fieldName = sanitize(field->getName());
+            ostream << "size_t get_stl_size_stl_" << className << "_" << fieldName << "(void* start_address);" << std::endl;
+            ostream << "void* get_stl_element_stl_" << className << "_" << fieldName << "(void* start_address, size_t index);" << std::endl;
+        }
+    }
 }
 
 /** Prints class attributes */
 void PrintFileContents10::print_class_attr(std::ostream & ostream , ClassValues * c ) {
 
     print_open_extern_c(ostream) ;
+
+    // Print forward declarations for STL accessor functions
+    print_stl_declarations(ostream, c);
+
     ostream << "ATTRIBUTES attr" << c->getFullyQualifiedMangledTypeName("__") << "[] = {" << std::endl ;
 
     for (FieldDescription* fieldDescription : getPrintableFields(*c)) {
-            print_field_attr(ostream, *fieldDescription) ;
+            print_field_attr(ostream, *fieldDescription, c);
             ostream << "," << std::endl ;
     }
     // Print an empty sentinel attribute at the end of the class.
     FieldDescription new_fdes(std::string("")) ;
-    print_field_attr(ostream, new_fdes) ;
+    print_field_attr(ostream, new_fdes, NULL);
     ostream << " };" << std::endl ;
 
     print_close_extern_c(ostream) ;
@@ -199,6 +217,12 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
             if ( fdes->hasSTLClear() ) {
                 print("clear_stl");
             }
+        }
+
+        // Add accessor function pointers for STL vectors
+        if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR") {
+            ostream << prefix << "get_stl_size = get_stl_size_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
+            ostream << prefix << "get_stl_element = get_stl_element_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
         }
     }
 
@@ -325,19 +349,27 @@ void PrintFileContents10::print_io_src_delete( std::ostream & ostream , ClassVal
 }
 
 void PrintFileContents10::print_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
+    printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv, "void");
 }
 
 void PrintFileContents10::print_post_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("post_checkpoint", "void* start_address, const char* obj_name , const char* var_name", "delete_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
+    printStlFunction("post_checkpoint", "void* start_address, const char* obj_name , const char* var_name", "delete_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv, "void");
 }
 
 void PrintFileContents10::print_restore_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("restore", "void* start_address, const char* obj_name , const char* var_name", "restore_stl(*stl, obj_name, var_name)",ostream, *fdes, *cv);
+    printStlFunction("restore", "void* start_address, const char* obj_name , const char* var_name", "restore_stl(*stl, obj_name, var_name)",ostream, *fdes, *cv, "void");
 }
 
 void PrintFileContents10::print_clear_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("clear", "void* start_address", "stl->clear()",ostream, *fdes, *cv);
+    printStlFunction("clear", "void* start_address", "stl->clear()",ostream, *fdes, *cv, "void");
+}
+
+void PrintFileContents10::print_get_stl_size(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
+    printStlFunction("get_stl_size", "void* start_address", "return stl->size()",ostream, *fdes, *cv, "size_t");
+}
+
+void PrintFileContents10::print_get_stl_element(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
+    printStlFunction("get_stl_element", "void* start_address, size_t index", "return (void*)&((*stl)[index])",ostream, *fdes, *cv, "void*");
 }
 
 void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues * cv ) {
@@ -360,6 +392,11 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
             if (field->hasSTLClear()) {
                 print_clear_stl(ostream, field, cv) ;
             }
+        }
+        // Generate accessor functions for STL vectors to support variable server indexing
+        if (field->getSTLTypeEnumString() == "TRICK_STL_VECTOR") {
+            print_get_stl_size(ostream, field, cv) ;
+            print_get_stl_element(ostream, field, cv) ;
         }
     }
 
@@ -429,10 +466,10 @@ void PrintFileContents10::printEnumMapFooter( std::ostream & ostream ) {
      ostream << "}" << std::endl << std::endl ;
 }
 
-void PrintFileContents10::printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues) {
+void PrintFileContents10::printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues, const std::string& returnType) {
     const std::string typeName = fieldDescription.getTypeName();
     const std::string functionName = name + "_stl";
-    ostream << "void " << functionName << "_" << classValues.getFullyQualifiedMangledTypeName("__") << "_" << sanitize(fieldDescription.getName())
+    ostream << returnType << " " << functionName << "_" << classValues.getFullyQualifiedMangledTypeName("__") << "_" << sanitize(fieldDescription.getName())
             << "(" << parameters << ") {" << std::endl
             << "    " << typeName << "* stl = reinterpret_cast<" << typeName << "*>(start_address);" << std::endl
             << "    " << call << ";" << std::endl
