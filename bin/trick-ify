@@ -47,9 +47,11 @@
 #   In documentation, make notes about lib name being used for makefile rule generation, and the potential conflicts of using the same name multiple times
 #   verify autorebuild is not polluted by env vars
 #   What happens if multiple trickified libs rebuild with j > 1? Might need to wait till parameterized build to move
+#       appears to be the case, got some strange issues with j10, could not repeat with j1
 #   make trickfied makefile paths paramterized, make it easier to move things
 #   add a finish message for this script
-#    make apocalypse
+#   make apocalypse
+#   for S_define includes, consider checking if path contains string instead of starting
 
 use warnings ;
 use strict ;
@@ -280,6 +282,7 @@ if($s_define ne "")
     }
     @trick_build_files; 
 }
+
 my @filters = split ' ', $s_define_filter ;
 filter_paths(\@lib_deps_source, \@filters) ;
 filter_paths(\@lib_deps_header, \@filters) ;
