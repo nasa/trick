@@ -52,6 +52,7 @@
 #   add a finish message for this script
 #   make apocalypse
 #   for S_define includes, consider checking if path contains string instead of starting
+#   force script to die on cmd errors
 
 use warnings ;
 use strict ;
@@ -531,7 +532,7 @@ if ($full_build)
             }
             else
             {
-                print $fh "\n\${TRICKIFY_OBJECTS$ext} : $build_dir/build/%.o : /%.cc | \$\$(dir \$\$@)\n" ;
+                print $fh "\n\${TRICKIFY_OBJECTS$ext} : $build_dir/build/%.o : /%$ext | \$\$(dir \$\$@)\n" ;
                 print $fh "\t\$(TRICK_CC) \$(TRICKIFY_SRC_MAKE_ARGS) \$(TRICKIFY_CXX_FLAGS) \$(TRICK_CFLAGS) \$(TRICK_SFLAGS) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -c -o \$@ \$<\n" ;
             }
         }
@@ -554,6 +555,10 @@ if ($full_build)
         if($cmd_ret ne "") 
         {
             print "$cmd_ret" ;
+        }
+        if($? != 0)
+        {   
+            die $? ;
         }
         chdir Cwd::abs_path($build_dir) or die "Error changing to build directory: $build_dir\n" ;
     }
