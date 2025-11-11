@@ -119,17 +119,22 @@ TEST_F(VariableReference_test, stl_var) {
     (void) memmgr->declare_extern_var(&my_test, "TestObject my_test");
 
     Trick::VariableReference ref("my_test.vec");
+    Trick::VariableReference ref_elem("my_test.vec[0]");
     std::stringstream ss;
 
     // ACT
-    ref.stageValue();
-    ref.prepareForWrite();
-    ref.writeValueAscii(ss);
+    ref_elem.stageValue();
+    ref_elem.prepareForWrite();
+    ref_elem.writeValueAscii(ss);
+
+    std::cout << "Variable Reference (vector element value): " << ss.str() << std::endl;
 
     // ASSERT
-    EXPECT_EQ(ref.isWriteReady(), true);
-    EXPECT_EQ(ref.getType(), TRICK_NUMBER_OF_TYPES);
-    EXPECT_EQ(ss.str(), "BAD_REF");
+    //EXPECT_EQ(ref.isWriteReady(), true);
+    EXPECT_EQ(ref.getType(), TRICK_STL);
+    EXPECT_EQ(ref_elem.isWriteReady(), true);
+    EXPECT_EQ(ref_elem.getType(), TRICK_INTEGER);
+    EXPECT_EQ(ss.str(), "5");
 }
 
 TEST_F(VariableReference_test, structured_var) {
