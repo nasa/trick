@@ -73,14 +73,21 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
         ostream << ", 0" ;
     } else {
         // print size of the underlying type
-        if ( fdes.isSTL() && 
-             fdes.getSTLTypeEnumString() == "TRICK_STL_VECTOR" && 
+        // for STL containers such as std::vector<double>:
+        // print sizeof(double) instead of sizeof(std::vector<double>) 
+        // however, ATTRIBUTES size attribute is not used for TRICK_STL
+        // use the form such as sizeof(std::vector<double>) as is
+        // but keep the code here in case it is needed in the future
+        /*if ( fdes.isSTL() && 
+             (fdes.getSTLTypeEnumString() == "TRICK_STL_VECTOR" || 
+              fdes.getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
+              fdes.getSTLTypeEnumString() == "TRICK_STL_ARRAY") &&
              fdes.getSTLElementTypeEnumString() != "TRICK_NUMBER_OF_TYPES " && 
              fdes.getSTLElementTypeName() != "") { // if STL, print size of the element type
             ostream << ", sizeof(" << fdes.getSTLElementTypeName() << ")" ;
-        } else { // else print size of the type
+        } else { // else print size of the type*/
             ostream << ", sizeof(" << fdes.getTypeName() << ")" ;
-        }
+        //}
     }
     ostream << ", 0, 0, Language_CPP" ; // range_min, range_max, language
     // mods (see attributes.h for descriptions)
@@ -133,11 +140,18 @@ void PrintFileContents10::print_stl_declarations(std::ostream & ostream , ClassV
     std::vector<FieldDescription*> fieldDescriptions = getPrintableFields(*c);
 
     for (FieldDescription* field : fieldDescriptions) {
-        if (field->isSTL() && field->getSTLTypeEnumString() == "TRICK_STL_VECTOR") {
-            std::string className = c->getFullyQualifiedMangledTypeName("__");
-            std::string fieldName = sanitize(field->getName());
-            ostream << "size_t get_stl_size_stl_" << className << "_" << fieldName << "(void* start_address);" << std::endl;
-            ostream << "void* get_stl_element_stl_" << className << "_" << fieldName << "(void* start_address, size_t index);" << std::endl;
+        // vector, deque, array all have [] operator and size() function, treat them the same
+        if (field->isSTL() &&
+            ((field->getSTLTypeEnumString() == "TRICK_STL_VECTOR") ||
+             (field->getSTLTypeEnumString() == "TRICK_STL_DEQUE") ||
+             (field->getSTLTypeEnumString() == "TRICK_STL_ARRAY"))) {
+          std::string className = c->getFullyQualifiedMangledTypeName("__");
+          std::string fieldName = sanitize(field->getName());
+          ostream << "size_t get_stl_size_stl_" << className << "_" << fieldName
+                  << "(void* start_address);" << std::endl;
+          ostream << "void* get_stl_element_stl_" << className << "_"
+                  << fieldName << "(void* start_address, size_t index);"
+                  << std::endl;
         }
     }
 }
@@ -220,7 +234,9 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
         }
 
         // Add accessor function pointers for STL vectors
-        if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR") {
+        if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" ||
+            fdes->getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
+            fdes->getSTLTypeEnumString() == "TRICK_STL_ARRAY") {
             ostream << prefix << "get_stl_size = get_stl_size_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
             ostream << prefix << "get_stl_element = get_stl_element_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
         }
@@ -394,7 +410,9 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
             }
         }
         // Generate accessor functions for STL vectors to support variable server indexing
-        if (field->getSTLTypeEnumString() == "TRICK_STL_VECTOR") {
+        if (field->getSTLTypeEnumString() == "TRICK_STL_VECTOR" ||
+            field->getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
+            field->getSTLTypeEnumString() == "TRICK_STL_ARRAY") {
             print_get_stl_size(ostream, field, cv) ;
             print_get_stl_element(ostream, field, cv) ;
         }
