@@ -36,6 +36,9 @@ class EnumValues : public ConstructValues {
         void setHasDefinition( bool in ) ;
         bool getHasDefinition() ;
 
+        void setIsUnsigned( bool in ) ;
+        bool getIsUnsigned() ;
+
         const std::vector<NameValuePair>& getPairs() {
             return enum_values;
         }
@@ -56,6 +59,9 @@ class EnumValues : public ConstructValues {
         std::vector< NameValuePair > fully_qualified_enum_values ;
 
         bool has_definition ;
+
+        /** Is the enum unsigned? */
+        bool is_unsigned;
 
 } ;
 

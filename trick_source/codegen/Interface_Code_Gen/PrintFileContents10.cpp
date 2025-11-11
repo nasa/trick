@@ -46,8 +46,20 @@ void PrintFileContents10::print_enum_attr(std::ostream & ostream , EnumValues * 
     print_open_extern_c(ostream) ;
     ostream << "ENUM_ATTR enum" << e->getFullyQualifiedTypeName("__") << "[] = {\n" ;
     std::string name = e->getNamespacesAndContainerClasses();
+
+    // Determine mods value based on enum signedness
+    // unsigned enum = 0x40000000 (bit 30)
+    unsigned int mods_value = 0x0;
+    if (e->getIsUnsigned()) {
+        mods_value = 0x40000000;  // Set unsigned enum flag
+    }
+
+    // Print enum attributes in the form:
+    // if unsigned {"name", value, 0x40000000}
+    // if signed {"name", value, 0x0}
     for (auto& pair : e->getPairs()) {
-        ostream << "{\"" << name << pair.first << "\", " << pair.second << ", 0x0},\n" ;
+        ostream << "{\"" << name << pair.first << "\", " << pair.second << ", 0x" 
+                << std::hex << mods_value << std::dec << "},\n" ;
     }
     ostream << "{\"\", 0, 0x0}\n};\n" ;
     print_close_extern_c(ostream) ;
