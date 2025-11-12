@@ -9,6 +9,7 @@ package trick.simcontrol;
 //========================================
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -51,9 +52,12 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -1243,7 +1247,27 @@ public class SimControlApplication extends TrickApplication implements PropertyC
         hostPortHeader.setHorizontalAlignment(SwingConstants.CENTER);
         hostPortHeader.setTitle("Host : Port (Run Info)");
       
-        runningSimList = new JComboBox();
+        runningSimList = new JComboBox() {
+            @Override
+            public void setEnabled(boolean enabled) {
+                super.setEnabled(enabled);
+                // Keep bold font and text selectable even when disabled
+                Font boldFont = getFont().deriveFont(Font.BOLD);
+                setFont(boldFont);
+                Component editorComp = getEditor().getEditorComponent();
+                if (editorComp instanceof JTextField) {
+                    JTextField textField = (JTextField) editorComp;
+                    textField.setFont(boldFont);
+                    textField.setDisabledTextColor(Color.BLACK);
+                    // Make text selectable even when disabled
+                    if (!enabled) {
+                        textField.setEditable(false);
+                        textField.setEnabled(true);
+                        textField.setFocusable(true);
+                    }
+                }
+            }
+        };
         runningSimList.setEditable(true);
         runningSimList.getEditor().addActionListener(new ActionListener(){
         	public void actionPerformed(ActionEvent ae) {
