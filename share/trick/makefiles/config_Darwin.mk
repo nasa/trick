@@ -4,8 +4,10 @@ INSTALL = /usr/bin/install
 SHARED_LIB_OPT := -dynamiclib -Wl,-undefined,dynamic_lookup
 
 # options for partial linking (trailing space is required)
+empty :=
+space := $(empty) $(empty)
 LD_PARTIAL = -r
-LD_FILELIST = -filelist
+LD_FILELIST = -filelist$(space)
 
 TRICK_LIB_DIR  := ${TRICK_HOME}/lib
 RPATH = -Wl,-rpath,${TRICK_LIB_DIR}
