@@ -127,10 +127,7 @@ TEST_F(VariableReference_test, stl_var) {
     ref_elem.prepareForWrite();
     ref_elem.writeValueAscii(ss);
 
-    std::cout << "Variable Reference (vector element value): " << ss.str() << std::endl;
-
     // ASSERT
-    //EXPECT_EQ(ref.isWriteReady(), true);
     EXPECT_EQ(ref.getType(), TRICK_STL);
     EXPECT_EQ(ref_elem.isWriteReady(), true);
     EXPECT_EQ(ref_elem.getType(), TRICK_INTEGER);

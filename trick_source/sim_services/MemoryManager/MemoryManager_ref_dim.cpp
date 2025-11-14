@@ -4,6 +4,7 @@
 #include <sstream>
 #include <array>
 #include <algorithm>
+#include <regex>
 
 #include "trick/MemoryManager.hh"
 #include "trick/vval.h"
@@ -41,7 +42,7 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         }
 
         // Currently supported STL element types
-        static constexpr std::array<TRICK_TYPE, 11> supported_stl_elem_types = {
+        static constexpr std::array<TRICK_TYPE, 12> supported_stl_elem_types = {
             TRICK_STRING,
             TRICK_SHORT,
             TRICK_UNSIGNED_SHORT,
@@ -52,7 +53,8 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
             TRICK_FLOAT,
             TRICK_DOUBLE,
             TRICK_LONG_LONG,
-            TRICK_UNSIGNED_LONG_LONG
+            TRICK_UNSIGNED_LONG_LONG,
+            TRICK_STRUCTURED
         };
 
         // Check if element type is supported
@@ -79,12 +81,14 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
 
         // Get the address of the indexed element using the type-safe accessor function
         R->address = R->attr->get_stl_element(R->address, index_value);
-        R->num_index++;
 
-        // NOTE: We don't modify R->attr here. The variable server and other code
-        // already handle STL types by checking stl_elem_type when type == TRICK_STL.
-        // R->address now points to the element, and attr describes the container
-        // (with stl_elem_type describing the element type).
+        // For structured types, ref_name will handle the attribute lookup dynamically
+        // For primitive types, increment num_index as normal
+        if (R->attr->stl_elem_type != TRICK_STRUCTURED) {
+            R->num_index++;
+        }
+        // For primitive types, the variable server and other code handle STL types
+        // by checking stl_elem_type when type == TRICK_STL
 
         return (TRICK_NO_ERROR);
     }

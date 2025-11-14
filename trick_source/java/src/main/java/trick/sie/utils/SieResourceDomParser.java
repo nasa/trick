@@ -95,6 +95,25 @@ public class SieResourceDomParser {
             else if (enumerationHashMap.containsKey(template.typeName)) {
                 template.enumeration = enumerationHashMap.get(template.typeName);
             }
+            // Handle STL containers (vector, deque, array) - extract element type and add its children
+            else if (template.typeName.contains("vector") || template.typeName.contains("deque") || template.typeName.contains("array")) {
+                // Extract the template parameter type
+                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(?<=\\<)([a-zA-Z_][a-zA-Z0-9_]*(?:\\s+[a-zA-Z_][a-zA-Z0-9_]*)*)");
+                java.util.regex.Matcher matcher = pattern.matcher(template.typeName);
+                if (matcher.find()) {
+                    String elementType = matcher.group();
+                    // If the element type is a class, add its children
+                    if (typeHashMap.containsKey(elementType)) {
+                        ArrayList<SieTemplate> children = typeHashMap.get(elementType);
+                        if (children.isEmpty()) {
+                            template.children.add(SieTemplate.noManagedMembersTemplate);
+                        }
+                        else {
+                            template.children = children;
+                        }
+                    }
+                }
+            }
         }
 
         return rootInstances;

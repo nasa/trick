@@ -42,7 +42,22 @@ public class SieTreeModel implements TreeModel {
             if (!pathName.equals("") &&
               !pathName.equals("<Trick Variables>") &&
               !pathName.equals("<Dynamic Allocations>")) {
-                result += path[i] + ".";
+                // Check if this path component is an STL container (vector, deque, array)
+                // If so, strip the <element_type> suffix and append [0] for index specification
+                if (path[i] instanceof SieTemplate) {
+                    SieTemplate template = (SieTemplate)path[i];
+                    if (template.typeName.contains("vector") || 
+                        template.typeName.contains("deque") || 
+                        template.typeName.contains("array")) {
+                        // Remove <element_type> suffix if present
+                        String cleanName = pathName.replaceAll("<[^>]+>", "");
+                        result += cleanName + "[0].";
+                    } else {
+                        result += pathName + ".";
+                    }
+                } else {
+                    result += pathName + ".";
+                }
             }
         }
         return result;
