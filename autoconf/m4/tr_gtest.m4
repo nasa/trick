@@ -1,4 +1,4 @@
-AC_DEFUN([TR_GTEST_HOME],[
+AC_DEFUN([TR_GTEST],[
     AC_ARG_WITH([gtest],
                 AS_HELP_STRING([--with-gtest@<:@=DIR@:>@], [GTEST root directory]),
                 [GTEST_HOME="$withval"
