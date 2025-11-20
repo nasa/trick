@@ -15,7 +15,7 @@ CLANG_MAJOR_GTEQ10 := $(shell [ $(CLANG_MAJOR) -ge 10 ] && echo 1)
 CLANG_MAJOR_GTEQ16 := $(shell [ $(CLANG_MAJOR) -ge 16 ] && echo 1)
 ifeq ($(CLANG_MAJOR_GTEQ16),1)
 CXXFLAGS += -std=c++17
-else 
+else
 ifeq ($(CLANG_MAJOR_GTEQ10),1)
 CXXFLAGS += -std=c++14
 else
@@ -53,7 +53,7 @@ endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
-CLANGLIBS += $(filter-out -llibxml2.tbd,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
+CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --system-libs)
 ifeq ($(CLANG_MAJOR_GTEQ16),1)
 CLANGLIBS += -lc++abi -lclang-cpp
 else
