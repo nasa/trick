@@ -154,6 +154,7 @@ __END__
 # CP found at SUB_TRICK_BIN
 
 # Disable built-in implicit rules to increase build speed.
+
 .SUFFIXES:
 
 .PHONY: all
@@ -292,15 +293,19 @@ tidy:
 	-rm -f S_main* T_main*
 	-rm -f build/Makefile_*
 
-clean: tidy
+clean: tidy clean_trickify
 	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
 	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
 	-rm -rf build .trick trick.zip
 	-rm -f makefile
 
-spotless: clean
+spotless: clean spotless_trickify
 
 distclean: clean
 
-apocalypse: clean
-	@echo "[31mI love the smell of napalm in the morning[0m"
+apocalypse: clean nuke_trickify
+	@echo "[31mI love the smell of napalm in the morning <3[0m"
+
+clean_trickify: ;
+spotless_trickify: ;
+nuke_trickify: ;
