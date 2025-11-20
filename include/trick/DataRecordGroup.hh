@@ -12,6 +12,7 @@ PROGRAMMERS:
 #include <string>
 #include <fstream>
 #include <pthread.h>
+#include <limits>
 
 #include "trick/SimObject.hh"
 #include "trick/reference.h"
@@ -62,6 +63,17 @@ namespace Trick {
             DataRecordBuffer() ;
             ~DataRecordBuffer() ;
     } ;
+
+    class LoggingCycle
+    {
+        public:
+        LoggingCycle(double rate_in);
+        LoggingCycle() = default;
+        void set_rate(double rate_in);
+        double rate_in_seconds{}; /* (s) Logging rate in seconds */
+        long long rate_in_tics{}; /* (--) Logging rate in sim tics */
+        long long next_cycle_in_tics{}; /* (--) Next cycle in tics for logging */
+    };
 
     class DataRecordGroup : public Trick::SimObject {
 
@@ -188,6 +200,15 @@ namespace Trick {
              @return always 0
             */
             int set_cycle(double in_cycle) ;
+
+            /**
+             @brief @userdesc Command to add a rate at which the group's data is recorded.
+             @par Python Usage:
+             @code <dr_group>.add_cycle(<in_cycle>) @endcode
+             @param in_cycle - the recording rate in seconds
+             @return always 0
+            */
+            int add_cycle(double in_cycle) ;
 
             /**
              @brief @userdesc Command to set the phase where the group's data is record (default is 60000).
@@ -432,6 +453,23 @@ namespace Trick {
             /** Current time saved in Trick::DataRecordGroup::data_record.\n */
             double curr_time ;          /**< trick_io(*i) trick_units(--) */
 
+            /**
+             * Vector of logging rate objects.
+             */
+            std::vector<LoggingCycle> logging_rates;
+
+            /**
+             * Loop through the required logging rates and calculate the
+             * next logging time in tics.
+             * @return Next logging time in tics,
+             */
+            long long calculate_next_logging_tic(long long min_tic);
+
+            /**
+             * Loop through the required logging rates and advance the next cycle tics of matching rates
+             * @param curr_tic_in - time in tics to match and advance the next cycle tic
+             */ 
+            void advance_log_tics_given_curr_tic(long long curr_tic_in);
     } ;
 
 } ;

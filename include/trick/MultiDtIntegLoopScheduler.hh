@@ -144,12 +144,12 @@ protected:
     double calculate_next_integ_time();
 
     /**
-     * Vector of next integration time in tics for each rate in the integRates vector
+     * Vector of next integration time in tics for each rate in the integ_rates vector
      */
     std::vector<long long> integ_next_tics;
 
     /**
-     * Vector of integration rate in tics for each rate in the integRates vector
+     * Vector of integration rate in tics for each rate in the integ_rates vector
      */
     std::vector<long long> integ_cycle_tics;
 
@@ -164,15 +164,6 @@ protected:
      * @return Pointer to integ_loop kob
      */
     JobData * find_integ_loop_job();
-
-    /**
-     * Vector of next integration time in tics for each rate in the integRates vector
-     */
-    std::vector<long long> integNextTics;
-    /**
-     * Vector of integration rate in tics for each rate in the integRates vector
-     */
-    std::vector<long long> integCycleTics;
 };
 
 } // namespace Trick
