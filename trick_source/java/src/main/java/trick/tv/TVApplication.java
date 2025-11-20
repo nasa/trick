@@ -442,9 +442,9 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                         ArrayList<Variable<TrickViewFluent>> pendingVariables =
                           new ArrayList<Variable<TrickViewFluent>>();
                         for (TreePath path : getSelectionPaths()) {
-                            for (SieTemplate sieTemplate : (SieTemplate)path.getLastPathComponent()) {
+                            for (SieTemplate sieTemplate : (SieTemplate)path.getLastPathComponent() ) {
                                 pendingVariables.add(createVariableFromTemplate(
-                                  SieTreeModel.getPathName(path) + sieTemplate, sieTemplate));
+                                  SieTreeModel.getPathName(path) + sieTemplate.getVsName(), sieTemplate));
                             }
                         }
                         addVariableDialog.launch(pendingVariables);
@@ -476,7 +476,7 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                       new ArrayList<Variable<TrickViewFluent>>();
                     for (SieTemplate variableTemplate : getSelectedValues()) {
                         pendingVariables.add(variableTree.createVariableFromTemplate(
-                          variableTemplate.toString(), variableTemplate));
+                          variableTemplate.getVsName(), variableTemplate));
                     }
                     addVariableDialog.launch(pendingVariables);
                 }

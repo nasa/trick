@@ -56,10 +56,13 @@ class PrintFileContents10 : public PrintFileContentsBase {
         void print_enum_attr(std::ostream & outfile , EnumValues * in_enum) ;
 
         /** Prints attributes for a field */
-        void print_field_attr(std::ostream & outfile , FieldDescription & fdes ) ;
+        void print_field_attr(std::ostream & outfile , FieldDescription & fdes , ClassValues * cv = NULL) ;
+
+        /** Prints forward declarations for STL accessor functions */
+        void print_stl_declarations(std::ostream & outfile , ClassValues * in_class ) ;
 
         /** Prints class attributes */
-        void print_class_attr(std::ostream & outfile , ClassValues * in_class) ;
+        void print_class_attr(std::ostream & outfile , ClassValues * in_class ) ;
 
         /** Prints init_attr function for each class */
         void print_field_init_attr_stmts(std::ostream & outfile , FieldDescription * fdes ,
@@ -104,7 +107,13 @@ class PrintFileContents10 : public PrintFileContentsBase {
         /** Prints stl clear function */
         void print_clear_stl(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
 
-        void printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues);
+        /** Prints stl get_size function */
+        void print_get_stl_size(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
+        /** Prints stl get_element function */
+        void print_get_stl_element(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
+        void printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues, const std::string& returnType = "void");
 
         /** Prints #include statements requried by tempalte arguments for the specified header */
         void print_template_argument_header_dependencies(std::ostream & outfile, std::string header_file_name) ;

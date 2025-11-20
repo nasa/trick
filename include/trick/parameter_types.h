@@ -11,6 +11,23 @@ extern "C" {
 #endif
 
 /**
+ * The TRICK_STL_CONTAINER_TYPE enumeration represents the Trick STL types.
+ */
+    typedef enum {
+        TRICK_STL_VECTOR            = 0, /* STL vector */
+        TRICK_STL_ARRAY             = 1, /* STL array */
+        TRICK_STL_LIST              = 2, /* STL list */
+        TRICK_STL_DEQUE             = 3, /* STL deque */
+        TRICK_STL_SET               = 4, /* STL set */
+        TRICK_STL_MAP               = 5, /* STL map */
+        TRICK_STL_PAIR              = 6, /* STL pair */
+        TRICK_STL_QUEUE             = 7, /* STL queue */
+        TRICK_STL_STACK             = 8, /* STL stack */
+        TRICK_STL_PRIORITY_QUEUE    = 9, /* STL priority_queue */
+        TRICK_STL_UNKNOWN
+    } TRICK_STL_TYPE ;
+
+/**
  * The TRICK_TYPE enumeration represents the Trick data types.
  */
     typedef enum {
@@ -43,6 +60,7 @@ extern "C" {
     } TRICK_TYPE ;
 
 const char* trickTypeCharString( TRICK_TYPE type, const char* name);
+const char* trickSTLTypeCharString( TRICK_STL_TYPE type);
 
 /* here for backwards compatibility */
 #define TRICK_USER_DEFINED_TYPE TRICK_OPAQUE_TYPE

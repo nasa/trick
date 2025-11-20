@@ -6,6 +6,8 @@
 
 #include <string.h>
 #include <sstream>
+#include <regex>
+#include <string>
 
 #include "trick/MemoryManager.hh"
 #include "trick/attributes.h"
@@ -29,7 +31,32 @@ int Trick::MemoryManager::ref_name(REF2 * R, char *name) {
     attr = (ATTRIBUTES*)(R->attr->attr);
 
     if (attr == NULL) {
-        return (MM_PARAMETER_NAME);
+        // Special handling for STL containers with structured elements
+        // ICG doesn't populate attr field for these, so we look it up at runtime
+        if (R->attr->type == TRICK_STL && R->attr->stl_elem_type == TRICK_STRUCTURED) {
+            // Extract element type name from container type (e.g., "Point" from "std::vector<Point>")
+            std::string type_name = R->attr->type_name;
+            std::regex pattern("<([a-zA-Z_:][a-zA-Z0-9_:]*)>");
+            std::smatch match;
+
+            if (std::regex_search(type_name, match, pattern) && match.size() > 1) {
+                std::string elem_type_name = match[1].str();
+
+                // Look up the element type's attributes without modifying the static structure
+                ATTRIBUTES temp_attr;
+                memset(&temp_attr, 0, sizeof(ATTRIBUTES));
+
+                if (add_attr_info(elem_type_name, &temp_attr) == 0 && temp_attr.attr != NULL) {
+                    attr = (ATTRIBUTES*)temp_attr.attr;
+                } else {
+                    return (MM_PARAMETER_NAME);
+                }
+            } else {
+                return (MM_PARAMETER_NAME);
+            }
+        } else {
+            return (MM_PARAMETER_NAME);
+        }
     }
 
     if (R->address == NULL) {

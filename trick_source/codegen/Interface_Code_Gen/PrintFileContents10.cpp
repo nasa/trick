@@ -66,7 +66,7 @@ void PrintFileContents10::print_enum_attr(std::ostream & ostream , EnumValues * 
 }
 
 /** Prints attributes for a field */
-void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescription & fdes ) {
+void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescription & fdes , ClassValues * cv) {
     int array_dim ;
 
     ostream << "{\"" << fdes.getName() << "\""                               // name
@@ -85,7 +85,21 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
         ostream << ", 0" ;
     } else {
         // print size of the underlying type
-        ostream << ", sizeof(" << fdes.getTypeName() << ")" ;
+        // for STL containers such as std::vector<double>:
+        // print sizeof(double) instead of sizeof(std::vector<double>) 
+        // however, ATTRIBUTES size attribute is not used for TRICK_STL
+        // use the form such as sizeof(std::vector<double>) as is
+        // but keep the code here in case it is needed in the future
+        /*if ( fdes.isSTL() && 
+             (fdes.getSTLTypeEnumString() == "TRICK_STL_VECTOR" || 
+              fdes.getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
+              fdes.getSTLTypeEnumString() == "TRICK_STL_ARRAY") &&
+             fdes.getSTLElementTypeEnumString() != "TRICK_NUMBER_OF_TYPES " && 
+             fdes.getSTLElementTypeName() != "") { // if STL, print size of the element type
+            ostream << ", sizeof(" << fdes.getSTLElementTypeName() << ")" ;
+        } else { // else print size of the type*/
+            ostream << ", sizeof(" << fdes.getTypeName() << ")" ;
+        //}
     }
     ostream << ", 0, 0, Language_CPP" ; // range_min, range_max, language
     // mods (see attributes.h for descriptions)
@@ -99,7 +113,6 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
     }
     ostream << ", NULL" ; // attr
     ostream << ", " << fdes.getNumDims() ;                // num_index
-
     ostream << ", {" ;
     if ( fdes.isBitField() ) {
         ostream << "{" << fdes.getBitFieldWidth() ; // size of bitfield
@@ -116,23 +129,62 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
         ostream << ", {" << array_dim << ", 0}" ; // indexes 1 through 7
     }
     ostream << "}," << std::endl ;
-    ostream << "  NULL, NULL, NULL, NULL" ;
+
+    // Add support for STL fields
+    if (fdes.isSTL()) {
+        ostream << "  " << fdes.getSTLTypeEnumString() << ","; // stl_type
+        ostream << " " << fdes.getSTLElementTypeEnumString() << ","; // stl_elem_type
+    } else {
+        ostream << "  TRICK_STL_UNKNOWN, TRICK_NUMBER_OF_TYPES,"; // Default values for non-STL fields
+    }
+
+    // Output function pointers for STL operations
+    ostream << "  NULL, NULL, NULL, NULL"; // checkpoint_stl, post_checkpoint_stl, restore_stl, clear_stl
+
+    // Output function pointers for STL accessor functions
+    ostream << ", NULL, NULL"; // get_stl_size, get_stl_element
+
     ostream << "}" ;
+}
+
+/** Prints forward declarations for STL accessor functions */
+void PrintFileContents10::print_stl_declarations(std::ostream & ostream , ClassValues * c ) {
+    std::vector<FieldDescription*> fieldDescriptions = getPrintableFields(*c);
+
+    for (FieldDescription* field : fieldDescriptions) {
+        // vector, deque, array all have [] operator and size() function, treat them the same
+        if (field->isSTL() &&
+            ((field->getSTLTypeEnumString() == "TRICK_STL_VECTOR") ||
+             (field->getSTLTypeEnumString() == "TRICK_STL_DEQUE") ||
+             (field->getSTLTypeEnumString() == "TRICK_STL_ARRAY"))) {
+          std::string className = c->getFullyQualifiedMangledTypeName("__");
+          std::string fieldName = sanitize(field->getName());
+          ostream << "size_t get_stl_size_stl_" << className << "_" << fieldName
+                  << "(void* start_address);" << std::endl;
+          ostream << "void* get_stl_element_stl_" << className << "_"
+                  << fieldName << "(void* start_address, size_t index);"
+                  << std::endl;
+        }
+    }
 }
 
 /** Prints class attributes */
 void PrintFileContents10::print_class_attr(std::ostream & ostream , ClassValues * c ) {
 
     print_open_extern_c(ostream) ;
+
+    // Print forward declarations for STL accessor functions
+    print_stl_declarations(ostream, c);
+
     ostream << "ATTRIBUTES attr" << c->getFullyQualifiedMangledTypeName("__") << "[] = {" << std::endl ;
 
     for (FieldDescription* fieldDescription : getPrintableFields(*c)) {
-            print_field_attr(ostream, *fieldDescription) ;
+            print_field_attr(ostream, *fieldDescription, c);
             ostream << "," << std::endl ;
     }
     // Print an empty sentinel attribute at the end of the class.
     FieldDescription new_fdes(std::string("")) ;
-    print_field_attr(ostream, new_fdes) ;
+    print_field_attr(ostream, new_fdes, NULL);
     ostream << " };" << std::endl ;
 
     print_close_extern_c(ostream) ;
@@ -191,6 +243,14 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
             if ( fdes->hasSTLClear() ) {
                 print("clear_stl");
             }
+        }
+
+        // Add accessor function pointers for STL vectors
+        if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" ||
+            fdes->getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
+            fdes->getSTLTypeEnumString() == "TRICK_STL_ARRAY") {
+            ostream << prefix << "get_stl_size = get_stl_size_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
+            ostream << prefix << "get_stl_element = get_stl_element_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
         }
     }
 
@@ -317,19 +377,27 @@ void PrintFileContents10::print_io_src_delete( std::ostream & ostream , ClassVal
 }
 
 void PrintFileContents10::print_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
+    printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv, "void");
 }
 
 void PrintFileContents10::print_post_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("post_checkpoint", "void* start_address, const char* obj_name , const char* var_name", "delete_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
+    printStlFunction("post_checkpoint", "void* start_address, const char* obj_name , const char* var_name", "delete_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv, "void");
 }
 
 void PrintFileContents10::print_restore_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("restore", "void* start_address, const char* obj_name , const char* var_name", "restore_stl(*stl, obj_name, var_name)",ostream, *fdes, *cv);
+    printStlFunction("restore", "void* start_address, const char* obj_name , const char* var_name", "restore_stl(*stl, obj_name, var_name)",ostream, *fdes, *cv, "void");
 }
 
 void PrintFileContents10::print_clear_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("clear", "void* start_address", "stl->clear()",ostream, *fdes, *cv);
+    printStlFunction("clear", "void* start_address", "stl->clear()",ostream, *fdes, *cv, "void");
+}
+
+void PrintFileContents10::print_get_stl_size(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
+    printStlFunction("get_stl_size", "void* start_address", "return stl->size()",ostream, *fdes, *cv, "size_t");
+}
+
+void PrintFileContents10::print_get_stl_element(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
+    printStlFunction("get_stl_element", "void* start_address, size_t index", "return (void*)&((*stl)[index])",ostream, *fdes, *cv, "void*");
 }
 
 void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues * cv ) {
@@ -352,6 +420,13 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
             if (field->hasSTLClear()) {
                 print_clear_stl(ostream, field, cv) ;
             }
+        }
+        // Generate accessor functions for STL vectors to support variable server indexing
+        if (field->getSTLTypeEnumString() == "TRICK_STL_VECTOR" ||
+            field->getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
+            field->getSTLTypeEnumString() == "TRICK_STL_ARRAY") {
+            print_get_stl_size(ostream, field, cv) ;
+            print_get_stl_element(ostream, field, cv) ;
         }
     }
 
@@ -421,10 +496,10 @@ void PrintFileContents10::printEnumMapFooter( std::ostream & ostream ) {
      ostream << "}" << std::endl << std::endl ;
 }
 
-void PrintFileContents10::printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues) {
+void PrintFileContents10::printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues, const std::string& returnType) {
     const std::string typeName = fieldDescription.getTypeName();
     const std::string functionName = name + "_stl";
-    ostream << "void " << functionName << "_" << classValues.getFullyQualifiedMangledTypeName("__") << "_" << sanitize(fieldDescription.getName())
+    ostream << returnType << " " << functionName << "_" << classValues.getFullyQualifiedMangledTypeName("__") << "_" << sanitize(fieldDescription.getName())
             << "(" << parameters << ") {" << std::endl
             << "    " << typeName << "* stl = reinterpret_cast<" << typeName << "*>(start_address);" << std::endl
             << "    " << call << ";" << std::endl

@@ -95,6 +95,25 @@ public class SieResourceDomParser {
             else if (enumerationHashMap.containsKey(template.typeName)) {
                 template.enumeration = enumerationHashMap.get(template.typeName);
             }
+            // Handle STL containers (vector, deque, array) - extract element type and add its children
+            else if (template.typeName.contains("vector") || template.typeName.contains("deque") || template.typeName.contains("array")) {
+                // Extract the template parameter type
+                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(?<=\\<)([a-zA-Z_][a-zA-Z0-9_]*(?:\\s+[a-zA-Z_][a-zA-Z0-9_]*)*)");
+                java.util.regex.Matcher matcher = pattern.matcher(template.typeName);
+                if (matcher.find()) {
+                    String elementType = matcher.group();
+                    // If the element type is a class, add its children
+                    if (typeHashMap.containsKey(elementType)) {
+                        ArrayList<SieTemplate> children = typeHashMap.get(elementType);
+                        if (children.isEmpty()) {
+                            template.children.add(SieTemplate.noManagedMembersTemplate);
+                        }
+                        else {
+                            template.children = children;
+                        }
+                    }
+                }
+            }
         }
 
         return rootInstances;
@@ -139,24 +158,26 @@ public class SieResourceDomParser {
     }
     
     private static SieTemplate createTemplate(final Element element) {
-        return new SieTemplate() {{
-            parameter = element.getAttribute("name");
-            typeName =  element.getAttribute("type");
-            ioType =  element.getAttribute("io_attributes");
-            units = element.getAttribute("units");
-            description = element.getAttribute("description");
-            NodeList dims = element.getElementsByTagName("dimension");
-            dimensions = new int[dims.getLength()];
-            for (int i = 0; i < dimensions.length; ++i) {
-                dimensions[i] = Integer.parseInt(dims.item(i).getTextContent());
-            }
-            
-            // Only top level instances have this field.
-            try {
-                dynamicAllocation = Integer.parseInt(element.getAttribute("alloc_memory_init")) == 0;
-            }
-            catch (Exception ignored) {}
-        }};
+        NodeList dims = element.getElementsByTagName("dimension");
+        int[] dimensions = new int[dims.getLength()];
+        for (int i = 0; i < dimensions.length; ++i) {
+            dimensions[i] = Integer.parseInt(dims.item(i).getTextContent());
+        }
+
+        // Only top level instances have this field.
+        boolean dynamicAllocation = false;
+        try {
+            dynamicAllocation = Integer.parseInt(element.getAttribute("alloc_memory_init")) == 0;
+        }
+        catch (Exception ignored) {}
+
+        return new SieTemplate( element.getAttribute("name"), 
+                                element.getAttribute("type"), 
+                                dimensions,
+                                element.getAttribute("io_attributes"),
+                                element.getAttribute("units"),
+                                element.getAttribute("description"),
+                                dynamicAllocation);
     }
 
 }
