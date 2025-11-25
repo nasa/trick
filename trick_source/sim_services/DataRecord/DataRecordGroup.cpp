@@ -455,7 +455,7 @@ int Trick::DataRecordGroup::init() {
         double test_rem = fmod(logging_rate * (double)tic_value , 1.0 ) ;
 
         if ( test_rem > 0.001 ) {
-            message_publish(MSG_WARNING,"DataRecordGroup ERROR: Cycle for %lu integ rate idx cannot be exactly scheduled with time tic value. "
+            message_publish(MSG_WARNING,"DataRecordGroup ERROR: Cycle for %lu logging rate idx cannot be exactly scheduled with time tic value. "
              "cycle = %16.12f, cycle_tics = %lld , time_tic = %16.12f\n",
              ii , logging_rate, cycle_tics , 1.0 / tic_value ) ;
             ret = -1 ;
@@ -803,14 +803,16 @@ int Trick::DataRecordGroup::data_record(double in_time) {
 }
 
 /**
- * Loop through the required integration rates and calculate the
- * next integration time in tics.
- * @return Next integration time in tics,
+ * Loop through the required logging rates and calculate the
+ * next logging time in tics.
+ * @return Next logging time in tics,
  */
 long long Trick::DataRecordGroup::calculate_next_logging_tic(long long min_tic)
 {
     long long ticOfCycleToProcess = std::numeric_limits<long long>::max();
 
+    // Loop over all the logging rates. If the logging rate's next tic is equal to the min_tic, test against
+    // that rate's next cycle from min. Find the smallest next tic 
     for(size_t cycleIndex = 0; cycleIndex < logging_rates.size(); ++cycleIndex)
     {
         long long logNextTic = logging_rates[cycleIndex].next_cycle_in_tics;
@@ -829,6 +831,10 @@ long long Trick::DataRecordGroup::calculate_next_logging_tic(long long min_tic)
     return ticOfCycleToProcess;
 }
 
+/**
+ * Loop through the required logging rates and advance the next cycle tics of matching rates
+ * @param curr_tic_in - time in tics to match and advance the next cycle tic
+ */
 void Trick::DataRecordGroup::advance_log_tics_given_curr_tic(long long curr_tic_in)
 {
     for(size_t cycleIndex = 0; cycleIndex < logging_rates.size(); ++cycleIndex)
