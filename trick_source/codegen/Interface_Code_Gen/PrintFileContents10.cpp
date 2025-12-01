@@ -397,7 +397,26 @@ void PrintFileContents10::print_get_stl_size(std::ostream & ostream , FieldDescr
 }
 
 void PrintFileContents10::print_get_stl_element(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("get_stl_element", "void* start_address, size_t index", "return (void*)&((*stl)[index])",ostream, *fdes, *cv, "void*");
+    // Special handling for vector<bool> ONLY - it's the only container with bit-packing
+    // deque<bool> and array<bool> store actual bool objects, so they work normally
+    // TBD - update the code accordingly when support other containers
+    std::string element_access;
+    if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" && fdes->getSTLElementTypeName() == "bool") {
+        // vector<bool> is special:
+        //     - it stores bits, not bool objects
+        //     - operator[] returns a proxy object, not bool&
+        //     - can't take address of proxy such as &((*stl)[index]) since the proxy is temporary
+        // workaround:
+        //     - use a thread-local cache (std::vector<char> to avoid vector<bool> specialization)
+        //     - initialize cache size to match the actual vector size
+        //     - resize if needed (e.g., if vector grows after first access)
+        //     - thread_local ensures each thread has its own cache to avoid race conditions
+        element_access = "static thread_local std::vector<char> temp; if (temp.size() < stl->size()) { temp.resize(stl->size()); } temp[index] = (*stl)[index]; return (void*)&temp[index]";
+    } else {
+        // Normal case: return address of element
+        element_access = "return (void*)&((*stl)[index])";
+    }
+    printStlFunction("get_stl_element", "void* start_address, size_t index", element_access, ostream, *fdes, *cv, "void*");
 }
 
 void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues * cv ) {

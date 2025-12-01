@@ -801,7 +801,6 @@ std::string FieldDescription::getDeepestElementType(const std::string& type_name
  * @return true if the type is an STL container, false otherwise
  */
 bool FieldDescription::isSTLContainer(const std::string& type_name) {
-    std::cout << "Checking if type is STL container: " << type_name << std::endl;
     // Check for standard STL containers in std namespace
     return (type_name.find("std::vector<") == 0 ||
             type_name.find("std::array<") == 0 ||

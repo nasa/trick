@@ -42,8 +42,10 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         }
 
         // Currently supported STL element types
-        static constexpr std::array<TRICK_TYPE, 12> supported_stl_elem_types = {
+        static constexpr std::array<TRICK_TYPE, 13> supported_stl_elem_types = {
             TRICK_STRING,
+            //TRICK_CHARACTER,
+            //TRICK_UNSIGNED_CHARACTER,
             TRICK_SHORT,
             TRICK_UNSIGNED_SHORT,
             TRICK_INTEGER,
@@ -54,6 +56,7 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
             TRICK_DOUBLE,
             TRICK_LONG_LONG,
             TRICK_UNSIGNED_LONG_LONG,
+            TRICK_BOOLEAN,
             TRICK_STRUCTURED
         };
 

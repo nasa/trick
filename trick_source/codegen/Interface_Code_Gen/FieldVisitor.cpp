@@ -487,6 +487,10 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
                             if ((pos = element_type_name.find("struct ")) != std::string::npos) {
                                 element_type_name.erase(pos, 7);
                             }
+                            // clang changes bool to _Bool. Change it back
+                            if (element_type_name == "_Bool") {
+                                element_type_name = "bool";
+                            }
 
                             // Check if the element type is an enumeration using Clang AST
                             bool is_elem_enum = false;
