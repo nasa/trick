@@ -50,7 +50,7 @@ AC_ARG_ENABLE([offline],
     [
       [TRICK_OFFLINE="1"]
       AC_CHECK_FILE([trick-offline], [], AC_MSG_ERROR([Offline mode requires an uncompressed directory named "trick-offline" in TRICK_HOME]))
-    ], 
+    ],
     [TRICK_OFFLINE="0"]
   ),
   [TRICK_OFFLINE="0"]
@@ -61,7 +61,7 @@ AC_SUBST([TRICK_OFFLINE])
 AC_ARG_ENABLE([offline],
   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
   AS_IF([test "x$enable_offline" = xyes],
-    [TRICK_OFFLINE="1"], 
+    [TRICK_OFFLINE="1"],
     [TRICK_OFFLINE="0"]
   ),
   [TRICK_OFFLINE="0"]
@@ -73,7 +73,7 @@ AC_SUBST([TRICK_OFFLINE])
 #   AS_IF([test "x$enable_civet" = xyes],
 #     [
 #     TRICK_DISABLE_CIVET="0"
-#     ], 
+#     ],
 #     [TRICK_DISABLE_CIVET="1"]
 #   ),
 #   [TRICK_DISABLE_CIVET="0"]
@@ -84,7 +84,7 @@ AC_SUBST([TRICK_OFFLINE])
 # AC_ARG_ENABLE([offline],
 #   AS_HELP_STRING([--enable-offline], [Compile Trick in offline mode. Un-tar the trick-offline directory in TRICK_HOME to use this feature]),
 #   AS_IF([test "x$enable_offline" = xyes],
-#     [TRICK_DISABLE_CIVET="1"], 
+#     [TRICK_DISABLE_CIVET="1"],
 #   ),
 # )
 # AC_SUBST([TRICK_OFFLINE])
@@ -131,7 +131,7 @@ dnl find python
 AC_ARG_WITH(
   [python],
   AS_HELP_STRING(
-    [--with-python@<:@=DIR@:>@], 
+    [--with-python@<:@=DIR@:>@],
     [python root directory],
   ),
   [
@@ -165,7 +165,7 @@ AC_ARG_WITH(
       [test "$ac_cv_path_PYTHON_CONFIG" = "" || test "$ac_cv_path_PYTHON_CONFIG" = "nopython-config"],
       AC_MSG_ERROR([could not find python<major>-config python<major.minor>-config or python-config. Please install the python development package]),
       []
-    )  
+    )
   ]
 )
 
@@ -220,7 +220,7 @@ AS_IF([test "x$CLANG_VERSION" = "x"],[],
 ])
 
 AS_IF([test "x$CLANG_VERSION" = "x"],[],
-  [AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[18.0.0], 
+  [AX_COMPARE_VERSION([$CLANG_VERSION],[ge],[18.0.0],
    [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangASTMatchers -lclangAPINotes -lclangLex -lclangBasic"],
    [OLD_CLANG_LIBS="-lclangFrontend -lclangDriver -lclangSerialization -lclangParse -lclangSema -lclangAnalysis -lclangEdit -lclangAST -lclangLex -lclangBasic"]
    )]
@@ -302,7 +302,7 @@ AC_SUBST([UDUNITS_EXCLUDE])
 dnl process the other optional command line arguments
 TR_HDF5_HOME([])
 TR_GSL_HOME([])
-TR_GTEST_HOME([])
+TR_GTEST([])
 TR_CIVETWEB_HOME([])
 TR_ER7_UTILS([])
 
@@ -310,4 +310,3 @@ AC_CONFIG_FILES([share/trick/makefiles/config_user.mk])
 AC_OUTPUT
 
 printf "\033@<:@32mconfigure script successfully completed\033@<:@0m\n"
-
