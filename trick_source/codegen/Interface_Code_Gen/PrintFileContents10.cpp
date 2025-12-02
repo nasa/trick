@@ -134,8 +134,15 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
     if (fdes.isSTL()) {
         ostream << "  " << fdes.getSTLTypeEnumString() << ","; // stl_type
         ostream << " " << fdes.getSTLElementTypeEnumString() << ","; // stl_elem_type
+        // Output element type name for structured types, enums, and pointers
+        std::string elem_type_name = fdes.getSTLElementTypeName();
+        if (!elem_type_name.empty()) {
+            ostream << " \"" << elem_type_name << "\","; // stl_elem_type_name
+        } else {
+            ostream << " NULL,"; // stl_elem_type_name
+        }
     } else {
-        ostream << "  TRICK_STL_UNKNOWN, TRICK_NUMBER_OF_TYPES,"; // Default values for non-STL fields
+        ostream << "  TRICK_STL_UNKNOWN, TRICK_NUMBER_OF_TYPES, NULL,"; // Default values for non-STL fields
     }
 
     // Output function pointers for STL operations

@@ -42,10 +42,11 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         }
 
         // Currently supported STL element types
-        static constexpr std::array<TRICK_TYPE, 13> supported_stl_elem_types = {
+        static constexpr std::array<TRICK_TYPE, 14> supported_stl_elem_types = {
             TRICK_STRING,
             //TRICK_CHARACTER,
             //TRICK_UNSIGNED_CHARACTER,
+            TRICK_ENUMERATED,
             TRICK_SHORT,
             TRICK_UNSIGNED_SHORT,
             TRICK_INTEGER,
@@ -86,8 +87,26 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         R->address = R->attr->get_stl_element(R->address, index_value);
 
         // For structured types, ref_name will handle the attribute lookup dynamically
+        // For enumerated types, we need to update attr to point to the enum attributes
         // For primitive types, increment num_index as normal
-        if (R->attr->stl_elem_type != TRICK_STRUCTURED) {
+        if (R->attr->stl_elem_type == TRICK_ENUMERATED && R->attr->stl_elem_type_name != NULL) {
+            // Increment num_index first
+            R->num_index++;
+            // Look up the enum attributes using the element type name
+            ENUMERATION_MAP::iterator enum_pos = enumeration_map.find(R->attr->stl_elem_type_name);
+            if (enum_pos != enumeration_map.end()) {
+                // Create a temporary attribute structure for the enum element
+                static ATTRIBUTES temp_enum_attr;
+                memset(&temp_enum_attr, 0, sizeof(ATTRIBUTES));
+                temp_enum_attr.type = TRICK_ENUMERATED;
+                temp_enum_attr.type_name = R->attr->stl_elem_type_name;
+                temp_enum_attr.attr = enum_pos->second; // Point to ENUM_ATTR array
+                temp_enum_attr.size = R->attr->size; // Size of element type
+                temp_enum_attr.num_index = R->num_index; // Match the incremented indexing level
+                temp_enum_attr.units = (char*)"1"; // Default units for enums
+                R->attr = &temp_enum_attr;
+            }
+        } else if (R->attr->stl_elem_type != TRICK_STRUCTURED) {
             R->num_index++;
         }
         // For primitive types, the variable server and other code handle STL types

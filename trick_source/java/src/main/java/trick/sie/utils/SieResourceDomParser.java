@@ -107,8 +107,12 @@ public class SieResourceDomParser {
                     if (elementType.contains("*")) {
                         lookupType = elementType.substring(0, elementType.indexOf("*")).trim();
                     }
+                    // If the element type is an enumeration, set it
+                    if (enumerationHashMap.containsKey(lookupType)) {
+                        template.enumeration = enumerationHashMap.get(lookupType);
+                    }
                     // If the element type is a class, add its children
-                    if (typeHashMap.containsKey(lookupType)) {
+                    else if (typeHashMap.containsKey(lookupType)) {
                         ArrayList<SieTemplate> children = typeHashMap.get(lookupType);
                         if (children.isEmpty()) {
                             template.children.add(SieTemplate.noManagedMembersTemplate);

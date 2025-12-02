@@ -241,7 +241,13 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
     // If the current type is not canonical because of typedefs or template parameter substitution,
     // traverse the canonical type
     if ( !qt.isCanonical() ) {
-        fdes->setNonCanonicalTypeName(qt.getAsString()) ;
+        std::string non_canonical_name = qt.getAsString();
+        // Replace _Bool with bool
+        size_t pos;
+        while ((pos = non_canonical_name.find("_Bool")) != std::string::npos) {
+            non_canonical_name.replace(pos, 5, "bool");
+        }
+        fdes->setNonCanonicalTypeName(non_canonical_name) ;
         clang::QualType ct = qt.getCanonicalType() ;
         if ( debug_level >= 3 ) {
             std::cout << "\033[33mFieldVisitor VisitFieldDecl: Processing canonical type\033[00m" << std::endl ;
@@ -437,11 +443,8 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         tst_string.erase(pos , 7) ;
     }
     // clang changes bool to _Bool.  We need to change it back
-    while ((pos = tst_string.find("<_Bool")) != std::string::npos ) {
-        tst_string.replace(pos , 6, "<bool") ;
-    }
-    while ((pos = tst_string.find(" _Bool")) != std::string::npos ) {
-        tst_string.replace(pos , 6, " bool") ;
+    while ((pos = tst_string.find("_Bool")) != std::string::npos ) {
+        tst_string.replace(pos , 5, "bool") ;
     }
 
     // Test if we have some type from STL.
@@ -486,6 +489,9 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
                             }
                             if ((pos = element_type_name.find("struct ")) != std::string::npos) {
                                 element_type_name.erase(pos, 7);
+                            }
+                            if ((pos = element_type_name.find("enum ")) != std::string::npos) {
+                                element_type_name.erase(pos, 5);
                             }
                             // clang changes bool to _Bool. Change it back
                             if (element_type_name == "_Bool") {
@@ -643,7 +649,12 @@ bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {
     // If the current type is not canonical because of typedefs or template parameter substitution,
     // traverse the canonical type
     if ( !qt.isCanonical() ) {
-        fdes->setNonCanonicalTypeName(qt.getAsString()) ;
+        std::string non_canonical_name = qt.getAsString();
+        size_t pos;
+        while ((pos = non_canonical_name.find("_Bool")) != std::string::npos) {
+            non_canonical_name.replace(pos, 5, "bool");
+        }
+        fdes->setNonCanonicalTypeName(non_canonical_name) ;
         clang::QualType ct = qt.getCanonicalType() ;
         std::string tst_string = ct.getAsString() ;
         if ( debug_level >= 3 ) {
