@@ -97,14 +97,19 @@ public class SieResourceDomParser {
             }
             // Handle STL containers (vector, deque, array) - extract element type and add its children
             else if (template.typeName.contains("vector") || template.typeName.contains("deque") || template.typeName.contains("array")) {
-                // Extract the template parameter type
-                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(?<=\\<)([a-zA-Z_][a-zA-Z0-9_]*(?:\\s+[a-zA-Z_][a-zA-Z0-9_]*)*)");
+                // Extract the template parameter type (including pointer symbols if present)
+                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(?<=\\<)([a-zA-Z_][a-zA-Z0-9_]*(?:\\s+[a-zA-Z_][a-zA-Z0-9_]*)*(?:\\s*\\*+)?)");
                 java.util.regex.Matcher matcher = pattern.matcher(template.typeName);
                 if (matcher.find()) {
                     String elementType = matcher.group();
+                    // For pointer types, strip the pointer to get the base type for lookup
+                    String lookupType = elementType;
+                    if (elementType.contains("*")) {
+                        lookupType = elementType.substring(0, elementType.indexOf("*")).trim();
+                    }
                     // If the element type is a class, add its children
-                    if (typeHashMap.containsKey(elementType)) {
-                        ArrayList<SieTemplate> children = typeHashMap.get(elementType);
+                    if (typeHashMap.containsKey(lookupType)) {
+                        ArrayList<SieTemplate> children = typeHashMap.get(lookupType);
                         if (children.isEmpty()) {
                             template.children.add(SieTemplate.noManagedMembersTemplate);
                         }

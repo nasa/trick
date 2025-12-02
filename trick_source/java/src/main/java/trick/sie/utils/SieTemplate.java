@@ -226,7 +226,7 @@ public class SieTemplate implements Comparable<SieTemplate>, Iterable<SieTemplat
 
         newName += processArrayName();
         if(typeName.contains("vector") || typeName.contains("deque") || typeName.contains("array")) {
-            Pattern pattern = Pattern.compile("(?<=\\<)([a-zA-Z_][a-zA-Z0-9_]*(?:\\s+[a-zA-Z_][a-zA-Z0-9_]*)*)");
+            Pattern pattern = Pattern.compile("(?<=\\<)([a-zA-Z_][a-zA-Z0-9_]*(?:\\s+[a-zA-Z_][a-zA-Z0-9_]*)*(?:\\s*\\*+)?)");
             Matcher match = pattern.matcher(typeName);
             String templateType = "???";
             if(match.find()) {
