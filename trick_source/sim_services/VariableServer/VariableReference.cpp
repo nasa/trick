@@ -126,15 +126,71 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
     // Deal with weirdness around string vs wstring
     _trick_type = _var_info->attr->type ;
 
-    // Special handling for indexed STL containers (e.g., vec[0])
-    // When num_index > attr->num_index and type is TRICK_STL, we've indexed into the container
-    // In this case, treat it as a single value of the element type
-    if ( _var_info->num_index > _var_info->attr->num_index && _var_info->attr->type == TRICK_STL ) {
-        // Use the element type from stl_elem_type
+    // Special handling for indexed STL containers (e.g., vec[0], point_vec[0].x)
+    // We need to detect two cases:
+    // 1. Final attr is TRICK_STL - we indexed into container and stopped at element (e.g., vec[0])
+    // 2. Pattern "]." in reference - we indexed something then accessed a member (e.g., point_vec[0].x or ptr_array[0].x)
+    // 
+    // For case 1, we need to update _trick_type and _size to match the element type.
+    // For case 2, the final attr is already the member's attributes (e.g., double x), so _trick_type
+    // and _size are already correct - we just need to set the flag to skip follow_address_path().
+    _used_stl_indexing = false;
+    if ( _var_info->attr->type == TRICK_STL ) {
+        // Case 1: Final attr is STL container that we indexed (e.g., vec[0])
+        // Update type and size to match the element, not the container
         _trick_type = _var_info->attr->stl_elem_type;
-        // size is already set to sizeof(element_type) from attr->size
+        _used_stl_indexing = true;
+
+        // Update _size to match the element type size, not the container size
+        switch (_trick_type) {
+            case TRICK_CHARACTER:
+            case TRICK_UNSIGNED_CHARACTER:
+            case TRICK_BOOLEAN:
+                _size = sizeof(char);
+                break;
+            case TRICK_SHORT:
+            case TRICK_UNSIGNED_SHORT:
+                _size = sizeof(short);
+                break;
+            case TRICK_INTEGER:
+            case TRICK_UNSIGNED_INTEGER:
+            case TRICK_ENUMERATED:
+                _size = sizeof(int);
+                break;
+            case TRICK_LONG:
+            case TRICK_UNSIGNED_LONG:
+                _size = sizeof(long);
+                break;
+            case TRICK_LONG_LONG:
+            case TRICK_UNSIGNED_LONG_LONG:
+                _size = sizeof(long long);
+                break;
+            case TRICK_FLOAT:
+                _size = sizeof(float);
+                break;
+            case TRICK_DOUBLE:
+                _size = sizeof(double);
+                break;
+            case TRICK_STRING:
+            case TRICK_WSTRING:
+            case TRICK_STRUCTURED:
+                _size = sizeof(void*);
+                break;
+            default:
+                // Keep existing size for unknown types
+                break;
+        }
+
         // address already points to the element from ref_dim
         // Treat as single value - nothing else necessary
+    } else if ( _var_info->reference && strstr(_var_info->reference, "].") ) {
+        // Case 2: Pattern "]." indicates indexing followed by member access (e.g., point_vec[0].x)
+        // The final attr is already the member's attributes, so _trick_type and _size are correct.
+        // Just set the flag to skip follow_address_path() which doesn't understand STL indexing.
+        // Note: This also matches pointer arrays like ptr_array[0].x, but that's okay - the address
+        // is already correct and skipping follow_address_path() won't hurt.
+        // TODO: if a better way than checking "]." to detect this case is found, update this logic.
+        _used_stl_indexing = true;
     } else if ( _var_info->num_index == _var_info->attr->num_index ) {
         // single value - nothing else necessary
     } else if ( _var_info->attr->index[_var_info->attr->num_index - 1].size != 0 ) {
@@ -303,7 +359,11 @@ int Trick::VariableReference::stageValue(bool validate_address) {
     }
 
     // if there's a pointer somewhere in the address path, follow it in case pointer changed
-    if ( _var_info->pointer_present == 1 ) {
+    // BUT: if we've indexed into an STL container, then the address already points to the correct location
+    // and follow_address_path would incorrectly recalculate it (it doesn't understand STL indexing)
+    // Use the _used_stl_indexing flag that was set during construction when we detected STL indexing
+    // (when num_index > attr->num_index and attr->type == TRICK_STL)
+    if ( _var_info->pointer_present == 1 && !_used_stl_indexing ) {
         _address = follow_address_path(_var_info) ;
         if (_address == NULL) {
             tagAsInvalid();

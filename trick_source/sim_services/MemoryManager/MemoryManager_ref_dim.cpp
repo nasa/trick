@@ -88,7 +88,8 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
 
         // For structured types, ref_name will handle the attribute lookup dynamically
         // For enumerated types, we need to update attr to point to the enum attributes
-        // For primitive types, increment num_index as normal
+        // For primitive types, DO NOT increment num_index because primitive attributes have num_index=0
+        // and incrementing would cause a mismatch in ref_assignment (remaining_dimensions would be negative)
         if (R->attr->stl_elem_type == TRICK_ENUMERATED && R->attr->stl_elem_type_name != NULL) {
             // Increment num_index first
             R->num_index++;
@@ -101,13 +102,14 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
                 temp_enum_attr.type = TRICK_ENUMERATED;
                 temp_enum_attr.type_name = R->attr->stl_elem_type_name;
                 temp_enum_attr.attr = enum_pos->second; // Point to ENUM_ATTR array
-                temp_enum_attr.size = R->attr->size; // Size of element type
+                // Get actual enum size using generated io_src_sizeof function
+                size_t enum_size = io_src_sizeof_user_type(R->attr->stl_elem_type_name);
+                temp_enum_attr.size = (enum_size > 0) ? enum_size : sizeof(int); // Fall back to sizeof(int) if not found
                 temp_enum_attr.num_index = R->num_index; // Match the incremented indexing level
                 temp_enum_attr.units = (char*)"1"; // Default units for enums
+                temp_enum_attr.io = R->attr->io; // Preserve io flags from container
                 R->attr = &temp_enum_attr;
             }
-        } else if (R->attr->stl_elem_type != TRICK_STRUCTURED) {
-            R->num_index++;
         }
         // For primitive types, the variable server and other code handle STL types
         // by checking stl_elem_type when type == TRICK_STL
