@@ -128,69 +128,87 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
 
     // Special handling for indexed STL containers (e.g., vec[0], point_vec[0].x)
     // We need to detect two cases:
-    // 1. Final attr is TRICK_STL - we indexed into container and stopped at element (e.g., vec[0])
-    // 2. Pattern "]." in reference - we indexed something then accessed a member (e.g., point_vec[0].x or ptr_array[0].x)
+    // 1. Final attr is TRICK_STL AND we indexed it (e.g., vec[0]) - update type/size to element
+    // 2. Pattern "]." in reference - we indexed something then accessed a member (e.g., point_vec[0].x)
     // 
     // For case 1, we need to update _trick_type and _size to match the element type.
     // For case 2, the final attr is already the member's attributes (e.g., double x), so _trick_type
     // and _size are already correct - we just need to set the flag to skip follow_address_path().
+    //
+    // Important: If reference is just "vec" (no indexing), keep it as TRICK_STL container type.
     _used_stl_indexing = false;
-    if ( _var_info->attr->type == TRICK_STL ) {
-        // Case 1: Final attr is STL container that we indexed (e.g., vec[0])
-        // Update type and size to match the element, not the container
-        _trick_type = _var_info->attr->stl_elem_type;
-        _used_stl_indexing = true;
+    if ( _var_info->attr->type == TRICK_STL && _var_info->reference ) {
+        // Check if the STL container was actually indexed by checking if reference ends with ']'
+        // e.g., "vec[0]" ends with ']', but "vec" or "xxx[0].vec" do not
+        size_t len = strlen(_var_info->reference);
+        bool stl_was_indexed = (len > 0 && _var_info->reference[len - 1] == ']');
 
-        // Update _size to match the element type size, not the container size
-        switch (_trick_type) {
-            case TRICK_CHARACTER:
-            case TRICK_UNSIGNED_CHARACTER:
-            case TRICK_BOOLEAN:
-                _size = sizeof(char);
-                break;
-            case TRICK_SHORT:
-            case TRICK_UNSIGNED_SHORT:
-                _size = sizeof(short);
-                break;
-            case TRICK_INTEGER:
-            case TRICK_UNSIGNED_INTEGER:
-            case TRICK_ENUMERATED:
-                _size = sizeof(int);
-                break;
-            case TRICK_LONG:
-            case TRICK_UNSIGNED_LONG:
-                _size = sizeof(long);
-                break;
-            case TRICK_LONG_LONG:
-            case TRICK_UNSIGNED_LONG_LONG:
-                _size = sizeof(long long);
-                break;
-            case TRICK_FLOAT:
-                _size = sizeof(float);
-                break;
-            case TRICK_DOUBLE:
-                _size = sizeof(double);
-                break;
-            case TRICK_STRING:
-            case TRICK_WSTRING:
-            case TRICK_STRUCTURED:
-                _size = sizeof(void*);
-                break;
-            default:
-                // Keep existing size for unknown types
-                break;
+        if (stl_was_indexed) {
+            // Case 1: Final attr is STL container AND we indexed it (e.g., vec[0])
+            // Update type and size to match the element, not the container
+            _trick_type = _var_info->attr->stl_elem_type;
+            _used_stl_indexing = true;
+
+            // Update _size to match the element type size, not the container size
+            switch (_trick_type) {
+                case TRICK_CHARACTER:
+                case TRICK_UNSIGNED_CHARACTER:
+                case TRICK_BOOLEAN:
+                    _size = sizeof(char);
+                    break;
+                case TRICK_SHORT:
+                case TRICK_UNSIGNED_SHORT:
+                    _size = sizeof(short);
+                    break;
+                case TRICK_INTEGER:
+                case TRICK_UNSIGNED_INTEGER:
+                case TRICK_ENUMERATED:
+                    _size = sizeof(int);
+                    break;
+                case TRICK_LONG:
+                case TRICK_UNSIGNED_LONG:
+                    _size = sizeof(long);
+                    break;
+                case TRICK_LONG_LONG:
+                case TRICK_UNSIGNED_LONG_LONG:
+                    _size = sizeof(long long);
+                    break;
+                case TRICK_FLOAT:
+                    _size = sizeof(float);
+                    break;
+                case TRICK_DOUBLE:
+                    _size = sizeof(double);
+                    break;
+                case TRICK_STRING:
+                case TRICK_WSTRING:
+                case TRICK_STRUCTURED:
+                    _size = sizeof(void*);
+                    break;
+                default:
+                    // Keep existing size for unknown types
+                    break;
+            }
+
+            // address already points to the element from ref_dim
+            // Treat as single value - nothing else necessary
         }
-
-        // address already points to the element from ref_dim
-        // Treat as single value - nothing else necessary
     } else if ( _var_info->reference && strstr(_var_info->reference, "].") ) {
         // Case 2: Pattern "]." indicates indexing followed by member access (e.g., point_vec[0].x)
-        // The final attr is already the member's attributes, so _trick_type and _size are correct.
-        // Just set the flag to skip follow_address_path() which doesn't understand STL indexing.
-        // Note: This also matches pointer arrays like ptr_array[0].x, but that's okay - the address
-        // is already correct and skipping follow_address_path() won't hurt.
-        // TODO: if a better way than checking "]." to detect this case is found, update this logic.
-        _used_stl_indexing = true;
+        // Check if the last "]." is followed only by member names (no more ']')
+        const char* last_bracket_dot = strstr(_var_info->reference, "].");
+        // Find the last occurrence of "]."
+        const char* temp = last_bracket_dot;
+        while (temp != NULL && (temp = strstr(temp + 2, "].")) != NULL) {
+            last_bracket_dot = temp;
+        }
+        // After the last "].", check if there are no more ']'
+        if (strchr(last_bracket_dot + 2, ']') == NULL) {
+            // The final attr is already the member's attributes, so _trick_type and _size are correct.
+            // Just set the flag to skip follow_address_path() which doesn't understand STL indexing.
+            // Note: This also matches pointer arrays like ptr_array[0].x, but that's okay - the address
+            // is already correct and skipping follow_address_path() won't hurt.
+            _used_stl_indexing = true;
+        }
     } else if ( _var_info->num_index == _var_info->attr->num_index ) {
         // single value - nothing else necessary
     } else if ( _var_info->attr->index[_var_info->attr->num_index - 1].size != 0 ) {
