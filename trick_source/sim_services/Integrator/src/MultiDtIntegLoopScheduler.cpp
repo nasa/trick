@@ -241,9 +241,20 @@ int MultiDtIntegLoopScheduler::initialize_rates()
                             tic_value);
             ret = -1;
         }
+
         long long cycle_tics = (long long)round(integ_rate * Trick::JobData::time_tic_value);
         integ_cycle_tics[ii] = cycle_tics;
         integ_next_tics[ii] = curr_tics + cycle_tics;
+
+        /* Calculate the if the cycle_tics would be a whole number  */
+        double test_rem = fmod(integ_rate * (double)tic_value , 1.0 ) ;
+
+        if ( test_rem > 0.001 ) {
+            message_publish(MSG_WARNING,"Integ Scheduler ERROR: Cycle for %lu integ rate idx cannot be exactly scheduled with time tic value. "
+             "cycle = %16.12f, cycle_tics = %lld , time_tic = %16.12f\n",
+             ii , integ_rate, cycle_tics , 1.0 / tic_value ) ;
+            ret = -1 ;
+        }
     }
 
     next_tic = calculate_next_integ_tic();
