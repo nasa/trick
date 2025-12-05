@@ -149,7 +149,7 @@ void PrintFileContents10::print_field_attr(std::ostream & ostream ,  FieldDescri
     ostream << "  NULL, NULL, NULL, NULL"; // checkpoint_stl, post_checkpoint_stl, restore_stl, clear_stl
 
     // Output function pointers for STL accessor functions
-    ostream << ", NULL, NULL"; // get_stl_size, get_stl_element
+    ostream << ", NULL, NULL, NULL"; // get_stl_size, get_stl_element, set_stl_element
 
     ostream << "}" ;
 }
