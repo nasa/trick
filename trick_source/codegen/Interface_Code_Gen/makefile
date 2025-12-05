@@ -14,6 +14,14 @@ CLANG_MAJOR_GTEQ10 := $(shell [ $(CLANG_MAJOR) -ge 10 ] && echo 1)
 # By default, Clang 16 or later builds C++ code according to the C++17 standard.
 CLANG_MAJOR_GTEQ16 := $(shell [ $(CLANG_MAJOR) -ge 16 ] && echo 1)
 CXXFLAGS += -std=c++17
+else
+ifeq ($(CLANG_MAJOR_GTEQ10),1)
+CXXFLAGS += -std=c++14
+else
+CXXFLAGS += -std=c++11
+endif
+endif
+
 LLVMLDFLAGS := $(shell $(LLVM_HOME)/bin/llvm-config --ldflags) $(UDUNITS_LDFLAGS)
 
 OBJ_DIR :=  object_$(TRICK_HOST_CPU)
@@ -44,7 +52,7 @@ endif
 
 ifeq ($(TRICK_HOST_TYPE),Darwin)
 CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --libs)
-CLANGLIBS += $(filter-out -llibxml2.tbd,$(shell $(LLVM_HOME)/bin/llvm-config --system-libs))
+CLANGLIBS += $(shell $(LLVM_HOME)/bin/llvm-config --system-libs)
 ifeq ($(CLANG_MAJOR_GTEQ16),1)
 CLANGLIBS += -lc++abi -lclang-cpp
 else

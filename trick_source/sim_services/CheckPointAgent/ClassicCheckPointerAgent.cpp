@@ -322,6 +322,11 @@ static int getCompositeSubReference(
     }
 /*if member is an unarrayed struct, continue to call getCompositeSubReference.*/
     if (Ai->num_index == 0) {
+        /* if left_type specifies the current member, stop here */
+        if ( (left_type != NULL) && (*left_type != NULL) && (Ai->attr == (*left_type)->attr)) {
+            return 0;
+        }
+
         char buf[256];
         ret = getCompositeSubReference( rAddr, left_type, sAddr + Ai->offset, (ATTRIBUTES *) Ai->attr, buf);
 
@@ -1140,8 +1145,41 @@ void Trick::ClassicCheckPointAgent::assign_rvalue(std::ostream& chkpnt_os, void*
         chkpnt_os << "// STL: " << lname ;
     } else {
         chkpnt_os << lname << " = ";
+
         write_rvalue( chkpnt_os, (void*)address, attr, curr_dim, offset);
         chkpnt_os << ";";
+
+        // Check if we need to add decimal comments for hexfloat values
+        bool should_add_decimal_comment = hexfloat_decimal_comment_checkpoint && hexfloat_checkpoint && (attr->type == TRICK_FLOAT || attr->type == TRICK_DOUBLE);
+
+        // Add decimal comment for hexfloat values
+        if (should_add_decimal_comment) {
+            // Temporarily disable hexfloat to get decimal representation
+            bool saved_hexfloat = hexfloat_checkpoint;
+            hexfloat_checkpoint = false;
+
+            // Capture decimal output to string stream
+            std::stringstream decimal_ss;
+            write_rvalue( decimal_ss, (void*)address, attr, curr_dim, offset);
+
+            // Restore hexfloat setting
+            hexfloat_checkpoint = saved_hexfloat;
+
+            // Add // to each line of the decimal output
+            std::string decimal_str = decimal_ss.str();
+            std::istringstream iss(decimal_str);
+            std::string line;
+            bool first_line = true;
+            
+            while (std::getline(iss, line)) {
+                if (first_line) {
+                    chkpnt_os << std::endl << "// " << lname << " = " << line;
+                    first_line = false;
+                } else {
+                    chkpnt_os << std::endl << "//" << line;
+                }
+            }
+        }
     }
     if (!input_perm_check(attr)) {
         chkpnt_os << "*/";
