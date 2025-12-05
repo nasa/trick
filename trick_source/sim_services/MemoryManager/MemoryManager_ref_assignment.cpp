@@ -445,6 +445,48 @@ int Trick::MemoryManager::ref_assignment( REF2* R, V_TREE* V) {
         }
     }
 
+    // Special handling for vector<bool> assignment
+    // vector<bool> elements can't be written via get_stl_element (returns temp buffer)
+    // Instead, use set_stl_element to write directly to the container
+    // Context (container address + index) is stored in R->ref_attr by ref_dim
+    if (R->ref_attr != NULL &&
+        R->ref_attr->type == TRICK_STL &&
+        R->ref_attr->stl_elem_type == TRICK_BOOLEAN && V && V->v_data)
+    {
+
+        // Extract stored context from ref_attr
+        void *container_address = R->ref_attr->attr;                  // Container address
+        size_t element_index = R->ref_attr->offset;                   // Element index
+        ATTRIBUTES *container_attr = (ATTRIBUTES *)R->ref_attr->name; // Original container attr
+
+        // Extract the bool value from V_TREE
+        bool value = (vval_short(V->v_data) != 0);
+
+        // Call the setter function to write directly to the vector
+        if (container_attr && container_attr->set_stl_element)
+        {
+            container_attr->set_stl_element(container_address, element_index, &value);
+
+            if (debug_level)
+            {
+                std::cout << std::endl
+                          << "Assignment (vector<bool>): " << R->reference << " = " << value << ";" << std::endl;
+                std::cout.flush();
+            }
+
+            ret = TRICK_NO_ERROR;
+        }
+        else
+        {
+            emitError("set_stl_element function not available for vector<bool>");
+            ret = TRICK_PARAMETER_ADDRESS_NULL;
+        }
+
+        if (cf)
+            cv_free(cf);
+        return ret;
+    } // End of special vector<bool> handling
+
     // R->num_index is badly named. It is really the current dimension
     ret = assign_recursive( R->address, R->attr, R->num_index, 0, V, cf);
     if ( cf ) cv_free(cf) ;

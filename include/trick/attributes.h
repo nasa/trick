@@ -143,6 +143,7 @@ typedef struct ATTRIBUTES_tag {
     void (*clear_stl)(void * start_address) ;
     size_t (*get_stl_size)(void * start_address) ; /**< ** Function to get STL container size */
     void* (*get_stl_element)(void * start_address, size_t index) ; /**< ** Function to get pointer to STL element at index */
+    void (*set_stl_element)(void * start_address, size_t index, void* value_ptr) ; /**< ** Function to set STL element at index (for vector<bool> write-back) */
 
 } ATTRIBUTES;
 

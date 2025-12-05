@@ -113,6 +113,9 @@ class PrintFileContents10 : public PrintFileContentsBase {
         /** Prints stl get_element function */
         void print_get_stl_element(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
 
+        /** Prints stl set_element function (for vector<bool> write-back) */
+        void print_set_stl_element(std::ostream & outfile , FieldDescription * fdes , ClassValues * in_class) ;
+
         void printStlFunction(const std::string& name, const std::string& parameters, const std::string& call, std::ostream& ostream, FieldDescription& fieldDescription, ClassValues& classValues, const std::string& returnType = "void");
 
         /** Prints #include statements requried by tempalte arguments for the specified header */

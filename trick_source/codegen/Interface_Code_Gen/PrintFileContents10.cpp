@@ -255,9 +255,15 @@ void PrintFileContents10::print_field_init_attr_stmts( std::ostream & ostream , 
         // Add accessor function pointers for STL vectors
         if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" ||
             fdes->getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
-            fdes->getSTLTypeEnumString() == "TRICK_STL_ARRAY") {
+            fdes->getSTLTypeEnumString() == "TRICK_STL_ARRAY") 
+        {
             ostream << prefix << "get_stl_size = get_stl_size_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
             ostream << prefix << "get_stl_element = get_stl_element_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
+            // Only vector<bool> needs a setter function
+            if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" && fdes->getSTLElementTypeName() == "bool") 
+            {
+                ostream << prefix << "set_stl_element = set_stl_element_stl_" << fullyQualifiedMangledClassNameUnderscores + "_" + sanitize(fieldName) + " ;\n";
+            }
         }
     }
 
@@ -426,6 +432,17 @@ void PrintFileContents10::print_get_stl_element(std::ostream & ostream , FieldDe
     printStlFunction("get_stl_element", "void* start_address, size_t index", element_access, ostream, *fdes, *cv, "void*");
 }
 
+void PrintFileContents10::print_set_stl_element(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) 
+{
+    // Only generate setter for vector<bool> - other containers can be written directly via get_stl_element
+    if (fdes->getSTLTypeEnumString() == "TRICK_STL_VECTOR" && fdes->getSTLElementTypeName() == "bool") 
+    {
+        // vector<bool> needs a setter to write back the value from temp buffer to actual vector
+        std::string element_write = "(*stl)[index] = *(bool*)value_ptr";
+        printStlFunction("set_stl_element", "void* start_address, size_t index, void* value_ptr", element_write, ostream, *fdes, *cv, "void");
+    }
+}
+
 void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues * cv ) {
     std::vector<FieldDescription*> fieldDescriptions = getPrintableFields(*cv, 0x3 << 2);
     fieldDescriptions.erase(std::remove_if(fieldDescriptions.begin(), fieldDescriptions.end(), [](FieldDescription* field) {return !field->isSTL();}), fieldDescriptions.end());
@@ -453,6 +470,7 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
             field->getSTLTypeEnumString() == "TRICK_STL_ARRAY") {
             print_get_stl_size(ostream, field, cv) ;
             print_get_stl_element(ostream, field, cv) ;
+            print_set_stl_element(ostream, field, cv) ;
         }
     }
 
