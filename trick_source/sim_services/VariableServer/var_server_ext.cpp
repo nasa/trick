@@ -64,6 +64,17 @@ int var_exists(std::string in_name) {
     return(0) ;
 }
 
+int var_get_stl_size(std::string in_name)
+{
+    Trick::VariableServerSession *session = get_session();
+
+    if (session != NULL)
+    {
+        session->var_get_stl_size(in_name);
+    }
+    return (0);
+}
+
 int var_send_once(std::string in_name) {
     Trick::VariableServerSession * session = get_session();
     

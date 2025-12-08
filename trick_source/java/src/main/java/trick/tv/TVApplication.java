@@ -2175,9 +2175,41 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
                 add(Box.createHorizontalStrut(5));
 
                 segments = pattern.split(variable.name);
+                int dimensionIndex = 0;
                 while (matcher.find()) {
                     int arraySize = Integer.parseInt(matcher.group());
-                    indices.add(arraySize == 0 ? new IndexTextField() : new DoubleComboBox(arraySize));
+                    // TODO: determin the variable type to see if it's an STL container instead of always querying
+                    // If arraySize is 0, try to query the actual STL container size
+                    if (arraySize == 0) {
+                        // Build the base variable name up to this dimension
+                        String varName = segments[0];
+                        if (varName.endsWith("[")) {
+                            varName = varName.substring(0, varName.length() - 1);
+                        }
+
+                        // Add indices for previous dimensions
+                        for (int i = 0; i < dimensionIndex; i++) {
+                            varName += "[0]";
+                            String segment = segments[i + 1];
+                            if (segment.startsWith("]")) {
+                                segment = segment.substring(1);
+                            }
+                            if (segment.endsWith("[")) {
+                                segment = segment.substring(0, segment.length() - 1);
+                            }
+                            varName += segment;
+                        }
+
+                        // Query the actual size using var_get_stl_size
+                        int actualSize = querySTLSize(varName);
+
+                        // If we got a valid size, create DoubleComboBox, otherwise fallback to IndexTextField
+                        indices.add(actualSize > 0 ? new DoubleComboBox(actualSize) : new IndexTextField());
+                    } else {
+                        indices.add(new DoubleComboBox(arraySize));
+                    }
+
+                    dimensionIndex++;
                 }
 
                 add(new JXLabel() {{
@@ -2235,6 +2267,45 @@ public class TVApplication extends RunTimeTrickApplication implements VariableLi
 
         }
 
+    }
+
+    /**
+     * queries the actual size of an STL container (vector/deque/array) from the Variable Server
+     *
+     * @param baseVariableName the base variable name (before indexing)
+     * @return the size of the container, or 0 if query fails
+     */
+    private int querySTLSize(String baseVariableName) {
+        if (!getConnectionState()) {
+            return 0;
+        }
+
+        try {
+            // Use a separate connection for the query to avoid interfering with cyclic data
+            VariableServerConnection queryChannel = new VariableServerConnection(getHostName(), getPort());
+            queryChannel.setClientTag("TRICK_TV_STL_SIZE_QUERY");
+
+            // Send the query command
+            queryChannel.put("trick.var_get_stl_size(\"" + baseVariableName + "\")");
+
+            // Read the response
+            String response = queryChannel.get();
+
+            // Close the connection
+            queryChannel.close();
+
+            // Parse response format: "message_type\tvalue"
+            String[] parts = response.split("\t");
+            if (parts.length >= 2) {
+                String value = parts[1].trim();
+                if (!value.equals("BAD_REF")) {
+                    return Integer.parseInt(value);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to query STL size for " + baseVariableName + ": " + e.getMessage());
+        }
+        return 0;
     }
 
     /**
