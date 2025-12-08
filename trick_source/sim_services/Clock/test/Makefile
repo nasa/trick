@@ -8,14 +8,14 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Makefile.common
 
 # Flags passed to the preprocessor.
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_units -ltrick_mm -ltrick_pyip -ltrick_connection_handlers -ltrick_comm 
+TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
+TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick -ltrick_units -ltrick_mm -ltrick_pyip -ltrick_connection_handlers -ltrick_comm
 LIBS = -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main
 
 
 ifeq ($(TRICK_HOST_TYPE), Linux)
     LIBS += -lpthread -lrt
-endif	 
+endif
 
 BASE_OBJECTS = ../object_${TRICK_HOST_CPU}/Clock.o\
                ../object_${TRICK_HOST_CPU}/clock_c_intf.o
