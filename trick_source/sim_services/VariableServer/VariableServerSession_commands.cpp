@@ -130,7 +130,7 @@ int Trick::VariableServerSession::var_get_stl_size(std::string in_name)
         free(ref);
     }
 
-    unsigned int msg_type = VS_VAR_EXISTS; // Reuse existing message type
+    unsigned int msg_type = VS_GET_STL_SIZE;
 
     if (_binary_data)
     {
