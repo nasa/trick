@@ -1,4 +1,4 @@
-| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Building a Simulation](Building-a-Simulation) → Trickified Project Libraries |
+| [Home](/trick) → [Documentation Home](../Documentation-Home) → [Building a Simulation](Building-a-Simulation) → Trickified Project Libraries Classic |
 |------------------------------------------------------------------|
 
 
