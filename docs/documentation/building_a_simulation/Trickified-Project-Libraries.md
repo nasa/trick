@@ -27,7 +27,7 @@ The core script behind trickification is the trick-ify script (which lives at $(
         * Allows for trick-ify to automatically build the library based on what your sim actually uses. For example, if you wanted to build a trickified library from JEOD, this option would allow you to build a library that only contains JEOD files your sims uses, rather than the entire JEOD library.
         * Allows trick-ify to automatically create your Trickify.mk for you.
 * --s\_define\_filter {list of paths}
-    * This argument provides the list of directories to search under, if you provided an S\_define. Going back to the JEOD example, your arguments would look like --s\_define \$(S\_DEFINE\_PATH) --s\_define\_filter \$(JEOD\_HOME). In this example, you would build a trickified library with only the JEOD files your sim uses.
+    * `This argument provides the list of directories to search under, if you provided an S\_define. Going back to the JEOD example, your arguments would look like --s\_define \$(S\_DEFINE\_PATH) --s\_define\_filter \$(JEOD\_HOME). In this example, you would build a trickified library with only the JEOD files your sim uses`.
 * -d {list of paths}
     * List of directories for trick-ify to include in the library. Trick-ify will recursively search these paths for all c/c++ files. Also accepts individual files. This argument can be used independently or alongside the above s\_define arguments.
 * -ex {list of paths}
