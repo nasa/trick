@@ -59,9 +59,9 @@ if ( -f $sdefine ) {
     close MAKEFILE ;
 
     #Rebuild trickified libraries
-    if(not defined $ENV{'AM_I_TRICKIFYING'} and -e "Trickify.mk")
+    if(not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk")
     {
-        my $cmd_ret = `make -f Trickify.mk rebuild_trickify 2>&1` ;
+        my $cmd_ret = `make -f trickify.mk rebuild_trickify 2>&1` ;
         if($cmd_ret ne "") 
         {
             print "$cmd_ret" ;
@@ -271,7 +271,7 @@ include build/Makefile_swig_deps
 endif
 -include build/Makefile_overrides
 -include S_overrides.mk
--include Trickify.mk
+-include trickify.mk
 -include S_post.mk
 
 ifndef MAKE_RESTARTS

@@ -1,0 +1,21 @@
+#Trickify Properties
+#Mon Dec 08 20:11:11 CST 2025
+NO_CLEAN_SRC=false
+S_DEFINE_FILTER=/home/plherrin/trick/trick_sims/SIM_trickified_demo/models/Support_Code
+SOURCE_DIRS=
+DEBUG=false
+BUILD_TYPE=Static
+NO_CLEAN_OBJ=false
+TRICK_HOME=/home/plherrin/trick
+TRICKIFY_ARGS=
+NAME=Ball_Lib
+FULL_BUILD=true
+S_DEFINE=/home/plherrin/trick/trick_sims/SIM_trickified_demo/S_define
+NO_CLEAN_S_SOURCE=false
+BUILD_PATH=/home/plherrin/trick/trick_sims/SIM_trickified_demo/trickified
+SOURCE_MAKE_ARGS=
+TRICKIFY_EXCLUDE=
+TRICKIFY_INCLUDE=/home/plherrin/trick/trick_sims/SIM_trickified_demo/models/Core_Model /home/plherrin/trick/trick_sims/SIM_trickified_demo/models/Support_Code
+TRICKIFY_PATH=/home/plherrin/trick/share/trick/makefiles/
+S_OVERRIDES=/home/plherrin/trick/trick_sims/SIM_trickified_demo/S_overrides.mk
+SOURCE_MAKE=

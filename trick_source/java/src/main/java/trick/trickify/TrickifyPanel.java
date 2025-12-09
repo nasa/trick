@@ -129,7 +129,7 @@ public class TrickifyPanel extends JPanel
         String trickifyExcludeDirsTxt = trickifyExcludeDirs.getText(useQuotes);
         if(!trickifyExcludeDirsTxt.equals(""))
         {
-            cmdLine.add("-ex");
+            cmdLine.add("--ex");
             cmdLine.add(trickifyExcludeDirsTxt);
         }
 

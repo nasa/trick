@@ -179,7 +179,7 @@ $(IO_OBJECTS:.o=.d): %.d: ;
 
 $(SWIG_OBJECTS): %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) -Wno-unused-parameter -Wno-shadow -c -o $@ $<)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) $(PYTHON_INCLUDES) $(TRICK_SWIG_CFLAGS) $(TRICK_SYSTEM_SWIG_CFLAGS) -Wno-unused-parameter -Wno-shadow -c -o $@ $<)
 
 $(SWIG_OBJECTS:.o=.cpp): %.cpp: %.i | %.d .trick $(SWIG_OBJECTS:.o=.i)
 	$(info $(call COLOR,SWIGing)    $<)

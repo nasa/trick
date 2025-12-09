@@ -62,6 +62,11 @@
 #      trick-CP -trickify jeod:IDF
 #   x make LOCAL_DIR unique
 #   rebuild_trickify from the sim makefile pulls in env vars. Only clearing EXT_LIB_DIRS, seems to work for now...
+#   gui long list solution
+#   document TRICKIFY_LD_FLAGS
+#   trick gui prints -ex, should be --ex?
+#   rerunning trickify might not clear build in the trickified dir
+#   extra_file_list does not check for swig/icg permutations of headers
 
 use warnings ;
 use strict ;
@@ -83,12 +88,12 @@ BEGIN
 
 use File::Basename ;
 use File::Find ;
-use File::Path qw(make_path);
+use File::Path qw(make_path) ;
 use Getopt::Long ;
 use Cwd ;
 use lib "$my_path../libexec/trick/pm" ;
 use get_makefile_vars ;
-use Term::ANSIColor;
+use Term::ANSIColor ;
 
 sub printc($$)
 {
@@ -101,7 +106,7 @@ sub printc($$)
 sub find_file_by_ext($$)
 {
     my ($dirs_ref, $ext) = @_ ;
-    our @files_found = ();
+    our @files_found = () ;
     my $wanted = sub
     {
         if($_ =~ /\Q$ext\E$/)
@@ -109,7 +114,7 @@ sub find_file_by_ext($$)
             push @files_found, $File::Find::name ;
         }
     };
-    find($wanted, @$dirs_ref);
+    find($wanted, @$dirs_ref) ;
 }
 our @files_found ;
 
@@ -196,7 +201,15 @@ our @cmdline ;
 push @cmdline, basename($0) ;
 foreach my $arg (@ARGV)
 {
-    push @cmdline, $arg ;
+    #restore quotes
+    if ( $arg !~ /^\-/ )
+    {
+        push @cmdline, "\"$arg\"" ;
+    }
+    else
+    {
+        push @cmdline, $arg ;
+    }
 }
 our $cmdline = join ' ', @cmdline ;
 
@@ -245,6 +258,7 @@ my @lib_deps_header;
 my @lib_deps_source;
 if($s_define ne "")
 {
+    
     $s_define_dir = dirname($s_define) ;
     chdir Cwd::abs_path($s_define_dir) or die "Error changing to the s_define directory: $s_define_dir\n" ;
     
@@ -388,7 +402,7 @@ open (my $fh, ">", "S_overrides_trickify.mk") or die "Could not open S_overrides
 print $fh "ifndef AM_I_TRICKIFYING\n" ;  # Only want these parameters if we are doing normal sim builds, otherwise the ext libs will butcher the trickify_deps
 print $fh "SOT_LOCAL_DIR_$name := \$(abspath \$(dir \$(lastword \$(MAKEFILE_LIST))))\n\n" ;
 print $fh "include $build_dir/trickify_dep.mk\n\n" ;
-print $fh "TRICK_LDFLAGS += " . Cwd::abs_path($ENV{'TRICKIFY_OBJECT_NAME'}) . "\n" ;
+print $fh "TRICKIFY_LDFLAGS := " . Cwd::abs_path($ENV{'TRICKIFY_OBJECT_NAME'}) . "\n" ;
 print $fh "TRICK_EXT_LIB_DIRS += $ext_lib_dir\n" ;
 print $fh "TRICK_EXT_LIB_DIRS_OVERRIDES += ",$ext_lib_dir_overrides ,"\n" ;
 print $fh "TRICK_PYTHON_PATH += :" . $my_cwd . "/python\n" ;
@@ -628,7 +642,7 @@ print "Begin Trickification...\n" ;
 if($s_overrides_dir ne "")
 {
     chdir Cwd::abs_path($s_overrides_dir) or die "Error changing to s_overrides directory: $s_overrides_dir\n" ;
-    dump_makefile_vars($s_overrides, $build_dir, \%SHELL_ENV, ("TRICKIFY_BUILD_TYPE", "TRICKIFY_OBJECT_NAME", "TRICKIFY_PYTHON_DIR", "TRICK_CFLAGS", "TRICK_CXXFLAGS")) ; 
+    dump_makefile_vars($s_overrides, $build_dir, \%SHELL_ENV, ("TRICKIFY_BUILD_TYPE", "TRICKIFY_OBJECT_NAME", "TRICKIFY_PYTHON_DIR", "TRICK_CFLAGS", "TRICK_CXXFLAGS", "TRICK_SYSTEM_SWIG_CFLAGS", "TRICK_SWIG_CFLAGS")) ; 
     chdir Cwd::abs_path($build_dir) or die "Error changing to build directory: $build_dir\n" ;
     $ENV{"TRICKIFY_MAKE_DUMP"} = Cwd::abs_path("var_dump.mk") ;
 }
@@ -732,7 +746,7 @@ my @extra_file_list = grep
     }
 
     #if the file starts with an excluded path
-    if( grep { $file =~ /^\Q$_\E/ } (split ' ', $exclude_arg) )
+    if( grep { $file =~ /^\Q$_\E/ } (@exclude_list) )
     {
         $ret = 1 ;
     }
