@@ -113,14 +113,17 @@ jobs:
               dnf -y install epel-release
               dnf -y update
               dnf install -y 'dnf-command(config-manager)'
-              dnf config-manager --set-enabled crb
-              dnf install -y swig
 #-------- Rocky Linux Specific Dependencies ----------------
           - cfg: { os: rockylinux, tag: 8 }
             install_gtest: |
               dnf config-manager --enable powertools
               dnf install -y gtest-devel gmock-devel
           - cfg: { os: rockylinux, tag: 9 }
+            tag_deps: >-
+              swig
+            conf_pkg: |
+              dnf config-manager --set-enabled crb
+              dnf install -y swig
             install_gtest: |
               dnf install -y gtest-devel gmock-devel
 #-------- Oracle Linux Specific Dependencies ----------------
