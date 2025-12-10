@@ -112,14 +112,14 @@ jobs:
           - cfg: { arch: rhel, arch_ver: 9 }
             pkg_mgr: dnf
             tag_deps: >-
-              swig
               diffutils
             conf_pkg: |
               dnf -y install epel-release
               dnf -y update
               dnf install -y 'dnf-command(config-manager)'
-            install_gtest: |
               dnf config-manager --set-enabled crb
+              dnf install -y swig
+            install_gtest: |
               dnf install -y gtest-devel gmock-devel
 #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux, tag: 8 }
