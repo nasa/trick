@@ -26,7 +26,7 @@ jobs:
           - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
           - { os: rockylinux,  tag: 9,        arch: rhel,   arch_ver: 9  }
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
-          - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
+          - { os: oraclelinux, tag: 9,        arch: rhel,   arch_ver: 9  }
         python: [3]
 
 #-------- Defaults --------------------------
@@ -123,9 +123,13 @@ jobs:
               dnf config-manager --set-enabled crb
               dnf install -y gtest-devel gmock-devel
 #-------- OS and Version Specific Dependencies ----------------
-          - cfg: { os: oraclelinux }
+          - cfg: { os: oraclelinux, tag: 8 }
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
+              dnf install -y gtest-devel gmock-devel
+          - cfg: { os: oraclelinux, tag: 9 }
+            install_gtest: |
+              dnf config-manager --enable ol9_codeready_builder
               dnf install -y gtest-devel gmock-devel
 #-------- Job definition ----------------
     runs-on: ubuntu-latest
