@@ -24,6 +24,8 @@ jobs:
 #-------- Operating Systems ----------------
           - { os: ubuntu,      tag: 22.04,    arch: debian, arch_ver: 12 }
           - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
+          - { os: rockylinux,  tag: 9,        arch: rhel,   arch_ver: 9  }
+          - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
         python: [3]
 
@@ -106,6 +108,19 @@ jobs:
               dnf install -y 'dnf-command(config-manager)'
             install_gtest: |
               dnf config-manager --enable powertools
+              dnf install -y gtest-devel gmock-devel
+#-------- RHEL 9-based Only Dependencies ----------------
+          - cfg: { arch: rhel, arch_ver: 9 }
+            pkg_mgr: dnf
+            tag_deps: >-
+              swig
+              diffutils
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
+            install_gtest: |
+              dnf config-manager --set-enabled crb
               dnf install -y gtest-devel gmock-devel
 #-------- OS and Version Specific Dependencies ----------------
           - cfg: { os: oraclelinux }
