@@ -122,8 +122,10 @@ jobs:
             tag_deps: >-
               swig
             conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
               dnf config-manager --set-enabled crb
-              dnf install -y swig
             install_gtest: |
               dnf install -y gtest-devel gmock-devel
 #-------- Oracle Linux Specific Dependencies ----------------
@@ -132,6 +134,8 @@ jobs:
               dnf config-manager --enable ol8_codeready_builder
               dnf install -y gtest-devel gmock-devel
           - cfg: { os: oraclelinux, tag: 9 }
+            tag_deps: >-
+              swig
             install_gtest: |
               dnf config-manager --enable ol9_codeready_builder
               dnf install -y gtest-devel gmock-devel
