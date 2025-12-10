@@ -136,8 +136,12 @@ jobs:
           - cfg: { os: oraclelinux, tag: 9 }
             tag_deps: >-
               swig
-            install_gtest: |
+            conf_pkg: |
+              dnf -y install epel-release
+              dnf -y update
+              dnf install -y 'dnf-command(config-manager)'
               dnf config-manager --enable ol9_codeready_builder
+            install_gtest: |
               dnf install -y gtest-devel gmock-devel
 #-------- Job definition ----------------
     runs-on: ubuntu-latest
