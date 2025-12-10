@@ -94,7 +94,6 @@ jobs:
               udunits2-devel
               which
               zlib-devel
-              python2-devel
               python3-devel
 #-------- RHEL 8-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
