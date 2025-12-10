@@ -95,7 +95,7 @@ jobs:
               which
               zlib-devel
               python3-devel
-#-------- RHEL 8-based Only Dependencies ----------------
+#-------- RHEL-based Common Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 8 }
             pkg_mgr: dnf
             tag_deps: >-
@@ -105,10 +105,6 @@ jobs:
               dnf -y install epel-release
               dnf -y update
               dnf install -y 'dnf-command(config-manager)'
-            install_gtest: |
-              dnf config-manager --enable powertools
-              dnf install -y gtest-devel gmock-devel
-#-------- RHEL 9-based Only Dependencies ----------------
           - cfg: { arch: rhel, arch_ver: 9 }
             pkg_mgr: dnf
             tag_deps: >-
@@ -119,9 +115,15 @@ jobs:
               dnf install -y 'dnf-command(config-manager)'
               dnf config-manager --set-enabled crb
               dnf install -y swig
+#-------- Rocky Linux Specific Dependencies ----------------
+          - cfg: { os: rockylinux, tag: 8 }
+            install_gtest: |
+              dnf config-manager --enable powertools
+              dnf install -y gtest-devel gmock-devel
+          - cfg: { os: rockylinux, tag: 9 }
             install_gtest: |
               dnf install -y gtest-devel gmock-devel
-#-------- OS and Version Specific Dependencies ----------------
+#-------- Oracle Linux Specific Dependencies ----------------
           - cfg: { os: oraclelinux, tag: 8 }
             install_gtest: |
               dnf config-manager --enable ol8_codeready_builder
