@@ -390,19 +390,19 @@ void PrintFileContents10::print_io_src_delete( std::ostream & ostream , ClassVal
 }
 
 void PrintFileContents10::print_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv, "void");
+    printStlFunction("checkpoint", "void* start_address, const char* obj_name , const char* var_name", "checkpoint_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
 }
 
 void PrintFileContents10::print_post_checkpoint_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("post_checkpoint", "void* start_address, const char* obj_name , const char* var_name", "delete_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv, "void");
+    printStlFunction("post_checkpoint", "void* start_address, const char* obj_name , const char* var_name", "delete_stl(*stl, obj_name, var_name)", ostream, *fdes, *cv);
 }
 
 void PrintFileContents10::print_restore_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("restore", "void* start_address, const char* obj_name , const char* var_name", "restore_stl(*stl, obj_name, var_name)",ostream, *fdes, *cv, "void");
+    printStlFunction("restore", "void* start_address, const char* obj_name , const char* var_name", "restore_stl(*stl, obj_name, var_name)",ostream, *fdes, *cv);
 }
 
 void PrintFileContents10::print_clear_stl(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
-    printStlFunction("clear", "void* start_address", "stl->clear()",ostream, *fdes, *cv, "void");
+    printStlFunction("clear", "void* start_address", "stl->clear()",ostream, *fdes, *cv);
 }
 
 void PrintFileContents10::print_get_stl_size(std::ostream & ostream , FieldDescription * fdes , ClassValues * cv ) {
@@ -439,7 +439,7 @@ void PrintFileContents10::print_set_stl_element(std::ostream & ostream , FieldDe
     {
         // vector<bool> needs a setter to write back the value from temp buffer to actual vector
         std::string element_write = "(*stl)[index] = *(bool*)value_ptr";
-        printStlFunction("set_stl_element", "void* start_address, size_t index, void* value_ptr", element_write, ostream, *fdes, *cv, "void");
+        printStlFunction("set_stl_element", "void* start_address, size_t index, void* value_ptr", element_write, ostream, *fdes, *cv);
     }
 }
 
@@ -464,7 +464,7 @@ void PrintFileContents10::print_stl_helper(std::ostream & ostream , ClassValues 
                 print_clear_stl(ostream, field, cv) ;
             }
         }
-        // Generate accessor functions for STL vectors to support variable server indexing
+        // Generate accessor functions for STL vector/deque/array to support variable server indexing
         if (field->getSTLTypeEnumString() == "TRICK_STL_VECTOR" ||
             field->getSTLTypeEnumString() == "TRICK_STL_DEQUE" ||
             field->getSTLTypeEnumString() == "TRICK_STL_ARRAY") {

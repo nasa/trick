@@ -224,9 +224,6 @@ class FieldDescription : public ConstructValues {
         /** Maps a type name to its corresponding TRICK_TYPE enum string */
         std::string mapTypeNameToTrickEnum(const std::string& type_name) ;
 
-        /** Recursively analyzes nested STL element types for ATTRIBUTES generation */
-        std::string getDeepestElementType(const std::string& type_name) ;
-
         /** Helper function to check if a type name represents an STL container */
         bool isSTLContainer(const std::string& type_name) ;
 

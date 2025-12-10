@@ -715,85 +715,6 @@ std::string FieldDescription::mapTypeNameToTrickEnum(const std::string& type_nam
 }
 
 /**
- * Recursively analyzes nested STL element types to find the deepest non-STL element type.
- * This is useful for ATTRIBUTES generation where we need to know the final element type
- * of deeply nested containers like std::vector<std::vector<std::vector<int>>>.
- *
- * Examples:
- * - "int" -> "int" (already base type)
- * - "std::vector<double>" -> "double"
- * - "std::vector<std::vector<int>>" -> "int"
- * - "std::map<std::string, std::vector<float>>" -> "float" (value type of map)
- *
- * @param type_name The fully qualified type name to analyze
- * @return The deepest non-STL element type name
- */
-std::string FieldDescription::getDeepestElementType(const std::string& type_name) {
-    // Base case: if it's not an STL container, return as-is
-    if (!isSTLContainer(type_name)) {
-        return type_name;
-    }
-
-    // Extract template arguments from STL container
-    // This is a simplified parser - for production use, you might want more robust parsing
-    size_t start = type_name.find('<');
-    size_t end = type_name.rfind('>');
-
-    if (start == std::string::npos || end == std::string::npos || start >= end) {
-        return type_name; // Malformed template, return as-is
-    }
-
-    std::string template_args = type_name.substr(start + 1, end - start - 1);
-
-    // For map-like containers, we want the value type (second argument)
-    if (type_name.find("std::map<") == 0 ||
-        type_name.find("std::multimap<") == 0 ||
-        type_name.find("std::unordered_map<") == 0 ||
-        type_name.find("std::unordered_multimap<") == 0) {
-
-        // Find the comma separating key and value types
-        size_t comma_pos = template_args.find(',');
-        if (comma_pos != std::string::npos) {
-            std::string value_type = template_args.substr(comma_pos + 1);
-            // Trim whitespace
-            value_type.erase(0, value_type.find_first_not_of(" \t"));
-            value_type.erase(value_type.find_last_not_of(" \t") + 1);
-
-            // Recursively analyze the value type
-            return getDeepestElementType(value_type);
-        }
-    }
-
-    // For other containers (vector, list, set, etc.), use the first template argument
-    // Handle nested templates by counting angle brackets
-    int bracket_count = 0;
-    size_t element_end = 0;
-
-    for (size_t i = 0; i < template_args.length(); ++i) {
-        if (template_args[i] == '<') {
-            bracket_count++;
-        } else if (template_args[i] == '>') {
-            bracket_count--;
-        } else if (template_args[i] == ',' && bracket_count == 0) {
-            element_end = i;
-            break;
-        }
-    }
-
-    if (element_end == 0) {
-        element_end = template_args.length();
-    }
-
-    std::string element_type = template_args.substr(0, element_end);
-    // Trim whitespace
-    element_type.erase(0, element_type.find_first_not_of(" \t"));
-    element_type.erase(element_type.find_last_not_of(" \t") + 1);
-
-    // Recursively analyze the element type
-    return getDeepestElementType(element_type);
-}
-
-/**
  * Helper function to check if a type name represents an STL container.
  * Recognizes common STL containers like vector, list, map, set, etc.
  *
@@ -819,8 +740,6 @@ bool FieldDescription::isSTLContainer(const std::string& type_name) {
             type_name.find("std::priority_queue<") == 0 ||
             type_name.find("std::pair<") == 0);
 }
-
-
 
 /**
  * Helper function to check if a type name represents a user-defined type.
