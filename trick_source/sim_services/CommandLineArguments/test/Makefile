@@ -23,7 +23,7 @@ TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtes
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
-TESTS = create_path_test
+TESTS = create_path_test CommandLineArguments_test
 
 # House-keeping build targets.
 
@@ -31,6 +31,7 @@ all : $(TESTS)
 
 test: $(TESTS)
 	./create_path_test --gtest_output=xml:${TRICK_HOME}/trick_test/create_path_test.xml
+	./CommandLineArguments_test --gtest_output=xml:${TRICK_HOME}/trick_test/CommandLineArguments_test.xml
 
 clean :
 	rm -f $(TESTS) *.o *.gcno *.gcda
@@ -40,4 +41,10 @@ create_path_test.o : create_path_test.cpp
 	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
 
 create_path_test : create_path_test.o $(MM_OBJECTS)
+	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
+
+CommandLineArguments_test.o : CommandLineArguments_test.cpp
+	$(TRICK_CXX) $(TRICK_CXXFLAGS) -c $<
+
+CommandLineArguments_test : CommandLineArguments_test.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
