@@ -17,7 +17,18 @@ TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g ${TRICK_SYS
 MM_OBJECTS = $(TRICK_HOME)/trick_source/sim_services/MemoryManager/object_${TRICK_HOST_CPU}/extract_bitfield.o \
 				$(TRICK_HOME)/trick_source/sim_services/MemoryManager/object_${TRICK_HOST_CPU}/extract_unsigned_bitfield.o
 
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_pyip -ltrick_connection_handlers -ltrick_comm -ltrick_mm -ltrick_units -ltrick -ltrick_mm
+#TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_pyip -ltrick_connection_handlers -ltrick_comm -ltrick_mm -ltrick_units -ltrick -ltrick_mm
+TRICK_LIB_NAMES = trick_mm trick_units trick trick_pyip trick_connection_handlers trick_comm
+ifeq ($(TRICK_HOST_TYPE),Linux)
+    TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,--start-group $(addprefix -l,$(TRICK_LIB_NAMES)) -Wl,--end-group
+else ifeq ($(TRICK_HOST_TYPE),Darwin)
+	# TRICK_LIBS = $(foreach lib,$(TRICK_LIB_NAMES),-Wl,-force_load,${TRICK_HOME}/lib/lib$(lib).a)
+	# TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,-all_load $(addprefix -l,$(TRICK_LIB_NAMES))
+	TRICK_LIBS = -L${TRICK_LIB_DIR} $(addprefix -l, $(TRICK_LIB_NAMES))
+else
+    $(error Unsupported platform: $(shell uname))
+endif
+
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 
 
