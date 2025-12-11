@@ -11,9 +11,9 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS)) -Wno-unused-command-line-argument
 
 # Flags passed to the preprocessor.
-TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare -std=c++11 ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
+TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wno-sign-compare ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
 TRICK_LIBS =  -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick -ltrick_var_binary_parser -ltrick_connection_handlers -ltrick_comm -ltrick_mm
-TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lgmock -lpthread					  
+TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lgmock -lpthread				  
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
@@ -22,13 +22,13 @@ VARIABLE_REFERENCE_TESTS = VariableReference_test \
 		VariableReference_writeValueAscii_test \
 		VariableReference_writeValueBinary_test
 
-VARIABLE_SESSION_TESTS = VariableServerSession_test 
+VARIABLE_SESSION_TESTS = VariableServerSession_test
 
 TESTS = $(VARIABLE_REFERENCE_TESTS) $(VARIABLE_SESSION_TESTS) VariableServerSessionThread_test VariableServerListenThread_test VariableServer_test
 
 TEST_OBJS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(TESTS)))
 
-TO_ICG = VariableReference_test 
+TO_ICG = VariableReference_test
 
 ICG_OBJS = $(addprefix $(OBJ_DIR)/io_, $(addsuffix .o, $(TO_ICG)))
 
@@ -59,16 +59,16 @@ $(ICG_OBJS): $(OBJ_DIR)/io_%.o : %.hh $(OBJ_DIR)
 $(VARIABLE_REFERENCE_TESTS): %: $(OBJ_DIR)/%.o $(OBJ_DIR)/io_VariableReference_test.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
-$(VARIABLE_SESSION_TESTS): %: $(OBJ_DIR)/%.o 
+$(VARIABLE_SESSION_TESTS): %: $(OBJ_DIR)/%.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS) -o $@
 
-VariableServerSessionThread_test: %: $(OBJ_DIR)/%.o 
+VariableServerSessionThread_test: %: $(OBJ_DIR)/%.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
-VariableServerListenThread_test: %: $(OBJ_DIR)/%.o 
+VariableServerListenThread_test: %: $(OBJ_DIR)/%.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
-VariableServer_test: %: $(OBJ_DIR)/%.o 
+VariableServer_test: %: $(OBJ_DIR)/%.o
 	$(TRICK_CXX) $(TRICK_SYSTEM_LDFLAGS) $(TRICK_CXXFLAGS) -o $@ $^ -L${TRICK_HOME}/lib_${TRICK_HOST_CPU} $(TRICK_LIBS) $(TRICK_EXEC_LINK_LIBS)
 
 

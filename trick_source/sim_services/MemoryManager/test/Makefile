@@ -13,8 +13,8 @@ COVERAGE_FLAGS += -fprofile-arcs -ftest-coverage -O0
 TRICK_SYSTEM_LDFLAGS  += ${COVERAGE_FLAGS}
 
 # Flags passed to the preprocessor.
-TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -Wno-sign-compare ${COVERAGE_FLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
-TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_connection_handlers -ltrick_pyip -ltrick -ltrick_comm -ltrick_mm
+TRICK_CPPFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wno-sign-compare ${COVERAGE_FLAGS} ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
+TRICK_LIBS = -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick -ltrick_mm -ltrick_units -ltrick -ltrick_connection_handlers -ltrick_pyip -ltrick -ltrick_comm
 TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lpthread
 
 # ==================================================================================

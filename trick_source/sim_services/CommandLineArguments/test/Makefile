@@ -11,7 +11,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../../share/trick/makefiles/Mak
 TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS))
 
 # Flags passed to the preprocessor.
-TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wall -Wextra -std=c++11 ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
+TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
 
 # so it seems like there's some weirdness linking in the bitfield objects since they are C
 MM_OBJECTS = $(TRICK_HOME)/trick_source/sim_services/MemoryManager/object_${TRICK_HOST_CPU}/extract_bitfield.o \
