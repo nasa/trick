@@ -406,7 +406,7 @@ int STLCheckpoint::addData() {
     return 0;
 }
 
-int STLCheckpoint::STLprint() {
+int STLCheckpoint::print() {
     message_publish(1,"Quack!\n") ;
     message_publish(1, "Double vector size: %d", double_vector.size() );
     message_publish(1,"double_vector: %f %f %f\n", double_vector[0], double_vector[1], double_vector[2]) ;
@@ -761,12 +761,4 @@ int STLCheckpoint::test() {
 
     return 0;
     
-}
-
-
-void StringViewCheck::string_view_print()
-{
-    stringViewSample = "String View Sample";
-
-    std::cout<<stringViewSample<<std::endl;
 }
