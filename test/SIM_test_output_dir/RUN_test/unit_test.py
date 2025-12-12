@@ -1,5 +1,7 @@
 trick.stop(15)
 
+trick.sie_append_runtime_objs()
+
 from trick.unit_test import *
 
 trick_utest.unit_tests.enable()
