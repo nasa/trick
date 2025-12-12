@@ -10,9 +10,10 @@ trick_utest.unit_tests.set_test_name("CommandLineArgumentsTests")
 
 test_suite = "command_line_arguments"
 
+cpu = os.getenv("TRICK_HOST_CPU")
 
 expected_argv = [
-    "./T_main_Darwin_24_test.exe",
+    f"./T_main_{cpu}_test.exe",
     "RUN_test/unit_test.py",
     "-OO",
     "sim_output",
@@ -27,6 +28,9 @@ TRICK_EXPECT_EQ(expected_argc, argc, test_suite, "Expected argument count to mat
 
 TRICK_EXPECT_EQ(expected_argv, argv, test_suite, "Expected argument values to match")
 
+TRICK_EXPECT_EQ(
+    expected_argv[0], argv[0], test_suite, "Expected first argument to match"
+)
 TRICK_EXPECT_EQ(
     expected_argv[1], argv[1], test_suite, "Expected second argument to match"
 )
