@@ -301,19 +301,19 @@ SIM_checkpoint_data_recording:
         - test/SIM_checkpoint_data_recording/RUN_test5/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test5/log_foo.csv
     RUN_test6/unit_test.py:
       returns: 0
-      compare: 
+      compare:
         - test/SIM_checkpoint_data_recording/RUN_test6/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test6/log_foo2.csv
     RUN_test7/unit_test.py:
       returns: 0
-      compare: 
+      compare:
         - test/SIM_checkpoint_data_recording/RUN_test7/ref_log_fooChange.csv vs. test/SIM_checkpoint_data_recording/RUN_test7/log_fooChange.csv
     RUN_test8/unit_test.py:
       returns: 0
-      compare: 
+      compare:
         - test/SIM_checkpoint_data_recording/RUN_test8/ref_log_fooChange2.csv vs. test/SIM_checkpoint_data_recording/RUN_test8/log_fooChange2.csv
     RUN_test9/unit_test.py:
       returns: 0
-      compare: 
+      compare:
         - test/SIM_checkpoint_data_recording/RUN_test9/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test9/log_foo2.csv
 
 SIM_events:
@@ -322,7 +322,7 @@ SIM_events:
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/unit_test.py:
-      returns: 0 
+      returns: 0
     RUN_test/unit_test_error1.py:
       returns: 255
     RUN_test/unit_test_error2.py:
@@ -334,14 +334,15 @@ SIM_events:
 
 SIM_test_output_dir:
   path: test/SIM_test_output_dir
-  build_args: "-t"  
+  build_args: "-t"
   binary: "T_main_{cpu}_test.exe"
   runs:
     RUN_test/input.py -OO sim_output --read-only-sim:
       returns: 0
       analyze: 'python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_compiletime_S_sie.resource test/SIM_test_output_dir/S_sie.resource'
       analyze: 'python3 test/SIM_test_output_dir/ref_files/check_file_endings.py test/SIM_test_output_dir/ref_files/ref_runtime_S_sie.resource test/SIM_test_output_dir/sim_output/RUN_test/S_sie.resource'
-
+    RUN_test/unit_test.py -00 sim_output:
+      returns: 0
 
 # The variable server client and SIM_amoeba sometimes fail to connect and need to be retried
 
