@@ -1,64 +1,6 @@
 #include "trick/MemoryManager.hh"
 #include "trick/ClassicCheckPointAgent.hh"
-
-static ATTRIBUTES *findMember(ATTRIBUTES *structAttr, size_t addrOffsetFromStruct)
-{
-    int ii = 0;
-    size_t temp_size;
-    // Find the attribute that contains the address
-    while ((structAttr[ii].name[0] != '\0'))
-    {
-
-        // if mod bit 0 is set, A[i] is a reference. Width of reference is stored
-        // in mod bits 3-8. We could use sizeof(void*), but that is implementation
-        // specific and not required by C++ standard.
-        if ((structAttr[ii].mods & 1) == 1)
-        {
-            temp_size = ((structAttr[ii].mods >> 3) & 0x3F);
-            // Calculate the size (temp_size) of the referenced member variable.
-        }
-        else if (structAttr[ii].num_index != 0)
-        {
-            // if size of last valid index is 0, then we are looking at a pointer
-            if (structAttr[ii].index[structAttr[ii].num_index - 1].size == 0)
-            {
-                temp_size = sizeof(void *);
-            }
-            else
-            {
-                temp_size = structAttr[ii].size;
-            }
-            for (int jj = 0; jj < structAttr[ii].num_index; ++jj)
-            {
-                if (structAttr[ii].index[jj].size != 0)
-                {
-                    temp_size *= structAttr[ii].index[jj].size;
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-        else
-        {
-            temp_size = structAttr[ii].size;
-        }
-
-        // if the reference is not to this member variable, move on to the next member variable.
-        if ((addrOffsetFromStruct < (size_t)(structAttr[ii].offset)) ||
-            (addrOffsetFromStruct >= (size_t)(structAttr[ii].offset + temp_size)))
-        {
-            ++ii;
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    return &(structAttr[ii]);
-}
+#include "trick/AttributesUtils.hh"
 
 static int getCompositeSubReference(
     size_t addrValue,
@@ -74,7 +16,7 @@ static int getCompositeSubReference(
     size_t addrOffsetFromStruct = addrValue - structAddrValue;
 
     // Find the structure member that corresponds to the reference address.
-    ATTRIBUTES * retAttr = findMember(structAttr, addrOffsetFromStruct);
+    ATTRIBUTES * retAttr = Trick::AttributesUtils::find_member_by_offset(structAttr, addrOffsetFromStruct);
 
     // If the name field of the returned attribute is empty, this means that the ATTRIBUTES don't contain a description 
     // for the specific address, i.e. it was **'d out. Returne a void pointer attribute with the offset from this 
@@ -157,16 +99,6 @@ static int getCompositeSubReference(
     if (retAttr->index[0].size == 0)
     {
         return 0;
-    }
-
-    // Attribute is an arrayed struct, Calculate the offset within the array from the attribute
-    size_t max_offset = retAttr->size;
-    for (int ii = 0; ii < retAttr->num_index; ii++)
-    {
-        if (retAttr->index[ii].size > 0)
-        {
-            max_offset *= retAttr->index[ii].size;
-        }
     }
 
     size_t addrOffsetFromAttr = addrValue - (structAddrValue + retAttr->offset);
