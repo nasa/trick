@@ -19,6 +19,7 @@ expected_argv = [
     "RUN_test/unit_test.py",
     "-OO",
     "sim_output",
+    "--read-only-sim",
 ]
 expected_argc = len(expected_argv)
 
@@ -30,15 +31,12 @@ TRICK_EXPECT_EQ(expected_argc, argc, test_suite, "Expected argument count to mat
 
 TRICK_EXPECT_EQ(expected_argv, argv, test_suite, "Expected argument values to match")
 
-TRICK_EXPECT_EQ(
-    expected_argv[0], argv[0], test_suite, "Expected first argument to match"
-)
-TRICK_EXPECT_EQ(
-    expected_argv[1], argv[1], test_suite, "Expected second argument to match"
-)
-TRICK_EXPECT_EQ(
-    expected_argv[2], argv[2], test_suite, "Expected third argument to match"
-)
-TRICK_EXPECT_EQ(
-    expected_argv[3], argv[3], test_suite, "Expected fourth argument to match"
-)
+TRICK_EXPECT_EQ(expected_argv[0], argv[0], test_suite, "Expected first argument to match")
+
+TRICK_EXPECT_EQ(expected_argv[1], argv[1], test_suite, "Expected second argument to match")
+
+TRICK_EXPECT_EQ(expected_argv[2], argv[2], test_suite, "Expected third argument to match")
+
+TRICK_EXPECT_EQ(expected_argv[3], argv[3], test_suite, "Expected fourth argument to match")
+
+TRICK_EXPECT_EQ(expected_argv[4], argv[4], test_suite, "Expected fifth argument to match")
