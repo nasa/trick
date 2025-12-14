@@ -2,51 +2,51 @@
 #include "trick/command_line_protos.h"
 
 #include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <utility>
 #include <vector>
 
 #include <gtest/gtest.h>
 
 // Helper for directory cleanup
-class TempDirectory
-{
+class TempDirectory {
     std::string path_;
     static constexpr mode_t DIR_PERMISSIONS = 0755;
 
 public:
-    explicit TempDirectory(const std::string &path) : path_(path)
+    explicit TempDirectory(std::string path)
+        : path_(std::move(path))
     {
         mkdir(path_.c_str(), DIR_PERMISSIONS);
     }
 
     ~TempDirectory() { rmdir(path_.c_str()); }
 
-    const std::string &path() const { return path_; }
+    const std::string& path() const { return path_; }
 
     // Delete copy/move to ensure cleanup happens only once
-    TempDirectory(const TempDirectory &) = delete;
-    TempDirectory &operator=(const TempDirectory &) = delete;
+    TempDirectory(const TempDirectory&) = delete;
+    TempDirectory& operator=(const TempDirectory&) = delete;
+    TempDirectory(TempDirectory&&) = delete;
+    TempDirectory& operator=(TempDirectory&&) = delete;
 };
 
-class CommandLineArgumentsTest : public ::testing::Test
-{
+class CommandLineArgumentsTest : public ::testing::Test {
 protected:
     Trick::CommandLineArguments cmd_args;
-    std::vector<TempDirectory*> temp_dirs_;  // Track directories created in tests
+    std::vector<TempDirectory*> temp_dirs_; // Track directories created in tests
 
     // Helper to get platform-agnostic executable name
-    const char *getTestExecutable()
+    static const char* getTestExecutable()
     {
-        const char *trick_host_cpu = std::getenv("TRICK_HOST_CPU");
+        const char* trick_host_cpu = std::getenv("TRICK_HOST_CPU");
         static std::string exe_name;
-        if (trick_host_cpu)
-        {
+        if (trick_host_cpu != nullptr) {
             exe_name = std::string("./S_main_") + trick_host_cpu + ".exe";
-        }
-        else
-        {
+        } else {
             exe_name = "./S_main_test.exe"; // Generic fallback
         }
 
@@ -54,9 +54,9 @@ protected:
     }
 
     // Helper to create temp directory with RAII cleanup
-    TempDirectory *createTempDir(const std::string &path)
+    TempDirectory* createTempDir(const std::string& path)
     {
-        auto *dir = new TempDirectory(path);
+        auto* dir = new TempDirectory(path);
         temp_dirs_.push_back(dir);
         return dir;
     }
@@ -68,7 +68,7 @@ protected:
         createTempDir("RUN_test");
         // Create a dummy input file
         FILE* fp = fopen("RUN_test/input.py", "w");
-        if (fp) {
+        if (fp != nullptr) {
             fprintf(fp, "# Test input file\n");
             fclose(fp);
         }
