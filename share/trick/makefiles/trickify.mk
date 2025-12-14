@@ -90,7 +90,7 @@
 
 MY_HOME := $(dir $(lastword $(MAKEFILE_LIST)))
 
-include $(TRICKIFY_MAKE_DUMP)
+-include $(TRICKIFY_MAKE_DUMP)
 
 ifndef TRICKIFY_CXX_FLAGS
     $(error TRICKIFY_CXX_FLAGS must be set)
@@ -139,7 +139,7 @@ else
 	SHARED_OPTIONS :=
 endif
 
-.PHONY: all
+.PHONY: trickify
 trickify: $(TRICKIFY_OBJECT_NAME) $(TRICKIFY_PYTHON_DIR)
 
 $(TRICKIFY_OBJECT_NAME): $(SWIG_OBJECTS) $(IO_OBJECTS) $(SRC_OBJECTS)| $(dir $(TRICKIFY_OBJECT_NAME))
