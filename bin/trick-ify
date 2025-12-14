@@ -1,72 +1,4 @@
 #!/usr/bin/perl
-#TODO:
-#   X trick-CP Makefile_Src loop
-#   x Fix S_define including S_source.hh as dep
-#   perl errors not logged from gui
-#   X remove redundant env variables
-#   x what happens if no s_overrides? Check other fields for good measure.
-#   verify building with dirs+exclusion / s_Define+filter works
-#   consider applying this logic: if ( $path =~ /^\Q$exclude_path\E(.*)/ or abs_path($path) =~ /^\Q$exclude_path\E(.*)/ )
-#   x add S_defined libs to TRICK_EXT_LIB_DIRS
-#   x     Just do filter and make it mandatory? Is there ever a scenario where the filter isn't necessary?
-#   find_file_by_ext alreayd handles full file paths, make sure the whole system does and allow the source/header dirs to be files
-#   x utilize remove_redundant_paths?
-#   refine compilation options, make sure equivalent to a normal trick build
-#   x split s_define/dirs build methods in GUI into separate panels
-#   x Consider removing the separate src/header dirs and consolidating into dir
-#   x If a trickified lib exists, and is referenced via the S_overrides, subsequent sim builds (and trickify) rebuilds can generate a botched trickify_deps
-#       x include a if AM_I_TRICKIFYING guard in the trickify s_overrides
-#       x !!! NEw plan for handling the trick_deps/build problem: Move build dir, run partial trickCP, delete tmp build, move old build back
-#           Need to handle cleanup on failure
-#           x Need to clean more gracefully. Remove all artifacts w/o make clean
-#   Make build printing more useful. Color code, more info behind verbose
-#   x getting a strange issue in when building with a clean trick-cp/trickify in fish, getting cat fails on io and py link lists
-#   x progress bar
-#   x Add filter excludes to gui
-#   X Documenation note: Make sure your build dir is not under the exclude
-#   Mr Penn mascot
-#   make sure dirs are used correctly if user does not provide a trailing /
-#   x make one exclude on the gui shared between both tabs
-#   If S_overrides contains relative paths, var dump can potentially break. Do not see any easy workaround to this, needs build redirecting to resolve
-#   x trickify.mk will generate swig/icg files for any #include dependencies. This can result in unexpected swig/icg files being included in the build. Notes:
-#       x Appears that the trickified lib swig/icg takes precedence, potentially causes mismatches with the actual .h class definition
-#       x Currently generate a list of these files, what to do about it?
-#   When rebuilding ontop of an existing trickified lib, full file list doesnt seem to fully populate
-#   NOTES FOR REBUILDING:
-#       must consider possibility of scope change
-#           trickify check should be first thing in trick-CP, in case new things need to be pulled in
-#           is it possible an included file changing could trigger a need for a rebuild? Need investigation
-#               Yes, need to establish what files ICG/SWIG exclude.
-#                   system? - yes, do not trigger sim rebuilds
-#                   trick library files? - not only appear to be excluded, do no trigger sim rebuilds
-#                   icg/swig excluded? - these are excluded from swig/icg lists, but DO trigger rebuilds
-#       Need to rework main script to support rebuild
-#           since rebuild will occur mid trick-CP, need to be careful about how we stomp on makefiles and whatnot included by trick-CP
-#               perhaps add a distinct make call in the trick-CP itself before the main makefile, keep trickify separated. This would be more akin to a manual trickify build, where it is a separate process done beforehand
-#       need a way to control autorebuilding, evn or something
-#   In documentation, make notes about lib name being used for makefile rule generation, and the potential conflicts of using the same name multiple times
-#   verify autorebuild is not polluted by env vars
-#   What happens if multiple trickified libs rebuild with j > 1? Might need to wait till parameterized build to move
-#       appears to be the case, got some strange issues with j10, could not repeat with j1
-#   make trickfied makefile paths paramterized, make it easier to move things
-#   add a finish message for this script
-#   make apocalypse
-#       create a separate rule for forced rebuilding? Just a direct recall of the original command if user wants
-#       when running make spotless_trickify then rebuild_trickify from sim dir getting errors
-#   for S_define includes, consider checking if path contains string instead of starting
-#   x force script to die on cmd errors
-#   . & .. dont work in s define filter
-#   auto generate Trickify.mk if S_define present?
-#   trickify cmd may use relative paths, make sure the paths make sense under makefile rule
-#   trick-cp cmd line
-#      trick-CP -trickify jeod:IDF
-#   x make LOCAL_DIR unique
-#   rebuild_trickify from the sim makefile pulls in env vars. Only clearing EXT_LIB_DIRS, seems to work for now...
-#   gui long list solution
-#   document TRICKIFY_LD_FLAGS
-#   trick gui prints -ex, should be --ex?
-#   rerunning trickify might not clear build in the trickified dir
-#   extra_file_list does not check for swig/icg permutations of headers
 
 use warnings ;
 use strict ;
@@ -199,8 +131,21 @@ sub logStage()
 #Re-create the command line call
 our @cmdline ;
 push @cmdline, basename($0) ;
+my $build_dir_found = 0;
 foreach my $arg (@ARGV)
 {
+    #Since the makefile will be in the build dir, no need to pass the build directory. Can only cause problems.
+    if ( $build_dir_found )
+    {
+        $build_dir_found = 0 ;
+        next ;
+    }
+    if ( $arg =~ /\Q-build\E/ )
+    {
+        $build_dir_found = 1 ;
+        next ;
+    }
+
     #restore quotes
     if ( $arg !~ /^\-/ )
     {
@@ -241,6 +186,18 @@ foreach my $arg (sort keys %cmd_args)
     push @cmd_args, $cmd_args{$arg} ;
 }
 GetOptions(@cmd_args) ;
+
+chdir Cwd::abs_path($build_dir) or die "Error changing to the build directory: $build_dir\n" ;
+# Since we have already rebuilt the cmd line call, convert all paths into absolute paths to simplify everything
+$source_dirs = join ' ', (map {Cwd::abs_path($_)} (split ' ', $source_dirs)) ;
+$trick_home = join ' ', (map {Cwd::abs_path($_)} (split ' ', $trick_home)) ;
+$s_overrides = join ' ', (map {Cwd::abs_path($_)} (split ' ', $s_overrides)) ;
+$include = join ' ', (map {Cwd::abs_path($_)} (split ' ', $include)) ;
+$exclude_arg = join ' ', (map {Cwd::abs_path($_)} (split ' ', $exclude_arg)) ;
+$build_dir = join ' ', (map {Cwd::abs_path($_)} (split ' ', $build_dir)) ;
+$s_define = join ' ', (map {Cwd::abs_path($_)} (split ' ', $s_define)) ;
+$s_define_filter = join ' ', (map {Cwd::abs_path($_)} (split ' ', $s_define_filter)) ;
+$trickify_make_path = join ' ', (map {Cwd::abs_path($_)} (split ' ', $trickify_make_path)) ;
 
 # If we are trickifying, tells trick-CP to stop after trickify_deps is built
 $ENV{'AM_I_TRICKIFYING'} = 1 ;
@@ -413,9 +370,9 @@ print $fh "\nclean_trickify: clean_trickify_$name\n" ;
 print $fh "\nspotless_trickify_$name:\n" ;
 print $fh "\t-make -C \$(SOT_LOCAL_DIR_$name) spotless_trickify\n" ;
 print $fh "\nspotless_trickify: spotless_trickify_$name\n" ;
-print $fh "\nnuke_trickify_$name:\n" ;
-print $fh "\t-make -C \$(SOT_LOCAL_DIR_$name) nuke_trickify\n" ;
-print $fh "\nnuke_trickify: nuke_trickify_$name\n" ;
+print $fh "\napocalypse_trickify_$name:\n" ;
+print $fh "\t-make -C \$(SOT_LOCAL_DIR_$name) apocalypse_trickify\n" ;
+print $fh "\napocalypse_trickify: apocalypse_trickify_$name\n" ;
 print $fh "\nrebuild_trickify: $build_dir/$name.$build_type\n" ;
 print $fh "\nTRICKIFIED_LIBS += $build_dir/$name.$build_type\n" ;
 print $fh "\nendif\n" ;
@@ -439,7 +396,7 @@ print $fh "\t-rm -f python\n" ;
 print $fh "\t-rm -f *.a\n" ;
 print $fh "\t-rm -f *.o\n" ;
 print $fh "\t-rm -f *.so\n" ;
-print $fh "\nnuke_trickify: spotless_trickify\n" ;
+print $fh "\napocalypse_trickify: spotless_trickify\n" ;
 print $fh "\t-rm -f S_overrides_trickify.mk\n" ;
 print $fh "\t-rm -f *.mk\n" ;
 close ($fh) ;

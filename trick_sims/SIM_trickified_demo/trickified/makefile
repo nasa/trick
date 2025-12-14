@@ -1,6 +1,6 @@
 
 rebuild_trickify: 
-	+trick-ify --trick_home "/home/plherrin/trick" --trickify_make "/home/plherrin/trick/share/trick/makefiles/" --include "/home/plherrin/trick/trick_sims/SIM_trickified_demo/models/Core_Model /home/plherrin/trick/trick_sims/SIM_trickified_demo/models/Support_Code" --s_define "/home/plherrin/trick/trick_sims/SIM_trickified_demo/S_define" --s_define_filter "/home/plherrin/trick/trick_sims/SIM_trickified_demo/models/Support_Code" --build "/home/plherrin/trick/trick_sims/SIM_trickified_demo/trickified" --s_overrides "/home/plherrin/trick/trick_sims/SIM_trickified_demo/S_overrides.mk" -n "Ball_Lib" -b "a"
+	+trick-ify --trick_home "../../../" --trickify_make "../../../share/trick/makefiles/" --include "../models/Core_Model ../models/Support_Code" --s_define "../S_define" --s_define_filter "../models/Support_Code" --s_overrides "../S_overrides.mk" -n "Ball_Lib" -b "a"
 
 clean_trickify:
 	-rm -rf build .trick
@@ -19,6 +19,6 @@ spotless_trickify: clean_trickify
 	-rm -f *.o
 	-rm -f *.so
 
-nuke_trickify: spotless_trickify
+apocalypse_trickify: spotless_trickify
 	-rm -f S_overrides_trickify.mk
 	-rm -f *.mk
