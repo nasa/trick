@@ -17,6 +17,7 @@
 #define COMMANDLINEARGUMENTS_HH
 
 #include <string>
+#include <vector>
 
 namespace Trick {
 
@@ -25,7 +26,7 @@ namespace Trick {
         public:
 
             int argc ;                       /* ** argc */
-            char ** argv ;                   /* ** argv */
+            std::vector<std::string> argv;   /* ** argv */
 
             bool output_dir_timestamped ;    /* -- record data into a separate timestamped directory */
 
@@ -57,9 +58,9 @@ namespace Trick {
 
             /**
              @brief Command to get the command line arguments
-             @return char ** pointing to the argument list
+             @return std::vector<std::string>& referencing to the argument vector
             */
-            char ** get_argv() ;
+            std::vector<std::string>& get_argv();
 
             /**
              @brief @userdesc Command to get the output directory.
@@ -148,4 +149,3 @@ namespace Trick {
 }
 
 #endif
-
