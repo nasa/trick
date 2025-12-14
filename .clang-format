@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://json.schemastore.org/clang-format-21.x.json
+---
+BasedOnStyle: WebKit
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^("|<)(gtest|gmock)/'
+    Priority: 5
+  - Regex: '^"trick/'
+    Priority: 2
+  - Regex: '^("|<)(llvm|clang)/'
+    Priority: 3
+  - Regex: "^<.*>"
+    Priority: 4
+  - Regex: ".*"
+    Priority: 1
