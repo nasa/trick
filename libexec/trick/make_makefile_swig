@@ -32,7 +32,7 @@ sub read_files_to_process() {
 
     # Prepend -I to each include path before we pass them to the compiler
     my @include_paths = map("-I$_", (get_include_paths(), "$ENV{TRICK_HOME}/include", "$ENV{TRICK_HOME}/include/trick/compat", "$ENV{TRICK_HOME}/trick_source", "../include")) ;
-    my @defines = (get_defines(), "-DTRICK_VER=$year", "-DSWIG", "-std=c++11") ;
+    my @defines = (get_defines(), "-DTRICK_VER=$year", "-DSWIG") ;
 
     # get the list of header files from the compiler
     open FILE_LIST, "$cc -MM @include_paths @defines S_source.hh |" ;
