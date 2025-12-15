@@ -1,7 +1,7 @@
 #include "trick_publisher/include/PubNode.hh"
 
 
-void SubNode::defaults()
+void PubNode::defaults()
 {
     nodeName        = "trick_publisher_node";
     publicationName = "Trick_says";

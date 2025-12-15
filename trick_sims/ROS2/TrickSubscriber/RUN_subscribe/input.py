@@ -5,5 +5,4 @@ trick.itimer_enable()
 simControlPanel = trick.SimControlPanel()
 trick.add_external_application(simControlPanel)
 
-#TrickSubscriber.subscribe_node.subscriptionName = "topic"
-TrickSubscriber.subscribe_node.subscriptionName = "chatter"
+TrickSubscriber.subscribe_node.subscriptionName = "Trick_says"
