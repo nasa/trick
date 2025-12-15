@@ -12,8 +12,30 @@ TRICK_SYSTEM_CXXFLAGS := $(subst -isystem,-I,$(TRICK_SYSTEM_CXXFLAGS)) -Wno-unus
 
 # Flags passed to the preprocessor.
 TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wno-sign-compare ${TRICK_SYSTEM_CXXFLAGS} ${TRICK_TEST_FLAGS}
-TRICK_LIBS =  -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick -ltrick_var_binary_parser -ltrick_connection_handlers -ltrick_comm
-TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lgmock -lpthread
+# TRICK_LIBS =  -L${TRICK_LIB_DIR} -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick -ltrick_mm -ltrick_units -ltrick_comm -ltrick_pyip -ltrick -ltrick_var_binary_parser -ltrick_connection_handlers -ltrick_comm -ltrick_mm
+# Keeping this repteitive list of libraries to avoid circular dependency issues for reference. 
+# The repetition and ordering matters because of how the linker resolves symbols in static libraries.
+# The linker processes libraries left to right, in a single pass, so if there are circular dependencies,
+# by repeating the libraries, we give the linker multiple opportunities to resolve those dependencies.
+# For Linux, we can use --start-group and --end-group to let the linker iterate through the libraries 
+# without listing libs repeatedly until all symbols are resolved.
+# For macOS, it does not support --start-group and --end-group. But it doesn't seem to have issues 
+# with circular dependencies. The standard macOS linker seems to handle re-scanning automatically.
+# So just list the libraries once. If we run into circular dependency issues in the future, we may need to explore
+# other options or list the libraries multiple times. 
+# For reference, neither -all_load nor -force_load is meant to resolve circular dependencies for macOS.
+TRICK_LIB_NAMES = trick_mm trick_units trick_comm trick_pyip trick trick_var_binary_parser trick_connection_handlers
+ifeq ($(TRICK_HOST_TYPE),Linux)
+    TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,--start-group $(addprefix -l,$(TRICK_LIB_NAMES)) -Wl,--end-group
+else ifeq ($(TRICK_HOST_TYPE),Darwin)
+	# TRICK_LIBS = $(foreach lib,$(TRICK_LIB_NAMES),-Wl,-force_load,${TRICK_HOME}/lib/lib$(lib).a)
+	# TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,-all_load $(addprefix -l,$(TRICK_LIB_NAMES))
+	TRICK_LIBS = -L${TRICK_LIB_DIR} $(addprefix -l, $(TRICK_LIB_NAMES))
+else
+    $(error Unsupported platform: $(shell uname))
+endif
+
+TRICK_EXEC_LINK_LIBS += -L${GTEST_HOME}/lib64 -L${GTEST_HOME}/lib -lgtest -lgtest_main -lgmock -lpthread				  
 
 # All tests produced by this Makefile.  Remember to add new tests you
 # created to the list.
