@@ -19,10 +19,11 @@ TRICK_CXXFLAGS += -I$(GTEST_HOME)/include -I$(TRICK_HOME)/include -g -Wno-sign-c
 # by repeating the libraries, we give the linker multiple opportunities to resolve those dependencies.
 # For Linux, we can use --start-group and --end-group to let the linker iterate through the libraries 
 # without listing libs repeatedly until all symbols are resolved.
-# For macOS, it does not support --start-group and --end-group. But it doesn't seem to have issues with circular dependencies.
+# For macOS, it does not support --start-group and --end-group. But it doesn't seem to have issues 
+# with circular dependencies. The standard macOS linker seems to handle re-scanning automatically.
 # So just list the libraries once. If we run into circular dependency issues in the future, we may need to explore
 # other options or list the libraries multiple times. 
-# For reference, neither -all_load nor -force_load can resolve circular dependencies for macOS.
+# For reference, neither -all_load nor -force_load is meant to resolve circular dependencies for macOS.
 TRICK_LIB_NAMES = trick_mm trick_units trick_comm trick_pyip trick trick_var_binary_parser trick_connection_handlers
 ifeq ($(TRICK_HOST_TYPE),Linux)
     TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,--start-group $(addprefix -l,$(TRICK_LIB_NAMES)) -Wl,--end-group

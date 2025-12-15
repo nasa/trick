@@ -19,8 +19,6 @@ TRICK_LIB_NAMES = trick_mm trick_units trick trick_connection_handlers trick_pyi
 ifeq ($(TRICK_HOST_TYPE),Linux)
     TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,--start-group $(addprefix -l,$(TRICK_LIB_NAMES)) -Wl,--end-group
 else ifeq ($(TRICK_HOST_TYPE),Darwin)
-	# TRICK_LIBS = $(foreach lib,$(TRICK_LIB_NAMES),-Wl,-force_load,${TRICK_HOME}/lib/lib$(lib).a)
-	# TRICK_LIBS = -L${TRICK_LIB_DIR} -Wl,-all_load $(addprefix -l,$(TRICK_LIB_NAMES))
 	TRICK_LIBS = -L${TRICK_LIB_DIR} $(addprefix -l, $(TRICK_LIB_NAMES))
 else
     $(error Unsupported platform: $(shell uname))
