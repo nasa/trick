@@ -1,4 +1,4 @@
-TRICK_CXXFLAGS += -g -I./
+TRICK_CXXFLAGS += -g -I./ -std=c++17
 TRICK_CXXFLAGS += -I/opt/ros/humble/include/
 TRICK_CXXFLAGS += -I/opt/ros/humble/include/rclcpp
 TRICK_CXXFLAGS += -I/opt/ros/humble/include/rcl
@@ -25,8 +25,8 @@ TRICK_USER_LINK_LIBS += -lrcutils
 TRICK_USER_LINK_LIBS += -lrcpputils
 TRICK_USER_LINK_LIBS += -lstd_msgs__rosidl_typesupport_cpp
 TRICK_USER_LINK_LIBS += -lrmw_fastrtps_cpp
-TRICK_USER_LINK_LIBS += -lrmw_fastrtps_dynamic_cpp
 TRICK_USER_LINK_LIBS += -ltracetools
+TRICK_USER_LINK_LIBS += -llibstatistics_collector
 
 TRICK_EXCLUDE += /opt/ros/humble/include/
 

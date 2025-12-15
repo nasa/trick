@@ -5,4 +5,4 @@ trick.itimer_enable()
 simControlPanel = trick.SimControlPanel()
 trick.add_external_application(simControlPanel)
 
-
+TrickPublisher.publish_node.publicationName = "Trick_says"

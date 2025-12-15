@@ -25,7 +25,6 @@ TRICK_USER_LINK_LIBS += -lrcutils
 TRICK_USER_LINK_LIBS += -lrcpputils
 TRICK_USER_LINK_LIBS += -lstd_msgs__rosidl_typesupport_cpp
 TRICK_USER_LINK_LIBS += -lrmw_fastrtps_cpp
-TRICK_USER_LINK_LIBS += -lrmw_fastrtps_dynamic_cpp
 TRICK_USER_LINK_LIBS += -ltracetools
 TRICK_USER_LINK_LIBS += -llibstatistics_collector
 TRICK_USER_LINK_LIBS += -lstatistics_msgs__rosidl_typesupport_cpp
