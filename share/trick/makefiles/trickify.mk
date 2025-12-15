@@ -135,7 +135,7 @@ $(dir $(TRICKIFY_OBJECT_NAME)) $(BUILD_DIR) $(dir $(TRICKIFY_PYTHON_DIR)) .trick
 
 $(IO_OBJECTS): %.o: %.cpp
 	$(info $(call COLOR,Compiling)  $<)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -std=c++11 -Wno-invalid-offsetof -MMD -MP -c -o $@ $<)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_CXXFLAGS) $(TRICK_SYSTEM_CXXFLAGS) -Wno-invalid-offsetof -MMD -MP -c -o $@ $<)
 
 $(IO_OBJECTS:.o=.d): %.d: ;
 

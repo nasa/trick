@@ -9,7 +9,7 @@ CP = cp
 MKDIR = mkdir
 
 CFLAGS = -g -Wall
-CPPFLAGS = -g -Wall -std=c++11
+CPPFLAGS = -g -Wall
 
 INCLUDE_DIRS = -I${PWD}/include -I${CIVETWEB_HOME}/include -I${TRICK_HOME}/include
 

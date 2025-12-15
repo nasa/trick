@@ -1,0 +1,18 @@
+#include "sim_objects/default_trick_sys.sm"
+##include "trick_subscriber/include/SubNode.hh"
+
+class TrickSubscriberSimObject : public Trick::SimObject
+{
+    public:
+        SubNode subscribe_node;
+
+        TrickSubscriberSimObject()
+        {
+            ("default_data")   subscribe_node.defaults();
+            ("initialization") subscribe_node.init_ros();
+            (0.5, "scheduled") subscribe_node.earToTheVoid();
+            ("shutdown")       subscribe_node.shutItDown(); 
+        }
+};
+
+TrickSubscriberSimObject TrickSubscriber;
