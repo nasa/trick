@@ -176,7 +176,7 @@ sub write_lib_deps($) {
     {
         # read source file in slurp mode.  Keep the scope of undefining $/ (slurp) to this read
         local $/ = undef ;
-        open SOURCE, $source_file_name or warn 'cannot read $source_file_name' ;
+        open SOURCE, $source_file_name or warn "cannot read $source_file_name: $!" ;
         $contents = <SOURCE> ;
         close SOURCE ;
     }
