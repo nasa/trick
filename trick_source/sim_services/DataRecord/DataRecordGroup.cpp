@@ -177,12 +177,18 @@ const std::string & Trick::DataRecordGroup::get_group_name() {
 int Trick::DataRecordGroup::set_cycle( double in_cycle ) {
     logging_rates[0].set_rate(in_cycle);
     write_job->set_cycle(in_cycle) ;
+    if(inited) {
+        reset_cycle_data_from_curr_tic();
+    }
     return(0) ;
 }
 
 int Trick::DataRecordGroup::add_cycle(double in_cycle)
 {
     logging_rates.emplace_back(in_cycle);
+    if(inited) {
+        reset_cycle_data_from_curr_tic();
+    }
     return(0);
 }
 
@@ -620,14 +626,19 @@ int Trick::DataRecordGroup::restart() {
     init() ;
 
     // Account for the fact that the current time tics is actually already passed for a checkpoint.
+    reset_cycle_data_from_curr_tic();
+
+    return 0 ;
+}
+
+void Trick::DataRecordGroup::reset_cycle_data_from_curr_tic()
+{
     long long curr_tics = exec_get_time_tics();
     advance_log_tics_given_curr_tic(curr_tics);
 
     write_job->next_tics = calculate_next_logging_tic(curr_tics);
     write_job->cycle_tics = write_job->next_tics - curr_tics;
     write_job->cycle = (double)write_job->cycle_tics / Trick::JobData::time_tic_value;
-
-    return 0 ;
 }
 
 int Trick::DataRecordGroup::write_header() {
