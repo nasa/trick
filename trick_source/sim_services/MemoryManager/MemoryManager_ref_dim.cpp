@@ -106,16 +106,21 @@ int Trick::MemoryManager::ref_dim( REF2* R, V_DATA* V) {
         // Store vector<bool> context in ref_attr for use in ref_assignment
         if (container_address != nullptr)
         {
-            // Allocate a temporary ATTRIBUTES to store context
+            // Allocate on heap for thread safety and reentrancy
             // We'll use attr->attr to store container_address and attr->offset to store index
-            static ATTRIBUTES vec_bool_context;
-            memset(&vec_bool_context, 0, sizeof(ATTRIBUTES));
-            vec_bool_context.attr = container_address; // Container address
-            vec_bool_context.offset = element_index;   // Element index
-            vec_bool_context.type = TRICK_STL;         // Mark as STL context
-            vec_bool_context.stl_elem_type = TRICK_BOOLEAN;
-            vec_bool_context.name = (const char *)container_attr; // Store original attr
-            R->ref_attr = &vec_bool_context;
+            // Allocate only if not already allocated
+            if (R->ref_attr == NULL) {
+                R->ref_attr = (ATTRIBUTES*)calloc(1, sizeof(ATTRIBUTES));
+            } else {
+                // Reset existing allocation
+                memset(R->ref_attr, 0, sizeof(ATTRIBUTES));
+            }
+            // Set the fields
+            R->ref_attr->attr = container_address;
+            R->ref_attr->offset = element_index;
+            R->ref_attr->type = TRICK_STL;
+            R->ref_attr->stl_elem_type = TRICK_BOOLEAN;
+            R->ref_attr->name = (const char *)container_attr;
         }
 
         // For structured types, ref_name will handle the attribute lookup dynamically
