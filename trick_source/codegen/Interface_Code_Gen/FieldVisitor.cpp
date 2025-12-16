@@ -241,7 +241,13 @@ bool FieldVisitor::VisitFieldDecl( clang::FieldDecl *field ) {
     // If the current type is not canonical because of typedefs or template parameter substitution,
     // traverse the canonical type
     if ( !qt.isCanonical() ) {
-        fdes->setNonCanonicalTypeName(qt.getAsString()) ;
+        std::string non_canonical_name = qt.getAsString();
+        // Replace _Bool with bool
+        size_t pos;
+        while ((pos = non_canonical_name.find("_Bool")) != std::string::npos) {
+            non_canonical_name.replace(pos, 5, "bool");
+        }
+        fdes->setNonCanonicalTypeName(non_canonical_name) ;
         clang::QualType ct = qt.getCanonicalType() ;
         if ( debug_level >= 3 ) {
             std::cout << "\033[33mFieldVisitor VisitFieldDecl: Processing canonical type\033[00m" << std::endl ;
@@ -437,11 +443,8 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
         tst_string.erase(pos , 7) ;
     }
     // clang changes bool to _Bool.  We need to change it back
-    while ((pos = tst_string.find("<_Bool")) != std::string::npos ) {
-        tst_string.replace(pos , 6, "<bool") ;
-    }
-    while ((pos = tst_string.find(" _Bool")) != std::string::npos ) {
-        tst_string.replace(pos , 6, " bool") ;
+    while ((pos = tst_string.find("_Bool")) != std::string::npos ) {
+        tst_string.replace(pos , 5, "bool") ;
     }
 
     // Test if we have some type from STL.
@@ -455,6 +458,65 @@ bool FieldVisitor::VisitRecordType(clang::RecordType *rt) {
                 if ( rd != NULL and clang::ClassTemplateSpecializationDecl::classof(rd) ) {
                     clang::ClassTemplateSpecializationDecl * ctsd ;
                     ctsd = clang::cast<clang::ClassTemplateSpecializationDecl>(rd) ;
+
+                    // Extract STL template name such as "vector", "map", etc.
+                    std::string template_name = ctsd->getSpecializedTemplate()->getNameAsString();
+                    fdes->setSTLTemplateName(template_name);
+
+                    // Extract STL element type such as "int", "std::string", etc.
+                    const clang::TemplateArgumentList& args = ctsd->getTemplateArgs();
+                    if (args.size() > 0) {
+                        const clang::TemplateArgument& first_arg = args[0];
+                        if (first_arg.getKind() == clang::TemplateArgument::Type) {
+                            clang::QualType element_type = first_arg.getAsType();
+                            std::string element_type_name = element_type.getAsString();
+
+                            // For map-like containers, use the value type (second template argument)
+                            if ((template_name == "map" || template_name == "multimap" ||
+                                 template_name == "unordered_map" || template_name == "unordered_multimap")
+                                && args.size() > 1) {
+                                const clang::TemplateArgument& second_arg = args[1];
+                                if (second_arg.getKind() == clang::TemplateArgument::Type) {
+                                    element_type = second_arg.getAsType();
+                                    element_type_name = element_type.getAsString();
+                                }
+                            }
+
+                            // Clean up the type name (remove "class " prefix if present)
+                            size_t pos;
+                            if ((pos = element_type_name.find("class ")) != std::string::npos) {
+                                element_type_name.erase(pos, 6);
+                            }
+                            if ((pos = element_type_name.find("struct ")) != std::string::npos) {
+                                element_type_name.erase(pos, 7);
+                            }
+                            if ((pos = element_type_name.find("enum ")) != std::string::npos) {
+                                element_type_name.erase(pos, 5);
+                            }
+                            // clang changes bool to _Bool. Change it back
+                            if (element_type_name == "_Bool") {
+                                element_type_name = "bool";
+                            }
+
+                            // Check if the element type is an enumeration using Clang AST
+                            bool is_elem_enum = false;
+                            const clang::Type* elem_type_ptr = element_type.getTypePtrOrNull();
+                            if (elem_type_ptr && elem_type_ptr->isEnumeralType()) {
+                                is_elem_enum = true;
+                                if (debug_level >= 3) {
+                                    std::cout << "    STL element type is an enumeration!" << std::endl;
+                                }
+                            }
+
+                            fdes->setSTLElementTypeName(element_type_name);
+                            fdes->setSTLElementEnum(is_elem_enum);
+
+                            if (debug_level >= 3) {
+                                std::cout << "    STL template: " << template_name
+                                          << ", element type: " << element_type_name << std::endl;
+                            }
+                        }
+                    }
 
                     // If a private embedded class is in an STL the resulting io_src code will not compile.
                     // Search the template arguments for private embedded classes, if found remove io capabilites.
@@ -587,7 +649,12 @@ bool FieldVisitor::VisitVarDecl( clang::VarDecl *v ) {
     // If the current type is not canonical because of typedefs or template parameter substitution,
     // traverse the canonical type
     if ( !qt.isCanonical() ) {
-        fdes->setNonCanonicalTypeName(qt.getAsString()) ;
+        std::string non_canonical_name = qt.getAsString();
+        size_t pos;
+        while ((pos = non_canonical_name.find("_Bool")) != std::string::npos) {
+            non_canonical_name.replace(pos, 5, "bool");
+        }
+        fdes->setNonCanonicalTypeName(non_canonical_name) ;
         clang::QualType ct = qt.getCanonicalType() ;
         std::string tst_string = ct.getAsString() ;
         if ( debug_level >= 3 ) {

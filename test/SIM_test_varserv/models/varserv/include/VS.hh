@@ -20,6 +20,25 @@ typedef struct {
     unsigned int var4 :12;
 } bitfield;
 
+// Enum for testing STL containers of enums
+typedef enum {
+    COLOR_RED = 0,
+    COLOR_GREEN = 1,
+    COLOR_BLUE = 2,
+    COLOR_YELLOW = 3
+} Color;
+
+// Simple class for testing STL containers of structured types
+class Point {
+    public:
+        double x;
+        double y;
+        //std::vector<double> coords;
+
+        Point() : x(0.0), y(0.0) {}
+        Point(double x_val, double y_val) : x(x_val), y(y_val) {}
+};
+
 
 class VSTest {
 	public:
@@ -39,16 +58,55 @@ class VSTest {
 		int 				n[5];
 		std::string 		o;
 		char * 				p;
-		wchar_t *			q; 	/**< trick_chkpnt_io(**) */
+		wchar_t *			q; 	/**< -- trick_chkpnt_io(**) */
 
 		bitfield 			my_bitfield;	
 
 		int large_arr[4000];
 
-		int blocked_from_input; 	/** trick_io(*o) */
-		int blocked_from_output; 	/** trick_io(*i) */
+		int blocked_from_input; 	/**< -- trick_io(*o) */
+		int blocked_from_output; 	/**< -- trick_io(*i) */
 
 		int status;
+
+        // Vector containers for different types
+        std::vector<int> vec_int;
+        std::vector<std::string> vec_string;
+        std::vector<double> vec_double;
+        std::vector<bool> vec_bool;
+        std::vector<short> vec_short;
+        std::vector<unsigned short> vec_ushort;
+        std::vector<unsigned int> vec_uint;
+        std::vector<long> vec_long;
+        std::vector<unsigned long> vec_ulong;
+        std::vector<float> vec_float;
+        std::vector<long long> vec_llong;
+        std::vector<unsigned long long> vec_ullong;
+
+        // Deque containers
+        std::deque<float> deq_float;
+        std::deque<unsigned int> deq_uint;
+        std::deque<std::string> deq_string;
+        std::deque<short> deq_short;
+        std::deque<long long> deq_llong;
+
+        // Array containers
+        std::array<long, 5> arr_long;
+        std::array<unsigned short, 4> arr_ushort;
+        std::array<std::string, 3> arr_string;
+        std::array<double, 4> arr_double;
+        std::array<int, 3> arr_int;
+
+        // Enum and structured type containers
+        std::vector<Color> vec_enum;
+        std::deque<Color> deq_enum;
+        std::array<Color, 4> arr_enum;
+        
+        std::vector<Point> vec_point;
+        std::deque<Point> deq_point;
+        std::array<Point, 3> arr_point;
+        
+        std::vector<Point*> vec_point_ptr;
 
 		VSTest();
 		~VSTest();
