@@ -301,9 +301,15 @@ print MAKEFILE "
 
 all: S_sie.resource
 
-\$(S_MAIN): S_source.hh \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS)
+ifeq (\$(MANUAL_TRICKIFY_LD), 1)
+    ALL_TRICK_LDFLAGS = \$(TRICK_LDFLAGS)
+else
+    ALL_TRICK_LDFLAGS = \$(TRICKIFY_LDFLAGS) \$(TRICK_LDFLAGS)
+endif
+
+\$(S_MAIN): S_source.hh \$(TRICK_STATIC_LIB) \$(S_OBJECTS) \$(MODEL_OBJECTS) \$\$(TRICKIFIED_LIBS)
 \t\$(PRINT_EXE_LINK)
-\t\$(call ECHO_AND_LOG,\$(TRICK_CXX) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS))
+\t\$(call ECHO_AND_LOG,\$(TRICK_CXX) -o \$@ \$(TRICK_SYSTEM_LDFLAGS) \$(S_OBJECTS) \$(LINK_LISTS) \$(ALL_TRICK_LDFLAGS) \$(TRICK_USER_LINK_LIBS) \$(READ_ONLY_LIBS) \$(LD_WHOLE_ARCHIVE) \$(TRICK_LIBS) \$(LD_NO_WHOLE_ARCHIVE) \$(TRICK_EXEC_LINK_LIBS))
 
 # SIE ==========================================================================
 
@@ -359,6 +365,9 @@ foreach $k ( sort keys %files_by_dir ) {
 }
 close MAKEFILEOVER ;
 
+open TRICKIFYDEPS, ">build/trickify_deps" or die "Could not open build/trickify_deps" ;
+print TRICKIFYDEPS map {"$_\n"} (sort keys %non_lib_processed_files) ;
+
 # write out all of files we processed as dependencies to Makefile_src
 open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;
 print MAKEFILEDEPS "build/Makefile_src:" ;
@@ -372,3 +381,7 @@ open LIB_LIST, ">build/S_library_list" or die "Could not open build/S_library_li
 print LIB_LIST map {"$_\n"} (sort keys %processed_files) ;
 close LIB_LIST ;
 
+if($ENV{'AM_I_TRICKIFYING'})
+{
+    0 or die;
+}
