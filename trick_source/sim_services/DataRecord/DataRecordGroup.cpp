@@ -63,10 +63,17 @@ Trick::LoggingCycle::LoggingCycle(double rate_in)
 
 void Trick::LoggingCycle::set_rate(double rate_in)
 {
+    long long curr_tic = exec_get_time_tics();
     rate_in_seconds = rate_in;
     long long cycle_tics = (long long)round(rate_in * Trick::JobData::time_tic_value);
     rate_in_tics = cycle_tics;
-    next_cycle_in_tics= exec_get_time_tics();
+    if((curr_tic % cycle_tics) != 0)
+    {
+        next_cycle_in_tics = (curr_tic/cycle_tics) * cycle_tics + cycle_tics;
+    } else 
+    {
+        next_cycle_in_tics = curr_tic;
+    }
 }
 
 Trick::DataRecordGroup::DataRecordGroup( std::string in_name, Trick::DR_Type dr_type ) :
@@ -839,10 +846,11 @@ void Trick::DataRecordGroup::advance_log_tics_given_curr_tic(long long curr_tic_
 {
     for(size_t cycleIndex = 0; cycleIndex < logging_rates.size(); ++cycleIndex)
     {
-        long long logNextTic = logging_rates[cycleIndex].next_cycle_in_tics;
-        if(logNextTic == curr_tic_in)
+        long long & logNextTic = logging_rates[cycleIndex].next_cycle_in_tics;
+
+        while(logNextTic <= curr_tic_in)
         {
-            logging_rates[cycleIndex].next_cycle_in_tics += logging_rates[cycleIndex].rate_in_tics;
+            logNextTic += logging_rates[cycleIndex].rate_in_tics;
         }
     }
 }

@@ -9,7 +9,7 @@ def main():
     drg[DR_GROUP_ID].set_cycle(0.1)
     drg[DR_GROUP_ID].add_cycle(0.25)
     
-    trick.checkpoint(7.0)
+    trick.checkpoint(7.01)
 
     trick.stop(10.0)
 
