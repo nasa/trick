@@ -98,6 +98,80 @@ int Trick::VariableServerSession::var_units(std::string var_name, std::string un
     return variable->setRequestedUnits(units_name);
 }
 
+int Trick::VariableServerSession::var_get_stl_size(std::string in_name)
+{
+    char buf[12];
+    int size = 0;
+    bool error = false;
+
+    REF2 *ref = ref_attributes(in_name.c_str());
+
+    if (ref == NULL)
+    {
+        error = true;
+    }
+    else
+    {
+        // Check if this is an STL container with a get_stl_size function
+        ATTRIBUTES *attr = ref->attr;
+        if (attr == NULL)
+        {
+            error = true;
+        }
+        else if (attr->get_stl_size == NULL)
+        {
+            error = true;
+        }
+        else
+        {
+            // Call the get_stl_size accessor function
+            size = attr->get_stl_size(ref->address);
+        }
+        free(ref);
+    }
+
+    unsigned int msg_type = VS_GET_STL_SIZE;
+
+    if (_binary_data)
+    {
+        // Send binary: message_type (4 bytes) + size (4 bytes)
+        memcpy(buf, &msg_type, sizeof(msg_type));
+        memcpy(buf + 4, &size, sizeof(size));
+
+        if (_debug >= 2)
+        {
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending STL size %d (binary)\n", _connection,
+                            _connection->getClientTag().c_str(), size);
+        }
+
+        _connection->write(buf, 8);
+    }
+    else
+    {
+        // Send ASCII: "message_type\tsize"
+        std::string message = std::to_string(msg_type) + "\t";
+        if (error)
+        {
+            message += "BAD_REF";
+        }
+        else
+        {
+            message += std::to_string(size);
+        }
+        message += "\n";
+
+        if (_debug >= 2)
+        {
+            message_publish(MSG_DEBUG, "%p tag=<%s> var_server sending STL size %d (ASCII)\n", _connection,
+                            _connection->getClientTag().c_str(), size);
+        }
+
+        _connection->write(message);
+    }
+
+    return 0;
+}
+
 int Trick::VariableServerSession::var_exists(std::string in_name) {
     char buf1[5] ;
     bool error = false ;

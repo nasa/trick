@@ -6,6 +6,7 @@
 
 #include <string.h>
 #include <sstream>
+#include <string>
 
 #include "trick/MemoryManager.hh"
 #include "trick/attributes.h"
@@ -19,6 +20,14 @@
 #define MM_PARAMETER_NAME 1
 #define MM_INPUT_NOT_ALLOWED 2
 
+// Helper function to trim whitespace from both ends of a string
+static std::string trim(const std::string& str) {
+    size_t start = str.find_first_not_of(" \t\n\r");
+    if (start == std::string::npos) return "";
+    
+    size_t end = str.find_last_not_of(" \t\n\r");
+    return str.substr(start, end - start + 1);
+}
 
 int Trick::MemoryManager::ref_name(REF2 * R, char *name) {
 
@@ -29,7 +38,53 @@ int Trick::MemoryManager::ref_name(REF2 * R, char *name) {
     attr = (ATTRIBUTES*)(R->attr->attr);
 
     if (attr == NULL) {
-        return (MM_PARAMETER_NAME);
+        // Special handling for STL containers with structured elements
+        // ICG doesn't populate attr field for these, so we look it up at runtime
+        if (R->attr->type == TRICK_STL && R->attr->stl_elem_type == TRICK_STRUCTURED && R->attr->stl_elem_type_name != NULL) {
+            // Get element type name directly from stl_elem_type_name field
+            std::string elem_type_name = R->attr->stl_elem_type_name;
+
+            // Check if the element type is a pointer (contains '*')
+            bool is_pointer = (elem_type_name.find('*') != std::string::npos);
+
+            // If it's a pointer, strip the pointer symbols and whitespace to get the base type
+            if (is_pointer) {
+                size_t star_pos = elem_type_name.find('*');
+                elem_type_name = trim(elem_type_name.substr(0, star_pos));
+            }
+
+            // Look up the element type's attributes without modifying the static structure
+            ATTRIBUTES temp_attr;
+            memset(&temp_attr, 0, sizeof(ATTRIBUTES));
+
+            if (add_attr_info(elem_type_name, &temp_attr) == 0 && temp_attr.attr != NULL) {
+                attr = (ATTRIBUTES*)temp_attr.attr;
+
+                // If element is a pointer type, we need to dereference it first
+                if (is_pointer) {
+                    if (R->address == NULL) {
+                        std::stringstream message;
+                        message << "ref_name: Address is NULL for pointer element in STL container \""
+                                << R->reference << "\".";
+                        emitError(message.str());
+                        return (MM_PARAMETER_NAME);
+                    }
+                    // Dereference the pointer to get to the actual object
+                    R->address = *(void**)R->address;
+                    if (R->address == NULL) {
+                        std::stringstream message;
+                        message << "ref_name: Pointer element is NULL in STL container \""
+                                << R->reference << "\".";
+                        emitError(message.str());
+                        return (MM_PARAMETER_NAME);
+                    }
+                }
+            } else {
+                return (MM_PARAMETER_NAME);
+            }
+        } else {
+            return (MM_PARAMETER_NAME);
+        }
     }
 
     if (R->address == NULL) {

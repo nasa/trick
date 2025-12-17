@@ -17,6 +17,7 @@ use strict ;
 my @exclude_paths ;
 my @swig_exclude_paths ;
 my @ext_lib_paths ;
+my @ext_lib_paths_overrides ;
 my @files_to_process ;
 my @ext_lib_files ;
 my %md5s ;
@@ -31,7 +32,7 @@ sub read_files_to_process() {
     (my $cc = gte("TRICK_CC")) =~ s/\n// ;
 
     # Prepend -I to each include path before we pass them to the compiler
-    my @include_paths = map("-I$_", (get_include_paths(), "$ENV{TRICK_HOME}/include", "$ENV{TRICK_HOME}/include/trick/compat", "$ENV{TRICK_HOME}/trick_source", "../include")) ;
+    my @include_paths = map("-I$_", (get_include_paths(), "$ENV{TRICK_HOME}", "$ENV{TRICK_HOME}/include", "$ENV{TRICK_HOME}/include/trick/compat", "$ENV{TRICK_HOME}/trick_source", "../include")) ;
     my @defines = (get_defines(), "-DTRICK_VER=$year", "-DSWIG") ;
 
     # get the list of header files from the compiler
@@ -86,9 +87,11 @@ sub read_files_to_process() {
             # separate paths in TRICK_EXT_LIB_DIRS
             foreach my $path ( @ext_lib_paths ) {
                 if ( $word =~ /^\Q$path\E(.*)/ or abs_path($word) =~ /^\Q$path\E(.*)/ ) {
-                    print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
-                    $ext_libs{$word} = 1 ;
-                    next outer ;
+                    if ( get_containing_path( $word, @ext_lib_paths_overrides) eq 0 ) {
+                        print "[95mSWIG Skip[39m  TRICK_EXT_LIB_DIRS: [4m$path[24m$1\n" if $verbose_build ;
+                        $ext_libs{$word} = 1 ;
+                        next outer ;
+                    }
                 }
             }
             $files{$word} = 1 ;
@@ -181,7 +184,9 @@ SWIG_I =" ;
         (my $swig_file = $file) =~ s/(\.[^.]*)?$/_py/ ;
         print MAKEFILE " \\\n    build$swig_file.i" ;
         print PY_LINK_LIST "build$swig_file.o\n" ;
-        print TRICKIFY_PY_LINK_LIST "build$swig_file.o\n" ;
+        if ( !($swig_file =~ /(.*)S_source_py$/) ) {
+            print TRICKIFY_PY_LINK_LIST "build$swig_file.o\n" ;
+        }
     }
 
     print MAKEFILE "
@@ -375,6 +380,7 @@ all: $swig_sim_zip
 @exclude_paths = get_paths( "TRICK_EXCLUDE" ) ;
 @swig_exclude_paths = get_paths( "TRICK_SWIG_EXCLUDE" ) ;
 @ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
+@ext_lib_paths_overrides = get_paths( "TRICK_EXT_LIB_DIRS_OVERRIDES" ) ;
 read_files_to_process() ;
 write_makefile_swig_deps() ;
 

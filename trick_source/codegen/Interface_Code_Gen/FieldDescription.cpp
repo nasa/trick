@@ -9,11 +9,14 @@
 #include <regex.h>
 #include <string.h>
 
+#include <regex>
+
 #include "FieldDescription.hh"
 #include "Utilities.hh"
 
 // Provides units check capability.
 #include "trick/map_trick_units_to_udunits.hh"
+
 
 extern llvm::cl::opt< bool > units_truth_is_scary ;
 extern llvm::cl::opt< int > debug_level ;
@@ -55,6 +58,8 @@ FieldDescription::FieldDescription(
   is_enum(0) ,
   is_record(0) ,
   is_stl(0) ,
+  is_stl_elem_enum(0) ,
+  stl_template_name("") ,
   has_stl_clear(1) ,
   is_static(0) ,
   is_reference(0) ,
@@ -379,6 +384,17 @@ std::string FieldDescription::getTypeName() {
     return type_name ;
 }
 
+/**
+ * This function returns the string representation of the STL element type.
+ * STL element types are expected to be in the format like `int`, `double`, etc.
+ * 
+ * @return The string representation of the STL element type.
+ * @see TRICK_TYPE for the enumeration values.
+ */
+std::string FieldDescription::getSTLElementTypeName() {
+    return stl_element_type_name ;
+}
+
 void FieldDescription::setLineNo( unsigned int in_val ) {
     line_no = in_val ;
 }
@@ -535,6 +551,244 @@ void FieldDescription::setSTL(bool yes_no) {
 
 bool FieldDescription::isSTL() {
     return is_stl ;
+}
+
+void FieldDescription::setSTLTemplateName(const std::string& template_name) {
+    stl_template_name = template_name ;
+}
+
+std::string FieldDescription::getSTLTemplateName() const {
+    return stl_template_name ;
+}
+
+void FieldDescription::setSTLElementTypeName( const std::string& element_type_name ) {
+    stl_element_type_name = element_type_name ;
+}
+
+void FieldDescription::setSTLElementEnum( bool yes_no ) {
+    is_stl_elem_enum = yes_no ;
+}
+
+bool FieldDescription::isSTLElementEnum() const {
+    return is_stl_elem_enum ;
+}
+
+/**
+ * This function returns the string representation of the STL type enumeration.
+ * STL type names are expected to be in the format like `std::vector<int>`, `std::map<std::string, int>`, etc.
+ * 
+ * @return The string representation of the STL type enumeration.
+ * @see TRICK_STL_TYPE for the enumeration values.
+ */
+std::string FieldDescription::getSTLTypeEnumString() {
+    // Check if the field is an STL container
+    if (!isSTL()) {
+        return "TRICK_STL_UNKNOWN"; // Not an STL container
+    }
+
+    // Use the STL template name extracted from Clang AST
+    const std::string& template_name = getSTLTemplateName();
+
+    if (template_name == "vector") {
+        return "TRICK_STL_VECTOR";
+    } else if (template_name == "array") {
+        return "TRICK_STL_ARRAY";
+    } else if (template_name == "map" || template_name == "multimap") {
+        return "TRICK_STL_MAP";
+    } else if (template_name == "list") {
+        return "TRICK_STL_LIST";
+    } else if (template_name == "set" || template_name == "multiset") {
+        return "TRICK_STL_SET";
+    } else if (template_name == "deque") {
+        return "TRICK_STL_DEQUE";
+    } else if (template_name == "pair") {
+        return "TRICK_STL_PAIR";
+    } else if (template_name == "queue") {
+        return "TRICK_STL_QUEUE";
+    } else if (template_name == "stack") {
+        return "TRICK_STL_STACK";
+    } else if (template_name == "priority_queue") {
+        return "TRICK_STL_PRIORITY_QUEUE";
+    }
+
+    // If no known STL type is found, return unknown
+    return "TRICK_STL_UNKNOWN";
+}
+
+/**
+ * This function returns the string representation of the STL element type enumeration.
+ * It uses the element type name extracted from Clang API template arguments and 
+ * recursively maps it to TRICK_TYPE enums, handling nested STL containers.
+ * 
+ * @return The string representation of the STL element type enumeration.
+ * @see TRICK_TYPE for the enumeration values.
+ */
+std::string FieldDescription::getSTLElementTypeEnumString() {
+    // Use the element type name extracted from Clang AST
+    return mapTypeNameToTrickEnum(stl_element_type_name);
+}
+
+/**
+ * Maps a type name to its corresponding TRICK_TYPE enum string.
+ * Handles built-in types, STL containers, and user-defined types using pattern matching.
+ *
+ * Examples:
+ * - "int" -> "TRICK_INTEGER"
+ * - "std::vector<double>" -> "TRICK_STL"
+ * - "std::vector<std::vector<int>>" -> "TRICK_STL"
+ * - "MyCustomClass" -> "TRICK_STRUCTURED"
+ *
+ * Note: All STL containers (including nested ones) are mapped to "TRICK_STL"
+ * regardless of their element types.
+ *
+ * @param type_name The fully qualified type name to map
+ * @return The string representation of the corresponding TRICK_TYPE enum
+ */
+std::string FieldDescription::mapTypeNameToTrickEnum(const std::string& type_name) {
+    // Handle empty/void types
+    if (type_name.empty() || type_name == "void") {
+        return "TRICK_VOID";
+    }
+
+    // Handle built-in primitive types
+    if (type_name == "char") {
+        return "TRICK_CHARACTER";
+    } else if (type_name == "unsigned char") {
+        return "TRICK_UNSIGNED_CHARACTER";
+    } else if (type_name == "short" || type_name == "short int") {
+        return "TRICK_SHORT";
+    } else if (type_name == "unsigned short" || type_name == "unsigned short int") {
+        return "TRICK_UNSIGNED_SHORT";
+    } else if (type_name == "int") {
+        return "TRICK_INTEGER";
+    } else if (type_name == "unsigned int" || type_name == "unsigned") {
+        return "TRICK_UNSIGNED_INTEGER";
+    } else if (type_name == "long" || type_name == "long int") {
+        return "TRICK_LONG";
+    } else if (type_name == "unsigned long" || type_name == "unsigned long int") {
+        return "TRICK_UNSIGNED_LONG";
+    } else if (type_name == "long long" || type_name == "long long int") {
+        return "TRICK_LONG_LONG";
+    } else if (type_name == "unsigned long long" || type_name == "unsigned long long int") {
+        return "TRICK_UNSIGNED_LONG_LONG";
+    } else if (type_name == "float") {
+        return "TRICK_FLOAT";
+    } else if (type_name == "double") {
+        return "TRICK_DOUBLE";
+    } else if (type_name == "bool") {
+        return "TRICK_BOOLEAN";
+    } else if (type_name == "wchar_t") {
+        return "TRICK_WCHAR";
+    }
+
+    // Handle pointer types
+    if (type_name == "char *" || type_name == "char*" ||
+        type_name == "std::string" || type_name == "string") {
+        return "TRICK_STRING";
+    } else if (type_name == "wchar_t *" || type_name == "wchar_t*") {
+        return "TRICK_WSTRING";
+    } else if (type_name == "void *" || type_name == "void*") {
+        return "TRICK_VOID_PTR";
+    } else if (type_name == "FILE *" || type_name == "FILE*") {
+        return "TRICK_FILE_PTR";
+    }
+
+    // Handle STL containers (recursive case)
+    if (isSTLContainer(type_name)) {
+        return "TRICK_STL";
+    }
+
+    // Handle enumerated types using reliable flags
+    // When called for STL element types (type_name == stl_element_type_name),
+    // use the is_stl_elem_enum flag set by Clang AST analysis
+    if (is_stl_elem_enum) {
+        return "TRICK_ENUMERATED";
+    }
+
+    // Handle user-defined types (structs, classes)
+    if (isUserDefinedType(type_name)) {
+        return "TRICK_STRUCTURED";
+    }
+
+    // Default case for unknown types - use TRICK_NUMBER_OF_TYPES
+    return "TRICK_NUMBER_OF_TYPES";
+}
+
+/**
+ * Helper function to check if a type name represents an STL container.
+ * Recognizes common STL containers like vector, list, map, set, etc.
+ *
+ * @param type_name The type name to check
+ * @return true if the type is an STL container, false otherwise
+ */
+bool FieldDescription::isSTLContainer(const std::string& type_name) {
+    // Check for standard STL containers in std namespace
+    return (type_name.find("std::vector<") == 0 ||
+            type_name.find("std::array<") == 0 ||
+            type_name.find("std::list<") == 0 ||
+            type_name.find("std::deque<") == 0 ||
+            type_name.find("std::set<") == 0 ||
+            type_name.find("std::multiset<") == 0 ||
+            type_name.find("std::map<") == 0 ||
+            type_name.find("std::multimap<") == 0 ||
+            type_name.find("std::unordered_set<") == 0 ||
+            type_name.find("std::unordered_multiset<") == 0 ||
+            type_name.find("std::unordered_map<") == 0 ||
+            type_name.find("std::unordered_multimap<") == 0 ||
+            type_name.find("std::stack<") == 0 ||
+            type_name.find("std::queue<") == 0 ||
+            type_name.find("std::priority_queue<") == 0 ||
+            type_name.find("std::pair<") == 0);
+}
+
+/**
+ * Helper function to check if a type name represents a user-defined type.
+ * This includes classes, structs, and enums that are not built-in or STL types.
+ * Also handles pointer types to user-defined classes (e.g., "SimpleWrapper *").
+ *
+ * @param type_name The type name to check
+ * @return true if the type is user-defined, false otherwise
+ */
+bool FieldDescription::isUserDefinedType(const std::string& type_name) {
+    if (type_name.empty() || type_name == "void") {
+        return false;
+    }
+
+    // Extract base type from pointer types
+    std::string base_type = type_name;
+    size_t star_pos = base_type.find('*');
+    if (star_pos != std::string::npos) {
+        base_type = base_type.substr(0, star_pos);
+        // Trim trailing whitespace
+        base_type.erase(base_type.find_last_not_of(" \t") + 1);
+    }
+
+    // Skip STL types
+    if (base_type.find("std::") == 0) {
+        return false;
+    }
+
+    // Skip built-in primitive types
+    if (base_type == "char" || base_type == "unsigned char" ||
+        base_type == "short" || base_type == "short int" ||
+        base_type == "unsigned short" || base_type == "unsigned short int" ||
+        base_type == "int" || base_type == "unsigned int" || base_type == "unsigned" ||
+        base_type == "long" || base_type == "long int" ||
+        base_type == "unsigned long" || base_type == "unsigned long int" ||
+        base_type == "long long" || base_type == "long long int" ||
+        base_type == "unsigned long long" || base_type == "unsigned long long int" ||
+        base_type == "float" || base_type == "double" ||
+        base_type == "bool" || base_type == "wchar_t") {
+        return false;
+    }
+
+    // Skip template types (likely STL containers)
+    if (base_type.find("<") != std::string::npos) {
+        return false;
+    }
+
+    // If it's not built-in, not STL, and not a template, assume it's user-defined
+    return true;
 }
 
 void FieldDescription::setSTLClear(bool yes_no) {

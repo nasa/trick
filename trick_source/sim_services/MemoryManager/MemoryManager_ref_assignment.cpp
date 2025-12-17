@@ -11,10 +11,15 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
 
    char* assign_addr;
    int remaining_dimensions = attr->num_index - curr_dim;
+   // local_type is set to the type of the attribute, but if it's a STL type, we need to use the element type.
+   TRICK_TYPE local_type = attr->type;
+   if (local_type == TRICK_STL) {
+      local_type = attr->stl_elem_type;
+   }
 
    if ( remaining_dimensions == 0 ) {
 
-      switch (attr->type) {
+      switch (local_type) {
 
            case TRICK_CHARACTER :
            case TRICK_UNSIGNED_CHARACTER :
@@ -267,7 +272,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                break;
            default:
                std::stringstream message;
-               message << "Unhandled Type (" << attr->type << ") in assignment.";
+               message << "Unhandled Type (" << local_type << ") in assignment.";
                emitError(message.str());
                return (1);
                break;
@@ -301,7 +306,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
 
        } else { // next dimension is fixed.
 
-           if ((attr->type == TRICK_CHARACTER) &&
+           if ((local_type == TRICK_CHARACTER) &&
                (remaining_dimensions == 1) &&
                (v_tree) &&
                (v_tree->v_data)
@@ -323,7 +328,7 @@ int Trick::MemoryManager::assign_recursive(void* base_addr, ATTRIBUTES* attr, in
                    *(char*)assign_addr = '\0';
                }
 
-           } else if ( (attr->type == TRICK_WCHAR) &&
+           } else if ( (local_type == TRICK_WCHAR) &&
                        (remaining_dimensions == 1)) {
 
                assign_addr = (char*)base_addr + offset * size_of_curr_dim * sizeof(wchar_t);
@@ -439,6 +444,48 @@ int Trick::MemoryManager::ref_assignment( REF2* R, V_TREE* V) {
             return TRICK_UNITS_CONVERSION_ERROR ;
         }
     }
+
+    // Special handling for vector<bool> assignment
+    // vector<bool> elements can't be written via get_stl_element (returns temp buffer)
+    // Instead, use set_stl_element to write directly to the container
+    // Context (container address + index) is stored in R->ref_attr by ref_dim
+    if (R->ref_attr != NULL &&
+        R->ref_attr->type == TRICK_STL &&
+        R->ref_attr->stl_elem_type == TRICK_BOOLEAN && V && V->v_data)
+    {
+
+        // Extract stored context from ref_attr
+        void *container_address = R->ref_attr->attr;                  // Container address
+        size_t element_index = R->ref_attr->offset;                   // Element index
+        ATTRIBUTES *container_attr = (ATTRIBUTES *)R->ref_attr->name; // Original container attr
+
+        // Extract the bool value from V_TREE
+        bool value = (vval_short(V->v_data) != 0);
+
+        // Call the setter function to write directly to the vector
+        if (container_attr && container_attr->set_stl_element)
+        {
+            container_attr->set_stl_element(container_address, element_index, &value);
+
+            if (debug_level)
+            {
+                std::cout << std::endl
+                          << "Assignment (vector<bool>): " << R->reference << " = " << value << ";" << std::endl;
+                std::cout.flush();
+            }
+
+            ret = TRICK_NO_ERROR;
+        }
+        else
+        {
+            emitError("set_stl_element function not available for vector<bool>");
+            ret = TRICK_PARAMETER_ADDRESS_NULL;
+        }
+
+        if (cf)
+            cv_free(cf);
+        return ret;
+    } // End of special vector<bool> handling
 
     // R->num_index is badly named. It is really the current dimension
     ret = assign_recursive( R->address, R->attr, R->num_index, 0, V, cf);
