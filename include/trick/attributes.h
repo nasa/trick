@@ -131,10 +131,19 @@ typedef struct ATTRIBUTES_tag {
     INDEX index[TRICK_MAX_INDEX]; /**< -- An array of array-index information or bit-field information.
                                     Is only meaningful if num_index > 0 or if type is a bit field type. */
 
+    TRICK_STL_TYPE stl_type;            /**< -- STL type if this is an STL container */
+    TRICK_TYPE stl_elem_type;           /**< -- Element type of STL container
+                                                TRICK data type */
+    const char * stl_elem_type_name;    /**< -- Element type name of STL container
+                                                Character string representation of the C/C++ data type or user-defined type. */
+
     void (*checkpoint_stl)(void * start_address, const char * obj_name , const char * var_name) ;
     void (*post_checkpoint_stl)(void * start_address, const char * obj_name , const char * var_name) ;
     void (*restore_stl)(void * start_address, const char * obj_name , const char * var_name) ;
     void (*clear_stl)(void * start_address) ;
+    size_t (*get_stl_size)(void * start_address) ; /**< ** Function to get STL container size */
+    void* (*get_stl_element)(void * start_address, size_t index) ; /**< ** Function to get pointer to STL element at index */
+    void (*set_stl_element)(void * start_address, size_t index, void* value_ptr) ; /**< ** Function to set STL element at index (for vector<bool> write-back) */
 
 } ATTRIBUTES;
 

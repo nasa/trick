@@ -30,6 +30,15 @@
     }
 }
 
+// Typemap to convert char** return from command_line_args_get_argv to Python list
+%typemap(out) char** command_line_args_get_argv {
+    int argc = command_line_args_get_argc();
+    $result = PyList_New(argc);
+    for (int i = 0; i < argc; i++) {
+        PyList_SetItem($result, i, PyUnicode_FromString($1[i]));
+    }
+}
+
 %inline %{
 #include "trick/swig/swig_global_vars.hh"
 
