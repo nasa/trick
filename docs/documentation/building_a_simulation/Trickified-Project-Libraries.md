@@ -219,10 +219,8 @@ Trickify currently has a handful of known limitations.
 * Currently, S_overrides.mk variables that contain hard-coded paths will not work with Trickify. This is planned to be resolved in the near future.
     * Example of a path that won't work: '-I ../../models/includes/'
     * Example of a path that will work:  '-I $(MY\_SIM\_HOME)/models/includes/'
-mention workaround
-* Paths provided to Trickify need to be relative to the Trickify build dir, not relative to the working directory of Trickify. 
-
-If you provide paths with environment/make variables, these are converted to their values before Trickify sees them. As such, the core Trickify makefile will use the values, not the variables themselves (i.e. '/home/<your_name>/your_sim' instead of '$(MY_SIM_HOME...)'). This is fine for a local build, but will cause problems if pushed to a shared repository. The ability to incorporate environment variables is planned.
+        * A workaround for -I options in your S_overrides.mk, is to list them as --include options to Trickify.
+* Paths provided to Trickify need to be relative to the Trickify build dir, not relative to the working directory of Trickify.
 
 # Demo
 The Trick repository contains an example of a Trickified sim 'trick/trick_sims/SIM_trickified_demo'. This sim is based on another Trick sim, the Ball sim. You will notice two additions compared to the normal Ball sim. First is a trickify.mk file under the sim directory, which links the Trickified library to the sim. The second addition is a "trickified" directory, which contains the core makefile for the Trickified library. These are the only two files that should be added to a Trickified sim's repository.
