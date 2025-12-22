@@ -32,8 +32,26 @@ Expected: log_foo.csv contains data recorded from t=7+
 
 RUN_test6
 Checkpoint dumped at t=7 with data recording group foo2
-Run started with data recording group 1
+Run started with data recording group foo
 Checkpoint loaded at t=5
-Expected: ?
+Expected: log_foo2.csv contains data record from t=7+
+
+RUN_test7
+Checkpoint dumped at t=5 with change-only data recording group fooChange
+Run started with data recording group fooChange
+Checkpoint loaded at t=5
+Expected: log_fooChange.csv contains chang-only data record from t=7+
+
+RUN_test8
+Checkpoint dumped at t=5 with change-only data recording group fooChange2
+Run started with data recording group fooChange2
+Checkpoint loaded at t=5
+Expected: log_fooChange2.csv contains chang-only data record from t=7+
+
+RUN_test9
+Checkpoint dumped with at t=7.01 with multiple loggings rates
+RUN started with different logging setup
+Checkpoint loaded at t=5
+Expected: logging with multiple rates to start from t=7.01+ with no offset
 
 Overall: expectation is that what loads in from the checkpoint should take precedence and overwrite the file of the same name.
