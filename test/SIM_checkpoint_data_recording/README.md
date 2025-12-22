@@ -40,13 +40,13 @@ RUN_test7
 Checkpoint dumped at t=5 with change-only data recording group fooChange
 Run started with data recording group fooChange
 Checkpoint loaded at t=5
-Expected: log_fooChange.csv contains chang-only data record from t=7+
+Expected: log_fooChange.csv contains chang-only data record from t=5+
 
 RUN_test8
 Checkpoint dumped at t=5 with change-only data recording group fooChange2
 Run started with data recording group fooChange2
 Checkpoint loaded at t=5
-Expected: log_fooChange2.csv contains chang-only data record from t=7+
+Expected: log_fooChange2.csv contains chang-only data record from t=5+
 
 RUN_test9
 Checkpoint dumped with at t=7.01 with multiple loggings rates
