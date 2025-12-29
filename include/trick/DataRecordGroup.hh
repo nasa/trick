@@ -299,7 +299,7 @@ namespace Trick {
              @brief Initialize data recording, add data_record job to the executive scheduler.
              @returns always 0
             */
-            virtual int init() ;
+            virtual int init(bool is_restart = false) ;
 
             /**
              @brief Write out data recording variables to read back in during restart.
