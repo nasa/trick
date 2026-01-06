@@ -195,6 +195,8 @@ class ClassOfEverything {
    double daaa[2][3][4] ; /* kg blah */
    double daaaa[2][3][4][5] ; /* kg blah */
 
+   double get_double();
+
    float f ;          /* kg blah */
    float fa[3] ;      /* kg blah */
    float * fp ;       /* kg blah */
