@@ -171,11 +171,11 @@ Once you have linked in an S\_overrides\_trickify.mk into your sim, you gain acc
 ## Make Targets
 Trickify provides additional make targets to make managing your library easier. These can be invoked from your sim directory, just like other sim make options.
 * rebuild-trickify - Your original Trickify command. Rebuilds the Trickified library.
-* clean\_trickify - Removes all Trickify build artifacts, and other files not needed for running your sim.
-* spotless\_trickify - Removes your library and python module. Leaves only the Trickify makefiles. After this option is run, you still have access to all of these make options. Also performs clean\_trickify.
-* apocalypse\_trickify - Removes everything except the core makefile in your Trickified directory. After this option, you will no longer have access to these make options, and your Trickified library will no longer be linked into your sim build. The remaining core makefile retains the Trickify command that built the library. You can restore your library after an apocalypse by using the rebuild\_trickify target in the core makefile
+* spotless\_trickify - Removes all Trickify build artifacts, and other files not needed for running your sim.
+* apocalypse\_trickify - Removes your library and python module. Leaves only the Trickify makefiles. After this option is run, you still have access to all of these make options. Also performs clean\_trickify.
+* judgement\_trickify - Removes everything except the core makefile in your Trickified directory. After this option, you will no longer have access to these make options, and your Trickified library will no longer be linked into your sim build. The remaining core makefile retains the Trickify command that built the library. You can restore your library after an apocalypse by using the rebuild\_trickify target in the core makefile
 
-NOTE: Each of these options (except rebuild) is invoked along side the standard Trick make clean/spotless/apocalypse options.
+NOTE: Each of these options (except rebuild) is invoked along side the standard Trick make spotless/apocalypse/judgement options.
 
 ## Automatic Rebuilding
 When running trick-CP, by default your Trickified libraries will be rebuilt if they are out of date. To disable this check, set TRICKIFY\_AUTO\_REBUILD to 0 in either your S_overrides.mk or trickify.mk.

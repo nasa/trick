@@ -254,6 +254,7 @@ Simulation make options:\n\
     make clean                   - Removes all object files in simulation directory\n\
     make spotless                - Performs a clean\n\
     make apocalypse              - Performs a clean\n\
+    make judgement               - Performs a clean\n\
     make print-<variable>        - Prints a makefile or environment variable"
 
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
@@ -303,9 +304,13 @@ spotless: clean spotless_trickify
 
 distclean: clean
 
-apocalypse: clean apocalypse_trickify
+apocalypse: spotless apocalypse_trickify
 	@echo "[31mI love the smell of napalm in the morning <3[0m"
+
+judgement: spotless judgement_trickify
+	@echo "[32mThe trumpet sounds...[0m"
 
 clean_trickify: ;
 spotless_trickify: ;
 apocalypse_trickify: ;
+judgement_trickify: ;
