@@ -14,6 +14,7 @@ use strict ;
 
 my $verbose_build = verbose_build() ;
 my @ext_lib_paths = get_paths( "TRICK_EXT_LIB_DIRS" ) ;
+my @ext_lib_paths_overrides = get_paths( "TRICK_EXT_LIB_DIRS_OVERRIDES" ) ;
 
 sub get_lib_deps ($$) {
     my ($contents, $source_file_name) = @_ ;
@@ -161,8 +162,10 @@ sub get_lib_deps ($$) {
     my @included_ordered_resolved_files;
     foreach (@ordered_resolved_files) {
         if ( my $exclude_path = get_containing_path( $_, @ext_lib_paths ) ) {
-            print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$exclude_path[24m" . substr($_, length $exclude_path) . "\n" if $verbose_build ;
-            next ;
+            if ( get_containing_path( $_, @ext_lib_paths_overrides ) eq 0 ) {
+                print "[95mDep Skip[39m   TRICK_EXT_LIB_DIRS: [4m$exclude_path[24m" . substr($_, length $exclude_path) . "\n" if $verbose_build ;
+                next ;
+            }
         }
         push @included_ordered_resolved_files, $_ ;
     }
@@ -176,7 +179,7 @@ sub write_lib_deps($) {
     {
         # read source file in slurp mode.  Keep the scope of undefining $/ (slurp) to this read
         local $/ = undef ;
-        open SOURCE, $source_file_name or warn 'cannot read $source_file_name' ;
+        open SOURCE, $source_file_name or warn "cannot read $source_file_name: $!" ;
         $contents = <SOURCE> ;
         close SOURCE ;
     }

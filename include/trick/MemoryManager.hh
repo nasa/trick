@@ -127,9 +127,10 @@ namespace Trick {
                                  otherwise @b class_name should be "".
              @param alloc_size - number of bytes requested by new
              @param element_size - size of underlying class
+             @param alloc_name - name of the allocation (optional)
              @return - an address to the allocated memory or NULL on failure.
              */
-            void* declare_operatornew_var( std::string class_name , unsigned int alloc_size , unsigned int element_size );
+            void* declare_operatornew_var( std::string class_name , unsigned int alloc_size , unsigned int element_size , std::string alloc_name = "" );
 
             /**
              This is a convenience version of declare_extern_var(), that declares an external variable

@@ -189,6 +189,20 @@ namespace Trick {
         virtual int var_send_once(std::string in_name_list, int num_vars);
 
         /**
+         @brief @userdesc Command to query the size of an STL container.
+            Returns the size by calling the container's get_stl_size accessor function.
+            - var_binary mode: message indicator is 1, followed by binary integer size
+            - var_ascii mode: message indicator is "1" followed by tab, then ASCII integer size
+            TODO: Check if needed to update when expanding STL container support.
+                  Currently only works for STL containers: std::vector, std::deque, and std:array.
+            @par Python Usage:
+            @code trick.var_get_stl_size("<container_name>") @endcode
+            @param in_name - the STL container variable name
+            @return always 0
+        */
+        virtual int var_get_stl_size(std::string in_name);
+
+        /**
          @brief @userdesc Command to instruct the variable server to immediately send back the values of
             variables that are registered with the var_add command
             (typically used when var_pause is in effect). Each var_send command sends back all current values

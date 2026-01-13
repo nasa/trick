@@ -108,13 +108,6 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
 
             free(_var_info);
             _var_info = make_do_not_resolve_ref(var_name);
-
-        } else if ( _var_info->attr->type == TRICK_STL ) {
-            // sendErrorMessage("Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name);
-            message_publish(MSG_ERROR,"Variable Server: var_add cant add \"%s\" because its an STL variable.\n", var_name.c_str());
-
-            free(_var_info);
-            _var_info = make_do_not_resolve_ref(var_name);
         }
     } else {
         // sendErrorMessage("Variable Server: BAD MOJO - Missing ATTRIBUTES.");
@@ -133,7 +126,90 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
     // Deal with weirdness around string vs wstring
     _trick_type = _var_info->attr->type ;
 
-    if ( _var_info->num_index == _var_info->attr->num_index ) {
+    // Special handling for indexed STL containers (e.g., vec[0], point_vec[0].x)
+    // We need to detect two cases:
+    // 1. Final attr is TRICK_STL AND we indexed it (e.g., vec[0]) - update type/size to element
+    // 2. Pattern "]." in reference - we indexed something then accessed a member (e.g., point_vec[0].x)
+    // 
+    // For case 1, we need to update _trick_type and _size to match the element type.
+    // For case 2, the final attr is already the member's attributes (e.g., double x), so _trick_type
+    // and _size are already correct - we just need to set the flag to skip follow_address_path().
+    //
+    // Important: If reference is just "vec" (no indexing), keep it as TRICK_STL container type.
+    _used_stl_indexing = false;
+    if ( _var_info->attr->type == TRICK_STL && _var_info->reference ) {
+        // Check if the STL container was actually indexed by checking if reference ends with ']'
+        // e.g., "vec[0]" ends with ']', but "vec" or "xxx[0].vec" do not
+        size_t len = strlen(_var_info->reference);
+        bool stl_was_indexed = (len > 0 && _var_info->reference[len - 1] == ']');
+
+        if (stl_was_indexed) {
+            // Case 1: Final attr is STL container AND we indexed it (e.g., vec[0])
+            // Update type and size to match the element, not the container
+            _trick_type = _var_info->attr->stl_elem_type;
+            _used_stl_indexing = true;
+
+            // Update _size to match the element type size, not the container size
+            switch (_trick_type) {
+                case TRICK_CHARACTER:
+                case TRICK_UNSIGNED_CHARACTER:
+                case TRICK_BOOLEAN:
+                    _size = sizeof(char);
+                    break;
+                case TRICK_SHORT:
+                case TRICK_UNSIGNED_SHORT:
+                    _size = sizeof(short);
+                    break;
+                case TRICK_INTEGER:
+                case TRICK_UNSIGNED_INTEGER:
+                case TRICK_ENUMERATED:
+                    _size = sizeof(int);
+                    break;
+                case TRICK_LONG:
+                case TRICK_UNSIGNED_LONG:
+                    _size = sizeof(long);
+                    break;
+                case TRICK_LONG_LONG:
+                case TRICK_UNSIGNED_LONG_LONG:
+                    _size = sizeof(long long);
+                    break;
+                case TRICK_FLOAT:
+                    _size = sizeof(float);
+                    break;
+                case TRICK_DOUBLE:
+                    _size = sizeof(double);
+                    break;
+                case TRICK_STRING:
+                case TRICK_WSTRING:
+                case TRICK_STRUCTURED:
+                    _size = sizeof(void*);
+                    break;
+                default:
+                    // Keep existing size for unknown types
+                    break;
+            }
+
+            // address already points to the element from ref_dim
+            // Treat as single value - nothing else necessary
+        }
+    } else if ( _var_info->reference && strstr(_var_info->reference, "].") ) {
+        // Case 2: Pattern "]." indicates indexing followed by member access (e.g., point_vec[0].x)
+        // Check if the last "]." is followed only by member names (no more ']')
+        const char* last_bracket_dot = strstr(_var_info->reference, "].");
+        // Find the last occurrence of "]."
+        const char* temp = last_bracket_dot;
+        while (temp != NULL && (temp = strstr(temp + 2, "].")) != NULL) {
+            last_bracket_dot = temp;
+        }
+        // After the last "].", check if there are no more ']'
+        if (strchr(last_bracket_dot + 2, ']') == NULL) {
+            // The final attr is already the member's attributes, so _trick_type and _size are correct.
+            // Just set the flag to skip follow_address_path() which doesn't understand STL indexing.
+            // Note: This also matches pointer arrays like ptr_array[0].x, but that's okay - the address
+            // is already correct and skipping follow_address_path() won't hurt.
+            _used_stl_indexing = true;
+        }
+    } else if ( _var_info->num_index == _var_info->attr->num_index ) {
         // single value - nothing else necessary
     } else if ( _var_info->attr->index[_var_info->attr->num_index - 1].size != 0 ) {
         // Constrained array
@@ -301,7 +377,11 @@ int Trick::VariableReference::stageValue(bool validate_address) {
     }
 
     // if there's a pointer somewhere in the address path, follow it in case pointer changed
-    if ( _var_info->pointer_present == 1 ) {
+    // BUT: if we've indexed into an STL container, then the address already points to the correct location
+    // and follow_address_path would incorrectly recalculate it (it doesn't understand STL indexing)
+    // Use the _used_stl_indexing flag that was set during construction when we detected STL indexing
+    // (when num_index > attr->num_index and attr->type == TRICK_STL)
+    if ( _var_info->pointer_present == 1 && !_used_stl_indexing ) {
         _address = follow_address_path(_var_info) ;
         if (_address == NULL) {
             tagAsInvalid();
@@ -408,12 +488,20 @@ int Trick::VariableReference::writeValueAscii( std::ostream& out ) const {
         return -1;
     }
 
+    // local_type is set to the type of the attribute, but if it's a STL type, we need to use the element type.
+    TRICK_TYPE local_type = _trick_type;
+
+    if (_trick_type == TRICK_STL) {
+        // If the variable is an STL type, use the STL element type for writting value
+        local_type = _var_info->attr->stl_elem_type;
+    }
+
     int bytes_written = 0;
     void * buf_ptr = _write_buffer ;
     while (bytes_written < _size) {
         bytes_written += _var_info->attr->size ;
 
-        switch (_trick_type) {
+        switch (local_type) {
 
         case TRICK_CHARACTER:
             if (_var_info->attr->num_index == _var_info->num_index) {
@@ -700,22 +788,28 @@ void Trick::VariableReference::byteswap_var (char * out, char * in, const Variab
 
 
 int Trick::VariableReference::writeValueBinary( std::ostream& out, bool byteswap ) const {
+    // local_type is set to the type of the attribute, but if it's a STL type, we need to use the element type.
+    TRICK_TYPE local_type = _trick_type;
+    if (local_type == TRICK_STL) {
+        // If the variable is an STL type, use the STL element type for writing value
+        local_type = _var_info->attr->stl_elem_type;
+    }
 
-    if ( _trick_type == TRICK_BITFIELD ) {
+    if ( local_type == TRICK_BITFIELD ) {
         int temp_i = GET_BITFIELD(_write_buffer , _var_info->attr->size ,
             _var_info->attr->index[0].start, _var_info->attr->index[0].size) ;
         out.write((char *)(&temp_i), _size);
         return _size;
     }
 
-    if ( _trick_type == TRICK_UNSIGNED_BITFIELD ) {
+    if ( local_type == TRICK_UNSIGNED_BITFIELD ) {
         int temp_unsigned = GET_UNSIGNED_BITFIELD(_write_buffer , _var_info->attr->size ,
                 _var_info->attr->index[0].start, _var_info->attr->index[0].size) ;
         out.write((char *)(&temp_unsigned), _size);
         return _size;
     }
 
-    if (_trick_type ==  TRICK_NUMBER_OF_TYPES) {
+    if (local_type ==  TRICK_NUMBER_OF_TYPES) {
         // TRICK_NUMBER_OF_TYPES is an error case
         int temp_zero = 0 ;
         out.write((char *)(&temp_zero), _size);

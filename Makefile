@@ -13,6 +13,8 @@
 
 export TRICK_HOME = $(CURDIR)
 
+TRICK_CXXFLAGS += -std=c++17
+
 # Include the build configuration information.
 include $(TRICK_HOME)/share/trick/makefiles/Makefile.common
 

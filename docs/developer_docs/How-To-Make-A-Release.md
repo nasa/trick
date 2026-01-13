@@ -41,4 +41,3 @@ https://github.com/nasa/trick/commit/a317c222748e706e89b7f344f6910d1f39824feb
 ### Create the release through the github UI
   * This process is subject to change, so I'm posting the link to GitHub documentation here:
     * https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository#creating-a-release
-  * Currently we do not add any artifacts/binaries or open discussions, so you can ignore those optional steps. 

@@ -87,7 +87,7 @@ class DRTypes {
 		unsigned long long	l;
 		bool                m;
 		NUM_DEFS			n;
-		char * 				o;	// Should not actually be added
+		const char * 		o;	// Should not actually be added
 		std::string			p;	// Should not actually be added
 		int 				q[5];
 		double 				r[2][2];

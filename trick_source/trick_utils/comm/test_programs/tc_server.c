@@ -1,5 +1,5 @@
+#include "trick/tc_proto.h"
 
-#include "../include/tc_proto.h"
 #ifndef __WIN32__
 #include <sys/time.h>
 #endif

@@ -327,6 +327,11 @@ static int getCompositeSubReference(
     }
 /*if member is an unarrayed struct, continue to call getCompositeSubReference.*/
     if (Ai->num_index == 0) {
+        /* if left_type specifies the current member, stop here */
+        if ( (left_type != NULL) && (*left_type != NULL) && (Ai->attr == (*left_type)->attr)) {
+            return 0;
+        }
+
         char buf[256];
         ret = getCompositeSubReference( rAddr, left_type, sAddr + Ai->offset, (ATTRIBUTES *) Ai->attr, buf);
 
