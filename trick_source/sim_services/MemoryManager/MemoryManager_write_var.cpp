@@ -111,21 +111,7 @@ void Trick::MemoryManager::write_var(std::ostream& out_s, void* address, ATTRIBU
 }
 
 // MEMBER FUNCTION
-bool Trick::MemoryManager::write_var(std::ostream& out_s, ALLOC_INFO* alloc_info ) {
-
-    // Skip naming individual C-string allocations to eliminate unused declarations
-    // Individual char arrays (size=1, num_index=1) represent single strings that are
-    // included in char* arrays, so we don't need separate allocations for them
-    if ((alloc_info->type == TRICK_CHARACTER || alloc_info->type == TRICK_UNSIGNED_CHARACTER) && 
-         alloc_info->size == 1 && alloc_info->num_index == 1 && alloc_info->stcl == TRICK_LOCAL) {
-        // Skip this individual char array assignment to prevent unused assignments
-        return false;
-    }
-
-    // Safety check for NULL name before pushing to name stack later
-    if (alloc_info->name == NULL) {
-        return false;
-    }
+void Trick::MemoryManager::write_var(std::ostream& out_s, ALLOC_INFO* alloc_info ) {
 
     ATTRIBUTES* reference_attr;
     reference_attr = make_reference_attr( alloc_info);
@@ -139,8 +125,6 @@ bool Trick::MemoryManager::write_var(std::ostream& out_s, ALLOC_INFO* alloc_info
     currentCheckPointAgent->pop_elem(); // Pop basename.
 
     free_reference_attr( reference_attr);
-
-    return true;
 }
 
 // MEMBER FUNCTION

@@ -614,7 +614,7 @@ namespace Trick {
             @param out_s - output stream.
             @param alloc_info - pointer to the ALLOC_INFO record for this variable.
              */
-            bool write_var( std::ostream& out_s, ALLOC_INFO* alloc_info );
+            void write_var( std::ostream& out_s, ALLOC_INFO* alloc_info );
 
             /**
             Write the contents of the variable with the given name to the given stream.
