@@ -23,6 +23,8 @@ def main():
 
     test_suite = "double"
 
+    TRICK_EXPECT_EQ( str(test_so.obj.get_double()) , "4732992000", test_suite , "get generic double with precision" )
+
     test_so.obj.d = 2
     TRICK_EXPECT_NEAR( test_so.obj.d , 2.0 , 0.000001 , test_suite , "no units" )
     trick.trick_test_add_parent( test_suite , "no units" , "910635102")
