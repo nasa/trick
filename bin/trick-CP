@@ -254,7 +254,7 @@ Simulation make options:\n\
     make clean                   - Removes all object files in simulation directory\n\
     make spotless                - Performs a clean\n\
     make apocalypse              - Performs a clean\n\
-    make judgement               - Performs a clean\n\
+    make squeaky_clean               - Performs a clean\n\
     make print-<variable>        - Prints a makefile or environment variable"
 
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
@@ -294,23 +294,18 @@ tidy:
 	-rm -f S_main* T_main*
 	-rm -f build/Makefile_*
 
-clean: tidy clean_trickify
+clean: tidy
 	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
 	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
 	-rm -rf build .trick trick.zip
 	-rm -f makefile
 
-spotless: clean spotless_trickify
+spotless: clean
 
 distclean: clean
 
-apocalypse: spotless apocalypse_trickify
+apocalypse: clean_trickify
 	@echo "[31mI love the smell of napalm in the morning <3[0m"
 
-judgement: spotless judgement_trickify
-	@echo "[32mThe trumpet sounds...[0m"
-
 clean_trickify: ;
-spotless_trickify: ;
-apocalypse_trickify: ;
-judgement_trickify: ;
+nuke_trickify: ;

@@ -414,9 +414,6 @@ spotless: clean clean_test
 apocalypse: spotless
 	@echo "[31mI love the smell of napalm in the morning[0m"
 
-judgement: spotless
-	@echo "[32mThe trumpet sounds...[0m"
-
 
 ################################################################################
 #                                 INSTALL Targets
