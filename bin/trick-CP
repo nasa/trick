@@ -254,7 +254,6 @@ Simulation make options:\n\
     make clean                   - Removes all object files in simulation directory\n\
     make spotless                - Performs a clean\n\
     make apocalypse              - Performs a clean\n\
-    make squeaky_clean               - Performs a clean\n\
     make print-<variable>        - Prints a makefile or environment variable"
 
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
