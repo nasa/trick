@@ -189,7 +189,7 @@ static int getCompositeSubReference(
     char* reference_name            /* destination buffer of composite subreference */
     ) {
 
-    int   j;
+    int   j, m;
     long  offset;
     int   my_index[TRICK_MAX_INDEX];
     int   ret;
@@ -317,8 +317,15 @@ static int getCompositeSubReference(
 
 /**** Go find the subreference for the arrayed struct member and append *********/
 
-        /* get the offset into the array that rAddr points to */
-    offset = Trick::AttributesUtils::compute_array_element_offset_bytes(*Ai, my_index);
+    /* get the offset into the array that rAddr points to */
+    offset = 0;
+    for (j = 0; j < Ai->num_index; j++) {
+      m = my_index[j];
+      for(int k = j + 1; m && (k < Ai->num_index); k++) {
+        m *= Ai->index[k].size;
+    }
+      offset += m*Ai->size;
+    }
 
     {
         char buf[256];

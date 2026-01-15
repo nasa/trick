@@ -123,26 +123,6 @@ namespace Trick
             }
             return true;
         }
-
-        // Compute the byte offset of an element in a (possibly multi-dimensional) array
-        // given its per-dimension indices.
-        // For instance, if the member represents a 2D array, and indices are [i, j],
-        // the function calculates the byte offset corresponding to element (i, j).
-        static long compute_array_element_offset_bytes(const ATTRIBUTES &member, const int indices[TRICK_MAX_INDEX])
-        {
-            long element_offset = 0;
-            long m;
-            for (int i = 0; i < member.num_index; ++i)
-            {
-                m = static_cast<long>(indices[i]);
-                for (int j = i + 1; m && (j < member.num_index); ++j)
-                {
-                    m *= member.index[j].size;
-                }
-                element_offset += m * member.size;
-            }
-            return element_offset;
-        }
     };
 
 } // namespace Trick
