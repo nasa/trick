@@ -7,6 +7,7 @@
 #include "trick/message_type.h"
 
 #include "trick/ClassicCheckPointAgent.hh"
+#include "trick/AttributesUtils.hh"
 #include "trick/ChkPtParseContext.hh"
 
 #include <string>
@@ -143,61 +144,6 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
     }
 }
 
-
-// STATIC FUNCTION
-/* 
-   Given an offset, that is within the bounds of a composite
-   object (i.e., a struct or class instance), return the corresponding 
-   ATTRIBUTES pointer (singular).
-
-   Helper function for getCompositeSubReference.
-.
-*/
-
-static ATTRIBUTES* findMember(ATTRIBUTES* A, long referenceOffset) {
-    int i = 0;
-    int j;
-    int temp_size;
-    /* Find the member which contains the address pointed to by rAddr */
-    while ((A[i].name[0] != '\0')) {
-
-        // if mod bit 0 is set, A[i] is a reference. Width of reference is stored
-        // in mod bits 3-8. We could use sizeof(void*), but that is implementation
-        // specific and not required by C++ standard.
-        if ((A[i].mods & 1) == 1) {
-          temp_size = ((A[i].mods >> 3) & 0x3F);
-          // Calculate the size (temp_size) of the referenced member variable.
-        } else if (A[i].num_index != 0) {
-            // if size of last valid index is 0, then we are looking at a pointer
-            if (A[i].index[A[i].num_index - 1].size == 0) {
-                temp_size = sizeof(void*);
-            } else {
-                temp_size = A[i].size;
-            }
-            for (j = 0; j < A[i].num_index; j++) {
-                if (A[i].index[j].size != 0) {
-                    temp_size *= A[i].index[j].size;
-                } else {
-                    break;
-                }
-            }
-        } else {
-            temp_size = A[i].size;
-        }
-
-        // if the reference is not to this member variable, move on to the next member variable.
-        if ( ( referenceOffset <  (long) ( A[i].offset)   ) ||
-             ( referenceOffset >= (long) ( A[i].offset + temp_size))
-           ) {
-            i++;
-        } else {
-            break;
-        }
-    }
-
-    return &(A[i]);
-}
-
 // STATIC FUNCTION
 /*
    Given an address, that is within the bounds of a composite
@@ -230,9 +176,8 @@ static int getCompositeSubReference(
 
     int   j, m;
     long  offset;
-    int   my_index[9];
+    int   my_index[TRICK_MAX_INDEX];
     int   ret;
-    int   size, last_size;
 
     char* rAddr = (char*)reference_address;
     char* sAddr = (char*)structure_address;
@@ -249,8 +194,8 @@ static int getCompositeSubReference(
     }
 
     // Find the structure member that corresponds to the reference address.
-    // If name is empty, we have failed. 
-    Ai = findMember(A, referenceOffset);
+    // If name is empty, we have failed.
+    Ai = Trick::AttributesUtils::find_member_by_offset(A, referenceOffset);
 
 /******If failed to find member, set reference_name to offset only and return ****/
     if (Ai->name[0] == '\0') {
@@ -285,33 +230,22 @@ static int getCompositeSubReference(
 /* else, rAddr is pointing to an array, determine its dimensions and determine 
    the element pointed to by rAddr. Then print the index and return */
 
-        offset = (long) rAddr - ((long) sAddr + Ai->offset);
-        size = last_size = Ai->size;
-
-        /* Calculate the number of fixed dimensions. */
-        int num_fixed_dims = 0;
-        for (j = 0; j < Ai->num_index; j++) {
-            if (Ai->index[j].size > 0) {
-                num_fixed_dims++;
+        offset = (long)rAddr - ((long)sAddr + Ai->offset);
+        {
+            int num_fixed_dims = 0;
+            bool ok = Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(*Ai, offset, my_index, num_fixed_dims);
+            if (!ok)
+            {
+                std::cerr << "Checkpoint Agent " << __FUNCTION__
+                          << " ERROR: divide by zero during array indices calculation" << std::endl;
+                return 1;
             }
-        }
-
-        // Calculate the array indices for the right-side.
-        for (j = num_fixed_dims - 1; j >= 0; j--) {
-            size *= Ai->index[j].size;
-            if(!size) {
-              std::cerr << "Checkpoint Agent " << __FUNCTION__ << " ERROR: divide by zero during array indices calculation" << std::endl;
-              return 1;
+            for (j = 0; j < num_fixed_dims; j++)
+            {
+                size_t len = strlen(reference_name);
+                size_t rem = (size_t)256 - len;
+                snprintf(&reference_name[len], rem, "[%d]", my_index[j]);
             }
-            my_index[j] = (int) ((offset % size) / last_size);
-            offset -= last_size * my_index[j];
-            last_size = size;
-        }
-
-        for (j = 0; j < num_fixed_dims; j++) {
-            size_t len = strlen(reference_name);
-            size_t rem = (size_t)256 - len;
-            snprintf(&reference_name[len], rem, "[%d]", my_index[j]);
         }
     return 0;
     }
@@ -345,26 +279,25 @@ static int getCompositeSubReference(
         return 0;
     }
 
-/*********** Member is an arrayed struct **************************************/ 
+/*** Member is an arrayed struct *********************************************/
 
-    offset = (long) rAddr - ((long) sAddr + Ai->offset);
-    size = last_size = Ai->size;
-
-    /* Calculate the indices into the array */
-    for (j = Ai->num_index - 1; j >= 0; j--) {
-        if (Ai->index[j].size != 0) {
-            size *= Ai->index[j].size;
+    offset = (long)rAddr - ((long)sAddr + Ai->offset);
+    {
+        int num_fixed_dims = 0;
+        bool ok = Trick::AttributesUtils::compute_fixed_indices_for_linear_offset(*Ai, offset, my_index, num_fixed_dims);
+        if (!ok)
+        {
+            std::cerr << "Checkpoint Agent " << __FUNCTION__
+                      << " ERROR: divide by zero during array indices calculation" << std::endl;
+            return 1;
         }
-        my_index[j] = (int) ((offset % size) / last_size);
-        offset -= last_size * my_index[j];
-        last_size = size;
-    }
 
-
-    for (j = 0; j < Ai->num_index; j++) {
-        size_t len = strlen(reference_name);
-        size_t rem = (size_t)256 - len;
-        snprintf(&reference_name[len], rem, "[%d]", my_index[j]);
+        for (j = 0; j < Ai->num_index; j++)
+        {
+            size_t len = strlen(reference_name);
+            size_t rem = (size_t)256 - len;
+            snprintf(&reference_name[len], rem, "[%d]", my_index[j]);
+        }
     }
 
     /* if left_type specifies the current member, stop here */
