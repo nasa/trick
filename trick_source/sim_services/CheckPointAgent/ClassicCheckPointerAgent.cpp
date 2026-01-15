@@ -144,21 +144,6 @@ void Trick::ClassicCheckPointAgent::write_decl(std::ostream& chkpnt_os, ALLOC_IN
     }
 }
 
-
-// STATIC FUNCTION
-/* 
-   Given an offset, that is within the bounds of a composite
-   object (i.e., a struct or class instance), return the corresponding 
-   ATTRIBUTES pointer (singular).
-
-   Helper function for getCompositeSubReference.
-.
-*/
-
-static ATTRIBUTES* findMember(ATTRIBUTES* A, long referenceOffset) {
-    return Trick::AttributesUtils::find_member_by_offset(A, referenceOffset);
-}
-
 // STATIC FUNCTION
 /*
    Given an address, that is within the bounds of a composite
@@ -209,8 +194,8 @@ static int getCompositeSubReference(
     }
 
     // Find the structure member that corresponds to the reference address.
-    // If name is empty, we have failed. 
-    Ai = findMember(A, referenceOffset);
+    // If name is empty, we have failed.
+    Ai = Trick::AttributesUtils::find_member_by_offset(A, referenceOffset);
 
 /******If failed to find member, set reference_name to offset only and return ****/
     if (Ai->name[0] == '\0') {
@@ -323,7 +308,7 @@ static int getCompositeSubReference(
       m = my_index[j];
       for(int k = j + 1; m && (k < Ai->num_index); k++) {
         m *= Ai->index[k].size;
-    }
+      }
       offset += m*Ai->size;
     }
 

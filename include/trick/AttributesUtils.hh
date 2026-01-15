@@ -52,7 +52,7 @@ namespace Trick
             return member.size;
         }
 
-        // Return the ATTRIBUTES entry that contains the given offset within the struct
+        // Return the ATTRIBUTES entry that contains the given offset within the struct/class
         static ATTRIBUTES *find_member_by_offset(ATTRIBUTES *structAttr, long addrOffsetFromStruct)
         {
             int ii = 0;
