@@ -4,6 +4,8 @@ package trick.sie.utils;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * represents a template entry in the S_sie.resource file. This is the
@@ -23,6 +25,9 @@ public class SieTemplate implements Comparable<SieTemplate>, Iterable<SieTemplat
     public String units;
     public int[] dimensions;
     public boolean dynamicAllocation;
+
+    // Name to display in the sie tree and search panel
+    public String displayName;
 
     /** contained members */
     public ArrayList<SieTemplate> children = new ArrayList<SieTemplate>();
@@ -46,6 +51,23 @@ public class SieTemplate implements Comparable<SieTemplate>, Iterable<SieTemplat
         this.parameter = parameter;
         this.typeName = typeName;
         dimensions = new int[numDimensions];
+        updateDisplayName();
+    }
+
+
+    /**
+     * constructor that populates all XML fields
+     *
+     */
+    public SieTemplate(String parameter, String typeName, int[] dims, String ioAttr, String unts, String desc, boolean dynAlloc ) {
+        this.parameter = parameter;
+        this.typeName = typeName;
+        dimensions = dims;
+        ioType = ioAttr;
+        units = unts;
+        description = desc;
+        dynamicAllocation = dynAlloc;
+        updateDisplayName();      
     }
 
     /**
@@ -54,6 +76,7 @@ public class SieTemplate implements Comparable<SieTemplate>, Iterable<SieTemplat
      */
     public SieTemplate(SieTemplate sieTemplate) {
         description = sieTemplate.description;
+        displayName = sieTemplate.displayName;
         parameter = sieTemplate.parameter;
         typeName = sieTemplate.typeName;
         ioType = sieTemplate.ioType;
@@ -65,11 +88,7 @@ public class SieTemplate implements Comparable<SieTemplate>, Iterable<SieTemplat
 
     @Override
     public String toString() {
-        String result = parameter;
-        for (int dimension : dimensions) {
-            result += "[" + dimension + "]";
-        }
-        return result;
+        return displayName;
     }
 
     /**
@@ -152,15 +171,15 @@ public class SieTemplate implements Comparable<SieTemplate>, Iterable<SieTemplat
             public SieTemplate next() {
                 SieTemplate result = new SieTemplate(templatePath.getLast());
                 result.parameter = "";
+                result.displayName = "";
                 for (SieTemplate sieTemplate : templatePath) {
-                    result.parameter += sieTemplate + ".";
+                    result.parameter += sieTemplate.parameter + ".";
+                    result.displayName += sieTemplate.displayName + ".";
                 }
 
                 // Trim trailing "." and any indices.
                 result.parameter = result.parameter.substring(0, result.parameter.length() - 1);
-                for (int dummy : result.dimensions) {
-                    result.parameter = result.parameter.substring(0, result.parameter.lastIndexOf('['));
-                }
+                result.displayName = result.displayName.substring(0, result.displayName.length() - 1);
 
                 advance();
                 return result;
@@ -199,4 +218,51 @@ public class SieTemplate implements Comparable<SieTemplate>, Iterable<SieTemplat
         };
     }
 
+    /**
+     * parses the parameter and updates the displayName with appropriate details (array dimensions, stl type, etc)
+     */
+    public void updateDisplayName() {
+        String newName = parameter;
+
+        newName += processArrayName();
+        if(typeName.contains("vector") || typeName.contains("deque") || typeName.contains("array")) {
+            Pattern pattern = Pattern.compile("(?<=\\<)([a-zA-Z_][a-zA-Z0-9_]*(?:\\s+[a-zA-Z_][a-zA-Z0-9_]*)*(?:\\s*\\*+)?)");
+            Matcher match = pattern.matcher(typeName);
+            String templateType = "???";
+            if(match.find()) {
+                templateType = match.group();
+            }
+            newName += "<" + templateType + ">";
+        }
+
+        displayName = newName;
+    }
+
+    /** 
+     * Returns the parameter name formatted for the VS
+     */
+    public String getVsName() {
+        String vsName = parameter;
+
+        vsName += processArrayName();
+        if(typeName.contains("vector") || typeName.contains("deque") || typeName.contains("array")) {
+            vsName += "[0]";
+        }
+
+        return vsName;
+    }
+
+    /**
+     * parses the parameter and updates the displayName with appropriate details (array dimensions, stl type, etc)
+     */
+    private String processArrayName() {
+        String arrayStr = "";
+
+        for (int dimension : dimensions) {
+            arrayStr += "[" + dimension + "]";
+
+        }
+
+        return arrayStr;
+    }
 }

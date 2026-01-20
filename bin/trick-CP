@@ -57,6 +57,17 @@ if ( -f $sdefine ) {
     open MAKEFILE, ">$makefile" ;
     print MAKEFILE $makefile_text ;
     close MAKEFILE ;
+
+    #Rebuild trickified libraries
+    if(not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk")
+    {
+        my $cmd_ret = `make -f trickify.mk rebuild_trickify 2>&1` ;
+        if($cmd_ret ne "") 
+        {
+            print "$cmd_ret" ;
+        }
+    }
+
     system("make -f makefile " . $makefileAddArgs) ;
     exit $? >> 8;
 } else {
@@ -143,6 +154,7 @@ __END__
 # CP found at SUB_TRICK_BIN
 
 # Disable built-in implicit rules to increase build speed.
+
 .SUFFIXES:
 
 .PHONY: all
@@ -245,7 +257,10 @@ Simulation make options:\n\
     make print-<variable>        - Prints a makefile or environment variable"
 
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
-ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
+ifdef AM_I_TRICKIFYING
+include build/Makefile_S_define
+include build/Makefile_src
+else ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
 include build/Makefile_S_define
 include build/Makefile_src
 include build/Makefile_src_deps
@@ -256,6 +271,7 @@ include build/Makefile_swig_deps
 endif
 -include build/Makefile_overrides
 -include S_overrides.mk
+-include trickify.mk
 -include S_post.mk
 
 ifndef MAKE_RESTARTS
@@ -287,5 +303,8 @@ spotless: clean
 
 distclean: clean
 
-apocalypse: clean
-	@echo "[31mI love the smell of napalm in the morning[0m"
+apocalypse: clean_trickify
+	@echo "[31mI love the smell of napalm in the morning <3[0m"
+
+clean_trickify: ;
+nuke_trickify: ;

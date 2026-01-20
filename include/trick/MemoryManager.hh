@@ -127,9 +127,10 @@ namespace Trick {
                                  otherwise @b class_name should be "".
              @param alloc_size - number of bytes requested by new
              @param element_size - size of underlying class
+             @param alloc_name - name of the allocation (optional)
              @return - an address to the allocated memory or NULL on failure.
              */
-            void* declare_operatornew_var( std::string class_name , unsigned int alloc_size , unsigned int element_size );
+            void* declare_operatornew_var( std::string class_name , unsigned int alloc_size , unsigned int element_size , std::string alloc_name = "" );
 
             /**
              This is a convenience version of declare_extern_var(), that declares an external variable
@@ -279,6 +280,15 @@ namespace Trick {
                            true: Assignments are created only for non zero-valued variables.
              */
              void set_hexfloat_checkpoint( bool flag);
+
+             /**
+              Indicate whether print a comment line for "hexfloat" values using decimal representation.
+              Hexfloat format preserves the precision of floating point values, but isn't readable by
+              sane human beings.
+             @param flag - false: Don't print a comment line for "hexfloat" values using decimal representation.
+                           true: Print a comment line for "hexfloat" values using decimal representation.
+             */
+             void set_hexfloat_decimal_comment_checkpoint( bool flag);
 
             /**
              Set the value(s) of the variable at the given address to 0, 0.0, NULL, false or "", as appropriate for the type.
@@ -676,9 +686,10 @@ namespace Trick {
             CheckPointAgent* currentCheckPointAgent; /**< ** currently active Check point agent. */
             CheckPointAgent* defaultCheckPointAgent; /**< ** the classic Check point agent. */
 
-            bool reduced_checkpoint;    /**< -- true = Don't write zero valued variables in the checkpoint. false= Write all values. */
-            bool hexfloat_checkpoint;   /**< -- true = Represent floating point values as hexidecimal to preserve precision. false= Normal. */
-            bool expanded_arrays;       /**< -- true = array element values are set in separate assignments. */
+            bool reduced_checkpoint;                    /**< -- true = Don't write zero valued variables in the checkpoint. false= Write all values. */
+            bool hexfloat_checkpoint;                   /**< -- true = Represent floating point values as hexidecimal to preserve precision. false= Normal. */
+            bool hexfloat_decimal_comment_checkpoint;   /**< -- true = Add decimal representation comment for hexfloat values. false= no decimal representation comment. */
+            bool expanded_arrays;                       /**< -- true = array element values are set in separate assignments. */
 
             ALLOC_INFO_MAP  alloc_info_map;  /**< ** Map of <address, ALLOC_INFO*> key-value pairs for each of the managed allocations. */
             VARIABLE_MAP    variable_map;    /**< ** Map of <name, ALLOC_INFO*> key-value pairs for each named-allocations. */

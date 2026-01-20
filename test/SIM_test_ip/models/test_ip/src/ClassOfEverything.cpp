@@ -19,3 +19,7 @@ ClassOfEverything::ClassOfEverything() : cir(i), icr(i) {
 
 }
 
+double ClassOfEverything::get_double()
+{
+   return 4732992000.0;
+}
