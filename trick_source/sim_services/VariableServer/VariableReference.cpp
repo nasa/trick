@@ -192,52 +192,41 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
             // address already points to the element from ref_dim
             // Treat as single value - nothing else necessary
         }
-    } else if ( _var_info->reference && strstr(_var_info->reference, "].") &&
-                _var_info->pointer_present == 0 &&
-                (_var_info->attr->type != TRICK_CHARACTER && _var_info->attr->type != TRICK_WCHAR) ) {
-        // Case 2: Pattern "]." indicates indexing followed by member access (e.g., point_vec[0].x)
-        // IMPORTANT: This is specifically for STL containers where follow_address_path() doesn't work.
-        // For regular pointer arrays including TRICK_CHARACTER/WCHAR pointer arrays, pointer_present will be set,
-        // or simple TRICK_CHARACTER/WCHAR array, the normal flow below under constrained array or unconstrained array
-        // will calculate the size correctly.
-        // So only use this special handling if there's NO pointer or not TRICK_CHARACTER/TRICK_WCHAR in the path (STL-only case).
-        // Check if the last "]." is followed only by member names (no more ']')
-        const char* last_bracket_dot = strstr(_var_info->reference, "].");
-        // Find the last occurrence of "]."
-        const char* temp = last_bracket_dot;
-        while (temp != NULL && (temp = strstr(temp + 2, "].")) != NULL) {
-            last_bracket_dot = temp;
-        }
-        // After the last "].", check if there are no more ']'
-        if (strchr(last_bracket_dot + 2, ']') == NULL) {
-            // The final attr is already the member's attributes, so _trick_type and _size are correct.
-            // Just set the flag to skip follow_address_path() which doesn't understand STL indexing.
-            // Note: This also matches pointer arrays like ptr_array[0].x, but that's okay - the address
-            // is already correct and skipping follow_address_path() won't hurt.
+    } else {
+        // Case 2: Not a directly indexed STL container
+        // Handle mixed STL+pointer cases or regular array size calculations
+
+        // Check for STL indexing - set flag to skip follow_address_path call
+        // For mixed STL+pointer cases, this ensures follow_address_path is skipped
+        // For STL-only cases (no pointers), this flag doesn't change behavior since
+        // follow_address_path is only called when pointer_present == 1
+        if ( _var_info->stl_present == 1 ) {
             _used_stl_indexing = true;
         }
-    } else if ( _var_info->num_index == _var_info->attr->num_index ) {
-        // single value - nothing else necessary
-    } else if ( _var_info->attr->index[_var_info->attr->num_index - 1].size != 0 ) {
-        // Constrained array
-        for ( int i = _var_info->attr->num_index-1;  i > _var_info->num_index-1 ; i-- ) {
-            _size *= _var_info->attr->index[i].size ;
-        }
-    } else {
-        // Unconstrained array
-        if ((_var_info->attr->num_index - _var_info->num_index) > 1 ) {
-            message_publish(MSG_ERROR, "Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", _var_info->reference);
-            message_publish(MSG_ERROR, "Data is not contiguous so returned values are unpredictable.\n") ;
-        }
-        if ( _var_info->attr->type == TRICK_CHARACTER ) {
-            _trick_type = TRICK_STRING ;
-            _deref = true;
-        } else if ( _var_info->attr->type == TRICK_WCHAR ) {
-            _trick_type = TRICK_WSTRING ;
-            _deref = true;
+
+        if ( _var_info->num_index == _var_info->attr->num_index ) {
+            // single value - nothing else necessary
+        } else if ( _var_info->attr->index[_var_info->attr->num_index - 1].size != 0 ) {
+            // Constrained array
+            for ( int i = _var_info->attr->num_index-1;  i > _var_info->num_index-1 ; i-- ) {
+                _size *= _var_info->attr->index[i].size ;
+            }
         } else {
-            _deref = true ;
-            _size *= get_size((char*)_address) ;
+            // Unconstrained array
+            if ((_var_info->attr->num_index - _var_info->num_index) > 1 ) {
+                message_publish(MSG_ERROR, "Variable Server Error: var_add(%s) requests more than one dimension of dynamic array.\n", _var_info->reference);
+                message_publish(MSG_ERROR, "Data is not contiguous so returned values are unpredictable.\n") ;
+            }
+            if ( _var_info->attr->type == TRICK_CHARACTER ) {
+                _trick_type = TRICK_STRING ;
+                _deref = true;
+            } else if ( _var_info->attr->type == TRICK_WCHAR ) {
+                _trick_type = TRICK_WSTRING ;
+                _deref = true;
+            } else {
+                _deref = true ;
+                _size *= get_size((char*)_address) ;
+            }
         }
     }
     // handle strings: set a max buffer size, the copy size may vary so will be set in copy_sim_data

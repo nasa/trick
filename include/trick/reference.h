@@ -55,6 +55,7 @@ typedef struct {
     char* units;            /**< -- Units as specified in input runstream */
     int   num_index_left;   /**< -- FIXME OBSOLETE Number of remaining indicies to specify */
     int   pointer_present;  /**< -- 0 = no , 1 = yes (address could change) */
+    int   stl_present;      /**< -- 0 = no , 1 = yes (STL container was indexed in path) */
     int   ref_type;         /**< -- 0 = address, 1 = value. */
     void* address;          /**< ** Address of the specified reference */
     V_DATA v_data;          /**< ** Value */
