@@ -192,8 +192,15 @@ Trick::VariableReference::VariableReference(std::string var_name) : _staged(fals
             // address already points to the element from ref_dim
             // Treat as single value - nothing else necessary
         }
-    } else if ( _var_info->reference && strstr(_var_info->reference, "].") ) {
+    } else if ( _var_info->reference && strstr(_var_info->reference, "].") &&
+                _var_info->pointer_present == 0 &&
+                (_var_info->attr->type != TRICK_CHARACTER && _var_info->attr->type != TRICK_WCHAR) ) {
         // Case 2: Pattern "]." indicates indexing followed by member access (e.g., point_vec[0].x)
+        // IMPORTANT: This is specifically for STL containers where follow_address_path() doesn't work.
+        // For regular pointer arrays including TRICK_CHARACTER/WCHAR pointer arrays, pointer_present will be set,
+        // or simple TRICK_CHARACTER/WCHAR array, the normal flow below under constrained array or unconstrained array
+        // will calculate the size correctly.
+        // So only use this special handling if there's NO pointer or not TRICK_CHARACTER/TRICK_WCHAR in the path (STL-only case).
         // Check if the last "]." is followed only by member names (no more ']')
         const char* last_bracket_dot = strstr(_var_info->reference, "].");
         // Find the last occurrence of "]."
