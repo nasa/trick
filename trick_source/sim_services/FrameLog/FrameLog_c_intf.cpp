@@ -10,12 +10,14 @@ extern Trick::FrameLog * the_fl ;
 
 /**
  * @relates Trick::FrameLog
- * @copydoc Trick::FrameLog::framelog_on
- * C wrapper for Trick::FrameLog::framelog_on
+ * @copydoc Trick::FrameLog::framelog_on(bufferType)
+ * C wrapper for Trick::FrameLog::framelog_on(bufferType)
  */
-extern "C" int frame_log_on(void) {
+int frame_log_on(Trick::DR_Buffering bufferType)
+{
+
     if (the_fl != NULL) {
-        return the_fl->framelog_on() ;
+        return the_fl->framelog_on(bufferType) ;
     }
     return(0) ;
 }

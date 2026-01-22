@@ -111,7 +111,7 @@ namespace Trick {
              @code trick.frame_log_on() @endcode
              @return always 0
             */
-            int framelog_on() ;
+            int framelog_on(Trick::DR_Buffering type = Trick::DR_Ring_Buffer) ;
 
             /**
              @brief @userdesc Command to turn off frame logs.
@@ -171,7 +171,7 @@ namespace Trick {
             void add_recording_vars_for_jobs() ;
             void add_recording_vars_for_frame() ;
 
-            void add_recording_groups_to_sim() ;
+            void add_recording_groups_to_sim(Trick::DR_Buffering bufferType) ;
             void remove_recording_groups_from_sim() ;
 
             void enable_recording_groups() ;
