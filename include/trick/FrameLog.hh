@@ -15,6 +15,12 @@ PROGRAMMERS:
 #include "trick/JobData.hh"
 #include "trick/Clock.hh"
 
+
+
+/* external call to be made available to input processor */
+int frame_log_on(Trick::DR_Buffering bufferType = Trick::DR_Ring_Buffer );
+
+
 namespace Trick {
 
     /** Data to save for each timeline sample.\n */

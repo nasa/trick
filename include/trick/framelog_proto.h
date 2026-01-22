@@ -3,8 +3,6 @@
 
 #include "trick/FrameLog.hh"
 
-int frame_log_on(Trick::DR_Buffering bufferType = Trick::DR_Ring_Buffer );
-
 #ifdef __cplusplus
 extern "C" {
 #endif

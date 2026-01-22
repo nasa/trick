@@ -18,6 +18,18 @@
 
 Trick::FrameLog * the_fl = NULL ;
 
+
+int frame_log_on(Trick::DR_Buffering bufferType)
+{
+
+    if (the_fl != NULL) {
+        return the_fl->framelog_on(bufferType) ;
+    }
+    return(0) ;
+}
+
+
+
 //Constructor.
 Trick::FrameLog::FrameLog(Trick::Clock & in_clock) : 
  frame_log_flag(false),
