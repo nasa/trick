@@ -1,8 +1,6 @@
 #ifndef FRAMELOG_PROTO_H
 #define FRAMELOG_PROTO_H
 
-#include "trick/FrameLog.hh"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
