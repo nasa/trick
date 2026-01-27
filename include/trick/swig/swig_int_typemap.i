@@ -1,6 +1,6 @@
 
 /*
-  This is the 1D array/pointer support code for SWIG
+  This is the 1D/2D/3D array/pointer support code for SWIG
  */
 
 %{
@@ -62,6 +62,24 @@
     t->units = Trick::UnitsMap::units_map()->get_units(temp_name) ;
     //cout << "swig_double out found units " << t->units << std::endl ;
     $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_double"), SWIG_POINTER_OWN);
+}
+
+// Special typemap for pointer types (char*, void*, etc.) to block array of pointers assignment
+%typemap(in) char * [] , void * [] {
+    //ARRAY[] IN for pointer types
+    SWIG_exception_fail(SWIG_TypeError, "Assignment of arrays of pointer types (char*[], void*[]) is not supported in Trick");
+}
+
+// Special typemap for double-pointer types (char**, void**, etc.) to block array of double-pointers assignment
+%typemap(in) char ** [] , void ** [] {
+    //ARRAY[] IN for double-pointer types
+    SWIG_exception_fail(SWIG_TypeError, "Assignment of arrays of double-pointer types (char**[], void**[]) is not supported in Trick");
+}
+
+// Special typemap for triple-pointer types (char***, void***, etc.) to block array of triple-pointers assignment
+%typemap(in) char *** [] , void *** [] {
+    //ARRAY[] IN for triple-pointer types
+    SWIG_exception_fail(SWIG_TypeError, "Assignment of arrays of triple-pointer types (char***[], void***[]) is not supported in Trick");
 }
 
 %typemap(in) char [] , unsigned char [] , signed char [] ,
@@ -253,6 +271,26 @@
     }
 }
 
+%typemap(in) char [ANY][ANY][ANY] , unsigned char [ANY][ANY][ANY] , signed char [ANY][ANY][ANY] ,
+             short [ANY][ANY][ANY] , unsigned short [ANY][ANY][ANY] , signed short [ANY][ANY][ANY] ,
+             int [ANY][ANY][ANY] , unsigned int [ANY][ANY][ANY] , signed int [ANY][ANY][ANY] ,
+             long [ANY][ANY][ANY] , unsigned long [ANY][ANY][ANY] , signed long [ANY][ANY][ANY] ,
+             long long [ANY][ANY][ANY] , unsigned long long [ANY][ANY][ANY] , signed long long [ANY][ANY][ANY] ,
+             enum SWIGTYPE [ANY][ANY][ANY] , bool [ANY][ANY][ANY] ,
+             double [ANY][ANY][ANY] , float [ANY][ANY][ANY] {
+
+    //ARRAY[ANY][ANY][ANY] IN
+    // The strange looking "+ 0" is required because unconstrained arrays are falling into this rule and level $1_dim0 blank.
+    if ( $1_dim0 + 0 > 0 ) {
+        $1 = ($1_basetype (*)[$1_dim1][$1_dim2])typemap_in_3d<$1_basetype[$1_dim1][$1_dim2], $1_basetype>( $input , $1_dim0 + 0, $1_dim1, $1_dim2, "$symname") ;
+        if ( $1 == NULL ) {
+            SWIG_exception_fail(SWIG_TypeError,"Right hand side could not be converted to proper 3D array type");
+        }
+    } else {
+        SWIG_exception_fail(SWIG_TypeError,"Trick SWIG interface code does not support 3D arrays with unconstrained first dim.");
+    }
+}
+
 // SWIG does not allow us to use "ANY" for the array dimension for this typemap.
 %define %int_pointer_to_array(DIM_SIZE)
 
@@ -415,8 +453,17 @@
 
     //INT ** IN
     void * argp2 ;
+    int ret ;
 
-    if ( SWIG_IsOK(SWIG_ConvertPtr($input, &argp2,SWIG_TypeQuery("_p_swig_ref"), 0)) ) {
+    // First try to handle nested list/tuple for 2D array allocation
+    if (PyList_Check($input) || PyTuple_Check($input)) {
+        ret = typemap_in_2dp<$1_basetype>( $input , "$1_basetype", "$symname", &$1) ;
+        if ( ret == 0 ) {
+            // Successfully allocated and populated from nested list
+        } else {
+            SWIG_exception_fail(SWIG_TypeError,"Could not convert nested list to 2D array");
+        }
+    } else if ( SWIG_IsOK(SWIG_ConvertPtr($input, &argp2,SWIG_TypeQuery("_p_swig_ref"), 0)) ) {
         // Array to pointer assignment
         swig_ref * temp_swig_ref = reinterpret_cast< swig_ref * >(argp2);
         if ( temp_swig_ref != NULL ) {
@@ -479,6 +526,100 @@
     t->ref.create_add_path  = 0 ;
     t->ref.num_index  = 0 ;
     t->ref.num_index_left  = 2 ;
+    t->ref.ref_type  = REF_ADDRESS ;
+
+    temp_name = "$symname" ;
+    temp_name.erase(temp_name.length() - 4) ;
+    temp_str = Trick::UnitsMap::units_map()->get_units(temp_name) ;
+    t->ref.attr->units = strdup(temp_str.c_str()) ;
+
+    $result = SWIG_NewPointerObj(SWIG_as_voidptr(t), SWIG_TypeQuery("_p_swig_ref"), SWIG_POINTER_OWN);
+
+}
+
+%typemap(in) char *** , unsigned char *** , signed char *** ,
+             short *** , unsigned short *** , signed short *** ,
+             int *** , unsigned int *** , signed int *** ,
+             long *** , unsigned long *** , signed long *** ,
+             long long *** , unsigned long long *** , signed long long *** ,
+             enum SWIGTYPE *** , bool *** ,
+             double *** , float *** {
+
+    //INT *** IN
+    void * argp2 ;
+    int ret ;
+
+    // First try to handle triple-nested list/tuple for 3D array allocation
+    if (PyList_Check($input) || PyTuple_Check($input)) {
+        ret = typemap_in_3dp<$1_basetype>( $input , "$1_basetype", "$symname", &$1) ;
+        if ( ret == 0 ) {
+            // Successfully allocated and populated from triple-nested list
+        } else {
+            SWIG_exception_fail(SWIG_TypeError,"Could not convert triple-nested list to 3D array");
+        }
+    } else if ( SWIG_IsOK(SWIG_ConvertPtr($input, &argp2,SWIG_TypeQuery("_p_swig_ref"), 0)) ) {
+        // Array to pointer assignment
+        swig_ref * temp_swig_ref = reinterpret_cast< swig_ref * >(argp2);
+        if ( temp_swig_ref != NULL ) {
+            $1 = ($1_basetype ***)temp_swig_ref->ref.address ;
+        }
+    } else if ( SWIG_IsOK(SWIG_ConvertPtr($input, &argp2,SWIG_TypeQuery("_p_REF2"), 0)) ) {
+        // We have an address coming in, we don't have to do any translation
+        REF2 * temp_ref = reinterpret_cast< REF2 * >(argp2) ;
+        if ( temp_ref != NULL ){
+            $1 = ($1_basetype ***)temp_ref->address ;
+        }
+    } else if ( SWIG_IsOK(SWIG_ConvertPtr($input, &argp2,SWIG_TypeQuery("_p_void"), 0)) ) {
+        // We have an address coming in, we don't have to do any translation
+        $1 = reinterpret_cast< $1_basetype *** >(argp2) ;
+    } else {
+        PyErr_SetString(PyExc_TypeError,"$1_basetype ***: Input must be a pointer type");
+        return NULL;
+    }
+}
+
+%typemap(out) char *** , unsigned char *** , signed char *** ,
+              short *** , unsigned short *** , signed short *** ,
+              int *** , unsigned int *** , signed int *** ,
+              long *** , unsigned long *** , signed long *** ,
+              long long *** , unsigned long long *** , signed long long *** ,
+              enum SWIGTYPE *** , bool *** ,
+              double *** , float *** {
+
+    //INT *** OUT
+
+    std::string temp_name ;
+    std::string temp_str ;
+
+    swig_ref * t = new swig_ref ;
+
+    t->ref.address = (void *)$1;
+    t->ref.units = NULL ;
+
+    t->ref.attr = Trick::PrimitiveAttributesMap::attributes_map()->get_attr("$1_basetype") ;
+    // PrimitiveAttributes lookup failed. Probably an enum. Create a new attributes based on size of type.
+    if ( t->ref.attr == NULL ) {
+        t->ref.attr = new ATTRIBUTES() ;
+        t->ref.attr->size  = sizeof($1_basetype) ;
+        switch ( t->ref.attr->size ) {
+            case 1: t->ref.attr->type = TRICK_CHARACTER ; break ;
+            case 2: t->ref.attr->type = TRICK_SHORT ; break ;
+            case 4: t->ref.attr->type = TRICK_INTEGER ; break ;
+            case 8: t->ref.attr->type = TRICK_LONG_LONG ; break ;
+            default: t->ref.attr->type = TRICK_INTEGER ; break ;
+        }
+        t->ref.attr->io  = TRICK_VAR_OUTPUT | TRICK_VAR_INPUT | TRICK_CHKPNT_OUTPUT | TRICK_CHKPNT_INPUT ;
+    }
+
+    t->ref.attr->type_name  = strdup("$1_basetype") ;
+    t->ref.attr->num_index  = 3 ;
+    t->ref.attr->index[0].size  = get_truncated_size((char *)$1) ;
+    t->ref.attr->index[1].size  =  0 ;
+    t->ref.attr->index[2].size  =  0 ;
+
+    t->ref.create_add_path  = 0 ;
+    t->ref.num_index  = 0 ;
+    t->ref.num_index_left  = 3 ;
     t->ref.ref_type  = REF_ADDRESS ;
 
     temp_name = "$symname" ;
