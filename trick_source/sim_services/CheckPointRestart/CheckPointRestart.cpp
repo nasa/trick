@@ -220,8 +220,16 @@ int Trick::CheckPointRestart::do_checkpoint(std::string file_name, bool print_st
         curr_job->parent_object->call_function(curr_job) ;
     }
 
-    if ( print_status ) {
-        message_publish(MSG_INFO, "Dumped ASCII Checkpoint %s.\n", file_name.c_str()) ;
+    if ( print_status )
+    {
+        if (trick_MM->is_hexfloat_checkpoint())
+        {
+            message_publish(MSG_INFO, "Dumped Checkpoint (floating point values in Hexadecimal) %s.\n", file_name.c_str()) ;
+        }
+        else
+        {
+            message_publish(MSG_INFO, "Dumped ASCII Checkpoint %s.\n", file_name.c_str()) ;
+        }
     }
 
     return 0 ;
