@@ -14,7 +14,9 @@ jobs:
 #-------- Operating Systems ----------------
           - { os: ubuntu,      tag: 22.04,    arch: debian, arch_ver: 12 }
           - { os: rockylinux,  tag: 8,        arch: rhel,   arch_ver: 8  }
+          - { os: rockylinux,  tag: 9,        arch: rhel,   arch_ver: 9  }
           - { os: oraclelinux, tag: 8,        arch: rhel,   arch_ver: 8  }
+          - { os: oraclelinux, tag: 9,        arch: rhel,   arch_ver: 9  }
         python: [3]
 
 
