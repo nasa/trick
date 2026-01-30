@@ -107,7 +107,7 @@ public:
      * Change the interval between calls to the integ_loop job.
      * @param cycle  New integration cycle time, in Trick seconds.
      */
-    virtual int set_integ_cycle (double cycle);
+    virtual int set_integ_cycle(double cycle);
 
     /**
      * Updates an integration rate by index and cycle. Calling with 0

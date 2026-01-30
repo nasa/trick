@@ -9,9 +9,10 @@ PURPOSE: ( Cannonball EulerCromer Model )
 #include "cannon_numeric.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-int cannon_ec_integ(CANNON*) ;
+    int cannon_ec_integ(CANNON *);
 #ifdef __cplusplus
 }
 #endif

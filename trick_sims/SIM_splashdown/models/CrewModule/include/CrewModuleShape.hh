@@ -6,7 +6,8 @@ LIBRARY DEPENDENCIES:
 #ifndef CREW_MODULE_SHAPE_HH
 #define CREW_MODULE_SHAPE_HH
 
-class CrewModuleShape {
+class CrewModuleShape
+{
 public:
     double sphere_radius;
     double cone_angle;
@@ -23,11 +24,13 @@ public:
     double cone_vector_trans[3];
     double plane_vector_trans[3];
 
-    CrewModuleShape ();
-    bool containsPoint(double (&test_point)[3] );
-    void transformCoordinates( double (&rotation)[3][3], double (&position)[3]);
-    void transformPoint( double (&rotation)[3][3], double (&translation)[3], double (&in_point)[3], double (&out_point)[3]);
-
+    CrewModuleShape();
+    bool containsPoint(double (&test_point)[3]);
+    void transformCoordinates(double (&rotation)[3][3], double (&position)[3]);
+    void transformPoint(double (&rotation)[3][3],
+                        double (&translation)[3],
+                        double (&in_point)[3],
+                        double (&out_point)[3]);
 };
 
 #endif

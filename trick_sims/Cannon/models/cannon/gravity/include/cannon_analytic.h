@@ -7,9 +7,10 @@ PURPOSE: ( Cannon Analytic Model )
 #include "cannon.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-int cannon_analytic(CANNON*) ;
+    int cannon_analytic(CANNON *);
 #ifdef __cplusplus
 }
 #endif

@@ -6,13 +6,15 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 
-Trick::MonteVarCalculated::MonteVarCalculated(std::string in_name, std::string in_unit) {
+Trick::MonteVarCalculated::MonteVarCalculated(std::string in_name, std::string in_unit)
+{
     this->name = in_name;
     this->unit = in_unit;
 
     ref2 = ref_attributes(name.c_str());
-    if (ref2 == NULL) {
-        message_publish(MSG_ERROR, "Monte : MonteVarCalculated could not find parameter %s.\n", name.c_str()) ;
+    if(ref2 == NULL)
+    {
+        message_publish(MSG_ERROR, "Monte : MonteVarCalculated could not find parameter %s.\n", name.c_str());
     }
 }
 
@@ -22,16 +24,19 @@ std::string Trick::MonteVarCalculated::describe_variable()
     std::stringstream ss;
 
     ss << "#NAME:\t" << this->name << "\n"
-       << "#TYPE:\tCALCULATED\n" 
+       << "#TYPE:\tCALCULATED\n"
        << "#UNIT:\t" << this->unit << "\n";
 
     return ss.str();
 }
 
-std::string Trick::MonteVarCalculated::get_next_value() {
+std::string Trick::MonteVarCalculated::get_next_value()
+{
     char buffer[128];
-    if (ref2 != NULL) {
-        switch (ref2->attr->type) {
+    if(ref2 != NULL)
+    {
+        switch(ref2->attr->type)
+        {
             case TRICK_CHARACTER:
             case TRICK_UNSIGNED_CHARACTER:
                 snprintf(buffer, sizeof(buffer), "%d", *(char *)ref2->address);
@@ -66,14 +71,18 @@ std::string Trick::MonteVarCalculated::get_next_value() {
                 value = buffer;
                 break;
             default:
-                snprintf(buffer, sizeof(buffer), "#Unsupported value type %d", ref2->attr->type) ;
-                break ;
+                snprintf(buffer, sizeof(buffer), "#Unsupported value type %d", ref2->attr->type);
+                break;
         }
 
-        if (unit.empty()) {
+        if(unit.empty())
+        {
             return name + std::string(" = ") + value;
-        } else {
-            return name + std::string(" = trick.attach_units(\"") + unit + std::string("\", ") + value + std::string(")");
+        }
+        else
+        {
+            return name + std::string(" = trick.attach_units(\"") + unit + std::string("\", ") + value +
+                   std::string(")");
         }
     }
     return NULL;

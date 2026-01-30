@@ -17,46 +17,53 @@ namespace FooNamespace
 {
 
 // RestartableScalarFirstOrderODEIntegrator
-class FooContB {
+class FooContB
+{
 public:
-  FooContB() : d(12.0) {}
+    FooContB()
+        : d(12.0)
+    {
+    }
 
-   // RestartableFirstOrderODEIntegrator
-   FooB<2> fooB;
+    // RestartableFirstOrderODEIntegrator
+    FooB<2> fooB;
 
-  FooB<2> fooB2;
+    FooB<2> fooB2;
 
-  double d;
+    double d;
 };
-
 
 // RestartableT3SecondOrderODEIntegrator
-class FooContD {
+class FooContD
+{
 public:
-  FooContD() : d(12.0) {}
+    FooContD()
+        : d(12.0)
+    {
+    }
 
-  // RestartableSimpleSecondOrderODEIntegrator
-#ifndef TESTING_SWIG  
-# ifndef SWIG 
-// THIS SHOULD PREVENT SWIG FROM MAKING ANY TEMPLATE REFERENCES TO EXCLUDED FooD TYPE
-  FooD<1> fooD;
+    // RestartableSimpleSecondOrderODEIntegrator
+#ifndef TESTING_SWIG
+#ifndef SWIG
+    // THIS SHOULD PREVENT SWIG FROM MAKING ANY TEMPLATE REFERENCES TO EXCLUDED FooD TYPE
+    FooD<1> fooD;
 
-  FooD<2> fooD2;
+    FooD<2> fooD2;
 #endif
 #endif
 
-  int spacer;
+    int spacer;
 
-#if ! defined ( SWIG ) 
-// THIS SHOULD PREVENT SWIG FROM MAKING ANY TEMPLATE REFERENCES TO EXCLUDED FooD TYPE
-  FooD<3> fooD3;
+#if !defined(SWIG)
+    // THIS SHOULD PREVENT SWIG FROM MAKING ANY TEMPLATE REFERENCES TO EXCLUDED FooD TYPE
+    FooD<3> fooD3;
 
-  FooD<4> fooD4;
+    FooD<4> fooD4;
 #endif
 
-  double d;
+    double d;
 };
 
-}
+} // namespace FooNamespace
 
 #endif

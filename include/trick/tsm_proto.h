@@ -13,20 +13,21 @@ ICG:
 #include "trick/tsm.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/* Initialize a shared memory segment */
-int tsm_init(TSMDevice * device);
+    /* Initialize a shared memory segment */
+    int tsm_init(TSMDevice * device);
 
-/* Initialize a shared memory segment containing a pthread lock */
-int tsm_init_with_lock(TSMDevice * device);
+    /* Initialize a shared memory segment containing a pthread lock */
+    int tsm_init_with_lock(TSMDevice * device);
 
-/* Reconnect to a disconnected shared memory segment */
-int tsm_reconnect(TSMDevice * device);
+    /* Reconnect to a disconnected shared memory segment */
+    int tsm_reconnect(TSMDevice * device);
 
-/* Disconnect (detach) a shared memory segment */
-int tsm_disconnect(TSMDevice * device);
+    /* Disconnect (detach) a shared memory segment */
+    int tsm_disconnect(TSMDevice * device);
 
 #ifdef __cplusplus
 }

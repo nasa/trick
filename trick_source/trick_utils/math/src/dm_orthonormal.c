@@ -8,14 +8,15 @@
 
 #include "trick/trick_math.h"
 
-void dm_orthonormal(            /* Return: -- none */
-                       double m[3][3],  /* Inout: Matrix to be orthonormalized. */
-                       int *axis)
-{                                      /* Inout: Axis to forfiet during orthonormalization */
+void dm_orthonormal(                /* Return: -- none */
+                    double m[3][3], /* Inout: Matrix to be orthonormalized. */
+                    int * axis)
+{ /* Inout: Axis to forfiet during orthonormalization */
 
-    double vec[3];              /* Scratch space for taking unit vectors */
+    double vec[3]; /* Scratch space for taking unit vectors */
 
-    switch (*axis) {
+    switch(*axis)
+    {
         case 0:
             /* Unitize the second and third rows */
             /* Cross the second and third rows to get the first */

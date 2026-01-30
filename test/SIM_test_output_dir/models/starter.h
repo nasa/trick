@@ -8,7 +8,8 @@ LIBRARY DEPENDENCY:
 
 #include "dynamic_obj.h"
 
-class Starter {
+class Starter
+{
 public:
     Starter();
     int default_data();
@@ -17,5 +18,4 @@ public:
     int deriv();
     int integ();
     int shutdown();
-
 };

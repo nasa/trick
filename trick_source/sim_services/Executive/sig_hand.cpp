@@ -17,9 +17,9 @@
 #include <iostream>
 #include <sstream>
 
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
 
 #include "trick/Executive.hh"
 #include "trick/exec_proto.hh"
@@ -29,26 +29,30 @@
  * C binded function to handle UNIX signals for the simulation.
  * @return void
  */
-void sig_hand(int sig) {
+void sig_hand(int sig)
+{
     Trick::Executive * E = exec_get_exec_cpp();
-    E->signal_handler(sig) ;
+    E->signal_handler(sig);
     return;
 }
 
-void ctrl_c_hand(int sig __attribute__ ((unused))) {
+void ctrl_c_hand(int sig __attribute__((unused)))
+{
     Trick::Executive * E = exec_get_exec_cpp();
-    E->ctrl_c_handler() ;
+    E->ctrl_c_handler();
     return;
 }
 
-void term_hand(int sig __attribute__ ((unused))) {
+void term_hand(int sig __attribute__((unused)))
+{
     Trick::Executive * E = exec_get_exec_cpp();
-    E->term_handler() ;
+    E->term_handler();
     return;
 }
 
-void usr1_hand(int sig __attribute__ ((unused))) {
+void usr1_hand(int sig __attribute__((unused)))
+{
     Trick::Executive * E = exec_get_exec_cpp();
-    E->usr1_handler() ;
+    E->usr1_handler();
     return;
 }

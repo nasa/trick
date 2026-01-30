@@ -6,22 +6,22 @@
 #ifndef RTILIST_HH
 #define RTILIST_HH
 
-#include <vector>
 #include "trick/RtiEvent.hh"
+#include <vector>
 
-namespace Trick {
+namespace Trick
+{
 
-class RtiList {
-    public:
-        void execute( bool debug ) ;
+class RtiList
+{
+public:
+    void execute(bool debug);
 
-        void print_list() ;
+    void print_list();
 
-        std::vector<RtiEventBase * > event_list ;
-} ;
+    std::vector<RtiEventBase *> event_list;
+};
 
-}
+} // namespace Trick
 
 #endif
-
-

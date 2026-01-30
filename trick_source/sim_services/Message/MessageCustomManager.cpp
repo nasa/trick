@@ -2,10 +2,12 @@
 #include "trick/Message_proto.hh"
 #include "trick/memorymanager_c_intf.h"
 
-Trick::MessageCustomManager * the_message_custom_manager ;
+Trick::MessageCustomManager * the_message_custom_manager;
 
-int open_custom_message_file(std::string file_name, std::string subscriber_name, int level) {
-    if (the_message_custom_manager == NULL) {
+int open_custom_message_file(std::string file_name, std::string subscriber_name, int level)
+{
+    if(the_message_custom_manager == NULL)
+    {
         std::cout << "Problem: custom_message_manager not yet instantiated" << std::endl;
         return -1;
     }
@@ -16,20 +18,25 @@ int open_custom_message_file(std::string file_name, std::string subscriber_name,
 /**
  @brief The constructor.
     */
-Trick::MessageCustomManager::MessageCustomManager() {
+Trick::MessageCustomManager::MessageCustomManager()
+{
     the_message_custom_manager = this;
 }
 
-Trick::MessageCustomManager::~MessageCustomManager() {
+Trick::MessageCustomManager::~MessageCustomManager()
+{
     the_message_custom_manager = NULL;
-    
-    for (Trick::MessageCustomFile *  message_file : _custom_message_files) {
+
+    for(Trick::MessageCustomFile * message_file : _custom_message_files)
+    {
         TMM_delete_var_a(message_file);
     }
 }
 
-int Trick::MessageCustomManager::open_custom_message_file(std::string file_name, std::string subscriber_name, int level) {
-    Trick::MessageCustomFile * new_message_file = (Trick::MessageCustomFile *) TMM_declare_var_s("Trick::MessageCustomFile");
+int Trick::MessageCustomManager::open_custom_message_file(std::string file_name, std::string subscriber_name, int level)
+{
+    Trick::MessageCustomFile * new_message_file = (Trick::MessageCustomFile *)TMM_declare_var_s(
+        "Trick::MessageCustomFile");
 
     new_message_file->set_level(level);
     new_message_file->set_file_name(file_name);
@@ -44,14 +51,18 @@ int Trick::MessageCustomManager::open_custom_message_file(std::string file_name,
 /**
  @brief Output message to the file.
     */
-void Trick::MessageCustomManager::update( unsigned int level , std::string header , std::string message ) {
-    for (auto message_file : _custom_message_files) {
+void Trick::MessageCustomManager::update(unsigned int level, std::string header, std::string message)
+{
+    for(auto message_file : _custom_message_files)
+    {
         message_file->update(level, header, message);
     }
 }
 
-int Trick::MessageCustomManager::restart( ) {
-    for (auto message_file : _custom_message_files) {
+int Trick::MessageCustomManager::restart()
+{
+    for(auto message_file : _custom_message_files)
+    {
         message_file->restart();
     }
 

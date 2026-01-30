@@ -26,22 +26,31 @@ NOTE - deliberately not using templates here because of the difficulty of having
 *****************************************************************************/
 class MonteCarloVariableRandom : public MonteCarloVariable
 {
- protected:
-  std::mt19937 random_generator; /* (--)
-      the basic random-generator used by all different types of random number
-      generators in the <random> library. */
-  unsigned int seed_m; /* (--)
-      the value used to seed the generator.*/
- public:
-  MonteCarloVariableRandom(const std::string & var_name, unsigned int seed = 0): MonteCarloVariable(var_name),random_generator(seed),seed_m(seed) //changed seed member variable to seed_m
-  {
-    type = MonteCarloVariable::Random;
-  }
-  virtual ~MonteCarloVariableRandom(){};
-  unsigned int get_seed() const {return seed_m;} // override but SWIG cannot process the
-                                               // override keyword
- private: // and undefined:
-  MonteCarloVariableRandom( const MonteCarloVariableRandom & );
-  MonteCarloVariableRandom& operator = (const MonteCarloVariableRandom&);
+protected:
+    std::mt19937 random_generator; /* (--)
+        the basic random-generator used by all different types of random number
+        generators in the <random> library. */
+    unsigned int seed_m;           /* (--)
+                  the value used to seed the generator.*/
+public:
+    MonteCarloVariableRandom(const std::string & var_name, unsigned int seed = 0)
+        : MonteCarloVariable(var_name),
+          random_generator(seed),
+          seed_m(seed) // changed seed member variable to seed_m
+    {
+        type = MonteCarloVariable::Random;
+    }
+
+    virtual ~MonteCarloVariableRandom() {}
+
+    unsigned int get_seed() const
+    {
+        return seed_m;
+    } // override but SWIG cannot process the
+
+    // override keyword
+private: // and undefined:
+    MonteCarloVariableRandom(const MonteCarloVariableRandom &);
+    MonteCarloVariableRandom & operator=(const MonteCarloVariableRandom &);
 };
 #endif

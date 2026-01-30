@@ -24,27 +24,27 @@ DEFAULT DATA:
 #ifndef BALL_PROTO_H
 #define BALL_PROTO_H
 
-#include "ball/L1/include/ball_state.h"
 #include "ball/L1/include/ball_force.h"
+#include "ball/L1/include/ball_state.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int ball_force_default_data(BFORCE*) ;
-int ball_force_field(BFORCE*,double*) ;
-//int ball_malf( BFORCE *F , double *pos ) ;
-//int ball_malf_trigger( double curr_time ) ;
-int ball_print(BSTATE*) ;
-int ball_state_default_data(BSTATE*) ;
-int ball_state_deriv(BSTATE*) ;
-int ball_state_init(BSTATE*) ;
-int ball_state_integ(BSTATE*) ;
-int ball_state_alt_integ(BSTATE*) ;
+    int ball_force_default_data(BFORCE *);
+    int ball_force_field(BFORCE *, double *);
+    // int ball_malf( BFORCE *F , double *pos ) ;
+    // int ball_malf_trigger( double curr_time ) ;
+    int ball_print(BSTATE *);
+    int ball_state_default_data(BSTATE *);
+    int ball_state_deriv(BSTATE *);
+    int ball_state_init(BSTATE *);
+    int ball_state_integ(BSTATE *);
+    int ball_state_alt_integ(BSTATE *);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

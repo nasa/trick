@@ -6,90 +6,92 @@ LIBRARY DEPENDENCIES:
 
 #ifndef _POOL_TABLE_H_
 #define _POOL_TABLE_H_
-#include "trick/regula_falsi.h"
 #include "ball.hh"
 #include "bumper.hh"
 #include "pocket.hh"
+#include "trick/regula_falsi.h"
 #include <vector>
 
+class PoolTable
+{
+public:
+    PoolTable()
+        : numBalls(0),
+          numAssociations(0)
+    {
+    }
 
-class PoolTable {
+    int default_data();
+    int state_init();
+    int state_deriv();
+    int state_integ();
+    double collision();
+    // double bumperCollision();
 
-    public:
-        PoolTable () : numBalls(0), numAssociations(0) {}
+    int addBall(double x, double y, double mass, double radius, bool fixed);
+    int addBumper(int numPoints, double x1, double y1, double x2, double y2);
+    int addPointToBumper(int id, double x, double y);
+    int addPointToTable(double x, double y);
+    int addPocket(double x, double y, double r);
 
-        int default_data();
-        int state_init();
-        int state_deriv();
-        int state_integ();
-        double collision();
-        // double bumperCollision();
+    int setBallPos(int id, double x, double y);
+    int setBallVel(int id, double v_x, double v_y);
 
-        int addBall (double x, double y, double mass, double radius, bool fixed);
-        int addBumper (int numPoints, double x1, double y1, double x2, double y2);
-        int addPointToBumper(int id, double x, double y);
-        int addPointToTable(double x, double y);
-        int addPocket(double x, double y, double r);
+    void applyCueForce(double x_end, double y_end);
+    void applyCueForce(
+        double x_end, double y_end, double cueHorizontalDisplacement, double cueVerticalDisplacement, double cueAngle);
 
-        int setBallPos(int id, double x, double y);
-        int setBallVel(int id, double v_x, double v_y);
+    void resetCueBall(double x, double y);
+    void resetCueBall();
 
-        void applyCueForce(double x_end, double y_end);
-        void applyCueForce(double x_end, double y_end, double cueHorizontalDisplacement, double cueVerticalDisplacement, double cueAngle);
+    double removeBall(int id);
 
-        void resetCueBall(double x, double y);
-        void resetCueBall();
+    // State variables
+    Ball ** balls;
 
-        double removeBall(int id);
+    // Table parameters
+    // Bumpers and pockets are used by sim, tableShape is just used by graphics client
+    Bumper ** bumpers;
+    Pocket ** pockets;
+    Vec ** tableShape;
 
+    unsigned int numBumpers;
+    unsigned int numPockets;
+    unsigned int numTablePoints;
 
-        // State variables
-        Ball** balls;
+    int nextBallSlot = 0;
+    int nextBumperSlot = 0;
+    int nextPocketSlot = 0;
+    int nextTablePointSlot = 0;
 
-        // Table parameters
-        // Bumpers and pockets are used by sim, tableShape is just used by graphics client
-        Bumper** bumpers;
-        Pocket** pockets;
-        Vec** tableShape;
+    enum PolygonType tableShapeType;
 
-        unsigned int numBumpers;
-        unsigned int numPockets;
-        unsigned int numTablePoints;
+    // Ball-ball collisions
+    unsigned int numBalls;
+    unsigned int numAssociations;
+    REGULA_FALSI * ballAssociations;
 
-        int nextBallSlot = 0;
-        int nextBumperSlot = 0;
-        int nextPocketSlot = 0;
-        int nextTablePointSlot = 0;
+    // Ball-bumper collisions
+    unsigned int bumperBallCombos;
+    REGULA_FALSI * bumperAssociations;
 
-        enum PolygonType tableShapeType;
+    // Ball-pocket collisions
+    unsigned int pocketBallCombos;
+    REGULA_FALSI * pocketAssociations;
 
-        // Ball-ball collisions
-        unsigned int numBalls;
-        unsigned int numAssociations;
-        REGULA_FALSI* ballAssociations;
+    // Sim constants that should be user-controllable
+    double frictionRolling = 0.05;
+    double frictionSliding = 0.25;
+    double frictionScale = 1;
+    double frictionTolerance = 0.0005;
+    double coefficientOfElasticity = .95;
+    double cueForceScale = 0.6;
+    double cueMass = 1.0;
 
-        // Ball-bumper collisions
-        unsigned int bumperBallCombos;
-        REGULA_FALSI* bumperAssociations;
+    int cueBallIndex = 0;
+    double defaultCueBallX = -0.3;
+    double defaultCueBallY = 0;
 
-        // Ball-pocket collisions
-        unsigned int pocketBallCombos;
-        REGULA_FALSI* pocketAssociations;
-
-        // Sim constants that should be user-controllable
-        double frictionRolling = 0.05;
-        double frictionSliding = 0.25; 
-        double frictionScale = 1;
-        double frictionTolerance = 0.0005;
-        double coefficientOfElasticity = .95;
-        double cueForceScale = 0.6;
-        double cueMass = 1.0;
-
-        int cueBallIndex = 0;
-        double defaultCueBallX = -0.3;
-        double defaultCueBallY = 0;
-
-        bool allowCollisions = true;
-
+    bool allowCollisions = true;
 };
 #endif

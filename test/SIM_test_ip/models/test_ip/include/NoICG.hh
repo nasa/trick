@@ -13,12 +13,10 @@ LIBRARY DEPENDENCY:
 #ifndef NOICG_HH
 #define NOICG_HH
 
-class DoNotICG {
-
-    public:
-        int ii ;
-
-} ;
+class DoNotICG
+{
+public:
+    int ii;
+};
 
 #endif /* _BALL_HH_ */
-

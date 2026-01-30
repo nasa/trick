@@ -22,10 +22,10 @@ PROGRAMMERS:
 #include "trick/regula_falsi.h"
 
 void reset_regula_falsi(
-                           /* Return: Estimated time (seconds) to go to error
-                                      function zero point */
-        double time,       /* In: Current time - input (seconds) */
-        REGULA_FALSI * R)  /* Inout: Regula Falsi parameters */
+    /* Return: Estimated time (seconds) to go to error
+               function zero point */
+    double time,      /* In: Current time - input (seconds) */
+    REGULA_FALSI * R) /* Inout: Regula Falsi parameters */
 {
     R->delta_time = BIG_TGO;
     R->lower_set = 0;

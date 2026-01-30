@@ -7,22 +7,30 @@ PROGRAMMERS:
 
 #include "trick/Timer.hh"
 
-Trick::Timer::Timer() : enabled(false) , active(false) {}
-
-int Trick::Timer::enable() {
-    enabled = true ;
-    return(0) ;
+Trick::Timer::Timer()
+    : enabled(false),
+      active(false)
+{
 }
 
-int Trick::Timer::disable() {
-    enabled = false ;
-    return(0) ;
+int Trick::Timer::enable()
+{
+    enabled = true;
+    return (0);
 }
 
-bool Trick::Timer::get_enabled() {
-    return(enabled) ;
+int Trick::Timer::disable()
+{
+    enabled = false;
+    return (0);
 }
 
-void Trick::Timer::set_active(bool in_active) {
-    active = in_active ;
+bool Trick::Timer::get_enabled()
+{
+    return (enabled);
+}
+
+void Trick::Timer::set_active(bool in_active)
+{
+    active = in_active;
 }

@@ -27,49 +27,42 @@ PROGRAMMERS:
 /* Model include files. */
 #include <stdio.h>
 
-#include "trick/integrator_c_intf.h"
 #include "Ball.hh"
+#include "trick/integrator_c_intf.h"
 #include <iostream>
 
 /* ENTRY POINT */
-int Ball::state_integ() {
+int Ball::state_integ()
+{
+    int ipass;
 
-   int ipass;
+    /* GET SHORTHAND NOTATION FOR DATA STRUCTURES */
+    BallStateOutput * state_out = &(this->state.output);
 
-   /* GET SHORTHAND NOTATION FOR DATA STRUCTURES */
-   BallStateOutput * state_out = &(this->state.output);
+    /* LOAD THE POSITION AND VELOCITY STATES */
+    load_state(&state_out->position[0],
+               &state_out->position[1],
+               &state_out->velocity[0],
+               &state_out->velocity[1],
+               NULL);
 
-   /* LOAD THE POSITION AND VELOCITY STATES */
-   load_state(
-       &state_out->position[0] ,
-       &state_out->position[1] ,
-       &state_out->velocity[0] ,
-       &state_out->velocity[1] ,
-       NULL
-   );
+    /* LOAD THE POSITION AND VELOCITY STATE DERIVATIVES */
+    load_deriv(&state_out->velocity[0],
+               &state_out->velocity[1],
+               &state_out->acceleration[0],
+               &state_out->acceleration[1],
+               NULL);
 
-   /* LOAD THE POSITION AND VELOCITY STATE DERIVATIVES */
-   load_deriv(
-       &state_out->velocity[0] ,
-       &state_out->velocity[1] ,
-       &state_out->acceleration[0] ,
-       &state_out->acceleration[1] ,
-       NULL
-   );
+    /* CALL THE TRICK INTEGRATION SERVICE */
+    ipass = integrate();
 
-   /* CALL THE TRICK INTEGRATION SERVICE */
-   ipass = integrate();
+    /* UNLOAD THE NEW POSITION AND VELOCITY STATES */
+    unload_state(&state_out->position[0],
+                 &state_out->position[1],
+                 &state_out->velocity[0],
+                 &state_out->velocity[1],
+                 NULL);
 
-   /* UNLOAD THE NEW POSITION AND VELOCITY STATES */
-   unload_state(
-       &state_out->position[0] ,
-       &state_out->position[1] ,
-       &state_out->velocity[0] ,
-       &state_out->velocity[1] ,
-       NULL
-   );
-
-   /* RETURN */
-   return( ipass );
-
+    /* RETURN */
+    return (ipass);
 }

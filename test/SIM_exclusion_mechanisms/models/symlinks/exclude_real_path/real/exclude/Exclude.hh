@@ -6,12 +6,14 @@
  * code that does not compile (as long as
  * https://github.com/nasa/trick/issues/422 isn't fixed).
  */
-class Exclude6A {
-    private:
-    void operator=(const Exclude6A&);
+class Exclude6A
+{
+private:
+    void operator=(const Exclude6A &);
 };
 
-class Exclude6B {
+class Exclude6B
+{
     const std::vector<Exclude6A> foos;
 };
 

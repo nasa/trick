@@ -16,10 +16,8 @@
 Purpose: ()
 */
 
-
 #ifndef ER7_UTILS_CONFIG_TRICK10_HH
 #define ER7_UTILS_CONFIG_TRICK10_HH
-
 
 /**
  * @def ER7_UTILS_CLASS_ESTABLISH_FRIENDS
@@ -30,16 +28,15 @@ Purpose: ()
 
 #ifndef SWIG
 
-#define ER7_UTILS_CLASS_ESTABLISH_FRIENDS(class_name) \
-   friend class InputProcessor; \
-   friend void init_attrer7_utils__ ## class_name();
+#define ER7_UTILS_CLASS_ESTABLISH_FRIENDS(class_name)                                                                  \
+    friend class InputProcessor;                                                                                       \
+    friend void init_attrer7_utils__##class_name();
 
 #else
 #define ER7_UTILS_CLASS_ESTABLISH_FRIENDS(class_name)
 #endif
 
 #endif
-
 
 /**
  * @def ER7_UTILS_NEED_AUX_INCLUDES
@@ -53,7 +50,6 @@ Purpose: ()
 #ifndef ER7_UTILS_NEED_AUX_INCLUDES
 #define ER7_UTILS_NEED_AUX_INCLUDES
 #endif
-
 
 #endif
 /**

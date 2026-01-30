@@ -7,40 +7,44 @@
 
 #include "trick/bitfield_proto.h"
 
-int extract_bitfield_any(int value,     /* In: Value to extract bits from */
-                         int size,      /* In: Declared size of bitfield */
-                         int start,     /* In: Starting bit */
+int extract_bitfield_any(int value, /* In: Value to extract bits from */
+                         int size,  /* In: Declared size of bitfield */
+                         int start, /* In: Starting bit */
                          int bits)
-{                                      /* In: Number of bits in bitfield */
+{ /* In: Number of bits in bitfield */
 
     int i = 0, j = 0;
     unsigned int mask;
     unsigned int bf;
     int sbf;
-    union {
+
+    union
+    {
         long l;
         char c[sizeof(long)];
     } un;
-    un.l = 1;                          /* Used for Little/Big Endian Detection */
+
+    un.l = 1; /* Used for Little/Big Endian Detection */
 
     bf = 0x00000000;
     sbf = 0x00000000;
 
-    if (un.c[sizeof(long) - 1] == 1) {
-
+    if(un.c[sizeof(long) - 1] == 1)
+    {
         /*
          * Big endian
          */
 
         mask = 0x00000001 << (start + bits - 1);
 
-        if (mask & value) {
-
+        if(mask & value)
+        {
             /*
              * This is a negative value
              */
 
-            for (i = start, j = 0; j < bits; i++, j++) {
+            for(i = start, j = 0; j < bits; i++, j++)
+            {
                 /*
                  * First, turn off all bits associated with
                  * this bit field within the unsigned integer.
@@ -48,18 +52,21 @@ int extract_bitfield_any(int value,     /* In: Value to extract bits from */
                  * appropriate bits in the unsigned integer.
                  */
                 mask = 0x00000001 << i;
-                if ((value & mask) != mask) {
+                if((value & mask) != mask)
+                {
                     sbf |= mask;
                 }
             }
             sbf = -((sbf >> start) + 1);
-        } else {
-
+        }
+        else
+        {
             /*
              * This is a positive value
              */
 
-            for (i = start, j = 0; j < bits; i++, j++) {
+            for(i = start, j = 0; j < bits; i++, j++)
+            {
                 /*
                  * First, turn off all bits associated with
                  * this bit field within the unsigned integer.
@@ -67,14 +74,16 @@ int extract_bitfield_any(int value,     /* In: Value to extract bits from */
                  * bits in the unsigned integer.
                  */
                 mask = 0x00000001 << i;
-                if ((value & mask) == mask) {
+                if((value & mask) == mask)
+                {
                     bf |= mask;
                 }
             }
             sbf = bf >> start;
         }
-    } else {
-
+    }
+    else
+    {
         /*
          * Little endian
          */
@@ -83,14 +92,20 @@ int extract_bitfield_any(int value,     /* In: Value to extract bits from */
          * Shift the bit field contents of the current value
          * to the lsb of the underlying int.
          */
-        if (size == sizeof(short)) {
+        if(size == sizeof(short))
+        {
             value = value << 16;
-        } else if (size == sizeof(char)) {
+        }
+        else if(size == sizeof(char))
+        {
             value = value << 24;
         }
-        if ((start + bits) < 32) {
+        if((start + bits) < 32)
+        {
             bf = (value) >> (32 - start - bits);
-        } else {
+        }
+        else
+        {
             bf = value;
         }
 
@@ -100,21 +115,25 @@ int extract_bitfield_any(int value,     /* In: Value to extract bits from */
         /* If this bitfield is a signed bitfield and the sign bit is set, take the two's complement of the value. */
         mask = 0x00000001 << (bits - 1);
 
-        if (mask & bf) {
+        if(mask & bf)
+        {
             /* This bitfield is signed and has the sign bit set. Set sbf to the reverse bits of the bitfield contents.
                Then right shift and add 1. */
 
             sbf = 0x00000000;
-            for (i = 0; i < bits; i++) {
+            for(i = 0; i < bits; i++)
+            {
                 mask = 0x00000001 << i;
-                if ((bf & mask) != mask) {
+                if((bf & mask) != mask)
+                {
                     sbf |= mask;
                 }
             }
 
             sbf = -(sbf + 1);
-
-        } else {
+        }
+        else
+        {
             sbf = bf;
         }
     }

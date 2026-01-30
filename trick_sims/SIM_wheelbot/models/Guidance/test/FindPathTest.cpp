@@ -1,182 +1,172 @@
-#include <gtest/gtest.h>
 #include "findpath.hh"
 #include "arena.hh"
 #include <algorithm>
+#include <gtest/gtest.h>
 #include <vector>
 
 TEST(FindPathTest, FindPath_one)
 {
- //Tests the failure case of the FindPath function
- //This is when the goal is completely blocked
- Arena arena(10,7);
- Arena* testarena;
- testarena = &arena;
+    // Tests the failure case of the FindPath function
+    // This is when the goal is completely blocked
+    Arena arena(10, 7);
+    Arena * testarena;
+    testarena = &arena;
 
- GridSquare *origin = arena.getGridSquare(2,1);
- GridSquare *goal = arena.getGridSquare(7,5);
+    GridSquare * origin = arena.getGridSquare(2, 1);
+    GridSquare * goal = arena.getGridSquare(7, 5);
 
- arena.block(7,4);
- arena.block(6,4);
- arena.block(8,4);
- arena.block(6,5);
- arena.block(8,5);
- arena.block(6,6);
- arena.block(8,6);
+    arena.block(7, 4);
+    arena.block(6, 4);
+    arena.block(8, 4);
+    arena.block(6, 5);
+    arena.block(8, 5);
+    arena.block(6, 6);
+    arena.block(8, 6);
 
- std::cout << std::endl;
+    std::cout << std::endl;
 
- std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
+    std::vector<Point> returnvalue = FindPath(origin, goal, testarena);
 
- std::cout << std::endl;
- std::cout << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
 
- EXPECT_EQ(returnvalue.size(),0);
-
+    EXPECT_EQ(returnvalue.size(), 0);
 }
 
 TEST(FindPathTest, FindPath_two)
 {
- //Tests if FindPath finds a path
- Arena arena(10,7);
- Arena* testarena;
- testarena = &arena;
+    // Tests if FindPath finds a path
+    Arena arena(10, 7);
+    Arena * testarena;
+    testarena = &arena;
 
- GridSquare *origin = arena.getGridSquare(2,1);
- GridSquare *goal = arena.getGridSquare(7,5);
+    GridSquare * origin = arena.getGridSquare(2, 1);
+    GridSquare * goal = arena.getGridSquare(7, 5);
 
+    arena.block(2, 0);
+    arena.block(7, 1);
+    arena.block(0, 2);
+    arena.block(1, 2);
+    arena.block(3, 2);
+    arena.block(6, 2);
+    arena.block(3, 3);
+    arena.block(6, 3);
+    arena.block(8, 3);
+    arena.block(2, 4);
+    arena.block(3, 4);
+    arena.block(6, 4);
+    arena.block(8, 4);
+    arena.block(2, 5);
+    arena.block(6, 6);
+    arena.block(7, 6);
 
- arena.block(2,0);
- arena.block(7,1);
- arena.block(0,2);
- arena.block(1,2);
- arena.block(3,2);
- arena.block(6,2);
- arena.block(3,3);
- arena.block(6,3);
- arena.block(8,3);
- arena.block(2,4);
- arena.block(3,4);
- arena.block(6,4);
- arena.block(8,4);
- arena.block(2,5);
- arena.block(6,6);
- arena.block(7,6);
+    std::vector<Point> returnvalue = FindPath(origin, goal, testarena);
 
- std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
-
- EXPECT_GT(returnvalue.size(),0);
-
+    EXPECT_GT(returnvalue.size(), 0);
 }
 
 TEST(FindPathTest, FindPath_three)
 {
- //Tests if FindPath finds a path when start and goal are the same
- Arena arena(10,7);
- Arena* testarena;
- testarena = &arena;
+    // Tests if FindPath finds a path when start and goal are the same
+    Arena arena(10, 7);
+    Arena * testarena;
+    testarena = &arena;
 
- GridSquare *origin = arena.getGridSquare(2,1);
- GridSquare *goal = arena.getGridSquare(2,1);
+    GridSquare * origin = arena.getGridSquare(2, 1);
+    GridSquare * goal = arena.getGridSquare(2, 1);
 
+    arena.block(2, 0);
+    arena.block(7, 1);
+    arena.block(0, 2);
+    arena.block(1, 2);
+    arena.block(3, 2);
+    arena.block(6, 2);
+    arena.block(3, 3);
+    arena.block(6, 3);
+    arena.block(8, 3);
+    arena.block(2, 4);
+    arena.block(3, 4);
+    arena.block(6, 4);
+    arena.block(8, 4);
+    arena.block(2, 5);
+    arena.block(6, 6);
+    arena.block(7, 6);
 
- arena.block(2,0);
- arena.block(7,1);
- arena.block(0,2);
- arena.block(1,2);
- arena.block(3,2);
- arena.block(6,2);
- arena.block(3,3);
- arena.block(6,3);
- arena.block(8,3);
- arena.block(2,4);
- arena.block(3,4);
- arena.block(6,4);
- arena.block(8,4);
- arena.block(2,5);
- arena.block(6,6);
- arena.block(7,6);
+    std::vector<Point> returnvalue = FindPath(origin, goal, testarena);
 
- std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
-
- EXPECT_EQ(returnvalue.size(),1);
-
+    EXPECT_EQ(returnvalue.size(), 1);
 }
 
 TEST(FindPathTest, FindPath_four)
 {
- //Tests if FindPath finds a path when start is outside the arena
- Arena arena(10,7);
- Arena* testarena;
- testarena = &arena;
+    // Tests if FindPath finds a path when start is outside the arena
+    Arena arena(10, 7);
+    Arena * testarena;
+    testarena = &arena;
 
- GridSquare *origin = arena.getGridSquare(11,13);
- GridSquare *goal = arena.getGridSquare(2,1);
+    GridSquare * origin = arena.getGridSquare(11, 13);
+    GridSquare * goal = arena.getGridSquare(2, 1);
 
+    arena.block(2, 0);
+    arena.block(7, 1);
+    arena.block(0, 2);
+    arena.block(1, 2);
+    arena.block(3, 2);
+    arena.block(6, 2);
+    arena.block(3, 3);
+    arena.block(6, 3);
+    arena.block(8, 3);
+    arena.block(2, 4);
+    arena.block(3, 4);
+    arena.block(6, 4);
+    arena.block(8, 4);
+    arena.block(2, 5);
+    arena.block(6, 6);
+    arena.block(7, 6);
 
+    std::cout << std::endl;
+    std::vector<Point> returnvalue = FindPath(origin, goal, testarena);
+    std::cout << std::endl;
+    std::cout << std::endl;
 
- arena.block(2,0);
- arena.block(7,1);
- arena.block(0,2);
- arena.block(1,2);
- arena.block(3,2);
- arena.block(6,2);
- arena.block(3,3);
- arena.block(6,3);
- arena.block(8,3);
- arena.block(2,4);
- arena.block(3,4);
- arena.block(6,4);
- arena.block(8,4);
- arena.block(2,5);
- arena.block(6,6);
- arena.block(7,6);
-
- std::cout << std::endl;
- std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
- std::cout << std::endl;
- std::cout << std::endl;
-
- EXPECT_EQ(returnvalue.size(),0);
-
+    EXPECT_EQ(returnvalue.size(), 0);
 }
 
 TEST(FindPathTest, FindPath_five)
 {
- //Tests if FindPath finds a path when goal is outside the arena
- Arena arena(10,7);
- Arena* testarena;
- testarena = &arena;
+    // Tests if FindPath finds a path when goal is outside the arena
+    Arena arena(10, 7);
+    Arena * testarena;
+    testarena = &arena;
 
- GridSquare *origin = arena.getGridSquare(2,1);
- GridSquare *goal = arena.getGridSquare(11,12);
+    GridSquare * origin = arena.getGridSquare(2, 1);
+    GridSquare * goal = arena.getGridSquare(11, 12);
 
+    arena.block(2, 0);
+    arena.block(7, 1);
+    arena.block(0, 2);
+    arena.block(1, 2);
+    arena.block(3, 2);
+    arena.block(6, 2);
+    arena.block(3, 3);
+    arena.block(6, 3);
+    arena.block(8, 3);
+    arena.block(2, 4);
+    arena.block(3, 4);
+    arena.block(6, 4);
+    arena.block(8, 4);
+    arena.block(2, 5);
+    arena.block(6, 6);
+    arena.block(7, 6);
 
- arena.block(2,0);
- arena.block(7,1);
- arena.block(0,2);
- arena.block(1,2);
- arena.block(3,2);
- arena.block(6,2);
- arena.block(3,3);
- arena.block(6,3);
- arena.block(8,3);
- arena.block(2,4);
- arena.block(3,4);
- arena.block(6,4);
- arena.block(8,4);
- arena.block(2,5);
- arena.block(6,6);
- arena.block(7,6);
+    std::cout << std::endl;
 
- std::cout << std::endl;
+    std::vector<Point> returnvalue = FindPath(origin, goal, testarena);
 
- std::vector<Point> returnvalue = FindPath(origin,goal,testarena);
+    std::cout << std::endl;
+    std::cout << std::endl;
 
- std::cout << std::endl;
- std::cout << std::endl;
-
- EXPECT_EQ(returnvalue.size(),0);
-
+    EXPECT_EQ(returnvalue.size(), 0);
 }
 
 /*TEST(FindPathTest, FindPath_three)

@@ -28,46 +28,47 @@ PURPOSE:
 #endif
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-        typedef enum {
-
-                Off = 0,
-                On = 1,
-                No = 0,
-                Yes = 1,
+    typedef enum
+    {
+        Off = 0,
+        On = 1,
+        No = 0,
+        Yes = 1,
 #ifndef SWIG
-                False = 0,
-                True = 1,
+        False = 0,
+        True = 1,
 #endif
-                Disconnect = 0,
-                Connect = 1,
-                Inactive = 0,
-                Active = 1,
-                Stop = 0,
-                Go = 1,
-                Low = 0,
-                High = 1,
-                Disable = 0,
-                Enable = 1,
-                TRUE = 255,     /* FORTRAN Logical TRUE */
-                FALSE = 0,      /* FORTRAN Logical FALSE */
-                Open = 0,
-                Closed = 1,
+        Disconnect = 0,
+        Connect = 1,
+        Inactive = 0,
+        Active = 1,
+        Stop = 0,
+        Go = 1,
+        Low = 0,
+        High = 1,
+        Disable = 0,
+        Enable = 1,
+        TRUE = 255, /* FORTRAN Logical TRUE */
+        FALSE = 0,  /* FORTRAN Logical FALSE */
+        Open = 0,
+        Closed = 1,
 
-                /* Stamps flags */
-                OFF = 0,
-                ON = 1,
-                NO = 0,
-                YES = 1,
-                INACTIVE = 0,
-                ACTIVE = 1,
-                BACKWARD = 0,
-                FORWARD = 1,
-                BAD = 0,
-                GOOD = 1
-        } Flag;
+        /* Stamps flags */
+        OFF = 0,
+        ON = 1,
+        NO = 0,
+        YES = 1,
+        INACTIVE = 0,
+        ACTIVE = 1,
+        BACKWARD = 0,
+        FORWARD = 1,
+        BAD = 0,
+        GOOD = 1
+    } Flag;
 
 #ifdef __cplusplus
 }

@@ -16,64 +16,61 @@
 #ifndef MESSAGEFILE_HH
 #define MESSAGEFILE_HH
 
-#include <string>
-#include <iostream>
-#include <fstream>
 #include "trick/MessageSubscriber.hh"
+#include <fstream>
+#include <iostream>
+#include <string>
 
-namespace Trick {
+namespace Trick
+{
+
+/**
+ * This MessageFile is a class that inherits from MessageSubscriber.
+ * It defines a type of MessageSubscriber with its received message sending to a file.
+ */
+class MessageFile : public MessageSubscriber
+{
+public:
+    /** The file name of a file which the messages goes to. \n*/
+    std::string file_name; /**< trick_units(--) trick_io(io) */
 
     /**
-     * This MessageFile is a class that inherits from MessageSubscriber.
-     * It defines a type of MessageSubscriber with its received message sending to a file.
+     @brief The constructor.
      */
-    class MessageFile : public MessageSubscriber {
+    MessageFile();
 
-        public:
+    /**
+     @brief The destructor.
+     */
+    ~MessageFile();
 
-            /** The file name of a file which the messages goes to. \n*/
-            std::string file_name ; /**< trick_units(--) trick_io(io) */
+    /**
+     @brief Output message to the file.
+     */
+    virtual void update(unsigned int level, std::string header, std::string message);
 
-            /**
-             @brief The constructor.
-             */
-            MessageFile() ;
+    /**
+     @brief Set a file name for a file which the messages received by this subscriber goes to.
+     @return always 0
+     */
+    int set_file_name(std::string in_name);
 
-            /**
-             @brief The destructor.
-             */
-            ~MessageFile() ;
+    /**
+     @brief Initializes this subscriber.
+     @return always 0
+     */
+    virtual int init();
 
-            /**
-             @brief Output message to the file.
-             */
-            virtual void update( unsigned int level , std::string header , std::string message );
+    virtual int restart();
 
-            /**
-             @brief Set a file name for a file which the messages received by this subscriber goes to.
-             @return always 0
-             */
-            int set_file_name(std::string in_name) ;
+protected:
+    /** The output file stream. \n */
+    std::fstream out_stream; /**< trick_io(**) */
 
-            /**
-             @brief Initializes this subscriber.
-             @return always 0
-             */
-            virtual int init() ;
+    // This object is not copyable (fstream).  Add private copy so SWIG knows not to wrap this
+    void operator=(const Trick::MessageFile &) {}
+};
 
-            virtual int restart() ;
-
-
-        protected:
-            /** The output file stream. \n */
-            std::fstream out_stream ;    /**< trick_io(**) */
-
-            // This object is not copyable (fstream).  Add private copy so SWIG knows not to wrap this
-            void operator =(const Trick::MessageFile &) {};
-
-    } ;
-
-}
+} // namespace Trick
 
 #endif
-

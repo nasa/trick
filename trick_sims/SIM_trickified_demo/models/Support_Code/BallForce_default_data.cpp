@@ -24,20 +24,19 @@ PROGRAMMERS:
 *******************************************************************************/
 
 /* System include files. */
-#include <stdexcept>
 #include <math.h>
+#include <stdexcept>
 
 /* Model include files. */
 #include "BallForce.hh"
 
 /* ENTRY POINT */
-int BallForce::default_data() {
-
+int BallForce::default_data()
+{
     // This data is the same as in the constructor.
-    input.origin[0] = 0.0 ;
-    input.origin[1] = 2.0 ;
-    input.force = 8.0 ;
+    input.origin[0] = 0.0;
+    input.origin[1] = 2.0;
+    input.force = 8.0;
 
-    return(0) ;
+    return (0);
 }
-

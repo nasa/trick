@@ -8,22 +8,22 @@ PROGRAMMERS:
 
 #ifndef UCFN_HH
 #define UCFN_HH
-#include <string.h>
 #include <iostream>
+#include <string.h>
 
-class UCFn {
+class UCFn
+{
 public:
-    double C[2];          /* ** */
-    char   t_name[32];    /* ** */
-    char   f_name[32];    /* ** */
+    double C[2];     /* ** */
+    char t_name[32]; /* ** */
+    char f_name[32]; /* ** */
 
-    UCFn( const char *t_name, const char *f_name, double C1, double C0);
-    double eval( double val);
+    UCFn(const char * t_name, const char * f_name, double C1, double C0);
+    double eval(double val);
 
 #ifndef SWIG
-    friend std::ostream& operator<< ( std::ostream& s, const UCFn *p);
+    friend std::ostream & operator<<(std::ostream & s, const UCFn * p);
 #endif
-
 };
 
 #endif

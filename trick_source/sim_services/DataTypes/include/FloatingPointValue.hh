@@ -5,10 +5,9 @@
 
 /**
  */
-class FloatingPointValue : public NumericValue {
-
-    public:
-
+class FloatingPointValue : public NumericValue
+{
+public:
     /**
      Constructor.
      @param value The value of this FloatingPointValue.
@@ -30,15 +29,14 @@ class FloatingPointValue : public NumericValue {
     /**
      Print this FloatingPointValue to a stream.
      */
-    void print(std::ostream &s);
+    void print(std::ostream & s);
 
     /**
      Get a string representation of this FloatingPointValue.
      */
     std::string toString();
 
-
-    private:
+private:
     double value;
 };
 #endif

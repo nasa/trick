@@ -26,13 +26,11 @@
 Purpose: ()
 */
 
-
 #ifndef ER7_UTILS_CLASS_HH
 #define ER7_UTILS_CLASS_HH
 
 // ER7_UTILS includes
 #include "config.hh"
-
 
 // Some installations may not be able to fit within the confines of the main
 // body of this header. Include the alternate implementation if defined.
@@ -61,23 +59,20 @@ Purpose: ()
 #ifndef ER7_UTILS_MAKE_SIM_INTERFACES
 
 #if (defined ER7_UTILS_CLASS_ESTABLISH_FRIENDS)
-#define ER7_UTILS_MAKE_SIM_INTERFACES(class_name) \
-   ER7_UTILS_CLASS_ESTABLISH_FRIENDS(class_name)
+#define ER7_UTILS_MAKE_SIM_INTERFACES(class_name) ER7_UTILS_CLASS_ESTABLISH_FRIENDS(class_name)
 
 #elif defined(ER7_UTILS_CLASS_FRIEND_CLASS)
-#define ER7_UTILS_MAKE_SIM_INTERFACES(class_name) \
-   friend class ER7_UTILS_CLASS_FRIEND_CLASS;
+#define ER7_UTILS_MAKE_SIM_INTERFACES(class_name) friend class ER7_UTILS_CLASS_FRIEND_CLASS;
 
 #else
 #define ER7_UTILS_MAKE_SIM_INTERFACES(class_name)
 #endif
 
-#endif  // ER7_UTILS_MAKE_SIM_INTERFACES
+#endif // ER7_UTILS_MAKE_SIM_INTERFACES
 
+#endif // ER7_UTILS_CLASS_IMPLEMENTATION_HEADER
 
-#endif  // ER7_UTILS_CLASS_IMPLEMENTATION_HEADER
-
-#endif  // One-time include
+#endif // One-time include
 /**
  * @if Er7UtilsUseGroups
  * @}

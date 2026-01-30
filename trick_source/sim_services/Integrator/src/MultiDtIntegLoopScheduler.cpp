@@ -130,7 +130,7 @@ int MultiDtIntegLoopScheduler::integrate()
         message_publish(MSG_DEBUG, ss.str().c_str());
     }
 
-    double var_next_cycle = (double)(t_end_tics - t_start_tics)/ (double)Trick::JobData::time_tic_value;
+    double var_next_cycle = (double)(t_end_tics - t_start_tics) / (double)Trick::JobData::time_tic_value;
     // Call all of the jobs in the pre-integration job queue.
     if(trick_curr_integ == nullptr)
     {
@@ -247,13 +247,19 @@ int MultiDtIntegLoopScheduler::initialize_rates()
         integ_next_tics[ii] = curr_tics + cycle_tics;
 
         /* Calculate the if the cycle_tics would be a whole number  */
-        double test_rem = fmod(integ_rate * (double)tic_value , 1.0 ) ;
+        double test_rem = fmod(integ_rate * (double)tic_value, 1.0);
 
-        if ( test_rem > 0.001 ) {
-            message_publish(MSG_WARNING,"Integ Scheduler ERROR: Cycle for %lu integ rate idx cannot be exactly scheduled with time tic value. "
-             "cycle = %16.12f, cycle_tics = %lld , time_tic = %16.12f\n",
-             ii , integ_rate, cycle_tics , 1.0 / tic_value ) ;
-            ret = -1 ;
+        if(test_rem > 0.001)
+        {
+            message_publish(
+                MSG_WARNING,
+                "Integ Scheduler ERROR: Cycle for %lu integ rate idx cannot be exactly scheduled with time tic value. "
+                "cycle = %16.12f, cycle_tics = %lld , time_tic = %16.12f\n",
+                ii,
+                integ_rate,
+                cycle_tics,
+                1.0 / tic_value);
+            ret = -1;
         }
     }
 
@@ -287,14 +293,14 @@ int MultiDtIntegLoopScheduler::set_integ_rate(const size_t rate_idx, const doubl
     // Note: This assumes that the one found job pertains to this scheduler.
     if(found_job != NULL)
     {
-        if(integRateIn < (1.0 /exec_get_time_tic_value()))
+        if(integRateIn < (1.0 / exec_get_time_tic_value()))
         {
             message_publish(MSG_ERROR,
                             "Integ Scheduler ERROR: Cycle for %lu integ rate idx is less than time tic value. cycle = "
                             "%16.12f, time_tic = %16.12f\n",
-							rate_idx,
-							integRateIn,
-							exec_get_time_tic_value());
+                            rate_idx,
+                            integRateIn,
+                            exec_get_time_tic_value());
             return 1;
         }
 

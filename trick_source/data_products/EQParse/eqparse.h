@@ -4,11 +4,12 @@
 #include "eqparse_protos.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-/* Global error number */
-        int eqp_errno;
+    /* Global error number */
+    int eqp_errno;
 
 #ifdef __cplusplus
 }

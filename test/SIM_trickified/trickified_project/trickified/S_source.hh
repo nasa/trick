@@ -1,2 +1,2 @@
-#include "Foo.hh"
 #include "Bar.hh"
+#include "Foo.hh"

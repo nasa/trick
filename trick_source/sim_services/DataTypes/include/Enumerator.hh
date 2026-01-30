@@ -3,11 +3,11 @@
 
 #include <string>
 
-class Enumerator {
-
+class Enumerator
+{
 public:
     Enumerator(std::string name, int value);
-    Enumerator( const Enumerator& original);
+    Enumerator(const Enumerator & original);
     std::string getName();
     int getValue();
     std::string toString();

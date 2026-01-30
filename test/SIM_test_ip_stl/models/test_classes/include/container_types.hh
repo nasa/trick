@@ -1,20 +1,19 @@
 /*
-    PURPOSE: (Provides a convenient way to instantiate and use a variety of STL containers 
+    PURPOSE: (Provides a convenient way to instantiate and use a variety of STL containers
               for C++ types/language bindings with SWIG)
     LIBRARY_DEPENDENCIES: (
       ()
     )
 */
 
-
-#include <iostream>
-#include <string>
 #include <cstdint>
 #include <cuchar>
+#include <iostream>
+#include <string>
 
+#include <deque>
 #include <list>
 #include <queue>
-#include <deque>
 
 #include <map>
 #include <unordered_map>
@@ -62,9 +61,7 @@ DECLARE_SWIG_CONTAINER_TYPES(LongDouble, long double)
 
 #endif
 
-
-template<typename T>
-struct STLContainerTypes
+template<typename T> struct STLContainerTypes
 {
     using ArrayType = std::array<T, 3>;
     using VectorType = std::vector<T>;
@@ -83,6 +80,4 @@ struct STLContainerTypes
     MapType map;
     UnorderedMapType unordered_map;
     StackType stack;
-
 };
-

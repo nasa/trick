@@ -2,10 +2,10 @@
 #define ARRAY_DATA_TYPE_HH
 
 #include "DataType.hh"
-#include <stddef.h>
-#include <string>
-#include <stdexcept>
 #include <VarAccessInfo.hh>
+#include <stddef.h>
+#include <stdexcept>
+#include <string>
 
 #define MAX_CONSTRAINED_DIMS 8
 
@@ -13,9 +13,9 @@ class LexicalAnalyzer;
 
 /**
  */
-class ArrayDataType : public DataType {
-
-    public:
+class ArrayDataType : public DataType
+{
+public:
     /**
      Constructor for ArrayDataType.
      @param typeSpecifierName Name of the type on with this type is based.
@@ -23,25 +23,20 @@ class ArrayDataType : public DataType {
      @param n_cdims Number of dimensions. Cannot be 0.
      @param dims dimension sizes.
      */
-    ArrayDataType( TypeDictionary* typeDictionary,
-                   std::string typeSpecifierName,
-                   unsigned int n_dims,
-                   int dims[] )  ;
+    ArrayDataType(TypeDictionary * typeDictionary, std::string typeSpecifierName, unsigned int n_dims, int dims[]);
     /**
      Constructor for ArrayDataType.
      @param typeDictionary The Type Dictionary.
      @param typeSpecifierName Name of the type on with this type is based.
      @param dims dimension sizes.
      */
-    ArrayDataType( TypeDictionary* typeDictionary,
-                   std::string typeSpecName,
-                   unsigned int dimensionSize ) ;
+    ArrayDataType(TypeDictionary * typeDictionary, std::string typeSpecName, unsigned int dimensionSize);
 
     /**
      Create an ArrayDataType with a different elementCount, but otherwise
      identical to the original.
      */
-    ArrayDataType ( const ArrayDataType & original, unsigned int newSize );
+    ArrayDataType(const ArrayDataType & original, unsigned int newSize);
 
     /* ==================================================================== */
     /*                         RULE OF THREE INTERFACE                      */
@@ -50,18 +45,18 @@ class ArrayDataType : public DataType {
     /**
      Copy Constructor for ArrayDataType.
      */
-    ArrayDataType ( const ArrayDataType & original );
+    ArrayDataType(const ArrayDataType & original);
 
     /**
      Destructor for ArrayDataType.
      */
-    ~ArrayDataType ();
+    ~ArrayDataType();
 
     /**
      Assignment operator for ArrayDataType.
      @param rhs right-hand-side.
      */
-    ArrayDataType& operator=( const ArrayDataType & rhs );
+    ArrayDataType & operator=(const ArrayDataType & rhs);
 
     /* ==================================================================== */
     /*                          VIRTUAL INTERFACE                         */
@@ -73,18 +68,19 @@ class ArrayDataType : public DataType {
 
     /**
      */
-    DataType * clone () const;
+    DataType * clone() const;
 
     /**
      */
-     bool validate();
+    bool validate();
 
     /**
      @return The size (in bytes) of an instance of the ArrayDataType.
      */
-    size_t getSize() const ;
+    size_t getSize() const;
 
-    TypeClass::e getTypeClass() const {
+    TypeClass::e getTypeClass() const
+    {
         return TypeClass::ARRAY;
     }
 
@@ -95,11 +91,11 @@ class ArrayDataType : public DataType {
 
     /**
      */
-    void* createInstance(unsigned int num) const ;
+    void * createInstance(unsigned int num) const;
 
     /**
      */
-    void deleteInstance(void* address) const;
+    void deleteInstance(void * address) const;
 
     /**
      */
@@ -113,7 +109,7 @@ class ArrayDataType : public DataType {
      @param s The stream to print to.
      @param base_addr Address of the (entire) variable.
      */
-    void printValue(std::ostream &s, void * address ) const;
+    void printValue(std::ostream & s, void * address) const;
 
     /**
      */
@@ -129,7 +125,7 @@ class ArrayDataType : public DataType {
 
     /**
      */
-    bool getElementInfo( LexicalAnalyzer* lexer, void* baseAddress, VarAccessInfo& varAccessInfo);
+    bool getElementInfo(LexicalAnalyzer * lexer, void * baseAddress, VarAccessInfo & varAccessInfo);
 
     /**
      @return 0 if the ArrayDataType represents a pointer,
@@ -141,10 +137,10 @@ class ArrayDataType : public DataType {
      */
     const DataType * getSubType() const;
 
+private:
+    bool initArrayDataType(TypeDictionary * typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[]);
 
-    private:
-    bool initArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[] );
-    ArrayDataType(){}
+    ArrayDataType() {}
 
     size_t typeSize;
     unsigned int elementCount;
@@ -152,7 +148,6 @@ class ArrayDataType : public DataType {
     std::string typeSpecName;
     DataType * ownDataType;
     const DataType * subType;
-    TypeDictionary* typeDictionary;
-
+    TypeDictionary * typeDictionary;
 };
 #endif

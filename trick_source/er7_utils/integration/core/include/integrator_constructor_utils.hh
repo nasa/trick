@@ -16,35 +16,32 @@
 Purpose: ()
 */
 
-
 #ifndef ER7_UTILS_INTEGRATOR_CONSTRUCTOR_UTILS_HH
 #define ER7_UTILS_INTEGRATOR_CONSTRUCTOR_UTILS_HH
 
 // Interface includes
 #include "er7_utils/interface/include/alloc.hh"
 
-
-namespace er7_utils {
+namespace er7_utils
+{
 
 class IntegrationControls;
 class IntegratorConstructor;
 class GeneralizedPositionDerivativeFunctions;
 class GeneralizedPositionStepFunctions;
 
-namespace integ_utils {
+namespace integ_utils
+{
 
 /**
  * Create an integration controls instance.
  * @tparam T        Integration controls derived class
  * @param  nstages  Number of stages in the integration cycle
  */
-template<typename T>
-inline T* allocate_controls (
-   unsigned int nstages)
+template<typename T> inline T * allocate_controls(unsigned int nstages)
 {
-   return alloc::allocate_object<T, unsigned int> (nstages);
+    return alloc::allocate_object<T, unsigned int>(nstages);
 }
-
 
 /**
  * Create an integration controls instance.
@@ -54,18 +51,14 @@ inline T* allocate_controls (
  * @param  nstages             Number of stages in the integration cycle
  */
 template<typename T>
-inline T* allocate_controls (
-   const IntegratorConstructor & primer_constructor,
-   unsigned int history_length,
-   unsigned int nstages)
+inline T * allocate_controls(const IntegratorConstructor & primer_constructor,
+                             unsigned int history_length,
+                             unsigned int nstages)
 {
-   return alloc::allocate_object<T,
-                                 const IntegratorConstructor &,
-                                 unsigned int,
-                                 unsigned int> (
-             primer_constructor, history_length, nstages);
+    return alloc::allocate_object<T, const IntegratorConstructor &, unsigned int, unsigned int>(primer_constructor,
+                                                                                                history_length,
+                                                                                                nstages);
 }
-
 
 /**
  * Create a state integrator instance.
@@ -73,17 +66,10 @@ inline T* allocate_controls (
  * @param  size      State size
  * @param  controls  Integration controls
  */
-template<typename T>
-inline T* allocate_integrator (
-   unsigned int size,
-   IntegrationControls & controls)
+template<typename T> inline T * allocate_integrator(unsigned int size, IntegrationControls & controls)
 {
-   return alloc::allocate_object<T,
-                                 unsigned int,
-                                 IntegrationControls &> (
-             size, controls);
+    return alloc::allocate_object<T, unsigned int, IntegrationControls &>(size, controls);
 }
-
 
 /**
  * Create a state integrator instance.
@@ -93,18 +79,13 @@ inline T* allocate_integrator (
  * @param  controls            Integration controls
  */
 template<typename T>
-inline T* allocate_integrator (
-   const IntegratorConstructor & primer_constructor,
-   unsigned int size,
-   IntegrationControls & controls)
+inline T * allocate_integrator(const IntegratorConstructor & primer_constructor,
+                               unsigned int size,
+                               IntegrationControls & controls)
 {
-   return alloc::allocate_object<T,
-                                 const IntegratorConstructor &,
-                                 unsigned int,
-                                 IntegrationControls &> (
-             primer_constructor, size, controls);
+    return alloc::allocate_object<T, const IntegratorConstructor &, unsigned int, IntegrationControls &>(
+        primer_constructor, size, controls);
 }
-
 
 /**
  * Create a state integrator instance.
@@ -115,20 +96,17 @@ inline T* allocate_integrator (
  * @param  controls       Integration controls
  */
 template<typename T>
-inline T* allocate_integrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionDerivativeFunctions & deriv_funs,
-   IntegrationControls & controls)
+inline T * allocate_integrator(unsigned int position_size,
+                               unsigned int velocity_size,
+                               const GeneralizedPositionDerivativeFunctions & deriv_funs,
+                               IntegrationControls & controls)
 {
-   return alloc::allocate_object<T,
-                                 unsigned int,
-                                 unsigned int,
-                                 const GeneralizedPositionDerivativeFunctions &,
-                                 IntegrationControls &> (
-             position_size, velocity_size, deriv_funs, controls);
+    return alloc::allocate_object<T,
+                                  unsigned int,
+                                  unsigned int,
+                                  const GeneralizedPositionDerivativeFunctions &,
+                                  IntegrationControls &>(position_size, velocity_size, deriv_funs, controls);
 }
-
 
 /**
  * Create a state integrator instance.
@@ -140,23 +118,23 @@ inline T* allocate_integrator (
  * @param  controls            Integration controls
  */
 template<typename T>
-inline T* allocate_integrator (
-   const IntegratorConstructor & primer_constructor,
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionDerivativeFunctions & deriv_funs,
-   IntegrationControls & controls)
+inline T * allocate_integrator(const IntegratorConstructor & primer_constructor,
+                               unsigned int position_size,
+                               unsigned int velocity_size,
+                               const GeneralizedPositionDerivativeFunctions & deriv_funs,
+                               IntegrationControls & controls)
 {
-   return alloc::allocate_object<T,
-                                 const IntegratorConstructor &,
-                                 unsigned int,
-                                 unsigned int,
-                                 const GeneralizedPositionDerivativeFunctions &,
-                                 IntegrationControls &> (
-             primer_constructor,
-             position_size, velocity_size, deriv_funs, controls);
+    return alloc::allocate_object<T,
+                                  const IntegratorConstructor &,
+                                  unsigned int,
+                                  unsigned int,
+                                  const GeneralizedPositionDerivativeFunctions &,
+                                  IntegrationControls &>(primer_constructor,
+                                                         position_size,
+                                                         velocity_size,
+                                                         deriv_funs,
+                                                         controls);
 }
-
 
 /**
  * Create a state integrator instance.
@@ -167,20 +145,15 @@ inline T* allocate_integrator (
  * @param  controls       Integration controls
  */
 template<typename T>
-inline T* allocate_integrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionStepFunctions & step_funs,
-   IntegrationControls & controls)
+inline T * allocate_integrator(unsigned int position_size,
+                               unsigned int velocity_size,
+                               const GeneralizedPositionStepFunctions & step_funs,
+                               IntegrationControls & controls)
 {
-   return alloc::allocate_object<T,
-                                 unsigned int,
-                                 unsigned int,
-                                 const GeneralizedPositionStepFunctions &,
-                                 IntegrationControls &> (
-             position_size, velocity_size, step_funs, controls);
+    return alloc::
+        allocate_object<T, unsigned int, unsigned int, const GeneralizedPositionStepFunctions &, IntegrationControls &>(
+            position_size, velocity_size, step_funs, controls);
 }
-
 
 /**
  * Create a state integrator instance.
@@ -192,27 +165,27 @@ inline T* allocate_integrator (
  * @param  controls            Integration controls
  */
 template<typename T>
-inline T* allocate_integrator (
-   const IntegratorConstructor & primer_constructor,
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionStepFunctions & step_funs,
-   IntegrationControls & controls)
+inline T * allocate_integrator(const IntegratorConstructor & primer_constructor,
+                               unsigned int position_size,
+                               unsigned int velocity_size,
+                               const GeneralizedPositionStepFunctions & step_funs,
+                               IntegrationControls & controls)
 {
-   return alloc::allocate_object<T,
-                                 const IntegratorConstructor &,
-                                 unsigned int,
-                                 unsigned int,
-                                 const GeneralizedPositionStepFunctions &,
-                                 IntegrationControls &> (
-             primer_constructor,
-             position_size, velocity_size, step_funs, controls);
+    return alloc::allocate_object<T,
+                                  const IntegratorConstructor &,
+                                  unsigned int,
+                                  unsigned int,
+                                  const GeneralizedPositionStepFunctions &,
+                                  IntegrationControls &>(primer_constructor,
+                                                         position_size,
+                                                         velocity_size,
+                                                         step_funs,
+                                                         controls);
 }
 
-}
+} // namespace integ_utils
 
-}
-
+} // namespace er7_utils
 
 #endif
 /**

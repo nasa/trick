@@ -6,7 +6,7 @@
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
 
-#if (__APPLE__ | __WIN32__| __Lynx__ | __QNX__ | __ghs )
+#if (__APPLE__ | __WIN32__ | __Lynx__ | __QNX__ | __ghs)
 
 #include <sys/types.h>
 #ifdef __APPLE__
@@ -19,7 +19,7 @@ int tc_listen(TCDevice * listen_device)
     int status;
 
     fd_set chkset;
-    struct timeval zero_time = { 0, 0 };
+    struct timeval zero_time = {0, 0};
 
     /* Clear check file descriptor set */
     FD_ZERO(&chkset);
@@ -28,10 +28,9 @@ int tc_listen(TCDevice * listen_device)
     FD_SET(listen_device->socket, &chkset);
 
     /* Determine if the file descriptor has data to read */
-    status = select(listen_device->socket + 1, &chkset, (fd_set *) NULL, (fd_set *) NULL, &zero_time);
+    status = select(listen_device->socket + 1, &chkset, (fd_set *)NULL, (fd_set *)NULL, &zero_time);
 
     return (status);
-
 }
 
 #else
@@ -47,9 +46,8 @@ int tc_listen(TCDevice * listen_device)
     pfd.fd = listen_device->socket;
     pfd.events = POLLIN;
     pfd.revents = 0;
-    status = poll(&pfd, (nfds_t) 1, 0);
+    status = poll(&pfd, (nfds_t)1, 0);
 
     return (status);
-
 }
 #endif

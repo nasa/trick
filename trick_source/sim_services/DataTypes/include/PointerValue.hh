@@ -5,10 +5,9 @@
 
 /**
  */
-class PointerValue : public Value {
-
-    public:
-
+class PointerValue : public Value
+{
+public:
     /**
      Constructor.
      @param value The value of this PointerValue.
@@ -24,14 +23,14 @@ class PointerValue : public Value {
     /**
      Print this PointerValue to a stream.
      */
-    void print(std::ostream &s);
+    void print(std::ostream & s);
 
     /**
      Get a string representation of this PointerValue.
      */
     std::string toString();
 
-    private:
-    void* value;
+private:
+    void * value;
 };
 #endif

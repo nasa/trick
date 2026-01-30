@@ -4,29 +4,27 @@
 #ifndef DELTA_HH
 #define DELTA_HH
 
-#include <stdio.h>
 #include "DataStream.hh"
 #include "DataStreamGroup.hh"
+#include <stdio.h>
 
-class Delta : public DataStream {
+class Delta : public DataStream
+{
+public:
+    Delta(const char * deltaStatement, const char * timeName);
+    ~Delta();
 
-   public:
+    int get(double * time, double * value);
+    int peek(double * time, double * value);
 
-       Delta(const char * deltaStatement, const char* timeName) ;
-       ~Delta() ;
+    void begin();
+    int end();
+    int step();
 
-       int get(double * time , double * value ) ;
-       int peek(double * time , double * value ) ;
-
-       void begin() ;
-       int end() ;
-       int step() ;
-
-   private:
-
-       DataStream* dataStream1_ ;
-       DataStream* dataStream2_ ;
-       DataStreamGroup dsg_ ;
-} ;
+private:
+    DataStream * dataStream1_;
+    DataStream * dataStream2_;
+    DataStreamGroup dsg_;
+};
 
 #endif

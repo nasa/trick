@@ -5,21 +5,22 @@
 
 #include "trick/trick_math.h"
 
-void matxvec(double *prod,      /* Out: product of the two matrices */
-             double **mat,      /* In: matrix 1 */
-             double *vec,       /* In: matrix 2 */
+void matxvec(double * prod, /* Out: product of the two matrices */
+             double ** mat, /* In: matrix 1 */
+             double * vec,  /* In: matrix 2 */
              int n)
-{                                      /* In: array size */
+{ /* In: array size */
 
     int i, k;
 
-    for (i = 0; i < n; i++) {
+    for(i = 0; i < n; i++)
+    {
         prod[i] = 0.0;
-        for (k = 0; k < n; k++) {
+        for(k = 0; k < n; k++)
+        {
             prod[i] += mat[i][k] * vec[k];
         }
     }
 
     return;
-
 }

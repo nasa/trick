@@ -4,10 +4,10 @@
 PURPOSE: (2D Manipulator class definitions including kinematics and control)
 ***************************************************************************/
 
-#include "kinematics/ManipKinemat.hh"
 #include "control/ManipControl.hh"
-#include "utils/utils.hh"
+#include "kinematics/ManipKinemat.hh"
 #include "trick/integrator_c_intf.h"
+#include "utils/utils.hh"
 
 #include <cmath>
 #include <iostream>
@@ -24,22 +24,19 @@ enum ControlMode
 
 class PlanarManip
 {
-    public:
+public:
+    int ndof;         /* -- number of degrees of freedom */
+    ControlMode mode; /* -- Control mode to use */
 
-        int ndof;                   /* -- number of degrees of freedom */
-        ControlMode  mode;          /* -- Control mode to use */
+    ManipKinemat kinemat;    /* -- class the calculates for/inv kinematics */
+    ManipControl controller; /* -- controller class */
 
-        ManipKinemat kinemat;      /* -- class the calculates for/inv kinematics */
-        ManipControl controller;   /* -- controller class */
+    PlanarManip(int numDof);
 
-        PlanarManip(int numDof); 
-
-        void calcKinematics();      /* -- call kinematics routines */
-        void control();             /* -- call control routines */
-        int  stateDeriv();          /* -- update velocities for integration */
-        int  updateState();         /* -- update manipulator state */
+    void calcKinematics(); /* -- call kinematics routines */
+    void control();        /* -- call control routines */
+    int stateDeriv();      /* -- update velocities for integration */
+    int updateState();     /* -- update manipulator state */
 };
-
-
 
 #endif

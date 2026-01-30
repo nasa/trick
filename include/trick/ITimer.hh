@@ -12,55 +12,53 @@ PROGRAMMERS:
 #ifndef ITIMER_HH
 #define ITIMER_HH
 
-#include <time.h>
-#include <sys/time.h>
 #include <semaphore.h>
 #include <string>
+#include <sys/time.h>
+#include <time.h>
 
 #include "trick/Timer.hh"
 
-namespace Trick {
+namespace Trick
+{
 
-    class ITimer : public Timer {
+class ITimer : public Timer
+{
+public:
+    ITimer();
+    ~ITimer();
 
-        public:
+    /** Post the semaphore value from the interrupt handler */
+    void semaphore_post();
 
-            ITimer() ;
-            ~ITimer() ;
+    /** @copybrief Trick::Timer::init() */
+    virtual int init();
 
-            /** Post the semaphore value from the interrupt handler */
-            void semaphore_post() ;
+    /** @copybrief Trick::Timer::start() */
+    virtual int start(double frame_time);
 
-            /** @copybrief Trick::Timer::init() */
-            virtual int init() ;
+    /** @copybrief Trick::Timer::reset() */
+    virtual int reset(double frame_time);
 
-            /** @copybrief Trick::Timer::start() */
-            virtual int start(double frame_time) ;
+    /** @copybrief Trick::Timer::stop() */
+    virtual int stop();
 
-            /** @copybrief Trick::Timer::reset() */
-            virtual int reset(double frame_time) ;
+    /** @copybrief Trick::Timer::pause() */
+    virtual int pause();
 
-            /** @copybrief Trick::Timer::stop() */
-            virtual int stop() ;
+    /** @copybrief Trick::Timer::shutdown() */
+    virtual int shutdown();
 
-            /** @copybrief Trick::Timer::pause() */
-            virtual int pause() ;
+protected:
+    struct timespec res;     /* ** resolution of the clock */
+    struct timespec timeout; /* ** timeout value of some kind */
+    sem_t * semaphore;       /* ** Posted by SIGALRM handler to tell sched loop to wake up. */
+    std::string sem_name;    /* ** name of the semaphore */
+};
 
-            /** @copybrief Trick::Timer::shutdown() */
-            virtual int shutdown() ;
+} // namespace Trick
 
-        protected:
-
-            struct timespec res;       /* ** resolution of the clock */
-            struct timespec timeout;   /* ** timeout value of some kind */
-            sem_t * semaphore;         /* ** Posted by SIGALRM handler to tell sched loop to wake up. */
-            std::string sem_name ;     /* ** name of the semaphore */
-
-    } ;
-
-}
-
-Trick::ITimer * get_itimer() ;
-void it_handler(int sig) ;
+Trick::ITimer * get_itimer();
+void it_handler(int sig);
 
 #endif

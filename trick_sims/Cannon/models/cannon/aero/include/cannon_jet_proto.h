@@ -8,10 +8,11 @@ Tutorial Section 9
 #include "cannon_aero_proto.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int cannon_force_jet(CANNON_AERO*) ;
+    int cannon_force_jet(CANNON_AERO *);
 
 #ifdef __cplusplus
 }

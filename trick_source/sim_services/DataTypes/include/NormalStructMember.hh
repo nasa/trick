@@ -1,35 +1,34 @@
 #ifndef NORMAL_STRUCT_MEMBER_H
 #define NORMAL_STRUCT_MEMBER_H
 
-#include "StructMember.hh"
 #include "DataType.hh"
+#include "StructMember.hh"
 #include <string>
 
 /**
  */
-class NormalStructMember : public StructMember {
-
+class NormalStructMember : public StructMember
+{
 public:
-
     /**
      Constructor.
      */
-    NormalStructMember( std::string member_name,
-                        int offset,
-                        TypeDictionary* typeDictionary,
-                        std::string typeSpecName,
-                        unsigned int n_dims,
-                        int dims[] );
+    NormalStructMember(std::string member_name,
+                       int offset,
+                       TypeDictionary * typeDictionary,
+                       std::string typeSpecName,
+                       unsigned int n_dims,
+                       int dims[]);
 
     /**
      Copy Constructor.
     */
-    NormalStructMember ( const NormalStructMember & original );
+    NormalStructMember(const NormalStructMember & original);
 
     /**
      Clone.
      */
-    StructMember * clone () const;
+    StructMember * clone() const;
 
     /**
      Destructor.
@@ -41,14 +40,15 @@ public:
     bool validate();
 
     /**
-    */
-    MemberClass::e getMemberClass() const {
+     */
+    MemberClass::e getMemberClass() const
+    {
         return MemberClass::NORMAL;
     }
 
     /**
      */
-    bool containsPointers() const ;
+    bool containsPointers() const;
 
     /**
       To check for circular reference only.
@@ -61,20 +61,20 @@ public:
 
     /**
      */
-    void clearValue(void *struct_address) const ;
+    void clearValue(void * struct_address) const;
 
     /**
      */
-    void assignValue(void *struct_address, Value *v) const ;
+    void assignValue(void * struct_address, Value * v) const;
 
     /**
      */
-    void printValue(std::ostream &s, void *struct_address) const ;
+    void printValue(std::ostream & s, void * struct_address) const;
 
     /**
      Product a string representation of this NormalStructMember.
      */
-    std::string toString() const ;
+    std::string toString() const;
 
 private:
     int byte_offset;
@@ -82,7 +82,6 @@ private:
     std::string typeSpecName;
     DataType * declDataType;
     const DataType * subType;
-    TypeDictionary* typeDictionary;
-
+    TypeDictionary * typeDictionary;
 };
 #endif

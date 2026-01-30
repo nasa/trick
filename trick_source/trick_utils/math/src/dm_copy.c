@@ -11,7 +11,7 @@
 
 void dm_copy(double copy[3][3], /* Out: copy of the matrix */
              double mat[3][3])
-{                                      /* In: matrix */
+{ /* In: matrix */
 
     copy[0][0] = mat[0][0];
     copy[0][1] = mat[0][1];

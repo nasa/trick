@@ -10,10 +10,10 @@
 
 #include "trick/trick_math.h"
 
-void quat_mult(double q3[4],    /* Out: quaternion */
-               double q1[4],    /* In: quaternion */
+void quat_mult(double q3[4], /* Out: quaternion */
+               double q1[4], /* In: quaternion */
                double q2[4])
-{                                      /* In: quaternion */
+{ /* In: quaternion */
     q3[0] = q1[0] * q2[0] - (q1[1] * q2[1] + q1[2] * q2[2] + q1[3] * q2[3]);
     q3[1] = q1[0] * q2[1] + q2[0] * q1[1] + q1[2] * q2[3] - q1[3] * q2[2];
     q3[2] = q1[0] * q2[2] + q2[0] * q1[2] + q1[3] * q2[1] - q1[1] * q2[3];

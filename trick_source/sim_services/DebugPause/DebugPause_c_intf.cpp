@@ -1,8 +1,8 @@
-#include <stdio.h>
 #include "trick/DebugPause.hh"
+#include <stdio.h>
 
 /* Global singleton pointer to the echo jobs class */
-extern Trick::DebugPause * the_debug_pause ;
+extern Trick::DebugPause * the_debug_pause;
 
 /*************************************************************************/
 /* These routines are the "C" interface to echo jobs instrumentation     */
@@ -13,11 +13,13 @@ extern Trick::DebugPause * the_debug_pause ;
  * @copydoc Trick::DebugPause::debug_pause_on
  * C wrapper for Trick::DebugPause::debug_pause_on
  */
-extern "C" int debug_pause_on(void) {
-    if (the_debug_pause != NULL) {
-        return the_debug_pause->debug_pause_on() ;
+extern "C" int debug_pause_on(void)
+{
+    if(the_debug_pause != NULL)
+    {
+        return the_debug_pause->debug_pause_on();
     }
-    return(0) ;
+    return (0);
 }
 
 /**
@@ -25,16 +27,20 @@ extern "C" int debug_pause_on(void) {
  * @copydoc Trick::DebugPause::debug_pause_off
  * C wrapper for Trick::DebugPause::debug_pause_off
  */
-extern "C" int debug_pause_off(void) {
-    if (the_debug_pause != NULL) {
-        return the_debug_pause->debug_pause_off() ;
+extern "C" int debug_pause_off(void)
+{
+    if(the_debug_pause != NULL)
+    {
+        return the_debug_pause->debug_pause_off();
     }
-    return(0) ;
+    return (0);
 }
 
-extern "C" int debug_signal(void) {
-    if (the_debug_pause != NULL) {
-        return the_debug_pause->debug_signal() ;
+extern "C" int debug_signal(void)
+{
+    if(the_debug_pause != NULL)
+    {
+        return the_debug_pause->debug_signal();
     }
-    return(0) ;
+    return (0);
 }

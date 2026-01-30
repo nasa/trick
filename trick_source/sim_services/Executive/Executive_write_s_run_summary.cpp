@@ -22,21 +22,22 @@
 -# The scheduler writes out the S_run_summary header
 -# The scheduler writes out the build time Trick enviromenment variables
 */
-int Trick::Executive::write_s_run_summary(FILE *fp) {
-
+int Trick::Executive::write_s_run_summary(FILE * fp)
+{
     char buf[1024];
-    std::string output_dir ;
+    std::string output_dir;
 
-    if (fp == NULL) {
-
+    if(fp == NULL)
+    {
         /* Get full path to S_run_summary */
-        output_dir = command_line_args_get_output_dir() ;
+        output_dir = command_line_args_get_output_dir();
         snprintf(buf, sizeof(buf), "%s/S_run_summary", output_dir.c_str());
 
         /* Open the S_run_summary file.  If it fails, it's not a fatal error, return 0. */
-        if ((fp = fopen(buf, "w")) == NULL) {
+        if((fp = fopen(buf, "w")) == NULL)
+        {
             message_publish(MSG_ERROR, "Could not open %s/S_run_summary for writing", output_dir.c_str());
-            return(0);
+            return (0);
         }
     }
 
@@ -44,7 +45,10 @@ int Trick::Executive::write_s_run_summary(FILE *fp) {
     fprintf(fp, "\n===============================================================================\n");
     fprintf(fp, "General:\n\n");
 
-    fprintf(fp, "Executable called = %s/%s\n", command_line_args_get_default_dir(), command_line_args_get_cmdline_name());
+    fprintf(fp,
+            "Executable called = %s/%s\n",
+            command_line_args_get_default_dir(),
+            command_line_args_get_cmdline_name());
     fprintf(fp, "Input file = %s\n", command_line_args_get_input_file());
 
     fprintf(fp, "S_main build time = %s\n", build_date.c_str());
@@ -54,12 +58,10 @@ int Trick::Executive::write_s_run_summary(FILE *fp) {
     fprintf(fp, "\n===============================================================================\n");
     fprintf(fp, "Build time Environment:\n\n");
 
-    env_print_vars(fp) ;
+    env_print_vars(fp);
 
     fprintf(fp, "\n");
     fclose(fp);
 
-    return(0) ;
-
+    return (0);
 }
-

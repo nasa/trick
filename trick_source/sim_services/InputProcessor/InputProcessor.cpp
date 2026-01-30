@@ -17,50 +17,49 @@
 #include "trick/InputProcessor.hh"
 #include "trick/command_line_protos.h"
 
-Trick::InputProcessor * the_ip ;
+Trick::InputProcessor * the_ip;
 
 Trick::InputProcessor::InputProcessor()
- : verify_input(0)
- , save_input(0)
+    : verify_input(0),
+      save_input(0)
 {
-
-    the_ip = this ;
-
+    the_ip = this;
 }
 
-int Trick::InputProcessor::process_sim_args() {
+int Trick::InputProcessor::process_sim_args()
+{
+    int i;
+    int argc;
+    char ** argv;
 
-    int i ;
-    int argc ;
-    char ** argv ;
-
-    argc = command_line_args_get_argc() ;
-    argv = command_line_args_get_argv() ;
-    input_file = command_line_args_get_input_file() ;
+    argc = command_line_args_get_argc();
+    argv = command_line_args_get_argv();
+    input_file = command_line_args_get_input_file();
 
     /* Process all other calling arguments */
-    for (i = 1; i < argc; i++) {
-
+    for(i = 1; i < argc; i++)
+    {
         /*
          * If there are more than 2 calling arguments
          */
 
-        if (!strcmp("-d", argv[i])) {
+        if(!strcmp("-d", argv[i]))
+        {
             /* Set the 'input verification only' and echo input flags */
-            verify_input = 1 ;
+            verify_input = 1;
         }
 
-        if (!strcmp("--save-input-file", argv[i])) {
+        if(!strcmp("--save-input-file", argv[i]))
+        {
             /* Set the 'save processed input file lines' flag */
-            save_input = 1 ;
+            save_input = 1;
         }
     }
 
-    return(0) ;
-
+    return (0);
 }
 
-int Trick::InputProcessor::shutdown() {
-    return(0) ;
+int Trick::InputProcessor::shutdown()
+{
+    return (0);
 }
-

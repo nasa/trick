@@ -21,24 +21,22 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-     /* SYSTEM INCLUDE FILES */
+/* SYSTEM INCLUDE FILES */
 #include <math.h>
 
-     /* GLOBAL DATA STRUCTURE DECLARATIONS */
+/* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include "ball/L2/include/ball_altimeter.h"
 
-     /* ENTRY POINT */
+/* ENTRY POINT */
 int ball_altimeter_default_data(
-                /* RETURN: -- Always return zero */
-  BALT *A ) /* INOUT:  -- Ball EOM state parameters */
+    /* RETURN: -- Always return zero */
+    BALT * A) /* INOUT:  -- Ball EOM state parameters */
 {
-
-    A->input.add_noise = Yes ;
-    A->input.add_bias  = Yes ;
-    A->input.noise  = 0.01 ;
-    A->input.bias   = 0.01 ;
+    A->input.add_noise = Yes;
+    A->input.add_bias = Yes;
+    A->input.noise = 0.01;
+    A->input.bias = 0.01;
 
     /* RETURN */
-    return( 0 ) ;
+    return (0);
 }
-

@@ -5,24 +5,25 @@
 */
 #include <string>
 
-namespace Trick {
+namespace Trick
+{
 
-class STLInterface {
-    public:
-        STLInterface() ;
-        virtual ~STLInterface() ;
+class STLInterface
+{
+public:
+    STLInterface();
+    virtual ~STLInterface();
 
-        virtual void checkpoint( std::string obj_name ) = 0 ;
-        virtual void restart( std::string obj_name ) = 0 ;
+    virtual void checkpoint(std::string obj_name) = 0;
+    virtual void restart(std::string obj_name) = 0;
 
-        unsigned int stl_id ;
+    unsigned int stl_id;
 
-        bool restore ;
+    bool restore;
 
-        virtual void post_checkpoint( std::string obj_name ) ;
+    virtual void post_checkpoint(std::string obj_name);
+};
 
-} ;
-
-} ;
+}; // namespace Trick
 
 #endif

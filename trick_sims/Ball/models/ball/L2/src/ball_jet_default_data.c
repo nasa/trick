@@ -21,24 +21,22 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-     /* SYSTEM INCLUDE FILES */
+/* SYSTEM INCLUDE FILES */
 #include <math.h>
 
-     /* GLOBAL DATA STRUCTURE DECLARATIONS */
+/* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include "ball/L2/include/ball_jet.h"
 
-     /* ENTRY POINT */
+/* ENTRY POINT */
 int ball_jet_default_data(
-            /* RETURN: -- Always return zero */
-  BJET *J ) /* INOUT:  -- Ball EOM state parameters */
+    /* RETURN: -- Always return zero */
+    BJET * J) /* INOUT:  -- Ball EOM state parameters */
 {
-
-    J->input.jet_fail[0] = 0 ;
-    J->input.jet_fail[1] = 0 ;
-    J->input.force[0] = -1.0 ;
-    J->input.force[1] =  1.0 ;
+    J->input.jet_fail[0] = 0;
+    J->input.jet_fail[1] = 0;
+    J->input.force[0] = -1.0;
+    J->input.force[1] = 1.0;
 
     /* RETURN */
-    return( 0 ) ;
+    return (0);
 }
-

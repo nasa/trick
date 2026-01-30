@@ -30,80 +30,54 @@ Purpose: ()
 #include "../include/beeman_integrator_constructor.hh"
 #include "../include/beeman_second_order_ode_integrator.hh"
 
-
-namespace er7_utils {
+namespace er7_utils
+{
 
 // Named constructor; create an BeemanIntegratorConstructor.
-IntegratorConstructor*
-BeemanIntegratorConstructor::create_constructor (
-   void)
+IntegratorConstructor * BeemanIntegratorConstructor::create_constructor(void)
 {
-   return alloc::allocate_object<BeemanIntegratorConstructor> ();
+    return alloc::allocate_object<BeemanIntegratorConstructor>();
 }
-
 
 // Create a duplicate of the constructor.
-IntegratorConstructor *
-BeemanIntegratorConstructor::create_copy (
-   void)
-const
+IntegratorConstructor * BeemanIntegratorConstructor::create_copy(void) const
 {
-   return alloc::replicate_object (*this);
+    return alloc::replicate_object(*this);
 }
-
 
 // Create an Beeman integration controls.
-IntegrationControls *
-BeemanIntegratorConstructor::create_integration_controls (
-   void)
-const
+IntegrationControls * BeemanIntegratorConstructor::create_integration_controls(void) const
 {
-   return integ_utils::allocate_controls<PrimingIntegrationControls> (
-             *primer_constructor, 2, 2);
+    return integ_utils::allocate_controls<PrimingIntegrationControls>(*primer_constructor, 2, 2);
 }
-
 
 // Create a Heun's method state integrator for a first order ODE.
-FirstOrderODEIntegrator *
-BeemanIntegratorConstructor::create_first_order_ode_integrator (
-   unsigned int size,
-   IntegrationControls & controls)
-const
+FirstOrderODEIntegrator * BeemanIntegratorConstructor::create_first_order_ode_integrator(
+    unsigned int size, IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<RK2HeunFirstOrderODEIntegrator> (
-             size, controls);
+    return integ_utils::allocate_integrator<RK2HeunFirstOrderODEIntegrator>(size, controls);
 }
-
 
 // Create an Beeman state integrator for a second order ODE.
-SecondOrderODEIntegrator *
-BeemanIntegratorConstructor::create_second_order_ode_integrator (
-   unsigned int size,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * BeemanIntegratorConstructor::create_second_order_ode_integrator(
+    unsigned int size, IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                BeemanSimpleSecondOrderODEIntegrator> (
-             *primer_constructor, size, controls);
+    return integ_utils::allocate_integrator<BeemanSimpleSecondOrderODEIntegrator>(*primer_constructor, size, controls);
 }
-
 
 // Create an Beeman state integrator for a second order ODE.
-SecondOrderODEIntegrator *
-BeemanIntegratorConstructor::
-create_generalized_deriv_second_order_ode_integrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionDerivativeFunctions & deriv_funs,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * BeemanIntegratorConstructor::create_generalized_deriv_second_order_ode_integrator(
+    unsigned int position_size,
+    unsigned int velocity_size,
+    const GeneralizedPositionDerivativeFunctions & deriv_funs,
+    IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                BeemanGeneralizedDerivSecondOrderODEIntegrator> (
-             *primer_constructor,
-             position_size, velocity_size, deriv_funs, controls);
+    return integ_utils::allocate_integrator<BeemanGeneralizedDerivSecondOrderODEIntegrator>(*primer_constructor,
+                                                                                            position_size,
+                                                                                            velocity_size,
+                                                                                            deriv_funs,
+                                                                                            controls);
 }
-
 
 #if 0
 // Create an Beeman state integrator for a second order ODE.
@@ -123,8 +97,8 @@ const
 }
 #endif
 
+} // namespace er7_utils
 
-}
 /**
  * @if Er7UtilsUseGroups
  * @}

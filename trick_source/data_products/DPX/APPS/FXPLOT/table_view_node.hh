@@ -4,7 +4,8 @@
 
 #include "DPC/DPC_table.hh"
 
-extern "C"{
+extern "C"
+{
 #include <X11/Intrinsic.h>
 }
 
@@ -12,30 +13,31 @@ extern "C"{
  * This class represents an X-Windows based Table for Trick Data Products.
  * @author John M. Penn
  */
-class TableViewNode {
+class TableViewNode
+{
 public:
-    DPC_table* table;            /**< The source of this table's data. */
-    Widget toplevel;             /**< This is the toplevel X-application
-                                      Widget. */
-    Widget dialog_shell_widget;  /**< This is the DialogShell (the window) for
-                                       the Table. */
-    Widget main_form_widget;     /**< This is the main Form for the table. */
-    Widget ctrls_form_widget;    /**< This is the form on which the SAVE
-                                       button and the Trick logo is placed. */
-    Widget save_button_widget;   /**< This is the save-button Widget. */
-    Widget trick_label;          /**< This is the label Widget that displays the
-                                       Trick logo. */
-    Widget text_widget;          /**< This is the ScrolledText Widget that
-                                       contains the printed table text. */
-    char * table_text_buf;       /**< This is a pointer to the text buffer
-                                      for the table. It is allocated and
-                                      realloced as needed by twprint(). When all
-                                      of the printing is done, it is used to
-                                      set the text of the text_widget. */
-    size_t table_insertion_pos;  /**< This is an index into table_text_buf where
-                                      more text should be added by twprint(). */
-    size_t table_buf_size;       /**< The size (in bytes) of the buffer
-                                       referenced by table_text_buf. */
+    DPC_table * table;          /**< The source of this table's data. */
+    Widget toplevel;            /**< This is the toplevel X-application
+                                     Widget. */
+    Widget dialog_shell_widget; /**< This is the DialogShell (the window) for
+                                      the Table. */
+    Widget main_form_widget;    /**< This is the main Form for the table. */
+    Widget ctrls_form_widget;   /**< This is the form on which the SAVE
+                                      button and the Trick logo is placed. */
+    Widget save_button_widget;  /**< This is the save-button Widget. */
+    Widget trick_label;         /**< This is the label Widget that displays the
+                                      Trick logo. */
+    Widget text_widget;         /**< This is the ScrolledText Widget that
+                                      contains the printed table text. */
+    char * table_text_buf;      /**< This is a pointer to the text buffer
+                                     for the table. It is allocated and
+                                     realloced as needed by twprint(). When all
+                                     of the printing is done, it is used to
+                                     set the text of the text_widget. */
+    size_t table_insertion_pos; /**< This is an index into table_text_buf where
+                                     more text should be added by twprint(). */
+    size_t table_buf_size;      /**< The size (in bytes) of the buffer
+                                      referenced by table_text_buf. */
 
     /**
      * TableViewNode constructor.
@@ -49,9 +51,7 @@ public:
      * @param Width - The width of the of the table's X-window.
      * @param Height - The height of the of the table's X-window.
      */
-    TableViewNode( Widget Toplevel,
-                   DPC_table* Table,
-                   int Xpos, int Ypos, int Width, int Height);
+    TableViewNode(Widget Toplevel, DPC_table * Table, int Xpos, int Ypos, int Width, int Height);
 
     /**
      * TableViewNode destructor.

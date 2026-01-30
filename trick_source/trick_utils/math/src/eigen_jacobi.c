@@ -8,19 +8,18 @@
 
    PROGRAMMERS: (((Les Quiocho) (NASA/JSC) (September 93) (Trick-CR-xxxxx) (--))) */
 
+#include "trick/trick_math.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "trick/trick_math.h"
 
-
-int eigen_jacobi(double **k,    /* In: Input stiffness matrix */
-                 double **mass, /* In: Input mass matrix */
-                 double **v,    /* Out: Output a set of eigen vectors */
-                 double *alpha, /* Out: Output a set of eigen values */
-                 int m,         /* In: Input dimension of matrix */
-                 int mmax,      /* In: Input maximun dimension of matrix */
+int eigen_jacobi(double ** k,    /* In: Input stiffness matrix */
+                 double ** mass, /* In: Input mass matrix */
+                 double ** v,    /* Out: Output a set of eigen vectors */
+                 double * alpha, /* Out: Output a set of eigen values */
+                 int m,          /* In: Input dimension of matrix */
+                 int mmax,       /* In: Input maximun dimension of matrix */
                  int sort)
-{                                      /* In: Input sorting flag */
+{ /* In: Input sorting flag */
     int i, ip1, j, n, jmin, loop;
 
     double c11, c22, c, dis, eps;
@@ -29,23 +28,29 @@ int eigen_jacobi(double **k,    /* In: Input stiffness matrix */
     double glamb, cd, cn, eig;
     double temp1, temp2;
 
-    (void) mmax;                       /* unused */
+    (void)mmax; /* unused */
 
     eps = 1.0e-18;
 
     /* Initial alpha and v */
-    for (i = 0; i < m; i++) {
+    for(i = 0; i < m; i++)
+    {
         alpha[i] = 0.0;
-        for (j = 0; j < m; j++)
+        for(j = 0; j < m; j++)
+        {
             v[i][j] = 0.;
+        }
         v[i][i] = 1.0;
     }
 
-    for (loop = 1; loop <= 10; loop++) {
-        for (i = 0; i < m; i++) {
-            for (j = 0; j < m; j++) {
-                if (i != j) {
-
+    for(loop = 1; loop <= 10; loop++)
+    {
+        for(i = 0; i < m; i++)
+        {
+            for(j = 0; j < m; j++)
+            {
+                if(i != j)
+                {
                     /* Zero out elements k[i][j] and mass[i][j] */
                     c11 = k[i][i] * mass[i][j] - k[i][j] * mass[i][i];
 
@@ -55,18 +60,25 @@ int eigen_jacobi(double **k,    /* In: Input stiffness matrix */
 
                     dis = (c * c / 4.0) + (c11 * c22);
 
-                    if (dis < 0.0) {
-                        fprintf(stdout, "\nNegative " "discriminant ... " "exiting\n");
+                    if(dis < 0.0)
+                    {
+                        fprintf(stdout,
+                                "\nNegative "
+                                "discriminant ... "
+                                "exiting\n");
                         exit(0);
                     }
                     sign = 1.0;
-                    if (c < 0.0)
+                    if(c < 0.0)
+                    {
                         sign = -1.0;
+                    }
                     x = (c / 2.0) + (sign * sqrt(dis));
                     cgamm = -c11 / x;
                     calph = c22 / x;
 
-                    for (n = 0; n < m; n++) {
+                    for(n = 0; n < m; n++)
+                    {
                         p = k[n][i];
                         q = k[n][j];
                         r = mass[n][i];
@@ -76,7 +88,8 @@ int eigen_jacobi(double **k,    /* In: Input stiffness matrix */
                         mass[n][i] = r + s * cgamm;
                         mass[n][j] = r * calph + s;
                     }
-                    for (n = 0; n < m; n++) {
+                    for(n = 0; n < m; n++)
+                    {
                         p = k[i][n];
                         q = k[j][n];
                         r = mass[i][n];
@@ -86,7 +99,8 @@ int eigen_jacobi(double **k,    /* In: Input stiffness matrix */
                         mass[i][n] = r + s * cgamm;
                         mass[j][n] = r * calph + s;
                     }
-                    for (n = 0; n < m; n++) {
+                    for(n = 0; n < m; n++)
+                    {
                         p = v[n][i];
                         q = v[n][j];
                         v[n][i] = p + q * cgamm;
@@ -95,28 +109,39 @@ int eigen_jacobi(double **k,    /* In: Input stiffness matrix */
                 }
             }
         }
-        for (i = 0; i < m; i++) {
+        for(i = 0; i < m; i++)
+        {
             glamb = k[i][i] / mass[i][i];
-            if (fabs(glamb - alpha[i]) > fabs(glamb) * eps)
+            if(fabs(glamb - alpha[i]) > fabs(glamb) * eps)
+            {
                 goto label_190;
+            }
         }
 
-        for (i = 0; i < m; i++) {
-            for (j = 0; j < i; j++) {
+        for(i = 0; i < m; i++)
+        {
+            for(j = 0; j < i; j++)
+            {
                 cn = fabs(k[i][j]);
                 cd = sqrt(fabs(k[i][i] * k[j][j]));
-                if (cn > cd * eps)
+                if(cn > cd * eps)
+                {
                     goto label_190;
+                }
                 cn = fabs(mass[i][j]);
                 cd = sqrt(fabs(mass[i][i] * mass[j][j]));
-                if (cn > cd * eps)
+                if(cn > cd * eps)
+                {
                     goto label_190;
+                }
             }
         }
         goto label_210;
-      label_190:
-        for (j = 0; j < m; j++) {
-            if (!((k[j][j] > 0.0) && (mass[j][j] > 0.0))) {
+    label_190:
+        for(j = 0; j < m; j++)
+        {
+            if(!((k[j][j] > 0.0) && (mass[j][j] > 0.0)))
+            {
                 return (1);
             }
             alpha[j] = k[j][j] / mass[j][j];
@@ -124,24 +149,30 @@ int eigen_jacobi(double **k,    /* In: Input stiffness matrix */
     }
 
     return (1);
-  label_210:
+label_210:
 
     /* Sort eigenvalues into ascending order */
-    if (sort) {
-        for (i = 0; i < m; i++) {
+    if(sort)
+    {
+        for(i = 0; i < m; i++)
+        {
             ip1 = i + 1;
             eig = alpha[i];
             jmin = i;
-            for (j = ip1; j < m; j++) {
-                if (alpha[j] < eig) {
+            for(j = ip1; j < m; j++)
+            {
+                if(alpha[j] < eig)
+                {
                     jmin = j;
                     eig = alpha[j];
                 }
             }
-            if (jmin != i) {
+            if(jmin != i)
+            {
                 alpha[jmin] = alpha[i];
                 alpha[i] = eig;
-                for (j = 0; j < m; j++) {
+                for(j = 0; j < m; j++)
+                {
                     temp1 = v[j][jmin];
                     temp2 = v[j][i];
                     v[j][i] = temp1;
@@ -152,5 +183,4 @@ int eigen_jacobi(double **k,    /* In: Input stiffness matrix */
     }
 
     return (0);
-
 }

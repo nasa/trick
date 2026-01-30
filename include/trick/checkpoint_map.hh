@@ -8,19 +8,19 @@
 #ifndef CHECKPOINT_MAP_HH
 #define CHECKPOINT_MAP_HH
 
-#include <map>
-#include <string>
 #include <algorithm>
+#include <map>
 #include <sstream>
-#include <typeinfo>
+#include <string>
 #include <type_traits>
+#include <typeinfo>
 #ifdef __GNUC__
 #include <cxxabi.h>
 #endif
 
+#include "checkpoint_fwd_declare.hh"
 #include "checkpoint_is_stl_container.hh"
 #include "checkpoint_stl_protos.hh"
-#include "checkpoint_fwd_declare.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
 
@@ -35,350 +35,402 @@
  */
 
 // intrinsic key, intrinsic data
-template <class STL>
-int checkpoint_map_ik_id(STL & in_map , std::string object_name , std::string var_name ) {
+template<class STL> int checkpoint_map_ik_id(STL & in_map, std::string object_name, std::string var_name)
+{
+    unsigned int ii;
+    unsigned int cont_size;
+    std::ostringstream var_declare;
+    typename STL::iterator iter;
+    int status;
 
-    unsigned int ii ;
-    unsigned int cont_size ;
-    std::ostringstream var_declare ;
-    typename STL::iterator iter ;
-    int status ;
-
-    // used for keeping c_str components of std::strings allocated and accessable 
-    // while they are being used. 
+    // used for keeping c_str components of std::strings allocated and accessable
+    // while they are being used.
     std::string temp_str;
 
-    typename STL::key_type * keys = nullptr ;
-    typename STL::mapped_type * items = nullptr ;
+    typename STL::key_type * keys = nullptr;
+    typename STL::mapped_type * items = nullptr;
 
-    cont_size = in_map.size() ;
+    cont_size = in_map.size();
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
-    if ( cont_size > 0 ) {
-        std::string type_string ;
-        try {
-            type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*keys).name(), 0, 0, &status )) ;
-        } catch (const std::bad_typeid& e) {
-            message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str()) ;
-            return 0 ;
+    if(cont_size > 0)
+    {
+        std::string type_string;
+        try
+        {
+            type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*keys).name(), 0, 0, &status));
         }
-        var_declare << type_string << " "
-         << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
+        catch(const std::bad_typeid & e)
+        {
+            message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str());
+            return 0;
+        }
+        var_declare << type_string << " " << object_name << "_" << var_name << "_keys[" << cont_size << "]";
         temp_str = var_declare.str();
-        keys = (typename STL::key_type *)TMM_declare_var_s(temp_str.c_str()) ;
-        if ( keys ) {
+        keys = (typename STL::key_type *)TMM_declare_var_s(temp_str.c_str());
+        if(keys)
+        {
             temp_str = std::string(object_name + "_" + var_name + "_keys");
-            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-            //message_publish(1, "HERE with %s\n", var_declare) ;
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str());
+            // message_publish(1, "HERE with %s\n", var_declare) ;
 
-            var_declare.str("") ;
-            var_declare.clear() ;
-            try {
-                type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
-            } catch (const std::bad_typeid& e) {
-                message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str()) ;
-                return 0 ;
+            var_declare.str("");
+            var_declare.clear();
+            try
+            {
+                type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status));
             }
-            var_declare << type_string << " "
-             << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
+            catch(const std::bad_typeid & e)
+            {
+                message_publish(1,
+                                "Error, having difficulty checkpointing %s.%s\n",
+                                object_name.c_str(),
+                                var_name.c_str());
+                return 0;
+            }
+            var_declare << type_string << " " << object_name << "_" << var_name << "_data[" << cont_size << "]";
             temp_str = var_declare.str();
-            items = (typename STL::mapped_type *)TMM_declare_var_s(temp_str.c_str()) ;
-            if ( items ) {
+            items = (typename STL::mapped_type *)TMM_declare_var_s(temp_str.c_str());
+            if(items)
+            {
                 temp_str = std::string(object_name + "_" + var_name + "_data");
-                TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-                //message_publish(1, "HERE with %s\n", var_declare) ;
+                TMM_add_checkpoint_alloc_dependency(temp_str.c_str());
+                // message_publish(1, "HERE with %s\n", var_declare) ;
 
                 /* copy the contents of the map the 2 arrays */
-                for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
-                    keys[ii] = iter->first ;
-                    items[ii] = iter->second ;
+                for(iter = in_map.begin(), ii = 0; iter != in_map.end(); iter++, ii++)
+                {
+                    keys[ii] = iter->first;
+                    items[ii] = iter->second;
                 }
             }
         }
     }
-    return 0 ;
+    return 0;
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if<!is_stl_container<KEY>::value &&
-                                  !is_stl_container<DATA>::value >::type* >
-int checkpoint_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_ik_id( in_map , object_name , var_name ) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<!is_stl_container<KEY>::value && !is_stl_container<DATA>::value>::type *>
+int checkpoint_stl(std::map<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return checkpoint_map_ik_id(in_map, object_name, var_name);
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if<!is_stl_container<KEY>::value &&
-                                  !is_stl_container<DATA>::value >::type*>
-int checkpoint_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_ik_id( in_map , object_name , var_name ) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<!is_stl_container<KEY>::value && !is_stl_container<DATA>::value>::type *>
+int checkpoint_stl(std::multimap<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return checkpoint_map_ik_id(in_map, object_name, var_name);
 }
 
 // intrinsic key, STL data
-template <class STL>
-int checkpoint_map_ik_sd(STL & in_map , std::string object_name , std::string var_name ) {
+template<class STL> int checkpoint_map_ik_sd(STL & in_map, std::string object_name, std::string var_name)
+{
+    unsigned int ii;
+    unsigned int cont_size;
+    std::ostringstream var_declare;
+    typename STL::iterator iter;
+    int status;
 
-    unsigned int ii ;
-    unsigned int cont_size ;
-    std::ostringstream var_declare ;
-    typename STL::iterator iter ;
-    int status ;
-
-    // used for keeping c_str components of std::strings allocated and accessable 
-    // while they are being used. 
+    // used for keeping c_str components of std::strings allocated and accessable
+    // while they are being used.
     std::string temp_str;
 
-    typename STL::key_type * keys = nullptr ;
-    std::string * items = nullptr ;
+    typename STL::key_type * keys = nullptr;
+    std::string * items = nullptr;
 
-    cont_size = in_map.size() ;
+    cont_size = in_map.size();
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
-    if ( cont_size > 0 ) {
-        std::string type_string ;
-        try {
-            type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*keys).name(), 0, 0, &status )) ;
-        } catch (const std::bad_typeid& e) {
-            message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str()) ;
-            return 0 ;
+    if(cont_size > 0)
+    {
+        std::string type_string;
+        try
+        {
+            type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*keys).name(), 0, 0, &status));
         }
-        var_declare << type_string << " "
-         << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
+        catch(const std::bad_typeid & e)
+        {
+            message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str());
+            return 0;
+        }
+        var_declare << type_string << " " << object_name << "_" << var_name << "_keys[" << cont_size << "]";
         temp_str = var_declare.str();
-        keys = (typename STL::key_type *)TMM_declare_var_s(temp_str.c_str()) ;
-        if ( keys ) {
+        keys = (typename STL::key_type *)TMM_declare_var_s(temp_str.c_str());
+        if(keys)
+        {
             temp_str = std::string(object_name + "_" + var_name + "_keys");
-            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-            //message_publish(1, "HERE with %s\n", var_declare) ;
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str());
+            // message_publish(1, "HERE with %s\n", var_declare) ;
 
-            var_declare.str("") ;
-            var_declare.clear() ;
-            var_declare << "std::string "
-             << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
+            var_declare.str("");
+            var_declare.clear();
+            var_declare << "std::string " << object_name << "_" << var_name << "_data[" << cont_size << "]";
             temp_str = var_declare.str();
-            items = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
-            if ( items ) {
+            items = (std::string *)TMM_declare_var_s(temp_str.c_str());
+            if(items)
+            {
                 temp_str = std::string(object_name + "_" + var_name + "_data");
-                TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-                //message_publish(1, "HERE with %s\n", var_declare) ;
+                TMM_add_checkpoint_alloc_dependency(temp_str.c_str());
+                // message_publish(1, "HERE with %s\n", var_declare) ;
 
                 /* copy the contents of the map the 2 arrays */
-                for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
-                    keys[ii] = iter->first ;
+                for(iter = in_map.begin(), ii = 0; iter != in_map.end(); iter++, ii++)
+                {
+                    keys[ii] = iter->first;
 
-                    std::ostringstream sub_elements ;
-                    sub_elements << object_name << "_" << var_name << "_data_" << ii ;
-                    items[ii] = sub_elements.str() ;
+                    std::ostringstream sub_elements;
+                    sub_elements << object_name << "_" << var_name << "_data_" << ii;
+                    items[ii] = sub_elements.str();
 
-                    std::ostringstream index_string ;
-                    index_string << ii ;
-                    //message_publish(1, "recursive call to checkpoint_stl %s\n", __PRETTY_FUNCTION__) ;
-                    checkpoint_stl( iter->second , object_name + "_" + var_name + "_data" , index_string.str() ) ;
+                    std::ostringstream index_string;
+                    index_string << ii;
+                    // message_publish(1, "recursive call to checkpoint_stl %s\n", __PRETTY_FUNCTION__) ;
+                    checkpoint_stl(iter->second, object_name + "_" + var_name + "_data", index_string.str());
                 }
             }
         }
     }
-    return 0 ;
+    return 0;
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if<!is_stl_container<KEY>::value &&
-                                   is_stl_container<DATA>::value >::type* >
-int checkpoint_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_ik_sd( in_map , object_name , var_name ) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<!is_stl_container<KEY>::value && is_stl_container<DATA>::value>::type *>
+int checkpoint_stl(std::map<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return checkpoint_map_ik_sd(in_map, object_name, var_name);
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if<!is_stl_container<KEY>::value &&
-                                   is_stl_container<DATA>::value >::type*>
-int checkpoint_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_ik_sd( in_map , object_name , var_name ) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<!is_stl_container<KEY>::value && is_stl_container<DATA>::value>::type *>
+int checkpoint_stl(std::multimap<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return checkpoint_map_ik_sd(in_map, object_name, var_name);
 }
 
 // STL key, intrinsic data
-template <class STL>
-int checkpoint_map_sk_id(STL & in_map , std::string object_name , std::string var_name ) {
+template<class STL> int checkpoint_map_sk_id(STL & in_map, std::string object_name, std::string var_name)
+{
+    unsigned int ii;
+    unsigned int cont_size;
+    std::ostringstream var_declare;
+    typename STL::iterator iter;
+    int status;
 
-    unsigned int ii ;
-    unsigned int cont_size ;
-    std::ostringstream var_declare ;
-    typename STL::iterator iter ;
-    int status ;
-
-    // used for keeping c_str components of std::strings allocated and accessable 
-    // while they are being used. 
+    // used for keeping c_str components of std::strings allocated and accessable
+    // while they are being used.
     std::string temp_str;
 
-    std::string * keys = nullptr ;
-    typename STL::mapped_type * items = nullptr ;
+    std::string * keys = nullptr;
+    typename STL::mapped_type * items = nullptr;
 
-    cont_size = in_map.size() ;
+    cont_size = in_map.size();
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
-    if ( cont_size > 0 ) {
-        var_declare << "std::string "
-         << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
+    if(cont_size > 0)
+    {
+        var_declare << "std::string " << object_name << "_" << var_name << "_keys[" << cont_size << "]";
         temp_str = var_declare.str();
-        keys = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
-        if ( keys ) {
+        keys = (std::string *)TMM_declare_var_s(temp_str.c_str());
+        if(keys)
+        {
             temp_str = std::string(object_name + "_" + var_name + "_keys");
-            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-            //message_publish(1, "HERE with %s\n", var_declare) ;
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str());
+            // message_publish(1, "HERE with %s\n", var_declare) ;
 
-            var_declare.str("") ;
-            var_declare.clear() ;
-            std::string type_string ;
-            try {
-                type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status )) ;
-            } catch (const std::bad_typeid& e) {
-                message_publish(1, "Error, having difficulty checkpointing %s.%s\n", object_name.c_str(), var_name.c_str()) ;
-                return 0 ;
+            var_declare.str("");
+            var_declare.clear();
+            std::string type_string;
+            try
+            {
+                type_string = stl_type_name_convert(abi::__cxa_demangle(typeid(*items).name(), 0, 0, &status));
             }
-            var_declare << type_string << " "
-             << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
-            temp_str = var_declare.str() ;
-            items = (typename STL::mapped_type *)TMM_declare_var_s(temp_str.c_str()) ;
-            if ( items ) {
+            catch(const std::bad_typeid & e)
+            {
+                message_publish(1,
+                                "Error, having difficulty checkpointing %s.%s\n",
+                                object_name.c_str(),
+                                var_name.c_str());
+                return 0;
+            }
+            var_declare << type_string << " " << object_name << "_" << var_name << "_data[" << cont_size << "]";
+            temp_str = var_declare.str();
+            items = (typename STL::mapped_type *)TMM_declare_var_s(temp_str.c_str());
+            if(items)
+            {
                 temp_str = std::string(object_name + "_" + var_name + "_data");
-                TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-                //message_publish(1, "HERE with %s\n", var_declare) ;
+                TMM_add_checkpoint_alloc_dependency(temp_str.c_str());
+                // message_publish(1, "HERE with %s\n", var_declare) ;
 
                 /* copy the contents of the map the 2 arrays */
-                for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
-                    std::ostringstream sub_elements ;
-                    sub_elements << object_name << "_" << var_name << "_keys_" << ii ;
-                    keys[ii] = sub_elements.str() ;
+                for(iter = in_map.begin(), ii = 0; iter != in_map.end(); iter++, ii++)
+                {
+                    std::ostringstream sub_elements;
+                    sub_elements << object_name << "_" << var_name << "_keys_" << ii;
+                    keys[ii] = sub_elements.str();
 
-                    std::ostringstream index_string ;
-                    index_string << ii ;
-                    checkpoint_stl( const_cast<typename STL::key_type &>(iter->first) ,
-                     object_name + "_" + var_name + "_keys", index_string.str() ) ;
+                    std::ostringstream index_string;
+                    index_string << ii;
+                    checkpoint_stl(const_cast<typename STL::key_type &>(iter->first),
+                                   object_name + "_" + var_name + "_keys",
+                                   index_string.str());
 
-                    items[ii] = iter->second ;
+                    items[ii] = iter->second;
                 }
             }
         }
     }
-    return 0 ;
+    return 0;
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if< is_stl_container<KEY>::value &&
-                                  !is_stl_container<DATA>::value >::type* >
-int checkpoint_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_sk_id( in_map , object_name , var_name ) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<is_stl_container<KEY>::value && !is_stl_container<DATA>::value>::type *>
+int checkpoint_stl(std::map<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return checkpoint_map_sk_id(in_map, object_name, var_name);
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if< is_stl_container<KEY>::value &&
-                                  !is_stl_container<DATA>::value >::type*>
-int checkpoint_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_sk_id( in_map , object_name , var_name ) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<is_stl_container<KEY>::value && !is_stl_container<DATA>::value>::type *>
+int checkpoint_stl(std::multimap<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return checkpoint_map_sk_id(in_map, object_name, var_name);
 }
 
 // STL key, STL data
-template <class STL>
-int checkpoint_map_stl_sk_sd(STL & in_map , std::string object_name , std::string var_name ) {
+template<class STL> int checkpoint_map_stl_sk_sd(STL & in_map, std::string object_name, std::string var_name)
+{
+    unsigned int ii;
+    unsigned int cont_size;
+    std::ostringstream var_declare;
+    typename STL::iterator iter;
 
-    unsigned int ii ;
-    unsigned int cont_size ;
-    std::ostringstream var_declare ;
-    typename STL::iterator iter ;
-
-    // used for keeping c_str components of std::strings allocated and accessable 
-    // while they are being used. 
+    // used for keeping c_str components of std::strings allocated and accessable
+    // while they are being used.
     std::string temp_str;
 
-    std::string * keys = nullptr ;
-    std::string * items = nullptr ;
+    std::string * keys = nullptr;
+    std::string * items = nullptr;
 
-    cont_size = in_map.size() ;
+    cont_size = in_map.size();
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
-    if ( cont_size > 0 ) {
-        var_declare << "std::string "
-         << object_name << "_" << var_name << "_keys[" << cont_size << "]" ;
+    if(cont_size > 0)
+    {
+        var_declare << "std::string " << object_name << "_" << var_name << "_keys[" << cont_size << "]";
         temp_str = var_declare.str();
-        keys = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
-        if ( keys ) {
+        keys = (std::string *)TMM_declare_var_s(temp_str.c_str());
+        if(keys)
+        {
             temp_str = std::string(object_name + "_" + var_name + "_keys");
-            TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-            //message_publish(1, "HERE with %s\n", var_declare) ;
+            TMM_add_checkpoint_alloc_dependency(temp_str.c_str());
+            // message_publish(1, "HERE with %s\n", var_declare) ;
 
-            var_declare.str("") ;
-            var_declare.clear() ;
-            var_declare << "std::string "
-             << object_name << "_" << var_name << "_data[" << cont_size << "]" ;
+            var_declare.str("");
+            var_declare.clear();
+            var_declare << "std::string " << object_name << "_" << var_name << "_data[" << cont_size << "]";
             temp_str = var_declare.str();
-            items = (std::string *)TMM_declare_var_s(temp_str.c_str()) ;
-            if ( items ) {
+            items = (std::string *)TMM_declare_var_s(temp_str.c_str());
+            if(items)
+            {
                 temp_str = std::string(object_name + "_" + var_name + "_data");
-                TMM_add_checkpoint_alloc_dependency(temp_str.c_str()) ;
-                //message_publish(1, "HERE with %s\n", var_declare) ;
+                TMM_add_checkpoint_alloc_dependency(temp_str.c_str());
+                // message_publish(1, "HERE with %s\n", var_declare) ;
 
                 /* copy the contents of the map the 2 arrays */
-                for ( iter = in_map.begin() , ii = 0 ; iter != in_map.end() ; iter++ , ii++ ) {
-                    std::stringstream sub_elements ;
-                    sub_elements << object_name << "_" << var_name << "_keys_" << ii ;
-                    keys[ii] = sub_elements.str() ;
+                for(iter = in_map.begin(), ii = 0; iter != in_map.end(); iter++, ii++)
+                {
+                    std::stringstream sub_elements;
+                    sub_elements << object_name << "_" << var_name << "_keys_" << ii;
+                    keys[ii] = sub_elements.str();
 
-                    std::stringstream index_string ;
-                    index_string << ii ;
-                    checkpoint_stl( const_cast<typename STL::key_type &>(iter->first) ,
-                     object_name + "_" + var_name + "_keys", index_string.str() ) ;
+                    std::stringstream index_string;
+                    index_string << ii;
+                    checkpoint_stl(const_cast<typename STL::key_type &>(iter->first),
+                                   object_name + "_" + var_name + "_keys",
+                                   index_string.str());
 
                     std::stringstream sub_elements_data;
-                    sub_elements_data << object_name << "_" << var_name << "_data_" << ii ;
-                    items[ii] = sub_elements_data.str() ;
+                    sub_elements_data << object_name << "_" << var_name << "_data_" << ii;
+                    items[ii] = sub_elements_data.str();
 
-                    checkpoint_stl( iter->second ,
-                     object_name + "_" + var_name + "_data", index_string.str() ) ;
+                    checkpoint_stl(iter->second, object_name + "_" + var_name + "_data", index_string.str());
                 }
             }
         }
     }
-    return 0 ;
+    return 0;
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if< is_stl_container<KEY>::value &&
-                                   is_stl_container<DATA>::value >::type* >
-int checkpoint_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_stl_sk_sd( in_map , object_name , var_name ) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<is_stl_container<KEY>::value && is_stl_container<DATA>::value>::type *>
+int checkpoint_stl(std::map<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return checkpoint_map_stl_sk_sd(in_map, object_name, var_name);
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if< is_stl_container<KEY>::value &&
-                                   is_stl_container<DATA>::value >::type*>
-int checkpoint_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return checkpoint_map_stl_sk_sd( in_map , object_name , var_name ) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<is_stl_container<KEY>::value && is_stl_container<DATA>::value>::type *>
+int checkpoint_stl(std::multimap<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return checkpoint_map_stl_sk_sd(in_map, object_name, var_name);
 }
+
 /* =================================================================================================*/
 
-template <class STL>
-int delete_map_allocs(STL & in_map __attribute__ ((unused)), std::string object_name , std::string var_name ) {
+template<class STL>
+int delete_map_allocs(STL & in_map __attribute__((unused)), std::string object_name, std::string var_name)
+{
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
-    REF2 * items_ref ;
+    REF2 * items_ref;
     std::string temp_str;
     temp_str = object_name + std::string("_") + var_name + std::string("_keys");
-    items_ref = ref_attributes((char *)temp_str.c_str()) ;
-    if ( items_ref != NULL ) {
+    items_ref = ref_attributes((char *)temp_str.c_str());
+    if(items_ref != NULL)
+    {
         temp_str = object_name + std::string("_") + var_name + std::string("_keys");
-        TMM_delete_var_n(temp_str.c_str() ) ;
+        TMM_delete_var_n(temp_str.c_str());
         temp_str = object_name + std::string("_") + var_name + std::string("_data");
-        TMM_delete_var_n(temp_str.c_str() ) ;
-        free(items_ref) ;
+        TMM_delete_var_n(temp_str.c_str());
+        free(items_ref);
     }
-    return 0 ;
+    return 0;
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc>
-int delete_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return delete_map_allocs(in_map , object_name , var_name) ;
+template<class KEY, class DATA, typename _Compare, typename _Alloc>
+int delete_stl(std::map<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return delete_map_allocs(in_map, object_name, var_name);
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc>
-int delete_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return delete_map_allocs(in_map , object_name , var_name) ;
+template<class KEY, class DATA, typename _Compare, typename _Alloc>
+int delete_stl(std::multimap<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return delete_map_allocs(in_map, object_name, var_name);
 }
 
 /* =================================================================================================*/
@@ -389,220 +441,248 @@ int delete_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string ob
    of items that were stored in the checkpoint.  Knowing the size, we can restore
    the map from the 2 arrays.
  */
-template <class STL>
-int restore_map_ik_id(STL & in_map , std::string object_name , std::string var_name ) {
+template<class STL> int restore_map_ik_id(STL & in_map, std::string object_name, std::string var_name)
+{
+    unsigned int ii;
+    unsigned int cont_size;
 
-    unsigned int ii ;
-    unsigned int cont_size ;
-
-    REF2 * keys_ref , * items_ref ;
+    REF2 *keys_ref, *items_ref;
 
     std::string temp_str;
 
-    typename STL::key_type * keys ;
-    typename STL::mapped_type * items ;
+    typename STL::key_type * keys;
+    typename STL::mapped_type * items;
 
-    //message_publish(1, "in regular map template restore\n") ;
+    // message_publish(1, "in regular map template restore\n") ;
 
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
     temp_str = object_name + "_" + var_name + "_keys";
-    keys_ref = ref_attributes(temp_str.c_str()) ;
+    keys_ref = ref_attributes(temp_str.c_str());
     temp_str = object_name + "_" + var_name + "_data";
-    items_ref = ref_attributes(temp_str.c_str()) ;
+    items_ref = ref_attributes(temp_str.c_str());
 
-    if ( keys_ref != NULL && items_ref != NULL ) {
-        in_map.clear() ;
-        keys = (typename STL::key_type *)keys_ref->address ;
-        items = (typename STL::mapped_type *)items_ref->address ;
-        cont_size = get_size((char *)keys) ;
+    if(keys_ref != NULL && items_ref != NULL)
+    {
+        in_map.clear();
+        keys = (typename STL::key_type *)keys_ref->address;
+        items = (typename STL::mapped_type *)items_ref->address;
+        cont_size = get_size((char *)keys);
 
-        for ( ii = 0 ; ii < cont_size ; ii++ ) {
-            in_map.insert( std::pair<typename STL::key_type , typename STL::mapped_type>(keys[ii], items[ii])) ;
+        for(ii = 0; ii < cont_size; ii++)
+        {
+            in_map.insert(std::pair<typename STL::key_type, typename STL::mapped_type>(keys[ii], items[ii]));
         }
 
-        delete_stl( in_map , object_name , var_name ) ;
+        delete_stl(in_map, object_name, var_name);
     }
-    return 0 ;
+    return 0;
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if<!is_stl_container<KEY>::value &&
-                                  !is_stl_container<DATA>::value >::type* >
-int restore_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_ik_id(in_map , object_name , var_name) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<!is_stl_container<KEY>::value && !is_stl_container<DATA>::value>::type *>
+int restore_stl(std::map<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return restore_map_ik_id(in_map, object_name, var_name);
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if<!is_stl_container<KEY>::value &&
-                                  !is_stl_container<DATA>::value >::type* >
-int restore_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_ik_id(in_map , object_name , var_name) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<!is_stl_container<KEY>::value && !is_stl_container<DATA>::value>::type *>
+int restore_stl(std::multimap<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return restore_map_ik_id(in_map, object_name, var_name);
 }
 
-template <class STL>
-int restore_map_ik_sd(STL & in_map , std::string object_name , std::string var_name ) {
-
-    unsigned int ii ;
-    unsigned int cont_size ;
+template<class STL> int restore_map_ik_sd(STL & in_map, std::string object_name, std::string var_name)
+{
+    unsigned int ii;
+    unsigned int cont_size;
 
     std::string temp_str;
 
-    REF2 * keys_ref , * items_ref ;
-    typename STL::key_type * keys ;
-    std::string * items ;
+    REF2 *keys_ref, *items_ref;
+    typename STL::key_type * keys;
+    std::string * items;
 
-    //message_publish(1, "in regular map template restore\n") ;
-
-    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
-
-    temp_str = object_name + "_" + var_name + "_keys";
-    keys_ref = ref_attributes(temp_str.c_str()) ;
-    temp_str = object_name + "_" + var_name + "_data";
-    items_ref = ref_attributes(temp_str.c_str()) ;
-
-    if ( keys_ref != NULL && items_ref != NULL ) {
-        in_map.clear() ;
-        keys = (typename STL::key_type *)keys_ref->address ;
-        items = (std::string *)items_ref->address ;
-        cont_size = get_size((char *)keys) ;
-
-        for ( ii = 0 ; ii < cont_size ; ii++ ) {
-            std::ostringstream index_string ;
-            index_string << ii ;
-
-            typename STL::mapped_type mt ;
-            restore_stl(mt, object_name + "_" + var_name + "_data", index_string.str()) ;
-            in_map.insert( std::pair<typename STL::key_type , typename STL::mapped_type>(keys[ii], mt)) ;
-        }
-        delete_stl( in_map , object_name , var_name ) ;
-    }
-    return 0 ;
-}
-
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if<!is_stl_container<KEY>::value &&
-                                   is_stl_container<DATA>::value >::type* >
-int restore_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_ik_sd(in_map , object_name , var_name) ;
-}
-
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if<!is_stl_container<KEY>::value &&
-                                   is_stl_container<DATA>::value >::type* >
-int restore_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_ik_sd(in_map , object_name , var_name) ;
-}
-
-template <class STL>
-int restore_map_sk_id(STL & in_map , std::string object_name , std::string var_name ) {
-
-    unsigned int ii ;
-    unsigned int cont_size ;
-
-    std::string temp_str;
-
-    REF2 * keys_ref , * items_ref ;
-    std::string * keys ;
-    typename STL::mapped_type * items ;
-
-    //message_publish(1, "in regular map template restore\n") ;
+    // message_publish(1, "in regular map template restore\n") ;
 
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     temp_str = object_name + "_" + var_name + "_keys";
-    keys_ref = ref_attributes(temp_str.c_str()) ;
+    keys_ref = ref_attributes(temp_str.c_str());
     temp_str = object_name + "_" + var_name + "_data";
-    items_ref = ref_attributes(temp_str.c_str()) ;
+    items_ref = ref_attributes(temp_str.c_str());
 
-    if ( keys_ref != NULL && items_ref != NULL ) {
-        in_map.clear() ;
-        keys = (std::string *)keys_ref->address ;
-        items = (typename STL::mapped_type *)items_ref->address ;
-        cont_size = get_size((char *)keys) ;
+    if(keys_ref != NULL && items_ref != NULL)
+    {
+        in_map.clear();
+        keys = (typename STL::key_type *)keys_ref->address;
+        items = (std::string *)items_ref->address;
+        cont_size = get_size((char *)keys);
 
-        for ( ii = 0 ; ii < cont_size ; ii++ ) {
-            std::ostringstream index_string ;
-            index_string << ii ;
+        for(ii = 0; ii < cont_size; ii++)
+        {
+            std::ostringstream index_string;
+            index_string << ii;
 
-            typename STL::key_type kt ;
-            restore_stl(kt, object_name + "_" + var_name + "_keys", index_string.str()) ;
-            in_map.insert( std::pair<typename STL::key_type , typename STL::mapped_type>(kt, items[ii])) ;
+            typename STL::mapped_type mt;
+            restore_stl(mt, object_name + "_" + var_name + "_data", index_string.str());
+            in_map.insert(std::pair<typename STL::key_type, typename STL::mapped_type>(keys[ii], mt));
         }
-        delete_stl( in_map , object_name , var_name ) ;
+        delete_stl(in_map, object_name, var_name);
     }
-    return 0 ;
+    return 0;
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if< is_stl_container<KEY>::value &&
-                                  !is_stl_container<DATA>::value >::type* >
-int restore_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_sk_id(in_map , object_name , var_name) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<!is_stl_container<KEY>::value && is_stl_container<DATA>::value>::type *>
+int restore_stl(std::map<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return restore_map_ik_sd(in_map, object_name, var_name);
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if< is_stl_container<KEY>::value &&
-                                  !is_stl_container<DATA>::value >::type* >
-int restore_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_sk_id(in_map , object_name , var_name) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<!is_stl_container<KEY>::value && is_stl_container<DATA>::value>::type *>
+int restore_stl(std::multimap<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return restore_map_ik_sd(in_map, object_name, var_name);
 }
 
-template <class STL>
-int restore_map_sk_sd(STL & in_map , std::string object_name , std::string var_name ) {
-
-    unsigned int ii ;
-    unsigned int cont_size ;
+template<class STL> int restore_map_sk_id(STL & in_map, std::string object_name, std::string var_name)
+{
+    unsigned int ii;
+    unsigned int cont_size;
 
     std::string temp_str;
 
-    REF2 * keys_ref , * items_ref ;
-    std::string * keys ;
-    std::string * items ;
+    REF2 *keys_ref, *items_ref;
+    std::string * keys;
+    typename STL::mapped_type * items;
 
-    //message_publish(1, "in regular map template restore\n") ;
+    // message_publish(1, "in regular map template restore\n") ;
 
     std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
 
     temp_str = object_name + "_" + var_name + "_keys";
-    keys_ref = ref_attributes((char *)temp_str.c_str()) ;
+    keys_ref = ref_attributes(temp_str.c_str());
     temp_str = object_name + "_" + var_name + "_data";
-    items_ref = ref_attributes((char *)temp_str.c_str()) ;
+    items_ref = ref_attributes(temp_str.c_str());
 
-    if ( keys_ref != NULL && items_ref != NULL ) {
-        in_map.clear() ;
-        keys = (std::string *)keys_ref->address ;
-        items = (std::string *)items_ref->address ;
-        cont_size = get_size((char *)keys) ;
+    if(keys_ref != NULL && items_ref != NULL)
+    {
+        in_map.clear();
+        keys = (std::string *)keys_ref->address;
+        items = (typename STL::mapped_type *)items_ref->address;
+        cont_size = get_size((char *)keys);
 
-        for ( ii = 0 ; ii < cont_size ; ii++ ) {
-            std::ostringstream index_string ;
-            index_string << ii ;
+        for(ii = 0; ii < cont_size; ii++)
+        {
+            std::ostringstream index_string;
+            index_string << ii;
 
-            typename STL::key_type kt ;
-            restore_stl(kt, object_name + "_" + var_name + "_keys", index_string.str()) ;
-
-            typename STL::mapped_type mt ;
-            restore_stl(mt, object_name + "_" + var_name + "_data", index_string.str()) ;
-
-            in_map.insert( std::pair<typename STL::key_type , typename STL::mapped_type>(kt, mt)) ;
+            typename STL::key_type kt;
+            restore_stl(kt, object_name + "_" + var_name + "_keys", index_string.str());
+            in_map.insert(std::pair<typename STL::key_type, typename STL::mapped_type>(kt, items[ii]));
         }
-        delete_stl( in_map , object_name , var_name ) ;
+        delete_stl(in_map, object_name, var_name);
     }
-    return 0 ;
+    return 0;
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if< is_stl_container<KEY>::value &&
-                                   is_stl_container<DATA>::value >::type* >
-int restore_stl(std::map<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_sk_sd(in_map , object_name , var_name) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<is_stl_container<KEY>::value && !is_stl_container<DATA>::value>::type *>
+int restore_stl(std::map<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return restore_map_sk_id(in_map, object_name, var_name);
 }
 
-template <class KEY, class DATA, typename _Compare, typename _Alloc,
-          typename std::enable_if< is_stl_container<KEY>::value &&
-                                   is_stl_container<DATA>::value >::type* >
-int restore_stl(std::multimap<KEY,DATA,_Compare,_Alloc> & in_map , std::string object_name , std::string var_name ) {
-    return restore_map_sk_sd(in_map , object_name , var_name) ;
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<is_stl_container<KEY>::value && !is_stl_container<DATA>::value>::type *>
+int restore_stl(std::multimap<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return restore_map_sk_id(in_map, object_name, var_name);
+}
+
+template<class STL> int restore_map_sk_sd(STL & in_map, std::string object_name, std::string var_name)
+{
+    unsigned int ii;
+    unsigned int cont_size;
+
+    std::string temp_str;
+
+    REF2 *keys_ref, *items_ref;
+    std::string * keys;
+    std::string * items;
+
+    // message_publish(1, "in regular map template restore\n") ;
+
+    std::replace_if(object_name.begin(), object_name.end(), static_cast<int (*)(int)>(std::ispunct), '_');
+
+    temp_str = object_name + "_" + var_name + "_keys";
+    keys_ref = ref_attributes((char *)temp_str.c_str());
+    temp_str = object_name + "_" + var_name + "_data";
+    items_ref = ref_attributes((char *)temp_str.c_str());
+
+    if(keys_ref != NULL && items_ref != NULL)
+    {
+        in_map.clear();
+        keys = (std::string *)keys_ref->address;
+        items = (std::string *)items_ref->address;
+        cont_size = get_size((char *)keys);
+
+        for(ii = 0; ii < cont_size; ii++)
+        {
+            std::ostringstream index_string;
+            index_string << ii;
+
+            typename STL::key_type kt;
+            restore_stl(kt, object_name + "_" + var_name + "_keys", index_string.str());
+
+            typename STL::mapped_type mt;
+            restore_stl(mt, object_name + "_" + var_name + "_data", index_string.str());
+
+            in_map.insert(std::pair<typename STL::key_type, typename STL::mapped_type>(kt, mt));
+        }
+        delete_stl(in_map, object_name, var_name);
+    }
+    return 0;
+}
+
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<is_stl_container<KEY>::value && is_stl_container<DATA>::value>::type *>
+int restore_stl(std::map<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return restore_map_sk_sd(in_map, object_name, var_name);
+}
+
+template<class KEY,
+         class DATA,
+         typename _Compare,
+         typename _Alloc,
+         typename std::enable_if<is_stl_container<KEY>::value && is_stl_container<DATA>::value>::type *>
+int restore_stl(std::multimap<KEY, DATA, _Compare, _Alloc> & in_map, std::string object_name, std::string var_name)
+{
+    return restore_map_sk_sd(in_map, object_name, var_name);
 }
 
 #endif

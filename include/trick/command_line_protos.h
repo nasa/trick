@@ -17,24 +17,25 @@
 #define COMMAND_LINE_PROTOS_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int command_line_args_process_sim_args(int argc , char ** argv) ;
+    int command_line_args_process_sim_args(int argc, char ** argv);
 
-int command_line_args_get_argc(void) ;
-char ** command_line_args_get_argv(void) ;
-const char * command_line_args_get_output_dir(void) ;
-const char * command_line_args_get_user_output_dir(void) ;
-const char * command_line_args_get_input_file(void) ;
+    int command_line_args_get_argc(void);
+    char ** command_line_args_get_argv(void);
+    const char * command_line_args_get_output_dir(void);
+    const char * command_line_args_get_user_output_dir(void);
+    const char * command_line_args_get_input_file(void);
 
-const char * command_line_args_get_default_dir(void) ;
-const char * command_line_args_get_cmdline_name(void) ;
+    const char * command_line_args_get_default_dir(void);
+    const char * command_line_args_get_cmdline_name(void);
 
-int output_dir_timestamped_on(void) ;
-int output_dir_timestamped_off(void) ;
+    int output_dir_timestamped_on(void);
+    int output_dir_timestamped_off(void);
 
-void set_output_dir(const char* output_directory);
+    void set_output_dir(const char * output_directory);
 
 #ifdef __cplusplus
 }
@@ -42,11 +43,9 @@ void set_output_dir(const char* output_directory);
 
 #ifdef __cplusplus
 #include <string>
-std::string & command_line_args_get_input_file_ref(void) ;
+std::string & command_line_args_get_input_file_ref(void);
 #endif
 
-void create_path(const char* directory);
-
+void create_path(const char * directory);
 
 #endif
-

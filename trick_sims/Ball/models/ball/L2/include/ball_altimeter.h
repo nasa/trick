@@ -18,27 +18,29 @@ PROGRAMMERS:
 
 #include "sim_services/include/Flag.h"
 
-typedef struct { /* BALT_IN --------------------------------------------------*/
+typedef struct
+{ /* BALT_IN --------------------------------------------------*/
 
-  Flag   add_noise ; /* --   Yes = Add noise to sensed altitude */
-  Flag   add_bias ;  /* --   Yes = Add bias to sensed altitude */
-  double noise ;     /* m    1 sigma noise */
-  double bias ;      /* m    Measurement bias */
+    Flag add_noise; /* --   Yes = Add noise to sensed altitude */
+    Flag add_bias;  /* --   Yes = Add bias to sensed altitude */
+    double noise;   /* m    1 sigma noise */
+    double bias;    /* m    Measurement bias */
 
-} BALT_IN ; /*----------------------------------------------------------------*/
+} BALT_IN; /*----------------------------------------------------------------*/
 
-typedef struct { /* BALT_OUT -------------------------------------------------*/
+typedef struct
+{ /* BALT_OUT -------------------------------------------------*/
 
-  double altitude ;  /* m    Sensed altitude */
+    double altitude; /* m    Sensed altitude */
 
-} BALT_OUT ; /*---------------------------------------------------------------*/
+} BALT_OUT; /*---------------------------------------------------------------*/
 
-typedef struct { /* BALT -----------------------------------------------------*/
+typedef struct
+{ /* BALT -----------------------------------------------------*/
 
-  BALT_IN  input ;      /*    --   User inputs */
-  BALT_OUT output ;     /*    --   User outputs */
+    BALT_IN input;   /*    --   User inputs */
+    BALT_OUT output; /*    --   User outputs */
 
-} BALT ; /*-------------------------------------------------------------------*/
+} BALT; /*-------------------------------------------------------------------*/
 
 #endif
-

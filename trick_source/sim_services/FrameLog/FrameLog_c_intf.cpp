@@ -1,8 +1,8 @@
-#include <stdio.h>
 #include "trick/FrameLog.hh"
+#include <stdio.h>
 
 /* Global singleton pointer to the framelog class */
-extern Trick::FrameLog * the_fl ;
+extern Trick::FrameLog * the_fl;
 
 /*************************************************************************/
 /* These routines are the "C" interface to framelog instrumentation     */
@@ -13,11 +13,13 @@ extern Trick::FrameLog * the_fl ;
  * @copydoc Trick::FrameLog::framelog_off
  * C wrapper for Trick::FrameLog::framelog_off
  */
-extern "C" int frame_log_off(void) {
-    if (the_fl != NULL) {
-        return the_fl->framelog_off() ;
+extern "C" int frame_log_off(void)
+{
+    if(the_fl != NULL)
+    {
+        return the_fl->framelog_off();
     }
-    return(0) ;
+    return (0);
 }
 
 /**
@@ -25,9 +27,11 @@ extern "C" int frame_log_off(void) {
  * @copydoc Trick::FrameLog::set_max_samples
  * C wrapper for Trick::FrameLog::set_max_samples
  */
-extern "C" int frame_log_set_max_samples(int num) {
-    if (the_fl != NULL) {
-        return the_fl->set_max_samples(num) ;
+extern "C" int frame_log_set_max_samples(int num)
+{
+    if(the_fl != NULL)
+    {
+        return the_fl->set_max_samples(num);
     }
-    return(0) ;
+    return (0);
 }

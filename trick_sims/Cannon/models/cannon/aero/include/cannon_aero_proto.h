@@ -7,18 +7,19 @@ Tutorial Sections 8, and 9
 #include "cannon_aero.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int cannon_init_aero(CANNON_AERO*) ;
-int cannon_force_gravity(CANNON_AERO*) ;
-int cannon_force_drag(CANNON_AERO*) ;
-int cannon_force_lift(CANNON_AERO*) ;
-int cannon_force_cross(CANNON_AERO*) ;
-int cannon_collect_forces(CANNON_AERO*) ;
-int cannon_integ_aero(CANNON_AERO*) ;
-double cannon_impact_aero(CANNON_AERO*) ;
-int cannon_aero_default_data(CANNON_AERO*) ;
+    int cannon_init_aero(CANNON_AERO *);
+    int cannon_force_gravity(CANNON_AERO *);
+    int cannon_force_drag(CANNON_AERO *);
+    int cannon_force_lift(CANNON_AERO *);
+    int cannon_force_cross(CANNON_AERO *);
+    int cannon_collect_forces(CANNON_AERO *);
+    int cannon_integ_aero(CANNON_AERO *);
+    double cannon_impact_aero(CANNON_AERO *);
+    int cannon_aero_default_data(CANNON_AERO *);
 
 #ifdef __cplusplus
 }

@@ -16,14 +16,14 @@ LIBRARY DEPENDENCY:
 
 class Thread1
 {
-    public:
-        Thread1(int in_usec);
-        ~Thread1();
-        int Step();
+public:
+    Thread1(int in_usec);
+    ~Thread1();
+    int Step();
     /*private:*/
-        bool m_bBusy;
-        int m_iBusyUSecs;
-        int m_iCount;
+    bool m_bBusy;
+    int m_iBusyUSecs;
+    int m_iCount;
 };
 
 #endif

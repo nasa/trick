@@ -1,26 +1,36 @@
 #include "ArrayDataType.hh"
-#include "PointerDataType.hh"
-#include "TypeDictionary.hh"
-#include "PointerValue.hh"
 #include "CompositeValue.hh"
+#include "PointerDataType.hh"
+#include "PointerValue.hh"
+#include "TypeDictionary.hh"
 #include <iostream>
 #include <sstream>
 
-bool ArrayDataType::initArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[] ) {
-
+bool ArrayDataType::initArrayDataType(TypeDictionary * typeDictionary,
+                                      std::string typeSpecName,
+                                      unsigned int n_dims,
+                                      int dims[])
+{
     bool errorCondition = false;
     // NOTE: (dim[0] >= 0) indicates an array. (dim[0] < 0) indicates a pointer.
-    if (( n_dims >= 1 ) && ( dims[0] >= 0 )) {
-        if ( n_dims == 1 ) {
+    if((n_dims >= 1) && (dims[0] >= 0))
+    {
+        if(n_dims == 1)
+        {
             this->typeSpecName = typeSpecName;
             ownDataType = NULL;
             this->subType = NULL;
-        } else if (n_dims > 1) {
+        }
+        else if(n_dims > 1)
+        {
             this->typeSpecName.clear();
-            if (dims[1] < 0) {
-                this->ownDataType = new PointerDataType( typeDictionary, typeSpecName, n_dims-1, &dims[1] );
-            } else {
-                this->ownDataType = new ArrayDataType( typeDictionary, typeSpecName, n_dims-1, &dims[1] );
+            if(dims[1] < 0)
+            {
+                this->ownDataType = new PointerDataType(typeDictionary, typeSpecName, n_dims - 1, &dims[1]);
+            }
+            else
+            {
+                this->ownDataType = new ArrayDataType(typeDictionary, typeSpecName, n_dims - 1, &dims[1]);
             }
             this->subType = ownDataType;
         }
@@ -29,105 +39,132 @@ bool ArrayDataType::initArrayDataType( TypeDictionary* typeDictionary, std::stri
 
         is_valid = false;
         typeSize = 0; // This is set when this ArrayDataType is validated.
-    } else {
+    }
+    else
+    {
         // n_dims and dims don't specify an array.
-        errorCondition= true;
+        errorCondition = true;
     }
 
     return errorCondition;
 }
 
 // CONSTRUCTOR
-ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[] )  {
-
-    if( this->initArrayDataType( typeDictionary, typeSpecName, n_dims, dims) ) {
+ArrayDataType::ArrayDataType(TypeDictionary * typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[])
+{
+    if(this->initArrayDataType(typeDictionary, typeSpecName, n_dims, dims))
+    {
         throw std::logic_error("ArrayDataType constructor(1) error.");
     }
 }
 
 // CONSTRUCTOR
-ArrayDataType:: ArrayDataType( TypeDictionary* typeDictionary, std::string typeSpecName, unsigned int dimensionSize )  {
-
+ArrayDataType::ArrayDataType(TypeDictionary * typeDictionary, std::string typeSpecName, unsigned int dimensionSize)
+{
     int n = dimensionSize;
-    if( this->initArrayDataType( typeDictionary, typeSpecName, 1, &n) ) {
+    if(this->initArrayDataType(typeDictionary, typeSpecName, 1, &n))
+    {
         throw std::logic_error("ArrayDataType constructor(2) error.");
     }
 }
 
 // CONSTRUCTOR
-ArrayDataType::ArrayDataType ( ArrayDataType const & original, unsigned int newSize ) {
-
+ArrayDataType::ArrayDataType(const ArrayDataType & original, unsigned int newSize)
+{
     is_valid = original.is_valid;
     typeSpecName = original.typeSpecName;
     elementCount = newSize;
     typeDictionary = original.typeDictionary;
 
-    if (original.ownDataType != NULL) {
+    if(original.ownDataType != NULL)
+    {
         ownDataType = original.ownDataType->clone();
-    } else {
+    }
+    else
+    {
         ownDataType = NULL;
     }
 
-    if ( typeSpecName.empty())  {
+    if(typeSpecName.empty())
+    {
         subType = ownDataType;
-    } else {
-        if ( is_valid ) {
+    }
+    else
+    {
+        if(is_valid)
+        {
             subType = original.subType;
-        } else {
+        }
+        else
+        {
             subType = NULL;
         }
     }
 }
 
 // COPY CONSTRUCTOR
-ArrayDataType::ArrayDataType ( ArrayDataType const & original) {
-
+ArrayDataType::ArrayDataType(const ArrayDataType & original)
+{
     is_valid = original.is_valid;
     typeSpecName = original.typeSpecName;
     elementCount = original.elementCount;
     typeDictionary = original.typeDictionary;
 
-    if (original.ownDataType != NULL) {
+    if(original.ownDataType != NULL)
+    {
         ownDataType = original.ownDataType->clone();
-    } else {
+    }
+    else
+    {
         ownDataType = NULL;
     }
 
-    if ( typeSpecName.empty())  {
+    if(typeSpecName.empty())
+    {
         subType = ownDataType;
-    } else {
-        if ( is_valid ) {
+    }
+    else
+    {
+        if(is_valid)
+        {
             subType = original.subType;
-        } else {
+        }
+        else
+        {
             subType = NULL;
         }
     }
 }
 
-DataType * ArrayDataType::clone () const {
-    return new ArrayDataType( *this );
+DataType * ArrayDataType::clone() const
+{
+    return new ArrayDataType(*this);
 }
 
 // DESTRUCTOR
-ArrayDataType::~ArrayDataType () {
-    if ( typeSpecName.empty()) {
+ArrayDataType::~ArrayDataType()
+{
+    if(typeSpecName.empty())
+    {
         delete subType;
     }
 }
 
 // ASSIGNMENT OPERATOR
-ArrayDataType& ArrayDataType::operator=( const ArrayDataType & rhs ) {
-
-    if ( this != &rhs ) {
-
+ArrayDataType & ArrayDataType::operator=(const ArrayDataType & rhs)
+{
+    if(this != &rhs)
+    {
         // Copy the RHS members before messing with the LHS.
-        DataType *clonedDataType;
-        if ( rhs.typeSpecName.empty() ) {
+        DataType * clonedDataType;
+        if(rhs.typeSpecName.empty())
+        {
             clonedDataType = rhs.subType->clone();
         }
 
         // Delete any pre-existing LHS members.
-        if ( typeSpecName.empty() ) {
+        if(typeSpecName.empty())
+        {
             delete subType;
         }
 
@@ -136,9 +173,12 @@ ArrayDataType& ArrayDataType::operator=( const ArrayDataType & rhs ) {
         is_valid = rhs.is_valid;
         typeSpecName = rhs.typeSpecName;
 
-        if ( typeSpecName.empty() ) {
+        if(typeSpecName.empty())
+        {
             subType = clonedDataType;
-        } else {
+        }
+        else
+        {
             subType = rhs.subType;
         }
     }
@@ -146,24 +186,34 @@ ArrayDataType& ArrayDataType::operator=( const ArrayDataType & rhs ) {
 }
 
 // MEMBER FUNCTION
-bool ArrayDataType::validate() {
-
-    if (!is_valid) {
+bool ArrayDataType::validate()
+{
+    if(!is_valid)
+    {
         // if we're not referencing a dictionary type.
-        if (typeSpecName.empty()) {
+        if(typeSpecName.empty())
+        {
             is_valid = ownDataType->validate();
-            if (is_valid) {
+            if(is_valid)
+            {
                 subType = ownDataType;
                 typeSize = elementCount * subType->getSize();
             }
-        } else {
-            subType = typeDictionary->getDataType( typeSpecName );
+        }
+        else
+        {
+            subType = typeDictionary->getDataType(typeSpecName);
 
-            if (subType == NULL) {
+            if(subType == NULL)
+            {
                 std::cerr << "ERROR: Type \"" << typeSpecName << "\" not found." << std::endl;
-            } else if (subType->isVoid()) {
+            }
+            else if(subType->isVoid())
+            {
                 std::cerr << "ERROR: Cannot make an array of type void." << std::endl;
-            } else {
+            }
+            else
+            {
                 is_valid = true;
                 typeSize = elementCount * subType->getSize();
             }
@@ -173,175 +223,238 @@ bool ArrayDataType::validate() {
 }
 
 // MEMBER FUNCTION
-size_t ArrayDataType::getSize() const {
-
-    if (is_valid) {
+size_t ArrayDataType::getSize() const
+{
+    if(is_valid)
+    {
         return typeSize;
-    } else {
+    }
+    else
+    {
         std::cerr << "ERROR: Can't getSize() because type hasn't been validated." << std::endl;
         return 0;
     }
 }
 
 // MEMBER FUNCTION
-unsigned int ArrayDataType::getTotalElementCount() const {
+unsigned int ArrayDataType::getTotalElementCount() const
+{
     unsigned int totalElementCount = elementCount * ownDataType->getTotalElementCount();
     return totalElementCount;
 }
 
 // MEMBER FUNCTION
-bool ArrayDataType::containsPointers() const {
-
-    if ((subType->containsPointers())) {
+bool ArrayDataType::containsPointers() const
+{
+    if((subType->containsPointers()))
+    {
         return true;
     }
     return false;
 }
 
 // MEMBER FUNCTION
-void* ArrayDataType::createInstance(unsigned int num) const {
-
-    if (subType != NULL) {
-        return subType->createInstance( num * elementCount );
-    } else {
+void * ArrayDataType::createInstance(unsigned int num) const
+{
+    if(subType != NULL)
+    {
+        return subType->createInstance(num * elementCount);
+    }
+    else
+    {
         std::cerr << "ERROR: Can't create an instance of an unvalidated type." << std::endl;
-        return (void*) NULL;
+        return (void *)NULL;
     }
 }
 
 // MEMBER FUNCTION
-void ArrayDataType::deleteInstance(void* address) const {
-    if (subType != NULL) {
+void ArrayDataType::deleteInstance(void * address) const
+{
+    if(subType != NULL)
+    {
         return subType->deleteInstance(address);
-    } else {
+    }
+    else
+    {
         std::cout << "WARNING: Can't delete an instance of an unvalidated type." << std::endl;
     }
 }
 
 // MEMBER FUNCTION
-void ArrayDataType::clearValue(void * address) const {
-    if (is_valid) {
-        for (int ii=0; ii < elementCount ; ii++) {
-            void * elementAddress = (char*)address + (ii * subType->getSize());
-            subType->clearValue( elementAddress );
+void ArrayDataType::clearValue(void * address) const
+{
+    if(is_valid)
+    {
+        for(int ii = 0; ii < elementCount; ii++)
+        {
+            void * elementAddress = (char *)address + (ii * subType->getSize());
+            subType->clearValue(elementAddress);
         }
-    } else {
+    }
+    else
+    {
         std::cerr << "ERROR: Type is not yet validated.";
     }
 }
 
 // MEMBER FUNCTION
-void ArrayDataType::assignValue(void * address, Value*value) const {
-
-    if (is_valid) {
-        CompositeValue * composite_value_p = dynamic_cast<CompositeValue*>(value);
-        if (composite_value_p) {
-            for (int ii=0; ii < elementCount ; ii++) {
-                void * elementAddress = (char*)address + (ii * subType->getSize());
-                subType->assignValue( elementAddress, (*composite_value_p)[ii] );
+void ArrayDataType::assignValue(void * address, Value * value) const
+{
+    if(is_valid)
+    {
+        CompositeValue * composite_value_p = dynamic_cast<CompositeValue *>(value);
+        if(composite_value_p)
+        {
+            for(int ii = 0; ii < elementCount; ii++)
+            {
+                void * elementAddress = (char *)address + (ii * subType->getSize());
+                subType->assignValue(elementAddress, (*composite_value_p)[ii]);
             }
-        } else {
+        }
+        else
+        {
             std::cerr << "ERROR: Value assigned to an array must be a composite value.";
         }
-    } else {
+    }
+    else
+    {
         std::cerr << "ERROR: Type is not valid for assignment.";
     }
 }
 
 // MEMBER FUNCTION
-void ArrayDataType::printValue(std::ostream &s, void * address) const {
-
-    if (is_valid) {
+void ArrayDataType::printValue(std::ostream & s, void * address) const
+{
+    if(is_valid)
+    {
         s << "{";
-        for (int ii=0; ii < elementCount ; ii++) {
-            if (ii) {
-            s << ",";
+        for(int ii = 0; ii < elementCount; ii++)
+        {
+            if(ii)
+            {
+                s << ",";
             }
-            void * elementAddress = (char*) address + (ii * subType->getSize());
-            subType->printValue( s, elementAddress );
+            void * elementAddress = (char *)address + (ii * subType->getSize());
+            subType->printValue(s, elementAddress);
         }
         s << "}";
-    } else {
+    }
+    else
+    {
         std::cerr << "ERROR: Type is not valid.";
     }
 }
 
 // MEMBER FUNCTION
-std::string ArrayDataType::getTypeSpecName() const {
-    if ( !typeSpecName.empty())  {
+std::string ArrayDataType::getTypeSpecName() const
+{
+    if(!typeSpecName.empty())
+    {
         return typeSpecName;
-    } else {
+    }
+    else
+    {
         return subType->getTypeSpecName();
     }
 }
 
 // MEMBER FUNCTION
-std::string ArrayDataType::makeDeclaration(std::string declarator, bool isDirectDeclarator) const {
+std::string ArrayDataType::makeDeclaration(std::string declarator, bool isDirectDeclarator) const
+{
     std::string outTypeName;
     std::stringstream ss;
 
-    if ( isDirectDeclarator ) {
-        ss << declarator << "[" << getElementCount() << "]" ;
-    } else {
-        ss << "(" << declarator << ")" << "[" << getElementCount() << "]" ;
+    if(isDirectDeclarator)
+    {
+        ss << declarator << "[" << getElementCount() << "]";
     }
-    if (subType != NULL) {
-        outTypeName = subType->makeDeclaration( ss.str(), true );
-    } else {
+    else
+    {
+        ss << "(" << declarator << ")" << "[" << getElementCount() << "]";
+    }
+    if(subType != NULL)
+    {
+        outTypeName = subType->makeDeclaration(ss.str(), true);
+    }
+    else
+    {
         outTypeName = getTypeSpecName() + ss.str();
     }
     return outTypeName;
 }
 
 // MEMBER FUNCTION
-unsigned int ArrayDataType::getElementCount() const {
+unsigned int ArrayDataType::getElementCount() const
+{
     return elementCount;
 }
 
 // MEMBER FUNCTION
-const DataType * ArrayDataType::getSubType() const {
+const DataType * ArrayDataType::getSubType() const
+{
     return subType;
 }
 
 #ifdef NEWSTUFF
 // MEMBER FUNCTION
-bool ArrayDataType::getElementInfo( LexicalAnalyzer* lexer, void* baseAddress, VarAccessInfo& varAccessInfo ) {
-
+bool ArrayDataType::getElementInfo(LexicalAnalyzer * lexer, void * baseAddress, VarAccessInfo & varAccessInfo)
+{
     bool errorCondition = false;
     nextToken = lexer->getToken();
-    if (nextToken = Token::Integer) {
-       int index = std::atoi( (lexer->getText()).c_str() );
+    if(nextToken = Token::Integer)
+    {
+        int index = std::atoi((lexer->getText()).c_str());
     }
-    if ( (index >= 0) && (index < elementCount)) {
-        const DataType*   elementDataType = subType->getDataType();
+    if((index >= 0) && (index < elementCount))
+    {
+        const DataType * elementDataType = subType->getDataType();
         TypeClass::e elementDataTypeClass = subType->getTypeClass();
-        void*              elementAddress = (char*) baseAddress + (index * subType->getSize());
+        void * elementAddress = (char *)baseAddress + (index * subType->getSize());
         nextToken = lexer->getToken();
-        if (nextToken == Token::RightBracket) {
-
+        if(nextToken == Token::RightBracket)
+        {
             nextToken = lexer->getToken();
-            if (nextToken == Token::EndOfFile) {
+            if(nextToken == Token::EndOfFile)
+            {
                 varAccessInfo.dataType = elementDataType;
-                varAccessInfo.address  = elementAddress;
-            } else if ( nextToken == Token::period) {
-                if (elementDataTypeClass == TypeClass::COMPOSITE) {
-                    errorCondition |= ((const CompositeDataType*)searchType)->getMemberInfo( lexer, elementAddress, varAccessInfo);
-                } else {
+                varAccessInfo.address = elementAddress;
+            }
+            else if(nextToken == Token::period)
+            {
+                if(elementDataTypeClass == TypeClass::COMPOSITE)
+                {
+                    errorCondition |= ((const CompositeDataType *)searchType)
+                                          ->getMemberInfo(lexer, elementAddress, varAccessInfo);
+                }
+                else
+                {
                     errorCondition = true;
                 }
-            } else if (nextToken == Token::LeftBracket) {
-                if ( typeClass == TypeClass::ARRAY ) {
-                    errorCondition |= ((const ArrayDataType*)searchType)->getElementInfo( lexer, elementAddress, varAccessInfo);
-                } else {
+            }
+            else if(nextToken == Token::LeftBracket)
+            {
+                if(typeClass == TypeClass::ARRAY)
+                {
+                    errorCondition |= ((const ArrayDataType *)searchType)
+                                          ->getElementInfo(lexer, elementAddress, varAccessInfo);
+                }
+                else
+                {
                     errorCondition = true;
                 }
-            } else {
+            }
+            else
+            {
                 errorCondition = true;
             }
-        } else {
+        }
+        else
+        {
             errorCondition = true;
         }
-    } else {
+    }
+    else
+    {
         errorCondition = true;
     }
     return errorCondition;

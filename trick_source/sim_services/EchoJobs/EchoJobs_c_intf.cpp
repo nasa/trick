@@ -1,8 +1,8 @@
-#include <stdio.h>
 #include "trick/EchoJobs.hh"
+#include <stdio.h>
 
 /* Global singleton pointer to the echo jobs class */
-extern Trick::EchoJobs * the_ej ;
+extern Trick::EchoJobs * the_ej;
 
 /*************************************************************************/
 /* These routines are the "C" interface to echo jobs instrumentation     */
@@ -13,11 +13,13 @@ extern Trick::EchoJobs * the_ej ;
  * @copydoc Trick::EchoJobs::echojobs_on
  * C wrapper for Trick::EchoJobs::echojobs_on
  */
-extern "C" int echo_jobs_on(void) {
-    if (the_ej != NULL) {
-        return the_ej->echojobs_on() ;
+extern "C" int echo_jobs_on(void)
+{
+    if(the_ej != NULL)
+    {
+        return the_ej->echojobs_on();
     }
-    return(0) ;
+    return (0);
 }
 
 /**
@@ -25,9 +27,11 @@ extern "C" int echo_jobs_on(void) {
  * @copydoc Trick::EchoJobs::echojobs_off
  * C wrapper for Trick::EchoJobs::echojobs_off
  */
-extern "C" int echo_jobs_off(void) {
-    if (the_ej != NULL) {
-        return the_ej->echojobs_off() ;
+extern "C" int echo_jobs_off(void)
+{
+    if(the_ej != NULL)
+    {
+        return the_ej->echojobs_off();
     }
-    return(0) ;
+    return (0);
 }

@@ -7,25 +7,24 @@
 
 #include "trick/ExternalApplication.hh"
 
-namespace Trick {
+namespace Trick
+{
 
-    /**
-     * Provides for automatic launching of Monte Monitor.
-     *
-     * @author Derek Bankieris
-     */
-    class MonteMonitor : public ExternalApplication {
+/**
+ * Provides for automatic launching of Monte Monitor.
+ *
+ * @author Derek Bankieris
+ */
+class MonteMonitor : public ExternalApplication
+{
+public:
+    /** Constructor. */
+    MonteMonitor();
 
-        public:
-        /** Constructor. */
-        MonteMonitor();
+private:
+    /** Prevent SWIG from trying to invoke operator= on ostringstream. */
+    MonteMonitor & operator=(const MonteMonitor &);
+};
 
-        private:
-
-        /** Prevent SWIG from trying to invoke operator= on ostringstream. */
-        MonteMonitor &operator=(const MonteMonitor &);
-
-    };
-
-}
+} // namespace Trick
 #endif

@@ -58,222 +58,205 @@
 Purpose: ()
 */
 
-
 #ifndef ER7_UTILS_ALLOC_TYPE_TRAITS_HH
 #define ER7_UTILS_ALLOC_TYPE_TRAITS_HH
 
+namespace er7_utils
+{
 
-namespace er7_utils {
+/**
+ * Implements some aspects of the Boost/C++11 type traits package.
+ * Only those aspects needed by the ER7 numerical utilities package are
+ * implemented.
+ */
+namespace type_traits
+{
 
-   /**
-    * Implements some aspects of the Boost/C++11 type traits package.
-    * Only those aspects needed by the ER7 numerical utilities package are
-    * implemented.
-    */
-   namespace type_traits {
+/**
+ * @internal
+ * Helper classes and functions internal to the type_traits namespace.
+ */
+namespace helper
+{
 
-   /**
-    * @internal
-    * Helper classes and functions internal to the type_traits namespace.
-    */
-   namespace helper {
+/**
+ * Helper function (never implemented) to distinguish between class
+ * and non-class types.
+ * @tparam T Type to be deduced.
+ * This version is syntactically valid for classes only.
+ */
+template<typename T> void * is_class_tester(void (T::*)(void));
 
-         /**
-          * Helper function (never implemented) to distinguish between class
-          * and non-class types.
-          * @tparam T Type to be deduced.
-          * This version is syntactically valid for classes only.
-          */
-         template <typename T>
-         void* is_class_tester (void (T::*)(void));
+/**
+ * Catch-all version of is_class_tester; works for all types.
+ * @tparam T Type to be deduced.
+ */
+template<typename T> char is_class_tester(...);
 
-         /**
-          * Catch-all version of is_class_tester; works for all types.
-          * @tparam T Type to be deduced.
-          */
-         template <typename T>
-         char is_class_tester (...);
+/**
+ * Helper class template for TypeTraits.
+ * The base implementation distinguishes between polymorphic classes
+ * and non-polymorphic classes by looking at the sizes of two classes
+ * that derive from the class in question.
+ * @tparam T Type to be deduced.
+ *   This parameter is a class type in this base implementation.
+ * @tparam is_class True if T is a class type, false otherwise.
+ *   This parameter is true in this base implementation.
+ */
+template<typename T, bool is_class> class IsPolymorphic
+{
+    /**
+     * Class that inherits from T without adding virtual methods.
+     * This class will not have a vtable if T is not polymorphic.
+     */
+    class NonVirtual : public T
+    {
+        ~NonVirtual();
+        void _some_function();
+        NonVirtual(const NonVirtual &);
+        NonVirtual & operator=(const NonVirtual &);
+    };
 
+    /**
+     * Class that inherits from T, adding a virtual destructor.
+     * This class will have a vtable whether or not T is polymorphic.
+     */
+    class Virtual : public T
+    {
+        virtual ~Virtual();
+        void _some_function();
+        Virtual(const Virtual &);
+        Virtual & operator=(const Virtual &);
+    };
 
-         /**
-          * Helper class template for TypeTraits.
-          * The base implementation distinguishes between polymorphic classes
-          * and non-polymorphic classes by looking at the sizes of two classes
-          * that derive from the class in question.
-          * @tparam T Type to be deduced.
-          *   This parameter is a class type in this base implementation.
-          * @tparam is_class True if T is a class type, false otherwise.
-          *   This parameter is true in this base implementation.
-          */
-         template<typename T, bool is_class>
-         class IsPolymorphic {
+public:
+    /**
+     * A class is polymorphic if the two classes deriving from the class
+     * in question are of the same size.
+     */
+    static const bool value = sizeof(NonVirtual) == sizeof(Virtual);
+};
 
-            /**
-             * Class that inherits from T without adding virtual methods.
-             * This class will not have a vtable if T is not polymorphic.
-             */
-            class NonVirtual : public T {
-               ~NonVirtual();
-               void _some_function();
-               NonVirtual(const NonVirtual&);
-               NonVirtual& operator= (const NonVirtual&);
-            };
+/**
+ * Partial template specialization of IsPolymorphic for non-class
+ * types.
+ * @tparam T Type to be deduced.
+ *   This parameter is a non-class type in this specialization.
+ */
+template<typename T> class IsPolymorphic<T, false>
+{
+public:
+    /**
+     * Non-class types can never be polymorphic.
+     */
+    static const bool value = false;
+};
 
-            /**
-             * Class that inherits from T, adding a virtual destructor.
-             * This class will have a vtable whether or not T is polymorphic.
-             */
-            class Virtual : public T {
-               virtual ~Virtual();
-               void _some_function();
-               Virtual(const Virtual&);
-               Virtual& operator= (const Virtual&);
-            };
+/**
+ * Helper class template for get_allocated_pointer.
+ * The default implementation pertains to polymorphic classes and
+ * uses dynamic_cast.
+ * @tparam T Type to be deduced.
+ *   This parameter is a polymorphic class in this base implementation.
+ * @tparam is_polymorphic True if T is a polymorphic class,
+ *   false otherwise.
+ *   This parameter is true in this base implementation.
+ */
+template<typename T, bool is_polymorphic> class GetAllocatedPointer
+{
+public:
+    /**
+     * Return a pointer to the most derived object corresponding to the
+     * input pointer -- i.e., to the address as allocated.
+     */
+    static void * cast(T * ptr)
+    {
+        return dynamic_cast<void *>(ptr);
+    }
+};
 
-         public:
+/**
+ * Partial template specialization of GetAllocatedPointer that
+ * pertains to non-classes and non-polymorphic classes.
+ * This specialization uses an implicit cast to void*.
+ * @tparam T Type to be deduced.
+ *   This parameter is a non-class type or a non-polymorphic class type
+ *   in this specialization.
+ */
+template<typename T> class GetAllocatedPointer<T, false>
+{
+public:
+    /**
+     * For non-classes and non-polymorphic classes, the address of
+     * an object is the address of the allocated memory for that object.
+     */
+    static void * cast(T * ptr)
+    {
+        return ptr;
+    }
+};
 
-            /**
-             * A class is polymorphic if the two classes deriving from the class
-             * in question are of the same size.
-             */
-            static const bool value = sizeof(NonVirtual) == sizeof(Virtual);
-         };
+} // namespace helper
 
+/**
+ * Class template whose sole data element indicates whether the type T
+ * is a class.
+ * @tparam T Type to be deduced.
+ */
+template<typename T> struct IsClass
+{
+    /**
+     * Is the type a class?
+     */
+    static const bool value = sizeof(helper::is_class_tester<T>(0)) > 1;
+};
 
-         /**
-          * Partial template specialization of IsPolymorphic for non-class
-          * types.
-          * @tparam T Type to be deduced.
-          *   This parameter is a non-class type in this specialization.
-          */
-         template<typename T>
-         class IsPolymorphic<T, false> {
-         public:
+/**
+ * Class template whose sole data element indicates whether the type T
+ * is a polymorphic class.
+ * @tparam T Type to be deduced.
+ */
+template<typename T> class IsPolymorphic
+{
+public:
+    /**
+     * Is the type a polymorphic class?
+     */
+    static const bool value = helper::IsPolymorphic<T, IsClass<T>::value>::value;
+};
 
-            /**
-             * Non-class types can never be polymorphic.
-             */
-            static const bool value = false;
-         };
+/**
+ * Class template that encapsulates traits of a type, but only to the
+ * extent needed by the ER7 utilities package.
+ * @tparam T Type to be deduced.
+ */
+template<typename T> class TypeTraits
+{
+public:
+    /**
+     * Is the type a class?
+     */
+    static const bool is_class = IsClass<T>::value;
 
+    /**
+     * Is the type a polymorphic class?
+     */
+    static const bool is_polymorphic = IsPolymorphic<T>::value;
+};
 
-         /**
-          * Helper class template for get_allocated_pointer.
-          * The default implementation pertains to polymorphic classes and
-          * uses dynamic_cast.
-          * @tparam T Type to be deduced.
-          *   This parameter is a polymorphic class in this base implementation.
-          * @tparam is_polymorphic True if T is a polymorphic class,
-          *   false otherwise.
-          *   This parameter is true in this base implementation.
-          */
-         template <typename T, bool is_polymorphic>
-         class GetAllocatedPointer {
-         public:
-
-            /**
-             * Return a pointer to the most derived object corresponding to the
-             * input pointer -- i.e., to the address as allocated.
-             */
-            static void* cast (T* ptr) {
-               return dynamic_cast<void*> (ptr);
-            }
-         };
-
-         /**
-          * Partial template specialization of GetAllocatedPointer that
-          * pertains to non-classes and non-polymorphic classes.
-          * This specialization uses an implicit cast to void*.
-          * @tparam T Type to be deduced.
-          *   This parameter is a non-class type or a non-polymorphic class type
-          *   in this specialization.
-          */
-         template <typename T>
-         class GetAllocatedPointer<T, false> {
-         public:
-
-            /**
-             * For non-classes and non-polymorphic classes, the address of
-             * an object is the address of the allocated memory for that object.
-             */
-            static void* cast (T* ptr) {
-               return ptr;
-            }
-         };
-
-      }
-
-
-      /**
-       * Class template whose sole data element indicates whether the type T
-       * is a class.
-       * @tparam T Type to be deduced.
-       */
-      template<typename T>
-      struct IsClass {
-
-         /**
-          * Is the type a class?
-          */
-         static const bool value =
-            sizeof (helper::is_class_tester<T>(0)) > 1;
-      };
-
-
-      /**
-       * Class template whose sole data element indicates whether the type T
-       * is a polymorphic class.
-       * @tparam T Type to be deduced.
-       */
-      template<typename T>
-      class IsPolymorphic {
-      public:
-
-         /**
-          * Is the type a polymorphic class?
-          */
-         static const bool value =
-            helper::IsPolymorphic<T,IsClass<T>::value>::value;
-      };
-
-
-      /**
-       * Class template that encapsulates traits of a type, but only to the
-       * extent needed by the ER7 utilities package.
-       * @tparam T Type to be deduced.
-       */
-      template<typename T>
-      class TypeTraits {
-      public:
-
-         /**
-          * Is the type a class?
-          */
-         static const bool is_class = IsClass<T>::value;
-
-         /**
-          * Is the type a polymorphic class?
-          */
-         static const bool is_polymorphic = IsPolymorphic<T>::value;
-      };
-
-
-      /**
-       * Return a pointer to the as-allocated address of the input object.
-       * @tparam T   The type of the pointer.
-       * @param  ptr Object whose as-allocated address is to be determined.
-       * @return     As-allocated address of ptr.
-       */
-      template <typename T>
-      void *
-      get_allocated_pointer (T* ptr) {
-         typedef helper::GetAllocatedPointer<T,IsPolymorphic<T>::value>
-                 GetAllocatedPointer;
-         return GetAllocatedPointer::cast (ptr);
-      }
-   }
+/**
+ * Return a pointer to the as-allocated address of the input object.
+ * @tparam T   The type of the pointer.
+ * @param  ptr Object whose as-allocated address is to be determined.
+ * @return     As-allocated address of ptr.
+ */
+template<typename T> void * get_allocated_pointer(T * ptr)
+{
+    typedef helper::GetAllocatedPointer<T, IsPolymorphic<T>::value> GetAllocatedPointer;
+    return GetAllocatedPointer::cast(ptr);
 }
-
+} // namespace type_traits
+} // namespace er7_utils
 
 #endif
 

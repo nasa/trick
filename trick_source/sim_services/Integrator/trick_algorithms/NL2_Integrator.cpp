@@ -3,8 +3,8 @@
 
 /**
  */
-void Trick::NL2_Integrator::initialize(int State_size, double Dt) {
-
+void Trick::NL2_Integrator::initialize(int State_size, double Dt)
+{
     int i;
     const int n_steps = 2;
 
@@ -13,31 +13,36 @@ void Trick::NL2_Integrator::initialize(int State_size, double Dt) {
     dt = Dt;
     num_state = State_size;
 
-    state_origin =  INTEG_ALLOC( double*, num_state );
-    for(i=0; i<num_state ; i++) {
-        state_origin[i] = (double*)NULL;
+    state_origin = INTEG_ALLOC(double *, num_state);
+    for(i = 0; i < num_state; i++)
+    {
+        state_origin[i] = (double *)NULL;
     }
 
     /** Allocate the state vector.*/
-    state =  INTEG_ALLOC( double, num_state );
+    state = INTEG_ALLOC(double, num_state);
 
     /** Allocate the state deriv vector.*/
-    deriv = INTEG_ALLOC( double*, n_steps);
-    for(i=0; i<n_steps ; i++) {
-        deriv[i] = INTEG_ALLOC( double, num_state);
+    deriv = INTEG_ALLOC(double *, n_steps);
+    for(i = 0; i < n_steps; i++)
+    {
+        deriv[i] = INTEG_ALLOC(double, num_state);
     }
 
     /** Allocate the workspace.*/
-    state_ws = INTEG_ALLOC( double*, n_steps);
-    for(i=0; i<n_steps ; i++) {
-        state_ws[i] = INTEG_ALLOC( double, num_state);
+    state_ws = INTEG_ALLOC(double *, n_steps);
+    for(i = 0; i < n_steps; i++)
+    {
+        state_ws[i] = INTEG_ALLOC(double, num_state);
     }
 }
 
 /**
  */
-Trick::NL2_Integrator::NL2_Integrator(int State_size, double Dt) {
-    if (verbosity) {
+Trick::NL2_Integrator::NL2_Integrator(int State_size, double Dt)
+{
+    if(verbosity)
+    {
         message_publish(MSG_DEBUG, "Trick::NL2_Integrator()\n");
     }
     initialize(State_size, Dt);
@@ -45,50 +50,73 @@ Trick::NL2_Integrator::NL2_Integrator(int State_size, double Dt) {
 
 /**
  */
-Trick::NL2_Integrator::~NL2_Integrator() {
-
+Trick::NL2_Integrator::~NL2_Integrator()
+{
     const int n_steps = 2;
     int i;
 
-    if (state_origin) INTEG_FREE(state_origin);
+    if(state_origin)
+    {
+        INTEG_FREE(state_origin);
+    }
 
     /** Free the state vector.*/
-    if (state) INTEG_FREE(state);
+    if(state)
+    {
+        INTEG_FREE(state);
+    }
 
     /** Free the state derivative vector.*/
-    for(i=0; i<n_steps ; i++) {
-        if (deriv[i]) INTEG_FREE(deriv[i]);
+    for(i = 0; i < n_steps; i++)
+    {
+        if(deriv[i])
+        {
+            INTEG_FREE(deriv[i]);
+        }
     }
-    if (deriv) INTEG_FREE(deriv);
+    if(deriv)
+    {
+        INTEG_FREE(deriv);
+    }
 
     /** Free the workspace.*/
-    for(i=0; i<n_steps ; i++) {
-        if (state_ws[i]) INTEG_FREE(state_ws[i]);
+    for(i = 0; i < n_steps; i++)
+    {
+        if(state_ws[i])
+        {
+            INTEG_FREE(state_ws[i]);
+        }
     }
-    if (state_ws) INTEG_FREE(state_ws);
+    if(state_ws)
+    {
+        INTEG_FREE(state_ws);
+    }
 }
 
 /**
  */
-int Trick::NL2_Integrator::integrate() {
-
+int Trick::NL2_Integrator::integrate()
+{
     int i, no2;
-    double dto2;                /* dt/2 */
+    double dto2; /* dt/2 */
 
     dto2 = dt / 2.0;
     no2 = num_state / 2;
 
-    switch (intermediate_step) {
+    switch(intermediate_step)
+    {
         case 0:
             /* Save initial time */
             time_0 = time;
 
             /* Save first step 0 state and compute 1st state estimate at t = t + dt */
-            for (i = 0; i < no2; i++) {
+            for(i = 0; i < no2; i++)
+            {
                 state_ws[0][i] = state[i];
                 state_ws[1][i] = state[i] + deriv[0][i] * dto2;
             }
-            for (; i < num_state; i++) {
+            for(; i < num_state; i++)
+            {
                 state_ws[0][i] = state[i];
                 state_ws[1][i] = state[i];
             }
@@ -98,10 +126,13 @@ int Trick::NL2_Integrator::integrate() {
         case 1:
 
             /* Compute final state estimate at t = t + dt */
-            for (i = no2; i < num_state; i++)
+            for(i = no2; i < num_state; i++)
+            {
                 state_ws[0][i] += (deriv[1][i] * dt);
+            }
 
-            for (i = 0; i < no2; i++) {
+            for(i = 0; i < no2; i++)
+            {
                 deriv[1][i] = state_ws[0][no2 + i];
                 state_ws[0][i] = state_ws[1][i] + deriv[1][i] * dto2;
             }
@@ -113,10 +144,11 @@ int Trick::NL2_Integrator::integrate() {
     return (intermediate_step);
 }
 
-void Trick::NL2_Integrator::set_first_step_deriv(bool first_step) {
-    if ( first_step ) {
+void Trick::NL2_Integrator::set_first_step_deriv(bool first_step)
+{
+    if(first_step)
+    {
         message_publish(MSG_WARNING, "2nd order Nystrom-Lear should always have first_step_deriv = 0\n");
     }
     first_step_deriv = first_step;
 }
-

@@ -22,7 +22,8 @@
 #include "trick/Event.hh"
 #include "trick/JobData.hh"
 
-namespace Trick {
+namespace Trick
+{
 
 /**
   This class processes events on the thread the class was assigned.  The process_event
@@ -33,58 +34,57 @@ namespace Trick {
   @author Alex Lin, Danny Strauss
  */
 
-    class EventProcessor {
+class EventProcessor
+{
+public:
+    /**
+     @brief Sets the process_event_job pointer.
+    */
+    void set_process_event_job(Trick::JobData * in_job)
+    {
+        process_event_job = in_job;
+    }
 
-        public:
+    /**
+     @brief Add a new event to the pending events list.  Pending events are added to the
+      processing queue at the next top of frame when add_pending_events is run.
+    */
+    void add_event(Trick::Event * in_event);
 
-            /**
-             @brief Sets the process_event_job pointer.
-            */
-            void set_process_event_job( Trick::JobData * in_job) { process_event_job = in_job ; } ;
+    /**
+     @brief Remove an event from the queue.
+    */
+    void remove_event(Trick::Event * in_event);
 
-            /**
-             @brief Add a new event to the pending events list.  Pending events are added to the
-              processing queue at the next top of frame when add_pending_events is run.
-            */
-            void add_event(Trick::Event * in_event) ;
+    /**
+     @brief top_of_frame job that moves pending events to the process_event queue.
+     @return always 0
+    */
+    void add_pending_events(long long curr_time, bool is_restart = false);
 
-            /**
-             @brief Remove an event from the queue.
-            */
-            void remove_event(Trick::Event * in_event) ;
+    /**
+     @brief Automatic job to process input file events.
+     @return always 0
+    */
+    int process_event(long long curr_time);
 
-            /**
-             @brief top_of_frame job that moves pending events to the process_event queue.
-             @return always 0
-            */
-            void add_pending_events(long long curr_time, bool is_restart = false ) ;
+    /**
+     @brief Clears the event set before a checkpoint is loaded
+    */
+    void preload_checkpoint();
 
-            /**
-             @brief Automatic job to process input file events.
-             @return always 0
-            */
-            int process_event( long long curr_time ) ;
+private:
+    Trick::JobData * process_event_job; // trick_io(**)
 
-            /**
-             @brief Clears the event set before a checkpoint is loaded
-            */
-            void preload_checkpoint() ;
+    /** Use an ordered set to store the events.  The events are sorted by their next execution
+        time.  The set allows us to add/remove items at any time.\n */
+    std::multiset<Trick::Event *, CompareEventPtrs> event_set; // trick_io(**)
 
-        private:
+    /** Added events are put in the staging area called pending events.  The add_pending_events
+        job moves pending events to the event_set.\n */
+    std::vector<Trick::Event *> pending_events; // trick_io(**)
+};
 
-            Trick::JobData * process_event_job ; // trick_io(**)
-
-            /** Use an ordered set to store the events.  The events are sorted by their next execution
-                time.  The set allows us to add/remove items at any time.\n */
-            std::multiset< Trick::Event *, CompareEventPtrs > event_set ;  // trick_io(**)
-
-            /** Added events are put in the staging area called pending events.  The add_pending_events
-                job moves pending events to the event_set.\n */
-            std::vector< Trick::Event * > pending_events ; // trick_io(**)
-
-    } ;
-
-}
+} // namespace Trick
 
 #endif
-

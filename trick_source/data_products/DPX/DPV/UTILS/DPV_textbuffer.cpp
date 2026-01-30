@@ -1,26 +1,25 @@
 
 #include "DPV_textbuffer.hh"
 
-#include <stdio.h>
+#include <iostream>
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <iostream>
 
 #define MAX_MSG_SIZE 0xFFFF
 
-DPV_TextBuffer::DPV_TextBuffer() {
-
+DPV_TextBuffer::DPV_TextBuffer()
+{
     text_buf = NULL;
     insertion_pos = 0;
     buf_size = 0;
 }
 
-DPV_TextBuffer::~DPV_TextBuffer() {
-}
+DPV_TextBuffer::~DPV_TextBuffer() {}
 
-void DPV_TextBuffer::print(const char* format, ...) {
-
+void DPV_TextBuffer::print(const char * format, ...)
+{
     char message[MAX_MSG_SIZE];
     va_list vargs;
     size_t new_insertion_pos;
@@ -33,14 +32,17 @@ void DPV_TextBuffer::print(const char* format, ...) {
     message_len = strlen(message);
     new_insertion_pos = insertion_pos + message_len;
 
-    if (text_buf == NULL) {
-        text_buf = (char*)calloc(1, size_t(MAX_MSG_SIZE));
+    if(text_buf == NULL)
+    {
+        text_buf = (char *)calloc(1, size_t(MAX_MSG_SIZE));
     }
 
-    while ( insertion_pos > buf_size) {
+    while(insertion_pos > buf_size)
+    {
         buf_size += (size_t)MAX_MSG_SIZE;
-        if ((text_buf = (char *)realloc( text_buf, buf_size )) == NULL) {
-            fprintf(stderr,"OUT_OF_MEMORY in DPV_TextBuffer.\n");
+        if((text_buf = (char *)realloc(text_buf, buf_size)) == NULL)
+        {
+            fprintf(stderr, "OUT_OF_MEMORY in DPV_TextBuffer.\n");
             fflush(stderr);
             exit(1);
         }
@@ -48,28 +50,29 @@ void DPV_TextBuffer::print(const char* format, ...) {
 
     strcpy(&text_buf[insertion_pos], message);
     insertion_pos = new_insertion_pos;
-
 }
 
-
-int DPV_TextBuffer::subst( const char* search_s, const char* replace_s ) {
-
+int DPV_TextBuffer::subst(const char * search_s, const char * replace_s)
+{
     std::string haystack = text_buf;
     std::string needle = search_s;
 
     // If we did'nt find the search string.
-    if ( haystack.find(needle) == std::string::npos ) {
+    if(haystack.find(needle) == std::string::npos)
+    {
         // There is no substitution.
         return (0);
     }
 
     // Perform a single substitution.
-    haystack.replace( haystack.find(needle), needle.length(), replace_s );
+    haystack.replace(haystack.find(needle), needle.length(), replace_s);
 
-    if ( sizeof(haystack) > buf_size) {
+    if(sizeof(haystack) > buf_size)
+    {
         buf_size += (size_t)MAX_MSG_SIZE;
-        if ((text_buf = (char *)realloc( text_buf, buf_size )) == NULL) {
-            fprintf(stderr,"OUT_OF_MEMORY in DPV_TextBuffer.\n");
+        if((text_buf = (char *)realloc(text_buf, buf_size)) == NULL)
+        {
+            fprintf(stderr, "OUT_OF_MEMORY in DPV_TextBuffer.\n");
             fflush(stderr);
             exit(1);
         }
@@ -84,36 +87,40 @@ int DPV_TextBuffer::subst( const char* search_s, const char* replace_s ) {
     return (1);
 }
 
-void DPV_TextBuffer::subst_g( const char* search_s, const char* replace_s ) {
-
-    while ( subst( search_s, replace_s)) ;
-
+void DPV_TextBuffer::subst_g(const char * search_s, const char * replace_s)
+{
+    while(subst(search_s, replace_s))
+        ;
 }
 
-const char* DPV_TextBuffer::getText() {
-    return ((const char*)text_buf);
+const char * DPV_TextBuffer::getText()
+{
+    return ((const char *)text_buf);
 }
 
-int DPV_TextBuffer::readFile( const char* fileName ) {
+int DPV_TextBuffer::readFile(const char * fileName)
+{
+    FILE * fp;
 
-    FILE *fp;
-
-    char *buf;
+    char * buf;
     int success = 0;
     int failure = -1;
     size_t numRead;
     long fileSize;
 
     //! See if file name exists, and if writable
-    if (access(fileName, F_OK) == success) {
-        if (access(fileName, R_OK) == failure) {
+    if(access(fileName, F_OK) == success)
+    {
+        if(access(fileName, R_OK) == failure)
+        {
             std::cerr << "Unable to access file \"" << fileName << "\" for reading.\n";
             return (-1);
         }
     }
     //! Open it
     fp = fopen(fileName, "r");
-    if (fp == NULL) {
+    if(fp == NULL)
+    {
         return (-1);
     }
     //! Get size of file
@@ -123,9 +130,10 @@ int DPV_TextBuffer::readFile( const char* fileName ) {
 
     //! Read file into buffer
     buf = new char[fileSize + 1];
-    numRead = fread((char *) buf, fileSize, 1, fp);
-    if (numRead != 1) {
-        delete[]buf;
+    numRead = fread((char *)buf, fileSize, 1, fp);
+    if(numRead != 1)
+    {
+        delete[] buf;
         fclose(fp);
         return (-1);
     }
@@ -138,17 +146,17 @@ int DPV_TextBuffer::readFile( const char* fileName ) {
     return (0);
 }
 
-int DPV_TextBuffer::writeFile( const char* filename ) {
+int DPV_TextBuffer::writeFile(const char * filename)
+{
+    FILE * fp;
 
-    FILE *fp;
-
-    if ((fp = fopen( filename, "w")) == NULL) {
+    if((fp = fopen(filename, "w")) == NULL)
+    {
         std::cerr << "Unable to open file \"" << filename << "\" for writing.\n";
         return (-1);
     }
 
-    fprintf(fp,"%s", this->getText());
+    fprintf(fp, "%s", this->getText());
     fclose(fp);
     return (0);
 }
-

@@ -23,23 +23,25 @@ Purpose:()
 *****************************************************************************/
 class MonteCarloVariableRandomUniform : public MonteCarloVariableRandom
 {
- protected:
- #ifndef SWIG
-  std::uniform_real_distribution<double> distribution;
- #endif
+protected:
+#ifndef SWIG
+    std::uniform_real_distribution<double> distribution;
+#endif
 
- public:
-  MonteCarloVariableRandomUniform( const std::string & var_name,
-                                   unsigned int seed = 0,
-                                   double       lower_bound = 0.0,
-                                   double       upper_bound = 1.0);
-  virtual ~MonteCarloVariableRandomUniform(){};
-  virtual void generate_assignment();
-  virtual std::string summarize_variable() const;
- private: // and undefined:
-  MonteCarloVariableRandomUniform( const MonteCarloVariableRandomUniform & );
-  MonteCarloVariableRandomUniform& operator = (
-                                     const MonteCarloVariableRandomUniform&);
+public:
+    MonteCarloVariableRandomUniform(const std::string & var_name,
+                                    unsigned int seed = 0,
+                                    double lower_bound = 0.0,
+                                    double upper_bound = 1.0);
+
+    virtual ~MonteCarloVariableRandomUniform() {}
+
+    virtual void generate_assignment();
+    virtual std::string summarize_variable() const;
+
+private: // and undefined:
+    MonteCarloVariableRandomUniform(const MonteCarloVariableRandomUniform &);
+    MonteCarloVariableRandomUniform & operator=(const MonteCarloVariableRandomUniform &);
 };
 
 /*****************************************************************************
@@ -48,22 +50,24 @@ Purpose:()
 *****************************************************************************/
 class MonteCarloVariableRandomUniformInt : public MonteCarloVariableRandom
 {
- protected:
- #ifndef SWIG
-  std::uniform_int_distribution<int> distribution;
- #endif
+protected:
+#ifndef SWIG
+    std::uniform_int_distribution<int> distribution;
+#endif
 
- public:
-  MonteCarloVariableRandomUniformInt( const std::string & var_name,
-                                      unsigned int seed = 0,
-                                      double       lower_bound = 0,
-                                      double       upper_bound = 1);
-  virtual ~MonteCarloVariableRandomUniformInt(){};
-  virtual void generate_assignment();
-  virtual std::string summarize_variable() const;
- private: // and undefined:
-  MonteCarloVariableRandomUniformInt(const MonteCarloVariableRandomUniformInt&);
-  MonteCarloVariableRandomUniformInt& operator = (
-                                     const MonteCarloVariableRandomUniformInt&);
+public:
+    MonteCarloVariableRandomUniformInt(const std::string & var_name,
+                                       unsigned int seed = 0,
+                                       double lower_bound = 0,
+                                       double upper_bound = 1);
+
+    virtual ~MonteCarloVariableRandomUniformInt() {}
+
+    virtual void generate_assignment();
+    virtual std::string summarize_variable() const;
+
+private: // and undefined:
+    MonteCarloVariableRandomUniformInt(const MonteCarloVariableRandomUniformInt &);
+    MonteCarloVariableRandomUniformInt & operator=(const MonteCarloVariableRandomUniformInt &);
 };
 #endif

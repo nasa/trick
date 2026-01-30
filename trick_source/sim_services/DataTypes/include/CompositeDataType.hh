@@ -1,14 +1,14 @@
 #ifndef COMPOSITE_DATA_TYPE_H
 #define COMPOSITE_DATA_TYPE_H
 
+#include "BitfieldStructMember.hh"
 #include "DataType.hh"
 #include "StructMember.hh"
-#include "BitfieldStructMember.hh"
 #include "Value.hh"
 #include "VarAccessInfo.hh"
-#include <vector>
-#include <string>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 class LexicalAnalyzer;
 
@@ -16,19 +16,18 @@ class LexicalAnalyzer;
  A CompositeDataType represents user-defined types, such as structs, unions, or classes.
  It is 'composed' of ordered lists of component types.
  */
-class CompositeDataType : public DataType {
-
+class CompositeDataType : public DataType
+{
 public:
-
     /**
      Constructor for CompositeDataType.
      @param sizeof_struct Size, in bytes, of the struct, class or union that this class represents.
      */
-    CompositeDataType( TypeDictionary* typeDictionary,
-                       std::string name,
-                       size_t sizeof_struct,
-                       void *(*allocator)(int),
-                       void (*deAllocator)(void*) );
+    CompositeDataType(TypeDictionary * typeDictionary,
+                      std::string name,
+                      size_t sizeof_struct,
+                      void * (*allocator)(int),
+                      void (*deAllocator)(void *));
 
     /* ==================================================================== */
     /*                         RULE OF THREE INTERFACE                      */
@@ -38,18 +37,18 @@ public:
      Copy Constructor.
      @param original The instance of CompositeDataType that is to be copied.
      */
-    CompositeDataType ( const CompositeDataType & original );
+    CompositeDataType(const CompositeDataType & original);
 
     /**
      Destructor for CompositeDataType.
       */
-    ~CompositeDataType ();
+    ~CompositeDataType();
 
     /**
      Assignment operator for CompositeDataType.
      @param rhs right-hand-side.
     */
-    CompositeDataType & operator=( const CompositeDataType & rhs );
+    CompositeDataType & operator=(const CompositeDataType & rhs);
 
     /* ==================================================================== */
     /*                          VIRTUAL INTERFACE                         */
@@ -58,7 +57,7 @@ public:
     /**
      @return does the DataType or any member of the DataType represent a pointer?
      */
-     bool containsPointer() const;
+    bool containsPointer() const;
 
     /**
      */
@@ -66,26 +65,27 @@ public:
 
     /**
      */
-    bool validate() ;
+    bool validate();
 
     /**
      @return The size (in bytes) of an instance of the CompositeDataType.
      */
-    size_t getSize() const ;
+    size_t getSize() const;
 
     /**
      */
-    TypeClass::e getTypeClass() const {
+    TypeClass::e getTypeClass() const
+    {
         return TypeClass::COMPOSITE;
-    };
+    }
 
     /**
      */
-    void* createInstance(unsigned int num) const;
+    void * createInstance(unsigned int num) const;
 
     /**
      */
-    void deleteInstance(void* address) const;
+    void deleteInstance(void * address) const;
 
     /**
      */
@@ -103,7 +103,7 @@ public:
      @param s The stream to print to.
      @param address Address of the (entire) variable.
      */
-    void printValue(std::ostream &s, void *address) const;
+    void printValue(std::ostream & s, void * address) const;
 
     /**
      */
@@ -122,11 +122,7 @@ public:
      @param n_dims
      @param dims
      */
-    void addRegularMember( std::string memberName,
-                           int offset,
-                           std::string typeName,
-                           unsigned n_dims,
-                           int dims[]) ;
+    void addRegularMember(std::string memberName, int offset, std::string typeName, unsigned n_dims, int dims[]);
 
     /**
      Add a static data member to the CompositeDataType.
@@ -137,11 +133,8 @@ public:
      @param n_dims
      @param dims
      */
-    void addStaticMember(std::string memberName,
-                         void * memberAddress,
-                         std::string typeSpecName,
-                         unsigned int n_dims,
-                         int dims[] ) ;
+    void addStaticMember(
+        std::string memberName, void * memberAddress, std::string typeSpecName, unsigned int n_dims, int dims[]);
 
     /**
      Add a bitfield data member to the CompositeDataType.
@@ -149,12 +142,12 @@ public:
      @param getter Pointer to a function that returns the value of a bitfield in the addressed class/struct.
      @param getter Pointer to a function that sets the value of a bitfield in the addressed class/struct.
      */
-    template <class T> void addBitFieldMember( std::string member_name,
-                                               T(*getter)(void* address),
-                                               void(*setter)(void* address, T value) ) {
-
-        memberList.push_back( new BitfieldStructMember<T>(member_name, getter, setter));
-
+    template<class T>
+    void addBitFieldMember(std::string member_name,
+                           T (*getter)(void * address),
+                           void (*setter)(void * address, T value))
+    {
+        memberList.push_back(new BitfieldStructMember<T>(member_name, getter, setter));
     }
 
     /**
@@ -167,22 +160,22 @@ public:
 
     /**
      */
-    StructMember* getStructMember (const int index) const;
+    StructMember * getStructMember(const int index) const;
 
     /**
      */
-    bool getMemberInfo( LexicalAnalyzer* lexer, void* baseAddress, VarAccessInfo& varAccessInfo );
+    bool getMemberInfo(LexicalAnalyzer * lexer, void * baseAddress, VarAccessInfo & varAccessInfo);
 
 private:
     CompositeDataType();
 
     bool is_valid;
-    std::vector<StructMember*> memberList;
-    std::vector<StructMember*>::iterator memberListIterator;
+    std::vector<StructMember *> memberList;
+    std::vector<StructMember *>::iterator memberListIterator;
     std::string name;
     size_t structSize; /** Sizeof the struct/or class represented by the CompositeDataType. */
-    void* (*allocator)(int);
-    void (*deAllocator)(void*);
-    TypeDictionary* typeDictionary;
+    void * (*allocator)(int);
+    void (*deAllocator)(void *);
+    TypeDictionary * typeDictionary;
 };
 #endif

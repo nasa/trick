@@ -16,32 +16,31 @@
 #ifndef MESSAGE_HS_FILE_HH
 #define MESSAGE_HS_FILE_HH
 
-#include <string>
-#include <iostream>
-#include <fstream>
 #include "trick/MessageFile.hh"
+#include <fstream>
+#include <iostream>
+#include <string>
 
-namespace Trick {
+namespace Trick
+{
+
+/**
+ * MessageHSFile writes all messages of levels 0-99 to the send_hs file
+ */
+class MessageHSFile : public MessageFile
+{
+public:
+    /**
+     @brief The constructor.
+     */
+    MessageHSFile();
 
     /**
-     * MessageHSFile writes all messages of levels 0-99 to the send_hs file
+     @brief Output message to the file.
      */
-    class MessageHSFile : public MessageFile {
+    virtual void update(unsigned int level, std::string header, std::string message);
+};
 
-        public:
-            /**
-             @brief The constructor.
-             */
-            MessageHSFile() ;
-
-            /**
-             @brief Output message to the file.
-             */
-            virtual void update( unsigned int level , std::string header , std::string message );
-
-    } ;
-
-}
+} // namespace Trick
 
 #endif
-

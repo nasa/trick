@@ -5,9 +5,9 @@
 
 #include "trick/trick_math.h"
 
-double dv_dot(                  /* Return: Scalar dot or inner product */
-                 double vect1[],        /* In: Vector 1 */
-                 double vect2[])
-{                                      /* In: Vector 2 */
+double dv_dot(                /* Return: Scalar dot or inner product */
+              double vect1[], /* In: Vector 1 */
+              double vect2[])
+{ /* In: Vector 2 */
     return (vect1[0] * vect2[0] + vect1[1] * vect2[1] + vect1[2] * vect2[2]);
 }

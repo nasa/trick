@@ -21,25 +21,23 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-     /* SYSTEM INCLUDE FILES */
+/* SYSTEM INCLUDE FILES */
 #include <math.h>
 
-     /* GLOBAL DATA STRUCTURE DECLARATIONS */
+/* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include "ball/L2/include/ball_control.h"
 #define FEET_TO_METERS 0.3048
 #define INCHES_TO_METERS 0.0254
 
-     /* ENTRY POINT */
+/* ENTRY POINT */
 int ball_control_default_data(
-                /* RETURN: -- Always return zero */
-  BCONTROL *C ) /* INOUT:  -- Ball EOM state parameters */
+    /* RETURN: -- Always return zero */
+    BCONTROL * C) /* INOUT:  -- Ball EOM state parameters */
 {
-
     C->input.active = 1;
     C->input.target_altitude = 2.0;
     C->input.dead_zone = 1.0 * FEET_TO_METERS;
     C->input.max_rate = 1.0 * INCHES_TO_METERS;
     /* RETURN */
-    return( 0 ) ;
+    return (0);
 }
-

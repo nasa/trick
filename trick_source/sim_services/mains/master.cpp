@@ -15,39 +15,40 @@ PROGRAMMERS:                 ( (Robert W. Bailey) (LinCom) (April 1992) )
 #include "trick/command_line_protos.h"
 #include "trick/exec_proto.hh"
 
-//TODO move to proto
+// TODO move to proto
 void memory_init(void);
 
-int master( int nargs, char **args) {
-
-    int ret ;
+int master(int nargs, char ** args)
+{
+    int ret;
 
     /* Set the locale */
-    if  (setlocale(LC_CTYPE, "") == NULL) {
+    if(setlocale(LC_CTYPE, "") == NULL)
+    {
         fprintf(stderr, "Unable to set the locale.\n");
         fprintf(stderr, "Please check LANG, LC_CTYPE and LC_ALL.\n");
         return 1;
     }
 
     /* process generic command line arguments */
-    //Trick::CommandLineArguments * cmd_args = exec_get_cmd_args() ;
-    command_line_args_process_sim_args(nargs, args) ;
+    // Trick::CommandLineArguments * cmd_args = exec_get_cmd_args() ;
+    command_line_args_process_sim_args(nargs, args);
 
     /* adds sim objects including the executive defined at CP time */
-    memory_init() ;
+    memory_init();
 
     /* get the exec pointer */
-    Trick::Executive * exec = exec_get_exec_cpp() ;
+    Trick::Executive * exec = exec_get_exec_cpp();
 
-    ret = exec->init() ;
+    ret = exec->init();
 
-    if ( ret == 0 ) {
-        exec->loop() ;
+    if(ret == 0)
+    {
+        exec->loop();
     }
-    ret = exec->shutdown() ;
+    ret = exec->shutdown();
 
-    //TODO: add call to free all memory from memory manager
+    // TODO: add call to free all memory from memory manager
 
-    return ret ;
+    return ret;
 }
-

@@ -11,24 +11,28 @@ PURPOSE:
 #define NAMESPACE_TESTS_HH
 
 // System include files.
-#include <string>
 #include <iostream>
 #include <sstream>
+#include <string>
 
-namespace my_ns {
+namespace my_ns
+{
 
-class BB {
-    public:
-        std::string str ;
-} ;
+class BB
+{
+public:
+    std::string str;
+};
 
-    namespace inner_ns {
-        class InnerTest {
-            int ii ;
-        } ;
-    } ;
+namespace inner_ns
+{
+class InnerTest
+{
+    int ii;
+};
+}; // namespace inner_ns
 
-} ;
+}; // namespace my_ns
 
 #if SWIG_VERSION >= 0x010340
 // These namespaces test including a template from one namespace to another
@@ -37,32 +41,35 @@ class BB {
 // will understand to add a leading "::" automatically in the .i file.
 // NOTE: This code crashes swig on RHEL 5 machines with swig version < 1.3.40.
 // I have added a guard against it.
-namespace NS1 {
-class P {
-   public:
-    int jj ;
-} ;
+namespace NS1
+{
+class P
+{
+public:
+    int jj;
+};
 
-template < class T >
-class A : public P {
-   public :
-    T ii ;
-} ;
-}
+template<class T> class A : public P
+{
+public:
+    T ii;
+};
+} // namespace NS1
 
-namespace NS2 {
-class B {
-   public :
-   //TODO: in the clang based convert_swig, we can use NS1 without the leading ::
-   //Since swig 4.2.0, leading :: causes error.
+namespace NS2
+{
+class B
+{
+public:
+    // TODO: in the clang based convert_swig, we can use NS1 without the leading ::
+    // Since swig 4.2.0, leading :: causes error.
 #if SWIG_VERSION >= 0x040200
-   NS1::A< int > m ;
+    NS1::A<int> m;
 #else
-   ::NS1::A< int > m ;
+    ::NS1::A<int> m;
 #endif
-} ;
-}
+};
+} // namespace NS2
 #endif
 
 #endif /* _BALL_HH_ */
-

@@ -21,26 +21,28 @@ PROGRAMMERS:
 #include "../include/ball_jet.h"
 
 int ball_jet(
-               /* RETURN: -- Always return zero */
-  BJET * J ,   /* INOUT:  -- Ball reaction control jet parameters */
-  Flag * com ) /* IN:     -- Ball jet commands from the flight software */
+    /* RETURN: -- Always return zero */
+    BJET * J,   /* INOUT:  -- Ball reaction control jet parameters */
+    Flag * com) /* IN:     -- Ball jet commands from the flight software */
 {
-
-BJET_IN * JI = &(J->input) ;
-BJET_OUT * JO = &(J->output) ;
+    BJET_IN * JI = &(J->input);
+    BJET_OUT * JO = &(J->output);
 
 #define FIRE_UP 0
 #define FIRE_DOWN 1
 
     /* ZERO RESULTING FORCE ON BALL */
-    JO->force[FIRE_UP] = 0.0 ;
-    JO->force[FIRE_DOWN] = 0.0 ;
+    JO->force[FIRE_UP] = 0.0;
+    JO->force[FIRE_DOWN] = 0.0;
 
-    if( com[FIRE_UP] == On && JI->jet_fail[FIRE_UP] == No )
-        JO->force[1] = JI->force[FIRE_UP] ;
-    if( com[FIRE_DOWN] == On && JI->jet_fail[FIRE_DOWN] == No )
-        JO->force[1] = JI->force[FIRE_DOWN] ;
+    if(com[FIRE_UP] == On && JI->jet_fail[FIRE_UP] == No)
+    {
+        JO->force[1] = JI->force[FIRE_UP];
+    }
+    if(com[FIRE_DOWN] == On && JI->jet_fail[FIRE_DOWN] == No)
+    {
+        JO->force[1] = JI->force[FIRE_DOWN];
+    }
 
-    return( 0 ) ;
+    return (0);
 }
-

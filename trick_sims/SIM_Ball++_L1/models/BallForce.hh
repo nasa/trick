@@ -27,36 +27,36 @@ PROGRAMMERS:
 /** @class BallForceInput
     @brief ball force input params
  */
-class BallForceInput {
- public:
-  double origin[2];           /**< trick_units(m)    Origin of force center */
-  double force;               /**< trick_units(N)    Force magnitude        */
+class BallForceInput
+{
+public:
+    double origin[2]; /**< trick_units(m)    Origin of force center */
+    double force;     /**< trick_units(N)    Force magnitude        */
 
-  BallForceInput() ;
-
+    BallForceInput();
 };
 
 /** @class BallForceOutput
     @brief ball force output params
  */
-class BallForceOutput {
- public:
-  double force[2];            /**< trick_units(N)    Resulting X,Y force on ball */
+class BallForceOutput
+{
+public:
+    double force[2]; /**< trick_units(N)    Resulting X,Y force on ball */
 
-  BallForceOutput() ;
+    BallForceOutput();
 };
 
 /** @class BallForce
     @brief ball force params
  */
-class BallForce {
-
-  public:
-   /* Member data. */
-   int default_data() ;
-   BallForceInput  input;
-   BallForceOutput output;
-
+class BallForce
+{
+public:
+    /* Member data. */
+    int default_data();
+    BallForceInput input;
+    BallForceOutput output;
 };
 
 #ifdef SWIG
@@ -66,6 +66,4 @@ class BallForce {
 %struct_str(BallForceOutput)
 #endif
 
-
 #endif /* _BALL_FORCE_HH_ */
-

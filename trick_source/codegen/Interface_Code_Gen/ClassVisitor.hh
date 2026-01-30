@@ -5,14 +5,14 @@
 #include <set>
 #include <string>
 
-#include "clang/Frontend/CompilerInstance.h"
-#include "clang/AST/RecursiveASTVisitor.h"
 #include "ClassValues.hh"
+#include "clang/AST/RecursiveASTVisitor.h"
+#include "clang/Frontend/CompilerInstance.h"
 
-class CommentSaver ;
-class EnumValues ;
-class HeaderSearchDirs ;
-class PrintAttributes ;
+class CommentSaver;
+class EnumValues;
+class HeaderSearchDirs;
+class PrintAttributes;
 
 /**
 
@@ -31,59 +31,61 @@ class PrintAttributes ;
 
  */
 
-class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor> {
-    public:
-        CXXRecordVisitor( clang::CompilerInstance & in_ci ,
-         CommentSaver & in_cs ,
-         HeaderSearchDirs & in_hsd ,
-         PrintAttributes & in_pa ,
-         bool in_include_virtual_base ) ;
+class CXXRecordVisitor : public clang::RecursiveASTVisitor<CXXRecordVisitor>
+{
+public:
+    CXXRecordVisitor(clang::CompilerInstance & in_ci,
+                     CommentSaver & in_cs,
+                     HeaderSearchDirs & in_hsd,
+                     PrintAttributes & in_pa,
+                     bool in_include_virtual_base);
 
-        ~CXXRecordVisitor() ;
+    ~CXXRecordVisitor();
 
-        /* A custom traversal that handles only the node types we are interested in. */
-        bool TraverseDecl(clang::Decl *D);
+    /* A custom traversal that handles only the node types we are interested in. */
+    bool TraverseDecl(clang::Decl * D);
 
-        /* VisitDecl and VisitType are here for debug printing. */
-        bool VisitDecl(clang::Decl *d) ;
-        bool VisitType(clang::Type *t) ;
+    /* VisitDecl and VisitType are here for debug printing. */
+    bool VisitDecl(clang::Decl * d);
+    bool VisitType(clang::Type * t);
 
-        /* These routines are called when nodes of the corresponding types are traversed */
-        bool VisitCXXRecordDecl(clang::CXXRecordDecl *rec) ;
-        bool VisitFriendDecl(clang::FriendDecl *fd) ;
+    /* These routines are called when nodes of the corresponding types are traversed */
+    bool VisitCXXRecordDecl(clang::CXXRecordDecl * rec);
+    bool VisitFriendDecl(clang::FriendDecl * fd);
 
-        /** Returns the class data */
-        ClassValues * get_class_data() ;
+    /** Returns the class data */
+    ClassValues * get_class_data();
 
-        static void addPrivateEmbeddedClass(std::string in_name) ;
-        static bool isPrivateEmbeddedClass(std::string in_name) ;
-    private:
-        /* Save any additional #includes required by template arguments */
-        void addTemplateArgumentDependencies(const clang::CXXRecordDecl *rec) ;
+    static void addPrivateEmbeddedClass(std::string in_name);
+    static bool isPrivateEmbeddedClass(std::string in_name);
 
-        /** The compiler instance. */
-        clang::CompilerInstance & ci ;
+private:
+    /* Save any additional #includes required by template arguments */
+    void addTemplateArgumentDependencies(const clang::CXXRecordDecl * rec);
 
-        /** The header search directories */
-        HeaderSearchDirs & hsd ;
+    /** The compiler instance. */
+    clang::CompilerInstance & ci;
 
-        /** Holds all comments */
-        CommentSaver & cs ;
+    /** The header search directories */
+    HeaderSearchDirs & hsd;
 
-        /** attributes printer */
-        PrintAttributes & pa ;
+    /** Holds all comments */
+    CommentSaver & cs;
 
-        /** Holds the class information found, usually returned to caller of this visitor. */
-        ClassValues cval ;
+    /** attributes printer */
+    PrintAttributes & pa;
 
-        /** Flag to specify if we should process virtual base classes. */
-        bool include_virtual_base ;
+    /** Holds the class information found, usually returned to caller of this visitor. */
+    ClassValues cval;
 
-        /** Flag indicating we have found a public/private/protected keyword  */
-        bool access_spec_found ;
+    /** Flag to specify if we should process virtual base classes. */
+    bool include_virtual_base;
 
-        static std::set<std::string> private_embedded_classes ;
-        static std::set<std::string> friend_classes ;
-} ;
+    /** Flag indicating we have found a public/private/protected keyword  */
+    bool access_spec_found;
+
+    static std::set<std::string> private_embedded_classes;
+    static std::set<std::string> friend_classes;
+};
 
 #endif

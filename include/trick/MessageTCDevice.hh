@@ -10,113 +10,107 @@
 #include "trick/SysThread.hh"
 #include "trick/tc.h"
 
-namespace Trick {
+namespace Trick
+{
 
-    class MessageTCDevice ;
+class MessageTCDevice;
 
-    class MessageTCDeviceListenThread : public Trick::SysThread {
+class MessageTCDeviceListenThread : public Trick::SysThread
+{
+public:
+    MessageTCDeviceListenThread(MessageTCDevice * in_mtcd);
+    virtual ~MessageTCDeviceListenThread();
 
-        public:
-            MessageTCDeviceListenThread(MessageTCDevice * in_mtcd) ;
-            virtual ~MessageTCDeviceListenThread() ;
+    int get_port();
 
-            int get_port() ;
+    int init_listen_device();
+    int restart();
 
-            int init_listen_device() ;
-            int restart() ;
+    virtual void * thread_body();
+    virtual void dump(std::ostream & oss = std::cout);
 
-            virtual void * thread_body() ;
-            virtual void dump( std::ostream & oss = std::cout ) ;
+protected:
+    /** Pointer back to MessageTCDevice\n */
+    MessageTCDevice * mtcd; /**< trick_io(**) */
 
-        protected:
+    /** No handshake message server listen device.\n */
+    TCDevice listen_dev; /**< trick_io(**) trick_units(--) */
+};
 
-            /** Pointer back to MessageTCDevice\n */
-            MessageTCDevice * mtcd ;          /**< trick_io(**) */
-
-            /** No handshake message server listen device.\n */
-            TCDevice listen_dev ;             /**< trick_io(**) trick_units(--) */
-
-    } ;
-
+/**
+ * This MessageTCDevice is a class that inherits from MessageSubscriber.
+ * It defines a type of MessageSubscriber that sends the messages to a receiver
+ * through TCDevice when a proper socket connection is established.
+ * Basically, it has a message server listen TCDevice that receives all the message
+ * updates from a message publisher which it subscribes to and then writes the message
+ * updates to all the connections it has if possible.
+ */
+class MessageTCDevice : public MessageSubscriber
+{
+public:
+    /**
+     @brief The constructor.
+     */
+    MessageTCDevice();
 
     /**
-     * This MessageTCDevice is a class that inherits from MessageSubscriber.
-     * It defines a type of MessageSubscriber that sends the messages to a receiver
-     * through TCDevice when a proper socket connection is established.
-     * Basically, it has a message server listen TCDevice that receives all the message
-     * updates from a message publisher which it subscribes to and then writes the message
-     * updates to all the connections it has if possible.
+     @brief The destructor.
      */
-    class MessageTCDevice : public MessageSubscriber {
+    ~MessageTCDevice();
 
-        public:
+    /**
+     @brief Gets the listen thread.
+     */
+    Trick::MessageTCDeviceListenThread & get_listen_thread();
 
-            /**
-             @brief The constructor.
-             */
-            MessageTCDevice();
+    /**
+     @brief Adds a new connection.  Called from MessageTCDeviceListenThread
+     */
+    void add_connection(TCDevice * new_conn);
 
-            /**
-             @brief The destructor.
-             */
-            ~MessageTCDevice();
+    /**
+     @brief Send the header & message to all open connections.
+     */
+    virtual void update(unsigned int level, std::string header, std::string message);
 
-            /**
-             @brief Gets the listen thread.
-             */
-            Trick::MessageTCDeviceListenThread & get_listen_thread() ;
+    /**
+     @brief Initializes this subscriber.
+     @return always 0
+     */
+    int default_data();
 
-            /**
-             @brief Adds a new connection.  Called from MessageTCDeviceListenThread
-             */
-            void add_connection( TCDevice * new_conn ) ;
+    /**
+     @brief Initializes this subscriber.
+     @return always 0
+     */
+    virtual int init();
 
-            /**
-             @brief Send the header & message to all open connections.
-             */
-            virtual void update( unsigned int level , std::string header, std::string message );
+    /**
+     @brief Restarts this subscriber.
+     @return always 0
+     */
+    int restart();
 
-            /**
-             @brief Initializes this subscriber.
-             @return always 0
-             */
-            int default_data() ;
+    /**
+     @brief Shuts down this subscriber.
+     @return always 0
+     */
+    virtual int shutdown();
 
-            /**
-             @brief Initializes this subscriber.
-             @return always 0
-             */
-            virtual int init() ;
+    /** The port number for message socket connection. Copied out from listen_thread.\n */
+    int port; /**< trick_units(--) */
 
-            /**
-             @brief Restarts this subscriber.
-             @return always 0
-             */
-            int restart() ;
+private:
+    /** Thread to start listen device\n */
+    MessageTCDeviceListenThread listen_thread;
 
-            /**
-             @brief Shuts down this subscriber.
-             @return always 0
-             */
-            virtual int shutdown() ;
+    /** Message buffer.\n */
+    char * combined_message; /**< trick_io(**) trick_units(--) */
 
-            /** The port number for message socket connection. Copied out from listen_thread.\n */
-            int port ;             /**< trick_units(--) */
+    /** List of open connections.\n */
+    std::vector<TCDevice *> connections; /**< trick_io(**) trick_units(--) */
+};
 
-        private:
-
-            /** Thread to start listen device\n */
-            MessageTCDeviceListenThread listen_thread ;
-
-            /** Message buffer.\n */
-            char * combined_message ;         /**< trick_io(**) trick_units(--) */
-
-            /** List of open connections.\n */
-            std::vector< TCDevice *> connections ; /**< trick_io(**) trick_units(--) */
-
-    } ;
-
-}
+} // namespace Trick
 
 #endif
-

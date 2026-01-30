@@ -1,7 +1,7 @@
 
+#include "trick/collect_macros.h"
 #include <stdlib.h>
 #include <string.h>
-#include "trick/collect_macros.h"
 
 /**
 @brief
@@ -16,32 +16,34 @@ to the new list.  The old list a collector will be freed.
 -# Delete the old list
 -# Return the new list
 */
-void ** add_collect( void ** collector , void * collectee ) {
-
-    int collect_size = NUM_COLLECT(collector) ;
-    void ** new_list ;
-    long * lp ;
+void ** add_collect(void ** collector, void * collectee)
+{
+    int collect_size = NUM_COLLECT(collector);
+    void ** new_list;
+    long * lp;
 
     // create a new list
-    new_list = (void**)malloc((collect_size + 2) * sizeof(void*));
+    new_list = (void **)malloc((collect_size + 2) * sizeof(void *));
 
     // set the list size
-    lp = ( long *)new_list ;
-    *lp = collect_size + 1 ;
+    lp = (long *)new_list;
+    *lp = collect_size + 1;
 
     // copy old list
-    new_list++ ;
-    if ( collect_size > 0 ) {
-        memcpy( new_list , collector , collect_size * sizeof(void *)) ;
+    new_list++;
+    if(collect_size > 0)
+    {
+        memcpy(new_list, collector, collect_size * sizeof(void *));
     }
-    new_list[collect_size] = collectee ;
+    new_list[collect_size] = collectee;
 
     // remove old list
-    if ( collector ) {
-        free(collector - 1) ;
+    if(collector)
+    {
+        free(collector - 1);
     }
 
-    return new_list ;
+    return new_list;
 }
 
 /**
@@ -57,45 +59,52 @@ to the new list.  The old list a collector will be freed.
 -# Delete the old list
 -# Return the new list
 */
-void ** delete_collect( void ** collector , void * collectee ) {
+void ** delete_collect(void ** collector, void * collectee)
+{
+    int collect_size = NUM_COLLECT(collector);
+    int new_count = 0;
+    void ** new_list;
+    long * lp;
+    int ii, jj;
 
-    int collect_size = NUM_COLLECT(collector) ;
-    int new_count = 0 ;
-    void ** new_list ;
-    long * lp ;
-    int ii , jj ;
-
-
-    for ( ii = 0 ; ii < collect_size ; ii++ ) {
-        if ( collector[ii] != collectee ) {
-            new_count++ ;
+    for(ii = 0; ii < collect_size; ii++)
+    {
+        if(collector[ii] != collectee)
+        {
+            new_count++;
         }
     }
 
-    if ( new_count > 0 ) {
+    if(new_count > 0)
+    {
         // create a new list
-        new_list = (void**)malloc((new_count + 1) * sizeof(void*));
+        new_list = (void **)malloc((new_count + 1) * sizeof(void *));
 
         // set the list size
-        lp = ( long *)new_list ;
-        *lp = new_count ;
+        lp = (long *)new_list;
+        *lp = new_count;
 
         // copy old list
-        new_list++ ;
-        jj = 0 ;
-        for ( ii = 0 ; ii < collect_size ; ii++ ) {
-            if ( collector[ii] != collectee ) {
-                new_list[jj++] = collector[ii] ;
+        new_list++;
+        jj = 0;
+        for(ii = 0; ii < collect_size; ii++)
+        {
+            if(collector[ii] != collectee)
+            {
+                new_list[jj++] = collector[ii];
             }
         }
-    } else {
-        new_list = NULL ;
+    }
+    else
+    {
+        new_list = NULL;
     }
 
     // remove old list
-    if ( collector ) {
-        free(collector - 1) ;
+    if(collector)
+    {
+        free(collector - 1);
     }
 
-    return new_list ;
+    return new_list;
 }

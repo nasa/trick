@@ -1,9 +1,9 @@
 
 #ifndef __WIN32__
-#  include <sys/ioctl.h>
-#  define IOCTL_SOCKET ioctl
+#include <sys/ioctl.h>
+#define IOCTL_SOCKET ioctl
 #else
-#  define IOCTL_SOCKET ioctlsocket
+#define IOCTL_SOCKET ioctlsocket
 #endif
 
 #include "trick/tc.h"
@@ -18,23 +18,32 @@ int tc_blockio(TCDevice * device, TCCommBlocking blockflag)
     int on = 1;
     int off = 0;
 
-    if (device == NULL) {
+    if(device == NULL)
+    {
         return TC_EWOULDBLOCK;
     }
 
     /* Status message */
     snprintf(client_str, sizeof(client_str), "(ID = %d  tag = %s)", device->client_id, device->client_tag);
-    trick_error_report(device->error_handler, TRICK_ERROR_TRIVIAL, __FILE__,
-                       __LINE__, "%s blockflag = %d\n", client_str, blockflag);
+    trick_error_report(device->error_handler,
+                       TRICK_ERROR_TRIVIAL,
+                       __FILE__,
+                       __LINE__,
+                       "%s blockflag = %d\n",
+                       client_str,
+                       blockflag);
 
-
-    switch (blockflag) {
-
+    switch(blockflag)
+    {
         case TC_COMM_BLOCKIO:
             /* Set socket to blocking */
-            if (IOCTL_SOCKET(device->socket, (unsigned long) FIONBIO, &off) < 0) {
+            if(IOCTL_SOCKET(device->socket, (unsigned long)FIONBIO, &off) < 0)
+            {
                 trick_error_report(device->error_handler,
-                                   TRICK_ERROR_ALERT, __FILE__, __LINE__, "could not set socket to blocking\n");
+                                   TRICK_ERROR_ALERT,
+                                   __FILE__,
+                                   __LINE__,
+                                   "could not set socket to blocking\n");
                 return (TC_EWOULDBLOCK);
             }
             device->blockio_type = blockflag;
@@ -42,9 +51,13 @@ int tc_blockio(TCDevice * device, TCCommBlocking blockflag)
 
         case TC_COMM_NOBLOCKIO:
             /* Set socket to non-blocking */
-            if (IOCTL_SOCKET(device->socket, (unsigned long) FIONBIO, &on) < 0) {
+            if(IOCTL_SOCKET(device->socket, (unsigned long)FIONBIO, &on) < 0)
+            {
                 trick_error_report(device->error_handler,
-                                   TRICK_ERROR_ALERT, __FILE__, __LINE__, "could not set socket to non-blocking\n");
+                                   TRICK_ERROR_ALERT,
+                                   __FILE__,
+                                   __LINE__,
+                                   "could not set socket to non-blocking\n");
                 return (TC_EWOULDBLOCK);
             }
             device->blockio_type = blockflag;
@@ -52,10 +65,13 @@ int tc_blockio(TCDevice * device, TCCommBlocking blockflag)
 
         case TC_COMM_TIMED_BLOCKIO:
             /* Set socket to non-blocking */
-            if (IOCTL_SOCKET(device->socket, (unsigned long) FIONBIO, &on) < 0) {
+            if(IOCTL_SOCKET(device->socket, (unsigned long)FIONBIO, &on) < 0)
+            {
                 trick_error_report(device->error_handler,
-                                   TRICK_ERROR_ALERT, __FILE__,
-                                   __LINE__, "could not set socket to software-blocking\n");
+                                   TRICK_ERROR_ALERT,
+                                   __FILE__,
+                                   __LINE__,
+                                   "could not set socket to software-blocking\n");
                 return (TC_EWOULDBLOCK);
             }
             device->blockio_type = blockflag;
@@ -63,9 +79,13 @@ int tc_blockio(TCDevice * device, TCCommBlocking blockflag)
 
         case TC_COMM_ALL_OR_NOTHING:
             /* Set socket to non-blocking */
-            if (IOCTL_SOCKET(device->socket, (unsigned long) FIONBIO, &on) < 0) {
+            if(IOCTL_SOCKET(device->socket, (unsigned long)FIONBIO, &on) < 0)
+            {
                 trick_error_report(device->error_handler,
-                                   TRICK_ERROR_ALERT, __FILE__, __LINE__, "could not set socket to all_or nothing\n");
+                                   TRICK_ERROR_ALERT,
+                                   __FILE__,
+                                   __LINE__,
+                                   "could not set socket to all_or nothing\n");
                 return (TC_EWOULDBLOCK);
             }
             device->blockio_type = blockflag;
@@ -73,14 +93,17 @@ int tc_blockio(TCDevice * device, TCCommBlocking blockflag)
 
         default:
             trick_error_report(device->error_handler,
-                               TRICK_ERROR_ALERT, __FILE__, __LINE__,
+                               TRICK_ERROR_ALERT,
+                               __FILE__,
+                               __LINE__,
                                "Invalid second argument."
                                "Second argument should be one of the following:\n"
                                "  TC_COMM_BLOCKIO,\n"
-                               "  TC_COMM_NOBLOCKIO,\n" "  TC_COMM_TIMED_BLOCKIO,\n" "  TC_COMM_ALL_OR_NOTHING\n\n");
+                               "  TC_COMM_NOBLOCKIO,\n"
+                               "  TC_COMM_TIMED_BLOCKIO,\n"
+                               "  TC_COMM_ALL_OR_NOTHING\n\n");
             return (TC_EWOULDBLOCK);
     }
 
     return (0);
-
 }

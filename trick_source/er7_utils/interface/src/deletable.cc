@@ -16,7 +16,6 @@
 Purpose: ()
 */
 
-
 // System includes
 #include <cstddef>
 
@@ -26,21 +25,20 @@ Purpose: ()
 // Local includes
 #include "../include/deletable.hh"
 
-
-namespace er7_utils {
+namespace er7_utils
+{
 
 /**
  * Delete an instance
  * @param[in,out] instance  Object to be deleted.
  */
-void
-Er7UtilsDeletable::delete_instance_internal (
-   Er7UtilsDeletable* instance)
+void Er7UtilsDeletable::delete_instance_internal(Er7UtilsDeletable * instance)
 {
-   alloc::delete_object (instance);
+    alloc::delete_object(instance);
 }
 
-}
+} // namespace er7_utils
+
 /**
  * @if Er7UtilsUseGroups
  * @}

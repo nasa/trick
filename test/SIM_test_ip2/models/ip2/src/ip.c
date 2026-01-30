@@ -8,14 +8,13 @@ LIBRARY DEPENDENCY:          (ip.o)
 PROGRAMMERS:                 ((lin) (Thu Feb 27 14:57:16 CST 2003))
 ***************************************************************************/
 
-#include <stdio.h>
 #include "../include/ip.h"
+#include <stdio.h>
 
 int ip_test(
-                        /* RETURN: -- Always return zero */
-  INT_STR* I)           /* INOUT:  -- Parameter */
+    /* RETURN: -- Always return zero */
+    INT_STR * I) /* INOUT:  -- Parameter */
 
 {
-
-   return ( 0 );
+    return (0);
 }

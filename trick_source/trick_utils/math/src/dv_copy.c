@@ -7,9 +7,9 @@
 
 #include "trick/trick_math.h"
 
-void dv_copy(double copy[],     /* Out: copy of the vector */
+void dv_copy(double copy[], /* Out: copy of the vector */
              double vect[])
-{                                      /* In: vector to be copied */
+{ /* In: vector to be copied */
 
     copy[0] = vect[0];
     copy[1] = vect[1];

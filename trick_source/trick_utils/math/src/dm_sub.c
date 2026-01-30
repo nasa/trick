@@ -7,10 +7,10 @@
 
 #include "trick/trick_math.h"
 
-void dm_sub(double diff[3][3],  /* Out: Difference of the two matrices */
-            double mat1[3][3],  /* In: Matrix 1 */
+void dm_sub(double diff[3][3], /* Out: Difference of the two matrices */
+            double mat1[3][3], /* In: Matrix 1 */
             double mat2[3][3])
-{                                      /* In: Matrix 2 */
+{ /* In: Matrix 2 */
     diff[0][0] = mat1[0][0] - mat2[0][0];
     diff[0][1] = mat1[0][1] - mat2[0][1];
     diff[0][2] = mat1[0][2] - mat2[0][2];

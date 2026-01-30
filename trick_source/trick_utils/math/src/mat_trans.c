@@ -5,14 +5,16 @@
 
 #include "trick/trick_math.h"
 
-void mat_trans(double **trans,  /* Out: Product of the two matrices */
-               double **mat,    /* In: Matrix 1 */
+void mat_trans(double ** trans, /* Out: Product of the two matrices */
+               double ** mat,   /* In: Matrix 1 */
                int n)
-{                                      /* In: Array size */
+{ /* In: Array size */
     int i, j;
 
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
+    for(i = 0; i < n; i++)
+    {
+        for(j = 0; j < n; j++)
+        {
             trans[i][j] = mat[j][i];
         }
     }

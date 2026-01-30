@@ -13,53 +13,56 @@ PROGRAMMERS:
 @endverbatim
 *******************************************************************************/
 
-
 #ifndef BALL_STATE_H
 #define BALL_STATE_H
 
 /** @struct BSTATE_IN
     @brief ball state input parameters
  */
-typedef struct { /* BSTATE_IN ------------------------------------------------*/
+typedef struct
+{ /* BSTATE_IN ------------------------------------------------*/
 
-  /*=== Initial Ball States ===*/
-  double mass ;            /**< (kg)  Total mass */
-  double position[2] ;     /**< (m)   X(horizontal),Y(vertical) position */
-  double speed ;           /**< (m/s) Linear speed */
-  double elevation ;       /**< (rad)   Trajectory angle with respect to the horizontal */
-  int print_off;           /**< (--)  Set to nonzero to suppress output */
-} BSTATE_IN ; /*--------------------------------------------------------------*/
+    /*=== Initial Ball States ===*/
+    double mass;        /**< (kg)  Total mass */
+    double position[2]; /**< (m)   X(horizontal),Y(vertical) position */
+    double speed;       /**< (m/s) Linear speed */
+    double elevation;   /**< (rad)   Trajectory angle with respect to the horizontal */
+    int print_off;      /**< (--)  Set to nonzero to suppress output */
+} BSTATE_IN;            /*--------------------------------------------------------------*/
 
 /** @struct BSTATE_OUT
     @brief ball state output parameters
  */
-typedef struct { /* BSTATE_OUT -----------------------------------------------*/
+typedef struct
+{ /* BSTATE_OUT -----------------------------------------------*/
 
-  double position[2] ;       /**< (m)    X(horizontal), Y(vertical) position */
-  double velocity[2] ;       /**< (m/s)  X,Y velocity */
-  double acceleration[2] ;   /**< (m/s2) X,Y acceleration */
-  double external_force[2] ; /**< (N)    Total external force on ball */
+    double position[2];       /**< (m)    X(horizontal), Y(vertical) position */
+    double velocity[2];       /**< (m/s)  X,Y velocity */
+    double acceleration[2];   /**< (m/s2) X,Y acceleration */
+    double external_force[2]; /**< (N)    Total external force on ball */
 
-} BSTATE_OUT ; /*-------------------------------------------------------------*/
+} BSTATE_OUT; /*-------------------------------------------------------------*/
 
 /** @struct BSTATE_WORK
     @brief ball state work parameters
  */
-typedef struct { /* BSTATE_WORK ----------------------------------------------*/
+typedef struct
+{ /* BSTATE_WORK ----------------------------------------------*/
 
-  void ** external_force ;   /**< ** (N)    External forces, from 'collect' */
+    void ** external_force; /**< ** (N)    External forces, from 'collect' */
 
-} BSTATE_WORK ; /*------------------------------------------------------------*/
+} BSTATE_WORK; /*------------------------------------------------------------*/
 
 /** @struct BSTATE
     @brief ball state structure
  */
-typedef struct { /* BSTATE ---------------------------------------------------*/
+typedef struct
+{ /* BSTATE ---------------------------------------------------*/
 
-  BSTATE_IN   input ;           /**<    (--)   User inputs */
-  BSTATE_OUT  output ;          /**<    (--)   User outputs */
-  BSTATE_WORK work ;         /**<    (--)   EOM workspace */
+    BSTATE_IN input;   /**<    (--)   User inputs */
+    BSTATE_OUT output; /**<    (--)   User outputs */
+    BSTATE_WORK work;  /**<    (--)   EOM workspace */
 
-} BSTATE ; /*-----------------------------------------------------------------*/
+} BSTATE; /*-----------------------------------------------------------------*/
 
 #endif

@@ -7,11 +7,11 @@
 
 #include "trick/trick_math.h"
 
-void dmxm(                      /* Return: -- none */
-             double prod[3][3], /* Out: Product of the two matrices */
-             double mat1[3][3], /* In: Matrix 1 */
-             double mat2[3][3])
-{                                      /* In: Matrix 2 */
+void dmxm(                   /* Return: -- none */
+          double prod[3][3], /* Out: Product of the two matrices */
+          double mat1[3][3], /* In: Matrix 1 */
+          double mat2[3][3])
+{ /* In: Matrix 2 */
 
     prod[0][0] = mat1[0][0] * mat2[0][0] + mat1[0][1] * mat2[1][0] + mat1[0][2] * mat2[2][0];
     prod[0][1] = mat1[0][0] * mat2[0][1] + mat1[0][1] * mat2[1][1] + mat1[0][2] * mat2[2][1];

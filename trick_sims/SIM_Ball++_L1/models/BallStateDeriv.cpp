@@ -24,8 +24,8 @@ PROGRAMMERS:
 *******************************************************************************/
 
 /* System include files. */
-#include <stdio.h>
 #include <iostream>
+#include <stdio.h>
 
 /* Trick include files. */
 #include "trick/collect_macros.h"
@@ -36,29 +36,27 @@ PROGRAMMERS:
 /* ENTRY POINT */
 int Ball::state_deriv() /* RETURN: -- Always return zero. */
 {
+    /* GET SHORTHAND NOTATION FOR DATA STRUCTURES */
+    BallStateInput * state_in = &(this->state.input);
+    BallStateOutput * state_out = &(this->state.output);
+    BallStateWork * state_work = &(this->state.work);
 
-   /* GET SHORTHAND NOTATION FOR DATA STRUCTURES */
-   BallStateInput  * state_in   = &(this->state.input);
-   BallStateOutput * state_out  = &(this->state.output);
-   BallStateWork   * state_work = &(this->state.work);
+    /* COLLECT EXTERNAL FORCES ON THE BALL  --  TRUST US ON THIS ONE */
+    // collected_forces = (double**)(state_work->external_force) ;
+    state_out->external_force[0] = 0.0;
+    state_out->external_force[1] = 0.0;
 
-   /* COLLECT EXTERNAL FORCES ON THE BALL  --  TRUST US ON THIS ONE */
-   //collected_forces = (double**)(state_work->external_force) ;
-   state_out->external_force[0] = 0.0 ;
-   state_out->external_force[1] = 0.0 ;
+    unsigned int ii;
+    for(ii = 0; ii < state_work->num_external_force; ii++)
+    {
+        state_out->external_force[0] += state_work->external_force[ii][0];
+        state_out->external_force[1] += state_work->external_force[ii][1];
+    }
 
-   unsigned int ii;
-   for( ii = 0 ; ii < state_work->num_external_force ; ii++ ) {
-      state_out->external_force[0] += state_work->external_force[ii][0];
-      state_out->external_force[1] += state_work->external_force[ii][1];
-   }
+    /* SOLVE FOR THE X AND Y ACCELERATIONS OF THE BALL */
+    state_out->acceleration[0] = state_out->external_force[0] / state_in->mass;
+    state_out->acceleration[1] = state_out->external_force[1] / state_in->mass;
 
-   /* SOLVE FOR THE X AND Y ACCELERATIONS OF THE BALL */
-   state_out->acceleration[0] = state_out->external_force[0] / state_in->mass;
-   state_out->acceleration[1] = state_out->external_force[1] / state_in->mass;
-
-   /* RETURN */
-   return(0);
-
+    /* RETURN */
+    return (0);
 }
-

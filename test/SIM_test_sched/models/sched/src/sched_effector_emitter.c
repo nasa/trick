@@ -10,10 +10,10 @@ PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) )
 #include "../include/sched.h"
 
 int sched_effector_emitter(
-                  /* RETURN: -- Always return zero */
-  SCHEDULE *S )      /* INOUT:  -- Schedule struct */
+    /* RETURN: -- Always return zero */
+    SCHEDULE * S) /* INOUT:  -- Schedule struct */
 {
-   S->mass = S->mass*1.000003 + 0.000003 ; /* Sensor is collecting dust */
+    S->mass = S->mass * 1.000003 + 0.000003; /* Sensor is collecting dust */
 
-   return( 0 );
+    return (0);
 }

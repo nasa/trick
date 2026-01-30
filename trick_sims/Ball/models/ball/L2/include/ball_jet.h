@@ -19,25 +19,27 @@ PROGRAMMERS:
 
 #include "sim_services/include/Flag.h"
 
-typedef struct { /* BJET_IN --------------------------------------------------*/
+typedef struct
+{ /* BJET_IN --------------------------------------------------*/
 
-  Flag   jet_fail[2] ; /*  --  Yes = jet will not fire */
-  double force[2] ;    /*  N   Resulting force magnitude from each jet */
+    Flag jet_fail[2]; /*  --  Yes = jet will not fire */
+    double force[2];  /*  N   Resulting force magnitude from each jet */
 
-} BJET_IN ; /*----------------------------------------------------------------*/
+} BJET_IN; /*----------------------------------------------------------------*/
 
-typedef struct { /* BJET_OUT -------------------------------------------------*/
+typedef struct
+{ /* BJET_OUT -------------------------------------------------*/
 
-  double force[2] ;    /*  N   Resulting X,Y force on ball */
+    double force[2]; /*  N   Resulting X,Y force on ball */
 
-} BJET_OUT ; /*---------------------------------------------------------------*/
+} BJET_OUT; /*---------------------------------------------------------------*/
 
-typedef struct { /* BJET -----------------------------------------------------*/
+typedef struct
+{ /* BJET -----------------------------------------------------*/
 
-  BJET_IN  input ;        /*    --   User inputs */
-  BJET_OUT output ;       /*    --   User outputs */
+    BJET_IN input;   /*    --   User inputs */
+    BJET_OUT output; /*    --   User outputs */
 
-} BJET ; /*-------------------------------------------------------------------*/
+} BJET; /*-------------------------------------------------------------------*/
 
 #endif
-

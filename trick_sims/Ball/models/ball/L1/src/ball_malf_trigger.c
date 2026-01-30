@@ -7,20 +7,18 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-     /* SYSTEM INCLUDE FILES */
+/* SYSTEM INCLUDE FILES */
 #include <math.h>
 
-     /* GLOBAL DATA STRUCTURE DECLARATIONS */
+/* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include "ball/L1/include/ball_force.h"
-#include "sim_services/include/exec_proto.h"
 #include "ball/L1/include/ball_proto.h"
+#include "sim_services/include/exec_proto.h"
 
-
-     /* ENTRY POINT */
+/* ENTRY POINT */
 int ball_malf_trigger(
-                /* RETURN: -- Always return zero */
-  double curr_time )   /* INOUT:  -- Ball ext. force parameters */
+    /* RETURN: -- Always return zero */
+    double curr_time) /* INOUT:  -- Ball ext. force parameters */
 {
-    return(curr_time > 30.0);
+    return (curr_time > 30.0);
 }
-

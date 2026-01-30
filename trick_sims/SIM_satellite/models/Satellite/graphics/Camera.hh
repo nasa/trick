@@ -1,7 +1,8 @@
 #ifndef CAMERA_HH
 #define CAMERA_HH
-class Camera {
 
+class Camera
+{
 public:
     Camera();
     void look();

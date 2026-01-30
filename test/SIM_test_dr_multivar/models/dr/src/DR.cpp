@@ -6,9 +6,9 @@ CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( DR.o )
 PROGRAMMERS:                 ( (Lindsay Landry) (L3) (7-22-2013) )
 *******************************************************************************/
-#include <iostream>
 #include "../include/DR.hh"
+#include <iostream>
 
 DRTypes::DRTypes() {}
-DRTypes::~DRTypes() {}
 
+DRTypes::~DRTypes() {}

@@ -12,14 +12,15 @@
 #include "cannon/aero/include/cannon_aero.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int cannon_init_amoeba(AMOEBA*);
-int cannon_pre_master(CANNON_AERO*, AMOEBA*);
-int cannon_post_master(CANNON_AERO*, AMOEBA*);
-int cannon_post_slave(CANNON_AERO*);
-int cannon_pre_slave(CANNON_AERO*);
+    int cannon_init_amoeba(AMOEBA *);
+    int cannon_pre_master(CANNON_AERO *, AMOEBA *);
+    int cannon_post_master(CANNON_AERO *, AMOEBA *);
+    int cannon_post_slave(CANNON_AERO *);
+    int cannon_pre_slave(CANNON_AERO *);
 
 #ifdef __cplusplus
 }

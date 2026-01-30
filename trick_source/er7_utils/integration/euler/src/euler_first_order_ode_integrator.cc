@@ -27,78 +27,62 @@ Purpose: ()
 // Model includes
 #include "../include/euler_first_order_ode_integrator.hh"
 
-
-namespace er7_utils {
+namespace er7_utils
+{
 
 // Default constructor for a EulerFirstOrderODEIntegrator.
-EulerFirstOrderODEIntegrator::EulerFirstOrderODEIntegrator (
-   void)
-:
-   Er7UtilsDeletable (),
-   FirstOrderODEIntegrator ()
+EulerFirstOrderODEIntegrator::EulerFirstOrderODEIntegrator(void)
+    : Er7UtilsDeletable(),
+      FirstOrderODEIntegrator()
 {
-   ; /* Empty */
+    ; /* Empty */
 }
-
 
 // EulerFirstOrderODEIntegrator copy constructor.
-EulerFirstOrderODEIntegrator::EulerFirstOrderODEIntegrator (
-   const EulerFirstOrderODEIntegrator & src)
-:
-   Er7UtilsDeletable (),
-   FirstOrderODEIntegrator (src)
+EulerFirstOrderODEIntegrator::EulerFirstOrderODEIntegrator(const EulerFirstOrderODEIntegrator & src)
+    : Er7UtilsDeletable(),
+      FirstOrderODEIntegrator(src)
 {
-   ; /* Empty */
+    ; /* Empty */
 }
-
 
 // Non-default constructor for a EulerFirstOrderODEIntegrator.
-EulerFirstOrderODEIntegrator::EulerFirstOrderODEIntegrator (
-   unsigned int size,
-   IntegrationControls & controls)
-:
-   Er7UtilsDeletable (),
-   FirstOrderODEIntegrator (size, controls)
+EulerFirstOrderODEIntegrator::EulerFirstOrderODEIntegrator(unsigned int size, IntegrationControls & controls)
+    : Er7UtilsDeletable(),
+      FirstOrderODEIntegrator(size, controls)
 {
-   ; /* Empty */
+    ; /* Empty */
 }
-
 
 // Destructor for a EulerFirstOrderODEIntegrator.
-EulerFirstOrderODEIntegrator::~EulerFirstOrderODEIntegrator (
-   void)
+EulerFirstOrderODEIntegrator::~EulerFirstOrderODEIntegrator(void)
 {
-   ; /* Empty */
+    ; /* Empty */
 }
-
 
 // Clone a EulerFirstOrderODEIntegrator.
-EulerFirstOrderODEIntegrator *
-EulerFirstOrderODEIntegrator::create_copy ()
-const
+EulerFirstOrderODEIntegrator * EulerFirstOrderODEIntegrator::create_copy() const
 {
-   return alloc::replicate_object (*this);
+    return alloc::replicate_object(*this);
 }
-
 
 // Propagate state via Euler's method.
-IntegratorResult
-EulerFirstOrderODEIntegrator::integrate (
-   double dyn_dt,
-   unsigned int target_stage,
-   const double * ER7_UTILS_RESTRICT velocity,
-   double * ER7_UTILS_RESTRICT position)
+IntegratorResult EulerFirstOrderODEIntegrator::integrate(double dyn_dt,
+                                                         unsigned int target_stage,
+                                                         const double * ER7_UTILS_RESTRICT velocity,
+                                                         double * ER7_UTILS_RESTRICT position)
 {
+    // The only valid target_stage is 1.
+    if(target_stage == 1)
+    {
+        integ_utils::inplace_euler_step(velocity, dyn_dt, state_size, position);
+    }
 
-   // The only valid target_stage is 1.
-   if (target_stage == 1) {
-      integ_utils::inplace_euler_step (velocity, dyn_dt, state_size, position);
-   }
-
-   return 1.0;
+    return 1.0;
 }
 
-}
+} // namespace er7_utils
+
 /**
  * @if Er7UtilsUseGroups
  * @}

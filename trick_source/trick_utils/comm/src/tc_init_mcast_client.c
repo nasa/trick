@@ -22,26 +22,30 @@
 
 int tc_init_mcast_client(TCDevice * mcast_client_device)
 {
-    if (!mcast_client_device) {
-        trick_error_report(NULL,
-                           TRICK_ERROR_ALERT, __FILE__, __LINE__, "mcast device is null.");
+    if(!mcast_client_device)
+    {
+        trick_error_report(NULL, TRICK_ERROR_ALERT, __FILE__, __LINE__, "mcast device is null.");
         return (-1);
     }
 
     /* Open a UDP/Multicast socket */
     mcast_client_device->socket = socket(AF_INET, SOCK_DGRAM, 0);
 
-    if (mcast_client_device->socket == TRICKCOMM_INVALID_SOCKET) {
+    if(mcast_client_device->socket == TRICKCOMM_INVALID_SOCKET)
+    {
         perror("tc_init_mcast_client: socket creation error ");
 
         trick_error_report(mcast_client_device->error_handler,
-                           TRICK_ERROR_ALERT, __FILE__, __LINE__, "Error creating UDP multi-cast socket.");
+                           TRICK_ERROR_ALERT,
+                           __FILE__,
+                           __LINE__,
+                           "Error creating UDP multi-cast socket.");
 
         return (TC_COULD_NOT_OPEN_SOCKET);
     }
 
     /* Set up remoteServAddr for use in 'sendto' (tc_write) message to the server */
-    memset((void *) &mcast_client_device->remoteServAddr, 0, sizeof(struct sockaddr_in));
+    memset((void *)&mcast_client_device->remoteServAddr, 0, sizeof(struct sockaddr_in));
     mcast_client_device->remoteServAddr.sin_family = AF_INET;
     mcast_client_device->remoteServAddr.sin_addr.s_addr = inet_addr(mcast_client_device->mcast_group);
     mcast_client_device->remoteServAddr.sin_port = htons(mcast_client_device->port);
@@ -56,17 +60,24 @@ int tc_init_mcast_client(TCDevice * mcast_client_device)
 
        0 restricted to the same host 1 restricted to the same subnet 32 restricted to the same site 64 restricted to
        the same region 128 restricted to the same continent 255 unrestricted */
-    if (setsockopt(mcast_client_device->socket, IPPROTO_IP, IP_MULTICAST_TTL,
-                   &mcast_client_device->ttl, (socklen_t) sizeof(mcast_client_device->ttl)) < 0) {
+    if(setsockopt(mcast_client_device->socket,
+                  IPPROTO_IP,
+                  IP_MULTICAST_TTL,
+                  &mcast_client_device->ttl,
+                  (socklen_t)sizeof(mcast_client_device->ttl)) < 0)
+    {
         perror("tc_init_mcast_client: setsockopt for ttl failed");
         trick_error_report(mcast_client_device->error_handler,
-                           TRICK_ERROR_ALERT, __FILE__, __LINE__, "Unable to set time-to-live (ttl) hops.");
+                           TRICK_ERROR_ALERT,
+                           __FILE__,
+                           __LINE__,
+                           "Unable to set time-to-live (ttl) hops.");
         return (TC_COULD_NOT_SET_TTL);
     }
 
     /* Set the byte info values (byte order and type sizes) */
     TRICK_GET_BYTE_ORDER(mcast_client_device->byte_info[TC_BYTE_ORDER_NDX]);
-    mcast_client_device->byte_info[TC_LONG_SIZE_NDX] = (unsigned char) sizeof(long);
+    mcast_client_device->byte_info[TC_LONG_SIZE_NDX] = (unsigned char)sizeof(long);
 
     return (TC_SUCCESS);
 }

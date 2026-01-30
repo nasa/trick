@@ -28,24 +28,21 @@ PROGRAMMERS:
 /* Model include files. */
 #include "Ball.hh"
 
-     /* ENTRY POINT */
+/* ENTRY POINT */
 int Ball::state_init() /* RETURN: -- Always return zero. */
 {
+    /* GET SHORHAND NOTATION FOR DATA STRUCTURES */
+    BallStateInput * state_in = &(this->state.input);
+    BallStateOutput * state_out = &(this->state.output);
 
-   /* GET SHORHAND NOTATION FOR DATA STRUCTURES */
-   BallStateInput  * state_in  = &(this->state.input);
-   BallStateOutput * state_out = &(this->state.output);
+    /* TRANSFER INPUT POSITION STATES TO OUTPUT POSITION STATES */
+    state_out->position[0] = state_in->position[0]; /* X state */
+    state_out->position[1] = state_in->position[1]; /* Y state */
 
-   /* TRANSFER INPUT POSITION STATES TO OUTPUT POSITION STATES */
-   state_out->position[0] = state_in->position[0];  /* X state */
-   state_out->position[1] = state_in->position[1];  /* Y state */
+    /* TRANSFER INPUT SPEED AND ELEVATION INTO THE VELOCITY VECTOR */
+    state_out->velocity[0] = state_in->speed * cos(state_in->elevation); /* X velocity */
+    state_out->velocity[1] = state_in->speed * sin(state_in->elevation); /* Y velocity */
 
-   /* TRANSFER INPUT SPEED AND ELEVATION INTO THE VELOCITY VECTOR */
-   state_out->velocity[0] =   state_in->speed * cos( state_in->elevation ); /* X velocity */
-   state_out->velocity[1] =   state_in->speed * sin( state_in->elevation ); /* Y velocity */
-
-   /* RETURN */
-   return( 0 );
-
+    /* RETURN */
+    return (0);
 }
-

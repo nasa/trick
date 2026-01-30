@@ -23,24 +23,25 @@ PROGRAMMERS:
 *******************************************************************************/
 
 /* System include files. */
-#include <math.h>
 #include <iostream>
+#include <math.h>
 #include <unistd.h>
 
 /* Model include files. */
 #include "Ball.hh"
-#include "trick/exec_proto.hh"
 #include "trick/exec_proto.h"
+#include "trick/exec_proto.hh"
 #include "trick/message_proto.h"
 
-     /* ENTRY POINT */
-int Ball::state_print() {
+/* ENTRY POINT */
+int Ball::state_print()
+{
+    message_publish(MSG_NORMAL,
+                    "time = %8.2f , position = %12.6f , %12.6f\n",
+                    exec_get_sim_time(),
+                    state.output.position[0],
+                    state.output.position[1]);
 
-   message_publish(MSG_NORMAL, "time = %8.2f , position = %12.6f , %12.6f\n",
-    exec_get_sim_time() , state.output.position[0] , state.output.position[1]) ;
-
-   /* RETURN */
-   return( 0 );
-
+    /* RETURN */
+    return (0);
 }
-

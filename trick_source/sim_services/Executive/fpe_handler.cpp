@@ -4,9 +4,9 @@
    PROGRAMMERS: (((Robert W. Bailey) (LinCom) (April 1992) (--) (Realtime)))
  */
 
-#include <string.h>
-#include <stdio.h>
 #include <signal.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "trick/Executive.hh"
 #include "trick/exec_proto.hh"
@@ -17,8 +17,8 @@
  * floating point error has occured and calls exec_terminate()
  * @return void
  */
-void fpe_sig_handler(int sig __attribute__ ((unused)), siginfo_t * sip, void *uap __attribute__ ((unused)))
+void fpe_sig_handler(int sig __attribute__((unused)), siginfo_t * sip, void * uap __attribute__((unused)))
 {
     Trick::Executive * E = exec_get_exec_cpp();
-    E->fpe_handler(sip) ;
+    E->fpe_handler(sip);
 }

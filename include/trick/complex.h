@@ -13,22 +13,23 @@ PROGRAMMERS:
 #define COMPLEX_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef struct {
+    typedef struct
+    {
+        float real;      /* --  Real part */
+        float imaginary; /* --  Imaginary part */
 
-    float real;       /* --  Real part */
-    float imaginary;  /* --  Imaginary part */
+    } COMPLEX;
 
-} COMPLEX;
+    typedef struct
+    {
+        double real;      /* --  Real part */
+        double imaginary; /* --  Imaginary part */
 
-typedef struct {
-
-    double real;      /* --  Real part */
-    double imaginary; /* --  Imaginary part */
-
-} DCOMPLEX;
+    } DCOMPLEX;
 
 #ifdef __cplusplus
 }

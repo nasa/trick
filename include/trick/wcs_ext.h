@@ -12,21 +12,22 @@ PROGRAMMERS:
 */
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #if __Lynx__
-int wcs_to_ncs_len (void);
-int ncs_to_wcs_len (void);
-int wcs_to_ncs (void);
-int ncs_to_wcs(void);
+    int wcs_to_ncs_len(void);
+    int ncs_to_wcs_len(void);
+    int wcs_to_ncs(void);
+    int ncs_to_wcs(void);
 #else
 #include <stddef.h>
 #include <wchar.h>
-size_t wcs_to_ncs_len (const wchar_t *wcs);
-size_t ncs_to_wcs_len (const char *ncs);
-size_t wcs_to_ncs (const wchar_t *wcs, char *ncs, size_t ncs_max_len );
-size_t ncs_to_wcs(const char *ncs, wchar_t *wcs, size_t w_max_size );
+size_t wcs_to_ncs_len(const wchar_t * wcs);
+size_t ncs_to_wcs_len(const char * ncs);
+size_t wcs_to_ncs(const wchar_t * wcs, char * ncs, size_t ncs_max_len);
+size_t ncs_to_wcs(const char * ncs, wchar_t * wcs, size_t w_max_size);
 #endif
 
 #ifdef __cplusplus
@@ -34,4 +35,3 @@ size_t ncs_to_wcs(const char *ncs, wchar_t *wcs, size_t w_max_size );
 #endif
 
 #endif
-

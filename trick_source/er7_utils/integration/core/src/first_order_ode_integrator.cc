@@ -22,18 +22,17 @@ Purpose: ()
 // Local includes
 #include "../include/first_order_ode_integrator.hh"
 
-
-namespace er7_utils {
+namespace er7_utils
+{
 
 // Swap
-void
-FirstOrderODEIntegrator::swap (
-   FirstOrderODEIntegrator & other)
+void FirstOrderODEIntegrator::swap(FirstOrderODEIntegrator & other)
 {
-   std::swap (state_size, other.state_size);
+    std::swap(state_size, other.state_size);
 }
 
-}
+} // namespace er7_utils
+
 /**
  * @if Er7UtilsUseGroups
  * @}

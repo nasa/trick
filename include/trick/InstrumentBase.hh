@@ -9,49 +9,52 @@ PROGRAMMERS:
 #ifndef INSTRUMENTBASE_HH
 #define INSTRUMENTBASE_HH
 
-#include <string>
 #include "trick/JobData.hh"
+#include <string>
 
-namespace Trick {
+namespace Trick
+{
 
-    /**
-     * This class is the base Instrument class. It provides an abstract
-     * call routine that is used by jobs to call each Instrument's particular routine.
-     *
-     * @author Dan A. Strauss
-     * @author Alexander S. Lin
-     *
-     * @date Jan. 2010
-     *
-     */
+/**
+ * This class is the base Instrument class. It provides an abstract
+ * call routine that is used by jobs to call each Instrument's particular routine.
+ *
+ * @author Dan A. Strauss
+ * @author Alexander S. Lin
+ *
+ * @date Jan. 2010
+ *
+ */
 
-    class JobData ;
+class JobData;
 
-    class InstrumentBase {
+class InstrumentBase
+{
+public:
+    InstrumentBase(Trick::JobData * in_target_job = NULL)
+        : phase(60000),
+          target_job(in_target_job)
+    {
+    }
 
-        public:
+    virtual ~InstrumentBase() {}
 
-            InstrumentBase(Trick::JobData * in_target_job = NULL) :
-             phase(60000) ,
-             target_job(in_target_job) {} ;
+    /* Get the target job. */
+    Trick::JobData * get_target_job()
+    {
+        return target_job;
+    }
 
-            virtual ~InstrumentBase() {} ;
+    /** Job source code name */
+    std::string name; /**< trick_units(--) */
+    unsigned short phase;
 
-            /* Get the target job. */
-            Trick::JobData * get_target_job() { return target_job ; } ;
+    virtual int call() = 0;
 
-            /** Job source code name */
-            std::string name ;                    /**< trick_units(--) */
-            unsigned short phase ;
+protected:
+    Trick::JobData * target_job;
+};
 
-            virtual int call() = 0 ;
-
-        protected:
-             Trick::JobData * target_job ;
-
-    } ;
-
-} ;
+}; // namespace Trick
 
 #endif
-

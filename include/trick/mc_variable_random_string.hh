@@ -36,18 +36,18 @@ PROGRAMMERS:
 
 class MonteCarloVariableRandomStringSet : public MonteCarloVariableRandomUniform
 {
- public:
-  std::vector< std::string> values;
-  MonteCarloVariableRandomStringSet( const std::string  & var_name,
-                                     unsigned int         seed);
+public:
+    std::vector<std::string> values;
+    MonteCarloVariableRandomStringSet(const std::string & var_name, unsigned int seed);
 
-  virtual ~MonteCarloVariableRandomStringSet(){};
-  virtual void generate_assignment();
-  virtual std::string summarize_variable() const;
-  void add_string(std::string);
- private: // and undefined:
-  MonteCarloVariableRandomStringSet(const MonteCarloVariableRandomStringSet&);
-  MonteCarloVariableRandomStringSet& operator = (
-                                     const MonteCarloVariableRandomStringSet&);
+    virtual ~MonteCarloVariableRandomStringSet() {}
+
+    virtual void generate_assignment();
+    virtual std::string summarize_variable() const;
+    void add_string(std::string);
+
+private: // and undefined:
+    MonteCarloVariableRandomStringSet(const MonteCarloVariableRandomStringSet &);
+    MonteCarloVariableRandomStringSet & operator=(const MonteCarloVariableRandomStringSet &);
 };
 #endif

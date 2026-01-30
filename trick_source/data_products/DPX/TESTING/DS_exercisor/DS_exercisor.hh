@@ -7,13 +7,18 @@
 /**
  * Provides a means to inactively exercise a DataStream class object.
  */
-class DS_exercisor {
+class DS_exercisor
+{
 public:
-  DS_exercisor(DataStream* ds)
-    : testds(ds) {}
-  ~DS_exercisor() {}
-  int run();
+    DS_exercisor(DataStream * ds)
+        : testds(ds)
+    {
+    }
+
+    ~DS_exercisor() {}
+
+    int run();
 
 private:
-  DataStream* testds;
+    DataStream * testds;
 };

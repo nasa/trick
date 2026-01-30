@@ -28,30 +28,30 @@
 #include "sched.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int sched_init(SCHEDULE*) ;
-int sched_integ(SCHEDULE*) ;
-int sched_deriv(SCHEDULE*) ;
-double sched_dyn_event(SCHEDULE*) ;
-int sched_scheduled(SCHEDULE*) ;
-int sched_environment(SCHEDULE*) ;
-int sched_sensor(SCHEDULE*) ;
-int sched_sensor_reflector(SCHEDULE*) ;
-int sched_sensor_receiver(SCHEDULE*) ;
-int sched_sensor_emitter(SCHEDULE*) ;
-int sched_effector_receiver(SCHEDULE*) ;
-int sched_effector_emitter(SCHEDULE*) ;
-int sched_effector(SCHEDULE*) ;
-int sched_logging(SCHEDULE*) ;
-int sched_amf(SCHEDULE*) ;
-int sched_async(SCHEDULE*) ;
-int sched_default_data(SCHEDULE*) ;
+    int sched_init(SCHEDULE *);
+    int sched_integ(SCHEDULE *);
+    int sched_deriv(SCHEDULE *);
+    double sched_dyn_event(SCHEDULE *);
+    int sched_scheduled(SCHEDULE *);
+    int sched_environment(SCHEDULE *);
+    int sched_sensor(SCHEDULE *);
+    int sched_sensor_reflector(SCHEDULE *);
+    int sched_sensor_receiver(SCHEDULE *);
+    int sched_sensor_emitter(SCHEDULE *);
+    int sched_effector_receiver(SCHEDULE *);
+    int sched_effector_emitter(SCHEDULE *);
+    int sched_effector(SCHEDULE *);
+    int sched_logging(SCHEDULE *);
+    int sched_amf(SCHEDULE *);
+    int sched_async(SCHEDULE *);
+    int sched_default_data(SCHEDULE *);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif
-

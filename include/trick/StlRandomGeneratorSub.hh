@@ -23,24 +23,37 @@
 ///         (Otherwise, it is difficult to use the param_type system without knowing the
 ///         distribution type at compile time.)
 ///
-class ParamWrapper {
+class ParamWrapper
+{
 public:
     ///@name Parameter wrappers
     ///@brief These methods return the appropriate param_type per the input distribution (which is otherwise unused).
     ///@note Implement one per distribution implemented
     ///@{
 
-    static std::uniform_real_distribution<double>::param_type
-    param(__attribute__((unused)) const std::uniform_real_distribution<double>& dist, double min, double max = 0.0)
-    { return std::uniform_real_distribution<double>::param_type(min,max); }
+    static std::uniform_real_distribution<double>::param_type param(__attribute__((unused))
+                                                                    const std::uniform_real_distribution<double> & dist,
+                                                                    double min,
+                                                                    double max = 0.0)
+    {
+        return std::uniform_real_distribution<double>::param_type(min, max);
+    }
 
-    static std::normal_distribution<double>::param_type
-    param(__attribute__((unused)) const std::normal_distribution<double>& dist, double mean, double std_dev = 0.0)
-    { return std::normal_distribution<double>::param_type(mean,std_dev); }
+    static std::normal_distribution<double>::param_type param(__attribute__((unused))
+                                                              const std::normal_distribution<double> & dist,
+                                                              double mean,
+                                                              double std_dev = 0.0)
+    {
+        return std::normal_distribution<double>::param_type(mean, std_dev);
+    }
 
-    static std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>::param_type
-    param(__attribute__((unused)) const std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>& dist, double mean, __attribute__((unused)) double unused = 0.0)
-    { return std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>::param_type(mean); }
+    static std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>::param_type param(
+        __attribute__((unused)) const std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES> & dist,
+        double mean,
+        __attribute__((unused)) double unused = 0.0)
+    {
+        return std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>::param_type(mean);
+    }
 
     ///@}
 private:
@@ -50,19 +63,20 @@ private:
 
 #endif
 
-
 #if (defined(_HAVE_TR1_RANDOM) || defined(_HAVE_STL_RANDOM))
 
 ///@brief Return the appropriate union bit pattern for each distribution
 ///@note Implement one for each available distribution type.
-class StlReturnWrapper {
+class StlReturnWrapper
+{
 public:
-
 #ifdef _HAVE_TR1_RANDOM
-    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused)) const std::uniform_real<double>& dist, double ret_val)
+    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused)) const std::uniform_real<double> & dist,
+                                              double ret_val)
 #endif
 #ifdef _HAVE_STL_RANDOM
-    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused)) const std::uniform_real_distribution<double>& dist, double ret_val)
+        static TRICK_GSL_RETURN_TYPE
+        return_value(__attribute__((unused)) const std::uniform_real_distribution<double> & dist, double ret_val)
 #endif
     {
         TRICK_GSL_RETURN_TYPE output;
@@ -70,20 +84,22 @@ public:
         return output;
     }
 
-    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused)) const std::normal_distribution<double>& dist, double ret_val)
+    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused)) const std::normal_distribution<double> & dist,
+                                              double ret_val)
     {
         TRICK_GSL_RETURN_TYPE output;
         output.d = ret_val;
         return output;
     }
 
-    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused)) const std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>& dist, int ret_val)
+    static TRICK_GSL_RETURN_TYPE return_value(__attribute__((unused))
+                                              const std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES> & dist,
+                                              int ret_val)
     {
         TRICK_GSL_RETURN_TYPE output;
         output.ii = ret_val;
         return output;
     }
-
 };
 #endif
 
@@ -99,27 +115,23 @@ public:
 ///      Also, TR1 Distributions can not have their parameters changed after construction.
 ///      This results in the need for template full method specialization to provide the type specific init.
 ///
-template <class Engine, class Distribution>
-class StlRandomGeneratorSub : public StlRandomGenerator
+template<class Engine, class Distribution> class StlRandomGeneratorSub : public StlRandomGenerator
 {
 public:
-
-#ifdef _HAVE_STD_RANDOM  // (Concept doesn't exist in TR1)
+#ifdef _HAVE_STD_RANDOM // (Concept doesn't exist in TR1)
     typedef typename Distribution::param_type ParamType;
 #endif
 
     ///@note The input in_engine_type and in_dist_type must match the template parameters.
     ///      This is intended to be assured by using StlRandomGeneratorFactory for construction.
     ///
-    explicit StlRandomGeneratorSub(
-        double                              in_param_a = 0.0,
-        double                              in_param_b = 1.0,
-        unsigned long                       in_seed    = 12345,
-        StlRandomGenerator::StlDistribution in_dist_type   = FLAT,
-        StlRandomGenerator::StlEngine       in_engine_type = TRICK_DEFAULT_ENGINE
-    )
-    :   StlRandomGenerator(in_param_a, in_param_b, in_seed, in_dist_type, in_engine_type),
-        engine(in_seed)
+    explicit StlRandomGeneratorSub(double in_param_a = 0.0,
+                                   double in_param_b = 1.0,
+                                   unsigned long in_seed = 12345,
+                                   StlRandomGenerator::StlDistribution in_dist_type = FLAT,
+                                   StlRandomGenerator::StlEngine in_engine_type = TRICK_DEFAULT_ENGINE)
+        : StlRandomGenerator(in_param_a, in_param_b, in_seed, in_dist_type, in_engine_type),
+          engine(in_seed)
     {
         // (Note: distribution member can't be input initialized in the initializer list
         //        because various distributions have different signatures.
@@ -131,7 +143,7 @@ public:
         set_param(in_param_a, in_param_b);
     }
 
-    virtual ~StlRandomGeneratorSub() { }
+    virtual ~StlRandomGeneratorSub() {}
 
     ///@brief return next pseudo-random number
     virtual TRICK_GSL_RETURN_TYPE operator()()
@@ -170,7 +182,7 @@ public:
 
 #ifdef _HAVE_STL_RANDOM
         // (this param_type interface is not provided in TR1)
-        distribution.param( ParamWrapper::param(distribution, a,b) );
+        distribution.param(ParamWrapper::param(distribution, a, b));
 #else
         // TR1 implementation must use this hokey
         // full template specialization solution.
@@ -179,12 +191,10 @@ public:
     }
 
 protected:
-
-    Engine          engine;          /**< -- STL random number engine object */
-    Distribution    distribution;    /**< -- STL random number distribution object */
+    Engine engine;             /**< -- STL random number engine object */
+    Distribution distribution; /**< -- STL random number distribution object */
 
 private:
-
 #ifdef _HAVE_TR1_RANDOM
     ///@brief For TR1, replace the default initialized distribution with a new one.
     ///
@@ -203,7 +213,6 @@ private:
         distribution = Distribution(a, b);
     }
 #endif
-
 };
 
 #ifdef _HAVE_TR1_RANDOM
@@ -240,21 +249,15 @@ StlRandomGeneratorSub<std::mt19937,
 */
 
 template<>
-inline
-void
-StlRandomGeneratorSub<std::ranlux_base_01,
-                      std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>
-                     >::tr1_init_distribution(double a, double __attribute__((unused)) b)
+inline void StlRandomGeneratorSub<std::ranlux_base_01, std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>>::
+    tr1_init_distribution(double a, double __attribute__((unused)) b)
 {
     distribution = std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>(a);
 }
 
 template<>
-inline
-void
-StlRandomGeneratorSub<std::ranlux64_base_01,
-                      std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>
-                     >::tr1_init_distribution(double a, double __attribute__((unused)) b)
+inline void StlRandomGeneratorSub<std::ranlux64_base_01, std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>>::
+    tr1_init_distribution(double a, double __attribute__((unused)) b)
 {
     distribution = std::poisson_distribution<STL_POISSON_TEMPLATE_TYPES>(a);
 }

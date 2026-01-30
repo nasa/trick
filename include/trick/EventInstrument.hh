@@ -3,12 +3,13 @@
 /*
     PURPOSE: ( EventInstrument Class )
 */
-#include <string>
 #include "trick/Event.hh"
 #include "trick/InstrumentBase.hh"
 #include "trick/JobData.hh"
+#include <string>
 
-namespace Trick {
+namespace Trick
+{
 
 /**
   This class encapsulates an event into an instrument class.  Instrument classes
@@ -18,34 +19,35 @@ namespace Trick {
   @author Alex Lin, Danny Strauss
 */
 
-class EventInstrument : public Trick::InstrumentBase {
+class EventInstrument : public Trick::InstrumentBase
+{
+public:
+    /**
+     @brief constructor that takes an event and the target job it will be attached
+    */
+    EventInstrument(Trick::Event * in_event, Trick::JobData * in_target_job);
 
-    public:
-        /**
-         @brief constructor that takes an event and the target job it will be attached
-        */
-        EventInstrument(Trick::Event * in_event, Trick::JobData * in_target_job) ;
+    /**
+     @brief call() routine inherited from InstrumentBase.  This class will execute
+      the event.
+    */
+    virtual int call();
 
-        /**
-         @brief call() routine inherited from InstrumentBase.  This class will execute
-          the event.
-        */
-        virtual int call() ;
+    /**
+     @brief returns the event contained in this instrument.
+    */
+    Trick::Event * get_event()
+    {
+        return event;
+    }
 
-        /**
-         @brief returns the event contained in this instrument.
-        */
-        Trick::Event * get_event() { return event ; } ;
+protected:
+    /**
+     @brief the event contained in this instrument.
+    */
+    Trick::Event * event;
+};
 
-    protected:
-
-        /**
-         @brief the event contained in this instrument.
-        */
-        Trick::Event * event ;
-
-} ;
-
-}
+} // namespace Trick
 
 #endif

@@ -13,49 +13,51 @@ PROGRAMMERS:
 #ifndef REGULA_FALSI_H
 #define REGULA_FALSI_H
 
-#define BIG_TGO 1000.0          /* Some really big number to return when
-                                   zero point is not crossed */
+#define BIG_TGO                                                                                                        \
+    1000.0 /* Some really big number to return when                                                                    \
+              zero point is not crossed */
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-typedef enum {
+    typedef enum
+    {
+        Decreasing = -1, /* Sets time to go = 0 only
+                            for a decreasing err function */
+        Any,             /* Sets time to go = 0,
+                            decreasing/increasing err function */
+        Increasing       /* Sets time to go = 0 only for
+                            an increasing err function */
+    } Regula_Falsi;
 
-    Decreasing = -1,   /* Sets time to go = 0 only
-                          for a decreasing err function */
-    Any,               /* Sets time to go = 0,
-                          decreasing/increasing err function */
-    Increasing         /* Sets time to go = 0 only for
-                          an increasing err function */
-} Regula_Falsi;
+    typedef struct
+    {
+        int lower_set;               /* --  Yes = Lower bounds has been set */
+        int upper_set;               /* --  Yes = Upper bounds has been set */
+        int iterations;              /* --  Total num of iterations
+                                            used to fire event */
+        int fires;                   /* --  Total num of times event fired */
+        double x_lower;              /* --  Lower value from error func */
+        double t_lower;              /* s   Time at lower val of err func */
+        double x_upper;              /* --  Upper value from err function */
+        double t_upper;              /* s   Time at upper value of err func */
+        double delta_time;           /* s   Time to go */
+        double error;                /* --  New Error value from err func */
+        double last_error;           /* --  Last pass error value */
+        double last_tgo;             /* s   Last pass Time to go value */
+        double error_tol;            /* --  Tolerance on error below
+                                            which tgo=0 */
+        Regula_Falsi mode;           /* --  Operating mode for regula falsi */
+        Regula_Falsi function_slope; /* --  Operating mode for regula falsi */
 
-typedef struct {
+    } REGULA_FALSI;
 
-    int lower_set;       /* --  Yes = Lower bounds has been set */
-    int upper_set;       /* --  Yes = Upper bounds has been set */
-    int iterations;      /* --  Total num of iterations
-                                used to fire event */
-    int fires;           /* --  Total num of times event fired */
-    double x_lower;      /* --  Lower value from error func */
-    double t_lower;      /* s   Time at lower val of err func */
-    double x_upper;      /* --  Upper value from err function */
-    double t_upper;      /* s   Time at upper value of err func */
-    double delta_time;   /* s   Time to go */
-    double error;        /* --  New Error value from err func */
-    double last_error;   /* --  Last pass error value */
-    double last_tgo;     /* s   Last pass Time to go value */
-    double error_tol;    /* --  Tolerance on error below
-                                which tgo=0 */
-    Regula_Falsi mode;   /* --  Operating mode for regula falsi */
-    Regula_Falsi function_slope;  /* --  Operating mode for regula falsi */
-
-} REGULA_FALSI;
-
-double regula_falsi(double my_time, REGULA_FALSI * R);
-void reset_regula_falsi(double my_time, REGULA_FALSI * R);
-void regula_falsi_set_upper (double my_time, double error, REGULA_FALSI * R);
-void regula_falsi_set_lower (double my_time, double error, REGULA_FALSI * R);
+    double regula_falsi(double my_time, REGULA_FALSI * R);
+    void reset_regula_falsi(double my_time, REGULA_FALSI * R);
+    void regula_falsi_set_upper(double my_time, double error, REGULA_FALSI * R);
+    void regula_falsi_set_lower(double my_time, double error, REGULA_FALSI * R);
 
 #ifdef __cplusplus
 }

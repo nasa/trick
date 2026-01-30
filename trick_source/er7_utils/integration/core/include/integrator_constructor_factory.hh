@@ -17,7 +17,6 @@
 Purpose: ()
 */
 
-
 #ifndef ER7_UTILS_INTEGRATOR_CONSTRUCTOR_FACTORY_HH
 #define ER7_UTILS_INTEGRATOR_CONSTRUCTOR_FACTORY_HH
 
@@ -29,60 +28,52 @@ Purpose: ()
 // Model includes
 #include "integration_technique.hh"
 
-
-namespace er7_utils {
+namespace er7_utils
+{
 
 class IntegratorConstructor;
-
 
 /**
  * Factory method design pattern class for constructing an IntegratorConstructor
  * based on technique specified in a Trick integration structure.
  */
-class IntegratorConstructorFactory {
-
-   // This is a static class.
-   // The default constructor, copy constructor, destructor, and assignment
-   // operator for this class are private / unimplemented.
+class IntegratorConstructorFactory
+{
+    // This is a static class.
+    // The default constructor, copy constructor, destructor, and assignment
+    // operator for this class are private / unimplemented.
 
 public:
+    // Static member functions
 
-
-   // Static member functions
-
-   // create():
-   // This static member function creates an IntegratorConstructor instance
-   // based on the provided technique.
-   static IntegratorConstructor * create (Integration::Technique type);
-
+    // create():
+    // This static member function creates an IntegratorConstructor instance
+    // based on the provided technique.
+    static IntegratorConstructor * create(Integration::Technique type);
 
 private:
+    /**
+     * Not implemented.
+     */
+    IntegratorConstructorFactory(void);
 
-   /**
-    * Not implemented.
-    */
-   IntegratorConstructorFactory (void);
+    /**
+     * Not implemented.
+     */
+    IntegratorConstructorFactory(const IntegratorConstructorFactory &);
 
-   /**
-    * Not implemented.
-    */
-   IntegratorConstructorFactory (const IntegratorConstructorFactory &);
+    /**
+     * Not implemented.
+     */
+    ~IntegratorConstructorFactory(void);
 
-   /**
-    * Not implemented.
-    */
-   ~IntegratorConstructorFactory (void);
-
-   /**
-    * Not implemented.
-    */
-   IntegratorConstructorFactory & operator= (
-      const IntegratorConstructorFactory &);
-
+    /**
+     * Not implemented.
+     */
+    IntegratorConstructorFactory & operator=(const IntegratorConstructorFactory &);
 };
 
-}
-
+} // namespace er7_utils
 
 #ifdef ER7_UTILS_NEED_AUX_INCLUDES
 #include "integrator_constructor.hh"
@@ -108,7 +99,6 @@ private:
 #include "er7_utils/integration/symplectic_euler/include/symplectic_euler_integrator_constructor.hh"
 #include "er7_utils/integration/velocity_verlet/include/velocity_verlet_integrator_constructor.hh"
 #endif
-
 
 #endif
 /**

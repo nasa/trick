@@ -9,12 +9,11 @@ PROGRAMMERS:                 ( (Keith Vetter) (Titan) (8-20-2002) (Trick tutoria
 
 #include "../include/sched.h"
 
-
 int sched_deriv(
-                  /* RETURN: -- Always return zero */
-  SCHEDULE *S )      /* INOUT:  -- Schedule struct */
+    /* RETURN: -- Always return zero */
+    SCHEDULE * S) /* INOUT:  -- Schedule struct */
 {
-   S->acc = -1 * S->pos * S->mass ;
+    S->acc = -1 * S->pos * S->mass;
 
-   return( 0 );
+    return (0);
 }

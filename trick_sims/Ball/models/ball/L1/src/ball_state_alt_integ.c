@@ -26,24 +26,22 @@ PROGRAMMERS:
 #include <stdio.h>
 
 /* GLOBAL DATA STRUCTURE DECLARATIONS */
-#include "sim_services/Integrator/include/integrator_c_intf.h"
-#include "ball/L1/include/ball_state.h"
 #include "ball/L1/include/ball_proto.h"
+#include "ball/L1/include/ball_state.h"
+#include "sim_services/Integrator/include/integrator_c_intf.h"
 
 /* ENTRY POINT */
-int ball_state_alt_integ( /* RETURN: -- Integration multi-step id */
-  BSTATE *S )             /* INOUT:  -- Ball EOM state parameters */
+int ball_state_alt_integ(            /* RETURN: -- Integration multi-step id */
+                         BSTATE * S) /* INOUT:  -- Ball EOM state parameters */
 {
-
     int ipass;
 
     /* GET SHORTHAND NOTATION FOR DATA STRUCTURES */
-    BSTATE_OUT *SO = &(S->output) ;
+    BSTATE_OUT * SO = &(S->output);
 
     /* CALL THE TRICK INTEGRATION SERVICE */
-    ipass = integrate_2nd_order_ode( SO->acceleration , SO->velocity , SO->position ) ;
+    ipass = integrate_2nd_order_ode(SO->acceleration, SO->velocity, SO->position);
 
     /* RETURN */
-    return( ipass );
+    return (ipass);
 }
-

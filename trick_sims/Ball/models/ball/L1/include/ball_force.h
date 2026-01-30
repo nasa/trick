@@ -14,7 +14,6 @@ PROGRAMMERS:
 @endverbatim
 *******************************************************************************/
 
-
 #include <pthread.h>
 
 #ifndef BALL_FORCE_H
@@ -23,30 +22,33 @@ PROGRAMMERS:
 /** @struct BFORCE_IN
     @brief ball force input parameters
  */
-typedef struct { /* BFORCE_IN ------------------------------------------------*/
+typedef struct
+{ /* BFORCE_IN ------------------------------------------------*/
 
-  double origin[2] ;   /**< (m)    Origin of force center */
-  double force ;       /**< (N)    Force magnitude */
+    double origin[2]; /**< (m)    Origin of force center */
+    double force;     /**< (N)    Force magnitude */
 
-} BFORCE_IN ; /*--------------------------------------------------------------*/
+} BFORCE_IN; /*--------------------------------------------------------------*/
 
 /** @struct BFORCE_OUT
     @brief ball force output parameters
  */
-typedef struct { /* BFORCE_OUT -----------------------------------------------*/
+typedef struct
+{ /* BFORCE_OUT -----------------------------------------------*/
 
-  double force[2] ;    /**< (N)    Resulting X,Y force on ball */
+    double force[2]; /**< (N)    Resulting X,Y force on ball */
 
-} BFORCE_OUT ; /*-------------------------------------------------------------*/
+} BFORCE_OUT; /*-------------------------------------------------------------*/
 
 /** @struct BFORCE
     @brief ball force parameters
  */
-typedef struct { /* BFORCE ---------------------------------------------------*/
+typedef struct
+{ /* BFORCE ---------------------------------------------------*/
 
-  BFORCE_IN   input ;     /**<  (--)   User inputs */
-  BFORCE_OUT  output ;    /**<  (--)   User outputs */
+    BFORCE_IN input;   /**<  (--)   User inputs */
+    BFORCE_OUT output; /**<  (--)   User outputs */
 
-} BFORCE ; /*-----------------------------------------------------------------*/
+} BFORCE; /*-----------------------------------------------------------------*/
 
 #endif

@@ -10,10 +10,10 @@ PROGRAMMERS:                 ((vetter) (Tue Aug 26 13:22:44 CDT 2003))
 #include "../include/sched.h"
 
 int sched_init(
-                            /* RETURN: -- Always return zero */
-  SCHEDULE *S)              /* INOUT:  -- Parameter */
+    /* RETURN: -- Always return zero */
+    SCHEDULE * S) /* INOUT:  -- Parameter */
 
 {
-       S->mass = S->mass*1.0000013 + 0.0000013 ; /* Massive masses */
-       return(0) ;
+    S->mass = S->mass * 1.0000013 + 0.0000013; /* Massive masses */
+    return (0);
 }

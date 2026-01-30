@@ -30,95 +30,69 @@ Purpose: ()
 #include "../include/position_verlet_integrator_constructor.hh"
 #include "../include/position_verlet_second_order_ode_integrator.hh"
 
-
-namespace er7_utils {
+namespace er7_utils
+{
 
 // Named constructor; create an PositionVerletIntegratorConstructor.
-IntegratorConstructor*
-PositionVerletIntegratorConstructor::create_constructor (
-   void)
+IntegratorConstructor * PositionVerletIntegratorConstructor::create_constructor(void)
 {
-   return alloc::allocate_object<PositionVerletIntegratorConstructor> ();
+    return alloc::allocate_object<PositionVerletIntegratorConstructor>();
 }
-
 
 // Create a duplicate of the constructor.
-IntegratorConstructor *
-PositionVerletIntegratorConstructor::create_copy (
-   void)
-const
+IntegratorConstructor * PositionVerletIntegratorConstructor::create_copy(void) const
 {
-   return alloc::allocate_object<PositionVerletIntegratorConstructor> (*this);
+    return alloc::allocate_object<PositionVerletIntegratorConstructor>(*this);
 }
-
 
 // Create an integration controls for Nystrom-Lear 2.
-IntegrationControls *
-PositionVerletIntegratorConstructor::create_integration_controls (
-   void)
-const
+IntegrationControls * PositionVerletIntegratorConstructor::create_integration_controls(void) const
 {
-   return integ_utils::allocate_controls<SingleCycleIntegrationControls> (2);
+    return integ_utils::allocate_controls<SingleCycleIntegrationControls>(2);
 }
-
 
 // Create an RK2 midpoint integrator for a first order ODE.
-FirstOrderODEIntegrator *
-PositionVerletIntegratorConstructor::create_first_order_ode_integrator (
-   unsigned int size,
-   IntegrationControls & controls)
-const
+FirstOrderODEIntegrator * PositionVerletIntegratorConstructor::create_first_order_ode_integrator(
+    unsigned int size, IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<RK2MidpointFirstOrderODEIntegrator> (
-             size, controls);
+    return integ_utils::allocate_integrator<RK2MidpointFirstOrderODEIntegrator>(size, controls);
 }
-
 
 // Create a Nystrom-Lear 2 integrator for a second order ODE.
-SecondOrderODEIntegrator *
-PositionVerletIntegratorConstructor::create_second_order_ode_integrator (
-   unsigned int size,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * PositionVerletIntegratorConstructor::create_second_order_ode_integrator(
+    unsigned int size, IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                PositionVerletSimpleSecondOrderODEIntegrator> (
-             size, controls);
+    return integ_utils::allocate_integrator<PositionVerletSimpleSecondOrderODEIntegrator>(size, controls);
 }
-
 
 // Create a Nystrom-Lear 2 integrator for a second order ODE.
-SecondOrderODEIntegrator *
-PositionVerletIntegratorConstructor::
-create_generalized_deriv_second_order_ode_integrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionDerivativeFunctions & deriv_funs,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * PositionVerletIntegratorConstructor::create_generalized_deriv_second_order_ode_integrator(
+    unsigned int position_size,
+    unsigned int velocity_size,
+    const GeneralizedPositionDerivativeFunctions & deriv_funs,
+    IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                PositionVerletGeneralizedDerivSecondOrderODEIntegrator> (
-             position_size, velocity_size, deriv_funs, controls);
+    return integ_utils::allocate_integrator<PositionVerletGeneralizedDerivSecondOrderODEIntegrator>(position_size,
+                                                                                                    velocity_size,
+                                                                                                    deriv_funs,
+                                                                                                    controls);
 }
-
 
 // Create a Nystrom-Lear 2 integrator for a second order ODE.
-SecondOrderODEIntegrator *
-PositionVerletIntegratorConstructor::
-create_generalized_step_second_order_ode_integrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionStepFunctions & step_funs,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * PositionVerletIntegratorConstructor::create_generalized_step_second_order_ode_integrator(
+    unsigned int position_size,
+    unsigned int velocity_size,
+    const GeneralizedPositionStepFunctions & step_funs,
+    IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                PositionVerletGeneralizedStepSecondOrderODEIntegrator> (
-             position_size, velocity_size, step_funs, controls);
+    return integ_utils::allocate_integrator<PositionVerletGeneralizedStepSecondOrderODEIntegrator>(position_size,
+                                                                                                   velocity_size,
+                                                                                                   step_funs,
+                                                                                                   controls);
 }
 
-}
+} // namespace er7_utils
+
 /**
  * @if Er7UtilsUseGroups
  * @}

@@ -6,10 +6,9 @@
 /**
  @brief IntegerValue is a Value that represents an integer value on the right-hand-side of an equation.
  */
-class IntegerValue : public NumericValue {
-
-    public:
-
+class IntegerValue : public NumericValue
+{
+public:
     /**
      Constructor.
      @param value The value of this IntegerValue.
@@ -31,14 +30,14 @@ class IntegerValue : public NumericValue {
     /**
      Print this FloatingPointValue to a stream.
      */
-    void print(std::ostream &s);
+    void print(std::ostream & s);
 
     /**
      Get a string representation of this IntegerValue.
      */
     std::string toString();
 
-    private:
+private:
     long long value;
 };
 #endif

@@ -9,15 +9,16 @@
 #include "trick/reference_frame.h"
 #include "trick/trick_math.h"
 
-int euler_matrix(double angle[3],       /* In: r Method=0, Euler angles */
-                 double mat[3][3],      /* Out: r Method=0, Coordinate transformation matrix */
-                 int method,    /* In: 0 = Make matrix from angles, 1 = Make angles from matrix */
+int euler_matrix(double angle[3],  /* In: r Method=0, Euler angles */
+                 double mat[3][3], /* Out: r Method=0, Coordinate transformation matrix */
+                 int method,       /* In: 0 = Make matrix from angles, 1 = Make angles from matrix */
                  Euler_Seq sequence)
-{                                      /* In: Euler angle sequence for 'angle' */
+{ /* In: Euler angle sequence for 'angle' */
 
     int ret = 0;
 
-    switch (sequence) {
+    switch(sequence)
+    {
         case Roll_Pitch_Yaw:
             ret = deuler_123(angle, mat, method);
             break;
@@ -41,5 +42,4 @@ int euler_matrix(double angle[3],       /* In: r Method=0, Euler angles */
     }
 
     return (ret);
-
 }

@@ -4,11 +4,11 @@ LIBRARY DEPENDENCY:
     ((Satellite.o))
 *******************************************************************************/
 #include "../include/Satellite.hh"
-#include <math.h>
 #include <iostream>
+#include <math.h>
 
-int Satellite::default_data() {
-
+int Satellite::default_data()
+{
     pos[0] = 0.0;
     pos[1] = 6578000.0;
     vel[0] = 7905.0;
@@ -16,31 +16,31 @@ int Satellite::default_data() {
     return (0);
 }
 
-int Satellite::state_init() {
+int Satellite::state_init()
+{
     return (0);
 }
 
-int Satellite::state_deriv() {
-
-   double d = sqrt( pos[0]*pos[0] + pos[1]*pos[1]);
-   acc[0] = -pos[0] * GRAVITATIONAL_CONSTANT * EARTH_MASS / (d*d*d);
-   acc[1] = -pos[1] * GRAVITATIONAL_CONSTANT * EARTH_MASS / (d*d*d); 
-   return(0);
+int Satellite::state_deriv()
+{
+    double d = sqrt(pos[0] * pos[0] + pos[1] * pos[1]);
+    acc[0] = -pos[0] * GRAVITATIONAL_CONSTANT * EARTH_MASS / (d * d * d);
+    acc[1] = -pos[1] * GRAVITATIONAL_CONSTANT * EARTH_MASS / (d * d * d);
+    return (0);
 }
 
 #include "sim_services/Integrator/include/integrator_c_intf.h"
 
-int Satellite::state_integ() {
+int Satellite::state_integ()
+{
+    int integration_step;
 
-   int integration_step;
+    load_state(&pos[0], &pos[1], &vel[0], &vel[1], (double *)0);
+    load_deriv(&vel[0], &vel[1], &acc[0], &acc[1], (double *)0);
 
-   load_state ( &pos[0], &pos[1], &vel[0], &vel[1], (double*)0);
-   load_deriv ( &vel[0], &vel[1], &acc[0], &acc[1], (double*)0);
+    integration_step = integrate();
 
-   integration_step = integrate();
+    unload_state(&pos[0], &pos[1], &vel[0], &vel[1], (double *)0);
 
-   unload_state( &pos[0], &pos[1], &vel[0], &vel[1], (double*)0);
-
-   return(integration_step);
+    return (integration_step);
 }
-

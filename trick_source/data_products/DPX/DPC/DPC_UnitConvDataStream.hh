@@ -2,19 +2,18 @@
 #ifndef DPC_UNITCONVDATASTREAM_HH
 #define DPC_UNITCONVDATASTREAM_HH
 
+#include "../../Log/DataStream.hh"
 #include <string>
 #include <udunits2.h>
-#include "../../Log/DataStream.hh"
 
 /**
  * DPC_UnitConvDataStream is a DataStream that performs unit conversion.
  * @author John M. Penn
  * @version
  */
-class DPC_UnitConvDataStream : public DataStream {
-
+class DPC_UnitConvDataStream : public DataStream
+{
 public:
-
     /**
      * Constructor.
      * @param ds A pointer to the DataStream object whose values are to be
@@ -29,7 +28,7 @@ public:
      * specifying what those units are. In most cases this parameter should
      * be NULL.
      */
-    DPC_UnitConvDataStream(DataStream* ds, const char *ToUnits, const char *FromUnitsHint );
+    DPC_UnitConvDataStream(DataStream * ds, const char * ToUnits, const char * FromUnitsHint);
 
     /**
      * Destructor.
@@ -43,7 +42,7 @@ public:
      * @param paramValue the parameter value returned from the DataStream.
      * @return 1 if a time/value pair was returned, 0 otherwise.
      */
-    int get(double* timestamp, double* paramValue);
+    int get(double * timestamp, double * paramValue);
 
     /**
      * Get the timestamp/value pair at the current position in the DataStream
@@ -53,7 +52,7 @@ public:
      * @return 0 if a time/value pair was returned, -1 otherwise. Yes, I know,
      * it's inconsistent.
      */
-    int peek(double* timestamp, double* paramValue);
+    int peek(double * timestamp, double * paramValue);
 
     /**
      * Return the name of the file from which the data is being streamed.
@@ -88,12 +87,10 @@ public:
     int step();
 
 private:
+    cv_converter * cf;
+    std::string to_units;
 
-    cv_converter * cf ;
-    std::string to_units ;
-
-    DataStream *source_ds;
-
+    DataStream * source_ds;
 };
 
 #endif

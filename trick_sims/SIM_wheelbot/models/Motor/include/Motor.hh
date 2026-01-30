@@ -6,15 +6,15 @@ LIBRARY DEPENDENCY:
     ((Motor.o))
 *******************************************************************************/
 #include "PWM.hh"
+
 class Motor
 {
-  public:
+public:
+    Motor();
 
-    Motor ();
-
-    virtual void update (const PWM& PulseWidth) = 0;
+    virtual void update(const PWM & PulseWidth) = 0;
     virtual ~Motor();
 
-    virtual double getActualSpeed ();
+    virtual double getActualSpeed();
 };
 #endif

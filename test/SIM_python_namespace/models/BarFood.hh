@@ -12,22 +12,32 @@ PYTHON_MODULE: (Bar)
 
 #include <iostream>
 
-namespace Bar {
+namespace Bar
+{
 
-enum Fast {
+enum Fast
+{
     Pizza,
     Burger,
     Taco
 };
 
-class Food {
-  public:
-    Food() : fast(Taco) {}
-    void print_me() { std::cout << "Bar::Food::print_me!" << std::endl; }
+class Food
+{
+public:
+    Food()
+        : fast(Taco)
+    {
+    }
+
+    void print_me()
+    {
+        std::cout << "Bar::Food::print_me!" << std::endl;
+    }
+
     Fast fast;
 };
 
-}
+} // namespace Bar
 
 #endif /* _BALL_HH_ */
-

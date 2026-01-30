@@ -3,10 +3,10 @@
    PROGRAMMERS: ((Alex Lin) (NASA) (8/02))
  */
 
-#include <stdio.h>
 #include "trick/trick_math_error.h"
+#include <stdio.h>
 
-static char *trick_math_errors[] = {
+static char * trick_math_errors[] = {
     /* 00 */ "Success",
     /* 01 */ "WARNING: Singularity in deuler_123() at PITCH = 90.0 deg, YAW angle set to 0.0",
     /* 02 */ "WARNING: Singularity in deuler_123() at PITCH = -90.0 deg, YAW angle set to 0.0",
@@ -23,12 +23,11 @@ static char *trick_math_errors[] = {
     /* 13 */ "WARNING: Passed value is beyond the range of the asin function, Euler angles set to NANs",
     /* 14 */ "ERROR: Invalid Euler Rotation Sequence Option",
     /* 15 */ "ERROR: Diagonal Element is too small",
-    /* 16 */ "ERROR: 3x3 matrix has zero determinant"
-};
+    /* 16 */ "ERROR: 3x3 matrix has zero determinant"};
 
 /* ENTRY POINT: */
 void tm_print_error(int error)
-{                                      /* In: Error number */
+{ /* In: Error number */
     fprintf(stderr, "%s\n", trick_math_errors[error]);
 
     return;

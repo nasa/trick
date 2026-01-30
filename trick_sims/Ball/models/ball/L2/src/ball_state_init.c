@@ -21,31 +21,29 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-     /* SYSTEM INCLUDE FILES */
+/* SYSTEM INCLUDE FILES */
 #include <math.h>
 
-     /* GLOBAL DATA STRUCTURE DECLARATIONS */
+/* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include "../include/ball_state.h"
 
-     /* ENTRY POINT */
+/* ENTRY POINT */
 int ball_state_init(
-              /* RETURN: -- Always return zero */
-  BSTATE *S ) /* INOUT:  -- Ball EOM state parameters */
+    /* RETURN: -- Always return zero */
+    BSTATE * S) /* INOUT:  -- Ball EOM state parameters */
 {
-
     /* GET SHORHAND NOTATION FOR DATA STRUCTURES */
-    BSTATE_IN  *BI = &(S->input) ;
-    BSTATE_OUT *BO = &(S->output) ;
+    BSTATE_IN * BI = &(S->input);
+    BSTATE_OUT * BO = &(S->output);
 
     /* TRANSFER INPUT POSITION STATES TO OUTPUT POSITION STATES */
-    BO->position[0] = BI->position[0] ;     /* X state */
-    BO->position[1] = BI->position[1] ;     /* Y state */
+    BO->position[0] = BI->position[0]; /* X state */
+    BO->position[1] = BI->position[1]; /* Y state */
 
     /* TRANSFER INPUT SPEED AND ELEVATION INTO THE VELOCITY VECTOR */
-    BO->velocity[0] = BI->speed * cos( BI->elevation ) ;       /* X velocity */
-    BO->velocity[1] = BI->speed * sin( BI->elevation ) ;       /* Y velocity */
+    BO->velocity[0] = BI->speed * cos(BI->elevation); /* X velocity */
+    BO->velocity[1] = BI->speed * sin(BI->elevation); /* Y velocity */
 
     /* RETURN */
-    return( 0 ) ;
+    return (0);
 }
-

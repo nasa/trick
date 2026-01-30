@@ -6,10 +6,10 @@
 
 #include "trick/trick_math.h"
 
-void dv_scale(double prod[],    /* Out: Produce of the vector and the scalar */
-              double vect[],    /* In: Vector */
+void dv_scale(double prod[], /* Out: Produce of the vector and the scalar */
+              double vect[], /* In: Vector */
               double scalar)
-{                                      /* In: Scalar multiplier */
+{ /* In: Scalar multiplier */
     prod[0] = vect[0] * scalar;
     prod[1] = vect[1] * scalar;
     prod[2] = vect[2] * scalar;

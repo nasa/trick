@@ -6,9 +6,10 @@ PROGRAMMERS:
 #include "msd.hh"
 #include <math.h>
 
-int MSD::state_deriv(void) {
+int MSD::state_deriv(void)
+{
     /* system equation for second derivitive */
-    a = (F - b*v - k*x)/m;
-    
-    return(0);
+    a = (F - b * v - k * x) / m;
+
+    return (0);
 }

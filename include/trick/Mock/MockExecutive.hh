@@ -4,10 +4,11 @@
 #include "trick/Executive.hh"
 #include <gmock/gmock.h>
 
-class MockExecutive : public Trick::Executive {
-    public: 
-        MOCK_METHOD0(get_time_tics, long long());
-        MOCK_METHOD0(get_sim_time, double());
+class MockExecutive : public Trick::Executive
+{
+public:
+    MOCK_METHOD0(get_time_tics, long long());
+    MOCK_METHOD0(get_sim_time, double());
 };
 
 #endif

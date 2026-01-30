@@ -14,11 +14,12 @@ PROGRAMMERS:
 #include "../../L2/include/ball_state.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int ball_ensemble_integ( BSTATE *S[] );
-double ball_ensemble_collision( BSTATE * states[2] );
+    int ball_ensemble_integ(BSTATE * S[]);
+    double ball_ensemble_collision(BSTATE * states[2]);
 
 #ifdef __cplusplus
 }

@@ -16,92 +16,91 @@
 #ifndef IPPYTHON_HH
 #define IPPYTHON_HH
 
-#include <string>
 #include "trick/InputProcessor.hh"
+#include <string>
 
-namespace Trick {
+namespace Trick
+{
 
 /**
   This class provides Python input processing.
   @author Alex Lin, Danny Strauss
  */
 
-    class IPPython : public InputProcessor {
+class IPPython : public InputProcessor
+{
+    friend class IPPythonEvent;
 
-        friend class IPPythonEvent;
+public:
+    /** Returned value from event condition evaluation.\n */
+    int return_val; /**< trick_io(**) trick_units(--) */
 
-        public:
+    /**
+     @brief Constructor.
+    */
+    IPPython();
 
-            /** Returned value from event condition evaluation.\n */
-            int return_val ;                              /**< trick_io(**) trick_units(--) */
+    /**
+     @brief Creates python handles for all memory manager named variables.
+    */
+    void get_TMM_named_variables();
 
-            /**
-             @brief Constructor.
-            */
-            IPPython() ;
+    /**
+     @brief Get the status of the units conversion message flag
+    */
+    bool get_units_conversion_msgs();
 
-            /**
-             @brief Creates python handles for all memory manager named variables.
-            */
-            void get_TMM_named_variables() ;
+    /**
+     @brief Setting to see units conversions warnings
+    */
+    void shoot_the_units_conversion_messenger(bool onoff);
 
-            /**
-             @brief Get the status of the units conversion message flag
-            */
-            bool get_units_conversion_msgs() ;
+    /**
+     @brief Initialize and run the Python input processor on the user input file.
+    */
+    virtual int init();
 
-            /**
-             @brief Setting to see units conversions warnings
-            */
-            void shoot_the_units_conversion_messenger(bool onoff) ;
+    /**
+     @brief @userdesc Command to shutdown the simulation now.
+     @par Python Usage:
+     @code trick.shutdown() @endcode
+    */
+    virtual int shutdown();
 
-            /**
-             @brief Initialize and run the Python input processor on the user input file.
-            */
-            virtual int init() ;
+    /**
+     @brief Command to parse the given string.
+    */
+    virtual int parse(std::string in_string);
 
-            /**
-             @brief @userdesc Command to shutdown the simulation now.
-             @par Python Usage:
-             @code trick.shutdown() @endcode
-            */
-            virtual int shutdown() ;
+    /**
+     @brief Command to parse the given string as a condition statement.
+    */
+    virtual int parse_condition(std::string in_string, int & cond_return_val);
 
-            /**
-             @brief Command to parse the given string.
-            */
-            virtual int parse(std::string in_string) ;
+    /**
+     @brief Restore variables with memory manager names to python space.
+     @return always 0
+    */
+    int restart();
 
-            /**
-             @brief Command to parse the given string as a condition statement.
-            */
-            virtual int parse_condition(std::string in_string, int & cond_return_val) ;
+protected:
+    /** TODO: remove units_conversion_msgs in 2021 */
+    /** false = see units conversion messages, true = head in sand */
+    bool units_conversion_msgs;
+};
 
-            /**
-             @brief Restore variables with memory manager names to python space.
-             @return always 0
-            */
-            int restart() ;
+} // namespace Trick
 
-        protected :
-            /** TODO: remove units_conversion_msgs in 2021 */
-            /** false = see units conversion messages, true = head in sand */
-            bool units_conversion_msgs ;
+extern "C"
+{
+    // SWIG generated routine.
+    void init_swig_modules(void);
 
-    } ;
+    /* Call this if you you refuse to fix your units problems and want to shoot the messenger instead */
+    void shoot_the_units_conversion_messenger();
+    void revive_the_units_conversion_messenger();
 
-}
-
-extern "C" {
-//SWIG generated routine.
-void init_swig_modules(void) ;
-
-/* Call this if you you refuse to fix your units problems and want to shoot the messenger instead */
-void shoot_the_units_conversion_messenger() ;
-void revive_the_units_conversion_messenger() ;
-
-int check_units_conversion_messenger_for_signs_of_life() ;
+    int check_units_conversion_messenger_for_signs_of_life();
 }
 
 #endif
-

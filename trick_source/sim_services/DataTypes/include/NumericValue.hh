@@ -5,10 +5,9 @@
 
 /**
  */
-class NumericValue : public Value {
-
-    public:
-
+class NumericValue : public Value
+{
+public:
     /**
      Get the value of this NumericValue as a floating point value.
      @return the value as a double.

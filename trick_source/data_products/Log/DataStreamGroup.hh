@@ -3,66 +3,64 @@
 #define DATASTREAMGROUP_HH
 
 #include <iostream>
-#include <vector>
 #include <map>
+#include <vector>
 using namespace std;
 
 #include "DataStream.hh"
 
-class DataStreamGroup {
+class DataStreamGroup
+{
+public:
+    DataStreamGroup();
+    ~DataStreamGroup();
 
-      public:
+    void add(DataStream * d);
+    void clear();
 
-        DataStreamGroup() ;
-        ~DataStreamGroup();
+    void setStartTime(double time);
+    void setStopTime(double time);
+    void setFrequency(double freq);
+    void setPreserveTimeOn(); // Default
+    void setPreserveTimeOff();
 
-        void add(DataStream* d);
-        void clear();
+    int matchTimeStamps();
+    void setTimeMatchTolerance(const double tolerance);
+    int getLastRead(DataStream *, double * time, double * value);
 
-        void setStartTime(double time);
-        void setStopTime(double time);
-        void setFrequency(double freq);
-        void setPreserveTimeOn();  // Default
-        void setPreserveTimeOff();
+    void begin();
+    bool end();
+    void step();
 
-        int matchTimeStamps();
-        void setTimeMatchTolerance(const double tolerance);
-        int getLastRead(DataStream *, double * time , double * value);
+    double getTime();
 
-        void begin();
-        bool end();
-        void step();
+private:
+    struct LastRead
+    {
+        double time;
+        double value;
+    };
 
-        double getTime();
+    vector<DataStream *> dataStreams_;
+    vector<double> currTime_;
+    map<DataStream *, struct LastRead> lastRead_;
 
-      private:
+    bool preserveTime_; // While iterating, step() insures all time
+                        // stamps are same.  step() will skip points
+                        // where time stamps don't match
 
-        struct LastRead {
-                double time ;
-                double value ;
-        } ;
+    double frequency_; // Time frequency to step through data
+    double startTime_; // Start time to begin iterating through data
+    double stopTime_;  // Stop time to stop iterating through data
+    double nextFrequencyCheck_;
+    double frequencyMultiple_;
+    double timeMatchTolerance_; // When comparing time stamps, if time
+                                // stamps are within this tolerance,
+                                // assume they are equivalent
 
-        vector < DataStream* >dataStreams_;
-        vector < double > currTime_ ;
-        map    < DataStream * , struct LastRead > lastRead_ ;
+    int stepInTime_();
 
-        bool preserveTime_ ;    // While iterating, step() insures all time
-                                // stamps are same.  step() will skip points
-                                // where time stamps don't match
-
-        double frequency_ ;     // Time frequency to step through data
-        double startTime_ ;     // Start time to begin iterating through data
-        double stopTime_ ;      // Stop time to stop iterating through data
-        double nextFrequencyCheck_ ;
-        double frequencyMultiple_ ;
-        double timeMatchTolerance_ ; // When comparing time stamps, if time
-                                          // stamps are within this tolerance,
-                                          // assume they are equivalent
-
-        int stepInTime_();
-
-        bool isEOF_ ;
-
-} ;
+    bool isEOF_;
+};
 
 #endif

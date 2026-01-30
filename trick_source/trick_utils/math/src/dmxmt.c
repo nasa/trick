@@ -7,10 +7,10 @@
 
 #include "trick/trick_math.h"
 
-void dmxmt(double prod[3][3],   /* Out: Product of the two matrices */
-           double mat1[3][3],   /* In: Matrix 1 */
+void dmxmt(double prod[3][3], /* Out: Product of the two matrices */
+           double mat1[3][3], /* In: Matrix 1 */
            double mat2[3][3])
-{                                      /* In: Matrix 2 */
+{ /* In: Matrix 2 */
     double trans[3][3];
 
     dm_trans(trans, mat2);

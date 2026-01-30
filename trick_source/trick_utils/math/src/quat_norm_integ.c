@@ -17,18 +17,20 @@
 
 #include "trick/trick_math.h"
 
-
-void quat_norm_integ(double q2[4],      /* Out: normalized quaternion */
+void quat_norm_integ(double q2[4], /* Out: normalized quaternion */
                      double q1[4])
-{                                      /* In: quaternion */
+{ /* In: quaternion */
 
     double coef;
 
     coef = q1[0] * q1[0] + q1[1] * q1[1] + q1[2] * q1[2] + q1[3] * q1[3];
 
-    if (fabs(1.0 - coef) < 0.00000023842) {
+    if(fabs(1.0 - coef) < 0.00000023842)
+    {
         coef = 2.0 / (1.0 + coef);
-    } else {
+    }
+    else
+    {
         coef = 1.0 / sqrt(coef);
     }
 

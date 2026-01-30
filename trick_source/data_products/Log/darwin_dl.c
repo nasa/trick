@@ -5,56 +5,59 @@
 
 #ifdef __APPLE__
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include "darwin_dl.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 char dyn_buf[1024];
 char noerror[] = "noerror";
-static char *dyn_error = NULL;
+static char * dyn_error = NULL;
 
-void *dlopen(const char *filename, int mode)
+void * dlopen(const char * filename, int mode)
 {
-        NSObjectFileImage image;
-        dyn_error = NULL;
+    NSObjectFileImage image;
+    dyn_error = NULL;
 
-        if (NSCreateObjectFileImageFromFile(filename, &image) !=
-            NSObjectFileImageSuccess) {
-                dyn_error = "Could not open file";
-                return NULL;
-        }
-        return NSLinkModule(image, filename, NSLINKMODULE_OPTION_PRIVATE);
+    if(NSCreateObjectFileImageFromFile(filename, &image) != NSObjectFileImageSuccess)
+    {
+        dyn_error = "Could not open file";
+        return NULL;
+    }
+    return NSLinkModule(image, filename, NSLINKMODULE_OPTION_PRIVATE);
 }
 
-void dlclose(void *handle)
+void dlclose(void * handle)
 {
-        dyn_error = NULL;
-        NSUnLinkModule(handle, FALSE);
-        return;
+    dyn_error = NULL;
+    NSUnLinkModule(handle, FALSE);
+    return;
 }
 
-void *dlsym(void *handle, char *funcname)
+void * dlsym(void * handle, char * funcname)
 {
-        NSSymbol symbol;
-        int cb = strlen(funcname) + 2;
-        char *symname = (char *) alloca(cb);
-        snprintf(symname, cb, "_%s", funcname);
+    NSSymbol symbol;
+    int cb = strlen(funcname) + 2;
+    char * symname = (char *)alloca(cb);
+    snprintf(symname, cb, "_%s", funcname);
 
-        dyn_error = NULL;
+    dyn_error = NULL;
 
-        symbol = NSLookupSymbolInModule(handle, symname);
-        if (symbol) {
-                return (void *) NSAddressOfSymbol(symbol);
-        } else {
-                snprintf(dyn_buf, sizeof(dyn_buf), "Symbol [%s] not found", symname);
-                dyn_error = dyn_buf;
-                return (void *) NULL;
-        }
+    symbol = NSLookupSymbolInModule(handle, symname);
+    if(symbol)
+    {
+        return (void *)NSAddressOfSymbol(symbol);
+    }
+    else
+    {
+        snprintf(dyn_buf, sizeof(dyn_buf), "Symbol [%s] not found", symname);
+        dyn_error = dyn_buf;
+        return (void *)NULL;
+    }
 }
 
-char *dlerror(void)
+char * dlerror(void)
 {
-        return dyn_error;
+    return dyn_error;
 }
 #endif

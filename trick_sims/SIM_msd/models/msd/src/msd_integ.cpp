@@ -8,24 +8,16 @@
 #include "trick/integrator_c_intf.h"
 #include <math.h>
 
-int MSD::state_integ(void) {
+int MSD::state_integ(void)
+{
     int ipass;
-	    load_state(
-	    	&x,
-	    	&v,
-	    	NULL);
+    load_state(&x, &v, NULL);
 
-	    load_deriv(
-	    	&v,
-	    	&a,
-	    	NULL);
-	    
-	    ipass = integrate();
+    load_deriv(&v, &a, NULL);
 
-	    unload_state(
-	    	&x,
-	    	&v,	
-			NULL);
+    ipass = integrate();
 
-    return(ipass);
+    unload_state(&x, &v, NULL);
+
+    return (ipass);
 }

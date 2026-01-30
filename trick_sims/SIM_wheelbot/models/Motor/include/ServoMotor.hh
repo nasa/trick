@@ -3,10 +3,11 @@
 
 class ServoMotor
 {
-  public:
-    ServoMotor (char side);
-    double getActualSpeed( int PulseWidth );
-  private:
+public:
+    ServoMotor(char side);
+    double getActualSpeed(int PulseWidth);
+
+private:
     ServoMotor();
     char _side;
     int _PulseWidth;

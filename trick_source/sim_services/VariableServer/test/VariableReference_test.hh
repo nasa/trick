@@ -3,34 +3,36 @@ PURPOSE:                     ( Common definitions for testing the VariableRefere
 *******************************************************************************/
 
 #include <gtest/gtest.h>
-#include <iostream>
 #include <iomanip>
+#include <iostream>
 #include <limits>
 #include <vector>
 
 #include "trick/MemoryManager.hh"
-#include "trick/VariableReference.hh"
 #include "trick/UdUnits.hh"
+#include "trick/VariableReference.hh"
 
 #include <vector>
 
-class NestedObject {
-    public:
+class NestedObject
+{
+public:
     int a;
     int b;
 };
 
-class TestObject {
-    public:
+class TestObject
+{
+public:
     TestObject() {}
 
-	int length; /*  m xy-position */
-    double a;   /*  s time */
-    long b;     /*  nautical_mile miles */
-    long long c;     /*  in inches */
-    unsigned long d;     /*  light_year miles */
-    unsigned long long e;     /*  mi miles */
-    int error_units; /* asvdsfkj fake units */
+    int length;           /*  m xy-position */
+    double a;             /*  s time */
+    long b;               /*  nautical_mile miles */
+    long long c;          /*  in inches */
+    unsigned long d;      /*  light_year miles */
+    unsigned long long e; /*  mi miles */
+    int error_units;      /* asvdsfkj fake units */
     wchar_t * wchar_str;
     std::vector<int> vec;
 
@@ -40,17 +42,26 @@ class TestObject {
 /*
  Test Fixture.
  */
-class VariableReference_test : public ::testing::Test {
-	protected:
-	    Trick::MemoryManager *memmgr;
-        Trick::UdUnits * udunits;
-		VariableReference_test() { 
-            memmgr = new Trick::MemoryManager; 
-            udunits = new Trick::UdUnits; 
+class VariableReference_test : public ::testing::Test
+{
+protected:
+    Trick::MemoryManager * memmgr;
+    Trick::UdUnits * udunits;
 
-            udunits->read_default_xml();
-        }
-		~VariableReference_test() { delete memmgr; }
-		void SetUp() {}
-		void TearDown() {}
+    VariableReference_test()
+    {
+        memmgr = new Trick::MemoryManager;
+        udunits = new Trick::UdUnits;
+
+        udunits->read_default_xml();
+    }
+
+    ~VariableReference_test()
+    {
+        delete memmgr;
+    }
+
+    void SetUp() {}
+
+    void TearDown() {}
 };

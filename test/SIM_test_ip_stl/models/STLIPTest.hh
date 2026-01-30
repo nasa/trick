@@ -1,5 +1,5 @@
 /*
-    PURPOSE: (Defines the STLIPTest class, which serves as a testbed for various STL 
+    PURPOSE: (Defines the STLIPTest class, which serves as a testbed for various STL
               container types instantiated with C++ types such as int, double, char, etc.)
     LIBRARY_DEPENDENCIES: (
       ()
@@ -9,13 +9,13 @@
 #ifndef STL_IP_TEST_HH
 #define STL_IP_TEST_HH
 
-#include <iostream>
 #include <cstdint>
 #include <cuchar>
+#include <iostream>
 
+#include <deque>
 #include <list>
 #include <queue>
-#include <deque>
 
 #include <map>
 #include <unordered_map>
@@ -28,39 +28,42 @@
 
 #include <memory>
 
-#include <string>
 #include <cstddef>
+#include <string>
 
 #include "test_classes/include/container_types.hh"
 
 struct TestStructure
 {
-  int a;
-  double b;
-
+    int a;
+    double b;
 };
 
-class STLIPTest 
+class STLIPTest
 {
     friend class InputProcessor;
 
-    public:
+public:
     STLIPTest() = default;
     ~STLIPTest() = default;
 
-    //STLs
-    //Char Types
+    // STLs
+    // Char Types
 
-    //inline char16_t to_char16_t(char c) {return static_cast<char16_t>(c);}
+    // inline char16_t to_char16_t(char c) {return static_cast<char16_t>(c);}
 
     // Python doesn't have a char16_t type, so we use int for compatibility
     // Add a character to the vector (accepts int for Python compatibility)
-    void addCharToVector(std::vector<char16_t>& vec, int value) {
+    void addCharToVector(std::vector<char16_t> & vec, int value)
+    {
         vec.push_back(static_cast<char16_t>(value));
     }
+
     // Get a character from the vector (returns as int for Python compatibility)
-    int getCharFromVector(std::vector<char16_t>& vec, size_t index) {
-        if (index >= vec.size()) {
+    int getCharFromVector(std::vector<char16_t> & vec, size_t index)
+    {
+        if(index >= vec.size())
+        {
             // Handle out of bounds access
             throw std::out_of_range("Index out of bounds");
         }
@@ -70,12 +73,16 @@ class STLIPTest
 
     // Python doesn't have a char32_t type, so we use int for compatibility
     // Add a character to the vector (accepts int for Python compatibility)
-    void addCharToVector(std::vector<char32_t>& vec, int value) {
+    void addCharToVector(std::vector<char32_t> & vec, int value)
+    {
         vec.push_back(static_cast<char32_t>(value));
     }
+
     // Get a character from the vector (returns as int for Python compatibility)
-    int getCharFromVector(std::vector<char32_t>& vec, size_t index) {
-        if (index >= vec.size()) {
+    int getCharFromVector(std::vector<char32_t> & vec, size_t index)
+    {
+        if(index >= vec.size())
+        {
             // Handle out of bounds access
             throw std::out_of_range("Index out of bounds");
         }

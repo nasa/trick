@@ -9,16 +9,17 @@ LIBRARY_DEPENDENCIES: (ros_publish.cpp)
 
 #include "ros/ros.h"
 
-class RosPublish {
-    public:
-        ros::NodeHandle n ;             // ** ros nodehandle
-        ros::Publisher msg_pub ;        // ** ros publisher
+class RosPublish
+{
+public:
+    ros::NodeHandle n;      // ** ros nodehandle
+    ros::Publisher msg_pub; // ** ros publisher
 
-        int count ;
+    int count;
 
-        RosPublish() ;
-        int init() ;
-        int publish() ;
-} ;
+    RosPublish();
+    int init();
+    int publish();
+};
 
 #endif

@@ -3,15 +3,14 @@
 
 #include "DataType.hh"
 #include <stddef.h>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 /**
  */
-class PointerDataType : public DataType {
-
-    public:
-
+class PointerDataType : public DataType
+{
+public:
     /**
      Constructor for PointerDataType.
      @param typeDictionary The Type Dictionary.
@@ -19,18 +18,14 @@ class PointerDataType : public DataType {
      @param n_cdims Number of dimensions. Cannot be 0.
      @param dims dimension sizes.
      */
-    PointerDataType( TypeDictionary * typeDictionary,
-                     std::string typeSpecifierName,
-                     unsigned int n_dims,
-                     int dims[] ) ;
+    PointerDataType(TypeDictionary * typeDictionary, std::string typeSpecifierName, unsigned int n_dims, int dims[]);
     /**
      Constructor for ArrayDataType.
      @param typeDictionary The Type Dictionary.
      @param typeSpecifierName Name of the type on with this type is based.
      @param dims dimension sizes.
      */
-    PointerDataType( TypeDictionary * typeDictionary,
-                     std::string typeSpecifierName ) ;
+    PointerDataType(TypeDictionary * typeDictionary, std::string typeSpecifierName);
 
     /* ==================================================================== */
     /*                         RULE OF THREE INTERFACE                      */
@@ -39,18 +34,18 @@ class PointerDataType : public DataType {
     /**
      Copy Constructor for PointerDataType.
      */
-    PointerDataType ( const PointerDataType & original );
+    PointerDataType(const PointerDataType & original);
 
     /**
      Destructor for PointerDataType.
      */
-    ~PointerDataType ();
+    ~PointerDataType();
 
     /**
      Assignment operator for PointerDataType.
      @param rhs right-hand-side.
      */
-    PointerDataType& operator=( const PointerDataType & rhs );
+    PointerDataType & operator=(const PointerDataType & rhs);
 
     /* ==================================================================== */
     /*                          VIRTUAL INTERFACE                         */
@@ -58,16 +53,17 @@ class PointerDataType : public DataType {
 
     /**
      */
-     bool validate();
+    bool validate();
 
     /**
      @return The size (in bytes) of an instance of the PointerDataType.
      */
-    size_t getSize() const ;
+    size_t getSize() const;
 
     /**
      */
-    TypeClass::e getTypeClass() const {
+    TypeClass::e getTypeClass() const
+    {
         return TypeClass::POINTER;
     }
 
@@ -77,16 +73,16 @@ class PointerDataType : public DataType {
 
     /**
      */
-    DataType * clone () const;
+    DataType * clone() const;
 
     /**
      Create zero or more instances of this DataType.
      */
-    void* createInstance(unsigned int num) const ;
+    void * createInstance(unsigned int num) const;
 
     /**
      */
-    void deleteInstance(void* address) const;
+    void deleteInstance(void * address) const;
 
     /**
      */
@@ -100,7 +96,7 @@ class PointerDataType : public DataType {
      @param s The stream to print to.
      @param base_addr Address of the (entire) variable.
      */
-    void printValue(std::ostream &s, void * address ) const;
+    void printValue(std::ostream & s, void * address) const;
 
     /**
      */
@@ -115,17 +111,19 @@ class PointerDataType : public DataType {
      */
     const DataType * getSubType() const;
 
+private:
+    bool initPointerDataType(TypeDictionary * typeDictionary,
+                             std::string typeSpecName,
+                             unsigned int n_dims,
+                             int dims[]);
 
-    private:
-    bool initPointerDataType( TypeDictionary * typeDictionary, std::string typeSpecName, unsigned int n_dims, int dims[]);
-    PointerDataType(){}
+    PointerDataType() {}
 
-    bool             is_valid;
-    std::string      typeSpecName;
-    unsigned int     elementCount;
-    DataType *       ownDataType;
+    bool is_valid;
+    std::string typeSpecName;
+    unsigned int elementCount;
+    DataType * ownDataType;
     const DataType * subType;
     TypeDictionary * typeDictionary;
-
 };
 #endif

@@ -8,36 +8,37 @@ for transfering binary data from one machine to another. */
 #include <limits.h>
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 #ifdef __sun
-#if UCHAR_MAX==255
-typedef char INT8;
-typedef unsigned char UINT8;
+#if UCHAR_MAX == 255
+    typedef char INT8;
+    typedef unsigned char UINT8;
 #endif
 #else
-#if UCHAR_MAX==255U
+#if UCHAR_MAX == 255U
 typedef char INT8;
 typedef unsigned char UINT8;
 #endif
 #endif
 
-#if SHRT_MAX==32767
-typedef short INT16;
-typedef unsigned short UINT16;
-#elif INT_MAX==32767
+#if SHRT_MAX == 32767
+    typedef short INT16;
+    typedef unsigned short UINT16;
+#elif INT_MAX == 32767
 typedef int INT16;
 typedef unsigned int UINT16;
 #endif
 
-#if SHRT_MAX==2147483647
-typedef short INT32;
-typedef unsigned short UINT32;
-#elif INT_MAX==2147483647
+#if SHRT_MAX == 2147483647
+    typedef short INT32;
+    typedef unsigned short UINT32;
+#elif INT_MAX == 2147483647
 typedef int INT32;
 typedef unsigned int UINT32;
-#elif LONG_MAX==2147483647
+#elif LONG_MAX == 2147483647
 typedef long INT32;
 typedef unsigned long UINT32;
 #endif
@@ -47,29 +48,3 @@ typedef unsigned long UINT32;
 #endif
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

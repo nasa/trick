@@ -1,20 +1,20 @@
+#include "trick/MemoryManager.hh"
+#include <algorithm> // std::sort()
 #include <fstream>
 #include <sstream>
+#include <stdlib.h> // free()
 #include <string.h>
-#include <stdlib.h>  // free()
-#include <algorithm> // std::sort()
-#include "trick/MemoryManager.hh"
 
 // GreenHills stuff
-#if ( __ghs )
+#if (__ghs)
 #include "ghs_stubs.h"
 #endif
 
 // MEMBER FUNCTION
-void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
-
+void Trick::MemoryManager::execute_checkpoint(std::ostream & out_s)
+{
     ALLOC_INFO_MAP::iterator pos;
-    ALLOC_INFO* alloc_info;
+    ALLOC_INFO * alloc_info;
     char name[256];
     int local_anon_var_number;
     int extern_anon_var_number;
@@ -30,29 +30,37 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
     // Also search each allocation for STLs.
     // STLs will be added to the dependencies vector.
     int n_depends = dependencies.size();
-    for (int ii = 0 ; ii < n_depends ; ii ++) {
+    for(int ii = 0; ii < n_depends; ii++)
+    {
         alloc_info = dependencies[ii];
         /** Generate temporary names for anonymous variables. */
-        if (alloc_info->name == NULL) {
+        if(alloc_info->name == NULL)
+        {
             // Skip naming individual C-string allocations to eliminate unused declarations
             // Individual char arrays (size=1, num_index=1) represent single strings that are
             // included in char* arrays, so we don't need separate allocations for them
-            if ((alloc_info->type == TRICK_CHARACTER || alloc_info->type == TRICK_UNSIGNED_CHARACTER) && 
-                alloc_info->size == 1 && alloc_info->num_index == 1 && alloc_info->stcl == TRICK_LOCAL) {
+            if((alloc_info->type == TRICK_CHARACTER || alloc_info->type == TRICK_UNSIGNED_CHARACTER) &&
+               alloc_info->size == 1 && alloc_info->num_index == 1 && alloc_info->stcl == TRICK_LOCAL)
+            {
                 // Skip naming this individual char array allocation to prevent unused declarations
                 continue;
             }
 
-            if ( alloc_info->stcl == TRICK_LOCAL) {
-                snprintf( name, sizeof(name), "%s%d", local_anon_var_prefix, local_anon_var_number++);
-                alloc_info->name = strdup( name);
-            } else if (alloc_info->stcl == TRICK_EXTERN) {
-                snprintf( name, sizeof(name), "%s%d", extern_anon_var_prefix, extern_anon_var_number++);
-                alloc_info->name = strdup( name);
+            if(alloc_info->stcl == TRICK_LOCAL)
+            {
+                snprintf(name, sizeof(name), "%s%d", local_anon_var_prefix, local_anon_var_number++);
+                alloc_info->name = strdup(name);
+            }
+            else if(alloc_info->stcl == TRICK_EXTERN)
+            {
+                snprintf(name, sizeof(name), "%s%d", extern_anon_var_prefix, extern_anon_var_number++);
+                alloc_info->name = strdup(name);
                 /** @b NOTE: We should not write declarations for external
                     anonymous variables, because we should not reload them.*/
-            } else {
-                emitError("write_checkpoint: This is bad. ALLOC_INFO object is messed up.\n") ;
+            }
+            else
+            {
+                emitError("write_checkpoint: This is bad. ALLOC_INFO object is messed up.\n");
             }
         }
         get_stl_dependencies(alloc_info);
@@ -60,15 +68,18 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
 
     // Write a declaration statement for all of the LOCAL variables,
     n_depends = dependencies.size();
-    for (int ii = 0 ; ii < n_depends ; ii ++) {
+    for(int ii = 0; ii < n_depends; ii++)
+    {
         alloc_info = dependencies[ii];
-        if ( alloc_info->stcl == TRICK_LOCAL) {
-            currentCheckPointAgent->write_decl( out_s, alloc_info);
+        if(alloc_info->stcl == TRICK_LOCAL)
+        {
+            currentCheckPointAgent->write_decl(out_s, alloc_info);
         }
     }
 
     // Write a "clear_all_vars" command.
-    if (reduced_checkpoint) {
+    if(reduced_checkpoint)
+    {
         out_s << std::endl << std::endl << "// Clear all allocations to 0." << std::endl;
         out_s << "clear_all_vars();" << std::endl;
     }
@@ -77,15 +88,16 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
     out_s << std::endl << std::endl << "// Variable Assignments." << std::endl;
     out_s.flush();
 
-    for (int ii = 0 ; ii < n_depends ; ii ++) {
+    for(int ii = 0; ii < n_depends; ii++)
+    {
         alloc_info = dependencies[ii];
         // Skip naming individual C-string allocations to eliminate unused declarations.
         // Individual char arrays (size=1, num_index=1) represent single strings that are
         // included in char* arrays, so we don't need separate allocations for them.
         // Also, safety check for NULL name before pushing to name stack later.
-        if (!((alloc_info->type == TRICK_CHARACTER || alloc_info->type == TRICK_UNSIGNED_CHARACTER) &&
-               alloc_info->size == 1 && alloc_info->num_index == 1 && alloc_info->stcl == TRICK_LOCAL) &&
-             alloc_info->name != NULL)
+        if(!((alloc_info->type == TRICK_CHARACTER || alloc_info->type == TRICK_UNSIGNED_CHARACTER) &&
+             alloc_info->size == 1 && alloc_info->num_index == 1 && alloc_info->stcl == TRICK_LOCAL) &&
+           alloc_info->name != NULL)
         {
             write_var(out_s, alloc_info);
             out_s << std::endl;
@@ -94,57 +106,65 @@ void Trick::MemoryManager::execute_checkpoint( std::ostream& out_s ) {
 
     // Free all of the temporary names that were created for the checkpoint.
 
-    for (int ii = 0 ; ii < n_depends ; ii ++) {
+    for(int ii = 0; ii < n_depends; ii++)
+    {
         alloc_info = dependencies[ii];
         // If the temporary-variable prefix occurs at the beginning of the name ...
-        if ((alloc_info->name != NULL) &&
-            (( strstr( alloc_info->name, local_anon_var_prefix ) == alloc_info->name ) ||
-             ( strstr( alloc_info->name, extern_anon_var_prefix) == alloc_info->name ))) {
-                free( alloc_info->name);
-                alloc_info->name = NULL;
+        if((alloc_info->name != NULL) && ((strstr(alloc_info->name, local_anon_var_prefix) == alloc_info->name) ||
+                                          (strstr(alloc_info->name, extern_anon_var_prefix) == alloc_info->name)))
+        {
+            free(alloc_info->name);
+            alloc_info->name = NULL;
         }
     }
 
     // Delete the variables created by STLs. Remove memory in reverse order.
-    std::vector<ALLOC_INFO*>::reverse_iterator it ;
-    for ( it = stl_dependencies.rbegin() ; it != stl_dependencies.rend() ; it++ ) {
-        delete_var((*it)->start) ;
+    std::vector<ALLOC_INFO *>::reverse_iterator it;
+    for(it = stl_dependencies.rbegin(); it != stl_dependencies.rend(); it++)
+    {
+        delete_var((*it)->start);
     }
 }
 
 // Local sort function used in write_checkpoint.
-static bool alloc_info_id_compare(ALLOC_INFO * lhs, ALLOC_INFO * rhs) { return ( lhs->id < rhs->id ) ; }
+static bool alloc_info_id_compare(ALLOC_INFO * lhs, ALLOC_INFO * rhs)
+{
+    return (lhs->id < rhs->id);
+}
 
 // MEMBER FUNCTION
-void Trick::MemoryManager::write_checkpoint( std::ostream& out_s) {
-
+void Trick::MemoryManager::write_checkpoint(std::ostream & out_s)
+{
     ALLOC_INFO_MAP::iterator pos;
-    ALLOC_INFO* alloc_info;
+    ALLOC_INFO * alloc_info;
     dependencies.clear();
     stl_dependencies.clear();
 
     pthread_mutex_lock(&mm_mutex);
-    for ( pos=alloc_info_map.begin() ; pos!=alloc_info_map.end() ; pos++ ) {
+    for(pos = alloc_info_map.begin(); pos != alloc_info_map.end(); pos++)
+    {
         alloc_info = pos->second;
         dependencies.push_back(alloc_info);
     }
 
     // Sort the dependencies by ALLOC_INFO.id.
-    std::sort( dependencies.begin() , dependencies.end() , alloc_info_id_compare) ;
+    std::sort(dependencies.begin(), dependencies.end(), alloc_info_id_compare);
     pthread_mutex_unlock(&mm_mutex);
 
-    execute_checkpoint( out_s );
-
+    execute_checkpoint(out_s);
 }
 
 // MEMBER FUNCTION
-void Trick::MemoryManager::write_checkpoint(const char* filename) {
+void Trick::MemoryManager::write_checkpoint(const char * filename)
+{
+    std::ofstream outfile(filename, std::ios::out);
 
-   std::ofstream outfile( filename, std::ios::out);
-
-    if (outfile.is_open()) {
-        write_checkpoint( outfile);
-    } else {
+    if(outfile.is_open())
+    {
+        write_checkpoint(outfile);
+    }
+    else
+    {
         std::stringstream message;
         message << "Couldn't open \"" << filename << "\".";
         emitError(message.str());
@@ -152,25 +172,28 @@ void Trick::MemoryManager::write_checkpoint(const char* filename) {
 }
 
 // MEMBER FUNCTION
-void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, const char* var_name) {
-
+void Trick::MemoryManager::write_checkpoint(std::ostream & out_s, const char * var_name)
+{
     dependencies.clear();
     stl_dependencies.clear();
 
     pthread_mutex_lock(&mm_mutex);
-    get_alloc_deps_in_allocation( var_name);
+    get_alloc_deps_in_allocation(var_name);
     pthread_mutex_unlock(&mm_mutex);
 
-    execute_checkpoint( out_s );
+    execute_checkpoint(out_s);
 }
 
 // MEMBER FUNCTION
-void Trick::MemoryManager::write_checkpoint(const char* filename, const char* var_name) {
-
-    std::ofstream out_s( filename, std::ios::out);
-    if (out_s.is_open()) {
-        write_checkpoint( out_s, var_name);
-    } else {
+void Trick::MemoryManager::write_checkpoint(const char * filename, const char * var_name)
+{
+    std::ofstream out_s(filename, std::ios::out);
+    if(out_s.is_open())
+    {
+        write_checkpoint(out_s, var_name);
+    }
+    else
+    {
         std::stringstream message;
         message << "Couldn't open \"" << filename << "\".";
         emitError(message.str());
@@ -178,34 +201,38 @@ void Trick::MemoryManager::write_checkpoint(const char* filename, const char* va
 }
 
 // MEMBER FUNCTION
-void Trick::MemoryManager::write_checkpoint( std::ostream& out_s, std::vector<const char*>& var_name_list) {
-
-    const char* var_name;
+void Trick::MemoryManager::write_checkpoint(std::ostream & out_s, std::vector<const char *> & var_name_list)
+{
+    const char * var_name;
     int n_names;
 
     dependencies.clear();
     stl_dependencies.clear();
 
     n_names = var_name_list.size();
-    for (int ii=0; ii< n_names; ii++) {
+    for(int ii = 0; ii < n_names; ii++)
+    {
         var_name = var_name_list[ii];
         pthread_mutex_lock(&mm_mutex);
         get_alloc_deps_in_allocation(var_name);
         pthread_mutex_unlock(&mm_mutex);
     }
 
-    execute_checkpoint( out_s );
+    execute_checkpoint(out_s);
 }
 
 // MEMBER FUNCTION
-void Trick::MemoryManager::write_checkpoint(const char* filename, std::vector<const char*>& var_name_list) {
+void Trick::MemoryManager::write_checkpoint(const char * filename, std::vector<const char *> & var_name_list)
+{
+    std::ofstream out_s(filename, std::ios::out);
 
-    std::ofstream out_s( filename, std::ios::out);
-
-    if (out_s.is_open()) {
-        write_checkpoint( out_s, var_name_list);
-    } else {
-        std::cerr << "ERROR: Couldn't open \""<< filename <<"\"." << std::endl;
+    if(out_s.is_open())
+    {
+        write_checkpoint(out_s, var_name_list);
+    }
+    else
+    {
+        std::cerr << "ERROR: Couldn't open \"" << filename << "\"." << std::endl;
         std::cerr.flush();
     }
 }

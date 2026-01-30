@@ -3,57 +3,58 @@
 /*************************************************************************
 PURPOSE: ()
 **************************************************************************/
-#include "Guidance/include/point.hh"
-#include "Control/include/vehicleController.hh"
 #include "Control/include/differentialDriveController.hh"
+#include "Control/include/vehicleController.hh"
+#include "Guidance/include/point.hh"
 #include "Motor/include/DCMotorSpeedController.hh"
 
-class VehicleOne {
-    public:
+class VehicleOne
+{
+public:
     std::vector<Point> waypointQueue;
-    Navigator *navigator;
-    MotorSpeedController* rightMotorController;
-    MotorSpeedController* leftMotorController;
-    DCMotor* rightDCMotor;
-    DCMotor* leftDCMotor;
+    Navigator * navigator;
+    MotorSpeedController * rightMotorController;
+    MotorSpeedController * leftMotorController;
+    DCMotor * rightDCMotor;
+    DCMotor * leftDCMotor;
 
-    DifferentialDriveController* driveController;
-    VehicleController* vehicleController;
+    DifferentialDriveController * driveController;
+    VehicleController * vehicleController;
 
-    double distanceBetweenWheels;     /* m */
-    double wheelRadius;               /* m */
-    double vehicleMass;               /* kg */
+    double distanceBetweenWheels; /* m */
+    double wheelRadius;           /* m */
+    double vehicleMass;           /* kg */
     double ZAxisMomentofInertia;
 
     // Vehicle Controller Parameters
-    double slowDownDistance;          /* m */
-    double arrivalDistance;           /* m */
-    double wheelSpeedLimit;           /* rad/s */
-    double headingRateLimit;          /* rad/s */
-    double wheelDragConstant;         /* -- */
-    double corningStiffness;          /* -- */
+    double slowDownDistance;  /* m */
+    double arrivalDistance;   /* m */
+    double wheelSpeedLimit;   /* rad/s */
+    double headingRateLimit;  /* rad/s */
+    double wheelDragConstant; /* -- */
+    double corningStiffness;  /* -- */
 
     // DCMotor Parameters
     double DCMotorInternalResistance; /* ohm */
     double DCMotorTorqueConstant;     /* N*m/amp */
 
-    double position[2];              /* m */
-    double velocity[2];              /* m/s */
-    double acceleration[2];          /* m/s2 */
+    double position[2];     /* m */
+    double velocity[2];     /* m/s */
+    double acceleration[2]; /* m/s2 */
 
-    double heading;                  /* rad */
-    double headingRate;              /* rad/s */
-    double headingAccel;             /* rad/s2 */
+    double heading;      /* rad */
+    double headingRate;  /* rad/s */
+    double headingAccel; /* rad/s2 */
 
-    double rightMotorSpeed;          /* rad/s */
-    double leftMotorSpeed;           /* rad/s */
+    double rightMotorSpeed; /* rad/s */
+    double leftMotorSpeed;  /* rad/s */
 
     // Forces
-    double driveForce[2];            /* N */
-    double lateralTireForce[2];      /* N */
-    double rollingResistForce[2];    /* N */
-    double forceTotal[2];            /* N */
-    double vehicleZTorque;           /* N*m */
+    double driveForce[2];         /* N */
+    double lateralTireForce[2];   /* N */
+    double rollingResistForce[2]; /* N */
+    double forceTotal[2];         /* N */
+    double vehicleZTorque;        /* N*m */
 
     double batteryVoltage;
 

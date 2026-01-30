@@ -18,22 +18,23 @@ LIBRARY DEPENDENCIES:
 
 #define MAX_ARRAY_LENGTH 4096
 
-class VariableServerVariable {
+class VariableServerVariable
+{
+public:
+    VariableServerVariable(REF2 * variableType);
+    ~VariableServerVariable();
+    const char * getName();
+    const char * getUnits();
+    void stageValue();
+    void writeValue(std::ostream & chkpnt_os);
 
-    public:
-        VariableServerVariable( REF2* variableType);
-        ~VariableServerVariable();
-        const char* getName();
-        const char* getUnits();
-        void stageValue();
-        void writeValue( std::ostream& chkpnt_os );
+private:
+    VariableServerVariable() {}
 
-    private:
-        VariableServerVariable() {}
-        REF2 *varInfo;
-        void *address;
-        int   size;
-        void *stageBuffer;
-        bool  deref;
-    };
+    REF2 * varInfo;
+    void * address;
+    int size;
+    void * stageBuffer;
+    bool deref;
+};
 #endif

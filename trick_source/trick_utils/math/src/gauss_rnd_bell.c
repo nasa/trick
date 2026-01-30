@@ -17,56 +17,58 @@
 #include "trick/rand_generator.h"
 #include "trick/trick_math.h"
 
-
-double gauss_rnd_bell(          /* Return: Random number */
-                         RAND_GENERATOR * G)
-{                                      /* Inout: generator parameters */
+double gauss_rnd_bell(/* Return: Random number */
+                      RAND_GENERATOR * G)
+{ /* Inout: generator parameters */
     double sample = 0.0;
     double x1, x2;
 
-    switch (G->uniform) {
-
-        case LCG1:                    /* Chose single LCG uniform generator */
-            if (G->sigma_range < 1) {
-
+    switch(G->uniform)
+    {
+        case LCG1: /* Chose single LCG uniform generator */
+            if(G->sigma_range < 1)
+            {
                 x1 = uniform_rnd_1(G);
                 x2 = uniform_rnd_1(G);
 
                 sample = sqrt(-2 * log(x1)) * cos(2 * M_PI * x2);
             }
 
-            else {
-                do {
+            else
+            {
+                do
+                {
                     x1 = uniform_rnd_1(G);
                     x2 = uniform_rnd_1(G);
 
                     sample = sqrt(-2 * log(x1)) * cos(2 * M_PI * x2);
-                } while (sample < -G->sigma_range || sample > G->sigma_range);
+                } while(sample < -G->sigma_range || sample > G->sigma_range);
             }
 
             break;
 
-        case TRIPLE:                  /* Chose Triple LCG uniform generator */
-            if (G->sigma_range < 1) {
-
+        case TRIPLE: /* Chose Triple LCG uniform generator */
+            if(G->sigma_range < 1)
+            {
                 x1 = uniform_rnd_triple(G);
                 x2 = uniform_rnd_triple(G);
 
                 sample = sqrt(-2 * log(x1)) * cos(2 * M_PI * x2);
             }
 
-            else {
-                do {
+            else
+            {
+                do
+                {
                     x1 = uniform_rnd_triple(G);
                     x2 = uniform_rnd_triple(G);
 
                     sample = sqrt(-2 * log(x1)) * cos(2 * M_PI * x2);
 
-                } while (sample < -G->sigma_range || sample > G->sigma_range);
+                } while(sample < -G->sigma_range || sample > G->sigma_range);
             }
 
             break;
-
     }
 
     return (sample);

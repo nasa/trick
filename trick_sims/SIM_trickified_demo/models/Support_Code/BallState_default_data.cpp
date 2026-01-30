@@ -32,14 +32,14 @@ PROGRAMMERS:
 #include "trick/memorymanager_c_intf.h"
 
 /* ENTRY POINT */
-int BallState::default_data() {
-
+int BallState::default_data()
+{
     // This data is the same as in the constructor.
-    input.mass = 10.0 ;
-    input.speed = 3.5 ;
-    input.elevation = 45.0 * DTR ;
-    input.position[0] = 5.0 ;
-    input.position[1] = 5.0 ;
+    input.mass = 10.0;
+    input.speed = 3.5;
+    input.elevation = 45.0 * DTR;
+    input.position[0] = 5.0;
+    input.position[1] = 5.0;
 
-    return(0);
+    return (0);
 }

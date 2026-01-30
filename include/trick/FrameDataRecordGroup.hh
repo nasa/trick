@@ -8,71 +8,70 @@ PROGRAMMERS:
 #ifndef FRAMEDATARECORDGROUP_HH
 #define FRAMEDATARECORDGROUP_HH
 
-#include <vector>
-#include <string>
 #include "trick/DRBinary.hh"
 #include "trick/mm_macros.hh"
+#include <string>
+#include <vector>
 
-namespace Trick {
+namespace Trick
+{
 
-    class FrameDataRecordGroup : public Trick::DRBinary {
+class FrameDataRecordGroup : public Trick::DRBinary
+{
+    TRICK_MM_INTERFACE(Trick::FrameDataRecordGroup, Trick__FrameDataRecordGroup)
 
-        TRICK_MM_INTERFACE( Trick::FrameDataRecordGroup , Trick__FrameDataRecordGroup )
+public:
+    /** Must be instantiated with a thread assignment and a name */
+    FrameDataRecordGroup(int thread_id, std::string in_name);
 
-        public:
+    /** Start the timer at the beginning of the frame */
+    void start_timer();
 
-            /** Must be instantiated with a thread assignment and a name */
-            FrameDataRecordGroup( int thread_id , std::string in_name ) ;
+    /** Stop the timer at the end of the frame */
+    void stop_timer();
 
-            /** Start the timer at the beginning of the frame */
-            void start_timer() ;
+    /** Clear frame log times for this group */
+    int frame_log_clear();
 
-            /** Stop the timer at the end of the frame */
-            void stop_timer() ;
+    /** Adjusts time for main thread */
+    void adjust_time();
 
-            /** Clear frame log times for this group */
-            int frame_log_clear() ;
+    /** Overload the enable command from Trick::DataRecordGroup */
+    virtual int enable();
 
-            /** Adjusts time for main thread */
-            void adjust_time() ;
+    /** Add job to list of jobs we are watching. */
+    virtual void add_rec_job(Trick::JobData * new_job);
 
-            /** Overload the enable command from Trick::DataRecordGroup */
-            virtual int enable() ;
+    /** Restart after a checkpoint load. */
+    virtual int restart();
 
-            /** Add job to list of jobs we are watching. */
-            virtual void add_rec_job(Trick::JobData * new_job ) ;
+    /**
+     @brief The executive scheduler's interface to data_record job.
+     @returns always 0
+    */
+    virtual int call_function(Trick::JobData * curr_job);
 
-            /** Restart after a checkpoint load. */
-            virtual int restart() ;
+protected:
+    /** thread this group will run on. */
+    unsigned int thread_id;
 
-            /**
-             @brief The executive scheduler's interface to data_record job.
-             @returns always 0
-            */
-            virtual int call_function( Trick::JobData * curr_job ) ;
+    /** Jobs this group is recording */
+    std::vector<Trick::JobData *> rec_jobs; // trick_io(**)
 
-        protected:
-            /** thread this group will run on. */
-            unsigned int thread_id ;
+    /** Time value to record with main frame.  The main frame has already incremented time by the time
+        data record is called.  We need to record the time of the previous frame. */
+    double thread_record_time;
 
-            /** Jobs this group is recording */
-            std::vector< Trick::JobData *> rec_jobs ;  // trick_io(**)
+    /** Thread start time */
+    long long start_time;
 
-            /** Time value to record with main frame.  The main frame has already incremented time by the time
-                data record is called.  We need to record the time of the previous frame. */
-            double thread_record_time ;
+    /** Thread total frame scheduled time in tics */
+    long long frame_sched_time;
 
-            /** Thread start time */
-            long long start_time ;
+    /** Thread total frame scheduled time in seconds */
+    double frame_time; // trick_units(s)
+};
 
-            /** Thread total frame scheduled time in tics */
-            long long frame_sched_time ;
-
-            /** Thread total frame scheduled time in seconds */
-            double frame_time ; // trick_units(s)
-
-    } ;
-
-} ;
+}; // namespace Trick
 
 #endif

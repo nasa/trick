@@ -27,15 +27,12 @@ PROGRAMMERS:
 /* Model include files. */
 #include "Ball.hh"
 
-     /* ENTRY POINT */
-int Ball::shutdown() {
+/* ENTRY POINT */
+int Ball::shutdown()
+{
+    TRICK_EXPECT_NEAR(state.output.position[0], -7.627512, 0.000001, "BallSim", "FinalXPositionCheck")
+    TRICK_EXPECT_NEAR(state.output.position[1], 3.131932, 0.000001, "BallSim", "FinalYPositionCheck")
 
-   TRICK_EXPECT_NEAR( state.output.position[0] , -7.627512 , 0.000001 , "BallSim" , "FinalXPositionCheck" )
-   TRICK_EXPECT_NEAR( state.output.position[1] , 3.131932 , 0.000001 , "BallSim" , "FinalYPositionCheck" )
-
-
-   /* RETURN */
-   return( 0 );
-
+    /* RETURN */
+    return (0);
 }
-

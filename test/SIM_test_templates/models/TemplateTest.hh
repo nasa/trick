@@ -11,39 +11,38 @@ PURPOSE:
 #define TEMPLATETEST_HH
 #include "Foo.hh"
 
-template <class A, class B>
-class TTT1 {
-    public:
-        A aa ;
-        B bb ;
-        TTT1<A,B> * ttt ; /* ** */
+template<class A, class B> class TTT1
+{
+public:
+    A aa;
+    B bb;
+    TTT1<A, B> * ttt; /* ** */
 
-        typedef TTT1<A,B> C ;
-        C * cc ; /* ** */
-        typedef TTT1<B,A> D ;
-        D * dd ; /* ** */
-} ;
-
-template <class T>
-class TTT2 {
-    public:
-        TTT1<T, int> a;
-        Foo<T[3]> b;
+    typedef TTT1<A, B> C;
+    C * cc; /* ** */
+    typedef TTT1<B, A> D;
+    D * dd; /* ** */
 };
 
-class TemplateTest {
+template<class T> class TTT2
+{
+public:
+    TTT1<T, int> a;
+    Foo<T[3]> b;
+};
 
-  friend class InputProcessor ;
-  friend void init_attrTemplateTest() ;
+class TemplateTest
+{
+    friend class InputProcessor;
+    friend void init_attrTemplateTest();
 
-  public:
-   TTT1< int , double > TTT_var_scalar_builtins ;
-   TTT1< int[2] , double[3] > TTT_var_array_builtins ;
-   TTT1< Bar, Bar[2] > TTT_var_enum ;
+public:
+    TTT1<int, double> TTT_var_scalar_builtins;
+    TTT1<int[2], double[3]> TTT_var_array_builtins;
+    TTT1<Bar, Bar[2]> TTT_var_enum;
 
-   TTT1< Foo<int>, Foo<double[2]>[3] > TTT_var_template_parameters ;
-   TTT2< Foo< TTT1< int, TTT2<char> > > > TTT_templates_of_templates ;
-
+    TTT1<Foo<int>, Foo<double[2]>[3]> TTT_var_template_parameters;
+    TTT2<Foo<TTT1<int, TTT2<char>>>> TTT_templates_of_templates;
 };
 
 #ifdef SWIG
@@ -51,4 +50,3 @@ class TemplateTest {
 #endif
 
 #endif /* _BALL_HH_ */
-

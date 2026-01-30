@@ -5,24 +5,24 @@ LIBRARY DEPENDENCIES:
 **************************************************************************/
 #ifndef _contact_hh_
 #define _contact_hh_
-#include "trick/regula_falsi.h"
 #include "Ball.hh"
+#include "trick/regula_falsi.h"
 
-class Contact {
+class Contact
+{
+public:
+    Contact() {}
 
-    public:
-        Contact(){}
-        Ball ** balls;
-        unsigned int nballs;
-        unsigned int numAssociations ;
-        REGULA_FALSI* ballAssociations ;
-        void ballCollision(Ball &b1, Ball &b2);
+    Ball ** balls;
+    unsigned int nballs;
+    unsigned int numAssociations;
+    REGULA_FALSI * ballAssociations;
+    void ballCollision(Ball & b1, Ball & b2);
 
-        int default_data();
-        int state_init();
-        int state_deriv();
-        int state_integ();
-        double collision();
-
+    int default_data();
+    int state_init();
+    int state_deriv();
+    int state_integ();
+    double collision();
 };
 #endif

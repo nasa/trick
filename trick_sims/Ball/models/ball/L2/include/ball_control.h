@@ -20,37 +20,39 @@ PROGRAMMERS:
 
 #include "sim_services/include/Flag.h"
 
-typedef struct { /* BCONTROL_IN ----------------------------------------------*/
+typedef struct
+{ /* BCONTROL_IN ----------------------------------------------*/
 
-  Flag   active ;          /* --  Yes = control system active */
-  double target_altitude ; /* m   Altitude to achieve and hold */
-  double dead_zone ;       /* m   delta altitude about target altitude where
-                                  no jets are fired */
-  double max_rate ;        /* m/s Maximum allowed altitude rate of change */
+    Flag active;            /* --  Yes = control system active */
+    double target_altitude; /* m   Altitude to achieve and hold */
+    double dead_zone;       /* m   delta altitude about target altitude where
+                                   no jets are fired */
+    double max_rate;        /* m/s Maximum allowed altitude rate of change */
 
-} BCONTROL_IN ; /*------------------------------------------------------------*/
+} BCONTROL_IN; /*------------------------------------------------------------*/
 
-typedef struct { /* BCONTROL_OUT ---------------------------------------------*/
+typedef struct
+{ /* BCONTROL_OUT ---------------------------------------------*/
 
-  Flag jet_command[2] ;    /* --  Reaction control jet commands */
+    Flag jet_command[2]; /* --  Reaction control jet commands */
 
-} BCONTROL_OUT ; /*-----------------------------------------------------------*/
+} BCONTROL_OUT; /*-----------------------------------------------------------*/
 
-typedef struct { /* BCONTROL_WORK --------------------------------------------*/
+typedef struct
+{ /* BCONTROL_WORK --------------------------------------------*/
 
-  double last_altitude ;   /* *io m  Sensed altitude from last pass */
-  double rate_est ;        /* m/s Estimated altitude rate of change */
+    double last_altitude; /* *io m  Sensed altitude from last pass */
+    double rate_est;      /* m/s Estimated altitude rate of change */
 
-} BCONTROL_WORK ; /*----------------------------------------------------------*/
+} BCONTROL_WORK; /*----------------------------------------------------------*/
 
-typedef struct { /* BCONTROL -------------------------------------------------*/
+typedef struct
+{ /* BCONTROL -------------------------------------------------*/
 
-  BCONTROL_IN   input ;       /*    --   User inputs */
-  BCONTROL_OUT  output ;      /*    --   User outputs */
-  BCONTROL_WORK work ;     /*    --   Model workspace */
+    BCONTROL_IN input;   /*    --   User inputs */
+    BCONTROL_OUT output; /*    --   User outputs */
+    BCONTROL_WORK work;  /*    --   Model workspace */
 
-} BCONTROL ; /*---------------------------------------------------------------*/
+} BCONTROL; /*---------------------------------------------------------------*/
 
 #endif
-
-

@@ -2,27 +2,26 @@
 #define ENUM_DICTIONARY_H
 
 #include <map>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 /**
  EnumDictionary is a container classes that stores <name (key) /value> pairs.
  */
-class EnumDictionary {
-
+class EnumDictionary
+{
 public:
-
-    EnumDictionary () {};
+    EnumDictionary() {}
 
     /**
      Add a name/value pair to the dictionary.
      */
-    void addEnumerator(std::string name, int value) ;
+    void addEnumerator(std::string name, int value);
 
     /**
      Get the value associated with the given string.i FIXME: what of string not found?
      */
-    int getValue(std::string name)  ;
+    int getValue(std::string name);
 
     /**
      */

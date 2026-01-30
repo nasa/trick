@@ -7,30 +7,29 @@
 
 #include "trick/ExternalApplication.hh"
 
-namespace Trick {
+namespace Trick
+{
 
+/**
+ * Provides for automatic launching of Malfunctions Trick View.
+ *
+ * @author Derek Bankieris
+ */
+class MalfunctionsTrickView : public ExternalApplication
+{
+public:
+    /** Constructor. */
+    MalfunctionsTrickView();
+
+private:
     /**
-     * Provides for automatic launching of Malfunctions Trick View.
-     *
-     * @author Derek Bankieris
+     * @copydoc ExternalApplication::create_arguments_string
      */
-    class MalfunctionsTrickView : public ExternalApplication {
+    std::string create_arguments_string();
 
-        public:
-        /** Constructor. */
-        MalfunctionsTrickView() ;
+    /** Prevent SWIG from trying to invoke operator= on ostringstream. */
+    MalfunctionsTrickView & operator=(const MalfunctionsTrickView &);
+};
 
-        private:
-
-        /**
-         * @copydoc ExternalApplication::create_arguments_string
-         */
-        std::string create_arguments_string();
-
-        /** Prevent SWIG from trying to invoke operator= on ostringstream. */
-        MalfunctionsTrickView &operator=(const MalfunctionsTrickView &);
-
-    };
-
-}
+} // namespace Trick
 #endif

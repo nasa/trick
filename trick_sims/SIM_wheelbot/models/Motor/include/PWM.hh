@@ -6,28 +6,25 @@ LIBRARY DEPENDENCY:
     ((PWM.o))
 *******************************************************************************/
 
-#include<stdexcept>
+#include <stdexcept>
 
-class PWM {
-
-  public:
-
+class PWM
+{
+public:
     double highVoltage;
     double lowVoltage;
 
-    PWM( double HighVoltage,
-         double LowVoltage,
-         double DutyCycle);
+    PWM(double HighVoltage, double LowVoltage, double DutyCycle);
 
     ~PWM() {}
 
-    void   setDutyCycle( double DutyCycle);
+    void setDutyCycle(double DutyCycle);
     double getDutyCycle() const;
     double getAverageVoltage() const;
 
-  private:
+private:
+    PWM() {}
 
-    PWM(){};
     double dutyCycle;
 };
 

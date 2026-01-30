@@ -4,97 +4,142 @@ REFERENCE:                   ( None )
 ASSUMPTIONS AND LIMITATIONS: ( None )
 CLASS:                       ( scheduled )
 LIBRARY DEPENDENCY:          ( VS.o )
-PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013) 
-								(Jackie Deans) (CACI) (11-30-2022) )
+PROGRAMMERS:                 ( (Lindsay Landry) (L3) (9-12-2013)
+                                (Jackie Deans) (CACI) (11-30-2022) )
 *******************************************************************************/
 #include <iostream>
-#include <stdexcept>
 #include <limits>
+#include <stdexcept>
 
 #include "../include/VS.hh"
 #include "trick/exec_proto.h"
 #include "trick/memorymanager_c_intf.h"
 
 VSTest::VSTest() {}
+
 VSTest::~VSTest() {}
 
-int VSTest::default_vars() {
+int VSTest::default_vars()
+{
+    a = 'a';             // char
+    b = 'b';             // unsigned char
+    c = -1234;           // short
+    d = 1234;            // unsigned short
+    e = -123456;         // int
+    f = 123456;          // unsigned int
+    g = -1234567;        // long
+    h = 123456789;       // unsigned long
+    i = 1234.5678;       // float
+    j = -1234.567890;    // double
+    k = -12345678912345; // long long
+    l = 12345678912345;  // unsigned long
+    m = true;            // boolean
+    for(int i = 0; i < 5; i++)
+    {
+        n[i] = i;
+    }
+    o = std::string("You will rejoice to hear that no disaster has accompanied the commencement of an enterprise which "
+                    "you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to "
+                    "assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
+    p = const_cast<char *>(
+        "I am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze "
+        "play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
+    q = const_cast<wchar_t *>(
+        L"This breeze, which has travelled from the regions towards which I am advancing, gives me a foretaste of "
+        L"those icy climes. Inspirited by this wind of promise, my daydreams become more fervent and vivid.");
 
-	a = 'a';            //char
-	b = 'b';            //unsigned char
-	c = -1234;          //short
-	d = 1234;           //unsigned short
-	e = -123456;        //int
-	f = 123456;         //unsigned int
-	g = -1234567;       //long
-	h = 123456789;      //unsigned long
-	i = 1234.5678;      //float
-	j = -1234.567890;   //double
-	k = -12345678912345;//long long
-	l = 12345678912345; //unsigned long
-	m = true;          //boolean
-	for (int i = 0; i < 5; i++) {
-		n[i] = i;
-	}
-	o = std::string("You will rejoice to hear that no disaster has accompanied the commencement of an enterprise which you have regarded with such evil forebodings. I arrived here yesterday, and my first task is to assure my dear sister of my welfare and increasing confidence in the success of my undertaking.");
-	p = const_cast<char *>("I am already far north of London, and as I walk in the streets of Petersburgh, I feel a cold northern breeze play upon my cheeks, which braces my nerves and fills me with delight. Do you understand this feeling?");
-	q = const_cast<wchar_t *>(L"This breeze, which has travelled from the regions towards which I am advancing, gives me a foretaste of those icy climes. Inspirited by this wind of promise, my daydreams become more fervent and vivid.");
+    for(int i = 0; i < 4000; i++)
+    {
+        large_arr[i] = i;
+    }
 
-	for (int i = 0; i < 4000; i++) {
-		large_arr[i] = i;
-	}
-
-	/* Mixed Types */
-	// 3,-128,0,2112
+    /* Mixed Types */
+    // 3,-128,0,2112
     my_bitfield.var1 = (1 << (3 - 1)) - 1;
     my_bitfield.var2 = -(1 << (8 - 1));
     my_bitfield.var3 = 0;
-    my_bitfield.var4 = (1 << (12 - 1)) + (1 << 12/2);;
+    my_bitfield.var4 = (1 << (12 - 1)) + (1 << 12 / 2);
+    ;
 
-
-	blocked_from_input = 500;
-	blocked_from_output = 1000;
+    blocked_from_input = 500;
+    blocked_from_output = 1000;
 
     // Initialize dynamic array of Points
-    point_dyn_array = (Point*)TMM_declare_var_s("Point[3]");
+    point_dyn_array = (Point *)TMM_declare_var_s("Point[3]");
     point_dyn_array[0] = Point(1.1, 2.2);
     point_dyn_array[0].point_label_obj = PointLabel();
-    snprintf(point_dyn_array[0].point_label_obj.label_text, sizeof(point_dyn_array[0].point_label_obj.label_text), "Label 1 for Array Point 1");
-    point_dyn_array[0].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    snprintf(point_dyn_array[0].point_label_obj.label_text,
+             sizeof(point_dyn_array[0].point_label_obj.label_text),
+             "Label 1 for Array Point 1");
+    point_dyn_array[0].point_dyn_label_array = (PointLabel *)TMM_declare_var_s("PointLabel[2]");
     point_dyn_array[0].point_dyn_label_array[0] = PointLabel();
     point_dyn_array[0].point_dyn_label_array[1] = PointLabel();
-    snprintf(point_dyn_array[0].point_dyn_label_array[0].label_text, sizeof(point_dyn_array[0].point_dyn_label_array[0].label_text), "Dyn Label 1 for Array Point 1");
-    snprintf(point_dyn_array[0].point_dyn_label_array[1].label_text, sizeof(point_dyn_array[0].point_dyn_label_array[1].label_text), "Dyn Label 2 for Array Point 1");
-    snprintf(point_dyn_array[0].point_static_label_array[0].label_text, sizeof(point_dyn_array[0].point_static_label_array[0].label_text), "Static Label 1 for Array Point 1");
-    snprintf(point_dyn_array[0].point_static_label_array[1].label_text, sizeof(point_dyn_array[0].point_static_label_array[1].label_text), "Static Label 2 for Array Point 1");
+    snprintf(point_dyn_array[0].point_dyn_label_array[0].label_text,
+             sizeof(point_dyn_array[0].point_dyn_label_array[0].label_text),
+             "Dyn Label 1 for Array Point 1");
+    snprintf(point_dyn_array[0].point_dyn_label_array[1].label_text,
+             sizeof(point_dyn_array[0].point_dyn_label_array[1].label_text),
+             "Dyn Label 2 for Array Point 1");
+    snprintf(point_dyn_array[0].point_static_label_array[0].label_text,
+             sizeof(point_dyn_array[0].point_static_label_array[0].label_text),
+             "Static Label 1 for Array Point 1");
+    snprintf(point_dyn_array[0].point_static_label_array[1].label_text,
+             sizeof(point_dyn_array[0].point_static_label_array[1].label_text),
+             "Static Label 2 for Array Point 1");
 
     point_dyn_array[1] = Point(3.3, 4.4);
     point_dyn_array[1].point_label_obj = PointLabel();
-    snprintf(point_dyn_array[1].point_label_obj.label_text, sizeof(point_dyn_array[1].point_label_obj.label_text), "Label 1 for Array Point 2");
-    point_dyn_array[1].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    snprintf(point_dyn_array[1].point_label_obj.label_text,
+             sizeof(point_dyn_array[1].point_label_obj.label_text),
+             "Label 1 for Array Point 2");
+    point_dyn_array[1].point_dyn_label_array = (PointLabel *)TMM_declare_var_s("PointLabel[2]");
     point_dyn_array[1].point_dyn_label_array[0] = PointLabel();
     point_dyn_array[1].point_dyn_label_array[1] = PointLabel();
-    snprintf(point_dyn_array[1].point_dyn_label_array[0].label_text, sizeof(point_dyn_array[1].point_dyn_label_array[0].label_text), "Dyn Label 1 for Array Point 2");
-    snprintf(point_dyn_array[1].point_dyn_label_array[1].label_text, sizeof(point_dyn_array[1].point_dyn_label_array[1].label_text), "Dyn Label 2 for Array Point 2");
-    snprintf(point_dyn_array[1].point_static_label_array[0].label_text, sizeof(point_dyn_array[1].point_static_label_array[0].label_text), "Static Label 1 for Array Point 2");
-    snprintf(point_dyn_array[1].point_static_label_array[1].label_text, sizeof(point_dyn_array[1].point_static_label_array[1].label_text), "Static Label 2 for Array Point 2");
+    snprintf(point_dyn_array[1].point_dyn_label_array[0].label_text,
+             sizeof(point_dyn_array[1].point_dyn_label_array[0].label_text),
+             "Dyn Label 1 for Array Point 2");
+    snprintf(point_dyn_array[1].point_dyn_label_array[1].label_text,
+             sizeof(point_dyn_array[1].point_dyn_label_array[1].label_text),
+             "Dyn Label 2 for Array Point 2");
+    snprintf(point_dyn_array[1].point_static_label_array[0].label_text,
+             sizeof(point_dyn_array[1].point_static_label_array[0].label_text),
+             "Static Label 1 for Array Point 2");
+    snprintf(point_dyn_array[1].point_static_label_array[1].label_text,
+             sizeof(point_dyn_array[1].point_static_label_array[1].label_text),
+             "Static Label 2 for Array Point 2");
 
     point_dyn_array[2] = Point(5.5, 6.6);
     point_dyn_array[2].point_label_obj = PointLabel();
-    snprintf(point_dyn_array[2].point_label_obj.label_text, sizeof(point_dyn_array[2].point_label_obj.label_text), "Label 1 for Array Point 3");
-    point_dyn_array[2].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
-    snprintf(point_dyn_array[2].point_dyn_label_array[0].label_text, sizeof(point_dyn_array[2].point_dyn_label_array[0].label_text), "Dyn Label 1 for Array Point 3");
-    snprintf(point_dyn_array[2].point_dyn_label_array[1].label_text, sizeof(point_dyn_array[2].point_dyn_label_array[1].label_text), "Dyn Label 2 for Array Point 3");
+    snprintf(point_dyn_array[2].point_label_obj.label_text,
+             sizeof(point_dyn_array[2].point_label_obj.label_text),
+             "Label 1 for Array Point 3");
+    point_dyn_array[2].point_dyn_label_array = (PointLabel *)TMM_declare_var_s("PointLabel[2]");
+    snprintf(point_dyn_array[2].point_dyn_label_array[0].label_text,
+             sizeof(point_dyn_array[2].point_dyn_label_array[0].label_text),
+             "Dyn Label 1 for Array Point 3");
+    snprintf(point_dyn_array[2].point_dyn_label_array[1].label_text,
+             sizeof(point_dyn_array[2].point_dyn_label_array[1].label_text),
+             "Dyn Label 2 for Array Point 3");
 
     // Initialize static array of Points
     point_static_array[0] = Point(7.7, 8.8);
     point_static_array[0].point_label_obj = PointLabel();
-    snprintf(point_static_array[0].point_label_obj.label_text, sizeof(point_static_array[0].point_label_obj.label_text), "Label 1 for Static Point 1");
-    point_static_array[0].point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
-    snprintf(point_static_array[0].point_dyn_label_array[0].label_text, sizeof(point_static_array[0].point_dyn_label_array[0].label_text), "Dyn Label 1 for Static Point 1");
-    snprintf(point_static_array[0].point_dyn_label_array[1].label_text, sizeof(point_static_array[0].point_dyn_label_array[1].label_text), "Dyn Label 2 for Static Point 1");
-    snprintf(point_static_array[0].point_static_label_array[0].label_text, sizeof(point_static_array[0].point_static_label_array[0].label_text), "Static Label 1 for Static Point 1");
-    snprintf(point_static_array[0].point_static_label_array[1].label_text, sizeof(point_static_array[0].point_static_label_array[1].label_text), "Static Label 2 for Static Point 1");
+    snprintf(point_static_array[0].point_label_obj.label_text,
+             sizeof(point_static_array[0].point_label_obj.label_text),
+             "Label 1 for Static Point 1");
+    point_static_array[0].point_dyn_label_array = (PointLabel *)TMM_declare_var_s("PointLabel[2]");
+    snprintf(point_static_array[0].point_dyn_label_array[0].label_text,
+             sizeof(point_static_array[0].point_dyn_label_array[0].label_text),
+             "Dyn Label 1 for Static Point 1");
+    snprintf(point_static_array[0].point_dyn_label_array[1].label_text,
+             sizeof(point_static_array[0].point_dyn_label_array[1].label_text),
+             "Dyn Label 2 for Static Point 1");
+    snprintf(point_static_array[0].point_static_label_array[0].label_text,
+             sizeof(point_static_array[0].point_static_label_array[0].label_text),
+             "Static Label 1 for Static Point 1");
+    snprintf(point_static_array[0].point_static_label_array[1].label_text,
+             sizeof(point_static_array[0].point_static_label_array[1].label_text),
+             "Static Label 2 for Static Point 1");
 
     // Initialize vector containers
     vec_int.push_back(10);
@@ -194,9 +239,9 @@ int VSTest::default_vars() {
     vec_point.push_back(Point(5.0, 6.0));
 
     // vector<class>.vector<supported_type> not supported yet
-    //vec_point[0].coords = {1.1, 1.2, 1.3};
-    //vec_point[1].coords = {2.1, 2.2, 2.3, 2.4, 2.5};
-    //vec_point[2].coords = {3.1, 3.2, 3.3};
+    // vec_point[0].coords = {1.1, 1.2, 1.3};
+    // vec_point[1].coords = {2.1, 2.2, 2.3, 2.4, 2.5};
+    // vec_point[2].coords = {3.1, 3.2, 3.3};
 
     deq_point.push_back(Point(10.0, 20.0));
     deq_point.push_back(Point(30.0, 40.0));
@@ -205,79 +250,121 @@ int VSTest::default_vars() {
     arr_point = {Point(100.0, 200.0), Point(300.0, 400.0), Point(500.0, 600.0)};
 
     // Initialize vector of Point pointers
-    Point* p1 = (Point*)TMM_declare_var_s("Point");
+    Point * p1 = (Point *)TMM_declare_var_s("Point");
     p1->x = 11.0;
     p1->y = 22.0;
     p1->point_label_obj = PointLabel();
-    snprintf(p1->point_label_obj.label_text, sizeof(p1->point_label_obj.label_text), "Point 1 (%6.6f, %6.6f)", p1->x, p1->y);
-    p1->point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    snprintf(p1->point_label_obj.label_text,
+             sizeof(p1->point_label_obj.label_text),
+             "Point 1 (%6.6f, %6.6f)",
+             p1->x,
+             p1->y);
+    p1->point_dyn_label_array = (PointLabel *)TMM_declare_var_s("PointLabel[2]");
     p1->point_dyn_label_array[0] = PointLabel();
-    snprintf(p1->point_dyn_label_array[0].label_text, sizeof(p1->point_dyn_label_array[0].label_text), "Dyn Label 1 for Point 1");
-    snprintf(p1->point_static_label_array[0].label_text, sizeof(p1->point_static_label_array[0].label_text), "Static Label 1 for Point 1");
+    snprintf(p1->point_dyn_label_array[0].label_text,
+             sizeof(p1->point_dyn_label_array[0].label_text),
+             "Dyn Label 1 for Point 1");
+    snprintf(p1->point_static_label_array[0].label_text,
+             sizeof(p1->point_static_label_array[0].label_text),
+             "Static Label 1 for Point 1");
     p1->point_dyn_label_array[1] = PointLabel();
-    snprintf(p1->point_dyn_label_array[1].label_text, sizeof(p1->point_dyn_label_array[1].label_text), "Dyn Label 2 for Point 1");
-    snprintf(p1->point_static_label_array[1].label_text, sizeof(p1->point_static_label_array[1].label_text), "Static Label 2 for Point 1");
+    snprintf(p1->point_dyn_label_array[1].label_text,
+             sizeof(p1->point_dyn_label_array[1].label_text),
+             "Dyn Label 2 for Point 1");
+    snprintf(p1->point_static_label_array[1].label_text,
+             sizeof(p1->point_static_label_array[1].label_text),
+             "Static Label 2 for Point 1");
     vec_point_ptr.push_back(p1);
 
-    Point* p2 = (Point*)TMM_declare_var_s("Point");
+    Point * p2 = (Point *)TMM_declare_var_s("Point");
     p2->x = 33.0;
     p2->y = 44.0;
     p2->point_label_obj = PointLabel();
-    snprintf(p2->point_label_obj.label_text, sizeof(p2->point_label_obj.label_text), "Point 2 (%6.6f, %6.6f)", p2->x, p2->y);
-    p2->point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    snprintf(p2->point_label_obj.label_text,
+             sizeof(p2->point_label_obj.label_text),
+             "Point 2 (%6.6f, %6.6f)",
+             p2->x,
+             p2->y);
+    p2->point_dyn_label_array = (PointLabel *)TMM_declare_var_s("PointLabel[2]");
     p2->point_dyn_label_array[0] = PointLabel();
-    snprintf(p2->point_dyn_label_array[0].label_text, sizeof(p2->point_dyn_label_array[0].label_text), "Dyn Label 1 for Point 2");
-    snprintf(p2->point_static_label_array[0].label_text, sizeof(p2->point_static_label_array[0].label_text), "Static Label 1 for Point 2");
+    snprintf(p2->point_dyn_label_array[0].label_text,
+             sizeof(p2->point_dyn_label_array[0].label_text),
+             "Dyn Label 1 for Point 2");
+    snprintf(p2->point_static_label_array[0].label_text,
+             sizeof(p2->point_static_label_array[0].label_text),
+             "Static Label 1 for Point 2");
     p2->point_dyn_label_array[1] = PointLabel();
-    snprintf(p2->point_dyn_label_array[1].label_text, sizeof(p2->point_dyn_label_array[1].label_text), "Dyn Label 2 for Point 2");
-    snprintf(p2->point_static_label_array[1].label_text, sizeof(p2->point_static_label_array[1].label_text), "Static Label 2 for Point 2");
+    snprintf(p2->point_dyn_label_array[1].label_text,
+             sizeof(p2->point_dyn_label_array[1].label_text),
+             "Dyn Label 2 for Point 2");
+    snprintf(p2->point_static_label_array[1].label_text,
+             sizeof(p2->point_static_label_array[1].label_text),
+             "Static Label 2 for Point 2");
     vec_point_ptr.push_back(p2);
 
-    Point* p3 = (Point*)TMM_declare_var_s("Point");
+    Point * p3 = (Point *)TMM_declare_var_s("Point");
     p3->x = 55.0;
     p3->y = 66.0;
     p3->point_label_obj = PointLabel();
-    snprintf(p3->point_label_obj.label_text, sizeof(p3->point_label_obj.label_text), "Point 3 (%6.6f, %6.6f)", p3->x, p3->y);
-    p3->point_dyn_label_array = (PointLabel*)TMM_declare_var_s("PointLabel[2]");
+    snprintf(p3->point_label_obj.label_text,
+             sizeof(p3->point_label_obj.label_text),
+             "Point 3 (%6.6f, %6.6f)",
+             p3->x,
+             p3->y);
+    p3->point_dyn_label_array = (PointLabel *)TMM_declare_var_s("PointLabel[2]");
     p3->point_dyn_label_array[0] = PointLabel();
-    snprintf(p3->point_dyn_label_array[0].label_text, sizeof(p3->point_dyn_label_array[0].label_text), "Dyn Label 1 for Point 3");
-    snprintf(p3->point_static_label_array[0].label_text, sizeof(p3->point_static_label_array[0].label_text), "Static Label 1 for Point 3");
+    snprintf(p3->point_dyn_label_array[0].label_text,
+             sizeof(p3->point_dyn_label_array[0].label_text),
+             "Dyn Label 1 for Point 3");
+    snprintf(p3->point_static_label_array[0].label_text,
+             sizeof(p3->point_static_label_array[0].label_text),
+             "Static Label 1 for Point 3");
     p3->point_dyn_label_array[1] = PointLabel();
-    snprintf(p3->point_dyn_label_array[1].label_text, sizeof(p3->point_dyn_label_array[1].label_text), "Dyn Label 2 for Point 3");
-    snprintf(p3->point_static_label_array[1].label_text, sizeof(p3->point_static_label_array[1].label_text), "Static Label 2 for Point 3");
+    snprintf(p3->point_dyn_label_array[1].label_text,
+             sizeof(p3->point_dyn_label_array[1].label_text),
+             "Dyn Label 2 for Point 3");
+    snprintf(p3->point_static_label_array[1].label_text,
+             sizeof(p3->point_static_label_array[1].label_text),
+             "Static Label 2 for Point 3");
     vec_point_ptr.push_back(p3);
 
-	return 0;
+    return 0;
 }
 
-int VSTest::init() {
-	status = 2; 
-	return (0);
+int VSTest::init()
+{
+    status = 2;
+    return (0);
 }
 
-int VSTest::fail() {
-    status = 1; 
-	return 0;
+int VSTest::fail()
+{
+    status = 1;
+    return 0;
 }
 
-int VSTest::success() {
+int VSTest::success()
+{
     status = 0;
-	return 0; 
+    return 0;
 }
 
-void VSTest::throw_exception() {
-	throw std::logic_error("Pretend an error has occured for testing");
+void VSTest::throw_exception()
+{
+    throw std::logic_error("Pretend an error has occured for testing");
 }
 
-int VSTest::shutdown() {
-	std::cout << "Shutting down with status: " << status << " Message: " << status_messages[status] << std::endl;
+int VSTest::shutdown()
+{
+    std::cout << "Shutting down with status: " << status << " Message: " << status_messages[status] << std::endl;
 
-	// Check that the blocked_from_input variable hasnt changed
-	if (blocked_from_input != 500 || blocked_from_output != 0) {
-		status = 1;
-	}
+    // Check that the blocked_from_input variable hasnt changed
+    if(blocked_from_input != 500 || blocked_from_output != 0)
+    {
+        status = 1;
+    }
 
-    exec_terminate_with_return( status , __FILE__ , __LINE__ , status_messages[status] ) ;
-	
-	return(0);
+    exec_terminate_with_return(status, __FILE__, __LINE__, status_messages[status]);
+
+    return (0);
 }

@@ -19,24 +19,23 @@ Purpose:(Generates either a True or False string for assignment)
 *****************************************************************************/
 class MonteCarloVariableRandomBool : public MonteCarloVariableRandomStringSet
 {
- public:
-  MonteCarloVariableRandomBool( const std::string  & var_name,
-                                unsigned int         seed)
-    :
-    MonteCarloVariableRandomStringSet( var_name, seed)
-  {
-    add_string("False");
-    add_string("True");
-    include_in_summary = true; // String variables are excluded by default
-                               // because they may contain commas, which would
-                               // cause trouble in the comma-delimited summary
-                               // file. However, this is a special case in which
-                               // the possible strings are "True" and "False".
-  }
-  virtual ~MonteCarloVariableRandomBool(){};
- private: // and undefined:
-  MonteCarloVariableRandomBool(const MonteCarloVariableRandomBool&);
-  MonteCarloVariableRandomBool& operator = (
-                                     const MonteCarloVariableRandomBool&);
+public:
+    MonteCarloVariableRandomBool(const std::string & var_name, unsigned int seed)
+        : MonteCarloVariableRandomStringSet(var_name, seed)
+    {
+        add_string("False");
+        add_string("True");
+        include_in_summary = true; // String variables are excluded by default
+                                   // because they may contain commas, which would
+                                   // cause trouble in the comma-delimited summary
+                                   // file. However, this is a special case in which
+                                   // the possible strings are "True" and "False".
+    }
+
+    virtual ~MonteCarloVariableRandomBool() {}
+
+private: // and undefined:
+    MonteCarloVariableRandomBool(const MonteCarloVariableRandomBool &);
+    MonteCarloVariableRandomBool & operator=(const MonteCarloVariableRandomBool &);
 };
 #endif

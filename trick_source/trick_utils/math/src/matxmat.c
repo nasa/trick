@@ -7,17 +7,21 @@
 
 #include "trick/trick_math.h"
 
-void matxmat(double **prod,     /* Out: Product of the two matrices */
-             double **mat1,     /* In: Matrix 1 */
-             double **mat2,     /* In: Matrix 2 */
-             int n) {           /* In: Array size */
+void matxmat(double ** prod, /* Out: Product of the two matrices */
+             double ** mat1, /* In: Matrix 1 */
+             double ** mat2, /* In: Matrix 2 */
+             int n)
+{ /* In: Array size */
     int i, j, k;
     double temp;
 
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < n; j++) {
+    for(i = 0; i < n; i++)
+    {
+        for(j = 0; j < n; j++)
+        {
             temp = 0.0;
-            for (k = 0; k < n; k++) {
+            for(k = 0; k < n; k++)
+            {
                 temp += mat1[i][k] * mat2[k][j];
             }
             prod[i][j] = temp;

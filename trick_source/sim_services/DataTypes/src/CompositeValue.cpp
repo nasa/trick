@@ -2,34 +2,42 @@
 #include <sstream>
 
 // DESTRUCTOR
-CompositeValue::~CompositeValue() {
+CompositeValue::~CompositeValue()
+{
     int n = member_list.size();
-    for (int ii= 0 ; ii < n; ii++) {
-        delete( member_list[ii] );
+    for(int ii = 0; ii < n; ii++)
+    {
+        delete(member_list[ii]);
     }
 }
 
 // MEMBER FUNCTION
-void CompositeValue::addMember(Value* value) {
+void CompositeValue::addMember(Value * value)
+{
     member_list.push_back(value);
 }
 
 // MEMBER FUNCTION
-int CompositeValue::getMemberCount() {
-    return ( (int)member_list.size() );
+int CompositeValue::getMemberCount()
+{
+    return ((int)member_list.size());
 }
 
 // MEMBER FUNCTION
-Value*&  CompositeValue::operator[] (const int index) {
-    return ( member_list[index] );
+Value *& CompositeValue::operator[](const int index)
+{
+    return (member_list[index]);
 }
 
 // MEMBER FUNCTION
-void  CompositeValue::print(std::ostream &s) {
-   int n = member_list.size();
+void CompositeValue::print(std::ostream & s)
+{
+    int n = member_list.size();
     s << "{";
-    for (int ii= 0 ; ii < n; ii++) {
-        if (ii != 0) {
+    for(int ii = 0; ii < n; ii++)
+    {
+        if(ii != 0)
+        {
             s << ",";
         }
         member_list[ii]->print(s);
@@ -38,13 +46,16 @@ void  CompositeValue::print(std::ostream &s) {
 }
 
 // MEMBER FUNCTION
-std::string  CompositeValue::toString() {
-   std::ostringstream oss;
+std::string CompositeValue::toString()
+{
+    std::ostringstream oss;
 
-   int n = member_list.size();
+    int n = member_list.size();
     oss << "{";
-    for (int ii= 0 ; ii < n; ii++) {
-        if (ii != 0) {
+    for(int ii = 0; ii < n; ii++)
+    {
+        if(ii != 0)
+        {
             oss << ",";
         }
         oss << member_list[ii]->toString();
@@ -52,4 +63,3 @@ std::string  CompositeValue::toString() {
     oss << "}";
     return oss.str();
 }
-

@@ -14,15 +14,12 @@ LIBRARY DEPENDENCY:
 
 #include <iostream>
 
-class Do_Not_Trickify {
-
-  public:
-   // Default constructor and destructor.
-   Do_Not_Trickify();
-  ~Do_Not_Trickify();
-
-
+class Do_Not_Trickify
+{
+public:
+    // Default constructor and destructor.
+    Do_Not_Trickify();
+    ~Do_Not_Trickify();
 };
 
 #endif
-

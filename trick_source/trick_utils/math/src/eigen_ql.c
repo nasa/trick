@@ -7,35 +7,44 @@
 
    PROGRAMMERS: (((M Schira) (MDSS) (Jan 1994) (v1.0) (Init Release))) */
 
+#include "trick/trick_math.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include "trick/trick_math.h"
 
-void eigen_ql(double *d,        /* Inout: input diagonal elements, output eigenvalues */
-              double *e,        /* In: off diagonal elements */
-              int n,            /* In: array size */
-              double **z)
-{                                      /* Out: eigenvectors */
+void eigen_ql(double * d, /* Inout: input diagonal elements, output eigenvalues */
+              double * e, /* In: off diagonal elements */
+              int n,      /* In: array size */
+              double ** z)
+{ /* Out: eigenvectors */
     int i, k, l, m, iter;
     double f, g, r, s, c, p, dd, b;
 
-    if (n > 1) {
-        for (i = 1; i < n; i++)
+    if(n > 1)
+    {
+        for(i = 1; i < n; i++)
+        {
             e[i - 1] = e[i];
+        }
         e[n - 1] = 0.0;
-        for (l = 0; l < n; l++) {
+        for(l = 0; l < n; l++)
+        {
             iter = 0;
-          label_1:
-            for (m = l; m < n - 1; m++) {
+        label_1:
+            for(m = l; m < n - 1; m++)
+            {
                 dd = fabs(d[m]) + fabs(d[m + 1]);
-                if (fabs(e[m]) + dd == dd)
+                if(fabs(e[m]) + dd == dd)
+                {
                     goto label_2;
+                }
             }
             m = n - 1;
-          label_2:
-            if (m != l) {
-                if (iter == 30) {
+        label_2:
+            if(m != l)
+            {
+                if(iter == 30)
+                {
                     fprintf(stderr, "30 iterations in tqli \n");
                     exit(0);
                 }
@@ -46,16 +55,20 @@ void eigen_ql(double *d,        /* Inout: input diagonal elements, output eigenv
                 s = 1.0;
                 c = 1.0;
                 p = 0.0;
-                for (i = m - 1; i >= l; i--) {
+                for(i = m - 1; i >= l; i--)
+                {
                     f = s * e[i];
                     b = c * e[i];
-                    if (fabs(f) >= fabs(g)) {
+                    if(fabs(f) >= fabs(g))
+                    {
                         c = g / f;
                         r = sqrt(c * c + 1.0);
                         e[i + 1] = f * r;
                         s = 1.0 / r;
                         c = c * s;
-                    } else {
+                    }
+                    else
+                    {
                         s = f / g;
                         r = sqrt(s * s + 1.0);
                         e[i + 1] = g * r;
@@ -67,7 +80,8 @@ void eigen_ql(double *d,        /* Inout: input diagonal elements, output eigenv
                     p = s * r;
                     d[i + 1] = g + p;
                     g = c * r - b;
-                    for (k = 0; k < n; k++) {
+                    for(k = 0; k < n; k++)
+                    {
                         f = z[k][i + 1];
                         z[k][i + 1] = s * z[k][i] + c * f;
                         z[k][i] = c * z[k][i] - s * f;

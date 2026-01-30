@@ -6,7 +6,8 @@ LIBRARY DEPENDENCY:
     )
 **************************************************************************/
 
-class TTVTest {
+class TTVTest
+{
 public:
     int scheduled();
     int scheduled2();

@@ -10,14 +10,14 @@
    PROGRAMMERS: (((Robert Gay) (LinCom Corp) (May 1998) (--) (--)) ((Robert Gay) (Titan-LinCom) (Aug 2001) (--)
    (Updates to put routines into trick math))) */
 
-#include <stdio.h>
 #include "trick/trick_math.h"
+#include <stdio.h>
 
 double rand_num(RAND_GENERATOR * G)
-{                                      /* Inout: Generator parameters */
+{ /* Inout: Generator parameters */
 
-    switch (G->option) {
-
+    switch(G->option)
+    {
         case UNIFORM_RND_1:
             return (uniform_rnd_1(G));
             break;

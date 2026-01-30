@@ -36,8 +36,8 @@ PROGRAMMERS:
 #include <iostream>
 
 // Model include files.
-#include "BallState.hh"
 #include "BallForce.hh"
+#include "BallState.hh"
 
 /** @class Ball
     @brief ball in C++
@@ -45,34 +45,32 @@ PROGRAMMERS:
 
 #include "trick/mm_macros.hh"
 
-class Ball {
+class Ball
+{
+    TRICK_MM_INTERFACE(Ball, Ball)
 
-  TRICK_MM_INTERFACE(Ball, Ball)
+public:
+    // Default constructor and destructor.
+    Ball();
+    ~Ball();
 
-  public:
-   // Default constructor and destructor.
-   Ball();
-  ~Ball();
+    // Initialization functions.
+    int state_init();
 
-   // Initialization functions.
-   int state_init();
+    // Derivative class jobs.
+    int force_field();
+    int state_deriv();
 
-   // Derivative class jobs.
-   int force_field();
-   int state_deriv();
+    // Integration class jobs.
+    int state_integ();
 
-   // Integration class jobs.
-   int state_integ();
+    int state_print();
 
-   int state_print() ;
+    int shutdown();
 
-   int shutdown() ;
-
-   // Trick requires all logged data to be public.
-   BallState state; /**< -- Ball state object. */
-   BallForce force; /**< -- Ball force object. */
-
-
+    // Trick requires all logged data to be public.
+    BallState state; /**< -- Ball state object. */
+    BallForce force; /**< -- Ball force object. */
 };
 
 #ifdef SWIG
@@ -81,4 +79,3 @@ class Ball {
 #endif
 
 #endif /* _BALL_HH_ */
-

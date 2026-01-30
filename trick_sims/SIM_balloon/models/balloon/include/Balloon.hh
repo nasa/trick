@@ -6,25 +6,26 @@ LIBRARY DEPENDENCIES:
 #ifndef BALLOON_HH
 #define BALLOON_HH
 
-class Balloon {
-    public:
+class Balloon
+{
+public:
     // State Variables (Uncalculated Variables)
-	double pos[2];
-	double vel[2];
-	double envelope_mass;
-	double basket_mass;
-	double burner_system_mass;
-	double payload_mass;
-	double envelope_air_temperature;
-	double envelope_radius;
-	double envelope_theta;
-	double wind_speed;
-	double Cd[2];
+    double pos[2];
+    double vel[2];
+    double envelope_mass;
+    double basket_mass;
+    double burner_system_mass;
+    double payload_mass;
+    double envelope_air_temperature;
+    double envelope_radius;
+    double envelope_theta;
+    double wind_speed;
+    double Cd[2];
 
     // Calculated Variables
-	double acc[2];
-	double envelope_volume;
-	double fixed_mass;
+    double acc[2];
+    double envelope_volume;
+    double fixed_mass;
 
     // Control Variable
     int temperature_change_command;
@@ -45,7 +46,7 @@ class Balloon {
     double calc_buoyancy_force();
     double calc_displaced_air_mass();
     void calc_drag_force(double * F);
-    double volume_of_a_spherical_dome( double r, double h);
-    double volume_of_a_cone( double r, double h);
+    double volume_of_a_spherical_dome(double r, double h);
+    double volume_of_a_cone(double r, double h);
 };
 #endif

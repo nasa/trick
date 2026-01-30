@@ -7,9 +7,9 @@
 
 #include "trick/trick_math.h"
 
-void quat_to_mat(double a[3][3],       /* Out: transformation matrix */
+void quat_to_mat(double a[3][3], /* Out: transformation matrix */
                  double quat[4])
-{                                      /* In: left handed quaternion */
+{ /* In: left handed quaternion */
 
     a[0][0] = 1. - 2. * (quat[2] * quat[2] + quat[3] * quat[3]);
     a[1][1] = 1. - 2. * (quat[3] * quat[3] + quat[1] * quat[1]);

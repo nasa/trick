@@ -13,7 +13,8 @@
 @details
 -# call sem_post() on the itimer semaphore
 */
-void it_handler(int sig __attribute__ ((unused))) {
+void it_handler(int sig __attribute__((unused)))
+{
     // Tell the scheduler to wait up from its sleepy time.
-    get_itimer()->semaphore_post() ;
+    get_itimer()->semaphore_post();
 }

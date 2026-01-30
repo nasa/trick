@@ -13,9 +13,9 @@ LIBRARY DEPENDENCIES:
 //
 #define CONVERSION_PASCALS_TO_PSI 1.4504e-4
 
-class Submarine {
-    public:
-
+class Submarine
+{
+public:
     // Parameters
     double outer_hull_outer_radius;
     double outer_hull_inner_radius;
@@ -29,19 +29,19 @@ class Submarine {
     double Cd;
 
     // State Variables (Uncalculated Variables)
-	double pos[2];
-	double vel[2];
-    double ballast_energy;  // joules
-    double pump_power;      // watts
+    double pos[2];
+    double vel[2];
+    double ballast_energy; // joules
+    double pump_power;     // watts
 
     // Calculated Variables
-	double acc[2];
+    double acc[2];
 
     // Control Variable
-    double ballast_air_ratio;     // To the GUI.
+    double ballast_air_ratio; // To the GUI.
     double water_pressure_pascals;
-    double water_pressure_PSI;    // To the GUI.
-    int    pump_power_command;    // From the GUI.
+    double water_pressure_PSI; // To the GUI.
+    int pump_power_command;    // From the GUI.
 
     // Methods
     int default_data();
@@ -53,12 +53,12 @@ class Submarine {
     double calc_ballast_air_volume();
     double calc_pressure_hull_displaced_volume();
     double calc_total_displaced_volume();
-    double calc_gravity_force ();
-    double calc_total_mass ();
+    double calc_gravity_force();
+    double calc_total_mass();
     double calc_fixed_mass();
-    double calc_buoyancy_force( );
+    double calc_buoyancy_force();
     double calc_ballast_water_mass();
-    double calc_ballast_water_volume ();
+    double calc_ballast_water_volume();
     double calc_drag_force();
     double calc_pressure_hull_volume();
     int state_post_integ();

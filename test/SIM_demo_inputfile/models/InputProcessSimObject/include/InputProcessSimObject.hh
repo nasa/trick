@@ -10,30 +10,28 @@ LIBRARY_DEPENDENCIES:
 #ifndef INPUTPROCESSSIMOBJECT_HH
 #define INPUTPROCESSSIMOBJECT_HH
 
-#include <vector>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
 #include "sim_services/SimObject/include/SimObject.hh"
 
-namespace Trick {
+namespace Trick
+{
 
-    class InputProcessSimObject : public SimObject {
+class InputProcessSimObject : public SimObject
+{
+public:
+    std::string python_call_function;
+    int return_value;
 
-        public:
+    InputProcessSimObject(std::string);
 
-            std::string python_call_function ;
-            int return_value ;
+    /* call_function hand coded for jobs to be called by scheduler */
+    virtual int call_function(Trick::JobData * curr_job);
+    virtual double call_function_double(Trick::JobData * curr_job);
+};
 
-            InputProcessSimObject( std::string ) ;
-
-            /* call_function hand coded for jobs to be called by scheduler */
-            virtual int call_function( Trick::JobData * curr_job ) ;
-            virtual double call_function_double( Trick::JobData * curr_job ) ;
-
-    } ;
-
-}
+} // namespace Trick
 
 #endif
-

@@ -26,51 +26,31 @@ PROGRAMMERS:
 #include <stdio.h>
 
 /* GLOBAL DATA STRUCTURE DECLARATIONS */
-#include "sim_services/Integrator/include/integrator_c_intf.h"
-#include "ball/L1/include/ball_state.h"
 #include "ball/L1/include/ball_proto.h"
+#include "ball/L1/include/ball_state.h"
+#include "sim_services/Integrator/include/integrator_c_intf.h"
 
 /* ENTRY POINT */
-int ball_state_integ( /* RETURN: -- Integration multi-step id */
-  BSTATE *S )         /* INOUT:  -- Ball EOM state parameters */
+int ball_state_integ(            /* RETURN: -- Integration multi-step id */
+                     BSTATE * S) /* INOUT:  -- Ball EOM state parameters */
 {
-
     int ipass;
 
     /* GET SHORTHAND NOTATION FOR DATA STRUCTURES */
-    BSTATE_OUT *SO = &(S->output) ;
+    BSTATE_OUT * SO = &(S->output);
 
     /* LOAD THE POSITION AND VELOCITY STATES */
-    load_state(
-        &SO->position[0] ,
-        &SO->position[1] ,
-        &SO->velocity[0] ,
-        &SO->velocity[1] ,
-        NULL
-    );
+    load_state(&SO->position[0], &SO->position[1], &SO->velocity[0], &SO->velocity[1], NULL);
 
     /* LOAD THE POSITION AND VELOCITY STATE DERIVATIVES */
-    load_deriv(
-        &SO->velocity[0] ,
-        &SO->velocity[1] ,
-        &SO->acceleration[0] ,
-        &SO->acceleration[1] ,
-        NULL
-    );
+    load_deriv(&SO->velocity[0], &SO->velocity[1], &SO->acceleration[0], &SO->acceleration[1], NULL);
 
     /* CALL THE TRICK INTEGRATION SERVICE */
     ipass = integrate();
 
     /* UNLOAD THE NEW POSITION AND VELOCITY STATES */
-    unload_state(
-        &SO->position[0] ,
-        &SO->position[1] ,
-        &SO->velocity[0] ,
-        &SO->velocity[1] ,
-        NULL
-    );
+    unload_state(&SO->position[0], &SO->position[1], &SO->velocity[0], &SO->velocity[1], NULL);
 
     /* RETURN */
-    return( ipass );
+    return (ipass);
 }
-

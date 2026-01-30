@@ -2,9 +2,10 @@
 
 int VariableServerTest::numSession = 0;
 
-
-TEST_F (VariableServerTest, SendStdException) {
-    if (socket_status != 0) {
+TEST_F(VariableServerTest, SendStdException)
+{
+    if(socket_status != 0)
+    {
         FAIL();
     }
 

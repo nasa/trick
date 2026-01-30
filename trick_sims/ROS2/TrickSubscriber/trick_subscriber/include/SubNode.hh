@@ -14,21 +14,19 @@ LIBRARY DEPENDENCY:
 
 class SubNode
 {
-    public:
-        std::string darkEchoes;
+public:
+    std::string darkEchoes;
 
-        std::string nodeName;
-        std::string subscriptionName;
+    std::string nodeName;
+    std::string subscriptionName;
 
-        rclcpp::Node::SharedPtr  node;
-        rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub;
+    rclcpp::Node::SharedPtr node;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr sub;
 
-        void defaults();
-        void init_ros();
-        void earToTheVoid();
-        void shutItDown();
-
+    void defaults();
+    void init_ros();
+    void earToTheVoid();
+    void shutItDown();
 };
-
 
 #endif

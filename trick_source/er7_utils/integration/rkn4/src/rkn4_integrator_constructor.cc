@@ -34,96 +34,68 @@ Programmers:
 #include "../include/rkn4_integrator_constructor.hh"
 #include "../include/rkn4_second_order_ode_integrator.hh"
 
-
-namespace er7_utils {
+namespace er7_utils
+{
 
 // Named constructor; create an RKNystrom4IntegratorConstructor.
-IntegratorConstructor*
-RKNystrom4IntegratorConstructor::create_constructor (
-   void)
+IntegratorConstructor * RKNystrom4IntegratorConstructor::create_constructor(void)
 {
-   return alloc::allocate_object<RKNystrom4IntegratorConstructor> ();
+    return alloc::allocate_object<RKNystrom4IntegratorConstructor>();
 }
-
 
 // Create a duplicate of the constructor.
-IntegratorConstructor *
-RKNystrom4IntegratorConstructor::create_copy (
-   void)
-const
+IntegratorConstructor * RKNystrom4IntegratorConstructor::create_copy(void) const
 {
-   return alloc::replicate_object (*this);
+    return alloc::replicate_object(*this);
 }
-
 
 // Create an RKNystrom4 integration controls.
-IntegrationControls *
-RKNystrom4IntegratorConstructor::create_integration_controls (
-   void)
-const
+IntegrationControls * RKNystrom4IntegratorConstructor::create_integration_controls(void) const
 {
-   return integ_utils::allocate_controls<SingleCycleIntegrationControls> (4);
+    return integ_utils::allocate_controls<SingleCycleIntegrationControls>(4);
 }
-
 
 // Create an RK4 state integrator as a surrogate for a first order ODE.
-FirstOrderODEIntegrator *
-RKNystrom4IntegratorConstructor::create_first_order_ode_integrator (
-   unsigned int size,
-   IntegrationControls & controls)
-const
+FirstOrderODEIntegrator * RKNystrom4IntegratorConstructor::create_first_order_ode_integrator(
+    unsigned int size, IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<RK4FirstOrderODEIntegrator> (
-             size, controls);
+    return integ_utils::allocate_integrator<RK4FirstOrderODEIntegrator>(size, controls);
 }
-
 
 // Create a 4th order Runge Kutta Nystrom state integrator for a
 // simple second order ODE.
-SecondOrderODEIntegrator *
-RKNystrom4IntegratorConstructor::create_second_order_ode_integrator (
-   unsigned int size,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * RKNystrom4IntegratorConstructor::create_second_order_ode_integrator(
+    unsigned int size, IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                RKNystrom4SimpleSecondOrderODEIntegrator> (
-             size, controls);
+    return integ_utils::allocate_integrator<RKNystrom4SimpleSecondOrderODEIntegrator>(size, controls);
 }
-
 
 // Create an RK4 state integrator as a surrogate for a second order ODE
 // in which position is advanced with the position derivative functions.
-SecondOrderODEIntegrator *
-RKNystrom4IntegratorConstructor::
-create_generalized_deriv_second_order_ode_integrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionDerivativeFunctions & deriv_funs,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * RKNystrom4IntegratorConstructor::create_generalized_deriv_second_order_ode_integrator(
+    unsigned int position_size,
+    unsigned int velocity_size,
+    const GeneralizedPositionDerivativeFunctions & deriv_funs,
+    IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                RK4GeneralizedDerivSecondOrderODEIntegrator> (
-             position_size, velocity_size, deriv_funs, controls);
+    return integ_utils::allocate_integrator<RK4GeneralizedDerivSecondOrderODEIntegrator>(position_size,
+                                                                                         velocity_size,
+                                                                                         deriv_funs,
+                                                                                         controls);
 }
-
 
 // Create a 4th order Runge Kutta Nystrom state integrator for a second order
 // ODE in which position is constrained to lie on a manifold.
-SecondOrderODEIntegrator *
-RKNystrom4IntegratorConstructor::
-create_generalized_step_second_order_ode_integrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionStepFunctions & step_funs,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * RKNystrom4IntegratorConstructor::create_generalized_step_second_order_ode_integrator(
+    unsigned int position_size,
+    unsigned int velocity_size,
+    const GeneralizedPositionStepFunctions & step_funs,
+    IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                RKNystrom4GeneralizedStepSecondOrderODEIntegrator> (
-             position_size, velocity_size, step_funs, controls);
+    return integ_utils::allocate_integrator<RKNystrom4GeneralizedStepSecondOrderODEIntegrator>(position_size,
+                                                                                               velocity_size,
+                                                                                               step_funs,
+                                                                                               controls);
 }
 
-
-}
+} // namespace er7_utils

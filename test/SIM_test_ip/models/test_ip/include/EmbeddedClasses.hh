@@ -14,60 +14,70 @@ ICG_IGNORE_TYPES:
 /** @class BallStateInput
     @brief ball state input parameters
  */
-class TopClass {
- public:
+class TopClass
+{
+public:
+    unsigned int bf1 : 5;
+    unsigned int bf2 : 4;
 
-  unsigned int bf1 : 5 ;
-  unsigned int bf2 : 4 ;
+    class PublicEmbed
+    {
+    public:
+        int ii;
 
-  class PublicEmbed{
-      public:
-          int ii ;
-          class PublicEmbed2{
-              public:
-                  int jj ;
-                      class PublicEmbed3{
-                          public:
-                              int jj ;
-                              enum PublicEnum4 {
-                                  five ,
-                                  six
-                                } ;
-                      } ;
-          } ;
-  } ;
+        class PublicEmbed2
+        {
+        public:
+            int jj;
 
-  enum PublicEnum {
-    one ,
-    two
-  } ;
+            class PublicEmbed3
+            {
+            public:
+                int jj;
 
-  double d;                   /**< trick_units(r) */
+                enum PublicEnum4
+                {
+                    five,
+                    six
+                };
+            };
+        };
+    };
 
-  TopClass() {} ;
+    enum PublicEnum
+    {
+        one,
+        two
+    };
 
- private:
-  class PrivateEmbed{
-      public:
-          int ii ;
-  } ;
+    double d; /**< trick_units(r) */
 
-  enum PrivateEnum {
-    three ,
-    four
-  } ;
+    TopClass() {}
 
+private:
+    class PrivateEmbed
+    {
+    public:
+        int ii;
+    };
+
+    enum PrivateEnum
+    {
+        three,
+        four
+    };
 };
 
-class IgnoreType1 {
-    public:
-        int ii ;
-} ;
+class IgnoreType1
+{
+public:
+    int ii;
+};
 
-class IgnoreType2 {
-    public:
-        int ii ;
-} ;
-
+class IgnoreType2
+{
+public:
+    int ii;
+};
 
 #endif

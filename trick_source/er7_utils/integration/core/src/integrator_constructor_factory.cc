@@ -50,69 +50,67 @@ Purpose: ()
 #include "../include/integration_technique.hh"
 #include "../include/integrator_constructor_factory.hh"
 
-
-namespace er7_utils {
-
+namespace er7_utils
+{
 
 /**
  * Create an er7_utils IntegratorConstructor based on the input technique.
  * @param integ_type  Integration technique.
  * @return Created integrator constructor.
  */
-IntegratorConstructor *
-IntegratorConstructorFactory::create (
-   Integration::Technique integ_type)
+IntegratorConstructor * IntegratorConstructorFactory::create(Integration::Technique integ_type)
 {
-   IntegratorConstructor * constructor = NULL;
+    IntegratorConstructor * constructor = NULL;
 
-   switch (integ_type) {
-   case Integration::Euler:
-      constructor = EulerIntegratorConstructor::create_constructor();
-      break;
+    switch(integ_type)
+    {
+        case Integration::Euler:
+            constructor = EulerIntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::SymplecticEuler:
-      constructor = SymplecticEulerIntegratorConstructor::create_constructor();
-      break;
+        case Integration::SymplecticEuler:
+            constructor = SymplecticEulerIntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::Beeman:
-      constructor = BeemanIntegratorConstructor::create_constructor();
-      break;
+        case Integration::Beeman:
+            constructor = BeemanIntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::NystromLear2:
-      constructor = NystromLear2IntegratorConstructor::create_constructor();
-      break;
+        case Integration::NystromLear2:
+            constructor = NystromLear2IntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::PositionVerlet:
-      constructor = PositionVerletIntegratorConstructor::create_constructor();
-      break;
+        case Integration::PositionVerlet:
+            constructor = PositionVerletIntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::RK2Heun:
-      constructor = RK2HeunIntegratorConstructor::create_constructor();
-      break;
+        case Integration::RK2Heun:
+            constructor = RK2HeunIntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::RK2Midpoint:
-      constructor = RK2MidpointIntegratorConstructor::create_constructor();
-      break;
+        case Integration::RK2Midpoint:
+            constructor = RK2MidpointIntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::VelocityVerlet:
-      constructor = VelocityVerletIntegratorConstructor::create_constructor();
-      break;
+        case Integration::VelocityVerlet:
+            constructor = VelocityVerletIntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::ModifiedMidpoint4:
-      constructor = MM4IntegratorConstructor::create_constructor();
-      break;
+        case Integration::ModifiedMidpoint4:
+            constructor = MM4IntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::AdamsBashforthMoulton4:
-      constructor = ABM4IntegratorConstructor::create_constructor();
-      break;
+        case Integration::AdamsBashforthMoulton4:
+            constructor = ABM4IntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::RungeKutta4:
-      constructor = RK4IntegratorConstructor::create_constructor();
-      break;
+        case Integration::RungeKutta4:
+            constructor = RK4IntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::RKGill4:
-      constructor = RKGill4IntegratorConstructor::create_constructor();
-      break;
+        case Integration::RKGill4:
+            constructor = RKGill4IntegratorConstructor::create_constructor();
+            break;
 
 #if 0
    case Integration::RKNystrom4:
@@ -120,13 +118,13 @@ IntegratorConstructorFactory::create (
       break;
 #endif
 
-   case Integration::RKFehlberg45:
-      constructor = RKFehlberg45IntegratorConstructor::create_constructor();
-      break;
+        case Integration::RKFehlberg45:
+            constructor = RKFehlberg45IntegratorConstructor::create_constructor();
+            break;
 
-   case Integration::RKFehlberg78:
-      constructor = RKFehlberg78IntegratorConstructor::create_constructor();
-      break;
+        case Integration::RKFehlberg78:
+            constructor = RKFehlberg78IntegratorConstructor::create_constructor();
+            break;
 
 #if 0
    case Integration::GaussJackson:
@@ -134,31 +132,35 @@ IntegratorConstructorFactory::create (
       break;
 #endif
 
-   // The remaining cases do not construct an integrator constructor.
-   case Integration::Unspecified:
-      MessageHandler::fail (__FILE__, __LINE__,
-                            IntegrationMessages::invalid_request,
-                            "Unspecified integration technique.");
-      break;
+        // The remaining cases do not construct an integrator constructor.
+        case Integration::Unspecified:
+            MessageHandler::fail(__FILE__,
+                                 __LINE__,
+                                 IntegrationMessages::invalid_request,
+                                 "Unspecified integration technique.");
+            break;
 
-   case Integration::Unsupported:
-      MessageHandler::fail (__FILE__, __LINE__,
-                            IntegrationMessages::invalid_request,
-                            "Unsupported integration technique.");
-      break;
+        case Integration::Unsupported:
+            MessageHandler::fail(__FILE__,
+                                 __LINE__,
+                                 IntegrationMessages::invalid_request,
+                                 "Unsupported integration technique.");
+            break;
 
-   case Integration::Invalid:
-   default:
-      MessageHandler::fail (__FILE__, __LINE__,
-                            IntegrationMessages::invalid_request,
-                            "Invalid integration option %d\n.",
-                            integ_type);
-      break;
-   }
-   return constructor;
+        case Integration::Invalid:
+        default:
+            MessageHandler::fail(__FILE__,
+                                 __LINE__,
+                                 IntegrationMessages::invalid_request,
+                                 "Invalid integration option %d\n.",
+                                 integ_type);
+            break;
+    }
+    return constructor;
 }
 
-}
+} // namespace er7_utils
+
 /**
  * @if Er7UtilsUseGroups
  * @}

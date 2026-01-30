@@ -1,6 +1,3 @@
 #include "starter.h"
 
-Starter::Starter(int foo) {
-  
-}
-
+Starter::Starter(int foo) {}

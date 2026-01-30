@@ -16,217 +16,227 @@ extern int eqp_errno;
 /* Reverse the stack of char */
 stack revers_stk(stack stk)
 {
-        char c;
-        stack temp = NULL;
-        while (!empty(stk)) {
-                stk = pop(stk, &c);
-                temp = push(temp, c);
-        }
-        return (temp);
+    char c;
+    stack temp = NULL;
+    while(!empty(stk))
+    {
+        stk = pop(stk, &c);
+        temp = push(temp, c);
+    }
+    return (temp);
 }
 
 /* Reverse the stack of long*/
 stack1 revers_stk1(stack1 stk)
 {
-        double c;
-        stack1 temp = NULL;
-        while (!empty1(stk)) {
-                stk = pop1(stk, &c);
-                temp = push1(temp, c);
-        }
-        return (temp);
+    double c;
+    stack1 temp = NULL;
+    while(!empty1(stk))
+    {
+        stk = pop1(stk, &c);
+        temp = push1(temp, c);
+    }
+    return (temp);
 }
-
 
 /* Copy long stack*/
 stack1 cpy_stk1(stack1 * src)
 {
-        stack1 dest = NULL;
-        stack1 temp = NULL;
+    stack1 dest = NULL;
+    stack1 temp = NULL;
 
-        double ch;
+    double ch;
 
-        while (!empty1(*src)) {
-                *src = pop1(*src, &ch);
-                temp = push1(temp, ch);
-                dest = push1(dest, ch);
-        }
-        temp = revers_stk1(temp);
-        dest = revers_stk1(dest);
-        *src = temp;
-        return (dest);
+    while(!empty1(*src))
+    {
+        *src = pop1(*src, &ch);
+        temp = push1(temp, ch);
+        dest = push1(dest, ch);
+    }
+    temp = revers_stk1(temp);
+    dest = revers_stk1(dest);
+    *src = temp;
+    return (dest);
 }
 
 /* copy char stack*/
 stack cpy_stk(stack * src)
 {
-        stack dest = NULL;
-        stack temp = NULL;
-        stack rtemp;
+    stack dest = NULL;
+    stack temp = NULL;
+    stack rtemp;
 
-        char ch;
+    char ch;
 
-        while (!empty(*src)) {
-                *src = pop(*src, &ch);
-                temp = push(temp, ch);
-                dest = push(dest, ch);
-        }
-        rtemp = revers_stk(temp);
-        dest = revers_stk(dest);
-        *src = rtemp;
-        return (dest);
+    while(!empty(*src))
+    {
+        *src = pop(*src, &ch);
+        temp = push(temp, ch);
+        dest = push(dest, ch);
+    }
+    rtemp = revers_stk(temp);
+    dest = revers_stk(dest);
+    *src = rtemp;
+    return (dest);
 }
 
 stack push(stack stk, char v)
 {
-        stack temp;
+    stack temp;
 
-        temp = (stack) malloc(sizeof(node));
-        if (temp != NULL) {
-                temp->val = v;
+    temp = (stack)malloc(sizeof(node));
+    if(temp != NULL)
+    {
+        temp->val = v;
 
-                temp->next = (struct _node *) stk;
-        } else {
-                eqp_errno = 12;
-        }
-        return (temp);
-
+        temp->next = (struct _node *)stk;
+    }
+    else
+    {
+        eqp_errno = 12;
+    }
+    return (temp);
 }
 
-
-stack pop(stack stk, char *v)
+stack pop(stack stk, char * v)
 {
-        stack temp;
+    stack temp;
 
-        if (stk == NULL) {
-                eqp_errno = 13;
-        } else {
-                *v = stk->val;
+    if(stk == NULL)
+    {
+        eqp_errno = 13;
+    }
+    else
+    {
+        *v = stk->val;
 
-                temp = stk;
+        temp = stk;
 
-                stk = (stack) stk->next;
+        stk = (stack)stk->next;
 
-                free(temp);
-
-        }
-        return (stk);
+        free(temp);
+    }
+    return (stk);
 }
 
-
-
-void top(stack stk, char *v)
+void top(stack stk, char * v)
 {
-        if (stk == NULL) {
-                eqp_errno = 13;
-        } else {
-                *v = stk->val;
-        }
-
+    if(stk == NULL)
+    {
+        eqp_errno = 13;
+    }
+    else
+    {
+        *v = stk->val;
+    }
 }
-
 
 stack makenull(stack stk)
 {
+    stack temp;
 
-        stack temp;
-
-        if (stk == NULL) {
-                return (NULL);
-        }
-
-        do {
-                temp = stk;
-                stk = (stack) stk->next;
-                free(temp);
-
-        } while (stk != NULL);
-
+    if(stk == NULL)
+    {
         return (NULL);
+    }
 
+    do
+    {
+        temp = stk;
+        stk = (stack)stk->next;
+        free(temp);
+
+    } while(stk != NULL);
+
+    return (NULL);
 }
 
 int empty(stack stk)
 {
-        if (stk == NULL) {
-                return (1);
-        } else {
-                return (0);
-        }
+    if(stk == NULL)
+    {
+        return (1);
+    }
+    else
+    {
+        return (0);
+    }
 }
-
-
 
 stack1 push1(stack1 stk, double v)
 {
-        stack1 temp;
+    stack1 temp;
 
-        temp = (stack1) malloc(sizeof(node1));
-        if (temp != NULL) {
-                temp->val = v;
+    temp = (stack1)malloc(sizeof(node1));
+    if(temp != NULL)
+    {
+        temp->val = v;
 
-                temp->next = (struct _node1 *) stk;
-        } else {
-                eqp_errno = 12;
-        }
-        return (temp);
-
+        temp->next = (struct _node1 *)stk;
+    }
+    else
+    {
+        eqp_errno = 12;
+    }
+    return (temp);
 }
 
-
-stack1 pop1(stack1 stk, double *v)
+stack1 pop1(stack1 stk, double * v)
 {
-        stack1 temp;
+    stack1 temp;
 
-        if (stk == NULL) {
-                eqp_errno = 13;
-        } else {
-                *v = stk->val;
+    if(stk == NULL)
+    {
+        eqp_errno = 13;
+    }
+    else
+    {
+        *v = stk->val;
 
-                temp = stk;
+        temp = stk;
 
-                stk = (stack1) stk->next;
+        stk = (stack1)stk->next;
 
-                free(temp);
-
-        }
-        return (stk);
+        free(temp);
+    }
+    return (stk);
 }
 
-
-
-void top1(stack1 stk, double *v)
+void top1(stack1 stk, double * v)
 {
-        if (stk == NULL) {
-                eqp_errno = 13;
-        } else {
-                *v = stk->val;
-        }
-
+    if(stk == NULL)
+    {
+        eqp_errno = 13;
+    }
+    else
+    {
+        *v = stk->val;
+    }
 }
-
 
 stack1 makenull1(stack1 stk)
 {
+    stack1 temp;
 
-        stack1 temp;
+    while(stk != NULL)
+    {
+        temp = stk;
 
-        while (stk != NULL) {
-                temp = stk;
+        stk = (stack1)stk->next;
 
-                stk = (stack1) stk->next;
-
-                free(temp);
-        }
-        return (NULL);
-
+        free(temp);
+    }
+    return (NULL);
 }
 
 int empty1(stack1 stk)
 {
-        if (stk == NULL) {
-                return (1);
-        } else {
-                return (0);
-        }
+    if(stk == NULL)
+    {
+        return (1);
+    }
+    else
+    {
+        return (0);
+    }
 }

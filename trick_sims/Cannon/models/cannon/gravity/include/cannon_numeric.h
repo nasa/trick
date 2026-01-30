@@ -9,11 +9,12 @@ PURPOSE: ( Cannonball Numeric Model )
 #include "cannon.h"
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-int cannon_integ(CANNON*) ;
-int cannon_deriv(CANNON*) ;
-double cannon_impact(CANNON*) ;
+    int cannon_integ(CANNON *);
+    int cannon_deriv(CANNON *);
+    double cannon_impact(CANNON *);
 #ifdef __cplusplus
 }
 #endif

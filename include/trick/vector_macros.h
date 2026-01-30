@@ -18,7 +18,6 @@ PROGRAMMERS:
      ((John M. Penn) (L3) (Aug 2010) (Document with doxygen)))
 */
 
-
 /**
 @page VECTOR_MACROS Vector Macros
 
@@ -34,9 +33,9 @@ This set of macros operates on vectors. Parameters to the macros are as follows:
 #ifndef VECTOR_MACROS_H
 #define VECTOR_MACROS_H
 
-#include <stdio.h>
-#include <math.h>
 #include <limits.h>
+#include <math.h>
+#include <stdio.h>
 #if (__vxworks | __APPLE__ | __linux__ | __CYGWIN__)
 #include <float.h>
 #endif
@@ -50,8 +49,7 @@ Set all three elements of the vector V to 0.0.
 v_i=0.0: i\in 0..2
 \f]
 */
-#define V_INIT( vect ) \
-   vect[0] = vect[1] = vect[2] = 0.0
+#define V_INIT(vect) vect[0] = vect[1] = vect[2] = 0.0
 
 /**
 @page VECTOR_MACROS
@@ -62,8 +60,7 @@ Set all three elements of the vector V to scalar S.
 v_i=S: i\in 0..2
 \f]
 */
-#define V_STORE( vect , scalar ) \
-   vect[0] = vect[1] = vect[2] = scalar
+#define V_STORE(vect, scalar) vect[0] = vect[1] = vect[2] = scalar
 
 /**
 @page VECTOR_MACROS
@@ -74,8 +71,12 @@ Assign the value of vector v to the vector copy.
 copy_i = v_i: i\in 0..2
 \f]
 */
-#define V_COPY( copy , vect ) \
-{   copy[0] = vect[0] ; copy[1] = vect[1] ; copy[2] = vect[2] ; }
+#define V_COPY(copy, vect)                                                                                             \
+    {                                                                                                                  \
+        copy[0] = vect[0];                                                                                             \
+        copy[1] = vect[1];                                                                                             \
+        copy[2] = vect[2];                                                                                             \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -86,11 +87,12 @@ Assign the sum of vectors A and B to the vector S.
 s_i = a_i + b_i: i \in 0..2
 \f]
 */
-#define V_ADD( sum , vect1 , vect2 ) { \
-   sum[0] = vect1[0] + vect2[0] ; \
-   sum[1] = vect1[1] + vect2[1] ; \
-   sum[2] = vect1[2] + vect2[2] ; \
-}
+#define V_ADD(sum, vect1, vect2)                                                                                       \
+    {                                                                                                                  \
+        sum[0] = vect1[0] + vect2[0];                                                                                  \
+        sum[1] = vect1[1] + vect2[1];                                                                                  \
+        sum[2] = vect1[2] + vect2[2];                                                                                  \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -101,11 +103,12 @@ Subtract vector B from vector A and assign the result to vector R.
 r_i = a_i - b_i: i \in 0..2
 \f]
 */
-#define V_SUB( sum , vect1 , vect2 ) { \
-   sum[0] = vect1[0] - vect2[0] ; \
-   sum[1] = vect1[1] - vect2[1] ; \
-   sum[2] = vect1[2] - vect2[2] ; \
-}
+#define V_SUB(sum, vect1, vect2)                                                                                       \
+    {                                                                                                                  \
+        sum[0] = vect1[0] - vect2[0];                                                                                  \
+        sum[1] = vect1[1] - vect2[1];                                                                                  \
+        sum[2] = vect1[2] - vect2[2];                                                                                  \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -116,13 +119,14 @@ Assign the product of vector V and scalar S to vector P.
 p_i = v_i \cdot S: i \in 0..2
 \f]
 */
-#define V_SCALE( sum , vect , scalar ) { \
-   sum[0] = vect[0] * scalar ; \
-   sum[1] = vect[1] * scalar ; \
-   sum[2] = vect[2] * scalar ; \
-}
+#define V_SCALE(sum, vect, scalar)                                                                                     \
+    {                                                                                                                  \
+        sum[0] = vect[0] * scalar;                                                                                     \
+        sum[1] = vect[1] * scalar;                                                                                     \
+        sum[2] = vect[2] * scalar;                                                                                     \
+    }
 
-#define GSL_SQRT_DBL_MIN   1.4916681462400413e-154
+#define GSL_SQRT_DBL_MIN 1.4916681462400413e-154
 
 /**
 @page VECTOR_MACROS
@@ -134,10 +138,10 @@ the vector V.
 \left | V \right | \equiv \sqrt{ \sum_{i=0}^{2}v_{i}^2 }
 \f]
 */
-#define V_MAG( vect ) \
-( sqrt( (((vect[0] < 0 ? -vect[0] : vect[0]) < GSL_SQRT_DBL_MIN) ? 0.0 : vect[0]*vect[0]) + \
-        (((vect[1] < 0 ? -vect[1] : vect[1]) < GSL_SQRT_DBL_MIN) ? 0.0 : vect[1]*vect[1]) + \
-        (((vect[2] < 0 ? -vect[2] : vect[2]) < GSL_SQRT_DBL_MIN) ? 0.0 : vect[2]*vect[2]) ) )
+#define V_MAG(vect)                                                                                                    \
+    (sqrt((((vect[0] < 0 ? -vect[0] : vect[0]) < GSL_SQRT_DBL_MIN) ? 0.0 : vect[0] * vect[0]) +                        \
+          (((vect[1] < 0 ? -vect[1] : vect[1]) < GSL_SQRT_DBL_MIN) ? 0.0 : vect[1] * vect[1]) +                        \
+          (((vect[2] < 0 ? -vect[2] : vect[2]) < GSL_SQRT_DBL_MIN) ? 0.0 : vect[2] * vect[2])))
 
 /**
 @page VECTOR_MACROS
@@ -148,17 +152,19 @@ Assign the unit vector, generated by dividing V by its length to N.
 N=\frac{V}{\left |V  \right |}
 \f]
 */
-#define V_NORM( norm , vect ) \
-{ \
-   double tmp_vector_magnitude ; \
-   tmp_vector_magnitude = V_MAG( vect ) ; \
-   if( tmp_vector_magnitude > 1.0e-12 ) { \
-      norm[0] = vect[0] / tmp_vector_magnitude ;\
-      norm[1] = vect[1] / tmp_vector_magnitude ;\
-      norm[2] = vect[2] / tmp_vector_magnitude ; \
-   } \
-      else norm[0] = norm[1] = norm[2] = 0.0 ; \
-}
+#define V_NORM(norm, vect)                                                                                             \
+    {                                                                                                                  \
+        double tmp_vector_magnitude;                                                                                   \
+        tmp_vector_magnitude = V_MAG(vect);                                                                            \
+        if(tmp_vector_magnitude > 1.0e-12)                                                                             \
+        {                                                                                                              \
+            norm[0] = vect[0] / tmp_vector_magnitude;                                                                  \
+            norm[1] = vect[1] / tmp_vector_magnitude;                                                                  \
+            norm[2] = vect[2] / tmp_vector_magnitude;                                                                  \
+        }                                                                                                              \
+        else                                                                                                           \
+            norm[0] = norm[1] = norm[2] = 0.0;                                                                         \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -175,12 +181,18 @@ SKEW =
 \end{bmatrix}
 \f]
 */
-#define V_SKEW( skew , vect ) { \
-   skew[0][0] = 0.0 ; skew[1][1] = 0.0 ; skew[2][2] = 0.0 ; \
-   skew[0][1] = - vect[2] ; skew[0][2] = vect[1] ; \
-   skew[1][0] = vect[2] ; skew[1][2] = - vect[0] ; \
-   skew[2][0] = - vect[1] ; skew[2][1] = vect[0] ; \
-}
+#define V_SKEW(skew, vect)                                                                                             \
+    {                                                                                                                  \
+        skew[0][0] = 0.0;                                                                                              \
+        skew[1][1] = 0.0;                                                                                              \
+        skew[2][2] = 0.0;                                                                                              \
+        skew[0][1] = -vect[2];                                                                                         \
+        skew[0][2] = vect[1];                                                                                          \
+        skew[1][0] = vect[2];                                                                                          \
+        skew[1][2] = -vect[0];                                                                                         \
+        skew[2][0] = -vect[1];                                                                                         \
+        skew[2][1] = vect[0];                                                                                          \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -193,8 +205,7 @@ It is equivalent to:
 \sum_{i=0}^{2} a_i \cdot b_i
 \f]
 */
-#define V_DOT( vect1 , vect2 ) \
-( vect1[0]*vect2[0] + vect1[1]*vect2[1] + vect1[2]* vect2[2] )
+#define V_DOT(vect1, vect2) (vect1[0] * vect2[0] + vect1[1] * vect2[1] + vect1[2] * vect2[2])
 
 /**
 @page VECTOR_MACROS
@@ -207,17 +218,18 @@ OUTER = V \cdot V^T
 outer_{i,j} = v_i \cdot v_j: i,j \in 0..2
 \f]
 */
-#define V_OUTER( outer , vec ) { \
-   outer[0][0] = vec[0] * vec[0] ; \
-   outer[1][0] = vec[1] * vec[0] ; \
-   outer[2][0] = vec[2] * vec[0] ; \
-   outer[0][1] = vec[0] * vec[1] ; \
-   outer[1][1] = vec[1] * vec[1] ; \
-   outer[2][1] = vec[2] * vec[1] ; \
-   outer[0][2] = vec[0] * vec[2] ; \
-   outer[1][2] = vec[1] * vec[2] ; \
-   outer[2][2] = vec[2] * vec[2] ; \
-}
+#define V_OUTER(outer, vec)                                                                                            \
+    {                                                                                                                  \
+        outer[0][0] = vec[0] * vec[0];                                                                                 \
+        outer[1][0] = vec[1] * vec[0];                                                                                 \
+        outer[2][0] = vec[2] * vec[0];                                                                                 \
+        outer[0][1] = vec[0] * vec[1];                                                                                 \
+        outer[1][1] = vec[1] * vec[1];                                                                                 \
+        outer[2][1] = vec[2] * vec[1];                                                                                 \
+        outer[0][2] = vec[0] * vec[2];                                                                                 \
+        outer[1][2] = vec[1] * vec[2];                                                                                 \
+        outer[2][2] = vec[2] * vec[2];                                                                                 \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -235,11 +247,12 @@ CROSS =
 \f]
 
 */
-#define V_CROSS( cross, vect1, vect2 ) { \
-   cross[0] = ((vect1[1]*vect2[2]) - (vect1[2]*vect2[1])) ; \
-   cross[1] = ((vect1[2]*vect2[0]) - (vect1[0]*vect2[2])) ; \
-   cross[2] = ((vect1[0]*vect2[1]) - (vect1[1]*vect2[0])) ; \
-}
+#define V_CROSS(cross, vect1, vect2)                                                                                   \
+    {                                                                                                                  \
+        cross[0] = ((vect1[1] * vect2[2]) - (vect1[2] * vect2[1]));                                                    \
+        cross[1] = ((vect1[2] * vect2[0]) - (vect1[0] * vect2[2]));                                                    \
+        cross[2] = ((vect1[0] * vect2[1]) - (vect1[1] * vect2[0]));                                                    \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -249,11 +262,12 @@ CROSS =
 C = C + A * B
 \f]
 */
-#define VxV_ADD( sum, vect1, vect2 ) { \
-   sum[0] += ((vect1[1]*vect2[2]) - (vect1[2]*vect2[1])) ; \
-   sum[1] += ((vect1[2]*vect2[0]) - (vect1[0]*vect2[2])) ; \
-   sum[2] += ((vect1[0]*vect2[1]) - (vect1[1]*vect2[0])) ; \
-}
+#define VxV_ADD(sum, vect1, vect2)                                                                                     \
+    {                                                                                                                  \
+        sum[0] += ((vect1[1] * vect2[2]) - (vect1[2] * vect2[1]));                                                     \
+        sum[1] += ((vect1[2] * vect2[0]) - (vect1[0] * vect2[2]));                                                     \
+        sum[2] += ((vect1[0] * vect2[1]) - (vect1[1] * vect2[0]));                                                     \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -263,11 +277,12 @@ C = C + A * B
 C = C - A * B
 \f]
 */
-#define VxV_SUB( diff , vect1, vect2 ) { \
-   diff[0] -= ((vect1[1]*vect2[2]) - (vect1[2]*vect2[1])) ; \
-   diff[1] -= ((vect1[2]*vect2[0]) - (vect1[0]*vect2[2])) ; \
-   diff[2] -= ((vect1[0]*vect2[1]) - (vect1[1]*vect2[0])) ; \
-}
+#define VxV_SUB(diff, vect1, vect2)                                                                                    \
+    {                                                                                                                  \
+        diff[0] -= ((vect1[1] * vect2[2]) - (vect1[2] * vect2[1]));                                                    \
+        diff[1] -= ((vect1[2] * vect2[0]) - (vect1[0] * vect2[2]));                                                    \
+        diff[2] -= ((vect1[0] * vect2[1]) - (vect1[1] * vect2[0]));                                                    \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -278,11 +293,12 @@ Assign the product of vector V and matrix M to vector P.
 p_i = \sum_{j=0}^{2} v_j \cdot m_{j,i}: i\in 0..2
 \f]
 */
-#define VxM( prod , vect , mat ) { \
-   prod[0] = vect[0]*mat[0][0] + vect[1]*mat[1][0] + vect[2]*mat[2][0] ; \
-   prod[1] = vect[0]*mat[0][1] + vect[1]*mat[1][1] + vect[2]*mat[2][1] ; \
-   prod[2] = vect[0]*mat[0][2] + vect[1]*mat[1][2] + vect[2]*mat[2][2] ; \
-}
+#define VxM(prod, vect, mat)                                                                                           \
+    {                                                                                                                  \
+        prod[0] = vect[0] * mat[0][0] + vect[1] * mat[1][0] + vect[2] * mat[2][0];                                     \
+        prod[1] = vect[0] * mat[0][1] + vect[1] * mat[1][1] + vect[2] * mat[2][1];                                     \
+        prod[2] = vect[0] * mat[0][2] + vect[1] * mat[1][2] + vect[2] * mat[2][2];                                     \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -290,8 +306,10 @@ p_i = \sum_{j=0}^{2} v_j \cdot m_{j,i}: i\in 0..2
 
 Print to stderr the three elements of vector v.
 */
-#define V_PRINT( vect ) { \
-   fprintf( stderr, " %f %f %f " , vect[0] , vect[1] , vect[2] ) ; }
+#define V_PRINT(vect)                                                                                                  \
+    {                                                                                                                  \
+        fprintf(stderr, " %f %f %f ", vect[0], vect[1], vect[2]);                                                      \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -302,11 +320,12 @@ Assign the sum of vectors A, B and C to sum.
 S=A+B+C
 \f]
 */
-#define V_ADD3(sum,vec1,vec2,vec3) { \
-   sum[0] = vec1[0] + vec2[0] + vec3[0]; \
-   sum[1] = vec1[1] + vec2[1] + vec3[1]; \
-   sum[2] = vec1[2] + vec2[2] + vec3[2]; \
-}
+#define V_ADD3(sum, vec1, vec2, vec3)                                                                                  \
+    {                                                                                                                  \
+        sum[0] = vec1[0] + vec2[0] + vec3[0];                                                                          \
+        sum[1] = vec1[1] + vec2[1] + vec3[1];                                                                          \
+        sum[2] = vec1[2] + vec2[2] + vec3[2];                                                                          \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -317,11 +336,12 @@ Subtract vector D from vector S, leaving the result in S.
 S=S-D
 \f]
 */
-#define V_DECR(sum,decr) { \
-   sum[0] -= decr[0]; \
-   sum[1] -= decr[1]; \
-   sum[2] -= decr[2]; \
-}
+#define V_DECR(sum, decr)                                                                                              \
+    {                                                                                                                  \
+        sum[0] -= decr[0];                                                                                             \
+        sum[1] -= decr[1];                                                                                             \
+        sum[2] -= decr[2];                                                                                             \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -332,11 +352,12 @@ Add the vector I to vector S, leaving the result in S.
 S=S+I
 \f]
 */
-#define V_INCR(sum,incr) { \
-   sum[0] += incr[0]; \
-   sum[1] += incr[1]; \
-   sum[2] += incr[2]; \
-}
+#define V_INCR(sum, incr)                                                                                              \
+    {                                                                                                                  \
+        sum[0] += incr[0];                                                                                             \
+        sum[1] += incr[1];                                                                                             \
+        sum[2] += incr[2];                                                                                             \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -347,11 +368,12 @@ Assign the negative of vector S to the vector D.
 D=-S
 \f]
 */
-#define V_NEGATE(dest,src) { \
-   dest[0] = -src[0]; \
-   dest[1] = -src[1]; \
-   dest[2] = -src[2]; \
-}
+#define V_NEGATE(dest, src)                                                                                            \
+    {                                                                                                                  \
+        dest[0] = -src[0];                                                                                             \
+        dest[1] = -src[1];                                                                                             \
+        dest[2] = -src[2];                                                                                             \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -362,11 +384,12 @@ Add the product of the scalar SCALE and the vector SRC to the vector DEST.
 DEST = DEST + SCALE * SRC
 \f]
 */
-#define VxS_ADD(dest,src,scale) { \
-   dest[0] += src[0]*scale; \
-   dest[1] += src[1]*scale; \
-   dest[2] += src[2]*scale; \
-}
+#define VxS_ADD(dest, src, scale)                                                                                      \
+    {                                                                                                                  \
+        dest[0] += src[0] * scale;                                                                                     \
+        dest[1] += src[1] * scale;                                                                                     \
+        dest[2] += src[2] * scale;                                                                                     \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -377,11 +400,12 @@ Subtract the product of the scalar SCALE and the vector SRC from the vector DEST
 DEST = DEST - SCALE * SRC
 \f]
 */
-#define VxS_SUB(dest,src,scale) { \
-   dest[0] -= src[0]*scale; \
-   dest[1] -= src[1]*scale; \
-   dest[2] -= src[2]*scale; \
-}
+#define VxS_SUB(dest, src, scale)                                                                                      \
+    {                                                                                                                  \
+        dest[0] -= src[0] * scale;                                                                                     \
+        dest[1] -= src[1] * scale;                                                                                     \
+        dest[2] -= src[2] * scale;                                                                                     \
+    }
 
 /**
 @page VECTOR_MACROS
@@ -389,10 +413,14 @@ DEST = DEST - SCALE * SRC
 
 For each element of vector V, set its value to 0 if it is less than LIMIT.
 */
-#define V_ZERO_SMALL(vec,lim) { \
-   if ((vec[0] > -(lim)) && (vec[0] < (lim))) vec[0] = 0.0; \
-   if ((vec[1] > -(lim)) && (vec[1] < (lim))) vec[1] = 0.0; \
-   if ((vec[2] > -(lim)) && (vec[2] < (lim))) vec[2] = 0.0; \
-}
+#define V_ZERO_SMALL(vec, lim)                                                                                         \
+    {                                                                                                                  \
+        if((vec[0] > -(lim)) && (vec[0] < (lim)))                                                                      \
+            vec[0] = 0.0;                                                                                              \
+        if((vec[1] > -(lim)) && (vec[1] < (lim)))                                                                      \
+            vec[1] = 0.0;                                                                                              \
+        if((vec[2] > -(lim)) && (vec[2] < (lim)))                                                                      \
+            vec[2] = 0.0;                                                                                              \
+    }
 
 #endif /* _VECTOR_MACROS_H_ */

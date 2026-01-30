@@ -27,39 +27,29 @@ Purpose: ()
 #include "../include/bogus_integration_controls.hh"
 #include "../include/integration_messages.hh"
 
-
-
-namespace er7_utils {
-
+namespace er7_utils
+{
 
 // Die. This class exists for one purpose, which is to die when put to use.
-unsigned int
-BogusIntegrationControls::integrate (
-   double,
-   double,
-   TimeInterface&,
-   IntegratorInterface&,
-   BaseIntegrationGroup&)
+unsigned int BogusIntegrationControls::integrate(
+    double, double, TimeInterface &, IntegratorInterface &, BaseIntegrationGroup &)
 {
-   MessageHandler::fail (
-      __FILE__, __LINE__,
-      IntegrationMessages::internal_error,
-      "Integration group has not been initialized.");
+    MessageHandler::fail(__FILE__,
+                         __LINE__,
+                         IntegrationMessages::internal_error,
+                         "Integration group has not been initialized.");
 
-      return 0;
+    return 0;
 }
-
 
 // Clone a BogusIntegrationControls.
-BogusIntegrationControls *
-BogusIntegrationControls::create_copy ()
-const
+BogusIntegrationControls * BogusIntegrationControls::create_copy() const
 {
-   return alloc::replicate_object (*this);
+    return alloc::replicate_object(*this);
 }
 
+} // namespace er7_utils
 
-}
 /**
  * @if Er7UtilsUseGroups
  * @}

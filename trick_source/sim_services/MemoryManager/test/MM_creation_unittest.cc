@@ -1,44 +1,49 @@
 
-#include <gtest/gtest.h>
 #include "trick/MemoryManager.hh"
+#include <gtest/gtest.h>
 
+TEST(MM_creation, NonNull)
+{
+    Trick::MemoryManager * memmgr = NULL;
 
-TEST(MM_creation, NonNull) {
+    try
+    {
+        memmgr = new Trick::MemoryManager;
+    }
+    catch(std::logic_error e)
+    {
+        memmgr = NULL;
+    }
 
-	Trick::MemoryManager *memmgr = NULL;
+    ASSERT_TRUE((void *)memmgr != NULL);
 
-	try {
-	   memmgr = new Trick::MemoryManager;
-	} catch (std::logic_error e) {
-           memmgr = NULL;
-	}
-
-	ASSERT_TRUE((void*)memmgr != NULL);
-
-	delete memmgr;
-
+    delete memmgr;
 }
 
+TEST(MM_creation, Singleton)
+{
+    Trick::MemoryManager * memmgr;
+    Trick::MemoryManager * disallowed_memmgr;
 
-TEST(MM_creation, Singleton){
+    try
+    {
+        memmgr = new Trick::MemoryManager;
+    }
+    catch(std::logic_error e)
+    {
+        memmgr = NULL;
+    }
 
-	Trick::MemoryManager * memmgr;
-	Trick::MemoryManager * disallowed_memmgr;
+    EXPECT_TRUE((void *)memmgr != NULL);
 
-	try {
-		memmgr = new Trick::MemoryManager;
-	} catch (std::logic_error e) {
-		memmgr = NULL;
-	}
+    try
+    {
+        disallowed_memmgr = new Trick::MemoryManager();
+    }
+    catch(std::logic_error e)
+    {
+        disallowed_memmgr = NULL;
+    }
 
-	EXPECT_TRUE((void*)memmgr != NULL);
-
-	try {
-		disallowed_memmgr = new Trick::MemoryManager();
-	} catch (std::logic_error e) {
-                disallowed_memmgr = NULL;
-	}
-
-	EXPECT_TRUE((void*)disallowed_memmgr == NULL);
+    EXPECT_TRUE((void *)disallowed_memmgr == NULL);
 }
-

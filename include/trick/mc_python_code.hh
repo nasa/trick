@@ -24,56 +24,57 @@ PROGRAMMERS:
 
 class MonteCarloPythonLineExec : public MonteCarloVariable
 {
- public:
-  std::string instruction_set; /* (--)
-      The right-hand-side of an equation that gets inserted into the
-      monte-input file and looks like:
-      <variable_name> = <instruction-set>*/
- protected:
-  bool instruction_is_command; /* (--)
-      Indicates whether to implement a command that looks like:
-      - variable=instruction vs
-      variable representing the standalone command, in which case
-      variable_name and instruction_set are identical. */
+public:
+    std::string instruction_set; /* (--)
+        The right-hand-side of an equation that gets inserted into the
+        monte-input file and looks like:
+        <variable_name> = <instruction-set>*/
+protected:
+    bool instruction_is_command; /* (--)
+        Indicates whether to implement a command that looks like:
+        - variable=instruction vs
+        variable representing the standalone command, in which case
+        variable_name and instruction_set are identical. */
 
- public:
- // 2 constructors:
-  MonteCarloPythonLineExec(const std::string & var_name,
-                           const std::string & instruction)
-    :
-    MonteCarloVariable( var_name),
-    instruction_set(instruction),
-    instruction_is_command(false)
-  {
-    include_in_summary = false;
-    type = MonteCarloVariable::Calculated;
-  }
-  // other constructor
-  MonteCarloPythonLineExec( const std::string & instruction)
-    :
-    MonteCarloVariable( instruction),
-    instruction_set(instruction),
-    instruction_is_command(true)
-  {
-    include_in_summary = false;
-    type = MonteCarloVariable::Execute;
-  }
-  virtual ~MonteCarloPythonLineExec(){};
+public:
+    // 2 constructors:
+    MonteCarloPythonLineExec(const std::string & var_name, const std::string & instruction)
+        : MonteCarloVariable(var_name),
+          instruction_set(instruction),
+          instruction_is_command(false)
+    {
+        include_in_summary = false;
+        type = MonteCarloVariable::Calculated;
+    }
 
-  void generate_assignment()
-  {
-    if (instruction_is_command) {
-      command = "\n" + instruction_set;
+    // other constructor
+    MonteCarloPythonLineExec(const std::string & instruction)
+        : MonteCarloVariable(instruction),
+          instruction_set(instruction),
+          instruction_is_command(true)
+    {
+        include_in_summary = false;
+        type = MonteCarloVariable::Execute;
     }
-    else {
-      command = "\n" + variable_name + " = " + instruction_set;
+
+    virtual ~MonteCarloPythonLineExec() {}
+
+    void generate_assignment()
+    {
+        if(instruction_is_command)
+        {
+            command = "\n" + instruction_set;
+        }
+        else
+        {
+            command = "\n" + variable_name + " = " + instruction_set;
+        }
     }
-  }
- private: // and undefined:
-  MonteCarloPythonLineExec( const MonteCarloPythonLineExec & );
-  MonteCarloPythonLineExec& operator = (const MonteCarloPythonLineExec&);
+
+private: // and undefined:
+    MonteCarloPythonLineExec(const MonteCarloPythonLineExec &);
+    MonteCarloPythonLineExec & operator=(const MonteCarloPythonLineExec &);
 };
-
 
 /*****************************************************************************
 MonteCarloPythonFileExec
@@ -92,24 +93,24 @@ Other notes:
 *****************************************************************************/
 class MonteCarloPythonFileExec : public MonteCarloVariable
 {
- public:
-  MonteCarloPythonFileExec(const std::string & filename)
-    :
-    MonteCarloVariable( filename)
-  {
-    include_in_summary = false;
-    type = MonteCarloVariable::Execute;
-  }
-  virtual ~MonteCarloPythonFileExec(){};
+public:
+    MonteCarloPythonFileExec(const std::string & filename)
+        : MonteCarloVariable(filename)
+    {
+        include_in_summary = false;
+        type = MonteCarloVariable::Execute;
+    }
 
-  void generate_assignment()
-  {
-    command =
-    "\nexec(open('" + variable_name + "').read())";
-  }
- private: // and undefined:
-  MonteCarloPythonFileExec( const MonteCarloPythonFileExec & );
-  MonteCarloPythonFileExec& operator = (const MonteCarloPythonFileExec&);
+    virtual ~MonteCarloPythonFileExec() {}
+
+    void generate_assignment()
+    {
+        command = "\nexec(open('" + variable_name + "').read())";
+    }
+
+private: // and undefined:
+    MonteCarloPythonFileExec(const MonteCarloPythonFileExec &);
+    MonteCarloPythonFileExec & operator=(const MonteCarloPythonFileExec &);
 };
 
 #endif

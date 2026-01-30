@@ -3,8 +3,8 @@
 #define ENUMVALUES_HH
 
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "ConstructValues.hh"
 
@@ -22,47 +22,46 @@
 
  */
 
-class EnumValues : public ConstructValues {
+class EnumValues : public ConstructValues
+{
+public:
+    typedef std::pair<std::string, long long> NameValuePair;
 
-    public:
+    EnumValues();
 
-        typedef std::pair< std::string , long long > NameValuePair ;
+    void addEnum(std::string in_name, long long in_val);
+    void addFullyQualifiedEnum(std::string in_name, long long in_val);
 
-        EnumValues() ;
+    void setHasDefinition(bool in);
+    bool getHasDefinition();
 
-        void addEnum(std::string in_name , long long in_val) ;
-        void addFullyQualifiedEnum(std::string in_name , long long in_val) ;
+    void setIsUnsigned(bool in);
+    bool getIsUnsigned();
 
-        void setHasDefinition( bool in ) ;
-        bool getHasDefinition() ;
+    const std::vector<NameValuePair> & getPairs()
+    {
+        return enum_values;
+    }
 
-        void setIsUnsigned( bool in ) ;
-        bool getIsUnsigned() ;
+    const std::vector<NameValuePair> & getFullyQualifiedPairs()
+    {
+        return fully_qualified_enum_values;
+    }
 
-        const std::vector<NameValuePair>& getPairs() {
-            return enum_values;
-        }
+    friend std::ostream & operator<<(std::ostream & os, EnumValues & ev);
 
-        const std::vector<NameValuePair>& getFullyQualifiedPairs() {
-            return fully_qualified_enum_values;
-        }
+private:
+    /** List of enums and their values */
+    std::vector<NameValuePair> enum_values;
 
-        friend std::ostream & operator << (std::ostream & os , EnumValues & ev ) ;
+    /** List of fully qualified enums and their values
+        This is used to generate the S_sie.resource file. */
+    std::vector<NameValuePair> fully_qualified_enum_values;
 
-    private:
+    bool has_definition;
 
-        /** List of enums and their values */
-        std::vector< NameValuePair > enum_values ;
-
-        /** List of fully qualified enums and their values
-            This is used to generate the S_sie.resource file. */
-        std::vector< NameValuePair > fully_qualified_enum_values ;
-
-        bool has_definition ;
-
-        /** Is the enum unsigned? */
-        bool is_unsigned;
-
-} ;
+    /** Is the enum unsigned? */
+    bool is_unsigned;
+};
 
 #endif

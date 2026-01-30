@@ -1,29 +1,30 @@
 
-#include <gtest/gtest.h>
-#include "trick/tc.h"
 #include "trick/attributes.h"
+#include "trick/tc.h"
 #include "trick/tc_proto.h"
 #include "trick/trick_byteswap.h"
 #include "trick/trick_error_hndlr.h"
+#include <gtest/gtest.h>
 
-class TCBlockioTest : public testing::Test {
+class TCBlockioTest : public testing::Test
+{
+protected:
+    TCBlockioTest() {}
 
-   protected:
-      TCBlockioTest(){}
-      ~TCBlockioTest(){}
+    ~TCBlockioTest() {}
 
-      TCDevice* device;
+    TCDevice * device;
 
-      void SetUp(){
+    void SetUp()
+    {
+        device = (TCDevice *)malloc(sizeof(TCDevice));
+        memset((void *)device, '\0', sizeof(TCDevice));
+    }
 
-         device = (TCDevice *) malloc(sizeof(TCDevice));
-         memset( (void *)device,'\0',sizeof(TCDevice) );
-      }
-
-      void TearDown(){
-
-         free(device);
-      }
+    void TearDown()
+    {
+        free(device);
+    }
 };
 
 #if 0

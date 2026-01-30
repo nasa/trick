@@ -31,27 +31,26 @@
 
 #include "trick/trick_math.h"
 
-
-void dsingle_axis_rot(          /* Return: -- None */
-                         int problem,   /* In: non-zero = Forward solution, 0 = Backward solution */
-                         double *phi,   /* Inout: r Rotation eigenangle */
-                         double rot_vec[3],     /* Inout: Rotation eigenaxis */
-                         double trans_mat[3][3])
-{                                      /* Inout: Transformation matrix to the rotated frame */
-    double cosphi;              /* cosine of phi */
-    double sinphi;              /* sine of phi */
-    double rot_unit[3];         /* Unit vector of rot_vec */
-    double outer[3][3];         /* Outer product of rot_unit */
-    double skew[3][3];          /* Skew-symmetric matrix from rot_unit */
-    double coef;                /* 1.0 - cosphi */
-    double diff[3];             /* Non-normalized rotation eigen axis */
-    double dmag;                /* Magnitude of diff */
-    double vscale;              /* Scale factor used to generate rot_unit */
+void dsingle_axis_rot(                   /* Return: -- None */
+                      int problem,       /* In: non-zero = Forward solution, 0 = Backward solution */
+                      double * phi,      /* Inout: r Rotation eigenangle */
+                      double rot_vec[3], /* Inout: Rotation eigenaxis */
+                      double trans_mat[3][3])
+{                       /* Inout: Transformation matrix to the rotated frame */
+    double cosphi;      /* cosine of phi */
+    double sinphi;      /* sine of phi */
+    double rot_unit[3]; /* Unit vector of rot_vec */
+    double outer[3][3]; /* Outer product of rot_unit */
+    double skew[3][3];  /* Skew-symmetric matrix from rot_unit */
+    double coef;        /* 1.0 - cosphi */
+    double diff[3];     /* Non-normalized rotation eigen axis */
+    double dmag;        /* Magnitude of diff */
+    double vscale;      /* Scale factor used to generate rot_unit */
     int ii, jj;
 
-
     /* Forward solution: Solve for the transformation matrix given the eigen angle and eigen axis. */
-    if (problem) {
+    if(problem)
+    {
         cosphi = cos(*phi);
         sinphi = sin(*phi);
         coef = 1.0 - cosphi;
@@ -72,8 +71,9 @@ void dsingle_axis_rot(          /* Return: -- None */
         trans_mat[2][2] = cosphi + coef * outer[2][2];
 
         /* Reverse solution: Solve for the eigen angle, axis given the transformation matrix. */
-    } else {
-
+    }
+    else
+    {
         /* Calculate vector pointing along the coordinated turn axis */
         diff[0] = trans_mat[1][2] - trans_mat[2][1];
         diff[1] = trans_mat[2][0] - trans_mat[0][2];
@@ -86,7 +86,8 @@ void dsingle_axis_rot(          /* Return: -- None */
 
         /* sinphi = 0, positive cosphi => phi is zero. The rotation is ill-defined in this case. Arbitrarily set the
            rotation vector to xhat. */
-        if ((dmag == 0.0) && (cosphi > 0.0)) {
+        if((dmag == 0.0) && (cosphi > 0.0))
+        {
             *phi = 0.0;
             rot_vec[0] = 1.0;
             rot_vec[1] = 0.0;
@@ -94,8 +95,9 @@ void dsingle_axis_rot(          /* Return: -- None */
 
             /* Small sinphi, negative cosphi => phi is 135 degrees or larger.  The anti-symmetric difference does a
                good job of defining the rotation angle but poor job of defining the rotation axis. */
-        } else if (sinphi < -cosphi) {
-
+        }
+        else if(sinphi < -cosphi)
+        {
             /* Use relation (2) to determine the rotation angle, taking care to place the angle in the correct
                quadrant. */
             *phi = M_PI - asin(sinphi);
@@ -105,10 +107,12 @@ void dsingle_axis_rot(          /* Return: -- None */
             /* Ignoring precision loss, any diagonal element of the matrix can be used as the basis for determining
                the rotation axis. The greatest accuracy will result from using the largest diagonal element. */
             jj = 0;
-            if (trans_mat[1][1] > trans_mat[jj][jj]) {
+            if(trans_mat[1][1] > trans_mat[jj][jj])
+            {
                 jj = 1;
             }
-            if (trans_mat[2][2] > trans_mat[jj][jj]) {
+            if(trans_mat[2][2] > trans_mat[jj][jj])
+            {
                 jj = 2;
             }
 
@@ -118,19 +122,25 @@ void dsingle_axis_rot(          /* Return: -- None */
 
             /* Determine the remaining elements of the rotation axis vector. */
             vscale = 1. / (2 * coef * rot_vec[jj]);
-            for (ii = 0; ii < 3; ii++) {
-                if (ii != jj) {
+            for(ii = 0; ii < 3; ii++)
+            {
+                if(ii != jj)
+                {
                     rot_vec[ii] = (trans_mat[jj][ii] + trans_mat[ii][jj]) * vscale;
                 }
             }
-
-        } else {
+        }
+        else
+        {
             /* Ignoring machine errors, the rotation angle is phi = acos(cosphi) However, acos gives
                less-than-desirable results than does asin for small angles. => Use the inverse trig function best
                suited to the case at hand. */
-            if (sinphi < cosphi) {
+            if(sinphi < cosphi)
+            {
                 *phi = asin(sinphi);
-            } else {
+            }
+            else
+            {
                 *phi = acos(cosphi);
             }
 

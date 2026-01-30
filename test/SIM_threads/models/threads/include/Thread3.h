@@ -16,14 +16,14 @@ LIBRARY DEPENDENCY:
 
 class Thread3
 {
-    public:
-        Thread3();
-        ~Thread3();
-        int Step();
+public:
+    Thread3();
+    ~Thread3();
+    int Step();
     /*private:*/
-        bool m_bBusy;
-        int m_iBusyNSecs;
-        int m_iCount;
+    bool m_bBusy;
+    int m_iBusyNSecs;
+    int m_iCount;
 };
 
 #endif

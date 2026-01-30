@@ -10,19 +10,16 @@ LIBRARY DEPENDENCIES:
 #define EARTH_MASS 5.9723e24
 #define EARTH_RADIUS 6367500.0
 
-class Satellite {
+class Satellite
+{
+public:
+    double pos[2]; /* m     xyz-position */
+    double vel[2]; /* m/s   xyz-velocity */
+    double acc[2]; /* m/s2  xyz-acceleration  */
 
-    public:
-        double pos[2] ;    /* m     xyz-position */
-        double vel[2] ;    /* m/s   xyz-velocity */
-        double acc[2] ;    /* m/s2  xyz-acceleration  */
-
-        int default_data();
-        int state_init();
-        int state_deriv();
-        int state_integ();
+    int default_data();
+    int state_init();
+    int state_deriv();
+    int state_integ();
 };
 #endif
-
-
-

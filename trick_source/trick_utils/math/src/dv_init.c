@@ -8,7 +8,7 @@
 #include "trick/trick_math.h"
 
 void dv_init(double vect[])
-{                                      /* Inout: Vector to be initialized */
+{ /* Inout: Vector to be initialized */
 
     vect[0] = 0.0;
     vect[1] = 0.0;

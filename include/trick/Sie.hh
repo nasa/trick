@@ -6,59 +6,56 @@
 #ifndef SIE_HH
 #define SIE_HH
 
-#include <string>
 #include <fstream>
+#include <string>
 
 #include "trick/AttributesMap.hh"
 #include "trick/EnumAttributesMap.hh"
 
-namespace Trick {
+namespace Trick
+{
+
+/**
+ *
+ * This class wraps the MemoryManager class for use in Trick simulations
+ * @author Alexander S. Lin
+ *
+ */
+class Sie
+{
+public:
+    Sie();
 
     /**
-     *
-     * This class wraps the MemoryManager class for use in Trick simulations
-     * @author Alexander S. Lin
-     *
+     * Currently process_sim_args is an empty function
+     * @return always 0
      */
-    class Sie {
+    int process_sim_args();
 
-        public:
+    /**
+     * Writes the S_sie.resource file using MemoryManager information
+     * @return always 0
+     */
+    void sie_print_xml();
+    void class_attr_map_print_xml();
+    void enum_attr_map_print_xml();
+    void top_level_objects_print_xml();
+    void sie_print_json();
+    void sie_append_runtime_objs();
+    void runtime_objects_print(std::fstream & sie_out);
+    std::string get_runtime_sie_dir();
 
-            Sie() ;
+private:
+    // These are called at trick-cp time
+    void top_level_objects_print(std::ofstream & sie_out);
+    void top_level_objects_json(std::ofstream & sie_out);
 
-            /**
-             * Currently process_sim_args is an empty function
-             * @return always 0
-             */
-            int process_sim_args() ;
+    // These are singleton maps holding all attributes known to the sim
+    Trick::AttributesMap * class_attr_map;    /* ** -- This is be ignored by ICG */
+    Trick::EnumAttributesMap * enum_attr_map; /* ** -- This is be ignored by ICG */
 
-            /**
-             * Writes the S_sie.resource file using MemoryManager information
-             * @return always 0
-             */
-            void sie_print_xml() ;
-            void class_attr_map_print_xml() ;
-            void enum_attr_map_print_xml() ;
-            void top_level_objects_print_xml() ;
-            void sie_print_json() ;
-            void sie_append_runtime_objs() ;
-            void runtime_objects_print(std::fstream & sie_out) ;
-            std::string get_runtime_sie_dir();
-
-        private:
-
-            // These are called at trick-cp time
-            void top_level_objects_print(std::ofstream & sie_out) ;
-            void top_level_objects_json(std::ofstream & sie_out) ;
-
-            // These are singleton maps holding all attributes known to the sim
-            Trick::AttributesMap * class_attr_map ; /* ** -- This is be ignored by ICG */
-            Trick::EnumAttributesMap * enum_attr_map ;   /* ** -- This is be ignored by ICG */
-
-            bool move_runtime_generation;
-
-    } ;
-}
+    bool move_runtime_generation;
+};
+} // namespace Trick
 
 #endif
-

@@ -11,27 +11,23 @@ PURPOSE:
 #define ARRAY_TEMPLATE_TESTS_HH
 
 // System include files.
-#include <string>
 #include <iostream>
 #include <sstream>
+#include <string>
 
-
-template <class SourceType>
-class ArrayTemplate
+template<class SourceType> class ArrayTemplate
 {
-    public:
-        ArrayTemplate(const SourceType& source)
-        :  source(source)
-        {
-        }
+public:
+    ArrayTemplate(const SourceType & source)
+        : source(source)
+    {
+    }
 
-        ArrayTemplate(const ArrayTemplate&) = delete;
-        ArrayTemplate& operator=(const ArrayTemplate&) = delete;
+    ArrayTemplate(const ArrayTemplate &) = delete;
+    ArrayTemplate & operator=(const ArrayTemplate &) = delete;
 
-    private:
-        const SourceType& source;
+private:
+    const SourceType & source;
 };
 
-
-#endif 
-
+#endif

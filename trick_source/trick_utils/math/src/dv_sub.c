@@ -6,10 +6,10 @@
 
 #include "trick/trick_math.h"
 
-void dv_sub(double diff[],      /* Out: Difference of the two vectors */
-            double vect1[],     /* In: Vector 1 */
+void dv_sub(double diff[],  /* Out: Difference of the two vectors */
+            double vect1[], /* In: Vector 1 */
             double vect2[])
-{                                      /* In: Vector 2 */
+{ /* In: Vector 2 */
     diff[0] = vect1[0] - vect2[0];
     diff[1] = vect1[1] - vect2[1];
     diff[2] = vect1[2] - vect2[2];

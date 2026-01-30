@@ -11,15 +11,15 @@ ICG:
 #define INPUT_PROCESSOR_PROTO_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int ip_parse(const char * in_string) ;
+    int ip_parse(const char * in_string);
 
 #ifdef __cplusplus
 }
 
 #endif
-
 
 #endif

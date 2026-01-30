@@ -1,30 +1,30 @@
 #include <iostream>
-#include <sys/types.h>
 #include <signal.h>
+#include <sys/types.h>
 
-#include "gtest/gtest.h"
 #include "trick/Clock.hh"
-#include "trick/clock_proto.h"
 #include "trick/GetTimeOfDayClock.hh"
 #include "trick/JobData.hh"
+#include "trick/clock_proto.h"
+#include "gtest/gtest.h"
 
-namespace Trick {
+namespace Trick
+{
 
-class ClocksTest : public ::testing::Test {
+class ClocksTest : public ::testing::Test
+{
+protected:
+    Trick::GetTimeOfDayClock timclk;
 
-	protected:
-		Trick::GetTimeOfDayClock timclk;
+    GetTimeOfDayClockTest() {}
 
-		GetTimeOfDayClockTest() {}
-		~GetTimeOfDayClockTest() {}
-		virtual void SetUp() {}
-		virtual void TearDown() {}
-} ;
+    ~GetTimeOfDayClockTest() {}
 
-TEST_F(ClocksTest, ExampleTest) {
+    virtual void SetUp() {}
 
-}
+    virtual void TearDown() {}
+};
 
+TEST_F(ClocksTest, ExampleTest) {}
 
-}
-
+} // namespace Trick

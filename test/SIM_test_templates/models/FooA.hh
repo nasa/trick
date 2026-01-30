@@ -10,6 +10,8 @@ PURPOSE:
 #ifndef FOOA_HH
 #define FOOA_HH
 
-template <class T> class FooA {};
+template<class T> class FooA
+{
+};
 
 #endif /* FOOA_HH */

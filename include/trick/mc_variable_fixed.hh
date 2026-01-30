@@ -23,48 +23,43 @@ PROGRAMMERS:
 
 class MonteCarloVariableFixed : public MonteCarloVariable
 {
- protected:
-  int var_type; /* (--) 0: double
-                        1: integer
-                        2: string;*/
- public:
+protected:
+    int var_type; /* (--) 0: double
+                          1: integer
+                          2: string;*/
+public:
+    MonteCarloVariableFixed(const std::string & var_name, double assignment_)
+        : MonteCarloVariable(var_name),
+          var_type(0)
+    {
+        type = MonteCarloVariable::Constant;
+        assign_double(assignment_);
+    }
 
-  MonteCarloVariableFixed(const std::string & var_name,
-                          double              assignment_)
-    :
-    MonteCarloVariable( var_name),
-    var_type(0)
-  {
-    type = MonteCarloVariable::Constant;
-    assign_double(assignment_);
-  }
+    MonteCarloVariableFixed(const std::string & var_name, int assignment_)
+        : MonteCarloVariable(var_name),
+          var_type(1)
+    {
+        type = MonteCarloVariable::Constant;
+        assign_int(assignment_);
+    }
 
-  MonteCarloVariableFixed(const std::string & var_name,
-                          int                 assignment_)
-    :
-    MonteCarloVariable( var_name),
-    var_type(1)
-  {
-    type = MonteCarloVariable::Constant;
-    assign_int(assignment_);
-  }
-  MonteCarloVariableFixed(const std::string & var_name,
-                          const std::string & assignment_)
-    :
-    MonteCarloVariable( var_name),
-    var_type(2)
-  {
-    include_in_summary = false;
-    assignment = assignment_;
-    type = MonteCarloVariable::Constant;
-    generate_command();
-  }
-  virtual ~MonteCarloVariableFixed(){};
+    MonteCarloVariableFixed(const std::string & var_name, const std::string & assignment_)
+        : MonteCarloVariable(var_name),
+          var_type(2)
+    {
+        include_in_summary = false;
+        assignment = assignment_;
+        type = MonteCarloVariable::Constant;
+        generate_command();
+    }
 
-  void generate_assignment(){}; // to make this class instantiable
+    virtual ~MonteCarloVariableFixed() {}
 
- private: // and undefined:
-  MonteCarloVariableFixed( const MonteCarloVariableFixed & );
-  MonteCarloVariableFixed& operator = (const MonteCarloVariableFixed&);
+    void generate_assignment() {} // to make this class instantiable
+
+private: // and undefined:
+    MonteCarloVariableFixed(const MonteCarloVariableFixed &);
+    MonteCarloVariableFixed & operator=(const MonteCarloVariableFixed &);
 };
 #endif

@@ -10,51 +10,47 @@
 #ifndef MESSAGE_CUSTOM_FILE_HH
 #define MESSAGE_CUSTOM_FILE_HH
 
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <vector>
 #include "trick/MessageFile.hh"
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <vector>
 
-namespace Trick {
+namespace Trick
+{
+
+/**
+ * MessageCustomFile writes all messages its level to the given file
+ */
+class MessageCustomFile : public MessageFile
+{
+public:
+    /**
+     @brief The constructor.
+     */
+    MessageCustomFile();
 
     /**
-     * MessageCustomFile writes all messages its level to the given file
+     @brief Output message to the file.
      */
-    class MessageCustomFile : public MessageFile {
+    virtual void update(unsigned int level, std::string header, std::string message);
 
-        public:
+    /**
+     * @brief Get the level
+     *
+     */
+    virtual int get_level() const;
+    virtual void set_level(int level);
 
-            /**
-             @brief The constructor.
-             */
-            MessageCustomFile() ;
+    virtual void set_name(std::string name);
+    virtual void set_file_name(std::string file_name);
 
-            /**
-             @brief Output message to the file.
-             */
-            virtual void update( unsigned int level , std::string header , std::string message );
+protected:
+    int _this_level;
 
-            /**
-             * @brief Get the level
-             * 
-             */
-            virtual int get_level() const;
-            virtual void set_level(int level);
+    static int level_counter;
+};
 
-            virtual void set_name(std::string name);
-            virtual void set_file_name(std::string file_name);
-
-
-        protected:
-            int _this_level;
-
-            static int level_counter;
-
-
-    } ;
-
-}
+} // namespace Trick
 
 #endif
-

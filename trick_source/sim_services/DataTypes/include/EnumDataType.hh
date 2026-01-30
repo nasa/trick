@@ -2,26 +2,23 @@
 #define ENUM_DATA_TYPE_HH
 
 #include "DataType.hh"
-#include "Enumerator.hh"
 #include "EnumDictionary.hh"
+#include "Enumerator.hh"
 #include "Value.hh"
-#include <vector>
 #include <stdexcept>
+#include <vector>
 
 /**
  An EnumDataType represents an enumeration type.
 */
-class EnumDataType : public DataType {
-
+class EnumDataType : public DataType
+{
 public:
-
     /**
      Constructor for EnumDataType.
      @param sizeof_element Size, in bytes, of one eneumeration element.
      */
-    EnumDataType( EnumDictionary* enumDictionary,
-                  std::string name,
-                  size_t sizeof_element);
+    EnumDataType(EnumDictionary * enumDictionary, std::string name, size_t sizeof_element);
 
     /* ==================================================================== */
     /*                         RULE OF THREE INTERFACE                      */
@@ -31,18 +28,18 @@ public:
      Copy Constructor.
      @param original The instance of EnumDataType that is to be copied.
      */
-    EnumDataType ( const EnumDataType & original );
+    EnumDataType(const EnumDataType & original);
 
     /**
      Destructor for EnumDataType.
       */
-    ~EnumDataType ();
+    ~EnumDataType();
 
     /**
      Assignment operator for EnumDataType.
      @param rhs right-hand-side.
     */
-    EnumDataType & operator=( const EnumDataType & rhs );
+    EnumDataType & operator=(const EnumDataType & rhs);
 
     /* ==================================================================== */
     /*                          VIRTUAL INTERFACE                         */
@@ -50,7 +47,7 @@ public:
 
     /**
      */
-    DataType * clone() const ;
+    DataType * clone() const;
 
     /**
      */
@@ -58,7 +55,8 @@ public:
 
     /**
      */
-    TypeClass::e getTypeClass() const {
+    TypeClass::e getTypeClass() const
+    {
         return TypeClass::ENUMERATION;
     }
 
@@ -69,11 +67,11 @@ public:
 
     /**
      */
-    void* createInstance(unsigned int num) const;
+    void * createInstance(unsigned int num) const;
 
     /**
      */
-    void deleteInstance(void* address) const;
+    void deleteInstance(void * address) const;
 
     /**
      */
@@ -96,7 +94,7 @@ public:
      @param base_addr Address of the (entire) variable.
      @param offset Offset to the element, in the final dimension of the variable.
      */
-    void printValue(std::ostream &s, void *base_addr) const;
+    void printValue(std::ostream & s, void * base_addr) const;
 
     /**
      */
@@ -118,11 +116,12 @@ public:
      the struct, union or class.
      @param type_decl TypeDeclaration of the data-member.
      */
-    void addEnumerator( std::string member_name, int value)  ;
+    void addEnumerator(std::string member_name, int value);
 
 private:
-    EnumDataType() {};
-    std::vector<Enumerator*> enum_list;
+    EnumDataType() {}
+
+    std::vector<Enumerator *> enum_list;
     size_t enumSize;
     EnumDictionary * enumDictionary;
     std::string name;

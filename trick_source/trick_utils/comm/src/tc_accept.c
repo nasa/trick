@@ -13,7 +13,7 @@
 #include "trick/tc_proto.h"
 #include "trick/trick_byteswap.h"
 
-int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, int line)
+int tc_accept_(TCDevice * listen_device, TCDevice * device, const char * file, int line)
 {
     socklen_t length;
     int size;
@@ -21,41 +21,62 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
     int net_client_id;
     int on = 1;
     int tmp_rw;
-    char *ptrL;
+    char * ptrL;
     char client_str[TC_TAG_LENGTH + 256];
     unsigned char byte_info[TC_BYTE_INFO_LENGTH];
     struct sockaddr_in s_in;
 
-    memset(&s_in, 0, sizeof(struct sockaddr_in)) ;
+    memset(&s_in, 0, sizeof(struct sockaddr_in));
     /* Accept On Listen Device */
     length = sizeof(s_in);
-    the_socket = accept(listen_device->socket, (struct sockaddr *) &s_in, &length);
+    the_socket = accept(listen_device->socket, (struct sockaddr *)&s_in, &length);
 
-    snprintf(client_str, sizeof(client_str), "(ID = %d  tag = %s)", listen_device->client_id, listen_device->client_tag);
+    snprintf(client_str,
+             sizeof(client_str),
+             "(ID = %d  tag = %s)",
+             listen_device->client_id,
+             listen_device->client_tag);
 
     /* Check for error conditon on accept */
-    if (the_socket == TRICKCOMM_INVALID_SOCKET) {
+    if(the_socket == TRICKCOMM_INVALID_SOCKET)
+    {
         trick_error_report(listen_device->error_handler,
-                           TRICK_ERROR_ALERT, file, line,
-                           "tc_accept: %s: error accepting the pending socket " "connection\n", client_str);
+                           TRICK_ERROR_ALERT,
+                           file,
+                           line,
+                           "tc_accept: %s: error accepting the pending socket "
+                           "connection\n",
+                           client_str);
         return (TC_COULD_NOT_ACCEPT);
     }
 
     /* Turn off data buffering. This causes data to be sent immediately rather than queing it up until the transmit
        buffer is filled. */
-    setsockopt(the_socket, IPPROTO_TCP, TCP_NODELAY, (const void *) &on, (socklen_t) sizeof(on));
+    setsockopt(the_socket, IPPROTO_TCP, TCP_NODELAY, (const void *)&on, (socklen_t)sizeof(on));
 
     /* Check for error conditon on set socket option */
-    if (the_socket < 0) {
-        if (tc_errno == TRICKCOMM_EWOULDBLOCK) {
+    if(the_socket < 0)
+    {
+        if(tc_errno == TRICKCOMM_EWOULDBLOCK)
+        {
             trick_error_report(listen_device->error_handler,
-                               TRICK_ERROR_ALERT, file,
-                               line, "tc_accept: %s: error on set socket option: " "TC_EWOULDBLOCK", client_str);
+                               TRICK_ERROR_ALERT,
+                               file,
+                               line,
+                               "tc_accept: %s: error on set socket option: "
+                               "TC_EWOULDBLOCK",
+                               client_str);
             return (TC_EWOULDBLOCK);
-        } else {
+        }
+        else
+        {
             trick_error_report(listen_device->error_handler,
-                               TRICK_ERROR_ALERT, file,
-                               line, "tc_accept: %s: error on set socket option: " "TC_COULD_NOT_ACCEPT", client_str);
+                               TRICK_ERROR_ALERT,
+                               file,
+                               line,
+                               "tc_accept: %s: error on set socket option: "
+                               "TC_COULD_NOT_ACCEPT",
+                               client_str);
             return (TC_COULD_NOT_ACCEPT);
         }
     }
@@ -66,63 +87,84 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
 
     /* Save the address of the new connection */
     device->client_addr = s_in.sin_addr;
-    device->port = (int) s_in.sin_port;
+    device->port = (int)s_in.sin_port;
 
-    if (!device->disable_handshaking) {
+    if(!device->disable_handshaking)
+    {
         /* Read the client byte order */
         /* if -1, check for SIGNAL interupt and loop until data is returned */
-        ptrL = (char *) device->byte_info;
+        ptrL = (char *)device->byte_info;
         size = sizeof(device->byte_info);
-        while ((tmp_rw = recv(the_socket, ptrL, (size_t) size, 0)) < 0 && tc_errno == TRICKCOMM_EINTR);
-        if (tmp_rw < 0) {
+        while((tmp_rw = recv(the_socket, ptrL, (size_t)size, 0)) < 0 && tc_errno == TRICKCOMM_EINTR)
+            ;
+        if(tmp_rw < 0)
+        {
             trick_error_report(listen_device->error_handler,
-                               TRICK_ERROR_ALERT, file, line,
-                               "tc_accept: %s: could not read byte info from client\n", client_str);
+                               TRICK_ERROR_ALERT,
+                               file,
+                               line,
+                               "tc_accept: %s: could not read byte info from client\n",
+                               client_str);
             CLOSE_SOCKET(the_socket);
             return (TC_COULD_NOT_ACCEPT);
         }
 
         /* Read the client id */
         /* if -1, check for SIGNAL interupt and loop until data is returned */
-        ptrL = (char *) &net_client_id;
+        ptrL = (char *)&net_client_id;
         size = sizeof(net_client_id);
-        while ((tmp_rw = recv(the_socket, ptrL, (size_t) size, 0)) < 0 && tc_errno == TRICKCOMM_EINTR);
-        if (tmp_rw < 0) {
+        while((tmp_rw = recv(the_socket, ptrL, (size_t)size, 0)) < 0 && tc_errno == TRICKCOMM_EINTR)
+            ;
+        if(tmp_rw < 0)
+        {
             trick_error_report(listen_device->error_handler,
-                               TRICK_ERROR_ALERT, file, line,
-                               "tc_accept: %s: could not read client_id from client\n", client_str);
+                               TRICK_ERROR_ALERT,
+                               file,
+                               line,
+                               "tc_accept: %s: could not read client_id from client\n",
+                               client_str);
             CLOSE_SOCKET(the_socket);
             return (TC_COULD_NOT_ACCEPT);
         }
 
         /* Convert client ID from network to host byte order and save */
-        device->client_id = ntohl((uint32_t) net_client_id);
+        device->client_id = ntohl((uint32_t)net_client_id);
 
         /* Read the client tag name If -1, check for SIGNAL interupt and loop until data is returned */
-        ptrL = (char *) device->client_tag;
+        ptrL = (char *)device->client_tag;
         size = sizeof(device->client_tag);
-        while ((tmp_rw = recv(the_socket, ptrL, (size_t) size, 0)) < 0 && tc_errno == TRICKCOMM_EINTR);
-        if (tmp_rw < 0) {
+        while((tmp_rw = recv(the_socket, ptrL, (size_t)size, 0)) < 0 && tc_errno == TRICKCOMM_EINTR)
+            ;
+        if(tmp_rw < 0)
+        {
             trick_error_report(listen_device->error_handler,
-                               TRICK_ERROR_ALERT, file, line,
-                               "tc_accept: %s: could not read client_tag from client\n", client_str);
+                               TRICK_ERROR_ALERT,
+                               file,
+                               line,
+                               "tc_accept: %s: could not read client_tag from client\n",
+                               client_str);
             CLOSE_SOCKET(the_socket);
             return (TC_COULD_NOT_ACCEPT);
         }
 
         /* Set the byte order and type size info of the server */
         TRICK_GET_BYTE_ORDER(byte_info[TC_BYTE_ORDER_NDX]);
-        byte_info[TC_LONG_SIZE_NDX] = (unsigned char) sizeof(long);
+        byte_info[TC_LONG_SIZE_NDX] = (unsigned char)sizeof(long);
 
         /* Send the server byte info.  It's a char array, so there's no need to convert to network byte order. If -1,
            check for SIGNAL interupt and loop until data is returned */
-        ptrL = (char *) byte_info;
+        ptrL = (char *)byte_info;
         size = sizeof(byte_info);
-        while ((tmp_rw = send(the_socket, ptrL, (size_t) size, 0)) < 0 && tc_errno == TRICKCOMM_EINTR);
-        if (tmp_rw < 0) {
+        while((tmp_rw = send(the_socket, ptrL, (size_t)size, 0)) < 0 && tc_errno == TRICKCOMM_EINTR)
+            ;
+        if(tmp_rw < 0)
+        {
             trick_error_report(listen_device->error_handler,
-                               TRICK_ERROR_ALERT, file, line,
-                               "tc_accept: %s: could not send client byte info to server\n", client_str);
+                               TRICK_ERROR_ALERT,
+                               file,
+                               line,
+                               "tc_accept: %s: could not send client byte info to server\n",
+                               client_str);
             CLOSE_SOCKET(the_socket);
             return (TC_COULD_NOT_CONNECT);
         }
@@ -130,8 +172,13 @@ int tc_accept_(TCDevice * listen_device, TCDevice * device, const char *file, in
 
     snprintf(client_str, sizeof(client_str), "(ID = %d  tag = %s)", device->client_id, device->client_tag);
 
-    trick_error_report(listen_device->error_handler, TRICK_ERROR_ADVISORY,
-                       file, line, "tc_accept: %s: connected to client using port %d\n", client_str, device->port);
+    trick_error_report(listen_device->error_handler,
+                       TRICK_ERROR_ADVISORY,
+                       file,
+                       line,
+                       "tc_accept: %s: connected to client using port %d\n",
+                       client_str,
+                       device->port);
 
     /* Point this device to "the socket" received on accept to listen device */
     device->socket = the_socket;

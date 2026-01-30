@@ -6,16 +6,18 @@
 
 #include "trick/trick_math.h"
 
-void transxvec(double *prod,    /* Out: Product of the two matrices */
-               double **mat,    /* In: Matrix 1 */
-               double *vec,     /* In: Matrix 2 */
+void transxvec(double * prod, /* Out: Product of the two matrices */
+               double ** mat, /* In: Matrix 1 */
+               double * vec,  /* In: Matrix 2 */
                int n)
-{                                      /* In: Array size */
+{ /* In: Array size */
     int i, k;
 
-    for (i = 0; i < n; i++) {
+    for(i = 0; i < n; i++)
+    {
         prod[i] = 0.0;
-        for (k = 0; k < n; k++) {
+        for(k = 0; k < n; k++)
+        {
             prod[i] += mat[k][i] * vec[k];
         }
     }

@@ -6,12 +6,14 @@
  * code that does not compile (as long as
  * https://github.com/nasa/trick/issues/422 isn't fixed).
  */
-class IcgExclude3A {
-    private:
-    void operator=(const IcgExclude3A&);
+class IcgExclude3A
+{
+private:
+    void operator=(const IcgExclude3A &);
 };
 
-class IcgExclude3B {
+class IcgExclude3B
+{
     const std::vector<IcgExclude3A> foos;
 };
 

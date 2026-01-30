@@ -16,30 +16,31 @@
 #include "trick/rand_generator.h"
 #include "trick/trick_math.h"
 
-double gauss_rnd_pseudo(        /* Return: random number */
-                           RAND_GENERATOR * G)
-{                                      /* Inout: generator parameters */
+double gauss_rnd_pseudo(/* Return: random number */
+                        RAND_GENERATOR * G)
+{ /* Inout: generator parameters */
     double sample = 0.0;
     int i;
 
-    switch (G->uniform) {
+    switch(G->uniform)
+    {
+        case LCG1: /* Chose LCG uniform generator */
 
-        case LCG1:                    /* Chose LCG uniform generator */
-
-            for (i = 0; i < 2 * G->sigma_range; i++) {
+            for(i = 0; i < 2 * G->sigma_range; i++)
+            {
                 sample += uniform_rnd_1(G);
             }
-            sample = (sample - (double) G->sigma_range);
+            sample = (sample - (double)G->sigma_range);
 
             break;
 
+        case TRIPLE: /* Chose Triple LCG uniform generator */
 
-        case TRIPLE:                  /* Chose Triple LCG uniform generator */
-
-            for (i = 0; i < 2 * G->sigma_range; i++) {
+            for(i = 0; i < 2 * G->sigma_range; i++)
+            {
                 sample += uniform_rnd_triple(G);
             }
-            sample = (sample - (double) G->sigma_range);
+            sample = (sample - (double)G->sigma_range);
 
             break;
     }

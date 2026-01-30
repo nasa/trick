@@ -18,41 +18,43 @@ PROGRAMMERS:
 
 class MonteCarloVariableRandomNormal : public MonteCarloVariableRandom
 {
- public:
-  enum TruncationType
-  {
-    StandardDeviation,
-    Relative,
-    Absolute
-  };
-  size_t max_num_tries;
+public:
+    enum TruncationType
+    {
+        StandardDeviation,
+        Relative,
+        Absolute
+    };
 
- protected:
- #ifndef SWIG
-  std::normal_distribution<double> distribution;
- #endif
-  double min_value;
-  double max_value;
-  bool truncated_low;
-  bool truncated_high;
+    size_t max_num_tries;
 
- public:
-  MonteCarloVariableRandomNormal( const std::string & var_name,
-                                  unsigned int       seed = 0,
-                                  double             mean = 0,
-                                  double             stdev = 1);
+protected:
+#ifndef SWIG
+    std::normal_distribution<double> distribution;
+#endif
+    double min_value;
+    double max_value;
+    bool truncated_low;
+    bool truncated_high;
 
-  virtual ~MonteCarloVariableRandomNormal(){};
-  virtual void generate_assignment();
-  virtual std::string summarize_variable() const;
-  void truncate(double limit, TruncationType type = StandardDeviation);
-  void truncate(double min, double max, TruncationType type = StandardDeviation);
-  void truncate_low(double limit, TruncationType type = StandardDeviation);
-  void truncate_high(double limit, TruncationType type = StandardDeviation);
-  void untruncate();
- private: // and undefined:
-  MonteCarloVariableRandomNormal(const MonteCarloVariableRandomNormal&);
-  MonteCarloVariableRandomNormal& operator = (
-                                     const MonteCarloVariableRandomNormal&);
+public:
+    MonteCarloVariableRandomNormal(const std::string & var_name,
+                                   unsigned int seed = 0,
+                                   double mean = 0,
+                                   double stdev = 1);
+
+    virtual ~MonteCarloVariableRandomNormal() {}
+
+    virtual void generate_assignment();
+    virtual std::string summarize_variable() const;
+    void truncate(double limit, TruncationType type = StandardDeviation);
+    void truncate(double min, double max, TruncationType type = StandardDeviation);
+    void truncate_low(double limit, TruncationType type = StandardDeviation);
+    void truncate_high(double limit, TruncationType type = StandardDeviation);
+    void untruncate();
+
+private: // and undefined:
+    MonteCarloVariableRandomNormal(const MonteCarloVariableRandomNormal &);
+    MonteCarloVariableRandomNormal & operator=(const MonteCarloVariableRandomNormal &);
 };
 #endif

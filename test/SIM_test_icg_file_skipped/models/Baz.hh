@@ -2,20 +2,27 @@
 #include "Foo.hh"
 #include "trick/memorymanager_c_intf.h"
 
-class Baz {
-    public:
+class Baz
+{
+public:
     Foo foo;
     int m;
 
-    Baz(): m(42) {}
+    Baz()
+        : m(42)
+    {
+    }
 
-    int test_baz_member_m_correct_offset() {
+    int test_baz_member_m_correct_offset()
+    {
         char ref_name[] = "testfsSimObject.baz.m";
-        REF2* ref = ref_attributes(ref_name);
-        if(*((int*)ref->address) == m) {
+        REF2 * ref = ref_attributes(ref_name);
+        if(*((int *)ref->address) == m)
+        {
             return 0;
         }
-        else {
+        else
+        {
             return 1;
         }
     }

@@ -11,14 +11,14 @@
 #include "trick/tc.h"
 #include "trick/tc_proto.h"
 
-int tc_read_(TCDevice * device, char *buffer, int size, const char *file, int line)
+int tc_read_(TCDevice * device, char * buffer, int size, const char * file, int line)
 {
     long nbytes = 0;
 
     char client_str[TC_TAG_LENGTH + 20];
     long tmp_nbytes = 0;
-    long tmp_size = (long) size;
-    void *data = (void *) buffer;
+    long tmp_size = (long)size;
+    void * data = (void *)buffer;
     double ref_time = 0;
     double delta = 0;
     int error = TC_SUCCESS;
@@ -27,32 +27,50 @@ int tc_read_(TCDevice * device, char *buffer, int size, const char *file, int li
     // To support UDP
     unsigned int cliLen = sizeof(struct sockaddr_in);
 
-    if (!device) {
-        TrickErrorHndlr *temp_error_hndlr = NULL;
+    if(!device)
+    {
+        TrickErrorHndlr * temp_error_hndlr = NULL;
         trick_error_report(temp_error_hndlr,
-                           TRICK_ERROR_ALERT, file, line, "tc_read: Trying to read from a NULL device");
+                           TRICK_ERROR_ALERT,
+                           file,
+                           line,
+                           "tc_read: Trying to read from a NULL device");
         return (-1);
     }
 
-    if (device->disabled) {
+    if(device->disabled)
+    {
         trick_error_report(device->error_handler,
-                           TRICK_ERROR_ALERT, file, line, "tc_read: Trying to read from a disabled device");
+                           TRICK_ERROR_ALERT,
+                           file,
+                           line,
+                           "tc_read: Trying to read from a disabled device");
         return (-1);
     }
 
-    if (device->socket == TRICKCOMM_INVALID_SOCKET) {
+    if(device->socket == TRICKCOMM_INVALID_SOCKET)
+    {
         trick_error_report(device->error_handler,
-                           TRICK_ERROR_ALERT, file, line, "tc_read: Trying to read from an invalid socket");
+                           TRICK_ERROR_ALERT,
+                           file,
+                           line,
+                           "tc_read: Trying to read from an invalid socket");
         return (-1);
     }
 
     snprintf(client_str, sizeof(client_str), "(ID = %d  tag = %s)", device->client_id, device->client_tag);
 
-    trick_error_report(device->error_handler, TRICK_ERROR_ALL, file, line,
-                       "tc_read: %s reading %d bytes\n", client_str, size);
+    trick_error_report(device->error_handler,
+                       TRICK_ERROR_ALL,
+                       file,
+                       line,
+                       "tc_read: %s reading %d bytes\n",
+                       client_str,
+                       size);
 
     /* If this is a software blocking read get the current time from the system */
-    if (device->blockio_type == TC_COMM_TIMED_BLOCKIO) {
+    if(device->blockio_type == TC_COMM_TIMED_BLOCKIO)
+    {
         ref_time = tc_clock_init();
     }
 
@@ -64,36 +82,54 @@ int tc_read_(TCDevice * device, char *buffer, int size, const char *file, int li
      * data than what was requested when data packets
      * cross block boundries.
      */
-    while (nbytes != size) {
-
+    while(nbytes != size)
+    {
         /*
          * recvfrom will return -1 with tc_errno set to TC_EWOULDBLOCK
          * if this is a non-blocking socket (blockio = NOBLOCKIO)
          * and no data is available.  recvfrom will usually return 0
          * for a broken connection.
          */
-        while ((tmp_nbytes = recvfrom(device->socket, data, (size_t) tmp_size,
-                                      TC_NOSIGNAL, (struct sockaddr *) &device->cliAddr, &cliLen)) < 0
-               && tc_errno == TRICKCOMM_EINTR);
+        while((tmp_nbytes = recvfrom(device->socket,
+                                     data,
+                                     (size_t)tmp_size,
+                                     TC_NOSIGNAL,
+                                     (struct sockaddr *)&device->cliAddr,
+                                     &cliLen)) < 0 &&
+              tc_errno == TRICKCOMM_EINTR)
+            ;
 
         /* if tmp_nbytes == 0, that is a broken pipe, break out */
-        if (tmp_nbytes == 0) {
-            trick_error_report(device->error_handler, TRICK_ERROR_ALERT, file, line,
-                               "tc_read: %s Other side disconnected. (recvfrom returned 0)", client_str);
+        if(tmp_nbytes == 0)
+        {
+            trick_error_report(device->error_handler,
+                               TRICK_ERROR_ALERT,
+                               file,
+                               line,
+                               "tc_read: %s Other side disconnected. (recvfrom returned 0)",
+                               client_str);
             tc_disconnect(device);
             return (nbytes);
-        } else if (tmp_nbytes == -1) {
+        }
+        else if(tmp_nbytes == -1)
+        {
             error = tc_errno;
-            if (error != TRICKCOMM_EAGAIN && error != TRICKCOMM_EWOULDBLOCK) {
-                snprintf(error_str, sizeof(error_str), "tc_read: %s %s (tc_errno = %d)", client_str, strerror(error), error);
+            if(error != TRICKCOMM_EAGAIN && error != TRICKCOMM_EWOULDBLOCK)
+            {
+                snprintf(error_str,
+                         sizeof(error_str),
+                         "tc_read: %s %s (tc_errno = %d)",
+                         client_str,
+                         strerror(error),
+                         error);
                 trick_error_report(device->error_handler, TRICK_ERROR_ALERT, file, line, error_str);
                 tc_disconnect(device);
                 return (nbytes);
             }
         }
         /* Keep track of total number of bytes read */
-        else if (tmp_nbytes > 0) {
-
+        else if(tmp_nbytes > 0)
+        {
 #if 0
             /* This indicates the socket protocol: SOCK_STREAM (1) or SOCK_DGRAM (2). */
             int proto_for_socket;
@@ -115,74 +151,96 @@ int tc_read_(TCDevice * device, char *buffer, int size, const char *file, int li
 
             nbytes += tmp_nbytes;
             /* For UDP (SOCK_DGRAM) just return data with whatever number of bytes were received. */
-            if (device->socket_type == SOCK_DGRAM)
+            if(device->socket_type == SOCK_DGRAM)
+            {
                 break;
-
+            }
         }
 
         /* Adjust data pointers for partial reads */
-        if (tmp_nbytes > 0 && tmp_nbytes != tmp_size) {
-            data = (void *) ((char *) data + tmp_nbytes);
+        if(tmp_nbytes > 0 && tmp_nbytes != tmp_size)
+        {
+            data = (void *)((char *)data + tmp_nbytes);
             tmp_size -= tmp_nbytes;
         }
 
-        if (device->blockio_type == TC_COMM_TIMED_BLOCKIO) {
-
+        if(device->blockio_type == TC_COMM_TIMED_BLOCKIO)
+        {
             delta = tc_clock_time(ref_time);
 
             /* Check for timeouts; this prevents hanging here if the writer dies */
-            if (device->blockio_limit < delta && nbytes != size) {
+            if(device->blockio_limit < delta && nbytes != size)
+            {
                 error = TC_READWRITE_TIMEOUT;
                 break;
             }
-
-        } else if (device->blockio_type == TC_COMM_ALL_OR_NOTHING) {
-
+        }
+        else if(device->blockio_type == TC_COMM_ALL_OR_NOTHING)
+        {
             /* If nothing read and nothing pending break out */
-            if (nbytes == 0 && tmp_nbytes == -1 && (tc_errno == TRICKCOMM_EWOULDBLOCK || tc_errno == TRICKCOMM_EAGAIN)) {
+            if(nbytes == 0 && tmp_nbytes == -1 && (tc_errno == TRICKCOMM_EWOULDBLOCK || tc_errno == TRICKCOMM_EAGAIN))
+            {
                 nbytes = -1;
                 error = TC_EWOULDBLOCK;
                 break;
             }
 
             /* If something read release processor and loop back for more */
-            else if (tmp_nbytes == -1 && tc_errno == TRICKCOMM_EWOULDBLOCK) {
+            else if(tmp_nbytes == -1 && tc_errno == TRICKCOMM_EWOULDBLOCK)
+            {
                 /* Yield the processor so queued proceses may run */
                 TC_RELEASE();
             }
-        } else if (device->blockio_type == TC_COMM_NOBLOCKIO) {
-            if (tmp_nbytes == -1 && (tc_errno == TRICKCOMM_EWOULDBLOCK || tc_errno == TRICKCOMM_EAGAIN)) {
-                if (nbytes == 0) {
+        }
+        else if(device->blockio_type == TC_COMM_NOBLOCKIO)
+        {
+            if(tmp_nbytes == -1 && (tc_errno == TRICKCOMM_EWOULDBLOCK || tc_errno == TRICKCOMM_EAGAIN))
+            {
+                if(nbytes == 0)
+                {
                     nbytes = -1;
                 }
                 error = TC_EWOULDBLOCK;
                 break;
             }
         }
-
     }
 
     /* If read doesn't capture all data, handle it. */
-    switch (error) {
+    switch(error)
+    {
         case TC_READWRITE_TIMEOUT:
             trick_error_report(device->error_handler,
-                               TRICK_ERROR_ADVISORY, file, line,
+                               TRICK_ERROR_ADVISORY,
+                               file,
+                               line,
                                "tc_read: %s Failed to read within the specified "
-                               "time limit of %f seconds. delta = %f", client_str, device->blockio_limit, delta);
+                               "time limit of %f seconds. delta = %f",
+                               client_str,
+                               device->blockio_limit,
+                               delta);
             break;
         case TC_EWOULDBLOCK:
             trick_error_report(device->error_handler,
-                               TRICK_ERROR_ALL, file, line,
+                               TRICK_ERROR_ALL,
+                               file,
+                               line,
                                "tc_read: %s %d of %d bytes read during "
-                               "non-blocking read.", client_str, nbytes, size);
+                               "non-blocking read.",
+                               client_str,
+                               nbytes,
+                               size);
             break;
         case TC_SUCCESS:
             trick_error_report(device->error_handler,
-                               TRICK_ERROR_ALL, file, line,
-                               "tc_read: %s: %d bytes successfully read\n", client_str, nbytes);
+                               TRICK_ERROR_ALL,
+                               file,
+                               line,
+                               "tc_read: %s: %d bytes successfully read\n",
+                               client_str,
+                               nbytes);
             break;
     }
 
-    return ((int) nbytes);
-
+    return ((int)nbytes);
 }

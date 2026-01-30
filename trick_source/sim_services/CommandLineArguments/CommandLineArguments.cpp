@@ -11,7 +11,6 @@
 
    PROGRAMMERS: ( Keith Vetter LinCom 6/2003 ) */
 
-
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>
@@ -28,104 +27,134 @@
 #include "trick/CommandLineArguments.hh"
 #include "trick/memorymanager_c_intf.h"
 
-Trick::CommandLineArguments * the_cmd_args ;
+Trick::CommandLineArguments * the_cmd_args;
 
 Trick::CommandLineArguments::CommandLineArguments()
     : argc(0)
 {
-    the_cmd_args = this ;
+    the_cmd_args = this;
 
     output_dir = std::string(".");
     default_dir = std::string(".");
 }
 
-int Trick::CommandLineArguments::get_argc() {
-    return(argc) ;
+int Trick::CommandLineArguments::get_argc()
+{
+    return (argc);
 }
 
-std::vector<std::string>& Trick::CommandLineArguments::get_argv() { return (argv); }
-
-std::string Trick::CommandLineArguments::get_output_dir() {
-    return(output_dir) ;
+std::vector<std::string> & Trick::CommandLineArguments::get_argv()
+{
+    return (argv);
 }
 
-std::string & Trick::CommandLineArguments::get_output_dir_ref() {
-    return(output_dir) ;
+std::string Trick::CommandLineArguments::get_output_dir()
+{
+    return (output_dir);
 }
 
-std::string Trick::CommandLineArguments::get_user_output_dir() {
-    return(user_output_dir) ;
+std::string & Trick::CommandLineArguments::get_output_dir_ref()
+{
+    return (output_dir);
 }
 
-std::string & Trick::CommandLineArguments::get_user_output_dir_ref() {
-    return(user_output_dir) ;
+std::string Trick::CommandLineArguments::get_user_output_dir()
+{
+    return (user_output_dir);
 }
 
-std::string Trick::CommandLineArguments::get_input_file() {
-    return(input_file) ;
+std::string & Trick::CommandLineArguments::get_user_output_dir_ref()
+{
+    return (user_output_dir);
 }
 
-std::string & Trick::CommandLineArguments::get_input_file_ref() {
-    return(input_file) ;
+std::string Trick::CommandLineArguments::get_input_file()
+{
+    return (input_file);
 }
 
-std::string Trick::CommandLineArguments::get_default_dir() {
-    return(default_dir) ;
+std::string & Trick::CommandLineArguments::get_input_file_ref()
+{
+    return (input_file);
 }
 
-std::string & Trick::CommandLineArguments::get_default_dir_ref() {
-    return(default_dir) ;
+std::string Trick::CommandLineArguments::get_default_dir()
+{
+    return (default_dir);
 }
 
-std::string Trick::CommandLineArguments::get_cmdline_name() {
-    return(cmdline_name) ;
+std::string & Trick::CommandLineArguments::get_default_dir_ref()
+{
+    return (default_dir);
 }
 
-std::string & Trick::CommandLineArguments::get_cmdline_name_ref() {
-    return(cmdline_name) ;
+std::string Trick::CommandLineArguments::get_cmdline_name()
+{
+    return (cmdline_name);
+}
+
+std::string & Trick::CommandLineArguments::get_cmdline_name_ref()
+{
+    return (cmdline_name);
 }
 
 // Helper function - create a full path with error checking along the way
-int Trick::CommandLineArguments::create_path(const std::string& dirname) {
+int Trick::CommandLineArguments::create_path(const std::string & dirname)
+{
     size_t cur_index = 0;
 
-    std::string full_dir (dirname);
+    std::string full_dir(dirname);
 
     // These syscalls don't seem to take care of home special character, so do it manually
     // I think the shell should handle it before it gets here, but just in case check for it
-    if (dirname.at(0) == '~') {
-        struct passwd *pw = getpwuid(getuid());
+    if(dirname.at(0) == '~')
+    {
+        struct passwd * pw = getpwuid(getuid());
         full_dir = std::string(pw->pw_dir) + dirname.substr(1, dirname.size());
     }
 
-    while (cur_index != full_dir.size()) {
-        cur_index = full_dir.find('/', cur_index+1);
-        if (cur_index == std::string::npos) {
+    while(cur_index != full_dir.size())
+    {
+        cur_index = full_dir.find('/', cur_index + 1);
+        if(cur_index == std::string::npos)
+        {
             cur_index = full_dir.size();
         }
         std::string cur_dir = full_dir.substr(0, cur_index);
 
         struct stat info;
-        if(stat( cur_dir.c_str(), &info ) != 0) {
+        if(stat(cur_dir.c_str(), &info) != 0)
+        {
             // does not exist - make it
-            if (mkdir(cur_dir.c_str(), 0775) == -1) {
+            if(mkdir(cur_dir.c_str(), 0775) == -1)
+            {
                 std::cerr << "Error creating directory " << cur_dir << std::endl;
                 return 1;
             }
-        } else {
+        }
+        else
+        {
             // Does exist
-            if(info.st_mode & S_IFDIR) {
+            if(info.st_mode & S_IFDIR)
+            {
                 // Is a directory
-                if (info.st_mode & S_IWUSR) {
+                if(info.st_mode & S_IWUSR)
+                {
                     // Perfect, nothing to do here
-                } else {
+                }
+                else
+                {
                     // Not writeable
-                    std::cerr << "Intermediate directory " << cur_dir << " is not writable, unable to create output directory." << std::endl;
+                    std::cerr << "Intermediate directory " << cur_dir
+                              << " is not writable, unable to create output directory." << std::endl;
                     return 1;
                 }
-            } else {
+            }
+            else
+            {
                 // Does exist, but is a file
-                std::cerr << "Intermediate directory " << cur_dir << " is not a directory, unable to create output directory." << std::endl;
+                std::cerr << "Intermediate directory " << cur_dir
+                          << " is not a directory, unable to create output directory." << std::endl;
                 return 1;
             }
         }
@@ -164,129 +193,152 @@ int Trick::CommandLineArguments::create_path(const std::string& dirname) {
    -# Attempt to create the output directory if it does not exist.
       -# Exit if the simulation cannot be created.
 */
-int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
-
+int Trick::CommandLineArguments::process_sim_args(int nargs, char ** args)
+{
     argc = nargs;
     argv.clear();
     argv.reserve(argc);
-    for (int ii = 0; ii < argc; ii++) {
+    for(int ii = 0; ii < argc; ii++)
+    {
         argv.emplace_back(args[ii]);
     }
 
-    default_dir = argv[0] ;
+    default_dir = argv[0];
 
-    char* buf  = (char*)malloc(4096);
-    char* buf2 = (char*)malloc(4096);
+    char * buf = (char *)malloc(4096);
+    char * buf2 = (char *)malloc(4096);
 
     size_t found = default_dir.find_last_of('/');
 
-    if ( found == std::string::npos ) {
-        cmdline_name = default_dir ;
-        getcwd(buf, (size_t) 256);
-        default_dir = buf ;
-    } else {
-        cmdline_name = default_dir.substr(found + 1) ;
+    if(found == std::string::npos)
+    {
+        cmdline_name = default_dir;
+        getcwd(buf, (size_t)256);
+        default_dir = buf;
+    }
+    else
+    {
+        cmdline_name = default_dir.substr(found + 1);
 
         // save the current directory
-        getcwd(buf, (size_t) 256);
+        getcwd(buf, (size_t)256);
 
         // change to the default directory
-        chdir(default_dir.substr(0,found).c_str());
+        chdir(default_dir.substr(0, found).c_str());
 
         // get the full path default directory
-        getcwd(buf2, (size_t) 256);
-        default_dir = buf2 ;
+        getcwd(buf2, (size_t)256);
+        default_dir = buf2;
 
         // change back to the current directory
         chdir(buf);
     }
 
-    free(buf) ;
-    free(buf2) ;
+    free(buf);
+    free(buf2);
 
-    if ( argc > 1 ) {
-
+    if(argc > 1)
+    {
         /* First occurrence of "RUN_*" is the input file name: '<Run_dir>/<file_name>'.
            If not found, defaults to first argument */
 
         input_file = argv[1];
         run_dir = argv[1];
 
-        for (const auto& arg : argv) {
-            if (arg.find("RUN_") != std::string::npos) {
+        for(const auto & arg : argv)
+        {
+            if(arg.find("RUN_") != std::string::npos)
+            {
                 input_file = arg;
-                run_dir    = arg;
+                run_dir = arg;
                 break;
             }
         }
 
-        if (access(input_file.c_str(), F_OK) != 0) {
-          input_file = "";
-          if (argv[1] != "trick_version" && argv[1] != "sie" && argv[1] != "-help" && argv[1] != "--help"
-              && argv[1] != "-h" && argv[1] != "help") {
-              std::cerr << "\nERROR: Invalid input file or command line argument." << std::endl;
-              exit(1);
-          }
+        if(access(input_file.c_str(), F_OK) != 0)
+        {
+            input_file = "";
+            if(argv[1] != "trick_version" && argv[1] != "sie" && argv[1] != "-help" && argv[1] != "--help" &&
+               argv[1] != "-h" && argv[1] != "help")
+            {
+                std::cerr << "\nERROR: Invalid input file or command line argument." << std::endl;
+                exit(1);
+            }
         }
 
         found = run_dir.find_last_of('/');
-        if ( found != std::string::npos ) {
-            run_dir.erase(found) ;
-        } else {
-            run_dir = "." ;
+        if(found != std::string::npos)
+        {
+            run_dir.erase(found);
+        }
+        else
+        {
+            run_dir = ".";
         }
         /* check existence of run directory */
-        if (access(run_dir.c_str(), F_OK) != 0) {
-            std::cerr << "\nERROR: while accessing input file directory \"" << run_dir << "\" : " << std::strerror(errno) << std::endl ;
+        if(access(run_dir.c_str(), F_OK) != 0)
+        {
+            std::cerr << "\nERROR: while accessing input file directory \"" << run_dir
+                      << "\" : " << std::strerror(errno) << std::endl;
             exit(1);
         }
 
-        output_dir = run_dir ;
+        output_dir = run_dir;
 
-        const std::string flag_output_dir      = "-O";
+        const std::string flag_output_dir = "-O";
         const std::string flag_output_dir_more = "-OO";
-        bool output_dir_is_set                 = false;
+        bool output_dir_is_set = false;
 
-        for (size_t ii = 0; ii < argv.size(); ii++) {
-            if (argv[ii] == flag_output_dir || argv[ii] == flag_output_dir_more) {
-                if (output_dir_is_set) {
+        for(size_t ii = 0; ii < argv.size(); ii++)
+        {
+            if(argv[ii] == flag_output_dir || argv[ii] == flag_output_dir_more)
+            {
+                if(output_dir_is_set)
+                {
                     std::cerr << "\nERROR: Multiple -O or -OO flags found" << "\n";
                     exit(1);
                 }
-                if (ii == argv.size() - 1) {
+                if(ii == argv.size() - 1)
+                {
                     std::cerr << "\nERROR: No directory specified after -O or -OO argument" << "\n";
                     exit(1);
                 }
 
                 /* Output data directory */
                 output_dir_is_set = true;
-                user_output_dir   = argv[ii + 1];
-                output_dir        = user_output_dir;
-                if (argv[ii] == flag_output_dir_more) {
+                user_output_dir = argv[ii + 1];
+                output_dir = user_output_dir;
+                if(argv[ii] == flag_output_dir_more)
+                {
                     output_dir = output_dir + "/" + run_dir;
                 }
             }
         }
 
         /* Create output directory if necessary. */
-        if (access(output_dir.c_str(), F_OK) != 0) {
-            if (create_path(output_dir) != 0) {
-                std::cerr << "\nERROR: While trying to create output directory \"" << output_dir << "\" : " << std::strerror(errno) << std::endl ;
-                exit(1) ;
+        if(access(output_dir.c_str(), F_OK) != 0)
+        {
+            if(create_path(output_dir) != 0)
+            {
+                std::cerr << "\nERROR: While trying to create output directory \"" << output_dir
+                          << "\" : " << std::strerror(errno) << std::endl;
+                exit(1);
             }
-        } else {
+        }
+        else
+        {
             /* check permissions on output directory */
-            if (access(output_dir.c_str(), (W_OK|X_OK) ) == -1) {
-                std::cerr << "\nERROR: while writing to output directory \"" << output_dir << "\" : " << std::strerror(errno) << std::endl ;
-                exit(2) ;
+            if(access(output_dir.c_str(), (W_OK | X_OK)) == -1)
+            {
+                std::cerr << "\nERROR: while writing to output directory \"" << output_dir
+                          << "\" : " << std::strerror(errno) << std::endl;
+                exit(2);
             }
         }
     }
 
-    return(0) ;
-
+    return (0);
 }
-
 
 /**
 @design
@@ -296,37 +348,48 @@ int Trick::CommandLineArguments::process_sim_args(int nargs , char **args) {
    -# Attempt to create the output directory if it does not exist.
       -# Exit if the simulation cannot be created.
 */
-int Trick::CommandLineArguments::output_dir_timestamped_on() {
+int Trick::CommandLineArguments::output_dir_timestamped_on()
+{
+    time_t date;
+    struct tm * curr_time;
+    char temp_str[256];
 
-    time_t date ;
-    struct tm *curr_time ;
-    char temp_str[256] ;
+    date = time(NULL);
+    curr_time = localtime(&date);
 
-    date = time(NULL) ;
-    curr_time = localtime(&date) ;
+    snprintf(temp_str,
+             sizeof(temp_str),
+             "DATA_%4d_%02d_%02d_%02d_%02d_%02d",
+             curr_time->tm_year + 1900,
+             curr_time->tm_mon + 1,
+             curr_time->tm_mday,
+             curr_time->tm_hour,
+             curr_time->tm_min,
+             curr_time->tm_sec);
 
-    snprintf(temp_str, sizeof(temp_str), "DATA_%4d_%02d_%02d_%02d_%02d_%02d",
-            curr_time->tm_year + 1900 , curr_time->tm_mon + 1 , curr_time->tm_mday,
-            curr_time->tm_hour , curr_time->tm_min , curr_time->tm_sec );
+    time_stamp_dir = std::string(temp_str);
 
-    time_stamp_dir = std::string(temp_str) ;
-
-    if ( ! user_output_dir.empty() ) {
-        output_dir = user_output_dir + "/" + time_stamp_dir ;
-    } else {
-        output_dir = run_dir + "/" + time_stamp_dir ;
+    if(!user_output_dir.empty())
+    {
+        output_dir = user_output_dir + "/" + time_stamp_dir;
+    }
+    else
+    {
+        output_dir = run_dir + "/" + time_stamp_dir;
     }
 
     /* Create directories if necessary. */
-    if (access(output_dir.c_str(), F_OK) != 0) {
-        if (mkdir(output_dir.c_str(), 0775) == -1) {
-            std::cerr << "\nERROR: While trying to create dir \"" << output_dir << "\" Exiting!" << std::endl ;
-            exit(1) ;
+    if(access(output_dir.c_str(), F_OK) != 0)
+    {
+        if(mkdir(output_dir.c_str(), 0775) == -1)
+        {
+            std::cerr << "\nERROR: While trying to create dir \"" << output_dir << "\" Exiting!" << std::endl;
+            exit(1);
         }
     }
 
-    output_dir_timestamped = 1 ;
-    return(0) ;
+    output_dir_timestamped = 1;
+    return (0);
 }
 
 /**
@@ -335,23 +398,26 @@ int Trick::CommandLineArguments::output_dir_timestamped_on() {
    the output directory to the user specified directory
 -# Else set the output directory to the run directory.
 */
-int Trick::CommandLineArguments::output_dir_timestamped_off() {
-
-    if ( ! user_output_dir.empty() ) {
-        output_dir = user_output_dir ;
-    } else {
-        output_dir = run_dir ;
+int Trick::CommandLineArguments::output_dir_timestamped_off()
+{
+    if(!user_output_dir.empty())
+    {
+        output_dir = user_output_dir;
+    }
+    else
+    {
+        output_dir = run_dir;
     }
 
-    output_dir_timestamped = 0 ;
-    return(0) ;
-
+    output_dir_timestamped = 0;
+    return (0);
 }
 
 /**
 @design
 -#  Sets the value of output_dir
 */
-void Trick::CommandLineArguments::set_output_dir(std::string output_directory) {
+void Trick::CommandLineArguments::set_output_dir(std::string output_directory)
+{
     output_dir = output_directory;
 }

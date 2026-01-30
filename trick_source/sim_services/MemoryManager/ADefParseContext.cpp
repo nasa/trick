@@ -11,7 +11,8 @@
 
  An intrinsic type is one of the "built-in" types, like "char", "int", "double", etc.
 
- A user defined type is a typedef-struct name or a class name, including if necessary, scope resolution operators ( i.e., "::").
+ A user defined type is a typedef-struct name or a class name, including if necessary, scope resolution operators (
+i.e., "::").
 
 Example Allocation Declaration strings:
 
@@ -62,22 +63,23 @@ Example Allocation Declaration strings:
  @endverbatim
 */
 
+#include "trick/ADefParseContext.hh"
 #include <stdio.h>
 #include <stdlib.h>
-#include "trick/ADefParseContext.hh"
 
 /**
  Constructor
  */
-Trick::ADefParseContext::ADefParseContext( std::istream* in_is ) {
-   init_scanner();
-   this->is = in_is;
+Trick::ADefParseContext::ADefParseContext(std::istream * in_is)
+{
+    init_scanner();
+    this->is = in_is;
 }
 
 /**
  Destructor
  */
-Trick::ADefParseContext::~ADefParseContext() {
+Trick::ADefParseContext::~ADefParseContext()
+{
     destroy_scanner();
 }
-

@@ -16,9 +16,9 @@ PROGRAMMERS:
 #include "trick/dllist.h"
 #include <stdio.h>
 
-int bubble_sort(                /* RETURN: -- Always returns zero. */
-                   DLLIST * list)
-{                                      /* INOUT: -- Linked list to sort. */
+int bubble_sort(/* RETURN: -- Always returns zero. */
+                DLLIST * list)
+{ /* INOUT: -- Linked list to sort. */
     /* Declare list reordering flag. */
     int reordered;
 
@@ -30,20 +30,22 @@ int bubble_sort(                /* RETURN: -- Always returns zero. */
     DLLPOS bottom;
 
     /* Pointers to PRN list entry. */
-    void *prev_prn;
-    void *this_prn;
-    void *next_prn;
+    void * prev_prn;
+    void * this_prn;
+    void * next_prn;
 
     /* Make sure that list is not null. */
 
-    if (list == NULL) {
+    if(list == NULL)
+    {
         fprintf(stderr, "List is NULL");
         return -1;
     }
 
     /* Make sure that comparison function is not null. */
 
-    if (list->compare == NULL) {
+    if(list->compare == NULL)
+    {
         fprintf(stderr, "Comparison function is NULL");
         return -1;
     }
@@ -53,41 +55,42 @@ int bubble_sort(                /* RETURN: -- Always returns zero. */
     bottom = DLL_GetTailPosition(list);
 
     /* Loop through the entire linked list. */
-    while (top != bottom) {
-
+    while(top != bottom)
+    {
         /* Initialize the sort parameters. */
         current = top;
         reordered = 0;
 
         /* Go down list, sorting in ascending order. */
-        while (current != bottom) {
-
+        while(current != bottom)
+        {
             next = current;
             this_prn = DLL_GetNext(&next, list);
             next_prn = DLL_GetAt(next, list);
 
             /* Compare current PRN to next in list. */
-            if ((*(list->compare)) (this_prn, next_prn)) {
-
+            if((*(list->compare))(this_prn, next_prn))
+            {
                 /* Swap the entries. */
                 DLL_SetAt(current, next_prn, list);
                 DLL_SetAt(next, this_prn, list);
 
                 /* Mark the list as reordered. */
                 reordered = 1;
-
             }
 
             /* Move to the next position in the list. */
             current = next;
-
         }
 
         /* Check the reordered flag. */
-        if (!reordered) {
+        if(!reordered)
+        {
             /* If the list was not reordered, we're done. */
             return (0);
-        } else {
+        }
+        else
+        {
             /* Reset the reordered flag for the reverse pass. */
             reordered = 0;
         }
@@ -99,39 +102,36 @@ int bubble_sort(                /* RETURN: -- Always returns zero. */
         current = bottom;
 
         /* Go up list, sorting in ascending order. */
-        while (current != top) {
-
+        while(current != top)
+        {
             prev = current;
             this_prn = DLL_GetPrev(&prev, list);
             prev_prn = DLL_GetAt(prev, list);
 
             /* Compare current PRN to previous in list. */
-            if ((*(list->compare)) (prev_prn, this_prn)) {
-
+            if((*(list->compare))(prev_prn, this_prn))
+            {
                 /* Swap the entries. */
                 DLL_SetAt(current, prev_prn, list);
                 DLL_SetAt(prev, this_prn, list);
 
                 /* Mark the list as reordered. */
                 reordered = 1;
-
             }
 
             /* Move to the previous position in the list. */
             current = prev;
-
         }
 
         /* If the list was not reordered, we're done. */
-        if (!reordered) {
+        if(!reordered)
+        {
             return (0);
         }
 
         /* Move the top of the sort list down. */
         DLL_GetNext(&top, list);
-
     }
 
     return (0);
-
 }

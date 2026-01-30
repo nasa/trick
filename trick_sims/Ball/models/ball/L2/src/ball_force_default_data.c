@@ -21,23 +21,21 @@ PROGRAMMERS:
     (((Your Name) (Company Name) (Date) (Trick tutorial)))
 *******************************************************************************/
 
-     /* SYSTEM INCLUDE FILES */
+/* SYSTEM INCLUDE FILES */
 #include <math.h>
 
-     /* GLOBAL DATA STRUCTURE DECLARATIONS */
+/* GLOBAL DATA STRUCTURE DECLARATIONS */
 #include "ball/L1/include/ball_force.h"
 
-     /* ENTRY POINT */
+/* ENTRY POINT */
 int ball_force_default_data(
-              /* RETURN: -- Always return zero */
-  BFORCE *F ) /* INOUT:  -- Ball EOM state parameters */
+    /* RETURN: -- Always return zero */
+    BFORCE * F) /* INOUT:  -- Ball EOM state parameters */
 {
-
-    F->input.origin[0] = 0.0 ;
-    F->input.origin[1] = 2.0 ;
-    F->input.force = 8.0 ;
+    F->input.origin[0] = 0.0;
+    F->input.origin[1] = 2.0;
+    F->input.force = 8.0;
 
     /* RETURN */
-    return( 0 ) ;
+    return (0);
 }
-

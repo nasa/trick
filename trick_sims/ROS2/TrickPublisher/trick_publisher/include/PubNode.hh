@@ -14,21 +14,19 @@ LIBRARY DEPENDENCY:
 
 class PubNode
 {
-    public:
-        std::string whatToYell;
+public:
+    std::string whatToYell;
 
-        std::string nodeName;
-        std::string publicationName;
+    std::string nodeName;
+    std::string publicationName;
 
-        rclcpp::Node::SharedPtr  node;
-        rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub;
+    rclcpp::Node::SharedPtr node;
+    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr pub;
 
-        void defaults();
-        void init_ros();
-        void yellIntoTheVoid();
-        void shutItDown();
-
+    void defaults();
+    void init_ros();
+    void yellIntoTheVoid();
+    void shutItDown();
 };
-
 
 #endif

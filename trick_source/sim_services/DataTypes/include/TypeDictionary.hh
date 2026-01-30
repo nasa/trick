@@ -2,30 +2,28 @@
 #define TYPE_DICTIONARY_H
 
 #include <map>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 class DataType;
 
 /**
  Stores name / typespecifier pairs.
  */
-class TypeDictionary {
-
-    public:
-
+class TypeDictionary
+{
+public:
     TypeDictionary();
 
     /**
      Get the DataType of the for the typedef'ed name.
      */
-    const DataType* getDataType(std::string typeName);
+    const DataType * getDataType(std::string typeName);
 
     /**
      Add a type definiton to the dictionary.
      */
-    void addTypeDefinition(std::string name, DataType * typeSpec)
-         ;
+    void addTypeDefinition(std::string name, DataType * typeSpec);
 
     /**
      */
@@ -41,9 +39,9 @@ class TypeDictionary {
      */
     ~TypeDictionary();
 
-    private:
+private:
     bool is_valid;
-    std::map<std::string, DataType*> typeDictionary;
-    std::map<std::string, DataType*>::iterator typeDictionaryIterator;
+    std::map<std::string, DataType *> typeDictionary;
+    std::map<std::string, DataType *>::iterator typeDictionaryIterator;
 };
 #endif

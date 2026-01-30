@@ -18,16 +18,16 @@ PROGRAMMERS:
 #define MS_ERROR_PORT -1
 #define MS_ERROR_NAME -1
 
-typedef enum {
-
-    MS_NoCmd =               0,  /* Executive mode: NoCmd */
-    MS_FreezeCmd =           2,  /* Executive mode: freeze */
-    MS_RunCmd =              3,  /* Executive mode: run */
-    MS_ExitCmd =            10,  /* Executive mode: exit */
-    MS_ErrorCmd =           11,  /* Master/Slave: an error was detected */
-    MS_ReconnectCmd =       12,  /* Master/Slave: slave reconnected after chkpnt load */
-    MS_ChkpntDumpAsciiCmd = 13,  /* Master/Slave: master tells slave to dump an ascii chkpnt */
-    MS_ChkpntLoadAsciiCmd = 14,  /* Master/Slave: master tells slave to load an ascii chkpnt */
+typedef enum
+{
+    MS_NoCmd = 0,               /* Executive mode: NoCmd */
+    MS_FreezeCmd = 2,           /* Executive mode: freeze */
+    MS_RunCmd = 3,              /* Executive mode: run */
+    MS_ExitCmd = 10,            /* Executive mode: exit */
+    MS_ErrorCmd = 11,           /* Master/Slave: an error was detected */
+    MS_ReconnectCmd = 12,       /* Master/Slave: slave reconnected after chkpnt load */
+    MS_ChkpntDumpAsciiCmd = 13, /* Master/Slave: master tells slave to dump an ascii chkpnt */
+    MS_ChkpntLoadAsciiCmd = 14, /* Master/Slave: master tells slave to load an ascii chkpnt */
 
 } MS_SIM_COMMAND;
 

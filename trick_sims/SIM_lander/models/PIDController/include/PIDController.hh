@@ -1,8 +1,9 @@
 #ifndef PIDCONTROLLER_HH
 #define PIDCONTROLLER_HH
 
-class PIDController {
-    public:
+class PIDController
+{
+public:
     double Kp;
     double Kd;
     double Ki;
@@ -14,9 +15,9 @@ class PIDController {
     double out_min;
     double previous_error;
     double prev_setpoint_value;
-    bool   integration_enabled;
+    bool integration_enabled;
 
-    PIDController( double kp, double ki, double kd, double omax, double omin, double dt, double tc );
+    PIDController(double kp, double ki, double kd, double omax, double omin, double dt, double tc);
     double getOutput(double setpoint_value, double measured_value);
 };
 

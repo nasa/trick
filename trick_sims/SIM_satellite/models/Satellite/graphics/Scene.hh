@@ -6,14 +6,16 @@
 #include "SceneElement.hh"
 #include <vector>
 
-typedef struct {
+typedef struct
+{
     double pos[3];
     double R[3][3];
 } ElementState;
 
-typedef struct {
+typedef struct
+{
     ElementState satellite;
-//    ElementState satellite2;
+    //    ElementState satellite2;
 } Comm_packet;
 
 #endif

@@ -19,37 +19,39 @@
 #endif
 #endif
 
-namespace Trick {
+namespace Trick
+{
 
-    class Zeroconf {
-        public:
-            Zeroconf() ;
-            ~Zeroconf() {} ;
+class Zeroconf
+{
+public:
+    Zeroconf();
 
-            int init() ;
+    ~Zeroconf() {}
 
-            std::string get_name() ;
-            void set_name(std::string) ;
+    int init();
 
-            std::string get_type() ;
-            void set_type(std::string) ;
+    std::string get_name();
+    void set_name(std::string);
 
-        protected:
-            std::string name ;
-            std::string type ;
+    std::string get_type();
+    void set_type(std::string);
+
+protected:
+    std::string name;
+    std::string type;
 #ifdef HAVE_ZEROCONF
 #if __linux__
-            AvahiSimplePoll *simple_poll ;
-            AvahiClient *client ;
-            AvahiEntryGroup *group ;
+    AvahiSimplePoll * simple_poll;
+    AvahiClient * client;
+    AvahiEntryGroup * group;
 #endif
 #if __APPLE__
-            DNSServiceRef dns_service_ref ;
+    DNSServiceRef dns_service_ref;
 #endif
 #endif
+};
 
-    } ;
-
-}
+} // namespace Trick
 
 #endif

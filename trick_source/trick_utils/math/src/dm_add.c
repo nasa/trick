@@ -7,10 +7,10 @@
 
 #include "trick/trick_math.h"
 
-void dm_add(double sum[3][3],   /* Out: Sum of the two matrices */
-            double mat1[3][3],  /* In: Matrix 1 */
+void dm_add(double sum[3][3],  /* Out: Sum of the two matrices */
+            double mat1[3][3], /* In: Matrix 1 */
             double mat2[3][3])
-{                                      /* In: Matrix 2 */
+{ /* In: Matrix 2 */
 
     sum[0][0] = mat1[0][0] + mat2[0][0];
     sum[0][1] = mat1[0][1] + mat2[0][1];

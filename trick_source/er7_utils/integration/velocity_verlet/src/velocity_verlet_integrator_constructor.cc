@@ -30,96 +30,70 @@ Purpose: ()
 #include "../include/velocity_verlet_integrator_constructor.hh"
 #include "../include/velocity_verlet_second_order_ode_integrator.hh"
 
-
-namespace er7_utils {
+namespace er7_utils
+{
 
 // Named constructor; create an VelocityVerletIntegratorConstructor.
-IntegratorConstructor*
-VelocityVerletIntegratorConstructor::create_constructor (
-   void)
+IntegratorConstructor * VelocityVerletIntegratorConstructor::create_constructor(void)
 {
-   return alloc::allocate_object<VelocityVerletIntegratorConstructor> ();
+    return alloc::allocate_object<VelocityVerletIntegratorConstructor>();
 }
-
 
 // Create a duplicate of the constructor.
-IntegratorConstructor*
-VelocityVerletIntegratorConstructor::create_copy (
-   void)
-const
+IntegratorConstructor * VelocityVerletIntegratorConstructor::create_copy(void) const
 {
-   return alloc::replicate_object (*this);
+    return alloc::replicate_object(*this);
 }
-
 
 // Create an VelocityVerlet integration controls.
-IntegrationControls *
-VelocityVerletIntegratorConstructor::create_integration_controls (
-   void)
-const
+IntegrationControls * VelocityVerletIntegratorConstructor::create_integration_controls(void) const
 {
-   return integ_utils::allocate_controls<SingleCycleIntegrationControls> (2);
+    return integ_utils::allocate_controls<SingleCycleIntegrationControls>(2);
 }
-
 
 // Create a Heun's method state integrator as a surrogate for velocity verlet
 // for a first order ODE.
-FirstOrderODEIntegrator *
-VelocityVerletIntegratorConstructor::create_first_order_ode_integrator (
-   unsigned int size,
-   IntegrationControls & controls)
-const
+FirstOrderODEIntegrator * VelocityVerletIntegratorConstructor::create_first_order_ode_integrator(
+    unsigned int size, IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<RK2HeunFirstOrderODEIntegrator> (
-             size, controls);
+    return integ_utils::allocate_integrator<RK2HeunFirstOrderODEIntegrator>(size, controls);
 }
-
 
 // Create a velocity verlet state integrator for a second order ODE.
-SecondOrderODEIntegrator *
-VelocityVerletIntegratorConstructor::create_second_order_ode_integrator (
-   unsigned int size,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * VelocityVerletIntegratorConstructor::create_second_order_ode_integrator(
+    unsigned int size, IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                VelocityVerletSimpleSecondOrderODEIntegrator> (
-             size, controls);
+    return integ_utils::allocate_integrator<VelocityVerletSimpleSecondOrderODEIntegrator>(size, controls);
 }
-
 
 // Create a velocity verlet state integrator for a second order ODE.
-SecondOrderODEIntegrator *
-VelocityVerletIntegratorConstructor::
-create_generalized_deriv_second_order_ode_integrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionDerivativeFunctions & deriv_funs,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * VelocityVerletIntegratorConstructor::create_generalized_deriv_second_order_ode_integrator(
+    unsigned int position_size,
+    unsigned int velocity_size,
+    const GeneralizedPositionDerivativeFunctions & deriv_funs,
+    IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                VelocityVerletGeneralizedDerivSecondOrderODEIntegrator> (
-             position_size, velocity_size, deriv_funs, controls);
+    return integ_utils::allocate_integrator<VelocityVerletGeneralizedDerivSecondOrderODEIntegrator>(position_size,
+                                                                                                    velocity_size,
+                                                                                                    deriv_funs,
+                                                                                                    controls);
 }
-
 
 // Create a velocity verlet state integrator for a second order ODE.
-SecondOrderODEIntegrator *
-VelocityVerletIntegratorConstructor::
-create_generalized_step_second_order_ode_integrator (
-   unsigned int position_size,
-   unsigned int velocity_size,
-   const GeneralizedPositionStepFunctions & step_funs,
-   IntegrationControls & controls)
-const
+SecondOrderODEIntegrator * VelocityVerletIntegratorConstructor::create_generalized_step_second_order_ode_integrator(
+    unsigned int position_size,
+    unsigned int velocity_size,
+    const GeneralizedPositionStepFunctions & step_funs,
+    IntegrationControls & controls) const
 {
-   return integ_utils::allocate_integrator<
-                VelocityVerletGeneralizedStepSecondOrderODEIntegrator> (
-             position_size, velocity_size, step_funs, controls);
+    return integ_utils::allocate_integrator<VelocityVerletGeneralizedStepSecondOrderODEIntegrator>(position_size,
+                                                                                                   velocity_size,
+                                                                                                   step_funs,
+                                                                                                   controls);
 }
 
-}
+} // namespace er7_utils
+
 /**
  * @if Er7UtilsUseGroups
  * @}

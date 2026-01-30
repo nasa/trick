@@ -8,33 +8,31 @@
 
 #include <string>
 
-namespace Trick {
+namespace Trick
+{
 
-    class InputProcessor {
+class InputProcessor
+{
+public:
+    int verify_input; /* -- verify input */
+    int save_input;   /* -- save input while running */
 
-        public:
+    std::string input_file; /* -- Simulation input data file name */
 
-            int verify_input ;                    /* -- verify input */
-            int save_input;                       /* -- save input while running */
+    InputProcessor();
 
-            std::string input_file ;              /* -- Simulation input data file name */
+    virtual ~InputProcessor() {}
 
-            InputProcessor() ;
+    // Initialization jobs
+    int process_sim_args();
 
-            virtual ~InputProcessor() {} ;
+    // parse a string usually from variable server
+    virtual int parse(std::string in_string) = 0;
 
-            // Initialization jobs
-            int process_sim_args() ;
+    // shutdown jobs
+    virtual int shutdown();
+};
 
-            // parse a string usually from variable server
-            virtual int parse(std::string in_string) = 0 ;
-
-            // shutdown jobs
-            virtual int shutdown() ;
-
-    } ;
-
-}
+} // namespace Trick
 
 #endif
-

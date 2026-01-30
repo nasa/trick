@@ -19,10 +19,9 @@
 
 #include "trick/MessageSubscriber.hh"
 
-int message_subscribe( Trick::MessageSubscriber * in_ms ) ;
-int message_unsubscribe( Trick::MessageSubscriber * in_ms ) ;
+int message_subscribe(Trick::MessageSubscriber * in_ms);
+int message_unsubscribe(Trick::MessageSubscriber * in_ms);
 
 int open_custom_message_file(std::string file_name, std::string subscriber_name, int level = -1);
 
 #endif
-

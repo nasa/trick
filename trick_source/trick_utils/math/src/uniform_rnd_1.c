@@ -17,29 +17,30 @@
 
 #include <math.h>
 #if __Lynx__
-#include <time.h>
 #include <param.h>
-#elif ( __ghs )
+#include <time.h>
+#elif (__ghs)
 #include <sys/time.h>
 #else
-#include <sys/time.h>
 #include <sys/param.h>
+#include <sys/time.h>
 #endif
-#include <sys/times.h>
-#include <limits.h>
-#include <unistd.h>
 #include "trick/rand_generator.h"
 #include "trick/trick_math.h"
+#include <limits.h>
+#include <sys/times.h>
+#include <unistd.h>
 
 #ifndef HZ
-#define HZ 100                         /* This is a kludge to accomodate for Darwin. On Darwin HZ is actually a kernal
-                                          global variable. I suppose I should use that but this will suffice. */
+#define HZ                                                                                                             \
+    100 /* This is a kludge to accomodate for Darwin. On Darwin HZ is actually a kernal                                \
+           global variable. I suppose I should use that but this will suffice. */
 #endif
 
 static double total_CPU_time(void);
 
 double uniform_rnd_1(RAND_GENERATOR * G)
-{                                      /* Inout: random number seed */
+{                               /* Inout: random number seed */
     static long a = 46341;      /* Value of a based on F. Clark note, 4/22/92 */
     static long m = 2147483647; /* Value of m based on F. Clark note, 4/22/92 */
     double new_random_number;
@@ -62,17 +63,17 @@ double uniform_rnd_1(RAND_GENERATOR * G)
      *
      */
 
-    if (!(G->seed_1)) {
-        G->seed_1 = (unsigned long) total_CPU_time();
+    if(!(G->seed_1))
+    {
+        G->seed_1 = (unsigned long)total_CPU_time();
     }
 
-    new_random_number = (double) G->seed_1 / (double) m;
+    new_random_number = (double)G->seed_1 / (double)m;
 
     G->seed_1 = ((a * G->seed_1) % m);
 
     return (new_random_number);
 }
-
 
 /* This function returns the number of seconds that this process (and its wait'ed for children) has spend in execution
    (both user and system time) */
@@ -83,5 +84,4 @@ static double total_CPU_time(void)
     times(&time_buffer);
 
     return ((time_buffer.tms_utime + time_buffer.tms_cutime + time_buffer.tms_stime + time_buffer.tms_cstime) / HZ);
-
 }

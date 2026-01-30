@@ -19,18 +19,16 @@ namespace FooNamespace
 class FooC : public FooA<1>
 {
 public:
-   int C;
+    int C;
 };
 
 // RestartableSimpleSecondOrderODEIntegrator
-template<int T>
-class FooD : public FooC
+template<int T> class FooD : public FooC
 {
 public:
-   int D = T;
+    int D = T;
 };
 
-
-}
+} // namespace FooNamespace
 
 #endif

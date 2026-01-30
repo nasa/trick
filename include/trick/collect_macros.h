@@ -10,6 +10,6 @@ PROGRAMMER:
 #ifndef COLLECT_MACROS_H
 #define COLLECT_MACROS_H
 
-#define NUM_COLLECT(X) (( X == 0 ) ? 0 : *((long *)X - 1))
+#define NUM_COLLECT(X) ((X == 0) ? 0 : *((long *)X - 1))
 
 #endif

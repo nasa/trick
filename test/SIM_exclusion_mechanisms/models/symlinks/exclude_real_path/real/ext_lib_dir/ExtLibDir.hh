@@ -10,10 +10,10 @@
  * code will result in multiple-definition errors at link time as the symbols
  * will also exist in the Trickified partially-linked object.
  */
-class ExtLibDir4 {
-    private:
-    void operator=(const ExtLibDir4&);
+class ExtLibDir4
+{
+private:
+    void operator=(const ExtLibDir4 &);
 };
-
 
 #endif

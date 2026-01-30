@@ -7,9 +7,9 @@
 
 #include "trick/trick_math.h"
 
-void dm_trans(double trans[3][3],       /* Out: transpose of the matrix */
+void dm_trans(double trans[3][3], /* Out: transpose of the matrix */
               double mat[3][3])
-{                                      /* In: matrix to be transposed */
+{ /* In: matrix to be transposed */
     trans[0][0] = mat[0][0];
     trans[0][1] = mat[1][0];
     trans[0][2] = mat[2][0];

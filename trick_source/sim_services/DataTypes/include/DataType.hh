@@ -7,21 +7,22 @@
 class Value;
 class TypeDictionary;
 
-namespace TypeClass {
-    enum e {
-        PRIMITIVE   = 0,
-        ENUMERATION = 1,
-        POINTER     = 2,
-        ARRAY       = 3,
-        COMPOSITE   = 4
-    };
+namespace TypeClass
+{
+enum e
+{
+    PRIMITIVE = 0,
+    ENUMERATION = 1,
+    POINTER = 2,
+    ARRAY = 3,
+    COMPOSITE = 4
 };
+}; // namespace TypeClass
 
 /** @brief Abstract base class for DataTypes. */
-class DataType {
-
-    public:
-
+class DataType
+{
+public:
     virtual ~DataType() {}
 
     /**
@@ -49,25 +50,31 @@ class DataType {
     @return The number of arrayed Type-specifier elements of the DataType.
     FIXME: THIS LOOKS HINKY and IS ARRAY SPECIFIC
     */
-    virtual unsigned int getTotalElementCount() const { return 1; }
+    virtual unsigned int getTotalElementCount() const
+    {
+        return 1;
+    }
 
     /**
     @return does the DataType or any member of the DataType represent a pointer?
     */
-    virtual bool containsPointers() const { return false; }
+    virtual bool containsPointers() const
+    {
+        return false;
+    }
 
     /**
     @return a duplicate DataType.
     */
-    virtual DataType * clone () const = 0;
+    virtual DataType * clone() const = 0;
 
     /**
-    */
-    virtual void* createInstance(unsigned int n ) const = 0;
+     */
+    virtual void * createInstance(unsigned int n) const = 0;
 
     /**
-    */
-    virtual void deleteInstance(void* address) const = 0;
+     */
+    virtual void deleteInstance(void * address) const = 0;
 
     /**
     Clear the variable at the given address.
@@ -87,7 +94,7 @@ class DataType {
     @param s The stream to print to.
     @param address Address of the variable.
     */
-    virtual void printValue(std::ostream &s, void *address) const = 0;
+    virtual void printValue(std::ostream & s, void * address) const = 0;
 
     /**
     Generate a declaration of this DataType.
@@ -106,9 +113,12 @@ class DataType {
     /**
     @return true it this DataType represents void or false otherwise.
     */
-    virtual bool isVoid() const { return false; }
+    virtual bool isVoid() const
+    {
+        return false;
+    }
 
-    private:
+private:
 };
 
 #endif

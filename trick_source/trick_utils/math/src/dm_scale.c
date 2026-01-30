@@ -9,10 +9,10 @@
 
 #include "trick/trick_math.h"
 
-void dm_scale(double prod[3][3],        /* Out: Product of the two matrices */
-              double mat[3][3], /* In: Matrix */
+void dm_scale(double prod[3][3], /* Out: Product of the two matrices */
+              double mat[3][3],  /* In: Matrix */
               double scalar)
-{                                      /* In: Scalar multiplier */
+{ /* In: Scalar multiplier */
     prod[0][0] = mat[0][0] * scalar;
     prod[0][1] = mat[0][1] * scalar;
     prod[0][2] = mat[0][2] * scalar;

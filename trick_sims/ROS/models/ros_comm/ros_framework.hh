@@ -9,11 +9,12 @@ LIBRARY_DEPENDENCIES: (ros_framework.cpp)
 
 #include <string>
 
-class RosFramework {
-    public:
-        RosFramework(std::string app_name) ;
-        virtual ~RosFramework() ;
-        virtual int shutdown() ;
-} ;
+class RosFramework
+{
+public:
+    RosFramework(std::string app_name);
+    virtual ~RosFramework();
+    virtual int shutdown();
+};
 
 #endif
