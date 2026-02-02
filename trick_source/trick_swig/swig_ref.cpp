@@ -56,6 +56,7 @@ char * swig_ref::__repr__() {
 }
 
 PyObject * swig_ref::__len__() {
+    deref_address() ;
     return PyInt_FromLong((long)ref.attr->index[0].size) ;
 }
 
