@@ -305,19 +305,18 @@ tidy:
 	-rm -f $(TRICK_BUILD_DIR)S_main* $(TRICK_BUILD_DIR)T_main*
 	-rm -f $(TRICK_BUILD_DIR)build/Makefile_*
 
-clean: tidy clean_trickify
+clean: tidy
 	-rm -f $(TRICK_BUILD_DIR)DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
 	-rm -f $(TRICK_BUILD_DIR)DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
 	-rm -rf $(TRICK_BUILD_DIR)build/ $(TRICK_BUILD_DIR).trick $(TRICK_BUILD_DIR)trick.zip
 	-rm -f $(TRICK_BUILD_DIR)makefile
 
-spotless: clean spotless_trickify
+spotless: clean
 
 distclean: clean
 
-apocalypse: clean apocalypse_trickify
+apocalypse: clean_trickify
 	@echo "[31mI love the smell of napalm in the morning <3[0m"
 
 clean_trickify: ;
-spotless_trickify: ;
-apocalypse_trickify: ;
+nuke_trickify: ;

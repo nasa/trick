@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.1)
 project(trick NONE)
 set(TRICK_MAJOR 25)
 set(TRICK_MINOR 0)
-set(TRICK_TINY 1)
+set(TRICK_TINY 3)
 # set TRICK_PRERELEASE TO EMPTY STRING "" ON RELEASE
 set(TRICK_PRERELEASE "-beta")
 

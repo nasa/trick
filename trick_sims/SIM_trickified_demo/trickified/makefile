@@ -12,13 +12,11 @@ clean_trickify:
 	-rm -f get_vars.mk
 	-rm -f var_dump.mk
 	-rm -f *_list
-
-spotless_trickify: clean_trickify
 	-rm -f python
 	-rm -f *.a
 	-rm -f *.o
 	-rm -f *.so
 
-apocalypse_trickify: spotless_trickify
+nuke_trickify: clean_trickify
 	-rm -f S_overrides_trickify.mk
 	-rm -f *.mk
