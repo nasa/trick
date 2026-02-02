@@ -44,6 +44,38 @@
 #endif
 %include "std_vectora.i"
 
+// Fix std::vector<std::string> indexing for Python by adding helper methods
+%extend std::vector<std::string> {
+    // C++ helper methods that SWIG will wrap
+    std::string getitem(size_t i) const {
+        return (*$self)[i];
+    }
+    void setitem(size_t i, const std::string& val) {
+        (*$self)[i] = val;
+    }
+
+    // Python code that uses the helper methods to implement indexing
+    %pythoncode %{
+    def __getitem__(self, i):
+        if isinstance(i, slice):
+            return [self.getitem(idx) for idx in range(*i.indices(len(self)))]
+        if i < 0:
+            i += len(self)
+        if i < 0 or i >= len(self):
+            raise IndexError("vector index out of range")
+        return self.getitem(i)
+
+    def __setitem__(self, i, val):
+        if isinstance(i, slice):
+            raise TypeError("slice assignment not supported")
+        if i < 0:
+            i += len(self)
+        if i < 0 or i >= len(self):
+            raise IndexError("vector index out of range")
+        self.setitem(i, val)
+    %}
+}
+
 #if SWIG_VERSION >= 0x030008
 // std_wstring.i was introduced in swig 3.0.8
 %include "std_wstring.i"

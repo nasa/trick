@@ -631,7 +631,29 @@
 
 }
 
-%typemap(memberin) SWIGTYPE [ANY][ANY][ANY] , SWIGTYPE [ANY][ANY][ANY][ANY] {
+// Handle 3D array member assignment with proper element copying to be consistent with dimensions supported for dynamic arrays
+%typemap(memberin) char [ANY][ANY][ANY], unsigned char [ANY][ANY][ANY], signed char [ANY][ANY][ANY],
+                   short [ANY][ANY][ANY], unsigned short [ANY][ANY][ANY], signed short [ANY][ANY][ANY],
+                   int [ANY][ANY][ANY], unsigned int [ANY][ANY][ANY], signed int [ANY][ANY][ANY],
+                   long [ANY][ANY][ANY], unsigned long [ANY][ANY][ANY], signed long [ANY][ANY][ANY],
+                   long long [ANY][ANY][ANY], unsigned long long [ANY][ANY][ANY], signed long long [ANY][ANY][ANY],
+                   enum SWIGTYPE [ANY][ANY][ANY], bool [ANY][ANY][ANY],
+                   double [ANY][ANY][ANY], float [ANY][ANY][ANY]
+{
+    size_t ii = 0, jj = 0, kk = 0;
+    for (; ii < (size_t)$1_dim0; ++ii)
+        for (jj = 0; jj < (size_t)$1_dim1; ++jj)
+            for (kk = 0; kk < (size_t)$1_dim2; ++kk)
+                $1[ii][jj][kk] = $input[ii][jj][kk];
+}
+
+// Block direct assignment to 4D/5D/6D/7D/8D arrays
+%typemap(memberin) SWIGTYPE [ANY][ANY][ANY][ANY],
+                   SWIGTYPE [ANY][ANY][ANY][ANY][ANY],
+                   SWIGTYPE [ANY][ANY][ANY][ANY][ANY][ANY],
+                   SWIGTYPE [ANY][ANY][ANY][ANY][ANY][ANY][ANY],
+                   SWIGTYPE [ANY][ANY][ANY][ANY][ANY][ANY][ANY][ANY]
+{
     std::cout << "Cannot assign directly to $1_type\n" << std::endl ;
 }
 
