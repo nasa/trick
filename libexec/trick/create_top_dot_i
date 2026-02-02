@@ -2,8 +2,13 @@
 
 import os
 
-with open('build/CP_instances') as cp_instances:
-    with open('build/top.i', 'w') as top:
+try:
+    trick_build_dir = os.environ["TRICK_BUILD_DIR"]
+except KeyError:
+    trick_build_dir = ""
+
+with open(trick_build_dir + 'build/CP_instances') as cp_instances:
+    with open(trick_build_dir + 'build/top.i', 'w') as top:
         path = os.path.abspath(os.getcwd())
         instances = ''.join(cp_instances.readlines())
         top.write(
@@ -15,6 +20,6 @@ with open('build/CP_instances') as cp_instances:
           instances + '\n'
           '%}\n'
           '\n'
-          '%import "build' + path + '/S_source_py.i"\n'
+          '%import "' + trick_build_dir + 'build' + path + "/" + trick_build_dir + 'S_source_py.i"\n'
           '\n' +
           instances)

@@ -15,9 +15,9 @@ sub s_source($) {
 
     #--------------------------------------------------------------
     # Generate S_source.c
-    open S_SOURCE, ">build/S_source.cpp" or die "Couldn't open build/S_source.cpp!\n";
-    open S_SOURCE_H, ">S_source.hh" or die "Couldn't open S_source.hh!\n";
-    open TOP_LEVEL_OBJECTS_RESOURCE, ">build/top_level_objects.resource" or die "Couldn't open top_level_objects.resource!";
+    open S_SOURCE, ">$ENV{'TRICK_BUILD_DIR'}build/S_source.cpp" or die "Couldn't open $ENV{'TRICK_BUILD_DIR'}build/S_source.cpp!\n";
+    open S_SOURCE_H, ">$ENV{'TRICK_BUILD_DIR'}S_source.hh" or die "Couldn't open $ENV{'TRICK_BUILD_DIR'}S_source.hh!\n";
+    open TOP_LEVEL_OBJECTS_RESOURCE, ">$ENV{'TRICK_BUILD_DIR'}build/top_level_objects.resource" or die "Couldn't open $ENV{'TRICK_BUILD_DIR'}top_level_objects.resource!";
     # Get Trick version
     my ($version, $thread) = get_trick_version() ;
 
@@ -330,7 +330,7 @@ PURPOSE:
     close S_SOURCE ;
 
 
-    open S_INSTANCE, ">build/CP_instances" or die "Couldn't open build/CP_instances!\n";
+    open S_INSTANCE, ">$ENV{TRICK_BUILD_DIR}build/CP_instances" or die "Couldn't open $ENV{TRICK_BUILD_DIR}build/CP_instances!\n";
     print S_INSTANCE $$sim_ref{extern_instance_declarations} ;
     foreach my $integ_loop ( @{$$sim_ref{integ_loop}} ) {
         print S_INSTANCE "extern IntegLoopSimObject $$integ_loop{name} ;\n" ;

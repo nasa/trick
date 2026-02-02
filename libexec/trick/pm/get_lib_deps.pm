@@ -190,9 +190,9 @@ sub write_lib_deps($) {
 
     # Build the library dependencies file name to store results
     my ( $file, $dir, $suffix) = fileparse($source_file_name, qr/\.[^.]*/) ;
-    my ($lib_dep_file_name) = "build$dir${file}${suffix}.lib_deps" ;
+    my ($lib_dep_file_name) = "$ENV{TRICK_BUILD_DIR}build$dir${file}${suffix}.lib_deps" ;
     if ( ! -e "build$dir" ) {
-        make_path("build$dir") ;
+        make_path("$ENV{TRICK_BUILD_DIR}build$dir") ;
     }
 
     if ( -e $lib_dep_file_name ) {
