@@ -5,6 +5,7 @@
 
 use File::Basename ;
 use File::Spec ;
+use File::Path qw(make_path) ;
 use Cwd ;
 use Cwd 'abs_path';
 use Pod::Usage ;
@@ -46,6 +47,12 @@ for $argnum (0 .. $#ARGV) {
     }else {
         $ENV{TRICK_CPFLAGS} .= " $arg" ;
     }
+}
+
+# Ensure build dir exists
+unless(-d $trick_build_dir)
+{
+    make_path($trick_build_dir) or die "Could not create build dir: $trick_build_dir, $!\n";
 }
 
 if ( -f $sdefine ) {

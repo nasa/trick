@@ -137,7 +137,7 @@ $create_connections_def = qr/
          /sx ;
 
 $job_class_order_def = qr/
-         job_class_order          # the word sim_object
+         job_class_order\s*{      # the word sim_object
          (?:.*?                   # everything
          })\s*;                   # to end of obj def
         /sx ;
