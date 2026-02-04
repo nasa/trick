@@ -241,7 +241,7 @@ my %files_by_extension ;
 foreach my $directory ( keys %files_by_dir ) {
     foreach my $extension ( grep { /^\.(c|cc|C|cxx|cpp|c\+\+)$/ } keys %{$files_by_dir{$directory}} ) {
         foreach my $file ( @{$files_by_dir{$directory}{$extension}} ) {
-            push @{$files_by_extension{$extension}} , "$ENV{TRICK_BUILD_DIR}build/${directory}${file}.o" ;
+            push @{$files_by_extension{$extension}} , "$ENV{TRICK_BUILD_DIR}build${directory}${file}.o" ;
         }
     }
 }
