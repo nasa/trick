@@ -397,7 +397,7 @@ sub parse_s_define ($) {
         $_ = quotemeta (abs_path(dirname($_)) . "/" . basename($_)) ;
     }
 
-    $s_define_file = "$ENV{TRICK_SIM_DIR}S_define" ;;
+    $s_define_file = "$ENV{TRICK_SIM_DIR}S_define" ;
 
     $$sim_ref{line_num} = 1 ;
 

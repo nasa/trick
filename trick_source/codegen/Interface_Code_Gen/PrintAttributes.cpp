@@ -216,7 +216,7 @@ std::string PrintAttributes::createIOFileName(std::string header_file_name) {
             } else {
                 //TODO: only use build directory if we are ICG'ing a sim
                 // All files go into a build directory based in the current directory.
-                io_file_name =  trick_build_dir + output_dir + std::string("build") + dir_name + "/" + base_name ;
+                io_file_name =  trick_build_dir + std::string("build") + dir_name + "/" + base_name ;
             }
         }
         return io_file_name ;
