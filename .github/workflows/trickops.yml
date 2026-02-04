@@ -71,6 +71,38 @@ jobs:
             share/trick/trickops/tests/*_doctest_log.txt
             /tmp/log.*
 
+  trickops-tests-rockylinux9:
+    name: Unit Tests RockyLinux9
+    runs-on: ubuntu-22.04
+    container: rockylinux:9
+    steps:
+      - uses: actions/checkout@master
+      - name: install dependencies
+        # Note that perl is for trick-gte which TrickOps runs and qt and everything after it is for koviz
+        run: |
+          dnf install -y git python3-devel which perl perl-Digest-MD5 qt5-qtbase-devel bison clang flex make gcc gcc-c++ wget
+      - name: create virtual environment
+        run: |
+          cd share/trick/trickops/
+          python3 -m venv .venv && source .venv/bin/activate && pip3 install -r requirements.txt
+      - name: get and build koviz
+        run: |
+          cd /tmp/ && wget -q https://github.com/nasa/koviz/archive/refs/heads/master.zip && unzip master.zip
+          cd /tmp/koviz-master/ &&  qmake-qt5 && make
+      - name: run unit and doc tests
+        run: |
+          cd share/trick/trickops/tests/
+          source ../.venv/bin/activate
+          export PATH="/tmp/koviz-master/bin:${PATH}"
+          ./run_tests.py
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: doctests_${{ github.run_id }}_${{ github.job }}
+          path: |
+            share/trick/trickops/tests/*_doctest_log.txt
+            /tmp/log.*
+
 # TODO: ExampleWorkflow.py is not included here because it needs a built Trick
 #  to function correctly and I don't want to duplicate the Trick build testing
 #  here to provide testing of what is essentially an example provided for
