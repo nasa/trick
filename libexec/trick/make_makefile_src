@@ -16,6 +16,12 @@ my %non_lib_processed_files ;
 my $any_deps_changed = 0 ;
 my $verbose_build = verbose_build() ;
 
+my $trick_build_dir = "./";
+if ( exists $ENV{'TRICK_BUILD_DIR'} )
+{
+    $trick_build_dir = $ENV{'TRICK_BUILD_DIR'} ;
+}
+
 sub exist_lib_deps(@) {
     my (@files_to_process) = @_ ;
     foreach my $l ( @files_to_process ) {
@@ -23,7 +29,7 @@ sub exist_lib_deps(@) {
         next if ( $l =~ /^-|\.a$/ ) ;
         next if ( ! -e $l ) ;
         my ( $file, $dir, $suffix) = fileparse($l, qr/\.[^.]*/) ;
-        my ($lib_dep_file_name) = "build$dir${file}${suffix}.lib_deps" ;
+        my ($lib_dep_file_name) = "$ENV{TRICK_BUILD_DIR}build/${dir}${file}${suffix}.lib_deps" ;
         if ( ! -e $lib_dep_file_name ) {
             $any_deps_changed = 1 ;
             print "[34mNew Dep[0m    $l\n" ;
@@ -42,7 +48,7 @@ sub read_lib_deps($@) {
             next if ( $l =~ /^-|\.a$/ ) ;
             $non_lib_processed_files{$l} = 1 ;
             my ( $file, $dir, $suffix) = fileparse($l, qr/\.[^.]*/) ;
-            my ($lib_dep_file_name) = "build$dir${file}${suffix}.lib_deps" ;
+            my ($lib_dep_file_name) = "$ENV{TRICK_BUILD_DIR}build/${dir}${file}${suffix}.lib_deps" ;
             if ( -e $lib_dep_file_name ) {
                open FH, "$lib_dep_file_name" or die 'cannot open $lib_dep_file_name' ;
                my (@all_lines) = <FH> ;
@@ -73,7 +79,7 @@ if ( scalar @ARGV ) {
         # Filter out Makefile_io_src_deps, Makefie_io_src, and S_source.hh from the argument list.
         # These are dependencies in the makefile.
         # S_source.hh will be passed in as a full path again if the file has changed.
-        next if ( $f eq "build/Makefile_src_deps" or $f eq "build/Makefile_io_src" or $f eq "S_source.hh") ;
+        next if ( $f eq "$ENV{TRICK_BUILD_DIR}build/Makefile_src_deps" or $f eq "$ENV{TRICK_BUILD_DIR}build/Makefile_io_src" or $f eq "$ENV{TRICK_BUILD_DIR}S_source.hh") ;
         my $deps_changed ;
         my @resolved_files ;
         print "[34mDepTracing[0m " , "$f\n" ;
@@ -85,20 +91,20 @@ if ( scalar @ARGV ) {
     $any_deps_changed = 1 ;
 }
 
-if ( ! -e "build/Makefile_src") {
+if ( ! -e "$ENV{TRICK_BUILD_DIR}build/Makefile_src") {
     $any_deps_changed = 1 ;
 }
 
 # Read in dependency tree starting at the roots.  The dependency tree starts with all of the
 # header files ICG processed and the lib deps listed in the S_define file.
-open FILE, "build/ICG_processed" or die 'cannot open build/ICG_processed' ;
+open FILE, "$ENV{TRICK_BUILD_DIR}build/ICG_processed" or die "cannot open $ENV{TRICK_BUILD_DIR}build/ICG_processed" ;
 my (@top_file_names) = <FILE> ;
 close FILE ;
-open FILE, "build/ICG_no_found" or die 'cannot open build/ICG_no_found' ;
+open FILE, "$ENV{TRICK_BUILD_DIR}build/ICG_no_found" or die "cannot open $ENV{TRICK_BUILD_DIR}build/ICG_no_found" ;
 my (@ICG_no_file_names) = <FILE> ;
 close FILE ;
 push @top_file_names , @ICG_no_file_names ;
-open FILE, "build/S_define.lib_deps" or die 'cannot open build/S_define.lib_deps' ;
+open FILE, "$ENV{TRICK_BUILD_DIR}build/S_define.lib_deps" or die "cannot open $ENV{TRICK_BUILD_DIR}build/S_define.lib_deps" ;
 my (@s_define_lib_deps) = <FILE> ;
 close FILE ;
 push @top_file_names , @s_define_lib_deps ;
@@ -109,7 +115,7 @@ $any_deps_changed |= exist_lib_deps(@top_file_names) ;
 
 # if no dependencies have changed, "touch" Makefile_src and exit
 if ( $any_deps_changed == 0 ) {
-    utime(undef, undef, "build/Makefile_src") ;
+    utime(undef, undef, "$ENV{TRICK_BUILD_DIR}build/Makefile_src") ;
     exit ;
 }
 
@@ -174,7 +180,7 @@ my $dt = localtime();
 my ($trick_ver) = get_trick_version() ;
 chomp $trick_ver ;
 
-open MAKEFILE , ">build/Makefile_src" or return ;
+open MAKEFILE , ">$ENV{TRICK_BUILD_DIR}build/Makefile_src" or return ;
 
 print MAKEFILE
 "################################################################################
@@ -200,42 +206,42 @@ ifndef TRICK_VERBOSE_BUILD
     PRINT_SIE        = \$(info \$(call COLOR,Writing)    \$@)
 endif
 
-S_MAIN  = S_main_\${TRICK_HOST_CPU}.exe
+S_MAIN  = $ENV{TRICK_BUILD_DIR}S_main_\${TRICK_HOST_CPU}.exe
 ifeq (\$(MAKECMDGOALS), test)
     TRICK_HOST_CPU := \$(shell \$(TRICK_HOME)/bin/trick-gte TRICK_HOST_CPU)_test
-    S_MAIN  = T_main_\${TRICK_HOST_CPU}.exe
+    S_MAIN  = $ENV{TRICK_BUILD_DIR}T_main_\${TRICK_HOST_CPU}.exe
 endif
 
 # S_OBJECTS ====================================================================
 
-S_OBJECTS = build/S_source.o
+S_OBJECTS = $ENV{TRICK_BUILD_DIR}build/S_source.o
 
-build/S_source.o: build/S_source.cpp | build/S_source.d
+$ENV{TRICK_BUILD_DIR}build/S_source.o: $ENV{TRICK_BUILD_DIR}build/S_source.cpp | $ENV{TRICK_BUILD_DIR}build/S_source.d
 \t\$(PRINT_COMPILE)
 \t\$(call ECHO_AND_LOG,\$(TRICK_CXX) \$(TRICK_CXXFLAGS) \$(TRICK_SYSTEM_CXXFLAGS) -MMD -MP -c -o \$\@ \$\<)
 
-build/S_source.d: ;
+$ENV{TRICK_BUILD_DIR}build/S_source.d: ;
 
--include build/S_source.d
+-include $ENV{TRICK_BUILD_DIR}build/S_source.d
 
 # MODEL_OBJECTS ================================================================
 
 # This function allows users to specify target-specific variables for individual
 # or groups of source files. For example:
 # \$(call FIND_MODEL_OBJECTS, /path/to/file /path/to/directory \$(LIST_OF_PATHS)): TRICK_CXXFLAGS += -Werror
-FIND_MODEL_OBJECTS = \$(foreach PATH, \$1, \$(filter \$(addprefix build, \$(addsuffix %, \$(PATH))), \$(MODEL_OBJECTS)))
+FIND_MODEL_OBJECTS = \$(foreach PATH, \$1, \$(filter \$(addprefix $ENV{TRICK_BUILD_DIR}build, \$(addsuffix %, \$(PATH))), \$(MODEL_OBJECTS)))
 
 " ;
 
 # List out all of the object files and put the list in a file that we can pass to the linker.
 # Passing all of them directly to the linker in the command line can exceed the line limit.
-open MODEL_LINK_LIST, ">build/model_link_list" or die "Could not open build/model_link_list" ;
+open MODEL_LINK_LIST, ">$ENV{TRICK_BUILD_DIR}build/model_link_list" or die "Could not open $ENV{TRICK_BUILD_DIR}build/model_link_list" ;
 
 my %files_by_extension ;
 foreach my $directory ( keys %files_by_dir ) {
     foreach my $extension ( grep { /^\.(c|cc|C|cxx|cpp|c\+\+)$/ } keys %{$files_by_dir{$directory}} ) {
         foreach my $file ( @{$files_by_dir{$directory}{$extension}} ) {
-            push @{$files_by_extension{$extension}} , "build$directory$file.o" ;
+            push @{$files_by_extension{$extension}} , "$ENV{TRICK_BUILD_DIR}build${directory}${file}.o" ;
         }
     }
 }
@@ -271,7 +277,7 @@ foreach my $extension ( keys %files_by_extension ) {
     my $command = "\$($compiler) \$(TRICK_${flags}FLAGS) \$(TRICK_SYSTEM_${flags}FLAGS) -I\$(<D)/../include -MMD -MP -c -o \$\@ \$<" ;
     print MAKEFILE "
 
-\${MODEL_OBJECTS$extension} : build/%.o : /%$extension | build/%.d \$\$(dir \$\$\@)
+\${MODEL_OBJECTS$extension} : $ENV{TRICK_BUILD_DIR}build/%.o : /%$extension | $ENV{TRICK_BUILD_DIR}build/%.d \$\$(dir \$\$\@)
 \t\$(PRINT_COMPILE)
 \t\$(call ECHO_AND_LOG,$command)" ;
 }
@@ -285,7 +291,7 @@ print MAKEFILE "
 
 -include \$(MODEL_OBJECTS:.o=.d)
 
-LINK_LISTS += \$(LD_FILELIST)build/model_link_list
+LINK_LISTS += \$(LD_FILELIST)$ENV{TRICK_BUILD_DIR}build/model_link_list
 " ;
 
 # print out the libraries we link
@@ -299,7 +305,7 @@ foreach ( @all_read_only_libs ) {
 
 print MAKEFILE "
 
-all: S_sie.resource
+all: $ENV{TRICK_BUILD_DIR}S_sie.resource
 
 ifeq (\$(MANUAL_TRICKIFY_LD), 1)
     ALL_TRICK_LDFLAGS = \$(TRICK_LDFLAGS)
@@ -313,12 +319,12 @@ endif
 
 # SIE ==========================================================================
 
-S_sie.resource: \$(S_MAIN)
+$ENV{TRICK_BUILD_DIR}S_sie.resource: \$(S_MAIN)
 \t\$(PRINT_SIE)
 \t\$(call ECHO_AND_LOG,\${TRICK_HOME}/\$(LIBEXEC)/trick/sie_concat)" ;
 
 # write out the override files we have read in
-open MAKEFILEOVER, ">build/Makefile_overrides" or die "Could not open build/Makefile_overrides" ;
+open MAKEFILEOVER, ">$ENV{TRICK_BUILD_DIR}build/Makefile_overrides" or die "Could not open $ENV{TRICK_BUILD_DIR}build/Makefile_overrides" ;
 foreach $k ( sort keys %files_by_dir ) {
     # Look for makefile_overrides in the current directory.
     # If no such file exists AND this directory is named "src", look for it one level up.
@@ -339,7 +345,7 @@ foreach $k ( sort keys %files_by_dir ) {
             if ( s/^objects\s*:\s*// ) {
                 foreach my $extension ( keys %files_by_extension ) {
                     foreach my $file (@{$files_by_dir{$k}{$extension}}) {
-                        $files_by_dir{$k}{overrides} .= "build$k${file}.o \\\n" ;
+                        $files_by_dir{$k}{overrides} .= "$ENV{TRICK_BUILD_DIR}build/${k}${file}.o \\\n" ;
                     }
                 }
                 $files_by_dir{$k}{overrides} .= ": $_"
@@ -347,7 +353,7 @@ foreach $k ( sort keys %files_by_dir ) {
             elsif ( s/(.+)_objects\s*:\s*// ) {
                 if (scalar @{$files_by_dir{$k}{".$1"}}) {
                     foreach my $file (@{$files_by_dir{$k}{".$1"}}) {
-                        $files_by_dir{$k}{overrides} .= "build$k$file.o \\\n" ;
+                        $files_by_dir{$k}{overrides} .= "$ENV{TRICK_BUILD_DIR}build/${k}${file}.o \\\n" ;
                     }
                     $files_by_dir{$k}{overrides} .= ": $_"
                 }
@@ -365,23 +371,23 @@ foreach $k ( sort keys %files_by_dir ) {
 }
 close MAKEFILEOVER ;
 
-open TRICKIFYDEPS, ">build/trickify_deps" or die "Could not open build/trickify_deps" ;
+open TRICKIFYDEPS, ">$ENV{TRICK_BUILD_DIR}build/trickify_deps" or die "Could not open $ENV{TRICK_BUILD_DIR}build/trickify_deps" ;
 print TRICKIFYDEPS map {"$_\n"} (sort keys %non_lib_processed_files) ;
 
 # write out all of files we processed as dependencies to Makefile_src
-open MAKEFILEDEPS, ">build/Makefile_src_deps" or die "Could not open build/Makefile_src_deps" ;
-print MAKEFILEDEPS "build/Makefile_src:" ;
+open MAKEFILEDEPS, ">$ENV{TRICK_BUILD_DIR}build/Makefile_src_deps" or die "Could not open $ENV{TRICK_BUILD_DIR}build/Makefile_src_deps" ;
+print MAKEFILEDEPS "$ENV{TRICK_BUILD_DIR}build/Makefile_src:" ;
 print MAKEFILEDEPS map {"\\\n $_"} (sort keys %non_lib_processed_files) ;
 print MAKEFILEDEPS "\n\n" ;
 print MAKEFILEDEPS map {"$_:\n"} (sort keys %non_lib_processed_files) ;
 close MAKEFILEDEPS ;
 
 # write out all of the files we used to S_library_list
-open LIB_LIST, ">build/S_library_list" or die "Could not open build/S_library_list" ;
+open LIB_LIST, ">$ENV{TRICK_BUILD_DIR}build/S_library_list" or die "Could not open $ENV{TRICK_BUILD_DIR}build/S_library_list" ;
 print LIB_LIST map {"$_\n"} (sort keys %processed_files) ;
 close LIB_LIST ;
 
 if($ENV{'AM_I_TRICKIFYING'})
 {
-    0 or die;
+    0 or exit 1;
 }
