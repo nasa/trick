@@ -5,6 +5,7 @@ class Trick < Formula
   sha256 "0e51ee68d7239423a18b144dea9e0560125c523a0e2d8a914933ace1bba39dd3"
   license "NASA-1.3"
   head "https://github.com/nasa/trick.git", branch: "master"
+  revision 1
 
   depends_on "pkgconf" => :build
   depends_on "bison"
