@@ -24,7 +24,6 @@ $numArgs = $#ARGV + 1;
 $makefileAddArgs = ' ';
 $sdefine_dir = ".";
 $sdefine = "S_define";
-$makefile = "makefile";
 $trick_build_dir = "./";
 for $argnum (0 .. $#ARGV) {
     $arg = $ARGV[$argnum];
@@ -48,6 +47,7 @@ for $argnum (0 .. $#ARGV) {
         $ENV{TRICK_CPFLAGS} .= " $arg" ;
     }
 }
+$makefile = "${trick_build_dir}makefile";
 
 # Ensure build dir exists
 unless(-d $trick_build_dir)
@@ -77,7 +77,7 @@ $makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/ ;
 $ENV{'TRICK_SIM_DIR'} = "$my_cwd/" ;
 $ENV{'TRICK_BUILD_DIR'} = $trick_build_dir ;
 
-open MAKEFILE, ">${trick_build_dir}$makefile" ;
+open MAKEFILE, ">$makefile" ;
 print MAKEFILE $makefile_text ;
 close MAKEFILE ;
 
@@ -322,7 +322,7 @@ spotless: clean
 
 distclean: clean
 
-apocalypse: clean_trickify
+apocalypse: spotless clean_trickify
 	@echo "[31mI love the smell of napalm in the morning <3[0m"
 
 clean_trickify: ;
