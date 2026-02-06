@@ -299,7 +299,7 @@ namespace Trick {
              @brief Initialize data recording, add data_record job to the executive scheduler.
              @returns always 0
             */
-            virtual int init() ;
+            virtual int init(bool is_restart = false) ;
 
             /**
              @brief Write out data recording variables to read back in during restart.
@@ -470,11 +470,6 @@ namespace Trick {
              * @param curr_tic_in - time in tics to match and advance the next cycle tic
              */ 
             void advance_log_tics_given_curr_tic(long long curr_tic_in);
-
-            /**
-             * Reset all the logging rates cycles and next tics as if coming out of restart or a run-time set_cycle call
-             */
-            void reset_cycle_data_from_curr_tic();
     } ;
 
 } ;

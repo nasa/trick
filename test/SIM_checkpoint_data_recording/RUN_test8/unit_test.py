@@ -3,7 +3,7 @@ import trick
 def main():
     exec(open("Modified_data/fooChange2.dr").read())
 
-    trick.add_read(5.0, 'trick.load_checkpoint("RUN_test8/chkpnt_5.000000")') # this checkpoint does not contain data recording
+    trick.add_read(5.0, 'trick.load_checkpoint("RUN_test8/chkpnt_5.000000")') # contains data recording, starts at t=5
 
     trick.stop(20.0)
 
