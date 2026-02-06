@@ -70,6 +70,7 @@ namespace Trick {
         LoggingCycle(double rate_in);
         LoggingCycle() = default;
         void set_rate(double rate_in);
+        static long long calc_next_tics_on_or_after_input_tic(long long input_tic, long long cycle_tic);
         double rate_in_seconds{}; /* (s) Logging rate in seconds */
         long long rate_in_tics{}; /* (--) Logging rate in sim tics */
         long long next_cycle_in_tics{}; /* (--) Next cycle in tics for logging */
@@ -193,6 +194,18 @@ namespace Trick {
             int set_job_class(std::string in_class) ;
 
             /**
+             * Get the total number of rates for this DataRecordGroup instance
+             * @return total number of rates
+             */
+            size_t get_num_rates();
+
+            /**
+             * Get the logging rate according to rate index
+             * @return cycle in seconds or -1.0 if error
+             */
+            double get_rate(const size_t rateIdx = 0);
+
+            /**
              @brief @userdesc Command to set the rate at which the group's data is recorded (default is 0.1).
              @par Python Usage:
              @code <dr_group>.set_cycle(<in_cycle>) @endcode
@@ -206,9 +219,18 @@ namespace Trick {
              @par Python Usage:
              @code <dr_group>.add_cycle(<in_cycle>) @endcode
              @param in_cycle - the recording rate in seconds
-             @return always 0
+             @return vector index of the added rate
             */
             int add_cycle(double in_cycle) ;
+
+            /**
+             * Updates a logging rate by index and cycle. Calling with 0
+             * index is equivalent to set_cycle             
+             * @param rate_idx index of the added rate
+             * @param rate_in New integration rate in seconds
+             * @return Zero = success, non-zero = failure (rateIdx is invalid).
+             */
+            int set_rate(const size_t rate_idx, const double rate_in);
 
             /**
              @brief @userdesc Command to set the phase where the group's data is record (default is 60000).
@@ -450,13 +472,26 @@ namespace Trick {
             /** Data thread condition mutex.  */
             pthread_mutex_t buffer_mutex;    /**< trick_io(**) */
 
-            /** Current time saved in Trick::DataRecordGroup::data_record.\n */
+            /** Current time saved in Trick::DataRecordGroup::data_record when a buffer is written \n */
             double curr_time ;          /**< trick_io(*i) trick_units(--) */
+
+            /** Current time saved in Trick::DataRecordGroup::data_record the job was recorded. \n */
+            double curr_time_dr_job ;          /**< trick_io(*i) trick_units(--) */
 
             /**
              * Vector of logging rate objects.
              */
             std::vector<LoggingCycle> logging_rates;
+
+            bool check_if_rates_are_valid();
+
+             /**
+             * Check if a rate is valid for logging
+             * next logging time in tics.
+             * @param rate_in New integration rate in seconds
+             * @return 0 if valid, 1 if too small, 2 if rate is 0, 3 if it cannot be exactly scheduled
+             */
+            int check_if_rate_is_valid(double test_rate);
 
             /**
              * Loop through the required logging rates and calculate the
@@ -464,6 +499,8 @@ namespace Trick {
              * @return Next logging time in tics,
              */
             long long calculate_next_logging_tic(long long min_tic);
+
+            void emit_rate_error(int rate_err_code, size_t log_idx, double err_rate);
 
             /**
              * Loop through the required logging rates and advance the next cycle tics of matching rates

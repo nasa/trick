@@ -63,17 +63,21 @@ Trick::LoggingCycle::LoggingCycle(double rate_in)
 
 void Trick::LoggingCycle::set_rate(double rate_in)
 {
-    long long curr_tic = exec_get_time_tics();
     rate_in_seconds = rate_in;
-    long long cycle_tics = (long long)round(rate_in * Trick::JobData::time_tic_value);
-    rate_in_tics = cycle_tics;
-    if((curr_tic % cycle_tics) != 0)
+    rate_in_tics = (long long)round(rate_in * Trick::JobData::time_tic_value);
+}
+
+long long Trick::LoggingCycle::calc_next_tics_on_or_after_input_tic(long long input_tic, long long cycle_tic)
+{
+    long long next_tic;
+    if((input_tic % cycle_tic) != 0)
     {
-        next_cycle_in_tics = (curr_tic/cycle_tics) * cycle_tics + cycle_tics;
+        next_tic = (input_tic/cycle_tic) * cycle_tic + cycle_tic;
     } else 
     {
-        next_cycle_in_tics = curr_tic;
+        next_tic = input_tic;
     }
+    return next_tic;
 }
 
 Trick::DataRecordGroup::DataRecordGroup( std::string in_name, Trick::DR_Type dr_type ) :
@@ -100,7 +104,8 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name, Trick::DR_Type dr_
  single_prec_only(false),
  buffer_type(DR_Buffer),
  job_class("data_record"),
- curr_time(0.0)
+ curr_time(0.0),
+ curr_time_dr_job(0.0)
 {
 
     union {
@@ -181,16 +186,68 @@ const std::string & Trick::DataRecordGroup::get_group_name() {
     return group_name ;
 }
 
+size_t Trick::DataRecordGroup::get_num_rates(){
+    return logging_rates.size();
+}
+
+double Trick::DataRecordGroup::get_rate(const size_t rateIdx)
+{
+    if(rateIdx < logging_rates.size())
+    {
+        return logging_rates[rateIdx].rate_in_seconds;
+    }
+    return -1.0;
+}
+
 int Trick::DataRecordGroup::set_cycle( double in_cycle ) {
-    logging_rates[0].set_rate(in_cycle);
-    write_job->set_cycle(in_cycle) ;
-    return(0) ;
+    return set_rate(0, in_cycle);    
 }
 
 int Trick::DataRecordGroup::add_cycle(double in_cycle)
 {
     logging_rates.emplace_back(in_cycle);
-    return(0);
+    set_rate(logging_rates.size()-1, in_cycle);
+    return (int)logging_rates.size()-1;
+}
+
+int Trick::DataRecordGroup::set_rate(const size_t rate_idx, const double rate_in)
+{
+    if(rate_idx >= logging_rates.size())
+    {
+        message_publish(MSG_ERROR, "DataRecordGroup ERROR: set_rate: invalid rate idx %lu\n", rate_idx);
+        return 1;
+    }
+    if(inited) {
+        int ret = check_if_rate_is_valid(rate_in);
+        if(ret)
+        {
+            emit_rate_error(ret, rate_idx, rate_in);
+            message_publish(MSG_ERROR, "DataRecordGroup ERROR: Rejecting runtime set_rate(%lu, %.16g)\n", rate_idx, rate_in);
+            return 1;
+        }
+        long long prev_log_tics = (long long)round(curr_time_dr_job * Trick::JobData::time_tic_value);
+        long long curr_time_tic = exec_get_time_tics();
+        LoggingCycle & curLog = logging_rates[rate_idx];
+        curLog.set_rate(rate_in);
+        curLog.next_cycle_in_tics = LoggingCycle::calc_next_tics_on_or_after_input_tic(curr_time_tic, curLog.rate_in_tics);
+        if(curLog.next_cycle_in_tics == curr_time_tic && curLog.next_cycle_in_tics == prev_log_tics)
+        {
+            curLog.next_cycle_in_tics += curLog.rate_in_tics;
+        }
+        for(auto & logCycle : logging_rates)
+        {
+            logCycle.next_cycle_in_tics = 0;
+        }
+        advance_log_tics_given_curr_tic(curr_time_tic-1);
+        write_job->next_tics = calculate_next_logging_tic(curr_time_tic-1);
+
+        long long next_next_tics = calculate_next_logging_tic(write_job->next_tics);
+        write_job->cycle_tics = next_next_tics - write_job->next_tics;
+        write_job->cycle = (double)write_job->cycle_tics / Trick::JobData::time_tic_value;
+    } else {
+        logging_rates[rate_idx].set_rate(rate_in);
+    }
+    return 0;
 }
 
 int Trick::DataRecordGroup::set_phase( unsigned short in_phase ) {
@@ -442,46 +499,12 @@ int Trick::DataRecordGroup::init(bool is_restart) {
 
     if(!is_restart)
     {
-        long long curr_tics = exec_get_time_tics();
-        int tic_value = exec_get_time_tic_value();
-
-        for(size_t ii = 0; ii < logging_rates.size(); ++ii)
+        if(!check_if_rates_are_valid())
         {
-            double logging_rate = logging_rates[ii].rate_in_seconds;
-            if(logging_rate < (1.0 / tic_value))
-            {
-                message_publish(
-                    MSG_ERROR,
-                    "DataRecordGroup ERROR: Cycle for %lu logging rate idx is less than time tic value. cycle = "
-                    "%16.12f, time_tic = %16.12f\n",
-                    ii,
-                    logging_rate,
-                    tic_value);
-                ret = -1;
-            }
-            long long cycle_tics = (long long)round(logging_rate * Trick::JobData::time_tic_value);
-
-            /* Calculate the if the cycle_tics would be a whole number  */
-            double test_rem = fmod(logging_rate * (double)tic_value, 1.0);
-
-            if(test_rem > 0.001)
-            {
-                message_publish(MSG_WARNING,
-                                "DataRecordGroup ERROR: Cycle for %lu logging rate idx cannot be exactly scheduled "
-                                "with time tic value. "
-                                "cycle = %16.12f, cycle_tics = %lld , time_tic = %16.12f\n",
-                                ii,
-                                logging_rate,
-                                cycle_tics,
-                                1.0 / tic_value);
-                ret = -1;
-            }
-
-            // We've checked that the rate is achievable. Call set_rate again to make sure the latest time_tic_value
-            // was utilized for calculated next tics
-            logging_rates[ii].set_rate(logging_rate);
+            disable();
+            return (1);
         }
-
+        long long curr_tics = exec_get_time_tics();
         write_job->next_tics = curr_tics;
 
         long long next_next_tics = calculate_next_logging_tic(write_job->next_tics);
@@ -693,6 +716,8 @@ int Trick::DataRecordGroup::data_record(double in_time) {
     Trick::DataRecordBuffer * drb ;
     bool change_detected = false ;
 
+    curr_time_dr_job = in_time;
+
     //TODO: does not handle bitfields correctly!
     if ( record == true ) {
         if ( freq != DR_Always ) {
@@ -811,6 +836,83 @@ int Trick::DataRecordGroup::data_record(double in_time) {
     return(0) ;
 }
 
+bool Trick::DataRecordGroup::check_if_rates_are_valid()
+{
+    // long long curr_tics = exec_get_time_tics();
+    long long tic_value = Trick::JobData::time_tic_value;
+    bool areValid = true;
+
+    for(size_t ii = 0; ii < logging_rates.size(); ++ii)
+    {
+        double logging_rate = logging_rates[ii].rate_in_seconds;
+        int ret = check_if_rate_is_valid(logging_rate);
+        if(ret != 0){
+            emit_rate_error(ret, ii, logging_rate);
+            areValid = false;
+        }
+    }
+    return areValid;
+}
+
+void Trick::DataRecordGroup::emit_rate_error(int rate_err_code, size_t log_idx, double err_rate)
+{
+    long long tic_value = Trick::JobData::time_tic_value;
+    if(rate_err_code == 1) {
+        message_publish(
+            MSG_ERROR,
+            "DataRecordGroup ERROR: Cycle for %lu logging rate idx is less than time tic value. cycle = "
+            "%16.12f, time_tic = %16.12f\n",
+            log_idx,
+            err_rate,
+            tic_value);
+    } else if(rate_err_code == 2)
+    {
+        message_publish(MSG_ERROR,
+                        "DataRecordGroup ERROR: Cycle for %lu logging rate idx is 0\n",
+                        log_idx);
+    } else if(rate_err_code == 3)
+    {
+        long long cycle_tics = (long long)round(err_rate * tic_value);
+        message_publish(MSG_ERROR,
+                        "DataRecordGroup ERROR: Cycle for %lu logging rate idx cannot be exactly scheduled "
+                        "with time tic value. "
+                        "cycle = %16.12f, cycle_tics = %lld , time_tic = %16.12f\n",
+                        log_idx,
+                        err_rate,
+                        cycle_tics,
+                        1.0 / tic_value);
+    }
+}
+
+ int Trick::DataRecordGroup::check_if_rate_is_valid(double test_rate)
+ {
+    long long tic_value = Trick::JobData::time_tic_value;
+    int ret = 0;
+
+    double logging_rate = test_rate;
+    if(logging_rate < (1.0 / tic_value))
+    {
+        ret = 1;        
+    } else {
+        long long cycle_tics = (long long)round(logging_rate * tic_value);
+        if(cycle_tics == 0)
+        {
+            ret = 2;
+        } else {
+            /* Calculate the if the cycle_tics would be a whole number  */
+            double test_rem = fmod(logging_rate * (double)tic_value, 1.0);
+
+            if(test_rem > 0.001)
+            {
+                ret = 3;
+            }
+        }
+    }
+    
+    return ret;
+ }
+
+
 /**
  * Loop through the required logging rates and calculate the
  * next logging time in tics.
@@ -849,8 +951,8 @@ void Trick::DataRecordGroup::advance_log_tics_given_curr_tic(long long curr_tic_
     for(size_t cycleIndex = 0; cycleIndex < logging_rates.size(); ++cycleIndex)
     {
         long long & logNextTic = logging_rates[cycleIndex].next_cycle_in_tics;
-
-        while(logNextTic <= curr_tic_in)
+        logNextTic = LoggingCycle::calc_next_tics_on_or_after_input_tic(curr_tic_in, logging_rates[cycleIndex].rate_in_tics);
+        if(logNextTic <= curr_tic_in)
         {
             logNextTic += logging_rates[cycleIndex].rate_in_tics;
         }
