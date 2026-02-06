@@ -867,11 +867,6 @@ void Trick::DataRecordGroup::emit_rate_error(int rate_err_code, size_t log_idx, 
             tic_value);
     } else if(rate_err_code == 2)
     {
-        message_publish(MSG_ERROR,
-                        "DataRecordGroup ERROR: Cycle for %lu logging rate idx is 0\n",
-                        log_idx);
-    } else if(rate_err_code == 3)
-    {
         long long cycle_tics = (long long)round(err_rate * tic_value);
         message_publish(MSG_ERROR,
                         "DataRecordGroup ERROR: Cycle for %lu logging rate idx cannot be exactly scheduled "
@@ -893,19 +888,13 @@ void Trick::DataRecordGroup::emit_rate_error(int rate_err_code, size_t log_idx, 
     if(logging_rate < (1.0 / tic_value))
     {
         ret = 1;        
-    } else {
-        long long cycle_tics = (long long)round(logging_rate * tic_value);
-        if(cycle_tics == 0)
+    } else {        
+        /* Calculate the if the cycle_tics would be a whole number  */
+        double test_rem = fmod(logging_rate * (double)tic_value, 1.0);
+
+        if(test_rem > 0.001)
         {
             ret = 2;
-        } else {
-            /* Calculate the if the cycle_tics would be a whole number  */
-            double test_rem = fmod(logging_rate * (double)tic_value, 1.0);
-
-            if(test_rem > 0.001)
-            {
-                ret = 3;
-            }
         }
     }
     

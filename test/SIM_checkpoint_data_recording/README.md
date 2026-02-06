@@ -55,6 +55,8 @@ Checkpoint loaded at t=5
 Expected: logging with multiple rates to start from t=7.01+ with no offset
 
 RUN_test10
+Configured the increment job to execute at 0.1
+A runtime invalid set_cycle of 0 is attempted and a set_cycle of 1/128 which the time_tic_value cannot support are both rejected and logging happens as if neither commands are attempted
 Checkpoint dumped with at t=7.01 with multiple loggings rates and multiple calls to set the cycle of both rates throughout the RUN
 RUN started with different logging setup
 Checkpoint loaded at t=5

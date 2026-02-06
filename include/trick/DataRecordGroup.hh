@@ -483,13 +483,18 @@ namespace Trick {
              */
             std::vector<LoggingCycle> logging_rates;
 
+            /**
+             * Loop through the required logging rates and check if the rates are valid for the time tic value
+             * @return true if valid, false if an error is detected
+             */
             bool check_if_rates_are_valid();
 
              /**
-             * Check if a rate is valid for logging
-             * next logging time in tics.
-             * @param rate_in New integration rate in seconds
-             * @return 0 if valid, 1 if too small, 2 if rate is 0, 3 if it cannot be exactly scheduled
+             * Check if a rate is valid for logging. An invalid rate is detected by
+             * - being smaller than the time tic value (or 0)
+             * - not being a whole number when converted to tics             * 
+             * @param test_rate Test rate in seconds
+             * @return 0 if valid, 1 if too small, 2 if it cannot be exactly scheduled
              */
             int check_if_rate_is_valid(double test_rate);
 

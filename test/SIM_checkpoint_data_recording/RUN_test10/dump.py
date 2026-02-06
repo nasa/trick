@@ -10,15 +10,10 @@ def main():
 
     dr_group.set_cycle(0.1)
     dr_group.add_cycle(100.0)
-    
+
     trick.checkpoint(7.01)
 
     trick.exec_set_job_cycle("testSimObject.my_foo.increment", 0, 0.1)
-
-    ss_end = 1800.0-1789.0
-    cs_end = 30600.0-20000-1789.0
-    cs_logging_break = 28796.6-20000-1789.0
-    ph_logging_break = 1796.6-1789.0
 
     ss_end = 1800.0
     cs_end = 36000.0
@@ -39,6 +34,9 @@ def main():
     trick.add_read(ss_end+2.4,f'trick.get_data_record_group("{dr_group.get_group_name()}").set_cycle({cs_logging_break})')
     trick.add_read(second_cycle_update,f'trick.get_data_record_group("{dr_group.get_group_name()}").set_rate(1, {cs_logging_break/4})')
     trick.add_read(cs_end-1.1,f'trick.get_data_record_group("{dr_group.get_group_name()}").set_cycle(0.1)')
+    trick.add_read(1.0, f'trick.get_data_record_group("{dr_group.get_group_name()}").set_cycle(0.0)')
+    trick.add_read(2.0, f'trick.get_data_record_group("{dr_group.get_group_name()}").set_rate(1, {1/128})')
+    trick.add_read(2.0, f'trick.get_data_record_group("{dr_group.get_group_name()}").set_rate(1, {1/128})')
     trick.stop(cs_end+2.6)
 
 if __name__ == "__main__":
