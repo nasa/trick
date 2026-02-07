@@ -214,7 +214,7 @@ int Trick::DataRecordGroup::set_rate(const size_t rate_idx, const double rate_in
 {
     if(rate_idx >= logging_rates.size())
     {
-        message_publish(MSG_ERROR, "DataRecordGroup ERROR: set_rate: invalid rate idx %lu\n", rate_idx);
+        message_publish(MSG_ERROR, "DataRecordGroup ERROR: DR Group \"%s\" : set_rate: invalid rate idx %lu\n", group_name.c_str(), rate_idx);
         return 1;
     }
     if(inited) {
@@ -222,7 +222,7 @@ int Trick::DataRecordGroup::set_rate(const size_t rate_idx, const double rate_in
         if(ret)
         {
             emit_rate_error(ret, rate_idx, rate_in);
-            message_publish(MSG_ERROR, "DataRecordGroup ERROR: Rejecting runtime set_rate(%lu, %.16g)\n", rate_idx, rate_in);
+            message_publish(MSG_ERROR, "DataRecordGroup ERROR: DR Group \"%s\" : Rejecting runtime set_rate(%lu, %.16g)\n", group_name.c_str(), rate_idx, rate_in);
             return 1;
         }
         long long prev_log_tics = (long long)round(curr_time_dr_job * Trick::JobData::time_tic_value);
@@ -401,7 +401,7 @@ int Trick::DataRecordGroup::add_change_variable( std::string in_name ) {
     ref2 = ref_attributes(in_name.c_str()) ;
 
     if ( ref2 == NULL || ref2->attr == NULL ) {
-        message_publish(MSG_WARNING, "Could not find Data Record change variable %s.\n", in_name.c_str()) ;
+        message_publish(MSG_WARNING, "DR Group \"%s\" : Could not find Data Record change variable %s.\n", group_name.c_str(), in_name.c_str()) ;
         return(-1) ;
     }
 
@@ -468,14 +468,14 @@ int Trick::DataRecordGroup::init(bool is_restart) {
 
             ref2 = ref_attributes(drb->name.c_str()) ;
             if ( ref2 == NULL || ref2->attr == NULL ) {
-                message_publish(MSG_WARNING, "Could not find Data Record variable %s.\n", drb->name.c_str()) ;
+                message_publish(MSG_WARNING, "DR Group \"%s\" : Could not find Data Record variable %s.\n", group_name.c_str(), drb->name.c_str()) ;
                 rec_buffer.erase(rec_buffer.begin() + jj--) ;
                 delete drb ;
                 continue ;
             } else {
                 std::string message;
                 if (!isSupportedType(ref2, message)) {
-                    message_publish(MSG_WARNING, "%s\n", message.c_str()) ;
+                    message_publish(MSG_WARNING, "DR Group \"%s\" : %s\n", group_name.c_str(), message.c_str()) ;
                     rec_buffer.erase(rec_buffer.begin() + jj--) ;
                     delete drb ;
                     continue ;
@@ -860,8 +860,9 @@ void Trick::DataRecordGroup::emit_rate_error(int rate_err_code, size_t log_idx, 
     if(rate_err_code == 1) {
         message_publish(
             MSG_ERROR,
-            "DataRecordGroup ERROR: Cycle for %lu logging rate idx is less than time tic value. cycle = "
+            "DataRecordGroup ERROR: DR Group \"%s\" : Cycle for %lu logging rate idx is less than time tic value. cycle = "
             "%16.12f, time_tic = %16.12f\n",
+            group_name.c_str(),
             log_idx,
             err_rate,
             tic_value);
@@ -869,9 +870,10 @@ void Trick::DataRecordGroup::emit_rate_error(int rate_err_code, size_t log_idx, 
     {
         long long cycle_tics = (long long)round(err_rate * tic_value);
         message_publish(MSG_ERROR,
-                        "DataRecordGroup ERROR: Cycle for %lu logging rate idx cannot be exactly scheduled "
+                        "DataRecordGroup ERROR: DR Group \"%s\" : Cycle for %lu logging rate idx cannot be exactly scheduled "
                         "with time tic value. "
                         "cycle = %16.12f, cycle_tics = %lld , time_tic = %16.12f\n",
+                        group_name.c_str(),
                         log_idx,
                         err_rate,
                         cycle_tics,
