@@ -1,7 +1,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 #include <algorithm>
 #include <Python.h>
 #include <stdlib.h>
@@ -87,8 +86,8 @@ char * swig_ref::__str__() {
         os << "]";
     } else {
         // Use Trick's default printing for all types
-        // write_rvalue will handle units display internally
-        Trick::PythonPrint::write_rvalue(os , ref_copy.address , ref_copy.attr , 0 , 0, true) ;
+        // write_rvalue prints units by default
+        Trick::PythonPrint::write_rvalue(os , ref_copy.address , ref_copy.attr , 0 , 0) ;
     }
 
     if ( str_output ) {
