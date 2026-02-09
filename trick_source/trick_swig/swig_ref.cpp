@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <algorithm>
 #include <Python.h>
 #include <stdlib.h>
@@ -38,11 +39,57 @@ swig_ref::~swig_ref() {
 
 char * swig_ref::__str__() {
     std::stringstream os ;
+    // Check if first dimension is a pointer BEFORE deref_address changes it
+    bool is_pointer_dim = (ref.attr->num_index > 0 && ref.attr->index[0].size == 0);
 
     deref_address() ;
     REF2 ref_copy = ref;
 
-    Trick::PythonPrint::write_rvalue(os , ref_copy.address , ref_copy.attr , 0 , 0) ;
+    // Check for NULL pointer
+    if ( ref_copy.address == NULL ) {
+        if ( str_output ) {
+            free(str_output) ;
+        }
+        str_output = strdup("NULL") ;
+        return str_output ;
+    }
+
+    // For pointer dimensions with 2+ remaining dimensions, recursively print the structure
+    // For 1D arrays (num_index_left == 1), use write_rvalue which handles formatting correctly
+    if ( is_pointer_dim && ref_copy.num_index_left > 1 ) {
+        // This is a pointer dimension with more dimensions remaining
+        int size = get_truncated_size((char *)ref_copy.address);
+
+        os << "[" ;
+        for ( int i = 0; i < size; i++ ) {
+            if ( i > 0 ) os << ", ";
+
+            // Get element at index i (will be a swig_ref to the next dimension)
+            PyObject* elem = __getitem__(i);
+            if ( elem != NULL ) {
+                // Recursively convert element to string
+                PyObject* str_obj = PyObject_Str(elem);
+                if ( str_obj != NULL ) {
+#if PY_VERSION_HEX >= 0x03000000
+                    PyObject* bytes = PyUnicode_AsEncodedString(str_obj, "utf-8", "Error");
+                    if ( bytes != NULL ) {
+                        os << PyBytes_AS_STRING(bytes);
+                        Py_DECREF(bytes);
+                    }
+#else
+                    os << PyString_AsString(str_obj);
+#endif
+                    Py_DECREF(str_obj);
+                }
+                Py_DECREF(elem);
+            }
+        }
+        os << "]";
+    } else {
+        // Use Trick's default printing for all types
+        // write_rvalue will handle units display internally
+        Trick::PythonPrint::write_rvalue(os , ref_copy.address , ref_copy.attr , 0 , 0, true) ;
+    }
 
     if ( str_output ) {
         free(str_output) ;
@@ -179,6 +226,237 @@ int setVData( V_DATA * v_data , PyObject * o , REF2 & ref_copy ) {
     return 0 ;
 }
 
+// Helper function to check if we can reuse existing memory for 2D slice assignment
+bool canReuseExisting2DMemory(void *ptr, PyObject *obj, REF2 &ref_copy)
+{
+    // Check if pointer is NULL
+    if (ptr == NULL)
+    {
+        return false;
+    }
+
+    // Check if we have a 2D assignment (list of lists)
+    if (!PyTuple_Check(obj) && !PyList_Check(obj))
+    {
+        return false;
+    }
+
+    PyObject *tuple_obj = obj;
+    if (PyList_Check(obj))
+    {
+        tuple_obj = PyList_AsTuple(obj);
+    }
+
+    unsigned int size = PyTuple_Size(tuple_obj);
+    if (size == 0)
+    {
+        return false;
+    }
+
+    // Check first element is also a list
+    PyObject *first_elem = PyTuple_GetItem(tuple_obj, 0);
+    if (!PyTuple_Check(first_elem) && !PyList_Check(first_elem))
+    {
+        return false;
+    }
+
+    // At this point we know memory exists and we have a 2D structure
+    return true;
+}
+
+// Helper function to do element-by-element assignment for 2D arrays
+// This avoids reallocating memory and invalidating references
+int assign2DInPlace(void *base_ptr, PyObject *obj, REF2 &ref_copy)
+{
+    int ret;
+
+    // Convert to tuple if needed
+    PyObject *outer_tuple = obj;
+    if (PyList_Check(obj))
+    {
+        outer_tuple = PyList_AsTuple(obj);
+    }
+
+    unsigned int num_rows = PyTuple_Size(outer_tuple);
+
+    for (unsigned int i = 0; i < num_rows; i++)
+    {
+        PyObject *row_obj = PyTuple_GetItem(outer_tuple, i);
+        PyObject *row_tuple = row_obj;
+        if (PyList_Check(row_obj))
+        {
+            row_tuple = PyList_AsTuple(row_obj);
+        }
+
+        unsigned int num_cols = PyTuple_Size(row_tuple);
+
+        // Get pointer to row
+        void **row_ptrs = (void **)base_ptr;
+        void *row_ptr = row_ptrs[i];
+
+        if (row_ptr == NULL)
+        {
+            std::cout << "\033[31mError: NULL pointer in row " << i << " during in-place 2D assignment\033[0m"
+                      << std::endl;
+            return -1;
+        }
+
+        // Assign each element in the row
+        for (unsigned int j = 0; j < num_cols; j++)
+        {
+            PyObject *elem = PyTuple_GetItem(row_tuple, j);
+
+            switch (ref_copy.attr->type)
+            {
+            case TRICK_UNSIGNED_CHARACTER:
+                if (PyInt_Check(elem))
+                {
+                    ((unsigned char *)row_ptr)[j] = (unsigned char)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_SHORT:
+                if (PyInt_Check(elem))
+                {
+                    ((short *)row_ptr)[j] = (short)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_UNSIGNED_SHORT:
+                if (PyInt_Check(elem))
+                {
+                    ((unsigned short *)row_ptr)[j] = (unsigned short)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_INTEGER:
+                if (PyInt_Check(elem))
+                {
+                    ((int *)row_ptr)[j] = (int)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_UNSIGNED_INTEGER:
+                if (PyInt_Check(elem))
+                {
+                    ((unsigned int *)row_ptr)[j] = (unsigned int)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_LONG:
+                if (PyInt_Check(elem))
+                {
+                    ((long *)row_ptr)[j] = (long)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_UNSIGNED_LONG:
+                if (PyInt_Check(elem))
+                {
+                    ((unsigned long *)row_ptr)[j] = (unsigned long)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_LONG_LONG:
+                if (PyInt_Check(elem))
+                {
+                    ((long long *)row_ptr)[j] = (long long)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_UNSIGNED_LONG_LONG:
+                if (PyInt_Check(elem))
+                {
+                    ((unsigned long long *)row_ptr)[j] = (unsigned long long)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_DOUBLE:
+                if (PyFloat_Check(elem))
+                {
+                    ((double *)row_ptr)[j] = PyFloat_AsDouble(elem);
+                }
+                else if (PyInt_Check(elem))
+                {
+                    ((double *)row_ptr)[j] = (double)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_FLOAT:
+                if (PyFloat_Check(elem))
+                {
+                    ((float *)row_ptr)[j] = (float)PyFloat_AsDouble(elem);
+                }
+                else if (PyInt_Check(elem))
+                {
+                    ((float *)row_ptr)[j] = (float)PyInt_AsLong(elem);
+                }
+                break;
+            case TRICK_BOOLEAN:
+                if (PyInt_Check(elem))
+                {
+                    ((bool *)row_ptr)[j] = (bool)PyInt_AsLong(elem);
+                }
+                break;
+            default:
+                std::cout << "\033[31mUnsupported type for in-place 2D assignment\033[0m" << std::endl;
+                return -1;
+            }
+        }
+    }
+
+    return 0;
+}
+
+// Helper function to recursively build V_TREE for nested lists (supports up to 3D)
+// depth: current nesting depth (1 = 1D list, 2 = 2D list, 3 = 3D list)
+int buildNestedVTree(V_TREE **tree_ptr, PyObject *obj, REF2 &ref_copy, int depth)
+{
+    V_TREE *first_node, *curr_node;
+    PyObject *converted_obj = obj;
+    int ret;
+
+    // Convert list to tuple
+    if (PyList_Check(obj))
+    {
+        converted_obj = PyList_AsTuple(obj);
+    }
+
+    if (!PyTuple_Check(converted_obj))
+    {
+        std::cout << "\033[31mExpected list/tuple at depth " << depth << "\033[0m" << std::endl;
+        return -1;
+    }
+
+    unsigned int size = PyTuple_Size(converted_obj);
+    first_node = curr_node = (V_TREE *)calloc(1, sizeof(V_TREE));
+
+    for (unsigned int ii = 0; ii < size; ii++)
+    {
+        PyObject *elem = PyTuple_GetItem(converted_obj, ii);
+        newVTreeNode(&curr_node);
+
+        // Check if this element is another list (more dimensions to go)
+        PyObject *check_elem = elem;
+        if (PyList_Check(elem))
+        {
+            check_elem = PyList_AsTuple(elem);
+        }
+
+        if (depth > 1 && PyTuple_Check(check_elem))
+        {
+            ret = buildNestedVTree(&(curr_node->down), elem, ref_copy, depth - 1);
+            if (ret != 0)
+            {
+                return ret;
+            }
+        }
+        else
+        {
+            // Scalar value (or shouldn't be nested anymore)
+            ret = setVData(curr_node->v_data, elem, ref_copy);
+            if (ret != 0)
+            {
+                return ret;
+            }
+        }
+    }
+
+    *tree_ptr = first_node->next;
+    free(first_node);
+    return 0;
+}
+
 int swig_ref::__setitem__( int ii, PyObject * obj1 ) {
 
     V_TREE v_tree ;
@@ -255,65 +533,124 @@ int swig_ref::__setitem__( int ii, PyObject * obj1 ) {
         last_index = ref_copy.attr->index[ref_copy.attr->num_index - 1].size ;
 
         if ( last_index ) {
-            // The LHS is an array.  Fill out a V_TREE structure with the RHS data to be used with ref_assignment.
-            first_node = curr_node = ( V_TREE * )calloc( 1 , sizeof(V_TREE) ) ;
+            // The LHS is a fixed-size array. Fill out a V_TREE structure with the RHS data to be used with ref_assignment.
 
-            //TODO: Add 2 dimensional assignments
-            for( jj = 0 ; jj < size ; jj++ ) {
-                PyObject *o = PyTuple_GetItem( obj1 , jj ) ;
-                newVTreeNode(&curr_node) ;
-                ret = setVData( curr_node->v_data , o , ref_copy ) ;
+            // Check if we need multi-dimensional handling
+            // Peek at first element to see if it's a nested list
+            PyObject *first_elem = PyTuple_GetItem( obj1 , 0 ) ;
+            PyObject *check_elem = first_elem;
+            if ( PyList_Check(first_elem) ) {
+                check_elem = PyList_AsTuple(first_elem);
+            }
+
+            if ( ref_copy.num_index_left > 1 && PyTuple_Check(check_elem) ) {
+                // Multi-dimensional assignment for fixed-size arrays (2D or 3D)
+                // Use recursive helper to build the tree
+                ret = buildNestedVTree( &(v_tree.down), obj1, ref_copy, ref_copy.num_index_left );
                 if ( ret != 0 ) {
-                    return ret ;
+                    return ret;
                 }
+            } else {
+                // Original 1D assignment code for fixed-size arrays
+                first_node = curr_node = ( V_TREE * )calloc( 1 , sizeof(V_TREE) ) ;
+                
+                for( jj = 0 ; jj < size ; jj++ ) {
+                    PyObject *o = PyTuple_GetItem( obj1 , jj ) ;
+                    newVTreeNode(&curr_node) ;
+                    ret = setVData( curr_node->v_data , o , ref_copy ) ;
+                    if ( ret != 0 ) {
+                        return ret ;
+                    }
+                }
+
+                v_tree.down = first_node->next ;
+                free(first_node) ;
+            }
+        } else {
+            // The LHS is a pointer dimension.
+
+            // Check if this is a nested list (multi-dimensional)
+            PyObject *first_elem = PyTuple_GetItem( obj1 , 0 ) ;
+            PyObject *check_elem = first_elem;
+            if ( PyList_Check(first_elem) ) {
+                check_elem = PyList_AsTuple(first_elem);
             }
 
-            v_tree.down = first_node->next ;
-            free(first_node) ;
-        } else {
-            // The LHS is a pointer.  Create an allocation from the data on the right to be used in ref_assignment.
-            v_tree.v_data->type = TRICK_VOID_PTR ;
-            switch (ref_copy.attr->type) {
-                case TRICK_UNSIGNED_CHARACTER:
-                    v_tree.v_data->value.vp = assign_array< unsigned char > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_SHORT:
-                    v_tree.v_data->value.vp = assign_array< short > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_UNSIGNED_SHORT:
-                    v_tree.v_data->value.vp = assign_array< unsigned short > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_INTEGER:
-                    v_tree.v_data->value.vp = assign_array< int > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_UNSIGNED_INTEGER:
-                    v_tree.v_data->value.vp = assign_array< unsigned int > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_LONG:
-                    v_tree.v_data->value.vp = assign_array< long > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_UNSIGNED_LONG:
-                    v_tree.v_data->value.vp = assign_array< unsigned long > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_LONG_LONG:
-                    v_tree.v_data->value.vp = assign_array< long long > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_UNSIGNED_LONG_LONG:
-                    v_tree.v_data->value.vp = assign_array< unsigned long long > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_DOUBLE:
-                    v_tree.v_data->value.vp = assign_array< double > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_FLOAT:
-                    v_tree.v_data->value.vp = assign_array< float > ( obj1 , ref_copy ) ;
-                break ;
-                case TRICK_BOOLEAN:
-                    v_tree.v_data->value.vp = assign_array< bool > ( obj1 , ref_copy ) ;
-                break ;
-                default:
-                break ;
+            if ( PyTuple_Check(check_elem) && ref_copy.num_index_left > 1 ) {
+                // Multi-dimensional assignment to already-allocated pointer structure
+                // e.g. 3D pointer array assignment
+                // In C++ code, double *** foo_ptr_3d ;
+                // In Python input file:
+                //     xxx.foo_ptr_3d = [[[...], [...]], [[...], [...]], ...]
+                //     Then later, another assignment to a slice of it such as xxx.foo_ptr_3d[0] = [[...], [...]]
+                //     (foo_ptr_foo_ptr_3d[0] = [[...],[...]] where foo_ptr_3d was already assigned)
+                // Check if we can reuse existing memory (only for 2D case)
+                if ( ref_copy.num_index_left == 2 ) {
+                    // Get the current pointer value
+                    void* existing_ptr = *(void**)ref_copy.address;
+
+                    if ( canReuseExisting2DMemory(existing_ptr, obj1, ref_copy) ) {
+                        // Memory exists and dimensions match - do in-place assignment
+                        ret = assign2DInPlace(existing_ptr, obj1, ref_copy);
+                        if ( ret != 0 ) {
+                            return ret;
+                        }
+                        // Skip ref_assignment since we did in-place update
+                        return 0;
+                    }
+                }
+
+                // Either not 2D, or no existing memory, or dimensions don't match
+                // Use V_TREE approach (will allocate new memory)
+                ret = buildNestedVTree( &(v_tree.down), obj1, ref_copy, ref_copy.num_index_left );
+                if ( ret != 0 ) {
+                    return ret;
+                }
+            } else {
+                // 1D case: create a new allocation from the data on the right
+                v_tree.v_data->type = TRICK_VOID_PTR ;
+                switch (ref_copy.attr->type) {
+                    case TRICK_UNSIGNED_CHARACTER:
+                        v_tree.v_data->value.vp = assign_array< unsigned char > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_SHORT:
+                        v_tree.v_data->value.vp = assign_array< short > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_UNSIGNED_SHORT:
+                        v_tree.v_data->value.vp = assign_array< unsigned short > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_INTEGER:
+                        v_tree.v_data->value.vp = assign_array< int > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_UNSIGNED_INTEGER:
+                        v_tree.v_data->value.vp = assign_array< unsigned int > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_LONG:
+                        v_tree.v_data->value.vp = assign_array< long > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_UNSIGNED_LONG:
+                        v_tree.v_data->value.vp = assign_array< unsigned long > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_LONG_LONG:
+                        v_tree.v_data->value.vp = assign_array< long long > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_UNSIGNED_LONG_LONG:
+                        v_tree.v_data->value.vp = assign_array< unsigned long long > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_DOUBLE:
+                        v_tree.v_data->value.vp = assign_array< double > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_FLOAT:
+                        v_tree.v_data->value.vp = assign_array< float > ( obj1 , ref_copy ) ;
+                    break ;
+                    case TRICK_BOOLEAN:
+                        v_tree.v_data->value.vp = assign_array< bool > ( obj1 , ref_copy ) ;
+                    break ;
+                    default:
+                    break ;
+                }
+                //cout << "\033[33mGoing to set a pointer in swig_ref::set_item!!\033[0m" << endl ;
             }
-            //cout << "\033[33mGoing to set a pointer in swig_ref::set_item!!\033[0m" << endl ;
         }
         //cout << "finished making v_tree" << endl ;
     } else if (SWIG_IsOK(SWIG_ConvertPtr(obj1, &argp2,SWIG_TypeQuery("void *"), 0 ))) {
