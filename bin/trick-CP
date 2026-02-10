@@ -212,9 +212,15 @@ $(TRICK_STATIC_LIB):
 	@exit -1
 
 # CP creates S_source.hh required for ICG and SWIG processing
-$(TRICK_BUILD_DIR)S_source.hh: $(TRICK_SIM_DIR)S_define | $(TRICK_BUILD_DIR)build/
+$(TRICK_BUILD_DIR)S_source.hh: S_define | $(TRICK_BUILD_DIR)build/
 	$(PRINT_CP)
 	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS))
+
+# Some developers add rules for S_define (as in the literal string S_define).
+# In order to make things simple on their end, we allow them to reference the literal string S_define instead of $(TRICK_SIM_DIR)S_define
+# By listing S_define as a S_source.hh dependency, we ensure the user's S_define rules are always invoked.
+# The following rule checks that the actual S_define file exists in the sim dir.
+S_define: $(TRICK_SIM_DIR)S_define
 
 $(TRICK_BUILD_DIR)build/Makefile_S_define: $(TRICK_BUILD_DIR)S_source.hh
 	$(PRINT_S_DEF_DEPS)

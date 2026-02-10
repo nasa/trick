@@ -218,25 +218,15 @@ if($s_define ne "")
     
     $s_define_dir = dirname($s_define) ;
     chdir Cwd::abs_path($s_define_dir) or die "Error changing to the s_define directory: $s_define_dir\n" ;
-    
-    # If the user has already built the sim, push it somewhere else
-    map 
-    {
-        if(-e $_)
-        {
-            system("mv $_ $tmp_trick_build$_") == 0 or die "Could not move $_\n" ;
-        }
-    }
-    @trick_build_files;    
 
-    my $cmd_ret = `$my_path/trick-CP 2>&1` ;
+    my $cmd_ret = `$my_path/trick-CP -b $build_dir/tmp_build 2>&1` ;
     if($cmd_ret ne "") 
     {
         print "$cmd_ret" ;
     }
-    -e "build/trickify_deps" or die "Failed to create trickify_deps from S_define.\n" ;
+    -e "$build_dir/tmp_build/build/trickify_deps" or die "Failed to create trickify_deps from S_define.\n" ;
 
-    open (my $fh, "build/trickify_deps") or die "Could not open trickify_deps" ;
+    open (my $fh, "$build_dir/tmp_build/build/trickify_deps") or die "Could not open trickify_deps" ;
     while (my $line = <$fh>) 
     {
         chomp $line ;
@@ -255,17 +245,11 @@ if($s_define ne "")
     }
     close ($fh) ;
 
-    # Clear up the partial build dir we just made
-    system("make clean") == 0 or die "Could not clean up tmp build dir\n" ;
-
-    map 
-    {
-        if(-e "$tmp_trick_build$_")
-        {
-            system("mv $tmp_trick_build$_ $_") == 0 or die "Could not move $_\n" ;
-        }
-    }
-    @trick_build_files; 
+    #Clean up tmp build
+    chdir Cwd::abs_path("$build_dir/tmp_build") or die "Error changing to the build directory: $build_dir/tmp_build\n" ;
+    system('make clean');
+    chdir Cwd::abs_path("$build_dir") or die "Error changing to the build directory: $build_dir\n" ;
+    system('rm -r tmp_build'); 
 }
 my @filters = split ' ', $s_define_filter ;
 filter_paths(\@lib_deps_source, \@filters) ;
@@ -359,7 +343,7 @@ open (my $fh, ">", "S_overrides_trickify.mk") or die "Could not open S_overrides
 print $fh "ifndef AM_I_TRICKIFYING\n" ;  # Only want these parameters if we are doing normal sim builds, otherwise the ext libs will butcher the trickify_deps
 print $fh "SOT_LOCAL_DIR_$name := \$(abspath \$(dir \$(lastword \$(MAKEFILE_LIST))))\n\n" ;
 print $fh "include $build_dir/trickify_dep.mk\n\n" ;
-print $fh "TRICKIFY_LDFLAGS := " . Cwd::abs_path($ENV{'TRICKIFY_OBJECT_NAME'}) . "\n" ;
+print $fh "TRICKIFY_LDFLAGS += " . Cwd::abs_path($ENV{'TRICKIFY_OBJECT_NAME'}) . "\n" ;
 print $fh "TRICK_EXT_LIB_DIRS += $ext_lib_dir\n" ;
 print $fh "TRICK_EXT_LIB_DIRS_OVERRIDES += ",$ext_lib_dir_overrides ,"\n" ;
 print $fh "TRICK_PYTHON_PATH += :" . $my_cwd . "/python\n" ;
