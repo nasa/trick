@@ -29,7 +29,7 @@ def main():
     print(f'time {cs_end-1.1}, cycle = {0.1}')
     print(f'stop = {cs_end+2.6}')
 
-    trick.add_read(2.4,f'trick.get_data_record_group("{dr_group.get_group_name()}").set_cycle({ph_logging_break})')
+    trick.add_read(2.4,f'trick.exec_set_job_cycle("trick_data_record_group_{dr_group.get_group_name()}.data_record", 1, {ph_logging_break})')
     trick.add_read(ss_end-1.1,f'trick.get_data_record_group("{dr_group.get_group_name()}").set_cycle(0.1)')
     trick.add_read(ss_end+2.4,f'trick.get_data_record_group("{dr_group.get_group_name()}").set_cycle({cs_logging_break})')
     trick.add_read(second_cycle_update,f'trick.get_data_record_group("{dr_group.get_group_name()}").set_rate(1, {cs_logging_break/4})')

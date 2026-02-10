@@ -19,6 +19,8 @@ PROGRAMMERS:
 
 namespace Trick {
 
+    class DataRecordGroup;
+
     /**
      * The DR_Freq enumeration represents the possible Trick data recording frequency.
      */
@@ -76,7 +78,20 @@ namespace Trick {
         long long next_cycle_in_tics{}; /* (--) Next cycle in tics for logging */
     };
 
-    class DataRecordGroup : public Trick::SimObject {
+    class DataRecordGroupJobData : public JobData
+    {
+        public:
+        DataRecordGroupJobData(DataRecordGroup & owner_in);
+        DataRecordGroupJobData(DataRecordGroup & owner_in, int in_thread, int in_id, std::string in_job_class_name , void* in_sup_class_data,
+                    double in_cycle, std::string in_name, std::string in_tag = "", int in_phase = 60000 ,
+                    double in_start = 0.0 , double in_stop = 1.0e37);
+        
+        int set_cycle(double rate) override;
+
+        DataRecordGroup & owner;        
+    };
+
+    class DataRecordGroup : public SimObject {
 
         public:
 

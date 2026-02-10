@@ -80,6 +80,25 @@ long long Trick::LoggingCycle::calc_next_tics_on_or_after_input_tic(long long in
     return next_tic;
 }
 
+Trick::DataRecordGroupJobData::DataRecordGroupJobData(Trick::DataRecordGroup &owner_in)
+    : owner(owner_in)
+{
+}
+
+Trick::DataRecordGroupJobData::DataRecordGroupJobData(Trick::DataRecordGroup &owner_in, int in_thread, int in_id, std::string in_job_class_name, void *in_sup_class_data,
+                                                      double in_cycle, std::string in_name, std::string in_tag, int in_phase,
+                                                      double in_start, double in_stop)
+    : Trick::JobData(in_thread, in_id, in_job_class_name, in_sup_class_data, in_cycle, in_name, in_tag, in_phase, in_start, in_stop),
+      owner(owner_in)
+{
+}
+
+int Trick::DataRecordGroupJobData::set_cycle(double rate)
+{
+    owner.set_cycle(rate);
+    return 0;
+}
+
 Trick::DataRecordGroup::DataRecordGroup( std::string in_name, Trick::DR_Type dr_type ) :
  record(true) ,
  inited(false) ,
@@ -537,7 +556,8 @@ void Trick::DataRecordGroup::configure_jobs(DR_Type type) {
         add_job(0, 4, (char *)"post_checkpoint", NULL, 1.0, (char *)"clear_checkpoint_vars", (char *)"TRK") ;
         add_job(0, 6, (char *)"shutdown", NULL, 1.0, (char *)"shutdown", (char *)"TRK") ;
 
-        write_job = add_job(0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
+        write_job = new Trick::DataRecordGroupJobData(*this, 0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
+        jobs.push_back(write_job) ;
         break ;
     }
     write_job->set_system_job_class(true);
