@@ -303,7 +303,7 @@ spotless: clean
 
 distclean: clean
 
-apocalypse: clean_trickify
+apocalypse: clean clean_trickify
 	@echo "[31mI love the smell of napalm in the morning <3[0m"
 
 clean_trickify: ;
