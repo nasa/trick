@@ -1,3 +1,5 @@
+[![DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/nasa/trick)
+
 <p align=center>
 <picture>
   <a href="https://nasa.github.io/trick">
