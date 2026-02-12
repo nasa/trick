@@ -278,6 +278,12 @@ SIM_checkpoint_data_recording:
     RUN_test[7-9]/dump.py:
       phase: -1
       returns: 0
+    RUN_test11/dump.py:
+      phase: -1
+      returns: 0
+    RUN_test11_redirect/dump.py:
+      phase: -1
+      returns: 0
 
     # Note we could use the [1-5] notation here if RUN_test2 didn't stand out as not matching the pattern -Jordan 1/2023
     RUN_test1/unit_test.py:
@@ -315,6 +321,11 @@ SIM_checkpoint_data_recording:
       returns: 0
       compare:
         - test/SIM_checkpoint_data_recording/RUN_test9/ref_log_foo2.csv vs. test/SIM_checkpoint_data_recording/RUN_test9/log_foo2.csv
+    RUN_test11/unit_test.py:
+      returns: 0
+      compare:
+        - test/SIM_checkpoint_data_recording/RUN_test11/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11/log_foo.csv
+        - test/SIM_checkpoint_data_recording/RUN_test11_redirect/ref_log_foo.csv vs. test/SIM_checkpoint_data_recording/RUN_test11_redirect/log_foo.csv
 
 SIM_events:
   path: test/SIM_events

@@ -318,8 +318,15 @@ void Trick::CheckPointRestart::load_checkpoint(std::string file_name, std::strin
     redirect_data_recording = true;
     redirected_data_recording_directory = new_data_record_dir;
     load_checkpoint(file_name);
-    message_publish(MSG_INFO,"CheckPointRestart::load_checkpoint - checkpoint loaded with new data record directory %s\n",new_data_record_dir.c_str());
+}
 
+void Trick::CheckPointRestart::load_checkpoint(std::string file_name, std::string new_data_record_dir, bool stls_on)
+{
+
+    redirect_data_recording = true;
+    redirected_data_recording_directory = new_data_record_dir;
+    trick_MM->set_restore_stls_default(stls_on);
+    load_checkpoint(file_name);
 }
 
 

@@ -276,6 +276,17 @@ namespace Trick {
             virtual void load_checkpoint(std::string file_name, std::string data_record_directory) ;
 
             /**
+             @brief @userdesc Command to load a checkpoint file but redirect data recording to a new directory. (Calls the preload_checkpoint jobs,
+             calls the MemoryManager restore_managed_memory method, then calls the restart jobs.)
+             @par Python Usage:
+             @code trick.load_checkpoint("<file_name>","<dir_name>","stl_restore_on") @endcode
+             @param file_name - file to read checkpoint data from
+             @param dir_name - directory to write new data to
+             @param std_restore_on - whether to toggle restor STLs
+             */
+            virtual void load_checkpoint(std::string file_name, std::string data_record_directory, bool stl_restore_on) ;
+
+            /**
              @brief @userdesc Command to load a checkpoint file. (Calls the preload_checkpoint jobs, calls the MemoryManager restore_managed_memory
              method, then calls the restart jobs.)
              @par Python Usage:
