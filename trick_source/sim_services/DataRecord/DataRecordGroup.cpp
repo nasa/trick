@@ -710,7 +710,10 @@ int Trick::DataRecordGroup::data_record(double in_time) {
 
         }
 
-        if ( freq == DR_Always || change_detected == true ) {
+        // Record data if frequency is always, or at the first call (buffer_num == 0), or a change was detected
+        // Added condition to always record at the first call which might be also a checkpoint restart to ensure
+        // data is recorded at least once for change based recording (DR_Changes and DR_Changes_Step).
+        if ( freq == DR_Always || buffer_num == 0 || change_detected == true ) {
 
             // If this is not the ring buffer and
             // we are going to have trouble fitting 2 data sets then write the data now.
