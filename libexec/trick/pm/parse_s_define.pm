@@ -103,7 +103,7 @@ $sim_class_job_def = qr/
               \(
                 (?:
                    (?:
-                      \s*(?:[\w.]+)\s*           # cycle time
+                      \s*(?:[\w.\:]+)\s*         # cycle time
                       (?:,\s*(?:[\w.]+)\s*)?     # start time
                       (?:,\s*(?:[\w.]+)\s*)?     # stop time
                       (?:,\s*(?:"?\w+"?)\s*)     # class
@@ -953,7 +953,7 @@ sub handle_sim_class_job($$$) {
     # Format: ([<cycle_time>, [<start_time>, [<stop_time>,]]] <job_class>)
     if ($second_part =~ /^\(\s*
         (?:
-            ([\w.]+)                           # $1: $cycle
+            ([\w.\:]+)                         # $1: $cycle
             (?:\s*,\s*([\w.]+))?               # $2: $start_time OR job_class (if only 2 params)
             (?:\s*,\s*([\w.]+))?               # $3: $stop_time OR job_class (if 3 params)
             (?:\s*,\s*("?[\w.]+"?))?           # $4: $job_class (if 4+ params)
