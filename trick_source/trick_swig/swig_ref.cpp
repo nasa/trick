@@ -38,8 +38,6 @@ swig_ref::~swig_ref() {
 
 char * swig_ref::__str__() {
     std::stringstream os ;
-    // Check if first dimension is a pointer BEFORE deref_address changes it
-    bool is_pointer_dim = (ref.attr->num_index > 0 && ref.attr->index[0].size == 0);
 
     deref_address() ;
     REF2 ref_copy = ref;
@@ -53,11 +51,26 @@ char * swig_ref::__str__() {
         return str_output ;
     }
 
+    // Check if there are any pointer dimensions (size == 0) in the remaining indices
+    // Note: For allocated pointers, the first dimension's size may be filled by get_truncated_size,
+    // but subsequent pointer dimensions will still have size == 0
+    bool has_pointer_dim = false;
+    for (int i = 0; i < ref_copy.attr->num_index; i++) {
+        if (ref_copy.attr->index[i].size == 0) {
+            has_pointer_dim = true;
+            break;
+        }
+    }
+
     // For pointer dimensions with 2+ remaining dimensions, recursively print the structure
     // For 1D arrays (num_index_left == 1), use write_rvalue which handles formatting correctly
-    if ( is_pointer_dim && ref_copy.num_index_left > 1 ) {
+    if ( has_pointer_dim && ref_copy.num_index_left > 1 ) {
         // This is a pointer dimension with more dimensions remaining
-        int size = get_truncated_size((char *)ref_copy.address);
+        int size = ref_copy.attr->index[0].size;
+        if (size == 0) {
+            // If size is still 0, try to get it from memory manager
+            size = get_truncated_size((char *)ref_copy.address);
+        }
 
         os << "[" ;
         for ( int i = 0; i < size; i++ ) {
@@ -66,19 +79,45 @@ char * swig_ref::__str__() {
             // Get element at index i (will be a swig_ref to the next dimension)
             PyObject* elem = __getitem__(i);
             if ( elem != NULL ) {
-                // Recursively convert element to string
-                PyObject* str_obj = PyObject_Str(elem);
-                if ( str_obj != NULL ) {
-#if PY_VERSION_HEX >= 0x03000000
-                    PyObject* bytes = PyUnicode_AsEncodedString(str_obj, "utf-8", "Error");
-                    if ( bytes != NULL ) {
-                        os << PyBytes_AS_STRING(bytes);
-                        Py_DECREF(bytes);
+                // Check if elem is a swig_ref
+                void* argp = NULL;
+                if (SWIG_IsOK(SWIG_ConvertPtr(elem, &argp, SWIG_TypeQuery("_p_swig_ref"), 0))) {
+                    swig_ref* elem_ref = reinterpret_cast<swig_ref*>(argp);
+                    elem_ref->deref_address();
+                    REF2 elem_ref_copy = elem_ref->ref;
+
+                    // Check if this element still has pointer dimensions with more levels
+                    bool elem_has_pointer_dim = false;
+                    for (int j = 0; j < elem_ref_copy.attr->num_index; j++) {
+                        if (elem_ref_copy.attr->index[j].size == 0) {
+                            elem_has_pointer_dim = true;
+                            break;
+                        }
                     }
+
+                    // If element has pointer dims and more than 1 dimension left, recursively call __str__
+                    if (elem_has_pointer_dim && elem_ref_copy.num_index_left > 1) {
+                        char* elem_str = elem_ref->__str__();
+                        os << elem_str;
+                    } else {
+                        // Otherwise call write_rvalue with in_list=true so strings get quoted properly
+                        Trick::PythonPrint::write_rvalue(os, elem_ref_copy.address, elem_ref_copy.attr, 0, 0, true, true);
+                    }
+                } else {
+                    // Not a swig_ref, use str representation
+                    PyObject* str_obj = PyObject_Str(elem);
+                    if ( str_obj != NULL ) {
+#if PY_VERSION_HEX >= 0x03000000
+                        PyObject* bytes = PyUnicode_AsEncodedString(str_obj, "utf-8", "Error");
+                        if ( bytes != NULL ) {
+                            os << PyBytes_AS_STRING(bytes);
+                            Py_DECREF(bytes);
+                        }
 #else
-                    os << PyString_AsString(str_obj);
+                        os << PyString_AsString(str_obj);
 #endif
-                    Py_DECREF(str_obj);
+                        Py_DECREF(str_obj);
+                    }
                 }
                 Py_DECREF(elem);
             }
