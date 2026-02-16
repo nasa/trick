@@ -87,6 +87,7 @@ namespace Trick {
                     double in_start = 0.0 , double in_stop = 1.0e37);
         
         int set_cycle(double rate) override;
+        void enable() override;        
 
         DataRecordGroup & owner;        
     };
@@ -115,9 +116,6 @@ namespace Trick {
 
             /** Start time for data recording.\n */
             double start;               /**< trick_io(*io) trick_units(s) */
-
-            /** Cycle time for data recording.\n */
-            double cycle;               /**< trick_io(*io) trick_units(s) */
 
             /*  Fake attributes to use for data recording.\n */
             ATTRIBUTES time_value_attr; /**< trick_io(**) */
@@ -527,6 +525,8 @@ namespace Trick {
              * @param curr_tic_in - time in tics to match and advance the next cycle tic
              */ 
             void advance_log_tics_given_curr_tic(long long curr_tic_in);
+
+            static const double default_cyle;
     } ;
 
 } ;

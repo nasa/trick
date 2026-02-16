@@ -20,6 +20,9 @@
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
 
+
+const double Trick::DataRecordGroup::default_cyle = 0.1;
+
 /**
 @details
 -# The recording group is enabled
@@ -54,7 +57,6 @@ Trick::DataRecordBuffer::~DataRecordBuffer() {
     ref_free(ref) ;
     free(ref) ;
 }
-
 
 Trick::LoggingCycle::LoggingCycle(double rate_in)
 {
@@ -99,13 +101,21 @@ int Trick::DataRecordGroupJobData::set_cycle(double rate)
     return 0;
 }
 
+void Trick::DataRecordGroupJobData::enable()
+{
+    if(disabled)
+    {
+        Trick::JobData::enable();    
+        owner.set_cycle(owner.get_rate());
+    }
+}
+
 Trick::DataRecordGroup::DataRecordGroup( std::string in_name, Trick::DR_Type dr_type ) :
  record(true) ,
  inited(false) ,
  group_name(in_name) ,
  freq(DR_Always),
- start(0.0) ,
- cycle(0.1) ,
+ start(0.0),
  time_value_attr() ,
  num_variable_names(0),
  variable_names(NULL),
@@ -146,7 +156,7 @@ Trick::DataRecordGroup::DataRecordGroup( std::string in_name, Trick::DR_Type dr_
 
     add_time_variable() ;
 
-    logging_rates.emplace_back(cycle);
+    logging_rates.emplace_back(default_cyle);
 }
 
 Trick::DataRecordGroup::~DataRecordGroup() {
@@ -550,13 +560,13 @@ void Trick::DataRecordGroup::configure_jobs(DR_Type type) {
         // add_jobs_to_queue will fill in job_id later
         // make the init job run after all other initialization jobs but before the post init checkpoint
         // job so users can allocate memory in initialization jobs and checkpointing data rec groups will work
-        add_job(0, 1, (char *)"initialization", NULL, cycle, (char *)"init", (char *)"TRK", 65534) ;
+        add_job(0, 1, (char *)"initialization", NULL, default_cyle, (char *)"init", (char *)"TRK", 65534) ;
         add_job(0, 2, (char *)"end_of_frame", NULL, 1.0, (char *)"write_data", (char *)"TRK") ;
         add_job(0, 3, (char *)"checkpoint", NULL, 1.0, (char *)"checkpoint", (char *)"TRK") ;
         add_job(0, 4, (char *)"post_checkpoint", NULL, 1.0, (char *)"clear_checkpoint_vars", (char *)"TRK") ;
         add_job(0, 6, (char *)"shutdown", NULL, 1.0, (char *)"shutdown", (char *)"TRK") ;
 
-        write_job = new Trick::DataRecordGroupJobData(*this, 0, 99, (char *)job_class.c_str(), NULL, cycle, (char *)"data_record" , (char *)"TRK") ;
+        write_job = new Trick::DataRecordGroupJobData(*this, 0, 99, (char *)job_class.c_str(), NULL, default_cyle, (char *)"data_record" , (char *)"TRK") ;
         jobs.push_back(write_job) ;
         break ;
     }
