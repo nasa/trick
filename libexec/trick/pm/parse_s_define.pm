@@ -137,7 +137,7 @@ $create_connections_def = qr/
          /sx ;
 
 $job_class_order_def = qr/
-         job_class_order          # the word sim_object
+         job_class_order\s*{      # the word sim_object
          (?:.*?                   # everything
          })\s*;                   # to end of obj def
         /sx ;
@@ -378,7 +378,7 @@ sub parse_s_define ($) {
 
     my @preprocess_output;
 
-    @{$$sim_ref{inc_paths}} = (get_include_paths(), $ENV{TRICK_SYSTEM_CFLAGS} =~ /-(?:I|isystem)(\S+)/g, "$ENV{TRICK_HOME}/trick_source" , "../include") ;
+    @{$$sim_ref{inc_paths}} = (get_include_paths(), $ENV{TRICK_SYSTEM_CFLAGS} =~ /-(?:I|isystem)(\S+)/g, "$ENV{TRICK_HOME}/trick_source" , "../include", $ENV{'TRICK_BUILD_DIR'}) ;
 
     my @valid_inc_paths ;
     foreach (@{$$sim_ref{inc_paths}}) {
@@ -397,7 +397,7 @@ sub parse_s_define ($) {
         $_ = quotemeta (abs_path(dirname($_)) . "/" . basename($_)) ;
     }
 
-    $s_define_file = "S_define" ;
+    $s_define_file = "$ENV{TRICK_SIM_DIR}S_define" ;
 
     $$sim_ref{line_num} = 1 ;
 

@@ -145,6 +145,8 @@ class PrintAttributes {
         std::map< std::string , std::set< std::string > > processed_classes ;
         /** map of processed enums sorted by file */
         std::map< std::string , std::set< std::string > > processed_enums ;
+        /** Local copy of the environment variable TRICK_BUILD_DIR*/
+        std::string trick_build_dir ;
 
 } ;
 

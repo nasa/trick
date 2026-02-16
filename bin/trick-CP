@@ -4,14 +4,16 @@
 # so I converted CP back to perl. :)
 
 use File::Basename ;
+use File::Spec ;
+use File::Path qw(make_path) ;
 use Cwd ;
 use Cwd 'abs_path';
 use Pod::Usage ;
 use Pod::Text ;
 
+$my_cwd = getcwd();
 $trick_bin = dirname(abs_path($0)) ;
 $trick_home = dirname($trick_bin) ;
-
 ### Set TRICK_VERBOSE_BUILD if VERBOSE is defined (synonyms) ###
 if(defined $ENV{'VERBOSE'}) {
     $ENV{'TRICK_VERBOSE_BUILD'} = 1;
@@ -22,8 +24,8 @@ $numArgs = $#ARGV + 1;
 $makefileAddArgs = ' ';
 $sdefine_dir = ".";
 $sdefine = "S_define";
-$makefile = "makefile";
-foreach $argnum (0 .. $#ARGV) {
+$trick_build_dir = "./";
+for $argnum (0 .. $#ARGV) {
     $arg = $ARGV[$argnum];
     if ($arg =~ /(\w+)=(\w+)/ ) {
         $makefileAddArgs = $makefileAddArgs . $1 . "=" . $2 . " ";
@@ -39,41 +41,58 @@ foreach $argnum (0 .. $#ARGV) {
         $makefileAddArgs = $makefileAddArgs . " test ";
     } elsif($arg=~ /-h/ ) {
         pod2usage(-sections => "NAME|SYNOPSIS|DESCRIPTION|OPTIONS|FILES", -verbose => 99) ;
-    } else {
+    } elsif($arg=~ /-b/ ) {
+        $trick_build_dir = File::Spec->catdir($ARGV[$argnum+1], '') . "/" ;
+    }else {
         $ENV{TRICK_CPFLAGS} .= " $arg" ;
     }
 }
+$makefile = "${trick_build_dir}makefile";
+
+# Ensure build dir exists
+unless(-d $trick_build_dir)
+{
+    make_path($trick_build_dir) or die "Could not create build dir: $trick_build_dir, $!\n";
+}
 
 if ( -f $sdefine ) {
-    if ( not -w $sdefine_dir ) {
+    if ( not -w $trick_build_dir ) {
         print $sdefine_dir , " is not writable\n" ;
         print "trick-CP aborted\n" ;
         exit 1 ;
     }
-    unlink "build/Makefile_sim", $makefile ;
-    $makefile_text = do { local $/; <main::DATA> } ;
-    $makefile_text =~ s/SUB_TRICK_HOME/$trick_home/ ;
-    $makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/ ;
-    open MAKEFILE, ">$makefile" ;
-    print MAKEFILE $makefile_text ;
-    close MAKEFILE ;
-
-    #Rebuild trickified libraries
-    if(not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk")
-    {
-        my $cmd_ret = `make -f trickify.mk rebuild_trickify 2>&1` ;
-        if($cmd_ret ne "") 
-        {
-            print "$cmd_ret" ;
-        }
-    }
-
-    system("make -f makefile " . $makefileAddArgs) ;
-    exit $? >> 8;
 } else {
     print "S_define does not exist\n" ;
     exit 1 ;
 }
+
+#If build dir starts with cwd dot remove it.
+#We have to default to the cwd dot, otherwise -w fails.
+$trick_build_dir =~ s/^\.\/// ;
+
+unlink "$trick_build_dir/Makefile_sim", $makefile ;
+$makefile_text = do { local $/; <main::DATA> } ;
+$makefile_text =~ s/SUB_TRICK_HOME/$trick_home/ ;
+$makefile_text =~ s/SUB_TRICK_BIN/$trick_bin/ ;
+$ENV{'TRICK_SIM_DIR'} = "$my_cwd/" ;
+$ENV{'TRICK_BUILD_DIR'} = $trick_build_dir ;
+
+open MAKEFILE, ">$makefile" ;
+print MAKEFILE $makefile_text ;
+close MAKEFILE ;
+
+#Rebuild trickified libraries
+if(not defined $ENV{'AM_I_TRICKIFYING'} and -e "trickify.mk")
+{
+    my $cmd_ret = `make -f trickify.mk rebuild_trickify 2>&1` ;
+    if($cmd_ret ne "") 
+    {
+        print "$cmd_ret" ;
+    }
+}
+
+system("make -f ${trick_build_dir}makefile " . $makefileAddArgs) ;
+exit $? >> 8;
 
 # trick-CP help message
 
@@ -185,7 +204,7 @@ test: all
 debug: TRICK_CPFLAGS += --debug
 debug: all
 
-build:
+$(TRICK_BUILD_DIR)build/:
 	@mkdir -p $@
 
 $(TRICK_STATIC_LIB):
@@ -193,53 +212,59 @@ $(TRICK_STATIC_LIB):
 	@exit -1
 
 # CP creates S_source.hh required for ICG and SWIG processing
-S_source.hh: S_define | build
+$(TRICK_BUILD_DIR)S_source.hh: S_define | $(TRICK_BUILD_DIR)build/
 	$(PRINT_CP)
 	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/configuration_processor $(TRICK_CPFLAGS))
 
-build/Makefile_S_define: S_source.hh
+# Some developers add rules for S_define (as in the literal string S_define).
+# In order to make things simple on their end, we allow them to reference the literal string S_define instead of $(TRICK_SIM_DIR)S_define
+# By listing S_define as a S_source.hh dependency, we ensure the user's S_define rules are always invoked.
+# The following rule checks that the actual S_define file exists in the sim dir.
+S_define: $(TRICK_SIM_DIR)S_define
+
+$(TRICK_BUILD_DIR)build/Makefile_S_define: $(TRICK_BUILD_DIR)S_source.hh
 	$(PRINT_S_DEF_DEPS)
-	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF build/Makefile_S_define -x c++ S_define)
+	$(call ECHO_AND_LOG,$(TRICK_CXX) $(TRICK_SFLAGS) $(TRICK_SYSTEM_SFLAGS) -MM -MT S_source.hh -MF $(TRICK_BUILD_DIR)build/Makefile_S_define -x c++ $(TRICK_SIM_DIR)S_define)
 
 # Automatic and manual ICG rules
 ICG:
 	$(PRINT_ICG)
-	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh)
+	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} $(TRICK_BUILD_DIR)S_source.hh)
 
 
 force_ICG:
 	$(PRINT_ICG)
-	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -force -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} S_source.hh)
+	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -force -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} $(TRICK_BUILD_DIR)S_source.hh)
 
 # Create makefile for IO code
-build/Makefile_io_src: S_source.hh | build
+$(TRICK_BUILD_DIR)build/Makefile_io_src: $(TRICK_BUILD_DIR)S_source.hh | $(TRICK_BUILD_DIR)build/
 	$(PRINT_ICG)
 	$(call ECHO_AND_LOG,${TRICK_HOME}/bin/trick-ICG -m ${TRICK_ICGFLAGS} ${TRICK_CXXFLAGS} ${TRICK_SYSTEM_CXXFLAGS} $<)
 
 # Create makefile for source code
-build/Makefile_src: build/Makefile_src_deps build/Makefile_io_src S_source.hh
+$(TRICK_BUILD_DIR)build/Makefile_src: $(TRICK_BUILD_DIR)build/Makefile_src_deps $(TRICK_BUILD_DIR)build/Makefile_io_src $(TRICK_BUILD_DIR)S_source.hh
 	$(PRINT_MAKEFILE_SRC)
 	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_src $? 2>&1)
 
-build/Makefile_src_deps: ;
+$(TRICK_BUILD_DIR)build/Makefile_src_deps: ;
 
 # Create makefile for SWIG code
-build/Makefile_swig: S_source.hh build/Makefile_swig_deps
+$(TRICK_BUILD_DIR)build/Makefile_swig: $(TRICK_BUILD_DIR)S_source.hh $(TRICK_BUILD_DIR)build/Makefile_swig_deps
 	$(PRINT_MAKEFILE_SWIG)
 	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/make_makefile_swig)
 
-build/Makefile_swig_deps: ;
+$(TRICK_BUILD_DIR)build/Makefile_swig_deps: ;
 
 # Forcibly (re)create all SWIG input (.i) files. This rule is never run by the normal
 # build process.
 .PHONY: convert_swig
-convert_swig: build/S_library_swig
+convert_swig: $(TRICK_BUILD_DIR)build/S_library_swig
 	$(call ECHO_AND_LOG,${TRICK_HOME}/$(LIBEXEC)/trick/convert_swig ${TRICK_CONVERT_SWIG_FLAGS})
 
 # Force S_define_exp to be remade each time this rule runs
 .PHONY: S_define_exp
 S_define_exp:
-	$(TRICK_CC) -E -C -xc++ ${TRICK_SFLAGS} $(TRICK_SYSTEM_SFLAGS) S_define > $@
+	$(TRICK_CC) -E -C -xc++ ${TRICK_SFLAGS} $(TRICK_SYSTEM_SFLAGS) $(TRICK_SIM_DIR)S_define > $@
 
 # prints the value of a makefile variable, example invocation "make print-TRICK_CXXFLAGS"
 # This rule is used by trick-config
@@ -258,21 +283,21 @@ Simulation make options:\n\
 
 CLEAN_TARGETS = tidy clean spotless distclean apocalypse
 ifdef AM_I_TRICKIFYING
-include build/Makefile_S_define
-include build/Makefile_src
+include $(TRICK_BUILD_DIR)build/Makefile_S_define
+include $(TRICK_BUILD_DIR)build/Makefile_src
 else ifeq ($(findstring ${MAKECMDGOALS},$(CLEAN_TARGETS)),)
-include build/Makefile_S_define
-include build/Makefile_src
-include build/Makefile_src_deps
-include build/Makefile_io_src
-include build/Makefile_swig
-include build/Makefile_swig_deps
--include build/Makefile_ICG
+include $(TRICK_BUILD_DIR)build/Makefile_S_define
+include $(TRICK_BUILD_DIR)build/Makefile_src
+include $(TRICK_BUILD_DIR)build/Makefile_src_deps
+include $(TRICK_BUILD_DIR)build/Makefile_io_src
+include $(TRICK_BUILD_DIR)build/Makefile_swig
+include $(TRICK_BUILD_DIR)build/Makefile_swig_deps
+-include $(TRICK_BUILD_DIR)build/Makefile_ICG
 endif
--include build/Makefile_overrides
--include S_overrides.mk
--include trickify.mk
--include S_post.mk
+-include $(TRICK_BUILD_DIR)build/Makefile_overrides
+-include $(TRICK_SIM_DIR)S_overrides.mk
+-include $(TRICK_BUILD_DIR)trickify.mk
+-include $(TRICK_SIM_DIR)S_post.mk
 
 ifndef MAKE_RESTARTS
 REMOVE_MAKE_OUT := $(shell rm -f $(MAKE_OUT))
@@ -289,21 +314,21 @@ all:
 endif
 
 tidy:
-	-rm -f S_source.hh S_sie.resource S_sie.json
-	-rm -f S_main* T_main*
-	-rm -f build/Makefile_*
+	-rm -f $(TRICK_BUILD_DIR)S_source.hh $(TRICK_BUILD_DIR)S_sie.resource $(TRICK_BUILD_DIR)S_sie.json
+	-rm -f $(TRICK_BUILD_DIR)S_main* $(TRICK_BUILD_DIR)T_main*
+	-rm -f $(TRICK_BUILD_DIR)build/Makefile_*
 
 clean: tidy
-	-rm -f DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
-	-rm -f DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
-	-rm -rf build .trick trick.zip
-	-rm -f makefile
+	-rm -f $(TRICK_BUILD_DIR)DP_Product/DP_rt_frame DP_Product/DP_rt_itimer
+	-rm -f $(TRICK_BUILD_DIR)DP_Product/DP_rt_jobs DP_Product/DP_rt_timeline DP_Product/DP_mem_stats
+	-rm -rf $(TRICK_BUILD_DIR)build/ $(TRICK_BUILD_DIR).trick $(TRICK_BUILD_DIR)trick.zip
+	-rm -f $(TRICK_BUILD_DIR)makefile
 
 spotless: clean
 
 distclean: clean
 
-apocalypse: clean clean_trickify
+apocalypse: spotless clean_trickify
 	@echo "[31mI love the smell of napalm in the morning <3[0m"
 
 clean_trickify: ;
