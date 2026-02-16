@@ -19,6 +19,8 @@ PROGRAMMERS:
 
 namespace Trick {
 
+    class DataRecordGroup;
+
     /**
      * The DR_Freq enumeration represents the possible Trick data recording frequency.
      */
@@ -70,12 +72,27 @@ namespace Trick {
         LoggingCycle(double rate_in);
         LoggingCycle() = default;
         void set_rate(double rate_in);
+        static long long calc_next_tics_on_or_after_input_tic(long long input_tic, long long cycle_tic);
         double rate_in_seconds{}; /* (s) Logging rate in seconds */
         long long rate_in_tics{}; /* (--) Logging rate in sim tics */
         long long next_cycle_in_tics{}; /* (--) Next cycle in tics for logging */
     };
 
-    class DataRecordGroup : public Trick::SimObject {
+    class DataRecordGroupJobData : public JobData
+    {
+        public:
+        DataRecordGroupJobData(DataRecordGroup & owner_in);
+        DataRecordGroupJobData(DataRecordGroup & owner_in, int in_thread, int in_id, std::string in_job_class_name , void* in_sup_class_data,
+                    double in_cycle, std::string in_name, std::string in_tag = "", int in_phase = 60000 ,
+                    double in_start = 0.0 , double in_stop = 1.0e37);
+        
+        int set_cycle(double rate) override;
+        void enable() override;        
+
+        DataRecordGroup & owner;        
+    };
+
+    class DataRecordGroup : public SimObject {
 
         public:
 
@@ -99,9 +116,6 @@ namespace Trick {
 
             /** Start time for data recording.\n */
             double start;               /**< trick_io(*io) trick_units(s) */
-
-            /** Cycle time for data recording.\n */
-            double cycle;               /**< trick_io(*io) trick_units(s) */
 
             /*  Fake attributes to use for data recording.\n */
             ATTRIBUTES time_value_attr; /**< trick_io(**) */
@@ -193,6 +207,18 @@ namespace Trick {
             int set_job_class(std::string in_class) ;
 
             /**
+             * Get the total number of rates for this DataRecordGroup instance
+             * @return total number of rates
+             */
+            size_t get_num_rates();
+
+            /**
+             * Get the logging rate according to rate index
+             * @return cycle in seconds or -1.0 if error
+             */
+            double get_rate(const size_t rateIdx = 0);
+
+            /**
              @brief @userdesc Command to set the rate at which the group's data is recorded (default is 0.1).
              @par Python Usage:
              @code <dr_group>.set_cycle(<in_cycle>) @endcode
@@ -206,9 +232,18 @@ namespace Trick {
              @par Python Usage:
              @code <dr_group>.add_cycle(<in_cycle>) @endcode
              @param in_cycle - the recording rate in seconds
-             @return always 0
+             @return vector index of the added rate
             */
             int add_cycle(double in_cycle) ;
+
+            /**
+             * Updates a logging rate by index and cycle. Calling with 0
+             * index is equivalent to set_cycle             
+             * @param rate_idx index of the added rate
+             * @param rate_in New integration rate in seconds
+             * @return Zero = success, non-zero = failure (rateIdx is invalid).
+             */
+            int set_rate(const size_t rate_idx, const double rate_in);
 
             /**
              @brief @userdesc Command to set the phase where the group's data is record (default is 60000).
@@ -450,13 +485,31 @@ namespace Trick {
             /** Data thread condition mutex.  */
             pthread_mutex_t buffer_mutex;    /**< trick_io(**) */
 
-            /** Current time saved in Trick::DataRecordGroup::data_record.\n */
+            /** Current time saved in Trick::DataRecordGroup::data_record when a buffer is written \n */
             double curr_time ;          /**< trick_io(*i) trick_units(--) */
+
+            /** Current time saved in Trick::DataRecordGroup::data_record the job was recorded. \n */
+            double curr_time_dr_job ;          /**< trick_io(*i) trick_units(--) */
 
             /**
              * Vector of logging rate objects.
              */
             std::vector<LoggingCycle> logging_rates;
+
+            /**
+             * Loop through the required logging rates and check if the rates are valid for the time tic value
+             * @return true if valid, false if an error is detected
+             */
+            bool check_if_rates_are_valid();
+
+             /**
+             * Check if a rate is valid for logging. An invalid rate is detected by
+             * - being smaller than the time tic value (or 0)
+             * - not being a whole number when converted to tics             * 
+             * @param test_rate Test rate in seconds
+             * @return 0 if valid, 1 if too small, 2 if it cannot be exactly scheduled
+             */
+            int check_if_rate_is_valid(double test_rate);
 
             /**
              * Loop through the required logging rates and calculate the
@@ -465,11 +518,15 @@ namespace Trick {
              */
             long long calculate_next_logging_tic(long long min_tic);
 
+            void emit_rate_error(int rate_err_code, size_t log_idx, double err_rate);
+
             /**
              * Loop through the required logging rates and advance the next cycle tics of matching rates
              * @param curr_tic_in - time in tics to match and advance the next cycle tic
              */ 
             void advance_log_tics_given_curr_tic(long long curr_tic_in);
+
+            static const double default_cyle;
     } ;
 
 } ;

@@ -24,7 +24,7 @@ int Trick::Executive::check_all_job_cycle_times() {
         if ( temp_job->cycle < (1.0 / time_tic_value) ) {
             message_publish(MSG_WARNING,"Cycle for (%s) is less than time tic value. cycle = %16.12f, time_tic = %16.12f\n",
              temp_job->name.c_str() , temp_job->cycle, 1.0 / time_tic_value ) ;
-            temp_job->disabled = true ;
+            temp_job->disable() ;
             temp_job->cycle_tics = TRICK_MAX_LONG_LONG ;
             temp_job->next_tics = TRICK_MAX_LONG_LONG ;
             ret = -1 ;

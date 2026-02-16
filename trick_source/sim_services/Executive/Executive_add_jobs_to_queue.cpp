@@ -96,7 +96,7 @@ int Trick::Executive::add_jobs_to_queue( Trick::SimObject * in_sim_object , bool
             temp_job->calc_cycle_tics() ;
 
             if ( temp_job->start > max_time ) {
-                temp_job->disabled = true ;
+                temp_job->disable() ;
                 temp_job->start_tics = TRICK_MAX_LONG_LONG ;
             } else {
                 temp_job->start_tics = (long long)(temp_job->start * time_tic_value) ;
@@ -105,7 +105,7 @@ int Trick::Executive::add_jobs_to_queue( Trick::SimObject * in_sim_object , bool
             if ( temp_job->stop > max_time ) {
                 temp_job->stop_tics = TRICK_MAX_LONG_LONG ;
             } else if ( temp_job->stop < temp_job->start ) {
-                temp_job->disabled = true ;
+                temp_job->disable() ;
             } else {
                 temp_job->stop_tics = (long long)(temp_job->stop * time_tic_value) ;
             }
