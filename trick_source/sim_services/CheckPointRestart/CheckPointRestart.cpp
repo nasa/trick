@@ -50,6 +50,9 @@ Trick::CheckPointRestart::CheckPointRestart() {
     class_to_queue[num_classes++] = &restart_queue ;
 
     the_cpr = this ;
+
+    redirect_data_recording = false;
+    redirected_data_recording_directory = "";
 }
 
 int Trick::CheckPointRestart::set_pre_init_checkpoint(bool yes_no) {
@@ -309,6 +312,24 @@ void Trick::CheckPointRestart::load_checkpoint(std::string file_name, bool stls_
     load_checkpoint(file_name);
 }
 
+void Trick::CheckPointRestart::load_checkpoint(std::string file_name, std::string new_data_record_dir)
+{
+
+    redirect_data_recording = true;
+    redirected_data_recording_directory = new_data_record_dir;
+    load_checkpoint(file_name);
+}
+
+void Trick::CheckPointRestart::load_checkpoint(std::string file_name, std::string new_data_record_dir, bool stls_on)
+{
+
+    redirect_data_recording = true;
+    redirected_data_recording_directory = new_data_record_dir;
+    trick_MM->set_restore_stls_default(stls_on);
+    load_checkpoint(file_name);
+}
+
+
 int Trick::CheckPointRestart::load_checkpoint_job() {
 
     JobData * curr_job ;
@@ -332,6 +353,12 @@ int Trick::CheckPointRestart::load_checkpoint_job() {
             trick_MM->init_from_checkpoint(load_checkpoint_file_name.c_str()) ;
 
             message_publish(MSG_INFO, "Finished loading checkpoint file.  Calling restart jobs.\n") ;
+            if (redirect_data_recording)
+            {
+                redirect_data_recording = false;
+                set_output_dir( redirected_data_recording_directory.c_str() );
+            }
+
 
             // bootstrap the sim_objects back into the executive!
             // TODO: MAKE AN exec_restart() CALL THAT DOES NOT REQUIRE WE USE the_exec.
