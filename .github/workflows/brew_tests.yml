@@ -73,11 +73,13 @@ jobs:
       # ── Build and upload bottles ──────────────────────────────────────────────
 
       - name: Build bottle
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION="$(brew info --json ${{ env.FORMULA }} | jq -r '.[0].versions.stable')"
+          RELEASE_TAG="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName)"
           brew bottle \
             --json \
-            --root-url "https://github.com/${{ env.TAP_REF }}/releases/download/v${VERSION}" \
+            --root-url "https://github.com/${{ env.TAP_REF }}/releases/download/${RELEASE_TAG}" \
             ${{ env.FORMULA }}
 
       - name: Upload bottles as artifact
