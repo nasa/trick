@@ -154,6 +154,51 @@ def main():
     # 4D assignment array is not supported yet
     #test_so.obj.daaaa[0][0][0] = [51, 52, 53, 54, 55]
 
+    # 3D fixed size array tests
+    test_so.obj.daaa = [[[1.1,2.2,3.3,4],[5.1,6.2,7.3,8],[9.1,10.2,11.3,12]],[[13.1,14.2,15.3,16],[17.1,18.2,19.3,20],[21.1,22.2,23.3,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.daaa) , "[[[1.1 kg, 2.2 kg, 3.3 kg, 4 kg],[5.1 kg, 6.2 kg, 7.3 kg, 8 kg],[9.1 kg, 10.2 kg, 11.3 kg, 12 kg]],[[13.1 kg, 14.2 kg, 15.3 kg, 16 kg],[17.1 kg, 18.2 kg, 19.3 kg, 20 kg],[21.1 kg, 22.2 kg, 23.3 kg, 24 kg]]]",
+     test_suite , "3D fixed size array, full assignment" )
+
+    test_so.obj.daaa[1] = [[70.1,80.2,90.3,100],[110.1,120.2,130.3,140],[130.1,140.2,150.3,160]]
+    TRICK_EXPECT_EQ( str(test_so.obj.daaa) , "[[[1.1 kg, 2.2 kg, 3.3 kg, 4 kg],[5.1 kg, 6.2 kg, 7.3 kg, 8 kg],[9.1 kg, 10.2 kg, 11.3 kg, 12 kg]],[[70.09999999999999 kg, 80.2 kg, 90.3 kg, 100 kg],[110.1 kg, 120.2 kg, 130.3 kg, 140 kg],[130.1 kg, 140.2 kg, 150.3 kg, 160 kg]]]",
+     test_suite , "3D fixed size array, slice assignment (2D)" )
+    TRICK_EXPECT_EQ( str(test_so.obj.daaa[1]) , "[[70.09999999999999 kg, 80.2 kg, 90.3 kg, 100 kg],[110.1 kg, 120.2 kg, 130.3 kg, 140 kg],[130.1 kg, 140.2 kg, 150.3 kg, 160 kg]]",
+     test_suite , "3D fixed size array, slice assignment (2D), single row access" )
+
+    test_so.obj.daaa[1][0] = [700.1,800.2,900.3,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.daaa) , "[[[1.1 kg, 2.2 kg, 3.3 kg, 4 kg],[5.1 kg, 6.2 kg, 7.3 kg, 8 kg],[9.1 kg, 10.2 kg, 11.3 kg, 12 kg]],[[700.1 kg, 800.2 kg, 900.3 kg, 1000 kg],[110.1 kg, 120.2 kg, 130.3 kg, 140 kg],[130.1 kg, 140.2 kg, 150.3 kg, 160 kg]]]",
+     test_suite , "3D fixed size array, slice assignment (1D)" )
+    TRICK_EXPECT_EQ( str(test_so.obj.daaa[1][0]) , "[700.1 kg, 800.2 kg, 900.3 kg, 1000 kg]",
+     test_suite , "3D fixed size array, slice assignment (1D), single row access" )
+
+    test_so.obj.daaa[1][0][2] = 99
+    TRICK_EXPECT_EQ( str(test_so.obj.daaa) , "[[[1.1 kg, 2.2 kg, 3.3 kg, 4 kg],[5.1 kg, 6.2 kg, 7.3 kg, 8 kg],[9.1 kg, 10.2 kg, 11.3 kg, 12 kg]],[[700.1 kg, 800.2 kg, 99 kg, 1000 kg],[110.1 kg, 120.2 kg, 130.3 kg, 140 kg],[130.1 kg, 140.2 kg, 150.3 kg, 160 kg]]]",
+     test_suite , "3D fixed size array, single value assignment" )
+    TRICK_EXPECT_EQ( test_so.obj.daaa[1][0][2] , 99,
+     test_suite , "3D fixed size array, single value assignment, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.dppp = [[[1.1, 2.2, 3.3, 4.4],[5.5, 6.6, 7.7, 8.8]],[[9.9, 10.1, 11.2, 12.3],[13.4, 14.5, 15.6, 16.7]],[[17.8,18.9,19.0,20.1],[21.2,22.3,23.4,24.5]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.dppp) , "[[[1.1 kg, 2.2 kg, 3.3 kg, 4.4 kg], [5.5 kg, 6.6 kg, 7.7 kg, 8.800000000000001 kg]], [[9.9 kg, 10.1 kg, 11.2 kg, 12.3 kg], [13.4 kg, 14.5 kg, 15.6 kg, 16.7 kg]], [[17.8 kg, 18.9 kg, 19 kg, 20.1 kg], [21.2 kg, 22.3 kg, 23.4 kg, 24.5 kg]]]",
+     test_suite , "3D dynamic array, full assignment" )
+    TRICK_EXPECT_EQ( str(test_so.obj.dppp[0]) , "[[1.1 kg, 2.2 kg, 3.3 kg, 4.4 kg], [5.5 kg, 6.6 kg, 7.7 kg, 8.800000000000001 kg]]",
+     test_suite , "3D dynamic array, full assignment, single row access" )
+
+    test_so.obj.dppp[1] = [[70.5, 80.6, 90.7, 100.8],[110.9, 120.1, 130.2, 140.3]]
+    TRICK_EXPECT_EQ( str(test_so.obj.dppp[1]) , "[[70.5 kg, 80.59999999999999 kg, 90.7 kg, 100.8 kg], [110.9 kg, 120.1 kg, 130.2 kg, 140.3 kg]]",
+     test_suite , "3D dynamic array, slice assignment (2D), single row access" )
+
+    test_so.obj.dppp[1][0] = [700.1, 800.2, 900.3, 1000.4]
+    TRICK_EXPECT_EQ( str(test_so.obj.dppp[1][0]) , "[700.1 kg, 800.2 kg, 900.3 kg, 1000.4 kg]",
+     test_suite , "3D dynamic array, slice assignment (1D), single row access" )
+
+    test_so.obj.dppp[1][0][2] = 99.99
+    TRICK_EXPECT_NEAR( test_so.obj.dppp[1][0][2] , 99.99 , 0.00001 ,
+     test_suite , "3D dynamic array, single value assignment, single value access" )
+
+    test_so.obj.dppp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.dppp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
+
 ######################################################################################################################
 
     test_suite = "float"
@@ -256,6 +301,50 @@ def main():
     test_so.obj.d_deg = test_so.obj.f_rad
     TRICK_EXPECT_NEAR( test_so.obj.d_deg , 45.0 , 0.00001 , test_suite , "value to value assign with conversion" )
 
+    # 3D fixed size array tests
+    test_so.obj.faaa = [[[1.1,2.2,3.3,4],[5.1,6.2,7.3,8],[9.1,10.2,11.3,12]],[[13.1,14.2,15.3,16],[17.1,18.2,19.3,20],[21.1,22.2,23.3,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.faaa) , "[[[1.1, 2.2, 3.3, 4],[5.0999999, 6.1999998, 7.3000002, 8],[9.1000004, 10.2, 11.3, 12]],[[13.1, 14.2, 15.3, 16],[17.1, 18.200001, 19.299999, 20],[21.1, 22.200001, 23.299999, 24]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.faaa[1] = [[70.5,80.6,90.7,100.8],[110.9,120.1,130.2,140.3],[130.4,140.5,150.6,160.7]]
+    TRICK_EXPECT_EQ( str(test_so.obj.faaa) , "[[[1.1, 2.2, 3.3, 4],[5.0999999, 6.1999998, 7.3000002, 8],[9.1000004, 10.2, 11.3, 12]],[[70.5, 80.599998, 90.699997, 100.8],[110.9, 120.1, 130.2, 140.3],[130.39999, 140.5, 150.60001, 160.7]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.faaa[1]) , "[[70.5, 80.599998, 90.699997, 100.8],[110.9, 120.1, 130.2, 140.3],[130.39999, 140.5, 150.60001, 160.7]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.faaa[1][0] = [700.1,800.2,900.3,1000.4]
+    TRICK_EXPECT_EQ( str(test_so.obj.faaa) , "[[[1.1, 2.2, 3.3, 4],[5.0999999, 6.1999998, 7.3000002, 8],[9.1000004, 10.2, 11.3, 12]],[[700.09998, 800.20001, 900.29999, 1000.4],[110.9, 120.1, 130.2, 140.3],[130.39999, 140.5, 150.60001, 160.7]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.faaa[1][0]) , "[700.09998, 800.20001, 900.29999, 1000.4]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.faaa[1][0][2] = 99.99
+    TRICK_EXPECT_EQ( str(test_so.obj.faaa) , "[[[1.1, 2.2, 3.3, 4],[5.0999999, 6.1999998, 7.3000002, 8],[9.1000004, 10.2, 11.3, 12]],[[700.09998, 800.20001, 99.989998, 1000.4],[110.9, 120.1, 130.2, 140.3],[130.39999, 140.5, 150.60001, 160.7]]]",
+     test_suite , "3D fixed size array, single value assignment, no units" )
+    TRICK_EXPECT_NEAR( test_so.obj.faaa[1][0][2] , 99.99 , 0.00001 ,
+     test_suite , "3D fixed size array, single value assignment, no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.fppp = [[[1.1, 2.2, 3.3, 4.4],[5.5, 6.6, 7.7, 8.8]],[[9.9, 10.1, 11.2, 12.3],[13.4, 14.5, 15.6, 16.7]],[[17.8,18.9,19.0,20.1],[21.2,22.3,23.4,24.5]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.fppp) , "[[[1.1, 2.2, 3.3, 4.4000001], [5.5, 6.5999999, 7.6999998, 8.8000002]], [[9.8999996, 10.1, 11.2, 12.3], [13.4, 14.5, 15.6, 16.700001]], [[17.799999, 18.9, 19, 20.1], [21.200001, 22.299999, 23.4, 24.5]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.fppp[0]) , "[[1.1, 2.2, 3.3, 4.4000001], [5.5, 6.5999999, 7.6999998, 8.8000002]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.fppp[1] = [[70.5, 80.6, 90.7, 100.8],[110.9, 120.1, 130.2, 140.3]]
+    TRICK_EXPECT_EQ( str(test_so.obj.fppp[1]) , "[[70.5, 80.599998, 90.699997, 100.8], [110.9, 120.1, 130.2, 140.3]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.fppp[1][0] = [700.1, 800.2, 900.3, 1000.4]
+    TRICK_EXPECT_EQ( str(test_so.obj.fppp[1][0]) , "[700.09998, 800.20001, 900.29999, 1000.4]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.fppp[1][0][2] = 99.99
+    TRICK_EXPECT_NEAR( test_so.obj.fppp[1][0][2] , 99.99 , 0.00001 ,
+     test_suite , "3D dynamic array, single value assignment, no units, single value access" )
+
+    test_so.obj.fppp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.fppp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
     test_suite = "char"
@@ -512,6 +601,50 @@ def main():
     test_so.obj.spp = None
     TRICK_EXPECT_EQ( str(test_so.obj.spp) , "NULL", test_suite , "2D ptr None (NULL) assignment" )
 
+    # 3D fixed size array tests
+    test_so.obj.saaa = [[[1,2,3,4],[5,6,7,8],[9,10,11,12]],[[13,14,15,16],[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.saaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[13, 14, 15, 16],[17, 18, 19, 20],[21, 22, 23, 24]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.saaa[1] = [[70,80,90,100],[110,120,130,140],[130,140,150,160]]
+    TRICK_EXPECT_EQ( str(test_so.obj.saaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.saaa[1]) , "[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.saaa[1][0] = [700,800,900,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.saaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 900, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.saaa[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.saaa[1][0][2] = 32000
+    TRICK_EXPECT_EQ( str(test_so.obj.saaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 32000, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, single value assignment (large short value), no units" )
+    TRICK_EXPECT_EQ( test_so.obj.saaa[1][0][2] , 32000 ,
+     test_suite , "3D fixed size array, single value assignment (large short value), no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.sppp = [[[1, 2, 3, 4],[5, 6, 7, 8]],[[9, 10, 11, 12],[13, 14, 15,16]],[[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.sppp) , "[[[1, 2, 3, 4], [5, 6, 7, 8]], [[9, 10, 11, 12], [13, 14, 15, 16]], [[17, 18, 19, 20], [21, 22, 23, 24]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.sppp[0]) , "[[1, 2, 3, 4], [5, 6, 7, 8]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.sppp[1] = [[70, 80, 90, 100],[110, 120, 130, 140]]
+    TRICK_EXPECT_EQ( str(test_so.obj.sppp[1]) , "[[70, 80, 90, 100], [110, 120, 130, 140]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.sppp[1][0] = [700, 800, 900, 1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.sppp[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.sppp[1][0][2] = -32000
+    TRICK_EXPECT_EQ( test_so.obj.sppp[1][0][2] , -32000 ,
+     test_suite , "3D dynamic array, single value assignment (large negative short value), no units, single value access" )
+
+    test_so.obj.sppp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.sppp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
     test_suite = "unsigned short"
@@ -606,6 +739,50 @@ def main():
     test_so.obj.uspp = None
     TRICK_EXPECT_EQ( str(test_so.obj.uspp) , "NULL", test_suite , "2D ptr None (NULL) assignment" )
 
+    # 3D fixed size array tests
+    test_so.obj.usaaa = [[[1,2,3,4],[5,6,7,8],[9,10,11,12]],[[13,14,15,16],[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.usaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[13, 14, 15, 16],[17, 18, 19, 20],[21, 22, 23, 24]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.usaaa[1] = [[70,80,90,100],[110,120,130,140],[130,140,150,160]]
+    TRICK_EXPECT_EQ( str(test_so.obj.usaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.usaaa[1]) , "[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.usaaa[1][0] = [700,800,900,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.usaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 900, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.usaaa[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.usaaa[1][0][2] = 65000
+    TRICK_EXPECT_EQ( str(test_so.obj.usaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 65000, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, single value assignment (large unsigned short value), no units" )
+    TRICK_EXPECT_EQ( test_so.obj.usaaa[1][0][2] , 65000 ,
+     test_suite , "3D fixed size array, single value assignment (large unsigned short value), no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.usppp = [[[1, 2, 3, 4],[5, 6, 7, 8]],[[9, 10, 11, 12],[13, 14, 15,16]],[[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.usppp) , "[[[1, 2, 3, 4], [5, 6, 7, 8]], [[9, 10, 11, 12], [13, 14, 15, 16]], [[17, 18, 19, 20], [21, 22, 23, 24]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.usppp[0]) , "[[1, 2, 3, 4], [5, 6, 7, 8]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.usppp[1] = [[70, 80, 90, 100],[110, 120, 130, 140]]
+    TRICK_EXPECT_EQ( str(test_so.obj.usppp[1]) , "[[70, 80, 90, 100], [110, 120, 130, 140]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.usppp[1][0] = [700, 800, 900, 1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.usppp[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.usppp[1][0][2] = 60000
+    TRICK_EXPECT_EQ( test_so.obj.usppp[1][0][2] , 60000 ,
+     test_suite , "3D dynamic array, single value assignment (large unsigned short value), no units, single value access" )
+
+    test_so.obj.usppp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.usppp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
     test_suite = "enum"
@@ -790,6 +967,50 @@ def main():
     test_so.obj.ipp = None
     TRICK_EXPECT_EQ( str(test_so.obj.ipp) , "NULL", test_suite , "2D ptr None (NULL) assignment" )
 
+    # 3D fixed size array tests
+    test_so.obj.iaaa = [[[1,2,3,4],[5,6,7,8],[9,10,11,12]],[[13,14,15,16],[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.iaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[13, 14, 15, 16],[17, 18, 19, 20],[21, 22, 23, 24]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.iaaa[1] = [[70,80,90,100],[110,120,130,140],[130,140,150,160]]
+    TRICK_EXPECT_EQ( str(test_so.obj.iaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.iaaa[1]) , "[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.iaaa[1][0] = [700,800,900,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.iaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 900, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.iaaa[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.iaaa[1][0][2] = 99
+    TRICK_EXPECT_EQ( str(test_so.obj.iaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 99, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, single value assignment, no units" )
+    TRICK_EXPECT_EQ( test_so.obj.iaaa[1][0][2] , 99 ,
+     test_suite , "3D fixed size array, single value assignment, no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.ippp = [[[1, 2, 3, 4],[5, 6, 7, 8]],[[9, 10, 11, 12],[13, 14, 15,16]],[[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ippp) , "[[[1, 2, 3, 4], [5, 6, 7, 8]], [[9, 10, 11, 12], [13, 14, 15, 16]], [[17, 18, 19, 20], [21, 22, 23, 24]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.ippp[0]) , "[[1, 2, 3, 4], [5, 6, 7, 8]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.ippp[1] = [[70, 80, 90, 100],[110, 120, 130, 140]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ippp[1]) , "[[70, 80, 90, 100], [110, 120, 130, 140]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.ippp[1][0] = [700, 800,900,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.ippp[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.ippp[1][0][2] = 99
+    TRICK_EXPECT_EQ( test_so.obj.ippp[1][0][2] , 99 ,
+     test_suite , "3D dynamic array, single value assignment, no units, single value access" )
+
+    test_so.obj.ippp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.ippp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
     test_suite = "unsigned int"
@@ -884,6 +1105,50 @@ def main():
     test_so.obj.uipp = None
     TRICK_EXPECT_EQ( str(test_so.obj.uipp) , "NULL", test_suite , "2D ptr None (NULL) assignment" )
 
+    # 3D fixed size array tests
+    test_so.obj.uiaaa = [[[1,2,3,4],[5,6,7,8],[9,10,11,12]],[[13,14,15,16],[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.uiaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[13, 14, 15, 16],[17, 18, 19, 20],[21, 22, 23, 24]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.uiaaa[1] = [[70,80,90,100],[110,120,130,140],[130,140,150,160]]
+    TRICK_EXPECT_EQ( str(test_so.obj.uiaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.uiaaa[1]) , "[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.uiaaa[1][0] = [700,800,900,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.uiaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 900, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.uiaaa[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.uiaaa[1][0][2] = 4000000000
+    TRICK_EXPECT_EQ( str(test_so.obj.uiaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 4000000000, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, single value assignment (large unsigned value), no units" )
+    TRICK_EXPECT_EQ( test_so.obj.uiaaa[1][0][2] , 4000000000 ,
+     test_suite , "3D fixed size array, single value assignment (large unsigned value), no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.uippp = [[[1, 2, 3, 4],[5, 6, 7, 8]],[[9, 10, 11, 12],[13, 14, 15,16]],[[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.uippp) , "[[[1, 2, 3, 4], [5, 6, 7, 8]], [[9, 10, 11, 12], [13, 14, 15, 16]], [[17, 18, 19, 20], [21, 22, 23, 24]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.uippp[0]) , "[[1, 2, 3, 4], [5, 6, 7, 8]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.uippp[1] = [[70, 80, 90, 100],[110, 120, 130, 140]]
+    TRICK_EXPECT_EQ( str(test_so.obj.uippp[1]) , "[[70, 80, 90, 100], [110, 120, 130, 140]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.uippp[1][0] = [700, 800, 900, 1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.uippp[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.uippp[1][0][2] = 3500000000
+    TRICK_EXPECT_EQ( test_so.obj.uippp[1][0][2] , 3500000000 ,
+     test_suite , "3D dynamic array, single value assignment (large unsigned value), no units, single value access" )
+
+    test_so.obj.uippp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.uippp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
     test_suite = "long"
@@ -978,9 +1243,53 @@ def main():
     test_so.obj.lpp = None
     TRICK_EXPECT_EQ( str(test_so.obj.lpp) , "NULL", test_suite , "2D ptr None (NULL) assignment" )
 
+    # 3D fixed size array tests
+    test_so.obj.laaa = [[[1,2,3,4],[5,6,7,8],[9,10,11,12]],[[13,14,15,16],[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.laaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[13, 14, 15, 16],[17, 18, 19, 20],[21, 22, 23, 24]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.laaa[1] = [[70,80,90,100],[110,120,130,140],[130,140,150,160]]
+    TRICK_EXPECT_EQ( str(test_so.obj.laaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.laaa[1]) , "[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.laaa[1][0] = [700,800,900,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.laaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 900, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.laaa[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.laaa[1][0][2] = 9000000000
+    TRICK_EXPECT_EQ( str(test_so.obj.laaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 9000000000, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, single value assignment (large long value), no units" )
+    TRICK_EXPECT_EQ( test_so.obj.laaa[1][0][2] , 9000000000 ,
+     test_suite , "3D fixed size array, single value assignment (large long value), no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.lppp = [[[1, 2, 3, 4],[5, 6, 7, 8]],[[9, 10, 11, 12],[13, 14, 15,16]],[[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.lppp) , "[[[1, 2, 3, 4], [5, 6, 7, 8]], [[9, 10, 11, 12], [13, 14, 15, 16]], [[17, 18, 19, 20], [21, 22, 23, 24]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.lppp[0]) , "[[1, 2, 3, 4], [5, 6, 7, 8]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.lppp[1] = [[70, 80, 90, 100],[110, 120, 130, 140]]
+    TRICK_EXPECT_EQ( str(test_so.obj.lppp[1]) , "[[70, 80, 90, 100], [110, 120, 130, 140]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.lppp[1][0] = [700, 800, 900, 1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.lppp[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.lppp[1][0][2] = -5000000000
+    TRICK_EXPECT_EQ( test_so.obj.lppp[1][0][2] , -5000000000 ,
+     test_suite , "3D dynamic array, single value assignment (large negative long value), no units, single value access" )
+
+    test_so.obj.lppp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.lppp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
-    test_suite = "unsinged long"
+    test_suite = "unsigned long"
 
     test_so.obj.ul = 95
     TRICK_EXPECT_EQ( test_so.obj.ul , 95 , test_suite , "assignment" )
@@ -1072,6 +1381,50 @@ def main():
     test_so.obj.ulpp = None
     TRICK_EXPECT_EQ( str(test_so.obj.ulpp) , "NULL", test_suite , "2D ptr None (NULL) assignment" )
 
+    # 3D fixed size array tests
+    test_so.obj.ulaaa = [[[1,2,3,4],[5,6,7,8],[9,10,11,12]],[[13,14,15,16],[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ulaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[13, 14, 15, 16],[17, 18, 19, 20],[21, 22, 23, 24]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.ulaaa[1] = [[70,80,90,100],[110,120,130,140],[130,140,150,160]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ulaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.ulaaa[1]) , "[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.ulaaa[1][0] = [700,800,900,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.ulaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 900, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.ulaaa[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.ulaaa[1][0][2] = 15000000000
+    TRICK_EXPECT_EQ( str(test_so.obj.ulaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 15000000000, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, single value assignment (large unsigned long value), no units" )
+    TRICK_EXPECT_EQ( test_so.obj.ulaaa[1][0][2] , 15000000000 ,
+     test_suite , "3D fixed size array, single value assignment (large unsigned long value), no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.ulppp = [[[1, 2, 3, 4],[5, 6, 7, 8]],[[9, 10, 11, 12],[13, 14, 15,16]],[[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ulppp) , "[[[1, 2, 3, 4], [5, 6, 7, 8]], [[9, 10, 11, 12], [13, 14, 15, 16]], [[17, 18, 19, 20], [21, 22, 23, 24]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.ulppp[0]) , "[[1, 2, 3, 4], [5, 6, 7, 8]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.ulppp[1] = [[70, 80, 90, 100],[110, 120, 130, 140]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ulppp[1]) , "[[70, 80, 90, 100], [110, 120, 130, 140]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.ulppp[1][0] = [700, 800, 900, 1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.ulppp[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.ulppp[1][0][2] = 12000000000
+    TRICK_EXPECT_EQ( test_so.obj.ulppp[1][0][2] , 12000000000 ,
+     test_suite , "3D dynamic array, single value assignment (large unsigned long value), no units, single value access" )
+
+    test_so.obj.ulppp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.ulppp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
     test_suite = "long long"
@@ -1166,6 +1519,50 @@ def main():
     test_so.obj.llpp = None
     TRICK_EXPECT_EQ( str(test_so.obj.llpp) , "NULL", test_suite , "2D ptr None (NULL) assignment" )
 
+    # 3D fixed size array tests
+    test_so.obj.llaaa = [[[1,2,3,4],[5,6,7,8],[9,10,11,12]],[[13,14,15,16],[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.llaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[13, 14, 15, 16],[17, 18, 19, 20],[21, 22, 23, 24]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.llaaa[1] = [[70,80,90,100],[110,120,130,140],[130,140,150,160]]
+    TRICK_EXPECT_EQ( str(test_so.obj.llaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.llaaa[1]) , "[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.llaaa[1][0] = [700,800,900,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.llaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 900, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.llaaa[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.llaaa[1][0][2] = 5000000000000000000
+    TRICK_EXPECT_EQ( str(test_so.obj.llaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 5000000000000000000, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, single value assignment (large long long value), no units" )
+    TRICK_EXPECT_EQ( test_so.obj.llaaa[1][0][2] , 5000000000000000000 ,
+     test_suite , "3D fixed size array, single value assignment (large long long value), no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.llppp = [[[1, 2, 3, 4],[5, 6, 7, 8]],[[9, 10, 11, 12],[13, 14, 15,16]],[[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.llppp) , "[[[1, 2, 3, 4], [5, 6, 7, 8]], [[9, 10, 11, 12], [13, 14, 15, 16]], [[17, 18, 19, 20], [21, 22, 23, 24]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.llppp[0]) , "[[1, 2, 3, 4], [5, 6, 7, 8]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.llppp[1] = [[70, 80, 90, 100],[110, 120, 130, 140]]
+    TRICK_EXPECT_EQ( str(test_so.obj.llppp[1]) , "[[70, 80, 90, 100], [110, 120, 130, 140]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.llppp[1][0] = [700, 800, 900, 1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.llppp[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.llppp[1][0][2] = -9223372036854775808
+    TRICK_EXPECT_EQ( test_so.obj.llppp[1][0][2] , -9223372036854775808 ,
+     test_suite , "3D dynamic array, single value assignment (min long long value), no units, single value access" )
+
+    test_so.obj.llppp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.llppp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
     test_suite = "unsigned long long"
@@ -1260,6 +1657,50 @@ def main():
     test_so.obj.ullpp = None
     TRICK_EXPECT_EQ( str(test_so.obj.ullpp) , "NULL", test_suite , "2D ptr None (NULL) assignment" )
 
+    # 3D fixed size array tests
+    test_so.obj.ullaaa = [[[1,2,3,4],[5,6,7,8],[9,10,11,12]],[[13,14,15,16],[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ullaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[13, 14, 15, 16],[17, 18, 19, 20],[21, 22, 23, 24]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.ullaaa[1] = [[70,80,90,100],[110,120,130,140],[130,140,150,160]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ullaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.ullaaa[1]) , "[[70, 80, 90, 100],[110, 120, 130, 140],[130, 140, 150, 160]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.ullaaa[1][0] = [700,800,900,1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.ullaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 900, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.ullaaa[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.ullaaa[1][0][2] = 50000000000
+    TRICK_EXPECT_EQ( str(test_so.obj.ullaaa) , "[[[1, 2, 3, 4],[5, 6, 7, 8],[9, 10, 11, 12]],[[700, 800, 50000000000, 1000],[110, 120, 130, 140],[130, 140, 150, 160]]]",
+     test_suite , "3D fixed size array, single value assignment (large unsigned long long value), no units" )
+    TRICK_EXPECT_EQ( test_so.obj.ullaaa[1][0][2] , 50000000000,
+     test_suite , "3D fixed size array, single value assignment (large unsigned long long value), no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.ullppp = [[[1, 2, 3, 4],[5, 6, 7, 8]],[[9, 10, 11, 12],[13, 14, 15,16]],[[17,18,19,20],[21,22,23,24]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ullppp) , "[[[1, 2, 3, 4], [5, 6, 7, 8]], [[9, 10, 11, 12], [13, 14, 15, 16]], [[17, 18, 19, 20], [21, 22, 23, 24]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.ullppp[0]) , "[[1, 2, 3, 4], [5, 6, 7, 8]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.ullppp[1] = [[70, 80, 90, 100],[110, 120, 130, 140]]
+    TRICK_EXPECT_EQ( str(test_so.obj.ullppp[1]) , "[[70, 80, 90, 100], [110, 120, 130, 140]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.ullppp[1][0] = [700, 800, 900, 1000]
+    TRICK_EXPECT_EQ( str(test_so.obj.ullppp[1][0]) , "[700, 800, 900, 1000]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.ullppp[1][0][2] = 15000000000
+    TRICK_EXPECT_EQ( test_so.obj.ullppp[1][0][2] , 15000000000 ,
+     test_suite , "3D dynamic array, single value assignment (large unsigned long long value), no units, single value access" )
+
+    test_so.obj.ullppp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.ullppp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
     test_suite = "bool"
@@ -1350,6 +1791,50 @@ def main():
     test_so.obj.bpp = None
     TRICK_EXPECT_EQ( str(test_so.obj.bpp) , "NULL", test_suite , "2D ptr None (NULL) assignment" )
 
+    # 3D fixed size array tests
+    test_so.obj.baaa = [[[True,False,True,False],[False,True,False,True],[True,True,False,False]],[[False,False,True,True],[True,False,True,False],[False,True,False,True]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.baaa) , "[[[True, False, True, False],[False, True, False, True],[True, True, False, False]],[[False, False, True, True],[True, False, True, False],[False, True, False, True]]]",
+     test_suite , "3D fixed size array, full assignment, no units" )
+
+    test_so.obj.baaa[1] = [[True,True,True,True],[False,False,False,False],[True,False,True,False]]
+    TRICK_EXPECT_EQ( str(test_so.obj.baaa) , "[[[True, False, True, False],[False, True, False, True],[True, True, False, False]],[[True, True, True, True],[False, False, False, False],[True, False, True, False]]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.baaa[1]) , "[[True, True, True, True],[False, False, False, False],[True, False, True, False]]",
+     test_suite , "3D fixed size array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.baaa[1][0] = [False,True,False,True]
+    TRICK_EXPECT_EQ( str(test_so.obj.baaa) , "[[[True, False, True, False],[False, True, False, True],[True, True, False, False]],[[False, True, False, True],[False, False, False, False],[True, False, True, False]]]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.baaa[1][0]) , "[False, True, False, True]",
+     test_suite , "3D fixed size array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.baaa[1][0][2] = True
+    TRICK_EXPECT_EQ( str(test_so.obj.baaa) , "[[[True, False, True, False],[False, True, False, True],[True, True, False, False]],[[False, True, True, True],[False, False, False, False],[True, False, True, False]]]",
+     test_suite , "3D fixed size array, single value assignment, no units" )
+    TRICK_EXPECT_EQ( test_so.obj.baaa[1][0][2] , True ,
+     test_suite , "3D fixed size array, single value assignment, no units, single value access" )
+
+    # 3D dynamic array tests
+    test_so.obj.bppp = [[[True, False, True, False],[False, True, False, True]],[[True, True, False, False],[False, False, True, True]],[[True,False,True,False],[False,True,False,True]]]
+    TRICK_EXPECT_EQ( str(test_so.obj.bppp) , "[[[True, False, True, False], [False, True, False, True]], [[True, True, False, False], [False, False, True, True]], [[True, False, True, False], [False, True, False, True]]]",
+     test_suite , "3D dynamic array, full assignment, no units" )
+    TRICK_EXPECT_EQ( str(test_so.obj.bppp[0]) , "[[True, False, True, False], [False, True, False, True]]",
+     test_suite , "3D dynamic array, full assignment, no units, single row access" )
+
+    test_so.obj.bppp[1] = [[True, True, True, True],[False, False, False, False]]
+    TRICK_EXPECT_EQ( str(test_so.obj.bppp[1]) , "[[True, True, True, True], [False, False, False, False]]",
+     test_suite , "3D dynamic array, slice assignment (2D), no units, single row access" )
+
+    test_so.obj.bppp[1][0] = [False, True, False, True]
+    TRICK_EXPECT_EQ( str(test_so.obj.bppp[1][0]) , "[False, True, False, True]",
+     test_suite , "3D dynamic array, slice assignment (1D), no units, single row access" )
+
+    test_so.obj.bppp[1][0][2] = True
+    TRICK_EXPECT_EQ( test_so.obj.bppp[1][0][2] , True ,
+     test_suite , "3D dynamic array, single value assignment, no units, single value access" )
+
+    test_so.obj.bppp = None
+    TRICK_EXPECT_EQ( str(test_so.obj.bppp) , "NULL", test_suite , "3D dynamic array None (NULL) assignment" )
 ######################################################################################################################
 
     test_suite = "structure"
