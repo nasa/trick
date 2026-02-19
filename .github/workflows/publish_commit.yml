@@ -1,0 +1,132 @@
+name: publish bottles
+
+on:
+  pull_request_target:
+    types:
+      - labeled
+
+env:
+  REPO_OWNER: ${{ github.repository_owner }}
+  REPO_NAME: ${{ github.event.repository.name }}
+  TAP_DIR_BASE: /home/linuxbrew/.linuxbrew/Homebrew/Library/Taps
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  BOTTLE_OS_LIST: macos-26 macos-15 macos-15-intel
+  PRIMARY_BRANCH: master
+
+jobs:
+  publish:
+    # Flow: setup → find bottles from CI run → upload to release → merge formula → push → cleanup
+    if: contains(github.event.pull_request.labels.*.name, 'pr-pull')
+    runs-on: ubuntu-22.04
+    permissions:
+      actions: read
+      checks: read
+      contents: write
+      issues: read
+      pull-requests: write
+
+    steps:
+      # ── Setup ────────────────────────────────────────────────────────────────
+
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up git
+        uses: Homebrew/actions/git-user-config@main
+
+      - name: Compute shared paths
+        run: |
+          TAP_DIR="${{ env.TAP_DIR_BASE }}/${{ env.REPO_OWNER }}/homebrew-${{ env.REPO_NAME }}"
+          echo "TAP_DIR=${TAP_DIR}" >> "$GITHUB_ENV"
+
+      - name: Tap and checkout PR branch
+        run: |
+          brew tap ${{ env.REPO_OWNER }}/${{ env.REPO_NAME }} https://github.com/${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}
+          cd "$TAP_DIR"
+          git fetch origin "+refs/pull/${{ env.PR_NUMBER }}/head:refs/remotes/origin/pr-${{ env.PR_NUMBER }}"
+          git checkout -b "pr-${{ env.PR_NUMBER }}" "origin/pr-${{ env.PR_NUMBER }}"
+
+      # ── Get bottles ──────────────────────────────────────────────────────────
+
+      - name: Find test workflow run ID
+        id: find-run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BRANCH: ${{ github.event.pull_request.head.ref }}
+        run: |
+          RUN_ID="$(gh run list \
+            --repo "$GITHUB_REPOSITORY" \
+            --workflow "brew_tests.yml" \
+            --branch "$PR_BRANCH" \
+            --status success \
+            --limit 1 \
+            --json databaseId \
+            -q '.[0].databaseId')"
+          echo "run-id=${RUN_ID}" >> "$GITHUB_OUTPUT"
+
+      - name: Download and rename bottle artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for os in ${{ env.BOTTLE_OS_LIST }}; do
+            gh run download "${{ steps.find-run.outputs.run-id }}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "bottles_${os}" \
+              --dir ./bottles
+          done
+
+          # Rename local_filename (--) to filename (-) before uploading
+          find bottles -name '*--*' | while read f; do
+            mv "$f" "${f/--/-}"
+          done
+
+      # ── Upload to release ────────────────────────────────────────────────────
+
+      - name: Upload bottles to release
+        id: upload
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_TAG="$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName)"
+          echo "release-tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+
+          shopt -s globstar nullglob
+          files=(bottles/**/*.tar.gz)
+
+          if (( ${#files[@]} == 0 )); then
+            echo "ERROR: No bottle files matched"
+            exit 1
+          fi
+
+          gh release upload "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber \
+            "${files[@]}"
+
+      # ── Merge and publish ────────────────────────────────────────────────────
+
+      - name: Merge bottle block into formula
+        run: |
+          cd "$TAP_DIR"
+          git checkout ${{ env.PRIMARY_BRANCH }}
+          git pull origin ${{ env.PRIMARY_BRANCH }}
+          git merge --no-edit "origin/pr-${{ env.PR_NUMBER }}"
+          brew bottle --merge --write \
+            "$GITHUB_WORKSPACE"/bottles/*.bottle.json
+
+      - name: Push commits
+        uses: Homebrew/actions/git-try-push@main
+        with:
+          directory: ${{ env.TAP_DIR }}
+          branch: ${{ env.PRIMARY_BRANCH }}
+
+      # ── Cleanup ──────────────────────────────────────────────────────────────
+
+      - name: Delete branch
+        if: github.event.pull_request.head.repo.fork == false
+        env:
+          BRANCH: ${{ github.event.pull_request.head.ref }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X DELETE "repos/$GITHUB_REPOSITORY/git/refs/heads/$BRANCH"
