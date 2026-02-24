@@ -1,24 +1,25 @@
-
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/syscall.h>
-#include <sys/stat.h>
-#include <string.h>
-
 #include "trick/CheckPointRestart.hh"
+#include "trick/Executive.hh"
+#include "trick/JobData.hh"
 #include "trick/MemoryManager.hh"
 #include "trick/SimObject.hh"
-#include "trick/Executive.hh"
-#include "trick/exec_proto.hh"
-#include "trick/exec_proto.h"
+#include "trick/TrickConstant.hh"
 #include "trick/command_line_protos.h"
+#include "trick/exec_proto.h"
+#include "trick/exec_proto.hh"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
-#include "trick/TrickConstant.hh"
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <sys/stat.h>
+#include <sys/syscall.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 Trick::CheckPointRestart * the_cpr ;
 
@@ -436,4 +437,3 @@ int Trick::CheckPointRestart::instrument_job_remove(std::string in_job) {
 
     return(0) ;
 }
-

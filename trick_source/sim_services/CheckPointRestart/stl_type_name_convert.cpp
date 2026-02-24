@@ -1,4 +1,3 @@
-
 #include <string>
 
 std::string stl_type_name_convert(std::string in_type) {

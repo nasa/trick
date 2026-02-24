@@ -1,11 +1,9 @@
-
-#include <stdlib.h>
-
-#include "trick/CheckPointRestart.hh"
 #include "trick/CheckPointRestart_c_intf.hh"
+#include "trick/CheckPointRestart.hh"
 #include "trick/memorymanager_c_intf.h"
 #include "trick/message_proto.h"
 #include "trick/message_type.h"
+#include <cstdlib>
 
 /** Global singleton pointer to the CheckPointRestart. */
 extern Trick::CheckPointRestart * the_cpr ;

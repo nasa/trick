@@ -1,6 +1,6 @@
-
-#include <string>
 #include "trick/CheckPointRestart_c_intf.hh"
+#include <cstddef>
+#include <string>
 
 /**
  This function strips off any dimensions from the type_id call in the io_src.
@@ -17,4 +17,3 @@ int next_attr_name( std::string & name ) {
 
     return 0 ;
 }
-
